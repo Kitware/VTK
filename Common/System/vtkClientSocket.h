@@ -12,7 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkClientSocket - Encapsulates a client socket.
+/**
+ * @class   vtkClientSocket
+ * @brief   Encapsulates a client socket.
+*/
 
 #ifndef vtkClientSocket_h
 #define vtkClientSocket_h
@@ -26,31 +29,34 @@ class VTKCOMMONSYSTEM_EXPORT vtkClientSocket : public vtkSocket
 public:
   static vtkClientSocket* New();
   vtkTypeMacro(vtkClientSocket, vtkSocket);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Connects to host. Returns 0 on success, -1 on error.
+  /**
+   * Connects to host. Returns 0 on success, -1 on error.
+   */
   int ConnectToServer(const char* hostname, int port);
 
-  // Description:
-  // Returns if the socket is on the connecting side (the side that requests a
-  // ConnectToServer() or on the connected side (the side that was waiting for
-  // the client to connect). This is used to disambiguate the two ends of a socket
-  // connection.
+  //@{
+  /**
+   * Returns if the socket is on the connecting side (the side that requests a
+   * ConnectToServer() or on the connected side (the side that was waiting for
+   * the client to connect). This is used to disambiguate the two ends of a socket
+   * connection.
+   */
   vtkGetMacro(ConnectingSide, bool);
+  //@}
 
-//BTX
 protected:
   vtkClientSocket();
-  ~vtkClientSocket();
+  ~vtkClientSocket() override;
 
   vtkSetMacro(ConnectingSide, bool);
   bool ConnectingSide;
   friend class vtkServerSocket;
 private:
-  vtkClientSocket(const vtkClientSocket&); // Not implemented.
-  void operator=(const vtkClientSocket&); // Not implemented.
-//ETX
+  vtkClientSocket(const vtkClientSocket&) = delete;
+  void operator=(const vtkClientSocket&) = delete;
+
 };
 
 

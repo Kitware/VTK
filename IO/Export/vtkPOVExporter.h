@@ -59,16 +59,19 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-// .NAME vtkPOVExporter - Export scene into povray format.
-//
-// .SECTION Description
-// This Exporter can be attached to a render window in order to generate
-// scene description files for the Persistence of Vision Raytracer
-// www.povray.org.
-//
-// .SECTION Thanks
-// Li-Ta Lo (ollie@lanl.gov) and Jim Ahrens (ahrens@lanl.gov)
-// Los Alamos National Laboratory
+/**
+ * @class   vtkPOVExporter
+ * @brief   Export scene into povray format.
+ *
+ *
+ * This Exporter can be attached to a render window in order to generate
+ * scene description files for the Persistence of Vision Raytracer
+ * www.povray.org.
+ *
+ * @par Thanks:
+ * Li-Ta Lo (ollie@lanl.gov) and Jim Ahrens (ahrens@lanl.gov)
+ * Los Alamos National Laboratory
+*/
 
 #ifndef vtkPOVExporter_h
 #define vtkPOVExporter_h
@@ -90,18 +93,21 @@ class VTKIOEXPORT_EXPORT vtkPOVExporter : public vtkExporter
 public:
     static vtkPOVExporter *New();
     vtkTypeMacro(vtkPOVExporter, vtkExporter);
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
-    //Description:
-    //The filename to save into.
+    //@{
+    /**
+     * The filename to save into.
+     */
     vtkSetStringMacro(FileName);
     vtkGetStringMacro(FileName);
+    //@}
 
 protected:
     vtkPOVExporter();
-    ~vtkPOVExporter();
+    ~vtkPOVExporter() override;
 
-    void WriteData();
+    void WriteData() override;
     virtual void WriteHeader(vtkRenderer *renderer);
     void WriteCamera(vtkCamera *camera);
     void WriteLight(vtkLight *light);
@@ -115,8 +121,8 @@ protected:
     FILE *FilePtr;
 
 private:
-    vtkPOVExporter(const vtkPOVExporter&);  // Not implemented.
-    void operator=(const vtkPOVExporter&);  // Not implemented.
+    vtkPOVExporter(const vtkPOVExporter&) = delete;
+    void operator=(const vtkPOVExporter&) = delete;
 
     vtkPOVInternals *Internals;
 };

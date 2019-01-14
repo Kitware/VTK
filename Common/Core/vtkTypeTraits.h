@@ -12,10 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTypeTraits - Template defining traits of native types used by VTK.
-// .SECTION Description
-// vtkTypeTraits provides information about VTK's supported scalar types
-// that is useful for templates.
+/**
+ * @class   vtkTypeTraits
+ * @brief   Template defining traits of native types used by VTK.
+ *
+ * vtkTypeTraits provides information about VTK's supported scalar types
+ * that is useful for templates.
+*/
+
 #ifndef vtkTypeTraits_h
 #define vtkTypeTraits_h
 
@@ -26,7 +30,7 @@ template <class T> struct vtkTypeTraits;
 
 // Define a macro to simplify trait definitions.
 #define VTK_TYPE_TRAITS(type, macro, isSigned, name, print, format)           \
-  VTK_TEMPLATE_SPECIALIZE struct vtkTypeTraits< type >                        \
+  template <> struct vtkTypeTraits< type >                                    \
   {                                                                           \
     /* The type itself.  */                                                   \
     typedef type ValueType;                                                   \
@@ -50,6 +54,9 @@ template <class T> struct vtkTypeTraits;
     /* A name for the type indicating its size and signedness.  */            \
     static const char* SizedName() { return #name; }                          \
                                                                               \
+    /* The common C++ name for the type (e.g. float, unsigned int, etc).*/    \
+    static const char* Name() { return #type; }                               \
+                                                                              \
     /* A type to use for printing or parsing values in strings.  */           \
     typedef print PrintType;                                                  \
                                                                               \
@@ -66,7 +73,7 @@ VTK_TYPE_TRAITS(float, FLOAT, 1, Float32, float, "%f");
 VTK_TYPE_TRAITS(double, DOUBLE, 1, Float64, double, "%lf");
 
 // Define traits for char types.
-// Note the print type is short because not all platforms support formating integers with char.
+// Note the print type is short because not all platforms support formatting integers with char.
 #define VTK_TYPE_NAME_CHAR char
 #if VTK_TYPE_CHAR_IS_SIGNED
 # define VTK_TYPE_SIZED_CHAR INT8
@@ -117,40 +124,19 @@ VTK_TYPE_TRAITS(unsigned long, UNSIGNED_LONG, 0, UInt64, unsigned long, "%lu");
 #endif
 
 // Define traits for long long types if they are enabled.
-#if defined(VTK_TYPE_USE_LONG_LONG)
-# define VTK_TYPE_NAME_LONG_LONG long long
-# define VTK_TYPE_NAME_UNSIGNED_LONG_LONG unsigned long long
-# if VTK_SIZEOF_LONG_LONG == 8
-#  define VTK_TYPE_SIZED_LONG_LONG INT64
-#  define VTK_TYPE_SIZED_UNSIGNED_LONG_LONG UINT64
-#  if defined(_MSC_VER) && _MSC_VER < 1400
-#   define VTK_TYPE_LONG_LONG_FORMAT "%I64"
-#  else
-#   define VTK_TYPE_LONG_LONG_FORMAT "%ll"
-#  endif
+#define VTK_TYPE_NAME_LONG_LONG long long
+#define VTK_TYPE_NAME_UNSIGNED_LONG_LONG unsigned long long
+#if VTK_SIZEOF_LONG_LONG == 8
+# define VTK_TYPE_SIZED_LONG_LONG INT64
+# define VTK_TYPE_SIZED_UNSIGNED_LONG_LONG UINT64
+# define VTK_TYPE_LONG_LONG_FORMAT "%ll"
 VTK_TYPE_TRAITS(long long, LONG_LONG, 1, Int64, long long,
                 VTK_TYPE_LONG_LONG_FORMAT "d");
 VTK_TYPE_TRAITS(unsigned long long, UNSIGNED_LONG_LONG, 0, UInt64,
                 unsigned long long, VTK_TYPE_LONG_LONG_FORMAT "u");
-#  undef VTK_TYPE_LONG_LONG_FORMAT
-# else
-#  error "Type long long is not 8 bytes in size."
-# endif
-#endif
-
-// Define traits for __int64 types if they are enabled.
-#if defined(VTK_TYPE_USE___INT64)
-# define VTK_TYPE_NAME___INT64 __int64
-# define VTK_TYPE_NAME_UNSIGNED___INT64 unsigned __int64
-# if VTK_SIZEOF___INT64 == 8
-#  define VTK_TYPE_SIZED___INT64 INT64
-#  define VTK_TYPE_SIZED_UNSIGNED___INT64 UINT64
-VTK_TYPE_TRAITS(__int64, __INT64, 1, Int64, __int64, "%I64d");
-VTK_TYPE_TRAITS(unsigned __int64, UNSIGNED___INT64, 0, UInt64,
-                unsigned __int64, "%I64u");
-# else
-#  error "Type __int64 is not 8 bytes in size."
-# endif
+# undef VTK_TYPE_LONG_LONG_FORMAT
+#else
+# error "Type long long is not 8 bytes in size."
 #endif
 
 // Define traits for vtkIdType.  The template specialization is

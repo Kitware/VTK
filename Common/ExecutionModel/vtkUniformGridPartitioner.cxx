@@ -38,10 +38,7 @@ vtkUniformGridPartitioner::vtkUniformGridPartitioner()
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGridPartitioner::~vtkUniformGridPartitioner()
-{
-
-}
+vtkUniformGridPartitioner::~vtkUniformGridPartitioner() = default;
 
 //------------------------------------------------------------------------------
 void vtkUniformGridPartitioner::PrintSelf(std::ostream &oss, vtkIndent indent)
@@ -75,19 +72,19 @@ int vtkUniformGridPartitioner::RequestData(
 {
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
-  assert( "pre: input information object is NULL" && (input != NULL) );
+  assert( "pre: input information object is nullptr" && (input != nullptr) );
 
   vtkImageData *grd =
     vtkImageData::SafeDownCast( input->Get(vtkDataObject::DATA_OBJECT() ) );
-  assert( "pre: input grid is NULL!" && (grd != NULL));
+  assert( "pre: input grid is nullptr!" && (grd != nullptr));
 
   // STEP 1: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );
-  assert( "pre: output information object is NULL" && (output != NULL) );
+  assert( "pre: output information object is nullptr" && (output != nullptr) );
   vtkMultiBlockDataSet *multiblock =
       vtkMultiBlockDataSet::SafeDownCast(
         output->Get( vtkDataObject::DATA_OBJECT() ) );
-  assert( "pre: multiblock grid is NULL!" && (multiblock != NULL) );
+  assert( "pre: multiblock grid is nullptr!" && (multiblock != nullptr) );
 
   // STEP 2: Get the global extent
   int extent[6];
@@ -97,18 +94,18 @@ int vtkUniformGridPartitioner::RequestData(
 
   // STEP 3: Setup extent partitioner
   vtkExtentRCBPartitioner *extentPartitioner = vtkExtentRCBPartitioner::New();
-  assert( "pre: extent partitioner is NULL" && (extentPartitioner != NULL) );
+  assert( "pre: extent partitioner is nullptr" && (extentPartitioner != nullptr) );
   extentPartitioner->SetGlobalExtent( extent );
   extentPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   extentPartitioner->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
   if( this->DuplicateNodes == 1 )
-    {
+  {
     extentPartitioner->DuplicateNodesOn();
-    }
+  }
   else
-    {
+  {
     extentPartitioner->DuplicateNodesOff();
-    }
+  }
 
   // STEP 4: Partition
   extentPartitioner->Partition();
@@ -123,7 +120,7 @@ int vtkUniformGridPartitioner::RequestData(
 
   unsigned int blockIdx = 0;
   for( ; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx )
-    {
+  {
     int ext[6];
     extentPartitioner->GetPartitionExtent( blockIdx, ext );
 
@@ -147,12 +144,12 @@ int vtkUniformGridPartitioner::RequestData(
 
     // Set the global extent for each block
     vtkInformation *metadata = multiblock->GetMetaData( blockIdx );
-    assert( "pre: metadata is NULL" && (metadata != NULL) );
+    assert( "pre: metadata is nullptr" && (metadata != nullptr) );
     metadata->Set( vtkDataObject::PIECE_EXTENT(), ext, 6 );
 
     multiblock->SetBlock( blockIdx, subgrid );
     subgrid->Delete();
-    } // END for all blocks
+  } // END for all blocks
 
   extentPartitioner->Delete();
   return 1;

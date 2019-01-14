@@ -17,16 +17,19 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkRectilinearGridToPointSet - Converts a vtkRectilinearGrid to a vtkPointSet
-//
-// .SECTION Description
-// vtkRectilinearGridToPointSet takes a vtkRectilinearGrid as an image and
-// outputs an equivalent vtkStructuredGrid (which is a subclass of
-// vtkPointSet).
-//
-// .SECTION Thanks
-// This class was developed by Kenneth Moreland (kmorel@sandia.gov) from
-// Sandia National Laboratories.
+/**
+ * @class   vtkRectilinearGridToPointSet
+ * @brief   Converts a vtkRectilinearGrid to a vtkPointSet
+ *
+ *
+ * vtkRectilinearGridToPointSet takes a vtkRectilinearGrid as an image and
+ * outputs an equivalent vtkStructuredGrid (which is a subclass of
+ * vtkPointSet).
+ *
+ * @par Thanks:
+ * This class was developed by Kenneth Moreland (kmorel@sandia.gov) from
+ * Sandia National Laboratories.
+*/
 
 #ifndef vtkRectilinearGridToPointSet_h
 #define vtkRectilinearGridToPointSet_h
@@ -41,23 +44,23 @@ class VTKFILTERSGENERAL_EXPORT vtkRectilinearGridToPointSet : public vtkStructur
 {
 public:
   vtkTypeMacro(vtkRectilinearGridToPointSet, vtkStructuredGridAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkRectilinearGridToPointSet *New();
 
 protected:
   vtkRectilinearGridToPointSet();
-  ~vtkRectilinearGridToPointSet();
+  ~vtkRectilinearGridToPointSet() override;
 
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector);
+                  vtkInformationVector *outputVector) override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkRectilinearGridToPointSet(const vtkRectilinearGridToPointSet &); // Not implemented
-  void operator=(const vtkRectilinearGridToPointSet &);         // Not implemented
+  vtkRectilinearGridToPointSet(const vtkRectilinearGridToPointSet &) = delete;
+  void operator=(const vtkRectilinearGridToPointSet &) = delete;
 
   int CopyStructure(vtkStructuredGrid *outData, vtkRectilinearGrid *inData);
 };

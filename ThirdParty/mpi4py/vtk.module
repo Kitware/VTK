@@ -1,0 +1,8 @@
+NAME
+  VTK::mpi4py
+LIBRARY_NAME
+  vtkmpi4py
+PRIVATE_DEPENDS
+  VTK::mpi
+  VTK::Python
+THIRD_PARTY

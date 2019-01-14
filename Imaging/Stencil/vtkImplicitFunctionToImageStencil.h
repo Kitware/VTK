@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImplicitFunctionToImageStencil - clip an image with a function
-// .SECTION Description
-// vtkImplicitFunctionToImageStencil will convert a vtkImplicitFunction into
-// a stencil that can be used with vtkImageStencil or with other classes
-// that apply a stencil to an image.
-// .SECTION see also
-// vtkImplicitFunction vtkImageStencil vtkPolyDataToImageStencil
+/**
+ * @class   vtkImplicitFunctionToImageStencil
+ * @brief   clip an image with a function
+ *
+ * vtkImplicitFunctionToImageStencil will convert a vtkImplicitFunction into
+ * a stencil that can be used with vtkImageStencil or with other classes
+ * that apply a stencil to an image.
+ * @sa
+ * vtkImplicitFunction vtkImageStencil vtkPolyDataToImageStencil
+*/
 
 #ifndef vtkImplicitFunctionToImageStencil_h
 #define vtkImplicitFunctionToImageStencil_h
@@ -34,35 +37,42 @@ class VTKIMAGINGSTENCIL_EXPORT vtkImplicitFunctionToImageStencil : public vtkIma
 public:
   static vtkImplicitFunctionToImageStencil *New();
   vtkTypeMacro(vtkImplicitFunctionToImageStencil, vtkImageStencilSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Specify the implicit function to convert into a stencil.
+  //@{
+  /**
+   * Specify the implicit function to convert into a stencil.
+   */
   virtual void SetInput(vtkImplicitFunction*);
   vtkGetObjectMacro(Input, vtkImplicitFunction);
+  //@}
 
-  // Description:
-  // Set the threshold value for the implicit function.
+  //@{
+  /**
+   * Set the threshold value for the implicit function.
+   */
   vtkSetMacro(Threshold, double);
   vtkGetMacro(Threshold, double);
+  //@}
 
-  // Description:
-  // Override GetMTime() to account for the implicit function.
-  unsigned long GetMTime();
+  /**
+   * Override GetMTime() to account for the implicit function.
+   */
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkImplicitFunctionToImageStencil();
-  ~vtkImplicitFunctionToImageStencil();
+  ~vtkImplicitFunctionToImageStencil() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) override;
 
   vtkImplicitFunction *Input;
   double Threshold;
 
 private:
-  vtkImplicitFunctionToImageStencil(const vtkImplicitFunctionToImageStencil&);  // Not implemented.
-  void operator=(const vtkImplicitFunctionToImageStencil&);  // Not implemented.
+  vtkImplicitFunctionToImageStencil(const vtkImplicitFunctionToImageStencil&) = delete;
+  void operator=(const vtkImplicitFunctionToImageStencil&) = delete;
 };
 
 #endif

@@ -12,13 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageLogarithmicScale - Passes each pixel through log function.
-// .SECTION Description
-// vtkImageLogarithmicScale passes each pixel through the function
-// c*log(1+x).  It also handles negative values with the function
-// -c*log(1-x).
-
-
+/**
+ * @class   vtkImageLogarithmicScale
+ * @brief   Passes each pixel through log function.
+ *
+ * vtkImageLogarithmicScale passes each pixel through the function
+ * c*log(1+x).  It also handles negative values with the function
+ * -c*log(1-x).
+*/
 
 #ifndef vtkImageLogarithmicScale_h
 #define vtkImageLogarithmicScale_h
@@ -32,24 +33,27 @@ class VTKIMAGINGMATH_EXPORT vtkImageLogarithmicScale : public vtkThreadedImageAl
 public:
   static vtkImageLogarithmicScale *New();
   vtkTypeMacro(vtkImageLogarithmicScale,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get the scale factor for the logarithmic function.
+  //@{
+  /**
+   * Set/Get the scale factor for the logarithmic function.
+   */
   vtkSetMacro(Constant,double);
   vtkGetMacro(Constant,double);
+  //@}
 
 protected:
   vtkImageLogarithmicScale();
-  ~vtkImageLogarithmicScale() {}
+  ~vtkImageLogarithmicScale() override {}
 
   double Constant;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int outExt[6], int id);
+                       int outExt[6], int id) override;
 private:
-  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&);  // Not implemented.
-  void operator=(const vtkImageLogarithmicScale&);  // Not implemented.
+  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&) = delete;
+  void operator=(const vtkImageLogarithmicScale&) = delete;
 };
 
 #endif

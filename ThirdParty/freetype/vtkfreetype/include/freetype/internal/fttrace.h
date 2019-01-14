@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Tracing handling (specification only).                               */
 /*                                                                         */
-/*  Copyright 2002, 2004-2007, 2009, 2011 by                               */
+/*  Copyright 2002-2018 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -38,6 +38,8 @@ FT_TRACE_DEF( smooth )    /* anti-aliasing raster    (ftgrays.c)  */
 FT_TRACE_DEF( mm )        /* MM interface            (ftmm.c)     */
 FT_TRACE_DEF( raccess )   /* resource fork accessor  (ftrfork.c)  */
 FT_TRACE_DEF( synth )     /* bold/slant synthesizer  (ftsynth.c)  */
+FT_TRACE_DEF( bitmap )    /* bitmap checksum         (ftobjs.c)   */
+FT_TRACE_DEF( psprops )   /* PS driver properties    (ftpsprop.c) */
 
   /* Cache sub-system */
 FT_TRACE_DEF( cache )     /* cache sub-system        (ftcache.c, etc.) */
@@ -65,19 +67,19 @@ FT_TRACE_DEF( ttgxvar )   /* TrueType GX var handler (ttgxvar.c)  */
 FT_TRACE_DEF( t1afm )
 FT_TRACE_DEF( t1driver )
 FT_TRACE_DEF( t1gload )
-FT_TRACE_DEF( t1hint )
 FT_TRACE_DEF( t1load )
 FT_TRACE_DEF( t1objs )
 FT_TRACE_DEF( t1parse )
 
   /* PostScript helper module `psaux' */
 FT_TRACE_DEF( t1decode )
+FT_TRACE_DEF( cffdecode )
 FT_TRACE_DEF( psobjs )
+FT_TRACE_DEF( psconv )
 
   /* PostScript hinting module `pshinter' */
 FT_TRACE_DEF( pshrec )
-FT_TRACE_DEF( pshalgo1 )
-FT_TRACE_DEF( pshalgo2 )
+FT_TRACE_DEF( pshalgo )
 
   /* Type 2 driver components */
 FT_TRACE_DEF( cffdriver )
@@ -86,11 +88,14 @@ FT_TRACE_DEF( cffload )
 FT_TRACE_DEF( cffobjs )
 FT_TRACE_DEF( cffparse )
 
+FT_TRACE_DEF( cf2blues )
+FT_TRACE_DEF( cf2hints )
+FT_TRACE_DEF( cf2interp )
+
   /* Type 42 driver component */
 FT_TRACE_DEF( t42 )
 
   /* CID driver components */
-FT_TRACE_DEF( cidafm )
 FT_TRACE_DEF( ciddriver )
 FT_TRACE_DEF( cidgload )
 FT_TRACE_DEF( cidload )
@@ -136,9 +141,13 @@ FT_TRACE_DEF( gxvprop )
 FT_TRACE_DEF( gxvlcar )
 
   /* autofit components */
+FT_TRACE_DEF( afmodule )
+FT_TRACE_DEF( afhints )
 FT_TRACE_DEF( afcjk )
 FT_TRACE_DEF( aflatin )
 FT_TRACE_DEF( aflatin2 )
 FT_TRACE_DEF( afwarp )
+FT_TRACE_DEF( afshaper )
+FT_TRACE_DEF( afglobal )
 
 /* END */

@@ -30,11 +30,11 @@ extern "C"
 typedef struct vtkXMLWriterC_s vtkXMLWriterC;
 
 /**
- * Create a new instance of vtkXMLWriterC.  Returns the object or NULL
+ * Create a new instance of vtkXMLWriterC.  Returns the object or nullptr
  * on failure.
  */
 VTKIOXML_EXPORT
-vtkXMLWriterC* vtkXMLWriterC_New();
+vtkXMLWriterC* vtkXMLWriterC_New(void);
 
 /**
  * Delete the writer object.

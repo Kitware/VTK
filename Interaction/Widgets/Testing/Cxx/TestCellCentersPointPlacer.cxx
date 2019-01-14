@@ -16,7 +16,7 @@
 // be used to constrain handle widgets to the centers of cells. Thus it
 // may be used by any of the widgets that use the handles (distance, angle
 // etc).
-//   Here we demonstrates constraining  the distance widget to the centers
+//   Here we demonstrate constraining the distance widget to the centers
 // of various cells.
 //
 #include <vtkSmartPointer.h>
@@ -1104,15 +1104,15 @@ int TestCellCentersPointPlacer(int argc, char *argv[])
     vtkSmartPointer<vtkCellCentersPointPlacer>::New();
 
   for(int row = 0; row < gridDimensions; row++)
-    {
+  {
     for(int col = 0; col < gridDimensions; col++)
-      {
+    {
       int index = row * gridDimensions + col;
 
       if(index > static_cast< int >(actors.size() - 1))
-        {
+      {
         continue;
-        }
+      }
 
       vtkSmartPointer< vtkTransformFilter > transformFilter =
         vtkSmartPointer< vtkTransformFilter >::New();
@@ -1135,8 +1135,8 @@ int TestCellCentersPointPlacer(int argc, char *argv[])
 
       renderer->AddActor(actors[index]);
       pointPlacer->AddProp(actors[index]);
-      }
     }
+  }
 
   // Default colors
   actors[0]->GetProperty()->SetColor(1,0,0.5);
@@ -1166,7 +1166,7 @@ int TestCellCentersPointPlacer(int argc, char *argv[])
     vtkSmartPointer< vtkDistanceRepresentation2D >::New();
   rep->GetAxis()->GetProperty()->SetColor( 1.0, 0.0, 0.0 );
 
-  // Create a 3D handle reprensentation template for this distance
+  // Create a 3D handle representation template for this distance
   // widget
   vtkSmartPointer< vtkPointHandleRepresentation3D > handleRep3D =
     vtkSmartPointer< vtkPointHandleRepresentation3D >::New();

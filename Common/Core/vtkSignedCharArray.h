@@ -12,63 +12,74 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSignedCharArray - dynamic, self-adjusting array of signed char
-// .SECTION Description
-// vtkSignedCharArray is an array of values of type signed char.
-// It provides methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
+/**
+ * @class   vtkSignedCharArray
+ * @brief   dynamic, self-adjusting array of signed char
+ *
+ * vtkSignedCharArray is an array of values of type signed char.
+ * It provides methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+*/
 
 #ifndef vtkSignedCharArray_h
 #define vtkSignedCharArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkSignedCharArray_cxx)
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE signed char
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
-#include "vtkDataArrayTemplate.h" // Real Superclass
+#include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
-#ifndef __WRAP__
-#define vtkDataArray vtkDataArrayTemplate<signed char>
+#ifndef __VTK_WRAP__
+#define vtkDataArray vtkAOSDataArrayTemplate<signed char>
 #endif
 class VTKCOMMONCORE_EXPORT vtkSignedCharArray : public vtkDataArray
-#ifndef __WRAP__
-#undef vtkDataArray
-#endif
 {
 public:
+  vtkTypeMacro(vtkSignedCharArray, vtkDataArray)
+#ifndef __VTK_WRAP__
+#undef vtkDataArray
+#endif
   static vtkSignedCharArray* New();
-  vtkTypeMacro(vtkSignedCharArray,vtkDataArray);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkDataArrayTemplate, which is ignored
+  // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(signed char);
 #endif
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
+  static vtkSignedCharArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkSignedCharArray*>(Superclass::FastDownCast(source));
+  }
+
+  /**
+   * Get the minimum data value in its native type.
+   */
   static signed char GetDataTypeValueMin() { return VTK_SIGNED_CHAR_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static signed char GetDataTypeValueMax() { return VTK_SIGNED_CHAR_MAX; }
 
 protected:
   vtkSignedCharArray();
-  ~vtkSignedCharArray();
+  ~vtkSignedCharArray() override;
 
 private:
-  //BTX
-  typedef vtkDataArrayTemplate<signed char> RealSuperclass;
-  //ETX
-  vtkSignedCharArray(const vtkSignedCharArray&);  // Not implemented.
-  void operator=(const vtkSignedCharArray&);  // Not implemented.
+
+  typedef vtkAOSDataArrayTemplate<signed char> RealSuperclass;
+
+  vtkSignedCharArray(const vtkSignedCharArray&) = delete;
+  void operator=(const vtkSignedCharArray&) = delete;
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkSignedCharArray)
 
 #endif

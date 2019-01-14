@@ -17,17 +17,20 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkTreeLevelsFilter - adds level and leaf fields to a vtkTree
-//
-// .SECTION Description
-// The filter currently add two arrays to the incoming vtkTree datastructure.
-// 1) "levels" this is the distance from the root of the vertex. Root = 0
-// and you add 1 for each level down from the root
-// 2) "leaf" this array simply indicates whether the vertex is a leaf or not
-//
-// .SECTION Thanks
-// Thanks to Brian Wylie from Sandia National Laboratories for creating this
-// class.
+/**
+ * @class   vtkTreeLevelsFilter
+ * @brief   adds level and leaf fields to a vtkTree
+ *
+ *
+ * The filter currently add two arrays to the incoming vtkTree datastructure.
+ * 1) "levels" this is the distance from the root of the vertex. Root = 0
+ * and you add 1 for each level down from the root
+ * 2) "leaf" this array simply indicates whether the vertex is a leaf or not
+ *
+ * @par Thanks:
+ * Thanks to Brian Wylie from Sandia National Laboratories for creating this
+ * class.
+*/
 
 #ifndef vtkTreeLevelsFilter_h
 #define vtkTreeLevelsFilter_h
@@ -40,17 +43,17 @@ class VTKINFOVISCORE_EXPORT vtkTreeLevelsFilter : public vtkTreeAlgorithm
 public:
   static vtkTreeLevelsFilter *New();
   vtkTypeMacro(vtkTreeLevelsFilter,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkTreeLevelsFilter();
-  ~vtkTreeLevelsFilter() {}
+  ~vtkTreeLevelsFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkTreeLevelsFilter(const vtkTreeLevelsFilter&);  // Not implemented.
-  void operator=(const vtkTreeLevelsFilter&);  // Not implemented.
+  vtkTreeLevelsFilter(const vtkTreeLevelsFilter&) = delete;
+  void operator=(const vtkTreeLevelsFilter&) = delete;
 };
 
 #endif

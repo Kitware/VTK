@@ -19,10 +19,10 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkImageMapToColors.h"
-#include "math.h"
+#include <cmath>
 #include <algorithm>
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkResliceCursorThickLineRepresentation);
 
@@ -34,17 +34,15 @@ vtkResliceCursorThickLineRepresentation::vtkResliceCursorThickLineRepresentation
 }
 
 //----------------------------------------------------------------------
-vtkResliceCursorThickLineRepresentation::~vtkResliceCursorThickLineRepresentation()
-{
-}
+vtkResliceCursorThickLineRepresentation::~vtkResliceCursorThickLineRepresentation() = default;
 
 //----------------------------------------------------------------------
 void vtkResliceCursorThickLineRepresentation::CreateDefaultResliceAlgorithm()
 {
   if (this->Reslice)
-    {
+  {
     this->Reslice->Delete();
-    }
+  }
 
   // Override superclass implementation to create a vtkImageSlabReslice here.
   this->Reslice = vtkImageSlabReslice::New();
@@ -59,7 +57,7 @@ void vtkResliceCursorThickLineRepresentation
     = vtkImageSlabReslice::SafeDownCast(this->Reslice);
 
   if (thickReslice)
-    {
+  {
 
     // Set the default color the minimum scalar value
     double range[2];
@@ -88,7 +86,7 @@ void vtkResliceCursorThickLineRepresentation
 
     // Set the slab resolution the minimum spacing. Reasonable default
     thickReslice->SetSlabResolution(minSpacing);
-    }
+  }
 }
 
 //----------------------------------------------------------------------

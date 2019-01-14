@@ -1,0 +1,11 @@
+NAME
+  VTK::IOTRUCHAS
+LIBRARY_NAME
+  vtkIOTRUCHAS
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::hdf5
+TEST_DEPENDS
+  VTK::TestingCore
+  VTK::TestingRendering

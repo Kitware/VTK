@@ -24,20 +24,20 @@ vtkStandardNewMacro(vtkPMaskPoints);
 //----------------------------------------------------------------------------
 vtkPMaskPoints::vtkPMaskPoints()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
 
   vtkSmartPointer<vtkMultiProcessController> controller =
     vtkMultiProcessController::GetGlobalController();
   if (!controller)
-    {
+  {
     controller = vtkSmartPointer<vtkDummyController>::New();
-    }
-  this->SetController(controller.GetPointer());
+  }
+  this->SetController(controller);
 }
 
 vtkPMaskPoints::~vtkPMaskPoints()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -45,35 +45,35 @@ void vtkPMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if (this->Controller)
-    {
-    os << indent << "Controller: " << this->Controller << endl;
-    }
+  if (this->GetController())
+  {
+    os << indent << "Controller: " << this->GetController() << std::endl;
+  }
   else
-    {
-    os << indent << "Controller: (null)\n";
-    }
+  {
+    os << indent << "Controller: (null)" << std::endl;
+  }
 }
 
 void vtkPMaskPoints::SetController(vtkMultiProcessController *c)
 {
   if(this->Controller == c)
-    {
+  {
     return;
-    }
+  }
 
   this->Modified();
 
-  if(this->Controller != 0)
-    {
+  if(this->Controller != nullptr)
+  {
     this->Controller->UnRegister(this);
-    this->Controller = 0;
-    }
+    this->Controller = nullptr;
+  }
 
-  if(c == 0)
-    {
+  if(c == nullptr)
+  {
     return;
-    }
+  }
 
   this->Controller = c;
   c->Register(this);

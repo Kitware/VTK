@@ -19,8 +19,11 @@
 /* This header contains build settings for the vtkRenderingOpenGL2 module. */
 /* It provides some compatibility with the vtkRenderingOpenGL module. */
 
-/* Whether VTK was built to support Carbon or Cocoa on the Mac.  */
-#cmakedefine VTK_USE_CARBON
+#ifndef VTK_OPENGL2
+#define VTK_OPENGL2
+#endif
+
+/* Whether VTK was built to support Cocoa on the Mac.  */
 #cmakedefine VTK_USE_COCOA
 
 /*--------------------------------------------------------------------------*/
@@ -28,7 +31,17 @@
 #cmakedefine VTK_USE_X
 #define VTK_USE_OPENGL_LIBRARY
 #cmakedefine VTK_OPENGL_HAS_OSMESA
-#cmakedefine VTK_USE_OFFSCREEN
+#cmakedefine VTK_OPENGL_HAS_EGL
+#cmakedefine VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
+#cmakedefine VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS
+
+// for legacy codes (don't use these in new codes)
+#ifdef VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
+# define VTK_USE_OFFSCREEN
+#endif
+#ifdef VTK_OPENGL_HAS_OSMESA
+# define VTK_USE_OSMESA
+#endif
 
 #define VTK_USE_GLSL_SHADERS
 
@@ -45,13 +58,8 @@
 #if ((defined(VTK_USE_OPENGL_LIBRARY) && defined(VTK_USE_X) && \
       !defined(_WIN32)) ||                                     \
      (defined(VTK_USE_X) && defined(_WIN32))) && \
-     !(defined (VTK_USE_CARBON) || defined(VTK_USE_COCOA))
+     !defined(VTK_USE_COCOA)
 # define VTK_USE_OGLR
-#endif
-
-#if (defined(VTK_OPENGL_HAS_OSMESA) && !defined(VTK_USE_OGLR) &&  \
-    !defined(_WIN32) && !defined(VTK_USE_CARBON) && !defined(VTK_USE_COCOA))
-# define VTK_USE_OSMESA
 #endif
 
 #endif

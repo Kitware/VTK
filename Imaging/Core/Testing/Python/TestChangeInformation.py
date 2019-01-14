@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -22,6 +21,7 @@ reslice.SetInterpolationModeToCubic()
 # to do this, it is just put in as an example)
 information2 = vtk.vtkImageChangeInformation()
 information2.SetInputConnection(reslice.GetOutputPort())
+reader.Update()
 information2.SetInformationInputData(reader.GetOutput())
 viewer = vtk.vtkImageViewer()
 viewer.SetInputConnection(information2.GetOutputPort())

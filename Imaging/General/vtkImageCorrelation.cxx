@@ -71,16 +71,16 @@ int vtkImageCorrelation::RequestUpdateExtent (
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inUExt1);
 
   for (idx = 0; idx < 3; idx++)
-    {
+  {
     inUExt1[idx*2+1] = inUExt1[idx*2+1] +
       (inWExt2[idx*2+1] - inWExt2[idx*2]);
 
     // clip to whole extent
     if (inUExt1[idx*2+1] > inWExt1[idx*2+1])
-      {
+    {
       inUExt1[idx*2+1] = inWExt1[idx*2+1];
-      }
     }
+  }
   inInfo1->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                inUExt1, 6);
 
@@ -136,66 +136,66 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
 
   // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
+  {
     // how much of kernel to use
     zKernMax = maxIZ - idxZ;
     if (zKernMax > in2Extent[5])
-      {
+    {
       zKernMax = in2Extent[5];
-      }
+    }
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       yKernMax = maxIY - idxY;
       if (yKernMax > in2Extent[3])
-        {
+      {
         yKernMax = in2Extent[3];
-        }
+      }
       for (idxX = 0; idxX <= maxX; idxX++)
-        {
+      {
         // determine the extent of input 1 that contributes to this pixel
         *outPtr = 0.0;
         xKernMax = maxIX - idxX;
         if (xKernMax > in2Extent[1])
-          {
+        {
           xKernMax = in2Extent[1];
-          }
+        }
 
         // sumation
         for (kIdxZ = 0; kIdxZ <= zKernMax; kIdxZ++)
-          {
+        {
           for (kIdxY = 0; kIdxY <= yKernMax; kIdxY++)
-            {
+          {
             in1Ptr2 = in1Ptr + kIdxY*in1IncY + kIdxZ*in1IncZ;
             in2Ptr2 = in2Ptr + kIdxY*in2IncY + kIdxZ*in2IncZ;
             for (kIdxX = 0; kIdxX <= xKernMax; kIdxX++)
-              {
+            {
               for (idxC = 0; idxC < maxC; idxC++)
-                {
+              {
                 *outPtr = *outPtr +
                   static_cast<float>((*in1Ptr2) * (*in2Ptr2));
                 in1Ptr2++;
                 in2Ptr2++;
-                }
               }
             }
           }
+        }
         in1Ptr += maxC;
         outPtr++;
-        }
+      }
       in1Ptr += in1CIncY;
       outPtr += outIncY;
-      }
+    }
     in1Ptr += in1CIncZ;
     outPtr += outIncZ;
-    }
+  }
 }
 
 
@@ -225,23 +225,23 @@ void vtkImageCorrelation::ThreadedRequestData(
 
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != inData[1][0]->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: input ScalarType, " <<
     inData[0][0]->GetScalarType() << " and input2 ScalarType " <<
     inData[1][0]->GetScalarType() << ", should match");
     return;
-    }
+  }
 
   // input depths must match
   if (inData[0][0]->GetNumberOfScalarComponents() !=
       inData[1][0]->GetNumberOfScalarComponents())
-    {
+  {
     vtkErrorMacro(<< "Execute: input depths must match");
     return;
-    }
+  }
 
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageCorrelationExecute(this, inData[0][0],
                                  static_cast<VTK_TT *>(in1Ptr),
@@ -252,7 +252,7 @@ void vtkImageCorrelation::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
 
 void vtkImageCorrelation::PrintSelf(ostream& os, vtkIndent indent)

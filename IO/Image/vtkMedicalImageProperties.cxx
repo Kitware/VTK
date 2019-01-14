@@ -15,12 +15,13 @@
 #include "vtkMedicalImageProperties.h"
 #include "vtkObjectFactory.h"
 
-#include <vtksys/stl/string>
-#include <vtksys/stl/map>
-#include <vtksys/stl/vector>
-#include <vtksys/stl/set>
+#include <string>
+#include <map>
+#include <vector>
+#include <set>
+
 #include <ctime> // for strftime
-#include <ctype.h> // for isdigit
+#include <cctype> // for isdigit
 #include <cassert>
 
 //----------------------------------------------------------------------------
@@ -30,7 +31,7 @@ static const char *vtkMedicalImagePropertiesOrientationString[] = {
   "AXIAL",
   "CORONAL",
   "SAGITTAL",
-  NULL
+  nullptr
 };
 
 
@@ -43,81 +44,81 @@ public:
   public:
     double Window;
     double Level;
-    vtksys_stl::string Comment;
+    std::string Comment;
   };
 
   class UserDefinedValue
   {
   public:
-    UserDefinedValue(const char *name = 0, const char *value = 0):Name(name ? name : ""),Value(value ? value : "") {}
+    UserDefinedValue(const char *name = nullptr, const char *value = nullptr):Name(name ? name : ""),Value(value ? value : "") {}
     std::string Name;
     std::string Value;
     // order for the std::set
     bool operator<(const UserDefinedValue &udv) const
-      {
+    {
       return Name < udv.Name;
-      }
+    }
   };
   typedef std::set< UserDefinedValue > UserDefinedValues;
   UserDefinedValues UserDefinedValuePool;
   void AddUserDefinedValue(const char *name, const char *value)
-    {
+  {
     if( name && *name && value && *value )
-      {
-      UserDefinedValuePool.insert( UserDefinedValues::value_type(name, value) );
-      }
-    // else raise a warning ?
-    }
-  const char *GetUserDefinedValue(const char *name) const
     {
+      UserDefinedValuePool.insert( UserDefinedValues::value_type(name, value) );
+    }
+    // else raise a warning ?
+  }
+  const char *GetUserDefinedValue(const char *name) const
+  {
     if( name && *name )
-      {
+    {
       UserDefinedValue key(name);
       UserDefinedValues::const_iterator it = UserDefinedValuePool.find( key );
       if( it != UserDefinedValuePool.end() )
-        {
+      {
         assert( strcmp(it->Name.c_str(), name) == 0 );
         return it->Value.c_str();
-        }
       }
-    return NULL;
     }
+    return nullptr;
+  }
   unsigned int GetNumberOfUserDefinedValues() const
-    {
+  {
     return static_cast<unsigned int>(UserDefinedValuePool.size());
-    }
+  }
   const char *GetUserDefinedNameByIndex(unsigned int idx)
-    {
+  {
     if( idx < UserDefinedValuePool.size() )
-      {
+    {
       UserDefinedValues::const_iterator it = UserDefinedValuePool.begin();
       while( idx )
-        {
-        it++;
+      {
+        ++it;
         idx--;
-        }
+      }
       return it->Name.c_str();
-      }
-    return NULL;
     }
+    return nullptr;
+  }
   const char *GetUserDefinedValueByIndex(unsigned int idx)
-    {
+  {
     if( idx < UserDefinedValuePool.size() )
-      {
+    {
       UserDefinedValues::const_iterator it = UserDefinedValuePool.begin();
       while( idx )
-        {
-        it++;
+      {
+        ++it;
         idx--;
-        }
-      return it->Value.c_str();
       }
-    return NULL;
+      return it->Value.c_str();
     }
+    return nullptr;
+  }
   void RemoveAllUserDefinedValues()
-    {
+  {
       UserDefinedValuePool.clear();
-    }
+  }
 
   typedef std::vector<WindowLevelPreset> WindowLevelPresetPoolType;
   typedef std::vector<WindowLevelPreset>::iterator WindowLevelPresetPoolIterator;
@@ -129,17 +130,17 @@ public:
   typedef std::vector< SliceUIDType > VolumeSliceUIDType;
   VolumeSliceUIDType UID;
   void SetNumberOfVolumes(unsigned int n)
-    {
+  {
     UID.resize(n);
     Orientation.resize(n);
-    }
+  }
   void SetUID(unsigned int vol, unsigned int slice, const char *uid)
-    {
+  {
     SetNumberOfVolumes( vol + 1 );
     UID[vol][slice] = uid;
-    }
+  }
   const char *GetUID(unsigned int vol, unsigned int slice)
-    {
+  {
     assert( vol < UID.size() );
     assert( UID[vol].find(slice) != UID[vol].end() );
     //if( UID[vol].find(slice) == UID[vol].end() )
@@ -147,99 +148,99 @@ public:
     //  this->Print( cerr, vtkIndent() );
     //  }
     return UID[vol].find(slice)->second.c_str();
-    }
+  }
   // Extensive lookup
   int FindSlice(int &vol, const char *uid)
-    {
+  {
     vol = -1;
     for(unsigned int v = 0; v < UID.size(); ++v )
-      {
+    {
       SliceUIDType::const_iterator cit = UID[v].begin();
       while (cit != UID[v].end())
-        {
+      {
         if (cit->second == uid)
-          {
+        {
           vol = v;
           return static_cast<int>(cit->first);
-          }
-        ++cit;
         }
+        ++cit;
       }
-    return -1; // volume not found.
     }
+    return -1; // volume not found.
+  }
   int GetSlice(unsigned int vol, const char *uid)
-    {
+  {
     assert( vol < UID.size() );
     SliceUIDType::const_iterator cit = UID[vol].begin();
     while (cit != UID[vol].end())
-      {
-      if (cit->second == uid)
-        {
-        return static_cast<int>(cit->first);
-        }
-      ++cit;
-      }
-    return -1; // uid not found.
-    }
-  void Print(ostream &os, vtkIndent indent)
     {
+      if (cit->second == uid)
+      {
+        return static_cast<int>(cit->first);
+      }
+      ++cit;
+    }
+    return -1; // uid not found.
+  }
+  void Print(ostream &os, vtkIndent indent)
+  {
     os << indent << "WindowLevel: \n";
     for( WindowLevelPresetPoolIterator it = WindowLevelPresetPool.begin(); it != WindowLevelPresetPool.end(); ++it )
-      {
+    {
       const WindowLevelPreset &wlp = *it;
       os << indent.GetNextIndent() << "Window: " << wlp.Window << "\n";
       os << indent.GetNextIndent() << "Level: " << wlp.Level << "\n";
       os << indent.GetNextIndent() << "Comment: " << wlp.Comment << "\n";
-      }
+    }
     os << indent << "UID(s):\n";
     for( VolumeSliceUIDType::const_iterator it = UID.begin();
       it != UID.end();
       ++it)
-      {
+    {
       for( SliceUIDType::const_iterator it2 = it->begin();
         it2 != it->end();
         ++it2)
-        {
+      {
         os << indent.GetNextIndent()
            << it2->first <<  "  " << it2->second << "\n";
-        }
       }
+    }
     os << indent << "Orientation(s):\n";
     for( std::vector<unsigned int>::const_iterator it = Orientation.begin();
       it != Orientation.end(); ++it)
-      {
+    {
       os << indent.GetNextIndent()
          << vtkMedicalImageProperties::GetStringFromOrientationType(*it) << "\n";
-      }
+    }
     os << indent << "User Defined Values: (" << UserDefinedValuePool.size() << ")\n";
     UserDefinedValues::const_iterator it2 = UserDefinedValuePool.begin();
     for(; it2 != UserDefinedValuePool.end(); ++it2)
-      {
+    {
       os << indent.GetNextIndent()
          << it2->Name << " -> " << it2->Value << "\n";
-      }
     }
+  }
   std::vector<unsigned int> Orientation;
   void SetOrientation(unsigned int vol, unsigned int ori)
-    {
+  {
     // see SetNumberOfVolumes for allocation
     assert( ori <= vtkMedicalImageProperties::SAGITTAL );
     Orientation[vol] = ori;
-    }
+  }
   unsigned int GetOrientation(unsigned int vol)
-    {
+  {
     assert( vol < Orientation.size() );
     const unsigned int &val = Orientation[vol];
     assert( val <= vtkMedicalImageProperties::SAGITTAL );
     return val;
-    }
+  }
   void DeepCopy(vtkMedicalImagePropertiesInternals *p)
-    {
+  {
     WindowLevelPresetPool = p->WindowLevelPresetPool;
     UserDefinedValuePool = p->UserDefinedValuePool;
     UID = p->UID;
     Orientation = p->Orientation;
-    }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -247,37 +248,37 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
 {
   this->Internals = new vtkMedicalImagePropertiesInternals;
 
-  this->StudyDate              = NULL;
-  this->AcquisitionDate        = NULL;
-  this->StudyTime              = NULL;
-  this->AcquisitionTime        = NULL;
-  this->ConvolutionKernel      = NULL;
-  this->EchoTime               = NULL;
-  this->EchoTrainLength        = NULL;
-  this->Exposure               = NULL;
-  this->ExposureTime           = NULL;
-  this->GantryTilt             = NULL;
-  this->ImageDate              = NULL;
-  this->ImageNumber            = NULL;
-  this->ImageTime              = NULL;
-  this->InstitutionName        = NULL;
-  this->KVP                    = NULL;
-  this->ManufacturerModelName  = NULL;
-  this->Manufacturer           = NULL;
-  this->Modality               = NULL;
-  this->PatientAge             = NULL;
-  this->PatientBirthDate       = NULL;
-  this->PatientID              = NULL;
-  this->PatientName            = NULL;
-  this->PatientSex             = NULL;
-  this->RepetitionTime         = NULL;
-  this->SeriesDescription      = NULL;
-  this->SeriesNumber           = NULL;
-  this->SliceThickness         = NULL;
-  this->StationName            = NULL;
-  this->StudyDescription       = NULL;
-  this->StudyID                = NULL;
-  this->XRayTubeCurrent        = NULL;
+  this->StudyDate              = nullptr;
+  this->AcquisitionDate        = nullptr;
+  this->StudyTime              = nullptr;
+  this->AcquisitionTime        = nullptr;
+  this->ConvolutionKernel      = nullptr;
+  this->EchoTime               = nullptr;
+  this->EchoTrainLength        = nullptr;
+  this->Exposure               = nullptr;
+  this->ExposureTime           = nullptr;
+  this->GantryTilt             = nullptr;
+  this->ImageDate              = nullptr;
+  this->ImageNumber            = nullptr;
+  this->ImageTime              = nullptr;
+  this->InstitutionName        = nullptr;
+  this->KVP                    = nullptr;
+  this->ManufacturerModelName  = nullptr;
+  this->Manufacturer           = nullptr;
+  this->Modality               = nullptr;
+  this->PatientAge             = nullptr;
+  this->PatientBirthDate       = nullptr;
+  this->PatientID              = nullptr;
+  this->PatientName            = nullptr;
+  this->PatientSex             = nullptr;
+  this->RepetitionTime         = nullptr;
+  this->SeriesDescription      = nullptr;
+  this->SeriesNumber           = nullptr;
+  this->SliceThickness         = nullptr;
+  this->StationName            = nullptr;
+  this->StudyDescription       = nullptr;
+  this->StudyID                = nullptr;
+  this->XRayTubeCurrent        = nullptr;
 
   this->DirectionCosine[0] = 1;
   this->DirectionCosine[1] = 0;
@@ -293,7 +294,7 @@ vtkMedicalImageProperties::~vtkMedicalImageProperties()
   this->Clear();
 
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -335,37 +336,37 @@ void vtkMedicalImageProperties::RemoveAllUserDefinedValues()
 //----------------------------------------------------------------------------
 void vtkMedicalImageProperties::Clear()
 {
-  this->SetStudyDate(NULL);
-  this->SetAcquisitionDate(NULL);
-  this->SetStudyTime(NULL);
-  this->SetAcquisitionTime(NULL);
-  this->SetConvolutionKernel(NULL);
-  this->SetEchoTime(NULL);
-  this->SetEchoTrainLength(NULL);
-  this->SetExposure(NULL);
-  this->SetExposureTime(NULL);
-  this->SetGantryTilt(NULL);
-  this->SetImageDate(NULL);
-  this->SetImageNumber(NULL);
-  this->SetImageTime(NULL);
-  this->SetInstitutionName(NULL);
-  this->SetKVP(NULL);
-  this->SetManufacturerModelName(NULL);
-  this->SetManufacturer(NULL);
-  this->SetModality(NULL);
-  this->SetPatientAge(NULL);
-  this->SetPatientBirthDate(NULL);
-  this->SetPatientID(NULL);
-  this->SetPatientName(NULL);
-  this->SetPatientSex(NULL);
-  this->SetRepetitionTime(NULL);
-  this->SetSeriesDescription(NULL);
-  this->SetSeriesNumber(NULL);
-  this->SetSliceThickness(NULL);
-  this->SetStationName(NULL);
-  this->SetStudyDescription(NULL);
-  this->SetStudyID(NULL);
-  this->SetXRayTubeCurrent(NULL);
+  this->SetStudyDate(nullptr);
+  this->SetAcquisitionDate(nullptr);
+  this->SetStudyTime(nullptr);
+  this->SetAcquisitionTime(nullptr);
+  this->SetConvolutionKernel(nullptr);
+  this->SetEchoTime(nullptr);
+  this->SetEchoTrainLength(nullptr);
+  this->SetExposure(nullptr);
+  this->SetExposureTime(nullptr);
+  this->SetGantryTilt(nullptr);
+  this->SetImageDate(nullptr);
+  this->SetImageNumber(nullptr);
+  this->SetImageTime(nullptr);
+  this->SetInstitutionName(nullptr);
+  this->SetKVP(nullptr);
+  this->SetManufacturerModelName(nullptr);
+  this->SetManufacturer(nullptr);
+  this->SetModality(nullptr);
+  this->SetPatientAge(nullptr);
+  this->SetPatientBirthDate(nullptr);
+  this->SetPatientID(nullptr);
+  this->SetPatientName(nullptr);
+  this->SetPatientSex(nullptr);
+  this->SetRepetitionTime(nullptr);
+  this->SetSeriesDescription(nullptr);
+  this->SetSeriesNumber(nullptr);
+  this->SetSliceThickness(nullptr);
+  this->SetStationName(nullptr);
+  this->SetStudyDescription(nullptr);
+  this->SetStudyID(nullptr);
+  this->SetXRayTubeCurrent(nullptr);
 
   this->RemoveAllWindowLevelPresets();
   this->RemoveAllUserDefinedValues();
@@ -377,10 +378,10 @@ void vtkMedicalImageProperties::Clear()
 //----------------------------------------------------------------------------
 void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
 {
-  if (p == NULL)
-    {
+  if (p == nullptr)
+  {
     return;
-    }
+  }
 
   this->Clear();
 
@@ -425,9 +426,9 @@ int vtkMedicalImageProperties::AddWindowLevelPreset(
   double w, double l)
 {
   if (!this->Internals || this->HasWindowLevelPreset(w, l))
-    {
+  {
     return -1;
-    }
+  }
 
   vtkMedicalImagePropertiesInternals::WindowLevelPreset preset;
   preset.Window = w;
@@ -440,20 +441,20 @@ int vtkMedicalImageProperties::AddWindowLevelPreset(
 int vtkMedicalImageProperties::GetWindowLevelPresetIndex(double w, double l)
 {
   if (this->Internals)
-    {
+  {
     vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator it =
       this->Internals->WindowLevelPresetPool.begin();
     vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator end =
       this->Internals->WindowLevelPresetPool.end();
     int index = 0;
     for (; it != end; ++it, ++index)
-      {
+    {
       if ((*it).Window == w && (*it).Level == l)
-        {
+      {
         return index;
-        }
       }
     }
+  }
   return -1;
 }
 
@@ -467,29 +468,29 @@ int vtkMedicalImageProperties::HasWindowLevelPreset(double w, double l)
 void vtkMedicalImageProperties::RemoveWindowLevelPreset(double w, double l)
 {
   if (this->Internals)
-    {
+  {
     vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator it =
       this->Internals->WindowLevelPresetPool.begin();
     vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator end =
       this->Internals->WindowLevelPresetPool.end();
     for (; it != end; ++it)
-      {
+    {
       if ((*it).Window == w && (*it).Level == l)
-        {
+      {
         this->Internals->WindowLevelPresetPool.erase(it);
         break;
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkMedicalImageProperties::RemoveAllWindowLevelPresets()
 {
   if (this->Internals)
-    {
+  {
     this->Internals->WindowLevelPresetPool.clear();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -505,11 +506,11 @@ int vtkMedicalImageProperties::GetNthWindowLevelPreset(
 {
   if (this->Internals &&
       idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
-    {
+  {
     *w = this->Internals->WindowLevelPresetPool[idx].Window;
     *l = this->Internals->WindowLevelPresetPool[idx].Level;
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -519,10 +520,10 @@ double* vtkMedicalImageProperties::GetNthWindowLevelPreset(int idx)
 {
   static double wl[2];
   if (this->GetNthWindowLevelPreset(idx, wl, wl + 1))
-    {
+  {
     return wl;
-    }
-  return NULL;
+  }
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -531,10 +532,10 @@ const char* vtkMedicalImageProperties::GetNthWindowLevelPresetComment(
 {
   if (this->Internals &&
       idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
-    {
+  {
     return this->Internals->WindowLevelPresetPool[idx].Comment.c_str();
-    }
-  return NULL;
+  }
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -543,10 +544,10 @@ void vtkMedicalImageProperties::SetNthWindowLevelPresetComment(
 {
   if (this->Internals &&
       idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
-    {
+  {
     this->Internals->WindowLevelPresetPool[idx].Comment =
       (comment ? comment : "");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -561,13 +562,13 @@ int vtkMedicalImageProperties::GetSliceIDFromInstanceUID(
                                    int &volumeidx, const char *uid)
 {
   if( volumeidx == -1 )
-    {
+  {
     return this->Internals->FindSlice(volumeidx, uid);
-    }
+  }
   else
-    {
+  {
     return this->Internals->GetSlice(volumeidx, uid);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -595,28 +596,28 @@ const char *vtkMedicalImageProperties::GetStringFromOrientationType(unsigned int
   static unsigned int numtypes = 0;
   // find length of table
   if (!numtypes)
+  {
+    while (vtkMedicalImagePropertiesOrientationString[numtypes] != nullptr)
     {
-    while (vtkMedicalImagePropertiesOrientationString[numtypes] != NULL)
-      {
       numtypes++;
-      }
     }
+  }
 
   if (type < numtypes)
-    {
+  {
     return vtkMedicalImagePropertiesOrientationString[type];
-    }
+  }
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
 double vtkMedicalImageProperties::GetSliceThicknessAsDouble()
 {
   if (this->SliceThickness)
-    {
+  {
     return atof(this->SliceThickness);
-    }
+  }
   return 0;
 }
 
@@ -624,9 +625,9 @@ double vtkMedicalImageProperties::GetSliceThicknessAsDouble()
 double vtkMedicalImageProperties::GetGantryTiltAsDouble()
 {
   if (this->GantryTilt)
-    {
+  {
     return atof(this->GantryTilt);
-    }
+  }
   return 0;
 }
 //----------------------------------------------------------------------------
@@ -635,28 +636,28 @@ int vtkMedicalImageProperties::GetAgeAsFields(const char *age, int &year,
 {
   year = month = week = day = -1;
   if( !age )
-    {
+  {
     return 0;
-    }
+  }
 
   size_t len = strlen(age);
   if( len == 4 )
-    {
+  {
     // DICOM V3
     unsigned int val;
     char type;
     if( !isdigit(age[0])
      || !isdigit(age[1])
      || !isdigit(age[2]))
-      {
+    {
       return 0;
-      }
+    }
     if( sscanf(age, "%3u%c", &val, &type) != 2 )
-      {
+    {
       return 0;
-      }
+    }
     switch(type)
-      {
+    {
     case 'Y':
       year = static_cast<int>(val);
       break;
@@ -671,12 +672,12 @@ int vtkMedicalImageProperties::GetAgeAsFields(const char *age, int &year,
       break;
     default:
       return 0;
-      }
     }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -719,31 +720,31 @@ int vtkMedicalImageProperties::GetTimeAsFields(const char *time, int &hour,
   int &minute, int &second /* , long &milliseconds */)
 {
   if( !time )
-    {
+  {
     return 0;
-    }
+  }
 
   size_t len = strlen(time);
   if( len == 6 )
-    {
+  {
     // DICOM V3
     if( sscanf(time, "%02d%02d%02d", &hour, &minute, &second) != 3 )
-      {
-      return 0;
-      }
-    }
-  else if( len == 8 )
     {
+      return 0;
+    }
+  }
+  else if( len == 8 )
+  {
     // Some *very* old ACR-NEMA
     if( sscanf(time, "%02d.%02d.%02d", &hour, &minute, &second) != 3 )
-      {
-      return 0;
-      }
-    }
-  else
     {
-    return 0;
+      return 0;
     }
+  }
+  else
+  {
+    return 0;
+  }
 
   return 1;
 }
@@ -752,31 +753,31 @@ int vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year,
   int &month, int &day)
 {
   if( !date )
-    {
+  {
     return 0;
-    }
+  }
 
   size_t len = strlen(date);
   if( len == 8 )
-    {
+  {
     // DICOM V3
     if( sscanf(date, "%04d%02d%02d", &year, &month, &day) != 3 )
-      {
-      return 0;
-      }
-    }
-  else if( len == 10 )
     {
+      return 0;
+    }
+  }
+  else if( len == 10 )
+  {
     // Some *very* old ACR-NEMA
     if( sscanf(date, "%04d.%02d.%02d", &year, &month, &day) != 3 )
-      {
-      return 0;
-      }
-    }
-  else
     {
-    return 0;
+      return 0;
     }
+  }
+  else
+  {
+    return 0;
+  }
 
   return 1;
 }
@@ -800,13 +801,13 @@ int vtkMedicalImageProperties::GetDateAsLocale(const char *iso, char *locale)
 {
   int year, month, day;
   if( vtkMedicalImageProperties::GetDateAsFields(iso, year, month, day) )
-    {
+  {
     if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31)
-      {
+    {
       *locale = '\0';
-      }
+    }
     else
-      {
+    {
       struct tm date;
       memset(&date,0, sizeof(date));
       date.tm_mday = day;
@@ -815,9 +816,9 @@ int vtkMedicalImageProperties::GetDateAsLocale(const char *iso, char *locale)
       // structure is date starting at 1900
       date.tm_year = year - 1900;
       my_strftime(locale, 200, "%x", &date);
-      }
-    return 1;
     }
+    return 1;
+  }
   return 0;
 }
 //----------------------------------------------------------------------------
@@ -900,189 +901,189 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "PatientName: ";
   if (this->PatientName)
-    {
+  {
     os << this->PatientName;
-    }
+  }
 
   os << "\n" << indent << "PatientID: ";
   if (this->PatientID)
-    {
+  {
     os << this->PatientID;
-    }
+  }
 
   os << "\n" << indent << "PatientAge: ";
   if (this->PatientAge)
-    {
+  {
     os << this->PatientAge;
-    }
+  }
 
   os << "\n" << indent << "PatientSex: ";
   if (this->PatientSex)
-    {
+  {
     os << this->PatientSex;
-    }
+  }
 
   os << "\n" << indent << "PatientBirthDate: ";
   if (this->PatientBirthDate)
-    {
+  {
     os << this->PatientBirthDate;
-    }
+  }
 
   os << "\n" << indent << "ImageDate: ";
   if (this->ImageDate)
-    {
+  {
     os << this->ImageDate;
-    }
+  }
 
   os << "\n" << indent << "ImageTime: ";
   if (this->ImageTime)
-    {
+  {
     os << this->ImageTime;
-    }
+  }
 
   os << "\n" << indent << "ImageNumber: ";
   if (this->ImageNumber)
-    {
+  {
     os << this->ImageNumber;
-    }
+  }
 
   os << "\n" << indent << "StudyDate: ";
   if (this->StudyDate)
-    {
+  {
     os << this->StudyDate;
-    }
+  }
 
   os << "\n" << indent << "AcquisitionDate: ";
   if (this->AcquisitionDate)
-    {
+  {
     os << this->AcquisitionDate;
-    }
+  }
 
   os << "\n" << indent << "StudyTime: ";
   if (this->StudyTime)
-    {
+  {
     os << this->StudyTime;
-    }
+  }
 
   os << "\n" << indent << "AcquisitionTime: ";
   if (this->AcquisitionTime)
-    {
+  {
     os << this->AcquisitionTime;
-    }
+  }
 
   os << "\n" << indent << "SeriesNumber: ";
   if (this->SeriesNumber)
-    {
+  {
     os << this->SeriesNumber;
-    }
+  }
 
   os << "\n" << indent << "SeriesDescription: ";
   if (this->SeriesDescription)
-    {
+  {
     os << this->SeriesDescription;
-    }
+  }
 
   os << "\n" << indent << "StudyDescription: ";
   if (this->StudyDescription)
-    {
+  {
     os << this->StudyDescription;
-    }
+  }
 
   os << "\n" << indent << "StudyID: ";
   if (this->StudyID)
-    {
+  {
     os << this->StudyID;
-    }
+  }
 
   os << "\n" << indent << "Modality: ";
   if (this->Modality)
-    {
+  {
     os << this->Modality;
-    }
+  }
 
   os << "\n" << indent << "ManufacturerModelName: ";
   if (this->ManufacturerModelName)
-    {
+  {
     os << this->ManufacturerModelName;
-    }
+  }
 
   os << "\n" << indent << "Manufacturer: ";
   if (this->Manufacturer)
-    {
+  {
     os << this->Manufacturer;
-    }
+  }
 
   os << "\n" << indent << "StationName: ";
   if (this->StationName)
-    {
+  {
     os << this->StationName;
-    }
+  }
 
   os << "\n" << indent << "InstitutionName: ";
   if (this->InstitutionName)
-    {
+  {
     os << this->InstitutionName;
-    }
+  }
 
   os << "\n" << indent << "ConvolutionKernel: ";
   if (this->ConvolutionKernel)
-    {
+  {
     os << this->ConvolutionKernel;
-    }
+  }
 
   os << "\n" << indent << "SliceThickness: ";
   if (this->SliceThickness)
-    {
+  {
     os << this->SliceThickness;
-    }
+  }
 
   os << "\n" << indent << "KVP: ";
   if (this->KVP)
-    {
+  {
     os << this->KVP;
-    }
+  }
 
   os << "\n" << indent << "GantryTilt: ";
   if (this->GantryTilt)
-    {
+  {
     os << this->GantryTilt;
-    }
+  }
 
   os << "\n" << indent << "EchoTime: ";
   if (this->EchoTime)
-    {
+  {
     os << this->EchoTime;
-    }
+  }
 
   os << "\n" << indent << "EchoTrainLength: ";
   if (this->EchoTrainLength)
-    {
+  {
     os << this->EchoTrainLength;
-    }
+  }
 
   os << "\n" << indent << "RepetitionTime: ";
   if (this->RepetitionTime)
-    {
+  {
     os << this->RepetitionTime;
-    }
+  }
 
   os << "\n" << indent << "ExposureTime: ";
   if (this->ExposureTime)
-    {
+  {
     os << this->ExposureTime;
-    }
+  }
 
   os << "\n" << indent << "XRayTubeCurrent: ";
   if (this->XRayTubeCurrent)
-    {
+  {
     os << this->XRayTubeCurrent;
-    }
+  }
 
   os << "\n" << indent << "Exposure: ";
   if (this->Exposure)
-    {
+  {
     os << this->Exposure;
-    }
+  }
 
   os << "\n" << indent << "DirectionCosine: ("
      << this->DirectionCosine[0] << ", " << this->DirectionCosine[1]

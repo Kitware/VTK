@@ -1,0 +1,33 @@
+NAME
+  VTK::ImagingCore
+LIBRARY_NAME
+  vtkImagingCore
+KIT
+  VTK::Imaging
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonMath
+  VTK::CommonTransforms
+TEST_DEPENDS
+  VTK::FiltersGeneral
+  VTK::FiltersHybrid
+  VTK::FiltersModeling
+  VTK::FiltersSources
+  VTK::ImagingGeneral
+  VTK::ImagingHybrid
+  VTK::ImagingMath
+  VTK::ImagingSources
+  VTK::ImagingStatistics
+  VTK::ImagingStencil
+  VTK::InteractionImage
+  VTK::InteractionStyle
+  VTK::IOImage
+  VTK::IOLegacy
+  VTK::RenderingImage
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

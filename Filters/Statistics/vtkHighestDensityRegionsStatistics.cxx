@@ -34,50 +34,66 @@ vtkStandardNewMacro(vtkHighestDensityRegionsStatistics);
 // ----------------------------------------------------------------------
 vtkHighestDensityRegionsStatistics::vtkHighestDensityRegionsStatistics()
 {
+  this->SmoothHC1[0] = 0.;
   // Initialize H smooth matrix to Identity.
-  this->SmoothHC1[0] = 1.0;
-  this->SmoothHC1[1] = 0.0;
-  this->SmoothHC2[0] = 0.0;
-  this->SmoothHC2[1] = 1.0;
+  this->SetSigma(1.0);
 
   //  At the construction, no columns pair are requested yet
   this->NumberOfRequestedColumnsPair = 0;
 }
 
 // ----------------------------------------------------------------------
-vtkHighestDensityRegionsStatistics::~vtkHighestDensityRegionsStatistics()
-{
-}
+vtkHighestDensityRegionsStatistics::~vtkHighestDensityRegionsStatistics() = default;
 
 // ----------------------------------------------------------------------
 void vtkHighestDensityRegionsStatistics::PrintSelf(ostream& os,
                                                    vtkIndent indent)
-  {
+{
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Smooth matrix: " <<
+  os << indent << "Sigma matrix: " <<
     this->SmoothHC1[0] << ", " <<
     this->SmoothHC1[1] << ", " <<
     this->SmoothHC2[0] << ", " <<
     this->SmoothHC2[1] << "\n";
+}
+
+// ----------------------------------------------------------------------
+void vtkHighestDensityRegionsStatistics::SetSigmaMatrix(
+  double s11, double s12, double s21, double s22)
+{
+  if (this->SmoothHC1[0] == s11 && this->SmoothHC1[1] == s12 &&
+      this->SmoothHC2[0] == s21 && this->SmoothHC2[1] == s22)
+  {
+    return;
   }
+
+  this->SmoothHC1[0] = s11;
+  this->SmoothHC1[1] = s12;
+  this->SmoothHC2[0] = s21;
+  this->SmoothHC2[1] = s22;
+
+  this->Determinant =
+    vtkMath::Determinant2x2(this->SmoothHC1, this->SmoothHC2);
+  double invDet = 0.;
+  if (this->Determinant != 0.)
+  {
+    invDet = 1.0 / this->Determinant;
+  }
+
+  // We compute and store the inverse of the smoothing matrix
+  this->InvSigmaC1[0] = +invDet * this->SmoothHC2[1];
+  this->InvSigmaC1[1] = -invDet * this->SmoothHC1[1];
+  this->InvSigmaC2[0] = -invDet * this->SmoothHC2[0];
+  this->InvSigmaC2[1] = +invDet * this->SmoothHC1[0];
+
+  this->Modified();
+}
 
 // ----------------------------------------------------------------------
 void vtkHighestDensityRegionsStatistics::SetSigma(double sigma)
 {
-  if (this->SmoothHC1[0] == sigma &&
-    this->SmoothHC1[1] == 0.0 &&
-    this->SmoothHC2[0] == 0.0 &&
-    this->SmoothHC2[1] == sigma)
-    {
-    return;
-    }
-  // Force H matrix to be equal to sigma * Identity.
-  this->SmoothHC1[0] = sigma;
-  this->SmoothHC1[1] = 0.0;
-  this->SmoothHC2[0] = 0.0;
-  this->SmoothHC2[1] = sigma;
-  this->Modified();
+  this->SetSigmaMatrix(sigma * sigma, 0, 0, sigma * sigma);
 }
 
 // ----------------------------------------------------------------------
@@ -86,9 +102,9 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
                                                vtkMultiBlockDataSet* outMeta)
 {
   if (!inData || !outMeta)
-    {
+  {
     return;
-    }
+  }
 
   vtkNew<vtkTable> outputColumns;
 
@@ -102,40 +118,40 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
   // the input dataset
   for (reqIt = this->Internals->Requests.begin();
     reqIt != this->Internals->Requests.end(); ++ reqIt)
-    {
+  {
     // Each request contains only one pair of columns of interest
     // (if there are others, they are ignored).
     std::set<vtkStdString>::const_iterator colIt = reqIt->begin();
     const vtkStdString &colY = *colIt;
     if (!inData->GetColumnByName(colY.c_str()))
-      {
+    {
       vtkWarningMacro("InData table does not have a column "
         << colY.c_str()
         << ". Ignoring this pair.");
       continue;
-      }
+    }
 
     ++colIt;
     const vtkStdString &colX = *colIt;
     if (!inData->GetColumnByName(colX.c_str()))
-      {
+    {
       vtkWarningMacro("InData table does not have a column "
         << colX.c_str()
         << ". Ignoring this pair.");
       continue;
-      }
+    }
 
     // Verify column types
     vtkDataArray *inputColX =
-      vtkDataArray::SafeDownCast(inData->GetColumnByName(colX.c_str()));
+      vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName(colX.c_str()));
     vtkDataArray *inputColY =
-      vtkDataArray::SafeDownCast(inData->GetColumnByName(colY.c_str()));
+      vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName(colY.c_str()));
     if (!inputColX || !inputColY)
-      {
+    {
       vtkErrorMacro(
         << "HDR cannot work with columns that are not of vtkDataArray type");
       return;
-      }
+    }
 
     vtkDataArray* arrX =
       vtkDataArray::CreateDataArray(inputColX->GetDataType());
@@ -167,7 +183,7 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
     outObservations->SetNumberOfComponents(1);
     outObservations->SetNumberOfTuples(inObservations->GetNumberOfTuples());
 
-    this->ComputeHDR(inObservations.GetPointer(), outObservations);
+    this->ComputeHDR(inObservations, outObservations);
     std::stringstream ss;
     ss <<"HDR (" << inputColX->GetName() << "," << inputColY->GetName() << ")";
     outObservations->SetName(ss.str().c_str());
@@ -179,10 +195,10 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
 
     // One requested pair of columns has been added.
     this->NumberOfRequestedColumnsPair++;
-    } // End requests iteration.
+  } // End requests iteration.
 
   outMeta->SetNumberOfBlocks(1);
-  outMeta->SetBlock(0, outputColumns.GetPointer());
+  outMeta->SetBlock(0, outputColumns);
   vtkInformation* info =
     outMeta->GetMetaData(static_cast<unsigned int>(0));
   info->Set(vtkCompositeDataSet::NAME(), "Estimator of density Data");
@@ -209,17 +225,17 @@ double vtkHighestDensityRegionsStatistics
   vtkIdType nbPoints = inPointsOfInterest->GetNumberOfTuples();
 
   if (nbObservations == 0)
-    {
+  {
     vtkErrorMacro(<< "Empty observation array");
     return 0.0;
-    }
+  }
   double sum = 0.0;
 
   double denom = 1.0 / static_cast<double>(nbObservations);
 
   // Let's compute the HDR for each points of interest
   for (vtkIdType i = 0; i < nbPoints; i++)
-    {
+  {
     double currentXi[2];
     double currentXj[2];
     double hdr = 0.0;
@@ -228,78 +244,31 @@ double vtkHighestDensityRegionsStatistics
     inPointsOfInterest->GetTuple(i, currentXi);
     // Sum all gaussian kernel
     for (vtkIdType j = 0; j < nbObservations; j++)
-      {
-
+    {
       inObs->GetTuple(j, currentXj);
 
       const double deltaX = currentXi[0] - currentXj[0];
       const double deltaY = currentXi[1] - currentXj[1];
-      // Avoid case where point is compared to itself
-      if (deltaX == 0. && deltaY == 0.)
-        {
-        continue;
-        }
       hdr += this->ComputeSmoothGaussianKernel(
         inObs->GetNumberOfComponents(),
         deltaX, deltaY);
-      }
+    }
     double d = denom * hdr;
     outDensity->SetTuple1(i, d);
     sum += d;
-    }
+  }
 
   return sum;
 }
 
 // ----------------------------------------------------------------------
 double vtkHighestDensityRegionsStatistics::ComputeSmoothGaussianKernel(
-  int dimension, double khx, double khy)
+  int vtkNotUsed(dimension), double khx, double khy)
 {
-  double HDeterminant =
-    vtkMath::Determinant2x2(this->SmoothHC1, this->SmoothHC2);
-  if (HDeterminant > 0.0)
-    {
-    HDeterminant = 1.0 / sqrt(HDeterminant);
-    }
-
-  // We need to multiply the input vector by the smooth square root of
-  // H matrix parameter: sqrt(H) * [khx, khy] -> random vector of the
-  // standard gaussian input.
-
-  // If a H coefficient is equal to 0.0. we don't compute its sqrt to avoid
-  // domain error.
-  double SHC10 = 0.0;
-  double SHC11 = 0.0;
-  double SHC20 = 0.0;
-  double SHC21 = 0.0;
-
-  if (this->SmoothHC1[0] != 0.0)
-    {
-    SHC10 = 1.0 / sqrt(this->SmoothHC1[0]);
-    }
-  if (this->SmoothHC1[1] != 0.0)
-    {
-    SHC11 = 1.0 / sqrt(this->SmoothHC1[1]);
-    }
-  if (this->SmoothHC2[0] != 0.0)
-    {
-    SHC20 = 1.0 / sqrt(this->SmoothHC2[0]);
-    }
-  if (this->SmoothHC2[1] != 0.0)
-    {
-    SHC21 = 1.0 / sqrt(this->SmoothHC2[1]);
-    }
-
   // Call the standard gaussian kernel with the new random vector.
-  return HDeterminant *
-    this->ComputeStandardGaussianKernel(dimension,
-    SHC10 * khx + SHC11 * khy,
-    SHC20 * khx + SHC21 * khy);
-}
+  double d =
+    khx * (this->InvSigmaC1[0] * khx + this->InvSigmaC2[0] * khy) +
+    khy * (this->InvSigmaC1[1] * khx + this->InvSigmaC2[1] * khy);
 
-// ----------------------------------------------------------------------
-double vtkHighestDensityRegionsStatistics::ComputeStandardGaussianKernel(
-  int vtkNotUsed(dimension), double kx, double ky)
-{
-  return exp(-(kx * kx + ky * ky) / 2.0) / (2.0 * vtkMath::Pi());
+  return (exp(-d * 0.5)) / (2.0 * vtkMath::Pi() * this->Determinant);
 }

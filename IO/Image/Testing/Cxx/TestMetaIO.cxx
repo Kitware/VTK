@@ -29,10 +29,10 @@ int TestMetaIO(int argc, char *argv[])
 {
   vtkOutputWindow::GetInstance()->PromptUserOn();
   if ( argc <= 1 )
-    {
+  {
     cout << "Usage: " << argv[0] << " <meta image file>" << endl;
     return 1;
-    }
+  }
 
 
   vtkMetaImageReader *reader = vtkMetaImageReader::New();
@@ -64,28 +64,28 @@ int TestMetaIO(int argc, char *argv[])
   double error = 0;
   int * ext = readerStd->GetOutput()->GetExtent();
   for(int z=ext[4]; z<=ext[5]; z+=2)
-    {
+  {
     for(int y=ext[2]; y<=ext[3]; y++)
-      {
+    {
       for(int x=ext[0]; x<=ext[1]; x++)
-        {
+      {
         error += fabs(
                   readerStd->GetOutput()->GetScalarComponentAsFloat(x, y, z, 0)
                   -
                   readerNew->GetOutput()->GetScalarComponentAsFloat(x, y, z, 0)
                   );
-        }
       }
     }
+  }
 
   readerStd->Delete();
   readerNew->Delete();
 
   if(error > 1)
-    {
+  {
     cerr << "Error: Image difference on read/write = " << error << endl;
     return 1;
-    }
+  }
 
   cout << "Success!  Error = " << error << endl;
 

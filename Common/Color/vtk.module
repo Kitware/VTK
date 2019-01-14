@@ -1,0 +1,18 @@
+NAME
+  VTK::CommonColor
+LIBRARY_NAME
+  vtkCommonColor
+DESCRIPTION
+  Color palette and named color support classes
+KIT
+  VTK::Common
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+TEST_DEPENDS
+  VTK::CommonExecutionModel
+  VTK::IOImage
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

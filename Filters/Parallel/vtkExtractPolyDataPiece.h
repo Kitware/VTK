@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractPolyDataPiece - Return specified piece, including specified
-// number of ghost levels.
+/**
+ * @class   vtkExtractPolyDataPiece
+ * @brief   Return specified piece, including specified
+ * number of ghost levels.
+*/
 
 #ifndef vtkExtractPolyDataPiece_h
 #define vtkExtractPolyDataPiece_h
@@ -29,21 +32,24 @@ class VTKFILTERSPARALLEL_EXPORT vtkExtractPolyDataPiece : public vtkPolyDataAlgo
 public:
   static vtkExtractPolyDataPiece *New();
   vtkTypeMacro(vtkExtractPolyDataPiece, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Turn on/off creating ghost cells (on by default).
-  vtkSetMacro(CreateGhostCells, int);
-  vtkGetMacro(CreateGhostCells, int);
-  vtkBooleanMacro(CreateGhostCells, int);
+  //@{
+  /**
+   * Turn on/off creating ghost cells (on by default).
+   */
+  vtkSetMacro(CreateGhostCells, vtkTypeBool);
+  vtkGetMacro(CreateGhostCells, vtkTypeBool);
+  vtkBooleanMacro(CreateGhostCells, vtkTypeBool);
+  //@}
 
 protected:
   vtkExtractPolyDataPiece();
-  ~vtkExtractPolyDataPiece() {}
+  ~vtkExtractPolyDataPiece() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   // A method for labeling which piece the cells belong to.
   void ComputeCellTags(vtkIntArray *cellTags, vtkIdList *pointOwnership,
@@ -51,10 +57,10 @@ protected:
 
   void AddGhostLevel(vtkPolyData *input, vtkIntArray *cellTags, int ghostLevel);
 
-  int CreateGhostCells;
+  vtkTypeBool CreateGhostCells;
 private:
-  vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&);  // Not implemented.
-  void operator=(const vtkExtractPolyDataPiece&);  // Not implemented.
+  vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&) = delete;
+  void operator=(const vtkExtractPolyDataPiece&) = delete;
 };
 
 #endif

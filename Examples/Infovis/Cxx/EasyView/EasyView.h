@@ -3,8 +3,6 @@
   Program:   Visualization Toolkit
   Module:    EasyView.h
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright 2007 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
@@ -54,7 +52,7 @@ public:
 
   // Constructor/Destructor
   EasyView();
-  ~EasyView();
+  ~EasyView() override;
 
 public slots:
 

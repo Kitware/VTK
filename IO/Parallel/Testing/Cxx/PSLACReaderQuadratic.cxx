@@ -33,6 +33,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
+#include "vtkInformation.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -113,40 +114,42 @@ void PSLACReaderQuadraticMethod(vtkMultiProcessController *controller, void *_ar
   prm->InitializeOffScreen();           // Mesa GL only
 
   if (controller->GetLocalProcessId() == 0)
-    {
+  {
     renwin->Render();
 
     prm->StopServices();
     // Change the time to test the periodic mode interpolation.
-    vtkStreamingDemandDrivenPipeline *sdd =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(geometry->GetExecutive());
-    sdd->SetUpdateTimeStep(0, 3e-10);
+    geometry->UpdateInformation();
+    geometry->GetOutputInformation(0)->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
+      3e-10);
     renwin->Render();
 
     // Do the test comparison.
     int retval = vtkRegressionTestImage(renwin);
     if (retval == vtkRegressionTester::DO_INTERACTOR)
-      {
+    {
       VTK_CREATE(vtkRenderWindowInteractor, iren);
       iren->SetRenderWindow(renwin);
       iren->Initialize();
       iren->Start();
       retval = vtkRegressionTester::PASSED;
-      }
+    }
 
     *(args->retval) = (retval == vtkRegressionTester::PASSED) ? 0 : 1;
 
     prm->StopServices();
-    }
+  }
   else // not root node
-    {
+  {
     prm->StartServices();
     // Change the time to test the periodic mode interpolation.
-    vtkStreamingDemandDrivenPipeline *sdd =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(geometry->GetExecutive());
-    sdd->SetUpdateTimeStep(0, 3e-10);
+    geometry->UpdateInformation();
+    geometry->GetOutputInformation(0)->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
+      3e-10);
     prm->StartServices();
-    }
+  }
 
   controller->Broadcast(args->retval, 1, 0);
 }

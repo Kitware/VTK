@@ -59,11 +59,11 @@ int TestExtractSelectedTree(int, char*[])
   names->SetValue(7,"c");
 
 
-  graph->GetEdgeData()->AddArray(weights.GetPointer());
-  graph->GetVertexData()->AddArray(names.GetPointer());
+  graph->GetEdgeData()->AddArray(weights);
+  graph->GetVertexData()->AddArray(names);
 
   vtkNew<vtkTree> tree;
-  tree->ShallowCopy(graph.GetPointer());
+  tree->ShallowCopy(graph);
 
   int SUCCESS = 0;
 
@@ -76,63 +76,63 @@ int TestExtractSelectedTree(int, char*[])
   selArr->InsertNextValue(c);
   selNode->SetContentType(vtkSelectionNode::INDICES);
   selNode->SetFieldType(vtkSelectionNode::VERTEX);
-  selNode->SetSelectionList(selArr.GetPointer());
+  selNode->SetSelectionList(selArr);
   selNode->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
-  sel->AddNode(selNode.GetPointer());
+  sel->AddNode(selNode);
 
   vtkNew<vtkExtractSelectedTree> filter1;
-  filter1->SetInputData(0,tree.GetPointer());
-  filter1->SetInputData(1,sel.GetPointer());
+  filter1->SetInputData(0,tree);
+  filter1->SetInputData(1,sel);
   vtkTree * resultTree1 = filter1->GetOutput();
   filter1->Update();
 
   if (resultTree1->GetNumberOfVertices() == 5)
-    {
+  {
 
     vtkDataSetAttributes * vertexData = resultTree1->GetVertexData();
     vtkDataSetAttributes * edgeData = resultTree1->GetEdgeData();
     if (vertexData->GetNumberOfTuples() != 5)
-      {
+    {
       std::cerr << "vertex # =" << vertexData->GetNumberOfTuples() << std::endl;
       return EXIT_FAILURE;
-      }
+    }
     else
-      {
-      vtkStringArray * nodename = vtkStringArray::SafeDownCast(vertexData->GetAbstractArray("node name"));
+    {
+      vtkStringArray * nodename = vtkArrayDownCast<vtkStringArray>(vertexData->GetAbstractArray("node name"));
       vtkStdString n = nodename->GetValue(4);
       if (n.compare("d") != 0)
-        {
+      {
         std::cerr <<"The node name should be \'d\', but appear to be: "<< n.c_str() << std::endl;
         return EXIT_FAILURE;
-        }
       }
+    }
 
     if (edgeData->GetNumberOfTuples() != 4)
-      {
+    {
       std::cerr<<"edge # ="<<edgeData->GetNumberOfTuples()<<std::endl;
       return EXIT_FAILURE;
-      }
-    SUCCESS++;
     }
+    SUCCESS++;
+  }
 
   //subtest 2
   vtkNew<vtkExtractSelectedTree> filter2;
   selNode->GetProperties()->Set(vtkSelectionNode::INVERSE(), 0);
-  filter2->SetInputData(0,tree.GetPointer());
-  filter2->SetInputData(1,sel.GetPointer());
+  filter2->SetInputData(0,tree);
+  filter2->SetInputData(1,sel);
   vtkTree * resultTree2 = filter2->GetOutput();
   filter2->Update();
 
   if (resultTree2->GetNumberOfVertices() == 3)
-    {
+  {
     SUCCESS++;
-    }
+  }
   else
-    {
+  {
     std::cerr<<"sub test 2: edge # ="<<resultTree2->GetNumberOfEdges()<<std::endl;
     std::cerr<<"vertex # ="<<resultTree2->GetNumberOfVertices()<<std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
 
@@ -145,30 +145,30 @@ int TestExtractSelectedTree(int, char*[])
   selArrEdge->InsertNextValue(6);
   selEdge->SetContentType(vtkSelectionNode::INDICES);
   selEdge->SetFieldType(vtkSelectionNode::EDGE);
-  selEdge->SetSelectionList(selArrEdge.GetPointer());
+  selEdge->SetSelectionList(selArrEdge);
   selEdge->GetProperties()->Set(vtkSelectionNode::INVERSE(), 0);
-  sel3->AddNode(selEdge.GetPointer());
+  sel3->AddNode(selEdge);
 
-  filter3->SetInputData(0,tree.GetPointer());
-  filter3->SetInputData(1,sel3.GetPointer());
+  filter3->SetInputData(0,tree);
+  filter3->SetInputData(1,sel3);
   vtkTree * resultTree3 = filter3->GetOutput();
   filter3->Update();
 
   if (resultTree3->GetNumberOfVertices() == 3)
-    {
+  {
     SUCCESS++;
-    }
+  }
   else
-    {
+  {
     std::cerr<<"sub test 3: edge # ="<<resultTree3->GetNumberOfEdges()<<std::endl;
     std::cerr<<"vertex # ="<<resultTree3->GetNumberOfVertices()<<std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if( SUCCESS == 3)
-    {
+  {
     return EXIT_SUCCESS;
-    }
+  }
 
   return EXIT_FAILURE;
 }

@@ -18,7 +18,8 @@
 #include <cassert>
 #include "vtkRenderState.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLState.h"
+#include "vtkFrameBufferObjectBase.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 
@@ -32,7 +33,7 @@
 #include "vtkPixelBufferObject.h"
 #include "vtkImageExtractComponents.h"
 #include "vtkMultiProcessController.h"
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include "vtkTimerLog.h"
 #include "vtkStdString.h"
 #include "vtkImageData.h"
@@ -45,13 +46,9 @@
 //#include <unistd.h>
 # include <sys/syscall.h>
 # include <sys/types.h> // Linux specific gettid()
-# include "vtkOpenGLState.h"
 #endif
 
-#ifndef VTKGL2
-# include "vtkgl.h"
-# include "vtkOpenGLExtensionManager.h"
-#endif
+#include "vtk_glew.h"
 
 vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Controller,vtkMultiProcessController);
@@ -60,38 +57,38 @@ vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Kdtree,vtkPKdTree);
 // ----------------------------------------------------------------------------
 vtkCompositeRGBAPass::vtkCompositeRGBAPass()
 {
-  this->Controller=0;
-  this->Kdtree=0;
-  this->PBO=0;
-  this->RGBATexture=0;
-  this->RootTexture=0;
-  this->RawRGBABuffer=0;
+  this->Controller=nullptr;
+  this->Kdtree=nullptr;
+  this->PBO=nullptr;
+  this->RGBATexture=nullptr;
+  this->RootTexture=nullptr;
+  this->RawRGBABuffer=nullptr;
   this->RawRGBABufferSize=0;
 }
 
 // ----------------------------------------------------------------------------
 vtkCompositeRGBAPass::~vtkCompositeRGBAPass()
 {
-  if(this->Controller!=0)
-    {
+  if(this->Controller!=nullptr)
+  {
       this->Controller->Delete();
-    }
-  if(this->Kdtree!=0)
-    {
+  }
+  if(this->Kdtree!=nullptr)
+  {
       this->Kdtree->Delete();
-    }
-  if(this->PBO!=0)
-    {
+  }
+  if(this->PBO!=nullptr)
+  {
     vtkErrorMacro(<<"PixelBufferObject should have been deleted in ReleaseGraphicsResources().");
-    }
-   if(this->RGBATexture!=0)
-    {
+  }
+   if(this->RGBATexture!=nullptr)
+   {
     vtkErrorMacro(<<"RGBATexture should have been deleted in ReleaseGraphicsResources().");
-    }
-   if(this->RootTexture!=0)
-     {
+   }
+   if(this->RootTexture!=nullptr)
+   {
      vtkErrorMacro(<<"RootTexture should have been deleted in ReleaseGraphicsResources().");
-    }
+   }
    delete[] this->RawRGBABuffer;
 }
 
@@ -101,40 +98,29 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Controller:";
-  if(this->Controller!=0)
-    {
+  if(this->Controller!=nullptr)
+  {
     this->Controller->PrintSelf(os,indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
   os << indent << "Kdtree:";
-  if(this->Kdtree!=0)
-    {
+  if(this->Kdtree!=nullptr)
+  {
     this->Kdtree->PrintSelf(os,indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
 bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
-#ifdef VTKGL2
-  return (context != 0);
-#else
-  vtkOpenGLExtensionManager *extmgr = context->GetExtensionManager();
-
-  bool fbo_support=vtkFrameBufferObject::IsSupported(context);
-  bool texture_support
-     =  vtkTextureObject::IsSupported(context)
-       && (extmgr->ExtensionSupported("GL_ARB_texture_float")==1);
-
-  return fbo_support && texture_support;
-#endif
+  return (context != nullptr);
 }
 
 // ----------------------------------------------------------------------------
@@ -143,26 +129,26 @@ bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
 // \pre s_exists: s!=0
 void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
-  if(this->Controller==0)
-    {
+  if(this->Controller==nullptr)
+  {
     vtkErrorMacro(<<" no controller.");
     return;
-    }
+  }
 
   int numProcs=this->Controller->GetNumberOfProcesses();
 
   if(numProcs==1)
-    {
+  {
     return; // nothing to do.
-    }
+  }
 
-  if(this->Kdtree==0)
-    {
+  if(this->Kdtree==nullptr)
+  {
     vtkErrorMacro(<<" no Kdtree.");
     return;
-    }
+  }
 
   int me=this->Controller->GetLocalProcessId();
 
@@ -173,34 +159,31 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
   vtkOpenGLRenderWindow *context
     = static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow());
+  vtkOpenGLState *ostate = context->GetState();
 
   if (!this->IsSupported(context))
-    {
+  {
     vtkErrorMacro(
       << "Missing required OpenGL extensions. "
       << "Cannot perform rgba-compositing.");
     return;
-    }
-
-#ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
-  vtkOpenGLState *state=new vtkOpenGLState(context);
-#endif
+  }
 
   int w=0;
   int h=0;
 
-  vtkFrameBufferObject *fbo=s->GetFrameBuffer();
-  if(fbo==0)
-    {
+  vtkFrameBufferObjectBase *fbo = s->GetFrameBuffer();
+  if(fbo==nullptr)
+  {
     r->GetTiledSize(&w,&h);
-    }
+  }
   else
-    {
+  {
     int size[2];
     fbo->GetLastSize(size);
     w=size[0];
     h=size[1];
-    }
+  }
 
   int numComps = 4;
   unsigned int numTups = w*h;
@@ -216,30 +199,30 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
   continuousInc[2]=0;
 
 
-  if(this->RawRGBABuffer!=0 &&
+  if(this->RawRGBABuffer!=nullptr &&
      this->RawRGBABufferSize<static_cast<size_t>(w*h*4))
-    {
+  {
     delete[] this->RawRGBABuffer;
-    this->RawRGBABuffer=0;
-    }
-  if(this->RawRGBABuffer==0)
-    {
+    this->RawRGBABuffer=nullptr;
+  }
+  if(this->RawRGBABuffer==nullptr)
+  {
     this->RawRGBABufferSize=static_cast<size_t>(w*h*4);
     this->RawRGBABuffer=new float[this->RawRGBABufferSize];
-    }
+  }
 
   //size_t byteSize = this->RawRGBABufferSize*sizeof(unsigned char);
 
-  if(this->PBO==0)
-    {
+  if(this->PBO==nullptr)
+  {
     this->PBO=vtkPixelBufferObject::New();
     this->PBO->SetContext(context);
-    }
-  if(this->RGBATexture==0)
-    {
+  }
+  if(this->RGBATexture==nullptr)
+  {
     this->RGBATexture=vtkTextureObject::New();
     this->RGBATexture->SetContext(context);
-    }
+  }
 
   // TO: texture object
   // PBO: pixel buffer object
@@ -257,7 +240,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 #endif
 
   if(me==0)
-    {
+  {
     // root
     // 1. figure out the back to front ordering
     // 2. if root is not farest, save it in a TO
@@ -278,7 +261,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
     cout << "after readpixel." << endl;
     this->PBO->Download2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
     cout << "after pbodownload." << endl;
@@ -302,7 +285,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
 //    rgbaToRgb->SetComponents(0,1,2);
 
-    vtksys_ios::ostringstream ostxx;
+    std::ostringstream ostxx;
     ostxx.setf(ios::fixed,ios::floatfield);
     ostxx.precision(5);
     timer->StopTimer();
@@ -329,15 +312,15 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     vtkCamera *c=r->GetActiveCamera();
     vtkIntArray *frontToBackList=vtkIntArray::New();
     if(c->GetParallelProjection())
-      {
+    {
       this->Kdtree->ViewOrderAllProcessesInDirection(
         c->GetDirectionOfProjection(),frontToBackList);
-      }
+    }
     else
-      {
+    {
       this->Kdtree->ViewOrderAllProcessesFromPosition(
         c->GetPosition(),frontToBackList);
-      }
+    }
 
     assert("check same_size" &&
            frontToBackList->GetNumberOfTuples()==numProcs);
@@ -345,107 +328,90 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
     int i=0;
     while(i<numProcs)
-      {
+    {
       cout << "frontToBackList[" << i << "]=" << frontToBackList->GetValue(i)
            <<endl;
       ++i;
-      }
+    }
 #endif
 
-    glPushAttrib(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_LIGHTING);
-    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+  // framebuffers have their color premultiplied by alpha.
 
-    // per-fragment operations
-    glDisable(GL_ALPHA_TEST);
-    glDisable(GL_STENCIL_TEST);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
-    glDisable(GL_INDEX_LOGIC_OP);
-    glDisable(GL_COLOR_LOGIC_OP);
+    // save off current state of src / dst blend functions
+    {
+      vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
 
-    // framebuffers have their color premultiplied by alpha.
-#ifdef VTKGL2
-    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
-                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-#else
-    vtkgl::BlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
-                             GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-    // fixed vertex shader
-    glDisable(GL_LIGHTING);
+      ostate->vtkglColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 
-    // fixed fragment shader
-    glEnable(GL_TEXTURE_2D);
-    glDisable(GL_FOG);
-#endif
+      // per-fragment operations
+      ostate->vtkglDisable(GL_DEPTH_TEST);
+      ostate->vtkglDisable(GL_BLEND);
+      ostate->vtkglBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
+                          GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
-    glPixelStorei(GL_UNPACK_ALIGNMENT,1);// client to server
+      glPixelStorei(GL_UNPACK_ALIGNMENT,1);// client to server
 
-    // 2. if root is not farest, save it in a TO
-    bool rootIsFarest=frontToBackList->GetValue(numProcs-1)==0;
-    if(!rootIsFarest)
+      // 2. if root is not farest, save it in a TO
+      bool rootIsFarest=frontToBackList->GetValue(numProcs-1)==0;
+      if(!rootIsFarest)
       {
-      if(this->RootTexture==0)
+        if(this->RootTexture==nullptr)
         {
-        this->RootTexture=vtkTextureObject::New();
-        this->RootTexture->SetContext(context);
+          this->RootTexture=vtkTextureObject::New();
+          this->RootTexture->SetContext(context);
         }
-      this->RootTexture->Allocate2D(dims[0],dims[1],4,VTK_UNSIGNED_CHAR);
-      this->RootTexture->CopyFromFrameBuffer(0,0,0,0,w,h);
+        this->RootTexture->Allocate2D(dims[0],dims[1],4,VTK_UNSIGNED_CHAR);
+        this->RootTexture->CopyFromFrameBuffer(0,0,0,0,w,h);
       }
 
-    // 3. in back to front order:
-    // 3a. if this is step for root, render root TO (if not farest)
-    // 3b. if satellite, get image, load it into TO, render quad
+      // 3. in back to front order:
+      // 3a. if this is step for root, render root TO (if not farest)
+      // 3b. if satellite, get image, load it into TO, render quad
 
-    int procIndex=numProcs-1;
-    bool blendingEnabled=false;
-    if(rootIsFarest)
+      int procIndex=numProcs-1;
+      bool blendingEnabled=false;
+      if(rootIsFarest)
       {
-      // nothing to do.
-      --procIndex;
+        // nothing to do.
+        --procIndex;
       }
-    while(procIndex>=0)
+      while(procIndex>=0)
       {
-      vtkTextureObject *to;
-      int proc=frontToBackList->GetValue(procIndex);
-      if(proc==0)
+        vtkTextureObject *to;
+        int proc=frontToBackList->GetValue(procIndex);
+        if(proc==0)
         {
-          to=this->RootTexture;
+            to=this->RootTexture;
         }
-      else
+        else
         {
-        // receive the rgba from satellite process.
-        this->Controller->Receive(this->RawRGBABuffer,
-                                  static_cast<vtkIdType>(this->RawRGBABufferSize),
-                                  proc,VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER);
+          // receive the rgba from satellite process.
+          this->Controller->Receive(this->RawRGBABuffer,
+                                    static_cast<vtkIdType>(this->RawRGBABufferSize),
+                                    proc,VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER);
 
-        // send it to a PBO
-        this->PBO->Upload2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
-        // Send PBO to TO
-        this->RGBATexture->Create2D(dims[0],dims[1],4,this->PBO,false);
-        to=this->RGBATexture;
+          // send it to a PBO
+          this->PBO->Upload2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
+          // Send PBO to TO
+          this->RGBATexture->Create2D(dims[0],dims[1],4,this->PBO,false);
+          to=this->RGBATexture;
         }
-      if(!blendingEnabled && procIndex<(numProcs-1))
+        if(!blendingEnabled && procIndex<(numProcs-1))
         {
-        glEnable(GL_BLEND);
-        blendingEnabled=true;
+          ostate->vtkglEnable(GL_BLEND);
+          blendingEnabled=true;
         }
-#ifdef VTKGL2
-      to->Activate();
-      to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0, w, h, NULL, NULL);
-      to->Deactivate();
-#else
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-      // fixed-pipeline for vertex and fragment shaders.
-      to->Bind();
-      to->CopyToFrameBuffer(0,0,w-1,h-1,0,0,w,h);
-      to->UnBind();
-#endif
-      --procIndex;
+        to->Activate();
+        to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0, w, h, nullptr, nullptr);
+        to->Deactivate();
+        --procIndex;
       }
-    glPopAttrib();
+      // restore blend func by going out of scope
+    }
+
+
     frontToBackList->Delete();
+
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
     // get rgba-buffer of root before any blending with satellite
     // for debugging only.
@@ -459,7 +425,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
 
     this->PBO->Download2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
 
@@ -483,7 +449,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
 //    rgbaToRgb->SetComponents(0,1,2);
 
-    vtksys_ios::ostringstream osty;
+    std::ostringstream osty;
     osty.setf(ios::fixed,ios::floatfield);
     osty.precision(5);
     timer->StopTimer();
@@ -507,9 +473,9 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 #endif
 
     // root node Done.
-    }
+  }
   else
-    {
+  {
     // satellite
     // send rgba-buffer
 
@@ -522,7 +488,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
 
     // PBO to client
     glPixelStorei(GL_PACK_ALIGNMENT,1);// server to client
@@ -550,7 +516,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
 //    rgbaToRgb->SetComponents(0,1,2);
 
-    vtksys_ios::ostringstream ostxx;
+    std::ostringstream ostxx;
     ostxx.setf(ios::fixed,ios::floatfield);
     ostxx.precision(5);
     timer->StopTimer();
@@ -577,7 +543,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     this->Controller->Send(this->RawRGBABuffer,
                            static_cast<vtkIdType>(this->RawRGBABufferSize),0,
                            VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER);
-    }
+  }
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
   delete state;
   timer->Delete();
@@ -591,23 +557,23 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 // \pre w_exists: w!=0
 void vtkCompositeRGBAPass::ReleaseGraphicsResources(vtkWindow *w)
 {
-  assert("pre: w_exists" && w!=0);
+  assert("pre: w_exists" && w!=nullptr);
 
   (void)w;
 
-  if(this->PBO!=0)
-    {
+  if(this->PBO!=nullptr)
+  {
     this->PBO->Delete();
-    this->PBO=0;
-    }
-  if(this->RGBATexture!=0)
-    {
+    this->PBO=nullptr;
+  }
+  if(this->RGBATexture!=nullptr)
+  {
     this->RGBATexture->Delete();
-    this->RGBATexture=0;
-    }
-  if(this->RootTexture!=0)
-    {
+    this->RGBATexture=nullptr;
+  }
+  if(this->RootTexture!=nullptr)
+  {
     this->RootTexture->Delete();
-    this->RootTexture=0;
-    }
+    this->RootTexture=nullptr;
+  }
 }

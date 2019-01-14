@@ -16,9 +16,12 @@
 
 #ifndef vtkXdmfHeavyData_h
 #define vtkXdmfHeavyData_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
-#include "XdmfDataItem.h"
-#include "XdmfGrid.h" //won't compile without it
+#include "vtk_xdmf2.h"
+#include VTKXDMF2_HEADER(XdmfDataItem.h)
+#include VTKXDMF2_HEADER(XdmfGrid.h) //won't compile without it
 #include "vtkIOXdmf2Module.h" // For export macro
 
 class vtkAlgorithm;
@@ -55,7 +58,7 @@ public:
   ~vtkXdmfHeavyData();
 
   // Description:
-  vtkDataObject* ReadData(xdmf2::XdmfGrid* xmfGrid);
+  vtkDataObject* ReadData(xdmf2::XdmfGrid* xmfGrid, int blockId = -1);
 
   // Description:
   vtkDataObject* ReadData();
@@ -70,10 +73,11 @@ public:
   // of points possible.
   static int GetNumberOfPointsPerCell(int vtk_cell_type);
 
+
 private:
   // Description:
   // Read a temporal collection.
-  vtkDataObject* ReadTemporalCollection(xdmf2::XdmfGrid* xmfTemporalCollection);
+  vtkDataObject* ReadTemporalCollection(xdmf2::XdmfGrid* xmfTemporalCollection, int blockId);
 
   // Description:
   // Read a spatial-collection or a tree.
@@ -82,7 +86,7 @@ private:
   // Description:
   // Read a non-composite grid. Note here uniform has nothing to do with
   // vtkUniformGrid but to what Xdmf's GridType="Uniform".
-  vtkDataObject* ReadUniformData(xdmf2::XdmfGrid* xmfGrid);
+  vtkDataObject* ReadUniformData(xdmf2::XdmfGrid* xmfGrid, int blockId);
 
   // Description:
   // Reads the topology and geometry for an unstructured grid. Does not read any
@@ -109,8 +113,8 @@ private:
   // vtkStructuredGrid. If non-null, then the only the points for the sub-grid
   // are read.
   vtkPoints* ReadPoints(xdmf2::XdmfGeometry* xmfGeometry,
-    int *update_extents=NULL,
-    int *whole_extents=NULL);
+    int *update_extents=nullptr,
+    int *whole_extents=nullptr);
 
   // Description:
   // Read attributes.
@@ -135,7 +139,7 @@ private:
 
   // Description:
   // Used when reading node-sets.
-  // Creates a new dataset with points with given ids extracted from  the input
+  // Creates a new dataset with points with given ids extracted from the input
   // dataset.
   vtkDataSet* ExtractPoints(xdmf2::XdmfSet* xmfSet, vtkDataSet* dataSet);
 
@@ -153,10 +157,11 @@ private:
 
   // Description:
   // Used when reading edge-sets.
-  // Creates a new dataset with egdes selected by the set, extracting them from
+  // Creates a new dataset with edges selected by the set, extracting them from
   // the input dataset.
   vtkDataSet* ExtractEdges(xdmf2::XdmfSet* xmfSet, vtkDataSet* dataSet);
-
 };
 
+#endif
+#endif
 #endif

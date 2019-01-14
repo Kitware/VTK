@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericOutlineFilter - create wireframe outline for arbitrary
-// generic data set
-//
-// .SECTION Description
-// vtkGenericOutlineFilter is a filter that generates a wireframe outline of
-// any generic data set. The outline consists of the twelve edges of the
-// generic dataset bounding box.
-//
-// .SECTION See Also
-// vtkGenericDataSet
+/**
+ * @class   vtkGenericOutlineFilter
+ * @brief   create wireframe outline for arbitrary
+ * generic data set
+ *
+ *
+ * vtkGenericOutlineFilter is a filter that generates a wireframe outline of
+ * any generic data set. The outline consists of the twelve edges of the
+ * generic dataset bounding box.
+ *
+ * @sa
+ * vtkGenericDataSet
+*/
 
 #ifndef vtkGenericOutlineFilter_h
 #define vtkGenericOutlineFilter_h
@@ -39,17 +42,17 @@ public:
 
 protected:
   vtkGenericOutlineFilter();
-  ~vtkGenericOutlineFilter();
+  ~vtkGenericOutlineFilter() override;
 
   vtkOutlineSource *OutlineSource;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkGenericOutlineFilter(const vtkGenericOutlineFilter&);  // Not implemented.
-  void operator=(const vtkGenericOutlineFilter&);  // Not implemented.
+  vtkGenericOutlineFilter(const vtkGenericOutlineFilter&) = delete;
+  void operator=(const vtkGenericOutlineFilter&) = delete;
 };
 
 #endif

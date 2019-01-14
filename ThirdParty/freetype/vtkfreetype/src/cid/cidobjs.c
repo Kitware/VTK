@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    CID objects manager (body).                                          */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2008, 2010 by       */
+/*  Copyright 1996-2018 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -26,6 +26,7 @@
 #include FT_SERVICE_POSTSCRIPT_CMAPS_H
 #include FT_INTERNAL_POSTSCRIPT_AUX_H
 #include FT_INTERNAL_POSTSCRIPT_HINTS_H
+#include FT_DRIVER_H
 
 #include "ciderrs.h"
 
@@ -49,7 +50,7 @@
   FT_LOCAL_DEF( void )
   cid_slot_done( FT_GlyphSlot  slot )
   {
-    slot->internal->glyph_hints = 0;
+    slot->internal->glyph_hints = NULL;
   }
 
 
@@ -113,16 +114,16 @@
     CID_Size  size = (CID_Size)cidsize;
 
 
-    if ( cidsize->internal )
+    if ( cidsize->internal->module_data )
     {
       PSH_Globals_Funcs  funcs;
 
 
       funcs = cid_size_get_globals_funcs( size );
       if ( funcs )
-        funcs->destroy( (PSH_Globals)cidsize->internal );
+        funcs->destroy( (PSH_Globals)cidsize->internal->module_data );
 
-      cidsize->internal = 0;
+      cidsize->internal->module_data = NULL;
     }
   }
 
@@ -131,7 +132,7 @@
   cid_size_init( FT_Size  cidsize )     /* CID_Size */
   {
     CID_Size           size  = (CID_Size)cidsize;
-    FT_Error           error = CID_Err_Ok;
+    FT_Error           error = FT_Err_Ok;
     PSH_Globals_Funcs  funcs = cid_size_get_globals_funcs( size );
 
 
@@ -145,7 +146,7 @@
 
       error = funcs->create( cidsize->face->memory, priv, &globals );
       if ( !error )
-        cidsize->internal = (FT_Size_Internal)(void*)globals;
+        cidsize->internal->module_data = globals;
     }
 
     return error;
@@ -164,12 +165,12 @@
     funcs = cid_size_get_globals_funcs( (CID_Size)size );
 
     if ( funcs )
-      funcs->set_scale( (PSH_Globals)size->internal,
+      funcs->set_scale( (PSH_Globals)size->internal->module_data,
                         size->metrics.x_scale,
                         size->metrics.y_scale,
                         0, 0 );
 
-    return CID_Err_Ok;
+    return FT_Err_Ok;
   }
 
 
@@ -243,8 +244,8 @@
     FT_FREE( cid->registry );
     FT_FREE( cid->ordering );
 
-    cidface->family_name = 0;
-    cidface->style_name  = 0;
+    cidface->family_name = NULL;
+    cidface->style_name  = NULL;
 
     FT_FREE( face->binary_data );
     FT_FREE( face->cid_stream );
@@ -299,6 +300,13 @@
       psaux = (PSAux_Service)FT_Get_Module_Interface(
                 FT_FACE_LIBRARY( face ), "psaux" );
 
+      if ( !psaux )
+      {
+        FT_ERROR(( "cid_face_init: cannot access `psaux' module\n" ));
+        error = FT_THROW( Missing_Module );
+        goto Exit;
+      }
+
       face->psaux = psaux;
     }
 
@@ -310,6 +318,8 @@
 
       face->pshinter = pshinter;
     }
+
+    FT_TRACE2(( "CID driver\n" ));
 
     /* open the tokenizer; this will also check the font format */
     if ( FT_STREAM_SEEK( 0 ) )
@@ -325,10 +335,10 @@
 
     /* check the face index */
     /* XXX: handle CID fonts with more than a single face */
-    if ( face_index != 0 )
+    if ( ( face_index & 0xFFFF ) != 0 )
     {
       FT_ERROR(( "cid_face_init: invalid face index\n" ));
-      error = CID_Err_Invalid_Argument;
+      error = FT_THROW( Invalid_Argument );
       goto Exit;
     }
 
@@ -342,13 +352,14 @@
       PS_FontInfo   info = &cid->font_info;
 
 
-      cidface->num_glyphs   = cid->cid_count;
+      cidface->num_glyphs   = (FT_Long)cid->cid_count;
       cidface->num_charmaps = 0;
 
-      cidface->face_index = face_index;
-      cidface->face_flags = FT_FACE_FLAG_SCALABLE   | /* scalable outlines */
-                            FT_FACE_FLAG_HORIZONTAL | /* horizontal data   */
-                            FT_FACE_FLAG_HINTER;      /* has native hinter */
+      cidface->face_index = face_index & 0xFFFF;
+
+      cidface->face_flags |= FT_FACE_FLAG_SCALABLE   | /* scalable outlines */
+                             FT_FACE_FLAG_HORIZONTAL | /* horizontal data   */
+                             FT_FACE_FLAG_HINTER;      /* has native hinter */
 
       if ( info->is_fixed_pitch )
         cidface->face_flags |= FT_FACE_FLAG_FIXED_WIDTH;
@@ -411,7 +422,7 @@
 
       /* no embedded bitmap support */
       cidface->num_fixed_sizes = 0;
-      cidface->available_sizes = 0;
+      cidface->available_sizes = NULL;
 
       cidface->bbox.xMin =   cid->font_bbox.xMin            >> 16;
       cidface->bbox.yMin =   cid->font_bbox.yMin            >> 16;
@@ -453,11 +464,44 @@
   /*    FreeType error code.  0 means success.                             */
   /*                                                                       */
   FT_LOCAL_DEF( FT_Error )
-  cid_driver_init( FT_Module  driver )
+  cid_driver_init( FT_Module  module )
   {
-    FT_UNUSED( driver );
+    PS_Driver  driver = (PS_Driver)module;
 
-    return CID_Err_Ok;
+    FT_UInt32  seed;
+
+
+    /* set default property values, cf. `ftt1drv.h' */
+#ifdef T1_CONFIG_OPTION_OLD_ENGINE
+    driver->hinting_engine = FT_HINTING_FREETYPE;
+#else
+    driver->hinting_engine = FT_HINTING_ADOBE;
+#endif
+
+    driver->no_stem_darkening = TRUE;
+
+    driver->darken_params[0] = CFF_CONFIG_OPTION_DARKENING_PARAMETER_X1;
+    driver->darken_params[1] = CFF_CONFIG_OPTION_DARKENING_PARAMETER_Y1;
+    driver->darken_params[2] = CFF_CONFIG_OPTION_DARKENING_PARAMETER_X2;
+    driver->darken_params[3] = CFF_CONFIG_OPTION_DARKENING_PARAMETER_Y2;
+    driver->darken_params[4] = CFF_CONFIG_OPTION_DARKENING_PARAMETER_X3;
+    driver->darken_params[5] = CFF_CONFIG_OPTION_DARKENING_PARAMETER_Y3;
+    driver->darken_params[6] = CFF_CONFIG_OPTION_DARKENING_PARAMETER_X4;
+    driver->darken_params[7] = CFF_CONFIG_OPTION_DARKENING_PARAMETER_Y4;
+
+    /* compute random seed from some memory addresses */
+    seed = (FT_UInt32)( (FT_Offset)(char*)&seed          ^
+                        (FT_Offset)(char*)&module        ^
+                        (FT_Offset)(char*)module->memory );
+    seed = seed ^ ( seed >> 10 ) ^ ( seed >> 20 );
+
+    driver->random_seed = (FT_Int32)seed;
+    if ( driver->random_seed < 0 )
+      driver->random_seed = -driver->random_seed;
+    else if ( driver->random_seed == 0 )
+      driver->random_seed = 123456789;
+
+    return FT_Err_Ok;
   }
 
 

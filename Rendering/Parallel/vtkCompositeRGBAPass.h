@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeRGBAPass - Blend RGBA buffers of processes.
-// .SECTION Description
-// Blend the RGBA buffers of satellite processes over the root process RGBA
-// buffer.
-// The RGBA buffer of the satellite processes are not changed.
-//
-// This pass requires a OpenGL context that supports texture objects (TO),
-// and pixel buffer objects (PBO). If not, it will emit an error message
-// and will render its delegate and return.
-//
-// .SECTION See Also
-// vtkRenderPass
+/**
+ * @class   vtkCompositeRGBAPass
+ * @brief   Blend RGBA buffers of processes.
+ *
+ * Blend the RGBA buffers of satellite processes over the root process RGBA
+ * buffer.
+ * The RGBA buffer of the satellite processes are not changed.
+ *
+ * This pass requires a OpenGL context that supports texture objects (TO),
+ * and pixel buffer objects (PBO). If not, it will emit an error message
+ * and will render its delegate and return.
+ *
+ * @sa
+ * vtkRenderPass
+*/
 
 #ifndef vtkCompositeRGBAPass_h
 #define vtkCompositeRGBAPass_h
@@ -43,43 +46,54 @@ class VTKRENDERINGPARALLEL_EXPORT vtkCompositeRGBAPass : public vtkRenderPass
 public:
   static vtkCompositeRGBAPass *New();
   vtkTypeMacro(vtkCompositeRGBAPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Perform rendering according to a render state \p s.
-  // \pre s_exists: s!=0
-  virtual void Render(const vtkRenderState *s);
+  /**
+   * Perform rendering according to a render state \p s.
+   * \pre s_exists: s!=0
+   */
+  void Render(const vtkRenderState *s) override;
 
-  // Description:
-  // Release graphics resources and ask components to release their own
-  // resources.
-  // \pre w_exists: w!=0
-  void ReleaseGraphicsResources(vtkWindow *w);
+  /**
+   * Release graphics resources and ask components to release their own
+   * resources.
+   * \pre w_exists: w!=0
+   */
+  void ReleaseGraphicsResources(vtkWindow *w) override;
 
-  // Description:
-  // Controller
-  // If it is NULL, nothing will be rendered and a warning will be emitted.
-  // Initial value is a NULL pointer.
+  //@{
+  /**
+   * Controller
+   * If it is NULL, nothing will be rendered and a warning will be emitted.
+   * Initial value is a NULL pointer.
+   */
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
   virtual void SetController(vtkMultiProcessController *controller);
+  //@}
 
-  // Description:
-  // kd tree that gives processes ordering. Initial value is a NULL pointer.
+  //@{
+  /**
+   * kd tree that gives processes ordering. Initial value is a NULL pointer.
+   */
   vtkGetObjectMacro(Kdtree,vtkPKdTree);
   virtual void SetKdtree(vtkPKdTree *kdtree);
+  //@}
 
-  // Description:
-  // Is the pass supported by the OpenGL context?
+  /**
+   * Is the pass supported by the OpenGL context?
+   */
   bool IsSupported(vtkOpenGLRenderWindow *context);
 
  protected:
-  // Description:
-  // Default constructor. Controller is set to NULL.
+  /**
+   * Default constructor. Controller is set to NULL.
+   */
   vtkCompositeRGBAPass();
 
-  // Description:
-  // Destructor.
-  virtual ~vtkCompositeRGBAPass();
+  /**
+   * Destructor.
+   */
+  ~vtkCompositeRGBAPass() override;
 
   vtkMultiProcessController *Controller;
   vtkPKdTree *Kdtree;
@@ -91,8 +105,8 @@ public:
   size_t RawRGBABufferSize;
 
  private:
-  vtkCompositeRGBAPass(const vtkCompositeRGBAPass&);  // Not implemented.
-  void operator=(const vtkCompositeRGBAPass&);  // Not implemented.
+  vtkCompositeRGBAPass(const vtkCompositeRGBAPass&) = delete;
+  void operator=(const vtkCompositeRGBAPass&) = delete;
 };
 
 #endif

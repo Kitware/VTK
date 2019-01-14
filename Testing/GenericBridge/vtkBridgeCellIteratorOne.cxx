@@ -43,9 +43,9 @@ void vtkBridgeCellIteratorOne::PrintSelf(ostream& os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 vtkBridgeCellIteratorOne::vtkBridgeCellIteratorOne()
 {
-  this->DataSet=0;
-  this->InternalCell=0;
-  this->Cell=0;
+  this->DataSet=nullptr;
+  this->InternalCell=nullptr;
+  this->Cell=nullptr;
   this->Id=0;
   this->cIsAtEnd=0;
 //  this->DebugOn();
@@ -54,23 +54,23 @@ vtkBridgeCellIteratorOne::vtkBridgeCellIteratorOne()
 //-----------------------------------------------------------------------------
 vtkBridgeCellIteratorOne::~vtkBridgeCellIteratorOne()
 {
-  if((this->Cell!=0)&&((this->DataSet!=0)||(this->InternalCell!=0)))
-    {
+  if((this->Cell!=nullptr)&&((this->DataSet!=nullptr)||(this->InternalCell!=nullptr)))
+  {
     // dataset mode or points mode
     this->Cell->Delete();
-    this->Cell=0;
-    }
-  if(this->DataSet!=0)
-    {
+    this->Cell=nullptr;
+  }
+  if(this->DataSet!=nullptr)
+  {
     this->DataSet->Delete();
-    this->DataSet=0;
-    }
+    this->DataSet=nullptr;
+  }
 
-  if(this->InternalCell!=0)
-    {
+  if(this->InternalCell!=nullptr)
+  {
     this->InternalCell->Delete();
-    this->InternalCell=0;
-    }
+    this->InternalCell=nullptr;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ void vtkBridgeCellIteratorOne::Begin()
 //-----------------------------------------------------------------------------
 // Description:
 // Is there no cell at iterator position? (exit condition).
-int vtkBridgeCellIteratorOne::IsAtEnd()
+vtkTypeBool vtkBridgeCellIteratorOne::IsAtEnd()
 {
   return this->cIsAtEnd;
 }
@@ -98,24 +98,24 @@ int vtkBridgeCellIteratorOne::IsAtEnd()
 void vtkBridgeCellIteratorOne::GetCell(vtkGenericAdaptorCell *c)
 {
   assert("pre: not_at_end" && !this->IsAtEnd());
-  assert("pre: c_exists" && c!=0);
+  assert("pre: c_exists" && c!=nullptr);
 
   vtkBridgeCell *c2=static_cast<vtkBridgeCell *>(c);
-  if(this->DataSet!=0)
-    {
+  if(this->DataSet!=nullptr)
+  {
     c2->Init(this->DataSet,this->Id);
-    }
+  }
   else
+  {
+    if(this->InternalCell!=nullptr)
     {
-    if(this->InternalCell!=0)
-      {
       c2->InitWithCell(this->InternalCell,this->Id);
-      }
-    else
-      {
-      c2->DeepCopy(this->Cell);
-      }
     }
+    else
+    {
+      c2->DeepCopy(this->Cell);
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ vtkGenericAdaptorCell *vtkBridgeCellIteratorOne::GetCell()
 
   vtkGenericAdaptorCell *result=this->Cell;
 
-  assert("post: result_exits" && result!=0);
+  assert("post: result_exits" && result!=nullptr);
   return result;
 }
 
@@ -154,21 +154,21 @@ void vtkBridgeCellIteratorOne::Next()
 void vtkBridgeCellIteratorOne::InitWithOneCell(vtkBridgeDataSet *ds,
                                                vtkIdType cellid)
 {
-  assert("pre: ds_exists" && ds!=0);
+  assert("pre: ds_exists" && ds!=nullptr);
   assert("pre: valid_id" && ((cellid>=0)&&(cellid<=ds->GetNumberOfCells())));
 
-  if((this->Cell!=0)&&(this->DataSet==0)&&(this->InternalCell==0))
-    {
+  if((this->Cell!=nullptr)&&(this->DataSet==nullptr)&&(this->InternalCell==nullptr))
+  {
     // previous mode was InitWithOneCell(vtkBridgeCell *c)
 //    this->Cell->Delete();
-    this->Cell=0;
-    }
+    this->Cell=nullptr;
+  }
 
-  if(this->Cell==0)
-    {
+  if(this->Cell==nullptr)
+  {
     // first init or previous mode was InitWithOneCell(vtkBridgeCell *c)
     this->Cell=vtkBridgeCell::New();
-    }
+  }
 
   vtkSetObjectBodyMacro(InternalCell,vtkCell,0);
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,ds);
@@ -183,13 +183,13 @@ void vtkBridgeCellIteratorOne::InitWithOneCell(vtkBridgeDataSet *ds,
 // \pre c_exists: c!=0
 void vtkBridgeCellIteratorOne::InitWithOneCell(vtkBridgeCell *c)
 {
-  assert("pre: c_exists" && c!=0);
+  assert("pre: c_exists" && c!=nullptr);
 
-  if((this->Cell!=0)&&((this->DataSet!=0)||(this->InternalCell!=0)))
-    {
+  if((this->Cell!=nullptr)&&((this->DataSet!=nullptr)||(this->InternalCell!=nullptr)))
+  {
     // dataset mode or points mode
     this->Cell->Delete();
-    }
+  }
   vtkSetObjectBodyMacro(InternalCell,vtkCell,0);
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,0);
 
@@ -212,62 +212,62 @@ void vtkBridgeCellIteratorOne::InitWithPoints(vtkPoints *coords,
                                               int dim,
                                               vtkIdType cellid)
 {
-  assert("pre: coords_exist" && coords!=0);
-  assert("pre: pts_exist" && pts!=0);
+  assert("pre: coords_exist" && coords!=nullptr);
+  assert("pre: pts_exist" && pts!=nullptr);
   assert("pre: valid_dim" && dim>=0 && dim<=2);
   assert("pre: valid_points" && pts->GetNumberOfIds()>dim);
 
 
-  if((this->DataSet==0)&&(this->InternalCell==0))
-    {
+  if((this->DataSet==nullptr)&&(this->InternalCell==nullptr))
+  {
     // previous mode was InitWithOneCell(vtkBridgeCell *c)
 //    this->Cell->Delete();
-    this->Cell=0;
-    }
+    this->Cell=nullptr;
+  }
 
-  if(this->Cell==0)
-    {
+  if(this->Cell==nullptr)
+  {
     // first init or previous mode was InitWithOneCell(vtkBridgeCell *c)
     this->Cell=vtkBridgeCell::New();
-    }
+  }
 
-  vtkCell *cell=0;
+  vtkCell *cell=nullptr;
 
   switch(dim)
-    {
+  {
     case 2:
       if (pts->GetNumberOfIds()==3)
-        {
+      {
         cell=vtkTriangle::New();
-        }
+      }
       else
-        {
+      {
         cell=vtkPolygon::New();
-        }
+      }
       break;
     case 1:
       // line or polyline
       if(pts->GetNumberOfIds()==2)
-        {
+      {
         cell=vtkLine::New();
-        }
+      }
       else
-        {
+      {
         cell=vtkPolyLine::New();
-        }
+      }
       break;
     case 0:
       // vertex polyvertex
       if(pts->GetNumberOfIds()==1)
-        {
+      {
         cell=vtkVertex::New();
-        }
+      }
       else
-        {
+      {
         cell=vtkPolyVertex::New();
-        }
+      }
       break;
-    }
+  }
   cell->Points=coords;
   cell->PointIds=pts;
   vtkSetObjectBodyMacro(InternalCell,vtkCell,cell);

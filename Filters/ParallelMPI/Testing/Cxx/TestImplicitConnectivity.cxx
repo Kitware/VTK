@@ -62,7 +62,7 @@ int NumberOfProcessors;
 
 //------------------------------------------------------------------------------
 void WriteDistributedDataSet(
-    std::string prefix, vtkMultiBlockDataSet *dataset)
+    const std::string &prefix, vtkMultiBlockDataSet *dataset)
 {
 #ifdef DEBUG_ON
   vtkXMLPMultiBlockDataWriter *writer = vtkXMLPMultiBlockDataWriter::New();
@@ -73,9 +73,9 @@ void WriteDistributedDataSet(
   writer->SetFileName( oss.str().c_str() );
   writer->SetInputData(dataset);
   if( Controller->GetLocalProcessId() == 0 )
-    {
+  {
     writer->SetWriteMetaFile(1);
-    }
+  }
   writer->Update();
   writer->Delete();
 #else
@@ -88,16 +88,16 @@ void WriteDistributedDataSet(
 //------------------------------------------------------------------------------
 void AddNodeCenteredXYZField( vtkMultiBlockDataSet *mbds )
 {
-  assert("pre: Multi-block is NULL!" && (mbds != NULL) );
+  assert("pre: Multi-block is nullptr!" && (mbds != nullptr) );
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
-    {
+  {
     vtkDataSet* grid = vtkDataSet::SafeDownCast(mbds->GetBlock(block));
 
-    if( grid == NULL )
-      {
+    if( grid == nullptr )
+    {
       continue;
-      }
+    }
 
     vtkDoubleArray *nodeXYZArray = vtkDoubleArray::New();
     nodeXYZArray->SetName( "NODE-XYZ" );
@@ -106,16 +106,16 @@ void AddNodeCenteredXYZField( vtkMultiBlockDataSet *mbds )
 
     double xyz[3];
     for( vtkIdType pntIdx=0; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
-      {
+    {
       grid->GetPoint( pntIdx, xyz );
       nodeXYZArray->SetComponent( pntIdx, 0, xyz[0] );
       nodeXYZArray->SetComponent( pntIdx, 1, xyz[1] );
       nodeXYZArray->SetComponent( pntIdx, 2, xyz[2] );
-      } // END for all points
+    } // END for all points
 
     grid->GetPointData()->AddArray( nodeXYZArray );
     nodeXYZArray->Delete();
-    } // END for all blocks
+  } // END for all blocks
 
 }
 
@@ -160,10 +160,10 @@ vtkMultiBlockDataSet* GetDataSet(
   gridPartitioner->Update();
   vtkMultiBlockDataSet *partitionedGrid =
       vtkMultiBlockDataSet::SafeDownCast( gridPartitioner->GetOutput() );
-  assert( "pre: partitionedGrid != NULL" && (partitionedGrid != NULL) );
+  assert( "pre: partitionedGrid != nullptr" && (partitionedGrid != nullptr) );
 
   // Each process has the same number of blocks, i.e., the same structure,
-  // however some block entries are NULL indicating that the data lives on
+  // however some block entries are nullptr indicating that the data lives on
   // some other process
   vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::New();
   mbds->SetNumberOfBlocks( numPartitions );
@@ -176,9 +176,9 @@ vtkMultiBlockDataSet* GetDataSet(
   // Populate blocks for this process
   unsigned int block=0;
   for( ; block < partitionedGrid->GetNumberOfBlocks(); ++block )
-    {
+  {
     if( Rank == static_cast<int>( block%NumberOfProcessors ) )
-      {
+    {
       // Copy the structured grid
       vtkStructuredGrid *grid = vtkStructuredGrid::New();
       grid->DeepCopy( partitionedGrid->GetBlock(block) );
@@ -188,27 +188,27 @@ vtkMultiBlockDataSet* GetDataSet(
 
       // Copy the global extent for the blockinformation
       vtkInformation *info = partitionedGrid->GetMetaData( block );
-      assert( "pre: null metadata!" && (info != NULL) );
+      assert( "pre: null metadata!" && (info != nullptr) );
       assert( "pre: must have a piece extent!" &&
               (info->Has(vtkDataObject::PIECE_EXTENT() ) ) );
 
       vtkInformation *metadata = mbds->GetMetaData( block );
-      assert( "pre: null metadata!" && (metadata != NULL) );
+      assert( "pre: null metadata!" && (metadata != nullptr) );
       metadata->Set(
         vtkDataObject::PIECE_EXTENT(),
         info->Get( vtkDataObject::PIECE_EXTENT() ),
         6 );
-      } // END if we own the block
+    } // END if we own the block
     else
-      {
-      mbds->SetBlock( block, NULL );
-      } // END else we don't own the block
-    } // END for all blocks
+    {
+      mbds->SetBlock( block, nullptr );
+    } // END else we don't own the block
+  } // END for all blocks
 
   wholeStructuredGrid->Delete();
   gridPartitioner->Delete();
 
-  assert( "pre: mbds is NULL" && (mbds != NULL) );
+  assert( "pre: mbds is nullptr" && (mbds != nullptr) );
 
   AddNodeCenteredXYZField( mbds );
   Controller->Barrier();
@@ -219,8 +219,7 @@ vtkMultiBlockDataSet* GetDataSet(
 //------------------------------------------------------------------------------
 double exponential_distribution(const int i, const double beta)
 {
-  double xi=0.0;
-  xi = ( ( exp( i*beta ) - 1 ) /( exp( beta ) - 1 ) );
+  double xi = ( ( exp( i*beta ) - 1 ) /( exp( beta ) - 1 ) );
   return( xi );
 }
 
@@ -239,22 +238,22 @@ void GenerateRectGrid( vtkRectilinearGrid* grid, int ext[6], double origin[3])
   // compute & populate coordinate vectors
   double beta = 0.01; /* controls the intensity of the stretching */
   for(int i=0; i < 3; ++i)
-    {
+  {
     coords[i] = vtkDataArray::CreateDataArray(VTK_DOUBLE);
     if( dims[i] == 0 )
-      {
+    {
       continue;
-      }
+    }
     coords[i]->SetNumberOfTuples(dims[i]);
 
     double prev = origin[i];
     for(int j=0; j < dims[i]; ++j)
-      {
+    {
       double val = prev + ( (j==0)? 0.0 : exponential_distribution(j,beta) );
       coords[ i ]->SetTuple( j, &val );
       prev = val;
-      } // END for all points along this dimension
-     } // END for all dimensions
+    } // END for all points along this dimension
+  } // END for all dimensions
 
    grid->SetXCoordinates( coords[0] );
    grid->SetYCoordinates( coords[1] );
@@ -298,10 +297,10 @@ vtkMultiBlockDataSet* GetRectGridDataSet(
     gridPartitioner->Update();
     vtkMultiBlockDataSet *partitionedGrid =
         vtkMultiBlockDataSet::SafeDownCast( gridPartitioner->GetOutput() );
-    assert( "pre: partitionedGrid != NULL" && (partitionedGrid != NULL) );
+    assert( "pre: partitionedGrid != nullptr" && (partitionedGrid != nullptr) );
 
     // Each process has the same number of blocks, i.e., the same structure,
-    // however some block entries are NULL indicating that the data lives on
+    // however some block entries are nullptr indicating that the data lives on
     // some other process
     vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::New();
     mbds->SetNumberOfBlocks( numPartitions );
@@ -314,9 +313,9 @@ vtkMultiBlockDataSet* GetRectGridDataSet(
     // Populate blocks for this process
     unsigned int block=0;
     for( ; block < partitionedGrid->GetNumberOfBlocks(); ++block )
-     {
+    {
      if( Rank == static_cast<int>( block%NumberOfProcessors ) )
-       {
+     {
        // Copy the structured grid
        vtkRectilinearGrid *grid = vtkRectilinearGrid::New();
        grid->DeepCopy( partitionedGrid->GetBlock(block) );
@@ -326,27 +325,27 @@ vtkMultiBlockDataSet* GetRectGridDataSet(
 
        // Copy the global extent for the blockinformation
        vtkInformation *info = partitionedGrid->GetMetaData( block );
-       assert( "pre: null metadata!" && (info != NULL) );
+       assert( "pre: null metadata!" && (info != nullptr) );
        assert( "pre: must have a piece extent!" &&
                (info->Has(vtkDataObject::PIECE_EXTENT() ) ) );
 
        vtkInformation *metadata = mbds->GetMetaData( block );
-       assert( "pre: null metadata!" && (metadata != NULL) );
+       assert( "pre: null metadata!" && (metadata != nullptr) );
        metadata->Set(
          vtkDataObject::PIECE_EXTENT(),
          info->Get( vtkDataObject::PIECE_EXTENT() ),
          6 );
-       } // END if we own the block
+     } // END if we own the block
      else
-       {
-       mbds->SetBlock( block, NULL );
-       } // END else we don't own the block
-     } // END for all blocks
+     {
+       mbds->SetBlock( block, nullptr );
+     } // END else we don't own the block
+    } // END for all blocks
 
   wholeGrid->Delete();
   gridPartitioner->Delete();
 
-  assert( "pre: mbds is NULL" && (mbds != NULL) );
+  assert( "pre: mbds is nullptr" && (mbds != nullptr) );
 
   AddNodeCenteredXYZField( mbds );
   Controller->Barrier();
@@ -358,18 +357,18 @@ vtkMultiBlockDataSet* GetRectGridDataSet(
 void RegisterRectGrid(vtkMultiBlockDataSet* mbds,
                       vtkStructuredImplicitConnectivity* connectivity)
 {
-  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
-  assert( "pre: connectivity is NULL!" && (connectivity != NULL) );
+  assert( "pre: Multi-block is nullptr!" && (mbds != nullptr) );
+  assert( "pre: connectivity is nullptr!" && (connectivity != nullptr) );
 
   for(unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block)
-    {
+  {
     vtkRectilinearGrid* grid =
         vtkRectilinearGrid::SafeDownCast(mbds->GetBlock(block));
 
-    if( grid != NULL )
-      {
+    if( grid != nullptr )
+    {
       vtkInformation* info = mbds->GetMetaData( block );
-      assert( "pre: metadata should not be NULL" && (info != NULL) );
+      assert( "pre: metadata should not be nullptr" && (info != nullptr) );
       assert( "pre: must have piece extent!" &&
                info->Has(vtkDataObject::PIECE_EXTENT() ) );
 
@@ -381,8 +380,8 @@ void RegisterRectGrid(vtkMultiBlockDataSet* mbds,
               grid->GetZCoordinates(),
               grid->GetPointData()
               );
-      } // END if block belongs to this process
-    } // END for all blocks
+    } // END if block belongs to this process
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -390,18 +389,18 @@ void RegisterGrid(
     vtkMultiBlockDataSet *mbds,
     vtkStructuredImplicitConnectivity* connectivity )
 {
-  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
-  assert( "pre: connectivity is NULL!" && (connectivity != NULL) );
+  assert( "pre: Multi-block is nullptr!" && (mbds != nullptr) );
+  assert( "pre: connectivity is nullptr!" && (connectivity != nullptr) );
 
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
-    {
+  {
     vtkStructuredGrid *grid =
         vtkStructuredGrid::SafeDownCast(mbds->GetBlock(block));
-    if( grid != NULL )
-      {
+    if( grid != nullptr )
+    {
       vtkInformation *info = mbds->GetMetaData( block );
-      assert( "pre: metadata should not be NULL" && (info != NULL) );
+      assert( "pre: metadata should not be nullptr" && (info != nullptr) );
       assert( "pre: must have piece extent!" &&
               info->Has(vtkDataObject::PIECE_EXTENT() ) );
       connectivity->RegisterGrid(
@@ -410,54 +409,54 @@ void RegisterGrid(
           grid->GetPoints(),
           grid->GetPointData()
           );
-      } // END if block belongs to this process
-    } // END for all blocks
+    } // END if block belongs to this process
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
 int CheckGrid(vtkDataSet* grid)
 {
-  assert("pre: grid should not be NULL!" && (grid != NULL) );
+  assert("pre: grid should not be nullptr!" && (grid != nullptr) );
   int rc = 0;
 
   vtkPointData* PD = grid->GetPointData();
-  assert("pre: PD should not be NULL!" && (PD != NULL) );
+  assert("pre: PD should not be nullptr!" && (PD != nullptr) );
 
   if( !PD->HasArray("NODE-XYZ") )
-    {
+  {
     std::cerr << "ERROR: NODE-XYZ array does not exist!\n";
     return 1;
-    }
+  }
 
-  vtkDoubleArray* array=vtkDoubleArray::SafeDownCast(PD->GetArray("NODE-XYZ"));
-  if( array==NULL )
-    {
+  vtkDoubleArray* array=vtkArrayDownCast<vtkDoubleArray>(PD->GetArray("NODE-XYZ"));
+  if( array==nullptr )
+  {
     std::cerr << "ERROR: null vtkDataArray!\n";
     return 1;
-    }
+  }
 
   if( PD->GetNumberOfTuples() != grid->GetNumberOfPoints() )
-    {
+  {
     std::cerr << "ERROR: PointData numTuples != num grid points!\n";
     return 1;
-    }
+  }
 
   double pnt[3];
   double* dataPtr = static_cast<double*>(array->GetVoidPointer(0));
 
   vtkIdType N = grid->GetNumberOfPoints();
   for(vtkIdType idx=0; idx < N; ++idx)
-    {
+  {
     grid->GetPoint(idx,pnt);
 
     if( !vtkMathUtilities::NearlyEqual(pnt[0],dataPtr[idx*3],1.e-9)   ||
         !vtkMathUtilities::NearlyEqual(pnt[1],dataPtr[idx*3+1],1.e-9) ||
         !vtkMathUtilities::NearlyEqual(pnt[2],dataPtr[idx*3+2],1.e-9) )
-      {
+    {
       ++rc;
-      } // END if rc
+    } // END if rc
 
-    } // END for all points
+  } // END for all points
 
   return( rc );
 }
@@ -472,14 +471,14 @@ int TestOutput(vtkMultiBlockDataSet* mbds, int wholeExtent[6])
       vtkStructuredImplicitConnectivity::New();
   gridConnectivity->SetWholeExtent(wholeExtent);
 
-  vtkDataSet* grid = NULL;
+  vtkDataSet* grid = nullptr;
   for(unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block)
-    {
+  {
     grid = vtkDataSet::SafeDownCast( mbds->GetBlock(block) );
-    if( grid != NULL )
-      {
+    if( grid != nullptr )
+    {
       if( grid->IsA("vtkStructuredGrid") )
-        {
+      {
         vtkStructuredGrid* sGrid = vtkStructuredGrid::SafeDownCast(grid);
         gridConnectivity->RegisterGrid(
             block,
@@ -487,9 +486,9 @@ int TestOutput(vtkMultiBlockDataSet* mbds, int wholeExtent[6])
             sGrid->GetPoints(),
             sGrid->GetPointData()
             );
-        }
+      }
       else
-        {
+      {
         assert("pre: expected rectilinear grid!" &&
                 grid->IsA("vtkRectilinearGrid"));
         vtkRectilinearGrid* rGrid = vtkRectilinearGrid::SafeDownCast(grid);
@@ -501,29 +500,29 @@ int TestOutput(vtkMultiBlockDataSet* mbds, int wholeExtent[6])
             rGrid->GetZCoordinates(),
             rGrid->GetPointData()
             );
-        }
+      }
 
       rc += CheckGrid(grid);
-      } // END if grid != NULL
+    } // END if grid != nullptr
 
-    } // END for all blocks
+  } // END for all blocks
 
   int rcLocal = rc;
   Controller->AllReduce(&rcLocal,&rc,1,vtkCommunicator::SUM_OP);
   if( rc > 0 )
-    {
+  {
     vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
         "ERROR: Check grid failed!");
-    }
+  }
 
   gridConnectivity->EstablishConnectivity();
 
   if( gridConnectivity->HasImplicitConnectivity() )
-    {
+  {
     vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
         "ERROR: output grid still has a gap!\n");
     ++rc;
-    }
+  }
   vtkMPIUtilities::Printf(
       vtkMPIController::SafeDownCast(Controller),"Grid has no gaps!\n");
   gridConnectivity->Delete();
@@ -535,7 +534,7 @@ int TestOutput(vtkMultiBlockDataSet* mbds, int wholeExtent[6])
 // Tests StructuredGridConnectivity on a distributed data-set
 int TestImplicitGridConnectivity2DYZ( )
 {
-  assert( "pre: MPI Controller is NULL!" && (Controller != NULL) );
+  assert( "pre: MPI Controller is nullptr!" && (Controller != nullptr) );
 
   vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
       "=======================\nTesting 2-D Dataset on the YZ-plane\n");
@@ -557,12 +556,12 @@ int TestImplicitGridConnectivity2DYZ( )
 
   // STEP 1: Acquire the distributed structured grid for this process.
   // Each process has the same number of blocks, but not all entries are
-  // populated. A NULL entry indicates that the block belongs to a different
+  // populated. A nullptr entry indicates that the block belongs to a different
   // process.
   vtkMultiBlockDataSet *mbds =
       GetDataSet( numPartitions,origin,h,wholeExtent );
   Controller->Barrier();
-  assert( "pre: mbds != NULL" && (mbds != NULL) );
+  assert( "pre: mbds != nullptr" && (mbds != nullptr) );
   assert( "pre: numBlocks mismatch" &&
            (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
   WriteDistributedDataSet("INPUT2DYZ",mbds);
@@ -589,9 +588,9 @@ int TestImplicitGridConnectivity2DYZ( )
       vtkMPIController::SafeDownCast(Controller),"%s\n",oss.str().c_str());
 
   if(!gridConnectivity->HasImplicitConnectivity())
-    {
+  {
     ++rc;
-    }
+  }
 
   // STEP 5: Exchange the data
   gridConnectivity->ExchangeData();
@@ -623,7 +622,7 @@ int TestImplicitGridConnectivity2DYZ( )
 // Tests StructuredGridConnectivity on a distributed data-set
 int TestImplicitGridConnectivity2DXZ( )
 {
-  assert( "pre: MPI Controller is NULL!" && (Controller != NULL) );
+  assert( "pre: MPI Controller is nullptr!" && (Controller != nullptr) );
 
   vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
       "=======================\nTesting 2-D Dataset on the XZ-plane\n");
@@ -645,12 +644,12 @@ int TestImplicitGridConnectivity2DXZ( )
 
   // STEP 1: Acquire the distributed structured grid for this process.
   // Each process has the same number of blocks, but not all entries are
-  // populated. A NULL entry indicates that the block belongs to a different
+  // populated. A nullptr entry indicates that the block belongs to a different
   // process.
   vtkMultiBlockDataSet *mbds =
       GetDataSet( numPartitions,origin,h,wholeExtent );
   Controller->Barrier();
-  assert( "pre: mbds != NULL" && (mbds != NULL) );
+  assert( "pre: mbds != nullptr" && (mbds != nullptr) );
   assert( "pre: numBlocks mismatch" &&
            (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
   WriteDistributedDataSet("INPUT2DXZ",mbds);
@@ -678,9 +677,9 @@ int TestImplicitGridConnectivity2DXZ( )
       vtkMPIController::SafeDownCast(Controller),"%s\n",oss.str().c_str());
 
   if(!gridConnectivity->HasImplicitConnectivity())
-    {
+  {
     ++rc;
-    }
+  }
 
   // STEP 5: Exchange the data
   gridConnectivity->ExchangeData();
@@ -713,7 +712,7 @@ int TestImplicitGridConnectivity2DXZ( )
 // Tests StructuredGridConnectivity on a distributed data-set
 int TestImplicitGridConnectivity2DXY( )
 {
-  assert( "pre: MPI Controller is NULL!" && (Controller != NULL) );
+  assert( "pre: MPI Controller is nullptr!" && (Controller != nullptr) );
 
   vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
       "=======================\nTesting 2-D Dataset on the XY-plane\n");
@@ -735,12 +734,12 @@ int TestImplicitGridConnectivity2DXY( )
 
   // STEP 1: Acquire the distributed structured grid for this process.
   // Each process has the same number of blocks, but not all entries are
-  // populated. A NULL entry indicates that the block belongs to a different
+  // populated. A nullptr entry indicates that the block belongs to a different
   // process.
   vtkMultiBlockDataSet *mbds =
       GetDataSet( numPartitions,origin,h,wholeExtent );
   Controller->Barrier();
-  assert( "pre: mbds != NULL" && (mbds != NULL) );
+  assert( "pre: mbds != nullptr" && (mbds != nullptr) );
   assert( "pre: numBlocks mismatch" &&
            (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
   WriteDistributedDataSet("INPUT2DXY",mbds);
@@ -768,9 +767,9 @@ int TestImplicitGridConnectivity2DXY( )
       vtkMPIController::SafeDownCast(Controller),"%s\n",oss.str().c_str());
 
   if(!gridConnectivity->HasImplicitConnectivity())
-    {
+  {
     ++rc;
-    }
+  }
 
   // STEP 5: Exchange the data
   gridConnectivity->ExchangeData();
@@ -803,7 +802,7 @@ int TestImplicitGridConnectivity2DXY( )
 // Tests StructuredGridConnectivity on a distributed data-set
 int TestImplicitGridConnectivity3D( )
 {
-  assert( "pre: MPI Controller is NULL!" && (Controller != NULL) );
+  assert( "pre: MPI Controller is nullptr!" && (Controller != nullptr) );
 
   vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
       "=======================\nTesting 3-D Dataset\n");
@@ -825,13 +824,13 @@ int TestImplicitGridConnectivity3D( )
 
   // STEP 1: Acquire the distributed structured grid for this process.
   // Each process has the same number of blocks, but not all entries are
-  // populated. A NULL entry indicates that the block belongs to a different
+  // populated. A nullptr entry indicates that the block belongs to a different
   // process.
   vtkMultiBlockDataSet *mbds =
       GetDataSet( numPartitions,origin,h,wholeExtent );
 
   Controller->Barrier();
-  assert( "pre: mbds != NULL" && (mbds != NULL) );
+  assert( "pre: mbds != nullptr" && (mbds != nullptr) );
   assert( "pre: numBlocks mismatch" &&
            (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
   WriteDistributedDataSet("INPUT3D",mbds);
@@ -858,9 +857,9 @@ int TestImplicitGridConnectivity3D( )
       vtkMPIController::SafeDownCast(Controller),"%s\n",oss.str().c_str());
 
   if(!gridConnectivity->HasImplicitConnectivity())
-    {
+  {
     ++rc;
-    }
+  }
 
   // STEP 5: Exchange the data
   gridConnectivity->ExchangeData();
@@ -891,7 +890,7 @@ int TestImplicitGridConnectivity3D( )
 //------------------------------------------------------------------------------
 int TestRectGridImplicitConnectivity3D()
 {
-  assert( "pre: MPI Controller is NULL!" && (Controller != NULL) );
+  assert( "pre: MPI Controller is nullptr!" && (Controller != nullptr) );
 
   vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
       "=======================\nTesting 3-D Rectilinear Grid Dataset\n");
@@ -912,13 +911,13 @@ int TestRectGridImplicitConnectivity3D()
 
   // STEP 1: Acquire the distributed rectilinear grid for this process.
   // Each process has the same number of blocks, but not all entries are
-  // populated. A NULL entry indicates that the block belongs to a different
+  // populated. A nullptr entry indicates that the block belongs to a different
   // process.
   vtkMultiBlockDataSet *mbds =
       GetRectGridDataSet( numPartitions,origin,wholeExtent );
 
   Controller->Barrier();
-  assert( "pre: mbds != NULL" && (mbds != NULL) );
+  assert( "pre: mbds != nullptr" && (mbds != nullptr) );
   assert( "pre: numBlocks mismatch" &&
            (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
   WriteDistributedDataSet("INPUT-3D-RECTGRID",mbds);
@@ -945,9 +944,9 @@ int TestRectGridImplicitConnectivity3D()
       vtkMPIController::SafeDownCast(Controller),"%s\n",oss.str().c_str());
 
   if(!gridConnectivity->HasImplicitConnectivity())
-    {
+  {
     ++rc;
-    }
+  }
 
   // STEP 5: Exchange the data
   gridConnectivity->ExchangeData();
@@ -984,7 +983,7 @@ int TestImplicitConnectivity( int argc, char *argv[] )
   // STEP 0: Initialize
   Controller = vtkMPIController::New();
   Controller->Initialize( &argc, &argv, 0 );
-  assert("pre: Controller should not be NULL" && (Controller != NULL) );
+  assert("pre: Controller should not be nullptr" && (Controller != nullptr) );
   vtkMultiProcessController::SetGlobalController( Controller );
 
   Rank               = Controller->GetLocalProcessId();
@@ -1021,9 +1020,9 @@ int TestImplicitConnectivity( int argc, char *argv[] )
   Controller->Delete();
 
   if( rc != 0 )
-    {
+  {
     std::cout << "Test Failed!\n";
     rc = 0;
-    }
+  }
   return( rc );
 }

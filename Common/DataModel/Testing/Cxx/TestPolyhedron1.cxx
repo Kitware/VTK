@@ -42,31 +42,31 @@ int TestPolyhedron1( int argc, char* argv[] )
 {
   // create a dodecahedron
   double dodechedronPoint[20][3] = { {1.21412,    0,          1.58931},
-			                               {0.375185,   1.1547,     1.58931},
-			                               {-0.982247,  0.713644,   1.58931},
-			                               {-0.982247,  -0.713644,  1.58931},
-			                               {0.375185,   -1.1547,    1.58931},
-			                               {1.96449,    0,          0.375185},
-			                               {0.607062,   1.86835,    0.375185},
-			                               {-1.58931,   1.1547,     0.375185},
-			                               {-1.58931,   -1.1547,    0.375185},
-			                               {0.607062,   -1.86835,   0.375185},
-			                               {1.58931,    1.1547,     -0.375185},
-			                               {-0.607062,  1.86835,    -0.375185},
-			                               {-1.96449,   0,          -0.375185},
-			                               {-0.607062,  -1.86835,   -0.375185},
-			                               {1.58931,    -1.1547,    -0.375185},
-			                               {0.982247,   0.713644,   -1.58931},
-			                               {-0.375185,  1.1547,     -1.58931},
-			                               {-1.21412,   0,          -1.58931},
-			                               {-0.375185,  -1.1547,    -1.58931},
-			                               {0.982247,   -0.713644,  -1.58931}};
+                                     {0.375185,   1.1547,     1.58931},
+                                     {-0.982247,  0.713644,   1.58931},
+                                     {-0.982247,  -0.713644,  1.58931},
+                                     {0.375185,   -1.1547,    1.58931},
+                                     {1.96449,    0,          0.375185},
+                                     {0.607062,   1.86835,    0.375185},
+                                     {-1.58931,   1.1547,     0.375185},
+                                     {-1.58931,   -1.1547,    0.375185},
+                                     {0.607062,   -1.86835,   0.375185},
+                                     {1.58931,    1.1547,     -0.375185},
+                                     {-0.607062,  1.86835,    -0.375185},
+                                     {-1.96449,   0,          -0.375185},
+                                     {-0.607062,  -1.86835,   -0.375185},
+                                     {1.58931,    -1.1547,    -0.375185},
+                                     {0.982247,   0.713644,   -1.58931},
+                                     {-0.375185,  1.1547,     -1.58931},
+                                     {-1.21412,   0,          -1.58931},
+                                     {-0.375185,  -1.1547,    -1.58931},
+                                     {0.982247,   -0.713644,  -1.58931}};
   vtkSmartPointer<vtkPoints> dodechedronPoints = vtkSmartPointer<vtkPoints>::New();
   dodechedronPoints->Initialize();
   for (int i = 0; i < 20; i++)
-    {
+  {
     dodechedronPoints->InsertNextPoint(dodechedronPoint[i]);
-    }
+  }
 
   vtkIdType dodechedronPointsIds[20] = {0,   1,  2,  3,  4,  5,  6,  7,  8,  9,
                                         10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
@@ -86,9 +86,9 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   vtkSmartPointer<vtkCellArray> dodechedronFaces = vtkSmartPointer<vtkCellArray>::New();
   for (int i = 0; i < 12; i++)
-    {
+  {
     dodechedronFaces->InsertNextCell(5, dodechedronFace[i]);
-    }
+  }
 
   double offset = 0;//0.375185;
 
@@ -115,18 +115,18 @@ int TestPolyhedron1( int argc, char* argv[] )
     vtkSmartPointer<vtkDoubleArray>::New();
   pointDataArray->Initialize();
   for (int i = 0; i < 20; i++)
-    {
+  {
     cout << plane->EvaluateFunction(dodechedronPoint[i]) << endl;
     pointDataArray->InsertNextValue(plane->EvaluateFunction(dodechedronPoint[i])+0.01);
-    }
+  }
 
   vtkSmartPointer<vtkDoubleArray> cellDataArray =
     vtkSmartPointer<vtkDoubleArray>::New();
   cellDataArray->Initialize();
   for (int i = 0; i < 12; i++)
-    {
+  {
     cellDataArray->InsertNextValue(static_cast<double>(1.0));
-    }
+  }
 
   vtkSmartPointer<vtkUnstructuredGrid> ugrid =
     vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -156,7 +156,7 @@ int TestPolyhedron1( int argc, char* argv[] )
   locator->InitPointInsertion(resultPoints, ugrid->GetBounds());
 
   polyhedron->Contour(0, ugrid->GetPointData()->GetScalars(), locator,
-                      NULL, NULL, resultPolys,
+                      nullptr, nullptr, resultPolys,
                       ugrid->GetPointData(), resultPd,
                       ugrid->GetCellData(), 0, resultCd);
 
@@ -272,9 +272,9 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

@@ -46,7 +46,7 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
   pts->SetNumberOfPoints(numPoints);
   double x[3];
   for (vtkIdType i = 0; i < numPoints; ++i)
-    {
+  {
     double v = 20.0 * static_cast<double>(i) / numPoints;
     x[0] = v*cos(v);
     x[1] = v*sin(v);
@@ -54,16 +54,16 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
     pts->SetPoint(i, x);
 
     cells->InsertNextCell(1, &i);
-    }
+  }
   poly->SetPoints(pts);
   poly->SetVerts(cells);
 
   VTK_CREATE(vtkStringArray, nameArray);
   nameArray->SetName("name");
   for (vtkIdType i = 0; i < numPoints; i++)
-    {
+  {
     nameArray->InsertNextValue(vtkVariant(i).ToString());
-    }
+  }
   poly->GetPointData()->AddArray(nameArray);
 
   VTK_CREATE(vtkDynamic2DLabelMapper, mapper);
@@ -89,11 +89,11 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Initialize();
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

@@ -24,7 +24,7 @@
 
 #include "vtkTestUtilities.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 // Callback for the broken line widget interaction
 class vtkBLWCallback : public vtkCommand
@@ -32,7 +32,7 @@ class vtkBLWCallback : public vtkCommand
 public:
   static vtkBLWCallback *New()
   { return new vtkBLWCallback; }
-  virtual void Execute( vtkObject *caller, unsigned long, void* )
+  void Execute( vtkObject *caller, unsigned long, void* ) override
   {
     // Retrieve polydata line
     vtkBrokenLineWidget *line = reinterpret_cast<vtkBrokenLineWidget*>( caller );
@@ -48,11 +48,11 @@ public:
     this->Mapper->SetInputData( selection );
 
     // Update cardinality of selection
-    vtksys_ios::ostringstream txt;
+    std::ostringstream txt;
     txt << "Number of selected elements: " << ( selection ? selection->GetNumberOfCells() : 0 );
     this->Text->SetInput( txt.str().c_str() );
   }
-vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Mapper(0),Text(0) {};
+vtkBLWCallback():Poly(nullptr),Selector(nullptr),Extractor(nullptr),Mapper(nullptr),Text(nullptr) {};
   vtkPolyData* Poly;
   vtkLinearSelector* Selector;
   vtkExtractSelection* Extractor;
@@ -169,7 +169,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
 
   // Annotate with number of elements
   vtkSmartPointer<vtkTextActor> txtActor = vtkSmartPointer<vtkTextActor>::New();
-  vtksys_ios::ostringstream txt;
+  std::ostringstream txt;
   txt << "Number of selected elements: " << ( selection ? selection->GetNumberOfCells() : 0 );
   txtActor->SetInput( txt.str().c_str() );
   txtActor->SetTextScaleModeToViewport();
@@ -191,9 +191,9 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   win->Render();
   int retVal = vtkRegressionTestImage( win );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

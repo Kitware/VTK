@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,21 +26,18 @@
 /* Module Setup */
 /****************/
 
-#define H5FD_PACKAGE		/*suppress error about including H5FDpkg  */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5FD_int_init_interface
+#include "H5FDmodule.h"         /* This source code file is part of the H5FD module */
 
 
 /***********/
 /* Headers */
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fprivate.h"         /* File access				*/
 #include "H5FDpkg.h"		/* File Drivers				*/
 #include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5Pprivate.h"		/* Property lists			*/
 
 
 /****************/
@@ -81,26 +76,74 @@
 
 
 
-/*--------------------------------------------------------------------------
-NAME
-   H5FD_int_init_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5FD_int_init_interface()
-
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5FD_init_iterface currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5FD_int_init_interface(void)
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_locate_signature
+ *
+ * Purpose:     Finds the HDF5 superblock signature in a file.  The
+ *              signature can appear at address 0, or any power of two
+ *              beginning with 512.
+ *
+ * Return:      Success:        SUCCEED
+ *              Failure:        FAIL
+ *
+ * Programmer:  Robb Matzke
+ *              Friday, November  7, 1997
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5FD_locate_signature(H5FD_t *file, haddr_t *sig_addr)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    haddr_t         addr, eoa, eof;
+    uint8_t         buf[H5F_SIGNATURE_LEN];
+    unsigned        n, maxpow;
+    herr_t          ret_value = SUCCEED; /* Return value */
 
-    FUNC_LEAVE_NOAPI(H5FD_init())
-} /* H5FD_int_init_interface() */
+    FUNC_ENTER_NOAPI_NOINIT
+
+    /* Sanity checks */
+    HDassert(file);
+
+    /* Find the least N such that 2^N is larger than the file size */
+    eof = H5FD_get_eof(file, H5FD_MEM_SUPER);
+    eoa = H5FD_get_eoa(file, H5FD_MEM_SUPER);
+    addr = MAX(eof, eoa);
+    if(HADDR_UNDEF == addr)
+        HGOTO_ERROR(H5E_IO, H5E_CANTINIT, FAIL, "unable to obtain EOF/EOA value")
+    for(maxpow = 0; addr; maxpow++)
+        addr >>= 1;
+    maxpow = MAX(maxpow, 9);
+
+    /*
+     * Search for the file signature at format address zero followed by
+     * powers of two larger than 9.
+     */
+    for(n = 8; n < maxpow; n++) {
+        addr = (8 == n) ? 0 : (haddr_t)1 << n;
+        if(H5FD_set_eoa(file, H5FD_MEM_SUPER, addr + H5F_SIGNATURE_LEN) < 0)
+            HGOTO_ERROR(H5E_IO, H5E_CANTINIT, FAIL, "unable to set EOA value for file signature")
+        if(H5FD_read(file, H5FD_MEM_SUPER, addr, (size_t)H5F_SIGNATURE_LEN, buf) < 0)
+            HGOTO_ERROR(H5E_IO, H5E_CANTINIT, FAIL, "unable to read file signature")
+        if(!HDmemcmp(buf, H5F_SIGNATURE, (size_t)H5F_SIGNATURE_LEN))
+            break;
+    } /* end for */
+
+    /*
+     * If the signature was not found then reset the EOA value and return
+     * HADDR_UNDEF.
+     */
+    if(n >= maxpow) {
+        if(H5FD_set_eoa(file, H5FD_MEM_SUPER, eoa) < 0)
+            HGOTO_ERROR(H5E_IO, H5E_CANTINIT, FAIL, "unable to reset EOA value")
+        *sig_addr = HADDR_UNDEF;
+    } /* end if */
+    else
+        /* Set return value */
+        *sig_addr = addr;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_locate_signature() */
 
 
 /*-------------------------------------------------------------------------
@@ -117,17 +160,20 @@ H5FD_int_init_interface(void)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FD_read(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, haddr_t addr,
-    size_t size, void *buf/*out*/)
+H5FD_read(H5FD_t *file, H5FD_mem_t type, haddr_t addr, size_t size,
+    void *buf/*out*/)
 {
-    herr_t      ret_value = SUCCEED;       /* Return value */
+    hid_t dxpl_id;                      /* DXPL for operation */
+    herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
+    /* Sanity checks */
     HDassert(file && file->cls);
-    HDassert(H5I_GENPROP_LST == H5I_get_type(dxpl_id));
-    HDassert(TRUE == H5P_isa_class(dxpl_id, H5P_DATASET_XFER));
     HDassert(buf);
+
+    /* Get proper DXPL for I/O */
+    dxpl_id = H5CX_get_dxpl();
 
 #ifndef H5_HAVE_PARALLEL
     /* Do not return early for Parallel mode since the I/O could be a */
@@ -136,6 +182,23 @@ H5FD_read(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, haddr_t addr,
     if(0 == size)
         HGOTO_DONE(SUCCEED)
 #endif /* H5_HAVE_PARALLEL */
+
+    /* 
+     * If the file is open for SWMR read access, allow access to data past
+     * the end of the allocated space (the 'eoa').  This is done because the
+     * eoa stored in the file's superblock might be out of sync with the
+     * objects being written within the file by the application performing
+     * SWMR write operations.
+     */
+    if(!(file->access_flags & H5F_ACC_SWMR_READ)) {
+        haddr_t     eoa;
+
+        if(HADDR_UNDEF == (eoa = (file->cls->get_eoa)(file, type)))
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "driver get_eoa request failed")
+
+         if((addr + file->base_addr + size) > eoa)
+            HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, FAIL, "addr overflow, addr = %llu, size = %llu, eoa = %llu", (unsigned long long)(addr + file->base_addr), (unsigned long long)size, (unsigned long long)eoa)
+    } /* end if */
 
     /* Dispatch to driver */
     if((file->cls->read)(file, type, dxpl_id, addr + file->base_addr, size, buf) < 0)
@@ -160,17 +223,21 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FD_write(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, haddr_t addr,
-    size_t size, const void *buf)
+H5FD_write(H5FD_t *file, H5FD_mem_t type, haddr_t addr, size_t size,
+    const void *buf)
 {
-    herr_t      ret_value = SUCCEED;       /* Return value */
+    hid_t dxpl_id;                      /* DXPL for operation */
+    haddr_t eoa = HADDR_UNDEF;          /* EOA for file */
+    herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
+    /* Sanity checks */
     HDassert(file && file->cls);
-    HDassert(H5I_GENPROP_LST == H5I_get_type(dxpl_id));
-    HDassert(TRUE == H5P_isa_class(dxpl_id, H5P_DATASET_XFER));
     HDassert(buf);
+
+    /* Get proper DXPL for I/O */
+    dxpl_id = H5CX_get_dxpl();
 
 #ifndef H5_HAVE_PARALLEL
     /* Do not return early for Parallel mode since the I/O could be a */
@@ -179,6 +246,12 @@ H5FD_write(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, haddr_t addr,
     if(0 == size)
         HGOTO_DONE(SUCCEED)
 #endif /* H5_HAVE_PARALLEL */
+
+    if(HADDR_UNDEF == (eoa = (file->cls->get_eoa)(file, type)))
+	HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "driver get_eoa request failed")
+    if((addr + file->base_addr + size) > eoa)
+        HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, FAIL, "addr overflow, addr = %llu, size=%llu, eoa=%llu", 
+                    (unsigned long long)(addr+ file->base_addr), (unsigned long long)size, (unsigned long long)eoa)
 
     /* Dispatch to driver */
     if((file->cls->write)(file, type, dxpl_id, addr + file->base_addr, size, buf) < 0)
@@ -247,7 +320,7 @@ done:
 haddr_t
 H5FD_get_eoa(const H5FD_t *file, H5FD_mem_t type)
 {
-    haddr_t	ret_value;
+    haddr_t ret_value = HADDR_UNDEF;    /* Return value */
 
     FUNC_ENTER_NOAPI(HADDR_UNDEF)
 
@@ -287,9 +360,9 @@ done:
  *-------------------------------------------------------------------------
  */
 haddr_t
-H5FD_get_eof(const H5FD_t *file)
+H5FD_get_eof(const H5FD_t *file, H5FD_mem_t type)
 {
-    haddr_t	ret_value;
+    haddr_t ret_value = HADDR_UNDEF;    /* Return value */
 
     FUNC_ENTER_NOAPI(HADDR_UNDEF)
 
@@ -297,7 +370,7 @@ H5FD_get_eof(const H5FD_t *file)
 
     /* Dispatch to driver */
     if(file->cls->get_eof) {
-	if(HADDR_UNDEF == (ret_value = (file->cls->get_eof)(file)))
+	if(HADDR_UNDEF == (ret_value = (file->cls->get_eof)(file, type)))
 	    HGOTO_ERROR(H5E_VFL, H5E_CANTGET, HADDR_UNDEF, "driver get_eof request failed")
     } /* end if */
     else
@@ -309,4 +382,39 @@ H5FD_get_eof(const H5FD_t *file)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_get_eof() */
+
+
+/*-------------------------------------------------------------------------
+* Function:    H5FD_driver_query
+*
+* Purpose: Similar to H5FD_query(), but intended for cases when we don't
+*          have a file available (e.g. before one is opened). Since we
+*          can't use the file to get the driver, the driver is passed in
+*          as a parameter.
+*
+* Return:  SUCCEED/FAIL
+*
+* Programmer:  Jacob Gruber
+*              Wednesday, August 17, 2011
+*
+*-------------------------------------------------------------------------
+*/
+herr_t
+H5FD_driver_query(const H5FD_class_t *driver, unsigned long *flags/*out*/)
+{
+    herr_t ret_value = SUCCEED;          /* Return value */
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(driver);
+    HDassert(flags);
+
+    /* Check for the driver to query and then query it */
+    if(driver->query)
+        ret_value = (driver->query)(NULL, flags);
+    else 
+        *flags = 0;
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_driver_query() */
 

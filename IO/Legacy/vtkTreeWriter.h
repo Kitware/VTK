@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTreeWriter - write vtkTree data to a file
-// .SECTION Description
-// vtkTreeWriter is a sink object that writes ASCII or binary
-// vtkTree data files in vtk format. See text for format details.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
+/**
+ * @class   vtkTreeWriter
+ * @brief   write vtkTree data to a file
+ *
+ * vtkTreeWriter is a sink object that writes ASCII or binary
+ * vtkTree data files in vtk format. See text for format details.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+*/
 
 #ifndef vtkTreeWriter_h
 #define vtkTreeWriter_h
@@ -32,24 +35,27 @@ class VTKIOLEGACY_EXPORT vtkTreeWriter : public vtkDataWriter
 public:
   static vtkTreeWriter *New();
   vtkTypeMacro(vtkTreeWriter,vtkDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkTree* GetInput();
   vtkTree* GetInput(int port);
+  //@}
 
 protected:
   vtkTreeWriter() {}
-  ~vtkTreeWriter() {}
+  ~vtkTreeWriter() override {}
 
-  void WriteData();
+  void WriteData() override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkTreeWriter(const vtkTreeWriter&);  // Not implemented.
-  void operator=(const vtkTreeWriter&);  // Not implemented.
+  vtkTreeWriter(const vtkTreeWriter&) = delete;
+  void operator=(const vtkTreeWriter&) = delete;
 
   void WriteEdges(ostream& Stream, vtkTree* Tree);
 };

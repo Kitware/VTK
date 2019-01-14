@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridCellIterator - Implementation of vtkCellIterator
-// specialized for vtkUnstructuredGrid.
+/**
+ * @class   vtkUnstructuredGridCellIterator
+ * @brief   Implementation of vtkCellIterator
+ * specialized for vtkUnstructuredGrid.
+*/
 
 #ifndef vtkUnstructuredGridCellIterator_h
 #define vtkUnstructuredGridCellIterator_h
@@ -33,21 +36,21 @@ class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGridCellIterator :
 public:
   static vtkUnstructuredGridCellIterator *New();
   vtkTypeMacro(vtkUnstructuredGridCellIterator, vtkCellIterator)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  bool IsDoneWithTraversal();
-  vtkIdType GetCellId();
+  bool IsDoneWithTraversal() override;
+  vtkIdType GetCellId() override;
 
 protected:
   vtkUnstructuredGridCellIterator();
-  ~vtkUnstructuredGridCellIterator();
+  ~vtkUnstructuredGridCellIterator() override;
 
-  void ResetToFirstCell();
-  void IncrementToNextCell();
-  void FetchCellType();
-  void FetchPointIds();
-  void FetchPoints();
-  void FetchFaces();
+  void ResetToFirstCell() override;
+  void IncrementToNextCell() override;
+  void FetchCellType() override;
+  void FetchPointIds() override;
+  void FetchPoints() override;
+  void FetchFaces() override;
 
   friend class vtkUnstructuredGrid;
   void SetUnstructuredGrid(vtkUnstructuredGrid *ug);
@@ -71,8 +74,8 @@ protected:
   vtkSmartPointer<vtkPoints> UnstructuredGridPoints;
 
 private:
-  vtkUnstructuredGridCellIterator(const vtkUnstructuredGridCellIterator &); // Not implemented.
-  void operator=(const vtkUnstructuredGridCellIterator &);   // Not implemented.
+  vtkUnstructuredGridCellIterator(const vtkUnstructuredGridCellIterator &) = delete;
+  void operator=(const vtkUnstructuredGridCellIterator &) = delete;
 };
 
 #endif //vtkUnstructuredGridCellIterator_h

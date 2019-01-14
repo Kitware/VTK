@@ -5,20 +5,18 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Raymond Lu<slu@ncsa.uiuc.edu>
+ * Programmer:  Raymond Lu <slu@ncsa.uiuc.edu>
  *              Jan 3, 2003
  */
 
-#define H5Z_PACKAGE		/*suppress error about including H5Zpkg	  */
+#include "H5Zmodule.h"          /* This source code file is part of the H5Z module */
 
 
 #include "H5private.h"		/* Generic Functions			*/
@@ -26,8 +24,6 @@
 #include "H5Fprivate.h"         /* File access                          */
 #include "H5MMprivate.h"	/* Memory management			*/
 #include "H5Zpkg.h"		/* Data filters				*/
-
-#ifdef H5_HAVE_FILTER_FLETCHER32
 
 /* Local function prototypes */
 static size_t H5Z_filter_fletcher32 (unsigned flags, size_t cd_nelmts,
@@ -72,9 +68,8 @@ const H5Z_class2_t H5Z_FLETCHER32[1] = {{
  *              with Release 1.6.2 and before.
  *-------------------------------------------------------------------------
  */
-/* ARGSUSED */
 static size_t
-H5Z_filter_fletcher32 (unsigned flags, size_t UNUSED cd_nelmts, const unsigned UNUSED cd_values[],
+H5Z_filter_fletcher32 (unsigned flags, size_t H5_ATTR_UNUSED cd_nelmts, const unsigned H5_ATTR_UNUSED cd_values[],
                      size_t nbytes, size_t *buf_size, void **buf)
 {
     void    *outbuf = NULL;     /* Pointer to new buffer */
@@ -83,7 +78,7 @@ H5Z_filter_fletcher32 (unsigned flags, size_t UNUSED cd_nelmts, const unsigned U
     uint32_t reversed_fletcher; /* Possible wrong checksum value */
     uint8_t  c[4];
     uint8_t  tmp;
-    size_t   ret_value;         /* Return value */
+    size_t   ret_value = 0;     /* Return value */
 
     FUNC_ENTER_NOAPI(0)
 
@@ -139,8 +134,10 @@ H5Z_filter_fletcher32 (unsigned flags, size_t UNUSED cd_nelmts, const unsigned U
         /* Compute checksum (can't fail) */
         fletcher = H5_checksum_fletcher32(src, nbytes);
 
-	if (NULL==(dst=outbuf=H5MM_malloc(nbytes+FLETCHER_LEN)))
+	if (NULL == (outbuf = H5MM_malloc(nbytes + FLETCHER_LEN)))
 	    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0, "unable to allocate Fletcher32 checksum destination buffer")
+
+        dst = (unsigned char *) outbuf;
 
         /* Copy raw data */
         HDmemcpy((void*)dst, (void*)(*buf), nbytes);
@@ -164,5 +161,4 @@ done:
         H5MM_xfree(outbuf);
     FUNC_LEAVE_NOAPI(ret_value)
 }
-#endif /* H5_HAVE_FILTER_FLETCHER32 */
 

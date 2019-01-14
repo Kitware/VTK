@@ -46,22 +46,18 @@ public:
   static MoleculePickCommand * New() {return new MoleculePickCommand;}
   vtkTypeMacro(MoleculePickCommand, vtkCommand);
 
-  MoleculePickCommand()
-  {
-  }
+  MoleculePickCommand() = default;
 
-  virtual ~MoleculePickCommand()
-  {
-  }
+  ~MoleculePickCommand() override = default;
 
   vtkIdTypeArray *GetAtomIds()
   {
-    return this->AtomIds.GetPointer();
+    return this->AtomIds;
   }
 
   vtkIdTypeArray *GetBondIds()
   {
-    return this->BondIds.GetPointer();
+    return this->BondIds;
   }
 
   void SetRenderer(vtkRenderer *r)
@@ -84,11 +80,11 @@ public:
     this->MoleculeMapper = m;
   }
 
-  virtual void Execute(vtkObject *, unsigned long, void *)
+  void Execute(vtkObject *, unsigned long, void *) override
   {
     vtkProp3DCollection *props = this->Picker->GetProp3Ds();
     if (props->GetNumberOfItems() != 0)
-      {
+    {
       // If anything was picked during the fast area pick, do a more detailed
       // pick.
       vtkNew<vtkHardwareSelector> selector;
@@ -105,14 +101,14 @@ public:
       this->SetIdArrays(result);
       this->DumpMolSelection();
       result->Delete();
-      }
+    }
   }
 
   // Set the ids for the atom/bond selection
   void SetIdArrays(vtkSelection *sel)
   {
     this->MoleculeMapper->GetSelectedAtomsAndBonds(
-          sel, this->AtomIds.GetPointer(), this->BondIds.GetPointer());
+          sel, this->AtomIds, this->BondIds);
   }
 
   // Convenience function to print out the atom and bond ids that belong to
@@ -125,16 +121,16 @@ public:
     cerr << "\n### Selection ###\n";
     cerr << "Atoms: ";
     for (vtkIdType i = 0; i < this->AtomIds->GetNumberOfTuples(); i++)
-      {
+    {
       cerr << this->AtomIds->GetValue(i) << " ";
-      }
+    }
     cerr << "\nBonds: ";
     for (vtkIdType i = 0; i < this->BondIds->GetNumberOfTuples(); i++)
-      {
+    {
       vtkBond bond = mol->GetBond(this->BondIds->GetValue(i));
       cerr << bond.GetId() << " (" << bond.GetBeginAtomId() << "-"
            << bond.GetEndAtomId() << ") ";
-      }
+    }
     cerr << endl;
   }
 };
@@ -145,7 +141,7 @@ int TestMoleculeSelection(int argc, char *argv[])
 
   // Use a trivial producer, since the molecule was created by hand
   vtkNew<vtkTrivialProducer> molSource;
-  molSource->SetOutput(mol.GetPointer());
+  molSource->SetOutput(mol);
 
   // Create a 4x4 grid of atoms one angstrom apart
   vtkAtom a1  = mol->AppendAtom( 1, 0.0, 0.0, 0.0);
@@ -193,20 +189,20 @@ int TestMoleculeSelection(int argc, char *argv[])
 
   // Set up render engine
   vtkNew<vtkMoleculeMapper> molmapper;
-  molmapper->SetInputData(mol.GetPointer());
+  molmapper->SetInputData(mol);
   molmapper->UseBallAndStickSettings();
   molmapper->SetAtomicRadiusTypeToUnitRadius();
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(molmapper.GetPointer());
+  actor->SetMapper(molmapper);
 
   vtkNew<vtkRenderer> ren;
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   vtkNew<vtkRenderWindow> win;
   win->SetMultiSamples(0);
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   ren->SetBackground(0.0,0.0,0.0);
   win->SetSize(450,450);
@@ -217,30 +213,30 @@ int TestMoleculeSelection(int argc, char *argv[])
 
   // Setup picker
   vtkNew<vtkInteractorStyleRubberBandPick> pickerInt;
-  iren->SetInteractorStyle(pickerInt.GetPointer());
+  iren->SetInteractorStyle(pickerInt);
   vtkNew<vtkRenderedAreaPicker> picker;
-  iren->SetPicker(picker.GetPointer());
+  iren->SetPicker(picker);
 
   // We'll follow up the cheap RenderedAreaPick with a detailed selection
   // to obtain the atoms and bonds.
   vtkNew<MoleculePickCommand> com;
-  com->SetRenderer(ren.GetPointer());
-  com->SetPicker(picker.GetPointer());
-  com->SetMoleculeSource(molSource.GetPointer());
-  com->SetMoleculeMapper(molmapper.GetPointer());
-  picker->AddObserver(vtkCommand::EndPickEvent, com.GetPointer());
+  com->SetRenderer(ren);
+  com->SetPicker(picker);
+  com->SetMoleculeSource(molSource);
+  com->SetMoleculeMapper(molmapper);
+  picker->AddObserver(vtkCommand::EndPickEvent, com);
 
   // Make pick -- lower left quarter of renderer
   win->Render();
-  picker->AreaPick(0, 0, 225, 225, ren.GetPointer());
+  picker->AreaPick(0, 0, 225, 225, ren);
   win->Render();
 
   // Interact if desired
-  int retVal = vtkRegressionTestImage(win.GetPointer());
+  int retVal = vtkRegressionTestImage(win);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Verify pick
   if (com->GetAtomIds()->GetNumberOfTuples() < 4 ||
@@ -257,11 +253,11 @@ int TestMoleculeSelection(int argc, char *argv[])
       com->GetBondIds()->GetValue(5) != 13 ||
       com->GetBondIds()->GetValue(6) != 16 ||
       com->GetBondIds()->GetValue(7) != 17 )
-    {
+  {
     cerr << "Incorrect atoms/bonds picked! (if any picks were performed inter"
             "actively this could be ignored).\n";
     return EXIT_FAILURE;
-    }
+  }
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }

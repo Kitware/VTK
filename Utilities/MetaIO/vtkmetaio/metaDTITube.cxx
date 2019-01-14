@@ -134,7 +134,7 @@ MetaDTITube::
   while(it != m_PointList.end())
   {
     DTITubePnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
   }
   m_PointList.clear();
@@ -231,7 +231,7 @@ Clear(void)
   while(it != m_PointList.end())
   {
     DTITubePnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
   }
   m_PointList.clear();
@@ -326,7 +326,7 @@ M_SetupWriteFields(void)
     {
     m_PointDim += " ";
     m_PointDim += (*itFields).first;
-    itFields++;
+    ++itFields;
     }
 
   if(m_PointDim.size()>0)
@@ -469,7 +469,7 @@ M_Read(void)
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
-    int gc = m_ReadStream->gcount();
+    int gc = static_cast<int>(m_ReadStream->gcount());
     if(gc != readSize)
       {
       METAIO_STREAM::cout << "MetaLine: m_Read: data not read completely"
@@ -540,7 +540,7 @@ M_Read(void)
           i+=sizeof(float);
           pnt->AddField((*itFields).first.c_str(),(float)td);
           }
-        itFields++;
+        ++itFields;
         }
 
       m_PointList.push_back(pnt);
@@ -556,8 +556,6 @@ M_Read(void)
         m_Event->SetCurrentIteration(j+1);
         }
 
-      DTITubePnt* pnt = new DTITubePnt(m_NDims);
-
       for(int k=0; k<pntDim; k++)
         {
         *m_ReadStream >> v[k];
@@ -571,13 +569,16 @@ M_Read(void)
       if( positionOfX < 0 )
         {
         METAIO_STREAM::cerr << "MetaDTITube: M_Read: 'x' not found." << METAIO_STREAM::endl;
+        return false;
         }
 
       if( positionOfY < 0 )
         {
         METAIO_STREAM::cerr << "MetaDTITube: M_Read: 'y' not found." << METAIO_STREAM::endl;
+        return false;
         }
 
+      DTITubePnt* pnt = new DTITubePnt(m_NDims);
       pnt->m_X[0] = v[positionOfX];
       pnt->m_X[1] = v[positionOfY];
 
@@ -588,6 +589,8 @@ M_Read(void)
         if( positionOfZ < 0 )
           {
           METAIO_STREAM::cerr << "MetaDTITube: M_Read: 'z' not found." << METAIO_STREAM::endl;
+          delete pnt;
+          return false;
           }
 
         pnt->m_X[2] = v[positionOfZ];
@@ -651,7 +654,7 @@ M_Read(void)
           pnt->AddField((*itFields).first.c_str(),
                         v[this->GetPosition((*itFields).first.c_str())]);
           }
-        itFields++;
+        ++itFields;
         }
 
       m_PointList.push_back(pnt);
@@ -660,7 +663,7 @@ M_Read(void)
     char c = ' ';
     while( (c!='\n') && (!m_ReadStream->eof()))
       {
-      c = m_ReadStream->get();// to avoid unrecognize charactere
+      c = static_cast<char>(m_ReadStream->get());// to avoid unrecognize charactere
       }
     }
 
@@ -735,10 +738,10 @@ M_Write(void)
         float x = (*itFields).second;
         MET_SwapByteIfSystemMSB(&x,MET_FLOAT);
         MET_DoubleToValue((double)x,m_ElementType,data,i++);
-        itFields++;
+        ++itFields;
         }
 
-      it++;
+      ++it;
       }
 
     m_WriteStream->write((char *)data,i*elementSize);
@@ -770,11 +773,11 @@ M_Write(void)
       while(itFields !=  itFieldsEnd)
         {
         *m_WriteStream << (*itFields).second << " ";
-        itFields++;
+        ++itFields;
         }
 
       *m_WriteStream << METAIO_STREAM::endl;
-      it++;
+      ++it;
       }
     }
   return true;
@@ -784,4 +787,3 @@ M_Write(void)
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-

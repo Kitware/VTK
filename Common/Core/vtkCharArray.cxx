@@ -13,13 +13,10 @@
 
 =========================================================================*/
 // Instantiate superclass first to give the template a DLL interface.
-#include "vtkDataArrayTemplate.txx"
-VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(char);
+#define VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATING
+#include "vtkAOSDataArrayTemplate.txx"
+VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(char);
 
-#include "vtkArrayIteratorTemplate.txx"
-VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(char);
-
-#define vtkCharArray_cxx
 #include "vtkCharArray.h"
 
 #include "vtkObjectFactory.h"
@@ -28,14 +25,10 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(char);
 vtkStandardNewMacro(vtkCharArray);
 
 //----------------------------------------------------------------------------
-vtkCharArray::vtkCharArray()
-{
-}
+vtkCharArray::vtkCharArray() = default;
 
 //----------------------------------------------------------------------------
-vtkCharArray::~vtkCharArray()
-{
-}
+vtkCharArray::~vtkCharArray() = default;
 
 //----------------------------------------------------------------------------
 void vtkCharArray::PrintSelf(ostream& os, vtkIndent indent)

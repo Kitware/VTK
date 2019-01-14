@@ -24,7 +24,7 @@
 
 #include <map>
 
-#include <math.h>
+#include <cmath>
 
 // A helper map for quick lookups of annotated values.
 class vtkScalarsToColors::vtkInternalAnnotatedValueMap :
@@ -48,8 +48,8 @@ vtkScalarsToColors::vtkScalarsToColors()
 
   // Annotated values, their annotations, and whether colors
   // should be indexed by annotated value.
-  this->AnnotatedValues = 0;
-  this->Annotations = 0;
+  this->AnnotatedValues = nullptr;
+  this->Annotations = nullptr;
   this->AnnotatedValueMap = new vtkInternalAnnotatedValueMap;
   this->IndexedLookup = 0;
 
@@ -61,13 +61,13 @@ vtkScalarsToColors::vtkScalarsToColors()
 vtkScalarsToColors::~vtkScalarsToColors()
 {
   if (this->AnnotatedValues)
-    {
+  {
     this->AnnotatedValues->UnRegister(this);
-    }
+  }
   if (this->Annotations)
-    {
+  {
     this->Annotations->UnRegister(this);
-    }
+  }
   delete this->AnnotatedValueMap;
 }
 
@@ -110,11 +110,11 @@ void vtkScalarsToColors::SetRange(double minval, double maxval)
 {
   if (this->InputRange[0] != minval ||
       this->InputRange[1] != maxval)
-    {
+  {
     this->InputRange[0] = minval;
     this->InputRange[1] = maxval;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ vtkIdType vtkScalarsToColors::GetNumberOfAvailableColors()
 void vtkScalarsToColors::DeepCopy(vtkScalarsToColors *obj)
 {
   if (obj)
-    {
+  {
     this->Alpha = obj->Alpha;
     this->VectorMode = obj->VectorMode;
     this->VectorComponent = obj->VectorComponent;
@@ -143,7 +143,7 @@ void vtkScalarsToColors::DeepCopy(vtkScalarsToColors *obj)
     this->InputRange[1] = obj->InputRange[1];
     this->IndexedLookup = obj->IndexedLookup;
     if (obj->AnnotatedValues && obj->Annotations)
-      {
+    {
       vtkAbstractArray* annValues = vtkAbstractArray::CreateArray(
         obj->AnnotatedValues->GetDataType());
       vtkStringArray* annotations = vtkStringArray::New();
@@ -152,12 +152,12 @@ void vtkScalarsToColors::DeepCopy(vtkScalarsToColors *obj)
       this->SetAnnotations(annValues, annotations);
       annValues->Delete();
       annotations->Delete();
-      }
-    else
-      {
-      this->SetAnnotations(0, 0);
-      }
     }
+    else
+    {
+      this->SetAnnotations(nullptr, nullptr);
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -171,13 +171,13 @@ inline void vtkScalarsToColorsComputeShiftScale(
   shift = -range[0];
   scale = range[1] - range[0];
   if (scale*scale > 1e-30)
-    {
+  {
     scale = 1.0/scale;
-    }
+  }
   else
-    {
+  {
     scale = (scale < 0.0 ? minscale : maxscale);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -205,7 +205,7 @@ double vtkScalarsToColors::GetOpacity(double vtkNotUsed(v))
 }
 
 //----------------------------------------------------------------------------
-unsigned char *vtkScalarsToColors::MapValue(double v)
+const unsigned char *vtkScalarsToColors::MapValue(double v)
 {
   double rgb[3];
 
@@ -234,43 +234,43 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkAbstractArray *scalars,
   int numberOfComponents = scalars->GetNumberOfComponents();
   vtkUnsignedCharArray *newColors;
 
-  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(scalars);
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
 
   // map scalars through lookup table only if needed
   if ((colorMode == VTK_COLOR_MODE_DEFAULT &&
-       vtkUnsignedCharArray::SafeDownCast(dataArray) != NULL) ||
-      colorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
-    {
+       vtkArrayDownCast<vtkUnsignedCharArray>(dataArray) != nullptr) ||
+      (colorMode == VTK_COLOR_MODE_DIRECT_SCALARS && dataArray))
+  {
     newColors = this->
       ConvertToRGBA(dataArray, scalars->GetNumberOfComponents(),
                     dataArray->GetNumberOfTuples());
-    }
+  }
   else
-    {
+  {
     newColors = vtkUnsignedCharArray::New();
     newColors->SetNumberOfComponents(4);
     newColors->SetNumberOfTuples(scalars->GetNumberOfTuples());
 
     // If mapper did not specify a component, use the VectorMode
     if (component < 0 && numberOfComponents > 1)
-      {
+    {
       this->MapVectorsThroughTable(scalars->GetVoidPointer(0),
                                    newColors->GetPointer(0),
                                    scalars->GetDataType(),
                                    scalars->GetNumberOfTuples(),
                                    scalars->GetNumberOfComponents(),
                                    VTK_RGBA);
-      }
+    }
     else
-      {
+    {
       if (component < 0)
-        {
+      {
         component = 0;
-        }
+      }
       if (component >= numberOfComponents)
-        {
+      {
         component = numberOfComponents - 1;
-        }
+      }
 
       // Map the scalars to colors
       this->MapScalarsThroughTable(scalars->GetVoidPointer(component),
@@ -279,8 +279,8 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkAbstractArray *scalars,
                                    scalars->GetNumberOfTuples(),
                                    scalars->GetNumberOfComponents(),
                                    VTK_RGBA);
-      }
     }
+  }
 
   return newColors;
 }
@@ -293,84 +293,84 @@ void vtkScalarsToColors::MapVectorsThroughTable(
   int vectorComponent, int vectorSize)
 {
   if (outputFormat < VTK_LUMINANCE || outputFormat > VTK_RGBA)
-    {
+  {
     vtkErrorMacro(<< "MapVectorsThroughTable: unrecognized color format");
     return;
-    }
+  }
 
   int vectorMode = this->GetVectorMode();
   if (vectorMode == vtkScalarsToColors::COMPONENT)
-    {
+  {
     // make sure vectorComponent is within allowed range
     if (vectorComponent == -1)
-      {
+    {
       // if set to -1, use default value provided by table
       vectorComponent = this->GetVectorComponent();
-      }
-    if (vectorComponent < 0)
-      {
-      vectorComponent = 0;
-      }
-    if (vectorComponent >= inComponents)
-      {
-      vectorComponent = inComponents - 1;
-      }
     }
-  else
+    if (vectorComponent < 0)
     {
+      vectorComponent = 0;
+    }
+    if (vectorComponent >= inComponents)
+    {
+      vectorComponent = inComponents - 1;
+    }
+  }
+  else
+  {
     // make sure vectorSize is within allowed range
     if (vectorSize == -1)
-      {
+    {
       // if set to -1, use default value provided by table
       vectorSize = this->GetVectorSize();
-      }
+    }
     if (vectorSize <= 0)
-      {
+    {
       vectorComponent = 0;
       vectorSize = inComponents;
-      }
+    }
     else
-      {
+    {
       if (vectorComponent < 0)
-        {
+      {
         vectorComponent = 0;
-        }
-      if (vectorComponent >= inComponents)
-        {
-        vectorComponent = inComponents - 1;
-        }
-      if (vectorComponent + vectorSize > inComponents)
-        {
-        vectorSize = inComponents - vectorComponent;
-        }
       }
+      if (vectorComponent >= inComponents)
+      {
+        vectorComponent = inComponents - 1;
+      }
+      if (vectorComponent + vectorSize > inComponents)
+      {
+        vectorSize = inComponents - vectorComponent;
+      }
+    }
 
     if (vectorMode == vtkScalarsToColors::MAGNITUDE &&
         (inComponents == 1 || vectorSize == 1))
-      {
+    {
       vectorMode = vtkScalarsToColors::COMPONENT;
-      }
     }
+  }
 
   // increment input pointer to the first component to map
   if (vectorComponent > 0)
-    {
+  {
     int scalarSize = vtkDataArray::GetDataTypeSize(scalarType);
     input = static_cast<unsigned char *>(input) + vectorComponent*scalarSize;
-    }
+  }
 
   // map according to the current vector mode
   switch (vectorMode)
-    {
+  {
     case vtkScalarsToColors::COMPONENT:
-      {
+    {
       this->MapScalarsThroughTable(
         input, output, scalarType, numValues, inComponents, outputFormat);
-      }
+    }
       break;
 
     case vtkScalarsToColors::MAGNITUDE:
-      {
+    {
       // convert to magnitude in blocks of 300 values
       int inInc = vtkDataArray::GetDataTypeSize(scalarType)*inComponents;
       double magValues[300];
@@ -379,7 +379,7 @@ void vtkScalarsToColors::MapVectorsThroughTable(
       int lastBlockSize = numValues - blockSize*(numBlocks - 1);
 
       for (int i = 0; i < numBlocks; i++)
-        {
+      {
         int numMagValues = ((i < numBlocks-1) ? blockSize : lastBlockSize);
         this->MapVectorsToMagnitude(
           input, magValues, scalarType, numMagValues, inComponents,
@@ -388,18 +388,18 @@ void vtkScalarsToColors::MapVectorsThroughTable(
           magValues, output, VTK_DOUBLE, numMagValues, 1, outputFormat);
         input = static_cast<char *>(input) + numMagValues*inInc;
         output += numMagValues*outputFormat;
-        }
       }
+    }
       break;
 
     case vtkScalarsToColors::RGBCOLORS:
-      {
+    {
       this->MapColorsToColors(
         input, output, scalarType, numValues, inComponents, vectorSize,
         outputFormat);
-      }
+    }
       break;
-   }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -409,10 +409,10 @@ void vtkScalarsToColors::MapScalarsThroughTable(vtkDataArray *scalars,
                                                 int outputFormat)
 {
   if (outputFormat < VTK_LUMINANCE || outputFormat > VTK_RGBA)
-    {
+  {
     vtkErrorMacro(<< "MapScalarsThroughTable: unrecognized color format");
     return;
-    }
+  }
 
   this->MapScalarsThroughTable(scalars->GetVoidPointer(0),
                                output,
@@ -430,65 +430,70 @@ namespace
 #define vtkScalarsToColorsLuminance(r, g, b) \
     ((r)*0.30 + (g)*0.59 + (b)*0.11)
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsLuminanceToLuminance(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents)
 {
   do
-    {
+  {
     *outPtr++ = *inPtr;
     inPtr += numComponents;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsLuminanceToRGB(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents)
 {
   do
-    {
+  {
     unsigned char l = *inPtr;
     outPtr[0] = l;
     outPtr[1] = l;
     outPtr[2] = l;
     inPtr += numComponents;
     outPtr += 3;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsRGBToLuminance(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents)
 {
   do
-    {
+  {
     unsigned char r = inPtr[0];
     unsigned char g = inPtr[1];
     unsigned char b = inPtr[2];
     *outPtr++ = static_cast<unsigned char>(
                   vtkScalarsToColorsLuminance(r, g, b) + 0.5);
     inPtr += numComponents;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsRGBToRGB(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents)
 {
   do
-    {
+  {
     outPtr[0] = inPtr[0];
     outPtr[1] = inPtr[1];
     outPtr[2] = inPtr[2];
     inPtr += numComponents;
     outPtr += 3;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsLuminanceToLuminanceAlpha(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double alpha)
@@ -496,16 +501,16 @@ void vtkScalarsToColorsLuminanceToLuminanceAlpha(
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
 
   do
-    {
+  {
     outPtr[0] = inPtr[0];
     outPtr[1] = a;
     inPtr += numComponents;
     outPtr += 2;
-    }
+  }
   while (--count);
 }
 
-
+//----------------------------------------------------------------------------
 template<typename T>
 void vtkScalarsToColorsLuminanceToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
@@ -514,7 +519,7 @@ void vtkScalarsToColorsLuminanceToRGBA(
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
 
   do
-    {
+  {
     unsigned char l = vtkScalarsToColors::ColorToUChar(inPtr[0]);
     outPtr[0] = l;
     outPtr[1] = l;
@@ -522,10 +527,11 @@ void vtkScalarsToColorsLuminanceToRGBA(
     outPtr[3] = a;
     inPtr += numComponents;
     outPtr += 4;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsRGBToLuminanceAlpha(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double alpha)
@@ -533,7 +539,7 @@ void vtkScalarsToColorsRGBToLuminanceAlpha(
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
 
   do
-    {
+  {
     unsigned char r = inPtr[0];
     unsigned char g = inPtr[1];
     unsigned char b = inPtr[2];
@@ -542,10 +548,11 @@ void vtkScalarsToColorsRGBToLuminanceAlpha(
     outPtr[1] = a;
     inPtr += numComponents;
     outPtr += 2;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<typename T>
 void vtkScalarsToColorsRGBToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
@@ -554,55 +561,56 @@ void vtkScalarsToColorsRGBToRGBA(
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
 
   do
-    {
+  {
     outPtr[0] = vtkScalarsToColors::ColorToUChar(inPtr[0]);
     outPtr[1] = vtkScalarsToColors::ColorToUChar(inPtr[1]);
     outPtr[2] = vtkScalarsToColors::ColorToUChar(inPtr[2]);
     outPtr[3] = a;
     inPtr += numComponents;
     outPtr += 4;
-    }
+  }
   while (--count);
 }
 
-
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double alpha)
 {
   if (alpha >= 1)
-    {
+  {
     do
-      {
+    {
       outPtr[0] = inPtr[0];
       outPtr[1] = inPtr[1];
       inPtr += numComponents;
       outPtr += 2;
-      }
-    while (--count);
     }
+    while (--count);
+  }
   else
-    {
+  {
     do
-      {
+    {
       outPtr[0] = inPtr[0];
       outPtr[1] = static_cast<unsigned char>(inPtr[1]*alpha + 0.5);
       inPtr += numComponents;
       outPtr += 2;
-      }
-    while (--count);
     }
+    while (--count);
+  }
 }
 
+//----------------------------------------------------------------------------
 template<typename T>
 void vtkScalarsToColorsLuminanceAlphaToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double alpha)
 {
   if (alpha >= 1)
-    {
+  {
     do
-      {
+    {
       unsigned char l = vtkScalarsToColors::ColorToUChar(inPtr[0]);
       unsigned char a = vtkScalarsToColors::ColorToUChar(inPtr[1]);
       outPtr[0] = l;
@@ -611,13 +619,13 @@ void vtkScalarsToColorsLuminanceAlphaToRGBA(
       outPtr[3] = a;
       inPtr += numComponents;
       outPtr += 4;
-      }
-    while (--count);
     }
+    while (--count);
+  }
   else
-    {
+  {
     do
-      {
+    {
       unsigned char l = vtkScalarsToColors::ColorToUChar(inPtr[0]);
       unsigned char a = vtkScalarsToColors::ColorToUChar(inPtr[1]);
       outPtr[0] = l;
@@ -626,17 +634,18 @@ void vtkScalarsToColorsLuminanceAlphaToRGBA(
       outPtr[3] = static_cast<unsigned char>(a*alpha + 0.5);
       inPtr += numComponents;
       outPtr += 4;
-      }
-    while (--count);
     }
+    while (--count);
+  }
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsRGBAToLuminanceAlpha(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double alpha)
 {
   do
-    {
+  {
     unsigned char r = inPtr[0];
     unsigned char g = inPtr[1];
     unsigned char b = inPtr[2];
@@ -646,55 +655,55 @@ void vtkScalarsToColorsRGBAToLuminanceAlpha(
     outPtr[1] = static_cast<unsigned char>(a*alpha + 0.5);
     inPtr += numComponents;
     outPtr += 2;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<typename T>
 void vtkScalarsToColorsRGBAToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double alpha)
 {
   if (alpha >= 1)
-    {
+  {
     do
-      {
+    {
       outPtr[0] = vtkScalarsToColors::ColorToUChar(inPtr[0]);
       outPtr[1] = vtkScalarsToColors::ColorToUChar(inPtr[1]);
       outPtr[2] = vtkScalarsToColors::ColorToUChar(inPtr[2]);
       outPtr[3] = vtkScalarsToColors::ColorToUChar(inPtr[3]);
       inPtr += numComponents;
       outPtr += 4;
-      }
-    while (--count);
     }
+    while (--count);
+  }
   else
-    {
+  {
     do
-      {
+    {
       outPtr[0] = vtkScalarsToColors::ColorToUChar(inPtr[0]);
       outPtr[1] = vtkScalarsToColors::ColorToUChar(inPtr[1]);
       outPtr[2] = vtkScalarsToColors::ColorToUChar(inPtr[2]);
       outPtr[3] = static_cast<unsigned char>(inPtr[3]*alpha + 0.5);
       inPtr += numComponents;
       outPtr += 4;
-      }
-    while (--count);
     }
+    while (--count);
+  }
 }
 
 //----------------------------------------------------------------------------
-
 template<class T>
 void vtkScalarsToColorsLuminanceToLuminance(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double l = inPtr[0];
     l = (l + shift)*scale;
     l = (l > minval ? l : minval);
@@ -703,20 +712,21 @@ void vtkScalarsToColorsLuminanceToLuminance(
     outPtr[0] = static_cast<unsigned char>(l);
     inPtr += numComponents;
     outPtr += 1;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsLuminanceToRGB(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double l = inPtr[0];
     l = (l + shift)*scale;
     l = (l > minval ? l : minval);
@@ -727,20 +737,21 @@ void vtkScalarsToColorsLuminanceToRGB(
     outPtr[2] = lc;
     inPtr += numComponents;
     outPtr += 3;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBToLuminance(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double r = inPtr[0];
     double g = inPtr[1];
     double b = inPtr[2];
@@ -757,20 +768,21 @@ void vtkScalarsToColorsRGBToLuminance(
     outPtr[0] = static_cast<unsigned char>(l);
     inPtr += numComponents;
     outPtr += 1;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBToRGB(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double r = inPtr[0];
     double g = inPtr[1];
     double b = inPtr[2];
@@ -791,21 +803,22 @@ void vtkScalarsToColorsRGBToRGB(
     outPtr[2] = static_cast<unsigned char>(b);
     inPtr += numComponents;
     outPtr += 3;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsLuminanceToLuminanceAlpha(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double l = inPtr[0];
     l = (l + shift)*scale;
     l = (l > minval ? l : minval);
@@ -815,21 +828,22 @@ void vtkScalarsToColorsLuminanceToLuminanceAlpha(
     outPtr[1] = a;
     inPtr += numComponents;
     outPtr += 2;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsLuminanceToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double l = inPtr[0];
     l = (l + shift)*scale;
     l = (l > minval ? l : minval);
@@ -841,21 +855,22 @@ void vtkScalarsToColorsLuminanceToRGBA(
     outPtr[3] = a;
     inPtr += numComponents;
     outPtr += 4;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBToLuminanceAlpha(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double r = inPtr[0];
     double g = inPtr[1];
     double b = inPtr[2];
@@ -873,21 +888,22 @@ void vtkScalarsToColorsRGBToLuminanceAlpha(
     outPtr[1] = a;
     inPtr += numComponents;
     outPtr += 2;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double r = inPtr[0];
     double g = inPtr[1];
     double b = inPtr[2];
@@ -909,21 +925,21 @@ void vtkScalarsToColorsRGBToRGBA(
     outPtr[3] = a;
     inPtr += numComponents;
     outPtr += 4;
-    }
+  }
   while (--count);
 }
 
-
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double l = inPtr[0];
     double a = inPtr[1];
     l = (l + shift)*scale;
@@ -938,20 +954,21 @@ void vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
     outPtr[1] = static_cast<unsigned char>(a);
     inPtr += numComponents;
     outPtr += 2;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsLuminanceAlphaToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double l = inPtr[0];
     double a = inPtr[1];
     l = (l + shift)*scale;
@@ -968,20 +985,21 @@ void vtkScalarsToColorsLuminanceAlphaToRGBA(
     outPtr[3] = static_cast<unsigned char>(a);
     inPtr += numComponents;
     outPtr += 4;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBAToLuminanceAlpha(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double r = inPtr[0];
     double g = inPtr[1];
     double b = inPtr[2];
@@ -1004,20 +1022,21 @@ void vtkScalarsToColorsRGBAToLuminanceAlpha(
     outPtr[1] = static_cast<unsigned char>(a);
     inPtr += numComponents;
     outPtr += 2;
-    }
+  }
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBAToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
-    {
+  {
     double r = inPtr[0];
     double g = inPtr[1];
     double b = inPtr[2];
@@ -1044,7 +1063,7 @@ void vtkScalarsToColorsRGBAToRGBA(
     outPtr[3] = static_cast<unsigned char>(a);
     inPtr += numComponents;
     outPtr += 4;
-    }
+  }
   while (--count);
 }
 
@@ -1057,15 +1076,15 @@ unsigned char *vtkScalarsToColorsUnpackBits(void *inPtr, vtkIdType numValues)
   unsigned char *tmpPtr = newPtr;
   unsigned char *bitdata = static_cast<unsigned char *>(inPtr);
   for (vtkIdType i = 0; i < n; i += 8)
-    {
+  {
     unsigned char b = *bitdata++;
     int j = 8;
     do
-      {
+    {
       *tmpPtr++ = ((b >> (--j)) & 0x01);
-      }
-    while (j);
     }
+    while (j);
+  }
 
   return newPtr;
 }
@@ -1080,29 +1099,29 @@ void vtkScalarsToColors::MapColorsToColors(
   int outputFormat)
 {
   if (outputFormat < VTK_LUMINANCE || outputFormat > VTK_RGBA)
-    {
+  {
     vtkErrorMacro(<< "MapScalarsToColors: unrecognized color format");
     return;
-    }
+  }
 
   if (numberOfTuples <= 0)
-    {
+  {
     return;
-    }
+  }
 
-  unsigned char *newPtr = 0;
+  unsigned char *newPtr = nullptr;
   if (inputDataType == VTK_BIT)
-    {
+  {
     newPtr = vtkScalarsToColorsUnpackBits(
       inPtr, numberOfTuples*numberOfComponents);
     inPtr = newPtr;
     inputDataType = VTK_UNSIGNED_CHAR;
-    }
+  }
 
   if (inputFormat <= 0 || inputFormat > numberOfComponents)
-    {
+  {
     inputFormat = numberOfComponents;
-    }
+  }
 
   double shift, scale;
   vtkScalarsToColorsComputeShiftScale(this, shift, scale);
@@ -1115,228 +1134,228 @@ void vtkScalarsToColors::MapColorsToColors(
   if (inputDataType == VTK_UNSIGNED_CHAR &&
       static_cast<int>(shift*scale + 0.5) == 0 &&
       static_cast<int>((255 + shift)*scale + 0.5) == 255)
-    {
+  {
     if (outputFormat == VTK_RGBA)
-      {
+    {
       if (inputFormat == VTK_LUMINANCE)
-        {
+      {
         vtkScalarsToColorsLuminanceToRGBA(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents, alpha);
-        }
+      }
       else if (inputFormat == VTK_LUMINANCE_ALPHA)
-        {
+      {
         vtkScalarsToColorsLuminanceAlphaToRGBA(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents, alpha);
-        }
+      }
       else if (inputFormat == VTK_RGB)
-        {
+      {
         vtkScalarsToColorsRGBToRGBA(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents, alpha);
-        }
+      }
       else
-        {
+      {
         vtkScalarsToColorsRGBAToRGBA(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents, alpha);
-        }
       }
+    }
     else if (outputFormat == VTK_RGB)
-      {
+    {
       if (inputFormat < VTK_RGB)
-        {
+      {
         vtkScalarsToColorsLuminanceToRGB(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents);
-        }
+      }
       else
-        {
+      {
         vtkScalarsToColorsRGBToRGB(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents);
-        }
       }
+    }
     else if (outputFormat == VTK_LUMINANCE_ALPHA)
-      {
+    {
       if (inputFormat == VTK_LUMINANCE)
-        {
+      {
         vtkScalarsToColorsLuminanceToLuminanceAlpha(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents, alpha);
-        }
+      }
       else if (inputFormat == VTK_LUMINANCE_ALPHA)
-        {
+      {
         vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents, alpha);
-        }
+      }
       else if (inputFormat == VTK_RGB)
-        {
+      {
         vtkScalarsToColorsRGBToLuminanceAlpha(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents, alpha);
-        }
+      }
       else
-        {
+      {
         vtkScalarsToColorsRGBAToLuminanceAlpha(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents, alpha);
-        }
       }
+    }
     else if (outputFormat == VTK_LUMINANCE)
-      {
+    {
       if (inputFormat < VTK_RGB)
-        {
+      {
         vtkScalarsToColorsLuminanceToLuminance(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents);
-        }
+      }
       else
-        {
+      {
         vtkScalarsToColorsRGBToLuminance(
           static_cast<unsigned char*>(inPtr), outPtr,
           numberOfTuples, numberOfComponents);
-        }
       }
     }
+  }
   else
-    {
+  {
     // must apply shift scale and/or do type conversion
     if (outputFormat == VTK_RGBA)
-      {
+    {
       if (inputFormat == VTK_LUMINANCE)
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsLuminanceToRGBA(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale, alpha));
-          }
         }
+      }
       else if (inputFormat == VTK_LUMINANCE_ALPHA)
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsLuminanceAlphaToRGBA(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale, alpha));
-          }
         }
+      }
       else if (inputFormat == VTK_RGB)
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsRGBToRGBA(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale, alpha));
-          }
         }
+      }
       else
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsRGBAToRGBA(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale, alpha));
-          }
         }
       }
+    }
     else if (outputFormat == VTK_RGB)
-      {
+    {
       if (inputFormat < VTK_RGB)
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsLuminanceToRGB(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale));
-          }
         }
+      }
       else
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsRGBToRGB(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale));
-          }
         }
       }
+    }
     else if (outputFormat == VTK_LUMINANCE_ALPHA)
-      {
+    {
       if (inputFormat == VTK_LUMINANCE)
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsLuminanceToLuminanceAlpha(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale, alpha));
-          }
         }
+      }
       else if (inputFormat == VTK_LUMINANCE_ALPHA)
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale, alpha));
-          }
         }
+      }
       else if (inputFormat == VTK_RGB)
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsRGBToLuminanceAlpha(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale, alpha));
-          }
         }
+      }
       else
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsRGBAToLuminanceAlpha(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale, alpha));
-          }
         }
       }
+    }
     else if (outputFormat == VTK_LUMINANCE)
-      {
+    {
       if (inputFormat < VTK_RGB)
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsLuminanceToLuminance(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale));
-          }
         }
+      }
       else
-        {
+      {
         switch (inputDataType)
-          {
+        {
           vtkTemplateAliasMacro(
             vtkScalarsToColorsRGBToLuminance(
               static_cast<VTK_TT*>(inPtr), outPtr,
               numberOfTuples, numberOfComponents, shift, scale));
-          }
         }
       }
     }
+  }
 
   delete [] newPtr;
 }
@@ -1347,18 +1366,18 @@ void vtkScalarsToColorsMapVectorsToMagnitude(
   const T *inPtr, double *outPtr, int numTuples, int vectorSize, int inInc)
 {
   do
-    {
+  {
     int n = vectorSize;
     double v = 0.0;
     do
-      {
+    {
       double u = static_cast<double>(*inPtr++);
       v += u*u;
-      }
+    }
     while (--n);
     *outPtr++ = sqrt(v);
     inPtr += inInc;
-    }
+  }
   while (--numTuples);
 }
 
@@ -1368,32 +1387,32 @@ void vtkScalarsToColors::MapVectorsToMagnitude(
   int numberOfTuples, int numberOfComponents, int vectorSize)
 {
   if (numberOfTuples <= 0)
-    {
+  {
     return;
-    }
+  }
 
-  unsigned char *newPtr = 0;
+  unsigned char *newPtr = nullptr;
   if (inputDataType == VTK_BIT)
-    {
+  {
     newPtr = vtkScalarsToColorsUnpackBits(
       inPtr, numberOfTuples*numberOfComponents);
     inPtr = newPtr;
     inputDataType = VTK_UNSIGNED_CHAR;
-    }
+  }
 
   if (vectorSize <= 0 || vectorSize > numberOfComponents)
-    {
+  {
     vectorSize = numberOfComponents;
-    }
+  }
   int inInc = numberOfComponents - vectorSize;
 
   switch (inputDataType)
-    {
+  {
     vtkTemplateAliasMacro(
       vtkScalarsToColorsMapVectorsToMagnitude(
         static_cast<VTK_TT*>(inPtr), outPtr,
         numberOfTuples, vectorSize, inInc));
-    }
+  }
 
   delete [] newPtr;
 }
@@ -1404,24 +1423,24 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
   int numberOfTuples, int numberOfComponents, int outputFormat)
 {
   if (outputFormat < VTK_LUMINANCE || outputFormat > VTK_RGBA)
-    {
+  {
     vtkErrorMacro(<< "MapScalarsThroughTable2: unrecognized color format");
     return;
-    }
+  }
 
   if (numberOfTuples <= 0)
-    {
+  {
     return;
-    }
+  }
 
-  unsigned char *newPtr = 0;
+  unsigned char *newPtr = nullptr;
   if (inputDataType == VTK_BIT)
-    {
+  {
     newPtr = vtkScalarsToColorsUnpackBits(
       inPtr, numberOfTuples*numberOfComponents);
     inPtr = newPtr;
     inputDataType = VTK_UNSIGNED_CHAR;
-    }
+  }
 
   double shift, scale;
   vtkScalarsToColorsComputeShiftScale(this, shift, scale);
@@ -1434,39 +1453,39 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
   if (inputDataType == VTK_UNSIGNED_CHAR &&
       static_cast<int>(shift*scale + 0.5) == 0 &&
       static_cast<int>((255 + shift)*scale + 0.5) == 255)
-    {
+  {
     if (outputFormat == VTK_RGBA)
-      {
+    {
       vtkScalarsToColorsLuminanceToRGBA(
         static_cast<unsigned char*>(inPtr), outPtr,
         numberOfTuples, numberOfComponents, alpha);
-      }
+    }
     else if (outputFormat == VTK_RGB)
-      {
+    {
       vtkScalarsToColorsLuminanceToRGB(
         static_cast<unsigned char*>(inPtr), outPtr,
         numberOfTuples, numberOfComponents);
-      }
+    }
     else if (outputFormat == VTK_LUMINANCE_ALPHA)
-      {
+    {
       vtkScalarsToColorsLuminanceToLuminanceAlpha(
         static_cast<unsigned char*>(inPtr), outPtr,
         numberOfTuples, numberOfComponents, alpha);
-      }
+    }
     else if (outputFormat == VTK_LUMINANCE)
-      {
+    {
       vtkScalarsToColorsLuminanceToLuminance(
         static_cast<unsigned char*>(inPtr), outPtr,
         numberOfTuples, numberOfComponents);
-      }
     }
+  }
   else
-    {
+  {
     // must apply shift scale and/or do type conversion
     if (outputFormat == VTK_RGBA)
-      {
+    {
       switch (inputDataType)
-        {
+      {
         vtkTemplateAliasMacro(
           vtkScalarsToColorsLuminanceToRGBA(
             static_cast<VTK_TT*>(inPtr), outPtr,
@@ -1475,12 +1494,12 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
         default:
           vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");
           break;
-        }
       }
+    }
     else if (outputFormat == VTK_RGB)
-      {
+    {
       switch (inputDataType)
-        {
+      {
         vtkTemplateAliasMacro(
           vtkScalarsToColorsLuminanceToRGB(
             static_cast<VTK_TT*>(inPtr), outPtr,
@@ -1489,12 +1508,12 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
         default:
           vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");
           break;
-        }
       }
+    }
     else if (outputFormat == VTK_LUMINANCE_ALPHA)
-      {
+    {
       switch (inputDataType)
-        {
+      {
         vtkTemplateAliasMacro(
           vtkScalarsToColorsLuminanceToLuminanceAlpha(
             static_cast<VTK_TT*>(inPtr), outPtr,
@@ -1503,12 +1522,12 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
         default:
           vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");
           break;
-        }
       }
+    }
     else if (outputFormat == VTK_LUMINANCE)
-      {
+    {
       switch (inputDataType)
-        {
+      {
         vtkTemplateAliasMacro(
           vtkScalarsToColorsLuminanceToLuminance(
             static_cast<VTK_TT*>(inPtr), outPtr,
@@ -1517,9 +1536,9 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
         default:
           vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");
           break;
-        }
       }
     }
+  }
 
   delete [] newPtr;
 }
@@ -1527,34 +1546,34 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
 // The callForAnyType is used to write generic code that works with any
 // vtkDataArray derived types.
 //
-// This  macro calls a template function (on the data type stored in the
+// This macro calls a template function (on the data type stored in the
 // array).  Example usage:
 //   callForAnyType(array, myFunc(static_cast<VTK_TT*>(data), arg2));
 // where 'array' is a vtkDataArray and
 //       'data' could be: array->GetVoidPointer(0)
 #define callForAnyType(array, call)                      \
   switch(array->GetDataType())                           \
-    {                                                    \
+  {                                                      \
     vtkTemplateMacro(call);                              \
-    }
+  }
 
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray *vtkScalarsToColors::ConvertToRGBA(
   vtkDataArray *colors, int numComp, int numTuples)
 {
-  if (vtkCharArray::SafeDownCast(colors) != NULL)
-    {
+  if (vtkArrayDownCast<vtkCharArray>(colors) != nullptr)
+  {
     vtkErrorMacro(<<"char type does not have enough values to hold a color");
-    return NULL;
-    }
+    return nullptr;
+  }
 
   if (numComp == 4 && this->Alpha >= 1.0 &&
-      vtkUnsignedCharArray::SafeDownCast(colors) != NULL)
-    {
-    vtkUnsignedCharArray* c = vtkUnsignedCharArray::SafeDownCast(colors);
+      vtkArrayDownCast<vtkUnsignedCharArray>(colors) != nullptr)
+  {
+    vtkUnsignedCharArray* c = vtkArrayDownCast<vtkUnsignedCharArray>(colors);
     c->Register(this);
     return c;
-    }
+  }
 
   vtkUnsignedCharArray *newColors = vtkUnsignedCharArray::New();
   newColors->SetNumberOfComponents(4);
@@ -1565,12 +1584,12 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertToRGBA(
   alpha = (alpha < 1 ? alpha : 1);
 
   if (numTuples <= 0)
-    {
+  {
     return newColors;
-    }
+  }
 
   switch (numComp)
-    {
+  {
     case 1:
       callForAnyType(
         colors, vtkScalarsToColorsLuminanceToRGBA(
@@ -1601,8 +1620,8 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertToRGBA(
 
     default:
       vtkErrorMacro(<<"Cannot convert colors");
-      return NULL;
-    }
+      return nullptr;
+  }
 
   return newColors;
 }
@@ -1614,17 +1633,17 @@ void vtkScalarsToColors::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Alpha: " << this->Alpha << "\n";
   if (this->VectorMode == vtkScalarsToColors::MAGNITUDE)
-    {
+  {
     os << indent << "VectorMode: Magnitude\n";
-    }
+  }
   else if (this->VectorMode == vtkScalarsToColors::RGBCOLORS)
-    {
+  {
     os << indent << "VectorMode: RGBColors\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "VectorMode: Component\n";
-    }
+  }
   os << indent << "VectorComponent: " << this->VectorComponent << "\n";
   os << indent << "VectorSize: " << this->VectorSize << "\n";
   os << indent << "IndexedLookup: "
@@ -1634,11 +1653,11 @@ void vtkScalarsToColors::PrintSelf(ostream& os, vtkIndent indent)
     << nv << (nv > 0 ? " entries:\n" : " entries.\n");
   vtkIndent i2(indent.GetNextIndent());
   for (vtkIdType i = 0; i < nv; ++ i)
-    {
+  {
     os
       << i2 << i << ": value: " << this->GetAnnotatedValue(i).ToString()
       << " note: \"" << this->GetAnnotation(i) << "\"\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1652,56 +1671,56 @@ void vtkScalarsToColors::SetAnnotations(
 
   if (values && annotations &&
     values->GetNumberOfTuples() != annotations->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro(
       << "Values and annotations do not have the same number of tuples ("
       << values->GetNumberOfTuples() << " and "
       << annotations->GetNumberOfTuples() << ", respectively. Ignoring.");
     return;
-    }
+  }
 
   if (this->AnnotatedValues && !values)
-    {
+  {
     this->AnnotatedValues->Delete();
-    this->AnnotatedValues = 0;
-    }
+    this->AnnotatedValues = nullptr;
+  }
   else if (values)
-    { // Ensure arrays are of the same type before copying.
+  { // Ensure arrays are of the same type before copying.
     if (this->AnnotatedValues)
-      {
+    {
       if (this->AnnotatedValues->GetDataType() != values->GetDataType())
-        {
-        this->AnnotatedValues->Delete();
-        this->AnnotatedValues = 0;
-        }
-      }
-    if (!this->AnnotatedValues)
       {
+        this->AnnotatedValues->Delete();
+        this->AnnotatedValues = nullptr;
+      }
+    }
+    if (!this->AnnotatedValues)
+    {
       this->AnnotatedValues =
         vtkAbstractArray::CreateArray(
           values->GetDataType());
-      }
     }
+  }
   bool sameVals = (values == this->AnnotatedValues);
   if (!sameVals && values)
-    {
+  {
     this->AnnotatedValues->DeepCopy(values);
-    }
+  }
 
   if (this->Annotations && !annotations)
-    {
+  {
     this->Annotations->Delete();
-    this->Annotations = 0;
-    }
+    this->Annotations = nullptr;
+  }
   else if (!this->Annotations && annotations)
-    {
+  {
     this->Annotations = vtkStringArray::New();
-    }
+  }
   bool sameText = (annotations == this->Annotations);
   if (!sameText)
-    {
+  {
     this->Annotations->DeepCopy(annotations);
-    }
+  }
   this->UpdateAnnotatedValueMap();
   this->Modified();
 }
@@ -1713,24 +1732,24 @@ vtkIdType vtkScalarsToColors::SetAnnotation(
   vtkIdType i = this->CheckForAnnotatedValue(value);
   bool modified = false;
   if (i >= 0)
-    {
+  {
     if (this->Annotations->GetValue(i) != annotation)
-      {
+    {
       this->Annotations->SetValue(i, annotation);
       modified = true;
-      }
     }
+  }
   else
-    {
+  {
     i = this->Annotations->InsertNextValue(annotation);
     this->AnnotatedValues->InsertVariantValue(i, value);
     modified = true;
-    }
+  }
   if (modified)
-    {
+  {
     this->UpdateAnnotatedValueMap();
     this->Modified();
-    }
+  }
   return i;
 }
 
@@ -1740,12 +1759,11 @@ vtkIdType vtkScalarsToColors::SetAnnotation(
 {
   bool valid;
   vtkVariant val(value);
-  double x;
-  x = val.ToDouble(&valid);
+  double x = val.ToDouble(&valid);
   if (valid)
-    {
+  {
     return this->SetAnnotation(x, annotation);
-    }
+  }
   return this->SetAnnotation(val, annotation);
 }
 
@@ -1761,10 +1779,10 @@ vtkVariant vtkScalarsToColors::GetAnnotatedValue(vtkIdType idx)
 {
   if (!this->AnnotatedValues ||
     idx < 0 || idx >= this->AnnotatedValues->GetNumberOfTuples())
-    {
+  {
     vtkVariant invalid;
     return invalid;
-    }
+  }
   return this->AnnotatedValues->GetVariantValue(idx);
 }
 
@@ -1775,10 +1793,10 @@ vtkStdString vtkScalarsToColors::GetAnnotation(vtkIdType idx)
     /* Don't check idx as Annotations->GetValue() does:
      * || idx < 0 || idx >= this->Annotations->GetNumberOfTuples())
      */
-    {
+  {
     vtkStdString empty;
     return empty;
-    }
+  }
   return this->Annotations->GetValue(idx);
 }
 
@@ -1794,20 +1812,20 @@ bool vtkScalarsToColors::RemoveAnnotation(vtkVariant value)
   vtkIdType i = this->CheckForAnnotatedValue(value);
   bool needToRemove = (i >= 0);
   if (needToRemove)
-    {
+  {
     // Note that this is the number of values minus 1:
     vtkIdType na = this->AnnotatedValues->GetMaxId();
     for (; i < na; ++ i)
-      {
+    {
       this->AnnotatedValues->SetVariantValue(i,
         this->AnnotatedValues->GetVariantValue(i + 1));
       this->Annotations->SetValue(i, this->Annotations->GetValue(i + 1));
-      }
+    }
     this->AnnotatedValues->Resize(na);
     this->Annotations->Resize(na);
     this->UpdateAnnotatedValueMap();
     this->Modified();
-    }
+  }
   return needToRemove;
 }
 
@@ -1815,13 +1833,13 @@ bool vtkScalarsToColors::RemoveAnnotation(vtkVariant value)
 void vtkScalarsToColors::ResetAnnotations()
 {
   if (!this->Annotations)
-    {
+  {
     vtkVariantArray* va = vtkVariantArray::New();
     vtkStringArray* sa = vtkStringArray::New();
     this->SetAnnotations(va, sa);
     va->Delete();
     sa->Delete();
-    }
+  }
   this->AnnotatedValues->Reset();
   this->Annotations->Reset();
   this->AnnotatedValueMap->clear();
@@ -1832,35 +1850,35 @@ void vtkScalarsToColors::ResetAnnotations()
 void vtkScalarsToColors::GetAnnotationColor(const vtkVariant& val, double rgba[4])
 {
   if (this->IndexedLookup)
-    {
+  {
     vtkIdType i = this->GetAnnotatedValueIndex(val);
     this->GetIndexedColor(i, rgba);
-    }
+  }
   else
-    {
+  {
     this->GetColor(val.ToDouble(), rgba);
     rgba[3] = 1.;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkScalarsToColors::CheckForAnnotatedValue(vtkVariant value)
 {
   if (!this->Annotations)
-    {
+  {
     vtkVariantArray* va = vtkVariantArray::New();
     vtkStringArray* sa = vtkStringArray::New();
     this->SetAnnotations(va, sa);
     va->FastDelete();
     sa->FastDelete();
-    }
+  }
   return this->GetAnnotatedValueIndexInternal(value);
 }
 
 //----------------------------------------------------------------------------
 // An unsafe version of vtkScalarsToColors::CheckForAnnotatedValue for
 // internal use (no pointer checks performed)
-vtkIdType vtkScalarsToColors::GetAnnotatedValueIndexInternal(vtkVariant& value)
+vtkIdType vtkScalarsToColors::GetAnnotatedValueIndexInternal(const vtkVariant& value)
 {
   vtkInternalAnnotatedValueMap::iterator it =
     this->AnnotatedValueMap->find(value);
@@ -1884,7 +1902,7 @@ void vtkScalarsToColors::UpdateAnnotatedValueMap()
   vtkIdType na =
     this->AnnotatedValues ? this->AnnotatedValues->GetMaxId() + 1 : 0;
   for (vtkIdType i = 0; i < na; ++ i)
-    {
+  {
     (*this->AnnotatedValueMap)[this->AnnotatedValues->GetVariantValue(i)] = i;
-    }
+  }
 }

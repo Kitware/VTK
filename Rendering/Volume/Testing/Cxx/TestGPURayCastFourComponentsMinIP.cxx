@@ -72,6 +72,7 @@ int TestGPURayCastFourComponentsMinIP(int argc,
   f->AddPoint(0,1.0);
   f->AddPoint(255,0.0);
   volumeProperty->SetScalarOpacity(f);
+  volumeProperty->ShadeOn();
   f->Delete();
 
   volume=vtkVolume::New();
@@ -83,7 +84,7 @@ int TestGPURayCastFourComponentsMinIP(int argc,
 
   int retVal;
   if(valid)
-    {
+  {
     iren->Initialize();
     ren1->SetBackground(0.1,0.4,0.2);
     ren1->ResetCamera();
@@ -91,15 +92,15 @@ int TestGPURayCastFourComponentsMinIP(int argc,
 
     retVal = vtkTesting::Test(argc, argv, renWin, 75);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   iren->Delete();
   renWin->Delete();
@@ -112,11 +113,11 @@ int TestGPURayCastFourComponentsMinIP(int argc,
   shiftScale->Delete();
 
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }

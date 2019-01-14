@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -39,7 +38,7 @@ mapToRGBA = vtk.vtkImageMapToColors()
 mapToRGBA.SetInputConnection(reader.GetOutputPort())
 mapToRGBA.SetOutputFormatToRGBA()
 mapToRGBA.SetLookupTable(LUT)
-mapToRGBA.AddObserver("EndEvent",changeLUT)
+#mapToRGBA.AddObserver("EndEvent",changeLUT)
 imageStreamer = vtk.vtkImageDataStreamer()
 imageStreamer.SetInputConnection(mapToRGBA.GetOutputPort())
 imageStreamer.SetNumberOfStreamDivisions(8)

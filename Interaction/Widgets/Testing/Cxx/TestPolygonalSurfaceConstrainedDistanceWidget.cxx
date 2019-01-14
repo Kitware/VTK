@@ -167,14 +167,14 @@ const char TestPolygonalSurfaceConstrainedDistanceWidgetLog[] =
 int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
 {
   if (argc < 2)
-    {
+  {
     std::cerr
       << "Demonstrates interaction of a handle, so that it is constrained \n"
       << "to lie on a polygonal surface.\n\n"
       << "Usage args: [-DistanceOffset height_offset]."
       << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Read height field.
   char* fname =
@@ -234,15 +234,16 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
   bool   distanceOffsetSpecified = false;
   double distanceOffset = 0.0;
   for (int i = 0; i < argc-1; i++)
-    {
+  {
     if (strcmp("-DistanceOffset", argv[i]) == 0)
-      {
+    {
       distanceOffset = atof(argv[i+1]);
-      }
+      distanceOffsetSpecified = true;
     }
+  }
 
   if (distanceOffsetSpecified)
-    {
+  {
     normals->SetInputConnection(warp->GetOutputPort());
     normals->SetFeatureAngle(60);
     normals->SplittingOff();
@@ -250,7 +251,7 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
     // vtkPolygonalSurfacePointPlacer needs cell normals
     normals->ComputeCellNormalsOn();
     normals->Update();
-    }
+  }
 
   vtkPolyData *pd = (distanceOffsetSpecified) ? normals->GetOutput()
     : warp->GetPolyDataOutput();
@@ -300,7 +301,7 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
     vtkSmartPointer< vtkDistanceRepresentation2D >::New();
   rep->GetAxis()->GetProperty()->SetColor( 0.0, 0.0, 1.0 );
 
-  // Create a 3D handle reprensentation template for this distance
+  // Create a 3D handle representation template for this distance
   // widget
   vtkSmartPointer< vtkPointHandleRepresentation3D > handleRep3D =
     vtkSmartPointer< vtkPointHandleRepresentation3D >::New();
@@ -323,9 +324,9 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
   // the offset along the surface normal) from the surface.
 
   if (distanceOffsetSpecified)
-    {
+  {
     pointPlacer->SetDistanceOffset( distanceOffset );
-    }
+  }
 
   // set the placer on the distance' handle representations.
 

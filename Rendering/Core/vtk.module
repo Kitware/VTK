@@ -1,0 +1,43 @@
+NAME
+  VTK::RenderingCore
+LIBRARY_NAME
+  vtkRenderingCore
+IMPLEMENTABLE
+KIT
+  VTK::Rendering
+GROUPS
+  Rendering
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMath
+  VTK::FiltersCore
+PRIVATE_DEPENDS
+  VTK::CommonColor
+  VTK::CommonComputationalGeometry
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersSources
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersExtraction
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersProgrammable
+  VTK::FiltersSources
+  VTK::IOExodus
+  VTK::IOExport
+  VTK::IOLegacy
+  VTK::IOParallel
+  VTK::IOXML
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::RenderingAnnotation
+  VTK::RenderingFreeType
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

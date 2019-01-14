@@ -30,70 +30,68 @@
 -----------------------------------------------------------------------*/
 
 #include "PyVTKSpecialObject.h"
+#include "PyVTKMethodDescriptor.h"
 #include "vtkPythonUtil.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"
 // it happens because this kind of expression: (long *)&ptr
-// pragma GCC diagnostic is available since gcc>=4.2
-#if defined(__GNUC__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=2)
+#if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
 //--------------------------------------------------------------------
 PyVTKSpecialType::PyVTKSpecialType(
     PyTypeObject *typeobj, PyMethodDef *cmethods, PyMethodDef *ccons,
-    const char *cdocs[], PyVTKSpecialCopyFunc copyfunc)
+    vtkcopyfunc copyfunc)
 {
   this->py_type = typeobj;
-  this->methods = cmethods;
-  this->constructors = ccons;
-  this->docstring = vtkPythonUtil::BuildDocString(cdocs);
-  this->copy_func = copyfunc;
+  this->vtk_methods = cmethods;
+  this->vtk_constructors = ccons;
+  this->vtk_copy = copyfunc;
 }
+
+//--------------------------------------------------------------------
+// Object protocol
 
 //--------------------------------------------------------------------
 PyObject *PyVTKSpecialObject_Repr(PyObject *self)
 {
   PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;
-  PyTypeObject *type = self->ob_type;
-  const char *name = self->ob_type->tp_name;
+  PyTypeObject *type = Py_TYPE(self);
+  const char *name = Py_TYPE(self)->tp_name;
 
-  PyObject *s = PyString_FromString((char *)"(");
-  PyString_ConcatAndDel(&s, PyString_FromString((char *)name));
-  PyString_ConcatAndDel(&s, PyString_FromString((char *)")"));
-
-#if PY_VERSION_HEX >= 0x02020000
   while (type->tp_base && !type->tp_str)
-    {
+  {
     type = type->tp_base;
-    }
+  }
 
   // use str() if available
+  PyObject *s = nullptr;
   if (type->tp_str && type->tp_str != (&PyBaseObject_Type)->tp_str)
-    {
+  {
     PyObject *t = type->tp_str(self);
-    if (t == NULL)
-      {
-      Py_XDECREF(s);
-      s = NULL;
-      }
-    else
-      {
-      PyString_ConcatAndDel(&s, t);
-      }
-    }
-  // otherwise just print address of object
-  else
-#endif
-  if (obj->vtk_ptr)
+    if (t == nullptr)
     {
-    char buf[256];
-    sprintf(buf, "%p", obj->vtk_ptr);
-    PyString_ConcatAndDel(&s, PyString_FromString(buf));
+      Py_XDECREF(s);
+      s = nullptr;
     }
+    else
+    {
+#ifdef VTK_PY3K
+      s = PyString_FromFormat("(%.80s)%S", name, t);
+#else
+      s = PyString_FromFormat("(%.80s)%s", name, PyString_AsString(t));
+#endif
+    }
+  }
+  // otherwise just print address of object
+  else if (obj->vtk_ptr)
+  {
+    s = PyString_FromFormat("(%.80s)%p", name, obj->vtk_ptr);
+  }
 
   return s;
 }
@@ -102,66 +100,87 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
 PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
 {
   Py_ssize_t n, i;
-  PyObject *s = NULL;
+  PyObject *s = nullptr;
   PyObject *t, *o, *comma;
   const char *bracket = "[...]";
 
-  if (self->ob_type->tp_as_sequence &&
-      self->ob_type->tp_as_sequence->sq_item != NULL &&
-      self->ob_type->tp_as_sequence->sq_ass_item == NULL)
-    {
+  if (Py_TYPE(self)->tp_as_sequence &&
+      Py_TYPE(self)->tp_as_sequence->sq_item != nullptr &&
+      Py_TYPE(self)->tp_as_sequence->sq_ass_item == nullptr)
+  {
     bracket = "(...)";
-    }
+  }
 
   i = Py_ReprEnter(self);
   if (i < 0)
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
   else if (i > 0)
-    {
-    return PyString_FromString((char *)bracket);
-    }
+  {
+    return PyString_FromString(bracket);
+  }
 
   n = PySequence_Size(self);
   if (n >= 0)
-    {
-    comma = PyString_FromString((char *)", ");
-    s = PyString_FromStringAndSize((char *)bracket, 1);
+  {
+    comma = PyString_FromString(", ");
+    s = PyString_FromStringAndSize(bracket, 1);
 
-    for (i = 0; i < n && s != NULL; i++)
-      {
+    for (i = 0; i < n && s != nullptr; i++)
+    {
       if (i > 0)
-        {
+      {
+#ifdef VTK_PY3K
+        PyObject *tmp = PyUnicode_Concat(s, comma);
+        Py_DECREF(s);
+        s = tmp;
+#else
         PyString_Concat(&s, comma);
-        }
+#endif
+      }
       o = PySequence_GetItem(self, i);
-      t = NULL;
+      t = nullptr;
       if (o)
-        {
+      {
         t = PyObject_Repr(o);
         Py_DECREF(o);
-        }
-      if (t)
-        {
-        PyString_ConcatAndDel(&s, t);
-        }
-      else
-        {
-        Py_DECREF(s);
-        s = NULL;
-        }
-      n = PySequence_Size(self);
       }
+      if (t)
+      {
+#ifdef VTK_PY3K
+        PyObject *tmp = PyUnicode_Concat(s, t);
+        Py_DECREF(s);
+        Py_DECREF(t);
+        s = tmp;
+#else
+        PyString_ConcatAndDel(&s, t);
+#endif
+      }
+      else
+      {
+        Py_DECREF(s);
+        s = nullptr;
+      }
+      n = PySequence_Size(self);
+    }
 
     if (s)
-      {
+    {
+#ifdef VTK_PY3K
+      PyObject *tmp1 = PyString_FromStringAndSize(&bracket[4], 1);
+      PyObject *tmp2 = PyUnicode_Concat(s, tmp1);
+      Py_DECREF(s);
+      Py_DECREF(tmp1);
+      s = tmp2;
+#else
       PyString_ConcatAndDel(&s,
-        PyString_FromStringAndSize((char *)&bracket[4], 1));
-      }
+        PyString_FromStringAndSize(&bracket[4], 1));
+#endif
+    }
 
     Py_DECREF(comma);
-    }
+  }
 
   Py_ReprLeave(self);
 
@@ -169,86 +188,17 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
 }
 
 //--------------------------------------------------------------------
-#if PY_VERSION_HEX < 0x02020000
-PyObject *PyVTKSpecialObject_GetAttr(PyObject *self, PyObject *attr)
-{
-  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;
-  char *name = PyString_AsString(attr);
-  PyMethodDef *meth;
-
-  if (name[0] == '_')
-    {
-    if (strcmp(name, "__name__") == 0)
-      {
-      return PyString_FromString(self->ob_type->tp_name);
-      }
-    if (strcmp(name, "__doc__") == 0)
-      {
-      Py_INCREF(obj->vtk_info->docstring);
-      return obj->vtk_info->docstring;
-      }
-    if (strcmp(name,"__methods__") == 0)
-      {
-      meth = obj->vtk_info->methods;
-      PyObject *lst;
-      int i, n;
-
-      for (n = 0; meth && meth[n].ml_name; n++)
-        {
-        ;
-        }
-
-      if ((lst = PyList_New(n)) != NULL)
-        {
-        meth = obj->vtk_info->methods;
-        for (i = 0; i < n; i++)
-          {
-          PyList_SetItem(lst, i, PyString_FromString(meth[i].ml_name));
-          }
-        PyList_Sort(lst);
-        }
-      return lst;
-      }
-
-    if (strcmp(name, "__members__") == 0)
-      {
-      PyObject *lst;
-      if ((lst = PyList_New(4)) != NULL)
-        {
-        PyList_SetItem(lst, 0, PyString_FromString("__doc__"));
-        PyList_SetItem(lst, 1, PyString_FromString("__members__"));
-        PyList_SetItem(lst, 2, PyString_FromString("__methods__"));
-        PyList_SetItem(lst, 3, PyString_FromString("__name__"));
-        }
-      return lst;
-      }
-    }
-
-  for (meth = obj->vtk_info->methods; meth && meth->ml_name; meth++)
-    {
-    if (strcmp(name, meth->ml_name) == 0)
-      {
-      return PyCFunction_New(meth, self);
-      }
-    }
-
-  PyErr_SetString(PyExc_AttributeError, name);
-  return NULL;
-}
-#endif
+// C API
 
 //--------------------------------------------------------------------
+// Create a new python object from the pointer to a C++ object
 PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr)
 {
   // would be nice if "info" could be passed instead if "classname",
   // but this way of doing things is more dynamic if less efficient
   PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
 
-#if PY_MAJOR_VERSION >= 2
   PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject, info->py_type);
-#else
-  PyVTKSpecialObject *self = PyObject_NEW(PyVTKSpecialObject, info->py_type);
-#endif
 
   self->vtk_info = info;
   self->vtk_ptr = ptr;
@@ -258,54 +208,61 @@ PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr)
 }
 
 //--------------------------------------------------------------------
+// Create a new python object via the copy constructor of the C++ object
 PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
 {
   PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
 
-  if (info == 0)
-    {
-    char buf[256];
-    sprintf(buf,"cannot create object of unknown type \"%s\"",classname);
-    PyErr_SetString(PyExc_ValueError,buf);
-    return NULL;
-    }
+  if (info == nullptr)
+  {
+    return PyErr_Format(PyExc_ValueError,
+                        "cannot create object of unknown type \"%s\"",
+                        classname);
+  }
+  else if (info->vtk_copy == nullptr)
+  {
+    return PyErr_Format(PyExc_ValueError,
+                        "no copy constructor for object of type \"%s\"",
+                        classname);
+  }
 
-#if PY_MAJOR_VERSION >= 2
   PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject, info->py_type);
-#else
-  PyVTKSpecialObject *self = PyObject_NEW(PyVTKSpecialObject, info->py_type);
-#endif
 
   self->vtk_info = info;
-  self->vtk_ptr = info->copy_func(ptr);
+  self->vtk_ptr = info->vtk_copy(ptr);
   self->vtk_hash = -1;
 
   return (PyObject *)self;
 }
 
 //--------------------------------------------------------------------
-PyObject *PyVTKSpecialType_New(PyTypeObject *pytype,
-  PyMethodDef *methods, PyMethodDef *constructors, PyMethodDef *newmethod,
-  const char *docstring[], PyVTKSpecialCopyFunc copyfunc)
+// Add a special type, add methods and members to its type object.
+// A return value of nullptr signifies that it was already added.
+PyTypeObject *PyVTKSpecialType_Add(PyTypeObject *pytype,
+  PyMethodDef *methods, PyMethodDef *constructors,
+  vtkcopyfunc copyfunc)
 {
-  // Add this type to the special type map
-  PyVTKSpecialType *info =
-    vtkPythonUtil::AddSpecialTypeToMap(
-      pytype, methods, constructors, docstring, copyfunc);
+  // Check whether the type is already in the map (use classname as key),
+  // and return it if so.  If not, then add it to the map.
+  pytype = vtkPythonUtil::AddSpecialTypeToMap(
+      pytype, methods, constructors, copyfunc);
 
-  if (info)
-    {
-    // Add the built docstring to the type
-    pytype->tp_doc = PyString_AsString(info->docstring);
-    newmethod->ml_doc = PyString_AsString(info->docstring);
-    }
+  // If type object already has a dict, we're done
+  if (pytype->tp_dict)
+  {
+    return pytype;
+  }
 
-  // Return a generator function for python < 2.2,
-  // return the type object itself for python >= 2.2
-#if PY_VERSION_HEX < 0x2020000
-  return PyCFunction_New(newmethod, Py_None);
-#else
-  PyType_Ready(pytype);
-  return (PyObject *)pytype;
-#endif
+  // Create the dict
+  pytype->tp_dict = PyDict_New();
+
+  // Add all of the methods
+  for (PyMethodDef *meth = methods; meth && meth->ml_name; meth++)
+  {
+    PyObject *func = PyVTKMethodDescriptor_New(pytype, meth);
+    PyDict_SetItemString(pytype->tp_dict, meth->ml_name, func);
+    Py_DECREF(func);
+  }
+
+  return pytype;
 }

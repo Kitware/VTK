@@ -42,9 +42,9 @@ int TestSimplePointsReaderWriter( int vtkNotUsed(argc), char *vtkNotUsed(argv)[]
   reader->Update();
 
   if(reader->GetOutput()->GetNumberOfPoints() != sphereSource->GetOutput()->GetNumberOfPoints())
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -12,18 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkReflectionFilter - reflects a data set across a plane
-// .SECTION Description
-// The vtkReflectionFilter reflects a data set across one of the
-// planes formed by the data set's bounding box.
-// Since it converts data sets into unstructured grids, it is not effeicient
-// for structured data sets.
+/**
+ * @class   vtkReflectionFilter
+ * @brief   reflects a data set across a plane
+ *
+ * The vtkReflectionFilter reflects a data set across one of the
+ * planes formed by the data set's bounding box.
+ * Since it converts data sets into unstructured grids, it is not efficient
+ * for structured data sets.
+*/
 
 #ifndef vtkReflectionFilter_h
 #define vtkReflectionFilter_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
+
 class vtkUnstructuredGrid;
 class vtkDataSet;
 
@@ -33,9 +37,8 @@ public:
   static vtkReflectionFilter *New();
 
   vtkTypeMacro(vtkReflectionFilter, vtkDataObjectAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-//BTX
   enum ReflectionPlane
   {
     USE_X_MIN = 0,
@@ -48,10 +51,11 @@ public:
     USE_Y = 7,
     USE_Z = 8
   };
-//ETX
 
-  // Description:
-  // Set the normal of the plane to use as mirror.
+  //@{
+  /**
+   * Set the normal of the plane to use as mirror.
+   */
   vtkSetClampMacro(Plane, int, 0, 8);
   vtkGetMacro(Plane, int);
   void SetPlaneToX() { this->SetPlane(USE_X); };
@@ -63,55 +67,83 @@ public:
   void SetPlaneToXMax() { this->SetPlane(USE_X_MAX); };
   void SetPlaneToYMax() { this->SetPlane(USE_Y_MAX); };
   void SetPlaneToZMax() { this->SetPlane(USE_Z_MAX); };
+  //@}
 
-  // Description:
-  // If the reflection plane is set to X, Y or Z, this variable
-  // is use to set the position of the plane.
+  //@{
+  /**
+   * If the reflection plane is set to X, Y or Z, this variable
+   * is use to set the position of the plane.
+   */
   vtkSetMacro(Center, double);
   vtkGetMacro(Center, double);
+  //@}
 
-  // Description:
-  // If on (the default), copy the input geometry to the output. If off,
-  // the output will only contain the reflection.
-  vtkSetMacro(CopyInput, int);
-  vtkGetMacro(CopyInput, int);
-  vtkBooleanMacro(CopyInput, int);
+  //@{
+  /**
+   * If on (the default), copy the input geometry to the output. If off,
+   * the output will only contain the reflection.
+   */
+  vtkSetMacro(CopyInput, vtkTypeBool);
+  vtkGetMacro(CopyInput, vtkTypeBool);
+  vtkBooleanMacro(CopyInput, vtkTypeBool);
+  //@}
+
+  //@{
+  /**
+   * If off (the default), only Vectors, Normals and Tensors will be flipped.
+   * If on, all 3-component data arrays ( considered as 3D vectors),
+   * 6-component data arrays (considered as symmetric tensors),
+   * 9-component data arrays (considered as tensors ) of signed type will be flipped.
+   * All other won't be flipped and will only be copied.
+   */
+  vtkSetMacro(FlipAllInputArrays, bool);
+  vtkGetMacro(FlipAllInputArrays, bool);
+  vtkBooleanMacro(FlipAllInputArrays, bool);
+  //@}
 
 protected:
   vtkReflectionFilter();
-  ~vtkReflectionFilter();
+  ~vtkReflectionFilter() override;
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
-  // Overridden to create the correct type of output.
-  virtual int RequestDataObject(vtkInformation*,
-                                vtkInformationVector**,
-                                vtkInformationVector*);
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   * Overridden to create the correct type of output.
+   */
+  int RequestDataObject(vtkInformation*,
+                        vtkInformationVector**,
+                        vtkInformationVector*) override;
 
-  // Description:
-  // Actual implementation for reflection.
+  /**
+   * Actual implementation for reflection.
+   */
   virtual int RequestDataInternal(vtkDataSet* input, vtkUnstructuredGrid* output,
     double bounds[6]);
 
-  // Description:
-  // Internal method to compute bounds.
+  /**
+   * Internal method to compute bounds.
+   */
   virtual int ComputeBounds(vtkDataObject* input, double bounds[6]);
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  /**
+   * Generate new, non-3D cell and return the generated cells id.
+   */
+  virtual vtkIdType ReflectNon3DCell(vtkDataSet* input, vtkUnstructuredGrid* output,
+                                     vtkIdType cellId,  vtkIdType numInputPoints);
+
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+
+  void FlipTuple(double* tuple, int* mirrorDir, int nComp);
 
   int Plane;
   double Center;
-  int CopyInput;
-
-  void FlipVector(double tuple[3], int mirrorDir[3]);
+  vtkTypeBool CopyInput;
+  bool FlipAllInputArrays;
 
 private:
-  vtkReflectionFilter(const vtkReflectionFilter&);  // Not implemented
-  void operator=(const vtkReflectionFilter&);  // Not implemented
+  vtkReflectionFilter(const vtkReflectionFilter&) = delete;
+  void operator=(const vtkReflectionFilter&) = delete;
 };
 
 #endif
-
-

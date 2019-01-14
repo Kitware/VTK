@@ -19,10 +19,13 @@
 
 =========================================================================*/
 
-// .NAME vtkTransposeMatrix - Computes the transpose of an input matrix.
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkTransposeMatrix
+ * @brief   Computes the transpose of an input matrix.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkTransposeMatrix_h
 #define vtkTransposeMatrix_h
@@ -35,20 +38,20 @@ class VTKINFOVISCORE_EXPORT vtkTransposeMatrix : public vtkArrayDataAlgorithm
 public:
   static vtkTransposeMatrix* New();
   vtkTypeMacro(vtkTransposeMatrix, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkTransposeMatrix();
-  ~vtkTransposeMatrix();
+  ~vtkTransposeMatrix() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) override;
 
 private:
-  vtkTransposeMatrix(const vtkTransposeMatrix&); // Not implemented
-  void operator=(const vtkTransposeMatrix&);   // Not implemented
+  vtkTransposeMatrix(const vtkTransposeMatrix&) = delete;
+  void operator=(const vtkTransposeMatrix&) = delete;
 };
 
 #endif

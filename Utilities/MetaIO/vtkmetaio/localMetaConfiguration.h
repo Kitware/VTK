@@ -55,8 +55,8 @@
   #include <iostream>
   #include <fstream>
 
-  #if (defined(_WIN32) || defined(WIN32)) && defined(vtkmetaio_BUILD_SHARED_LIBS)
-    #ifdef vtkmetaio_EXPORTS
+  #if defined(_WIN32) && defined(vtkmetaio_BUILD_SHARED_LIBS)
+    #ifdef metaio_EXPORTS
       #define METAIO_EXPORT __declspec(dllexport)
       #define METAIO_EXTERN
     #else

@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkmyImagingWin32Header - manage Windows system differences
-// .SECTION Description
-// The vtkmyImagingWin32Header captures some system differences between Unix
-// and Windows operating systems.
+/**
+ * @class   vtkmyImagingWin32Header
+ * @brief   manage Windows system differences
+ *
+ * The vtkmyImagingWin32Header captures some system differences between Unix
+ * and Windows operating systems.
+*/
 
 #ifndef vtkmyImagingWin32Header_h
 #define vtkmyImagingWin32Header_h
 
 #include <vtkmyConfigure.h>
 
-#if defined(WIN32) && !defined(VTKMY_STATIC)
+#if defined(_WIN32) && !defined(VTKMY_STATIC)
 #if defined(vtkmyImaging_EXPORTS)
 #define VTK_MY_IMAGING_EXPORT __declspec( dllexport )
 #else

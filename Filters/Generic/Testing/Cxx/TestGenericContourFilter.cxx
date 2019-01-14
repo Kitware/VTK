@@ -56,7 +56,6 @@ int TestGenericContourFilter(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
-// char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
 
@@ -96,7 +95,7 @@ int TestGenericContourFilter(int argc, char* argv[])
   contour->SetValue( 0, 0.1);
   contour->Update(); //So that we can call GetRange() on the scalars
 
-  assert(contour->GetOutput()!=0);
+  assert(contour->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut = vtkLookupTable::New();
@@ -106,14 +105,14 @@ int TestGenericContourFilter(int argc, char* argv[])
   mapper->SetLookupTable(lut);
   mapper->SetInputConnection( contour->GetOutputPort() );
 
-  if(contour->GetOutput()->GetPointData()!=0)
+  if(contour->GetOutput()->GetPointData()!=nullptr)
+  {
+    if(contour->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
-    if(contour->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
       mapper->SetScalarRange( contour->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -125,9 +124,9 @@ int TestGenericContourFilter(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

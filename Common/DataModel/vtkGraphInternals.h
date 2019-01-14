@@ -16,11 +16,14 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkGraphInternals - Internal representation of vtkGraph
-//
-// .SECTION Description
-// This is the internal representation of vtkGraph, used only in rare cases
-// where one must modify that representation.
+/**
+ * @class   vtkGraphInternals
+ * @brief   Internal representation of vtkGraph
+ *
+ *
+ * This is the internal representation of vtkGraph, used only in rare cases
+ * where one must modify that representation.
+*/
 
 #ifndef vtkGraphInternals_h
 #define vtkGraphInternals_h
@@ -28,20 +31,19 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGraph.h"
 
-#include <vtksys/stl/vector> // STL Header
-#include <vtksys/stl/map>    // STL Header
+#include <vector> // STL Header
+#include <map>    // STL Header
 
 //----------------------------------------------------------------------------
 // class vtkVertexAdjacencyList
 //----------------------------------------------------------------------------
-//BTX
+
 class vtkVertexAdjacencyList
 {
 public:
-  vtksys_stl::vector<vtkInEdgeType> InEdges;
-  vtksys_stl::vector<vtkOutEdgeType> OutEdges;
+  std::vector<vtkInEdgeType> InEdges;
+  std::vector<vtkOutEdgeType> OutEdges;
 };
-//ETX
 
 //----------------------------------------------------------------------------
 // class vtkGraphInternals
@@ -50,10 +52,10 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGraphInternals : public vtkObject
 {
 public:
   static vtkGraphInternals *New();
-  //BTX
+
   vtkTypeMacro(vtkGraphInternals, vtkObject);
-  vtksys_stl::vector<vtkVertexAdjacencyList> Adjacency;
-  //ETX
+  std::vector<vtkVertexAdjacencyList> Adjacency;
+
   vtkIdType NumberOfEdges;
 
   vtkIdType LastRemoteEdgeId;
@@ -67,31 +69,33 @@ public:
   // vtkMutableDirectedGraph.
   bool UsingPedigreeIds;
 
-  //BTX
-  // Description:
-  // Convenience method for removing an edge from an out edge list.
-  void RemoveEdgeFromOutList(vtkIdType e, vtksys_stl::vector<vtkOutEdgeType>& outEdges);
+  /**
+   * Convenience method for removing an edge from an out edge list.
+   */
+  void RemoveEdgeFromOutList(vtkIdType e, std::vector<vtkOutEdgeType>& outEdges);
 
-  // Description:
-  // Convenience method for removing an edge from an in edge list.
-  void RemoveEdgeFromInList(vtkIdType e, vtksys_stl::vector<vtkInEdgeType>& inEdges);
+  /**
+   * Convenience method for removing an edge from an in edge list.
+   */
+  void RemoveEdgeFromInList(vtkIdType e, std::vector<vtkInEdgeType>& inEdges);
 
-  // Description:
-  // Convenience method for renaming an edge in an out edge list.
-  void ReplaceEdgeFromOutList(vtkIdType from, vtkIdType to, vtksys_stl::vector<vtkOutEdgeType>& outEdges);
+  /**
+   * Convenience method for renaming an edge in an out edge list.
+   */
+  void ReplaceEdgeFromOutList(vtkIdType from, vtkIdType to, std::vector<vtkOutEdgeType>& outEdges);
 
-  // Description:
-  // Convenience method for renaming an edge in an in edge list.
-  void ReplaceEdgeFromInList(vtkIdType from, vtkIdType to, vtksys_stl::vector<vtkInEdgeType>& inEdges);
-  //ETX
+  /**
+   * Convenience method for renaming an edge in an in edge list.
+   */
+  void ReplaceEdgeFromInList(vtkIdType from, vtkIdType to, std::vector<vtkInEdgeType>& inEdges);
 
 protected:
   vtkGraphInternals();
-  ~vtkGraphInternals();
+  ~vtkGraphInternals() override;
 
 private:
-  vtkGraphInternals(const vtkGraphInternals&);  // Not implemented.
-  void operator=(const vtkGraphInternals&);  // Not implemented.
+  vtkGraphInternals(const vtkGraphInternals&) = delete;
+  void operator=(const vtkGraphInternals&) = delete;
 };
 
 #endif // vtkGraphInternals_h

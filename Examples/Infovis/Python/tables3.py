@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from vtk import *
 
 if __name__ == "__main__":
@@ -15,7 +16,7 @@ if __name__ == "__main__":
 
     T = csv_source.GetOutput()
 
-    print "Table loaded from CSV file:"
+    print("Table loaded from CSV file:")
     T.Dump(6)
 
     #
@@ -25,7 +26,7 @@ if __name__ == "__main__":
     for i in range( T.GetNumberOfColumns()):
         T.GetColumn(i).InsertNextValue( new_row[i] )
 
-    print "\nTable with new row appended:"
+    print("\nTable with new row appended:")
     T.Dump(6)
 
     #
@@ -36,5 +37,5 @@ if __name__ == "__main__":
     for icol in range( T.GetNumberOfColumns() ):
         row.append( T.GetColumn(icol).GetValue( row_number ) )
 
-    print "\nExtracted row 3:"
-    print row
+    print("\nExtracted row 3:")
+    print(row)

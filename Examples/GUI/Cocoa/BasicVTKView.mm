@@ -6,27 +6,44 @@
 #import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkCocoaRenderWindow.h"
 
+// Private Interface
+@interface BasicVTKView()
+{
+  @private
+  vtkRenderer* _renderer;
+}
+@end
+
 @implementation BasicVTKView
 
-// designated initializer
-- (id)initWithFrame:(NSRect)frame
+// ----------------------------------------------------------------------------
+// Designated initializer
+- (instancetype)initWithFrame:(NSRect)frameRect
 {
-  self = [super initWithFrame:frame];
+  self = [super initWithFrame:frameRect];
   if (self)
-    {
+  {
     // nothing to do... add something if you need to
-    }
+  }
 
   return self;
 }
 
-- (void)dealloc
+// ----------------------------------------------------------------------------
+// Designated initializer
+- (/*nullable*/ instancetype)initWithCoder:(NSCoder *)coder
 {
-  [self cleanUpVTKSupport];
-  [super dealloc];
+  self = [super initWithCoder:coder];
+  if (self)
+  {
+    // nothing to do... add something if you need to
+  }
+
+  return self;
 }
 
-// We are going to over ride the super class here to do some last minute
+// ----------------------------------------------------------------------------
+// We are going to override the super class here to do some last minute
 // setups. We need to do this because if we initialize in the constructor or
 // even later, in say an NSDocument's windowControllerDidLoadNib, then
 // we will get a warning about "Invalid Drawable" because the OpenGL Context
@@ -44,17 +61,18 @@
   // more soothing to the eye.
   vtkRenderWindowInteractor* theRenWinInt = [self getInteractor];
   if (theRenWinInt && (theRenWinInt->GetInitialized() == NO))
-    {
+  {
     theRenWinInt->Initialize();
-    }
+  }
 
   // Let the vtkCocoaGLView do its regular drawing
   [super drawRect:theRect];
 }
 
+// ----------------------------------------------------------------------------
 - (void)initializeVTKSupport
 {
-  // The usual vtk object creation
+  // The usual vtk object creation.
   vtkRenderer* ren = vtkRenderer::New();
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   vtkRenderWindowInteractor* renWinInt = vtkRenderWindowInteractor::New();
@@ -64,14 +82,14 @@
   vtkCocoaRenderWindow* cocoaRenWin = vtkCocoaRenderWindow::SafeDownCast(renWin);
 
   if (ren && cocoaRenWin && renWinInt)
-    {
+  {
     // This is special to our usage of vtk.  To prevent vtk
     // from creating an NSWindow and NSView automatically (its
     // default behaviour) we tell vtk that they exist already.
     // The APIs names are a bit misleading, due to the cross
     // platform nature of vtk, but this usage is correct.
-    cocoaRenWin->SetRootWindow([self window]);
-    cocoaRenWin->SetWindowId(self);
+    cocoaRenWin->SetRootWindow((__bridge void*)[self window]);
+    cocoaRenWin->SetWindowId((__bridge void*)self);
 
     // The usual vtk connections
     cocoaRenWin->AddRenderer(ren);
@@ -82,11 +100,12 @@
     // accessor if you ever need it.
     [self setVTKRenderWindow:cocoaRenWin];
 
-    // Likewise, BasicVTKView keeps track of the renderer
+    // Likewise, BasicVTKView keeps track of the renderer.
     [self setRenderer:ren];
-    }
+  }
 }
 
+// ----------------------------------------------------------------------------
 - (void)cleanUpVTKSupport
 {
   vtkRenderer* ren = [self getRenderer];
@@ -94,32 +113,35 @@
   vtkRenderWindowInteractor* renWinInt = [self getInteractor];
 
   if (ren)
-    {
+  {
     ren->Delete();
-    }
+  }
   if (renWin)
-    {
+  {
     renWin->Delete();
-    }
+  }
   if (renWinInt)
-    {
+  {
     renWinInt->Delete();
-    }
-  [self setRenderer:NULL];
-  [self setVTKRenderWindow:NULL];
+  }
+
+  [self setRenderer:nil];
+  [self setVTKRenderWindow:nil];
 
   // There is no setter accessor for the render window
   // interactor, that's ok.
 }
 
-- (vtkRenderer*)getRenderer
+// ----------------------------------------------------------------------------
+- (/*nullable*/ vtkRenderer*)getRenderer
 {
-  return renderer;
+  return _renderer;
 }
 
-- (void)setRenderer:(vtkRenderer*)theRenderer
+// ----------------------------------------------------------------------------
+- (void)setRenderer:(/*nullable*/ vtkRenderer*)theRenderer
 {
-  renderer = theRenderer;
+  _renderer = theRenderer;
 }
 
 @end

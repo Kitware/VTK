@@ -80,11 +80,18 @@ cx = 100.8
 cy = 100.8
 cz = 69.0
 
+# cuts the bone data in half
 boneClip = vtk.vtkPlane()
 boneClip.SetNormal(0, 1, 0)
 boneClip.SetOrigin(cx, cy, cz)
 
+# doesn't cut the data, but is within camera near/far planes
+boneClip2 = vtk.vtkPlane()
+boneClip2.SetNormal(-1, 0, 0)
+boneClip2.SetOrigin(cx + 100, cy, cz)
+
 boneMapper.AddClippingPlane(boneClip)
+boneMapper.AddClippingPlane(boneClip2)
 
 #---------------------------------------------------------
 ren.AddViewProp(bone)

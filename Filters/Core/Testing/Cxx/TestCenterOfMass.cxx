@@ -67,11 +67,11 @@ int TestCenterOfMass(int, char*[])
 
   double correct[3] = {0.5, 0.5, 0};
   if(!fuzzyCompare3D(center, correct))
-    {
+  {
     std::cerr << "Error: center is " << center[0] << " " << center[1] << " " << center[2]
               << " but should be " << correct[0] << " " << correct[1] << " " << center[2] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   }
 
@@ -96,11 +96,11 @@ int TestCenterOfMass(int, char*[])
 
   double correct[3] = {0.6, 0.6, 0};
   if(!fuzzyCompare3D(center, correct))
-    {
+  {
     std::cerr << "Error: center is " << center[0] << " " << center[1] << " " << center[2]
               << " but should be " << correct[0] << " " << correct[1] << " " << center[2] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   }
 

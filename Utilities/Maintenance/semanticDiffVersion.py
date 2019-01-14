@@ -17,10 +17,7 @@ import subprocess
 import sys
 import tempfile
 
-try:
-    import argparse
-except ImportError:
-    from vtk.util import _argparse as argparse
+import argparse
 
 tagMatcherType = re.compile('^(.+)\t(\S+)\t/\^(.*)\$/;"\t(.*)\n')
 
@@ -196,7 +193,7 @@ class CompareVersions():
                 stderr=subprocess.PIPE)
         git_proc.wait()
         git_proc_stderr = git_proc.stderr.read()
-        if git_proc_stderr:
+        if git_proc.returncode:
             print "Error while git reset to version:", ver
             print git_proc_stderr
             sys.exit(1)
@@ -271,7 +268,7 @@ class CompareVersions():
                 stderr=subprocess.PIPE)
             git_proc.wait()
             git_proc_stderr = git_proc.stderr.read()
-            if git_proc_stderr:
+            if git_proc.returncode:
                 print "Error while getting git diff between versions %s and %s" %\
                     (self.version1, self.version2)
                 print git_proc_stderr

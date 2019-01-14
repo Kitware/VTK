@@ -48,19 +48,19 @@ int TestHeatmapScalarLegend(int argc, char* argv[])
   column->SetValue(1, 2);
   column->SetValue(2, 1);
 
-  table->AddColumn(tableNames.GetPointer());
-  table->AddColumn(column.GetPointer());
+  table->AddColumn(tableNames);
+  table->AddColumn(column);
 
   vtkNew<vtkHeatmapItem> heatmap;
-  heatmap->SetTable(table.GetPointer());
+  heatmap->SetTable(table);
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
-  trans->AddItem(heatmap.GetPointer());
+  trans->AddItem(heatmap);
   trans->Translate(125, 125);
 
   vtkNew<vtkContextView> contextView;
-  contextView->GetScene()->AddItem(trans.GetPointer());
+  contextView->GetScene()->AddItem(trans);
 
   contextView->GetRenderWindow()->SetMultiSamples(0);
   contextView->GetRenderWindow()->Render();
@@ -77,10 +77,10 @@ int TestHeatmapScalarLegend(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(contextView->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     contextView->GetRenderWindow()->Render();
     contextView->GetInteractor()->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
   return !retVal;
 }

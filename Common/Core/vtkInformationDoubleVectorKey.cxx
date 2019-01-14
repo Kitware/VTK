@@ -29,9 +29,7 @@ vtkInformationDoubleVectorKey
 }
 
 //----------------------------------------------------------------------------
-vtkInformationDoubleVectorKey::~vtkInformationDoubleVectorKey()
-{
-}
+vtkInformationDoubleVectorKey::~vtkInformationDoubleVectorKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationDoubleVectorKey::PrintSelf(ostream& os, vtkIndent indent)
@@ -43,7 +41,7 @@ void vtkInformationDoubleVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationDoubleVectorValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationDoubleVectorValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationDoubleVectorValue, vtkObjectBase);
   std::vector<double> Value;
 };
 
@@ -54,43 +52,44 @@ void vtkInformationDoubleVectorKey::Append(vtkInformation* info, double value)
     static_cast<vtkInformationDoubleVectorValue *>(
       this->GetAsObjectBase(info));
   if(v)
-    {
+  {
     v->Value.push_back(value);
-    }
+  }
   else
-    {
+  {
     this->Set(info, &value, 1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationDoubleVectorKey::Set(vtkInformation* info, double* value,
-                                         int length)
+void vtkInformationDoubleVectorKey::Set(vtkInformation* info,
+                                        const double* value,
+                                        int length)
 {
   if(value)
-    {
+  {
     if(this->RequiredLength >= 0 && length != this->RequiredLength)
-      {
+    {
       vtkErrorWithObjectMacro(
         info,
         "Cannot store double vector of length " << length
         << " with key " << this->Location << "::" << this->Name
         << " which requires a vector of length "
         << this->RequiredLength << ".  Removing the key instead.");
-      this->SetAsObjectBase(info, 0);
+      this->SetAsObjectBase(info, nullptr);
       return;
-      }
+    }
     vtkInformationDoubleVectorValue* v =
       new vtkInformationDoubleVectorValue;
-    this->ConstructClass("vtkInformationDoubleVectorValue");
+    v->InitializeObjectBase();
     v->Value.insert(v->Value.begin(), value, value+length);
     this->SetAsObjectBase(info, v);
     v->Delete();
-    }
+  }
   else
-    {
-    this->SetAsObjectBase(info, 0);
-    }
+  {
+    this->SetAsObjectBase(info, nullptr);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -99,19 +98,19 @@ double* vtkInformationDoubleVectorKey::Get(vtkInformation* info)
   vtkInformationDoubleVectorValue* v =
     static_cast<vtkInformationDoubleVectorValue *>(
       this->GetAsObjectBase(info));
-  return (v && !v->Value.empty())?(&v->Value[0]):0;
+  return (v && !v->Value.empty())?(&v->Value[0]):nullptr;
 }
 
 //----------------------------------------------------------------------------
 double vtkInformationDoubleVectorKey::Get(vtkInformation* info, int idx)
 {
   if (idx >= this->Length(info))
-    {
+  {
     vtkErrorWithObjectMacro(info,
                             "Information does not contain " << idx
                             << " elements. Cannot return information value.");
     return 0;
-    }
+  }
   double* values = this->Get(info);
   return values[idx];
 }
@@ -124,13 +123,13 @@ void vtkInformationDoubleVectorKey::Get(vtkInformation* info,
     static_cast<vtkInformationDoubleVectorValue *>(
       this->GetAsObjectBase(info));
   if(v && value)
-    {
+  {
     for(std::vector<double>::size_type i = 0;
         i < v->Value.size(); ++i)
-      {
+    {
       value[i] = v->Value[i];
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -154,14 +153,14 @@ void vtkInformationDoubleVectorKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
   if(this->Has(info))
-    {
+  {
     double* value = this->Get(info);
     int length = this->Length(info);
     const char* sep = "";
     for(int i=0; i < length; ++i)
-      {
+    {
       os << sep << value[i];
       sep = " ";
-      }
     }
+  }
 }

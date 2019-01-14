@@ -67,8 +67,6 @@ int TestGenericClip(int argc, char* argv[])
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
 
-//char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Test2_Volume.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
 
@@ -118,7 +116,7 @@ int TestGenericClip(int argc, char* argv[])
 
   clipper->Update(); //So that we can call GetRange() on the scalars
 
-  assert(clipper->GetOutput()!=0);
+  assert(clipper->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut = vtkLookupTable::New();
@@ -137,14 +135,14 @@ int TestGenericClip(int argc, char* argv[])
 #endif
   mapper->SetLookupTable(lut);
 
-  if(clipper->GetOutput()->GetPointData()!=0)
+  if(clipper->GetOutput()->GetPointData()!=nullptr)
+  {
+    if(clipper->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
-    if(clipper->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
       mapper->SetScalarRange( clipper->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -167,9 +165,9 @@ int TestGenericClip(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

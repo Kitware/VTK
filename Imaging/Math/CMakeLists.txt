@@ -1,12 +1,12 @@
-set(Module_SRCS
-  vtkImageDivergence.cxx
-  vtkImageDotProduct.cxx
-  vtkImageLogarithmicScale.cxx
-  vtkImageLogic.cxx
-  vtkImageMagnitude.cxx
-  vtkImageMaskBits.cxx
-  vtkImageMathematics.cxx
-  vtkImageWeightedSum.cxx
-  )
+set(classes
+  vtkImageDivergence
+  vtkImageDotProduct
+  vtkImageLogarithmicScale
+  vtkImageLogic
+  vtkImageMagnitude
+  vtkImageMaskBits
+  vtkImageMathematics
+  vtkImageWeightedSum)
 
-vtk_module_library(${vtk-module} ${Module_SRCS})
+vtk_module_add_module(VTK::ImagingMath
+  CLASSES ${classes})

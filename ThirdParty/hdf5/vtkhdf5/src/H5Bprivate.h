@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -34,7 +32,7 @@
 /* Private headers needed by this file */
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Fprivate.h"		/* File access				*/
-#include "H5RCprivate.h"	/* Reference counted object functions	*/
+#include "H5UCprivate.h"	/* Reference counted object functions	*/
 
 /**************************/
 /* Library Private Macros */
@@ -84,8 +82,8 @@ typedef enum H5B_dir_t {
 } H5B_dir_t;
 
 /* Define the operator callback function pointer for H5B_iterate() */
-typedef int (*H5B_operator_t)(H5F_t *f, hid_t dxpl_id, const void *_lt_key, haddr_t addr,
-                                        const void *_rt_key, void *_udata);
+typedef int (*H5B_operator_t)(H5F_t *f, const void *_lt_key, haddr_t addr,
+        const void *_rt_key, void *_udata);
 
 /* Each B-tree has certain information that can be shared across all
  * the instances of nodes in that B-tree.
@@ -100,6 +98,7 @@ typedef struct H5B_shared_t {
     size_t              sizeof_len;     /* Size of file lengths (in bytes)   */
     uint8_t	        *page;	        /* Disk page */
     size_t              *nkey;          /* Offsets of each native key in native key buffer */
+    void                *udata;         /* 'Local' info for a B-tree         */
 } H5B_shared_t;
 
 /*
@@ -113,17 +112,17 @@ typedef struct H5B_shared_t {
 typedef struct H5B_class_t {
     H5B_subid_t id;					/*id as found in file*/
     size_t	sizeof_nkey;			/*size of native (memory) key*/
-    H5RC_t *    (*get_shared)(const H5F_t*, const void*);    /*shared info for node */
-    herr_t	(*new_node)(H5F_t*, hid_t, H5B_ins_t, void*, void*, void*, haddr_t*);
+    H5UC_t *    (*get_shared)(const H5F_t*, const void*);    /*shared info for node */
+    herr_t	(*new_node)(H5F_t*, H5B_ins_t, void*, void*, void*, haddr_t*);
     int         (*cmp2)(void*, void*, void*);	    /*compare 2 keys */
     int         (*cmp3)(void*, void*, void*);	    /*compare 3 keys */
-    htri_t	(*found)(H5F_t*, hid_t, haddr_t, const void*, void*);
+    htri_t	(*found)(H5F_t*, haddr_t, const void*, void*);
 
     /* insert new data */
-    H5B_ins_t	(*insert)(H5F_t*, hid_t, haddr_t, void*, hbool_t*, void*, void*,
+    H5B_ins_t	(*insert)(H5F_t*, haddr_t, void*, hbool_t*, void*, void*,
 			  void*, hbool_t*, haddr_t*);
 
-    /* min insert uses min leaf, not new(), similarily for max insert */
+    /* min insert uses min leaf, not new(), similarly for max insert */
     hbool_t	follow_min;
     hbool_t	follow_max;
 
@@ -131,8 +130,7 @@ typedef struct H5B_class_t {
     H5B_dir_t   critical_key;
 
     /* remove existing data */
-    H5B_ins_t	(*remove)(H5F_t*, hid_t, haddr_t, void*, hbool_t*, void*, void*,
-			  hbool_t*);
+    H5B_ins_t	(*remove)(H5F_t*, haddr_t, void*, hbool_t*, void*, void*, hbool_t*);
 
     /* encode, decode, debug key values */
     herr_t	(*decode)(const H5B_shared_t*, const uint8_t*, void*);
@@ -156,26 +154,25 @@ typedef struct H5B_info_t {
 /***************************************/
 /* Library-private Function Prototypes */
 /***************************************/
-H5_DLL herr_t H5B_create(H5F_t *f, hid_t dxpl_id, const H5B_class_t *type,
-    void *udata, haddr_t *addr_p/*out*/);
-H5_DLL herr_t H5B_find(H5F_t *f, hid_t dxpl_id, const H5B_class_t *type,
-    haddr_t addr, void *udata);
-H5_DLL herr_t H5B_insert(H5F_t *f, hid_t dxpl_id, const H5B_class_t *type,
-    haddr_t addr, void *udata);
-H5_DLL herr_t H5B_iterate(H5F_t *f, hid_t dxpl_id, const H5B_class_t *type,
-    haddr_t addr, H5B_operator_t op, void *udata);
-H5_DLL herr_t H5B_get_info(H5F_t *f, hid_t dxpl_id, const H5B_class_t *type,
-    haddr_t addr, H5B_info_t *bt_info, H5B_operator_t op, void *udata);
-H5_DLL herr_t H5B_remove(H5F_t *f, hid_t dxpl_id, const H5B_class_t *type,
-    haddr_t addr, void *udata);
-H5_DLL herr_t H5B_delete(H5F_t *f, hid_t dxpl_id, const H5B_class_t *type,
-    haddr_t addr, void *udata);
+H5_DLL herr_t H5B_create(H5F_t *f, const H5B_class_t *type, void *udata,
+    haddr_t *addr_p/*out*/);
+H5_DLL herr_t H5B_find(H5F_t *f, const H5B_class_t *type, haddr_t addr,
+    void *udata);
+H5_DLL herr_t H5B_insert(H5F_t *f, const H5B_class_t *type, haddr_t addr,
+    void *udata);
+H5_DLL herr_t H5B_iterate(H5F_t *f, const H5B_class_t *type, haddr_t addr,
+    H5B_operator_t op, void *udata);
+H5_DLL herr_t H5B_get_info(H5F_t *f, const H5B_class_t *type, haddr_t addr,
+    H5B_info_t *bt_info, H5B_operator_t op, void *udata);
+H5_DLL herr_t H5B_remove(H5F_t *f, const H5B_class_t *type, haddr_t addr,
+    void *udata);
+H5_DLL herr_t H5B_delete(H5F_t *f, const H5B_class_t *type, haddr_t addr,
+    void *udata);
 H5_DLL H5B_shared_t *H5B_shared_new(const H5F_t *f, const H5B_class_t *type,
     size_t sizeof_rkey);
 H5_DLL herr_t H5B_shared_free(void *_shared);
-H5_DLL herr_t H5B_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE * stream,
+H5_DLL herr_t H5B_debug(H5F_t *f, haddr_t addr, FILE * stream,
     int indent, int fwidth, const H5B_class_t *type, void *udata);
-H5_DLL htri_t H5B_valid(H5F_t *f, hid_t dxpl_id, const H5B_class_t *type,
-    haddr_t addr);
+H5_DLL htri_t H5B_valid(H5F_t *f, const H5B_class_t *type, haddr_t addr);
 #endif /* _H5Bprivate_H */
 

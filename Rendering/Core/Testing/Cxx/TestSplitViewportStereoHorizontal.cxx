@@ -95,10 +95,10 @@ int TestSplitViewportStereoHorizontal(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImageThreshold(renwin, 25);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return (!retVal);
 }

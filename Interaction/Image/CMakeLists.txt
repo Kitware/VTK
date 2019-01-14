@@ -1,8 +1,9 @@
-set(Module_SRCS
-  vtkImageViewer2.cxx
-  vtkImageViewer.cxx
-  vtkResliceImageViewer.cxx
-  vtkResliceImageViewerMeasurements.cxx
+set(classes
+  vtkImageViewer
+  vtkImageViewer2
+  vtkResliceImageViewer
+  vtkResliceImageViewerMeasurements
   )
 
-vtk_module_library(${vtk-module} ${Module_SRCS})
+vtk_module_add_module(VTK::InteractionImage
+  CLASSES ${classes})

@@ -18,30 +18,28 @@
 vtkAbstractObjectFactoryNewMacro(vtkAbstractInteractionDevice)
 
 vtkAbstractInteractionDevice::vtkAbstractInteractionDevice()
-  : Initialized(false), RenderWidget(NULL), RenderDevice(NULL)
+  : Initialized(false), RenderWidget(nullptr), RenderDevice(nullptr)
 {
 }
 
-vtkAbstractInteractionDevice::~vtkAbstractInteractionDevice()
-{
-}
+vtkAbstractInteractionDevice::~vtkAbstractInteractionDevice() = default;
 
 void vtkAbstractInteractionDevice::SetRenderWidget(vtkRenderWidget *widget)
 {
   if (this->RenderWidget != widget)
-    {
+  {
     this->RenderWidget = widget;
     this->Modified();
-    }
+  }
 }
 
 void vtkAbstractInteractionDevice::SetRenderDevice(vtkAbstractRenderDevice *d)
 {
   if (this->RenderDevice != d)
-    {
+  {
     this->RenderDevice = d;
     this->Modified();
-    }
+  }
 }
 
 void vtkAbstractInteractionDevice::PrintSelf(ostream& os, vtkIndent indent)

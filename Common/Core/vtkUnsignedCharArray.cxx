@@ -13,12 +13,10 @@
 
 =========================================================================*/
 // Instantiate superclass first to give the template a DLL interface.
-#include "vtkDataArrayTemplate.txx"
-VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned char);
-#include "vtkArrayIteratorTemplate.txx"
-VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(unsigned char);
+#define VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATING
+#include "vtkAOSDataArrayTemplate.txx"
+VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned char);
 
-#define vtkUnsignedCharArray_cxx
 #include "vtkUnsignedCharArray.h"
 
 #include "vtkObjectFactory.h"
@@ -27,14 +25,10 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(unsigned char);
 vtkStandardNewMacro(vtkUnsignedCharArray);
 
 //----------------------------------------------------------------------------
-vtkUnsignedCharArray::vtkUnsignedCharArray()
-{
-}
+vtkUnsignedCharArray::vtkUnsignedCharArray() = default;
 
 //----------------------------------------------------------------------------
-vtkUnsignedCharArray::~vtkUnsignedCharArray()
-{
-}
+vtkUnsignedCharArray::~vtkUnsignedCharArray() = default;
 
 //----------------------------------------------------------------------------
 void vtkUnsignedCharArray::PrintSelf(ostream& os, vtkIndent indent)

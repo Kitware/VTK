@@ -28,19 +28,19 @@
 
 vtkSQLQuery::vtkSQLQuery()
 {
-  this->Query = 0;
-  this->Database = 0;
+  this->Query = nullptr;
+  this->Database = nullptr;
   this->Active = false;
 }
 
 vtkSQLQuery::~vtkSQLQuery()
 {
-  this->SetQuery(0);
+  this->SetQuery(nullptr);
   if (this->Database)
-    {
+  {
     this->Database->Delete();
-    this->Database = NULL;
-    }
+    this->Database = nullptr;
+  }
 }
 
 vtkCxxSetObjectMacro(vtkSQLQuery, Database, vtkSQLDatabase);
@@ -48,33 +48,33 @@ vtkCxxSetObjectMacro(vtkSQLQuery, Database, vtkSQLDatabase);
 void vtkSQLQuery::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Query: " << (this->Query ? this->Query : "NULL") << endl;
-  os << indent << "Database: " << (this->Database ? "" : "NULL") << endl;
+  os << indent << "Query: " << (this->Query ? this->Query : "nullptr") << endl;
+  os << indent << "Database: " << (this->Database ? "" : "nullptr") << endl;
   if (this->Database)
-    {
+  {
     this->Database->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 vtkStdString vtkSQLQuery::EscapeString( vtkStdString s, bool addSurroundingQuotes )
 {
   vtkStdString d;
   if ( addSurroundingQuotes )
-    {
+  {
     d += '\'';
-    }
+  }
 
   for ( vtkStdString::iterator it = s.begin(); it != s.end(); ++ it )
-    {
+  {
     if ( *it == '\'' )
       d += '\''; // Single quotes are escaped by repeating them
     d += *it;
-    }
+  }
 
   if ( addSurroundingQuotes )
-    {
+  {
     d += '\'';
-    }
+  }
   return d;
 }
 
@@ -134,13 +134,13 @@ bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), long vtkNotUsed(value))
   return false;
 }
 
-bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), vtkTypeUInt64 vtkNotUsed(value))
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), unsigned long long vtkNotUsed(value))
 {
   vtkErrorMacro(<<"This database driver does not support bound parameters.");
   return false;
 }
 
-bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), vtkTypeInt64 vtkNotUsed(value))
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), long long vtkNotUsed(value))
 {
   vtkErrorMacro(<<"This database driver does not support bound parameters.");
   return false;
@@ -192,15 +192,15 @@ bool vtkSQLQuery::ClearParameterBindings()
 bool vtkSQLQuery::BindParameter(int index, vtkVariant data)
 {
   if (!data.IsValid())
-    {
+  {
     return true; // binding nulls is a no-op
-    }
+  }
 
 #define VTK_VARIANT_BIND_PARAMETER(Type,Function) \
   case Type: return this->BindParameter(index, data.Function())
 
   switch (data.GetType())
-    {
+  {
     VTK_VARIANT_BIND_PARAMETER(VTK_STRING,ToString);
     VTK_VARIANT_BIND_PARAMETER(VTK_FLOAT,ToFloat);
     VTK_VARIANT_BIND_PARAMETER(VTK_DOUBLE,ToDouble);
@@ -213,14 +213,8 @@ bool vtkSQLQuery::BindParameter(int index, vtkVariant data)
     VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED_INT,ToUnsignedInt);
     VTK_VARIANT_BIND_PARAMETER(VTK_LONG,ToLong);
     VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED_LONG,ToUnsignedLong);
-#if defined(VTK_TYPE_USE___INT64)
-    VTK_VARIANT_BIND_PARAMETER(VTK___INT64,To__Int64);
-    VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED___INT64,ToUnsigned__Int64);
-#endif
-#if defined(VTK_TYPE_USE_LONG_LONG)
     VTK_VARIANT_BIND_PARAMETER(VTK_LONG_LONG,ToLongLong);
     VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED_LONG_LONG,ToUnsignedLongLong);
-#endif
     case VTK_OBJECT:
       vtkErrorMacro(<<"Variants of type VTK_OBJECT cannot be inserted into a database.");
       return false;
@@ -228,7 +222,7 @@ bool vtkSQLQuery::BindParameter(int index, vtkVariant data)
       vtkErrorMacro(<<"Variants of type "
                     << data.GetType() << " are not currently supported by BindParameter.");
       return false;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -241,27 +235,27 @@ bool vtkSQLQuery::SetQuery(const char *queryString)
                 << " (" << this << "): setting Query to "
                 << (queryString?queryString:"(null)") );
 
-  if ( this->Query == NULL && queryString == NULL)
-    {
+  if ( this->Query == nullptr && queryString == nullptr)
+  {
     return true;
-    }
+  }
   if ( this->Query && queryString && (!strcmp(this->Query,queryString)))
-    {
+  {
     return true; // query string isn't changing
-    }
+  }
   delete [] this->Query;
   if (queryString)
-    {
+  {
     size_t n = strlen(queryString) + 1;
     char *cp1 =  new char[n];
     const char *cp2 = (queryString);
     this->Query = cp1;
     do { *cp1++ = *cp2++; } while ( --n ); \
-    }
-   else
-    {
-    this->Query = NULL;
-    }
+  }
+  else
+  {
+    this->Query = nullptr;
+  }
   this->Modified();
   return true;
 }

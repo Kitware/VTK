@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageButterworthHighPass - Frequency domain high pass.
-// .SECTION Description
-// This filter only works on an image after it has been converted to
-// frequency domain by a vtkImageFFT filter.  A vtkImageRFFT filter
-// can be used to convert the output back into the spatial domain.
-// vtkImageButterworthHighPass  the frequency components around 0 are
-// attenuated.  Input and output are in doubles, with two components
-// (complex numbers).
-// out(i, j) = 1 / (1 + pow(CutOff/Freq(i,j), 2*Order));
-
-// .SECTION See Also
-// vtkImageButterworthLowPass
+/**
+ * @class   vtkImageButterworthHighPass
+ * @brief   Frequency domain high pass.
+ *
+ * This filter only works on an image after it has been converted to
+ * frequency domain by a vtkImageFFT filter.  A vtkImageRFFT filter
+ * can be used to convert the output back into the spatial domain.
+ * vtkImageButterworthHighPass the frequency components around 0 are
+ * attenuated.  Input and output are in doubles, with two components
+ * (complex numbers).
+ * out(i, j) = 1 / (1 + pow(CutOff/Freq(i,j), 2*Order));
+ *
+ * @sa
+ * vtkImageButterworthLowPass
+*/
 
 #ifndef vtkImageButterworthHighPass_h
 #define vtkImageButterworthHighPass_h
@@ -37,12 +40,14 @@ class VTKIMAGINGFOURIER_EXPORT vtkImageButterworthHighPass : public vtkThreadedI
 public:
   static vtkImageButterworthHighPass *New();
   vtkTypeMacro(vtkImageButterworthHighPass,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get the cutoff frequency for each axis.
-  // The values are specified in the order X, Y, Z, Time.
-  // Units: Cycles per world unit (as defined by the data spacing).
+  //@{
+  /**
+   * Set/Get the cutoff frequency for each axis.
+   * The values are specified in the order X, Y, Z, Time.
+   * Units: Cycles per world unit (as defined by the data spacing).
+   */
   vtkSetVector3Macro(CutOff,double);
   void SetCutOff(double v) {this->SetCutOff(v, v, v);}
   void SetXCutOff(double v);
@@ -52,15 +57,19 @@ public:
   double GetXCutOff() {return this->CutOff[0];}
   double GetYCutOff() {return this->CutOff[1];}
   double GetZCutOff() {return this->CutOff[2];}
+  //@}
 
-  // Description:
-  // The order determines sharpness of the cutoff curve.
+  //@{
+  /**
+   * The order determines sharpness of the cutoff curve.
+   */
   vtkSetMacro(Order, int);
   vtkGetMacro(Order, int);
+  //@}
 
 protected:
   vtkImageButterworthHighPass();
-  ~vtkImageButterworthHighPass() {}
+  ~vtkImageButterworthHighPass() override {}
 
   int Order;
   double CutOff[3];
@@ -69,10 +78,10 @@ protected:
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id);
+                           int outExt[6], int id) override;
 private:
-  vtkImageButterworthHighPass(const vtkImageButterworthHighPass&);  // Not implemented.
-  void operator=(const vtkImageButterworthHighPass&);  // Not implemented.
+  vtkImageButterworthHighPass(const vtkImageButterworthHighPass&) = delete;
+  void operator=(const vtkImageButterworthHighPass&) = delete;
 };
 
 #endif

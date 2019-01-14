@@ -1,10 +1,12 @@
 #ifndef vtkExodusIIReaderVariableCheck_h
 #define vtkExodusIIReaderVariableCheck_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include "vtkExodusIIReaderPrivate.h" // for ArrayInfoType
 
 #include <vtksys/RegularExpression.hxx> // for integration point names
-#include <vtksys/String.hxx> // STL Header for Start/StartInternal/Add
+#include <string> // STL Header for Start/StartInternal/Add
 #include <vector> // STL Header for glommed array names
 #include <set> // STL Header for integration point names
 
@@ -18,13 +20,13 @@ class vtkExodusIIReaderVariableCheck
 {
 public:
   /// Initialize a sequence of names. Returns true if any more names are acceptable.
-  virtual bool Start( vtksys_stl::string name, const int* truth, int numTruth );
+  virtual bool Start( std::string name, const int* truth, int numTruth );
   /// Subclasses implement this and returns true if any more names are acceptable.
-  virtual bool StartInternal( vtksys_stl::string name, const int* truth, int numTruth ) = 0;
+  virtual bool StartInternal( std::string name, const int* truth, int numTruth ) = 0;
   /// Add a name to the sequence. Returns true if any more names may be added.
-  virtual bool Add( vtksys_stl::string name, const int* truth ) = 0;
+  virtual bool Add( std::string name, const int* truth ) = 0;
   /// Returns the length of the sequence (or 0 if the match is incorrect or incomplete).
-  virtual std::vector<vtksys_stl::string>::size_type Length();
+  virtual std::vector<std::string>::size_type Length();
   /// Accept this sequence. (Add an entry to the end of \a arr.) Must return Length().
   virtual int Accept(
     std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr,
@@ -43,8 +45,8 @@ protected:
 
   int GlomType;
   std::vector<int> SeqTruth;
-  vtksys_stl::string Prefix;
-  std::vector<vtksys_stl::string> OriginalNames;
+  std::string Prefix;
+  std::vector<std::string> OriginalNames;
 };
 
 /// This always accepts a single array name as a scalar. It is the fallback for all other checkers.
@@ -52,8 +54,8 @@ class vtkExodusIIReaderScalarCheck : public vtkExodusIIReaderVariableCheck
 {
 public:
   vtkExodusIIReaderScalarCheck();
-  virtual bool StartInternal( vtksys_stl::string name, const int*, int );
-  virtual bool Add( vtksys_stl::string, const int* );
+  bool StartInternal( std::string name, const int*, int ) override;
+  bool Add( std::string, const int* ) override;
 };
 
 /// This looks for n-D vectors whose names are identical except for a single final character.
@@ -61,11 +63,11 @@ class vtkExodusIIReaderVectorCheck : public vtkExodusIIReaderVariableCheck
 {
 public:
   vtkExodusIIReaderVectorCheck( const char* seq, int n );
-  virtual bool StartInternal( vtksys_stl::string name, const int*, int );
-  virtual bool Add( vtksys_stl::string name, const int* truth );
-  virtual std::vector<vtksys_stl::string>::size_type Length();
+  bool StartInternal( std::string name, const int*, int ) override;
+  bool Add( std::string name, const int* truth ) override;
+  std::vector<std::string>::size_type Length() override;
 protected:
-  vtksys_stl::string Endings;
+  std::string Endings;
   bool StillAdding;
 };
 
@@ -79,11 +81,11 @@ class vtkExodusIIReaderTensorCheck : public vtkExodusIIReaderVariableCheck
 {
 public:
   vtkExodusIIReaderTensorCheck( const char* seq, int n, int rank, int dim );
-  virtual bool StartInternal( vtksys_stl::string name, const int*, int );
-  virtual bool Add( vtksys_stl::string name, const int* truth );
-  virtual std::vector<vtksys_stl::string>::size_type Length();
+  bool StartInternal( std::string name, const int*, int ) override;
+  bool Add( std::string name, const int* truth ) override;
+  std::vector<std::string>::size_type Length() override;
 protected:
-  vtksys_stl::string Endings;
+  std::string Endings;
   vtkTypeUInt64 NumEndings;
   int Dimension;
   int Rank;
@@ -95,9 +97,9 @@ class vtkExodusIIReaderIntPointCheck : public vtkExodusIIReaderVariableCheck
 {
 public:
   vtkExodusIIReaderIntPointCheck();
-  virtual bool StartInternal( vtksys_stl::string name, const int*, int );
-  virtual bool Add( vtksys_stl::string name, const int* );
-  virtual std::vector<vtksys_stl::string>::size_type Length();
+  bool StartInternal( std::string name, const int*, int ) override;
+  bool Add( std::string name, const int* ) override;
+  std::vector<std::string>::size_type Length() override;
   /*
   virtual int Accept(
     std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr, int startIndex, vtkExodusIIReaderPrivate* priv, int objtyp )
@@ -105,18 +107,20 @@ public:
     }
     */
 protected:
-  bool StartIntegrationPoints( vtksys_stl::string cellType, vtksys_stl::string iptName );
-  bool AddIntegrationPoint( vtksys_stl::string iptName );
+  bool StartIntegrationPoints( std::string cellType, std::string iptName );
+  bool AddIntegrationPoint( std::string iptName );
 
   vtksys::RegularExpression RegExp;
-  vtksys_stl::string VarName;
-  vtksys_stl::string CellType;
+  std::string VarName;
+  std::string CellType;
   std::vector<int> IntPtMin;
   std::vector<int> IntPtMax;
-  std::set<vtksys_stl::string> IntPtNames;
+  std::set<std::string> IntPtNames;
   vtkTypeUInt64 Rank;
   bool StillAdding;
 };
 
+#endif
+#endif
 #endif // vtkExodusIIReaderVariableCheck_h
 // VTK-HeaderTest-Exclude: vtkExodusIIReaderVariableCheck.h

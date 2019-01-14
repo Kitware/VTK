@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -67,7 +66,7 @@ ren1.GetActiveCamera().Azimuth(60)
 ren1.GetActiveCamera().Roll(-90)
 ren1.GetActiveCamera().Dolly(1.5)
 ren1.ResetCameraClippingRange()
-renWin.SetSize(500,375)
+renWin.SetSize(500,380)
 iren.Initialize()
 # prevent the tk window from showing up then start the event loop
 # --- end of script --

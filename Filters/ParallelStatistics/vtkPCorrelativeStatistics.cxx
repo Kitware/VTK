@@ -58,39 +58,39 @@ void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
                                        vtkMultiBlockDataSet* outMeta )
 {
   if ( ! outMeta )
-    {
+  {
     return;
-    }
+  }
 
   // First calculate correlative statistics on local data set
   this->Superclass::Learn( inData, inParameters, outMeta );
 
   vtkTable* primaryTab = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
   if ( ! primaryTab )
-    {
+  {
     return;
-    }
+  }
 
   vtkIdType nRow = primaryTab->GetNumberOfRows();
   if ( ! nRow )
-    {
+  {
     // No statistics were calculated.
     return;
-    }
+  }
 
   // Make sure that parallel updates are needed, otherwise leave it at that.
   int np = this->Controller->GetNumberOfProcesses();
   if ( np < 2 )
-    {
+  {
     return;
-    }
+  }
 
   // Now get ready for parallel calculations
   vtkCommunicator* com = this->Controller->GetCommunicator();
   if ( ! com )
-    {
+  {
     vtkErrorMacro("No parallel communicator.");
-    }
+  }
 
   // (All) gather all sample sizes
   int n_l = primaryTab->GetValueByName( 0, "Cardinality" ).ToInt(); // Cardinality
@@ -99,7 +99,7 @@ void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
 
   // Iterate over all parameter rows
   for ( int r = 0; r < nRow; ++ r )
-    {
+  {
     // (All) gather all local M statistics
     double M_l[5];
     M_l[0] = primaryTab->GetValueByName( r, "Mean X" ).ToDouble();
@@ -119,7 +119,7 @@ void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
     double momXY = M_g[4];
 
     for ( int i = 1; i < np; ++ i )
-      {
+    {
       int ns_l = n_g[i];
       int N = ns + ns_l;
 
@@ -154,7 +154,7 @@ void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
       meanY += ns_l * deltaY_sur_N;
 
       ns = N;
-      }
+    }
 
     primaryTab->SetValueByName( r, "Mean X", meanX );
     primaryTab->SetValueByName( r, "Mean Y", meanY );
@@ -167,7 +167,7 @@ void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
 
     // Clean-up
     delete [] M_g;
-    }
+  }
   delete [] n_g;
 }
 
@@ -177,10 +177,10 @@ void vtkPCorrelativeStatistics::Test( vtkTable* inData,
                                       vtkTable* outMeta )
 {
   if ( this->Controller->GetNumberOfProcesses() > 1 )
-    {
+  {
     vtkWarningMacro( "Parallel correlative statistics: Hypothesis testing not implemented for more than 1 process." );
     return;
-    }
+  }
 
   this->Superclass::Test( inData, inMeta, outMeta );
 }

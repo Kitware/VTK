@@ -16,12 +16,15 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkDSPFilterGroup - used by the Exodus readers
-// .SECTION Description
-// vtkDSPFilterGroup is used by vtkExodusReader, vtkExodusIIReader and
-// vtkPExodusReader to do temporal smoothing of data
-// .SECTION See Also
-// vtkDSPFilterDefinition vtkExodusReader vtkExodusIIReader vtkPExodusReader
+/**
+ * @class   vtkDSPFilterGroup
+ * @brief   used by the Exodus readers
+ *
+ * vtkDSPFilterGroup is used by vtkExodusReader, vtkExodusIIReader and
+ * vtkPExodusReader to do temporal smoothing of data
+ * @sa
+ * vtkDSPFilterDefinition vtkExodusReader vtkExodusIIReader vtkPExodusReader
+*/
 
 #ifndef vtkDSPFilterGroup_h
 #define vtkDSPFilterGroup_h
@@ -43,11 +46,11 @@ class VTKFILTERSHYBRID_EXPORT vtkDSPFilterGroup : public vtkObject
 public:
   static vtkDSPFilterGroup *New();
   vtkTypeMacro(vtkDSPFilterGroup,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 
   void AddFilter(vtkDSPFilterDefinition *filter);
-  void RemoveFilter(char *a_outputVariableName);
+  void RemoveFilter(const char *a_outputVariableName);
 
   bool IsThisInputVariableInstanceNeeded( const char *a_name, int a_timestep, int a_outputTimestep );
   bool IsThisInputVariableInstanceCached( const char *a_name, int a_timestep );
@@ -70,7 +73,7 @@ public:
 
 protected:
   vtkDSPFilterGroup();
-  ~vtkDSPFilterGroup();
+  ~vtkDSPFilterGroup() override;
 
 
   vtkDSPFilterGroupVectorArraySTLCloak * /*std::vector<vtkFloatArray *>*/ CachedInputs;
@@ -81,8 +84,8 @@ protected:
   vtkDSPFilterGroupVectorVectorIntSTLCloak * /*std::vector< std::vector<int> >*/ CachedOutputTimesteps;
 
 private:
-  vtkDSPFilterGroup(const vtkDSPFilterGroup&); // Not implemented
-  void operator=(const vtkDSPFilterGroup&); // Not implemented
+  vtkDSPFilterGroup(const vtkDSPFilterGroup&) = delete;
+  void operator=(const vtkDSPFilterGroup&) = delete;
 };
 
 #endif

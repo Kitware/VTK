@@ -65,11 +65,11 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtk_netcdf.h"
 
 #include <cstdlib>
-#include <ctype.h>
-#include <float.h>
+#include <cctype>
+#include <cfloat>
 #include <string>
 #include <map>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 //-------------------------------------------------------------------------
 // A container for mapping attribute names to arrays
@@ -112,11 +112,11 @@ protected:
   vtkObject *GetObject(const char *name) const {
     MapType::const_iterator iter = this->Map.find(name);
     if (iter != this->Map.end()) { return iter->second; };
-    return 0; };
+    return nullptr; };
 
 private:
   vtkMINCImageAttributeMap() : Map() {};
-  ~vtkMINCImageAttributeMap() {};
+  ~vtkMINCImageAttributeMap() = default;
 
   MapType Map;
 };
@@ -143,13 +143,13 @@ vtkMINCImageAttributes::vtkMINCImageAttributes()
   tmparray->Delete();
 
   this->AttributeValues = vtkMINCImageAttributeMap::New();
-  this->StringStore = 0;
+  this->StringStore = nullptr;
 
   this->NumberOfImageMinMaxDimensions = 0;
-  this->ImageMin = 0;
-  this->ImageMax = 0;
+  this->ImageMin = nullptr;
+  this->ImageMax = nullptr;
 
-  this->Name = 0;
+  this->Name = nullptr;
   this->DataType = VTK_VOID;
 
   this->ValidateAttributes = 1;
@@ -158,48 +158,48 @@ vtkMINCImageAttributes::vtkMINCImageAttributes()
 //-------------------------------------------------------------------------
 vtkMINCImageAttributes::~vtkMINCImageAttributes()
 {
-  this->SetName(0);
+  this->SetName(nullptr);
 
   if (this->DimensionNames)
-    {
+  {
     this->DimensionNames->Delete();
-    this->DimensionNames = 0;
-    }
+    this->DimensionNames = nullptr;
+  }
   if (this->DimensionLengths)
-    {
+  {
     this->DimensionLengths->Delete();
-    this->DimensionLengths = 0;
-    }
+    this->DimensionLengths = nullptr;
+  }
   if (this->VariableNames)
-    {
+  {
     this->VariableNames->Delete();
-    this->VariableNames = 0;
-    }
+    this->VariableNames = nullptr;
+  }
   if (this->AttributeNames)
-    {
+  {
     this->AttributeNames->Delete();
-    this->AttributeNames = 0;
-    }
+    this->AttributeNames = nullptr;
+  }
   if (this->AttributeValues)
-    {
+  {
     this->AttributeValues->Delete();
-    this->AttributeValues = 0;
-    }
+    this->AttributeValues = nullptr;
+  }
   if (this->ImageMin)
-    {
+  {
     this->ImageMin->Delete();
-    this->ImageMin = 0;
-    }
+    this->ImageMin = nullptr;
+  }
   if (this->ImageMax)
-    {
+  {
     this->ImageMax->Delete();
-    this->ImageMax = 0;
-    }
+    this->ImageMax = nullptr;
+  }
   if (this->StringStore)
-    {
+  {
     this->StringStore->Delete();
-    this->StringStore = 0;
-    }
+    this->StringStore = nullptr;
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -224,19 +224,19 @@ void vtkMINCImageAttributes::PrintSelf(ostream& os, vtkIndent indent)
 //-------------------------------------------------------------------------
 void vtkMINCImageAttributes::Reset()
 {
-  this->SetName(0);
+  this->SetName(nullptr);
   this->SetDataType(VTK_VOID);
-  this->SetImageMin(0);
-  this->SetImageMax(0);
+  this->SetImageMin(nullptr);
+  this->SetImageMax(nullptr);
   this->AttributeValues->Clear();
   this->AttributeNames->Clear();
   this->VariableNames->Reset();
   this->DimensionNames->Reset();
   this->DimensionLengths->Reset();
   if (this->StringStore)
-    {
+  {
     this->StringStore->Reset();
-    }
+  }
   this->NumberOfImageMinMaxDimensions = 0;
 
   // Add global attribute name array
@@ -251,7 +251,7 @@ void vtkMINCImageAttributes::Reset()
 static const char *vtkMINCDimVarNames[] = {
   MIxspace, MIyspace, MIzspace, MItime,
   MIxfrequency, MIyfrequency, MIzfrequency, MItfrequency,
-  0
+  nullptr
 };
 
 //-------------------------------------------------------------------------
@@ -259,31 +259,31 @@ void vtkMINCImageAttributes::AddDimension(const char *dimension,
                                           vtkIdType length)
 {
   // Check for duplicates
-  int n = this->DimensionNames->GetNumberOfValues();
-  for (int i = 0; i < n; i++)
-    {
+  vtkIdType n = this->DimensionNames->GetNumberOfValues();
+  for (vtkIdType i = 0; i < n; i++)
+  {
     if (strcmp(dimension, this->DimensionNames->GetValue(i)) == 0)
-      {
+    {
       vtkErrorMacro("The dimension " << dimension <<
                     " has already been created.");
       return;
-      }
     }
+  }
 
   // Ensure the dimension name is valid
-  const char **tryname = 0;
-  for (tryname = vtkMINCDimVarNames; *tryname != 0; tryname++)
-    {
+  const char **tryname = nullptr;
+  for (tryname = vtkMINCDimVarNames; *tryname != nullptr; tryname++)
+  {
     if (strcmp(dimension, *tryname) == 0)
-      {
-      break;
-      }
-    }
-  if (*tryname == 0 && strcmp(dimension, MIvector_dimension) != 0)
     {
+      break;
+    }
+  }
+  if (*tryname == nullptr && strcmp(dimension, MIvector_dimension) != 0)
+  {
     vtkWarningMacro("The dimension name " << dimension <<
                     " is not recognized.");
-    }
+  }
 
   this->DimensionNames->InsertNextValue(dimension);
   this->DimensionLengths->InsertNextTuple1(length);
@@ -294,82 +294,100 @@ void vtkMINCImageAttributes::AddDimension(const char *dimension,
 const char *vtkMINCImageAttributes::ConvertDataArrayToString(
   vtkDataArray *array)
 {
+  const char *result = "";
+  vtkIdType n = array->GetNumberOfTuples();
+  if (n == 0)
+  {
+    return result;
+  }
+
   int dataType = array->GetDataType();
-
   if (dataType == VTK_CHAR)
+  {
+    vtkCharArray *charArray = vtkArrayDownCast<vtkCharArray>(array);
+    if (charArray)
     {
-    vtkCharArray *charArray = vtkCharArray::SafeDownCast(array);
-    return charArray->GetPointer(0);
+      result = charArray->GetPointer(0);
+      // Check to see if string has a terminal null (the null might be
+      // part of the attribute, or stored in the following byte)
+      if ((n > 0 && result[n-1] == '\0') ||
+          (charArray->GetSize() > n && result[n] == '\0'))
+      {
+        return result;
+      }
     }
+  }
 
-  vtksys_ios::ostringstream os;
+  std::ostringstream os;
 
-  int n = array->GetNumberOfTuples();
-  int i = 0;
-  for (i = 0; i < n; i++)
-    {
+  for (vtkIdType i = 0; i < n; i++)
+  {
     double val = array->GetComponent(i, 0);
     if (dataType == VTK_DOUBLE || dataType == VTK_FLOAT)
-      {
+    {
       // Use NetCDF's usual precision for printing the values
       char storage[128];
       if (dataType == VTK_DOUBLE)
-        {
-        sprintf(storage, "%0.15g", val);
-        }
+      {
+        snprintf(storage, 128, "%0.15g", val);
+      }
       else
-        {
-        sprintf(storage, "%0.7g", val);
-        }
+      {
+        snprintf(storage, 128, "%0.7g", val);
+      }
       // Add a decimal if there isn't one, to distinguish from int
       for (char *cp = storage; *cp != '.'; cp++)
-        {
+      {
         if (*cp == '\0')
-          {
+        {
           *cp++ = '.';
           *cp = '\0';
           break;
-          }
         }
+      }
       os << storage;
-      }
-    else
-      {
-      os << val;
-      }
-    if (i < n-1)
-      {
-      os << ", ";
-      }
     }
+    else if (dataType == VTK_CHAR)
+    {
+      os.put(static_cast<char>(val));
+    }
+    else
+    {
+      os << val;
+    }
+    if (i < n-1 && dataType != VTK_CHAR)
+    {
+      os << ", ";
+    }
+  }
 
-    // Store the string
-    std::string str = os.str();
-    const char *result = 0;
+  // Store the string
+  std::string str = os.str();
 
-    if (this->StringStore == 0)
-      {
-      this->StringStore = vtkStringArray::New();
-      }
+  if (this->StringStore == nullptr)
+  {
+    this->StringStore = vtkStringArray::New();
+  }
 
-    // See if the string is already stored
-    n = this->StringStore->GetNumberOfValues();
-    for (i = 0; i < n; i++)
-      {
-      result = this->StringStore->GetValue(i);
-      if (strcmp(str.c_str(), result) == 0)
-        {
-        break;
-        }
-      }
-    // If not, add it to the array.
-    if (i == n)
-      {
-      i = this->StringStore->InsertNextValue(str.c_str());
-      result = this->StringStore->GetValue(i);
-      }
+  // See if the string is already stored
+  vtkIdType m = this->StringStore->GetNumberOfValues();
+  vtkIdType j;
+  for (j = 0; j < m; j++)
+  {
+    result = this->StringStore->GetValue(j);
+    if (strcmp(str.c_str(), result) == 0)
+    {
+      break;
+    }
+  }
+  // If not, add it to the array.
+  if (j == m)
+  {
+    j = this->StringStore->InsertNextValue(str.c_str());
+    result = this->StringStore->GetValue(j);
+  }
 
-    return result;
+  return result;
 }
 
 //-------------------------------------------------------------------------
@@ -383,14 +401,14 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
 {
   const char *name = "unknown";
   if (this->Name)
-    {
+  {
     name = this->Name;
-    }
+  }
 
   // Get the data type
   const char *imageDataType;
   switch (this->DataType)
-    {
+  {
     case VTK_CHAR:
     case VTK_SIGNED_CHAR:
     case VTK_UNSIGNED_CHAR:
@@ -412,118 +430,120 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
       break;
     default:
       imageDataType = "void";
-    }
+  }
 
   os << "netcdf " << name << " {\n";
   os << "dimensions:\n";
 
-  int ndim = 0;
+  vtkIdType ndim = 0;
   if (this->DimensionNames)
-    {
+  {
     ndim = this->DimensionNames->GetNumberOfValues();
-    }
-  for (int idim = 0; idim < ndim; idim++)
-    {
+  }
+  for (vtkIdType idim = 0; idim < ndim; idim++)
+  {
     os << "\t" << this->DimensionNames->GetValue(idim) << " = "
        << this->DimensionLengths->GetValue(idim) << " ;\n";
-    }
+  }
 
   os << "variables:\n";
 
-  int nvar = 0;
-  int ivar = 0;
+  vtkIdType nvar = 0;
+  vtkIdType ivar = 0;
   if (this->VariableNames)
-    {
+  {
     nvar = this->VariableNames->GetNumberOfValues();
-    }
+  }
   for (ivar = 0; ivar < nvar+1; ivar++)
-    {
+  {
     const char *varname = MI_EMPTY_STRING;
     if (ivar == nvar)
-      {
+    {
       os << "\n// global attributes:\n";
-      }
+    }
     else
-      {
+    {
       varname = this->VariableNames->GetValue(ivar);
       if (strcmp(varname, MIimage) == 0 ||
           strcmp(varname, MIimagemax) == 0 ||
           strcmp(varname, MIimagemin) == 0)
-        {
-        os << "\t" << imageDataType << " " << varname;
-        int nvardim = this->DimensionNames->GetNumberOfValues();
+      {
+        vtkIdType nvardim = this->DimensionNames->GetNumberOfValues();
         // If this is image-min or image-max, only print the
         // dimensions for these variables
         if (varname[5] == '-')
-          {
+        {
           if (this->NumberOfImageMinMaxDimensions < nvardim)
-            {
+          {
             nvardim = this->NumberOfImageMinMaxDimensions;
-            }
           }
+          os << "\tdouble " << varname;
+        }
+        else
+        {
+          os << "\t" << imageDataType << " " << varname;
+        }
 
         if (nvardim > 0)
-          {
+        {
           os << "(";
           for (int ivardim = 0; ivardim < nvardim; ivardim++)
-            {
+          {
             os << this->DimensionNames->GetValue(ivardim);
             if (ivardim < nvardim - 1)
-              {
+            {
               os << ", ";
-              }
             }
-          os << ")";
           }
+          os << ")";
+        }
         os << " ;\n";
-        }
-      else
-        {
-        os << "\t" << "int " << varname << " ;\n";
-        }
       }
+      else
+      {
+        os << "\t" << "int " << varname << " ;\n";
+      }
+    }
     vtkStringArray *attArray =
       this->AttributeNames->GetStringArray(varname);
     if (attArray)
+    {
+      vtkIdType natt = attArray->GetNumberOfValues();
+      for (vtkIdType iatt = 0; iatt < natt; iatt++)
       {
-      int natt = attArray->GetNumberOfValues();
-      for (int iatt = 0; iatt < natt; iatt++)
-        {
         const char *attname = attArray->GetValue(iatt);
         vtkDataArray *array =
           this->GetAttributeValueAsArray(varname, attname);
         os << "\t\t" << varname << ":" << attname << " = ";
         if (array->GetDataType() == VTK_CHAR)
-          {
-          vtkCharArray *charArray =
-            vtkCharArray::SafeDownCast(array);
+        {
           os << "\"";
-          const char *cp = charArray->GetPointer(0);
-          const char *endcp = cp + charArray->GetNumberOfTuples();
+          const char *cp = this->ConvertDataArrayToString(array);
+          const char *endcp = cp + strlen(cp);
           char text[512];
           text[0] = '\0';
           while (cp < endcp)
-            {
+          {
             int c = 0;
             int j;
             for (j = 0; j < 508 && cp < endcp; j++, cp++)
-              {
+            {
               c = *cp;
               if (c == '\0' && (cp + 1) == endcp)
-                {
+              {
                 // break if at terminal null
                 cp++;
                 break;
-                }
+              }
               if (isprint(c) && c != '\\')
-                {
+              {
                 text[j] = c;
-                }
+              }
               else
-                {
+              {
                 // quote the non-printing characters
                 switch (c)
-                  {
+                {
                   case '\\':
                     text[j++] = '\\';
                     text[j] = '\\';
@@ -562,15 +582,15 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
                     text[j++] = '0' + ((c & 0x38) >> 3);
                     text[j] = '0' + (c & 0x7);
                     break;
-                  }
                 }
+              }
               if (c == '\n')
-                {
+              {
                 j++;
                 cp++;
                 break;
-                }
               }
+            }
 
             text[j] = '\0';
             os << text;
@@ -579,65 +599,65 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
             // Start a new string after each newline, unless this
             // newline is the final character.
             if (c == '\n' && cp < endcp)
-              {
+            {
               os << "\",\n\t\t\t\"";
-              }
             }
-          os << "\" ;\n";
           }
+          os << "\" ;\n";
+        }
         else
-          {
+        {
           // Use handy conversion method
           os << this->ConvertDataArrayToString(array) << " ;\n";
-          }
         }
       }
     }
+  }
 
   os << "data:\n";
 
   if (this->VariableNames)
-    {
+  {
     nvar = this->VariableNames->GetNumberOfValues();
-    }
+  }
   for (ivar = 0; ivar < nvar; ivar++)
-    {
+  {
     const char *varname = this->VariableNames->GetValue(ivar);
 
     if (strcmp(varname, MIimage) == 0)
-      {
+    {
       continue;
-      }
+    }
 
     os << "\n " << varname << " = ";
 
     if (strcmp(varname, MIimagemin) == 0)
-      {
+    {
       if (this->ImageMin)
-        {
+      {
         os << this->ConvertDataArrayToString(this->ImageMin) << " ;\n";
-        }
+      }
       else
-        {
+      {
         os << "0. ;\n";
-        }
-      }
-    else if (strcmp(varname, MIimagemax) == 0)
-      {
-      if (this->ImageMax)
-        {
-        os << this->ConvertDataArrayToString(this->ImageMax) << " ;\n";
-        }
-      else
-        {
-        os << "1. ;\n";
-        }
-      }
-    else
-      {
-      os << "_ ;\n";
       }
     }
+    else if (strcmp(varname, MIimagemax) == 0)
+    {
+      if (this->ImageMax)
+      {
+        os << this->ConvertDataArrayToString(this->ImageMax) << " ;\n";
+      }
+      else
+      {
+        os << "1. ;\n";
+      }
+    }
+    else
+    {
+      os << "_ ;\n";
+    }
+  }
 
   os << "}\n";
 }
@@ -647,10 +667,10 @@ vtkStringArray *vtkMINCImageAttributes::GetAttributeNames(
   const char *variable)
 {
   // If variable is null, use empty string to get global attributes
-  if (variable == 0)
-    {
+  if (variable == nullptr)
+  {
     variable = MI_EMPTY_STRING;
-    }
+  }
 
   return this->AttributeNames->GetStringArray(variable);
 }
@@ -660,7 +680,7 @@ int vtkMINCImageAttributes::HasAttribute(
   const char *variable,
   const char *attribute)
 {
-  return (this->GetAttributeValueAsArray(variable, attribute) != 0);
+  return (this->GetAttributeValueAsArray(variable, attribute) != nullptr);
 }
 
 //-------------------------------------------------------------------------
@@ -670,10 +690,10 @@ vtkDataArray *vtkMINCImageAttributes::GetAttributeValueAsArray(
 {
   std::string path = MI_GRPNAME;
   if (variable && variable[0] != '\0')
-    {
+  {
     path += MI_GRP_SEP;
     path += variable;
-    }
+  }
   path += MI_ATT_SEP;
   path += attribute;
 
@@ -688,13 +708,13 @@ const char *vtkMINCImageAttributes::GetAttributeValueAsString(
   vtkDataArray *array =
     this->GetAttributeValueAsArray(variable, attribute);
 
-  // Return NULL if not found
-  if (array == 0)
-    {
-    return 0;
-    }
+  // Return nullptr if not found
+  if (array == nullptr)
+  {
+    return nullptr;
+  }
 
-  // Convert any other array to a a string.
+  // Convert any other array to a string.
   return this->ConvertDataArrayToString(array);
 }
 
@@ -705,28 +725,28 @@ int vtkMINCImageAttributes::GetAttributeValueAsInt(
 {
   vtkDataArray *array = this->GetAttributeValueAsArray(variable, attribute);
 
-  if (array == 0)
-    {
+  if (array == nullptr)
+  {
     vtkErrorMacro("The attribute " << variable << ":"
                   << attribute << " was not found.");
     return 0;
-    }
+  }
 
   if (array->GetDataType() == VTK_CHAR)
-    {
-    char *text = vtkCharArray::SafeDownCast(array)->GetPointer(0);
-    char *endp = text;
+  {
+    const char *text = this->ConvertDataArrayToString(array);
+    char *endp = const_cast<char *>(text);
     long result = strtol(text, &endp, 10);
     // Check for complete conversion
     if (*endp == '\0' && *text != '\0')
-      {
-      return static_cast<int>(result);
-      }
-    }
-  else if (array->GetNumberOfTuples() == 1)
     {
+      return static_cast<int>(result);
+    }
+  }
+  else if (array->GetNumberOfTuples() == 1)
+  {
     switch(array->GetDataType())
-      {
+    {
       case VTK_SIGNED_CHAR:
       case VTK_UNSIGNED_CHAR:
       case VTK_SHORT:
@@ -734,8 +754,8 @@ int vtkMINCImageAttributes::GetAttributeValueAsInt(
         return static_cast<int>(array->GetComponent(0,0));
       default:
         break;
-      }
     }
+  }
 
   vtkErrorMacro("GetAttributeValueAsInt() used on non-integer attribute "
                 << variable << ":" << attribute <<".");
@@ -747,35 +767,35 @@ double vtkMINCImageAttributes::GetAttributeValueAsDouble(
   const char *variable,
   const char *attribute)
 {
-  if (variable == 0)
-    {
+  if (variable == nullptr)
+  {
     variable = MI_EMPTY_STRING;
-    }
+  }
 
   vtkDataArray *array = this->GetAttributeValueAsArray(variable, attribute);
 
-  if (array == 0)
-    {
+  if (array == nullptr)
+  {
     vtkErrorMacro("The attribute " << variable << ":"
                   << attribute << " was not found.");
     return 0;
-    }
+  }
 
   if (array->GetDataType() == VTK_CHAR)
-    {
-    char *text = vtkCharArray::SafeDownCast(array)->GetPointer(0);
-    char *endp = text;
+  {
+    const char *text = this->ConvertDataArrayToString(array);
+    char *endp = const_cast<char *>(text);
     double result = strtod(text, &endp);
     // Check for complete conversion
     if (*endp == '\0' && *text != '\0')
-      {
-      return result;
-      }
-    }
-  else if (array->GetNumberOfTuples() == 1)
     {
+      return result;
+    }
+  }
+  else if (array->GetNumberOfTuples() == 1)
+  {
     switch(array->GetDataType())
-      {
+    {
       case VTK_SIGNED_CHAR:
       case VTK_UNSIGNED_CHAR:
       case VTK_SHORT:
@@ -785,8 +805,8 @@ double vtkMINCImageAttributes::GetAttributeValueAsDouble(
         return array->GetComponent(0,0);
       default:
         break;
-      }
     }
+  }
 
   vtkErrorMacro("GetAttributeValueAsDouble() used on non-real attribute "
                 << variable << ":" << attribute <<".");
@@ -801,10 +821,10 @@ void vtkMINCImageAttributes::SetAttributeValueAsArray(
 {
   std::string path = MI_GRPNAME;
   if (variable && variable[0] != '\0')
-    {
+  {
     path += MI_GRP_SEP;
     path += variable;
-    }
+  }
   path += MI_ATT_SEP;
   path += attribute;
 
@@ -812,55 +832,55 @@ void vtkMINCImageAttributes::SetAttributeValueAsArray(
   this->AttributeValues->AddArray(array);
 
   // Add to variable to VariableNames
-  int n = this->VariableNames->GetNumberOfValues();
-  int i = 0;
+  vtkIdType n = this->VariableNames->GetNumberOfValues();
+  vtkIdType i = 0;
   for (i = 0; i < n; i++)
-    {
+  {
     if (strcmp(this->VariableNames->GetValue(i), variable) == 0)
-      {
-      break;
-      }
-    }
-  if (i == n && variable[0] != '\0')
     {
-    this->VariableNames->InsertNextValue(variable);
+      break;
     }
+  }
+  if (i == n && variable[0] != '\0')
+  {
+    this->VariableNames->InsertNextValue(variable);
+  }
 
   // Add to attribute to AttributeNames
   vtkStringArray *attribs = this->AttributeNames->GetStringArray(variable);
   // Create a new array if necessary
-  if (attribs == 0)
-    {
+  if (attribs == nullptr)
+  {
     attribs = vtkStringArray::New();
     attribs->SetName(variable);
     this->AttributeNames->AddArray(attribs);
     attribs->Delete();
-    }
+  }
 
   n = attribs->GetNumberOfValues();
   for (i = 0; i < n; i++)
-    {
+  {
     if (strcmp(attribs->GetValue(i), attribute) == 0)
-      {
-      break;
-      }
-    }
-  if (i == n)
     {
-    attribs->InsertNextValue(attribute);
+      break;
     }
+  }
+  if (i == n)
+  {
+    attribs->InsertNextValue(attribute);
+  }
 
   if (this->ValidateAttributes)
-    {
+  {
     // Print warning if there is something wrong with the attribute
     int result = this->ValidateAttribute(variable, attribute, array);
 
     if (result > 1)
-      {
+    {
       vtkWarningMacro("Attribute " << variable << ":" << attribute
                       << " is not a valid attribute.");
-      }
     }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -869,12 +889,13 @@ void vtkMINCImageAttributes::SetAttributeValueAsString(
   const char *attribute,
   const char *value)
 {
-  size_t length = strlen(value)+1;
+  size_t length = strlen(value);
 
   vtkCharArray *array = vtkCharArray::New();
-  array->SetNumberOfValues(length);
-  strcpy(array->GetPointer(0), value);
-
+  // Allocate an extra byte to store a null terminator.
+  array->Resize(static_cast<vtkIdType>(length + 1));
+  char *dest = array->WritePointer(0, static_cast<vtkIdType>(length));
+  strcpy(dest, value);
   this->SetAttributeValueAsArray(variable, attribute, array);
 
   array->Delete();
@@ -925,27 +946,27 @@ int vtkMINCImageAttributes::ValidateGlobalAttribute(
     MIident,
     MIhistory,
     MItitle,
-    0
+    nullptr
   };
   const int autoGlobalAttributes = 2;
 
   int itry = 0;
-  for (itry = 0; globalAttributes[itry] != 0; itry++)
-    {
+  for (itry = 0; globalAttributes[itry] != nullptr; itry++)
+  {
     if (strcmp(attname, globalAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (itry < autoGlobalAttributes)
     {
+      break;
+    }
+  }
+  if (itry < autoGlobalAttributes)
+  {
     // Skip to the next attribute
     return 0;
-    }
-  else if (globalAttributes[itry] == 0)
-    {
+  }
+  else if (globalAttributes[itry] == nullptr)
+  {
     return 2;
-    }
+  }
 
   return 1;
 }
@@ -962,7 +983,7 @@ int vtkMINCImageAttributes::ValidateGeneralAttribute(
     MIparent,       // parent variable for this variable
     MIchildren,     // newline-separated list of child variables
     MIcomments,     // each variable has specific comments to go with it
-    0
+    nullptr
   };
   const int autoGeneralAttributes = 5;
 
@@ -970,32 +991,32 @@ int vtkMINCImageAttributes::ValidateGeneralAttribute(
 
   // Check to see if the attribute is one that we automatically generate.
   int itry = 0;
-  for (itry = 0; generalAttributes[itry] != 0; itry++)
-    {
+  for (itry = 0; generalAttributes[itry] != nullptr; itry++)
+  {
     if (strcmp(attname, generalAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (itry < autoGeneralAttributes)
     {
+      break;
+    }
+  }
+  if (itry < autoGeneralAttributes)
+  {
     // Skip to the next attribute
     return 0;
-    }
-  else if (generalAttributes[itry] != 0)
-    {
+  }
+  else if (generalAttributes[itry] != nullptr)
+  {
     if (dataType != VTK_CHAR)
-      {
+    {
       vtkWarningMacro("The attribute " << varname << ":"
                       << attname << " has the wrong type ("
                       << dataType << ").");
       return 0;
-      }
     }
+  }
   else
-    {
+  {
     return 2;
-    }
+  }
 
   return 1;
 }
@@ -1013,7 +1034,7 @@ int vtkMINCImageAttributes::ValidateDimensionAttribute(
     MIalignment,    // MI_CENTRE ("start_", "end___" not supported)
     MIunits,        // "mm"
     MIdirection_cosines,  // three doubles
-    0
+    nullptr
   };
   const int autoDimensionAttributes = 3;
 
@@ -1022,52 +1043,52 @@ int vtkMINCImageAttributes::ValidateDimensionAttribute(
   int dataType = array->GetDataType();
 
   int itry = 0;
-  for (itry = 0; dimensionAttributes[itry] != 0; itry++)
-    {
+  for (itry = 0; dimensionAttributes[itry] != nullptr; itry++)
+  {
     if (strcmp(attname, dimensionAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (itry < autoDimensionAttributes)
     {
+      break;
+    }
+  }
+  if (itry < autoDimensionAttributes)
+  {
     // Skip to the next attribute
     return 0;
-    }
+  }
   else if (strcmp(attname, MIdirection_cosines) == 0)
-    {
+  {
     if (varname[0] == 'x' || varname[0] == 'y' || varname[0] == 'z')
-      {
+    {
       if (dataType != VTK_DOUBLE || size != 3)
-        {
+      {
         vtkWarningMacro("The attribute " << varname << ":"
                         << attname << " has the wrong type ("
                         << dataType << ") or size ("
                         << size << ").");
         return 0;
-        }
       }
+    }
     else
-      {
+    {
       vtkWarningMacro("Dimension " << varname << " cannot have"
                       " a direction_cosines attribute");
       return 0;
-      }
     }
-  else if (dimensionAttributes[itry] != 0)
-    {
+  }
+  else if (dimensionAttributes[itry] != nullptr)
+  {
     if (dataType != VTK_CHAR)
-      {
+    {
       vtkWarningMacro("The attribute " << varname << ":"
                       << attname << " has the wrong type ("
                       << dataType << ").");
       return 0;
-      }
     }
+  }
   else
-    {
+  {
     return 2;
-    }
+  }
 
   return 1;
 }
@@ -1084,27 +1105,27 @@ int vtkMINCImageAttributes::ValidateImageAttribute(
     MIimagemax     // "--->image-max" variable attribute pointer
     MIsigntype,     // MI_SIGNED or MI_UNSIGNED
     MIvalid_range,  // min and max scalar values as doubles
-    0
+    nullptr
   };
   const int autoImageAttributes = 5;
 
   int itry = 0;
-  for (itry = 0; imageAttributes[itry] != 0; itry++)
-    {
+  for (itry = 0; imageAttributes[itry] != nullptr; itry++)
+  {
     if (strcmp(attname, imageAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (itry < autoImageAttributes)
     {
+      break;
+    }
+  }
+  if (itry < autoImageAttributes)
+  {
     // Skip to the next attribute
     return 0;
-    }
-  else if (imageAttributes[itry] == 0)
-    {
+  }
+  else if (imageAttributes[itry] == nullptr)
+  {
     return 2;
-    }
+  }
 
   return 1;
 }
@@ -1117,38 +1138,38 @@ int vtkMINCImageAttributes::ValidateImageMinMaxAttribute(
   static const char *imageMinMaxAttributes[] = {
      MI_FillValue,  // 0.0 for image-min, 1.0 for image-max
      MIunits,       // "normalized", "Hounsfields", etc.
-     0
+     nullptr
   };
   const int autoImageMinMaxAttributes = 1;
 
   int itry = 0;
-  for (itry = 0; imageMinMaxAttributes[itry] != 0; itry++)
-    {
+  for (itry = 0; imageMinMaxAttributes[itry] != nullptr; itry++)
+  {
     if (strcmp(attname, imageMinMaxAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (itry < autoImageMinMaxAttributes)
     {
+      break;
+    }
+  }
+  if (itry < autoImageMinMaxAttributes)
+  {
     // Skip to the next attribute
     return 0;
-    }
-  else if (imageMinMaxAttributes[itry] != 0)
-    {
+  }
+  else if (imageMinMaxAttributes[itry] != nullptr)
+  {
     int dataType = array->GetDataType();
     if (dataType != VTK_CHAR)
-      {
+    {
       vtkWarningMacro("The attribute " << varname << ":"
                       << attname << " has the wrong type ("
                       << dataType << ").");
       return 0;
-      }
     }
+  }
   else
-    {
+  {
     return 2;
-    }
+  }
 
   return 1;
 }
@@ -1168,28 +1189,28 @@ int vtkMINCImageAttributes::ValidatePatientAttribute(
     MIsex,           // "male__", "female", "other_"
     MIage,           // "XXXD", "XXXM", or "XXXY" (days, months, years)
     MIweight,        // "XXkg", "X.Xkg" (assume kg if no units given)
-    MIsize,          // "XXXcm" (assume metres if no units given)
+    MIsize,          // "XXXcm" (assume meters if no units given)
     MIaddress,       // newline-separated string
     MIinsurance_id,
-    0
+    nullptr
   };
 
   int itry = 0;
-  for (itry = 0; patientAttributes[itry] != 0; itry++)
-    {
+  for (itry = 0; patientAttributes[itry] != nullptr; itry++)
+  {
     if (strcmp(attname, patientAttributes[itry]) == 0)
-      {
+    {
       break;
-      }
     }
-  if (patientAttributes[itry] != 0)
-    {
+  }
+  if (patientAttributes[itry] != nullptr)
+  {
     // Add checks for correct data type?
-    }
+  }
   else
-    {
+  {
     return 2;
-    }
+  }
 
   return 1;
 }
@@ -1222,25 +1243,25 @@ int vtkMINCImageAttributes::ValidateStudyAttribute(
     MIoperator,
     MIadmitting_diagnosis,
     MIprocedure,
-    0
+    nullptr
   };
 
   int itry = 0;
-  for (itry = 0; studyAttributes[itry] != 0; itry++)
-    {
+  for (itry = 0; studyAttributes[itry] != nullptr; itry++)
+  {
     if (strcmp(attname, studyAttributes[itry]) == 0)
-      {
+    {
       break;
-      }
     }
-  if (studyAttributes[itry] != 0)
-    {
+  }
+  if (studyAttributes[itry] != nullptr)
+  {
     // Add checks for correct data type?
-    }
+  }
   else
-    {
+  {
     return 2;
-    }
+  }
 
   return 1;
 }
@@ -1276,25 +1297,25 @@ int vtkMINCImageAttributes::ValidateAcquisitionAttribute(
     MIdose_units,
     MIinjection_volume,
     MIinjection_route,
-    0
+    nullptr
   };
 
   int itry = 0;
-  for (itry = 0; acquisitionAttributes[itry] != 0; itry++)
-    {
+  for (itry = 0; acquisitionAttributes[itry] != nullptr; itry++)
+  {
     if (strcmp(attname, acquisitionAttributes[itry]) == 0)
-      {
+    {
       break;
-      }
     }
-  if (acquisitionAttributes[itry] != 0)
-    {
+  }
+  if (acquisitionAttributes[itry] != nullptr)
+  {
     // Add checks for correct data type?
-    }
+  }
   else
-    {
+  {
     return 2;
-    }
+  }
 
   return 1;
 }
@@ -1307,73 +1328,73 @@ int vtkMINCImageAttributes::ValidateAttribute(
   static const char *stdVarNames[] = {
     MIrootvariable, MIimage, MIimagemin, MIimagemax,
     MIpatient, MIstudy, MIacquisition,
-    0
+    nullptr
   };
 
   int result = 1;
   int vartype = 0;
 
-  const char **tryname = 0;
-  for (tryname = stdVarNames; *tryname != 0; tryname++)
-    {
+  const char **tryname = nullptr;
+  for (tryname = stdVarNames; *tryname != nullptr; tryname++)
+  {
     if (strcmp(varname, *tryname) == 0)
-      {
+    {
       vartype = 1;
       break;
-      }
     }
-  for (tryname = vtkMINCDimVarNames; *tryname != 0; tryname++)
-    {
+  }
+  for (tryname = vtkMINCDimVarNames; *tryname != nullptr; tryname++)
+  {
     if (strcmp(varname, *tryname) == 0)
-      {
+    {
       vartype = 2;
       break;
-      }
     }
+  }
 
   if (strcmp(varname, MI_EMPTY_STRING) == 0)
-    {
+  {
     // Check global attributes
     result = this->ValidateGlobalAttribute(attname, array);
     // Allow users to create their own global attributes
     if (result == 2)
-      {
-      result = 1;
-      }
-    }
-  else if (vartype != 0)
     {
+      result = 1;
+    }
+  }
+  else if (vartype != 0)
+  {
     // Check general attributes
     result = this->ValidateGeneralAttribute(varname, attname, array);
-    }
+  }
   if (result == 2)
-    {
+  {
     if (vartype == 2)
-      {
+    {
       result = this->ValidateDimensionAttribute(varname, attname, array);
-      }
+    }
     else if (strcmp(varname, MIimage) == 0)
-      {
+    {
       result = this->ValidateImageAttribute(varname, attname, array);
-      }
+    }
     else if (strcmp(varname, MIimagemin) == 0 ||
              strcmp(varname, MIimagemax) == 0)
-      {
+    {
       result = this->ValidateImageMinMaxAttribute(varname, attname, array);
-      }
-    else if (strcmp(varname, MIpatient) == 0)
-      {
-      result = this->ValidatePatientAttribute(varname, attname, array);
-      }
-    else if (strcmp(varname, MIstudy) == 0)
-      {
-      result = this->ValidateStudyAttribute(varname, attname, array);
-      }
-    else if (strcmp(varname, MIacquisition) == 0)
-      {
-      result = this->ValidateAcquisitionAttribute(varname, attname, array);
-      }
     }
+    else if (strcmp(varname, MIpatient) == 0)
+    {
+      result = this->ValidatePatientAttribute(varname, attname, array);
+    }
+    else if (strcmp(varname, MIstudy) == 0)
+    {
+      result = this->ValidateStudyAttribute(varname, attname, array);
+    }
+    else if (strcmp(varname, MIacquisition) == 0)
+    {
+      result = this->ValidateAcquisitionAttribute(varname, attname, array);
+    }
+  }
 
   return result;
 }
@@ -1390,28 +1411,28 @@ void vtkMINCImageAttributes::FindValidRange(double range[2])
     vtkDoubleArray::SafeDownCast(this->GetAttributeValueAsArray(
                                    MIimage, MIvalid_range));
   if (rangearray)
-    {
+  {
     range[0] = rangearray->GetValue(0);
     range[1] = rangearray->GetValue(1);
     if (range[0] > range[1])
-      {
+    {
       double tmpval = range[0];
       range[0] = range[1];
       range[1] = tmpval;
-      }
+    }
 
     if (this->DataType == VTK_FLOAT)
-      {
-      // use float precision if VTK_FLOAT
-      range[0] = (float)range[0];
-      range[1] = (float)range[1];
-      }
-    }
-  else
     {
+      // use float precision if VTK_FLOAT
+      range[0] = static_cast<float>(range[0]);
+      range[1] = static_cast<float>(range[1]);
+    }
+  }
+  else
+  {
     // If there is no valid_range attribute, use maximum range.
     switch (this->DataType)
-      {
+    {
       case VTK_CHAR:
       case VTK_SIGNED_CHAR:
         range[0] = VTK_SIGNED_CHAR_MIN;
@@ -1445,27 +1466,27 @@ void vtkMINCImageAttributes::FindValidRange(double range[2])
         range[0] = -DBL_MAX;
         range[1] = DBL_MAX;
         break;
-      }
     }
+  }
 
   // If the valid_range is set to the full float range, replace
   // with the image range.
   if ((this->DataType == VTK_FLOAT && range[1] == FLT_MAX) ||
       (this->DataType == VTK_DOUBLE && range[1] == DBL_MAX))
-    {
+  {
     if (this->ImageMin && this->ImageMax &&
         this->ImageMin->GetNumberOfTuples() > 0 &&
         this->ImageMax->GetNumberOfTuples() > 0)
-      {
+    {
       range[0] = this->ImageMin->GetRange()[0];
       range[1] = this->ImageMax->GetRange()[1];
-      }
+    }
     else
-      {
+    {
       range[0] = 0.0;
       range[1] = 1.0;
-      }
     }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -1480,14 +1501,14 @@ void vtkMINCImageAttributes::FindImageRange(double range[2])
   if (this->ImageMin && this->ImageMax &&
       this->ImageMin->GetNumberOfTuples() > 0 &&
       this->ImageMax->GetNumberOfTuples() > 0)
-    {
+  {
     range[0] = this->ImageMin->GetRange()[0];
     range[1] = this->ImageMax->GetRange()[1];
-    }
+  }
   else
-    {
+  {
     this->FindValidRange(range);
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -1509,28 +1530,27 @@ void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes *source)
   this->AttributeNames->Clear();
 
   vtkStringArray *varnames = source->GetVariableNames();
-  int nvar = varnames->GetNumberOfValues();
-  for (int ivar = 0; ivar <= nvar; ivar++)
-    {
-    // set varname to emtpy last time around to get global attributes
+  vtkIdType nvar = varnames->GetNumberOfValues();
+  for (vtkIdType ivar = 0; ivar <= nvar; ivar++)
+  {
+    // set varname to empty last time around to get global attributes
     const char *varname = MI_EMPTY_STRING;
     if (ivar < nvar)
-      {
+    {
       varname = varnames->GetValue(ivar);
-      }
+    }
     vtkStringArray *attnames = source->GetAttributeNames(varname);
-    int natt = attnames->GetNumberOfValues();
-    for (int iatt = 0; iatt < natt; iatt++)
-      {
+    vtkIdType natt = attnames->GetNumberOfValues();
+    for (vtkIdType iatt = 0; iatt < natt; iatt++)
+    {
       const char *attname = attnames->GetValue(iatt);
       this->SetAttributeValueAsArray(
         varname, attname, source->GetAttributeValueAsArray(varname, attname));
-      }
     }
+  }
 
   if (this->StringStore)
-    {
+  {
     this->StringStore->Reset();
-    }
+  }
 }
-

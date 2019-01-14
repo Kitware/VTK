@@ -56,10 +56,10 @@ template<typename T>
 void vtkTypedArray<T>::CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkArrayCoordinates& target_coordinates)
 {
   if(!source->IsA(this->GetClassName()))
-    {
+  {
     vtkWarningMacro("source and target array data types do not match");
     return;
-    }
+  }
 
   this->SetValue(target_coordinates, static_cast<vtkTypedArray<T>*>(source)->GetValue(source_coordinates));
 }
@@ -68,10 +68,10 @@ template<typename T>
 void vtkTypedArray<T>::CopyValue(vtkArray* source, const SizeT source_index, const vtkArrayCoordinates& target_coordinates)
 {
   if(!source->IsA(this->GetClassName()))
-    {
+  {
     vtkWarningMacro("source and target array data types do not match");
     return;
-    }
+  }
 
   this->SetValue(target_coordinates, static_cast<vtkTypedArray<T>*>(source)->GetValueN(source_index));
 }
@@ -80,10 +80,10 @@ template<typename T>
 void vtkTypedArray<T>::CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const SizeT target_index)
 {
   if(!source->IsA(this->GetClassName()))
-    {
+  {
     vtkWarningMacro("source and target array data types do not match");
     return;
-    }
+  }
 
   this->SetValueN(target_index, static_cast<vtkTypedArray<T>*>(source)->GetValue(source_coordinates));
 }

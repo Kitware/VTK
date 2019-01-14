@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* private headers */
@@ -36,6 +34,7 @@ H5TS_once_t H5TS_first_init_g = PTHREAD_ONCE_INIT;
 #endif /* H5_HAVE_WIN_THREADS */
 H5TS_key_t H5TS_errstk_key_g;
 H5TS_key_t H5TS_funcstk_key_g;
+H5TS_key_t H5TS_apictx_key_g;
 H5TS_key_t H5TS_cancel_key_g;
 
 
@@ -62,7 +61,7 @@ static void
 H5TS_key_destructor(void *key_val)
 {
     /* Use HDfree here instead of H5MM_xfree(), to avoid calling the H5CS routines */
-    if(key_val!=NULL)
+    if(key_val != NULL)
         HDfree(key_val);
 }
 
@@ -91,8 +90,9 @@ H5TS_key_destructor(void *key_val)
 void
 H5TS_pthread_first_thread_init(void)
 {
-    H5_g.H5_libinit_g = FALSE;
-    
+    H5_g.H5_libinit_g = FALSE;  /* Library hasn't been initialized */
+    H5_g.H5_libterm_g = FALSE;  /* Library isn't being shutdown */
+
 #ifdef H5_HAVE_WIN32_API
 # ifdef PTW32_STATIC_LIB
     pthread_win32_process_attach_np();
@@ -109,6 +109,9 @@ H5TS_pthread_first_thread_init(void)
 
     /* initialize key for thread-specific function stacks */
     pthread_key_create(&H5TS_funcstk_key_g, H5TS_key_destructor);
+
+    /* initialize key for thread-specific API contexts */
+    pthread_key_create(&H5TS_apictx_key_g, H5TS_key_destructor);
 
     /* initialize key for thread cancellability mechanism */
     pthread_key_create(&H5TS_cancel_key_g, H5TS_key_destructor);
@@ -254,19 +257,20 @@ H5TS_cancel_count_inc(void)
 
     if (!cancel_counter) {
         /*
-   * First time thread calls library - create new counter and associate
-         * with key
+         * First time thread calls library - create new counter and associate
+         * with key.
+         * 
+         * Don't use H5MM calls here since the destructor has to use HDfree in
+         * order to avoid codestack calls.
          */
-  cancel_counter = (H5TS_cancel_t *)H5MM_calloc(sizeof(H5TS_cancel_t));
+        cancel_counter = (H5TS_cancel_t *)HDcalloc(1, sizeof(H5TS_cancel_t));
 
-  if (!cancel_counter) {
-      H5E_push_stack(NULL, "H5TS_cancel_count_inc",
-         __FILE__, __LINE__, H5E_ERR_CLS_g, H5E_RESOURCE, H5E_NOSPACE, "memory allocation failed");
-      return FAIL;
-  }
+        if (!cancel_counter) {
+            HERROR(H5E_RESOURCE, H5E_NOSPACE, "memory allocation failed");
+            return FAIL;
+        }
 
-        ret_value = pthread_setspecific(H5TS_cancel_key_g,
-          (void *)cancel_counter);
+        ret_value = pthread_setspecific(H5TS_cancel_key_g, (void *)cancel_counter);
     }
 
     if (cancel_counter->cancel_count == 0)
@@ -355,6 +359,10 @@ H5TS_win32_process_enter(PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContex)
         ret_value = FALSE;
 #endif /* H5_HAVE_CODESTACK */
 
+    /* Set up thread local storage */
+    if(TLS_OUT_OF_INDEXES == (H5TS_apictx_key_g = TlsAlloc()))
+        ret_value = FALSE;
+
     return ret_value;
 } /* H5TS_win32_process_enter() */
 #endif /* H5_HAVE_WIN_THREADS */
@@ -425,6 +433,9 @@ H5TS_win32_process_exit(void)
     TlsFree(H5TS_funcstk_key_g);
 #endif /* H5_HAVE_CODESTACK */
 
+    /* Clean up per-process thread local storage */
+    TlsFree(H5TS_apictx_key_g);
+
     return;
 } /* H5TS_win32_process_exit() */
 #endif /* H5_HAVE_WIN_THREADS */
@@ -468,6 +479,11 @@ H5TS_win32_thread_exit(void)
         LocalFree((HLOCAL)lpvData);
 #endif /* H5_HAVE_CODESTACK */
 
+    /* Clean up per-thread thread local storage */
+    lpvData = TlsGetValue(H5TS_apictx_key_g);
+    if(lpvData)
+        LocalFree((HLOCAL)lpvData);
+
     return ret_value;
 } /* H5TS_win32_thread_exit() */
 #endif /* H5_HAVE_WIN_THREADS */
@@ -489,7 +505,7 @@ H5TS_win32_thread_exit(void)
  *--------------------------------------------------------------------------
  */
 H5TS_thread_t
-H5TS_create_thread(void *func, H5TS_attr_t *attr, void *udata)
+H5TS_create_thread(void *(*func)(void *), H5TS_attr_t *attr, void *udata)
 {
     H5TS_thread_t ret_value;
 

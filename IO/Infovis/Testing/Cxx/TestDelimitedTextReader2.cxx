@@ -37,15 +37,15 @@ int TestDelimitedTextReader2(int argc, char *argv[])
   reader->Print(cout);
 
   if (table->GetNumberOfRows() != 6)
-    {
+  {
     cout << "ERROR: Wrong number of rows: " << table->GetNumberOfRows()<<endl;
     return 1;
-    }
+  }
   if (table->GetNumberOfColumns() != 6)
-    {
+  {
     cout << "ERROR: Wrong number of columns: " << table->GetNumberOfColumns()<<endl;
     return 1;
-    }
+  }
 
   reader->Delete();
 
@@ -66,15 +66,15 @@ int TestDelimitedTextReader2(int argc, char *argv[])
   reader2->Print(cout);
 
   if (table2->GetNumberOfRows() != 6)
-    {
+  {
     cout << "ERROR: Wrong number of rows: " << table2->GetNumberOfRows()<<endl;
     return 1;
-    }
+  }
   if (table2->GetNumberOfColumns() != 4)
-    {
+  {
     cout << "ERROR: Wrong number of columns: " << table2->GetNumberOfColumns()<<endl;
     return 1;
-    }
+  }
 
   reader2->Delete();
 

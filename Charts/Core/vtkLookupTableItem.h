@@ -29,26 +29,26 @@ class VTKCHARTSCORE_EXPORT vtkLookupTableItem: public vtkScalarsToColorsItem
 public:
   static vtkLookupTableItem* New();
   vtkTypeMacro(vtkLookupTableItem, vtkScalarsToColorsItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   void SetLookupTable(vtkLookupTable* t);
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
 
 protected:
   vtkLookupTableItem();
-  virtual ~vtkLookupTableItem();
+  ~vtkLookupTableItem() override;
 
   // Description:
   // Reimplemented to return the range of the lookup table
-  virtual void ComputeBounds(double bounds[4]);
+  void ComputeBounds(double bounds[4]) override;
 
 
-  virtual void ComputeTexture();
+  void ComputeTexture() override;
   vtkLookupTable* LookupTable;
 
 private:
-  vtkLookupTableItem(const vtkLookupTableItem &); // Not implemented.
-  void operator=(const vtkLookupTableItem &); // Not implemented.
+  vtkLookupTableItem(const vtkLookupTableItem &) = delete;
+  void operator=(const vtkLookupTableItem &) = delete;
 };
 
 #endif

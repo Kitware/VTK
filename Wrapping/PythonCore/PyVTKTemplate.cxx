@@ -18,17 +18,18 @@
   This object is a container for instantiations of templated types.
   Essentially, it is a "dict" that accepts template args as keys,
   and provides the corresponding instantiation of the template.
+  It is implemented as a subclass of PyModule.
 -----------------------------------------------------------------------*/
 
 #include "PyVTKTemplate.h"
-#include "PyVTKClass.h"
 #include "vtkPythonUtil.h"
+
+#include <string>
 
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"
 // it happens because this kind of expression: (long *)&ptr
-// pragma GCC diagnostic is available since gcc>=4.2
-#if defined(__GNUC__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=2)
+#if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
@@ -40,86 +41,151 @@ static const char *PyVTKTemplate_Doc =
   "in square brackets to get the desired kind of class.\n";
 
 //--------------------------------------------------------------------
-// methods from python
+// Methods to help with name mangling and unmangling
+PyObject *PyVTKTemplate_KeyFromName(PyObject *self, PyObject *arg);
+PyObject *PyVTKTemplate_NameFromKey(PyObject *self, PyObject *key);
+
+//--------------------------------------------------------------------
+// Methods for python
 
 static PyObject *PyVTKTemplate_HasKey(PyObject *ob, PyObject *args)
 {
-  PyObject *key = NULL;
-  if (PyArg_ParseTuple(args, (char *)"O:has_key", &key))
+  PyObject *key = nullptr;
+  if (PyArg_ParseTuple(args, "O:has_key", &key))
+  {
+    PyObject *rval = nullptr;
+    PyObject *name = PyVTKTemplate_NameFromKey(ob, key);
+    if (name)
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"has_key", (char *)"(O)", key);
+      PyObject *dict = PyModule_GetDict(ob);
+      rval = PyDict_GetItem(dict, name);
+      Py_DECREF(name);
     }
-  return NULL;
+    if (rval)
+    {
+      Py_DECREF(rval);
+      Py_INCREF(Py_True);
+      return Py_True;
+    }
+    else if (!PyErr_Occurred())
+    {
+      Py_INCREF(Py_False);
+      return Py_False;
+    }
+  }
+  return nullptr;
 }
 
 static PyObject *PyVTKTemplate_Keys(PyObject *ob, PyObject *args)
 {
-  if (PyArg_ParseTuple(args, (char *)":keys"))
+  if (PyArg_ParseTuple(args, ":keys"))
+  {
+    PyObject *dict = PyModule_GetDict(ob);
+    PyObject *l = PyList_New(0);
+    Py_ssize_t pos = 0;
+    PyObject *key, *value;
+    while (PyDict_Next(dict, &pos, &key, &value))
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"keys", (char *)"()");
+      key = PyVTKTemplate_KeyFromName(ob, key);
+      if (key)
+      {
+        PyList_Append(l, key);
+        Py_DECREF(key);
+      }
     }
-  return NULL;
+    return l;
+  }
+  return nullptr;
 }
 
 static PyObject *PyVTKTemplate_Values(PyObject *ob, PyObject *args)
 {
-  if (PyArg_ParseTuple(args, (char *)":values"))
+  if (PyArg_ParseTuple(args, ":values"))
+  {
+    PyObject *dict = PyModule_GetDict(ob);
+    PyObject *l = PyList_New(0);
+    Py_ssize_t pos = 0;
+    PyObject *key, *value;
+    while (PyDict_Next(dict, &pos, &key, &value))
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"values", (char *)"()");
+      key = PyVTKTemplate_KeyFromName(ob, key);
+      if (key)
+      {
+        PyList_Append(l, value);
+        Py_DECREF(key);
+      }
     }
-  return NULL;
+    return l;
+  }
+  return nullptr;
 }
 
 static PyObject *PyVTKTemplate_Items(PyObject *ob, PyObject *args)
 {
-  if (PyArg_ParseTuple(args, (char *)":items"))
+  if (PyArg_ParseTuple(args, ":items"))
+  {
+    PyObject *dict = PyModule_GetDict(ob);
+    PyObject *l = PyList_New(0);
+    Py_ssize_t pos = 0;
+    PyObject *key, *value;
+    while (PyDict_Next(dict, &pos, &key, &value))
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"items", (char *)"()");
+      key = PyVTKTemplate_KeyFromName(ob, key);
+      if (key)
+      {
+        Py_INCREF(value);
+        PyObject *t = PyTuple_New(2);
+        PyTuple_SET_ITEM(t, 0, key);
+        PyTuple_SET_ITEM(t, 1, value);
+        PyList_Append(l, t);
+        Py_DECREF(t);
+      }
     }
-  return NULL;
+    return l;
+  }
+  return nullptr;
 }
 
 static PyObject *PyVTKTemplate_Get(PyObject *ob, PyObject *args)
 {
-  PyObject *key = NULL;
+  PyObject *key = nullptr;
   PyObject *def = Py_None;
-  if (PyArg_ParseTuple(args, (char *)"O|O:get"))
+  if (PyArg_ParseTuple(args, "O|O:get", &key, &def))
+  {
+    PyObject *rval = nullptr;
+    PyObject *dict = PyModule_GetDict(ob);
+    key = PyVTKTemplate_NameFromKey(ob, key);
+    if (key)
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"get", (char *)"(OO)", key, def);
+      rval = PyDict_GetItem(dict, key);
+      Py_DECREF(key);
     }
-  return NULL;
-}
-
-static PyObject *PyVTKTemplate_Copy(PyObject *ob, PyObject *args)
-{
-  if (PyArg_ParseTuple(args, (char *)":copy"))
+    if (rval)
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"copy", NULL);
+      return rval;
     }
-  return NULL;
+    else if (!PyErr_Occurred())
+    {
+      Py_INCREF(def);
+      return def;
+    }
+  }
+  return nullptr;
 }
 
 
 static PyMethodDef PyVTKTemplate_Methods[] = {
-  {(char*)"has_key", PyVTKTemplate_HasKey, METH_VARARGS,
-   (char *)"T.has_key(args) -> True only the template args are allowed."},
-  {(char*)"keys", PyVTKTemplate_Keys, METH_VARARGS,
-   (char *)"T.keys() -> list of allowed template args."},
-  {(char*)"values", PyVTKTemplate_Values, METH_VARARGS,
-   (char *)"T.values() -> list of provided template instantiations."},
-  {(char*)"items", PyVTKTemplate_Items, METH_VARARGS,
-   (char *)"T.items() -> list of (args,types) pairs."},
-  {(char*)"get", PyVTKTemplate_Get, METH_VARARGS,
-   (char *)"T.get(args) -> get instantiated template type or None."},
-  {(char*)"copy", PyVTKTemplate_Copy, METH_VARARGS,
-   (char *)"T.copy() -> get a shallow copy of T."},
-  { NULL, NULL, 0, NULL }
+  {"has_key", PyVTKTemplate_HasKey, METH_VARARGS,
+   "T.has_key(args) -> True only the template args are allowed."},
+  {"keys", PyVTKTemplate_Keys, METH_VARARGS,
+   "T.keys() -> list of allowed template args."},
+  {"values", PyVTKTemplate_Values, METH_VARARGS,
+   "T.values() -> list of provided template instantiations."},
+  {"items", PyVTKTemplate_Items, METH_VARARGS,
+   "T.items() -> list of (args,types) pairs."},
+  {"get", PyVTKTemplate_Get, METH_VARARGS,
+   "T.get(args) -> get instantiated template type or None."},
+  { nullptr, nullptr, 0, nullptr }
 };
 
 //--------------------------------------------------------------------
@@ -128,105 +194,46 @@ static PyMethodDef PyVTKTemplate_Methods[] = {
 static Py_ssize_t
 PyVTKTemplate_Size(PyObject *ob)
 {
-  ob = ((PyVTKTemplate *)ob)->dict;
-#if PY_MAJOR_VERSION >= 2
-  return PyObject_Size(ob);
-#else
-  return PyObject_Length(ob);
-#endif
+  Py_ssize_t l = 0;
+  PyObject *dict = PyModule_GetDict(ob);
+  Py_ssize_t pos = 0;
+  PyObject *key, *value;
+  while (PyDict_Next(dict, &pos, &key, &value))
+  {
+    key = PyVTKTemplate_KeyFromName(ob, key);
+    if (key)
+    {
+      Py_DECREF(key);
+      l++;
+    }
+  }
+  return l;
 }
 
 static PyObject *
 PyVTKTemplate_GetItem(PyObject *ob, PyObject *key)
 {
-  static const char *typenames[] = {
-    "bool", "char",
-    "int8", "uint8", "int16", "uint16", "int32", "uint32",
-    "int", "uint", "int64", "uint64",
-    "float32", "float64",
-    "str", "unicode",
-    NULL };
-
-  static const char *typecodes[] = {
-    "?", "c",
-    "b", "B", "h", "H", "i", "I",
-    "l", "L", "q", "Q",
-    "f", "d",
-    NULL, NULL,
-    NULL };
-
-  Py_ssize_t nargs = 1;
-  bool multi = false;
-
-  if (PyTuple_Check(key))
+  PyObject *r = nullptr;
+  PyObject *dict = PyModule_GetDict(ob);
+  PyObject *name = PyVTKTemplate_NameFromKey(ob, key);
+  if (name)
+  {
+    // see if the named class is present
+    r = PyObject_GetItem(dict, name);
+    Py_DECREF(name);
+    if (r == nullptr)
     {
-    nargs = PyTuple_GET_SIZE(key);
-    multi = true;
+      // clear the error (it will be set below)
+      PyErr_Clear();
     }
-
-  PyObject *o = key;
-  PyObject *t = PyTuple_New(nargs);
-
-  for (Py_ssize_t i = 0; i < nargs; i++)
-    {
-    o = key;
-    if (multi)
-      {
-      o = PyTuple_GET_ITEM(key, i);
-      }
-
-    if (PyType_Check(o))
-      {
-      const char *cp = ((PyTypeObject *)o)->tp_name;
-      size_t n = strlen(cp);
-      if (n == 5 && strcmp(cp, "float") == 0)
-        {
-        cp = "float64";
-        n += 2;
-        }
-      while (n && cp[n-1] != '.') { --n; }
-      o = PyString_FromString(&cp[n]);
-      }
-    else if (PyVTKClass_Check(o))
-      {
-      o = ((PyVTKClass *)o)->vtk_name;
-      Py_INCREF(o);
-      }
-    else if (PyString_Check(o) && PyString_Size(o) == 1)
-      {
-      char *cp = PyString_AS_STRING(o);
-      int j;
-      for (j = 0; typecodes[j]; j++)
-        {
-        if (strcmp(cp, typecodes[j]) == 0)
-          {
-          o = PyString_FromString(typenames[j]);
-          break;
-          }
-        }
-      if (!typecodes[j])
-        {
-        Py_INCREF(o);
-        }
-      }
-    else
-      {
-      Py_INCREF(o);
-      }
-
-    PyTuple_SET_ITEM(t, i, o);
-    }
-
-  PyObject *newkey = t;
-  if (!multi)
-    {
-    newkey = PyTuple_GET_ITEM(t, 0);
-    }
-
-  ob = ((PyVTKTemplate *)ob)->dict;
-  PyObject *r = PyObject_GetItem(ob, newkey);
-
-  Py_DECREF(t);
+  }
+  if (r == nullptr)
+  {
+    // set a key error
+    PyObject *t = PyTuple_Pack(1, key);
+    PyErr_SetObject(PyExc_KeyError, t);
+    Py_DECREF(t);
+  }
 
   return r;
 }
@@ -235,61 +242,13 @@ PyVTKTemplate_GetItem(PyObject *ob, PyObject *key)
 static PyMappingMethods PyVTKTemplate_AsMapping = {
   PyVTKTemplate_Size,                   // mp_length
   PyVTKTemplate_GetItem,                // mp_subscript
-  0,                                    // mp_ass_subscript
+  nullptr,                              // mp_ass_subscript
 };
 
 //--------------------------------------------------------------------
-#if PY_MAJOR_VERSION >= 2
-static int PyVTKTemplate_Traverse(PyObject *o, visitproc visit, void *arg)
+static PyObject *PyVTKTemplate_Repr(PyObject *self)
 {
-  PyVTKTemplate *self = (PyVTKTemplate *)o;
-  PyObject *members[2];
-  int err = 0;
-  int i;
-
-  members[0] = self->dict;
-  members[1] = self->doc;
-
-  for (i = 0; i < 2 && err == 0; i++)
-    {
-    if (members[i])
-      {
-      err = visit(members[i], arg);
-      }
-    }
-
-  return err;
-}
-#endif
-
-//--------------------------------------------------------------------
-static void PyVTKTemplate_Delete(PyObject *op)
-{
-#if PY_VERSION_HEX >= 0x02020000
-  PyObject_GC_UnTrack(op);
-#endif
-
-  Py_DECREF(((PyVTKTemplate *)op)->dict);
-  Py_DECREF(((PyVTKTemplate *)op)->doc);
-
-#if PY_VERSION_HEX >= 0x02020000
-  PyObject_GC_Del(op);
-#elif PY_MAJOR_VERSION >= 2
-  PyObject_Del(op);
-#else
-  PyMem_DEL(op);
-#endif
-}
-
-//--------------------------------------------------------------------
-static PyObject *PyVTKTemplate_Repr(PyObject *op)
-{
-  PyVTKTemplate *self = (PyVTKTemplate *)op;
-  char buf[512];
-  sprintf(buf,"<%.80s %.80s.%.80s>", op->ob_type->tp_name,
-          self->module, self->name);
-
-  return PyString_FromString(buf);
+  return PyString_FromFormat("<template %s>", PyModule_GetName(self));
 }
 
 //--------------------------------------------------------------------
@@ -299,203 +258,411 @@ static PyObject *PyVTKTemplate_Call(PyObject *, PyObject *, PyObject *)
                   "this is a template, provide template args in brackets "
                   "before the ().");
 
-  return NULL;
-}
-
-//--------------------------------------------------------------------
-static PyObject *PyVTKTemplate_GetAttr(PyObject *self, PyObject *attr)
-{
-  char text[256];
-  char *name = PyString_AsString(attr);
-  PyVTKTemplate *op = (PyVTKTemplate *)self;
-  PyMethodDef *meth;
-
-  if (name[0] == '_')
-    {
-    if (strcmp(name, "__name__") == 0)
-      {
-      return PyString_FromString(op->name);
-      }
-    if (strcmp(name, "__module__") == 0)
-      {
-      return PyString_FromString(op->module);
-      }
-    if (strcmp(name, "__doc__") == 0)
-      {
-      Py_INCREF(op->doc);
-      return op->doc;
-      }
-    if (strcmp(name, "__bases__") == 0)
-      {
-      return Py_BuildValue((char *)"()");
-      }
-    }
-
-  for (meth = PyVTKTemplate_Methods; meth && meth->ml_name; meth++)
-    {
-    if (strcmp(name, meth->ml_name) == 0)
-      {
-      return PyCFunction_New(meth, self);
-      }
-    }
-
-  sprintf(text, "'%.80s' object has no attribute '%.80s'",
-          self->ob_type->tp_name, name);
-  PyErr_SetString(PyExc_AttributeError, text);
-  return NULL;
+  return nullptr;
 }
 
 //--------------------------------------------------------------------
 PyTypeObject PyVTKTemplate_Type = {
-  PyObject_HEAD_INIT(&PyType_Type)
-  0,
-  (char*)"vtk.template",                 // tp_name
-  sizeof(PyVTKTemplate),                 // tp_basicsize
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+  "vtkCommonCorePython.template",        // tp_name
+  0,                                     // tp_basicsize
   0,                                     // tp_itemsize
-  PyVTKTemplate_Delete,                  // tp_dealloc
-  0,                                     // tp_print
-  0,                                     // tp_getattr
-  0,                                     // tp_setattr
-  0,                                     // tp_compare
+  nullptr,                               // tp_dealloc
+  nullptr,                               // tp_print
+  nullptr,                               // tp_getattr
+  nullptr,                               // tp_setattr
+  nullptr,                               // tp_compare
   PyVTKTemplate_Repr,                    // tp_repr
-  0,                                     // tp_as_number
-  0,                                     // tp_as_sequence
+  nullptr,                               // tp_as_number
+  nullptr,                               // tp_as_sequence
   &PyVTKTemplate_AsMapping,              // tp_as_mapping
-  0,                                     // tp_hash
+  nullptr,                               // tp_hash
   PyVTKTemplate_Call,                    // tp_call
-  0,                                     // tp_string
-  PyVTKTemplate_GetAttr,                 // tp_getattro
-  0,                                     // tp_setattro
-  0,                                     // tp_as_buffer
-#if PY_VERSION_HEX >= 0x02020000
-  Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_HAVE_GC |
-#endif
+  nullptr,                               // tp_string
+  PyObject_GenericGetAttr,               // tp_getattro
+  nullptr,                               // tp_setattro
+  nullptr,                               // tp_as_buffer
   Py_TPFLAGS_DEFAULT,                    // tp_flags
-  (char*)PyVTKTemplate_Doc,              // tp_doc
-  PyVTKTemplate_Traverse,                // tp_traverse
-  0,                                     // tp_clear
-  0,                                     // tp_richcompare
+  PyVTKTemplate_Doc,                     // tp_doc
+  nullptr,                               // tp_traverse
+  nullptr,                               // tp_clear
+  nullptr,                               // tp_richcompare
   0,                                     // tp_weaklistoffset
-#if PY_VERSION_HEX >= 0x02020000
-  0,                                     // tp_iter
-  0,                                     // tp_iternext
+  nullptr,                               // tp_iter
+  nullptr,                               // tp_iternext
   PyVTKTemplate_Methods,                 // tp_methods
-  0,                                     // tp_members
-  0,                                     // tp_getset
-  0,                                     // tp_base
-  0,                                     // tp_dict
-  0,                                     // tp_descr_get
-  0,                                     // tp_descr_set
+  nullptr,                               // tp_members
+  nullptr,                               // tp_getset
+  &PyModule_Type,                        // tp_base
+  nullptr,                               // tp_dict
+  nullptr,                               // tp_descr_get
+  nullptr,                               // tp_descr_set
   0,                                     // tp_dictoffset
-  0,                                     // tp_init
-  0,                                     // tp_alloc
-  0,                                     // tp_new
-#if PY_VERSION_HEX >= 0x02030000
-  PyObject_Del,                          // tp_free
-#else
-  _PyObject_Del,                         // tp_free
-#endif
-  0,                                     // tp_is_gc
-  0,                                     // tp_bases
-  0,                                     // tp_mro
-  0,                                     // tp_cache
-  0,                                     // tp_subclasses
-  0,                                     // tp_weaklist
-#endif
-  VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
+  nullptr,                               // tp_init
+  nullptr,                               // tp_alloc
+  nullptr,                               // tp_new
+  nullptr,                               // tp_free
+  nullptr,                               // tp_is_gc
+  nullptr,                               // tp_bases
+  nullptr,                               // tp_mro
+  nullptr,                               // tp_cache
+  nullptr,                               // tp_subclasses
+  nullptr,                               // tp_weaklist
+  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED
 };
 
 //--------------------------------------------------------------------
-PyObject *PyVTKTemplate_New(const char *name, const char *modulename,
-                            const char *docstring[])
+// Generate mangled name from the given template args
+PyObject *PyVTKTemplate_NameFromKey(PyObject *self, PyObject *key)
 {
-  PyObject *doc = vtkPythonUtil::BuildDocString(docstring);
-  PyObject *dict = PyDict_New();
+  // python type names
+  static const char *typenames[] = {
+    "bool", "char",
+    "int8", "uint8", "int16", "uint16", "int32", "uint32",
+    "int", "uint", "int64", "uint64",
+    "float32", "float64", "float",
+    "str", "unicode",
+    nullptr };
 
-#if PY_VERSION_HEX >= 0x02020000
-  PyVTKTemplate *op = PyObject_GC_New(PyVTKTemplate, &PyVTKTemplate_Type);
-#elif PY_MAJOR_VERSION >= 2
-  PyVTKTemplate *op = PyObject_New(PyVTKTemplate, &PyVTKTemplate_Type);
+  // python type codes
+  static const char typecodes[] = {
+    '?', 'c',
+    'b', 'B', 'h', 'H', 'i', 'I',
+    'l', 'L', 'q', 'Q',
+    'f', 'd', 'd',
+    '\0', '\0',
+    '\0' };
+
+  // ia64 ABI type codes
+  static const char typechars[] = {
+    'b', 'c',
+    'a', 'h', 's', 't', 'i', 'j',
+    'l', 'm', 'x', 'y',
+    'f', 'd', 'd',
+    '\0', '\0',
+    '\0' };
+
+  // get name of the template (skip any namespaces)
+  const char *tname = PyModule_GetName(self);
+  for (const char *cp = tname; *cp != '\0'; cp++)
+  {
+    if (*cp == '.')
+    {
+      tname = cp + 1;
+    }
+  }
+
+  // begin constructing the mangled name
+  std::string name = tname;
+  name.push_back('_');
+  name.push_back('I');
+
+  // mangle the key using ia64 ABI for template args
+  Py_ssize_t nargs = 1;
+  bool multi = false;
+
+  if (PyTuple_Check(key))
+  {
+    nargs = PyTuple_GET_SIZE(key);
+    multi = true;
+  }
+
+  PyObject *o = key;
+
+  for (Py_ssize_t i = 0; i < nargs; i++)
+  {
+    o = key;
+    if (multi)
+    {
+      o = PyTuple_GET_ITEM(key, i);
+    }
+
+    tname = nullptr;
+    if (PyType_Check(o))
+    {
+      // if type object, get the name of the type
+      Py_INCREF(o);
+      tname = ((PyTypeObject *)o)->tp_name;
+      for (const char *cp = tname; *cp != '\0'; cp++)
+      {
+        if (*cp == '.')
+        {
+          tname = cp + 1;
+        }
+      }
+    }
+    else
+    {
+      // else convert into an ASCII string
+      o = PyObject_Str(o);
+      if (PyBytes_Check(o))
+      {
+        tname = PyBytes_AS_STRING(o);
+      }
+      else if (PyUnicode_Check(o))
+      {
+#if PY_VERSION_HEX >= 0x03030000
+        tname = PyUnicode_AsUTF8(o);
 #else
-  PyVTKTemplate *op = PyObject_NEW(PyVTKTemplate, &PyVTKTemplate_Type);
+        PyObject *s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
+        tname = PyBytes_AS_STRING(s);
 #endif
-  PyObject *self = (PyObject *)op;
+      }
+    }
 
-  op->dict = dict;
-  op->doc = doc;
-  op->name = name;
-  op->module = modulename;
+    if ((*tname >= '0' && *tname <= '9') ||
+        (*tname == '-' && tname[1] >= '0' && tname[1] <= '9'))
+    {
+      // integer literal
+      name.push_back('L');
+      // guess the type based on available template instantiations
+      const char *trylist = (*tname == '-' ? "lxisa" : "lmxyijstah");
+      int bestfit = (*tname == '-' ? 5 : 10);
+      char typechar = 'l'; // C++ long is best fit for python int
+      PyObject *dict = PyModule_GetDict(self);
+      Py_ssize_t pos = 0;
+      PyObject *okey, *value;
+      // loop through all the wrapped template instances
+      while (PyDict_Next(dict, &pos, &okey, &value))
+      {
+        if (PyType_Check(value))
+        {
+          const char *cname = ((PyTypeObject *)value)->tp_name;
+          for (const char *cp = cname; *cp != '\0'; cp++)
+          {
+            if (*cp == '.')
+            {
+              cname = cp + 1;
+            }
+          }
+          if (strncmp(cname, name.data(), name.length()) == 0)
+          {
+            // compare this template instance against the typecode
+            char c = cname[name.length()];
+            for (int k = 0; k < bestfit; k++)
+            {
+              if (c == trylist[k])
+              {
+                typechar = c;
+                bestfit = k;
+                break;
+              }
+            }
+          }
+        }
+      }
+      // push the char that identifies the literal type
+      name.push_back(typechar);
+      if (*tname == '-')
+      {
+        name.push_back('n');
+        tname++;
+      }
+      while (*tname >= '0' && *tname <= '9')
+      {
+        name.push_back(*tname++);
+      }
+      name.push_back('E');
+    }
+    else
+    {
+      // check against known types
+      size_t n = strlen(tname);
+      char typechar = '\0';
+      for (int j = 0; typenames[j]; j++)
+      {
+        if (strcmp(typenames[j], tname) == 0)
+        {
+          typechar = typechars[j];
+          if (typechar == '\0')
+          {
+            if (n == 3 && strcmp(tname, "str") == 0)
+            {
+              tname = "vtkStdString";
+              n = 12;
+            }
+            else if (n == 7 && strcmp(tname, "unicode") == 0)
+            {
+              tname = "vtkUnicodeString";
+              n = 16;
+            }
+          }
+          break;
+        }
+      }
+      if (typechar == '\0' && n == 1)
+      {
+        for (int j = 0; typecodes[j]; j++)
+        {
+          if (tname[0] == typecodes[j])
+          {
+            typechar = typechars[j];
+            break;
+          }
+        }
+      }
+      if (typechar == 'l' || typechar == 'm')
+      {
+        // special compatibility code for 'long' (python 'int') to allow
+        // it to match either a 32-bit or a 64-bit integer
+        const char *trylist = (typechar == 'l' ? "lxi" : "myj");
+        int bestfit = 3;
+        PyObject *dict = PyModule_GetDict(self);
+        Py_ssize_t pos = 0;
+        PyObject *okey, *value;
+        // loop through all the wrapped template instances
+        while (PyDict_Next(dict, &pos, &okey, &value))
+        {
+          if (PyType_Check(value))
+          {
+            const char *cname = ((PyTypeObject *)value)->tp_name;
+            for (const char *cp = cname; *cp != '\0'; cp++)
+            {
+              if (*cp == '.')
+              {
+                cname = cp + 1;
+              }
+            }
+            if (strncmp(cname, name.data(), name.length()) == 0)
+            {
+              // compare this template instance against the typecode
+              char c = cname[name.length()];
+              for (int k = 0; k < bestfit; k++)
+              {
+                if (c == trylist[k])
+                {
+                  typechar = c;
+                  bestfit = k;
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+      if (typechar)
+      {
+        // for fundamental types, directly use the character code
+        name.push_back(typechar);
+      }
+      else if (n < 256)
+      {
+        // for all other types, write the type in full
+        if (n >= 100)
+        {
+          name.push_back('0' + static_cast<char>(n/100));
+        }
+        if (n >= 10)
+        {
+          name.push_back('0' + static_cast<char>((n % 100)/10));
+        }
+        name.push_back('0' + static_cast<char>(n % 10));
+        name += tname;
+      }
+    }
+    // free the python arg
+    Py_DECREF(o);
+  }
 
-#if PY_VERSION_HEX >= 0x02020000
-  PyObject_GC_Track(self);
+  // close the list of template arguments
+  name.push_back('E');
+
+#ifdef VTK_PY3K
+  return PyUnicode_FromStringAndSize(name.data(), name.length());
+#else
+  return PyBytes_FromStringAndSize(name.data(), name.length());
 #endif
-
-  return self;
 }
 
 //--------------------------------------------------------------------
-int PyVTKTemplate_AddItem(PyObject *self, PyObject *val)
+// Generate template args by unmangling the class name
+PyObject *PyVTKTemplate_KeyFromName(PyObject *self, PyObject *o)
 {
-  const char *name = NULL;
-  const char *cp;
-  char *dp;
-  const char *ptype;
-  PyObject *keys[16];
-  PyObject *key;
-  int i, n;
-  size_t j = 0;
+  // convert arg to a C string
+  const char *name = nullptr;
+  if (PyBytes_Check(o))
+  {
+    name = PyBytes_AS_STRING(o);
+  }
+  else if (PyUnicode_Check(o))
+  {
+#if PY_VERSION_HEX >= 0x03030000
+    name = PyUnicode_AsUTF8(o);
+#else
+    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
+    name = PyBytes_AS_STRING(s);
+#endif
+  }
 
-  if (PyVTKClass_Check(val))
-    {
-    name = PyString_AsString(((PyVTKClass *)val)->vtk_name);
-    }
-  else if (PyType_Check(val))
-    {
-    name = ((PyTypeObject *)val)->tp_name;
-    }
-  else
-    {
-    PyErr_SetString(PyExc_TypeError, "value must be a class or type");
-    return -1;
-    }
+  if (!name)
+  {
+    // name must be a string
+    return nullptr;
+  }
 
-  /* find the underscore that precedes the template args */
-  cp = name;
-  while (*cp != '_' && *cp != '\0') { cp++; }
-
-  if (*cp++ != '_')
+  // get name of the template (skip any namespaces)
+  const char *tname = PyModule_GetName(self);
+  for (const char *cp = tname; *cp != '\0'; cp++)
+  {
+    if (*cp == '.')
     {
-    PyErr_SetString(PyExc_TypeError, "name has no underscore");
-    return -1;
+      tname = cp + 1;
     }
+  }
 
-  /* go through the mangled template arg list */
+  // match against template name
+  const char *cp = name;
+  while (*tname != '\0' && *cp == *tname)
+  {
+    cp++;
+    tname++;
+  }
+
+  if (*cp != '_' || *tname != '\0')
+  {
+    // name does not match template
+    return nullptr;
+  }
+  cp++;
+
+  // go through the mangled template arg list
   if (*cp++ != 'I')
-    {
-    PyErr_SetString(PyExc_TypeError, "badly formed mangled name");
-    return -1;
-    }
+  {
+    // badly formed mangled name
+    return nullptr;
+  }
 
+  PyObject *keys[16];
+  int i;
   for (i = 0; *cp != 'E' && *cp != '\0' && i < 16; i++)
-    {
-    /* check for literal */
+  {
+    // check for literal
     if (*cp == 'L')
-      {
+    {
       cp++;
       if (*cp != 'i' && *cp != 'j' && *cp != 'l' && *cp != 'm')
-        {
-        PyErr_SetString(PyExc_TypeError, "non-integer template arg constant.");
-        return -1;
-        }
-      cp++;
-      keys[i] = PyInt_FromLong(strtol(cp, NULL, 0));
-      while (*cp != 'E' && *cp != '\0') { cp++; }
-      }
-    else
       {
-      ptype = NULL;
+        // non-integer template arg constant
+        return nullptr;
+      }
+      cp++;
+      long sign = 1;
+      if (*cp == 'n')
+      {
+        sign = -1;
+        cp++;
+      }
+      keys[i] = PyInt_FromLong(sign*strtol(cp, nullptr, 0));
+      while (*cp != 'E' && *cp != '\0')
+      {
+        cp++;
+      }
+    }
+    else
+    {
+      const char *ptype = nullptr;
       switch (*cp)
-        {
+      {
         case 'b':
           ptype = "bool";
           break;
@@ -521,7 +688,7 @@ int PyVTKTemplate_AddItem(PyObject *self, PyObject *val)
           ptype = "uint32";
           break;
         case 'l':
-          ptype = "int"; /* python int is C long */
+          ptype = "int"; // python int is C long
           break;
         case 'm':
           ptype = "uint";
@@ -538,67 +705,111 @@ int PyVTKTemplate_AddItem(PyObject *self, PyObject *val)
         case 'd':
           ptype = "float64";
           break;
-        }
+      }
 
+      size_t j = 0;
       if (ptype)
-        {
+      {
         j = strlen(ptype);
         cp++;
-        }
+      }
       else if (*cp >= '1' && *cp <= '9')
-        {
+      {
+        char *dp;
         j = strtol(cp, &dp, 10);
         cp = dp;
         for (size_t k = 0; k < j; k++)
-          {
+        {
           if (*dp++ == '\0')
-            {
-            PyErr_SetString(PyExc_TypeError, "badly formed mangled name");
-            return -1;
-            }
-          }
-        if (j == 16 && strncmp(cp, "vtkUnicodeString", 16) == 0)
           {
+            // badly formed mangled name
+            return nullptr;
+          }
+        }
+        if (j == 16 && strncmp(cp, "vtkUnicodeString", 16) == 0)
+        {
           ptype = "unicode";
           j = 7;
-          }
+        }
         else if (j == 12 && strncmp(cp, "vtkStdString", 12) == 0)
-          {
+        {
           ptype = "str";
           j = 3;
-          }
+        }
         else
-          {
-          ptype = cp;
-          }
-        cp = dp;
-        }
-
-      if (ptype == NULL)
         {
-        PyErr_SetString(PyExc_TypeError, "unrecognized mangled type.");
-        return -1;
+          ptype = cp;
         }
-      keys[i] = PyString_FromStringAndSize((char *)ptype, (Py_ssize_t)j);
+        cp = dp;
       }
-    }
 
-  n = i;
-  if (n == 1)
-    {
-    key = keys[0];
+      if (ptype == nullptr)
+      {
+        // unrecognized mangled type.
+        return nullptr;
+      }
+      keys[i] = PyString_FromStringAndSize(ptype, (Py_ssize_t)j);
     }
+  }
+
+  int n = i;
+  PyObject *key;
+  if (n == 1)
+  {
+    key = keys[0];
+  }
   else
-    {
+  {
     key = PyTuple_New(n);
     for (i = 0; i < n; i++)
-      {
+    {
       PyTuple_SET_ITEM(key, i, keys[i]);
-      }
     }
+  }
 
-  PyDict_SetItem(((PyVTKTemplate *)self)->dict, key, val);
-  Py_DECREF(key);
+  return key;
+}
+
+//--------------------------------------------------------------------
+// C API
+
+//--------------------------------------------------------------------
+PyObject *PyVTKTemplate_New(const char *name, const char *docstring)
+{
+  // make sure python has readied the type object
+  PyType_Ready(&PyVTKTemplate_Type);
+  // call the allocator provided by python for this type
+  PyObject *self = PyVTKTemplate_Type.tp_alloc(&PyVTKTemplate_Type, 0);
+  // call the superclass init function
+  PyObject *args = PyTuple_New(2);
+  PyTuple_SET_ITEM(args, 0, PyString_FromString(name));
+  PyTuple_SET_ITEM(args, 1, PyString_FromString(docstring));
+  PyVTKTemplate_Type.tp_base->tp_init(self, args, nullptr);
+  Py_DECREF(args);
+
+  return self;
+}
+
+//--------------------------------------------------------------------
+int PyVTKTemplate_AddItem(PyObject *self, PyObject *val)
+{
+  if (!PyType_Check(val))
+  {
+    PyErr_SetString(PyExc_TypeError, "value must be a class or type");
+    return -1;
+  }
+
+  // get the name, but strip the namespace
+  const char *name = ((PyTypeObject *)val)->tp_name;
+  for (const char *cp = name; *cp != '\0'; cp++)
+  {
+    if (*cp == '.')
+    {
+      name = cp+1;
+    }
+  }
+  PyObject *dict = PyModule_GetDict(self);
+  PyDict_SetItemString(dict, name, val);
 
   return 0;
 }

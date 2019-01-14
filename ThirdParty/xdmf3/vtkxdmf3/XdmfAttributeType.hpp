@@ -24,8 +24,11 @@
 #ifndef XDMFATTRIBUTETYPE_HPP_
 #define XDMFATTRIBUTETYPE_HPP_
 
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
+
+#ifdef __cplusplus
+
 #include "XdmfItemProperty.hpp"
 
 /**
@@ -100,6 +103,10 @@ protected:
    */
   XdmfAttributeType(const std::string & name);
 
+  static std::map<std::string, shared_ptr<const XdmfAttributeType>(*)()> mAttributeDefinitions;
+
+  static void InitTypes();
+
 private:
 
   XdmfAttributeType(const XdmfAttributeType &); // Not implemented.
@@ -110,5 +117,33 @@ private:
 
   std::string mName;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+#define XDMF_ATTRIBUTE_TYPE_SCALAR                       200
+#define XDMF_ATTRIBUTE_TYPE_VECTOR                       201
+#define XDMF_ATTRIBUTE_TYPE_TENSOR                       202
+#define XDMF_ATTRIBUTE_TYPE_MATRIX                       203
+#define XDMF_ATTRIBUTE_TYPE_TENSOR6                      204
+#define XDMF_ATTRIBUTE_TYPE_GLOBALID                     205
+#define XDMF_ATTRIBUTE_TYPE_NOTYPE                       206
+
+XDMF_EXPORT int XdmfAttributeTypeScalar();
+XDMF_EXPORT int XdmfAttributeTypeVector();
+XDMF_EXPORT int XdmfAttributeTypeTensor();
+XDMF_EXPORT int XdmfAttributeTypeMatrix();
+XDMF_EXPORT int XdmfAttributeTypeTensor6();
+XDMF_EXPORT int XdmfAttributeTypeGlobalId();
+XDMF_EXPORT int XdmfAttributeTypeNoAttributeType();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFATTRIBUTETYPE_HPP_ */

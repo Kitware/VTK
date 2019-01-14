@@ -773,29 +773,29 @@ int TestGPURayCastTwoComponentsDependent(int argc, char *argv[])
 
 
   for (int z = 0; z < dims[2]; ++z)
-    {
+  {
     for (int y = 0; y < dims[1]; ++y)
-      {
+    {
       for (int x = 0; x < dims[0]; ++x)
-        {
+      {
         double itr = floor(x / 5.0);
         *ptr++ = itr;
         *ptr++ = itr / 5.0;
-        }
       }
     }
+  }
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(301, 300); // Intentional NPOT size
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetInteractorStyle(style);
+  iren->SetRenderWindow(renWin);
 
   renWin->Render();
 
@@ -803,7 +803,7 @@ int TestGPURayCastTwoComponentsDependent(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
   mapper->AutoAdjustSampleDistancesOff();
   mapper->SetSampleDistance(0.9);
-  mapper->SetInputData(image.GetPointer());
+  mapper->SetInputData(image);
 
   // Color transfer function
   vtkNew<vtkColorTransferFunction> ctf;
@@ -824,15 +824,16 @@ int TestGPURayCastTwoComponentsDependent(int argc, char *argv[])
   // Volume property with independent components ON
   vtkNew<vtkVolumeProperty> property;
   property->IndependentComponentsOff();
+  property->SetInterpolationTypeToLinear();
 
   // Set color and opacity functions
-  property->SetColor(ctf.GetPointer());
-  property->SetScalarOpacity(pf.GetPointer());
+  property->SetColor(ctf);
+  property->SetScalarOpacity(pf);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(mapper.GetPointer());
-  volume->SetProperty(property.GetPointer());
-  ren->AddVolume(volume.GetPointer());
+  volume->SetMapper(mapper);
+  volume->SetProperty(property);
+  ren->AddVolume(volume);
 
   ren->ResetCamera();
 
@@ -840,6 +841,6 @@ int TestGPURayCastTwoComponentsDependent(int argc, char *argv[])
   renWin->Render();
 
   return vtkTesting::InteractorEventLoop(argc, argv,
-                                         iren.GetPointer(),
+                                         iren,
                                          TestGPURayCastTwoComponentsDependentLog);
 }

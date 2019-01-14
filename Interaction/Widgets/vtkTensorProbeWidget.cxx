@@ -55,17 +55,15 @@ vtkTensorProbeWidget::vtkTensorProbeWidget()
 }
 
 //----------------------------------------------------------------------
-vtkTensorProbeWidget::~vtkTensorProbeWidget()
-{
-}
+vtkTensorProbeWidget::~vtkTensorProbeWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkTensorProbeWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkEllipsoidTensorProbeRepresentation::New();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -75,7 +73,7 @@ void vtkTensorProbeWidget::SelectAction(vtkAbstractWidget *w)
     reinterpret_cast<vtkTensorProbeWidget*>(w);
 
   if ( !self->Selected )
-    {
+  {
     vtkTensorProbeRepresentation *rep = reinterpret_cast<
           vtkTensorProbeRepresentation*>(self->WidgetRep);
 
@@ -83,13 +81,13 @@ void vtkTensorProbeWidget::SelectAction(vtkAbstractWidget *w)
     self->Interactor->GetEventPosition(pos);
 
     if (rep->SelectProbe(pos))
-      {
+    {
       self->LastEventPosition[0] = pos[0];
       self->LastEventPosition[1] = pos[1];
       self->Selected = 1;
       self->EventCallbackCommand->SetAbortFlag(1);
-      }
     }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -99,12 +97,12 @@ void vtkTensorProbeWidget::EndSelectAction(vtkAbstractWidget *w)
     reinterpret_cast<vtkTensorProbeWidget*>(w);
 
   if ( self->Selected )
-    {
+  {
     self->Selected = 0;
     self->EventCallbackCommand->SetAbortFlag(1);
     self->LastEventPosition[0] = -1;
     self->LastEventPosition[1] = -1;
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -114,7 +112,7 @@ void vtkTensorProbeWidget::MoveAction(vtkAbstractWidget *w)
     reinterpret_cast<vtkTensorProbeWidget*>(w);
 
   if ( self->Selected )
-    {
+  {
     vtkTensorProbeRepresentation *rep = reinterpret_cast<
           vtkTensorProbeRepresentation*>(self->WidgetRep);
 
@@ -130,11 +128,11 @@ void vtkTensorProbeWidget::MoveAction(vtkAbstractWidget *w)
     self->LastEventPosition[1] = pos[1];
 
     if (rep->Move( motionVector ))
-      {
+    {
       self->EventCallbackCommand->SetAbortFlag(1);
       self->Render();
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------

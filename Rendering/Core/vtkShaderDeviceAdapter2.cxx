@@ -19,13 +19,13 @@
 //---------------------------------------------------------------------------
 vtkShaderDeviceAdapter2::vtkShaderDeviceAdapter2()
 {
-  this->ShaderProgram = 0;
+  this->ShaderProgram = nullptr;
 }
 
 //---------------------------------------------------------------------------
 vtkShaderDeviceAdapter2::~vtkShaderDeviceAdapter2()
 {
-  this->SetShaderProgram(0);
+  this->SetShaderProgram(nullptr);
 }
 
 //---------------------------------------------------------------------------

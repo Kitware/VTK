@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCollection - create and manipulate unsorted lists of objects
-// .SECTION Description
-// vtkCollection is a general object for creating and manipulating lists
-// of objects. The lists are unsorted and allow duplicate entries.
-// vtkCollection also serves as a base class for lists of specific types
-// of objects.
-
-// .SECTION See Also
-// vtkActorCollection vtkAssemblyPaths vtkDataSetCollection
-// vtkImplicitFunctionCollection vtkLightCollection vtkPolyDataCollection
-// vtkRenderWindowCollection vtkRendererCollection
-// vtkStructuredPointsCollection vtkTransformCollection vtkVolumeCollection
+/**
+ * @class   vtkCollection
+ * @brief   create and manipulate ordered lists of objects
+ *
+ * vtkCollection is a general object for creating and manipulating lists
+ * of objects. The lists are ordered and allow duplicate entries.
+ * vtkCollection also serves as a base class for lists of specific types
+ * of objects.
+ *
+ * @sa
+ * vtkActorCollection vtkAssemblyPaths vtkDataSetCollection
+ * vtkImplicitFunctionCollection vtkLightCollection vtkPolyDataCollection
+ * vtkRenderWindowCollection vtkRendererCollection
+ * vtkStructuredPointsCollection vtkTransformCollection vtkVolumeCollection
+*/
 
 #ifndef vtkCollection_h
 #define vtkCollection_h
@@ -31,16 +34,14 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-//BTX - begin tcl exclude
 class vtkCollectionElement //;prevents pick-up by man page generator
 {
  public:
-  vtkCollectionElement():Item(NULL),Next(NULL) {}
+  vtkCollectionElement():Item(nullptr),Next(nullptr) {}
   vtkObject *Item;
   vtkCollectionElement *Next;
 };
 typedef void * vtkCollectionSimpleIterator;
-//ETX end tcl exclude
 
 class vtkCollectionIterator;
 
@@ -48,94 +49,109 @@ class VTKCOMMONCORE_EXPORT vtkCollection : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCollection,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Construct with empty list.
+  /**
+   * Construct with empty list.
+   */
   static vtkCollection *New();
 
-  // Description:
-  // Add an object to the list. Does not prevent duplicate entries.
+  /**
+   * Add an object to the bottom of the list. Does not prevent duplicate entries.
+   */
   void AddItem(vtkObject *);
 
-  // Description:
-  // Insert item into the list after the i'th item. Does not prevent duplicate entries.
-  // If i < 0 the item is placed at the top of the list.
+  /**
+   * Insert item into the list after the i'th item. Does not prevent duplicate entries.
+   * If i < 0 the item is placed at the top of the list.
+   */
   void InsertItem(int i, vtkObject *);
 
-  // Description:
-  // Replace the i'th item in the collection with a
+  /**
+   * Replace the i'th item in the collection with another item.
+   */
   void ReplaceItem(int i, vtkObject *);
 
-  // Description:
-  // Remove the i'th item in the list.
-  // Be careful if using this function during traversal of the list using
-  // GetNextItemAsObject (or GetNextItem in derived class).  The list WILL
-  // be shortened if a valid index is given!  If this->Current is equal to the
-  // element being removed, have it point to then next element in the list.
+  /**
+   * Remove the i'th item in the list.
+   * Be careful if using this function during traversal of the list using
+   * GetNextItemAsObject (or GetNextItem in derived class).  The list WILL
+   * be shortened if a valid index is given!  If this->Current is equal to the
+   * element being removed, have it point to then next element in the list.
+   */
   void RemoveItem(int i);
 
-  // Description:
-  // Remove an object from the list. Removes the first object found, not
-  // all occurrences. If no object found, list is unaffected.  See warning
-  // in description of RemoveItem(int).
+  /**
+   * Remove an object from the list. Removes the first object found, not
+   * all occurrences. If no object found, list is unaffected.  See warning
+   * in description of RemoveItem(int).
+   */
   void RemoveItem(vtkObject *);
 
-  // Description:
-  // Remove all objects from the list.
+  /**
+   * Remove all objects from the list.
+   */
   void RemoveAllItems();
 
-  // Description:
-  // Search for an object and return location in list. If the return value is
-  // 0, the object was not found. If the object was found, the location is
-  // the return value-1.
+  /**
+   * Search for an object and return location in list. If the return value is
+   * 0, the object was not found. If the object was found, the location is
+   * the return value-1.
+   */
   int IsItemPresent(vtkObject *a);
 
-  // Description:
-  // Return the number of objects in the list.
-  int  GetNumberOfItems() { return this->NumberOfItems; }
+  /**
+   * Return the number of objects in the list.
+   */
+  int GetNumberOfItems() { return this->NumberOfItems; }
 
-  // Description:
-  // Initialize the traversal of the collection. This means the data pointer
-  // is set at the beginning of the list.
+  /**
+   * Initialize the traversal of the collection. This means the data pointer
+   * is set at the beginning of the list.
+   */
   void InitTraversal() { this->Current = this->Top;};
 
-  //BTX
-  // Description:
-  // A reentrant safe way to iterate through a collection.
-  // Just pass the same cookie value around each time
+  /**
+   * A reentrant safe way to iterate through a collection.
+   * Just pass the same cookie value around each time
+   */
   void InitTraversal(vtkCollectionSimpleIterator &cookie) {
     cookie = static_cast<vtkCollectionSimpleIterator>(this->Top);};
-  //ETX
 
-  // Description:
-  // Get the next item in the collection. NULL is returned if the collection
-  // is exhausted.
+  /**
+   * Get the next item in the collection. nullptr is returned if the collection
+   * is exhausted.
+   */
   vtkObject *GetNextItemAsObject();
 
-  // Description:
-  // Get the i'th item in the collection. NULL is returned if i is out
-  // of range
+  /**
+   * Get the i'th item in the collection. nullptr is returned if i is out
+   * of range
+   */
   vtkObject *GetItemAsObject(int i);
 
-  //BTX
-  // Description:
-  // A reentrant safe way to get the next object as a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * A reentrant safe way to get the next object as a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkObject *GetNextItemAsObject(vtkCollectionSimpleIterator &cookie);
-  //ETX
 
-  // Description:
-  // Get an iterator to traverse the objects in this collection.
-  vtkCollectionIterator* NewIterator();
+  /**
+   * Get an iterator to traverse the objects in this collection.
+   */
+  VTK_NEWINSTANCE vtkCollectionIterator* NewIterator();
 
-  // Description:
-  // Participate in garbage collection.
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
+  //@{
+  /**
+   * Participate in garbage collection.
+   */
+  void Register(vtkObjectBase* o) override;
+  void UnRegister(vtkObjectBase* o) override;
+  //@}
+
 protected:
   vtkCollection();
-  ~vtkCollection();
+  ~vtkCollection() override;
 
   virtual void RemoveElement(vtkCollectionElement *element,
                              vtkCollectionElement *previous);
@@ -145,15 +161,13 @@ protected:
   vtkCollectionElement *Bottom;
   vtkCollectionElement *Current;
 
-  //BTX
   friend class vtkCollectionIterator;
-  //ETX
 
   // See vtkGarbageCollector.h:
-  virtual void ReportReferences(vtkGarbageCollector* collector);
+  void ReportReferences(vtkGarbageCollector* collector) override;
 private:
-  vtkCollection(const vtkCollection&); // Not implemented
-  void operator=(const vtkCollection&); // Not implemented
+  vtkCollection(const vtkCollection&) = delete;
+  void operator=(const vtkCollection&) = delete;
 };
 
 
@@ -161,35 +175,30 @@ inline vtkObject *vtkCollection::GetNextItemAsObject()
 {
   vtkCollectionElement *elem=this->Current;
 
-  if ( elem != NULL )
-    {
+  if ( elem != nullptr )
+  {
     this->Current = elem->Next;
     return elem->Item;
-    }
+  }
   else
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
 }
 
 inline vtkObject *vtkCollection::GetNextItemAsObject(void *&cookie)
 {
   vtkCollectionElement *elem=static_cast<vtkCollectionElement *>(cookie);
 
-  if ( elem != NULL )
-    {
+  if ( elem != nullptr )
+  {
     cookie = static_cast<void *>(elem->Next);
     return elem->Item;
-    }
+  }
   else
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
 }
 
 #endif
-
-
-
-
-

@@ -34,7 +34,7 @@
 /**
  * MEM_LIST:
  *
- * keep track of all allocated blocks for error reporting 
+ * keep track of all allocated blocks for error reporting
  * Always build the memory list !
  */
 #ifdef DEBUG_MEMORY_LOCATION
@@ -43,7 +43,7 @@
 #endif
 #endif
 
-#include <libxml/globals.h>     /* must come before xmlmemory.h */
+#include <libxml/globals.h>	/* must come before xmlmemory.h */
 #include <libxml/xmlmemory.h>
 #include <libxml/xmlerror.h>
 #include <libxml/threads.h>
@@ -57,9 +57,9 @@ static xmlMutexPtr xmlMemMutex = NULL;
 void xmlMallocBreakpoint(void);
 
 /************************************************************************
- *                                                                      *
- *              Macros, variables and associated types                  *
- *                                                                      *
+ *									*
+ *		Macros, variables and associated types			*
+ *									*
  ************************************************************************/
 
 #if !defined(LIBXML_THREAD_ENABLED) && !defined(LIBXML_THREAD_ALLOC_ENABLED)
@@ -107,10 +107,11 @@ typedef struct memnod {
 #endif
 #define HDR_SIZE    sizeof(MEMHDR)
 #define RESERVE_SIZE (((HDR_SIZE + (ALIGN_SIZE-1)) \
-                      / ALIGN_SIZE ) * ALIGN_SIZE)
+		      / ALIGN_SIZE ) * ALIGN_SIZE)
 
+#define MAX_SIZE_T ((size_t)-1)
 
-#define CLIENT_2_HDR(a) ((MEMHDR *) (((char *) (a)) - RESERVE_SIZE))
+#define CLIENT_2_HDR(a) ((void *) (((char *) (a)) - RESERVE_SIZE))
 #define HDR_2_CLIENT(a)    ((void *) (((char *) (a)) + RESERVE_SIZE))
 
 
@@ -143,7 +144,7 @@ static void debugmem_list_delete(MEMHDR *);
 void
 xmlMallocBreakpoint(void) {
     xmlGenericError(xmlGenericErrorContext,
-            "xmlMallocBreakpoint reached on block %d\n", xmlMemStopAtBlock);
+	    "xmlMallocBreakpoint reached on block %d\n", xmlMemStopAtBlock);
 }
 
 /**
@@ -162,23 +163,30 @@ xmlMallocLoc(size_t size, const char * file, int line)
 {
     MEMHDR *p;
     void *ret;
-    
+
     if (!xmlMemInitialized) xmlInitMemory();
 #ifdef DEBUG_MEMORY
     xmlGenericError(xmlGenericErrorContext,
-            "Malloc(%d)\n",size);
+	    "Malloc(%d)\n",size);
 #endif
 
     TEST_POINT
-    
+
+    if (size > (MAX_SIZE_T - RESERVE_SIZE)) {
+	xmlGenericError(xmlGenericErrorContext,
+		"xmlMallocLoc : Unsigned overflow\n");
+	xmlMemoryDump();
+	return(NULL);
+    }
+
     p = (MEMHDR *) malloc(RESERVE_SIZE+size);
 
     if (!p) {
-        xmlGenericError(xmlGenericErrorContext,
-                "xmlMallocLoc : Out of free space\n");
-        xmlMemoryDump();
-        return(NULL);
-    }   
+	xmlGenericError(xmlGenericErrorContext,
+		"xmlMallocLoc : Out of free space\n");
+	xmlMemoryDump();
+	return(NULL);
+    }
     p->mh_tag = MEMTAG;
     p->mh_size = size;
     p->mh_type = MALLOC_TYPE;
@@ -193,20 +201,21 @@ xmlMallocLoc(size_t size, const char * file, int line)
     debugmem_list_add(p);
 #endif
     xmlMutexUnlock(xmlMemMutex);
-    
+
 #ifdef DEBUG_MEMORY
     xmlGenericError(xmlGenericErrorContext,
-            "Malloc(%d) Ok\n",size);
+	    "Malloc(%d) Ok\n",size);
 #endif
-    
+
     if (xmlMemStopAtBlock == p->mh_number) xmlMallocBreakpoint();
 
     ret = HDR_2_CLIENT(p);
 
     if (xmlMemTraceBlockAt == ret) {
-        xmlGenericError(xmlGenericErrorContext,
-                        "%p : Malloc(%d) Ok\n", xmlMemTraceBlockAt, size);
-        xmlMallocBreakpoint();
+	xmlGenericError(xmlGenericErrorContext,
+			"%p : Malloc(%lu) Ok\n", xmlMemTraceBlockAt,
+			(long unsigned)size);
+	xmlMallocBreakpoint();
     }
 
     TEST_POINT
@@ -216,7 +225,7 @@ xmlMallocLoc(size_t size, const char * file, int line)
 
 /**
  * xmlMallocAtomicLoc:
- * @size:  an int specifying the size in byte to allocate.
+ * @size:  an unsigned int specifying the size in byte to allocate.
  * @file:  the file name or NULL
  * @line:  the line number
  *
@@ -230,23 +239,30 @@ xmlMallocAtomicLoc(size_t size, const char * file, int line)
 {
     MEMHDR *p;
     void *ret;
-    
+
     if (!xmlMemInitialized) xmlInitMemory();
 #ifdef DEBUG_MEMORY
     xmlGenericError(xmlGenericErrorContext,
-            "Malloc(%d)\n",size);
+	    "Malloc(%d)\n",size);
 #endif
 
     TEST_POINT
-    
+
+    if (size > (MAX_SIZE_T - RESERVE_SIZE)) {
+	xmlGenericError(xmlGenericErrorContext,
+		"xmlMallocAtomicLoc : Unsigned overflow\n");
+	xmlMemoryDump();
+	return(NULL);
+    }
+
     p = (MEMHDR *) malloc(RESERVE_SIZE+size);
 
     if (!p) {
-        xmlGenericError(xmlGenericErrorContext,
-                "xmlMallocLoc : Out of free space\n");
-        xmlMemoryDump();
-        return(NULL);
-    }   
+	xmlGenericError(xmlGenericErrorContext,
+		"xmlMallocAtomicLoc : Out of free space\n");
+	xmlMemoryDump();
+	return(NULL);
+    }
     p->mh_tag = MEMTAG;
     p->mh_size = size;
     p->mh_type = MALLOC_ATOMIC_TYPE;
@@ -264,17 +280,18 @@ xmlMallocAtomicLoc(size_t size, const char * file, int line)
 
 #ifdef DEBUG_MEMORY
     xmlGenericError(xmlGenericErrorContext,
-            "Malloc(%d) Ok\n",size);
+	    "Malloc(%d) Ok\n",size);
 #endif
-    
+
     if (xmlMemStopAtBlock == p->mh_number) xmlMallocBreakpoint();
 
     ret = HDR_2_CLIENT(p);
 
     if (xmlMemTraceBlockAt == ret) {
-        xmlGenericError(xmlGenericErrorContext,
-                        "%p : Malloc(%d) Ok\n", xmlMemTraceBlockAt, size);
-        xmlMallocBreakpoint();
+	xmlGenericError(xmlGenericErrorContext,
+			"%p : Malloc(%lu) Ok\n", xmlMemTraceBlockAt,
+			(long unsigned)size);
+	xmlMallocBreakpoint();
     }
 
     TEST_POINT
@@ -311,7 +328,7 @@ xmlMemMalloc(size_t size)
 void *
 xmlReallocLoc(void *ptr,size_t size, const char * file, int line)
 {
-    MEMHDR *p;
+    MEMHDR *p, *tmp;
     unsigned long number;
 #ifdef DEBUG_MEMORY
     size_t oldsize;
@@ -328,7 +345,7 @@ xmlReallocLoc(void *ptr,size_t size, const char * file, int line)
     if (xmlMemStopAtBlock == number) xmlMallocBreakpoint();
     if (p->mh_tag != MEMTAG) {
        Mem_Tag_Err(p);
-         goto error;
+	 goto error;
     }
     p->mh_tag = ~MEMTAG;
     xmlMutexLock(xmlMemMutex);
@@ -341,16 +358,26 @@ xmlReallocLoc(void *ptr,size_t size, const char * file, int line)
     debugmem_list_delete(p);
 #endif
     xmlMutexUnlock(xmlMemMutex);
-    
-    p = (MEMHDR *) realloc(p,RESERVE_SIZE+size);
-    if (!p) {
-         goto error;
+
+    if (size > (MAX_SIZE_T - RESERVE_SIZE)) {
+	xmlGenericError(xmlGenericErrorContext,
+		"xmlReallocLoc : Unsigned overflow\n");
+	xmlMemoryDump();
+	return(NULL);
     }
+
+    tmp = (MEMHDR *) realloc(p,RESERVE_SIZE+size);
+    if (!tmp) {
+	 free(p);
+	 goto error;
+    }
+    p = tmp;
     if (xmlMemTraceBlockAt == ptr) {
-        xmlGenericError(xmlGenericErrorContext,
-                        "%p : Realloced(%d -> %d) Ok\n",
-                        xmlMemTraceBlockAt, p->mh_size, size);
-        xmlMallocBreakpoint();
+	xmlGenericError(xmlGenericErrorContext,
+			"%p : Realloced(%lu -> %lu) Ok\n",
+			xmlMemTraceBlockAt, (long unsigned)p->mh_size,
+			(long unsigned)size);
+	xmlMallocBreakpoint();
     }
     p->mh_tag = MEMTAG;
     p->mh_number = number;
@@ -371,11 +398,11 @@ xmlReallocLoc(void *ptr,size_t size, const char * file, int line)
 
 #ifdef DEBUG_MEMORY
     xmlGenericError(xmlGenericErrorContext,
-            "Realloced(%d to %d) Ok\n", oldsize, size);
+	    "Realloced(%d to %d) Ok\n", oldsize, size);
 #endif
     return(HDR_2_CLIENT(p));
-    
-error:    
+
+error:
     return(NULL);
 }
 
@@ -409,16 +436,19 @@ xmlMemFree(void *ptr)
     size_t size;
 #endif
 
+    if (ptr == NULL)
+	return;
+
     if (ptr == (void *) -1) {
-        xmlGenericError(xmlGenericErrorContext,
-            "trying to free pointer from freed area\n");
+	xmlGenericError(xmlGenericErrorContext,
+	    "trying to free pointer from freed area\n");
         goto error;
     }
 
     if (xmlMemTraceBlockAt == ptr) {
-        xmlGenericError(xmlGenericErrorContext,
-                        "%p : Freed()\n", xmlMemTraceBlockAt);
-        xmlMallocBreakpoint();
+	xmlGenericError(xmlGenericErrorContext,
+			"%p : Freed()\n", xmlMemTraceBlockAt);
+	xmlMallocBreakpoint();
     }
 
     TEST_POINT
@@ -450,14 +480,14 @@ xmlMemFree(void *ptr)
 
 #ifdef DEBUG_MEMORY
     xmlGenericError(xmlGenericErrorContext,
-            "Freed(%d) Ok\n", size);
+	    "Freed(%d) Ok\n", size);
 #endif
-    
+
     return;
-    
-error:    
+
+error:
     xmlGenericError(xmlGenericErrorContext,
-            "xmlMemFree(%lX) error\n", (unsigned long) ptr);
+	    "xmlMemFree(%p) error\n", ptr);
     xmlMallocBreakpoint();
     return;
 }
@@ -483,6 +513,13 @@ xmlMemStrdupLoc(const char *str, const char *file, int line)
     if (!xmlMemInitialized) xmlInitMemory();
     TEST_POINT
 
+    if (size > (MAX_SIZE_T - RESERVE_SIZE)) {
+	xmlGenericError(xmlGenericErrorContext,
+		"xmlMemStrdupLoc : Unsigned overflow\n");
+	xmlMemoryDump();
+	return(NULL);
+    }
+
     p = (MEMHDR *) malloc(RESERVE_SIZE+size);
     if (!p) {
       goto error;
@@ -501,22 +538,19 @@ xmlMemStrdupLoc(const char *str, const char *file, int line)
     debugmem_list_add(p);
 #endif
     xmlMutexUnlock(xmlMemMutex);
-    
+
     s = (char *) HDR_2_CLIENT(p);
-    
+
     if (xmlMemStopAtBlock == p->mh_number) xmlMallocBreakpoint();
 
-    if (s != NULL)
-      strcpy(s,str);
-    else
-      goto error;
-    
+    strcpy(s,str);
+
     TEST_POINT
 
     if (xmlMemTraceBlockAt == s) {
-        xmlGenericError(xmlGenericErrorContext,
-                        "%p : Strdup() Ok\n", xmlMemTraceBlockAt);
-        xmlMallocBreakpoint();
+	xmlGenericError(xmlGenericErrorContext,
+			"%p : Strdup() Ok\n", xmlMemTraceBlockAt);
+	xmlMallocBreakpoint();
     }
 
     return(s);
@@ -549,7 +583,12 @@ xmlMemoryStrdup(const char *str) {
 
 int
 xmlMemUsed(void) {
-     return(debugMemSize);
+    int res;
+
+    xmlMutexLock(xmlMemMutex);
+    res = debugMemSize;
+    xmlMutexUnlock(xmlMemMutex);
+    return(res);
 }
 
 /**
@@ -562,7 +601,12 @@ xmlMemUsed(void) {
 
 int
 xmlMemBlocks(void) {
-     return(debugMemBlocks);
+    int res;
+
+    xmlMutexLock(xmlMemMutex);
+    res = debugMemBlocks;
+    xmlMutexUnlock(xmlMemMutex);
+    return(res);
 }
 
 #ifdef MEM_LIST
@@ -577,53 +621,128 @@ xmlMemBlocks(void) {
 static void
 xmlMemContentShow(FILE *fp, MEMHDR *p)
 {
-    int i,j,k,len = p->mh_size;
-    const char *buf = (const char *) HDR_2_CLIENT(p);
+    int i,j,k,len;
+    const char *buf;
 
     if (p == NULL) {
-        fprintf(fp, " NULL");
-        return;
+	fprintf(fp, " NULL");
+	return;
     }
+    len = p->mh_size;
+    buf = (const char *) HDR_2_CLIENT(p);
 
     for (i = 0;i < len;i++) {
         if (buf[i] == 0) break;
-        if (!isprint((unsigned char) buf[i])) break;
+	if (!isprint((unsigned char) buf[i])) break;
     }
     if ((i < 4) && ((buf[i] != 0) || (i == 0))) {
         if (len >= 4) {
-            MEMHDR *q;
-            void *cur;
+	    MEMHDR *q;
+	    void *cur;
 
             for (j = 0;(j < len -3) && (j < 40);j += 4) {
-                cur = *((void **) &buf[j]);
-                q = CLIENT_2_HDR(cur);
-                p = memlist;
-                k = 0;
-                while (p != NULL) {
-                    if (p == q) break;
-                    p = p->mh_next;
-                    if (k++ > 100) break;
-                }
-                if ((p != NULL) && (p == q)) {
-                    fprintf(fp, " pointer to #%lu at index %d",
-                            p->mh_number, j);
-                    return;
-                }
-            }
-        }
+		cur = *((void **) &buf[j]);
+		q = CLIENT_2_HDR(cur);
+		p = memlist;
+		k = 0;
+		while (p != NULL) {
+		    if (p == q) break;
+		    p = p->mh_next;
+		    if (k++ > 100) break;
+		}
+		if ((p != NULL) && (p == q)) {
+		    fprintf(fp, " pointer to #%lu at index %d",
+		            p->mh_number, j);
+		    return;
+		}
+	    }
+	}
     } else if ((i == 0) && (buf[i] == 0)) {
         fprintf(fp," null");
     } else {
-        if (buf[i] == 0) fprintf(fp," \"%.25s\"", buf); 
-        else {
+        if (buf[i] == 0) fprintf(fp," \"%.25s\"", buf);
+	else {
             fprintf(fp," [");
-            for (j = 0;j < i;j++)
+	    for (j = 0;j < i;j++)
                 fprintf(fp,"%c", buf[j]);
             fprintf(fp,"]");
-        }
+	}
     }
 }
 #endif
+
+/**
+ * xmlMemDisplayLast:
+ * @fp:  a FILE descriptor used as the output file, if NULL, the result is
+ *       written to the file .memorylist
+ * @nbBytes: the amount of memory to dump
+ *
+ * the last nbBytes of memory allocated and not freed, useful for dumping
+ * the memory left allocated between two places at runtime.
+ */
+
+void
+xmlMemDisplayLast(FILE *fp, long nbBytes)
+{
+#ifdef MEM_LIST
+    MEMHDR *p;
+    unsigned idx;
+    int     nb = 0;
+#endif
+    FILE *old_fp = fp;
+
+    if (nbBytes <= 0)
+        return;
+
+    if (fp == NULL) {
+	fp = fopen(".memorylist", "w");
+	if (fp == NULL)
+	    return;
+    }
+
+#ifdef MEM_LIST
+    fprintf(fp,"   Last %li MEMORY ALLOCATED : %lu, MAX was %lu\n",
+            nbBytes, debugMemSize, debugMaxMemSize);
+    fprintf(fp,"BLOCK  NUMBER   SIZE  TYPE\n");
+    idx = 0;
+    xmlMutexLock(xmlMemMutex);
+    p = memlist;
+    while ((p) && (nbBytes > 0)) {
+	  fprintf(fp,"%-5u  %6lu %6lu ",idx++,p->mh_number,
+		  (unsigned long)p->mh_size);
+        switch (p->mh_type) {
+           case STRDUP_TYPE:fprintf(fp,"strdup()  in ");break;
+           case MALLOC_TYPE:fprintf(fp,"malloc()  in ");break;
+           case REALLOC_TYPE:fprintf(fp,"realloc() in ");break;
+           case MALLOC_ATOMIC_TYPE:fprintf(fp,"atomicmalloc()  in ");break;
+           case REALLOC_ATOMIC_TYPE:fprintf(fp,"atomicrealloc() in ");break;
+           default:
+	        fprintf(fp,"Unknown memory block, may be corrupted");
+		xmlMutexUnlock(xmlMemMutex);
+		if (old_fp == NULL)
+		    fclose(fp);
+		return;
+        }
+	if (p->mh_file != NULL) fprintf(fp,"%s(%u)", p->mh_file, p->mh_line);
+        if (p->mh_tag != MEMTAG)
+	      fprintf(fp,"  INVALID");
+        nb++;
+	if (nb < 100)
+	    xmlMemContentShow(fp, p);
+	else
+	    fprintf(fp," skip");
+
+        fprintf(fp,"\n");
+	nbBytes -= (unsigned long)p->mh_size;
+        p = p->mh_next;
+    }
+    xmlMutexUnlock(xmlMemMutex);
+#else
+    fprintf(fp,"Memory list not compiled (MEM_LIST not defined !)\n");
+#endif
+    if (old_fp == NULL)
+	fclose(fp);
+}
 
 /**
  * xmlMemDisplay:
@@ -649,9 +768,9 @@ xmlMemDisplay(FILE *fp)
     FILE *old_fp = fp;
 
     if (fp == NULL) {
-        fp = fopen(".memorylist", "w");
-        if (fp == NULL)
-            return;
+	fp = fopen(".memorylist", "w");
+	if (fp == NULL)
+	    return;
     }
 
 #ifdef MEM_LIST
@@ -662,7 +781,7 @@ xmlMemDisplay(FILE *fp)
     fprintf(fp,"      %s\n\n", buf);
 #endif
 
-    
+
     fprintf(fp,"      MEMORY ALLOCATED : %lu, MAX was %lu\n",
             debugMemSize, debugMaxMemSize);
     fprintf(fp,"BLOCK  NUMBER   SIZE  TYPE\n");
@@ -670,8 +789,8 @@ xmlMemDisplay(FILE *fp)
     xmlMutexLock(xmlMemMutex);
     p = memlist;
     while (p) {
-          fprintf(fp,"%-5u  %6lu %6lu ",idx++,p->mh_number,
-                  (unsigned long)p->mh_size);
+	  fprintf(fp,"%-5u  %6lu %6lu ",idx++,p->mh_number,
+		  (unsigned long)p->mh_size);
         switch (p->mh_type) {
            case STRDUP_TYPE:fprintf(fp,"strdup()  in ");break;
            case MALLOC_TYPE:fprintf(fp,"malloc()  in ");break;
@@ -679,20 +798,20 @@ xmlMemDisplay(FILE *fp)
            case MALLOC_ATOMIC_TYPE:fprintf(fp,"atomicmalloc()  in ");break;
            case REALLOC_ATOMIC_TYPE:fprintf(fp,"atomicrealloc() in ");break;
            default:
-                fprintf(fp,"Unknown memory block, may be corrupted");
-                xmlMutexUnlock(xmlMemMutex);
-                if (old_fp == NULL)
-                    fclose(fp);
-                return;
+	        fprintf(fp,"Unknown memory block, may be corrupted");
+		xmlMutexUnlock(xmlMemMutex);
+		if (old_fp == NULL)
+		    fclose(fp);
+		return;
         }
-        if (p->mh_file != NULL) fprintf(fp,"%s(%u)", p->mh_file, p->mh_line);
+	if (p->mh_file != NULL) fprintf(fp,"%s(%u)", p->mh_file, p->mh_line);
         if (p->mh_tag != MEMTAG)
-              fprintf(fp,"  INVALID");
+	      fprintf(fp,"  INVALID");
         nb++;
-        if (nb < 100)
-            xmlMemContentShow(fp, p);
-        else
-            fprintf(fp," skip");
+	if (nb < 100)
+	    xmlMemContentShow(fp, p);
+	else
+	    fprintf(fp," skip");
 
         fprintf(fp,"\n");
         p = p->mh_next;
@@ -702,7 +821,7 @@ xmlMemDisplay(FILE *fp)
     fprintf(fp,"Memory list not compiled (MEM_LIST not defined !)\n");
 #endif
     if (old_fp == NULL)
-        fclose(fp);
+	fclose(fp);
 }
 
 #ifdef MEM_LIST
@@ -739,11 +858,11 @@ static void debugmem_list_delete(MEMHDR *p)
  *
  * internal error function.
  */
- 
+
 static void debugmem_tag_error(void *p)
 {
      xmlGenericError(xmlGenericErrorContext,
-             "Memory tag error occurs :%p \n\t bye\n", p);
+	     "Memory tag error occurs :%p \n\t bye\n", p);
 #ifdef MEM_LIST
      if (stderr)
      xmlMemDisplay(stderr);
@@ -771,35 +890,35 @@ xmlMemShow(FILE *fp, int nr ATTRIBUTE_UNUSED)
 #endif
 
     if (fp != NULL)
-        fprintf(fp,"      MEMORY ALLOCATED : %lu, MAX was %lu\n",
-                debugMemSize, debugMaxMemSize);
+	fprintf(fp,"      MEMORY ALLOCATED : %lu, MAX was %lu\n",
+		debugMemSize, debugMaxMemSize);
 #ifdef MEM_LIST
     xmlMutexLock(xmlMemMutex);
     if (nr > 0) {
-        fprintf(fp,"NUMBER   SIZE  TYPE   WHERE\n");
-        p = memlist;
-        while ((p) && nr > 0) {
-              fprintf(fp,"%6lu %6lu ",p->mh_number,(unsigned long)p->mh_size);
-            switch (p->mh_type) {
-               case STRDUP_TYPE:fprintf(fp,"strdup()  in ");break;
-               case MALLOC_TYPE:fprintf(fp,"malloc()  in ");break;
-               case MALLOC_ATOMIC_TYPE:fprintf(fp,"atomicmalloc()  in ");break;
-              case REALLOC_TYPE:fprintf(fp,"realloc() in ");break;
-              case REALLOC_ATOMIC_TYPE:fprintf(fp,"atomicrealloc() in ");break;
-                default:fprintf(fp,"   ???    in ");break;
-            }
-            if (p->mh_file != NULL)
-                fprintf(fp,"%s(%u)", p->mh_file, p->mh_line);
-            if (p->mh_tag != MEMTAG)
-                fprintf(fp,"  INVALID");
-            xmlMemContentShow(fp, p);
-            fprintf(fp,"\n");
-            nr--;
-            p = p->mh_next;
-        }
+	fprintf(fp,"NUMBER   SIZE  TYPE   WHERE\n");
+	p = memlist;
+	while ((p) && nr > 0) {
+	      fprintf(fp,"%6lu %6lu ",p->mh_number,(unsigned long)p->mh_size);
+	    switch (p->mh_type) {
+	       case STRDUP_TYPE:fprintf(fp,"strdup()  in ");break;
+	       case MALLOC_TYPE:fprintf(fp,"malloc()  in ");break;
+	       case MALLOC_ATOMIC_TYPE:fprintf(fp,"atomicmalloc()  in ");break;
+	      case REALLOC_TYPE:fprintf(fp,"realloc() in ");break;
+	      case REALLOC_ATOMIC_TYPE:fprintf(fp,"atomicrealloc() in ");break;
+		default:fprintf(fp,"   ???    in ");break;
+	    }
+	    if (p->mh_file != NULL)
+	        fprintf(fp,"%s(%u)", p->mh_file, p->mh_line);
+	    if (p->mh_tag != MEMTAG)
+		fprintf(fp,"  INVALID");
+	    xmlMemContentShow(fp, p);
+	    fprintf(fp,"\n");
+	    nr--;
+	    p = p->mh_next;
+	}
     }
     xmlMutexUnlock(xmlMemMutex);
-#endif /* MEM_LIST */    
+#endif /* MEM_LIST */
 }
 
 /**
@@ -815,10 +934,10 @@ xmlMemoryDump(void)
     FILE *dump;
 
     if (debugMaxMemSize == 0)
-        return;
+	return;
     dump = fopen(".memdump", "w");
     if (dump == NULL)
-        xmlMemoryDumpFile = stderr;
+	xmlMemoryDumpFile = stderr;
     else xmlMemoryDumpFile = dump;
 
     xmlMemDisplay(xmlMemoryDumpFile);
@@ -829,9 +948,9 @@ xmlMemoryDump(void)
 
 
 /****************************************************************
- *                                                              *
- *              Initialization Routines                         *
- *                                                              *
+ *								*
+ *		Initialization Routines				*
+ *								*
  ****************************************************************/
 
 /**
@@ -846,11 +965,11 @@ xmlInitMemory(void)
 {
 #ifdef HAVE_STDLIB_H
      char *breakpoint;
-#endif     
+#endif
 #ifdef DEBUG_MEMORY
      xmlGenericError(xmlGenericErrorContext,
-             "xmlInitMemory()\n");
-#endif     
+	     "xmlInitMemory()\n");
+#endif
     /*
      This is really not good code (see Bug 130419).  Suggestions for
      improvement will be welcome!
@@ -864,18 +983,18 @@ xmlInitMemory(void)
      if (breakpoint != NULL) {
          sscanf(breakpoint, "%ud", &xmlMemStopAtBlock);
      }
-#endif     
+#endif
 #ifdef HAVE_STDLIB_H
      breakpoint = getenv("XML_MEM_TRACE");
      if (breakpoint != NULL) {
          sscanf(breakpoint, "%p", &xmlMemTraceBlockAt);
      }
-#endif     
-    
+#endif
+
 #ifdef DEBUG_MEMORY
      xmlGenericError(xmlGenericErrorContext,
-             "xmlInitMemory() Ok\n");
-#endif     
+	     "xmlInitMemory() Ok\n");
+#endif
      return(0);
 }
 
@@ -889,8 +1008,8 @@ void
 xmlCleanupMemory(void) {
 #ifdef DEBUG_MEMORY
      xmlGenericError(xmlGenericErrorContext,
-             "xmlCleanupMemory()\n");
-#endif     
+	     "xmlCleanupMemory()\n");
+#endif
     if (xmlMemInitialized == 0)
         return;
 
@@ -899,8 +1018,8 @@ xmlCleanupMemory(void) {
     xmlMemInitialized = 0;
 #ifdef DEBUG_MEMORY
      xmlGenericError(xmlGenericErrorContext,
-             "xmlCleanupMemory() Ok\n");
-#endif     
+	     "xmlCleanupMemory() Ok\n");
+#endif
 }
 
 /**
@@ -923,16 +1042,16 @@ xmlMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc,
             xmlReallocFunc reallocFunc, xmlStrdupFunc strdupFunc) {
 #ifdef DEBUG_MEMORY
      xmlGenericError(xmlGenericErrorContext,
-             "xmlMemSetup()\n");
-#endif     
+	     "xmlMemSetup()\n");
+#endif
     if (freeFunc == NULL)
-        return(-1);
+	return(-1);
     if (mallocFunc == NULL)
-        return(-1);
+	return(-1);
     if (reallocFunc == NULL)
-        return(-1);
+	return(-1);
     if (strdupFunc == NULL)
-        return(-1);
+	return(-1);
     xmlFree = freeFunc;
     xmlMalloc = mallocFunc;
     xmlMallocAtomic = mallocFunc;
@@ -940,8 +1059,8 @@ xmlMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc,
     xmlMemStrdup = strdupFunc;
 #ifdef DEBUG_MEMORY
      xmlGenericError(xmlGenericErrorContext,
-             "xmlMemSetup() Ok\n");
-#endif     
+	     "xmlMemSetup() Ok\n");
+#endif
     return(0);
 }
 
@@ -958,7 +1077,7 @@ xmlMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc,
  */
 int
 xmlMemGet(xmlFreeFunc *freeFunc, xmlMallocFunc *mallocFunc,
-          xmlReallocFunc *reallocFunc, xmlStrdupFunc *strdupFunc) {
+	  xmlReallocFunc *reallocFunc, xmlStrdupFunc *strdupFunc) {
     if (freeFunc != NULL) *freeFunc = xmlFree;
     if (mallocFunc != NULL) *mallocFunc = xmlMalloc;
     if (reallocFunc != NULL) *reallocFunc = xmlRealloc;
@@ -987,21 +1106,21 @@ xmlMemGet(xmlFreeFunc *freeFunc, xmlMallocFunc *mallocFunc,
 int
 xmlGcMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc,
               xmlMallocFunc mallocAtomicFunc, xmlReallocFunc reallocFunc,
-              xmlStrdupFunc strdupFunc) {
+	      xmlStrdupFunc strdupFunc) {
 #ifdef DEBUG_MEMORY
      xmlGenericError(xmlGenericErrorContext,
-             "xmlGcMemSetup()\n");
-#endif     
+	     "xmlGcMemSetup()\n");
+#endif
     if (freeFunc == NULL)
-        return(-1);
+	return(-1);
     if (mallocFunc == NULL)
-        return(-1);
+	return(-1);
     if (mallocAtomicFunc == NULL)
-        return(-1);
+	return(-1);
     if (reallocFunc == NULL)
-        return(-1);
+	return(-1);
     if (strdupFunc == NULL)
-        return(-1);
+	return(-1);
     xmlFree = freeFunc;
     xmlMalloc = mallocFunc;
     xmlMallocAtomic = mallocAtomicFunc;
@@ -1009,8 +1128,8 @@ xmlGcMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc,
     xmlMemStrdup = strdupFunc;
 #ifdef DEBUG_MEMORY
      xmlGenericError(xmlGenericErrorContext,
-             "xmlGcMemSetup() Ok\n");
-#endif     
+	     "xmlGcMemSetup() Ok\n");
+#endif
     return(0);
 }
 
@@ -1031,7 +1150,7 @@ xmlGcMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc,
 int
 xmlGcMemGet(xmlFreeFunc *freeFunc, xmlMallocFunc *mallocFunc,
             xmlMallocFunc *mallocAtomicFunc, xmlReallocFunc *reallocFunc,
-            xmlStrdupFunc *strdupFunc) {
+	    xmlStrdupFunc *strdupFunc) {
     if (freeFunc != NULL) *freeFunc = xmlFree;
     if (mallocFunc != NULL) *mallocFunc = xmlMalloc;
     if (mallocAtomicFunc != NULL) *mallocAtomicFunc = xmlMallocAtomic;

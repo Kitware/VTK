@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <cassert>
-#include <stdio.h>
+#include <cstdio>
 
 int main( int, char **argv )
 {

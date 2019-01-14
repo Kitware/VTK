@@ -30,9 +30,9 @@
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 
-#include <vtksys/stl/map>
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
+#include <map>
+#include <utility>
+#include <vector>
 
 static VTK_THREAD_RETURN_TYPE vtkGeoSourceThreadStart(void* arg)
 {
@@ -44,12 +44,13 @@ static VTK_THREAD_RETURN_TYPE vtkGeoSourceThreadStart(void* arg)
 
 class vtkGeoSource::implementation {
 public:
-  vtksys_stl::map<vtksys_stl::pair<unsigned long, int>, vtkSmartPointer<vtkCollection> > OutputMap;
-  vtksys_stl::vector<int> ThreadIds;
+  std::map<std::pair<unsigned long, int>, vtkSmartPointer<vtkCollection> > OutputMap;
+  std::vector<int> ThreadIds;
 };
 
 vtkGeoSource::vtkGeoSource()
 {
+  VTK_LEGACY_BODY(vtkGeoSource::vtkGeoSource, "VTK 8.2");
   this->InputSet = vtkCollection::New();
   this->InputSetLock = vtkMutexLock::New();
   this->ProcessingSet = vtkCollection::New();
@@ -80,25 +81,25 @@ vtkGeoSource::~vtkGeoSource()
 void vtkGeoSource::Initialize(int numThreads)
 {
   if(this->Initialized)
-    {
+  {
     return;
-    }
+  }
 
   int maxThreads = this->Threader->GetGlobalDefaultNumberOfThreads();
   maxThreads = numThreads < maxThreads ? numThreads : maxThreads;
 
   for(int i = 0; i < maxThreads; ++i)
-    {
+  {
     this->Implementation->ThreadIds.push_back(
       this->Threader->SpawnThread(vtkGeoSourceThreadStart, this));
-    }
+  }
   this->Initialized = true;
 }
 
 void vtkGeoSource::ShutDown()
 {
-  if (this->Implementation->ThreadIds.size() > 0)
-    {
+  if (!this->Implementation->ThreadIds.empty())
+  {
     this->Lock->Lock();
     this->StopThread = true;
     this->Condition->Broadcast();
@@ -108,29 +109,29 @@ void vtkGeoSource::ShutDown()
     for(iter = this->Implementation->ThreadIds.begin();
         iter != this->Implementation->ThreadIds.end();
         ++iter)
-      {
+    {
       this->Threader->TerminateThread(*iter);
-      }
+    }
     this->Implementation->ThreadIds.clear();
     this->Implementation->OutputMap.clear();
-    }
+  }
   this->Initialized = false;
 }
 
 vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
 {
-  vtkCollection* c = 0;
+  vtkCollection* c = nullptr;
   this->OutputSetLock->Lock();
-  vtksys_stl::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
+  std::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
   if (this->Implementation->OutputMap.count(p) > 0)
-    {
+  {
     c = this->Implementation->OutputMap[p];
     if (c)
-      {
-      c->Register(0);
-      this->Implementation->OutputMap[p] = 0;
-      }
+    {
+      c->Register(nullptr);
+      this->Implementation->OutputMap[p] = nullptr;
     }
+  }
   this->OutputSetLock->Unlock();
 
   return c;
@@ -139,10 +140,10 @@ vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
 void vtkGeoSource::RequestChildren(vtkGeoTreeNode* node)
 {
   if(!this->Initialized)
-    {
+  {
     vtkErrorMacro("Call Initialize() first in order to spawn worker threads.");
     return;
-    }
+  }
 
   this->InputSetLock->Lock();
   this->InputSet->AddItem(node);
@@ -158,15 +159,15 @@ void vtkGeoSource::WorkerThread()
 {
   bool isTerrainNode = false;
   while (true)
-    {
+  {
     this->Lock->Lock();
 
     if (this->StopThread)
-      {
+    {
 
       this->Lock->Unlock();
       return;
-      }
+    }
 
     this->Lock->Unlock();
 
@@ -174,7 +175,7 @@ void vtkGeoSource::WorkerThread()
 
     // Try to find something to work on.
     if (this->InputSet->GetNumberOfItems() > 0)
-      {
+    {
       // Move from input set to processing set
       vtkGeoTreeNode* node = vtkGeoTreeNode::SafeDownCast(this->InputSet->GetItemAsObject(0));
       node->Register(this);
@@ -183,58 +184,58 @@ void vtkGeoSource::WorkerThread()
 
       // Create appropriate child instances
       vtkGeoTreeNode* child[4];
-      isTerrainNode = vtkGeoTerrainNode::SafeDownCast(node) != NULL ? true : false;
+      isTerrainNode = vtkGeoTerrainNode::SafeDownCast(node) != nullptr ? true : false;
       if (isTerrainNode)
-        {
+      {
         for (int i = 0; i < 4; ++i)
-          {
+        {
           child[i] = vtkGeoTerrainNode::New();
-          }
         }
+      }
       else
-        {
+      {
         for (int i = 0; i < 4; ++i)
-          {
+        {
           child[i] = vtkGeoImageNode::New();
-          }
         }
+      }
 
       // Fetch the children
       bool success = true;
       for (int i = 0; i < 4; ++i)
-        {
+      {
         if (!this->FetchChild(node, i, child[i]))
-          {
+        {
           success = false;
           break;
-          }
         }
+      }
 
       // Move from processing set to output
       this->OutputSetLock->Lock();
-      vtksys_stl::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
+      std::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
       this->Implementation->OutputMap[p] =
         vtkSmartPointer<vtkCollection>::New();
       if (success)
-        {
+      {
         for (int i = 0; i < 4; ++i)
-          {
+        {
           this->Implementation->OutputMap[p]->AddItem(child[i]);
-          }
         }
+      }
       this->OutputSetLock->Unlock();
 
 
       node->Delete();
-      node = NULL;
+      node = nullptr;
 
       for (int i = 0; i < 4; ++i)
-        {
-        child[i]->Delete();
-        }
-      }
-    else
       {
+        child[i]->Delete();
+      }
+    }
+    else
+    {
 
       this->InputSetLock->Unlock();
 
@@ -244,7 +245,6 @@ void vtkGeoSource::WorkerThread()
       this->Condition->Wait( this->Lock );
 
       this->Lock->Unlock();
-      }
     }
+  }
 }
-

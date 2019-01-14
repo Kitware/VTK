@@ -32,13 +32,13 @@ vtkStandardNewMacro(vtkVertexDegree);
 
 vtkVertexDegree::vtkVertexDegree()
 {
-  this->OutputArrayName = 0;
+  this->OutputArrayName = nullptr;
 }
 
 vtkVertexDegree::~vtkVertexDegree()
 {
   // release mem
-  this->SetOutputArrayName(0);
+  this->SetOutputArrayName(nullptr);
 }
 
 
@@ -63,23 +63,23 @@ int vtkVertexDegree::RequestData(vtkInformation *vtkNotUsed(request),
   // Create the attribute array
   vtkIntArray* DegreeArray = vtkIntArray::New();
   if (this->OutputArrayName)
-    {
+  {
     DegreeArray->SetName(this->OutputArrayName);
-    }
+  }
   else
-    {
+  {
     DegreeArray->SetName("VertexDegree");
-    }
+  }
   DegreeArray->SetNumberOfTuples(output->GetNumberOfVertices());
 
   // Now loop through the vertices and set their degree in the array
   for(int i=0;i< DegreeArray->GetNumberOfTuples(); ++i)
-    {
+  {
     DegreeArray->SetValue(i,output->GetDegree(i));
 
     double progress = static_cast<double>(i) / static_cast<double>(DegreeArray->GetNumberOfTuples());
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-    }
+  }
 
   // Add attribute array to the output
   output->GetVertexData()->AddArray(DegreeArray);

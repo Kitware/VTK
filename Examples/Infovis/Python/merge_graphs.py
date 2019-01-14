@@ -4,6 +4,7 @@ This file demonstrates the creation of a directed graph using the
 Python interface to VTK.
 """
 
+from __future__ import print_function
 from vtk import *
 
 xdim = 600
@@ -14,7 +15,7 @@ ydim = 600
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
 
-    print "vtkGraph Example 1: Building a vtkMutableDirectedGraph from scratch."
+    print("vtkGraph Example 1: Building a vtkMutableDirectedGraph from scratch.")
 
     #----------------------------------------------------------
     # Create a graph (see graph1.py for explanations)

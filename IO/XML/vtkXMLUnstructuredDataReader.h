@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLUnstructuredDataReader - Superclass for unstructured data XML readers.
-// .SECTION Description
-// vtkXMLUnstructuredDataReader provides functionality common to all
-// unstructured data format readers.
-
-// .SECTION See Also
-// vtkXMLPolyDataReader vtkXMLUnstructuredGridReader
+/**
+ * @class   vtkXMLUnstructuredDataReader
+ * @brief   Superclass for unstructured data XML readers.
+ *
+ * vtkXMLUnstructuredDataReader provides functionality common to all
+ * unstructured data format readers.
+ *
+ * @sa
+ * vtkXMLPolyDataReader vtkXMLUnstructuredGridReader
+*/
 
 #ifndef vtkXMLUnstructuredDataReader_h
 #define vtkXMLUnstructuredDataReader_h
@@ -35,31 +38,39 @@ class VTKIOXML_EXPORT vtkXMLUnstructuredDataReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredDataReader,vtkXMLDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the number of points in the output.
-  virtual vtkIdType GetNumberOfPoints();
+  /**
+   * Get the number of points in the output.
+   */
+  vtkIdType GetNumberOfPoints() override;
 
-  // Description:
-  // Get the number of cells in the output.
-  virtual vtkIdType GetNumberOfCells();
+  /**
+   * Get the number of cells in the output.
+   */
+  vtkIdType GetNumberOfCells() override;
 
-  // Description:
-  // Setup the reader as if the given update extent were requested by
-  // its output.  This can be used after an UpdateInformation to
-  // validate GetNumberOfPoints() and GetNumberOfCells() without
-  // actually reading data.
+  /**
+   * Get the number of pieces in the file
+   */
+  virtual vtkIdType GetNumberOfPieces();
+
+  /**
+   * Setup the reader as if the given update extent were requested by
+   * its output.  This can be used after an UpdateInformation to
+   * validate GetNumberOfPoints() and GetNumberOfCells() without
+   * actually reading data.
+   */
   void SetupUpdateExtent(int piece, int numberOfPieces, int ghostLevel);
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
-  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+  void CopyOutputInformation(vtkInformation *outInfo, int port) override;
 
 
 protected:
   vtkXMLUnstructuredDataReader();
-  ~vtkXMLUnstructuredDataReader();
+  ~vtkXMLUnstructuredDataReader() override;
 
   vtkPointSet* GetOutputAsPointSet();
   vtkXMLDataElement* FindDataArrayWithName(vtkXMLDataElement* eParent,
@@ -68,22 +79,22 @@ protected:
   vtkUnsignedCharArray* ConvertToUnsignedCharArray(vtkDataArray* a);
 
   // Pipeline execute data driver.  Called by vtkXMLReader.
-  void ReadXMLData();
+  void ReadXMLData() override;
 
-  virtual void SetupEmptyOutput();
+  void SetupEmptyOutput() override;
   virtual void GetOutputUpdateExtent(int& piece, int& numberOfPieces,
                                      int& ghostLevel)=0;
   virtual void SetupOutputTotals();
   virtual void SetupNextPiece();
-  void SetupPieces(int numPieces);
-  void DestroyPieces();
+  void SetupPieces(int numPieces) override;
+  void DestroyPieces() override;
 
   // Setup the output's information.
-  void SetupOutputInformation(vtkInformation *outInfo);
+  void SetupOutputInformation(vtkInformation *outInfo) override;
 
-  void SetupOutputData();
-  int ReadPiece(vtkXMLDataElement* ePiece);
-  int ReadPieceData();
+  void SetupOutputData() override;
+  int ReadPiece(vtkXMLDataElement* ePiece) override;
+  int ReadPieceData() override;
   int ReadCellArray(vtkIdType numberOfCells, vtkIdType totalNumberOfCells,
                     vtkXMLDataElement* eCells, vtkCellArray* outCells);
 
@@ -92,7 +103,7 @@ protected:
                     vtkIdTypeArray* outFaces, vtkIdTypeArray* outFaceOffsets);
 
   // Read a data array whose tuples coorrespond to points.
-  virtual int ReadArrayForPoints(vtkXMLDataElement* da, vtkAbstractArray* outArray);
+  int ReadArrayForPoints(vtkXMLDataElement* da, vtkAbstractArray* outArray) override;
 
   // Get the number of points/cells in the given piece.  Valid after
   // UpdateInformation.
@@ -123,8 +134,8 @@ protected:
 
 
 private:
-  vtkXMLUnstructuredDataReader(const vtkXMLUnstructuredDataReader&);  // Not implemented.
-  void operator=(const vtkXMLUnstructuredDataReader&);  // Not implemented.
+  vtkXMLUnstructuredDataReader(const vtkXMLUnstructuredDataReader&) = delete;
+  void operator=(const vtkXMLUnstructuredDataReader&) = delete;
 };
 
 #endif

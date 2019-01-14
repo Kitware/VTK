@@ -23,14 +23,10 @@
 vtkStandardNewMacro(vtkXMLPImageDataWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLPImageDataWriter::vtkXMLPImageDataWriter()
-{
-}
+vtkXMLPImageDataWriter::vtkXMLPImageDataWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPImageDataWriter::~vtkXMLPImageDataWriter()
-{
-}
+vtkXMLPImageDataWriter::~vtkXMLPImageDataWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPImageDataWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -61,16 +57,16 @@ void vtkXMLPImageDataWriter::WritePrimaryElementAttributes(ostream &os, vtkInden
 {
   this->Superclass::WritePrimaryElementAttributes(os, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   vtkImageData* input = this->GetInput();
   this->WriteVectorAttribute("Origin", 3, input->GetOrigin());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   this->WriteVectorAttribute("Spacing", 3, input->GetSpacing());
 }

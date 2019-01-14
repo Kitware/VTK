@@ -57,9 +57,9 @@ vtkQtTableRepresentation::vtkQtTableRepresentation()
   this->SeriesColors->Register(this);
   this->SeriesColors->Delete();
 
-  this->KeyColumnInternal = NULL;
-  this->FirstDataColumn = NULL;
-  this->LastDataColumn = NULL;
+  this->KeyColumnInternal = nullptr;
+  this->FirstDataColumn = nullptr;
+  this->LastDataColumn = nullptr;
 }
 
 // ----------------------------------------------------------------------
@@ -69,9 +69,9 @@ vtkQtTableRepresentation::~vtkQtTableRepresentation()
   delete this->ModelAdapter;
   this->ColorTable->UnRegister(this);
   this->SeriesColors->UnRegister(this);
-  this->SetKeyColumnInternal(NULL);
-  this->SetFirstDataColumn(NULL);
-  this->SetLastDataColumn(NULL);
+  this->SetKeyColumnInternal(nullptr);
+  this->SetFirstDataColumn(nullptr);
+  this->SetLastDataColumn(nullptr);
 }
 
 // ----------------------------------------------------------------------
@@ -92,9 +92,9 @@ vtkQtTableRepresentation::SetKeyColumn(const char *col)
 {
   if((!col && !this->KeyColumnInternal) ||
       (this->KeyColumnInternal && col && strcmp(this->KeyColumnInternal, col) == 0))
-    {
+  {
     return;
-    }
+  }
 
   this->SetKeyColumnInternal(col);
   this->ModelAdapter->SetKeyColumn(-1);
@@ -118,29 +118,29 @@ void vtkQtTableRepresentation::UpdateTable()
   this->ResetModel();
 
   if (!this->GetInput())
-    {
+  {
     return;
-    }
+  }
 
   vtkTable *table = vtkTable::SafeDownCast(this->GetInput());
   if (!table)
-    {
+  {
     vtkErrorMacro(<<"vtkQtTableRepresentation: I need a vtkTable as input.  You supplied a " << this->GetInput()->GetClassName() << ".");
     return;
-    }
+  }
 
   // Set first/last data column names if they
   // have not already been set.
   const char* firstDataColumn = this->FirstDataColumn;
   const char* lastDataColumn = this->LastDataColumn;
   if (!firstDataColumn)
-    {
+  {
     firstDataColumn = table->GetColumnName(0);
-    }
+  }
   if (!lastDataColumn)
-    {
+  {
     lastDataColumn = table->GetColumnName(table->GetNumberOfColumns()-1);
-    }
+  }
 
   // Now that we're sure of having data, put it into a Qt model
   // adapter that we can push into the QListView.  Before we hand that
@@ -149,7 +149,7 @@ void vtkQtTableRepresentation::UpdateTable()
   //int keyColumnIndex = -1;
   int firstDataColumnIndex = -1;
   int lastDataColumnIndex = -1;
-  //if (this->KeyColumnInternal != NULL)
+  //if (this->KeyColumnInternal != nullptr)
   //  {
   //  table->GetRowData()->GetAbstractArray(this->KeyColumnInternal, keyColumnIndex);
   //  if (keyColumnIndex >= 0)
@@ -161,21 +161,21 @@ void vtkQtTableRepresentation::UpdateTable()
   //    // Either the user didn't specify a key column or else it wasn't
   //    // found.  We'll do the best we can.
   //    vtkWarningMacro(<<"vtkQtTableRepresentation: Key column "
-  //                    << (this->KeyColumnInternal ? this->KeyColumnInternal : "(NULL)")
+  //                    << (this->KeyColumnInternal ? this->KeyColumnInternal : "(nullptr)")
   //                    << " not found.  Defaulting to column 0.");
   //    this->ModelAdapter->SetKeyColumn(0);
   //    }
   //  }
-  if (firstDataColumn != NULL)
-    {
+  if (firstDataColumn != nullptr)
+  {
     table->GetRowData()->GetAbstractArray(firstDataColumn,
                                           firstDataColumnIndex);
-    }
-  if (lastDataColumn != NULL)
-    {
+  }
+  if (lastDataColumn != nullptr)
+  {
     table->GetRowData()->GetAbstractArray(lastDataColumn,
                                           lastDataColumnIndex);
-    }
+  }
   this->ModelAdapter->SetDataColumnRange(firstDataColumnIndex, lastDataColumnIndex);
 
   // The view will try to do this when we add the representation, but
@@ -183,10 +183,10 @@ void vtkQtTableRepresentation::UpdateTable()
   // here.
 
   this->ModelAdapter->SetVTKDataObject(table);
-  if (this->KeyColumnInternal != NULL)
-    {
+  if (this->KeyColumnInternal != nullptr)
+  {
     this->ModelAdapter->SetKeyColumnName(this->KeyColumnInternal);
-    }
+  }
   this->CreateSeriesColors();
 }
 
@@ -197,13 +197,13 @@ vtkQtTableRepresentation::ResetModel()
 {
   this->SetModelType();
   if (this->ModelAdapter)
-    {
+  {
     // FIXME
     // Need to alert the model of potential changes to the vtkTable
     // in different way than disconnecting/reconnecting the vtkTable from
     // the model adapter
-    //this->ModelAdapter->SetVTKDataObject(NULL);
-    }
+    //this->ModelAdapter->SetVTKDataObject(nullptr);
+  }
   this->SeriesColors->Reset();
   this->SeriesColors->SetNumberOfComponents(4);
 }
@@ -221,31 +221,31 @@ vtkQtTableRepresentation::CreateSeriesColors()
   this->SeriesColors->SetNumberOfTuples(size);
 
   for (int i = 0; i < size; ++i)
-    {
+  {
     double seriesValue = 1;
     if (size > 1)
-      {
+    {
       seriesValue = static_cast<double>(i) / (size-1);
-      }
+    }
     QColor c;
     if (this->ColorTable)
-      {
+    {
       double rgb[3];
       double opacity;
       this->ColorTable->GetColor(seriesValue, rgb);
       opacity = this->ColorTable->GetOpacity(seriesValue);
       c.setRgbF(rgb[0], rgb[1], rgb[2], opacity);
-      }
+    }
     else
-      {
+    {
       c.setHsvF(seriesValue, 1, 0.7);
-      }
+    }
 
     this->SeriesColors->SetComponent(i, 0, c.redF());
     this->SeriesColors->SetComponent(i, 1, c.greenF());
     this->SeriesColors->SetComponent(i, 2, c.blueF());
     this->SeriesColors->SetComponent(i, 3, c.alphaF());
-    }
+  }
 }
 
 
@@ -257,15 +257,15 @@ vtkQtTableRepresentation::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "First data column: "
-     << (this->FirstDataColumn ? this->FirstDataColumn : "(NULL)")
+     << (this->FirstDataColumn ? this->FirstDataColumn : "(nullptr)")
      << "\n";
 
   os << indent << "Last data column: "
-     << (this->LastDataColumn ? this->LastDataColumn : "(NULL)")
+     << (this->LastDataColumn ? this->LastDataColumn : "(nullptr)")
      << "\n";
 
   os << indent << "Key column: "
-     << (this->KeyColumnInternal ? this->KeyColumnInternal : "(NULL)")
+     << (this->KeyColumnInternal ? this->KeyColumnInternal : "(nullptr)")
      << "\n";
 
   os << indent << "Model adapter: Qt object " << this->ModelAdapter

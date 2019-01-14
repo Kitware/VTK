@@ -17,12 +17,15 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkPChacoReader - Read Chaco files
-// .SECTION Description
-// vtkPChacoReader is a unstructured grid source object that reads
-// Chaco files.  The file is read by process 0 and converted into
-// a vtkUnstructuredGrid.  The vtkDistributedDataFilter is invoked
-// to divide the grid among the processes.
+/**
+ * @class   vtkPChacoReader
+ * @brief   Read Chaco files
+ *
+ * vtkPChacoReader is a unstructured grid source object that reads
+ * Chaco files.  The file is read by process 0 and converted into
+ * a vtkUnstructuredGrid.  The vtkDistributedDataFilter is invoked
+ * to divide the grid among the processes.
+*/
 
 #ifndef vtkPChacoReader_h
 #define vtkPChacoReader_h
@@ -38,27 +41,28 @@ class VTKIOPARALLEL_EXPORT vtkPChacoReader : public vtkChacoReader
 public:
   static vtkPChacoReader *New();
   vtkTypeMacro(vtkPChacoReader,vtkChacoReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  //   Set/Get the communicator object (we'll use global World controller
-  //   if you don't set a different one).
+  /**
+   * Set/Get the communicator object (we'll use global World controller
+   * if you don't set a different one).
+   */
 
   void SetController(vtkMultiProcessController *c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
 protected:
   vtkPChacoReader();
-  ~vtkPChacoReader();
+  ~vtkPChacoReader() override;
 
   int RequestInformation(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkPChacoReader(const vtkPChacoReader&); // Not implemented
-  void operator=(const vtkPChacoReader&); // Not implemented
+  vtkPChacoReader(const vtkPChacoReader&) = delete;
+  void operator=(const vtkPChacoReader&) = delete;
 
   void SetUpEmptyGrid(vtkUnstructuredGrid *output);
   int DivideCells(vtkMultiProcessController *contr, vtkUnstructuredGrid *output,

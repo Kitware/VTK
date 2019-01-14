@@ -1,0 +1,4 @@
+*
+!*.remote.cmake
+!CMakeLists.txt
+!README.txt

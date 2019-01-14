@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   ParaView
-  Module:    $RCSfile$
+  Module:    TestClientServerRendering.cxx
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
@@ -91,13 +91,13 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->ImageReductionFactor = 1;
-  this->Controller = NULL;
+  this->Controller = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 MyProcess::~MyProcess()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -106,9 +106,9 @@ void MyProcess::CreatePipeline(vtkRenderer* renderer)
   double bounds[] = {-0.5, .5, -0.5, .5, -0.5, 0.5};
   renderer->ResetCamera(bounds);
   if (!this->IsServer)
-    {
+  {
     return;
-    }
+  }
 
   vtkSphereSource* sphere = vtkSphereSource::New();
   //sphere->SetPhiResolution(100);
@@ -221,7 +221,7 @@ bool MyProcess::Execute(int argc, char** argv)
 
   bool success = true;
   if (!this->IsServer)
-    {
+  {
     // CLIENT
     vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
@@ -232,17 +232,17 @@ bool MyProcess::Execute(int argc, char** argv)
     int result = vtkTesting::Test(argc, argv, renWin, 15);
     success = (result == vtkTesting::PASSED);
     if (result == vtkTesting::DO_INTERACTOR)
-      {
+    {
       iren->Start();
-      }
+    }
     iren->Delete();
     this->Controller->TriggerBreakRMIs();
-    }
+  }
   else
-    {
+  {
     // SERVER
     this->Controller->ProcessRMIs();
-    }
+  }
 
   renderer->Delete();
   renWin->Delete();
@@ -276,25 +276,25 @@ int main(int argc, char *argv[])
     vtksys::CommandLineArguments::SPACE_ARGUMENT,
     &port, "Port number (default is 11111)");
   if (!args.Parse())
-    {
+  {
     return 1;
-    }
+  }
 
   vtkSmartPointer<vtkSocketController> contr =
     vtkSmartPointer<vtkSocketController>::New();
   contr->Initialize(&argc, &argv);
   if (is_server)
-    {
+  {
     cout << "Waiting for client on " << port << endl;
     contr->WaitForConnection(port);
-    }
+  }
   else
-    {
+  {
     if (!contr->ConnectTo(const_cast<char*>("localhost"), port))
-      {
+    {
       return 1;
-      }
     }
+  }
 
   MyProcess *p=MyProcess::New();
   p->IsServer = is_server != 0;
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
   bool success = p->Execute(argc, argv);
   p->Delete();
   contr->Finalize();
-  contr = 0;
+  contr = nullptr;
   return success? EXIT_SUCCESS :EXIT_FAILURE;
 }
 

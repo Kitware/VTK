@@ -1,43 +1,39 @@
-PROJECT(VTKPNG)
-INCLUDE_REGULAR_EXPRESSION("^(png|vtk|z).*$")
+set(sources
+  png.c
+  pngerror.c
+  pngget.c
+  pngmem.c
+  pngpread.c
+  pngread.c
+  pngrio.c
+  pngrtran.c
+  pngrutil.c
+  pngset.c
+  pngtrans.c
+  pngwio.c
+  pngwrite.c
+  pngwtran.c
+  pngwutil.c)
 
-INCLUDE_DIRECTORIES(${VTKPNG_SOURCE_DIR})
+set(headers
+  png.h
+  pngconf.h
+  pnglibconf.h
+  vtk_png_mangle.h)
 
-# source files for png
-SET(PNG_SRCS
-pngget.c    pngrio.c    pngwrite.c
-png.c       pngmem.c    pngrtran.c  pngtrans.c  pngwtran.c
-pngerror.c  pngpread.c  pngrutil.c  pngvcrd.c   pngwutil.c
-pnggccrd.c  pngread.c   pngset.c   pngwio.c
-)
+vtk_module_add_module(VTK::png
+  SOURCES ${sources}
+  HEADERS ${headers}
+  HEADERS_SUBDIR vtkpng)
+if (WIN32)
+  set_target_properties(png
+    PROPERTIES
+      DEFINE_SYMBOL PNG_BUILD_DLL)
+endif ()
 
-IF(WIN32)
-  IF(BUILD_SHARED_LIBS)
-    ADD_DEFINITIONS(-DPNG_BUILD_DLL)
-    SET(PNG_NO_MODULEDEF 1)
-  ELSE()
-    SET(PNG_STATIC 1)
-  ENDIF()
-ENDIF()
-
-CONFIGURE_FILE(${VTKPNG_SOURCE_DIR}/pngDllConfig.h.in
-               ${VTKPNG_BINARY_DIR}/pngDllConfig.h)
-
-VTK_ADD_LIBRARY(vtkpng ${PNG_SRCS})
-
-TARGET_LINK_LIBRARIES(vtkpng ${vtkzlib_LIBRARIES})
-
-# link against the math library
-IF(UNIX)
-  TARGET_LINK_LIBRARIES(vtkpng -lm)
-ENDIF()
-
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL(FILES
-    ${VTKPNG_BINARY_DIR}/pngDllConfig.h
-    ${VTKPNG_SOURCE_DIR}/png.h
-    ${VTKPNG_SOURCE_DIR}/pngconf.h
-    ${VTKPNG_SOURCE_DIR}/vtk_png_mangle.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkpng
-    COMPONENT Development)
-ENDIF()
+# Link against the math library
+if (UNIX)
+  target_link_libraries(png
+    PRIVATE
+      m)
+endif ()

@@ -1,30 +1,15 @@
-/*============================================================================
-  KWSys - Kitware System Library
-  Copyright 2000-2009 Kitware, Inc., Insight Software Consortium
-
-  Distributed under the OSI-approved BSD License (the "License");
-  see accompanying file Copyright.txt for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even the
-  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the License for more information.
-============================================================================*/
+/* Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+   file Copyright.txt or https://cmake.org/licensing#kwsys for details.  */
 #ifndef @KWSYS_NAMESPACE@_Glob_hxx
 #define @KWSYS_NAMESPACE@_Glob_hxx
 
 #include <@KWSYS_NAMESPACE@/Configure.h>
 #include <@KWSYS_NAMESPACE@/Configure.hxx>
 
-#include <@KWSYS_NAMESPACE@/stl/string>
-#include <@KWSYS_NAMESPACE@/stl/vector>
+#include <string>
+#include <vector>
 
-/* Define this macro temporarily to keep the code readable.  */
-#if !defined (KWSYS_NAMESPACE) && !@KWSYS_NAMESPACE@_NAME_IS_KWSYS
-# define kwsys_stl @KWSYS_NAMESPACE@_stl
-#endif
-
-namespace @KWSYS_NAMESPACE@
-{
+namespace @KWSYS_NAMESPACE@ {
 
 class GlobInternals;
 
@@ -40,14 +25,47 @@ class GlobInternals;
 class @KWSYS_NAMESPACE@_EXPORT Glob
 {
 public:
+  enum MessageType
+  {
+    error,
+    cyclicRecursion
+  };
+
+  struct Message
+  {
+    MessageType type;
+    std::string content;
+
+    Message(MessageType t, const std::string& c)
+      : type(t)
+      , content(c)
+    {
+    }
+    Message(const Message& msg)
+      : type(msg.type)
+      , content(msg.content)
+    {
+    }
+    Message& operator=(Message const& msg)
+    {
+      this->type = msg.type;
+      this->content = msg.content;
+      return *this;
+    }
+  };
+
+  typedef std::vector<Message> GlobMessages;
+  typedef std::vector<Message>::iterator GlobMessagesIterator;
+
+public:
   Glob();
   ~Glob();
 
   //! Find all files that match the pattern.
-  bool FindFiles(const kwsys_stl::string& inexpr);
+  bool FindFiles(const std::string& inexpr, GlobMessages* messages = 0);
 
   //! Return the list of files that matched.
-  kwsys_stl::vector<kwsys_stl::string>& GetFiles();
+  std::vector<std::string>& GetFiles();
 
   //! Set recurse to true to match subdirectories.
   void RecurseOn() { this->SetRecurse(true); }
@@ -76,42 +94,49 @@ public:
       string.  This is on by default because patterns always match
       whole strings, but may be disabled to support concatenating
       expressions more easily (regex1|regex2|etc).  */
-  static kwsys_stl::string PatternToRegex(const kwsys_stl::string& pattern,
-                                          bool require_whole_string = true,
-                                          bool preserve_case = false);
+  static std::string PatternToRegex(const std::string& pattern,
+                                    bool require_whole_string = true,
+                                    bool preserve_case = false);
+
+  /** Getters and setters for enabling and disabling directory
+      listing in recursive and non recursive globbing mode.
+      If listing is enabled in recursive mode it also lists
+      directory symbolic links even if follow symlinks is enabled. */
+  void SetListDirs(bool list) { this->ListDirs = list; }
+  bool GetListDirs() const { return this->ListDirs; }
+  void SetRecurseListDirs(bool list) { this->RecurseListDirs = list; }
+  bool GetRecurseListDirs() const { return this->RecurseListDirs; }
 
 protected:
   //! Process directory
-  void ProcessDirectory(kwsys_stl::string::size_type start,
-    const kwsys_stl::string& dir);
+  void ProcessDirectory(std::string::size_type start, const std::string& dir,
+                        GlobMessages* messages);
 
   //! Process last directory, but only when recurse flags is on. That is
   // effectively like saying: /path/to/file/**/file
-  void RecurseDirectory(kwsys_stl::string::size_type start,
-    const kwsys_stl::string& dir);
+  bool RecurseDirectory(std::string::size_type start, const std::string& dir,
+                        GlobMessages* messages);
 
   //! Add regular expression
-  void AddExpression(const kwsys_stl::string& expr);
+  void AddExpression(const std::string& expr);
 
   //! Add a file to the list
-  void AddFile(kwsys_stl::vector<kwsys_stl::string>& files, const kwsys_stl::string& file);
+  void AddFile(std::vector<std::string>& files, const std::string& file);
 
   GlobInternals* Internals;
   bool Recurse;
-  kwsys_stl::string Relative;
+  std::string Relative;
   bool RecurseThroughSymlinks;
   unsigned int FollowedSymlinkCount;
+  std::vector<std::string> VisitedSymlinks;
+  bool ListDirs;
+  bool RecurseListDirs;
 
 private:
-  Glob(const Glob&);  // Not implemented.
-  void operator=(const Glob&);  // Not implemented.
+  Glob(const Glob&);           // Not implemented.
+  void operator=(const Glob&); // Not implemented.
 };
 
 } // namespace @KWSYS_NAMESPACE@
-
-/* Undefine temporary macro.  */
-#if !defined (KWSYS_NAMESPACE) && !@KWSYS_NAMESPACE@_NAME_IS_KWSYS
-# undef kwsys_stl
-#endif
 
 #endif

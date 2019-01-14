@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkReebGraphSimplificationMetric.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -28,9 +28,7 @@ vtkReebGraphSimplificationMetric::vtkReebGraphSimplificationMetric()
 }
 
 //----------------------------------------------------------------------------
-vtkReebGraphSimplificationMetric::~vtkReebGraphSimplificationMetric()
-{
-}
+vtkReebGraphSimplificationMetric::~vtkReebGraphSimplificationMetric() = default;
 
 //----------------------------------------------------------------------------
 void vtkReebGraphSimplificationMetric::PrintSelf(ostream& os, vtkIndent indent)

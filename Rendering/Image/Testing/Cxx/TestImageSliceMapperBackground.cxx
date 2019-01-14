@@ -20,15 +20,17 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkNew.h"
+#include "vtkPlane.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTIFFReader.h"
 
 int TestImageSliceMapperBackground(int argc, char* argv[])
@@ -50,7 +52,7 @@ int TestImageSliceMapperBackground(int argc, char* argv[])
   delete[] fname;
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkRenderer *renderer = vtkRenderer::New();
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.1,0.2,0.4);
@@ -63,8 +65,12 @@ int TestImageSliceMapperBackground(int argc, char* argv[])
     imageMapper->SetInputConnection(reader->GetOutputPort());
     imageMapper->CroppingOn();
     imageMapper->SetCroppingRegion(100, 107, 100, 107, 0, 0);
+    vtkNew<vtkPlane> cplane;
+    cplane->SetNormal(-0.5,0.5,0);
+    cplane->SetOrigin(105,105,0);
+    imageMapper->AddClippingPlane(cplane);
 
-    double *bounds = imageMapper->GetBounds();
+    const double *bounds = imageMapper->GetBounds();
     double point[3];
     point[0] = 0.5*(bounds[0] + bounds[1]);
     point[1] = 0.5*(bounds[2] + bounds[3]);
@@ -82,28 +88,28 @@ int TestImageSliceMapperBackground(int argc, char* argv[])
     renderer->AddViewProp(image);
 
     if ((i&1))
-      {
+    {
       image->GetMapper()->BorderOn();
-      }
+    }
     if ((i&2))
-      {
+    {
       image->GetMapper()->BackgroundOn();
-      }
+    }
 
     image->GetProperty()->SetColorWindow(255.0);
     image->GetProperty()->SetColorLevel(127.5);
 
     image->Delete();
-    }
+  }
 
   renWin->SetSize(400,400);
 
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   reader->Delete();

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Objects manager (specification).                                     */
 /*                                                                         */
-/*  Copyright 1996-2009, 2011 by                                           */
+/*  Copyright 1996-2018 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -16,8 +16,8 @@
 /***************************************************************************/
 
 
-#ifndef __TTOBJS_H__
-#define __TTOBJS_H__
+#ifndef TTOBJS_H_
+#define TTOBJS_H_
 
 
 #include <ft2build.h>
@@ -37,17 +37,6 @@ FT_BEGIN_HEADER
   /*    A handle to a TrueType driver object.                              */
   /*                                                                       */
   typedef struct TT_DriverRec_*  TT_Driver;
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Type>                                                                */
-  /*    TT_Instance                                                        */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A handle to a TrueType size object.                                */
-  /*                                                                       */
-  typedef struct TT_SizeRec_*  TT_Size;
 
 
   /*************************************************************************/
@@ -83,10 +72,6 @@ FT_BEGIN_HEADER
     FT_UnitVector  projVector;
     FT_UnitVector  freeVector;
 
-#ifdef TT_CONFIG_OPTION_UNPATENTED_HINTING
-    FT_Bool        both_x_axis;
-#endif
-
     FT_Long        loop;
     FT_F26Dot6     minimum_distance;
     FT_Int         round_state;
@@ -95,8 +80,8 @@ FT_BEGIN_HEADER
     FT_F26Dot6     control_value_cutin;
     FT_F26Dot6     single_width_cutin;
     FT_F26Dot6     single_width_value;
-    FT_Short       delta_base;
-    FT_Short       delta_shift;
+    FT_UShort      delta_base;
+    FT_UShort      delta_shift;
 
     FT_Byte        instruct_control;
     /* According to Greg Hitchcock from Microsoft, the `scan_control'     */
@@ -160,7 +145,7 @@ FT_BEGIN_HEADER
   typedef struct  TT_CodeRange_
   {
     FT_Byte*  base;
-    FT_ULong  size;
+    FT_Long   size;
 
   } TT_CodeRange;
 
@@ -173,10 +158,13 @@ FT_BEGIN_HEADER
   /*                                                                       */
   typedef struct  TT_DefRecord_
   {
-    FT_Int   range;      /* in which code range is it located? */
-    FT_Long  start;      /* where does it start?               */
-    FT_UInt  opc;        /* function #, or instruction code    */
-    FT_Bool  active;     /* is it active?                      */
+    FT_Int    range;          /* in which code range is it located?     */
+    FT_Long   start;          /* where does it start?                   */
+    FT_Long   end;            /* where does it end?                     */
+    FT_UInt   opc;            /* function #, or instruction code        */
+    FT_Bool   active;         /* is it active?                          */
+    FT_Bool   inline_delta;   /* is function that defines inline delta? */
+    FT_ULong  sph_fdef_flags; /* flags to identify special functions    */
 
   } TT_DefRecord, *TT_DefArray;
 
@@ -189,7 +177,7 @@ FT_BEGIN_HEADER
   {
     FT_Fixed    xx, xy;     /* transformation matrix coefficients */
     FT_Fixed    yx, yy;
-    FT_F26Dot6  ox, oy;     /* offsets        */
+    FT_F26Dot6  ox, oy;     /* offsets                            */
 
   } TT_Transform;
 
@@ -290,13 +278,16 @@ FT_BEGIN_HEADER
 
     /* we have our own copy of metrics so that we can modify */
     /* it without affecting auto-hinting (when used)         */
-    FT_Size_Metrics    metrics;
+    FT_Size_Metrics*   metrics;        /* for the current rendering mode */
+    FT_Size_Metrics    hinted_metrics; /* for the hinted rendering mode  */
 
     TT_Size_Metrics    ttmetrics;
 
     FT_ULong           strike_index;      /* 0xFFFFFFFF to indicate invalid */
 
 #ifdef TT_USE_BYTECODE_INTERPRETER
+
+    FT_Long            point_size;    /* for the `MPS' bytecode instruction */
 
     FT_UInt            num_function_defs; /* number of function definitions */
     FT_UInt            max_function_defs;
@@ -321,17 +312,12 @@ FT_BEGIN_HEADER
 
     TT_GlyphZoneRec    twilight;     /* The instance's twilight zone    */
 
-    /* debugging variables */
-
-    /* When using the debugger, we must keep the */
-    /* execution context tied to the instance    */
-    /* object rather than asking it on demand.   */
-
-    FT_Bool            debug;
     TT_ExecContext     context;
 
-    FT_Bool            bytecode_ready;
-    FT_Bool            cvt_ready;
+    /* if negative, `fpgm' (resp. `prep'), wasn't executed yet; */
+    /* otherwise it is the returned error code                  */
+    FT_Error           bytecode_ready;
+    FT_Error           cvt_ready;
 
 #endif /* TT_USE_BYTECODE_INTERPRETER */
 
@@ -344,11 +330,11 @@ FT_BEGIN_HEADER
   /*                                                                       */
   typedef struct  TT_DriverRec_
   {
-    FT_DriverRec     root;
-    TT_ExecContext   context;  /* execution context        */
+    FT_DriverRec  root;
+
     TT_GlyphZoneRec  zone;     /* glyph loader points zone */
 
-    void*            extension_component;
+    FT_UInt  interpreter_version;
 
   } TT_DriverRec;
 
@@ -404,7 +390,8 @@ FT_BEGIN_HEADER
 #endif /* TT_USE_BYTECODE_INTERPRETER */
 
   FT_LOCAL( FT_Error )
-  tt_size_reset( TT_Size  size );
+  tt_size_reset( TT_Size  size,
+                 FT_Bool  only_height );
 
 
   /*************************************************************************/
@@ -426,9 +413,13 @@ FT_BEGIN_HEADER
   tt_slot_init( FT_GlyphSlot  slot );
 
 
+  /* auxiliary */
+#define IS_HINTED( flags )  ( ( flags & FT_LOAD_NO_HINTING ) == 0 )
+
+
 FT_END_HEADER
 
-#endif /* __TTOBJS_H__ */
+#endif /* TTOBJS_H_ */
 
 
 /* END */

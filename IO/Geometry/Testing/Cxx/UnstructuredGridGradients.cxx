@@ -41,20 +41,20 @@ int UnstructuredGridGradients(int argc, char *argv[])
 {
   int i;
   // Need to get the data root.
-  const char *data_root = NULL;
+  const char *data_root = nullptr;
   for (i = 0; i < argc-1; i++)
-    {
+  {
     if (strcmp("-D", argv[i]) == 0)
-      {
+    {
       data_root = argv[i+1];
       break;
-      }
     }
+  }
   if (!data_root)
-    {
+  {
     cout << "Need to specify the directory to VTK_DATA_ROOT with -D <dir>." << endl;
     return 1;
-    }
+  }
 
   // Create the reader for the data.
   // This is the data that will be volume rendered.
@@ -126,20 +126,20 @@ int UnstructuredGridGradients(int argc, char *argv[])
 
   int retVal = vtkTesting::Test(argc, argv, renwin, 5.0);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     VTK_CREATE(vtkRenderWindowInteractor, iren);
     iren->SetRenderWindow(renwin);
     iren->Initialize();
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   if (retVal == vtkRegressionTester::PASSED)
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }

@@ -4,6 +4,7 @@ This file demonstrates the creation of a tree using the
 Python interface to VTK.
 """
 
+from __future__ import print_function
 from vtk import *
 
 #------------------------------------------------------------------------------
@@ -11,7 +12,7 @@ from vtk import *
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
 
-    print "vtkTree Example 1: Building a tree from scratch."
+    print("vtkTree Example 1: Building a tree from scratch.")
 
     # Create an empty graph
     G = vtkMutableDirectedGraph()
@@ -58,4 +59,4 @@ if __name__ == "__main__":
     view.Render()
 
     view.GetInteractor().Start()
-    print "vtkTree Example 1: Finished."
+    print("vtkTree Example 1: Finished.")

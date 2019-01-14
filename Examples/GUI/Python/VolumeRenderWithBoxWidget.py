@@ -35,11 +35,9 @@ ctfun.AddRGBPoint(1280.0, 0.9, 0.2, 0.3)
 ctfun.AddRGBPoint(1960.0, 0.81, 0.27, 0.1)
 ctfun.AddRGBPoint(4095.0, 0.5, 0.5, 0.5)
 
-compositeFunction = vtk.vtkVolumeRayCastCompositeFunction()
-
-volumeMapper = vtk.vtkVolumeRayCastMapper()
+volumeMapper = vtk.vtkGPUVolumeRayCastMapper()
 volumeMapper.SetInputConnection(v16.GetOutputPort())
-volumeMapper.SetVolumeRayCastFunction(compositeFunction)
+volumeMapper.SetBlendModeToComposite()
 
 volumeProperty = vtk.vtkVolumeProperty()
 volumeProperty.SetColor(ctfun)

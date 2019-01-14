@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageMirrorPad - Extra pixels are filled by mirror images.
-// .SECTION Description
-// vtkImageMirrorPad makes an image larger by filling extra pixels with
-// a mirror image of the original image (mirror at image boundaries).
-
+/**
+ * @class   vtkImageMirrorPad
+ * @brief   Extra pixels are filled by mirror images.
+ *
+ * vtkImageMirrorPad makes an image larger by filling extra pixels with
+ * a mirror image of the original image (mirror at image boundaries).
+*/
 
 #ifndef vtkImageMirrorPad_h
 #define vtkImageMirrorPad_h
@@ -33,17 +35,17 @@ public:
 
 protected:
   vtkImageMirrorPad() {}
-  ~vtkImageMirrorPad() {}
+  ~vtkImageMirrorPad() override {}
 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6], int wExt[6]);
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6], int wExt[6]) override;
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id);
+                            int ext[6], int id) override;
 private:
-  vtkImageMirrorPad(const vtkImageMirrorPad&);  // Not implemented.
-  void operator=(const vtkImageMirrorPad&);  // Not implemented.
+  vtkImageMirrorPad(const vtkImageMirrorPad&) = delete;
+  void operator=(const vtkImageMirrorPad&) = delete;
 };
 
 #endif

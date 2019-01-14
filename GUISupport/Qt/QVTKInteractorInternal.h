@@ -45,7 +45,7 @@ class QVTKInteractorInternal : public QObject
   Q_OBJECT
 public:
   QVTKInteractorInternal(QVTKInteractor* p);
-  ~QVTKInteractorInternal();
+  ~QVTKInteractorInternal() override;
 public Q_SLOTS:
   void TimerEvent(int id);
 public:

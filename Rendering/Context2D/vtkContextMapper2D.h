@@ -13,12 +13,15 @@
 
 =========================================================================*/
 
-// .NAME vtkContextMapper2D - Abstract class for 2D context mappers.
-//
-// .SECTION Description
-//
-// This class provides an abstract base for 2D context mappers. They currently
-// only accept vtkTable objects as input.
+/**
+ * @class   vtkContextMapper2D
+ * @brief   Abstract class for 2D context mappers.
+ *
+ *
+ *
+ * This class provides an abstract base for 2D context mappers. They currently
+ * only accept vtkTable objects as input.
+*/
 
 #ifndef vtkContextMapper2D_h
 #define vtkContextMapper2D_h
@@ -35,41 +38,45 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextMapper2D : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkContextMapper2D, vtkAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   static vtkContextMapper2D *New();
 
-  // Description:
-  // Set/Get the input for this object - only accepts vtkTable as input.
+  //@{
+  /**
+   * Set/Get the input for this object - only accepts vtkTable as input.
+   */
   virtual void SetInputData(vtkTable *input);
   virtual vtkTable * GetInput();
+  //@}
 
-  // Description:
-  // Make the arrays accessible to the plot objects.
+  /**
+   * Make the arrays accessible to the plot objects.
+   */
   vtkDataArray *GetInputArrayToProcess(int idx,
                                        vtkDataObject* input)
-    {
+  {
     return this->vtkAlgorithm::GetInputArrayToProcess(idx, input);
-    }
+  }
 
   vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,
                                        vtkDataObject* input)
-    {
+  {
     return this->vtkAlgorithm::GetInputAbstractArrayToProcess(idx, input);
-    }
+  }
 
-//BTX
 protected:
   vtkContextMapper2D();
-  ~vtkContextMapper2D();
+  ~vtkContextMapper2D() override;
 
-  // Description:
-  // Specify the types of input we can handle.
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  /**
+   * Specify the types of input we can handle.
+   */
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkContextMapper2D(const vtkContextMapper2D &); // Not implemented.
-  void operator=(const vtkContextMapper2D &); // Not implemented.
-//ETX
+  vtkContextMapper2D(const vtkContextMapper2D &) = delete;
+  void operator=(const vtkContextMapper2D &) = delete;
+
 };
 
 #endif //vtkContextMapper2D_h

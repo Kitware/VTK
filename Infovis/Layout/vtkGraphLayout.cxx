@@ -42,13 +42,13 @@ vtkCxxSetObjectMacro(vtkGraphLayout, Transform, vtkAbstractTransform);
 
 vtkGraphLayout::vtkGraphLayout()
 {
-  this->LayoutStrategy = 0;
+  this->LayoutStrategy = nullptr;
   this->StrategyChanged = false;
-  this->LastInput = NULL;
+  this->LastInput = nullptr;
   this->LastInputMTime = 0;
-  this->InternalGraph = 0;
+  this->InternalGraph = nullptr;
   this->ZRange = 0.0;
-  this->Transform = 0;
+  this->Transform = nullptr;
   this->UseTransform = false;
 
   this->EventForwarder = vtkEventForwarderCommand::New();
@@ -60,18 +60,18 @@ vtkGraphLayout::vtkGraphLayout()
 vtkGraphLayout::~vtkGraphLayout()
 {
   if (this->LayoutStrategy)
-    {
+  {
     this->LayoutStrategy->RemoveObserver(this->EventForwarder);
     this->LayoutStrategy->Delete();
-    }
+  }
   if (this->InternalGraph)
-    {
+  {
     this->InternalGraph->Delete();
-    }
+  }
   if (this->Transform)
-    {
+  {
     this->Transform->Delete();
-    }
+  }
   this->EventForwarder->Delete();
 }
 
@@ -83,46 +83,46 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
   // This method is a cut and paste of vtkCxxSetObjectMacro
   // except for the call to SetGraph in the middle :)
   if (strategy != this->LayoutStrategy)
-    {
+  {
     vtkGraphLayoutStrategy *tmp = this->LayoutStrategy;
     if (tmp)
-      {
+    {
       tmp->RemoveObserver(this->EventForwarder);
-      }
+    }
     this->LayoutStrategy = strategy;
-    if (this->LayoutStrategy != NULL)
-      {
+    if (this->LayoutStrategy != nullptr)
+    {
       this->StrategyChanged = true;
       this->LayoutStrategy->Register(this);
       this->LayoutStrategy->AddObserver(vtkCommand::ProgressEvent,
                                         this->EventForwarder);
       if (this->InternalGraph)
-        {
+      {
         // Set the graph in the layout strategy
         this->LayoutStrategy->SetGraph(this->InternalGraph);
-        }
       }
-    if (tmp != NULL)
-      {
-      tmp->UnRegister(this);
-      }
-    this->Modified();
     }
+    if (tmp != nullptr)
+    {
+      tmp->UnRegister(this);
+    }
+    this->Modified();
+  }
 }
 
 // ----------------------------------------------------------------------
 
-unsigned long
+vtkMTimeType
 vtkGraphLayout::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
-  if (this->LayoutStrategy != NULL)
-    {
+  if (this->LayoutStrategy != nullptr)
+  {
     time = this->LayoutStrategy->GetMTime();
     mTime = (time > mTime ? time : mTime);
-    }
+  }
   return mTime;
 }
 
@@ -132,12 +132,12 @@ int
 vtkGraphLayout::IsLayoutComplete()
 {
   if (this->LayoutStrategy)
-    {
+  {
     return this->LayoutStrategy->IsLayoutComplete();
-    }
+  }
 
   // This is an error condition
-  vtkErrorMacro("IsLayoutComplete called with layout strategy==NULL");
+  vtkErrorMacro("IsLayoutComplete called with layout strategy==nullptr");
   return 0;
 }
 
@@ -148,11 +148,11 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
                             vtkInformationVector **inputVector,
                             vtkInformationVector *outputVector)
 {
-  if (this->LayoutStrategy == NULL)
-    {
+  if (this->LayoutStrategy == nullptr)
+  {
     vtkErrorMacro(<< "Layout strategy must be non-null.");
     return 0;
-    }
+  }
 
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -170,25 +170,25 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
   if (this->StrategyChanged ||
       input != this->LastInput ||
       input->GetMTime() > this->LastInputMTime)
-    {
+  {
     if (this->StrategyChanged)
-      {
+    {
       vtkDebugMacro(<<"Strategy changed so reading in input again.");
       this->StrategyChanged = false;
-      }
+    }
     else if (input != this->LastInput)
-      {
+    {
       vtkDebugMacro(<<"Filter running with different input.  Resetting in strategy.");
-      }
+    }
     else
-      {
+    {
       vtkDebugMacro(<<"Input modified since last run.  Resetting in strategy.");
-      }
+    }
 
     if (this->InternalGraph)
-      {
+    {
       this->InternalGraph->Delete();
-      }
+    }
 
     this->InternalGraph = input->NewInstance();
     // The strategy object is going to modify the Points member so
@@ -212,12 +212,12 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
     this->LastInputMTime = input->GetMTime();
 
     // Give the layout strategy a pointer to the input.  We set it to
-    // NULL first to force the layout algorithm to re-initialize
+    // nullptr first to force the layout algorithm to re-initialize
     // itself.  This is necessary in case the input is the same data
     // object with a newer mtime.
-    this->LayoutStrategy->SetGraph(NULL);
+    this->LayoutStrategy->SetGraph(nullptr);
     this->LayoutStrategy->SetGraph(this->InternalGraph);
-    } // Done handling a new or changed filter input.
+  } // Done handling a new or changed filter input.
 
   // No matter whether the input is new or not, the layout strategy
   // needs to do its thing.  It modifies its input
@@ -227,50 +227,50 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Perturb points so they do not all have the same z value.
   if (this->ZRange != 0.0)
-    {
+  {
     vtkIdType numVert = output->GetNumberOfVertices();
     double x[3];
     bool onPlane = true;
     for (vtkIdType i = 0; i < numVert; ++i)
-      {
+    {
       output->GetPoint(i, x);
       if (x[2] != 0.0)
-        {
+      {
         onPlane = false;
         break;
-        }
       }
+    }
     if (onPlane)
-      {
+    {
       vtkPoints* pts = vtkPoints::New();
       pts->SetNumberOfPoints(numVert);
       for (vtkIdType i = 0; i < numVert; ++i)
-        {
+      {
         output->GetPoint(i, x);
         x[2] = this->ZRange*static_cast<double>(i)/numVert;
         pts->SetPoint(i, x);
-        }
+      }
       output->SetPoints(pts);
       pts->Delete();
-      }
     }
+  }
 
   if (this->UseTransform && this->Transform)
-    {
+  {
     vtkIdType numVert = output->GetNumberOfVertices();
     double x[3];
     double y[3];
     vtkPoints* pts = vtkPoints::New();
     pts->SetNumberOfPoints(numVert);
     for (vtkIdType i = 0; i < numVert; ++i)
-      {
+    {
       output->GetPoint(i, x);
       this->Transform->TransformPoint(x, y);
       pts->SetPoint(i, y);
-      }
+    }
     output->SetPoints(pts);
     pts->Delete();
-    }
+  }
 
   return 1;
 }
@@ -284,19 +284,19 @@ void vtkGraphLayout::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "StrategyChanged: " << (this->StrategyChanged ? "True" : "False") << endl;
   os << indent << "LayoutStrategy: " << (this->LayoutStrategy ? "" : "(none)") << endl;
   if (this->LayoutStrategy)
-    {
+  {
     this->LayoutStrategy->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "InternalGraph: " << (this->InternalGraph ? "" : "(none)") << endl;
   if (this->InternalGraph)
-    {
+  {
     this->InternalGraph->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "ZRange: " << this->ZRange << endl;
   os << indent << "Transform: " << (this->Transform ? "" : "(none)") << endl;
   if (this->Transform)
-    {
+  {
     this->Transform->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "UseTransform: " << (this->UseTransform ? "True" : "False") << endl;
 }

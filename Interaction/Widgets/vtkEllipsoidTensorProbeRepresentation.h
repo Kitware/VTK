@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkEllipsoidTensorProbeRepresentation - A concrete implementation of vtkTensorProbeRepresentation that renders tensors as ellipoids.
-// .SECTION Description
-// vtkEllipsoidTensorProbeRepresentation is a concrete implementation of
-// vtkTensorProbeRepresentation. It renders tensors as ellipsoids. Locations
-// between two points when probed have the tensors linearly interpolated
-// from the neighboring locations on the polyline.
-//
-// .SECTION See Also
-// vtkTensorProbeWidget
+/**
+ * @class   vtkEllipsoidTensorProbeRepresentation
+ * @brief   A concrete implementation of vtkTensorProbeRepresentation that renders tensors as ellipoids.
+ *
+ * vtkEllipsoidTensorProbeRepresentation is a concrete implementation of
+ * vtkTensorProbeRepresentation. It renders tensors as ellipsoids. Locations
+ * between two points when probed have the tensors linearly interpolated
+ * from the neighboring locations on the polyline.
+ *
+ * @sa
+ * vtkTensorProbeWidget
+*/
 
 #ifndef vtkEllipsoidTensorProbeRepresentation_h
 #define vtkEllipsoidTensorProbeRepresentation_h
@@ -38,33 +41,42 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkEllipsoidTensorProbeRepresentation :
 public:
   static vtkEllipsoidTensorProbeRepresentation *New();
 
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkEllipsoidTensorProbeRepresentation,
                                 vtkTensorProbeRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  virtual void BuildRepresentation();
-  virtual int RenderOpaqueGeometry(vtkViewport *);
+  void BuildRepresentation() override;
+  int RenderOpaqueGeometry(vtkViewport *) override;
 
-  // Description:
-  // Can we pick the tensor glyph at the current cursor pos
-  virtual int SelectProbe( int pos[2] );
+  /**
+   * Can we pick the tensor glyph at the current cursor pos
+   */
+  int SelectProbe( int pos[2] ) override;
 
-  // Description:
-  // See vtkProp for details.
-  virtual void GetActors(vtkPropCollection *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  //@{
+  /**
+   * See vtkProp for details.
+   */
+  void GetActors(vtkPropCollection *) override;
+  void ReleaseGraphicsResources(vtkWindow *) override;
+  //@}
+
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
 
 protected:
   vtkEllipsoidTensorProbeRepresentation();
-  ~vtkEllipsoidTensorProbeRepresentation();
+  ~vtkEllipsoidTensorProbeRepresentation() override;
 
   // Get the interpolated tensor at the current position
   void EvaluateTensor( double t[9] );
-
-  // Register internal Pickers within PickingManager
-  virtual void RegisterPickers();
 
   vtkActor           * EllipsoidActor;
   vtkPolyDataMapper  * EllipsoidMapper;
@@ -75,9 +87,9 @@ protected:
 
 private:
   vtkEllipsoidTensorProbeRepresentation(const
-      vtkEllipsoidTensorProbeRepresentation&);  //Not implemented
+      vtkEllipsoidTensorProbeRepresentation&) = delete;
   void operator=(const
-      vtkEllipsoidTensorProbeRepresentation&);  //Not implemented
+      vtkEllipsoidTensorProbeRepresentation&) = delete;
 
 };
 

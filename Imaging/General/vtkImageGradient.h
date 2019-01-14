@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageGradient - Computes the gradient vector.
-// .SECTION Description
-// vtkImageGradient computes the gradient vector of an image.  The
-// vector results are stored as scalar components. The Dimensionality
-// determines whether to perform a 2d or 3d gradient. The default is
-// two dimensional XY gradient.  OutputScalarType is always
-// double. Gradient is computed using central differences.
+/**
+ * @class   vtkImageGradient
+ * @brief   Computes the gradient vector.
+ *
+ * vtkImageGradient computes the gradient vector of an image.  The
+ * vector results are stored as scalar components. The Dimensionality
+ * determines whether to perform a 2d or 3d gradient. The default is
+ * two dimensional XY gradient.  OutputScalarType is always
+ * double. Gradient is computed using central differences.
+*/
 
 #ifndef vtkImageGradient_h
 #define vtkImageGradient_h
@@ -31,38 +34,44 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageGradient : public vtkThreadedImageAlgorit
 public:
   static vtkImageGradient *New();
   vtkTypeMacro(vtkImageGradient,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Determines how the input is interpreted (set of 2d slices ...)
+  //@{
+  /**
+   * Determines how the input is interpreted (set of 2d slices ...)
+   */
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
+  //@}
 
-  // Description:
-  // Get/Set whether to handle boundaries.  If enabled, boundary
-  // pixels are treated as duplicated so that central differencing
-  // works for the boundary pixels.  If disabled, the output whole
-  // extent of the image is reduced by one pixel.
-  vtkSetMacro(HandleBoundaries, int);
-  vtkGetMacro(HandleBoundaries, int);
-  vtkBooleanMacro(HandleBoundaries, int);
+  //@{
+  /**
+   * Get/Set whether to handle boundaries.  If enabled, boundary
+   * pixels are treated as duplicated so that central differencing
+   * works for the boundary pixels.  If disabled, the output whole
+   * extent of the image is reduced by one pixel.
+   */
+  vtkSetMacro(HandleBoundaries, vtkTypeBool);
+  vtkGetMacro(HandleBoundaries, vtkTypeBool);
+  vtkBooleanMacro(HandleBoundaries, vtkTypeBool);
+  //@}
 
 protected:
   vtkImageGradient();
-  ~vtkImageGradient() {}
+  ~vtkImageGradient() override {}
 
-  int HandleBoundaries;
+  vtkTypeBool HandleBoundaries;
   int Dimensionality;
 
-  virtual int RequestInformation (vtkInformation*,
+  int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
-  virtual int RequestUpdateExtent(vtkInformation*,
+                                  vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
-  virtual int RequestData(vtkInformation*,
+                                  vtkInformationVector*) override;
+  int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) override;
 
   void ThreadedRequestData(vtkInformation*,
                            vtkInformationVector**,
@@ -70,10 +79,10 @@ protected:
                            vtkImageData*** inData,
                            vtkImageData** outData,
                            int outExt[6],
-                           int threadId);
+                           int threadId) override;
 private:
-  vtkImageGradient(const vtkImageGradient&);  // Not implemented.
-  void operator=(const vtkImageGradient&);  // Not implemented.
+  vtkImageGradient(const vtkImageGradient&) = delete;
+  void operator=(const vtkImageGradient&) = delete;
 };
 
 #endif

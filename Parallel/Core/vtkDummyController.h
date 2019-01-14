@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDummyController - Dummy controller for single process applications
-// .SECTION Description
-// This is a dummy controller which can be used by applications which always
-// require a controller but are also compile on systems without threads
-// or mpi.
-// .SECTION see also
-// vtkMultiProcessController
+/**
+ * @class   vtkDummyController
+ * @brief   Dummy controller for single process applications
+ *
+ * This is a dummy controller which can be used by applications which always
+ * require a controller but are also compile on systems without threads
+ * or mpi.
+ * @sa
+ * vtkMultiProcessController
+*/
 
 #ifndef vtkDummyController_h
 #define vtkDummyController_h
@@ -31,46 +34,53 @@ class VTKPARALLELCORE_EXPORT vtkDummyController : public vtkMultiProcessControll
 public:
   static vtkDummyController *New();
   vtkTypeMacro(vtkDummyController,vtkMultiProcessController);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // This method is for setting up the processes.
-  virtual void Initialize(int*, char***, int) {}
-  virtual void Initialize(int*, char***) {}
-  virtual void Finalize() {}
-  virtual void Finalize(int) {}
+  /**
+   * This method is for setting up the processes.
+   */
+  void Initialize(int*, char***, int) override {}
+  void Initialize(int*, char***) override {}
+  void Finalize() override {}
+  void Finalize(int) override {}
 
-  // Description:
-  // This method always returns 0.
+  /**
+   * This method always returns 0.
+   */
   int GetLocalProcessId() { return 0; }
 
-  // Description:
-  // Directly calls the single method.
-  virtual void SingleMethodExecute();
+  /**
+   * Directly calls the single method.
+   */
+  void SingleMethodExecute() override;
 
-  // Description:
-  // Directly calls multiple method 0.
-  virtual void MultipleMethodExecute();
+  /**
+   * Directly calls multiple method 0.
+   */
+  void MultipleMethodExecute() override;
 
-  // Description:
-  // Does nothing.
-  virtual void CreateOutputWindow() {}
+  /**
+   * Does nothing.
+   */
+  void CreateOutputWindow() override {}
 
-  // Description:
-  // If you don't need any special functionality from the controller, you
-  // can swap out the dummy communicator for another one.
-  vtkGetObjectMacro(Communicator, vtkCommunicator);
+  //@{
+  /**
+   * If you don't need any special functionality from the controller, you
+   * can swap out the dummy communicator for another one.
+   */
   vtkGetObjectMacro(RMICommunicator, vtkCommunicator);
   virtual void SetCommunicator(vtkCommunicator *);
   virtual void SetRMICommunicator(vtkCommunicator *);
+  //@}
 
 protected:
   vtkDummyController();
-  ~vtkDummyController();
+  ~vtkDummyController() override;
 
 private:
-  vtkDummyController(const vtkDummyController&);  // Not implemented.
-  void operator=(const vtkDummyController&);  // Not implemented.
+  vtkDummyController(const vtkDummyController&) = delete;
+  void operator=(const vtkDummyController&) = delete;
 };
 
 #endif

@@ -13,24 +13,26 @@
 
 =========================================================================*/
 
-// .NAME vtkLabelSizeCalculator
-// .SECTION Description
-// This filter takes an input dataset, an array to process
-// (which must be a string array), and a text property.
-// It creates a new output array (named "LabelSize" by default) with
-// 4 components per tuple that contain the width, height, horizontal
-// offset, and descender height (in that order) of each string in
-// the array.
-//
-// Use the inherited SelectInputArrayToProcess to indicate a string array.
-// In no input array is specified, the first of the following that
-// is a string array is used: point scalars, cell scalars, field scalars.
-//
-// The second input array to process is an array specifying the type of
-// each label. Different label types may have different font properties.
-// This array must be a vtkIntArray.
-// Any type that does not map to a font property that was set will
-// be set to the type 0's type property.
+/**
+ * @class   vtkLabelSizeCalculator
+ *
+ * This filter takes an input dataset, an array to process
+ * (which must be a string array), and a text property.
+ * It creates a new output array (named "LabelSize" by default) with
+ * 4 components per tuple that contain the width, height, horizontal
+ * offset, and descender height (in that order) of each string in
+ * the array.
+ *
+ * Use the inherited SelectInputArrayToProcess to indicate a string array.
+ * In no input array is specified, the first of the following that
+ * is a string array is used: point scalars, cell scalars, field scalars.
+ *
+ * The second input array to process is an array specifying the type of
+ * each label. Different label types may have different font properties.
+ * This array must be a vtkIntArray.
+ * Any type that does not map to a font property that was set will
+ * be set to the type 0's type property.
+*/
 
 #ifndef vtkLabelSizeCalculator_h
 #define vtkLabelSizeCalculator_h
@@ -39,7 +41,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkIntArray;
-class vtkFreeTypeUtilities;
+class vtkTextRenderer;
 class vtkStringArray;
 class vtkTextProperty;
 
@@ -47,49 +49,64 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelSizeCalculator : public vtkPassInputTypeA
 {
 public:
   static vtkLabelSizeCalculator* New();
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   vtkTypeMacro(vtkLabelSizeCalculator,vtkPassInputTypeAlgorithm);
 
-  // Description:
-  // Get/Set the font used compute label sizes.
-  // This defaults to "Arial" at 12 points.
-  // If type is provided, it refers to the type of the text label provided
-  // in the optional label type array. The default type is type 0.
+  //@{
+  /**
+   * Get/Set the font used compute label sizes.
+   * This defaults to "Arial" at 12 points.
+   * If type is provided, it refers to the type of the text label provided
+   * in the optional label type array. The default type is type 0.
+   */
   virtual void SetFontProperty(vtkTextProperty* fontProp, int type = 0);
   virtual vtkTextProperty* GetFontProperty(int type = 0);
+  //@}
 
-  // Description:
-  // The name of the output array containing text label sizes
-  // This defaults to "LabelSize"
+  //@{
+  /**
+   * The name of the output array containing text label sizes
+   * This defaults to "LabelSize"
+   */
   vtkSetStringMacro(LabelSizeArrayName);
   vtkGetStringMacro(LabelSizeArrayName);
+  //@}
+
+  //@{
+  /**
+   * Get/Set the DPI at which the labels are to be rendered. Defaults to 72.
+   * @sa vtkWindow::GetDPI()
+   */
+  vtkSetMacro(DPI, int)
+  vtkGetMacro(DPI, int)
+  //@}
 
 protected:
   vtkLabelSizeCalculator();
-  virtual ~vtkLabelSizeCalculator();
+  ~vtkLabelSizeCalculator() override;
 
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
-  virtual int RequestData(
+  int FillInputPortInformation( int port, vtkInformation* info ) override;
+  int RequestData(
     vtkInformation* request,
     vtkInformationVector** inInfo,
-    vtkInformationVector* outInfo );
+    vtkInformationVector* outInfo ) override;
 
   virtual vtkIntArray* LabelSizesForArray( vtkAbstractArray* labels, vtkIntArray* types );
 
-  virtual void SetFontUtil( vtkFreeTypeUtilities* fontProp );
-  vtkGetObjectMacro(FontUtil,vtkFreeTypeUtilities);
+  virtual void SetFontUtil( vtkTextRenderer* fontProp );
+  vtkGetObjectMacro(FontUtil,vtkTextRenderer);
 
-  vtkFreeTypeUtilities* FontUtil;
+  vtkTextRenderer* FontUtil;
   char* LabelSizeArrayName;
 
-  //BTX
+  int DPI;
+
   class Internals;
   Internals* Implementation;
-  //ETX
 
 private:
-  vtkLabelSizeCalculator( const vtkLabelSizeCalculator& ); // Not implemented.
-  void operator = ( const vtkLabelSizeCalculator& ); // Not implemented.
+  vtkLabelSizeCalculator( const vtkLabelSizeCalculator& ) = delete;
+  void operator = ( const vtkLabelSizeCalculator& ) = delete;
 };
 
 #endif // vtkLabelSizeCalculator_h

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*keep this declaration near the top of this file -RPM*/
@@ -22,12 +20,10 @@ static const char *FileHeader = "\n\
  *                                                                           *\n\
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *\n\
  * terms governing use, modification, and redistribution, is contained in    *\n\
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *\n\
- * of the source code distribution tree; Copyright.html can be found at the  *\n\
- * root level of an installed copy of the electronic HDF5 document set and   *\n\
- * is linked from the top-level documents page.  It can also be found at     *\n\
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *\n\
- * access to either file, you may request a copy from help@hdfgroup.org.     *\n\
+ * the COPYING file, which can be found at the root of the source code       *\n\
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *\n\
+ * If you do not have access to either file, you may request a copy from     *\n\
+ * help@hdfgroup.org.                                                        *\n\
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *";
 /*
  *
@@ -44,15 +40,10 @@ static const char *FileHeader = "\n\
 #include <stdio.h>
 #include <time.h>
 #include "H5private.h"
-#include "vtk_libhdf5_mangle.h"
 
 #define LIBSETTINGSFNAME "libhdf5.settings"
 
-#define xstr(s) str(s)
-#define str(s) #s
-
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	insert_libhdf5_settings
  *
@@ -83,7 +74,7 @@ insert_libhdf5_settings(FILE *flibinfo)
 
     /* print variable definition and the string */
     /* Do not use const else AIX strings does not show it. */
-    fprintf(flibinfo, "char " xstr(H5libhdf5_settings) "[]=\n");
+    fprintf(flibinfo, "char H5libhdf5_settings[]=\n");
     bol++;
     while(EOF != (inchar = HDgetc(fsettings))) {
 	if(bol) {
@@ -117,7 +108,7 @@ insert_libhdf5_settings(FILE *flibinfo)
 #else
     /* print variable definition and an empty string */
     /* Do not use const else AIX strings does not show it. */
-    fprintf(flibinfo, "char " xstr(H5libhdf5_settings) "[]=\"\";\n");
+    fprintf(flibinfo, "char H5libhdf5_settings[]=\"\";\n");
 #endif
 } /* insert_libhdf5_settings() */
 
@@ -252,6 +243,7 @@ information about the library build configuration\n";
     for(i = 0; i < 73; i++)
         HDputchar('-');
     printf("\n */\n\n");
+    printf("#include \"vtk_hdf5_mangle.h\"\n\n");
 }
 
 

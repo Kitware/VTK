@@ -32,8 +32,8 @@ vtkCxxSetObjectMacro(vtkAbstractMapper,ClippingPlanes,vtkPlaneCollection);
 vtkAbstractMapper::vtkAbstractMapper()
 {
   this->TimeToDraw = 0.0;
-  this->LastWindow = NULL;
-  this->ClippingPlanes = NULL;
+  this->LastWindow = nullptr;
+  this->ClippingPlanes = nullptr;
   this->Timer = vtkTimerLog::New();
   this->SetNumberOfOutputPorts(0);
   this->SetNumberOfInputPorts(1);
@@ -43,35 +43,35 @@ vtkAbstractMapper::~vtkAbstractMapper()
 {
   this->Timer->Delete();
   if (this->ClippingPlanes)
-    {
+  {
     this->ClippingPlanes->UnRegister(this);
-    }
+  }
 }
 
 // Description:
 // Override Modifiedtime as we have added Clipping planes
-unsigned long vtkAbstractMapper::GetMTime()
+vtkMTimeType vtkAbstractMapper::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long clipMTime;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType clipMTime;
 
-  if ( this->ClippingPlanes != NULL )
-    {
+  if ( this->ClippingPlanes != nullptr )
+  {
     clipMTime = this->ClippingPlanes->GetMTime();
     mTime = ( clipMTime > mTime ? clipMTime : mTime );
-    }
+  }
 
   return mTime;
 }
 
 void vtkAbstractMapper::AddClippingPlane(vtkPlane *plane)
 {
-  if (this->ClippingPlanes == NULL)
-    {
+  if (this->ClippingPlanes == nullptr)
+  {
     this->ClippingPlanes = vtkPlaneCollection::New();
     this->ClippingPlanes->Register(this);
     this->ClippingPlanes->Delete();
-    }
+  }
 
   this->ClippingPlanes->AddItem(plane);
   this->Modified();
@@ -79,11 +79,11 @@ void vtkAbstractMapper::AddClippingPlane(vtkPlane *plane)
 
 void vtkAbstractMapper::RemoveClippingPlane(vtkPlane *plane)
 {
-  if (this->ClippingPlanes == NULL)
-    {
+  if (this->ClippingPlanes == nullptr)
+  {
     vtkErrorMacro(<< "Cannot remove clipping plane: mapper has none");
     return;
-    }
+  }
   this->ClippingPlanes->RemoveItem(plane);
   this->Modified();
 }
@@ -91,29 +91,29 @@ void vtkAbstractMapper::RemoveClippingPlane(vtkPlane *plane)
 void vtkAbstractMapper::RemoveAllClippingPlanes()
 {
   if ( this->ClippingPlanes )
-    {
+  {
     this->ClippingPlanes->RemoveAllItems();
-    }
+  }
 }
 
 void vtkAbstractMapper::SetClippingPlanes(vtkPlanes *planes)
 {
   vtkPlane *plane;
   if (!planes)
-    {
+  {
     return;
-    }
+  }
 
   int numPlanes = planes->GetNumberOfPlanes();
 
   this->RemoveAllClippingPlanes();
   for (int i=0; i<numPlanes && i<6; i++)
-    {
+  {
     plane = vtkPlane::New();
     planes->GetPlane(i, plane);
     this->AddClippingPlane(plane);
     plane->Delete();
-    }
+  }
 }
 
 vtkDataArray* vtkAbstractMapper::GetScalars(vtkDataSet *input,
@@ -125,7 +125,7 @@ vtkDataArray* vtkAbstractMapper::GetScalars(vtkDataSet *input,
 {
   vtkAbstractArray* abstractScalars =
     vtkAbstractMapper::GetAbstractScalars(input, scalarMode, arrayAccessMode, arrayId, arrayName, cellFlag);
-  vtkDataArray* scalars = vtkDataArray::SafeDownCast(abstractScalars);
+  vtkDataArray* scalars = vtkArrayDownCast<vtkDataArray>(abstractScalars);
   return scalars;
 }
 
@@ -136,77 +136,77 @@ vtkAbstractArray* vtkAbstractMapper::GetAbstractScalars(vtkDataSet *input,
                                                         const char *arrayName,
                                                         int& cellFlag)
 {
-  vtkAbstractArray *scalars=NULL;
+  vtkAbstractArray *scalars=nullptr;
   vtkPointData *pd;
   vtkCellData *cd;
   vtkFieldData *fd;
 
   // make sure we have an input
   if ( !input )
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
 
   // get and scalar data according to scalar mode
   if ( scalarMode == VTK_SCALAR_MODE_DEFAULT )
-    {
+  {
     scalars = input->GetPointData()->GetScalars();
     cellFlag = 0;
     if (!scalars)
-      {
+    {
       scalars = input->GetCellData()->GetScalars();
       cellFlag = 1;
-      }
     }
+  }
   else if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
-    {
+  {
     scalars = input->GetPointData()->GetScalars();
     cellFlag = 0;
-    }
+  }
   else if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
-    {
+  {
     scalars = input->GetCellData()->GetScalars();
     cellFlag = 1;
-    }
+  }
   else if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
-    {
+  {
     pd = input->GetPointData();
     if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
-      {
-      scalars = pd->GetAbstractArray(arrayId);
-      }
-    else
-      {
-      scalars = pd->GetAbstractArray(arrayName);
-      }
-    cellFlag = 0;
-    }
-  else if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
     {
+      scalars = pd->GetAbstractArray(arrayId);
+    }
+    else
+    {
+      scalars = pd->GetAbstractArray(arrayName);
+    }
+    cellFlag = 0;
+  }
+  else if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
+  {
     cd = input->GetCellData();
     if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
-      {
-      scalars = cd->GetAbstractArray(arrayId);
-      }
-    else
-      {
-      scalars = cd->GetAbstractArray(arrayName);
-      }
-    cellFlag = 1;
-    }
-  else if ( scalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA )
     {
+      scalars = cd->GetAbstractArray(arrayId);
+    }
+    else
+    {
+      scalars = cd->GetAbstractArray(arrayName);
+    }
+    cellFlag = 1;
+  }
+  else if ( scalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA )
+  {
     fd = input->GetFieldData();
     if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
-      {
+    {
       scalars = fd->GetAbstractArray(arrayId);
-      }
-    else
-      {
-      scalars = fd->GetAbstractArray(arrayName);
-      }
-    cellFlag = 2;
     }
+    else
+    {
+      scalars = fd->GetAbstractArray(arrayName);
+    }
+    cellFlag = 2;
+  }
 
   return scalars;
 }
@@ -225,14 +225,24 @@ void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TimeToDraw: " << this->TimeToDraw << "\n";
 
   if ( this->ClippingPlanes )
-    {
+  {
     os << indent << "ClippingPlanes:\n";
     this->ClippingPlanes->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "ClippingPlanes: (none)\n";
-    }
+  }
 }
 
+int vtkAbstractMapper::GetNumberOfClippingPlanes()
+{
+  int n = 0;
 
+  if ( this->ClippingPlanes )
+  {
+    n = this->ClippingPlanes->GetNumberOfItems();
+  }
+
+  return n;
+}

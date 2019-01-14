@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWidgetEvent - define widget events
-// .SECTION Description
-// vtkWidgetEvent defines widget events. These events are processed by
-// subclasses of vtkInteractorObserver.
+/**
+ * @class   vtkWidgetEvent
+ * @brief   define widget events
+ *
+ * vtkWidgetEvent defines widget events. These events are processed by
+ * subclasses of vtkInteractorObserver.
+*/
 
 #ifndef vtkWidgetEvent_h
 #define vtkWidgetEvent_h
@@ -26,18 +29,22 @@
 class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetEvent : public vtkObject
 {
 public:
-  // Description:
-  // The object factory constructor.
+  /**
+   * The object factory constructor.
+   */
   static vtkWidgetEvent *New() ;
 
-  // Description:
-  // Standard macros.
+  //@{
+  /**
+   * Standard macros.
+   */
   vtkTypeMacro(vtkWidgetEvent,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-//BTX
-  // Description:
-  // All the widget events are defined here.
+  /**
+   * All the widget events are defined here.
+   */
   enum WidgetEventIds {
     NoEvent = 0,
     Select,
@@ -62,22 +69,29 @@ public:
     Up,
     Down,
     Left,
-    Right
+    Right,
+    Select3D,
+    EndSelect3D,
+    Move3D,
+    AddPoint3D,
+    AddFinalPoint3D
   };
-//ETX
 
-  // Description:
-  // Convenience methods for translating between event names and event ids.
+  //@{
+  /**
+   * Convenience methods for translating between event names and event ids.
+   */
   static const char *GetStringFromEventId(unsigned long event);
   static unsigned long GetEventIdFromString(const char *event);
+  //@}
 
 protected:
   vtkWidgetEvent() {}
-  virtual ~vtkWidgetEvent() {}
+  ~vtkWidgetEvent() override {}
 
 private:
-  vtkWidgetEvent(const vtkWidgetEvent&);  //Not implemented
-  void operator=(const vtkWidgetEvent&);  //Not implemented
+  vtkWidgetEvent(const vtkWidgetEvent&) = delete;
+  void operator=(const vtkWidgetEvent&) = delete;
 
 };
 

@@ -1,0 +1,35 @@
+NAME
+  VTK::IOExportGL2PS
+LIBRARY_NAME
+  vtkIOExportGL2PS
+CONDITION
+  NOT ANDROID AND NOT APPLE_IOS
+IMPLEMENTABLE
+IMPLEMENTS
+  VTK::IOExportGL2PS
+GROUPS
+  Rendering
+DEPENDS
+  VTK::IOExport
+  VTK::RenderingGL2PSOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::ImagingCore
+  VTK::RenderingCore
+  VTK::gl2ps
+TEST_DEPENDS
+  VTK::ChartsCore
+  VTK::CommonColor
+  VTK::FiltersGeometry
+  VTK::FiltersModeling
+  VTK::IOParallel
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::ImagingHybrid
+  VTK::RenderingAnnotation
+  VTK::RenderingContextOpenGL2
+  VTK::RenderingLabel
+  VTK::RenderingVolumeOpenGL2
+  VTK::TestingRendering
+  VTK::ViewsContext2D

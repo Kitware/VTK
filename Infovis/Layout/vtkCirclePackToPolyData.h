@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkCirclePackToPolyData - converts a tree to a polygonal data
-// representing a circle packing of the hierarchy.
-//
-// .SECTION Description
-// This algorithm requires that the vtkCirclePackLayout filter has already
-// been applied to the data in order to create the triple array
-// (Xcenter, Ycenter, Radius) of circle bounds or each vertex of the tree.
+/**
+ * @class   vtkCirclePackToPolyData
+ * @brief   converts a tree to a polygonal data
+ * representing a circle packing of the hierarchy.
+ *
+ *
+ * This algorithm requires that the vtkCirclePackLayout filter has already
+ * been applied to the data in order to create the triple array
+ * (Xcenter, Ycenter, Radius) of circle bounds or each vertex of the tree.
+*/
 
 #ifndef vtkCirclePackToPolyData_h
 #define vtkCirclePackToPolyData_h
@@ -37,34 +40,38 @@ public:
   static vtkCirclePackToPolyData *New();
 
   vtkTypeMacro(vtkCirclePackToPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // The field containing triples of the form (Xcenter, Ycenter, Radius).
-  //
-  // This field may be added to the tree using vtkCirclePackLayout.
-  // This array must be set.
+  /**
+   * The field containing triples of the form (Xcenter, Ycenter, Radius).
+
+   * This field may be added to the tree using vtkCirclePackLayout.
+   * This array must be set.
+   */
   virtual void SetCirclesArrayName(const char* name)
     { this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
 
-  // Description:
-  // Define the number of sides used in output circles.
-  // Default is 100.
+  //@{
+  /**
+   * Define the number of sides used in output circles.
+   * Default is 100.
+   */
   vtkSetMacro(Resolution, unsigned int);
   vtkGetMacro(Resolution, unsigned int);
+  //@}
 
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 protected:
   vtkCirclePackToPolyData();
-  ~vtkCirclePackToPolyData();
+  ~vtkCirclePackToPolyData() override;
 
   unsigned int Resolution;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkCirclePackToPolyData(const vtkCirclePackToPolyData&);  // Not implemented.
-  void operator=(const vtkCirclePackToPolyData&);  // Not implemented.
+  vtkCirclePackToPolyData(const vtkCirclePackToPolyData&) = delete;
+  void operator=(const vtkCirclePackToPolyData&) = delete;
   void CreateCircle(const double& x,
                     const double& y,
                     const double& z,

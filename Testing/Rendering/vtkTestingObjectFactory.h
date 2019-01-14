@@ -15,17 +15,21 @@
 #ifndef vtkTestingObjectFactory_h
 #define vtkTestingObjectFactory_h
 
-// .NAME vtkTestingObjectFactory - Object overrides used during testing
-// .SECTION Description
-// Some vtk examples and tests need to perform differently when they
-// are run as tests versus when they are run as individual
-// programs. Many tests/examples are interactive and eventually call
-// vtkRenderWindowInteration::Start() to initialie the
-// interaction. But, when run as tests, these programs should
-// exit. This factory overrides vtkRenderWindowInteractor so that the
-// Start() method just returns.
-// To use this factory:
-// \code
+/**
+ * @class   vtkTestingObjectFactory
+ * @brief   Object overrides used during testing
+ *
+ * Some vtk examples and tests need to perform differently when they
+ * are run as tests versus when they are run as individual
+ * programs. Many tests/examples are interactive and eventually call
+ * vtkRenderWindowInteration::Start() to initialie the
+ * interaction. But, when run as tests, these programs should
+ * exit. This factory overrides vtkRenderWindowInteractor so that the
+ * Start() method just returns.
+ * To use this factory:
+ * \code
+*/
+
 #include "vtkTestingRenderingModule.h" // For export macro
 //   #include "vtkTestingObjectFactory.h"
 //   vtkTestingObjectFactory* factory = vtkTestingObjectFactory::New();
@@ -39,23 +43,23 @@
 #include "vtkTestingInteractor.h"  // Required for testing framework
 #include "vtkSmartPointer.h"       // Required for testing framework
 
-
 class VTKTESTINGRENDERING_EXPORT vtkTestingObjectFactory : public vtkObjectFactory
 {
 public:
   static vtkTestingObjectFactory* New();
   vtkTypeMacro(vtkTestingObjectFactory,vtkObjectFactory);
-  virtual const char* GetVTKSourceVersion();
-  const char* GetDescription() { return "Factory for overrides during testing"; }
-  void PrintSelf(ostream& os, vtkIndent indent);
+  const char* GetVTKSourceVersion() override;
+  const char* GetDescription() override { return "Factory for overrides during testing"; }
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  // Description:
-  // Register objects that override vtk objects whem they are run as tests.
+  /**
+   * Register objects that override vtk objects whem they are run as tests.
+   */
   vtkTestingObjectFactory();
 
 private:
-  vtkTestingObjectFactory(const vtkTestingObjectFactory&); // Not implemented
-  void operator=(const vtkTestingObjectFactory&);          // Not implemented
+  vtkTestingObjectFactory(const vtkTestingObjectFactory&) = delete;
+  void operator=(const vtkTestingObjectFactory&) = delete;
 };
 #endif

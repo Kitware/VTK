@@ -32,14 +32,14 @@ vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkPProbeFilter::vtkPProbeFilter()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkPProbeFilter::~vtkPProbeFilter()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -48,9 +48,9 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
                                  vtkInformationVector *outputVector)
 {
   if (!this->Superclass::RequestData(request, inputVector, outputVector))
-    {
+  {
     return 0;
-    }
+  }
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkDataSet *output = vtkDataSet::SafeDownCast(
@@ -59,24 +59,24 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
   int procid = 0;
   int numProcs = 1;
   if ( this->Controller )
-    {
+  {
     procid = this->Controller->GetLocalProcessId();
     numProcs = this->Controller->GetNumberOfProcesses();
-    }
+  }
 
-  vtkIdType numPoints = this->NumberOfValidPoints;
+  vtkIdType numPoints = this->GetValidPoints()->GetNumberOfTuples();
   if ( procid )
-    {
+  {
     // Satellite node
     this->Controller->Send(&numPoints, 1, 0, PROBE_COMMUNICATION_TAG);
     if ( numPoints > 0 )
-      {
-      this->Controller->Send(output, 0, PROBE_COMMUNICATION_TAG);
-      }
-    output->ReleaseData();
-    }
-  else if ( numProcs > 1 )
     {
+      this->Controller->Send(output, 0, PROBE_COMMUNICATION_TAG);
+    }
+    output->ReleaseData();
+  }
+  else if ( numProcs > 1 )
+  {
     vtkIdType numRemoteValidPoints = 0;
     vtkDataSet *remoteProbeOutput = output->NewInstance();
     vtkPointData *remotePointData;
@@ -85,40 +85,51 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
     vtkIdType k;
     vtkIdType pointId;
     for (i = 1; i < numProcs; i++)
-      {
+    {
       this->Controller->Receive(&numRemoteValidPoints, 1, i, PROBE_COMMUNICATION_TAG);
       if (numRemoteValidPoints > 0)
-        {
+      {
         this->Controller->Receive(remoteProbeOutput, i, PROBE_COMMUNICATION_TAG);
 
         remotePointData = remoteProbeOutput->GetPointData();
 
-        vtkCharArray* maskArray = vtkCharArray::SafeDownCast(
+        vtkCharArray* maskArray = vtkArrayDownCast<vtkCharArray>(
           remotePointData->GetArray(this->ValidPointMaskArrayName));
 
         // Iterate over all point data in the output gathered from the remove
         // and copy array values from all the pointIds which have the mask array
         // bit set to 1.
         vtkIdType numRemotePoints = remoteProbeOutput->GetNumberOfPoints();
-        for (pointId=0; (pointId < numRemotePoints) && maskArray; pointId++)
+        if (output->GetNumberOfCells() != remoteProbeOutput->GetNumberOfCells() ||
+            output->GetNumberOfPoints() != remoteProbeOutput->GetNumberOfPoints())
+        {
+          vtkErrorMacro("vtkPProbeFilter assumes the whole geometry dataset "
+                        "(which determines positions to probe) is available "
+                        "on all nodes, however nodes 0 is different than node "
+                        << i);
+        }
+        else if (maskArray)
+        {
+          for (pointId=0; pointId < numRemotePoints; ++pointId)
           {
-          if (maskArray->GetValue(pointId) == 1)
+            if (maskArray->GetValue(pointId) == 1)
             {
-            for (k = 0; k < pointData->GetNumberOfArrays(); k++)
+              for (k = 0; k < pointData->GetNumberOfArrays(); ++k)
               {
-              vtkAbstractArray *oaa = pointData->GetArray(k);
-              vtkAbstractArray *raa = remotePointData->GetArray(oaa->GetName());
-              if (raa != NULL)
+                vtkAbstractArray *oaa = pointData->GetArray(k);
+                vtkAbstractArray *raa = remotePointData->GetArray(oaa->GetName());
+                if (raa != nullptr)
                 {
-                oaa->SetTuple(pointId, pointId, raa);
+                  oaa->SetTuple(pointId, pointId, raa);
                 }
               }
             }
           }
         }
       }
-    remoteProbeOutput->Delete();
     }
+    remoteProbeOutput->Delete();
+  }
 
   return 1;
 }
@@ -133,7 +144,9 @@ int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, 0, 1, 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
 
 //inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
 //inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
@@ -141,7 +154,8 @@ int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
 //            0);
   // If structured data, we want the whole extent. This is necessary because
   // the pipeline will copy the update extent from the output to all inputs.
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(sourceInfo);
+  sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
   // Then we want the same as output pieces.
   sourceInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
@@ -160,14 +174,14 @@ int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
 int vtkPProbeFilter::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
 
   if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
-    }
+  }
   return 1;
 }
 

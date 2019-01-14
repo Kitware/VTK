@@ -33,10 +33,10 @@
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkObjectFactory.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <string>
 #include "vtkSmartPointer.h"
-using vtksys_ios::ostringstream;
+using std::ostringstream;
 using std::string;
 
 // Here are some default shape functions weights which
@@ -141,20 +141,18 @@ vtkQuadratureSchemeDictionaryGenerator::vtkQuadratureSchemeDictionaryGenerator()
 }
 
 //-----------------------------------------------------------------------------
-vtkQuadratureSchemeDictionaryGenerator::~vtkQuadratureSchemeDictionaryGenerator()
-{
-}
+vtkQuadratureSchemeDictionaryGenerator::~vtkQuadratureSchemeDictionaryGenerator() = default;
 
 //-----------------------------------------------------------------------------
 int vtkQuadratureSchemeDictionaryGenerator::FillInputPortInformation(int port,
     vtkInformation *info)
 {
   switch (port)
-    {
+  {
     case 0:
       info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
       break;
-    }
+  }
   return 1;
 }
 
@@ -163,11 +161,11 @@ int vtkQuadratureSchemeDictionaryGenerator::FillOutputPortInformation(int port,
     vtkInformation *info)
 {
   switch (port)
-    {
+  {
     case 0:
       info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
       break;
-    }
+  }
   return 1;
 }
 
@@ -186,12 +184,12 @@ int vtkQuadratureSchemeDictionaryGenerator::RequestData(vtkInformation *,
   vtkUnstructuredGrid *usgOut = vtkUnstructuredGrid::SafeDownCast(tmpDataObj);
 
   // Quick sanity check.
-  if (usgIn == NULL || usgOut == NULL || usgIn->GetNumberOfPoints() == 0
+  if (usgIn == nullptr || usgOut == nullptr || usgIn->GetNumberOfPoints() == 0
       || usgIn->GetPointData()->GetNumberOfArrays() == 0)
-    {
+  {
     vtkWarningMacro("Filter data has not been configured correctly. Aborting.");
     return 1;
-    }
+  }
 
   // Copy the unstructured grid on the input
   usgOut->ShallowCopy(usgIn);
@@ -217,32 +215,32 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(
   // add a definition to the dictionary for each cell type.
   int nCellTypes = cellTypes->GetNumberOfTypes();
 
-  // create the offset array and store the dictionnary within
+  // create the offset array and store the dictionary within
   vtkIdTypeArray* offsets = vtkIdTypeArray::New();
   string basename = "QuadratureOffset";
   string finalname = basename;
   vtkDataArray* data = usgOut->GetCellData()->GetArray(basename.c_str());
   ostringstream interpolatedName;
   int i = 0;
-  while (data != NULL)
-    {
+  while (data != nullptr)
+  {
     interpolatedName << basename << i;
     data = usgOut->GetCellData()->GetArray(interpolatedName.str().c_str());
     finalname = interpolatedName.str();
     i++;
-    }
+  }
 
   offsets->SetName(finalname.c_str());
   usgOut->GetCellData()->AddArray(offsets);
   vtkInformation *info = offsets->GetInformation();
 
   for (int typeId = 0; typeId < nCellTypes; ++typeId)
-    {
+  {
     int cellType = cellTypes->GetCellType(typeId);
     // Initiaze a definition for this particular cell type.
     vtkSmartPointer<vtkQuadratureSchemeDefinition> def = vtkSmartPointer<vtkQuadratureSchemeDefinition>::New();
     switch (cellType)
-      {
+    {
       case VTK_TRIANGLE:
         def->Initialize(VTK_TRIANGLE, 3, 3, W_T_32_A);
         break;
@@ -266,12 +264,12 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(
             << "with no definition provided. Add a definition " << " in "
             << __FILE__ << ". Aborting." << endl;
         return 0;
-      }
+    }
 
-    // The definition must apear in the dictionary associated
+    // The definition must appear in the dictionary associated
     // with the offset array
     key->Set(info, def, cellType);
-    }
+  }
 
   int dictSize = key->Size(info);
   vtkQuadratureSchemeDefinition **dict =
@@ -281,13 +279,13 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(
   offsets->SetNumberOfTuples(usgOut->GetNumberOfCells());
   vtkIdType offset = 0;
   for (vtkIdType cellid = 0; cellid < usgOut->GetNumberOfCells(); cellid++)
-    {
+  {
     offsets->SetValue(cellid, offset);
     vtkCell* cell = usgOut->GetCell(cellid);
     int cellType = cell->GetCellType();
     vtkQuadratureSchemeDefinition * celldef = dict[cellType];
     offset += celldef->GetNumberOfQuadraturePoints();
-    }
+  }
   offsets->Delete();
   cellTypes->Delete();
   delete[] dict;

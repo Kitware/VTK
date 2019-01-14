@@ -28,8 +28,9 @@ vtkStandardNewMacro(vtkGeoTreeNodeCache);
 //----------------------------------------------------------------------------
 vtkGeoTreeNodeCache::vtkGeoTreeNodeCache()
 {
-  this->Oldest = 0;
-  this->Newest = 0;
+  VTK_LEGACY_BODY(vtkGeoTreeNodeCache::vtkGeoTreeNodeCache, "VTK 8.2");
+  this->Oldest = nullptr;
+  this->Newest = nullptr;
   this->Size = 0;
   this->CacheMaximumLimit = 500;
   this->CacheMinimumLimit = 250;
@@ -41,62 +42,62 @@ vtkGeoTreeNodeCache::~vtkGeoTreeNodeCache()
   // Break reference loops by explicitly setting all prev/next pointers to null.
   vtkGeoTreeNode* cur;
   for (cur = this->Newest; cur; cur = cur->GetOlder())
-    {
-    cur->SetOlder(0);
-    cur->SetNewer(0);
-    }
+  {
+    cur->SetOlder(nullptr);
+    cur->SetNewer(nullptr);
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkGeoTreeNodeCache::SendToFront(vtkGeoTreeNode* node)
 {
   if (node == this->Newest)
-    {
+  {
     return;
-    }
+  }
 
   // Remove from the list if in the list already
   this->RemoveNode(node);
 
   // Add to the beginning of the list
   if (this->Size > 0)
-    {
-    node->SetNewer(0);
+  {
+    node->SetNewer(nullptr);
     node->SetOlder(this->Newest);
     this->Newest->SetNewer(node);
     this->Newest = node;
-    }
+  }
   else
-    {
-    node->SetNewer(0);
-    node->SetOlder(0);
+  {
+    node->SetNewer(nullptr);
+    node->SetOlder(nullptr);
     this->Newest = node;
     this->Oldest = node;
-    }
+  }
   this->Size++;
   if (this->Size > this->CacheMaximumLimit)
-    {
+  {
     this->TrimToCacheMinimum();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkGeoTreeNodeCache::TrimToCacheMinimum()
 {
   while (this->Size > this->CacheMinimumLimit)
-    {
+  {
     vtkGeoTreeNode* node = this->Oldest;
-    node->GetNewer()->SetOlder(0);
+    node->GetNewer()->SetOlder(nullptr);
     this->Oldest = node->GetNewer();
-    node->SetOlder(0);
-    node->SetNewer(0);
+    node->SetOlder(nullptr);
+    node->SetNewer(nullptr);
 
     // If this was the last of a set of siblings to leave the list,
     // delete data from all siblings.
     this->DeleteDataFromSiblings(node);
 
     this->Size--;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -105,56 +106,56 @@ void vtkGeoTreeNodeCache::DeleteDataFromSiblings(vtkGeoTreeNode* node)
   // Delete data from node or siblings if possible.
   vtkGeoTreeNode* parent = node->GetParentTreeNode();
   if (!parent)
-    {
+  {
     return;
-    }
+  }
   bool canDeleteSiblings = true;
   for (int c = 0; c < 4; ++c)
-    {
+  {
     vtkGeoTreeNode* child = parent->GetChildTreeNode(c);
     if (!child || child->GetOlder() || child->GetNewer() || child == this->Newest)
-      {
+    {
       canDeleteSiblings = false;
       break;
-      }
     }
+  }
   if (canDeleteSiblings)
-    {
+  {
     for (int c = 0; c < 4; ++c)
-      {
+    {
       vtkGeoTreeNode* child = parent->GetChildTreeNode(c);
       child->DeleteData();
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkGeoTreeNodeCache::RemoveNode(vtkGeoTreeNode* node)
 {
   if (!node->GetNewer() && !node->GetOlder() && node != this->Newest)
-    {
+  {
     // The node is not in the list
     return;
-    }
+  }
 
   if (!node->GetNewer())
-    {
+  {
     this->Newest = node->GetOlder();
-    }
+  }
   else
-    {
+  {
     node->GetNewer()->SetOlder(node->GetOlder());
-    }
+  }
   if (!node->GetOlder())
-    {
+  {
     this->Oldest = node->GetNewer();
-    }
+  }
   else
-    {
+  {
     node->GetOlder()->SetNewer(node->GetNewer());
-    }
-  node->SetOlder(0);
-  node->SetNewer(0);
+  }
+  node->SetOlder(nullptr);
+  node->SetNewer(nullptr);
   this->Size--;
 }
 

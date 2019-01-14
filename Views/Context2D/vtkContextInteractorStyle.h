@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkContextInteractorStyle - An interactor for chart views
-// It observes the user events (mouse events) and propagates them
-// to the scene. If the scene doesn't eat the event, it is propagated
-// to the interactor style superclass.
-//
-// .SECTION Description
+/**
+ * @class   vtkContextInteractorStyle
+ * @brief   An interactor for chart views.
+ *
+ *
+ * It observes the user events (mouse events) and propagates them
+ * to the scene. If the scene doesn't eat the event, it is propagated
+ * to the interactor style superclass.
+*/
 
 #ifndef vtkContextInteractorStyle_h
 #define vtkContextInteractorStyle_h
@@ -35,89 +38,105 @@ class VTKVIEWSCONTEXT2D_EXPORT vtkContextInteractorStyle : public vtkInteractorS
 public:
   static vtkContextInteractorStyle *New();
   vtkTypeMacro(vtkContextInteractorStyle, vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set the scene to forward user events to.
-  // Refresh the view when the scene is dirty and no event is being processed.
-  // The scene is observed (vtkCommand::ModifiedEvent) and a refresh on the
-  // view is called appropriately: scene is dirty and no event is being
-  // processed.
+  /**
+   * Set the scene to forward user events to.
+   * Refresh the view when the scene is dirty and no event is being processed.
+   * The scene is observed (vtkCommand::ModifiedEvent) and a refresh on the
+   * view is called appropriately: scene is dirty and no event is being
+   * processed.
+   */
   void SetScene(vtkContextScene* scene);
 
-  // Description:
-  // Return the observed scene.
+  /**
+   * Return the observed scene.
+   */
   vtkContextScene* GetScene();
 
-  // Description:
-  // Called when the scene is modified. Refresh the scene if needed.
+  /**
+   * Called when the scene is modified. Refresh the scene if needed.
+   */
   virtual void OnSceneModified();
 
-  // Description:
-  // Called when the user moves the mouse
-  // Default behavior forwards the event to the observed scene.
-  virtual void OnMouseMove();
+  /**
+   * Called when the user moves the mouse
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnMouseMove() override;
 
-  // Description:
-  // Called when the user clicks the mouse left button.
-  // Default behavior forwards the event to the observed scene.
-  virtual void OnLeftButtonDown();
+  /**
+   * Called when the user clicks the mouse left button.
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnLeftButtonDown() override;
 
-  // Description:
-  // Called when the user releases the mouse left button.
-  // Default behavior forwards the event to the observed scene.
-  virtual void OnLeftButtonUp();
+  /**
+   * Called when the user releases the mouse left button.
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnLeftButtonUp() override;
 
-  // Description:
-  // Called when the user clicks the mouse middle button.
-  // Default behavior forwards the event to the observed scene.
-  virtual void OnMiddleButtonDown();
+  /**
+   * Called when the user clicks the mouse middle button.
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnMiddleButtonDown() override;
 
-  // Description:
-  // Called when the user releases the mouse middle button.
-  // Default behavior forwards the event to the observed scene.
-  virtual void OnMiddleButtonUp();
+  /**
+   * Called when the user releases the mouse middle button.
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnMiddleButtonUp() override;
 
-  // Description:
-  // Called when the user clicks the mouse right button.
-  // Default behavior forwards the event to the observed scene.
-  virtual void OnRightButtonDown();
+  /**
+   * Called when the user clicks the mouse right button.
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnRightButtonDown() override;
 
-  // Description:
-  // Called when the user releases the mouse right button.
-  // Default behavior forwards the event to the observed scene.
-  virtual void OnRightButtonUp();
+  /**
+   * Called when the user releases the mouse right button.
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnRightButtonUp() override;
 
-  // Description:
-  // Called when the user moves the mouse wheel forward.
-  // Default behavior forwards the event to the observed scene.
-  virtual void OnMouseWheelForward();
+  /**
+   * Called when the user moves the mouse wheel forward.
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnMouseWheelForward() override;
 
-  // Description:
-  // Called when the user moves the mouse wheel backward.
-  // Default behavior forwards the event to the observed scene.
-  virtual void OnMouseWheelBackward();
+  /**
+   * Called when the user moves the mouse wheel backward.
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnMouseWheelBackward() override;
 
-  // Description:
-  // Place holder for future implementation.
-  // Default behavior forwards the event to the observed scene.
+  /**
+   * Place holder for future implementation.
+   * Default behavior forwards the event to the observed scene.
+   */
   virtual void OnSelection(unsigned int rect[5]);
 
-  // Description:
-  // Handle key presses.
-  virtual void OnChar();
+  /**
+   * Handle key presses.
+   */
+  void OnChar() override;
 
-  // Description:
-  // Called when the user presses a key.
-  virtual void OnKeyPress();
+  /**
+   * Called when the user presses a key.
+   */
+  void OnKeyPress() override;
 
-  // Description:
-  // Called when the user releases a key.
-  virtual void OnKeyRelease();
+  /**
+   * Called when the user releases a key.
+   */
+  void OnKeyRelease() override;
 
 protected:
   vtkContextInteractorStyle();
-  ~vtkContextInteractorStyle();
+  ~vtkContextInteractorStyle() override;
 
   static void ProcessSceneEvents(vtkObject* object, unsigned long event,
                                  void* clientdata, void* calldata);
@@ -127,30 +146,32 @@ protected:
 
   virtual void RenderNow();
 
-  // Description:
-  // Inform the interactor style that an event is being processed.
-  // That way is knows to not refresh the view (the view will eventually be
-  // refreshed at the end.
+  /**
+   * Inform the interactor style that an event is being processed.
+   * That way is knows to not refresh the view (the view will eventually be
+   * refreshed at the end.
+   */
   void BeginProcessingEvent();
 
-  // Description:
-  // Inform the interactor style that an event is finished to be processed.
-  // If no other event is being processed it check if the scene needs to be
-  // rendered (scene is dirty)
+  /**
+   * Inform the interactor style that an event is finished to be processed.
+   * If no other event is being processed it check if the scene needs to be
+   * rendered (scene is dirty)
+   */
   void EndProcessingEvent();
 
   vtkWeakPointer<vtkContextScene> Scene;
   vtkNew<vtkCallbackCommand> SceneCallbackCommand;
   vtkNew<vtkCallbackCommand> InteractorCallbackCommand;
   int                 ProcessingEvents;
-  unsigned long int   LastSceneRepaintMTime;
+  vtkMTimeType        LastSceneRepaintMTime;
 
-  int                 TimerId;
+  int                 SceneTimerId;
   bool                TimerCallbackInitialized;
 
 private:
-  vtkContextInteractorStyle(const vtkContextInteractorStyle&); // Not implemented
-  void operator=(const vtkContextInteractorStyle&); // Not implemented
+  vtkContextInteractorStyle(const vtkContextInteractorStyle&) = delete;
+  void operator=(const vtkContextInteractorStyle&) = delete;
 
   void ConstructMouseEvent(vtkContextMouseEvent &event, int button);
   bool ProcessMousePress(const vtkContextMouseEvent &event);

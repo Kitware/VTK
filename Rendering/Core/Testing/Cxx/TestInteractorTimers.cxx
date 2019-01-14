@@ -25,7 +25,7 @@ class vtkTimerCallback : public vtkCommand
 {
 public:
   static vtkTimerCallback *New()
-    {
+  {
     vtkTimerCallback *cb = new vtkTimerCallback;
     cb->ReallyFastTimerId = 0;
     cb->ReallyFastTimerCount = 0;
@@ -36,101 +36,104 @@ public:
     cb->OneShotTimerId = 0;
     cb->QuitOnOneShotTimer = 1;
     return cb;
-    }
+  }
 
-  virtual void Execute(vtkObject *caller, unsigned long eventId,
-    void *callData)
-    {
+  void Execute(vtkObject *caller, unsigned long eventId,
+    void *callData) override
+  {
     if (vtkCommand::TimerEvent == eventId)
-      {
+    {
       int tid = * static_cast<int *>(callData);
 
       if (tid == this->ReallyFastTimerId)
-        {
+      {
         ++this->ReallyFastTimerCount;
-        }
+      }
       else if (tid == this->FastTimerId)
-        {
+      {
         ++this->FastTimerCount;
-        }
+      }
       else if (tid == this->RenderTimerId)
-        {
+      {
         ++this->RenderTimerCount;
 
         vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(caller);
         if (iren && iren->GetRenderWindow() && iren->GetRenderWindow()->GetRenderers())
-          {
+        {
           int n = this->RenderTimerCount % 20;
           if (n>10)
-            {
+          {
             n = 20 - n;
-            }
+          }
 
           double f = static_cast<double>(n) / 10.0;
 
           vtkRenderer *renderer = iren->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
           if (renderer)
-            {
+          {
             renderer->SetBackground(f, f, f);
-            }
+          }
 
           iren->Render();
-          }
         }
+      }
       else if (tid == this->OneShotTimerId)
-        {
+      {
         this->Report();
 
         if (this->QuitOnOneShotTimer)
-          {
+        {
           cout << "QuitOnOneShotTimer is true." << endl;
 
           vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(caller);
           if (iren)
-            {
+          {
+            iren->DestroyTimer(this->ReallyFastTimerId);
+            iren->DestroyTimer(this->FastTimerId);
+            iren->DestroyTimer(this->RenderTimerId);
             cout << "Calling iren->ExitCallback()..." << endl;
             iren->ExitCallback();
-            }
           }
+        }
         else
-          {
+        {
           cout << "QuitOnOneShotTimer is false." << endl;
           cout << "Remaining interactive..." << endl;
-          }
         }
       }
     }
+  }
 
   void SetReallyFastTimerId(int tid)
-    {
+  {
     this->ReallyFastTimerId = tid;
     this->ReallyFastTimerCount = 0;
-    }
+  }
 
   void SetFastTimerId(int tid)
-    {
+  {
     this->FastTimerId = tid;
     this->FastTimerCount = 0;
-    }
+  }
 
   void SetRenderTimerId(int tid)
-    {
+  {
     this->RenderTimerId = tid;
     this->RenderTimerCount = 0;
-    }
+  }
 
   void SetOneShotTimerId(int tid)
-    {
+  {
     this->OneShotTimerId = tid;
-    }
+  }
 
   void SetQuitOnOneShotTimer(int quit)
-    {
+  {
     this->QuitOnOneShotTimer = quit;
-    }
+  }
 
   void Report()
-    {
+  {
     cout << "vtkTimerCallback::Report" << endl;
     cout << "  ReallyFastTimerId: " << this->ReallyFastTimerId << endl;
     cout << "  ReallyFastTimerCount: " << this->ReallyFastTimerCount << endl;
@@ -140,7 +143,7 @@ public:
     cout << "  RenderTimerCount: " << this->RenderTimerCount << endl;
     cout << "  OneShotTimerId: " << this->OneShotTimerId << endl;
     cout << "  QuitOnOneShotTimer: " << this->QuitOnOneShotTimer << endl;
-    }
+  }
 
 private:
   int ReallyFastTimerId;
@@ -159,9 +162,9 @@ int TestInteractorTimers(int argc, char* argv[])
 
   vtkTesting * testing = vtkTesting::New();
   for (i = 0; i < argc; ++i)
-    {
+  {
     testing->AddArgument(argv[i]);
-    }
+  }
 
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -194,9 +197,9 @@ int TestInteractorTimers(int argc, char* argv[])
   tid = iren->CreateRepeatingTimer(100);
   cb->SetRenderTimerId(tid);
 
-  // And create a one shot timer to quit after 10 seconds.
+  // And create a one shot timer to quit after 4 seconds.
   //
-  tid = iren->CreateOneShotTimer(10000);
+  tid = iren->CreateOneShotTimer(4000);
   cb->SetOneShotTimerId(tid);
   cb->SetQuitOnOneShotTimer(!testing->IsInteractiveModeSpecified());
 

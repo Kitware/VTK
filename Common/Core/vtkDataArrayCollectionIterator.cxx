@@ -20,14 +20,10 @@
 vtkStandardNewMacro(vtkDataArrayCollectionIterator);
 
 //----------------------------------------------------------------------------
-vtkDataArrayCollectionIterator::vtkDataArrayCollectionIterator()
-{
-}
+vtkDataArrayCollectionIterator::vtkDataArrayCollectionIterator() = default;
 
 //----------------------------------------------------------------------------
-vtkDataArrayCollectionIterator::~vtkDataArrayCollectionIterator()
-{
-}
+vtkDataArrayCollectionIterator::~vtkDataArrayCollectionIterator() = default;
 
 //----------------------------------------------------------------------------
 void vtkDataArrayCollectionIterator::PrintSelf(ostream& os, vtkIndent indent)
@@ -39,18 +35,18 @@ void vtkDataArrayCollectionIterator::PrintSelf(ostream& os, vtkIndent indent)
 void vtkDataArrayCollectionIterator::SetCollection(vtkCollection* c)
 {
   if(c)
-    {
+  {
     this->Superclass::SetCollection(vtkDataArrayCollection::SafeDownCast(c));
     if(!this->Collection)
-      {
+    {
       vtkErrorMacro("vtkDataArrayCollectionIterator cannot traverse a "
                     << c->GetClassName());
-      }
     }
+  }
   else
-    {
-    this->Superclass::SetCollection(0);
-    }
+  {
+    this->Superclass::SetCollection(nullptr);
+  }
 }
 
 //----------------------------------------------------------------------------

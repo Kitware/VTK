@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPDataSetReader - Manages reading pieces of a data set.
-// .SECTION Description
-// vtkPDataSetReader will read a piece of a file, it takes as input
-// a metadata file that lists all of the files in a data set.
-
+/**
+ * @class   vtkPDataSetReader
+ * @brief   Manages reading pieces of a data set.
+ *
+ * vtkPDataSetReader will read a piece of a file, it takes as input
+ * a metadata file that lists all of the files in a data set.
+*/
 
 #ifndef vtkPDataSetReader_h
 #define vtkPDataSetReader_h
@@ -29,47 +31,53 @@ class vtkDataSet;
 class VTKIOPARALLEL_EXPORT vtkPDataSetReader : public vtkDataSetAlgorithm
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkPDataSetReader,vtkDataSetAlgorithm);
   static vtkPDataSetReader *New();
 
-  // Description:
-  // This file to open and read.
+  //@{
+  /**
+   * This file to open and read.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // This is set when UpdateInformation is called.
-  // It shows the type of the output.
+  //@{
+  /**
+   * This is set when UpdateInformation is called.
+   * It shows the type of the output.
+   */
   vtkGetMacro(DataType, int);
+  //@}
 
-  // Description:
-  // Called to determine if the file can be read by the reader.
+  /**
+   * Called to determine if the file can be read by the reader.
+   */
   int CanReadFile(const char* filename);
 
 protected:
   vtkPDataSetReader();
-  ~vtkPDataSetReader();
+  ~vtkPDataSetReader() override;
 
-  virtual int RequestDataObject(vtkInformation* request,
+  int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+                                vtkInformationVector* outputVector) override;
   void ReadPVTKFileInformation(ifstream *fp,
                                vtkInformation* request,
                                vtkInformationVector** inputVector,
                                vtkInformationVector* outputVector);
-  void ReadVTKFileInformation(ifstream *fp,
-                               vtkInformation* request,
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector);
+  void ReadVTKFileInformation(vtkInformation* request,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
-  virtual int RequestInformation(vtkInformation*,
+  int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*);
+                                 vtkInformationVector*) override;
 
-  virtual int RequestData(vtkInformation*,
+  int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) override;
   int PolyDataExecute(vtkInformation*,
                       vtkInformationVector**,
                       vtkInformationVector*);
@@ -88,12 +96,9 @@ protected:
   vtkDataSet *CheckOutput();
   void SetNumberOfPieces(int num);
 
-//BTX
   ifstream *OpenFile(const char *);
-//ETX
-  int ReadXML(ifstream *file, char **block, char **param, char **value);
-  void SkipFieldData(ifstream *file);
 
+  int ReadXML(ifstream *file, char **block, char **param, char **value);
   int VTKFileFlag;
   int StructuredFlag;
   char *FileName;
@@ -103,8 +108,8 @@ protected:
   int **PieceExtents;
 
 private:
-  vtkPDataSetReader(const vtkPDataSetReader&); // Not implemented
-  void operator=(const vtkPDataSetReader&); // Not implemented
+  vtkPDataSetReader(const vtkPDataSetReader&) = delete;
+  void operator=(const vtkPDataSetReader&) = delete;
 };
 
 #endif

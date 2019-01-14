@@ -24,9 +24,14 @@
 #ifndef XDMFGEOMETRYTYPE_HPP_
 #define XDMFGEOMETRYTYPE_HPP_
 
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
+
+#ifdef __cplusplus
+
+// Includes
 #include "XdmfItemProperty.hpp"
+#include <map>
 
 /**
  * @brief Property describing the types of coordinate values stored in
@@ -57,6 +62,13 @@
  *   NoGeometryType
  *   XYZ
  *   XY
+ *   Polar
+ *   Spherical
+ *
+ * The Polar and Spherical types consist of a series of coordinates.
+ * These coordinates are in order of: radius, polar, azimuthal. 
+ * In accordance with the ISO standard.
+ *
  */
 class XDMF_EXPORT XdmfGeometryType : public XdmfItemProperty {
 
@@ -70,6 +82,8 @@ public:
   static shared_ptr<const XdmfGeometryType> NoGeometryType();
   static shared_ptr<const XdmfGeometryType> XYZ();
   static shared_ptr<const XdmfGeometryType> XY();
+  static shared_ptr<const XdmfGeometryType> Polar();
+  static shared_ptr<const XdmfGeometryType> Spherical();
 
   /**
    * Get the dimensions of this geometry type - i.e. XYZ = 3.
@@ -129,6 +143,10 @@ protected:
    */
   XdmfGeometryType(const std::string & name, const int & dimensions);
 
+  static std::map<std::string, shared_ptr<const XdmfGeometryType>(*)()> mGeometryDefinitions;
+
+  static void InitTypes();
+
 private:
 
   XdmfGeometryType(const XdmfGeometryType &); // Not implemented.
@@ -140,5 +158,33 @@ private:
   unsigned int mDimensions;
   std::string mName;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+#define XDMF_GEOMETRY_TYPE_NO_GEOMETRY_TYPE 300
+#define XDMF_GEOMETRY_TYPE_XYZ              301
+#define XDMF_GEOMETRY_TYPE_XY               302
+#define XDMF_GEOMETRY_TYPE_POLAR            303
+#define XDMF_GEOMETRY_TYPE_SPHERICAL        304
+
+XDMF_EXPORT int XdmfGeometryTypeNoGeometryType();
+XDMF_EXPORT int XdmfGeometryTypeXYZ();
+XDMF_EXPORT int XdmfGeometryTypeXY();
+XDMF_EXPORT int XdmfGeometryTypePolar();
+XDMF_EXPORT int XdmfGeometryTypeSpherical();
+
+XDMF_EXPORT unsigned int XdmfGeometryTypeGetDimensions(int type, int * status);
+
+XDMF_EXPORT char * XdmfGeometryTypeGetName(int type);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFGEOMETRYTYPE_HPP_ */

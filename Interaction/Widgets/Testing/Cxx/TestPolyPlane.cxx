@@ -57,12 +57,12 @@ class vtkTestPolyPlaneCallback : public vtkCommand
 {
 public:
   static vtkTestPolyPlaneCallback *New()
-    {
+  {
     return new vtkTestPolyPlaneCallback;
-    }
+  }
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  void Execute(vtkObject *caller, unsigned long, void*) override
+  {
     vtkContourWidget *widget = reinterpret_cast<vtkContourWidget*>(caller);
     vtkContourRepresentation *rep = vtkContourRepresentation::
                         SafeDownCast(widget->GetRepresentation());
@@ -72,7 +72,7 @@ public:
     // If less than 2 points, we can't define a polyplane..
 
     if (pd->GetPoints()->GetNumberOfPoints() >= 2)
-      {
+    {
 
       vtkPolyLine *polyline = vtkPolyLine::New();
       polyline->Initialize( pd->GetNumberOfPoints(),
@@ -83,11 +83,11 @@ public:
       polyline->Delete();
 
       this->Cutter->SetCutFunction(this->PolyPlane);
-      }
     }
+  }
 
 
-  vtkTestPolyPlaneCallback() : PolyPlane(0),Cutter(0) {};
+  vtkTestPolyPlaneCallback() : PolyPlane(nullptr),Cutter(nullptr) {};
   vtkPolyPlane * PolyPlane;
   vtkCutter    * Cutter;
 };
@@ -107,7 +107,7 @@ int TestPolyPlane( int argc, char *argv[] )
 
   delete [] fname;
 
-  // Resample (left incase, we want to subsample, supersample)
+  // Resample (left in case, we want to subsample, supersample)
 
   vtkSmartPointer<vtkImageResample>  resample =
     vtkSmartPointer<vtkImageResample>::New();
@@ -280,7 +280,7 @@ int TestPolyPlane( int argc, char *argv[] )
   contourWidget->SetWidgetState(vtkContourWidget::Manipulate);
 
   // Execute the cut
-  cb->Execute(contourWidget,0,NULL);
+  cb->Execute(contourWidget,0,nullptr);
 
   vtkXMLPolyDataWriter *pWriter = vtkXMLPolyDataWriter::New();
   pWriter->SetInputConnection(cutter->GetOutputPort());
@@ -306,9 +306,9 @@ int TestPolyPlane( int argc, char *argv[] )
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }

@@ -11,10 +11,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLCamera - OpenGL camera
-// .SECTION Description
-// vtkOpenGLCamera is a concrete implementation of the abstract class
-// vtkCamera.  vtkOpenGLCamera interfaces to the OpenGL rendering library.
+/**
+ * @class   vtkOpenGLCamera
+ * @brief   OpenGL camera
+ *
+ * vtkOpenGLCamera is a concrete implementation of the abstract class
+ * vtkCamera.  vtkOpenGLCamera interfaces to the OpenGL rendering library.
+*/
 
 #ifndef vtkOpenGLCamera_h
 #define vtkOpenGLCamera_h
@@ -31,20 +34,21 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLCamera : public vtkCamera
 public:
   static vtkOpenGLCamera *New();
   vtkTypeMacro(vtkOpenGLCamera, vtkCamera);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Implement base class method.
-  void Render(vtkRenderer *ren);
+  /**
+   * Implement base class method.
+   */
+  void Render(vtkRenderer *ren) override;
 
-  void UpdateViewport(vtkRenderer *ren);
+  void UpdateViewport(vtkRenderer *ren) override;
 
-  void GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&WCVCMatrix,
+  virtual void GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&WCVCMatrix,
     vtkMatrix3x3 *&normalMatrix, vtkMatrix4x4 *&VCDCMatrix, vtkMatrix4x4 *&WCDCMatrix);
 
 protected:
   vtkOpenGLCamera();
-  ~vtkOpenGLCamera();
+  ~vtkOpenGLCamera() override;
 
   vtkMatrix4x4 *WCDCMatrix;
   vtkMatrix4x4 *WCVCMatrix;
@@ -54,8 +58,8 @@ protected:
   vtkRenderer *LastRenderer;
 
 private:
-  vtkOpenGLCamera(const vtkOpenGLCamera&);  // Not implemented.
-  void operator=(const vtkOpenGLCamera&);  // Not implemented.
+  vtkOpenGLCamera(const vtkOpenGLCamera&) = delete;
+  void operator=(const vtkOpenGLCamera&) = delete;
 };
 
 #endif

@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkWarpVector.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
-#include "vtkDataArrayIteratorMacro.h"
 #include "vtkImageData.h"
 #include "vtkImageDataToPointSet.h"
 #include "vtkInformation.h"
@@ -31,6 +31,8 @@
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 
+#include <cstdlib>
+
 vtkStandardNewMacro(vtkWarpVector);
 
 //----------------------------------------------------------------------------
@@ -44,9 +46,7 @@ vtkWarpVector::vtkWarpVector()
 }
 
 //----------------------------------------------------------------------------
-vtkWarpVector::~vtkWarpVector()
-{
-}
+vtkWarpVector::~vtkWarpVector() = default;
 
 //----------------------------------------------------------------------------
 int vtkWarpVector::FillInputPortInformation(int vtkNotUsed(port),
@@ -68,70 +68,94 @@ int vtkWarpVector::RequestDataObject(vtkInformation *request,
   vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
 
   if (inImage || inRect)
-    {
+  {
     vtkStructuredGrid *output = vtkStructuredGrid::GetData(outputVector);
     if (!output)
-      {
+    {
       vtkNew<vtkStructuredGrid> newOutput;
       outputVector->GetInformationObject(0)->Set(
-        vtkDataObject::DATA_OBJECT(), newOutput.GetPointer());
-      }
-    return 1;
+        vtkDataObject::DATA_OBJECT(), newOutput);
     }
+    return 1;
+  }
   else
-    {
+  {
     return this->Superclass::RequestDataObject(request,
                                                inputVector,
                                                outputVector);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
-template <class InputIterator, class OutputType, class VectorIterator>
-void vtkWarpVectorExecute2(vtkWarpVector *self,
-                           InputIterator begin, InputIterator end,
-                           OutputType *outPts, VectorIterator inVec)
+namespace {
+// Used by the WarpVectorDispatch1Vector worker, defined below:
+template <typename VectorArrayT>
+struct WarpVectorDispatch2Points
 {
-  OutputType scaleFactor = static_cast<OutputType>(self->GetScaleFactor());
+  vtkWarpVector *Self;
+  VectorArrayT *Vectors;
 
-  // Loop over all points, adjusting locations
-  vtkIdType counter = 0;
-  vtkIdType numPts = static_cast<vtkIdType>(end - begin);
-  while (begin != end)
+  WarpVectorDispatch2Points(vtkWarpVector *self, VectorArrayT *vectors)
+    : Self(self), Vectors(vectors)
+  {}
+
+  template <typename InPointArrayT, typename OutPointArrayT>
+  void operator()(InPointArrayT *inPtArray, OutPointArrayT *outPtArray)
+  {
+    typedef typename OutPointArrayT::ValueType PointValueT;
+    const vtkIdType numTuples = inPtArray->GetNumberOfTuples();
+    const double scaleFactor = this->Self->GetScaleFactor();
+
+    assert(this->Vectors->GetNumberOfComponents() == 3);
+    assert(inPtArray->GetNumberOfComponents() == 3);
+    assert(outPtArray->GetNumberOfComponents() == 3);
+
+    for (vtkIdType t = 0; t < numTuples; ++t)
     {
-    if (!(counter & 0xfff))
+      if (!(t & 0xfff))
       {
-      self->UpdateProgress(static_cast<double>(counter) /
-                           static_cast<double>(numPts+1));
-      if (self->GetAbortExecute())
+        this->Self->UpdateProgress(t / static_cast<double>(numTuples));
+        if (this->Self->GetAbortExecute())
         {
-        break;
+          return;
         }
       }
 
-    *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
-    *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
-    *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
+      for (int c = 0; c < 3; ++c)
+      {
+        PointValueT val = inPtArray->GetTypedComponent(t, c) +
+            scaleFactor * this->Vectors->GetTypedComponent(t, c);
+        outPtArray->SetTypedComponent(t, c, val);
+      }
     }
-}
+  }
+};
 
-//----------------------------------------------------------------------------
-template <class InputIterator, class OutputType>
-void vtkWarpVectorExecute(vtkWarpVector *self,
-                          InputIterator begin,
-                          InputIterator end,
-                          OutputType *outPts,
-                          vtkDataArray *vectors)
+// Dispatch just the vector array first, we can cut out some generated code
+// since the point arrays will have the same type.
+struct WarpVectorDispatch1Vector
 {
-  // call templated function
-  switch (vectors->GetDataType())
+  vtkWarpVector *Self;
+  vtkDataArray *InPoints;
+  vtkDataArray *OutPoints;
+
+  WarpVectorDispatch1Vector(vtkWarpVector *self,
+                            vtkDataArray *inPoints, vtkDataArray *outPoints)
+    : Self(self), InPoints(inPoints), OutPoints(outPoints)
+  {}
+
+  template <typename VectorArrayT>
+  void operator()(VectorArrayT *vectors)
+  {
+    WarpVectorDispatch2Points<VectorArrayT> worker(this->Self, vectors);
+    if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
+          this->InPoints, this->OutPoints, worker))
     {
-    vtkDataArrayIteratorMacro(vectors,
-      vtkWarpVectorExecute2(self, begin, end, outPts, vtkDABegin));
-    default:
-      break;
+      vtkGenericWarningMacro("Error dispatching point arrays.");
     }
-}
+  }
+};
+} // end anon namespace
 
 //----------------------------------------------------------------------------
 int vtkWarpVector::RequestData(
@@ -143,36 +167,36 @@ int vtkWarpVector::RequestData(
   vtkPointSet *output = vtkPointSet::GetData(outputVector);
 
   if (!input)
-    {
+  {
     // Try converting image data.
     vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
     if (inImage)
-      {
+    {
       vtkNew<vtkImageDataToPointSet> image2points;
       image2points->SetInputData(inImage);
       image2points->Update();
       input = image2points->GetOutput();
-      }
     }
+  }
 
   if (!input)
-    {
+  {
     // Try converting rectilinear grid.
     vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
     if (inRect)
-      {
+    {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
       rect2points->SetInputData(inRect);
       rect2points->Update();
       input = rect2points->GetOutput();
-      }
     }
+  }
 
   if (!input)
-    {
+  {
     vtkErrorMacro(<< "Invalid or missing input");
     return 0;
-    }
+  }
 
   vtkPoints *points;
   vtkIdType numPts;
@@ -180,19 +204,19 @@ int vtkWarpVector::RequestData(
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
-  if (input == NULL || input->GetPoints() == NULL)
-    {
+  if (input == nullptr || input->GetPoints() == nullptr)
+  {
     return 1;
-    }
+  }
   numPts = input->GetPoints()->GetNumberOfPoints();
 
   vtkDataArray *vectors = this->GetInputArrayToProcess(0,inputVector);
 
   if ( !vectors || !numPts)
-    {
+  {
     vtkDebugMacro(<<"No input data");
     return 1;
-    }
+  }
 
   // SETUP AND ALLOCATE THE OUTPUT
   numPts = input->GetNumberOfPoints();
@@ -203,19 +227,16 @@ int vtkWarpVector::RequestData(
   output->SetPoints(points);
   points->Delete();
 
-  // We know that this array has a standard memory layout, as we just created
-  // it above.
-  void *outPtr = output->GetPoints()->GetVoidPointer(0);
-
-  // call templated function
-  switch (input->GetPoints()->GetDataType())
-    {
-    vtkDataArrayIteratorMacro(input->GetPoints()->GetData(),
-      vtkWarpVectorExecute(this, vtkDABegin, vtkDAEnd,
-                           static_cast<vtkDAValueType*>(outPtr), vectors));
-    default:
-      break;
-    }
+  // call templated function.
+  // We use two dispatches since we need to dispatch 3 arrays and two share a
+  // value type. Implementating a second type-restricted dispatch reduces
+  // the amount of generated templated code.
+  WarpVectorDispatch1Vector worker(this, input->GetPoints()->GetData(),
+                                   output->GetPoints()->GetData());
+  if (!vtkArrayDispatch::Dispatch::Execute(vectors, worker))
+  {
+    vtkWarningMacro("Dispatch failed for vector array.");
+  }
 
   // now pass the data.
   output->GetPointData()->CopyNormalsOff(); // distorted geometry

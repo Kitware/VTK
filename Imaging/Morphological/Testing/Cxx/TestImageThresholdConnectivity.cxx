@@ -63,7 +63,7 @@ int TestImageThresholdConnectivity(int argc, char *argv[])
   seeds->InsertNextPoint(100.8, 100.8, 5.25);
 
   for (int i = 0; i < 12; i++)
-    {
+  {
     int j = i % 4;
     int k = i / 4;
     vtkSmartPointer<vtkRenderer> renderer =
@@ -82,23 +82,21 @@ int TestImageThresholdConnectivity(int argc, char *argv[])
     connectivity->SetReplaceIn((j & 2) == 0);
     connectivity->SetReplaceOut((j & 1) == 0);
     if (k == 0)
-      {
+    {
       connectivity->ThresholdByLower(800);
-      }
+    }
     else if (k == 1)
-      {
+    {
       connectivity->ThresholdByUpper(1200);
-      }
+    }
     else
-      {
+    {
       connectivity->ThresholdBetween(800, 1200);
-      }
+    }
 
     // test a previous bug where OutputExtent != InputExtent cause a crash.
     int extent[6] = { 0, 63, 0, 63, 3, 3 };
-    connectivity->UpdateInformation();
-    connectivity->SetUpdateExtent(extent);
-    connectivity->Update();
+    connectivity->UpdateExtent(extent);
 
     vtkSmartPointer<vtkImageSliceMapper> imageMapper =
       vtkSmartPointer<vtkImageSliceMapper>::New();
@@ -121,7 +119,7 @@ int TestImageThresholdConnectivity(int argc, char *argv[])
     image->GetProperty()->SetColorWindow(2000);
     image->GetProperty()->SetColorLevel(1000);
     renderer->AddViewProp(image);
-    }
+  }
 
   renWin->SetSize(192, 256);
 

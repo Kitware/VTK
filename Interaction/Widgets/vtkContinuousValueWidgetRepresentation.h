@@ -19,11 +19,13 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkContinuousValueWidgetRepresentation - provide the representation for a continuous value
-// .SECTION Description
-// This class is used mainly as a superclass for continuous value widgets
-//
-
+/**
+ * @class   vtkContinuousValueWidgetRepresentation
+ * @brief   provide the representation for a continuous value
+ *
+ * This class is used mainly as a superclass for continuous value widgets
+ *
+*/
 
 #ifndef vtkContinuousValueWidgetRepresentation_h
 #define vtkContinuousValueWidgetRepresentation_h
@@ -35,23 +37,28 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkContinuousValueWidgetRepresentation :
   public vtkWidgetRepresentation
 {
 public:
-  // Description:
-  // Standard methods for the class.
+  //@{
+  /**
+   * Standard methods for the class.
+   */
   vtkTypeMacro(vtkContinuousValueWidgetRepresentation,
                        vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // Methods to interface with the vtkSliderWidget. The PlaceWidget() method
-  // assumes that the parameter bounds[6] specifies the location in display
-  // space where the widget should be placed.
-  virtual void PlaceWidget(double bounds[6]);
-  virtual void BuildRepresentation() {}
-  virtual void StartWidgetInteraction(double eventPos[2]) = 0;
-  virtual void WidgetInteraction(double eventPos[2]) = 0;
+  //@{
+  /**
+   * Methods to interface with the vtkSliderWidget. The PlaceWidget() method
+   * assumes that the parameter bounds[6] specifies the location in display
+   * space where the widget should be placed.
+   */
+  void PlaceWidget(double bounds[6]) override;
+  void BuildRepresentation() override {}
+  void StartWidgetInteraction(double eventPos[2]) override = 0;
+  void WidgetInteraction(double eventPos[2]) override = 0;
 //  virtual void Highlight(int);
+  //@}
 
-//BTX
   // Enums are used to describe what is selected
   enum _InteractionState
   {
@@ -59,7 +66,6 @@ public:
     Inside,
     Adjusting
   };
-//ETX
 
   // Set/Get the value
   virtual void SetValue(double value);
@@ -67,14 +73,14 @@ public:
 
 protected:
   vtkContinuousValueWidgetRepresentation();
-  ~vtkContinuousValueWidgetRepresentation();
+  ~vtkContinuousValueWidgetRepresentation() override;
 
   double Value;
 
 private:
   vtkContinuousValueWidgetRepresentation
-  (const vtkContinuousValueWidgetRepresentation&);  //Not implemented
-  void operator=(const vtkContinuousValueWidgetRepresentation&); // Not implemented
+  (const vtkContinuousValueWidgetRepresentation&) = delete;
+  void operator=(const vtkContinuousValueWidgetRepresentation&) = delete;
 };
 
 #endif

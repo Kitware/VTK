@@ -125,7 +125,7 @@ MetaVesselTube::
   while(it != m_PointList.end())
     {
     VesselTubePnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
     }
   m_PointList.clear();
@@ -239,7 +239,7 @@ Clear(void)
   while(it != m_PointList.end())
     {
     VesselTubePnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
     }
   m_PointList.clear();
@@ -614,7 +614,7 @@ M_Read(void)
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
-    int gc = m_ReadStream->gcount();
+    int gc = static_cast<int>(m_ReadStream->gcount());
     if(gc != readSize)
       {
       METAIO_STREAM::cout << "MetaLine: m_Read: data not read completely"
@@ -950,7 +950,7 @@ M_Read(void)
       char c = ' ';
       while( (c!='\n') && (m_ReadStream->good()))
         {
-        c = m_ReadStream->get();// to avoid unrecognized characters
+        c = static_cast<char>(m_ReadStream->get());// to avoid unrecognized characters
         }
       }
     }
@@ -1073,7 +1073,7 @@ M_Write(void)
       MET_SwapByteIfSystemMSB(&id,MET_INT);
       MET_DoubleToValue((double)id,m_ElementType,data,i++);
 
-      it++;
+      ++it;
       }
 
     m_WriteStream->write((char *)data,
@@ -1141,7 +1141,7 @@ M_Write(void)
       *m_WriteStream << (*it)->m_ID << " ";
 
       *m_WriteStream << METAIO_STREAM::endl;
-      it++;
+      ++it;
       }
     }
   return true;
@@ -1151,4 +1151,3 @@ M_Write(void)
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-

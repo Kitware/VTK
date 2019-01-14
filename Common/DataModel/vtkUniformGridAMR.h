@@ -38,18 +38,18 @@ public:
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by the user).
-  virtual vtkCompositeDataIterator* NewIterator();
+  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() override;
 
   // Description:
   // Return class name of data type (see vtkType.h for definitions).
-  virtual int GetDataObjectType() {return VTK_UNIFORM_GRID_AMR;}
+  int GetDataObjectType() override {return VTK_UNIFORM_GRID_AMR;}
 
   // Description:  // Print internal states
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // Restore data object to initial
-  virtual void Initialize();
+  void Initialize() override;
 
   // Description:
   // Initialize the AMR.
@@ -66,7 +66,7 @@ public:
   unsigned int GetNumberOfLevels();
 
   // Description:
-  // Return the total number of blocks, including NULL blocks
+  // Return the total number of blocks, including nullptr blocks
   virtual unsigned int GetTotalNumberOfBlocks();
 
   // Description:
@@ -82,8 +82,8 @@ public:
 
   // Description:
   // Unhiding superclass method.
-  virtual void SetDataSet(
-    vtkCompositeDataIterator* iter, vtkDataObject* dataObj);
+  void SetDataSet(vtkCompositeDataIterator* iter,
+                  vtkDataObject* dataObj) override;
 
   // Description:
   // At the passed in level, set grid as the idx'th block at that level.
@@ -92,14 +92,14 @@ public:
 
   // Description:
   // Return the data set pointed to by iter
-  vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter);
+  vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter) override;
 
   // Description:
   // Get the data set using the index pair
   vtkUniformGrid* GetDataSet(unsigned int level, unsigned int idx);
 
   // Description:
-  // Retrieves the composite index  associated with the data at the given
+  // Retrieves the composite index associated with the data at the given
   // (level,index) pair.
   int GetCompositeIndex( const unsigned int level, const unsigned int index );
 
@@ -111,18 +111,17 @@ public:
 
   // Description:
   // Override ShallowCopy/DeepCopy and CopyStructure
-  virtual void ShallowCopy(vtkDataObject *src);
-  virtual void DeepCopy(vtkDataObject *src);
-  virtual void CopyStructure(vtkCompositeDataSet *src);
+  void ShallowCopy(vtkDataObject *src) override;
+  void DeepCopy(vtkDataObject *src) override;
+  void CopyStructure(vtkCompositeDataSet *src) override;
 
   // Retrieve an instance of this class from an information object.
   static vtkUniformGridAMR* GetData(vtkInformation* info);
   static vtkUniformGridAMR* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
 protected:
   vtkUniformGridAMR();
-  virtual ~vtkUniformGridAMR();
+  ~vtkUniformGridAMR() override;
 
   // Description:
   // Get/Set the meta AMR meta data
@@ -139,8 +138,8 @@ protected:
 
 
 private:
-  vtkUniformGridAMR(const vtkUniformGridAMR&);  // Not implemented.
-  void operator=(const vtkUniformGridAMR&);  // Not implemented.
+  vtkUniformGridAMR(const vtkUniformGridAMR&) = delete;
+  void operator=(const vtkUniformGridAMR&) = delete;
 
   friend class vtkUniformGridAMRDataIterator;
 };

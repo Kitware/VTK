@@ -24,9 +24,11 @@
 #ifndef XDMFATTRIBUTECENTER_HPP_
 #define XDMFATTRIBUTECENTER_HPP_
 
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
 #include "XdmfItemProperty.hpp"
+
+#ifdef __cplusplus
 
 /**
  * @brief Property describing where XdmfAttribute values are centered.
@@ -79,6 +81,7 @@ public:
   static shared_ptr<const XdmfAttributeCenter> Face();
   static shared_ptr<const XdmfAttributeCenter> Edge();
   static shared_ptr<const XdmfAttributeCenter> Node();
+  static shared_ptr<const XdmfAttributeCenter> Other();
 
   void
   getProperties(std::map<std::string, std::string> & collectedProperties) const;
@@ -97,6 +100,10 @@ protected:
    */
   XdmfAttributeCenter(const std::string & name);
 
+  static std::map<std::string, shared_ptr<const XdmfAttributeCenter>(*)()> mAttributeCenterDefinitions;
+
+  static void InitTypes();
+
 private:
 
   XdmfAttributeCenter(const XdmfAttributeCenter &); // Not implemented.
@@ -107,5 +114,31 @@ private:
 
   std::string mName;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+#define XDMF_ATTRIBUTE_CENTER_GRID 100
+#define XDMF_ATTRIBUTE_CENTER_CELL 101
+#define XDMF_ATTRIBUTE_CENTER_FACE 102
+#define XDMF_ATTRIBUTE_CENTER_EDGE 103
+#define XDMF_ATTRIBUTE_CENTER_NODE 104
+#define XDMF_ATTRIBUTE_CENTER_OTHER 105
+
+XDMF_EXPORT int XdmfAttributeCenterGrid();
+XDMF_EXPORT int XdmfAttributeCenterCell();
+XDMF_EXPORT int XdmfAttributeCenterFace();
+XDMF_EXPORT int XdmfAttributeCenterEdge();
+XDMF_EXPORT int XdmfAttributeCenterNode();
+XDMF_EXPORT int XdmfAttributeCenterOther();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFATTRIBUTECENTER_HPP_ */

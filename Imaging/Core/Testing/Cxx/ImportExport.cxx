@@ -59,22 +59,22 @@ int ImportExport( int argc, char *argv[] )
   // do a little something to the data
 
   for (i = 0; i < dimensions[2]; i++)
-    {
+  {
     for (j = 0; j < dimensions[1]; j++)
-      {
+    {
       for (k = 0; k < dimensions[0]; k++)
-        {
+      {
         if (k % 10 == 0)
-          {
+        {
           data[k + dimensions[0]*(j + dimensions[1]*i)] = 0;
-          }
+        }
         if (j % 10 == 0)
-          {
+        {
           data[k + dimensions[0]*(j + dimensions[1]*i)] = 1000;
-          }
         }
       }
     }
+  }
 
   // create an importer to read the data back in
   vtkSmartPointer<vtkImageImport> importer =

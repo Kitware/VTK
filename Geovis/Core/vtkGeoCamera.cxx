@@ -25,7 +25,7 @@
 #include "vtkMath.h"
 #include "vtkCamera.h"
 #include "vtkTransform.h"
-#include <float.h>
+#include <cfloat>
 
 vtkStandardNewMacro(vtkGeoCamera);
 
@@ -33,6 +33,7 @@ vtkStandardNewMacro(vtkGeoCamera);
 //----------------------------------------------------------------------------
 vtkGeoCamera::vtkGeoCamera()
 {
+  VTK_LEGACY_BODY(vtkGeoCamera::vtkGeoCamera, "VTK 8.2");
   this->VTKCamera = vtkSmartPointer<vtkCamera>::New();
   this->Transform = vtkSmartPointer<vtkTransform>::New();
 
@@ -58,9 +59,7 @@ vtkGeoCamera::vtkGeoCamera()
 }
 
 //-----------------------------------------------------------------------------
-vtkGeoCamera::~vtkGeoCamera()
-{
-}
+vtkGeoCamera::~vtkGeoCamera() = default;
 
 //-----------------------------------------------------------------------------
 void vtkGeoCamera::PrintSelf(ostream& os, vtkIndent indent)
@@ -86,9 +85,9 @@ void vtkGeoCamera::PrintSelf(ostream& os, vtkIndent indent)
 void vtkGeoCamera::SetOriginLatitude(double oLat)
 {
   if (this->OriginLatitude == oLat)
-    {
+  {
     return;
-    }
+  }
   this->OriginLatitude = oLat;
   this->Modified();
   this->ComputeRectilinearOrigin();
@@ -98,9 +97,9 @@ void vtkGeoCamera::SetOriginLatitude(double oLat)
 void vtkGeoCamera::SetOriginLongitude(double oLon)
 {
   if (this->OriginLongitude == oLon)
-    {
+  {
     return;
-    }
+  }
   this->OriginLongitude = oLon;
   this->Modified();
   this->ComputeRectilinearOrigin();
@@ -128,9 +127,9 @@ void vtkGeoCamera::ComputeRectilinearOrigin()
 void vtkGeoCamera::SetLongitude(double longitude)
 {
   if (this->Longitude == longitude)
-    {
+  {
     return;
-    }
+  }
   this->Modified();
   this->Longitude = longitude;
   this->UpdateAngleRanges();
@@ -141,9 +140,9 @@ void vtkGeoCamera::SetLongitude(double longitude)
 void vtkGeoCamera::SetLatitude(double latitude)
 {
   if (this->Latitude == latitude)
-    {
+  {
     return;
-    }
+  }
   this->Modified();
   this->Latitude = latitude;
   this->UpdateAngleRanges();
@@ -154,9 +153,9 @@ void vtkGeoCamera::SetLatitude(double latitude)
 void vtkGeoCamera::SetDistance(double altitude)
 {
   if (this->Distance == altitude)
-    {
+  {
     return;
-    }
+  }
   this->Modified();
   this->Distance = altitude;
   this->UpdateVTKCamera();
@@ -166,17 +165,17 @@ void vtkGeoCamera::SetDistance(double altitude)
 void vtkGeoCamera::SetHeading(double heading)
 {
   if (this->Heading == heading)
-    {
+  {
     return;
-    }
+  }
   while (heading < -180)
-    {
+  {
     heading += 360;
-    }
+  }
   while (heading > 180)
-    {
+  {
     heading -= 360;
-    }
+  }
   this->Modified();
   this->Heading = heading;
   this->UpdateAngleRanges();
@@ -187,9 +186,9 @@ void vtkGeoCamera::SetHeading(double heading)
 void vtkGeoCamera::SetTilt(double tilt)
 {
   if (this->Tilt == tilt)
-    {
+  {
     return;
-    }
+  }
   this->Modified();
   this->Tilt = tilt;
   this->UpdateVTKCamera();
@@ -199,29 +198,29 @@ void vtkGeoCamera::SetTilt(double tilt)
 void vtkGeoCamera::UpdateAngleRanges()
 {
   while (this->Heading > 180.0)
-    {
+  {
     this->Heading -= 360.0;
-    }
+  }
   while (this->Heading < -180.0)
-    {
+  {
     this->Heading += 360.0;
-    }
+  }
   while (this->Longitude > 180.0)
-    {
+  {
     this->Longitude -= 360.0;
-    }
+  }
   while (this->Longitude < -180.0)
-    {
+  {
     this->Longitude += 360.0;
-    }
+  }
   if (this->Latitude > 90.0)
-    {
+  {
     this->Latitude = 180.0 - this->Latitude;
-    }
+  }
   if (this->Latitude < -90.0)
-    {
+  {
     this->Latitude = -180.0 - this->Latitude;
-    }
+  }
 }
 
 
@@ -263,16 +262,16 @@ void vtkGeoCamera::UpdateVTKCamera()
   this->Position[2] = pt[2] + this->Origin[2];
 
   if (this->LockHeading)
-    {
+  {
     // Now find view up using heading.
     pt = this->Transform->TransformDoublePoint(0.0, 1.0, 0.0);
     tmp[0] = pt[0] - tmp[0];
     tmp[1] = pt[1] - tmp[1];
     tmp[2] = pt[2] - tmp[2];
     this->VTKCamera->SetViewUp(tmp);
-    }
+  }
   else
-    {
+  {
     // Find heading using view up.
     this->VTKCamera->OrthogonalizeViewUp();
     double up[3];
@@ -318,14 +317,14 @@ void vtkGeoCamera::UpdateVTKCamera()
     vtkMath::Cross(northProj, upProj, crossProd);
     this->Heading = vtkMath::DegreesFromRadians( asin( vtkMath::Norm( crossProd ) ) );
     if (dotProd < 0)
-      {
+    {
       this->Heading = 180.0 - this->Heading;
-      }
-    if (vtkMath::Dot(crossProd, dir) < 0)
-      {
-      this->Heading = -this->Heading;
-      }
     }
+    if (vtkMath::Dot(crossProd, dir) < 0)
+    {
+      this->Heading = -this->Heading;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -347,7 +346,7 @@ void vtkGeoCamera::InitializeNodeAnalysis(int rendererSize[2])
 
   // It may not be necessary to keep the above as instance variables.
   for (int ii = 0; ii < 3; ++ii)
-    {
+  {
     this->LeftPlaneNormal[ii] =  - this->ForwardNormal[ii]*this->Aspect[0]
                                    - this->RightNormal[ii];
     this->RightPlaneNormal[ii] = - this->ForwardNormal[ii]*this->Aspect[0]
@@ -356,7 +355,7 @@ void vtkGeoCamera::InitializeNodeAnalysis(int rendererSize[2])
                                    - this->UpNormal[ii];
     this->UpPlaneNormal[ii] =    - this->ForwardNormal[ii]*this->Aspect[1]
                                    + this->UpNormal[ii];
-    }
+  }
   vtkMath::Normalize(this->LeftPlaneNormal);
   vtkMath::Normalize(this->RightPlaneNormal);
   vtkMath::Normalize(this->DownPlaneNormal);
@@ -387,9 +386,9 @@ double vtkGeoCamera::GetNodeCoverage(vtkGeoTerrainNode* node)
       vtkMath::Dot(this->ForwardNormal,node->GetCornerNormal01())>0.0 &&
       vtkMath::Dot(this->ForwardNormal,node->GetCornerNormal10())>0.0 &&
       vtkMath::Dot(this->ForwardNormal,node->GetCornerNormal11())>0.0)
-    { // Node is hidden by the earth.
+  { // Node is hidden by the earth.
     return 0.0;
-    }
+  }
 
   sphereRadius = node->GetBoundingSphereRadius();
   node->GetBoundingSphereCenter(sphereCenter);
@@ -407,14 +406,14 @@ double vtkGeoCamera::GetNodeCoverage(vtkGeoTerrainNode* node)
   if ( left > sphereRadius || right > sphereRadius ||
        down > sphereRadius || up > sphereRadius ||
        forward < -sphereRadius)
-    {
+  {
     return 0.0;
-    }
+  }
 
   if (forward < sphereRadius)
-    {  // Camera is probably in the sphere.
+  {  // Camera is probably in the sphere.
     return 1.0;
-    }
+  }
 
   left = -left;
   if (left > sphereRadius) { left = sphereRadius;}
@@ -435,4 +434,3 @@ vtkCamera* vtkGeoCamera::GetVTKCamera()
 {
   return this->VTKCamera;
 }
-

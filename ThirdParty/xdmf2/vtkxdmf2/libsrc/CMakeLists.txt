@@ -11,44 +11,44 @@ set( XdmfFormatSource
   XdmfArray
   XdmfDOM
   XdmfDataDesc
-  XdmfExpression
-  XdmfValues
-  XdmfValuesXML
-  XdmfValuesHDF
-  XdmfValuesBinary
-  XdmfHeavyData
-  XdmfHDF
-  XdmfHDFSupport
-  XdmfLightData
-  XdmfInformation
   XdmfDataItem
   XdmfDataStructure
   XdmfDataTransform
   XdmfElement
+  XdmfExpression
+  XdmfHDF
+  XdmfHDFSupport
+  XdmfHeavyData
+  XdmfInformation
+  XdmfLightData
   XdmfObject
+  XdmfValues
+  XdmfValuesBinary
+  XdmfValuesHDF
+  XdmfValuesXML
   )
 
 set( XdmfExtraSource
-  XdmfExprLex
-  XdmfExprYacc
+  XdmfExprLex.cxx
+  XdmfExprYacc.cxx
   )
 
 set( XdmfModelSource
-  XdmfRoot
-  XdmfDomain
   XdmfAttribute
-  XdmfGrid
-  XdmfTopology
-  XdmfTime
-  XdmfRegion
-  XdmfSet
-  XdmfMap
-  XdmfGeometry
-  XdmfH5Driver
+  XdmfDomain
   XdmfDsm
   XdmfDsmBuffer
   XdmfDsmComm
   XdmfDsmMsg
+  XdmfGeometry
+  XdmfGrid
+  XdmfH5Driver
+  XdmfMap
+  XdmfRegion
+  XdmfRoot
+  XdmfSet
+  XdmfTime
+  XdmfTopology
   )
 
 set(CSHARP_SOURCES
@@ -114,48 +114,31 @@ set( XdmfMySQLSource
 
 
 ## system introspection - isn't this what Ice is for???
-include (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
+include (CheckTypeSize)
 if(WIN32)
   check_type_size(__int64        SIZEOF___INT64)
 endif()
 check_type_size("long long"    SIZEOF_LONG_LONG)
 
-include (${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake)
-check_include_file(malloc.h XDMF_HAVE_MALLOC_H)
+include (CheckIncludeFile)
 
 # System to Build
 string(REGEX REPLACE "-" "_" XDMF_SYSTEM ${CMAKE_SYSTEM_NAME})
 
+if (FALSE) # XXX(kitware): hide cache variables
 set(ARCH_TO_BUILD ${XDMF_SYSTEM} CACHE INTERNAL "Host Arcitecture : Linux IRIXN32 IRIX64 AIX CYGWIN")
+else ()
+set(ARCH_TO_BUILD ${XDMF_SYSTEM})
+endif ()
 # Allow the user to customize their build with some local options
 #
 add_definitions(-D${ARCH_TO_BUILD})
 
-include (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
-
 #TODO: why aren't we getting these from Ice?
-if(VTK_SIZEOF_CHAR)
-  set(XDMF_SIZEOF_CHAR   ${VTK_SIZEOF_CHAR})
-  set(XDMF_SIZEOF_DOUBLE ${VTK_SIZEOF_DOUBLE})
-  set(XDMF_SIZEOF_FLOAT  ${VTK_SIZEOF_FLOAT})
-  set(XDMF_SIZEOF_INT    ${VTK_SIZEOF_INT})
-  set(XDMF_SIZEOF_LONG   ${VTK_SIZEOF_LONG})
-  set(XDMF_SIZEOF_SHORT  ${VTK_SIZEOF_SHORT})
-else()
-  check_type_size(char XDMF_SIZEOF_CHAR)
-  check_type_size(double XDMF_SIZEOF_DOUBLE)
-  check_type_size(float XDMF_SIZEOF_FLOAT)
-  check_type_size(int XDMF_SIZEOF_INT)
-  check_type_size(long XDMF_SIZEOF_LONG)
-  check_type_size(short XDMF_SIZEOF_SHORT)
-endif()
-
-include (${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
-if(WIN32)
-  check_type_size(__int64        SIZEOF___INT64)
-endif()
-check_type_size("long long"    SIZEOF_LONG_LONG)
-check_function_exists(strtoll HAVE_STRTOLL)
+check_type_size(double XDMF_SIZEOF_DOUBLE)
+check_type_size(float XDMF_SIZEOF_FLOAT)
+check_type_size(int XDMF_SIZEOF_INT)
+check_type_size(long XDMF_SIZEOF_LONG)
 
 # Don't Really Need to check these ...
 set(XDMF_VOID_VALID 1)
@@ -205,12 +188,6 @@ endif()
 include(${xdmf2_SOURCE_DIR}/CMake/CheckFor64BitStreams.cmake)
 check_for_64bit_streams(XDMF_HAVE_64BIT_STREAMS)
 
-# Find include files
-find_path(XDMF_HAVE_FCNTL fcntl.h /usr/include /usr/include/sys)
-find_path(XDMF_HAVE_NETINET in.h /usr/include/netinet /usr/include /usr/include/sys)
-find_path(XDMF_HAVE_MMAN mman.h /usr/include/sys /usr/include)
-mark_as_advanced(XDMF_HAVE_FCNTL XDMF_HAVE_NETINET XDMF_HAVE_MMAN)
-
 # Save out config to let other projects use xdmf
 configure_file(${xdmf2_SOURCE_DIR}/libsrc/XdmfConfig.h.in
   ${xdmf2_BINARY_DIR}/libsrc/XdmfConfig.h)
@@ -226,9 +203,13 @@ set(XdmfSources ${XdmfFormatSource} ${XdmfExtraSource} ${XdmfModelSource})
 #optional portions of xdmf
 
 #mySQL
+if (FALSE) # XXX(kitware): hardcode settings
 option(XDMF_USE_MYSQL
   "Build Support for MySQL DataItems" OFF)
 mark_as_advanced(XDMF_USE_MYSQL)
+else ()
+set(XDMF_USE_MYSQL OFF)
+endif ()
 if(XDMF_USE_MYSQL)
     find_path(MYSQL_INCLUDE_PATH
         mysql.h
@@ -248,14 +229,24 @@ if(XDMF_USE_MYSQL)
 endif()
 
 # gzip compression
+if (FALSE) # XXX(kitware): hardcode settings
 option(XDMF_USE_GZIP "Build GZip Compression" OFF)
+else ()
+set(XDMF_USE_GZIP OFF)
+endif ()
+mark_as_advanced(XDMF_USE_GZIP)
 if(XDMF_USE_GZIP)
   set(XdmfSources ${XdmfSources} ${XdmfGzipSource})
   add_definitions("-DXDMF_USE_GZIP")
 endif()
 
 # bz2lib compression
+if (FALSE) # XXX(kitware): hardcode settings
 option(XDMF_USE_BZIP2 "Use bzip2" OFF)
+mark_as_advanced(XDMF_USE_BZIP2)
+else ()
+set(XDMF_USE_BZIP2 OFF)
+endif ()
 if(XDMF_USE_BZIP2)
   find_package(BZip2)
   set(XDMF_BZIP2_LIBRARIES ${BZIP2_LIBRARIES})
@@ -277,8 +268,21 @@ else()
   set(LIBTYPE STATIC)
 endif()
 
+if (FALSE)
 #finally make the target that builds the xdmf library itself
 add_library(vtkxdmf2 ${LIBTYPE} ${XdmfSources})
+else ()
+vtk_module_add_module(VTK::xdmf2
+  CLASSES ${XdmfFormatSource}
+          ${XdmfModelSource}
+  SOURCES ${XdmfExtraSource}
+  HEADERS Xdmf.h
+          "${CMAKE_CURRENT_BINARY_DIR}/XdmfConfig.h"
+  HEADERS_SUBDIR "vtkxdmf2/libsrc")
+set_target_properties(xdmf2
+  PROPERTIES
+    DEFINE_SYMBOL Xdmf_EXPORTS)
+endif ()
 
 #setup dependencies for the optional parts of library
 if(XDMF_USE_MYSQL)
@@ -287,6 +291,7 @@ if(XDMF_USE_MYSQL)
     target_link_libraries(Xdmf ${MYSQL_CLIENT_LIBRARY} )
 endif()
 
+if (FALSE) # XXX(kitware): VTK handles linking and installation.
 target_link_libraries(vtkxdmf2
   ${XDMF_LIBXML2_LIBRARIES}
   ${XDMF_HDF5_LIBRARIES}
@@ -313,3 +318,4 @@ if(XDMF_INSTALL_EXPORT_NAME AND NOT XDMF_INSTALL_NO_LIBRARIES)
     LIBRARY DESTINATION ${XDMF_INSTALL_LIB_DIR} COMPONENT Runtime
     ARCHIVE DESTINATION ${XDMF_INSTALL_LIB_DIR} COMPONENT Development)
 endif()
+endif ()

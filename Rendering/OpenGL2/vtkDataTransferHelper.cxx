@@ -37,9 +37,9 @@ vtkCxxSetObjectMacro(vtkDataTransferHelper, Array, vtkDataArray);
 //----------------------------------------------------------------------------
 vtkDataTransferHelper::vtkDataTransferHelper()
 {
-  this->Texture = 0;
-  this->Context = 0;
-  this->Array = 0;
+  this->Texture = nullptr;
+  this->Context = nullptr;
+  this->Array = nullptr;
   this->ShaderSupportsTextureInt=false;
   this->GPUExtent[0] = this->GPUExtent[1] =
     this->GPUExtent[2] = this->GPUExtent[3] =
@@ -62,9 +62,9 @@ vtkDataTransferHelper::vtkDataTransferHelper()
 //----------------------------------------------------------------------------
 vtkDataTransferHelper::~vtkDataTransferHelper()
 {
-  this->SetTexture(0);
-  this->SetArray(0);
-  this->SetContext(0);
+  this->SetTexture(nullptr);
+  this->SetArray(nullptr);
+  this->SetContext(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ vtkDataTransferHelper::~vtkDataTransferHelper()
 // \pre extent_exists: extent!=0
 bool vtkDataTransferHelper::GetExtentIsValid(int *extent)
 {
-  assert("pre extent_exists:" && extent!=0);
+  assert("pre extent_exists:" && extent!=nullptr);
   return extent[0] <= extent[1] && extent[2]<= extent[3]
     && extent[4]<= extent[5];
 }
@@ -123,19 +123,19 @@ vtkRenderWindow* vtkDataTransferHelper::GetContext()
 void vtkDataTransferHelper::SetContext(vtkRenderWindow* renWin)
 {
   if (renWin == this->Context)
-    {
+  {
     return;
-    }
+  }
 
   if (this->Texture && this->Texture->GetContext() != renWin)
-    {
-    this->SetTexture(0);
-    }
+  {
+    this->SetTexture(nullptr);
+  }
 
   vtkOpenGLRenderWindow* openGLRenWin = vtkOpenGLRenderWindow::SafeDownCast(renWin);
   this->Context = openGLRenWin;
   // release the old PBO.
-  this->PBO = 0;
+  this->PBO = nullptr;
   this->Modified();
 }
 
@@ -153,12 +153,11 @@ void vtkDataTransferHelper::SetContext(vtkRenderWindow* renWin)
   // \pre valid_gpu_extent: this->GetGPUExtentIsValid()
   // \pre gpu_extent_in_cpu_extent: CPUExtent[0]<=GPUExtent[0] && GPUExtent[1]<=CPUExtent[1] && CPUExtent[2]<=GPUExtent[2] && GPUExtent[3]<=CPUExtent[3] && CPUExtent[4]<=GPUExtent[4] && GPUExtent[5]<=CPUExtent[5]
   // \pre gpu_texture_size: !this->GetTextureExtentIsValid() || (GPUExtent[1]-GPUExtent[0]+1)*(GPUExtent[3]-GPUExtent[2]+1)*(GPUExtent[5]-GPUExtent[4]+1)==(TextureExtent[1]-TextureExtent[0]+1)*(TextureExtent[3]-TextureExtent[2]+1)*(TextureExtent[5]-TextureExtent[4]+1)
-  // \pre texture_can_exist_or_not: texture==0 || texture!=0
   // \pre valid_components: (components==0 && componentList==0 && array->GetNumberOfComponents()<=4) || (components>=1 && components<=array->GetNumberOfComponents() && components<=4 && componentList!=0)
 bool vtkDataTransferHelper::Upload(int components,
                                       int *componentList)
 {
-  assert("pre: array_exists" && this->Array!=0);
+  assert("pre: array_exists" && this->Array!=nullptr);
   assert("pre: array_not_empty" && this->Array->GetNumberOfTuples()>0);
   assert("pre: valid_cpu_extent" &&  this->GetCPUExtentIsValid());
   assert("pre: valid_cpu_extent_size" &&
@@ -182,19 +181,17 @@ bool vtkDataTransferHelper::Upload(int components,
            (this->TextureExtent[1]-this->TextureExtent[0]+1)*
            (this->TextureExtent[3]-this->TextureExtent[2]+1)*
            (this->TextureExtent[5]-this->TextureExtent[4]+1))));
-  assert("pre: texture_can_exist_or_not" && (this->Texture==0 ||
-                                             this->Texture!=0));
   assert("pre: valid_components" &&
-         ((components==0 && componentList==0 &&
+         ((components==0 && componentList==nullptr &&
            this->Array->GetNumberOfComponents()<=4) ||
           (components>=1 && components<=this->Array->GetNumberOfComponents()
-           && components<=4 && componentList!=0)));
+           && components<=4 && componentList!=nullptr)));
 
   if (!this->Context)
-    {
+  {
     vtkErrorMacro("Cannot upload to GPU without context.");
     return false;
-    }
+  }
 
   int cpudims[3];
   int gpudims[3];
@@ -206,16 +203,16 @@ bool vtkDataTransferHelper::Upload(int components,
   vtkDebugMacro( << "GPUDims: " << gpudims[0] << ", " << gpudims[1]
                  << ", " << gpudims[2] << endl );
   if(!this->GetTextureExtentIsValid())
-    {
+  {
       // use GPU extent.
       texturedims[0]=gpudims[0];
       texturedims[1]=gpudims[1];
       texturedims[2]=gpudims[2];
-    }
+  }
   else
-    {
+  {
       vtkGetDimensions(this->TextureExtent, texturedims);
-    }
+  }
 
   int numComps = this->Array->GetNumberOfComponents();
 
@@ -233,7 +230,7 @@ bool vtkDataTransferHelper::Upload(int components,
   vtkIdType continuousInc[3];
   tempImg->GetContinuousIncrements(this->GPUExtent,
     continuousInc[0], continuousInc[1], continuousInc[2]);
-  tempImg=0;
+  tempImg=nullptr;
 
   int pt[3] = {this->GPUExtent[0]-this->CPUExtent[0],
     this->GPUExtent[2]-this->CPUExtent[2],
@@ -244,19 +241,19 @@ bool vtkDataTransferHelper::Upload(int components,
     this->Array->GetDataType(), this->Array->GetVoidPointer(ptId*numComps),
     reinterpret_cast<unsigned int*>(gpudims), numComps, continuousInc,
     components,componentList))
-    {
+  {
     vtkErrorMacro("Failed to load data to pixel buffer.");
     return false;
-    }
+  }
 
   // * Now, we need to create a Texture for the uploaded data.
   if (!this->Texture)
-    {
+  {
     vtkTextureObject* tex = vtkTextureObject::New();
     tex->SetContext(vtkOpenGLRenderWindow::SafeDownCast(this->Context));
     this->SetTexture(tex);
     tex->Delete();
-    }
+  }
 
   int tempdims[3] = {0, 0, 0};
   int dataDescription = vtkStructuredData::SetDimensions(texturedims, tempdims);
@@ -265,13 +262,13 @@ bool vtkDataTransferHelper::Upload(int components,
 
   bool uploaded = false;
   switch (dimension)
-    {
+  {
     case 0: // 1 pixel image
     case 1:
-      {
+    {
         unsigned int length=0;
         switch (dataDescription)
-          {
+        {
           case VTK_SINGLE_POINT:
             length=1;
             break;
@@ -284,9 +281,9 @@ bool vtkDataTransferHelper::Upload(int components,
           case VTK_Z_LINE:
             length = static_cast<unsigned int>(texturedims[2]);
             break;
-          }
+        }
         switch(this->MinTextureDimension)
-          {
+        {
           case 1:
             uploaded = this->Texture->Create1D(numComps, pbo,
                                                this->ShaderSupportsTextureInt);
@@ -303,17 +300,17 @@ bool vtkDataTransferHelper::Upload(int components,
           default:
             assert("check: impossible case" && 0);
             break;
-          }
-      }
+        }
+    }
       break;
 
     case 2:
-      {
+    {
         unsigned int width=0;
         unsigned int height=0;
 #if 0
         switch (dataDescription)
-          {
+        {
           case VTK_XY_PLANE:
             width = gpudims[0];
             height = gpudims[1];
@@ -328,11 +325,11 @@ bool vtkDataTransferHelper::Upload(int components,
             width = gpudims[0];
             height = gpudims[2];
             break;
-          }
+        }
 #else
 #if 1
         switch (dataDescription)
-          {
+        {
           case VTK_XY_PLANE:
             width = static_cast<unsigned int>(texturedims[0]);
             height = static_cast<unsigned int>(texturedims[1]);
@@ -347,14 +344,14 @@ bool vtkDataTransferHelper::Upload(int components,
             width = static_cast<unsigned int>(texturedims[0]);
             height = static_cast<unsigned int>(texturedims[2]);
             break;
-          }
+        }
 #else
         width = texturedims[0];
         height = texturedims[1];
 #endif
 #endif
         switch(this->MinTextureDimension)
-          {
+        {
           case 1:
           case 2:
             uploaded =this->Texture->Create2D(width, height, numComps, pbo,
@@ -367,8 +364,8 @@ bool vtkDataTransferHelper::Upload(int components,
           default:
             assert("check: impossible case" && 0);
             break;
-          }
-      }
+        }
+    }
       break;
 
     case 3:
@@ -379,14 +376,14 @@ bool vtkDataTransferHelper::Upload(int components,
         numComps, pbo,
         this->ShaderSupportsTextureInt);
       break;
-    }
+  }
 
   pbo->ReleaseMemory();
   if (!uploaded)
-    {
+  {
     vtkErrorMacro("Failed to upload data to texture.");
     return false;
-    }
+  }
   return true;
 }
 
@@ -417,17 +414,17 @@ bool vtkDataTransferHelper::Download()
 bool vtkDataTransferHelper::DownloadAsync1()
 {
   if (!this->Context)
-    {
+  {
     vtkErrorMacro("Cannot download from GPU without context.");
     return false;
-    }
+  }
 
-  assert("pre: texture_exists" && this->Texture!=0);
-  assert("pre: array_not_empty" && (this->Array==0 ||
+  assert("pre: texture_exists" && this->Texture!=nullptr);
+  assert("pre: array_not_empty" && (this->Array==nullptr ||
       this->Array->GetNumberOfTuples()>0));
   assert("pre: valid_cpu_extent" && this->GetCPUExtentIsValid());
   assert("pre: valid_cpu_extent_size" &&
-    (this->Array==0 ||
+    (this->Array==nullptr ||
      ((this->CPUExtent[1]-this->CPUExtent[0]+1)*
       (this->CPUExtent[3]-this->CPUExtent[2]+1)*
       (this->CPUExtent[5]-this->CPUExtent[4]+1)==
@@ -448,11 +445,9 @@ bool vtkDataTransferHelper::DownloadAsync1()
       (this->TextureExtent[1]-this->TextureExtent[0]+1)*
       (this->TextureExtent[3]-this->TextureExtent[2]+1)*
       (this->TextureExtent[5]-this->TextureExtent[4]+1))));
-  assert("pre: texture_can_exist_or_not" && (this->Texture==0 ||
-      this->Texture!=0));
-  assert("pre: valid_components" && (this->Array==0 ||
+  assert("pre: valid_components" && (this->Array==nullptr ||
       this->Array->GetNumberOfComponents()<=4));
-  assert("pre: components_match" && (this->Array==0 ||
+  assert("pre: components_match" && (this->Array==nullptr ||
       (this->Texture->GetComponents()==
        this->Array->GetNumberOfComponents())));
 
@@ -466,18 +461,18 @@ bool vtkDataTransferHelper::DownloadAsync1()
   vtkSmartPointer<vtkPixelBufferObject> pbo;
   pbo.TakeReference(this->Texture->Download());
 
-  if (!pbo.GetPointer())
-    {
+  if (!pbo)
+  {
     vtkErrorMacro("Failed to download texture to a Pixel Buffer object.");
     return false;
-    }
+  }
 
   if (pbo->GetSize() <
     static_cast<unsigned int>(gpudims[0]*gpudims[1]*gpudims[2]*numComps))
-    {
+  {
     vtkErrorMacro("GPU data size is smaller than GPUExtent.");
     return false;
-    }
+  }
 
   this->AsyncDownloadPBO = pbo;
   return true;
@@ -487,11 +482,11 @@ bool vtkDataTransferHelper::DownloadAsync1()
 bool vtkDataTransferHelper::DownloadAsync2()
 {
   if (!this->AsyncDownloadPBO)
-    {
+  {
     vtkErrorMacro("DownloadAsync1() must be called successfully "
       "before calling DownloadAsync2().");
     return false;
-    }
+  }
 
   int numComps = this->Texture->GetComponents();
   int cpudims[3];
@@ -500,14 +495,14 @@ bool vtkDataTransferHelper::DownloadAsync2()
   vtkGetDimensions(this->GPUExtent, gpudims);
 
   if (!this->Array)
-    {
+  {
     vtkDataArray* array = vtkDataArray::CreateDataArray(
       this->Texture->GetVTKDataType());
     this->SetArray(array);
     array->Delete();
     this->Array->SetNumberOfComponents(numComps);
     this->Array->SetNumberOfTuples(cpudims[0]*cpudims[1]*cpudims[2]);
-    }
+  }
 
   // We need to get the ContinuousIncrements as computed by the vtkImageData.
   // For that we create a dummy image data object,
@@ -520,7 +515,7 @@ bool vtkDataTransferHelper::DownloadAsync2()
   vtkIdType continuousInc[3];
   tempImg->GetContinuousIncrements(this->GPUExtent,
     continuousInc[0], continuousInc[1], continuousInc[2]);
-  tempImg=0;
+  tempImg=nullptr;
 
   int pt[3] = {this->GPUExtent[0]-this->CPUExtent[0],
     this->GPUExtent[2]-this->CPUExtent[2],
@@ -531,7 +526,7 @@ bool vtkDataTransferHelper::DownloadAsync2()
     this->Array->GetVoidPointer(ptId*numComps),
     reinterpret_cast<unsigned int*>(gpudims), numComps,
     continuousInc);
-  this->AsyncDownloadPBO = 0;
+  this->AsyncDownloadPBO = nullptr;
   return reply;
 }
 
@@ -550,11 +545,11 @@ void vtkDataTransferHelper::SetShaderSupportsTextureInt(bool value)
 //----------------------------------------------------------------------------
 vtkPixelBufferObject* vtkDataTransferHelper::GetPBO()
 {
-  if (!this->PBO.GetPointer())
-    {
+  if (!this->PBO)
+  {
     this->PBO = vtkSmartPointer<vtkPixelBufferObject>::New();
     this->PBO->SetContext(this->Context);
-    }
+  }
 
   return this->PBO;
 }

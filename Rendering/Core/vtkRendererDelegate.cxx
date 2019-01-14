@@ -21,9 +21,7 @@ vtkRendererDelegate::vtkRendererDelegate()
   this->Used=false;
 }
 
-vtkRendererDelegate::~vtkRendererDelegate()
-{
-}
+vtkRendererDelegate::~vtkRendererDelegate() = default;
 
 void vtkRendererDelegate::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -31,12 +29,12 @@ void vtkRendererDelegate::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Used: ";
   if(this->Used)
-    {
+  {
       os<<"On";
-    }
+  }
   else
-    {
+  {
       os<<"Off";
-    }
+  }
   os<<endl;
 }

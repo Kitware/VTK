@@ -13,14 +13,17 @@
 
 =========================================================================*/
 
-// .NAME vtkColorTransferControlPointsItem - Control points for
-// vtkColorTransferFunction.
-// .SECTION Description
-// vtkColorTransferControlPointsItem draws the control points of a vtkColorTransferFunction.
-// .SECTION See Also
-// vtkControlPointsItem
-// vtkColorTransferFunctionItem
-// vtkCompositeTransferFunctionItem
+/**
+ * @class   vtkColorTransferControlPointsItem
+ * @brief   Control points for
+ * vtkColorTransferFunction.
+ *
+ * vtkColorTransferControlPointsItem draws the control points of a vtkColorTransferFunction.
+ * @sa
+ * vtkControlPointsItem
+ * vtkColorTransferFunctionItem
+ * vtkCompositeTransferFunctionItem
+*/
 
 #ifndef vtkColorTransferControlPointsItem_h
 #define vtkColorTransferControlPointsItem_h
@@ -34,82 +37,90 @@ class VTKCHARTSCORE_EXPORT vtkColorTransferControlPointsItem: public vtkControlP
 {
 public:
   vtkTypeMacro(vtkColorTransferControlPointsItem, vtkControlPointsItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Creates a piecewise control points object
+  /**
+   * Creates a piecewise control points object
+   */
   static vtkColorTransferControlPointsItem* New();
 
-  // Description:
-  // Set the piecewise function to draw its points
+  /**
+   * Set the piecewise function to draw its points
+   */
   void SetColorTransferFunction(vtkColorTransferFunction* function);
-  // Description
-  // Get the piecewise function
+  //@{
+  /**
+   * Get the piecewise function
+   */
   vtkGetObjectMacro(ColorTransferFunction, vtkColorTransferFunction);
+  //@}
 
-  // Description
-  // Return the number of points in the color transfer function.
-  virtual vtkIdType GetNumberOfPoints()const;
+  /**
+   * Return the number of points in the color transfer function.
+   */
+  vtkIdType GetNumberOfPoints()const override;
 
-  // Description
-  // Returns the x and y coordinates as well as the midpoint and sharpness
-  // of the control point corresponding to the index.
-  // Note: The y (point[1]) is always 0.5
-  virtual void GetControlPoint(vtkIdType index, double *point)const;
+  /**
+   * Returns the x and y coordinates as well as the midpoint and sharpness
+   * of the control point corresponding to the index.
+   * Note: The y (point[1]) is always 0.5
+   */
+  void GetControlPoint(vtkIdType index, double *point)const override;
 
-  // Description:
-  // Sets the x and y coordinates as well as the midpoint and sharpness
-  // of the control point corresponding to the index.
-  // Changing the y has no effect, it will always be 0.5
-  virtual void SetControlPoint(vtkIdType index, double *point);
+  /**
+   * Sets the x and y coordinates as well as the midpoint and sharpness
+   * of the control point corresponding to the index.
+   * Changing the y has no effect, it will always be 0.5
+   */
+  void SetControlPoint(vtkIdType index, double *point) override;
 
-  // Description:
-  // Add a point to the function. Returns the index of the point (0 based),
-  // or -1 on error.
-  // Subclasses should reimplement this function to do the actual work.
-  virtual vtkIdType AddPoint(double* newPos);
+  /**
+   * Add a point to the function. Returns the index of the point (0 based),
+   * or -1 on error.
+   * Subclasses should reimplement this function to do the actual work.
+   */
+  vtkIdType AddPoint(double* newPos) override;
 
-  // Description:
-  // Remove a point of the function. Returns the index of the point (0 based),
-  // or -1 on error.
-  // Subclasses should reimplement this function to do the actual work.
-  virtual vtkIdType RemovePoint(double* pos);
+  /**
+   * Remove a point of the function. Returns the index of the point (0 based),
+   * or -1 on error.
+   * Subclasses should reimplement this function to do the actual work.
+   */
+  vtkIdType RemovePoint(double* pos) override;
 
-  // Description:
-  // If ColorFill is true, the control point brush color is set with the
-  // matching color in the color transfer function.
-  // False by default.
+  //@{
+  /**
+   * If ColorFill is true, the control point brush color is set with the
+   * matching color in the color transfer function.
+   * False by default.
+   */
   vtkSetMacro(ColorFill, bool);
   vtkGetMacro(ColorFill, bool);
+  //@}
 
 protected:
   vtkColorTransferControlPointsItem();
-  virtual ~vtkColorTransferControlPointsItem();
+  ~vtkColorTransferControlPointsItem() override;
 
-  // Description:
-  // Returns true if control points are to be rendered in log-space. This is
-  // true when vtkScalarsToColors is using log-scale, for example. Default
-  // implementation always return false.
-  virtual bool UsingLogScale();
+  void emitEvent(unsigned long event, void* params) override;
 
-  virtual void emitEvent(unsigned long event, void* params);
+  vtkMTimeType GetControlPointsMTime() override;
 
-  virtual unsigned long int GetControlPointsMTime();
+  void DrawPoint(vtkContext2D* painter, vtkIdType index) override;
+  void EditPoint(float tX, float tY) override;
 
-  virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
-  virtual void EditPoint(float tX, float tY);
-
-  // Description:
-  // Compute the bounds for this item. Overridden to use the
-  // vtkColorTransferFunction range.
-  virtual void ComputeBounds(double* bounds);
+  /**
+   * Compute the bounds for this item. Overridden to use the
+   * vtkColorTransferFunction range.
+   */
+  void ComputeBounds(double* bounds) override;
 
   vtkColorTransferFunction* ColorTransferFunction;
 
   bool ColorFill;
 private:
-  vtkColorTransferControlPointsItem(const vtkColorTransferControlPointsItem &); // Not implemented.
-  void operator=(const vtkColorTransferControlPointsItem &);   // Not implemented.
+  vtkColorTransferControlPointsItem(const vtkColorTransferControlPointsItem &) = delete;
+  void operator=(const vtkColorTransferControlPointsItem &) = delete;
 };
 
 #endif

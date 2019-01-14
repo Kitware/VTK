@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -63,6 +61,10 @@ typedef int (*H5SL_cmp_t)(const void *key1, const void *key2);
 typedef herr_t (*H5SL_operator_t)(void *item, void *key,
     void *operator_data/*in,out*/);
 
+/* Typedef for H5SL_try_free_safe operation callback */
+typedef htri_t (*H5SL_try_free_op_t)(void *item, void *key,
+    void *operator_data/*in,out*/);
+
 /********************/
 /* Private routines */
 /********************/
@@ -86,6 +88,8 @@ H5_DLL void *H5SL_item(H5SL_node_t *slist_node);
 H5_DLL herr_t H5SL_iterate(H5SL_t *slist, H5SL_operator_t op, void *op_data);
 H5_DLL herr_t H5SL_release(H5SL_t *slist);
 H5_DLL herr_t H5SL_free(H5SL_t *slist, H5SL_operator_t op, void *op_data);
+H5_DLL herr_t H5SL_try_free_safe(H5SL_t *slist, H5SL_try_free_op_t op,
+    void *op_data);
 H5_DLL herr_t H5SL_close(H5SL_t *slist);
 H5_DLL herr_t H5SL_destroy(H5SL_t *slist, H5SL_operator_t op, void *op_data);
 H5_DLL int H5SL_term_interface(void);

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile: vtkYoungsMaterialInterface.h,v $
+  Module:    vtkYoungsMaterialInterface.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,21 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkYoungsMaterialInterface - reconstructs material interfaces
-//
-// .SECTION Description
-// Reconstructs material interfaces from a mesh containing mixed cells (where several materials are mixed)
-// this implementation is based on the youngs algorithm, generalized to arbitrary cell types and works
-// on both 2D and 3D meshes. the main advantage of the youngs algorithm is it guarantees the material volume correctness.
-// for 2D meshes, the AxisSymetric flag allows to switch between a pure 2D (planar) algorithm and an axis symetric 2D algorithm
-// handling volumes of revolution.
-//
-// .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by <br>
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (thierry.carrard@cea.fr)
-// Modification by Philippe Pebay (philippe.pebay@kitware.com)
+/**
+ * @class   vtkYoungsMaterialInterface
+ * @brief   reconstructs material interfaces
+ *
+ *
+ * Reconstructs material interfaces from a mesh containing mixed cells (where several materials are mixed)
+ * this implementation is based on the youngs algorithm, generalized to arbitrary cell types and works
+ * on both 2D and 3D meshes. the main advantage of the youngs algorithm is it guarantees the material volume correctness.
+ * for 2D meshes, the AxisSymetric flag allows to switch between a pure 2D (planar) algorithm and an axis symmetric 2D algorithm
+ * handling volumes of revolution.
+ *
+ * @par Thanks:
+ * This file is part of the generalized Youngs material interface reconstruction algorithm contributed by <br>
+ * CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+ * BP12, F-91297 Arpajon, France. <br>
+ * Implementation by Thierry Carrard (thierry.carrard@cea.fr)
+ * Modification by Philippe Pebay (philippe.pebay@kitware.com)
+*/
 
 #ifndef vtkYoungsMaterialInterface_h
 #define vtkYoungsMaterialInterface_h
@@ -46,146 +49,188 @@ class VTKFILTERSGENERAL_EXPORT vtkYoungsMaterialInterface : public vtkMultiBlock
 public:
   static vtkYoungsMaterialInterface* New();
   vtkTypeMacro(vtkYoungsMaterialInterface,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get wether the normal vector has to be flipped.
-  vtkSetMacro(InverseNormal,int);
-  vtkGetMacro(InverseNormal,int);
-  vtkBooleanMacro(InverseNormal,int);
+  //@{
+  /**
+   * Set/Get whether the normal vector has to be flipped.
+   */
+  vtkSetMacro(InverseNormal,vtkTypeBool);
+  vtkGetMacro(InverseNormal,vtkTypeBool);
+  vtkBooleanMacro(InverseNormal,vtkTypeBool);
+  //@}
 
-  // Description:
-  // If this flag is on, material order in reversed.
-  // Otherwise, materials are sorted in ascending order depending on the given ordering array.
-  vtkSetMacro(ReverseMaterialOrder,int);
-  vtkGetMacro(ReverseMaterialOrder,int);
-  vtkBooleanMacro(ReverseMaterialOrder,int);
+  //@{
+  /**
+   * If this flag is on, material order in reversed.
+   * Otherwise, materials are sorted in ascending order depending on the given ordering array.
+   */
+  vtkSetMacro(ReverseMaterialOrder,vtkTypeBool);
+  vtkGetMacro(ReverseMaterialOrder,vtkTypeBool);
+  vtkBooleanMacro(ReverseMaterialOrder,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Set/Get OnionPeel flag. if this flag is on, the normal vector of the first
-  // material (which depends on material ordering) is used for all materials.
-  vtkSetMacro(OnionPeel,int);
-  vtkGetMacro(OnionPeel,int);
-  vtkBooleanMacro(OnionPeel,int);
+  //@{
+  /**
+   * Set/Get OnionPeel flag. if this flag is on, the normal vector of the first
+   * material (which depends on material ordering) is used for all materials.
+   */
+  vtkSetMacro(OnionPeel,vtkTypeBool);
+  vtkGetMacro(OnionPeel,vtkTypeBool);
+  vtkBooleanMacro(OnionPeel,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Turns on/off AxisSymetric computation of 2D interfaces.
-  // in axis symetric mode, 2D meshes are understood as volumes of revolution.
-  vtkSetMacro(AxisSymetric,int);
-  vtkGetMacro(AxisSymetric,int);
-  vtkBooleanMacro(AxisSymetric,int);
+  //@{
+  /**
+   * Turns on/off AxisSymetric computation of 2D interfaces.
+   * in axis symmetric mode, 2D meshes are understood as volumes of revolution.
+   */
+  vtkSetMacro(AxisSymetric,vtkTypeBool);
+  vtkGetMacro(AxisSymetric,vtkTypeBool);
+  vtkBooleanMacro(AxisSymetric,vtkTypeBool);
+  //@}
 
-  // Description:
-  // when UseFractionAsDistance is true, the volume fraction is interpreted as the distance
-  // of the cutting plane from the origin.
-  // in axis symetric mode, 2D meshes are understood as volumes of revolution.
-  vtkSetMacro(UseFractionAsDistance,int);
-  vtkGetMacro(UseFractionAsDistance,int);
-  vtkBooleanMacro(UseFractionAsDistance,int);
+  //@{
+  /**
+   * when UseFractionAsDistance is true, the volume fraction is interpreted as the distance
+   * of the cutting plane from the origin.
+   * in axis symmetric mode, 2D meshes are understood as volumes of revolution.
+   */
+  vtkSetMacro(UseFractionAsDistance,vtkTypeBool);
+  vtkGetMacro(UseFractionAsDistance,vtkTypeBool);
+  vtkBooleanMacro(UseFractionAsDistance,vtkTypeBool);
+  //@}
 
-  // Description:
-  // When FillMaterial is set to 1, the volume containing material is output and not only the interface surface.
-  vtkSetMacro(FillMaterial,int);
-  vtkGetMacro(FillMaterial,int);
-  vtkBooleanMacro(FillMaterial,int);
+  //@{
+  /**
+   * When FillMaterial is set to 1, the volume containing material is output and not only the interface surface.
+   */
+  vtkSetMacro(FillMaterial,vtkTypeBool);
+  vtkGetMacro(FillMaterial,vtkTypeBool);
+  vtkBooleanMacro(FillMaterial,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Set/Get minimum and maximum volume fraction value. if a material fills a volume above the minimum value, the material is considered to be void. if a material fills a volume fraction beyond the maximum value it is considered as filling the whole volume.
+  //@{
+  /**
+   * Set/Get minimum and maximum volume fraction value. if a material fills a volume above the minimum value, the material is considered to be void. if a material fills a volume fraction beyond the maximum value it is considered as filling the whole volume.
+   */
   vtkSetVector2Macro(VolumeFractionRange,double);
   vtkGetVectorMacro(VolumeFractionRange,double,2);
+  //@}
 
-  // Description:
-  // Sets/Gets the number of materials.
+  //@{
+  /**
+   * Sets/Gets the number of materials.
+   */
   virtual void SetNumberOfMaterials(int n);
   virtual int GetNumberOfMaterials();
+  //@}
 
-  // Description:
-  // Set/Get whether all material blocks should be used, irrespective of the material block mapping.
+  //@{
+  /**
+   * Set/Get whether all material blocks should be used, irrespective of the material block mapping.
+   */
   vtkSetMacro(UseAllBlocks,bool);
   vtkGetMacro(UseAllBlocks,bool);
   vtkBooleanMacro(UseAllBlocks,bool);
+  //@}
 
-  // Description:
-  // Only meaningfull for LOVE software. returns the maximum number of blocks conatining the same material
+  //@{
+  /**
+   * Only meaningful for LOVE software. returns the maximum number of blocks containing the same material
+   */
   vtkGetMacro(NumberOfDomains,int);
+  //@}
 
-  // Description:
-  // Set ith Material arrays to be used as volume fraction, interface normal and material ordering. Each parameter name a cell array.
+  //@{
+  /**
+   * Set ith Material arrays to be used as volume fraction, interface normal and material ordering. Each parameter name a cell array.
+   */
   virtual void SetMaterialArrays( int i, const char* volume, const char* normalX, const char* normalY, const char* normalZ, const char* ordering );
   virtual void SetMaterialArrays( int i, const char* volume, const char* normal, const char* ordering );
   virtual void SetMaterialVolumeFractionArray( int i, const char* volume );
   virtual void SetMaterialNormalArray( int i, const char* normal );
   virtual void SetMaterialOrderingArray( int i, const char* ordering );
+  //@}
 
-  // Description:
-  // Removes all meterials previously added.
+  /**
+   * Removes all materials previously added.
+   */
   virtual void RemoveAllMaterials();
 
-  // Description:
-  // Alternative API for associating Normal and Ordering arrays to materials
-  // identified by its volume-fraction array.
-  // Note that these mappings are cleared by a call to RemoveAllMaterials() but
-  // not by SetNumberOfMaterials().
-  // If one uses the SetMaterial*Array(int, ...) API to set the normal or
-  // ordering arrays, then that supersedes the values set using this API.
+  //@{
+  /**
+   * Alternative API for associating Normal and Ordering arrays to materials
+   * identified by its volume-fraction array.
+   * Note that these mappings are cleared by a call to RemoveAllMaterials() but
+   * not by SetNumberOfMaterials().
+   * If one uses the SetMaterial*Array(int, ...) API to set the normal or
+   * ordering arrays, then that supersedes the values set using this API.
+   */
   virtual void SetMaterialNormalArray(const char* volume, const char* normal);
   virtual void SetMaterialOrderingArray(const char* volume, const char* ordering);
+  //@}
 
-  // Description:
-  // select blocks to be processed for each described material.
+  //@{
+  /**
+   * select blocks to be processed for each described material.
+   */
   virtual void RemoveAllMaterialBlockMappings();
   virtual void AddMaterialBlockMapping(int b);
+  //@}
 
-
-//BTX
   enum
   {
     MAX_CELL_POINTS=256
   };
-//ETX
 
 protected:
   vtkYoungsMaterialInterface ();
-  virtual ~vtkYoungsMaterialInterface ();
+  ~vtkYoungsMaterialInterface () override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int RequestData(vtkInformation *request,
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation *request,
              vtkInformationVector **inputVector,
-             vtkInformationVector *outputVector);
+             vtkInformationVector *outputVector) override;
 
-  // Description:
-  // Serial implementation of the material aggregation.
+  /**
+   * Serial implementation of the material aggregation.
+   */
   virtual void Aggregate ( int, int* );
 
   void UpdateBlockMapping();
 
   int CellProduceInterface( int dim, int np, double fraction, double minFrac, double maxFrac );
 
-  // Description:
-  // Read-Write Properties
-  int FillMaterial;
-  int InverseNormal;
-  int AxisSymetric;
-  int OnionPeel;
-  int ReverseMaterialOrder;
-  int UseFractionAsDistance;
+  //@{
+  /**
+   * Read-Write Properties
+   */
+  vtkTypeBool FillMaterial;
+  vtkTypeBool InverseNormal;
+  vtkTypeBool AxisSymetric;
+  vtkTypeBool OnionPeel;
+  vtkTypeBool ReverseMaterialOrder;
+  vtkTypeBool UseFractionAsDistance;
   double VolumeFractionRange[2];
-//BTX
+  //@}
+
   vtkSmartPointer<vtkIntArray> MaterialBlockMapping;
-//ETX
+
   bool UseAllBlocks;
 
-  // Description:
-  // Read only properties
+  /**
+   * Read only properties
+   */
   int NumberOfDomains;
 
-  // Desctiption:
+  // Description:
   // Internal data structures
   vtkYoungsMaterialInterfaceInternals* Internals;
 
 private:
-  vtkYoungsMaterialInterface(const vtkYoungsMaterialInterface&); // Not implemented
-  void operator=(const vtkYoungsMaterialInterface&); // Not implemented
+  vtkYoungsMaterialInterface(const vtkYoungsMaterialInterface&) = delete;
+  void operator=(const vtkYoungsMaterialInterface&) = delete;
 };
 
 #endif /* VTK_YOUNGS_MATERIAL_INTERFACE_H */

@@ -39,9 +39,10 @@ then re-reading it to ensure that the contents are identical.
 
 #include <string>
 
-static const char *testfiles[6][2] = {
+static const char *testfiles[7][2] = {
     { "Data/minimal.nii.gz", "out_minimal.nii.gz" },
     { "Data/minimal.img.gz", "out_minimal.hdr" },
+    { "Data/planar_rgb.nii.gz", "out_planar_rgb.nii" },
     { "Data/nifti_rgb.nii.gz", "out_nifti_rgb.nii" },
     { "Data/filtered_func_data.nii.gz", "out_filtered_func_data.nii.gz" },
     { "Data/minimal.hdr.gz", "out_minimal_2.nii" },
@@ -64,13 +65,13 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
   double center1[3] = { center[0], center[1], center[2] };
   double center2[3] = { center[0], center[1], center[2] };
   if (size[2] % 2 == 1)
-    {
+  {
     center1[2] += 0.5*spacing[2];
-    }
+  }
   if (size[0] % 2 == 1)
-    {
+  {
     center2[0] += 0.5*spacing[0];
-    }
+  }
   double vrange[2];
   reader->GetOutput()->GetScalarRange(vrange);
 
@@ -86,12 +87,12 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
   map2->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkImageSlice> slice1;
-  slice1->SetMapper(map1.GetPointer());
+  slice1->SetMapper(map1);
   slice1->GetProperty()->SetColorWindow(vrange[1]-vrange[0]);
   slice1->GetProperty()->SetColorLevel(0.5*(vrange[0]+vrange[1]));
 
   vtkNew<vtkImageSlice> slice2;
-  slice2->SetMapper(map2.GetPointer());
+  slice2->SetMapper(map2);
   slice2->GetProperty()->SetColorWindow(vrange[1]-vrange[0]);
   slice2->GetProperty()->SetColorLevel(0.5*(vrange[0]+vrange[1]));
 
@@ -102,8 +103,8 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
 
   vtkNew<vtkRenderer> ren2;
   ren2->SetViewport(ratio,0.0,1.0,1.0);
-  ren1->AddViewProp(slice1.GetPointer());
-  ren2->AddViewProp(slice2.GetPointer());
+  ren1->AddViewProp(slice1);
+  ren2->AddViewProp(slice2);
 
   vtkCamera *cam1 = ren1->GetActiveCamera();
   cam1->ParallelProjectionOn();
@@ -117,28 +118,33 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
   cam2->SetFocalPoint(center2[0], center2[1], center2[2]);
   cam2->SetPosition(center2[0] + 100.0, center2[1], center2[2]);
 
-  renwin->SetSize(size[0] + size[2], size[1]);
-  renwin->AddRenderer(ren1.GetPointer());
-  renwin->AddRenderer(ren2.GetPointer());
+  renwin->SetSize((size[0] + size[2]) / 2 * 2, size[1] / 2 * 2); // keep size even
+  renwin->AddRenderer(ren1);
+  renwin->AddRenderer(ren2);
 };
 
 static double TestReadWriteRead(
-  const char *infile, const char *infile2, const char *outfile)
+  const char *infile, const char *infile2, const char *outfile,
+  bool planarRGB)
 {
   // read a NIFTI file
   vtkNew<vtkNIFTIImageReader> reader;
-  if (infile2 == 0)
-    {
+  if (infile2 == nullptr)
+  {
     reader->SetFileName(infile);
-    }
+  }
   else
-    {
+  {
     vtkNew<vtkStringArray> filenames;
     filenames->InsertNextValue(infile);
     filenames->InsertNextValue(infile2);
-    reader->SetFileNames(filenames.GetPointer());
-    }
+    reader->SetFileNames(filenames);
+  }
   reader->TimeAsVectorOn();
+  if (planarRGB)
+  {
+    reader->PlanarRGBOn();
+  }
   reader->Update();
 
   vtkNew<vtkNIFTIImageWriter> writer;
@@ -156,13 +162,17 @@ static double TestReadWriteRead(
   writer->SetRescaleIntercept(reader->GetRescaleIntercept());
   writer->SetQFormMatrix(reader->GetQFormMatrix());
   if (reader->GetSFormMatrix())
-    {
+  {
     writer->SetSFormMatrix(reader->GetSFormMatrix());
-    }
+  }
   else
-    {
+  {
     writer->SetSFormMatrix(reader->GetQFormMatrix());
-    }
+  }
+  if (planarRGB)
+  {
+    writer->PlanarRGBOn();
+  }
   writer->Write();
 
   // to exercise PrintSelf
@@ -174,8 +184,13 @@ static double TestReadWriteRead(
   vtkNew<vtkNIFTIImageReader> reader2;
   reader2->SetFileName(outfile);
   reader2->TimeAsVectorOn();
+  if (planarRGB)
+  {
+    reader2->PlanarRGBOn();
+  }
   reader2->Update();
 
+  // the images should be identical
   vtkNew<vtkImageMathematics> diff;
   diff->SetOperationToSubtract();
   diff->SetInputConnection(0,reader->GetOutputPort());
@@ -184,6 +199,55 @@ static double TestReadWriteRead(
   double diffrange[2];
   diff->GetOutput()->GetScalarRange(diffrange);
   double differr = diffrange[0]*diffrange[0] + diffrange[1]*diffrange[1];
+
+  // the matrices should be within tolerance
+  if (writer->GetQFormMatrix())
+  {
+    vtkNew<vtkMatrix4x4> m;
+    m->DeepCopy(writer->GetQFormMatrix());
+    m->Invert();
+    vtkMatrix4x4::Multiply4x4(m, reader2->GetQFormMatrix(),
+                              m);
+    double sqdiff = 0.0;
+    for (int i = 0; i < 4; i++)
+    {
+      for (int j = 0; j < 4; j++)
+      {
+        double d = (m->GetElement(i, j) - (i == j));
+        sqdiff += d*d;
+      }
+    }
+    if (sqdiff > 1e-10)
+    {
+      cerr << "Mismatched read/write QFormMatrix:\n";
+      m->Print(cerr);
+      differr = 1.0;
+    }
+  }
+
+  if (writer->GetSFormMatrix())
+  {
+    vtkNew<vtkMatrix4x4> m;
+    m->DeepCopy(writer->GetSFormMatrix());
+    m->Invert();
+    vtkMatrix4x4::Multiply4x4(m, reader2->GetSFormMatrix(),
+                              m);
+    double sqdiff = 0.0;
+    for (int i = 0; i < 4; i++)
+    {
+      for (int j = 0; j < 4; j++)
+      {
+        double d = (m->GetElement(i, j) - (i == j));
+        sqdiff += d*d;
+      }
+    }
+    if (sqdiff > 1e-10)
+    {
+      cerr << "Mismatched read/write SFormMatrix:\n";
+      m->Print(cerr);
+      differr = 1.0;
+    }
+  }
 
   return differr;
 }
@@ -224,7 +288,7 @@ static int TestNIFTIHeader()
   header1->SetSRowY(matrix+4);
   header1->SetSRowZ(matrix+8);
 
-  header2->DeepCopy(header1.GetPointer());
+  header2->DeepCopy(header1);
   bool success = true;
   success &= (header2->GetIntentCode() == vtkNIFTIImageHeader::IntentZScore);
   success &= (strcmp(header2->GetIntentName(), "ZScore") == 0);
@@ -262,35 +326,36 @@ int TestNIFTIReaderWriter(int argc, char *argv[])
 {
   // perform the header test
   if (!TestNIFTIHeader())
-    {
+  {
     cerr << "Failed TestNIFTIHeader\n";
     return 1;
-    }
+  }
 
   // perform the read/write test
   for (int i = 0; i < 5; i++)
-    {
-    char *infile2 = 0;
+  {
+    char *infile2 = nullptr;
     char *infile =
       vtkTestUtilities::ExpandDataFileName(argc, argv, testfiles[i][0]);
-    if (i == 4)
-      {
+    bool planarRGB = (i == 2);
+    if (i == 5)
+    {
       infile2 =
-        vtkTestUtilities::ExpandDataFileName(argc, argv, testfiles[5][0]);
-      }
+        vtkTestUtilities::ExpandDataFileName(argc, argv, testfiles[6][0]);
+    }
     if (!infile)
-      {
+    {
       cerr << "Could not locate input file " << testfiles[i][0] << "\n";
       return 1;
-      }
+    }
 
     char *tempDir = vtkTestUtilities::GetArgOrEnvOrDefault(
       "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
     if (!tempDir)
-      {
+    {
       cerr << "Could not determine temporary directory.\n";
       return 1;
-      }
+    }
 
     std::string outpath = tempDir;
     outpath += "/";
@@ -301,45 +366,46 @@ int TestNIFTIReaderWriter(int argc, char *argv[])
     testReader->GetFileExtensions();
     testReader->GetDescriptiveName();
     if (!testReader->CanReadFile(infile))
-      {
+    {
       cerr << "CanReadFile() failed for " << infile << "\n";
       return 1;
-      }
+    }
 
-    double err = TestReadWriteRead(infile, infile2, outpath.c_str());
+    double err = TestReadWriteRead(infile, infile2, outpath.c_str(),
+                                   planarRGB);
     if (err != 0.0)
-      {
+    {
       cerr << "Input " << infile << " differs from output " << outpath.c_str()
            << "\n";
       return 1;
-      }
+    }
     delete [] infile;
     delete [] infile2;
-    }
+  }
 
   // perform the display test
   char *infile =
     vtkTestUtilities::ExpandDataFileName(argc, argv, dispfile);
   if (!infile)
-    {
+  {
     cerr << "Could not locate input file " << dispfile << "\n";
     return 1;
-    }
+  }
 
   vtkNew<vtkRenderWindow> renwin;
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renwin.GetPointer());
+  iren->SetRenderWindow(renwin);
 
-  TestDisplay(renwin.GetPointer(), infile);
+  TestDisplay(renwin, infile);
   delete [] infile;
 
-  int retVal = vtkRegressionTestImage(renwin.GetPointer());
+  int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renwin->Render();
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return (retVal != vtkRegressionTester::PASSED);
 }

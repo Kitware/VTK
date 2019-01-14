@@ -24,7 +24,7 @@ def readPoints():
 
     line = file.readline()
     while line:
-        data = string.split(line)
+        data = line.split()
         if data and data[0] == 'p':
             x, y, z = float(data[1]), float(data[2]), float(data[3])
             points.InsertNextPoint(x, y, z)

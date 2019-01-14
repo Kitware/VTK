@@ -70,7 +70,7 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->Argc=0;
-  this->Argv=0;
+  this->Argv=nullptr;
 }
 
 void MyProcess::SetArgs(int anArgc,
@@ -92,11 +92,11 @@ void MyProcess::Execute()
 
   // READER
 
-  vtkStructuredPointsReader *spr = NULL;
-  vtkStructuredPoints *sp = NULL;
+  vtkStructuredPointsReader *spr = nullptr;
+  vtkStructuredPoints *sp = nullptr;
 
   if (me == 0)
-    {
+  {
     spr = vtkStructuredPointsReader::New();
 
     char* fname =
@@ -106,7 +106,7 @@ void MyProcess::Execute()
     spr->SetFileName(fname);
 
     sp = spr->GetOutput();
-    sp->Register(0);
+    sp->Register(nullptr);
 
     spr->Update();
 
@@ -114,19 +114,19 @@ void MyProcess::Execute()
 
     go = 1;
 
-    if ((sp == NULL) || (sp->GetNumberOfCells() == 0))
-      {
-      if (sp)
-        {
-        cout << "Failure: input file has no cells" << endl;
-        }
-      go = 0;
-      }
-    }
-  else
+    if ((sp == nullptr) || (sp->GetNumberOfCells() == 0))
     {
-    sp = vtkStructuredPoints::New();
+      if (sp)
+      {
+        cout << "Failure: input file has no cells" << endl;
+      }
+      go = 0;
     }
+  }
+  else
+  {
+    sp = vtkStructuredPoints::New();
+  }
 
   vtkMPICommunicator *comm =
     vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
@@ -134,15 +134,15 @@ void MyProcess::Execute()
   comm->Broadcast(&go, 1, 0);
 
   if (!go)
-    {
+  {
     if (spr)
-      {
+    {
       spr->Delete();
-      }
+    }
     sp->Delete();
     prm->Delete();
     return;
-    }
+  }
 
   // FILTER WE ARE TRYING TO TEST
   vtkTransmitImageDataPiece *pass = vtkTransmitImageDataPiece::New();
@@ -185,7 +185,7 @@ void MyProcess::Execute()
   const int MY_RETURN_VALUE_MESSAGE=0x11;
 
   if (me == 0)
-    {
+  {
     vtkCamera *camera = renderer->GetActiveCamera();
     //camera->UpdateViewport(renderer);
     camera->SetParallelScale(16);
@@ -200,15 +200,15 @@ void MyProcess::Execute()
 
     prm->StopServices();
     for (i=1; i < numProcs; i++)
-      {
-      this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
-      }
-    }
-  else
     {
+      this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
+    }
+  }
+  else
+  {
     prm->StartServices();
     this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
-    }
+  }
 
   // CLEAN UP
   renWin->Delete();
@@ -219,9 +219,9 @@ void MyProcess::Execute()
   cf->Delete();
   pass->Delete();
   if (me == 0)
-    {
+  {
     spr->Delete();
-    }
+  }
   sp->Delete();
   prm->Delete();
 }
@@ -250,24 +250,24 @@ int TransmitImageData(int argc, char *argv[])
   int me = contr->GetLocalProcessId();
 
   if (numProcs != 2)
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires 2 processes" << endl;
-      }
+    }
     contr->Delete();
     return retVal;
-    }
+  }
 
   if (!contr->IsA("vtkMPIController"))
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires MPI" << endl;
-      }
+    }
     contr->Delete();
     return retVal;   // is this the right error val?   TODO
-    }
+  }
 
   MyProcess *p=MyProcess::New();
   p->SetArgs(argc,argv);

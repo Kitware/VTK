@@ -60,17 +60,17 @@ int TestActor2DTextures( int argc, char *argv[])
   pointSet->GetPointData()->SetScalars(iconIndex);
 
   for(double i = 1.0; i < 8; i++)
-    {
+  {
     for(double j = 1.0; j < 8; j++)
-      {
+    {
       points->InsertNextPoint(i * 26.0, j * 26.0, 0.0);
-      }
     }
+  }
 
   for(int i = 0; i < points->GetNumberOfPoints(); i++)
-    {
+  {
     iconIndex->InsertNextTuple1(i);
-    }
+  }
 
   int size[] = {24, 24};
 
@@ -104,9 +104,9 @@ int TestActor2DTextures( int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   renderer->Delete();
   renWin->Delete();

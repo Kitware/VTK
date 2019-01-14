@@ -40,9 +40,7 @@ vtkAssignCoordinatesLayoutStrategy::vtkAssignCoordinatesLayoutStrategy()
   this->AssignCoordinates = vtkSmartPointer<vtkAssignCoordinates>::New();
 }
 
-vtkAssignCoordinatesLayoutStrategy::~vtkAssignCoordinatesLayoutStrategy()
-{
-}
+vtkAssignCoordinatesLayoutStrategy::~vtkAssignCoordinatesLayoutStrategy() = default;
 
 void vtkAssignCoordinatesLayoutStrategy::SetXCoordArrayName(const char* name)
 {

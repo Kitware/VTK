@@ -36,9 +36,9 @@ int TestDiscretizableColorTransferFunctionStringArray(int vtkNotUsed(argc), char
   sArray->SetValue(5, category1.ToString());
 
   for (int i = 0; i < sArray->GetNumberOfValues(); ++i)
-    {
+  {
     std::cout << sArray->GetValue(i) << "\n";
-    }
+  }
 
   vtkSmartPointer<vtkDiscretizableColorTransferFunction> tfer =
     vtkSmartPointer<vtkDiscretizableColorTransferFunction>::New();
@@ -52,6 +52,8 @@ int TestDiscretizableColorTransferFunctionStringArray(int vtkNotUsed(argc), char
   tfer->SetAnnotation(category2, "Annotation2");
   tfer->SetAnnotation(category3, "Annotation3");
 
+  tfer->Build();
+
   vtkUnsignedCharArray* colors = tfer->MapScalars(sArray, VTK_RGBA, -1);
 
   unsigned char expectedColors[numStrings][4] = {
@@ -63,14 +65,14 @@ int TestDiscretizableColorTransferFunctionStringArray(int vtkNotUsed(argc), char
     {0, 0, 0, 255}};
 
   for (int i = 0; i < sArray->GetNumberOfValues(); ++i)
-    {
+  {
     unsigned char color[4];
-    colors->GetTupleValue(i, color);
+    colors->GetTypedTuple(i, color);
     if (expectedColors[i][0] != color[0] ||
         expectedColors[i][1] != color[1] ||
         expectedColors[i][2] != color[2] ||
         expectedColors[i][3] != color[3])
-      {
+    {
       std::cerr << "Color for string " << i << " ("
                 << static_cast<int>(color[0]) << ", "
                 << static_cast<int>(color[1]) << ", "
@@ -82,8 +84,8 @@ int TestDiscretizableColorTransferFunctionStringArray(int vtkNotUsed(argc), char
                 << static_cast<int>(expectedColors[i][2]) << ", "
                 << static_cast<int>(expectedColors[i][3]) << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   colors->Delete();
 

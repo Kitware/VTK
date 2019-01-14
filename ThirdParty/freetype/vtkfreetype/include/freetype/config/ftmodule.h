@@ -10,7 +10,8 @@
  *
  */
 
-FT_USE_MODULE( FT_Module_Class, autofit_module_class )
+/* XXX(kitware): remove this module. */
+/* FT_USE_MODULE( FT_Module_Class, autofit_module_class ) */
 FT_USE_MODULE( FT_Driver_ClassRec, tt_driver_class )
 FT_USE_MODULE( FT_Driver_ClassRec, t1_driver_class )
 FT_USE_MODULE( FT_Driver_ClassRec, cff_driver_class )

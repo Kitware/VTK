@@ -36,7 +36,7 @@
 #include <functional>
 
 //
-// This test is intended  to test the ability of the temporal pipeline
+// This test is intended to test the ability of the temporal pipeline
 // to loop a simple source over T and pass Temporal data downstream.
 //
 
@@ -60,22 +60,20 @@ public:
   // Save the range of valid timestep index values.
   vtkGetVector2Macro(TimeStepRange, int);
 
-  //BTX
 //  void GetTimeStepValues(std::vector<double> &steps);
-  //ETX
 
  protected:
    vtkTemporalSphereSource();
 
-  virtual int RequestInformation(
+  int RequestInformation(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) override;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) override;
 
 public:
   int TimeStepRange[2];
@@ -143,7 +141,7 @@ int vtkTemporalSphereSource::RequestData(
   this->ActualTimeStep = this->TimeStep;
 
   if (this->TimeStep==0 && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
-    {
+  {
     double requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     this->ActualTimeStep = std::find_if(
       this->TimeStepValues.begin(),
@@ -151,14 +149,14 @@ int vtkTemporalSphereSource::RequestData(
       std::bind2nd( vtkTestTemporalCacheSimpleWithinTolerance( ), requestedTimeValue ))
       - this->TimeStepValues.begin();
     this->ActualTimeStep = this->ActualTimeStep + this->TimeStepRange[0];
-    }
+  }
   else
-    {
+  {
     double timevalue;
     timevalue = this->TimeStepValues[this->ActualTimeStep-this->TimeStepRange[0]];
     vtkDebugMacro(<<"Using manually set t= " << timevalue << " Step : " << this->ActualTimeStep);
     doOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timevalue);
-    }
+  }
 
   cout << "this->ActualTimeStep : " << this->ActualTimeStep << endl;
 
@@ -174,7 +172,7 @@ public:
   static vtkTestTemporalCacheSimpleExecuteCallback *New()
   { return new vtkTestTemporalCacheSimpleExecuteCallback; }
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     // count the number of timesteps requested
     vtkTemporalSphereSource *sph = vtkTemporalSphereSource::SafeDownCast(caller);
@@ -233,30 +231,29 @@ int TestTemporalCacheSimple(int , char *[])
   iren->SetRenderWindow( renWin );
 
   // ask for some specific data points
-  vtkStreamingDemandDrivenPipeline *sdd =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(interp->GetExecutive());
-  sdd->UpdateInformation();
+  vtkInformation *info = interp->GetOutputInformation(0);
+  interp->UpdateInformation();
   double time = 0;
   int i;
   int j;
   for (j = 0; j < 5; ++j)
-    {
+  {
     for (i = 0; i < 9; ++i)
-      {
+    {
       time = i+0.5;
-      sdd->SetUpdateTimeStep(0, time);
+      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), time);
       mapper->Modified();
       renderer->ResetCameraClippingRange();
       renWin->Render();
-      }
     }
+  }
 
-  vtkAlgorithm::SetDefaultExecutivePrototype(0);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
 
   if (executecb->Count == 11)
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }

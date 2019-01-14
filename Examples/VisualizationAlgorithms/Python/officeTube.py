@@ -31,13 +31,12 @@ maxTime = 35.0*length/maxVelocity
 # IntegrationStepLength specifies the integration step length as a
 # fraction of the cell size that the streamline is in.
 integ = vtk.vtkRungeKutta4()
-streamer = vtk.vtkStreamLine()
+streamer = vtk.vtkStreamTracer()
 streamer.SetInputConnection(reader.GetOutputPort())
 streamer.SetStartPosition(0.1, 2.1, 0.5)
-streamer.SetMaximumPropagationTime(500)
-streamer.SetStepLength(0.5)
-streamer.SetIntegrationStepLength(0.05)
-streamer.SetIntegrationDirectionToIntegrateBothDirections()
+streamer.SetMaximumPropagation(500)
+streamer.SetInitialIntegrationStep(0.05)
+streamer.SetIntegrationDirectionToBoth()
 streamer.SetIntegrator(integ)
 
 # The tube is wrapped around the generated streamline. By varying the
@@ -45,6 +44,7 @@ streamer.SetIntegrator(integ)
 # whose radius is proportional to mass flux (in incompressible flow).
 streamTube = vtk.vtkTubeFilter()
 streamTube.SetInputConnection(streamer.GetOutputPort())
+streamTube.SetInputArrayToProcess(1, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "vectors")
 streamTube.SetRadius(0.02)
 streamTube.SetNumberOfSides(12)
 streamTube.SetVaryRadiusToVaryRadiusByVector()

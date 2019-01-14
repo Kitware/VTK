@@ -12,13 +12,16 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkNonOverlappingAMRAlgorithm.h -- Superclass for algorithms that
-//  produce vtkNonOverlappingAMR as output.
-//
-// .SECTION Description
-//
-#ifndef VTKNONOVERLAPPINGAMRALGORITHM_H_
-#define VTKNONOVERLAPPINGAMRALGORITHM_H_
+/**
+ * @class   vtkNonOverlappingAMRAlgorithm
+ *  produce vtkNonOverlappingAMR as output.
+ *
+ *
+ *
+*/
+
+#ifndef vtkNonOverlappingAMRAlgorithm_h
+#define vtkNonOverlappingAMRAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkUniformGridAMRAlgorithm.h"
@@ -32,25 +35,31 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkNonOverlappingAMRAlgorithm :
   public:
     static vtkNonOverlappingAMRAlgorithm* New();
     vtkTypeMacro(vtkNonOverlappingAMRAlgorithm,vtkUniformGridAMRAlgorithm);
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
-    // Description:
-    // Get the output data object for a port on this algorithm
+    //@{
+    /**
+     * Get the output data object for a port on this algorithm
+     */
     vtkNonOverlappingAMR* GetOutput();
     vtkNonOverlappingAMR* GetOutput(int);
+    //@}
 
   protected:
     vtkNonOverlappingAMRAlgorithm();
-    virtual ~vtkNonOverlappingAMRAlgorithm();
+    ~vtkNonOverlappingAMRAlgorithm() override;
 
-    // Description:
-    // See algorithm for more info.
-    virtual int FillOutputPortInformation(int port, vtkInformation* info);
-    virtual int FillInputPortInformation(int port, vtkInformation* info);
+    //@{
+    /**
+     * See algorithm for more info.
+     */
+    int FillOutputPortInformation(int port, vtkInformation* info) override;
+    int FillInputPortInformation(int port, vtkInformation* info) override;
+    //@}
 
   private:
-    vtkNonOverlappingAMRAlgorithm(const vtkNonOverlappingAMRAlgorithm&); // Not implemented
-    void operator=(const vtkNonOverlappingAMRAlgorithm&); // Not implemented
+    vtkNonOverlappingAMRAlgorithm(const vtkNonOverlappingAMRAlgorithm&) = delete;
+    void operator=(const vtkNonOverlappingAMRAlgorithm&) = delete;
 };
 
 #endif /* VTKNONOVERLAPPINGAMRALGORITHM_H_ */

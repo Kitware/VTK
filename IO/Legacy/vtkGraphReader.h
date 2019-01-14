@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraphReader - read vtkGraph data file
-// .SECTION Description
-// vtkGraphReader is a source object that reads ASCII or binary
-// vtkGraph data files in vtk format. (see text for format details).
-// The output of this reader is a single vtkGraph data object.
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-// .SECTION See Also
-// vtkGraph vtkDataReader vtkGraphWriter
+/**
+ * @class   vtkGraphReader
+ * @brief   read vtkGraph data file
+ *
+ * vtkGraphReader is a source object that reads ASCII or binary
+ * vtkGraph data files in vtk format. (see text for format details).
+ * The output of this reader is a single vtkGraph data object.
+ * The superclass of this class, vtkDataReader, provides many methods for
+ * controlling the reading of the data file, see vtkDataReader for more
+ * information.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+ * @sa
+ * vtkGraph vtkDataReader vtkGraphWriter
+*/
 
 #ifndef vtkGraphReader_h
 #define vtkGraphReader_h
@@ -38,43 +41,45 @@ class VTKIOLEGACY_EXPORT vtkGraphReader : public vtkDataReader
 public:
   static vtkGraphReader *New();
   vtkTypeMacro(vtkGraphReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the output of this reader.
+  //@{
+  /**
+   * Get the output of this reader.
+   */
   vtkGraph *GetOutput();
   vtkGraph *GetOutput(int idx);
-  void SetOutput(vtkGraph *output);
+  //@}
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
+
 
 protected:
   vtkGraphReader();
-  ~vtkGraphReader();
+  ~vtkGraphReader() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  enum GraphType
+  {
+    UnknownGraph,
+    DirectedGraph,
+    UndirectedGraph,
+    Molecule
+  };
 
-  // Override ProcessRequest to handle request data object event
-  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
-                             vtkInformationVector *);
-
-  // Since the Outputs[0] has the same UpdateExtent format
-  // as the generic DataObject we can copy the UpdateExtent
-  // as a default behavior.
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-
-  // Create output (a directed or undirected graph).
-  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
-                                vtkInformationVector *);
+  vtkDataObject* CreateOutput(vtkDataObject* currentOutput) override;
 
   // Read beginning of file to determine whether the graph is directed.
-  virtual int ReadGraphDirectedness(bool & directed);
+  virtual int ReadGraphType(const char* fname, GraphType &type);
 
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkGraphReader(const vtkGraphReader&);  // Not implemented.
-  void operator=(const vtkGraphReader&);  // Not implemented.
+  vtkGraphReader(const vtkGraphReader&) = delete;
+  void operator=(const vtkGraphReader&) = delete;
 };
 
 #endif

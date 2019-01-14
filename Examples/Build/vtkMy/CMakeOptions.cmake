@@ -44,7 +44,7 @@ endif ()
 
 
 #
-# Wrap Tcl, Java, Python
+# Wrap Java, Python
 #
 # Rational: even if your VTK was wrapped, it does not mean that you want to
 # wrap your own local classes.
@@ -53,35 +53,10 @@ endif ()
 #
 
 #
-# Tcl
-#
-
-if (VTK_WRAP_TCL)
-
-  option(VTKMY_WRAP_TCL
-         "Wrap classes into the TCL interpreted language."
-         ON)
-
-  if(VTKMY_WRAP_TCL)
-    INCLUDE(${VTK_CMAKE_DIR}/vtkWrapTcl.cmake)
-  endif()
-
-else ()
-
-  if (VTKMY_WRAP_TCL)
-    message("Warning. VTKMY_WRAP_TCL is ON but the VTK version you have "
-            "chosen has not support for Tcl (VTK_WRAP_TCL is OFF).  "
-            "Please set VTKMY_WRAP_TCL to OFF.")
-    set (VTKMY_WRAP_TCL OFF)
-  endif ()
-
-endif ()
-
-#
 # Python
 #
 
-if (VTK_WRAP_PYTHON)
+if (VTK_WRAP_PYTHON AND (NOT WIN32 OR BUILD_SHARED_LIBS))
 
   option(VTKMY_WRAP_PYTHON
          "Wrap classes into the Python interpreted language."
@@ -90,12 +65,6 @@ if (VTK_WRAP_PYTHON)
   if (VTKMY_WRAP_PYTHON)
     set(VTK_WRAP_PYTHON_FIND_LIBS ON)
     include(${VTK_CMAKE_DIR}/vtkWrapPython.cmake)
-    if (WIN32)
-      if (NOT BUILD_SHARED_LIBS)
-        message(FATAL_ERROR "Python support requires BUILD_SHARED_LIBS to be ON.")
-        set (VTKMY_CAN_BUILD 0)
-      endif ()
-    endif ()
   endif ()
 
 else ()
@@ -144,6 +113,3 @@ else ()
   endif ()
 
 endif ()
-
-# Setup our local hints file in case wrappers need them.
-set(VTK_WRAP_HINTS ${VTKMY_SOURCE_DIR}/Wrapping/hints)

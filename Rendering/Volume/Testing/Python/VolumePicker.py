@@ -48,11 +48,8 @@ class VolumePicker(vtk.test.Testing.vtkTest):
         #---------------------------------------------------------
         # set up the volume rendering
 
-        rayCastFunction = vtk.vtkVolumeRayCastCompositeFunction()
-
-        volumeMapper = vtk.vtkVolumeRayCastMapper()
+        volumeMapper = vtk.vtkFixedPointVolumeRayCastMapper()
         volumeMapper.SetInputConnection(v16.GetOutputPort())
-        volumeMapper.SetVolumeRayCastFunction(rayCastFunction)
 
         volumeColor = vtk.vtkColorTransferFunction()
         volumeColor.AddRGBPoint(0, 0.0, 0.0, 0.0)

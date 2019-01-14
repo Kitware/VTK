@@ -39,7 +39,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 
-#include <vtksys/stl/set>
+#include <set>
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -52,26 +52,26 @@ vtkExpandSelectedGraph::vtkExpandSelectedGraph()
   this->BFSDistance = 1;
   this->IncludeShortestPaths = false;
   this->UseDomain = false;
-  this->Domain = 0;
+  this->Domain = nullptr;
 }
 
 vtkExpandSelectedGraph::~vtkExpandSelectedGraph()
 {
-  this->SetDomain(0);
+  this->SetDomain(nullptr);
 }
 
 int vtkExpandSelectedGraph::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
     return 1;
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -99,19 +99,19 @@ int vtkExpandSelectedGraph::RequestData(
   // to a single index selection which we then expand, instead of
   // expanding each child selection and merging them which creates
   // duplicates.
-  vtksys_stl::set<vtkIdType> indexSet;
+  std::set<vtkIdType> indexSet;
   for(int i=0; i<indexArray->GetNumberOfTuples(); ++i)
-    {
+  {
     indexSet.insert(indexArray->GetValue(i));
-    }
+  }
   // Delete any entries in the current selection list
   indexArray->Reset();
   // Convert the stl set into the selection list
-  vtksys_stl::set<vtkIdType>::iterator I;
+  std::set<vtkIdType>::iterator I;
   for(I = indexSet.begin(); I != indexSet.end(); ++I)
-    {
+  {
     indexArray->InsertNextValue(*I);
-    }
+  }
 
   // Convert back to a pedigree id selection
   VTK_CREATE(vtkSelection, indexSelection);
@@ -133,10 +133,10 @@ void vtkExpandSelectedGraph::Expand(vtkIdTypeArray *indexArray, vtkGraph *graph)
   // the selected vertices
   int distance = this->BFSDistance;
   while(distance > 0)
-    {
+  {
     this->BFSExpandSelection(indexArray, graph);
     --distance;
-    }
+  }
 }
 
 void vtkExpandSelectedGraph::BFSExpandSelection(vtkIdTypeArray *indexArray,
@@ -147,7 +147,7 @@ void vtkExpandSelectedGraph::BFSExpandSelection(vtkIdTypeArray *indexArray,
   VTK_CREATE(vtkOutEdgeIterator, outIt);
 
   vtkAbstractArray* domainArr = graph->GetVertexData()->GetAbstractArray("domain");
-  vtksys_stl::set<vtkIdType> indexSet;
+  std::set<vtkIdType> indexSet;
   for (int i=0; i<indexArray->GetNumberOfTuples(); ++i)
   {
     // First insert myself
@@ -156,37 +156,37 @@ void vtkExpandSelectedGraph::BFSExpandSelection(vtkIdTypeArray *indexArray,
     // Now insert all adjacent vertices
     graph->GetInEdges(indexArray->GetValue(i), inIt);
     while (inIt->HasNext())
-      {
+    {
       vtkInEdgeType e = inIt->Next();
       if(this->UseDomain && this->Domain &&
         domainArr->GetVariantValue(e.Source).ToString() != this->Domain)
-        {
+      {
         continue;
-        }
-      indexSet.insert(e.Source);
       }
+      indexSet.insert(e.Source);
+    }
     graph->GetOutEdges(indexArray->GetValue(i), outIt);
     while (outIt->HasNext())
-      {
+    {
       vtkOutEdgeType e = outIt->Next();
       if(this->UseDomain && this->Domain && domainArr &&
         domainArr->GetVariantValue(e.Target).ToString() != this->Domain)
-        {
+      {
         continue;
-        }
-      indexSet.insert(e.Target);
       }
+      indexSet.insert(e.Target);
+    }
   }
 
   // Delete any entries in the current selection list
   indexArray->Reset();
 
   // Convert the stl set into the selection list
-  vtksys_stl::set<vtkIdType>::iterator I;
+  std::set<vtkIdType>::iterator I;
   for(I = indexSet.begin(); I != indexSet.end(); ++I)
-    {
+  {
     indexArray->InsertNextValue(*I);
-    }
+  }
 }
 
 void vtkExpandSelectedGraph::PrintSelf(ostream& os, vtkIndent indent)

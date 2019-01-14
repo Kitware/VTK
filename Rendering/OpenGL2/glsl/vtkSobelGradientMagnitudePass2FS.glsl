@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 // ============================================================================
 //
 //  Program:   Visualization Toolkit
@@ -15,15 +17,14 @@
 
 // Fragment shader used by the second pass of the Sobel filter render pass.
 
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
-
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 uniform sampler2D gx1;
 uniform sampler2D gy1;
 uniform float stepSize; // 1/H
+
+// the output of this shader
+//VTK::Output::Dec
 
 void main(void)
 {

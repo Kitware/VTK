@@ -22,7 +22,7 @@ vtkCxxSetObjectMacro(vtkLocator,DataSet,vtkDataSet);
 
 vtkLocator::vtkLocator()
 {
-  this->DataSet = NULL;
+  this->DataSet = nullptr;
   this->Tolerance = 0.001;
   this->Automatic = 1;
   this->MaxLevel = 8;
@@ -33,7 +33,7 @@ vtkLocator::~vtkLocator()
 {
   // commented out because of compiler problems in g++
   //  this->FreeSearchStructure();
-  this->SetDataSet(NULL);
+  this->SetDataSet(nullptr);
 }
 
 void vtkLocator::Initialize()
@@ -45,15 +45,15 @@ void vtkLocator::Initialize()
 void vtkLocator::Update()
 {
   if (!this->DataSet)
-    {
+  {
     vtkErrorMacro(<< "Input not set!");
     return;
-    }
+  }
   if ((this->MTime > this->BuildTime) ||
       (this->DataSet->GetMTime() > this->BuildTime))
-    {
+  {
     this->BuildLocator();
-    }
+  }
 }
 
 void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
@@ -61,13 +61,13 @@ void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->DataSet )
-    {
+  {
     os << indent << "DataSet: " << this->DataSet << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "DataSet: (none)\n";
-    }
+  }
 
   os << indent << "Automatic: "  << (this->Automatic ? "On\n" : "Off\n");
   os << indent << "Tolerance: "  << this->Tolerance << "\n" ;

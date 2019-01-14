@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLStructuredGridReader - Read VTK XML StructuredGrid files.
-// .SECTION Description
-// vtkXMLStructuredGridReader reads the VTK XML StructuredGrid file
-// format.  One structured grid file can be read to produce one
-// output.  Streaming is supported.  The standard extension for this
-// reader's file format is "vts".  This reader is also used to read a
-// single piece of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPStructuredGridReader
+/**
+ * @class   vtkXMLStructuredGridReader
+ * @brief   Read VTK XML StructuredGrid files.
+ *
+ * vtkXMLStructuredGridReader reads the VTK XML StructuredGrid file
+ * format.  One structured grid file can be read to produce one
+ * output.  Streaming is supported.  The standard extension for this
+ * reader's file format is "vts".  This reader is also used to read a
+ * single piece of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPStructuredGridReader
+*/
 
 #ifndef vtkXMLStructuredGridReader_h
 #define vtkXMLStructuredGridReader_h
@@ -35,35 +38,38 @@ class VTKIOXML_EXPORT vtkXMLStructuredGridReader : public vtkXMLStructuredDataRe
 {
 public:
   vtkTypeMacro(vtkXMLStructuredGridReader,vtkXMLStructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLStructuredGridReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkStructuredGrid *GetOutput();
   vtkStructuredGrid *GetOutput(int idx);
+  //@}
 
 protected:
   vtkXMLStructuredGridReader();
-  ~vtkXMLStructuredGridReader();
+  ~vtkXMLStructuredGridReader() override;
 
-  const char* GetDataSetName();
-  void SetOutputExtent(int* extent);
+  const char* GetDataSetName() override;
+  void SetOutputExtent(int* extent) override;
 
-  void SetupPieces(int numPieces);
-  void DestroyPieces();
-  void SetupOutputData();
+  void SetupPieces(int numPieces) override;
+  void DestroyPieces() override;
+  void SetupOutputData() override;
 
-  int ReadPiece(vtkXMLDataElement* ePiece);
-  int ReadPieceData();
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int ReadPiece(vtkXMLDataElement* ePiece) override;
+  int ReadPieceData() override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   // The elements representing the points for each piece.
   vtkXMLDataElement** PointElements;
 
 private:
-  vtkXMLStructuredGridReader(const vtkXMLStructuredGridReader&);  // Not implemented.
-  void operator=(const vtkXMLStructuredGridReader&);  // Not implemented.
+  vtkXMLStructuredGridReader(const vtkXMLStructuredGridReader&) = delete;
+  void operator=(const vtkXMLStructuredGridReader&) = delete;
 };
 
 #endif

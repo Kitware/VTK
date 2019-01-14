@@ -16,8 +16,9 @@ import sys
 try:
     import numpy.core.numeric as numeric
 except ImportError:
-    print "WARNING: This test requires Numeric Python: http://numpy.sf.net"
-    sys.exit(0)
+    print("WARNING: This test requires Numeric Python: http://numpy.sf.net")
+    from vtk.test import Testing
+    Testing.skip()
 
 import os
 import glob

@@ -3,8 +3,6 @@
   Program:   DICOMParser
   Module:    DICOMFile.h
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 2003 Matt Turek
   All rights reserved.
@@ -24,7 +22,7 @@
 #pragma warning ( push, 3 )
 #endif
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
 #pragma warn -8027 /* functions containing while are not expanded inline */
 #endif
 
@@ -238,7 +236,7 @@ class DICOM_EXPORT DICOMFile
   dicom_stream::ifstream InputStream;
 
   //
-  // Flag for swaping bytes.
+  // Flag for swapping bytes.
   //
   bool PlatformIsBigEndian;
 

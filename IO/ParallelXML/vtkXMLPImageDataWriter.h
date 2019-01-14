@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPImageDataWriter - Write PVTK XML ImageData files.
-// .SECTION Description
-// vtkXMLPImageDataWriter writes the PVTK XML ImageData file format.
-// One image data input can be written into a parallel file format
-// with any number of pieces spread across files.  The standard
-// extension for this writer's file format is "pvti".  This writer
-// uses vtkXMLImageDataWriter to write the individual piece files.
-
-// .SECTION See Also
-// vtkXMLImageDataWriter
+/**
+ * @class   vtkXMLPImageDataWriter
+ * @brief   Write PVTK XML ImageData files.
+ *
+ * vtkXMLPImageDataWriter writes the PVTK XML ImageData file format.
+ * One image data input can be written into a parallel file format
+ * with any number of pieces spread across files.  The standard
+ * extension for this writer's file format is "pvti".  This writer
+ * uses vtkXMLImageDataWriter to write the individual piece files.
+ *
+ * @sa
+ * vtkXMLImageDataWriter
+*/
 
 #ifndef vtkXMLPImageDataWriter_h
 #define vtkXMLPImageDataWriter_h
@@ -36,32 +39,32 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPImageDataWriter : public vtkXMLPStructuredD
 public:
   static vtkXMLPImageDataWriter* New();
   vtkTypeMacro(vtkXMLPImageDataWriter,vtkXMLPStructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //BTX
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkImageData* GetInput();
-  //ETX
 
-  // Description:
-  // Get the default file extension for files written by this writer.
-  const char* GetDefaultFileExtension();
+  /**
+   * Get the default file extension for files written by this writer.
+   */
+  const char* GetDefaultFileExtension() override;
 
 protected:
   vtkXMLPImageDataWriter();
-  ~vtkXMLPImageDataWriter();
+  ~vtkXMLPImageDataWriter() override;
 
-  const char* GetDataSetName();
-  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
-  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter();
+  const char* GetDataSetName() override;
+  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) override;
+  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter() override;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkXMLPImageDataWriter(const vtkXMLPImageDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPImageDataWriter&);  // Not implemented.
+  vtkXMLPImageDataWriter(const vtkXMLPImageDataWriter&) = delete;
+  void operator=(const vtkXMLPImageDataWriter&) = delete;
 };
 
 #endif

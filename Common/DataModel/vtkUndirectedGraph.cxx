@@ -26,21 +26,17 @@
 #include "vtkOutEdgeIterator.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/vector>
+#include <vector>
 
 //----------------------------------------------------------------------------
 // class vtkUndirectedGraph
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkUndirectedGraph);
 //----------------------------------------------------------------------------
-vtkUndirectedGraph::vtkUndirectedGraph()
-{
-}
+vtkUndirectedGraph::vtkUndirectedGraph() = default;
 
 //----------------------------------------------------------------------------
-vtkUndirectedGraph::~vtkUndirectedGraph()
-{
-}
+vtkUndirectedGraph::~vtkUndirectedGraph() = default;
 
 //----------------------------------------------------------------------------
 void vtkUndirectedGraph::GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType & nedges)
@@ -67,7 +63,7 @@ vtkIdType vtkUndirectedGraph::GetInDegree(vtkIdType v)
 //----------------------------------------------------------------------------
 vtkUndirectedGraph *vtkUndirectedGraph::GetData(vtkInformation *info)
 {
-  return info? vtkUndirectedGraph::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkUndirectedGraph::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -80,52 +76,52 @@ vtkUndirectedGraph *vtkUndirectedGraph::GetData(vtkInformationVector *v, int i)
 bool vtkUndirectedGraph::IsStructureValid(vtkGraph *g)
 {
   if (!g)
-    {
+  {
     return false;
-    }
+  }
 
   if (vtkUndirectedGraph::SafeDownCast(g))
-    {
+  {
     return true;
-    }
+  }
 
   // Verify that there are no in edges and that each edge
   // appears in exactly two edge lists.
   // Loop edges should be in exactly one edge list.
-  vtksys_stl::vector<vtkIdType> place(g->GetNumberOfEdges(), -1);
-  vtksys_stl::vector<vtkIdType> count(g->GetNumberOfEdges(), 0);
+  std::vector<vtkIdType> place(g->GetNumberOfEdges(), -1);
+  std::vector<vtkIdType> count(g->GetNumberOfEdges(), 0);
   vtkSmartPointer<vtkOutEdgeIterator> outIter =
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   for (vtkIdType v = 0; v < g->GetNumberOfVertices(); ++v)
-    {
+  {
     if (g->GetInDegree(v) > 0)
-      {
+    {
       return false;
-      }
+    }
     g->GetOutEdges(v, outIter);
     while (outIter->HasNext())
-      {
+    {
       vtkOutEdgeType e = outIter->Next();
       if (place[e.Id] == v)
-        {
+      {
         return false;
-        }
+      }
       place[e.Id] = v;
       count[e.Id]++;
       // Count loops twice so they should all have count == 2
       if (v == e.Target)
-        {
-        count[e.Id]++;
-        }
-      }
-    }
-  for (vtkIdType i = 0; i < g->GetNumberOfEdges(); ++i)
-    {
-    if (count[i] != 2)
       {
-      return false;
+        count[e.Id]++;
       }
     }
+  }
+  for (vtkIdType i = 0; i < g->GetNumberOfEdges(); ++i)
+  {
+    if (count[i] != 2)
+    {
+      return false;
+    }
+  }
 
   return true;
 }

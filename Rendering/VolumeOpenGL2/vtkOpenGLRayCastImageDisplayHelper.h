@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLRayCastImageDisplayHelper - OpenGL subclass that draws the image to the screen
-// .SECTION Description
-// This is the concrete implementation of a ray cast image display helper -
-// a helper class responsible for drawing the image to the screen.
-
-// .SECTION see also
-// vtkRayCastImageDisplayHelper
+/**
+ * @class   vtkOpenGLRayCastImageDisplayHelper
+ * @brief   OpenGL subclass that draws the image to the screen
+ *
+ * This is the concrete implementation of a ray cast image display helper -
+ * a helper class responsible for drawing the image to the screen.
+ *
+ * @sa
+ * vtkRayCastImageDisplayHelper
+*/
 
 #ifndef vtkOpenGLRayCastImageDisplayHelper_h
 #define vtkOpenGLRayCastImageDisplayHelper_h
@@ -27,13 +30,12 @@
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkRayCastImageDisplayHelper.h"
 
-class vtkActor;
 class vtkFixedPointRayCastImage;
-class vtkOpenGLTexture;
+class vtkOpenGLHelper;
 class vtkRenderer;
+class vtkTextureObject;
 class vtkVolume;
 class vtkWindow;
-class vtkTextureObject;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLRayCastImageDisplayHelper
   : public vtkRayCastImageDisplayHelper
@@ -41,7 +43,7 @@ class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLRayCastImageDisplayHelper
 public:
   static vtkOpenGLRayCastImageDisplayHelper *New();
   vtkTypeMacro(vtkOpenGLRayCastImageDisplayHelper,vtkRayCastImageDisplayHelper);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
                       int imageMemorySize[2],
@@ -49,7 +51,7 @@ public:
                       int imageInUseSize[2],
                       int imageOrigin[2],
                       float requestedDepth,
-                      unsigned char *image );
+                      unsigned char *image ) override;
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
                       int imageMemorySize[2],
@@ -57,17 +59,17 @@ public:
                       int imageInUseSize[2],
                       int imageOrigin[2],
                       float requestedDepth,
-                      unsigned short *image );
+                      unsigned short *image ) override;
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
                       vtkFixedPointRayCastImage *image,
-                      float requestedDepth );
+                      float requestedDepth ) override;
 
-  virtual void ReleaseGraphicsResources(vtkWindow *win);
+  void ReleaseGraphicsResources(vtkWindow *win) override;
 
 protected:
   vtkOpenGLRayCastImageDisplayHelper();
-  ~vtkOpenGLRayCastImageDisplayHelper();
+  ~vtkOpenGLRayCastImageDisplayHelper() override;
 
   void RenderTextureInternal( vtkVolume *vol, vtkRenderer *ren,
                               int imageMemorySize[2],
@@ -78,13 +80,15 @@ protected:
                               int imageScalarType,
                               void *image );
 
-  vtkActor *TextureActor;
-  vtkOpenGLTexture* Texture;
+  // used for copying to framebuffer
   vtkTextureObject *TextureObject;
+  vtkOpenGLHelper *ShaderProgram;
+
+
 
 private:
-  vtkOpenGLRayCastImageDisplayHelper(const vtkOpenGLRayCastImageDisplayHelper&);  // Not implemented.
-  void operator=(const vtkOpenGLRayCastImageDisplayHelper&);  // Not implemented.
+  vtkOpenGLRayCastImageDisplayHelper(const vtkOpenGLRayCastImageDisplayHelper&) = delete;
+  void operator=(const vtkOpenGLRayCastImageDisplayHelper&) = delete;
 };
 
 #endif

@@ -54,7 +54,7 @@ int TestBagPlot(int, char * [])
   view->GetRenderWindow()->SetSize(400, 400);
   view->GetRenderWindow()->SetMultiSamples(0);
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
   chart->SetShowLegend(true);
 
   // Creates a vtkPlotBag input table
@@ -72,28 +72,28 @@ int TestBagPlot(int, char * [])
   arrDensity->SetName("Density");
 
   vtkNew<vtkTable> table;
-  table->AddColumn(arrX.GetPointer());
-  table->AddColumn(arrY.GetPointer());
-  table->AddColumn(arrDensity.GetPointer());
+  table->AddColumn(arrX);
+  table->AddColumn(arrY);
+  table->AddColumn(arrDensity);
 
   table->SetNumberOfRows(numDataI * numDataJ);
 
   // Fill the table
   for (int j = 0; j < numDataJ; ++j)
-    {
+  {
     for (int i = 0; i < numDataI; ++i)
-      {
+    {
       table->SetValue(i + j * numDataI, 0, i); //X
       table->SetValue(i + j * numDataI, 1, j); //Y
       double d = densities[i + j * numDataI];
       table->SetValue(i + j * numDataI, 2, d); // Density
-      }
-    cout << endl;
     }
+    cout << endl;
+  }
 
   vtkNew<vtkPlotBag> bagPlot;
-  chart->AddPlot(bagPlot.GetPointer());
-  bagPlot->SetInputData(table.GetPointer(), arrX->GetName(),
+  chart->AddPlot(bagPlot);
+  bagPlot->SetInputData(table, arrX->GetName(),
     arrY->GetName(), arrDensity->GetName());
   bagPlot->SetColor(255, 0, 0, 255);
   bagPlot->SetMarkerSize(4);

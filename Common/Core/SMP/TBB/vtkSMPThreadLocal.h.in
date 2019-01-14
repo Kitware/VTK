@@ -73,13 +73,15 @@
 #ifndef vtkSMPThreadLocal_h
 #define vtkSMPThreadLocal_h
 
-#if _MSC_VER >= 1400 && _MSC_VER <= 1700
-#pragma warning(push)
-#pragma warning(disable : 4345)
+#ifdef _MSC_VER
+#  pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
+#  define __TBB_NO_IMPLICIT_LINKAGE 1
 #endif
+
 #include <tbb/enumerable_thread_specific.h>
-#if _MSC_VER >= 1400 && _MSC_VER <= 1700
-#pragma warning(pop)
+
+#ifdef _MSC_VER
+#  pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
 #endif
 
 template <typename T>
@@ -91,36 +93,36 @@ public:
   // Description:
   // Default constructor. Creates a default exemplar.
   vtkSMPThreadLocal()
-    {
-    }
+  {
+  }
 
   // Description:
   // Constructor that allows the specification of an exemplar object
   // which is used when constructing objects when Local() is first called.
   // Note that a copy of the exemplar is created using its copy constructor.
-  vtkSMPThreadLocal(const T& exemplar) : Internal(exemplar)
-    {
-    }
+  explicit vtkSMPThreadLocal(const T& exemplar) : Internal(exemplar)
+  {
+  }
 
   // Description:
   // Returns an object of type T that is local to the current thread.
   // This needs to be called mainly within a threaded execution path.
-  // It will create a new object (local to the tread so each thread
+  // It will create a new object (local to the thread so each thread
   // get their own when calling Local) which is a copy of exemplar as passed
   // to the constructor (or a default object if no exemplar was provided)
   // the first time it is called. After the first time, it will return
   // the same object.
   T& Local()
-    {
+  {
       return this->Internal.local();
-    }
+  }
 
   // Description:
   // Return the number of thread local objects that have been initialized
   size_t size() const
-    {
+  {
       return this->Internal.size();
-    }
+  }
 
   // Description:
   // Subset of the standard iterator API.
@@ -134,37 +136,37 @@ public:
   {
   public:
     iterator& operator++()
-      {
+    {
         ++this->Iter;
         return *this;
-      }
+    }
 
     iterator operator++(int)
-      {
+    {
         iterator copy = *this;
         ++this->Iter;
         return copy;
-      }
+    }
 
     bool operator==(const iterator& other)
-      {
+    {
         return this->Iter == other.Iter;
-      }
+    }
 
     bool operator!=(const iterator& other)
-      {
+    {
         return this->Iter != other.Iter;
-      }
+    }
 
     T& operator*()
-      {
+    {
         return *this->Iter;
-      }
+    }
 
     T* operator->()
-      {
+    {
         return &*this->Iter;
-      }
+    }
 
   private:
     TLSIter Iter;
@@ -176,24 +178,28 @@ public:
   // Returns a new iterator pointing to the beginning of
   // the local storage container. Thread safe.
   iterator begin()
-    {
+  {
       iterator iter;
       iter.Iter = this->Internal.begin();
       return iter;
-    };
+  };
 
   // Description:
   // Returns a new iterator pointing to past the end of
   // the local storage container. Thread safe.
   iterator end()
-    {
+  {
       iterator iter;
       iter.Iter = this->Internal.end();
       return iter;
-    }
+  }
 
 private:
   TLS Internal;
+
+  // disable copying
+  vtkSMPThreadLocal(const vtkSMPThreadLocal&);
+  void operator=(const vtkSMPThreadLocal&);
 };
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPThreadLocal.h

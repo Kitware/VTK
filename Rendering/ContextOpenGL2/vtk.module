@@ -1,0 +1,21 @@
+NAME
+  VTK::RenderingContextOpenGL2
+LIBRARY_NAME
+  vtkRenderingContextOpenGL2
+KIT
+  VTK::OpenGL
+IMPLEMENTS
+  VTK::RenderingContext2D
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::RenderingContext2D
+  VTK::RenderingCore
+  VTK::RenderingFreeType
+  VTK::RenderingOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonMath
+  VTK::CommonTransforms
+  VTK::ImagingCore
+  VTK::glew
+  VTK::opengl

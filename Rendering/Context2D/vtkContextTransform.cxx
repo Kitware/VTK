@@ -46,9 +46,7 @@ vtkContextTransform::vtkContextTransform() : ZoomAnchor(0.0f, 0.0f)
 }
 
 //-----------------------------------------------------------------------------
-vtkContextTransform::~vtkContextTransform()
-{
-}
+vtkContextTransform::~vtkContextTransform() = default;
 
 //-----------------------------------------------------------------------------
 bool vtkContextTransform::Paint(vtkContext2D *painter)
@@ -58,6 +56,12 @@ bool vtkContextTransform::Paint(vtkContext2D *painter)
   bool result = this->PaintChildren(painter);
   painter->PopMatrix();
   return result;
+}
+
+//-----------------------------------------------------------------------------
+void vtkContextTransform::Identity()
+{
+  this->Transform->Identity();
 }
 
 //-----------------------------------------------------------------------------
@@ -119,16 +123,16 @@ bool vtkContextTransform::Hit(const vtkContextMouseEvent &vtkNotUsed(mouse))
 bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 {
   if (!this->Interactive)
-    {
+  {
     return vtkAbstractContextItem::MouseButtonPressEvent(mouse);
-    }
+  }
   if ((this->ZoomMouseButton != vtkContextMouseEvent::NO_BUTTON &&
         mouse.GetButton() == this->ZoomMouseButton &&
         mouse.GetModifiers() == this->ZoomModifier) ||
       (this->SecondaryZoomMouseButton != vtkContextMouseEvent::NO_BUTTON &&
         mouse.GetButton() == this->SecondaryZoomMouseButton &&
         mouse.GetModifiers() == this->SecondaryZoomModifier) )
-    {
+  {
     // Determine anchor to zoom in on
     vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
     vtkVector2d pos(0.0, 0.0);
@@ -136,7 +140,7 @@ bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent &mous
     transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
     this->ZoomAnchor = vtkVector2f(pos.Cast<float>().GetData());
     return true;
-    }
+  }
   return false;
 }
 
@@ -144,16 +148,16 @@ bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent &mous
 bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
   if (!this->Interactive)
-    {
+  {
     return vtkAbstractContextItem::MouseButtonPressEvent(mouse);
-    }
+  }
   if ((this->PanMouseButton != vtkContextMouseEvent::NO_BUTTON &&
         mouse.GetButton() == this->PanMouseButton &&
         mouse.GetModifiers() == this->PanModifier) ||
       (this->SecondaryPanMouseButton != vtkContextMouseEvent::NO_BUTTON &&
         mouse.GetButton() == this->SecondaryPanMouseButton &&
         mouse.GetModifiers() == this->SecondaryPanModifier) )
-    {
+  {
     // Figure out how much the mouse has moved by in plot coordinates - pan
     vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
     vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
@@ -172,20 +176,20 @@ bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 
     this->InvokeEvent(vtkCommand::InteractionEvent);
     return true;
-    }
+  }
   if ((this->ZoomMouseButton != vtkContextMouseEvent::NO_BUTTON &&
         mouse.GetButton() == this->ZoomMouseButton &&
         mouse.GetModifiers() == this->ZoomModifier) ||
       (this->SecondaryZoomMouseButton != vtkContextMouseEvent::NO_BUTTON &&
         mouse.GetButton() == this->SecondaryZoomMouseButton &&
         mouse.GetModifiers() == this->SecondaryZoomModifier) )
-    {
+  {
     // Figure out how much the mouse has moved and scale accordingly
     float delta = 0.0f;
     if (this->Scene->GetSceneHeight() > 0)
-      {
+    {
       delta = static_cast<float>(mouse.GetLastScreenPos()[1] - mouse.GetScreenPos()[1])/this->Scene->GetSceneHeight();
-      }
+    }
 
     // Dragging full screen height zooms 4x.
     float scaling = pow(4.0f, delta);
@@ -200,7 +204,7 @@ bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 
     this->InvokeEvent(vtkCommand::InteractionEvent);
     return true;
-    }
+  }
   return false;
 }
 
@@ -208,11 +212,11 @@ bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta)
 {
   if (!this->Interactive)
-    {
+  {
     return vtkAbstractContextItem::MouseButtonPressEvent(mouse);
-    }
+  }
   if (this->ZoomOnMouseWheel)
-    {
+  {
     // Determine current position to zoom in on
     vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
     vtkVector2d pos(0.0, 0.0);
@@ -233,9 +237,9 @@ bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent &mouse, int
 
     this->InvokeEvent(vtkCommand::InteractionEvent);
     return true;
-    }
+  }
   if (this->PanYOnMouseWheel)
-    {
+  {
     // Ten "wheels" to scroll a screen
     this->Translate(0.0f, delta/10.0f*this->Scene->GetSceneHeight());
 
@@ -244,7 +248,7 @@ bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent &mouse, int
 
     this->InvokeEvent(vtkCommand::InteractionEvent);
     return true;
-    }
+  }
   return false;
 }
 
@@ -252,4 +256,6 @@ bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent &mouse, int
 void vtkContextTransform::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Transform:\n";
+  this->Transform->PrintSelf(os, indent.GetNextIndent());
 }

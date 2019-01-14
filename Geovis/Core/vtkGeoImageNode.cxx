@@ -30,14 +30,13 @@ vtkStandardNewMacro(vtkGeoImageNode);
 //----------------------------------------------------------------------------
 vtkGeoImageNode::vtkGeoImageNode()
 {
+  VTK_LEGACY_BODY(vtkGeoImageNode::vtkGeoImageNode, "VTK 8.2");
   this->Image = vtkSmartPointer<vtkImageData>::New();
   this->Texture = vtkSmartPointer<vtkTexture>::New();
 }
 
 //-----------------------------------------------------------------------------
-vtkGeoImageNode::~vtkGeoImageNode()
-{
-}
+vtkGeoImageNode::~vtkGeoImageNode() = default;
 
 //-----------------------------------------------------------------------------
 void vtkGeoImageNode::PrintSelf(ostream& os, vtkIndent indent)
@@ -73,10 +72,10 @@ vtkTexture* vtkGeoImageNode::GetTexture()
 vtkGeoImageNode* vtkGeoImageNode::GetChild(int idx)
 {
   if (idx < 0 || idx > 3)
-    {
+  {
     vtkErrorMacro("Index out of range.");
-    return 0;
-    }
+    return nullptr;
+  }
   return vtkGeoImageNode::SafeDownCast(this->Children[idx]);
 }
 
@@ -91,14 +90,14 @@ vtkGeoImageNode* vtkGeoImageNode::GetParent()
 // We have to get a power of 2 for dimensions of the image.  VTK
 // resamples every time a tile is selected anr changed otherwise.
 //
-// We have two choises for dealing with images.
+// We have two choices for dealing with images.
 //
 // 1: Treat pixels like cell data.
 //   This makes subsampling easy.  Simply use vtkImageShrink3D.
 //   Tile images do not overlap.
 //   Difficult:
 //   Texture mapping is point data.  TCoords have to be extended half a pixel.
-//   vtkImageData is point data.  Have to handle meta data extenal to object.
+//   vtkImageData is point data.  Have to handle meta data external to object.
 //   Interpolated texture map will have seams between tiles.
 // 2: Treat pixels like point data.
 //   We would need a new shrink filter that uses a 3x3 kernel.
@@ -137,28 +136,28 @@ void vtkGeoImageNode::CropImageForTile(
   ext[1] = ext[0] + dims[0] - 1;
   ext[3] = ext[2] + dims[1] - 1;
   if (ext[1] > wholeExt[1])
-    {
+  {
     ext[1] = wholeExt[1];
-    }
+  }
   if (ext[3] > wholeExt[3])
-    {
+  {
     ext[3] = wholeExt[3];
-    }
+  }
   ext[0] = ext[1] - dims[0] + 1;
   ext[2] = ext[3] - dims[1] + 1;
   if (ext[0] < wholeExt[0])
-    {
+  {
     ext[0] = wholeExt[0];
-    }
+  }
   if (ext[2] < wholeExt[2])
-    {
+  {
     ext[2] = wholeExt[2];
-    }
+  }
 
-  if (this->Image == 0)
-    {
+  if (this->Image == nullptr)
+  {
     this->Image = vtkSmartPointer<vtkImageData>::New();
-    }
+  }
   this->Image->ShallowCopy(image);
   this->Image->Crop(ext);
 
@@ -170,20 +169,20 @@ void vtkGeoImageNode::CropImageForTile(
 
   // Save out the image to verify we are processing properly
   if (prefix)
-    {
+  {
     vtkImageData* storedImage = vtkImageData::New();
     storedImage->ShallowCopy(this->Image);
     storedImage->SetOrigin(this->LongitudeRange[0], this->LatitudeRange[0], 0);
     storedImage->SetSpacing(this->LongitudeRange[1], this->LatitudeRange[1], 0);
     vtkXMLImageDataWriter* writer = vtkXMLImageDataWriter::New();
     char fn[512];
-    sprintf(fn, "%s/tile_%d_%ld.vti", prefix, this->Level, this->Id);
+    snprintf(fn, sizeof(fn), "%s/tile_%d_%lu.vti", prefix, this->Level, this->Id);
     writer->SetFileName(fn);
     writer->SetInputData(storedImage);
     writer->Write();
     writer->Delete();
     storedImage->Delete();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -191,7 +190,7 @@ void vtkGeoImageNode::LoadAnImage(const char* prefix)
 {
   vtkXMLImageDataReader* reader = vtkXMLImageDataReader::New();
   char fn[512];
-  sprintf(fn, "%s/tile_%d_%ld.vti", prefix, this->Level, this->Id);
+  snprintf(fn, sizeof(fn), "%s/tile_%d_%lu.vti", prefix, this->Level, this->Id);
   reader->SetFileName(fn);
   reader->Update();
   vtkImageData* image = reader->GetOutput();
@@ -211,19 +210,19 @@ int vtkGeoImageNode::PowerOfTwo(int val)
   bool nextHigherFlag = false;
   tmp = 1;
   while (val)
-    {
+  {
     if ((val & 1) && val > 1)
-      {
+    {
       nextHigherFlag = true;
-      }
+    }
     val = val >> 1;
     tmp = tmp << 1;
-    }
+  }
 
   if ( ! nextHigherFlag)
-    {
+  {
     tmp = tmp >> 1;
-    }
+  }
   return tmp;
 }
 
@@ -232,11 +231,11 @@ void vtkGeoImageNode::ShallowCopy(vtkGeoTreeNode *src)
 {
   vtkGeoImageNode *imageNode = vtkGeoImageNode::SafeDownCast(src);
 
-  if(imageNode != NULL)
-    {
+  if(imageNode != nullptr)
+  {
     this->Image = imageNode->Image;
     this->Texture = imageNode->Texture;
-    }
+  }
   this->Superclass::ShallowCopy(src);
 }
 
@@ -245,28 +244,28 @@ void vtkGeoImageNode::DeepCopy(vtkGeoTreeNode *src)
 {
   vtkGeoImageNode *imageNode = vtkGeoImageNode::SafeDownCast(src);
 
-  if(imageNode != NULL)
-    {
+  if(imageNode != nullptr)
+  {
     vtkImageData * image = vtkImageData::New();
     image->DeepCopy(imageNode->Image);
     this->SetImage(image);
     image->Delete();
-    image = NULL;
+    image = nullptr;
 
     this->Texture = imageNode->Texture;
-    }
+  }
   this->Superclass::DeepCopy(src);
 }
 
 //-----------------------------------------------------------------------------
 bool vtkGeoImageNode::HasData()
 {
-  return (this->Image != 0);
+  return (this->Image != nullptr);
 }
 
 //-----------------------------------------------------------------------------
 void vtkGeoImageNode::DeleteData()
 {
-  this->Image = 0;
-  this->Texture = 0;
+  this->Image = nullptr;
+  this->Texture = nullptr;
 }

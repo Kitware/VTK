@@ -63,7 +63,6 @@ vtkPolyDataMapper* task1(vtkRenderWindow* renWin, double data,
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputData(probe->GetPolyDataOutput());
   mapper->SetScalarRange(50, 180);
-  mapper->ImmediateModeRenderingOn();
 
   vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);

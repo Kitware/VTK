@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -23,6 +21,7 @@
 
 
 #include "H5private.h"		/* Generic Functions			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fprivate.h"		/* File access				*/
 #include "H5FDprivate.h"	/* File drivers				*/
@@ -145,6 +144,44 @@ H5FD_mpi_get_comm(const H5FD_t *file)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_mpi_get_comm() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5FD_get_mpi_info
+ *
+ * Purpose:	Retrieves the file's mpi info
+ *
+ * Return:	Success:	SUCCEED
+ *
+ *		Failure:	Negative
+ *
+ * Programmer:	John Mainzer
+ *              4/4/17
+ *
+ * Modifications:
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5FD_get_mpi_info(H5FD_t *file, void** mpi_info)
+{
+    const H5FD_class_mpi_t *cls;
+    herr_t  ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI_NOINIT
+
+    HDassert(file);
+    cls = (const H5FD_class_mpi_t *)(file->cls);
+    HDassert(cls);
+    HDassert(cls->get_mpi_info);    /* All MPI drivers must implement this */
+
+    /* Dispatch to driver */
+    if((ret_value = (cls->get_mpi_info)(file, mpi_info)) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "driver get_mpi_info request failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_get_mpi_info() */
 
 
 /*-------------------------------------------------------------------------
@@ -278,6 +315,11 @@ H5FD_mpi_comm_info_dup(MPI_Comm comm, MPI_Info info, MPI_Comm *comm_new, MPI_Inf
 	info_dup = info;
     }
 
+    /* Set MPI_ERRORS_RETURN on comm_dup so that MPI failures are not fatal, 
+       and return codes can be checked and handled. May 23, 2017 FTW */
+    if (MPI_SUCCESS != (mpi_code = MPI_Comm_set_errhandler(comm_dup, MPI_ERRORS_RETURN)))
+        HMPI_GOTO_ERROR(FAIL, "MPI_Errhandler_set failed", mpi_code)
+ 
     /* copy them to the return arguments */
     *comm_new = comm_dup;
     *info_new = info_dup;
@@ -438,55 +480,5 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 }
 #endif /* NOT_YET */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5FD_mpi_setup_collective
- *
- * Purpose:	Set the buffer type BTYPE, file type FTYPE for a data
- *		transfer. Also request a MPI type transfer.
- *
- * Return:	Success:	0
- *		Failure:	-1
- *
- * Programmer:	Robb Matzke
- *              Monday, August  9, 1999
- *
- * Modifications:
- *
- *              Quincey Koziol - 2002/06/17
- *              Removed 'disp' parameter, read & write routines will use
- *              the address of the dataset in MPI_File_set_view() calls, as
- *              necessary.
- *
- *              Quincey Koziol - 2002/06/17
- *              Changed to set temporary properties in a dxpl, instead of
- *              flags in the file struct, which will make this more threadsafe.
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5FD_mpi_setup_collective(hid_t dxpl_id, MPI_Datatype *btype, MPI_Datatype *ftype)
-{
-    H5P_genplist_t *plist;      /* Property list pointer */
-    herr_t      ret_value=SUCCEED;       /* Return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
-
-    /* Check arguments */
-    if(NULL == (plist = H5P_object_verify(dxpl_id,H5P_DATASET_XFER)))
-        HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a dataset transfer list")
-
-    /* Set buffer MPI type */
-    if(H5P_set(plist, H5FD_MPI_XFER_MEM_MPI_TYPE_NAME, btype) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set MPI-I/O property")
-
-    /* Set File MPI type */
-    if(H5P_set(plist, H5FD_MPI_XFER_FILE_MPI_TYPE_NAME, ftype) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set MPI-I/O property")
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FD_mpi_setup_collective() */
-
 #endif /* H5_HAVE_PARALLEL */
+

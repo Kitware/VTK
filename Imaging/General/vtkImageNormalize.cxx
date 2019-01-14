@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImageNormalize);
 
@@ -65,38 +65,38 @@ void vtkImageNormalizeExecute(vtkImageNormalize *self,
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
-    {
+  {
     T* inSI = inIt.BeginSpan();
     float *outSI = outIt.BeginSpan();
     float *outSIEnd = outIt.EndSpan();
     while (outSI != outSIEnd)
-      {
+    {
       // save the start of the vector
       inVect = inSI;
 
       // compute the magnitude.
       sum = 0.0;
       for (idxC = 0; idxC < maxC; idxC++)
-        {
+      {
         sum += static_cast<float>(*inSI) * static_cast<float>(*inSI);
         inSI++;
-        }
+      }
       if (sum > 0.0)
-        {
+      {
         sum = 1.0 / sqrt(sum);
-        }
+      }
 
       // now divide to normalize.
       for (idxC = 0; idxC < maxC; idxC++)
-        {
+      {
         *outSI = static_cast<float>(*inVect) * sum;
         inVect++;
         outSI++;
-        }
       }
+    }
     inIt.NextSpan();
     outIt.NextSpan();
-    }
+  }
 }
 
 
@@ -113,22 +113,22 @@ void vtkImageNormalize::ThreadedExecute (vtkImageData *inData,
 
   // this filter expects that input is the same type as output.
   if (outData->GetScalarType() != VTK_FLOAT)
-    {
+  {
     vtkErrorMacro(<< "Execute: output ScalarType, " << outData->GetScalarType()
     << ", must be float");
     return;
-    }
+  }
 
   switch (inData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageNormalizeExecute( this, inData,
                                 outData, outExt, id,
-                                static_cast<VTK_TT *>(0)));
+                                static_cast<VTK_TT *>(nullptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
 
 

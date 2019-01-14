@@ -4,7 +4,6 @@ Created on Nov 13, 2014 by David Gobbi
 """
 
 import sys
-import exceptions
 import vtk
 from vtk.test import Testing
 

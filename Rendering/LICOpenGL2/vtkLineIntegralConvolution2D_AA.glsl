@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 //=========================================================================
 //
 //  Program:   Visualization Toolkit
@@ -15,15 +17,14 @@
 
 // Anti-alias stage in vtkLineIntegralConvolution2D
 
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
+// the output of this shader
+//VTK::Output::Dec
 
 uniform sampler2D texLIC;         // inout texture
 uniform vec2      uLICTexSize;    // input texture size
 uniform vec4      uComputeBounds; // valid region of texture
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 // fragment size
 float tcDx = 1.0 / uLICTexSize.x;

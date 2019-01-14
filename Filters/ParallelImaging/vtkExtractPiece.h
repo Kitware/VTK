@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractPiece
-// .SECTION Description
-// vtkExtractPiece returns the appropriate piece of each
-// sub-dataset in the vtkCompositeDataSet.
-// This filter can handle sub-datasets of type vtkImageData, vtkPolyData,
-// vtkRectilinearGrid, vtkStructuredGrid, and vtkUnstructuredGrid; it does
-// not handle sub-grids of type vtkCompositeDataSet.
+/**
+ * @class   vtkExtractPiece
+ *
+ * vtkExtractPiece returns the appropriate piece of each
+ * sub-dataset in the vtkCompositeDataSet.
+ * This filter can handle sub-datasets of type vtkImageData, vtkPolyData,
+ * vtkRectilinearGrid, vtkStructuredGrid, and vtkUnstructuredGrid; it does
+ * not handle sub-grids of type vtkCompositeDataSet.
+*/
 
 #ifndef vtkExtractPiece_h
 #define vtkExtractPiece_h
@@ -38,22 +40,22 @@ class VTKFILTERSPARALLELIMAGING_EXPORT vtkExtractPiece : public vtkCompositeData
 public:
   static vtkExtractPiece* New();
   vtkTypeMacro(vtkExtractPiece, vtkCompositeDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkExtractPiece() {}
-  ~vtkExtractPiece() {}
+  ~vtkExtractPiece() override {}
 
-  virtual int RequestDataObject(vtkInformation* request,
+  int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+                                vtkInformationVector* outputVector) override;
 
-  virtual int RequestUpdateExtent(vtkInformation*,
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
-  virtual int RequestData(vtkInformation*,
+                                  vtkInformationVector*) override;
+  int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) override;
 
   void ExtractImageData(vtkImageData *imageData,
                         vtkCompositeDataSet *output,
@@ -76,8 +78,8 @@ protected:
                                int piece, int numberOfPieces, int ghostLevel,
                                vtkCompositeDataIterator* iter);
 private:
-  vtkExtractPiece(const vtkExtractPiece&); // Not implemented.
-  void operator=(const vtkExtractPiece&); // Not implemented.
+  vtkExtractPiece(const vtkExtractPiece&) = delete;
+  void operator=(const vtkExtractPiece&) = delete;
 };
 
 #endif

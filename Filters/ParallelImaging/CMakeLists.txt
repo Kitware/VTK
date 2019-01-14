@@ -1,10 +1,10 @@
-set(Module_SRCS
-  vtkPComputeHistogram2DOutliers.cxx
-  vtkPExtractHistogram2D.cxx
-  vtkPPairwiseExtractHistogram2D.cxx
-  vtkExtractPiece.cxx
-  vtkMemoryLimitImageDataStreamer.cxx
-  vtkTransmitImageDataPiece.cxx
-  )
+set(classes
+  vtkPComputeHistogram2DOutliers
+  vtkPExtractHistogram2D
+  vtkPPairwiseExtractHistogram2D
+  vtkExtractPiece
+  vtkMemoryLimitImageDataStreamer
+  vtkTransmitImageDataPiece)
 
-vtk_module_library(vtkFiltersParallelImaging ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersParallelImaging
+  CLASSES ${classes})

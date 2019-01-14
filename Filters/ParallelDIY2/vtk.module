@@ -1,0 +1,35 @@
+NAME
+  VTK::FiltersParallelDIY2
+LIBRARY_NAME
+  vtkFiltersParallelDIY2
+CONDITION
+  NOT WIN32
+KIT
+  VTK::Parallel
+GROUPS
+  MPI
+IMPLEMENTS
+  VTK::FiltersCore
+  VTK::FiltersParallel
+DEPENDS
+  VTK::FiltersCore
+  VTK::FiltersParallel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::ParallelMPI
+  VTK::diy2
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::FiltersParallelMPI
+  VTK::InteractionStyle
+  VTK::ParallelMPI
+  VTK::RenderingOpenGL2
+  VTK::RenderingParallel
+  VTK::TestingCore
+  VTK::TestingRendering
+  VTK::diy2
+  VTK::mpi

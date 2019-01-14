@@ -1,0 +1,16 @@
+NAME
+  VTK::GeovisGDAL
+LIBRARY_NAME
+  vtkGeovisGDAL
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::IOGDAL
+TEST_DEPENDS
+  VTK::GeovisCore
+  VTK::ImagingCore
+  VTK::ImagingStatistics
+  VTK::InteractionImage
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

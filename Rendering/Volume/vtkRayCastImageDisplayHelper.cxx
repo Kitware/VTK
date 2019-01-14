@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkRayCastImageDisplayHelper)
 //----------------------------------------------------------------------------
 
@@ -28,9 +28,7 @@ vtkRayCastImageDisplayHelper::vtkRayCastImageDisplayHelper()
 }
 
 // Destruct a vtkRayCastImageDisplayHelper - clean up any memory used
-vtkRayCastImageDisplayHelper::~vtkRayCastImageDisplayHelper()
-{
-}
+vtkRayCastImageDisplayHelper::~vtkRayCastImageDisplayHelper() = default;
 
 void vtkRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -55,7 +55,7 @@ void vtkPLineIntegralConvolution2D::GetGlobalMinMax(
     = dynamic_cast<vtkPPainterCommunicator*>(painterComm);
 
   if (pPainterComm->GetMPIInitialized())
-    {
+  {
     MPI_Comm comm = *((MPI_Comm*)pPainterComm->GetCommunicator());
 
     MPI_Allreduce(
@@ -73,7 +73,7 @@ void vtkPLineIntegralConvolution2D::GetGlobalMinMax(
           MPI_FLOAT,
           MPI_MAX,
           comm);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -104,17 +104,17 @@ void vtkPLineIntegralConvolution2D::WriteTimerLog(const char *fileName)
 #ifdef vtkLineIntegralConvolution2DTIME
   std::string fname = fileName?fileName:"";
   if (fname==this->LogFileName)
-    {
+  {
     return;
-    }
+  }
   this->LogFileName = fname;
   if (!fname.empty())
-    {
+  {
     vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
     log->SetFileName(fname.c_str());
     log->Update();
     log->Write();
-    }
+  }
 #else
   (void)fileName;
 #endif

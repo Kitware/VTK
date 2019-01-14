@@ -3,8 +3,6 @@
   Program:   Visualization Toolkit
   Module:    vtkFixedPointVolumeRayCastCompositeHelper.h
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,15 +14,18 @@
 
 =========================================================================*/
 
-// .NAME vtkFixedPointVolumeRayCastCompositeHelper - A helper that generates composite images for the volume ray cast mapper
-// .SECTION Description
-// This is one of the helper classes for the vtkFixedPointVolumeRayCastMapper.
-// It will generate composite images using an alpha blending operation.
-// This class should not be used directly, it is a helper class for
-// the mapper and has no user-level API.
-//
-// .SECTION see also
-// vtkFixedPointVolumeRayCastMapper
+/**
+ * @class   vtkFixedPointVolumeRayCastCompositeHelper
+ * @brief   A helper that generates composite images for the volume ray cast mapper
+ *
+ * This is one of the helper classes for the vtkFixedPointVolumeRayCastMapper.
+ * It will generate composite images using an alpha blending operation.
+ * This class should not be used directly, it is a helper class for
+ * the mapper and has no user-level API.
+ *
+ * @sa
+ * vtkFixedPointVolumeRayCastMapper
+*/
 
 #ifndef vtkFixedPointVolumeRayCastCompositeHelper_h
 #define vtkFixedPointVolumeRayCastCompositeHelper_h
@@ -40,20 +41,20 @@ class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastCompositeHelper : publ
 public:
   static vtkFixedPointVolumeRayCastCompositeHelper *New();
   vtkTypeMacro(vtkFixedPointVolumeRayCastCompositeHelper,vtkFixedPointVolumeRayCastHelper);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
-  virtual void  GenerateImage( int threadID,
+  void  GenerateImage( int threadID,
                                int threadCount,
                                vtkVolume *vol,
-                               vtkFixedPointVolumeRayCastMapper *mapper);
+                               vtkFixedPointVolumeRayCastMapper *mapper) override;
 
 protected:
   vtkFixedPointVolumeRayCastCompositeHelper();
-  ~vtkFixedPointVolumeRayCastCompositeHelper();
+  ~vtkFixedPointVolumeRayCastCompositeHelper() override;
 
 private:
-  vtkFixedPointVolumeRayCastCompositeHelper(const vtkFixedPointVolumeRayCastCompositeHelper&);  // Not implemented.
-  void operator=(const vtkFixedPointVolumeRayCastCompositeHelper&);  // Not implemented.
+  vtkFixedPointVolumeRayCastCompositeHelper(const vtkFixedPointVolumeRayCastCompositeHelper&) = delete;
+  void operator=(const vtkFixedPointVolumeRayCastCompositeHelper&) = delete;
 };
 
 #endif

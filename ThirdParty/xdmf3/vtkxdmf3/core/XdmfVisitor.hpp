@@ -24,12 +24,16 @@
 #ifndef XDMFVISITOR_HPP_
 #define XDMFVISITOR_HPP_
 
+// C Compatible Includes
+#include "XdmfCore.hpp"
+
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfItem;
 
 // Includes
 #include <loki/Visitor.h>
-#include "XdmfCore.hpp"
 
 /**
  * @brief Perform an operation on an Xdmf tree structure.
@@ -58,5 +62,20 @@ private:
   void operator=(const XdmfVisitor & visitor);  // Not implemented.
 
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFVISITOR; // Simply as a typedef to ensure correct typing
+typedef struct XDMFVISITOR XDMFVISITOR;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFVISITOR_HPP_ */

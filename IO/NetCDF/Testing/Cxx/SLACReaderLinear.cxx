@@ -90,10 +90,10 @@ int SLACReaderLinear(int argc, char *argv[])
   // Do the test comparison.
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return (retVal == vtkRegressionTester::PASSED) ? 0 : 1;
 }

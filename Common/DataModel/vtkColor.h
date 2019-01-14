@@ -13,11 +13,14 @@
 
 =========================================================================*/
 
-// .NAME vtkColor - templated type for storage of colors.
-//
-// .SECTION Description
-// This class is a templated data type for storing and manipulating fixed size
-// colors. It derives from the vtkVector templated data structure.
+/**
+ * @class   vtkColor
+ * @brief   templated type for storage of colors.
+ *
+ *
+ * This class is a templated data type for storing and manipulating fixed size
+ * colors. It derives from the vtkVector templated data structure.
+*/
 
 #ifndef vtkColor_h
 #define vtkColor_h
@@ -50,50 +53,47 @@ public:
     this->Data[2] = blue;
   }
 
-  // Description:
-  // Set the red, green and blue components of the color.
+  //@{
+  /**
+   * Set the red, green and blue components of the color.
+   */
   void Set(const T& red, const T& green, const T& blue)
   {
     this->Data[0] = red;
     this->Data[1] = green;
     this->Data[2] = blue;
   }
+  //@}
 
-  // Description:
-  // Set the red component of the color, i.e. element 0.
+  /**
+   * Set the red component of the color, i.e. element 0.
+   */
   void SetRed(const T& red) { this->Data[0] = red; }
 
-  // Description:
-  // Get the red component of the color, i.e. element 0.
+  /**
+   * Get the red component of the color, i.e. element 0.
+   */
   const T& GetRed() const { return this->Data[0]; }
 
-  // Description:
-  // Set the green component of the color, i.e. element 1.
+  /**
+   * Set the green component of the color, i.e. element 1.
+   */
   void SetGreen(const T& green) { this->Data[1] = green; }
 
-  // Description:
-  // Get the green component of the color, i.e. element 1.
+  /**
+   * Get the green component of the color, i.e. element 1.
+   */
   const T& GetGreen() const { return this->Data[1]; }
 
-  // Description:
-  // Set the blue component of the color, i.e. element 2.
+  /**
+   * Set the blue component of the color, i.e. element 2.
+   */
   void SetBlue(const T& blue) { this->Data[2] = blue; }
 
-  // Description:
-  // Get the blue component of the color, i.e. element 2.
+  /**
+   * Get the blue component of the color, i.e. element 2.
+   */
   const T& GetBlue() const { return this->Data[2]; }
-
-  // Description:
-  // Legacy method for getting the red component.
-  VTK_LEGACY(const T& Red() const);
-
-  // Description:
-  // Legacy method for getting the green component.
-  VTK_LEGACY(const T& Green() const);
-
-  // Description:
-  // Legacy method for getting the blue component.
-  VTK_LEGACY(const T& Blue() const);
 };
 
 // .NAME vtkColor4 - templated base type for storage of 4 component colors.
@@ -122,17 +122,22 @@ public:
     this->Data[3] = alpha;
   }
 
-  // Description:
-  // Set the red, green and blue components of the color.
+  //@{
+  /**
+   * Set the red, green and blue components of the color.
+   */
   void Set(const T& red, const T& green, const T& blue)
   {
     this->Data[0] = red;
     this->Data[1] = green;
     this->Data[2] = blue;
   }
+  //@}
 
-  // Description:
-  // Set the red, green, blue and alpha components of the color.
+  //@{
+  /**
+   * Set the red, green, blue and alpha components of the color.
+   */
   void Set(const T& red, const T& green, const T& blue, const T& alpha)
   {
     this->Data[0] = red;
@@ -140,58 +145,52 @@ public:
     this->Data[2] = blue;
     this->Data[3] = alpha;
   }
+  //@}
 
-  // Description:
-  // Set the red component of the color, i.e. element 0.
+  /**
+   * Set the red component of the color, i.e. element 0.
+   */
   void SetRed(const T& red) { this->Data[0] = red; }
 
-  // Description:
-  // Get the red component of the color, i.e. element 0.
+  /**
+   * Get the red component of the color, i.e. element 0.
+   */
   const T& GetRed() const { return this->Data[0]; }
 
-  // Description:
-  // Set the green component of the color, i.e. element 1.
+  /**
+   * Set the green component of the color, i.e. element 1.
+   */
   void SetGreen(const T& green) { this->Data[1] = green; }
 
-  // Description:
-  // Get the green component of the color, i.e. element 1.
+  /**
+   * Get the green component of the color, i.e. element 1.
+   */
   const T& GetGreen() const { return this->Data[1]; }
 
-  // Description:
-  // Set the blue component of the color, i.e. element 2.
+  /**
+   * Set the blue component of the color, i.e. element 2.
+   */
   void SetBlue(const T& blue) { this->Data[2] = blue; }
 
-  // Description:
-  // Get the blue component of the color, i.e. element 2.
+  /**
+   * Get the blue component of the color, i.e. element 2.
+   */
   const T& GetBlue() const { return this->Data[2]; }
 
-  // Description:
-  // Set the alpha component of the color, i.e. element 3.
+  /**
+   * Set the alpha component of the color, i.e. element 3.
+   */
   void SetAlpha(const T& alpha) { this->Data[3] = alpha; }
 
-  // Description:
-  // Get the alpha component of the color, i.e. element 3.
+  /**
+   * Get the alpha component of the color, i.e. element 3.
+   */
   const T& GetAlpha() const { return this->Data[3]; }
-
-  // Description:
-  // Legacy method for getting the red component.
-  VTK_LEGACY(const T& Red() const);
-
-  // Description:
-  // Legacy method for getting the green component.
-  VTK_LEGACY(const T& Green() const);
-
-  // Description:
-  // Legacy method for getting the blue component.
-  VTK_LEGACY(const T& Blue() const);
-
-  // Description:
-  // Legacy method for getting the alpha component.
-  VTK_LEGACY(const T& Alpha() const);
 };
 
-// Description:
-// Some derived classes for the different colors commonly used.
+/**
+ * Some derived classes for the different colors commonly used.
+ */
 class vtkColor3ub : public vtkColor3<unsigned char>
 {
 public:
@@ -201,8 +200,10 @@ public:
   explicit vtkColor3ub(const unsigned char* init)
     : vtkColor3<unsigned char>(init) {}
 
-  // Description:
-  // Construct a color from a hexadecimal representation such as 0x0000FF (blue).
+  //@{
+  /**
+   * Construct a color from a hexadecimal representation such as 0x0000FF (blue).
+   */
   explicit vtkColor3ub(int hexSigned)
   {
     unsigned int hex = static_cast<unsigned int>(hexSigned);
@@ -212,6 +213,7 @@ public:
     hex >>= 8;
     this->Data[0] = hex & 0xff;
   }
+  //@}
 
   vtkColor3ub(unsigned char r, unsigned char g, unsigned char b)
     : vtkColor3<unsigned char>(r, g, b) {}
@@ -244,9 +246,11 @@ public:
   explicit vtkColor4ub(const unsigned char* init)
     : vtkColor4<unsigned char>(init) {}
 
-  // Description:
-  // Construct a color from a hexadecimal representation such as 0x0000FFAA
-  // (opaque blue).
+  //@{
+  /**
+   * Construct a color from a hexadecimal representation such as 0x0000FFAA
+   * (opaque blue).
+   */
   explicit vtkColor4ub(int hexSigned)
   {
     unsigned int hex = static_cast<unsigned int>(hexSigned);
@@ -258,6 +262,7 @@ public:
     hex >>= 8;
     this->Data[0] = hex & 0xff;
   }
+  //@}
 
   vtkColor4ub(unsigned char r, unsigned char g,
               unsigned char b, unsigned char a = 255)
@@ -285,57 +290,6 @@ public:
   vtkColor4d(double r, double g, double b, double a = 1.0)
     : vtkColor4<double>(r, g, b, a) {}
 };
-
-#ifndef VTK_LEGACY_REMOVE
-template<typename T>
-const T& vtkColor3<T>::Red() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkColor3::Red, "VTK 6.0", vtkColor3::GetRed);
-  return this->GetRed();
-}
-
-template<typename T>
-const T& vtkColor3<T>::Green() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkColor3::Green, "VTK 6.0", vtkColor3::GetGreen);
-  return this->GetGreen();
-}
-
-template<typename T>
-const T& vtkColor3<T>::Blue() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkColor3::Blue, "VTK 6.0", vtkColor3::GetBlue);
-  return this->GetBlue();
-}
-
-template<typename T>
-const T& vtkColor4<T>::Red() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkColor4::Red, "VTK 6.0", vtkColor4::GetRed);
-  return this->GetRed();
-}
-
-template<typename T>
-const T& vtkColor4<T>::Green() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkColor4::Green, "VTK 6.0", vtkColor4::GetGreen);
-  return this->GetGreen();
-}
-
-template<typename T>
-const T& vtkColor4<T>::Blue() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkColor4::Blue, "VTK 6.0", vtkColor4::GetBlue);
-  return this->GetBlue();
-}
-
-template<typename T>
-const T& vtkColor4<T>::Alpha() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkColor4::Alpha, "VTK 6.0", vtkColor4::GetAlpha);
-  return this->GetAlpha();
-}
-#endif // VTK_LEGACY_REMOVE
 
 #endif // vtkColor_h
 // VTK-HeaderTest-Exclude: vtkColor.h

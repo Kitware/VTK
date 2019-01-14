@@ -29,11 +29,11 @@ vtkCellArray::vtkCellArray()
 //----------------------------------------------------------------------------
 void vtkCellArray::DeepCopy (vtkCellArray *ca)
 {
-  // Do nothing on a NULL input.
-  if (ca == NULL)
-    {
+  // Do nothing on a nullptr input.
+  if (ca == nullptr)
+  {
     return;
-    }
+  }
 
   this->Ia->DeepCopy(ca->Ia);
   this->NumberOfCells = ca->NumberOfCells;
@@ -61,15 +61,16 @@ void vtkCellArray::Initialize()
 // defining the cell.
 int vtkCellArray::GetMaxCellSize()
 {
-  int i, npts=0, maxSize=0;
+  int npts=0, maxSize=0;
+  vtkIdType i;
 
   for (i=0; i<this->Ia->GetMaxId(); i+=(npts+1))
-    {
+  {
     if ( (npts=this->Ia->GetValue(i)) > maxSize )
-      {
+    {
       maxSize = npts;
-      }
     }
+  }
   return maxSize;
 }
 
@@ -78,7 +79,7 @@ int vtkCellArray::GetMaxCellSize()
 void vtkCellArray::SetCells(vtkIdType ncells, vtkIdTypeArray *cells)
 {
   if ( cells && cells != this->Ia )
-    {
+  {
     this->Modified();
     this->Ia->Delete();
     this->Ia = cells;
@@ -87,7 +88,7 @@ void vtkCellArray::SetCells(vtkIdType ncells, vtkIdTypeArray *cells)
     this->NumberOfCells = ncells;
     this->InsertLocation = cells->GetMaxId() + 1;
     this->TraversalLocation = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -101,14 +102,14 @@ int vtkCellArray::GetNextCell(vtkIdList *pts)
 {
   vtkIdType npts, *ppts;
   if (this->GetNextCell(npts, ppts))
-    {
+  {
     pts->SetNumberOfIds(npts);
     for (vtkIdType i = 0; i < npts; i++)
-      {
+    {
       pts->SetId(i, ppts[i]);
-      }
-    return 1;
     }
+    return 1;
+  }
   return 0;
 }
 
@@ -119,9 +120,9 @@ void vtkCellArray::GetCell(vtkIdType loc, vtkIdList *pts)
   vtkIdType *ppts = this->Ia->GetPointer(loc);
   pts->SetNumberOfIds(npts);
   for (vtkIdType i = 0; i < npts; i++)
-    {
+  {
     pts->SetId(i, ppts[i]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

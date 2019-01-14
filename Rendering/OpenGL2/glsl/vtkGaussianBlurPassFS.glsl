@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 // ============================================================================
 //
 //  Program:   Visualization Toolkit
@@ -13,18 +15,17 @@
 //
 // ============================================================================
 
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
-
 // Fragment shader used by the gaussian blur filter render pass.
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 uniform sampler2D source;
 
 uniform float coef[3];
 uniform float offsetx;
 uniform float offsety;
+
+// the output of this shader
+//VTK::Output::Dec
 
 void main(void)
 {

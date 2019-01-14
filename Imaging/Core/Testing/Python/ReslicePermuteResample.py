@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -26,5 +25,6 @@ viewer.SetInputConnection(reslice.GetOutputPort())
 viewer.SetZSlice(100)
 viewer.SetColorWindow(2000)
 viewer.SetColorLevel(1000)
+viewer.SetSize(200,140)
 viewer.Render()
 # --- end of script --

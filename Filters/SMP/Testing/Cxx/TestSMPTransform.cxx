@@ -46,7 +46,7 @@ public:
     for (int k=begin; k<end; k++)
       for (int j=0; j<resolution; j++)
         for (int i=0; i<resolution; i++)
-          {
+        {
           *itr = i*spacing;
           itr++;
           *itr = j*spacing;
@@ -60,7 +60,7 @@ public:
           ditr++;
           *ditr = 10;
           ditr++;
-          }
+        }
   }
 };
 
@@ -68,13 +68,13 @@ int TestSMPTransform(int argc, char* argv[])
 {
   int numThreads = 2;
   for(int argi=1; argi<argc; argi++)
-    {
+  {
     if(std::string(argv[argi])=="--numThreads")
-      {
+    {
       numThreads=atoi(argv[++argi]);
       break;
-      }
     }
+  }
   cout << "Num. threads: " << numThreads << endl;
   vtkSMPTools::Initialize(numThreads);
 
@@ -91,13 +91,13 @@ int TestSMPTransform(int argc, char* argv[])
   func.pts = (float*)pts->GetVoidPointer(0);
   //func.pts = (vtkFloatArray*)pts->GetData();
 
-  sg->SetPoints(pts.GetPointer());
+  sg->SetPoints(pts);
 
   vtkNew<vtkFloatArray> disp;
   disp->SetNumberOfComponents(3);
   disp->SetNumberOfTuples(sg->GetNumberOfPoints());
   disp->SetName("Disp");
-  sg->GetPointData()->AddArray(disp.GetPointer());
+  sg->GetPointData()->AddArray(disp);
   func.disp = (float*)disp->GetVoidPointer(0);
 
   tl->StartTimer();
@@ -106,11 +106,11 @@ int TestSMPTransform(int argc, char* argv[])
   cout << "Initialize: " << tl->GetElapsedTime() << endl;
 
   vtkNew<vtkTransformFilter> tr;
-  tr->SetInputData(sg.GetPointer());
+  tr->SetInputData(sg);
 
   vtkNew<vtkTransform> serialTr;
   serialTr->Identity();
-  tr->SetTransform(serialTr.GetPointer());
+  tr->SetTransform(serialTr);
 
   tl->StartTimer();
   tr->Update();
@@ -121,11 +121,11 @@ int TestSMPTransform(int argc, char* argv[])
   tr->GetOutput()->Initialize();
 
   vtkNew<vtkTransformFilter> tr2;
-  tr2->SetInputData(sg.GetPointer());
+  tr2->SetInputData(sg);
 
   vtkNew<vtkSMPTransform> parallelTr;
   parallelTr->Identity();
-  tr2->SetTransform(parallelTr.GetPointer());
+  tr2->SetTransform(parallelTr);
 
   tl->StartTimer();
   tr2->Update();

@@ -25,9 +25,7 @@ vtkInformationRequestKey::vtkInformationRequestKey(const char* name, const char*
 }
 
 //----------------------------------------------------------------------------
-vtkInformationRequestKey::~vtkInformationRequestKey()
-{
-}
+vtkInformationRequestKey::~vtkInformationRequestKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationRequestKey::PrintSelf(ostream& os, vtkIndent indent)
@@ -39,14 +37,14 @@ void vtkInformationRequestKey::PrintSelf(ostream& os, vtkIndent indent)
 void vtkInformationRequestKey::Set(vtkInformation* info)
 {
   if (info->GetRequest() != this)
-    {
+  {
     if (info->GetRequest())
-      {
+    {
       vtkGenericWarningMacro("Setting request key when one is already set. Current request is " << info->GetRequest()->GetName() << " while setting " << this->GetName() << "\n");
-      }
+    }
     info->SetRequest(this);
     info->Modified(this);
-   }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -58,7 +56,7 @@ int vtkInformationRequestKey::Has(vtkInformation* info)
 //----------------------------------------------------------------------------
 void vtkInformationRequestKey::Remove(vtkInformation* info)
 {
-  info->SetRequest(0);
+  info->SetRequest(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -72,7 +70,7 @@ void vtkInformationRequestKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
   if(this->Has(info))
-    {
+  {
     os << "1\n";
-    }
+  }
 }

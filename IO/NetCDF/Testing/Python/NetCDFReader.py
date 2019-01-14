@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -12,6 +11,22 @@ reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/tos_O1_2001-2002.nc")
 reader.UpdateMetaData()
 reader.SetVariableArrayStatus("tos",1)
 reader.SetSphericalCoordinates(0)
+reader.Update()
+
+# Test unit field arrays
+grid = reader.GetOutput()
+tuarr = grid.GetFieldData().GetAbstractArray("time_units")
+if not tuarr:
+  print("Unable to retrieve time_units field array")
+  exit(1)
+tosuarr = grid.GetFieldData().GetAbstractArray("tos_units")
+if not tosuarr:
+  print("Unable to retrieve tos_units field array")
+  exit(1)
+if tosuarr.GetValue(0) != "K":
+  print("tos_units is not K but " + tosuarr.GetValue(0))
+  exit(1)
+
 aa = vtk.vtkAssignAttribute()
 aa.SetInputConnection(reader.GetOutputPort())
 aa.Assign("tos","SCALARS","POINT_DATA")

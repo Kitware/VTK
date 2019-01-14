@@ -3,20 +3,19 @@
 #import "vtkCocoaGLView.h"
 
 #include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 
 @interface BasicVTKView : vtkCocoaGLView
-{
-@private
-  vtkRenderer* renderer;
-}
 
+// Create the vtkRenderer, vtkRenderWindow, and vtkRenderWindowInteractor.
+// initializeVTKSupport/cleanUpVTKSupport must be balanced.
 - (void)initializeVTKSupport;
+
+// Destroy the vtkRenderer, vtkRenderWindow, and vtkRenderWindowInteractor.
+// initializeVTKSupport/cleanUpVTKSupport must be balanced.
 - (void)cleanUpVTKSupport;
 
-// Accessors
-- (vtkRenderer*)getRenderer;
-- (void)setRenderer:(vtkRenderer*)theRenderer;
+// Accessors for the vtkRenderer.
+- (/*nullable*/ vtkRenderer*)getRenderer;
+- (void)setRenderer:(/*nullable*/ vtkRenderer*)theRenderer;
 
 @end

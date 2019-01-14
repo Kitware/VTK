@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
-#include "vtk_libproj4.h"
+#include "vtk_libproj.h"
 
 vtkStandardNewMacro(vtkGeoTransform);
 vtkCxxSetObjectMacro(vtkGeoTransform, SourceProjection, vtkGeoProjection);
@@ -34,20 +34,20 @@ vtkCxxSetObjectMacro(vtkGeoTransform, DestinationProjection, vtkGeoProjection);
 
 vtkGeoTransform::vtkGeoTransform()
 {
-  this->SourceProjection = 0;
-  this->DestinationProjection = 0;
+  this->SourceProjection = nullptr;
+  this->DestinationProjection = nullptr;
 }
 
 vtkGeoTransform::~vtkGeoTransform()
 {
   if ( this->SourceProjection )
-    {
+  {
     this->SourceProjection->Delete();
-    }
+  }
   if ( this->DestinationProjection )
-    {
+  {
     this->DestinationProjection->Delete();
-    }
+  }
 }
 
 void vtkGeoTransform::PrintSelf( ostream& os, vtkIndent indent )
@@ -60,33 +60,33 @@ void vtkGeoTransform::PrintSelf( ostream& os, vtkIndent indent )
 void vtkGeoTransform::TransformPoints( vtkPoints* srcPts, vtkPoints* dstPts )
 {
   if ( ! srcPts || ! dstPts )
-    {
+  {
     return;
-    }
+  }
 
-  vtkDoubleArray* srcCoords = vtkDoubleArray::SafeDownCast( srcPts->GetData() );
-  vtkDoubleArray* dstCoords = vtkDoubleArray::SafeDownCast( dstPts->GetData() );
+  vtkDoubleArray* srcCoords = vtkArrayDownCast<vtkDoubleArray>( srcPts->GetData() );
+  vtkDoubleArray* dstCoords = vtkArrayDownCast<vtkDoubleArray>( dstPts->GetData() );
   if ( ! srcCoords || ! dstCoords )
-    { // data not in a form we can use directly anyway...
+  { // data not in a form we can use directly anyway...
     this->Superclass::TransformPoints( srcPts, dstPts );
     return;
-    }
+  }
   dstCoords->DeepCopy( srcCoords );
 
-  PROJ* src = this->SourceProjection ? this->SourceProjection->GetProjection() : 0;
-  PROJ* dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : 0;
+  projPJ src = this->SourceProjection ? this->SourceProjection->GetProjection() : nullptr;
+  projPJ dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : nullptr;
   if ( ! src && ! dst )
-    {
+  {
     // we've already copied srcCoords to dstCoords and src=dst=0 implies no transform...
     return;
-    }
+  }
 
   if ( srcCoords->GetNumberOfComponents() < 2 )
-    {
+  {
     vtkErrorMacro( << "Source coordinate array " << srcCoords << " only has " << srcCoords->GetNumberOfComponents()
       << " components and at least 2 are required for geographic projections." );
     return;
-    }
+  }
 
   this->InternalTransformPoints( dstCoords->GetPointer( 0 ), dstCoords->GetNumberOfTuples(), dstCoords->GetNumberOfComponents() );
 }
@@ -114,9 +114,9 @@ void vtkGeoTransform::InternalTransformPoint( const float in[3], float out[3] )
 void vtkGeoTransform::InternalTransformPoint( const double in[3], double out[3] )
 {
   for ( int i = 0; i < 3; ++ i )
-    {
+  {
     out[i] = in[i];
-    }
+  }
   this->InternalTransformPoints( out, 1, 3 );
 }
 
@@ -130,13 +130,13 @@ void vtkGeoTransform::InternalTransformDerivative( const float in[3], float out[
     ind[i] = in[i];
   this->InternalTransformDerivative( ind, oud, drd );
   for ( i = 0; i < 3; ++ i )
-    {
+  {
     out[i] = static_cast<float>(oud[i]);
     for ( int j = 0; j < 3; ++ j )
-      {
+    {
       derivative[i][j] = drd[i][j];
-      }
     }
+  }
 }
 
 void vtkGeoTransform::InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] )
@@ -156,57 +156,58 @@ vtkAbstractTransform* vtkGeoTransform::MakeTransform()
 
 void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int stride )
 {
-  PROJ* src = this->SourceProjection ? this->SourceProjection->GetProjection() : 0;
-  PROJ* dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : 0;
+  projPJ src = this->SourceProjection ? this->SourceProjection->GetProjection() : nullptr;
+  projPJ dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : nullptr;
   int delta = stride - 2;
-  PROJ_LP lp;
-  PROJ_XY xy;
+  projLP lp;
+  projXY xy;
   if ( src )
-    {
+  {
     // Convert from src system to lat/long using inverse of src transform
     double* coord = x;
     for ( vtkIdType i = 0; i < numPts; ++ i )
-      {
-      xy.x = coord[0]; xy.y = coord[1];
-      lp = proj_inv( xy, src );
-      coord[0] = lp.lam; coord[1] = lp.phi;
-      }
-    }
-  else // ! src
     {
+      xy.u = coord[0]; xy.v = coord[1];
+      lp = pj_inv( xy, src );
+      coord[0] = lp.u; coord[1] = lp.v;
+      coord += stride;
+    }
+  }
+  else // ! src
+  {
     // src coords are in degrees, convert to radians
     double* coord = x;
     for ( vtkIdType i = 0; i < numPts; ++ i )
-      {
-      for ( int j = 0; j < 2; ++ j, ++ coord )
-        {
-        *coord = vtkMath::RadiansFromDegrees( *coord );
-        }
-      coord += delta;
-      }
-    }
-  if ( dst )
     {
+      for ( int j = 0; j < 2; ++ j, ++ coord )
+      {
+        *coord = vtkMath::RadiansFromDegrees( *coord );
+      }
+      coord += delta;
+    }
+  }
+  if ( dst )
+  {
     double* coord = x;
     for ( vtkIdType i = 0; i < numPts; ++ i )
-      {
-      lp.lam = coord[0]; lp.phi = coord[1];
-      xy = proj_fwd( lp, dst );
-      coord[0] = xy.x; coord[1] = xy.y;
-      }
-    }
-  else // ! dst
     {
+      lp.u = coord[0]; lp.v = coord[1];
+      xy = pj_fwd( lp, dst );
+      coord[0] = xy.u; coord[1] = xy.v;
+      coord += stride;
+    }
+  }
+  else // ! dst
+  {
     // dst coords are in radians, convert to degrees
     double* coord = x;
     for ( vtkIdType i = 0; i < numPts; ++ i )
-      {
+    {
       for ( int j = 0; j < 2; ++ j, ++ coord )
-        {
+      {
         *coord = vtkMath::DegreesFromRadians( *coord );
-        }
-      coord += delta;
       }
+      coord += delta;
     }
+  }
 }
-

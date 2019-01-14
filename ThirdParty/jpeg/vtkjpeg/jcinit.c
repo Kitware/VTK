@@ -3,7 +3,8 @@
  *
  * Copyright (C) 1991-1997, Thomas G. Lane.
  * This file is part of the Independent JPEG Group's software.
- * For conditions of distribution and use, see the accompanying README file.
+ * For conditions of distribution and use, see the accompanying README.ijg
+ * file.
  *
  * This file contains initialization logic for the JPEG compressor.
  * This routine is in charge of selecting the modules to be executed and
@@ -27,13 +28,13 @@
  */
 
 GLOBAL(void)
-jinit_compress_master (j_compress_ptr cinfo)
+jinit_compress_master(j_compress_ptr cinfo)
 {
   /* Initialize master control (includes parameter checking/processing) */
   jinit_c_master_control(cinfo, FALSE /* full compression */);
 
   /* Preprocessing */
-  if (! cinfo->raw_data_in) {
+  if (!cinfo->raw_data_in) {
     jinit_color_converter(cinfo);
     jinit_downsampler(cinfo);
     jinit_c_prep_controller(cinfo, FALSE /* never need full buffer here */);
@@ -42,7 +43,11 @@ jinit_compress_master (j_compress_ptr cinfo)
   jinit_forward_dct(cinfo);
   /* Entropy encoding: either Huffman or arithmetic coding. */
   if (cinfo->arith_code) {
+#ifdef C_ARITH_CODING_SUPPORTED
+    jinit_arith_encoder(cinfo);
+#else
     ERREXIT(cinfo, JERR_ARITH_NOTIMPL);
+#endif
   } else {
     if (cinfo->progressive_mode) {
 #ifdef C_PROGRESSIVE_SUPPORTED
@@ -55,14 +60,14 @@ jinit_compress_master (j_compress_ptr cinfo)
   }
 
   /* Need a full-image coefficient buffer in any multi-pass mode. */
-  jinit_c_coef_controller(cinfo,
-		(boolean) (cinfo->num_scans > 1 || cinfo->optimize_coding));
+  jinit_c_coef_controller(cinfo, (boolean)(cinfo->num_scans > 1 ||
+                                           cinfo->optimize_coding));
   jinit_c_main_controller(cinfo, FALSE /* never need full buffer here */);
 
   jinit_marker_writer(cinfo);
 
   /* We can now tell the memory manager to allocate virtual arrays. */
-  (*cinfo->mem->realize_virt_arrays) ((j_common_ptr) cinfo);
+  (*cinfo->mem->realize_virt_arrays) ((j_common_ptr)cinfo);
 
   /* Write the datastream header (SOI) immediately.
    * Frame and scan headers are postponed till later.

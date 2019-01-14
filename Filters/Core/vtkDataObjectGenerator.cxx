@@ -45,7 +45,7 @@ vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
 enum vtkDataObjectGeneratorTokenCodes
-  {
+{
     ID1, ID2,
     UF1,
     RG1,
@@ -55,7 +55,7 @@ enum vtkDataObjectGeneratorTokenCodes
     GS, GE,
     HBS, HBE,
     MBS, MBE, NUMTOKENS
-  };
+};
 
 const char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] =
 { "ID1",
@@ -106,17 +106,17 @@ public:
   vtkInternalStructureCache()
   {
     type = -1;
-    parent = NULL;
+    parent = nullptr;
   }
   ~vtkInternalStructureCache()
   {
     std::vector<vtkInternalStructureCache *>::iterator it;
     for (it = this->children.begin();
          it != this->children.end();
-         it++)
-      {
+         ++it)
+    {
       delete *it;
-      }
+    }
   }
   vtkInternalStructureCache *add_dataset(int t)
   {
@@ -129,32 +129,32 @@ public:
   void print(int level=0)
   {
     for (int i = 0; i < level; i++)
-      {
+    {
       cerr << " ";
-      }
+    }
     if (type >= 0)
-      {
+    {
       cerr << vtkDataObjectGeneratorTokenStrings[type] << endl;
-      }
+    }
     else
-      {
+    {
       cerr << "HOLDER" << endl;
-      }
+    }
     std::vector<vtkInternalStructureCache *>::iterator it;
     for (it = this->children.begin();
          it != this->children.end();
-         it++)
-      {
+         ++it)
+    {
       (*it)->print(level+1);
-      }
+    }
     if (type == GS || type == HBS || type == MBS)
-      {
+    {
       for (int i = 0; i < level; i++)
-        {
+      {
         cerr << " ";
-        }
+      }
       switch (type)
-        {
+      {
         case GS:
           cerr << vtkDataObjectGeneratorTokenStrings[GE] << endl;
           break;
@@ -164,8 +164,8 @@ public:
         case MBS:
           cerr << vtkDataObjectGeneratorTokenStrings[MBE] << endl;
           break;
-        }
       }
+    }
   }
 
   int type;
@@ -182,28 +182,28 @@ public:
 static int vtkDataObjectGeneratorGetNextToken(char **str)
 {
   if (!str || !*str)
-    {
+  {
     return 0;
-    }
+  }
 
   size_t len = strlen(*str);
   size_t l;
   while (len && *str)
-    {
+  {
     for (int i = 0; i < NUMTOKENS; i++)
-      {
+    {
       l = strlen(vtkDataObjectGeneratorTokenStrings[i]);
       if (len >= l
           &&
           !strncmp(*str, vtkDataObjectGeneratorTokenStrings[i], l))
-        {
+      {
         *str+=l;
         return i;
-        }
       }
+    }
     len--;
     *str+=1;
-    }
+  }
   return -1;
 }
 
@@ -216,9 +216,9 @@ static vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Pro
   char *ptr = Program;
   bool done = false;
   while (!done)
-    {
+  {
     switch (vtkDataObjectGeneratorGetNextToken(&ptr))
-      {
+    {
       case ID1:
         sptr->add_dataset(ID1);
         break;
@@ -253,23 +253,23 @@ static vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Pro
         sptr->add_dataset(UG4);
         break;
       case GS:
-        {
+      {
         vtkInternalStructureCache *cptr = sptr->add_dataset(GS);
         sptr = cptr;
         break;
-        }
+      }
       case HBS:
-        {
+      {
         vtkInternalStructureCache *cptr = sptr->add_dataset(HBS);
         sptr = cptr;
         break;
-        }
+      }
       case MBS:
-        {
+      {
         vtkInternalStructureCache *cptr = sptr->add_dataset(MBS);
         sptr = cptr;
         break;
-        }
+      }
       case GE:
       case HBE:
       case MBE:
@@ -277,8 +277,8 @@ static vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Pro
         break;
       default:
         done = true;
-      }
     }
+  }
 
   return structure;
 }
@@ -288,9 +288,9 @@ vtkDataObjectGenerator::vtkDataObjectGenerator()
 {
   this->SetNumberOfInputPorts(0);
 
-  this->Program=NULL;
+  this->Program=nullptr;
   this->SetProgram("ID1");
-  this->Structure = NULL;
+  this->Structure = nullptr;
 
   this->CellIdCounter = 0;
   this->PointIdCounter = 0;
@@ -302,7 +302,7 @@ vtkDataObjectGenerator::vtkDataObjectGenerator()
 //----------------------------------------------------------------------------
 vtkDataObjectGenerator::~vtkDataObjectGenerator()
 {
-  this->SetProgram(NULL);
+  this->SetProgram(nullptr);
   delete this->Structure;
 }
 
@@ -320,22 +320,22 @@ int vtkDataObjectGenerator::RequestDataObject(vtkInformation *,
                                               vtkInformationVector *outV)
 {
   vtkInformation *outInfo = outV->GetInformationObject(0);
-  vtkDataObject *outData = NULL;
+  vtkDataObject *outData = nullptr;
 
   if (!this->Program)
-     {
+  {
      //vtkErrorMacro("No string to generate data objects for");
      return VTK_OK;
-     }
+  }
 
   delete this->Structure;
   this->Structure = vtkDataObjectGeneratorParseStructure(this->Program);
   outData = this->CreateOutputDataObjects(this->Structure);
   if (outData)
-    {
+  {
     outInfo->Set(vtkDataObject::DATA_OBJECT(), outData);
     outData->Delete();
-    }
+  }
   return VTK_OK;
 }
 
@@ -345,13 +345,13 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
 {
   vtkDataObject *outData;
   switch (structure->type)
-    {
+  {
     case -1: //top holder it should hold a single data set, use it
     {
-    if (!structure->children.size())
-      {
-      return NULL;
-      }
+    if (structure->children.empty())
+    {
+      return nullptr;
+    }
     return this->CreateOutputDataObjects(structure->children.front());
     }
     case ID1:
@@ -399,8 +399,8 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
     case GE: //should never be created
     default:
     //cerr << "UH OH" << endl;
-    return NULL;
-    }
+    return nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -409,16 +409,16 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
                                                vtkInformationVector *outV)
 {
   if (!this->Structure)
-    {
+  {
     //vtkErrorMacro("Program has not been parsed.");
     return VTK_OK;
-    }
+  }
 
-  if (!this->Structure->children.size())
-    {
+  if (this->Structure->children.empty())
+  {
     vtkErrorMacro("Program was invalid.");
     return VTK_ERROR;
-    }
+  }
 
   //Say that this filter can break up its output into any number of pieces
   vtkInformation *outInfo = outV->GetInformationObject(0);
@@ -430,7 +430,7 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
   if (t == ID1 ||
       t == RG1 ||
       t == SG1)
-    {
+  {
     int ext[6];
     ext[0] = 0;
     ext[1] = 1;
@@ -449,9 +449,9 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
     origin[1] = 0.0;
     origin[2] = 0.0;
     outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
-    }
+  }
   if (t == ID2)
-    {
+  {
     int ext[6];
     ext[0] = 0;
     ext[1] = 2;
@@ -470,9 +470,9 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
     origin[1] = 0.0;
     origin[2] = 0.0;
     outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
-    }
+  }
   if (t == UF1)
-    {
+  {
     int ext[6];
     ext[0] = 0;
     ext[1] = 2;
@@ -491,7 +491,7 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
     origin[1] = 0.0;
     origin[2] = 0.0;
     outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
-    }
+  }
 
   //Could create vtkCompositeDataInformation here.
   return this->Superclass::RequestInformation(req, inV, outV);
@@ -515,36 +515,36 @@ int vtkDataObjectGenerator::RequestData(vtkInformation *,
                                         vtkInformationVector *outV)
 {
   if (!this->Structure)
-    {
+  {
     //vtkErrorMacro("Program has not been parsed");
     return VTK_OK;
-    }
+  }
 
   //For parallel processing, this will stripe the datasets contained
   //in the first level of composite data sets.
   vtkInformation *outInfo = outV->GetInformationObject(0);
   vtkDataObject *outStructure = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (!outStructure)
-    {
+  {
     return VTK_ERROR;
-    }
+  }
 
   this->Rank = 0;
   if (outInfo->Has(
         vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
-    {
+  {
     this->Rank =
       outInfo->Get(
         vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    }
+  }
   this->Processors = 1;
   if (outInfo->Has(
         vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
-    {
+  {
     this->Processors =
       outInfo->Get(
         vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-    }
+  }
 
   //this->Rank = 0;
   //this->Processors = 1;
@@ -555,14 +555,14 @@ int vtkDataObjectGenerator::RequestData(vtkInformation *,
   vtkDataObject *outData = this->FillOutputDataObjects(this->Structure, -1);
   outStructure->ShallowCopy(outData);
   if (outData)
-    {
+  {
     outData->Delete();
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Program was invalid.");
     return VTK_ERROR;
-    }
+  }
 
   return VTK_OK;
 }
@@ -575,18 +575,18 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
   int stripe
   )
 {
-  vtkDataObject *outData = NULL;
+  vtkDataObject *outData = nullptr;
   int t = structure->type;
   if (t != -1 &&
       t != HBE &&
       t != MBE &&
       t != GS  &&
       t != GE)
-    {
+  {
     if (level==1 &&
         (structure->parent->parent->type == MBS) &&
         ((stripe%this->Processors) != this->Rank) )
-      {
+    {
       //for parallel processing, each processor gets a different set of
       //stripes of the data sets within the groups in the first level of
       //composite data sets
@@ -597,10 +597,10 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
            << vtkDataObjectGeneratorTypeStrings[t]
            << endl;
       */
-      return NULL;
-      }
+      return nullptr;
+    }
     else
-      {
+    {
       /*
       cerr << "Filling "
            << vtkDataObjectGeneratorTypeStrings[t]
@@ -608,17 +608,17 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
       */
       outData = vtkDataObjectTypes::NewDataObject(
         vtkDataObjectGeneratorTypeStrings[t]);
-      }
     }
+  }
 
   switch (t)
-    {
+  {
     case -1: //top level is a holder, use the single data set inside instead
     {
-    if (!structure->children.size())
-      {
-      return NULL;
-      }
+    if (structure->children.empty())
+    {
+      return nullptr;
+    }
     return this->FillOutputDataObjects(structure->children.front(), level+1);
     }
     case ID1:
@@ -687,12 +687,12 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     std::vector<vtkInternalStructureCache *>::iterator git;
     for (git = structure->children.begin();
          git != structure->children.end();
-         git++)
-      {
+         ++git)
+    {
       vtkInternalStructureCache *gptr = *git;
-      vtkIdType nds = gptr->children.size();
+      vtkIdType nds = static_cast<vtkIdType>(gptr->children.size());
       blocksPerLevel.push_back(nds);
-      }
+    }
 
     double origin[3] = {0,0,0};
     hbo->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
@@ -701,8 +701,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     vtkIdType gcnt = 0;
     for (git = structure->children.begin();
          git != structure->children.end();
-         git++)
-      {
+         ++git)
+    {
       //cerr << "LVL=" << gcnt  << endl;
 
       vtkInternalStructureCache *gptr = *git;
@@ -728,8 +728,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
            dit != gptr->children.end()
              && dcnt<maxchildren //ignore extra children
              ;
-           dit++)
-        {
+           ++dit)
+      {
         //cerr << "DS=" << dcnt  << endl;
         vtkInternalStructureCache *dptr = *dit;
         //dptr->type should be UF1
@@ -748,14 +748,14 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
         cerr << "LO=" << lo[0] << "," << lo[1] << "," << lo[2] << " "
              << "HI=" << hi[0] << "," << hi[1] << "," << hi[2] << endl;
         */
-        vtkDataObject *dobj = NULL;
+        vtkDataObject *dobj = nullptr;
         double spacing = pow(0.5,static_cast<double>(gcnt+1)); //==1.0/(2*r2)
 
         //restrict HierarchicalBoxes's to contain only UniformGrids
         //until I make it read location to make sparse creation easy, put
         //dummy dataobjects in as placeholders
         if (dptr->type == UF1)
-          {
+        {
           dobj = this->FillOutputDataObjects(dptr, level+1, dcnt);
           vtkUniformGrid *uf = vtkUniformGrid::SafeDownCast(dobj);
           //scale and translate the children to align with the parent the
@@ -771,29 +771,29 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
           uf->SetExtent(0,2,0,2,0,2); //octrees, 2 cells == 3 points across
           int ex[6];
           uf->GetExtent(ex);
-          }
+        }
 
         vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(dobj);
         if(grid)
-          {
+        {
           hbo->SetDataSet(gcnt, dcnt,grid);
-          }
+        }
         else
-          {
+        {
           vtkAMRBox box(lo,hi);
           double h[3] = {spacing,spacing,spacing};
           hbo->SetSpacing(gcnt,h);
           hbo->SetAMRBox(gcnt, dcnt, box);
-          }
+        }
 
         if (dobj)
-          {
+        {
           dobj->Delete();
-          }
-        dcnt++;
         }
-      gcnt++;
+        dcnt++;
       }
+      gcnt++;
+    }
     return outData;
     }
     case MBS:
@@ -811,23 +811,23 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
 
     for (git = structure->children.begin();
          git != structure->children.end();
-         git++)
-      {
+         ++git)
+    {
       this->ZOffset += 1.0;
       vtkInternalStructureCache *gptr = *git;
       if (gptr->type == GS)
-        {
+      {
         vtkErrorMacro("Group inside multi-block is not supported");
         continue;
-        }
+      }
       vtkDataObject *dobj = this->FillOutputDataObjects(gptr, level+1, 0);
       mbo->SetBlock(gcnt, dobj);
       if (dobj)
-        {
+      {
         dobj->Delete();
-        }
-      gcnt++;
       }
+      gcnt++;
+    }
     this->ZOffset -= gcnt;
 
     this->YOffset -= 1.0;
@@ -840,8 +840,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     case GE: //should never be created
     default:
     //cerr << "UH OH" << endl;
-    return NULL;
-    }
+    return nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -874,13 +874,13 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet *ds)
   zcoords->SetNumberOfTuples(num);
 
   for (vtkIdType i = 0; i < num; i++)
-    {
+  {
     ids->SetValue(i, this->CellIdCounter++);
-    double *bds = ds->GetCell(i)->GetBounds();
+    const double *bds = ds->GetCell(i)->GetBounds();
     xcoords->SetValue(i, (bds[0]+bds[1])*0.5);
     ycoords->SetValue(i, (bds[2]+bds[3])*0.5);
     zcoords->SetValue(i, (bds[4]+bds[5])*0.5);
-    }
+  }
   ds->GetCellData()->SetGlobalIds(ids);
   ds->GetCellData()->AddArray(xcoords);
   ds->GetCellData()->AddArray(ycoords);
@@ -911,13 +911,13 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet *ds)
   zcoords->SetNumberOfTuples(num);
 
   for (vtkIdType i = 0; i < num; i++)
-    {
+  {
     ids->SetValue(i, this->PointIdCounter++);
     double *coords = ds->GetPoint(i);
     xcoords->SetValue(i, coords[0]);
     ycoords->SetValue(i, coords[1]);
     zcoords->SetValue(i, coords[2]);
-    }
+  }
   ds->GetPointData()->SetGlobalIds(ids);
   ds->GetPointData()->AddArray(xcoords);
   ds->GetPointData()->AddArray(ycoords);
@@ -935,9 +935,9 @@ void vtkDataObjectGenerator::MakeImageData1(vtkDataSet *ids)
   //ID1 == an ImageData of 1 voxel
   vtkImageData *ds = vtkImageData::SafeDownCast(ids);
   if (!ds)
-    {
+  {
     return;
-    }
+  }
 
   ds->Initialize();
   ds->SetDimensions(2,2,2); //1 cell
@@ -953,9 +953,9 @@ void vtkDataObjectGenerator::MakeImageData2(vtkDataSet *ids)
   //ID2 == an ImageData of 24 voxel2
   vtkImageData *ds = vtkImageData::SafeDownCast(ids);
   if (!ds)
-    {
+  {
     return;
-    }
+  }
 
   ds->Initialize();
   ds->SetDimensions(3,4,5); //24 cells
@@ -971,9 +971,9 @@ void vtkDataObjectGenerator::MakeUniformGrid1(vtkDataSet *ids)
   //UF1 == an UniformGrid of 8 voxels
   vtkUniformGrid *ds = vtkUniformGrid::SafeDownCast(ids);
   if (!ds)
-    {
+  {
     return;
-    }
+  }
 
   ds->Initialize();
   ds->SetDimensions(3,3,3); //8 cells to make octrees
@@ -989,9 +989,9 @@ void vtkDataObjectGenerator::MakeRectilinearGrid1(vtkDataSet *ids)
   //RG1 = a RectilnearGrid of 1 voxel
   vtkRectilinearGrid *ds = vtkRectilinearGrid::SafeDownCast(ids);
   if (!ds)
-    {
+  {
     return;
-    }
+  }
 
   ds->Initialize();
   ds->SetDimensions(2,2,2); //1 cell
@@ -1033,9 +1033,9 @@ void vtkDataObjectGenerator::MakeStructuredGrid1(vtkDataSet *ids)
   //SG1 = a StructuredGrid of 1 voxel
   vtkStructuredGrid *ds = vtkStructuredGrid::SafeDownCast(ids);
   if (!ds)
-    {
+  {
     return;
-    }
+  }
 
   ds->Initialize();
   ds->SetDimensions(2,2,2); //1 cell
@@ -1063,9 +1063,9 @@ void vtkDataObjectGenerator::MakePolyData1(vtkDataSet *ids)
   //PD1 = a PolyData of 1 triangle
   vtkPolyData *ds = vtkPolyData::SafeDownCast(ids);
   if (!ds)
-    {
+  {
     return;
-    }
+  }
 
   ds->Initialize();
   vtkPoints *pts = vtkPoints::New();
@@ -1091,9 +1091,9 @@ void vtkDataObjectGenerator::MakePolyData2(vtkDataSet *ids)
   //PD2 = a PolyData of 1 triangle and 1 point
   vtkPolyData *ds = vtkPolyData::SafeDownCast(ids);
   if (!ds)
-    {
+  {
     return;
-    }
+  }
 
   ds->Initialize();
   vtkPoints *pts = vtkPoints::New();
@@ -1122,9 +1122,9 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid1(vtkDataSet *ids)
   //UG1 = an UnstructuredGrid of 1 triangle
   vtkUnstructuredGrid *ds = vtkUnstructuredGrid::SafeDownCast(ids);
   if (!ds)
-    {
+  {
     return;
-    }
+  }
   ds->Initialize();
   vtkPoints *pts = vtkPoints::New();
   const double &XO = this->XOffset;
@@ -1149,9 +1149,9 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid2(vtkDataSet *ids)
   //UG2 = an UnstructuredGrid of 2 triangles
   vtkUnstructuredGrid *ds = vtkUnstructuredGrid::SafeDownCast(ids);
   if (!ds)
-    {
+  {
     return;
-    }
+  }
   ds->Initialize();
   vtkPoints *pts = vtkPoints::New();
   const double &XO = this->XOffset;
@@ -1178,9 +1178,9 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid3(vtkDataSet *ids)
   //UG3 = an UnstructuredGrid of 1 tet
   vtkUnstructuredGrid *ds = vtkUnstructuredGrid::SafeDownCast(ids);
   if (!ds)
-    {
+  {
     return;
-    }
+  }
   ds->Initialize();
   vtkPoints *pts = vtkPoints::New();
   const double &XO = this->XOffset;
@@ -1206,9 +1206,9 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid4(vtkDataSet *ids)
   //UG4 = an UnstructuredGrid of 2 triangles and 1 tetraheda
   vtkUnstructuredGrid *ds = vtkUnstructuredGrid::SafeDownCast(ids);
   if (!ds)
-    {
+  {
     return;
-    }
+  }
   ds->Initialize();
   vtkPoints *pts = vtkPoints::New();
   const double &XO = this->XOffset;

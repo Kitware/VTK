@@ -1,12 +1,6 @@
-set(Module_SRCS
-  vtkColorSeries.cxx
-  vtkNamedColors.cxx
-)
+set(classes
+  vtkColorSeries
+  vtkNamedColors)
 
-#set_source_files_properties(
-#  ABSTRACT
-#  WRAP_EXCLUDE
-#  PROPERTIES WRAP_SPECIAL 1
-#)
-
-vtk_module_library(vtkCommonColor ${Module_SRCS})
+vtk_module_add_module(VTK::CommonColor
+  CLASSES ${classes})

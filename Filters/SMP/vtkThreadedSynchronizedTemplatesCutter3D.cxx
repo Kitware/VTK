@@ -37,9 +37,10 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkPolygonBuilder.h"
 #include "vtkIdList.h"
+#include "vtkIdListCollection.h"
 #include "vtkSmartPointer.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
@@ -57,28 +58,32 @@ vtkCxxSetObjectMacro(vtkThreadedSynchronizedTemplatesCutter3D,CutFunction,vtkImp
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkThreadedSynchronizedTemplatesCutter3D::vtkThreadedSynchronizedTemplatesCutter3D()
 {
-  this->CutFunction = 0;
+  VTK_LEGACY_BODY(
+    vtkThreadedSynchronizedTemplatesCutter3D::vtkThreadedSynchronizedTemplatesCutter3D,
+    "VTK 8.1");
+
+  this->CutFunction = nullptr;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 //----------------------------------------------------------------------------
 vtkThreadedSynchronizedTemplatesCutter3D::~vtkThreadedSynchronizedTemplatesCutter3D()
 {
-  this->SetCutFunction(NULL);
+  this->SetCutFunction(nullptr);
 }
 
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If cut functions is modified,
 // or contour values modified, then this object is modified as well.
-unsigned long vtkThreadedSynchronizedTemplatesCutter3D::GetMTime()
+vtkMTimeType vtkThreadedSynchronizedTemplatesCutter3D::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
 
-  if ( this->CutFunction != NULL )
-    {
-    unsigned long time = this->CutFunction->GetMTime();
+  if ( this->CutFunction != nullptr )
+  {
+    vtkMTimeType time = this->CutFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -103,34 +108,34 @@ static void vtkThreadedSynchronizedTemplatesCutter3DInitializeOutput(
   estimatedSize = (int) pow ((double)
       ((ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1)), .75);
   if (estimatedSize < 1024)
-    {
+  {
     estimatedSize = 1024;
-    }
+  }
   estimatedSize /= estimatedNumberOfPieces;
 
   newPts = vtkPoints::New();
 
   // set precision for the points in the output
   if(precision == vtkAlgorithm::DEFAULT_PRECISION)
-    {
+  {
     vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
     if(inputPointSet)
-      {
+    {
       newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
-      }
+    }
     else
-      {
+    {
       newPts->SetDataType(VTK_FLOAT);
-      }
     }
+  }
   else if(precision == vtkAlgorithm::SINGLE_PRECISION)
-    {
+  {
     newPts->SetDataType(VTK_FLOAT);
-    }
+  }
   else if(precision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPts->SetDataType(VTK_DOUBLE);
-    }
+  }
 
   newPts->Allocate(estimatedSize,estimatedSize);
   newPolys = vtkCellArray::New();
@@ -178,30 +183,31 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
                   bool outputTriangles)
 {
   int *inExt = data->GetExtent();
-  int xdim = exExt[1] - exExt[0] + 1;
-  int ydim = exExt[3] - exExt[2] + 1;
+  vtkIdType xdim = exExt[1] - exExt[0] + 1;
+  vtkIdType ydim = exExt[3] - exExt[2] + 1;
   double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtrX, *inPtrY, *inPtrZ;
   T *s0, *s1, *s2, *s3;
   int xMin, xMax, yMin, yMax, zMin, zMax;
-  int xInc, yInc, zInc;
+  vtkIdType xInc, yInc, zInc;
   int xIncFunc, yIncFunc, zIncFunc, scalarZIncFunc;
   double *origin = data->GetOrigin();
   double *spacing = data->GetSpacing();
-  int *isect1Ptr, *isect2Ptr;
+  vtkIdType *isect1Ptr, *isect2Ptr;
   double y, z, t;
   int i, j, k;
-  int zstep, yisectstep;
-  int offsets[12];
+  vtkIdType zstep, yisectstep;
+  vtkIdType offsets[12];
   int *tablePtr;
-  int idx, vidx;
+  vtkIdType idx;
+  int vidx;
   double x[3], xz[3];
-  int v0, v1, v2, v3;
+  vtkIdType v0, v1, v2, v3;
   vtkIdType ptIds[3];
   double value;
   // We need to know the edgePointId's for interpolating attributes.
-  int edgePtId, inCellId, outCellId;
+  vtkIdType edgePtId, inCellId, outCellId;
   vtkPointData *inPD = data->GetPointData();
   vtkCellData *inCD = data->GetCellData();
   vtkPointData *outPD = output->GetPointData();
@@ -211,7 +217,8 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
   vtkCellArray *newPolys;
   ptr += self->GetArrayComponent();
   vtkPolygonBuilder polyBuilder;
-  vtkSmartPointer<vtkIdList> poly = vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdListCollection> polys =
+    vtkSmartPointer<vtkIdListCollection>::New();
 
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
@@ -225,9 +232,9 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
 
   vtkImplicitFunction *func = self->GetCutFunction();
   if (!func)
-    {
+  {
     return;
-    }
+  }
 
   xInc = 1;
   yInc = xInc*(inExt[1]-inExt[0]+1);
@@ -268,45 +275,42 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
   PointIndexToPosition(data, exExt[1], exExt[3], exExt[5], bboxCorners[7]);
 
   // allocate storage array
-  int *isect1 = new int [xdim*ydim*3*2];
+  vtkIdType *isect1 = new vtkIdType [xdim*ydim*3*2];
   // set impossible edges to -1
   for (i = 0; i < ydim; i++)
-    {
+  {
     isect1[(i+1)*xdim*3-3] = -1;
     isect1[(i+1)*xdim*3*2-3] = -1;
-    }
+  }
   for (i = 0; i < xdim; i++)
-    {
+  {
     isect1[((ydim-1)*xdim + i)*3 + 1] = -1;
     isect1[((ydim-1)*xdim + i)*3*2 + 1] = -1;
-    }
+  }
 
   // allocate scalar storage for two slices
-  T *scalars = 0;
-  T *scalars1 = 0;
-  T *scalars2 = 0;
-  scalars = new T [xdim*ydim*2];
-  scalars1 = scalars;
-  scalars2 = scalars + xdim*ydim;
+  T *scalars = new T [xdim*ydim*2];
+  T *scalars1 = scalars;
+  T *scalars2 = scalars + xdim*ydim;
 
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
-    {
+  {
     value = values[vidx];
     inPtrZ = ptr;
 
     // can the block be skipped?
     int total = 0;
     for (int ii = 0; ii < 8; ++ii)
-      {
+    {
       total += GetSideOfSurface(func, value, bboxCorners[ii]);
-      }
+    }
 
     vtkPlane *plane = vtkPlane::SafeDownCast(func);
     if (plane && (total == 8 || total == -8))
-      {
+    {
       continue;
-      }
+    }
 
     // fill the first slice
     z = origin[2] + spacing[2]*zMin;
@@ -315,20 +319,20 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
     scalars1 = scalars2;
     scalars2 = scalarsTmp;
     for (j = yMin; j <= yMax; j++)
-      {
+    {
       x[1] = origin[1] + spacing[1]*j;
       for (i = xMin; i <= xMax; i++)
-        {
+      {
         x[0] = origin[0] + spacing[0]*i;
         *scalarsTmp = func->FunctionValue(x);
         scalarsTmp++;
-        }
       }
+    }
     scalarZIncFunc = -scalarZIncFunc;
 
     //==================================================================
     for (k = zMin; k <= zMax; k++)
-      {
+    {
       // self->UpdateProgress((double)vidx/numContours +
       //                      (k-zMin)/((zMax - zMin+1.0)*numContours));
       inPtrY = inPtrZ;
@@ -341,18 +345,18 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
       scalars2 = scalarsTmp;
       // if not the last slice then get more scalars
       if (k < zMax)
-        {
+      {
         for (j = yMin; j <= yMax; j++)
-          {
+        {
           x[1] = origin[1] + spacing[1]*j;
           for (i = xMin; i <= xMax; i++)
-            {
+          {
             x[0] = origin[0] + spacing[0]*i;
             *scalarsTmp = func->FunctionValue(x);
             scalarsTmp++;
-            }
           }
         }
+      }
       inPtrY = scalars1;
       scalarZIncFunc = -scalarZIncFunc;
 
@@ -361,26 +365,26 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
 
       // swap the buffers
       if (k%2)
-        {
+      {
         offsets[8] = (zstep - xdim)*3;
         offsets[9] = (zstep - xdim)*3 + 1;
         offsets[10] = (zstep - xdim)*3 + 4;
         offsets[11] = zstep*3;
         isect1Ptr = isect1;
         isect2Ptr = isect1 + xdim*ydim*3;
-        }
+      }
       else
-        {
+      {
         offsets[8] = (-zstep - xdim)*3;
         offsets[9] = (-zstep - xdim)*3 + 1;
         offsets[10] = (-zstep - xdim)*3 + 4;
         offsets[11] = -zstep*3;
         isect1Ptr = isect1 + xdim*ydim*3;
         isect2Ptr = isect1;
-        }
+      }
 
       for (j = yMin; j <= yMax; j++)
-        {
+      {
         // Should not impact performance here/
         edgePtId = (xMin-inExt[0])*xInc + (j-inExt[2])*yInc + (k-inExt[4])*zInc;
 
@@ -399,135 +403,135 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
 
         inPtrX = inPtrY;
         for (i = xMin; i <= xMax; i++)
-          {
+        {
           s0 = s1;
           v0 = v1;
           *isect2Ptr = -1;
           *(isect2Ptr + 1) = -1;
           *(isect2Ptr + 2) = -1;
           if (i < xMax)
-            {
+          {
             s1 = (inPtrX + xIncFunc);
             v1 = (*s1 < value ? 0 : 1);
             if (v0 ^ v1)
-              {
+            {
               // watch for degenerate points
               if (*s0 == value)
-                {
+              {
                 if (i > xMin && *(isect2Ptr-3) > -1)
-                  {
-                  *isect2Ptr = *(isect2Ptr-3);
-                  }
-                else if (j > yMin && *(isect2Ptr - yisectstep + 1) > -1)
-                  {
-                  *isect2Ptr = *(isect2Ptr - yisectstep + 1);
-                  }
-                else if (k > zMin && *(isect1Ptr+2) > -1)
-                  {
-                  *isect2Ptr = *(isect1Ptr+2);
-                  }
-                }
-              else if (*s1 == value)
                 {
-                if (j > yMin && *(isect2Ptr - yisectstep +4) > -1)
-                  {
-                  *isect2Ptr = *(isect2Ptr - yisectstep + 4);
-                  }
-                else if (k > zMin && i < xMax && *(isect1Ptr + 5) > -1)
-                  {
-                  *isect2Ptr = *(isect1Ptr + 5);
-                  }
+                  *isect2Ptr = *(isect2Ptr-3);
                 }
+                else if (j > yMin && *(isect2Ptr - yisectstep + 1) > -1)
+                {
+                  *isect2Ptr = *(isect2Ptr - yisectstep + 1);
+                }
+                else if (k > zMin && *(isect1Ptr+2) > -1)
+                {
+                  *isect2Ptr = *(isect1Ptr+2);
+                }
+              }
+              else if (*s1 == value)
+              {
+                if (j > yMin && *(isect2Ptr - yisectstep +4) > -1)
+                {
+                  *isect2Ptr = *(isect2Ptr - yisectstep + 4);
+                }
+                else if (k > zMin && i < xMax && *(isect1Ptr + 5) > -1)
+                {
+                  *isect2Ptr = *(isect1Ptr + 5);
+                }
+              }
               // if the edge has not been set yet then it is a new point
               if (*isect2Ptr == -1)
-                {
+              {
                 t = (value - (double)(*s0)) / ((double)(*s1) - (double)(*s0));
                 x[0] = origin[0] + spacing[0]*(i+t);
                 x[1] = y;
                 *isect2Ptr = newPts->InsertNextPoint(x);
                 outPD->InterpolateEdge(inPD, *isect2Ptr, edgePtId, edgePtId+1, t);
-                }
               }
             }
+          }
           if (j < yMax)
-            {
+          {
             s2 = (inPtrX + yIncFunc);
             v2 = (*s2 < value ? 0 : 1);
             if (v0 ^ v2)
-              {
+            {
               if (*s0 == value)
-                {
+              {
                 if (*isect2Ptr > -1)
-                  {
-                  *(isect2Ptr + 1) = *isect2Ptr;
-                  }
-                else if (i > xMin && *(isect2Ptr-3) > -1)
-                  {
-                  *(isect2Ptr + 1) = *(isect2Ptr-3);
-                  }
-                else if (j > yMin && *(isect2Ptr - yisectstep + 1) > -1)
-                  {
-                  *(isect2Ptr + 1) = *(isect2Ptr - yisectstep + 1);
-                  }
-                else if (k > zMin && *(isect1Ptr+2) > -1)
-                  {
-                  *(isect2Ptr + 1) = *(isect1Ptr+2);
-                  }
-                }
-              else if (*s2 == value && k > zMin && *(isect1Ptr + yisectstep + 2) > -1)
                 {
-                *(isect2Ptr+1) = *(isect1Ptr + yisectstep + 2);
+                  *(isect2Ptr + 1) = *isect2Ptr;
                 }
+                else if (i > xMin && *(isect2Ptr-3) > -1)
+                {
+                  *(isect2Ptr + 1) = *(isect2Ptr-3);
+                }
+                else if (j > yMin && *(isect2Ptr - yisectstep + 1) > -1)
+                {
+                  *(isect2Ptr + 1) = *(isect2Ptr - yisectstep + 1);
+                }
+                else if (k > zMin && *(isect1Ptr+2) > -1)
+                {
+                  *(isect2Ptr + 1) = *(isect1Ptr+2);
+                }
+              }
+              else if (*s2 == value && k > zMin && *(isect1Ptr + yisectstep + 2) > -1)
+              {
+                *(isect2Ptr+1) = *(isect1Ptr + yisectstep + 2);
+              }
               // if the edge has not been set yet then it is a new point
               if (*(isect2Ptr + 1) == -1)
-                {
+              {
                 t = (value - (double)(*s0)) / ((double)(*s2) - (double)(*s0));
                 x[0] = origin[0] + spacing[0]*i;
                 x[1] = y + spacing[1]*t;
                 *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
                 outPD->InterpolateEdge(inPD, *(isect2Ptr+1), edgePtId, edgePtId+yInc, t);
-                }
               }
             }
+          }
           if (k < zMax)
-            {
+          {
             s3 = (inPtrX + scalarZIncFunc);
             v3 = (*s3 < value ? 0 : 1);
             if (v0 ^ v3)
-              {
+            {
               if (*s0 == value)
-                {
+              {
                 if (*isect2Ptr > -1)
-                  {
-                  *(isect2Ptr + 2) = *isect2Ptr;
-                  }
-                else if (*(isect2Ptr+1) > -1)
-                  {
-                  *(isect2Ptr + 2) = *(isect2Ptr+1);
-                  }
-                else if (i > xMin && *(isect2Ptr-3) > -1)
-                  {
-                  *(isect2Ptr + 2) = *(isect2Ptr-3);
-                  }
-                else if (j > yMin && *(isect2Ptr - yisectstep + 1) > -1)
-                  {
-                  *(isect2Ptr + 2) = *(isect2Ptr - yisectstep + 1);
-                  }
-                else if (k > zMin && *(isect1Ptr+2) > -1)
-                  {
-                  *(isect2Ptr + 2) = *(isect1Ptr+2);
-                  }
-                }
-              if (*(isect2Ptr + 2) == -1)
                 {
+                  *(isect2Ptr + 2) = *isect2Ptr;
+                }
+                else if (*(isect2Ptr+1) > -1)
+                {
+                  *(isect2Ptr + 2) = *(isect2Ptr+1);
+                }
+                else if (i > xMin && *(isect2Ptr-3) > -1)
+                {
+                  *(isect2Ptr + 2) = *(isect2Ptr-3);
+                }
+                else if (j > yMin && *(isect2Ptr - yisectstep + 1) > -1)
+                {
+                  *(isect2Ptr + 2) = *(isect2Ptr - yisectstep + 1);
+                }
+                else if (k > zMin && *(isect1Ptr+2) > -1)
+                {
+                  *(isect2Ptr + 2) = *(isect1Ptr+2);
+                }
+              }
+              if (*(isect2Ptr + 2) == -1)
+              {
                 t = (value - (double)(*s0)) / ((double)(*s3) - (double)(*s0));
                 xz[0] = origin[0] + spacing[0]*i;
                 xz[2] = z + spacing[2]*t;
                 *(isect2Ptr + 2) = newPts->InsertNextPoint(xz);
                 outPD->InterpolateEdge(inPD, *(isect2Ptr+2), edgePtId, edgePtId+zInc, t);
-                }
               }
             }
+          }
           // To keep track of ids for interpolating attributes.
           ++edgePtId;
 
@@ -535,7 +539,7 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
           // basically look at the isect values,
           // form an index and lookup the polys
           if (j > yMin && i < xMax && k > zMin)
-            {
+          {
             idx = (v0 ? 4096 : 0);
             idx = idx + (*(isect1Ptr - yisectstep) > -1 ? 2048 : 0);
             idx = idx + (*(isect1Ptr -yisectstep +1) > -1 ? 1024 : 0);
@@ -554,11 +558,11 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
               + VTK_TSYNCHRONIZED_TEMPLATES_3D_TABLE_1[idx];
 
             if (!outputTriangles)
-              {
+            {
               polyBuilder.Reset();
-              }
+            }
             while (*tablePtr != -1)
-              {
+            {
               ptIds[0] = *(isect1Ptr + offsets[*tablePtr]);
               tablePtr++;
               ptIds[1] = *(isect1Ptr + offsets[*tablePtr]);
@@ -568,39 +572,46 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
               if (ptIds[0] != ptIds[1] &&
                   ptIds[0] != ptIds[2] &&
                   ptIds[1] != ptIds[2])
-                {
+              {
                 if(outputTriangles)
-                  {
+                {
                   outCellId = newPolys->InsertNextCell(3,ptIds);
                   outCD->CopyData(inCD, inCellId, outCellId);
-                  }
-                else
-                  {
-                  polyBuilder.InsertTriangle(ptIds);
-                  }
                 }
-              }
-            if(!outputTriangles)
-              {
-              polyBuilder.GetPolygon(poly);
-              if(poly->GetNumberOfIds()>0)
+                else
                 {
-                outCellId = newPolys->InsertNextCell(poly);
-                outCD->CopyData(inCD, inCellId, outCellId);
+                  polyBuilder.InsertTriangle(ptIds);
                 }
               }
             }
+            if(!outputTriangles)
+            {
+              polyBuilder.GetPolygons(polys);
+              int nPolys = polys->GetNumberOfItems();
+              for (int polyId = 0; polyId < nPolys; ++polyId)
+              {
+                vtkIdList* poly = polys->GetItem(polyId);
+                if(poly->GetNumberOfIds()!=0)
+                {
+                  outCellId = newPolys->InsertNextCell(poly);
+                  outCD->CopyData(inCD, inCellId, outCellId);
+                }
+                poly->Delete();
+              }
+              polys->RemoveAllItems();
+            }
+          }
           inPtrX += xIncFunc;
           isect2Ptr += 3;
           isect1Ptr += 3;
           // To keep track of ids for copying cell attributes..
           ++inCellId;
-          }
-        inPtrY += yIncFunc;
         }
-      inPtrZ += zIncFunc;
+        inPtrY += yIncFunc;
       }
+      inPtrZ += zIncFunc;
     }
+  }
   delete [] isect1;
 
   delete [] scalars;
@@ -611,7 +622,7 @@ class DoThreadedCut
 public:
   DoThreadedCut(vtkThreadedSynchronizedTemplatesCutter3D* filter, int* exExt,
     vtkImageData* input, int numPieces)
-    : Filter(filter), ExExt(exExt), Input(input), Outputs(NULL),
+    : Filter(filter), ExExt(exExt), Input(input), Outputs(nullptr),
       NumberOfPieces(numPieces), NumOutputPieces(0)
   {
   }
@@ -646,11 +657,11 @@ public:
   int p = 0;
   for (ThreadLocalPolyObject::iterator i = this->tlsPoly.begin();
        i != this->tlsPoly.end(); ++i)
-    {
+  {
     vtkPolyData *thisPiece = vtkPolyData::New();
     thisPiece->ShallowCopy(*i);
     this->Outputs[p++] = thisPiece;
-    }
+  }
   }
 
   void operator()( vtkIdType begin, vtkIdType end )
@@ -659,14 +670,14 @@ public:
     et->SetWholeExtent(this->ExExt);
     et->SetNumberOfPieces(this->NumberOfPieces);
     for(int i=begin; i<end; i++)
-      {
+    {
       int exExt2[6];
       et->SetPiece(i);
       et->PieceToExtent();
       et->GetExtent(exExt2);
       ContourImage(this->Filter, exExt2, this->Input, this->tlsPoly.Local(),
-                   (double*)0, true);
-      }
+                   (double*)nullptr, true);
+    }
   }
 
 private:
@@ -696,10 +707,10 @@ void vtkThreadedSynchronizedTemplatesCutter3D::ThreadedExecute(
 
   int* exExt = data->GetExtent();
   if ( exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5] )
-    {
+  {
     vtkDebugMacro(<<"Cutter3D structured contours requires Cutter3D data");
     return;
-    }
+  }
 
   int ncells = (exExt[1] - exExt[0]) * (exExt[3] - exExt[2]) *
                (exExt[5] - exExt[4]);
@@ -710,14 +721,14 @@ void vtkThreadedSynchronizedTemplatesCutter3D::ThreadedExecute(
 
   int count = 0;
   for(int i = 0; i < functor.GetNumberOfOutputPieces(); ++i)
-    {
+  {
     vtkPolyData* contour = functor.GetOutputPiece(i);
     if (contour->GetNumberOfCells() > 0)
-      {
+    {
       output->SetBlock(count++, contour);
-      }
-    contour->Delete();
     }
+    contour->Delete();
+  }
 }
 
 //----------------------------------------------------------------------------

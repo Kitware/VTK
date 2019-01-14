@@ -18,20 +18,20 @@ int vtkCaptionWidgetTest1(int , char * [] )
 
   vtkCaptionActor2D *captionActor = node1->GetCaptionActor2D();
   if (captionActor)
-    {
+  {
     std::cout << "Caption actor is not null" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "Caption actor is null" << std::endl;
-    }
+  }
   vtkSmartPointer<vtkCaptionActor2D> captionActor2 = vtkSmartPointer<vtkCaptionActor2D>::New();
   node1->SetCaptionActor2D(captionActor2);
   if (node1->GetCaptionActor2D() != captionActor2)
-    {
+  {
     std::cerr << "Failed to get back expected caption actor" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

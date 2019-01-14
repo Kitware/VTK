@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPHierarchicalBoxDataWriter - parallel writer for
-// vtkHierarchicalBoxDataSet for backwards compatibility.
-// .SECTION Description
-// vtkXMLPHierarchicalBoxDataWriter is an empty subclass of
-// vtkXMLPUniformGridAMRWriter for backwards compatibility.
+/**
+ * @class   vtkXMLPHierarchicalBoxDataWriter
+ * @brief   parallel writer for
+ * vtkHierarchicalBoxDataSet for backwards compatibility.
+ *
+ * vtkXMLPHierarchicalBoxDataWriter is an empty subclass of
+ * vtkXMLPUniformGridAMRWriter for backwards compatibility.
+*/
 
 #ifndef vtkXMLPHierarchicalBoxDataWriter_h
 #define vtkXMLPHierarchicalBoxDataWriter_h
@@ -30,15 +33,15 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPHierarchicalBoxDataWriter :
 public:
   static vtkXMLPHierarchicalBoxDataWriter* New();
   vtkTypeMacro(vtkXMLPHierarchicalBoxDataWriter, vtkXMLPUniformGridAMRWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkXMLPHierarchicalBoxDataWriter();
-  ~vtkXMLPHierarchicalBoxDataWriter();
+  ~vtkXMLPHierarchicalBoxDataWriter() override;
 
 private:
-  vtkXMLPHierarchicalBoxDataWriter(const vtkXMLPHierarchicalBoxDataWriter&); // Not implemented.
-  void operator=(const vtkXMLPHierarchicalBoxDataWriter&); // Not implemented.
+  vtkXMLPHierarchicalBoxDataWriter(const vtkXMLPHierarchicalBoxDataWriter&) = delete;
+  void operator=(const vtkXMLPHierarchicalBoxDataWriter&) = delete;
 };
 
 #endif

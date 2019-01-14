@@ -1,0 +1,17 @@
+NAME
+  VTK::CommonMisc
+LIBRARY_NAME
+  vtkCommonMisc
+DESCRIPTION
+  Assorted utility classes
+KIT
+  VTK::Common
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonMath
+PRIVATE_DEPENDS
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::TestingCore

@@ -12,18 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleMultiTouchCamera - interactive manipulation of the camera
-// .SECTION Description
-// vtkInteractorStyleMultiTouchCamera allows the user to interactively
-// manipulate (rotate, pan, etc.) the camera, the viewpoint of the scene.  In
-// trackball interaction, the magnitude of the mouse motion is proportional
-// to the camera motion associated with a particular mouse binding. For
-// example, small left-button motions cause small changes in the rotation of
-// the camera around its focal point.
-
-// .SECTION See Also
-// vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
-// vtkInteractorStyleJoystickActor
+/**
+ * @class   vtkInteractorStyleMultiTouchCamera
+ * @brief   multitouch manipulation of the camera
+ *
+ * vtkInteractorStyleMultiTouchCamera allows the user to interactively
+ * manipulate (rotate, pan, etc.) the camera, the viewpoint of the scene
+ * using multitouch gestures in addition to regular gestures
+ *
+ * @sa
+ * vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
+ * vtkInteractorStyleJoystickActor
+*/
 
 #ifndef vtkInteractorStyleMultiTouchCamera_h
 #define vtkInteractorStyleMultiTouchCamera_h
@@ -37,38 +37,24 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleMultiTouchCamera : public vtk
 public:
   static vtkInteractorStyleMultiTouchCamera *New();
   vtkTypeMacro(vtkInteractorStyleMultiTouchCamera,vtkInteractorStyleTrackballCamera);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Event bindings controlling the effects of pressing mouse buttons
-  // or moving the mouse.
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
-
-  // These methods for the different interactions in different modes
-  // are overridden in subclasses to perform the correct motion. Since
-  // they are called by OnTimer, they do not have mouse coord parameters
-  // (use interactor's GetEventPosition and GetLastEventPosition)
-  virtual void AdjustCamera();
-
-  // Description:
-  // Set the apparent sensitivity of the interactor style to mouse motion.
-  vtkSetMacro(MotionFactor,double);
-  vtkGetMacro(MotionFactor,double);
+  //@{
+  /**
+   * Event bindings for gestures
+   */
+  void OnRotate() override;
+  void OnPinch() override;
+  void OnPan() override;
+  //@}
 
 protected:
   vtkInteractorStyleMultiTouchCamera();
-  ~vtkInteractorStyleMultiTouchCamera();
-
-  int PointersDownCount;
-  int PointersDown[VTKI_MAX_POINTERS];
-
-  double MotionFactor;
+  ~vtkInteractorStyleMultiTouchCamera() override;
 
 private:
-  vtkInteractorStyleMultiTouchCamera(const vtkInteractorStyleMultiTouchCamera&);  // Not implemented.
-  void operator=(const vtkInteractorStyleMultiTouchCamera&);  // Not implemented.
+  vtkInteractorStyleMultiTouchCamera(const vtkInteractorStyleMultiTouchCamera&) = delete;
+  void operator=(const vtkInteractorStyleMultiTouchCamera&) = delete;
 };
 
 #endif

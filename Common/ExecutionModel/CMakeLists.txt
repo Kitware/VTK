@@ -1,86 +1,71 @@
-SET(Module_SRCS
-  vtkAlgorithm.cxx
-  vtkAlgorithmOutput.cxx
-  vtkAnnotationLayersAlgorithm.cxx
-  vtkArrayDataAlgorithm.cxx
-  vtkCachedStreamingDemandDrivenPipeline.cxx
-  vtkCastToConcrete.cxx
-  vtkCompositeDataPipeline.cxx
-  vtkCompositeDataSetAlgorithm.cxx
-  vtkDataObjectAlgorithm.cxx
-  vtkDataSetAlgorithm.cxx
-  vtkDemandDrivenPipeline.cxx
-  vtkDirectedGraphAlgorithm.cxx
-  vtkEnsembleSource.cxx
-  vtkExecutive.cxx
-  vtkExtentSplitter.cxx
-  vtkExtentTranslator.cxx
-  vtkFilteringInformationKeyManager.cxx
-  vtkGraphAlgorithm.cxx
-  vtkHierarchicalBoxDataSetAlgorithm.cxx
-  vtkHyperOctreeAlgorithm.cxx
-  vtkHyperTreeGridAlgorithm.cxx
-  vtkImageAlgorithm.cxx
-  vtkImageInPlaceFilter.cxx
-  vtkImageProgressIterator.cxx
-  vtkImageToStructuredGrid.cxx
-  vtkImageToStructuredPoints.cxx
-  vtkInformationDataObjectMetaDataKey.cxx
-  vtkInformationExecutivePortKey.cxx
-  vtkInformationExecutivePortVectorKey.cxx
-  vtkInformationIntegerRequestKey.cxx
-  vtkMultiBlockDataSetAlgorithm.cxx
-  vtkMultiTimeStepAlgorithm.cxx
-  vtkPassInputTypeAlgorithm.cxx
-  vtkPiecewiseFunctionAlgorithm.cxx
-  vtkPiecewiseFunctionShiftScale.cxx
-  vtkPointSetAlgorithm.cxx
-  vtkPolyDataAlgorithm.cxx
-  vtkRectilinearGridAlgorithm.cxx
-  vtkScalarTree.cxx
-  vtkSimpleImageToImageFilter.cxx
-  vtkSimpleScalarTree.cxx
-  vtkStreamingDemandDrivenPipeline.cxx
-  vtkStructuredGridAlgorithm.cxx
-  vtkTableAlgorithm.cxx
-  vtkSMPProgressObserver.cxx
-  vtkThreadedCompositeDataPipeline.cxx
-  vtkThreadedImageAlgorithm.cxx
-  vtkTreeAlgorithm.cxx
-  vtkTrivialProducer.cxx
-  vtkUndirectedGraphAlgorithm.cxx
-  vtkUnstructuredGridAlgorithm.cxx
-  vtkUnstructuredGridBaseAlgorithm.cxx
-  vtkProgressObserver.cxx
-  vtkSelectionAlgorithm.cxx
-  vtkExtentRCBPartitioner.cxx
-  vtkUniformGridPartitioner.cxx
-  # New AMR classes
-  vtkUniformGridAMRAlgorithm.cxx
-  vtkOverlappingAMRAlgorithm.cxx
-  vtkNonOverlappingAMRAlgorithm.cxx
-  )
-
-set_source_files_properties(
+set(classes
+  vtkAlgorithm
+  vtkAlgorithmOutput
+  vtkAnnotationLayersAlgorithm
+  vtkArrayDataAlgorithm
+  vtkCachedStreamingDemandDrivenPipeline
+  vtkCastToConcrete
+  vtkCompositeDataPipeline
+  vtkCompositeDataSetAlgorithm
+  vtkDataObjectAlgorithm
+  vtkDataSetAlgorithm
+  vtkDemandDrivenPipeline
+  vtkDirectedGraphAlgorithm
+  vtkEnsembleSource
   vtkExecutive
-  vtkHyperOctreeAlgorithm
+  vtkExtentRCBPartitioner
+  vtkExtentSplitter
+  vtkExtentTranslator
+  vtkFilteringInformationKeyManager
+  vtkGraphAlgorithm
+  vtkHierarchicalBoxDataSetAlgorithm
   vtkHyperTreeGridAlgorithm
   vtkImageAlgorithm
   vtkImageInPlaceFilter
+  vtkImageProgressIterator
+  vtkImageToStructuredGrid
+  vtkImageToStructuredPoints
+  vtkInformationDataObjectMetaDataKey
   vtkInformationExecutivePortKey
   vtkInformationExecutivePortVectorKey
-  vtkScalarTree
-  vtkSimpleImageToImageFilter
-  vtkThreadedImageAlgorithm
-  ABSTRACT
-  )
-
-set_source_files_properties(
-  vtkExecutionSchedulerManager
-  vtkFilteringInformationKeyManager
-  vtkImageProgressIterator
+  vtkInformationIntegerRequestKey
+  vtkMoleculeAlgorithm
+  vtkMultiBlockDataSetAlgorithm
+  vtkMultiTimeStepAlgorithm
+  vtkParallelReader
+  vtkPassInputTypeAlgorithm
+  vtkPiecewiseFunctionAlgorithm
+  vtkPiecewiseFunctionShiftScale
+  vtkPointSetAlgorithm
+  vtkPolyDataAlgorithm
+  vtkProgressObserver
+  vtkReaderAlgorithm
+  vtkReaderExecutive
+  vtkRectilinearGridAlgorithm
   vtkSMPProgressObserver
-  WRAP_EXCLUDE
-  )
+  vtkScalarTree
+  vtkSelectionAlgorithm
+  vtkSimpleImageToImageFilter
+  vtkSimpleReader
+  vtkSimpleScalarTree
+  vtkSpanSpace
+  vtkSphereTree
+  vtkStreamingDemandDrivenPipeline
+  vtkStructuredGridAlgorithm
+  vtkTableAlgorithm
+  vtkThreadedCompositeDataPipeline
+  vtkThreadedImageAlgorithm
+  vtkTreeAlgorithm
+  vtkTrivialConsumer
+  vtkTrivialProducer
+  vtkUndirectedGraphAlgorithm
+  vtkUniformGridPartitioner
+  vtkUnstructuredGridAlgorithm
+  vtkUnstructuredGridBaseAlgorithm
+  # New AMR classes
+  vtkNonOverlappingAMRAlgorithm
+  vtkOverlappingAMRAlgorithm
+  vtkUniformGridAMRAlgorithm)
 
-vtk_module_library(vtkCommonExecutionModel ${Module_SRCS})
+vtk_module_add_module(VTK::CommonExecutionModel
+  CLASSES ${classes})

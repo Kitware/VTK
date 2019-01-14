@@ -17,21 +17,25 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPExtractHistogram2D - compute a 2D histogram between two columns
-//  of an input vtkTable in parallel.
-//
-// .SECTION Description
-//  This class does exactly the same this as vtkExtractHistogram2D,
-//  but does it in a multi-process environment.  After each node
-//  computes their own local histograms, this class does an AllReduce
-//  that distributes the sum of all local histograms onto each node.
-//
-// .SECTION See Also
-//  vtkExtractHistogram2D
-//
-// .SECTION Thanks
-//  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
-//------------------------------------------------------------------------------
+/**
+ * @class   vtkPExtractHistogram2D
+ * @brief   compute a 2D histogram between two columns
+ *  of an input vtkTable in parallel.
+ *
+ *
+ *  This class does exactly the same this as vtkExtractHistogram2D,
+ *  but does it in a multi-process environment.  After each node
+ *  computes their own local histograms, this class does an AllReduce
+ *  that distributes the sum of all local histograms onto each node.
+ *
+ * @sa
+ *  vtkExtractHistogram2D
+ *
+ * @par Thanks:
+ *  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
+ *------------------------------------------------------------------------------
+*/
+
 #ifndef vtkPExtractHistogram2D_h
 #define vtkPExtractHistogram2D_h
 
@@ -46,27 +50,27 @@ class VTKFILTERSPARALLELIMAGING_EXPORT vtkPExtractHistogram2D : public vtkExtrac
 public:
   static vtkPExtractHistogram2D* New();
   vtkTypeMacro(vtkPExtractHistogram2D, vtkExtractHistogram2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
 
 protected:
   vtkPExtractHistogram2D();
-  ~vtkPExtractHistogram2D();
+  ~vtkPExtractHistogram2D() override;
 
   vtkMultiProcessController* Controller;
 
-  virtual int ComputeBinExtents(vtkDataArray* col1, vtkDataArray* col2);
+  int ComputeBinExtents(vtkDataArray* col1, vtkDataArray* col2) override;
 
   // Execute the calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
+  void Learn( vtkTable* inData,
                       vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+                      vtkMultiBlockDataSet* outMeta ) override;
 
 private:
-  vtkPExtractHistogram2D(const vtkPExtractHistogram2D&); // Not implemented
-  void operator=(const vtkPExtractHistogram2D&);   // Not implemented
+  vtkPExtractHistogram2D(const vtkPExtractHistogram2D&) = delete;
+  void operator=(const vtkPExtractHistogram2D&) = delete;
 };
 
 #endif

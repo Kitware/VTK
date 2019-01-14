@@ -42,42 +42,44 @@ public:
   static vtkProgressObserver* New()
     { return new vtkProgressObserver(); }
 
-  virtual void Execute(vtkObject *, unsigned long eventId,
-    void *callData)
-    {
+  void Execute(vtkObject *, unsigned long eventId,
+    void *callData) override
+  {
     if (eventId == vtkCommand::ProgressEvent)
-      {
+    {
       double progress = *reinterpret_cast<double*>(callData);
       progress = this->Offset + this->Scale * progress;
       if (this->Target)
-        {
+      {
         this->Target->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-        }
       }
     }
+  }
 
   void SetTarget(vtkObject* t)
-    {
+  {
     this->Target = t;
-    }
+  }
 
   double Offset;
   double Scale;
 
 private:
   vtkProgressObserver()
-    {
-    this->Target = 0;
+  {
+    this->Target = nullptr;
     this->Offset = 0.0;
     this->Scale = 1.0;
-    }
+  }
   vtkObject* Target;
 };
 
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageSource::vtkGeoAlignedImageSource()
 {
-  this->Image = 0;
+  VTK_LEGACY_BODY(vtkGeoAlignedImageSource::vtkGeoAlignedImageSource,
+                  "VTK 8.2");
+  this->Image = nullptr;
   this->LevelImages = vtkMultiBlockDataSet::New();
   this->LatitudeRange[0] = -90;
   this->LatitudeRange[1] = 90;
@@ -92,12 +94,12 @@ vtkGeoAlignedImageSource::vtkGeoAlignedImageSource()
 //-----------------------------------------------------------------------------
 vtkGeoAlignedImageSource::~vtkGeoAlignedImageSource()
 {
-  this->SetImage(0);
+  this->SetImage(nullptr);
   this->LevelImages->Delete();
 
-  this->ProgressObserver->SetTarget(0);
+  this->ProgressObserver->SetTarget(nullptr);
   this->ProgressObserver->Delete();
-  this->ProgressObserver = 0;
+  this->ProgressObserver = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -106,9 +108,9 @@ void vtkGeoAlignedImageSource::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Image: " << (this->Image ? "" : "(null)") << endl;
   if (this->Image)
-    {
+  {
     this->Image->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "LatitudeRange: " << this->LatitudeRange[0] << "," << this->LatitudeRange[1] << endl;
   os << indent << "LongitudeRange: " << this->LongitudeRange[0] << "," << this->LongitudeRange[1] << endl;
   os << indent << "PowerOfTwoSize: " << (this->PowerOfTwoSize ? "On" : "Off") << endl;
@@ -118,12 +120,12 @@ void vtkGeoAlignedImageSource::PrintSelf(ostream& os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
 {
-  vtkGeoImageNode* root = 0;
+  vtkGeoImageNode* root = nullptr;
   if (!(root = vtkGeoImageNode::SafeDownCast(r)))
-    {
+  {
     vtkErrorMacro(<< "Node must be an image node for this source.");
     return false;
-    }
+  }
   int imageDims[3];
   this->Image->GetDimensions(imageDims);
 
@@ -139,13 +141,13 @@ bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
   // can report progress correctly.
   int numLevels = 0;
   while (imageDims[0] > 300 || imageDims[1] > 300)
-    {
+  {
     imageDims[0] = static_cast<int>(floor(imageDims[0] /
         static_cast<double>(shrink->GetShrinkFactors()[0])));
     imageDims[1] = static_cast<int>(floor(imageDims[1] /
         static_cast<double>(shrink->GetShrinkFactors()[1])));
     numLevels++;
-    }
+  }
   this->Image->GetDimensions(imageDims);
 
   // Nothing says that the images cannot overlap and be larger than
@@ -166,7 +168,7 @@ bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
   vtkSmartPointer<vtkMultiBlockDataSet> tempBlocks = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   tempBlocks->SetBlock(0, fullImage);
   for (unsigned int curIter=0; imageDims[0] > 300 || imageDims[1] > 300; ++curIter)
-    {
+  {
     this->ProgressObserver->Offset = curIter * 1.0/numLevels;
     this->ProgressObserver->Scale = 1.0/numLevels;
 
@@ -174,7 +176,7 @@ bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
     shrink->SetInputData(image);
     shrink->Update();
     image->ShallowCopy(shrink->GetOutput());
-    shrink->SetInputData(0);
+    shrink->SetInputData(nullptr);
     image->GetDimensions(imageDims);
 
     // Store the image for the level.
@@ -183,14 +185,14 @@ bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
     block->SetOrigin(-180, -90, 0);
     block->SetSpacing(180, 90, 0);
     tempBlocks->SetBlock(curIter+1, block);
-    }
+  }
 
   // Reverse the coarsened images so they are in order by level.
   for (unsigned int block = 0; block < tempBlocks->GetNumberOfBlocks(); ++block)
-    {
+  {
     this->LevelImages->SetBlock(tempBlocks->GetNumberOfBlocks() - 1 - block,
       tempBlocks->GetBlock(block));
-    }
+  }
   vtkSmartPointer<vtkTexture> texture = vtkSmartPointer<vtkTexture>::New();
   texture->SetInputData(this->LevelImages->GetBlock(0));
   vtkSmartPointer<vtkTransform> texTrans = vtkSmartPointer<vtkTransform>::New();
@@ -215,25 +217,25 @@ bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
 //------------------------------------------------------------------------------
 bool vtkGeoAlignedImageSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTreeNode* c)
 {
-  vtkGeoImageNode* parent = 0;
+  vtkGeoImageNode* parent = nullptr;
   if (!(parent = vtkGeoImageNode::SafeDownCast(p)))
-    {
+  {
     vtkErrorMacro(<< "Node must be an image node for this source.");
     return false;
-    }
-  vtkGeoImageNode* child = 0;
+  }
+  vtkGeoImageNode* child = nullptr;
   if (!(child = vtkGeoImageNode::SafeDownCast(c)))
-    {
+  {
     vtkErrorMacro(<< "Node must be an image node for this source.");
     return false;
-    }
+  }
   int level = parent->GetLevel() + 1;
   unsigned int blockLevel = level + 1;
   if (blockLevel >= this->LevelImages->GetNumberOfBlocks())
-    {
+  {
     vtkDebugMacro(<< "Reached max number of blocks (" << this->LevelImages->GetNumberOfBlocks() << ")");
     return false;
-    }
+  }
 
   double lonRange[2];
   double latRange[2];
@@ -245,38 +247,38 @@ bool vtkGeoAlignedImageSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTr
 
   child->SetLevel(level);
   if (index / 2)
-    {
+  {
     child->SetLatitudeRange(center[1], latRange[1]);
-    }
+  }
   else
-    {
+  {
     child->SetLatitudeRange(latRange[0], center[1]);
-    }
+  }
   if (index % 2)
-    {
+  {
     child->SetLongitudeRange(center[0], lonRange[1]);
-    }
+  }
   else
-    {
+  {
     child->SetLongitudeRange(lonRange[0], center[0]);
-    }
+  }
 
   int id = 0;
   if (level == 0)
-    {
+  {
     // Special case: in the first level, the western hemisphere has id 0, and
     // the eastern hemisphere has id 1. This is to be compatible with the old
     // tile database format.
     if (index == 2)
-      {
+    {
       id = 0;
-      }
+    }
     else if (index == 3)
-      {
+    {
       id = 1;
-      }
+    }
     else if (index == 0)
-      {
+    {
       vtkSmartPointer<vtkImageData> dummyImageWest = vtkSmartPointer<vtkImageData>::New();
       dummyImageWest->SetOrigin(-180.0, -270.0, 0.0);
       dummyImageWest->SetSpacing(0.0, -90.0, 0.0);
@@ -285,9 +287,9 @@ bool vtkGeoAlignedImageSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTr
       child->SetLongitudeRange(-180, 0);
       child->SetId(2);
       return true;
-      }
+    }
     else if (index == 1)
-      {
+    {
       vtkSmartPointer<vtkImageData> dummyImageEast = vtkSmartPointer<vtkImageData>::New();
       dummyImageEast->SetOrigin(0.0, -270.0, 0.0);
       dummyImageEast->SetSpacing(180.0, -90.0, 0.0);
@@ -296,12 +298,12 @@ bool vtkGeoAlignedImageSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTr
       child->SetLongitudeRange(0, 180);
       child->SetId(3);
       return true;
-      }
     }
+  }
   else
-    {
+  {
     id = parent->GetId() | (index << (2*level - 1));
-    }
+  }
   child->SetId(id);
 
   // Crop and save the image.
@@ -338,36 +340,36 @@ void vtkGeoAlignedImageSource::CropImageForNode(vtkGeoImageNode* node, vtkImageD
 
   int dims[2];
   if (this->PowerOfTwoSize)
-    {
+  {
     dims[0] = this->PowerOfTwo(ext[1]-ext[0]+1);
     dims[1] = this->PowerOfTwo(ext[3]-ext[2]+1);
     ext[1] = ext[0] + dims[0] - 1;
     ext[3] = ext[2] + dims[1] - 1;
-    }
+  }
   else
-    {
+  {
     dims[0] = ext[1]-ext[0]+1;
     dims[1] = ext[3]-ext[2]+1;
-    }
+  }
 
   if (ext[1] > wholeExt[1])
-    {
+  {
     ext[1] = wholeExt[1];
-    }
+  }
   if (ext[3] > wholeExt[3])
-    {
+  {
     ext[3] = wholeExt[3];
-    }
+  }
   ext[0] = ext[1] - dims[0] + 1;
   ext[2] = ext[3] - dims[1] + 1;
   if (ext[0] < wholeExt[0])
-    {
+  {
     ext[0] = wholeExt[0];
-    }
+  }
   if (ext[2] < wholeExt[2])
-    {
+  {
     ext[2] = wholeExt[2];
-    }
+  }
 
   vtkSmartPointer<vtkImageData> cropped = vtkSmartPointer<vtkImageData>::New();
   cropped->ShallowCopy(image);
@@ -410,19 +412,18 @@ int vtkGeoAlignedImageSource::PowerOfTwo(int val)
   bool nextHigherFlag = false;
   tmp = 1;
   while (val)
-    {
+  {
     if ((val & 1) && val > 1)
-      {
+    {
       nextHigherFlag = true;
-      }
+    }
     val = val >> 1;
     tmp = tmp << 1;
-    }
+  }
 
   if ( ! nextHigherFlag)
-    {
+  {
     tmp = tmp >> 1;
-    }
+  }
   return tmp;
 }
-

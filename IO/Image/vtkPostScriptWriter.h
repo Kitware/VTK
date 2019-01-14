@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPostScriptWriter - Writes an image as a PostScript file.
-// .SECTION Description
-// vtkPostScriptWriter writes an image as a PostScript file using some
-// reasonable scalings and centered on the page which is assumed to be
-// about 8.5 by 11 inches. This is based loosely off of the code from
-// pnmtops.c. Right now there aren't any real options.
-
+/**
+ * @class   vtkPostScriptWriter
+ * @brief   Writes an image as a PostScript file.
+ *
+ * vtkPostScriptWriter writes an image as a PostScript file using some
+ * reasonable scalings and centered on the page which is assumed to be
+ * about 8.5 by 11 inches. This is based loosely off of the code from
+ * pnmtops.c. Right now there aren't any real options.
+*/
 
 #ifndef vtkPostScriptWriter_h
 #define vtkPostScriptWriter_h
@@ -31,19 +33,19 @@ class VTKIOIMAGE_EXPORT vtkPostScriptWriter : public vtkImageWriter
 public:
   static vtkPostScriptWriter *New();
   vtkTypeMacro(vtkPostScriptWriter,vtkImageWriter);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPostScriptWriter() {}
-  ~vtkPostScriptWriter() {}
+  ~vtkPostScriptWriter() override {}
 
-  virtual void WriteFile(
-    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]);
-  virtual void WriteFileTrailer(ofstream *, vtkImageData *);
+  void WriteFile(
+    ostream *file, vtkImageData *data, int extent[6], int wExt[6]) override;
+  void WriteFileHeader(ostream *, vtkImageData *, int wExt[6]) override;
+  void WriteFileTrailer(ostream *, vtkImageData *) override;
 private:
-  vtkPostScriptWriter(const vtkPostScriptWriter&);  // Not implemented.
-  void operator=(const vtkPostScriptWriter&);  // Not implemented.
+  vtkPostScriptWriter(const vtkPostScriptWriter&) = delete;
+  void operator=(const vtkPostScriptWriter&) = delete;
 };
 
 #endif

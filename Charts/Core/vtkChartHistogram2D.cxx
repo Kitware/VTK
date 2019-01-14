@@ -48,9 +48,7 @@ vtkChartHistogram2D::vtkChartHistogram2D()
 }
 
 //-----------------------------------------------------------------------------
-vtkChartHistogram2D::~vtkChartHistogram2D()
-{
-}
+vtkChartHistogram2D::~vtkChartHistogram2D() = default;
 
 //-----------------------------------------------------------------------------
 void vtkChartHistogram2D::Update()
@@ -72,9 +70,9 @@ void vtkChartHistogram2D::SetTransferFunction(vtkScalarsToColors *function)
   this->Histogram->SetTransferFunction(function);
   vtkColorLegend *legend = vtkColorLegend::SafeDownCast(this->Legend);
   if (legend)
-    {
+  {
     legend->SetTransferFunction(function);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -83,11 +81,11 @@ bool vtkChartHistogram2D::UpdateLayout(vtkContext2D *painter)
   this->vtkChartXY::UpdateLayout(painter);
   vtkColorLegend *legend = vtkColorLegend::SafeDownCast(this->Legend);
   if (legend)
-    {
+  {
     legend->SetPosition(vtkRectf(this->Point2[0] + 5, this->Point1[1],
                                  this->Legend->GetSymbolWidth(),
                                  this->Point2[1] - this->Point1[1]));
-    }
+  }
   this->Legend->Update();
   return true;
 }
@@ -100,24 +98,24 @@ bool vtkChartHistogram2D::Hit(const vtkContextMouseEvent &mouse)
       pos[0] < this->Point2[0] + 10 &&
       pos[1] > this->Point1[1] &&
       pos[1] < this->Point2[1])
-    {
+  {
     return true;
-    }
+  }
   else
-    {
+  {
     return false;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 vtkPlot* vtkChartHistogram2D::GetPlot(vtkIdType index)
 {
   if (index == 0)
-    {
+  {
     return this->Histogram;
-    }
+  }
 
-  return 0;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------

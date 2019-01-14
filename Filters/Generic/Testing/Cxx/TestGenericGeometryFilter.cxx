@@ -70,10 +70,6 @@ int TestGenericGeometryFilter(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadTet2.vtu");
-// char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Test2_Volume.vtu");
-// char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadQuad01.vtu");
 
   reader->SetFileName( cfname );
   delete[] cfname;
@@ -116,7 +112,7 @@ int TestGenericGeometryFilter(int argc, char* argv[])
 
   geom->Update(); //So that we can call GetRange() on the scalars
 
-  assert(geom->GetOutput()!=0);
+  assert(geom->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut = vtkLookupTable::New();
@@ -126,14 +122,14 @@ int TestGenericGeometryFilter(int argc, char* argv[])
   mapper->SetLookupTable(lut);
   mapper->SetInputConnection( geom->GetOutputPort() );
 
-  if(geom->GetOutput()->GetPointData()!=0)
+  if(geom->GetOutput()->GetPointData()!=nullptr)
+  {
+    if(geom->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
-    if(geom->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
       mapper->SetScalarRange( geom->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -155,9 +151,9 @@ int TestGenericGeometryFilter(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

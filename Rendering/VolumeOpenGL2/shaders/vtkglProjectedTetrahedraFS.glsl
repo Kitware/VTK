@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -13,13 +15,11 @@
 
 =========================================================================*/
 
-// The following line handle system declarations such a
-// default precisions, or defining precisions to null
-//VTK::System::Dec
+//VTK::Output::Dec
 
-varying vec3 fcolor;
-varying float fdepth;
-varying float fattenuation;
+in vec3 fcolor;
+in float fdepth;
+in float fattenuation;
 
 void main()
 {
@@ -30,9 +30,9 @@ void main()
   float opacity = 1.0 - exp(-1.0*fattenuation*fdepth);
 
 
-  gl_FragColor =  vec4(opacity*fcolor,opacity);
+  gl_FragData[0] =  vec4(fcolor,opacity);
 
-  if (gl_FragColor.a <= 0.0)
+  if (gl_FragData[0].a <= 0.0)
     {
     discard;
     }

@@ -23,8 +23,8 @@
  * This file contains extra utilities for parsing and wrapping.
  */
 
-#ifndef VTK_PARSE_EXTRAS_H
-#define VTK_PARSE_EXTRAS_H
+#ifndef vtkParseExtras_h
+#define vtkParseExtras_h
 
 #include "vtkParseData.h"
 #include <stddef.h>
@@ -60,7 +60,7 @@ size_t vtkParse_NameLength(const char *text);
 
 /**
  * Skip over a name, including any template arguments, but stopping
- * if a '::' is encoutered.  Return the number of characters.
+ * if a '::' is encountered.  Return the number of characters.
  * Examples are "name" and "name<arg>"
  */
 size_t vtkParse_UnscopedNameLength(const char *text);
@@ -211,12 +211,12 @@ void vtkParse_IntantiateFunctionTemplate(
 /**
  * Get a zero-terminated array of the types in vtkTemplateMacro.
  */
-const char **vtkParse_GetTemplateMacroTypes();
+const char **vtkParse_GetTemplateMacroTypes(void);
 
 /**
  * Get a zero-terminated array of the types in vtkArray.
  */
-const char **vtkParse_GetArrayTypes();
+const char **vtkParse_GetArrayTypes(void);
 
 
 #ifdef __cplusplus
@@ -224,3 +224,4 @@ const char **vtkParse_GetArrayTypes();
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseExtras.h */

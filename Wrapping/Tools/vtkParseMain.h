@@ -40,8 +40,8 @@
     "@file" will be passed as as a command-line parameter.
 */
 
-#ifndef VTK_PARSE_MAIN_H
-#define VTK_PARSE_MAIN_H
+#ifndef vtkParseMain_h
+#define vtkParseMain_h
 
 #include "vtkParseData.h"
 #include <stdio.h>
@@ -51,12 +51,15 @@
  */
 typedef struct _OptionInfo
 {
-  int           NumberOfFiles;     /* the total number of file arguments */
-  char        **Files;             /* all of the file arguments */
-  char         *InputFileName;     /* the first file argument */
-  char         *OutputFileName;    /* the second file, or the "-o" file */
-  char         *HintFileName;      /* the file preceded by "--hints" */
-  char         *HierarchyFileName; /* the file preceded by "--types" */
+  int           NumberOfFiles;      /* the total number of file arguments */
+  char        **Files;              /* all of the file arguments */
+  char         *InputFileName;      /* the first file argument */
+  char         *OutputFileName;     /* the second file, or the "-o" file */
+  int           NumberOfHintFileNames; /* the total number of hints arguments */
+  char        **HintFileNames;      /* all of the hints arguments */
+  char         *HierarchyFileName;  /* the file preceded by "--types" XXX DEPRECATED */
+  int           NumberOfHierarchyFileNames; /* the total number of types argument */
+  char        **HierarchyFileNames; /* the file preceded by "--types" */
 } OptionInfo;
 
 #ifdef __cplusplus
@@ -66,7 +69,7 @@ extern "C" {
 /**
  * Return the options provided on the command line
  */
-OptionInfo *vtkParse_GetCommandLineOptions();
+OptionInfo *vtkParse_GetCommandLineOptions(void);
 
 /**
  * The main function, parses the file and returns the result.
@@ -77,10 +80,11 @@ FileInfo *vtkParse_Main(int argc, char *argv[]);
  * A main function that can take multiple input files.
  * It does not parse the files.  It will exit on error.
  */
-void vtkParse_MainMulti(int argc, char *argv[]);
+StringCache *vtkParse_MainMulti(int argc, char *argv[]);
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseMain.h */

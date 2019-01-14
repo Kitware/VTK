@@ -39,9 +39,9 @@ int vtkPLinearExtrusionFilter::RequestData(
 {
   if (!this->vtkLinearExtrusionFilter::RequestData(request,
                                                    inputVector, outputVector))
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -63,15 +63,15 @@ int vtkPLinearExtrusionFilter::RequestUpdateExtent(
   int ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   if (this->PieceInvariant)
-    {
+  {
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
                 ghostLevel + 1);
-    }
+  }
   else
-    {
+  {
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
                 ghostLevel);
-    }
+  }
 
   return 1;
 }

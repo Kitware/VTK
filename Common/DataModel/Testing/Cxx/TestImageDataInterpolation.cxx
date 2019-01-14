@@ -74,14 +74,14 @@ inline double F( const double x, const double y, const double z )
 inline vtkImageData* GetGrid( int dims[3], double origin[3], double h[3] )
 {
   vtkImageData *image = vtkImageData::New();
-  assert( "pre: image data is NULL!" && (image != NULL) );
+  assert( "pre: image data is nullptr!" && (image != nullptr) );
 
   image->SetDimensions( dims );
   image->SetOrigin( origin );
   image->SetSpacing( h );
 
   vtkPointData *PD = image->GetPointData();
-  assert( "pre: point-data is NULL" && (PD != NULL) );
+  assert( "pre: point-data is nullptr" && (PD != nullptr) );
 
   vtkDoubleArray *dataArray = vtkDoubleArray::New();
   dataArray->SetName( "Fx" );
@@ -90,11 +90,11 @@ inline vtkImageData* GetGrid( int dims[3], double origin[3], double h[3] )
 
   vtkIdType idx = 0;
   for( ; idx < image->GetNumberOfPoints(); ++idx )
-    {
+  {
     double pnt[3];
     image->GetPoint(idx, pnt);
     dataArray->SetComponent( idx, 0, F(pnt[0],pnt[1],pnt[2]) );
-    } // END for all points
+  } // END for all points
 
   PD->AddArray( dataArray );
   dataArray->Delete();
@@ -114,10 +114,10 @@ inline vtkPoints* GetReceivePoints(
 
   vtkIdType cellIdx = 0;
   for( ; cellIdx < img->GetNumberOfCells(); ++cellIdx  )
-    {
+  {
     // Get cell
     vtkCell *myCell = img->GetCell( cellIdx  );
-    assert( "pre: myCell != NULL" && (myCell != NULL) );
+    assert( "pre: myCell != nullptr" && (myCell != nullptr) );
 
     // Compute center
     double c[3];
@@ -130,7 +130,7 @@ inline vtkPoints* GetReceivePoints(
     // Insert center to point list
     donorCellList->SetId( cellIdx, cellIdx );
     rcvPoints->SetPoint( cellIdx, c );
-    } // END for all cells
+  } // END for all cells
 
   return( rcvPoints );
 }
@@ -140,26 +140,26 @@ inline vtkPoints* GetReceivePoints(
 // method returns the interpolated value at the corresponding point location.
 inline double InterpolateValue(vtkImageData *img, vtkCell *c, double* w)
 {
-  assert( "pre: image is NULL!" && (img != NULL) );
-  assert( "pre: donor cell is NULL" && (c != NULL) );
-  assert( "pre: weights is NULL" && (w != NULL) );
+  assert( "pre: image is nullptr!" && (img != nullptr) );
+  assert( "pre: donor cell is nullptr" && (c != nullptr) );
+  assert( "pre: weights is nullptr" && (w != nullptr) );
 
   vtkPointData *PD = img->GetPointData();
-  assert( "pre: point data is NULL" && (PD != NULL) );
+  assert( "pre: point data is nullptr" && (PD != nullptr) );
   vtkDataArray *dataArray = PD->GetArray( "Fx" );
-  assert( "pre: data array is NULL" && (dataArray != NULL) );
+  assert( "pre: data array is nullptr" && (dataArray != nullptr) );
 
   std::cout << "W:[";
   std::cout.flush();
   double val         = 0.0;
   vtkIdType numNodes = c->GetNumberOfPoints();
   for( vtkIdType nodeIdx=0; nodeIdx < numNodes; ++nodeIdx )
-    {
+  {
     std::cout << w[ nodeIdx ] << " ";
     std::cout.flush();
     vtkIdType meshNodeIdx = c->GetPointId( nodeIdx );
     val += w[nodeIdx]*dataArray->GetComponent( meshNodeIdx, 0 );
-    } // END for all cells nodes
+  } // END for all cells nodes
   std::cout << "]\n";
   std::cout.flush();
   return( val );
@@ -170,7 +170,7 @@ inline double InterpolateValue(vtkImageData *img, vtkCell *c, double* w)
 inline int TestInterpolation( int dims[3], double origin[3], double h[3] )
 {
   vtkImageData *grid = GetGrid( dims, origin, h );
-  assert( "pre: grid is NULL" && (grid != NULL) );
+  assert( "pre: grid is nullptr" && (grid != nullptr) );
 
   std::cout << "NUMBER OF CELLS:  " << grid->GetNumberOfCells() << std::endl;
   std::cout.flush();
@@ -187,20 +187,20 @@ inline int TestInterpolation( int dims[3], double origin[3], double h[3] )
 
   vtkIdType idx = 0;
   for( ; idx < pnts->GetNumberOfPoints(); ++idx )
-    {
+  {
     pnts->GetPoint( idx, x );
     vtkIdType cellIdx =
-     grid->FindCell(x,NULL,0,0.0,subId,pcoords,weights);
+     grid->FindCell(x,nullptr,0,0.0,subId,pcoords,weights);
 
     if( cellIdx < 0 )
-      {
+    {
       std::cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2];
       std::cerr << ") is out-of-bounds!\n";
       return 1;
-      }
+    }
 
     vtkCell *donorCell = grid->GetCell( cellIdx );
-    assert( "pre: donor cell is NULL" && (donorCell != NULL));
+    assert( "pre: donor cell is nullptr" && (donorCell != nullptr));
 
     std::cout << "N:  [" << pcoords[0] << " ";
     std::cout << pcoords[1] << " " << pcoords[2] << "]\n";
@@ -210,15 +210,15 @@ inline int TestInterpolation( int dims[3], double origin[3], double h[3] )
     double fExpected = F( x[0],x[1],x[2] );
 
     if( !eq( f, fExpected ) )
-      {
+    {
       std::cout << "INTERPOLATION ERROR: ";
       std::cout << "f_expeted=" << fExpected << " ";
       std::cout << "f_interp=" << f << std::endl;
       std::cout.flush();
       ++ interpErrors;
-      }
+    }
 
-    } // END for all points
+  } // END for all points
 
   grid->Delete();
   donors->Delete();
@@ -253,7 +253,7 @@ int TestImageDataInterpolation(int, char *[])
 
   int testStatus = 0;
   for( int i=0; i < 4; ++i )
-    {
+  {
     std::cout << "Testing " << TestName[ i ] << "...\n";
     std::cout.flush();
     int rc = 0;
@@ -263,17 +263,17 @@ int TestImageDataInterpolation(int, char *[])
     std::cout.flush();
 
     if( rc != 0 )
-      {
+    {
       std::cout << rc << " failures detected!\n";
       std::cout << "TEST FAILED!\n\n";
       std::cout.flush();
-      }
+    }
     else
-      {
+    {
       std::cout << "TEST PASSED!\n";
       std::cout << std::endl;
-      }
-    } // END for all tests
+    }
+  } // END for all tests
 
   return( testStatus );
 

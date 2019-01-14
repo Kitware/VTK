@@ -1,0 +1,16 @@
+NAME
+  VTK::IOEnSight
+LIBRARY_NAME
+  vtkIOEnSight
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+TEST_DEPENDS
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

@@ -29,7 +29,6 @@
 #include <map> // used for cache storage
 #include <list> // use for LRU ordering
 
-//BTX
 class VTKIOEXODUS_EXPORT vtkExodusIICacheKey
 {
 public:
@@ -38,36 +37,36 @@ public:
   int ObjectId;
   int ArrayId;
   vtkExodusIICacheKey()
-    {
+  {
     Time = -1;
     ObjectType = -1;
     ObjectId = -1;
     ArrayId = -1;
-    }
+  }
   vtkExodusIICacheKey( int time, int objType, int objId, int arrId )
-    {
+  {
     Time = time;
     ObjectType = objType;
     ObjectId = objId;
     ArrayId = arrId;
-    }
+  }
   vtkExodusIICacheKey( const vtkExodusIICacheKey& src )
-    {
+  {
     Time = src.Time;
     ObjectType = src.ObjectType;
     ObjectId = src.ObjectId;
     ArrayId = src.ArrayId;
-    }
+  }
   vtkExodusIICacheKey& operator = ( const vtkExodusIICacheKey& src )
-    {
+  {
     Time = src.Time;
     ObjectType = src.ObjectType;
     ObjectId = src.ObjectId;
     ArrayId = src.ArrayId;
     return *this;
-    }
+  }
   bool match( const vtkExodusIICacheKey&other, const vtkExodusIICacheKey& pattern ) const
-    {
+  {
     if ( pattern.Time && this->Time != other.Time )
       return false;
     if ( pattern.ObjectType && this->ObjectType != other.ObjectType )
@@ -77,9 +76,9 @@ public:
     if ( pattern.ArrayId && this->ArrayId != other.ArrayId )
       return false;
     return true;
-    }
+  }
   bool operator < ( const vtkExodusIICacheKey& other ) const
-    {
+  {
     if ( this->Time < other.Time )
       return true;
     else if ( this->Time > other.Time )
@@ -95,7 +94,7 @@ public:
     if ( this->ArrayId < other.ArrayId )
       return true;
     return false;
-    }
+  }
 };
 
 class vtkExodusIICacheEntry;
@@ -124,14 +123,13 @@ protected:
 
   friend class vtkExodusIICache;
 };
-//ETX
 
 class VTKIOEXODUS_EXPORT vtkExodusIICache : public vtkObject
 {
 public:
   static vtkExodusIICache* New();
   vtkTypeMacro(vtkExodusIICache,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /// Empty the cache
   void Clear();
@@ -151,20 +149,19 @@ public:
     */
   int ReduceToSize( double newSize );
 
-  //BTX
   /// Insert an entry into the cache (this can remove other cache entries to make space).
   void Insert( vtkExodusIICacheKey& key, vtkDataArray* value );
 
-  /** Determine whether a cache entry exists. If it does, return it -- otherwise return NULL.
+  /** Determine whether a cache entry exists. If it does, return it -- otherwise return nullptr.
     * If a cache entry exists, it is marked as most recently used.
     */
-  vtkDataArray*& Find( vtkExodusIICacheKey );
+  vtkDataArray*& Find( const vtkExodusIICacheKey& );
 
   /** Invalidate a cache entry (drop it from the cache) if the key exists.
     * This does nothing if the cache entry does not exist.
     * Returns 1 if the cache entry existed prior to this call and 0 otherwise.
     */
-  int Invalidate( vtkExodusIICacheKey key );
+  int Invalidate( const vtkExodusIICacheKey& key );
 
   /** Invalidate all cache entries matching a specified pattern, dropping all matches from the cache.
     * Any nonzero entry in the \a pattern forces a comparison between the corresponding value of \a key.
@@ -175,15 +172,14 @@ public:
     * Returns the number of cache entries dropped.
     * It is not an error to specify an empty range -- 0 will be returned if one is given.
     */
-  int Invalidate( vtkExodusIICacheKey key, vtkExodusIICacheKey pattern );
-  //ETX
+  int Invalidate( const vtkExodusIICacheKey& key, const vtkExodusIICacheKey& pattern );
 
 protected:
   /// Default constructor
   vtkExodusIICache();
 
   /// Destructor.
-  ~vtkExodusIICache();
+  ~vtkExodusIICache() override;
 
 
   /// Avoid (some) FP problems
@@ -195,7 +191,6 @@ protected:
   /// The current size of the cache (i.e., the size of the all the arrays it currently contains) in MiB.
   double Size;
 
-  //BTX
   /** A least-recently-used (LRU) cache to hold arrays.
     * During RequestData the cache may contain more than its maximum size since
     * the user may request more data than the cache can hold. However, the cache
@@ -206,10 +201,9 @@ protected:
 
   /// The actual LRU list (indices into the cache ordered least to most recently used).
   vtkExodusIICacheLRU LRU;
-  //ETX
 
 private:
-  vtkExodusIICache( const vtkExodusIICache& ); // Not implemented
-  void operator = ( const vtkExodusIICache& ); // Not implemented
+  vtkExodusIICache( const vtkExodusIICache& ) = delete;
+  void operator = ( const vtkExodusIICache& ) = delete;
 };
 #endif // vtkExodusIICache_h

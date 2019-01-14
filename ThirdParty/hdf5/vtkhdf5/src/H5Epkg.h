@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -21,7 +19,7 @@
  *		the H5E package.  Source files outside the H5E package should
  *		include H5Eprivate.h instead.
  */
-#ifndef H5E_PACKAGE
+#if !(defined H5E_FRIEND || defined H5E_MODULE)
 #error "Do not include this file outside the H5E package!"
 #endif
 
@@ -136,6 +134,8 @@ H5_DLL herr_t H5E__term_deprec_interface(void);
 #ifdef H5_HAVE_THREADSAFE
 H5_DLL H5E_t *H5E_get_stack(void);
 #endif /* H5_HAVE_THREADSAFE */
+H5_DLL herr_t H5E__push_stack(H5E_t *estack, const char *file, const char *func,
+    unsigned line, hid_t cls_id, hid_t maj_id, hid_t min_id, const char *desc);
 H5_DLL ssize_t H5E_get_msg(const H5E_msg_t *msg_ptr, H5E_type_t *type,
     char *msg, size_t size);
 H5_DLL herr_t H5E_print(const H5E_t *estack, FILE *stream, hbool_t bk_compat);

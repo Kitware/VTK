@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -86,4 +85,4 @@ try:
 #    iren.Start()
 
 except IOError:
-    print  "Couldn't open PolyField.vtk for writing."
+    print("Couldn't open PolyField.vtk for writing.")

@@ -31,24 +31,37 @@ void vtkMathTextFreeTypeTextRenderer::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   if (this->FreeTypeTools)
-    {
+  {
     os << indent << "FreeTypeTools:" << endl;
     this->FreeTypeTools->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
-    os << indent << "FreeTypeTools: (NULL)" << endl;
-    }
+  {
+    os << indent << "FreeTypeTools: (nullptr)" << endl;
+  }
 
   if (this->MathTextUtilities)
-    {
+  {
     os << indent << "MathTextUtilities:" << endl;
     this->MathTextUtilities->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
-    os << indent << "MathTextUtilities: (NULL)" << endl;
-    }
+  {
+    os << indent << "MathTextUtilities: (nullptr)" << endl;
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkMathTextFreeTypeTextRenderer::FreeTypeIsSupported()
+{
+  return this->FreeTypeTools != nullptr;
+}
+
+//------------------------------------------------------------------------------
+bool vtkMathTextFreeTypeTextRenderer::MathTextIsSupported()
+{
+  return this->MathTextUtilities != nullptr &&
+         this->MathTextUtilities->IsAvailable();
 }
 
 //------------------------------------------------------------------------------
@@ -57,47 +70,48 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
     int backend)
 {
   if (!bbox || !tprop)
-    {
+  {
     vtkErrorMacro("No bounding box container and/or text property supplied!");
     return false;
-    }
+  }
 
   memset(bbox, 0, 4 * sizeof(int));
   if (str.empty())
-    {
+  {
     return true;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Default)
-    {
+  {
     backend = this->DefaultBackend;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Detect)
-    {
+  {
     backend = static_cast<int>(this->DetectBackend(str));
-    }
+  }
 
   switch (static_cast<Backend>(backend))
-    {
+  {
     case MathText:
-      if (this->HasMathText)
-        {
+      if (this->MathTextIsSupported())
+      {
         if (this->MathTextUtilities->GetBoundingBox(tprop, str.c_str(), dpi,
                                                     bbox))
-          {
+        {
           return true;
-          }
         }
+      }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
-      {
+    {
       vtkStdString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
       // Interpret string as UTF-8, use the UTF-16 GetBoundingBox overload:
       return this->FreeTypeTools->GetBoundingBox(
-            tprop, vtkUnicodeString::from_utf8(cleanString), bbox);
-      }
+            tprop, vtkUnicodeString::from_utf8(cleanString), dpi, bbox);
+    }
     case Default:
     case UserBackend:
     default:
@@ -106,7 +120,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
     case Detect:
       vtkDebugMacro("Unhandled 'Detect' backend requested!");
       break;
-    }
+  }
   return false;
 }
 
@@ -116,46 +130,47 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
     int backend)
 {
   if (!bbox || !tprop)
-    {
+  {
     vtkErrorMacro("No bounding box container and/or text property supplied!");
     return false;
-    }
+  }
 
   memset(bbox, 0, 4 * sizeof(int));
   if (str.empty())
-    {
+  {
     return true;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Default)
-    {
+  {
     backend = this->DefaultBackend;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Detect)
-    {
+  {
     backend = static_cast<int>(this->DetectBackend(str));
-    }
+  }
 
   switch (static_cast<Backend>(backend))
-    {
+  {
     case MathText:
-      if (this->HasMathText)
-        {
+      if (this->MathTextIsSupported())
+      {
         vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
         if (this->MathTextUtilities->GetBoundingBox(tprop, str.utf8_str(), dpi,
                                                     bbox))
-          {
+        {
           return true;
-          }
         }
+      }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
-      {
+    {
       vtkUnicodeString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->GetBoundingBox(tprop, cleanString, bbox);
-      }
+      return this->FreeTypeTools->GetBoundingBox(tprop, cleanString, dpi, bbox);
+    }
     case Default:
     case UserBackend:
     default:
@@ -164,7 +179,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
     case Detect:
       vtkDebugMacro("Unhandled 'Detect' backend requested!");
       break;
-    }
+  }
   return false;
 }
 
@@ -174,47 +189,48 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
     vtkTextRenderer::Metrics &metrics, int dpi, int backend)
 {
   if (!tprop)
-    {
+  {
     vtkErrorMacro("No text property supplied!");
     return false;
-    }
+  }
 
   metrics = Metrics();
   if (str.empty())
-    {
+  {
     return true;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Default)
-    {
+  {
     backend = this->DefaultBackend;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Detect)
-    {
+  {
     backend = static_cast<int>(this->DetectBackend(str));
-    }
+  }
 
   switch (static_cast<Backend>(backend))
-    {
+  {
     case MathText:
-      if (this->HasMathText)
-        {
+      if (this->MathTextIsSupported())
+      {
         if (this->MathTextUtilities->GetMetrics(tprop, str.c_str(), dpi,
                                                 metrics))
-          {
+        {
           return true;
-          }
         }
+      }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
-      {
+    {
       vtkStdString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
       // Interpret string as UTF-8, use the UTF-16 GetBoundingBox overload:
       return this->FreeTypeTools->GetMetrics(
-            tprop, vtkUnicodeString::from_utf8(cleanString), metrics);
-      }
+            tprop, vtkUnicodeString::from_utf8(cleanString), dpi, metrics);
+    }
     case Default:
     case UserBackend:
     default:
@@ -223,7 +239,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
     case Detect:
       vtkDebugMacro("Unhandled 'Detect' backend requested!");
       break;
-    }
+  }
   return false;
 }
 
@@ -233,46 +249,47 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
     vtkTextRenderer::Metrics &metrics, int dpi, int backend)
 {
   if (!tprop)
-    {
+  {
     vtkErrorMacro("No text property supplied!");
     return false;
-    }
+  }
 
   metrics = Metrics();
   if (str.empty())
-    {
+  {
     return true;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Default)
-    {
+  {
     backend = this->DefaultBackend;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Detect)
-    {
+  {
     backend = static_cast<int>(this->DetectBackend(str));
-    }
+  }
 
   switch (static_cast<Backend>(backend))
-    {
+  {
     case MathText:
-      if (this->HasMathText)
-        {
+      if (this->MathTextIsSupported())
+      {
         vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
         if (this->MathTextUtilities->GetMetrics(tprop, str.utf8_str(), dpi,
                                                 metrics))
-          {
+        {
           return true;
-          }
         }
+      }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
-      {
+    {
       vtkUnicodeString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->GetMetrics(tprop, cleanString, metrics);
-      }
+      return this->FreeTypeTools->GetMetrics(tprop, cleanString, dpi, metrics);
+    }
     case Default:
     case UserBackend:
     default:
@@ -281,7 +298,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
     case Detect:
       vtkDebugMacro("Unhandled 'Detect' backend requested!");
       break;
-    }
+  }
   return false;
 }
 
@@ -291,41 +308,43 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
     int textDims[2], int dpi, int backend)
 {
   if (!data || !tprop)
-    {
+  {
     vtkErrorMacro("No image container and/or text property supplied!");
     return false;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Default)
-    {
+  {
     backend = this->DefaultBackend;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Detect)
-    {
+  {
     backend = static_cast<int>(this->DetectBackend(str));
-    }
+  }
 
   switch (static_cast<Backend>(backend))
-    {
+  {
     case MathText:
-      if (this->HasMathText)
-        {
+      if (this->MathTextIsSupported())
+      {
         if (this->MathTextUtilities->RenderString(str.c_str(), data, tprop,
                                                   dpi, textDims))
-          {
+        {
           return true;
-          }
         }
+      }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
-      {
+    {
       vtkStdString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
       // Interpret string as UTF-8, use the UTF-16 RenderString overload:
       return this->FreeTypeTools->RenderString(
-            tprop, vtkUnicodeString::from_utf8(cleanString), data, textDims);
-      }
+            tprop, vtkUnicodeString::from_utf8(cleanString), dpi, data,
+            textDims);
+    }
     case Default:
     case UserBackend:
     default:
@@ -334,7 +353,7 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
     case Detect:
       vtkDebugMacro("Unhandled 'Detect' backend requested!");
       break;
-    }
+  }
   return false;
 }
 
@@ -344,41 +363,42 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
     int textDims[], int dpi, int backend)
 {
   if (!data || !tprop)
-    {
+  {
     vtkErrorMacro("No image container and/or text property supplied!");
     return false;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Default)
-    {
+  {
     backend = this->DefaultBackend;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Detect)
-    {
+  {
     backend = static_cast<int>(this->DetectBackend(str));
-    }
+  }
 
   switch (static_cast<Backend>(backend))
-    {
+  {
     case MathText:
-      if (this->HasMathText)
-        {
+      if (this->MathTextIsSupported())
+      {
         vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
         if (this->MathTextUtilities->RenderString(str.utf8_str(), data, tprop,
                                                   dpi, textDims))
-          {
+        {
           return true;
-          }
         }
+      }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
-      {
+    {
       vtkUnicodeString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->RenderString(tprop, cleanString, data,
+      return this->FreeTypeTools->RenderString(tprop, cleanString, dpi, data,
                                                textDims);
-      }
+    }
     case Default:
     case UserBackend:
     default:
@@ -387,7 +407,7 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
     case Detect:
       vtkDebugMacro("Unhandled 'Detect' backend requested!");
       break;
-    }
+  }
   return false;
 }
 
@@ -397,43 +417,44 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
     int targetHeight, int dpi, int backend)
 {
   if (!tprop)
-    {
+  {
     vtkErrorMacro("No text property supplied!");
     return false;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Default)
-    {
+  {
     backend = this->DefaultBackend;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Detect)
-    {
+  {
     backend = static_cast<int>(this->DetectBackend(str));
-    }
+  }
 
   switch (static_cast<Backend>(backend))
-    {
+  {
     case MathText:
-      if (this->HasMathText)
-        {
+      if (this->MathTextIsSupported())
+      {
         if (this->MathTextUtilities->GetConstrainedFontSize(str.c_str(), tprop,
                                                             targetWidth,
                                                             targetHeight,
                                                             dpi) != -1)
-          {
+        {
           return tprop->GetFontSize();
-          }
         }
+      }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
-      {
+    {
       vtkStdString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
       return this->FreeTypeTools->GetConstrainedFontSize(cleanString, tprop,
-                                                         targetWidth,
+                                                         dpi, targetWidth,
                                                          targetHeight);
-      }
+    }
     case Default:
     case UserBackend:
     default:
@@ -442,7 +463,7 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
     case Detect:
       vtkDebugMacro("Unhandled 'Detect' backend requested!");
       break;
-    }
+  }
   return false;
 }
 
@@ -452,44 +473,45 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
     int targetHeight, int dpi, int backend)
 {
   if (!tprop)
-    {
+  {
     vtkErrorMacro("No text property supplied!");
     return false;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Default)
-    {
+  {
     backend = this->DefaultBackend;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Detect)
-    {
+  {
     backend = static_cast<int>(this->DetectBackend(str));
-    }
+  }
 
   switch (static_cast<Backend>(backend))
-    {
+  {
     case MathText:
-      if (this->HasMathText)
-        {
+      if (this->MathTextIsSupported())
+      {
         vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
         if (this->MathTextUtilities->GetConstrainedFontSize(str.utf8_str(),
                                                             tprop, targetWidth,
                                                             targetHeight,
                                                             dpi) != -1)
-          {
+        {
           return tprop->GetFontSize();
-          }
         }
+      }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
-      {
+    {
       vtkUnicodeString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
       return this->FreeTypeTools->GetConstrainedFontSize(cleanString, tprop,
-                                                         targetWidth,
+                                                         dpi, targetWidth,
                                                          targetHeight);
-      }
+    }
     case Default:
     case UserBackend:
     default:
@@ -498,98 +520,50 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
     case Detect:
       vtkDebugMacro("Unhandled 'Detect' backend requested!");
       break;
-    }
+  }
   return false;
 }
 
 //------------------------------------------------------------------------------
 bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
-    vtkTextProperty *tprop, const vtkStdString &str, vtkPath *path, int backend)
-{
-  if (!path || !tprop)
-    {
-    vtkErrorMacro("No path container and/or text property supplied!");
-    return false;
-    }
-
-  if (static_cast<Backend>(backend) == Default)
-    {
-    backend = this->DefaultBackend;
-    }
-
-  if (static_cast<Backend>(backend) == Detect)
-    {
-    backend = static_cast<int>(this->DetectBackend(str));
-    }
-
-  switch (static_cast<Backend>(backend))
-    {
-    case MathText:
-      if (this->HasMathText)
-        {
-        if (this->MathTextUtilities->StringToPath(str.c_str(), path, tprop))
-          {
-          return true;
-          }
-        }
-      vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
-    case FreeType:
-      {
-      vtkStdString cleanString(str);
-      this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->StringToPath(tprop, str, path);
-      }
-    case Default:
-    case UserBackend:
-    default:
-      vtkDebugMacro("Unrecognized backend requested: " << backend);
-      break;
-    case Detect:
-      vtkDebugMacro("Unhandled 'Detect' backend requested!");
-      break;
-    }
-  return false;
-}
-
-//------------------------------------------------------------------------------
-bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
-    vtkTextProperty *tprop, const vtkUnicodeString &str, vtkPath *path,
+    vtkTextProperty *tprop, const vtkStdString &str, vtkPath *path, int dpi,
     int backend)
 {
   if (!path || !tprop)
-    {
+  {
     vtkErrorMacro("No path container and/or text property supplied!");
     return false;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Default)
-    {
+  {
     backend = this->DefaultBackend;
-    }
+  }
 
   if (static_cast<Backend>(backend) == Detect)
-    {
+  {
     backend = static_cast<int>(this->DetectBackend(str));
-    }
+  }
 
   switch (static_cast<Backend>(backend))
-    {
+  {
     case MathText:
-      if (this->HasMathText)
-        {
-        vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
-        if (this->MathTextUtilities->StringToPath(str.utf8_str(), path, tprop))
-          {
-          return true;
-          }
-        }
-      vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
-    case FreeType:
+      if (this->MathTextIsSupported())
       {
-      vtkUnicodeString cleanString(str);
-      this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->StringToPath(tprop, str, path);
+        if (this->MathTextUtilities->StringToPath(str.c_str(), path, tprop,
+                                                  dpi))
+        {
+          return true;
+        }
       }
+      vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
+    case FreeType:
+    {
+      vtkStdString cleanString(str);
+      this->CleanUpFreeTypeEscapes(cleanString);
+      return this->FreeTypeTools->StringToPath(tprop, str, dpi, path);
+    }
     case Default:
     case UserBackend:
     default:
@@ -598,7 +572,60 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
     case Detect:
       vtkDebugMacro("Unhandled 'Detect' backend requested!");
       break;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
+    vtkTextProperty *tprop, const vtkUnicodeString &str, vtkPath *path, int dpi,
+    int backend)
+{
+  if (!path || !tprop)
+  {
+    vtkErrorMacro("No path container and/or text property supplied!");
+    return false;
+  }
+
+  if (static_cast<Backend>(backend) == Default)
+  {
+    backend = this->DefaultBackend;
+  }
+
+  if (static_cast<Backend>(backend) == Detect)
+  {
+    backend = static_cast<int>(this->DetectBackend(str));
+  }
+
+  switch (static_cast<Backend>(backend))
+  {
+    case MathText:
+      if (this->MathTextIsSupported())
+      {
+        vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
+        if (this->MathTextUtilities->StringToPath(str.utf8_str(), path, tprop,
+                                                  dpi))
+        {
+          return true;
+        }
+      }
+      vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
+    case FreeType:
+    {
+      vtkUnicodeString cleanString(str);
+      this->CleanUpFreeTypeEscapes(cleanString);
+      return this->FreeTypeTools->StringToPath(tprop, str, dpi, path);
     }
+    case Default:
+    case UserBackend:
+    default:
+      vtkDebugMacro("Unrecognized backend requested: " << backend);
+      break;
+    case Detect:
+      vtkDebugMacro("Unhandled 'Detect' backend requested!");
+      break;
+  }
   return false;
 }
 
@@ -606,13 +633,13 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
 void vtkMathTextFreeTypeTextRenderer::SetScaleToPowerOfTwoInternal(bool scale)
 {
   if (this->FreeTypeTools)
-    {
+  {
     this->FreeTypeTools->SetScaleToPowerTwo(scale);
-    }
+  }
   if (this->MathTextUtilities)
-    {
+  {
     this->MathTextUtilities->SetScaleToPowerOfTwo(scale);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -620,12 +647,7 @@ vtkMathTextFreeTypeTextRenderer::vtkMathTextFreeTypeTextRenderer()
 {
   this->FreeTypeTools = vtkFreeTypeTools::GetInstance();
   this->MathTextUtilities = vtkMathTextUtilities::GetInstance();
-
-  this->HasFreeType = (this->FreeTypeTools != NULL);
-  this->HasMathText = (this->MathTextUtilities != NULL);
 }
 
 //------------------------------------------------------------------------------
-vtkMathTextFreeTypeTextRenderer::~vtkMathTextFreeTypeTextRenderer()
-{
-}
+vtkMathTextFreeTypeTextRenderer::~vtkMathTextFreeTypeTextRenderer() = default;

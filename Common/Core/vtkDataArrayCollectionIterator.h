@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataArrayCollectionIterator - iterator through a vtkDataArrayCollection.
-// .SECTION Description
-// vtkDataArrayCollectionIterator provides an implementation of
-// vtkCollectionIterator which allows the items to be retrieved with
-// the proper subclass pointer type for vtkDataArrayCollection.
+/**
+ * @class   vtkDataArrayCollectionIterator
+ * @brief   iterator through a vtkDataArrayCollection.
+ *
+ * vtkDataArrayCollectionIterator provides an implementation of
+ * vtkCollectionIterator which allows the items to be retrieved with
+ * the proper subclass pointer type for vtkDataArrayCollection.
+*/
 
 #ifndef vtkDataArrayCollectionIterator_h
 #define vtkDataArrayCollectionIterator_h
@@ -31,26 +34,30 @@ class VTKCOMMONCORE_EXPORT vtkDataArrayCollectionIterator : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkDataArrayCollectionIterator,vtkCollectionIterator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkDataArrayCollectionIterator* New();
 
-  // Description:
-  // Set the collection over which to iterate.
-  virtual void SetCollection(vtkCollection*);
+  //@{
+  /**
+   * Set the collection over which to iterate.
+   */
+  void SetCollection(vtkCollection*) override;
   void SetCollection(vtkDataArrayCollection*);
+  //@}
 
-  // Description:
-  // Get the item at the current iterator position.  Valid only when
-  // IsDoneWithTraversal() returns 1.
+  /**
+   * Get the item at the current iterator position.  Valid only when
+   * IsDoneWithTraversal() returns 1.
+   */
   vtkDataArray* GetDataArray();
 
 protected:
   vtkDataArrayCollectionIterator();
-  ~vtkDataArrayCollectionIterator();
+  ~vtkDataArrayCollectionIterator() override;
 
 private:
-  vtkDataArrayCollectionIterator(const vtkDataArrayCollectionIterator&); // Not implemented
-  void operator=(const vtkDataArrayCollectionIterator&); // Not implemented
+  vtkDataArrayCollectionIterator(const vtkDataArrayCollectionIterator&) = delete;
+  void operator=(const vtkDataArrayCollectionIterator&) = delete;
 };
 
 #endif

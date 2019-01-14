@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractUnstructuredGridPiece - Return specified piece, including specified
-// number of ghost levels.
+/**
+ * @class   vtkExtractUnstructuredGridPiece
+ * @brief   Return specified piece, including specified
+ * number of ghost levels.
+*/
 
 #ifndef vtkExtractUnstructuredGridPiece_h
 #define vtkExtractUnstructuredGridPiece_h
@@ -29,22 +32,25 @@ class VTKFILTERSPARALLEL_EXPORT vtkExtractUnstructuredGridPiece : public vtkUnst
 public:
   static vtkExtractUnstructuredGridPiece *New();
   vtkTypeMacro(vtkExtractUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Turn on/off creating ghost cells (on by default).
-  vtkSetMacro(CreateGhostCells, int);
-  vtkGetMacro(CreateGhostCells, int);
-  vtkBooleanMacro(CreateGhostCells, int);
+  //@{
+  /**
+   * Turn on/off creating ghost cells (on by default).
+   */
+  vtkSetMacro(CreateGhostCells, vtkTypeBool);
+  vtkGetMacro(CreateGhostCells, vtkTypeBool);
+  vtkBooleanMacro(CreateGhostCells, vtkTypeBool);
+  //@}
 
 protected:
   vtkExtractUnstructuredGridPiece();
-  ~vtkExtractUnstructuredGridPiece() {}
+  ~vtkExtractUnstructuredGridPiece() override {}
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   // A method for labeling which piece the cells belong to.
   void ComputeCellTags(vtkIntArray *cellTags, vtkIdList *pointOwnership,
@@ -52,13 +58,13 @@ protected:
 
   void AddGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags,int ghostLevel);
 
-  int CreateGhostCells;
+  vtkTypeBool CreateGhostCells;
 private:
   void AddFirstGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags,
                          int piece, int numPieces);
 
-  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&);  // Not implemented.
-  void operator=(const vtkExtractUnstructuredGridPiece&);  // Not implemented.
+  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&) = delete;
+  void operator=(const vtkExtractUnstructuredGridPiece&) = delete;
 };
 
 #endif

@@ -73,10 +73,16 @@ bool DoFilesExist(const char*xdmffile, const char*hdf5file, bool deleteIfSo)
 
   bool theyDo = xexists && xlenOK && hexists && hlenOK;
   if (theyDo && deleteIfSo && CleanUpGood)
+  {
+    if (xdmffile)
     {
-    unlink(xdmffile);
-    unlink(hdf5file);
+      unlink(xdmffile);
     }
+    if (hdf5file)
+    {
+      unlink(hdf5file);
+    }
+  }
 
   return theyDo;
 }
@@ -111,8 +117,8 @@ bool DoDataObjectsDiffer(vtkDataObject *dobj1, vtkDataObject *dobj2)
       cerr << "Number of Cells/Points test failed" << endl;
       return true;
     }
-    double *bds1 = ds1->GetBounds();
-    double *bds2 = ds2->GetBounds();
+    const double *bds1 = ds1->GetBounds();
+    const double *bds2 = ds2->GetBounds();
     if ((bds1[0]!=bds2[0]) ||
         (bds1[1]!=bds2[1]) ||
         (bds1[2]!=bds2[2]) ||
@@ -141,9 +147,9 @@ bool TestXDMFConversion(vtkDataObject*input, char *prefix)
   char xdmffile[VTK_MAXPATH];
   char hdf5file[VTK_MAXPATH];
   char vtkfile[VTK_MAXPATH];
-  sprintf(xdmffile, "%s.xmf", prefix);
-  sprintf(hdf5file, "%s.h5", prefix);
-  sprintf(vtkfile, "%s.vtk", prefix);
+  snprintf(xdmffile, sizeof(xdmffile), "%s.xmf", prefix);
+  snprintf(hdf5file, sizeof(hdf5file), "%s.h5", prefix);
+  snprintf(vtkfile, sizeof(vtkfile), "%s.vtk", prefix);
 
   vtkXdmfWriter *xwriter = vtkXdmfWriter::New();
   xwriter->SetLightDataLimit(10000);
@@ -155,15 +161,15 @@ bool TestXDMFConversion(vtkDataObject*input, char *prefix)
   xwriter->Delete();
   vtkDataSet *ds = vtkDataSet::SafeDownCast(input);
   if (ds)
-    {
+  {
     vtkDataSetWriter *dsw = vtkDataSetWriter::New();
     dsw->SetFileName(vtkfile);
     dsw->SetInputData(ds);
     dsw->Write();
     dsw->Delete();
-    }
+  }
 
-  if (!DoFilesExist(xdmffile, NULL, false))
+  if (!DoFilesExist(xdmffile, nullptr, false))
   {
     cerr << "Writer did not create " << xdmffile << endl;
     return true;
@@ -192,12 +198,12 @@ int XdmfTestVTKIO (int ac, char *av[])
 {
 
   for (int i = 1; i < ac; i++)
-    {
+  {
     if (!strcmp(av[i], "--dont-clean"))
-      {
+    {
       CleanUpGood = false;
-      }
     }
+  }
 
   bool fail = false;
 
@@ -207,7 +213,7 @@ int XdmfTestVTKIO (int ac, char *av[])
   while (!fail && i<NUMTESTS)
   {
     char filename[VTK_MAXPATH];
-    sprintf(filename, "xdmfIOtest_%d", i);
+    snprintf(filename, sizeof(filename), "xdmfIOtest_%d", i);
     cerr << "Test vtk object " << testobject[i] << endl;
     dog->SetProgram(testobject[i]);
     dog->Update();
@@ -238,59 +244,12 @@ int XdmfTestVTKIO (int ac, char *av[])
   xwriter->Delete();
   tsrc->Delete();
 
-  fail = !DoFilesExist("xdmfIOtest_temporal_1.xmf", NULL, true);
+  fail = !DoFilesExist("xdmfIOtest_temporal_1.xmf", nullptr, true);
   if (fail)
   {
     cerr << "Failed Temporal Test 1" << endl;
     return VTK_ERROR;
   }
-
-#if 0
-  if (!vtkTestUtilities::GetDataRoot(ac,av))
-  {
-      cerr << "NO DATA ROOT" << endl;
-      return 0;
-  }
-
-  //TEST SET 3
-  char* fname =
-   vtkTestUtilities::ExpandDataFileName(
-    ac, av, "Data/RectGrid2.vtk");
-  if (DoFilesExist(fname, NULL, false))
-  {
-    vtkDataSetReader *dsr = vtkDataSetReader::New();
-    dsr->SetFileName(fname);
-    dsr->Update();
-    fail = TestXDMFConversion(dsr->GetOutput(), "xdmfIOtest_DSR_1");
-    dsr->Delete();
-    delete[] fname;
-    if (fail)
-    {
-      cerr << "Failed DataSetReader Test 1" << endl;
-      return VTK_ERROR;
-    }
-
-    dsr = vtkDataSetReader::New();
-    fname =
-     vtkTestUtilities::ExpandDataFileName(
-      ac, av, "Data/uGridEx.vtk");
-    dsr->SetFileName(fname);
-    dsr->Update();
-    fail = TestXDMFConversion(dsr->GetOutput(), "xdmfIOtest_DSR_2");
-    dsr->Delete();
-    delete[] fname;
-    if (fail)
-    {
-      cerr << "Failed DataSetReader Test 2" << endl;
-      return VTK_ERROR;
-    }
-  }
-  else
-  {
-    delete[] fname;
-  }
-
-#endif
 
   //ETC.
   return 0;

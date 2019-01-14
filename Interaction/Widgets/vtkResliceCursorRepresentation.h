@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkResliceCursorRepresentation - represent the vtkResliceCursorWidget
-// .SECTION Description
-// This class is the base class for the reslice cursor representation
-// subclasses. It represents a cursor that may be interactively translated,
-// rotated through an image and perform thick / thick reformats.
-// .SECTION See Also
-// vtkResliceCursorLineRepresentation vtkResliceCursorThickLineRepresentation
-// vtkResliceCursorWidget vtkResliceCursor
+/**
+ * @class   vtkResliceCursorRepresentation
+ * @brief   represent the vtkResliceCursorWidget
+ *
+ * This class is the base class for the reslice cursor representation
+ * subclasses. It represents a cursor that may be interactively translated,
+ * rotated through an image and perform thick / thick reformats.
+ * @sa
+ * vtkResliceCursorLineRepresentation vtkResliceCursorThickLineRepresentation
+ * vtkResliceCursorWidget vtkResliceCursor
+*/
 
 #ifndef vtkResliceCursorRepresentation_h
 #define vtkResliceCursorRepresentation_h
@@ -45,169 +48,234 @@ class vtkTexture;
 class vtkTextActor;
 class vtkImageAlgorithm;
 
+// Private.
+#define VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF 128
+
 class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorRepresentation : public vtkWidgetRepresentation
 {
 public:
-  // Description:
-  // Standard VTK methods.
+  //@{
+  /**
+   * Standard VTK methods.
+   */
   vtkTypeMacro(vtkResliceCursorRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // The tolerance representing the distance to the representation (in
-  // pixels) in which the cursor is considered near enough to the
-  // representation to be active.
+  //@{
+  /**
+   * The tolerance representing the distance to the representation (in
+   * pixels) in which the cursor is considered near enough to the
+   * representation to be active.
+   */
   vtkSetClampMacro(Tolerance,int,1,100);
   vtkGetMacro(Tolerance,int);
+  //@}
 
-  // Description:
-  // Show the resliced image ?
-  vtkSetMacro( ShowReslicedImage, int );
-  vtkGetMacro( ShowReslicedImage, int );
-  vtkBooleanMacro( ShowReslicedImage, int );
+  //@{
+  /**
+   * Show the resliced image ?
+   */
+  vtkSetMacro( ShowReslicedImage, vtkTypeBool );
+  vtkGetMacro( ShowReslicedImage, vtkTypeBool );
+  vtkBooleanMacro( ShowReslicedImage, vtkTypeBool );
+  //@}
 
-  // Description:
-  // Make sure that the resliced image remains within the volume.
-  // Default is On.
-  vtkSetMacro(RestrictPlaneToVolume,int);
-  vtkGetMacro(RestrictPlaneToVolume,int);
-  vtkBooleanMacro(RestrictPlaneToVolume,int);
+  //@{
+  /**
+   * Make sure that the resliced image remains within the volume.
+   * Default is On.
+   */
+  vtkSetMacro(RestrictPlaneToVolume,vtkTypeBool);
+  vtkGetMacro(RestrictPlaneToVolume,vtkTypeBool);
+  vtkBooleanMacro(RestrictPlaneToVolume,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Specify the format to use for labelling the distance. Note that an empty
-  // string results in no label, or a format string without a "%" character
-  // will not print the thickness value.
+  //@{
+  /**
+   * Specify the format to use for labelling the distance. Note that an empty
+   * string results in no label, or a format string without a "%" character
+   * will not print the thickness value.
+   */
   vtkSetStringMacro(ThicknessLabelFormat);
   vtkGetStringMacro(ThicknessLabelFormat);
+  //@}
 
-//BTX -- used to communicate about the state of the representation
+  // Used to communicate about the state of the representation
   enum { Outside=0, NearCenter, NearAxis1, NearAxis2,
          OnCenter, OnAxis1, OnAxis2};
   enum { None=0, PanAndRotate, RotateBothAxes,
          ResizeThickness, WindowLevelling };
-//ETX
 
-  // Description:
-  // Get the text shown in the widget's label.
+  /**
+   * Get the text shown in the widget's label.
+   */
   virtual char* GetThicknessLabelText();
 
-  // Description:
-  // Get the position of the widget's label in display coordinates.
+  //@{
+  /**
+   * Get the position of the widget's label in display coordinates.
+   */
   virtual double* GetThicknessLabelPosition();
   virtual void GetThicknessLabelPosition(double pos[3]);
   virtual void GetWorldThicknessLabelPosition(double pos[3]);
+  //@}
 
-  // Description:
-  // These are methods that satisfy vtkWidgetRepresentation's API.
-  virtual void BuildRepresentation();
+  /**
+   * These are methods that satisfy vtkWidgetRepresentation's API.
+   */
+  void BuildRepresentation() override;
 
-  // Description:
-  // Get the current reslice class and reslice axes
+  //@{
+  /**
+   * Get the current reslice class and reslice axes
+   */
   vtkGetObjectMacro( ResliceAxes, vtkMatrix4x4 );
   vtkGetObjectMacro( Reslice, vtkImageAlgorithm );
+  //@}
 
-  // Description:
-  // Get the displayed image actor
+  //@{
+  /**
+   * Get the displayed image actor
+   */
   vtkGetObjectMacro( ImageActor, vtkImageActor );
+  //@}
 
-  // Description:
-  // Set/Get the internal lookuptable (lut) to one defined by the user, or,
-  // alternatively, to the lut of another Reslice cusror widget.  In this way,
-  // a set of three orthogonal planes can share the same lut so that
-  // window-levelling is performed uniformly among planes.  The default
-  // internal lut can be re- set/allocated by setting to 0 (NULL).
+  //@{
+  /**
+   * Set/Get the internal lookuptable (lut) to one defined by the user, or,
+   * alternatively, to the lut of another Reslice cusror widget.  In this way,
+   * a set of three orthogonal planes can share the same lut so that
+   * window-levelling is performed uniformly among planes.  The default
+   * internal lut can be re- set/allocated by setting to 0 (nullptr).
+   */
   virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
+  //@}
 
-  // Description:
-  // Convenience method to get the vtkImageMapToColors filter used by this
-  // widget.  The user can properly render other transparent actors in a
-  // scene by calling the filter's SetOutputFormatToRGB and
-  // PassAlphaToOutputOff.
+  //@{
+  /**
+   * Convenience method to get the vtkImageMapToColors filter used by this
+   * widget.  The user can properly render other transparent actors in a
+   * scene by calling the filter's SetOutputFormatToRGB and
+   * PassAlphaToOutputOff.
+   */
   vtkGetObjectMacro(ColorMap, vtkImageMapToColors);
   virtual void SetColorMap(vtkImageMapToColors *);
+  //@}
 
-  // Description:
-  // Set/Get the current window and level values.  SetWindowLevel should
-  // only be called after SetInput.  If a shared lookup table is being used,
-  // a callback is required to update the window level values without having
-  // to update the lookup table again.
+  //@{
+  /**
+   * Set/Get the current window and level values.  SetWindowLevel should
+   * only be called after SetInput.  If a shared lookup table is being used,
+   * a callback is required to update the window level values without having
+   * to update the lookup table again.
+   */
   void SetWindowLevel(double window, double level, int copy = 0);
   void GetWindowLevel(double wl[2]);
   double GetWindow(){return this->CurrentWindow;}
   double GetLevel(){return this->CurrentLevel;}
+  //@}
 
   virtual vtkResliceCursor * GetResliceCursor() = 0;
 
-  // Description:
-  // Enable/disable text display of window-level, image coordinates and
-  // scalar values in a render window.
-  vtkSetMacro(DisplayText,int);
-  vtkGetMacro(DisplayText,int);
-  vtkBooleanMacro(DisplayText,int);
+  //@{
+  /**
+   * Enable/disable text display of window-level, image coordinates and
+   * scalar values in a render window.
+   */
+  vtkSetMacro(DisplayText,vtkTypeBool);
+  vtkGetMacro(DisplayText,vtkTypeBool);
+  vtkBooleanMacro(DisplayText,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Set/Get the text property for the image data and window-level annotation.
+  //@{
+  /**
+   * Set/Get the text property for the image data and window-level annotation.
+   */
   void SetTextProperty(vtkTextProperty* tprop);
   vtkTextProperty* GetTextProperty();
+  //@}
 
-  // Description:
-  // Render as a 2D image, or render as a plane with a texture in physical
-  // space.
-  vtkSetMacro( UseImageActor, int );
-  vtkGetMacro( UseImageActor, int );
-  vtkBooleanMacro( UseImageActor, int );
+  //@{
+  /**
+   * Render as a 2D image, or render as a plane with a texture in physical
+   * space.
+   */
+  vtkSetMacro( UseImageActor, vtkTypeBool );
+  vtkGetMacro( UseImageActor, vtkTypeBool );
+  vtkBooleanMacro( UseImageActor, vtkTypeBool );
+  //@}
 
-  // Description:
-  // INTERNAL - Do not use
-  // Set the manipulation mode. This is done by the widget
+  //@{
+  /**
+   * INTERNAL - Do not use
+   * Set the manipulation mode. This is done by the widget
+   */
   void SetManipulationMode( int m );
   vtkGetMacro(ManipulationMode, int);
+  //@}
 
-  // Description:
-  // INTERNAL - Do not use.
-  // Internal methods used by the widget to manage text displays
-  // for annotations.
+  //@{
+  /**
+   * INTERNAL - Do not use.
+   * Internal methods used by the widget to manage text displays
+   * for annotations.
+   */
   void ActivateText(int);
   void ManageTextDisplay();
+  //@}
 
-  // Description:
-  // Initialize the reslice planes and the camera center. This is done
-  // automatically, the first time we render.
+  //@{
+  /**
+   * Initialize the reslice planes and the camera center. This is done
+   * automatically, the first time we render.
+   */
   virtual void InitializeReslicePlane();
   virtual void ResetCamera();
+  //@}
 
-  // Description:
-  // Get the underlying cursor source.
+  /**
+   * Get the underlying cursor source.
+   */
   virtual vtkResliceCursorPolyDataAlgorithm * GetCursorAlgorithm() = 0;
 
-  // Description:
-  // Get the plane source on which the texture (the thin/thick resliced
-  // image is displayed)
+  //@{
+  /**
+   * Get the plane source on which the texture (the thin/thick resliced
+   * image is displayed)
+   */
   vtkGetObjectMacro( PlaneSource, vtkPlaneSource );
+  //@}
 
 protected:
   vtkResliceCursorRepresentation();
-  ~vtkResliceCursorRepresentation();
+  ~vtkResliceCursorRepresentation() override;
 
-  // Description:
-  // Create New Reslice plane. Allows subclasses to override and crate
-  // their own reslice filters to respond to the widget.
+  //@{
+  /**
+   * Create New Reslice plane. Allows subclasses to override and crate
+   * their own reslice filters to respond to the widget.
+   */
   virtual void CreateDefaultResliceAlgorithm();
   virtual void SetResliceParameters(
       double outputSpacingX, double outputSpacingY,
       int extentX, int extentY );
+  //@}
 
-  // Description:
-  // Process window level
+  /**
+   * Process window level
+   */
   virtual void WindowLevel( double x, double y );
 
-  // Description:
-  // Update the reslice plane
+  /**
+   * Update the reslice plane
+   */
   virtual void UpdateReslicePlane();
 
-  // Description:
-  // Compute the origin of the planes so as to capture the entire image.
+  /**
+   * Compute the origin of the planes so as to capture the entire image.
+   */
   virtual void ComputeReslicePlaneOrigin();
 
   // for negative window values.
@@ -217,13 +285,15 @@ protected:
   // with its physical location
   virtual void ComputeOrigin( vtkMatrix4x4 * );
 
-  // Description:
+  //@{
   void GetVector1( double d[3] );
   void GetVector2( double d[3] );
+  //@}
 
-  // Description:
-  // The widget sets the manipulation mode. This can be one of :
-  //    None, PanAndRotate, RotateBothAxes, ResizeThickness
+  /**
+   * The widget sets the manipulation mode. This can be one of :
+   * None, PanAndRotate, RotateBothAxes, ResizeThickness
+   */
   int ManipulationMode;
 
   // Keep track if modifier is set
@@ -237,8 +307,8 @@ protected:
 
   vtkImageAlgorithm       * Reslice;
   vtkPlaneSource          * PlaneSource;
-  int                       RestrictPlaneToVolume;
-  int                       ShowReslicedImage;
+  vtkTypeBool                       RestrictPlaneToVolume;
+  vtkTypeBool                       ShowReslicedImage;
   vtkTextProperty         * ThicknessTextProperty;
   vtkTextMapper           * ThicknessTextMapper;
   vtkActor2D              * ThicknessTextActor;
@@ -257,16 +327,16 @@ protected:
   double                    InitialWindow;
   double                    InitialLevel;
   double                    LastEventPosition[2];
-  int                       UseImageActor;
-  char                      TextBuff[128];
-  int                       DisplayText;
+  vtkTypeBool                       UseImageActor;
+  char                      TextBuff[VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF];
+  vtkTypeBool                       DisplayText;
 
   vtkScalarsToColors      * CreateDefaultLookupTable();
   void                      GenerateText();
 
 private:
-  vtkResliceCursorRepresentation(const vtkResliceCursorRepresentation&);  //Not implemented
-  void operator=(const vtkResliceCursorRepresentation&);  //Not implemented
+  vtkResliceCursorRepresentation(const vtkResliceCursorRepresentation&) = delete;
+  void operator=(const vtkResliceCursorRepresentation&) = delete;
 };
 
 #endif

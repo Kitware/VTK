@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkIVExporter - export a scene into OpenInventor 2.0 format.
-// .SECTION Description
-// vtkIVExporter is a concrete subclass of vtkExporter that writes
-// OpenInventor 2.0 files.
-//
-// .SECTION See Also
-// vtkExporter
-
+/**
+ * @class   vtkIVExporter
+ * @brief   export a scene into OpenInventor 2.0 format.
+ *
+ * vtkIVExporter is a concrete subclass of vtkExporter that writes
+ * OpenInventor 2.0 files.
+ *
+ * @sa
+ * vtkExporter
+*/
 
 #ifndef vtkIVExporter_h
 #define vtkIVExporter_h
@@ -38,18 +40,21 @@ class VTKIOEXPORT_EXPORT vtkIVExporter : public vtkExporter
 public:
   static vtkIVExporter *New();
   vtkTypeMacro(vtkIVExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Specify the name of the OpenInventor file to write.
+  //@{
+  /**
+   * Specify the name of the OpenInventor file to write.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkIVExporter();
-  ~vtkIVExporter();
+  ~vtkIVExporter() override;
 
-  void WriteData();
+  void WriteData() override;
   void WriteALight(vtkLight *aLight, FILE *fp);
   void WriteAnActor(vtkActor *anActor, FILE *fp);
   void WritePointData(vtkPoints *points, vtkDataArray *normals,
@@ -57,8 +62,8 @@ protected:
                       FILE *fp);
   char *FileName;
 private:
-  vtkIVExporter(const vtkIVExporter&);  // Not implemented.
-  void operator=(const vtkIVExporter&);  // Not implemented.
+  vtkIVExporter(const vtkIVExporter&) = delete;
+  void operator=(const vtkIVExporter&) = delete;
 };
 
 #endif

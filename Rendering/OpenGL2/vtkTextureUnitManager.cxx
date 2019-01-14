@@ -25,16 +25,16 @@ vtkStandardNewMacro(vtkTextureUnitManager);
 // ----------------------------------------------------------------------------
 vtkTextureUnitManager::vtkTextureUnitManager()
 {
-  this->Context=0;
+  this->Context=nullptr;
   this->NumberOfTextureUnits=0;
-  this->TextureUnits=0;
+  this->TextureUnits=nullptr;
 }
 
 // ----------------------------------------------------------------------------
 vtkTextureUnitManager::~vtkTextureUnitManager()
 {
   this->DeleteTable();
-  this->Context=0;
+  this->Context=nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -43,53 +43,53 @@ vtkTextureUnitManager::~vtkTextureUnitManager()
 // all the texture units have been released.
 void vtkTextureUnitManager::DeleteTable()
 {
-  if(this->TextureUnits!=0)
-    {
+  if(this->TextureUnits!=nullptr)
+  {
     size_t i=0;
     size_t c=this->NumberOfTextureUnits;
     bool valid=true;
     while(valid && i<c)
-      {
+    {
       valid = !this->TextureUnits[i];
       ++i;
-      }
-    if(!valid)
-      {
-      vtkErrorMacro(<<"the texture unit is deleted but some texture units have not been released: Id="<<i);
-      }
-    delete[] this->TextureUnits;
-    this->TextureUnits=0;
-    this->NumberOfTextureUnits=0;
     }
+    if(!valid)
+    {
+      vtkErrorMacro(<<"the texture unit is deleted but some texture units have not been released: Id="<<i);
+    }
+    delete[] this->TextureUnits;
+    this->TextureUnits=nullptr;
+    this->NumberOfTextureUnits=0;
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkTextureUnitManager::SetContext(vtkOpenGLRenderWindow *context)
 {
   if(this->Context!=context)
+  {
+    if(this->Context!=nullptr)
     {
-    if(this->Context!=0)
-      {
       this->DeleteTable();
-      }
+    }
     this->Context=context;
-    if(this->Context!=0)
-      {
+    if(this->Context!=nullptr)
+    {
       glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->NumberOfTextureUnits);
       if(this->NumberOfTextureUnits > 0)
-        {
+      {
         this->TextureUnits = new bool [this->NumberOfTextureUnits];
         size_t i=0;
         size_t c=this->NumberOfTextureUnits;
         while(i<c)
-          {
+        {
           this->TextureUnits[i]=false;
           ++i;
-          }
         }
       }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -113,25 +113,37 @@ int vtkTextureUnitManager::Allocate()
   size_t i=0;
   size_t c=this->NumberOfTextureUnits;
   while(!found && i<c)
-    {
+  {
     found = !this->TextureUnits[i];
     ++i;
-    }
+  }
 
   int result;
   if(found)
-    {
+  {
     result=static_cast<int>(i-1);
     this->TextureUnits[result] = true;
-    }
+  }
   else
-    {
+  {
     result = -1;
-    }
+  }
 
   assert("post: valid_result" && (result==-1 || (result>=0 && result<this->GetNumberOfTextureUnits())));
   assert("post: allocated" && (result==-1 || this->IsAllocated(result)));
   return result;
+}
+
+int vtkTextureUnitManager::Allocate(int unit)
+{
+  if (this->IsAllocated(unit))
+  {
+    return -1;
+  }
+
+  this->TextureUnits[unit] = true;
+
+  return unit;
 }
 
 // ----------------------------------------------------------------------------
@@ -163,12 +175,12 @@ void vtkTextureUnitManager::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Context: ";
-  if(this->Context!=0)
-    {
+  if(this->Context!=nullptr)
+  {
     os << static_cast<void *>(this->Context) <<endl;
-    }
+  }
   else
-    {
+  {
     os << "none" << endl;
-    }
+  }
 }

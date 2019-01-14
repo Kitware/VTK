@@ -1,0 +1,22 @@
+NAME
+  VTK::DomainsParallelChemistry
+LIBRARY_NAME
+  vtkDomainsParallelChemistry
+DESCRIPTION
+  Parallel versions of algorithms used in chemistry
+KIT
+  VTK::Parallel
+GROUPS
+  MPI
+IMPLEMENTS
+  VTK::DomainsChemistry
+DEPENDS
+  VTK::DomainsChemistry
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::ParallelMPI
+  VTK::FiltersParallelMPI
+  VTK::mpi
+TEST_DEPENDS
+  VTK::ParallelMPI
+  VTK::TestingCore

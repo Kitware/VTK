@@ -15,6 +15,7 @@
 
 #include "vtkTextRenderer.h"
 
+#include "vtkDebugLeaks.h" // Must be included before any singletons
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPath.h"
@@ -24,24 +25,18 @@
 
 #include <vtksys/RegularExpression.hxx>
 
-#ifdef VTK_DEBUG_LEAKS
-#include "vtkDebugLeaks.h"
-#endif
-
 //----------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
-vtkTextRenderer *vtkTextRenderer::Instance = NULL;
+vtkTextRenderer *vtkTextRenderer::Instance = nullptr;
 vtkTextRendererCleanup vtkTextRenderer::Cleanup;
 
 //----------------------------------------------------------------------------
-vtkTextRendererCleanup::vtkTextRendererCleanup()
-{
-}
+vtkTextRendererCleanup::vtkTextRendererCleanup() = default;
 
 //----------------------------------------------------------------------------
 vtkTextRendererCleanup::~vtkTextRendererCleanup()
 {
-  vtkTextRenderer::SetInstance(NULL);
+  vtkTextRenderer::SetInstance(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -50,8 +45,6 @@ void vtkTextRenderer::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Instance: " << vtkTextRenderer::Instance << endl;
-  os << indent << "HasFreeType: " << this->HasFreeType << endl;
-  os << indent << "HasMathText: " << this->HasMathText << endl;
   os << indent << "MathTextRegExp: " << this->MathTextRegExp << endl;
   os << indent << "MathTextRegExp2: " << this->MathTextRegExp2 << endl;
 }
@@ -61,9 +54,9 @@ vtkTextRenderer *vtkTextRenderer::New()
 {
   vtkTextRenderer *instance = vtkTextRenderer::GetInstance();
   if (instance)
-    {
-    instance->Register(NULL);
-    }
+  {
+    instance->Register(nullptr);
+  }
   return instance;
 }
 
@@ -71,20 +64,12 @@ vtkTextRenderer *vtkTextRenderer::New()
 vtkTextRenderer *vtkTextRenderer::GetInstance()
 {
   if (vtkTextRenderer::Instance)
-    {
+  {
     return vtkTextRenderer::Instance;
-    }
+  }
 
   vtkTextRenderer::Instance = static_cast<vtkTextRenderer*>(
         vtkObjectFactory::CreateInstance("vtkTextRenderer"));
-
-  // Clean up any leaked references from vtkDebugLeaks if needed
-#ifdef VTK_DEBUG_LEAKS
-  if (!vtkTextRenderer::Instance)
-    {
-    vtkDebugLeaks::DestructClass("vtkTextRenderer");
-    }
-#endif
 
   return vtkTextRenderer::Instance;
 }
@@ -93,29 +78,27 @@ vtkTextRenderer *vtkTextRenderer::GetInstance()
 void vtkTextRenderer::SetInstance(vtkTextRenderer *instance)
 {
   if (vtkTextRenderer::Instance == instance)
-    {
+  {
     return;
-    }
+  }
 
   if (vtkTextRenderer::Instance)
-    {
+  {
     vtkTextRenderer::Instance->Delete();
-    }
+  }
 
   vtkTextRenderer::Instance = instance;
 
   if (instance)
-    {
-    instance->Register(NULL);
-    }
+  {
+    instance->Register(nullptr);
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkTextRenderer::vtkTextRenderer()
-  : MathTextRegExp(new vtksys::RegularExpression("[^\\]\\$.+[^\\]\\$")),
-    MathTextRegExp2(new vtksys::RegularExpression("^\\$.+[^\\]\\$")),
-    HasFreeType(false),
-    HasMathText(false),
+  : MathTextRegExp(new vtksys::RegularExpression("[^\\]\\$.*[^\\]\\$")),
+    MathTextRegExp2(new vtksys::RegularExpression("^\\$.*[^\\]\\$")),
     DefaultBackend(Detect)
 {
 }
@@ -131,20 +114,20 @@ vtkTextRenderer::~vtkTextRenderer()
 int vtkTextRenderer::DetectBackend(const vtkStdString &str)
 {
   if (!str.empty())
-    {
+  {
     // the vtksys::RegularExpression class doesn't support {...|...} "or"
     // branching, so we check the first character to see which regexp to use:
     //
     // Find unescaped "$...$" patterns where "$" is not the first character:
-    //   MathTextRegExp  = "[^\\]\\$.+[^\\]\\$"
+    //   MathTextRegExp  = "[^\\]\\$.*[^\\]\\$"
     // Find unescaped "$...$" patterns where "$" is the first character:
-    //   MathTextRegExp2 = "^\\$.+[^\\]\\$"
+    //   MathTextRegExp2 = "^\\$.*[^\\]\\$"
     if ((str[0] == '$' && this->MathTextRegExp2->find(str)) ||
         this->MathTextRegExp->find(str))
-      {
+    {
       return static_cast<int>(MathText);
-      }
     }
+  }
   return static_cast<int>(FreeType);
 }
 
@@ -152,20 +135,20 @@ int vtkTextRenderer::DetectBackend(const vtkStdString &str)
 int vtkTextRenderer::DetectBackend(const vtkUnicodeString &str)
 {
   if (!str.empty())
-    {
+  {
     // the vtksys::RegularExpression class doesn't support {...|...} "or"
     // branching, so we check the first character to see which regexp to use:
     //
     // Find unescaped "$...$" patterns where "$" is not the first character:
-    //   MathTextRegExp  = "[^\\]\\$.+[^\\]\\$"
+    //   MathTextRegExp  = "[^\\]\\$.*[^\\]\\$"
     // Find unescaped "$...$" patterns where "$" is the first character:
-    //   MathTextRegExp2 = "^\\$.+[^\\]\\$"
+    //   MathTextRegExp2 = "^\\$.*[^\\]\\$"
     if ((str[0] == '$' && this->MathTextRegExp2->find(str.utf8_str())) ||
         this->MathTextRegExp->find(str.utf8_str()))
-      {
+    {
       return static_cast<int>(MathText);
-      }
     }
+  }
   return static_cast<int>(FreeType);
 }
 
@@ -174,10 +157,10 @@ void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkStdString &str)
 {
   size_t ind = str.find("\\$");
   while (ind != std::string::npos)
-    {
+  {
     str.replace(ind, 2, "$");
     ind = str.find("\\$", ind + 1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -190,19 +173,19 @@ void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkUnicodeString &str)
   vtkUnicodeString tmp;
 
   for (vtkUnicodeString::const_iterator it = begin; it != end; ++it)
-    {
+  {
     if (*it != '\\')
-      {
+    {
       continue;
-      }
+    }
 
     // No operator+ in the unicode string iterator. Copy and advance it:
     vtkUnicodeString::const_iterator nextChar = it;
     std::advance(nextChar, 1);
     if (*nextChar != '$')
-      {
+    {
       continue;
-      }
+    }
 
     // We found a "\$" in the string. Append [begin, it) into tmp.
     tmp.append(begin, it);
@@ -214,7 +197,7 @@ void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkUnicodeString &str)
     begin = it;
     std::advance(it, 1);
     std::advance(begin, 2);
-    }
+  }
 
   // Append the last bit of the string to tmp
   tmp.append(begin, end);

@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageStencilAlgorithm - producer of vtkImageStencilData
-// .SECTION Description
-// vtkImageStencilAlgorithm is a superclass for filters that generate
-// the special vtkImageStencilData type.  This data type is a special
-// representation of a binary image that can be used as a mask by
-// several imaging filters.
-// .SECTION see also
-// vtkImageStencilData vtkImageStencilSource
+/**
+ * @class   vtkImageStencilAlgorithm
+ * @brief   producer of vtkImageStencilData
+ *
+ * vtkImageStencilAlgorithm is a superclass for filters that generate
+ * the special vtkImageStencilData type.  This data type is a special
+ * representation of a binary image that can be used as a mask by
+ * several imaging filters.
+ * @sa
+ * vtkImageStencilData vtkImageStencilSource
+*/
 
 #ifndef vtkImageStencilAlgorithm_h
 #define vtkImageStencilAlgorithm_h
@@ -36,22 +39,26 @@ public:
   static vtkImageStencilAlgorithm *New();
   vtkTypeMacro(vtkImageStencilAlgorithm, vtkAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get or set the output for this source.
+  //@{
+  /**
+   * Get or set the output for this source.
+   */
   void SetOutput(vtkImageStencilData *output);
   vtkImageStencilData *GetOutput();
+  //@}
 
-  // Description:
-  // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation*,
+  /**
+   * see vtkAlgorithm for details
+   */
+  int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) override;
 
 protected:
   vtkImageStencilAlgorithm();
-  ~vtkImageStencilAlgorithm();
+  ~vtkImageStencilAlgorithm() override;
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *);
@@ -61,11 +68,11 @@ protected:
                                   vtkInformationVector *);
   vtkImageStencilData *AllocateOutputData(vtkDataObject *out, int* updateExt);
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkImageStencilAlgorithm(const vtkImageStencilAlgorithm&);  // Not implemented.
-  void operator=(const vtkImageStencilAlgorithm&);  // Not implemented.
+  vtkImageStencilAlgorithm(const vtkImageStencilAlgorithm&) = delete;
+  void operator=(const vtkImageStencilAlgorithm&) = delete;
 };
 
 #endif

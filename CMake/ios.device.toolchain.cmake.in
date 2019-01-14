@@ -1,0 +1,114 @@
+set(CMAKE_SYSTEM_NAME Darwin)
+
+if(POLICY CMP0011)
+  cmake_policy(SET CMP0011 NEW)
+endif()
+if(POLICY CMP0012)
+  cmake_policy(SET CMP0012 NEW)
+endif()
+
+message(STATUS "iPhoneOS Toolchain Config for @CMAKE_CC_ARCH@")
+
+# Set developer directory
+execute_process(COMMAND /usr/bin/xcode-select -print-path
+                OUTPUT_VARIABLE XCODE_DEVELOPER_DIR
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# Locate gcc
+execute_process(COMMAND /usr/bin/xcrun -sdk iphoneos -find gcc
+                OUTPUT_VARIABLE CMAKE_C_COMPILER
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# Locate g++
+execute_process(COMMAND /usr/bin/xcrun -sdk iphoneos -find g++
+                OUTPUT_VARIABLE CMAKE_CXX_COMPILER
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# Set the CMAKE_OSX_SYSROOT to the latest SDK found
+execute_process(COMMAND /usr/bin/xcrun -sdk iphoneos --show-sdk-path
+                OUTPUT_VARIABLE CMAKE_OSX_SYSROOT
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# Set compilation flags
+set(CMAKE_OSX_ARCHITECTURES @CMAKE_CC_ARCH@)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -miphoneos-version-min=@IOS_DEPLOYMENT_TARGET@ -fvisibility=hidden -fvisibility-inlines-hidden")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -miphoneos-version-min=@IOS_DEPLOYMENT_TARGET@ -fvisibility=hidden -fvisibility-inlines-hidden")
+
+# Embed bitcode, if requested
+if (@IOS_EMBED_BITCODE@)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fembed-bitcode")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fembed-bitcode")
+endif()
+
+set(CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}" CACHE STRING "osx architectures")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "c++ flags")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "c flags")
+set(CMAKE_OSX_SYSROOT "${CMAKE_OSX_SYSROOT}" CACHE PATH "osx sysroot")
+set(MACOSX_BUNDLE_GUI_IDENTIFIER CACHE STRING "com.kitware.\${PRODUCT_NAME:identifier}")
+
+set(CMAKE_FIND_ROOT_PATH ${CMAKE_OSX_SYSROOT})
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+set(APPLE_IOS ON)
+set(TARGET_OS_IPHONE ON)
+
+
+#
+# Legacy searches (xcrun is not available)
+#
+
+# gcc
+if (NOT CMAKE_C_COMPILER)
+  find_program(CMAKE_C_COMPILER NAME gcc
+    PATHS
+    "${XCODE_DEVELOPER_DIR}/Platforms/iPhoneOS.platform/Developer/usr/bin/"
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/
+    /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/
+    NO_DEFAULT_PATH)
+endif()
+
+# g++
+if (NOT CMAKE_CXX_COMPILER)
+  find_program(CMAKE_CXX_COMPILER NAME g++
+    PATHS
+    "${XCODE_DEVELOPER_DIR}/Platforms/iPhoneOS.platform/Developer/usr/bin/"
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/
+    /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/
+    NO_DEFAULT_PATH)
+endif()
+
+# sysroot
+if (NOT CMAKE_OSX_SYSROOT)
+  set(possible_sdk_roots
+    "${XCODE_DEVELOPER_DIR}/Platforms/iPhoneOS.platform/Developer/SDKs"
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs
+    /Developer/Platforms/iPhoneOS.platform/Developer/SDKs
+    )
+  foreach(sdk_root ${possible_sdk_roots})
+    foreach(sdk
+      iPhoneOS7.0.sdk
+      iPhoneOS7.1.sdk
+      iPhoneOS8.0.sdk
+      iPhoneOS9.0.sdk
+      iPhoneOS9.1.sdk
+      iPhoneOS9.2.sdk
+      iPhoneOS9.3.sdk  # guess
+      iPhoneOS9.4.sdk  # guess
+      iPhoneOS10.0.sdk # guess
+      iPhoneOS10.1.sdk # guess
+      )
+      if (EXISTS ${sdk_root}/${sdk} AND IS_DIRECTORY ${sdk_root}/${sdk})
+        set(CMAKE_OSX_SYSROOT ${sdk_root}/${sdk})
+      endif()
+    endforeach()
+  endforeach()
+  if (NOT CMAKE_OSX_SYSROOT)
+    message(FATAL_ERROR "Could not find a usable iOS SDK in ${sdk_root}")
+  endif()
+endif()
+
+message(STATUS "gcc found at: ${CMAKE_C_COMPILER}")
+message(STATUS "g++ found at: ${CMAKE_CXX_COMPILER}")
+message(STATUS "Using iOS SDK: ${CMAKE_OSX_SYSROOT}")

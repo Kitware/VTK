@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -22,16 +20,14 @@
 /* Module Setup */
 /****************/
 
-#define H5T_PACKAGE		/*suppress error about including H5Tpkg	  */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5T_init_compound_interface
+#include "H5Tmodule.h"          /* This source code file is part of the H5T module */
 
 
 /***********/
 /* Headers */
 /***********/
 #include "H5private.h"		/*generic functions			  */
+#include "H5CXprivate.h"        /*API Contexts                            */
 #include "H5Eprivate.h"		/*error handling			  */
 #include "H5Iprivate.h"		/*ID functions		   		  */
 #include "H5MMprivate.h"	/*memory management			  */
@@ -78,26 +74,6 @@ static htri_t H5T_is_packed(const H5T_t *dt);
 /* Local Variables */
 /*******************/
 
-
-
-/*--------------------------------------------------------------------------
-NAME
-   H5T_init_compound_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5T_init_compound_interface()
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5T_init() currently).
---------------------------------------------------------------------------*/
-static herr_t
-H5T_init_compound_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    FUNC_LEAVE_NOAPI(H5T_init())
-} /* H5T_init_compound_interface() */
 
 
 /*-------------------------------------------------------------------------
@@ -240,23 +216,27 @@ H5Tget_member_type(hid_t type_id, unsigned membno)
     H5T_t	*memb_dt = NULL;        /* Member datatype */
     hid_t	ret_value;              /* Return value */
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE2("i", "iIu", type_id, membno);
 
     /* Check args */
     if(NULL == (dt = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)) || H5T_COMPOUND != dt->shared->type)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a compound datatype")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a compound datatype")
     if(membno >= dt->shared->u.compnd.nmembs)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid member number")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "invalid member number")
+
+    /* Retrieve the datatype for the member */
     if(NULL == (memb_dt = H5T_get_member_type(dt, membno, H5T_COPY_REOPEN)))
-	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to retrieve member type")
+	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, H5I_INVALID_HID, "unable to retrieve member type")
+
+    /* Get an ID for the datatype */
     if((ret_value = H5I_register(H5I_DATATYPE, memb_dt, TRUE)) < 0)
-	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable register datatype atom")
+	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable register datatype atom")
 
 done:
     if(ret_value < 0)
         if(memb_dt && H5T_close(memb_dt) < 0)
-            HDONE_ERROR(H5E_DATATYPE, H5E_CANTCLOSEOBJ, FAIL, "can't close datatype")
+            HDONE_ERROR(H5E_DATATYPE, H5E_CANTCLOSEOBJ, H5I_INVALID_HID, "can't close datatype")
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tget_member_type() */
@@ -282,7 +262,7 @@ done:
 H5T_t *
 H5T_get_member_type(const H5T_t *dt, unsigned membno, H5T_copy_t method)
 {
-    H5T_t	*ret_value;     /* Return value */
+    H5T_t	*ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -431,7 +411,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5T__insert(H5T_t *parent, const char *name, size_t offset, const H5T_t *member)
+H5T__insert(H5T_t *parent, const char *name, size_t offset, H5T_t *member)
 {
     unsigned	idx;                        /* Index of member to insert */
     size_t	total_size;

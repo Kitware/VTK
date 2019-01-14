@@ -37,7 +37,7 @@ public:
   static GL2PSMathTextOutputTest *New();
   vtkTypeMacro(GL2PSMathTextOutputTest, vtkContextItem)
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  virtual bool Paint(vtkContext2D *painter) override;
 };
 
 //----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ int TestGL2PSMathTextOutput(int, char *[])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(800, 160);
   vtkNew<GL2PSMathTextOutputTest> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();

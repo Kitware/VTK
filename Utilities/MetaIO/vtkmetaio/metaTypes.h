@@ -10,6 +10,9 @@
   See the License for more information.
 ============================================================================*/
 #include "localMetaConfiguration.h"
+#if !defined(_MSC_VER) || (_MSC_VER > 1500) // do not include this file for Visual Studio 2008
+#include <stdint.h>
+#endif
 
 #ifndef ITKMetaIO_METATYPES_H
 #define ITKMetaIO_METATYPES_H
@@ -32,21 +35,32 @@
 namespace METAIO_NAMESPACE {
 #endif
 
+#if defined(_MSC_VER) && (_MSC_VER <= 1500) // until Visual Studio 2008
+typedef signed __int8       int8_t;
+typedef signed __int16      int16_t;
+typedef signed __int32      int32_t;
+typedef unsigned __int8     uint8_t;
+typedef unsigned __int16    uint16_t;
+typedef unsigned __int32    uint32_t;
+typedef signed __int64      int64_t;
+typedef unsigned __int64    uint64_t;
+#endif
+
 typedef char                MET_ASCII_CHAR_TYPE;
-typedef char                MET_CHAR_TYPE;
-typedef unsigned char       MET_UCHAR_TYPE;
-typedef short               MET_SHORT_TYPE;
-typedef unsigned short      MET_USHORT_TYPE;
-typedef int                 MET_INT_TYPE;
-typedef unsigned int        MET_UINT_TYPE;
-typedef int                 MET_LONG_TYPE;
-typedef unsigned long       MET_ULONG_TYPE;
+typedef int8_t              MET_CHAR_TYPE;
+typedef uint8_t             MET_UCHAR_TYPE;
+typedef int16_t             MET_SHORT_TYPE;
+typedef uint16_t            MET_USHORT_TYPE;
+typedef int32_t             MET_INT_TYPE;
+typedef uint32_t            MET_UINT_TYPE;
+typedef int32_t             MET_LONG_TYPE;
+typedef uint32_t            MET_ULONG_TYPE;
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MING_W32__)
 typedef __int64             MET_LONG_LONG_TYPE;
 typedef unsigned __int64    MET_ULONG_LONG_TYPE;
 #else
-typedef long long           MET_LONG_LONG_TYPE;
-typedef unsigned long long  MET_ULONG_LONG_TYPE;
+typedef int64_t             MET_LONG_LONG_TYPE;
+typedef uint64_t            MET_ULONG_LONG_TYPE;
 #endif
 typedef float               MET_FLOAT_TYPE;
 typedef double              MET_DOUBLE_TYPE;
@@ -204,6 +218,12 @@ typedef struct
    bool           terminateRead;  // Set to true if field indicates end of
                                   //   meta data
    } MET_FieldRecordType;
+
+#if __cplusplus >= 201103L
+#define MET_OVERRIDE override
+#else
+#define MET_OVERRIDE
+#endif
 
 #if (METAIO_USE_NAMESPACE)
 };

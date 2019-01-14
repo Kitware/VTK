@@ -26,12 +26,12 @@
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #define SIZE 1000
 
 template <class T, class A, class V>
-int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
+int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size, bool vtkFree=false)
 {
   float tuple1[SIZE/100];
   double tuple3[SIZE/100];
@@ -59,21 +59,24 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   ptr->SetNumberOfTuples (100);
   if (ptr->GetNumberOfTuples() == 100) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
   strm << "\tSetNumberOfComponents...";
   ptr->SetNumberOfComponents (10);
   if (ptr->GetNumberOfComponents() == 10) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tSetVoidArray...";
-  ptr->SetVoidArray(array, size, 1);
+  int vtkDeletesMemory = (vtkFree) ? 0 : 1;
+  ptr->SetVoidArray(array, size,
+                    vtkDeletesMemory,
+                    vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
   strm << "OK" << endl;
 
   strm << "CreateDefaultLookupTable" << endl;
@@ -84,97 +87,97 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   tuple2 = ptr->GetTuple (2);
   int passed = 1;
   if (tuple2)
-    {
+  {
     for (i = 0; i < 10; i++)
-      {
+    {
       strm << *(tuple2 + i) << " ";
       if (*(tuple2 + i) != (20 + i))
-        {
+      {
         passed = 0;
         break;
-        }
       }
     }
+  }
   if (passed) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tGetTuple(i, double *tuple)...";
   ptr->GetTuple (4, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
-    {
+  {
     tuple1[i] = static_cast<float>(tuple3[i]);
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
-      {
+    {
       passed = 0;
       break;
-      }
     }
+  }
   if (passed) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tvtkDataArray::GetTuple(i, double *tuple)...";
   static_cast<vtkDataArray*>(ptr)->GetTuple (4, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
-    {
+  {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
-      {
+    {
       passed = 0;
       break;
-      }
     }
+  }
   if (passed) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tSetValue(i, value)...";
   ptr->SetValue (99, value);
   if (ptr->GetValue (99) == value) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertValue(i, value)...";
   ptr->InsertValue (500, value);
   if (ptr->GetValue (500) == value) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertNextValue(value)...";
   if (ptr->GetValue (ptr->InsertNextValue (static_cast<char>(22.0))) == 22.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertComponent(i, j, 5.0)...";
   ptr->InsertComponent (500, 9, 5.0);
   if (ptr->GetComponent (500, 9) == 5.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tSetTuple(i, float *tuple)...";
   ptr->SetTuple (99, tuple1);
@@ -182,20 +185,20 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   ptr->GetTuple (99, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
-    {
+  {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
-      {
+    {
       passed = 0;
       break;
-      }
     }
+  }
   if (passed) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tSetTuple(i, double *tuple)...";
   ptr->SetTuple (99, tuple3);
@@ -203,20 +206,20 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   ptr->GetTuple (99, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
-    {
+  {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
-      {
+    {
       passed = 0;
       break;
-      }
     }
+  }
   if (passed) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertTuple(i, float *tuple)...";
   ptr->InsertTuple (100, tuple1);
@@ -224,20 +227,20 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   ptr->GetTuple (100, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
-    {
+  {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
-      {
+    {
       passed = 0;
       break;
-      }
     }
+  }
   if (passed) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertTuple(i, double *tuple)...";
   ptr->InsertTuple (100, tuple3);
@@ -245,62 +248,62 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   ptr->GetTuple (100, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
-    {
+  {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
-      {
+    {
       passed = 0;
       break;
-      }
     }
+  }
   if (passed) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertNextTuple(float *tuple)...";
   for (i=0; i < 10; i++) tuple1[i] = 30 + i;
   ptr->GetTuple (ptr->InsertNextTuple (tuple1), tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
-    {
+  {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (30 + i))
-      {
+    {
       strm << "Expected " << 30 + 1 << " ";
       passed = 0;
       break;
-      }
     }
+  }
   if (passed) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertNextTuple(double *tuple)...";
   for (i=0; i < 10; i++) tuple3[i] = 40 + i;
   ptr->GetTuple (ptr->InsertNextTuple (tuple3), tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
-    {
+  {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
-      {
+    {
       strm << "Expected " << 40 + 1;
       passed = 0;
       break;
-      }
     }
+  }
   if (passed) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tvtkDataArray::GetData...";
   vtkDoubleArray *farray = vtkDoubleArray::New();
@@ -308,20 +311,20 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   ptr->vtkDataArray::GetData (0, 59, 1, 1,  farray);
   passed = 1;
   for (i = 0; i < 10; i++)
-    {
+  {
     strm << farray->GetTuple(i)[0] << " ";
     if (farray->GetTuple(i)[0] != (1 + i*10))
-      {
+    {
       passed = 0;
       break;
-      }
     }
+  }
   if (passed) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
 
   strm << "\tSetTuple1...";
@@ -330,10 +333,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   ptr->SetTuple1(50,10.0);
   if (ptr->GetTuple1(50) == 10.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tSetTuple2...";
   ptr->SetNumberOfComponents(2);
@@ -342,10 +345,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   if (ptr->GetTuple2(50)[0] == 10.0 &&
       ptr->GetTuple2(50)[1] == 20.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tSetTuple3...";
   ptr->SetNumberOfComponents(3);
@@ -355,10 +358,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
       ptr->GetTuple3(50)[1] == 20.0 &&
       ptr->GetTuple3(50)[2] == 30.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tSetTuple4...";
   ptr->SetNumberOfComponents(4);
@@ -369,10 +372,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
       ptr->GetTuple4(50)[2] == 30.0 &&
       ptr->GetTuple4(50)[3] == 40.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tSetTuple9...";
   ptr->SetNumberOfComponents(9);
@@ -388,10 +391,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
       ptr->GetTuple9(50)[7] == 80.0 &&
       ptr->GetTuple9(50)[8] == 90.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertTuple1...";
   ptr->SetNumberOfComponents(1);
@@ -399,10 +402,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   ptr->InsertTuple1(502,10.0);
   if (ptr->GetTuple1(502) == 10.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertTuple2...";
   ptr->SetNumberOfComponents(2);
@@ -411,10 +414,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   if (ptr->GetTuple2(502)[0] == 10.0 &&
       ptr->GetTuple2(502)[1] == 20.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertTuple3...";
   ptr->SetNumberOfComponents(3);
@@ -424,10 +427,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
       ptr->GetTuple3(502)[1] == 20.0 &&
       ptr->GetTuple3(502)[2] == 30.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertTuple4...";
   ptr->SetNumberOfComponents(4);
@@ -438,10 +441,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
       ptr->GetTuple4(502)[2] == 30.0 &&
       ptr->GetTuple4(502)[3] == 40.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertTuple9...";
   ptr->SetNumberOfComponents(9);
@@ -457,10 +460,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
       ptr->GetTuple9(502)[7] == 80.0 &&
       ptr->GetTuple9(502)[8] == 90.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertNextTuple1...";
   ptr->SetNumberOfComponents(1);
@@ -468,10 +471,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   ptr->InsertNextTuple1(10.0);
   if (ptr->GetTuple1(100) == 10.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << " FAILED" << endl;
-    }
+  }
   strm << "\tInsertNextTuple2...";
   ptr->SetNumberOfComponents(2);
   ptr->SetNumberOfTuples(100);
@@ -479,10 +482,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   if (ptr->GetTuple2(100)[0] == 10.0 &&
       ptr->GetTuple2(100)[1] == 20.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertNextTuple3...";
   ptr->SetNumberOfComponents(3);
@@ -492,10 +495,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
       ptr->GetTuple3(100)[1] == 20.0 &&
       ptr->GetTuple3(100)[2] == 30.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertNextTuple4...";
   ptr->SetNumberOfComponents(4);
@@ -506,10 +509,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
       ptr->GetTuple4(100)[2] == 30.0 &&
       ptr->GetTuple4(100)[3] == 40.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
   strm << "\tInsertNextTuple9...";
   ptr->SetNumberOfComponents(9);
@@ -525,10 +528,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
       ptr->GetTuple9(100)[7] == 80.0 &&
       ptr->GetTuple9(100)[8] == 90.0) strm << "OK" << endl;
   else
-    {
+  {
     errors++;
     strm << "FAILED" << endl;
-    }
+  }
 
 
   farray->Delete();
@@ -548,7 +551,10 @@ int otherArraysTest(ostream& strm)
   vtkCharArray *ptr = vtkCharArray::New();
   char *array = new char[SIZE];
   char value = static_cast<char>(1);
-  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  for (int i = 0; i < SIZE; i++)
+  {
+    *(array + i) = static_cast<char>(i);
+  }
   errors += doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
@@ -559,10 +565,12 @@ int otherArraysTest(ostream& strm)
   vtkUnsignedCharArray *ptr = vtkUnsignedCharArray::New();
   unsigned char *array = new unsigned char[SIZE];
   unsigned char value = static_cast<unsigned char>(1);
-  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  errors += doArrayTest (strm, ptr, array, value, SIZE);
+  for (int i = 0; i < SIZE; i++)
+  {
+    *(array + i) = static_cast<unsigned char>(i);
+  }
+  errors += doArrayTest (strm, ptr, array, value, SIZE, true);
   ptr->Delete();
-  delete []array;
   }
 
   {
@@ -570,7 +578,10 @@ int otherArraysTest(ostream& strm)
   vtkIntArray *ptr = vtkIntArray::New();
   int *array = new int[SIZE];
   int value = static_cast<int>(1);
-  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  for (int i = 0; i < SIZE; i++)
+  {
+    *(array + i) = static_cast<int>(i);
+  }
   errors += doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
@@ -581,10 +592,12 @@ int otherArraysTest(ostream& strm)
   vtkUnsignedIntArray *ptr = vtkUnsignedIntArray::New();
   unsigned int *array = new unsigned int[SIZE];
   unsigned int value = static_cast<unsigned int>(1);
-  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  errors += doArrayTest (strm, ptr, array, value, SIZE);
+  for (int i = 0; i < SIZE; i++)
+  {
+    *(array + i) = static_cast<unsigned int>(i);
+  }
+  errors += doArrayTest (strm, ptr, array, value, SIZE, true);
   ptr->Delete();
-  delete []array;
   }
 
   {
@@ -592,7 +605,10 @@ int otherArraysTest(ostream& strm)
   vtkLongArray *ptr = vtkLongArray::New();
   long *array = new long[SIZE];
   long value = static_cast<long>(1);
-  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  for (int i = 0; i < SIZE; i++)
+  {
+    *(array + i) = static_cast<long>(i);
+  }
   errors += doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
@@ -603,10 +619,12 @@ int otherArraysTest(ostream& strm)
   vtkUnsignedLongArray *ptr = vtkUnsignedLongArray::New();
   unsigned long *array = new unsigned long[SIZE];
   unsigned long value = static_cast<unsigned long>(1);
-  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  errors += doArrayTest (strm, ptr, array, value, SIZE);
+  for (int i = 0; i < SIZE; i++)
+  {
+    *(array + i) = static_cast<unsigned long>(i);
+  }
+  errors += doArrayTest (strm, ptr, array, value, SIZE, true);
   ptr->Delete();
-  delete []array;
   }
 
   {
@@ -614,7 +632,10 @@ int otherArraysTest(ostream& strm)
   vtkShortArray *ptr = vtkShortArray::New();
   short *array = new short[SIZE];
   short value = static_cast<short>(1);
-  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  for (int i = 0; i < SIZE; i++)
+  {
+    *(array + i) = static_cast<short>(i);
+  }
   errors += doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
@@ -625,10 +646,12 @@ int otherArraysTest(ostream& strm)
   vtkUnsignedShortArray *ptr = vtkUnsignedShortArray::New();
   unsigned short *array = new unsigned short[SIZE];
   unsigned short value = static_cast<unsigned short>(1);
-  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  errors += doArrayTest (strm, ptr, array, value, SIZE);
+  for (int i = 0; i < SIZE; i++)
+  {
+    *(array + i) = static_cast<unsigned short>(i);
+  }
+  errors += doArrayTest (strm, ptr, array, value, SIZE, true);
   ptr->Delete();
-  delete []array;
   }
 
   {
@@ -636,7 +659,10 @@ int otherArraysTest(ostream& strm)
   vtkFloatArray *ptr = vtkFloatArray::New();
   float *array = new float[SIZE];
   float value = static_cast<float>(1);
-  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  for (int i = 0; i < SIZE; i++)
+  {
+    *(array + i) = static_cast<float>(i);
+  }
   errors += doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
@@ -647,10 +673,12 @@ int otherArraysTest(ostream& strm)
   vtkDoubleArray *ptr = vtkDoubleArray::New();
   double *array = new double[SIZE];
   double value = static_cast<double>(1);
-  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  errors += doArrayTest (strm, ptr, array, value, SIZE);
+  for (int i = 0; i < SIZE; i++)
+  {
+    *(array + i) = static_cast<double>(i);
+  }
+  errors += doArrayTest (strm, ptr, array, value, SIZE, true);
   ptr->Delete();
-  delete []array;
   }
 
   {
@@ -658,7 +686,10 @@ int otherArraysTest(ostream& strm)
   vtkIdTypeArray *ptr = vtkIdTypeArray::New();
   vtkIdType *array = new vtkIdType[SIZE];
   vtkIdType value = static_cast<vtkIdType>(1);
-  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  for (int i = 0; i < SIZE; i++)
+  {
+    *(array + i) = static_cast<vtkIdType>(i);
+  }
   errors += doArrayTest (strm, ptr, array, value, SIZE);
   ptr->Delete();
   delete []array;
@@ -668,8 +699,5 @@ int otherArraysTest(ostream& strm)
 
 int otherArrays(int, char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
-//  return otherArraysTest(vtkmsg_with_warning_C4701);
   return otherArraysTest(cerr);
-
 }

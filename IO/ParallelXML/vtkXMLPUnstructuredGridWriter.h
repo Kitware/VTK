@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPUnstructuredGridWriter - Write PVTK XML UnstructuredGrid files.
-// .SECTION Description
-// vtkXMLPUnstructuredGridWriter writes the PVTK XML UnstructuredGrid
-// file format.  One unstructured grid input can be written into a
-// parallel file format with any number of pieces spread across files.
-// The standard extension for this writer's file format is "pvtu".
-// This writer uses vtkXMLUnstructuredGridWriter to write the
-// individual piece files.
-
-// .SECTION See Also
-// vtkXMLUnstructuredGridWriter
+/**
+ * @class   vtkXMLPUnstructuredGridWriter
+ * @brief   Write PVTK XML UnstructuredGrid files.
+ *
+ * vtkXMLPUnstructuredGridWriter writes the PVTK XML UnstructuredGrid
+ * file format.  One unstructured grid input can be written into a
+ * parallel file format with any number of pieces spread across files.
+ * The standard extension for this writer's file format is "pvtu".
+ * This writer uses vtkXMLUnstructuredGridWriter to write the
+ * individual piece files.
+ *
+ * @sa
+ * vtkXMLUnstructuredGridWriter
+*/
 
 #ifndef vtkXMLPUnstructuredGridWriter_h
 #define vtkXMLPUnstructuredGridWriter_h
@@ -37,31 +40,31 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPUnstructuredGridWriter : public vtkXMLPUnst
 public:
   static vtkXMLPUnstructuredGridWriter* New();
   vtkTypeMacro(vtkXMLPUnstructuredGridWriter,vtkXMLPUnstructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //BTX
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkUnstructuredGridBase* GetInput();
-  //ETX
 
-  // Description:
-  // Get the default file extension for files written by this writer.
-  const char* GetDefaultFileExtension();
+  /**
+   * Get the default file extension for files written by this writer.
+   */
+  const char* GetDefaultFileExtension() override;
 
 protected:
   vtkXMLPUnstructuredGridWriter();
-  ~vtkXMLPUnstructuredGridWriter();
+  ~vtkXMLPUnstructuredGridWriter() override;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  const char* GetDataSetName();
-  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter();
+  const char* GetDataSetName() override;
+  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter() override;
 
 private:
-  vtkXMLPUnstructuredGridWriter(const vtkXMLPUnstructuredGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLPUnstructuredGridWriter&);  // Not implemented.
+  vtkXMLPUnstructuredGridWriter(const vtkXMLPUnstructuredGridWriter&) = delete;
+  void operator=(const vtkXMLPUnstructuredGridWriter&) = delete;
 };
 
 #endif

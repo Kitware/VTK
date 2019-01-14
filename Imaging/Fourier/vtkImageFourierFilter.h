@@ -12,12 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageFourierFilter - Superclass that implements complex numbers.
-// .SECTION Description
-// vtkImageFourierFilter is a class of filters that use complex numbers
-// this superclass is a container for methods that manipulate these structure
-// including fast Fourier transforms.  Complex numbers may become a class.
-// This should really be a helper class.
+/**
+ * @class   vtkImageFourierFilter
+ * @brief   Superclass that implements complex numbers.
+ *
+ * vtkImageFourierFilter is a class of filters that use complex numbers
+ * this superclass is a container for methods that manipulate these structure
+ * including fast Fourier transforms.  Complex numbers may become a class.
+ * This should really be a helper class.
+*/
+
 #ifndef vtkImageFourierFilter_h
 #define vtkImageFourierFilter_h
 
@@ -25,8 +29,6 @@
 #include "vtkImagingFourierModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
 
-
-//BTX
 /*******************************************************************
                         COMPLEX number stuff
 *******************************************************************/
@@ -35,7 +37,7 @@
 typedef struct{
     double Real;
     double Imag;
-  } vtkImageComplex;
+} vtkImageComplex;
 
 
 #define vtkImageComplexEuclidSet(C, R, I) \
@@ -82,7 +84,6 @@ typedef struct{
 }
 
 /******************* End of COMPLEX number stuff ********************/
-//ETX
 
 class VTKIMAGINGFOURIER_EXPORT vtkImageFourierFilter : public vtkImageDecomposeFilter
 {
@@ -91,38 +92,43 @@ public:
 
 
   // public for templated functions of this object
-  //BTX
 
-  // Description:
-  // This function calculates the whole fft of an array.
-  // The contents of the input array are changed.
-  // (It is engineered for no decimation)
+  /**
+   * This function calculates the whole fft of an array.
+   * The contents of the input array are changed.
+   * (It is engineered for no decimation)
+   */
   void ExecuteFft(vtkImageComplex *in, vtkImageComplex *out, int N);
 
 
-  // Description:
-  // This function calculates the whole fft of an array.
-  // The contents of the input array are changed.
-  // (It is engineered for no decimation)
+  /**
+   * This function calculates the whole fft of an array.
+   * The contents of the input array are changed.
+   * (It is engineered for no decimation)
+   */
   void ExecuteRfft(vtkImageComplex *in, vtkImageComplex *out, int N);
-
-  //ETX
 
 protected:
   vtkImageFourierFilter() {}
-  ~vtkImageFourierFilter() {}
+  ~vtkImageFourierFilter() override {}
 
-  //BTX
   void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out,
                        int N, int bsize, int fb);
   void ExecuteFftStepN(vtkImageComplex *p_in, vtkImageComplex *p_out,
                        int N, int bsize, int n, int fb);
   void ExecuteFftForwardBackward(vtkImageComplex *in, vtkImageComplex *out,
                                  int N, int fb);
-  //ETX
+
+  /**
+   * Override to change extent splitting rules.
+   */
+  int RequestData(vtkInformation* request,
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector) override;
+
 private:
-  vtkImageFourierFilter(const vtkImageFourierFilter&);  // Not implemented.
-  void operator=(const vtkImageFourierFilter&);  // Not implemented.
+  vtkImageFourierFilter(const vtkImageFourierFilter&) = delete;
+  void operator=(const vtkImageFourierFilter&) = delete;
 };
 
 

@@ -1,11 +1,21 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkRenderingAnnotationCxxTests tests
+  TestAxisActor.cxx
+  TestAxisActor2D.cxx
   TestAxisActor3D.cxx
+  TestAxisActorText3D.cxx
   TestBarChartActor.cxx
   TestCaptionActor2D.cxx
   TestConvexHull2D.cxx,NO_VALID
   TestCornerAnnotation.cxx
   TestCubeAxes2DMode.cxx
   TestCubeAxes3.cxx
+  TestCubeAxesInnerGridAll.cxx
+  TestCubeAxesInnerGridClosest.cxx
+  TestCubeAxesInnerGridFurthest.cxx
+  TestCubeAxesIntersectionPoint.cxx
+  TestCubeAxesOrientedBoundingBox.cxx
+  TestCubeAxesSticky.cxx
+  TestCubeAxesStickyCentered.cxx
   TestCubeAxesWithGridLines.cxx
   TestCubeAxesWithXInnerGrids.cxx
   TestCubeAxesWithXInnerPolys.cxx
@@ -16,21 +26,17 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestCubeAxesWithZInnerGrids.cxx
   TestCubeAxesWithZInnerPolys.cxx
   TestCubeAxesWithZLines.cxx
+  TestEmptyCornerAnnotation.cxx
   TestLegendBoxActor.cxx
+  TestLegendBoxActor2.cxx
   TestLegendScaleActor.cxx
   TestPieChartActor.cxx
   TestPolarAxes.cxx
   TestScalarBar.cxx
+  TestScalarBarAboveBelow.cxx
   TestSpiderPlotActor.cxx
-  TestCubeAxesOrientedBoundingBox.cxx
-  TestCubeAxesIntersectionPoint.cxx
-  TestCubeAxesInnerGridAll.cxx
-  TestCubeAxesInnerGridClosest.cxx
-  TestCubeAxesInnerGridFurthest.cxx
-  TestCubeAxesSticky.cxx
-  TestCubeAxesStickyCentered.cxx
   TestXYPlotActor.cxx
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkRenderingAnnotationCxxTests tests
   RENDERING_FACTORY)

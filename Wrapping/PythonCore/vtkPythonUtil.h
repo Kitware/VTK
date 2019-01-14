@@ -13,17 +13,24 @@
 
 =========================================================================*/
 
-// .NAME vtkPythonUtil
+/**
+ * @class   vtkPythonUtil
+*/
 
 #ifndef vtkPythonUtil_h
 #define vtkPythonUtil_h
 
 #include "vtkPython.h"
-#include "PyVTKClass.h"
-#include "PyVTKMutableObject.h"
+#include "vtkPythonCompatibility.h"
+#include "PyVTKReference.h"
 #include "PyVTKNamespace.h"
 #include "PyVTKObject.h"
 #include "PyVTKSpecialObject.h"
+
+#if defined(_MSC_VER) // Visual Studio
+// some docstrings trigger "decimal digit terminates octal escape sequence"
+#pragma warning ( disable : 4125 )
+#endif
 
 class vtkPythonClassMap;
 class vtkPythonCommand;
@@ -32,6 +39,8 @@ class vtkPythonGhostMap;
 class vtkPythonObjectMap;
 class vtkPythonSpecialTypeMap;
 class vtkPythonNamespaceMap;
+class vtkPythonEnumMap;
+class vtkPythonModuleList;
 class vtkStdString;
 class vtkUnicodeString;
 class vtkVariant;
@@ -42,142 +51,209 @@ class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonUtil
 {
 public:
 
-  // Description:
-  // If the name is templated or mangled, converts it into
-  // a python-printable name.
+  /**
+   * If the name is templated or mangled, converts it into
+   * a python-printable name.
+   */
   static const char *PythonicClassName(const char *classname);
 
-  // Description:
-  // Add a PyVTKClass to the type lookup table, this allows us to later
-  // create object given only the class name.
-  static void AddClassToMap(PyObject *obj, const char *classname);
+  /**
+   * Given a qualified python name "module.name", remove "module.".
+   */
+  static const char *StripModule(const char *tpname);
 
-  // Description:
-  // Get information about a special VTK type, given the type name.
-  static PyObject *FindClass(const char *classname);
+  /**
+   * Add a PyVTKClass to the type lookup table, this allows us to later
+   * create object given only the class name.
+   */
+  static PyTypeObject *AddClassToMap(
+    PyTypeObject *pytype, PyMethodDef *methods,
+    const char *classname, vtknewfunc constructor);
 
-  // Description:
-  // For an VTK object whose class is not in the ClassMap, search
-  // the whole ClassMap to find out which class is the closest base
-  // class of the object.  Returns a PyVTKClass.
-  static PyObject *FindNearestBaseClass(vtkObjectBase *ptr);
+  /**
+   * Get information about a special VTK type, given the type name.
+   */
+  static PyVTKClass *FindClass(const char *classname);
 
-  // Description:
-  // Extract the vtkObjectBase from a PyVTKObject.  If the PyObject is
-  // not a PyVTKObject, or is not a PyVTKObject of the specified type,
-  // the python error indicator will be set.
-  // Special behavior: Py_None is converted to NULL without no error.
+  /**
+   * For an VTK object whose class is not in the ClassMap, search
+   * the whole ClassMap to find out which class is the closest base
+   * class of the object.  Returns a PyVTKClass.
+   */
+  static PyVTKClass *FindNearestBaseClass(vtkObjectBase *ptr);
+
+  /**
+   * Extract the vtkObjectBase from a PyVTKObject.  If the PyObject is
+   * not a PyVTKObject, or is not a PyVTKObject of the specified type,
+   * the python error indicator will be set.
+   * Special behavior: Py_None is converted to NULL without no error.
+   */
   static vtkObjectBase *GetPointerFromObject(PyObject *obj,
                                              const char *classname);
 
-  // Description:
-  // Convert a vtkObjectBase to a PyVTKObject.  This will first check to
-  // see if the PyVTKObject already exists, and create a new PyVTKObject
-  // if necessary.  This function also passes ownership of the reference
-  // to the PyObject.
-  // Special behaviour: NULL is converted to Py_None.
+  /**
+   * Convert a vtkObjectBase to a PyVTKObject.  This will first check to
+   * see if the PyVTKObject already exists, and create a new PyVTKObject
+   * if necessary.  This function also passes ownership of the reference
+   * to the PyObject.
+   * Special behaviour: NULL is converted to Py_None.
+   *
+   * **Return value: New reference.**
+   */
   static PyObject *GetObjectFromPointer(vtkObjectBase *ptr);
 
-  // Description:
-  // Extract the SIP wrapped object from a PyObject.  If the conversion cannot
-  // be done, an error indicator is set.
-  // Special behavior: Py_None is converted to NULL without no error.
-  static void *SIPGetPointerFromObject(PyObject *obj, const char *classname);
-
-  // Description:
-  // Convert a SIP wrapped object to a PyObject.
-  // Special behaviour: NULL is converted to Py_None.
-  static PyObject *SIPGetObjectFromPointer(
-    const void *ptr, const char* classname, bool is_new);
-
-  // Description:
-  // Try to convert some PyObject into a PyVTKObject, currently conversion
-  // is supported for SWIG-style mangled pointer strings.
+  /**
+   * Try to convert some PyObject into a PyVTKObject, currently conversion
+   * is supported for SWIG-style mangled pointer strings.
+   */
   static PyObject *GetObjectFromObject(PyObject *arg, const char *type);
 
-  // Description:
-  // Add PyVTKObject/vtkObjectBase pairs to the internal mapping.
-  // This methods do not change the reference counts of either the
-  // vtkObjectBase or the PyVTKObject.
+  /**
+   * Add PyVTKObject/vtkObjectBase pairs to the internal mapping.
+   * This methods do not change the reference counts of either the
+   * vtkObjectBase or the PyVTKObject.
+   */
   static void AddObjectToMap(PyObject *obj, vtkObjectBase *anInstance);
 
-  // Description:
-  // Remove a PyVTKObject from the internal mapping.  No reference
-  // counts are changed.
+  /**
+   * Remove a PyVTKObject from the internal mapping.  No reference
+   * counts are changed.
+   */
   static void RemoveObjectFromMap(PyObject *obj);
 
-  // Description:
-  // Add a special VTK type to the type lookup table, this allows us to
-  // later create object given only the class name.
-  static PyVTKSpecialType *AddSpecialTypeToMap(
-    PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
-    const char *docstring[], PyVTKSpecialCopyFunc copyfunc);
+  /**
+   * Find the PyObject for a VTK object, return nullptr if not found.
+   * If the object is found, then it is returned as a new reference.
+   * Special behavior: If "ptr" is nullptr, then Py_None is returned.
+   *
+   * **Return value: New reference.**
+   */
+  static PyObject *FindObject(vtkObjectBase *ptr);
 
-  // Description:
-  // Get information about a special VTK type, given the type name.
+  /**
+   * Add a special VTK type to the type lookup table, this allows us to
+   * later create object given only the class name.
+   */
+  static PyTypeObject *AddSpecialTypeToMap(
+    PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
+    vtkcopyfunc copyfunc);
+
+  /**
+   * Get information about a special VTK type, given the type name.
+   */
   static PyVTKSpecialType *FindSpecialType(const char *classname);
 
-  // Description:
-  // Given a PyObject, convert it into a "result_type" object, where
-  // "result_type" must be a wrapped type.  The C object is returned
-  // as a void *, which must be cast to a pointer of the desired type.
-  // If conversion was necessary, then the created python object is
-  // returned in "newobj", but if the original python object was
-  // already of the correct type, then "newobj" will be set to NULL.
-  // If a python exception was raised, NULL will be returned.
+  /**
+   * Given a PyObject, convert it into a "result_type" object, where
+   * "result_type" must be a wrapped type.  The C object is returned
+   * as a void *, which must be cast to a pointer of the desired type.
+   * If conversion was necessary, then the created python object is
+   * returned in "newobj", but if the original python object was
+   * already of the correct type, then "newobj" will be set to NULL.
+   * If a python exception was raised, NULL will be returned.
+   */
   static void *GetPointerFromSpecialObject(
     PyObject *obj, const char *result_type, PyObject **newobj);
 
-  // Description:
-  // Add a wrapped C++ namespace as a python module object.  This allows
-  // the namespace to be retrieved and added to as necessary.
+  /**
+   * Add a wrapped C++ namespace as a python module object.  This allows
+   * the namespace to be retrieved and added to as necessary.
+   */
   static void AddNamespaceToMap(PyObject *o);
 
-  // Description:
-  // Remove a wrapped C++ namespace from consideration.  This is called
-  // from the namespace destructor.
+  /**
+   * Remove a wrapped C++ namespace from consideration.  This is called
+   * from the namespace destructor.
+   */
   static void RemoveNamespaceFromMap(PyObject *o);
 
-  // Description:
-  // Return an existing namespace, or NULL if it doesn't exist.
+  /**
+   * Return an existing namespace, or NULL if it doesn't exist.
+   */
   static PyObject *FindNamespace(const char *name);
 
-  // Description:
-  // Utility function to build a docstring by concatenating a series
-  // of strings until a null string is found.
+  /**
+   * Add a wrapped C++ enum as a python type object.
+   */
+  static void AddEnumToMap(PyTypeObject *o);
+
+  /**
+   * Return an enum type object, or NULL if it doesn't exist.
+   */
+  static PyTypeObject *FindEnum(const char *name);
+
+  /**
+   * Find the PyTypeObject for a wrapped VTK class.
+   */
+  static PyTypeObject *FindClassTypeObject(const char *name);
+
+  /**
+   * Find the PyTypeObject for a wrapped VTK type (non-vtkObject class).
+   */
+  static PyTypeObject *FindSpecialTypeObject(const char *name);
+
+  /**
+   * Try to load an extension module, by looking in all the usual places.
+   * The "globals" is the dict of the module that is doing the importing.
+   * First, a relative import is performed, and if that fails, then a
+   * global import is performed.  A return value of "false" indicates
+   * failure, no exception is set.
+   */
+  static bool ImportModule(const char *name, PyObject *globals);
+
+  /**
+   * Modules call this to add themselves to the list of loaded modules.
+   * This is needed because we do not know how the modules are arranged
+   * within their package, so searching sys.modules is unreliable.  It is
+   * best for us to keep our own list.
+   */
+  static void AddModule(const char *name);
+
+  /**
+   * Utility function to build a docstring by concatenating a series
+   * of strings until a null string is found.
+   */
   static PyObject *BuildDocString(const char *docstring[]);
 
-  // Description:
-  // Utility function for creating SWIG-style mangled pointer string.
+  /**
+   * Utility function for creating SWIG-style mangled pointer string.
+   */
   static char *ManglePointer(const void *ptr, const char *type);
 
-  // Description:
-  // Utility function decoding a SWIG-style mangled pointer string.
+  /**
+   * Utility function decoding a SWIG-style mangled pointer string.
+   */
   static void *UnmanglePointer(char *ptrText, int *len, const char *type);
 
-  // Description:
-  // Compute a hash for a vtkVariant.
-  static long VariantHash(const vtkVariant *variant);
+  /**
+   * Compute a hash for a vtkVariant.
+   */
+  static Py_hash_t VariantHash(const vtkVariant *variant);
 
-  // Description:
-  // Register a vtkPythonCommand. Registering vtkPythonCommand instances ensures
-  // that when the interpreter is destroyed (and Py_AtExit() gets called), the
-  // vtkPythonCommand state is updated to avoid referring to dangling Python
-  // objects pointers. Note, this will not work with Py_NewInterpreter.
+  //@{
+  /**
+   * Register a vtkPythonCommand. Registering vtkPythonCommand instances ensures
+   * that when the interpreter is destroyed (and Py_AtExit() gets called), the
+   * vtkPythonCommand state is updated to avoid referring to dangling Python
+   * objects pointers. Note, this will not work with Py_NewInterpreter.
+   */
   static void RegisterPythonCommand(vtkPythonCommand*);
   static void UnRegisterPythonCommand(vtkPythonCommand*);
+  //@}
 
 private:
   vtkPythonUtil();
   ~vtkPythonUtil();
-  vtkPythonUtil(const vtkPythonUtil&);  // Not implemented.
-  void operator=(const vtkPythonUtil&);  // Not implemented.
+  vtkPythonUtil(const vtkPythonUtil&) = delete;
+  void operator=(const vtkPythonUtil&) = delete;
 
   vtkPythonObjectMap *ObjectMap;
   vtkPythonGhostMap *GhostMap;
   vtkPythonClassMap *ClassMap;
   vtkPythonSpecialTypeMap *SpecialTypeMap;
   vtkPythonNamespaceMap *NamespaceMap;
+  vtkPythonEnumMap *EnumMap;
+  vtkPythonModuleList *ModuleList;
   vtkPythonCommandList *PythonCommandList;
 
   friend void vtkPythonUtilDelete();
@@ -188,31 +264,5 @@ private:
 extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFunc(void *);
 extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFuncArgDelete(void *);
 
-// The following macro is used to suppress missing initializer
-// warnings.  Python documentation says these should not be necessary.
-// We define it as a macro in case the length needs to change across
-// python versions.
-#if   PY_VERSION_HEX >= 0x02060000 // for tp_version_tag
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
-  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0, 0,
-#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED \
-  0, 0,
-#elif   PY_VERSION_HEX >= 0x02030000
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
-  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,
-#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED \
-  0,
-#elif PY_VERSION_HEX >= 0x02020000
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
-  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
-#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
-#else
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
-#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
 #endif
-
-#if PY_VERSION_HEX < 0x02050000
-  typedef int Py_ssize_t;
-#endif
-
-#endif
+// VTK-HeaderTest-Exclude: vtkPythonUtil.h

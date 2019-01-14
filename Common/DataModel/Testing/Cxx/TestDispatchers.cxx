@@ -34,12 +34,12 @@
 namespace
 {
 
-void test_expression(bool valid, std::string msg)
+void test_expression(bool valid, const std::string& msg)
 {
   if(!valid)
-    {
+  {
     throw std::runtime_error(msg);
-    }
+  }
 }
 
 template<typename T, typename U>
@@ -54,9 +54,9 @@ struct singleFunctor
   singleFunctor():timesCalled(0){}
   template<typename T>
   int operator()(T&)
-    {
+  {
     return ++timesCalled;
-    }
+  }
 };
 
 struct doubleFunctor
@@ -65,9 +65,9 @@ struct doubleFunctor
   doubleFunctor():timesCalled(0){}
   template<typename T, typename U>
   int operator()(T&, U&)
-    {
+  {
     return ++timesCalled;
-    }
+  }
 };
 
 //type traits for vtkTTFunctor and pointsWrapper
@@ -96,34 +96,34 @@ struct vtkTTFunctor
 {
   template<typename T>
   void operator()(T& t) const
-    {
+  {
     //example that sorts, only works on single component
     typedef typename FieldType<T>::ValueType ValueType;
     if(t.GetNumberOfComponents() == 1)
-      {
+    {
       ValueType* start = static_cast<ValueType*>(t.GetVoidPointer(0));
       ValueType* end = static_cast<ValueType*>(t.GetVoidPointer(
                                                  t.GetNumberOfTuples()));
       std::sort(start,end);
-      }
     }
+  }
 };
 
 struct pointsFunctor
 {
   vtkPoints* operator()(vtkDoubleArray& dataArray) const
-    {
+  {
     vtkPoints* points = vtkPoints::New();
     points->SetData(&dataArray);
     return points;
-    }
+  }
 
   vtkPoints* operator()(vtkIntArray& dataArray) const
-    {
+  {
     vtkPoints* points = vtkPoints::New();
     points->SetNumberOfPoints(dataArray.GetNumberOfTuples());
     return points;
-    }
+  }
 };
 
 }
@@ -255,6 +255,7 @@ bool TestMixedDispatch()
 
   int result = dispatcher.Go(as<vtkDataArray>(doubleArray.GetPointer()));
   result = dispatcher.Go(intArray.GetPointer());
+  test_expression(result==2,"unexpected");
   result = dispatcher.Go(doubleArray.GetPointer());
   test_expression(result==3,"statefull functor failed with int and double");
 
@@ -280,10 +281,10 @@ bool TestVTKTTReplacement()
   intArray->SetNumberOfValues(10);
 
   for(int i=0; i < 10; ++i)
-    {
+  {
     doubleArray->SetValue(i,10-i);
     intArray->SetValue(i,-10*i);
-    }
+  }
 
   //sort the array, passing in as vtkObject to show we use RTTI
   //to get out the derived class info
@@ -316,7 +317,7 @@ bool TestReturnVtkObject()
   //make sure the result isn't copied anywhere
   vtkPoints* result = dispatcher.Go(as<vtkDataArray>(doubleArray.GetPointer()));
 
-  test_expression(result != NULL, "Returned points not valid");
+  test_expression(result != nullptr, "Returned points not valid");
   test_expression(result->GetData() == doubleArray.GetPointer(),
                   "Returned points not equal to the passed in double array");
   result->Delete();
@@ -325,7 +326,7 @@ bool TestReturnVtkObject()
   vtkNew<vtkIntArray> intArray;
   result = dispatcher.Go(as<vtkDataArray>( intArray.GetPointer() ));
 
-  test_expression(result != NULL, "Returned points not valid");
+  test_expression(result != nullptr, "Returned points not valid");
   result->Delete();
 
   return true;

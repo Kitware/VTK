@@ -26,8 +26,8 @@ vtkStandardNewMacro(vtkMCubesWriter);
 // Create object.
 vtkMCubesWriter::vtkMCubesWriter()
 {
-  this->FileName = 0;
-  this->LimitsFileName = NULL;
+  this->FileName = nullptr;
+  this->LimitsFileName = nullptr;
 }
 
 vtkMCubesWriter::~vtkMCubesWriter()
@@ -46,43 +46,43 @@ void vtkMCubesWriter::WriteData()
 
   polys = input->GetPolys();
   pts = input->GetPoints();
-  if (pts == NULL || polys == NULL )
-    {
+  if (pts == nullptr || polys == nullptr )
+  {
     vtkErrorMacro(<<"No data to write!");
     return;
-    }
+  }
 
   normals = input->GetPointData()->GetNormals();
-  if (normals == NULL )
-    {
+  if (normals == nullptr )
+  {
     vtkErrorMacro(<<"No normals to write!: use vtkPolyDataNormals to generate them");
     return;
-    }
+  }
 
-  if ( this->FileName == NULL)
-    {
+  if ( this->FileName == nullptr)
+  {
     vtkErrorMacro(<< "Please specify FileName to write");
     return;
-    }
+  }
 
   vtkDebugMacro("Writing MCubes tri file");
   FILE *fp;
-  if ((fp = fopen(this->FileName, "w")) == NULL)
-    {
+  if ((fp = fopen(this->FileName, "w")) == nullptr)
+  {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName);
     return;
-    }
+  }
   this->WriteMCubes(fp, pts, normals, polys);
   fclose (fp);
 
   if (this->LimitsFileName)
-    {
+  {
     vtkDebugMacro("Writing MCubes limits file");
-    if ((fp = fopen(this->LimitsFileName, "w")) == NULL)
-      {
+    if ((fp = fopen(this->LimitsFileName, "w")) == nullptr)
+    {
       vtkErrorMacro(<< "Couldn't open file: " << this->LimitsFileName);
       return;
-      }
+    }
     this->WriteLimits(fp, input->GetBounds ());
     fclose (fp);
   }
@@ -96,7 +96,7 @@ void vtkMCubesWriter::WriteMCubes(FILE *fp, vtkPoints *pts,
   pointType point;
   int i;
   vtkIdType npts;
-  vtkIdType *indx = 0;
+  vtkIdType *indx = nullptr;
 
   //  Write out triangle polygons.  In not a triangle polygon, create
   //  triangles.
@@ -104,9 +104,9 @@ void vtkMCubesWriter::WriteMCubes(FILE *fp, vtkPoints *pts,
   double p[3], n[3];
   bool status=true;
   for (polys->InitTraversal(); polys->GetNextCell(npts,indx) && status; )
-    {
+  {
     for (i=0; i < 3 && status; i++)
-      {
+    {
       pts->GetPoint(indx[i],p);
       normals->GetTuple(indx[i],n);
       point.x[0] = static_cast<float>(p[0]);
@@ -118,11 +118,11 @@ void vtkMCubesWriter::WriteMCubes(FILE *fp, vtkPoints *pts,
       status=vtkByteSwap::SwapWrite4BERange(reinterpret_cast<float *>(&point),
                                             6,fp);
       if(!status)
-        {
+      {
         vtkErrorMacro(<< "SwapWrite failed.");
-        }
       }
     }
+  }
 }
 void vtkMCubesWriter::WriteLimits(FILE *fp, double *bounds)
 {
@@ -135,17 +135,17 @@ void vtkMCubesWriter::WriteLimits(FILE *fp, double *bounds)
   fbounds[5] = static_cast<float>(bounds[5]);
   bool status=vtkByteSwap::SwapWrite4BERange(fbounds,6,fp);
   if(!status)
-    {
+  {
     vtkErrorMacro(<< "SwapWrite failed.");
-    }
+  }
   else
-    {
+  {
     status=vtkByteSwap::SwapWrite4BERange(fbounds,6,fp);
     if(!status)
-      {
+    {
       vtkErrorMacro(<< "SwapWrite failed.");
-      }
     }
+  }
 }
 
 void vtkMCubesWriter::PrintSelf(ostream& os, vtkIndent indent)

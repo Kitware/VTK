@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataReader - helper superclass for objects that read vtk data files
-// .SECTION Description
-// vtkDataReader is a helper superclass that reads the vtk data file header,
-// dataset type, and attribute data (point and cell attributes such as
-// scalars, vectors, normals, etc.) from a vtk data file.  See text for
-// the format of the various vtk file types.
-//
-// .SECTION See Also
-// vtkPolyDataReader vtkStructuredPointsReader vtkStructuredGridReader
-// vtkUnstructuredGridReader vtkRectilinearGridReader
+/**
+ * @class   vtkDataReader
+ * @brief   helper superclass for objects that read vtk data files
+ *
+ * vtkDataReader is a helper superclass that reads the vtk data file header,
+ * dataset type, and attribute data (point and cell attributes such as
+ * scalars, vectors, normals, etc.) from a vtk data file.  See text for
+ * the format of the various vtk file types.
+ *
+ * @sa
+ * vtkPolyDataReader vtkStructuredPointsReader vtkStructuredGridReader
+ * vtkUnstructuredGridReader vtkRectilinearGridReader
+*/
 
 #ifndef vtkDataReader_h
 #define vtkDataReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
-#include "vtkAlgorithm.h"
+#include "vtkSimpleReader.h"
 #include "vtkStdString.h" // For API using strings
 
 #define VTK_ASCII 1
@@ -43,30 +46,39 @@ class vtkPointSet;
 class vtkRectilinearGrid;
 class vtkTable;
 
-class VTKIOLEGACY_EXPORT vtkDataReader : public vtkAlgorithm
+class VTKIOLEGACY_EXPORT vtkDataReader : public vtkSimpleReader
 {
 public:
   enum FieldType
   {
     POINT_DATA,
     CELL_DATA,
-    FIELD_DATA,
+    FIELD_DATA
   };
 
-
-
   static vtkDataReader *New();
-  vtkTypeMacro(vtkDataReader,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro(vtkDataReader,vtkSimpleReader);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Specify file name of vtk data file to read.
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  //@{
+  /**
+   * Specify file name of vtk data file to read. This is just
+   * a convenience method that calls the superclass' AddFileName
+   * method.
+   */
+  void SetFileName(const char* fname);
+  const char* GetFileName() const;
+  const char* GetFileName(int i) const
+  {
+    return this->vtkSimpleReader::GetFileName(i);
+  }
+  //@}
 
-  // Description:
-  // Is the file a valid vtk file of the passed dataset type ?
-  // The dataset type is passed as a lower case string.
+  //@{
+  /**
+   * Is the file a valid vtk file of the passed dataset type ?
+   * The dataset type is passed as a lower case string.
+   */
   int IsFileValid(const char *dstype);
   int IsFileStructuredPoints() {
     return this->IsFileValid("structured_points");};
@@ -78,12 +90,15 @@ public:
     return this->IsFileValid("unstructured_grid");};
   int IsFileRectilinearGrid() {
     return this->IsFileValid("rectilinear_grid");};
+  //@}
 
-  // Description:
-  // Specify the InputString for use when reading from a character array.
-  // Optionally include the length for binary strings. Note that a copy
-  // of the string is made and stored. If this causes exceedingly large
-  // memory consumption, consider using InputArray instead.
+  //@{
+  /**
+   * Specify the InputString for use when reading from a character array.
+   * Optionally include the length for binary strings. Note that a copy
+   * of the string is made and stored. If this causes exceedingly large
+   * memory consumption, consider using InputArray instead.
+   */
   void SetInputString(const char *in);
   vtkGetStringMacro(InputString);
   void SetInputString(const char *in, int len);
@@ -91,39 +106,53 @@ public:
   void SetBinaryInputString(const char *, int len);
   void SetInputString(const vtkStdString& input)
     { this->SetBinaryInputString(input.c_str(), static_cast<int>(input.length())); }
+  //@}
 
-  // Description:
-  // Specify the vtkCharArray to be used  when reading from a string.
-  // If set, this array has precedence over InputString.
-  // Use this instead of InputString to avoid the extra memory copy.
-  // It should be noted that if the underlying char* is owned by the
-  // user ( vtkCharArray::SetArray(array, 1); ) and is deleted before
-  // the reader, bad things will happen during a pipeline update.
+  //@{
+  /**
+   * Specify the vtkCharArray to be used  when reading from a string.
+   * If set, this array has precedence over InputString.
+   * Use this instead of InputString to avoid the extra memory copy.
+   * It should be noted that if the underlying char* is owned by the
+   * user ( vtkCharArray::SetArray(array, 1); ) and is deleted before
+   * the reader, bad things will happen during a pipeline update.
+   */
   virtual void SetInputArray(vtkCharArray*);
   vtkGetObjectMacro(InputArray, vtkCharArray);
+  //@}
 
-  // Description:
-  // Get the header from the vtk data file.
+  //@{
+  /**
+   * Get the header from the vtk data file.
+   */
   vtkGetStringMacro(Header);
+  //@}
 
-  // Description:
-  // Enable reading from an InputString or InputArray instead of the default,
-  // a file.
-  vtkSetMacro(ReadFromInputString,int);
-  vtkGetMacro(ReadFromInputString,int);
-  vtkBooleanMacro(ReadFromInputString,int);
+  //@{
+  /**
+   * Enable reading from an InputString or InputArray instead of the default,
+   * a file.
+   */
+  vtkSetMacro(ReadFromInputString,vtkTypeBool);
+  vtkGetMacro(ReadFromInputString,vtkTypeBool);
+  vtkBooleanMacro(ReadFromInputString,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Get the type of file (ASCII or BINARY). Returned value only valid
-  // after file has been read.
+  //@{
+  /**
+   * Get the type of file (ASCII or BINARY). Returned value only valid
+   * after file has been read.
+   */
   vtkGetMacro(FileType,int);
+  //@}
 
-  // Description:
-  // How many attributes of various types are in this file? This
-  // requires reading the file, so the filename must be set prior
-  // to invoking this operation. (Note: file characteristics are
-  // cached, so only a single read is necessary to return file
-  // characteristics.)
+  /**
+   * How many attributes of various types are in this file? This
+   * requires reading the file, so the filename must be set prior
+   * to invoking this operation. (Note: file characteristics are
+   * cached, so only a single read is necessary to return file
+   * characteristics.)
+   */
   int GetNumberOfScalarsInFile()
     {this->CharacterizeFile(); return this->NumberOfScalarsInFile;}
   int GetNumberOfVectorsInFile()
@@ -137,173 +166,237 @@ public:
   int GetNumberOfFieldDataInFile()
     {this->CharacterizeFile(); return this->NumberOfFieldDataInFile;}
 
-  // Description:
-  // What is the name of the ith attribute of a certain type
-  // in this file? This requires reading the file, so the filename
-  // must be set prior to invoking this operation.
+  //@{
+  /**
+   * What is the name of the ith attribute of a certain type
+   * in this file? This requires reading the file, so the filename
+   * must be set prior to invoking this operation.
+   */
   const char *GetScalarsNameInFile(int i);
   const char *GetVectorsNameInFile(int i);
   const char *GetTensorsNameInFile(int i);
   const char *GetNormalsNameInFile(int i);
   const char *GetTCoordsNameInFile(int i);
   const char *GetFieldDataNameInFile(int i);
+  //@}
 
-  // Description:
-  // Set the name of the scalar data to extract. If not specified, first
-  // scalar data encountered is extracted.
+  //@{
+  /**
+   * Set the name of the scalar data to extract. If not specified, first
+   * scalar data encountered is extracted.
+   */
   vtkSetStringMacro(ScalarsName);
   vtkGetStringMacro(ScalarsName);
+  //@}
 
-  // Description:
-  // Set the name of the vector data to extract. If not specified, first
-  // vector data encountered is extracted.
+  //@{
+  /**
+   * Set the name of the vector data to extract. If not specified, first
+   * vector data encountered is extracted.
+   */
   vtkSetStringMacro(VectorsName);
   vtkGetStringMacro(VectorsName);
+  //@}
 
-  // Description:
-  // Set the name of the tensor data to extract. If not specified, first
-  // tensor data encountered is extracted.
+  //@{
+  /**
+   * Set the name of the tensor data to extract. If not specified, first
+   * tensor data encountered is extracted.
+   */
   vtkSetStringMacro(TensorsName);
   vtkGetStringMacro(TensorsName);
+  //@}
 
-  // Description:
-  // Set the name of the normal data to extract. If not specified, first
-  // normal data encountered is extracted.
+  //@{
+  /**
+   * Set the name of the normal data to extract. If not specified, first
+   * normal data encountered is extracted.
+   */
   vtkSetStringMacro(NormalsName);
   vtkGetStringMacro(NormalsName);
+  //@}
 
-  // Description:
-  // Set the name of the texture coordinate data to extract. If not specified,
-  // first texture coordinate data encountered is extracted.
+  //@{
+  /**
+   * Set the name of the texture coordinate data to extract. If not specified,
+   * first texture coordinate data encountered is extracted.
+   */
   vtkSetStringMacro(TCoordsName);
   vtkGetStringMacro(TCoordsName);
+  //@}
 
-  // Description:
-  // Set the name of the lookup table data to extract. If not specified, uses
-  // lookup table named by scalar. Otherwise, this specification supersedes.
+  //@{
+  /**
+   * Set the name of the lookup table data to extract. If not specified, uses
+   * lookup table named by scalar. Otherwise, this specification supersedes.
+   */
   vtkSetStringMacro(LookupTableName);
   vtkGetStringMacro(LookupTableName);
+  //@}
 
-  // Description:
-  // Set the name of the field data to extract. If not specified, uses
-  // first field data encountered in file.
+  //@{
+  /**
+   * Set the name of the field data to extract. If not specified, uses
+   * first field data encountered in file.
+   */
   vtkSetStringMacro(FieldDataName);
   vtkGetStringMacro(FieldDataName);
+  //@}
 
-  // Description:
-  // Enable reading all scalars.
-  vtkSetMacro(ReadAllScalars,int);
-  vtkGetMacro(ReadAllScalars,int);
-  vtkBooleanMacro(ReadAllScalars,int);
+  //@{
+  /**
+   * Enable reading all scalars.
+   */
+  vtkSetMacro(ReadAllScalars,vtkTypeBool);
+  vtkGetMacro(ReadAllScalars,vtkTypeBool);
+  vtkBooleanMacro(ReadAllScalars,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Enable reading all vectors.
-  vtkSetMacro(ReadAllVectors,int);
-  vtkGetMacro(ReadAllVectors,int);
-  vtkBooleanMacro(ReadAllVectors,int);
+  //@{
+  /**
+   * Enable reading all vectors.
+   */
+  vtkSetMacro(ReadAllVectors,vtkTypeBool);
+  vtkGetMacro(ReadAllVectors,vtkTypeBool);
+  vtkBooleanMacro(ReadAllVectors,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Enable reading all normals.
-  vtkSetMacro(ReadAllNormals,int);
-  vtkGetMacro(ReadAllNormals,int);
-  vtkBooleanMacro(ReadAllNormals,int);
+  //@{
+  /**
+   * Enable reading all normals.
+   */
+  vtkSetMacro(ReadAllNormals,vtkTypeBool);
+  vtkGetMacro(ReadAllNormals,vtkTypeBool);
+  vtkBooleanMacro(ReadAllNormals,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Enable reading all tensors.
-  vtkSetMacro(ReadAllTensors,int);
-  vtkGetMacro(ReadAllTensors,int);
-  vtkBooleanMacro(ReadAllTensors,int);
+  //@{
+  /**
+   * Enable reading all tensors.
+   */
+  vtkSetMacro(ReadAllTensors,vtkTypeBool);
+  vtkGetMacro(ReadAllTensors,vtkTypeBool);
+  vtkBooleanMacro(ReadAllTensors,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Enable reading all color scalars.
-  vtkSetMacro(ReadAllColorScalars,int);
-  vtkGetMacro(ReadAllColorScalars,int);
-  vtkBooleanMacro(ReadAllColorScalars,int);
+  //@{
+  /**
+   * Enable reading all color scalars.
+   */
+  vtkSetMacro(ReadAllColorScalars,vtkTypeBool);
+  vtkGetMacro(ReadAllColorScalars,vtkTypeBool);
+  vtkBooleanMacro(ReadAllColorScalars,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Enable reading all tcoords.
-  vtkSetMacro(ReadAllTCoords,int);
-  vtkGetMacro(ReadAllTCoords,int);
-  vtkBooleanMacro(ReadAllTCoords,int);
+  //@{
+  /**
+   * Enable reading all tcoords.
+   */
+  vtkSetMacro(ReadAllTCoords,vtkTypeBool);
+  vtkGetMacro(ReadAllTCoords,vtkTypeBool);
+  vtkBooleanMacro(ReadAllTCoords,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Enable reading all fields.
-  vtkSetMacro(ReadAllFields,int);
-  vtkGetMacro(ReadAllFields,int);
-  vtkBooleanMacro(ReadAllFields,int);
+  //@{
+  /**
+   * Enable reading all fields.
+   */
+  vtkSetMacro(ReadAllFields,vtkTypeBool);
+  vtkGetMacro(ReadAllFields,vtkTypeBool);
+  vtkBooleanMacro(ReadAllFields,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Open a vtk data file. Returns zero if error.
-  int OpenVTKFile();
+  /**
+   * Open a vtk data file. Returns zero if error.
+   */
+  int OpenVTKFile(const char* fname = nullptr);
 
-  // Description:
-  // Read the header of a vtk data file. Returns 0 if error.
-  int ReadHeader();
+  /**
+   * Read the header of a vtk data file. Returns 0 if error.
+   */
+  int ReadHeader(const char* fname = nullptr);
 
-  // Description:
-  // Read the cell data of a vtk data file. The number of cells (from the
-  // dataset) must match the number of cells defined in cell attributes (unless
-  // no geometry was defined).
-  int ReadCellData(vtkDataSet *ds, int numCells);
+  /**
+   * Read the cell data of a vtk data file. The number of cells (from the
+   * dataset) must match the number of cells defined in cell attributes (unless
+   * no geometry was defined).
+   */
+  int ReadCellData(vtkDataSet *ds, vtkIdType numCells);
 
-  // Description:
-  // Read the point data of a vtk data file. The number of points (from the
-  // dataset) must match the number of points defined in point attributes
-  // (unless no geometry was defined).
-  int ReadPointData(vtkDataSet *ds, int numPts);
+  /**
+   * Read the point data of a vtk data file. The number of points (from the
+   * dataset) must match the number of points defined in point attributes
+   * (unless no geometry was defined).
+   */
+  int ReadPointData(vtkDataSet *ds, vtkIdType numPts);
 
-  // Description:
-  // Read point coordinates. Return 0 if error.
-  int ReadPoints(vtkPointSet *ps, int numPts);
+  /**
+   * Read point coordinates. Return 0 if error.
+   */
+  int ReadPointCoordinates(vtkPointSet *ps, vtkIdType numPts);
 
-  // Description:
-  // Read point coordinates. Return 0 if error.
-  int ReadPoints(vtkGraph *g, int numPts);
+  /**
+   * Read point coordinates. Return 0 if error.
+   */
+  int ReadPointCoordinates(vtkGraph *g, vtkIdType numPts);
 
-  // Description:
-  // Read the vertex data of a vtk data file. The number of vertices (from the
-  // graph) must match the number of vertices defined in vertex attributes
-  // (unless no geometry was defined).
-  int ReadVertexData(vtkGraph *g, int numVertices);
+  /**
+   * Read the vertex data of a vtk data file. The number of vertices (from the
+   * graph) must match the number of vertices defined in vertex attributes
+   * (unless no geometry was defined).
+   */
+  int ReadVertexData(vtkGraph *g, vtkIdType numVertices);
 
-  // Description:
-  // Read the edge data of a vtk data file. The number of edges (from the
-  // graph) must match the number of edges defined in edge attributes
-  // (unless no geometry was defined).
-  int ReadEdgeData(vtkGraph *g, int numEdges);
+  /**
+   * Read the edge data of a vtk data file. The number of edges (from the
+   * graph) must match the number of edges defined in edge attributes
+   * (unless no geometry was defined).
+   */
+  int ReadEdgeData(vtkGraph *g, vtkIdType numEdges);
 
-  // Description:
-  // Read the row data of a vtk data file.
-  int ReadRowData(vtkTable *t, int numEdges);
+  /**
+   * Read the row data of a vtk data file.
+   */
+  int ReadRowData(vtkTable *t, vtkIdType numEdges);
 
-  // Description:
-  // Read a bunch of "cells". Return 0 if error.
-  int ReadCells(int size, int *data);
+  /**
+   * Read a bunch of "cells". Return 0 if error.
+   */
+  int ReadCells(vtkIdType size, int *data);
 
-  // Description:
-  // Read a piece of the cells (for streaming compliance)
-  int ReadCells(int size, int *data, int skip1, int read2, int skip3);
+  /**
+   * Read a piece of the cells (for streaming compliance)
+   */
+  int ReadCells(vtkIdType size, int *data, int skip1, int read2, int skip3);
 
-  // Description:
-  // Read the coordinates for a rectilinear grid. The axes parameter specifies
-  // which coordinate axes (0,1,2) is being read.
+  /**
+   * Read the coordinates for a rectilinear grid. The axes parameter specifies
+   * which coordinate axes (0,1,2) is being read.
+   */
   int ReadCoordinates(vtkRectilinearGrid *rg, int axes, int numCoords);
 
-  // Description:
-  // Helper functions for reading data.
-  vtkAbstractArray *ReadArray(const char *dataType, int numTuples, int numComp);
+  //@{
+  /**
+   * Helper functions for reading data.
+   */
+  vtkAbstractArray *ReadArray(const char *dataType, vtkIdType numTuples, vtkIdType numComp);
   vtkFieldData *ReadFieldData(FieldType fieldType = FIELD_DATA);
+  //@}
 
-  // Description:
-  // Return major and minor version of the file.
-  // Returns version 3.0 if the version cannot be read from file.
+  //@{
+  /**
+   * Return major and minor version of the file.
+   * Returns version 3.0 if the version cannot be read from file.
+   */
   vtkGetMacro(FileMajorVersion, int);
   vtkGetMacro(FileMinorVersion, int);
+  //@}
 
-//BTX
-  // Description:
-  // Internal function to read in a value.  Returns zero if there was an
-  // error.
+  //@{
+  /**
+   * Internal function to read in a value.  Returns zero if there was an
+   * error.
+   */
   int Read(char *);
   int Read(unsigned char *);
   int Read(short *);
@@ -312,52 +405,84 @@ public:
   int Read(unsigned int *);
   int Read(long *);
   int Read(unsigned long *);
-#if defined(VTK_TYPE_USE___INT64)
-  int Read(__int64 *result);
-  int Read(unsigned __int64 *result);
-#endif
-#if defined(VTK_TYPE_USE_LONG_LONG)
   int Read(long long *result);
   int Read(unsigned long long *result);
-#endif
   int Read(float *);
   int Read(double *);
-//ETX
+  //@}
 
-  // Description:
-  // Close the vtk file.
+  /**
+   * Read @a n character from the stream into @a str, then reset the stream
+   * position. Returns the number of characters actually read.
+   */
+  size_t Peek(char *str, size_t n);
+
+
+  /**
+   * Close the vtk file.
+   */
   void CloseVTKFile();
 
-//BTX
-  // Description:
-  // Internal function to read in a line up to 256 characters.
-  // Returns zero if there was an error.
+  /**
+   * Internal function to read in a line up to 256 characters.
+   * Returns zero if there was an error.
+   */
   int ReadLine(char result[256]);
 
-  // Description:
-  // Internal function to read in a string up to 256 characters.
-  // Returns zero if there was an error.
+  /**
+   * Internal function to read in a string up to 256 characters.
+   * Returns zero if there was an error.
+   */
   int ReadString(char result[256]);
 
-  // Description:
-  // Helper method for reading in data.
+  /**
+   * Helper method for reading in data.
+   */
   char *LowerCase(char *str, const size_t len=256);
 
-  // Description:
-  // Return the istream being used to read in the data.
+  /**
+   * Return the istream being used to read in the data.
+   */
   istream *GetIStream() {return this->IS;};
-//ETX
 
-  // Description:
-  // Read the meta information from the file.  This needs to be public to it
-  // can be accessed by vtkDataSetReader.
-  virtual int ReadMetaData(vtkInformation *) { return 1; }
+  //@{
+  /**
+  * Overridden to handle reading from a string. The
+  * superclass only knows about files.
+  */
+  int ReadTimeDependentMetaData(
+    int timestep, vtkInformation* metadata) override;
+  int ReadMesh(
+    int piece, int npieces, int nghosts, int timestep,
+    vtkDataObject* output) override;
+  int ReadPoints(
+    int /*piece*/, int /*npieces*/, int /*nghosts*/, int /*timestep*/,
+    vtkDataObject* /*output*/) override {return 1;}
+  int ReadArrays(
+    int /*piece*/, int /*npieces*/, int /*nghosts*/, int /*timestep*/,
+    vtkDataObject* /*output*/) override {return 1;}
+  //@}
+
+  //@{
+  /**
+  * Overridden with default implementation of doing nothing
+  * so that subclasses only override what is needed (usually
+  * only ReadMesh).
+  */
+  int ReadMeshSimple(const std::string& /*fname*/,
+                     vtkDataObject* /*output*/) override {return 1;}
+  int ReadPointsSimple(const std::string& /*fname*/,
+                       vtkDataObject* /*output*/) override {return 1;}
+  int ReadArraysSimple(const std::string& /*fname*/,
+                       vtkDataObject* /*output*/) override {return 1;}
+  //@}
+
 
 protected:
   vtkDataReader();
-  ~vtkDataReader();
+  ~vtkDataReader() override;
 
-  char *FileName;
+  std::string CurrentFileName;
   int FileType;
   istream *IS;
 
@@ -370,7 +495,7 @@ protected:
   char *FieldDataName;
   char *ScalarLut;
 
-  int ReadFromInputString;
+  vtkTypeBool ReadFromInputString;
   char *InputString;
   int InputStringLength;
   int InputStringPos;
@@ -380,16 +505,21 @@ protected:
 
   char *Header;
 
-  int ReadScalarData(vtkDataSetAttributes *a, int num);
-  int ReadVectorData(vtkDataSetAttributes *a, int num);
-  int ReadNormalData(vtkDataSetAttributes *a, int num);
-  int ReadTensorData(vtkDataSetAttributes *a, int num);
-  int ReadCoScalarData(vtkDataSetAttributes *a, int num);
+  int ReadScalarData(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadVectorData(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadNormalData(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadTensorData(vtkDataSetAttributes *a, vtkIdType num, vtkIdType numComp = 9);
+  int ReadCoScalarData(vtkDataSetAttributes *a, vtkIdType num);
   int ReadLutData(vtkDataSetAttributes *a);
-  int ReadTCoordsData(vtkDataSetAttributes *a, int num);
-  int ReadGlobalIds(vtkDataSetAttributes *a, int num);
-  int ReadPedigreeIds(vtkDataSetAttributes *a, int num);
-  int ReadEdgeFlags(vtkDataSetAttributes *a, int num);
+  int ReadTCoordsData(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadGlobalIds(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadPedigreeIds(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadEdgeFlags(vtkDataSetAttributes *a, vtkIdType num);
+
+  /**
+   * Format is detailed \ref IOLegacyInformationFormat "here".
+   */
+  int ReadInformation(vtkInformation *info, vtkIdType numKeys);
 
   int ReadDataSetData(vtkDataSet *ds);
 
@@ -414,13 +544,13 @@ protected:
   int FieldDataNameAllocSize;
   vtkTimeStamp CharacteristicsTime;
 
-  int ReadAllScalars;
-  int ReadAllVectors;
-  int ReadAllNormals;
-  int ReadAllTensors;
-  int ReadAllColorScalars;
-  int ReadAllTCoords;
-  int ReadAllFields;
+  vtkTypeBool ReadAllScalars;
+  vtkTypeBool ReadAllVectors;
+  vtkTypeBool ReadAllNormals;
+  vtkTypeBool ReadAllTensors;
+  vtkTypeBool ReadAllColorScalars;
+  vtkTypeBool ReadAllTCoords;
+  vtkTypeBool ReadAllFields;
   int FileMajorVersion;
   int FileMinorVersion;
 
@@ -431,14 +561,15 @@ protected:
 
   vtkCharArray* InputArray;
 
-  // Description:
-  // Decode a string. This method is the inverse of
-  // vtkWriter::EncodeString.  Returns the length of the
-  // result string.
+  /**
+   * Decode a string. This method is the inverse of
+   * vtkWriter::EncodeString.  Returns the length of the
+   * result string.
+   */
   int DecodeString(char *resname, const char* name);
 
-  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
-                             vtkInformationVector *);
+  int ProcessRequest(vtkInformation *, vtkInformationVector **,
+                             vtkInformationVector *) override;
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *)
     { return 1; }
@@ -450,8 +581,8 @@ protected:
     { return 1; }
 
 private:
-  vtkDataReader(const vtkDataReader&);  // Not implemented.
-  void operator=(const vtkDataReader&);  // Not implemented.
+  vtkDataReader(const vtkDataReader&) = delete;
+  void operator=(const vtkDataReader&) = delete;
 
   void ConvertGhostLevelsToGhostType(
     FieldType fieldType, vtkAbstractArray *data) const;

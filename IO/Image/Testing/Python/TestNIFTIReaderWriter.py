@@ -6,7 +6,6 @@ then re-reading it to ensure that the contents are identical.
 """
 
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 from vtk.util.misc import vtkGetTempDir
 
@@ -92,7 +91,7 @@ def TestDisplay(file1):
         iren.SetInteractorStyle(style)
 
     renwin = vtk.vtkRenderWindow()
-    renwin.SetSize(size[0] + size[2], size[1])
+    renwin.SetSize((size[0] + size[2]) // 2 * 2, size[1] // 2 * 2) # keep size even
     renwin.AddRenderer(ren1)
     renwin.AddRenderer(ren2)
 
@@ -120,7 +119,7 @@ def TestReadWriteRead(infile, outfile):
     writer = vtk.vtkNIFTIImageWriter()
     writer.SetInputConnection(reader.GetOutputPort())
     writer.SetFileName(outpath)
-    # copy most information directoy from the header
+    # copy most information directory from the header
     writer.SetNIFTIHeader(reader.GetNIFTIHeader())
     # this information will override the reader's header
     writer.SetQFac(reader.GetQFac())

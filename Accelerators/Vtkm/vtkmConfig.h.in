@@ -1,0 +1,65 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    ObjectFactory.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#ifndef vtkmConfig_h
+#define vtkmConfig_h
+
+//make sure we use 64bit id's just like vtk
+#include "vtkType.h"
+#ifdef VTK_USE_64BIT_IDS
+# define VTKM_USE_64BIT_IDS
+#endif
+
+/*--------------------------------------------------------------------------*/
+/* Other Configuration Options                                              */
+
+/* Determine what types the vtkm policy will need to support for arrays  */
+#cmakedefine VTKM_FILTER_INCLUDE_AOS
+#cmakedefine VTKM_FILTER_INCLUDE_SOA
+
+#include <vtkm/internal/Configure.h>
+#include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+
+
+/*--------------------------------------------------------------------------*/
+/* Support the old exceptions                                               */
+#include <vtkm/cont/ArrayHandle.h>
+#ifdef vtk_m_cont_ErrorControlBadAllocation_h
+
+namespace vtkm {
+namespace cont {
+using ErrorBadAllocation = ErrorControlBadAllocation;
+using ErrorBadValue = ErrorControlBadValue;
+}
+}
+#endif
+
+
+#ifndef VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+# if !defined(VTKACCELERATORSVTKM_STATIC_DEFINE) && defined(_MSC_VER)
+  /* Warning C4910 on windows state that extern explicit template can't be
+     labeled with __declspec(dllexport). So that is why we use a new custom
+     define. But when other modules ( e.g. rendering ) include this header
+     we need them to see that the extern template is actually being imported.
+  */
+    /* We are building this library with MSVC */
+#   define VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+# else
+    /* Defer to the config module */
+#   define VTKACCELERATORSVTKM_TEMPLATE_EXPORT VTKACCELERATORSVTKM_EXPORT
+# endif
+#endif
+
+
+#endif // vtkmConfig_h

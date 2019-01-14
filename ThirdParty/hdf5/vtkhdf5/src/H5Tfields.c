@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -18,10 +16,7 @@
  *      enumerated & compound datatypes in the H5T interface.
  */
 
-#define H5T_PACKAGE		/*suppress error about including H5Tpkg	  */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5T_init_fields_interface
+#include "H5Tmodule.h"          /* This source code file is part of the H5T module */
 
 
 #include "H5private.h"		/*generic functions			  */
@@ -29,28 +24,6 @@
 #include "H5Iprivate.h"		/*ID functions		   		  */
 #include "H5MMprivate.h"	/*memory management			  */
 #include "H5Tpkg.h"		/*data-type functions			  */
-
-
-/*--------------------------------------------------------------------------
-NAME
-   H5T_init_fields_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5T_init_fields_interface()
-
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5T_init_iterface currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5T_init_fields_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    FUNC_LEAVE_NOAPI(H5T_init())
-} /* H5T_init_fields_interface() */
 
 
 /*-------------------------------------------------------------------------
@@ -117,7 +90,7 @@ done:
 int
 H5T_get_nmembers(const H5T_t *dt)
 {
-    int	ret_value;
+    int	ret_value = -1;         /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -163,6 +136,7 @@ H5Tget_member_name(hid_t type_id, unsigned membno)
     char	*ret_value;
 
     FUNC_ENTER_API(NULL)
+    H5TRACE2("*s", "iIu", type_id, membno);
 
     /* Check args */
     if (NULL == (dt = (H5T_t *)H5I_object_verify(type_id,H5I_DATATYPE)))
@@ -198,7 +172,7 @@ done:
 char *
 H5T__get_member_name(H5T_t const *dt, unsigned membno)
 {
-    char	*ret_value;
+    char	*ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_PACKAGE
 

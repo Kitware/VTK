@@ -26,11 +26,11 @@ int TestCompressedTIFFReader(int argc, char* argv[])
 {
   //Verify input arguments
   if ( argc < 3 )
-    {
+  {
     std::cout << "Usage: " << argv[0]
               << " Filename(.tif)" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //Read the image
   vtkSmartPointer<vtkTIFFReader> reader =
@@ -42,11 +42,10 @@ int TestCompressedTIFFReader(int argc, char* argv[])
   // lines from files that do not support it.
   const int maxNumPieces = 4;
   for (int cc=0; cc < maxNumPieces; cc++)
-    {
-    reader->SetUpdateExtent(cc, maxNumPieces, 0);
-    reader->Update();
-    }
-  reader->SetUpdateExtentToWholeExtent();
+  {
+    reader->UpdatePiece(cc, maxNumPieces, 0);
+  }
+  reader->UpdateWholeExtent();
 
   // Visualize
   vtkSmartPointer<vtkImageViewer2> imageViewer =

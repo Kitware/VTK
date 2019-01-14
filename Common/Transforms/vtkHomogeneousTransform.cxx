@@ -18,7 +18,23 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
+namespace
+{
+  void TransformVector(double M [4][4], double* outPnt, double f, double* inVec, double* outVec)
+  {
+    // do the linear homogeneous transformation
+    outVec[0] = M[0][0]*inVec[0] + M[0][1]*inVec[1] + M[0][2]*inVec[2];
+    outVec[1] = M[1][0]*inVec[0] + M[1][1]*inVec[1] + M[1][2]*inVec[2];
+    outVec[2] = M[2][0]*inVec[0] + M[2][1]*inVec[1] + M[2][2]*inVec[2];
+    double w =         M[3][0]*inVec[0] + M[3][1]*inVec[1] + M[3][2]*inVec[2];
 
+    // apply homogeneous correction: note that the f we are using
+    // is the one we calculated in the point transformation
+    outVec[0] = (outVec[0]-w*outPnt[0])*f;
+    outVec[1] = (outVec[1]-w*outPnt[1])*f;
+    outVec[2] = (outVec[2]-w*outPnt[2])*f;
+  }
+}
 //----------------------------------------------------------------------------
 vtkHomogeneousTransform::vtkHomogeneousTransform()
 {
@@ -29,9 +45,9 @@ vtkHomogeneousTransform::vtkHomogeneousTransform()
 vtkHomogeneousTransform::~vtkHomogeneousTransform()
 {
   if (this->Matrix)
-    {
+  {
     this->Matrix->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -40,9 +56,9 @@ void vtkHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Matrix: (" << this->Matrix << ")\n";
   if (this->Matrix)
-    {
+  {
     this->Matrix->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -73,11 +89,11 @@ inline void vtkHomogeneousTransformDerivative(T1 M[4][4],
   double f = vtkHomogeneousTransformPoint(M,in,out);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     derivative[0][i] = static_cast<T4>((M[0][i] - M[3][i]*out[0])*f);
     derivative[1][i] = static_cast<T4>((M[1][i] - M[3][i]*out[1])*f);
     derivative[2][i] = static_cast<T4>((M[2][i] - M[3][i]*out[2])*f);
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -121,18 +137,18 @@ void vtkHomogeneousTransform::TransformPoints(vtkPoints *inPts,
   this->Update();
 
   for (int i = 0; i < n; i++)
-    {
+  {
     inPts->GetPoint(i,point);
 
     vtkHomogeneousTransformPoint(M,point,point);
 
     outPts->InsertNextPoint(point);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 // Transform the normals and vectors using the derivative of the
-// transformation.  Either inNms or inVrs can be set to NULL.
+// transformation.  Either inNms or inVrs can be set to nullptr.
 // Normals are multiplied by the inverse transpose of the transform
 // derivative, while vectors are simply multiplied by the derivative.
 // Note that the derivative of the inverse transform is simply the
@@ -142,7 +158,10 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
                                                             vtkDataArray *inNms,
                                                             vtkDataArray *outNms,
                                                             vtkDataArray *inVrs,
-                                                            vtkDataArray *outVrs)
+                                                            vtkDataArray *outVrs,
+                                                            int nOptionalVectors,
+                                                            vtkDataArray** inVrsArr,
+                                                            vtkDataArray** outVrsArr)
 {
   vtkIdType n = inPts->GetNumberOfPoints();
   double (*M)[4] = this->Matrix->Element;
@@ -153,14 +172,14 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
   this->Update();
 
   if (inNms)
-    { // need inverse of the matrix to calculate normals
+  { // need inverse of the matrix to calculate normals
     vtkMatrix4x4::DeepCopy(*L,this->Matrix);
     vtkMatrix4x4::Invert(*L,*L);
     vtkMatrix4x4::Transpose(*L,*L);
-    }
+  }
 
   for (int i = 0; i < n; i++)
-    {
+  {
     inPts->GetPoint(i,inPnt);
 
     // do the coordinate transformation, get 1/w
@@ -168,26 +187,24 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
     outPts->InsertNextPoint(outPnt);
 
     if (inVrs)
-      {
+    {
       inVrs->GetTuple(i,inVec);
-
-      // do the linear homogeneous transformation
-      outVec[0] = M[0][0]*inVec[0] + M[0][1]*inVec[1] + M[0][2]*inVec[2];
-      outVec[1] = M[1][0]*inVec[0] + M[1][1]*inVec[1] + M[1][2]*inVec[2];
-      outVec[2] = M[2][0]*inVec[0] + M[2][1]*inVec[1] + M[2][2]*inVec[2];
-      w =         M[3][0]*inVec[0] + M[3][1]*inVec[1] + M[3][2]*inVec[2];
-
-      // apply homogeneous correction: note that the f we are using
-      // is the one we calculated in the point transformation
-      outVec[0] = (outVec[0]-w*outPnt[0])*f;
-      outVec[1] = (outVec[1]-w*outPnt[1])*f;
-      outVec[2] = (outVec[2]-w*outPnt[2])*f;
-
+      TransformVector(M, outPnt, f, inVec, outVec);
       outVrs->InsertNextTuple(outVec);
+    }
+
+    if (inVrsArr)
+    {
+      for (int iArr = 0; iArr < nOptionalVectors; iArr++)
+      {
+        inVrsArr[iArr]->GetTuple(i,inVec);
+        TransformVector(M, outPnt, f, inVec, outVec);
+        outVrsArr[iArr]->InsertNextTuple(outVec);
       }
+    }
 
     if (inNms)
-      {
+    {
       inNms->GetTuple(i,inNrm);
 
       // calculate the w component of the normal
@@ -201,8 +218,8 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
       // re-normalize
       vtkMath::Normalize(outNrm);
       outNms->InsertNextTuple(outNrm);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

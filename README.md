@@ -34,12 +34,12 @@ Learning Resources
 * Doxygen-generated nightly reference documentation is
   available [online][Doxygen].
 
-[VTK Homepage]: http://www.vtk.org
-[Doxygen]: http://www.vtk.org/doc/nightly/html
-[VTK Mailing Lists]: http://www.vtk.org/VTK/help/mailing.html
-[Kitware]: http://www.kitware.com/
-[Kitware Support]: http://www.kitware.com/products/support.html
-[Kitware Training]: http://www.kitware.com/products/protraining.php
+[VTK Homepage]: https://www.vtk.org
+[Doxygen]: https://www.vtk.org/doc/nightly/html
+[VTK Mailing Lists]: https://www.vtk.org/mailing-lists/
+[Kitware]: https://www.kitware.com/
+[Kitware Support]: https://www.kitware.com/what-we-offer/#support
+[Kitware Training]: https://www.kitware.com/what-we-offer/#training
 
 Reporting Bugs
 ==============
@@ -55,7 +55,24 @@ If you have found a bug:
 3. Finally, if the issue is not resolved by the above steps, open
    an entry in the [VTK Issue Tracker][].
 
-[VTK Issue Tracker]: http://www.vtk.org/Bug
+[VTK Issue Tracker]: https://gitlab.kitware.com/vtk/vtk/issues
+
+Requirements
+============
+
+In general VTK tries to be as portable as possible; the specific configurations below are known to work and tested.
+
+VTK supports the following C++11 compilers:
+1. Microsoft Visual Studio 2015 or newer
+2. gcc 4.8.3 or newer
+3. Clang 3.3 or newer
+4. Apple Clang 5.0 (from Xcode 5.0) or newer
+5. Intel 14.0 or newer
+
+VTK supports the following operating systems:
+1. Windows Vista or newer
+2. Mac OS X 10.7 or newer
+3. Linux (ex: Ubuntu 12.04 or newer, Debian 4 or newer)
 
 Contributing
 ============

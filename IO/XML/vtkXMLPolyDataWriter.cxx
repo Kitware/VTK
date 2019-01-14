@@ -103,29 +103,29 @@ void vtkXMLPolyDataWriter::WriteInlinePieceAttributes()
 {
   this->Superclass::WriteInlinePieceAttributes();
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   vtkPolyData* input = this->GetInput();
   this->WriteScalarAttribute("NumberOfVerts",
                              input->GetVerts()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   this->WriteScalarAttribute("NumberOfLines",
                              input->GetLines()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   this->WriteScalarAttribute("NumberOfStrips",
                              input->GetStrips()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   this->WriteScalarAttribute("NumberOfPolys",
                              input->GetPolys()->GetNumberOfCells());
 }
@@ -146,9 +146,9 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
   // Let the superclass write its data.
   this->Superclass::WriteInlinePiece(indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   vtkPolyData* input = this->GetInput();
 
@@ -156,37 +156,37 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
   this->SetProgressRange(progressRange, 1, fractions);
 
   // Write the Verts.
-  this->WriteCellsInline("Verts", input->GetVerts(), 0, indent);
+  this->WriteCellsInline("Verts", input->GetVerts(), nullptr, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for Lines.
   this->SetProgressRange(progressRange, 2, fractions);
 
   // Write the Lines.
-  this->WriteCellsInline("Lines", input->GetLines(), 0, indent);
+  this->WriteCellsInline("Lines", input->GetLines(), nullptr, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for Strips.
   this->SetProgressRange(progressRange, 3, fractions);
 
   // Write the Strips.
-  this->WriteCellsInline("Strips", input->GetStrips(), 0, indent);
+  this->WriteCellsInline("Strips", input->GetStrips(), nullptr, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for Polys.
   this->SetProgressRange(progressRange, 4, fractions);
 
   // Write the Polys.
-  this->WriteCellsInline("Polys", input->GetPolys(), 0, indent);
+  this->WriteCellsInline("Polys", input->GetPolys(), nullptr, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -194,27 +194,27 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceAttributes(int index)
 {
   this->Superclass::WriteAppendedPieceAttributes(index);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   this->NumberOfVertsPositions[index] =
     this->ReserveAttributeSpace("NumberOfVerts");
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   this->NumberOfLinesPositions[index] =
     this->ReserveAttributeSpace("NumberOfLines");
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   this->NumberOfStripsPositions[index] =
     this->ReserveAttributeSpace("NumberOfStrips");
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   this->NumberOfPolysPositions[index] =
     this->ReserveAttributeSpace("NumberOfPolys");
 }
@@ -224,32 +224,32 @@ void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
 {
   this->Superclass::WriteAppendedPiece(index, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
-  this->WriteCellsAppended("Verts", 0, indent,
+  this->WriteCellsAppended("Verts", nullptr, indent,
     &this->VertsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
-  this->WriteCellsAppended("Lines", 0, indent ,
+  this->WriteCellsAppended("Lines", nullptr, indent ,
     &this->LinesOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
-  this->WriteCellsAppended("Strips", 0, indent,
+  this->WriteCellsAppended("Strips", nullptr, indent,
     &this->StripsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
-  this->WriteCellsAppended("Polys", 0, indent,
+  this->WriteCellsAppended("Polys", nullptr, indent,
     &this->PolysOM->GetPiece(index));
 }
 
@@ -264,33 +264,33 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   this->WriteScalarAttribute("NumberOfVerts",
                              input->GetVerts()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   os.seekp(this->NumberOfLinesPositions[index]);
   this->WriteScalarAttribute("NumberOfLines",
                              input->GetLines()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   os.seekp(this->NumberOfStripsPositions[index]);
   this->WriteScalarAttribute("NumberOfStrips",
                              input->GetStrips()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   os.seekp(this->NumberOfPolysPositions[index]);
   this->WriteScalarAttribute("NumberOfPolys",
                              input->GetPolys()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   os.seekp(returnPosition);
 
   // Split progress range by the approximate fraction of data written
@@ -306,51 +306,51 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   // Let the superclass write its data.
   this->Superclass::WriteAppendedPieceData(index);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for Verts.
   this->SetProgressRange(progressRange, 1, fractions);
 
   // Write the Verts.
-  this->WriteCellsAppendedData(input->GetVerts(), 0,
+  this->WriteCellsAppendedData(input->GetVerts(), nullptr,
                                this->CurrentTimeIndex,
                                &this->VertsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for Lines.
   this->SetProgressRange(progressRange, 2, fractions);
 
   // Write the Lines.
-  this->WriteCellsAppendedData(input->GetLines(), 0,
+  this->WriteCellsAppendedData(input->GetLines(), nullptr,
                                this->CurrentTimeIndex,
                                &this->LinesOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for Strips.
   this->SetProgressRange(progressRange, 3, fractions);
 
   // Write the Strips.
-  this->WriteCellsAppendedData(input->GetStrips(), 0,
+  this->WriteCellsAppendedData(input->GetStrips(), nullptr,
                                this->CurrentTimeIndex,
                                &this->StripsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for Polys.
   this->SetProgressRange(progressRange, 4, fractions);
 
   // Write the Polys.
-  this->WriteCellsAppendedData(input->GetPolys(), 0,
+  this->WriteCellsAppendedData(input->GetPolys(), nullptr,
                                this->CurrentTimeIndex,
                                &this->PolysOM->GetPiece(index));
 }
@@ -397,13 +397,13 @@ void vtkXMLPolyDataWriter::CalculateSuperclassFraction(float* fractions)
   fractions[4] = fractions[3] + connectSizeS+offsetSizeS;
   fractions[5] = fractions[4] + connectSizeP+offsetSizeP;
   if (fractions[5] == 0)
-    {
+  {
     fractions[5] = 1;
-    }
+  }
   for (int i = 0; i < 5; ++i)
-    {
+  {
     fractions[i+1] = fractions[i+1] / fractions[5];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

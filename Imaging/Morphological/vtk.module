@@ -1,0 +1,23 @@
+NAME
+  VTK::ImagingMorphological
+LIBRARY_NAME
+  vtkImagingMorphological
+KIT
+  VTK::Imaging
+GROUPS
+  Imaging
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::ImagingCore
+  VTK::ImagingGeneral
+PRIVATE_DEPENDS
+  VTK::ImagingSources
+TEST_DEPENDS
+  VTK::InteractionImage
+  VTK::InteractionStyle
+  VTK::IOImage
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

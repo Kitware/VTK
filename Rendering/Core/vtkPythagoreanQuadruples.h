@@ -7,6 +7,8 @@
  * Pythagorean quadruples force R to be an integer as well.) Note that
  * the values below are stored as R*R, A, B, C so that all are integers.
  */
+#ifndef vtkPythagoreanQuadruples_h
+#define vtkPythagoreanQuadruples_h
 const int vtkPythagoreanQuadruples[] = {
 /* R^2  i   j   k */
     0,  0,  0,  0,
@@ -12354,4 +12356,5 @@ const int vtkPythagoreanQuadruples[] = {
 };
 
 static const int vtkMaxPythagoreanQuadrupleId = sizeof(vtkPythagoreanQuadruples)/sizeof(vtkPythagoreanQuadruples[0])/4 - 1;
+#endif
 // VTK-HeaderTest-Exclude: vtkPythagoreanQuadruples.h

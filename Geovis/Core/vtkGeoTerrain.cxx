@@ -50,12 +50,13 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
+#include "vtkTexture.h"
 #include "vtkTimerLog.h"
 #include "vtkTransformFilter.h"
 #include "vtkXMLPolyDataWriter.h"
 
-#include <vtksys/stl/stack>
-#include <vtksys/stl/utility>
+#include <stack>
+#include <utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
@@ -63,13 +64,14 @@ vtkCxxSetObjectMacro(vtkGeoTerrain, GeoCamera, vtkGeoCamera);
 //----------------------------------------------------------------------------
 vtkGeoTerrain::vtkGeoTerrain()
 {
-  this->GeoSource = 0;
+  VTK_LEGACY_BODY(vtkGeoTerrain::vtkGeoTerrain, "VTK 8.2");
+  this->GeoSource = nullptr;
   this->Root = vtkGeoTerrainNode::New();
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
   this->Origin[2] = 0.0;
   this->Extractor = vtkExtractSelectedFrustum::New();
-  this->GeoCamera = 0;
+  this->GeoCamera = nullptr;
   this->MaxLevel = 20;
   this->Cache = vtkGeoTreeNodeCache::New();
 }
@@ -77,43 +79,43 @@ vtkGeoTerrain::vtkGeoTerrain()
 //----------------------------------------------------------------------------
 vtkGeoTerrain::~vtkGeoTerrain()
 {
-  this->SetGeoSource(0);
-  this->SetGeoCamera(0);
+  this->SetGeoSource(nullptr);
+  this->SetGeoCamera(nullptr);
   if (this->Root)
-    {
+  {
     this->Root->Delete();
-    }
+  }
   if (this->Extractor)
-    {
+  {
     this->Extractor->Delete();
-    }
+  }
   if (this->Cache)
-    {
+  {
     this->Cache->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkGeoTerrain::SetSource(vtkGeoSource* source)
 {
   if (this->GeoSource != source)
-    {
+  {
     this->SetGeoSource(source);
     if (this->GeoSource)
-      {
+    {
       this->Initialize();
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkGeoTerrain::Initialize()
 {
   if (!this->GeoSource)
-    {
+  {
     vtkErrorMacro(<< "Must set source before initializing.");
     return;
-    }
+  }
 
   // Start by fetching the root.
   this->GeoSource->FetchRoot(this->Root);
@@ -125,10 +127,10 @@ void vtkGeoTerrain::InitializeNodeAnalysis(vtkRenderer* ren)
   vtkGeoInteractorStyle* style = vtkGeoInteractorStyle::SafeDownCast(
     ren->GetRenderWindow()->GetInteractor()->GetInteractorStyle());
   if (!style)
-    {
+  {
     vtkErrorMacro("vtkGeoTerrain requires vtkGeoInteractorStyle in order to get geo camera.");
     return;
-    }
+  }
   vtkGeoCamera* camera = style->GetGeoCamera();
   int* rendererSize = ren->GetSize();
   camera->InitializeNodeAnalysis(rendererSize);
@@ -151,9 +153,9 @@ bool vtkGeoTerrain::NodeInViewport(vtkGeoTerrainNode* cur)
   double bbox[6];
   cur->GetModel()->GetBounds(bbox);
   for (int i = 0; i < 6; ++i)
-    {
+  {
     bbox[i] = bbox[i] - this->GeoCamera->GetOrigin()[i/2];
-    }
+  }
   int boundsTest = this->Extractor->OverallBoundsTest(bbox);
   return (boundsTest != 0);
 }
@@ -166,22 +168,22 @@ int vtkGeoTerrain::EvaluateNode(vtkGeoTerrainNode* node)
   double sphereViewSize;
 
   if (!this->GeoCamera)
-    {
+  {
     return 0;
-    }
+  }
 
   // Size of the sphere in view area units (0 -> 1)
   sphereViewSize = this->GeoCamera->GetNodeCoverage(node);
 
   // Arbitrary thresholds
   if (sphereViewSize > 0.2)
-    {
+  {
     return 1;
-    }
+  }
   if (sphereViewSize < 0.05)
-    {
+  {
     return -1;
-    }
+  }
   // Do not change the node.
   return 0;
 }
@@ -196,9 +198,9 @@ void vtkGeoTerrain::AddActors(
   // has been created.
   ren->GetRenderWindow()->MakeCurrent();
   if (!ren->GetRenderWindow()->IsCurrent())
-    {
+  {
     return;
-    }
+  }
 
   this->InitializeNodeAnalysis(ren);
 
@@ -207,18 +209,18 @@ void vtkGeoTerrain::AddActors(
   int textureUnits = 0;
 
   // Extract the image representations from the collection.
-  vtkGeoAlignedImageRepresentation* textureTree1 = 0;
+  vtkGeoAlignedImageRepresentation* textureTree1 = nullptr;
   if (imageReps->GetNumberOfItems() >= 1)
-    {
+  {
     textureTree1 = vtkGeoAlignedImageRepresentation::SafeDownCast(
       imageReps->GetItemAsObject(0));
-    }
-  vtkGeoAlignedImageRepresentation* textureTree2 = 0;
+  }
+  vtkGeoAlignedImageRepresentation* textureTree2 = nullptr;
   if (imageReps->GetNumberOfItems() >= 2)
-    {
+  {
     textureTree2 = vtkGeoAlignedImageRepresentation::SafeDownCast(
       imageReps->GetItemAsObject(1));
-    }
+  }
 
   int visibleActors = 0;
 
@@ -230,39 +232,39 @@ void vtkGeoTerrain::AddActors(
   // Remove actors at the beginning of the actor list until there are at most
   // 100 actors.
   while (props->GetNumberOfItems() > 100)
-    {
+  {
     assembly->RemovePart(vtkActor::SafeDownCast(props->GetItemAsObject(0)));
-    }
+  }
 
   // First turn off visibility of all actors
   for (int p = 0; p < props->GetNumberOfItems(); ++p)
-    {
+  {
     vtkActor* actor = vtkActor::SafeDownCast(props->GetItemAsObject(p));
     actor->VisibilityOff();
-    }
+  }
 
   // Use stack rather than recursion
-  vtksys_stl::stack<vtkGeoTerrainNode*> s;
+  std::stack<vtkGeoTerrainNode*> s;
   s.push(this->Root);
 
-  vtkGeoTerrainNode* child = NULL;
-  vtkCollection* coll = NULL;
+  vtkGeoTerrainNode* child = nullptr;
+  vtkCollection* coll = nullptr;
 
   double llbounds[4];
   while (!s.empty())
-    {
+  {
     vtkGeoTerrainNode* cur = s.top();
     s.pop();
     if (!cur->HasData() || cur->GetModel()->GetNumberOfCells() == 0)
-      {
+    {
       continue;
-      }
+    }
 
     if (!this->NodeInViewport(cur))
-      {
+    {
       // Totally outside, so prune node and subtree
       continue;
-      }
+    }
 
     // Mark this node as "visited" so it will be less likely to
     // be deleted.
@@ -275,40 +277,40 @@ void vtkGeoTerrain::AddActors(
     if (((!child || !child->HasData()) &&
          cur->GetLevel() < this->MaxLevel &&
          refine == 1) || cur->GetStatus() == vtkGeoTreeNode::PROCESSING)
-      {
+    {
       coll = this->GeoSource->GetRequestedNodes(cur);
       // Load children
-      if (coll != NULL && coll->GetNumberOfItems() == 4)
-        {
+      if (coll != nullptr && coll->GetNumberOfItems() == 4)
+      {
         for (int c = 0; c < 4; ++c)
-          {
+        {
           child = vtkGeoTerrainNode::SafeDownCast(coll->GetItemAsObject(c));
           vtkGeoTerrainNode* oldChild = cur->GetChild(c);
           if (oldChild)
-            {
+          {
             this->Cache->RemoveNode(oldChild);
-            }
+          }
           this->Cache->SendToFront(child);
           cur->SetChild(child, c);
           child->SetParent(cur);
-          }
-        cur->SetStatus(vtkGeoTreeNode::NONE);
         }
+        cur->SetStatus(vtkGeoTreeNode::NONE);
+      }
       else if(cur->GetStatus() == vtkGeoTreeNode::NONE)
-        {
+      {
         cur->SetStatus(vtkGeoTreeNode::PROCESSING);
         vtkGeoTerrainNode * temp = vtkGeoTerrainNode::New();
         temp->DeepCopy(cur);
         this->GeoSource->RequestChildren(temp);
-        }
-      if (coll)
-        {
-        coll->Delete();
-        }
       }
+      if (coll)
+      {
+        coll->Delete();
+      }
+    }
 
     if (!cur->GetChild(0) || !cur->GetChild(0)->HasData() || refine != 1)
-      {
+    {
 
       // Find the best texture for this geometry
       llbounds[0] = cur->GetLongitudeRange()[0];
@@ -317,43 +319,43 @@ void vtkGeoTerrain::AddActors(
       llbounds[3] = cur->GetLatitudeRange()[1];
       vtkGeoImageNode* textureNode1 = textureTree1->GetBestImageForBounds(llbounds);
       if (!textureNode1)
-        {
+      {
         vtkWarningMacro(<< "could not find node for bounds: "
                         << llbounds[0] << ","
                         << llbounds[1] << ","
                         << llbounds[2] << ","
                         << llbounds[3]);
-        }
-      vtkGeoImageNode* textureNode2 = 0;
+      }
+      vtkGeoImageNode* textureNode2 = nullptr;
       if (textureTree2)
-        {
+      {
         textureNode2 = textureTree2->GetBestImageForBounds(llbounds);
-        }
+      }
 
       // See if we already have an actor for this geometry
-      vtkActor* existingActor = 0;
+      vtkActor* existingActor = nullptr;
       for (int p = 0; p < props->GetNumberOfItems(); ++p)
-        {
+      {
         vtkActor* actor = vtkActor::SafeDownCast(props->GetItemAsObject(p));
         bool sameTexture = false;
         if (multiTexturing)
-          {
+        {
           sameTexture = (
               !textureNode1 ||
               actor->GetProperty()->GetNumberOfTextures() < 1 ||
-              actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_0) == textureNode1->GetTexture()
+              actor->GetProperty()->GetTexture("VTK_TEXTURE_UNIT_0") == textureNode1->GetTexture()
             ) && (
               !textureNode2 ||
               actor->GetProperty()->GetNumberOfTextures() < 2 ||
-              actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_1) == textureNode2->GetTexture()
+              actor->GetProperty()->GetTexture("VTK_TEXTURE_UNIT_1") == textureNode2->GetTexture()
             );
-          }
+        }
         else
-          {
+        {
           sameTexture = !textureNode1 || actor->GetTexture() == textureNode1->GetTexture();
-          }
+        }
         if (actor && actor->GetMapper()->GetInputDataObject(0, 0) == cur->GetModel() && sameTexture)
-          {
+        {
           existingActor = actor;
           existingActor->VisibilityOn();
           visibleActors++;
@@ -364,12 +366,12 @@ void vtkGeoTerrain::AddActors(
           assembly->AddPart(actor);
           actor->Delete();
           break;
-          }
         }
+      }
       if (existingActor)
-        {
+      {
         continue;
-        }
+      }
 
       // Add the data to the view
       vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -381,75 +383,76 @@ void vtkGeoTerrain::AddActors(
       visibleActors++;
 
       if (textureNode1)
-        {
+      {
         // Some implementations will report they support multi-texturing but have only 1
         // texture unit. Seriously!!
         if (multiTexturing && textureUnits > 1)
-          {
+        {
           // Multi texturing
-          mapper->MapDataArrayToMultiTextureAttribute(vtkProperty::VTK_TEXTURE_UNIT_0,
+          mapper->MapDataArrayToMultiTextureAttribute("VTK_TEXTURE_UNIT_0",
               "LatLong", vtkDataObject::FIELD_ASSOCIATION_POINTS);
           textureNode1->GetTexture()->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
-          actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0, textureNode1->GetTexture());
+          actor->GetProperty()->SetTexture("VTK_TEXTURE_UNIT_0", textureNode1->GetTexture());
 
           if (textureNode2)
-            {
-            mapper->MapDataArrayToMultiTextureAttribute(vtkProperty::VTK_TEXTURE_UNIT_1,
+          {
+            mapper->MapDataArrayToMultiTextureAttribute("VTK_TEXTURE_UNIT_1",
                 "LatLong", vtkDataObject::FIELD_ASSOCIATION_POINTS);
             textureNode2->GetTexture()->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_ADD);
-            actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1, textureNode2->GetTexture());
-            }
+            actor->GetProperty()->SetTexture("VTK_TEXTURE_UNIT_1", textureNode2->GetTexture());
           }
+        }
         else
-          {
+        {
           if(multiTexturing)
-            {
+          {
             textureNode1->GetTexture()->SetBlendingMode(
               vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
-            }
+          }
           // Single texturing
           cur->GetModel()->GetPointData()->SetActiveTCoords("LatLong");
           actor->SetTexture(textureNode1->GetTexture());
-          }
+        }
+        actor->GetProperty()->SetDiffuse(0);
         actor->GetProperty()->SetAmbient(1);
         assembly->AddPart(actor);
-        }
-      continue;
       }
+      continue;
+    }
     // Workaround for the isse where if refinement does not happen for some reason
     // then we don't see a tile as its visibility is turned off.
     else
-      {
+    {
       llbounds[0] = cur->GetLongitudeRange()[0];
       llbounds[1] = cur->GetLongitudeRange()[1];
       llbounds[2] = cur->GetLatitudeRange()[0];
       llbounds[3] = cur->GetLatitudeRange()[1];
       vtkGeoImageNode* textureNode1 = textureTree1->GetBestImageForBounds(llbounds);
-      vtkGeoImageNode* textureNode2 = 0;
+      vtkGeoImageNode* textureNode2 = nullptr;
       // See if we already have an actor for this geometry
-      vtkActor* existingActor = 0;
+      vtkActor* existingActor = nullptr;
       for (int p = 0; p < props->GetNumberOfItems(); ++p)
-        {
+      {
         vtkActor* actor = vtkActor::SafeDownCast(props->GetItemAsObject(p));
         bool sameTexture = false;
         if (multiTexturing)
-          {
+        {
           sameTexture = (
               !textureNode1 ||
               actor->GetProperty()->GetNumberOfTextures() < 1 ||
-              actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_0) == textureNode1->GetTexture()
+              actor->GetProperty()->GetTexture("VTK_TEXTURE_UNIT_0") == textureNode1->GetTexture()
             ) && (
               !textureNode2 ||
               actor->GetProperty()->GetNumberOfTextures() < 2 ||
-              actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_1) == textureNode2->GetTexture()
+              actor->GetProperty()->GetTexture("VTK_TEXTURE_UNIT_1") == textureNode2->GetTexture()
             );
-          }
+        }
         else
-          {
+        {
           sameTexture = !textureNode1 || actor->GetTexture() == textureNode1->GetTexture();
-          }
+        }
         if (actor && actor->GetMapper()->GetInputDataObject(0, 0) == cur->GetModel() && sameTexture)
-          {
+        {
           existingActor = actor;
           existingActor->VisibilityOn();
           visibleActors++;
@@ -460,15 +463,15 @@ void vtkGeoTerrain::AddActors(
           assembly->AddPart(actor);
           actor->Delete();
           break;
-          }
         }
       }
+    }
 
     s.push(cur->GetChild(0));
     s.push(cur->GetChild(1));
     s.push(cur->GetChild(2));
     s.push(cur->GetChild(3));
-    }
+  }
 
   timer->StopTimer();
   vtkDebugMacro("Visible Actors: " << visibleActors);
@@ -490,13 +493,13 @@ void vtkGeoTerrain::PrintSelf(ostream & os, vtkIndent indent)
 void vtkGeoTerrain::SaveDatabase(const char* path, int depth)
 {
   if (!this->Root)
-    {
+  {
     this->Initialize();
-    }
-  vtksys_stl::stack< vtkSmartPointer<vtkGeoTerrainNode> > s;
+  }
+  std::stack< vtkSmartPointer<vtkGeoTerrainNode> > s;
   s.push(this->Root);
   while (!s.empty())
-    {
+  {
     vtkSmartPointer<vtkGeoTerrainNode> node = s.top();
     s.pop();
 
@@ -505,27 +508,27 @@ void vtkGeoTerrain::SaveDatabase(const char* path, int depth)
     storedData->ShallowCopy(node->GetModel());
     vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
     char fn[512];
-    sprintf(fn, "%s/tile_%d_%ld.vtp", path, node->GetLevel(), node->GetId());
+    snprintf(fn, sizeof(fn), "%s/tile_%d_%ld.vtp", path, node->GetLevel(), node->GetId());
     writer->SetFileName(fn);
     writer->SetInputData(storedData);
     writer->Write();
 
     if (node->GetLevel() == depth)
-      {
+    {
       continue;
-      }
+    }
 
     // Recurse over children.
     for (int i = 0; i < 4; ++i)
-      {
+    {
       vtkSmartPointer<vtkGeoTerrainNode> child =
         vtkSmartPointer<vtkGeoTerrainNode>::New();
       if (this->GeoSource->FetchChild(node, i, child))
-        {
+      {
         s.push(child);
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -543,13 +546,12 @@ void vtkGeoTerrain::PrintTree(ostream & os, vtkIndent indent, vtkGeoTerrainNode*
     << "," << parent->GetProjectionBounds()[2]
     << "," << parent->GetProjectionBounds()[3] << endl;
   os << indent << "Number of cells: " << parent->GetModel()->GetNumberOfCells() << endl;
-  if (parent->GetChild(0) == 0)
-    {
+  if (parent->GetChild(0) == nullptr)
+  {
     return;
-    }
+  }
   for (int i = 0; i < 4; ++i)
-    {
+  {
     this->PrintTree(os, indent.GetNextIndent(), parent->GetChild(i));
-    }
+  }
 }
-

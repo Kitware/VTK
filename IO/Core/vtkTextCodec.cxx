@@ -38,14 +38,10 @@ bool vtkTextCodec::IsValid(istream&)
 }
 
 
-vtkTextCodec::~vtkTextCodec()
-{
-}
+vtkTextCodec::~vtkTextCodec() = default;
 
 
-vtkTextCodec::vtkTextCodec()
-{
-}
+vtkTextCodec::vtkTextCodec() = default;
 
 
 namespace
@@ -53,16 +49,16 @@ namespace
   class vtkUnicodeStringOutputIterator : public vtkTextCodec::OutputIterator
   {
   public:
-    virtual vtkUnicodeStringOutputIterator& operator++(int);
-    virtual vtkUnicodeStringOutputIterator& operator*();
-    virtual vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeString::value_type value);
+    vtkUnicodeStringOutputIterator& operator++(int) override;
+    vtkUnicodeStringOutputIterator& operator*() override;
+    vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeString::value_type value) override;
 
     vtkUnicodeStringOutputIterator(vtkUnicodeString& outputString);
-    ~vtkUnicodeStringOutputIterator();
+    ~vtkUnicodeStringOutputIterator() override;
 
   private:
-    vtkUnicodeStringOutputIterator(const vtkUnicodeStringOutputIterator&); // Not implemented
-    const vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeStringOutputIterator&); // Not Implemented
+    vtkUnicodeStringOutputIterator(const vtkUnicodeStringOutputIterator&) = delete;
+    vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeStringOutputIterator&) = delete;
 
     vtkUnicodeString& OutputString;
     unsigned int StringPosition;
@@ -90,9 +86,7 @@ namespace
   {
   }
 
-  vtkUnicodeStringOutputIterator::~vtkUnicodeStringOutputIterator()
-  {
-  }
+  vtkUnicodeStringOutputIterator::~vtkUnicodeStringOutputIterator() = default;
 }
 
 

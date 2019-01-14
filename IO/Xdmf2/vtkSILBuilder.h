@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSILBuilder - helper class to build a SIL i.e. a directed graph used
-// by reader producing composite datasets to describes the relationships among
-// the blocks.
-// .SECTION Description
-// vtkSILBuilder is a helper class to build a SIL i.e. a directed graph used
-// by reader producing composite datasets to describes the relationships among
-// the blocks.
-// Refer to http://www.paraview.org/Wiki/Block_Hierarchy_Meta_Data for details.
+/**
+ * @class   vtkSILBuilder
+ * @brief   helper class to build a SIL i.e. a directed graph used
+ * by reader producing composite datasets to describes the relationships among
+ * the blocks.
+ *
+ * vtkSILBuilder is a helper class to build a SIL i.e. a directed graph used
+ * by reader producing composite datasets to describes the relationships among
+ * the blocks.
+ * Refer to http://www.paraview.org/Wiki/Block_Hierarchy_Meta_Data for details.
+*/
 
 #ifndef vtkSILBuilder_h
 #define vtkSILBuilder_h
@@ -36,31 +39,40 @@ class VTKIOXDMF2_EXPORT vtkSILBuilder : public vtkObject
 public:
   static vtkSILBuilder* New();
   vtkTypeMacro(vtkSILBuilder, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description
-  // Get/Set the graph to populate.
+  //@{
+  /**
+   * Get/Set the graph to populate.
+   */
   void SetSIL(vtkMutableDirectedGraph*);
   vtkGetObjectMacro(SIL, vtkMutableDirectedGraph);
+  //@}
 
-  // Description:
-  // Initializes the data-structures.
+  /**
+   * Initializes the data-structures.
+   */
   void Initialize();
 
-  // Description:
-  // Add vertex, child-edge or cross-edge to the graph.
+  //@{
+  /**
+   * Add vertex, child-edge or cross-edge to the graph.
+   */
   vtkIdType AddVertex(const char* name);
   vtkIdType AddChildEdge(vtkIdType parent, vtkIdType child);
   vtkIdType AddCrossEdge(vtkIdType src, vtkIdType dst);
+  //@}
 
-  // Description:
-  // Returns the vertex id for the root vertex.
+  //@{
+  /**
+   * Returns the vertex id for the root vertex.
+   */
   vtkGetMacro(RootVertex, vtkIdType);
+  //@}
 
-//BTX
 protected:
   vtkSILBuilder();
-  ~vtkSILBuilder();
+  ~vtkSILBuilder() override;
 
   vtkStringArray* NamesArray;
   vtkUnsignedCharArray* CrossEdgesArray;
@@ -69,9 +81,9 @@ protected:
   vtkIdType RootVertex;
 
 private:
-  vtkSILBuilder(const vtkSILBuilder&); // Not implemented.
-  void operator=(const vtkSILBuilder&); // Not implemented.
-//ETX
+  vtkSILBuilder(const vtkSILBuilder&) = delete;
+  void operator=(const vtkSILBuilder&) = delete;
+
 };
 
 #endif

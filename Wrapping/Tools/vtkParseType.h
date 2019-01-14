@@ -13,11 +13,11 @@
 
 =========================================================================*/
 
-#ifndef VTK_PARSE_TYPE_H
-#define VTK_PARSE_TYPE_H
+#ifndef vtkParseType_h
+#define vtkParseType_h
 
 /**
- * The parser identifies VTK types with 32-bit hexidecimal numbers:
+ * The parser identifies VTK types with 32-bit hexadecimal numbers:
  *
  * - One byte is for the base type.
  * - One byte is indirection i.e. & and * and "* const"
@@ -72,11 +72,18 @@
 #define VTK_PARSE_VOLATILE    0x00200000
 #define VTK_PARSE_RVALUE      0x00400000
 #define VTK_PARSE_THREAD_LOCAL 0x00800000
+
+/**
+ * Attributes (used for hints)
+ */
+#define VTK_PARSE_ATTRIBUTES  0x03000000
 #define VTK_PARSE_NEWINSTANCE 0x01000000
+#define VTK_PARSE_ZEROCOPY    0x02000000
 
 /**
  * Special
  */
+#define VTK_PARSE_SPECIALS    0x70000000
 #define VTK_PARSE_TYPEDEF     0x10000000
 #define VTK_PARSE_FRIEND      0x20000000
 #define VTK_PARSE_PACK        0x40000000
@@ -84,7 +91,7 @@
 /**
  * Mask for removing qualifiers
  */
-#define VTK_PARSE_QUALIFIED_TYPE   0x01FFFFFF
+#define VTK_PARSE_QUALIFIED_TYPE   0x03FFFFFF
 #define VTK_PARSE_UNQUALIFIED_TYPE 0x0000FFFF
 
 /**
@@ -274,3 +281,4 @@
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseType.h */

@@ -13,15 +13,18 @@
 
 =========================================================================*/
 
-// .NAME vtkPlotPoints3D - 3D scatter plot.
-//
-// .SECTION Description
-// 3D scatter plot.
-//
-// .SECTION See Also
-// vtkPlotLine3D
-// vtkPlotPoints
-//
+/**
+ * @class   vtkPlotPoints3D
+ * @brief   3D scatter plot.
+ *
+ *
+ * 3D scatter plot.
+ *
+ * @sa
+ * vtkPlotLine3D
+ * vtkPlotPoints
+ *
+*/
 
 #ifndef vtkPlotPoints3D_h
 #define vtkPlotPoints3D_h
@@ -35,30 +38,31 @@ class VTKCHARTSCORE_EXPORT vtkPlotPoints3D : public vtkPlot3D
 {
 public:
   vtkTypeMacro(vtkPlotPoints3D, vtkPlot3D);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   static vtkPlotPoints3D * New();
 
-  // Description:
-  // Paint event for the XY plot, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  /**
+   * Paint event for the XY plot, called whenever the chart needs to be drawn
+   */
+  bool Paint(vtkContext2D *painter) override;
 
-//BTX
 protected:
   vtkPlotPoints3D();
-  ~vtkPlotPoints3D();
+  ~vtkPlotPoints3D() override;
 
-  // Description:
-  // The selected points.
+  /**
+   * The selected points.
+   */
   std::vector<vtkVector3f> SelectedPoints;
 
-  // Description:
-  // The selected points.
+  /**
+   * The selected points.
+   */
   vtkTimeStamp SelectedPointsBuildTime;
 
 private:
-  vtkPlotPoints3D(const vtkPlotPoints3D &); // Not implemented.
-  void operator=(const vtkPlotPoints3D &); // Not implemented.
-//ETX
+  vtkPlotPoints3D(const vtkPlotPoints3D &) = delete;
+  void operator=(const vtkPlotPoints3D &) = delete;
 
 };
 

@@ -16,14 +16,10 @@
 
 
 //----------------------------------------------------------------------------
-vtkGenericCellIterator::vtkGenericCellIterator()
-{
-}
+vtkGenericCellIterator::vtkGenericCellIterator() = default;
 
 //----------------------------------------------------------------------------
-vtkGenericCellIterator::~vtkGenericCellIterator()
-{
-}
+vtkGenericCellIterator::~vtkGenericCellIterator() = default;
 
 //----------------------------------------------------------------------------
 void vtkGenericCellIterator::PrintSelf(ostream& os, vtkIndent indent)

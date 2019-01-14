@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkCompositedSynchronizedRenderers.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositedSynchronizedRenderers
-// .SECTION Description
-// vtkCompositedSynchronizedRenderers is vtkSynchronizedRenderers that uses
-// vtkCompositer to composite the images on  the root node.
+/**
+ * @class   vtkCompositedSynchronizedRenderers
+ *
+ * vtkCompositedSynchronizedRenderers is vtkSynchronizedRenderers that uses
+ * vtkCompositer to composite the images on the root node.
+*/
 
 #ifndef vtkCompositedSynchronizedRenderers_h
 #define vtkCompositedSynchronizedRenderers_h
@@ -31,27 +33,29 @@ class VTKRENDERINGPARALLEL_EXPORT vtkCompositedSynchronizedRenderers : public vt
 public:
   static vtkCompositedSynchronizedRenderers* New();
   vtkTypeMacro(vtkCompositedSynchronizedRenderers, vtkSynchronizedRenderers);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get/Set the composite. vtkTreeCompositer is used by default.
+  //@{
+  /**
+   * Get/Set the composite. vtkTreeCompositer is used by default.
+   */
   void SetCompositer(vtkCompositer*);
   vtkGetObjectMacro(Compositer, vtkCompositer);
+  //@}
 
-//BTX
 protected:
   vtkCompositedSynchronizedRenderers();
-  ~vtkCompositedSynchronizedRenderers();
+  ~vtkCompositedSynchronizedRenderers() override;
 
-  virtual void MasterEndRender();
-  virtual void SlaveEndRender();
+  void MasterEndRender() override;
+  void SlaveEndRender() override;
   void CaptureRenderedDepthBuffer(vtkFloatArray* depth_buffer);
 
   vtkCompositer* Compositer;
 private:
-  vtkCompositedSynchronizedRenderers(const vtkCompositedSynchronizedRenderers&); // Not implemented
-  void operator=(const vtkCompositedSynchronizedRenderers&); // Not implemented
-//ETX
+  vtkCompositedSynchronizedRenderers(const vtkCompositedSynchronizedRenderers&) = delete;
+  void operator=(const vtkCompositedSynchronizedRenderers&) = delete;
+
 };
 
 #endif

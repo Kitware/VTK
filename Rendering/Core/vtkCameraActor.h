@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCameraActor - a frustum to represent a camera.
-// .SECTION Description
-// vtkCameraActor is an actor used to represent a camera by its wireframe
-// frustum.
-
-// .SECTION See Also
-// vtkLight vtkConeSource vtkFrustumSource vtkCameraActor
+/**
+ * @class   vtkCameraActor
+ * @brief   a frustum to represent a camera.
+ *
+ * vtkCameraActor is an actor used to represent a camera by its wireframe
+ * frustum.
+ *
+ * @sa
+ * vtkLight vtkConeSource vtkFrustumSource vtkCameraActor
+*/
 
 #ifndef vtkCameraActor_h
 #define vtkCameraActor_h
@@ -37,52 +40,65 @@ class VTKRENDERINGCORE_EXPORT vtkCameraActor : public vtkProp3D
 public:
   static vtkCameraActor *New();
   vtkTypeMacro(vtkCameraActor, vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // The camera to represent. Initial value is NULL.
+  //@{
+  /**
+   * The camera to represent. Initial value is NULL.
+   */
   void SetCamera(vtkCamera *camera);
   vtkGetObjectMacro(Camera, vtkCamera);
+  //@}
 
-  // Description:
-  // Ratio between the width and the height of the frustum. Initial value is
-  // 1.0 (square)
+  //@{
+  /**
+   * Ratio between the width and the height of the frustum. Initial value is
+   * 1.0 (square)
+   */
   vtkSetMacro(WidthByHeightRatio, double);
   vtkGetMacro(WidthByHeightRatio, double);
+  //@}
 
-  // Description:
-  // Support the standard render methods.
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
+  /**
+   * Support the standard render methods.
+   */
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
 
-  // Description:
-  // Does this prop have some translucent polygonal geometry? No.
-  virtual int HasTranslucentPolygonalGeometry();
+  /**
+   * Does this prop have some translucent polygonal geometry? No.
+   */
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
-  // Description:
-  // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *);
+  /**
+   * Release any graphics resources that are being consumed by this actor.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
-  // Description:
-  // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  double *GetBounds();
+  /**
+   * Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+   */
+  double *GetBounds() override;
 
-  // Description:
-  // Get the actors mtime plus consider its properties and texture if set.
-  unsigned long int GetMTime();
+  /**
+   * Get the actors mtime plus consider its properties and texture if set.
+   */
+  vtkMTimeType GetMTime() override;
 
-  // Description:
-  // Get property of the internal actor.
+  /**
+   * Get property of the internal actor.
+   */
   vtkProperty *GetProperty();
 
-  // Description:
-  // Set property of the internal actor.
+  /**
+   * Set property of the internal actor.
+   */
   void SetProperty(vtkProperty *p);
 
 protected:
   vtkCameraActor();
-  ~vtkCameraActor();
+  ~vtkCameraActor() override;
 
   void UpdateViewProps();
 
@@ -94,8 +110,8 @@ protected:
   vtkActor *FrustumActor;
 
 private:
-  vtkCameraActor(const vtkCameraActor&);  // Not implemented.
-  void operator=(const vtkCameraActor&);  // Not implemented.
+  vtkCameraActor(const vtkCameraActor&) = delete;
+  void operator=(const vtkCameraActor&) = delete;
 };
 
 #endif

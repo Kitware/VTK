@@ -42,10 +42,10 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
 {
   vtkNew<vtkNIFTIImageReader> reader;
   if (!reader->CanReadFile(infile))
-    {
+  {
     cerr << "CanReadFile failed for " << infile << "\n";
     exit(1);
-    }
+  }
   reader->SetFileName(infile);
   reader->Update();
 
@@ -57,13 +57,13 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
   double center1[3] = { center[0], center[1], center[2] };
   double center2[3] = { center[0], center[1], center[2] };
   if (size[2] % 2 == 1)
-    {
+  {
     center1[2] += 0.5*spacing[2];
-    }
+  }
   if (size[0] % 2 == 1)
-    {
+  {
     center2[0] += 0.5*spacing[0];
-    }
+  }
   double vrange[2];
   reader->GetOutput()->GetScalarRange(vrange);
 
@@ -79,12 +79,12 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
   map2->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkImageSlice> slice1;
-  slice1->SetMapper(map1.GetPointer());
+  slice1->SetMapper(map1);
   slice1->GetProperty()->SetColorWindow(vrange[1]-vrange[0]);
   slice1->GetProperty()->SetColorLevel(0.5*(vrange[0]+vrange[1]));
 
   vtkNew<vtkImageSlice> slice2;
-  slice2->SetMapper(map2.GetPointer());
+  slice2->SetMapper(map2);
   slice2->GetProperty()->SetColorWindow(vrange[1]-vrange[0]);
   slice2->GetProperty()->SetColorLevel(0.5*(vrange[0]+vrange[1]));
 
@@ -95,8 +95,8 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
 
   vtkNew<vtkRenderer> ren2;
   ren2->SetViewport(ratio,0.0,1.0,1.0);
-  ren1->AddViewProp(slice1.GetPointer());
-  ren2->AddViewProp(slice2.GetPointer());
+  ren1->AddViewProp(slice1);
+  ren2->AddViewProp(slice2);
 
   vtkCamera *cam1 = ren1->GetActiveCamera();
   cam1->ParallelProjectionOn();
@@ -111,8 +111,8 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
   cam2->SetPosition(center2[0] + 100.0, center2[1], center2[2]);
 
   renwin->SetSize(size[0] + size[2], size[1]);
-  renwin->AddRenderer(ren1.GetPointer());
-  renwin->AddRenderer(ren2.GetPointer());
+  renwin->AddRenderer(ren1);
+  renwin->AddRenderer(ren2);
 };
 
 int TestNIFTIReaderAnalyze(int argc, char *argv[])
@@ -121,26 +121,26 @@ int TestNIFTIReaderAnalyze(int argc, char *argv[])
   char *infile =
     vtkTestUtilities::ExpandDataFileName(argc, argv, dispfile);
   if (!infile)
-    {
+  {
     cerr << "Could not locate input file " << dispfile << "\n";
     return 1;
-    }
+  }
   std::string inpath = infile;
   delete [] infile;
 
   vtkNew<vtkRenderWindow> renwin;
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renwin.GetPointer());
+  iren->SetRenderWindow(renwin);
 
-  TestDisplay(renwin.GetPointer(), inpath.c_str());
+  TestDisplay(renwin, inpath.c_str());
 
-  int retVal = vtkRegressionTestImage(renwin.GetPointer());
+  int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renwin->Render();
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return (retVal != vtkRegressionTester::PASSED);
 }

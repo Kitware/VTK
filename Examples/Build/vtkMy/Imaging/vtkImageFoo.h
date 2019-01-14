@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageFoo - foo and scale an input image
-// .SECTION Description
-// With vtkImageFoo Pixels are foo'ed.
+/**
+ * @class   vtkImageFoo
+ * @brief   foo and scale an input image
+ *
+ * With vtkImageFoo Pixels are foo'ed.
+*/
 
 #ifndef vtkImageFoo_h
 #define vtkImageFoo_h
@@ -29,15 +32,20 @@ class VTK_MY_IMAGING_EXPORT vtkImageFoo : public vtkThreadedImageAlgorithm
 public:
   static vtkImageFoo *New();
   vtkTypeMacro(vtkImageFoo,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get the foo value.
+  //@{
+  /**
+   * Set/Get the foo value.
+   */
   vtkSetMacro(Foo,float);
   vtkGetMacro(Foo,float);
+  //@}
 
-  // Description:
-  // Set the desired output scalar type.
+  //@{
+  /**
+   * Set the desired output scalar type.
+   */
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
   void SetOutputScalarTypeToDouble()
@@ -62,26 +70,27 @@ public:
     {this->SetOutputScalarType(VTK_SIGNED_CHAR);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+  //@}
 
 protected:
   vtkImageFoo();
-  ~vtkImageFoo();
+  ~vtkImageFoo() override;
 
   float Foo;
   int OutputScalarType;
   vtkBar* Bar;
 
-  virtual int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector* outputVector);
+  int RequestInformation(vtkInformation*,
+                         vtkInformationVector**,
+                         vtkInformationVector* outputVector) override;
   void ThreadedRequestData(vtkInformation* request,
                            vtkInformationVector** inputVector,
                            vtkInformationVector* outputVector,
                            vtkImageData*** inData, vtkImageData** outData,
-                           int outExt[6], int id);
+                           int outExt[6], int id) override;
 private:
-  vtkImageFoo(const vtkImageFoo&);  // Not implemented.
-  void operator=(const vtkImageFoo&);  // Not implemented.
+  vtkImageFoo(const vtkImageFoo&) = delete;
+  void operator=(const vtkImageFoo&) = delete;
 };
 
 #endif

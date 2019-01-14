@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtInitialization - Initializes a Qt application.
-//
-// .SECTION Description
-// Utility class that initializes Qt by creating an instance of
-// QApplication in its ctor, if one doesn't already exist.
-// This is mainly of use in ParaView with filters that use Qt in
-// their implementation - create an instance of vtkQtInitialization
-// prior to instantiating any filters that require Qt.
+/**
+ * @class   vtkQtInitialization
+ * @brief   Initializes a Qt application.
+ *
+ *
+ * Utility class that initializes Qt by creating an instance of
+ * QApplication in its ctor, if one doesn't already exist.
+ * This is mainly of use in ParaView with filters that use Qt in
+ * their implementation - create an instance of vtkQtInitialization
+ * prior to instantiating any filters that require Qt.
+*/
 
 #ifndef vtkQtInitialization_h
 #define vtkQtInitialization_h
@@ -32,27 +35,25 @@
 #include "vtkRenderingQtModule.h" // For export macro
 #include "vtkObject.h"
 
-//BTX
 class QApplication;
-//ETX
 
 class VTKRENDERINGQT_EXPORT vtkQtInitialization : public vtkObject
 {
 public:
   static vtkQtInitialization* New();
   vtkTypeMacro(vtkQtInitialization, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkQtInitialization();
-  ~vtkQtInitialization();
+  ~vtkQtInitialization() override;
 
 private:
-  vtkQtInitialization(const vtkQtInitialization &); // Not implemented.
-  void operator=(const vtkQtInitialization &); // Not implemented.
-  //BTX
+  vtkQtInitialization(const vtkQtInitialization &) = delete;
+  void operator=(const vtkQtInitialization &) = delete;
+
   QApplication *Application;
-  //ETX
+
 };
 
 #endif // vtkQtInitialization_h

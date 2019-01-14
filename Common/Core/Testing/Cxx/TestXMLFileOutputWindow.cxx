@@ -20,10 +20,10 @@
 int TestXMLFileOutputWindow(int argc,char *argv[])
 {
   if (argc < 2)
-    {
+  {
     std::cout << "Usage: " << argv[0] << " outputFilename" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   std::string sample("Test string: &\"'<>");
 
   {
@@ -40,13 +40,13 @@ int TestXMLFileOutputWindow(int argc,char *argv[])
   ofw->DisplayGenericWarningText(sample.c_str());
   ofw->DisplayDebugText(sample.c_str());
 
-  // Check NULL strings
-  ofw->DisplayTag(NULL);
-  ofw->DisplayText(NULL);
-  ofw->DisplayErrorText(NULL);
-  ofw->DisplayWarningText(NULL);
-  ofw->DisplayGenericWarningText(NULL);
-  ofw->DisplayDebugText(NULL);
+  // Check nullptr strings
+  ofw->DisplayTag(nullptr);
+  ofw->DisplayText(nullptr);
+  ofw->DisplayErrorText(nullptr);
+  ofw->DisplayWarningText(nullptr);
+  ofw->DisplayGenericWarningText(nullptr);
+  ofw->DisplayDebugText(nullptr);
   }
 
   // Append to default
@@ -81,29 +81,29 @@ int TestXMLFileOutputWindow(int argc,char *argv[])
                   std::istreambuf_iterator<char>());
 
   if (dfin.fail())
-    {
+  {
     std::cout << argv[0] << ": Cannot open vtkMessageLog.xml" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::ifstream sfin(argv[1]);
   std::string specified((std::istreambuf_iterator<char>(sfin)),
                         std::istreambuf_iterator<char>());
 
   if (sfin.fail())
-    {
+  {
     std::cout << argv[0] << ": Cannot open " << argv[1] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (def != specified)
-    {
+  {
     std::cout << "The string in the default file ***********" << std::endl
               << def << std::endl
               << "does not match the string in the specified file  ***********" << std::endl
               << specified << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

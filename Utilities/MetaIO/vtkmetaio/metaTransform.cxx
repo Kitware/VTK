@@ -171,7 +171,7 @@ M_SetupWriteFields(void)
       m_Fields.erase(it);
       break;
       }
-    it++;
+    ++it;
     }
 
   mF = MET_GetFieldRecord("Offset",&m_Fields);
@@ -183,7 +183,7 @@ M_SetupWriteFields(void)
       m_Fields.erase(it);
       break;
       }
-    it++;
+    ++it;
     }
 
   mF = MET_GetFieldRecord("ElementSpacing",&m_Fields);
@@ -195,7 +195,7 @@ M_SetupWriteFields(void)
       m_Fields.erase(it);
       break;
       }
-    it++;
+    ++it;
     }
 
   int i;
@@ -220,7 +220,7 @@ M_SetupWriteFields(void)
         m_Fields.erase(it);
         break;
         }
-      it++;
+      ++it;
       }
     }
 
@@ -514,7 +514,7 @@ M_Read(void)
     char* _data = new char[parametersDimension*sizeof(double)];
     m_ReadStream->read((char *)_data, parametersDimension*sizeof(double));
 
-    unsigned int gc = m_ReadStream->gcount();
+    unsigned int gc = static_cast<unsigned int>(m_ReadStream->gcount());
     if(gc != parametersDimension*sizeof(double))
       {
       METAIO_STREAM::cout << "MetaTransform: m_Read: data not read completely"
@@ -555,4 +555,3 @@ M_Read(void)
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -71,7 +70,6 @@ for lod in lods:
       eval("normals" + lod).GetOutputPort())
     eval("demMapper" + lod).SetScalarRange(lo, hi)
     eval("demMapper" + lod).SetLookupTable(lut)
-    eval("demMapper" + lod).ImmediateModeRenderingOn()
     eval("demMapper" + lod).Update()
 
     demActor.AddLODMapper(eval("demMapper" + lod))

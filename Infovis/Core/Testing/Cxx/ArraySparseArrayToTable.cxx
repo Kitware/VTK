@@ -26,8 +26,8 @@
 #include <vtkSparseArrayToTable.h>
 #include <vtkTable.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/stl/stdexcept>
+#include <iostream>
+#include <stdexcept>
 
 #define test_expression(expression) \
 { \
@@ -38,7 +38,7 @@
 int ArraySparseArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkSparseArray<double> > array = vtkSmartPointer<vtkSparseArray<double> >::New();
     array->Resize(10, 10, 10);
     array->SetDimensionLabel(0, "i");
@@ -81,11 +81,11 @@ int ArraySparseArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(table->GetValue(2, 3).ToDouble() == 3);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

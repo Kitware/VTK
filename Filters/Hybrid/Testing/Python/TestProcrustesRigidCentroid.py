@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -153,9 +152,9 @@ ren3.GetActiveCamera().SetPosition(1, -1, 0)
 ren3.ResetCamera()
 
 renWin.Render()
-print Actor1b.GetCenter()
-print Actor2b.GetCenter()
-print Actor3b.GetCenter()
+print(Actor1b.GetCenter())
+print(Actor2b.GetCenter())
+print(Actor3b.GetCenter())
 
 iren.Initialize()
 #iren.Start()

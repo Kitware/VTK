@@ -1,0 +1,19 @@
+NAME
+  VTK::RenderingExternal
+LIBRARY_NAME
+  vtkRenderingExternal
+DEPENDS
+  VTK::CommonCore
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonMath
+  VTK::CommonTransforms
+  VTK::RenderingOpenGL2
+  VTK::glew
+  VTK::opengl
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::FiltersSources
+  VTK::TestingRendering
+  VTK::opengl

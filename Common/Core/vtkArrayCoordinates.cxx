@@ -21,9 +21,7 @@
 
 #include "vtkArrayCoordinates.h"
 
-vtkArrayCoordinates::vtkArrayCoordinates()
-{
-}
+vtkArrayCoordinates::vtkArrayCoordinates() = default;
 
 vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i) :
   Storage(1)
@@ -48,7 +46,7 @@ vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j, Coordinat
 
 vtkArrayCoordinates::DimensionT vtkArrayCoordinates::GetDimensions() const
 {
-  return this->Storage.size();
+  return static_cast<vtkArrayCoordinates::DimensionT>(this->Storage.size());
 }
 
 void vtkArrayCoordinates::SetDimensions(DimensionT dimensions)
@@ -89,11 +87,11 @@ bool vtkArrayCoordinates::operator!=(const vtkArrayCoordinates& rhs) const
 ostream& operator<<(ostream& stream, const vtkArrayCoordinates& rhs)
 {
   for(vtkArrayCoordinates::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
-    {
+  {
     if(i)
       stream << ",";
     stream << rhs[i];
-    }
+  }
 
   return stream;
 }

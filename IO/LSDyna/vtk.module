@@ -1,0 +1,21 @@
+NAME
+  VTK::IOLSDyna
+LIBRARY_NAME
+  vtkIOLSDyna
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::IOXMLParser
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::IOImage
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

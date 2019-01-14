@@ -1,0 +1,19 @@
+NAME
+  VTK::IOOggTheora
+LIBRARY_NAME
+  vtkIOOggTheora
+CONDITION
+  NOT CMAKE_C_COMPILER_ID STREQUAL "XL" AND NOT CMAKE_CROSSCOMPILING
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+  VTK::IOMovie
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::theora

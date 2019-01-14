@@ -22,8 +22,8 @@ vtkStandardNewMacro(vtkImageConnector);
 //----------------------------------------------------------------------------
 vtkImageConnector::vtkImageConnector()
 {
-  this->Seeds = NULL;
-  this->LastSeed = NULL;
+  this->Seeds = nullptr;
+  this->LastSeed = nullptr;
   this->ConnectedValue = 255;
   this->UnconnectedValue = 128;
 }
@@ -40,12 +40,12 @@ void vtkImageConnector::RemoveAllSeeds()
   vtkImageConnectorSeed *temp;
 
   while (this->Seeds)
-    {
+  {
     temp = this->Seeds;
     this->Seeds = temp->Next;
     delete temp;
-    }
-  this->LastSeed = NULL;
+  }
+  this->LastSeed = nullptr;
 }
 
 
@@ -56,11 +56,11 @@ vtkImageConnectorSeed *vtkImageConnector::NewSeed(int index[3], void *ptr)
   int idx;
 
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     seed->Index[idx] = index[idx];
-    }
+  }
   seed->Pointer = ptr;
-  seed->Next = NULL;
+  seed->Next = nullptr;
 
   return seed;
 }
@@ -70,15 +70,15 @@ vtkImageConnectorSeed *vtkImageConnector::NewSeed(int index[3], void *ptr)
 void vtkImageConnector::AddSeedToEnd(vtkImageConnectorSeed *seed)
 {
   // Add the seed to the end of the list
-  if (this->LastSeed == NULL)
-    { // no seeds yet
+  if (this->LastSeed == nullptr)
+  { // no seeds yet
     this->LastSeed = this->Seeds = seed;
-    }
+  }
   else
-    {
+  {
     this->LastSeed->Next = seed;
     this->LastSeed = seed;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -88,9 +88,9 @@ void vtkImageConnector::AddSeed(vtkImageConnectorSeed *seed)
   seed->Next = this->Seeds;
   this->Seeds = seed;
   if ( ! this->LastSeed)
-    {
+  {
     this->LastSeed = seed;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -101,10 +101,10 @@ vtkImageConnectorSeed *vtkImageConnector::PopSeed()
 
   seed = this->Seeds;
   this->Seeds = seed->Next;
-  if (this->Seeds == NULL)
-    {
-    this->LastSeed = NULL;
-    }
+  if (this->Seeds == nullptr)
+  {
+    this->LastSeed = nullptr;
+  }
   return seed;
 }
 
@@ -115,16 +115,16 @@ vtkImageConnectorSeed *vtkImageConnector::PopSeed()
 // The data has to be unsigned char.
 void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int extent[6])
 {
-  vtkIdType *incs, *pIncs;
+  vtkIdType incs[3], *pIncs;
   int *pExtent;
   vtkImageConnectorSeed *seed;
   unsigned char *ptr;
   int newIndex[3], *pIndex, idx;
   long count = 0;
 
-  incs = data->GetIncrements();
+  data->GetIncrements(incs);
   while (this->Seeds)
-    {
+  {
     ++count;
     seed = this->PopSeed();
     // just in case the seed has not been marked visited.
@@ -137,41 +137,41 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
     pIncs = incs;
     pIndex = newIndex;
     for (idx = 0; idx < numberOfAxes; ++idx)
-      {
+    {
       // check pixel below
       if (*pExtent < *pIndex)
-        {
+      {
         ptr = static_cast<unsigned char *>(seed->Pointer) - *pIncs;
         if (*ptr == this->UnconnectedValue)
-          { // add a new seed
+        { // add a new seed
           --(*pIndex);
           *ptr = this->ConnectedValue;
           this->AddSeedToEnd(this->NewSeed(newIndex, ptr));
           ++(*pIndex);
-          }
         }
+      }
       ++pExtent;
       // check above pixel
       if (*pExtent > *pIndex)
-        {
+      {
         ptr = static_cast<unsigned char *>(seed->Pointer) + *pIncs;
         if (*ptr == this->UnconnectedValue)
-          { // add a new seed
+        { // add a new seed
           ++(*pIndex);
           *ptr = this->ConnectedValue;
           this->AddSeedToEnd(this->NewSeed(newIndex, ptr));
           --(*pIndex);
-          }
         }
+      }
       ++pExtent;
       // move to next axis
       ++pIncs;
       ++pIndex;
-      }
+    }
 
     // Delete seed
     delete seed;
-    }
+  }
   vtkDebugMacro("Marked " << count << " pixels");
 }
 

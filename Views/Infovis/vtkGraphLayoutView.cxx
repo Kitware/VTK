@@ -48,29 +48,27 @@ vtkGraphLayoutView::vtkGraphLayoutView()
 }
 
 //----------------------------------------------------------------------------
-vtkGraphLayoutView::~vtkGraphLayoutView()
-{
-}
+vtkGraphLayoutView::~vtkGraphLayoutView() = default;
 
 //----------------------------------------------------------------------------
 vtkRenderedGraphRepresentation* vtkGraphLayoutView::GetGraphRepresentation()
 {
-  vtkRenderedGraphRepresentation* graphRep = 0;
+  vtkRenderedGraphRepresentation* graphRep = nullptr;
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
-    {
+  {
     vtkDataRepresentation* rep = this->GetRepresentation(i);
     graphRep = vtkRenderedGraphRepresentation::SafeDownCast(rep);
     if (graphRep)
-      {
-      break;
-      }
-    }
-  if (!graphRep)
     {
+      break;
+    }
+  }
+  if (!graphRep)
+  {
     vtkSmartPointer<vtkDirectedGraph> g = vtkSmartPointer<vtkDirectedGraph>::New();
     graphRep = vtkRenderedGraphRepresentation::SafeDownCast(
       this->AddRepresentationFromInput(g));
-    }
+  }
   return graphRep;
 }
 
@@ -398,7 +396,7 @@ const char* vtkGraphLayoutView::GetIconArrayName()
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphLayoutView::AddIconType(char *type, int index)
+void vtkGraphLayoutView::AddIconType(const char *type, int index)
 {
   this->GetGraphRepresentation()->AddVertexIconType(type, index);
 }

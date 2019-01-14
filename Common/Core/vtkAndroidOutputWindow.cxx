@@ -16,7 +16,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
-#include "vtksys/ios/sstream"
+#include <sstream>
 
 
 #include <android/log.h>
@@ -37,16 +37,16 @@ vtkAndroidOutputWindow::~vtkAndroidOutputWindow()
 void vtkAndroidOutputWindow::DisplayErrorText(const char* someText)
 {
   if(!someText)
-    {
+  {
     return;
-    }
+  }
 
-  vtksys_ios::istringstream stream(someText);
+  std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
-    {
-    __android_log_print(ANDROID_LOG_ERROR, "VTK", line.c_str());
-    }
+  {
+    __android_log_print(ANDROID_LOG_ERROR, "VTK", "%s", line.c_str());
+  }
   this->InvokeEvent(vtkCommand::ErrorEvent, (void*)someText);
 }
 
@@ -54,16 +54,16 @@ void vtkAndroidOutputWindow::DisplayErrorText(const char* someText)
 void vtkAndroidOutputWindow::DisplayWarningText(const char* someText)
 {
   if(!someText)
-    {
+  {
     return;
-    }
+  }
 
-  vtksys_ios::istringstream stream(someText);
+  std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
-    {
-    __android_log_print(ANDROID_LOG_WARN, "VTK", line.c_str());
-    }
+  {
+    __android_log_print(ANDROID_LOG_WARN, "VTK", "%s", line.c_str());
+  }
   this->InvokeEvent(vtkCommand::WarningEvent,(void*) someText);
 }
 
@@ -71,48 +71,48 @@ void vtkAndroidOutputWindow::DisplayWarningText(const char* someText)
 void vtkAndroidOutputWindow::DisplayGenericWarningText(const char* someText)
 {
   if(!someText)
-    {
+  {
     return;
-    }
+  }
 
-  vtksys_ios::istringstream stream(someText);
+  std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
-    {
-    __android_log_print(ANDROID_LOG_WARN, "VTK", line.c_str());
-    }
+  {
+    __android_log_print(ANDROID_LOG_WARN, "VTK", "%s", line.c_str());
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayDebugText(const char* someText)
 {
   if(!someText)
-    {
+  {
     return;
-    }
+  }
 
-  vtksys_ios::istringstream stream(someText);
+  std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
-    {
-    __android_log_print(ANDROID_LOG_DEBUG, "VTK", line.c_str());
-    }
+  {
+    __android_log_print(ANDROID_LOG_DEBUG, "VTK", "%s", line.c_str());
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayText(const char* someText)
 {
   if(!someText)
-    {
+  {
     return;
-    }
+  }
 
-  vtksys_ios::istringstream stream(someText);
+  std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
-    {
-    __android_log_print(ANDROID_LOG_INFO, "VTK", line.c_str());
-    }
+  {
+    __android_log_print(ANDROID_LOG_INFO, "VTK", "%s", line.c_str());
+  }
 }
 
 

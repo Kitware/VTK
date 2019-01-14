@@ -1,0 +1,22 @@
+NAME
+  VTK::IOFFMPEG
+LIBRARY_NAME
+  vtkIOFFMPEG
+KIT
+  VTK::IO
+DEPENDS
+  VTK::IOMovie
+  VTK::IOVideo
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::ImagingCore
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

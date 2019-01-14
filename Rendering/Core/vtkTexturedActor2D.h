@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTexturedActor2D - actor that draws 2D data with texture support
-// .SECTION Description
-// vtkTexturedActor2D is an Actor2D which has additional support for
-// textures, just like vtkActor. To use textures, the geometry must have
-// texture coordinates, and the texture must be set with SetTexture().
-
-// .SECTION See Also
-// vtkActor2D vtkProp vtkMapper2D vtkProperty2D
+/**
+ * @class   vtkTexturedActor2D
+ * @brief   actor that draws 2D data with texture support
+ *
+ * vtkTexturedActor2D is an Actor2D which has additional support for
+ * textures, just like vtkActor. To use textures, the geometry must have
+ * texture coordinates, and the texture must be set with SetTexture().
+ *
+ * @sa
+ * vtkActor2D vtkProp vtkMapper2D vtkProperty2D
+*/
 
 #ifndef vtkTexturedActor2D_h
 #define vtkTexturedActor2D_h
@@ -36,45 +39,54 @@ class VTKRENDERINGCORE_EXPORT vtkTexturedActor2D : public vtkActor2D
 {
 public:
   static vtkTexturedActor2D* New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkTexturedActor2D, vtkActor2D);
 
-  // Description:
-  // Set/Get the texture object to control rendering texture maps.  This will
-  // be a vtkTexture object. An actor does not need to have an associated
-  // texture map and multiple actors can share one texture.
+  //@{
+  /**
+   * Set/Get the texture object to control rendering texture maps.  This will
+   * be a vtkTexture object. An actor does not need to have an associated
+   * texture map and multiple actors can share one texture.
+   */
   virtual void SetTexture(vtkTexture* texture);
   vtkGetObjectMacro(Texture, vtkTexture);
+  //@}
 
-  // Description:
-  // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow* win);
+  /**
+   * Release any graphics resources that are being consumed by this actor.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
+  void ReleaseGraphicsResources(vtkWindow* win) override;
 
-  // Description:
-  // Support the standard render methods.
-  virtual int RenderOverlay(vtkViewport* viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
+  //@{
+  /**
+   * Support the standard render methods.
+   */
+  int RenderOverlay(vtkViewport* viewport) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
+  //@}
 
-  // Description:
-  // Return this object's modified time.
-  virtual unsigned long int GetMTime();
+  /**
+   * Return this object's modified time.
+   */
+  vtkMTimeType GetMTime() override;
 
-  // Description:
-  // Shallow copy of this vtkTexturedActor2D. Overrides vtkActor2D method.
-  virtual void ShallowCopy(vtkProp* prop);
+  /**
+   * Shallow copy of this vtkTexturedActor2D. Overrides vtkActor2D method.
+   */
+  void ShallowCopy(vtkProp* prop) override;
 
 protected:
   vtkTexturedActor2D();
-  ~vtkTexturedActor2D();
+  ~vtkTexturedActor2D() override;
 
   vtkTexture* Texture;
 
 private:
-  vtkTexturedActor2D(const vtkTexturedActor2D&); // Not implemented.
-  void operator=(const vtkTexturedActor2D&); // Not implemented.
+  vtkTexturedActor2D(const vtkTexturedActor2D&) = delete;
+  void operator=(const vtkTexturedActor2D&) = delete;
 };
 
 #endif

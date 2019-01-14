@@ -22,16 +22,19 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkCellCenterDepthSort - A simple implementation of vtkCellDepthSort.
-//
-// .SECTION Description
-// vtkCellCenterDepthSort is a simple and fast implementation of depth
-// sort, but it only provides approximate results.  The sorting algorithm
-// finds the centroids of all the cells.  It then performs the dot product
-// of the centroids against a vector pointing in the direction of the
-// camera transformed into object space.  It then performs an ordinary sort
-// on the result.
-//
+/**
+ * @class   vtkCellCenterDepthSort
+ * @brief   A simple implementation of vtkCellDepthSort.
+ *
+ *
+ * vtkCellCenterDepthSort is a simple and fast implementation of depth
+ * sort, but it only provides approximate results.  The sorting algorithm
+ * finds the centroids of all the cells.  It then performs the dot product
+ * of the centroids against a vector pointing in the direction of the
+ * camera transformed into object space.  It then performs an ordinary sort
+ * on the result.
+ *
+*/
 
 #ifndef vtkCellCenterDepthSort_h
 #define vtkCellCenterDepthSort_h
@@ -47,15 +50,15 @@ class VTKRENDERINGCORE_EXPORT vtkCellCenterDepthSort : public vtkVisibilitySort
 {
 public:
   vtkTypeMacro(vtkCellCenterDepthSort, vtkVisibilitySort);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   static vtkCellCenterDepthSort *New();
 
-  virtual void InitTraversal();
-  virtual vtkIdTypeArray *GetNextCells();
+  void InitTraversal() override;
+  vtkIdTypeArray *GetNextCells() override;
 
 protected:
   vtkCellCenterDepthSort();
-  virtual ~vtkCellCenterDepthSort();
+  ~vtkCellCenterDepthSort() override;
 
   vtkIdTypeArray *SortedCells;
   vtkIdTypeArray *SortedCellPartition;
@@ -71,8 +74,8 @@ protected:
 private:
   vtkCellCenterDepthSortStack *ToSort;
 
-  vtkCellCenterDepthSort(const vtkCellCenterDepthSort &);  // Not implemented.
-  void operator=(const vtkCellCenterDepthSort &);  // Not implemented.
+  vtkCellCenterDepthSort(const vtkCellCenterDepthSort &) = delete;
+  void operator=(const vtkCellCenterDepthSort &) = delete;
 };
 
 #endif

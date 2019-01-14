@@ -25,8 +25,8 @@
 #include <vtkSparseArray.h>
 #include <vtkTransposeMatrix.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/stl/stdexcept>
+#include <iostream>
+#include <stdexcept>
 
 #define test_expression(expression) \
 { \
@@ -39,7 +39,7 @@ int ArrayTransposeMatrix(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   cout << setprecision(17);
 
   try
-    {
+  {
     vtkSmartPointer<vtkSparseArray<double> > source = vtkSmartPointer<vtkSparseArray<double> >::New();
     source->Resize(vtkArrayExtents(3, 2));
     source->AddValue(vtkArrayCoordinates(0, 1), 1);
@@ -73,11 +73,11 @@ int ArrayTransposeMatrix(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(output->GetValue(vtkArrayCoordinates(1, 2)) == 0);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

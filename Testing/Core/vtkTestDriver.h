@@ -13,8 +13,8 @@
 
 =========================================================================*/
 // This header is included by all the C++ test drivers in VTK.
-#ifndef _vtkTestDriver_h
-#define _vtkTestDriver_h
+#ifndef vtkTestDriver_h
+#define vtkTestDriver_h
 
 #include <exception> // for std::exception
 #include "vtkFloatingPointExceptions.h"
@@ -24,3 +24,4 @@
 
 #include <vtksys/SystemInformation.hxx> // for stacktrace
 #endif
+// VTK-HeaderTest-Exclude: vtkTestDriver.h

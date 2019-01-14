@@ -20,42 +20,42 @@ vtkStandardNewMacro(vtkXMLFileOutputWindow);
 void vtkXMLFileOutputWindow::Initialize()
 {
   if (!this->OStream)
-    {
+  {
     if (!this->FileName)
-      {
+    {
       const char fileName[] = "vtkMessageLog.xml";
       this->FileName = new char[strlen(fileName)+1];
       strcpy(this->FileName, fileName);
-      }
+    }
     if (this->Append)
-      {
+    {
       this->OStream = new ofstream(this->FileName, ios::app);
-      }
+    }
     else
-      {
+    {
       this->OStream = new ofstream(this->FileName);
       this->DisplayTag("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-      }
     }
+  }
 }
 
 void vtkXMLFileOutputWindow::DisplayTag(const char* text)
 {
   if(!text)
-    {
+  {
     return;
-    }
+  }
 
   if (!this->OStream)
-    {
+  {
     this->Initialize();
-    }
+  }
   *this->OStream << text << endl;
 
   if (this->Flush)
-    {
+  {
     this->OStream->flush();
-    }
+  }
 }
 
 // Description:
@@ -65,9 +65,9 @@ void vtkXMLFileOutputWindow:: DisplayXML(const char* tag, const char* text)
   char *xmlText;
 
   if(!text)
-    {
+  {
     return;
-    }
+  }
 
   // allocate enough room for the worst case
   xmlText = new char[strlen(text) * 6 + 1];
@@ -78,9 +78,9 @@ void vtkXMLFileOutputWindow:: DisplayXML(const char* tag, const char* text)
 
   // replace all special characters
   while (*s)
-    {
+  {
     switch (*s)
-      {
+    {
       case '&':
         strcat(x, "&amp;"); x += 5;
         break;
@@ -99,20 +99,20 @@ void vtkXMLFileOutputWindow:: DisplayXML(const char* tag, const char* text)
       default:
         *x = *s; x++;
         *x = '\0'; // explicitly terminate the new string
-      }
-    s++;
     }
+    s++;
+  }
 
   if (!this->OStream)
-    {
+  {
     this->Initialize();
-    }
+  }
   *this->OStream << "<" << tag << ">" << xmlText << "</" << tag << ">" << endl;
 
   if (this->Flush)
-    {
+  {
     this->OStream->flush();
-    }
+  }
   delete []xmlText;
 }
 

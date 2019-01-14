@@ -21,7 +21,7 @@ int TestSimpleBondPerceiver(int , char *[])
   vtkIdType numBonds;
   vtkNew<vtkMolecule> mol;
   vtkNew<vtkSimpleBondPerceiver> bonder;
-  bonder->SetInputData(mol.GetPointer());
+  bonder->SetInputData(mol);
 //  bonder->DebugOn();
 
   // First try out the render test molecule:
@@ -44,11 +44,11 @@ int TestSimpleBondPerceiver(int , char *[])
   numBonds = bonder->GetOutput()->GetNumberOfBonds();
 
   if (numBonds != 13)
-    {
+  {
     cout << "Number of bonds in test molecule: "
          << numBonds << " (should be 13)\n";
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

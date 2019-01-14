@@ -22,8 +22,8 @@
 #include <vtkSparseArray.h>
 #include <vtkSmartPointer.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/stl/stdexcept>
+#include <iostream>
+#include <stdexcept>
 
 template<typename T>
 void VerifyType(const T& DefaultNull, const T& AlternateNull)
@@ -32,36 +32,36 @@ void VerifyType(const T& DefaultNull, const T& AlternateNull)
   vtkSmartPointer<vtkSparseArray<T> > array = vtkSmartPointer<vtkSparseArray<T> >::New();
   array->Resize(2);
 
-  // Verify that the default NULL value is iniitialized correctly ...
+  // Verify that the default nullptr value is iniitialized correctly ...
   if(array->GetNullValue() != DefaultNull)
-    {
-    throw std::runtime_error("Incorrect default NULL value for " + std::string(array->GetClassName()));
-    }
+  {
+    throw std::runtime_error("Incorrect default nullptr value for " + std::string(array->GetClassName()));
+  }
 
-  // Verify that GetValue() returns the default NULL value for NULL elements ...
+  // Verify that GetValue() returns the default nullptr value for nullptr elements ...
   if(array->GetValue(1) != DefaultNull)
-    {
-    throw std::runtime_error("Empty value did not return default NULL for " + std::string(array->GetClassName()));
-    }
+  {
+    throw std::runtime_error("Empty value did not return default nullptr for " + std::string(array->GetClassName()));
+  }
 
-  // Verify that we can override the default NULL value ...
+  // Verify that we can override the default nullptr value ...
   array->SetNullValue(AlternateNull);
   if(array->GetNullValue() != AlternateNull)
-    {
-    throw std::runtime_error("Error overriding NULL value for " + std::string(array->GetClassName()));
-    }
+  {
+    throw std::runtime_error("Error overriding nullptr value for " + std::string(array->GetClassName()));
+  }
 
-  // Verify that GetValue() returns the alternate NULL value forr NULL elements ...
+  // Verify that GetValue() returns the alternate nullptr value forr nullptr elements ...
   if(array->GetValue(1) != AlternateNull)
-    {
-    throw std::runtime_error("Empty value did not overridden NULL for " + std::string(array->GetClassName()));
-    }
+  {
+    throw std::runtime_error("Empty value did not overridden nullptr for " + std::string(array->GetClassName()));
+  }
 }
 
 int TestArrayNullValues(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     VerifyType<vtkTypeInt8>(0, 1);
     VerifyType<vtkTypeUInt8>(0, 1);
     VerifyType<vtkTypeInt16>(0, 1);
@@ -74,10 +74,10 @@ int TestArrayNullValues(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     VerifyType<vtkStdString>(vtkStdString(""), vtkStdString("foo"));
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

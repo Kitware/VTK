@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBlockIdScalars - generates scalars from blocks.
-// .SECTION Description
-// vtkBlockIdScalars is a filter that generates scalars using the block index
-// for each block. Note that all sub-blocks within a block get the same scalar.
-// The new scalars array is named \c BlockIdScalars.
+/**
+ * @class   vtkBlockIdScalars
+ * @brief   generates scalars from blocks.
+ *
+ * vtkBlockIdScalars is a filter that generates scalars using the block index
+ * for each block. Note that all sub-blocks within a block get the same scalar.
+ * The new scalars array is named \c BlockIdScalars.
+*/
 
 #ifndef vtkBlockIdScalars_h
 #define vtkBlockIdScalars_h
@@ -29,23 +32,22 @@ class VTKFILTERSGENERAL_EXPORT vtkBlockIdScalars : public vtkMultiBlockDataSetAl
 public:
   static vtkBlockIdScalars* New();
   vtkTypeMacro(vtkBlockIdScalars, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-//BTX
 protected:
   vtkBlockIdScalars();
-  ~vtkBlockIdScalars();
+  ~vtkBlockIdScalars() override;
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) override;
 
   vtkDataObject* ColorBlock(vtkDataObject* input, int group);
 
 private:
-  vtkBlockIdScalars(const vtkBlockIdScalars&); // Not implemented.
-  void operator=(const vtkBlockIdScalars&); // Not implemented.
-//ETX
+  vtkBlockIdScalars(const vtkBlockIdScalars&) = delete;
+  void operator=(const vtkBlockIdScalars&) = delete;
+
 };
 
 #endif

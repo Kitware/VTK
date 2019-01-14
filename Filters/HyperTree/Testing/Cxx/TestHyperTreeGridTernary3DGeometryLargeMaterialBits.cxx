@@ -14,7 +14,7 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay and Joachim Pouderoux, Kitware 2013
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -25,6 +25,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -43,7 +44,7 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
     static KeyPressInteractorStyle* New();
     vtkTypeMacro(KeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
 
-    virtual void OnKeyPress()
+    void OnKeyPress() override
     {
       // Get the keypress
       vtkRenderWindowInteractor *rwi = this->Interactor;
@@ -51,7 +52,7 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 
       // Handle a "normal" key
       if(key == "a")
-        {
+      {
         double *pos = this->Renderer->GetActiveCamera()->GetPosition();
         double *focal = this->Renderer->GetActiveCamera()->GetFocalPoint();
         double *clip = this->Renderer->GetActiveCamera()->GetClippingRange();
@@ -61,7 +62,7 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
         cout << "Camera focalpoint " << focal[0] << ", " << focal[1] << ", " << focal[2] << endl;
         cout << "Camera viewup " << up[0] << ", " << up[1] << ", " << up[2] << endl;
         cout << "Camera range " << clip[0] << ", " << clip[1] << endl;
-        }
+      }
 
       // Forward events
       vtkInteractorStyleTrackballCamera::OnKeyPress();
@@ -81,14 +82,14 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
   htGrid->UseMaterialMaskOn();
-  const std::string descriptor = ".RR _R. _RR ..R _.R .R_|" // Level 0 refinement
+  const std::string descriptor = ".RRR.RR..R.R .R|" // Level 0 refinement
    "R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ...........................";
   const std::string materialMask = // Level 0 materials are not needed, visible cells are described with LevelZeroMaterialIndex
    "111111111111111111111111111 000000000100110111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 000110011100000100100010100|000001011011111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111001111111101111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111|000000000111100100111100100 000000000111001001111001001 000000111100100111111111111 000000111001001111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 110110110100111110111000000|111111111111111111111111111 111111111111111111111111111";
   vtkIdType zeroArray[] = { 0, 1, 2, 4, 5, 7, 8, 9, 30, 29*30+1, 30*30, 30*30*19, 30*30*20-2, 30*30*20-1 };
   vtkNew<vtkIdTypeArray> zero;
   zero->SetArray( zeroArray, sizeof(zeroArray) / sizeof(vtkIdType), 1, 0 );
-  htGrid->SetLevelZeroMaterialIndex( zero.GetPointer() );
+  htGrid->SetLevelZeroMaterialIndex( zero );
   vtkBitArray* desc = htGrid->ConvertDescriptorStringToBitArray( descriptor );
   htGrid->SetDescriptorBits(desc);
   desc->Delete();
@@ -100,20 +101,19 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
   htGrid->Update();
   timer->StopTimer();
   cout << "Tree created in " << timer->GetElapsedTime() << "s" << endl;
-  htGrid->GetOutput()->GetNumberOfCells();
+  htGrid->GetHyperTreeGridOutput()->GetNumberOfCells();
 
   timer->StartTimer();
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetOutput();
+  vtkPolyData* pd = geometry->GetPolyDataOutput();
   timer->StopTimer();
   cout << "Geometry computed in " << timer->GetElapsedTime() << "s" <<  endl;
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( geometry->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
@@ -123,17 +123,17 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
 
   // Actors
   vtkNew<vtkActor> actor1;
-  actor1->SetMapper( mapper1.GetPointer() );
+  actor1->SetMapper( mapper1 );
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->SetMapper( mapper2 );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
-  renderer->AddActor( actor2.GetPointer() );
+  renderer->AddActor( actor1 );
+  renderer->AddActor( actor2 );
 
   // Camera
   renderer->GetActiveCamera()->SetFocalPoint( 39.47, 14.97, 5.83 );
@@ -143,25 +143,25 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( renderer.GetPointer() );
+  renWin->AddRenderer( renderer );
   renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
   vtkNew<KeyPressInteractorStyle> style;
-  style->Renderer = renderer.GetPointer();
-  iren->SetInteractorStyle( style.GetPointer() );
+  style->Renderer = renderer;
+  iren->SetInteractorStyle( style );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 30 );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 30 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

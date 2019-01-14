@@ -33,8 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
-#include <vtksys/stl/vector>
-using vtksys_stl::vector;
+#include <vector>
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -52,17 +51,17 @@ public:
     view->AddObserver(vtkCommand::SelectionChangedEvent, this);
   }
 
-  virtual void Execute(vtkObject*, unsigned long, void*)
+  void Execute(vtkObject*, unsigned long, void*) override
   {
     for (unsigned int i = 0; i < this->Views.size(); i++)
-      {
+    {
       this->Views[i]->Update();
-      }
+    }
   }
 private:
-  TestRenderViewUpdater() { }
-  ~TestRenderViewUpdater() { }
-  vector<vtkView*> Views;
+  TestRenderViewUpdater() = default;
+  ~TestRenderViewUpdater() override = default;
+  std::vector<vtkView*> Views;
 };
 
 static char RenderViewEventLog[] =

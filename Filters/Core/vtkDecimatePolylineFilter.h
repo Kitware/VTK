@@ -12,27 +12,34 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDecimatePolylineFilter - reduce the number of lines in a polyline
-// .SECTION Description
-// vtkDecimatePolylineFilter is a filter to reduce the number of lines in a
-// polyline. The algorithm functions by evaluating an error metric for each
-// vertex (i.e., the distance of the vertex to a line defined from the two
-// vertices on either side of the vertex). Then, these vertices are placed
-// into a priority queue, and those with larger errors are deleted first.
-// The decimation continues until the target reduction is reached.
-//
-// .SECTION Caveats
-// This algorithm is a very simple implementation that overlooks some
-// potential complexities. First, if a vertex is multiply connected,
-// meaning that it is used by multiple polylines, then the extra
-// topological constraints are ignored. Second, the error is not updated
-// as vertices are deleted (similar to iteratively computing a quadric
-// error metric). Thus, once calculated, the error is used to determine
-// which vertices are removed. This can produce less than optimal results.
-//
-// .SECTION See Also
-// vtkDecimate vtkDecimateProp vtkQuadricClustering vtkQuadricDecimation
-
+/**
+ * @class   vtkDecimatePolylineFilter
+ * @brief   reduce the number of lines in a polyline
+ *
+ * vtkDecimatePolylineFilter is a filter to reduce the number of lines in a
+ * polyline. The algorithm functions by evaluating an error metric for each
+ * vertex (i.e., the distance of the vertex to a line defined from the two
+ * vertices on either side of the vertex). Then, these vertices are placed
+ * into a priority queue, and those with smaller errors are deleted first.
+ * The decimation continues until the target reduction is reached. While the
+ * filter will not delete end points, it will decimate closed loops down to a
+ * single line, thereby changing topology.
+ *
+ * Note that a maximum error value (expressed in world coordinates) can also
+ * be specified. This may limit the amount of decimation so the target
+ * reduction may not be met. By setting the maximum error value to a very
+ * small number, colinear points can be eliminated.
+ *
+ * @warning
+ * This algorithm is a very simple implementation that overlooks some
+ * potential complexities. For example, if a vertex is multiply connected,
+ * meaning that it is used by multiple distinct polylines, then the extra
+ * topological constraints are ignored. This can produce less than optimal
+ * results.
+ *
+ * @sa
+ * vtkDecimate vtkDecimateProp vtkQuadricClustering vtkQuadricDecimation
+*/
 
 #ifndef vtkDecimatePolylineFilter_h
 #define vtkDecimatePolylineFilter_h
@@ -48,54 +55,67 @@ class vtkPriorityQueue;
 class VTKFILTERSCORE_EXPORT vtkDecimatePolylineFilter : public vtkPolyDataAlgorithm
 {
 public:
-  // Description:
-  // Standard methods for type information and printing.
+  //@{
+  /**
+   * Standard methods for type information and printing.
+   */
   vtkTypeMacro(vtkDecimatePolylineFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // Instantiate this object with a target reduction of 0.90.
+  /**
+   * Instantiate this object with a target reduction of 0.90.
+   */
   static vtkDecimatePolylineFilter *New();
 
-  // Description:
-  // Specify the desired reduction in the total number of polygons (e.g., if
-  // TargetReduction is set to 0.9, this filter will try to reduce the data set
-  // to 10% of its original size).
+  //@{
+  /**
+   * Specify the desired reduction in the total number of polygons (e.g., if
+   * TargetReduction is set to 0.9, this filter will try to reduce the data set
+   * to 10% of its original size).
+   */
   vtkSetClampMacro(TargetReduction,double,0.0,1.0);
   vtkGetMacro(TargetReduction,double);
+  //@}
 
-  // Description:
-  // Set/get the desired precision for the output types. See the documentation
-  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
-  // the available precision settings.
+  //@{
+  /**
+   * Set the largest decimation error that is allowed during the decimation
+   * process. This may limit the maximum reduction that may be achieved. The
+   * maximum error is specified as a fraction of the maximum length of
+   * the input data bounding box.
+   */
+  vtkSetClampMacro(MaximumError,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(MaximumError,double);
+  //@}
+
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
 protected:
   vtkDecimatePolylineFilter();
-  ~vtkDecimatePolylineFilter();
+  ~vtkDecimatePolylineFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  double ComputeError( vtkPolyData* input, int prev, int id, int next );
-  void UpdateError( vtkPolyData* input, int iId );
-
-  int GetPrev( int iId );
-  int GetNext( int iId );
-
-  struct    vtkDecimatePolylineVertexErrorSTLMap;
-  vtkDecimatePolylineVertexErrorSTLMap*  ErrorMap;
+  class Polyline;
+  double ComputeError( vtkPolyData* input, Polyline* polyline, vtkIdType id );
 
   vtkSmartPointer< vtkPriorityQueue >   PriorityQueue;
-  bool                                  Closed;
   double                                TargetReduction;
+  double                                MaximumError;
   int                                   OutputPointsPrecision;
 
 private:
-  vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&);  // Not implemented.
-  void operator=(const vtkDecimatePolylineFilter&);  // Not implemented.
+  vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&) = delete;
+  void operator=(const vtkDecimatePolylineFilter&) = delete;
 };
 
 #endif
-
-

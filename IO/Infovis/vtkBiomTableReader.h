@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBiomTableReader - read vtkTable from a .biom input file
-// .SECTION Description
-// vtkBiomTableReader is a source object that reads ASCII biom data files.
-// The output of this reader is a single vtkTable data object.
-// .SECTION See Also
-// vtkTable vtkTableReader vtkDataReader
+/**
+ * @class   vtkBiomTableReader
+ * @brief   read vtkTable from a .biom input file
+ *
+ * vtkBiomTableReader is a source object that reads ASCII biom data files.
+ * The output of this reader is a single vtkTable data object.
+ * @sa
+ * vtkTable vtkTableReader vtkDataReader
+*/
 
 #ifndef vtkBiomTableReader_h
 #define vtkBiomTableReader_h
@@ -33,28 +36,28 @@ class VTKIOINFOVIS_EXPORT vtkBiomTableReader : public vtkTableReader
 public:
   static vtkBiomTableReader *New();
   vtkTypeMacro(vtkBiomTableReader,vtkTableReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the output of this reader.
+  //@{
+  /**
+   * Get the output of this reader.
+   */
   vtkTable *GetOutput();
   vtkTable *GetOutput(int idx);
   void SetOutput(vtkTable *output);
+  //@}
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
 
 protected:
   vtkBiomTableReader();
-  ~vtkBiomTableReader();
+  ~vtkBiomTableReader() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-
-  // Since the Outputs[0] has the same UpdateExtent format
-  // as the generic DataObject we can copy the UpdateExtent
-  // as a default behavior.
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
   void ParseShape();
   void ParseDataType();
   void ParseSparseness();
@@ -62,7 +65,7 @@ protected:
   void FillData(vtkVariant v);
   void ParseSparseData();
   void ParseDenseData();
-  void InsertValue(int row, int col, std::string value);
+  void InsertValue(int row, int col, const std::string& value);
   void ParseId();
   void ParseColumns();
   void ParseRows();
@@ -73,8 +76,8 @@ private:
   int NumberOfColumns;
   int DataType;
   bool Sparse;
-  vtkBiomTableReader(const vtkBiomTableReader&);  // Not implemented.
-  void operator=(const vtkBiomTableReader&);  // Not implemented.
+  vtkBiomTableReader(const vtkBiomTableReader&) = delete;
+  void operator=(const vtkBiomTableReader&) = delete;
 };
 
 #endif

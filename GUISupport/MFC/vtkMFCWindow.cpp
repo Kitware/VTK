@@ -79,13 +79,13 @@ void vtkMFCWindow::Dump(CDumpContext& dc) const
 
 vtkMFCWindow::vtkMFCWindow(CWnd *pcWnd)
 {
-  this->pvtkWin32OpenGLRW = NULL;
+  this->pvtkWin32OpenGLRW = nullptr;
 
   // create self as a child of passed in parent
   DWORD style = WS_VISIBLE | WS_CLIPSIBLINGS;
   if(pcWnd)
     style |= WS_CHILD;
-  BOOL bCreated = CWnd::Create(NULL, _T("VTK-MFC Window"),
+  BOOL bCreated = CWnd::Create(nullptr, _T("VTK-MFC Window"),
                                style, CRect(0, 0, 1, 1),
                                pcWnd, (UINT)IDC_STATIC);
 
@@ -100,7 +100,7 @@ vtkMFCWindow::vtkMFCWindow(CWnd *pcWnd)
 
 vtkMFCWindow::~vtkMFCWindow()
 {
-  this->SetRenderWindow(NULL);
+  this->SetRenderWindow(nullptr);
 }
 
 void vtkMFCWindow::OnDestroy()
@@ -118,14 +118,14 @@ void vtkMFCWindow::SetRenderWindow(vtkWin32OpenGLRenderWindow* win)
     {
     if(this->pvtkWin32OpenGLRW->GetMapped())
       this->pvtkWin32OpenGLRW->Finalize();
-    this->pvtkWin32OpenGLRW->UnRegister(NULL);
+    this->pvtkWin32OpenGLRW->UnRegister(nullptr);
     }
 
   this->pvtkWin32OpenGLRW = win;
 
   if(this->pvtkWin32OpenGLRW)
     {
-    this->pvtkWin32OpenGLRW->Register(NULL);
+    this->pvtkWin32OpenGLRW->Register(nullptr);
 
     vtkWin32RenderWindowInteractor* iren = vtkWin32RenderWindowInteractor::New();
     iren->SetInstallMessageProc(0);
@@ -157,7 +157,9 @@ vtkWin32OpenGLRenderWindow* vtkMFCWindow::GetRenderWindow()
 vtkRenderWindowInteractor* vtkMFCWindow::GetInteractor()
 {
   if(!this->pvtkWin32OpenGLRW)
-    return NULL;
+  {
+    return nullptr;
+  }
   return this->pvtkWin32OpenGLRW->GetInteractor();
 }
 
@@ -185,11 +187,52 @@ void vtkMFCWindow::DrawDC(CDC* pDC)
   float scale = min(fx,fy);
   int x = int(scale * float(cxWindow));
   int y = int(scale * float(cyWindow));
-  this->pvtkWin32OpenGLRW->SetupMemoryRendering(cxWindow, cyWindow, pDC->GetSafeHdc());
+
+  this->pvtkWin32OpenGLRW->SetUseOffScreenBuffers(true);
   this->pvtkWin32OpenGLRW->Render();
-  HDC memDC = this->pvtkWin32OpenGLRW->GetMemoryDC();
-  StretchBlt(pDC->GetSafeHdc(),0,0,x,y,memDC,0,0,cxWindow,cyWindow,SRCCOPY);
-  this->pvtkWin32OpenGLRW->ResumeScreenRendering();
+
+  unsigned char *pixels =
+    this->pvtkWin32OpenGLRW->GetPixelData(0,0,size[0]-1,size[1]-1,0,0);
+
+  // now copy he result to the HDC
+  int dataWidth = ((cxWindow*3+3)/4)*4;
+
+  BITMAPINFO MemoryDataHeader;
+  MemoryDataHeader.bmiHeader.biSize = 40;
+  MemoryDataHeader.bmiHeader.biWidth = cxWindow;
+  MemoryDataHeader.bmiHeader.biHeight = cyWindow;
+  MemoryDataHeader.bmiHeader.biPlanes = 1;
+  MemoryDataHeader.bmiHeader.biBitCount = 24;
+  MemoryDataHeader.bmiHeader.biCompression = BI_RGB;
+  MemoryDataHeader.bmiHeader.biClrUsed = 0;
+  MemoryDataHeader.bmiHeader.biClrImportant = 0;
+  MemoryDataHeader.bmiHeader.biSizeImage = dataWidth*cyWindow;
+  MemoryDataHeader.bmiHeader.biXPelsPerMeter = 10000;
+  MemoryDataHeader.bmiHeader.biYPelsPerMeter = 10000;
+
+  unsigned char *MemoryData;    // the data in the DIBSection
+  HDC MemoryHdc = (HDC)CreateCompatibleDC(pDC->GetSafeHdc());
+  HBITMAP dib = CreateDIBSection(MemoryHdc,
+                                 &MemoryDataHeader, DIB_RGB_COLORS,
+                                 (void **)(&(MemoryData)),  nullptr, 0);
+
+  // copy the pixels over
+  for (int i = 0; i < cyWindow; i++)
+    {
+    for (int j = 0; j < cxWindow; j++)
+      {
+      MemoryData[i*dataWidth + j*3] = pixels[i*cxWindow*3 + j*3 + 2];
+      MemoryData[i*dataWidth + j*3 + 1] = pixels[i*cxWindow*3 + j*3 + 1];
+      MemoryData[i*dataWidth + j*3 + 2] = pixels[i*cxWindow*3 + j*3];
+      }
+    }
+
+  // Put the bitmap into the device context
+  SelectObject(MemoryHdc, dib);
+  StretchBlt(pDC->GetSafeHdc(),0,0,x,y,MemoryHdc,0,0,cxWindow,cyWindow,SRCCOPY);
+
+  this->pvtkWin32OpenGLRW->SetUseOffScreenBuffers(false);
+  delete [] pixels;
 }
 
 void vtkMFCWindow::OnSize(UINT nType, int cx, int cy)

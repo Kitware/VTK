@@ -41,7 +41,7 @@ int TestPieChart(int , char * [])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(600, 350);
   vtkNew<vtkChartPie> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
@@ -51,12 +51,12 @@ int TestPieChart(int , char * [])
 
   arrData->SetName("2008 Circulation");
   for (int i = 0; i < NUM_ITEMS; i++)
-    {
+  {
     arrData->InsertNextValue(data[i]);
     labelArray->InsertNextValue(labels[i]);
-    }
+  }
 
-  table->AddColumn(arrData.GetPointer());
+  table->AddColumn(arrData);
 
   // Create a color series to use with our stacks.
   vtkNew<vtkColorSeries> colorSeries;
@@ -64,10 +64,10 @@ int TestPieChart(int , char * [])
 
   // Add multiple line plots, setting the colors etc
   vtkPlotPie *pie = vtkPlotPie::SafeDownCast(chart->AddPlot(0));
-  pie->SetColorSeries(colorSeries.GetPointer());
-  pie->SetInputData(table.GetPointer());
+  pie->SetColorSeries(colorSeries);
+  pie->SetInputData(table);
   pie->SetInputArray(0, "2008 Circulation");
-  pie->SetLabels(labelArray.GetPointer());
+  pie->SetLabels(labelArray);
 
   chart->SetShowLegend(true);
 

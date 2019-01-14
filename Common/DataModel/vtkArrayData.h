@@ -19,20 +19,23 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayData - Pipeline data object that contains multiple vtkArray objects.
-//
-// .SECTION Description
-// Because vtkArray cannot be stored as attributes of data objects (yet), a "carrier"
-// object is needed to pass vtkArray through the pipeline.  vtkArrayData acts as a
-// container of zero-to-many vtkArray instances, which can be retrieved via a zero-based
-// index.  Note that a collection of arrays stored in vtkArrayData may-or-may-not have related
-// types, dimensions, or extents.
-//
-// .SECTION See Also
-// vtkArrayDataAlgorithm, vtkArray
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkArrayData
+ * @brief   Pipeline data object that contains multiple vtkArray objects.
+ *
+ *
+ * Because vtkArray cannot be stored as attributes of data objects (yet), a "carrier"
+ * object is needed to pass vtkArray through the pipeline.  vtkArrayData acts as a
+ * container of zero-to-many vtkArray instances, which can be retrieved via a zero-based
+ * index.  Note that a collection of arrays stored in vtkArrayData may-or-may-not have related
+ * types, dimensions, or extents.
+ *
+ * @sa
+ * vtkArrayDataAlgorithm, vtkArray
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkArrayData_h
 #define vtkArrayData_h
@@ -48,50 +51,55 @@ class VTKCOMMONDATAMODEL_EXPORT vtkArrayData : public vtkDataObject
 public:
   static vtkArrayData* New();
   vtkTypeMacro(vtkArrayData, vtkDataObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkArrayData* GetData(vtkInformation* info);
   static vtkArrayData* GetData(vtkInformationVector* v, int i = 0);
 
-  // Description:
-  // Adds a vtkArray to the collection
+  /**
+   * Adds a vtkArray to the collection
+   */
   void AddArray(vtkArray*);
 
-  // Description:
-  // Clears the contents of the collection
+  /**
+   * Clears the contents of the collection
+   */
   void ClearArrays();
 
-  // Description:
-  // Returns the number of vtkArray instances in the collection
+  /**
+   * Returns the number of vtkArray instances in the collection
+   */
   vtkIdType GetNumberOfArrays();
 
-  // Description:
-  // Returns the n-th vtkArray in the collection
+  /**
+   * Returns the n-th vtkArray in the collection
+   */
   vtkArray* GetArray(vtkIdType index);
 
-  // Description:
-  // Returns the array having called name from the collection
+  /**
+   * Returns the array having called name from the collection
+   */
   vtkArray* GetArrayByName(const char *name);
 
-  // Description:
-  // Return class name of data type (VTK_ARRAY_DATA).
-  virtual int GetDataObjectType() {return VTK_ARRAY_DATA;}
+  /**
+   * Return class name of data type (VTK_ARRAY_DATA).
+   */
+  int GetDataObjectType() override {return VTK_ARRAY_DATA;}
 
-  virtual void ShallowCopy(vtkDataObject* other);
-  virtual void DeepCopy(vtkDataObject* other);
+  void ShallowCopy(vtkDataObject* other) override;
+  void DeepCopy(vtkDataObject* other) override;
 
 protected:
   vtkArrayData();
-  ~vtkArrayData();
+  ~vtkArrayData() override;
 
 private:
-  vtkArrayData(const vtkArrayData&); // Not implemented
-  void operator=(const vtkArrayData&); // Not implemented
+  vtkArrayData(const vtkArrayData&) = delete;
+  void operator=(const vtkArrayData&) = delete;
 
-//BTX
   class implementation;
   implementation* const Implementation;
-//ETX
+
 };
 
 #endif

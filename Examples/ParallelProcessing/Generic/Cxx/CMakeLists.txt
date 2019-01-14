@@ -1,32 +1,40 @@
-INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j|Task|Pipe).*$")
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+project(ParallelProcessingGeneric)
 
-IF (VTK_USE_MPI)
-  find_package(MPI REQUIRED)
-  INCLUDE_DIRECTORIES(${MPI_C_INCLUDE_PATH})
+find_package(VTK
+  COMPONENTS
+    IOImage
+    ImagingCore
+    ImagingGeneral
+    FiltersSources
+    ParallelMPI
+    RenderingCore
+    RenderingParallel
+    TestingCore
+    TestingRendering
+    mpi)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-  # Needed for mpich 2
-  ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")
+add_executable(ParallelIso ParallelIso.cxx)
+target_link_libraries(ParallelIso
+  PRIVATE
+    ${VTK_LIBRARIES})
 
-  IF (VTK_USE_RENDERING)
-    ADD_EXECUTABLE(ParallelIso ParallelIso.cxx)
-    TARGET_LINK_LIBRARIES(ParallelIso vtkParallel vtkHybrid
-      ${MPI_C_LIBRARIES})
-    if (MPI_CXX_LIBRARIES)
-      TARGET_LINK_LIBRARIES(ParallelIso ${MPI_CXX_LIBRARIES})
-    endif()
-    IF(APPLE AND VTK_USE_CARBON)
-      TARGET_LINK_LIBRARIES(ParallelIso "-framework Carbon")
-    ENDIF()
-  ENDIF ()
+set(TaskPara_SRCS
+  TaskParallelism.cxx
+  task1.cxx
+  task2.cxx)
 
-  SET(TaskPara_SRCS TaskParallelism.cxx task1.cxx task2.cxx)
+add_executable(TaskParallelism
+  ${TaskPara_SRCS})
+target_link_libraries(TaskParallelism
+  PRIVATE
+    ${VTK_LIBRARIES})
 
-  ADD_EXECUTABLE(TaskParallelism          ${TaskPara_SRCS})
-  TARGET_LINK_LIBRARIES (TaskParallelism vtkParallel)
-  IF(APPLE AND VTK_USE_CARBON)
-   TARGET_LINK_LIBRARIES(TaskParallelism "-framework Carbon")
-  ENDIF()
-
-#  ADD_EXECUTABLE(SimpleBenchmark SimpleBenchmark.cxx)
-#  TARGET_LINK_LIBRARIES(SimpleBenchmark vtkParallel ${MPI_LIBRARIES} )
-ENDIF ()
+vtk_module_autoinit(
+  TARGETS ParallelIso
+          TaskParallelism
+  MODULES ${VTK_LIBRARIES})

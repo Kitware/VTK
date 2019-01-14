@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -18,10 +16,7 @@
  *      the datatype precision for the H5T interface.
  */
 
-#define H5T_PACKAGE		/*suppress error about including H5Tpkg	  */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5T_init_precis_interface
+#include "H5Tmodule.h"          /* This source code file is part of the H5T module */
 
 
 #include "H5private.h"		/* Generic Functions			*/
@@ -32,27 +27,6 @@
 /* Static local functions */
 static herr_t H5T_set_precision(const H5T_t *dt, size_t prec);
 
-
-/*--------------------------------------------------------------------------
-NAME
-   H5T_init_precis_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5T_init_precis_interface()
-
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5T_init_iterface currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5T_init_precis_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    FUNC_LEAVE_NOAPI(H5T_init())
-} /* H5T_init_precis_interface() */
 
 
 /*-------------------------------------------------------------------------
@@ -87,12 +61,12 @@ H5Tget_precision(hid_t type_id)
     H5TRACE1("z", "i", type_id);
 
     /* Check args */
-    if (NULL == (dt = H5I_object_verify(type_id,H5I_DATATYPE)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, 0, "not a datatype")
+    if (NULL == (dt = (H5T_t *)H5I_object_verify(type_id,H5I_DATATYPE)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, 0, "not a datatype")
 
     /* Get precision */
     if((ret_value = H5T_get_precision(dt)) == 0)
-	HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, 0, "cant't get precision for specified datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, 0, "cant't get precision for specified datatype")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -119,7 +93,7 @@ done:
 size_t
 H5T_get_precision(const H5T_t *dt)
 {
-    size_t	ret_value;
+    size_t	ret_value = 0;          /* Return value */
 
     FUNC_ENTER_NOAPI(0)
 
@@ -176,22 +150,22 @@ H5Tset_precision(hid_t type_id, size_t prec)
     H5TRACE2("e", "iz", type_id, prec);
 
     /* Check args */
-    if (NULL == (dt = H5I_object_verify(type_id,H5I_DATATYPE)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
+    if (NULL == (dt = (H5T_t *)H5I_object_verify(type_id,H5I_DATATYPE)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
     if (H5T_STATE_TRANSIENT!=dt->shared->state)
-	HGOTO_ERROR(H5E_ARGS, H5E_CANTSET, FAIL, "datatype is read-only")
+        HGOTO_ERROR(H5E_ARGS, H5E_CANTSET, FAIL, "datatype is read-only")
     if (prec == 0)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "precision must be positive")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "precision must be positive")
     if (H5T_ENUM==dt->shared->type && dt->shared->u.enumer.nmembs>0)
-	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "operation not allowed after members are defined")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "operation not allowed after members are defined")
     if (H5T_STRING==dt->shared->type)
         HGOTO_ERROR(H5E_ARGS, H5E_UNSUPPORTED, FAIL, "precision for this type is read-only")
     if (H5T_COMPOUND==dt->shared->type || H5T_OPAQUE==dt->shared->type)
-	HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "operation not defined for specified datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "operation not defined for specified datatype")
 
     /* Do the work */
     if (H5T_set_precision(dt, prec)<0)
-	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "unable to set precision")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "unable to set precision")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -283,9 +257,19 @@ H5T_set_precision(const H5T_t *dt, size_t prec)
                             dt->shared->u.atomic.u.f.mpos + dt->shared->u.atomic.u.f.msize > prec+offset)
                         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "adjust sign, mantissa, and exponent fields first")
                     break;
+
+                case H5T_NO_CLASS:
+                case H5T_STRING:
+                case H5T_OPAQUE:
+                case H5T_COMPOUND:
+                case H5T_REFERENCE:
+                case H5T_ENUM:
+                case H5T_VLEN:
+                case H5T_ARRAY:
+                case H5T_NCLASSES:
                 default:
                     HGOTO_ERROR(H5E_ARGS, H5E_UNSUPPORTED, FAIL, "operation not defined for datatype class")
-	    } /* end switch */ /*lint !e788 All appropriate cases are covered */
+	    } /* end switch */
 
 	    /* Commit */
 	    dt->shared->size = size;

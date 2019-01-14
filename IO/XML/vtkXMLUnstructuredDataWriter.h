@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLUnstructuredDataWriter - Superclass for VTK XML unstructured data writers.
-// .SECTION Description
-// vtkXMLUnstructuredDataWriter provides VTK XML writing functionality
-// that is common among all the unstructured data formats.
+/**
+ * @class   vtkXMLUnstructuredDataWriter
+ * @brief   Superclass for VTK XML unstructured data writers.
+ *
+ * vtkXMLUnstructuredDataWriter provides VTK XML writing functionality
+ * that is common among all the unstructured data formats.
+*/
 
 #ifndef vtkXMLUnstructuredDataWriter_h
 #define vtkXMLUnstructuredDataWriter_h
@@ -34,36 +37,45 @@ class VTKIOXML_EXPORT vtkXMLUnstructuredDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredDataWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get/Set the number of pieces used to stream the image through the
-  // pipeline while writing to the file.
+  //@{
+  /**
+   * Get/Set the number of pieces used to stream the image through the
+   * pipeline while writing to the file.
+   */
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
+  //@}
 
-  // Description:
-  // Get/Set the piece to write to the file.  If this is
-  // negative or equal to the NumberOfPieces, all pieces will be written.
+  //@{
+  /**
+   * Get/Set the piece to write to the file.  If this is
+   * negative or equal to the NumberOfPieces, all pieces will be written.
+   */
   vtkSetMacro(WritePiece, int);
   vtkGetMacro(WritePiece, int);
+  //@}
 
-  // Description:
-  // Get/Set the ghost level used to pad each piece.
+  //@{
+  /**
+   * Get/Set the ghost level used to pad each piece.
+   */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
+  //@}
 
-  // See the vtkAlgorithm for a desciption of what these do
+  // See the vtkAlgorithm for a description of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*);
+                     vtkInformationVector*) override;
 
 protected:
   vtkXMLUnstructuredDataWriter();
-  ~vtkXMLUnstructuredDataWriter();
+  ~vtkXMLUnstructuredDataWriter() override;
 
   vtkPointSet* GetInputAsPointSet();
-  virtual const char* GetDataSetName()=0;
+  const char* GetDataSetName() override =0;
   virtual void SetInputUpdateExtent(int piece, int numPieces,
                                     int ghostLevel);
 
@@ -98,6 +110,10 @@ protected:
                               vtkIndent indent);
 
   void WriteCellsAppended(const char* name, vtkDataArray* types,
+                          vtkIndent indent, OffsetsManagerGroup *cellsManager);
+
+  void WriteCellsAppended(const char* name, vtkDataArray* types,
+                          vtkIdTypeArray* faces, vtkIdTypeArray* faceOffsets,
                           vtkIndent indent, OffsetsManagerGroup *cellsManager);
 
   void WriteCellsAppended(const char* name, vtkCellIterator *cellIter,
@@ -162,8 +178,8 @@ protected:
   vtkIdTypeArray* FaceOffsets;
 
 private:
-  vtkXMLUnstructuredDataWriter(const vtkXMLUnstructuredDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLUnstructuredDataWriter&);  // Not implemented.
+  vtkXMLUnstructuredDataWriter(const vtkXMLUnstructuredDataWriter&) = delete;
+  void operator=(const vtkXMLUnstructuredDataWriter&) = delete;
 };
 
 #endif

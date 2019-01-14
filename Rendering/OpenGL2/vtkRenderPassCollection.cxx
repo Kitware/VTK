@@ -29,14 +29,10 @@ vtkCollectionSimpleIterator &cookie)
 }
 
 // ----------------------------------------------------------------------------
-vtkRenderPassCollection::vtkRenderPassCollection()
-{
-}
+vtkRenderPassCollection::vtkRenderPassCollection() = default;
 
 // ----------------------------------------------------------------------------
-vtkRenderPassCollection::~vtkRenderPassCollection()
-{
-}
+vtkRenderPassCollection::~vtkRenderPassCollection() = default;
 
 // ----------------------------------------------------------------------------
 // hide the standard AddItem from the user and the compiler.
@@ -61,7 +57,7 @@ vtkRenderPass *vtkRenderPassCollection::GetNextRenderPass()
 vtkRenderPass *vtkRenderPassCollection::GetLastRenderPass()
 {
   return (this->Bottom) ?
-    static_cast<vtkRenderPass *>(this->Bottom->Item) : NULL;
+    static_cast<vtkRenderPass *>(this->Bottom->Item) : nullptr;
 }
 
 // ----------------------------------------------------------------------------

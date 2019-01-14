@@ -44,21 +44,21 @@ int main (int, char *[])
   // Create points and cells for the spiral
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   for(i = 0; i < nV; i++)
-    {
+  {
     // Spiral coordinates
     vX = rS * cos(2 * vtkMath::Pi() * nCyc * i / (nV - 1));
     vY = rS * sin(2 * vtkMath::Pi() * nCyc * i / (nV - 1));
     vZ = h * i / nV;
     points->InsertPoint(i, vX, vY, vZ);
-    }
+  }
 
   vtkSmartPointer<vtkCellArray> lines =
     vtkSmartPointer<vtkCellArray>::New();
   lines->InsertNextCell(nV);
   for (i = 0; i < nV; i++)
-    {
+  {
     lines->InsertCellPoint(i);
-    }
+  }
 
   vtkSmartPointer<vtkPolyData> polyData =
     vtkSmartPointer<vtkPolyData>::New();
@@ -71,10 +71,10 @@ int main (int, char *[])
   tubeRadius->SetName("TubeRadius");
   tubeRadius->SetNumberOfTuples(nV);
   for (i=0 ;i<nV ; i++)
-    {
+  {
     tubeRadius->SetTuple1(i,
                           rT1 + (rT2 - rT1) * sin(vtkMath::Pi() * i / (nV - 1)));
-    }
+  }
   polyData->GetPointData()->AddArray(tubeRadius);
   polyData->GetPointData()->SetActiveScalars("TubeRadius");
 
@@ -86,12 +86,12 @@ int main (int, char *[])
   colors->SetNumberOfComponents(3);
   colors->SetNumberOfTuples(nV);
   for (i = 0; i < nV ;i++)
-    {
+  {
     colors->InsertTuple3(i,
                        int(255 * i/ (nV - 1)),
                        0,
                        int(255 * (nV - 1 - i)/(nV - 1)) );
-    }
+  }
   polyData->GetPointData()->AddArray(colors);
 
   vtkSmartPointer<vtkTubeFilter> tube

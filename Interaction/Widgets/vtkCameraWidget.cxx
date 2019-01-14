@@ -21,46 +21,42 @@
 vtkStandardNewMacro(vtkCameraWidget);
 
 //-------------------------------------------------------------------------
-vtkCameraWidget::vtkCameraWidget()
-{
-}
+vtkCameraWidget::vtkCameraWidget() = default;
 
 //-------------------------------------------------------------------------
-vtkCameraWidget::~vtkCameraWidget()
-{
-}
+vtkCameraWidget::~vtkCameraWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkCameraWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkCameraRepresentation::New();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
 void vtkCameraWidget::SelectRegion(double eventPos[2])
 {
   if ( ! this->WidgetRep )
-    {
+  {
     return;
-    }
+  }
 
   double x = eventPos[0];
   if ( x < 0.3333 )
-    {
+  {
     reinterpret_cast<vtkCameraRepresentation*>(this->WidgetRep)->AddCameraToPath();
-    }
+  }
   else if ( x < 0.666667 )
-    {
+  {
     reinterpret_cast<vtkCameraRepresentation*>(this->WidgetRep)->
       AnimatePath(this->Interactor);
-    }
+  }
   else if ( x < 1.0 )
-    {
+  {
     reinterpret_cast<vtkCameraRepresentation*>(this->WidgetRep)->InitializePath();
-    }
+  }
 
   this->Superclass::SelectRegion(eventPos);
 }

@@ -202,7 +202,7 @@ Clear(void)
   while(it != itEnd)
     {
     ContourControlPnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
     }
   m_ControlPointsList.clear();
@@ -215,7 +215,7 @@ Clear(void)
   while(itInterpolated != itInterpolatedEnd)
     {
     ContourInterpolatedPnt* pnt = *itInterpolated;
-    itInterpolated++;
+    ++itInterpolated;
     delete pnt;
     }
   m_InterpolatedPointsList.clear();
@@ -416,7 +416,7 @@ M_Read(void)
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
-    int gc = m_ReadStream->gcount();
+    int gc = static_cast<int>(m_ReadStream->gcount());
     if(gc != readSize)
       {
       METAIO_STREAM::cout << "MetaContour: m_Read: data not read completely"
@@ -554,7 +554,7 @@ M_Read(void)
     char c = ' ';
     while( (c!='\n') && (!m_ReadStream->eof()))
       {
-      c = m_ReadStream->get();// to avoid unrecognize charactere
+      c = static_cast<char>(m_ReadStream->get());// to avoid unrecognize charactere
       }
     }
 
@@ -618,7 +618,7 @@ M_Read(void)
       char* _data = new char[readSize];
       m_ReadStream->read((char *)_data, readSize);
 
-      int gc = m_ReadStream->gcount();
+      int gc = static_cast<int>(m_ReadStream->gcount());
       if(gc != readSize)
         {
         METAIO_STREAM::cout << "MetaContour: m_Read: data not read completely"
@@ -718,7 +718,7 @@ M_Read(void)
       char c = ' ';
       while( (c!='\n') && (!m_ReadStream->eof()))
         {
-        c = m_ReadStream->get();// to avoid unrecognize charactere
+        c = static_cast<char>(m_ReadStream->get());// to avoid unrecognize charactere
         }
       }
     }
@@ -784,7 +784,7 @@ M_Write(void)
         MET_SwapByteIfSystemMSB(&pntX,MET_FLOAT);
         MET_DoubleToValue((double)pntX,MET_FLOAT,data,i++);
         }
-      it++;
+      ++it;
       }
 
     m_WriteStream->write((char *)data,(m_NDims*3+5)*m_NControlPoints*4);
@@ -821,7 +821,7 @@ M_Write(void)
         *m_WriteStream << (*it)->m_Color[d] << " ";
         }
       *m_WriteStream << METAIO_STREAM::endl;
-      it++;
+      ++it;
       }
     }
 
@@ -885,7 +885,7 @@ M_Write(void)
         MET_SwapByteIfSystemMSB(&x,MET_FLOAT);
         MET_DoubleToValue((double)x,MET_FLOAT,data,i++);
         }
-      it++;
+      ++it;
       }
 
     m_WriteStream->write((char *)data,(m_NDims+5)*m_NInterpolatedPoints*4);
@@ -914,7 +914,7 @@ M_Write(void)
         *m_WriteStream << (*it)->m_Color[d] << " ";
         }
       *m_WriteStream << METAIO_STREAM::endl;
-      it++;
+      ++it;
       }
     }
   return true;
@@ -923,4 +923,3 @@ M_Write(void)
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-

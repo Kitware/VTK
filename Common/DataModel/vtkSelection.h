@@ -12,121 +12,232 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSelection - A node in a selection tree. Used to store selection results.
-// .SECTION Description
-
-// vtkSelection is a collection of vtkSelectionNode objects, each of which
-// contains information about a piece of the whole selection. Each selection
-// node may contain different types of selections.
-//
-// .SECTION See Also
-// vtkSelectionNode
+/**
+ * @class vtkSelection
+ * @brief data object that represents a "selection" in VTK.
+ *
+ * vtkSelection is a data object that represents a selection definition. It is
+ * used to define the elements that are selected. The criteria of the selection
+ * is defined using one or more vtkSelectionNode instances. Parameters of the
+ * vtkSelectionNode define what kind of elements are being selected
+ * (vtkSelectionNode::GetFieldType), how the selection criteria is defined
+ * (vtkSelectionNode::GetContentType), etc.
+ *
+ * Filters like vtkExtractSelection, vtkExtractDataArraysOverTime can be used to
+ * extract the selected elements from a dataset.
+ *
+ * @section CombiningSelection Combining Selections
+ *
+ * When a vtkSelection contains multiple vtkSelectionNode instances, the
+ * selection defined is a union of all the elements identified by each of the
+ * nodes.
+ *
+ * Optionally, one can use `vtkSelection::SetExpression` to define a boolean
+ * expression to build arbitrarily complex combinations. The expression can be
+ * defined using names assigned to the selection nodes when the nodes are added
+ * to vtkSelection (either explicitly or automatically).
+ *
+ * @sa
+ * vtkSelectionNode
+*/
 
 #ifndef vtkSelection_h
 #define vtkSelection_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
+#include "vtkSmartPointer.h" // for  vtkSmartPointer.
 
-//BTX
+#include <string> // for string.
+#include <memory> // for unique_ptr.
+
 class vtkSelectionNode;
-struct vtkSelectionInternals;
-//ETX
+class vtkSignedCharArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkSelection : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkSelection,vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkSelection* New();
 
-  // Description:
-  // Restore data object to initial state,
-  virtual void Initialize();
+  /**
+   * Restore data object to initial state,
+   */
+  void Initialize() override;
 
-  // Description:
-  // Returns VTK_SELECTION enumeration value.
-  virtual int GetDataObjectType() {return VTK_SELECTION;}
+  /**
+   * Returns VTK_SELECTION enumeration value.
+   */
+  int GetDataObjectType() override  {return VTK_SELECTION;}
 
-  // Description:
-  // Returns the number of nodes in this selection.
-  // Each node contains information about part of the selection.
-  unsigned int GetNumberOfNodes();
+  /**
+   * Returns the number of nodes in this selection.
+   * Each node contains information about part of the selection.
+   */
+  unsigned int GetNumberOfNodes() const;
 
-  // Description:
-  // Returns a node given it's index. Performs bound checking
-  // and will return 0 if out-of-bounds.
-  virtual vtkSelectionNode* GetNode(unsigned int idx);
+  /**
+   * Returns a node given it's index. Performs bound checking
+   * and will return nullptr if out-of-bounds.
+   */
+  virtual vtkSelectionNode* GetNode(unsigned int idx) const;
 
-  // Description:
-  // Adds a selection node.
-  virtual void AddNode(vtkSelectionNode*);
+  /**
+   * Returns a node with the given name, if present, else nullptr is returned.
+   */
+  virtual vtkSelectionNode* GetNode(const std::string& name) const;
 
-  // Description:
-  // Removes a selection node.
+  /**
+   * Adds a selection node. Assigns the node a unique name and returns that
+   * name. This API is primarily provided for backwards compatibility and
+   * `SetNode` is the preferred method.
+   */
+  virtual std::string AddNode(vtkSelectionNode*);
+
+  /**
+   * Adds a vtkSelectionNode and assigns it the specified name. The name
+   * must be a non-empty string. If an item with the same name
+   * has already been added, it will be removed.
+   */
+  virtual void SetNode(const std::string& name, vtkSelectionNode*);
+
+  /**
+   * Returns the name for a node at the given index.
+   */
+  virtual std::string GetNodeNameAtIndex(unsigned int idx) const;
+
+  //@{
+  /**
+   * Removes a selection node.
+   */
   virtual void RemoveNode(unsigned int idx);
+  virtual void RemoveNode(const std::string& name);
   virtual void RemoveNode(vtkSelectionNode*);
+  //@}
+
+  /**
+   * Removes all selection nodes.
+   */
   virtual void RemoveAllNodes();
 
-  // Description:
-  // Copy selection nodes of the input.
-  virtual void DeepCopy(vtkDataObject* src);
+  //@{
+  /**
+   * Get/Set the expression that defines the boolean expression to combine the
+   * selection nodes. Expression consists of node name identifiers, `|` for
+   * boolean-or, '&' for boolean and, '!' for boolean not, and parenthesis `(`
+   * and `)`. If the expression consists of a node name identifier that is not
+   * assigned any `vtkSelectionNode` (using `SetNode`) then it is evaluates to
+   * `false`.
+   *
+   * `SetExpression` does not validate the expression. It will be validated in
+   * `Evaluate` call.
+   */
+  vtkSetMacro(Expression, std::string);
+  vtkGetMacro(Expression, std::string);
+  //@}
 
-  // Description:
-  // Copy selection nodes of the input.
-  // This is a shallow copy: selection lists and pointers in the
-  // properties are passed by reference.
-  virtual void ShallowCopy(vtkDataObject* src);
+  /**
+   * Copy selection nodes of the input.
+   */
+  void DeepCopy(vtkDataObject* src) override;
 
-  // Description:
-  // Union this selection with the specified selection.
-  // Attempts to reuse selection nodes in this selection if properties
-  // match exactly. Otherwise, creates new selection nodes.
+  /**
+   * Copy selection nodes of the input.
+   * This is a shallow copy: selection lists and pointers in the
+   * properties are passed by reference.
+   */
+  void ShallowCopy(vtkDataObject* src) override;
+
+  /**
+   * Union this selection with the specified selection.
+   * Attempts to reuse selection nodes in this selection if properties
+   * match exactly. Otherwise, creates new selection nodes.
+   */
   virtual void Union(vtkSelection* selection);
 
-  // Description:
-  // Union this selection with the specified selection node.
-  // Attempts to reuse a selection node in this selection if properties
-  // match exactly. Otherwise, creates a new selection node.
+  /**
+   * Union this selection with the specified selection node.
+   * Attempts to reuse a selection node in this selection if properties
+   * match exactly. Otherwise, creates a new selection node.
+   */
   virtual void Union(vtkSelectionNode* node);
 
-  // Description:
-  // Remove the nodes from the specified selection from this selection.
-  // Assumes that selection node internal arrays are vtkIdTypeArrays.
+  /**
+   * Remove the nodes from the specified selection from this selection.
+   * Assumes that selection node internal arrays are vtkIdTypeArrays.
+   */
   virtual void Subtract(vtkSelection* selection);
 
-  // Description:
-  // Remove the nodes from the specified selection from this selection.
-  // Assumes that selection node internal arrays are vtkIdTypeArrays.
+  /**
+   * Remove the nodes from the specified selection from this selection.
+   * Assumes that selection node internal arrays are vtkIdTypeArrays.
+   */
   virtual void Subtract(vtkSelectionNode* node);
 
-  // Description:
-  // Return the MTime taking into account changes to the properties
-  unsigned long GetMTime();
+  /**
+   * Return the MTime taking into account changes to the properties
+   */
+  vtkMTimeType GetMTime() override;
 
-  // Description:
-  // Dumps the contents of the selection, giving basic information only.
+  //@{
+  /**
+   * Dumps the contents of the selection, giving basic information only.
+   */
   virtual void Dump();
-  //BTX
   virtual void Dump(ostream& os);
-  //ETX
+  //@}
 
-  // Description:
-  // Retrieve a vtkSelection stored inside an invormation object.
+  //@{
+  /**
+   * Retrieve a vtkSelection stored inside an invormation object.
+   */
   static vtkSelection* GetData(vtkInformation* info);
   static vtkSelection* GetData(vtkInformationVector* v, int i=0);
+  //@}
 
-//BTX
+  /**
+   * Evaluates the expression for each element in the values. The order
+   * matches the order of the selection nodes. If not expression is set or if
+   * it's an empty string, then an expression that simply combines all selection
+   * nodes in an binary-or is assumed.
+   */
+  vtkSmartPointer<vtkSignedCharArray> Evaluate(
+    vtkSignedCharArray* const* values, unsigned int num_values) const;
+
+  /**
+   * Convenience method to pass a map of vtkSignedCharArray ptrs (or
+   * vtkSmartPointers).
+   */
+  template <typename MapType>
+  vtkSmartPointer<vtkSignedCharArray> Evaluate(const MapType& values_map) const;
+
 protected:
   vtkSelection();
-  ~vtkSelection();
+  ~vtkSelection() override;
+
+  std::string Expression;
 
 private:
-  vtkSelection(const vtkSelection&);  // Not implemented.
-  void operator=(const vtkSelection&);  // Not implemented.
+  vtkSelection(const vtkSelection&) = delete;
+  void operator=(const vtkSelection&) = delete;
 
-  vtkSelectionInternals* Internal;
-//ETX
+  class vtkInternals;
+  vtkInternals* Internals;
 };
+
+//----------------------------------------------------------------------------
+template <typename MapType>
+inline vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(const MapType& values_map) const
+{
+  const unsigned int num_nodes = this->GetNumberOfNodes();
+  std::unique_ptr<vtkSignedCharArray* []> values(new vtkSignedCharArray*[num_nodes]);
+  for (unsigned int cc = 0; cc < num_nodes; ++cc)
+  {
+    auto iter = values_map.find(this->GetNodeNameAtIndex(cc));
+    values[cc] = iter != values_map.end() ? iter->second : nullptr;
+  }
+  return this->Evaluate(&values[0], num_nodes);
+}
 
 #endif

@@ -9,30 +9,30 @@ int TestDataArrayComponentNames(int,char *[])
   array->SetComponentName(1, "y" );
 
   if ( strcmp(array->GetComponentName(0),"x") != 0 ||  strcmp(array->GetComponentName(1),"y") != 0 )
-    {
+  {
     cerr
       << "Unable to store component names correctly";
     array->Delete();
     return 1;
-    }
+  }
 
-  if ( array->GetComponentName(-1) != NULL || array->GetComponentName(3) != NULL )
-    {
+  if ( array->GetComponentName(-1) != nullptr || array->GetComponentName(3) != nullptr )
+  {
     cerr
-      << " Unable to return NULL when asking for a component name outside the the valid range";
+      << " Unable to return nullptr when asking for a component name outside the valid range";
     array->Delete();
     return 1;
-    }
+  }
 
   //rename to a different string length
   array->SetComponentName(0, "a really long component name" );
   if ( strcmp(array->GetComponentName(0),"a really long component name") != 0  )
-    {
+  {
     cerr
       << "Unable to rename the component name to a string of a different length";
     array->Delete();
     return 1;
-    }
+  }
 
   array->Delete();
 
@@ -42,19 +42,19 @@ int TestDataArrayComponentNames(int,char *[])
   farray->SetComponentName(0,"x");
   farray->SetNumberOfComponents(3);
   for ( int i = 0; i < 10; i ++ )
-    {
+  {
     farray->InsertNextTuple3( i + 0.1, i + 0.2, i + 0.3);
-    }
+  }
 
   if ( strcmp(farray->GetComponentName(0),"x") != 0 ||
        strcmp(farray->GetComponentName(1),"y") != 0 ||
        strcmp(farray->GetComponentName(2),"z") != 0 )
-    {
+  {
     cerr
       << "Unable to store component names correctly";
     farray->Delete();
     return 1;
-    }
+  }
 
   //rename the components
   farray->SetComponentName(0,"a");
@@ -63,28 +63,28 @@ int TestDataArrayComponentNames(int,char *[])
   if ( strcmp(farray->GetComponentName(0),"a") != 0  ||
         strcmp(farray->GetComponentName(1),"b") != 0  ||
         strcmp(farray->GetComponentName(2),"c") != 0  )
-    {
+  {
     cerr
       << "Unable to rename component names correctly";
     farray->Delete();
     return 1;
-    }
+  }
 
   //test edge cases
   farray->SetComponentName(-1, "invalid" );
 
 
   //Test Down cast
-  vtkDoubleArray *downcast = vtkDoubleArray::SafeDownCast( farray );
+  vtkDoubleArray *downcast = vtkArrayDownCast<vtkDoubleArray>( farray );
   if (  strcmp(downcast->GetComponentName(0),"a") != 0||
         strcmp(downcast->GetComponentName(1),"b") != 0||
         strcmp(downcast->GetComponentName(2),"c") != 0)
-    {
+  {
     cerr
       << "Unable to safe down cast";
     farray->Delete();
     return 1;
-    }
+  }
 
   //DeepCopy
   vtkDoubleArray *deepCopy = vtkDoubleArray::New();
@@ -96,21 +96,21 @@ int TestDataArrayComponentNames(int,char *[])
   if ( strcmp(deepCopy->GetComponentName(0),"a") != 0||
         strcmp(deepCopy->GetComponentName(1),"b") != 0||
         strcmp(deepCopy->GetComponentName(2),"c") != 0)
-    {
+  {
     cerr
       << "Deep Copy failed to overwrite old component names";
     deepCopy->Delete();
     downcast->Delete();
     return 1;
-    }
-  if ( deepCopy->GetComponentName(3) != NULL )
-    {
+  }
+  if ( deepCopy->GetComponentName(3) != nullptr )
+  {
     cerr
       << "Deep Copy failed to return null for a invalid component name";
     deepCopy->Delete();
     downcast->Delete();
     return 1;
-    }
+  }
 
   downcast->Delete();
 
@@ -118,28 +118,28 @@ int TestDataArrayComponentNames(int,char *[])
   if (  strcmp(deepCopy->GetComponentName(0),"a") != 0||
         strcmp(deepCopy->GetComponentName(1),"b") != 0||
         strcmp(deepCopy->GetComponentName(2),"c") != 0)
-    {
+  {
     cerr
       << "Deep copy failed to copy component names, instead it made shallow copies";
     deepCopy->Delete();
     return 1;
-    }
+  }
 
   deepCopy->Delete();
 
-  //DeepCopy test 2 with NULL values
+  //DeepCopy test 2 with nullptr values
   farray = vtkDoubleArray::New();
   farray->SetNumberOfComponents(20);
 
   deepCopy = vtkDoubleArray::New();
   deepCopy->DeepCopy( farray );
 
-  if ( deepCopy->GetComponentName(0) != NULL )
-    {
+  if ( deepCopy->GetComponentName(0) != nullptr )
+  {
     cerr
       << "Failed to deep copy with no names on the components";
     return 1;
-    }
+  }
 
   deepCopy->Delete();
   farray->Delete();
@@ -160,13 +160,13 @@ int TestDataArrayComponentNames(int,char *[])
   if (  strcmp(dest->GetComponentName(0),"x") != 0||
         strcmp(dest->GetComponentName(1),"y") != 0||
         strcmp(dest->GetComponentName(2),"z") != 0)
-    {
+  {
     cerr
       << "Copy Component Names failed to work correctly";
     dest->Delete();
     source->Delete();
     return 1;
-    }
+  }
 
   dest->Delete();
 
@@ -176,13 +176,13 @@ int TestDataArrayComponentNames(int,char *[])
   if (  strcmp(dest->GetComponentName(0),"x") != 0||
         strcmp(dest->GetComponentName(1),"y") != 0||
         strcmp(dest->GetComponentName(2),"z") != 0)
-    {
+  {
     cerr
       << "Copy Component Names failed to work correctly";
     dest->Delete();
     source->Delete();
     return 1;
-    }
+  }
 
   dest->Delete();
 
@@ -193,13 +193,13 @@ int TestDataArrayComponentNames(int,char *[])
   if (  strcmp(dest->GetComponentName(0),"x") != 0||
         strcmp(dest->GetComponentName(1),"y") != 0||
         strcmp(dest->GetComponentName(2),"z") != 0)
-    {
+  {
     cerr
       << "Copy Component Names failed to work correctly";
     dest->Delete();
     source->Delete();
     return 1;
-    }
+  }
 
 
 

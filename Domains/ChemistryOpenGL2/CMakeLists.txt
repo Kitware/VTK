@@ -1,38 +1,6 @@
-if(TARGET vtkRenderingOpenGL)
-  message(FATAL_ERROR "vtkChemistyOpenGL2 cannot be built with vtkRenderingOpenGL, please disable one of them.")
-endif()
-
-include(vtkObjectFactory)
-
-set(Module_SRCS
-  vtkOpenGLMoleculeMapper.cxx
-  vtkOpenGLSphereMapper.cxx
-  vtkOpenGLStickMapper.cxx
+set(classes
+  vtkOpenGLMoleculeMapper
   )
-
-set(shader_files
-  glsl/vtkSphereMapperVS.glsl
-  glsl/vtkStickMapperVS.glsl
-  )
-
-unset(shader_h_files)
-foreach(file ${shader_files})
-  get_filename_component(file_we ${file} NAME_WE)
-  set(src  ${CMAKE_CURRENT_SOURCE_DIR}/${file})
-  set(res  ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.cxx)
-  set(resh ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.h)
-  list(APPEND shader_h_files ${resh})
-  add_custom_command(
-    OUTPUT ${res} ${resh}
-    DEPENDS ${src} vtkEncodeString
-    COMMAND vtkEncodeString
-    ARGS ${res} ${src} ${file_we}
-      --build-header VTKDOMAINSCHEMISTRYOPENGL2_EXPORT
-      vtkDomainsChemistryOpenGL2Module.h
-    )
-  list(APPEND Module_SRCS ${res})
-  set_source_files_properties(${file_we} WRAP_EXCLUDE)
-endforeach()
 
 # Now for the object factory.
 set(opengl_overrides
@@ -40,12 +8,17 @@ set(opengl_overrides
   )
 
 foreach(_override ${opengl_overrides})
-  vtk_add_override(vtk${_override} vtkOpenGL${_override})
+  vtk_object_factory_declare(
+    BASE vtk${_override}
+    OVERRIDE vtkOpenGL${_override})
 endforeach()
-vtk_object_factory_configure("${vtk_module_overrides}")
 
-list(APPEND Module_SRCS
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
-set_source_files_properties(${vtk-module}ObjectFactory.cxx WRAP_EXCLUDE)
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKDOMAINSCHEMISTRYOPENGL2_EXPORT")
 
-vtk_module_library(vtkDomainsChemistryOpenGL2 ${Module_SRCS})
+vtk_module_add_module(VTK::DomainsChemistryOpenGL2
+  CLASSES ${classes}
+  SOURCES ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${vtk_object_factory_header})

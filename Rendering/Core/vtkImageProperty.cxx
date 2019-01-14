@@ -29,7 +29,7 @@ vtkImageProperty::vtkImageProperty()
   this->ColorWindow = 255.0;
   this->ColorLevel = 127.5;
 
-  this->LookupTable = NULL;
+  this->LookupTable = nullptr;
   this->UseLookupTableScalarRange = 0;
 
   this->Opacity = 1.0;
@@ -56,46 +56,46 @@ vtkImageProperty::vtkImageProperty()
 // Destruct a vtkImageProperty
 vtkImageProperty::~vtkImageProperty()
 {
-  if (this->LookupTable != NULL)
-    {
+  if (this->LookupTable != nullptr)
+  {
     this->LookupTable->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 const char *vtkImageProperty::GetInterpolationTypeAsString()
 {
   switch (this->InterpolationType)
-    {
+  {
     case VTK_NEAREST_INTERPOLATION:
       return "Nearest";
     case VTK_LINEAR_INTERPOLATION:
       return "Linear";
     case VTK_CUBIC_INTERPOLATION:
       return "Cubic";
-    }
+  }
   return "";
 }
 
 //----------------------------------------------------------------------------
 void vtkImageProperty::DeepCopy(vtkImageProperty *p)
 {
-  if (p != NULL)
-    {
+  if (p != nullptr)
+  {
     this->SetColorWindow(p->GetColorWindow());
     this->SetColorLevel(p->GetColorLevel());
     vtkScalarsToColors *lut = p->GetLookupTable();
-    if (lut == NULL)
-      {
-      this->SetLookupTable(NULL);
-      }
+    if (lut == nullptr)
+    {
+      this->SetLookupTable(nullptr);
+    }
     else
-      {
+    {
       vtkScalarsToColors *nlut = lut->NewInstance();
       nlut->DeepCopy(lut);
       this->SetLookupTable(nlut);
       nlut->Delete();
-      }
+    }
     this->SetUseLookupTableScalarRange(p->GetUseLookupTableScalarRange());
     this->SetOpacity(p->GetOpacity());
     this->SetAmbient(p->GetAmbient());
@@ -104,20 +104,20 @@ void vtkImageProperty::DeepCopy(vtkImageProperty *p)
     this->SetCheckerboard(p->GetCheckerboard());
     this->SetCheckerboardSpacing(p->GetCheckerboardSpacing());
     this->SetCheckerboardOffset(p->GetCheckerboardOffset());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkImageProperty::GetMTime()
+vtkMTimeType vtkImageProperty::GetMTime()
 {
-  unsigned long mTime = this->vtkObject::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->vtkObject::GetMTime();
+  vtkMTimeType time;
 
   if (this->LookupTable)
-    {
+  {
     time = this->LookupTable->GetMTime();
     mTime = (mTime > time ? mTime : time);
-    }
+  }
 
   return mTime;
 }

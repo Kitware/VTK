@@ -32,9 +32,9 @@ template<class A>
 void CopyToPoints(float *data, A *input, size_t offset, size_t n)
 {
   for (size_t i = 0; i < n; ++i)
-    {
+  {
     data[3 * i + offset] = *(input++);
-    }
+  }
 }
 
 }
@@ -48,13 +48,11 @@ vtkPlot3D::vtkPlot3D()
   this->SelectionPen->SetColor(255, 50, 0, 150);
   this->SelectionPen->SetWidth(4.0);
   this->NumberOfComponents = 0;
-  this->Chart = NULL;
+  this->Chart = nullptr;
 }
 
 //-----------------------------------------------------------------------------
-vtkPlot3D::~vtkPlot3D()
-{
-}
+vtkPlot3D::~vtkPlot3D() = default;
 
 //-----------------------------------------------------------------------------
 void vtkPlot3D::PrintSelf(ostream &os, vtkIndent indent)
@@ -66,32 +64,32 @@ void vtkPlot3D::PrintSelf(ostream &os, vtkIndent indent)
 void vtkPlot3D::SetPen(vtkPen *pen)
 {
   if (this->Pen != pen)
-    {
+  {
     this->Pen = pen;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 vtkPen* vtkPlot3D::GetSelectionPen()
 {
-  return this->SelectionPen.GetPointer();
+  return this->SelectionPen;
 }
 
 //-----------------------------------------------------------------------------
 void vtkPlot3D::SetSelectionPen(vtkPen *pen)
 {
   if (this->SelectionPen != pen)
-    {
+  {
     this->SelectionPen = pen;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 vtkPen* vtkPlot3D::GetPen()
 {
-  return this->Pen.GetPointer();
+  return this->Pen;
 }
 
 //-----------------------------------------------------------------------------
@@ -134,11 +132,11 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
 {
   // Copy the points into our data structure for rendering - pack x, y, z...
   vtkDataArray *xArr =
-      vtkDataArray::SafeDownCast(input->GetColumnByName(xName.c_str()));
+      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(xName.c_str()));
   vtkDataArray *yArr =
-      vtkDataArray::SafeDownCast(input->GetColumnByName(yName.c_str()));
+      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(yName.c_str()));
   vtkDataArray *zArr =
-      vtkDataArray::SafeDownCast(input->GetColumnByName(zName.c_str()));
+      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(zName.c_str()));
 
   // Ensure that we have valid data arrays, and that they are of the same length.
   assert(xArr);
@@ -152,23 +150,23 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
   float *data = this->Points[0].GetData();
 
   switch(xArr->GetDataType())
-    {
+  {
     vtkTemplateMacro(CopyToPoints(data,
                                   static_cast<VTK_TT*>(xArr->GetVoidPointer(0)),
                                   0, n));
-    }
+  }
   switch(yArr->GetDataType())
-    {
+  {
     vtkTemplateMacro(CopyToPoints(data,
                                   static_cast<VTK_TT*>(yArr->GetVoidPointer(0)),
                                   1, n));
-    }
+  }
   switch(zArr->GetDataType())
-    {
+  {
     vtkTemplateMacro(CopyToPoints(data,
                                   static_cast<VTK_TT*>(zArr->GetVoidPointer(0)),
                                   2, n));
-    }
+  }
   this->PointsBuildTime.Modified();
 
   // This removes the colors from our points.
@@ -190,7 +188,7 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
   this->SetInputData(input, xName, yName, zName);
 
   vtkDataArray *colorArr =
-      vtkDataArray::SafeDownCast(input->GetColumnByName(colorName.c_str()));
+      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(colorName.c_str()));
   this->SetColors(colorArr);
 }
 
@@ -208,17 +206,17 @@ void vtkPlot3D::SetColors(vtkDataArray *colorArr)
   double max = VTK_DOUBLE_MIN;
 
   for (unsigned int i = 0; i < this->Points.size(); ++i)
-    {
+  {
     double value = colorArr->GetComponent(i, 0);
     if (value > max)
-      {
+    {
       max = value;
-      }
-    if (value < min)
-      {
-      min = value;
-      }
     }
+    if (value < min)
+    {
+      min = value;
+    }
+  }
 
   lookupTable->SetNumberOfTableValues(256);
   lookupTable->SetRange(min, max);
@@ -226,14 +224,13 @@ void vtkPlot3D::SetColors(vtkDataArray *colorArr)
   this->Colors->Reset();
 
   for (unsigned int i = 0; i < this->Points.size(); ++i)
-    {
+  {
     double value = colorArr->GetComponent(i, 0);
-    unsigned char *rgb = lookupTable->MapValue(value);
-    const unsigned char constRGB[3] = { rgb[0], rgb[1], rgb[2] };
-    this->Colors->InsertNextTupleValue(&constRGB[0]);
-    this->Colors->InsertNextTupleValue(&constRGB[1]);
-    this->Colors->InsertNextTupleValue(&constRGB[2]);
-    }
+    const unsigned char *rgb = lookupTable->MapValue(value);
+    this->Colors->InsertNextTypedTuple(&rgb[0]);
+    this->Colors->InsertNextTypedTuple(&rgb[1]);
+    this->Colors->InsertNextTypedTuple(&rgb[2]);
+  }
 
   this->Modified();
 }
@@ -249,33 +246,33 @@ void vtkPlot3D::ComputeDataBounds()
   double zMax = VTK_DOUBLE_MIN;
 
   for (unsigned int i = 0; i < this->Points.size(); ++i)
-    {
+  {
     float *point = this->Points[i].GetData();
     if (point[0] < xMin)
-      {
+    {
       xMin = point[0];
-      }
-    if (point[0] > xMax)
-      {
-      xMax = point[0];
-      }
-    if (point[1] < yMin)
-      {
-      yMin = point[1];
-      }
-    if (point[1] > yMax)
-      {
-      yMax = point[1];
-      }
-    if (point[2] < zMin)
-      {
-      zMin = point[2];
-      }
-    if (point[2] > zMax)
-      {
-      zMax = point[2];
-      }
     }
+    if (point[0] > xMax)
+    {
+      xMax = point[0];
+    }
+    if (point[1] < yMin)
+    {
+      yMin = point[1];
+    }
+    if (point[1] > yMax)
+    {
+      yMax = point[1];
+    }
+    if (point[2] < zMin)
+    {
+      zMin = point[2];
+    }
+    if (point[2] > zMax)
+    {
+      zMax = point[2];
+    }
+  }
 
   this->DataBounds.clear();
   this->DataBounds.resize(8);
@@ -350,9 +347,9 @@ std::string vtkPlot3D::GetZAxisLabel()
 void vtkPlot3D::SetSelection(vtkIdTypeArray *id)
 {
   if (id == this->Selection)
-    {
+  {
     return;
-    }
+  }
   this->Selection = id;
   this->Modified();
 }
@@ -360,7 +357,7 @@ void vtkPlot3D::SetSelection(vtkIdTypeArray *id)
 // ----------------------------------------------------------------------------
 vtkIdTypeArray* vtkPlot3D::GetSelection()
 {
-  return this->Selection.GetPointer();
+  return this->Selection;
 }
 
 // ----------------------------------------------------------------------------

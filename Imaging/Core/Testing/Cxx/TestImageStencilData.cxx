@@ -116,47 +116,47 @@ static void GetStencilDataAsImageData(
 
   // Fill image with zeroes
   for (int y=extent1[2]; y <= extent1[3]; y++)
-    {
+  {
     unsigned char *ptr=static_cast<unsigned char *>(
       image->GetScalarPointer(extent1[0], y, extent1[4] ));
     for (int x=extent1[0]; x <= extent1[1]; x++)
-      {
+    {
       *ptr = 0;  ++ptr;
       *ptr = 0;  ++ptr;
       *ptr = 0;  ++ptr;
-      }
     }
+  }
 
   vtkIdType increments[3];
   image->GetIncrements( increments );
 
   int iter = 0;
   for (int y=extent1[2]; y <= extent1[3]; y++, iter = 0)
-    {
+  {
     int r1,r2;
     int moreSubExtents = 1;
     while( moreSubExtents )
-      {
+    {
       moreSubExtents = stencilData->GetNextExtent(
         r1, r2, extent1[0], extent1[1], y, extent1[4], iter);
 
       // sanity check
       if (r1 <= r2 )
-        {
+      {
         unsigned char *beginExtent =static_cast<unsigned char *>(
           image->GetScalarPointer( r1, y, extent1[4] ));
         unsigned char *endExtent   =static_cast<unsigned char *>(
           image->GetScalarPointer( r2, y, extent1[4] ));
         while (beginExtent <= endExtent)
-          {
+        {
           *beginExtent     = static_cast<unsigned char>(255);
           *(beginExtent+1) = static_cast<unsigned char>(255);
           *(beginExtent+2) = static_cast<unsigned char>(255);
           beginExtent += increments[0];
-          }
         }
-      } // end for each extent tuple
-    } // end for each scan line
+      }
+    } // end for each extent tuple
+  } // end for each scan line
 }
 
 //----------------------------------------------------------------------------
@@ -171,24 +171,24 @@ int TestImageStencilData( int argc, char * argv [] )
   vtkTesting *testing = vtkTesting::New();
   int cc;
   for ( cc = 1; cc < argc; cc ++ )
-    {
+  {
     testing->AddArgument(argv[cc]);
-    }
+  }
 
   if (atoi(argv[1]) == 1)
-    {
+  {
     // Test Add stencils
     stencil1->Add(stencil2);
     GetStencilDataAsImageData(stencil1, image);
-    }
+  }
   else if (atoi(argv[1]) == 2)
-    {
+  {
     // Test subtraction of stencils
     stencil1->Subtract(stencil2);
     GetStencilDataAsImageData(stencil1, image);
-    }
+  }
   else if (atoi(argv[1]) == 3)
-    {
+  {
     // Test clipping of stencils
     stencil1->Add(stencil2);
     int clipExtents1[6] = { 15, 35, 15, 35, 0, 0 };
@@ -197,11 +197,11 @@ int TestImageStencilData( int argc, char * argv [] )
     stencil2->Clip( clipExtents2 );
     stencil1->Add(stencil2);
     GetStencilDataAsImageData(stencil1, image);
-    }
+  }
   else
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   vtkSmartPointer< vtkTrivialProducer > producer =
     vtkSmartPointer< vtkTrivialProducer >::New();

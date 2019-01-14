@@ -38,7 +38,7 @@ def parseFile():
     line = file.readline()
     numPts = int(getNumberFromLine(line)[0])
 
-    numLines = (numPts - 1)/8
+    numLines = (numPts - 1)//8
     # Get the data object's field data and allocate
     # room for 4, fields
     fieldData = dos.GetOutput().GetFieldData()
@@ -149,7 +149,7 @@ max = rf.GetOutput().GetPointData().GetArray(scalar).GetRange()[1]
 calc = vtk.vtkArrayCalculator()
 calc.SetInputConnection(rf.GetOutputPort())
 # Working on point data
-calc.SetAttributeModeToUsePointData()
+calc.SetAttributeTypeToPointData()
 # Map scalar to s. When setting function, we can use s to
 # represent the array scalar (TIME_LATE)
 calc.AddScalarVariable("s", scalar, 0)

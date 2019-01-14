@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -64,20 +63,21 @@ arcActor3 = vtk.vtkActor()
 arcActor3.SetMapper(mapArc3)
 arcActor3.GetProperty().SetColor(1,0,1)
 # Create graphics objects
-# Create the rendering window  renderer  and interactive renderer
+# Create the rendering window renderer and interactive renderer
 ren1 = vtk.vtkRenderer()
 ren1.SetActiveCamera(camera)
 renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren1)
+renWin.SetMultiSamples(0)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-# Add the actors to the renderer  set the background and size
+# Add the actors to the renderer set the background and size
 ren1.AddActor(boreActor)
 ren1.AddActor(arcActor)
 ren1.AddActor(arcActor2)
 ren1.AddActor(arcActor3)
 ren1.SetBackground(1,1,1)
-renWin.SetSize(235,500)
+renWin.SetSize(230,500)
 camera.SetClippingRange(14144,32817)
 camera.SetFocalPoint(-1023,680,5812)
 camera.SetPosition(15551,-2426,19820)

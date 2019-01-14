@@ -25,13 +25,14 @@ vtkInformationObjectBaseKey
 {
   vtkCommonInformationKeyManager::Register(this);
 
-  this->RequiredClass = 0;
+  this->RequiredClass = nullptr;
   this->SetRequiredClass(requiredClass);
 }
 
 //----------------------------------------------------------------------------
 vtkInformationObjectBaseKey::~vtkInformationObjectBaseKey()
 {
+  delete [] this->RequiredClass;
 }
 
 //----------------------------------------------------------------------------
@@ -45,16 +46,16 @@ void vtkInformationObjectBaseKey::Set(vtkInformation* info,
                                       vtkObjectBase* value)
 {
   if(value && this->RequiredClass && !value->IsA(this->RequiredClass))
-    {
+  {
     vtkErrorWithObjectMacro(
       info,
       "Cannot store object of type " << value->GetClassName()
       << " with key " << this->Location << "::" << this->Name
       << " which requires objects of type "
       << this->RequiredClass << ".  Removing the key instead.");
-    this->SetAsObjectBase(info, 0);
+    this->SetAsObjectBase(info, nullptr);
     return;
-    }
+  }
   this->SetAsObjectBase(info, value);
 }
 

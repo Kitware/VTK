@@ -12,66 +12,78 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLongLongArray - dynamic, self-adjusting array of long long
-// .SECTION Description
-// vtkLongLongArray is an array of values of type long long.
-// It provides methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
-//
-// This class should not be used directly, as it only exists on systems
-// where the long long type is defined.  If you need a 64 bit integer
-// data array, use vtkTypeInt64Array instead.
+/**
+ * @class   vtkLongLongArray
+ * @brief   dynamic, self-adjusting array of long long
+ *
+ * vtkLongLongArray is an array of values of type long long.
+ * It provides methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+ *
+ * This class should not be used directly, as it only exists on systems
+ * where the long long type is defined.  If you need a 64 bit integer
+ * data array, use vtkTypeInt64Array instead.
+*/
 
 #ifndef vtkLongLongArray_h
 #define vtkLongLongArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkLongLongArray_cxx)
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE long long
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
-#include "vtkDataArrayTemplate.h" // Real Superclass
+#include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
-#ifndef __WRAP__
-#define vtkDataArray vtkDataArrayTemplate<long long>
+#ifndef __VTK_WRAP__
+#define vtkDataArray vtkAOSDataArrayTemplate<long long>
 #endif
 class VTKCOMMONCORE_EXPORT vtkLongLongArray : public vtkDataArray
-#ifndef __WRAP__
-#undef vtkDataArray
-#endif
 {
 public:
+  vtkTypeMacro(vtkLongLongArray, vtkDataArray)
+#ifndef __VTK_WRAP__
+#undef vtkDataArray
+#endif
   static vtkLongLongArray* New();
-  vtkTypeMacro(vtkLongLongArray,vtkDataArray);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkDataArrayTemplate, which is ignored
+  // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(long long);
 #endif
-  // Description:
-  // Get the minimum data value in its native type.
+
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
+  static vtkLongLongArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkLongLongArray*>(Superclass::FastDownCast(source));
+  }
+
+  /**
+   * Get the minimum data value in its native type.
+   */
   static long long GetDataTypeValueMin() { return VTK_LONG_LONG_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static long long GetDataTypeValueMax() { return VTK_LONG_LONG_MAX; }
 
 protected:
   vtkLongLongArray();
-  ~vtkLongLongArray();
+  ~vtkLongLongArray() override;
 
 private:
-  //BTX
-  typedef vtkDataArrayTemplate<long long> RealSuperclass;
-  //ETX
-  vtkLongLongArray(const vtkLongLongArray&);  // Not implemented.
-  void operator=(const vtkLongLongArray&);  // Not implemented.
+
+  typedef vtkAOSDataArrayTemplate<long long> RealSuperclass;
+
+  vtkLongLongArray(const vtkLongLongArray&) = delete;
+  void operator=(const vtkLongLongArray&) = delete;
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkLongLongArray)
 
 #endif

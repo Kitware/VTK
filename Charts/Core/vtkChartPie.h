@@ -13,10 +13,13 @@
 
 =========================================================================*/
 
-// .NAME vtkChartPie - Factory class for drawing pie charts
-//
-// .SECTION Description
-// This class implements an pie chart.
+/**
+ * @class   vtkChartPie
+ * @brief   Factory class for drawing pie charts
+ *
+ *
+ * This class implements an pie chart.
+*/
 
 #ifndef vtkChartPie_h
 #define vtkChartPie_h
@@ -32,116 +35,135 @@ class VTKCHARTSCORE_EXPORT vtkChartPie : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartPie, vtkChart);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Creates a 2D Chart object.
+  /**
+   * Creates a 2D Chart object.
+   */
   static vtkChartPie *New();
 
-  // Description:
-  // Perform any updates to the item that may be necessary before rendering.
-  // The scene should take care of calling this on all items before their
-  // Paint function is invoked.
-  virtual void Update();
+  /**
+   * Perform any updates to the item that may be necessary before rendering.
+   * The scene should take care of calling this on all items before their
+   * Paint function is invoked.
+   */
+  void Update() override;
 
-  // Description:
-  // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  /**
+   * Paint event for the chart, called whenever the chart needs to be drawn
+   */
+  bool Paint(vtkContext2D *painter) override;
 
-  // Description:
-  // Add a plot to the chart.
-  virtual vtkPlot * AddPlot(int type);
+  /**
+   * Add a plot to the chart.
+   */
+  vtkPlot * AddPlot(int type) override;
 
-  // Description:
-  // Add a plot to the chart. Return the index of the plot, -1 if it failed.
-  virtual vtkIdType AddPlot(vtkPlot* plot)
+  /**
+   * Add a plot to the chart. Return the index of the plot, -1 if it failed.
+   */
+  vtkIdType AddPlot(vtkPlot* plot) override
     { return Superclass::AddPlot(plot); }
 
-  // Description:
-  // Get the plot at the specified index, returns null if the index is invalid.
-  virtual vtkPlot* GetPlot(vtkIdType index);
+  /**
+   * Get the plot at the specified index, returns null if the index is invalid.
+   */
+  vtkPlot* GetPlot(vtkIdType index) override;
 
-  // Description:
-  // Get the number of plots the chart contains.
-  virtual vtkIdType GetNumberOfPlots();
+  /**
+   * Get the number of plots the chart contains.
+   */
+  vtkIdType GetNumberOfPlots() override;
 
-  // Description:
-  // Set whether the chart should draw a legend.
-  virtual void SetShowLegend(bool visible);
+  /**
+   * Set whether the chart should draw a legend.
+   */
+  void SetShowLegend(bool visible) override;
 
-  // Description:
-  // Get the legend for the chart, if available. Can return NULL if there is no
-  // legend.
-  virtual vtkChartLegend * GetLegend();
+  /**
+   * Get the legend for the chart, if available. Can return nullptr if there is no
+   * legend.
+   */
+  vtkChartLegend * GetLegend() override;
 
-  // Description:
-  // Set the vtkContextScene for the item, always set for an item in a scene.
-  virtual void SetScene(vtkContextScene *scene);
+  /**
+   * Set the vtkContextScene for the item, always set for an item in a scene.
+   */
+  void SetScene(vtkContextScene *scene) override;
 
-//BTX
-  // Description:
-  // Return true if the supplied x, y coordinate is inside the item.
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  /**
+   * Return true if the supplied x, y coordinate is inside the item.
+   */
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse enter event.
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse enter event.
+   */
+  bool MouseEnterEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse move event.
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse move event.
+   */
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse leave event.
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse leave event.
+   */
+  bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse button down event
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse button down event
+   */
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse button release event.
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse button release event.
+   */
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse wheel event, positive delta indicates forward movement of the wheel.
-  virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
-//ETX
+  /**
+   * Mouse wheel event, positive delta indicates forward movement of the wheel.
+   */
+  bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta) override;
 
-//BTX
 protected:
   vtkChartPie();
-  ~vtkChartPie();
+  ~vtkChartPie() override;
 
-  // Description:
-  // Recalculate the necessary transforms.
+  /**
+   * Recalculate the necessary transforms.
+   */
   void RecalculatePlotTransforms();
 
-  // Description:
-  // The legend for the chart.
+  /**
+   * The legend for the chart.
+   */
   vtkChartLegend *Legend;
 
-  // Description:
-  // The tooltip item for the chart - can be used to display extra information.
+  /**
+   * The tooltip item for the chart - can be used to display extra information.
+   */
   vtkTooltipItem *Tooltip;
 
-  // Description:
-  // Does the plot area transform need to be recalculated?
+  /**
+   * Does the plot area transform need to be recalculated?
+   */
   bool PlotTransformValid;
 
 private:
-  vtkChartPie(const vtkChartPie &); // Not implemented.
-  void operator=(const vtkChartPie &);   // Not implemented.
+  vtkChartPie(const vtkChartPie &) = delete;
+  void operator=(const vtkChartPie &) = delete;
 
-  // Description:
-  // Try to locate a point within the plots to display in a tooltip
+  /**
+   * Try to locate a point within the plots to display in a tooltip
+   */
   bool LocatePointInPlots(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Private implementation details
+  /**
+   * Private implementation details
+   */
   vtkChartPiePrivate *Private;
 
-//ETX
 };
 
 #endif //vtkChartPie_h

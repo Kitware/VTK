@@ -47,7 +47,8 @@ vtkCxxSetObjectMacro(vtkGeoView, Terrain, vtkGeoTerrain);
 //----------------------------------------------------------------------------
 vtkGeoView::vtkGeoView()
 {
-  this->Terrain = 0;
+  VTK_LEGACY_BODY(vtkGeoView::vtkGeoView, "VTK 8.2");
+  this->Terrain = nullptr;
 
   // Replace the interactor style
   vtkGeoInteractorStyle* style = vtkGeoInteractorStyle::New();
@@ -77,7 +78,7 @@ vtkGeoView::vtkGeoView()
 //  this->LowResEarthMapper->SetResolveCoincidentTopologyPolygonOffsetParameters(1.0, 1000.0);
 
   this->LowResEarthActor        = vtkActor::New();
-  this->LowResEarthSource       = NULL; // BuildLowResEarth tests if the source is null.
+  this->LowResEarthSource       = nullptr; // BuildLowResEarth tests if the source is null.
   this->BuildLowResEarth( cam->GetOrigin() ); // call once the mapper is set!
   this->LowResEarthActor->SetMapper(this->LowResEarthMapper);
   this->Renderer->AddActor(this->LowResEarthActor);
@@ -102,16 +103,16 @@ vtkGeoView::~vtkGeoView()
   this->LowResEarthMapper->Delete();
   this->LowResEarthActor->Delete();
   this->Assembly->Delete();
-  this->SetTerrain(0);
+  this->SetTerrain(nullptr);
 }
 
 //----------------------------------------------------------------------------
 void vtkGeoView::BuildLowResEarth( double origin[3] )
 {
   if (this->LowResEarthSource)
-    {
+  {
     this->LowResEarthSource->Delete();
-    }
+  }
   this->LowResEarthSource       = vtkGlobeSource::New();
   this->LowResEarthSource->SetOrigin( origin );
   // Make it slightly smaller than the earth so it is not visible
@@ -153,19 +154,19 @@ void vtkGeoView::PrepareForRendering()
   vtkSmartPointer<vtkCollection> imageReps =
     vtkSmartPointer<vtkCollection>::New();
   for (int i = 0; i < this->GetNumberOfRepresentations(); i++)
-    {
+  {
     vtkGeoAlignedImageRepresentation* imageRep =
       vtkGeoAlignedImageRepresentation::SafeDownCast(this->GetRepresentation(i));
     if (imageRep)
-      {
+    {
       imageReps->AddItem(imageRep);
-      }
     }
+  }
 
   if (this->Terrain)
-    {
+  {
     this->Terrain->AddActors(this->Renderer, this->Assembly, imageReps);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -175,13 +176,13 @@ void vtkGeoView::Render()
   // initialized for the first PrepareForRendering pass.
   this->RenderWindow->MakeCurrent();
   if(!this->RenderWindow->IsCurrent())
-    {
+  {
 
     // Note: For some reason this needs to be called even thoguh it does not
     // make much difference logically.
     this->Superclass::Render();
     return;
-    }
+  }
 
   this->Update();
   this->PrepareForRendering();
@@ -196,15 +197,15 @@ void vtkGeoView::Render()
   // Save the depth offset state.
   if(vtkMapper::GetResolveCoincidentTopology() ==
      VTK_RESOLVE_POLYGON_OFFSET)
-    {
+  {
     vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(
         factor, units);
-    }
+  }
   else if(vtkMapper::GetResolveCoincidentTopology() ==
           VTK_RESOLVE_SHIFT_ZBUFFER)
-    {
+  {
     zShift = vtkMapper::GetResolveCoincidentTopologyZShift();
-    }
+  }
 
   vtkMapper::SetResolveCoincidentTopologyZShift(0.0);
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
@@ -218,21 +219,21 @@ void vtkGeoView::Render()
   // Restore the depth offset state.
   if(vtkMapper::GetResolveCoincidentTopology() ==
      VTK_RESOLVE_POLYGON_OFFSET)
-    {
+  {
     vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
     vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(
         factor, units);
-    }
+  }
   else if(vtkMapper::GetResolveCoincidentTopology() ==
           VTK_RESOLVE_SHIFT_ZBUFFER)
-    {
+  {
     vtkMapper::SetResolveCoincidentTopologyToShiftZBuffer();
     vtkMapper::SetResolveCoincidentTopologyZShift(zShift);
-    }
+  }
   else
-    {
+  {
     vtkMapper::SetResolveCoincidentTopologyToOff();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -268,7 +269,7 @@ vtkGeoInteractorStyle* vtkGeoView::GetGeoInteractorStyle()
 void vtkGeoView::SetGeoInteractorStyle(vtkGeoInteractorStyle* style)
 {
   if(style && style != this->GetInteractorStyle())
-    {
+  {
     this->SetInteractorStyle(style);
     style->SetCurrentRenderer(this->Renderer);
     style->ResetCamera();
@@ -277,7 +278,7 @@ void vtkGeoView::SetGeoInteractorStyle(vtkGeoInteractorStyle* style)
     vtkGeoCamera* cam = style->GetGeoCamera();
     this->Renderer->SetActiveCamera(cam->GetVTKCamera());
     this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -286,8 +287,7 @@ void vtkGeoView::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << "Terrain: " << (this->Terrain ? "" : "(none)") << endl;
   if (this->Terrain)
-    {
+  {
     this->Terrain->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
-

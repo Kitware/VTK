@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageSpatialAlgorithm - Filters that operate on pixel neighborhoods.
-// .SECTION Description
-// vtkImageSpatialAlgorithm is a super class for filters that operate on an
-// input neighborhood for each output pixel. It handles even sized
-// neighborhoods, but their can be a half pixel shift associated with
-// processing.  This superclass has some logic for handling boundaries.  It
-// can split regions into boundary and non-boundary pieces and call different
-// execute methods.
-
+/**
+ * @class   vtkImageSpatialAlgorithm
+ * @brief   Filters that operate on pixel neighborhoods.
+ *
+ * vtkImageSpatialAlgorithm is a super class for filters that operate on an
+ * input neighborhood for each output pixel. It handles even sized
+ * neighborhoods, but their can be a half pixel shift associated with
+ * processing.  This superclass has some logic for handling boundaries.  It
+ * can split regions into boundary and non-boundary pieces and call different
+ * execute methods.
+*/
 
 #ifndef vtkImageSpatialAlgorithm_h
 #define vtkImageSpatialAlgorithm_h
@@ -34,33 +36,39 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageSpatialAlgorithm : public vtkThreadedImag
 public:
   static vtkImageSpatialAlgorithm *New();
   vtkTypeMacro(vtkImageSpatialAlgorithm,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the Kernel size.
+  //@{
+  /**
+   * Get the Kernel size.
+   */
   vtkGetVector3Macro(KernelSize,int);
+  //@}
 
-  // Description:
-  // Get the Kernel middle.
+  //@{
+  /**
+   * Get the Kernel middle.
+   */
   vtkGetVector3Macro(KernelMiddle,int);
+  //@}
 
 protected:
   vtkImageSpatialAlgorithm();
-  ~vtkImageSpatialAlgorithm() {}
+  ~vtkImageSpatialAlgorithm() override {}
 
   int   KernelSize[3];
   int   KernelMiddle[3];      // Index of kernel origin
   int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   void ComputeOutputWholeExtent(int extent[6], int handleBoundaries);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   void InternalRequestUpdateExtent(int *extent, int *inExtent, int *wholeExtent);
 
 private:
-  vtkImageSpatialAlgorithm(const vtkImageSpatialAlgorithm&);  // Not implemented.
-  void operator=(const vtkImageSpatialAlgorithm&);  // Not implemented.
+  vtkImageSpatialAlgorithm(const vtkImageSpatialAlgorithm&) = delete;
+  void operator=(const vtkImageSpatialAlgorithm&) = delete;
 };
 
 #endif

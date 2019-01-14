@@ -16,12 +16,15 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkDSPFilterDefinition - used by the Exodus readers
-// .SECTION Description
-// vtkDSPFilterDefinition is used by vtkExodusReader, vtkExodusIIReader and
-// vtkPExodusReader to do temporal smoothing of data
-// .SECTION See Also
-// vtkDSPFilterGroup vtkExodusReader vtkExodusIIReader vtkPExodusReader
+/**
+ * @class   vtkDSPFilterDefinition
+ * @brief   used by the Exodus readers
+ *
+ * vtkDSPFilterDefinition is used by vtkExodusReader, vtkExodusIIReader and
+ * vtkPExodusReader to do temporal smoothing of data
+ * @sa
+ * vtkDSPFilterGroup vtkExodusReader vtkExodusIIReader vtkPExodusReader
+*/
 
 #ifndef vtkDSPFilterDefinition_h
 #define vtkDSPFilterDefinition_h
@@ -38,13 +41,13 @@ class VTKFILTERSHYBRID_EXPORT vtkDSPFilterDefinition : public vtkObject
 {
  public:
   vtkTypeMacro(vtkDSPFilterDefinition, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   static vtkDSPFilterDefinition *New();
 
  protected:
   vtkDSPFilterDefinition();
   vtkDSPFilterDefinition(vtkDSPFilterDefinition *other);
-  ~vtkDSPFilterDefinition();
+  ~vtkDSPFilterDefinition() override;
 
  public:
   void Copy(vtkDSPFilterDefinition *other);
@@ -54,8 +57,8 @@ class VTKFILTERSHYBRID_EXPORT vtkDSPFilterDefinition : public vtkObject
   void PushBackNumeratorWeight(double a_value);
   void PushBackDenominatorWeight(double a_value);
   void PushBackForwardNumeratorWeight(double a_value);
-  void SetInputVariableName(char *a_value);
-  void SetOutputVariableName(char *a_value);
+  void SetInputVariableName(const char *a_value);
+  void SetOutputVariableName(const char *a_value);
   const char *GetInputVariableName();
   const char *GetOutputVariableName();
 
@@ -78,8 +81,8 @@ class VTKFILTERSHYBRID_EXPORT vtkDSPFilterDefinition : public vtkObject
 protected:
 
 private:
-  vtkDSPFilterDefinition(const vtkDSPFilterDefinition&); // Not implemented
-  void operator=(const vtkDSPFilterDefinition&); // Not implemented
+  vtkDSPFilterDefinition(const vtkDSPFilterDefinition&) = delete;
+  void operator=(const vtkDSPFilterDefinition&) = delete;
 };
 
 

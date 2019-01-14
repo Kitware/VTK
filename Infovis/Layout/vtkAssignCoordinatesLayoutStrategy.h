@@ -17,10 +17,13 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkAssignCoordinatesLayoutStrategy - uses array values to set vertex locations
-//
-// .SECTION Description
-// Uses vtkAssignCoordinates to use values from arrays as the x, y, and z coordinates.
+/**
+ * @class   vtkAssignCoordinatesLayoutStrategy
+ * @brief   uses array values to set vertex locations
+ *
+ *
+ * Uses vtkAssignCoordinates to use values from arrays as the x, y, and z coordinates.
+*/
 
 #ifndef vtkAssignCoordinatesLayoutStrategy_h
 #define vtkAssignCoordinatesLayoutStrategy_h
@@ -36,38 +39,46 @@ class VTKINFOVISLAYOUT_EXPORT vtkAssignCoordinatesLayoutStrategy : public vtkGra
 public:
   static vtkAssignCoordinatesLayoutStrategy *New();
   vtkTypeMacro(vtkAssignCoordinatesLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // The array to use for the x coordinate values.
+  //@{
+  /**
+   * The array to use for the x coordinate values.
+   */
   virtual void SetXCoordArrayName(const char* name);
   virtual const char* GetXCoordArrayName();
+  //@}
 
-  // Description:
-  // The array to use for the y coordinate values.
+  //@{
+  /**
+   * The array to use for the y coordinate values.
+   */
   virtual void SetYCoordArrayName(const char* name);
   virtual const char* GetYCoordArrayName();
+  //@}
 
-  // Description:
-  // The array to use for the z coordinate values.
+  //@{
+  /**
+   * The array to use for the z coordinate values.
+   */
   virtual void SetZCoordArrayName(const char* name);
   virtual const char* GetZCoordArrayName();
+  //@}
 
-  // Description:
-  // Perform the random layout.
-  void Layout();
+  /**
+   * Perform the random layout.
+   */
+  void Layout() override;
 
 protected:
   vtkAssignCoordinatesLayoutStrategy();
-  ~vtkAssignCoordinatesLayoutStrategy();
+  ~vtkAssignCoordinatesLayoutStrategy() override;
 
-  //BTX
   vtkSmartPointer<vtkAssignCoordinates> AssignCoordinates;
-  //ETX
 
 private:
-  vtkAssignCoordinatesLayoutStrategy(const vtkAssignCoordinatesLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkAssignCoordinatesLayoutStrategy&);  // Not implemented.
+  vtkAssignCoordinatesLayoutStrategy(const vtkAssignCoordinatesLayoutStrategy&) = delete;
+  void operator=(const vtkAssignCoordinatesLayoutStrategy&) = delete;
 };
 
 #endif

@@ -9,7 +9,6 @@ Updated on Feb 12, 2014 by Jean-Christophe Fillion-Robin
 """
 
 import sys
-import exceptions
 import gc
 import vtk
 from vtk.test import Testing

@@ -25,6 +25,8 @@
 #include "XdmfAttributeCenter.hpp"
 #include "XdmfError.hpp"
 
+std::map<std::string, shared_ptr<const XdmfAttributeCenter>(*)()> XdmfAttributeCenter::mAttributeCenterDefinitions;
+
 // Supported XdmfAttributeCenters
 shared_ptr<const XdmfAttributeCenter>
 XdmfAttributeCenter::Grid()
@@ -66,6 +68,25 @@ XdmfAttributeCenter::Node()
   return p;
 }
 
+shared_ptr<const XdmfAttributeCenter>
+XdmfAttributeCenter::Other()
+{
+  static shared_ptr<const XdmfAttributeCenter>
+    p(new XdmfAttributeCenter("Other"));
+  return p;
+}
+
+void
+XdmfAttributeCenter::InitTypes()
+{
+  mAttributeCenterDefinitions["GRID"] = Grid;
+  mAttributeCenterDefinitions["CELL"] = Cell;
+  mAttributeCenterDefinitions["FACE"] = Face;
+  mAttributeCenterDefinitions["EDGE"] = Edge;
+  mAttributeCenterDefinitions["NODE"] = Node;
+  mAttributeCenterDefinitions["OTHER"] = Other;
+}
+
 XdmfAttributeCenter::XdmfAttributeCenter(const std::string & name) :
   mName(name)
 {
@@ -78,6 +99,7 @@ XdmfAttributeCenter::~XdmfAttributeCenter()
 shared_ptr<const XdmfAttributeCenter>
 XdmfAttributeCenter::New(const std::map<std::string, std::string> & itemProperties)
 {
+  InitTypes();
   std::map<std::string, std::string>::const_iterator center =
     itemProperties.find("Center");
   if(center == itemProperties.end()) {
@@ -85,27 +107,23 @@ XdmfAttributeCenter::New(const std::map<std::string, std::string> & itemProperti
                        "'Center' not found in itemProperties in "
                        "XdmfAttributeCenter::New");
   }
-  const std::string & centerVal = center->second;
-  
-  if(centerVal.compare("Node") == 0) {
-    return Node();
+
+  const std::string & centerVal = ConvertToUpper(center->second);
+
+  std::map<std::string, shared_ptr<const XdmfAttributeCenter>(*)()>::const_iterator returnType = mAttributeCenterDefinitions.find(centerVal);
+
+  if (returnType == mAttributeCenterDefinitions.end()) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Center not of 'Grid','Cell','Face','Edge','Node',"
+                       "'Other' in XdmfAttributeCenter::New");
   }
-  else if(centerVal.compare("Cell") == 0) {
-    return Cell();
-  }
-  else if(centerVal.compare("Grid") == 0) {
-    return Grid();
-  }
-  else if(centerVal.compare("Face") == 0) {
-    return Face();
-  }
-  else if(centerVal.compare("Edge") == 0) {
-    return Edge();
+  else {
+    return (*(returnType->second))();
   }
 
   XdmfError::message(XdmfError::FATAL, 
-                     "Center not of 'Grid','Cell','Face','Edge','Node' "
-                     "in XdmfAttributeCenter::New");
+                     "Center not of 'Grid','Cell','Face','Edge','Node',"
+                     "'Other' in XdmfAttributeCenter::New");
 
   // unreachable
   return shared_ptr<const XdmfAttributeCenter>();
@@ -116,3 +134,36 @@ XdmfAttributeCenter::getProperties(std::map<std::string, std::string> & collecte
 {
   collectedProperties.insert(std::make_pair("Center", mName));
 }
+
+// C Wrappers
+
+int XdmfAttributeCenterGrid()
+{
+  return XDMF_ATTRIBUTE_CENTER_GRID;
+}
+
+int XdmfAttributeCenterCell()
+{
+  return XDMF_ATTRIBUTE_CENTER_CELL;
+}
+
+int XdmfAttributeCenterFace()
+{
+  return XDMF_ATTRIBUTE_CENTER_FACE;
+}
+
+int XdmfAttributeCenterEdge()
+{
+  return XDMF_ATTRIBUTE_CENTER_EDGE;
+}
+
+int XdmfAttributeCenterNode()
+{
+  return XDMF_ATTRIBUTE_CENTER_NODE;
+}
+
+int XdmfAttributeCenterOther()
+{
+  return XDMF_ATTRIBUTE_CENTER_OTHER;
+}
+

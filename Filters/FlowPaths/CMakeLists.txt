@@ -1,30 +1,23 @@
-set(Module_SRCS
-  vtkAbstractInterpolatedVelocityField.cxx
-  vtkAMRInterpolatedVelocityField.cxx
-  vtkCompositeInterpolatedVelocityField.cxx
-  vtkDashedStreamLine.cxx
-  vtkInterpolatedVelocityField.cxx
-  vtkStreamer.cxx
-  vtkStreamLine.cxx
-  vtkStreamPoints.cxx
-  vtkStreamTracer.cxx
-  vtkModifiedBSPTree.cxx
-  vtkCellLocatorInterpolatedVelocityField.cxx
-  vtkTemporalStreamTracer.cxx
-  vtkParticleTracerBase.cxx
-  vtkParticleTracer.cxx
-  vtkStreaklineFilter.cxx
-  vtkParticlePathFilter.cxx
-  vtkTemporalInterpolatedVelocityField.cxx
-  vtkCachingInterpolatedVelocityField.cxx
-  )
-
-set_source_files_properties(
+set(classes
   vtkAbstractInterpolatedVelocityField
-  vtkCompositeInterpolatedVelocityField.cxx
-  vtkStreamer
+  vtkAMRInterpolatedVelocityField
+  vtkCachingInterpolatedVelocityField
+  vtkCellLocatorInterpolatedVelocityField
+  vtkCompositeInterpolatedVelocityField
+  vtkEvenlySpacedStreamlines2D
+  vtkInterpolatedVelocityField
+  vtkLagrangianParticle
+  vtkLagrangianParticleTracker
+  vtkLagrangianBasicIntegrationModel
+  vtkLagrangianMatidaIntegrationModel
+  vtkModifiedBSPTree
+  vtkParticlePathFilter
+  vtkParticleTracer
   vtkParticleTracerBase
-  ABSTRACT
-  )
+  vtkStreaklineFilter
+  vtkStreamTracer
+  vtkTemporalInterpolatedVelocityField
+  vtkTemporalStreamTracer)
 
-vtk_module_library(vtkFiltersFlowPaths ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersFlowPaths
+  CLASSES ${classes})

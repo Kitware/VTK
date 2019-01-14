@@ -13,21 +13,23 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
-#include "vtkTestErrorObserver.h"
-#include "vtkGlyph3D.h"
-#include "vtkSmartPointer.h"
-#include "vtkDoubleArray.h"
-#include "vtkPointData.h"
-#include "vtkConeSource.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
+#include "vtkConeSource.h"
+#include "vtkDoubleArray.h"
+#include "vtkExecutive.h"
+#include "vtkGlyph3D.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkTestErrorObserver.h"
+#include "vtkTestUtilities.h"
 
 static bool TestGlyph3D_WithBadArray()
 {
@@ -58,20 +60,43 @@ static bool TestGlyph3D_WithBadArray()
   glyph3D->SetInputData(polydata);
   glyph3D->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"Normals");
   glyph3D->SetVectorModeToUseVector();
-  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver1 =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
-  glyph3D->AddObserver(vtkCommand::ErrorEvent,errorObserver);
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver2 =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  glyph3D->AddObserver(vtkCommand::ErrorEvent,errorObserver1);
+  glyph3D->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver2);
   glyph3D->Update();
-  bool res = errorObserver->GetError();
-  return res;
+  int status = errorObserver1->CheckErrorMessage("vtkDataArray Normals has more than 3 components");
+  status += errorObserver2->CheckErrorMessage("Algorithm vtkGlyph3D");
+  return true;
+}
+
+static bool TestGlyph3D_WithoutSource()
+{
+  vtkNew<vtkPoints> points;
+  points->InsertNextPoint(0, 0, 0);
+  vtkNew<vtkPolyData> polydata;
+  polydata->SetPoints(points);
+
+  vtkNew<vtkGlyph3D> glyph3D;
+  glyph3D->SetInputData(polydata);
+  glyph3D->Update();
+
+  return true;
 }
 
 int TestGlyph3D(int argc, char* argv[])
 {
   if(!TestGlyph3D_WithBadArray())
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
+
+  if (!TestGlyph3D_WithoutSource())
+  {
+    return EXIT_FAILURE;
+  }
 
   vtkSmartPointer<vtkDoubleArray> vectors =
     vtkSmartPointer<vtkDoubleArray>::New();
@@ -116,12 +141,12 @@ int TestGlyph3D(int argc, char* argv[])
 
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkSmartPointer<vtkRenderer> ren =
     vtkSmartPointer<vtkRenderer>::New();
   ren->SetBackground(0,0,0);
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.5);
 
@@ -130,16 +155,16 @@ int TestGlyph3D(int argc, char* argv[])
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   renWin->SetSize(300,300);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return !retVal;
 }

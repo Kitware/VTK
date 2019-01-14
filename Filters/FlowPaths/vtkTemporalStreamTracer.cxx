@@ -43,10 +43,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTemporalInterpolatedVelocityField.h"
 #include "vtkOutputWindow.h"
 #include "vtkAbstractParticleWriter.h"
-#include "vtkToolkits.h" // For VTK_USE_MPI
 #include <cassert>
 
-#ifdef WIN32
+#ifdef _WIN32
   #undef JB_H5PART_PARTICLE_OUTPUT
 #else
 //  #define JB_H5PART_PARTICLE_OUTPUT
@@ -66,7 +65,7 @@ using namespace vtkTemporalStreamTracerNamespace;
 //----------------------------------------------------------------------------
 //#define JB_DEBUG__
 #if defined JB_DEBUG__
-  #ifdef WIN32
+  #ifdef _WIN32
       #define OUTPUTTEXT(a) vtkOutputWindowDisplayText(a);
   #else
   #endif
@@ -106,8 +105,8 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->StaticSeeds                 = 1;
   this->ComputeVorticity            = 1;
   this->IgnorePipelineTime          = 0;
-  this->ParticleWriter              = NULL;
-  this->ParticleFileName            = NULL;
+  this->ParticleWriter              = nullptr;
+  this->ParticleFileName            = nullptr;
   this->EnableParticleWriting       = false;
   this->UniqueIdCounter             = 0;
   this->UniqueIdCounterMPI          = 0;
@@ -132,7 +131,7 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->SetNumberOfInputPorts(2);
 
 #ifdef JB_H5PART_PARTICLE_OUTPUT
-#ifdef WIN32
+#ifdef _WIN32
   vtkDebugMacro(<<"Setting vtkH5PartWriter");
   vtkH5PartWriter *writer = vtkH5PartWriter::New();
 #else
@@ -149,9 +148,9 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
 //---------------------------------------------------------------------------
 vtkTemporalStreamTracer::~vtkTemporalStreamTracer()
 {
-  this->SetParticleWriter(NULL);
+  this->SetParticleWriter(nullptr);
   delete [] this->ParticleFileName;
-  this->ParticleFileName = NULL;
+  this->ParticleFileName = nullptr;
 }
 //----------------------------------------------------------------------------
 int vtkTemporalStreamTracer::FillInputPortInformation(
@@ -181,7 +180,7 @@ void vtkTemporalStreamTracer::AddSourceConnection(vtkAlgorithmOutput* input)
 //----------------------------------------------------------------------------
 void vtkTemporalStreamTracer::RemoveAllSources()
 {
-  this->SetInputConnection(1, 0);
+  this->SetInputConnection(1, nullptr);
 }
 //----------------------------------------------------------------------------
 int vtkTemporalStreamTracer::ProcessRequest(
@@ -190,17 +189,17 @@ int vtkTemporalStreamTracer::ProcessRequest(
   vtkInformationVector* outputVector)
 {
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     return this->RequestInformation(request, inputVector, outputVector);
-    }
+  }
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
       return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
+  }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 //----------------------------------------------------------------------------
@@ -213,7 +212,7 @@ int vtkTemporalStreamTracer::RequestInformation(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
-    {
+  {
     this->NumberOfInputTimeSteps = inInfo->Length(
       vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     vtkDebugMacro(<<"vtkTemporalStreamTracer "
@@ -224,10 +223,10 @@ int vtkTemporalStreamTracer::RequestInformation(
     inInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
       &this->InputTimeValues[0] );
     if (this->NumberOfInputTimeSteps==1)
-      {
+    {
       vtkErrorMacro(<<"Not enough input time steps for particle integration");
       return 0;
-      }
+    }
     //
     // We only output T-1 time steps
     //
@@ -238,10 +237,10 @@ int vtkTemporalStreamTracer::RequestInformation(
       this->InputTimeValues.begin()+1, this->InputTimeValues.end());
   }
   else
-    {
+  {
     vtkErrorMacro(<<"Input information has no TIME_STEPS set");
     return 0;
-    }
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
                &this->OutputTimeValues[0],
@@ -272,7 +271,7 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
   // The output has requested a time value, what times must we ask from our input
   //
   if (this->IgnorePipelineTime || !outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
-    {
+  {
     double requestedTimeValue;
     //
     // ideally we want the output information to be requesting a time step,
@@ -288,9 +287,9 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
     vtkDebugMacro(<< "SetTimeStep       : requestedTimeValue "
       << requestedTimeValue << " ActualTimeStep " << this->ActualTimeStep);
     (void) requestedTimeValue; //silence unused variable warning
-    }
+  }
   else
-    {
+  {
 //
     // Get the requested time step.
     //
@@ -307,12 +306,12 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
     }
     vtkDebugMacro(<< "UPDATE_TIME_STEPS : requestedTimeValue "
       << requestedTimeValue << " ActualTimeStep " << this->ActualTimeStep);
-    }
+  }
 
   if (this->ActualTimeStep<this->OutputTimeValues.size())
-    {
+  {
     for (int i=0; i<numInputs; i++)
-      {
+    {
       vtkInformation *inInfo = inputVector[0]->GetInformationObject(i);
       // our output timestep T is timestep T+1 in the source
       // so output inputTimeSteps[T], inputTimeSteps[T+1]
@@ -320,8 +319,8 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
                   this->InputTimeValues[this->ActualTimeStep + this->RequestIndex]);
       vtkDebugMacro(<< "requested 1 time values : "
                     << this->InputTimeValues[this->ActualTimeStep + this->RequestIndex]);
-      }
     }
+  }
   else
   {
     vtkDebugMacro(<< "UPDATE_TIME_STEPS : Error getting requested time step");
@@ -344,23 +343,23 @@ int vtkTemporalStreamTracer::InitializeInterpolator()
   vtkSmartPointer<vtkCompositeDataIterator> iterP;
   iterP.TakeReference(this->InputDataT[0]->NewIterator());
   iterP->GoToFirstItem();
-  char *vecname = NULL;
+  char *vecname = nullptr;
   while (!iterP->IsDoneWithTraversal())
-    {
+  {
     vtkDataArray *vectors = this->GetInputArrayToProcess(
       0,iterP->GetCurrentDataObject());
     if (vectors)
-      {
+    {
       vecname = vectors->GetName();
       break;
-      }
-    iterP->GoToNextItem();
     }
+    iterP->GoToNextItem();
+  }
   if (!vecname)
-    {
+  {
     vtkDebugMacro(<< "Couldn't find vector array " << vecname);
     return VTK_ERROR;
-    }
+  }
 
   vtkDebugMacro(<< "Interpolator using array " << vecname);
   this->Interpolator->SelectVectors(vecname);
@@ -369,7 +368,7 @@ int vtkTemporalStreamTracer::InitializeInterpolator()
 
   int numValidInputBlocks[2] = {0, 0};
   int numTotalInputBlocks[2] = {0, 0};
-  this->DataReferenceT[0] = this->DataReferenceT[1] = 0;
+  this->DataReferenceT[0] = this->DataReferenceT[1] = nullptr;
   for (int T=0; T<2; T++) {
     this->CachedBounds[T].clear();
     int index = 0;
@@ -380,21 +379,21 @@ int vtkTemporalStreamTracer::InitializeInterpolator()
     anotherIterP.TakeReference(this->InputDataT[T]->NewIterator());
     anotherIterP->GoToFirstItem();
     while (!anotherIterP->IsDoneWithTraversal())
-      {
+    {
       numTotalInputBlocks[T]++;
       vtkDataSet* inp = vtkDataSet::SafeDownCast(anotherIterP->GetCurrentDataObject());
       if (inp)
-        {
+      {
         if (inp->GetNumberOfCells()==0)
-          {
+        {
           vtkDebugMacro("Skipping an empty dataset");
-          }
+        }
         else if (!inp->GetPointData()->GetVectors(vecname) && inp->GetNumberOfPoints()>0)
-          {
+        {
           vtkDebugMacro("One of the input datasets has no velocity vector.");
-          }
+        }
         else
-          {
+        {
           // vtkDebugMacro("pass " << i << " Found dataset with " << inp->GetNumberOfCells() << " cells");
           //
           // store the bounding boxes of each local dataset for faster 'point-in-dataset' testing
@@ -412,21 +411,21 @@ int vtkTemporalStreamTracer::InitializeInterpolator()
           }
           //
           numValidInputBlocks[T]++;
-          }
         }
-      anotherIterP->GoToNextItem();
       }
+      anotherIterP->GoToNextItem();
+    }
   }
   if (numValidInputBlocks[0]==0 || numValidInputBlocks[1]==0)
-    {
+  {
     vtkDebugMacro("Not enough inputs have been found. Can not execute." << numValidInputBlocks[0] << " " << numValidInputBlocks[1]);
     return VTK_ERROR;
-    }
+  }
   if (numValidInputBlocks[0] != numValidInputBlocks[1])
-    {
+  {
     vtkDebugMacro("The number of datasets is different between time steps " << numValidInputBlocks[0] << " " << numValidInputBlocks[1]);
     return VTK_ERROR;
-    }
+  }
   //
   vtkDebugMacro("Number of Valid input blocks is " << numValidInputBlocks[0] << " from " << numTotalInputBlocks[0]);
   vtkDebugMacro("AllFixedGeometry " << this->AllFixedGeometry);
@@ -444,42 +443,42 @@ int vtkTemporalStreamTracer::SetTemporalInput(vtkDataObject *data, int i)
 {
   // if not set, create a multiblock dataset to hold all input blocks
   if (!this->InputDataT[i])
-    {
+  {
     this->InputDataT[i] = vtkSmartPointer<vtkMultiBlockDataSet>::New();
-    }
+  }
   // if simple dataset, add to our list, otherwise, add blocks
   vtkDataSet           *dsInput = vtkDataSet::SafeDownCast(data);
   vtkMultiBlockDataSet *mbInput = vtkMultiBlockDataSet::SafeDownCast(data);
 
   if (dsInput)
-    {
+  {
     vtkSmartPointer<vtkDataSet> copy;
     copy.TakeReference(dsInput->NewInstance());
     copy->ShallowCopy(dsInput);
     this->InputDataT[i]->SetBlock(this->InputDataT[i]->GetNumberOfBlocks(), copy);
-    }
+  }
   else if (mbInput)
-    {
+  {
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(mbInput->NewIterator());
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
+    {
       vtkDataSet *ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       if (ds)
-        {
+      {
         vtkSmartPointer<vtkDataSet> copy;
         copy.TakeReference(ds->NewInstance());
         copy->ShallowCopy(ds);
         this->InputDataT[i]->SetBlock(this->InputDataT[i]->GetNumberOfBlocks(), copy);
-        }
       }
     }
+  }
   else
-    {
+  {
     vtkDebugMacro("This filter cannot handle inputs of type: "
                   << (data?data->GetClassName():"(none)"));
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -504,9 +503,9 @@ void vtkTemporalStreamTracer::TestParticles(
   int i = 0;
   int div = static_cast<int>(candidates.size()/10);
   if(div==0)
-    {
+  {
       div=1;
-    }
+  }
   count = 0;
   for (ParticleIterator it=candidates.begin(); it!=candidates.end(); ++it, ++i) {
     ParticleInformation &info = (*it);
@@ -544,10 +543,10 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(
   //
   // take points from the source object and create a particle list
   //
-  int numSeeds = source->GetNumberOfPoints();
+  vtkIdType numSeeds = source->GetNumberOfPoints();
   candidates.resize(numSeeds);
   //
-  for (int i=0; i<numSeeds; i++) {
+  for (vtkIdType i=0; i<numSeeds; i++) {
     ParticleInformation &info = candidates[i];
     memcpy(&(info.CurrentPosition.x[0]), source->GetPoint(i), sizeof(double)*3);
     info.CurrentPosition.x[3] = this->CurrentTimeSteps[0];
@@ -594,12 +593,12 @@ void vtkTemporalStreamTracer::AssignUniqueIds(
   vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints)
 {
   vtkIdType ParticleCountOffset = 0;
-  vtkIdType numParticles = LocalSeedPoints.size();
+  vtkIdType numParticles = static_cast<vtkIdType>(LocalSeedPoints.size());
   for (vtkIdType i=0; i<numParticles; i++)
-    {
+  {
     LocalSeedPoints[i].UniqueParticleId =
     this->UniqueIdCounter + ParticleCountOffset + i;
-    }
+  }
   this->UniqueIdCounter += numParticles;
 }
 //---------------------------------------------------------------------------
@@ -627,22 +626,22 @@ int vtkTemporalStreamTracer::ProcessInput(vtkInformationVector** inputVector)
   assert(this->RequestIndex>=0 && this->RequestIndex<2);
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   if(numInputs!=1)
-    {
+  {
     if(numInputs==0)
-      {
+    {
       vtkErrorMacro(<< "No input found.");
       return 0;
-      }
-    vtkWarningMacro(<< "Multiple inputs founds. Use only the first one.");
     }
+    vtkWarningMacro(<< "Multiple inputs founds. Use only the first one.");
+  }
 
   // inherited from streamtracer, make sure it is null
-  this->InputData = NULL;
-  this->InputDataT[this->RequestIndex] = NULL;
+  this->InputData = nullptr;
+  this->InputDataT[this->RequestIndex] = nullptr;
 
   vtkInformation    *inInfo = inputVector[0]->GetInformationObject(0);
   if (inInfo)
-    {
+  {
     vtkDataObject* input    = inInfo->Get(vtkDataObject::DATA_OBJECT());
     SetTemporalInput(input,this->RequestIndex);
     //
@@ -650,17 +649,17 @@ int vtkTemporalStreamTracer::ProcessInput(vtkInformationVector** inputVector)
     //
     std::vector<double> timesteps;
     if (inInfo->Has(vtkDataObject::DATA_TIME_STEP()))
-      {
+    {
       timesteps.resize(1);
       timesteps[0] = inInfo->Get(vtkDataObject::DATA_TIME_STEP());
-      }
+    }
     else
-      {
+    {
       vtkErrorMacro(<<"No time step info");
       return 1;
-      }
-    this->CurrentTimeSteps[this->RequestIndex] = timesteps[0]*this->TimeStepResolution;
     }
+    this->CurrentTimeSteps[this->RequestIndex] = timesteps[0]*this->TimeStepResolution;
+  }
   return 1;
 }
 
@@ -687,32 +686,32 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   int numSources = inputVector[1]->GetNumberOfInformationObjects();
   std::vector<vtkDataSet*> SeedSources;
   for (int idx=0; idx<numSources; ++idx)
-    {
-    vtkDataObject     *dobj   = 0;
+  {
+    vtkDataObject     *dobj   = nullptr;
     vtkInformation    *inInfo = inputVector[1]->GetInformationObject(idx);
     if (inInfo)
-      {
+    {
       dobj   = inInfo->Get(vtkDataObject::DATA_OBJECT());
       SeedSources.push_back(vtkDataSet::SafeDownCast(dobj));
-      }
     }
+  }
 
   if (this->IntegrationDirection != FORWARD)
-    {
+  {
     vtkErrorMacro(<<"We can only handle forward time particle tracking at the moment");
     return 1;
-    }
+  }
 
   //
   // Add the datasets to an interpolator object
   //
   if (this->InitializeInterpolator() != VTK_OK)
-    {
-    if (this->InputDataT[0]) this->InputDataT[0] = NULL;
-    if (this->InputDataT[1]) this->InputDataT[1] = NULL;
+  {
+    if (this->InputDataT[0]) this->InputDataT[0] = nullptr;
+    if (this->InputDataT[1]) this->InputDataT[1] = nullptr;
     vtkErrorMacro(<<"InitializeInterpolator failed");
     return 1;
-    }
+  }
 
   //
   // Setup some variables
@@ -727,16 +726,16 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   this->ReinjectionFlag = 0;
   if (this->ForceReinjectionEveryNSteps>0) {
   if ((this->ActualTimeStep%this->ForceReinjectionEveryNSteps)==0)
-    {
+  {
     this->ReinjectionFlag = 1;
-    }
+  }
   }
   //
   // If T=0 reset everything to allow us to setup stuff then start an animation
   // with a clean slate
   //
   if (this->ActualTimeStep==0) //XXX: what if I start from some other time?
-    {
+  {
     this->LocalSeeds.clear();
     this->ParticleHistories.clear();
     this->EarliestTime       =-1E6;
@@ -744,30 +743,30 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
     this->ReinjectionCounter = 0;
     this->UniqueIdCounter    = 0;
     this->UniqueIdCounterMPI = 0;
-    }
+  }
   else if (this->CurrentTimeSteps[0]<this->EarliestTime)
-    {
+  {
     //
     // We don't want to go back in time, so just reuse whatever we have
     //
     vtkDebugMacro("skipping particle tracking because we have seen this timestep before");
     outInfo->Set(vtkDataObject::DATA_TIME_STEP(), this->OutputTimeValues[this->ActualTimeStep]);
-    if (this->InputDataT[0]) this->InputDataT[0] = NULL;
-    if (this->InputDataT[1]) this->InputDataT[1] = NULL;
+    if (this->InputDataT[0]) this->InputDataT[0] = nullptr;
+    if (this->InputDataT[1]) this->InputDataT[1] = nullptr;
     return 1;
-    }
+  }
   this->EarliestTime = (this->CurrentTimeSteps[0]>this->EarliestTime)
     ? this->CurrentTimeSteps[0] : this->EarliestTime;
   //
   //
   //
   for (unsigned int i=0; i<SeedSources.size(); i++)
-    {
+  {
     if (SeedSources[i]->GetMTime()>this->ParticleInjectionTime)
-      {
+    {
       //    this->ReinjectionFlag = 1;
-      }
     }
+  }
 
   //
   // Lists for seed particles
@@ -777,24 +776,24 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   //
 
   if (this->ReinjectionFlag)
-    {
+  {
     int seedPointId=0;
-    if (this->StaticSeeds && this->AllFixedGeometry && this->LocalSeeds.size()==0)
-      {
+    if (this->StaticSeeds && this->AllFixedGeometry && this->LocalSeeds.empty())
+    {
       for (unsigned int i=0; i<SeedSources.size(); i++)
-        {
-        this->AssignSeedsToProcessors(SeedSources[i], i, 0, this->LocalSeeds, seedPointId);
-        }
-      }
-    else
       {
+        this->AssignSeedsToProcessors(SeedSources[i], i, 0, this->LocalSeeds, seedPointId);
+      }
+    }
+    else
+    {
       // wipe the list and reclassify for each injection
       this->LocalSeeds.clear();
       for (unsigned int i=0; i<SeedSources.size(); i++)
-        {
+      {
         this->AssignSeedsToProcessors(SeedSources[i], i, 0, this->LocalSeeds, seedPointId);
-        }
       }
+    }
     this->ParticleInjectionTime.Modified();
 
     // Now update our main list with the ones we are keeping
@@ -813,7 +812,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   this->ParticleSourceIds   = vtkSmartPointer<vtkCharArray>::New();
   this->InjectedPointIds    = vtkSmartPointer<vtkIntArray>::New();
   this->InjectedStepIds     = vtkSmartPointer<vtkIntArray>::New();
-  this->ErrorCode           = vtkSmartPointer<vtkIntArray>::New();
+  this->ErrorCodeArray      = vtkSmartPointer<vtkIntArray>::New();
   this->ParticleVorticity   = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleRotation    = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleAngularVel  = vtkSmartPointer<vtkFloatArray>::New();
@@ -831,16 +830,16 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   this->ParticleSourceIds->SetName("ParticleSourceId");
   this->InjectedPointIds->SetName("InjectedPointId");
   this->InjectedStepIds->SetName("InjectionStepId");
-  this->ErrorCode->SetName("ErrorCode");
+  this->ErrorCodeArray->SetName("ErrorCode");
 
   if (this->ComputeVorticity)
-    {
+  {
     this->cellVectors->SetNumberOfComponents(3);
     this->cellVectors->Allocate(3*VTK_CELL_SIZE);
     this->ParticleVorticity->SetName("Vorticity");
     this->ParticleRotation->SetName("Rotation");
     this->ParticleAngularVel->SetName("AngularVelocity");
-    }
+  }
 
   output->SetPoints(this->OutputCoordinates);
   output->SetVerts(this->ParticleCells);
@@ -870,7 +869,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   for (int pass=0; pass<PASSES; pass++) {
   vtkDebugMacro(<<"Begin Pass " << pass << " with " << Number << " Particles");
   for (ParticleListIterator it=it_first; it!=it_last;)
-    {
+  {
     // Keep the 'next' iterator handy because if a particle is terminated
     // or leaves the domain, the 'current' iterator will be deleted.
     it_next = it;
@@ -881,7 +880,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
     double interval = (this->CurrentTimeSteps[1]-this->CurrentTimeSteps[0]);
     bool terminated = false;
     if (this->TerminationTime>0)
-      {
+    {
       if (this->TerminationTimeUnit == TERMINATION_TIME_UNIT &&
           (it->age+interval)>this->TerminationTime) {
       terminated = true;
@@ -890,7 +889,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
                (it->TimeStepAge+1)>this->TerminationTime) {
       terminated = true;
       }
-      }
+    }
     if (terminated) {
     this->ParticleHistories.erase(it);
     }
@@ -902,11 +901,11 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
     break;
     }
     it = it_next;
-    }
+  }
   // Particles might have been deleted during the first pass as they move
   // out of domain or age. Before adding any new particles that are sent
   // to us, we must know the starting point ready for the second pass
-  bool list_valid = (this->ParticleHistories.size()>0);
+  bool list_valid = (!this->ParticleHistories.empty());
   if (list_valid) {
   // point to one before the end
   it_first = --this->ParticleHistories.end();
@@ -923,7 +922,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   this->MPISendList.clear();
   int assigned;
   // classify all the ones we received
-  if (received.size()>0) {
+  if (!received.empty()) {
   this->TestParticles(received, candidates, assigned);
   vtkDebugMacro(<<"received " << received.size() << " : assigned locally " << assigned);
   received.clear();
@@ -945,7 +944,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   it_first = this->ParticleHistories.begin();
   }
   }
-  if (this->MPISendList.size()>0) {
+  if (!this->MPISendList.empty()) {
   // If a particle went out of domain on the second pass, it should be sent
   // can it really pass right through a domain in one step?
   // what about grazing the edge of rotating zone?
@@ -962,14 +961,14 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   this->OutputPointData->AddArray(this->ParticleSourceIds);
   this->OutputPointData->AddArray(this->InjectedPointIds);
   this->OutputPointData->AddArray(this->InjectedStepIds);
-  this->OutputPointData->AddArray(this->ErrorCode);
+  this->OutputPointData->AddArray(this->ErrorCodeArray);
   this->OutputPointData->AddArray(this->ParticleAge);
   if (this->ComputeVorticity)
-    {
+  {
     this->OutputPointData->AddArray(this->ParticleVorticity);
     this->OutputPointData->AddArray(this->ParticleRotation);
     this->OutputPointData->AddArray(this->ParticleAngularVel);
-    }
+  }
 
   if (this->InterpolationCount!=this->OutputCoordinates->GetNumberOfPoints()) {
   vtkErrorMacro(<< "Mismatch in point array/data counts");
@@ -983,8 +982,8 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   //
   // Let go of inputs
   //
-  if (this->InputDataT[0]) this->InputDataT[0] = NULL;;
-  if (this->InputDataT[1]) this->InputDataT[1] = NULL;;
+  if (this->InputDataT[0]) this->InputDataT[0] = nullptr;
+  if (this->InputDataT[1]) this->InputDataT[1] = nullptr;
 
   //
   // Write Particles out if necessary
@@ -1001,7 +1000,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   this->ParticleWriter->SetInputData(polys);
   this->ParticleWriter->Write();
   this->ParticleWriter->CloseFile();
-  this->ParticleWriter->SetInputData(NULL);
+  this->ParticleWriter->SetInputData(nullptr);
   vtkDebugMacro(<< "Written " << N);
   }
   return 1;
@@ -1017,24 +1016,24 @@ int vtkTemporalStreamTracer::RequestData(
   //
   bool result(true);
   if(RequestIndex<2)
-    {
+  {
     result = (this->ProcessInput(inputVector)==1);
     if(result && RequestIndex==1)
-      {
+    {
       this->GenerateOutput(inputVector,outputVector);
-      }
     }
+  }
 
   this->RequestIndex++;
   if(result && this->RequestIndex<2)
-    {
+  {
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-    }
+  }
   else
-    {
+  {
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
     this->RequestIndex=0;
-    }
+  }
 
 
 //  this->Interpolator->ShowCacheResults();
@@ -1086,10 +1085,10 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     // max, reduce it so that it is (approximately) equal to max.
     stepWanted = delT.Interval;
     if ( (point1[3] + stepWanted) > targettime )
-      {
+    {
       stepWanted = targettime - point1[3];
       maxStep = stepWanted;
-      }
+    }
     this->LastUsedStepSize = stepWanted;
 
     // Calculate the next step using the integrator provided.
@@ -1132,9 +1131,9 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     // because minStep and maxStep can change depending on the Cell
     // size (unless it is specified in time units)
     if (integrator->IsAdaptive())
-      {
+    {
         // code removed. Put it back when this is stable
-      }
+    }
   }
   if (particle_good) {
     // The integration succeeded, but check the computed final position
@@ -1191,7 +1190,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     this->ParticleSourceIds->InsertNextValue(info.SourceID);
     this->InjectedPointIds->InsertNextValue(info.InjectedPointId);
     this->InjectedStepIds->InsertNextValue(info.InjectedStepId);
-    this->ErrorCode->InsertNextValue(info.ErrorCode);
+    this->ErrorCodeArray->InsertNextValue(info.ErrorCode);
     this->ParticleAge->InsertNextValue(info.age);
     //
     // Interpolate all existing point attributes
@@ -1360,12 +1359,6 @@ void vtkTemporalStreamTracer::AddParticleToMPISendList(ParticleInformation &info
       << this->CurrentTimeSteps[0] << "-" << this->CurrentTimeSteps[1] << ") got "
       << info.CurrentPosition.x[3]);
   }
-#ifdef VTK_USE_MPI
-  if (this->MPISendList.capacity()<(this->MPISendList.size()+1)) {
-    this->MPISendList.reserve(static_cast<int>(this->MPISendList.size()*1.5));
-  }
-  this->MPISendList.push_back(info);
-#endif
 }
 //---------------------------------------------------------------------------
 /*

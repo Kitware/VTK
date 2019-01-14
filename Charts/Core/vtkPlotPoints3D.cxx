@@ -35,9 +35,7 @@ vtkPlotPoints3D::vtkPlotPoints3D()
 }
 
 //-----------------------------------------------------------------------------
-vtkPlotPoints3D::~vtkPlotPoints3D()
-{
-}
+vtkPlotPoints3D::~vtkPlotPoints3D() = default;
 
 //-----------------------------------------------------------------------------
 void vtkPlotPoints3D::PrintSelf(ostream &os, vtkIndent indent)
@@ -48,64 +46,65 @@ void vtkPlotPoints3D::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 bool vtkPlotPoints3D::Paint(vtkContext2D *painter)
 {
-  if (!this->Visible || this->Points.size() == 0)
-    {
+  if (!this->Visible || this->Points.empty())
+  {
     return false;
-    }
+  }
 
   // Get the 3D context.
   vtkContext3D *context = painter->GetContext3D();
 
   if (!context)
-    {
+  {
     return false;
-    }
+  }
 
   this->Update();
 
-  if (this->Points.size() > 0)
-    {
+  if (!this->Points.empty())
+  {
 
     // Draw the points in 3d.
-    context->ApplyPen(this->Pen.GetPointer());
+    context->ApplyPen(this->Pen);
     if (this->NumberOfComponents == 0)
-      {
+    {
       context->DrawPoints(
         this->Points[0].GetData(), static_cast<int>(this->Points.size()));
-      }
+    }
     else
-      {
+    {
       context->DrawPoints(
         this->Points[0].GetData(),
         static_cast<int>(this->Points.size()),
         this->Colors->GetPointer(0), this->NumberOfComponents);
-      }
-
     }
+
+  }
 
   // Now add some decorations for our selected points...
   if (this->Selection && this->Selection->GetNumberOfTuples())
-    {
+  {
     if (this->Selection->GetMTime() > this->SelectedPointsBuildTime ||
         this->GetMTime() > this->SelectedPointsBuildTime)
-      {
+    {
       size_t nSelected(static_cast<size_t>(this->Selection->GetNumberOfTuples()));
       this->SelectedPoints.reserve(nSelected);
       for (size_t i = 0; i < nSelected; ++i)
-        {
-        this->SelectedPoints.push_back(this->Points[this->Selection->GetValue(i)]);
-        }
-      this->SelectedPointsBuildTime.Modified();
+      {
+        this->SelectedPoints.push_back(this->Points[
+          this->Selection->GetValue(static_cast<vtkIdType>(i))]);
       }
+      this->SelectedPointsBuildTime.Modified();
+    }
 
     // Now to render the selected points.
     if (!this->SelectedPoints.empty())
-      {
-      context->ApplyPen(this->SelectionPen.GetPointer());
+    {
+      context->ApplyPen(this->SelectionPen);
       context->DrawPoints(this->SelectedPoints[0].GetData(),
                           static_cast<int>(this->SelectedPoints.size()));
-      }
     }
+  }
 
   return true;
 }

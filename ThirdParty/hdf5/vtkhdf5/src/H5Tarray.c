@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -22,10 +20,7 @@
 /* Module Setup */
 /****************/
 
-#define H5T_PACKAGE		/*suppress error about including H5Tpkg	  */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5T_init_array_interface
+#include "H5Tmodule.h"          /* This source code file is part of the H5T module */
 
 
 /***********/
@@ -78,28 +73,6 @@
 
 
 
-/*--------------------------------------------------------------------------
-NAME
-   H5T_init_array_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5T_init_array_interface()
-
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5T_init_iterface currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5T_init_array_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    FUNC_LEAVE_NOAPI(H5T_init())
-} /* H5T_init_array_interface() */
-
-
 /*-------------------------------------------------------------------------
  * Function:	H5Tarray_create2
  *
@@ -127,33 +100,32 @@ H5Tarray_create2(hid_t base_id, unsigned ndims, const hsize_t dim[/* ndims */])
     unsigned    u;              /* local index variable */
     hid_t	ret_value;	/* return value	*/
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE3("i", "iIu*h", base_id, ndims, dim);
 
     /* Check args */
     if(ndims < 1 || ndims > H5S_MAX_RANK)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid dimensionality")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "invalid dimensionality")
     if(!dim)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no dimensions specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "no dimensions specified")
     for(u = 0; u < ndims; u++)
         if(!(dim[u] > 0))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "zero-sized dimension specified")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "zero-sized dimension specified")
     if(NULL == (base = (H5T_t *)H5I_object_verify(base_id, H5I_DATATYPE)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an valid base datatype")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not an valid base datatype")
 
     /* Create the array datatype */
     if(NULL == (dt = H5T__array_create(base, ndims, dim)))
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to create datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to create datatype")
 
     /* Atomize the type */
     if((ret_value = H5I_register(H5I_DATATYPE, dt, TRUE)) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to register datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register datatype")
 
 done:
-    if(ret_value < 0) {
-        if(dt && H5T_close(dt) < 0)
-            HDONE_ERROR(H5E_DATATYPE, H5E_CANTRELEASE, FAIL, "can't release datatype")
-    } /* end if */
+    if(ret_value < 0)
+        if(dt && H5T_close_real(dt) < 0)
+            HDONE_ERROR(H5E_DATATYPE, H5E_CANTRELEASE, H5I_INVALID_HID, "can't release datatype")
 
     FUNC_LEAVE_API(ret_value)
 }   /* end H5Tarray_create2() */
@@ -179,8 +151,8 @@ done:
 H5T_t *
 H5T__array_create(H5T_t *base, unsigned ndims, const hsize_t dim[/* ndims */])
 {
-    H5T_t	*ret_value;	/* new array data type	*/
-    unsigned    u;              /* local index variable */
+    unsigned    u;                      /* Local index variable */
+    H5T_t	*ret_value = NULL;	/* New array data type	*/
 
     FUNC_ENTER_PACKAGE
 
@@ -202,7 +174,7 @@ H5T__array_create(H5T_t *base, unsigned ndims, const hsize_t dim[/* ndims */])
 
     /* Copy the array dimensions & compute the # of elements in the array */
     for(u = 0, ret_value->shared->u.array.nelem = 1; u < ndims; u++) {
-        H5_ASSIGN_OVERFLOW(ret_value->shared->u.array.dim[u], dim[u], hsize_t, size_t);
+        H5_CHECKED_ASSIGN(ret_value->shared->u.array.dim[u], size_t, dim[u], hsize_t);
         ret_value->shared->u.array.nelem *= (size_t)dim[u];
     } /* end for */
 
@@ -376,40 +348,39 @@ H5T__get_array_dims(const H5T_t *dt, hsize_t dims[])
  */
 hid_t
 H5Tarray_create1(hid_t base_id, int ndims, const hsize_t dim[/* ndims */],
-    const int UNUSED perm[/* ndims */])
+    const int H5_ATTR_UNUSED perm[/* ndims */])
 {
     H5T_t	*base;		/* base datatype	*/
     H5T_t	*dt = NULL;	/* new array datatype	*/
     unsigned    u;              /* local index variable */
     hid_t	ret_value;	/* return value	*/
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE4("i", "iIs*h*Is", base_id, ndims, dim, perm);
 
     /* Check args */
     if(ndims < 1 || ndims > H5S_MAX_RANK)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid dimensionality")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "invalid dimensionality")
     if(!dim)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no dimensions specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "no dimensions specified")
     for(u = 0; u < (unsigned)ndims; u++)
         if(!(dim[u] > 0))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "zero-sized dimension specified")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "zero-sized dimension specified")
     if(NULL == (base = (H5T_t *)H5I_object_verify(base_id, H5I_DATATYPE)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an valid base datatype")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not an valid base datatype")
 
     /* Create the array datatype */
     if(NULL == (dt = H5T__array_create(base, (unsigned)ndims, dim)))
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to create datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to create datatype")
 
     /* Atomize the type */
     if((ret_value = H5I_register(H5I_DATATYPE, dt, TRUE)) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to register datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register datatype")
 
 done:
-    if(ret_value < 0) {
-        if(dt && H5T_close(dt) < 0)
-            HDONE_ERROR(H5E_DATATYPE, H5E_CANTRELEASE, FAIL, "can't release datatype")
-    } /* end if */
+    if(ret_value < 0)
+        if(dt && H5T_close_real(dt) < 0)
+            HDONE_ERROR(H5E_DATATYPE, H5E_CANTRELEASE, H5I_INVALID_HID, "can't release datatype")
 
     FUNC_LEAVE_API(ret_value)
 }   /* end H5Tarray_create1() */
@@ -429,7 +400,7 @@ done:
  *-------------------------------------------------------------------------
  */
 int
-H5Tget_array_dims1(hid_t type_id, hsize_t dims[], int UNUSED perm[])
+H5Tget_array_dims1(hid_t type_id, hsize_t dims[], int H5_ATTR_UNUSED perm[])
 {
     H5T_t *dt;		/* Array datatype to query	*/
     int	ret_value;	/* return value			*/

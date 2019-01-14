@@ -159,27 +159,27 @@ int vtkDataSetAlgorithm::ProcessRequest(
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
 
   // create the output
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
+  {
     return this->RequestDataObject(request, inputVector, outputVector);
-    }
+  }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     return this->RequestInformation(request, inputVector, outputVector);
-    }
+  }
 
   // set update extent
  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+ {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
+ }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
@@ -191,30 +191,30 @@ int vtkDataSetAlgorithm::RequestDataObject(
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
-    {
+  {
     return 0;
-    }
+  }
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input)
-    {
+  {
     // for each output
     for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
+    {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataSet *output = vtkDataSet::SafeDownCast(
         info->Get(vtkDataObject::DATA_OBJECT()));
 
       if (!output || !output->IsA(input->GetClassName()))
-        {
+      {
         vtkDataSet* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
-        }
       }
-    return 1;
     }
+    return 1;
+  }
   return 0;
 }
 

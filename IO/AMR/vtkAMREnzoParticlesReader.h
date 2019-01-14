@@ -12,17 +12,19 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkAMREnzoParticlesReader.h -- Reads AMR Enzo Particle datasets
-//
-// .SECTION Description
-//  A concrete instance of the vtkAMRBaseParticlesReader which provides
-//  functionality for loading ENZO AMR particle datasets from ENZO.
-//
-// .SECTION See Also
-//  vtkAMRBaseParticlesReader
+/**
+ * @class   vtkAMREnzoParticlesReader
+ *
+ *
+ *  A concrete instance of the vtkAMRBaseParticlesReader which provides
+ *  functionality for loading ENZO AMR particle datasets from ENZO.
+ *
+ * @sa
+ *  vtkAMRBaseParticlesReader
+*/
 
-#ifndef VTKAMRENZOPARTICLESREADER_H_
-#define VTKAMRENZOPARTICLESREADER_H_
+#ifndef vtkAMREnzoParticlesReader_h
+#define vtkAMREnzoParticlesReader_h
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseParticlesReader.h"
@@ -39,54 +41,64 @@ class VTKIOAMR_EXPORT vtkAMREnzoParticlesReader :
 public:
   static vtkAMREnzoParticlesReader* New();
   vtkTypeMacro( vtkAMREnzoParticlesReader, vtkAMRBaseParticlesReader );
-  void PrintSelf(ostream &os, vtkIndent indent );
+  void PrintSelf(ostream &os, vtkIndent indent ) override;
 
-  // Description:
-  // Returns the requested particle type.
+  //@{
+  /**
+   * Returns the requested particle type.
+   */
   vtkSetMacro( ParticleType, int );
   vtkGetMacro( ParticleType, int );
+  //@}
 
-  // Description:
-  // See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.
-  int GetTotalNumberOfParticles();
+  /**
+   * See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.
+   */
+  int GetTotalNumberOfParticles() override;
 
 protected:
   vtkAMREnzoParticlesReader();
-  virtual ~vtkAMREnzoParticlesReader();
+  ~vtkAMREnzoParticlesReader() override;
 
-  // Description:
-  // Read the particles from the given particles file for the block
-  // corresponding to the given block index.
+  /**
+   * Read the particles from the given particles file for the block
+   * corresponding to the given block index.
+   */
   vtkPolyData* GetParticles( const char* file, const int blockIdx );
 
-  // Description:
-  // See vtkAMRBaseParticlesReader::ReadMetaData()
-  void ReadMetaData();
+  /**
+   * See vtkAMRBaseParticlesReader::ReadMetaData()
+   */
+  void ReadMetaData() override;
 
-  // Description:
-  // See vtkAMRBaseParticlesReader::SetupParticleDataSelections
-  void SetupParticleDataSelections();
+  /**
+   * See vtkAMRBaseParticlesReader::SetupParticleDataSelections
+   */
+  void SetupParticleDataSelections() override;
 
-  // Description:
-  // Filter's by particle type, iff particle_type is included in
-  // the given file.
+  /**
+   * Filter's by particle type, iff particle_type is included in
+   * the given file.
+   */
   bool CheckParticleType( const int pIdx, vtkIntArray *ptypes );
 
-  // Description:
-  // Returns the ParticlesType Array
+  /**
+   * Returns the ParticlesType Array
+   */
   vtkDataArray *GetParticlesTypeArray( const int blockIdx );
 
-  // Description:
-  // Reads the particles.
-  vtkPolyData* ReadParticles( const int blkidx );
+  /**
+   * Reads the particles.
+   */
+  vtkPolyData* ReadParticles( const int blkidx ) override;
 
   int ParticleType;
 
   vtkEnzoReaderInternal *Internal;
 
 private:
-  vtkAMREnzoParticlesReader( const vtkAMREnzoParticlesReader& ); // Not implemented
-  void operator=( const vtkAMREnzoParticlesReader& ); // Not implemented
+  vtkAMREnzoParticlesReader( const vtkAMREnzoParticlesReader& ) = delete;
+  void operator=( const vtkAMREnzoParticlesReader& ) = delete;
 };
 
-#endif /* VTKAMRENZOPARTICLESREADER_H_ */
+#endif /* vtkAMREnzoParticlesReader_h */

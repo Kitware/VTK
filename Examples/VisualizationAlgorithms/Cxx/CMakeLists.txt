@@ -1,21 +1,16 @@
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
-if(POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW) # CMake 3.0
-endif()
-if(POLICY CMP0053)
-  cmake_policy(SET CMP0053 NEW) # CMake 3.1
-endif()
+cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+
 
 project (VisualizationAlgorithms)
-
-find_package(VTK COMPONENTS
+find_package(VTK REQUIRED)
+vtk_module_config(VTK
   vtkCommonCore
   vtkCommonDataModel
   vtkFiltersCore
   vtkFiltersModeling
   vtkIOXML
   vtkInteractionStyle
-  vtkRendering${VTK_RENDERING_BACKEND}
+  vtkRenderingOpenGL2
   vtkTestingRendering
 )
 include(${VTK_USE_FILE})

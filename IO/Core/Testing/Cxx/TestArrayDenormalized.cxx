@@ -31,11 +31,11 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 // This test ensures that we handle denormalized floating-point numbers gracefully,
@@ -45,7 +45,7 @@
 int TestArrayDenormalized(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkDenseArray<double> > a1 = vtkSmartPointer<vtkDenseArray<double> >::New();
     a1->Resize(3);
     a1->SetValue(0, 1.0);
@@ -67,10 +67,10 @@ int TestArrayDenormalized(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(a2->GetVariantValue(2).ToDouble() == 3.0);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

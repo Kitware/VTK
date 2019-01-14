@@ -20,13 +20,13 @@
 #ifdef _MSC_VER
  #pragma warning ( disable : 4273 )
 #else
-#if defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA)
-#ifdef VTK_USE_CARBON
-#include "vtkCarbonRenderWindow.h"
-#else
+#if defined(VTK_USE_COCOA)
 #include "vtkCocoaRenderWindow.h"
 #include "vtkCocoaTkUtilities.h"
+#ifndef MAC_OSX_TK
+#define MAC_OSX_TK 1
 #endif
+#include "tkInt.h"
 #else
 #include "vtkXOpenGLRenderWindow.h"
 #endif
@@ -46,16 +46,16 @@
 // the uses to set their own ImageViewer window.
 static Tk_ConfigSpec vtkTkImageViewerWidgetConfigSpecs[] = {
     {TK_CONFIG_PIXELS, (char *) "-height", (char *) "height", (char *) "Height",
-     (char *) "400", Tk_Offset(struct vtkTkImageViewerWidget, Height), 0, NULL},
+     (char *) "400", Tk_Offset(struct vtkTkImageViewerWidget, Height), 0, nullptr},
 
     {TK_CONFIG_PIXELS, (char *) "-width", (char *) "width", (char *) "Width",
-     (char *) "400", Tk_Offset(struct vtkTkImageViewerWidget, Width), 0, NULL},
+     (char *) "400", Tk_Offset(struct vtkTkImageViewerWidget, Width), 0, nullptr},
 
     {TK_CONFIG_STRING, (char *) "-iv", (char *) "iv", (char *) "IV",
-     (char *) "", Tk_Offset(struct vtkTkImageViewerWidget, IV), 0, NULL},
+     (char *) "", Tk_Offset(struct vtkTkImageViewerWidget, IV), 0, nullptr},
 
-    {TK_CONFIG_END, (char *) NULL, (char *) NULL, (char *) NULL,
-     (char *) NULL, 0, 0, NULL}
+    {TK_CONFIG_END, (char *) nullptr, (char *) nullptr, (char *) nullptr,
+     (char *) nullptr, 0, 0, nullptr}
 };
 
 
@@ -90,18 +90,18 @@ int vtkTkImageViewerWidget_Configure(Tcl_Interp *interp,
 #endif
                          (char *)self,
                          flags) == TCL_ERROR)
-    {
+  {
     return(TCL_ERROR);
-    }
+  }
 
-  // Get the new  width and height of the widget
+  // Get the new width and height of the widget
   Tk_GeometryRequest(self->TkWin, self->Width, self->Height);
 
   // Make sure the ImageViewer window has been set.  If not, create one.
   if (vtkTkImageViewerWidget_MakeImageViewer(self) == TCL_ERROR)
-    {
+  {
     return TCL_ERROR;
-    }
+  }
 
   return TCL_OK;
 }
@@ -126,11 +126,11 @@ extern "C"
 
     // Check to see if the command has enough arguments.
     if (argc < 2)
-      {
+    {
       Tcl_AppendResult(interp, "wrong # args: should be \"",
-                       argv[0], " ?options?\"", NULL);
+                       argv[0], " ?options?\"", nullptr);
       return TCL_ERROR;
-      }
+    }
 
     // Make sure the widget is not deleted during this function
     Tk_Preserve((ClientData)self);
@@ -139,33 +139,33 @@ extern "C"
     // Handle render call to the widget
     if (strncmp(argv[1], "render", VTK_MAX(1, strlen(argv[1]))) == 0 ||
         strncmp(argv[1], "Render", VTK_MAX(1, strlen(argv[1]))) == 0)
-      {
+    {
       // make sure we have a window
-      if (self->ImageViewer == NULL)
-        {
+      if (self->ImageViewer == nullptr)
+      {
         vtkTkImageViewerWidget_MakeImageViewer(self);
-        }
-      self->ImageViewer->Render();
       }
+      self->ImageViewer->Render();
+    }
     // Handle configure method
     else if (!strncmp(argv[1], "configure", VTK_MAX(1, strlen(argv[1]))))
-      {
+    {
       if (argc == 2)
-        {
+      {
         /* Return list of all configuration parameters */
         result = Tk_ConfigureInfo(interp, self->TkWin,
                                   vtkTkImageViewerWidgetConfigSpecs,
-                                  (char *)self, (char *)NULL, 0);
-        }
+                                  (char *)self, (char *)nullptr, 0);
+      }
       else if (argc == 3)
-        {
+      {
         /* Return a specific configuration parameter */
         result = Tk_ConfigureInfo(interp, self->TkWin,
                                   vtkTkImageViewerWidgetConfigSpecs,
                                   (char *)self, argv[2], 0);
-        }
+      }
       else
-        {
+      {
         /* Execute a configuration change */
         result = vtkTkImageViewerWidget_Configure(interp,
                                                   self,
@@ -176,25 +176,25 @@ extern "C"
                                                   argv+2,
 #endif
                                                   TK_CONFIG_ARGV_ONLY);
-        }
       }
+    }
     else if (!strcmp(argv[1], "GetImageViewer"))
-      { // Get ImageViewerWindow is my own method
+    { // Get ImageViewerWindow is my own method
       // Create a ImageViewerWidget if one has not been set yet.
       result = vtkTkImageViewerWidget_MakeImageViewer(self);
       if (result != TCL_ERROR)
-        {
+      {
         // Return the name (Make Tcl copy the string)
         Tcl_SetResult(interp, self->IV, TCL_VOLATILE);
-        }
       }
+    }
     else
-      {
+    {
       // Unknown method name.
       Tcl_AppendResult(interp, "vtkTkImageViewerWidget: Unknown option: ", argv[1],
-                       "\n", "Try: configure or GetImageViewer\n", NULL);
+                       "\n", "Try: configure or GetImageViewer\n", nullptr);
       result = TCL_ERROR;
-      }
+    }
 
     // Unlock the object so it can be deleted.
     Tk_Release((ClientData)self);
@@ -231,22 +231,22 @@ extern "C"
 
     // Make sure we have an instance name.
     if (argc <= 1)
-      {
+    {
       Tcl_ResetResult(interp);
       Tcl_AppendResult(interp,
                        "wrong # args: should be \"pathName read filename\"",
-                       NULL);
+                       nullptr);
       return(TCL_ERROR);
-      }
+    }
 
     // Create the window.
     name = argv[1];
     // Possibly X dependent
-    tkwin = Tk_CreateWindowFromPath(interp, main, name, (char *) NULL);
-    if (tkwin == NULL)
-      {
+    tkwin = Tk_CreateWindowFromPath(interp, main, name, (char *) nullptr);
+    if (tkwin == nullptr)
+    {
       return TCL_ERROR;
-      }
+    }
 
     // Tcl needs this for setting options and matching event bindings.
     Tk_SetClass(tkwin, (char *) "vtkTkImageViewerWidget");
@@ -259,13 +259,13 @@ extern "C"
     self->Interp = interp;
     self->Width = 0;
     self->Height = 0;
-    self->ImageViewer = NULL;
-    self->IV = NULL;
+    self->ImageViewer = nullptr;
+    self->IV = nullptr;
 
     // ...
     // Create command event handler
     Tcl_CreateCommand(interp, Tk_PathName(tkwin), vtkTkImageViewerWidget_Widget,
-                      (ClientData)self, (void (*)(ClientData)) NULL);
+                      (ClientData)self, (void (*)(ClientData)) nullptr);
     Tk_CreateEventHandler(tkwin, ExposureMask | StructureNotifyMask,
                           vtkTkImageViewerWidget_EventProc, (ClientData)self);
 
@@ -280,15 +280,15 @@ extern "C"
 #endif
                                          0)
         == TCL_ERROR)
-      {
+    {
       Tk_DestroyWindow(tkwin);
       Tcl_DeleteCommand(interp, (char *) "vtkTkImageViewerWidget");
       // Don't free it, if we do a crash occurs later...
       //free(self);
       return TCL_ERROR;
-      }
+    }
 
-    Tcl_AppendResult(interp, Tk_PathName(tkwin), NULL);
+    Tcl_AppendResult(interp, Tk_PathName(tkwin), nullptr);
     return TCL_OK;
   }
 }
@@ -321,23 +321,23 @@ extern "C"
     struct vtkTkImageViewerWidget *self = (struct vtkTkImageViewerWidget *)memPtr;
 
     if (self->ImageViewer)
-      {
+    {
       if (self->ImageViewer->GetRenderWindow()->GetInteractor() &&
           self->ImageViewer->GetRenderWindow()->GetInteractor()->GetRenderWindow() == self->ImageViewer->GetRenderWindow())
-        {
+      {
         self->ImageViewer->GetRenderWindow()->GetInteractor()->SetRenderWindow(0);
-        }
+      }
       if (self->ImageViewer->GetRenderWindow()->GetReferenceCount() > 1)
-        {
+      {
         vtkGenericWarningMacro("A TkImageViewerWidget is being destroyed before it associated vtkImageViewer is destroyed. This is very bad and usually due to the order in which objects are being destroyed. Always destroy the vtkImageViewer before destroying the user interface components.");
         return;
-        }
-      // Squash the ImageViewer's WindowID
-      self->ImageViewer->SetWindowId ( (void*)NULL );
-      self->ImageViewer->UnRegister(NULL);
-      self->ImageViewer = NULL;
-      ckfree (self->IV);
       }
+      // Squash the ImageViewer's WindowID
+      self->ImageViewer->SetWindowId ( (void*)nullptr );
+      self->ImageViewer->UnRegister(nullptr);
+      self->ImageViewer = nullptr;
+      ckfree (self->IV);
+    }
     ckfree((char *) memPtr);
   }
 }
@@ -354,60 +354,87 @@ extern "C"
       (struct vtkTkImageViewerWidget *)clientData;
 
     switch (eventPtr->type)
-      {
+    {
       case Expose:
         if (eventPtr->xexpose.count == 0)
             /* && !self->UpdatePending)*/
-          {
+        {
           // bid this in tcl now
           //self->ImageViewer->Render();
-          }
+        }
         break;
       case ConfigureNotify:
         if ( 1 /*Tk_IsMapped(self->TkWin)*/ )
-          {
+        {
           self->Width = Tk_Width(self->TkWin);
           self->Height = Tk_Height(self->TkWin);
           //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
           if (self->ImageViewer)
-            {
+          {
             int x = Tk_X(self->TkWin);
             int y = Tk_Y(self->TkWin);
-#ifdef VTK_USE_CARBON
-            // need to get position relative to top level window
-            for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
-                 (NULL != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
-                 curPtr = curPtr->parentPtr)
+#if defined(VTK_USE_COCOA)
+            // Do not call SetSize or SetPosition until we're mapped.
+            if (Tk_IsMapped(self->TkWin))
+            {
+              // On Cocoa, compute coordinates relative to toplevel
+              for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
+                   (nullptr != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
+                   curPtr = curPtr->parentPtr)
               {
-              x += Tk_X(curPtr);
-              y += Tk_Y(curPtr);
+                x += Tk_X(curPtr);
+                y += Tk_Y(curPtr);
               }
-#endif
+              self->ImageViewer->SetPosition(x, y);
+              self->ImageViewer->SetSize(self->Width, self->Height);
+            }
+#else
             self->ImageViewer->SetPosition(x, y);
             self->ImageViewer->SetSize(self->Width, self->Height);
-            }
+#endif
+          }
 
           //vtkTkImageViewerWidget_PostRedisplay(self);
-          }
+        }
         break;
       case MapNotify:
+#if defined(VTK_USE_COCOA)
+      {
+        // On Cocoa, compute coordinates relative to the toplevel
+        int x = Tk_X(self->TkWin);
+        int y = Tk_Y(self->TkWin);
+        for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
+             (nullptr != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
+             curPtr = curPtr->parentPtr)
+        {
+          x += Tk_X(curPtr);
+          y += Tk_Y(curPtr);
+        }
+        self->ImageViewer->SetPosition(x, y);
+        self->ImageViewer->SetSize(self->Width, self->Height);
+      }
+#endif
         break;
+#if defined(VTK_USE_COCOA)
+      case UnmapNotify:
+        break;
+#endif
       case DestroyNotify:
 #ifdef _WIN32
         if (self->ImageViewer->GetRenderWindow()->GetGenericWindowId())
-          {
+        {
           vtkSetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
                         vtkGWL_USERDATA,(vtkLONG)((TkWindow *)self->TkWin)->window);
           vtkSetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
                         vtkGWL_WNDPROC,(vtkLONG)TkWinChildProc);
-          }
+        }
 #endif
         Tcl_EventuallyFree( (ClientData) self, vtkTkImageViewerWidget_Destroy );
         break;
       default:
         // nothing
         ;
-      }
+    }
   }
 }
 
@@ -416,7 +443,7 @@ extern "C"
 //----------------------------------------------------------------------------
 // vtkTkImageViewerWidget_Init
 // Called upon system startup to create vtkTkImageViewerWidget command.
-extern "C" {VTK_TK_EXPORT int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}
+extern "C" {VTK_EXPORT int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}
 
 #define VTKTK_TO_STRING(x) VTKTK_TO_STRING0(x)
 #define VTKTK_TO_STRING0(x) VTKTK_TO_STRING1(x)
@@ -428,20 +455,20 @@ int Vtktkimageviewerwidget_Init(Tcl_Interp *interp)
   // This widget requires Tk to function.
   Tcl_PkgRequire(interp, (char *)"Tk", (char*)TK_VERSION, 0);
   if(Tcl_PkgPresent(interp, (char *)"Tk", (char*)TK_VERSION, 0))
-    {
+  {
     // Register the commands for this package.
     Tcl_CreateCommand(interp, (char*)"vtkTkImageViewerWidget",
-                      vtkTkImageViewerWidget_Cmd, Tk_MainWindow(interp), NULL);
+                      vtkTkImageViewerWidget_Cmd, Tk_MainWindow(interp), nullptr);
 
     // Report that the package is provided.
     return Tcl_PkgProvide(interp, (char*)"Vtktkimageviewerwidget",
                           (char*)VTKTK_VERSION);
-    }
+  }
   else
-    {
+  {
     // Tk is not available.
     return TCL_ERROR;
-    }
+  }
 }
 
 
@@ -457,19 +484,19 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
     (struct vtkTkImageViewerWidget *)vtkGetWindowLong(hWnd,vtkGWL_USERDATA);
 
   if (!self)
-    {
+  {
     return 0;
-    }
+  }
 
   // forward message to Tk handler
   vtkSetWindowLong(hWnd,vtkGWL_USERDATA,(vtkLONG)((TkWindow *)self->TkWin)->window);
   if (((TkWindow *)self->TkWin)->parentPtr)
-    {
+  {
     vtkSetWindowLong(hWnd,vtkGWL_WNDPROC,(vtkLONG)TkWinChildProc);
     rval = TkWinChildProc(hWnd,message,wParam,lParam);
-    }
+  }
   else
-    {
+  {
 //
 // TkWinTopLevelProc has been deprecated in Tcl/Tk8.0.  Not sure how
 // well this will actually work in 8.0.
@@ -479,14 +506,14 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
     rval = TkWinTopLevelProc(hWnd,message,wParam,lParam);
 #else
     if (message == WM_WINDOWPOSCHANGED)
-      {
+    {
       XEvent event;
             WINDOWPOS *pos = (WINDOWPOS *) lParam;
             TkWindow *winPtr = (TkWindow *) Tk_HWNDToWindow(pos->hwnd);
 
-            if (winPtr == NULL) {
+            if (winPtr == nullptr) {
               return 0;
-              }
+            }
 
             /*
              * Update the shape of the contained window.
@@ -494,11 +521,11 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
             if (!(pos->flags & SWP_NOSIZE)) {
               winPtr->changes.width = pos->cx;
               winPtr->changes.height = pos->cy;
-              }
+            }
             if (!(pos->flags & SWP_NOMOVE)) {
               winPtr->changes.x = pos->x;
               winPtr->changes.y = pos->y;
-              }
+            }
 
 
       /*
@@ -521,22 +548,22 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
 
             Tcl_ServiceAll();
             return 0;
-      }
+    }
     vtkSetWindowLong(hWnd,vtkGWL_WNDPROC,(vtkLONG)TkWinChildProc);
     rval = TkWinChildProc(hWnd,message,wParam,lParam);
 #endif
-    }
+  }
 
     if (message != WM_PAINT)
-      {
+    {
       if (self->ImageViewer)
-        {
+      {
         vtkSetWindowLong(hWnd,vtkGWL_USERDATA,
                          (vtkLONG)self->ImageViewer->GetRenderWindow());
         vtkSetWindowLong(hWnd,vtkGWL_WNDPROC,(vtkLONG)self->OldProc);
         CallWindowProc(self->OldProc,hWnd,message,wParam,lParam);
-        }
       }
+    }
 
     // now reset to the original config
     vtkSetWindowLong(hWnd,vtkGWL_USERDATA,(vtkLONG)self);
@@ -558,19 +585,19 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   vtkRenderWindow *imgWindow;
 
   if (self->ImageViewer)
-    {
+  {
     return TCL_OK;
-    }
+  }
 
   dpy = Tk_Display(self->TkWin);
 
   if (winPtr->window != None)
-    {
+  {
     // XDestroyWindow(dpy, winPtr->window);
-    }
+  }
 
   if (self->IV[0] == '\0')
-    {
+  {
     // Make the ImageViewer window.
     self->ImageViewer = imgViewer = vtkImageViewer::New();
 #ifndef VTK_PYTHON_BUILD
@@ -580,19 +607,19 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
     ckfree (self->IV);
     self->IV = strdup(Tcl_GetStringResult(self->Interp));
     Tcl_ResetResult(self->Interp);
-    }
+  }
   else
-    {
+  {
     // is IV an address ? big ole python hack here
     if (self->IV[0] == 'A' && self->IV[1] == 'd' &&
         self->IV[2] == 'd' && self->IV[3] == 'r')
-      {
+    {
       void *tmp;
       sscanf(self->IV+5,"%p",&tmp);
       imgViewer = (vtkImageViewer *)tmp;
-      }
+    }
     else
-      {
+    {
 #ifndef VTK_PYTHON_BUILD
       imgViewer = (vtkImageViewer *)
         vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
@@ -600,36 +627,36 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
 #else
       imgViewer = 0;
 #endif
-      }
+    }
     if (imgViewer != self->ImageViewer)
+    {
+      if (self->ImageViewer != nullptr)
       {
-      if (self->ImageViewer != NULL)
-        {
-        self->ImageViewer->UnRegister(NULL);
-        }
+        self->ImageViewer->UnRegister(nullptr);
+      }
       self->ImageViewer = (vtkImageViewer *)(imgViewer);
-      if (self->ImageViewer != NULL)
-        {
-        self->ImageViewer->Register(NULL);
-        }
+      if (self->ImageViewer != nullptr)
+      {
+        self->ImageViewer->Register(nullptr);
       }
     }
+  }
 
   // Set the size
   self->ImageViewer->SetSize(self->Width, self->Height);
 
   // Set the parent correctly
   // Possibly X dependent
-  if ((winPtr->parentPtr != NULL) && !(winPtr->flags & TK_TOP_LEVEL))
-    {
+  if ((winPtr->parentPtr != nullptr) && !(winPtr->flags & TK_TOP_LEVEL))
+  {
     if (winPtr->parentPtr->window == None)
-      {
+    {
       Tk_MakeWindowExist((Tk_Window) winPtr->parentPtr);
-      }
+    }
 
     parentWin = ((TkWinDrawable *)winPtr->parentPtr->window)->window.handle;
     imgViewer->SetParentId(parentWin);
-    }
+  }
 
   // Use the same display
   self->ImageViewer->SetDisplayId(dpy);
@@ -667,21 +694,21 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   winPtr->dirtyAtts = 0;
   winPtr->dirtyChanges = 0;
 #ifdef TK_USE_INPUT_METHODS
-  winPtr->inputContext = NULL;
+  winPtr->inputContext = nullptr;
 #endif // TK_USE_INPUT_METHODS
 
   if (!(winPtr->flags & TK_TOP_LEVEL))
-    {
+  {
     /*
      * If this window has a different colormap than its parent, add
      * the window to the WM_COLORMAP_WINDOWS property for its top-level.
      */
-    if ((winPtr->parentPtr != NULL) &&
+    if ((winPtr->parentPtr != nullptr) &&
               (winPtr->atts.colormap != winPtr->parentPtr->atts.colormap))
-      {
+    {
       TkWmAddToColormapWindows(winPtr);
-      }
     }
+  }
 
   /*
    * Issue a ConfigureNotify event if there were deferred configuration
@@ -691,7 +718,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
    */
   if ((winPtr->flags & TK_NEED_CONFIG_NOTIFY)
       && !(winPtr->flags & TK_ALREADY_DEAD))
-    {
+  {
     XEvent event;
 
     winPtr->flags &= ~TK_NEED_CONFIG_NOTIFY;
@@ -708,40 +735,40 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
     event.xconfigure.height = winPtr->changes.height;
     event.xconfigure.border_width = winPtr->changes.border_width;
     if (winPtr->changes.stack_mode == Above)
-      {
+    {
       event.xconfigure.above = winPtr->changes.sibling;
-      }
+    }
     else
-      {
+    {
       event.xconfigure.above = None;
-      }
+    }
     event.xconfigure.override_redirect = winPtr->atts.override_redirect;
     Tk_HandleEvent(&event);
-    }
+  }
 
   return TCL_OK;
 }
 
-// now the APPLE version for Cocoa and Carbon APIs
+// now the Apple version for Cocoa APIs
 #else
-#if defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA)
+#if defined(VTK_USE_COCOA)
 //----------------------------------------------------------------------------
 // Creates a ImageViewer window and forces Tk to use the window.
 static int
 vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
 {
   Display *dpy;
-  vtkImageViewer *imgViewer = NULL;
+  vtkImageViewer *imgViewer = nullptr;
 
   if (self->ImageViewer)
-    {
+  {
     return TCL_OK;
-    }
+  }
 
   dpy = Tk_Display(self->TkWin);
 
   if (self->IV[0] == '\0')
-    {
+  {
     // Make the ImageViewer window.
     self->ImageViewer = imgViewer = vtkImageViewer::New();
 #ifndef VTK_PYTHON_BUILD
@@ -751,92 +778,40 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
     ckfree (self->IV);
     self->IV = strdup(Tcl_GetStringResult(self->Interp));
     Tcl_ResetResult(self->Interp);
-    }
+  }
   else
-    {
+  {
     // is IV an address ? big ole python hack here
     if (self->IV[0] == 'A' && self->IV[1] == 'd' &&
         self->IV[2] == 'd' && self->IV[3] == 'r')
-      {
+    {
       void *tmp;
       sscanf(self->IV+5,"%p",&tmp);
       imgViewer = reinterpret_cast<vtkImageViewer *>(tmp);
-      }
+    }
     else
-      {
+    {
 #ifndef VTK_PYTHON_BUILD
       int new_flag;
       imgViewer = static_cast<vtkImageViewer *>(
         vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
                                    new_flag));
 #endif
-      }
+    }
     if (imgViewer != self->ImageViewer)
+    {
+      if (self->ImageViewer != nullptr)
       {
-      if (self->ImageViewer != NULL)
-        {
-        self->ImageViewer->UnRegister(NULL);
-        }
+        self->ImageViewer->UnRegister(nullptr);
+      }
       self->ImageViewer = (vtkImageViewer *)(imgViewer);
-      if (self->ImageViewer != NULL)
-        {
-        self->ImageViewer->Register(NULL);
-        }
+      if (self->ImageViewer != nullptr)
+      {
+        self->ImageViewer->Register(nullptr);
       }
     }
+  }
 
-
-#ifdef VTK_USE_CARBON
-  TkWindow *winPtr = (TkWindow *)self->TkWin;
-  WindowPtr parentWin;
-  // get the window
-  vtkCarbonRenderWindow *imgWindow =
-    static_cast<vtkCarbonRenderWindow *>(imgViewer->GetRenderWindow());
-  // If the imageviewer has already created it's window, then quit...
-  if ( imgWindow->GetRootWindow() != (Window)NULL )
-    {
-    return TCL_ERROR;
-    }
-
-  // Use the same display
-  imgWindow->SetDisplayId(dpy);
-
-  // Set the parent correctly and get the actual OS X window on the screen
-  // Window must be up so that the aglContext can be attached to it
-  if ((winPtr->parentPtr != NULL) && !(winPtr->flags & TK_TOP_LEVEL))
-    {
-      if (winPtr->parentPtr->window == None)
-        {
-        // Look at each parent TK window in order until we run out
-        // of windows or find the top level. Then the OS X window that will be
-        // the parent is created so that we have a window to pass to the
-        // vtkRenderWindow so it can attach its openGL context.
-        // Ideally the Tk_MakeWindowExist call would do the deed. (I think)
-        TkWindow *curWin = winPtr->parentPtr;
-        while ((NULL != curWin->parentPtr) && !(curWin->flags & TK_TOP_LEVEL))
-          {
-          curWin = curWin->parentPtr;
-          }
-        Tk_MakeWindowExist((Tk_Window) winPtr->parentPtr);
-        if (NULL != curWin)
-          {
-          TkMacOSXMakeRealWindowExist(curWin);
-          }
-        else
-          {
-          vtkGenericWarningMacro("Could not find the TK_TOP_LEVEL. This is bad.");
-          }
-        }
-
-      parentWin = GetWindowFromPort((CGrafPtr)TkMacOSXGetDrawablePort(
-                                    Tk_WindowId(winPtr->parentPtr)));
-      // Carbon does not have 'sub-windows', so the ParentId is used more
-      // as a flag to indicate that the renderwindow is being used as a sub-
-      // view of its 'parent' window.
-      imgWindow->SetParentId(parentWin);
-      imgWindow->SetRootWindow(parentWin);
-    }
-#else /* now the VTK_USE_COCOA section */
   Tk_MakeWindowExist(self->TkWin);
   // set the ParentId to the NSView
   vtkCocoaRenderWindow *imgWindow =
@@ -844,11 +819,11 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   imgWindow->SetParentId(vtkCocoaTkUtilities::GetDrawableView(self->TkWin));
   imgWindow->SetSize(self->Width, self->Height);
 
-#endif
-
   // Set the size
   self->ImageViewer->SetSize(self->Width, self->Height);
 
+  // Process all outstanding events so that Tk is fully updated
+  Tcl_ServiceAll();
 
   self->ImageViewer->Render();
   return TCL_OK;
@@ -868,19 +843,19 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   vtkXOpenGLRenderWindow *imgWindow;
 
   if (self->ImageViewer)
-    {
+  {
     return TCL_OK;
-    }
+  }
 
   dpy = Tk_Display(self->TkWin);
 
   if (Tk_WindowId(self->TkWin) != None)
-    {
+  {
     XDestroyWindow(dpy, Tk_WindowId(self->TkWin) );
-    }
+  }
 
   if (self->IV[0] == '\0')
-    {
+  {
     // Make the ImageViewer window.
     self->ImageViewer = imgViewer = vtkImageViewer::New();
 #ifndef VTK_PYTHON_BUILD
@@ -889,48 +864,48 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
 #endif
     self->IV = strdup(Tcl_GetStringResult(self->Interp));
     Tcl_ResetResult(self->Interp);
-    }
+  }
   else
-    {
+  {
     // is IV an address ? big ole python hack here
     if (self->IV[0] == 'A' && self->IV[1] == 'd' &&
         self->IV[2] == 'd' && self->IV[3] == 'r')
-      {
+    {
       void *tmp;
       sscanf(self->IV+5,"%p",&tmp);
       imgViewer = (vtkImageViewer *)tmp;
-      }
+    }
     else
-      {
+    {
 #ifndef VTK_PYTHON_BUILD
       int new_flag;
       imgViewer = (vtkImageViewer *)
         vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
                                    new_flag);
 #endif
-      }
+    }
     if (imgViewer != self->ImageViewer)
+    {
+      if (self->ImageViewer != nullptr)
       {
-      if (self->ImageViewer != NULL)
-        {
-        self->ImageViewer->UnRegister(NULL);
-        }
+        self->ImageViewer->UnRegister(nullptr);
+      }
       self->ImageViewer = (vtkImageViewer *)(imgViewer);
-      if (self->ImageViewer != NULL)
-        {
-        self->ImageViewer->Register(NULL);
-        }
+      if (self->ImageViewer != nullptr)
+      {
+        self->ImageViewer->Register(nullptr);
       }
     }
+  }
 
 
   // get the window
   imgWindow = static_cast<vtkXOpenGLRenderWindow *>(imgViewer->GetRenderWindow());
   // If the imageviewer has already created it's window, throw up our hands and quit...
-  if ( imgWindow->GetWindowId() != (Window)NULL )
-    {
+  if ( imgWindow->GetWindowId() != (Window)nullptr )
+  {
     return TCL_ERROR;
-    }
+  }
 
   // Use the same display
   imgWindow->SetDisplayId(dpy);
@@ -948,14 +923,14 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
 
   // Set the parent correctly
   // Possibly X dependent
-  if ((Tk_Parent(self->TkWin) == NULL) || (Tk_IsTopLevel(self->TkWin)))
-    {
+  if ((Tk_Parent(self->TkWin) == nullptr) || (Tk_IsTopLevel(self->TkWin)))
+  {
     imgWindow->SetParentId(XRootWindow(Tk_Display(self->TkWin), Tk_ScreenNumber(self->TkWin)));
-    }
+  }
   else
-    {
+  {
     imgWindow->SetParentId(Tk_WindowId(Tk_Parent(self->TkWin) ));
-    }
+  }
 
   self->ImageViewer->Render();
   return TCL_OK;

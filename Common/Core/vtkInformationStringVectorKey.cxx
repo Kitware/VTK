@@ -31,9 +31,7 @@ vtkInformationStringVectorKey
 }
 
 //----------------------------------------------------------------------------
-vtkInformationStringVectorKey::~vtkInformationStringVectorKey()
-{
-}
+vtkInformationStringVectorKey::~vtkInformationStringVectorKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationStringVectorKey::PrintSelf(ostream& os, vtkIndent indent)
@@ -45,7 +43,7 @@ void vtkInformationStringVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationStringVectorValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationStringVectorValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationStringVectorValue, vtkObjectBase);
   std::vector<std::string> Value;
 };
 
@@ -56,13 +54,13 @@ void vtkInformationStringVectorKey::Append(vtkInformation* info, const char* val
     static_cast<vtkInformationStringVectorValue *>
     (this->GetAsObjectBase(info));
   if(v)
-    {
+  {
     v->Value.push_back(value);
-    }
+  }
   else
-    {
+  {
     this->Set(info, value, 0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -73,43 +71,57 @@ void vtkInformationStringVectorKey::Set(vtkInformation* info, const char* value,
     static_cast<vtkInformationStringVectorValue *>
     (this->GetAsObjectBase(info));
   if(oldv)
-    {
+  {
     if (   (static_cast<int>(oldv->Value.size()) <= index)
         || (oldv->Value[index] != value))
-      {
+    {
       while(static_cast<int>(oldv->Value.size()) <= index)
-        {
+      {
         oldv->Value.push_back("");
-        }
+      }
       oldv->Value[index] = value;
       // Since this sets a value without call SetAsObjectBase(),
       // the info has to be modified here (instead of
       // vtkInformation::SetAsObjectBase()
       info->Modified(this);
-      }
     }
+  }
   else
-    {
+  {
     vtkInformationStringVectorValue* v =
       new vtkInformationStringVectorValue;
-    this->ConstructClass("vtkInformationStringVectorValue");
+    v->InitializeObjectBase();
     while(static_cast<int>(v->Value.size()) <= index)
-      {
+    {
       v->Value.push_back("");
-      }
+    }
     v->Value[index] = value;
     this->SetAsObjectBase(info, v);
     v->Delete();
-    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationStringVectorKey::Append(vtkInformation *info,
+                                           const std::string &value)
+{
+  this->Append(info, value.c_str());
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationStringVectorKey::Set(vtkInformation *info,
+                                        const std::string &value, int idx)
+{
+  this->Set(info, value.c_str(), idx);
 }
 
 //----------------------------------------------------------------------------
 const char* vtkInformationStringVectorKey::Get(vtkInformation* info, int idx)
 {
   if (idx < 0 || idx >= this->Length(info))
-    {
-    return 0;
-    }
+  {
+    return nullptr;
+  }
   vtkInformationStringVectorValue* v =
     static_cast<vtkInformationStringVectorValue *>
     (this->GetAsObjectBase(info));
@@ -131,9 +143,9 @@ void vtkInformationStringVectorKey::ShallowCopy(vtkInformation* from,
 {
   int length = this->Length(from);
   for(int i = 0; i < length; ++i)
-    {
+  {
     this->Set(to, this->Get(from, i), i);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -141,13 +153,13 @@ void vtkInformationStringVectorKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
   if(this->Has(info))
-    {
+  {
     int length = this->Length(info);
     const char* sep = "";
     for(int i=0; i < length; ++i)
-      {
+    {
       os << sep << this->Get(info, i);
       sep = " ";
-      }
     }
+  }
 }

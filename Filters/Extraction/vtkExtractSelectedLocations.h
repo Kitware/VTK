@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedLocations - extract cells within a dataset that
-// contain the locations listen in the vtkSelection.
-// .SECTION Description
-// vtkExtractSelectedLocations extracts all cells whose volume contain at least
-// one point listed in the LOCATIONS content of the vtkSelection. This filter
-// adds a scalar array called vtkOriginalCellIds that says what input cell
-// produced each output cell. This is an example of a Pedigree ID which helps
-// to trace back results.
-// .SECTION See Also
-// vtkSelection vtkExtractSelection
+/**
+ * @class   vtkExtractSelectedLocations
+ * @brief   extract cells within a dataset that
+ * contain the locations listen in the vtkSelection.
+ *
+ * vtkExtractSelectedLocations extracts all cells whose volume contain at least
+ * one point listed in the LOCATIONS content of the vtkSelection. This filter
+ * adds a scalar array called vtkOriginalCellIds that says what input cell
+ * produced each output cell. This is an example of a Pedigree ID which helps
+ * to trace back results.
+ * @sa
+ * vtkSelection vtkExtractSelection
+*/
 
 #ifndef vtkExtractSelectedLocations_h
 #define vtkExtractSelectedLocations_h
@@ -37,16 +40,16 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedLocations : public vtkExtrac
 public:
   static vtkExtractSelectedLocations *New();
   vtkTypeMacro(vtkExtractSelectedLocations, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkExtractSelectedLocations();
-  ~vtkExtractSelectedLocations();
+  ~vtkExtractSelectedLocations() override;
 
   // Usual data generation method
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) override;
 
   int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input,
                    vtkDataSet *output);
@@ -54,8 +57,8 @@ protected:
                     vtkDataSet *output);
 
 private:
-  vtkExtractSelectedLocations(const vtkExtractSelectedLocations&);  // Not implemented.
-  void operator=(const vtkExtractSelectedLocations&);  // Not implemented.
+  vtkExtractSelectedLocations(const vtkExtractSelectedLocations&) = delete;
+  void operator=(const vtkExtractSelectedLocations&) = delete;
 };
 
 #endif

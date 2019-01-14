@@ -13,19 +13,25 @@
 
 =========================================================================*/
 
-// .NAME vtkXdmfWriter - write eXtensible Data Model and Format files
-// .SECTION Description
-// vtkXdmfWriter converts vtkDataObjects to XDMF format. This is intended to
-// replace vtkXdmfWriter, which is not up to date with the capabilities of the
-// newer XDMF2 library. This writer understands VTK's composite data types and
-// produces full trees in the output XDMF files.
+/**
+ * @class   vtkXdmfWriter
+ * @brief   write eXtensible Data Model and Format files
+ *
+ * vtkXdmfWriter converts vtkDataObjects to XDMF format. This is intended to
+ * replace vtkXdmfWriter, which is not up to date with the capabilities of the
+ * newer XDMF2 library. This writer understands VTK's composite data types and
+ * produces full trees in the output XDMF files.
+*/
 
-#ifndef _vtkXdmfWriter_h
-#define _vtkXdmfWriter_h
+#ifndef vtkXdmfWriter_h
+#define vtkXdmfWriter_h
 
 #include "vtkIOXdmf2Module.h" // For export macro
 
 #include "vtkDataObjectAlgorithm.h"
+
+#include <string> // Needed for private members
+#include <vector> //
 
 class vtkExecutive;
 
@@ -42,7 +48,10 @@ namespace xdmf2
 {
 class XdmfArray;
 class XdmfDOM;
+class XdmfElement;
 class XdmfGrid;
+class XdmfGeometry;
+class XdmfTopology;
 }
 
 class VTKIOXDMF2_EXPORT vtkXdmfWriter : public vtkDataObjectAlgorithm
@@ -50,54 +59,87 @@ class VTKIOXDMF2_EXPORT vtkXdmfWriter : public vtkDataObjectAlgorithm
 public:
   static vtkXdmfWriter *New();
   vtkTypeMacro(vtkXdmfWriter,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set the input data set.
+  /**
+   * Set the input data set.
+   */
   virtual void SetInputData(vtkDataObject* dobj);
 
-  // Description:
-  // Set or get the file name of the xdmf file.
+  //@{
+  /**
+   * Set or get the file name of the xdmf file.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Set or get the file name of the hdf5 file.
-  // Note that if the File name is not specified, then the group name is ignore
+  //@{
+  /**
+   * Set or get the file name of the hdf5 file.
+   * Note that if the File name is not specified, then the group name is ignore
+   */
   vtkSetStringMacro(HeavyDataFileName);
   vtkGetStringMacro(HeavyDataFileName);
+  //@}
 
-  // Description:
-  // Set or get the group name into which data will be written
-  // it may contain nested groups as in "/Proc0/Block0"
+  //@{
+  /**
+   * Set or get the group name into which data will be written
+   * it may contain nested groups as in "/Proc0/Block0"
+   */
   vtkSetStringMacro(HeavyDataGroupName);
   vtkGetStringMacro(HeavyDataGroupName);
+  //@}
 
-  // Description:
-  // Write data to output. Method executes subclasses WriteData() method, as
-  // well as StartMethod() and EndMethod() methods.
-  // Returns 1 on success and 0 on failure.
+  /**
+   * Write data to output. Method executes subclasses WriteData() method, as
+   * well as StartMethod() and EndMethod() methods.
+   * Returns 1 on success and 0 on failure.
+   */
   virtual int Write();
 
-  // Description:
-  // Topology Geometry and Attribute arrays smaller than this are written in line into the XML.
-  // Default is 100.
+  //@{
+  /**
+   * Topology Geometry and Attribute arrays smaller than this are written in line into the XML.
+   * Default is 100.
+   * Node: LightDataLimit is forced to 1 when MeshStaticOverTime is TRUE.
+   */
   vtkSetMacro(LightDataLimit, int);
   vtkGetMacro(LightDataLimit, int);
+  //@}
 
-  //Description:
-  //Controls whether writer automatically writes all input time steps, or
-  //just the timestep that is currently on the input.
-  //Default is OFF.
+  //@{
+  /**
+   * Controls whether writer automatically writes all input time steps, or
+   * just the timestep that is currently on the input.
+   * Default is OFF.
+   */
   vtkSetMacro(WriteAllTimeSteps, int);
   vtkGetMacro(WriteAllTimeSteps, int);
   vtkBooleanMacro(WriteAllTimeSteps, int);
+  //@}
 
-    // Description:
-  // Called in parallel runs to identify the portion this process is responsible for
-  // TODO: respect this
+  //@{
+  /**
+   * Set of get the flag that specify if input mesh is static over time.
+   * If so, the mesh topology and geometry heavy data will be written only once.
+   * Default if FALSE.
+   * Note: this mode requires that all data is dumped in the heavy data file.
+   */
+  vtkSetMacro(MeshStaticOverTime, bool);
+  vtkGetMacro(MeshStaticOverTime, bool);
+  vtkBooleanMacro(MeshStaticOverTime, bool);
+  //@}
+
+    //@{
+    /**
+     * Called in parallel runs to identify the portion this process is responsible for
+     * TODO: respect this
+     */
   vtkSetMacro(Piece, int);
   vtkSetMacro(NumberOfPieces, int);
+    //@}
 
   //TODO: control choice of heavy data format (xml, hdf5, sql, raw)
 
@@ -107,26 +149,26 @@ public:
 
 protected:
   vtkXdmfWriter();
-  ~vtkXdmfWriter();
+  ~vtkXdmfWriter() override;
 
   //Choose composite executive by default for time.
-  virtual vtkExecutive* CreateDefaultExecutive();
+  vtkExecutive* CreateDefaultExecutive() override;
 
   //Can take any one data object
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   //Overridden to ...
-  virtual int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*);
+  int RequestInformation(vtkInformation*,
+                         vtkInformationVector**,
+                         vtkInformationVector*) override;
   //Overridden to ...
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*);
-  //Overridden to ...
-  virtual int RequestData(vtkInformation*,
+  int RequestUpdateExtent(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) override;
+  //Overridden to ...
+  int RequestData(vtkInformation*,
+                  vtkInformationVector**,
+                  vtkInformationVector*) override;
 
   //These do the work: recursively parse down input's structure all the way to arrays,
   //use XDMF lib to dump everything to file.
@@ -143,27 +185,39 @@ protected:
                                 vtkIdType rank, vtkIdType *dims,
                                 int AllocStrategy, const char *heavyprefix);
 
+  virtual void SetupDataArrayXML(xdmf2::XdmfElement*, xdmf2::XdmfArray*) const;
+
   char *FileName;
   char *HeavyDataFileName;
   char *HeavyDataGroupName;
+  std::string WorkingDirectory;
+  std::string BaseFileName;
 
   int LightDataLimit;
 
   int WriteAllTimeSteps;
   int NumberOfTimeSteps;
+  double CurrentTime;
   int CurrentTimeIndex;
+  int CurrentBlockIndex;
+  int UnlabelledDataArrayId;
 
   int Piece;
   int NumberOfPieces;
+
+  bool MeshStaticOverTime;
 
   xdmf2::XdmfDOM *DOM;
   xdmf2::XdmfGrid *TopTemporalGrid;
 
   vtkXdmfWriterDomainMemoryHandler *DomainMemoryHandler;
 
+  std::vector<xdmf2::XdmfTopology*> TopologyAtT0;
+  std::vector<xdmf2::XdmfGeometry*> GeometryAtT0;
+
 private:
-  vtkXdmfWriter(const vtkXdmfWriter&); // Not implemented
-  void operator=(const vtkXdmfWriter&); // Not implemented
+  vtkXdmfWriter(const vtkXdmfWriter&) = delete;
+  void operator=(const vtkXdmfWriter&) = delete;
 };
 
-#endif /* _vtkXdmfWriter_h */
+#endif /* vtkXdmfWriter_h */

@@ -25,6 +25,8 @@
 #include "XdmfAttributeType.hpp"
 #include "XdmfError.hpp"
 
+std::map<std::string, shared_ptr<const XdmfAttributeType>(*)()> XdmfAttributeType::mAttributeDefinitions;
+
 // Supported XdmfAttributeTypes
 shared_ptr<const XdmfAttributeType>
 XdmfAttributeType::NoAttributeType()
@@ -82,6 +84,18 @@ XdmfAttributeType::GlobalId()
   return p;
 }
 
+void
+XdmfAttributeType::InitTypes()
+{
+  mAttributeDefinitions["NONE"] = NoAttributeType;
+  mAttributeDefinitions["SCALAR"] = Scalar;
+  mAttributeDefinitions["VECTOR"] = Vector;
+  mAttributeDefinitions["TENSOR"] = Tensor;
+  mAttributeDefinitions["MATRIX"] = Matrix;
+  mAttributeDefinitions["TENSOR6"] = Tensor6;
+  mAttributeDefinitions["GLOBALID"] = GlobalId;
+}
+
 XdmfAttributeType::XdmfAttributeType(const std::string & name) :
   mName(name)
 {
@@ -94,6 +108,7 @@ XdmfAttributeType::~XdmfAttributeType()
 shared_ptr<const XdmfAttributeType>
 XdmfAttributeType::New(const std::map<std::string, std::string> & itemProperties)
 {
+  InitTypes();
   std::map<std::string, std::string>::const_iterator type =
     itemProperties.find("Type");
   if(type == itemProperties.end()) {
@@ -103,34 +118,21 @@ XdmfAttributeType::New(const std::map<std::string, std::string> & itemProperties
     // to support old xdmf defaults, return Scalar()
     return Scalar();
   }
-  const std::string & typeVal = type->second;
 
-  if(typeVal.compare("Scalar") == 0) {
-    return Scalar();
-  }
-  else if(typeVal.compare("Vector") == 0) {
-    return Vector();
-  }
-  else if(typeVal.compare("Tensor") == 0) {
-    return Tensor();
-  }
-  else if(typeVal.compare("Matrix") == 0) {
-    return Matrix();
-  }
-  else if(typeVal.compare("Tensor6") == 0) {
-    return Tensor6();
-  }
-  else if(typeVal.compare("GlobalId") == 0) {
-    return GlobalId();
-  }
-  else if(typeVal.compare("None") == 0) {
-    return NoAttributeType();
-  }
 
-  XdmfError::message(XdmfError::FATAL, 
-                     "Type not of 'None','Scalar','Vector','Tensor', "
-                     "'Matrix','Tensor6', or 'GlobalId' in "
-                     "XdmfAttributeType::New");
+  const std::string & typeVal = ConvertToUpper(type->second);
+
+  std::map<std::string, shared_ptr<const XdmfAttributeType>(*)()>::const_iterator returnType = mAttributeDefinitions.find(typeVal);
+
+  if (returnType == mAttributeDefinitions.end()) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Type not of 'None','Scalar','Vector','Tensor', "
+                       "'Matrix','Tensor6', or 'GlobalId' in "
+                       "XdmfAttributeType::New");
+  }
+  else {
+    return (*(returnType->second))();
+  }
 
   // unreachable
   return shared_ptr<const XdmfAttributeType>();
@@ -140,4 +142,41 @@ void
 XdmfAttributeType::getProperties(std::map<std::string, std::string> & collectedProperties) const
 {
   collectedProperties.insert(std::make_pair("Type", mName));
+}
+
+// C Wrappers
+
+int XdmfAttributeTypeScalar()
+{
+  return XDMF_ATTRIBUTE_TYPE_SCALAR;
+}
+
+int XdmfAttributeTypeVector()
+{
+  return XDMF_ATTRIBUTE_TYPE_VECTOR;
+}
+
+int XdmfAttributeTypeTensor()
+{
+  return XDMF_ATTRIBUTE_TYPE_TENSOR;
+}
+
+int XdmfAttributeTypeMatrix()
+{
+  return XDMF_ATTRIBUTE_TYPE_MATRIX;
+}
+
+int XdmfAttributeTypeTensor6()
+{
+  return XDMF_ATTRIBUTE_TYPE_TENSOR6;
+}
+
+int XdmfAttributeTypeGlobalId()
+{
+  return XDMF_ATTRIBUTE_TYPE_GLOBALID;
+}
+
+int XdmfAttributeTypeNoAttributeType()
+{
+  return XDMF_ATTRIBUTE_TYPE_NOTYPE;
 }

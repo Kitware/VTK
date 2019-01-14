@@ -1,0 +1,34 @@
+NAME
+  VTK::IOGeometry
+LIBRARY_NAME
+  vtkIOGeometry
+IMPLEMENTABLE
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOCore
+  VTK::IOLegacy
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::IOImage
+  VTK::vtksys
+  VTK::zlib
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersExtraction
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersSources
+  VTK::IOAMR
+  VTK::IOImage
+  VTK::IOLegacy
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

@@ -1,28 +1,29 @@
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
-if(POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW) # CMake 3.0
-endif()
-if(POLICY CMP0053)
-  cmake_policy(SET CMP0053 NEW) # CMake 3.1
-endif()
+cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+project(DataManipulation)
 
-PROJECT (DataManipulation)
-
-find_package(VTK COMPONENTS
-  vtkCommonCore
-  vtkCommonDataModel
-  vtkFiltersGeometry
-  vtkInteractionStyle
-  vtkRendering${VTK_RENDERING_BACKEND}
-)
-include(${VTK_USE_FILE})
+find_package(VTK
+  COMPONENTS
+    CommonColor
+    FiltersGeometry
+    RenderingCore)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
 add_executable(Arrays MACOSX_BUNDLE Arrays.cxx)
 add_executable(Cube MACOSX_BUNDLE Cube.cxx)
 add_executable(SGrid MACOSX_BUNDLE SGrid.cxx)
 add_executable(RGrid MACOSX_BUNDLE RGrid.cxx)
 
-target_link_libraries(Arrays ${VTK_LIBRARIES})
-target_link_libraries(Cube ${VTK_LIBRARIES})
-target_link_libraries(SGrid ${VTK_LIBRARIES})
-target_link_libraries(RGrid ${VTK_LIBRARIES})
+target_link_libraries(Arrays PRIVATE ${VTK_LIBRARIES})
+target_link_libraries(Cube PRIVATE ${VTK_LIBRARIES})
+target_link_libraries(SGrid PRIVATE ${VTK_LIBRARIES})
+target_link_libraries(RGrid PRIVATE ${VTK_LIBRARIES})
+
+vtk_module_autoinit(
+  TARGETS Arrays
+          Cube
+          SGrid
+          RGrid
+  MODULES ${VTK_LIBRARIES})

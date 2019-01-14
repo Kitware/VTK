@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageSobel3D - Computes a vector field using sobel functions.
-// .SECTION Description
-// vtkImageSobel3D computes a vector field from a scalar field by using
-// Sobel functions.  The number of vector components is 3 because
-// the input is a volume.  Output is always doubles.  A little creative
-// liberty was used to extend the 2D sobel kernels into 3D.
-
-
-
+/**
+ * @class   vtkImageSobel3D
+ * @brief   Computes a vector field using sobel functions.
+ *
+ * vtkImageSobel3D computes a vector field from a scalar field by using
+ * Sobel functions.  The number of vector components is 3 because
+ * the input is a volume.  Output is always doubles.  A little creative
+ * liberty was used to extend the 2D sobel kernels into 3D.
+*/
 
 #ifndef vtkImageSobel3D_h
 #define vtkImageSobel3D_h
@@ -34,24 +34,24 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageSobel3D : public vtkImageSpatialAlgorithm
 public:
   static vtkImageSobel3D *New();
   vtkTypeMacro(vtkImageSobel3D,vtkImageSpatialAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageSobel3D();
-  ~vtkImageSobel3D() {}
+  ~vtkImageSobel3D() override {}
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id);
-  virtual int RequestInformation (vtkInformation *request,
+                           int outExt[6], int id) override;
+  int RequestInformation (vtkInformation *request,
                                   vtkInformationVector **inputVector,
-                                  vtkInformationVector *outputVector);
+                                  vtkInformationVector *outputVector) override;
 
 private:
-  vtkImageSobel3D(const vtkImageSobel3D&);  // Not implemented.
-  void operator=(const vtkImageSobel3D&);  // Not implemented.
+  vtkImageSobel3D(const vtkImageSobel3D&) = delete;
+  void operator=(const vtkImageSobel3D&) = delete;
 };
 
 #endif

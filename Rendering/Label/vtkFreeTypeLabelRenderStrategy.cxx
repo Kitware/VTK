@@ -15,20 +15,21 @@
 #include "vtkFreeTypeLabelRenderStrategy.h"
 
 #include "vtkActor2D.h"
-#include "vtkFreeTypeUtilities.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
 #include "vtkTimerLog.h"
+#include "vtkWindow.h"
 
 vtkStandardNewMacro(vtkFreeTypeLabelRenderStrategy);
 
 //----------------------------------------------------------------------------
 vtkFreeTypeLabelRenderStrategy::vtkFreeTypeLabelRenderStrategy()
 {
-  this->FreeTypeUtilities = vtkFreeTypeUtilities::New();
+  this->TextRenderer = vtkTextRenderer::GetInstance();
   this->Mapper = vtkTextMapper::New();
   this->Actor = vtkActor2D::New();
   this->Actor->SetMapper(this->Mapper);
@@ -37,7 +38,6 @@ vtkFreeTypeLabelRenderStrategy::vtkFreeTypeLabelRenderStrategy()
 //----------------------------------------------------------------------------
 vtkFreeTypeLabelRenderStrategy::~vtkFreeTypeLabelRenderStrategy()
 {
-  this->FreeTypeUtilities->Delete();
   this->Mapper->Delete();
   this->Actor->Delete();
 }
@@ -60,27 +60,38 @@ void vtkFreeTypeLabelRenderStrategy::ComputeLabelBounds(
   vtkStdString str;
   label.utf8_str(str);
   if (str.length() == 0)
-    {
+  {
     bds[0] = 0;
     bds[1] = 0;
     bds[2] = 0;
     bds[3] = 0;
     return;
-    }
+  }
 
   if (!tprop)
-    {
+  {
     tprop = this->DefaultTextProperty;
-    }
+  }
   vtkSmartPointer<vtkTextProperty> copy = tprop;
   if (tprop->GetOrientation() != 0.0)
-    {
+  {
     copy = vtkSmartPointer<vtkTextProperty>::New();
     copy->ShallowCopy(tprop);
     copy->SetOrientation(0.0);
-    }
+  }
+
+  int dpi = 72;
+  if (this->Renderer && this->Renderer->GetVTKWindow())
+  {
+    dpi = this->Renderer->GetVTKWindow()->GetDPI();
+  }
+  else
+  {
+    vtkWarningMacro(<<"No Renderer set. Assuming DPI of " << dpi << ".");
+  }
+
   int bbox[4];
-  this->FreeTypeUtilities->GetBoundingBox(copy, label.utf8_str(), bbox);
+  this->TextRenderer->GetBoundingBox(copy, label.utf8_str(), bbox, dpi);
 
   // Take line offset into account
   bds[0] = bbox[0];
@@ -135,14 +146,14 @@ void vtkFreeTypeLabelRenderStrategy::RenderLabel(
   //timer->StartTimer();
 
   if (!this->Renderer)
-    {
+  {
     vtkErrorMacro("Renderer must be set before rendering labels.");
     return;
-    }
+  }
   if (!tprop)
-    {
+  {
     tprop = this->DefaultTextProperty;
-    }
+  }
   this->Mapper->SetTextProperty(tprop);
   this->Mapper->SetInput(label.utf8_str());
   this->Actor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();

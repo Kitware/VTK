@@ -31,18 +31,17 @@ vtkParametricFigure8Klein::vtkParametricFigure8Klein()
   this->JoinV = 1;
   this->TwistU = 1;
   this->TwistV = 0;
-  this->ClockwiseOrdering = 1;
+  this->ClockwiseOrdering = 0;
   this->DerivativesAvailable = 1;
   this->Radius = 1;
 }
 
 //----------------------------------------------------------------------------
-vtkParametricFigure8Klein::~vtkParametricFigure8Klein()
-{
-}
+vtkParametricFigure8Klein::~vtkParametricFigure8Klein() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricFigure8Klein::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
+void vtkParametricFigure8Klein::Evaluate(double uvw[3], double Pt[3],
+    double Duvw[9])
 {
   double u = uvw[0];
   double v = uvw[1];
@@ -65,16 +64,17 @@ void vtkParametricFigure8Klein::Evaluate(double uvw[3], double Pt[3], double Duv
   Pt[2] = su2 * sv + cu2 * s2v / 2;
 
   //The derivatives are:
-  Du[0] = -Pt[1] - cu * ( 2 * sv * su2 + s2v * cu2 ) / 4;
-  Du[1] =  Pt[0] - su * ( 2 * sv * su2 + s2v * cu2 ) / 4;
+  Du[0] = -Pt[1] - cu * (2 * sv * su2 + s2v * cu2) / 4;
+  Du[1] =  Pt[0] - su * (2 * sv * su2 + s2v * cu2) / 4;
   Du[2] = cu2 * sv / 2 - su2 * s2v / 4;
-  Dv[0] = cu * ( cv * cu2 - c2v * su2);
-  Dv[1] = su * ( cv * cu2 - c2v * su2);
+  Dv[0] = cu * (cv * cu2 - c2v * su2);
+  Dv[1] = su * (cv * cu2 - c2v * su2);
   Dv[2] = su2 * cv / 2 + cu2 * c2v;
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricFigure8Klein::EvaluateScalar(double*, double*, double*)
+double vtkParametricFigure8Klein::EvaluateScalar(double*, double*,
+    double*)
 {
   return 0;
 }
@@ -82,8 +82,8 @@ double vtkParametricFigure8Klein::EvaluateScalar(double*, double*, double*)
 //----------------------------------------------------------------------------
 void vtkParametricFigure8Klein::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-   os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Radius: " << this->Radius << "\n";
 }
 

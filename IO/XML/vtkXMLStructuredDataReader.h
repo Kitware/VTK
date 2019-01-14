@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLStructuredDataReader - Superclass for structured data XML readers.
-// .SECTION Description
-// vtkXMLStructuredDataReader provides functionality common to all
-// structured data format readers.
-
-// .SECTION See Also
-// vtkXMLImageDataReader vtkXMLStructuredGridReader
-// vtkXMLRectilinearGridReader
+/**
+ * @class   vtkXMLStructuredDataReader
+ * @brief   Superclass for structured data XML readers.
+ *
+ * vtkXMLStructuredDataReader provides functionality common to all
+ * structured data format readers.
+ *
+ * @sa
+ * vtkXMLImageDataReader vtkXMLStructuredGridReader
+ * vtkXMLRectilinearGridReader
+*/
 
 #ifndef vtkXMLStructuredDataReader_h
 #define vtkXMLStructuredDataReader_h
@@ -32,40 +35,47 @@ class VTKIOXML_EXPORT vtkXMLStructuredDataReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLStructuredDataReader,vtkXMLDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the number of points in the output.
-  virtual vtkIdType GetNumberOfPoints();
+  /**
+   * Get the number of points in the output.
+   */
+  vtkIdType GetNumberOfPoints() override;
 
-  // Description:
-  // Get the number of cells in the output.
-  virtual vtkIdType GetNumberOfCells();
+  /**
+   * Get the number of cells in the output.
+   */
+  vtkIdType GetNumberOfCells() override;
 
-  // Description:
-  // Get/Set whether the reader gets a whole slice from disk when only
-  // a rectangle inside it is needed.  This mode reads more data than
-  // necessary, but prevents many short reads from interacting poorly
-  // with the compression and encoding schemes.
-  vtkSetMacro(WholeSlices, int);
-  vtkGetMacro(WholeSlices, int);
-  vtkBooleanMacro(WholeSlices, int);
+  //@{
+  /**
+   * Get/Set whether the reader gets a whole slice from disk when only
+   * a rectangle inside it is needed.  This mode reads more data than
+   * necessary, but prevents many short reads from interacting poorly
+   * with the compression and encoding schemes.
+   */
+  vtkSetMacro(WholeSlices, vtkTypeBool);
+  vtkGetMacro(WholeSlices, vtkTypeBool);
+  vtkBooleanMacro(WholeSlices, vtkTypeBool);
+  //@}
 
-  // Description:
-  // For the specified port, copy the information this reader sets up in
-  // SetupOutputInformation to outInfo
-  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+  /**
+   * For the specified port, copy the information this reader sets up in
+   * SetupOutputInformation to outInfo
+   */
+  void CopyOutputInformation(vtkInformation *outInfo, int port) override;
+
 protected:
   vtkXMLStructuredDataReader();
-  ~vtkXMLStructuredDataReader();
+  ~vtkXMLStructuredDataReader() override;
 
   virtual void SetOutputExtent(int* extent)=0;
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
   // Pipeline execute data driver.  Called by vtkXMLReader.
-  void ReadXMLData();
+  void ReadXMLData() override;
 
-  void SetupOutputInformation(vtkInformation *outInfo);
+  void SetupOutputInformation(vtkInformation *outInfo) override;
 
   // Internal representation of pieces in the file that may have come
   // from a streamed write.
@@ -76,7 +86,7 @@ protected:
   vtkIdType* PieceCellIncrements;
 
   // Whether to read in whole slices mode.
-  int WholeSlices;
+  vtkTypeBool WholeSlices;
 
   // The update extent and corresponding increments and dimensions.
   int UpdateExtent[6];
@@ -93,16 +103,16 @@ protected:
   int SubCellDimensions[3];
 
   // Override methods from superclass.
-  void SetupEmptyOutput();
-  void SetupPieces(int numPieces);
-  void DestroyPieces();
-  virtual int ReadArrayForPoints(vtkXMLDataElement* da,
-    vtkAbstractArray* outArray);
-  virtual int ReadArrayForCells(vtkXMLDataElement* da,
-    vtkAbstractArray* outArray);
+  void SetupEmptyOutput() override;
+  void SetupPieces(int numPieces) override;
+  void DestroyPieces() override;
+  int ReadArrayForPoints(vtkXMLDataElement* da,
+    vtkAbstractArray* outArray) override;
+  int ReadArrayForCells(vtkXMLDataElement* da,
+    vtkAbstractArray* outArray) override;
 
   // Internal utility methods.
-  int ReadPiece(vtkXMLDataElement* ePiece);
+  int ReadPiece(vtkXMLDataElement* ePiece) override;
   virtual int ReadSubExtent(
     int* inExtent, int* inDimensions, vtkIdType* inIncrements,
     int* outExtent,int* outDimensions,vtkIdType* outIncrements,
@@ -110,8 +120,8 @@ protected:
     vtkAbstractArray* array, FieldType type);
 
 private:
-  vtkXMLStructuredDataReader(const vtkXMLStructuredDataReader&);  // Not implemented.
-  void operator=(const vtkXMLStructuredDataReader&);  // Not implemented.
+  vtkXMLStructuredDataReader(const vtkXMLStructuredDataReader&) = delete;
+  void operator=(const vtkXMLStructuredDataReader&) = delete;
 };
 
 #endif

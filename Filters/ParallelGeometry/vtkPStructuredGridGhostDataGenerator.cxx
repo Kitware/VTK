@@ -49,8 +49,8 @@ void vtkPStructuredGridGhostDataGenerator::PrintSelf(
 void vtkPStructuredGridGhostDataGenerator::RegisterGrids(
     vtkMultiBlockDataSet *in)
 {
-  assert("pre: input multi-block is NULL" && (in != NULL) );
-  assert("pre: grid connectivity is NULL" && (this->GridConnectivity != NULL) );
+  assert("pre: input multi-block is nullptr" && (in != nullptr) );
+  assert("pre: grid connectivity is nullptr" && (this->GridConnectivity != nullptr) );
 
   this->GridConnectivity->SetController( this->Controller );
   this->GridConnectivity->SetNumberOfGrids( in->GetNumberOfBlocks() );
@@ -61,12 +61,12 @@ void vtkPStructuredGridGhostDataGenerator::RegisterGrids(
   this->GridConnectivity->Initialize();
 
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
-    {
+  {
     vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(in->GetBlock(i));
-    if( grid != NULL )
-      {
+    if( grid != nullptr )
+    {
       vtkInformation *info = in->GetMetaData( i );
-      assert("pre: NULL meta-data" && (info != NULL) );
+      assert("pre: nullptr meta-data" && (info != nullptr) );
       assert("pre: No piece meta-data" &&
               info->Has(vtkDataObject::PIECE_EXTENT()));
 
@@ -77,16 +77,16 @@ void vtkPStructuredGridGhostDataGenerator::RegisterGrids(
           grid->GetPointData(),
           grid->GetCellData(),
           grid->GetPoints() );
-      } // END if the grid is not NULL
-    } // END for all blocks
+    } // END if the grid is not nullptr
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridGhostDataGenerator::CreateGhostedDataSet(
     vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out )
 {
-  assert("pre: input multi-block is NULL" && (in != NULL) );
-  assert("pre: output multi-block is NULL" && (out != NULL) );
+  assert("pre: input multi-block is nullptr" && (in != nullptr) );
+  assert("pre: output multi-block is nullptr" && (out != nullptr) );
 
   out->SetNumberOfBlocks( in->GetNumberOfBlocks() );
   int wholeExt[6];
@@ -97,15 +97,15 @@ void vtkPStructuredGridGhostDataGenerator::CreateGhostedDataSet(
 
   int ghostedExtent[6];
   for( unsigned int i=0; i < out->GetNumberOfBlocks(); ++i )
+  {
+    if( in->GetBlock(i) != nullptr )
     {
-    if( in->GetBlock(i) != NULL )
-      {
       // STEP 0: Get the computed ghosted grid extent
       this->GridConnectivity->GetGhostedGridExtent( i, ghostedExtent );
 
       // STEP 1: Construct the ghosted structured grid instance
       vtkStructuredGrid *ghostedGrid = vtkStructuredGrid::New();
-      assert("pre: Cannot create ghosted grid instance" && (ghostedGrid != NULL));
+      assert("pre: Cannot create ghosted grid instance" && (ghostedGrid != nullptr));
       ghostedGrid->SetExtent( ghostedExtent );
 
       vtkPoints *ghostedGridPoints = vtkPoints::New();
@@ -121,22 +121,22 @@ void vtkPStructuredGridGhostDataGenerator::CreateGhostedDataSet(
 
       out->SetBlock(i,ghostedGrid);
       ghostedGrid->Delete();
-      }
+    }
     else
-      {
-      out->SetBlock( i, NULL );
-      }
-    } // END for all blocks
+    {
+      out->SetBlock( i, nullptr );
+    }
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridGhostDataGenerator::GenerateGhostLayers(
     vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out )
 {
-  assert("pre: input multi-block is NULL" && (in != NULL) );
-  assert("pre: output multi-block is NULL" && (out != NULL) );
-  assert("pre: grid connectivity is NULL" && (this->GridConnectivity != NULL) );
-  assert("pre: controller should not be NULL" && (this->Controller != NULL) );
+  assert("pre: input multi-block is nullptr" && (in != nullptr) );
+  assert("pre: output multi-block is nullptr" && (out != nullptr) );
+  assert("pre: grid connectivity is nullptr" && (this->GridConnectivity != nullptr) );
+  assert("pre: controller should not be nullptr" && (this->Controller != nullptr) );
 
   // STEP 0: Register grids
   this->RegisterGrids( in );

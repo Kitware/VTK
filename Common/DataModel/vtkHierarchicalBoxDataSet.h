@@ -11,16 +11,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalBoxDataSet - Backwards compatibility class
-//
-// .SECTION Description
-// An empty class for backwards compatiblity
-//
-// .SECTION See Also
-// vtkUniformGridAM vtkOverlappingAMR vtkNonOverlappingAMR
+/**
+ * @class   vtkHierarchicalBoxDataSet
+ * @brief   Backwards compatibility class
+ *
+ *
+ * An empty class for backwards compatibility
+ *
+ * @sa
+ * vtkUniformGridAM vtkOverlappingAMR vtkNonOverlappingAMR
+*/
 
-#ifndef VTKHIERARCHICALBOXDATASET_H_
-#define VTKHIERARCHICALBOXDATASET_H_
+#ifndef vtkHierarchicalBoxDataSet_h
+#define vtkHierarchicalBoxDataSet_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkOverlappingAMR.h"
@@ -34,29 +37,33 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataSet:
 public:
   static vtkHierarchicalBoxDataSet *New();
   vtkTypeMacro(vtkHierarchicalBoxDataSet,vtkOverlappingAMR);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Return a new iterator (the iterator has to be deleted by user).
-  virtual vtkCompositeDataIterator* NewIterator();
+  /**
+   * Return a new iterator (the iterator has to be deleted by user).
+   */
+  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() override;
 
-  // Description:
-  // Return class name of data type (see vtkType.h for definitions).
-  virtual int GetDataObjectType() {return VTK_HIERARCHICAL_BOX_DATA_SET;}
+  /**
+   * Return class name of data type (see vtkType.h for definitions).
+   */
+  int GetDataObjectType() override {return VTK_HIERARCHICAL_BOX_DATA_SET;}
 
-  // BTX
-  // Description:
-  // Retrieve an instance of this class from an information object.
+  //@{
+  /**
+   * Retrieve an instance of this class from an information object.
+   */
   static vtkHierarchicalBoxDataSet* GetData(vtkInformation* info);
   static vtkHierarchicalBoxDataSet* GetData(vtkInformationVector* v, int i=0);
-  // ETX
+  //@}
+
 protected:
   vtkHierarchicalBoxDataSet();
-  virtual ~vtkHierarchicalBoxDataSet();
+  ~vtkHierarchicalBoxDataSet() override;
 
 private:
-  vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&); // Not implemented
-  void operator=(const vtkHierarchicalBoxDataSet&); // Not implemented
+  vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&) = delete;
+  void operator=(const vtkHierarchicalBoxDataSet&) = delete;
 };
 
 #endif

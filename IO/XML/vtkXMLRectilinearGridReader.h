@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLRectilinearGridReader - Read VTK XML RectilinearGrid files.
-// .SECTION Description
-// vtkXMLRectilinearGridReader reads the VTK XML RectilinearGrid file
-// format.  One rectilinear grid file can be read to produce one
-// output.  Streaming is supported.  The standard extension for this
-// reader's file format is "vtr".  This reader is also used to read a
-// single piece of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPRectilinearGridReader
+/**
+ * @class   vtkXMLRectilinearGridReader
+ * @brief   Read VTK XML RectilinearGrid files.
+ *
+ * vtkXMLRectilinearGridReader reads the VTK XML RectilinearGrid file
+ * format.  One rectilinear grid file can be read to produce one
+ * output.  Streaming is supported.  The standard extension for this
+ * reader's file format is "vtr".  This reader is also used to read a
+ * single piece of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPRectilinearGridReader
+*/
 
 #ifndef vtkXMLRectilinearGridReader_h
 #define vtkXMLRectilinearGridReader_h
@@ -35,36 +38,39 @@ class VTKIOXML_EXPORT vtkXMLRectilinearGridReader : public vtkXMLStructuredDataR
 {
 public:
   vtkTypeMacro(vtkXMLRectilinearGridReader,vtkXMLStructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLRectilinearGridReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkRectilinearGrid *GetOutput();
   vtkRectilinearGrid *GetOutput(int idx);
+  //@}
 
 protected:
   vtkXMLRectilinearGridReader();
-  ~vtkXMLRectilinearGridReader();
+  ~vtkXMLRectilinearGridReader() override;
 
-  const char* GetDataSetName();
-  void SetOutputExtent(int* extent);
+  const char* GetDataSetName() override;
+  void SetOutputExtent(int* extent) override;
 
-  void SetupPieces(int numPieces);
-  void DestroyPieces();
-  void SetupOutputData();
-  int ReadPiece(vtkXMLDataElement* ePiece);
-  int ReadPieceData();
+  void SetupPieces(int numPieces) override;
+  void DestroyPieces() override;
+  void SetupOutputData() override;
+  int ReadPiece(vtkXMLDataElement* ePiece) override;
+  int ReadPieceData() override;
   int ReadSubCoordinates(int* inBounds, int* outBounds, int* subBounds,
                          vtkXMLDataElement* da, vtkDataArray* array);
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   // The elements representing the coordinate arrays for each piece.
   vtkXMLDataElement** CoordinateElements;
 
 private:
-  vtkXMLRectilinearGridReader(const vtkXMLRectilinearGridReader&);  // Not implemented.
-  void operator=(const vtkXMLRectilinearGridReader&);  // Not implemented.
+  vtkXMLRectilinearGridReader(const vtkXMLRectilinearGridReader&) = delete;
+  void operator=(const vtkXMLRectilinearGridReader&) = delete;
 };
 
 #endif

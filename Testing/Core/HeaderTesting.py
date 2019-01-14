@@ -25,14 +25,13 @@
 ## projects.
 
 ## .SECTION See Also
-## http://www.vtk.org http://public.kitware.com/Dart/HTML/Index.shtml
+## http://www.vtk.org https://www.cdash.org/
 ## http://www.vtk.org/contribute.php#coding-standards
 
 import sys
 import re
 import os
 import stat
-import string
 
 # Get the path to the directory containing this script.
 if __name__ == '__main__':
@@ -41,12 +40,13 @@ else:
     selfpath = os.path.abspath(os.path.dirname(__file__))
 
 # Load the list of names mangled by windows.h.
-execfile(os.path.join(selfpath, 'WindowsMangleList.py'))
+exec(compile(open(os.path.join(selfpath, 'WindowsMangleList.py')).read(),
+     os.path.join(selfpath, 'WindowsMangleList.py'), 'exec'))
 
-## If tested from dart, make sure to fix all the output strings
-test_from_dart = 0
-if os.environ.has_key("DART_TEST_FROM_DART"):
-    test_from_dart = 1
+## If tested from ctest, make sure to fix all the output strings
+test_from_ctest = False
+if "DASHBOARD_TEST_FROM_CTEST" in os.environ:
+    test_from_ctest = True
 
 ## For backward compatibility
 def StringEndsWith(str1, str2):
@@ -83,10 +83,10 @@ class TestVTKFiles:
         self.Export = export
     def Print(self, text=""):
         rtext = text
-        if test_from_dart:
-            rtext = string.replace(rtext, "<", "&lt;")
-            rtext = string.replace(rtext, ">", "&gt;")
-        print rtext
+        if test_from_ctest:
+            rtext = rtext.replace("<", "&lt;")
+            rtext = rtext.replace(">", "&gt;")
+        print(rtext)
     def Error(self, error):
         self.ErrorValue = 1
         self.Errors[error] = 1
@@ -99,13 +99,13 @@ class TestVTKFiles:
         if self.ErrorValue:
             self.Print( )
             self.Print( "There were errors:" )
-        for a in self.Errors.keys():
+        for a in self.Errors:
             self.Print( "* %s" % a )
     def PrintWarnings(self):
         if self.WarningValue:
             self.Print( )
             self.Print( "There were warnings:" )
-        for a in self.Warnings.keys():
+        for a in self.Warnings:
             self.Print( "* %s" % a )
 
     def TestFile(self, filename):
@@ -114,20 +114,32 @@ class TestVTKFiles:
         self.ClassName = ""
         self.ParentName = ""
         try:
-            file = open(filename)
+            if sys.hexversion >= 0x03000000:
+                file = open(filename, encoding='ascii', errors='ignore')
+            else:
+                file = open(filename)
             self.FileLines = file.readlines()
             file.close()
         except:
-            self.Print( "Problem reading file: %s" % filename )
+            self.Print("Problem reading file %s:\n%s" %
+                       (filename, str(sys.exc_info()[1])))
             sys.exit(1)
         return not self.CheckExclude()
 
     def CheckExclude(self):
         prefix = '// VTK-HeaderTest-Exclude:'
+        prefix_c = '/* VTK-HeaderTest-Exclude:'
+        suffix_c = ' */'
         exclude = 0
         for l in self.FileLines:
             if l.startswith(prefix):
                 e = l[len(prefix):].strip()
+                if e == os.path.basename(self.FileName):
+                    exclude += 1
+                else:
+                    self.Error("Wrong exclusion: "+l.rstrip())
+            elif l.startswith(prefix_c) and l.rstrip().endswith(suffix_c):
+                e = l[len(prefix_c):-len(suffix_c)].strip()
                 if e == os.path.basename(self.FileName):
                     exclude += 1
                 else:
@@ -148,7 +160,7 @@ class TestVTKFiles:
         cc = 0
         includeparent = 0
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             rm = regx.match(line)
             if rm and not regx1.match(line):
                 lines.append(" %4d: %s" % (cc, line))
@@ -186,8 +198,39 @@ class TestVTKFiles:
             self.Error("Does not include parent")
         pass
 
+    def CheckGuard(self):
+        guardre = r"^#ifndef\s+([^ ]*)_h$"
+        guardsetre = r"^#define\s+([^ ]*)_h$"
+        guardrex = re.compile(guardre)
+        guardsetrex = re.compile(guardsetre)
+
+        guard = None
+        guard_set = None
+        expect_trigger = False
+        for line in self.FileLines:
+            line = line.strip()
+            if expect_trigger:
+                gs = guardsetrex.match(line)
+                if gs:
+                    guard_set = gs.group(1)
+                break
+            g = guardrex.match(line)
+            if g:
+                guard = g.group(1)
+                expect_trigger = True
+
+        if not guard or not guard_set:
+            self.Print("File: %s is missing a header guard." % self.FileName)
+            self.Error("Missing header guard")
+        elif not guard == guard_set:
+            self.Print("File: %s is not guarded properly." % self.FileName)
+            self.Error("Guard does is not set properly")
+        elif not ('%s.h' % guard) == os.path.basename(self.FileName):
+            self.Print("File: %s has a guard (%s) which does not match its filename." % (self.FileName, guard))
+            self.Error("Guard does not match the filename")
+
     def CheckParent(self):
-        classre = "^class(\s+[^\s]*_EXPORT)?\s+(vtk[A-Z0-9_][^ :\n]*)\s*:\s*public\s+(vtk[^ \n\{]*)"
+        classre = "^class(\s+VTK_DEPRECATED)?(\s+[^\s]*_EXPORT)?\s+(vtk[A-Z0-9_][^ :\n]*)\s*:\s*public\s+(vtk[^ \n\{]*)"
         cname = ""
         pname = ""
         classlines = []
@@ -195,15 +238,16 @@ class TestVTKFiles:
         cc = 0
         lastline = ""
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             rm = regx.match(line)
             if not rm and not cname:
                 rm = regx.match(lastline + line)
             if rm:
-                export = rm.group(1)
-                export = string.strip(export)
-                cname = rm.group(2)
-                pname = rm.group(3)
+                export = rm.group(2)
+                if export:
+                    export = export.strip()
+                cname = rm.group(3)
+                pname = rm.group(4)
                 classlines.append(" %4d: %s" % (cc, line))
                 if not export:
                     self.Print("File: %s defines 1 class with no export macro:" % self.FileName)
@@ -236,15 +280,15 @@ class TestVTKFiles:
         count = 0
         lines = []
         oldlines = []
-        typere = "^\s*vtk(Abstract)?Type(Revision)*Macro\s*\(\s*(vtk[^ ,]+)\s*,\s*(vtk[^ \)]+)\s*\)\s*"
-        typesplitre = "^\s*vtk(Abstract)?Type(Revision)*Macro\s*\("
+        typere = "^\s*vtk(Abstract|Base)?Type(Revision)*Macro\s*\(\s*(vtk[^ ,]+)\s*,\s*(vtk[^ \)]+)\s*\)\s*"
+        typesplitre = "^\s*vtk(Abstract|Base)?Type(Revision)*Macro\s*\("
 
         regx = re.compile(typere)
         regxs = re.compile(typesplitre)
         cc = 0
         found = 0
         for a in range(len(self.FileLines)):
-            line = string.strip(self.FileLines[a])
+            line = self.FileLines[a].strip()
             rm = regx.match(line)
             if rm:
                 found = 1
@@ -258,8 +302,8 @@ class TestVTKFiles:
                 # Maybe it is in two lines
                 rm = regxs.match(line)
                 if rm:
-                    nline = line + " " + string.strip(self.FileLines[a+1])
-                    line = string.strip(nline)
+                    nline = nline = line + " " + self.FileLines[a+1].strip()
+                    line = nline.strip()
                     rm = regx.match(line)
                     if rm:
                         found = 1
@@ -296,15 +340,15 @@ class TestVTKFiles:
         count = 0
         lines = []
         oldlines = []
-        copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\)\s*;\s*\/\/\s*Not\s*[iI]mplemented(\.)*" % ( self.ClassName, self.ClassName)
-        asgnoperator = "^\s*void\s*operator\s*=\s*\(\s*const\s*%s\s*&\s*\)\s*;\s*\/\/\s*Not\s*[iI]mplemented(\.)*" % self.ClassName
+        copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\) = delete;" % ( self.ClassName, self.ClassName)
+        asgnoperator = "^\s*void\s*operator\s*=\s*\(\s*const\s*%s\s*&\s*\) = delete;" % self.ClassName
         #self.Print( copyoperator
         regx1 = re.compile(copyoperator)
         regx2 = re.compile(asgnoperator)
         foundcopy = 0
         foundasgn = 0
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             if regx1.match(line):
                 foundcopy = foundcopy + 1
             if regx2.match(line):
@@ -312,14 +356,14 @@ class TestVTKFiles:
         lastline = ""
         if foundcopy < 1:
           for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             if regx1.match(lastline + line):
                 foundcopy = foundcopy + 1
             lastline = a
         lastline = ""
         if foundasgn < 1:
           for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             if regx2.match(lastline + line):
                 foundasgn = foundasgn + 1
             lastline = a
@@ -327,7 +371,7 @@ class TestVTKFiles:
         if foundcopy < 1:
             self.Print( "File: %s does not define copy constructor" %
                         self.FileName )
-            self.Print( "Should be:\n%s(const %s&); // Not implemented" %
+            self.Print( "Should be:\n%s(const %s&) = delete;" %
                         (self.ClassName, self.ClassName) )
             self.Error("No private copy constructor")
         if foundcopy > 1:
@@ -337,7 +381,7 @@ class TestVTKFiles:
         if foundasgn < 1:
             self.Print( "File: %s does not define assignment operator" %
                         self.FileName )
-            self.Print( "Should be:\nvoid operator=(const %s&); // Not implemented"
+            self.Print( "Should be:\nvoid operator=(const %s&) = delete;"
                         % self.ClassName )
             self.Error("No private assignment operator")
         if foundcopy > 1:
@@ -355,10 +399,10 @@ class TestVTKFiles:
         regx2 = re.compile(copyoperator)
         cc = 0
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             rm = regx1.match(line)
             if rm:
-                arg = string.strip(rm.group(1))
+                arg = rm.group(1).strip()
                 if arg and not regx2.match(line):
                     lines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
@@ -380,7 +424,7 @@ class TestVTKFiles:
         found = 0
         oldstyle = 0
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             rm1 = regx1.match(line)
             rm2 = regx2.match(line)
             if rm1 or rm2:
@@ -403,10 +447,10 @@ class TestVTKFiles:
         # regx2 = re.compile("^(\s*//|\s*\*|.*VTK_LEGACY).*$")
         cc = 1
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             rm = regx1.match(line)
             if rm:
-                arg = string.strip(rm.group(1))
+                arg =  rm.group(1).strip()
                 if arg and not regx2.match(line):
                     lines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
@@ -422,8 +466,8 @@ test = TestVTKFiles()
 
 ## Check command line arguments
 if len(sys.argv) < 2:
-    print "Testing directory not specified..."
-    print "Usage: %s <directory> [ exception(s) ]" % sys.argv[0]
+    print("Testing directory not specified...")
+    print("Usage: %s <directory> [ exception(s) ]" % sys.argv[0])
     sys.exit(1)
 
 dirname = sys.argv[1]
@@ -431,7 +475,7 @@ exceptions = sys.argv[2:]
 if len(sys.argv) > 2:
   export = sys.argv[2]
   if export[:3] == "VTK" and export[len(export)-len("EXPORT"):] == "EXPORT":
-    print "Use export macro: %s" % export
+    print("Use export macro: %s" % export)
     exceptions = sys.argv[3:]
     test.SetExport(export)
 
@@ -455,6 +499,7 @@ for a in os.listdir(dirname):
         continue
     elif stat.S_ISREG(mode) and test.TestFile(pathname):
         ## Do all the tests
+        test.CheckGuard()
         test.CheckParent()
         test.CheckIncludes()
         test.CheckTypeMacro()

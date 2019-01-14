@@ -22,12 +22,12 @@
 #include "vtkSmartPointer.h"
 
 #include <stdexcept>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkArrayDataWriter);
 
 vtkArrayDataWriter::vtkArrayDataWriter() :
-  FileName(0),
+  FileName(nullptr),
   Binary(false),
   WriteToOutputString(false)
 {
@@ -35,7 +35,7 @@ vtkArrayDataWriter::vtkArrayDataWriter() :
 
 vtkArrayDataWriter::~vtkArrayDataWriter()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
 }
 
 void vtkArrayDataWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -56,13 +56,13 @@ int vtkArrayDataWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInfor
 void vtkArrayDataWriter::WriteData()
 {
   if(this->WriteToOutputString)
-    {
+  {
     this->OutputString = this->Write(this->Binary > 0 ? true : false);
-    }
+  }
   else
-    {
+  {
     this->Write(this->FileName ? this->FileName : "", this->Binary > 0 ? true : false);
-    }
+  }
 }
 
 int vtkArrayDataWriter::Write()
@@ -85,7 +85,7 @@ bool vtkArrayDataWriter::Write(vtkArrayData* array, const vtkStdString& file_nam
 bool vtkArrayDataWriter::Write(ostream& stream, bool WriteBinary)
 {
   try
-    {
+  {
     if(this->GetNumberOfInputConnections(0) != 1)
       throw std::runtime_error("Exactly one input required.");
 
@@ -95,33 +95,33 @@ bool vtkArrayDataWriter::Write(ostream& stream, bool WriteBinary)
 
     this->Write(array_data, stream, WriteBinary);
     return true;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     vtkErrorMacro("caught exception: " << e.what());
-    }
+  }
   return false;
 }
 
 bool vtkArrayDataWriter::Write(vtkArrayData* array_data, ostream& stream, bool WriteBinary)
 {
   try
-    {
+  {
     stream << "vtkArrayData " << array_data->GetNumberOfArrays() << std::endl;
     for(vtkIdType i = 0; i < array_data->GetNumberOfArrays(); ++i)
-      {
+    {
       vtkArray* const array = array_data->GetArray(i);
       if(!array)
-        throw std::runtime_error("Cannot serialize NULL vtkArray.");
+        throw std::runtime_error("Cannot serialize nullptr vtkArray.");
 
       vtkArrayWriter::Write(array, stream, WriteBinary);
-      }
+    }
     return true;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     vtkGenericWarningMacro("caught exception: " << e.what());
-    }
+  }
   return false;
 }
 

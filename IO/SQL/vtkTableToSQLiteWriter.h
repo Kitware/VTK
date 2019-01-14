@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTableToSQLiteWriter - store a vtkTable in an SQLite database
-// .SECTION Description
-// vtkTableToSQLiteWriter reads a vtkTable and inserts it into an SQLite
-// database.
+/**
+ * @class   vtkTableToSQLiteWriter
+ * @brief   store a vtkTable in an SQLite database
+ *
+ * vtkTableToSQLiteWriter reads a vtkTable and inserts it into an SQLite
+ * database.
+*/
 
 #ifndef vtkTableToSQLiteWriter_h
 #define vtkTableToSQLiteWriter_h
@@ -30,25 +33,26 @@ class VTKIOSQL_EXPORT vtkTableToSQLiteWriter : public vtkTableToDatabaseWriter
 public:
   static vtkTableToSQLiteWriter *New();
   vtkTypeMacro(vtkTableToSQLiteWriter,vtkTableToDatabaseWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkTable* GetInput();
   vtkTable* GetInput(int port);
+  //@}
 
 protected:
    vtkTableToSQLiteWriter();
-  ~vtkTableToSQLiteWriter();
-  void WriteData();
+  ~vtkTableToSQLiteWriter() override;
+  void WriteData() override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-
-  vtkTable *Input;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkTableToSQLiteWriter(const vtkTableToSQLiteWriter&);  // Not implemented.
-  void operator=(const vtkTableToSQLiteWriter&);  // Not implemented.
+  vtkTableToSQLiteWriter(const vtkTableToSQLiteWriter&) = delete;
+  void operator=(const vtkTableToSQLiteWriter&) = delete;
 };
 
 #endif

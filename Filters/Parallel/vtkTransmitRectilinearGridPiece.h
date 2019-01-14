@@ -12,17 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTransmitRectilinearGridPiece - Redistributes data produced
-// by serial readers
-//
-// .SECTION Description
-// This filter can be used to redistribute data from producers that can't
-// produce data in parallel. All data is produced on first process and
-// the distributed to others using the multiprocess controller.
-//
-// Note that this class is legacy. The superclass does all the work and
-// can be used directly instead.
-
+/**
+ * @class   vtkTransmitRectilinearGridPiece
+ * @brief   Redistributes data produced
+ * by serial readers
+ *
+ *
+ * This filter can be used to redistribute data from producers that can't
+ * produce data in parallel. All data is produced on first process and
+ * the distributed to others using the multiprocess controller.
+ *
+ * Note that this class is legacy. The superclass does all the work and
+ * can be used directly instead.
+*/
 
 #ifndef vtkTransmitRectilinearGridPiece_h
 #define vtkTransmitRectilinearGridPiece_h
@@ -37,15 +39,15 @@ class VTKFILTERSPARALLEL_EXPORT vtkTransmitRectilinearGridPiece : public vtkTran
 public:
   static vtkTransmitRectilinearGridPiece *New();
   vtkTypeMacro(vtkTransmitRectilinearGridPiece, vtkTransmitStructuredDataPiece);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkTransmitRectilinearGridPiece();
-  ~vtkTransmitRectilinearGridPiece();
+  ~vtkTransmitRectilinearGridPiece() override;
 
 private:
-  vtkTransmitRectilinearGridPiece(const vtkTransmitRectilinearGridPiece&); // Not implemented
-  void operator=(const vtkTransmitRectilinearGridPiece&); // Not implemented
+  vtkTransmitRectilinearGridPiece(const vtkTransmitRectilinearGridPiece&) = delete;
+  void operator=(const vtkTransmitRectilinearGridPiece&) = delete;
 };
 
 #endif

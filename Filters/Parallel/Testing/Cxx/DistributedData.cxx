@@ -73,7 +73,7 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->Argc=0;
-  this->Argv=0;
+  this->Argv=nullptr;
 }
 
 void MyProcess::SetArgs(int anArgc,
@@ -98,10 +98,10 @@ void MyProcess::Execute()
   vtkDataSetReader *dsr = vtkDataSetReader::New();
   vtkUnstructuredGrid *ug = vtkUnstructuredGrid::New();
 
-  vtkDataSet *ds = NULL;
+  vtkDataSet *ds = nullptr;
 
   if (me == 0)
-    {
+  {
     char* fname =
       vtkTestUtilities::ExpandDataFileName(
         this->Argc, this->Argv, "Data/tetraMesh.vtk");
@@ -123,19 +123,19 @@ void MyProcess::Execute()
 
     go = 1;
 
-    if ((ds == NULL) || (ds->GetNumberOfCells() == 0))
-      {
-      if (ds)
-        {
-        cout << "Failure: input file has no cells" << endl;
-        }
-      go = 0;
-      }
-    }
-  else
+    if ((ds == nullptr) || (ds->GetNumberOfCells() == 0))
     {
-    ds = static_cast<vtkDataSet *>(ug);
+      if (ds)
+      {
+        cout << "Failure: input file has no cells" << endl;
+      }
+      go = 0;
     }
+  }
+  else
+  {
+    ds = static_cast<vtkDataSet *>(ug);
+  }
 
   vtkMPICommunicator *comm =
     vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
@@ -143,12 +143,12 @@ void MyProcess::Execute()
   comm->Broadcast(&go, 1, 0);
 
   if (!go)
-    {
+  {
     dsr->Delete();
     ug->Delete();
     prm->Delete();
     return;
-    }
+  }
 
   // DATA DISTRIBUTION FILTER
 
@@ -200,6 +200,35 @@ void MyProcess::Execute()
 
   prm->InitializeOffScreen();   // Mesa GL only
 
+  // Test the minimum ghost cell settings:
+  bool ghostCellSuccess = true;
+  {
+    dd->UseMinimalMemoryOn();
+    dd->SetBoundaryModeToAssignToOneRegion();
+
+    dd->SetMinimumGhostLevel(0);
+    dd->Update();
+    int ncells = static_cast<vtkUnstructuredGrid*>(dd->GetOutput())->GetNumberOfCells();
+    if (me == 0 && ncells != 79)
+    {
+      std::cerr << "Invalid number of cells for ghost level 0: " << ncells << "\n";
+      ghostCellSuccess = false;
+    }
+
+    dd->SetMinimumGhostLevel(2);
+    dd->Update();
+    ncells = static_cast<vtkUnstructuredGrid*>(dd->GetOutput())->GetNumberOfCells();
+    if (me == 0 && ncells != 160)
+    {
+      std::cerr << "Invalid number of cells for ghost level 2: " << ncells << "\n";
+      ghostCellSuccess = false;
+    }
+
+    dd->SetMinimumGhostLevel(0);
+    dd->UseMinimalMemoryOff();
+    dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
+  }
+
   // We must update the whole pipeline here, otherwise node 0
   // goes into GetActiveCamera which updates the pipeline, putting
   // it into vtkDistributedDataFilter::Execute() which then hangs.
@@ -213,7 +242,7 @@ void MyProcess::Execute()
   const int MY_RETURN_VALUE_MESSAGE=0x11;
 
   if (me == 0)
-    {
+  {
     renderer->ResetCamera();
     vtkCamera *camera = renderer->GetActiveCamera();
     //camera->UpdateViewport(renderer);
@@ -236,19 +265,24 @@ void MyProcess::Execute()
     this->ReturnValue =
       vtkRegressionTester::Test(this->Argc,this->Argv,renWin, 10);
 
-    if (ncells != 152)
-      {
+    if (this->ReturnValue == vtkTesting::PASSED && !ghostCellSuccess)
+    {
       this->ReturnValue = vtkTesting::FAILED;
-      }
+    }
+
+    if (ncells != 152)
+    {
+      this->ReturnValue = vtkTesting::FAILED;
+    }
     for (i=1; i < numProcs; i++)
-      {
+    {
       this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
-      }
+    }
 
     prm->StopServices();
-    }
+  }
   else
-    {
+  {
     dd->UseMinimalMemoryOn();
     dd->SetBoundaryModeToAssignToOneRegion();
 
@@ -259,46 +293,7 @@ void MyProcess::Execute()
 
     prm->StartServices();
     this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
-    }
-
-  if (0 && this->ReturnValue == vtkTesting::PASSED)
-    {
-    // Now try using the memory conserving *Lean methods.  The
-    // image produced should be identical
-
-    dd->UseMinimalMemoryOn();
-    mapper->SetPiece(me);
-    mapper->SetNumberOfPieces(numProcs);
-    mapper->Update();
-
-    if (me == 0)
-      {
-      renderer->ResetCamera();
-      vtkCamera *camera = renderer->GetActiveCamera();
-      camera->UpdateViewport(renderer);
-      camera->ParallelProjectionOn();
-      camera->SetParallelScale(16);
-
-      renWin->Render();
-      renWin->Render();
-
-      this->ReturnValue=vtkRegressionTester::Test(this->Argc,this->Argv,renWin,
-                                                  10);
-
-      for (i=1; i < numProcs; i++)
-        {
-        this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
-        }
-
-      prm->StopServices();
-      }
-    else
-      {
-      prm->StartServices();
-      this->Controller->Receive(&this->ReturnValue,1,0,
-                                MY_RETURN_VALUE_MESSAGE);
-      }
-    }
+  }
 
   // CLEAN UP
 
@@ -332,24 +327,24 @@ int DistributedData(int argc, char *argv[])
   int me = contr->GetLocalProcessId();
 
   if (numProcs != 2)
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires 2 processes" << endl;
-      }
+    }
     contr->Delete();
     return retVal;
-    }
+  }
 
   if (!contr->IsA("vtkMPIController"))
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires MPI" << endl;
-      }
+    }
     contr->Delete();
     return retVal;   // is this the right error val?   TODO
-    }
+  }
 
   MyProcess *p=MyProcess::New();
   p->SetArgs(argc,argv);

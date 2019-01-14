@@ -736,7 +736,7 @@ ReadStream(METAIO_STREAM::ifstream * _stream, bool _readElements,
 
   bool usePath;
   char pathName[255];
-  char fName[255];
+  char fName[1024];
   usePath = MET_GetFilePath(m_FileName, pathName);
 
   if(_readElements)
@@ -772,10 +772,7 @@ ReadStream(METAIO_STREAM::ifstream * _stream, bool _readElements,
         m_ReadStream = NULL;
         return false;
         }
-      if(_readElements)
-        {
-        M_ReadElements(readStreamTemp, m_ElementData, m_Length);
-        }
+      M_ReadElements(readStreamTemp, m_ElementData, m_Length);
       readStreamTemp->close();
       delete readStreamTemp;
       }
@@ -1150,7 +1147,7 @@ M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data,
       _fstream->seekg(0, METAIO_STREAM::ios::beg);
       }
 
-    unsigned char* compr = new unsigned char[m_CompressedElementDataSize];
+    unsigned char* compr = new unsigned char[static_cast<size_t>(m_CompressedElementDataSize)];
     _fstream->read((char *)compr, (size_t)m_CompressedElementDataSize);
 
     MET_PerformUncompression(compr, m_CompressedElementDataSize,
@@ -1171,7 +1168,7 @@ M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data,
     else
       {
       _fstream->read((char *)_data, readSize);
-      int gc = _fstream->gcount();
+      int gc = static_cast<int>(_fstream->gcount());
       if(gc != readSize)
         {
         METAIO_STREAM::cout
@@ -1207,7 +1204,7 @@ M_WriteElements(METAIO_STREAM::ofstream * _fstream, const void * _data,
     localData = false;
     tmpWriteStream = new METAIO_STREAM::ofstream;
 
-    char dataFileName[255];
+    char dataFileName[1024];
     char pathName[255];
     bool usePath = MET_GetFilePath(m_FileName, pathName);
     if(usePath)
@@ -1267,4 +1264,3 @@ M_WriteElements(METAIO_STREAM::ofstream * _fstream, const void * _data,
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-

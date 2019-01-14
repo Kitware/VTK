@@ -12,15 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTemporalFractal - A source to test AMR data object.
-// .SECTION Description
-// vtkTemporalFractal is a collection of uniform grids.  All have the same
-// dimensions. Each block has a different origin and spacing.  It uses
-// mandelbrot to create cell data. I scale the fractal array to look like a
-// volme fraction.
-// I may also add block id and level as extra cell arrays.
-// This source produces a vtkHierarchicalBoxDataSet when
-// GenerateRectilinearGrids is off, otherwise produces a vtkMultiBlockDataSet.
+/**
+ * @class   vtkTemporalFractal
+ * @brief   A source to test AMR data object.
+ *
+ * vtkTemporalFractal is a collection of uniform grids.  All have the same
+ * dimensions. Each block has a different origin and spacing.  It uses
+ * mandelbrot to create cell data. The fractal array is scaled to look like a
+ * volume fraction.
+ *
+ * I may also add block id and level as extra cell arrays.
+ * This source produces a vtkHierarchicalBoxDataSet when
+ * GenerateRectilinearGrids is off, otherwise produces a vtkMultiBlockDataSet.
+*/
 
 #ifndef vtkTemporalFractal_h
 #define vtkTemporalFractal_h
@@ -40,101 +44,137 @@ class TemporalFractalOutputUtil;
 class VTKFILTERSHYBRID_EXPORT vtkTemporalFractal: public vtkAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
   static vtkTemporalFractal *New();
   vtkTypeMacro(vtkTemporalFractal,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // Essentially the iso surface value.
-  // The fractal array is scaled to map this value to 0.5 for use as a volume
-  // fraction.
+  //@{
+  /**
+   * Essentially the iso surface value.  The fractal array is scaled to map
+   * this value to 0.5 for use as a volume fraction.
+   */
   vtkSetMacro(FractalValue, float);
   vtkGetMacro(FractalValue, float);
+  //@}
 
-  // Description:
-  // Any blocks touching a predefined line will be subdivided to this level.
-  // Other blocks are subdivided so that neighboring blocks only differ
-  // by one level.
+  //@{
+  /**
+   * Any blocks touching a predefined line will be subdivided to this level.
+   * Other blocks are subdivided so that neighboring blocks only differ
+   * by one level.
+   */
   vtkSetMacro(MaximumLevel, int);
   vtkGetMacro(MaximumLevel, int);
+  //@}
 
-  // Description:
-  // XYZ dimensions of cells.
+  //@{
+  /**
+   * XYZ dimensions of cells.
+   */
   vtkSetMacro(Dimensions, int);
   vtkGetMacro(Dimensions, int);
+  //@}
 
-  // Description:
-  // For testing ghost levels.
-  vtkSetMacro(GhostLevels, int);
-  vtkGetMacro(GhostLevels, int);
-  vtkBooleanMacro(GhostLevels, int);
+  //@{
+  /**
+   * For testing ghost levels.
+   */
+  vtkSetMacro(GhostLevels, vtkTypeBool);
+  vtkGetMacro(GhostLevels, vtkTypeBool);
+  vtkBooleanMacro(GhostLevels, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Generate either rectilinear grids either uniform grids.
-  // Default is false.
-  vtkSetMacro(GenerateRectilinearGrids, int);
-  vtkGetMacro(GenerateRectilinearGrids, int);
-  vtkBooleanMacro(GenerateRectilinearGrids, int);
+  //@{
+  /**
+   * Generate either rectilinear grids either uniform grids.
+   * Default is false.
+   */
+  vtkSetMacro(GenerateRectilinearGrids, vtkTypeBool);
+  vtkGetMacro(GenerateRectilinearGrids, vtkTypeBool);
+  vtkBooleanMacro(GenerateRectilinearGrids, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Limit this source to discrete integer time steps
-  // Default is off (continuous)
-  vtkSetMacro(DiscreteTimeSteps, int);
-  vtkGetMacro(DiscreteTimeSteps, int);
-  vtkBooleanMacro(DiscreteTimeSteps, int);
+  //@{
+  /**
+   * Limit this source to discrete integer time steps
+   * Default is off (continuous)
+   */
+  vtkSetMacro(DiscreteTimeSteps, vtkTypeBool);
+  vtkGetMacro(DiscreteTimeSteps, vtkTypeBool);
+  vtkBooleanMacro(DiscreteTimeSteps, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Make a 2D data set to test.
-  vtkSetMacro(TwoDimensional, int);
-  vtkGetMacro(TwoDimensional, int);
-  vtkBooleanMacro(TwoDimensional, int);
+  //@{
+  /**
+   * Make a 2D data set to test.
+   */
+  vtkSetMacro(TwoDimensional, vtkTypeBool);
+  vtkGetMacro(TwoDimensional, vtkTypeBool);
+  vtkBooleanMacro(TwoDimensional, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Test the case when the blocks do not have the same sizes.
-  // Adds 2 to the x extent of the far x blocks (level 1).
-  vtkSetMacro(Asymetric,int);
-  vtkGetMacro(Asymetric,int);
+  //@{
+  /**
+   * Test the case when the blocks do not have the same sizes.
+   * Adds 2 to the x extent of the far x blocks (level 1).
+   */
+  vtkSetMacro(Asymmetric,int);
+  vtkGetMacro(Asymmetric,int);
+  //@}
 
-  // Description:
-  // Make the division adaptive or not, defaults to Adaptive
-  vtkSetMacro(AdaptiveSubdivision, int);
-  vtkGetMacro(AdaptiveSubdivision, int);
-  vtkBooleanMacro(AdaptiveSubdivision, int);
+  //@{
+  /**
+   * Make the division adaptive or not, defaults to Adaptive
+   */
+  vtkSetMacro(AdaptiveSubdivision, vtkTypeBool);
+  vtkGetMacro(AdaptiveSubdivision, vtkTypeBool);
+  vtkBooleanMacro(AdaptiveSubdivision, vtkTypeBool);
+  //@}
 
 
 protected:
   vtkTemporalFractal();
-  ~vtkTemporalFractal();
+  ~vtkTemporalFractal() override;
 
-  virtual int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info);
+  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
 
   int StartBlock;
   int EndBlock;
   int BlockCount;
 
-  // Description:
-  // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation* request,
+  /**
+   * see vtkAlgorithm for details
+   */
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+                             vtkInformationVector* outputVector) override;
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestDataObject(vtkInformation*,
                                 vtkInformationVector**,
                                 vtkInformationVector*);
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  //@{
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
@@ -142,6 +182,7 @@ protected:
                                  vtkInformation *request,
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
+  //@}
 
   void Traverse(int &blockId, int level, vtkDataObject* output,
                 int x0,int x1, int y0,int y1, int z0,int z1,
@@ -193,29 +234,29 @@ protected:
 
   void InternalImageDataCopy(vtkTemporalFractal *src);
 
-  int Asymetric;
+  int Asymmetric;
   int MaximumLevel;
   int Dimensions;
   float FractalValue;
-  int GhostLevels;
+  vtkTypeBool GhostLevels;
   vtkIntArray *Levels;
-  int TwoDimensional;
-  int DiscreteTimeSteps;
+  vtkTypeBool TwoDimensional;
+  vtkTypeBool DiscreteTimeSteps;
 
-  // New method of specifing blocks.
+  // New method of specifying blocks.
   double TopLevelSpacing[3];
   double TopLevelOrigin[3];
 
-  int GenerateRectilinearGrids;
+  vtkTypeBool GenerateRectilinearGrids;
 
   double CurrentTime;
 
-  int AdaptiveSubdivision;
+  vtkTypeBool AdaptiveSubdivision;
   vtkSmartPointer<TemporalFractalOutputUtil> OutputUtil;
 
 private:
-  vtkTemporalFractal(const vtkTemporalFractal&);  // Not implemented.
-  void operator=(const vtkTemporalFractal&);  // Not implemented.
+  vtkTemporalFractal(const vtkTemporalFractal&) = delete;
+  void operator=(const vtkTemporalFractal&) = delete;
 };
 
 

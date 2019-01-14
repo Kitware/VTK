@@ -43,6 +43,13 @@ XdmfSet::XdmfSet() :
 {
 }
 
+XdmfSet::XdmfSet(XdmfSet & refSet) :
+  XdmfArray(refSet),
+  mName(refSet.mName),
+  mType(refSet.mType)
+{
+}
+
 XdmfSet::~XdmfSet()
 {
 }
@@ -116,22 +123,129 @@ void
 XdmfSet::setName(const std::string & name)
 {
   mName = name;
+  this->setIsChanged(true);
 }
 
 void
 XdmfSet::setType(const shared_ptr<const XdmfSetType> type)
 {
   mType = type;
+  this->setIsChanged(true);
 }
 
 void
 XdmfSet::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 {
   XdmfItem::traverse(visitor);
-  for(std::vector<shared_ptr<XdmfAttribute> >::const_iterator iter =
-        mAttributes.begin();
-      iter != mAttributes.end();
-      ++iter) {
-    (*iter)->accept(visitor);
+  for (unsigned int i = 0; i < mAttributes.size(); ++i)
+  {
+    mAttributes[i]->accept(visitor);
   }
 }
+
+// C Wrappers
+
+XDMFSET * XdmfSetNew()
+{
+  try
+  {
+    shared_ptr<XdmfSet> generatedSet = XdmfSet::New();
+    return (XDMFSET*)((void *)(new XdmfSet(*generatedSet.get())));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfSet> generatedSet = XdmfSet::New();
+    return (XDMFSET*)((void *)(new XdmfSet(*generatedSet.get())));
+  }
+}
+
+XDMFATTRIBUTE * XdmfSetGetAttribute(XDMFSET * set, unsigned int index)
+{
+  return (XDMFATTRIBUTE *)((void *)(((XdmfSet *)(set))->getAttribute(index).get()));
+}
+
+XDMFATTRIBUTE * XdmfSetGetAttributeByName(XDMFSET * set, char * Name)
+{
+  return (XDMFATTRIBUTE *)((void *)(((XdmfSet *)(set))->getAttribute(Name).get()));
+}
+
+unsigned int XdmfSetGetNumberAttributes(XDMFSET * set)
+{
+  return ((XdmfSet *)(set))->getNumberAttributes();
+}
+
+int XdmfSetGetType(XDMFSET * set)
+{
+  shared_ptr<const XdmfSetType> checkType = ((XdmfSet *)set)->getType();
+
+  if (checkType == XdmfSetType::NoSetType()) {
+    return XDMF_SET_TYPE_NO_SET_TYPE;
+  }
+  else if (checkType == XdmfSetType::Node()) {
+    return XDMF_SET_TYPE_NODE;
+  }
+  else if (checkType == XdmfSetType::Cell()) {
+    return XDMF_SET_TYPE_CELL;
+  }
+  else if (checkType == XdmfSetType::Face()) {
+    return XDMF_SET_TYPE_FACE;
+  }
+  else if (checkType == XdmfSetType::Edge()) {
+    return XDMF_SET_TYPE_EDGE;
+  }
+  else {
+    return -1;
+  }
+}
+
+void XdmfSetInsertAttribute(XDMFSET * set, XDMFATTRIBUTE * Attribute, int passControl)
+{
+  if (passControl) {
+    ((XdmfSet *)(set))->insert(shared_ptr<XdmfAttribute>((XdmfAttribute *)Attribute));
+  }
+  else {
+    ((XdmfSet *)(set))->insert(shared_ptr<XdmfAttribute>((XdmfAttribute *)Attribute, XdmfNullDeleter()));
+  }
+}
+
+void XdmfSetRemoveAttribute(XDMFSET * set, unsigned int index)
+{
+  ((XdmfSet *)(set))->removeAttribute(index);
+}
+
+void XdmfSetRemoveAttributeByName(XDMFSET * set, char * Name)
+{
+  ((XdmfSet *)(set))->removeAttribute(Name);
+}
+
+void XdmfSetSetType(XDMFSET * set, int type, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  shared_ptr<const XdmfSetType> newType = shared_ptr<const XdmfSetType>();
+  switch (type) {
+    case XDMF_SET_TYPE_NO_SET_TYPE:
+      newType = XdmfSetType::NoSetType();
+      break;
+    case XDMF_SET_TYPE_NODE:
+      newType = XdmfSetType::Node();
+      break;
+    case XDMF_SET_TYPE_CELL:
+      newType = XdmfSetType::Cell();
+      break;
+    case XDMF_SET_TYPE_FACE:
+      newType = XdmfSetType::Face();
+      break;
+    case XDMF_SET_TYPE_EDGE:
+      newType = XdmfSetType::Edge();
+      break;
+    default:
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Invalid Set Type: Code " + type);
+      break;
+  }
+  ((XdmfSet *)set)->setType(newType);
+  XDMF_ERROR_WRAP_END(status)
+}
+
+XDMF_ITEM_C_CHILD_WRAPPER(XdmfSet, XDMFSET)
+XDMF_ARRAY_C_CHILD_WRAPPER(XdmfSet, XDMFSET)

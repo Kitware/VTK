@@ -20,14 +20,14 @@ int TestBiomTableReader(int argc, char* argv[])
   int error_count = 0;
 
   if (table->GetNumberOfRows() != 419)
-    {
+  {
     ++error_count;
-    }
+  }
 
   if (table->GetNumberOfColumns() != 10)
-    {
+  {
     ++error_count;
-    }
+  }
 
   cerr << error_count << " errors" << endl;
   return error_count;

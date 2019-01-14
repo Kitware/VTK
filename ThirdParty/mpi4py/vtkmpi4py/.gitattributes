@@ -1,0 +1,2 @@
+* -whitespace
+src/mpi4py.MPI.c  hooks-max-size=8388608

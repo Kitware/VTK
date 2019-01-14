@@ -19,12 +19,15 @@
 
 =========================================================================*/
 
-// .NAME vtkExtractArray - Given a vtkArrayData object containing one-or-more
-// vtkArray instances, produces a vtkArrayData containing just one vtkArray,
-// indentified by index.
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkExtractArray
+ * @brief   Given a vtkArrayData object containing one-or-more
+ * vtkArray instances, produces a vtkArrayData containing just one vtkArray,
+ * identified by index.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkExtractArray_h
 #define vtkExtractArray_h
@@ -37,27 +40,30 @@ class VTKFILTERSGENERAL_EXPORT vtkExtractArray : public vtkArrayDataAlgorithm
 public:
   static vtkExtractArray* New();
   vtkTypeMacro(vtkExtractArray, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Controls which array will be extracted.
+  //@{
+  /**
+   * Controls which array will be extracted.
+   */
   vtkGetMacro(Index, vtkIdType);
   vtkSetMacro(Index, vtkIdType);
+  //@}
 
 protected:
   vtkExtractArray();
-  ~vtkExtractArray();
+  ~vtkExtractArray() override;
 
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) override;
 
 private:
-  vtkExtractArray(const vtkExtractArray&); // Not implemented
-  void operator=(const vtkExtractArray&);   // Not implemented
+  vtkExtractArray(const vtkExtractArray&) = delete;
+  void operator=(const vtkExtractArray&) = delete;
 
   vtkIdType Index;
 };

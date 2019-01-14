@@ -19,17 +19,21 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkGlobeSource - Sphere patch with Lat/Long scalar array.
-// .SECTION Description
-// vtkGlobeSource will generate any "rectangular" patch of the globe
-// given its Longitude-Latitude extent.  It adds two point scalar arrays
-// Longitude and Latitude to the output.  These arrays can be transformed
-// to generate texture coordinates for any texture map.  This source is
-// imperfect near the poles as implmented.  It should really reduce the
-// longitude resolution as the triangles become slivers.
-//
-// \image html vtkGlobeSourceSphericalToCartesianFigure.png
-// \image latex vtkGlobeSourceSphericalToCartesianFigure.eps
+/**
+ * @class   vtkGlobeSource
+ * @brief   Sphere patch with Lat/Long scalar array.
+ *
+ * vtkGlobeSource will generate any "rectangular" patch of the globe
+ * given its Longitude-Latitude extent.  It adds two point scalar arrays
+ * Longitude and Latitude to the output.  These arrays can be transformed
+ * to generate texture coordinates for any texture map.  This source is
+ * imperfect near the poles as implemented.  It should really reduce the
+ * longitude resolution as the triangles become slivers.
+ *
+ * \image html vtkGlobeSourceSphericalToCartesianFigure.png
+ * \image latex vtkGlobeSourceSphericalToCartesianFigure.eps
+*/
+
 #ifndef vtkGlobeSource_h
 #define vtkGlobeSource_h
 
@@ -40,89 +44,115 @@ class vtkCellArray;
 class vtkFloatArray;
 
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGlobeSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGlobeSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 
-  // Description:
-  // This world point will be shifted to 0,0,0.
-  // Used to avoid picking bug caused by rendering errors with large offsets.
+  //@{
+  /**
+   * This world point will be shifted to 0,0,0.
+   * Used to avoid picking bug caused by rendering errors with large offsets.
+   */
   vtkSetVector3Macro(Origin, double);
+  //@}
 
-  // Description:
-  // Longitude Latitude clamps.
+  //@{
+  /**
+   * Longitude Latitude clamps.
+   */
   vtkSetClampMacro(StartLongitude,double,-180.0,180.0);
   vtkSetClampMacro(EndLongitude,double,-180.0,180.0);
   vtkSetClampMacro(StartLatitude,double,-90.0,90.0);
   vtkSetClampMacro(EndLatitude,double,-90.0,90.0);
+  //@}
 
-  // Description:
-  // Set the number of points in the longitude direction (ranging from
-  // StartLongitude to EndLongitude).
+  //@{
+  /**
+   * Set the number of points in the longitude direction (ranging from
+   * StartLongitude to EndLongitude).
+   */
   vtkSetClampMacro(LongitudeResolution,int,3,100);
   vtkGetMacro(LongitudeResolution,int);
+  //@}
 
-  // Description:
-  // Set the number of points in the latitude direction (ranging
-  // from StartLatitude to EndLatitude).
+  //@{
+  /**
+   * Set the number of points in the latitude direction (ranging
+   * from StartLatitude to EndLatitude).
+   */
   vtkSetClampMacro(LatitudeResolution,int,3,100);
   vtkGetMacro(LatitudeResolution,int);
+  //@}
 
-  // Description:
-  // Set radius of sphere. Default is 6356750.0
+  //@{
+  /**
+   * Set radius of sphere. Default is 6356750.0
+   */
   vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(Radius,double);
+  //@}
 
-  // Description:
+  //@{
   vtkSetMacro(AutoCalculateCurtainHeight, bool);
   vtkGetMacro(AutoCalculateCurtainHeight, bool);
   vtkBooleanMacro(AutoCalculateCurtainHeight, bool);
+  //@}
 
-  // Description:
-  // Set/Get curtain height.
+  //@{
+  /**
+   * Set/Get curtain height.
+   */
   vtkSetClampMacro(CurtainHeight,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(CurtainHeight,double);
+  //@}
 
-  // Description:
-  // Cause the sphere to be tessellated with edges along the latitude
-  // and longitude lines. If off, triangles are generated at non-polar
-  // regions, which results in edges that are not parallel to latitude and
-  // longitude lines. If on, quadrilaterals are generated everywhere
-  // except at the poles. This can be useful for generating a wireframe
-  // sphere with natural latitude and longitude lines.
-  vtkSetMacro(QuadrilateralTessellation,int);
-  vtkGetMacro(QuadrilateralTessellation,int);
-  vtkBooleanMacro(QuadrilateralTessellation,int);
+  //@{
+  /**
+   * Cause the sphere to be tessellated with edges along the latitude
+   * and longitude lines. If off, triangles are generated at non-polar
+   * regions, which results in edges that are not parallel to latitude and
+   * longitude lines. If on, quadrilaterals are generated everywhere
+   * except at the poles. This can be useful for generating a wireframe
+   * sphere with natural latitude and longitude lines.
+   */
+  vtkSetMacro(QuadrilateralTessellation,vtkTypeBool);
+  vtkGetMacro(QuadrilateralTessellation,vtkTypeBool);
+  vtkBooleanMacro(QuadrilateralTessellation,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Construct sphere with radius=0.5 and default resolution 8 in both latitude
-  // and longitude directions. longitude ranges from (-180,180)
-  // and latitude (-90,90) degrees.
+  /**
+   * Construct sphere with radius=0.5 and default resolution 8 in both latitude
+   * and longitude directions. longitude ranges from (-180,180)
+   * and latitude (-90,90) degrees.
+   */
   static vtkGlobeSource *New();
 
-  // Description:
-  // Calculates the normal and point on a sphere with a specified radius
-  // at the spherical coordinates theta and phi.
+  /**
+   * Calculates the normal and point on a sphere with a specified radius
+   * at the spherical coordinates theta and phi.
+   */
   static void ComputeGlobePoint(
-    double theta, double phi, double radius, double* point, double* normal = 0);
+    double theta, double phi, double radius, double* point, double* normal = nullptr);
 
-  // Description:
-  // Calculates the spherical coordinates theta and phi based on the
-  // point on a sphere.
+  /**
+   * Calculates the spherical coordinates theta and phi based on the
+   * point on a sphere.
+   */
   static void ComputeLatitudeLongitude(
     double* x, double& theta, double& phi);
 
 protected:
   vtkGlobeSource();
-  ~vtkGlobeSource() {}
+  ~vtkGlobeSource() override {}
 
   int RequestData(
     vtkInformation *,
     vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) override;
 
   void AddPoint(
     double theta, double phi, double radius,
@@ -145,11 +175,12 @@ protected:
   double StartLatitude;
   double EndLatitude;
 
-  int QuadrilateralTessellation;
+  vtkTypeBool QuadrilateralTessellation;
 
 private:
-  vtkGlobeSource(const vtkGlobeSource&);  // Not implemented.
-  void operator=(const vtkGlobeSource&);  // Not implemented.
+  vtkGlobeSource(const vtkGlobeSource&) = delete;
+  void operator=(const vtkGlobeSource&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

@@ -53,7 +53,7 @@ int MeshQuality( int argc, char* argv[] )
   cout << "SaveCellQuality: " << iq->GetSaveCellQuality() << endl;
 
   if ( ug->GetNumberOfCells() )
-    {
+  {
     cout << endl;
     cout << "Triangle quality of mesh" << endl;
     cout << mr->GetFileName()
@@ -535,9 +535,9 @@ int MeshQuality( int argc, char* argv[] )
          << endl;
     DumpQualityStats( iq, "Mesh Hexahedron Quality" );
     cout << endl;
-    }
+  }
 
-  // Exersize remaining methods for coverage
+  // Exercise remaining methods for coverage
   iq->Print(cout);
 
   // Check for warnings
@@ -549,60 +549,60 @@ int MeshQuality( int argc, char* argv[] )
   iq->Update();
 
   if (warningObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << warningObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected warning" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   warningObserver->Clear();
 
   iq->SetQuadQualityMeasure (100000);
   iq->Update();
 
   if (warningObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << warningObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected warning" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   warningObserver->Clear();
 
   iq->SetTetQualityMeasure (100000);
   iq->Update();
 
   if (warningObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << warningObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected warning" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   warningObserver->Clear();
 
   iq->SetHexQualityMeasure (100000);
   iq->Update();
 
   if (warningObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << warningObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected warning" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   warningObserver->Clear();
 
   iq->Delete();

@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -14,20 +16,9 @@
 =========================================================================*/
 // this shader implements imposters in OpenGL for Spheres
 
-// The following line handle system declarations such a
-// default precisions, or defining precisions to null
-//VTK::System::Dec
-
-// all variables that represent positions or directions have a suffix
-// indicating the coordinate system they are in. The possible values are
-// MC - Model Coordinates
-// WC - WC world coordinates
-// VC - View Coordinates
-// DC - Display Coordinates
-
-attribute vec4 vertexMC;
-attribute vec2 offsetMC;
-//attribute float radiusMC;
+in vec4 vertexMC;
+in float radiusMC;
+out float radiusVCVSOutput;
 
 // optional normal declaration
 //VTK::Normal::Dec
@@ -44,8 +35,8 @@ attribute vec2 offsetMC;
 // camera and actor matrix values
 //VTK::Camera::Dec
 
-varying vec2 offsetVC;
-uniform int cameraParallel;
+// picking support
+//VTK::Picking::Dec
 
 void main()
 {
@@ -57,29 +48,9 @@ void main()
 
   //VTK::Clip::Impl
 
-  // compute the projected vertex position
-  vec4 vertexVC = MCVCMatrix * vertexMC;
+  radiusVCVSOutput = radiusMC;
 
-  // the offsets sent down are positioned
-  // at 2.0*radius*3.0 from the center of the
-  // gaussian.  This has to be consistent
-  // with the offsets we build into the VBO
-  float radius = sqrt(dot(offsetMC,offsetMC))/6.0;
+  gl_Position = MCVCMatrix * vertexMC;
 
-  // make the triangle face the camera
-  if (cameraParallel == 0)
-    {
-    vec3 dir = normalize(-vertexVC.xyz);
-    vec3 base2 = normalize(cross(dir,vec3(1.0,0.0,0.0)));
-    vec3 base1 = cross(base2,dir);
-    vertexVC.xyz = vertexVC.xyz + offsetMC.x*base1 + offsetMC.y*base2;
-    }
-  else
-    {
-    // add in the offset
-    vertexVC.xy = vertexVC.xy + offsetMC;
-    }
-
-  offsetVC = offsetMC/radius;
-  gl_Position = VCDCMatrix * vertexVC;
+  //VTK::Picking::Impl
 }

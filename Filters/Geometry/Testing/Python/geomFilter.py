@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -182,7 +181,7 @@ oa = pd.GetCellData().GetArray('testarray')
 correctcelldata = [1, 3, 0, 2]
 for i in range(4):
     if oa.GetValue(i) != correctcelldata[i]:
-        print 'Bad celldata of test array'
+        print('Bad celldata of test array')
         import sys
         sys.exit(1)
 # --- end of script --

@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLFileReadTester - Utility class for vtkXMLReader and subclasses.
-// .SECTION Description
-// vtkXMLFileReadTester reads the smallest part of a file necessary to
-// determine whether it is a VTK XML file.  If so, it extracts the
-// file type and version number.
+/**
+ * @class   vtkXMLFileReadTester
+ * @brief   Utility class for vtkXMLReader and subclasses.
+ *
+ * vtkXMLFileReadTester reads the smallest part of a file necessary to
+ * determine whether it is a VTK XML file.  If so, it extracts the
+ * file type and version number.
+*/
 
 #ifndef vtkXMLFileReadTester_h
 #define vtkXMLFileReadTester_h
@@ -28,42 +31,43 @@ class VTKIOXML_EXPORT vtkXMLFileReadTester: public vtkXMLParser
 {
 public:
   vtkTypeMacro(vtkXMLFileReadTester,vtkXMLParser);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLFileReadTester* New();
 
-  // Description:
-  // Try to read the file given by FileName.  Returns 1 if the file is
-  // a VTK XML file, and 0 otherwise.
+  /**
+   * Try to read the file given by FileName.  Returns 1 if the file is
+   * a VTK XML file, and 0 otherwise.
+   */
   int TestReadFile();
 
-  // Description:
-  // Get/Set the name of the file tested by TestReadFile().
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-
-  // Description:
-  // Get the data type of the XML file tested.  If the file could not
-  // be read, returns NULL.
+  //@{
+  /**
+   * Get the data type of the XML file tested.  If the file could not
+   * be read, returns nullptr.
+   */
   vtkGetStringMacro(FileDataType);
+  //@}
 
-  // Description:
-  // Get the file version of the XML file tested.  If the file could not
-  // be read, returns NULL.
+  //@{
+  /**
+   * Get the file version of the XML file tested.  If the file could not
+   * be read, returns nullptr.
+   */
   vtkGetStringMacro(FileVersion);
+  //@}
 
 protected:
   vtkXMLFileReadTester();
-  ~vtkXMLFileReadTester();
+  ~vtkXMLFileReadTester() override;
 
-  void StartElement(const char* name, const char** atts);
-  int ParsingComplete();
-  void ReportStrayAttribute(const char*, const char*, const char*) {}
-  void ReportMissingAttribute(const char*, const char*) {}
-  void ReportBadAttribute(const char*, const char*, const char*) {}
-  void ReportUnknownElement(const char*) {}
-  void ReportXmlParseError() {}
+  void StartElement(const char* name, const char** atts) override;
+  int ParsingComplete() override;
+  void ReportStrayAttribute(const char*, const char*, const char*) override {}
+  void ReportMissingAttribute(const char*, const char*) override {}
+  void ReportBadAttribute(const char*, const char*, const char*) override {}
+  void ReportUnknownElement(const char*) override {}
+  void ReportXmlParseError() override {}
 
-  char* FileName;
   char* FileDataType;
   char* FileVersion;
   int Done;
@@ -72,8 +76,8 @@ protected:
   vtkSetStringMacro(FileVersion);
 
 private:
-  vtkXMLFileReadTester(const vtkXMLFileReadTester&);  // Not implemented.
-  void operator=(const vtkXMLFileReadTester&);  // Not implemented.
+  vtkXMLFileReadTester(const vtkXMLFileReadTester&) = delete;
+  void operator=(const vtkXMLFileReadTester&) = delete;
 };
 
 #endif

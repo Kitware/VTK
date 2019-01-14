@@ -30,6 +30,7 @@ vtkStandardNewMacro(vtkGeoTerrain2D);
 //----------------------------------------------------------------------------
 vtkGeoTerrain2D::vtkGeoTerrain2D()
 {
+  VTK_LEGACY_BODY(vtkGeoTerrain2D::vtkGeoTerrain2D, "VTK 8.2");
   this->LocationTolerance = 50.0;
   this->TextureTolerance = 1.0;
   this->CameraBounds[0] = 0;
@@ -40,9 +41,7 @@ vtkGeoTerrain2D::vtkGeoTerrain2D()
 }
 
 //----------------------------------------------------------------------------
-vtkGeoTerrain2D::~vtkGeoTerrain2D()
-{
-}
+vtkGeoTerrain2D::~vtkGeoTerrain2D() = default;
 
 //----------------------------------------------------------------------------
 void vtkGeoTerrain2D::InitializeNodeAnalysis(vtkRenderer* ren)
@@ -86,9 +85,9 @@ int vtkGeoTerrain2D::EvaluateNode(vtkGeoTerrainNode* cur)
   bool textureErrorOk = patchSize < maxPatchSize;
 
   if (!locationErrorOk || !textureErrorOk)
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -103,10 +102,9 @@ void vtkGeoTerrain2D::PrintSelf(ostream & os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkAbstractTransform* vtkGeoTerrain2D::GetTransform()
 {
-  if(this->GeoSource != NULL)
-    {
+  if(this->GeoSource != nullptr)
+  {
     return this->GeoSource->GetTransform();
-    }
-  return NULL;
+  }
+  return nullptr;
 }
-

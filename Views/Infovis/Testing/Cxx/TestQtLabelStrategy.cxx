@@ -64,9 +64,7 @@ int TestQtLabelStrategy(int argc, char* argv[])
   VTK_CREATE(vtkTesting, testHelper);
   testHelper->AddArguments(argc, const_cast<const char **>(argv));
   QString fontFileName = testHelper->GetDataRoot();
-//  fontFileName.append("/Data/Infovis/PintassilgoPrints_-_Talvez_Assim.ttf");
   fontFileName.append("/Data/Infovis/martyb_-_Ridiculous.ttf");
-//  fontFileName.append("/Data/Infovis/DaveDS_-_Sketchy.ttf");
 
   QApplication app(argc, argv);
 
@@ -80,10 +78,10 @@ int TestQtLabelStrategy(int argc, char* argv[])
   VTK_CREATE(vtkStringArray, label);
   label->SetName("label");
 
-  srand( time(NULL) );
+  srand( time(nullptr) );
 
   for( int i = 0; i < n; i++ )
-    {
+  {
     pts->InsertNextPoint((double)(rand()%100), (double)(rand()%100), (double)(rand()%100));
     verts->InsertNextCell(1);
     verts->InsertCellPoint(i);
@@ -93,7 +91,7 @@ int TestQtLabelStrategy(int argc, char* argv[])
     out << i;
     s = out.str();
     label->InsertNextValue(s);
-    }
+  }
 
   pd->SetPoints(pts);
   pd->SetVerts(verts);
@@ -142,12 +140,12 @@ int TestQtLabelStrategy(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImageThreshold(win,200);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Initialize();
     iren->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

@@ -30,8 +30,7 @@ vtkArrayRange::vtkArrayRange() :
 }
 
 vtkArrayRange::vtkArrayRange(CoordinateT begin, CoordinateT end) :
-  Begin(begin),
-  End(std::max(begin, end))
+  Begin(begin), End(std::max(begin, end))
 {
 }
 

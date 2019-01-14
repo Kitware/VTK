@@ -20,16 +20,10 @@
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 //-----------------------------------------------------------------------------
-vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
-{
-
-}
+vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet() = default;
 
 //-----------------------------------------------------------------------------
-vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet()
-{
-
-}
+vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet() = default;
 
 //-----------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::PrintSelf(ostream &os, vtkIndent indent)
@@ -51,7 +45,7 @@ vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSet::GetData(
   vtkInformation* info)
 {
   return
-    info?vtkHierarchicalBoxDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+    info?vtkHierarchicalBoxDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPRectilinearGridReader - Read PVTK XML RectilinearGrid files.
-// .SECTION Description
-// vtkXMLPRectilinearGridReader reads the PVTK XML RectilinearGrid
-// file format.  This reads the parallel format's summary file and
-// then uses vtkXMLRectilinearGridReader to read data from the
-// individual RectilinearGrid piece files.  Streaming is supported.
-// The standard extension for this reader's file format is "pvtr".
-
-// .SECTION See Also
-// vtkXMLRectilinearGridReader
+/**
+ * @class   vtkXMLPRectilinearGridReader
+ * @brief   Read PVTK XML RectilinearGrid files.
+ *
+ * vtkXMLPRectilinearGridReader reads the PVTK XML RectilinearGrid
+ * file format.  This reads the parallel format's summary file and
+ * then uses vtkXMLRectilinearGridReader to read data from the
+ * individual RectilinearGrid piece files.  Streaming is supported.
+ * The standard extension for this reader's file format is "pvtr".
+ *
+ * @sa
+ * vtkXMLRectilinearGridReader
+*/
 
 #ifndef vtkXMLPRectilinearGridReader_h
 #define vtkXMLPRectilinearGridReader_h
@@ -35,38 +38,41 @@ class VTKIOXML_EXPORT vtkXMLPRectilinearGridReader : public vtkXMLPStructuredDat
 {
 public:
   vtkTypeMacro(vtkXMLPRectilinearGridReader,vtkXMLPStructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPRectilinearGridReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkRectilinearGrid *GetOutput();
   vtkRectilinearGrid *GetOutput(int idx);
+  //@}
 
 protected:
   vtkXMLPRectilinearGridReader();
-  ~vtkXMLPRectilinearGridReader();
+  ~vtkXMLPRectilinearGridReader() override;
 
   vtkRectilinearGrid* GetPieceInput(int index);
 
-  void SetupEmptyOutput();
-  const char* GetDataSetName();
-  void SetOutputExtent(int* extent);
-  void GetPieceInputExtent(int index, int* extent);
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
-  void SetupOutputData();
-  int ReadPieceData();
-  vtkXMLDataReader* CreatePieceReader();
+  void SetupEmptyOutput() override;
+  const char* GetDataSetName() override;
+  void SetOutputExtent(int* extent) override;
+  void GetPieceInputExtent(int index, int* extent) override;
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
+  void SetupOutputData() override;
+  int ReadPieceData() override;
+  vtkXMLDataReader* CreatePieceReader() override;
   void CopySubCoordinates(int* inBounds, int* outBounds, int* subBounds,
                           vtkDataArray* inArray, vtkDataArray* outArray);
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   // The PCoordinates element with coordinate information.
   vtkXMLDataElement* PCoordinatesElement;
 
 private:
-  vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&);  // Not implemented.
-  void operator=(const vtkXMLPRectilinearGridReader&);  // Not implemented.
+  vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&) = delete;
+  void operator=(const vtkXMLPRectilinearGridReader&) = delete;
 };
 
 #endif

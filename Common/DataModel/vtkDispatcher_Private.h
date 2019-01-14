@@ -29,6 +29,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef vtkDispatcher_Private_h
 #define vtkDispatcher_Private_h
+#ifndef __VTK_WRAP__
 
 #include <typeinfo>
 #include <cassert>
@@ -54,9 +55,9 @@ public:
   FunctorRefDispatcherHelper(Fun& f) : fun_(f) {}
 
   ResultType operator()(BaseLhs& lhs)
-    {
+  {
     return fun_(CastLhs::Cast(lhs));
-    }
+  }
 private:
   FunctorRefDispatcherHelper& operator =(const FunctorRefDispatcherHelper& b);
 };
@@ -79,9 +80,9 @@ public:
   FunctorDispatcherHelper(Fun fun) : fun_(fun) {}
 
   ResultType operator()(BaseLhs& lhs)
-    {
+  {
     return fun_(CastLhs::Cast(lhs));
-    }
+  }
 };
 
 
@@ -101,7 +102,7 @@ class FunctorImpl{
     template <class U>
     static U* Clone(U* pObj)
     {
-        if (!pObj) return 0;
+        if (!pObj) return nullptr;
         U* pClone = static_cast<U*>(pObj->DoClone());
         assert(typeid(*pClone) == typeid(*pObj));
         return pClone;
@@ -110,8 +111,7 @@ class FunctorImpl{
     FunctorImpl() {}
     FunctorImpl(const FunctorImpl&) {}
   private:
-    // not implemented
-    FunctorImpl& operator =(const FunctorImpl&);
+    FunctorImpl& operator =(const FunctorImpl&) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,17 +126,16 @@ public:
   typedef typename Base::Parm1 Parm1;
 
   FunctorHandler(Fun& fun) : f_(fun) {}
-  virtual ~FunctorHandler() {}
+  ~FunctorHandler() override {}
 
-  ResultType operator()(Parm1& p1)
+  ResultType operator()(Parm1& p1) override
   { return f_(p1); }
-  virtual FunctorHandler* DoClone() const { return new FunctorHandler(*this); }
+  FunctorHandler* DoClone() const override { return new FunctorHandler(*this); }
 
 private:
   Fun f_;
   FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
-  // not implemented
-  FunctorHandler& operator =(const FunctorHandler& b);
+  FunctorHandler& operator =(const FunctorHandler& b) = delete;
 };
 
 
@@ -150,7 +149,7 @@ public:
   typedef FunctorImpl<R, Parm1> Impl;
   typedef R ResultType;
 
-  Functor() : spImpl_(0)
+  Functor() : spImpl_()
     {}
 
   Functor(const Functor& rhs) : spImpl_(Impl::Clone(rhs.spImpl_.get()))
@@ -164,10 +163,7 @@ public:
   Functor& operator=(const Functor& rhs)
   {
       Functor copy(rhs);
-      // swap auto_ptrs by hand
-      Impl* p = spImpl_.release();
-      spImpl_.reset(copy.spImpl_.release());
-      copy.spImpl_.reset(p);
+      spImpl_.swap(copy.spImpl_);
       return *this;
   }
 
@@ -175,7 +171,7 @@ public:
   ResultType operator()(Parm1& p1)
     { return  (*spImpl_)(p1); }
 private:
-  std::auto_ptr<Impl> spImpl_;
+  std::unique_ptr<Impl> spImpl_;
 };
 
 }
@@ -201,9 +197,9 @@ public:
   FunctorRefDispatcherHelper(Fun& fun) : fun_(fun) {}
 
   ResultType operator()(BaseLhs& lhs, BaseRhs& rhs)
-    {
+  {
     return fun_(CastLhs::Cast(lhs), CastRhs::Cast(rhs));
-    }
+  }
 private:
   FunctorRefDispatcherHelper& operator =(const FunctorRefDispatcherHelper& b);
 };
@@ -222,9 +218,9 @@ public:
   FunctorDoubleDispatcherHelper(Fun fun) : fun_(fun) {}
 
   ResultType operator()(BaseLhs& lhs, BaseRhs& rhs)
-    {
+  {
     return fun_(CastLhs::Cast(lhs), CastRhs::Cast(rhs));
-    }
+  }
 
 };
 
@@ -245,7 +241,7 @@ class FunctorImpl{
     template <class U>
     static U* Clone(U* pObj)
     {
-        if (!pObj) return 0;
+        if (!pObj) return nullptr;
         U* pClone = static_cast<U*>(pObj->DoClone());
         assert(typeid(*pClone) == typeid(*pObj));
         return pClone;
@@ -254,8 +250,7 @@ class FunctorImpl{
     FunctorImpl() {}
     FunctorImpl(const FunctorImpl&) {}
   private:
-    // not implemented
-    FunctorImpl& operator =(const FunctorImpl&);
+    FunctorImpl& operator =(const FunctorImpl&) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -271,18 +266,17 @@ public:
   typedef typename Base::Parm2 Parm2;
 
   FunctorHandler(const Fun& fun) : f_(fun) {}
-  virtual ~FunctorHandler() {}
+  ~FunctorHandler() override {}
 
-  ResultType operator()(Parm1& p1,Parm2& p2)
+  ResultType operator()(Parm1& p1,Parm2& p2) override
   { return f_(p1,p2); }
 
-  virtual FunctorHandler* DoClone() const { return new FunctorHandler(*this); }
+  FunctorHandler* DoClone() const override { return new FunctorHandler(*this); }
 
 private:
   Fun f_;
   FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
-  // not implemented
-  FunctorHandler& operator =(const FunctorHandler& b);
+  FunctorHandler& operator =(const FunctorHandler& b) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -295,7 +289,7 @@ public:
   typedef FunctorImpl<R, Parm1,Parm2> Impl;
   typedef R ResultType;
 
-  Functor() : spImpl_(0)
+  Functor() : spImpl_()
     {}
 
   Functor(const Functor& rhs) : spImpl_(Impl::Clone(rhs.spImpl_.get()))
@@ -309,17 +303,14 @@ public:
   Functor& operator=(const Functor& rhs)
   {
       Functor copy(rhs);
-      // swap auto_ptrs by hand
-      Impl* p = spImpl_.release();
-      spImpl_.reset(copy.spImpl_.release());
-      copy.spImpl_.reset(p);
+      spImpl_.swap(copy.spImpl_);
       return *this;
   }
 
   ResultType operator()(Parm1& p1,Parm2& p2)
     { return  (*spImpl_)(p1,p2); }
 private:
-  std::auto_ptr<Impl> spImpl_;
+  std::unique_ptr<Impl> spImpl_;
 };
 }
 
@@ -330,28 +321,28 @@ template <class To, class From>
 struct DynamicCaster
 {
   static To& Cast(From& obj)
-    {
+  {
     return dynamic_cast<To&>(obj);
-    }
+  }
 
   static To* Cast(From* obj)
-    {
+  {
     return dynamic_cast<To*>(obj);
-    }
+  }
 };
 
 template <class To, class From>
 struct vtkCaster
 {
   static To& Cast(From& obj)
-    {
+  {
     return *(To::SafeDownCast(&obj));
-    }
+  }
 
   static To* Cast(From* obj)
-    {
+  {
     return To::SafeDownCast(obj);
-    }
+  }
 };
 
 class TypeInfo
@@ -374,34 +365,34 @@ private:
 // Implementation
 
 inline TypeInfo::TypeInfo()
-  {
+{
   class Nil {};
   pInfo_ = &typeid(Nil);
   assert(pInfo_);
-  }
+}
 
 inline TypeInfo::TypeInfo(const std::type_info& ti)
   : pInfo_(&ti)
   { assert(pInfo_); }
 
 inline bool TypeInfo::before(const TypeInfo& rhs) const
-  {
+{
   assert(pInfo_);
   // type_info::before return type is int in some VC libraries
   return pInfo_->before(*rhs.pInfo_) != 0;
-  }
+}
 
 inline const std::type_info& TypeInfo::Get() const
-  {
+{
   assert(pInfo_);
   return *pInfo_;
-  }
+}
 
 inline const char* TypeInfo::name() const
-  {
+{
   assert(pInfo_);
   return pInfo_->name();
-  }
+}
 
 // Comparison operators
 
@@ -426,5 +417,6 @@ inline bool operator>=(const TypeInfo& lhs, const TypeInfo& rhs)
 
 }
 
+#endif
 #endif // vtkDispatcherPrivate_h
 // VTK-HeaderTest-Exclude: vtkDispatcher_Private.h

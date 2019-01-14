@@ -46,14 +46,14 @@ class vtkMyCallback : public vtkCommand
 public:
   static vtkMyCallback *New()
     { return new vtkMyCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  void Execute(vtkObject *caller, unsigned long, void*) override
+  {
       vtkTransform *t = vtkTransform::New();
       vtkBoxWidget *widget = reinterpret_cast<vtkBoxWidget*>(caller);
       widget->GetTransform(t);
       widget->GetProp3D()->SetUserTransform(t);
       t->Delete();
-    }
+  }
 };
 
 int main()
@@ -74,7 +74,7 @@ int main()
   // (Intermediate filters such as vtkShrinkPolyData could be inserted in
   // between the source and the mapper.)  We create an instance of
   // vtkPolyDataMapper to map the polygonal data into graphics primitives. We
-  // connect the output of the cone souece to the input of this mapper.
+  // connect the output of the cone source to the input of this mapper.
   //
   vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
   coneMapper->SetInputConnection( cone->GetOutputPort() );

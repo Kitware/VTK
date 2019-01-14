@@ -25,14 +25,10 @@
 vtkStandardNewMacro(vtkPlotLine3D);
 
 //-----------------------------------------------------------------------------
-vtkPlotLine3D::vtkPlotLine3D()
-{
-}
+vtkPlotLine3D::vtkPlotLine3D() = default;
 
 //-----------------------------------------------------------------------------
-vtkPlotLine3D::~vtkPlotLine3D()
-{
-}
+vtkPlotLine3D::~vtkPlotLine3D() = default;
 
 //-----------------------------------------------------------------------------
 bool vtkPlotLine3D::Paint(vtkContext2D *painter)
@@ -40,17 +36,17 @@ bool vtkPlotLine3D::Paint(vtkContext2D *painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkPlotLine3D.");
 
-  if (!this->Visible || this->Points.size() == 0)
-    {
+  if (!this->Visible || this->Points.empty())
+  {
     return false;
-    }
+  }
 
   // Get the 3D context.
   vtkContext3D *context = painter->GetContext3D();
-  if(context == NULL)
-    {
+  if(context == nullptr)
+  {
     return false;
-    }
+  }
 
   // Draw the line between the points
   context->ApplyPen(this->Pen);

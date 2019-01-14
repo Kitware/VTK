@@ -24,6 +24,8 @@
 #ifndef XDMFITEMPROPERTY_HPP_
 #define XDMFITEMPROPERTY_HPP_
 
+#ifdef __cplusplus
+
 // Includes
 #include <map>
 #include <string>
@@ -74,11 +76,17 @@ protected:
 
   XdmfItemProperty();
 
+  static std::string ConvertToUpper(const std::string & converted);
+
+  static const std::map<const char, const char> UpperConversionMap;
+
 private:
 
   XdmfItemProperty(const XdmfItemProperty &);  // Not implemented.
   void operator=(const XdmfItemProperty &);  // Not implemented.
 
 };
+
+#endif
 
 #endif /* XDMFITEMPROPERTY_HPP_ */

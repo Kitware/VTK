@@ -22,14 +22,10 @@
 vtkStandardNewMacro(vtkIdentityTransform);
 
 //----------------------------------------------------------------------------
-vtkIdentityTransform::vtkIdentityTransform()
-{
-}
+vtkIdentityTransform::vtkIdentityTransform() = default;
 
 //----------------------------------------------------------------------------
-vtkIdentityTransform::~vtkIdentityTransform()
-{
-}
+vtkIdentityTransform::~vtkIdentityTransform() = default;
 
 //----------------------------------------------------------------------------
 void vtkIdentityTransform::PrintSelf(ostream& os, vtkIndent indent)
@@ -132,7 +128,7 @@ void vtkIdentityTransform::InternalTransformDerivative(const double in[3],
 
 //----------------------------------------------------------------------------
 // Transform the normals and vectors using the derivative of the
-// transformation.  Either inNms or inVrs can be set to NULL.
+// transformation.  Either inNms or inVrs can be set to nullptr.
 // Normals are multiplied by the inverse transpose of the transform
 // derivative, while vectors are simply multiplied by the derivative.
 // Note that the derivative of the inverse transform is simply the
@@ -142,17 +138,27 @@ void vtkIdentityTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
                                                          vtkDataArray *inNms,
                                                          vtkDataArray *outNms,
                                                          vtkDataArray *inVrs,
-                                                         vtkDataArray *outVrs)
+                                                         vtkDataArray *outVrs,
+                                                         int nOptionalVectors,
+                                                         vtkDataArray** inVrsArr,
+                                                         vtkDataArray** outVrsArr)
 {
   this->TransformPoints(inPts,outPts);
   if (inNms)
-    {
+  {
     this->TransformNormals(inNms,outNms);
-    }
+  }
   if (inVrs)
-    {
+  {
     this->TransformVectors(inVrs,outVrs);
+  }
+  if (inVrsArr)
+  {
+    for(int iArr = 0; iArr < nOptionalVectors; iArr++)
+    {
+      this->TransformVectors(inVrsArr[iArr], outVrsArr[iArr]);
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -163,10 +169,10 @@ void vtkIdentityTransform::TransformPoints(vtkPoints *inPts,
   double point[3];
 
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     inPts->GetPoint(i,point);
     outPts->InsertNextPoint(point);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -177,10 +183,10 @@ void vtkIdentityTransform::TransformNormals(vtkDataArray *inNms,
   double normal[3];
 
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     inNms->GetTuple(i,normal);
     outNms->InsertNextTuple(normal);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -191,10 +197,10 @@ void vtkIdentityTransform::TransformVectors(vtkDataArray *inNms,
   double vect[3];
 
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     inNms->GetTuple(i,vect);
     outNms->InsertNextTuple(vect);
-    }
+  }
 }
 
 

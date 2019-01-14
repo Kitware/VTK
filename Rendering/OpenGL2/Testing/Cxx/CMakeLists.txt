@@ -1,11 +1,57 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
-  #TestRenderWidget.cxx # Very experimental, fails, does nothing useful yet.
+vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
+  TestBlurAndSobelPasses.cxx
+  TestCoincident.cxx
+  TestCompositePolyDataMapper2NaNPartial.cxx,NO_DATA
+  TestCompositePolyDataMapper2Pickability.cxx,NO_DATA
+  TestCompositePolyDataMapper2SharedArray.cxx,NO_DATA
+  TestCompositePolyDataMapper2Spheres.cxx,NO_DATA
+  TestCompositePolyDataMapper2Vertices.cxx,NO_DATA
+  TestCubeMap.cxx
+  TestDepthOfFieldPass.cxx
+  TestDepthPeelingPass.cxx
+  TestDepthPeelingPassViewport.cxx
+  TestEDLPass.cxx
+  TestFloor.cxx
+  TestFramebufferPass.cxx
+  TestFramebufferHDR.cxx
+  TestFXAAFilter.cxx
+  TestGaussianBlurPass.cxx
+  TestGlyph3DMapperEdges.cxx
+  TestGlyph3DMapperCellPicking.cxx
+  TestGlyph3DMapperCulling.cxx
+  TestGlyph3DMapperPickability.cxx,NO_DATA
+  TestLightingMapLuminancePass.cxx
+  TestLightingMapNormalsPass.cxx
+  TestMultiTexturing.cxx
+  TestOffscreenRenderingResize.cxx
+  TestOrderIndependentTranslucentPass.cxx
+  TestPanoramicProjectionPass.cxx,NO_DATA
+  TestPointFillPass.cxx
+  TestPointGaussianSelection.cxx,NO_DATA
+  TestPropPicker2Renderers.cxx,NO_DATA
   TestPointGaussianMapper.cxx
+  TestPointGaussianMapperOpacity.cxx
+  TestRemoveActorNonCurrentContext.cxx
+  TestRenderToImage.cxx
+  TestSRGB.cxx
+  TestSSAAPass.cxx
+  TestSetZBuffer.cxx
+  TestShadowMapBakerPass.cxx
+  TestShadowMapPass.cxx
+  TestSharedRenderWindow.cxx
+  TestSimpleMotionBlur.cxx
+  TestSobelGradientMagnitudePass.cxx
+  TestSphereMap.cxx
+  TestSpherePoints.cxx
+  TestSphereVertex.cxx
+  TestToneMappingPass.cxx,NO_DATA
+  TestUserShader.cxx
+  TestUserShader2.cxx
   TestVBOPLYMapper.cxx
   TestVBOPointsLines.cxx
-  TestGaussianBlurPass.cxx
-  TestBlurAndSobelPasses.cxx
-  TestSobelGradientMagnitudePass.cxx
+  TestValuePass.cxx
+  TestValuePass2.cxx
+  TestCubeMap2.cxx
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY)
+vtk_test_cxx_executable(vtkRenderingOpenGL2CxxTests tests RENDERING_FACTORY)

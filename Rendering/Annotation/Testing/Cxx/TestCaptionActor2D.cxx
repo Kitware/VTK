@@ -40,11 +40,11 @@ int TestCaptionActor2D(int, char *[])
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0,0,0);
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.GetPointer());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.GetPointer());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  renderer->AddActor(captionActor.GetPointer());
+  renderer->AddActor(captionActor);
 
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();

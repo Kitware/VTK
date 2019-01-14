@@ -23,14 +23,10 @@
 vtkStandardNewMacro(vtkXMLPStructuredGridWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLPStructuredGridWriter::vtkXMLPStructuredGridWriter()
-{
-}
+vtkXMLPStructuredGridWriter::vtkXMLPStructuredGridWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPStructuredGridWriter::~vtkXMLPStructuredGridWriter()
-{
-}
+vtkXMLPStructuredGridWriter::~vtkXMLPStructuredGridWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -71,9 +67,9 @@ void vtkXMLPStructuredGridWriter::WritePData(vtkIndent indent)
 {
   this->Superclass::WritePData(indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   vtkStructuredGrid* input = this->GetInput();
   this->WritePPoints(input->GetPoints(), indent);
 }

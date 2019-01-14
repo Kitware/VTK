@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageThreshold -  Flexible threshold
-// .SECTION Description
-// vtkImageThreshold can do binary or continuous thresholding for lower, upper
-// or a range of data.  The output data type may be different than the
-// output, but defaults to the same type.
-
+/**
+ * @class   vtkImageThreshold
+ * @brief    Flexible threshold
+ *
+ * vtkImageThreshold can do binary or continuous thresholding for lower, upper
+ * or a range of data.  The output data type may be different than the
+ * output, but defaults to the same type.
+*/
 
 #ifndef vtkImageThreshold_h
 #define vtkImageThreshold_h
@@ -31,49 +33,69 @@ class VTKIMAGINGCORE_EXPORT vtkImageThreshold : public vtkThreadedImageAlgorithm
 public:
   static vtkImageThreshold *New();
   vtkTypeMacro(vtkImageThreshold,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // The values greater than or equal to the value match.
+  /**
+   * The values greater than or equal to the value match.
+   */
   void ThresholdByUpper(double thresh);
 
-  // Description:
-  // The values less than or equal to the value match.
+  /**
+   * The values less than or equal to the value match.
+   */
   void ThresholdByLower(double thresh);
 
-  // Description:
-  // The values in a range (inclusive) match
+  /**
+   * The values in a range (inclusive) match
+   */
   void ThresholdBetween(double lower, double upper);
 
-  // Description:
-  // Determines whether to replace the pixel in range with InValue
-  vtkSetMacro(ReplaceIn, int);
-  vtkGetMacro(ReplaceIn, int);
-  vtkBooleanMacro(ReplaceIn, int);
+  //@{
+  /**
+   * Determines whether to replace the pixel in range with InValue
+   */
+  vtkSetMacro(ReplaceIn, vtkTypeBool);
+  vtkGetMacro(ReplaceIn, vtkTypeBool);
+  vtkBooleanMacro(ReplaceIn, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Replace the in range pixels with this value.
+  //@{
+  /**
+   * Replace the in range pixels with this value.
+   */
   void SetInValue(double val);
   vtkGetMacro(InValue, double);
+  //@}
 
-  // Description:
-  // Determines whether to replace the pixel out of range with OutValue
-  vtkSetMacro(ReplaceOut, int);
-  vtkGetMacro(ReplaceOut, int);
-  vtkBooleanMacro(ReplaceOut, int);
+  //@{
+  /**
+   * Determines whether to replace the pixel out of range with OutValue
+   */
+  vtkSetMacro(ReplaceOut, vtkTypeBool);
+  vtkGetMacro(ReplaceOut, vtkTypeBool);
+  vtkBooleanMacro(ReplaceOut, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Replace the in range pixels with this value.
+  //@{
+  /**
+   * Replace the in range pixels with this value.
+   */
   void SetOutValue(double val);
   vtkGetMacro(OutValue, double);
+  //@}
 
-  // Description:
-  // Get the Upper and Lower thresholds.
+  //@{
+  /**
+   * Get the Upper and Lower thresholds.
+   */
   vtkGetMacro(UpperThreshold, double);
   vtkGetMacro(LowerThreshold, double);
+  //@}
 
-  // Description:
-  // Set the desired output scalar type to cast to
+  //@{
+  /**
+   * Set the desired output scalar type to cast to
+   */
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
   void SetOutputScalarTypeToDouble()
@@ -98,31 +120,32 @@ public:
     {this->SetOutputScalarType(VTK_SIGNED_CHAR);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+  //@}
 
 protected:
   vtkImageThreshold();
-  ~vtkImageThreshold() {}
+  ~vtkImageThreshold() override {}
 
   double UpperThreshold;
   double LowerThreshold;
-  int ReplaceIn;
+  vtkTypeBool ReplaceIn;
   double InValue;
-  int ReplaceOut;
+  vtkTypeBool ReplaceOut;
   double OutValue;
 
   int OutputScalarType;
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id);
+                           int extent[6], int id) override;
 
 private:
-  vtkImageThreshold(const vtkImageThreshold&);  // Not implemented.
-  void operator=(const vtkImageThreshold&);  // Not implemented.
+  vtkImageThreshold(const vtkImageThreshold&) = delete;
+  void operator=(const vtkImageThreshold&) = delete;
 };
 
 #endif

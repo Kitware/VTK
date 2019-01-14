@@ -29,7 +29,7 @@
 namespace
 {
   vtkSmartPointer<vtkOverlappingAMR> CreateTestAMR(int argc, char *argv[] )
-   {
+  {
      char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,"Data/AMR/Enzo/DD0010/moving7_0010.hierarchy");
      vtkNew<vtkAMREnzoReader> reader;
      reader->SetFileName(fname);
@@ -39,7 +39,7 @@ namespace
      reader->Update();
      vtkSmartPointer<vtkOverlappingAMR> ret = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
      return ret;
-   }
+  }
 }
 
 int TestAMRReadWrite( int argc, char *argv[] )

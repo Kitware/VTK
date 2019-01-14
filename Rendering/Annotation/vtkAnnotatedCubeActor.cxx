@@ -37,12 +37,12 @@ vtkStandardNewMacro(vtkAnnotatedCubeActor);
 vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
 {
   this->FaceTextScale  = 0.5;
-  this->XPlusFaceText  = NULL;
-  this->XMinusFaceText = NULL;
-  this->YPlusFaceText  = NULL;
-  this->YMinusFaceText = NULL;
-  this->ZPlusFaceText  = NULL;
-  this->ZMinusFaceText = NULL;
+  this->XPlusFaceText  = nullptr;
+  this->XMinusFaceText = nullptr;
+  this->YPlusFaceText  = nullptr;
+  this->YMinusFaceText = nullptr;
+  this->ZPlusFaceText  = nullptr;
+  this->ZMinusFaceText = nullptr;
 
   this->Assembly = vtkAssembly::New();
 
@@ -135,11 +135,11 @@ vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
   this->AppendTextEdges->SetNumberOfInputs(6);
 
   for (int i = 0; i < 6; i++)
-    {
+  {
     vtkPolyData *edges = vtkPolyData::New();
     this->AppendTextEdges->SetInputDataByNumber(i,edges);
     edges->Delete();
-    }
+  }
 
   this->ExtractTextEdges = vtkFeatureEdges::New();
   this->ExtractTextEdges->BoundaryEdgesOn();
@@ -162,9 +162,9 @@ vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
   prop->SetAmbient(1);
   prop->SetLineWidth(1);
 
-  this->TransformFilter = vtkTransformFilter::New();
-  this->Transform = vtkTransform::New();
-  this->TransformFilter->SetTransform( this->Transform );
+  this->InternalTransformFilter = vtkTransformFilter::New();
+  this->InternalTransform = vtkTransform::New();
+  this->InternalTransformFilter->SetTransform( this->InternalTransform );
 
   this->XFaceTextRotation = 0.0;
   this->YFaceTextRotation = 0.0;
@@ -179,12 +179,12 @@ vtkAnnotatedCubeActor::~vtkAnnotatedCubeActor()
   this->CubeSource->Delete();
   this->CubeActor->Delete();
 
-  this->SetXPlusFaceText ( NULL );
-  this->SetXMinusFaceText( NULL );
-  this->SetYPlusFaceText ( NULL );
-  this->SetYMinusFaceText( NULL );
-  this->SetZPlusFaceText ( NULL );
-  this->SetZMinusFaceText( NULL );
+  this->SetXPlusFaceText ( nullptr );
+  this->SetXMinusFaceText( nullptr );
+  this->SetYPlusFaceText ( nullptr );
+  this->SetYMinusFaceText( nullptr );
+  this->SetZPlusFaceText ( nullptr );
+  this->SetZMinusFaceText( nullptr );
 
   this->XPlusFaceVectorText->Delete();
   this->XMinusFaceVectorText->Delete();
@@ -204,8 +204,8 @@ vtkAnnotatedCubeActor::~vtkAnnotatedCubeActor()
   this->ExtractTextEdges->Delete();
   this->TextEdgesActor->Delete();
 
-  this->TransformFilter->Delete();
-  this->Transform->Delete();
+  this->InternalTransformFilter->Delete();
+  this->InternalTransform->Delete();
 
   this->Assembly->Delete();
 }
@@ -260,8 +260,8 @@ int vtkAnnotatedCubeActor::GetFaceTextVisibility()
 void vtkAnnotatedCubeActor::ShallowCopy(vtkProp *prop)
 {
   vtkAnnotatedCubeActor *a = vtkAnnotatedCubeActor::SafeDownCast(prop);
-  if ( a != NULL )
-    {
+  if ( a != nullptr )
+  {
     this->SetXPlusFaceText( a->GetXPlusFaceText() );
     this->SetXMinusFaceText( a->GetXMinusFaceText() );
     this->SetYPlusFaceText( a->GetYPlusFaceText() );
@@ -269,7 +269,7 @@ void vtkAnnotatedCubeActor::ShallowCopy(vtkProp *prop)
     this->SetZPlusFaceText( a->GetZPlusFaceText() );
     this->SetZMinusFaceText( a->GetZMinusFaceText() );
     this->SetFaceTextScale( a->GetFaceTextScale() );
-    }
+  }
 
   // Now do superclass
   this->vtkProp3D::ShallowCopy(prop);
@@ -300,7 +300,7 @@ int vtkAnnotatedCubeActor::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkAnnotatedCubeActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkAnnotatedCubeActor::HasTranslucentPolygonalGeometry()
 {
   this->UpdateProps();
 
@@ -327,7 +327,7 @@ double *vtkAnnotatedCubeActor::GetBounds()
 }
 
 //-------------------------------------------------------------------------
-unsigned long int vtkAnnotatedCubeActor::GetMTime()
+vtkMTimeType vtkAnnotatedCubeActor::GetMTime()
 {
   return this->Assembly->GetMTime();
 }
@@ -384,9 +384,9 @@ vtkProperty *vtkAnnotatedCubeActor::GetTextEdgesProperty()
 void vtkAnnotatedCubeActor::SetFaceTextScale(double scale)
 {
   if ( this->FaceTextScale == scale )
-    {
+  {
     return;
-    }
+  }
   this->FaceTextScale = scale;
   this->UpdateProps();
 }
@@ -408,7 +408,7 @@ void vtkAnnotatedCubeActor::UpdateProps()
   double offset = (prop->GetRepresentation() == VTK_SURFACE)? (0.501) : (0.5);
 
   this->XPlusFaceVectorText->Update();
-  double* bounds = this->XPlusFaceVectorText->GetOutput()->GetBounds();
+  const double* bounds = this->XPlusFaceVectorText->GetOutput()->GetBounds();
   double cu = -this->FaceTextScale*fabs(0.5*(bounds[0] + bounds[1]));
   double cv = -this->FaceTextScale*fabs(0.5*(bounds[2] + bounds[3]));
 
@@ -426,14 +426,14 @@ void vtkAnnotatedCubeActor::UpdateProps()
   this->XMinusFaceActor->SetOrientation( 90 , 0, -90 );
 
   if ( this->XFaceTextRotation != 0.0 )
-    {
+  {
     vtkTransform* transform = vtkTransform::New();
     transform->Identity();
     transform->RotateX( this->XFaceTextRotation );
     this->XPlusFaceActor->SetUserTransform( transform );
     this->XMinusFaceActor->SetUserTransform( transform );
     transform->Delete();
-    }
+  }
 
   this->YPlusFaceVectorText->Update();
   bounds = this->YPlusFaceVectorText->GetOutput()->GetBounds();
@@ -454,14 +454,14 @@ void vtkAnnotatedCubeActor::UpdateProps()
   this->YMinusFaceActor->SetOrientation( 90, 0, 0 );
 
   if ( this->YFaceTextRotation != 0.0 )
-    {
+  {
     vtkTransform* transform = vtkTransform::New();
     transform->Identity();
     transform->RotateY( this->YFaceTextRotation );
     this->YPlusFaceActor->SetUserTransform( transform );
     this->YMinusFaceActor->SetUserTransform( transform );
     transform->Delete();
-    }
+  }
 
   this->ZPlusFaceVectorText->Update();
   bounds = this->ZPlusFaceVectorText->GetOutput()->GetBounds();
@@ -482,56 +482,56 @@ void vtkAnnotatedCubeActor::UpdateProps()
   this->ZMinusFaceActor->SetOrientation( 180, 0, 90 );
 
   if ( this->ZFaceTextRotation != 0.0 )
-    {
+  {
     vtkTransform* transform = vtkTransform::New();
     transform->Identity();
     transform->RotateZ( this->ZFaceTextRotation );
     this->ZPlusFaceActor->SetUserTransform( transform );
     this->ZMinusFaceActor->SetUserTransform( transform );
     transform->Delete();
-    }
+  }
 
   this->XPlusFaceActor->ComputeMatrix();
-  this->TransformFilter->SetInputConnection( this->XPlusFaceVectorText->GetOutputPort() );
-  this->Transform->SetMatrix( this->XPlusFaceActor->GetMatrix() );
-  this->TransformFilter->Update();
+  this->InternalTransformFilter->SetInputConnection( this->XPlusFaceVectorText->GetOutputPort() );
+  this->InternalTransform->SetMatrix( this->XPlusFaceActor->GetMatrix() );
+  this->InternalTransformFilter->Update();
   vtkPolyData* edges = this->AppendTextEdges->GetInput( 0 );
-  edges->CopyStructure( this->TransformFilter->GetOutput() );
+  edges->CopyStructure( this->InternalTransformFilter->GetOutput() );
 
   this->XMinusFaceActor->ComputeMatrix();
-  this->TransformFilter->SetInputConnection( this->XMinusFaceVectorText->GetOutputPort() );
-  this->Transform->SetMatrix( this->XMinusFaceActor->GetMatrix() );
-  this->TransformFilter->Update();
+  this->InternalTransformFilter->SetInputConnection( this->XMinusFaceVectorText->GetOutputPort() );
+  this->InternalTransform->SetMatrix( this->XMinusFaceActor->GetMatrix() );
+  this->InternalTransformFilter->Update();
   edges = this->AppendTextEdges->GetInput( 1 );
-  edges->CopyStructure( this->TransformFilter->GetOutput() );
+  edges->CopyStructure( this->InternalTransformFilter->GetOutput() );
 
   this->YPlusFaceActor->ComputeMatrix();
-  this->TransformFilter->SetInputConnection( this->YPlusFaceVectorText->GetOutputPort() );
-  this->Transform->SetMatrix( this->YPlusFaceActor->GetMatrix() );
-  this->TransformFilter->Update();
+  this->InternalTransformFilter->SetInputConnection( this->YPlusFaceVectorText->GetOutputPort() );
+  this->InternalTransform->SetMatrix( this->YPlusFaceActor->GetMatrix() );
+  this->InternalTransformFilter->Update();
   edges = this->AppendTextEdges->GetInput( 2 );
-  edges->CopyStructure( this->TransformFilter->GetOutput() );
+  edges->CopyStructure( this->InternalTransformFilter->GetOutput() );
 
   this->YMinusFaceActor->ComputeMatrix();
-  this->TransformFilter->SetInputConnection( this->YMinusFaceVectorText->GetOutputPort() );
-  this->Transform->SetMatrix( this->YMinusFaceActor->GetMatrix() );
-  this->TransformFilter->Update();
+  this->InternalTransformFilter->SetInputConnection( this->YMinusFaceVectorText->GetOutputPort() );
+  this->InternalTransform->SetMatrix( this->YMinusFaceActor->GetMatrix() );
+  this->InternalTransformFilter->Update();
   edges = this->AppendTextEdges->GetInput( 3 );
-  edges->CopyStructure( this->TransformFilter->GetOutput() );
+  edges->CopyStructure( this->InternalTransformFilter->GetOutput() );
 
   this->ZPlusFaceActor->ComputeMatrix();
-  this->TransformFilter->SetInputConnection( this->ZPlusFaceVectorText->GetOutputPort() );
-  this->Transform->SetMatrix( this->ZPlusFaceActor->GetMatrix() );
-  this->TransformFilter->Update();
+  this->InternalTransformFilter->SetInputConnection( this->ZPlusFaceVectorText->GetOutputPort() );
+  this->InternalTransform->SetMatrix( this->ZPlusFaceActor->GetMatrix() );
+  this->InternalTransformFilter->Update();
   edges = this->AppendTextEdges->GetInput( 4 );
-  edges->CopyStructure(this->TransformFilter->GetOutput());
+  edges->CopyStructure(this->InternalTransformFilter->GetOutput());
 
   this->ZMinusFaceActor->ComputeMatrix();
-  this->TransformFilter->SetInputConnection( this->ZMinusFaceVectorText->GetOutputPort() );
-  this->Transform->SetMatrix( this->ZMinusFaceActor->GetMatrix() );
-  this->TransformFilter->Update();
+  this->InternalTransformFilter->SetInputConnection( this->ZMinusFaceVectorText->GetOutputPort() );
+  this->InternalTransform->SetMatrix( this->ZMinusFaceActor->GetMatrix() );
+  this->InternalTransformFilter->Update();
   edges = this->AppendTextEdges->GetInput( 5 );
-  edges->CopyStructure( this->TransformFilter->GetOutput() );
+  edges->CopyStructure( this->InternalTransformFilter->GetOutput() );
 }
 
 //-------------------------------------------------------------------------

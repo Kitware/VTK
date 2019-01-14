@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLUnstructuredGridReader - Read VTK XML UnstructuredGrid files.
-// .SECTION Description
-// vtkXMLUnstructuredGridReader reads the VTK XML UnstructuredGrid
-// file format.  One unstructured grid file can be read to produce one
-// output.  Streaming is supported.  The standard extension for this
-// reader's file format is "vtu".  This reader is also used to read a
-// single piece of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPUnstructuredGridReader
+/**
+ * @class   vtkXMLUnstructuredGridReader
+ * @brief   Read VTK XML UnstructuredGrid files.
+ *
+ * vtkXMLUnstructuredGridReader reads the VTK XML UnstructuredGrid
+ * file format.  One unstructured grid file can be read to produce one
+ * output.  Streaming is supported.  The standard extension for this
+ * reader's file format is "vtu".  This reader is also used to read a
+ * single piece of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPUnstructuredGridReader
+*/
 
 #ifndef vtkXMLUnstructuredGridReader_h
 #define vtkXMLUnstructuredGridReader_h
@@ -36,38 +39,41 @@ class VTKIOXML_EXPORT vtkXMLUnstructuredGridReader : public vtkXMLUnstructuredDa
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredGridReader,vtkXMLUnstructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLUnstructuredGridReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkUnstructuredGrid *GetOutput();
   vtkUnstructuredGrid *GetOutput(int idx);
+  //@}
 
 protected:
   vtkXMLUnstructuredGridReader();
-  ~vtkXMLUnstructuredGridReader();
+  ~vtkXMLUnstructuredGridReader() override;
 
-  const char* GetDataSetName();
-  void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel);
-  void SetupOutputTotals();
-  void SetupPieces(int numPieces);
-  void DestroyPieces();
+  const char* GetDataSetName() override;
+  void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel) override;
+  void SetupOutputTotals() override;
+  void SetupPieces(int numPieces) override;
+  void DestroyPieces() override;
 
-  void SetupOutputData();
-  int ReadPiece(vtkXMLDataElement* ePiece);
-  void SetupNextPiece();
-  int ReadPieceData();
+  void SetupOutputData() override;
+  int ReadPiece(vtkXMLDataElement* ePiece) override;
+  void SetupNextPiece() override;
+  int ReadPieceData() override;
 
   // Read a data array whose tuples correspond to cells.
-  virtual int ReadArrayForCells(vtkXMLDataElement* da,
-    vtkAbstractArray* outArray);
+  int ReadArrayForCells(vtkXMLDataElement* da,
+    vtkAbstractArray* outArray) override;
 
   // Get the number of cells in the given piece.  Valid after
   // UpdateInformation.
-  virtual vtkIdType GetNumberOfCellsInPiece(int piece);
+  vtkIdType GetNumberOfCellsInPiece(int piece) override;
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   // The index of the cell in the output where the current piece
   // begins.
@@ -81,8 +87,8 @@ protected:
   unsigned long CellsOffset;
 
 private:
-  vtkXMLUnstructuredGridReader(const vtkXMLUnstructuredGridReader&);  // Not implemented.
-  void operator=(const vtkXMLUnstructuredGridReader&);  // Not implemented.
+  vtkXMLUnstructuredGridReader(const vtkXMLUnstructuredGridReader&) = delete;
+  void operator=(const vtkXMLUnstructuredGridReader&) = delete;
 };
 
 #endif

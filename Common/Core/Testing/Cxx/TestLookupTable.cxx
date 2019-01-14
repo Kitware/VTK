@@ -36,12 +36,12 @@ if (!(t)) \
      && vtkMathUtilities::FuzzyCompare<double>(t1[2], t2[2])        \
      && vtkMathUtilities::FuzzyCompare<double>(t1[3], t2[3])))
 
-int TestColor4uc(unsigned char* expected, unsigned char* test)
+int TestColor4uc(const unsigned char* expected, const unsigned char* test)
 {
   int failed = expected[0] != test[0] || expected[1] != test[1] ||
     expected[2] != test[2] || expected[3] != test[3] ? 1 : 0;
   if (failed)
-    {
+  {
     std::cerr << "Expected color: " <<
       static_cast<int>(expected[0]) << ", " <<
       static_cast<int>(expected[1]) << ", " <<
@@ -52,7 +52,7 @@ int TestColor4uc(unsigned char* expected, unsigned char* test)
       static_cast<int>(test[1]) << ", " <<
       static_cast<int>(test[2]) << ", " <<
       static_cast<int>(test[3]) << std::endl;
-    }
+  }
 
   return !failed;
 }
@@ -113,7 +113,7 @@ int TestLookupTable(int,char *[])
   TestAssert(table->GetUseBelowRangeColor() == 0);
   TestAssert(table->GetUseAboveRangeColor() == 0);
 
-  unsigned char expected[4], *result;
+  unsigned char expected[4];
 
   // Test handling of below-range colors
   vtkMath::HSVToRGB(table->GetHueRange()[0],
@@ -125,7 +125,7 @@ int TestLookupTable(int,char *[])
   vtkLookupTable::GetColorAsUnsignedChars(rgba, expected);
   table->UseBelowRangeColorOff();
   table->Build();
-  result = table->MapValue(lo);
+  const unsigned char *result = table->MapValue(lo);
   TestAssert(TestColor4uc(expected, result));
 
   table->GetBelowRangeColor(rgba);
@@ -166,6 +166,7 @@ int TestLookupTable(int,char *[])
   TestAssert(table->GetIndex(hi) == 255);
   TestAssert(table->GetIndex(lo+tol) == 0);
   TestAssert(table->GetIndex(hi-tol) == 255);
+  TestAssert(table->GetIndex(vtkMath::Nan()) == -1);
 
   // Note - both below- and above-range colors are enabled at this point
   TestAssert(table->GetIndex(lo/step) == 0);

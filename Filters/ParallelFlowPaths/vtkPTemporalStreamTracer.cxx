@@ -57,14 +57,14 @@ vtkCxxSetObjectMacro(vtkPTemporalStreamTracer, Controller, vtkMultiProcessContro
 //---------------------------------------------------------------------------
 vtkPTemporalStreamTracer::vtkPTemporalStreamTracer()
 {
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 //---------------------------------------------------------------------------
 vtkPTemporalStreamTracer::~vtkPTemporalStreamTracer()
 {
-  this->SetController(NULL);
-  this->SetParticleWriter(NULL);
+  this->SetController(nullptr);
+  this->SetParticleWriter(nullptr);
 }
 //---------------------------------------------------------------------------
 void vtkPTemporalStreamTracer::AssignSeedsToProcessors(
@@ -72,10 +72,10 @@ void vtkPTemporalStreamTracer::AssignSeedsToProcessors(
   ParticleVector &LocalSeedPoints, int &LocalAssignedCount)
 {
   if(!this->Controller)
-    {
+  {
     return Superclass::AssignSeedsToProcessors(source, sourceID, ptId,
                                                LocalSeedPoints, LocalAssignedCount);
-    }
+  }
 
   ParticleVector candidates;
   //
@@ -146,12 +146,12 @@ void vtkPTemporalStreamTracer::AssignUniqueIds(
   vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints)
 {
   if(!this->Controller)
-    {
+  {
     return Superclass::AssignUniqueIds(LocalSeedPoints);
-    }
+  }
 
   vtkIdType ParticleCountOffset = 0;
-  vtkIdType numParticles = LocalSeedPoints.size();
+  vtkIdType numParticles = static_cast<vtkIdType>(LocalSeedPoints.size());
   if (this->UpdateNumPieces>1) {
     vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(
       this->Controller->GetCommunicator());
@@ -200,7 +200,7 @@ void vtkPTemporalStreamTracer::TransmitReceiveParticles(
   //
   // We must allocate buffers for all processor particles
   //
-  vtkIdType OurParticles = sending.size();
+  vtkIdType OurParticles = static_cast<vtkIdType>(sending.size());
   vtkIdType TotalParticles = 0;
   // setup arrays used by the AllGatherV call.
   std::vector<vtkIdType> recvLengths(this->UpdateNumPieces, 0);
@@ -221,7 +221,7 @@ void vtkPTemporalStreamTracer::TransmitReceiveParticles(
   received.resize(TotalParticles);
   if (TotalParticles==0) return;
   // Gather the data from all procs.
-  char *sendbuf = (char*) ((sending.size()>0) ? &(sending[0]) : NULL);
+  char *sendbuf = (char*) ((sending.size()>0) ? &(sending[0]) : nullptr);
   char *recvbuf = (char*) (&(received[0]));
   com->AllGatherV(sendbuf, recvbuf,
     OurParticles*TypeSize, &recvLengths[0], &recvOffsets[0]);
@@ -244,9 +244,9 @@ int vtkPTemporalStreamTracer::RequestData(
   int rvalue = this->Superclass::RequestData(request, inputVector, outputVector);
 
   if(this->Controller)
-    {
+  {
     this->Controller->Barrier();
-    }
+  }
 
   return rvalue;
 }

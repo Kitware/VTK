@@ -12,14 +12,16 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkAMREnzoReader.h -- Reader for Flash AMR datasets.
-//
-// .SECTION Description
-// A concrete instance of vtkAMRBaseReader that implements functionality
-// for reading Flash AMR datasets.
+/**
+ * @class   vtkAMREnzoReader
+ *
+ *
+ * A concrete instance of vtkAMRBaseReader that implements functionality
+ * for reading Flash AMR datasets.
+*/
 
-#ifndef VTKAMRFLASHREADER_H_
-#define VTKAMRFLASHREADER_H_
+#ifndef vtkAMRFlashReader_h
+#define vtkAMRFlashReader_h
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseReader.h"
@@ -32,57 +34,72 @@ class VTKIOAMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
 public:
   static vtkAMRFlashReader* New();
   vtkTypeMacro( vtkAMRFlashReader, vtkAMRBaseReader );
-  void PrintSelf(ostream &os, vtkIndent indent );
+  void PrintSelf(ostream &os, vtkIndent indent ) override;
 
-  // Description:
-  // See vtkAMRBaseReader::GetNumberOfBlocks
-  int GetNumberOfBlocks();
+  /**
+   * See vtkAMRBaseReader::GetNumberOfBlocks
+   */
+  int GetNumberOfBlocks() override;
 
-  // Description:
-  // See vtkAMRBaseReader::GetNumberOfLevels
-  int GetNumberOfLevels();
+  /**
+   * See vtkAMRBaseReader::GetNumberOfLevels
+   */
+  int GetNumberOfLevels() override;
 
-  // Description:
-  // See vtkAMRBaseReader::SetFileName
-  void SetFileName( const char* fileName );
+  /**
+   * See vtkAMRBaseReader::SetFileName
+   */
+  void SetFileName( const char* fileName ) override;
 
 protected:
   vtkAMRFlashReader();
-  ~vtkAMRFlashReader();
+  ~vtkAMRFlashReader() override;
 
-  // Description:
-  // See vtkAMRBaseReader::ReadMetaData
-  void ReadMetaData();
+  /**
+   * See vtkAMRBaseReader::ReadMetaData
+   */
+  void ReadMetaData() override;
 
-  // Description:
-  // See vtkAMRBaseReader::GetBlockLevel
-  int GetBlockLevel( const int blockIdx );
+  /**
+   * See vtkAMRBaseReader::GetBlockLevel
+   */
+  int GetBlockLevel( const int blockIdx ) override;
 
-  // Description:
-  // See vtkAMRBaseReader::FillMetaData
-  int FillMetaData( );
+  /**
+   * See vtkAMRBaseReader::FillMetaData
+   */
+  int FillMetaData( ) override;
 
-  // Description:
-  // See vtkAMRBaseReader::GetAMRGrid
-  vtkUniformGrid* GetAMRGrid( const int blockIdx );
+  /**
+   * See vtkAMRBaseReader::GetAMRGrid
+   */
+  vtkUniformGrid* GetAMRGrid( const int blockIdx ) override;
 
-  // Description:
-  // See vtkAMRBaseReader::GetAMRGridData
+  /**
+   * See vtkAMRBaseReader::GetAMRGridData
+   */
   void GetAMRGridData(
-      const int blockIdx, vtkUniformGrid *block, const char *field);
+      const int blockIdx, vtkUniformGrid *block, const char *field) override;
 
-  // Description:
-  // See vtkAMRBaseReader::SetUpDataArraySelections
-  void SetUpDataArraySelections();
+  /**
+   * See vtkAMRBaseReader::GetAMRGridData
+   */
+  void GetAMRGridPointData(
+      const int vtkNotUsed(blockIdx), vtkUniformGrid *vtkNotUsed(block), const char *vtkNotUsed(field)) override {;}
+
+  /**
+   * See vtkAMRBaseReader::SetUpDataArraySelections
+   */
+  void SetUpDataArraySelections() override;
 
   bool IsReady;
 
 private:
-  vtkAMRFlashReader( const vtkAMRFlashReader& ); // Not implemented
-  void operator=(const vtkAMRFlashReader& ); // Not implemented
+  vtkAMRFlashReader( const vtkAMRFlashReader& ) = delete;
+  void operator=(const vtkAMRFlashReader& ) = delete;
 
   void ComputeStats(vtkFlashReaderInternal* internal, std::vector<int>& numBlocks, double min[3]);
   vtkFlashReaderInternal *Internal;
 };
 
-#endif /* VTKAMRFLASHREADER_H_ */
+#endif /* vtkAMRFlashReader_h */

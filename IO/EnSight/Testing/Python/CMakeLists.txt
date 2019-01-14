@@ -12,6 +12,7 @@ vtk_add_test_python(
   EnSightCompound.py
   EnSightGoldElements.py
   EnSightGoldElementsBin.py
+  EnSightGoldEmptyParts.py,NO_VALID,NO_RT
   EnSightIronProtASCII.py
   EnSightIronProtBin.py
   EnSightMandelbrot.py
@@ -22,5 +23,7 @@ vtk_add_test_python(
   EnSightRectGridASCII.py
   EnSightRectGridBin.py
   EnSightSelectArrays.py
+  EnSightTensorsInversion.py
+  EnSightTensorsInversionBin.py
   nacaBinary.py
   )

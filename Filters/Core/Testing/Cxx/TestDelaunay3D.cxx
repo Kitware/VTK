@@ -32,33 +32,33 @@ void InitializeUnstructuredGrid(vtkUnstructuredGrid *unstructuredGrid, int dataT
   cells->InsertNextCell(4);
 
   if(dataType == VTK_DOUBLE)
-    {
+  {
     points->SetDataType(VTK_DOUBLE);
     for(unsigned int i = 0; i < 4; ++i)
-      {
+    {
       double point[3];
       for(unsigned int j = 0; j < 3; ++j)
-        {
+      {
         randomSequence->Next();
         point[j] = randomSequence->GetValue();
-        }
-      cells->InsertCellPoint(points->InsertNextPoint(point));
       }
+      cells->InsertCellPoint(points->InsertNextPoint(point));
     }
+  }
   else
-    {
+  {
     points->SetDataType(VTK_FLOAT);
     for(unsigned int i = 0; i < 4; ++i)
-      {
+    {
       float point[3];
       for(unsigned int j = 0; j < 3; ++j)
-        {
+      {
         randomSequence->Next();
         point[j] = static_cast<float>(randomSequence->GetValue());
-        }
-      cells->InsertCellPoint(points->InsertNextPoint(point));
       }
+      cells->InsertCellPoint(points->InsertNextPoint(point));
     }
+  }
 
   points->Squeeze();
   unstructuredGrid->SetPoints(points);
@@ -91,44 +91,44 @@ int TestDelaunay3D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   int dataType = Delaunay3D(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
 
   if(dataType != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = Delaunay3D(VTK_DOUBLE, vtkAlgorithm::DEFAULT_PRECISION);
 
   if(dataType != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = Delaunay3D(VTK_FLOAT, vtkAlgorithm::SINGLE_PRECISION);
 
   if(dataType != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = Delaunay3D(VTK_DOUBLE, vtkAlgorithm::SINGLE_PRECISION);
 
   if(dataType != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = Delaunay3D(VTK_FLOAT, vtkAlgorithm::DOUBLE_PRECISION);
 
   if(dataType != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = Delaunay3D(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
 
   if(dataType != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

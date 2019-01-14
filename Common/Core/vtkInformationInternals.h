@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationInternals - internal structure for vtkInformation
-// .SECTION Description
-// vtkInformationInternals is used in internal implementation of
-// vtkInformation. This should only be accessed by friends
-// and sub-classes of that class.
+/**
+ * @class   vtkInformationInternals
+ * @brief   internal structure for vtkInformation
+ *
+ * vtkInformationInternals is used in internal implementation of
+ * vtkInformation. This should only be accessed by friends
+ * and sub-classes of that class.
+*/
 
 #ifndef vtkInformationInternals_h
 #define vtkInformationInternals_h
@@ -26,9 +29,9 @@
 
 #define VTK_INFORMATION_USE_HASH_MAP
 #ifdef VTK_INFORMATION_USE_HASH_MAP
-# include <vtksys/hash_map.hxx>
+# include <unordered_map>
 #else
-# include <vtksys/stl/map>
+# include <map>
 #endif
 
 //----------------------------------------------------------------------------
@@ -41,13 +44,13 @@ public:
   struct HashFun
   {
     size_t operator()(KeyType key) const
-      {
-      return static_cast<size_t>(key - KeyType(0));
-      }
+    {
+      return static_cast<size_t>(key - KeyType(nullptr));
+    }
   };
-  typedef vtksys::hash_map<KeyType, DataType, HashFun> MapType;
+  typedef std::unordered_map<KeyType, DataType, HashFun> MapType;
 #else
-  typedef vtksys_stl::map<KeyType, DataType> MapType;
+  typedef std::map<KeyType, DataType> MapType;
 #endif
   MapType Map;
 
@@ -56,15 +59,15 @@ public:
 #endif
 
   ~vtkInformationInternals()
-    {
+  {
     for(MapType::iterator i = this->Map.begin(); i != this->Map.end(); ++i)
-      {
+    {
       if(vtkObjectBase* value = i->second)
-        {
-        value->UnRegister(0);
-        }
+      {
+        value->UnRegister(nullptr);
       }
     }
+  }
 };
 
 #undef VTK_INFORMATION_USE_HASH_MAP

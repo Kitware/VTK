@@ -17,8 +17,8 @@
  * vtkWrap provides useful functions for generating wrapping code.
 */
 
-#ifndef VTK_WRAP_H
-#define VTK_WRAP_H
+#ifndef vtkWrap_h
+#define vtkWrap_h
 
 #include "vtkParse.h"
 #include "vtkParseHierarchy.h"
@@ -39,6 +39,7 @@ extern "C" {
 /**
  * Check for common types.
  * IsPODPointer is for unsized arrays of POD types.
+ * IsZeroCopyPointer is for buffers that shouldn't be copied.
  */
 /*@{*/
 int vtkWrap_IsVoid(ValueInfo *val);
@@ -46,11 +47,11 @@ int vtkWrap_IsVoidFunction(ValueInfo *val);
 int vtkWrap_IsVoidPointer(ValueInfo *val);
 int vtkWrap_IsCharPointer(ValueInfo *val);
 int vtkWrap_IsPODPointer(ValueInfo *val);
+int vtkWrap_IsZeroCopyPointer(ValueInfo *val);
+int vtkWrap_IsStdVector(ValueInfo *val);
 int vtkWrap_IsVTKObject(ValueInfo *val);
 int vtkWrap_IsSpecialObject(ValueInfo *val);
 int vtkWrap_IsPythonObject(ValueInfo *val);
-int vtkWrap_IsQtObject(ValueInfo *val);
-int vtkWrap_IsQtEnum(ValueInfo *val);
 /*@}*/
 
 /**
@@ -118,7 +119,7 @@ int vtkWrap_IsVTKObjectBaseType(
   HierarchyInfo *hinfo, const char *classname);
 
 /**
- * Check if the WRAP_SPECIAL flag is set for the class.
+ * Check whether the class is not derived from vtkObjectBase.
  * If "hinfo" is NULL, it defaults to just checking if
  * the class starts with "vtk" and returns -1 if so.
  */
@@ -173,6 +174,13 @@ void vtkWrap_ApplyUsingDeclarations(
   ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
 
 /**
+ * Merge members of all superclasses into the data structure.
+ * The superclass header files will be read and parsed.
+ */
+void vtkWrap_MergeSuperClasses(
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
+
+/**
  * Apply any hints about array sizes, e.g. hint that the
  * GetNumberOfComponents() method gives the tuple size.
  */
@@ -206,6 +214,11 @@ int vtkWrap_IsConstructor(ClassInfo *c, FunctionInfo *f);
  * True if the method a destructor of the class.
  */
 int vtkWrap_IsDestructor(ClassInfo *c, FunctionInfo *f);
+
+/**
+ * True if the method is inherited from a base class.
+ */
+int vtkWrap_IsInheritedMethod(ClassInfo *c, FunctionInfo *f);
 
 /**
  * Check if a method is from a SetVector method.
@@ -270,3 +283,4 @@ char *vtkWrap_SafeSuperclassName(const char *name);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkWrap.h */

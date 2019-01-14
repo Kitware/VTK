@@ -22,13 +22,31 @@
 #endif
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkDebugLeaks.h"
 
+namespace
+{
+// helps in set and restore value when an instance goes in
+// and out of scope respectively.
+template <class T>
+class vtkScopedSet
+{
+  T* Ptr;
+  T OldVal;
+
+public:
+  vtkScopedSet(T* ptr, const T& newval)
+    : Ptr(ptr)
+    , OldVal(*ptr)
+  {
+    *this->Ptr = newval;
+  }
+  ~vtkScopedSet() { *this->Ptr = this->OldVal; }
+};
+}
 
 //----------------------------------------------------------------------------
-
-vtkOutputWindow* vtkOutputWindow::Instance = 0;
-vtkOutputWindowCleanup vtkOutputWindow::Cleanup;
+vtkOutputWindow* vtkOutputWindow::Instance = nullptr;
+static unsigned int vtkOutputWindowCleanupCounter = 0;
 
 void vtkOutputWindowDisplayText(const char* message)
 {
@@ -57,22 +75,27 @@ void vtkOutputWindowDisplayDebugText(const char* message)
 
 vtkOutputWindowCleanup::vtkOutputWindowCleanup()
 {
+  ++vtkOutputWindowCleanupCounter;
 }
 
 vtkOutputWindowCleanup::~vtkOutputWindowCleanup()
 {
-  // Destroy any remaining output window.
-  vtkOutputWindow::SetInstance(0);
+  if (--vtkOutputWindowCleanupCounter == 0)
+  {
+    // Destroy any remaining output window.
+    vtkOutputWindow::SetInstance(nullptr);
+  }
 }
 
+vtkObjectFactoryNewMacro(vtkOutputWindow);
 vtkOutputWindow::vtkOutputWindow()
 {
-  this->PromptUser = 0;
+  this->PromptUser = false;
+  this->UseStdErrorForAllMessages = false;
+  this->CurrentMessageType = MESSAGE_TYPE_TEXT;
 }
 
-vtkOutputWindow::~vtkOutputWindow()
-{
-}
+vtkOutputWindow::~vtkOutputWindow() = default;
 
 void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -82,93 +105,98 @@ void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
      << (void*)vtkOutputWindow::Instance << endl;
   os << indent << "Prompt User: "
      << (this->PromptUser ? "On\n" : "Off\n");
+  os << indent << "UseStdErrorForAllMessages: "
+     << (this->UseStdErrorForAllMessages ? "On\n" : "Off\n");
 }
 
 
 // default implementation outputs to cerr only
 void vtkOutputWindow::DisplayText(const char* txt)
 {
-  cerr << txt;
-  if (this->PromptUser)
-    {
+  // pick correct output channel to dump text on.
+  if (this->CurrentMessageType != MESSAGE_TYPE_TEXT || this->UseStdErrorForAllMessages)
+  {
+    cerr << txt;
+  }
+  else
+  {
+    cout << txt;
+  }
+
+  if (this->PromptUser && this->CurrentMessageType != MESSAGE_TYPE_TEXT)
+  {
     char c = 'n';
     cerr << "\nDo you want to suppress any further messages (y,n,q)?."
               << endl;
     cin >> c;
     if (c == 'y')
-      {
+    {
       vtkObject::GlobalWarningDisplayOff();
-      }
-    if(c == 'q')
-      {
-      this->PromptUser = 0;
-      }
     }
-  this->InvokeEvent(vtkCommand::MessageEvent, (void*)txt);
+    if(c == 'q')
+    {
+      this->PromptUser = 0;
+    }
+  }
+
+  this->InvokeEvent(vtkCommand::MessageEvent, const_cast<char*>(txt));
+  if (this->CurrentMessageType == MESSAGE_TYPE_TEXT)
+  {
+    this->InvokeEvent(vtkCommand::TextEvent, const_cast<char*>(txt));
+  }
 }
 
 void vtkOutputWindow::DisplayErrorText(const char* txt)
 {
+  vtkScopedSet<MessageTypes> setter(&this->CurrentMessageType, MESSAGE_TYPE_ERROR);
+
   this->DisplayText(txt);
-  this->InvokeEvent(vtkCommand::ErrorEvent, (void*)txt);
+  this->InvokeEvent(vtkCommand::ErrorEvent, const_cast<char*>(txt));
 }
 
 void vtkOutputWindow::DisplayWarningText(const char* txt)
 {
+  vtkScopedSet<MessageTypes> setter(&this->CurrentMessageType, MESSAGE_TYPE_WARNING);
+
   this->DisplayText(txt);
-  this->InvokeEvent(vtkCommand::WarningEvent,(void*) txt);
+  this->InvokeEvent(vtkCommand::WarningEvent, const_cast<char*>(txt));
 }
 
 void vtkOutputWindow::DisplayGenericWarningText(const char* txt)
 {
+  vtkScopedSet<MessageTypes> setter(&this->CurrentMessageType, MESSAGE_TYPE_GENERIC_WARNING);
+
   this->DisplayText(txt);
+  this->InvokeEvent(vtkCommand::WarningEvent, const_cast<char*>(txt));
 }
 
 void vtkOutputWindow::DisplayDebugText(const char* txt)
 {
+  vtkScopedSet<MessageTypes> setter(&this->CurrentMessageType, MESSAGE_TYPE_DEBUG);
+
   this->DisplayText(txt);
 }
-
-// Up the reference count so it behaves like New
-vtkOutputWindow* vtkOutputWindow::New()
-{
-  vtkOutputWindow* ret = vtkOutputWindow::GetInstance();
-  ret->Register(NULL);
-  return ret;
-}
-
 
 // Return the single instance of the vtkOutputWindow
 vtkOutputWindow* vtkOutputWindow::GetInstance()
 {
   if(!vtkOutputWindow::Instance)
-    {
+  {
     // Try the factory first
     vtkOutputWindow::Instance = (vtkOutputWindow*)
       vtkObjectFactory::CreateInstance("vtkOutputWindow");
     // if the factory did not provide one, then create it here
     if(!vtkOutputWindow::Instance)
-      {
-      // if the factory failed to create the object,
-      // then destroy it now, as vtkDebugLeaks::ConstructClass was called
-      // with "vtkOutputWindow", and not the real name of the class
+    {
 #if defined( _WIN32 ) && !defined( VTK_USE_X )
-#ifdef VTK_DEBUG_LEAKS
-      vtkDebugLeaks::DestructClass("vtkOutputWindow");
-#endif
       vtkOutputWindow::Instance = vtkWin32OutputWindow::New();
-#else
-#if defined( ANDROID )
-#ifdef VTK_DEBUG_LEAKS
-      vtkDebugLeaks::DestructClass("vtkOutputWindow");
-#endif
+#elif defined( ANDROID )
       vtkOutputWindow::Instance = vtkAndroidOutputWindow::New();
 #else
-      vtkOutputWindow::Instance = new vtkOutputWindow;
+      vtkOutputWindow::Instance = vtkOutputWindow::New();
 #endif
-#endif
-      }
     }
+  }
   // return the instance
   return vtkOutputWindow::Instance;
 }
@@ -176,21 +204,19 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
 void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
 {
   if (vtkOutputWindow::Instance==instance)
-    {
+  {
     return;
-    }
-  // preferably this will be NULL
+  }
+  // preferably this will be nullptr
   if (vtkOutputWindow::Instance)
-    {
+  {
     vtkOutputWindow::Instance->Delete();
-    }
+  }
   vtkOutputWindow::Instance = instance;
   if (!instance)
-    {
+  {
     return;
-    }
+  }
   // user will call ->Delete() after setting instance
-  instance->Register(NULL);
+  instance->Register(nullptr);
 }
-
-

@@ -25,55 +25,53 @@ vtkRenderWidget::vtkRenderWidget()
 {
 }
 
-vtkRenderWidget::~vtkRenderWidget()
-{
-}
+vtkRenderWidget::~vtkRenderWidget() = default;
 
 void vtkRenderWidget::SetPosition(const vtkVector2i &pos)
 {
   if (this->Position != pos)
-    {
+  {
     this->Position = pos;
     this->Modified();
-    }
+  }
 }
 
 void vtkRenderWidget::SetSize(const vtkVector2i &size)
 {
   if (this->Size != size)
-    {
+  {
     this->Size = size;
     this->Modified();
-    }
+  }
 }
 
 void vtkRenderWidget::SetName(const std::string &name)
 {
   if (this->Name != name)
-    {
+  {
     this->Name = name;
     this->Modified();
-    }
+  }
 }
 
 void vtkRenderWidget::Render()
 {
-  assert(this->RenderDevice.Get() != NULL);
+  assert(this->RenderDevice != nullptr);
   cout << "Render called!!!" << endl;
 }
 
 void vtkRenderWidget::MakeCurrent()
 {
-  assert(this->RenderDevice.Get() != NULL);
+  assert(this->RenderDevice != nullptr);
   this->RenderDevice->MakeCurrent();
 }
 
 void vtkRenderWidget::Initialize()
 {
-  assert(this->RenderDevice.Get() != NULL &&
-         this->InteractionDevice.Get() != NULL);
+  assert(this->RenderDevice != nullptr &&
+         this->InteractionDevice != nullptr);
   this->InteractionDevice->SetRenderWidget(this);
-  this->InteractionDevice->SetRenderDevice(this->RenderDevice.Get());
+  this->InteractionDevice->SetRenderDevice(this->RenderDevice);
   this->RenderDevice->CreateNewWindow(vtkRecti(this->Position.GetX(),
                                             this->Position.GetY(),
                                             this->Size.GetX(),
@@ -84,7 +82,7 @@ void vtkRenderWidget::Initialize()
 
 void vtkRenderWidget::Start()
 {
-  assert(this->InteractionDevice.Get() != NULL);
+  assert(this->InteractionDevice != nullptr);
   this->Initialize();
   this->InteractionDevice->Start();
 }

@@ -14,6 +14,7 @@
 
 #ifndef vtkLSDynaPartCollection_h
 #define vtkLSDynaPartCollection_h
+#ifndef __VTK_WRAP__
 
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "LSDynaMetaData.h" //needed for LSDynaMetaData::LSDYNA_TYPES enum
@@ -32,7 +33,7 @@ public:
   static vtkLSDynaPartCollection *New();
 
   vtkTypeMacro(vtkLSDynaPartCollection,vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //Description:
   //Pass in the metadata to setup this collection.
@@ -41,7 +42,7 @@ public:
   //the range of the min and max
   //Note: min is included, and max is excluded from the valid range of cells.
   void InitCollection(LSDynaMetaData *metaData,
-    vtkIdType* mins=NULL, vtkIdType* maxs=NULL);
+    vtkIdType* mins=nullptr, vtkIdType* maxs=nullptr);
 
 
   //Description:
@@ -123,13 +124,13 @@ public:
   template<typename T>
   void FillCellUserId(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
     const vtkIdType& startId, const vtkIdType& numCells)
-    {
+  {
     this->FillCellUserIdArray(buffer,type,startId,numCells);
-    }
+  }
 
 protected:
   vtkLSDynaPartCollection();
-  ~vtkLSDynaPartCollection();
+  ~vtkLSDynaPartCollection() override;
 
   vtkIdType* MinIds;
   vtkIdType* MaxIds;
@@ -165,8 +166,8 @@ protected:
                          vtkLSDynaPart** parts, const vtkIdType numParts);
 
 private:
-  vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ); // Not implemented.
-  void operator = ( const vtkLSDynaPartCollection& ); // Not implemented.
+  vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ) = delete;
+  void operator = ( const vtkLSDynaPartCollection& ) = delete;
 
   LSDynaMetaData *MetaData;
 
@@ -174,6 +175,5 @@ private:
   LSDynaPartStorage* Storage;
 };
 
-
-
+#endif
 #endif // LSDYNAPARTS_H

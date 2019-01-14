@@ -85,8 +85,14 @@ class TestTensorGlyph(Testing.vtkTest):
         g4.Update()
         g4.SetPosition((2.0, 2.0, 0.0))
 
+        # 6Components symmetric tensor
+        g5 = SimpleGlyph(reader)
+        g5.glyph.SetInputArrayToProcess(0, 0, 0, 0, "symTensors1")
+        g5.SetPosition((4.0, 2.0, 0.0))
+        g5.Update()
+
         ren = vtk.vtkRenderer()
-        for i in (g1, g2, g3, g4):
+        for i in (g1, g2, g3, g4, g5):
             for j in i.GetActors():
                 ren.AddActor(j)
 
@@ -95,7 +101,7 @@ class TestTensorGlyph(Testing.vtkTest):
         cam = ren.GetActiveCamera()
         cam.Azimuth(-20)
         cam.Elevation(20)
-        cam.Zoom(1.5)
+        cam.Zoom(1.1)
 
         ren.SetBackground(0.5, 0.5, 0.5)
 
@@ -106,22 +112,6 @@ class TestTensorGlyph(Testing.vtkTest):
         img_file = "TestTensorGlyph.png"
         Testing.compareImage(renWin, Testing.getAbsImagePath(img_file))
         Testing.interact()
-
-    def testParse(self):
-        "Test if vtkTensorGlyph is parseable"
-        tg = vtk.vtkTensorGlyph()
-        self._testParse(tg)
-
-    def testGetSet(self):
-        "Testing Get/Set methods of vtkTensorGlyph"
-        tg = vtk.vtkTensorGlyph()
-        self._testGetSet(tg)
-
-    def testParse(self):
-        "Testing Boolean methods of vtkTensorGlyph"
-        tg = vtk.vtkTensorGlyph()
-        self._testBoolean(tg)
-
 
 if __name__ == "__main__":
     Testing.main([(TestTensorGlyph, 'test')])

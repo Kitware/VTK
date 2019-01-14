@@ -36,18 +36,18 @@ int TestQtInitialization(int , char* [])
   // has an instance of QCoreApplication floating-around ...
 
   if(QCoreApplication::instance())
-   {
+  {
    cerr << "Internal test error ... QCoreApplication already exists" << endl;
    ++error_count;
-   }
+  }
 
   vtkSmartPointer<vtkQtInitialization> initialization = vtkSmartPointer<vtkQtInitialization>::New();
 
   if(!QCoreApplication::instance())
-   {
+  {
    cerr << "QCoreApplication not initialized" << endl;
    ++error_count;
-   }
+  }
 
   return error_count;
 }

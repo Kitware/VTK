@@ -35,9 +35,9 @@ int vtkPPolyDataNormals::RequestData(
   vtkInformationVector *outputVector)
 {
   if (!this->vtkPolyDataNormals::RequestData(request, inputVector, outputVector))
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -59,21 +59,21 @@ int vtkPPolyDataNormals::RequestUpdateExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   if (this->PieceInvariant)
-    {
+  {
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),piece);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
                 numPieces);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
                 ghostLevel + 1);
-    }
+  }
   else
-    {
+  {
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),piece);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
                 numPieces);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
                 ghostLevel);
-    }
+  }
 
   return 1;
 }

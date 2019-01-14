@@ -130,7 +130,7 @@ my %default =
 #                      that shall be eliminated/ignored,
 # %parsers           : hash defining each parser by associating
 #                      parser_name => [filename_matcher, func1, func2].
-#  $parser_name      : language identifier (Tcl, C++, Python, etc.),
+#  $parser_name      : language identifier (C++, Python, etc.),
 #  $filename_matcher : regexp matching the filenames belonging to the language,
 # @$func1            : function called when a filename is matched,
 #                      - receives the contents of the file as a reference to a
@@ -145,7 +145,6 @@ my %default =
 my $eliminate_matcher = '^vtkCommand$';
 
 my %parsers = (
-               "Tcl" => ['\.tcl$', \&rm_tcl_comments, \&parse],
                "C++" => ['\.c(xx|pp|c)$', \&rm_cpp_comments, \&parse],
                "Java" => ['\.java$', \&rm_cpp_comments, \&parse],
                "Python" => ['\.py$', \&rm_tcl_comments, \&parse]
@@ -201,7 +200,7 @@ Usage : $PROGNAME [--help] [--verbose|-v] [--baselinedir path] [--baselineicon f
   --baselinelink l: use 'l' as baseline link to picture
   --baselinelinksuffix s : suffix string to append to --baselinelink + filename
   --datamatch s   : use string s to match any usage of data files
-  --dataicon f    : use 'f  as icon file to report that file makes use of data files
+  --dataicon f    : use 'f' as icon file to report that file makes use of data files
   --dirmatch str  : use string to match the directory name holding files (default: $default{dirmatch})
   --label str     : use string as label in class page (default: $default{label})
   --limit n       : limit the number of examples per parser type (default: $default{limit})
@@ -326,9 +325,7 @@ print " => ", scalar @parsable, " file(s) collected in ", time() - $start_time, 
 # Parse files and build xref
 
 # %xref is a hash : xref{$class}{$parser}{$file}
-# Ex: xref{"vtkPoints"}{"Tcl"}{"examplesTcl/foo.tcl"}
-#     xref{"vtkPoints"}{"Tcl"}{"graphics/examplesTcl/bar.tcl"}
-#     xref{"vtkNormals"}{"C++"}{"test.cxx"}
+# Ex: xref{"vtkNormals"}{"C++"}{"test.cxx"}
 
 my %xref;
 

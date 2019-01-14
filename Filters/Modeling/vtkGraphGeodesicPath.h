@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraphGeodesicPath - Abstract base for classes that generate a geodesic path on a graph (mesh).
-// .SECTION Description
-// Serves as a base class for algorithms that trace a geodesic on a
-// polygonal dataset treating it as a graph. ie points connecting the
-// vertices of the graph
+/**
+ * @class   vtkGraphGeodesicPath
+ * @brief   Abstract base for classes that generate a geodesic path on a graph (mesh).
+ *
+ * Serves as a base class for algorithms that trace a geodesic on a
+ * polygonal dataset treating it as a graph. ie points connecting the
+ * vertices of the graph
+*/
 
 #ifndef vtkGraphGeodesicPath_h
 #define vtkGraphGeodesicPath_h
@@ -29,31 +32,40 @@ class vtkIdList;
 class VTKFILTERSMODELING_EXPORT vtkGraphGeodesicPath : public vtkGeodesicPath
 {
 public:
-  // Description:
-  // Standard methids for printing and determining type information.
+  //@{
+  /**
+   * Standard methods for printing and determining type information.
+   */
   vtkTypeMacro(vtkGraphGeodesicPath,vtkGeodesicPath);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // The vertex at the start of the shortest path
+  //@{
+  /**
+   * The vertex at the start of the shortest path
+   */
   vtkGetMacro(StartVertex, vtkIdType);
   vtkSetMacro(StartVertex, vtkIdType);
+  //@}
 
-  // Description:
-  // The vertex at the end of the shortest path
+  //@{
+  /**
+   * The vertex at the end of the shortest path
+   */
   vtkGetMacro(EndVertex, vtkIdType);
   vtkSetMacro(EndVertex, vtkIdType);
+  //@}
 
 protected:
   vtkGraphGeodesicPath();
-  ~vtkGraphGeodesicPath();
+  ~vtkGraphGeodesicPath() override;
 
   vtkIdType StartVertex;
   vtkIdType EndVertex;
 
 private:
-  vtkGraphGeodesicPath(const vtkGraphGeodesicPath&);  // Not implemented.
-  void operator=(const vtkGraphGeodesicPath&);  // Not implemented.
+  vtkGraphGeodesicPath(const vtkGraphGeodesicPath&) = delete;
+  void operator=(const vtkGraphGeodesicPath&) = delete;
 
 };
 

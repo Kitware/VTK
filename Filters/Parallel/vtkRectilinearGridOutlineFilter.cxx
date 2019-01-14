@@ -25,20 +25,6 @@
 vtkStandardNewMacro(vtkRectilinearGridOutlineFilter);
 
 
-int vtkRectilinearGridOutlineFilter::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
-{
-  // get the info object
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-
-  // Although there may be overlap between piece outlines,
-  // it is not worth requesting exact extents.
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 0);
-  return 1;
-}
-
 int vtkRectilinearGridOutlineFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -64,15 +50,15 @@ int vtkRectilinearGridOutlineFilter::RequestData(
   vtkDataArray* xCoords  = input->GetXCoordinates();
   vtkDataArray* yCoords  = input->GetYCoordinates();
   vtkDataArray* zCoords  = input->GetZCoordinates();
-  int*          ext      = input->GetExtent();;
+  int*          ext      = input->GetExtent();
   int*          wholeExt =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
-  if (xCoords == NULL || yCoords == NULL || zCoords == NULL ||
+  if (xCoords == nullptr || yCoords == nullptr || zCoords == nullptr ||
       input->GetNumberOfCells() == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   // We could probably use just the input bounds ...
   range = xCoords->GetRange();
@@ -95,112 +81,112 @@ int vtkRectilinearGridOutlineFilter::RequestData(
 
   // xMin yMin
   if (ext[0] == wholeExt[0] && ext[2] == wholeExt[2])
-    {
+  {
     x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[4];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[5];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
   // xMin yMax
   if (ext[0] == wholeExt[0] && ext[3] == wholeExt[3])
-    {
+  {
     x[0] = bounds[0]; x[1] = bounds[3]; x[2] = bounds[4];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[0]; x[1] = bounds[3]; x[2] = bounds[5];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
   // xMin zMin
   if (ext[0] == wholeExt[0] && ext[4] == wholeExt[4])
-    {
+  {
     x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[4];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[0]; x[1] = bounds[3]; x[2] = bounds[4];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
   // xMin zMax
   if (ext[0] == wholeExt[0] && ext[5] == wholeExt[5])
-    {
+  {
     x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[5];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[0]; x[1] = bounds[3]; x[2] = bounds[5];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
   // xMax yMin
   if (ext[1] == wholeExt[1] && ext[2] == wholeExt[2])
-    {
+  {
     x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[4];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[5];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
   // xMax yMax
   if (ext[1] == wholeExt[1] && ext[3] == wholeExt[3])
-    {
+  {
     x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[4];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[5];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
   // xMax zMin
   if (ext[1] == wholeExt[1] && ext[4] == wholeExt[4])
-    {
+  {
     x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[4];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[4];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
   // xMax zMax
   if (ext[1] == wholeExt[1] && ext[5] == wholeExt[5])
-    {
+  {
     x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[5];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[5];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
   // yMin zMin
   if (ext[2] == wholeExt[2] && ext[4] == wholeExt[4])
-    {
+  {
     x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[4];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[4];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
   // yMin zMax
   if (ext[2] == wholeExt[2] && ext[5] == wholeExt[5])
-    {
+  {
     x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[5];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[5];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
   // yMax zMin
   if (ext[3] == wholeExt[3] && ext[4] == wholeExt[4])
-    {
+  {
     x[0] = bounds[0]; x[1] = bounds[3]; x[2] = bounds[4];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[4];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
   // yMax zMax
   if (ext[3] == wholeExt[3] && ext[5] == wholeExt[5])
-    {
+  {
     x[0] = bounds[0]; x[1] = bounds[3]; x[2] = bounds[5];
     pts[0] = newPts->InsertNextPoint(x);
     x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[5];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }
+  }
 
   output->SetPoints(newPts);
   newPts->Delete();

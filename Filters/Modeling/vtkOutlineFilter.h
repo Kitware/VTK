@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOutlineFilter - create wireframe outline for arbitrary data set
-// .SECTION Description
-// vtkOutlineFilter is a filter that generates a wireframe outline of any
-// data set. The outline consists of the twelve edges of the dataset
-// bounding box.
+/**
+ * @class   vtkOutlineFilter
+ * @brief   create wireframe outline for arbitrary data set
+ *
+ * vtkOutlineFilter is a filter that generates a wireframe outline of any
+ * data set. The outline consists of the twelve edges of the dataset
+ * bounding box.
+*/
 
 #ifndef vtkOutlineFilter_h
 #define vtkOutlineFilter_h
@@ -31,26 +34,29 @@ class VTKFILTERSMODELING_EXPORT vtkOutlineFilter : public vtkPolyDataAlgorithm
 public:
   static vtkOutlineFilter *New();
   vtkTypeMacro(vtkOutlineFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Generate solid faces for the box. This is off by default.
-  vtkSetMacro(GenerateFaces, int);
-  vtkBooleanMacro(GenerateFaces, int);
-  vtkGetMacro(GenerateFaces, int);
+  //@{
+  /**
+   * Generate solid faces for the box. This is off by default.
+   */
+  vtkSetMacro(GenerateFaces, vtkTypeBool);
+  vtkBooleanMacro(GenerateFaces, vtkTypeBool);
+  vtkGetMacro(GenerateFaces, vtkTypeBool);
+  //@}
 
 protected:
   vtkOutlineFilter();
-  ~vtkOutlineFilter();
+  ~vtkOutlineFilter() override;
 
-  int GenerateFaces;
+  vtkTypeBool GenerateFaces;
   vtkOutlineSource *OutlineSource;
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkOutlineFilter(const vtkOutlineFilter&);  // Not implemented.
-  void operator=(const vtkOutlineFilter&);  // Not implemented.
+  vtkOutlineFilter(const vtkOutlineFilter&) = delete;
+  void operator=(const vtkOutlineFilter&) = delete;
 };
 
 #endif

@@ -72,6 +72,7 @@
 # include "vtkPolyVertex.h"
 # include "vtkLine.h"
 # include "vtkPolyLine.h"
+# include "vtkPolyhedron.h"
 # include "vtkQuadraticEdge.h"
 # include "vtkTriangle.h"
 # include "vtkTriangleStrip.h"
@@ -364,11 +365,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   triangleStrip->GetPointIds()->SetNumberOfIds(6);
   int i=0;
   while(i<6)
-    {
+  {
     triangleStrip->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -426,11 +427,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   polygon->GetPointIds()->SetNumberOfIds(4);
   i=0;
   while(i<4)
-    {
+  {
     polygon->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -463,11 +464,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   polygon->GetPointIds()->SetNumberOfIds(5);
   i=0;
   while(i<5)
-    {
+  {
     polygon->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -504,11 +505,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   polygon->GetPointIds()->SetNumberOfIds(6);
   i=0;
   while(i<6)
-    {
+  {
     polygon->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -536,11 +537,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkPixel *pixel=vtkPixel::New();
   i=0;
   while(i<4)
-    {
+  {
     pixel->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -568,11 +569,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkQuad *quad=vtkQuad::New();
   i=0;
   while(i<4)
-    {
+  {
     quad->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -608,11 +609,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkQuadraticTriangle *quadraticTriangle=vtkQuadraticTriangle::New();
   i=0;
   while(i<6)
-    {
+  {
     quadraticTriangle->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -653,11 +654,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkBiQuadraticTriangle *BiQuadraticTriangle=vtkBiQuadraticTriangle::New();
   i=0;
   while(i<7)
-    {
+  {
     BiQuadraticTriangle->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -702,11 +703,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkQuadraticQuad *quadraticQuad=vtkQuadraticQuad::New();
   i=0;
   while(i<8)
-    {
+  {
     quadraticQuad->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -756,11 +757,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkBiQuadraticQuad *biquadraticQuad=vtkBiQuadraticQuad::New();
   i=0;
   while(i<9)
-    {
+  {
     biquadraticQuad->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -798,11 +799,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkQuadraticLinearQuad *quadraticLinearQuad=vtkQuadraticLinearQuad::New();
   i=0;
   while(i<6)
-    {
+  {
     quadraticLinearQuad->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -3130,7 +3131,7 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   pointId+=39;
 
   // 3D: biquadraticquadratic hexahedron: 3 with a some with a common face
-  // with no center point, and other with a face witha center point.
+  // with no center point, and other with a face with a center point.
   xOffset+=2.0;
 
   // a face (back): 0-3
@@ -3521,6 +3522,101 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
 
   pointId+=55;
 
+    // 3D: polyhedron: 2 hexahedra with one common face
+  xOffset+=3.0;
+
+  points->InsertNextPoint(xOffset+0.0,yOffset+0.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  points->InsertNextPoint(xOffset+2.0,yOffset+0.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  points->InsertNextPoint(xOffset+2.0,yOffset+2.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  points->InsertNextPoint(xOffset+0.0,yOffset+2.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  points->InsertNextPoint(xOffset+0.1,yOffset+0.1,3.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  points->InsertNextPoint(xOffset+0.9,yOffset+0.1,3.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  points->InsertNextPoint(xOffset+0.9,yOffset+1.9,3.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  points->InsertNextPoint(xOffset+0.1,yOffset+1.9,3.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  points->InsertNextPoint(xOffset+0.0,yOffset+0.0,4.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  points->InsertNextPoint(xOffset+2.0,yOffset+0.0,4.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  points->InsertNextPoint(xOffset+2.0,yOffset+2.0,5.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  points->InsertNextPoint(xOffset+0.0,yOffset+2.0,5.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+
+  vtkPolyhedron *polyhedron = vtkPolyhedron::New();
+  vtkIdType faces[6][4] =
+  {
+    {0, 4, 7, 3},
+    {1, 2, 6, 5},
+    {0, 1, 5, 4},
+    {3, 7, 6, 2},
+    {0, 3, 2, 1},
+    {4, 5, 6, 7}
+  };
+  polyhedron->GetPointIds()->SetNumberOfIds(6 * 5 + 1);
+  vtkIdType fptr = 0;
+  polyhedron->GetPointIds()->SetId(fptr++, 6);
+  for (int f = 0; f < 6; f++)
+  {
+    polyhedron->GetPointIds()->SetId(fptr++, 4);
+    for (int p = 0; p < 4; p++)
+    {
+      polyhedron->GetPointIds()->SetId(fptr++, pointId + faces[f][p]);
+    }
+  }
+
+  cellIds->InsertNextValue(cellId);
+  ++cellId;
+  grid->InsertNextCell(polyhedron->GetCellType(), polyhedron->GetPointIds());
+
+  polyhedron->GetPointIds()->SetNumberOfIds(6 * 5 + 1);
+  fptr = 0;
+  polyhedron->GetPointIds()->SetId(fptr++, 6);
+  for (int f = 0; f < 6; f++)
+  {
+    polyhedron->GetPointIds()->SetId(fptr++, 4);
+    for (int p = 0; p < 4; p++)
+    {
+      polyhedron->GetPointIds()->SetId(fptr++, 4 + pointId + faces[f][p]);
+    }
+  }
+
+  cellIds->InsertNextValue(cellId);
+  ++cellId;
+  grid->InsertNextCell(polyhedron->GetCellType(), polyhedron->GetPointIds());
+  polyhedron->Delete();
+
+  pointId+=12;
 
   grid->SetPoints(points);
   grid->GetPointData()->SetScalars(scalars);
@@ -3567,14 +3663,14 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   mapper->SetLookupTable(lut);
   mapper->SetInputConnection(0, linearGeom->GetOutputPort(0) );
 
- if(linearGeom->GetOutput()->GetPointData()!=0)
+ if(linearGeom->GetOutput()->GetPointData()!=nullptr)
+ {
+    if(linearGeom->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
-    if(linearGeom->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
       mapper->SetScalarRange( linearGeom->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+ }
 
   vtkActor *actor = vtkActor::New();
 //  cout<<"prop="<<actor->GetProperty()->GetBackfaceCulling()<<endl;
@@ -3604,9 +3700,9 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

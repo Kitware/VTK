@@ -1,0 +1,32 @@
+NAME
+  VTK::FiltersParallelFlowPaths
+LIBRARY_NAME
+  vtkFiltersParallelFlowPaths
+KIT
+  VTK::Parallel
+IMPLEMENTS
+  VTK::FiltersFlowPaths
+DEPENDS
+  VTK::CommonCore
+  VTK::FiltersFlowPaths
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMath
+  VTK::CommonSystem
+  VTK::FiltersAMR
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+  VTK::IOCore
+  VTK::ParallelCore
+  VTK::ParallelMPI
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::FiltersModeling
+  VTK::FiltersSources
+  VTK::IOAMR
+  VTK::IOParallel
+  VTK::ImagingCore
+  VTK::ParallelMPI
+  VTK::RenderingParallel
+  VTK::TestingRendering

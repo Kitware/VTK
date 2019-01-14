@@ -30,9 +30,9 @@
 
 #include "vtkMultiProcessController.h"
 
-#include "VPICDataSet.h"
-#include "GridExchange.h"
-#include "VPICView.h"
+#include "vtkvpic/VPICDataSet.h"
+#include "vtkvpic/GridExchange.h"
+#include "vtkvpic/VPICView.h"
 
 vtkStandardNewMacro(vtkVPICReader);
 
@@ -44,7 +44,7 @@ vtkVPICReader::vtkVPICReader()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->NumberOfNodes = 0;
   this->NumberOfVariables = 0;
   this->CurrentTimeStep = -1;
@@ -83,17 +83,23 @@ vtkVPICReader::vtkVPICReader()
   this->MPIController = vtkMultiProcessController::GetGlobalController();
 
   if(this->MPIController)
-    {
+  {
     this->Rank = this->MPIController->GetLocalProcessId();
     this->TotalRank = this->MPIController->GetNumberOfProcesses();
-    }
+  }
   else
-    {
+  {
     this->Rank = 0;
     this->TotalRank = 1;
-    }
+  }
 
   this->UsedRank = 0;
+
+  this->XExtent[0] = this->XExtent[1] = 0;
+  this->YExtent[0] = this->YExtent[1] = 0;
+  this->ZExtent[0] = this->ZExtent[1] = 0;
+
+  this->Stride[0] = this->Stride[1] = this->Stride[2] = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -113,22 +119,22 @@ vtkVPICReader::~vtkVPICReader()
   delete this->exchanger;
 
   if (this->data)
-    {
+  {
     for (int var = 0; var < this->NumberOfVariables; var++)
-      {
+    {
       if (this->data[var])
-        {
+      {
         this->data[var]->Delete();
-        }
       }
-    delete [] this->data;
     }
+    delete [] this->data;
+  }
 
   this->SelectionObserver->Delete();
 
   // Do not delete the MPIController it is Singleton like and will
   // cleanup itself;
-  this->MPIController = NULL;
+  this->MPIController = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -205,7 +211,7 @@ int vtkVPICReader::RequestInformation(
 
     // Collect temporal information
     this->NumberOfTimeSteps = this->vpicData->getNumberOfTimeSteps();
-    this->TimeSteps = NULL;
+    this->TimeSteps = nullptr;
 
     if (this->NumberOfTimeSteps > 0) {
       this->TimeSteps = new double[this->NumberOfTimeSteps];
@@ -262,10 +268,10 @@ int vtkVPICReader::RequestInformation(
     int processorUsed = this->vpicData->getProcessorUsed();
 
     if(this->MPIController)
-      {
+    {
       this->MPIController->AllReduce(&processorUsed, &this->UsedRank,
                                      1, vtkCommunicator::SUM_OP);
-      }
+    }
 
     this->vpicData->getSubExtent(this->Rank, this->SubExtent);
 
@@ -320,7 +326,7 @@ int vtkVPICReader::RequestInformation(
     }
 
     if (this->TotalRank>1)
-      {
+    {
       // Set up the GridExchange for sharing ghost cells on this view
       int decomposition[DIMENSION];
       this->vpicData->getDecomposition(decomposition);
@@ -330,7 +336,7 @@ int vtkVPICReader::RequestInformation(
       this->exchanger = new GridExchange
         (this->Rank, this->TotalRank, decomposition,
          this->GhostDimension, this->ghostLevel0, this->ghostLevel1);
-      }
+    }
   }
   return 1;
 }
@@ -347,10 +353,6 @@ int vtkVPICReader::RequestData(
   vtkInformation *outInfo = outVector->GetInformationObject(0);
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  // Even if the pipeline asks for a smaller subextent, give it the
-  // full subextent with ghosts
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(outInfo, this->SubExtent);
 
   // Set the subextent for this processor
   output->SetExtent(this->SubExtent);
@@ -479,9 +481,9 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
 
     // Exchange the single component block retrieved from files to get ghosts
     if (this->TotalRank>1)
-      {
+    {
       this->exchanger->exchangeGrid(block);
-      }
+    }
 
     // Load the ghost component block into ParaView array
     if (this->VariableStruct[var] != TENSOR) {
@@ -566,13 +568,13 @@ vtkImageData* vtkVPICReader::GetOutput()
 vtkImageData* vtkVPICReader::GetOutput(int idx)
 {
   if (idx)
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
   else
-    {
+  {
     return vtkImageData::SafeDownCast( this->GetOutputDataObject(idx) );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -616,7 +618,7 @@ void vtkVPICReader::SetPointArrayStatus(const char* name, int status)
 
 void vtkVPICReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "FileName: " << (this->FileName != NULL ? this->FileName : "") << endl;
+  os << indent << "FileName: " << (this->FileName != nullptr ? this->FileName : "") << endl;
   os << indent << "Stride: {" << this->Stride[0] << ", " << this->Stride[1]
      << ", " << this->Stride[2] << "}" << endl;
   os << indent << "XLayout: {" << this->XLayout[0] << ", " << this->XLayout[1] << "}" << endl;

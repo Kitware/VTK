@@ -29,7 +29,7 @@ template<> ADIOS_DATATYPES NativeToADIOS<vtkIdType>()
 ADIOS_DATATYPES VTKToADIOS(int tv)
 {
   switch(tv)
-    {
+  {
     case VTK_TYPE_INT8: return adios_byte;
     case VTK_TYPE_INT16: return adios_short;
     case VTK_TYPE_INT32: return adios_integer;
@@ -43,22 +43,22 @@ ADIOS_DATATYPES VTKToADIOS(int tv)
     case VTK_STRING: return adios_string;
     case VTK_ID_TYPE:
       switch(sizeof(vtkIdType))
-        {
+      {
         case 1: return adios_byte;
         case 2: return adios_short;
         case 4: return adios_integer;
         case 8: return adios_long;
         default: return adios_unknown;
-        }
+      }
     default: return adios_unknown;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 int ADIOSToVTK(ADIOS_DATATYPES ta)
 {
   switch(ta)
-    {
+  {
     case adios_byte: return VTK_TYPE_INT8;
     case adios_short: return VTK_TYPE_INT16;
     case adios_integer: return VTK_TYPE_INT32;
@@ -71,7 +71,7 @@ int ADIOSToVTK(ADIOS_DATATYPES ta)
     case adios_double: return VTK_DOUBLE;
     case adios_string: return VTK_STRING;
     default: return -1;
-    }
+  }
 }
 
 } // End namespace Type

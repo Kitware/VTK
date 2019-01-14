@@ -12,63 +12,74 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCharArray - dynamic, self-adjusting array of char
-// .SECTION Description
-// vtkCharArray is an array of values of type char.  It provides
-// methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
+/**
+ * @class   vtkCharArray
+ * @brief   dynamic, self-adjusting array of char
+ *
+ * vtkCharArray is an array of values of type char.  It provides
+ * methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+*/
 
 #ifndef vtkCharArray_h
 #define vtkCharArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkCharArray_cxx)
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE char
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
-#include "vtkDataArrayTemplate.h" // Real Superclass
+#include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
-#ifndef __WRAP__
-#define vtkDataArray vtkDataArrayTemplate<char>
+#ifndef __VTK_WRAP__
+#define vtkDataArray vtkAOSDataArrayTemplate<char>
 #endif
 class VTKCOMMONCORE_EXPORT vtkCharArray : public vtkDataArray
-#ifndef __WRAP__
-#undef vtkDataArray
-#endif
 {
 public:
+  vtkTypeMacro(vtkCharArray, vtkDataArray)
+#ifndef __VTK_WRAP__
+#undef vtkDataArray
+#endif
   static vtkCharArray* New();
-  vtkTypeMacro(vtkCharArray,vtkDataArray);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkDataArrayTemplate, which is ignored
+  // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(char);
 #endif
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
+  static vtkCharArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkCharArray*>(Superclass::FastDownCast(source));
+  }
+
+  /**
+   * Get the minimum data value in its native type.
+   */
   static char GetDataTypeValueMin() { return VTK_CHAR_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static char GetDataTypeValueMax() { return VTK_CHAR_MAX; }
 
 protected:
   vtkCharArray();
-  ~vtkCharArray();
+  ~vtkCharArray() override;
 
 private:
-  //BTX
-  typedef vtkDataArrayTemplate<char> RealSuperclass;
-  //ETX
-  vtkCharArray(const vtkCharArray&);  // Not implemented.
-  void operator=(const vtkCharArray&);  // Not implemented.
+
+  typedef vtkAOSDataArrayTemplate<char> RealSuperclass;
+
+  vtkCharArray(const vtkCharArray&) = delete;
+  void operator=(const vtkCharArray&) = delete;
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkCharArray)
 
 #endif

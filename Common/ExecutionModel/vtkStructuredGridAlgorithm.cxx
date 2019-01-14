@@ -33,9 +33,7 @@ vtkStructuredGridAlgorithm::vtkStructuredGridAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkStructuredGridAlgorithm::~vtkStructuredGridAlgorithm()
-{
-}
+vtkStructuredGridAlgorithm::~vtkStructuredGridAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkStructuredGridAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
@@ -86,20 +84,20 @@ int vtkStructuredGridAlgorithm::ProcessRequest(vtkInformation* request,
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
 
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
+  }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     return this->RequestInformation(request, inputVector, outputVector);
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

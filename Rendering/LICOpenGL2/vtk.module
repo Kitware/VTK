@@ -1,0 +1,37 @@
+NAME
+  VTK::RenderingLICOpenGL2
+LIBRARY_NAME
+  vtkRenderingLICOpenGL2
+IMPLEMENTABLE
+KIT
+  VTK::OpenGL
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::RenderingOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonMath
+  VTK::CommonSystem
+  VTK::IOCore
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::ImagingSources
+  VTK::RenderingCore
+  VTK::glew
+  VTK::opengl
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersExtraction
+  VTK::FiltersGeometry
+  VTK::FiltersSources
+  VTK::IOImage
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::InteractionStyle
+  VTK::TestingCore
+  VTK::TestingRendering
+  VTK::opengl

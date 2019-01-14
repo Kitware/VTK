@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTemporalDataSetCache - cache time steps
-// .SECTION Description
-// vtkTemporalDataSetCache cache time step requests of a temporal dataset,
-// when cached data is requested it is returned using a shallow copy.
-// .SECTION Thanks
-// Ken Martin (Kitware) and John Bidiscombe of
-// CSCS - Swiss National Supercomputing Centre
-// for creating and contributing this class.
-// For related material, please refer to :
-// John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
-// "Time Dependent Processing in a Parallel Pipeline Architecture",
-// IEEE Visualization 2007.
+/**
+ * @class   vtkTemporalDataSetCache
+ * @brief   cache time steps
+ *
+ * vtkTemporalDataSetCache cache time step requests of a temporal dataset,
+ * when cached data is requested it is returned using a shallow copy.
+ * @par Thanks:
+ * Ken Martin (Kitware) and John Bidiscombe of
+ * CSCS - Swiss National Supercomputing Centre
+ * for creating and contributing this class.
+ * For related material, please refer to :
+ * John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
+ * "Time Dependent Processing in a Parallel Pipeline Architecture",
+ * IEEE Visualization 2007.
+*/
 
 #ifndef vtkTemporalDataSetCache_h
 #define vtkTemporalDataSetCache_h
@@ -38,35 +41,36 @@ class VTKFILTERSHYBRID_EXPORT vtkTemporalDataSetCache : public vtkAlgorithm
 public:
   static vtkTemporalDataSetCache *New();
   vtkTypeMacro(vtkTemporalDataSetCache, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // This is the maximum number of time steps that can be retained in memory.
-  // it defaults to 10.
+  //@{
+  /**
+   * This is the maximum number of time steps that can be retained in memory.
+   * it defaults to 10.
+   */
   void SetCacheSize(int size);
   vtkGetMacro(CacheSize,int);
+  //@}
 
 protected:
   vtkTemporalDataSetCache();
-  ~vtkTemporalDataSetCache();
+  ~vtkTemporalDataSetCache() override;
 
   int CacheSize;
 
-//BTX
   typedef std::map<double,std::pair<unsigned long,vtkDataObject *> >
   CacheType;
   CacheType Cache;
-//ETX
 
-
-  // Description:
-  // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation* request,
+  /**
+   * see vtkAlgorithm for details
+   */
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+                             vtkInformationVector* outputVector) override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
   virtual int RequestDataObject( vtkInformation*,
                                  vtkInformationVector** inputVector ,
                                  vtkInformationVector* outputVector);
@@ -80,8 +84,8 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkTemporalDataSetCache(const vtkTemporalDataSetCache&);  // Not implemented.
-  void operator=(const vtkTemporalDataSetCache&);  // Not implemented.
+  vtkTemporalDataSetCache(const vtkTemporalDataSetCache&) = delete;
+  void operator=(const vtkTemporalDataSetCache&) = delete;
 };
 
 

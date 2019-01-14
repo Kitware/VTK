@@ -9,6 +9,7 @@
 #  TBB_INCLUDE_DIRS - the TBB include directories
 #  TBB_LIBRARIES - TBB libraries to be lined, doesn't include malloc or
 #                  malloc proxy
+#  TBB::tbb - imported target for the TBB library
 #
 #  TBB_VERSION_MAJOR - Major Product Version Number
 #  TBB_VERSION_MINOR - Minor Product Version Number
@@ -20,10 +21,12 @@
 #  TBB_MALLOC_FOUND - system has TBB malloc library
 #  TBB_MALLOC_INCLUDE_DIRS - the TBB malloc include directories
 #  TBB_MALLOC_LIBRARIES - The TBB malloc libraries to be lined
+#  TBB::malloc - imported target for the TBB malloc library
 #
 #  TBB_MALLOC_PROXY_FOUND - system has TBB malloc proxy library
 #  TBB_MALLOC_PROXY_INCLUDE_DIRS = the TBB malloc proxy include directories
 #  TBB_MALLOC_PROXY_LIBRARIES - The TBB malloc proxy libraries to be lined
+#  TBB::malloc_proxy - imported target for the TBB malloc proxy library
 #
 #
 # This module reads hints about search locations from variables:
@@ -66,21 +69,9 @@
 #
 
 #===============================================
-# Create search paths based on prefix path
-#===============================================
-macro(create_search_paths PREFIX)
-  foreach(dir ${${PREFIX}_PREFIX_PATH})
-    set(${PREFIX}_INC_SEARCH_PATH ${${PREFIX}_INC_SEARCH_PATH}
-      ${dir}/include ${dir}/Include ${dir}/include/${PREFIX})
-    set(${PREFIX}_LIB_SEARCH_PATH ${${PREFIX}_LIB_SEARCH_PATH}
-      ${dir}/lib ${dir}/Lib ${dir}/lib/${PREFIX} ${dir}/Libs)
-  endforeach(dir)
-endmacro(create_search_paths)
-
-#===============================================
 # Do the final processing for the package find.
 #===============================================
-macro(findpkg_finish PREFIX)
+macro(findpkg_finish PREFIX TARGET_NAME)
   # skip if already processed during this run
   if (NOT ${PREFIX}_FOUND)
     if (${PREFIX}_INCLUDE_DIR AND ${PREFIX}_LIBRARY)
@@ -93,22 +84,40 @@ macro(findpkg_finish PREFIX)
       endif ()
     endif ()
 
+    if (NOT TARGET "TBB::${TARGET_NAME}")
+      add_library(TBB::${TARGET_NAME} UNKNOWN IMPORTED)
+      set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${${PREFIX}_INCLUDE_DIR}")
+      if (${PREFIX}_LIBRARY_DEBUG AND ${PREFIX}_LIBRARY_RELEASE)
+        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_RELEASE}"
+          IMPORTED_LOCATION_DEBUG "${${PREFIX}_LIBRARY_DEBUG}"
+          IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}")
+      elseif (${PREFIX}_LIBRARY_RELEASE)
+        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_RELEASE}")
+      elseif (${PREFIX}_LIBRARY_DEBUG)
+        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_DEBUG}")
+      endif ()
+    endif ()
+
    #mark the following variables as internal variables
    mark_as_advanced(${PREFIX}_INCLUDE_DIR
                     ${PREFIX}_LIBRARY
                     ${PREFIX}_LIBRARY_DEBUG
                     ${PREFIX}_LIBRARY_RELEASE)
   endif ()
-endmacro(findpkg_finish)
+endmacro()
 
 #===============================================
-# Generate debug names from given RELEASEease names
+# Generate debug names from given release names
 #===============================================
 macro(get_debug_names PREFIX)
   foreach(i ${${PREFIX}})
     set(${PREFIX}_DEBUG ${${PREFIX}_DEBUG} ${i}d ${i}D ${i}_d ${i}_D ${i}_debug ${i})
-  endforeach(i)
-endmacro(get_debug_names)
+  endforeach()
+endmacro()
 
 #===============================================
 # See if we have env vars to help us find tbb
@@ -119,10 +128,10 @@ macro(getenv_path VAR)
    if (ENV_${VAR})
      string( REGEX REPLACE "\\\\" "/" ENV_${VAR} ${ENV_${VAR}} )
    endif ()
-endmacro(getenv_path)
+endmacro()
 
 #===============================================
-# Couple a set of RELEASEease AND debug libraries
+# Couple a set of release AND debug libraries
 #===============================================
 macro(make_library_set PREFIX)
   if (${PREFIX}_RELEASE AND ${PREFIX}_DEBUG)
@@ -132,7 +141,7 @@ macro(make_library_set PREFIX)
   elseif (${PREFIX}_DEBUG)
     set(${PREFIX} ${${PREFIX}_DEBUG})
   endif ()
-endmacro(make_library_set)
+endmacro()
 
 
 #=============================================================================
@@ -141,9 +150,12 @@ endmacro(make_library_set)
 
 # Get path, convert backslashes as ${ENV_${var}}
 getenv_path(TBB_ROOT)
-# construct search paths
+
+# initialize search paths
 set(TBB_PREFIX_PATH ${TBB_ROOT} ${ENV_TBB_ROOT})
-create_search_paths(TBB)
+set(TBB_INC_SEARCH_PATH "")
+set(TBB_LIB_SEARCH_PATH "")
+
 
 # If user built from sources
 set(TBB_BUILD_PREFIX $ENV{TBB_BUILD_PREFIX})
@@ -169,7 +181,7 @@ endif ()
 # will never adequately match the user's setup, so there is no feasible way
 # to detect the "best" version to use. The user will have to manually
 # select the right files. (Chances are the distributions are shipping their
-# custom version of tbb, anyway, so the problem is probably nonexistant.)
+# custom version of tbb, anyway, so the problem is probably nonexistent.)
 if (WIN32 AND MSVC)
   set(COMPILER_PREFIX "vc7.1")
   if (MSVC_VERSION EQUAL 1400)
@@ -187,7 +199,7 @@ if (WIN32 AND MSVC)
   endif ()
 
   # for each prefix path, add ia32/64\${COMPILER_PREFIX}\lib to the lib search path
-  foreach (dir ${TBB_PREFIX_PATH})
+  foreach (dir IN LISTS TBB_PREFIX_PATH)
     if (CMAKE_CL_64)
       list(APPEND TBB_LIB_SEARCH_PATH ${dir}/ia64/${COMPILER_PREFIX}/lib)
       list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/ia64/${COMPILER_PREFIX})
@@ -200,39 +212,82 @@ if (WIN32 AND MSVC)
   endforeach ()
 endif ()
 
+# For OS X binary distribution, choose libc++ based libraries for Mavericks (10.9)
+# and above and AppleClang
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND
+    NOT CMAKE_SYSTEM_VERSION VERSION_LESS 13.0)
+  set (USE_LIBCXX OFF)
+  cmake_policy(GET CMP0025 POLICY_VAR)
+
+  if (POLICY_VAR STREQUAL "NEW")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+      set (USE_LIBCXX ON)
+    endif ()
+  else ()
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+      set (USE_LIBCXX ON)
+    endif ()
+  endif ()
+
+  if (USE_LIBCXX)
+    foreach (dir IN LISTS TBB_PREFIX_PATH)
+      list (APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/libc++ ${dir}/libc++/lib)
+    endforeach ()
+  endif ()
+endif ()
 
 # check compiler ABI
-if (CMAKE_CXX_COMPILER_ID EQUAL GNU AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.4)
-  set(COMPILER_PREFIX "gcc4.1")
-else () # Assume compatibility with 4.4 for other compilers
-  set(COMPILER_PREFIX "gcc4.4")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(COMPILER_PREFIX)
+  if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
+    list(APPEND COMPILER_PREFIX "gcc4.7")
+  endif()
+  if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.4)
+    list(APPEND COMPILER_PREFIX "gcc4.4")
+  endif()
+  list(APPEND COMPILER_PREFIX "gcc4.1")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(COMPILER_PREFIX)
+  if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.6)
+    list(APPEND COMPILER_PREFIX "gcc4.7")
+  endif()
+  list(APPEND COMPILER_PREFIX "gcc4.4")
+else() # Assume compatibility with 4.4 for other compilers
+  list(APPEND COMPILER_PREFIX "gcc4.4")
 endif ()
 
 # if platform architecture is explicitly specified
 set(TBB_ARCH_PLATFORM $ENV{TBB_ARCH_PLATFORM})
 if (TBB_ARCH_PLATFORM)
-  foreach (dir ${TBB_PREFIX_PATH})
+  foreach (dir IN LISTS TBB_PREFIX_PATH)
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/${TBB_ARCH_PLATFORM}/lib)
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/${TBB_ARCH_PLATFORM})
-    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib)
   endforeach ()
 endif ()
 
-foreach (dir ${TBB_PREFIX_PATH})
-  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/intel64)
-    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/intel64/${COMPILER_PREFIX})
-    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/intel64/lib)
-    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/intel64/${COMPILER_PREFIX}/lib)
-  else ()
-    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/ia32)
-    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/ia32/${COMPILER_PREFIX})
-    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/ia32/lib)
-    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/ia32/${COMPILER_PREFIX}/lib)
-  endif ()
+foreach (dir IN LISTS TBB_PREFIX_PATH)
+  foreach (prefix IN LISTS COMPILER_PREFIX)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+      list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/intel64)
+      list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/intel64/${prefix})
+      list(APPEND TBB_LIB_SEARCH_PATH ${dir}/intel64/lib)
+      list(APPEND TBB_LIB_SEARCH_PATH ${dir}/intel64/${prefix}/lib)
+    else ()
+      list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/ia32)
+      list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/ia32/${prefix})
+      list(APPEND TBB_LIB_SEARCH_PATH ${dir}/ia32/lib)
+      list(APPEND TBB_LIB_SEARCH_PATH ${dir}/ia32/${prefix}/lib)
+    endif ()
+  endforeach()
 endforeach ()
 
+# add general search paths
+foreach (dir IN LISTS TBB_PREFIX_PATH)
+  list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib ${dir}/Lib ${dir}/lib/tbb
+    ${dir}/Libs)
+  list(APPEND TBB_INC_SEARCH_PATH ${dir}/include ${dir}/Include
+    ${dir}/include/tbb)
+endforeach ()
 
 set(TBB_LIBRARY_NAMES tbb)
 get_debug_names(TBB_LIBRARY_NAMES)
@@ -250,7 +305,7 @@ find_library(TBB_LIBRARY_DEBUG
              PATHS ${TBB_LIB_SEARCH_PATH})
 make_library_set(TBB_LIBRARY)
 
-findpkg_finish(TBB)
+findpkg_finish(TBB tbb)
 
 #if we haven't found TBB no point on going any further
 if (NOT TBB_FOUND)
@@ -274,7 +329,7 @@ find_library(TBB_MALLOC_LIBRARY_DEBUG
              PATHS ${TBB_LIB_SEARCH_PATH})
 make_library_set(TBB_MALLOC_LIBRARY)
 
-findpkg_finish(TBB_MALLOC)
+findpkg_finish(TBB_MALLOC tbbmalloc)
 
 #=============================================================================
 # Look for TBB's malloc proxy package
@@ -293,7 +348,7 @@ find_library(TBB_MALLOC_PROXY_LIBRARY_DEBUG
              PATHS ${TBB_LIB_SEARCH_PATH})
 make_library_set(TBB_MALLOC_PROXY_LIBRARY)
 
-findpkg_finish(TBB_MALLOC_PROXY)
+findpkg_finish(TBB_MALLOC_PROXY tbbmalloc_proxy)
 
 
 #=============================================================================
@@ -301,10 +356,10 @@ findpkg_finish(TBB_MALLOC_PROXY)
 if(NOT TBB_VERSION)
 
  #only read the start of the file
- file(READ
+ file(STRINGS
       "${TBB_INCLUDE_DIR}/tbb/tbb_stddef.h"
       TBB_VERSION_CONTENTS
-      LIMIT 2048)
+      REGEX "VERSION")
 
   string(REGEX REPLACE
     ".*#define TBB_VERSION_MAJOR ([0-9]+).*" "\\1"

@@ -67,7 +67,6 @@ int TestGenericStreamTracer(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkStructuredGridReader *reader = vtkStructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/office.binary.vtk");
-  //char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadTet2.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
 
@@ -163,9 +162,9 @@ int TestGenericStreamTracer(int argc, char* argv[])
   streamer->GetOutput()->PrintSelf(cout,indent);
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

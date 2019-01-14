@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -12,9 +14,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// The following line handle system declarations such a
-// default precisions, or defining precisions to null
-//VTK::System::Dec
 
 /// Needed to enable inverse function
 #extension GL_ARB_gpu_shader5 : enable
@@ -24,6 +23,8 @@
 /// Uniforms, attributes, and globals
 ///
 //////////////////////////////////////////////////////////////////////////////
+//VTK::CustomUniforms::Dec
+
 //VTK::Base::Dec
 
 //VTK::Termination::Dec
@@ -37,7 +38,7 @@
 /// Inputs
 ///
 //////////////////////////////////////////////////////////////////////////////
-attribute vec3 in_vertexPos;
+in vec3 in_vertexPos;
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -45,8 +46,8 @@ attribute vec3 in_vertexPos;
 ///
 //////////////////////////////////////////////////////////////////////////////
 /// 3D texture coordinates for texture lookup in the fragment shader
-varying vec3 ip_textureCoords;
-varying vec3 ip_vertexPos;
+out vec3 ip_textureCoords;
+out vec3 ip_vertexPos;
 
 void main()
 {

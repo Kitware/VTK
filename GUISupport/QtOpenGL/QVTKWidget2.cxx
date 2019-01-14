@@ -31,13 +31,14 @@
 #include "QVTKInteractorAdapter.h"
 #include "QVTKInteractor.h"
 
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
 # include "vtkTDxUnixDevice.h"
 #endif
 
 QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
-  : QGLWidget(p, shareWidget, f), mRenWin(NULL)
+  : Superclass(p, shareWidget, f), mRenWin(nullptr)
 {
+  VTK_LEGACY_BODY(QVTKWidget2, "VTK 8.1");
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
@@ -45,9 +46,23 @@ QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFla
   this->setAutoBufferSwap(false);
 }
 
-QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
-  : QGLWidget(ctx, p, shareWidget, f), mRenWin(NULL)
+QVTKWidget2::QVTKWidget2(vtkGenericOpenGLRenderWindow* w, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
+  : QGLWidget(QVTKWidget2::GetDefaultVTKFormat(w), p, shareWidget, f), mRenWin(nullptr)
 {
+  VTK_LEGACY_BODY(QVTKWidget2, "VTK 8.1");
+  this->UseTDx=false;
+  mIrenAdapter = new QVTKInteractorAdapter(this);
+  mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+  this->setMouseTracking(true);
+  this->setAutoBufferSwap(false);
+
+  this->SetRenderWindow(w);
+}
+
+QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
+  : Superclass(ctx, p, shareWidget, f), mRenWin(nullptr)
+{
+  VTK_LEGACY_BODY(QVTKWidget2, "VTK 8.1");
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
@@ -56,8 +71,9 @@ QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidg
 }
 
 QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
-  : QGLWidget(fmt, p, shareWidget, f), mRenWin(NULL)
+  : Superclass(fmt, p, shareWidget, f), mRenWin(nullptr)
 {
+  VTK_LEGACY_BODY(QVTKWidget2, "VTK 8.1");
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
@@ -70,34 +86,34 @@ QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shar
 QVTKWidget2::~QVTKWidget2()
 {
   // get rid of the VTK window
-  this->SetRenderWindow(NULL);
+  this->SetRenderWindow(nullptr);
 }
 
 // ----------------------------------------------------------------------------
 void QVTKWidget2::SetUseTDx(bool useTDx)
 {
   if(useTDx!=this->UseTDx)
-    {
+  {
     this->UseTDx=useTDx;
     if(this->UseTDx)
-      {
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
-       QByteArray theSignal=
-         QMetaObject::normalizedSignature("CreateDevice(vtkTDxDevice *)");
+    {
+#if defined(VTK_USE_TDX) && defined(Q_OS_LINUX)
+      QByteArray theSignal =
+          QMetaObject::normalizedSignature("CreateDevice(vtkTDxDevice *)");
       if(QApplication::instance()->metaObject()->indexOfSignal(theSignal)!=-1)
-        {
+      {
         QObject::connect(QApplication::instance(),
                          SIGNAL(CreateDevice(vtkTDxDevice *)),
                          this,
                          SLOT(setDevice(vtkTDxDevice *)));
-        }
-      else
-        {
-        vtkGenericWarningMacro("Missing signal CreateDevice on QApplication. 3DConnexion device will not work. Define it or derive your QApplication from QVTKApplication.");
-        }
-#endif
       }
+      else
+      {
+        vtkGenericWarningMacro("Missing signal CreateDevice on QApplication. 3DConnexion device will not work. Define it or derive your QApplication from QVTKApplication.");
+      }
+#endif
     }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -111,12 +127,12 @@ bool QVTKWidget2::GetUseTDx() const
 vtkGenericOpenGLRenderWindow* QVTKWidget2::GetRenderWindow()
 {
   if (!this->mRenWin)
-    {
+  {
     // create a default vtk window
     vtkGenericOpenGLRenderWindow* win = vtkGenericOpenGLRenderWindow::New();
     this->SetRenderWindow(win);
     win->Delete();
-    }
+  }
 
   return this->mRenWin;
 }
@@ -129,13 +145,13 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
 {
   // do nothing if we don't have to
   if(w == this->mRenWin)
-    {
+  {
     return;
-    }
+  }
 
   // unregister previous window
   if(this->mRenWin)
-    {
+  {
     this->mRenWin->Finalize();
     this->mRenWin->SetMapped(0);
     mConnect->Disconnect(mRenWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
@@ -145,14 +161,14 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
     mConnect->Disconnect(mRenWin, vtkCommand::EndEvent, this, SLOT(End()));
     mConnect->Disconnect(mRenWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
     mConnect->Disconnect(mRenWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
-    }
+  }
 
   // now set the window
   this->mRenWin = w;
 
   if(this->mRenWin)
-    {
-    this->SetMultiSamples(this->mRenWin->GetGlobalMaximumNumberOfMultiSamples());
+  {
+    this->mRenWin->SetMultiSamples(this->GetMultiSamples());
     // if it is mapped somewhere else, unmap it
     this->mRenWin->Finalize();
     this->mRenWin->SetMapped(1);
@@ -163,7 +179,7 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
 
     // if an interactor wasn't provided, we'll make one by default
     if(!this->mRenWin->GetInteractor())
-      {
+    {
       // create a default interactor
       QVTKInteractor* iren = QVTKInteractor::New();
       iren->SetUseTDx(this->UseTDx);
@@ -176,7 +192,7 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
 
       iren->Delete();
       s->Delete();
-      }
+    }
 
     // tell the interactor the size of this window
     this->mRenWin->GetInteractor()->SetSize(this->width(), this->height());
@@ -188,7 +204,7 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
     mConnect->Connect(mRenWin, vtkCommand::EndEvent, this, SLOT(End()));
     mConnect->Connect(mRenWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
     mConnect->Connect(mRenWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
-    }
+  }
 }
 
 
@@ -216,9 +232,9 @@ void QVTKWidget2::End()
 void QVTKWidget2::initializeGL()
 {
   if(!this->mRenWin)
-    {
+  {
     return;
-    }
+  }
   this->mRenWin->OpenGLInitContext();
 }
 
@@ -227,18 +243,18 @@ void QVTKWidget2::initializeGL()
 void QVTKWidget2::resizeGL(int w, int h)
 {
   if(!this->mRenWin)
-    {
+  {
     return;
-    }
+  }
 
   this->mRenWin->SetSize(w,h);
 
   // and update the interactor
   if(this->mRenWin->GetInteractor())
-    {
+  {
     QResizeEvent e(QSize(w,h), QSize());
     mIrenAdapter->ProcessEvent(&e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 void QVTKWidget2::moveEvent(QMoveEvent* e)
@@ -246,9 +262,9 @@ void QVTKWidget2::moveEvent(QMoveEvent* e)
   QWidget::moveEvent(e);
 
   if(!this->mRenWin)
-    {
+  {
     return;
-    }
+  }
 
   this->mRenWin->SetPosition(this->x(), this->y());
 }
@@ -257,16 +273,16 @@ void QVTKWidget2::moveEvent(QMoveEvent* e)
  */
 void QVTKWidget2::paintGL()
 {
-  vtkRenderWindowInteractor* iren = NULL;
+  vtkRenderWindowInteractor* iren = nullptr;
   if(this->mRenWin)
-    {
+  {
     iren = this->mRenWin->GetInteractor();
-    }
+  }
 
   if(!iren || !iren->GetEnabled())
-    {
+  {
     return;
-    }
+  }
 
   iren->Render();
 }
@@ -278,17 +294,17 @@ bool QVTKWidget2::event(QEvent* e)
   if(e->type() == QEvent::TouchBegin ||
           e->type() == QEvent::TouchUpdate ||
           e->type() == QEvent::TouchEnd)
-    {
+  {
     if(this->mRenWin)
-      {
+    {
       mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
       if (e->isAccepted())
-        {
+      {
         return true;
-        }
       }
     }
-  return QObject::event(e);
+  }
+  return Superclass::event(e);
 }
 
 /*! handle mouse press event
@@ -296,20 +312,36 @@ bool QVTKWidget2::event(QEvent* e)
 void QVTKWidget2::mousePressEvent(QMouseEvent* e)
 {
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
 
+    emit mouseEvent(e);
+  }
+
+}
+
+/*! handle mouse release event
+ */
+void QVTKWidget2::mouseReleaseEvent(QMouseEvent* e)
+{
+  if(this->mRenWin)
+  {
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
+
+    emit mouseEvent(e);
+  }
 }
 
 /*! handle mouse move event
  */
 void QVTKWidget2::mouseMoveEvent(QMouseEvent* e)
 {
+  emit mouseEvent(e);
+
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 
@@ -318,9 +350,9 @@ void QVTKWidget2::mouseMoveEvent(QMouseEvent* e)
 void QVTKWidget2::enterEvent(QEvent* e)
 {
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 /*! handle leave event
@@ -328,19 +360,9 @@ void QVTKWidget2::enterEvent(QEvent* e)
 void QVTKWidget2::leaveEvent(QEvent* e)
 {
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
-}
-
-/*! handle mouse release event
- */
-void QVTKWidget2::mouseReleaseEvent(QMouseEvent* e)
-{
-  if(this->mRenWin)
-    {
-    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 /*! handle key press event
@@ -348,9 +370,9 @@ void QVTKWidget2::mouseReleaseEvent(QMouseEvent* e)
 void QVTKWidget2::keyPressEvent(QKeyEvent* e)
 {
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 /*! handle key release event
@@ -358,57 +380,57 @@ void QVTKWidget2::keyPressEvent(QKeyEvent* e)
 void QVTKWidget2::keyReleaseEvent(QKeyEvent* e)
 {
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 void QVTKWidget2::wheelEvent(QWheelEvent* e)
 {
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 void QVTKWidget2::contextMenuEvent(QContextMenuEvent* e)
 {
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 void QVTKWidget2::dragEnterEvent(QDragEnterEvent* e)
 {
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 void QVTKWidget2::dragMoveEvent(QDragMoveEvent* e)
 {
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 void QVTKWidget2::dragLeaveEvent(QDragLeaveEvent* e)
 {
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 void QVTKWidget2::dropEvent(QDropEvent* e)
 {
   if(this->mRenWin)
-    {
+  {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
+  }
 }
 
 bool QVTKWidget2::focusNextPrevChild(bool)
@@ -421,11 +443,11 @@ bool QVTKWidget2::focusNextPrevChild(bool)
 // Receive notification of the creation of the TDxDevice
 void QVTKWidget2::setDevice(vtkTDxDevice *device)
 {
-#ifdef Q_WS_X11
+#ifdef Q_OS_LINUX
   if(this->GetInteractor()->GetDevice()!=device)
-    {
+  {
     this->GetInteractor()->SetDevice(device);
-    }
+  }
 #else
   (void)device; // to avoid warnings.
 #endif
@@ -472,17 +494,6 @@ void QVTKWidget2::Frame()
 
 }
 
-void QVTKWidget2::SetMultiSamples(int multiSamples)
-{
-  QGLFormat newform = this->format();
-  newform.setSamples(multiSamples);
-  this->setFormat(newform);
-  if(this->mRenWin)
-    {
-    this->mRenWin->SetMultiSamples(multiSamples);
-    }
-}
-
 int QVTKWidget2::GetMultiSamples() const
 {
   return this->format().samples();
@@ -490,10 +501,41 @@ int QVTKWidget2::GetMultiSamples() const
 
 void QVTKWidget2::setAutoBufferSwap(bool f)
 {
-  QGLWidget::setAutoBufferSwap(f);
+  Superclass::setAutoBufferSwap(f);
 }
 
 bool QVTKWidget2::autoBufferSwap() const
 {
-  return QGLWidget::autoBufferSwap();
+  return Superclass::autoBufferSwap();
+}
+
+QGLFormat QVTKWidget2::GetDefaultVTKFormat(vtkGenericOpenGLRenderWindow* w)
+{
+  QGLFormat format;
+
+  format.setDepth(true);
+  format.setVersion(3, 2);
+
+  if (w)
+  {
+    format.setSampleBuffers(w->GetMultiSamples() > 0);
+    format.setSamples(w->GetMultiSamples());
+    format.setAlpha(w->GetAlphaBitPlanes() > 0);
+    format.setAlphaBufferSize(w->GetAlphaBitPlanes());
+    format.setDoubleBuffer(w->GetDoubleBuffer());
+    format.setStereo(w->GetStereoCapableWindow());
+    format.setStencil(w->GetStencilCapable());
+  }
+  else
+  {
+    format.setSampleBuffers(vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples() > 0);
+    format.setSamples(vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples());
+    format.setAlpha(true);
+    format.setAlphaBufferSize(8);
+    format.setDoubleBuffer(true);
+    format.setStereo(true);
+    format.setStencil(true);
+  }
+
+  return format;
 }

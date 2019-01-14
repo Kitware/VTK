@@ -65,30 +65,30 @@ int TestPolygonSelection( int argc, char* argv[] )
   vtkNew<vtkActor> sactor;
   sactor->PickableOn(); //lets the HardwareSelector select in it
   vtkNew<vtkPolyDataMapper> smapper;
-  sactor->SetMapper(smapper.GetPointer());
+  sactor->SetMapper(smapper);
 
   vtkNew<vtkRenderer> ren;
-  ren->AddActor(sactor.GetPointer());
+  ren->AddActor(sactor);
   // extracted part
   vtkNew<vtkPolyDataMapper> emapper;
   vtkNew<vtkActor> eactor;
   eactor->PickableOff();
-  eactor->SetMapper(emapper.GetPointer());
-  ren->AddActor(eactor.GetPointer());
+  eactor->SetMapper(emapper);
+  ren->AddActor(eactor);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(300,300);
   renWin->SetMultiSamples(0);
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   //use the draw-polygon interactor style
   vtkRenderWindowInteractor* rwi = renWin->GetInteractor();
   vtkNew<vtkInteractorStyleDrawPolygon> polyStyle;
   polyStyle->DrawPolygonPixelsOff();
-  rwi->SetInteractorStyle(polyStyle.GetPointer());
+  rwi->SetInteractorStyle(polyStyle);
 
   // record events
   vtkNew<vtkInteractorEventRecorder> recorder;
@@ -117,19 +117,19 @@ int TestPolygonSelection( int argc, char* argv[] )
 
   std::vector<vtkVector2i> points = polyStyle->GetPolygonPoints();
   if(points.size() >= 3)
-    {
+  {
     vtkNew<vtkIntArray> polygonPointsArray;
     polygonPointsArray->SetNumberOfComponents(2);
-    polygonPointsArray->SetNumberOfTuples(points.size());
+    polygonPointsArray->SetNumberOfTuples(static_cast<vtkIdType>(points.size()));
     for (unsigned int j = 0; j < points.size(); ++j)
-      {
+    {
       const vtkVector2i &v = points[j];
       int pos[2] = {v[0], v[1]};
-      polygonPointsArray->SetTupleValue(j, pos);
-      }
+      polygonPointsArray->SetTypedTuple(j, pos);
+    }
 
     vtkNew<vtkHardwareSelector> hardSel;
-    hardSel->SetRenderer(ren.GetPointer());
+    hardSel->SetRenderer(ren);
 
     int* wsize = ren->GetSize();
     int* origin = ren->GetOrigin();
@@ -137,7 +137,7 @@ int TestPolygonSelection( int argc, char* argv[] )
     hardSel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
 
     if (hardSel->CaptureBuffers())
-      {
+    {
       vtkSelection* psel = hardSel->GeneratePolygonSelection(
         polygonPointsArray->GetPointer(0),
         polygonPointsArray->GetNumberOfTuples()*2);
@@ -155,13 +155,13 @@ int TestPolygonSelection( int argc, char* argv[] )
 
       sactor->SetVisibility(false);
       renWin->Render();
-      }
     }
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  }
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

@@ -13,7 +13,7 @@
 #  TK_WISH                = full path to the wish executable
 #
 # In an effort to remove some clutter and clear up some issues for people
-# who are not necessarily Tcl/Tk gurus/developpers, some variables were
+# who are not necessarily Tcl/Tk gurus/developers, some variables were
 # moved or removed. Changes compared to CMake 2.4 are:
 # - The stub libraries are now found in FindTclStub.cmake
 #   => they were only useful for people writing Tcl/Tk extensions.
@@ -94,10 +94,6 @@ FIND_LIBRARY(TCL_LIBRARY
   tcl${TK_LIBRARY_VERSION} tcl${TCL_TCLSH_VERSION} tcl${TK_WISH_VERSION}
   tcl86 tcl8.6
   tcl85 tcl8.5
-  tcl84 tcl8.4
-  tcl83 tcl8.3
-  tcl82 tcl8.2
-  tcl80 tcl8.0
   PATHS ${TCLTK_POSSIBLE_LIB_PATHS}
   )
 
@@ -107,10 +103,6 @@ FIND_LIBRARY(TK_LIBRARY
   tk${TCL_LIBRARY_VERSION} tk${TCL_TCLSH_VERSION} tk${TK_WISH_VERSION}
   tk86 tk8.6
   tk85 tk8.5
-  tk84 tk8.4
-  tk83 tk8.3
-  tk82 tk8.2
-  tk80 tk8.0
   PATHS ${TCLTK_POSSIBLE_LIB_PATHS}
   )
 
@@ -151,10 +143,6 @@ SET(TCLTK_POSSIBLE_INCLUDE_PATHS
   /usr/include/tcl${TCL_LIBRARY_VERSION}
   /usr/include/tcl8.6
   /usr/include/tcl8.5
-  /usr/include/tcl8.4
-  /usr/include/tcl8.3
-  /usr/include/tcl8.2
-  /usr/include/tcl8.0
   )
 
 IF(WIN32)
@@ -162,10 +150,6 @@ IF(WIN32)
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ActiveState\\ActiveTcl\\${ActiveTcl_CurrentVersion}]/include"
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Scriptics\\Tcl\\8.6;Root]/include"
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Scriptics\\Tcl\\8.5;Root]/include"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Scriptics\\Tcl\\8.4;Root]/include"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Scriptics\\Tcl\\8.3;Root]/include"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Scriptics\\Tcl\\8.2;Root]/include"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Scriptics\\Tcl\\8.0;Root]/include"
     "$ENV{ProgramFiles}/Tcl/include"
     "C:/Program Files/Tcl/include"
     "C:/Tcl/include"

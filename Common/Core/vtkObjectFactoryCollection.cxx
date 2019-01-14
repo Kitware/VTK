@@ -15,13 +15,13 @@
 #include "vtkObjectFactoryCollection.h"
 
 #include "vtkDebugLeaks.h"
-
+#include "vtkObjectFactory.h"
 
 vtkObjectFactoryCollection* vtkObjectFactoryCollection::New()
 {
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass("vtkObjectFactoryCollection");
-#endif
-  return new vtkObjectFactoryCollection;
+  // Don't use the object factory macros. Creating an object factory here
+  // will cause an infinite loop.
+  vtkObjectFactoryCollection *ret = new vtkObjectFactoryCollection;
+  ret->InitializeObjectBase();
+  return ret;
 }
-

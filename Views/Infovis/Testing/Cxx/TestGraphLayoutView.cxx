@@ -1096,10 +1096,10 @@ int TestGraphLayoutView(int argc, char* argv[])
   VTK_CREATE(vtkIdTypeArray, dist);
   dist->SetName("distance");
   for (vtkIdType i = 0; i < t->GetNumberOfEdges(); i++)
-    {
+  {
     dist->InsertNextValue(i);
     switch (i % 3)
-      {
+    {
       case 0:
         label->InsertNextValue("a");
         break;
@@ -1109,8 +1109,8 @@ int TestGraphLayoutView(int argc, char* argv[])
       case 2:
         label->InsertNextValue("c");
         break;
-      }
     }
+  }
   t->GetEdgeData()->AddArray(dist);
   t->GetEdgeData()->AddArray(label);
 
@@ -1144,16 +1144,16 @@ int TestGraphLayoutView(int argc, char* argv[])
   VTK_CREATE(vtkInteractorEventRecorder, recorder);
   recorder->SetInteractor(view->GetInteractor());
   if (record)
-    {
+  {
     recorder->SetFileName("record.log");
     recorder->SetEnabled(true);
     recorder->Record();
-    }
+  }
   else
-    {
+  {
     recorder->ReadFromInputStringOn();
     recorder->SetInputString(GraphLayoutViewEventLog);
-    }
+  }
 
   // interact with data
   // render the image
@@ -1161,21 +1161,21 @@ int TestGraphLayoutView(int argc, char* argv[])
   view->GetInteractor()->Initialize();
   view->Render();
   if (!record)
-    {
+  {
     recorder->Play();
     // Remove the observers so we can go interactive. Without this the "-I"
     // testing option fails.
     recorder->Off();
-    }
+  }
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

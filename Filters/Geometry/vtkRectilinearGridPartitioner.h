@@ -12,18 +12,21 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkRectilinearGridPartitioner.h -- Partitions a rectilinear grid by RCB
-//
-// .SECTION Description
-//  A concrete implementation of vtkMultiBlockDataSetAlgorithm that provides
-//  functionality for partitioning a VTK rectilinear dataset. The partitioning
-//  methd used is Recursive Coordinate Bisection (RCB) where each time the
-//  longest dimension is split.
-//
-// .SECTION See Also
-//  vtkUniformGridPartitioner vtkStructuredGridPartitioner
-#ifndef VTKRECTILINEARGRIDPARTITIONER_H_
-#define VTKRECTILINEARGRIDPARTITIONER_H_
+/**
+ * @class   vtkRectilinearGridPartitioner
+ *
+ *
+ *  A concrete implementation of vtkMultiBlockDataSetAlgorithm that provides
+ *  functionality for partitioning a VTK rectilinear dataset. The partitioning
+ *  methd used is Recursive Coordinate Bisection (RCB) where each time the
+ *  longest dimension is split.
+ *
+ * @sa
+ *  vtkUniformGridPartitioner vtkStructuredGridPartitioner
+*/
+
+#ifndef vtkRectilinearGridPartitioner_h
+#define vtkRectilinearGridPartitioner_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -40,29 +43,37 @@ class VTKFILTERSGEOMETRY_EXPORT vtkRectilinearGridPartitioner :
 public:
   static vtkRectilinearGridPartitioner *New();
   vtkTypeMacro(vtkRectilinearGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &oss, vtkIndent indent);
+  void PrintSelf(ostream &oss, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get macro for the number of subdivisions.
+  //@{
+  /**
+   * Set/Get macro for the number of subdivisions.
+   */
   vtkGetMacro(NumberOfPartitions,int);
   vtkSetMacro(NumberOfPartitions,int);
+  //@}
 
-  // Description:
-  // Set/Get macro for the number of ghost layers.
+  //@{
+  /**
+   * Set/Get macro for the number of ghost layers.
+   */
   vtkGetMacro(NumberOfGhostLayers,int);
   vtkSetMacro(NumberOfGhostLayers,int);
+  //@}
 
-  // Description:
-  vtkGetMacro(DuplicateNodes,int);
-  vtkSetMacro(DuplicateNodes,int);
-  vtkBooleanMacro(DuplicateNodes,int);
+  //@{
+  vtkGetMacro(DuplicateNodes,vtkTypeBool);
+  vtkSetMacro(DuplicateNodes,vtkTypeBool);
+  vtkBooleanMacro(DuplicateNodes,vtkTypeBool);
+  //@}
 
 protected:
   vtkRectilinearGridPartitioner();
-  virtual ~vtkRectilinearGridPartitioner();
+  ~vtkRectilinearGridPartitioner() override;
 
-  // Description:
-  // Extracts the coordinates
+  /**
+   * Extracts the coordinates
+   */
   void ExtractGridCoordinates(
       vtkRectilinearGrid *grd, int subext[6],
       vtkDoubleArray *xcoords,
@@ -70,18 +81,18 @@ protected:
       vtkDoubleArray *zcoords );
 
   // Standard Pipeline methods
-  virtual int RequestData(
-     vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  int RequestData(
+     vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   int NumberOfPartitions;
   int NumberOfGhostLayers;
-  int DuplicateNodes;
+  vtkTypeBool DuplicateNodes;
 
 private:
-  vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &); // Not implemented
-  void operator=(const vtkRectilinearGridPartitioner &); // Not implemented
+  vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &) = delete;
+  void operator=(const vtkRectilinearGridPartitioner &) = delete;
 };
 
-#endif /* VTKRECTILINEARGRIDPARTITIONER_H_ */
+#endif /* vtkRectilinearGridPartitioner_h */

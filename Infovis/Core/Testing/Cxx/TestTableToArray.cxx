@@ -42,7 +42,7 @@
 int TestTableToArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     VTK_CREATE(vtkTable, table);
 
     VTK_CREATE(vtkIntArray, int_array);
@@ -95,10 +95,10 @@ int TestTableToArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkPrintMatrixFormat(std::cout, array);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

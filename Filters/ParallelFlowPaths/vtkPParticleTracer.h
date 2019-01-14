@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPParticleTracer - A Parallel Particle tracer for unsteady vector fields
-// .SECTION Description
-// vtkPParticleTracer is a filter that integrates a vector field to generate
-//
-//
-// .SECTION See Also
-// vtkPParticleTracerBase has the details of the algorithms
-
+/**
+ * @class   vtkPParticleTracer
+ * @brief   A Parallel Particle tracer for unsteady vector fields
+ *
+ * vtkPParticleTracer is a filter that integrates a vector field to generate
+ *
+ *
+ * @sa
+ * vtkPParticleTracerBase has the details of the algorithms
+*/
 
 #ifndef vtkPParticleTracer_h
 #define vtkPParticleTracer_h
@@ -33,17 +35,17 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticleTracer: public vtkPParticl
 {
  public:
   vtkTypeMacro(vtkPParticleTracer,vtkPParticleTracerBase)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPParticleTracer *New();
 
  protected:
   vtkPParticleTracer();
   ~vtkPParticleTracer(){}
-  virtual int OutputParticles(vtkPolyData* poly);
+  virtual int OutputParticles(vtkPolyData* poly) override;
 private:
-  vtkPParticleTracer(const vtkPParticleTracer&);  // Not implemented.
-  void operator=(const vtkPParticleTracer&); // Not implemented
+  vtkPParticleTracer(const vtkPParticleTracer&) = delete;
+  void operator=(const vtkPParticleTracer&) = delete;
 };
 
 

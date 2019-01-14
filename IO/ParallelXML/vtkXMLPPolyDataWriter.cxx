@@ -22,14 +22,10 @@
 vtkStandardNewMacro(vtkXMLPPolyDataWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLPPolyDataWriter::vtkXMLPPolyDataWriter()
-{
-}
+vtkXMLPPolyDataWriter::vtkXMLPPolyDataWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPPolyDataWriter::~vtkXMLPPolyDataWriter()
-{
-}
+vtkXMLPPolyDataWriter::~vtkXMLPPolyDataWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)

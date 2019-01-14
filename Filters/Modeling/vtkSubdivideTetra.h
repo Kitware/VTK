@@ -12,10 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSubdivideTetra - subdivide one tetrahedron into twelve for every tetra
-// .SECTION Description
-// This filter subdivides tetrahedra in an unstructured grid into twelve tetrahedra.
-
+/**
+ * @class   vtkSubdivideTetra
+ * @brief   subdivide one tetrahedron into twelve for every tetra
+ *
+ * This filter subdivides tetrahedra in an unstructured grid into twelve tetrahedra.
+*/
 
 #ifndef vtkSubdivideTetra_h
 #define vtkSubdivideTetra_h
@@ -28,18 +30,18 @@ class VTKFILTERSMODELING_EXPORT vtkSubdivideTetra : public vtkUnstructuredGridAl
 public:
   static vtkSubdivideTetra *New();
   vtkTypeMacro(vtkSubdivideTetra,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 
 protected:
   vtkSubdivideTetra();
-  ~vtkSubdivideTetra() {}
+  ~vtkSubdivideTetra() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkSubdivideTetra(const vtkSubdivideTetra&);  // Not implemented.
-  void operator=(const vtkSubdivideTetra&);  // Not implemented.
+  vtkSubdivideTetra(const vtkSubdivideTetra&) = delete;
+  void operator=(const vtkSubdivideTetra&) = delete;
 };
 
 #endif

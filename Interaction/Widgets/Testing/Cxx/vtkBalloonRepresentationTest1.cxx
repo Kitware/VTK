@@ -19,10 +19,10 @@ int vtkBalloonRepresentationTest1(int , char * [] )
   node1->SetBalloonImage(imageData);
   vtkSmartPointer<vtkImageData> imageData2 = node1->GetBalloonImage();
   if (imageData2 != imageData)
-    {
+  {
     std::cerr << "Error in Set/Get ImageData" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   TEST_SET_GET_STRING(node1, BalloonText);
 
   TEST_SET_GET_VECTOR2_INT_RANGE(node1, ImageSize, 0, 100);
@@ -30,26 +30,26 @@ int vtkBalloonRepresentationTest1(int , char * [] )
   vtkSmartPointer<vtkTextProperty> textProp = vtkSmartPointer<vtkTextProperty>::New();
   node1->SetTextProperty(textProp);
   if (node1->GetTextProperty() != textProp)
-    {
+  {
     std::cerr << "Failure in Set/Get TextProperty" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   vtkSmartPointer<vtkProperty2D> frameProp = vtkSmartPointer<vtkProperty2D>::New();
   node1->SetFrameProperty(frameProp);
   if (node1->GetFrameProperty() != frameProp)
-    {
+  {
     std::cerr << "Failure in Set/Get FrameProperty" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   vtkSmartPointer<vtkProperty2D> imageProp = vtkSmartPointer<vtkProperty2D>::New();
   node1->SetImageProperty(imageProp);
   if (node1->GetImageProperty() != imageProp)
-    {
+  {
     std::cerr << "Failure in Set/Get ImageProperty" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   TEST_SET_GET_INT_RANGE(node1, BalloonLayout, 0, 3);
   node1->SetBalloonLayoutToImageLeft();

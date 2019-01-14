@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLProperty - OpenGL property
-// .SECTION Description
-// vtkOpenGLProperty is a concrete implementation of the abstract class
-// vtkProperty. vtkOpenGLProperty interfaces to the OpenGL rendering library.
+/**
+ * @class   vtkOpenGLProperty
+ * @brief   OpenGL property
+ *
+ * vtkOpenGLProperty is a concrete implementation of the abstract class
+ * vtkProperty. vtkOpenGLProperty interfaces to the OpenGL rendering library.
+*/
 
 #ifndef vtkOpenGLProperty_h
 #define vtkOpenGLProperty_h
@@ -28,41 +31,46 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLProperty : public vtkProperty
 public:
   static vtkOpenGLProperty *New();
   vtkTypeMacro(vtkOpenGLProperty, vtkProperty);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Implement base class method.
-  void Render(vtkActor *a, vtkRenderer *ren);
+  /**
+   * Implement base class method.
+   */
+  void Render(vtkActor *a, vtkRenderer *ren) override;
 
-  // Description:
-  // Implement base class method.
-  void BackfaceRender(vtkActor *a, vtkRenderer *ren);
+  /**
+   * Implement base class method.
+   */
+  void BackfaceRender(vtkActor *a, vtkRenderer *ren) override;
 
-  // Description:
-  // This method is called after the actor has been rendered.
-  // Don't call this directly. This method cleans up
-  // any shaders allocated.
-  virtual void PostRender(vtkActor *a,
-                          vtkRenderer *r);
+  /**
+   * This method is called after the actor has been rendered.
+   * Don't call this directly. This method cleans up
+   * any shaders allocated.
+   */
+  void PostRender(vtkActor *a,
+                          vtkRenderer *r) override;
 
-  // Description:
-  // Release any graphics resources that are being consumed by this
-  // property. The parameter window could be used to determine which graphic
-  // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *win);
+  /**
+   * Release any graphics resources that are being consumed by this
+   * property. The parameter window could be used to determine which graphic
+   * resources to release.
+   */
+  void ReleaseGraphicsResources(vtkWindow *win) override;
 
 protected:
   vtkOpenGLProperty();
-  ~vtkOpenGLProperty();
+  ~vtkOpenGLProperty() override;
 
-  // Description:
-  // Method called in vtkOpenGLProperty::Render() to render textures.
-  // Last argument is the value returned from RenderShaders() call.
+  /**
+   * Method called in vtkOpenGLProperty::Render() to render textures.
+   * Last argument is the value returned from RenderShaders() call.
+   */
   bool RenderTextures(vtkActor* actor, vtkRenderer* renderer);
 
 private:
-  vtkOpenGLProperty(const vtkOpenGLProperty&);  // Not implemented.
-  void operator=(const vtkOpenGLProperty&);  // Not implemented.
+  vtkOpenGLProperty(const vtkOpenGLProperty&) = delete;
+  void operator=(const vtkOpenGLProperty&) = delete;
 };
 
 #endif

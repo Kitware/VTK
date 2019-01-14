@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -38,7 +37,7 @@ conj = vtk.vtkImageMathematics()
 conj.SetOperationToConjugate()
 conj.SetInput1Data(fft2.GetOutput())
 conj.Update()
-# Corrleation is multiplication in frequencey space.
+# Correlation is multiplication in frequency space.
 mult = vtk.vtkImageMathematics()
 mult.SetOperationToComplexMultiply()
 mult.SetInput1Data(fft1.GetOutput())

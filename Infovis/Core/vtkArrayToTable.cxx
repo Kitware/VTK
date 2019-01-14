@@ -43,8 +43,8 @@
 #include "vtkTable.h"
 #include "vtkUnicodeStringArray.h"
 
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/stdexcept>
+#include <sstream>
+#include <stdexcept>
 
 /// Convert a 1D array to a table with one column ...
 template<typename ValueT, typename ColumnT>
@@ -63,9 +63,9 @@ static bool ConvertVector(vtkArray* Array, vtkTable* Output)
   column->SetNumberOfTuples(extents.GetSize());
   column->SetName(array->GetName());
   for(vtkIdType i = extents.GetBegin(); i != extents.GetEnd(); ++i)
-    {
+  {
     column->SetValue(i - extents.GetBegin(), array->GetValue(i));
-    }
+  }
 
   Output->AddColumn(column);
   column->Delete();
@@ -92,7 +92,7 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
 
   std::vector<ColumnT*> new_columns;
   for(vtkIdType j = columns.GetBegin(); j != columns.GetEnd(); ++j)
-    {
+  {
     std::ostringstream column_name;
     column_name << j;
 
@@ -101,23 +101,23 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
     column->SetName(column_name.str().c_str());
 
     if(sparse_array)
-      {
+    {
       for(vtkIdType i = 0; i != rows.GetSize(); ++i)
         column->SetValue(i, sparse_array->GetNullValue());
-      }
+    }
 
     Output->AddColumn(column);
     column->Delete();
     new_columns.push_back(column);
-    }
+  }
 
   for(vtkIdType n = 0; n != non_null_count; ++n)
-    {
+  {
     vtkArrayCoordinates coordinates;
     array->GetCoordinatesN(n, coordinates);
 
     new_columns[coordinates[1] - columns.GetBegin()]->SetValue(coordinates[0] - rows.GetBegin(), array->GetValueN(n));
-    }
+  }
 
   return true;
 }
@@ -136,9 +136,7 @@ vtkArrayToTable::vtkArrayToTable()
 
 // ----------------------------------------------------------------------
 
-vtkArrayToTable::~vtkArrayToTable()
-{
-}
+vtkArrayToTable::~vtkArrayToTable() = default;
 
 // ----------------------------------------------------------------------
 
@@ -150,11 +148,11 @@ void vtkArrayToTable::PrintSelf(ostream& os, vtkIndent indent)
 int vtkArrayToTable::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch(port)
-    {
+  {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
       return 1;
-    }
+  }
 
   return 0;
 }
@@ -167,7 +165,7 @@ int vtkArrayToTable::RequestData(
   vtkInformationVector* outputVector)
 {
   try
-    {
+  {
     vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_array_data)
       throw std::runtime_error("Missing vtkArrayData on input port 0.");
@@ -214,15 +212,15 @@ int vtkArrayToTable::RequestData(
     if(ConvertMatrix<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table)) return 1;
 
     throw std::runtime_error("Unhandled input array type.");
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     vtkErrorMacro(<< "caught exception: " << e.what() << endl);
-    }
+  }
   catch(...)
-    {
+  {
     vtkErrorMacro(<< "caught unknown exception." << endl);
-    }
+  }
 
   return 0;
 }

@@ -30,13 +30,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-#include <vtksys/stl/map>
-using vtksys_stl::map;
-
 vtkStandardNewMacro(vtkGeoArcs);
 
 vtkGeoArcs::vtkGeoArcs()
 {
+  VTK_LEGACY_BODY(vtkGeoArcs::vtkGeoArcs, "VTK 8.2");
   this->GlobeRadius = vtkGeoMath::EarthRadiusMeters();
   this->ExplodeFactor = 0.2;
   this->NumberOfSubdivisions = 20;
@@ -67,16 +65,16 @@ int vtkGeoArcs::RequestData(
   newPoints->DeepCopy(input->GetPoints());
   lines->InitTraversal();
   for (vtkIdType i = 0; i < lines->GetNumberOfCells(); i++)
-    {
+  {
       vtkIdType npts=0; // to remove warning
-    vtkIdType* pts=0; // to remove warning
+    vtkIdType* pts=nullptr; // to remove warning
     lines->GetNextCell(npts, pts);
 
     double lastPoint[3];
     newPoints->GetPoint(pts[0], lastPoint);
 
     for (vtkIdType p = 1; p < npts; ++p)
-      {
+    {
       // Create the new cell
       vtkIdType cellId = newLines->InsertNextCell(this->NumberOfSubdivisions);
       output->GetCellData()->CopyData(input->GetCellData(), i, cellId);
@@ -85,31 +83,31 @@ int vtkGeoArcs::RequestData(
       newPoints->GetPoint(pts[p], curPoint);
 
       // Find w, a unit vector pointing from the center of the
-      // earth directly inbetween the two endpoints.
+      // earth directly in between the two endpoints.
       double w[3];
       for (int c = 0; c < 3; ++c)
-        {
+      {
         w[c] = (lastPoint[c] + curPoint[c])/2.0;
-        }
+      }
       vtkMath::Normalize(w);
 
       // The center of the circle used to draw the arc is a
       // point along the vector w scaled by the explode factor.
       double center[3];
       for (int c = 0; c < 3; ++c)
-        {
+      {
         center[c] = this->ExplodeFactor * this->GlobeRadius * w[c];
-        }
+      }
 
       // The vectors u and x are unit vectors pointing from the
       // center of the circle to the two endpoints of the arc,
       // lastPoint and curPoint, respectively.
       double u[3], x[3];
       for (int c = 0; c < 3; ++c)
-        {
+      {
         u[c] = lastPoint[c] - center[c];
         x[c] = curPoint[c] - center[c];
-        }
+      }
       double radius = vtkMath::Norm(u);
       vtkMath::Normalize(u);
       vtkMath::Normalize(x);
@@ -122,9 +120,9 @@ int vtkGeoArcs::RequestData(
       // We determine whether u points toward the center of the earth
       // by checking whether the dot product of u and w is negative.
       if (vtkMath::Dot(w, u) < 0)
-        {
+      {
         theta = 2.0*vtkMath::Pi() - theta;
-        }
+      }
 
       // We need two perpendicular vectors on the plane of the circle
       // in order to draw the circle.  First we calculate n, a vector
@@ -141,23 +139,23 @@ int vtkGeoArcs::RequestData(
       // Use the general equation for a circle in three dimensions
       // to draw an arc from the last point to the current point.
       for (int s = 0; s < this->NumberOfSubdivisions; ++s)
-        {
+      {
         double angle = s * theta / (this->NumberOfSubdivisions - 1.0);
         double circlePt[3];
         for (int c = 0; c < 3; ++c)
-          {
+        {
           circlePt[c] = center[c] + radius*cos(angle)*u[c] + radius*sin(angle)*v[c];
-          }
+        }
         vtkIdType newPt = newPoints->InsertNextPoint(circlePt);
         newLines->InsertCellPoint(newPt);
-        }
+      }
 
       for (int c = 0; c < 3; ++c)
-        {
+      {
         lastPoint[c] = curPoint[c];
-        }
       }
     }
+  }
 
   // Send the data to output.
   output->SetLines(newLines);

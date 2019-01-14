@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRenderPassCollection - a list of RenderPasses
-// .SECTION Description
-// vtkRenderPassCollection represents a list of RenderPasses
-// (i.e., vtkRenderPass and subclasses) and provides methods to manipulate the
-// list. The list is unsorted and duplicate entries are not prevented.
-
-// .SECTION see also
-// vtkRenderPass vtkCollection
+/**
+ * @class   vtkRenderPassCollection
+ * @brief   an ordered list of RenderPasses
+ *
+ * vtkRenderPassCollection represents a list of RenderPasses
+ * (i.e., vtkRenderPass and subclasses) and provides methods to manipulate the
+ * list. The list is ordered and duplicate entries are not prevented.
+ *
+ * @sa
+ * vtkRenderPass vtkCollection
+*/
 
 #ifndef vtkRenderPassCollection_h
 #define vtkRenderPassCollection_h
@@ -34,38 +37,40 @@ class VTKRENDERINGOPENGL2_EXPORT vtkRenderPassCollection : public vtkCollection
  public:
   static vtkRenderPassCollection *New();
   vtkTypeMacro(vtkRenderPassCollection,vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Add an RenderPass to the list.
+  /**
+   * Add an RenderPass to the bottom of the list.
+   */
   void AddItem(vtkRenderPass *pass);
 
-  // Description:
-  // Get the next RenderPass in the list.
+  /**
+   * Get the next RenderPass in the list.
+   */
   vtkRenderPass *GetNextRenderPass();
 
-  // Description:
-  // Get the last RenderPass in the list.
+  /**
+   * Get the last RenderPass in the list.
+   */
   vtkRenderPass *GetLastRenderPass();
 
-  //BTX
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkRenderPass *GetNextRenderPass(vtkCollectionSimpleIterator &cookie);
-  //ETX
 
 protected:
   vtkRenderPassCollection();
-  ~vtkRenderPassCollection();
+  ~vtkRenderPassCollection() override;
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o);
 
 private:
-  vtkRenderPassCollection(const vtkRenderPassCollection&);  // Not implemented.
-  void operator=(const vtkRenderPassCollection&);  // Not implemented.
+  vtkRenderPassCollection(const vtkRenderPassCollection&) = delete;
+  void operator=(const vtkRenderPassCollection&) = delete;
 };
 
 #endif

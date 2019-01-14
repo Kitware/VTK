@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkClientServerSynchronizedRenderers.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkClientServerSynchronizedRenderers
-// .SECTION Description
-// vtkClientServerSynchronizedRenderers is a vtkSynchronizedRenderers subclass
-// designed to be used in 2 processes, client-server mode.
+/**
+ * @class   vtkClientServerSynchronizedRenderers
+ *
+ * vtkClientServerSynchronizedRenderers is a vtkSynchronizedRenderers subclass
+ * designed to be used in 2 processes, client-server mode.
+*/
 
 #ifndef vtkClientServerSynchronizedRenderers_h
 #define vtkClientServerSynchronizedRenderers_h
@@ -29,20 +31,19 @@ class VTKRENDERINGPARALLEL_EXPORT vtkClientServerSynchronizedRenderers :
 public:
   static vtkClientServerSynchronizedRenderers* New();
   vtkTypeMacro(vtkClientServerSynchronizedRenderers, vtkSynchronizedRenderers);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-//BTX
 protected:
   vtkClientServerSynchronizedRenderers();
-  ~vtkClientServerSynchronizedRenderers();
+  ~vtkClientServerSynchronizedRenderers() override;
 
-  virtual void MasterEndRender();
-  virtual void SlaveEndRender();
+  void MasterEndRender() override;
+  void SlaveEndRender() override;
 
 private:
-  vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&); // Not implemented.
-  void operator=(const vtkClientServerSynchronizedRenderers&); // Not implemented.
-//ETX
+  vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&) = delete;
+  void operator=(const vtkClientServerSynchronizedRenderers&) = delete;
+
 };
 
 #endif

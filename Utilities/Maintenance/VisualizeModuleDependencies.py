@@ -6,7 +6,7 @@ directed graph of the modules and their dependencies. Arrows on the
 directed graph point to the dependent module.
 
 Typical usage would be as follows:
- VisualizeModuleDependencies.py VTKSourceDir vtkFiltersSources,vtkInteractionStyle,vtkRenderingOpenGL
+ VisualizeModuleDependencies.py VTKSourceDir vtkFiltersSources,vtkInteractionStyle,vtkRenderingOpenGL2
 
 '''
 
@@ -90,10 +90,11 @@ def ParseModuleFile(fileName):
             continue
         for l in line.split(" "):
             lines.append(l)
-    languages = ['PYTHON', 'TCL', 'JAVA']
+    languages = ['PYTHON', 'JAVA']
     keywords = ['BACKEND', 'COMPILE_DEPENDS', 'DEPENDS', 'EXCLUDE_FROM_ALL',
-                'EXCLUDE_FROM_WRAPPING', 'GROUPS', 'IMPLEMENTS', 'KIT',
-                'PRIVATE_DEPENDS', 'TEST_DEPENDS'] + \
+                'EXCLUDE_FROM_WRAPPING', 'GROUPS', 'IMPLEMENTS', 'KIT', 'LEGACY',
+                'PRIVATE_DEPENDS', 'TEST_DEPENDS', 'OPTIONAL_PYTHON_LINK'
+                'IMPLEMENTATION_REQUIRED_BY_BACKEND'] + \
                map(lambda l: 'EXCLUDE_FROM_%s_WRAPPING' % l, languages)
     moduleName = ""
     depends = []

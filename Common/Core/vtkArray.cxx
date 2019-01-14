@@ -33,15 +33,11 @@
 
 //----------------------------------------------------------------------------
 
-vtkArray::vtkArray()
-{
-}
+vtkArray::vtkArray() = default;
 
 //----------------------------------------------------------------------------
 
-vtkArray::~vtkArray()
-{
-}
+vtkArray::~vtkArray() = default;
 
 //----------------------------------------------------------------------------
 
@@ -66,11 +62,11 @@ void vtkArray::PrintSelf(ostream &os, vtkIndent indent)
 vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
 {
   switch(StorageType)
-    {
+  {
     case DENSE:
-      {
+    {
       switch(ValueType)
-        {
+      {
         case VTK_CHAR:
           return vtkDenseArray<char>::New();
         case VTK_SIGNED_CHAR:
@@ -89,18 +85,10 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkDenseArray<long>::New();
         case VTK_UNSIGNED_LONG:
           return vtkDenseArray<unsigned long>::New();
-#if defined(VTK_TYPE_USE_LONG_LONG)
         case VTK_LONG_LONG:
           return vtkDenseArray<long long>::New();
         case VTK_UNSIGNED_LONG_LONG:
           return vtkDenseArray<unsigned long long>::New();
-#endif
-#if defined(VTK_TYPE_USE___INT64)
-        case VTK___INT64:
-          return vtkDenseArray<__int64>::New();
-        case VTK_UNSIGNED___INT64:
-          return vtkDenseArray<unsigned __int64>::New();
-#endif
         case VTK_FLOAT:
           return vtkDenseArray<float>::New();
         case VTK_DOUBLE:
@@ -113,14 +101,14 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkDenseArray<vtkUnicodeString>::New();
         case VTK_VARIANT:
           return vtkDenseArray<vtkVariant>::New();
-        }
-      vtkGenericWarningMacro(<< "vtkArrary::CreateArray() cannot create array with unknown value type: " << vtkImageScalarTypeNameMacro(ValueType));
-      return 0;
       }
+      vtkGenericWarningMacro(<< "vtkArrary::CreateArray() cannot create array with unknown value type: " << vtkImageScalarTypeNameMacro(ValueType));
+      return nullptr;
+    }
     case SPARSE:
-      {
+    {
       switch(ValueType)
-        {
+      {
         case VTK_CHAR:
           return vtkSparseArray<char>::New();
         case VTK_SIGNED_CHAR:
@@ -139,18 +127,10 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkSparseArray<long>::New();
         case VTK_UNSIGNED_LONG:
           return vtkSparseArray<unsigned long>::New();
-#if defined(VTK_TYPE_USE_LONG_LONG)
         case VTK_LONG_LONG:
           return vtkSparseArray<long long>::New();
         case VTK_UNSIGNED_LONG_LONG:
           return vtkSparseArray<unsigned long long>::New();
-#endif
-#if defined(VTK_TYPE_USE___INT64)
-        case VTK___INT64:
-          return vtkSparseArray<__int64>::New();
-        case VTK_UNSIGNED___INT64:
-          return vtkSparseArray<unsigned __int64>::New();
-#endif
         case VTK_FLOAT:
           return vtkSparseArray<float>::New();
         case VTK_DOUBLE:
@@ -163,14 +143,14 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkSparseArray<vtkUnicodeString>::New();
         case VTK_VARIANT:
           return vtkSparseArray<vtkVariant>::New();
-        }
-      vtkGenericWarningMacro(<< "vtkArrary::CreateArray() cannot create array with unknown value type: " << vtkImageScalarTypeNameMacro(ValueType));
-      return 0;
       }
+      vtkGenericWarningMacro(<< "vtkArrary::CreateArray() cannot create array with unknown value type: " << vtkImageScalarTypeNameMacro(ValueType));
+      return nullptr;
     }
+  }
 
     vtkGenericWarningMacro(<< "vtkArrary::CreateArray() cannot create array with unknown storage type: " << StorageType);
-    return 0;
+    return nullptr;
 }
 
 void vtkArray::Resize(const CoordinateT i)
@@ -208,7 +188,7 @@ void vtkArray::Resize(const vtkArrayExtents& extents)
   this->InternalResize(extents);
 }
 
-const vtkArrayRange vtkArray::GetExtent(DimensionT dimension)
+vtkArrayRange vtkArray::GetExtent(DimensionT dimension)
 {
   return this->GetExtents()[dimension];
 }
@@ -241,10 +221,10 @@ vtkStdString vtkArray::GetName()
 void vtkArray::SetDimensionLabel(DimensionT i, const vtkStdString& raw_label)
 {
   if(i < 0 || i >= this->GetDimensions())
-    {
+  {
     vtkErrorMacro("Cannot set label for dimension " << i << " of a " << this->GetDimensions() << "-way array");
     return;
-    }
+  }
 
   // Don't allow newlines in dimension labels ...
   vtkStdString label(raw_label);
@@ -257,10 +237,10 @@ void vtkArray::SetDimensionLabel(DimensionT i, const vtkStdString& raw_label)
 vtkStdString vtkArray::GetDimensionLabel(DimensionT i)
 {
   if(i < 0 || i >= this->GetDimensions())
-    {
+  {
     vtkErrorMacro("Cannot get label for dimension " << i << " of a " << this->GetDimensions() << "-way array");
     return "";
-    }
+  }
 
   return this->InternalGetDimensionLabel(i);
 }

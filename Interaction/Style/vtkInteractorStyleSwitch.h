@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleSwitch - class to swap between interactory styles
-// .SECTION Description
-// The class vtkInteractorStyleSwitch allows handles interactively switching
-// between four interactor styles -- joystick actor, joystick camera,
-// trackball actor, and trackball camera.  Type 'j' or 't' to select
-// joystick or trackball, and type 'c' or 'a' to select camera or actor.
-// The default interactor style is joystick camera.
-// .SECTION See Also
-// vtkInteractorStyleJoystickActor vtkInteractorStyleJoystickCamera
-// vtkInteractorStyleTrackballActor vtkInteractorStyleTrackballCamera
+/**
+ * @class   vtkInteractorStyleSwitch
+ * @brief   class to swap between interactory styles
+ *
+ * The class vtkInteractorStyleSwitch allows handles interactively switching
+ * between four interactor styles -- joystick actor, joystick camera,
+ * trackball actor, and trackball camera.  Type 'j' or 't' to select
+ * joystick or trackball, and type 'c' or 'a' to select camera or actor.
+ * The default interactor style is joystick camera.
+ * @sa
+ * vtkInteractorStyleJoystickActor vtkInteractorStyleJoystickCamera
+ * vtkInteractorStyleTrackballActor vtkInteractorStyleTrackballCamera
+*/
 
 #ifndef vtkInteractorStyleSwitch_h
 #define vtkInteractorStyleSwitch_h
@@ -47,40 +50,49 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleSwitch
 public:
   static vtkInteractorStyleSwitch *New();
   vtkTypeMacro(vtkInteractorStyleSwitch, vtkInteractorStyleSwitchBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // The sub styles need the interactor too.
-  void SetInteractor(vtkRenderWindowInteractor *iren);
+  /**
+   * The sub styles need the interactor too.
+   */
+  void SetInteractor(vtkRenderWindowInteractor *iren) override;
 
-  // Description:
-  // We must override this method in order to pass the setting down to
-  // the underlying styles
-  void SetAutoAdjustCameraClippingRange( int value );
+  /**
+   * We must override this method in order to pass the setting down to
+   * the underlying styles
+   */
+  void SetAutoAdjustCameraClippingRange( vtkTypeBool value ) override;
 
-  // Description:
-  // Set/Get current style
+  //@{
+  /**
+   * Set/Get current style
+   */
   vtkGetObjectMacro(CurrentStyle, vtkInteractorStyle);
   void SetCurrentStyleToJoystickActor();
   void SetCurrentStyleToJoystickCamera();
   void SetCurrentStyleToTrackballActor();
   void SetCurrentStyleToTrackballCamera();
   void SetCurrentStyleToMultiTouchCamera();
+  //@}
 
-  // Description:
-  // Only care about the char event, which is used to switch between
-  // different styles.
-  virtual void OnChar();
+  /**
+   * Only care about the char event, which is used to switch between
+   * different styles.
+   */
+  void OnChar() override;
 
-  // Description:
-  // Overridden from vtkInteractorObserver because the interactor styles
-  // used by this class must also be updated.
-  virtual void SetDefaultRenderer(vtkRenderer*);
-  virtual void SetCurrentRenderer(vtkRenderer*);
+  //@{
+  /**
+   * Overridden from vtkInteractorObserver because the interactor styles
+   * used by this class must also be updated.
+   */
+  void SetDefaultRenderer(vtkRenderer*) override;
+  void SetCurrentRenderer(vtkRenderer*) override;
+  //@}
 
 protected:
   vtkInteractorStyleSwitch();
-  ~vtkInteractorStyleSwitch();
+  ~vtkInteractorStyleSwitch() override;
 
   void SetCurrentStyle();
 
@@ -96,8 +108,8 @@ protected:
   bool MultiTouch;
 
 private:
-  vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&);  // Not implemented.
-  void operator=(const vtkInteractorStyleSwitch&);  // Not implemented.
+  vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&) = delete;
+  void operator=(const vtkInteractorStyleSwitch&) = delete;
 };
 
 #endif

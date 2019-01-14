@@ -53,9 +53,9 @@ static void build_array(const char *name, vtkIntArray *array, const int c_array[
 {
   array->SetName(name);
   for (int i = 0; i < num_months; ++i)
-    {
+  {
     array->InsertNextValue(c_array[i]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ int TestStackedBarGraph(int , char * [])
   colorSeries1->SetColorScheme(vtkColorSeries::WILD_FLOWER);
 
   // Add multiple line plots, setting the colors etc
-  vtkPlotBar *bar = 0;
+  vtkPlotBar *bar = nullptr;
 
   bar = vtkPlotBar::SafeDownCast(chart->AddPlot(vtkChart::BAR));
   bar->SetColorSeries(colorSeries1);

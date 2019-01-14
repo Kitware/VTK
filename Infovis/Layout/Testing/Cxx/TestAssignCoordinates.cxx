@@ -44,15 +44,15 @@ int TestAssignCoordinates(int argc, char *argv[])
   VTK_CREATE(vtkDoubleArray, z);
   z->SetName("z");
   for (vtkIdType i = 0; i < 10; ++i)
-    {
+  {
     for (vtkIdType j = 0; j < 10; ++j)
-      {
+    {
       g->AddVertex();
       x->InsertNextValue(i);
       y->InsertNextValue(j);
       z->InsertNextValue(1);
-      }
     }
+  }
   g->GetVertexData()->AddArray(x);
   g->GetVertexData()->AddArray(y);
   g->GetVertexData()->AddArray(z);
@@ -80,12 +80,12 @@ int TestAssignCoordinates(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Initialize();
     iren->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

@@ -19,49 +19,45 @@
 vtkStandardNewMacro(vtkByteSwap);
 
 //----------------------------------------------------------------------------
-vtkByteSwap::vtkByteSwap()
-{
-}
+vtkByteSwap::vtkByteSwap() = default;
 
 //----------------------------------------------------------------------------
-vtkByteSwap::~vtkByteSwap()
-{
-}
+vtkByteSwap::~vtkByteSwap() = default;
 
 //----------------------------------------------------------------------------
 // Define swap functions for each type size.
 template <size_t s> struct vtkByteSwapper;
-VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<1>
+template<> struct vtkByteSwapper<1>
 {
   static inline void Swap(char*) {}
 };
-VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<2>
+template<> struct vtkByteSwapper<2>
 {
   static inline void Swap(char* data)
-    {
+  {
     char one_byte;
     one_byte = data[0]; data[0] = data[1]; data[1] = one_byte;
-    }
+  }
 };
-VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<4>
+template<> struct vtkByteSwapper<4>
 {
   static inline void Swap(char* data)
-    {
+  {
     char one_byte;
     one_byte = data[0]; data[0] = data[3]; data[3] = one_byte;
     one_byte = data[1]; data[1] = data[2]; data[2] = one_byte;
-    }
+  }
 };
-VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<8>
+template<> struct vtkByteSwapper<8>
 {
   static inline void Swap(char* data)
-    {
+  {
     char one_byte;
     one_byte = data[0]; data[0] = data[7]; data[7] = one_byte;
     one_byte = data[1]; data[1] = data[6]; data[6] = one_byte;
     one_byte = data[2]; data[2] = data[5]; data[5] = one_byte;
     one_byte = data[3]; data[3] = data[4]; data[4] = one_byte;
-    }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -71,9 +67,9 @@ template <class T> inline void vtkByteSwapRange(T* first, size_t num)
   // Swap one value at a time.
   T* last = first + num;
   for(T* p=first; p != last; ++p)
-    {
+  {
     vtkByteSwapper<sizeof(T)>::Swap(reinterpret_cast<char*>(p));
-    }
+  }
 }
 inline bool vtkByteSwapRangeWrite(const char* first, size_t num,
                                   FILE* f, int)
@@ -104,13 +100,13 @@ inline bool vtkByteSwapRangeWrite(const T* first, size_t num, FILE* f, long)
   const T* last = first + num;
   bool result=true;
   for(const T* p=first; p != last && result; ++p)
-    {
+  {
     // Use a union to avoid breaking C++ aliasing rules.
     union { T value; char data[sizeof(T)]; } temp = {*p};
     vtkByteSwapper<sizeof(T)>::Swap(temp.data);
     size_t status=fwrite(temp.data, sizeof(T), 1, f);
     result=status==1;
-    }
+  }
   return result;
 }
 inline void vtkByteSwapRangeWrite(const char* first, size_t num,
@@ -141,12 +137,12 @@ inline void vtkByteSwapRangeWrite(const T* first, size_t num,
   // blocks because the file stream is already buffered.
   const T* last = first + num;
   for(const T* p=first; p != last; ++p)
-    {
+  {
     // Use a union to avoid breaking C++ aliasing rules.
     union { T value; char data[sizeof(T)]; } temp = {*p};
     vtkByteSwapper<sizeof(T)>::Swap(temp.data);
     os->write(temp.data, sizeof(T));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -240,19 +236,13 @@ VTK_BYTE_SWAP_IMPL(char)
 VTK_BYTE_SWAP_IMPL(short)
 VTK_BYTE_SWAP_IMPL(int)
 VTK_BYTE_SWAP_IMPL(long)
+VTK_BYTE_SWAP_IMPL(long long)
 VTK_BYTE_SWAP_IMPL(signed char)
 VTK_BYTE_SWAP_IMPL(unsigned char)
 VTK_BYTE_SWAP_IMPL(unsigned short)
 VTK_BYTE_SWAP_IMPL(unsigned int)
 VTK_BYTE_SWAP_IMPL(unsigned long)
-#if defined(VTK_IMPL_USE_LONG_LONG)
-VTK_BYTE_SWAP_IMPL(long long)
 VTK_BYTE_SWAP_IMPL(unsigned long long)
-#endif
-#if defined(VTK_IMPL_USE___INT64)
-VTK_BYTE_SWAP_IMPL(__int64)
-VTK_BYTE_SWAP_IMPL(unsigned __int64)
-#endif
 #undef VTK_BYTE_SWAP_IMPL
 
 #if VTK_SIZEOF_SHORT == 2
@@ -313,16 +303,16 @@ void vtkByteSwap::SwapVoidRange(void *buffer, size_t numWords, size_t wordSize)
   buf = static_cast<unsigned char *>(buffer);
 
   for (idx1 = 0; idx1 < numWords; ++idx1)
-    {
+  {
       out = buf + inc;
       for (idx2 = 0; idx2 < half; ++idx2)
-        {
+      {
           temp = *out;
           *out = *buf;
           *buf = temp;
           ++buf;
           --out;
-        }
+      }
       buf += half;
-    }
+  }
 }

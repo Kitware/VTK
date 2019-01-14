@@ -20,7 +20,6 @@
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
-//#include "vtkDynamic2DLabelMapper.h"
 #include "vtkGlyph3D.h"
 #include "vtkGraphLayout.h"
 #include "vtkGraphToPolyData.h"
@@ -45,18 +44,18 @@ int TestGroupLeafVertices(int argc, char* argv[])
 {
   int imode = 0; // Interactive mode
   for(int i = 1; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-I"))
-      {
+    {
       imode = 1;
       continue;
-      }
+    }
 
     cerr << argv[0] << " Options:\n  "
       << " -h (prints this message)\n  "
       << " -I (run interactively)\n  ";
     return 0;
-    }
+  }
 
   VTK_CREATE(vtkTable, table);
   VTK_CREATE(vtkStringArray, nameArray);
@@ -115,9 +114,9 @@ int TestGroupLeafVertices(int argc, char* argv[])
   tableToTree->Update();
   vtkTree* tree = tableToTree->GetOutput();
   for (vtkIdType i = 0; i < tree->GetNumberOfVertices(); i++)
-    {
+  {
     cerr << i << " has parent " << tree->GetParent(i) << endl;
-    }
+  }
 
   VTK_CREATE(vtkGroupLeafVertices, group);
   group->SetInputConnection(tableToTree->GetOutputPort());
@@ -126,9 +125,9 @@ int TestGroupLeafVertices(int argc, char* argv[])
   group->Update();
   tree = group->GetOutput();
   for (vtkIdType i = 0; i < tree->GetNumberOfVertices(); i++)
-    {
+  {
     cerr << i << " has parent " << tree->GetParent(i) << endl;
-    }
+  }
 
   VTK_CREATE(vtkGroupLeafVertices, group2);
   group2->SetInputConnection(group->GetOutputPort());
@@ -137,9 +136,9 @@ int TestGroupLeafVertices(int argc, char* argv[])
   group2->Update();
   tree = group2->GetOutput();
   for (vtkIdType i = 0; i < tree->GetNumberOfVertices(); i++)
-    {
+  {
     cerr << i << " has parent " << tree->GetParent(i) << endl;
-    }
+  }
 
   //
   // Render the tree
@@ -162,21 +161,6 @@ int TestGroupLeafVertices(int argc, char* argv[])
   VTK_CREATE(vtkActor, polyActor);
   polyActor->SetMapper(polyMapper);
   polyActor->GetProperty()->SetColor(0.3, 0.3, 1.0);
-
-  //
-  // Make some labels
-  //
-
-#if 0
-  VTK_CREATE(vtkDynamic2DLabelMapper, labelMapper);
-  labelMapper->SetInputConnection(graphToPoly->GetOutputPort());
-  labelMapper->SetLabelFormat("%s");
-  labelMapper->SetLabelModeToLabelFieldData();
-  labelMapper->SetFieldDataName("name");
-
-  VTK_CREATE(vtkActor2D, labelActor);
-  labelActor->SetMapper(labelMapper);
-#endif
 
   //
   // Make some glyphs
@@ -214,10 +198,10 @@ int TestGroupLeafVertices(int argc, char* argv[])
   iren->SetRenderWindow(win);
 
   if (imode)
-    {
+  {
     iren->Initialize();
     iren->Start();
-    }
+  }
 
   return 0;
 }

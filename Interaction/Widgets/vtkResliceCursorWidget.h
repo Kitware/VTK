@@ -12,23 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkResliceCursorWidget - represent a reslice cursor
-// .SECTION Description
-// This class represents a reslice cursor that can be used to
-// perform interactive thick slab MPR's through data. It
-// consists of two cross sectional hairs, with an optional thickness. The
-// hairs may have a hole in the center. These may be translated or rotated
-// independent of each other in the view. The result is used to reslice
-// the data along these cross sections. This allows the user to perform
-// multi-planar thin or thick reformat of the data on an image view, rather
-// than a 3D view. The class internally uses vtkImageSlabReslice
-// or vtkImageReslice depending on the modes in vtkResliceCursor to
-// do its reslicing. The slab thickness is set interactively from
-// the widget. The slab resolution (ie the number of blend points) is
-// set as the minimum spacing along any dimension from the dataset.
-// .SECTION See Also
-// vtkImageSlabReslice vtkResliceCursorLineRepresentation
-// vtkResliceCursor
+/**
+ * @class   vtkResliceCursorWidget
+ * @brief   represent a reslice cursor
+ *
+ * This class represents a reslice cursor that can be used to
+ * perform interactive thick slab MPR's through data. It
+ * consists of two cross sectional hairs, with an optional thickness. The
+ * hairs may have a hole in the center. These may be translated or rotated
+ * independent of each other in the view. The result is used to reslice
+ * the data along these cross sections. This allows the user to perform
+ * multi-planar thin or thick reformat of the data on an image view, rather
+ * than a 3D view. The class internally uses vtkImageSlabReslice
+ * or vtkImageReslice depending on the modes in vtkResliceCursor to
+ * do its reslicing. The slab thickness is set interactively from
+ * the widget. The slab resolution (ie the number of blend points) is
+ * set as the minimum spacing along any dimension from the dataset.
+ * @sa
+ * vtkImageSlabReslice vtkResliceCursorLineRepresentation
+ * vtkResliceCursor
+*/
 
 #ifndef vtkResliceCursorWidget_h
 #define vtkResliceCursorWidget_h
@@ -42,63 +45,74 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorWidget : public vtkAbstractWi
 {
 public:
 
-  // Description:
-  // Instantiate this class.
+  /**
+   * Instantiate this class.
+   */
   static vtkResliceCursorWidget *New();
 
-  // Description:
-  // Standard VTK class macros.
+  //@{
+  /**
+   * Standard VTK class macros.
+   */
   vtkTypeMacro(vtkResliceCursorWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // Specify an instance of vtkWidgetRepresentation used to represent this
-  // widget in the scene. Note that the representation is a subclass of vtkProp
-  // so it can be added to the renderer independent of the widget.
+  /**
+   * Specify an instance of vtkWidgetRepresentation used to represent this
+   * widget in the scene. Note that the representation is a subclass of vtkProp
+   * so it can be added to the renderer independent of the widget.
+   */
   void SetRepresentation(vtkResliceCursorRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(
         reinterpret_cast<vtkWidgetRepresentation*>(r));}
 
-  // Description:
-  // Return the representation as a vtkResliceCursorRepresentation.
+  /**
+   * Return the representation as a vtkResliceCursorRepresentation.
+   */
   vtkResliceCursorRepresentation *GetResliceCursorRepresentation()
     {return reinterpret_cast<vtkResliceCursorRepresentation*>(this->WidgetRep);}
 
-  // Description:
-  // Create the default widget representation if one is not set.
-  void CreateDefaultRepresentation();
+  /**
+   * Create the default widget representation if one is not set.
+   */
+  void CreateDefaultRepresentation() override;
 
-  // Description:
-  // Methods for activiating this widget. This implementation extends the
-  // superclasses' in order to resize the widget handles due to a render
-  // start event.
-  virtual void SetEnabled(int);
+  /**
+   * Methods for activiating this widget. This implementation extends the
+   * superclasses' in order to resize the widget handles due to a render
+   * start event.
+   */
+  void SetEnabled(int) override;
 
-  // Description:
-  // Also perform window level ?
-  vtkSetMacro( ManageWindowLevel, int );
-  vtkGetMacro( ManageWindowLevel, int );
-  vtkBooleanMacro( ManageWindowLevel, int );
+  //@{
+  /**
+   * Also perform window level ?
+   */
+  vtkSetMacro( ManageWindowLevel, vtkTypeBool );
+  vtkGetMacro( ManageWindowLevel, vtkTypeBool );
+  vtkBooleanMacro( ManageWindowLevel, vtkTypeBool );
+  //@}
 
-  // Description:
-  // Events
-  //BTX
+  /**
+   * Events
+   */
   enum
-    {
+  {
     WindowLevelEvent = 1055,
     ResliceAxesChangedEvent,
     ResliceThicknessChangedEvent,
     ResetCursorEvent
-    };
-  //ETX
+  };
 
-  // Description:
-  // Reset the cursor back to its initial state
+  /**
+   * Reset the cursor back to its initial state
+   */
   virtual void ResetResliceCursor();
 
 protected:
   vtkResliceCursorWidget();
-  ~vtkResliceCursorWidget();
+  ~vtkResliceCursorWidget() override;
 
   // These are the callbacks for this widget
   static void SelectAction(vtkAbstractWidget*);
@@ -110,7 +124,7 @@ protected:
   static void ResetResliceCursorAction(vtkAbstractWidget*);
 
   // helper methods for cursor management
-  void SetCursor(int state);
+  void SetCursor(int state) override;
 
   // Start Window Level
   void StartWindowLevel();
@@ -118,22 +132,21 @@ protected:
   // Invoke the appropriate event based on state
   void InvokeAnEvent();
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   int WidgetState;
   enum _WidgetState
   {
     Start=0,
     Active
   };
-//ETX
 
   // Keep track whether key modifier key is pressed
   int ModifierActive;
-  int ManageWindowLevel;
+  vtkTypeBool ManageWindowLevel;
 
 private:
-  vtkResliceCursorWidget(const vtkResliceCursorWidget&);  //Not implemented
-  void operator=(const vtkResliceCursorWidget&);  //Not implemented
+  vtkResliceCursorWidget(const vtkResliceCursorWidget&) = delete;
+  void operator=(const vtkResliceCursorWidget&) = delete;
 };
 
 #endif

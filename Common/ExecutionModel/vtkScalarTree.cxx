@@ -15,36 +15,51 @@
 #include "vtkScalarTree.h"
 
 #include "vtkDataSet.h"
+#include "vtkDataArray.h"
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
 vtkCxxSetObjectMacro(vtkScalarTree,DataSet,vtkDataSet);
+vtkCxxSetObjectMacro(vtkScalarTree,Scalars,vtkDataArray);
 
-// Instantiate scalar tree with maximum level of 20 and branching
-// factor of 5.
+//-----------------------------------------------------------------------------
+// Instantiate scalar tree.
 vtkScalarTree::vtkScalarTree()
 {
-  this->DataSet = NULL;
+  this->DataSet = nullptr;
+  this->Scalars = nullptr;
   this->ScalarValue = 0.0;
 }
 
+//-----------------------------------------------------------------------------
 vtkScalarTree::~vtkScalarTree()
 {
-  this->SetDataSet(NULL);
+  this->SetDataSet(nullptr);
+  this->SetScalars(nullptr);
 }
 
+//-----------------------------------------------------------------------------
 void vtkScalarTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->DataSet )
-    {
+  {
     os << indent << "DataSet: " << this->DataSet << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "DataSet: (none)\n";
-    }
+  }
+
+  if ( this->Scalars )
+  {
+    os << indent << "Scalars: " << this->Scalars << "\n";
+  }
+  else
+  {
+    os << indent << "Scalars: (none)\n";
+  }
 
   os << indent << "Build Time: " << this->BuildTime.GetMTime() << "\n";
 }

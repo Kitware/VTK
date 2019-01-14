@@ -37,9 +37,9 @@ int TestDiskSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   double outerRadius = randomSequence->GetValue();
 
   if(innerRadius > outerRadius)
-    {
+  {
     std::swap(innerRadius, outerRadius);
-    }
+  }
 
   diskSource->SetInnerRadius(innerRadius);
   diskSource->SetOuterRadius(outerRadius);
@@ -50,9 +50,9 @@ int TestDiskSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   diskSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
@@ -63,9 +63,9 @@ int TestDiskSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   outerRadius = randomSequence->GetValue();
 
   if(innerRadius > outerRadius)
-    {
+  {
     std::swap(innerRadius, outerRadius);
-    }
+  }
 
   diskSource->SetInnerRadius(innerRadius);
   diskSource->SetOuterRadius(outerRadius);
@@ -76,9 +76,9 @@ int TestDiskSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

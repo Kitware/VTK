@@ -17,20 +17,23 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkEdgeListIterator - Iterates through all edges in a graph.
-//
-// .SECTION Description
-// vtkEdgeListIterator iterates through all the edges in a graph, by traversing
-// the adjacency list for each vertex. You may instantiate this class directly
-// and call SetGraph() to traverse a certain graph. You may also call the graph's
-// GetEdges() method to set up the iterator for a certain graph.
-//
-// Note that this class does NOT guarantee that the edges will be processed in
-// order of their ids (i.e. it will not necessarily return edge 0, then edge 1,
-// etc.).
-//
-// .SECTION See Also
-// vtkGraph
+/**
+ * @class   vtkEdgeListIterator
+ * @brief   Iterates through all edges in a graph.
+ *
+ *
+ * vtkEdgeListIterator iterates through all the edges in a graph, by traversing
+ * the adjacency list for each vertex. You may instantiate this class directly
+ * and call SetGraph() to traverse a certain graph. You may also call the graph's
+ * GetEdges() method to set up the iterator for a certain graph.
+ *
+ * Note that this class does NOT guarantee that the edges will be processed in
+ * order of their ids (i.e. it will not necessarily return edge 0, then edge 1,
+ * etc.).
+ *
+ * @sa
+ * vtkGraph
+*/
 
 #ifndef vtkEdgeListIterator_h
 #define vtkEdgeListIterator_h
@@ -40,41 +43,42 @@
 
 class vtkGraph;
 class vtkGraphEdge;
-//BTX
+
 struct vtkEdgeType;
 struct vtkOutEdgeType;
-//ETX
+
 class VTKCOMMONDATAMODEL_EXPORT vtkEdgeListIterator : public vtkObject
 {
 public:
   static vtkEdgeListIterator *New();
   vtkTypeMacro(vtkEdgeListIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGetObjectMacro(Graph, vtkGraph);
   virtual void SetGraph(vtkGraph *graph);
 
-  //BTX
-  // Description:
-  // Returns the next edge in the graph.
+  /**
+   * Returns the next edge in the graph.
+   */
   vtkEdgeType Next();
-  //ETX
 
-  // Description:
-  // Just like Next(), but
-  // returns heavy-weight vtkGraphEdge object instead of
-  // the vtkEdgeType struct, for use with wrappers.
-  // The graph edge is owned by this iterator, and changes
-  // after each call to NextGraphEdge().
+  /**
+   * Just like Next(), but
+   * returns heavy-weight vtkGraphEdge object instead of
+   * the vtkEdgeType struct, for use with wrappers.
+   * The graph edge is owned by this iterator, and changes
+   * after each call to NextGraphEdge().
+   */
   vtkGraphEdge *NextGraphEdge();
 
-  // Description:
-  // Whether this iterator has more edges.
+  /**
+   * Whether this iterator has more edges.
+   */
   bool HasNext();
 
 protected:
   vtkEdgeListIterator();
-  ~vtkEdgeListIterator();
+  ~vtkEdgeListIterator() override;
 
   void Increment();
 
@@ -86,8 +90,8 @@ protected:
   vtkGraphEdge        *GraphEdge;
 
 private:
-  vtkEdgeListIterator(const vtkEdgeListIterator&);  // Not implemented.
-  void operator=(const vtkEdgeListIterator&);  // Not implemented.
+  vtkEdgeListIterator(const vtkEdgeListIterator&) = delete;
+  void operator=(const vtkEdgeListIterator&) = delete;
 };
 
 #endif

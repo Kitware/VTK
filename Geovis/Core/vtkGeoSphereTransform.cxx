@@ -31,13 +31,12 @@ vtkStandardNewMacro(vtkGeoSphereTransform);
 
 vtkGeoSphereTransform::vtkGeoSphereTransform()
 {
+  VTK_LEGACY_BODY(vtkGeoSphereTransform::vtkGeoSphereTransform, "VTK 8.2");
   this->ToRectangular = true;
   this->BaseAltitude = 0.0;
 }
 
-vtkGeoSphereTransform::~vtkGeoSphereTransform()
-{
-}
+vtkGeoSphereTransform::~vtkGeoSphereTransform() = default;
 
 void vtkGeoSphereTransform::PrintSelf( ostream& os, vtkIndent indent )
 {
@@ -67,15 +66,15 @@ void vtkGeoSphereTransform::InternalTransformPoint( const float in[3], float out
 void vtkGeoSphereTransform::InternalTransformPoint( const double in[3], double out[3] )
 {
   if ( this->ToRectangular )
-    {
+  {
     vtkGlobeSource::ComputeGlobePoint(
       in[0], in[1], vtkGeoMath::EarthRadiusMeters() + in[2] + this->BaseAltitude, out);
-    }
+  }
   else
-    {
+  {
     vtkGlobeSource::ComputeLatitudeLongitude(const_cast<double*>(in), out[0], out[1]);
     out[2] = vtkMath::Norm(in) - vtkGeoMath::EarthRadiusMeters() - this->BaseAltitude;
-    }
+  }
 }
 
 void vtkGeoSphereTransform::InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] )
@@ -88,13 +87,13 @@ void vtkGeoSphereTransform::InternalTransformDerivative( const float in[3], floa
     ind[i] = in[i];
   this->InternalTransformDerivative( ind, oud, drd );
   for ( i = 0; i < 3; ++ i )
-    {
+  {
     out[i] = static_cast<float>(oud[i]);
     for ( int j = 0; j < 3; ++ j )
-      {
+    {
       derivative[i][j] = drd[i][j];
-      }
     }
+  }
 }
 
 void vtkGeoSphereTransform::InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] )
@@ -111,4 +110,3 @@ vtkAbstractTransform* vtkGeoSphereTransform::MakeTransform()
   vtkGeoSphereTransform* geoTrans = vtkGeoSphereTransform::New();
   return geoTrans;
 }
-

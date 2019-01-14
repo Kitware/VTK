@@ -142,7 +142,7 @@ static unsigned char vtkfont_bits[] = {
 // Construct object with no string set and backing enabled.
 vtkTextSource::vtkTextSource()
 {
-  this->Text = NULL;
+  this->Text = nullptr;
   this->Backing = 1;
   this->ForegroundColor[0] = 1.0;
   this->ForegroundColor[1] = 1.0;
@@ -170,7 +170,7 @@ int vtkTextSource::RequestData(
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -189,18 +189,18 @@ int vtkTextSource::RequestData(
   unsigned char white[4];
   unsigned char black[4];
 
-  if (this->Text == NULL)
-    {
+  if (this->Text == nullptr)
+  {
     vtkErrorMacro (<< "Text is not set!");
     return 1;
-    }
+  }
 
   // convert colors to unsigned char
   for (int i = 0; i < 4; i++)
-    {
+  {
     white[i] = (unsigned char) (this->ForegroundColor[i] * 255.0);
     black[i] = (unsigned char) (this->BackgroundColor[i] * 255.0);
-    }
+  }
 
   // Set things up; allocate memory
   x[2] = 0;
@@ -209,13 +209,13 @@ int vtkTextSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPolys = vtkCellArray::New();
   newScalars = vtkUnsignedCharArray::New();
@@ -223,19 +223,19 @@ int vtkTextSource::RequestData(
 
   // Create Text
   while (this->Text[pos])
-    {
+  {
     if (this->Text[pos] != 32)
-      {
+    {
       for (col = 0; col < vtkfont_width; col++)
-        {
+      {
         acol = (this->Text[pos] - 32)*vtkfont_width + col - 1;
         for (row = 0; row < vtkfont_height; row++)
-          {
+        {
           pixelPos = acol + row*vtkfont_row_width;
           if (vtkfont_bits[pixelPos/8] & (0x01 << pixelPos%8))
-            {
+          {
             if (drawingBlack)
-              {
+            {
               x[0] = pos*vtkfont_width + col + 1;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
@@ -259,9 +259,9 @@ int vtkTextSource::RequestData(
               newPolys->InsertNextCell(4,pts);
               numPolys++;
               drawingBlack = 0;
-              }
+            }
             if (!drawingWhite)
-              {
+            {
               x[0] = pos*vtkfont_width + col;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
@@ -278,13 +278,13 @@ int vtkTextSource::RequestData(
               newScalars->InsertNextValue(white[2]);
               newScalars->InsertNextValue(white[3]);
               drawingWhite = 1;
-              }
             }
+          }
           // if the pixel is not set the close up the rectangle
           else
-            {
+          {
             if (drawingWhite)
-              {
+            {
               x[0] = pos*vtkfont_width + col + 1;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
@@ -308,9 +308,9 @@ int vtkTextSource::RequestData(
               newPolys->InsertNextCell(4,pts);
               numPolys++;
               drawingWhite = 0;
-              }
+            }
             if (!drawingBlack && this->Backing)
-              {
+            {
               x[0] = pos*vtkfont_width + col;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
@@ -327,12 +327,12 @@ int vtkTextSource::RequestData(
               newScalars->InsertNextValue(black[2]);
               newScalars->InsertNextValue(black[3]);
               drawingBlack = 1;
-              }
             }
           }
+        }
         // if we finished up a row but are still drawing close it up
         if (drawingWhite)
-          {
+        {
           x[0] = pos*vtkfont_width + col + 1;
           x[1] = 0;
           newPoints->InsertNextPoint(x);
@@ -356,9 +356,9 @@ int vtkTextSource::RequestData(
           newPolys->InsertNextCell(4,pts);
           numPolys++;
           drawingWhite = 0;
-          }
+        }
         if (drawingBlack)
-          {
+        {
           x[0] = pos*vtkfont_width + col + 1;
           x[1] = 0;
           newPoints->InsertNextPoint(x);
@@ -382,14 +382,14 @@ int vtkTextSource::RequestData(
           newPolys->InsertNextCell(4,pts);
           numPolys++;
           drawingBlack = 0;
-          }
         }
       }
+    }
     else
-      {
+    {
       // draw a black square for a space
       if (this->Backing)
-        {
+      {
         x[0] = pos*vtkfont_width;
         x[1] = vtkfont_height;
         newPoints->InsertNextPoint(x);
@@ -428,10 +428,10 @@ int vtkTextSource::RequestData(
         pts[3] = numPolys*4 + 3;
         newPolys->InsertNextCell(4,pts);
         numPolys++;
-        }
       }
-    pos++;
     }
+    pos++;
+  }
 //
 // Update ourselves and release memory
 //

@@ -54,50 +54,50 @@ int TestColorByStringArrayDefaultLookupTable2D(int argc, char* argv[])
 
   // Round-robin assignment of string strings
   for (int i = 0; i < polydata->GetNumberOfCells(); ++i)
-    {
+  {
     sArray->SetValue(i, strings[i % 5].ToString());
-    }
+  }
 
   vtkCellData* cd = polydata->GetCellData();
-  cd->AddArray(sArray.Get());
+  cd->AddArray(sArray);
 
   vtkNew<vtkCoordinate> pCoord;
   pCoord->SetCoordinateSystemToWorld();
 
   vtkNew<vtkCoordinate> coord;
   coord->SetCoordinateSystemToNormalizedViewport();
-  coord->SetReferenceCoordinate(pCoord.GetPointer());
+  coord->SetReferenceCoordinate(pCoord);
 
   vtkNew<vtkPolyDataMapper2D> mapper;
-  mapper->SetInputDataObject(polydata.Get());
+  mapper->SetInputDataObject(polydata);
   mapper->ScalarVisibilityOn();
   mapper->SetColorModeToMapScalars();
   mapper->SetScalarModeToUseCellFieldData();
 
   mapper->ColorByArrayComponent(arrayName, -1);
-  mapper->SetTransformCoordinate(coord.GetPointer());
+  mapper->SetTransformCoordinate(coord);
 
   vtkNew<vtkActor2D> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
 
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
 
   renderWindow->Render();
   renderer->ResetCamera();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage(renderWindow.Get());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

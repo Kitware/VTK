@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkAssignCoordinates - Given two(or three) arrays take the values
-// in those arrays and simply assign them to the coordinates of the vertices.
-//
-// .SECTION Description
-// Given two(or three) arrays take the values in those arrays and simply assign
-// them to the coordinates of the vertices. Yes you could do this with the array
-// calculator, but your mom wears army boots so we're not going to.
+/**
+ * @class   vtkAssignCoordinates
+ * @brief   Given two(or three) arrays take the values
+ * in those arrays and simply assign them to the coordinates of the vertices.
+ *
+ *
+ * Given two(or three) arrays take the values in those arrays and simply assign
+ * them to the coordinates of the vertices. Yes you could do this with the array
+ * calculator, but your mom wears army boots so we're not going to.
+*/
 
 #ifndef vtkAssignCoordinates_h
 #define vtkAssignCoordinates_h
@@ -37,33 +40,45 @@ public:
   static vtkAssignCoordinates *New();
 
   vtkTypeMacro(vtkAssignCoordinates, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set the x coordinate array name.
+  //@{
+  /**
+   * Set the x coordinate array name.
+   */
   vtkSetStringMacro(XCoordArrayName);
   vtkGetStringMacro(XCoordArrayName);
+  //@}
 
-  // Description:
-  // Set the y coordinate array name.
+  //@{
+  /**
+   * Set the y coordinate array name.
+   */
   vtkSetStringMacro(YCoordArrayName);
   vtkGetStringMacro(YCoordArrayName);
+  //@}
 
-  // Description:
-  // Set the z coordinate array name.
+  //@{
+  /**
+   * Set the z coordinate array name.
+   */
   vtkSetStringMacro(ZCoordArrayName);
   vtkGetStringMacro(ZCoordArrayName);
+  //@}
 
-  // Description:
-  // Set if you want a random jitter
+  //@{
+  /**
+   * Set if you want a random jitter
+   */
   vtkSetMacro(Jitter,bool);
+  //@}
 
 protected:
   vtkAssignCoordinates();
-  ~vtkAssignCoordinates();
+  ~vtkAssignCoordinates() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
 
@@ -72,8 +87,8 @@ private:
   char* ZCoordArrayName;
   bool Jitter;
 
-  vtkAssignCoordinates(const vtkAssignCoordinates&);  // Not implemented.
-  void operator=(const vtkAssignCoordinates&);  // Not implemented.
+  vtkAssignCoordinates(const vtkAssignCoordinates&) = delete;
+  void operator=(const vtkAssignCoordinates&) = delete;
 };
 
 #endif

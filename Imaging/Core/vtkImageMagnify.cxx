@@ -53,7 +53,7 @@ int vtkImageMagnify::RequestInformation (
   inInfo->Get(vtkDataObject::SPACING(), spacing);
 
   for (idx = 0; idx < 3; idx++)
-    {
+  {
     // Scale the output extent
     outExt[idx*2] = inExt[idx*2] * this->MagnificationFactors[idx];
     outExt[idx*2+1] = outExt[idx*2] +
@@ -62,7 +62,7 @@ int vtkImageMagnify::RequestInformation (
     // Change the data spacing
     outSpacing[idx] = spacing[idx] /
       static_cast<double>(this->MagnificationFactors[idx]);
-    }
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),outExt,6);
   outInfo->Set(vtkDataObject::SPACING(),outSpacing,3);
@@ -97,7 +97,7 @@ void vtkImageMagnify::InternalRequestUpdateExtent(int *inExt, int *outExt)
   int idx;
 
   for (idx = 0; idx < 3; idx++)
-    {
+  {
     // For Min. Round Down
     inExt[idx*2] = static_cast<int>(
       floor(static_cast<double>(outExt[idx*2]) /
@@ -105,7 +105,7 @@ void vtkImageMagnify::InternalRequestUpdateExtent(int *inExt, int *outExt)
     inExt[idx*2+1] = static_cast<int>(
       floor(static_cast<double>(outExt[idx*2+1]) /
             static_cast<double>(this->MagnificationFactors[idx])));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -164,53 +164,53 @@ void vtkImageMagnifyExecute(vtkImageMagnify *self,
 
   // Loop through output pixels
   for (idxC = 0; idxC < maxC; idxC++)
-    {
+  {
     inPtrZ = inPtr + idxC;
     inIdxZ = inExt[4];
     outPtrC = outPtr + idxC;
     magZIdx = magZ - outExt[4]%magZ - 1;
     for (idxZ = 0; idxZ <= maxZ; idxZ++, magZIdx--)
-      {
+    {
       inPtrY = inPtrZ;
       inIdxY = inExt[2];
       magYIdx = magY - outExt[2]%magY - 1;
       for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++, magYIdx--)
-        {
+      {
         if (!id)
-          {
+        {
           if (!(count%target))
-            {
+          {
             self->UpdateProgress(count/(50.0*target));
-            }
-          count++;
           }
+          count++;
+        }
 
         if (interpolate)
-          {
+        {
           // precompute some values for interpolation
           iMagP = (magYIdx + 1)*(magZIdx + 1)*iMag;
           iMagPY = (magY - magYIdx - 1)*(magZIdx + 1)*iMag;
           iMagPZ = (magYIdx + 1)*(magZ - magZIdx - 1)*iMag;
           iMagPYZ = (magY - magYIdx - 1)*(magZ - magZIdx - 1)*iMag;
-          }
+        }
 
         magXIdx = magX - outExt[0]%magX - 1;
         inPtrX = inPtrY;
         inIdxX = inExt[0];
         interpSetup = 0;
         for (idxX = 0; idxX <= maxX; idxX++, magXIdx--)
-          {
+        {
           // Pixel operation
           if (!interpolate)
-            {
+          {
             *outPtrC = *inPtrX;
-            }
+          }
           else
-            {
+          {
             // setup data values for interp, overload dataP as an
             // indicator of if this has been done yet
             if (!interpSetup)
-              {
+            {
               int tiX, tiY, tiZ;
 
               dataP = *inPtrX;
@@ -220,29 +220,29 @@ void vtkImageMagnifyExecute(vtkImageMagnify *self,
               // And I do not understand (nor do I care to figure out) what
               // Ken was doing with his checks. (Charles)
               if (inIdxX < inMaxX)
-                {
+              {
                 tiX = inIncX;
-                }
+              }
               else
-                {
+              {
                 tiX = 0;
-                }
+              }
               if (inIdxY < inMaxY)
-                {
+              {
                 tiY = inIncY;
-                }
+              }
               else
-                {
+              {
                 tiY = 0;
-                }
+              }
               if (inIdxZ < inMaxZ)
-                {
+              {
                 tiZ = inIncZ;
-                }
+              }
               else
-                {
+              {
                 tiZ = 0;
-                }
+              }
               dataPX = *(inPtrX + tiX);
               dataPY = *(inPtrX + tiY);
               dataPZ = *(inPtrX + tiZ);
@@ -251,7 +251,7 @@ void vtkImageMagnifyExecute(vtkImageMagnify *self,
               dataPYZ = *(inPtrX + tiY + tiZ);
               dataPXYZ = *(inPtrX + tiX + tiY + tiZ);
               interpSetup = 1;
-              }
+            }
             *outPtrC = static_cast<T>
               (static_cast<double>(dataP)*(magXIdx + 1)*iMagP +
                static_cast<double>(dataPX)*(magX - magXIdx - 1)*iMagP +
@@ -261,33 +261,33 @@ void vtkImageMagnifyExecute(vtkImageMagnify *self,
                static_cast<double>(dataPXZ)*(magX - magXIdx - 1)*iMagPZ +
                static_cast<double>(dataPYZ)*(magXIdx + 1)*iMagPYZ +
                static_cast<double>(dataPXYZ)*(magX - magXIdx - 1)*iMagPYZ);
-            }
+          }
           outPtrC += maxC;
           if (!magXIdx)
-            {
+          {
             inPtrX += inIncX;
             ++inIdxX;
             magXIdx = magX;
             interpSetup = 0;
-            }
           }
+        }
         outPtrC += outIncY;
         if (!magYIdx)
-          {
+        {
           inPtrY += inIncY;
           ++inIdxY;
           magYIdx = magY;
-          }
         }
+      }
       outPtrC += outIncZ;
       if (!magZIdx)
-        {
+      {
         inPtrZ += inIncZ;
         ++inIdxZ;
         magZIdx = magZ;
-        }
       }
     }
+  }
 }
 
 void vtkImageMagnify::ThreadedRequestData(
@@ -306,16 +306,16 @@ void vtkImageMagnify::ThreadedRequestData(
 
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
-    {
+  {
     vtkErrorMacro("Execute: input ScalarType, "
                   << inData[0][0]->GetScalarType()
                   << ", must match out ScalarType "
                   << outData[0]->GetScalarType());
     return;
-    }
+  }
 
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageMagnifyExecute(this, inData[0][0],
                              static_cast<VTK_TT *>(inPtr), inExt, outData[0],
@@ -324,7 +324,7 @@ void vtkImageMagnify::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
 
 void vtkImageMagnify::PrintSelf(ostream& os, vtkIndent indent)

@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProbeSelectedLocations - similar to vtkExtractSelectedLocations
-// except that it interpolates the point attributes at the probe locations.
-// .SECTION Description
-// vtkProbeSelectedLocations is similar to vtkExtractSelectedLocations except
-// that it interpolates the point attributes at the probe location. This is
-// equivalent to the vtkProbeFilter except that the probe locations are provided
-// by a vtkSelection. The FieldType of the input vtkSelection is immaterial and
-// is ignored. The ContentType of the input vtkSelection must be
-// vtkSelection::LOCATIONS.
+/**
+ * @class   vtkProbeSelectedLocations
+ * @brief   similar to vtkExtractSelectedLocations
+ * except that it interpolates the point attributes at the probe locations.
+ *
+ * vtkProbeSelectedLocations is similar to vtkExtractSelectedLocations except
+ * that it interpolates the point attributes at the probe location. This is
+ * equivalent to the vtkProbeFilter except that the probe locations are provided
+ * by a vtkSelection. The FieldType of the input vtkSelection is immaterial and
+ * is ignored. The ContentType of the input vtkSelection must be
+ * vtkSelection::LOCATIONS.
+*/
 
 #ifndef vtkProbeSelectedLocations_h
 #define vtkProbeSelectedLocations_h
@@ -33,26 +36,26 @@ class VTKFILTERSEXTRACTION_EXPORT vtkProbeSelectedLocations : public vtkExtractS
 public:
   static vtkProbeSelectedLocations* New();
   vtkTypeMacro(vtkProbeSelectedLocations, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-//BTX
 protected:
   vtkProbeSelectedLocations();
-  ~vtkProbeSelectedLocations();
+  ~vtkProbeSelectedLocations() override;
 
-  // Description:
-  // Sets up empty output dataset
-  virtual int RequestDataObject(vtkInformation* request,
+  /**
+   * Sets up empty output dataset
+   */
+  int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+                                vtkInformationVector* outputVector) override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) override;
 
 private:
-  vtkProbeSelectedLocations(const vtkProbeSelectedLocations&); // Not implemented.
-  void operator=(const vtkProbeSelectedLocations&); // Not implemented.
-//ETX
+  vtkProbeSelectedLocations(const vtkProbeSelectedLocations&) = delete;
+  void operator=(const vtkProbeSelectedLocations&) = delete;
+
 };
 
 #endif

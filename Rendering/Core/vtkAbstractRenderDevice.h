@@ -24,7 +24,7 @@ class VTKRENDERINGCORE_EXPORT vtkAbstractRenderDevice : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractRenderDevice, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * @brief Make a new device, this class is abstract and one of its derived
@@ -58,14 +58,14 @@ public:
 
 protected:
   vtkAbstractRenderDevice();
-  ~vtkAbstractRenderDevice();
+  ~vtkAbstractRenderDevice() override;
 
   int GLMajor;
   int GLMinor;
 
 private:
-  vtkAbstractRenderDevice(const vtkAbstractRenderDevice&);  // Not implemented.
-  void operator=(const vtkAbstractRenderDevice&);  // Not implemented.
+  vtkAbstractRenderDevice(const vtkAbstractRenderDevice&) = delete;
+  void operator=(const vtkAbstractRenderDevice&) = delete;
 };
 
 #endif

@@ -44,10 +44,7 @@ vtkTreeOrbitLayoutStrategy::vtkTreeOrbitLayoutStrategy()
   this->ChildRadiusFactor = .5;
 }
 
-vtkTreeOrbitLayoutStrategy::~vtkTreeOrbitLayoutStrategy()
-{
-
-}
+vtkTreeOrbitLayoutStrategy::~vtkTreeOrbitLayoutStrategy() = default;
 
 // Helper method for recursively orbiting children
 // around their parents
@@ -63,13 +60,13 @@ void vtkTreeOrbitLayoutStrategy::OrbitChildren(vtkTree *t,
   yCenter = pt[1];
 
   // Check for leaf_count array
-  vtkIntArray* leaf_count = vtkIntArray::SafeDownCast(
+  vtkIntArray* leaf_count = vtkArrayDownCast<vtkIntArray>(
                             t->GetVertexData()->GetArray("leaf_count"));
   if (!leaf_count)
-    {
+  {
     vtkErrorMacro("vtkTreeOrbitLayoutStrategy has to have a leaf_count array");
     exit(1);
-    }
+  }
 
   // Get the total number of children for this node
   double totalChildren = leaf_count->GetValue(parent);
@@ -79,7 +76,7 @@ void vtkTreeOrbitLayoutStrategy::OrbitChildren(vtkTree *t,
   // parent's centerpoint
   double currentAngle = 0;
   for (vtkIdType i=0; i < immediateChildren; ++i)
-    {
+  {
     vtkIdType childID = t->GetChild(parent, i);
     vtkIdType subChildren = leaf_count->GetValue(childID);
 
@@ -112,15 +109,15 @@ void vtkTreeOrbitLayoutStrategy::OrbitChildren(vtkTree *t,
 
     // Accumulate angle
     currentAngle += myAngle;
-    }
+  }
 }
 
 // Tree layout method
 void vtkTreeOrbitLayoutStrategy::Layout()
 {
   vtkTree* tree = vtkTree::SafeDownCast(this->Graph);
-  if (tree == NULL)
-    {
+  if (tree == nullptr)
+  {
 #ifdef VTK_USE_BOOST
     // Use the BFS search tree to perform the layout
     vtkBoostBreadthFirstSearchTree* bfs = vtkBoostBreadthFirstSearchTree::New();
@@ -133,13 +130,13 @@ void vtkTreeOrbitLayoutStrategy::Layout()
 #else
     vtkErrorMacro("Layout only works on vtkTree unless VTK_USE_BOOST is on.");
 #endif
-    }
+  }
 
  if (tree->GetNumberOfVertices() == 0)
-    {
+ {
     vtkErrorMacro("Tree Input has 0 vertices - Punting...");
     return;
-    }
+ }
 
   // Create a new point set
   vtkIdType numVertices = tree->GetNumberOfVertices();
@@ -158,29 +155,29 @@ void vtkTreeOrbitLayoutStrategy::Layout()
 
   // Copy coordinates back into the original graph
   if (vtkTree::SafeDownCast(this->Graph))
-    {
+  {
     this->Graph->SetPoints(newPoints);
-    }
+  }
 #ifdef VTK_USE_BOOST
   else
-    {
+  {
     // Reorder the points based on the mapping back to graph vertex ids
     vtkPoints* reordered = vtkPoints::New();
     reordered->SetNumberOfPoints(newPoints->GetNumberOfPoints());
     for (vtkIdType i = 0; i < reordered->GetNumberOfPoints(); i++)
-      {
+    {
       reordered->SetPoint(i, 0, 0, 0);
-      }
-    vtkIdTypeArray* graphVertexIdArr = vtkIdTypeArray::SafeDownCast(
+    }
+    vtkIdTypeArray* graphVertexIdArr = vtkArrayDownCast<vtkIdTypeArray>(
       tree->GetVertexData()->GetAbstractArray("GraphVertexId"));
     for (vtkIdType i = 0; i < graphVertexIdArr->GetNumberOfTuples(); i++)
-      {
+    {
       reordered->SetPoint(graphVertexIdArr->GetValue(i), newPoints->GetPoint(i));
-      }
+    }
     this->Graph->SetPoints(reordered);
     tree->Delete();
     reordered->Delete();
-    }
+  }
 #endif
 
   // Clean up.

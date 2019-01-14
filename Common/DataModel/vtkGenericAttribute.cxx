@@ -20,14 +20,10 @@
 
 
 //---------------------------------------------------------------------------
-vtkGenericAttribute::vtkGenericAttribute()
-{
-}
+vtkGenericAttribute::vtkGenericAttribute() = default;
 
 //---------------------------------------------------------------------------
-vtkGenericAttribute::~vtkGenericAttribute()
-{
-}
+vtkGenericAttribute::~vtkGenericAttribute() = default;
 
 //---------------------------------------------------------------------------
 void vtkGenericAttribute::PrintSelf(ostream& os, vtkIndent indent)
@@ -39,7 +35,7 @@ void vtkGenericAttribute::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Centering: ";
 
   switch(this->GetCentering())
-    {
+  {
     case vtkPointCentered:
       os << "on points";
       break;
@@ -52,6 +48,6 @@ void vtkGenericAttribute::PrintSelf(ostream& os, vtkIndent indent)
     default:
       assert("check: Impossible case" && 0);
       break;
-    }
+  }
   os << endl;
 }

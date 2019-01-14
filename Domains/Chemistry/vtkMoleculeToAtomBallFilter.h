@@ -12,21 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMoleculeToAtomBallFilter - Generate polydata with spheres
-// representing atoms
-//
-// .SECTION Description
-// This filter is used to generate one sphere for each atom in the
-// input vtkMolecule. Each sphere is centered at the atom center and
-// can be scaled using either covalent or van der Waals radii. The
-// point scalars of the output vtkPolyData contains the atomic number
-// of the appropriate atom for color mapping.
-//
-// \note Consider using the faster, simpler vtkMoleculeMapper class,
-// rather than generating polydata manually via these filters.
-//
-// .SECTION See Also
-// vtkMoleculeMapper vtkMoleculeToBondStickFilter
+/**
+ * @class   vtkMoleculeToAtomBallFilter
+ * @brief   Generate polydata with spheres
+ * representing atoms
+ *
+ *
+ * This filter is used to generate one sphere for each atom in the
+ * input vtkMolecule. Each sphere is centered at the atom center and
+ * can be scaled using either covalent or van der Waals radii. The
+ * point scalars of the output vtkPolyData contains the atomic number
+ * of the appropriate atom for color mapping.
+ *
+ * \note Consider using the faster, simpler vtkMoleculeMapper class,
+ * rather than generating polydata manually via these filters.
+ *
+ * @sa
+ * vtkMoleculeMapper vtkMoleculeToBondStickFilter
+*/
 
 #ifndef vtkMoleculeToAtomBallFilter_h
 #define vtkMoleculeToAtomBallFilter_h
@@ -41,7 +44,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter
 {
  public:
   vtkTypeMacro(vtkMoleculeToAtomBallFilter,vtkMoleculeToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkMoleculeToAtomBallFilter *New();
 
@@ -62,18 +65,18 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter
 
 protected:
   vtkMoleculeToAtomBallFilter();
-  ~vtkMoleculeToAtomBallFilter();
+  ~vtkMoleculeToAtomBallFilter() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) override;
 
   int Resolution;
   double RadiusScale;
   int RadiusSource;
 
 private:
-  vtkMoleculeToAtomBallFilter(const vtkMoleculeToAtomBallFilter&);  // Not implemented.
-  void operator=(const vtkMoleculeToAtomBallFilter&);  // Not implemented.
+  vtkMoleculeToAtomBallFilter(const vtkMoleculeToAtomBallFilter&) = delete;
+  void operator=(const vtkMoleculeToAtomBallFilter&) = delete;
 };
 
 #endif

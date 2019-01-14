@@ -21,13 +21,11 @@
 vtkInformationIntegerRequestKey::vtkInformationIntegerRequestKey(const char* name, const char* location) :
   vtkInformationIntegerKey(name, location)
 {
-  this->DataKey = 0;
+  this->DataKey = nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkInformationIntegerRequestKey::~vtkInformationIntegerRequestKey()
-{
-}
+vtkInformationIntegerRequestKey::~vtkInformationIntegerRequestKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationIntegerRequestKey::CopyDefaultInformation(
@@ -36,9 +34,9 @@ void vtkInformationIntegerRequestKey::CopyDefaultInformation(
   vtkInformation* toInfo)
 {
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     this->ShallowCopy(fromInfo, toInfo);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -47,9 +45,9 @@ bool vtkInformationIntegerRequestKey::NeedToExecute(vtkInformation* pipelineInfo
 {
   if (!dobjInfo->Has(this->DataKey) ||
     dobjInfo->Get(this->DataKey) != pipelineInfo->Get(this))
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 

@@ -5,19 +5,17 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /****************/
 /* Module Setup */
 /****************/
 
-#define H5SM_PACKAGE		/*suppress error about including H5SMpkg	  */
+#include "H5SMmodule.h"         /* This source code file is part of the H5SM module */
 #define H5SM_TESTING		/*suppress warning about H5SM testing funcs*/
 
 
@@ -64,7 +62,7 @@
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5SM_get_mesg_count_test
+ * Function:    H5SM__get_mesg_count_test
  *
  * Purpose:     Retrieve the number of messages tracked of a certain type
  *
@@ -76,13 +74,12 @@
  *-------------------------------------------------------------------------
  */
 herr_t
-H5SM_get_mesg_count_test(H5F_t *f, hid_t dxpl_id, unsigned type_id,
-    size_t *mesg_count)
+H5SM__get_mesg_count_test(H5F_t *f, unsigned type_id, size_t *mesg_count)
 {
     H5SM_master_table_t *table = NULL;  /* SOHM master table */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE_TAG(H5AC__SOHM_TAG)
 
     /* Sanity check */
     HDassert(f);
@@ -98,7 +95,7 @@ H5SM_get_mesg_count_test(H5F_t *f, hid_t dxpl_id, unsigned type_id,
         cache_udata.f = f;
 
         /* Look up the master SOHM table */
-        if(NULL == (table = (H5SM_master_table_t *)H5AC_protect(f, dxpl_id, H5AC_SOHM_TABLE, H5F_SOHM_ADDR(f), &cache_udata, H5AC_READ)))
+        if(NULL == (table = (H5SM_master_table_t *)H5AC_protect(f, H5AC_SOHM_TABLE, H5F_SOHM_ADDR(f), &cache_udata, H5AC__READ_ONLY_FLAG)))
             HGOTO_ERROR(H5E_SOHM, H5E_CANTPROTECT, FAIL, "unable to load SOHM master table")
 
         /* Find the correct index for this message type */
@@ -115,9 +112,9 @@ H5SM_get_mesg_count_test(H5F_t *f, hid_t dxpl_id, unsigned type_id,
 
 done:
     /* Release resources */
-    if(table && H5AC_unprotect(f, dxpl_id, H5AC_SOHM_TABLE, H5F_SOHM_ADDR(f), table, H5AC__NO_FLAGS_SET) < 0)
+    if(table && H5AC_unprotect(f, H5AC_SOHM_TABLE, H5F_SOHM_ADDR(f), table, H5AC__NO_FLAGS_SET) < 0)
 	HDONE_ERROR(H5E_SOHM, H5E_CANTUNPROTECT, FAIL, "unable to close SOHM master table")
 
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5SM_get_mesg_count_test() */
+    FUNC_LEAVE_NOAPI_TAG(ret_value)
+} /* end H5SM__get_mesg_count_test() */
 

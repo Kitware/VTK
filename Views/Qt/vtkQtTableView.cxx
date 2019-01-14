@@ -22,6 +22,7 @@
 
 #include <QHeaderView>
 #include <QItemSelection>
+#include <QSortFilterProxyModel>
 #include <QTableView>
 
 #include "vtkAbstractArray.h"
@@ -81,12 +82,12 @@ vtkQtTableView::vtkQtTableView()
   this->LastInputMTime = 0;
   this->LastMTime = 0;
   this->ShowAll = true;
-  this->ColumnName = 0;
+  this->ColumnName = nullptr;
   this->InSelectionChanged = false;
   this->ApplyRowColors = false;
   this->SortSelectionToTop = false;
 
-  this->ColorArrayNameInternal = 0;
+  this->ColorArrayNameInternal = nullptr;
   double defCol[3] = {0.827,0.827,0.827};
   this->ApplyColors->SetDefaultPointColor(defCol);
   this->ApplyColors->SetUseCurrentAnnotationColor(true);
@@ -103,7 +104,7 @@ vtkQtTableView::~vtkQtTableView()
   delete this->TableView;
   delete this->TableAdapter;
   delete this->TableSorter;
-  this->SetColumnName(0);
+  this->SetColumnName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -116,26 +117,26 @@ QWidget* vtkQtTableView::GetWidget()
 void vtkQtTableView::SetShowVerticalHeaders(bool state)
 {
   if (state)
-    {
+  {
     this->TableView->verticalHeader()->show();
-    }
+  }
   else
-    {
+  {
     this->TableView->verticalHeader()->hide();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkQtTableView::SetShowHorizontalHeaders(bool state)
 {
   if (state)
-    {
+  {
     this->TableView->horizontalHeader()->show();
-    }
+  }
   else
-    {
+  {
     this->TableView->horizontalHeader()->hide();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -156,72 +157,72 @@ void vtkQtTableView::SetFieldType(int type)
   this->DataObjectToTable->SetFieldType(type);
   this->AddSelectedColumn->SetFieldType(type);
   if(this->FieldType != type)
-    {
+  {
     this->FieldType = type;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkQtTableView::SetColumnVisibility(const QString& name, bool s)
 {
   for(int j=0; j<this->TableAdapter->columnCount(); ++j)
-    {
+  {
     QString colName = this->TableAdapter->headerData(j, Qt::Horizontal).toString();
     if(colName == name)
-      {
+    {
       if(s)
-        {
+      {
         this->TableView->showColumn(j);
-        }
-      else
-        {
-        this->TableView->hideColumn(j);
-        }
-      break;
       }
+      else
+      {
+        this->TableView->hideColumn(j);
+      }
+      break;
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkQtTableView::SetShowAll(bool s)
 {
   if(this->ShowAll != s)
-    {
+  {
     this->ShowAll = s;
     this->Modified();
-    }
+  }
 }
 
 void vtkQtTableView::SetApplyRowColors(bool value)
 {
   if(value != this->ApplyRowColors)
-    {
+  {
     if(value)
-      {
+    {
       this->DataObjectToTable->SetInputConnection(0, this->ApplyColors->GetOutputPort());
-      }
+    }
     else
-      {
+    {
       vtkDataRepresentation* rep = this->GetRepresentation();
       if (rep)
-        {
+      {
         vtkAlgorithmOutput *conn = rep->GetInputConnection();
         this->DataObjectToTable->SetInputConnection(0, conn);
-        }
       }
+    }
     this->ApplyRowColors = value;
     this->Modified();
-    }
+  }
 }
 
 void vtkQtTableView::SetSortSelectionToTop(bool value)
 {
   if(value != this->SortSelectionToTop)
-    {
+  {
     this->SortSelectionToTop = value;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -244,18 +245,18 @@ void vtkQtTableView::AddRepresentationInternal(vtkDataRepresentation* rep)
   selConn = rep->GetInternalSelectionOutputPort();
 
   if(!this->ApplyRowColors)
-    {
+  {
     this->DataObjectToTable->SetInputConnection(0, conn);
-    }
+  }
 
   this->ApplyColors->SetInputConnection(0, conn);
 
   if(selConn)
-    {
+  {
     this->AddSelectedColumn->SetInputConnection(1, selConn);
-    }
+  }
   else
-    {
+  {
     vtkSmartPointer<vtkSelection> empty =
       vtkSmartPointer<vtkSelection>::New();
     vtkSmartPointer<vtkSelectionNode> emptyNode =
@@ -266,13 +267,13 @@ void vtkQtTableView::AddRepresentationInternal(vtkDataRepresentation* rep)
     emptyNode->SetSelectionList(arr);
     empty->AddNode(emptyNode);
     this->AddSelectedColumn->SetInputData(1, empty);
-    }
+  }
 
   if(annConn)
-    {
+  {
     this->ApplyColors->SetInputConnection(1, annConn);
     this->AddSelectedColumn->SetInputConnection(2, annConn);
-    }
+  }
 }
 
 
@@ -287,7 +288,7 @@ void vtkQtTableView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
   this->AddSelectedColumn->RemoveInputConnection(1, selConn);
   this->ApplyColors->RemoveInputConnection(1, annConn);
   this->AddSelectedColumn->RemoveInputConnection(2, annConn);
-  this->TableAdapter->SetVTKDataObject(0);
+  this->TableAdapter->SetVTKDataObject(nullptr);
 }
 
 void vtkQtTableView::SetColorByArray(bool b)
@@ -327,9 +328,9 @@ void vtkQtTableView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1)
   const QModelIndexList selectedRows = this->TableView->selectionModel()->selectedRows();
   QModelIndexList origRows;
   for(int i=0; i<selectedRows.size(); ++i)
-    {
+  {
     origRows.push_back(this->TableSorter->mapToSource(selectedRows[i]));
-    }
+  }
 
   vtkSelection *VTKIndexSelectList =
     this->TableAdapter->QModelIndexListToVTKIndexSelection(origRows);
@@ -338,7 +339,7 @@ void vtkQtTableView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1)
   vtkDataRepresentation* rep = this->GetRepresentation();
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
-    VTKIndexSelectList, data, rep->GetSelectionType(), 0));
+    VTKIndexSelectList, data, rep->GetSelectionType(), nullptr));
 
   // Call select on the representation
   rep->Select(this, converted);
@@ -356,10 +357,10 @@ void vtkQtTableView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1)
 void vtkQtTableView::SetVTKSelection()
 {
   if (this->InSelectionChanged)
-    {
+  {
     // If we initiated the selection, do nothing.
     return;
-    }
+  }
 
   vtkDataRepresentation* rep = this->GetRepresentation();
   vtkDataObject *d = this->TableAdapter->GetVTKDataObject();
@@ -369,15 +370,15 @@ void vtkQtTableView::SetVTKSelection()
 
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
-    s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
+    s, d, vtkSelectionNode::INDICES, nullptr, vtkSelectionNode::ROW));
 
-  if(!selection.GetPointer() || selection->GetNumberOfNodes() == 0)
-    {
+  if(!selection || selection->GetNumberOfNodes() == 0)
+  {
     return;
-    }
+  }
 
   if(selection->GetNode(0)->GetSelectionList()->GetNumberOfTuples())
-    {
+  {
     QItemSelection qisList = this->TableAdapter->
       VTKIndexSelectionToQItemSelection(selection);
     QItemSelection sortedSel = this->TableSorter->mapSelectionFromSource(qisList);
@@ -396,18 +397,18 @@ void vtkQtTableView::SetVTKSelection()
      this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
 
     if(this->SortSelectionToTop)
-      {
+    {
       for(int j=0; j<this->TableAdapter->columnCount(); ++j)
-        {
+      {
         QString colName = this->TableAdapter->headerData(j, Qt::Horizontal).toString();
         if(colName == "vtkAddMembershipArray membership")
-          {
+        {
           this->TableView->sortByColumn(j, Qt::DescendingOrder);
-          }
         }
-      this->TableView->scrollToTop();
       }
+      this->TableView->scrollToTop();
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -416,54 +417,54 @@ void vtkQtTableView::Update()
   vtkView::Update() ;
 
   if(this->InSelectionChanged)
-    {
+  {
     this->InSelectionChanged = false;
     return;
-    }
+  }
 
   vtkDataRepresentation* rep = this->GetRepresentation();
   if (!rep)
-    {
+  {
     this->TableAdapter->reset();
     return;
-    }
+  }
 
   vtkAlgorithmOutput *selConn, *annConn, *conn;
   conn = rep->GetInputConnection();
   annConn = rep->GetInternalAnnotationOutputPort();
   selConn = rep->GetInternalSelectionOutputPort();
   vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  unsigned long atime = rep->GetAnnotationLink()->GetMTime();
+  vtkMTimeType atime = rep->GetAnnotationLink()->GetMTime();
   if (d->GetMTime() > this->LastInputMTime ||
       this->GetMTime() > this->LastMTime  ||
       atime > this->LastSelectionMTime)
-    {
+  {
     annConn->GetProducer()->Update();
     selConn->GetProducer()->Update();
 
-    this->TableAdapter->SetVTKDataObject(0);
+    this->TableAdapter->SetVTKDataObject(nullptr);
 
     if(this->ApplyRowColors)
-      {
+    {
       this->ApplyColors->Update();
-      }
+    }
 
     this->DataObjectToTable->Update();
 
     if(this->SortSelectionToTop)
-      {
+    {
       this->AddSelectedColumn->Update();
       this->TableAdapter->SetVTKDataObject(this->AddSelectedColumn->GetOutput());
-      }
+    }
     else
-      {
+    {
       this->TableAdapter->SetVTKDataObject(this->DataObjectToTable->GetOutput());
-      }
+    }
 
     if(this->ApplyRowColors)
-      {
+    {
       this->TableAdapter->SetColorColumnName("vtkApplyColors color");
-      }
+    }
 
     //if(this->TableAdapter->columnCount()>0 &&
     //  d->GetMTime() > this->LastInputMTime)
@@ -472,30 +473,30 @@ void vtkQtTableView::Update()
     //  }
 
     if (atime > this->LastSelectionMTime)
-      {
+    {
       this->SetVTKSelection();
-      }
+    }
 
     this->LastSelectionMTime = atime;
     this->LastInputMTime = d->GetMTime();
     this->LastMTime = this->GetMTime();
-    }
+  }
 
   this->TableView->update();
 
   if (this->TableView->columnWidth(0) < 100)
-    {
+  {
     this->TableView->setColumnWidth(0,100);
-    }
+  }
 
   for(int j=0; j<this->TableAdapter->columnCount(); ++j)
-    {
+  {
     QString colName = this->TableAdapter->headerData(j, Qt::Horizontal).toString();
     if(colName == "vtkApplyColors color" ||
        colName == "vtkAddMembershipArray membership")
-      {
+    {
       this->TableView->hideColumn(j);
-      }
+    }
     /*
     else if(this->ShowAll)
       {
@@ -515,13 +516,13 @@ void vtkQtTableView::Update()
       }
       */
 
-    }
+  }
 }
 
 void vtkQtTableView::SetSelectionBehavior(int type)
 {
   switch (type)
-    {
+  {
     case SELECT_ITEMS:
       this->TableView->setSelectionBehavior(QAbstractItemView::SelectItems);
       break;
@@ -531,73 +532,73 @@ void vtkQtTableView::SetSelectionBehavior(int type)
     case SELECT_COLUMNS:
       this->TableView->setSelectionBehavior(QAbstractItemView::SelectColumns);
       break;
-    }
+  }
 }
 
 int vtkQtTableView::GetSelectionBehavior()
 {
   switch (this->TableView->selectionBehavior())
-    {
+  {
     case QAbstractItemView::SelectItems:
       return SELECT_ITEMS;
     case QAbstractItemView::SelectRows:
       return SELECT_ROWS;
     case QAbstractItemView::SelectColumns:
       return SELECT_COLUMNS;
-    }
+  }
   return SELECT_ITEMS;
 }
 
 void vtkQtTableView::GetSelectedItems(vtkIdTypeArray* arr)
 {
   if (!arr)
-    {
+  {
     return;
-    }
+  }
   arr->Initialize();
   if (this->TableView->selectionBehavior() == QAbstractItemView::SelectItems)
-    {
+  {
     arr->SetNumberOfComponents(2);
     const QModelIndexList selectedItems = this->TableView->selectionModel()->selectedIndexes();
     for (int i = 0; i < selectedItems.size(); i++)
-      {
+    {
       QModelIndex orig = this->TableSorter->mapToSource(selectedItems.at(i));
       arr->InsertNextValue(orig.row());
       arr->InsertNextValue(orig.column());
-      }
     }
+  }
   else if (this->TableView->selectionBehavior() == QAbstractItemView::SelectRows)
-    {
+  {
     arr->SetNumberOfComponents(1);
     const QModelIndexList selectedRows = this->TableView->selectionModel()->selectedRows();
     QSet<int> unique_ids;
     for(int i = 0; i < selectedRows.size(); ++i)
-      {
+    {
       QModelIndex orig = this->TableSorter->mapToSource(selectedRows[i]);
       unique_ids.insert(orig.row());
-      }
+    }
     QSet<int>::iterator iter;
     for (iter = unique_ids.begin(); iter != unique_ids.end(); ++iter)
-      {
-      arr->InsertNextValue(*iter);
-      }
-    }
-  else
     {
+      arr->InsertNextValue(*iter);
+    }
+  }
+  else
+  {
     arr->SetNumberOfComponents(1);
     const QModelIndexList selectedColumns = this->TableView->selectionModel()->selectedColumns();
     QSet<int> unique_ids;
     for (int i = 0; i < selectedColumns.size(); i++)
-      {
+    {
       QModelIndex orig = this->TableSorter->mapToSource(selectedColumns[i]);
       unique_ids.insert(orig.column());
-      }
+    }
     QSet<int>::iterator iter;
     for (iter = unique_ids.begin(); iter != unique_ids.end(); ++iter)
-      {
+    {
       arr->InsertNextValue(*iter);
-      }
     }
+  }
 }
 
 

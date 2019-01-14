@@ -5,13 +5,17 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* NOTE!
+ *
+ * If you make any changes to H5LTparse.y, please run bin/genparser to
+ * recreate the output files.
+ */
 
 %{
 #include <stdio.h>
@@ -66,20 +70,21 @@ hbool_t is_opq_tag = 0;             /*flag to lexer for opaque type tag*/
 
 %}
 %union {
-    int   ival;         /*for integer token*/
-    char  *sval;        /*for name string*/
+    int     ival;         /*for integer token*/
+    char    *sval;        /*for name string*/
+    hid_t   hid;          /*for hid_t token*/
 }
 
-%token <ival> H5T_STD_I8BE_TOKEN H5T_STD_I8LE_TOKEN H5T_STD_I16BE_TOKEN  H5T_STD_I16LE_TOKEN
-%token <ival> H5T_STD_I32BE_TOKEN H5T_STD_I32LE_TOKEN H5T_STD_I64BE_TOKEN H5T_STD_I64LE_TOKEN
-%token <ival> H5T_STD_U8BE_TOKEN H5T_STD_U8LE_TOKEN H5T_STD_U16BE_TOKEN  H5T_STD_U16LE_TOKEN
-%token <ival> H5T_STD_U32BE_TOKEN H5T_STD_U32LE_TOKEN H5T_STD_U64BE_TOKEN H5T_STD_U64LE_TOKEN
-%token <ival> H5T_NATIVE_CHAR_TOKEN H5T_NATIVE_SCHAR_TOKEN H5T_NATIVE_UCHAR_TOKEN 
-%token <ival> H5T_NATIVE_SHORT_TOKEN H5T_NATIVE_USHORT_TOKEN H5T_NATIVE_INT_TOKEN H5T_NATIVE_UINT_TOKEN 
-%token <ival> H5T_NATIVE_LONG_TOKEN H5T_NATIVE_ULONG_TOKEN H5T_NATIVE_LLONG_TOKEN H5T_NATIVE_ULLONG_TOKEN
+%token <hid> H5T_STD_I8BE_TOKEN H5T_STD_I8LE_TOKEN H5T_STD_I16BE_TOKEN  H5T_STD_I16LE_TOKEN
+%token <hid> H5T_STD_I32BE_TOKEN H5T_STD_I32LE_TOKEN H5T_STD_I64BE_TOKEN H5T_STD_I64LE_TOKEN
+%token <hid> H5T_STD_U8BE_TOKEN H5T_STD_U8LE_TOKEN H5T_STD_U16BE_TOKEN  H5T_STD_U16LE_TOKEN
+%token <hid> H5T_STD_U32BE_TOKEN H5T_STD_U32LE_TOKEN H5T_STD_U64BE_TOKEN H5T_STD_U64LE_TOKEN
+%token <hid> H5T_NATIVE_CHAR_TOKEN H5T_NATIVE_SCHAR_TOKEN H5T_NATIVE_UCHAR_TOKEN 
+%token <hid> H5T_NATIVE_SHORT_TOKEN H5T_NATIVE_USHORT_TOKEN H5T_NATIVE_INT_TOKEN H5T_NATIVE_UINT_TOKEN 
+%token <hid> H5T_NATIVE_LONG_TOKEN H5T_NATIVE_ULONG_TOKEN H5T_NATIVE_LLONG_TOKEN H5T_NATIVE_ULLONG_TOKEN
 
-%token <ival> H5T_IEEE_F32BE_TOKEN H5T_IEEE_F32LE_TOKEN H5T_IEEE_F64BE_TOKEN H5T_IEEE_F64LE_TOKEN
-%token <ival> H5T_NATIVE_FLOAT_TOKEN H5T_NATIVE_DOUBLE_TOKEN H5T_NATIVE_LDOUBLE_TOKEN
+%token <hid> H5T_IEEE_F32BE_TOKEN H5T_IEEE_F32LE_TOKEN H5T_IEEE_F64BE_TOKEN H5T_IEEE_F64LE_TOKEN
+%token <hid> H5T_NATIVE_FLOAT_TOKEN H5T_NATIVE_DOUBLE_TOKEN H5T_NATIVE_LDOUBLE_TOKEN
 
 %token <ival> H5T_STRING_TOKEN STRSIZE_TOKEN STRPAD_TOKEN CSET_TOKEN CTYPE_TOKEN H5T_VARIABLE_TOKEN
 %token <ival> H5T_STR_NULLTERM_TOKEN H5T_STR_NULLPAD_TOKEN H5T_STR_SPACEPAD_TOKEN 
@@ -98,7 +103,7 @@ hbool_t is_opq_tag = 0;             /*flag to lexer for opaque type tag*/
 
 %%
 start   :       { memset(arr_stack, 0, STACK_SIZE*sizeof(struct arr_info)); /*initialize here?*/ }
-        |       ddl_type  { return $<ival>$;}
+        |       ddl_type  { return $<hid>$;}
         ;
 ddl_type        :       atomic_type
                 |       compound_type
@@ -112,48 +117,48 @@ atomic_type     :       integer_type
                 |       opaque_type
                 ;
 
-integer_type    :       H5T_STD_I8BE_TOKEN  { $<ival>$ = H5Tcopy(H5T_STD_I8BE); }
-                |       H5T_STD_I8LE_TOKEN  { $<ival>$ = H5Tcopy(H5T_STD_I8LE); }
-                |       H5T_STD_I16BE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_I16BE); }
-                |       H5T_STD_I16LE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_I16LE); }
-                |       H5T_STD_I32BE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_I32BE); }
-                |       H5T_STD_I32LE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_I32LE); }
-                |       H5T_STD_I64BE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_I64BE); }
-                |       H5T_STD_I64LE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_I64LE); }
-                |       H5T_STD_U8BE_TOKEN  { $<ival>$ = H5Tcopy(H5T_STD_U8BE); }
-                |       H5T_STD_U8LE_TOKEN  { $<ival>$ = H5Tcopy(H5T_STD_U8LE); }
-                |       H5T_STD_U16BE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_U16BE); }
-                |       H5T_STD_U16LE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_U16LE); }
-                |       H5T_STD_U32BE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_U32BE); }
-                |       H5T_STD_U32LE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_U32LE); }
-                |       H5T_STD_U64BE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_U64BE); }
-                |       H5T_STD_U64LE_TOKEN { $<ival>$ = H5Tcopy(H5T_STD_U64LE); }
-                |       H5T_NATIVE_CHAR_TOKEN   { $<ival>$ = H5Tcopy(H5T_NATIVE_CHAR); }
-                |       H5T_NATIVE_SCHAR_TOKEN  { $<ival>$ = H5Tcopy(H5T_NATIVE_SCHAR); }
-                |       H5T_NATIVE_UCHAR_TOKEN  { $<ival>$ = H5Tcopy(H5T_NATIVE_UCHAR); }
-                |       H5T_NATIVE_SHORT_TOKEN  { $<ival>$ = H5Tcopy(H5T_NATIVE_SHORT); }
-                |       H5T_NATIVE_USHORT_TOKEN { $<ival>$ = H5Tcopy(H5T_NATIVE_USHORT); }
-                |       H5T_NATIVE_INT_TOKEN    { $<ival>$ = H5Tcopy(H5T_NATIVE_INT); }
-                |       H5T_NATIVE_UINT_TOKEN   { $<ival>$ = H5Tcopy(H5T_NATIVE_UINT); }
-                |       H5T_NATIVE_LONG_TOKEN   { $<ival>$ = H5Tcopy(H5T_NATIVE_LONG); }
-                |       H5T_NATIVE_ULONG_TOKEN  { $<ival>$ = H5Tcopy(H5T_NATIVE_ULONG); }
-                |       H5T_NATIVE_LLONG_TOKEN  { $<ival>$ = H5Tcopy(H5T_NATIVE_LLONG); }
-                |       H5T_NATIVE_ULLONG_TOKEN { $<ival>$ = H5Tcopy(H5T_NATIVE_ULLONG); }
+integer_type    :       H5T_STD_I8BE_TOKEN  { $<hid>$ = H5Tcopy(H5T_STD_I8BE); }
+                |       H5T_STD_I8LE_TOKEN  { $<hid>$ = H5Tcopy(H5T_STD_I8LE); }
+                |       H5T_STD_I16BE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_I16BE); }
+                |       H5T_STD_I16LE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_I16LE); }
+                |       H5T_STD_I32BE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_I32BE); }
+                |       H5T_STD_I32LE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_I32LE); }
+                |       H5T_STD_I64BE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_I64BE); }
+                |       H5T_STD_I64LE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_I64LE); }
+                |       H5T_STD_U8BE_TOKEN  { $<hid>$ = H5Tcopy(H5T_STD_U8BE); }
+                |       H5T_STD_U8LE_TOKEN  { $<hid>$ = H5Tcopy(H5T_STD_U8LE); }
+                |       H5T_STD_U16BE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_U16BE); }
+                |       H5T_STD_U16LE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_U16LE); }
+                |       H5T_STD_U32BE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_U32BE); }
+                |       H5T_STD_U32LE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_U32LE); }
+                |       H5T_STD_U64BE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_U64BE); }
+                |       H5T_STD_U64LE_TOKEN { $<hid>$ = H5Tcopy(H5T_STD_U64LE); }
+                |       H5T_NATIVE_CHAR_TOKEN   { $<hid>$ = H5Tcopy(H5T_NATIVE_CHAR); }
+                |       H5T_NATIVE_SCHAR_TOKEN  { $<hid>$ = H5Tcopy(H5T_NATIVE_SCHAR); }
+                |       H5T_NATIVE_UCHAR_TOKEN  { $<hid>$ = H5Tcopy(H5T_NATIVE_UCHAR); }
+                |       H5T_NATIVE_SHORT_TOKEN  { $<hid>$ = H5Tcopy(H5T_NATIVE_SHORT); }
+                |       H5T_NATIVE_USHORT_TOKEN { $<hid>$ = H5Tcopy(H5T_NATIVE_USHORT); }
+                |       H5T_NATIVE_INT_TOKEN    { $<hid>$ = H5Tcopy(H5T_NATIVE_INT); }
+                |       H5T_NATIVE_UINT_TOKEN   { $<hid>$ = H5Tcopy(H5T_NATIVE_UINT); }
+                |       H5T_NATIVE_LONG_TOKEN   { $<hid>$ = H5Tcopy(H5T_NATIVE_LONG); }
+                |       H5T_NATIVE_ULONG_TOKEN  { $<hid>$ = H5Tcopy(H5T_NATIVE_ULONG); }
+                |       H5T_NATIVE_LLONG_TOKEN  { $<hid>$ = H5Tcopy(H5T_NATIVE_LLONG); }
+                |       H5T_NATIVE_ULLONG_TOKEN { $<hid>$ = H5Tcopy(H5T_NATIVE_ULLONG); }
                 ;
 
-fp_type         :       H5T_IEEE_F32BE_TOKEN { $<ival>$ = H5Tcopy(H5T_IEEE_F32BE); }
-                |       H5T_IEEE_F32LE_TOKEN { $<ival>$ = H5Tcopy(H5T_IEEE_F32LE); }
-                |       H5T_IEEE_F64BE_TOKEN { $<ival>$ = H5Tcopy(H5T_IEEE_F64BE); }
-                |       H5T_IEEE_F64LE_TOKEN { $<ival>$ = H5Tcopy(H5T_IEEE_F64LE); }
-                |       H5T_NATIVE_FLOAT_TOKEN    { $<ival>$ = H5Tcopy(H5T_NATIVE_FLOAT); }
-                |       H5T_NATIVE_DOUBLE_TOKEN   { $<ival>$ = H5Tcopy(H5T_NATIVE_DOUBLE); }
-                |       H5T_NATIVE_LDOUBLE_TOKEN  { $<ival>$ = H5Tcopy(H5T_NATIVE_LDOUBLE); }
+fp_type         :       H5T_IEEE_F32BE_TOKEN { $<hid>$ = H5Tcopy(H5T_IEEE_F32BE); }
+                |       H5T_IEEE_F32LE_TOKEN { $<hid>$ = H5Tcopy(H5T_IEEE_F32LE); }
+                |       H5T_IEEE_F64BE_TOKEN { $<hid>$ = H5Tcopy(H5T_IEEE_F64BE); }
+                |       H5T_IEEE_F64LE_TOKEN { $<hid>$ = H5Tcopy(H5T_IEEE_F64LE); }
+                |       H5T_NATIVE_FLOAT_TOKEN    { $<hid>$ = H5Tcopy(H5T_NATIVE_FLOAT); }
+                |       H5T_NATIVE_DOUBLE_TOKEN   { $<hid>$ = H5Tcopy(H5T_NATIVE_DOUBLE); }
+                |       H5T_NATIVE_LDOUBLE_TOKEN  { $<hid>$ = H5Tcopy(H5T_NATIVE_LDOUBLE); }
                 ;
 
 compound_type   :       H5T_COMPOUND_TOKEN
                             { csindex++; cmpd_stack[csindex].id = H5Tcreate(H5T_COMPOUND, 1); /*temporarily set size to 1*/ } 
                         '{' memb_list '}'     
-                            { $<ival>$ = cmpd_stack[csindex].id; 
+                            { $<hid>$ = cmpd_stack[csindex].id; 
                               cmpd_stack[csindex].id = 0;
                               cmpd_stack[csindex].first_memb = 1; 
                               csindex--;
@@ -170,35 +175,40 @@ memb_def        :       ddl_type { cmpd_stack[csindex].is_field = 1; /*notify le
 
                             /*Adjust size and insert member, consider both member size and offset.*/
                             if(cmpd_stack[csindex].first_memb) { /*reclaim the size 1 temporarily set*/
-                                new_size = H5Tget_size($<ival>1) + $<ival>6;
+                                new_size = H5Tget_size($<hid>1) + $<ival>6;
                                 H5Tset_size(dtype_id, new_size);
                                 /*member name is saved in yylval.sval by lexer*/
-                                H5Tinsert(dtype_id, $<sval>4, $<ival>6, $<ival>1);
+                                H5Tinsert(dtype_id, $<sval>4, $<ival>6, $<hid>1);
 
                                 cmpd_stack[csindex].first_memb = 0;
                             } else {
                                 origin_size = H5Tget_size(dtype_id);
                                 
                                 if($<ival>6 == 0) {
-                                    new_size = origin_size + H5Tget_size($<ival>1);
+                                    new_size = origin_size + H5Tget_size($<hid>1);
                                     H5Tset_size(dtype_id, new_size);
-                                    H5Tinsert(dtype_id, $<sval>4, origin_size, $<ival>1);
+                                    H5Tinsert(dtype_id, $<sval>4, origin_size, $<hid>1);
                                 } else {
-                                    new_size = $<ival>6 + H5Tget_size($<ival>1);
+                                    new_size = $<ival>6 + H5Tget_size($<hid>1);
                                     H5Tset_size(dtype_id, new_size);
-                                    H5Tinsert(dtype_id, $<sval>4, $<ival>6, $<ival>1);
+                                    H5Tinsert(dtype_id, $<sval>4, $<ival>6, $<hid>1);
                                 }
                             }
-                          
+                            if($<sval>4) {
+                                free($<sval>4);
+                                $<sval>4 = NULL;
+                            }
                             cmpd_stack[csindex].is_field = 0;
-                            H5Tclose($<ival>1);
+                            H5Tclose($<hid>1);
                              
                             new_size = H5Tget_size(dtype_id);
                         }
                 ;
 field_name      :       STRING
                         {
-                            $<sval>$ = yylval.sval;
+                            $<sval>$ = strdup(yylval.sval);
+                            free(yylval.sval);
+                            yylval.sval = NULL;
                         }                            
                 ;
 field_offset    :       /*empty*/
@@ -211,10 +221,10 @@ offset          :       NUMBER
 array_type      :       H5T_ARRAY_TOKEN { asindex++; /*pushd onto the stack*/ }
                         '{' dim_list ddl_type '}'
                         { 
-                          $<ival>$ = H5Tarray_create2($<ival>5, arr_stack[asindex].ndims, arr_stack[asindex].dims);
+                          $<hid>$ = H5Tarray_create2($<hid>5, arr_stack[asindex].ndims, arr_stack[asindex].dims);
                           arr_stack[asindex].ndims = 0;
                           asindex--;
-                          H5Tclose($<ival>5);
+                          H5Tclose($<hid>5);
                         }            
                 ;
 dim_list        :
@@ -232,7 +242,7 @@ dimsize         :       NUMBER
                 ;
 
 vlen_type       :       H5T_VLEN_TOKEN '{' ddl_type '}'
-                            { $<ival>$ = H5Tvlen_create($<ival>3); H5Tclose($<ival>3); }
+                            { $<hid>$ = H5Tvlen_create($<hid>3); H5Tclose($<hid>3); }
                 ;
 
 opaque_type     :       H5T_OPAQUE_TOKEN
@@ -240,15 +250,17 @@ opaque_type     :       H5T_OPAQUE_TOKEN
                             OPQ_SIZE_TOKEN { is_opq_size = 1; } opaque_size ';'
                             {   
                                 size_t size = (size_t)yylval.ival;
-                                $<ival>$ = H5Tcreate(H5T_OPAQUE, size);
+                                $<hid>$ = H5Tcreate(H5T_OPAQUE, size);
                                 is_opq_size = 0;    
                             }
                             OPQ_TAG_TOKEN { is_opq_tag = 1; } '"' opaque_tag '"' ';'
                             {  
-                                H5Tset_tag($<ival>7, yylval.sval);
+                                H5Tset_tag($<hid>7, yylval.sval);
+                                free(yylval.sval);
+                                yylval.sval = NULL;
                                 is_opq_tag = 0;
                             }                             
-                        '}' { $<ival>$ = $<ival>7; }
+                        '}' { $<hid>$ = $<hid>7; }
                 ;
 opaque_size     :       NUMBER
                 ;
@@ -282,14 +294,14 @@ string_type     :       H5T_STRING_TOKEN
                             }
                             CTYPE_TOKEN ctype ';'
                             {
-                                if($<ival>17 == H5T_C_S1_TOKEN)
-                                    $<ival>$ = H5Tcopy(H5T_C_S1);
-                                else if($<ival>17 == H5T_FORTRAN_S1_TOKEN)
-                                    $<ival>$ = H5Tcopy(H5T_FORTRAN_S1);
+                                if($<hid>17 == H5T_C_S1_TOKEN)
+                                    $<hid>$ = H5Tcopy(H5T_C_S1);
+                                else if($<hid>17 == H5T_FORTRAN_S1_TOKEN)
+                                    $<hid>$ = H5Tcopy(H5T_FORTRAN_S1);
                             }
                         '}' 
                             {   
-                                hid_t str_id = $<ival>19;
+                                hid_t str_id = $<hid>19;
 
                                 /*set string size*/
                                 if(is_variable) {
@@ -302,7 +314,7 @@ string_type     :       H5T_STRING_TOKEN
                                 H5Tset_strpad(str_id, str_pad);
                                 H5Tset_cset(str_id, str_cset);
 
-                                $<ival>$ = str_id; 
+                                $<hid>$ = str_id; 
                             }
                 ;
 strsize         :       H5T_VARIABLE_TOKEN     {$<ival>$ = H5T_VARIABLE_TOKEN;}
@@ -315,14 +327,14 @@ strpad          :       H5T_STR_NULLTERM_TOKEN {$<ival>$ = H5T_STR_NULLTERM_TOKE
 cset            :       H5T_CSET_ASCII_TOKEN {$<ival>$ = H5T_CSET_ASCII_TOKEN;}
                 |       H5T_CSET_UTF8_TOKEN {$<ival>$ = H5T_CSET_UTF8_TOKEN;}
                 ;
-ctype           :       H5T_C_S1_TOKEN         {$<ival>$ = H5T_C_S1_TOKEN;}
-                |       H5T_FORTRAN_S1_TOKEN   {$<ival>$ = H5T_FORTRAN_S1_TOKEN;}
+ctype           :       H5T_C_S1_TOKEN         {$<hid>$ = H5T_C_S1_TOKEN;}
+                |       H5T_FORTRAN_S1_TOKEN   {$<hid>$ = H5T_FORTRAN_S1_TOKEN;}
                 ;
 
 enum_type       :       H5T_ENUM_TOKEN '{' integer_type ';' 
-                            { is_enum = 1; enum_id = H5Tenum_create($<ival>3); H5Tclose($<ival>3); }
+                            { is_enum = 1; enum_id = H5Tenum_create($<hid>3); H5Tclose($<hid>3); }
                         enum_list '}'
-                            { is_enum = 0; /*reset*/ $<ival>$ = enum_id; }
+                            { is_enum = 0; /*reset*/ $<hid>$ = enum_id; }
                 ;
 enum_list       :
                 |       enum_list enum_def
@@ -334,6 +346,8 @@ enum_def        :       '"' enum_symbol '"' {
 #else /* H5_HAVE_WIN32_API */
                                                 enum_memb_symbol = strdup(yylval.sval); 
 #endif  /* H5_HAVE_WIN32_API */
+                                                free(yylval.sval);
+                                                yylval.sval = NULL;
                                             }
                         enum_val ';'
                             {

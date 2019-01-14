@@ -14,30 +14,35 @@
 =========================================================================*/
 
 #include "vtkBoxRepresentation.h"
+
 #include "vtkActor.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPolyData.h"
-#include "vtkCallbackCommand.h"
+#include "vtkAssemblyPath.h"
 #include "vtkBox.h"
+#include "vtkBox.h"
+#include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkCellPicker.h"
+#include "vtkDoubleArray.h"
+#include "vtkEventData.h"
+#include "vtkInteractorObserver.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPickingManager.h"
+#include "vtkPlane.h"
+#include "vtkPlanes.h"
 #include "vtkPolyData.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkQuaternion.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkInteractorObserver.h"
-#include "vtkMath.h"
-#include "vtkCellArray.h"
-#include "vtkCellPicker.h"
+#include "vtkSphereSource.h"
 #include "vtkTransform.h"
-#include "vtkDoubleArray.h"
-#include "vtkBox.h"
-#include "vtkPlanes.h"
-#include "vtkCamera.h"
-#include "vtkAssemblyPath.h"
+#include "vtkVectorOperators.h"
 #include "vtkWindow.h"
-#include "vtkObjectFactory.h"
 
 
 vtkStandardNewMacro(vtkBoxRepresentation);
@@ -47,6 +52,11 @@ vtkBoxRepresentation::vtkBoxRepresentation()
 {
   // The initial state
   this->InteractionState = vtkBoxRepresentation::Outside;
+  this->TwoPlaneMode = false;
+  this->SnappedOrientation[0] = false;
+  this->SnappedOrientation[1] = false;
+  this->SnappedOrientation[2] = false;
+  this->SnapToAxes = false;
 
   // Handle size is in pixels for this widget
   this->HandleSize = 5.0;
@@ -55,6 +65,11 @@ vtkBoxRepresentation::vtkBoxRepresentation()
   this->InsideOut = 0;
   this->OutlineFaceWires = 0;
   this->OutlineCursorWires = 1;
+
+  for (int i = 0; i < 6; ++i)
+  {
+    this->Planes[i] = vtkPlane::New();
+  }
 
   // Set up the initial properties
   this->CreateDefaultProperties();
@@ -129,7 +144,7 @@ vtkBoxRepresentation::vtkBoxRepresentation()
   this->HandleMapper = new vtkPolyDataMapper* [7];
   this->HandleGeometry = new vtkSphereSource* [7];
   for (i=0; i<7; i++)
-    {
+  {
     this->HandleGeometry[i] = vtkSphereSource::New();
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
@@ -139,7 +154,7 @@ vtkBoxRepresentation::vtkBoxRepresentation()
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
     this->Handle[i]->SetProperty(this->HandleProperty);
-    }
+  }
 
   // Define the point coordinates
   double bounds[6];
@@ -157,9 +172,9 @@ vtkBoxRepresentation::vtkBoxRepresentation()
   this->HandlePicker = vtkCellPicker::New();
   this->HandlePicker->SetTolerance(0.001);
   for (i=0; i<7; i++)
-    {
+  {
     this->HandlePicker->AddPickList(this->Handle[i]);
-    }
+  }
   this->HandlePicker->PickFromListOn();
 
   this->HexPicker = vtkCellPicker::New();
@@ -167,9 +182,9 @@ vtkBoxRepresentation::vtkBoxRepresentation()
   this->HexPicker->AddPickList(HexActor);
   this->HexPicker->PickFromListOn();
 
-  this->CurrentHandle = NULL;
+  this->CurrentHandle = nullptr;
 
-  // Internal data memebers for performance
+  // Internal data members for performance
   this->Transform = vtkTransform::New();
   this->PlanePoints = vtkPoints::New(VTK_DOUBLE);
   this->PlanePoints->SetNumberOfPoints(6);
@@ -177,6 +192,7 @@ vtkBoxRepresentation::vtkBoxRepresentation()
   this->PlaneNormals->SetNumberOfComponents(3);
   this->PlaneNormals->SetNumberOfTuples(6);
   this->Matrix = vtkMatrix4x4::New();
+
 }
 
 //----------------------------------------------------------------------------
@@ -196,11 +212,11 @@ vtkBoxRepresentation::~vtkBoxRepresentation()
   this->OutlinePolyData->Delete();
 
   for (int i=0; i<7; i++)
-    {
+  {
     this->HandleGeometry[i]->Delete();
     this->HandleMapper[i]->Delete();
     this->Handle[i]->Delete();
-    }
+  }
   delete [] this->Handle;
   delete [] this->HandleMapper;
   delete [] this->HandleGeometry;
@@ -220,6 +236,11 @@ vtkBoxRepresentation::~vtkBoxRepresentation()
   this->SelectedFaceProperty->Delete();
   this->OutlineProperty->Delete();
   this->SelectedOutlineProperty->Delete();
+
+  for (int i = 0; i < 6; ++i)
+  {
+    this->Planes[i]->Delete();
+  }
 }
 
 //----------------------------------------------------------------------
@@ -245,15 +266,70 @@ void vtkBoxRepresentation::StartWidgetInteraction(double e[2])
   this->ComputeInteractionState(static_cast<int>(e[0]),static_cast<int>(e[1]),0);
 }
 
+void vtkBoxRepresentation::StartComplexInteraction(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long, void *calldata)
+{
+  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
+  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  if (edd)
+  {
+    edd->GetWorldPosition(this->StartEventPosition);
+    this->LastEventPosition[0] = this->StartEventPosition[0];
+    this->LastEventPosition[1] = this->StartEventPosition[1];
+    this->LastEventPosition[2] = this->StartEventPosition[2];
+    edd->GetWorldOrientation(this->StartEventOrientation);
+    std::copy(this->StartEventOrientation, this->StartEventOrientation + 4,
+      this->LastEventOrientation);
+    for (int i = 0; i < 3; ++i)
+    {
+      if (this->SnappedOrientation[i])
+      {
+        std::copy(this->StartEventOrientation,
+          this->StartEventOrientation+4, this->SnappedEventOrientations[i]);
+      }
+    }
+  }
+}
+
+
+void vtkBoxRepresentation::SetTwoPlaneMode(bool val)
+{
+  if (this->TwoPlaneMode == val)
+  {
+    return;
+  }
+
+  this->TwoPlaneMode = val;
+  if (this->TwoPlaneMode)
+  {
+    for (int i=2; i<6; i++)
+    {
+      this->HandlePicker->DeletePickList(this->Handle[i]);
+      this->Handle[i]->VisibilityOff();
+    }
+  }
+  else
+  {
+    for (int i=2; i<6; i++)
+    {
+      this->HandlePicker->AddPickList(this->Handle[i]);
+      this->Handle[i]->SetVisibility(this->Handle[0]->GetVisibility());
+    }
+  }
+  this->GenerateOutline();
+  this->Modified();
+}
 //----------------------------------------------------------------------
 void vtkBoxRepresentation::WidgetInteraction(double e[2])
 {
   // Convert events to appropriate coordinate systems
   vtkCamera *camera = this->Renderer->GetActiveCamera();
   if ( !camera )
-    {
+  {
     return;
-    }
+  }
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z, vpn[3];
   camera->GetViewPlaneNormal(vpn);
@@ -261,13 +337,13 @@ void vtkBoxRepresentation::WidgetInteraction(double e[2])
   // Compute the two points defining the motion vector
   double pos[3];
   if ( this->LastPicker == this->HexPicker )
-    {
+  {
     this->HexPicker->GetPickPosition(pos);
-    }
+  }
   else
-    {
+  {
     this->HandlePicker->GetPickPosition(pos);
-    }
+  }
   vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer,
                                                pos[0], pos[1], pos[2],
                                                focalPoint);
@@ -278,50 +354,50 @@ void vtkBoxRepresentation::WidgetInteraction(double e[2])
 
   // Process the motion
   if ( this->InteractionState == vtkBoxRepresentation::MoveF0 )
-    {
+  {
     this->MoveMinusXFace(prevPickPoint,pickPoint);
-    }
+  }
 
   else if ( this->InteractionState == vtkBoxRepresentation::MoveF1 )
-    {
+  {
     this->MovePlusXFace(prevPickPoint,pickPoint);
-    }
+  }
 
   else if ( this->InteractionState == vtkBoxRepresentation::MoveF2 )
-    {
+  {
     this->MoveMinusYFace(prevPickPoint,pickPoint);
-    }
+  }
 
   else if ( this->InteractionState == vtkBoxRepresentation::MoveF3 )
-    {
+  {
     this->MovePlusYFace(prevPickPoint,pickPoint);
-    }
+  }
 
   else if ( this->InteractionState == vtkBoxRepresentation::MoveF4 )
-    {
+  {
     this->MoveMinusZFace(prevPickPoint,pickPoint);
-    }
+  }
 
   else if ( this->InteractionState == vtkBoxRepresentation::MoveF5 )
-    {
+  {
     this->MovePlusZFace(prevPickPoint,pickPoint);
-    }
+  }
 
   else if ( this->InteractionState == vtkBoxRepresentation::Translating )
-    {
+  {
     this->Translate(prevPickPoint, pickPoint);
-    }
+  }
 
   else if ( this->InteractionState == vtkBoxRepresentation::Scaling )
-    {
+  {
     this->Scale(prevPickPoint, pickPoint,
                 static_cast<int>(e[0]), static_cast<int>(e[1]));
-    }
+  }
 
   else if ( this->InteractionState == vtkBoxRepresentation::Rotating )
-    {
+  {
     this->Rotate(static_cast<int>(e[0]), static_cast<int>(e[1]), prevPickPoint, pickPoint, vpn);
-    }
+  }
 
   // Store the start position
   this->LastEventPosition[0] = e[0];
@@ -329,25 +405,107 @@ void vtkBoxRepresentation::WidgetInteraction(double e[2])
   this->LastEventPosition[2] = 0.0;
 }
 
+void vtkBoxRepresentation::ComplexInteraction(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long, void *calldata )
+{
+  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
+  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  if (edd)
+  {
+    // all others
+    double eventPos[3];
+    edd->GetWorldPosition(eventPos);
+    double eventDir[4];
+    edd->GetWorldOrientation(eventDir);
+
+    double *prevPickPoint = this->LastEventPosition;
+    double *pickPoint = eventPos;
+
+    if ( this->InteractionState == vtkBoxRepresentation::MoveF0 )
+    {
+      this->MoveMinusXFace(prevPickPoint,pickPoint);
+    }
+
+    else if ( this->InteractionState == vtkBoxRepresentation::MoveF1 )
+    {
+      this->MovePlusXFace(prevPickPoint,pickPoint);
+    }
+
+    else if ( this->InteractionState == vtkBoxRepresentation::MoveF2 )
+    {
+      this->MoveMinusYFace(prevPickPoint,pickPoint);
+    }
+
+    else if ( this->InteractionState == vtkBoxRepresentation::MoveF3 )
+    {
+      this->MovePlusYFace(prevPickPoint,pickPoint);
+    }
+
+    else if ( this->InteractionState == vtkBoxRepresentation::MoveF4 )
+    {
+      this->MoveMinusZFace(prevPickPoint,pickPoint);
+    }
+
+    else if ( this->InteractionState == vtkBoxRepresentation::MoveF5 )
+    {
+      this->MovePlusZFace(prevPickPoint,pickPoint);
+    }
+
+    else if ( this->InteractionState == vtkBoxRepresentation::Translating )
+    {
+      this->UpdatePose(this->LastEventPosition, this->LastEventOrientation,
+                        eventPos, eventDir);
+    }
+
+    // Book keeping
+    std::copy(eventPos, eventPos + 3, this->LastEventPosition);
+    std::copy(eventDir, eventDir + 4, this->LastEventOrientation);
+    this->Modified();
+  }
+}
+
+void vtkBoxRepresentation::StepForward()
+{
+  double *pts =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  this->Translate(pts, pts + 3);
+}
+
+void vtkBoxRepresentation::StepBackward()
+{
+  double *pts =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  this->Translate(pts + 3, pts);
+}
+
+void vtkBoxRepresentation::EndComplexInteraction(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long, void *)
+{
+}
+
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::MoveFace(double *p1, double *p2, double *dir,
                                     double *x1, double *x2, double *x3, double *x4,
                                     double *x5)
-  {
+{
   int i;
   double v[3], v2[3];
 
   for (i=0; i<3; i++)
-    {
+  {
     v[i] = p2[i] - p1[i];
     v2[i] = dir[i];
-    }
+  }
 
   vtkMath::Normalize(v2);
   double f = vtkMath::Dot(v,v2);
 
   for (i=0; i<3; i++)
-    {
+  {
     v[i] = f*v2[i];
 
     x1[i] += v[i];
@@ -355,7 +513,7 @@ void vtkBoxRepresentation::MoveFace(double *p1, double *p2, double *dir,
     x3[i] += v[i];
     x4[i] += v[i];
     x5[i] += v[i];
-    }
+  }
   this->PositionHandles();
 }
 
@@ -367,36 +525,36 @@ void vtkBoxRepresentation::GetDirection(const double Nx[3],const double Ny[3],
   double y[3];
 
   if(vtkMath::Dot(Nx,Nx)!=0)
-    {
+  {
     dir[0] = Nx[0];
     dir[1] = Nx[1];
     dir[2] = Nx[2];
-    }
+  }
   else
-    {
+  {
     dotNy = vtkMath::Dot(Ny,Ny);
     dotNz = vtkMath::Dot(Nz,Nz);
     if(dotNy != 0 && dotNz != 0)
-      {
+    {
       vtkMath::Cross(Ny,Nz,dir);
-      }
+    }
     else if(dotNy != 0)
-      {
+    {
       //dir must have been initialized to the
       //corresponding coordinate direction before calling
       //this method
       vtkMath::Cross(Ny,dir,y);
       vtkMath::Cross(y,Ny,dir);
-      }
+    }
     else if(dotNz != 0)
-      {
+    {
       //dir must have been initialized to the
       //corresponding coordinate direction before calling
       //this method
       vtkMath::Cross(Nz,dir,y);
       vtkMath::Cross(y,Nz,dir);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -532,11 +690,11 @@ void vtkBoxRepresentation::Translate(double *p1, double *p2)
 
   // Move the corners
   for (int i=0; i<8; i++)
-    {
+  {
     *pts++ += v[0];
     *pts++ += v[1];
     *pts++ += v[2];
-    }
+  }
   this->PositionHandles();
 }
 
@@ -553,21 +711,21 @@ void vtkBoxRepresentation::Scale(double *vtkNotUsed(p1),
   double sf;
 
   if ( Y > this->LastEventPosition[1] )
-    {
+  {
     sf = 1.03;
-    }
+  }
   else
-    {
+  {
     sf = 0.97;
-    }
+  }
 
   // Move the corners
   for (int i=0; i<8; i++, pts+=3)
-    {
+  {
     pts[0] = sf * (pts[0] - center[0]) + center[0];
     pts[1] = sf * (pts[1] - center[1]) + center[1];
     pts[2] = sf * (pts[2] - center[2]) + center[2];
-    }
+  }
   this->PositionHandles();
 }
 
@@ -583,40 +741,40 @@ void vtkBoxRepresentation::ComputeNormals()
   int i;
 
   for (i=0; i<3; i++)
-    {
+  {
     this->N[0][i] = p0[i] - px[i];
     this->N[2][i] = p0[i] - py[i];
     this->N[4][i] = p0[i] - pz[i];
-    }
+  }
   vtkMath::Normalize(this->N[0]);
   vtkMath::Normalize(this->N[2]);
   vtkMath::Normalize(this->N[4]);
   for (i=0; i<3; i++)
-    {
+  {
     this->N[1][i] = -this->N[0][i];
     this->N[3][i] = -this->N[2][i];
     this->N[5][i] = -this->N[4][i];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::GetPlanes(vtkPlanes *planes)
 {
   if ( ! planes )
-    {
+  {
     return;
-    }
+  }
 
   this->ComputeNormals();
 
   // Set the normals and coordinate values
   double factor = (this->InsideOut ? -1.0 : 1.0);
   for (int i=0; i<6; i++)
-    {
+  {
     this->PlanePoints->SetPoint(i,this->Points->GetPoint(8+i));
     this->PlaneNormals->SetTuple3(i, factor*this->N[i][0],
                                   factor*this->N[i][1], factor*this->N[i][2]);
-    }
+  }
 
   planes->SetPoints(this->PlanePoints);
   planes->SetNormals(this->PlaneNormals);
@@ -646,9 +804,9 @@ void vtkBoxRepresentation::Rotate(int X,
   // Create axis of rotation and angle of rotation
   vtkMath::Cross(vpn,v,axis);
   if ( vtkMath::Normalize(axis) == 0.0 )
-    {
+  {
     return;
-    }
+  }
   int *size = this->Renderer->GetSize();
   double l2 = (X-this->LastEventPosition[0])*(X-this->LastEventPosition[0])
              + (Y-this->LastEventPosition[1])*(Y-this->LastEventPosition[1]);
@@ -665,11 +823,164 @@ void vtkBoxRepresentation::Rotate(int X,
   this->Transform->TransformPoints(this->Points,newPts);
 
   for (i=0; i<8; i++, pts+=3)
-    {
+  {
     this->Points->SetPoint(i, newPts->GetPoint(i));
-    }
+  }
 
   newPts->Delete();
+  this->PositionHandles();
+}
+
+namespace {
+  bool snapToAxis(vtkVector3d &in, vtkVector3d &out, double snapAngle)
+  {
+    int largest = 0;
+    if (fabs(in[1]) > fabs(in[0]))
+    {
+      largest = 1;
+    }
+    if (fabs(in[2]) > fabs(in[largest]))
+    {
+      largest = 2;
+    }
+    vtkVector3d axis(0,0,0);
+    axis[largest] = 1.0;
+    // 3 degrees of sticky
+    if (fabs(in.Dot(axis)) > cos(vtkMath::Pi()*snapAngle/180.0))
+    {
+      if (in.Dot(axis) < 0)
+      {
+        axis[largest] = -1;
+      }
+      out = axis;
+      return true;
+    }
+    return false;
+  }
+}
+
+void vtkBoxRepresentation::UpdatePose(
+  double *pos1, double *orient1,
+  double *pos2, double *orient2
+  )
+{
+
+  bool newSnap[3];
+  vtkVector3d basis[3];
+  double basisSize[3];
+
+  vtkQuaternion<double> q2;
+  q2.SetRotationAngleAndAxis(
+    vtkMath::RadiansFromDegrees(orient2[0]), orient2[1], orient2[2], orient2[3]);
+
+  for (int i = 0; i < 3; ++i)
+  {
+    newSnap[i] = false;
+    // compute the net rotation
+    vtkQuaternion<double> q1;
+    if (this->SnappedOrientation[i])
+    {
+      q1.SetRotationAngleAndAxis(
+        vtkMath::RadiansFromDegrees(this->SnappedEventOrientations[i][0]),
+        this->SnappedEventOrientations[i][1],
+        this->SnappedEventOrientations[i][2],
+        this->SnappedEventOrientations[i][3]);
+    }
+    else
+    {
+      q1.SetRotationAngleAndAxis(
+        vtkMath::RadiansFromDegrees(orient1[0]), orient1[1], orient1[2], orient1[3]);
+    }
+    q1.Conjugate();
+    vtkQuaternion<double> q3 = q2*q1;
+    double axis[4];
+    axis[0] = vtkMath::DegreesFromRadians(q3.GetRotationAngleAndAxis(axis+1));
+
+    //Manipulate the transform to reflect the rotation
+    this->Transform->Identity();
+    this->Transform->RotateWXYZ(axis[0], axis[1], axis[2], axis[3]);
+
+    //Set the corners
+    vtkPoints *newPts = vtkPoints::New(VTK_DOUBLE);
+    this->Transform->TransformPoints(this->Points,newPts);
+
+    vtkVector3d p0(newPts->GetPoint(0));
+    vtkVector3d p1(newPts->GetPoint((i > 0 ? i + 2 : 1)));
+    basis[i] = p1 - p0;
+    basisSize[i] = 0.5*basis[i].Normalize();
+    if (this->SnapToAxes)
+    {
+      // 14 degrees to snap in, 16 to snap out
+      // avoids noise on the boundary
+      newSnap[i] = snapToAxis(basis[i], basis[i],
+        (this->SnappedOrientation[i] ? 16 : 14));
+    }
+    newPts->Delete();
+  }
+
+  // orthogonalize the resulting basis
+  for (int i = 0; i < 3; ++i)
+  {
+    if (newSnap[i] || this->SnappedOrientation[i])
+    {
+      // orthogonalize the other axes
+      vtkVector3d &b0 = basis[i];
+      vtkVector3d &b1 = basis[(i + 1)%3];
+      vtkVector3d &b2 = basis[(i + 2)%3];
+
+      double val = b1.Dot(b0);
+      b1 = b1 - b0*val;
+      b1.Normalize();
+      b2 = b0.Cross(b1);
+      b2.Normalize();
+
+      if (!this->SnappedOrientation[i])
+      {
+        std::copy(orient2, orient2+4, this->SnappedEventOrientations[i]);
+      }
+    }
+    this->SnappedOrientation[i] = newSnap[i];
+  }
+
+  // get the translation
+  vtkVector3d trans;
+  for (int i = 0; i < 3; i++)
+  {
+    trans[i] = pos2[i] - pos1[i];
+  }
+
+  vtkQuaternion<double> q1;
+  q1.SetRotationAngleAndAxis(
+    vtkMath::RadiansFromDegrees(orient1[0]), orient1[1], orient1[2], orient1[3]);
+  q1.Conjugate();
+  vtkQuaternion<double> q3 = q2*q1;
+  double axis[4];
+  axis[0] = vtkMath::DegreesFromRadians(q3.GetRotationAngleAndAxis(axis+1));
+
+  // compute the new center based on the rotation
+  // point of rotation and translation
+  vtkVector3d center(
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(3*14));
+
+  this->Transform->Identity();
+  this->Transform->Translate(pos1[0], pos1[1], pos1[2]);
+  this->Transform->RotateWXYZ(axis[0], axis[1], axis[2], axis[3]);
+  this->Transform->Translate(-(pos1[0]), -(pos1[1]), -(pos1[2]));
+  this->Transform->Translate(center[0], center[1], center[2]);
+
+  this->Transform->GetPosition(center.GetData());
+  center = center + trans;
+
+  // rebuild points based on basis vectors
+  this->Points->SetPoint(0, (center - basis[0]*basisSize[0] - basis[1]*basisSize[1] - basis[2]*basisSize[2]).GetData());
+  this->Points->SetPoint(1, (center + basis[0]*basisSize[0] - basis[1]*basisSize[1] - basis[2]*basisSize[2]).GetData());
+  this->Points->SetPoint(2, (center + basis[0]*basisSize[0] + basis[1]*basisSize[1] - basis[2]*basisSize[2]).GetData());
+  this->Points->SetPoint(3, (center - basis[0]*basisSize[0] + basis[1]*basisSize[1] - basis[2]*basisSize[2]).GetData());
+  this->Points->SetPoint(4, (center - basis[0]*basisSize[0] - basis[1]*basisSize[1] + basis[2]*basisSize[2]).GetData());
+  this->Points->SetPoint(5, (center + basis[0]*basisSize[0] - basis[1]*basisSize[1] + basis[2]*basisSize[2]).GetData());
+  this->Points->SetPoint(6, (center + basis[0]*basisSize[0] + basis[1]*basisSize[1] + basis[2]*basisSize[2]).GetData());
+  this->Points->SetPoint(7, (center - basis[0]*basisSize[0] + basis[1]*basisSize[1] + basis[2]*basisSize[2]).GetData());
+
   this->PositionHandles();
 }
 
@@ -724,9 +1035,9 @@ void vtkBoxRepresentation::PlaceWidget(double bds[6])
   this->Points->SetPoint(7, bounds[0], bounds[3], bounds[5]);
 
   for (i=0; i<6; i++)
-    {
+  {
     this->InitialBounds[i] = bounds[i];
-    }
+  }
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
@@ -757,11 +1068,11 @@ void vtkBoxRepresentation::GetTransform(vtkTransform *t)
 
   // Translation
   for (i=0; i<3; i++)
-    {
+  {
     InitialCenter[i] =
       (this->InitialBounds[2*i+1]+this->InitialBounds[2*i]) / 2.0;
     center[i] = p14[i] - InitialCenter[i];
-    }
+  }
   translate[0] = center[0] + InitialCenter[0];
   translate[1] = center[1] + InitialCenter[1];
   translate[2] = center[2] + InitialCenter[2];
@@ -772,36 +1083,36 @@ void vtkBoxRepresentation::GetTransform(vtkTransform *t)
   this->PositionHandles();
   this->ComputeNormals();
   for (i=0; i<3; i++)
-    {
+  {
     this->Matrix->SetElement(i,0,this->N[1][i]);
     this->Matrix->SetElement(i,1,this->N[3][i]);
     this->Matrix->SetElement(i,2,this->N[5][i]);
-    }
+  }
   t->Concatenate(this->Matrix);
 
   // Scale
   for (i=0; i<3; i++)
-    {
+  {
     scaleVec[0][i] = (p1[i] - p0[i]);
     scaleVec[1][i] = (p3[i] - p0[i]);
     scaleVec[2][i] = (p4[i] - p0[i]);
-    }
+  }
 
   scale[0] = vtkMath::Norm(scaleVec[0]);
   if (this->InitialBounds[1] != this->InitialBounds[0])
-    {
+  {
     scale[0] = scale[0] / (this->InitialBounds[1]-this->InitialBounds[0]);
-    }
+  }
   scale[1] = vtkMath::Norm(scaleVec[1]);
   if (this->InitialBounds[3] != this->InitialBounds[2])
-    {
+  {
     scale[1] = scale[1] / (this->InitialBounds[3]-this->InitialBounds[2]);
-    }
+  }
   scale[2] = vtkMath::Norm(scaleVec[2]);
   if (this->InitialBounds[5] != this->InitialBounds[4])
-    {
+  {
     scale[2] = scale[2] / (this->InitialBounds[5]-this->InitialBounds[4]);
-    }
+  }
   t->Scale(scale[0],scale[1],scale[2]);
 
   // Add back in the contribution due to non-origin center
@@ -812,10 +1123,10 @@ void vtkBoxRepresentation::GetTransform(vtkTransform *t)
 void vtkBoxRepresentation::SetTransform(vtkTransform* t)
 {
   if (!t)
-    {
-    vtkErrorMacro(<<"vtkTransform t must be non-NULL");
+  {
+    vtkErrorMacro(<<"vtkTransform t must be non-nullptr");
     return;
-    }
+  }
 
   double *pts =
      static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
@@ -858,24 +1169,24 @@ void vtkBoxRepresentation::SetTransform(vtkTransform* t)
 void vtkBoxRepresentation::SetOutlineFaceWires(int newValue)
 {
   if (this->OutlineFaceWires != newValue)
-    {
+  {
     this->OutlineFaceWires = newValue;
     this->Modified();
     // the outline is dependent on this value, so we have to regen
     this->GenerateOutline();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::SetOutlineCursorWires(int newValue)
 {
   if (this->OutlineCursorWires != newValue)
-    {
+  {
     this->OutlineCursorWires = newValue;
     this->Modified();
     // the outline is dependent on this value, so we have to regen
     this->GenerateOutline();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -885,17 +1196,18 @@ void vtkBoxRepresentation::GenerateOutline()
   // OutlinePolyData (i.e. nuke all current line data)
   vtkCellArray *cells = this->OutlinePolyData->GetLines();
   cells->Reset();
+  cells->Modified();
 
   // Now the outline lines
   if ( ! this->OutlineFaceWires && ! this->OutlineCursorWires )
-    {
+  {
     return;
-    }
+  }
 
   vtkIdType pts[2];
 
   if ( this->OutlineFaceWires )
-    {
+  {
     pts[0] = 0; pts[1] = 7;       //the -x face
     cells->InsertNextCell(2,pts);
     pts[0] = 3; pts[1] = 4;
@@ -904,38 +1216,44 @@ void vtkBoxRepresentation::GenerateOutline()
     cells->InsertNextCell(2,pts);
     pts[0] = 2; pts[1] = 5;
     cells->InsertNextCell(2,pts);
-    pts[0] = 1; pts[1] = 4;       //the -y face
-    cells->InsertNextCell(2,pts);
-    pts[0] = 0; pts[1] = 5;
-    cells->InsertNextCell(2,pts);
-    pts[0] = 3; pts[1] = 6;       //the +y face
-    cells->InsertNextCell(2,pts);
-    pts[0] = 2; pts[1] = 7;
-    cells->InsertNextCell(2,pts);
-    pts[0] = 0; pts[1] = 2;       //the -z face
-    cells->InsertNextCell(2,pts);
-    pts[0] = 1; pts[1] = 3;
-    cells->InsertNextCell(2,pts);
-    pts[0] = 4; pts[1] = 6;       //the +Z face
-    cells->InsertNextCell(2,pts);
-    pts[0] = 5; pts[1] = 7;
-    cells->InsertNextCell(2,pts);
-    }
-  if ( this->OutlineCursorWires )
+    if (!this->TwoPlaneMode)
     {
+      pts[0] = 1; pts[1] = 4;       //the -y face
+      cells->InsertNextCell(2,pts);
+      pts[0] = 0; pts[1] = 5;
+      cells->InsertNextCell(2,pts);
+      pts[0] = 3; pts[1] = 6;       //the +y face
+      cells->InsertNextCell(2,pts);
+      pts[0] = 2; pts[1] = 7;
+      cells->InsertNextCell(2,pts);
+      pts[0] = 0; pts[1] = 2;       //the -z face
+      cells->InsertNextCell(2,pts);
+      pts[0] = 1; pts[1] = 3;
+      cells->InsertNextCell(2,pts);
+      pts[0] = 4; pts[1] = 6;       //the +Z face
+      cells->InsertNextCell(2,pts);
+      pts[0] = 5; pts[1] = 7;
+      cells->InsertNextCell(2,pts);
+    }
+  }
+  if ( this->OutlineCursorWires )
+  {
     pts[0] = 8; pts[1] = 9;         //the x cursor line
     cells->InsertNextCell(2,pts);
-    pts[0] = 10; pts[1] = 11;       //the y cursor line
-    cells->InsertNextCell(2,pts);
-    pts[0] = 12; pts[1] = 13;       //the z cursor line
-    cells->InsertNextCell(2,pts);
+    if (!this->TwoPlaneMode)
+    {
+      pts[0] = 10; pts[1] = 11;       //the y cursor line
+      cells->InsertNextCell(2,pts);
+      pts[0] = 12; pts[1] = 13;       //the z cursor line
+      cells->InsertNextCell(2,pts);
     }
+  }
   this->OutlinePolyData->Modified();
   if ( this->OutlineProperty)
-    {
+  {
     this->OutlineProperty->SetRepresentationToWireframe();
     this->SelectedOutlineProperty->SetRepresentationToWireframe();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -944,75 +1262,147 @@ int vtkBoxRepresentation::ComputeInteractionState(int X, int Y, int modify)
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
   if (!this->Renderer || !this->Renderer->IsInViewport(X, Y))
-    {
+  {
     this->InteractionState = vtkBoxRepresentation::Outside;
     return this->InteractionState;
-    }
+  }
 
   // Try and pick a handle first
-  this->LastPicker = NULL;
-  this->CurrentHandle = NULL;
+  this->LastPicker = nullptr;
+  this->CurrentHandle = nullptr;
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != NULL )
-    {
+  if ( path != nullptr )
+  {
     this->ValidPick = 1;
     this->LastPicker = this->HandlePicker;
     this->CurrentHandle =
            reinterpret_cast<vtkActor *>(path->GetFirstNode()->GetViewProp());
     if ( this->CurrentHandle == this->Handle[0] )
-      {
-      this->InteractionState = vtkBoxRepresentation::MoveF0;
-      }
-    else if ( this->CurrentHandle == this->Handle[1] )
-      {
-      this->InteractionState = vtkBoxRepresentation::MoveF1;
-      }
-    else if ( this->CurrentHandle == this->Handle[2] )
-      {
-      this->InteractionState = vtkBoxRepresentation::MoveF2;
-      }
-    else if ( this->CurrentHandle == this->Handle[3] )
-      {
-      this->InteractionState = vtkBoxRepresentation::MoveF3;
-      }
-    else if ( this->CurrentHandle == this->Handle[4] )
-      {
-      this->InteractionState = vtkBoxRepresentation::MoveF4;
-      }
-    else if ( this->CurrentHandle == this->Handle[5] )
-      {
-      this->InteractionState = vtkBoxRepresentation::MoveF5;
-      }
-    else if ( this->CurrentHandle == this->Handle[6] )
-      {
-      this->InteractionState = vtkBoxRepresentation::Translating;
-      }
-    }
-  else //see if the hex is picked
     {
+      this->InteractionState = vtkBoxRepresentation::MoveF0;
+    }
+    else if ( this->CurrentHandle == this->Handle[1] )
+    {
+      this->InteractionState = vtkBoxRepresentation::MoveF1;
+    }
+    else if ( this->CurrentHandle == this->Handle[2] )
+    {
+      this->InteractionState = vtkBoxRepresentation::MoveF2;
+    }
+    else if ( this->CurrentHandle == this->Handle[3] )
+    {
+      this->InteractionState = vtkBoxRepresentation::MoveF3;
+    }
+    else if ( this->CurrentHandle == this->Handle[4] )
+    {
+      this->InteractionState = vtkBoxRepresentation::MoveF4;
+    }
+    else if ( this->CurrentHandle == this->Handle[5] )
+    {
+      this->InteractionState = vtkBoxRepresentation::MoveF5;
+    }
+    else if ( this->CurrentHandle == this->Handle[6] )
+    {
+      this->InteractionState = vtkBoxRepresentation::Translating;
+    }
+  }
+  else //see if the hex is picked
+  {
     path = this->GetAssemblyPath(X, Y, 0., this->HexPicker);
 
-    if ( path != NULL )
-      {
+    if ( path != nullptr )
+    {
       this->LastPicker = this->HexPicker;
       this->ValidPick = 1;
       if ( !modify )
-        {
+      {
         this->InteractionState = vtkBoxRepresentation::Rotating;
-        }
+      }
       else
-        {
+      {
         this->CurrentHandle = this->Handle[6];
         this->InteractionState = vtkBoxRepresentation::Translating;
-        }
-      }
-    else
-      {
-      this->InteractionState = vtkBoxRepresentation::Outside;
       }
     }
+    else
+    {
+      this->InteractionState = vtkBoxRepresentation::Outside;
+    }
+  }
+
+  return this->InteractionState;
+}
+
+int vtkBoxRepresentation::ComputeComplexInteractionState(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long , void *calldata, int )
+{
+  this->InteractionState = vtkBoxRepresentation::Outside;
+
+  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
+  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  if (edd)
+  {
+    double pos[3];
+    edd->GetWorldPosition(pos);
+
+    // Try and pick a handle first
+    this->LastPicker = nullptr;
+    this->CurrentHandle = nullptr;
+
+    vtkAssemblyPath* path = this->GetAssemblyPath3DPoint(pos, this->HandlePicker);
+
+    if ( path != nullptr )
+    {
+      this->ValidPick = 1;
+      this->LastPicker = this->HandlePicker;
+      this->CurrentHandle =
+             reinterpret_cast<vtkActor *>(path->GetFirstNode()->GetViewProp());
+      if ( this->CurrentHandle == this->Handle[0] )
+      {
+        this->InteractionState = vtkBoxRepresentation::MoveF0;
+      }
+      else if ( this->CurrentHandle == this->Handle[1] )
+      {
+        this->InteractionState = vtkBoxRepresentation::MoveF1;
+      }
+      else if ( this->CurrentHandle == this->Handle[2] )
+      {
+        this->InteractionState = vtkBoxRepresentation::MoveF2;
+      }
+      else if ( this->CurrentHandle == this->Handle[3] )
+      {
+        this->InteractionState = vtkBoxRepresentation::MoveF3;
+      }
+      else if ( this->CurrentHandle == this->Handle[4] )
+      {
+        this->InteractionState = vtkBoxRepresentation::MoveF4;
+      }
+      else if ( this->CurrentHandle == this->Handle[5] )
+      {
+        this->InteractionState = vtkBoxRepresentation::MoveF5;
+      }
+      else if ( this->CurrentHandle == this->Handle[6] )
+      {
+        this->InteractionState = vtkBoxRepresentation::Translating;
+      }
+    }
+    else //see if the hex is picked
+    {
+      path = this->GetAssemblyPath3DPoint(pos, this->HexPicker);
+
+      if ( path != nullptr )
+      {
+        this->LastPicker = this->HexPicker;
+        this->ValidPick = 1;
+        this->CurrentHandle = this->Handle[6];
+        this->InteractionState = vtkBoxRepresentation::Translating;
+      }
+    }
+  }
 
   return this->InteractionState;
 }
@@ -1028,7 +1418,7 @@ void vtkBoxRepresentation::SetInteractionState(int state)
   int handle;
   this->InteractionState = state;
   switch (state)
-    {
+  {
     case vtkBoxRepresentation::MoveF0:
     case vtkBoxRepresentation::MoveF1:
     case vtkBoxRepresentation::MoveF2:
@@ -1041,7 +1431,7 @@ void vtkBoxRepresentation::SetInteractionState(int state)
       break;
     case vtkBoxRepresentation::Rotating:
       this->HighlightOutline(0);
-      this->HighlightHandle(NULL);
+      this->HighlightHandle(nullptr);
       this->HighlightFace(this->HexPicker->GetCellId());
       break;
     case vtkBoxRepresentation::Translating:
@@ -1052,9 +1442,9 @@ void vtkBoxRepresentation::SetInteractionState(int state)
       break;
     default:
       this->HighlightOutline(0);
-      this->HighlightHandle(NULL);
+      this->HighlightHandle(nullptr);
       this->HighlightFace(-1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -1073,10 +1463,10 @@ void vtkBoxRepresentation::BuildRepresentation()
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         (this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime ||
         this->Renderer->GetActiveCamera()->GetMTime() > this->BuildTime)) )
-    {
+  {
     this->SizeHandles();
     this->BuildTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1087,9 +1477,9 @@ void vtkBoxRepresentation::ReleaseGraphicsResources(vtkWindow *w)
   this->HexFace->ReleaseGraphicsResources(w);
   // render the handles
   for (int j=0; j<7; j++)
-    {
+  {
     this->Handle[j]->ReleaseGraphicsResources(w);
-    }
+  }
 
 }
 
@@ -1099,17 +1489,21 @@ int vtkBoxRepresentation::RenderOpaqueGeometry(vtkViewport *v)
   int count=0;
   this->BuildRepresentation();
 
+  this->HexActor->SetPropertyKeys(this->GetPropertyKeys());
+  this->HexOutline->SetPropertyKeys(this->GetPropertyKeys());
+  this->HexFace->SetPropertyKeys(this->GetPropertyKeys());
+
   count += this->HexActor->RenderOpaqueGeometry(v);
   count += this->HexOutline->RenderOpaqueGeometry(v);
   count += this->HexFace->RenderOpaqueGeometry(v);
-  // render the handles
   for (int j=0; j<7; j++)
-    {
+  {
     if(this->Handle[j]->GetVisibility())
-      {
+    {
+      this->Handle[j]->SetPropertyKeys(this->GetPropertyKeys());
       count += this->Handle[j]->RenderOpaqueGeometry(v);
-      }
     }
+  }
 
   return count;
 }
@@ -1120,23 +1514,27 @@ int vtkBoxRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
   int count=0;
   this->BuildRepresentation();
 
+  this->HexActor->SetPropertyKeys(this->GetPropertyKeys());
+  this->HexOutline->SetPropertyKeys(this->GetPropertyKeys());
+  this->HexFace->SetPropertyKeys(this->GetPropertyKeys());
+
   count += this->HexActor->RenderTranslucentPolygonalGeometry(v);
   count += this->HexOutline->RenderTranslucentPolygonalGeometry(v);
   count += this->HexFace->RenderTranslucentPolygonalGeometry(v);
   // render the handles
   for (int j=0; j<7; j++)
-    {
+  {
     if(this->Handle[j]->GetVisibility())
-      {
+    {
+      this->Handle[j]->SetPropertyKeys(this->GetPropertyKeys());
       count += this->Handle[j]->RenderTranslucentPolygonalGeometry(v);
-      }
     }
-
+  }
   return count;
 }
 
 //----------------------------------------------------------------------------
-int vtkBoxRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkBoxRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result=0;
   this->BuildRepresentation();
@@ -1148,15 +1546,15 @@ int vtkBoxRepresentation::HasTranslucentPolygonalGeometry()
   // hence don't bother taking it's opacity into consideration.
   // Look at BUG #7301.
   if (this->HexFace->GetProperty() == this->SelectedFaceProperty)
-    {
+  {
     result |= this->HexFace->HasTranslucentPolygonalGeometry();
-    }
+  }
 
   // render the handles
   for (int j=0; j<7; j++)
-    {
+  {
     result |= this->Handle[j]->HasTranslucentPolygonalGeometry();
-    }
+  }
 
   return result;
 }
@@ -1196,11 +1594,21 @@ void vtkBoxRepresentation::PositionHandles()
   VTK_AVERAGE(p0,p6,x);
   this->Points->SetPoint(14, x);
 
-  int i;
-  for (i = 0; i < 7; ++i)
-    {
+  for (int i = 0; i < 7; ++i)
+  {
     this->HandleGeometry[i]->SetCenter(this->Points->GetPoint(8+i));
-    }
+  }
+
+  for (int i = 0; i < 6; ++i)
+  {
+    this->Planes[i]->SetOrigin(this->Points->GetPoint(8+i));
+    int mix = 2*(i%2);
+    vtkVector3d pp1(this->Points->GetPoint(8 + i));
+    vtkVector3d pp2(this->Points->GetPoint(9 + i - mix));
+    pp2 = pp2 - pp1;
+    pp2.Normalize();
+    this->Planes[i]->SetNormal(pp2.GetData());
+  }
 
   this->Points->GetData()->Modified();
   this->HexFacePolyData->Modified();
@@ -1212,19 +1620,28 @@ void vtkBoxRepresentation::PositionHandles()
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::HandlesOn()
 {
-  for (int i=0; i<7; i++)
+  if (this->TwoPlaneMode)
+  {
+    this->Handle[0]->VisibilityOn();
+    this->Handle[1]->VisibilityOn();
+    this->Handle[6]->VisibilityOn();
+  }
+  else
+  {
+    for (int i=0; i<7; i++)
     {
-    this->Handle[i]->VisibilityOn();
+      this->Handle[i]->VisibilityOn();
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::HandlesOff()
 {
   for (int i=0; i<7; i++)
-    {
+  {
     this->Handle[i]->VisibilityOff();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1235,9 +1652,9 @@ void vtkBoxRepresentation::SizeHandles()
   double radius =
       this->vtkWidgetRepresentation::SizeHandlesInPixels(1.5,center);
   for(int i=0; i<7; i++)
-    {
+  {
     this->HandleGeometry[i]->SetRadius(radius);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1246,29 +1663,29 @@ int vtkBoxRepresentation::HighlightHandle(vtkProp *prop)
   // first unhighlight anything picked
   this->HighlightOutline(0);
   if ( this->CurrentHandle )
-    {
+  {
     this->CurrentHandle->SetProperty(this->HandleProperty);
-    }
+  }
 
   this->CurrentHandle = static_cast<vtkActor *>(prop);
 
   if ( this->CurrentHandle )
-    {
+  {
     this->CurrentHandle->SetProperty(this->SelectedHandleProperty);
     for (int i=0; i<6; i++) //find attached face
-      {
+    {
       if ( this->CurrentHandle == this->Handle[i] )
-        {
+      {
         return i;
-        }
       }
     }
+  }
 
   if ( this->CurrentHandle == this->Handle[6] )
-    {
+  {
     this->HighlightOutline(1);
     return 6;
-    }
+  }
 
   return -1;
 }
@@ -1277,49 +1694,53 @@ int vtkBoxRepresentation::HighlightHandle(vtkProp *prop)
 void vtkBoxRepresentation::HighlightFace(int cellId)
 {
   if ( cellId >= 0 )
-    {
+  {
     vtkIdType npts;
     vtkIdType *pts;
     vtkCellArray *cells = this->HexFacePolyData->GetPolys();
     this->HexPolyData->GetCellPoints(cellId, npts, pts);
     this->HexFacePolyData->Modified();
     cells->ReplaceCell(0,npts,pts);
+    cells->Modified();
     this->CurrentHexFace = cellId;
     this->HexFace->SetProperty(this->SelectedFaceProperty);
     if ( !this->CurrentHandle )
-      {
-      this->CurrentHandle = this->HexFace;
-      }
-    }
-  else
     {
+      this->CurrentHandle = this->HexFace;
+    }
+  }
+  else
+  {
     this->HexFace->SetProperty(this->FaceProperty);
     this->CurrentHexFace = -1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::HighlightOutline(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->HexActor->SetProperty(this->SelectedOutlineProperty);
     this->HexOutline->SetProperty(this->SelectedOutlineProperty);
-    }
+  }
   else
-    {
+  {
     this->HexActor->SetProperty(this->OutlineProperty);
     this->HexOutline->SetProperty(this->OutlineProperty);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkBoxRepresentation::RegisterPickers()
 {
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->HandlePicker, this);
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->HexPicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->HandlePicker, this);
+  pm->AddPicker(this->HexPicker, this);
 }
 
 //----------------------------------------------------------------------------
@@ -1334,58 +1755,63 @@ void vtkBoxRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << "(" << bounds[4] << "," << bounds[5] << ")\n";
 
   if ( this->HandleProperty )
-    {
+  {
     os << indent << "Handle Property: " << this->HandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Handle Property: (none)\n";
-    }
+  }
   if ( this->SelectedHandleProperty )
-    {
+  {
     os << indent << "Selected Handle Property: "
        << this->SelectedHandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "SelectedHandle Property: (none)\n";
-    }
+  }
 
   if ( this->FaceProperty )
-    {
+  {
     os << indent << "Face Property: " << this->FaceProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Face Property: (none)\n";
-    }
+  }
   if ( this->SelectedFaceProperty )
-    {
+  {
     os << indent << "Selected Face Property: "
        << this->SelectedFaceProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Face Property: (none)\n";
-    }
+  }
 
   if ( this->OutlineProperty )
-    {
+  {
     os << indent << "Outline Property: " << this->OutlineProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Outline Property: (none)\n";
-    }
+  }
   if ( this->SelectedOutlineProperty )
-    {
+  {
     os << indent << "Selected Outline Property: "
        << this->SelectedOutlineProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Outline Property: (none)\n";
-    }
+  }
+
+  os << indent << "Snap To Axes: "
+     << (this->SnapToAxes ? "On\n" : "Off\n");
+  os << indent << "Two Plane Mode: "
+     << (this->TwoPlaneMode ? "On\n" : "Off\n");
 
   os << indent << "Outline Face Wires: "
      << (this->OutlineFaceWires ? "On\n" : "Off\n");

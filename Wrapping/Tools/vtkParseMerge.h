@@ -24,8 +24,8 @@
  methods for a class with those inherited from all superclasses.
 */
 
-#ifndef VTK_PARSE_MERGE_H
-#define VTK_PARSE_MERGE_H
+#ifndef vtkParseMerge_h
+#define vtkParseMerge_h
 
 #include "vtkParseData.h"
 #include "vtkParseHierarchy.h"
@@ -36,7 +36,7 @@
  */
 typedef struct _MergeInfo
 {
-  int   NumberOfClasses;    /* number of classes in geneology */
+  int   NumberOfClasses;    /* number of classes in genealogy */
   const char **ClassNames;         /* class name */
   int   NumberOfFunctions;  /* must match FunctionInfo */
   int  *NumberOfOverrides; /* n classes that define this function */
@@ -58,6 +58,11 @@ MergeInfo *vtkParseMerge_MergeSuperClasses(
   FileInfo *finfo, NamespaceInfo *data, ClassInfo *classInfo);
 
 /**
+ * Create an initialized MergeInfo object.
+ */
+MergeInfo *vtkParseMerge_CreateMergeInfo(ClassInfo *classInfo);
+
+/**
  * Free the MergeInfo object.
  */
 void vtkParseMerge_FreeMergeInfo(MergeInfo *info);
@@ -72,10 +77,12 @@ void vtkParseMerge_FreeMergeInfo(MergeInfo *info);
  */
 void vtkParseMerge_MergeHelper(
   FileInfo *finfo, const NamespaceInfo *data, const HierarchyInfo *hinfo,
-  const char *classname, FILE *hintfile, MergeInfo *info, ClassInfo *merge);
+  const char *classname, int nhintfiles, char **hintfiles, MergeInfo *info,
+  ClassInfo *merge);
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseMerge.h */

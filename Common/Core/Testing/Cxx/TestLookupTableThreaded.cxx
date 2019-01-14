@@ -25,6 +25,10 @@ VTK_THREAD_RETURN_TYPE ThreadedMethod(void *)
 {
   int numberOfValues = 25;
   double* input = new double[numberOfValues];
+  for (int i = 0; i < numberOfValues; ++i)
+  {
+    input[i] = static_cast<double>(i);
+  }
   unsigned char* output = new unsigned char[4*numberOfValues];
   int inputType = VTK_DOUBLE;
   int inputIncrement = 1;
@@ -47,7 +51,7 @@ int TestLookupTableThreaded(int, char* [])
   lut->SetNumberOfTableValues( 1024 );
 
   vtkNew<vtkMultiThreader> threader;
-  threader->SetSingleMethod( ThreadedMethod, NULL );
+  threader->SetSingleMethod( ThreadedMethod, nullptr );
   threader->SetNumberOfThreads( 4 );
   threader->SingleMethodExecute();
 

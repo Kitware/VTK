@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    QChartTable.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,80 +12,79 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-#include "vtkFloatArray.h"
-#include "vtkMath.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-
-#include "vtkSmartPointer.h"
-
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
+#include "QVTKOpenGLWidget.h"
 #include "vtkChartXY.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkPlot.h"
+#include "vtkQtTableView.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
 #include "vtkTable.h"
-
 #include "vtkTimerLog.h"
 
 #include <QApplication>
 #include <QWidget>
 #include <QMainWindow>
 #include <QHBoxLayout>
-
-#include "QVTKWidget.h"
-#include "vtkQtTableView.h"
-
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#include <QSurfaceFormat>
 
 //----------------------------------------------------------------------------
 int main( int argc, char * argv [] )
 {
+  // needed to ensure appropriate OpenGL context is created for VTK rendering.
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+
   // Qt initialization
   QApplication app(argc, argv);
   QMainWindow mainWindow;
   mainWindow.setGeometry(0, 0, 1150, 600);
 
-  // QVTK set up and initialization
-  QVTKWidget *qvtkWidget = new QVTKWidget(&mainWindow);
+  QVTKOpenGLWidget *qvtkWidget = new QVTKOpenGLWidget(&mainWindow);
+
+  vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
+  qvtkWidget->SetRenderWindow(renderWindow);
 
   // Set up my 2D world...
-  VTK_CREATE(vtkContextView, view); // This contains a chart object
-  view->SetInteractor(qvtkWidget->GetInteractor());
-  qvtkWidget->SetRenderWindow(view->GetRenderWindow());
+  vtkNew<vtkContextView> view; // This contains a chart object
+  view->SetRenderWindow(renderWindow);
+  view->SetInteractor(renderWindow->GetInteractor());
 
   // Create a table with some points in it...
-  VTK_CREATE(vtkTable, table);
-  VTK_CREATE(vtkFloatArray, arrX);
+  vtkNew<vtkTable> table;
+  vtkNew<vtkFloatArray> arrX;
   arrX->SetName("X Axis");
   table->AddColumn(arrX);
-  VTK_CREATE(vtkFloatArray, arrC);
+  vtkNew<vtkFloatArray> arrC;
   arrC->SetName("Cosine");
   table->AddColumn(arrC);
-  VTK_CREATE(vtkFloatArray, arrS);
+  vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Sine");
   table->AddColumn(arrS);
 
   // Make a timer object - need to get some frame rates/render times
-  VTK_CREATE(vtkTimerLog, timer);
+  vtkNew<vtkTimerLog> timer;
 
   // Test charting with a few more points...
   int numPoints = 29;
   float inc = 7.0 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     table->SetValue(i, 0, i * inc);
     table->SetValue(i, 1, cos(i * inc) + 0.0);
     table->SetValue(i, 2, sin(i * inc) + 0.0);
-    }
+  }
 
 //   table->Update();
 
   // Add multiple line plots, setting the colors etc
-  vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
+  vtkNew<vtkChartXY> chart;
   view->GetScene()->AddItem(chart);
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, 1);
@@ -109,7 +108,7 @@ int main( int argc, char * argv [] )
   // Now lets try to add a table view
   QWidget *widget = new QWidget(&mainWindow);
   QHBoxLayout *layout = new QHBoxLayout(widget);
-  VTK_CREATE(vtkQtTableView, tableView);
+  vtkNew<vtkQtTableView> tableView;
   tableView->SetSplitMultiComponentColumns(true);
   tableView->AddRepresentationFromInput(table);
   tableView->Update();

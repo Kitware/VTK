@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>990</width>
+    <width>851</width>
     <height>583</height>
    </rect>
   </property>
@@ -35,16 +35,16 @@
     </property>
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="1" column="0">
-      <widget class="QVTKWidget" name="view2" native="true"/>
+      <widget class="QVTKOpenGLWidget" name="view2" native="true"/>
      </item>
      <item row="0" column="1">
-      <widget class="QVTKWidget" name="view4" native="true"/>
+      <widget class="QVTKOpenGLWidget" name="view4" native="true"/>
      </item>
      <item row="1" column="1">
-      <widget class="QVTKWidget" name="view3" native="true"/>
+      <widget class="QVTKOpenGLWidget" name="view3" native="true"/>
      </item>
      <item row="0" column="0">
-      <widget class="QVTKWidget" name="view1" native="true"/>
+      <widget class="QVTKOpenGLWidget" name="view1" native="true"/>
      </item>
     </layout>
    </widget>
@@ -53,7 +53,7 @@
      <rect>
       <x>629</x>
       <y>39</y>
-      <width>161</width>
+      <width>201</width>
       <height>521</height>
      </rect>
     </property>
@@ -68,7 +68,7 @@
       <rect>
        <x>30</x>
        <y>20</y>
-       <width>101</width>
+       <width>141</width>
        <height>17</height>
       </rect>
      </property>
@@ -94,7 +94,7 @@
       <rect>
        <x>10</x>
        <y>120</y>
-       <width>141</width>
+       <width>181</width>
        <height>91</height>
       </rect>
      </property>
@@ -106,7 +106,7 @@
        <rect>
         <x>10</x>
         <y>20</y>
-        <width>111</width>
+        <width>161</width>
         <height>17</height>
        </rect>
       </property>
@@ -119,7 +119,7 @@
        <rect>
         <x>10</x>
         <y>40</y>
-        <width>121</width>
+        <width>161</width>
         <height>17</height>
        </rect>
       </property>
@@ -159,7 +159,7 @@
       <rect>
        <x>0</x>
        <y>250</y>
-       <width>161</width>
+       <width>191</width>
        <height>211</height>
       </rect>
      </property>
@@ -237,9 +237,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QVTKWidget</class>
+   <class>QVTKOpenGLWidget</class>
    <extends>QWidget</extends>
-   <header>QVTKWidget.h</header>
+   <header>QVTKOpenGLWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

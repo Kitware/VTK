@@ -35,7 +35,7 @@
 #include "vtkGenericAttribute.h"
 #include <cassert>
 #include <string>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 //-----------------------------------------------------------------------------
 // Description:
@@ -69,19 +69,19 @@ int TestAssertion(ostream &strm,
 {
   strm<<indent<<"Test `"<<label<<"\': ";
   if(assertion)
-    {
+  {
     strm<<"passed."<<endl;
-    }
+  }
   else
-    {
+  {
     strm<<"FAILED!"<<endl;
-    }
+  }
   return assertion;
 }
 
 //-----------------------------------------------------------------------------
 // Description:
-// Call TestAssertion() and return with 1 if it fails, do nothing oterwise.
+// Call TestAssertion() and return with 1 if it fails, do nothing otherwise.
 // void TestAssertion(ostream &strm,
 //                    vtkIndent indent,
 //                    const *char label,
@@ -125,27 +125,27 @@ int TestEmpty(ostream &strm)
 
   strm<<"NewCellIterator() start"<<endl;
   vtkGenericCellIterator *it=ds->NewCellIterator(-1);
-  MacroTest(strm,indent,"empty cell iterator -1 exists",it!=0);
+  MacroTest(strm,indent,"empty cell iterator -1 exists",it!=nullptr);
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator -1",it->IsAtEnd());
   it->Delete();
   it=ds->NewCellIterator(0);
-  MacroTest(strm,indent,"empty cell iterator 0 exists",it!=0);
+  MacroTest(strm,indent,"empty cell iterator 0 exists",it!=nullptr);
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 0",it->IsAtEnd());
   it->Delete();
   it=ds->NewCellIterator(1);
-  MacroTest(strm,indent,"empty cell iterator 1 exists",it!=0);
+  MacroTest(strm,indent,"empty cell iterator 1 exists",it!=nullptr);
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 1",it->IsAtEnd());
   it->Delete();
   it=ds->NewCellIterator(2);
-  MacroTest(strm,indent,"empty cell iterator 2 exists",it!=0);
+  MacroTest(strm,indent,"empty cell iterator 2 exists",it!=nullptr);
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 2",it->IsAtEnd());
   it->Delete();
   it=ds->NewCellIterator(3);
-  MacroTest(strm,indent,"empty cell iterator 3 exists",it!=0);
+  MacroTest(strm,indent,"empty cell iterator 3 exists",it!=nullptr);
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 3",it->IsAtEnd());
   it->Delete();
@@ -153,29 +153,28 @@ int TestEmpty(ostream &strm)
 
   strm<<"NewPointIterator() start"<<endl;
   vtkGenericPointIterator *pit=ds->NewPointIterator();
-  MacroTest(strm,indent,"empty point iterator exists",pit!=0);
+  MacroTest(strm,indent,"empty point iterator exists",pit!=nullptr);
   pit->Begin();
   MacroTest(strm,indent,"empty point iterator",pit->IsAtEnd());
   pit->Delete();
   strm<<"NewPointIterator() end"<<endl;
 
   double bounds[6];
-  double *b;
   double center[3];
   double *c;
   const double epsilon=0.000001; // 10^{-6}
 
   strm<<"GetBounds() start"<<endl;
 
-  b=ds->GetBounds();
-  MacroTest(strm,indent,"volatile bounds exist",b!=0);
+  const double *b=ds->GetBounds();
+  MacroTest(strm,indent,"volatile bounds exist",b!=nullptr);
   MacroTest(strm,indent,"default volatile bounds",!vtkMath::AreBoundsInitialized(b));
 
   ds->GetBounds(bounds);
   MacroTest(strm,indent,"default bounds",!vtkMath::AreBoundsInitialized(bounds));
 
   c=ds->GetCenter();
-  MacroTest(strm,indent,"volatile center exists",c!=0);
+  MacroTest(strm,indent,"volatile center exists",c!=nullptr);
   MacroTest(strm,indent,"default volatile center",(fabs(c[0])<epsilon)&&(fabs(c[1])<epsilon)&&(fabs(c[2])<epsilon));
   ds->GetCenter(center);
   MacroTest(strm,indent,"volatile center",(fabs(center[0])<epsilon)&&(fabs(center[1])<epsilon)&&(fabs(center[2])<epsilon));
@@ -186,7 +185,7 @@ int TestEmpty(ostream &strm)
 
   vtkGenericAttributeCollection *attributes;
   attributes=ds->GetAttributes();
-  MacroTest(strm,indent,"attributes exist",attributes!=0);
+  MacroTest(strm,indent,"attributes exist",attributes!=nullptr);
   MacroTest(strm,indent,"empty attributes",attributes->IsEmpty());
   MacroTest(strm,indent,"empty attributes",attributes->GetNumberOfAttributes()==0);
   MacroTest(strm,indent,"empty attributes",attributes->GetNumberOfComponents()==0);
@@ -312,27 +311,27 @@ int TestWithPoints(ostream &strm)
 
   strm<<"NewCellIterator() start"<<endl;
   vtkGenericCellIterator *it=ds->NewCellIterator(-1);
-  MacroTest(strm,indent,"empty cell iterator -1 exists",it!=0);
+  MacroTest(strm,indent,"empty cell iterator -1 exists",it!=nullptr);
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator -1",it->IsAtEnd());
   it->Delete();
   it=ds->NewCellIterator(0);
-  MacroTest(strm,indent,"empty cell iterator 0 exists",it!=0);
+  MacroTest(strm,indent,"empty cell iterator 0 exists",it!=nullptr);
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 0",it->IsAtEnd());
   it->Delete();
   it=ds->NewCellIterator(1);
-  MacroTest(strm,indent,"empty cell iterator 1 exists",it!=0);
+  MacroTest(strm,indent,"empty cell iterator 1 exists",it!=nullptr);
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 1",it->IsAtEnd());
   it->Delete();
   it=ds->NewCellIterator(2);
-  MacroTest(strm,indent,"empty cell iterator 2 exists",it!=0);
+  MacroTest(strm,indent,"empty cell iterator 2 exists",it!=nullptr);
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 2",it->IsAtEnd());
   it->Delete();
   it=ds->NewCellIterator(3);
-  MacroTest(strm,indent,"empty cell iterator 3 exists",it!=0);
+  MacroTest(strm,indent,"empty cell iterator 3 exists",it!=nullptr);
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 3",it->IsAtEnd());
   it->Delete();
@@ -342,7 +341,7 @@ int TestWithPoints(ostream &strm)
 
   strm<<"NewPointIterator() start"<<endl;
   vtkGenericPointIterator *pit=ds->NewPointIterator();
-  MacroTest(strm,indent,"point iterator exists",pit!=0);
+  MacroTest(strm,indent,"point iterator exists",pit!=nullptr);
   pit->Begin();
   MacroTest(strm,indent,"point iterator",!pit->IsAtEnd());
   pit->GetPosition(x);
@@ -359,15 +358,14 @@ int TestWithPoints(ostream &strm)
   strm<<"NewPointIterator() end"<<endl;
 
   double bounds[6];
-  double *b;
   double center[3];
   double *c;
   const double epsilon=0.000001; // 10^{-6}
 
   strm<<"GetBounds() start"<<endl;
 
-  b=ds->GetBounds();
-  MacroTest(strm,indent,"volatile bounds exist",b!=0);
+  const double *b=ds->GetBounds();
+  MacroTest(strm,indent,"volatile bounds exist",b!=nullptr);
 
   //strm<<"bounds=("<<b[0]<<','<<b[1]<<','<<b[2]<<','<<b[3]<<','<<b[4]<<','<<b[5]<<')'<<endl;
 
@@ -377,7 +375,7 @@ int TestWithPoints(ostream &strm)
   MacroTest(strm,indent,"valid bounds",(bounds[0]==-1)&&(bounds[1]==4)&&(bounds[2]==-2)&&(bounds[3]==5)&&(bounds[4]==-3)&&(bounds[5]==6));
 
   c=ds->GetCenter();
-  MacroTest(strm,indent,"volatile center exists",c!=0);
+  MacroTest(strm,indent,"volatile center exists",c!=nullptr);
   MacroTest(strm,indent,"volatile center",(fabs(c[0]-1.5)<epsilon)&&(fabs(c[1]-1.5)<epsilon)&&(fabs(c[2]-1.5)<epsilon));
   ds->GetCenter(center);
   MacroTest(strm,indent,"valid center",(fabs(center[0]-1.5)<epsilon)&&(fabs(center[1]-1.5)<epsilon)&&(fabs(center[2]-1.5)<epsilon));
@@ -386,7 +384,7 @@ int TestWithPoints(ostream &strm)
 
   vtkGenericAttributeCollection *attributes;
   attributes=ds->GetAttributes();
-  MacroTest(strm,indent,"attributes exist",attributes!=0);
+  MacroTest(strm,indent,"attributes exist",attributes!=nullptr);
   MacroTest(strm,indent,"empty attributes",attributes->IsEmpty());
   MacroTest(strm,indent,"empty attributes",attributes->GetNumberOfAttributes()==0);
   MacroTest(strm,indent,"empty attributes",attributes->GetNumberOfComponents()==0);
@@ -604,21 +602,21 @@ int TestWithPointsAndCells(ostream &strm)
   int i;
   int count;
   std::string s;
-  vtksys_ios::ostringstream ost;
-  vtkGenericAdaptorCell *cab=0;
+  std::ostringstream ost;
+  vtkGenericAdaptorCell *cab=nullptr;
 
   while(itNum<itCount)
-    {
+  {
     vtkGenericCellIterator *it=ds->NewCellIterator(itNum);
     ost << "empty cell iterator " << itNum << " exists";
     s=ost.str();
     const char *cstring=s.c_str();
-    MacroTest(strm,indent,cstring,it!=0);
+    MacroTest(strm,indent,cstring,it!=nullptr);
     it->Begin();
     i=0;
     count=ds->GetNumberOfCells(itNum);
     while(i<count)
-      {
+    {
       ost.str("");
       ost<<"not finished cell iterator "<<itNum;
       s=ost.str();
@@ -626,9 +624,9 @@ int TestWithPointsAndCells(ostream &strm)
       MacroTest(strm,indent,cstring,!it->IsAtEnd());
       ++i;
       cab=it->GetCell();
-      MacroTest(strm,indent,"cell at iterator position is set",cab!=0);
+      MacroTest(strm,indent,"cell at iterator position is set",cab!=nullptr);
       it->Next();
-      }
+    }
     ost.str("");
     ost<<"Finished cell iterator "<<itNum;
     s=ost.str();
@@ -636,7 +634,7 @@ int TestWithPointsAndCells(ostream &strm)
     MacroTest(strm,indent,cstring,it->IsAtEnd());
     it->Delete();
     ++itNum;
-    }
+  }
   strm<<"NewCellIterator() end"<<endl;
 
   double x[3];
@@ -644,13 +642,13 @@ int TestWithPointsAndCells(ostream &strm)
 
   strm<<"NewPointIterator() start"<<endl;
   vtkGenericPointIterator *pit=ds->NewPointIterator();
-  MacroTest(strm,indent,"point iterator exists",pit!=0);
+  MacroTest(strm,indent,"point iterator exists",pit!=nullptr);
   pit->Begin();
 
   i=0;
   count=ds->GetNumberOfPoints();
   while(i<count)
-    {
+  {
     MacroTest(strm,indent,"not finished point iterator",!pit->IsAtEnd());
     pit->GetPosition(x);
     pts->GetPoint(i,y);
@@ -658,7 +656,7 @@ int TestWithPointsAndCells(ostream &strm)
     MacroTest(strm,indent,"point iterator id",pit->GetId()==i);
     ++i;
     pit->Next();
-    }
+  }
   pit->Delete();
   strm<<"NewPointIterator() end"<<endl;
 
@@ -670,16 +668,16 @@ int TestWithPointsAndCells(ostream &strm)
   pit=ds->NewPointIterator();
   int count2=0;
   while(!it->IsAtEnd())
-    {
+  {
     cab=it->GetCell();
     cab->GetPointIterator(pit);
     pit->Begin();
     switch(count)
-      {
+    {
       case 0: // tetra
         count2=0;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -687,12 +685,12 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 1: // triangle
         count2=4;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -700,12 +698,12 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 2: // line
         count2=7;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -713,12 +711,12 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 3: // vertex
         count2=9;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -726,12 +724,12 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 4: // tetra
         count2=10;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -739,14 +737,14 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 5: // triangle
         count2=0;
         while(!pit->IsAtEnd())
-          {
+        {
           switch(count2)
-            {
+          {
             case 0:
               MacroTest(strm,indent,"point iterator id",pit->GetId()==11);
               break;
@@ -759,19 +757,19 @@ int TestWithPointsAndCells(ostream &strm)
             default:
               MacroTest(strm,indent,"impossible case",0);
               break;
-            }
+          }
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
           MacroTest(strm,indent,"point iterator position",(x[0]==y[0])&&(x[1]==y[1])&&(x[2]==y[2]));
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 6: // line
         count2=14;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -779,12 +777,12 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 7: // vertex
         count2=15;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -792,30 +790,29 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       default:
         MacroTest(strm,indent,"impossible case",0);
         break;
-      }
+    }
     ++count;
     it->Next();
-    }
+  }
   pit->Delete();
   it->Delete();
   strm<<" cell::GetPointIterator() end"<<endl;
 
 
   double bounds[6];
-  double *b;
   double center[3];
   double *c;
   const double epsilon=0.000001; // 10^{-6}
 
   strm<<"GetBounds() start"<<endl;
 
-  b=ds->GetBounds();
-  MacroTest(strm,indent,"volatile bounds exist",b!=0);
+  const double *b=ds->GetBounds();
+  MacroTest(strm,indent,"volatile bounds exist",b!=nullptr);
 
   strm<<"bounds=("<<b[0]<<','<<b[1]<<','<<b[2]<<','<<b[3]<<','<<b[4]<<','<<b[5]<<')'<<endl;
 
@@ -825,16 +822,16 @@ int TestWithPointsAndCells(ostream &strm)
   MacroTest(strm,indent,"valid bounds",(bounds[0]==0)&&(bounds[1]==14)&&(bounds[2]==-1)&&(bounds[3]==1)&&(bounds[4]==0)&&(bounds[5]==1));
 
   c=ds->GetCenter();
-  MacroTest(strm,indent,"volatile center exists",c!=0);
+  MacroTest(strm,indent,"volatile center exists",c!=nullptr);
   MacroTest(strm,indent,"volatile center",(fabs(c[0]-7)<epsilon)&&(fabs(c[1])<epsilon)&&(fabs(c[2]-0.5)<epsilon));
   ds->GetCenter(center);
   MacroTest(strm,indent,"valid center",(fabs(center[0]-7)<epsilon)&&(fabs(center[1])<epsilon)&&(fabs(center[2]-0.5)<epsilon));
   MacroTest(strm,indent,"diagonal length",fabs(ds->GetLength()-sqrt(201.0))<epsilon);
   strm<<"GetBounds() end"<<endl;
 
-  vtkGenericAttributeCollection *attributes=0;
+  vtkGenericAttributeCollection *attributes=nullptr;
   attributes=ds->GetAttributes();
-  MacroTest(strm,indent,"attributes exist",attributes!=0);
+  MacroTest(strm,indent,"attributes exist",attributes!=nullptr);
   MacroTest(strm,indent,"empty attributes",attributes->IsEmpty());
   MacroTest(strm,indent,"empty attributes",attributes->GetNumberOfAttributes()==0);
   MacroTest(strm,indent,"empty attributes",attributes->GetNumberOfComponents()==0);
@@ -856,12 +853,12 @@ int TestWithPointsAndCells(ostream &strm)
   int dim;
 
   it=ds->NewCellIterator(-1);
-  MacroTest(strm,indent,"cell iterator on all data set cells exists" ,it!=0);
+  MacroTest(strm,indent,"cell iterator on all data set cells exists" ,it!=nullptr);
 
   it->Begin();
 
   vtkGenericCellIterator *boundaries=ds->NewCellIterator(-1); // just for creation
-  MacroTest(strm,indent,"boundaries exists" ,boundaries!=0);
+  MacroTest(strm,indent,"boundaries exists" ,boundaries!=nullptr);
 
   i=0;
   count=ds->GetNumberOfCells(-1);
@@ -869,7 +866,7 @@ int TestWithPointsAndCells(ostream &strm)
   vtkGenericAdaptorCell *cab2;
 
   while(i<count)
-    {
+  {
     MacroTest(strm,indent,"not finished cell iterator",!it->IsAtEnd());
     cab=it->GetCell();
     dim=cab->GetDimension();
@@ -877,20 +874,20 @@ int TestWithPointsAndCells(ostream &strm)
     int currentDim=dim-1;
 
     while(currentDim>=-1)
-      {
+    {
       cab->GetBoundaryIterator(boundaries,currentDim);
       boundaries->Begin();
       while(!boundaries->IsAtEnd())
-        {
+      {
         cab2=boundaries->GetCell();
-        MacroTest(strm,indent,"the cell at iterator position is set",cab2!=0);
+        MacroTest(strm,indent,"the cell at iterator position is set",cab2!=nullptr);
         boundaries->Next();
-        }
-      --currentDim;
       }
+      --currentDim;
+    }
     ++i;
     it->Next();
-    }
+  }
   boundaries->Delete();
   it->Delete();
 
@@ -1084,15 +1081,15 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   int m=0;
   vtkDoubleArray *attrib= vtkDoubleArray::New();
   while(m<17)
-    {
+  {
     attrib->InsertNextValue(m+100);
     ++m;
-    }
+  }
 
-  assert(g->GetPointData()!=0);
+  assert(g->GetPointData()!=nullptr);
   g->GetPointData()->SetScalars(attrib);
   attrib->Delete();
-  attrib=0;
+  attrib=nullptr;
   strm<<"Point data added to the vtkUnstructuredGrid"<<endl;
 
 
@@ -1126,21 +1123,21 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   int i;
   int count;
   std::string s;
-  vtksys_ios::ostringstream ost;
+  std::ostringstream ost;
   vtkGenericAdaptorCell *cab;
 
   while(itNum<itCount)
-    {
+  {
     vtkGenericCellIterator *it=ds->NewCellIterator(itNum);
     ost<<"empty cell iterator "<<itNum<<" exists";
     s=ost.str();
     const char *cstring=s.c_str();
-    MacroTest(strm,indent,cstring,it!=0);
+    MacroTest(strm,indent,cstring,it!=nullptr);
     it->Begin();
     i=0;
     count=ds->GetNumberOfCells(itNum);
     while(i<count)
-      {
+    {
       ost.str("");
       ost<<"not finished cell iterator "<<itNum;
       s=ost.str();
@@ -1148,9 +1145,9 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
       MacroTest(strm,indent,cstring,!it->IsAtEnd());
       ++i;
       cab=it->GetCell();
-      MacroTest(strm,indent,"cell at current position is set",cab!=0);
+      MacroTest(strm,indent,"cell at current position is set",cab!=nullptr);
       it->Next();
-      }
+    }
     ost.str("");
     ost<<"Finished cell iterator "<<itNum;
     s=ost.str();
@@ -1158,7 +1155,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
     MacroTest(strm,indent,cstring,it->IsAtEnd());
     it->Delete();
     ++itNum;
-    }
+  }
   strm<<"NewCellIterator() end"<<endl;
 
   double x[3];
@@ -1166,13 +1163,13 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
 
   strm<<"NewPointIterator() start"<<endl;
   vtkGenericPointIterator *pit=ds->NewPointIterator();
-  MacroTest(strm,indent,"point iterator exists",pit!=0);
+  MacroTest(strm,indent,"point iterator exists",pit!=nullptr);
   pit->Begin();
 
   i=0;
   count=ds->GetNumberOfPoints();
   while(i<count)
-    {
+  {
     MacroTest(strm,indent,"not finished point iterator",!pit->IsAtEnd());
     pit->GetPosition(x);
     pts->GetPoint(i,y);
@@ -1180,20 +1177,19 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
     MacroTest(strm,indent,"point iterator id",pit->GetId()==i);
     ++i;
     pit->Next();
-    }
+  }
   pit->Delete();
   strm<<"NewPointIterator() end"<<endl;
 
   double bounds[6];
-  double *b;
   double center[3];
-  double *c=0;
+  double *c=nullptr;
   const double epsilon=0.000001; // 10^{-6}
 
   strm<<"GetBounds() start"<<endl;
 
-  b=ds->GetBounds();
-  MacroTest(strm,indent,"volatile bounds exist",b!=0);
+  const double *b=ds->GetBounds();
+  MacroTest(strm,indent,"volatile bounds exist",b!=nullptr);
 
   strm<<"bounds=("<<b[0]<<','<<b[1]<<','<<b[2]<<','<<b[3]<<','<<b[4]<<','<<b[5]<<')'<<endl;
 
@@ -1203,26 +1199,26 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   MacroTest(strm,indent,"valid bounds",(bounds[0]==0)&&(bounds[1]==14)&&(bounds[2]==-1)&&(bounds[3]==1)&&(bounds[4]==0)&&(bounds[5]==1));
 
   c=ds->GetCenter();
-  MacroTest(strm,indent,"volatile center exists",c!=0);
+  MacroTest(strm,indent,"volatile center exists",c!=nullptr);
   MacroTest(strm,indent,"volatile center",(fabs(c[0]-7)<epsilon)&&(fabs(c[1])<epsilon)&&(fabs(c[2]-0.5)<epsilon));
   ds->GetCenter(center);
   MacroTest(strm,indent,"valid center",(fabs(center[0]-7)<epsilon)&&(fabs(center[1])<epsilon)&&(fabs(center[2]-0.5)<epsilon));
   MacroTest(strm,indent,"diagonal length",fabs(ds->GetLength()-sqrt(201.0))<epsilon);
   strm<<"GetBounds() end"<<endl;
 
-  vtkGenericAttributeCollection *attributes=0;
+  vtkGenericAttributeCollection *attributes=nullptr;
   attributes=ds->GetAttributes();
-  MacroTest(strm,indent,"attributes exist",attributes!=0);
+  MacroTest(strm,indent,"attributes exist",attributes!=nullptr);
   MacroTest(strm,indent,"not empty attributes",!attributes->IsEmpty());
   MacroTest(strm,indent,"one attribute",attributes->GetNumberOfAttributes()==1);
   MacroTest(strm,indent,"one scalar attribute",attributes->GetNumberOfComponents()==1);
   MacroTest(strm,indent,"one scalar attribute",attributes->GetMaxNumberOfComponents()==1);
 
-  vtkGenericAttribute *attribute=0;
+  vtkGenericAttribute *attribute=nullptr;
   attribute=attributes->GetAttribute(0);
-  MacroTest(strm,indent,"attribute exists",attribute!=0);
+  MacroTest(strm,indent,"attribute exists",attribute!=nullptr);
 
-  MacroTest(strm,indent,"attribute name does not exist",attribute->GetName()==0);
+  MacroTest(strm,indent,"attribute name does not exist",attribute->GetName()==nullptr);
 
 
   int attribId;
@@ -1235,7 +1231,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
 
   MacroTest(strm,indent,"attribute found",attribId==0);
 
-  MacroTest(strm,indent,"attribute name exists",attribute->GetName()!=0);
+  MacroTest(strm,indent,"attribute name exists",attribute->GetName()!=nullptr);
   MacroTest(strm,indent,"valid attribute name",strcmp(attribute->GetName(),"pressure")==0);
 
   MacroTest(strm,indent,"attribute components",attribute->GetNumberOfComponents()==1);
@@ -1273,12 +1269,12 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   int dim;
 
   vtkGenericCellIterator *it=ds->NewCellIterator(-1);
-  MacroTest(strm,indent,"cell iterator on all data set cells exists" ,it!=0);
+  MacroTest(strm,indent,"cell iterator on all data set cells exists" ,it!=nullptr);
 
   it->Begin();
 
   vtkGenericCellIterator *boundaries=ds->NewCellIterator(-1); // just for creation
-  MacroTest(strm,indent,"boundaries exists" ,boundaries!=0);
+  MacroTest(strm,indent,"boundaries exists" ,boundaries!=nullptr);
 
   i=0;
   count=ds->GetNumberOfCells(-1);
@@ -1286,7 +1282,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   vtkGenericAdaptorCell *cab2;
 
   while(i<count)
-    {
+  {
     MacroTest(strm,indent,"not finished cell iterator",!it->IsAtEnd());
     cab=it->GetCell();
     dim=cab->GetDimension();
@@ -1294,20 +1290,20 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
     int currentDim=dim-1;
 
     while(currentDim>=-1)
-      {
+    {
       cab->GetBoundaryIterator(boundaries,currentDim);
       boundaries->Begin();
       while(!boundaries->IsAtEnd())
-        {
+      {
         cab2=boundaries->GetCell();
-        MacroTest(strm,indent,"the cell at iterator position is set",cab2!=0);
+        MacroTest(strm,indent,"the cell at iterator position is set",cab2!=nullptr);
         boundaries->Next();
-        }
-      --currentDim;
       }
+      --currentDim;
+    }
     ++i;
     it->Next();
-    }
+  }
   boundaries->Delete();
   it->Delete();
 
@@ -1437,14 +1433,14 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   pit->Begin();
   m=100;
   while(!pit->IsAtEnd())
-    {
+  {
     tuples=attribute->GetTuple(pit);
     MacroTest(strm,indent,"valid point tuple",tuples[0]==m);
     attribute->GetTuple(pit,myTuples);
     MacroTest(strm,indent,"valid point tuple",myTuples[0]==m);
     pit->Next();
     ++m;
-    }
+  }
 
   pit->Delete();
   strm<<"GetTuple() on point iterator end"<<endl;
@@ -1521,11 +1517,11 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   pit->Begin();
   m=100;
   while(!pit->IsAtEnd())
-    {
+  {
     MacroTest(strm,indent,"valid point tuple",attribute->GetComponent(0,pit)==m);
     pit->Next();
     ++m;
-    }
+  }
 
   pit->Delete();
   strm<<"GetComponent() on point iterator end"<<endl;
@@ -1680,27 +1676,25 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
 int otherCreation(int vtkNotUsed(argc),
                   char *vtkNotUsed(argv)[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
-
   if (TestEmpty(cout))
-    {
+  {
     return 1;
-    }
+  }
 
   if (TestWithPoints(cout))
-    {
+  {
     return 1;
-    }
+  }
 
   if (TestWithPointsAndCells(cout))
-    {
+  {
     return 1;
-    }
+  }
 
   if (TestWithPointsAndCellsAndPointData(cout))
-    {
+  {
     return 1;
-    }
+  }
 
   return 0;
 }

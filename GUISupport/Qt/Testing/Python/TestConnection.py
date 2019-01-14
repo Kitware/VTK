@@ -5,7 +5,6 @@ import os
 import PyQt4
 
 import vtk
-from vtk.test import Testing
 
 class TestConnectionHelper(PyQt4.QtCore.QObject):
   @PyQt4.QtCore.pyqtSlot()

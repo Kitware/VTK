@@ -25,9 +25,7 @@ vtkZLibDataCompressor::vtkZLibDataCompressor()
 }
 
 //----------------------------------------------------------------------------
-vtkZLibDataCompressor::~vtkZLibDataCompressor()
-{
-}
+vtkZLibDataCompressor::~vtkZLibDataCompressor() = default;
 
 //----------------------------------------------------------------------------
 void vtkZLibDataCompressor::PrintSelf(ostream& os, vtkIndent indent)
@@ -51,10 +49,10 @@ vtkZLibDataCompressor::CompressBuffer(unsigned char const* uncompressedData,
 
   // Call zlib's compress function.
   if(compress2(cd, &cs, ud, us, this->CompressionLevel) != Z_OK)
-    {
+  {
     vtkErrorMacro("Zlib error while compressing data.");
     return 0;
-    }
+  }
 
   return static_cast<size_t>(cs);
 }
@@ -73,20 +71,38 @@ vtkZLibDataCompressor::UncompressBuffer(unsigned char const* compressedData,
 
   // Call zlib's uncompress function.
   if(uncompress(ud, &us, cd, cs) != Z_OK)
-    {
+  {
     vtkErrorMacro("Zlib error while uncompressing data.");
     return 0;
-    }
+  }
 
   // Make sure the output size matched that expected.
   if(us != static_cast<uLongf>(uncompressedSize))
-    {
+  {
     vtkErrorMacro("Decompression produced incorrect size.\n"
                   "Expected " << uncompressedSize << " and got " << us);
     return 0;
-    }
+  }
 
   return static_cast<size_t>(us);
+}
+//----------------------------------------------------------------------------
+int vtkZLibDataCompressor::GetCompressionLevel()
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning CompressionLevel " << this->CompressionLevel );
+  return this->CompressionLevel;
+}
+//----------------------------------------------------------------------------
+void vtkZLibDataCompressor::SetCompressionLevel(int compressionLevel)
+{
+  int min=1;
+  int max=9;
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting CompressionLevel to " << compressionLevel );
+  if (this->CompressionLevel != (compressionLevel<min?min:(compressionLevel>max?max:compressionLevel)))
+  {
+    this->CompressionLevel = (compressionLevel<min?min:(compressionLevel>max?max:compressionLevel));
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------------

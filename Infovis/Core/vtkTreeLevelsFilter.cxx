@@ -35,10 +35,7 @@
 
 vtkStandardNewMacro(vtkTreeLevelsFilter);
 
-vtkTreeLevelsFilter::vtkTreeLevelsFilter()
-{
-
-}
+vtkTreeLevelsFilter::vtkTreeLevelsFilter() = default;
 
 int vtkTreeLevelsFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -76,10 +73,10 @@ int vtkTreeLevelsFilter::RequestData(
   data->AddArray(leafArray);
 
   for (vtkIdType i = 0; i < outputTree->GetNumberOfVertices(); i++)
-    {
+  {
     levelArray->SetValue(i, outputTree->GetLevel(i));
     leafArray->SetValue(i, outputTree->IsLeaf(i));
-    }
+  }
 
   // Set levels as the active point scalar
   data->SetActiveScalars("level");

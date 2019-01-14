@@ -33,9 +33,7 @@ vtkGeometricErrorMetric::vtkGeometricErrorMetric()
 }
 
 //-----------------------------------------------------------------------------
-vtkGeometricErrorMetric::~vtkGeometricErrorMetric()
-{
-}
+vtkGeometricErrorMetric::~vtkGeometricErrorMetric() = default;
 
 //-----------------------------------------------------------------------------
 // Description :
@@ -48,10 +46,10 @@ void vtkGeometricErrorMetric::SetAbsoluteGeometricTolerance(double value)
   assert("pre: positive_value" && value>0);
   this->Relative=0;
   if(this->AbsoluteGeometricTolerance!=value)
-    {
+  {
     this->AbsoluteGeometricTolerance=value;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -65,7 +63,7 @@ void vtkGeometricErrorMetric::SetRelativeGeometricTolerance(double value,
                                                             vtkGenericDataSet *ds)
 {
   assert("pre: valid_range_value" && value>0 && value<1);
-  assert("pre: ds_exists" && ds!=0);
+  assert("pre: ds_exists" && ds!=nullptr);
 
   double bounds[6];
   ds->GetBounds(bounds);
@@ -74,23 +72,23 @@ void vtkGeometricErrorMetric::SetRelativeGeometricTolerance(double value,
   smallest = bounds[1] - bounds[0];
   length   = bounds[3] - bounds[2];
   if(length < smallest || smallest == 0.0)
-    {
+  {
     smallest = length;
-    }
+  }
   length = bounds[5] - bounds[4];
   if(length < smallest || smallest == 0.0)
-    {
+  {
     smallest = length;
-    }
+  }
   length = ds->GetLength();
   if(length < smallest || smallest == 0.0)
-    {
+  {
     smallest = length;
-    }
+  }
   if(smallest == 0)
-    {
+  {
     smallest = 1;
-    }
+  }
   double tmp = value*smallest;
   this->SmallestSize=smallest;
   cout<<"this->SmallestSize="<<this->SmallestSize<<endl;
@@ -98,10 +96,10 @@ void vtkGeometricErrorMetric::SetRelativeGeometricTolerance(double value,
   tmp=tmp*tmp;
 
   if(this->AbsoluteGeometricTolerance!=tmp)
-    {
+  {
     this->AbsoluteGeometricTolerance = tmp;
     this->Modified();
-    }
+  }
 }
 
 #define VTK_DISTANCE_LINE_POINT
@@ -117,15 +115,15 @@ int vtkGeometricErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
 #endif
   )
 {
-  assert("pre: leftPoint_exists" && leftPoint!=0);
-  assert("pre: midPoint_exists" && midPoint!=0);
-  assert("pre: rightPoint_exists" && rightPoint!=0);
+  assert("pre: leftPoint_exists" && leftPoint!=nullptr);
+  assert("pre: midPoint_exists" && midPoint!=nullptr);
+  assert("pre: rightPoint_exists" && rightPoint!=nullptr);
 //  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
   if( this->GenericCell->IsGeometryLinear() )
-    {
+  {
     //don't need to do anything:
     return 0;
-    }
+  }
   // distance between the line (leftPoint,rightPoint) and the point midPoint.
 #ifdef VTK_DISTANCE_LINE_POINT
   return this->Distance2LinePoint(leftPoint,rightPoint,midPoint)>this->AbsoluteGeometricTolerance;
@@ -134,10 +132,10 @@ int vtkGeometricErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
   double interpolatedPoint[3];
   int i=0;
   while(i<3)
-    {
+  {
     interpolatedPoint[i]=leftPoint[i] + alpha*(rightPoint[i] - leftPoint[i]);
     ++i;
-    }
+  }
   return vtkMath::Distance2BetweenPoints(midPoint,interpolatedPoint)>this->AbsoluteGeometricTolerance;
 #endif
 }
@@ -159,15 +157,15 @@ double vtkGeometricErrorMetric::GetError(double *leftPoint,
 #endif
   )
 {
-  assert("pre: leftPoint_exists" && leftPoint!=0);
-  assert("pre: midPoint_exists" && midPoint!=0);
-  assert("pre: rightPoint_exists" && rightPoint!=0);
+  assert("pre: leftPoint_exists" && leftPoint!=nullptr);
+  assert("pre: midPoint_exists" && midPoint!=nullptr);
+  assert("pre: rightPoint_exists" && rightPoint!=nullptr);
 //  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
   if( this->GenericCell->IsGeometryLinear() )
-    {
+  {
     //don't need to do anything:
     return 0;
-    }
+  }
   // distance between the line (leftPoint,rightPoint) and the point midPoint.
 #ifdef VTK_DISTANCE_LINE_POINT
   double squareAbsoluteError=this->Distance2LinePoint(leftPoint,rightPoint,midPoint);
@@ -176,20 +174,20 @@ double vtkGeometricErrorMetric::GetError(double *leftPoint,
   double interpolatedPoint[3];
   int i=0;
   while(i<3)
-    {
+  {
     interpolatedPoint[i]=leftPoint[i] + alpha*(rightPoint[i] - leftPoint[i]);
     ++i;
-    }
+  }
   double squareAbsoluteError=vtkMath::Distance2BetweenPoints(midPoint,interpolatedPoint);
 #endif
   if(this->Relative)
-    {
+  {
     return sqrt(squareAbsoluteError)/this->SmallestSize;
-    }
+  }
   else
-    {
+  {
     return squareAbsoluteError;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMemoryLimitImageDataStreamer - Initiates streaming on image data.
-// .SECTION Description
-// To satisfy a request, this filter calls update on its input
-// many times with smaller update extents.  All processing up stream
-// streams smaller pieces.
+/**
+ * @class   vtkMemoryLimitImageDataStreamer
+ * @brief   Initiates streaming on image data.
+ *
+ * To satisfy a request, this filter calls update on its input
+ * many times with smaller update extents.  All processing up stream
+ * streams smaller pieces.
+*/
 
 #ifndef vtkMemoryLimitImageDataStreamer_h
 #define vtkMemoryLimitImageDataStreamer_h
@@ -30,26 +33,29 @@ class VTKFILTERSPARALLELIMAGING_EXPORT vtkMemoryLimitImageDataStreamer : public 
 public:
   static vtkMemoryLimitImageDataStreamer *New();
   vtkTypeMacro(vtkMemoryLimitImageDataStreamer,vtkImageDataStreamer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set / Get the memory limit in kilobytes.
+  //@{
+  /**
+   * Set / Get the memory limit in kibibytes (1024 bytes).
+   */
   vtkSetMacro(MemoryLimit, unsigned long);
   vtkGetMacro(MemoryLimit, unsigned long);
+  //@}
 
-  // See the vtkAlgorithm for a desciption of what these do
+  // See the vtkAlgorithm for a description of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*);
+                     vtkInformationVector*) override;
 
 protected:
   vtkMemoryLimitImageDataStreamer();
-  ~vtkMemoryLimitImageDataStreamer() {}
+  ~vtkMemoryLimitImageDataStreamer() override {}
 
   unsigned long  MemoryLimit;
 private:
-  vtkMemoryLimitImageDataStreamer(const vtkMemoryLimitImageDataStreamer&);  // Not implemented.
-  void operator=(const vtkMemoryLimitImageDataStreamer&);  // Not implemented.
+  vtkMemoryLimitImageDataStreamer(const vtkMemoryLimitImageDataStreamer&) = delete;
+  void operator=(const vtkMemoryLimitImageDataStreamer&) = delete;
 };
 
 

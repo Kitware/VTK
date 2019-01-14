@@ -44,15 +44,15 @@ vtkTDxInteractorStyleCamera::~vtkTDxInteractorStyleCamera()
 void vtkTDxInteractorStyleCamera::OnMotionEvent(
   vtkTDxMotionEventInfo *motionInfo)
 {
-  assert("pre: motionInfo_exist" && motionInfo!=0);
+  assert("pre: motionInfo_exist" && motionInfo!=nullptr);
 
   vtkDebugMacro(<<"vtkTDxInteractorStyleCamera::OnMotionEvent()");
 
-  if(this->Renderer==0 || this->Settings==0)
-    {
+  if(this->Renderer==nullptr || this->Settings==nullptr)
+  {
     vtkDebugMacro(<<"vtkTDxInteractorStyleCamera::OnMotionEvent() no renderer or no settings");
     return;
-    }
+  }
 
   vtkCamera *c=this->Renderer->GetActiveCamera();
   vtkRenderWindow *w=this->Renderer->GetRenderWindow();
@@ -72,29 +72,29 @@ void vtkTDxInteractorStyleCamera::OnMotionEvent(
   // As we want to rotate the camera, the incoming data are expressed in
   // eye coordinates.
   if(this->Settings->GetUseRotationX())
-    {
+  {
     axisEye[0]=motionInfo->AxisX;
-    }
+  }
   else
-    {
+  {
     axisEye[0]=0.0;
-    }
+  }
   if(this->Settings->GetUseRotationY())
-    {
+  {
     axisEye[1]=motionInfo->AxisY;
-    }
+  }
   else
-    {
+  {
     axisEye[1]=0.0;
-    }
+  }
   if(this->Settings->GetUseRotationZ())
-    {
+  {
     axisEye[2]=motionInfo->AxisZ;
-    }
+  }
   else
-    {
+  {
     axisEye[2]=0.0;
-    }
+  }
 
   // Get the rotation axis in world coordinates.
   this->Transform->Identity();

@@ -15,7 +15,7 @@ shift
     mailer=mail
 
 subject="summarize your vtk $version changes please"
-maintainers="-c ben.boeckel@kitware.com -c dave.demarle@kitware.com"
+maintainers="-c ben.boeckel@kitware.com -c dave.demarle@kitware.com -c chuck.atkins@kitware.com"
 
 for email in *@*.txt; do
     address="$( basename "$email" .txt )"

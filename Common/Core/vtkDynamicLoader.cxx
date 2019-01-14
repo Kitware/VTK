@@ -15,15 +15,13 @@
 #include "vtkDynamicLoader.h"
 
 #include "vtkDebugLeaks.h"
+#include "vtkObjectFactory.h"
 
 
 //-----------------------------------------------------------------------------
 vtkDynamicLoader* vtkDynamicLoader::New()
 {
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass("vtkDynamicLoader");
-#endif
-  return new vtkDynamicLoader;
+  VTK_STANDARD_NEW_BODY(vtkDynamicLoader)
 }
 
 
@@ -40,11 +38,10 @@ int vtkDynamicLoader::CloseLibrary(vtkLibHandle lib)
 }
 
 // ----------------------------------------------------------------------------
-//vtkSymbolPointer
-void*
+vtkSymbolPointer
 vtkDynamicLoader::GetSymbolAddress(vtkLibHandle lib, const char* sym)
 {
-  return (void *)(vtksys::DynamicLoader::GetSymbolAddress(lib, sym));
+  return vtksys::DynamicLoader::GetSymbolAddress(lib, sym);
 }
 
 // ----------------------------------------------------------------------------

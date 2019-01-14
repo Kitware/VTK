@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCuller - a superclass for prop cullers
-// .SECTION Description
-// A culler has a cull method called by the vtkRenderer. The cull
-// method is called before any rendering is performed,
-// and it allows the culler to do some processing on the props and
-// to modify their AllocatedRenderTime and re-order them in the prop list.
-
-// .SECTION see also
-// vtkFrustumCoverageCuller
+/**
+ * @class   vtkCuller
+ * @brief   a superclass for prop cullers
+ *
+ * A culler has a cull method called by the vtkRenderer. The cull
+ * method is called before any rendering is performed,
+ * and it allows the culler to do some processing on the props and
+ * to modify their AllocatedRenderTime and re-order them in the prop list.
+ *
+ * @sa
+ * vtkFrustumCoverageCuller
+*/
 
 #ifndef vtkCuller_h
 #define vtkCuller_h
@@ -35,20 +38,21 @@ class VTKRENDERINGCORE_EXPORT vtkCuller : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCuller, vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // This is called outside the render loop by vtkRenderer
+  /**
+   * This is called outside the render loop by vtkRenderer
+   */
   virtual double Cull( vtkRenderer *ren, vtkProp **propList,
                        int& listLength, int& initialized ) = 0;
 
 protected:
   vtkCuller();
-  ~vtkCuller();
+  ~vtkCuller() override;
 
 private:
-  vtkCuller(const vtkCuller&);  // Not implemented.
-  void operator=(const vtkCuller&);    // Not implemented.
+  vtkCuller(const vtkCuller&) = delete;
+  void operator=(const vtkCuller&) = delete;
 };
 
 #endif

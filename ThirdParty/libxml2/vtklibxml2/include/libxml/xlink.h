@@ -10,8 +10,8 @@
 #ifndef __XML_XLINK_H__
 #define __XML_XLINK_H__
 
-#include "xmlversion.h"
-#include "tree.h"
+#include <libxml/xmlversion.h>
+#include <libxml/tree.h>
 
 #ifdef LIBXML_XPTR_ENABLED
 
@@ -57,7 +57,7 @@ typedef enum {
  * xlinkNodeDetectFunc:
  * @ctx:  user data pointer
  * @node:  the node to check
- * 
+ *
  * This is the prototype for the link detection routine.
  * It calls the default link detection callbacks upon link detection.
  */
@@ -79,11 +79,11 @@ typedef void (*xlinkNodeDetectFunc) (void *ctx, xmlNodePtr node);
  * This is the prototype for a simple link detection callback.
  */
 typedef void
-(*xlinkSimpleLinkFunk)  (void *ctx,
-                         xmlNodePtr node,
-                         const xlinkHRef href,
-                         const xlinkRole role,
-                         const xlinkTitle title);
+(*xlinkSimpleLinkFunk)	(void *ctx,
+			 xmlNodePtr node,
+			 const xlinkHRef href,
+			 const xlinkRole role,
+			 const xlinkTitle title);
 
 /**
  * xlinkExtendedLinkFunk:
@@ -105,18 +105,18 @@ typedef void
  */
 typedef void
 (*xlinkExtendedLinkFunk)(void *ctx,
-                         xmlNodePtr node,
-                         int nbLocators,
-                         const xlinkHRef *hrefs,
-                         const xlinkRole *roles,
-                         int nbArcs,
-                         const xlinkRole *from,
-                         const xlinkRole *to,
-                         xlinkShow *show,
-                         xlinkActuate *actuate,
-                         int nbTitles,
-                         const xlinkTitle *titles,
-                         const xmlChar **langs);
+			 xmlNodePtr node,
+			 int nbLocators,
+			 const xlinkHRef *hrefs,
+			 const xlinkRole *roles,
+			 int nbArcs,
+			 const xlinkRole *from,
+			 const xlinkRole *to,
+			 xlinkShow *show,
+			 xlinkActuate *actuate,
+			 int nbTitles,
+			 const xlinkTitle *titles,
+			 const xmlChar **langs);
 
 /**
  * xlinkExtendedLinkSetFunk:
@@ -132,14 +132,14 @@ typedef void
  * This is the prototype for a extended link set detection callback.
  */
 typedef void
-(*xlinkExtendedLinkSetFunk)     (void *ctx,
-                                 xmlNodePtr node,
-                                 int nbLocators,
-                                 const xlinkHRef *hrefs,
-                                 const xlinkRole *roles,
-                                 int nbTitles,
-                                 const xlinkTitle *titles,
-                                 const xmlChar **langs);
+(*xlinkExtendedLinkSetFunk)	(void *ctx,
+				 xmlNodePtr node,
+				 int nbLocators,
+				 const xlinkHRef *hrefs,
+				 const xlinkRole *roles,
+				 int nbTitles,
+				 const xlinkTitle *titles,
+				 const xmlChar **langs);
 
 /**
  * This is the structure containing a set of Links detection callbacks.
@@ -157,28 +157,28 @@ struct _xlinkHandler {
 
 /*
  * The default detection routine, can be overridden, they call the default
- * detection callbacks. 
+ * detection callbacks.
  */
 
-XMLPUBFUN xlinkNodeDetectFunc XMLCALL   
-                xlinkGetDefaultDetect   (void);
-XMLPUBFUN void XMLCALL                  
-                xlinkSetDefaultDetect   (xlinkNodeDetectFunc func);
+XMLPUBFUN xlinkNodeDetectFunc XMLCALL
+		xlinkGetDefaultDetect	(void);
+XMLPUBFUN void XMLCALL
+		xlinkSetDefaultDetect	(xlinkNodeDetectFunc func);
 
 /*
  * Routines to set/get the default handlers.
  */
-XMLPUBFUN xlinkHandlerPtr XMLCALL       
-                xlinkGetDefaultHandler  (void);
-XMLPUBFUN void XMLCALL          
-                xlinkSetDefaultHandler  (xlinkHandlerPtr handler);
+XMLPUBFUN xlinkHandlerPtr XMLCALL
+		xlinkGetDefaultHandler	(void);
+XMLPUBFUN void XMLCALL
+		xlinkSetDefaultHandler	(xlinkHandlerPtr handler);
 
 /*
  * Link detection module itself.
  */
-XMLPUBFUN xlinkType XMLCALL      
-                xlinkIsLink             (xmlDocPtr doc,
-                                         xmlNodePtr node);
+XMLPUBFUN xlinkType XMLCALL
+		xlinkIsLink		(xmlDocPtr doc,
+					 xmlNodePtr node);
 
 #ifdef __cplusplus
 }

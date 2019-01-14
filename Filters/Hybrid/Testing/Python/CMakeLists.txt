@@ -1,6 +1,5 @@
 vtk_add_test_python(
   3DMorph.py
-  TestFacetReader.py
   TestGreedyTerrainDecimation.py
   TestGridWarp3D.py
   TestGridWarpCubic.py
@@ -18,7 +17,9 @@ vtk_add_test_python(
   depthSort.py
   earth.py
   imageToPolyData.py
+  largeImageGradientBackground.py
   largeImageOffset.py
   largeImageParallel.py
   TestProcrustesRigidCentroid.py
+  TestFacetReader.py
   )

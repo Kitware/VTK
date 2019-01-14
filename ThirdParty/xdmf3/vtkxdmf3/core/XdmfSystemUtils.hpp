@@ -24,9 +24,13 @@
 #ifndef XDMFSYSTEMUTILS_HPP_
 #define XDMFSYSTEMUTILS_HPP_
 
+// C Compatible Includes
+#include "XdmfCore.hpp"
+
+#ifdef __cplusplus
+
 // Includes
 #include <string>
-#include "XdmfCore.hpp"
 
 /**
  * @brief System specific functions.
@@ -72,5 +76,18 @@ class XDMFCORE_EXPORT XdmfSystemUtils {
   void operator=(const XdmfSystemUtils &);  // Not implemented.
 
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+XDMFCORE_EXPORT char * XdmfSystemUtilsGetRealPath(char * path);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* XDMFSYSTEMUTILS_HPP_ */

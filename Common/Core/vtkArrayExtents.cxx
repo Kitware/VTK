@@ -22,12 +22,10 @@
 #include "vtkArrayCoordinates.h"
 #include "vtkArrayExtents.h"
 
-#include <vtksys/stl/functional>
-#include <vtksys/stl/numeric>
+#include <functional>
+#include <numeric>
 
-vtkArrayExtents::vtkArrayExtents()
-{
-}
+vtkArrayExtents::vtkArrayExtents() = default;
 
 vtkArrayExtents::vtkArrayExtents(const CoordinateT i) :
   Storage(1)
@@ -71,19 +69,19 @@ vtkArrayExtents::vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j,
   this->Storage[2] = k;
 }
 
-const vtkArrayExtents vtkArrayExtents::Uniform(DimensionT n, CoordinateT m)
+vtkArrayExtents vtkArrayExtents::Uniform(DimensionT n, CoordinateT m)
 {
   vtkArrayExtents result;
   // IA64 HP-UX doesn't seem to have the vector<T> vector1(n, value)
   // overload nor the assign(n, value) method, so we use the single
   // argument constructor and initialize the values manually.
-  // result.Storage = vtksys_stl::vector<vtkIdType>(n, m);
+  // result.Storage = std::vector<vtkIdType>(n, m);
 
   result.Storage = std::vector<vtkArrayRange>(n);
   for(DimensionT i = 0; i < n; i++)
-    {
+  {
     result.Storage[i] = vtkArrayRange(0, m);
-    }
+  }
   return result;
 }
 
@@ -94,7 +92,7 @@ void vtkArrayExtents::Append(const vtkArrayRange& extent)
 
 vtkArrayExtents::DimensionT vtkArrayExtents::GetDimensions() const
 {
-  return this->Storage.size();
+  return static_cast<vtkArrayExtents::DimensionT>(this->Storage.size());
 }
 
 vtkTypeUInt64 vtkArrayExtents::GetSize() const
@@ -147,10 +145,10 @@ bool vtkArrayExtents::operator!=(const vtkArrayExtents& rhs) const
 bool vtkArrayExtents::ZeroBased() const
 {
   for(DimensionT i = 0; i != this->GetDimensions(); ++i)
-    {
+  {
     if(this->Storage[i].GetBegin() != 0)
       return false;
-    }
+  }
 
   return true;
 }
@@ -161,10 +159,10 @@ bool vtkArrayExtents::SameShape(const vtkArrayExtents& rhs) const
     return false;
 
   for(DimensionT i = 0; i != this->GetDimensions(); ++i)
-    {
+  {
     if(this->Storage[i].GetSize() != rhs.Storage[i].GetSize())
       return false;
-    }
+  }
 
   return true;
 }
@@ -175,10 +173,10 @@ void vtkArrayExtents::GetLeftToRightCoordinatesN(SizeT n, vtkArrayCoordinates& c
 
   vtkIdType divisor = 1;
   for(vtkIdType i = 0; i < this->GetDimensions(); ++i)
-    {
+  {
     coordinates[i] = ((n / divisor) % this->Storage[i].GetSize()) + this->Storage[i].GetBegin();
     divisor *= this->Storage[i].GetSize();
-    }
+  }
 }
 
 void vtkArrayExtents::GetRightToLeftCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates) const
@@ -187,10 +185,10 @@ void vtkArrayExtents::GetRightToLeftCoordinatesN(SizeT n, vtkArrayCoordinates& c
 
   vtkIdType divisor = 1;
   for(vtkIdType i = this->GetDimensions() - 1; i >= 0; --i)
-    {
+  {
     coordinates[i] = ((n / divisor) % this->Storage[i].GetSize()) + this->Storage[i].GetBegin();
     divisor *= this->Storage[i].GetSize();
-    }
+  }
 }
 
 bool vtkArrayExtents::Contains(const vtkArrayExtents& other) const
@@ -199,10 +197,10 @@ bool vtkArrayExtents::Contains(const vtkArrayExtents& other) const
     return false;
 
   for(DimensionT i = 0; i != this->GetDimensions(); ++i)
-    {
+  {
     if(!this->Storage[i].Contains(other[i]))
       return false;
-    }
+  }
 
   return true;
 }
@@ -213,10 +211,10 @@ bool vtkArrayExtents::Contains(const vtkArrayCoordinates& coordinates) const
     return false;
 
   for(DimensionT i = 0; i != this->GetDimensions(); ++i)
-    {
+  {
     if(!this->Storage[i].Contains(coordinates[i]))
       return false;
-    }
+  }
 
   return true;
 }
@@ -224,11 +222,11 @@ bool vtkArrayExtents::Contains(const vtkArrayCoordinates& coordinates) const
 ostream& operator<<(ostream& stream, const vtkArrayExtents& rhs)
 {
   for(size_t i = 0; i != rhs.Storage.size(); ++i)
-    {
+  {
     if(i)
       stream << "x";
     stream << "[" << rhs.Storage[i].GetBegin() << "," << rhs.Storage[i].GetEnd() << ")";
-    }
+  }
 
   return stream;
 }

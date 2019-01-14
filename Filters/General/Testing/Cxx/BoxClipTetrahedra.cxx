@@ -95,19 +95,20 @@ class BadWinding
 public:
   BadWinding(vtkUnstructuredGrid *data) {
     this->Data = data;
-    this->Data->Register(NULL);
+    this->Data->Register(nullptr);
   }
   ~BadWinding() {
-    this->Data->UnRegister(NULL);
+    this->Data->UnRegister(nullptr);
   }
   BadWinding(const BadWinding &bw) {
     this->Data = bw.Data;
-    this->Data->Register(NULL);
+    this->Data->Register(nullptr);
   }
-  void operator=(const BadWinding &bw) {
-    this->Data->UnRegister(NULL);
+  BadWinding& operator=(const BadWinding &bw) {
+    this->Data->UnRegister(nullptr);
     this->Data = bw.Data;
-    this->Data->Register(NULL);
+    this->Data->Register(nullptr);
+    return *this;
   }
 
   vtkUnstructuredGrid *Data;
@@ -123,12 +124,12 @@ static void CheckWinding(vtkUnstructuredGrid *data)
 
   vtkIdType npts, *pts;
   while (cells->GetNextCell(npts, pts))
-    {
+  {
     if (npts != 4)
-      {
+    {
       std::cout << "Weird.  I got something that is not a tetrahedra." << std::endl;
       continue;
-      }
+    }
 
     double p0[3], p1[3], p2[3], p3[3];
     points->GetPoint(pts[0], p0);
@@ -149,10 +150,10 @@ static void CheckWinding(vtkUnstructuredGrid *data)
     d[0] = p3[0] - p0[0];    d[1] = p3[1] - p0[1];    d[2] = p3[2] - p0[2];
 
     if (vtkMath::Dot(n, d) < 0)
-      {
+    {
       throw BadWinding(data);
-      }
     }
+  }
 }
 
 static vtkSmartPointer<vtkUnstructuredGrid> MakeTetrahedron(int num)
@@ -192,7 +193,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
 
   // Add tests for axis oriented box and no clipped output.
   for (i = 0; i < 12; i++)
-    {
+  {
     vtkSmartPointer<vtkUnstructuredGrid> input = MakeTetrahedron(i);
     CheckWinding(input);
 
@@ -222,11 +223,11 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     vtkCamera *camera = renderer->GetActiveCamera();
     camera->Azimuth(25.0);
     camera->Elevation(-25.0);
-    }
+  }
 
   // Add tests for axis oriented box and clipped output.
   for (i = 0; i < 12; i++)
-    {
+  {
     vtkSmartPointer<vtkUnstructuredGrid> input = MakeTetrahedron(i);
     CheckWinding(input);
 
@@ -268,7 +269,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     vtkCamera *camera = renderer->GetActiveCamera();
     camera->Azimuth(25.0);
     camera->Elevation(-25.0);
-    }
+  }
 
   double minpoint[3], maxpoint[3];
   minpoint[0] = minx;  minpoint[1] = miny;  minpoint[2] = minz;
@@ -276,7 +277,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
 
   // Add tests for arbitrarily oriented box and no clipped output.
   for (i = 0; i < 12; i++)
-    {
+  {
     vtkSmartPointer<vtkUnstructuredGrid> input = MakeTetrahedron(i);
     CheckWinding(input);
 
@@ -307,11 +308,11 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     vtkCamera *camera = renderer->GetActiveCamera();
     camera->Azimuth(25.0);
     camera->Elevation(-25.0);
-    }
+  }
 
   // Add tests for arbitrarily oriented box and clipped output.
   for (i = 0; i < 12; i++)
-    {
+  {
     vtkSmartPointer<vtkUnstructuredGrid> input = MakeTetrahedron(i);
     CheckWinding(input);
 
@@ -354,7 +355,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     vtkCamera *camera = renderer->GetActiveCamera();
     camera->Azimuth(25.0);
     camera->Elevation(-25.0);
-    }
+  }
 }
 
 
@@ -367,7 +368,7 @@ int BoxClipTetrahedra(int, char *[])
   iren->SetRenderWindow(renwin);
 
   try
-    {
+  {
     TestBox(renwin, 0, 0.15, 2.0, -2.0, 2.0, -2.0, 2.0);
     TestBox(renwin, 1, -2.0, 0.15, -2.0, 2.0, -2.0, 2.0);
     TestBox(renwin, 2, -2.0, 2.0, -2.0, 2.0, -2.0, 0.4);
@@ -376,12 +377,12 @@ int BoxClipTetrahedra(int, char *[])
     TestBox(renwin, 5, -2.0, 2.0, -2.0, 2.0, 0.5, 2.0);
     TestBox(renwin, 6, -2.0, 0.0, -2.0, 2.0, -2.0, 2.0);
     TestBox(renwin, 7, 0.0, 2.0, -2.0, 2.0, -2.0, 2.0);
-    }
-  catch (BadWinding bw)
-    {
+  }
+  catch (const BadWinding&)
+  {
     std::cout << "Encountered a bad winding.  Aborting test." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Run the regression test.
   renwin->Render();

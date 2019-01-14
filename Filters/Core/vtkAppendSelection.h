@@ -16,12 +16,15 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkAppendSelection - appends one or more selections together
-//
-// .SECTION Description
-// vtkAppendSelection is a filter that appends one of more selections into
-// a single selection.  All selections must have the same content type unless
-// AppendByUnion is false.
+/**
+ * @class   vtkAppendSelection
+ * @brief   appends one or more selections together
+ *
+ *
+ * vtkAppendSelection is a filter that appends one of more selections into
+ * a single selection.  All selections must have the same content type unless
+ * AppendByUnion is false.
+*/
 
 #ifndef vtkAppendSelection_h
 #define vtkAppendSelection_h
@@ -37,72 +40,82 @@ public:
   static vtkAppendSelection *New();
 
   vtkTypeMacro(vtkAppendSelection,vtkSelectionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // UserManagedInputs allows the user to set inputs by number instead of
-  // using the AddInput/RemoveInput functions. Calls to
-  // SetNumberOfInputs/SetInputByNumber should not be mixed with calls
-  // to AddInput/RemoveInput. By default, UserManagedInputs is false.
-  vtkSetMacro(UserManagedInputs,int);
-  vtkGetMacro(UserManagedInputs,int);
-  vtkBooleanMacro(UserManagedInputs,int);
+  //@{
+  /**
+   * UserManagedInputs allows the user to set inputs by number instead of
+   * using the AddInput/RemoveInput functions. Calls to
+   * SetNumberOfInputs/SetInputByNumber should not be mixed with calls
+   * to AddInput/RemoveInput. By default, UserManagedInputs is false.
+   */
+  vtkSetMacro(UserManagedInputs,vtkTypeBool);
+  vtkGetMacro(UserManagedInputs,vtkTypeBool);
+  vtkBooleanMacro(UserManagedInputs,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Add a dataset to the list of data to append. Should not be
-  // used when UserManagedInputs is true, use SetInputByNumber instead.
+  /**
+   * Add a dataset to the list of data to append. Should not be
+   * used when UserManagedInputs is true, use SetInputByNumber instead.
+   */
   void AddInputData(vtkSelection *);
 
-  // Description:
-  // Remove a dataset from the list of data to append. Should not be
-  // used when UserManagedInputs is true, use SetInputByNumber (NULL) instead.
+  /**
+   * Remove a dataset from the list of data to append. Should not be
+   * used when UserManagedInputs is true, use SetInputByNumber (nullptr) instead.
+   */
   void RemoveInputData(vtkSelection *);
 
-//BTX
-  // Description:
-  // Get any input of this filter.
+  //@{
+  /**
+   * Get any input of this filter.
+   */
   vtkSelection *GetInput(int idx);
   vtkSelection *GetInput() { return this->GetInput( 0 ); };
-//ETX
+  //@}
 
-  // Description:
-  // Directly set(allocate) number of inputs, should only be used
-  // when UserManagedInputs is true.
+  /**
+   * Directly set(allocate) number of inputs, should only be used
+   * when UserManagedInputs is true.
+   */
   void SetNumberOfInputs(int num);
 
   // Set Nth input, should only be used when UserManagedInputs is true.
   void SetInputConnectionByNumber(int num, vtkAlgorithmOutput *input);
 
-  // Description:
-  // When set to true, all the selections are combined together to form a single
-  // vtkSelection output.
-  // When set to false, the output is a composite selection with
-  // input selections as the children of the composite selection. This allows
-  // for selections with different content types and properties. Default is
-  // true.
-  vtkSetMacro(AppendByUnion, int);
-  vtkGetMacro(AppendByUnion, int);
-  vtkBooleanMacro(AppendByUnion, int);
+  //@{
+  /**
+   * When set to true, all the selections are combined together to form a single
+   * vtkSelection output.
+   * When set to false, the output is a composite selection with
+   * input selections as the children of the composite selection. This allows
+   * for selections with different content types and properties. Default is
+   * true.
+   */
+  vtkSetMacro(AppendByUnion, vtkTypeBool);
+  vtkGetMacro(AppendByUnion, vtkTypeBool);
+  vtkBooleanMacro(AppendByUnion, vtkTypeBool);
+  //@}
 
 protected:
   vtkAppendSelection();
-  ~vtkAppendSelection();
+  ~vtkAppendSelection() override;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int, vtkInformation *);
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
  private:
   // hide the superclass' AddInput() from the user and the compiler
   void AddInputData(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkSelection not a vtkDataObject."); };
 
-  int UserManagedInputs;
-  int AppendByUnion;
+  vtkTypeBool UserManagedInputs;
+  vtkTypeBool AppendByUnion;
 private:
-  vtkAppendSelection(const vtkAppendSelection&);  // Not implemented.
-  void operator=(const vtkAppendSelection&);  // Not implemented.
+  vtkAppendSelection(const vtkAppendSelection&) = delete;
+  void operator=(const vtkAppendSelection&) = delete;
 };
 
 #endif

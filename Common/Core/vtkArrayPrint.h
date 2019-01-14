@@ -18,11 +18,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkArrayPrint - Print arrays in different formats
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
-// Laboratories.
+/**
+ * @class   vtkArrayPrint
+ * @brief   Print arrays in different formats
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
+ * Laboratories.
+*/
 
 #ifndef vtkArrayPrint_h
 #define vtkArrayPrint_h

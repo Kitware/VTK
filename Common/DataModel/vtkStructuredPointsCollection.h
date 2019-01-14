@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStructuredPointsCollection - maintain a list of structured points data objects
-// .SECTION Description
-// vtkStructuredPointsCollection is an object that creates and manipulates
-// lists of structured points datasets. See also vtkCollection and
-// subclasses.
+/**
+ * @class   vtkStructuredPointsCollection
+ * @brief   maintain a list of structured points data objects
+ *
+ * vtkStructuredPointsCollection is an object that creates and manipulates
+ * ordered lists of structured points datasets. See also vtkCollection and
+ * subclasses.
+*/
 
 #ifndef vtkStructuredPointsCollection_h
 #define vtkStructuredPointsCollection_h
@@ -30,34 +33,35 @@ class VTKCOMMONDATAMODEL_EXPORT vtkStructuredPointsCollection : public vtkCollec
 public:
   static vtkStructuredPointsCollection *New();
   vtkTypeMacro(vtkStructuredPointsCollection,vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Add a pointer to a vtkStructuredPoints to the list.
+  /**
+   * Add a pointer to a vtkStructuredPoints to the bottom of the list.
+   */
   void AddItem(vtkStructuredPoints *ds)
-    {
+  {
       this->vtkCollection::AddItem(ds);
-    }
+  }
 
-  // Description:
-  // Get the next item in the collection. NULL is returned if the collection
-  // is exhausted.
+  /**
+   * Get the next item in the collection. nullptr is returned if the collection
+   * is exhausted.
+   */
   vtkStructuredPoints *GetNextItem() {
     return static_cast<vtkStructuredPoints *>(this->GetNextItemAsObject());};
 
-    //BTX
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkStructuredPoints *GetNextStructuredPoints(
     vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkStructuredPoints *>(
       this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkStructuredPointsCollection() {}
-  ~vtkStructuredPointsCollection() {}
+  ~vtkStructuredPointsCollection() override {}
 
 
 
@@ -66,8 +70,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkStructuredPointsCollection(const vtkStructuredPointsCollection&);  // Not implemented.
-  void operator=(const vtkStructuredPointsCollection&);  // Not implemented.
+  vtkStructuredPointsCollection(const vtkStructuredPointsCollection&) = delete;
+  void operator=(const vtkStructuredPointsCollection&) = delete;
 };
 
 

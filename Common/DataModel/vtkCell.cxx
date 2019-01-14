@@ -21,8 +21,7 @@
 // Construct cell.
 vtkCell::vtkCell()
 {
-  this->Points = vtkPoints::New();
-  this->Points->SetDataTypeToDouble();
+  this->Points = vtkPoints::New(VTK_DOUBLE);
   this->PointIds = vtkIdList::New();
   // Consistent Register/Deletes (ShallowCopy uses Register.)
   this->Points->Register(this);
@@ -47,10 +46,27 @@ void vtkCell::Initialize(int npts, vtkIdType *pts, vtkPoints *p)
   this->Points->Reset();
 
   for (int i=0; i<npts; i++)
-    {
+  {
     this->PointIds->InsertId(i,pts[i]);
     this->Points->InsertPoint(i,p->GetPoint(pts[i]));
-    }
+  }
+}
+
+//----------------------------------------------------------------------------
+// Instantiate cell from outside. A simplified version of
+// vtkCell::Initialize() that assumes point ids are simply the index into the
+// points. This is a convenience function.
+//
+void vtkCell::Initialize(int npts, vtkPoints *p)
+{
+  this->PointIds->Reset();
+  this->Points->Reset();
+
+  for (int i=0; i<npts; i++)
+  {
+    this->PointIds->InsertId(i,i);
+    this->Points->InsertPoint(i,p->GetPoint(i));
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -58,11 +74,11 @@ void vtkCell::ShallowCopy(vtkCell *c)
 {
   this->Points->ShallowCopy(c->Points);
   if ( this->PointIds )
-    {
+  {
     this->PointIds->UnRegister(this);
     this->PointIds = c->PointIds;
     this->PointIds->Register(this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -81,7 +97,7 @@ double *vtkCell::GetBounds ()
   int i, numPts=this->Points->GetNumberOfPoints();
 
   if (numPts)
-    {
+  {
     this->Points->GetPoint(0, x);
     this->Bounds[0] = x[0];
     this->Bounds[2] = x[1];
@@ -90,7 +106,7 @@ double *vtkCell::GetBounds ()
     this->Bounds[3] = x[1];
     this->Bounds[5] = x[2];
     for (i=1; i<numPts; i++)
-      {
+    {
       this->Points->GetPoint(i, x);
       this->Bounds[0] = (x[0] < this->Bounds[0] ? x[0] : this->Bounds[0]);
       this->Bounds[1] = (x[0] > this->Bounds[1] ? x[0] : this->Bounds[1]);
@@ -98,12 +114,12 @@ double *vtkCell::GetBounds ()
       this->Bounds[3] = (x[1] > this->Bounds[3] ? x[1] : this->Bounds[3]);
       this->Bounds[4] = (x[2] < this->Bounds[4] ? x[2] : this->Bounds[4]);
       this->Bounds[5] = (x[2] > this->Bounds[5] ? x[2] : this->Bounds[5]);
-      }
     }
+  }
   else
-    {
+  {
     vtkMath::UninitializeBounds(this->Bounds);
-    }
+  }
   return this->Bounds;
 }
 
@@ -114,9 +130,9 @@ void vtkCell::GetBounds(double bounds[6])
 {
   this->GetBounds();
   for (int i=0; i < 6; i++)
-    {
+  {
     bounds[i] = this->Bounds[i];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -128,10 +144,10 @@ double vtkCell::GetLength2 ()
 
   this->GetBounds();
   for (i=0; i<3; i++)
-    {
+  {
     diff = this->Bounds[2*i+1] - this->Bounds[2*i];
     l += diff * diff;
-    }
+  }
   return l;
 }
 
@@ -150,30 +166,30 @@ int vtkCell::GetParametricCenter(double pcoords[3])
 //----------------------------------------------------------------------------
 // This method works fine for all "rectangular" cells, not triangular
 // and tetrahedral topologies.
-double vtkCell::GetParametricDistance(double pcoords[3])
+double vtkCell::GetParametricDistance(const double pcoords[3])
 {
   int i;
   double pDist, pDistMax=0.0;
 
   for (i=0; i<3; i++)
-    {
+  {
     if ( pcoords[i] < 0.0 )
-      {
+    {
       pDist = -pcoords[i];
-      }
-    else if ( pcoords[i] > 1.0 )
-      {
-      pDist = pcoords[i] - 1.0;
-      }
-    else //inside the cell in the parametric direction
-      {
-      pDist = 0.0;
-      }
-    if ( pDist > pDistMax )
-      {
-      pDistMax = pDist;
-      }
     }
+    else if ( pcoords[i] > 1.0 )
+    {
+      pDist = pcoords[i] - 1.0;
+    }
+    else //inside the cell in the parametric direction
+    {
+      pDist = 0.0;
+    }
+    if ( pDist > pDistMax )
+    {
+      pDistMax = pDist;
+    }
+  }
   return pDistMax;
 }
 
@@ -188,8 +204,8 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Points: " << numIds << "\n";
 
   if ( numIds > 0 )
-    {
-    double *bounds=this->GetBounds();
+  {
+    const double *bounds=this->GetBounds();
 
     os << indent << "Bounds: \n";
     os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
@@ -198,26 +214,26 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 
     os << indent << "  Point ids are: ";
     for (int i=0; i < numIds; i++)
-      {
+    {
       os << this->PointIds->GetId(i);
       if ( i && !(i % 12) )
-        {
+      {
         os << "\n\t";
-        }
+      }
       else
-        {
+      {
         if ( i != (numIds-1) )
-          {
+        {
           os << ", ";
-          }
         }
       }
-    os << indent << "\n";
     }
+    os << indent << "\n";
+  }
 }
 
 // Usually overridden. Only composite cells do not override this.
 double *vtkCell::GetParametricCoords()
 {
-  return NULL;
+  return nullptr;
 }

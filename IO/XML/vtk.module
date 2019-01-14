@@ -1,0 +1,32 @@
+NAME
+  VTK::IOXML
+LIBRARY_NAME
+  vtkIOXML
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::IOXMLParser
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::IOCore
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::FiltersAMR
+  VTK::FiltersCore
+  VTK::FiltersGeometry
+  VTK::FiltersHyperTree
+  VTK::FiltersSources
+  VTK::IOLegacy
+  VTK::IOParallelXML
+  VTK::ImagingSources
+  VTK::InfovisCore
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

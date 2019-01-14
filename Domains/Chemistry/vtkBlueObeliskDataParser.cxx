@@ -41,7 +41,7 @@ vtkStandardNewMacro(vtkBlueObeliskDataParser);
 //----------------------------------------------------------------------------
 vtkBlueObeliskDataParser::vtkBlueObeliskDataParser()
   : vtkXMLParser(),
-    Target(NULL),
+    Target(nullptr),
     IsProcessingAtom(false),
     IsProcessingValue(false),
     CurrentValueType(None),
@@ -51,33 +51,23 @@ vtkBlueObeliskDataParser::vtkBlueObeliskDataParser()
     CurrentElectronicConfiguration(new vtkStdString),
     CurrentFamily(new vtkStdString)
 {
-  // Find elements.xml. Check the share directory first, then the source dir
-  // if running from the build directory before installing.
-  struct stat buf;
-  if (stat(VTK_BODR_DATA_PATH "/elements.xml", &buf) == 0)
-    {
-    this->SetFileName(VTK_BODR_DATA_PATH "/elements.xml");
-    }
-  else if (stat(VTK_BODR_DATA_PATH_BUILD "/elements.xml", &buf) == 0)
-    {
-    this->SetFileName(VTK_BODR_DATA_PATH_BUILD "/elements.xml");
-    }
-  else
-    {
-    vtkErrorMacro(<<"Cannot find elements.xml. Checked " VTK_BODR_DATA_PATH
-                  " and " VTK_BODR_DATA_PATH_BUILD)
-    }
 }
 
 //----------------------------------------------------------------------------
 vtkBlueObeliskDataParser::~vtkBlueObeliskDataParser()
 {
-  this->SetTarget(NULL);
+  this->SetTarget(nullptr);
   delete CurrentSymbol;
   delete CurrentName;
   delete CurrentPeriodicTableBlock;
   delete CurrentElectronicConfiguration;
   delete CurrentFamily;
+}
+
+//----------------------------------------------------------------------------
+void vtkBlueObeliskDataParser::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -90,10 +80,10 @@ void vtkBlueObeliskDataParser::SetTarget(vtkBlueObeliskData *bodr)
 int vtkBlueObeliskDataParser::Parse()
 {
   if (!this->Target)
-    {
+  {
     vtkWarningMacro(<<"No target set. Aborting.");
     return 0;
-    }
+  }
 
   // Setup BlueObeliskData arrays
   this->Target->Reset();
@@ -129,55 +119,53 @@ void vtkBlueObeliskDataParser::StartElement(const char *name,
                                             const char **attr)
 {
   if (this->GetDebug())
-    {
+  {
     std::string desc;
     desc += "Encountered BODR Element. Name: ";
     desc += name;
     desc += "\n\tAttributes: ";
     int attrIndex = 0;
     while (const char * cur = attr[attrIndex])
-      {
+    {
       if (attrIndex > 0)
-        {
+      {
         desc.push_back(' ');
-        }
+      }
       desc += cur;
       ++attrIndex;
-      }
-    vtkDebugMacro(<<desc);
     }
+    vtkDebugMacro(<<desc);
+  }
 
   if (strcmp(name, "atom") == 0)
-    {
+  {
     this->NewAtomStarted(attr);
-    }
+  }
   else if (strcmp(name, "scalar") == 0 ||
            strcmp(name, "label") == 0 ||
            strcmp(name, "array") == 0)
-    {
+  {
     this->NewValueStarted(attr);
-    }
+  }
   else if (this->GetDebug())
-    {
+  {
     vtkDebugMacro(<<"Unhandled BODR element: " << name);
-    }
-
-  return;
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::EndElement(const char *name)
 {
   if (strcmp(name, "atom") == 0)
-    {
+  {
     this->NewAtomFinished();
-    }
+  }
   else if (strcmp(name, "scalar") == 0 ||
            strcmp(name, "label") == 0 ||
            strcmp(name, "array") == 0)
-    {
+  {
     this->NewValueFinished();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -213,11 +201,11 @@ void vtkBlueObeliskDataParser::NewAtomStarted(const char **)
 void vtkBlueObeliskDataParser::NewAtomFinished()
 {
   if (this->CurrentAtomicNumber < 0)
-    {
+  {
     vtkWarningMacro(<<"Skipping invalid atom...");
     this->IsProcessingAtom = false;
     return;
-    }
+  }
 
   vtkDebugMacro(<<"Adding info for atomic number: " <<
                 this->CurrentAtomicNumber);
@@ -225,67 +213,67 @@ void vtkBlueObeliskDataParser::NewAtomFinished()
   vtkIdType index = static_cast<vtkIdType>(this->CurrentAtomicNumber);
 
   this->ResizeAndSetValue(this->CurrentSymbol,
-                          this->Target->Symbols.GetPointer(),
+                          this->Target->Symbols,
                           index);
   // this->ToLower will modify the input string, so this must follow
   // this->Symbol
   this->ResizeAndSetValue(this->ToLower(this->CurrentSymbol),
-                          this->Target->LowerSymbols.GetPointer(),
+                          this->Target->LowerSymbols,
                           index);
   this->ResizeAndSetValue(this->CurrentName,
-                          this->Target->Names.GetPointer(),
+                          this->Target->Names,
                           index);
   // this->ToLower will modify the input string, so this must follow
   // this->Name
   this->ResizeAndSetValue(this->ToLower(this->CurrentName),
-                          this->Target->LowerNames.GetPointer(),
+                          this->Target->LowerNames,
                           index);
   this->ResizeAndSetValue(this->CurrentPeriodicTableBlock,
-                          this->Target->PeriodicTableBlocks.GetPointer(),
+                          this->Target->PeriodicTableBlocks,
                           index);
   this->ResizeAndSetValue(this->CurrentElectronicConfiguration,
-                          this->Target->ElectronicConfigurations.GetPointer(),
+                          this->Target->ElectronicConfigurations,
                           index);
   this->ResizeAndSetValue(this->CurrentFamily,
-                          this->Target->Families.GetPointer(),
+                          this->Target->Families,
                           index);
   this->ResizeAndSetValue(this->CurrentMass,
-                          this->Target->Masses.GetPointer(),
+                          this->Target->Masses,
                           index);
   this->ResizeAndSetValue(this->CurrentExactMass,
-                          this->Target->ExactMasses.GetPointer(),
+                          this->Target->ExactMasses,
                           index);
   this->ResizeAndSetValue(this->CurrentIonizationEnergy,
-                          this->Target->IonizationEnergies.GetPointer(),
+                          this->Target->IonizationEnergies,
                           index);
   this->ResizeAndSetValue(this->CurrentElectronAffinity,
-                          this->Target->ElectronAffinities.GetPointer(),
+                          this->Target->ElectronAffinities,
                           index);
   this->ResizeAndSetValue
     (this->CurrentPaulingElectronegativity,
-     this->Target->PaulingElectronegativities.GetPointer(), index);
+     this->Target->PaulingElectronegativities, index);
   this->ResizeAndSetValue(this->CurrentCovalentRadius,
-                          this->Target->CovalentRadii.GetPointer(),
+                          this->Target->CovalentRadii,
                           index);
   this->ResizeAndSetValue(this->CurrentVDWRadius,
-                          this->Target->VDWRadii.GetPointer(),
+                          this->Target->VDWRadii,
                           index);
   // Tuple handled differently
-  this->ResizeArrayIfNeeded(this->Target->DefaultColors.GetPointer(),
+  this->ResizeArrayIfNeeded(this->Target->DefaultColors,
                             index);
-  this->Target->DefaultColors->SetTupleValue(index,
+  this->Target->DefaultColors->SetTypedTuple(index,
                                              this->CurrentDefaultColor);
   this->ResizeAndSetValue(this->CurrentBoilingPoint,
-                          this->Target->BoilingPoints.GetPointer(),
+                          this->Target->BoilingPoints,
                           index);
   this->ResizeAndSetValue(this->CurrentMeltingPoint,
-                          this->Target->MeltingPoints.GetPointer(),
+                          this->Target->MeltingPoints,
                           index);
   this->ResizeAndSetValue(this->CurrentPeriod,
-                          this->Target->Periods.GetPointer(),
+                          this->Target->Periods,
                           index);
   this->ResizeAndSetValue(this->CurrentGroup,
-                          this->Target->Groups.GetPointer(),
+                          this->Target->Groups,
                           index);
   this->IsProcessingAtom = false;
 }
@@ -297,90 +285,91 @@ void vtkBlueObeliskDataParser::NewValueStarted(const char **attr)
   unsigned int attrInd = 0;
 
   while (const char * cur = attr[attrInd])
-    {
+  {
     if (strcmp(cur, "value") == 0)
-      {
+    {
       this->SetCurrentValue(attr[++attrInd]);
-      }
-    else if (strcmp(cur, "bo:atomicNumber") == 0)
-      {
-      this->CurrentValueType = AtomicNumber;
-      }
-    else if (strcmp(cur, "bo:symbol") == 0)
-      {
-      this->CurrentValueType = Symbol;
-      }
-    else if (strcmp(cur, "bo:name") == 0)
-      {
-      this->CurrentValueType = Name;
-      }
-    else if (strcmp(cur, "bo:periodTableBlock") == 0)
-      {
-      this->CurrentValueType = PeriodicTableBlock;
-      }
-    else if (strcmp(cur, "bo:electronicConfiguration") == 0)
-      {
-      this->CurrentValueType = ElectronicConfiguration;
-      }
-    else if (strcmp(cur, "bo:family") == 0)
-      {
-      this->CurrentValueType = Family;
-      }
-    else if (strcmp(cur, "bo:mass") == 0)
-      {
-      this->CurrentValueType = Mass;
-      }
-    else if (strcmp(cur, "bo:exactMass") == 0)
-      {
-      this->CurrentValueType = ExactMass;
-      }
-    else if (strcmp(cur, "bo:ionization") == 0)
-      {
-      this->CurrentValueType = IonizationEnergy;
-      }
-    else if (strcmp(cur, "bo:electronAffinity") == 0)
-      {
-      this->CurrentValueType = ElectronAffinity;
-      }
-    else if (strcmp(cur, "bo:electronegativityPauling") == 0)
-      {
-      this->CurrentValueType = PaulingElectronegativity;
-      }
-    else if (strcmp(cur, "bo:radiusCovalent") == 0)
-      {
-      this->CurrentValueType = CovalentRadius;
-      }
-    else if (strcmp(cur, "bo:radiusVDW") == 0)
-      {
-      this->CurrentValueType = VDWRadius;
-      }
-    else if (strcmp(cur, "bo:elementColor") == 0)
-      {
-      this->CurrentValueType = DefaultColor;
-      }
-    else if (strcmp(cur, "bo:boilingpoint") == 0)
-      {
-      this->CurrentValueType = BoilingPoint;
-      }
-    else if (strcmp(cur, "bo:meltingpoint") == 0)
-      {
-      this->CurrentValueType = MeltingPoint;
-      }
-    else if (strcmp(cur, "bo:period") == 0)
-      {
-      this->CurrentValueType = Period;
-      }
-    else if (strcmp(cur, "bo:group") == 0)
-      {
-      this->CurrentValueType = Group;
-      }
-    ++attrInd;
     }
+    else if (strcmp(cur, "bo:atomicNumber") == 0)
+    {
+      this->CurrentValueType = AtomicNumber;
+    }
+    else if (strcmp(cur, "bo:symbol") == 0)
+    {
+      this->CurrentValueType = Symbol;
+    }
+    else if (strcmp(cur, "bo:name") == 0)
+    {
+      this->CurrentValueType = Name;
+    }
+    else if (strcmp(cur, "bo:periodTableBlock") == 0)
+    {
+      this->CurrentValueType = PeriodicTableBlock;
+    }
+    else if (strcmp(cur, "bo:electronicConfiguration") == 0)
+    {
+      this->CurrentValueType = ElectronicConfiguration;
+    }
+    else if (strcmp(cur, "bo:family") == 0)
+    {
+      this->CurrentValueType = Family;
+    }
+    else if (strcmp(cur, "bo:mass") == 0)
+    {
+      this->CurrentValueType = Mass;
+    }
+    else if (strcmp(cur, "bo:exactMass") == 0)
+    {
+      this->CurrentValueType = ExactMass;
+    }
+    else if (strcmp(cur, "bo:ionization") == 0)
+    {
+      this->CurrentValueType = IonizationEnergy;
+    }
+    else if (strcmp(cur, "bo:electronAffinity") == 0)
+    {
+      this->CurrentValueType = ElectronAffinity;
+    }
+    else if (strcmp(cur, "bo:electronegativityPauling") == 0)
+    {
+      this->CurrentValueType = PaulingElectronegativity;
+    }
+    else if (strcmp(cur, "bo:radiusCovalent") == 0)
+    {
+      this->CurrentValueType = CovalentRadius;
+    }
+    else if (strcmp(cur, "bo:radiusVDW") == 0)
+    {
+      this->CurrentValueType = VDWRadius;
+    }
+    else if (strcmp(cur, "bo:elementColor") == 0)
+    {
+      this->CurrentValueType = DefaultColor;
+    }
+    else if (strcmp(cur, "bo:boilingpoint") == 0)
+    {
+      this->CurrentValueType = BoilingPoint;
+    }
+    else if (strcmp(cur, "bo:meltingpoint") == 0)
+    {
+      this->CurrentValueType = MeltingPoint;
+    }
+    else if (strcmp(cur, "bo:period") == 0)
+    {
+      this->CurrentValueType = Period;
+    }
+    else if (strcmp(cur, "bo:group") == 0)
+    {
+      this->CurrentValueType = Group;
+    }
+    ++attrInd;
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::NewValueFinished()
 {
+  this->CurrentValueType = None;
   this->IsProcessingValue = false;
   this->CharacterDataValueBuffer.clear();
 }
@@ -390,9 +379,9 @@ void vtkBlueObeliskDataParser::CharacterDataHandler(const char *data,
                                                     int length)
 {
   if (this->IsProcessingAtom && this->IsProcessingValue)
-    {
+  {
     this->SetCurrentValue(data, length);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -409,7 +398,7 @@ void vtkBlueObeliskDataParser::SetCurrentValue(const char *data)
   vtkDebugMacro(<<"Parsing string '" << data << "' for datatype "
                 << this->CurrentValueType << ".");
   switch (this->CurrentValueType)
-    {
+  {
     case AtomicNumber:
       this->CurrentAtomicNumber = this->parseInt(data);
       return;
@@ -467,8 +456,7 @@ void vtkBlueObeliskDataParser::SetCurrentValue(const char *data)
     case None:
     default:
       vtkDebugMacro(<<"Called with no CurrentValueType. data: "<<data);
-    }
-  return;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -476,9 +464,9 @@ void  vtkBlueObeliskDataParser::ResizeArrayIfNeeded(vtkAbstractArray *arr,
                                                     vtkIdType ind)
 {
   if (ind >= arr->GetNumberOfTuples())
-    {
+  {
     arr->SetNumberOfTuples(ind + 1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -522,9 +510,9 @@ inline float vtkBlueObeliskDataParser::parseFloat(const char *d)
   stream >> value;
 
   if(stream.fail())
-    {
+  {
     return 0.f;
-    }
+  }
 
   return value;
 }
@@ -540,19 +528,19 @@ inline void vtkBlueObeliskDataParser::parseFloat3(const char *str,
 
   char *curTok = strtok(strcopy, " ");
 
-  while (curTok != NULL)
-    {
+  while (curTok != nullptr)
+  {
     if (ind == 3)
       break;
 
     arr[ind++] = static_cast<float>(atof(curTok));
-    curTok = strtok(NULL, " ");
-    }
+    curTok = strtok(nullptr, " ");
+  }
 
   if (ind != 3)
-    {
+  {
     arr[0] = arr[1] = arr[2] == VTK_FLOAT_MAX;
-    }
+  }
 
   delete [] strcopy;
 }
@@ -569,8 +557,8 @@ inline vtkStdString * vtkBlueObeliskDataParser::ToLower(vtkStdString *str)
 {
   for (vtkStdString::iterator it = str->begin(), it_end = str->end();
          it != it_end; ++it)
-    {
+  {
     *it = static_cast<char>(tolower(*it));
-    }
+  }
   return str;
 }

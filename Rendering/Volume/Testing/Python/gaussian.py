@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -81,12 +80,8 @@ volumeProperty.SetColor(colorTransferFunction)
 volumeProperty.SetScalarOpacity(opacityTransferFunction)
 volumeProperty.SetInterpolationTypeToLinear()
 
-# The mapper / ray cast function know how to render the data
-compositeFunction = vtk.vtkVolumeRayCastCompositeFunction()
-
-volumeMapper = vtk.vtkVolumeRayCastMapper()
-# vtkVolumeTextureMapper2D = vtk.volumeMapper()
-volumeMapper.SetVolumeRayCastFunction(compositeFunction)
+# The mapper knows how to render the data
+volumeMapper = vtk.vtkFixedPointVolumeRayCastMapper()
 volumeMapper.SetInputConnection(readerSS.GetOutputPort())
 
 # The volume holds the mapper and the property and
@@ -122,7 +117,6 @@ Glyph.SetSourceConnection(Sphere.GetOutputPort())
 
 AtomsMapper = vtk.vtkPolyDataMapper()
 AtomsMapper.SetInputConnection(Glyph.GetOutputPort())
-AtomsMapper.SetImmediateModeRendering(1)
 AtomsMapper.UseLookupTableScalarRangeOff()
 AtomsMapper.SetScalarVisibility(1)
 AtomsMapper.SetScalarModeToDefault()
@@ -148,7 +142,6 @@ Tube.SetRadiusFactor(10)
 
 BondsMapper = vtk.vtkPolyDataMapper()
 BondsMapper.SetInputConnection(Tube.GetOutputPort())
-BondsMapper.SetImmediateModeRendering(1)
 BondsMapper.UseLookupTableScalarRangeOff()
 BondsMapper.SetScalarVisibility(1)
 BondsMapper.SetScalarModeToDefault()

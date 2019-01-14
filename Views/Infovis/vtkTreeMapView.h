@@ -17,12 +17,15 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkTreeMapView - Displays a tree as a tree map.
-//
-// .SECTION Description
-// vtkTreeMapView shows a vtkTree in a tree map, where each vertex in the
-// tree is represented by a box.  Child boxes are contained within the
-// parent box, and may be colored and sized by various parameters.
+/**
+ * @class   vtkTreeMapView
+ * @brief   Displays a tree as a tree map.
+ *
+ *
+ * vtkTreeMapView shows a vtkTree in a tree map, where each vertex in the
+ * tree is represented by a box.  Child boxes are contained within the
+ * parent box, and may be colored and sized by various parameters.
+*/
 
 #ifndef vtkTreeMapView_h
 #define vtkTreeMapView_h
@@ -39,35 +42,39 @@ class VTKVIEWSINFOVIS_EXPORT vtkTreeMapView : public vtkTreeAreaView
 public:
   static vtkTreeMapView *New();
   vtkTypeMacro(vtkTreeMapView, vtkTreeAreaView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Sets the treemap layout strategy
-  virtual void SetLayoutStrategy(vtkAreaLayoutStrategy* s);
+  //@{
+  /**
+   * Sets the treemap layout strategy
+   */
+  void SetLayoutStrategy(vtkAreaLayoutStrategy* s) override;
   virtual void SetLayoutStrategy(const char* name);
   virtual void SetLayoutStrategyToBox();
   virtual void SetLayoutStrategyToSliceAndDice();
   virtual void SetLayoutStrategyToSquarify();
+  //@}
 
-  // Description:
-  // The sizes of the fonts used for labeling.
+  //@{
+  /**
+   * The sizes of the fonts used for labeling.
+   */
   virtual void SetFontSizeRange(
     const int maxSize, const int minSize, const int delta=4);
   virtual void GetFontSizeRange(int range[3]);
+  //@}
 
 protected:
   vtkTreeMapView();
-  ~vtkTreeMapView();
+  ~vtkTreeMapView() override;
 
-  //BTX
   vtkSmartPointer<vtkBoxLayoutStrategy> BoxLayout;
   vtkSmartPointer<vtkSliceAndDiceLayoutStrategy> SliceAndDiceLayout;
   vtkSmartPointer<vtkSquarifyLayoutStrategy> SquarifyLayout;
-  //ETX
 
 private:
-  vtkTreeMapView(const vtkTreeMapView&);  // Not implemented.
-  void operator=(const vtkTreeMapView&);  // Not implemented.
+  vtkTreeMapView(const vtkTreeMapView&) = delete;
+  void operator=(const vtkTreeMapView&) = delete;
 };
 
 #endif

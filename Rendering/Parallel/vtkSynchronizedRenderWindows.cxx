@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkSynchronizedRenderWindows.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -28,18 +28,18 @@ class vtkSynchronizedRenderWindows::vtkObserver : public vtkCommand
 {
 public:
   static vtkObserver* New()
-    {
+  {
     vtkObserver* obs = new vtkObserver();
-    obs->Target = NULL;
+    obs->Target = nullptr;
     return obs;
-    }
+  }
 
-  virtual void Execute(vtkObject *, unsigned long eventId, void *)
-    {
+  void Execute(vtkObject *, unsigned long eventId, void *) override
+  {
     if (this->Target)
-      {
+    {
       switch (eventId)
-        {
+      {
       case vtkCommand::StartEvent:
         this->Target->HandleStartRender();
         break;
@@ -51,9 +51,9 @@ public:
       case vtkCommand::AbortCheckEvent:
         this->Target->HandleAbortRender();
         break;
-        }
       }
     }
+  }
 
   vtkSynchronizedRenderWindows* Target;
 };
@@ -68,7 +68,7 @@ namespace
   void RenderRMI(void *vtkNotUsed(localArg),
     void *remoteArg, int remoteArgLength,
     int vtkNotUsed(remoteProcessId))
-    {
+  {
     vtkMultiProcessStream stream;
     stream.SetRawData(reinterpret_cast<unsigned char*>(remoteArg),
       remoteArgLength);
@@ -77,12 +77,12 @@ namespace
     GlobalSynRenderWindowsMapType::iterator iter =
       GlobalSynRenderWindowsMap.find(id);
     if (iter != GlobalSynRenderWindowsMap.end() &&
-      iter->second.GetPointer() != NULL &&
-      iter->second.GetPointer()->GetRenderWindow() != NULL)
-      {
-      iter->second.GetPointer()->GetRenderWindow()->Render();
-      }
+      iter->second != nullptr &&
+      iter->second->GetRenderWindow() != nullptr)
+    {
+      iter->second->GetRenderWindow()->Render();
     }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -94,8 +94,8 @@ vtkSynchronizedRenderWindows::vtkSynchronizedRenderWindows()
   this->Observer = vtkSynchronizedRenderWindows::vtkObserver::New();
   this->Observer->Target = this;
 
-  this->RenderWindow = 0;
-  this->ParallelController = 0;
+  this->RenderWindow = nullptr;
+  this->ParallelController = nullptr;
   this->Identifier = 0;
   this->ParallelRendering = true;
   this->RenderEventPropagation = true;
@@ -107,60 +107,60 @@ vtkSynchronizedRenderWindows::~vtkSynchronizedRenderWindows()
 {
   this->SetIdentifier(0);
 
-  this->Observer->Target = NULL;
+  this->Observer->Target = nullptr;
 
-  this->SetRenderWindow(0);
-  this->SetParallelController(0);
+  this->SetRenderWindow(nullptr);
+  this->SetParallelController(nullptr);
   this->Observer->Delete();
-  this->Observer = NULL;
+  this->Observer = nullptr;
 }
 
 //----------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::SetIdentifier(unsigned int id)
 {
   if (this->Identifier == id)
-    {
+  {
     return;
-    }
+  }
 
   if (this->Identifier != 0)
-    {
+  {
     GlobalSynRenderWindowsMap.erase(this->Identifier);
     this->Identifier = 0;
-    }
+  }
 
   GlobalSynRenderWindowsMapType::iterator iter =
     GlobalSynRenderWindowsMap.find(id);
   if (iter != GlobalSynRenderWindowsMap.end())
-    {
+  {
     vtkErrorMacro("Identifier already in use: " << id);
     return;
-    }
+  }
 
   this->Identifier = id;
   if (id > 0)
-    {
+  {
     GlobalSynRenderWindowsMap[id] = this;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::SetRenderWindow(vtkRenderWindow* renWin)
 {
   if (this->RenderWindow != renWin)
-    {
+  {
     if (this->RenderWindow)
-      {
+    {
       this->RenderWindow->RemoveObserver(this->Observer);
-      }
+    }
     vtkSetObjectBodyMacro(RenderWindow, vtkRenderWindow, renWin);
     if (this->RenderWindow)
-      {
+    {
       this->RenderWindow->AddObserver(vtkCommand::StartEvent, this->Observer);
       this->RenderWindow->AddObserver(vtkCommand::EndEvent, this->Observer);
       // this->RenderWindow->AddObserver(vtkCommand::AbortCheckEvent, this->Observer);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -168,18 +168,18 @@ void vtkSynchronizedRenderWindows::SetParallelController(
   vtkMultiProcessController* controller)
 {
   if (this->ParallelController == controller)
-    {
+  {
     return;
-    }
+  }
 
   vtkSetObjectBodyMacro(
     ParallelController, vtkMultiProcessController, controller);
 
   if (controller)
-    {
-    // no harm in adding this mutliple times.
-    controller->AddRMI(::RenderRMI, NULL, SYNC_RENDER_TAG);
-    }
+  {
+    // no harm in adding this multiple times.
+    controller->AddRMI(::RenderRMI, nullptr, SYNC_RENDER_TAG);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -188,9 +188,9 @@ void vtkSynchronizedRenderWindows::AbortRender()
   if (this->ParallelRendering &&
       this->ParallelController &&
       this->ParallelController->GetLocalProcessId() == this->RootProcessId)
-    {
+  {
     //TODO: trigger abort render message.
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -199,25 +199,25 @@ void vtkSynchronizedRenderWindows::HandleStartRender()
   if (!this->RenderWindow || !this->ParallelRendering ||
     !this->ParallelController ||
     (!this->Identifier && this->RenderEventPropagation))
-    {
+  {
     return;
-    }
+  }
 
   if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
-    {
+  {
     this->MasterStartRender();
-    }
+  }
   else
-    {
+  {
     this->SlaveStartRender();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkSynchronizedRenderWindows::MasterStartRender()
 {
   if (this->RenderEventPropagation)
-    {
+  {
     vtkMultiProcessStream stream;
     stream << this->Identifier;
 
@@ -226,7 +226,7 @@ void vtkSynchronizedRenderWindows::MasterStartRender()
 
     this->ParallelController->TriggerRMIOnAllChildren(
       &data[0], static_cast<int>(data.size()), SYNC_RENDER_TAG);
-    }
+  }
 
   RenderWindowInfo windowInfo;
   windowInfo.CopyFrom(this->RenderWindow);
@@ -258,22 +258,22 @@ void vtkSynchronizedRenderWindows::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
 
   os << indent << "RenderWindow: ";
-  if(this->RenderWindow==0)
-    {
+  if(this->RenderWindow==nullptr)
+  {
     os << "(none)" << endl;
-    }
+  }
   else
-    {
+  {
     os << this->RenderWindow << endl;
-    }
-  if(this->ParallelController==0)
-    {
+  }
+  if(this->ParallelController==nullptr)
+  {
     os << "(none)" << endl;
-    }
+  }
   else
-    {
+  {
     os << this->ParallelController << endl;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -297,9 +297,9 @@ bool vtkSynchronizedRenderWindows::RenderWindowInfo::Restore(vtkMultiProcessStre
   int tag;
   stream >> tag;
   if (tag != 1208)
-    {
+  {
     return false;
-    }
+  }
 
   stream >> this->WindowSize[0] >> this->WindowSize[1]
     >> this->TileScale[0] >> this->TileScale[1]

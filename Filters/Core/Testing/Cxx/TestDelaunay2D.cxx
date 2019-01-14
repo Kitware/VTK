@@ -83,41 +83,41 @@ int TestDelaunay2D( int argc, char* argv[] )
   cout << "output numVerts= " << outNumVerts << endl;
 
   if( outNumPts != inNumPts )
-    {
+  {
     cout << "ERROR: output numPts " << outNumPts
       << " doesn't match input numPts=" << inNumPts << endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
-    }
+  }
 
   if( !outNumCells )
-    {
+  {
     cout << "ERROR: output numCells= " << outNumCells << endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
-    }
+  }
 
   if( outNumPolys != outNumCells )
-    {
+  {
     cout << "ERROR: output numPolys= " << outNumPolys
       << " doesn't match output numCells= " << outNumCells << endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
-    }
+  }
 
   if( outNumLines )
-    {
+  {
     cout << "ERROR: output numLines= " << outNumLines << endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
-    }
+  }
 
   if( outNumVerts )
-    {
+  {
     cout << "ERROR: output numVerts= " << outNumVerts << endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
-    }
+  }
 
   // check that every point is connected
   triangulation->BuildLinks();
@@ -126,13 +126,13 @@ int TestDelaunay2D( int argc, char* argv[] )
   vtkIdType numUnconnectedPts = 0;
 
   for(vtkIdType ptId=0; ptId<outNumPts; ptId++)
-    {
+  {
     triangulation->GetPointCells(ptId,cellIds);
     if( !cellIds->GetNumberOfIds() )
-      {
+    {
       numUnconnectedPts++;
-      }
     }
+  }
 
   cellIds->Delete();
 
@@ -140,12 +140,12 @@ int TestDelaunay2D( int argc, char* argv[] )
     << " unconnected points" << endl;
 
   if( numUnconnectedPts )
-    {
+  {
     cout << "ERROR: Triangulation has " << numUnconnectedPts
       << " unconnected points" << endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
-    }
+  }
 
   vtkShrinkPolyData *shrink = vtkShrinkPolyData::New();
   shrink->SetInputConnection( delaunay2D->GetOutputPort() );
@@ -181,9 +181,9 @@ int TestDelaunay2D( int argc, char* argv[] )
 #endif
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Clean up
   delaunay2D->Delete();

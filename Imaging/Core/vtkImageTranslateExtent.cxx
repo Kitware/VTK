@@ -29,9 +29,9 @@ vtkImageTranslateExtent::vtkImageTranslateExtent()
   int idx;
 
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     this->Translation[idx]  = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -63,13 +63,13 @@ int vtkImageTranslateExtent::RequestInformation (
 
   // TranslateExtent the OutputWholeExtent with the input WholeExtent
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     // change extent
     extent[2*idx] += this->Translation[idx];
     extent[2*idx+1] += this->Translation[idx];
     // change origin so the data does not shift
     origin[idx] -= static_cast<double>(this->Translation[idx]) * spacing[idx];
-    }
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
@@ -96,10 +96,10 @@ int vtkImageTranslateExtent::RequestData(
   // since inData can be larger than update extent.
   inData->GetExtent(extent);
   for (int i = 0; i < 3; ++i)
-    {
+  {
     extent[i*2] += this->Translation[i];
     extent[i*2+1] += this->Translation[i];
-    }
+  }
   outData->SetExtent(extent);
   outData->GetPointData()->PassData(inData->GetPointData());
 

@@ -15,55 +15,42 @@
 #ifndef vtk_glew_h
 #define vtk_glew_h
 
+/* Use the glew library configured for VTK.  */
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkglew
+
 #define GLEW_NO_GLU
+#define VTK_OPENGL_ES_VERSION 30
 
-#cmakedefine VTK_BUILD_SHARED_LIBS
-
-#ifdef WIN32
-#  ifndef VTK_BUILD_SHARED_LIBS
-#    define GLEW_STATIC
-#  endif
-#endif
-
+/* Mobile device support. */
+#cmakedefine01 VTK_MODULE_vtkglew_ANDROID
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
 #endif
 
-#define VTK_OPENGL_ES_VERSION @OPENGL_ES_VERSION_INT@
+#cmakedefine01 VTK_GLEW_SHARED
+#if !VTK_GLEW_SHARED && !defined(GLEW_STATIC)
+#define GLEW_STATIC
+#endif
 
-#ifdef ANDROID
-# if VTK_OPENGL_ES_VERSION == 20
-#  include <GLES2/gl2.h>
-# else
+#if VTK_MODULE_vtkglew_ANDROID
 #  include <GLES3/gl3.h>
+#elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+#   include <OpenGLES/ES3/gl.h>
+#elif VTK_MODULE_USE_EXTERNAL_vtkglew
+# include <GL/glew.h>
+# ifdef _WIN32
+#  include <GL/wglew.h>
 # endif
 #else
-# if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
-#  if VTK_OPENGL_ES_VERSION == 20
-#   include <OpenGLES/ES2/gl.h>
-#  else
-#   include <OpenGLES/ES3/gl.h>
-#  endif
-# else
-/* Use the glew library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_GLEW
-#  ifdef VTK_USE_SYSTEM_GLEW
-#    include <GL/glew.h>
-#    ifdef WIN32
-#      include <GL/wglew.h>
-#    endif
-#  else
-#    include <vtkglew/include/GL/glew.h>
-#    ifdef WIN32
-#      include <vtkglew/include/GL/wglew.h>
-#    endif
-#  endif
+# include <vtkglew/include/GL/glew.h>
+# ifdef _WIN32
+#  include <vtkglew/include/GL/wglew.h>
 # endif
 #endif
 
 /* some fixes for both ES 2 and 3 */
-#if GL_ES_VERSION_2_0 == 1 || GL_ES_VERSION_3_0 == 1
+#if GL_ES_VERSION_3_0 == 1
 #  define glDrawBuffer(arg)
 #  define GL_BACK_LEFT 0
 #  define GL_BACK_RIGHT 0
@@ -77,29 +64,6 @@
         glDrawElements(mode, *(counts + eCount), \
           type, (GLvoid *)(indicies[eCount])); \
         }
-
-#endif
-
-/*** deal with some GLES 2.0 specific issues ***/
-#if GL_ES_VERSION_2_0 == 1 && GL_ES_VERSION_3_0 != 1
-
-/* most bufer selection does not exist on ES 2.0 */
-#  define glReadBuffer(arg)
-
-/* probably so very wrong */
-#  define GL_TEXTURE_RECTANGLE GL_TEXTURE_2D
-
-/* VAOs are not part of 2.0  */
-#  define GLEW_ARB_vertex_array_object 0
-#  define glDeleteVertexArrays(arg1, arg2)
-#  define glGenVertexArrays(arg1, arg2)
-#  define glBindVertexArray(arg1)
-
-/* this sends all the data each time as opposed to allowing a subset */
-#  define glDrawRangeElements(mode, start, end, count, type, indicies) \
-     assert("gles 2.0 glDrawRangeElements misuse " && start==0); \
-     glDrawElements(mode, count, type, indicies)
-
 #endif
 
 /*** deal with some GLES 3.0 specific issues ***/

@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkErrorCode - superclass for error codes
-// .SECTION Description
-// vtkErrorCode is an mechanism for (currently) reader object to
-// return errors during reading file.
+/**
+ * @class   vtkErrorCode
+ * @brief   superclass for error codes
+ *
+ * vtkErrorCode is an mechanism for (currently) reader object to
+ * return errors during reading file.
+*/
 
 #ifndef vtkErrorCode_h
 #define vtkErrorCode_h
@@ -29,7 +32,7 @@ public:
   static const char *GetStringFromErrorCode(unsigned long event);
   static unsigned long GetErrorCodeFromString(const char *event);
   static unsigned long GetLastSystemError();
-//BTX
+
   // all the currently defined error codes
   // developers can use -- vtkErrorCode::UserError + int to
   // specify their own errors.
@@ -48,7 +51,7 @@ public:
     UnknownError,
     UserError = 40000
   };
-//ETX
+
 };
 
 #endif /* vtkErrorCode_h */

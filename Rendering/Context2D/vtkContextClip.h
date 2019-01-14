@@ -13,12 +13,15 @@
 
 =========================================================================*/
 
-// .NAME vtkContextClip - all children of this item are clipped
-// by the specified area.
-//
-// .SECTION Description
-// This class can be used to clip the rendering of an item inside a rectangular
-// area.
+/**
+ * @class   vtkContextClip
+ * @brief   all children of this item are clipped
+ * by the specified area.
+ *
+ *
+ * This class can be used to clip the rendering of an item inside a rectangular
+ * area.
+*/
 
 #ifndef vtkContextClip_h
 #define vtkContextClip_h
@@ -31,38 +34,58 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextClip : public vtkAbstractContextIte
 {
 public:
   vtkTypeMacro(vtkContextClip, vtkAbstractContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Creates a vtkContextClip object.
+  /**
+   * Creates a vtkContextClip object.
+   */
   static vtkContextClip *New();
 
-  // Description:
-  // Perform any updates to the item that may be necessary before rendering.
-  // The scene should take care of calling this on all items before their
-  // Paint function is invoked.
-  virtual void Update();
+  /**
+   * Perform any updates to the item that may be necessary before rendering.
+   * The scene should take care of calling this on all items before their
+   * Paint function is invoked.
+   */
+  void Update() override;
 
-  // Description:
-  // Paint event for the item, called whenever the item needs to be drawn.
-  virtual bool Paint(vtkContext2D *painter);
+  /**
+   * Paint event for the item, called whenever the item needs to be drawn.
+   */
+  bool Paint(vtkContext2D *painter) override;
 
-  // Description:
-  // Set the origin, width and height of the clipping rectangle. These are in
-  // pixel coordinates.
+  /**
+   * Set the origin, width and height of the clipping rectangle. These are in
+   * pixel coordinates.
+   */
   virtual void SetClip(float x, float y, float width, float height);
 
-//BTX
+  /**
+   * Get the clipping rectangle parameters in pixel coordinates:
+   */
+  virtual void GetRect(float rect[4]);
+  virtual float GetX() { return Dims[0]; }
+  virtual float GetY() { return Dims[1]; }
+  virtual float GetWidth() { return Dims[2]; }
+  virtual float GetHeight() { return Dims[3]; }
+
 protected:
   vtkContextClip();
-  ~vtkContextClip();
+  ~vtkContextClip() override;
 
   float Dims[4];
 
 private:
-  vtkContextClip(const vtkContextClip &); // Not implemented.
-  void operator=(const vtkContextClip &);   // Not implemented.
-//ETX
+  vtkContextClip(const vtkContextClip &) = delete;
+  void operator=(const vtkContextClip &) = delete;
+
 };
+
+inline void vtkContextClip::GetRect(float rect[4])
+{
+  rect[0] = this->Dims[0];
+  rect[1] = this->Dims[1];
+  rect[2] = this->Dims[2];
+  rect[3] = this->Dims[3];
+}
 
 #endif //vtkContextClip_h

@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBase64OutputStream - Writes base64-encoded output to a stream.
-// .SECTION Description
-// vtkBase64OutputStream implements base64 encoding with the
-// vtkOutputStream interface.
+/**
+ * @class   vtkBase64OutputStream
+ * @brief   Writes base64-encoded output to a stream.
+ *
+ * vtkBase64OutputStream implements base64 encoding with the
+ * vtkOutputStream interface.
+*/
 
 #ifndef vtkBase64OutputStream_h
 #define vtkBase64OutputStream_h
@@ -28,28 +31,31 @@ class VTKIOCORE_EXPORT vtkBase64OutputStream : public vtkOutputStream
 public:
   vtkTypeMacro(vtkBase64OutputStream,vtkOutputStream);
   static vtkBase64OutputStream *New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Called after the stream position has been set by the caller, but
-  // before any Write calls.  The stream position should not be
-  // adjusted by the caller until after an EndWriting call.
-  int StartWriting();
+  /**
+   * Called after the stream position has been set by the caller, but
+   * before any Write calls.  The stream position should not be
+   * adjusted by the caller until after an EndWriting call.
+   */
+  int StartWriting() override;
 
-  // Description:
-  // Write output data of the given length.
-  int Write(void const* data, size_t length);
+  /**
+   * Write output data of the given length.
+   */
+  int Write(void const* data, size_t length) override;
 
-  // Description:
-  // Called after all desired calls to Write have been made.  After
-  // this call, the caller is free to change the position of the
-  // stream.  Additional writes should not be done until after another
-  // call to StartWriting.
-  int EndWriting();
+  /**
+   * Called after all desired calls to Write have been made.  After
+   * this call, the caller is free to change the position of the
+   * stream.  Additional writes should not be done until after another
+   * call to StartWriting.
+   */
+  int EndWriting() override;
 
 protected:
   vtkBase64OutputStream();
-  ~vtkBase64OutputStream();
+  ~vtkBase64OutputStream() override;
 
   // Number of un-encoded bytes left in Buffer from last call to Write.
   unsigned int BufferLength;
@@ -61,8 +67,8 @@ protected:
   int EncodeEnding(unsigned char c0);
 
 private:
-  vtkBase64OutputStream(const vtkBase64OutputStream&);  // Not implemented.
-  void operator=(const vtkBase64OutputStream&);  // Not implemented.
+  vtkBase64OutputStream(const vtkBase64OutputStream&) = delete;
+  void operator=(const vtkBase64OutputStream&) = delete;
 };
 
 #endif

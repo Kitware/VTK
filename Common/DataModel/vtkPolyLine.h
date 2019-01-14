@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyLine - cell represents a set of 1D lines
-// .SECTION Description
-// vtkPolyLine is a concrete implementation of vtkCell to represent a set
-// of 1D lines.
+/**
+ * @class   vtkPolyLine
+ * @brief   cell represents a set of 1D lines
+ *
+ * vtkPolyLine is a concrete implementation of vtkCell to represent a set
+ * of 1D lines.
+*/
 
 #ifndef vtkPolyLine_h
 #define vtkPolyLine_h
@@ -35,67 +38,69 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPolyLine : public vtkCell
 public:
   static vtkPolyLine *New();
   vtkTypeMacro(vtkPolyLine,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Given points and lines, compute normals to lines. These are not true
-  // normals, they are "orientation" normals used by classes like vtkTubeFilte
-  // that control the rotation around the line. The normals try to stay pointing
-  // in the same direction as much as possible (i.e., minimal rotation).
+  //@{
+  /**
+   * Given points and lines, compute normals to lines. These are not true
+   * normals, they are "orientation" normals used by classes like vtkTubeFilter
+   * that control the rotation around the line. The normals try to stay pointing
+   * in the same direction as much as possible (i.e., minimal rotation) w.r.t the
+   * firstNormal (computed if nullptr). Always returns 1 (success).
+   */
   static int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *);
   static int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *,
                                     double* firstNormal);
+  //@}
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
-  int GetCellType() {return VTK_POLY_LINE;};
-  int GetCellDimension() {return 1;};
-  int GetNumberOfEdges() {return 0;};
-  int GetNumberOfFaces() {return 0;};
-  vtkCell *GetEdge(int vtkNotUsed(edgeId)) {return 0;};
-  vtkCell *GetFace(int vtkNotUsed(faceId)) {return 0;};
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
+  int GetCellType() override {return VTK_POLY_LINE;};
+  int GetCellDimension() override {return 1;};
+  int GetNumberOfEdges() override {return 0;};
+  int GetNumberOfFaces() override {return 0;};
+  vtkCell *GetEdge(int vtkNotUsed(edgeId)) override {return nullptr;};
+  vtkCell *GetFace(int vtkNotUsed(faceId)) override {return nullptr;};
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *lines,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut);
-  int EvaluatePosition(double x[3], double* closestPoint,
+            int insideOut) override;
+  int EvaluatePosition(const double x[3], double closestPoint[3],
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights);
-  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights);
-  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId);
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs);
-  int IsPrimaryCell() {return 0;}
+                       double& dist2, double weights[]) override;
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
+                        double *weights) override;
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
+                        double x[3], double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
+  void Derivatives(int subId, const double pcoords[3], const double *values,
+                   int dim, double *derivs) override;
+  int IsPrimaryCell() override {return 0;}
+  //@}
 
-  // Description:
-  // Return the center of the point cloud in parametric coordinates.
-  int GetParametricCenter(double pcoords[3]);
-
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
-  virtual void InterpolateFunctions(double pcoords[3], double *weights);
-  virtual void InterpolateDerivs(double pcoords[3], double *derivs);
+  /**
+   * Return the center of the point cloud in parametric coordinates.
+   */
+  int GetParametricCenter(double pcoords[3]) override;
 
 protected:
   vtkPolyLine();
-  ~vtkPolyLine();
+  ~vtkPolyLine() override;
 
   vtkLine *Line;
 
 private:
-  vtkPolyLine(const vtkPolyLine&);  // Not implemented.
-  void operator=(const vtkPolyLine&);  // Not implemented.
+  vtkPolyLine(const vtkPolyLine&) = delete;
+  void operator=(const vtkPolyLine&) = delete;
 };
 
 #endif

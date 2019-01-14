@@ -68,10 +68,6 @@ int TestGenericProbeFilter(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadTet2.vtu");
-// char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Test2_Volume.vtu");
-// char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadQuad01.vtu");
 
   reader->SetFileName( cfname );
   delete[] cfname;
@@ -129,13 +125,13 @@ int TestGenericProbeFilter(int argc, char* argv[])
   geom->Delete();
 
   if(geom->GetOutput()->GetPointData()!=0)
-    {
+  {
     if(geom->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
+    {
       mapper2->SetScalarRange( geom->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
   vtkActor *actor2 = vtkActor::New();
   actor2->SetMapper(mapper2);
   mapper2->Delete();
@@ -164,7 +160,7 @@ int TestGenericProbeFilter(int argc, char* argv[])
 
   probe->Update(); //So that we can call GetRange() on the scalars
 
-  assert(probe->GetOutput()!=0);
+  assert(probe->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut = vtkLookupTable::New();
@@ -176,14 +172,14 @@ int TestGenericProbeFilter(int argc, char* argv[])
   mapper->SetInputConnection(0, probe->GetOutputPort(0) );
   probe->Delete();
 
-  if(probe->GetOutput()->GetPointData()!=0)
+  if(probe->GetOutput()->GetPointData()!=nullptr)
+  {
+    if(probe->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
-    if(probe->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
       mapper->SetScalarRange( probe->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -214,13 +210,13 @@ int TestGenericProbeFilter(int argc, char* argv[])
   stdProbe->Delete();
 
   if(stdProbe->GetOutput()->GetPointData()!=0)
-    {
+  {
     if(stdProbe->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
+    {
       mapper4->SetScalarRange( stdProbe->GetOutput()->GetPointData()->
                                GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor4 = vtkActor::New();
   actor4->SetMapper(mapper4);
@@ -235,9 +231,9 @@ int TestGenericProbeFilter(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   iren->Delete();

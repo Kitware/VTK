@@ -41,7 +41,7 @@ vtkCxxSetObjectMacro(vtkLogoRepresentation, ImageProperty, vtkProperty2D);
 vtkLogoRepresentation::vtkLogoRepresentation()
 {
   // Initialize the data members
-  this->Image = NULL;
+  this->Image = nullptr;
   this->ImageProperty = vtkProperty2D::New();
 
   // Setup the pipeline
@@ -90,9 +90,9 @@ vtkLogoRepresentation::vtkLogoRepresentation()
 vtkLogoRepresentation::~vtkLogoRepresentation()
 {
   if ( this->Image )
-    {
+  {
     this->Image->Delete();
-    }
+  }
   this->ImageProperty->Delete();
   this->Texture->Delete();
   this->TexturePoints->Delete();
@@ -102,33 +102,33 @@ vtkLogoRepresentation::~vtkLogoRepresentation()
 }
 
 //----------------------------------------------------------------------
-inline void vtkLogoRepresentation::AdjustImageSize(double o[2],
-                                                   double borderSize[2],
-                                                   double imageSize[2])
+void vtkLogoRepresentation::AdjustImageSize(double o[2],
+                                            double borderSize[2],
+                                            double imageSize[2])
 {
   // Scale the image to fit with in the border.
   // Also update the origin so the image is centered.
   double r0 = borderSize[0]/imageSize[0];
   double r1 = borderSize[1]/imageSize[1];
   if ( r0 > r1 )
-    {
+  {
     imageSize[0] *= r1;
     imageSize[1] *= r1;
-    }
+  }
   else
-    {
+  {
     imageSize[0] *= r0;
     imageSize[1] *= r0;
-    }
+  }
 
   if ( imageSize[0] < borderSize[0] )
-    {
+  {
     o[0] += (borderSize[0]-imageSize[0])/2.0;
-    }
+  }
   if ( imageSize[1] < borderSize[1] )
-    {
+  {
     o[1] += (borderSize[1]-imageSize[1])/2.0;
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -137,22 +137,22 @@ void vtkLogoRepresentation::BuildRepresentation()
   if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
+  {
 
     // Determine and adjust the size of the image
     if ( this->Image )
-      {
+    {
       double imageSize[2], borderSize[2], o[2];
       imageSize[0] = 0.0;
       imageSize[1] = 0.0;
       //this->Image->Update();
       if ( this->Image->GetDataDimension() == 2 )
-        {
+      {
         int dims[3];
         this->Image->GetDimensions(dims);
         imageSize[0] = static_cast<double>(dims[0]);
         imageSize[1] = static_cast<double>(dims[1]);
-        }
+      }
       int *p1 = this->PositionCoordinate->
         GetComputedDisplayValue(this->Renderer);
       int *p2 = this->Position2Coordinate->
@@ -172,8 +172,10 @@ void vtkLogoRepresentation::BuildRepresentation()
       this->TexturePoints->SetPoint(1, o[0]+imageSize[0],o[1],0.0);
       this->TexturePoints->SetPoint(2, o[0]+imageSize[0],o[1]+imageSize[1],0.0);
       this->TexturePoints->SetPoint(3, o[0],o[1]+imageSize[1],0.0);
-      }
+      // For GL backend 2 it is important to modify the point array
+      this->TexturePoints->Modified();
     }
+  }
 
   // Note that the transform is updated by the superclass
   this->Superclass::BuildRepresentation();
@@ -196,12 +198,17 @@ void vtkLogoRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 //-------------------------------------------------------------------------
 int vtkLogoRepresentation::RenderOverlay(vtkViewport *v)
 {
-  int count = this->Superclass::RenderOverlay(v);
-  vtkRenderer* ren = vtkRenderer::SafeDownCast(v);
-  if (ren)
+  int count = 0;
+  if (this->TextureActor->GetVisibility())
+  {
+    vtkRenderer* ren = vtkRenderer::SafeDownCast(v);
+    if (ren)
     {
-    count += this->TextureActor->RenderOverlay(v);
+      count += this->TextureActor->RenderOverlay(v);
     }
+    // Display border on top of logo
+    count += this->Superclass::RenderOverlay(v);
+  }
   return count;
 }
 
@@ -211,22 +218,22 @@ void vtkLogoRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Image )
-    {
+  {
     os << indent << "Image:\n";
     this->Image->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Image: (none)\n";
-    }
+  }
 
   if ( this->ImageProperty )
-    {
+  {
     os << indent << "Image Property:\n";
     this->ImageProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Image Property: (none)\n";
-    }
+  }
 }

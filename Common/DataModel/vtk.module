@@ -1,0 +1,40 @@
+NAME
+  VTK::CommonDataModel
+LIBRARY_NAME
+  vtkCommonDataModel
+DESCRIPTION
+  Core data types
+KIT
+  VTK::Common
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonMath
+  VTK::CommonTransforms
+PRIVATE_DEPENDS
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::ChartsCore
+  VTK::CommonColor
+  VTK::CommonExecutionModel
+  VTK::CommonSystem
+  VTK::FiltersExtraction
+  VTK::FiltersGeneric
+  VTK::FiltersGeometry
+  VTK::FiltersModeling
+  VTK::IOGeometry
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::InteractionStyle
+  VTK::RenderingContextOpenGL2
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingGenericBridge
+  VTK::TestingRendering
+  VTK::ViewsContext2D
+TEST_OPTIONAL_DEPENDS
+  VTK::FiltersPython

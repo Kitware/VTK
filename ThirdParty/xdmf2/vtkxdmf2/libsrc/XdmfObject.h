@@ -350,7 +350,7 @@ need to make sure ....
 
 /*! Used for Parsing */
 
-#define XDMF_WORD_CMP( a, b )  ( (a) != NULL ) && ( STRCASECMP((a),(b)) == 0 )
+#define XDMF_WORD_CMP( a, b )  ( ( (a) != NULL ) && ( STRCASECMP((a),(b)) == 0 ) )
 
 #define XDMF_STRING_DUPLICATE( dest, src ) \
   if ( src ) { \

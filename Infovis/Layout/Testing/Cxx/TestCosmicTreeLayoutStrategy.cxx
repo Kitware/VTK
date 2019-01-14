@@ -113,16 +113,16 @@ int TestCosmicTreeLayoutStrategy(int argc, char* argv[])
 
   VTK_CREATE(vtkMutableDirectedGraph, builder);
   for ( int i = 0; i < numNodes; ++ i )
-    {
+  {
     if ( inputParents[i] < 0 )
-      {
+    {
       builder->AddVertex();
-      }
-    else
-      {
-      builder->AddChild( inputParents[i] );
-      }
     }
+    else
+    {
+      builder->AddChild( inputParents[i] );
+    }
+  }
 
   VTK_CREATE(vtkTree, tree);
   tree->ShallowCopy( builder );
@@ -132,10 +132,10 @@ int TestCosmicTreeLayoutStrategy(int argc, char* argv[])
   idArr->SetName( "id" );
   radArr->SetName( "inputRadius" );
   for ( vtkIdType i = 0; i < numNodes; ++ i )
-    {
+  {
     idArr->InsertNextValue( i );
     radArr->InsertNextValue( inputRadius[i] );
-    }
+  }
   tree->GetVertexData()->AddArray( idArr );
   tree->GetVertexData()->AddArray( radArr );
 
@@ -173,12 +173,12 @@ int TestCosmicTreeLayoutStrategy(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( win );
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Initialize();
     iren->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

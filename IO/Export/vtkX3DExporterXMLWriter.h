@@ -12,15 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkX3DExporterXMLWriter - X3D Exporter XML Writer
-// .SECTION Description
-// vtkX3DExporterXMLWriter
+/**
+ * @class   vtkX3DExporterXMLWriter
+ * @brief   X3D Exporter XML Writer
+ *
+ * vtkX3DExporterXMLWriter
+*/
 
 #ifndef vtkX3DExporterXMLWriter_h
 #define vtkX3DExporterXMLWriter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkX3DExporterWriter.h"
+#include <string> // for std::string
 
 class vtkX3DExporterXMLNodeInfoStack;
 
@@ -30,43 +34,43 @@ class VTKIOEXPORT_EXPORT vtkX3DExporterXMLWriter : public vtkX3DExporterWriter
 public:
   static vtkX3DExporterXMLWriter *New();
   vtkTypeMacro(vtkX3DExporterXMLWriter, vtkX3DExporterWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  virtual void CloseFile();
-  virtual int OpenFile(const char* file);
-  virtual void Flush();
+  void CloseFile() override;
+  int OpenFile(const char* file) override;
+  void Flush() override;
 
-  virtual int OpenStream();
+  int OpenStream() override;
 
-  void StartDocument();
-  void EndDocument();
+  void StartDocument() override;
+  void EndDocument() override;
 
   // Elements
-  void StartNode(int elementID);
-  void EndNode();
+  void StartNode(int elementID) override;
+  void EndNode() override;
 
   // Attributes
   // SFString / MFString
-  void SetField(int attributeID, const char*, bool mfstring = true);
+  void SetField(int attributeID, const char*, bool mfstring = true) override;
   // SFInt32
-  void SetField(int attributeID, int);
+  void SetField(int attributeID, int) override;
   // SFFloat
-  void SetField(int attributeID, float);
+  void SetField(int attributeID, float) override;
   // SFDouble
-  void SetField(int attributeID, double);
+  void SetField(int attributeID, double) override;
   // SFBool
-  void SetField(int attributeID, bool);
+  void SetField(int attributeID, bool) override;
 
   // For MFxxx attributes
-  void SetField(int attributeID, int type, const double* a);
-  void SetField(int attributeID, int type, vtkDataArray* a);
-  void SetField(int attributeID, const double* values, size_t size);
+  void SetField(int attributeID, int type, const double* a) override;
+  void SetField(int attributeID, int type, vtkDataArray* a) override;
+  void SetField(int attributeID, const double* values, size_t size) override;
   // MFInt32, SFIMAGE
-  void SetField(int attributeID, const int* values, size_t size, bool image = false);
+  void SetField(int attributeID, const int* values, size_t size, bool image = false) override;
 
 protected:
   vtkX3DExporterXMLWriter();
-  ~vtkX3DExporterXMLWriter();
+  ~vtkX3DExporterXMLWriter() override;
 
 private:
 
@@ -79,8 +83,8 @@ private:
   ostream *OutputStream;
   vtkX3DExporterXMLNodeInfoStack* InfoStack;
 
-  vtkX3DExporterXMLWriter(const vtkX3DExporterXMLWriter&); // Not implemented.
-  void operator=(const vtkX3DExporterXMLWriter&); // Not implemented.
+  vtkX3DExporterXMLWriter(const vtkX3DExporterXMLWriter&) = delete;
+  void operator=(const vtkX3DExporterXMLWriter&) = delete;
 
 };
 

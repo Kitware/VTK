@@ -42,9 +42,9 @@ vtkImageDataStreamer::vtkImageDataStreamer()
 vtkImageDataStreamer::~vtkImageDataStreamer()
 {
   if (this->ExtentTranslator)
-    {
+  {
     this->ExtentTranslator->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -54,14 +54,14 @@ void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "NumberOfStreamDivisions: " << this->NumberOfStreamDivisions << endl;
   if ( this->ExtentTranslator )
-    {
+  {
     os << indent << "ExtentTranslator:\n";
     this->ExtentTranslator->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "ExtentTranslator: (none)\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -70,7 +70,7 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector* outputVector)
 {
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     // we must set the extent on the input
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
@@ -86,19 +86,19 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
     translator->SetNumberOfPieces(this->NumberOfStreamDivisions);
     translator->SetPiece(this->CurrentDivision);
     if (translator->PieceToExtentByPoints())
-      {
+    {
       translator->GetExtent(inExt);
-      }
+    }
 
     inputVector[0]->GetInformationObject(0)
       ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 
     return 1;
-    }
+  }
 
   // generate the data
   else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     // get the output data object
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     vtkImageData *output =
@@ -107,11 +107,11 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
 
     // is this the first request
     if (!this->CurrentDivision)
-      {
+    {
       // Tell the pipeline to start looping.
       request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
       this->AllocateOutputData(output, outInfo);
-      }
+    }
 
     // actually copy the data
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -130,13 +130,13 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
 
     this->CurrentDivision++;
     if (this->CurrentDivision == this->NumberOfStreamDivisions)
-      {
+    {
       // Tell the pipeline to stop looping.
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->CurrentDivision = 0;
-      }
+    }
 
     return 1;
-    }
+  }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

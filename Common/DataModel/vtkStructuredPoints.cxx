@@ -15,10 +15,8 @@
 #include "vtkStructuredPoints.h"
 #include "vtkObjectFactory.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkStructuredPoints);
 
-vtkStructuredPoints::vtkStructuredPoints()
-{
-}
+vtkStructuredPoints::vtkStructuredPoints() = default;

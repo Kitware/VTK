@@ -26,7 +26,7 @@ static const char *vtkLightKitTypeStrings[] = {
   "FillLight",
   "BackLight",
   "HeadLight",
-  NULL
+  nullptr
 };
 
 static const char *vtkLightKitSubTypeStrings[] = {
@@ -37,7 +37,7 @@ static const char *vtkLightKitSubTypeStrings[] = {
   "K:F Ratio",
   "K:B Ratio",
   "K:H Ratio",
-  NULL
+  nullptr
 };
 
 // These are the same as vtkLightKitSubTypeStrings but shorter
@@ -50,7 +50,7 @@ static const char *vtkLightKitSubTypeShortStrings[] = {
   "K:F",
   "K:B",
   "K:H",
-  NULL
+  nullptr
 };
 
 
@@ -65,9 +65,9 @@ vtkLightKit::vtkLightKit()
   this->BackLight1 = vtkLight::New();
 
   for(int i = 0; i < 4; i++)
-    {
+  {
     this->WarmthFunction[i] = vtkPiecewiseFunction::New();
-    }
+  }
   this->InitializeWarmthFunctions();
 
   // initialize values
@@ -106,9 +106,9 @@ vtkLightKit::~vtkLightKit()
   this->BackLight1->Delete();
 
   for(int i = 0; i < 4; i++)
-    {
+  {
     this->WarmthFunction[i]->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -165,27 +165,27 @@ void vtkLightKit::WarmthToRGBI(double w, double rgb[3], double& i)
 //----------------------------------------------------------------------------
 void vtkLightKit::AddLightsToRenderer(vtkRenderer *renderer)
 {
-  if(renderer != NULL)
-    {
+  if(renderer != nullptr)
+  {
     renderer->AddLight(this->HeadLight);
     renderer->AddLight(this->KeyLight);
     renderer->AddLight(this->FillLight);
     renderer->AddLight(this->BackLight0);
     renderer->AddLight(this->BackLight1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkLightKit::RemoveLightsFromRenderer(vtkRenderer *renderer)
 {
-  if(renderer != NULL)
-    {
+  if(renderer != nullptr)
+  {
     renderer->RemoveLight(this->HeadLight);
     renderer->RemoveLight(this->KeyLight);
     renderer->RemoveLight(this->FillLight);
     renderer->RemoveLight(this->BackLight0);
     renderer->RemoveLight(this->BackLight1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -234,12 +234,12 @@ void vtkLightKit::Update()
   // the intensity of the entire scene, not just the fill light.
 
   if(this->MaintainLuminance)
-    {
+  {
     fillLightIntensity /= fillLightPI;
     headlightIntensity /= headlightPI;
     keyLightIntensity  /= keyLightPI;
     backLightIntensity /= backLightPI;
-    }
+  }
   this->KeyLight->SetColor(keyLightColor);
   this->KeyLight->SetIntensity(keyLightIntensity);
 
@@ -414,10 +414,10 @@ void vtkLightKit::InitializeWarmthFunctions()
   const int len = sizeof(warmthTable) / sizeof(double) / 4;
 
   for(int i = 0; i < 4; i++)
-    {
+  {
     this->WarmthFunction[i]->BuildFunctionFromTable(0.0, 1.0, len,
       &warmthTable[i], 4);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -425,13 +425,13 @@ const char *vtkLightKit::GetStringFromType(int type)
 {
   static const int n = sizeof(vtkLightKitTypeStrings)/sizeof(char*);
   if( type < n )
-    {
+  {
     return vtkLightKitTypeStrings[type];
-    }
+  }
   else
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -439,13 +439,13 @@ const char *vtkLightKit::GetStringFromSubType(int subtype)
 {
   static const int n = sizeof(vtkLightKitSubTypeStrings)/sizeof(char*);
   if( subtype < n )
-    {
+  {
     return vtkLightKitSubTypeStrings[subtype];
-    }
+  }
   else
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -453,13 +453,13 @@ const char *vtkLightKit::GetShortStringFromSubType(int subtype)
 {
   static const int n = sizeof(vtkLightKitSubTypeShortStrings)/sizeof(char*);
   if( subtype < n )
-    {
+  {
     return vtkLightKitSubTypeShortStrings[subtype];
-    }
+  }
   else
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
 }
 //----------------------------------------------------------------------------
 vtkLightKit::LightKitSubType vtkLightKit::GetSubType(vtkLightKit::LightKitType type, int i)
@@ -472,7 +472,7 @@ vtkLightKit::LightKitSubType vtkLightKit::GetSubType(vtkLightKit::LightKitType t
 
   LightKitSubType subtype = Warmth; // please VS6
   switch(type)
-    {
+  {
     case TKeyLight:
       subtype = KeyLightSubType[i];
       break;
@@ -485,7 +485,7 @@ vtkLightKit::LightKitSubType vtkLightKit::GetSubType(vtkLightKit::LightKitType t
     case THeadLight:
       subtype = HeadLightSubType[i];
       break;
-    }
+  }
 
   return subtype;
 }

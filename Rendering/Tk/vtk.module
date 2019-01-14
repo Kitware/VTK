@@ -1,0 +1,20 @@
+NAME
+  VTK::RenderingTk
+LIBRARY_NAME
+  vtkRenderingTk
+CONDITION
+  VTK_WRAP_PYTHON AND VTK_USE_TK
+GROUPS
+  Tk
+DEPENDS
+  VTK::CommonCore
+  VTK::InteractionImage
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::RenderingVolume
+EXCLUDE_WRAP

@@ -1,6 +1,7 @@
-set(module_SRCS
-  vtkContextView.cxx
-  vtkContextInteractorStyle.cxx
+set(classes
+  vtkContextView
+  vtkContextInteractorStyle
   )
 
-vtk_module_library(vtkViewsContext2D ${module_SRCS})
+vtk_module_add_module(VTK::ViewsContext2D
+  CLASSES ${classes})

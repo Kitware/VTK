@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -51,7 +50,6 @@ clip.GenerateFacesOn()
 isoMapper = vtk.vtkPolyDataMapper()
 isoMapper.SetInputConnection(clip.GetOutputPort())
 isoMapper.ScalarVisibilityOn()
-isoMapper.ImmediateModeRenderingOn()
 isoActor = vtk.vtkActor()
 isoActor.SetMapper(isoMapper)
 outline = vtk.vtkOutlineFilter()

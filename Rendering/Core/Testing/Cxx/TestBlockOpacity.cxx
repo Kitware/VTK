@@ -49,7 +49,7 @@ int TestBlockOpacity(int argc, char* argv[])
 
   double range[2];
 
-  calc->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
+  vtkDataSet::SafeDownCast(calc->GetOutput())->GetPointData()->GetScalars()->GetRange(range);
 
   vtkSmartPointer< vtkMultiBlockDataGroupFilter > groupDatasets =
       vtkSmartPointer< vtkMultiBlockDataGroupFilter >::New();
@@ -95,18 +95,18 @@ int TestBlockOpacity(int argc, char* argv[])
   renWin->Render();
 
   if(renderer->GetLastRenderingUsedDepthPeeling())
-    {
+  {
     cout<<"depth peeling was used"<<endl;
-    }
+  }
   else
-    {
+  {
     cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-    }
+  }
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

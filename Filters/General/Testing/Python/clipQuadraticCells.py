@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import sys
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -740,7 +739,7 @@ QLWedgeclipMapper.SetInputConnection(QLwedgeclips.GetOutputPort())
 QLWedgeclipMapper.ScalarVisibilityOff()
 QLWedgeMapper = vtk.vtkDataSetMapper()
 QLWedgeMapper.SetInputData(QLWedgeGrid)
-aWedgeMapper.ScalarVisibilityOff()
+QLWedgeMapper.ScalarVisibilityOff()
 QLWedgeActor = vtk.vtkActor()
 QLWedgeActor.SetMapper(QLWedgeMapper)
 QLWedgeActor.GetProperty().SetRepresentationToWireframe()

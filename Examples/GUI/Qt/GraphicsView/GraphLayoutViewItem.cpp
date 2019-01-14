@@ -2,7 +2,6 @@
 #include "GraphLayoutViewItem.h"
 #include "vtkGraphLayoutView.h"
 #include "vtkGenericOpenGLRenderWindow.h"
-#include "vtkgl.h"
 #include "QVTKInteractor.h"
 #include "vtkXMLTreeReader.h"
 #include "vtkRenderedTreeAreaRepresentation.h"

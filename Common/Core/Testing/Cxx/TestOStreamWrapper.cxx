@@ -15,7 +15,7 @@
 #define VTK_STREAMS_FWD_ONLY // like wrapper-generated sources
 #include "vtkSystemIncludes.h"
 
-#include <stdio.h> // test covers NOT including <iostream>
+#include <cstdio> // test covers NOT including <iostream>
 #include <string>
 
 int TestOStreamWrapper(int, char *[])
@@ -29,10 +29,10 @@ int TestOStreamWrapper(int, char *[])
   actual = vtkmsg.str();
   vtkmsg.rdbuf()->freeze(0);
   if(actual != expect)
-    {
+  {
     failed = 1;
     fprintf(stderr, "Expected '%s' but got '%s'\n",
             expect.c_str(), actual.c_str());
-    }
+  }
   return failed;
 }

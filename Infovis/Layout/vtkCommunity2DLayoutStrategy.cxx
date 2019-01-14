@@ -43,11 +43,6 @@
 
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
-#ifndef MIN
-#define MIN(x, y)       ((x) < (y) ? (x) : (y))
-#endif
-
-
 // Cool-down function.
 static inline float CoolDown(float t, float r)
 {
@@ -71,11 +66,11 @@ vtkCommunity2DLayoutStrategy::vtkCommunity2DLayoutStrategy()
   this->InitialTemperature = 5;
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
-  this->EdgeWeightField = 0;
+  this->EdgeWeightField = nullptr;
   this->SetEdgeWeightField("weight");
   this->RestDistance = 0;
-  this->EdgeArray = 0;
-  this->CommunityArrayName = 0;
+  this->EdgeArray = nullptr;
+  this->CommunityArrayName = nullptr;
   this->SetCommunityArrayName("community");
   this->CommunityStrength = 1.0;
 }
@@ -84,8 +79,8 @@ vtkCommunity2DLayoutStrategy::vtkCommunity2DLayoutStrategy()
 
 vtkCommunity2DLayoutStrategy::~vtkCommunity2DLayoutStrategy()
 {
-  this->SetEdgeWeightField(0);
-  this->SetCommunityArrayName(0);
+  this->SetEdgeWeightField(nullptr);
+  this->SetCommunityArrayName(nullptr);
   delete [] this->EdgeArray;
 }
 
@@ -100,9 +95,9 @@ void vtkCommunity2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, in
 
   // Circular splat: 1 in the middle and 0 at the corners and sides
   for (int row = 0; row < dimensions[1]; ++row)
-    {
+  {
     for (int col = 0; col < dimensions[0]; ++col)
-      {
+    {
       float splatValue;
 
       // coordinates will range from -1 to 1
@@ -111,18 +106,18 @@ void vtkCommunity2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, in
 
       float radius = sqrt(xCoord*xCoord + yCoord*yCoord);
       if ((1 - radius) > 0)
-        {
+      {
         splatValue = 1-radius;
-        }
+      }
       else
-        {
+      {
         splatValue = 0;
-        }
+      }
 
       // Set value
       splat->SetScalarComponentFromFloat(col,row,0,0,splatValue);
-      }
     }
+  }
 }
 
 void vtkCommunity2DLayoutStrategy::GenerateGaussianSplat(vtkImageData *splat, int x, int y)
@@ -137,9 +132,9 @@ void vtkCommunity2DLayoutStrategy::GenerateGaussianSplat(vtkImageData *splat, in
   float e= 2.71828182845904;
 
   for (int row = 0; row < dimensions[1]; ++row)
-    {
+  {
     for (int col = 0; col < dimensions[0]; ++col)
-      {
+    {
       float splatValue;
 
       // coordinates will range from -1 to 1
@@ -150,8 +145,8 @@ void vtkCommunity2DLayoutStrategy::GenerateGaussianSplat(vtkImageData *splat, in
 
       // Set value
       splat->SetScalarComponentFromFloat(col,row,0,0,splatValue);
-      }
     }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -167,44 +162,44 @@ void vtkCommunity2DLayoutStrategy::Initialize()
 
   // Make sure output point type is float
   if (pts->GetData()->GetDataType() != VTK_FLOAT)
-    {
+  {
     vtkErrorMacro("Layout strategy expects to have points of type float");
     this->LayoutComplete = 1;
     return;
-    }
+  }
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // Avoid divide by zero
   float div = 1;
   if (numVertices > 0)
-    {
+  {
     div = static_cast<float>(numVertices);
-    }
+  }
 
   // The optimal distance between vertices.
   if (this->RestDistance == 0)
-    {
+  {
     this->RestDistance = sqrt(1.0 / div);
-    }
+  }
 
   // Set up array to store repulsion values
   this->RepulsionArray->SetNumberOfComponents(3);
   this->RepulsionArray->SetNumberOfTuples(numVertices);
   for (vtkIdType i=0; i<numVertices*3; ++i)
-    {
+  {
     this->RepulsionArray->SetValue(i, 0);
-    }
+  }
 
   // Set up array to store attraction values
   this->AttractionArray->SetNumberOfComponents(3);
   this->AttractionArray->SetNumberOfTuples(numVertices);
   for (vtkIdType i=0; i<numVertices*3; ++i)
-    {
+  {
     this->AttractionArray->SetValue(i, 0);
-    }
+  }
 
   // Put the edge data into compact, fast access edge data structure
   delete [] this->EdgeArray;
@@ -212,50 +207,50 @@ void vtkCommunity2DLayoutStrategy::Initialize()
 
   // Jitter x and y, skip z
   for (vtkIdType i=0; i<numVertices*3; i+=3)
-    {
+  {
     rawPointData[i] += this->RestDistance*(vtkMath::Random() - .5);
     rawPointData[i+1] += this->RestDistance*(vtkMath::Random() - .5);
-    }
+  }
 
   // Get the weight array
-  vtkDataArray* weightArray = NULL;
+  vtkDataArray* weightArray = nullptr;
   double weight, maxWeight = 1;
-  if (this->WeightEdges && this->EdgeWeightField != NULL)
+  if (this->WeightEdges && this->EdgeWeightField != nullptr)
+  {
+    weightArray = vtkArrayDownCast<vtkDataArray>(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
+    if (weightArray != nullptr)
     {
-    weightArray = vtkDataArray::SafeDownCast(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
-    if (weightArray != NULL)
-      {
       for (vtkIdType w = 0; w < weightArray->GetNumberOfTuples(); w++)
-        {
+      {
         weight = weightArray->GetTuple1(w);
         if (weight > maxWeight)
-          {
+        {
           maxWeight = weight;
-          }
         }
       }
     }
+  }
 
   // Load up the edge data structures
   vtkSmartPointer<vtkEdgeListIterator> edges =
     vtkSmartPointer<vtkEdgeListIterator>::New();
   this->Graph->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
     vtkEdgeType e = edges->Next();
     this->EdgeArray[e.Id].from = e.Source;
     this->EdgeArray[e.Id].to = e.Target;
 
-    if (weightArray != NULL)
-      {
+    if (weightArray != nullptr)
+    {
       weight = weightArray->GetTuple1(e.Id);
       this->EdgeArray[e.Id].weight = weight / maxWeight;
-      }
-    else
-      {
-      this->EdgeArray[e.Id].weight = 1.0;
-      }
     }
+    else
+    {
+      this->EdgeArray[e.Id].weight = 1.0;
+    }
+  }
 
   // Set some vars
   this->TotalIterations = 0;
@@ -275,12 +270,12 @@ void vtkCommunity2DLayoutStrategy::Initialize()
 void vtkCommunity2DLayoutStrategy::Layout()
 {
   // Do I have a graph to layout
-  if (this->Graph == NULL)
-    {
-    vtkErrorMacro("Graph Layout called with Graph==NULL, call SetGraph(g) first");
+  if (this->Graph == nullptr)
+  {
+    vtkErrorMacro("Graph Layout called with Graph==nullptr, call SetGraph(g) first");
     this->LayoutComplete = 1;
     return;
-    }
+  }
 
   // Set my graph as input into the density grid
   this->DensityGrid->SetInputData(this->Graph);
@@ -293,14 +288,14 @@ void vtkCommunity2DLayoutStrategy::Layout()
   // Get a quick pointer to the community array
   vtkDataArray *community =
     this->Graph->GetVertexData()->GetArray(this->CommunityArrayName);
-  if (community == NULL)
-    {
+  if (community == nullptr)
+  {
     vtkWarningMacro("vtkCommunity2DLayoutStrategy did not find a \"community\" array." <<
                     "\n so the layout will not pull communities together like it should");
-    }
+  }
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // This is the mega, uber, triple inner loop
@@ -312,19 +307,19 @@ void vtkCommunity2DLayoutStrategy::Layout()
   vtkIdType rawSourceIndex=0;
   vtkIdType rawTargetIndex=0;
   for(int i = 0; i < this->IterationsPerLayout; ++i)
-    {
+  {
 
     // Initialize the repulsion and attraction arrays
     for (vtkIdType j=0; j<numVertices*3; ++j)
-      {
+    {
       this->RepulsionArray->SetValue(j, 0);
-      }
+    }
 
     // Set up array to store attraction values
     for (vtkIdType j=0; j<numVertices*3; ++j)
-      {
+    {
       this->AttractionArray->SetValue(j, 0);
-      }
+    }
 
     // Compute bounds of graph going into the density grid
     double bounds[6], paddedBounds[6];
@@ -344,10 +339,10 @@ void vtkCommunity2DLayoutStrategy::Layout()
 
     // Sanity check scalar type
     if (this->DensityGrid->GetOutput()->GetScalarType() != VTK_FLOAT)
-      {
+    {
       vtkErrorMacro("DensityGrid expected to be of type float");
       return;
-      }
+    }
 
     // Get the array handle
     float *densityArray = static_cast<float*>
@@ -361,7 +356,7 @@ void vtkCommunity2DLayoutStrategy::Layout()
     // Calculate the repulsive forces
     float *rawRepulseArray = this->RepulsionArray->GetPointer(0);
     for(vtkIdType j=0; j<numVertices; ++j)
-      {
+    {
       rawSourceIndex = j * 3;
 
       // Compute indices into the density grid
@@ -380,12 +375,12 @@ void vtkCommunity2DLayoutStrategy::Layout()
 
       rawRepulseArray[rawSourceIndex]   = (x1-x2); // Push away from higher
       rawRepulseArray[rawSourceIndex+1] = (y1-y2);
-      }
+    }
 
     // Calculate the attractive forces
     float *rawAttractArray = this->AttractionArray->GetPointer(0);
     for (vtkIdType j=0; j<numEdges; ++j)
-      {
+    {
       rawSourceIndex = this->EdgeArray[j].from * 3;
       rawTargetIndex = this->EdgeArray[j].to * 3;
 
@@ -406,31 +401,31 @@ void vtkCommunity2DLayoutStrategy::Layout()
       // part of your community
       float communityWeight = 1;
       if (community)
-        {
+      {
         int sourceComm = static_cast<int> (community->GetTuple1(sourceIndex));
         int targetComm = static_cast<int> (community->GetTuple1(targetIndex));
 
         // Often -1 is used for no/unspecified community
         // if either node is marked as such then just skip
         if ((sourceComm == -1) || (targetComm == -1))
-          {
+        {
           continue;
-          }
+        }
 
         // If the source and target are the same
         // then increase the weight between them
         if (sourceComm == targetComm)
-          {
+        {
           communityWeight = 1 + 10 * this->CommunityStrength;
-          }
+        }
 
         // If source and target are different
         // then decrease the weight between them
         else
-          {
+        {
           communityWeight = 1.1 - this->CommunityStrength;
-          }
-        } // if community
+        }
+      } // if community
 
       // Perform weight adjustment
       attractValue = this->EdgeArray[j].weight*communityWeight*disSquared -
@@ -440,12 +435,12 @@ void vtkCommunity2DLayoutStrategy::Layout()
       rawAttractArray[rawSourceIndex+1] -= delta[1] * attractValue;
       rawAttractArray[rawTargetIndex]   += delta[0] * attractValue;
       rawAttractArray[rawTargetIndex+1] += delta[1] * attractValue;
-      } // for each edge
+    } // for each edge
 
     // Okay now set new positions based on replusion
     // and attraction 'forces'
     for(vtkIdType j=0; j<numVertices; ++j)
-      {
+    {
       rawSourceIndex = j * 3;
 
       // Get forces for this node
@@ -453,19 +448,19 @@ void vtkCommunity2DLayoutStrategy::Layout()
       float forceY = rawAttractArray[rawSourceIndex+1] + rawRepulseArray[rawSourceIndex+1];
 
       // Forces can get extreme so limit them
-      // Note: This is psuedo-normalization of the
+      // Note: This is pseudo-normalization of the
       //       force vector, just to save some cycles
 
       // Avoid divide by zero
       float forceDiv = fabs(forceX) + fabs(forceY) + epsilon;
-      float pNormalize = MIN(1, 1.0/forceDiv);
+      float pNormalize = vtkMath::Min(1.0f, 1.0f/forceDiv);
       pNormalize *= this->Temp;
       forceX *= pNormalize;
       forceY *= pNormalize;
 
       rawPointData[rawSourceIndex] += forceX;
       rawPointData[rawSourceIndex+1] += forceY;
-      }
+    }
 
     // The point coordinates have been modified
     this->Graph->GetPoints()->Modified();
@@ -478,20 +473,20 @@ void vtkCommunity2DLayoutStrategy::Layout()
                       static_cast<double>(this->MaxNumberOfIterations);
     this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void *>(&progress));
 
-   } // End loop this->IterationsPerLayout
+  } // End loop this->IterationsPerLayout
 
 
   // Check for completion of layout
   this->TotalIterations += this->IterationsPerLayout;
   if (this->TotalIterations >= this->MaxNumberOfIterations)
-    {
+  {
 
     // Make sure no vertex is on top of another vertex
     this->ResolveCoincidentVertices();
 
     // I'm done
     this->LayoutComplete = 1;
-    }
+  }
 
   // Mark points as modified
   this->Graph->GetPoints()->Modified();
@@ -514,7 +509,7 @@ void vtkCommunity2DLayoutStrategy::ResolveCoincidentVertices()
 
   // Get a quick pointer to the point data
   vtkPoints* pts = this->Graph->GetPoints();
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // Place the vertices into a giant grid (100xNumVertices)
@@ -529,9 +524,9 @@ void vtkCommunity2DLayoutStrategy::ResolveCoincidentVertices()
 
   // Initialize array to zeros
   for(vtkIdType i=0; i<gridSize; ++i)
-    {
+  {
     giantGrid->SetValue(i, 0);
-    }
+  }
 
   double bounds[6], paddedBounds[6];
   this->Graph->GetBounds(bounds);
@@ -546,7 +541,7 @@ void vtkCommunity2DLayoutStrategy::ResolveCoincidentVertices()
   int totalCollisionOps = 0;
 
   for(vtkIdType i=0; i<numVertices; ++i)
-    {
+  {
     int rawIndex = i * 3;
 
     // Compute indices into the buckets
@@ -559,7 +554,7 @@ void vtkCommunity2DLayoutStrategy::ResolveCoincidentVertices()
 
     // See if you collide with another vertex
     if (giantGrid->GetValue(indexX + indexY*xDim))
-      {
+    {
 
       // Oh my... try to get yourself out of this
       // by randomly jumping to a place that doesn't
@@ -568,9 +563,9 @@ void vtkCommunity2DLayoutStrategy::ResolveCoincidentVertices()
       float jumpDistance = 5.0*(paddedBounds[1]-paddedBounds[0])/xDim; // 2.5 grid spaces max
       int collisionOps = 0;
 
-      // You get 10 trys and then we have to punt
+      // You get 10 tries and then we have to punt
       while (collision && (collisionOps < 10))
-        {
+      {
         collisionOps++;
 
         // Move
@@ -585,16 +580,16 @@ void vtkCommunity2DLayoutStrategy::ResolveCoincidentVertices()
                      (rawPointData[rawIndex+1]-paddedBounds[2]) /
                      (paddedBounds[3]-paddedBounds[2]) * (yDim-1) + .5);
         if (!giantGrid->GetValue(indexX + indexY*xDim))
-          {
+        {
           collision = false; // yea
-          }
-        } // while
+        }
+      } // while
         totalCollisionOps += collisionOps;
-      } // if collide
+    } // if collide
 
     // Put into a bucket
     giantGrid->SetValue(indexX + indexY*xDim, 1);
-    }
+  }
 
   // Delete giantGrid
   giantGrid->Initialize();

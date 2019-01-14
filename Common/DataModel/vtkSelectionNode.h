@@ -12,33 +12,36 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSelectionNode - A node in a selection tree. Used to store selection results.
-// .SECTION Description
-
-// vtkSelectionNode stores selection parameters for a selection
-// (or part of a selection). It stores a list of properties (in a vtkInformation)
-// and a list of selection values (in a vtkAbstractArray). The properties
-// provide information about what the selection values mean. For example the
-// CONTENT_TYPE property gives information about what is stored by the node.
-// If the CONTENT_TYPE is GLOBALIDS,
-// the SelectionList array should contain a list of cell or point ids, which
-// identify the particular cells or points that have matching values in the
-// GLOBALID vtkDataSetAttribute array. If the CONTENT_TYPE is PEDIGREEIDS, the
-// SelectionList array should contain a list of cell or point ids, which identify
-// the particular cells or points that have matching values in the PEDIGREEID
-// vtkDataSetAttribute array. The FIELD_TYPE property designates whether the
-// selection refers to cells or points.
-//
-// Usually, each node under the root is a selection from
-// one data object. SOURCE or SOURCE_ID properties point to this object. If
-// the selection was performed on a renderer, PROP or PROP_ID point to the
-// prop the selection was made on. Selection nodes corresponding to
-// composite datasets may contain child nodes. Each child node of a
-// composite dataset should have COMPOSITE_INDEX set. This is the flat-index to
-// identify a node with in the composite dataset to which the selection applies.
-//
-// .SECTION Caveats
-// No SelectionList is created by default. It should be assigned.
+/**
+ * @class   vtkSelectionNode
+ * @brief   A node in a selection tree. Used to store selection results.
+ *
+ *
+ * vtkSelectionNode stores selection parameters for a selection
+ * (or part of a selection). It stores a list of properties (in a vtkInformation)
+ * and a list of selection values (in a vtkAbstractArray). The properties
+ * provide information about what the selection values mean. For example the
+ * CONTENT_TYPE property gives information about what is stored by the node.
+ * If the CONTENT_TYPE is GLOBALIDS,
+ * the SelectionList array should contain a list of cell or point ids, which
+ * identify the particular cells or points that have matching values in the
+ * GLOBALID vtkDataSetAttribute array. If the CONTENT_TYPE is PEDIGREEIDS, the
+ * SelectionList array should contain a list of cell or point ids, which identify
+ * the particular cells or points that have matching values in the PEDIGREEID
+ * vtkDataSetAttribute array. The FIELD_TYPE property designates whether the
+ * selection refers to cells or points.
+ *
+ * Usually, each node under the root is a selection from
+ * one data object. SOURCE or SOURCE_ID properties point to this object. If
+ * the selection was performed on a renderer, PROP or PROP_ID point to the
+ * prop the selection was made on. Selection nodes corresponding to
+ * composite datasets may contain child nodes. Each child node of a
+ * composite dataset should have COMPOSITE_INDEX set. This is the flat-index to
+ * identify a node with in the composite dataset to which the selection applies.
+ *
+ * @warning
+ * No SelectionList is created by default. It should be assigned.
+*/
 
 #ifndef vtkSelectionNode_h
 #define vtkSelectionNode_h
@@ -46,7 +49,6 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-//BTX
 class vtkAbstractArray;
 class vtkDataSetAttributes;
 class vtkInformation;
@@ -55,212 +57,255 @@ class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
 class vtkProp;
 class vtkTable;
-//ETX
 
 class VTKCOMMONDATAMODEL_EXPORT vtkSelectionNode : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSelectionNode,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkSelectionNode* New();
 
-  // Description:
-  // Restore data object to initial state,
+  /**
+   * Restore data object to initial state,
+   */
   virtual void Initialize();
 
-  // Description:
-  // Sets the selection list.
+  //@{
+  /**
+   * Sets the selection list.
+   */
   virtual void SetSelectionList(vtkAbstractArray*);
   virtual vtkAbstractArray* GetSelectionList();
+  //@}
 
-  // Description:
-  // Sets the selection table.
+  //@{
+  /**
+   * Sets the selection table.
+   */
   virtual void SetSelectionData(vtkDataSetAttributes* data);
   vtkGetObjectMacro(SelectionData, vtkDataSetAttributes);
+  //@}
 
-  // Description:
-  // Returns the property map.
+  //@{
+  /**
+   * Returns the property map.
+   */
   vtkGetObjectMacro(Properties, vtkInformation);
+  //@}
 
-  // Description:
-  // Copy properties, selection list and children of the input.
+  /**
+   * Copy properties, selection list and children of the input.
+   */
   virtual void DeepCopy(vtkSelectionNode* src);
 
-  // Description:
-  // Copy properties, selection list and children of the input.
-  // This is a shallow copy: selection lists and pointers in the
-  // properties are passed by reference.
+  /**
+   * Copy properties, selection list and children of the input.
+   * This is a shallow copy: selection lists and pointers in the
+   * properties are passed by reference.
+   */
   virtual void ShallowCopy(vtkSelectionNode* src);
 
-  // Description:
-  // Return the MTime taking into account changes to the properties
-  unsigned long GetMTime();
+  /**
+   * Return the MTime taking into account changes to the properties
+   */
+  vtkMTimeType GetMTime() override;
 
   // vtkSelectionNode specific keys follow:
-  // Description:
-  // Get the (primary) property that describes the content of a selection
-  // node's data. Other auxiliary description properties follow.
-  // GLOBALIDS means that the selection list contains values from the
-  // vtkDataSetAttribute array of the same name.
-  // PEDIGREEIDS means that the selection list contains values from the
-  // vtkDataSetAttribute array of the same name.
-  // VALUES means the the selection list contains values from an
-  // arbitrary attribute array (ignores any globalids attribute)
-  // INDICES means that the selection list contains indexes into the
-  // cell or point arrays.
-  // FRUSTUM means the set of points and cells inside a frustum
-  // LOCATIONS means the set of points and cells near a set of positions
-  // THRESHOLDS means the points and cells with values within a set of ranges
-  // GetContentType() returns -1 if the content type is not set.
+  /**
+   * Get the (primary) property that describes the content of a selection
+   * node's data. This key takes on values from the SelectionContent enum.
+   * GetContentType() returns -1 if the content type is not set.
+   *
+   * \sa vtkSelectionNode::SelectionContent
+   */
   static vtkInformationIntegerKey* CONTENT_TYPE();
-//BTX
+
+  /**
+   * Indicate the means by which data is selected.
+   * In some cases this implies the type of data selected.
+   */
   enum SelectionContent
   {
-    SELECTIONS,  // Deprecated.
-    GLOBALIDS,
-    PEDIGREEIDS,
-    VALUES,
-    INDICES,
-    FRUSTUM,
-    LOCATIONS,
-    THRESHOLDS,
-    BLOCKS,       // used to select blocks within a composite dataset.
-    QUERY
+    SELECTIONS,   //!< Deprecated.
+    GLOBALIDS,    //!< Select entities called out by their globally-unique IDs.
+    PEDIGREEIDS,  //!< Select entities that have some identifiable pedigree.
+    VALUES,       //!< Select entities that take on specific array values.
+    INDICES,      //!< Select entities by their offsets into the dataset.
+    FRUSTUM,      //!< Select entities contained within a viewing frustum.
+    LOCATIONS,    //!< Select entities near the supplied world coordinates.
+    THRESHOLDS,   //!< Select entities whose array values fall within a given threshold.
+    BLOCKS,       //!< Select blocks within a composite dataset by their flat index.
+    QUERY,        //!< Select entities with a text query.
+    USER          //!< Select entities with user-supplied, application-specific logic.
   };
-//ETX
 
-  // Description:
-  // Get or set the content type of the selection.
-  // This is the same as setting the CONTENT_TYPE() key on the property.
+  //@{
+  /**
+   * Get or set the content type of the selection.
+   * This is the same as setting the CONTENT_TYPE() key on the property.
+   */
   virtual void SetContentType(int type);
   virtual int GetContentType();
+  //@}
 
-  // Description:
-  // Controls whether cell, point, or field data determine what is inside and out.
-  // The default is CELL.
-  // Vertex and edge types are also available for graph classes.
-  // GetFieldType() returns -1 if the field type is not set.
+  /**
+   * Controls whether cell, point, or field data determine what is inside and out.
+   * The default is CELL.
+   * Vertex and edge types are also available for graph classes.
+   * GetFieldType() returns -1 if the field type is not set.
+   */
   static vtkInformationIntegerKey* FIELD_TYPE();
-//BTX
+
+  /// Indicate the types of entities to which the selection-data applies.
   enum SelectionField
   {
-    CELL,
-    POINT,
-    FIELD,
-    VERTEX,
-    EDGE,
-    ROW
+    CELL,   //!< The selection data provided is cell-data.
+    POINT,  //!< The selection data provided is point-data.
+    FIELD,  //!< The selection data provided is field-data.
+    VERTEX, //!< The selection data provided is graph vertex-data.
+    EDGE,   //!< The selection data provided is graph edge-data.
+    ROW     //!< The selection data provided is table row-data.
   };
-//ETX
 
-  // Description:
-  // Get or set the field type of the selection.
-  // This is the same as setting the FIELD_TYPE() key on the property.
+  //@{
+  /**
+   * Get or set the field type of the selection.
+   * This is the same as setting the FIELD_TYPE() key on the property.
+   */
   virtual void SetFieldType(int type);
   virtual int GetFieldType();
+  //@}
 
-  // Description:
-  // Methods to convert vtkSelectionNode::SelectionField to
-  // vtkDataSetAttribute::AttributeTypes and vice-versa.
+  //@{
+  /**
+   * Methods to convert vtkSelectionNode::SelectionField to
+   * vtkDataSetAttribute::AttributeTypes and vice-versa.
+   */
   static int ConvertSelectionFieldToAttributeType(int val);
   static int ConvertAttributeTypeToSelectionField(int val);
+  //@}
 
-  // Description:
-  // Set/Get the query expression string.
+  //@{
+  /**
+   * Set/Get the query expression string.
+   */
   vtkSetStringMacro(QueryString);
   vtkGetStringMacro(QueryString);
+  //@}
 
-  // Description:
-  // For location selection of points, if distance is greater than this reject.
+  /**
+   * For location selection of points, if distance is greater than this reject.
+   */
   static vtkInformationDoubleKey* EPSILON();
 
-  // Description:
-  // This flag tells the extraction filter, when FIELD_TYPE==POINT, that
-  // it should also extract the cells that contain any of the extracted points.
+  /**
+   * If present, closest zbuffer value of this selection
+   */
+  static vtkInformationDoubleKey* ZBUFFER_VALUE();
+
+  /**
+   * This flag tells the extraction filter, when FIELD_TYPE==POINT, that
+   * it should also extract the cells that contain any of the extracted points.
+   */
   static vtkInformationIntegerKey* CONTAINING_CELLS();
 
-  // Description:
-  // When ContentType==THRESHOLDS  or ContentType==VALUES
-  // i.e. threshold and value based selections, it is
-  // possible pick the component number using this key. If none is specified,
-  // the 0th component is used. If any number less than 0 is specified, then
-  // the magnitude is used.
+  /**
+   * When ContentType==THRESHOLDS  or ContentType==VALUES
+   * i.e. threshold and value based selections, it is
+   * possible pick the component number using this key. If none is specified,
+   * the 0th component is used. If any number less than 0 is specified, then
+   * the magnitude is used.
+   */
   static vtkInformationIntegerKey* COMPONENT_NUMBER();
 
-  // Description:
-  // This flag tells the extraction filter to exclude the selection.
+  /**
+   * This flag tells the extraction filter to exclude the selection.
+   */
   static vtkInformationIntegerKey* INVERSE();
 
-  // Description:
-  // A helper for visible cell selector, this is the number of pixels covered
-  // by the actor whose cells are listed in the selection.
+  /**
+   * A helper for visible cell selector, this is the number of pixels covered
+   * by the actor whose cells are listed in the selection.
+   */
   static vtkInformationIntegerKey* PIXEL_COUNT();
 
-  // Description:
-  // Pointer to the data or algorithm the selection belongs to.
+  /**
+   * Pointer to the data or algorithm the selection belongs to.
+   */
   static vtkInformationObjectBaseKey* SOURCE();
 
-  // Description:
-  // ID of the data or algorithm the selection belongs to. What
-  // ID means is application specific.
+  /**
+   * ID of the data or algorithm the selection belongs to. What
+   * ID means is application specific.
+   */
   static vtkInformationIntegerKey* SOURCE_ID();
 
-  // Description:
-  // Pointer to the prop the selection belongs to.
+  /**
+   * Pointer to the prop the selection belongs to.
+   */
   static vtkInformationObjectBaseKey* PROP();
 
-  // Description:
-  // ID of the prop the selection belongs to. What
-  // ID means is application specific.
+  /**
+   * ID of the prop the selection belongs to. What
+   * ID means is application specific.
+   */
   static vtkInformationIntegerKey* PROP_ID();
 
-  // Description:
-  // Process id the selection is on.
+  /**
+   * Process id the selection is on.
+   */
   static vtkInformationIntegerKey* PROCESS_ID();
 
-  // Description:
-  // Used to identify a node in composite datasets.
+  /**
+   * Used to identify a node in composite datasets.
+   */
   static vtkInformationIntegerKey* COMPOSITE_INDEX();
 
-  // Description:
-  // Used to identify a dataset in a hiererchical box dataset.
+  //@{
+  /**
+   * Used to identify a dataset in a hiererchical box dataset.
+   */
   static vtkInformationIntegerKey* HIERARCHICAL_LEVEL();
   static vtkInformationIntegerKey* HIERARCHICAL_INDEX();
+  //@}
 
-  // Description:
-  // This key is used when making visible vertex selection. It means
-  // that the cell ID selection has data about which vertices for each
-  // cell are visible.
+  /**
+   * This key is used when making visible vertex selection. It means
+   * that the cell ID selection has data about which vertices for each
+   * cell are visible.
+   */
   static vtkInformationIntegerKey* INDEXED_VERTICES();
 
-  // Description:
-  // Merges the selection list between self and the other. Assumes that both has
-  // identical properties.
+  /**
+   * Merges the selection list between self and the other. Assumes that both has
+   * identical properties.
+   */
   void UnionSelectionList(vtkSelectionNode* other);
 
-  // Description:
-  // Subtracts the items in the selection list, other, from this selection list.
-  // Assumes that both selections have identical properties (i.e., test with EqualProperties
-  // before using).
+  /**
+   * Subtracts the items in the selection list, other, from this selection list.
+   * Assumes that both selections have identical properties (i.e., test with EqualProperties
+   * before using).
+   */
   void SubtractSelectionList(vtkSelectionNode* other);
 
-  // Description:
-  // Compares Properties of self and other to ensure that they are exactly same.
+  /**
+   * Compares Properties of self and other to ensure that they are exactly same.
+   */
   bool EqualProperties(vtkSelectionNode* other, bool fullcompare=true);
 
-//BTX
 protected:
   vtkSelectionNode();
-  ~vtkSelectionNode();
+  ~vtkSelectionNode() override;
 
   vtkInformation* Properties;
   vtkDataSetAttributes* SelectionData;
   char* QueryString;
 
 private:
-  vtkSelectionNode(const vtkSelectionNode&);  // Not implemented.
-  void operator=(const vtkSelectionNode&);  // Not implemented.
-//ETX
+  vtkSelectionNode(const vtkSelectionNode&) = delete;
+  void operator=(const vtkSelectionNode&) = delete;
+
 };
 
 #endif

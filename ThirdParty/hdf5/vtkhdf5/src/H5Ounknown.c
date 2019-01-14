@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -24,7 +22,8 @@
  *-------------------------------------------------------------------------
  */
 
-#define H5O_PACKAGE		/*suppress error about including H5Opkg	  */
+#include "H5Omodule.h"          /* This source code file is part of the H5O module */
+
 
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
@@ -33,7 +32,7 @@
 
 
 /* PRIVATE PROTOTYPES */
-static herr_t H5O_unknown_free(void *_mesg);
+static herr_t H5O__unknown_free(void *_mesg);
 
 /* This message derives from H5O message class */
 const H5O_msg_class_t H5O_MSG_UNKNOWN[1] = {{
@@ -46,7 +45,7 @@ const H5O_msg_class_t H5O_MSG_UNKNOWN[1] = {{
     NULL,			/*copy the native value         */
     NULL,			/*size of symbol table entry    */
     NULL,                   	/*default reset method          */
-    H5O_unknown_free,	        /* free method			*/
+    H5O__unknown_free,	        /* free method			*/
     NULL,			/* file delete method		*/
     NULL,			/* link method			*/
     NULL, 			/*set share method		*/
@@ -64,9 +63,9 @@ H5FL_DEFINE(H5O_unknown_t);
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_unknown_free
+ * Function:	H5O__unknown_free
  *
- * Purpose:	Free's the message
+ * Purpose:	Frees the message
  *
  * Return:	Non-negative on success/Negative on failure
  *
@@ -76,14 +75,14 @@ H5FL_DEFINE(H5O_unknown_t);
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_unknown_free(void *mesg)
+H5O__unknown_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     HDassert(mesg);
 
     mesg = H5FL_FREE(H5O_unknown_t, mesg);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_unknown_free() */
+} /* end H5O__unknown_free() */
 

@@ -104,7 +104,7 @@ int vtkBridgeCell::GetType()
 {
   int result=0;
   switch(this->Cell->GetCellType())
-    {
+  {
     case VTK_TRIANGLE:
     case VTK_QUADRATIC_TRIANGLE:
     case VTK_BIQUADRATIC_TRIANGLE:
@@ -140,7 +140,7 @@ int vtkBridgeCell::GetType()
     default:
       assert("check: impossible case" && 0);
       break;
-    }
+  }
   return result;
 }
 
@@ -163,13 +163,13 @@ int vtkBridgeCell::GetGeometryOrder()
 {
   int result;
   if(this->Cell->IsLinear())
-    {
+  {
     result=1;
-    }
+  }
   else
-    {
+  {
     result=2; // GetOrder() is missing in vtkCell...
-    }
+  }
   assert("post: positive_result" && result>=0);
   return result;
 }
@@ -202,7 +202,7 @@ int vtkBridgeCell::GetAttributeOrder(vtkGenericAttribute *vtkNotUsed(a))
 // Does the attribute `a' have no higher-order interpolation for the cell?
 // \pre a_exists: a!=0
 // \post definition: result==(GetAttributeOrder()==1)
-int vtkBridgeCell::IsAttributeLinear(vtkGenericAttribute *a)
+vtkTypeBool vtkBridgeCell::IsAttributeLinear(vtkGenericAttribute *a)
 {
   (void)a; // The attribute order is the order of the geometry.
   int result=this->IsGeometryLinear();
@@ -241,21 +241,21 @@ int vtkBridgeCell::GetNumberOfBoundaries(int dim)
 
   int result=0;
   if( (dim==0) && (this->GetDimension()>1) )
-    {
+  {
     result += this->Cell->GetNumberOfPoints();
     if(!this->Cell->IsLinear())
-      { // Old cell API treats mid-edge nodes as vertices; subtract those out:
+    { // Old cell API treats mid-edge nodes as vertices; subtract those out:
       result -= this->Cell->GetNumberOfEdges();
-      }
     }
+  }
   if( ((dim==-1) && (this->GetDimension()>1)) || (dim==1) )
-    {
+  {
     result=result+this->Cell->GetNumberOfEdges();
-    }
+  }
   if( ((dim==-1) && (this->GetDimension()>2)) || (dim==2) )
-    {
+  {
     result=result+this->Cell->GetNumberOfFaces();
-    }
+  }
 
   assert("post: positive_result" && result>=0);
   return result;
@@ -279,7 +279,7 @@ int vtkBridgeCell::GetNumberOfDOFNodes()
 // \pre it_exists: it!=0
 void vtkBridgeCell::GetPointIterator(vtkGenericPointIterator *it)
 {
-  assert("pre: it_exists" && it!=0);
+  assert("pre: it_exists" && it!=nullptr);
   static_cast<vtkBridgePointIterator *>(it)->InitWithCell(this);
 }
 
@@ -290,7 +290,7 @@ void vtkBridgeCell::GetPointIterator(vtkGenericPointIterator *it)
 vtkGenericCellIterator *vtkBridgeCell::NewCellIterator()
 {
   vtkGenericCellIterator *result=vtkBridgeCellIterator::New();
-  assert("post: result_exists" && result!=0);
+  assert("post: result_exists" && result!=nullptr);
   return result;
 }
 
@@ -304,7 +304,7 @@ void vtkBridgeCell::GetBoundaryIterator(vtkGenericCellIterator *boundaries,
                                         int dim)
 {
   assert("pre: valid_dim_range" && ((dim==-1) ||((dim>=0)&&(dim<GetDimension()))));
-  assert("pre: boundaries_exist" && boundaries!=0);
+  assert("pre: boundaries_exist" && boundaries!=nullptr);
   static_cast<vtkBridgeCellIterator *>(boundaries)->InitWithCellBoundaries(this,dim);
 }
 
@@ -320,7 +320,7 @@ void vtkBridgeCell::GetBoundaryIterator(vtkGenericCellIterator *boundaries,
 // \post positive_result: result>=0
 int vtkBridgeCell::CountNeighbors(vtkGenericAdaptorCell *boundary)
 {
-  assert("pre: boundary_exists" && boundary!=0);
+  assert("pre: boundary_exists" && boundary!=nullptr);
   assert("pre: real_boundary" && !boundary->IsInDataSet());
   assert("pre: cell_of_the_dataset" && IsInDataSet());
 
@@ -350,13 +350,13 @@ void vtkBridgeCell::CountEdgeNeighbors(int *sharing)
   vtkIdList *pts;
 
   while(i<c)
-    {
+  {
     edge=this->Cell->GetEdge(i); // edge is deleted automatically by this->Cell
     pts=edge->GetPointIds();
     this->DataSet->Implementation->GetCellNeighbors(this->Id,pts,cells);
     sharing[i]=cells->GetNumberOfIds();
     ++i;
-    }
+  }
   cells->Delete();
 }
 
@@ -373,10 +373,10 @@ void vtkBridgeCell::CountEdgeNeighbors(int *sharing)
 void vtkBridgeCell::GetNeighbors(vtkGenericAdaptorCell *boundary,
                                  vtkGenericCellIterator *neighbors)
 {
-  assert("pre: boundary_exists" && boundary!=0);
+  assert("pre: boundary_exists" && boundary!=nullptr);
   assert("pre: real_boundary" && !boundary->IsInDataSet());
   assert("pre: cell_of_the_dataset" && IsInDataSet());
-  assert("pre: neighbors_exist" && neighbors!=0);
+  assert("pre: neighbors_exist" && neighbors!=nullptr);
 
   vtkIdList *cells=vtkIdList::New();
   vtkIdList *pts=static_cast<vtkBridgeCell *>(boundary)->Cell->GetPointIds();
@@ -419,7 +419,7 @@ int vtkBridgeCell::FindClosestBoundary(int subId,
 // \post valid_result: result==-1 || result==0 || result==1
 // \post positive_distance: result!=-1 implies (closestPoint!=0 implies
 //                                               dist2>=0)
-int vtkBridgeCell::EvaluatePosition(double x[3],
+int vtkBridgeCell::EvaluatePosition(const double x[3],
                                     double *closestPoint,
                                     int &subId,
                                     double pcoords[3],
@@ -430,25 +430,25 @@ int vtkBridgeCell::EvaluatePosition(double x[3],
                                           this->Weights);
 
   if(result)
-    {
+  {
     // clamp pcoords
     int i=0;
     while(i<3)
-      {
+    {
       if(pcoords[i]<0)
-        {
+      {
         pcoords[i]=0;
-        }
-      else if(pcoords[i]>1)
-        {
-        pcoords[i]=1;
-        }
-      ++i;
       }
+      else if(pcoords[i]>1)
+      {
+        pcoords[i]=1;
+      }
+      ++i;
     }
+  }
 
   assert("post: valid_result" && (result==-1 || result==0 || result==1));
-  assert("post: positive_distance" && (!(result!=-1) || (!(closestPoint!=0)||dist2>=0))); // A=>B: !A || B
+  assert("post: positive_distance" && (!(result!=-1) || (!(closestPoint!=nullptr)||dist2>=0))); // A=>B: !A || B
   return result;
 }
 
@@ -485,12 +485,12 @@ void vtkBridgeCell::EvaluateLocation(int subId,
 void vtkBridgeCell::InterpolateTuple(vtkGenericAttribute *a, double pcoords[3],
                                      double *val)
 {
-  assert("pre: a_exists" && a!=0);
+  assert("pre: a_exists" && a!=nullptr);
   assert("pre: a_is_point_centered" && a->GetCentering()==vtkPointCentered);
   assert("pre: clamped_point" && (pcoords[0]>=0 && pcoords[0]<=1
              && pcoords[1]>=0 && pcoords[1]<=1 && pcoords[2]>=0
                                   && pcoords[2]<=1));
-  assert("pre: val_exists" && val!=0);
+  assert("pre: val_exists" && val!=nullptr);
 
   vtkBridgeAttribute *ba = static_cast<vtkBridgeAttribute *>(a);
 
@@ -498,26 +498,26 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttribute *a, double pcoords[3],
   int ptCount = this->GetNumberOfPoints();
 
   if(a->GetCentering() == vtkPointCentered)
-    {
+  {
     this->AllocateWeights();
     this->InterpolationFunctions(pcoords, this->Weights);
 
     memset(val,0, sizeof(double)*componentCount);
     for(int pt = 0; pt<ptCount; ++pt)
-      {
+    {
       ba->Data->GetArray(ba->AttributeNumber)->
         GetTuple(this->Cell->GetPointId(pt),ba->InternalTuple);
       for(int component = 0; component<componentCount; ++component)
-        {
+      {
         val[component] += ba->InternalTuple[component]*this->Weights[pt];
-        }
       }
     }
+  }
   else // cell centered
-    {
+  {
     // not need to interpolate
     ba->Data->GetArray(ba->AttributeNumber)->GetTuple(this->GetId(),val);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -534,11 +534,11 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttributeCollection *c,
                                      double pcoords[3],
                                      double *val)
 {
-  assert("pre: c_exists" && c!=0);
+  assert("pre: c_exists" && c!=nullptr);
   assert("pre: clamped_point" && (pcoords[0]>=0 && pcoords[0]<=1
              && pcoords[1]>=0 && pcoords[1]<=1 && pcoords[2]>=0
                                   && pcoords[2]<=1));
-  assert("pre: val_exists" && val!=0);
+  assert("pre: val_exists" && val!=nullptr);
 
 ///  assert("check: used!" && 0);
 
@@ -546,14 +546,14 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttributeCollection *c,
   int i=0;
   int count=c->GetNumberOfAttributes();
   while(i<count)
-    {
+  {
     if(c->GetAttribute(i)->GetCentering()==vtkPointCentered)
-      {
+    {
       this->InterpolateTuple(c->GetAttribute(i),pcoords,p);
       p=p+c->GetAttribute(i)->GetNumberOfComponents();
-      }
-    ++i;
     }
+    ++i;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -649,7 +649,7 @@ int vtkBridgeCell::GetParametricCenter(double pcoords[3])
 // allow cells to be picked who are not really intersected "inside" the
 // cell.)
 // \post positive_result: result>=0
-double vtkBridgeCell::GetParametricDistance(double pcoords[3])
+double vtkBridgeCell::GetParametricDistance(const double pcoords[3])
 {
   return this->Cell->GetParametricDistance(pcoords);
 }
@@ -670,7 +670,7 @@ double *vtkBridgeCell::GetParametricCoords()
   return this->Cell->GetParametricCoords();
 }
 
-// For the internals of the tesselation algorithm (the hash table in particular)
+// For the internals of the tessellation algorithm (the hash table in particular)
 // Is the face `faceId' of the current cell on a exterior boundary of the
 // dataset or not?
 // \pre 3d: GetDimension()==3
@@ -690,17 +690,17 @@ int vtkBridgeCell::IsFaceOnBoundary(vtkIdType faceId)
   cells->Delete(); // expensive
 #if 0
   if(this->GetType()==VTK_QUADRATIC_TETRA)
-    {
+  {
     if(result)
-      {
+    {
       cout<<"************************************************ boundary"<<endl;
-      }
-    else
-      {
-      cout<<"************************************************ NOT boundary"<<endl;
-      }
-//    assert(result);
     }
+    else
+    {
+      cout<<"************************************************ NOT boundary"<<endl;
+    }
+//    assert(result);
+  }
 #endif
   return result;
 }
@@ -726,10 +726,10 @@ void vtkBridgeCell::GetPointIds(vtkIdType *id)
   vtkIdList *l=this->Cell->GetPointIds();
   vtkIdType c=this->GetNumberOfBoundaries(0);
   while(i<c)
-    {
+  {
      id[i]=l->GetId(i);
     ++i;
-    }
+  }
 }
 //----------------------------------------------------------------------------
 // Description:
@@ -744,22 +744,22 @@ int *vtkBridgeCell::GetFaceArray(int faceId)
   assert("pre: valid_faceId_range" && faceId>=0
     && faceId<this->GetNumberOfBoundaries(2));
 
-  int *result = 0;
+  int *result = nullptr;
 
   switch(this->GetType())
-    {
+  {
     case VTK_HIGHER_ORDER_TETRAHEDRON:
       result = vtkTetra::GetFaceArray(faceId);
       break;
     case VTK_HIGHER_ORDER_HEXAHEDRON:
       if(this->Cell->GetCellType()==VTK_VOXEL)
-        {
+      {
         result = vtkVoxel::GetFaceArray(faceId);
-        }
+      }
       else
-        {
+      {
         result = vtkHexahedron::GetFaceArray(faceId);
-        }
+      }
       break;
     case VTK_HIGHER_ORDER_WEDGE:
       result = vtkWedge::GetFaceArray(faceId);
@@ -776,7 +776,7 @@ int *vtkBridgeCell::GetFaceArray(int faceId)
     default:
       assert("check: impossible case" && 0);
       break;
-    }
+  }
   return result;
 }
 
@@ -795,7 +795,7 @@ int vtkBridgeCell::GetNumberOfVerticesOnFace(int faceId)
   int result = 0;
 
   switch(this->GetType())
-    {
+  {
     case VTK_HIGHER_ORDER_TETRAHEDRON:
       result = 3;
       break;
@@ -804,50 +804,50 @@ int vtkBridgeCell::GetNumberOfVerticesOnFace(int faceId)
       break;
     case  VTK_HIGHER_ORDER_WEDGE:
       if(faceId <= 1) // triangle face
-        {
+      {
         result = 3;
-        }
+      }
       else // quad face
-        {
+      {
         result = 4;
-        }
+      }
       break;
     case VTK_HIGHER_ORDER_PYRAMID:
       if( faceId == 0)  // base
-        {
+      {
         result = 4;
-        }
+      }
       else // side
-        {
+      {
         result = 3;
-        }
+      }
       break;
 #if 0 // TODO
     case VTK_PENTAGONAL_PRISM:
       if(faceId<=1)
-        {
+      {
         result=4;
-        }
+      }
       else
-        {
+      {
         result=3;
-        }
+      }
       break;
     case VTK_HEXAGONAL_PRISM:
        if(faceId<=1)
-        {
+       {
         result=6;
-        }
+       }
       else
-        {
+      {
         result=4;
-        }
+      }
       break;
 #endif
     default:
       assert("check: impossible case" && 0);
       break;
-    }
+  }
 
   assert("post: positive_result" && result>0);
   return result;
@@ -870,10 +870,10 @@ int *vtkBridgeCell::GetEdgeArray(int edgeId)
   assert("pre: valid_faceId_range" && edgeId>=0
     && edgeId<this->GetNumberOfBoundaries(1));
 
-  int *result = 0;
+  int *result = nullptr;
 
   switch(this->GetType())
-    {
+  {
     case VTK_HIGHER_ORDER_TRIANGLE:
       result = triangleEdges[edgeId];
       break;
@@ -885,13 +885,13 @@ int *vtkBridgeCell::GetEdgeArray(int edgeId)
       break;
     case VTK_HIGHER_ORDER_HEXAHEDRON:
       if(this->Cell->GetCellType()==VTK_VOXEL)
-        {
+      {
         result = vtkVoxel::GetEdgeArray(edgeId);
-        }
+      }
       else
-        {
+      {
         result = vtkHexahedron::GetEdgeArray(edgeId);
-        }
+      }
       break;
     case VTK_HIGHER_ORDER_WEDGE:
       result = vtkWedge::GetEdgeArray(edgeId);
@@ -908,7 +908,7 @@ int *vtkBridgeCell::GetEdgeArray(int edgeId)
     default:
       assert("check: impossible case" && 0);
       break;
-    }
+  }
 
   return result;
 }
@@ -922,7 +922,7 @@ int *vtkBridgeCell::GetEdgeArray(int edgeId)
 void vtkBridgeCell::Init(vtkBridgeDataSet *ds,
                          vtkIdType cellid)
 {
-  assert("pre: ds_exists" && ds!=0);
+  assert("pre: ds_exists" && ds!=nullptr);
   assert("pre: valid_cellid" && (cellid>=0)
          && (cellid<ds->GetNumberOfCells()));
 
@@ -931,10 +931,10 @@ void vtkBridgeCell::Init(vtkBridgeDataSet *ds,
   vtkSetObjectBodyMacro(Cell,vtkCell,tmp);
   this->Id = cellid;
   this->BoolIsInDataSet = 1;
-  if(this->InternalIterator == 0)
-    {
+  if(this->InternalIterator == nullptr)
+  {
     this->InternalIterator = vtkBridgeCellIterator::New();
-    }
+  }
   this->InternalIterator->InitWithOneCell(this);
 
   this->InternalIterator->Begin();
@@ -947,7 +947,7 @@ void vtkBridgeCell::Init(vtkBridgeDataSet *ds,
 // \pre c_exists: c!=0
 void vtkBridgeCell::InitWithCell(vtkCell *c, vtkIdType id)
 {
-  assert("pre: c_exists" && c!=0);
+  assert("pre: c_exists" && c!=nullptr);
 
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,0);
   this->Id = id;
@@ -957,18 +957,18 @@ void vtkBridgeCell::InitWithCell(vtkCell *c, vtkIdType id)
   // time in the macro...
 
   if(this->Cell)
-    {
+  {
     this->Cell->Delete();
-    }
+  }
   this->Cell = c->NewInstance();
 
   this->Cell->DeepCopy(c);
   this->BoolIsInDataSet=0;
 
-  if(this->InternalIterator==0)
-    {
+  if(this->InternalIterator==nullptr)
+  {
     this->InternalIterator=vtkBridgeCellIterator::New();
-    }
+  }
   this->InternalIterator->InitWithOneCell(this);
   this->InternalIterator->Begin();
 }
@@ -980,27 +980,27 @@ void vtkBridgeCell::InitWithCell(vtkCell *c, vtkIdType id)
 // \pre other_differ: this!=other
 void vtkBridgeCell::DeepCopy(vtkBridgeCell *other)
 {
-  assert("pre: other_exists" && other!=0);
+  assert("pre: other_exists" && other!=nullptr);
   assert("pre: other_differ" && this!=other);
 
   vtkCell *tmp;
 
-  if(this->InternalIterator==0)
-    {
+  if(this->InternalIterator==nullptr)
+  {
     this->InternalIterator=vtkBridgeCellIterator::New();
-    }
+  }
   this->Id = other->Id;
   this->BoolIsInDataSet = other->BoolIsInDataSet;
   if(other->BoolIsInDataSet)
-    {
+  {
     vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,other->DataSet);
     tmp = this->DataSet->Implementation->GetCell(this->Id);
     vtkSetObjectBodyMacro(Cell,vtkCell,tmp);
     this->InternalIterator->InitWithOneCell(this);
     this->InternalIterator->Begin();
-    }
+  }
   else
-    {
+  {
     vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,0);
     tmp = other->Cell->NewInstance();
     vtkSetObjectBodyMacro(Cell,vtkCell,tmp);
@@ -1008,22 +1008,22 @@ void vtkBridgeCell::DeepCopy(vtkBridgeCell *other)
     this->Cell->DeepCopy(other->Cell);
     this->InternalIterator->InitWithOneCell(this);
     this->InternalIterator->Begin();
-    }
+  }
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
 vtkBridgeCell::vtkBridgeCell()
 {
-  this->DataSet = 0;
-  this->InternalIterator = 0; // we cannot create the cell iterator here
+  this->DataSet = nullptr;
+  this->InternalIterator = nullptr; // we cannot create the cell iterator here
   // because we will have an infinite recursion: a cell creates a
   // celliterator which creates a cell, which creates a celliterator ...
-  this->Cell = 0;
+  this->Cell = nullptr;
   this->BoolIsInDataSet = 0;
   this->Id = -1000; // magic ?
 
-  this->Weights = 0;
+  this->Weights = nullptr;
   this->WeightsCapacity = 0;
 }
 
@@ -1043,23 +1043,23 @@ vtkBridgeCell::~vtkBridgeCell()
 // the capacity is too small.
 void vtkBridgeCell::AllocateWeights()
 {
-  if( this->Weights != 0
+  if( this->Weights != nullptr
     && this->WeightsCapacity < this->GetNumberOfPoints() )
-    {
+  {
     delete[] this->Weights;
-    this->Weights = 0;
-    }
-  if(this->Weights == 0)
-    {
+    this->Weights = nullptr;
+  }
+  if(this->Weights == nullptr)
+  {
     this->Weights = new double[this->GetNumberOfPoints()];
     this->WeightsCapacity = this->GetNumberOfPoints();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // Compute the weights for parametric coordinates `pcoords'.
-void vtkBridgeCell::InterpolationFunctions(double pcoords[3], double *weights)
+void vtkBridgeCell::InterpolationFunctions(const double pcoords[3], double *weights)
 {
   this->Cell->InterpolateFunctions(pcoords, weights);
 }

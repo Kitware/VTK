@@ -29,7 +29,7 @@
 #include "vtkQuadraticPyramid.h"
 #include "vtkPoints.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 // New quadratic cells
 #include "vtkBiQuadraticQuad.h"
@@ -48,18 +48,18 @@ void  ComputeDataValues(vtkPoints *pts, double *edgeValues)
   double x[3];
   int numPts = pts->GetNumberOfPoints();
   for (int i=0; i<numPts; i++)
-    {
+  {
     pts->GetPoint(i,x);
     double dem = (1.0 + x[0]);
     if(fabs(dem) < 1.e-08)
-      {
+    {
       edgeValues[i] = 0;
-      }
-    else
-      {
-      edgeValues[i] = 1.0 / dem; //simple linear function for now
-      }
     }
+    else
+    {
+      edgeValues[i] = 1.0 / dem; //simple linear function for now
+    }
+  }
 }
 
 int TestQE(ostream& strm)
@@ -656,6 +656,6 @@ int TestQE(ostream& strm)
 
 int quadraticEvaluation(int,char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
+  std::ostringstream vtkmsg_with_warning_C4701;
   return TestQE(vtkmsg_with_warning_C4701);
 }

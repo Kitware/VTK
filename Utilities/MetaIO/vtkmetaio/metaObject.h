@@ -59,10 +59,11 @@ class METAIO_EXPORT MetaObject
       double m_CenterOfRotation[10];   // "CenterOfRotation = "  0 0 0
 
       MET_OrientationEnumType m_AnatomicalOrientation[10];
+      mutable char            m_OrientationAcronym[10];
 
       MET_DistanceUnitsEnumType m_DistanceUnits;   // "DistanceUnits = mm"
 
-      float m_ElementSpacing[10];   // "ElementSpacing = "   0,0,0
+      double m_ElementSpacing[10];   // "ElementSpacing = "   0,0,0
 
       float m_Color[4];             // "Color = "            1.0, 0.0, 0.0, 1.0
 
@@ -217,15 +218,16 @@ class METAIO_EXPORT MetaObject
       //    ElementSpacing(...)
       //       Optional Field
       //       Physical Spacing (in same units as position)
-      const float * ElementSpacing(void) const;
-      float ElementSpacing(int _i) const;
+      const double * ElementSpacing(void) const;
+      double ElementSpacing(int _i) const;
+      void  ElementSpacing(const double * _elementSpacing);
       void  ElementSpacing(const float * _elementSpacing);
-      void  ElementSpacing(int _i, float _value);
+      void  ElementSpacing(int _i, double _value);
 
       //    Name(...)
       //       Optional Field
       //       Name of the current metaObject
-      void  Name(const char *_Name);
+      void  Name(const char *_name);
       const char  * Name(void) const;
 
       //    Color(...)
@@ -273,7 +275,7 @@ class METAIO_EXPORT MetaObject
 
       void ClearAdditionalFields(void);
 
-      bool InitializeEssential(int m_NDims);
+      bool InitializeEssential(int _nDims);
 
       //
       //
@@ -289,7 +291,7 @@ class METAIO_EXPORT MetaObject
         FieldsContainerType::iterator it;
         for(it = container.begin();
             it != container.end();
-            it++)
+            ++it)
           {
           if(strcmp((*it)->name,fieldName) == 0)
             {

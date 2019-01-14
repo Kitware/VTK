@@ -98,8 +98,8 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->Texture            = vtkTexture::New();
   this->TexturePlaneActor  = vtkActor::New();
   this->Transform          = vtkTransform::New();
-  this->ImageData          = 0;
-  this->LookupTable        = 0;
+  this->ImageData          = nullptr;
+  this->LookupTable        = nullptr;
 
   // Represent the cross hair cursor
   //
@@ -138,7 +138,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
 
   // Manage the picking stuff
   //
-  this->PlanePicker = NULL;
+  this->PlanePicker = nullptr;
   vtkCellPicker* picker = vtkCellPicker::New();
   picker->SetTolerance(0.005); //need some fluff
   this->SetPicker(picker);
@@ -146,11 +146,11 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
 
   // Set up the initial properties
   //
-  this->PlaneProperty         = 0;
-  this->SelectedPlaneProperty = 0;
-  this->TexturePlaneProperty  = 0;
-  this->CursorProperty        = 0;
-  this->MarginProperty        = 0;
+  this->PlaneProperty         = nullptr;
+  this->SelectedPlaneProperty = nullptr;
+  this->TexturePlaneProperty  = nullptr;
+  this->CursorProperty        = nullptr;
+  this->MarginProperty        = nullptr;
   this->CreateDefaultProperties();
 
   // Set up actions
@@ -178,52 +178,52 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
   this->PlaneSource->Delete();
 
   if ( this->PlanePicker )
-    {
+  {
     this->PlanePicker->UnRegister(this);
-    }
+  }
 
   if ( this->PlaneProperty )
-    {
+  {
     this->PlaneProperty->Delete();
-    }
+  }
 
   if ( this->SelectedPlaneProperty )
-    {
+  {
     this->SelectedPlaneProperty->Delete();
-    }
+  }
 
   if ( this->CursorProperty )
-    {
+  {
     this->CursorProperty->Delete();
-    }
+  }
 
   if ( this->MarginProperty )
-    {
+  {
     this->MarginProperty->Delete();
-    }
+  }
 
   this->ResliceAxes->Delete();
   this->Transform->Delete();
   this->Reslice->Delete();
 
   if ( this->LookupTable )
-    {
+  {
     this->LookupTable->UnRegister(this);
-    }
+  }
 
   this->TexturePlaneActor->Delete();
   this->ColorMap->Delete();
   this->Texture->Delete();
 
   if ( this->TexturePlaneProperty )
-    {
+  {
     this->TexturePlaneProperty->Delete();
-    }
+  }
 
   if ( this->ImageData )
-    {
-    this->ImageData = 0;
-    }
+  {
+    this->ImageData = nullptr;
+  }
 
   this->CursorActor->Delete();
   this->CursorPolyData->Delete();
@@ -235,26 +235,26 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePlaneWidget::SetTextureVisibility(int vis)
+void vtkImagePlaneWidget::SetTextureVisibility(vtkTypeBool vis)
 {
   if (this->TextureVisibility == vis)
-    {
+  {
     return;
-    }
+  }
 
   this->TextureVisibility = vis;
 
   if ( this->Enabled )
+  {
+    if (this->TextureVisibility && this->ImageData)
     {
-    if (this->TextureVisibility)
-      {
       this->CurrentRenderer->AddViewProp(this->TexturePlaneActor);
-      }
-    else
-      {
-      this->CurrentRenderer->RemoveViewProp(this->TexturePlaneActor);
-      }
     }
+    else
+    {
+      this->CurrentRenderer->RemoveViewProp(this->TexturePlaneActor);
+    }
+  }
 
   this->Modified();
 }
@@ -265,30 +265,30 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
 {
 
   if ( ! this->Interactor )
-    {
+  {
     vtkErrorMacro(<<"The interactor must be set prior to enabling/disabling widget");
     return;
-    }
+  }
 
   if ( enabling ) //----------------------------------------------------------
-    {
+  {
     vtkDebugMacro(<<"Enabling plane widget");
 
     if ( this->Enabled ) //already enabled, just return
-      {
+    {
       return;
-      }
+    }
 
     if ( ! this->CurrentRenderer )
-      {
+    {
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
-      if (this->CurrentRenderer == NULL)
-        {
+      if (this->CurrentRenderer == nullptr)
+      {
         return;
-        }
       }
+    }
 
     this->Enabled = 1;
 
@@ -304,10 +304,10 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
     this->PlaneOutlineActor->SetProperty(this->PlaneProperty);
 
     //add the TexturePlaneActor
-    if (this->TextureVisibility)
-      {
+    if (this->TextureVisibility && this->ImageData)
+    {
       this->CurrentRenderer->AddViewProp(this->TexturePlaneActor);
-      }
+    }
     this->TexturePlaneActor->SetProperty(this->TexturePlaneProperty);
 
     // Add the cross-hair cursor
@@ -321,20 +321,21 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
     // Add the image data annotation
     this->CurrentRenderer->AddViewProp(this->TextActor);
 
+    this->RegisterPickers();
     this->TexturePlaneActor->PickableOn();
 
-    this->InvokeEvent(vtkCommand::EnableEvent,0);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
 
-    }
+  }
 
   else //disabling----------------------------------------------------------
-    {
+  {
     vtkDebugMacro(<<"Disabling plane widget");
 
     if ( ! this->Enabled ) //already disabled, just return
-      {
+    {
       return;
-      }
+    }
 
     this->Enabled = 0;
 
@@ -358,9 +359,10 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
 
     this->TexturePlaneActor->PickableOff();
 
-    this->InvokeEvent(vtkCommand::DisableEvent,0);
-    this->SetCurrentRenderer(NULL);
-    }
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
+    this->UnRegisterPickers();
+  }
 
   this->Interactor->Render();
 }
@@ -378,7 +380,7 @@ void vtkImagePlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
 
   //okay, let's do the right thing
   switch ( event )
-    {
+  {
     case vtkCommand::LeftButtonPressEvent:
       self->LastButtonPressed = vtkImagePlaneWidget::VTK_LEFT_BUTTON;
       self->OnLeftButtonDown();
@@ -409,7 +411,7 @@ void vtkImagePlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
     case vtkCommand::CharEvent:
       self->OnChar();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -418,33 +420,33 @@ void vtkImagePlaneWidget::OnChar()
   vtkRenderWindowInteractor *i = this->Interactor;
 
   if ( i->GetKeyCode() == 'r' || i->GetKeyCode() == 'R' )
-    {
+  {
     if ( i->GetShiftKey() || i->GetControlKey() )
-      {
+    {
       this->SetWindowLevel( this->OriginalWindow, this->OriginalLevel );
       double wl[2] = { this->CurrentWindow, this->CurrentLevel };
 
       this->EventCallbackCommand->SetAbortFlag(1);
       this->InvokeEvent(vtkCommand::ResetWindowLevelEvent, wl);
-      }
+    }
     else
-      {
-      this->Interactor->GetInteractorStyle()->OnChar();
-      }
-    }
-  else
     {
-    this->Interactor->GetInteractorStyle()->OnChar();
+      this->Interactor->GetInteractorStyle()->OnChar();
     }
+  }
+  else
+  {
+    this->Interactor->GetInteractorStyle()->OnChar();
+  }
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePlaneWidget::AddObservers(void)
+void vtkImagePlaneWidget::AddObservers()
 {
   // listen for the following events
   vtkRenderWindowInteractor *i = this->Interactor;
   if (i)
-    {
+  {
     i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand,
                        this->Priority);
     i->AddObserver(vtkCommand::LeftButtonPressEvent,
@@ -461,32 +463,32 @@ void vtkImagePlaneWidget::AddObservers(void)
                        this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::CharEvent,
                        this->EventCallbackCommand, this->Priority);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePlaneWidget::SetInteraction(int interact)
+void vtkImagePlaneWidget::SetInteraction(vtkTypeBool interact)
 {
   if (this->Interactor && this->Enabled)
-    {
+  {
     if (this->Interaction == interact)
-      {
-      return;
-      }
-    if (interact == 0)
-      {
-      this->Interactor->RemoveObserver(this->EventCallbackCommand);
-      }
-    else
-      {
-        this->AddObservers();
-      }
-    this->Interaction = interact;
-    }
-  else
     {
-    vtkGenericWarningMacro(<<"set interactor and Enabled before changing interaction...");
+      return;
     }
+    if (interact == 0)
+    {
+      this->Interactor->RemoveObserver(this->EventCallbackCommand);
+    }
+    else
+    {
+        this->AddObservers();
+    }
+    this->Interaction = interact;
+  }
+  else
+  {
+    vtkGenericWarningMacro(<<"set interactor and Enabled before changing interaction...");
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -495,94 +497,94 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->PlaneProperty )
-    {
+  {
     os << indent << "Plane Property:\n";
     this->PlaneProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Plane Property: (none)\n";
-    }
+  }
 
   if ( this->SelectedPlaneProperty )
-    {
+  {
     os << indent << "Selected Plane Property:\n";
     this->SelectedPlaneProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Plane Property: (none)\n";
-    }
+  }
 
   if ( this->LookupTable )
-    {
+  {
     os << indent << "LookupTable:\n";
     this->LookupTable->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "LookupTable: (none)\n";
-    }
+  }
 
   if ( this->CursorProperty )
-    {
+  {
     os << indent << "Cursor Property:\n";
     this->CursorProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Cursor Property: (none)\n";
-    }
+  }
 
   if ( this->MarginProperty )
-    {
+  {
     os << indent << "Margin Property:\n";
     this->MarginProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Margin Property: (none)\n";
-    }
+  }
 
   if ( this->TexturePlaneProperty )
-    {
+  {
     os << indent << "TexturePlane Property:\n";
     this->TexturePlaneProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "TexturePlane Property: (none)\n";
-    }
+  }
 
   if ( this->ColorMap )
-    {
+  {
     os << indent << "ColorMap:\n";
     this->ColorMap->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "ColorMap: (none)\n";
-    }
+  }
 
   if ( this->Reslice )
-    {
+  {
     os << indent << "Reslice:\n";
     this->Reslice->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Reslice: (none)\n";
-    }
+  }
 
   if ( this->ResliceAxes )
-    {
+  {
     os << indent << "ResliceAxes:\n";
     this->ResliceAxes->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "ResliceAxes: (none)\n";
-    }
+  }
 
   double *o = this->PlaneSource->GetOrigin();
   double *pt1 = this->PlaneSource->GetPoint1();
@@ -664,21 +666,21 @@ void vtkImagePlaneWidget::BuildRepresentation()
 void vtkImagePlaneWidget::HighlightPlane(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->PlaneOutlineActor->SetProperty(this->SelectedPlaneProperty);
     this->PlanePicker->GetPickPosition(this->LastPickPosition);
-    }
+  }
   else
-    {
+  {
     this->PlaneOutlineActor->SetProperty(this->PlaneProperty);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::OnLeftButtonDown()
 {
   switch (this->LeftButtonAction)
-    {
+  {
     case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StartCursor();
       break;
@@ -688,14 +690,14 @@ void vtkImagePlaneWidget::OnLeftButtonDown()
     case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StartWindowLevel();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::OnLeftButtonUp()
 {
   switch (this->LeftButtonAction)
-    {
+  {
     case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StopCursor();
       break;
@@ -705,14 +707,14 @@ void vtkImagePlaneWidget::OnLeftButtonUp()
     case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StopWindowLevel();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::OnMiddleButtonDown()
 {
   switch (this->MiddleButtonAction)
-    {
+  {
     case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StartCursor();
       break;
@@ -722,14 +724,14 @@ void vtkImagePlaneWidget::OnMiddleButtonDown()
     case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StartWindowLevel();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::OnMiddleButtonUp()
 {
   switch (this->MiddleButtonAction)
-    {
+  {
     case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StopCursor();
       break;
@@ -739,14 +741,14 @@ void vtkImagePlaneWidget::OnMiddleButtonUp()
     case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StopWindowLevel();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::OnRightButtonDown()
 {
   switch (this->RightButtonAction)
-    {
+  {
     case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StartCursor();
       break;
@@ -756,14 +758,14 @@ void vtkImagePlaneWidget::OnRightButtonDown()
     case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StartWindowLevel();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::OnRightButtonUp()
 {
   switch (this->RightButtonAction)
-    {
+  {
     case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StopCursor();
       break;
@@ -773,7 +775,7 @@ void vtkImagePlaneWidget::OnRightButtonUp()
     case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StopWindowLevel();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -784,10 +786,10 @@ void vtkImagePlaneWidget::StartCursor()
 
   // Okay, make sure that the pick is in the current renderer
   if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
-    {
+  {
     this->State = vtkImagePlaneWidget::Outside;
     return;
-    }
+  }
 
   // Okay, we can process this. If anything is picked, then we
   // can start pushing the plane.
@@ -795,43 +797,43 @@ void vtkImagePlaneWidget::StartCursor()
 
   int found = 0;
   int i;
-  if ( path != 0 )
-    {
+  if ( path != nullptr )
+  {
     // Deal with the possibility that we may be using a shared picker
     vtkCollectionSimpleIterator sit;
     path->InitTraversal(sit);
     vtkAssemblyNode *node;
     for ( i = 0; i < path->GetNumberOfItems() && !found ; i++ )
-      {
+    {
       node = path->GetNextNode(sit);
       if ( node->GetViewProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
-        {
+      {
         found = 1;
-        }
       }
     }
+  }
 
-  if( ! found || path == 0 )
-    {
+  if( ! found || path == nullptr )
+  {
     this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
     this->ActivateCursor(0);
     this->ActivateText(0);
     return;
-    }
+  }
   else
-    {
+  {
     this->State = vtkImagePlaneWidget::Cursoring;
     this->HighlightPlane(1);
     this->ActivateCursor(1);
     this->ActivateText(1);
     this->UpdateCursor(X,Y);
     this->ManageTextDisplay();
-    }
+  }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,0);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -840,9 +842,9 @@ void vtkImagePlaneWidget::StopCursor()
 {
   if ( this->State == vtkImagePlaneWidget::Outside ||
        this->State == vtkImagePlaneWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   this->State = vtkImagePlaneWidget::Start;
   this->HighlightPlane(0);
@@ -851,7 +853,7 @@ void vtkImagePlaneWidget::StopCursor()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,0);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -863,10 +865,10 @@ void vtkImagePlaneWidget::StartSliceMotion()
 
   // Okay, make sure that the pick is in the current renderer
   if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
-    {
+  {
     this->State = vtkImagePlaneWidget::Outside;
     return;
-    }
+  }
 
   // Okay, we can process this. If anything is picked, then we
   // can start pushing or check for adjusted states.
@@ -874,41 +876,41 @@ void vtkImagePlaneWidget::StartSliceMotion()
 
   int found = 0;
   int i;
-  if ( path != 0 )
-    {
+  if ( path != nullptr )
+  {
     // Deal with the possibility that we may be using a shared picker
     vtkCollectionSimpleIterator sit;
     path->InitTraversal(sit);
     vtkAssemblyNode *node;
     for(i = 0; i< path->GetNumberOfItems() && !found ;i++)
-      {
+    {
       node = path->GetNextNode(sit);
       if(node->GetViewProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
-        {
+      {
         found = 1;
-        }
       }
     }
+  }
 
-  if ( !found || path == 0 )
-    {
+  if ( !found || path == nullptr )
+  {
     this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
     this->ActivateMargins(0);
     return;
-    }
+  }
   else
-    {
+  {
     this->State = vtkImagePlaneWidget::Pushing;
     this->HighlightPlane(1);
     this->ActivateMargins(1);
     this->AdjustState();
     this->UpdateMargins();
-    }
+  }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,0);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -917,9 +919,9 @@ void vtkImagePlaneWidget::StopSliceMotion()
 {
   if ( this->State == vtkImagePlaneWidget::Outside ||
        this->State == vtkImagePlaneWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   this->State = vtkImagePlaneWidget::Start;
   this->HighlightPlane(0);
@@ -927,7 +929,7 @@ void vtkImagePlaneWidget::StopSliceMotion()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,0);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -939,10 +941,10 @@ void vtkImagePlaneWidget::StartWindowLevel()
 
   // Okay, make sure that the pick is in the current renderer
   if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
-    {
+  {
     this->State = vtkImagePlaneWidget::Outside;
     return;
-    }
+  }
 
   // Okay, we can process this. If anything is picked, then we
   // can start window-levelling.
@@ -950,41 +952,41 @@ void vtkImagePlaneWidget::StartWindowLevel()
 
   int found = 0;
   int i;
-  if ( path != 0 )
-    {
+  if ( path != nullptr )
+  {
     // Deal with the possibility that we may be using a shared picker
     vtkCollectionSimpleIterator sit;
     path->InitTraversal(sit);
     vtkAssemblyNode *node;
     for ( i = 0; i < path->GetNumberOfItems() && !found ; i++ )
-      {
+    {
       node = path->GetNextNode(sit);
       if ( node->GetViewProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
-        {
+      {
         found = 1;
-        }
       }
     }
+  }
 
   this->InitialWindow = this->CurrentWindow;
   this->InitialLevel = this->CurrentLevel;
 
-  if( ! found || path == 0 )
-    {
+  if( ! found || path == nullptr )
+  {
     this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
     this->ActivateText(0);
     return;
-    }
+  }
   else
-    {
+  {
     this->State = vtkImagePlaneWidget::WindowLevelling;
     this->HighlightPlane(1);
     this->ActivateText(1);
     this->StartWindowLevelPositionX = X;
     this->StartWindowLevelPositionY = Y;
     this->ManageTextDisplay();
-    }
+  }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
@@ -1000,9 +1002,9 @@ void vtkImagePlaneWidget::StopWindowLevel()
 {
   if ( this->State == vtkImagePlaneWidget::Outside ||
        this->State == vtkImagePlaneWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   this->State = vtkImagePlaneWidget::Start;
   this->HighlightPlane(0);
@@ -1024,9 +1026,9 @@ void vtkImagePlaneWidget::OnMouseMove()
   //
   if ( this->State == vtkImagePlaneWidget::Outside ||
        this->State == vtkImagePlaneWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
@@ -1039,9 +1041,9 @@ void vtkImagePlaneWidget::OnMouseMove()
 
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   if ( ! camera )
-    {
+  {
     return;
-    }
+  }
 
   // Compute the two points defining the motion vector
   //
@@ -1058,65 +1060,65 @@ void vtkImagePlaneWidget::OnMouseMove()
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
   if ( this->State == vtkImagePlaneWidget::WindowLevelling )
-    {
+  {
     this->WindowLevel(X,Y);
     this->ManageTextDisplay();
-    }
+  }
   else if ( this->State == vtkImagePlaneWidget::Pushing )
-    {
+  {
     this->Push(prevPickPoint, pickPoint);
     this->UpdatePlane();
     this->UpdateMargins();
     this->BuildRepresentation();
-    }
+  }
   else if ( this->State == vtkImagePlaneWidget::Spinning )
-    {
+  {
     this->Spin(prevPickPoint, pickPoint);
     this->UpdatePlane();
     this->UpdateMargins();
     this->BuildRepresentation();
-    }
+  }
   else if ( this->State == vtkImagePlaneWidget::Rotating )
-    {
+  {
     camera->GetViewPlaneNormal(vpn);
     this->Rotate(prevPickPoint, pickPoint, vpn);
     this->UpdatePlane();
     this->UpdateMargins();
     this->BuildRepresentation();
-    }
+  }
   else if ( this->State == vtkImagePlaneWidget::Scaling )
-    {
+  {
     this->Scale(prevPickPoint, pickPoint, X, Y);
     this->UpdatePlane();
     this->UpdateMargins();
     this->BuildRepresentation();
-    }
+  }
   else if ( this->State == vtkImagePlaneWidget::Moving )
-    {
+  {
     this->Translate(prevPickPoint, pickPoint);
     this->UpdatePlane();
     this->UpdateMargins();
     this->BuildRepresentation();
-    }
+  }
   else if ( this->State == vtkImagePlaneWidget::Cursoring )
-    {
+  {
     this->UpdateCursor(X,Y);
     this->ManageTextDisplay();
-    }
+  }
 
   // Interact, if desired
   //
   this->EventCallbackCommand->SetAbortFlag(1);
 
   if ( this->State == vtkImagePlaneWidget::WindowLevelling )
-    {
+  {
     double wl[2] = { this->CurrentWindow, this->CurrentLevel };
     this->InvokeEvent(vtkCommand::WindowLevelEvent,wl);
-    }
+  }
   else
-    {
-    this->InvokeEvent(vtkCommand::InteractionEvent,0);
-    }
+  {
+    this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+  }
 
   this->Interactor->Render();
 }
@@ -1136,32 +1138,32 @@ void vtkImagePlaneWidget::WindowLevel(int X, int Y)
   // Scale by current values
 
   if ( fabs( window ) > 0.01 )
-    {
+  {
     dx = dx * window;
-    }
+  }
   else
-    {
+  {
     dx = dx * ( window < 0 ? -0.01 : 0.01 );
-    }
+  }
   if ( fabs( level ) > 0.01 )
-    {
+  {
     dy = dy * level;
-    }
+  }
   else
-    {
+  {
     dy = dy * ( level < 0 ? -0.01 : 0.01 );
-    }
+  }
 
   // Abs so that direction does not flip
 
   if ( window < 0.0 )
-    {
+  {
     dx = -1 * dx;
-    }
+  }
   if ( level < 0.0 )
-    {
+  {
     dy = -1 * dy;
-    }
+  }
 
   // Compute new window level
 
@@ -1169,26 +1171,26 @@ void vtkImagePlaneWidget::WindowLevel(int X, int Y)
   double newLevel = level - dy;
 
   if ( fabs( newWindow ) < 0.01 )
-    {
+  {
     newWindow = 0.01 * ( newWindow < 0 ? -1 : 1 );
-    }
+  }
   if ( fabs( newLevel ) < 0.01 )
-    {
+  {
     newLevel = 0.01 * ( newLevel < 0 ? -1 : 1 );
-    }
+  }
 
   if ( !this->UserControlledLookupTable )
-    {
+  {
     if (( newWindow < 0 && this->CurrentWindow > 0 ) || \
         ( newWindow > 0 && this->CurrentWindow < 0 ))
-      {
+    {
       this->InvertTable();
-      }
+    }
 
     double rmin = newLevel - 0.5*fabs( newWindow );
     double rmax = rmin + fabs( newWindow );
     this->LookupTable->SetTableRange( rmin, rmax );
-    }
+  }
 
   this->CurrentWindow = newWindow;
   this->CurrentLevel = newLevel;
@@ -1202,56 +1204,58 @@ void vtkImagePlaneWidget::InvertTable()
   size_t num = 4*sizeof(unsigned char);
   vtkUnsignedCharArray* table = this->LookupTable->GetTable();
   for ( int count = 0; count < --index; count++ )
-    {
+  {
     unsigned char *rgba1 = table->GetPointer(4*count);
     unsigned char *rgba2 = table->GetPointer(4*index);
     memcpy( swap,  rgba1, num );
     memcpy( rgba1, rgba2, num );
     memcpy( rgba2, swap,  num );
-    }
+  }
 
   // force the lookuptable to update its InsertTime to avoid
   // rebuilding the array
-  this->LookupTable->SetTableValue( 0, this->LookupTable->GetTableValue( 0 ) );
+  double temp[4];
+  this->LookupTable->GetTableValue( 0, temp );
+  this->LookupTable->SetTableValue( 0, temp );
 }
 
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::SetWindowLevel(double window, double level, int copy)
 {
   if ( copy )
-    {
+  {
     this->CurrentWindow = window;
     this->CurrentLevel = level;
     return;
-    }
+  }
 
   if ( this->CurrentWindow == window && this->CurrentLevel == level )
-    {
+  {
     return;
-    }
+  }
 
   // if the new window is negative and the old window was positive invert table
   if ( (( window < 0 && this->CurrentWindow > 0 ) ||
         ( window > 0 && this->CurrentWindow < 0 )) &&
         !this->UserControlledLookupTable )
-    {
+  {
     this->InvertTable();
-    }
+  }
 
   this->CurrentWindow = window;
   this->CurrentLevel = level;
 
   if ( !this->UserControlledLookupTable )
-    {
+  {
     double rmin = this->CurrentLevel - 0.5*fabs( this->CurrentWindow );
     double rmax = rmin + fabs( this->CurrentWindow );
     this->LookupTable->SetTableRange( rmin, rmax );
-    }
+  }
 
   if ( this->Enabled )
-    {
+  {
     this->Interactor->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1266,9 +1270,9 @@ int vtkImagePlaneWidget::GetCursorData(double xyzv[4])
 {
   if ( this->State != vtkImagePlaneWidget::Cursoring  || \
     this->CurrentImageValue == VTK_DOUBLE_MAX )
-    {
+  {
     return 0;
-    }
+  }
 
   xyzv[0] = this->CurrentCursorPosition[0];
   xyzv[1] = this->CurrentCursorPosition[1];
@@ -1283,9 +1287,9 @@ int vtkImagePlaneWidget::GetCursorDataStatus()
 {
   if ( this->State != vtkImagePlaneWidget::Cursoring  || \
     this->CurrentImageValue == VTK_DOUBLE_MAX )
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -1294,29 +1298,37 @@ int vtkImagePlaneWidget::GetCursorDataStatus()
 void vtkImagePlaneWidget::ManageTextDisplay()
 {
   if ( !this->DisplayText )
-    {
+  {
     return;
-    }
+  }
 
   if ( this->State == vtkImagePlaneWidget::WindowLevelling )
-    {
-    sprintf(this->TextBuff,"Window, Level: ( %g, %g )",
-            this->CurrentWindow, this->CurrentLevel );
-    }
+  {
+    snprintf(this->TextBuff,
+             VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF,
+             "Window, Level: ( %g, %g )",
+             this->CurrentWindow,
+             this->CurrentLevel );
+  }
   else if ( this->State == vtkImagePlaneWidget::Cursoring )
-    {
+  {
     if( this->CurrentImageValue == VTK_DOUBLE_MAX )
-      {
-      sprintf(this->TextBuff,"Off Image");
-      }
-    else
-      {
-      sprintf(this->TextBuff,"( %g, %g, %g ): %g",
-                   this->CurrentCursorPosition[0],
-                   this->CurrentCursorPosition[1],
-                   this->CurrentCursorPosition[2],this->CurrentImageValue);
-      }
+    {
+      snprintf(this->TextBuff,
+               VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF,
+               "Off Image");
     }
+    else
+    {
+      snprintf(this->TextBuff,
+               VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF,
+               "( %g, %g, %g ): %g",
+               this->CurrentCursorPosition[0],
+               this->CurrentCursorPosition[1],
+               this->CurrentCursorPosition[2],
+               this->CurrentImageValue);
+    }
+  }
 
   this->TextActor->SetInput(this->TextBuff);
   this->TextActor->Modified();
@@ -1339,48 +1351,48 @@ void vtkImagePlaneWidget::Push(double *p1, double *p2)
 void vtkImagePlaneWidget::CreateDefaultProperties()
 {
   if ( ! this->PlaneProperty )
-    {
+  {
     this->PlaneProperty = vtkProperty::New();
     this->PlaneProperty->SetAmbient(1);
     this->PlaneProperty->SetColor(1,1,1);
     this->PlaneProperty->SetRepresentationToWireframe();
     this->PlaneProperty->SetInterpolationToFlat();
-    }
+  }
 
   if ( ! this->SelectedPlaneProperty )
-    {
+  {
     this->SelectedPlaneProperty = vtkProperty::New();
     this->SelectedPlaneProperty->SetAmbient(1);
     this->SelectedPlaneProperty->SetColor(0,1,0);
     this->SelectedPlaneProperty->SetRepresentationToWireframe();
     this->SelectedPlaneProperty->SetInterpolationToFlat();
-    }
+  }
 
   if ( ! this->CursorProperty )
-    {
+  {
     this->CursorProperty = vtkProperty::New();
     this->CursorProperty->SetAmbient(1);
     this->CursorProperty->SetColor(1,0,0);
     this->CursorProperty->SetRepresentationToWireframe();
     this->CursorProperty->SetInterpolationToFlat();
-    }
+  }
 
   if ( ! this->MarginProperty )
-    {
+  {
     this->MarginProperty = vtkProperty::New();
     this->MarginProperty->SetAmbient(1);
     this->MarginProperty->SetColor(0,0,1);
     this->MarginProperty->SetRepresentationToWireframe();
     this->MarginProperty->SetInterpolationToFlat();
-    }
+  }
 
   if ( ! this->TexturePlaneProperty )
-    {
+  {
     this->TexturePlaneProperty = vtkProperty::New();
     this->TexturePlaneProperty->SetAmbient(1);
     this->TexturePlaneProperty->SetDiffuse(0);
     this->TexturePlaneProperty->SetInterpolationToFlat();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1391,23 +1403,23 @@ void vtkImagePlaneWidget::PlaceWidget(double bds[6])
   this->AdjustBounds(bds, bounds, center);
 
   if ( this->PlaneOrientation == 1 )
-    {
+  {
     this->PlaneSource->SetOrigin(bounds[0],center[1],bounds[4]);
     this->PlaneSource->SetPoint1(bounds[1],center[1],bounds[4]);
     this->PlaneSource->SetPoint2(bounds[0],center[1],bounds[5]);
-    }
+  }
   else if ( this->PlaneOrientation == 2 )
-    {
+  {
     this->PlaneSource->SetOrigin(bounds[0],bounds[2],center[2]);
     this->PlaneSource->SetPoint1(bounds[1],bounds[2],center[2]);
     this->PlaneSource->SetPoint2(bounds[0],bounds[3],center[2]);
-    }
+  }
   else //default or x-normal
-    {
+  {
     this->PlaneSource->SetOrigin(center[0],bounds[2],bounds[4]);
     this->PlaneSource->SetPoint1(center[0],bounds[3],bounds[4]);
     this->PlaneSource->SetPoint2(center[0],bounds[2],bounds[5]);
-    }
+  }
 
   this->UpdatePlane();
   this->BuildRepresentation();
@@ -1425,10 +1437,10 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
   // This method must be called _after_ SetInput
   //
   if ( !this->ImageData )
-    {
+  {
     vtkErrorMacro(<<"SetInput() before setting plane orientation.");
     return;
-    }
+  }
 
   vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
   inpAlg->UpdateInformation();
@@ -1450,42 +1462,42 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
                      origin[2] + spacing[2] * (extent[5] + 0.5)};
 
   if ( spacing[0] < 0.0 )
-    {
+  {
     double t = xbounds[0];
     xbounds[0] = xbounds[1];
     xbounds[1] = t;
-    }
+  }
   if ( spacing[1] < 0.0 )
-    {
+  {
     double t = ybounds[0];
     ybounds[0] = ybounds[1];
     ybounds[1] = t;
-    }
+  }
   if ( spacing[2] < 0.0 )
-    {
+  {
     double t = zbounds[0];
     zbounds[0] = zbounds[1];
     zbounds[1] = t;
-    }
+  }
 
   if ( i == 2 ) //XY, z-normal
-    {
+  {
     this->PlaneSource->SetOrigin(xbounds[0],ybounds[0],zbounds[0]);
     this->PlaneSource->SetPoint1(xbounds[1],ybounds[0],zbounds[0]);
     this->PlaneSource->SetPoint2(xbounds[0],ybounds[1],zbounds[0]);
-    }
+  }
   else if ( i == 0 ) //YZ, x-normal
-    {
+  {
     this->PlaneSource->SetOrigin(xbounds[0],ybounds[0],zbounds[0]);
     this->PlaneSource->SetPoint1(xbounds[0],ybounds[1],zbounds[0]);
     this->PlaneSource->SetPoint2(xbounds[0],ybounds[0],zbounds[1]);
-    }
+  }
   else  //ZX, y-normal
-    {
+  {
     this->PlaneSource->SetOrigin(xbounds[0],ybounds[0],zbounds[0]);
     this->PlaneSource->SetPoint1(xbounds[0],ybounds[0],zbounds[1]);
     this->PlaneSource->SetPoint2(xbounds[1],ybounds[0],zbounds[0]);
-    }
+  }
 
   this->UpdatePlane();
   this->BuildRepresentation();
@@ -1502,34 +1514,34 @@ void vtkImagePlaneWidget::SetInputConnection(vtkAlgorithmOutput* aout)
       aout->GetIndex()));
 
   if( !this->ImageData )
-    {
-    // If NULL is passed, remove any reference that Reslice had
+  {
+    // If nullptr is passed, remove any reference that Reslice had
     // on the old ImageData
     //
-    this->Reslice->SetInputData(NULL);
+    this->Reslice->SetInputData(nullptr);
     return;
-    }
+  }
 
   double range[2];
   this->ImageData->GetScalarRange(range);
 
   if ( !this->UserControlledLookupTable )
-    {
+  {
     this->LookupTable->SetTableRange(range[0],range[1]);
     this->LookupTable->Build();
-    }
+  }
 
   this->OriginalWindow = range[1] - range[0];
   this->OriginalLevel = 0.5*(range[0] + range[1]);
 
   if( fabs( this->OriginalWindow ) < 0.001 )
-    {
+  {
     this->OriginalWindow = 0.001 * ( this->OriginalWindow < 0.0 ? -1 : 1 );
-    }
+  }
   if( fabs( this->OriginalLevel ) < 0.001 )
-   {
+  {
    this->OriginalLevel = 0.001 * ( this->OriginalLevel < 0.0 ? -1 : 1 );
-   }
+  }
 
   this->SetWindowLevel(this->OriginalWindow,this->OriginalLevel);
 
@@ -1550,9 +1562,9 @@ void vtkImagePlaneWidget::SetInputConnection(vtkAlgorithmOutput* aout)
 void vtkImagePlaneWidget::UpdatePlane()
 {
   if ( !this->Reslice || !this->ImageData )
-    {
+  {
     return;
-    }
+  }
 
   // Calculate appropriate pixel spacing for the reslicing
   //
@@ -1569,20 +1581,20 @@ void vtkImagePlaneWidget::UpdatePlane()
   int i;
 
   for (i = 0; i < 3; i++)
-    {
+  {
     if (extent[2*i] > extent[2*i + 1])
-      {
+    {
       vtkErrorMacro("Invalid extent ["
                     << extent[0] << ", " << extent[1] << ", "
                     << extent[2] << ", " << extent[3] << ", "
                     << extent[4] << ", " << extent[5] << "]."
                     << " Perhaps the input data is empty?");
       break;
-      }
     }
+  }
 
   if ( this->RestrictPlaneToVolume )
-    {
+  {
     double bounds[] = {origin[0] + spacing[0]*extent[0], //xmin
                        origin[0] + spacing[0]*extent[1], //xmax
                        origin[1] + spacing[1]*extent[2], //ymin
@@ -1591,14 +1603,14 @@ void vtkImagePlaneWidget::UpdatePlane()
                        origin[2] + spacing[2]*extent[5]};//zmax
 
     for ( i = 0; i <= 4; i += 2 ) // reverse bounds if necessary
-      {
+    {
       if ( bounds[i] > bounds[i+1] )
-        {
+      {
         double t = bounds[i+1];
         bounds[i+1] = bounds[i];
         bounds[i] = t;
-        }
       }
+    }
 
     double abs_normal[3];
     this->PlaneSource->GetNormal(abs_normal);
@@ -1607,27 +1619,27 @@ void vtkImagePlaneWidget::UpdatePlane()
     double nmax = 0.0;
     int k = 0;
     for ( i = 0; i < 3; i++ )
-      {
+    {
       abs_normal[i] = fabs(abs_normal[i]);
       if ( abs_normal[i]>nmax )
-        {
+      {
         nmax = abs_normal[i];
         k = i;
-        }
       }
+    }
     // Force the plane to lie within the true image bounds along its normal
     //
     if ( planeCenter[k] > bounds[2*k+1] )
-      {
+    {
       planeCenter[k] = bounds[2*k+1];
-      }
+    }
     else if ( planeCenter[k] < bounds[2*k] )
-      {
+    {
       planeCenter[k] = bounds[2*k];
-      }
+    }
 
     this->PlaneSource->SetCenter(planeCenter);
-    }
+  }
 
   double planeAxis1[3];
   double planeAxis2[3];
@@ -1648,11 +1660,11 @@ void vtkImagePlaneWidget::UpdatePlane()
 
   this->ResliceAxes->Identity();
   for ( i = 0; i < 3; i++ )
-     {
+  {
      this->ResliceAxes->SetElement(0,i,planeAxis1[i]);
      this->ResliceAxes->SetElement(1,i,planeAxis2[i]);
      this->ResliceAxes->SetElement(2,i,normal[i]);
-     }
+  }
 
   double planeOrigin[4];
   this->PlaneSource->GetOrigin(planeOrigin);
@@ -1685,36 +1697,36 @@ void vtkImagePlaneWidget::UpdatePlane()
   // * if realExtentX is too large, extentX will wrap
   // * if spacingX is 0, things will blow up.
   if (realExtentX > (VTK_INT_MAX >> 1))
-    {
+  {
     vtkErrorMacro(<<"Invalid X extent: " << realExtentX);
     extentX = 0;
-    }
+  }
   else
-    {
+  {
     extentX = 1;
     while (extentX < realExtentX)
-      {
+    {
       extentX = extentX << 1;
-      }
     }
+  }
 
   // make sure extentY doesn't wrap during padding
   double realExtentY = ( spacingY == 0 ) ? VTK_INT_MAX : planeSizeY / spacingY;
 
   int extentY;
   if (realExtentY > (VTK_INT_MAX >> 1))
-    {
+  {
     vtkErrorMacro(<<"Invalid Y extent: " << realExtentY);
     extentY = 0;
-    }
+  }
   else
-    {
+  {
     extentY = 1;
     while (extentY < realExtentY)
-      {
+    {
       extentY = extentY << 1;
-      }
     }
+  }
 
   double outputSpacingX = (extentX == 0) ? 1.0 : planeSizeX/extentX;
   double outputSpacingY = (extentY == 0) ? 1.0 : planeSizeY/extentY;
@@ -1727,9 +1739,9 @@ void vtkImagePlaneWidget::UpdatePlane()
 vtkImageData* vtkImagePlaneWidget::GetResliceOutput()
 {
   if ( ! this->Reslice )
-    {
-    return 0;
-    }
+  {
+    return nullptr;
+  }
   return this->Reslice->GetOutput();
 }
 
@@ -1737,29 +1749,29 @@ vtkImageData* vtkImagePlaneWidget::GetResliceOutput()
 void vtkImagePlaneWidget::SetResliceInterpolate(int i)
 {
   if ( this->ResliceInterpolate == i )
-    {
+  {
     return;
-    }
+  }
   this->ResliceInterpolate = i;
   this->Modified();
 
   if ( !this->Reslice )
-    {
+  {
     return;
-    }
+  }
 
   if ( i == VTK_NEAREST_RESLICE )
-    {
+  {
     this->Reslice->SetInterpolationModeToNearestNeighbor();
-    }
+  }
   else if ( i == VTK_LINEAR_RESLICE)
-    {
+  {
     this->Reslice->SetInterpolationModeToLinear();
-    }
+  }
   else
-    {
+  {
     this->Reslice->SetInterpolationModeToCubic();
-    }
+  }
   this->Texture->SetInterpolate(this->TextureInterpolate);
 }
 
@@ -1768,38 +1780,43 @@ void vtkImagePlaneWidget::SetPicker(vtkAbstractPropPicker* picker)
 {
   // we have to have a picker for slice motion, window level and cursor to work
   if (this->PlanePicker != picker)
-    {
+  {
     // to avoid destructor recursion
     vtkAbstractPropPicker *temp = this->PlanePicker;
     this->PlanePicker = picker;
-    if (temp != 0)
-      {
+    if (temp != nullptr)
+    {
       temp->UnRegister(this);
-      }
+    }
 
     int delPicker = 0;
-    if (this->PlanePicker == 0)
-      {
+    if (this->PlanePicker == nullptr)
+    {
       this->PlanePicker = vtkCellPicker::New();
       vtkCellPicker::SafeDownCast(this->PlanePicker)->SetTolerance(0.005);
       delPicker = 1;
-      }
+    }
 
     this->PlanePicker->Register(this);
     this->PlanePicker->AddPickList(this->TexturePlaneActor);
     this->PlanePicker->PickFromListOn();
 
     if ( delPicker )
-      {
+    {
       this->PlanePicker->Delete();
-      }
     }
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkImagePlaneWidget::RegisterPickers()
 {
-  this->Interactor->GetPickingManager()->AddPicker(this->PlanePicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->PlanePicker, this);
 }
 
 //----------------------------------------------------------------------------
@@ -1821,29 +1838,29 @@ vtkLookupTable* vtkImagePlaneWidget::CreateDefaultLookupTable()
 void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
 {
   if (this->LookupTable != table)
-    {
+  {
     // to avoid destructor recursion
     vtkLookupTable *temp = this->LookupTable;
     this->LookupTable = table;
-    if (temp != 0)
-      {
+    if (temp != nullptr)
+    {
       temp->UnRegister(this);
-      }
-    if (this->LookupTable != 0)
-      {
-      this->LookupTable->Register(this);
-      }
-    else  //create a default lut
-      {
-      this->LookupTable = this->CreateDefaultLookupTable();
-      }
     }
+    if (this->LookupTable != nullptr)
+    {
+      this->LookupTable->Register(this);
+    }
+    else  //create a default lut
+    {
+      this->LookupTable = this->CreateDefaultLookupTable();
+    }
+  }
 
   this->ColorMap->SetLookupTable(this->LookupTable);
   this->Texture->SetLookupTable(this->LookupTable);
 
   if( this->ImageData && !this->UserControlledLookupTable)
-    {
+  {
     double range[2];
     this->ImageData->GetScalarRange(range);
 
@@ -1854,16 +1871,16 @@ void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
     this->OriginalLevel = 0.5*(range[0] + range[1]);
 
     if( fabs( this->OriginalWindow ) < 0.001 )
-      {
+    {
       this->OriginalWindow = 0.001 * ( this->OriginalWindow < 0.0 ? -1 : 1 );
-      }
+    }
     if( fabs( this->OriginalLevel ) < 0.001 )
-      {
+    {
       this->OriginalLevel = 0.001 * ( this->OriginalLevel < 0.0 ? -1 : 1 );
-      }
+    }
 
     this->SetWindowLevel(this->OriginalWindow,this->OriginalLevel);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1874,22 +1891,22 @@ void vtkImagePlaneWidget::SetSlicePosition(double position)
   this->PlaneSource->GetOrigin( planeOrigin );
 
   if ( this->PlaneOrientation == 2 ) // z axis
-    {
+  {
     amount = position - planeOrigin[2];
-    }
+  }
   else if ( this->PlaneOrientation == 0 ) // x axis
-    {
+  {
     amount = position - planeOrigin[0];
-    }
+  }
   else if ( this->PlaneOrientation == 1 )  //y axis
-    {
+  {
     amount = position - planeOrigin[1];
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
     return;
-    }
+  }
 
   this->PlaneSource->Push( amount );
   this->UpdatePlane();
@@ -1904,21 +1921,21 @@ double vtkImagePlaneWidget::GetSlicePosition()
   this->PlaneSource->GetOrigin( planeOrigin);
 
   if ( this->PlaneOrientation == 2 )
-    {
+  {
     return planeOrigin[2];
-    }
+  }
   else if ( this->PlaneOrientation == 1 )
-    {
+  {
     return planeOrigin[1];
-    }
+  }
   else if ( this->PlaneOrientation == 0 )
-    {
+  {
     return planeOrigin[0];
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
-    }
+  }
 
   return 0.0;
 }
@@ -1927,13 +1944,13 @@ double vtkImagePlaneWidget::GetSlicePosition()
 void vtkImagePlaneWidget::SetSliceIndex(int index)
 {
   if ( !this->Reslice )
-    {
+  {
       return;
-    }
+  }
   if ( !this->ImageData )
-    {
+  {
     return;
-    }
+  }
   vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
   inpAlg->UpdateInformation();
   vtkInformation* outInfo = inpAlg->GetOutputInformation(0);
@@ -1949,28 +1966,28 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
   this->PlaneSource->GetPoint2(pt2);
 
   if ( this->PlaneOrientation == 2 )
-    {
+  {
     planeOrigin[2] = origin[2] + index*spacing[2];
     pt1[2] = planeOrigin[2];
     pt2[2] = planeOrigin[2];
-    }
+  }
   else if ( this->PlaneOrientation == 1 )
-    {
+  {
     planeOrigin[1] = origin[1] + index*spacing[1];
     pt1[1] = planeOrigin[1];
     pt2[1] = planeOrigin[1];
-    }
+  }
   else if ( this->PlaneOrientation == 0 )
-    {
+  {
     planeOrigin[0] = origin[0] + index*spacing[0];
     pt1[0] = planeOrigin[0];
     pt2[0] = planeOrigin[0];
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
     return;
-    }
+  }
 
   this->PlaneSource->SetOrigin(planeOrigin);
   this->PlaneSource->SetPoint1(pt1);
@@ -1984,13 +2001,13 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
 int vtkImagePlaneWidget::GetSliceIndex()
 {
   if ( ! this->Reslice )
-    {
+  {
     return 0;
-    }
+  }
   if ( ! this->ImageData )
-    {
+  {
     return 0;
-    }
+  }
   vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
   inpAlg->UpdateInformation();
   vtkInformation* outInfo = inpAlg->GetOutputInformation(0);
@@ -2002,21 +2019,21 @@ int vtkImagePlaneWidget::GetSliceIndex()
   this->PlaneSource->GetOrigin(planeOrigin);
 
   if ( this->PlaneOrientation == 2 )
-    {
-    return vtkMath::Round((planeOrigin[2]-origin[2])/spacing[2]);
-    }
+  {
+    return static_cast<int>(std::round((planeOrigin[2]-origin[2])/spacing[2]));
+  }
   else if ( this->PlaneOrientation == 1 )
-    {
-    return vtkMath::Round((planeOrigin[1]-origin[1])/spacing[1]);
-    }
+  {
+    return static_cast<int>(std::round((planeOrigin[1]-origin[1])/spacing[1]));
+  }
   else if ( this->PlaneOrientation == 0 )
-    {
-    return vtkMath::Round((planeOrigin[0]-origin[0])/spacing[0]);
-    }
+  {
+    return static_cast<int>(std::round((planeOrigin[0]-origin[0])/spacing[0]));
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
-    }
+  }
 
   return 0;
 }
@@ -2026,18 +2043,18 @@ void vtkImagePlaneWidget::ActivateCursor(int i)
 {
 
   if( !this->CurrentRenderer )
-    {
+  {
     return;
-    }
+  }
 
   if( i == 0 )
-    {
+  {
     this->CursorActor->VisibilityOff();
-    }
+  }
   else
-    {
+  {
     this->CursorActor->VisibilityOn();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2045,45 +2062,45 @@ void vtkImagePlaneWidget::ActivateMargins(int i)
 {
 
   if( !this->CurrentRenderer )
-    {
+  {
     return;
-    }
+  }
 
   if( i == 0 )
-    {
+  {
     this->MarginActor->VisibilityOff();
-    }
+  }
   else
-    {
+  {
     this->MarginActor->VisibilityOn();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::ActivateText(int i)
 {
   if( !this->CurrentRenderer || !this->DisplayText)
-    {
+  {
     return;
-    }
+  }
 
   if( i == 0 )
-    {
+  {
     this->TextActor->VisibilityOff();
-    }
+  }
   else
-    {
+  {
     this->TextActor->VisibilityOn();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
 {
   if ( !this->ImageData )
-    {
+  {
     return;
-    }
+  }
   // We're going to be extracting values with GetScalarComponentAsDouble(),
   // we might as well make sure that the data is there.  If the data is
   // up to date already, this call doesn't cost very much.  If we don't make
@@ -2098,48 +2115,48 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   int found = 0;
   int i;
   if ( path  )
-    {
+  {
     // Deal with the possibility that we may be using a shared picker
     vtkCollectionSimpleIterator sit;
     path->InitTraversal(sit);
     vtkAssemblyNode *node;
     for ( i = 0; i< path->GetNumberOfItems() && !found ; i++ )
-      {
+    {
       node = path->GetNextNode(sit);
       if ( node->GetViewProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
-        {
+      {
         found = 1;
-        }
       }
     }
+  }
 
-  if( !found || path == 0 )
-    {
+  if( !found || path == nullptr )
+  {
     this->CursorActor->VisibilityOff();
     return;
-    }
+  }
   else
-    {
+  {
     this->CursorActor->VisibilityOn();
-    }
+  }
 
   double q[3];
   this->PlanePicker->GetPickPosition(q);
 
   if(this->UseContinuousCursor)
-    {
+  {
     found = this->UpdateContinuousCursor(q);
-    }
+  }
   else
-    {
+  {
     found = this->UpdateDiscreteCursor(q);
-    }
+  }
 
   if(!found)
-    {
+  {
     this->CursorActor->VisibilityOff();
     return;
-    }
+  }
 
   double o[3];
   this->PlaneSource->GetOrigin(o);
@@ -2171,12 +2188,12 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   double d[3];
 
   for (i = 0; i < 3; i++)
-    {
+  {
     a[i] = o[i]  + Lp2*p2o[i];   // left
     b[i] = p1[i] + Lp2*p2o[i];   // right
     c[i] = o[i]  + Lp1*p1o[i];   // bottom
     d[i] = p2[i] + Lp1*p1o[i];   // top
-    }
+  }
 
   vtkPoints* cursorPts = this->CursorPolyData->GetPoints();
 
@@ -2184,6 +2201,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   cursorPts->SetPoint(1,b);
   cursorPts->SetPoint(2,c);
   cursorPts->SetPoint(3,d);
+  cursorPts->GetData()->Modified();
 
   this->CursorPolyData->Modified();
 }
@@ -2213,16 +2231,16 @@ int vtkImagePlaneWidget::UpdateContinuousCursor(double *q)
 
   // Find the cell that contains q and get it
   //
-  cell = this->ImageData->FindAndGetCell(q,NULL,-1,tol2,subId,pcoords,weights);
+  cell = this->ImageData->FindAndGetCell(q,nullptr,-1,tol2,subId,pcoords,weights);
   int found = 0;
   if (cell)
-    {
+  {
     // Interpolate the point data
     //
     outPD->InterpolatePoint(pd,0,cell->PointIds,weights);
     this->CurrentImageValue = outPD->GetScalars()->GetTuple1(0);
     found = 1;
-    }
+  }
 
   outPD->Delete();
   return found;
@@ -2236,9 +2254,9 @@ int vtkImagePlaneWidget::UpdateDiscreteCursor(double *q)
   vtkIdType ptId = this->ImageData->FindPoint(q);
 
   if ( ptId == -1 )
-    {
+  {
     return 0;
-    }
+  }
 
   double closestPt[3];
   this->ImageData->GetPoint(ptId,closestPt);
@@ -2253,9 +2271,9 @@ int vtkImagePlaneWidget::UpdateDiscreteCursor(double *q)
   int iq[3];
   int iqtemp;
   for (int i = 0; i < 3; i++)
-    {
+  {
   // compute world to image coords
-    iqtemp = vtkMath::Round((closestPt[i]-origin[i])/spacing[i]);
+    iqtemp = static_cast<int>(std::round((closestPt[i]-origin[i])/spacing[i]));
 
   // we have a valid pick already, just enforce bounds check
     iq[i] = (iqtemp < extent[2*i])?extent[2*i]:((iqtemp > extent[2*i+1])?extent[2*i+1]:iqtemp);
@@ -2264,7 +2282,7 @@ int vtkImagePlaneWidget::UpdateDiscreteCursor(double *q)
     q[i] = iq[i]*spacing[i] + origin[i];
 
     this->CurrentCursorPosition[i] = iq[i];
-    }
+  }
 
   this->CurrentImageValue = this->ImageData->GetScalarComponentAsDouble( \
                    static_cast<int>(this->CurrentCursorPosition[0]),
@@ -2388,7 +2406,7 @@ vtkPolyDataAlgorithm *vtkImagePlaneWidget::GetPolyDataAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePlaneWidget::UpdatePlacement(void)
+void vtkImagePlaneWidget::UpdatePlacement()
 {
   this->UpdatePlane();
   this->UpdateMargins();
@@ -2436,9 +2454,9 @@ void vtkImagePlaneWidget::GetVector2(double v2[3])
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::AdjustState()
 {
-  int *auto_modifier = NULL;
+  int *auto_modifier = nullptr;
   switch (this->LastButtonPressed)
-    {
+  {
     case vtkImagePlaneWidget::VTK_LEFT_BUTTON:
       auto_modifier = &this->LeftButtonAutoModifier;
       break;
@@ -2448,15 +2466,15 @@ void vtkImagePlaneWidget::AdjustState()
     case vtkImagePlaneWidget::VTK_RIGHT_BUTTON:
       auto_modifier = &this->RightButtonAutoModifier;
       break;
-    }
+  }
 
   if (this->Interactor->GetShiftKey() ||
       (auto_modifier &&
        (*auto_modifier & vtkImagePlaneWidget::VTK_SHIFT_MODIFIER)))
-    {
+  {
     this->State = vtkImagePlaneWidget::Scaling;
     return;
-    }
+  }
 
   double v1[3];
   this->GetVector1(v1);
@@ -2492,82 +2510,82 @@ void vtkImagePlaneWidget::AdjustState()
   double y1 = planeSize2 - marginY;
 
   if ( x2D < x0  )       // left margin
-    {
+  {
     if (y2D < y0)        // bottom left corner
-      {
+    {
       this->MarginSelectMode =  0;
-      }
+    }
     else if (y2D > y1)   // top left corner
-      {
+    {
       this->MarginSelectMode =  3;
-      }
+    }
     else                 // left edge
-      {
+    {
       this->MarginSelectMode =  4;
-      }
     }
+  }
   else if ( x2D > x1 )   // right margin
-    {
+  {
     if (y2D < y0)        // bottom right corner
-      {
-      this->MarginSelectMode =  1;
-      }
-    else if (y2D > y1)   // top right corner
-      {
-      this->MarginSelectMode =  2;
-      }
-    else                 // right edge
-      {
-      this->MarginSelectMode =  5;
-      }
-    }
-  else                   // middle or on the very edge
     {
-    if (y2D < y0)        // bottom edge
-      {
-      this->MarginSelectMode =  6;
-      }
-    else if (y2D > y1)   // top edge
-      {
-      this->MarginSelectMode =  7;
-      }
-    else                 // central area
-      {
-      this->MarginSelectMode =  8;
-      }
+      this->MarginSelectMode =  1;
     }
+    else if (y2D > y1)   // top right corner
+    {
+      this->MarginSelectMode =  2;
+    }
+    else                 // right edge
+    {
+      this->MarginSelectMode =  5;
+    }
+  }
+  else                   // middle or on the very edge
+  {
+    if (y2D < y0)        // bottom edge
+    {
+      this->MarginSelectMode =  6;
+    }
+    else if (y2D > y1)   // top edge
+    {
+      this->MarginSelectMode =  7;
+    }
+    else                 // central area
+    {
+      this->MarginSelectMode =  8;
+    }
+  }
 
   if (this->Interactor->GetControlKey() ||
       (auto_modifier &&
        (*auto_modifier & vtkImagePlaneWidget::VTK_CONTROL_MODIFIER)))
-    {
+  {
     this->State = vtkImagePlaneWidget::Moving;
-    }
+  }
   else
-    {
+  {
     if (this->MarginSelectMode >= 0 && this->MarginSelectMode < 4)
-      {
+    {
       this->State = vtkImagePlaneWidget::Spinning;
       return;
-      }
+    }
     else if (this->MarginSelectMode == 8)
-      {
+    {
       this->State = vtkImagePlaneWidget::Pushing;
       return;
-      }
-    else
-      {
-      this->State = vtkImagePlaneWidget::Rotating;
-      }
     }
+    else
+    {
+      this->State = vtkImagePlaneWidget::Rotating;
+    }
+  }
 
-  double *raPtr = 0;
-  double *rvPtr = 0;
+  double *raPtr = nullptr;
+  double *rvPtr = nullptr;
   double rvfac = 1.0;
   double rafac = 1.0;
 
   switch ( this->MarginSelectMode )
-    {
+  {
      // left bottom corner
     case 0: raPtr = v2; rvPtr = v1; rvfac = -1.0; rafac = -1.0; break;
      // right bottom corner
@@ -2581,13 +2599,13 @@ void vtkImagePlaneWidget::AdjustState()
     case 6: raPtr = v1; rvPtr = v2; rvfac = -1.0; break; // bottom
     case 7: raPtr = v1; rvPtr = v2;               break; // top
     default: raPtr = v1; rvPtr = v2; break;
-    }
+  }
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     this->RotateAxis[i] = *raPtr++ * rafac;
     this->RadiusVector[i] = *rvPtr++ * rvfac;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2699,9 +2717,9 @@ void vtkImagePlaneWidget::GeneratePlaneOutline()
   points->SetNumberOfPoints(4);
   int i;
   for (i = 0; i < 4; i++)
-    {
+  {
     points->SetPoint(i,0.0,0.0,0.0);
-    }
+  }
 
   vtkCellArray *cells = vtkCellArray::New();
   cells->Allocate(cells->EstimateSize(4,2));
@@ -2744,7 +2762,7 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
     this->PlaneSource->GetOutputPort());
 
   this->Texture->SetQualityTo32Bit();
-  this->Texture->MapColorScalarsThroughLookupTableOff();
+  this->Texture->SetColorMode(VTK_COLOR_MODE_DEFAULT);
   this->Texture->SetInterpolate(this->TextureInterpolate);
   this->Texture->RepeatOff();
   this->Texture->SetLookupTable(this->LookupTable);
@@ -2763,9 +2781,9 @@ void vtkImagePlaneWidget::GenerateMargins()
   points->SetNumberOfPoints(8);
   int i;
   for (i = 0; i < 8; i++)
-    {
+  {
     points->SetPoint(i,0.0,0.0,0.0);
-    }
+  }
 
   vtkCellArray *cells = vtkCellArray::New();
   cells->Allocate(cells->EstimateSize(4,2));
@@ -2802,9 +2820,9 @@ void vtkImagePlaneWidget::GenerateCursor()
   points->SetNumberOfPoints(4);
   int i;
   for (i = 0; i < 4; i++)
-    {
+  {
     points->SetPoint(i,0.0,0.0,0.0);
-    }
+  }
 
   vtkCellArray *cells = vtkCellArray::New();
   cells->Allocate(cells->EstimateSize(2,2));
@@ -2831,7 +2849,7 @@ void vtkImagePlaneWidget::GenerateCursor()
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::GenerateText()
 {
-  sprintf(this->TextBuff,"NA");
+  snprintf(this->TextBuff, VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF, "NA");
   this->TextActor->SetInput(this->TextBuff);
   this->TextActor->SetTextScaleModeToNone();
 
@@ -2876,12 +2894,12 @@ void vtkImagePlaneWidget::UpdateMargins()
 
   int i;
   for ( i = 0; i < 3; i++)
-    {
+  {
     a[i] = o[i] + v2[i]*(1-t);
     b[i] = p1[i] + v2[i]*(1-t);
     c[i] = o[i] + v2[i]*t;
     d[i] = p1[i] + v2[i]*t;
-    }
+  }
 
   vtkPoints* marginPts = this->MarginPolyData->GetPoints();
 
@@ -2891,17 +2909,18 @@ void vtkImagePlaneWidget::UpdateMargins()
   marginPts->SetPoint(3,d);
 
   for ( i = 0; i < 3; i++)
-    {
+  {
     a[i] = o[i] + v1[i]*s;
     b[i] = p2[i] + v1[i]*s;
     c[i] = o[i] + v1[i]*(1-s);
     d[i] = p2[i] + v1[i]*(1-s);
-    }
+  }
 
   marginPts->SetPoint(4,a);
   marginPts->SetPoint(5,b);
   marginPts->SetPoint(6,c);
   marginPts->SetPoint(7,d);
+  marginPts->GetData()->Modified();
 
   this->MarginPolyData->Modified();
 }
@@ -2930,98 +2949,98 @@ void vtkImagePlaneWidget::Translate(double *p1, double *p2)
 
   int i;
   if ( this->MarginSelectMode == 8 )       // everybody comes along
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       origin[i] = o[i] + v[i];
       point1[i] = pt1[i] + v[i];
       point2[i] = pt2[i] + v[i];
-      }
+    }
     this->PlaneSource->SetOrigin(origin);
     this->PlaneSource->SetPoint1(point1);
     this->PlaneSource->SetPoint2(point2);
-    }
+  }
   else if ( this->MarginSelectMode == 4 ) // left edge
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       origin[i] = o[i]   + vdrv*this->RadiusVector[i];
       point2[i] = pt2[i] + vdrv*this->RadiusVector[i];
-      }
+    }
     this->PlaneSource->SetOrigin(origin);
     this->PlaneSource->SetPoint2(point2);
-    }
+  }
   else if ( this->MarginSelectMode == 5 ) // right edge
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       point1[i] = pt1[i] + vdrv*this->RadiusVector[i];
-      }
-    this->PlaneSource->SetPoint1(point1);
     }
+    this->PlaneSource->SetPoint1(point1);
+  }
   else if ( this->MarginSelectMode == 6 ) // bottom edge
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       origin[i] = o[i]   + vdrv*this->RadiusVector[i];
       point1[i] = pt1[i] + vdrv*this->RadiusVector[i];
-      }
+    }
     this->PlaneSource->SetOrigin(origin);
     this->PlaneSource->SetPoint1(point1);
-    }
+  }
   else if ( this->MarginSelectMode == 7 ) // top edge
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       point2[i] = pt2[i] + vdrv*this->RadiusVector[i];
-      }
-    this->PlaneSource->SetPoint2(point2);
     }
+    this->PlaneSource->SetPoint2(point2);
+  }
   else if ( this->MarginSelectMode == 3 ) // top left corner
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       origin[i] = o[i]   + vdrv*this->RadiusVector[i];
       point2[i] = pt2[i] + vdrv*this->RadiusVector[i] +
         vdra*this->RotateAxis[i];
-      }
+    }
     this->PlaneSource->SetOrigin(origin);
     this->PlaneSource->SetPoint2(point2);
-    }
+  }
   else if ( this->MarginSelectMode == 0 ) // bottom left corner
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       origin[i] = o[i]   + vdrv*this->RadiusVector[i] +
         vdra*this->RotateAxis[i];
       point1[i] = pt1[i] + vdra*this->RotateAxis[i];
       point2[i] = pt2[i] + vdrv*this->RadiusVector[i];
-      }
+    }
     this->PlaneSource->SetOrigin(origin);
     this->PlaneSource->SetPoint1(point1);
     this->PlaneSource->SetPoint2(point2);
-    }
+  }
   else if ( this->MarginSelectMode == 2 ) // top right corner
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       point1[i] = pt1[i] + vdrv*this->RadiusVector[i];
       point2[i] = pt2[i] + vdra*this->RotateAxis[i];
-      }
+    }
     this->PlaneSource->SetPoint1(point1);
     this->PlaneSource->SetPoint2(point2);
-    }
+  }
   else                                   // bottom right corner
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       origin[i] = o[i]   + vdra*this->RotateAxis[i];
       point1[i] = pt1[i] + vdrv*this->RadiusVector[i] +
         vdra*this->RotateAxis[i];
-      }
+    }
     this->PlaneSource->SetPoint1(point1);
     this->PlaneSource->SetOrigin(origin);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -3045,24 +3064,24 @@ void vtkImagePlaneWidget::Scale(double *p1, double *p2,
   double sf = vtkMath::Norm(v) /
     sqrt(vtkMath::Distance2BetweenPoints(pt1,pt2));
   if ( Y > this->Interactor->GetLastEventPosition()[1] )
-    {
+  {
     sf = 1.0 + sf;
-    }
+  }
   else
-    {
+  {
     sf = 1.0 - sf;
-    }
+  }
 
   // Move the corner points
   //
   double origin[3], point1[3], point2[3];
 
   for (int i=0; i<3; i++)
-    {
+  {
     origin[i] = sf * (o[i] - center[i]) + center[i];
     point1[i] = sf * (pt1[i] - center[i]) + center[i];
     point2[i] = sf * (pt2[i] - center[i]) + center[i];
-    }
+  }
 
   this->PlaneSource->SetOrigin(origin);
   this->PlaneSource->SetPoint1(point1);

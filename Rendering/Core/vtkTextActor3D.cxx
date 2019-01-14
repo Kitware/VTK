@@ -28,17 +28,18 @@
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 
-vtkStandardNewMacro(vtkTextActor3D);
+vtkObjectFactoryNewMacro(vtkTextActor3D)
 
 vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
 
 // ----------------------------------------------------------------------------
 vtkTextActor3D::vtkTextActor3D()
 {
-  this->Input        = NULL;
+  this->Input        = nullptr;
+  this->LastInputString = "";
   this->ImageActor   = vtkImageActor::New();
-  this->ImageData    = NULL;
-  this->TextProperty = NULL;
+  this->ImageData    = nullptr;
+  this->TextProperty = nullptr;
 
   this->BuildTime.Modified();
 
@@ -51,28 +52,28 @@ vtkTextActor3D::vtkTextActor3D()
 // --------------------------------------------------------------------------
 vtkTextActor3D::~vtkTextActor3D()
 {
-  this->SetTextProperty(NULL);
-  this->SetInput(NULL);
+  this->SetTextProperty(nullptr);
+  this->SetInput(nullptr);
 
   this->ImageActor->Delete();
-  this->ImageActor = NULL;
+  this->ImageActor = nullptr;
 
   if (this->ImageData)
-    {
+  {
     this->ImageData->Delete();
-    this->ImageData = NULL;
-    }
+    this->ImageData = nullptr;
+  }
 }
 
 // --------------------------------------------------------------------------
 void vtkTextActor3D::ShallowCopy(vtkProp *prop)
 {
   vtkTextActor3D *a = vtkTextActor3D::SafeDownCast(prop);
-  if (a != NULL)
-    {
+  if (a != nullptr)
+  {
     this->SetInput(a->GetInput());
     this->SetTextProperty(a->GetTextProperty());
-    }
+  }
 
   this->Superclass::ShallowCopy(prop);
 }
@@ -84,43 +85,44 @@ double* vtkTextActor3D::GetBounds()
   // that we haven't rendered yet, so we have to make sure our bounds
   // are up to date so that we don't get culled.
   this->UpdateImageActor();
-  double* bounds = this->ImageActor->GetBounds();
+  const double* bounds = this->ImageActor->GetBounds();
   this->Bounds[0] = bounds[0];
   this->Bounds[1] = bounds[1];
   this->Bounds[2] = bounds[2];
   this->Bounds[3] = bounds[3];
   this->Bounds[4] = bounds[4];
   this->Bounds[5] = bounds[5];
-  return bounds;
+  return this->Bounds;
 }
 
 // --------------------------------------------------------------------------
 int vtkTextActor3D::GetBoundingBox(int bbox[4])
 {
   if (!this->TextProperty)
-    {
+  {
     vtkErrorMacro(<<"Need valid vtkTextProperty.");
     return 0;
-    }
+  }
 
   if (!bbox)
-    {
+  {
     vtkErrorMacro(<<"Need 4-element int array for bounding box.");
     return 0;
-    }
+  }
 
   vtkTextRenderer *tRend = vtkTextRenderer::GetInstance();
   if (!tRend)
-    {
+  {
     vtkErrorMacro(<<"Failed getting the TextRenderer instance.");
     return 0;
-    }
+  }
 
-  if (!tRend->GetBoundingBox(this->TextProperty, this->Input, bbox))
-    {
+  if (!tRend->GetBoundingBox(this->TextProperty, this->Input, bbox,
+                             vtkTextActor3D::GetRenderedDPI()))
+  {
     vtkErrorMacro(<<"No text in input.");
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -133,28 +135,64 @@ void vtkTextActor3D::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 // --------------------------------------------------------------------------
+void vtkTextActor3D::SetForceOpaque(bool opaque)
+{
+  this->ImageActor->SetForceOpaque(opaque);
+}
+
+// --------------------------------------------------------------------------
+bool vtkTextActor3D::GetForceOpaque()
+{
+  return this->ImageActor->GetForceOpaque();
+}
+
+// --------------------------------------------------------------------------
+void vtkTextActor3D::ForceOpaqueOn()
+{
+  this->ImageActor->ForceOpaqueOn();
+}
+
+// --------------------------------------------------------------------------
+void vtkTextActor3D::ForceOpaqueOff()
+{
+  this->ImageActor->ForceOpaqueOff();
+}
+
+// --------------------------------------------------------------------------
+void vtkTextActor3D::SetForceTranslucent(bool trans)
+{
+  this->ImageActor->SetForceTranslucent(trans);
+}
+
+// --------------------------------------------------------------------------
+bool vtkTextActor3D::GetForceTranslucent()
+{
+  return this->ImageActor->GetForceTranslucent();
+}
+
+// --------------------------------------------------------------------------
+void vtkTextActor3D::ForceTranslucentOn()
+{
+  this->ImageActor->ForceTranslucentOn();
+}
+
+// --------------------------------------------------------------------------
+void vtkTextActor3D::ForceTranslucentOff()
+{
+  this->ImageActor->ForceTranslucentOff();
+}
+
+// --------------------------------------------------------------------------
 int vtkTextActor3D::RenderOverlay(vtkViewport *viewport)
 {
   int rendered_something = 0;
 
-  // Is the viewport's RenderWindow capturing GL2PS-special props?
-  if (vtkRenderer *renderer = vtkRenderer::SafeDownCast(viewport))
-    {
-    if (vtkRenderWindow *renderWindow = renderer->GetRenderWindow())
-      {
-      if (renderWindow->GetCapturingGL2PSSpecialProps())
-        {
-        renderer->CaptureGL2PSSpecialProp(this);
-        }
-      }
-    }
-
   if (this->UpdateImageActor() &&
       this->ImageData &&
       this->ImageData->GetNumberOfPoints() > 0)
-    {
+  {
     rendered_something += this->ImageActor->RenderOverlay(viewport);
-    }
+  }
 
   return rendered_something;
 }
@@ -167,10 +205,10 @@ int vtkTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
   if (this->UpdateImageActor() &&
       this->ImageData &&
       this->ImageData->GetNumberOfPoints() > 0)
-    {
+  {
     rendered_something +=
       this->ImageActor->RenderTranslucentPolygonalGeometry(viewport);
-    }
+  }
 
   return rendered_something;
 }
@@ -178,18 +216,10 @@ int vtkTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkTextActor3D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkTextActor3D::HasTranslucentPolygonalGeometry()
 {
-  int result = 0;
-
-  if (this->UpdateImageActor() &&
-      this->ImageData &&
-      this->ImageData->GetNumberOfPoints() > 0)
-    {
-    result=this->ImageActor->HasTranslucentPolygonalGeometry();
-    }
-
-  return result;
+  this->UpdateImageActor();
+  return this->ImageActor->HasTranslucentPolygonalGeometry();
 }
 
 // --------------------------------------------------------------------------
@@ -197,12 +227,23 @@ int vtkTextActor3D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int rendered_something = 0;
 
-  if (this->UpdateImageActor() &&
-      this->ImageData &&
-      this->ImageData->GetNumberOfPoints() > 0)
+  if (vtkRenderer *renderer = vtkRenderer::SafeDownCast(viewport))
+  {
+    if (vtkRenderWindow *renderWindow = renderer->GetRenderWindow())
     {
-    rendered_something += this->ImageActor->RenderOpaqueGeometry(viewport);
+      // Is the viewport's RenderWindow capturing GL2PS-special props?
+      if (renderWindow->GetCapturingGL2PSSpecialProps())
+      {
+        renderer->CaptureGL2PSSpecialProp(this);
+      }
     }
+  }
+
+  if (this->UpdateImageActor() &&
+      this->ImageData && this->ImageData->GetNumberOfPoints() > 0)
+  {
+    rendered_something += this->ImageActor->RenderOpaqueGeometry(viewport);
+  }
 
   return rendered_something;
 }
@@ -212,17 +253,18 @@ int vtkTextActor3D::UpdateImageActor()
 {
   // Need text prop
   if (!this->TextProperty)
-    {
+  {
     vtkErrorMacro(<<"Need a text property to render text actor");
+    this->ImageActor->SetInputData(nullptr);
     return 0;
-    }
+  }
 
   // No input, the assign the image actor a zilch input
   if (!this->Input || !*this->Input)
-    {
-    this->ImageActor->SetInputData(0);
+  {
+    this->ImageActor->SetInputData(nullptr);
     return 1;
-    }
+  }
 
   // copy information to the delegate
   vtkInformation *info = this->GetPropertyKeys();
@@ -236,48 +278,54 @@ int vtkTextActor3D::UpdateImageActor()
   if (this->GetMTime() > this->BuildTime ||
       this->TextProperty->GetMTime() > this->BuildTime ||
       !this->ImageData)
-    {
-
-    this->BuildTime.Modified();
-
+  {
     // we have to give vtkFTU::RenderString something to work with
     if (!this->ImageData)
-      {
+    {
       this->ImageData = vtkImageData::New();
       this->ImageData->SetSpacing(1.0, 1.0, 1.0);
-      }
+    }
 
     vtkTextRenderer *tRend = vtkTextRenderer::GetInstance();
     if (!tRend)
-      {
+    {
       vtkErrorMacro(<<"Failed getting the TextRenderer instance.");
+      this->ImageActor->SetInputData(nullptr);
       return 0;
-      }
+    }
 
-    if (!tRend->RenderString(this->TextProperty, this->Input, this->ImageData))
+    if (this->TextProperty->GetMTime() > this->BuildTime ||
+        this->LastInputString != this->Input)
+    {
+      if (!tRend->RenderString(this->TextProperty, this->Input, this->ImageData,
+                               nullptr, vtkTextActor3D::GetRenderedDPI()))
       {
-      vtkErrorMacro(<<"Failed rendering text to buffer");
-      return 0;
+        vtkErrorMacro(<<"Failed rendering text to buffer");
+        this->ImageActor->SetInputData(nullptr);
+        return 0;
       }
 
-    // Associate the image data (should be up to date now) to the image actor
-    this->ImageActor->SetInputData(this->ImageData);
+      // Associate the image data (should be up to date now) to the image actor
+      this->ImageActor->SetInputData(this->ImageData);
 
-    // Only render the visible portions of the texture.
-    int bbox[6] = {0, 0, 0, 0, 0, 0};
-    this->GetBoundingBox(bbox);
-    this->ImageActor->SetDisplayExtent(bbox);
+      // Only render the visible portions of the texture.
+      int bbox[6] = {0, 0, 0, 0, 0, 0};
+      this->GetBoundingBox(bbox);
+      this->ImageActor->SetDisplayExtent(bbox);
+      this->LastInputString = this->Input;
+    }
 
-    } // if (this->GetMTime() ...
+    this->BuildTime.Modified();
+  } // if (this->GetMTime() ...
 
   // Position the actor
   vtkMatrix4x4 *matrix = this->ImageActor->GetUserMatrix();
   if (!matrix)
-    {
+  {
     matrix = vtkMatrix4x4::New();
     this->ImageActor->SetUserMatrix(matrix);
     matrix->Delete();
-    }
+  }
   this->GetMatrix(matrix);
 
   return 1;
@@ -291,12 +339,12 @@ void vtkTextActor3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Input: " << (this->Input ? this->Input : "(none)") << "\n";
 
   if (this->TextProperty)
-    {
+  {
     os << indent << "Text Property:\n";
     this->TextProperty->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Text Property: (none)\n";
-    }
+  }
 }

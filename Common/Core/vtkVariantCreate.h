@@ -19,13 +19,15 @@
 
 =========================================================================*/
 
-// .NAME vtkVariantCreate
-// .SECTION Description
-// Performs an explicit conversion from an arbitrary type to a vtkVariant.  Provides
-// callers with a "hook" for defining conversions from user-defined types to vtkVariant.
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkVariantCreate
+ *
+ * Performs an explicit conversion from an arbitrary type to a vtkVariant.  Provides
+ * callers with a "hook" for defining conversions from user-defined types to vtkVariant.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkVariantCreate_h
 #define vtkVariantCreate_h
@@ -91,25 +93,6 @@ inline vtkVariant vtkVariantCreate<unsigned long>(const unsigned long& value)
   return value;
 }
 
-#ifdef VTK_TYPE_USE___INT64
-
-template<>
-inline vtkVariant vtkVariantCreate<__int64>(const __int64& value)
-{
-  return value;
-}
-
-template<>
-inline vtkVariant vtkVariantCreate<unsigned __int64>(const unsigned __int64& value)
-{
-  return value;
-}
-
-#endif
-
-
-#ifdef VTK_TYPE_USE_LONG_LONG
-
 template<>
 inline vtkVariant vtkVariantCreate<long long>(const long long& value)
 {
@@ -121,8 +104,6 @@ inline vtkVariant vtkVariantCreate<unsigned long long>(const unsigned long long&
 {
   return value;
 }
-
-#endif
 
 template<>
 inline vtkVariant vtkVariantCreate<float>(const float& value)

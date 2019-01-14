@@ -1,0 +1,8 @@
+NAME
+  VTK::xdmf2
+LIBRARY_NAME
+  vtkxdmf2
+DEPENDS
+  VTK::hdf5
+  VTK::libxml2
+THIRD_PARTY

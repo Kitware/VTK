@@ -1,0 +1,17 @@
+NAME
+  VTK::CommonComputationalGeometry
+LIBRARY_NAME
+  vtkCommonComputationalGeometry
+DESCRIPTION
+  Parametric splines and curves
+KIT
+  VTK::Common
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+TEST_DEPENDS
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

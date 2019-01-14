@@ -46,18 +46,21 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
 */
 
-// .NAME vtkPLY - a modified version of the PLY 1.1 library
-// .SECTION Description
-// vtkPLY is a modified version of the PLY 1.1 library. The library
-// has been modified by wrapping in a class (to minimize global symbols);
-// to take advantage of functionality generally not available through the
-// PLY library API; and to correct problems with the PLY library.
-//
-// The original distribution was taken from the Stanford University PLY
-// file format release 1.1 (see http://graphics.stanford.edu/data/3Dscanrep/).
-
-// .SECTION See Also
-// vtkPLYWriter vtkPLYReader
+/**
+ * @class   vtkPLY
+ * @brief   a modified version of the PLY 1.1 library
+ *
+ * vtkPLY is a modified version of the PLY 1.1 library. The library
+ * has been modified by wrapping in a class (to minimize global symbols);
+ * to take advantage of functionality generally not available through the
+ * PLY library API; and to correct problems with the PLY library.
+ *
+ * The original distribution was taken from the Stanford University PLY
+ * file format release 1.1 (see http://graphics.stanford.edu/data/3Dscanrep/).
+ *
+ * @sa
+ * vtkPLYWriter vtkPLYReader
+*/
 
 #ifndef vtkPLY_h
 #define vtkPLY_h
@@ -78,15 +81,20 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #define PLY_CHAR       1
 #define PLY_SHORT      2
 #define PLY_INT        3
-#define PLY_INT32      4
-#define PLY_UCHAR      5
-#define PLY_USHORT     6
-#define PLY_UINT       7
-#define PLY_UINT8      8
-#define PLY_FLOAT      9
-#define PLY_FLOAT32    10
-#define PLY_DOUBLE     11
-#define PLY_END_TYPE   12
+#define PLY_INT8       4
+#define PLY_INT16      5
+#define PLY_INT32      6
+#define PLY_UCHAR      7
+#define PLY_USHORT     8
+#define PLY_UINT       9
+#define PLY_UINT8      10
+#define PLY_UINT16     11
+#define PLY_UINT32     12
+#define PLY_FLOAT      13
+#define PLY_FLOAT32    14
+#define PLY_DOUBLE     15
+#define PLY_FLOAT64    16
+#define PLY_END_TYPE   17
 
 #define  PLY_SCALAR  0
 #define  PLY_LIST    1

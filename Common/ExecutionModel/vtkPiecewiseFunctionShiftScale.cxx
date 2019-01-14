@@ -29,9 +29,7 @@ vtkPiecewiseFunctionShiftScale::vtkPiecewiseFunctionShiftScale()
   this->ValueScale = 1.0;
 }
 
-vtkPiecewiseFunctionShiftScale::~vtkPiecewiseFunctionShiftScale()
-{
-}
+vtkPiecewiseFunctionShiftScale::~vtkPiecewiseFunctionShiftScale() = default;
 
 int vtkPiecewiseFunctionShiftScale::RequestData(
   vtkInformation *,
@@ -53,12 +51,12 @@ int vtkPiecewiseFunctionShiftScale::RequestData(
   int i;
 
   for (i = 0; i < numInValues; i++)
-    {
+  {
     output->AddPoint((inFunction[2*i] + this->PositionShift) *
                      this->PositionScale,
                      (inFunction[2*i+1] + this->ValueShift) *
                      this->ValueScale);
-    }
+  }
 
   return 1;
 }

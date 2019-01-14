@@ -12,102 +12,169 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperTreeGridAlgorithm - Superclass for algorithms that produce
-// a hyper tree grid as output
-//
-// .SECTION Description
-// vtkHyperTreeGridAlgorithm is a convenience class to make writing algorithms
-// easier. It is also designed to help transition old algorithms to the new
-// pipeline architecture. There are some assumptions and defaults made by this
-// class you should be aware of. This class defaults such that your filter
-// will have one input port and one output port. If that is not the case
-// simply change it with SetNumberOfInputPorts etc. See this classes
-// constructor for the default. This class also provides a FillInputPortInfo
-// method that by default says that all inputs will be HyperTreeGrid. If that
-// isn't the case then please override this method in your subclass.
-//
-// .SECTION Thanks
-// This test was written by Philippe Pebay and Charles Law, Kitware 2012
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+/**
+ * @class   vtkHyperTreeGridAlgorithm
+ * @brief   Superclass for algorithms that produce
+ * a hyper tree grid as output
+ *
+ *
+ * vtkHyperTreeGridAlgorithm is a base class for hyper tree grid algorithms.
+ * This class defaults with one input port and one output port; it must be
+ * modified by the concrete derived class if a different behavior is sought.
+ * In addition, this class provides a FillOutputPortInfo() method that, by
+ * default, specifies that the output is a data object; this
+ * must also be modified in concrete subclasses if needed.
+ *
+ * @par Thanks:
+ * This test was written by Philippe Pebay and Charles Law, Kitware 2012
+ * This test was rewritten by Philippe Pebay, 2016
+ * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
+*/
 
 #ifndef vtkHyperTreeGridAlgorithm_h
 #define vtkHyperTreeGridAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkHyperTreeGrid.h" // makes things a bit easier
 
-class vtkDataSet;
+class vtkBitArray;
+class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
+class vtkPolyData;
+class vtkUnstructuredGrid;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkHyperTreeGridAlgorithm : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the output data object for a port on this algorithm.
-  vtkHyperTreeGrid *GetOutput();
-  vtkHyperTreeGrid *GetOutput(int);
-  virtual void SetOutput(vtkDataObject* d);
+  //@{
+  /**
+   * Get the output data object for a port on this algorithm.
+   */
+  vtkDataObject* GetOutput();
+  vtkDataObject* GetOutput( int );
+  virtual void SetOutput( vtkDataObject* );
+  //@}
 
-  // Description:
-  // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*);
+  //@{
+  /**
+   * Get the output as a hyper tree grid.
+   */
+  vtkHyperTreeGrid* GetHyperTreeGridOutput();
+  vtkHyperTreeGrid* GetHyperTreeGridOutput( int );
+  //@}
 
-  // this method is not recommended for use, but lots of old style filters
-  // use it
-  vtkDataObject* GetInput();
-  vtkDataObject *GetInput(int port);
-  vtkHyperTreeGrid *GetHyperTreeGridInput(int port);
+  //@{
+  /**
+   * Get the output as a polygonal dataset.
+   */
+  vtkPolyData* GetPolyDataOutput();
+  vtkPolyData* GetPolyDataOutput( int );
+  //@}
 
-  // Description:
-  // Assign a data object as input. Note that this method does not
-  // establish a pipeline connection. Use SetInputConnection() to
-  // setup a pipeline connection.
-  void SetInputData(vtkDataObject *);
-  void SetInputData(int, vtkDataObject*);
+  //@{
+  /**
+   * Get the output as an unstructured grid.
+   */
+  vtkUnstructuredGrid* GetUnstructuredGridOutput();
+  vtkUnstructuredGrid* GetUnstructuredGridOutput( int );
+  //@}
 
-  // Description:
-  // Assign a data object as input. Note that this method does not
-  // establish a pipeline connection. Use AddInputConnection() to
-  // setup a pipeline connection.
-  void AddInputData(vtkDataObject *);
-  void AddInputData(int, vtkDataObject*);
+  /**
+   * See vtkAlgorithm for details
+   */
+  virtual int ProcessRequest( vtkInformation*,
+                              vtkInformationVector**,
+                              vtkInformationVector*) override;
+
+  //@{
+  /**
+   * Assign a data object as input. Note that this method does not
+   * establish a pipeline connection. Use SetInputConnection() to
+   * setup a pipeline connection.
+   */
+  void SetInputData( vtkDataObject* );
+  void SetInputData( int, vtkDataObject* );
+  //@}
+
+  //@{
+  /**
+   * Assign a data object as input. Note that this method does not
+   * establish a pipeline connection. Use AddInputConnection() to
+   * setup a pipeline connection.
+   */
+  void AddInputData( vtkDataObject* );
+  void AddInputData( int, vtkDataObject* );
+  //@}
 
 protected:
   vtkHyperTreeGridAlgorithm();
-  ~vtkHyperTreeGridAlgorithm();
+  ~vtkHyperTreeGridAlgorithm() override;
+
+  /**
+   * see vtkAlgorithm for details
+   */
+  int RequestDataObject( vtkInformation*,
+                         vtkInformationVector** inputVector ,
+                         vtkInformationVector* outputVector);
 
   // convenience method
-  virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
-
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
-
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
-  virtual int RequestUpdateExtent(vtkInformation*,
+  virtual int RequestInformation( vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
+                                  vtkInformationVector* );
 
-  // see algorithm for more info
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
+  virtual int RequestData( vtkInformation*,
+                           vtkInformationVector**,
+                           vtkInformationVector* );
+
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
+  virtual int RequestUpdateExtent( vtkInformation*,
+                                   vtkInformationVector**,
+                                   vtkInformationVector* );
+
+  /**
+   * Main routine to process individual trees in the grid
+   * This is pure virtual method to be implemented by concrete algorithms
+   */
+  virtual int ProcessTrees( vtkHyperTreeGrid*,
+                            vtkDataObject* ) = 0;
+
+  //@{
+  /**
+   * Define default input and output port types
+   */
+  int FillInputPortInformation( int, vtkInformation* ) override;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
+  //@}
+
+  //@{
+  /**
+   * Reference to input and output data
+   */
+  vtkDataSetAttributes* InData;
+  vtkDataSetAttributes* OutData;
+  //@}
+
+  //@{
+  /**
+   * JB Si a vrai, l'objet output aura le meme type que le type d'objet en entree input.
+   */
+  bool AppropriateOutput;
+  //@}
 
 private:
-  vtkHyperTreeGridAlgorithm(const vtkHyperTreeGridAlgorithm&);  // Not implemented.
-  void operator=(const vtkHyperTreeGridAlgorithm&);  // Not implemented.
+  vtkHyperTreeGridAlgorithm(const vtkHyperTreeGridAlgorithm&) = delete;
+  void operator=(const vtkHyperTreeGridAlgorithm&) = delete;
 };
 
 #endif

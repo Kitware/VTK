@@ -31,11 +31,11 @@ vtkOutlineCornerFilter::vtkOutlineCornerFilter ()
 
 vtkOutlineCornerFilter::~vtkOutlineCornerFilter ()
 {
-  if (this->OutlineCornerSource != NULL)
-    {
+  if (this->OutlineCornerSource != nullptr)
+  {
     this->OutlineCornerSource->Delete ();
-    this->OutlineCornerSource = NULL;
-    }
+    this->OutlineCornerSource = nullptr;
+  }
 }
 
 int vtkOutlineCornerFilter::RequestData(

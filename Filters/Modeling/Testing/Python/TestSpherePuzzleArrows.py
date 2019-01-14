@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -44,7 +43,7 @@ def MotionCallback (x, y):
     ren1.SetDisplayPoint(x, y, z)
     ren1.DisplayToWorld()
     pt = ren1.GetWorldPoint()
-    print pt  ###############
+    print(pt)  ###############
     x = pt[0]
     y = pt[1]
     z = pt[2]

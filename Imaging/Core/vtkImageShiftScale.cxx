@@ -33,9 +33,7 @@ vtkImageShiftScale::vtkImageShiftScale()
 }
 
 //----------------------------------------------------------------------------
-vtkImageShiftScale::~vtkImageShiftScale()
-{
-}
+vtkImageShiftScale::~vtkImageShiftScale() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageShiftScale::PrintSelf(ostream& os, vtkIndent indent)
@@ -55,11 +53,11 @@ int vtkImageShiftScale::RequestInformation(vtkInformation*,
 {
   // Set the image scalar type for the output.
   if(this->OutputScalarType != -1)
-    {
+  {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     vtkDataObject::SetPointDataActiveScalarInfo(
       outInfo, this->OutputScalarType, -1);
-    }
+  }
   return 1;
 }
 
@@ -90,33 +88,33 @@ void vtkImageShiftScaleExecute(vtkImageShiftScale* self,
 
   // Loop through output pixels.
   while (!outIt.IsAtEnd())
-    {
+  {
     IT* inSI = inIt.BeginSpan();
     OT* outSI = outIt.BeginSpan();
     OT* outSIEnd = outIt.EndSpan();
     if (clamp)
-      {
+    {
       while (outSI != outSIEnd)
-        {
+      {
         // Pixel operation
         double val = (static_cast<double>(*inSI) + shift) * scale;
         if (val > typeMax)
-          {
+        {
           val = typeMax;
-          }
+        }
         if (val < typeMin)
-          {
+        {
           val = typeMin;
-          }
+        }
         *outSI = static_cast<OT>(val);
         ++outSI;
         ++inSI;
-        }
       }
+    }
     else
-      {
+    {
       while (outSI != outSIEnd)
-        {
+      {
         // Pixel operation
         double val = (static_cast<double>(*inSI) + shift) * scale;
 
@@ -124,11 +122,11 @@ void vtkImageShiftScaleExecute(vtkImageShiftScale* self,
         *outSI = static_cast<OT>(val);
         ++outSI;
         ++inSI;
-        }
       }
+    }
     inIt.NextSpan();
     outIt.NextSpan();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -139,17 +137,17 @@ void vtkImageShiftScaleExecute1(vtkImageShiftScale* self,
                                 int outExt[6], int id, T*)
 {
   switch (outData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageShiftScaleExecute(self, inData,
                                 outData, outExt, id,
-                                static_cast<T*>(0),
-                                static_cast<VTK_TT*>(0)));
+                                static_cast<T*>(nullptr),
+                                static_cast<VTK_TT*>(nullptr)));
     default:
       vtkErrorWithObjectMacro(
         self, "ThreadedRequestData: Unknown output ScalarType");
       return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -168,12 +166,12 @@ void vtkImageShiftScale::ThreadedRequestData(vtkInformation*,
   vtkImageData* input = inData[0][0];
   vtkImageData* output = outData[0];
   switch(input->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageShiftScaleExecute1(this, input, output, outExt, threadId,
-                                 static_cast<VTK_TT*>(0)));
+                                 static_cast<VTK_TT*>(nullptr)));
     default:
       vtkErrorMacro("ThreadedRequestData: Unknown input ScalarType");
       return;
-    }
+  }
 }

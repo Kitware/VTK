@@ -53,38 +53,43 @@ int TestColorByStringArrayDefaultLookupTable(int argc, char* argv[])
 
   // Round-robin assignment of color strings
   for (int i = 0; i < polydata->GetNumberOfCells(); ++i)
-    {
+  {
     sArray->SetValue(i, strings[i % 5].ToString());
-    }
+  }
 
   vtkCellData* cd = polydata->GetCellData();
-  cd->AddArray(sArray.Get());
+  cd->AddArray(sArray);
 
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputDataObject(polydata.Get());
+  mapper->SetInputDataObject(polydata);
   mapper->ScalarVisibilityOn();
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SelectColorArray(arrayName);
 
+  // Direct coloring shouldn't be possible with string arrays, so we
+  // enable direct scalars to test that the string arrays get mapped
+  // despite the color mode setting being direct scalars.
+  mapper->SetColorModeToDirectScalars();
+
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
 
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
 
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage(renderWindow.Get());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

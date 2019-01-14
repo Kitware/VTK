@@ -28,12 +28,12 @@ int GetNumberOfValidPoints(vtkDataSet* pd)
   vtkDataArray* data = pd->GetPointData()->GetScalars("vtkValidPointMask");
   int numValid = 0;
   for (int i = 0; i < data->GetNumberOfTuples(); ++i)
-    {
+  {
     if (data->GetVariantValue(i).ToDouble() == 1)
-      {
+    {
       ++numValid;
-      }
     }
+  }
   return numValid;
 }
 
@@ -62,9 +62,9 @@ int TestProbeFilterThreshold()
 
   int validDefault = GetNumberOfValidPoints(probe->GetOutput());
   if (validDefault != 2)
-    {
+  {
     return 1;
-    }
+  }
   // turn off computing tolerance and set it to 11 times what is was.
   // 11 is magic number to get all the points within line1 selected.
   probe->SetComputeTolerance(false);
@@ -74,9 +74,9 @@ int TestProbeFilterThreshold()
   int validNext = GetNumberOfValidPoints(probe->GetOutput());
 
   if (validNext != 11)
-    {
+  {
     return 1;
-    }
+  }
   // threshold is still set high, but we tell it to ignore it
   probe->SetComputeTolerance(true);
   probe->Update();

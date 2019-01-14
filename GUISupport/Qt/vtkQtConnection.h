@@ -28,14 +28,13 @@
 // vtkQtConnection is an internal class.
 
 
-#ifndef VTK_QT_CONNECTION
-#define VTK_QT_CONNECTION
+#ifndef vtkQtConnection_h
+#define vtkQtConnection_h
 
-#include "vtkObject.h"
 #include "vtkCommand.h"  // for event defines
-#include "qobject.h"
+#include <QObject>
 
-class QObject;
+class vtkObject;
 class vtkCallbackCommand;
 class vtkEventQtSlotConnect;
 
@@ -52,7 +51,7 @@ class vtkQtConnection : public QObject
     vtkQtConnection(vtkEventQtSlotConnect* owner);
 
     // destructor, disconnect if necessary
-    ~vtkQtConnection();
+    ~vtkQtConnection() override;
 
     // print function
     void PrintSelf(ostream& os, vtkIndent indent);
@@ -99,4 +98,4 @@ class vtkQtConnection : public QObject
 };
 
 #endif
-
+// VTK-HeaderTest-Exclude: vtkQtConnection.h

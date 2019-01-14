@@ -46,23 +46,23 @@ void vtkImageRenderManager::PreRenderProcessing()
   // Turn swap buffers off before the render so the end render method has a
   // chance to add to the back buffer.
   if (this->UseBackBuffer)
-    {
+  {
     this->RenderWindow->SwapBuffersOff();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageRenderManager::PostRenderProcessing()
 {
   if (!this->UseCompositing || this->CheckForAbortComposite())
-    {
+  {
     return;
-    }
+  }
 
   // Swap buffers here
   if (this->UseBackBuffer)
-    {
+  {
     this->RenderWindow->SwapBuffersOn();
-    }
+  }
   this->RenderWindow->Frame();
 }

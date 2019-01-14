@@ -114,16 +114,20 @@ void vtkEllipsoidTensorProbeRepresentation
   double d = vtkMath::Distance2BetweenPoints(p1, p2);
   double r = 1.0, t1[9], t2[9];
   if (d > 1e-12)
-    {
+  {
     r = sqrt(vtkMath::Distance2BetweenPoints( this->ProbePosition, p2 ) / d);
-    }
+  }
 
   if (vtkDataArray *tensors = this->Trajectory->GetPointData()->GetTensors())
-    {
+  {
     tensors->GetTuple( this->ProbeCellId, t1 );
     tensors->GetTuple( this->ProbeCellId+1, t2 );
+    if (tensors->GetNumberOfComponents() == 6)
+    {
+      vtkMath::TensorFromSymmetricTensor(t1);
+      vtkMath::TensorFromSymmetricTensor(t2);
     }
-
+  }
 
   // NN interpolation ?
   // if ( r < 0.5 )
@@ -143,16 +147,20 @@ void vtkEllipsoidTensorProbeRepresentation
 
   // Linear interp
   for (int i =0; i < 9; i++)
-    {
+  {
     t[i] = r * t1[i] + (1-r)*t2[i];
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkEllipsoidTensorProbeRepresentation::RegisterPickers()
 {
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->CellPicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->CellPicker, this);
 }
 
 //----------------------------------------------------------------------
@@ -199,6 +207,7 @@ void vtkEllipsoidTensorProbeRepresentation::GetActors(vtkPropCollection *pc)
 void vtkEllipsoidTensorProbeRepresentation::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->EllipsoidActor->ReleaseGraphicsResources(win);
+  this->Superclass::ReleaseGraphicsResources(win);
 }
 
 //----------------------------------------------------------------------

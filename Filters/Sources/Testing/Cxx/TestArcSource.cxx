@@ -34,18 +34,18 @@ int TestArcSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   double normal[3];
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     normal[i] = randomSequence->GetValue();
-    }
+  }
   arcSource->SetNormal(normal);
 
   double polarVector[3];
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     polarVector[i] = randomSequence->GetValue();
-    }
+  }
   arcSource->SetPolarVector(polarVector);
 
   arcSource->Update();
@@ -54,24 +54,24 @@ int TestArcSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   arcSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     normal[i] = randomSequence->GetValue();
-    }
+  }
   arcSource->SetNormal(normal);
 
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     polarVector[i] = randomSequence->GetValue();
-    }
+  }
   arcSource->SetPolarVector(polarVector);
 
   arcSource->Update();
@@ -80,9 +80,9 @@ int TestArcSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

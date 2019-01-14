@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkADIOSReader - Read ADIOS files.
-// .SECTION Description
-// vtkADIOSReader is the base class for all ADIOS readers
+/**
+ * @class   vtkADIOSReader
+ * @brief   Read ADIOS files.
+ *
+ * vtkADIOSReader is the base class for all ADIOS readers
+*/
 
 #ifndef vtkADIOSReader_h
 #define vtkADIOSReader_h
@@ -58,20 +61,26 @@ class VTKIOADIOS_EXPORT vtkADIOSReader : public vtkDataObjectAlgorithm
 public:
   static vtkADIOSReader* New(void);
   vtkTypeMacro(vtkADIOSReader,vtkDataObjectAlgorithm);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Test wether or not a given file should even be attempted for use with this
-  // reader.
+  /**
+   * Test whether or not a given file should even be attempted for use with this
+   * reader.
+   */
   int CanReadFile(const char* name);
 
-  // Description:
-  // Get/Set the inut filename
+  //@{
+  /**
+   * Get/Set the inut filename
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Get/Set the ADIOS read method
+  //@{
+  /**
+   * Get/Set the ADIOS read method
+   */
   vtkGetMacro(ReadMethod, int);
   vtkSetClampMacro(ReadMethod, int,
                    static_cast<int>(ADIOS::ReadMethod_BP),
@@ -81,44 +90,57 @@ public:
   void SetReadMethodDataSpaces()  { this->SetReadMethod(static_cast<int>(ADIOS::ReadMethod_DataSpaces)); }
   void SetReadMethodDIMES()       { this->SetReadMethod(static_cast<int>(ADIOS::ReadMethod_DIMES)); }
   void SetReadMethodFlexPath()    { this->SetReadMethod(static_cast<int>(ADIOS::ReadMethod_FlexPath)); }
+  //@}
 
 
-  // Description:
-  // Get/Set arguments to the ADIOS read method.
+  //@{
+  /**
+   * Get/Set arguments to the ADIOS read method.
+   */
   vtkSetStringMacro(ReadMethodArguments);
   vtkGetStringMacro(ReadMethodArguments);
+  //@}
 
-  // Description:
-  // Set the MPI controller.
+  //@{
+  /**
+   * Set the MPI controller.
+   */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // The main interface which triggers the reader to start
+  /**
+   * The main interface which triggers the reader to start
+   */
   virtual int ProcessRequest(vtkInformation*, vtkInformationVector**,
     vtkInformationVector*);
 
 protected:
 
-  // Description:
-  // Open an ADIOS file and build the directory structure
+  /**
+   * Open an ADIOS file and build the directory structure
+   */
   bool OpenAndReadMetadata(void);
 
-  // Description:
-  // Wait for all scheduled array reads to finish
+  /**
+   * Wait for all scheduled array reads to finish
+   */
   void WaitForReads(void);
 
-  // Description:
-  // Create a VTK object with it's scalar values and allocate any arrays, and
-  // schedule them for reading
+  /**
+   * Create a VTK object with it's scalar values and allocate any arrays, and
+   * schedule them for reading
+   */
   template<typename T>
   T* ReadObject(const std::string& path, int blockId);
 
-  // Description:
-  // Initialize a pre-allocated object with it's appropriate scalars.  These
-  // methods do not perform any validation and assume that the provides ADIOS
-  // structures and vtk objects are properly formed.  Arrays will be scheduled
-  // for reading afterwards
+  //@{
+  /**
+   * Initialize a pre-allocated object with it's appropriate scalars.  These
+   * methods do not perform any validation and assume that the provides ADIOS
+   * structures and vtk objects are properly formed.  Arrays will be scheduled
+   * for reading afterwards
+   */
   void ReadObject(const ADIOS::VarInfo* info, const vtkADIOSDirTree *subDir,
     vtkDataArray* data, int blockId);
   void ReadObject(const vtkADIOSDirTree *dir, vtkCellArray* data, int blockId);
@@ -128,6 +150,7 @@ protected:
   void ReadObject(const vtkADIOSDirTree *dir, vtkImageData* data, int blockId);
   void ReadObject(const vtkADIOSDirTree *dir, vtkPolyData* data, int blockId);
   void ReadObject(const vtkADIOSDirTree *dir, vtkUnstructuredGrid* data, int blockId);
+  //@}
 
   char *FileName;
   int ReadMethod;
@@ -138,7 +161,7 @@ protected:
 
   // Index information for independently stepped variables
 
-  // Map variable names to thier position in the block step index
+  // Map variable names to their position in the block step index
   // [BlockId][VarName] = IndexId
   std::vector<std::map<std::string, size_t> > BlockStepIndexIdMap;
 
@@ -169,8 +192,8 @@ protected:
    * an odd situation for data management since arrays will be allocated with
    * junk data and scheduled to be filled, but they cannot be safely assigned
    * to a VTK object until the data contained in them is valid, e.g. through
-   * a call to vtkUnstructuredGrid::SetPoints or similar.  Similary,
-   * they cannot have thier reference cound safely decremented until after
+   * a call to vtkUnstructuredGrid::SetPoints or similar.  Similarly,
+   * they cannot have their reference could safely decremented until after
    * they have been assigned to a vtk object.  To work around this, a generic
    * action queue is created to hold a list of arbitrary functions that need
    * to be called in a particular order after the reads have been
@@ -234,8 +257,8 @@ protected:
   int RequestPiece;
 
 private:
-  vtkADIOSReader(const vtkADIOSReader&);  // Not implemented.
-  void operator=(const vtkADIOSReader&);  // Not implemented.
+  vtkADIOSReader(const vtkADIOSReader&) = delete;
+  void operator=(const vtkADIOSReader&) = delete;
 };
 
 #define DECLARE_EXPLICIT(T) \

@@ -72,10 +72,10 @@ int TestGeoGraticule( int argc, char* argv[] )
   win->Render();
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Initialize();
     iren->Start();
-    }
+  }
 
   delete [] input_file;
 

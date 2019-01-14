@@ -23,7 +23,8 @@ OPTIONS
     Show what would be pushed without actually updating the destination
 
 -f,--force
-    Force-push the topic HEAD to rewrite the destination branch
+    Force-push the topic HEAD to rewrite the destination branch (use twice
+    to ignore stale remote tracking branches)
 
 --keep-data
     Do not erase local data refs after pushing
@@ -36,12 +37,15 @@ OPTIONS
 
 --no-topic
     Do not push the topic HEAD.
+
+--no-upstream
+    Do not set an upstream branch (i.e. tracking) for the topic
 '
 OPTIONS_SPEC=
 SUBDIRECTORY_OK=Yes
 . "$(git --exec-path)/git-sh-setup"
 
-egrep-q() {
+egrep_q() {
 	egrep "$@" >/dev/null 2>/dev/null
 }
 
@@ -77,18 +81,19 @@ data_report_and_remove() {
 data_refs() {
 	git rev-list "$@" |
 	git diff-tree --no-commit-id --root -c -r --diff-filter=AM --stdin |
-	egrep '\.(md5)$' |
+	egrep '\.(md5|sha512)$' |
 	#     read :srcmode dstmode srcobj dstobj status file
 	while read  _       _       _      obj    _      file; do
 		# Identify the hash algorithm used.
 		case "$file" in
 			*.md5) algo=MD5 ; validate="^[0-9a-fA-F]{32}$" ;;
+			*.sha512) algo=SHA512 ; validate="^[0-9a-fA-F]{128}$" ;;
 			*) continue ;;
 		esac
 
 		# Load and validate the hash.
 		if hash=$(git cat-file blob $obj 2>/dev/null) &&
-				echo "$hash" | egrep-q "$validate"; then
+				echo "$hash" | egrep_q "$validate"; then
 			# Use this data ref if it exists.
 			git for-each-ref --format='%(refname)' "refs/data/$algo/$hash"
 		fi
@@ -103,20 +108,31 @@ remote=''
 refspecs=''
 force=''
 keep_data=''
+lease=false
+lease_flag=''
 no_topic=''
 no_default=''
 no_data=''
 dry_run=''
+set_upstream=true
 
 # Parse the command line options.
 while test $# != 0; do
 	case "$1" in
-		-f|--force)   force='+' ;;
-		--keep-data)  keep_data=1 ;;
-		--no-topic)   no_topic=1 ;;
-		--no-data)    no_data=1 ;;
-		--dry-run)    dry_run=--dry-run ;;
-		--no-default) no_default=1 ;;
+		-f|--force)
+			if test -n "$force"; then
+				lease=false
+			else
+				lease=true
+			fi
+			force='+'
+			;;
+		--keep-data)   keep_data=1 ;;
+		--no-topic)    no_topic=1; set_upstream=false ;;
+		--no-data)     no_data=1 ;;
+		--dry-run)     dry_run=--dry-run ;;
+		--no-default)  no_default=1 ;;
+		--no-upstream) set_upstream=false ;;
 		--) shift; break ;;
 		-*) usage ;;
 		*) test -z "$remote" || usage ; remote="$1" ;;
@@ -135,6 +151,36 @@ if test -z "$no_topic"; then
 		die 'Please name your topic:
 		git checkout -b descriptive-name'
 	fi
+
+	if $lease; then
+		have_ref=false
+		remoteref="refs/remotes/$remote/$topic"
+		if git rev-parse --verify -q "$remoteref" > /dev/null; then
+			have_ref=true
+		else
+			die "It seems that a local ref for the branch is
+missing; forcing a push is dangerous and may overwrite
+previous work.  Fetch from the $remote remote first or
+push without '-f' or '--force'."
+		fi
+
+		have_lease_flag=false
+		# Note: on Windows 'git push --help' will open a browser, and
+		# the check will fail, so use the flag by default.
+		if git --version | egrep_q -e 'windows'; then
+			have_lease_flag=true
+		elif git push --help | egrep_q -e '--force-with-lease'; then
+			have_lease_flag=true
+		fi
+
+		if $have_lease_flag && $have_ref; then
+			# Set the lease flag.
+			lease_flag="--force-with-lease=$topic:$remoteref"
+			# Clear the force string.
+			force=''
+		fi
+	fi
+
 	# The topic branch will be pushed by name.
 	refspecs="${force}HEAD:refs/heads/$topic $refspecs"
 fi
@@ -182,41 +228,32 @@ fi
 # Push.  Save output and exit code.
 echo "Pushing to $remote"
 push_config='-c advice.pushUpdateRejected=false'
-push_stdout=$(git $push_config push --porcelain $dry_run "$remote" $refspecs); push_exit=$?
+push_stdout=$(git $push_config push $lease_flag --porcelain $dry_run "$remote" $refspecs); push_exit=$?
 echo "$push_stdout"
-
-# Advise the user to force-push if needed.
-if test "$push_exit" -ne 0 && test -z "$force" &&
-   echo "$push_stdout" | egrep-q 'non-fast-forward'; then
-	echo '
-Add "-f" or "--force" to push a rewritten topic.'
-fi
 
 # Check if data were pushed successfully.
 for data in $data_refs; do
-	if echo "$push_stdout" | egrep-q "^[*=+]	$data"; then
+	if echo "$push_stdout" | egrep_q "^[*=+]	$data"; then
 		data_report_and_remove "$data"
 	fi
 done
 
-# Tell the user what to do next with the topic in GitLab.
-if test -z "$no_topic" &&
-   test "$push_exit" -eq 0 &&
-   test "$remote" = "gitlab" &&
-   test -n "$gitlab_configured" &&
-   echo "$gitlab_pushurl" | egrep-q "$host[^/:]*[/:][^/]*/$project_path\\.git$"; then
-	userpath="${gitlab_pushurl%/*.git}" &&
-	username="${userpath##*[/:]}" &&
-	echo '
-The topic has been pushed to your fork in GitLab.  Visit
+if test "$push_exit" -ne 0 && test -z "$force"; then
+	# Advise the user to fetch if needed.
+	if echo "$push_stdout" | egrep_q 'stale info'; then
+		echo "
+You have pushed to your branch from another machine; you may be overwriting
+commits unintentionally.  Fetch from the $remote remote and check that you are
+not pushing an outdated branch."
+	fi
 
-  '"$site/$username/$project_path/tree/$topic"'
-
-to see the files.  Visit
-
-  '"$site/$username/$project_path/merge_requests/new"'
-
-to create a Merge Request if there is not one already.'
+	# Advise the user to force-push if needed.
+	if echo "$push_stdout" | egrep_q 'non-fast-forward'; then
+		echo '
+Add "-f" or "--force" to push a rewritten topic.'
+	fi
+elif $set_upstream && test -n "$topic"; then
+	git branch -u "$remote/$topic"
 fi
 
 # Reproduce the push exit code.

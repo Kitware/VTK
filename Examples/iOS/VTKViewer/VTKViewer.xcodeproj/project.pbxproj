@@ -1,0 +1,610 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1226BE901EF961BB00F51F9E /* VTKGestureHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1226BE8F1EF961BB00F51F9E /* VTKGestureHandler.mm */; };
+		12BFB1081EF834F100EE3EE1 /* VTKViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 12BFB1071EF834F100EE3EE1 /* VTKViewController.mm */; };
+		12BFB10B1EF834F100EE3EE1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 12BFB1091EF834F100EE3EE1 /* Main.storyboard */; };
+		12BFB10D1EF834F100EE3EE1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 12BFB10C1EF834F100EE3EE1 /* Assets.xcassets */; };
+		12BFB1101EF834F100EE3EE1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 12BFB10E1EF834F100EE3EE1 /* LaunchScreen.storyboard */; };
+		12BFB11B1EF834F100EE3EE1 /* VTKViewerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 12BFB11A1EF834F100EE3EE1 /* VTKViewerTests.m */; };
+		12BFB1261EF834F100EE3EE1 /* VTKViewerUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 12BFB1251EF834F100EE3EE1 /* VTKViewerUITests.m */; };
+		12BFB1351EF8363E00EE3EE1 /* vtk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 12BFB1341EF8363E00EE3EE1 /* vtk.framework */; };
+		12BFB13A1EF83D2000EE3EE1 /* VTKView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 12BFB1391EF83D2000EE3EE1 /* VTKView.mm */; };
+		12BFB13C1EF83DDB00EE3EE1 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 12BFB13B1EF83DDB00EE3EE1 /* GLKit.framework */; };
+		1A1AB77D1FBE4F300096A0DB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1AB77C1FBE4F300096A0DB /* AppDelegate.swift */; };
+		1A30DA401FBF7B9A00B5ACF2 /* VTKLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */; };
+		4304BED41FC81FE000326FC2 /* VTKViewerDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */; };
+		438EE6B11FD14BA4008682A3 /* ExampleDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 438EE6B01FD14BA4008682A3 /* ExampleDataManager.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		12BFB1171EF834F100EE3EE1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 12BFB0F51EF834F100EE3EE1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 12BFB0FC1EF834F100EE3EE1;
+			remoteInfo = VTKViewer;
+		};
+		12BFB1221EF834F100EE3EE1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 12BFB0F51EF834F100EE3EE1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 12BFB0FC1EF834F100EE3EE1;
+			remoteInfo = VTKViewer;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1226BE8E1EF961BB00F51F9E /* VTKGestureHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VTKGestureHandler.h; sourceTree = "<group>"; };
+		1226BE8F1EF961BB00F51F9E /* VTKGestureHandler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKGestureHandler.mm; sourceTree = "<group>"; };
+		12BFB0FD1EF834F100EE3EE1 /* VTKViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VTKViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		12BFB1061EF834F100EE3EE1 /* VTKViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VTKViewController.h; sourceTree = "<group>"; };
+		12BFB1071EF834F100EE3EE1 /* VTKViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKViewController.mm; sourceTree = "<group>"; };
+		12BFB10A1EF834F100EE3EE1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		12BFB10C1EF834F100EE3EE1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		12BFB10F1EF834F100EE3EE1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		12BFB1111EF834F100EE3EE1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		12BFB1161EF834F100EE3EE1 /* VTKViewerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VTKViewerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		12BFB11A1EF834F100EE3EE1 /* VTKViewerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VTKViewerTests.m; sourceTree = "<group>"; };
+		12BFB11C1EF834F100EE3EE1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		12BFB1211EF834F100EE3EE1 /* VTKViewerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VTKViewerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		12BFB1251EF834F100EE3EE1 /* VTKViewerUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VTKViewerUITests.m; sourceTree = "<group>"; };
+		12BFB1271EF834F100EE3EE1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		12BFB1341EF8363E00EE3EE1 /* vtk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vtk.framework; path = /usr/local/Frameworks/vtk.framework; sourceTree = "<absolute>"; };
+		12BFB1381EF83D2000EE3EE1 /* VTKView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VTKView.h; sourceTree = "<group>"; };
+		12BFB1391EF83D2000EE3EE1 /* VTKView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKView.mm; sourceTree = "<group>"; };
+		12BFB13B1EF83DDB00EE3EE1 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		1A1AB7751FBDF8F00096A0DB /* VTKViewer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VTKViewer-Bridging-Header.h"; sourceTree = "<group>"; };
+		1A1AB77C1FBE4F300096A0DB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1A30DA3E1FBF7B9A00B5ACF2 /* VTKLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VTKLoader.h; sourceTree = "<group>"; };
+		1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKLoader.mm; sourceTree = "<group>"; };
+		4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VTKViewerDocument.swift; sourceTree = "<group>"; };
+		438EE6B01FD14BA4008682A3 /* ExampleDataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleDataManager.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		12BFB0FA1EF834F100EE3EE1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				12BFB13C1EF83DDB00EE3EE1 /* GLKit.framework in Frameworks */,
+				12BFB1351EF8363E00EE3EE1 /* vtk.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		12BFB1131EF834F100EE3EE1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		12BFB11E1EF834F100EE3EE1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		12BFB0F41EF834F100EE3EE1 = {
+			isa = PBXGroup;
+			children = (
+				12BFB0FF1EF834F100EE3EE1 /* VTKViewer */,
+				12BFB1191EF834F100EE3EE1 /* VTKViewerTests */,
+				12BFB1241EF834F100EE3EE1 /* VTKViewerUITests */,
+				12BFB0FE1EF834F100EE3EE1 /* Products */,
+				12BFB1331EF8363E00EE3EE1 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		12BFB0FE1EF834F100EE3EE1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				12BFB0FD1EF834F100EE3EE1 /* VTKViewer.app */,
+				12BFB1161EF834F100EE3EE1 /* VTKViewerTests.xctest */,
+				12BFB1211EF834F100EE3EE1 /* VTKViewerUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		12BFB0FF1EF834F100EE3EE1 /* VTKViewer */ = {
+			isa = PBXGroup;
+			children = (
+				12BFB10C1EF834F100EE3EE1 /* Assets.xcassets */,
+				1A1AB77C1FBE4F300096A0DB /* AppDelegate.swift */,
+				12BFB1111EF834F100EE3EE1 /* Info.plist */,
+				12BFB10E1EF834F100EE3EE1 /* LaunchScreen.storyboard */,
+				12BFB1091EF834F100EE3EE1 /* Main.storyboard */,
+				1226BE8E1EF961BB00F51F9E /* VTKGestureHandler.h */,
+				1226BE8F1EF961BB00F51F9E /* VTKGestureHandler.mm */,
+				1A30DA3E1FBF7B9A00B5ACF2 /* VTKLoader.h */,
+				1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */,
+				12BFB1381EF83D2000EE3EE1 /* VTKView.h */,
+				12BFB1391EF83D2000EE3EE1 /* VTKView.mm */,
+				12BFB1061EF834F100EE3EE1 /* VTKViewController.h */,
+				12BFB1071EF834F100EE3EE1 /* VTKViewController.mm */,
+				1A1AB7751FBDF8F00096A0DB /* VTKViewer-Bridging-Header.h */,
+				4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */,
+				438EE6B01FD14BA4008682A3 /* ExampleDataManager.swift */,
+			);
+			path = VTKViewer;
+			sourceTree = "<group>";
+		};
+		12BFB1191EF834F100EE3EE1 /* VTKViewerTests */ = {
+			isa = PBXGroup;
+			children = (
+				12BFB11A1EF834F100EE3EE1 /* VTKViewerTests.m */,
+				12BFB11C1EF834F100EE3EE1 /* Info.plist */,
+			);
+			path = VTKViewerTests;
+			sourceTree = "<group>";
+		};
+		12BFB1241EF834F100EE3EE1 /* VTKViewerUITests */ = {
+			isa = PBXGroup;
+			children = (
+				12BFB1251EF834F100EE3EE1 /* VTKViewerUITests.m */,
+				12BFB1271EF834F100EE3EE1 /* Info.plist */,
+			);
+			path = VTKViewerUITests;
+			sourceTree = "<group>";
+		};
+		12BFB1331EF8363E00EE3EE1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				12BFB13B1EF83DDB00EE3EE1 /* GLKit.framework */,
+				12BFB1341EF8363E00EE3EE1 /* vtk.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		12BFB0FC1EF834F100EE3EE1 /* VTKViewer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 12BFB12A1EF834F100EE3EE1 /* Build configuration list for PBXNativeTarget "VTKViewer" */;
+			buildPhases = (
+				12BFB0F91EF834F100EE3EE1 /* Sources */,
+				12BFB0FA1EF834F100EE3EE1 /* Frameworks */,
+				12BFB0FB1EF834F100EE3EE1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VTKViewer;
+			productName = VTKViewer;
+			productReference = 12BFB0FD1EF834F100EE3EE1 /* VTKViewer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		12BFB1151EF834F100EE3EE1 /* VTKViewerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 12BFB12D1EF834F100EE3EE1 /* Build configuration list for PBXNativeTarget "VTKViewerTests" */;
+			buildPhases = (
+				12BFB1121EF834F100EE3EE1 /* Sources */,
+				12BFB1131EF834F100EE3EE1 /* Frameworks */,
+				12BFB1141EF834F100EE3EE1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				12BFB1181EF834F100EE3EE1 /* PBXTargetDependency */,
+			);
+			name = VTKViewerTests;
+			productName = VTKViewerTests;
+			productReference = 12BFB1161EF834F100EE3EE1 /* VTKViewerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		12BFB1201EF834F100EE3EE1 /* VTKViewerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 12BFB1301EF834F100EE3EE1 /* Build configuration list for PBXNativeTarget "VTKViewerUITests" */;
+			buildPhases = (
+				12BFB11D1EF834F100EE3EE1 /* Sources */,
+				12BFB11E1EF834F100EE3EE1 /* Frameworks */,
+				12BFB11F1EF834F100EE3EE1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				12BFB1231EF834F100EE3EE1 /* PBXTargetDependency */,
+			);
+			name = VTKViewerUITests;
+			productName = VTKViewerUITests;
+			productReference = 12BFB1211EF834F100EE3EE1 /* VTKViewerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		12BFB0F51EF834F100EE3EE1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0900;
+				ORGANIZATIONNAME = "Kitware, Inc.";
+				TargetAttributes = {
+					12BFB0FC1EF834F100EE3EE1 = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = W38PE5Y733;
+						LastSwiftMigration = 0910;
+						ProvisioningStyle = Automatic;
+					};
+					12BFB1151EF834F100EE3EE1 = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = W38PE5Y733;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 12BFB0FC1EF834F100EE3EE1;
+					};
+					12BFB1201EF834F100EE3EE1 = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = W38PE5Y733;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 12BFB0FC1EF834F100EE3EE1;
+					};
+				};
+			};
+			buildConfigurationList = 12BFB0F81EF834F100EE3EE1 /* Build configuration list for PBXProject "VTKViewer" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 12BFB0F41EF834F100EE3EE1;
+			productRefGroup = 12BFB0FE1EF834F100EE3EE1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				12BFB0FC1EF834F100EE3EE1 /* VTKViewer */,
+				12BFB1151EF834F100EE3EE1 /* VTKViewerTests */,
+				12BFB1201EF834F100EE3EE1 /* VTKViewerUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		12BFB0FB1EF834F100EE3EE1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				12BFB1101EF834F100EE3EE1 /* LaunchScreen.storyboard in Resources */,
+				12BFB10D1EF834F100EE3EE1 /* Assets.xcassets in Resources */,
+				12BFB10B1EF834F100EE3EE1 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		12BFB1141EF834F100EE3EE1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		12BFB11F1EF834F100EE3EE1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		12BFB0F91EF834F100EE3EE1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4304BED41FC81FE000326FC2 /* VTKViewerDocument.swift in Sources */,
+				1A1AB77D1FBE4F300096A0DB /* AppDelegate.swift in Sources */,
+				438EE6B11FD14BA4008682A3 /* ExampleDataManager.swift in Sources */,
+				1A30DA401FBF7B9A00B5ACF2 /* VTKLoader.mm in Sources */,
+				12BFB1081EF834F100EE3EE1 /* VTKViewController.mm in Sources */,
+				12BFB13A1EF83D2000EE3EE1 /* VTKView.mm in Sources */,
+				1226BE901EF961BB00F51F9E /* VTKGestureHandler.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		12BFB1121EF834F100EE3EE1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				12BFB11B1EF834F100EE3EE1 /* VTKViewerTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		12BFB11D1EF834F100EE3EE1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				12BFB1261EF834F100EE3EE1 /* VTKViewerUITests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		12BFB1181EF834F100EE3EE1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 12BFB0FC1EF834F100EE3EE1 /* VTKViewer */;
+			targetProxy = 12BFB1171EF834F100EE3EE1 /* PBXContainerItemProxy */;
+		};
+		12BFB1231EF834F100EE3EE1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 12BFB0FC1EF834F100EE3EE1 /* VTKViewer */;
+			targetProxy = 12BFB1221EF834F100EE3EE1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		12BFB1091EF834F100EE3EE1 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				12BFB10A1EF834F100EE3EE1 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		12BFB10E1EF834F100EE3EE1 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				12BFB10F1EF834F100EE3EE1 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		12BFB1281EF834F100EE3EE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		12BFB1291EF834F100EE3EE1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		12BFB12B1EF834F100EE3EE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = W38PE5Y733;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Frameworks,
+				);
+				INFOPLIST_FILE = VTKViewer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kitware.VTKViewer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "VTKViewer/VTKViewer-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
+				USER_HEADER_SEARCH_PATHS = /usr/local/frameworks/vtk.framework/Headers;
+			};
+			name = Debug;
+		};
+		12BFB12C1EF834F100EE3EE1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = W38PE5Y733;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Frameworks,
+				);
+				INFOPLIST_FILE = VTKViewer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kitware.VTKViewer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "VTKViewer/VTKViewer-Bridging-Header.h";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
+				USER_HEADER_SEARCH_PATHS = /usr/local/frameworks/vtk.framework/Headers;
+			};
+			name = Release;
+		};
+		12BFB12E1EF834F100EE3EE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = W38PE5Y733;
+				INFOPLIST_FILE = VTKViewerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kitware.VTKViewerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VTKViewer.app/VTKViewer";
+			};
+			name = Debug;
+		};
+		12BFB12F1EF834F100EE3EE1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = W38PE5Y733;
+				INFOPLIST_FILE = VTKViewerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kitware.VTKViewerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VTKViewer.app/VTKViewer";
+			};
+			name = Release;
+		};
+		12BFB1311EF834F100EE3EE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				DEVELOPMENT_TEAM = W38PE5Y733;
+				INFOPLIST_FILE = VTKViewerUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kitware.VTKViewerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = VTKViewer;
+			};
+			name = Debug;
+		};
+		12BFB1321EF834F100EE3EE1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				DEVELOPMENT_TEAM = W38PE5Y733;
+				INFOPLIST_FILE = VTKViewerUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kitware.VTKViewerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = VTKViewer;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		12BFB0F81EF834F100EE3EE1 /* Build configuration list for PBXProject "VTKViewer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				12BFB1281EF834F100EE3EE1 /* Debug */,
+				12BFB1291EF834F100EE3EE1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		12BFB12A1EF834F100EE3EE1 /* Build configuration list for PBXNativeTarget "VTKViewer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				12BFB12B1EF834F100EE3EE1 /* Debug */,
+				12BFB12C1EF834F100EE3EE1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		12BFB12D1EF834F100EE3EE1 /* Build configuration list for PBXNativeTarget "VTKViewerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				12BFB12E1EF834F100EE3EE1 /* Debug */,
+				12BFB12F1EF834F100EE3EE1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		12BFB1301EF834F100EE3EE1 /* Build configuration list for PBXNativeTarget "VTKViewerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				12BFB1311EF834F100EE3EE1 /* Debug */,
+				12BFB1321EF834F100EE3EE1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 12BFB0F51EF834F100EE3EE1 /* Project object */;
+}

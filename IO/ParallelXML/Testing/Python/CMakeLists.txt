@@ -1,6 +1,7 @@
-if(TARGET pvtkpython)
-  add_test(NAME ${vtk-module}Cxx-testParallelXMLWriters
-    COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 ${MPIEXEC_PREFLAGS}
-      $<TARGET_FILE:pvtkpython> ${CMAKE_CURRENT_SOURCE_DIR}/testParallelXMLWriters.py
-      ${VTK_MPI_POSTFLAGS})
-endif()
+vtk_add_test_python_mpi(
+    testParallelXMLWriters.py,NO_VALID
+    testParallelMultiBlockWriter.py,NO_VALID
+)
+vtk_add_test_python(
+  TestPXMLTimeInField.py,NO_DATA,NO_VALID,NO_RT
+)

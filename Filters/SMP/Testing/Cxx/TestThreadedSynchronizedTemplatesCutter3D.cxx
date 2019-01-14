@@ -34,7 +34,7 @@
 int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
 {
   static const int dim = 257;
-  static int ext[6] = { 0, dim - 1, 0, dim - 1, 0, dim - 1 };
+  static const int ext[6] = { 0, dim - 1, 0, dim - 1, 0, dim - 1 };
 
   //vtkSMPTools::Initialize(4);
   vtkNew<vtkTimerLog> tl;
@@ -62,7 +62,7 @@ int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
 
   vtkNew<vtkSynchronizedTemplatesCutter3D> sc;
   sc->SetInputData(source->GetOutput());
-  sc->SetCutFunction(impfunc.GetPointer());
+  sc->SetCutFunction(impfunc);
   tl->StartTimer();
   sc->Update();
   tl->StopTimer();
@@ -72,7 +72,7 @@ int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
 
   vtkNew<vtkThreadedSynchronizedTemplatesCutter3D> pc;
   pc->SetInputData(source->GetOutput());
-  pc->SetCutFunction(impfunc.GetPointer());
+  pc->SetCutFunction(impfunc);
   tl->StartTimer();
   pc->Update();
   tl->StopTimer();
@@ -87,13 +87,13 @@ int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
     pc->GetOutputDataObject(0))->NewIterator());
   iter->InitTraversal();
   while(!iter->IsDoneWithTraversal())
-    {
+  {
     vtkPolyData* piece =
       static_cast<vtkPolyData*>(iter->GetCurrentDataObject());
     appender->AddInputData(piece);
     ++numPieces;
     iter->GoToNextItem();
-    }
+  }
   tl->StartTimer();
   appender->Update();
   tl->StopTimer();
@@ -117,12 +117,12 @@ int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
        << npoints2 << endl;
 
   if (npoints1 == npoints2 && ntriangles1 == ntriangles2)
-    {
+  {
     cout << "Outputs match" << endl;
     cout << "speedup = " << serialTime/parallelTime << "x with "
          << numPieces << " threads" << endl;
     return EXIT_SUCCESS;
-    }
+  }
 
   cout << "Outputs don't match" << endl;
   return EXIT_FAILURE;

@@ -33,9 +33,9 @@ vtkStandardNewMacro(vtkAssignCoordinates);
 
 vtkAssignCoordinates::vtkAssignCoordinates()
 {
-  this->XCoordArrayName = 0;
-  this->YCoordArrayName = 0;
-  this->ZCoordArrayName = 0;
+  this->XCoordArrayName = nullptr;
+  this->YCoordArrayName = nullptr;
+  this->ZCoordArrayName = nullptr;
 
   this->Jitter = false;
 }
@@ -64,113 +64,113 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   output->ShallowCopy(input);
 
   // Create new points on the output
-  vtkDataSetAttributes *data = 0;
+  vtkDataSetAttributes *data = nullptr;
   vtkPoints* pts = vtkPoints::New();
   if (vtkPointSet::SafeDownCast(input))
-    {
+  {
     vtkPointSet *psInput = vtkPointSet::SafeDownCast(input);
     vtkPointSet *psOutput = vtkPointSet::SafeDownCast(output);
     pts->DeepCopy(psInput->GetPoints());
     psOutput->SetPoints(pts);
     pts->Delete();
     data = psOutput->GetPointData();
-    }
+  }
   else if (vtkGraph::SafeDownCast(input))
-    {
+  {
     vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
     vtkGraph *graphOutput = vtkGraph::SafeDownCast(output);
     pts->DeepCopy(graphInput->GetPoints());
     graphOutput->SetPoints(pts);
     pts->Delete();
     data = graphOutput->GetVertexData();
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<<"Input must be graph or point set.");
     return 0;
-    }
+  }
 
   // I need at least one coordinate array
   if (!this->XCoordArrayName || strlen(XCoordArrayName) == 0)
-    {
+  {
     return 0;
-    }
+  }
 
   // Okay now check for coordinate arrays
   vtkDataArray* XArray = data->GetArray(this->XCoordArrayName);
 
   // Does the array exist at all?
-  if (XArray == NULL)
-    {
+  if (XArray == nullptr)
+  {
     vtkErrorMacro("Could not find array named " << this->XCoordArrayName);
     return 0;
-    }
+  }
 
   // Y coordinate array
-  vtkDataArray* YArray = 0;
+  vtkDataArray* YArray = nullptr;
   if (this->YCoordArrayName && strlen(YCoordArrayName) > 0)
-    {
+  {
     YArray = data->GetArray(this->YCoordArrayName);
 
     // Does the array exist at all?
-    if (YArray == NULL)
-      {
+    if (YArray == nullptr)
+    {
       vtkErrorMacro("Could not find array named " << this->YCoordArrayName);
       return 0;
-      }
     }
+  }
 
   // Z coordinate array
-  vtkDataArray* ZArray = 0;
+  vtkDataArray* ZArray = nullptr;
   if (this->ZCoordArrayName && strlen(ZCoordArrayName) > 0)
-    {
+  {
     ZArray = data->GetArray(this->ZCoordArrayName);
 
     // Does the array exist at all?
-    if (ZArray == NULL)
-      {
+    if (ZArray == nullptr)
+    {
       vtkErrorMacro("Could not find array named " << this->ZCoordArrayName);
       return 0;
-      }
     }
+  }
 
   // Generate the points, either x,0,0 or x,y,0 or x,y,z
   int numPts = pts->GetNumberOfPoints();
   for (int i = 0; i < numPts; i++)
-    {
+  {
     double rx,ry,rz;
     if (Jitter)
-      {
+    {
       rx = vtkMath::Random()-.5;
       ry = vtkMath::Random()-.5;
       rz = vtkMath::Random()-.5;
       rx *= .02;
       ry *= .02;
       rz *= .02;
-      }
+    }
     else
-      {
+    {
       rx = ry = rz = 0;
-      }
+    }
     if (YArray)
-      {
+    {
       if (ZArray)
-        {
+      {
         pts->SetPoint(i, XArray->GetTuple1(i)+rx,
                          YArray->GetTuple1(i)+ry,
                          ZArray->GetTuple1(i)+rz);
-        }
+      }
       else
-        {
+      {
         pts->SetPoint(i, XArray->GetTuple1(i)+rx,
                          YArray->GetTuple1(i)+ry, 0);
-        }
-      }
-    else
-      {
-      pts->SetPoint(i, XArray->GetTuple1(i)+rx, 0, 0);
       }
     }
+    else
+    {
+      pts->SetPoint(i, XArray->GetTuple1(i)+rx, 0, 0);
+    }
+  }
 
     return 1;
 }

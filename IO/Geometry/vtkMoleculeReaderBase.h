@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMoleculeReaderBase - read Molecular Data files
-// .SECTION Description
-// vtkMoleculeReaderBase is a source object that reads Molecule files
-// The FileName must be specified
-//
-// .SECTION Thanks
-// Dr. Jean M. Favre who developed and contributed this class
+/**
+ * @class   vtkMoleculeReaderBase
+ * @brief   read Molecular Data files
+ *
+ * vtkMoleculeReaderBase is a source object that reads Molecule files
+ * The FileName must be specified
+ *
+ * @par Thanks:
+ * Dr. Jean M. Favre who developed and contributed this class
+*/
 
 #ifndef vtkMoleculeReaderBase_h
 #define vtkMoleculeReaderBase_h
@@ -39,34 +42,40 @@ class VTKIOGEOMETRY_EXPORT vtkMoleculeReaderBase : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkMoleculeReaderBase,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
-  //Description:
-  //A scaling factor to compute bonds between non-hydrogen atoms
+  //@{
+  /**
+   * A scaling factor to compute bonds between non-hydrogen atoms
+   */
   vtkSetMacro(BScale, double);
   vtkGetMacro(BScale, double);
+  //@}
 
-  //Description:
-  //A scaling factor to compute bonds with hydrogen atoms.
+  //@{
+  /**
+   * A scaling factor to compute bonds with hydrogen atoms.
+   */
   vtkSetMacro(HBScale, double);
   vtkGetMacro(HBScale, double);
+  //@}
 
   vtkGetMacro(NumberOfAtoms, int);
 
 protected:
   vtkMoleculeReaderBase();
-  ~vtkMoleculeReaderBase();
+  ~vtkMoleculeReaderBase() override;
 
   char *FileName;
   double BScale;
   double HBScale;
   int NumberOfAtoms;
 
-  virtual int FillOutputPortInformation(int, vtkInformation *);
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillOutputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int ReadMolecule(FILE *fp, vtkPolyData *output);
   int MakeAtomType(const char *atype);
@@ -88,8 +97,8 @@ protected:
   virtual void ReadSpecificMolecule(FILE* fp) = 0;
 
 private:
-  vtkMoleculeReaderBase(const vtkMoleculeReaderBase&);  // Not implemented.
-  void operator=(const vtkMoleculeReaderBase&);  // Not implemented.
+  vtkMoleculeReaderBase(const vtkMoleculeReaderBase&) = delete;
+  void operator=(const vtkMoleculeReaderBase&) = delete;
 };
 
 #endif

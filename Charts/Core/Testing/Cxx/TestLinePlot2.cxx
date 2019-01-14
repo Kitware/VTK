@@ -41,27 +41,27 @@ int TestLinePlot2(int, char * [])
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
   arrX->SetName("X Axis");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkFloatArray> arrC;
   arrC->SetName("Y Axis");
-  table->AddColumn(arrC.GetPointer());
+  table->AddColumn(arrC);
   int numPoints = 31;
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     table->SetValue(i, 0, data_x[i] );
     table->SetValue(i, 1, data_y[i]);
-    }
+  }
 
   // Add a plot of points, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::POINTS);
-  line->SetInputData(table.GetPointer(), 0, 1);
+  line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
 

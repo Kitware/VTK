@@ -33,24 +33,24 @@ vtkStandardNewMacro(vtkPVWebGLExporter);
 // ---------------------------------------------------------------------------
 vtkPVWebGLExporter::vtkPVWebGLExporter()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
 }
 
 // ---------------------------------------------------------------------------
 vtkPVWebGLExporter::~vtkPVWebGLExporter()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
 }
 
 // ---------------------------------------------------------------------------
 void vtkPVWebGLExporter::WriteData()
 {
   // make sure the user specified a FileName or FilePointer
-  if (this->FileName == NULL)
-    {
+  if (this->FileName == nullptr)
+  {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;
-    }
+  }
 
   vtkNew<vtkWebGLExporter> exporter;
   exporter->SetMaxAllowedSize(65000);
@@ -72,10 +72,10 @@ void vtkPVWebGLExporter::WriteData()
   std::string metadatFile = this->FileName;
   FILE *fp = fopen(metadatFile.c_str(),"w");
   if (!fp)
-    {
+  {
     vtkErrorMacro(<< "unable to open JSON MetaData file " << metadatFile.c_str());
     return;
-    }
+  }
   fputs(exporter->GenerateMetadata(), fp);
   fclose(fp);
 
@@ -83,13 +83,13 @@ void vtkPVWebGLExporter::WriteData()
   vtkNew<vtkBase64Utilities> base64;
   int nbObjects = exporter->GetNumberOfObjects();
   for(int idx=0; idx < nbObjects; ++idx)
-    {
+  {
     vtkWebGLObject* obj = exporter->GetWebGLObject(idx);
     if(obj->isVisible())
-      {
+    {
       int nbParts = obj->GetNumberOfParts();
       for(int part = 0; part < nbParts; ++part)
-        {
+      {
         // Manage binary content
         std::stringstream filePath;
         filePath << baseFileName.c_str() << "_" << obj->GetMD5().c_str() << "_" << part;
@@ -110,14 +110,14 @@ void vtkPVWebGLExporter::WriteData()
         base64File.write((const char *)output, size);
         base64File.close();
         delete[] output;
-        }
       }
     }
+  }
 
   // Write HTML file
   std::string htmlFile = baseFileName;
   htmlFile += ".html";
-  exporter->exportStaticScene(this->RenderWindow->GetRenderers(), 300, 300, htmlFile.c_str());
+  exporter->exportStaticScene(this->RenderWindow->GetRenderers(), 300, 300, htmlFile);
 }
 // ---------------------------------------------------------------------------
 void vtkPVWebGLExporter::PrintSelf(ostream& os, vtkIndent indent)
@@ -125,11 +125,11 @@ void vtkPVWebGLExporter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if (this->FileName)
-    {
+  {
     os << indent << "FileName: " << this->FileName << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "FileName: (null)\n";
-    }
+  }
 }

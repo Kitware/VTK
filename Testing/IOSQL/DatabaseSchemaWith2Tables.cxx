@@ -35,9 +35,9 @@ DatabaseSchemaWith2Tables::~DatabaseSchemaWith2Tables()
 {
 
   if(this->Schema)
-    {
+  {
     this->Schema->Delete();
-    }
+  }
 }
 
 void DatabaseSchemaWith2Tables::Create()
@@ -84,9 +84,9 @@ void DatabaseSchemaWith2Tables::Create()
   );
 
   if(this->TableAHandle < 0 )
-   {
+  {
    throw std::runtime_error("Could not create test schema: Failed to create atable");
-   }
+  }
 
   this->TableBHandle = this->Schema->AddTableMultipleArguments( "btable",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "tablekey",  0, "",
@@ -98,9 +98,9 @@ void DatabaseSchemaWith2Tables::Create()
   );
 
   if ( this->TableBHandle < 0 )
-    {
+  {
     throw std::runtime_error("Could not create test schema: Failed to create btable");
-    }
+  }
   cerr << " done." << endl;
 
 }

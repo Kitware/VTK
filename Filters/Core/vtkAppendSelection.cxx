@@ -37,20 +37,18 @@ vtkAppendSelection::vtkAppendSelection()
 }
 
 //----------------------------------------------------------------------------
-vtkAppendSelection::~vtkAppendSelection()
-{
-}
+vtkAppendSelection::~vtkAppendSelection() = default;
 
 //----------------------------------------------------------------------------
 // Add a dataset to the list of data to append.
 void vtkAppendSelection::AddInputData(vtkSelection *ds)
 {
   if (this->UserManagedInputs)
-    {
+  {
     vtkErrorMacro(<<
       "AddInput is not supported if UserManagedInputs is true");
     return;
-    }
+  }
   this->AddInputDataInternal(0, ds);
 }
 
@@ -59,25 +57,25 @@ void vtkAppendSelection::AddInputData(vtkSelection *ds)
 void vtkAppendSelection::RemoveInputData(vtkSelection *ds)
 {
   if (this->UserManagedInputs)
-    {
+  {
     vtkErrorMacro(<<
       "RemoveInput is not supported if UserManagedInputs is true");
     return;
-    }
+  }
 
   if (!ds)
-    {
+  {
     return;
-    }
+  }
   int numCons = this->GetNumberOfInputConnections(0);
   for(int i=0; i<numCons; i++)
-    {
+  {
     if (this->GetInput(i) == ds)
-      {
+    {
       this->RemoveInputConnection(0,
         this->GetInputConnection(0, i));
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -86,11 +84,11 @@ void vtkAppendSelection::RemoveInputData(vtkSelection *ds)
 void vtkAppendSelection::SetNumberOfInputs(int num)
 {
   if (!this->UserManagedInputs)
-    {
+  {
     vtkErrorMacro(<<
       "SetNumberOfInputs is not supported if UserManagedInputs is false");
     return;
-    }
+  }
 
   // Ask the superclass to set the number of connections.
   this->SetNumberOfInputConnections(0, num);
@@ -102,11 +100,11 @@ void vtkAppendSelection::SetInputConnectionByNumber(int num,
                                                     vtkAlgorithmOutput *input)
 {
   if (!this->UserManagedInputs)
-    {
+  {
     vtkErrorMacro(<<
       "SetInputByNumber is not supported if UserManagedInputs is false");
     return;
-    }
+  }
 
   // Ask the superclass to connect the input.
   this->SetNthInputConnection(0, num, input);
@@ -128,59 +126,59 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
   // If there are no inputs, we are done.
   int numInputs = this->GetNumberOfInputConnections(0);
   if (numInputs == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (!this->AppendByUnion)
-    {
+  {
     for (int idx=0; idx < numInputs; ++idx)
-      {
+    {
       vtkInformation *inInfo = inputVector[0]->GetInformationObject(idx);
       vtkSelection *sel = vtkSelection::GetData(inInfo);
-      if (sel != NULL)
-        {
+      if (sel != nullptr)
+      {
         for (unsigned int j = 0; j < sel->GetNumberOfNodes(); ++j)
-          {
+        {
           vtkSelectionNode* inputNode = sel->GetNode(j);
           vtkSmartPointer<vtkSelectionNode> outputNode =
             vtkSmartPointer<vtkSelectionNode>::New();
           outputNode->ShallowCopy(inputNode);
           output->AddNode(outputNode);
-          }
         }
-      } // for each input
+      }
+    } // for each input
     return 1;
-    }
+  }
 
   // The first non-null selection determines the required content type of all selections.
   int idx = 0;
-  vtkSelection *first = NULL;
-  while (first == NULL && idx < numInputs)
-    {
+  vtkSelection *first = nullptr;
+  while (first == nullptr && idx < numInputs)
+  {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(idx);
     first = vtkSelection::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     idx++;
-    }
+  }
 
   // If they are all null, return.
-  if (first == NULL)
-    {
+  if (first == nullptr)
+  {
     return 1;
-    }
+  }
 
   output->ShallowCopy(first);
 
   // Take the union of all non-null selections
   for (; idx < numInputs; ++idx)
-    {
+  {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(idx);
     vtkSelection *s = vtkSelection::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-    if (s != NULL)
-      {
+    if (s != nullptr)
+    {
       output->Union(s);
-      } // for a non NULL input
-    } // for each input
+    } // for a non nullptr input
+  } // for each input
 
   return 1;
 }
@@ -196,9 +194,9 @@ vtkSelection *vtkAppendSelection::GetInput(int idx)
 int vtkAppendSelection::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return 1;
 }

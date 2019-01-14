@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkImagingCoreCxxTests tests
   FastSplatter.cxx
   ImageAccumulate.cxx,NO_VALID
   ImageAccumulateLarge.cxx,NO_VALID,NO_DATA,NO_OUTPUT 32
@@ -6,13 +6,17 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   ImageBSplineCoefficients.cxx
   ImageHistogram.cxx
   ImageHistogramStatistics.cxx,NO_VALID
+  ImageInterpolateSlidingWindow2D.cxx
+  ImageInterpolateSlidingWindow3D.cxx
   ImageResize.cxx
   ImageResize3D.cxx
   ImageResizeCropping.cxx
+  ImageReslice.cxx
   ImageWeightedSum.cxx,NO_VALID
   ImportExport.cxx,NO_VALID
   TestBSplineWarp.cxx
   TestImageStencilDataMethods.cxx,NO_VALID
+  TestImageStencilIterator.cxx,NO_VALID
   TestStencilWithLasso.cxx
   TestStencilWithPolyDataContour.cxx
   TestStencilWithPolyDataSurface.cxx
@@ -23,25 +27,25 @@ list(APPEND tests
   )
 
 # The stencil test is special
-ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-AddStencilData
-  COMMAND ${vtk-module}CxxTests TestImageStencilData 1
-    -D ${VTK_TEST_DATA_DIR}
-    -T ${VTK_TEST_OUTPUT_DIR}
+ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
+  NAME VTK::ImagingCoreCxx-AddStencilData
+  COMMAND vtkImagingCoreCxxTests TestImageStencilData 1
+    -D ${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}
+    -T ${_vtk_build_TEST_OUTPUT_DIRECTORY}
     -V DATA{../Data/Baseline/TestAddStencilData.png,:})
-ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SubtractStencilData
-  COMMAND ${vtk-module}CxxTests TestImageStencilData 2
-    -D ${VTK_TEST_DATA_DIR}
-    -T ${VTK_TEST_OUTPUT_DIR}
+ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
+  NAME VTK::ImagingCoreCxx-SubtractStencilData
+  COMMAND vtkImagingCoreCxxTests TestImageStencilData 2
+    -D ${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}
+    -T ${_vtk_build_TEST_OUTPUT_DIRECTORY}
     -V DATA{../Data/Baseline/TestSubtractStencilData.png,:})
-ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-ClipStencilData
-  COMMAND ${vtk-module}CxxTests TestImageStencilData 3
-    -D ${VTK_TEST_DATA_DIR}
-    -T ${VTK_TEST_OUTPUT_DIR}
+ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
+  NAME VTK::ImagingCoreCxx-ClipStencilData
+  COMMAND vtkImagingCoreCxxTests TestImageStencilData 3
+    -D ${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}
+    -T ${_vtk_build_TEST_OUTPUT_DIRECTORY}
     -V DATA{../Data/Baseline/TestClipStencilData.png,:})
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkImagingCoreCxxTests tests
   RENDERING_FACTORY
   )

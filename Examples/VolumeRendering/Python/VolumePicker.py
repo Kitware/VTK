@@ -29,7 +29,7 @@ reader.SetDataSpacing(3.2,3.2,1.5)
 
 #---------------------------------------------------------
 # set up the volume rendering
-volumeMapper = vtk.vtkVolumeTextureMapper3D()
+volumeMapper = vtk.vtkGPUVolumeRayCastMapper()
 volumeMapper.SetInputConnection(reader.GetOutputPort())
 volumeMapper.CroppingOn()
 volumeMapper.SetCroppingRegionPlanes((0.0, 141.6, 0.0, 201.6, 0.0, 138.0))

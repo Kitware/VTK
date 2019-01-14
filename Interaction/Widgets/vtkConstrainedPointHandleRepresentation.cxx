@@ -54,11 +54,11 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
   this->InteractionState = vtkHandleRepresentation::Outside;
 
   this->ProjectionPosition = 0;
-  this->ObliquePlane = NULL;
+  this->ObliquePlane = nullptr;
   this->ProjectionNormal = vtkConstrainedPointHandleRepresentation::ZAxis;
 
-  this->CursorShape = NULL;
-  this->ActiveCursorShape = NULL;
+  this->CursorShape = nullptr;
+  this->ActiveCursorShape = nullptr;
 
   // Represent the position of the cursor
   this->FocalPoint = vtkPoints::New();
@@ -92,6 +92,7 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
     vtkSmartPointer<vtkCursor2D>::New();
   cursor2D->AllOff();
   cursor2D->PointOn();
+  cursor2D->Update();
   this->SetCursorShape( cursor2D->GetOutput() );
 
   vtkSmartPointer<vtkCylinderSource> cylinder =
@@ -116,6 +117,7 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
     vtkSmartPointer<vtkTransformPolyDataFilter>::New();
   tpd->SetInputConnection( 0, clean->GetOutputPort(0) );
   tpd->SetTransform( t );
+  tpd->Update();
 
   this->SetActiveCursorShape(tpd->GetOutput());
 
@@ -135,7 +137,7 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
   this->InteractionOffset[0] = 0.0;
   this->InteractionOffset[1] = 0.0;
 
-  this->BoundingPlanes = NULL;
+  this->BoundingPlanes = nullptr;
 }
 
 //----------------------------------------------------------------------
@@ -144,8 +146,8 @@ vtkConstrainedPointHandleRepresentation::~vtkConstrainedPointHandleRepresentatio
   this->FocalPoint->Delete();
   this->FocalData->Delete();
 
-  this->SetCursorShape( NULL );
-  this->SetActiveCursorShape( NULL );
+  this->SetCursorShape( nullptr );
+  this->SetActiveCursorShape( nullptr );
 
   this->RemoveAllBoundingPlanes();
 
@@ -158,15 +160,15 @@ vtkConstrainedPointHandleRepresentation::~vtkConstrainedPointHandleRepresentatio
   this->ActiveProperty->Delete();
 
   if ( this->ObliquePlane )
-    {
+  {
     this->ObliquePlane->UnRegister(this);
-    this->ObliquePlane = NULL;
-    }
+    this->ObliquePlane = nullptr;
+  }
 
   if (this->BoundingPlanes)
-    {
+  {
     this->BoundingPlanes->UnRegister(this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -182,29 +184,29 @@ int vtkConstrainedPointHandleRepresentation::CheckConstraint(vtkRenderer *render
 void vtkConstrainedPointHandleRepresentation::SetProjectionPosition(double position)
 {
   if ( this->ProjectionPosition != position )
-    {
+  {
     this->ProjectionPosition = position;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkConstrainedPointHandleRepresentation::SetCursorShape(vtkPolyData *shape)
 {
   if ( shape != this->CursorShape )
-    {
+  {
     if ( this->CursorShape )
-      {
+    {
       this->CursorShape->Delete();
-      }
+    }
     this->CursorShape = shape;
     if ( this->CursorShape )
-      {
+    {
       this->CursorShape->Register(this);
       this->Glypher->SetSourceData(this->CursorShape);
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------
@@ -217,18 +219,18 @@ vtkPolyData *vtkConstrainedPointHandleRepresentation::GetCursorShape()
 void vtkConstrainedPointHandleRepresentation::SetActiveCursorShape(vtkPolyData *shape)
 {
   if ( shape != this->ActiveCursorShape )
-    {
+  {
     if ( this->ActiveCursorShape )
-      {
+    {
       this->ActiveCursorShape->Delete();
-      }
+    }
     this->ActiveCursorShape = shape;
     if ( this->CursorShape )
-      {
+    {
       this->ActiveCursorShape->Register(this);
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------
@@ -240,12 +242,12 @@ vtkPolyData *vtkConstrainedPointHandleRepresentation::GetActiveCursorShape()
 //----------------------------------------------------------------------
 void vtkConstrainedPointHandleRepresentation::AddBoundingPlane(vtkPlane *plane)
 {
-  if (this->BoundingPlanes == NULL)
-    {
+  if (this->BoundingPlanes == nullptr)
+  {
     this->BoundingPlanes = vtkPlaneCollection::New();
     this->BoundingPlanes->Register(this);
     this->BoundingPlanes->Delete();
-    }
+  }
 
   this->BoundingPlanes->AddItem(plane);
 }
@@ -254,41 +256,41 @@ void vtkConstrainedPointHandleRepresentation::AddBoundingPlane(vtkPlane *plane)
 void vtkConstrainedPointHandleRepresentation::RemoveBoundingPlane(vtkPlane *plane)
 {
   if (this->BoundingPlanes )
-    {
+  {
     this->BoundingPlanes->RemoveItem(plane);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkConstrainedPointHandleRepresentation::RemoveAllBoundingPlanes()
 {
   if ( this->BoundingPlanes )
-    {
+  {
     this->BoundingPlanes->RemoveAllItems();
     this->BoundingPlanes->Delete();
-    this->BoundingPlanes = NULL;
-    }
+    this->BoundingPlanes = nullptr;
+  }
 }
 //----------------------------------------------------------------------
 
 void vtkConstrainedPointHandleRepresentation::SetBoundingPlanes(vtkPlanes *planes)
 {
   if (!planes)
-    {
+  {
     return;
-    }
+  }
 
   vtkPlane *plane;
   int numPlanes = planes->GetNumberOfPlanes();
 
   this->RemoveAllBoundingPlanes();
   for (int i=0; i<numPlanes ; i++)
-    {
+  {
     plane = vtkPlane::New();
     planes->GetPlane(i, plane);
     this->AddBoundingPlane(plane);
     plane->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -312,13 +314,13 @@ void vtkConstrainedPointHandleRepresentation::SetDisplayPosition(double eventPos
   double worldPos[3];
   this->DisplayPosition->SetValue(eventPos);
   if(this->Renderer)
-    {
+  {
     if ( this->GetIntersectionPosition(eventPos, worldPos) )
-      {
+    {
       this->SetPosition(worldPos);
-      }
     }
-   this->DisplayPositionTime.Modified();
+  }
+  this->DisplayPositionTime.Modified();
 }
 
 //-------------------------------------------------------------------------
@@ -345,7 +347,7 @@ void vtkConstrainedPointHandleRepresentation::ShallowCopy(vtkProp* prop)
   vtkConstrainedPointHandleRepresentation *rep =
     vtkConstrainedPointHandleRepresentation::SafeDownCast(prop);
   if(rep)
-    {
+  {
     this->Property->DeepCopy( rep->GetProperty() );
     this->SelectedProperty->DeepCopy(rep->GetSelectedProperty());
     this->ActiveProperty->DeepCopy(rep->GetActiveProperty());
@@ -354,7 +356,7 @@ void vtkConstrainedPointHandleRepresentation::ShallowCopy(vtkProp* prop)
 
     this->SetObliquePlane(rep->GetObliquePlane());
     this->SetBoundingPlanes(rep->GetBoundingPlanes());
-    }
+  }
   this->Superclass::ShallowCopy(prop);
 }
 //-------------------------------------------------------------------------
@@ -376,25 +378,25 @@ int vtkConstrainedPointHandleRepresentation::ComputeInteractionState(
   this->VisibilityOn();
   double tol2 = this->Tolerance * this->Tolerance;
   if ( vtkMath::Distance2BetweenPoints(xyz,pos) <= tol2 )
-    {
+  {
     this->InteractionState = vtkHandleRepresentation::Nearby;
     this->Glypher->SetSourceData(this->ActiveCursorShape);
     this->Actor->SetProperty( this->ActiveProperty );
     if ( !this->ActiveCursorShape )
-      {
-      this->VisibilityOff();
-      }
-    }
-  else
     {
+      this->VisibilityOff();
+    }
+  }
+  else
+  {
     this->InteractionState = vtkHandleRepresentation::Outside;
     this->Glypher->SetSourceData(this->CursorShape);
     this->Actor->SetProperty( this->Property );
     if ( !this->CursorShape )
-      {
+    {
       this->VisibilityOff();
-      }
     }
+  }
 
   return this->InteractionState;
 }
@@ -435,14 +437,14 @@ void vtkConstrainedPointHandleRepresentation::WidgetInteraction(double eventPos[
   // Process the motion
   if ( this->InteractionState == vtkHandleRepresentation::Selecting ||
        this->InteractionState == vtkHandleRepresentation::Translating )
-    {
+  {
     this->Translate(eventPos);
-    }
+  }
 
   else if ( this->InteractionState == vtkHandleRepresentation::Scaling )
-    {
+  {
     this->Scale(eventPos);
-    }
+  }
 
   // Book keeping
   this->LastEventPosition[0] = eventPos[0];
@@ -456,21 +458,20 @@ void vtkConstrainedPointHandleRepresentation::Translate(double eventPos[2])
   double worldPos[3];
 
   if ( this->GetIntersectionPosition(eventPos, worldPos) )
-    {
+  {
     this->SetPosition(worldPos);
-    }
+  }
   else
-    {
+  {
     // I really want to track the closest point here,
     // but I am postponing this at the moment....
-    }
+  }
 }
 
 //----------------------------------------------------------------------
-int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double eventPos[2],
-                                                                     double worldPos[3],
-                                                                     double tolerance,
-                                                                     vtkRenderer * renderer)
+int vtkConstrainedPointHandleRepresentation::
+GetIntersectionPosition(double eventPos[2],double worldPos[3],double tolerance,
+                        vtkRenderer * renderer)
 {
   double nearWorldPoint[4];
   double farWorldPoint[4];
@@ -479,10 +480,10 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
   tmp[0] = eventPos[0] + this->InteractionOffset[0];
   tmp[1] = eventPos[1] + this->InteractionOffset[1];
   tmp[2] = 0.0;  // near plane
-  if(renderer == 0)
-    {
+  if(renderer == nullptr)
+  {
     renderer = this->Renderer;
-    }
+  }
 
   renderer->SetDisplayPoint(tmp);
   renderer->DisplayToWorld();
@@ -506,25 +507,25 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
 
   vtkAssemblyPath *path = picker->GetPath();
 
-  if(path == 0)
-   {
+  if(path == nullptr)
+  {
    return 0;
-   }
+  }
   double pickPos[3];
-  picker->GetPickPosition(pickPos);   
+  picker->GetPickPosition(pickPos);
   if ( this->BoundingPlanes )
-    {
+  {
     vtkPlane *p;
     this->BoundingPlanes->InitTraversal();
     while ( (p = this->BoundingPlanes->GetNextItem()) )
-      {
+    {
       double v = p->EvaluateFunction( pickPos );
       if ( v < tolerance )
-        {
+      {
         return 0;
-        }
       }
     }
+  }
 
   worldPos[0] = pickPos[0];
   worldPos[1] = pickPos[1];
@@ -537,7 +538,7 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
 void vtkConstrainedPointHandleRepresentation::GetProjectionNormal( double normal[3] )
 {
   switch ( this->ProjectionNormal )
-    {
+  {
     case vtkConstrainedPointHandleRepresentation::XAxis:
       normal[0] = 1.0;
       normal[1] = 0.0;
@@ -556,14 +557,14 @@ void vtkConstrainedPointHandleRepresentation::GetProjectionNormal( double normal
     case vtkConstrainedPointHandleRepresentation::Oblique:
       this->ObliquePlane->GetNormal(normal);
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkConstrainedPointHandleRepresentation::GetProjectionOrigin( double origin[3] )
 {
   switch ( this->ProjectionNormal )
-    {
+  {
     case vtkConstrainedPointHandleRepresentation::XAxis:
       origin[0] = this->ProjectionPosition;
       origin[1] = 0.0;
@@ -582,7 +583,7 @@ void vtkConstrainedPointHandleRepresentation::GetProjectionOrigin( double origin
     case vtkConstrainedPointHandleRepresentation::Oblique:
       this->ObliquePlane->GetOrigin(origin);
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -604,13 +605,13 @@ void vtkConstrainedPointHandleRepresentation::Scale(double eventPos[2])
 void vtkConstrainedPointHandleRepresentation::Highlight(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->Actor->SetProperty(this->SelectedProperty);
-    }
+  }
   else
-    {
+  {
     this->Actor->SetProperty(this->ActiveProperty);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -681,7 +682,7 @@ int vtkConstrainedPointHandleRepresentation::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-int vtkConstrainedPointHandleRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkConstrainedPointHandleRepresentation::HasTranslucentPolygonalGeometry()
 {
   return this->Actor->HasTranslucentPolygonalGeometry();
 }
@@ -694,21 +695,21 @@ void vtkConstrainedPointHandleRepresentation::PrintSelf(ostream& os, vtkIndent i
 
   os << indent << "Projection Normal: ";
   if ( this->ProjectionNormal == vtkConstrainedPointHandleRepresentation::XAxis )
-    {
+  {
     os << "XAxis\n";
-    }
+  }
   else if ( this->ProjectionNormal == vtkConstrainedPointHandleRepresentation::YAxis )
-    {
+  {
     os << "YAxis\n";
-    }
+  }
   else if ( this->ProjectionNormal == vtkConstrainedPointHandleRepresentation::ZAxis )
-    {
+  {
     os << "ZAxis\n";
-    }
+  }
   else //if ( this->ProjectionNormal == vtkConstrainedPointHandleRepresentation::Oblique )
-    {
+  {
     os << "Oblique\n";
-    }
+  }
 
   os << indent << "Active Property: ";
   this->ActiveProperty->PrintSelf(os,indent.GetNextIndent());
@@ -723,21 +724,21 @@ void vtkConstrainedPointHandleRepresentation::PrintSelf(ostream& os, vtkIndent i
 
   os << indent << "Oblique Plane: ";
   if ( this->ObliquePlane )
-    {
+  {
     this->ObliquePlane->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "Bounding Planes: ";
   if ( this->BoundingPlanes )
-    {
+  {
     this->BoundingPlanes->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 }

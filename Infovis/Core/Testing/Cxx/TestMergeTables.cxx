@@ -75,12 +75,12 @@ TestMergeTables(int argc, char* argv[])
   // Test # of columns
   // - There should be 3: Col1, Col2, Col3
   if(mergedTable->GetNumberOfColumns() != 3)
-    {
+  {
     cout << "ERROR: Wrong number of columns!" << endl
          << "       Expected 3, got " << mergedTable->GetNumberOfColumns()
          << endl;
     return 1;
-    }
+  }
 
   delete [] filename1;
   delete [] filename2;

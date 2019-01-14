@@ -1,0 +1,17 @@
+NAME
+  VTK::IOGDAL
+LIBRARY_NAME
+  vtkIOGDAL
+KIT
+  VTK::IO
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::IOImage
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+TEST_DEPENDS
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

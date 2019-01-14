@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericCell - provides thread-safe access to cells
-// .SECTION Description
-// vtkGenericCell is a class that provides access to concrete types of cells.
-// It's main purpose is to allow thread-safe access to cells, supporting
-// the vtkDataSet::GetCell(vtkGenericCell *) method. vtkGenericCell acts
-// like any type of cell, it just dereferences an internal representation.
-// The SetCellType() methods use \#define constants; these are defined in
-// the file vtkCellType.h.
-
-// .SECTION See Also
-// vtkCell vtkDataSet
+/**
+ * @class   vtkGenericCell
+ * @brief   provides thread-safe access to cells
+ *
+ * vtkGenericCell is a class that provides access to concrete types of cells.
+ * It's main purpose is to allow thread-safe access to cells, supporting
+ * the vtkDataSet::GetCell(vtkGenericCell *) method. vtkGenericCell acts
+ * like any type of cell, it just dereferences an internal representation.
+ * The SetCellType() methods use \#define constants; these are defined in
+ * the file vtkCellType.h.
+ *
+ * @sa
+ * vtkCell vtkDataSet
+*/
 
 #ifndef vtkGenericCell_h
 #define vtkGenericCell_h
@@ -33,76 +36,88 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericCell : public vtkCell
 {
 public:
-  // Description:
-  // Create handle to any type of cell; by default a vtkEmptyCell.
+  /**
+   * Create handle to any type of cell; by default a vtkEmptyCell.
+   */
   static vtkGenericCell *New();
 
   vtkTypeMacro(vtkGenericCell,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set the points object to use for this cell. This updates the internal cell
-  // storage as well as the public member variable Points.
+  /**
+   * Set the points object to use for this cell. This updates the internal cell
+   * storage as well as the public member variable Points.
+   */
   void SetPoints(vtkPoints *points);
 
-  // Description:
-  // Set the point ids to use for this cell. This updates the internal cell
-  // storage as well as the public member variable PointIds.
+  /**
+   * Set the point ids to use for this cell. This updates the internal cell
+   * storage as well as the public member variable PointIds.
+   */
   void SetPointIds(vtkIdList *pointIds);
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
-  void ShallowCopy(vtkCell *c);
-  void DeepCopy(vtkCell *c);
-  int GetCellType();
-  int GetCellDimension();
-  int IsLinear();
-  int RequiresInitialization();
-  void Initialize();
-  int RequiresExplicitFaceRepresentation();
-  void SetFaces(vtkIdType *faces);
-  vtkIdType *GetFaces();
-  int GetNumberOfEdges();
-  int GetNumberOfFaces();
-  vtkCell *GetEdge(int edgeId);
-  vtkCell *GetFace(int faceId);
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
-  int EvaluatePosition(double x[3], double* closestPoint,
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
+  void ShallowCopy(vtkCell *c) override;
+  void DeepCopy(vtkCell *c) override;
+  int GetCellType() override;
+  int GetCellDimension() override;
+  int IsLinear() override;
+  int RequiresInitialization() override;
+  void Initialize() override;
+  int RequiresExplicitFaceRepresentation() override;
+  void SetFaces(vtkIdType *faces) override;
+  vtkIdType *GetFaces() override;
+  int GetNumberOfEdges() override;
+  int GetNumberOfFaces() override;
+  vtkCell *GetEdge(int edgeId) override;
+  vtkCell *GetFace(int faceId) override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
+  int EvaluatePosition(const double x[3], double closestPoint[3],
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights);
-  void EvaluateLocation(int& subId, double pcoords[3],
-                        double x[3], double *weights);
+                       double& dist2, double weights[]) override;
+  void EvaluateLocation(int& subId, const double pcoords[3],
+                        double x[3], double *weights) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
+               vtkCellData *inCd, vtkIdType cellId,
+               vtkCellData *outCd) override;
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut);
-  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId);
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs);
-  int GetParametricCenter(double pcoords[3]);
-  double *GetParametricCoords();
-  int IsPrimaryCell();
+            int insideOut) override;
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
+                        double x[3], double pcoords[3],
+                        int& subId) override;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
+  void Derivatives(int subId, const double pcoords[3], const double *values,
+                   int dim, double *derivs) override;
+  int GetParametricCenter(double pcoords[3]) override;
+  double *GetParametricCoords() override;
+  int IsPrimaryCell() override;
+  //@}
 
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
-  virtual void InterpolateFunctions(double pcoords[3], double *weights);
-  virtual void InterpolateDerivs(double pcoords[3], double *derivs);
+  //@{
+  /**
+   * Compute the interpolation functions/derivatives
+   * (aka shape functions/derivatives)
+   */
+  void InterpolateFunctions(const double pcoords[3], double *weights) override;
+  void InterpolateDerivs(const double pcoords[3], double *derivs) override;
+  //@}
 
-  // Description:
-  // This method is used to support the vtkDataSet::GetCell(vtkGenericCell *)
-  // method. It allows vtkGenericCell to act like any cell type by
-  // dereferencing an internal instance of a concrete cell type. When
-  // you set the cell type, you are resetting a pointer to an internal
-  // cell which is then used for computation.
+  /**
+   * This method is used to support the vtkDataSet::GetCell(vtkGenericCell *)
+   * method. It allows vtkGenericCell to act like any cell type by
+   * dereferencing an internal instance of a concrete cell type. When
+   * you set the cell type, you are resetting a pointer to an internal
+   * cell which is then used for computation.
+   */
   void SetCellType(int cellType);
   void SetCellTypeToEmptyCell() {this->SetCellType(VTK_EMPTY_CELL);}
   void SetCellTypeToVertex() {this->SetCellType(VTK_VERTEX);}
@@ -142,22 +157,35 @@ public:
     this->SetCellType(VTK_TRIQUADRATIC_HEXAHEDRON);}
   void SetCellTypeToBiQuadraticQuadraticHexahedron() {
     this->SetCellType(VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON);}
+  void SetCellTypeToLagrangeTriangle() {
+    this->SetCellType(VTK_LAGRANGE_TRIANGLE);}
+  void SetCellTypeToLagrangeTetra() {
+    this->SetCellType(VTK_LAGRANGE_TETRAHEDRON);}
+  void SetCellTypeToLagrangeCurve() {
+    this->SetCellType(VTK_LAGRANGE_CURVE);}
+  void SetCellTypeToLagrangeQuadrilateral() {
+    this->SetCellType(VTK_LAGRANGE_QUADRILATERAL);}
+  void SetCellTypeToLagrangeHexahedron() {
+    this->SetCellType(VTK_LAGRANGE_HEXAHEDRON);}
+  void SetCellTypeToLagrangeWedge() {
+    this->SetCellType(VTK_LAGRANGE_WEDGE);}
 
-  // Description:
-  // Instantiate a new vtkCell based on it's cell type value
+  /**
+   * Instantiate a new vtkCell based on it's cell type value
+   */
   static vtkCell* InstantiateCell(int cellType);
+
+  vtkCell* GetRepresentativeCell() { return this->Cell; }
 
 protected:
   vtkGenericCell();
-  ~vtkGenericCell();
+  ~vtkGenericCell() override;
 
   vtkCell *Cell;
-
+  vtkCell* CellStore[VTK_NUMBER_OF_CELL_TYPES];
 private:
-  vtkGenericCell(const vtkGenericCell&);  // Not implemented.
-  void operator=(const vtkGenericCell&);  // Not implemented.
+  vtkGenericCell(const vtkGenericCell&) = delete;
+  void operator=(const vtkGenericCell&) = delete;
 };
 
 #endif
-
-

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -18,7 +16,7 @@
  *              Friday, August 27, 1999
  */
 
-#define H5Z_PACKAGE		/*suppress error about including H5Zpkg	  */
+#include "H5Zmodule.h"          /* This source code file is part of the H5Z module */
 
 
 #include "H5private.h"		/* Generic Functions			*/
@@ -77,7 +75,7 @@ H5Z_filter_deflate (unsigned flags, size_t cd_nelmts,
 {
     void	*outbuf = NULL;         /* Pointer to new buffer */
     int		status;                 /* Status from zlib operation */
-    size_t	ret_value;              /* Return value */
+    size_t	ret_value = 0;          /* Return value */
 
     FUNC_ENTER_NOAPI(0)
 
@@ -102,9 +100,9 @@ H5Z_filter_deflate (unsigned flags, size_t cd_nelmts,
         /* Set the uncompression parameters */
 	HDmemset(&z_strm, 0, sizeof(z_strm));
 	z_strm.next_in = (Bytef *)*buf;
-        H5_ASSIGN_OVERFLOW(z_strm.avail_in,nbytes,size_t,unsigned);
+        H5_CHECKED_ASSIGN(z_strm.avail_in, unsigned, nbytes, size_t);
 	z_strm.next_out = (Bytef *)outbuf;
-        H5_ASSIGN_OVERFLOW(z_strm.avail_out,nalloc,size_t,unsigned);
+        H5_CHECKED_ASSIGN(z_strm.avail_out, unsigned, nalloc, size_t);
 
         /* Initialize the uncompression routines */
 	if (Z_OK!=inflateInit(&z_strm))
@@ -169,7 +167,7 @@ H5Z_filter_deflate (unsigned flags, size_t cd_nelmts,
         int          aggression;     /* Compression aggression setting */
 
         /* Set the compression aggression level */
-        H5_ASSIGN_OVERFLOW(aggression,cd_values[0],unsigned,int);
+        H5_CHECKED_ASSIGN(aggression, int, cd_values[0], unsigned);
 
         /* Allocate output (compressed) buffer */
 	if(NULL == (outbuf = H5MM_malloc(z_dst_nbytes)))

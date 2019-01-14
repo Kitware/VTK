@@ -51,6 +51,8 @@ int TestGPURayCastReleaseResources(int argc, char *argv[])
   reader->Update();
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
+  delete [] volumeFile;
+
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
 
@@ -61,7 +63,7 @@ int TestGPURayCastReleaseResources(int argc, char *argv[])
   renWin->SetSize(500, 401);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(scalarRange[0], 0.0);
@@ -70,7 +72,7 @@ int TestGPURayCastReleaseResources(int argc, char *argv[])
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOff();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-  volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetScalarOpacity(scalarOpacity);
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
@@ -80,10 +82,10 @@ int TestGPURayCastReleaseResources(int argc, char *argv[])
 
   // Setup volume actor
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
-  ren->AddViewProp(volume.GetPointer());
+  ren->AddViewProp(volume);
   ren->GetActiveCamera()->Azimuth(-40);
   ren->ResetCamera();
   renWin->Render();
@@ -93,19 +95,19 @@ int TestGPURayCastReleaseResources(int argc, char *argv[])
 
   vtkNew<vtkRenderWindow> renWin2;
   renWin2->SetSize(300, 401);
-  renWin2->AddRenderer(ren.GetPointer());
+  renWin2->AddRenderer(ren);
   renWin2->Render();
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin2.GetPointer());
+  iren->SetRenderWindow(renWin2);
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin2.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin2 );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

@@ -1,0 +1,17 @@
+NAME
+  VTK::DomainsMicroscopy
+LIBRARY_NAME
+  vtkDomainsMicroscopy
+DESCRIPTION
+  File readers for microscopy file formats
+DEPENDS
+  VTK::IOImage
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+TEST_DEPENDS
+  VTK::InteractionImage
+  VTK::RenderingContextOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

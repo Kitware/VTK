@@ -75,11 +75,8 @@ volume_property = vtk.vtkVolumeProperty()
 volume_property.SetColor(color_transfer_function)
 volume_property.SetScalarOpacity(opacity_transfer_function)
 
-composite_function = vtk.vtkVolumeRayCastCompositeFunction()
-
-volume_mapper = vtk.vtkVolumeRayCastMapper()
+volume_mapper = vtk.vtkFixedPointVolumeRayCastMapper()
 volume_mapper.SetInputConnection(reader.GetOutputPort())
-volume_mapper.SetVolumeRayCastFunction(composite_function)
 
 volume = vtk.vtkVolume()
 volume.SetMapper(volume_mapper)

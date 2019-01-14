@@ -17,15 +17,18 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoInteractorStyle - Interaction for a globe
-//
-// .SECTION Description
-// vtkGeoInteractorStyle contains interaction capabilities for a geographic
-// view including orbit, zoom, and tilt. It also includes a compass widget
-// for changing view parameters.
-//
-// .SECTION See Also
-// vtkCompassWidget vtkInteractorStyle
+/**
+ * @class   vtkGeoInteractorStyle
+ * @brief   Interaction for a globe
+ *
+ *
+ * vtkGeoInteractorStyle contains interaction capabilities for a geographic
+ * view including orbit, zoom, and tilt. It also includes a compass widget
+ * for changing view parameters.
+ *
+ * @sa
+ * vtkCompassWidget vtkInteractorStyle
+*/
 
 #ifndef vtkGeoInteractorStyle_h
 #define vtkGeoInteractorStyle_h
@@ -40,6 +43,7 @@ class vtkCompassWidget;
 class vtkGeoCamera;
 class vtkUnsignedCharArray;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoInteractorStyle :
   public vtkInteractorStyleTrackballCamera
 {
@@ -47,45 +51,50 @@ public:
   static vtkGeoInteractorStyle *New();
   vtkTypeMacro(vtkGeoInteractorStyle,
                        vtkInteractorStyleTrackballCamera);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Event bindings
-  virtual void OnEnter();
-  virtual void OnLeave();
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonUp();
-  virtual void OnMiddleButtonUp();
-  virtual void OnRightButtonUp();
-  virtual void OnLeftButtonDown();
-  virtual void OnMiddleButtonDown();
-  virtual void OnRightButtonDown();
-  virtual void OnChar();
+  //@{
+  /**
+   * Event bindings
+   */
+  void OnEnter() override;
+  void OnLeave() override;
+  void OnMouseMove() override;
+  void OnLeftButtonUp() override;
+  void OnMiddleButtonUp() override;
+  void OnRightButtonUp() override;
+  void OnLeftButtonDown() override;
+  void OnMiddleButtonDown() override;
+  void OnRightButtonDown() override;
+  void OnChar() override;
+  //@}
 
   virtual void RubberBandZoom();
-  virtual void Pan();
-  virtual void Dolly();
+  void Pan() override;
+  void Dolly() override;
 
   // Public for render callback.
   void RedrawRectangle();
 
   // See cxx for description of why we need this method.
-  void StartState(int newstate);
+  void StartState(int newstate) override;
 
   // Used for updating the terrain.
   vtkGeoCamera* GetGeoCamera();
 
-  // Description:
-  // This can be used to set the camera to the standard view of the earth.
+  /**
+   * This can be used to set the camera to the standard view of the earth.
+   */
   void ResetCamera();
 
   //! Called when the sub widgets have an interaction
   void WidgetInteraction(vtkObject *caller);
 
-  // Description:
-  // Set/Get the Interactor wrapper being controlled by this object.
-  // (Satisfy superclass API.)
-  virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
+  /**
+   * Set/Get the Interactor wrapper being controlled by this object.
+   * (Satisfy superclass API.)
+   */
+  void SetInteractor(vtkRenderWindowInteractor *interactor) override;
 
   int ViewportToWorld(double x, double y,
                       double &wx, double &wy, double &wz);
@@ -97,29 +106,34 @@ public:
                          double direction[3],
                          double intersection[3]);
 
-  // Description:
-  // Override to make the renderer use this camera subclass
-  virtual void SetCurrentRenderer(vtkRenderer*);
+  /**
+   * Override to make the renderer use this camera subclass
+   */
+  void SetCurrentRenderer(vtkRenderer*) override;
 
-  // Description:
-  // Whether to lock the heading a particular value during pan.
+  //@{
+  /**
+   * Whether to lock the heading a particular value during pan.
+   */
   vtkGetMacro(LockHeading, bool);
   vtkSetMacro(LockHeading, bool);
   vtkBooleanMacro(LockHeading, bool);
+  //@}
 
-  // Description:
-  // Called after camera properties are modified
+  /**
+   * Called after camera properties are modified
+   */
   void ResetCameraClippingRange();
 
 protected:
   vtkGeoInteractorStyle();
-  ~vtkGeoInteractorStyle();
+  ~vtkGeoInteractorStyle() override;
 
   // To avoid a warning.
-  // We should really inherit directy from vtkInteractorStyle
-  virtual void Dolly(double);
+  // We should really inherit directly from vtkInteractorStyle
+  void Dolly(double) override;
 
-  void OnTimer();
+  void OnTimer() override;
   // Used to get a constant speed regardless of frame rate.
   double LastTime;
 
@@ -139,23 +153,20 @@ protected:
   int StartPosition[2];
   int EndPosition[2];
   int DraggingRubberBandBoxState;
-  double MotionFactor;
   vtkUnsignedCharArray *PixelArray;
   int PixelDims[2];
   bool LockHeading;
 
-//BTX
   vtkSmartPointer<vtkGeoCamera> GeoCamera;
 
   // widget handling members
   vtkSmartPointer<vtkCompassWidget> CompassWidget;
   vtkSmartPointer<vtkCommand> EventCommand;
 
-//ETX
-
 private:
-  vtkGeoInteractorStyle(const vtkGeoInteractorStyle&);  // Not implemented.
-  void operator=(const vtkGeoInteractorStyle&);  // Not implemented.
+  vtkGeoInteractorStyle(const vtkGeoInteractorStyle&) = delete;
+  void operator=(const vtkGeoInteractorStyle&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

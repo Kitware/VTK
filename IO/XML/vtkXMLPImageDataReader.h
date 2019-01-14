@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPImageDataReader - Read PVTK XML ImageData files.
-// .SECTION Description
-// vtkXMLPImageDataReader reads the PVTK XML ImageData file format.
-// This reads the parallel format's summary file and then uses
-// vtkXMLImageDataReader to read data from the individual ImageData
-// piece files.  Streaming is supported.  The standard extension for
-// this reader's file format is "pvti".
-
-// .SECTION See Also
-// vtkXMLImageDataReader
+/**
+ * @class   vtkXMLPImageDataReader
+ * @brief   Read PVTK XML ImageData files.
+ *
+ * vtkXMLPImageDataReader reads the PVTK XML ImageData file format.
+ * This reads the parallel format's summary file and then uses
+ * vtkXMLImageDataReader to read data from the individual ImageData
+ * piece files.  Streaming is supported.  The standard extension for
+ * this reader's file format is "pvti".
+ *
+ * @sa
+ * vtkXMLImageDataReader
+*/
 
 #ifndef vtkXMLPImageDataReader_h
 #define vtkXMLPImageDataReader_h
@@ -35,42 +38,45 @@ class VTKIOXML_EXPORT vtkXMLPImageDataReader : public vtkXMLPStructuredDataReade
 {
 public:
   vtkTypeMacro(vtkXMLPImageDataReader,vtkXMLPStructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPImageDataReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkImageData *GetOutput();
   vtkImageData *GetOutput(int idx);
+  //@}
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
-  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+  void CopyOutputInformation(vtkInformation *outInfo, int port) override;
 
 protected:
   vtkXMLPImageDataReader();
-  ~vtkXMLPImageDataReader();
+  ~vtkXMLPImageDataReader() override;
 
   double Origin[3];
   double Spacing[3];
 
   vtkImageData* GetPieceInput(int index);
 
-  void SetupEmptyOutput();
-  const char* GetDataSetName();
-  void SetOutputExtent(int* extent);
-  void GetPieceInputExtent(int index, int* extent);
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
+  void SetupEmptyOutput() override;
+  const char* GetDataSetName() override;
+  void SetOutputExtent(int* extent) override;
+  void GetPieceInputExtent(int index, int* extent) override;
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
   // Setup the output's information.
-  void SetupOutputInformation(vtkInformation *outInfo);
+  void SetupOutputInformation(vtkInformation *outInfo) override;
 
-  vtkXMLDataReader* CreatePieceReader();
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  vtkXMLDataReader* CreatePieceReader() override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkXMLPImageDataReader(const vtkXMLPImageDataReader&);  // Not implemented.
-  void operator=(const vtkXMLPImageDataReader&);  // Not implemented.
+  vtkXMLPImageDataReader(const vtkXMLPImageDataReader&) = delete;
+  void operator=(const vtkXMLPImageDataReader&) = delete;
 };
 
 #endif

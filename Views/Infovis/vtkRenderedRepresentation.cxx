@@ -69,16 +69,16 @@ void vtkRenderedRepresentation::PrepareForRendering(vtkRenderView* view)
 {
   // Add props scheduled to be added on next render.
   for (size_t i = 0; i < this->Implementation->PropsToAdd.size(); ++i)
-    {
+  {
     view->GetRenderer()->AddViewProp(this->Implementation->PropsToAdd[i]);
-    }
+  }
   this->Implementation->PropsToAdd.clear();
 
   // Remove props scheduled to be removed on next render.
   for (size_t i = 0; i < this->Implementation->PropsToRemove.size(); ++i)
-    {
+  {
     view->GetRenderer()->RemoveViewProp(this->Implementation->PropsToRemove[i]);
-    }
+  }
   this->Implementation->PropsToRemove.clear();
 }
 
@@ -95,10 +95,10 @@ vtkUnicodeString vtkRenderedRepresentation::GetHoverText(vtkView* view, vtkProp*
   cellSelect->AddNode(cellNode);
   vtkSelection* converted = this->ConvertSelection(view, cellSelect);
   vtkUnicodeString text = this->GetHoverTextInternal(converted);
-  if (converted != cellSelect.GetPointer())
-    {
+  if (converted != cellSelect)
+  {
     converted->Delete();
-    }
+  }
   return text;
 }
 

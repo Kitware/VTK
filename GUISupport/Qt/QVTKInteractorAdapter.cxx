@@ -39,17 +39,21 @@
 #include <QSignalMapper>
 #include <QTimer>
 #include <QResizeEvent>
+#include <QGestureEvent>
 
 #include "vtkCommand.h"
-
 
 // function to get VTK keysyms from ascii characters
 static const char* ascii_to_key_sym(int);
 // function to get VTK keysyms from Qt keys
 static const char* qt_key_to_key_sym(Qt::Key, Qt::KeyboardModifiers modifiers);
 
+// Tolerance used when truncating the device pixel ratio scaled
+// window size in calls to SetSize.
+const double QVTKInteractorAdapter::DevicePixelRatioTolerance = 1e-5;
+
 QVTKInteractorAdapter::QVTKInteractorAdapter(QObject* parentObject)
-  : QObject(parentObject)
+  : QObject(parentObject), AccumulatedDelta(0), DevicePixelRatio(1.0)
 {
 }
 
@@ -57,42 +61,66 @@ QVTKInteractorAdapter::~QVTKInteractorAdapter()
 {
 }
 
+void QVTKInteractorAdapter::SetDevicePixelRatio(float ratio, vtkRenderWindowInteractor* iren)
+{
+  if (ratio != DevicePixelRatio)
+  {
+    if (iren)
+    {
+      int tmp[2];
+      iren->GetSize(tmp);
+      if (ratio == 1.0)
+      {
+        iren->SetSize(tmp[0] / 2, tmp[1] / 2);
+      }
+      else
+      {
+        iren->SetSize(static_cast<int>(tmp[0] * ratio + DevicePixelRatioTolerance),
+                      static_cast<int>(tmp[1] * ratio + DevicePixelRatioTolerance));
+      }
+    }
+    this->DevicePixelRatio = ratio;
+  }
+}
+
 bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* iren)
 {
-  if(iren == NULL || e == NULL)
+  if(iren == nullptr || e == nullptr)
     return false;
 
   const QEvent::Type t = e->type();
 
   if(t == QEvent::Resize)
-    {
+  {
     QResizeEvent* e2 = static_cast<QResizeEvent*>(e);
     QSize size = e2->size();
-    iren->SetSize(size.width(), size.height());
+    iren->SetSize(static_cast<int>(size.width() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                  static_cast<int>(size.height() * this->DevicePixelRatio + DevicePixelRatioTolerance));
+    iren->InvokeEvent(vtkCommand::ConfigureEvent, e2);
     return true;
-    }
+  }
 
   if(t == QEvent::FocusIn)
-    {
+  {
     // For 3DConnexion devices:
     QVTKInteractor* qiren = QVTKInteractor::SafeDownCast(iren);
     if(qiren)
-      {
+    {
       qiren->StartListening();
-      }
-    return true;
     }
+    return true;
+  }
 
   if(t == QEvent::FocusOut)
-    {
+  {
     // For 3DConnexion devices:
     QVTKInteractor* qiren = QVTKInteractor::SafeDownCast(iren);
     if(qiren)
-      {
+    {
       qiren->StopListening();
-      }
-    return true;
     }
+    return true;
+  }
 
   // the following events only happen if the interactor is enabled
   if(!iren->GetEnabled())
@@ -102,24 +130,26 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
      t == QEvent::MouseButtonRelease ||
      t == QEvent::MouseButtonDblClick ||
      t == QEvent::MouseMove)
-    {
+  {
     QMouseEvent* e2 = static_cast<QMouseEvent*>(e);
 
     // give interactor the event information
-    iren->SetEventInformationFlipY(e2->x(), e2->y(),
+    iren->SetEventInformationFlipY(static_cast<int>(e2->x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                   static_cast<int>(e2->y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
                                 (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
                                 (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0,
                                 0,
                                 e2->type() == QEvent::MouseButtonDblClick ? 1 : 0);
+    iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
 
     if(t == QEvent::MouseMove)
-      {
+    {
       iren->InvokeEvent(vtkCommand::MouseMoveEvent, e2);
-      }
+    }
     else if(t == QEvent::MouseButtonPress || t == QEvent::MouseButtonDblClick)
-      {
+    {
       switch(e2->button())
-        {
+      {
         case Qt::LeftButton:
           iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, e2);
           break;
@@ -134,12 +164,12 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
 
         default:
           break;
-        }
       }
+    }
     else if(t == QEvent::MouseButtonRelease)
-      {
+    {
       switch(e2->button())
-        {
+      {
         case Qt::LeftButton:
           iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, e2);
           break;
@@ -154,65 +184,66 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
 
         default:
           break;
-        }
       }
-    return true;
     }
+    return true;
+  }
   if (t == QEvent::TouchBegin ||
       t == QEvent::TouchUpdate ||
       t == QEvent::TouchEnd)
-    {
+  {
     QTouchEvent* e2 = dynamic_cast<QTouchEvent*>(e);
     foreach (const QTouchEvent::TouchPoint& point, e2->touchPoints())
-      {
+    {
       if (point.id() >= VTKI_MAX_POINTERS)
-        {
+      {
         break;
-        }
+      }
       // give interactor the event information
-      iren->SetEventInformationFlipY(point.pos().x(), point.pos().y(),
+      iren->SetEventInformationFlipY(static_cast<int>(point.pos().x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                     static_cast<int>(point.pos().y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
                                       (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
                                       (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0,
-                                      0,0,0, point.id());
-      }
+                                      0,0,nullptr, point.id());
+    }
     foreach (const QTouchEvent::TouchPoint& point, e2->touchPoints())
-      {
+    {
       if (point.id() >= VTKI_MAX_POINTERS)
-        {
+      {
         break;
-        }
+      }
       iren->SetPointerIndex(point.id());
       if (point.state() & Qt::TouchPointReleased)
-        {
-        iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
-        }
-      if (point.state() & Qt::TouchPointPressed)
-        {
-        iren->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
-        }
-      if (point.state() & Qt::TouchPointMoved)
-        {
-        iren->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
-        }
+      {
+        iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,nullptr);
       }
+      if (point.state() & Qt::TouchPointPressed)
+      {
+        iren->InvokeEvent(vtkCommand::LeftButtonPressEvent,nullptr);
+      }
+      if (point.state() & Qt::TouchPointMoved)
+      {
+        iren->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
+      }
+    }
     e2->accept();
     return true;
-    }
+  }
 
   if(t == QEvent::Enter)
-    {
+  {
     iren->InvokeEvent(vtkCommand::EnterEvent, e);
     return true;
-    }
+  }
 
   if(t == QEvent::Leave)
-    {
+  {
     iren->InvokeEvent(vtkCommand::LeaveEvent, e);
     return true;
-    }
+  }
 
   if(t == QEvent::KeyPress || t == QEvent::KeyRelease)
-    {
+  {
     QKeyEvent* e2 = static_cast<QKeyEvent*>(e);
 
     // get key and keysym information
@@ -220,129 +251,215 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     const char* keysym = ascii_to_key_sym(ascii_key);
     if(!keysym ||
        e2->modifiers() == Qt::KeypadModifier)
-      {
+    {
       // get virtual keys
       keysym = qt_key_to_key_sym(static_cast<Qt::Key>(e2->key()),
                                  e2->modifiers());
-      }
+    }
 
     if(!keysym)
-      {
+    {
       keysym = "None";
-      }
+    }
 
     // give interactor event information
     iren->SetKeyEventInformation(
       (e2->modifiers() & Qt::ControlModifier),
       (e2->modifiers() & Qt::ShiftModifier),
       ascii_key, e2->count(), keysym);
+    iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
 
     if(t == QEvent::KeyPress)
-      {
+    {
       // invoke vtk event
       iren->InvokeEvent(vtkCommand::KeyPressEvent, e2);
 
       // invoke char event only for ascii characters
       if(ascii_key)
-        {
-        iren->InvokeEvent(vtkCommand::CharEvent, e2);
-        }
-      }
-    else
       {
-      iren->InvokeEvent(vtkCommand::KeyReleaseEvent, e2);
+        iren->InvokeEvent(vtkCommand::CharEvent, e2);
       }
-    return true;
     }
+    else
+    {
+      iren->InvokeEvent(vtkCommand::KeyReleaseEvent, e2);
+    }
+    return true;
+  }
 
   if(t == QEvent::Wheel)
-    {
+  {
     QWheelEvent* e2 = static_cast<QWheelEvent*>(e);
 
-    iren->SetEventInformationFlipY(e2->x(), e2->y(),
+    iren->SetEventInformationFlipY(static_cast<int>(e2->x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                   static_cast<int>(e2->y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
                                (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
                                (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
+    iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
 
-    // invoke vtk event
-    // if delta is positive, it is a forward wheel event
-    if(e2->delta() > 0)
-      {
+    this->AccumulatedDelta += e2->angleDelta().y();
+    const int threshold = 120;
+
+    // invoke vtk event when accumulated delta passes the threshold
+    if(this->AccumulatedDelta >= threshold)
+    {
       iren->InvokeEvent(vtkCommand::MouseWheelForwardEvent, e2);
-      }
-    else
-      {
-      iren->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, e2);
-      }
-    return true;
+      this->AccumulatedDelta = 0;
     }
+    else if(this->AccumulatedDelta <= -threshold)
+    {
+      iren->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, e2);
+      this->AccumulatedDelta = 0;
+    }
+    return true;
+  }
 
   if(t == QEvent::ContextMenu)
-    {
+  {
     QContextMenuEvent* e2 = static_cast<QContextMenuEvent*>(e);
 
     // give interactor the event information
-    iren->SetEventInformationFlipY(e2->x(), e2->y(),
+    iren->SetEventInformationFlipY(static_cast<int>(e2->x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                   static_cast<int>(e2->y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
                                (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
                                (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
+    iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
 
     // invoke event and pass qt event for additional data as well
     iren->InvokeEvent(QVTKInteractor::ContextMenuEvent, e2);
 
     return true;
-    }
+  }
 
   if(t == QEvent::DragEnter)
-    {
+  {
     QDragEnterEvent* e2 = static_cast<QDragEnterEvent*>(e);
 
     // invoke event and pass qt event for additional data as well
     iren->InvokeEvent(QVTKInteractor::DragEnterEvent, e2);
 
     return true;
-    }
+  }
 
   if(t == QEvent::DragLeave)
-    {
+  {
     QDragLeaveEvent* e2 = static_cast<QDragLeaveEvent*>(e);
 
     // invoke event and pass qt event for additional data as well
     iren->InvokeEvent(QVTKInteractor::DragLeaveEvent, e2);
 
     return true;
-    }
+  }
 
   if(t == QEvent::DragMove)
-    {
+  {
     QDragMoveEvent* e2 = static_cast<QDragMoveEvent*>(e);
 
     // give interactor the event information
-    iren->SetEventInformationFlipY(e2->pos().x(), e2->pos().y());
+    iren->SetEventInformationFlipY(static_cast<int>(e2->pos().x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                   static_cast<int>(e2->pos().y() * this->DevicePixelRatio + DevicePixelRatioTolerance));
 
     // invoke event and pass qt event for additional data as well
     iren->InvokeEvent(QVTKInteractor::DragMoveEvent, e2);
     return true;
-    }
+  }
 
   if(t == QEvent::Drop)
-    {
+  {
     QDropEvent* e2 = static_cast<QDropEvent*>(e);
 
     // give interactor the event information
-    iren->SetEventInformationFlipY(e2->pos().x(), e2->pos().y());
+    iren->SetEventInformationFlipY(static_cast<int>(e2->pos().x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                   static_cast<int>(e2->pos().y() * this->DevicePixelRatio + DevicePixelRatioTolerance));
 
     // invoke event and pass qt event for additional data as well
     iren->InvokeEvent(QVTKInteractor::DropEvent, e2);
     return true;
-    }
+  }
 
+  if (e->type() == QEvent::Gesture)
+  {
+    QGestureEvent* e2 = static_cast<QGestureEvent*>(e);
+    if (QPinchGesture *pinch = static_cast<QPinchGesture*>(e2->gesture(Qt::PinchGesture)))
+    {
+      QPointF position = pinch->centerPoint();
+      iren->SetEventPosition(position.x(), position.y());
+      iren->SetScale(pinch->scaleFactor());
+      switch (pinch->state())
+      {
+      case Qt::GestureStarted:
+        iren->InvokeEvent(vtkCommand::StartPinchEvent, e2);
+        break;
+      case Qt::GestureFinished:
+      case Qt::GestureCanceled:
+        iren->InvokeEvent(vtkCommand::EndPinchEvent, e2);
+        break;
+      default:
+        iren->InvokeEvent(vtkCommand::PinchEvent, e2);
+      }
+
+      iren->SetRotation(pinch->rotationAngle());
+      switch (pinch->state())
+      {
+      case Qt::GestureStarted:
+        iren->InvokeEvent(vtkCommand::StartRotateEvent, e2);
+        break;
+      case Qt::GestureFinished:
+      case Qt::GestureCanceled:
+        iren->InvokeEvent(vtkCommand::EndRotateEvent, e2);
+        break;
+      default:
+        iren->InvokeEvent(vtkCommand::RotateEvent, e2);
+      }
+      return true;
+    }
+    else if (QPanGesture *pan = static_cast<QPanGesture*>(e2->gesture(Qt::PanGesture)))
+    {
+      QPointF offset = pan->offset();
+      double translation[2] = { offset.x(), offset.y() };
+      iren->SetTranslation(translation);
+      switch (pan->state())
+      {
+      case Qt::GestureStarted:
+        iren->InvokeEvent(vtkCommand::StartPanEvent, e2);
+        break;
+      case Qt::GestureFinished:
+      case Qt::GestureCanceled:
+        iren->InvokeEvent(vtkCommand::EndPanEvent, e2);
+        break;
+      default:
+        iren->InvokeEvent(vtkCommand::PanEvent, e2);
+      }
+      return true;
+    }
+    else if (QTapGesture *tap = static_cast<QTapGesture*>(e2->gesture(Qt::TapGesture)))
+    {
+      QPointF position = tap->position();
+      iren->SetEventPosition(position.x(), position.y());
+      iren->InvokeEvent(vtkCommand::TapEvent, e2);
+      return true;
+    }
+    else if (QTapAndHoldGesture *tapAndHold= static_cast<QTapAndHoldGesture*>(e2->gesture(Qt::TapAndHoldGesture)))
+    {
+      QPointF position = tapAndHold->position();
+      iren->SetEventPosition(position.x(), position.y());
+      iren->InvokeEvent(vtkCommand::LongTapEvent, e2);
+      return true;
+    }
+    else if (e2->gesture(Qt::SwipeGesture))
+    {
+      iren->InvokeEvent(vtkCommand::SwipeEvent, e2);
+      return true;
+    }
+  }
   return false;
 }
 
 // ***** keysym stuff below  *****
 
 static const char *AsciiToKeySymTable[] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, "Tab", 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, "Tab", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
   "space", "exclam", "quotedbl", "numbersign",
   "dollar", "percent", "ampersand", "quoteright",
   "parenleft", "parenright", "asterisk", "plus",
@@ -358,22 +475,22 @@ static const char *AsciiToKeySymTable[] = {
   "h", "i", "j", "k", "l", "m", "n", "o",
   "p", "q", "r", "s", "t", "u", "v", "w",
   "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete",
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 
 const char* ascii_to_key_sym(int i)
 {
   if(i >= 0)
-    {
+  {
     return AsciiToKeySymTable[i];
-    }
-  return 0;
+  }
+  return nullptr;
 }
 
 #define QVTK_HANDLE(x,y) \
@@ -388,9 +505,9 @@ const char* ascii_to_key_sym(int i)
 
 const char* qt_key_to_key_sym(Qt::Key i, Qt::KeyboardModifiers modifiers)
 {
-  const char* ret = 0;
+  const char* ret = nullptr;
   switch(i)
-    {
+  {
     // Cancel
     QVTK_HANDLE(Qt::Key_Backspace, "BackSpace")
       QVTK_HANDLE(Qt::Key_Tab, "Tab")
@@ -490,6 +607,6 @@ const char* qt_key_to_key_sym(Qt::Key i, Qt::KeyboardModifiers modifiers)
 
       default:
     break;
-    }
+  }
   return ret;
 }

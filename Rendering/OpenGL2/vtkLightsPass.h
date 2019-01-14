@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLightsPass - Implement the lights render pass.
-// .SECTION Description
-// Render the lights.
-//
-// This pass expects an initialized camera.
-// It disables all the lights, apply transformations for lights following the
-// camera, and turn on the enables lights.
-//
-// .SECTION See Also
-// vtkRenderPass
+/**
+ * @class   vtkLightsPass
+ * @brief   Implement the lights render pass.
+ *
+ * Render the lights.
+ *
+ * This pass expects an initialized camera.
+ * It disables all the lights, apply transformations for lights following the
+ * camera, and turn on the enables lights.
+ *
+ * @sa
+ * vtkRenderPass
+*/
 
 #ifndef vtkLightsPass_h
 #define vtkLightsPass_h
@@ -36,27 +39,28 @@ class VTKRENDERINGOPENGL2_EXPORT vtkLightsPass : public vtkRenderPass
 public:
   static vtkLightsPass *New();
   vtkTypeMacro(vtkLightsPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //BTX
-  // Description:
-  // Perform rendering according to a render state \p s.
-  // \pre s_exists: s!=0
-  virtual void Render(const vtkRenderState *s);
-  //ETX
+  /**
+   * Perform rendering according to a render state \p s.
+   * \pre s_exists: s!=0
+   */
+  void Render(const vtkRenderState *s) override;
 
  protected:
-  // Description:
-  // Default constructor.
+  /**
+   * Default constructor.
+   */
   vtkLightsPass();
 
-  // Description:
-  // Destructor.
-  virtual ~vtkLightsPass();
+  /**
+   * Destructor.
+   */
+  ~vtkLightsPass() override;
 
  private:
-  vtkLightsPass(const vtkLightsPass&);  // Not implemented.
-  void operator=(const vtkLightsPass&);  // Not implemented.
+  vtkLightsPass(const vtkLightsPass&) = delete;
+  void operator=(const vtkLightsPass&) = delete;
 };
 
 #endif

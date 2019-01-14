@@ -28,7 +28,7 @@ vtkCxxSetObjectMacro(vtkImplicitVolume,Volume,vtkImageData);
 // set to a large negative number; and the OutGradient set to (0,0,1).
 vtkImplicitVolume::vtkImplicitVolume()
 {
-  this->Volume = NULL;
+  this->Volume = nullptr;
   this->OutValue = VTK_DOUBLE_MIN;
 
   this->OutGradient[0] = 0.0;
@@ -43,10 +43,10 @@ vtkImplicitVolume::vtkImplicitVolume()
 vtkImplicitVolume::~vtkImplicitVolume()
 {
   if (this->Volume)
-    {
+  {
     this->Volume->Delete();
-    this->Volume = NULL;
-    }
+    this->Volume = nullptr;
+  }
   this->PointIds->Delete();
 }
 
@@ -63,41 +63,41 @@ double vtkImplicitVolume::EvaluateFunction(double x[3])
   // See if a volume is defined
   if ( !this->Volume ||
   !(scalars = this->Volume->GetPointData()->GetScalars()) )
-    {
-    vtkErrorMacro(<<"Can't evaluate volume!");
+  {
+    vtkErrorMacro(<<"Can't evaluate function: either volume is missing or volume has no point data");
     return this->OutValue;
-    }
+  }
 
   // Find the cell that contains xyz and get it
   if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
-    {
+  {
     this->Volume->GetCellPoints(this->Volume->ComputeCellId(ijk),this->PointIds);
     vtkVoxel::InterpolationFunctions(pcoords,weights);
 
     numPts = this->PointIds->GetNumberOfIds ();
     for (s=0.0, i=0; i < numPts; i++)
-      {
-      s += scalars->GetComponent(this->PointIds->GetId(i),0) * weights[i];
-      }
-    return s;
-    }
-  else
     {
-    return this->OutValue;
+      s += scalars->GetComponent(this->PointIds->GetId(i),0) * weights[i];
     }
+    return s;
+  }
+  else
+  {
+    return this->OutValue;
+  }
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkImplicitVolume::GetMTime()
+vtkMTimeType vtkImplicitVolume::GetMTime()
 {
-  unsigned long mTime = this->vtkImplicitFunction::GetMTime();
-  unsigned long volumeMTime;
+  vtkMTimeType mTime = this->vtkImplicitFunction::GetMTime();
+  vtkMTimeType volumeMTime;
 
-  if ( this->Volume != NULL )
-    {
+  if ( this->Volume != nullptr )
+  {
     volumeMTime = this->Volume->GetMTime();
     mTime = ( volumeMTime > mTime ? volumeMTime : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -112,41 +112,45 @@ void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
   double pcoords[3], weights[8], *v;
   vtkDoubleArray *gradient;
 
+  // See if a volume is defined
+  if ( !this->Volume ||
+       !(scalars = this->Volume->GetPointData()->GetScalars()) )
+  {
+    vtkErrorMacro(<<"Can't evaluate gradient: either volume is missing or volume has no point data");
+    for ( i=0; i < 3; i++ )
+    {
+      n[i] = this->OutGradient[i];
+    }
+    return;
+  }
+
   gradient = vtkDoubleArray::New();
   gradient->SetNumberOfComponents(3);
   gradient->SetNumberOfTuples(8);
 
-  // See if a volume is defined
-  if ( !this->Volume ||
-  !(scalars = this->Volume->GetPointData()->GetScalars()) )
-    {
-    vtkErrorMacro(<<"Can't evaluate volume!");
-    return;
-    }
-
   // Find the cell that contains xyz and get it
   if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
-    {
+  {
     vtkVoxel::InterpolationFunctions(pcoords,weights);
     this->Volume->GetVoxelGradient(ijk[0], ijk[1], ijk[2], scalars, gradient);
 
     n[0] = n[1] = n[2] = 0.0;
     for (i=0; i < 8; i++)
-      {
+    {
       v = gradient->GetTuple(i);
       n[0] += v[0] * weights[i];
       n[1] += v[1] * weights[i];
       n[2] += v[2] * weights[i];
-      }
     }
+  }
 
   else
-    { // use outside value
+  { // use outside value
     for ( i=0; i < 3; i++ )
-      {
+    {
       n[i] = this->OutGradient[i];
-      }
     }
+  }
   gradient->Delete();
 }
 
@@ -155,16 +159,17 @@ void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Out Value: " << this->OutValue << "\n";
-  os << indent << "Out Gradient: (" << this->OutGradient[0] << ", "
-     << this->OutGradient[1] << ", " << this->OutGradient[2] << ")\n";
+  os << indent << "Out Value: " << this->GetOutValue() << "\n";
+  os << indent << "Out Gradient: (" << this->GetOutGradient()[0] << ", "
+     << this->GetOutGradient()[1] << ", "
+     << this->GetOutGradient()[2] << ")\n";
 
-  if ( this->Volume )
-    {
-    os << indent << "Volume: " << this->Volume << "\n";
-    }
+  if ( this->GetVolume() )
+  {
+    os << indent << "Volume: " << this->GetVolume() << "\n";
+  }
   else
-    {
+  {
     os << indent << "Volume: (none)\n";
-    }
+  }
 }

@@ -89,9 +89,9 @@ void vtkXMLRectilinearGridWriter::WriteAppendedPiece(
 {
   this->Superclass::WriteAppendedPiece(index, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   this->WriteCoordinatesAppended(this->GetInput()->GetXCoordinates(),
                                  this->GetInput()->GetYCoordinates(),
@@ -116,9 +116,9 @@ void vtkXMLRectilinearGridWriter::WriteAppendedPieceData(int index)
   // Let the superclass write its data.
   this->Superclass::WriteAppendedPieceData(index);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for the coordinates arrays.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -148,9 +148,9 @@ void vtkXMLRectilinearGridWriter::WriteInlinePiece(vtkIndent indent)
   // Let the superclass write its data.
   this->Superclass::WriteInlinePiece(indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for the coordinates arrays.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -186,9 +186,9 @@ void vtkXMLRectilinearGridWriter::CalculateSuperclassFraction(float* fractions)
   vtkIdType totalPieceSize =
     superclassPieceSize + dims[0] + dims[1] + dims[2];
   if (totalPieceSize == 0)
-    {
+  {
     totalPieceSize = 1;
-    }
+  }
   fractions[0] = 0;
   fractions[1] = fractions[0] +
     static_cast<float>(superclassPieceSize) / totalPieceSize;

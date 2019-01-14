@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile: vtkDIMACSGraphWriter.cxx,v $
+  Module:    vtkDIMACSGraphWriter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -42,20 +42,20 @@ void vtkDIMACSGraphWriter::WriteData()
   ostream *fp = this->OpenVTKFile();
   if(!fp)
   {
-    vtkErrorMacro("Falied to open output stream");
+    vtkErrorMacro("Failed to open output stream");
     return;
   }
 
   *fp << "c vtkGraph as DIMACS format\n";
 
   if(vtkDirectedGraph::SafeDownCast(input))
-    {
+  {
     *fp << "c Graph stored as DIRECTED\n";
-    }
+  }
   else
-    {
+  {
     *fp << "c Graph stored as UNDIRECTED\n";
-    }
+  }
 
   const vtkIdType vertex_count = input->GetNumberOfVertices();
   const vtkIdType edge_count = input->GetNumberOfEdges();
@@ -65,30 +65,29 @@ void vtkDIMACSGraphWriter::WriteData()
   *fp << "p graph "<< vertex_count << " " << edge_count << "\n";
 
   // See if the input has a "weight" array
-  vtkDataArray* weight = 0;
-  weight = input->GetEdgeData()->GetArray("weight");
+  vtkDataArray* weight = input->GetEdgeData()->GetArray("weight");
 
   // Output either the weight array or just 1 if
   // we have no weight array
   VTK_CREATE(vtkEdgeListIterator, edges);
   input->GetEdges(edges);
   if (weight)
-    {
+  {
     while(edges->HasNext())
-      {
+    {
       vtkEdgeType e = edges->Next();
       float value = weight->GetTuple1(e.Id);
       *fp << "e " << e.Source+1 << " " << e.Target+1 << " " << value << "\n";
-      }
     }
+  }
   else
-    {
+  {
     while(edges->HasNext())
-      {
+    {
       vtkEdgeType e = edges->Next();
       *fp << "e " << e.Source+1 << " " << e.Target+1 << " 1\n";
-      }
     }
+  }
 
   // NOTE: Vertices are incremented by 1 since DIMACS files number vertices
   //       from 1..n.

@@ -14,12 +14,12 @@ class TestAMRExtractLevel(Testing.vtkTest):
     level = 1
 
     reader = vtk.vtkAMREnzoReader()
-    reader.SetFileName(filename);
-    reader.SetMaxLevel(10);
+    reader.SetFileName(filename)
+    reader.SetMaxLevel(10)
     reader.SetCellArrayStatus("TotalEnergy",1)
 
     filter = vtk.vtkExtractLevel()
-    filter.AddLevel(level);
+    filter.AddLevel(level)
 
     filter.SetInputConnection(reader.GetOutputPort())
     filter.Update()

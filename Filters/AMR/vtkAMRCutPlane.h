@@ -12,15 +12,17 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkAMRCutPlane.h -- Cuts an AMR dataset
-//
-// .SECTION Description
-//  A concrete instance of vtkMultiBlockDataSet that provides functionality for
-// cutting an AMR dataset (an instance of vtkOverlappingAMR) with user supplied
-// implicit plane function defined by a normal and center.
+/**
+ * @class   vtkAMRCutPlane
+ *
+ *
+ *  A concrete instance of vtkMultiBlockDataSet that provides functionality for
+ * cutting an AMR dataset (an instance of vtkOverlappingAMR) with user supplied
+ * implicit plane function defined by a normal and center.
+*/
 
-#ifndef VTKAMRCUTPLANE_H_
-#define VTKAMRCUTPLANE_H_
+#ifndef vtkAMRCutPlane_h
+#define vtkAMRCutPlane_h
 
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -47,114 +49,142 @@ class VTKFILTERSAMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
 public:
   static vtkAMRCutPlane *New();
   vtkTypeMacro(vtkAMRCutPlane, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &oss, vtkIndent indent );
+  void PrintSelf(ostream &oss, vtkIndent indent ) override;
 
-  // Description:
-  // Sets the center
+  //@{
+  /**
+   * Sets the center
+   */
   vtkSetVector3Macro(Center, double);
+  //@}
 
-  // Description:
-  // Sets the normal
+  //@{
+  /**
+   * Sets the normal
+   */
   vtkSetVector3Macro(Normal, double);
+  //@}
 
-  // Description:
-  // Sets the level of resolution
+  //@{
+  /**
+   * Sets the level of resolution
+   */
   vtkSetMacro(LevelOfResolution, int);
   vtkGetMacro(LevelOfResolution, int);
+  //@}
 
-  // Description:
-  //
+  //@{
+  /**
+
+   */
   vtkSetMacro(UseNativeCutter, bool);
   vtkGetMacro(UseNativeCutter, bool);
   vtkBooleanMacro(UseNativeCutter, bool);
+  //@}
 
-  // Description:
-  // Set/Get a multiprocess controller for parallel processing.
-  // By default this parameter is set to NULL by the constructor.
+  //@{
+  /**
+   * Set/Get a multiprocess controller for parallel processing.
+   * By default this parameter is set to nullptr by the constructor.
+   */
   vtkSetMacro(Controller, vtkMultiProcessController*);
   vtkGetMacro(Controller, vtkMultiProcessController*);
+  //@}
 
   // Standard pipeline routines
 
-  virtual int RequestData(
-       vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  int RequestData(
+       vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
 
-  // Description:
-  // Gets the metadata from upstream module and determines which blocks
-  // should be loaded by this instance.
-  virtual int RequestInformation(
+  /**
+   * Gets the metadata from upstream module and determines which blocks
+   * should be loaded by this instance.
+   */
+  int RequestInformation(
       vtkInformation *rqst,
       vtkInformationVector **inputVector,
-      vtkInformationVector *outputVector );
+      vtkInformationVector *outputVector ) override;
 
-  // Description:
-  // Performs upstream requests to the reader
-  virtual int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  /**
+   * Performs upstream requests to the reader
+   */
+  int RequestUpdateExtent(
+      vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
 protected:
   vtkAMRCutPlane();
-  virtual ~vtkAMRCutPlane();
+  ~vtkAMRCutPlane() override;
 
-  // Description:
-  // Returns the cut-plane defined by a vtkCutPlane instance based on the
-  // user-supplied center and normal.
+  /**
+   * Returns the cut-plane defined by a vtkCutPlane instance based on the
+   * user-supplied center and normal.
+   */
   vtkPlane* GetCutPlane( vtkOverlappingAMR *metadata );
 
-  // Description:
-  // Extracts cell
+  /**
+   * Extracts cell
+   */
   void ExtractCellFromGrid(
       vtkUniformGrid *grid, vtkCell* cell,
       std::map<vtkIdType,vtkIdType>& gridPntMapping,
       vtkPoints *nodes,
       vtkCellArray *cells );
 
-  // Description:
-  // Given the grid and a subset ID pair, grid IDs mapping to the extracted
-  // grid IDs, extract the point data.
+  /**
+   * Given the grid and a subset ID pair, grid IDs mapping to the extracted
+   * grid IDs, extract the point data.
+   */
   void ExtractPointDataFromGrid(
       vtkUniformGrid *grid,
       std::map<vtkIdType,vtkIdType>& gridPntMapping,
       vtkIdType NumNodes,
       vtkPointData *PD );
 
-  // Description:
-  // Given the grid and the list of cells that are extracted, extract the
-  // corresponding cell data.
+  /**
+   * Given the grid and the list of cells that are extracted, extract the
+   * corresponding cell data.
+   */
   void ExtractCellDataFromGrid(
       vtkUniformGrid *grid,
       std::vector<vtkIdType>& cellIdxList,
       vtkCellData *CD);
 
-  // Description:
-  // Given a cut-plane, p, and the metadata, m, this method computes which
-  // blocks need to be loaded. The corresponding block IDs are stored in
-  // the internal STL vector, blocksToLoad, which is then propagated upstream
-  // in the RequestUpdateExtent.
+  /**
+   * Given a cut-plane, p, and the metadata, m, this method computes which
+   * blocks need to be loaded. The corresponding block IDs are stored in
+   * the internal STL vector, blocksToLoad, which is then propagated upstream
+   * in the RequestUpdateExtent.
+   */
   void ComputeAMRBlocksToLoad( vtkPlane* p, vtkOverlappingAMR* m);
 
   // Descriription:
   // Initializes the cut-plane center given the min/max bounds.
   void InitializeCenter( double min[3], double max[3] );
 
-  // Description:
-  // Determines if a plane intersects with an AMR box
+  //@{
+  /**
+   * Determines if a plane intersects with an AMR box
+   */
   bool PlaneIntersectsAMRBox( vtkPlane* pl, double bounds[6] );
   bool PlaneIntersectsAMRBox( double plane[4], double bounds[6] );
+  //@}
 
-  // Description:
-  // Determines if a plane intersects with a grid cell
+  /**
+   * Determines if a plane intersects with a grid cell
+   */
   bool PlaneIntersectsCell( vtkPlane *pl, vtkCell *cell );
 
-  // Description:
-  // A utility function that checks if the input AMR data is 2-D.
+  /**
+   * A utility function that checks if the input AMR data is 2-D.
+   */
   bool IsAMRData2D( vtkOverlappingAMR *input );
 
-  // Description:
-  // Applies cutting to an AMR block
+  /**
+   * Applies cutting to an AMR block
+   */
   void CutAMRBlock(
       vtkPlane *cutPlane,
       unsigned int blockIdx,
@@ -167,13 +197,11 @@ protected:
   bool UseNativeCutter;
   vtkMultiProcessController *Controller;
 
-// BTX
   std::vector<int> BlocksToLoad;
-// ETX
 
 private:
-  vtkAMRCutPlane(const vtkAMRCutPlane& ); // Not implemented
-  void operator=(const vtkAMRCutPlane& ); // Not implemented
+  vtkAMRCutPlane(const vtkAMRCutPlane& ) = delete;
+  void operator=(const vtkAMRCutPlane& ) = delete;
 };
 
-#endif /* VTKAMRCUTPLANE_H_ */
+#endif /* vtkAMRCutPlane_h */

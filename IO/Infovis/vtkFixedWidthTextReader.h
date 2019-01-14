@@ -18,26 +18,28 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkFixedWidthTextReader - reader for pulling in text files with fixed-width fields
-//
-// .SECTION Description
-//
-// vtkFixedWidthTextReader reads in a table from a text file where
-// each column occupies a certain number of characters.
-//
-// This class emits ProgressEvent for every 100 lines it reads.
-//
-// .SECTION Caveats
-//
-// This first version of the reader will assume that all fields have
-// the same width.  It also assumes that the first line in the file
-// has at least as many fields (i.e. at least as many characters) as
-// any other line in the file.
-//
-// .SECTION Thanks
-// Thanks to Andy Wilson from Sandia National Laboratories for
-// implementing this class.
-
+/**
+ * @class   vtkFixedWidthTextReader
+ * @brief   reader for pulling in text files with fixed-width fields
+ *
+ *
+ *
+ * vtkFixedWidthTextReader reads in a table from a text file where
+ * each column occupies a certain number of characters.
+ *
+ * This class emits ProgressEvent for every 100 lines it reads.
+ *
+ *
+ * @warning
+ * This first version of the reader will assume that all fields have
+ * the same width.  It also assumes that the first line in the file
+ * has at least as many fields (i.e. at least as many characters) as
+ * any other line in the file.
+ *
+ * @par Thanks:
+ * Thanks to Andy Wilson from Sandia National Laboratories for
+ * implementing this class.
+*/
 
 #ifndef vtkFixedWidthTextReader_h
 #define vtkFixedWidthTextReader_h
@@ -45,6 +47,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+class vtkCommand;
 class vtkTable;
 
 class VTKIOINFOVIS_EXPORT vtkFixedWidthTextReader : public vtkTableAlgorithm
@@ -52,37 +55,55 @@ class VTKIOINFOVIS_EXPORT vtkFixedWidthTextReader : public vtkTableAlgorithm
 public:
   static vtkFixedWidthTextReader* New();
   vtkTypeMacro(vtkFixedWidthTextReader,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
 
-  // Description:
-  // Set/get the field width
+  //@{
+  /**
+   * Set/get the field width
+   */
   vtkSetMacro(FieldWidth, int);
   vtkGetMacro(FieldWidth, int);
+  //@}
 
-  // Description:
-  // If set, this flag will cause the reader to strip whitespace from
-  // the beginning and ending of each field.  Defaults to off.
+  //@{
+  /**
+   * If set, this flag will cause the reader to strip whitespace from
+   * the beginning and ending of each field.  Defaults to off.
+   */
   vtkSetMacro(StripWhiteSpace, bool);
   vtkGetMacro(StripWhiteSpace, bool);
   vtkBooleanMacro(StripWhiteSpace, bool);
+  //@}
 
-  // Description:
-  // Set/get whether to treat the first line of the file as headers.
+  //@{
+  /**
+   * Set/get whether to treat the first line of the file as headers.
+   */
   vtkGetMacro(HaveHeaders,bool);
   vtkSetMacro(HaveHeaders,bool);
   vtkBooleanMacro(HaveHeaders, bool);
+  //@}
+
+  //@{
+  /**
+   * Set/get the ErrorObserver for the internal vtkTable
+   * This is useful for applications that want to catch error messages.
+   */
+  void SetTableErrorObserver(vtkCommand *);
+  vtkGetObjectMacro(TableErrorObserver,vtkCommand);
+  //@}
 
  protected:
   vtkFixedWidthTextReader();
-  ~vtkFixedWidthTextReader();
+  ~vtkFixedWidthTextReader() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) override;
 
   void OpenFile();
 
@@ -92,8 +113,9 @@ public:
   int FieldWidth;
 
 private:
-  vtkFixedWidthTextReader(const vtkFixedWidthTextReader&); // Not implemented
-  void operator=(const vtkFixedWidthTextReader&);   // Not implemented
+  vtkFixedWidthTextReader(const vtkFixedWidthTextReader&) = delete;
+  void operator=(const vtkFixedWidthTextReader&) = delete;
+  vtkCommand *TableErrorObserver;
 };
 
 #endif

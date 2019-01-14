@@ -16,6 +16,9 @@
 #include "vtkRenderTimings.h"
 //#include "vtkNew.h"
 
+#include <vtksys/SystemInformation.hxx>
+#include <vtksys/RegularExpression.hxx>
+
 #include "vtkAxis.h"
 #include "vtkChartLegend.h"
 #include "vtkChartXY.h"
@@ -111,6 +114,9 @@ void vtkRTTestSequence::Run()
 {
   this->SequenceCount = this->RenderTimings->GetSequenceStart();
   int sequenceEnd = this->RenderTimings->GetSequenceEnd();
+  this->Test->SetRenderSize(
+    this->RenderTimings->GetRenderWidth(),
+    this->RenderTimings->GetRenderHeight());
 
   vtkNew<vtkContextView> chartView;
   vtkNew<vtkChartXY> chart;
@@ -122,20 +128,20 @@ void vtkRTTestSequence::Run()
     // Set up our results table, this will be used for our timings etc.
     summary->SetName(this->Test->GetSummaryResultName());
     secondSummary->SetName(this->Test->GetSecondSummaryResultName());
-    results->AddColumn(secondSummary.Get());
-    results->AddColumn(summary.Get());
+    results->AddColumn(secondSummary);
+    results->AddColumn(summary);
 
     // Set up a chart to show the data being generated in real time.
     chartView->GetRenderWindow()->SetSize(700, 500);
     chartView->GetRenderWindow()->SetPosition(700, 0);
-    chartView->GetScene()->AddItem(chart.Get());
+    chartView->GetScene()->AddItem(chart);
     vtkPlot *plot = chart->AddPlot(vtkChart::LINE);
-    plot->SetInputData(results.Get(), 0, 1);
+    plot->SetInputData(results, 0, 1);
     chart->GetAxis(vtkAxis::LEFT)->SetTitle(this->Test->GetSummaryResultName());
     chart->GetAxis(vtkAxis::LEFT)->LogScaleOn();
     chart->GetAxis(vtkAxis::BOTTOM)->SetTitle(this->Test->GetSecondSummaryResultName());
     chart->GetAxis(vtkAxis::BOTTOM)->LogScaleOn();
-    results->SetNumberOfRows(100);  // have to initialze this or it fails
+    results->SetNumberOfRows(100);  // have to initialize this or it fails
     }
 
   double remainingTime = this->TargetTime;
@@ -182,10 +188,10 @@ void vtkRTTestSequence::Run()
 void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
 {
   double result = 0.0;
-  vtkRTTestResult *bestTestResult = NULL;
+  vtkRTTestResult *bestTestResult = nullptr;
   bool initialized = false;
   std::vector<vtkRTTestResult>::iterator trItr;
-  for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); trItr++)
+  for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); ++trItr)
     {
     if (!initialized)
       {
@@ -215,14 +221,14 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
     }
   ost << this->Test->GetName() << ":" << bestTestResult->SequenceNumber
     << ": " << result << " " << this->Test->GetSummaryResultName()
-    << " and " << static_cast<vtkIdType>(bestTestResult->Results[this->Test->GetSecondSummaryResultName()])
+    << " and " << (static_cast<vtkIdType>(10.0*bestTestResult->Results[this->Test->GetSecondSummaryResultName()])/10.0)
     << " " << this->Test->GetSecondSummaryResultName() << endl;
 }
 
 void vtkRTTestSequence::ReportDetailedResults(ostream &ost)
 {
   std::vector<vtkRTTestResult>::iterator trItr;
-  for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); trItr++)
+  for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); ++trItr)
     {
     ost << this->RenderTimings->GetSystemName() << ", ";
     trItr->ReportResults(this->Test, ost);
@@ -242,6 +248,8 @@ vtkRenderTimings::vtkRenderTimings()
   this->SequenceEnd = 0;
   this->SequenceStepTimeLimit = 15.0; // seconds
   this->DetailedResultsFileName = "results.csv";
+  this->RenderWidth = 600;
+  this->RenderHeight = 600;
 }
 
 int vtkRenderTimings::RunTests()
@@ -260,7 +268,7 @@ int vtkRenderTimings::RunTests()
   if (useRegex)
     {
     testCount = 0;
-    for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); testItr++)
+    for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); ++testItr)
       {
       if (re.find((*testItr)->GetName()))
         {
@@ -268,7 +276,7 @@ int vtkRenderTimings::RunTests()
         }
       }
     }
-  for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); testItr++)
+  for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); ++testItr)
     {
     if (!useRegex || re.find((*testItr)->GetName()))
       {
@@ -289,7 +297,7 @@ void vtkRenderTimings::ReportResults()
   // report the summary results to cout
   cout << "Summary results: (detailed results written to " << this->DetailedResultsFileName << ")" << endl;
   std::vector<vtkRTTestSequence *>::iterator tsItr;
-  for (tsItr = this->TestSequences.begin(); tsItr != this->TestSequences.end(); tsItr++)
+  for (tsItr = this->TestSequences.begin(); tsItr != this->TestSequences.end(); ++tsItr)
     {
     (*tsItr)->ReportSummaryResults(cout);
     }
@@ -297,7 +305,7 @@ void vtkRenderTimings::ReportResults()
   // then the detailed to a csv file
   ofstream rfile;
   rfile.open (this->DetailedResultsFileName.c_str());
-  for (tsItr = this->TestSequences.begin(); tsItr != this->TestSequences.end(); tsItr++)
+  for (tsItr = this->TestSequences.begin(); tsItr != this->TestSequences.end(); ++tsItr)
     {
     (*tsItr)->ReportDetailedResults(rfile);
     }
@@ -335,13 +343,17 @@ int vtkRenderTimings::ParseCommandLineArguments( int argc, char *argv[] )
   this->Arguments.AddArgument("-se", argT::SPACE_ARGUMENT, &this->SequenceEnd,
     "Specify an ending index for test sequences. Even if there is time remaining "
     "a test sequence will not go beyond this value. You can combine this option "
-    "with -ss to run just one iteration of a sequece. For example you can "
+    "with -ss to run just one iteration of a sequence. For example you can "
     "use -ss 6 -se 6 to only run the 6th sequence. A value of 0 means that "
     "there is no limit (the time limit will still stop the tests).");
   this->Arguments.AddBooleanArgument("-list", &this->ListTests,
     "Provide a listing of available tests.");
   this->Arguments.AddBooleanArgument("-nochart", &this->NoChartResults,
     "Suppress realtime charting of test performance.");
+  this->Arguments.AddArgument("-width", argT::SPACE_ARGUMENT, &this->RenderWidth,
+    "Width of benchmark rendering window.");
+  this->Arguments.AddArgument("-height", argT::SPACE_ARGUMENT, &this->RenderHeight,
+    "Height of benchmark rendering window.");
 
   if ( !this->Arguments.Parse() )
     {
@@ -366,7 +378,7 @@ int vtkRenderTimings::ParseCommandLineArguments( int argc, char *argv[] )
       re.compile(this->Regex);
       }
     std::vector<vtkRTTest *>::iterator testItr;
-    for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); testItr++)
+    for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); ++testItr)
       {
       if (!useRegex || re.find((*testItr)->GetName()))
         {

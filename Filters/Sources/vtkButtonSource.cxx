@@ -43,13 +43,13 @@ void vtkButtonSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Texture Style: ";
   if ( this->TextureStyle == VTK_TEXTURE_STYLE_FIT_IMAGE )
-    {
+  {
     os << "Fit\n";
-    }
+  }
   else
-    {
+  {
     os << "Proportional\n";
-    }
+  }
 
   os << indent << "Texture Dimensions: ("
      << this->TextureDimensions[0] << ", "

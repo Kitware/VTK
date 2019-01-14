@@ -31,10 +31,10 @@ vtkCxxSetObjectMacro(vtkAngleRepresentation,HandleRepresentation,vtkHandleRepres
 //----------------------------------------------------------------------
 vtkAngleRepresentation::vtkAngleRepresentation()
 {
-  this->HandleRepresentation  = NULL;
-  this->Point1Representation = NULL;
-  this->CenterRepresentation = NULL;
-  this->Point2Representation = NULL;
+  this->HandleRepresentation  = nullptr;
+  this->Point1Representation = nullptr;
+  this->CenterRepresentation = nullptr;
+  this->Point2Representation = nullptr;
 
   this->Tolerance = 5;
   this->Placed = 0;
@@ -44,31 +44,31 @@ vtkAngleRepresentation::vtkAngleRepresentation()
   this->ArcVisibility = 1;
 
   this->LabelFormat = new char[8];
-  sprintf(this->LabelFormat,"%s","%-#6.3g");
+  snprintf(this->LabelFormat,8,"%s","%-#6.3g");
 }
 
 //----------------------------------------------------------------------
 vtkAngleRepresentation::~vtkAngleRepresentation()
 {
   if ( this->HandleRepresentation )
-    {
+  {
     this->HandleRepresentation->Delete();
-    }
+  }
   if ( this->Point1Representation )
-    {
+  {
     this->Point1Representation->Delete();
-    }
+  }
   if ( this->CenterRepresentation )
-    {
+  {
     this->CenterRepresentation->Delete();
-    }
+  }
   if ( this->Point2Representation )
-    {
+  {
     this->Point2Representation->Delete();
-    }
+  }
 
   delete [] this->LabelFormat;
-  this->LabelFormat = NULL;
+  this->LabelFormat = nullptr;
 }
 
 
@@ -76,55 +76,55 @@ vtkAngleRepresentation::~vtkAngleRepresentation()
 void vtkAngleRepresentation::InstantiateHandleRepresentation()
 {
   if ( ! this->Point1Representation )
-    {
+  {
     this->Point1Representation = this->HandleRepresentation->NewInstance();
     this->Point1Representation->ShallowCopy(this->HandleRepresentation);
-    }
+  }
 
   if ( ! this->CenterRepresentation )
-    {
+  {
     this->CenterRepresentation = this->HandleRepresentation->NewInstance();
     this->CenterRepresentation->ShallowCopy(this->HandleRepresentation);
-    }
+  }
 
   if ( ! this->Point2Representation )
-    {
+  {
     this->Point2Representation = this->HandleRepresentation->NewInstance();
     this->Point2Representation->ShallowCopy(this->HandleRepresentation);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 int vtkAngleRepresentation::
 ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modify))
 {
-  if (this->Point1Representation == NULL ||
-      this->CenterRepresentation == NULL ||
-      this->Point2Representation == NULL )
-    {
+  if (this->Point1Representation == nullptr ||
+      this->CenterRepresentation == nullptr ||
+      this->Point2Representation == nullptr )
+  {
     this->InteractionState = vtkAngleRepresentation::Outside;
     return this->InteractionState;
-    }
+  }
 
   int p1State = this->Point1Representation->GetInteractionState();
   int cState = this->CenterRepresentation->GetInteractionState();
   int p2State = this->Point2Representation->GetInteractionState();
   if ( p1State == vtkHandleRepresentation::Nearby )
-    {
+  {
     this->InteractionState = vtkAngleRepresentation::NearP1;
-    }
+  }
   else if ( cState == vtkHandleRepresentation::Nearby )
-    {
+  {
     this->InteractionState = vtkAngleRepresentation::NearCenter;
-    }
+  }
   else if ( p2State == vtkHandleRepresentation::Nearby )
-    {
+  {
     this->InteractionState = vtkAngleRepresentation::NearP2;
-    }
+  }
   else
-    {
+  {
     this->InteractionState = vtkAngleRepresentation::Outside;
-    }
+  }
 
   return this->InteractionState;
 }
@@ -186,41 +186,41 @@ void vtkAngleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Label Format: ";
   if ( this->LabelFormat )
-    {
+  {
     os << this->LabelFormat << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "Point1 Representation: ";
   if ( this->Point1Representation )
-    {
+  {
     this->Point1Representation->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "Center Representation: ";
   if ( this->CenterRepresentation )
-    {
+  {
     this->CenterRepresentation->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "Point2 Representation: ";
   if ( this->Point2Representation )
-    {
+  {
     this->Point2Representation->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 }

@@ -64,12 +64,12 @@ int TestQtDiagram( int argc, char * argv [] )
   // Force the use of the Qt based rendering strategy - fail if not available
   if(!vtkOpenGLContextDevice2D::SafeDownCast(actor->GetContext()->GetDevice())
       ->SetStringRendererToQt())
-    {
+  {
     // This should never happen as this test is only compiled when VTK_USE_QT
     // is defined.
     cerr << "Qt label rendering not available." << endl;
     return 1;
-    }
+  }
 
   // Set up the interactor, turn off antialiasing for the tests.
   VTK_CREATE(vtkRenderWindowInteractor, interactor);

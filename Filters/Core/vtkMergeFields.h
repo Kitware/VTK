@@ -12,32 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMergeFields - Merge multiple fields into one.
-// .SECTION Description
-// vtkMergeFields is used to merge mutliple field into one.
-// The new field is put in the same field data as the original field.
-// For example
-// @verbatim
-// mf->SetOutputField("foo", vtkMergeFields::POINT_DATA);
-// mf->SetNumberOfComponents(2);
-// mf->Merge(0, "array1", 1);
-// mf->Merge(1, "array2", 0);
-// @endverbatim
-// will tell vtkMergeFields to use the 2nd component of array1 and
-// the 1st component of array2 to create a 2 component field called foo.
-// The same can be done using Tcl:
-// @verbatim
-// mf SetOutputField foo POINT_DATA
-// mf Merge 0 array1 1
-// mf Merge 1 array2 0
-//
-// Field locations: DATA_OBJECT, POINT_DATA, CELL_DATA
-// @endverbatim
-
-// .SECTION See Also
-// vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
-// vtkDataSetAttributes vtkDataArray vtkRearrangeFields
-// vtkSplitField vtkAssignAttribute
+/**
+ * @class   vtkMergeFields
+ * @brief   Merge multiple fields into one.
+ *
+ * vtkMergeFields is used to merge multiple field into one.
+ * The new field is put in the same field data as the original field.
+ * For example
+ * @verbatim
+ * mf->SetOutputField("foo", vtkMergeFields::POINT_DATA);
+ * mf->SetNumberOfComponents(2);
+ * mf->Merge(0, "array1", 1);
+ * mf->Merge(1, "array2", 0);
+ * @endverbatim
+ * will tell vtkMergeFields to use the 2nd component of array1 and
+ * the 1st component of array2 to create a 2 component field called foo.
+ *
+ * @sa
+ * vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
+ * vtkDataSetAttributes vtkDataArray vtkRearrangeFields
+ * vtkSplitField vtkAssignAttribute
+*/
 
 #ifndef vtkMergeFields_h
 #define vtkMergeFields_h
@@ -52,43 +47,47 @@ class VTKFILTERSCORE_EXPORT vtkMergeFields : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkMergeFields,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Create a new vtkMergeFields.
+  /**
+   * Create a new vtkMergeFields.
+   */
   static vtkMergeFields *New();
 
-  // Description:
-  // The output field will have the given name and it will be in
-  // fieldLoc (the input fields also have to be in fieldLoc).
+  /**
+   * The output field will have the given name and it will be in
+   * fieldLoc (the input fields also have to be in fieldLoc).
+   */
   void SetOutputField(const char* name, int fieldLoc);
 
-  // Description:
-  // Helper method used by the other language bindings. Allows the caller to
-  // specify arguments as strings instead of enums.Returns an operation id
-  // which can later be used to remove the operation.
+  /**
+   * Helper method used by the other language bindings. Allows the caller to
+   * specify arguments as strings instead of enums.Returns an operation id
+   * which can later be used to remove the operation.
+   */
   void SetOutputField(const char* name, const char* fieldLoc);
 
-  // Description:
-  // Add a component (arrayName,sourceComp) to the output field.
+  /**
+   * Add a component (arrayName,sourceComp) to the output field.
+   */
   void Merge(int component, const char* arrayName, int sourceComp);
 
-  // Description:
-  // Set the number of the components in the output field.
-  // This has to be set before execution. Default value is 0.
+  //@{
+  /**
+   * Set the number of the components in the output field.
+   * This has to be set before execution. Default value is 0.
+   */
   vtkSetMacro(NumberOfComponents, int);
   vtkGetMacro(NumberOfComponents, int);
+  //@}
 
-//BTX
   enum FieldLocations
   {
     DATA_OBJECT=0,
     POINT_DATA=1,
     CELL_DATA=2
   };
-//ETX
 
-//BTX
   struct Component
   {
     int Index;
@@ -96,34 +95,36 @@ public:
     char* FieldName;
     Component* Next;   // linked list
     void SetName(const char* name)
-      {
+    {
         delete[] this->FieldName;
-        this->FieldName = 0;
+        this->FieldName = nullptr;
         if (name)
-          {
-          this->FieldName = new char[strlen(name)+1];
-          strcpy(this->FieldName, name);
-          }
-      }
-    Component() { FieldName = 0; }
+        {
+          size_t len = strlen(name)+1;
+          this->FieldName = new char[len];
+#ifdef _MSC_VER
+          strncpy_s(this->FieldName, len, name, len - 1);
+#else
+          strncpy(this->FieldName, name, len);
+#endif
+        }
+    }
+    Component() { FieldName = nullptr; }
     ~Component() { delete[] FieldName; }
   };
-//ETX
 
 protected:
 
-//BTX
   enum FieldType
   {
     NAME,
     ATTRIBUTE
   };
-//ETX
 
   vtkMergeFields();
-  virtual ~vtkMergeFields();
+  ~vtkMergeFields() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   char* FieldName;
   int FieldLocation;
@@ -151,8 +152,8 @@ protected:
   void PrintComponent(Component* op, ostream& os, vtkIndent indent);
   void PrintAllComponents(ostream& os, vtkIndent indent);
 private:
-  vtkMergeFields(const vtkMergeFields&);  // Not implemented.
-  void operator=(const vtkMergeFields&);  // Not implemented.
+  vtkMergeFields(const vtkMergeFields&) = delete;
+  void operator=(const vtkMergeFields&) = delete;
 };
 
 #endif

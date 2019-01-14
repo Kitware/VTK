@@ -187,7 +187,7 @@ public:
 
 size_t XdmfValuesBinary::getSeek(){
     if(this->Seek==NULL)return 0;
-    return static_cast<size_t>(atoi(this->Seek));
+    return static_cast<size_t>(strtoull(this->Seek, NULL, 0));
 }
 
 

@@ -3,14 +3,24 @@ vtk_add_test_python(
   HyperScalarBar.py
   KlineBottle.py
   TenEllip.py
+  TestAdaptiveSubdivisionFilter.py
   TestBandedContourFilter.py
+  TestBandedContourFilter2.py
   TestBoxFunction.py
+  TestContourLoopExtraction.py
+  TestContourLoopExtraction2.py
+  TestCookieCutter.py
+  TestCookieCutter2.py
+  TestCookieCutter3.py
+  TestFitToHeightMapFilter.py
+  TestFitToHeightMapFilter2.py
   TestImageMarchingCubes.py
   TestRibbonAndTube.py
   TestRuledSurface.py
   TestRuledSurface2.py
   TestSpherePuzzle.py
   TestSpherePuzzleArrows.py
+  TestTrimmedExtrusionFilter.py
   camera.py
   eleState.py
   extrudeCopyCD.py

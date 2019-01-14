@@ -28,14 +28,10 @@
 vtkStandardNewMacro(vtkMoleculeToBondStickFilter);
 
 //----------------------------------------------------------------------------
-vtkMoleculeToBondStickFilter::vtkMoleculeToBondStickFilter()
-{
-}
+vtkMoleculeToBondStickFilter::vtkMoleculeToBondStickFilter() = default;
 
 //----------------------------------------------------------------------------
-vtkMoleculeToBondStickFilter::~vtkMoleculeToBondStickFilter()
-{
-}
+vtkMoleculeToBondStickFilter::~vtkMoleculeToBondStickFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkMoleculeToBondStickFilter::RequestData(
@@ -56,6 +52,7 @@ int vtkMoleculeToBondStickFilter::RequestData(
   vtkCellArray *polys = vtkCellArray::New();
   vtkPoints *points = vtkPoints::New();
   vtkUnsignedShortArray *bondOrders = vtkUnsignedShortArray::New();
+  bondOrders->SetName(input->GetBondOrdersArrayName());
 
   // Initialize a CylinderSource
   vtkCylinderSource *cylSource = vtkCylinderSource::New();
@@ -68,7 +65,8 @@ int vtkMoleculeToBondStickFilter::RequestData(
                    GetNumberOfPoints());
   polys->Allocate(3 * numBonds * cylSource->GetOutput()->GetPolys()->
                   GetNumberOfCells());
-  bondOrders->Allocate(points->GetNumberOfPoints());
+  bondOrders->Allocate(3 * numBonds * cylSource->GetOutput()->GetPoints()->
+                   GetNumberOfPoints());
 
   // Create a transform object to map the cylinder source to the bond
   vtkTransform *xform = vtkTransform::New();
@@ -86,16 +84,16 @@ int vtkMoleculeToBondStickFilter::RequestData(
   double bondCenter[3];
   double pos1[3], pos2[3];
   // Normalized vector pointing along the cylinder (y axis);
-  const static double cylVec[3] = {0.0, 1.0, 0.0};
+  static const double cylVec[3] = {0.0, 1.0, 0.0};
   // Normalized vector pointing along bond
   double bondVec[3];
   // Unit z vector
-  const static double unitZ[3] = {0.0, 0.0, 1.0};
+  static const double unitZ[3] = {0.0, 0.0, 1.0};
 
   // Build a sphere for each atom and append it's data to the output
   // arrays.
   for (vtkIdType bondInd = 0; bondInd < numBonds; ++bondInd)
-    {
+  {
     // Extract bond info
     vtkBond bond = input->GetBond(bondInd);
     bondOrder = bond.GetOrder();
@@ -117,7 +115,7 @@ int vtkMoleculeToBondStickFilter::RequestData(
 
     // Set up delta step vector and bond radius from bond order:
     switch (bondOrder)
-      {
+    {
       case 1:
       default:
         radius = 0.1;
@@ -144,7 +142,7 @@ int vtkMoleculeToBondStickFilter::RequestData(
         initialDisp[1] = -delta[1];
         initialDisp[2] = -delta[2];
         break;
-      }
+    }
 
     // Construct transform
     xform->Identity();
@@ -156,7 +154,7 @@ int vtkMoleculeToBondStickFilter::RequestData(
     // For each bond order, add a cylinder to output, translate by
     // delta, and repeat.
     for (unsigned short iter = 0; iter < bondOrder; ++iter)
-      {
+    {
       vtkPolyData *cylinder = cylSource->GetOutput();
       vtkPoints *cylPoints = cylinder->GetPoints();
       vtkCellArray *cylPolys = cylinder->GetPolys();
@@ -169,28 +167,28 @@ int vtkMoleculeToBondStickFilter::RequestData(
 
       // Use bond order for point scalar data.
       for (vtkIdType i = 0; i < numPoints; ++i)
-        {
+      {
         bondOrders->InsertNextValue(bondOrder);
-        }
+      }
 
       // Add new cells (polygons) that represent the cylinder
       cylPolys->InitTraversal();
       while (cylPolys->GetNextCell(numCellPoints, cellPoints) != 0)
-        {
+      {
         vtkIdType *newCellPoints = new vtkIdType[numCellPoints];
         for (vtkIdType i = 0; i < numCellPoints; ++i)
-          {
+        {
           // The new point ids should be offset by the pointOffset above
           newCellPoints[i] = cellPoints[i] + pointOffset;
-          }
+        }
         polys->InsertNextCell(numCellPoints, newCellPoints);
         delete [] newCellPoints;
-        }
+      }
 
       // Setup for the next cylinder in a multi-bond
       xform->Translate(delta);
-      }
     }
+  }
 
   // Release extra memory
   points->Squeeze();

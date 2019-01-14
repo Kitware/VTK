@@ -1,48 +1,40 @@
-set(Module_SRCS
-  vtkBMPReader.cxx
-  vtkBMPWriter.cxx
-  vtkDEMReader.cxx
-  vtkDICOMImageReader.cxx
-  vtkGESignaReader.cxx
-  vtkImageExport.cxx
-  vtkImageImport.cxx
-  vtkImageImportExecutive.cxx
-  vtkImageReader.cxx
-  vtkImageReader2.cxx
-  vtkImageReader2Collection.cxx
-  vtkImageReader2Factory.cxx
-  vtkImageWriter.cxx
-  vtkJPEGReader.cxx
-  vtkJPEGWriter.cxx
-  vtkJSONImageWriter.cxx
-  vtkMedicalImageProperties.cxx
-  vtkMedicalImageReader2.cxx
-  vtkMetaImageReader.cxx
-  vtkMetaImageWriter.cxx
-  vtkNIFTIImageHeader.cxx
-  vtkNIFTIImageReader.cxx
-  vtkNIFTIImageWriter.cxx
-  vtkNrrdReader.cxx
-  vtkPNGReader.cxx
-  vtkPNGWriter.cxx
-  vtkPNMReader.cxx
-  vtkPNMWriter.cxx
-  vtkPostScriptWriter.cxx
-  vtkSLCReader.cxx
-  vtkTIFFReader.cxx
-  vtkTIFFWriter.cxx
-  vtkVolume16Reader.cxx
-  vtkVolumeReader.cxx
-  )
+set(classes
+  vtkBMPReader
+  vtkBMPWriter
+  vtkDEMReader
+  vtkDICOMImageReader
+  vtkGESignaReader
+  vtkImageExport
+  vtkImageImport
+  vtkImageImportExecutive
+  vtkImageReader
+  vtkImageReader2
+  vtkImageReader2Collection
+  vtkImageReader2Factory
+  vtkImageWriter
+  vtkJPEGReader
+  vtkJPEGWriter
+  vtkJSONImageWriter
+  vtkMedicalImageProperties
+  vtkMedicalImageReader2
+  vtkMetaImageReader
+  vtkMetaImageWriter
+  vtkMRCReader
+  vtkNIFTIImageHeader
+  vtkNIFTIImageReader
+  vtkNIFTIImageWriter
+  vtkNrrdReader
+  vtkPNGReader
+  vtkPNGWriter
+  vtkPNMReader
+  vtkPNMWriter
+  vtkPostScriptWriter
+  vtkSEPReader
+  vtkSLCReader
+  vtkTIFFReader
+  vtkTIFFWriter
+  vtkVolume16Reader
+  vtkVolumeReader)
 
-set_source_files_properties(
-  vtkVolumeReader
-  ABSTRACT
-  )
-
-set_source_files_properties(
-  vtkNIFTIPrivate.h
-  WRAP_EXCLUDE
-  )
-
-vtk_module_library(vtkIOImage ${Module_SRCS})
+vtk_module_add_module(VTK::IOImage
+  CLASSES ${classes})

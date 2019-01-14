@@ -1,5 +1,31 @@
 #!/usr/bin/env python
 
+
+def DoPlot3DReaderTests(reader):
+    # Ensure disable function works.
+    reader.RemoveAllFunctions()
+    reader.AddFunction(211) # vorticity magnitude.
+    reader.Update()
+    if reader.GetOutput().GetBlock(0).GetPointData().GetArray("VorticityMagnitude") is None:
+        print("Failed to read `VorticityMagnitude`")
+        sys.exit(1)
+    if reader.GetOutput().GetBlock(0).GetPointData().GetArray("Velocity") is None:
+        print("Failed to read `Velocity` to compute `VorticityMagnitude`")
+        sys.exit(1)
+    reader.RemoveAllFunctions()
+    reader.Update()
+    if reader.GetOutput().GetBlock(0).GetPointData().GetArray("VorticityMagnitude") is not None:
+        print("Failed to not-read `VorticityMagnitude`")
+        sys.exit(1)
+
+    # Let's ensure intermediate results can be dropped.
+    reader.PreserveIntermediateFunctionsOff()
+    reader.AddFunction(211) # vorticity magnitude.
+    reader.Update()
+    if reader.GetOutput().GetBlock(0).GetPointData().GetArray("Velocity") is not None:
+        print("PreserveIntermediateFunctionsOff is not working as expected.")
+        sys.exit(1)
+
 # Create the RenderWindow, Renderer and both Actors
 #
 ren1 = vtk.vtkRenderer()
@@ -19,6 +45,11 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
     reader.SetXYZFileName("" + str(VTK_DATA_ROOT) + "/Data/combxyz.bin")
     reader.SetQFileName("" + str(VTK_DATA_ROOT) + "/Data/combq.bin")
     reader.Update()
+
+    # before we continue on with the test, let's quickly do some
+    # vtkMultiBlockPLOT3DReader option tests.
+    DoPlot3DReaderTests(reader)
+
     contr = vtk.vtkDummyController()
     extract = vtk.vtkTransmitStructuredDataPiece()
     extract.SetController(contr)
@@ -125,13 +156,13 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
 
     # do some extra checking to make sure we have the proper number of cells
     if surface.GetOutput().GetNumberOfCells() != 4016:
-        print "surface output should have 4016 cells but has ", surface.GetOutput().GetNumberOfCells()
+        print("surface output should have 4016 cells but has %d" % surface.GetOutput().GetNumberOfCells())
         sys.exit(1)
     if iso.GetOutput().GetNumberOfCells() != 89:
-        print "iso output should have 89 cells but has ", iso.GetOutput().GetNumberOfCells()
+        print("iso output should have 89 cells but has %d" % iso.GetOutput().GetNumberOfCells())
         sys.exit(1)
     if pReader3.GetOutput().GetNumberOfCells() != 48:
-        print "pReader3 output should have 48 cells but has ", pReader3.GetOutput().GetNumberOfCells()
+        print("pReader3 output should have 48 cells but has %d" % pReader3.GetOutput().GetNumberOfCells())
         sys.exit(1)
     pass
 ren1.SetBackground(0.1,0.2,0.4)

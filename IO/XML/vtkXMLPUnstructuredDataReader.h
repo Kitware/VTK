@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPUnstructuredDataReader - Superclass for parallel unstructured data XML readers.
-// .SECTION Description
-// vtkXMLPUnstructuredDataReader provides functionality common to all
-// parallel unstructured data format readers.
-
-// .SECTION See Also
-// vtkXMLPPolyDataReader vtkXMLPUnstructuredGridReader
+/**
+ * @class   vtkXMLPUnstructuredDataReader
+ * @brief   Superclass for parallel unstructured data XML readers.
+ *
+ * vtkXMLPUnstructuredDataReader provides functionality common to all
+ * parallel unstructured data format readers.
+ *
+ * @sa
+ * vtkXMLPPolyDataReader vtkXMLPUnstructuredGridReader
+*/
 
 #ifndef vtkXMLPUnstructuredDataReader_h
 #define vtkXMLPUnstructuredDataReader_h
@@ -34,44 +37,44 @@ class VTKIOXML_EXPORT vtkXMLPUnstructuredDataReader : public vtkXMLPDataReader
 {
 public:
   vtkTypeMacro(vtkXMLPUnstructuredDataReader,vtkXMLPDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
-  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+  void CopyOutputInformation(vtkInformation *outInfo, int port) override;
 
 protected:
   vtkXMLPUnstructuredDataReader();
-  ~vtkXMLPUnstructuredDataReader();
+  ~vtkXMLPUnstructuredDataReader() override;
 
-  virtual int RequestInformation(vtkInformation *request,
+  int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
+                                 vtkInformationVector *outputVector) override;
 
 
   vtkPointSet* GetOutputAsPointSet();
   vtkPointSet* GetPieceInputAsPointSet(int piece);
   virtual void SetupOutputTotals();
   virtual void SetupNextPiece();
-  vtkIdType GetNumberOfPoints();
-  vtkIdType GetNumberOfCells();
-  void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray);
+  vtkIdType GetNumberOfPoints() override;
+  vtkIdType GetNumberOfCells() override;
+  void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray) override;
 
-  void SetupEmptyOutput();
+  void SetupEmptyOutput() override;
 
   // Setup the output's information.
-  void SetupOutputInformation(vtkInformation *outInfo);
+  void SetupOutputInformation(vtkInformation *outInfo) override;
 
-  void SetupOutputData();
+  void SetupOutputData() override;
   virtual void GetOutputUpdateExtent(int& piece, int& numberOfPieces,
                                      int& ghostLevel)=0;
 
   // Pipeline execute data driver.  Called by vtkXMLReader.
-  void ReadXMLData();
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
+  void ReadXMLData() override;
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
   void SetupUpdateExtent(int piece, int numberOfPieces, int ghostLevel);
 
-  int ReadPieceData();
+  int ReadPieceData() override;
   void CopyCellArray(vtkIdType totalNumberOfCells, vtkCellArray* inCells,
                      vtkCellArray* outCells);
 
@@ -96,8 +99,8 @@ protected:
   vtkXMLDataElement* PPointsElement;
 
 private:
-  vtkXMLPUnstructuredDataReader(const vtkXMLPUnstructuredDataReader&);  // Not implemented.
-  void operator=(const vtkXMLPUnstructuredDataReader&);  // Not implemented.
+  vtkXMLPUnstructuredDataReader(const vtkXMLPUnstructuredDataReader&) = delete;
+  void operator=(const vtkXMLPUnstructuredDataReader&) = delete;
 };
 
 #endif

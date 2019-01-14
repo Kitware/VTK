@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyDataWriter - write vtk polygonal data
-// .SECTION Description
-// vtkPolyDataWriter is a source object that writes ASCII or binary
-// polygonal data files in vtk format. See text for format details.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
+/**
+ * @class   vtkPolyDataWriter
+ * @brief   write vtk polygonal data
+ *
+ * vtkPolyDataWriter is a source object that writes ASCII or binary
+ * polygonal data files in vtk format. See text for format details.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+*/
 
 #ifndef vtkPolyDataWriter_h
 #define vtkPolyDataWriter_h
@@ -32,24 +35,27 @@ class VTKIOLEGACY_EXPORT vtkPolyDataWriter : public vtkDataWriter
 public:
   static vtkPolyDataWriter *New();
   vtkTypeMacro(vtkPolyDataWriter,vtkDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkPolyData* GetInput();
   vtkPolyData* GetInput(int port);
+  //@}
 
 protected:
   vtkPolyDataWriter() {}
-  ~vtkPolyDataWriter() {}
+  ~vtkPolyDataWriter() override {}
 
-  void WriteData();
+  void WriteData() override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkPolyDataWriter(const vtkPolyDataWriter&);  // Not implemented.
-  void operator=(const vtkPolyDataWriter&);  // Not implemented.
+  vtkPolyDataWriter(const vtkPolyDataWriter&) = delete;
+  void operator=(const vtkPolyDataWriter&) = delete;
 };
 
 #endif

@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPassThrough - Shallow copies the input into the output
-//
-// .SECTION Description
-// The output type is always the same as the input object type.
+/**
+ * @class   vtkPassThrough
+ * @brief   Shallow copies the input into the output
+ *
+ *
+ * The output type is always the same as the input object type.
+*/
 
 #ifndef vtkPassThrough_h
 #define vtkPassThrough_h
@@ -28,35 +31,55 @@ class VTKFILTERSGENERAL_EXPORT vtkPassThrough : public vtkPassInputTypeAlgorithm
 public:
   static vtkPassThrough* New();
   vtkTypeMacro(vtkPassThrough, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Specify the first input port as optional
-  int FillInputPortInformation(int port, vtkInformation* info);
+  /**
+   * Specify the first input port as optional
+   */
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  // Description:
-  // Whether or not to deep copy the input. This can be useful if you
-  // want to create a copy of a data object. You can then disconnect
-  // this filter's input connections and it will act like a source.
-  // Defaults to OFF.
-  vtkSetMacro(DeepCopyInput, int);
-  vtkGetMacro(DeepCopyInput, int);
-  vtkBooleanMacro(DeepCopyInput, int);
+  //@{
+  /**
+   * Whether or not to deep copy the input. This can be useful if you
+   * want to create a copy of a data object. You can then disconnect
+   * this filter's input connections and it will act like a source.
+   * Defaults to OFF.
+   */
+  vtkSetMacro(DeepCopyInput, vtkTypeBool);
+  vtkGetMacro(DeepCopyInput, vtkTypeBool);
+  vtkBooleanMacro(DeepCopyInput, vtkTypeBool);
+  //@}
+
+  /**
+   * Allow the filter to execute without error when no input connection is
+   * specified. In this case, and empty vtkPolyData dataset will be created.
+   * By default, this setting is false.
+   * @{
+   */
+  vtkSetMacro(AllowNullInput, bool)
+  vtkGetMacro(AllowNullInput, bool)
+  vtkBooleanMacro(AllowNullInput, bool)
+  /**@}*/
 
 protected:
   vtkPassThrough();
-  ~vtkPassThrough();
+  ~vtkPassThrough() override;
 
-  virtual int RequestData(
+  int RequestDataObject(
+      vtkInformation *request,
+      vtkInformationVector **inVec,
+      vtkInformationVector *outVec) override;
+  int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) override;
 
-  int DeepCopyInput;
+  vtkTypeBool DeepCopyInput;
+  bool AllowNullInput;
 
 private:
-  vtkPassThrough(const vtkPassThrough&); // Not implemented
-  void operator=(const vtkPassThrough&);   // Not implemented
+  vtkPassThrough(const vtkPassThrough&) = delete;
+  void operator=(const vtkPassThrough&) = delete;
 };
 
 #endif

@@ -13,13 +13,15 @@
 
 =========================================================================*/
 
+#ifndef vtkRenderTimings_h
+#define vtkRenderTimings_h
+
 /**
  * Define the classes we use for running timing benchmarks
  */
 
+#include "vtkUtilitiesBenchmarksModule.h"
 #include "vtkTimerLog.h"
-#include <vtksys/SystemInformation.hxx>
-#include <vtksys/RegularExpression.hxx>
 #include <vtksys/CommandLineArguments.hxx>
 #include <map>
 
@@ -27,7 +29,7 @@ class vtkRTTestResult;
 class vtkRTTestSequence;
 class vtkRenderTimings;
 
-class vtkRTTest
+class VTKUTILITIESBENCHMARKS_EXPORT vtkRTTest
 {
 public:
   // what is the name of this test
@@ -52,6 +54,10 @@ public:
   virtual void SetTargetTime(float tt) { this->TargetTime = tt; }
   virtual float GetTargetTime() { return this->TargetTime; }
 
+  void SetRenderSize(int width, int height) { this->RenderWidth = width; this->RenderHeight = height; }
+  int GetRenderWidth() { return this->RenderWidth; }
+  int GetRenderHeight() { return this->RenderHeight; }
+
   // run the test, argc and argv are extra arguments that the test might
   // use.
   virtual vtkRTTestResult Run(vtkRTTestSequence *ats, int argc, char *argv[]) = 0;
@@ -60,6 +66,7 @@ public:
   {
     this->TargetTime = 1.0;
     this->Name = name;
+    RenderWidth = RenderHeight = 600;
   }
 
   virtual ~vtkRTTest() {}
@@ -67,9 +74,10 @@ public:
 protected:
   float TargetTime;
   std::string Name;
+  int RenderWidth, RenderHeight;
 };
 
-class vtkRTTestResult
+class VTKUTILITIESBENCHMARKS_EXPORT vtkRTTestResult
 {
 public:
   std::map<std::string,double> Results;
@@ -78,7 +86,7 @@ public:
   {
     ost << test->GetName();
     std::map<std::string, double>::iterator rItr;
-    for (rItr = this->Results.begin(); rItr != this->Results.end(); rItr++)
+    for (rItr = this->Results.begin(); rItr != this->Results.end(); ++rItr)
       {
       ost << ", " << rItr->first << ", " << rItr->second;
       }
@@ -86,7 +94,7 @@ public:
   }
 };
 
-class vtkRTTestSequence
+class VTKUTILITIESBENCHMARKS_EXPORT vtkRTTestSequence
 {
 public:
   virtual void Run();
@@ -130,7 +138,7 @@ protected:
 
 // a class to run a bunch of timing tests and
 // report the results
-class vtkRenderTimings
+class VTKUTILITIESBENCHMARKS_EXPORT vtkRenderTimings
 {
 public:
   vtkRenderTimings();
@@ -141,6 +149,10 @@ public:
 
   // get the maxmimum time allowed per step
   double GetSequenceStepTimeLimit() { return this->SequenceStepTimeLimit; }
+
+  // get the render size
+  int GetRenderWidth() { return this->RenderWidth; }
+  int GetRenderHeight() { return this->RenderHeight; }
 
   // parse and act on the command line arguments
   int ParseCommandLineArguments(int argc, char *argv[]);
@@ -158,7 +170,7 @@ protected:
   void ReportResults();
 
 private:
-  std::string Regex; // regualr expression for tests
+  std::string Regex; // regular expression for tests
   double TargetTime;
   std::string SystemName;
   vtksys::CommandLineArguments Arguments;
@@ -169,4 +181,9 @@ private:
   int SequenceEnd;
   double SequenceStepTimeLimit;
   std::string DetailedResultsFileName;
+  int RenderWidth;
+  int RenderHeight;
 };
+
+#endif
+// VTK-HeaderTest-Exclude: vtkRenderTimings.h

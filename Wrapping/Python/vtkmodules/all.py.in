@@ -1,0 +1,16 @@
+""" This module loads the entire VTK library into its namespace.  It
+also allows one to use specific packages inside the vtk directory.."""
+
+from __future__ import absolute_import
+
+# --------------------------------------
+@_vtk_python_imports@
+
+# useful macro for getting type names
+from .util.vtkConstants import vtkImageScalarTypeNameMacro
+
+# import convenience decorators
+from .util.misc import calldata_type
+
+# import the vtkVariant helpers
+from .util.vtkVariant import *

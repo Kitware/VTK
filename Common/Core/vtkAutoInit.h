@@ -18,6 +18,8 @@
 #include "vtkDebugLeaksManager.h" // DebugLeaks exists longer.
 #include "vtkTimeStamp.h" // Here so that TimeStamp Schwarz initializer works
 
+#define VTK_MODULE_AUTOINIT VTK_AUTOINIT
+
 #define VTK_AUTOINIT(M) VTK_AUTOINIT0(M,M##_AUTOINIT)
 #define VTK_AUTOINIT0(M,T) VTK_AUTOINIT1(M,T)
 #define VTK_AUTOINIT1(M,T)                                              \
@@ -78,11 +80,11 @@
 //
 // @code{.cpp}
 // #include "vtkAutoInit.h"
-// VTK_MODULE_INIT(vtkRenderingOpenGL);
+// VTK_MODULE_INIT(vtkRenderingOpenGL2);
 // @endcode
 //
 // The above snippet if included in the global scope will ensure the object
-// factories for vtkRenderingOpenGL are correctly registered and unregistered.
+// factories for vtkRenderingOpenGL2 are correctly registered and unregistered.
 #define VTK_MODULE_INIT(M) \
   VTK_AUTOINIT_DECLARE(M) \
   static struct M##_ModuleInit {                                           \

@@ -233,7 +233,7 @@ int vtkPlaybackRepresentation::RenderTranslucentPolygonalGeometry(
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkPlaybackRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkPlaybackRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
   result |= this->Actor->HasTranslucentPolygonalGeometry();
@@ -246,13 +246,13 @@ void vtkPlaybackRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Property )
-    {
+  {
     os << indent << "Property:\n";
     this->Property->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Property: (none)\n";
-    }
+  }
 
 }

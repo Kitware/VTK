@@ -53,8 +53,8 @@ my %default =
    dirs => ["../.."],
    cachedir => $ENV{TMP} . "/cache",
    class_group => '^(vtk[A-Z0-9][A-Za-z0-9]+)\.(?:c|cpp|cxx|h|mm)$',
-   files_in => '(?:^hints|^README|\.(?:c|cmake|cpp|cxx|doc|h|html|in|java|mm|pl|py|tcl|txt))$',
-   files_out => '(?:^vtkVersion\.\w+|^pkgIndex\.tcl|^vtkParse\.tab\.c|\.yy\.c)$',
+   files_in => '(?:^hints|^README|\.(?:c|cmake|cpp|cxx|doc|h|html|in|java|mm|pl|py|txt))$',
+   files_out => '(?:^vtkVersion\.\w+|^vtkParse\.tab\.c|\.yy\.c)$',
    gnuplot_file => '../../../VTK-doxygen/contrib/history.plt',
    history_dir => '../../../VTK-doxygen/contrib',
    history_img => ['|lines|../../../VTK-doxygen/contrib/history.png',
@@ -457,7 +457,7 @@ print "Removing massive commits (> " . $args{"massive"} . ") ...\n";
 $intermediate_time = time();
 my $nb_removed = 0;
 
-# Remove these changes that have been commited to more than 'n' files
+# Remove these changes that have been committed to more than 'n' files
 # in the same day by the same author with same log message (= signature)
 
 foreach my $signature (sort { (scalar keys %{$log_revision_by_signature_file{$b}}) <=> (scalar keys %{$log_revision_by_signature_file{$a}}) }

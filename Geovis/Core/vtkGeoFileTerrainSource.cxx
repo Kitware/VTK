@@ -28,32 +28,33 @@
 #include "vtkStdString.h"
 #include "vtkXMLPolyDataReader.h"
 
-#include <vtksys/ios/fstream>
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/utility>
+#include <fstream>
+#include <sstream>
+#include <utility>
 
 vtkStandardNewMacro(vtkGeoFileTerrainSource);
 //----------------------------------------------------------------------------
 vtkGeoFileTerrainSource::vtkGeoFileTerrainSource()
 {
-  this->Path = 0;
+  VTK_LEGACY_BODY(vtkGeoFileTerrainSource::vtkGeoFileTerrainSource, "VTK 8.2");
+  this->Path = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkGeoFileTerrainSource::~vtkGeoFileTerrainSource()
 {
-  this->SetPath(0);
+  this->SetPath(nullptr);
 }
 
 //----------------------------------------------------------------------------
 bool vtkGeoFileTerrainSource::FetchRoot(vtkGeoTreeNode* r)
 {
-  vtkGeoTerrainNode* root = 0;
+  vtkGeoTerrainNode* root = nullptr;
   if (!(root = vtkGeoTerrainNode::SafeDownCast(r)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch terrain nodes from this source.");
     return false;
-    }
+  }
 
   this->ReadModel(0, 0, root);
   return true;
@@ -62,18 +63,18 @@ bool vtkGeoFileTerrainSource::FetchRoot(vtkGeoTreeNode* r)
 //----------------------------------------------------------------------------
 bool vtkGeoFileTerrainSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTreeNode* c)
 {
-  vtkGeoTerrainNode* parent = 0;
+  vtkGeoTerrainNode* parent = nullptr;
   if (!(parent = vtkGeoTerrainNode::SafeDownCast(p)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch terrain nodes from this source.");
     return false;
-    }
-  vtkGeoTerrainNode* child = 0;
+  }
+  vtkGeoTerrainNode* child = nullptr;
   if (!(child = vtkGeoTerrainNode::SafeDownCast(c)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch terrain nodes from this source.");
     return false;
-    }
+  }
 
   int level = parent->GetLevel() + 1;
   int id = parent->GetId() | (index << (2*level-2));
@@ -87,21 +88,21 @@ bool vtkGeoFileTerrainSource::ReadModel(int level, int id, vtkGeoTerrainNode* no
   node->SetId(id);
   node->SetLevel(level);
   vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
-  vtksys_ios::stringstream ss;
+  std::stringstream ss;
   ss.str("");
   ss << this->Path << "/tile_" << level << "_" << id << ".vtp";
 
   // Check if the file exists
-  vtksys_ios::ifstream in;
-  in.open(ss.str().c_str(), vtksys_ios::ifstream::in);
+  std::ifstream in;
+  in.open(ss.str().c_str(), std::ifstream::in);
   if (in.fail())
-    {
+  {
     // Make a dummy polydata
     in.close();
     vtkSmartPointer<vtkPolyData> dummy = vtkSmartPointer<vtkPolyData>::New();
     node->SetModel(dummy);
     return false;
-    }
+  }
   in.close();
 
   // Read the file
@@ -115,12 +116,12 @@ bool vtkGeoFileTerrainSource::ReadModel(int level, int id, vtkGeoTerrainNode* no
   double xRange[2] = {0.0, 0.0};
   double yRange[2] = {0.0, 0.0};
   if (model->GetNumberOfPoints() > 0)
-    {
+  {
     model->GetPointData()->GetArray("LatLong")->GetRange(latRange, 0);
     model->GetPointData()->GetArray("LatLong")->GetRange(lonRange, 1);
     model->GetPoints()->GetData()->GetRange(xRange, 0);
     model->GetPoints()->GetData()->GetRange(yRange, 1);
-    }
+  }
   node->SetLatitudeRange(latRange);
   node->SetLongitudeRange(lonRange);
   node->SetProjectionBounds(xRange[0], xRange[1], yRange[0], yRange[1]);

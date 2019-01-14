@@ -17,8 +17,8 @@
  * The whole pupose of this header file is to allow us to 'wrap' a c library
  * into Fortran. Here are the basic goals we should reach:
  *
- * 1. The symbol mangling in fortan is different than is C. For example if
- * you do this fortan:
+ * 1. The symbol mangling in fortran is different than is C. For example if
+ * you do this fortran:
  *     CALL Foo()
  * you either need to define a symbol:
  *    - void FOO()

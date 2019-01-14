@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImageRFFT);
 
@@ -98,10 +98,10 @@ void vtkImageRFFTExecute(vtkImageRFFT *self,
   // Input has to have real components at least.
   numberOfComponents = inData->GetNumberOfScalarComponents();
   if (numberOfComponents < 1)
-    {
+  {
     vtkGenericWarningMacro("No real components");
     return;
-    }
+  }
 
   // Allocate the arrays of complex numbers
   inComplex = new vtkImageComplex[inSize0];
@@ -115,33 +115,33 @@ void vtkImageRFFTExecute(vtkImageRFFT *self,
   inPtr2 = inPtr;
   outPtr2 = outPtr;
   for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
-    {
+  {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
     for (idx1 = outMin1; !self->AbortExecute && idx1 <= outMax1; ++idx1)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target) + startProgress);
-          }
-        count++;
         }
+        count++;
+      }
       // copy into complex numbers
       inPtr0 = inPtr1;
       pComplex = inComplex;
       for (idx0 = inMin0; idx0 <= inMax0; ++idx0)
-        {
+      {
         pComplex->Real = static_cast<double>(*inPtr0);
         pComplex->Imag = 0.0;
         if (numberOfComponents > 1)
-          { // yes we have an imaginary input
-          pComplex->Imag = static_cast<double>(inPtr0[1]);;
-          }
+        { // yes we have an imaginary input
+          pComplex->Imag = static_cast<double>(inPtr0[1]);
+        }
         inPtr0 += inInc0;
         ++pComplex;
-        }
+      }
 
       // Call the method that performs the RFFT
       self->ExecuteRfft(inComplex, outComplex, inSize0);
@@ -150,18 +150,18 @@ void vtkImageRFFTExecute(vtkImageRFFT *self,
       outPtr0 = outPtr1;
       pComplex = outComplex + (outMin0 - inMin0);
       for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-        {
+      {
         *outPtr0 = static_cast<double>(pComplex->Real);
         outPtr0[1] = static_cast<double>(pComplex->Imag);
         outPtr0 += outInc0;
         ++pComplex;
-        }
+      }
       inPtr1 += inInc1;
       outPtr1 += outInc1;
-      }
+    }
     inPtr2 += inInc2;
     outPtr2 += outInc2;
-    }
+  }
 
   delete [] inComplex;
   delete [] outComplex;
@@ -196,22 +196,22 @@ void vtkImageRFFT::ThreadedRequestData(
 
   // this filter expects that the output be doubles.
   if (outData->GetScalarType() != VTK_DOUBLE)
-    {
-    vtkErrorMacro(<< "Execute: Output must be be type double.");
+  {
+    vtkErrorMacro(<< "Execute: Output must be type double.");
     return;
-    }
+  }
 
   // this filter expects input to have 1 or two components
   if (outData->GetNumberOfScalarComponents() != 1 &&
       outData->GetNumberOfScalarComponents() != 2)
-    {
+  {
     vtkErrorMacro(<< "Execute: Cannot handle more than 2 components");
     return;
-    }
+  }
 
   // choose which templated function to call.
   switch (inData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageRFFTExecute(this, inData, inExt,
                           static_cast<VTK_TT *>(inPtr), outData, outExt,
@@ -219,92 +219,5 @@ void vtkImageRFFT::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
-
-
-
-//----------------------------------------------------------------------------
-// For streaming and threads.  Splits output update extent into num pieces.
-// This method needs to be called num times.  Results must not overlap for
-// consistent starting extent.  Subclass can override this method.
-// This method returns the number of peices resulting from a successful split.
-// This can be from 1 to "total".
-// If 1 is returned, the extent cannot be split.
-int vtkImageRFFT::SplitExtent(int splitExt[6], int startExt[6],
-                             int num, int total)
-{
-  int splitAxis;
-  int min, max;
-
-  vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
-                << startExt[2] << ", " << startExt[3] << ", "
-                << startExt[4] << ", " << startExt[5] << "), "
-                << num << " of " << total);
-
-  // start with same extent
-  memcpy(splitExt, startExt, 6 * sizeof(int));
-
-  splitAxis = 2;
-  min = startExt[4];
-  max = startExt[5];
-  while ((splitAxis == this->Iteration) || (min == max))
-    {
-    splitAxis--;
-    if (splitAxis < 0)
-      { // cannot split
-      vtkDebugMacro("  Cannot Split");
-      return 1;
-      }
-    min = startExt[splitAxis*2];
-    max = startExt[splitAxis*2+1];
-    }
-
-  // determine the actual number of pieces that will be generated
-  if ((max - min + 1) < total)
-    {
-    total = max - min + 1;
-    }
-
-  if (num >= total)
-    {
-    vtkDebugMacro("  SplitRequest (" << num
-                  << ") larger than total: " << total);
-    return total;
-    }
-
-  // determine the extent of the piece
-  splitExt[splitAxis*2] = min + (max - min + 1)*num/total;
-  if (num == total - 1)
-    {
-    splitExt[splitAxis*2+1] = max;
-    }
-  else
-    {
-    splitExt[splitAxis*2+1] = (min-1) + (max - min + 1)*(num+1)/total;
-    }
-
-  vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
-                << splitExt[2] << ", " << splitExt[3] << ", "
-                << splitExt[4] << ", " << splitExt[5] << ")");
-
-  return total;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

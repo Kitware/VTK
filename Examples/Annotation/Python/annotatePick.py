@@ -3,13 +3,13 @@
 # This example demonstrates cell picking using vtkCellPicker.  It
 # displays the results of picking using a vtkTextMapper.
 
+from __future__ import print_function
 import vtk
 
 # create a sphere source, mapper, and actor
 sphere = vtk.vtkSphereSource()
 sphereMapper = vtk.vtkPolyDataMapper()
 sphereMapper.SetInputConnection(sphere.GetOutputPort())
-sphereMapper.GlobalImmediateModeRenderingOn()
 sphereActor = vtk.vtkLODActor()
 sphereActor.SetMapper(sphereMapper)
 
@@ -45,7 +45,7 @@ picker = vtk.vtkCellPicker()
 # Create a Python function to create the text for the text mapper used
 # to display the results of picking.
 def annotatePick(object, event):
-    print "pick"
+    print("pick")
     global picker, textActor, textMapper
     if picker.GetCellId() < 0:
         textActor.VisibilityOff()

@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageContinuousDilate3D - Dilate implemented as a maximum.
-// .SECTION Description
-// vtkImageContinuousDilate3D replaces a pixel with the maximum over
-// an ellipsoidal neighborhood.  If KernelSize of an axis is 1, no processing
-// is done on that axis.
-
+/**
+ * @class   vtkImageContinuousDilate3D
+ * @brief   Dilate implemented as a maximum.
+ *
+ * vtkImageContinuousDilate3D replaces a pixel with the maximum over
+ * an ellipsoidal neighborhood.  If KernelSize of an axis is 1, no processing
+ * is done on that axis.
+*/
 
 #ifndef vtkImageContinuousDilate3D_h
 #define vtkImageContinuousDilate3D_h
@@ -32,21 +34,25 @@ class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageContinuousDilate3D : public vtkImag
 {
 public:
 
-  // Description:
-  // Construct an instance of vtkImageContinuousDilate3D filter.
-  // By default zero values are dilated.
+  //@{
+  /**
+   * Construct an instance of vtkImageContinuousDilate3D filter.
+   * By default zero values are dilated.
+   */
   static vtkImageContinuousDilate3D *New();
   vtkTypeMacro(vtkImageContinuousDilate3D,vtkImageSpatialAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // This method sets the size of the neighborhood.  It also sets the
-  // default middle of the neighborhood and computes the elliptical foot print.
+  /**
+   * This method sets the size of the neighborhood.  It also sets the
+   * default middle of the neighborhood and computes the elliptical foot print.
+   */
   void SetKernelSize(int size0, int size1, int size2);
 
 protected:
   vtkImageContinuousDilate3D();
-  ~vtkImageContinuousDilate3D();
+  ~vtkImageContinuousDilate3D() override;
 
   vtkImageEllipsoidSource *Ellipse;
 
@@ -54,14 +60,14 @@ protected:
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id);
-  virtual int RequestData(vtkInformation *request,
+                           int extent[6], int id) override;
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) override;
 
 private:
-  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&);  // Not implemented.
-  void operator=(const vtkImageContinuousDilate3D&);  // Not implemented.
+  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&) = delete;
+  void operator=(const vtkImageContinuousDilate3D&) = delete;
 };
 
 #endif

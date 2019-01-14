@@ -53,39 +53,39 @@ void vtkUniformGridGhostDataGenerator::PrintSelf(ostream& os, vtkIndent indent)
 void vtkUniformGridGhostDataGenerator::ComputeOrigin(
     vtkMultiBlockDataSet *in)
 {
-  assert("pre: Multi-block dataset is NULL" && (in != NULL) );
+  assert("pre: Multi-block dataset is nullptr" && (in != nullptr) );
 
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
-    {
+  {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(in->GetBlock(i));
-    assert("pre: grid block is NULL" && (grid != NULL) );
+    assert("pre: grid block is nullptr" && (grid != nullptr) );
 
     double blkOrigin[3];
     grid->GetOrigin( blkOrigin );
     if( blkOrigin[0] < this->GlobalOrigin[0] )
-      {
+    {
       this->GlobalOrigin[0] = blkOrigin[0];
-      }
+    }
     if( blkOrigin[1] < this->GlobalOrigin[1] )
-      {
+    {
       this->GlobalOrigin[1] = blkOrigin[1];
-      }
+    }
     if( blkOrigin[2] < this->GlobalOrigin[2] )
-      {
+    {
       this->GlobalOrigin[2] = blkOrigin[2];
-      }
-    } // END for all blocks
+    }
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
 void vtkUniformGridGhostDataGenerator::ComputeGlobalSpacingVector(
     vtkMultiBlockDataSet *in)
 {
-  assert("pre: Multi-block dataset is NULL" && (in != NULL) );
+  assert("pre: Multi-block dataset is nullptr" && (in != nullptr) );
 
   // NOTE: we assume that the spacing of the all the blocks is the same.
   vtkUniformGrid *block0 = vtkUniformGrid::SafeDownCast(in->GetBlock(0));
-  assert("pre: grid block is NULL" && (block0 != NULL) );
+  assert("pre: grid block is nullptr" && (block0 != nullptr) );
 
   block0->GetSpacing( this->GlobalSpacing );
 }
@@ -93,7 +93,7 @@ void vtkUniformGridGhostDataGenerator::ComputeGlobalSpacingVector(
 //------------------------------------------------------------------------------
 void vtkUniformGridGhostDataGenerator::RegisterGrids(vtkMultiBlockDataSet *in)
 {
-  assert("pre: Multi-block dataset is NULL" && (in != NULL) );
+  assert("pre: Multi-block dataset is nullptr" && (in != nullptr) );
 
   this->GridConnectivity->SetNumberOfGrids( in->GetNumberOfBlocks() );
   this->GridConnectivity->SetNumberOfGhostLayers( 0 );
@@ -102,12 +102,12 @@ void vtkUniformGridGhostDataGenerator::RegisterGrids(vtkMultiBlockDataSet *in)
           vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
-    {
+  {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast( in->GetBlock( i ) );
-    assert("pre: grid block is NULL" && (grid != NULL) );
+    assert("pre: grid block is nullptr" && (grid != nullptr) );
 
     vtkInformation *info = in->GetMetaData( i );
-    assert("pre: NULL meta-data" && (info != NULL) );
+    assert("pre: nullptr meta-data" && (info != nullptr) );
     assert("pre: No piece meta-data" &&
            info->Has(vtkDataObject::PIECE_EXTENT()));
 
@@ -117,16 +117,16 @@ void vtkUniformGridGhostDataGenerator::RegisterGrids(vtkMultiBlockDataSet *in)
         grid->GetCellGhostArray(),
         grid->GetPointData(),
         grid->GetCellData(),
-        NULL);
-    } // END for all blocks
+        nullptr);
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
 void vtkUniformGridGhostDataGenerator::CreateGhostedDataSet(
     vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out )
 {
-  assert("pre: input multi-block is NULL" && (in != NULL) );
-  assert("pre: output multi-block is NULL" && (out != NULL) );
+  assert("pre: input multi-block is nullptr" && (in != nullptr) );
+  assert("pre: output multi-block is nullptr" && (out != nullptr) );
 
   out->SetNumberOfBlocks( in->GetNumberOfBlocks() );
 
@@ -141,7 +141,7 @@ void vtkUniformGridGhostDataGenerator::CreateGhostedDataSet(
   int dims[3];
 
   for( unsigned int i=0; i < out->GetNumberOfBlocks(); ++i )
-    {
+  {
     // STEP 0: Get the computed ghosted grid extent
     this->GridConnectivity->GetGhostedGridExtent( i,ghostedExtent );
 
@@ -150,7 +150,7 @@ void vtkUniformGridGhostDataGenerator::CreateGhostedDataSet(
 
     // STEP 2: Construct ghosted grid instance
     vtkUniformGrid *ghostedGrid = vtkUniformGrid::New();
-    assert("pre: Cannot create ghosted grid instance" && (ghostedGrid != NULL));
+    assert("pre: Cannot create ghosted grid instance" && (ghostedGrid != nullptr));
 
     // STEP 3: Get ghosted grid origin
     origin[0] = this->GlobalOrigin[0]+ghostedExtent[0]*this->GlobalSpacing[0];
@@ -170,7 +170,7 @@ void vtkUniformGridGhostDataGenerator::CreateGhostedDataSet(
 
     out->SetBlock(i,ghostedGrid);
     ghostedGrid->Delete();
-    } // END for all blocks
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -179,9 +179,9 @@ void vtkUniformGridGhostDataGenerator::GenerateGhostLayers(
 {
   assert("pre: Number of ghost-layers must be greater than 0!" &&
          (this->NumberOfGhostLayers > 0) );
-  assert("pre: Input dataset is NULL!" && (in != NULL));
-  assert("pre: Output dataset is NULL!" && (out != NULL) );
-  assert("pre: GridConnectivity is NULL!" && (this->GridConnectivity != NULL));
+  assert("pre: Input dataset is nullptr!" && (in != nullptr));
+  assert("pre: Output dataset is nullptr!" && (out != nullptr) );
+  assert("pre: GridConnectivity is nullptr!" && (this->GridConnectivity != nullptr));
 
   // STEP 0: Register grids & compute global grid parameters
   this->RegisterGrids( in );

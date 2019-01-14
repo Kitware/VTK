@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -21,7 +19,7 @@
  *
  */
 
-#define H5F_PACKAGE		/*suppress error about including H5Fpkg	  */
+#define H5F_FRIEND		/*suppress error about including H5Fpkg	  */
 
 
 #include "H5Eprivate.h"		/* Error handling		  	*/
@@ -210,7 +208,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5FO_delete(H5F_t *f, hid_t dxpl_id, haddr_t addr)
+H5FO_delete(H5F_t *f, haddr_t addr)
 {
     H5FO_open_obj_t *open_obj;  /* Information about open object */
     herr_t ret_value=SUCCEED;   /* Return value */
@@ -229,7 +227,7 @@ H5FO_delete(H5F_t *f, hid_t dxpl_id, haddr_t addr)
 
     /* Check if the object was deleted from the file */
     if(open_obj->deleted) {
-        if(H5O_delete(f, dxpl_id, addr) < 0)
+        if(H5O_delete(f, addr) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "can't delete object from file")
     } /* end if */
 

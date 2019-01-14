@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedTree - return a subtree from a vtkTree
-//
-// .SECTION Description
-// input 0 --- a vtkTree
-// input 1 --- a vtkSelection, containing selected vertices. It may have
-// FILED_type set to POINTS ( a vertex selection) or CELLS (an edge selection).
-// A vertex selection preserves the edges that connect selected vertices.
-// An edge selection perserves the vertices that are adjacent to at least one
-// selected edges.
+/**
+ * @class   vtkExtractSelectedTree
+ * @brief   return a subtree from a vtkTree
+ *
+ *
+ * input 0 --- a vtkTree
+ * input 1 --- a vtkSelection, containing selected vertices. It may have
+ * FILED_type set to POINTS ( a vertex selection) or CELLS (an edge selection).
+ * A vertex selection preserves the edges that connect selected vertices.
+ * An edge selection perserves the vertices that are adjacent to at least one
+ * selected edges.
+*/
 
 #ifndef vtkExtractSelectedTree_h
 #define vtkExtractSelectedTree_h
@@ -37,28 +40,29 @@ class VTKINFOVISCORE_EXPORT vtkExtractSelectedTree : public vtkTreeAlgorithm
 public:
   static vtkExtractSelectedTree* New();
   vtkTypeMacro(vtkExtractSelectedTree,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // A convenience method for setting the second input (i.e. the selection).
+  /**
+   * A convenience method for setting the second input (i.e. the selection).
+   */
   void SetSelectionConnection(vtkAlgorithmOutput* in);
 
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 protected:
   vtkExtractSelectedTree();
-  ~vtkExtractSelectedTree();
+  ~vtkExtractSelectedTree() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) override;
 
   int BuildTree(vtkTree * inputTree, vtkIdTypeArray * list, vtkMutableDirectedGraph * builder);
 
 
 private:
-  vtkExtractSelectedTree(const vtkExtractSelectedTree&); // Not implemented
-  void operator=(const vtkExtractSelectedTree&);   // Not implemented
+  vtkExtractSelectedTree(const vtkExtractSelectedTree&) = delete;
+  void operator=(const vtkExtractSelectedTree&) = delete;
 };
 
 #endif

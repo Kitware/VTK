@@ -32,17 +32,15 @@ vtkStandardNewMacro(vtkPath)
 vtkPath::vtkPath()
 {
   vtkNew<vtkPoints> points;
-  this->SetPoints(points.GetPointer());
+  this->SetPoints(points);
 
   vtkNew<vtkIntArray> controlPointCodes;
   controlPointCodes->SetNumberOfComponents(1);
-  this->PointData->SetScalars(controlPointCodes.GetPointer());
+  this->PointData->SetScalars(controlPointCodes);
 }
 
 //----------------------------------------------------------------------------
-vtkPath::~vtkPath()
-{
-}
+vtkPath::~vtkPath() = default;
 
 //----------------------------------------------------------------------------
 void vtkPath::Allocate(vtkIdType size, int extSize)
@@ -79,7 +77,7 @@ void vtkPath::Reset()
 //----------------------------------------------------------------------------
 vtkPath* vtkPath::GetData(vtkInformation* info)
 {
-  return info ? vtkPath::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info ? vtkPath::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -99,7 +97,7 @@ void vtkPath::InsertNextPoint(float pts[], int code)
 {
   this->Points->InsertNextPoint(pts);
 
-  vtkIntArray *codes = vtkIntArray::SafeDownCast(
+  vtkIntArray *codes = vtkArrayDownCast<vtkIntArray>(
         this->PointData->GetScalars());
   assert("control point code array is int type" && codes);
   codes->InsertNextValue(code);
@@ -116,7 +114,7 @@ void vtkPath::InsertNextPoint(double x, double y, double z, int code)
 {
   this->Points->InsertNextPoint(x, y, z);
 
-  vtkIntArray *codes = vtkIntArray::SafeDownCast(
+  vtkIntArray *codes = vtkArrayDownCast<vtkIntArray>(
         this->PointData->GetScalars());
   assert("control point code array is int type" && codes);
   codes->InsertNextValue(code);
@@ -131,5 +129,5 @@ void vtkPath::SetCodes(vtkIntArray *codes)
 //----------------------------------------------------------------------------
 vtkIntArray *vtkPath::GetCodes()
 {
-  return vtkIntArray::SafeDownCast(this->PointData->GetScalars());
+  return vtkArrayDownCast<vtkIntArray>(this->PointData->GetScalars());
 }

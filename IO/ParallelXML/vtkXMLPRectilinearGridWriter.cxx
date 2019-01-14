@@ -23,14 +23,10 @@
 vtkStandardNewMacro(vtkXMLPRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLPRectilinearGridWriter::vtkXMLPRectilinearGridWriter()
-{
-}
+vtkXMLPRectilinearGridWriter::vtkXMLPRectilinearGridWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPRectilinearGridWriter::~vtkXMLPRectilinearGridWriter()
-{
-}
+vtkXMLPRectilinearGridWriter::~vtkXMLPRectilinearGridWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPRectilinearGridWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -71,9 +67,9 @@ void vtkXMLPRectilinearGridWriter::WritePData(vtkIndent indent)
 {
   this->Superclass::WritePData(indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   vtkRectilinearGrid* input = this->GetInput();
   this->WritePCoordinates(input->GetXCoordinates(), input->GetYCoordinates(),

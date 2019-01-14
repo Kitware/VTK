@@ -143,20 +143,20 @@ class vtkIPWCallback : public vtkCommand
 public:
   static vtkIPWCallback *New()
   { return new vtkIPWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkImagePlaneWidget *planeWidget = reinterpret_cast<vtkImagePlaneWidget*>(caller);
     if(planeWidget->GetPlaneOrientation() == 3)
-      {
+    {
       Spline->SetProjectionPosition(0);
-      }
+    }
     else
-      {
+    {
       Spline->SetProjectionPosition(planeWidget->GetSlicePosition());
-      }
+    }
     Spline->GetPolyData(Poly);
   }
-  vtkIPWCallback():Spline(0),Poly(0){};
+  vtkIPWCallback():Spline(nullptr),Poly(nullptr){};
   vtkSplineWidget* Spline;
   vtkPolyData* Poly;
 };
@@ -167,12 +167,12 @@ class vtkSWCallback : public vtkCommand
 public:
   static vtkSWCallback *New()
   { return new vtkSWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkSplineWidget *spline = reinterpret_cast<vtkSplineWidget*>(caller);
     spline->GetPolyData(Poly);
   }
-  vtkSWCallback():Poly(0){};
+  vtkSWCallback():Poly(nullptr){};
   vtkPolyData* Poly;
 };
 
@@ -338,11 +338,11 @@ int TestSplineWidget( int argc, char *argv[] )
 //  renWin->Render();
 //  iren->SetEventPosition(200,200);
 //  iren->SetKeyCode('r');
-//  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
+//  iren->InvokeEvent(vtkCommand::CharEvent,nullptr);
 //  ren1->ResetCameraClippingRange();
 //  renWin->Render();
 //  iren->SetKeyCode('t');
-//  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
+//  iren->InvokeEvent(vtkCommand::CharEvent,nullptr);
 
   // Playback recorded events
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =
@@ -361,10 +361,10 @@ int TestSplineWidget( int argc, char *argv[] )
   double pos[3];
   int i;
   for(i=0;i<spline->GetNumberOfHandles();i++)
-    {
+  {
     spline->GetHandlePosition(i,pos);
     spline->SetHandlePosition(i,pos);
-    }
+  }
 
   // Test Closed On Off
   spline->ClosedOn();

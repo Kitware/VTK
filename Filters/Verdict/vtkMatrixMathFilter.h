@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMatrixMathFilter - Calculate functions of quality of the elements
-//  of a mesh
-//
-// .SECTION Description
-// vtkMatrixMathFilter computes one or more functions of mathematical quality for the
-// cells or points in a mesh. The per-cell or per-point quality is added to the
-// mesh's cell data or point data, in an array with names varied with different
-// quality being queried. Note this filter always assume the data associate with
-// the cells or points are 3 by 3 matrix.
+/**
+ * @class   vtkMatrixMathFilter
+ * @brief   Calculate functions of quality of the elements
+ *  of a mesh
+ *
+ *
+ * vtkMatrixMathFilter computes one or more functions of mathematical quality for the
+ * cells or points in a mesh. The per-cell or per-point quality is added to the
+ * mesh's cell data or point data, in an array with names varied with different
+ * quality being queried. Note this filter always assume the data associate with
+ * the cells or points are 3 by 3 matrix.
+*/
 
 #ifndef vtkMatrixMathFilter_h
 #define vtkMatrixMathFilter_h
@@ -33,7 +36,7 @@ class vtkDataArray;
 
 class VTKFILTERSVERDICT_EXPORT vtkMatrixMathFilter : public vtkDataSetAlgorithm
 {
-  //BTX
+
   enum
   {
   NONE = 0,
@@ -47,46 +50,48 @@ class VTKFILTERSVERDICT_EXPORT vtkMatrixMathFilter : public vtkDataSetAlgorithm
   POINT_QUALITY = 0,
   CELL_QUALITY
   };
-  //ETX
 
 public:
-  void PrintSelf (ostream&, vtkIndent);
+  void PrintSelf (ostream&, vtkIndent) override;
   vtkTypeMacro(vtkMatrixMathFilter, vtkDataSetAlgorithm);
   static vtkMatrixMathFilter* New ();
 
-  // Description:
-  // Set/Get the particular estimator used to function the quality of query.
+  //@{
+  /**
+   * Set/Get the particular estimator used to function the quality of query.
+   */
   vtkSetMacro(Operation, int)
   vtkGetMacro(Operation, int)
   void SetOperationToDeterminant ()
-    {
+  {
      this->SetOperation(DETERMINANT);
-    }
+  }
   void SetOperationToEigenvalue ()
-    {
+  {
      this->SetOperation(EIGENVALUE);
-    }
+  }
   void SetOperationToEigenvector ()
-    {
+  {
      this->SetOperation(EIGENVECTOR);
-    }
+  }
   void SetOperationToInverse ()
-    {
+  {
      this->SetOperation(INVERSE);
-    }
+  }
+  //@}
 
 protected:
- ~vtkMatrixMathFilter ();
+ ~vtkMatrixMathFilter () override;
   vtkMatrixMathFilter ();
 
-  virtual int RequestData
-    (vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  int RequestData
+    (vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int Operation;
 
 private:
-  vtkMatrixMathFilter(const vtkMatrixMathFilter&); // Not implemented
-  void operator=(const vtkMatrixMathFilter&); // Not implemented
+  vtkMatrixMathFilter(const vtkMatrixMathFilter&) = delete;
+  void operator=(const vtkMatrixMathFilter&) = delete;
 };
 
 #endif // vtkMatrixMathFilter_h

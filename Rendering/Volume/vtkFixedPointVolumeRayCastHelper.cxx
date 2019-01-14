@@ -15,17 +15,13 @@
 #include "vtkFixedPointVolumeRayCastHelper.h"
 #include "vtkObjectFactory.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastHelper);
 
-vtkFixedPointVolumeRayCastHelper::vtkFixedPointVolumeRayCastHelper()
-{
-}
+vtkFixedPointVolumeRayCastHelper::vtkFixedPointVolumeRayCastHelper() = default;
 
-vtkFixedPointVolumeRayCastHelper::~vtkFixedPointVolumeRayCastHelper()
-{
-}
+vtkFixedPointVolumeRayCastHelper::~vtkFixedPointVolumeRayCastHelper() = default;
 
 void vtkFixedPointVolumeRayCastHelper::PrintSelf(ostream& os, vtkIndent indent)
 {

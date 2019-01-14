@@ -12,62 +12,175 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperTreeGridGeometry - Hyper tree grid outer surface
-//
-// .SECTION See Also
-// vtkHyperTreeGrid
-//
-// .SECTION Thanks
-// This class was written by Philippe Pebay, Joachim Pouderoux and Charles Law,
-// Kitware 2013
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+/**
+ * @class   vtkHyperTreeGridGeometry
+ * @brief   Hyper tree grid outer surface
+ *
+ * @sa
+ * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
+ *
+ * @par Thanks:
+ * This class was written by Philippe Pebay, Joachim Pouderoux, and Charles Law, Kitware 2013
+ * This class was modified by Guenole Harel and Jacques-Bernard Lekien, 2014
+ * This class was rewritten by Philippe Pebay, 2016
+ * This class was modified by Jacques-Bernard Lekien and Guenole Harel, 2018
+ * This work was supported by Commissariat a l'Energie Atomique
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
+*/
 
 #ifndef vtkHyperTreeGridGeometry_h
 #define vtkHyperTreeGridGeometry_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkHyperTreeGridAlgorithm.h"
 
+class vtkBitArray;
 class vtkCellArray;
-class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
 class vtkPoints;
+class vtkIncrementalPointLocator;
+class vtkDoubleArray;
+class vtkIdList;
+class vtkIdTypeArray;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight;
 
-class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkPolyDataAlgorithm
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkHyperTreeGridAlgorithm
 {
 public:
   static vtkHyperTreeGridGeometry* New();
-  vtkTypeMacro( vtkHyperTreeGridGeometry, vtkPolyDataAlgorithm );
-  void PrintSelf( ostream&, vtkIndent );
+  vtkTypeMacro( vtkHyperTreeGridGeometry, vtkHyperTreeGridAlgorithm );
+  void PrintSelf( ostream&, vtkIndent ) override;
+
+  //@{
+  /**
+   * Turn on/off merging of coincident points. Note that is merging is
+   * on, points with different point attributes (e.g., normals) are merged,
+   * which may cause rendering artifacts.
+   */
+  vtkSetMacro( Merging, bool );
+  vtkGetMacro( Merging, bool );
+  //@}
 
 protected:
   vtkHyperTreeGridGeometry();
-  ~vtkHyperTreeGridGeometry();
+  ~vtkHyperTreeGridGeometry() override;
 
-  virtual int RequestData( vtkInformation*,
-    vtkInformationVector**, vtkInformationVector* );
-  virtual int FillInputPortInformation( int, vtkInformation* );
+  /**
+   * For this algorithm the output is a vtkPolyData instance
+   */
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
-  void ProcessTrees();
-  void RecursiveProcessTree( void* );
-  void ProcessLeaf1D( void* );
-  void ProcessLeaf2D( void* );
-  void ProcessLeaf3D( void* );
-  void AddFace( vtkIdType inId, double* origin, double* size,
-                int offset, int orientation );
+  /**
+   * Main routine to generate external boundary
+   */
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
 
-  vtkHyperTreeGrid* Input;
-  vtkPolyData* Output;
+  /**
+   * Recursively descend into tree down to leaves
+   */
+  void RecursivelyProcessTreeNot3D( vtkHyperTreeGridNonOrientedGeometryCursor* );
+  void RecursivelyProcessTree3D(
+    vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*,
+    unsigned char,
+    bool);
 
-  vtkDataSetAttributes* InData;
-  vtkDataSetAttributes* OutData;
+  /**
+   * Process 1D leaves and issue corresponding edges (lines)
+   */
+  void ProcessLeaf1D( vtkHyperTreeGridNonOrientedGeometryCursor* );
 
+  /**
+   * Process 2D leaves and issue corresponding faces (quads)
+   */
+  void ProcessLeaf2D( vtkHyperTreeGridNonOrientedGeometryCursor* );
+
+  /**
+   * Process 3D leaves and issue corresponding cells (voxels)
+   */
+  void ProcessLeaf3D( vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* );
+
+  /**
+   * Helper method to generate a face based on its normal and offset from cursor origin
+   */
+  void AddFace(
+    vtkIdType useId,
+    const double* origin,
+    const double* size,
+    unsigned int offset,
+    unsigned int orientation );
+
+  void AddFace2(
+    vtkIdType inId,
+    vtkIdType useId,
+    const double* origin,
+    const double* size,
+    unsigned int offset,
+    unsigned int orientation,
+    bool create = true );
+
+  /**
+   * material Mask
+   */
+  vtkBitArray* MaterialMask;
+
+  /**
+   * Pure Material Mask
+   */
+  vtkBitArray* PureMaterialMask;
+
+  /**
+   * Dimension of input grid
+   */
+  unsigned int Dimension;
+
+  /**
+   * Orientation of input grid when dimension < 3
+   */
+  unsigned int Orientation;
+
+  /**
+   * Branch Factor
+   */
+  int BranchFactor;
+
+  /**
+   * Storage for points of output unstructured mesh
+   */
   vtkPoints* Points;
+
+  /**
+   * Storage for cells of output unstructured mesh
+   */
   vtkCellArray* Cells;
 
+  /**
+   *JB Un locator est utilise afin de produire un maillage avec moins
+   *JB de points. Le gain en 3D est de l'ordre d'un facteur 4 !
+   */
+  bool Merging;
+  vtkIncrementalPointLocator* Locator;
+
+  // JB A RECUPERER DANS LE .H VTK9
+  bool HasInterface;
+  vtkDoubleArray* Normals;
+  vtkDoubleArray* Intercepts;
+
+  vtkIdList* FaceIDs;
+  vtkPoints* FacePoints;
+
+  vtkIdType EdgesA[12];
+  vtkIdType EdgesB[12];
+
+  vtkIdTypeArray* FacesA;
+  vtkIdTypeArray* FacesB;
+
+  vtkDoubleArray* FaceScalarsA;
+  vtkDoubleArray* FaceScalarsB;
+
 private:
-  vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&);  // Not implemented.
-  void operator=(const vtkHyperTreeGridGeometry&);  // Not implemented.
+  vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&) = delete;
+  void operator=(const vtkHyperTreeGridGeometry&) = delete;
 };
 
-#endif
+#endif /* vtkHyperTreeGridGeometry_h */

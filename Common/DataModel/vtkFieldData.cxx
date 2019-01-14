@@ -26,22 +26,22 @@ vtkFieldData::BasicIterator::BasicIterator(const int* list,
                                            unsigned int listSize)
 {
   if (list)
-    {
+  {
     if (listSize>0)
-      {
+    {
       this->List = new int[listSize];
       memcpy(this->List, list, listSize*sizeof(int));
-      }
+    }
     else
-      {
-      this->List = 0;
-      }
-    this->ListSize = listSize;
-    }
-  else
     {
-    this->ListSize = 0;
+      this->List = nullptr;
     }
+    this->ListSize = listSize;
+  }
+  else
+  {
+    this->ListSize = 0;
+  }
   this->Position = 0;
 }
 
@@ -51,20 +51,20 @@ vtkFieldData::Iterator::Iterator(vtkFieldData* dsa, const int* list,
   : vtkFieldData::BasicIterator(list, listSize)
 {
   this->Fields = dsa;
-  dsa->Register(0);
+  dsa->Register(nullptr);
   if (!list)
-    {
+  {
     this->ListSize = dsa->GetNumberOfArrays();
     this->List = new int[this->ListSize];
     for(int i=0; i<this->ListSize; i++) { this->List[i] = i; }
-    }
+  }
   this->Detached = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkFieldData::BasicIterator::BasicIterator()
 {
-  this->List  = 0;
+  this->List  = nullptr;
   this->ListSize = 0;
 }
 
@@ -75,14 +75,14 @@ vtkFieldData::BasicIterator::BasicIterator(const vtkFieldData::BasicIterator&
   this->ListSize = source.ListSize;
 
   if (this->ListSize > 0)
-    {
+  {
     this->List = new int[this->ListSize];
     memcpy(this->List, source.List, this->ListSize*sizeof(int));
-    }
+  }
   else
-    {
-    this->List = 0;
-    }
+  {
+    this->List = nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -92,9 +92,9 @@ vtkFieldData::Iterator::Iterator(const vtkFieldData::Iterator& source)
   this->Detached = source.Detached;
   this->Fields = source.Fields;
   if (this->Fields && !this->Detached)
-    {
-    this->Fields->Register(0);
-    }
+  {
+    this->Fields->Register(nullptr);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -102,13 +102,13 @@ void vtkFieldData::BasicIterator::PrintSelf(ostream &os, vtkIndent indent)
 {
   os << indent << "BasicIterator:{";
   if (this->ListSize>0)
-    {
+  {
     os << this->List[0];
     for (int i=1; i<this->ListSize; ++i)
-      {
+    {
       os << ", " << this->List[i];
-      }
     }
+  }
   os << "}" << endl;
 }
 
@@ -117,20 +117,20 @@ vtkFieldData::BasicIterator& vtkFieldData::BasicIterator::operator=(
   const vtkFieldData::BasicIterator& source)
 {
   if (this == &source)
-    {
+  {
     return *this;
-    }
+  }
   delete[] this->List;
   this->ListSize = source.ListSize;
   if (this->ListSize > 0)
-    {
+  {
     this->List = new int[this->ListSize];
     memcpy(this->List, source.List, this->ListSize*sizeof(int));
-    }
+  }
   else
-    {
-    this->List = 0;
-    }
+  {
+    this->List = nullptr;
+  }
   return *this;
 }
 
@@ -139,20 +139,20 @@ vtkFieldData::Iterator& vtkFieldData::Iterator::operator=(
   const vtkFieldData::Iterator& source)
 {
   if (this == &source)
-    {
+  {
     return *this;
-    }
+  }
   this->BasicIterator::operator=(source);
   if (this->Fields && !this->Detached)
-    {
-    this->Fields->UnRegister(0);
-    }
+  {
+    this->Fields->UnRegister(nullptr);
+  }
   this->Fields = source.Fields;
   this->Detached = source.Detached;
   if (this->Fields && !this->Detached)
-    {
-    this->Fields->Register(0);
-    }
+  {
+    this->Fields->Register(nullptr);
+  }
   return *this;
 }
 
@@ -166,19 +166,19 @@ vtkFieldData::BasicIterator::~BasicIterator()
 vtkFieldData::Iterator::~Iterator()
 {
   if (this->Fields && !this->Detached)
-    {
-    this->Fields->UnRegister(0);
-    }
+  {
+    this->Fields->UnRegister(nullptr);
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkFieldData::Iterator::DetachFieldData()
 {
   if (this->Fields && !this->Detached)
-    {
-    this->Fields->UnRegister(0);
+  {
+    this->Fields->UnRegister(nullptr);
     this->Detached = 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -186,10 +186,10 @@ void vtkFieldData::Iterator::DetachFieldData()
 vtkFieldData::vtkFieldData()
 {
   this->NumberOfArrays = 0;
-  this->Data = NULL;
+  this->Data = nullptr;
   this->NumberOfActiveArrays = 0;
 
-  this->CopyFieldFlags = 0;
+  this->CopyFieldFlags = nullptr;
   this->NumberOfFieldFlags = 0;
 
   this->DoCopyAllOn = 1;
@@ -212,15 +212,15 @@ void vtkFieldData::InitializeFields()
   int i;
 
   if ( this->Data )
-    {
+  {
     for ( i=0; i<this->GetNumberOfArrays(); i++ )
-      {
+    {
       this->Data[i]->UnRegister(this);
-      }
+    }
 
     delete [] this->Data;
-    this->Data = NULL;
-    }
+    this->Data = nullptr;
+  }
 
   this->NumberOfArrays = 0;
   this->NumberOfActiveArrays = 0;
@@ -240,18 +240,18 @@ void vtkFieldData::Initialize()
 
 //----------------------------------------------------------------------------
 // Allocate data for each array.
-int vtkFieldData::Allocate(const vtkIdType sz, const vtkIdType ext)
+vtkTypeBool vtkFieldData::Allocate(vtkIdType sz, vtkIdType ext)
 {
   int i;
   int status = 0;
 
   for ( i=0; i < this->GetNumberOfArrays(); i++ )
-    {
+  {
     if ( (status = this->Data[i]->Allocate(sz,ext)) == 0 )
-      {
+    {
       break;
-      }
     }
+  }
 
   return status;
 }
@@ -271,22 +271,22 @@ void vtkFieldData::CopyStructure(vtkFieldData* r)
   int i;
   vtkAbstractArray* data;
   for(i=0; i < r->GetNumberOfArrays(); ++i)
-    {
+  {
     data = r->Data[i]->NewInstance();
     int numComponents = r->Data[i]->GetNumberOfComponents();
     data->SetNumberOfComponents(numComponents);
     data->SetName(r->Data[i]->GetName());
     for(vtkIdType j=0; j < numComponents; j++)
-      {
+    {
       data->SetComponentName(j,r->Data[i]->GetComponentName(j));
-      }
+    }
     if (r->Data[i]->HasInformation())
-      {
+    {
       data->CopyInformation(r->Data[i]->GetInformation(),/*deep=*/1);
-      }
+    }
     this->SetArray(i, data);
     data->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -296,44 +296,44 @@ void vtkFieldData::AllocateArrays(int num)
   int i;
 
   if ( num < 0 )
-    {
+  {
     num = 0;
-    }
+  }
 
   if ( num == this->NumberOfArrays )
-    {
+  {
     return;
-    }
+  }
 
   if ( num == 0 )
-    {
+  {
     this->Initialize();
-    }
+  }
   else if ( num < this->NumberOfArrays )
-    {
+  {
     for ( i=num; i < this->NumberOfArrays; i++)
-      {
-      if( this->Data[i] )
-        {
-        this->Data[i]->UnRegister(this);
-        }
-      }
-    this->NumberOfArrays = num;
-    }
-  else //num > this->NumberOfArrays
     {
+      if( this->Data[i] )
+      {
+        this->Data[i]->UnRegister(this);
+      }
+    }
+    this->NumberOfArrays = num;
+  }
+  else //num > this->NumberOfArrays
+  {
     vtkAbstractArray **data=new vtkAbstractArray* [num];
     // copy the original data
     for ( i=0; i < this->NumberOfArrays; i++ )
-      {
+    {
       data[i] = this->Data[i];
-      }
+    }
 
     //initialize the new arrays
     for ( i=this->NumberOfArrays; i < num; i++ )
-      {
-      data[i] = 0;
-      }
+    {
+      data[i] = nullptr;
+    }
 
     // get rid of the old data
     delete [] this->Data;
@@ -341,7 +341,7 @@ void vtkFieldData::AllocateArrays(int num)
     // update object
     this->Data = data;
     this->NumberOfArrays = num;
-    }
+  }
   this->Modified();
 }
 
@@ -350,55 +350,55 @@ void vtkFieldData::AllocateArrays(int num)
 void vtkFieldData::SetArray(int i, vtkAbstractArray *data)
 {
   if (!data || (i > this->NumberOfActiveArrays))
-    {
+  {
     vtkWarningMacro("Can not set array " << i << " to " << data << endl);
     return;
-    }
+  }
 
 
   if ( i < 0 )
-    {
+  {
     vtkWarningMacro("Array index should be >= 0");
     return;
-    }
+  }
   else if (i >= this->NumberOfArrays)
-    {
+  {
     this->AllocateArrays(i+1);
     this->NumberOfActiveArrays = i+1;
-    }
+  }
 
   if ( this->Data[i] != data )
+  {
+    if ( this->Data[i] != nullptr )
     {
-    if ( this->Data[i] != NULL )
-      {
       this->Data[i]->UnRegister(this);
-      }
-    this->Data[i] = data;
-    if ( this->Data[i] != NULL )
-      {
-      this->Data[i]->Register(this);
-      }
-    this->Modified();
     }
+    this->Data[i] = data;
+    if ( this->Data[i] != nullptr )
+    {
+      this->Data[i]->Register(this);
+    }
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------------
-// Return the ith array in the field. A NULL is returned if the index i is out
+// Return the ith array in the field. A nullptr is returned if the index i is out
 // if range.
 vtkDataArray *vtkFieldData::GetArray(int i)
 {
-  return vtkDataArray::SafeDownCast(this->GetAbstractArray(i));
+  return vtkArrayDownCast<vtkDataArray>(this->GetAbstractArray(i));
 }
 
 //----------------------------------------------------------------------------
-// Return the ith array in the field. A NULL is returned if the index i is out
+// Return the ith array in the field. A nullptr is returned if the index i is out
 // if range.
 vtkAbstractArray *vtkFieldData::GetAbstractArray(int i)
 {
-  if ( i < 0 || i >= this->GetNumberOfArrays() || this->Data == NULL)
-    {
-    return 0;
-    }
+  if ( i < 0 || i >= this->GetNumberOfArrays() || this->Data == nullptr)
+  {
+    return nullptr;
+  }
   return this->Data[i];
 }
 
@@ -410,18 +410,18 @@ void vtkFieldData::DeepCopy(vtkFieldData *f)
 
   this->AllocateArrays(f->GetNumberOfArrays());
   for ( int i=0; i < f->GetNumberOfArrays(); i++ )
-    {
+  {
     data = f->GetAbstractArray(i);
     newData = data->NewInstance(); //instantiate same type of object
     newData->DeepCopy(data);
     newData->SetName(data->GetName());
     if (data->HasInformation())
-      {
+    {
       newData->CopyInformation(data->GetInformation(),/*deep=*/1);
-      }
+    }
     this->AddArray(newData);
     newData->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -432,10 +432,10 @@ void vtkFieldData::ShallowCopy(vtkFieldData *f)
   this->NumberOfActiveArrays = 0;
 
   for ( int i=0; i < f->GetNumberOfArrays(); i++ )
-    {
+  {
     this->NumberOfActiveArrays++;
     this->SetArray(i, f->GetAbstractArray(i));
-    }
+  }
   this->CopyFlags(f);
 }
 
@@ -445,9 +445,9 @@ void vtkFieldData::ShallowCopy(vtkFieldData *f)
 void vtkFieldData::Squeeze()
 {
   for ( int i=0; i < this->GetNumberOfArrays(); i++ )
-    {
+  {
     this->Data[i]->Squeeze();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -458,9 +458,9 @@ void vtkFieldData::Reset()
   int i;
 
   for ( i=0; i < this->GetNumberOfArrays(); i++ )
-    {
+  {
     this->Data[i]->Reset();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -472,9 +472,9 @@ void vtkFieldData::GetField(vtkIdList *ptIds, vtkFieldData *f)
   int i, numIds=ptIds->GetNumberOfIds();
 
   for (i=0; i < numIds; i++)
-    {
+  {
     f->InsertTuple(i, ptIds->GetId(i), this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -487,18 +487,18 @@ int vtkFieldData::GetArrayContainingComponent(int i, int& arrayComp)
   int numComp, count=0;
 
   for ( int j=0; j < this->GetNumberOfArrays(); j++ )
+  {
+    if ( this->Data[j] != nullptr )
     {
-    if ( this->Data[j] != NULL )
-      {
       numComp = this->Data[j]->GetNumberOfComponents();
       if ( i < (numComp + count) )
-        {
+      {
         arrayComp = i - count;
         return j;
-        }
-      count += numComp;
       }
+      count += numComp;
     }
+  }
   return -1;
 }
 
@@ -506,7 +506,7 @@ int vtkFieldData::GetArrayContainingComponent(int i, int& arrayComp)
 vtkDataArray *vtkFieldData::GetArray(const char *arrayName, int &index)
 {
   int i;
-  vtkDataArray* da = vtkDataArray::SafeDownCast(this->GetAbstractArray(
+  vtkDataArray* da = vtkArrayDownCast<vtkDataArray>(this->GetAbstractArray(
       arrayName, i));
   index = (da)? i : -1;
   return da;
@@ -519,56 +519,64 @@ vtkAbstractArray *vtkFieldData::GetAbstractArray(const char *arrayName, int &ind
   const char *name;
   index = -1;
   if (!arrayName)
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
   for (i=0; i < this->GetNumberOfArrays(); i++)
-    {
+  {
     name = this->GetArrayName(i);
     if ( name && !strcmp(name,arrayName) )
-      {
+    {
       index = i;
       return this->GetAbstractArray(i);
-      }
     }
-  return NULL;
+  }
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
 int vtkFieldData::AddArray(vtkAbstractArray *array)
 {
   if (!array)
-    {
+  {
     return -1;
-    }
+  }
 
   int index;
   this->GetAbstractArray(array->GetName(), index);
 
   if (index == -1)
-    {
+  {
     index = this->NumberOfActiveArrays;
     this->NumberOfActiveArrays++;
-    }
+  }
   this->SetArray(index, array);
   return index;
+}
+
+//--------------------------------------------------------------------------
+void vtkFieldData::RemoveArray(const char *name)
+{
+  int i;
+  this->GetAbstractArray(name, i);
+  this->RemoveArray(i);
 }
 
 //----------------------------------------------------------------------------
 void vtkFieldData::RemoveArray(int index)
 {
   if ( (index<0) || (index>=this->NumberOfActiveArrays))
-    {
+  {
     return;
-    }
+  }
   this->Data[index]->UnRegister(this);
-  this->Data[index] = 0;
+  this->Data[index] = nullptr;
   this->NumberOfActiveArrays--;
   for(int i=index; i<this->NumberOfActiveArrays; i++)
-    {
+  {
     this->Data[i] = this->Data[i+1];
-    }
-  this->Data[this->NumberOfActiveArrays] = 0;
+  }
+  this->Data[this->NumberOfActiveArrays] = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -577,34 +585,34 @@ unsigned long vtkFieldData::GetActualMemorySize()
   unsigned long size=0;
 
   for ( int i=0; i < this->GetNumberOfArrays(); i++ )
+  {
+    if ( this->Data[i] != nullptr )
     {
-    if ( this->Data[i] != NULL )
-      {
       size += this->Data[i]->GetActualMemorySize();
-      }
     }
+  }
 
   return size;
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkFieldData::GetMTime()
+vtkMTimeType vtkFieldData::GetMTime()
 {
-  unsigned long int mTime = this->MTime;
-  unsigned long int otherMTime;
+  vtkMTimeType mTime = this->MTime;
+  vtkMTimeType otherMTime;
   vtkAbstractArray* aa;
 
   for(int i=0; i < this->NumberOfActiveArrays; i++)
-    {
+  {
     if ((aa=this->Data[i]))
-      {
+    {
       otherMTime = aa->GetMTime();
       if ( otherMTime > mTime )
-        {
+      {
         mTime = otherMTime;
-        }
       }
     }
+  }
 
   return mTime;
 }
@@ -617,24 +625,24 @@ void vtkFieldData::CopyFieldOnOff(const char* field, int onOff)
   int index;
   // If the array is in the list, simply set IsCopied to onOff
   if ((index=this->FindFlag(field)) != -1)
-    {
+  {
     if (this->CopyFieldFlags[index].IsCopied != onOff)
-      {
+    {
       this->CopyFieldFlags[index].IsCopied = onOff;
       this->Modified();
-      }
     }
+  }
   else
-    {
+  {
     // We need to reallocate the list of fields
     vtkFieldData::CopyFieldFlag* newFlags =
       new vtkFieldData::CopyFieldFlag[this->NumberOfFieldFlags+1];
     // Copy old flags (pointer copy for name)
     for(int i=0; i<this->NumberOfFieldFlags; i++)
-      {
+    {
       newFlags[i].ArrayName = this->CopyFieldFlags[i].ArrayName;
       newFlags[i].IsCopied = this->CopyFieldFlags[i].IsCopied;
-      }
+    }
     // Copy new flag (strcpy)
     char* newName = new char[strlen(field)+1];
     strcpy(newName, field);
@@ -644,7 +652,7 @@ void vtkFieldData::CopyFieldOnOff(const char* field, int onOff)
     delete[] this->CopyFieldFlags;
     this->CopyFieldFlags = newFlags;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -652,11 +660,11 @@ void vtkFieldData::CopyFieldOnOff(const char* field, int onOff)
 void vtkFieldData::CopyAllOn(int vtkNotUsed(ctype))
 {
   if ( !DoCopyAllOn || DoCopyAllOff )
-    {
+  {
     this->DoCopyAllOn = 1;
     this->DoCopyAllOff = 0;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -664,11 +672,11 @@ void vtkFieldData::CopyAllOn(int vtkNotUsed(ctype))
 void vtkFieldData::CopyAllOff(int vtkNotUsed(ctype))
 {
   if ( DoCopyAllOn || !DoCopyAllOff )
-    {
+  {
     this->DoCopyAllOn = 0;
     this->DoCopyAllOff = 1;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -676,14 +684,14 @@ void vtkFieldData::CopyAllOff(int vtkNotUsed(ctype))
 void vtkFieldData::ClearFieldFlags()
 {
   if (this->NumberOfFieldFlags > 0)
-    {
+  {
     for(int i=0; i<this->NumberOfFieldFlags; i++)
-      {
+    {
       delete[] this->CopyFieldFlags[i].ArrayName;
-      }
     }
+  }
   delete[] this->CopyFieldFlags;
-  this->CopyFieldFlags=0;
+  this->CopyFieldFlags=nullptr;
   this->NumberOfFieldFlags=0;
 }
 
@@ -694,13 +702,13 @@ int vtkFieldData::FindFlag(const char* field)
 {
   if ( !field ) return -1;
   for(int i=0; i<this->NumberOfFieldFlags; i++)
-    {
+  {
     if (this->CopyFieldFlags[i].ArrayName &&
         !strcmp(field, this->CopyFieldFlags[i].ArrayName))
-      {
+    {
       return i;
-      }
     }
+  }
   return -1;
 }
 
@@ -711,13 +719,13 @@ int vtkFieldData::GetFlag(const char* field)
 {
   int index = this->FindFlag(field);
   if ( index == -1 )
-    {
+  {
     return -1;
-    }
+  }
   else
-    {
+  {
     return  this->CopyFieldFlags[index].IsCopied;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -727,38 +735,38 @@ void vtkFieldData::CopyFlags(const vtkFieldData* source)
   this->ClearFieldFlags();
   this->NumberOfFieldFlags = source->NumberOfFieldFlags;
   if ( this->NumberOfFieldFlags > 0 )
-    {
+  {
     this->CopyFieldFlags = new
       vtkFieldData::CopyFieldFlag[this->NumberOfFieldFlags];
     for(int i=0; i<this->NumberOfFieldFlags; i++)
-      {
+    {
       this->CopyFieldFlags[i].ArrayName =
         new char[strlen(source->CopyFieldFlags[i].ArrayName)+1];
       strcpy(this->CopyFieldFlags[i].ArrayName,
              source->CopyFieldFlags[i].ArrayName);
-      }
     }
+  }
   else
-    {
-    this->CopyFieldFlags = 0;
-    }
+  {
+    this->CopyFieldFlags = nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkFieldData::PassData(vtkFieldData* fd)
 {
   for(int i=0; i<fd->GetNumberOfArrays(); i++)
-    {
+  {
     const char* arrayName = fd->GetArrayName(i);
     // If there is no blocker for the given array
     // and both CopyAllOff and CopyOn for that array are not true
     if ( (this->GetFlag(arrayName) != 0) &&
          !(this->DoCopyAllOff && (this->GetFlag(arrayName) != 1)) &&
          fd->GetAbstractArray(i))
-      {
+    {
       this->AddArray(fd->GetAbstractArray(i));
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -768,17 +776,17 @@ void vtkFieldData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of Arrays: " << this->GetNumberOfArrays() << "\n";
   for (int i=0; i<this->GetNumberOfArrays(); i++)
-    {
+  {
     if (this->GetArrayName(i))
-      {
+    {
       os << indent << "Array " << i << " name = "
          << this->GetArrayName(i) << "\n";
-      }
-    else
-      {
-      os << indent << "Array " << i << " name = NULL\n";
-      }
     }
+    else
+    {
+      os << indent << "Array " << i << " name = nullptr\n";
+    }
+  }
   os << indent << "Number Of Components: " << this->GetNumberOfComponents()
      << "\n";
   os << indent << "Number Of Tuples: " << this->GetNumberOfTuples() << "\n";
@@ -786,18 +794,18 @@ void vtkFieldData::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Get the number of components in the field. This is determined by adding
-// up the components in each non-NULL array.
+// up the components in each non-nullptr array.
 int vtkFieldData::GetNumberOfComponents()
 {
   int i, numComp;
 
   for ( i=numComp=0; i < this->GetNumberOfArrays(); i++ )
-    {
+  {
     if (this->Data[i])
-      {
+    {
       numComp += this->Data[i]->GetNumberOfComponents();
-      }
     }
+  }
 
   return numComp;
 }
@@ -808,13 +816,13 @@ vtkIdType vtkFieldData::GetNumberOfTuples()
 {
   vtkAbstractArray* da;
   if ((da=this->GetAbstractArray(0)))
-    {
+  {
     return da->GetNumberOfTuples();
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -822,22 +830,22 @@ vtkIdType vtkFieldData::GetNumberOfTuples()
 void vtkFieldData::SetNumberOfTuples(const vtkIdType number)
 {
   for ( int i=0; i < this->GetNumberOfArrays(); i++ )
-    {
+  {
     this->Data[i]->SetNumberOfTuples(number);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 // Set the jth tuple in source field data at the ith location.
 // Set operations
-// mean that no range chaecking is performed, so they're faster.
+// means that no range checking is performed, so they're faster.
 void vtkFieldData::SetTuple(const vtkIdType i, const vtkIdType j,
   vtkFieldData* source)
 {
   for ( int k=0; k < this->GetNumberOfArrays(); k++ )
-    {
+  {
     this->Data[k]->SetTuple(i, j, source->Data[k]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -847,9 +855,9 @@ void vtkFieldData::InsertTuple(const vtkIdType i, const vtkIdType j,
   vtkFieldData* source)
 {
   for ( int k=0; k < this->GetNumberOfArrays(); k++ )
-    {
+  {
     this->Data[k]->InsertTuple(i, j, source->GetAbstractArray(k));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

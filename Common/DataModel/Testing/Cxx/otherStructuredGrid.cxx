@@ -24,11 +24,12 @@
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkLongArray.h"
+#include "vtkMathUtilities.h"
 #include "vtkPointData.h"
 #include "vtkShortArray.h"
 #include "vtkStructuredGrid.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int TestOSG(ostream& strm)
 {
@@ -46,81 +47,81 @@ int TestOSG(ostream& strm)
 
   vtkPoints *xyzpoints = vtkPoints::New();
   for (k = 0; k < 20; k++)
-    {
+  {
       for (j = 0; j < 20; j++)
-        {
+      {
         for (i = 0; i < 20; i++)
-          {
+        {
           xyzpoints->InsertNextPoint((double) i, (double) j, (double) k);
-          }
         }
-    }
+      }
+  }
   sg3D->SetDimensions(20,20,20);
   sg3D->SetPoints(xyzpoints); xyzpoints->Delete();
 
   vtkPoints *xypoints = vtkPoints::New();
   for (j = 0; j < 20; j++)
-    {
+  {
     for (i = 0; i < 20; i++)
-      {
+    {
       xypoints->InsertNextPoint((double) i, (double) j, 0.0);
-      }
     }
+  }
   sg2Dxy->SetDimensions(20,20,1);
   sg2Dxy->SetPoints(xypoints); xypoints->Delete();
 
   vtkPoints *xzpoints = vtkPoints::New();
   for (k = 0; k < 20; k++)
-    {
+  {
     for (i = 0; i < 20; i++)
-      {
+    {
       xzpoints->InsertNextPoint((double) i, 0.0, (double) k);
-      }
     }
+  }
   sg2Dxz->SetDimensions(20,1,20);
   sg2Dxz->SetPoints(xzpoints); xzpoints->Delete();
 
   vtkPoints *yzpoints = vtkPoints::New();
   for (k = 0; k < 20; k++)
-    {
+  {
     for (j = 0; j < 20; j++)
-      {
+    {
       yzpoints->InsertNextPoint(0.0, (double) j, (double) k);
-      }
     }
+  }
   sg2Dyz->SetDimensions(1,20,20);
   sg2Dyz->SetPoints(yzpoints); yzpoints->Delete();
 
   vtkPoints *xpoints = vtkPoints::New();
   for (i = 0; i < 20; i++)
-    {
+  {
     xpoints->InsertNextPoint((double) i, 0.0, 0.0);
-    }
+  }
   sg1Dx->SetDimensions(20,1,1);
   sg1Dx->SetPoints(xpoints); xpoints->Delete();
 
   vtkPoints *ypoints = vtkPoints::New();
   for (j = 0; j < 20; j++)
-    {
+  {
     ypoints->InsertNextPoint(0.0, (double) j, 0.0);
-    }
+  }
   sg1Dy->SetDimensions(1,20,1);
   sg1Dy->SetPoints(ypoints); ypoints->Delete();
   strm << *sg1Dy;
 
   vtkPoints *zpoints = vtkPoints::New();
   for (k = 0; k < 20; k++)
-    {
+  {
     zpoints->InsertNextPoint(0.0, 0.0, (double) k);
-    }
+  }
   sg1Dz->SetDimensions(1,1,20);
   sg1Dz->SetPoints(zpoints); zpoints->Delete();
 
   vtkPoints *onepoints = vtkPoints::New();
   for (k = 0; k < 1; k++)
-    {
+  {
     onepoints->InsertNextPoint(0.0, 0.0, 0.0);
-    }
+  }
   sg0D->SetDimensions(1,1,1);
   sg0D->SetPoints(onepoints); onepoints->Delete();
 
@@ -130,18 +131,18 @@ int TestOSG(ostream& strm)
 
   int l = 0;
   for (k = 0; k < 20; k++)
-    {
+  {
     for (j = 0; j < 20; j++)
-      {
+    {
       for (i = 0; i < 20; i++)
-        {
+      {
         shortScalars3D->InsertComponent(l,0,i);
         shortScalars3D->InsertComponent(l,0,j);
         shortScalars3D->InsertComponent(l,0,k);
         l++;
-        }
       }
     }
+  }
 
   vtkShortArray *shortScalars2D = vtkShortArray::New();
   shortScalars2D->SetNumberOfComponents(2);
@@ -149,14 +150,14 @@ int TestOSG(ostream& strm)
 
   l = 0;
   for (j = 0; j < 20; j++)
-    {
+  {
     for (i = 0; i < 20; i++)
-      {
+    {
       shortScalars2D->InsertComponent(l,0,i);
       shortScalars2D->InsertComponent(l,0,j);
       l++;
-      }
     }
+  }
 
   vtkShortArray *shortScalars1D = vtkShortArray::New();
   shortScalars1D->SetNumberOfComponents(1);
@@ -164,10 +165,10 @@ int TestOSG(ostream& strm)
 
   l = 0;
   for (i = 0; i < 20; i++)
-    {
+  {
     shortScalars1D->InsertComponent(l,0,i);
     l++;
-    }
+  }
 
   vtkShortArray *shortScalars0D = vtkShortArray::New();
   shortScalars0D->SetNumberOfComponents(1);
@@ -209,9 +210,9 @@ int TestOSG(ostream& strm)
   sg3D->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10; j = 15;
@@ -221,9 +222,9 @@ int TestOSG(ostream& strm)
   sg2Dxy->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
 
@@ -234,9 +235,9 @@ int TestOSG(ostream& strm)
   sg2Dxz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10; j = 15;
@@ -246,9 +247,9 @@ int TestOSG(ostream& strm)
   sg2Dyz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -258,9 +259,9 @@ int TestOSG(ostream& strm)
   sg1Dx->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -270,9 +271,9 @@ int TestOSG(ostream& strm)
   sg1Dy->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -282,9 +283,9 @@ int TestOSG(ostream& strm)
   sg1Dz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   cellId = 0;
@@ -293,9 +294,245 @@ int TestOSG(ostream& strm)
   sg0D->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
+  strm << endl << endl;
+
+  // Test GetCell(i,j,k)
+  i = 10; j = 15; k = 7;
+  cellId = k * (19 * 19) + j * 19 + i;
+  cell3D = sg3D->GetCell(i,j,k);
+  if (cell3D == nullptr)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell3D->GetCellType() != VTK_HEXAHEDRON)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_HEXAHEDRON << " Returned: " << cell3D->GetCellType() << '\n';
+    return 1;
+  }
+  strm << "cell3D: " << *cell3D ;
+  sg3D->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10; j = 15;
+  cellId = j * 19 + i;
+  cell2D = sg2Dxy->GetCell(i,j,0);
+  if (cell2D == nullptr)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell2D->GetCellType() != VTK_QUAD)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_QUAD << " Returned: " << cell2D->GetCellType() << '\n';
+    return 1;
+  }
+  double bounds[6];
+  cell2D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[4],bounds[5]))
+  {
+    std::cerr << "sg2Dxy has finite width along z\n";
+    return 1;
+  }
+  strm << "cell2D: " << *cell2D ;
+  sg2Dxy->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10; j = 15;
+  cellId = j * 19 + i;
+  cell2D = sg2Dxz->GetCell(i,0,j);
+  if (cell2D == nullptr)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell2D->GetCellType() != VTK_QUAD)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_QUAD << " Returned: " << cell2D->GetCellType() << '\n';
+    return 1;
+  }
+  cell2D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[2],bounds[3]))
+  {
+    std::cerr << "sg2Dxz has finite width along y\n";
+    return 1;
+  }
+  strm << "cell2D: " << *cell2D ;
+  sg2Dxz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10; j = 15;
+  cellId = j * 19 + i;
+  cell2D = sg2Dyz->GetCell(0,i,j);
+  if (cell2D == nullptr)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell2D->GetCellType() != VTK_QUAD)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_QUAD << " Returned: " << cell2D->GetCellType() << '\n';
+    return 1;
+  }
+  cell2D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[0],bounds[1]))
+  {
+    std::cerr << "sg2Dyz has finite width along x\n";
+    return 1;
+  }
+  strm << "cell2D: " << *cell2D ;
+  sg2Dyz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10;
+  cellId = i;
+  cell1D = sg1Dx->GetCell(i,0,0);
+  if (cell1D == nullptr)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell1D->GetCellType() != VTK_LINE)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_LINE << " Returned: " << cell1D->GetCellType() << '\n';
+    return 1;
+  }
+  cell1D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[2],bounds[3]))
+  {
+    std::cerr << "sg1Dx has finite width along y\n";
+    return 1;
+  }
+  else if(!vtkMathUtilities::FuzzyCompare(bounds[4],bounds[5]))
+  {
+    std::cerr << "sg1Dx has finite width along z\n";
+    return 1;
+  }
+  strm << "cell1D: " << *cell1D;
+  sg1Dx->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10;
+  cellId = i;
+  cell1D = sg1Dy->GetCell(0,i,0);
+  if (cell1D == nullptr)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell1D->GetCellType() != VTK_LINE)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_LINE << " Returned: " << cell1D->GetCellType() << '\n';
+    return 1;
+  }
+  cell1D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[0],bounds[1]))
+  {
+    std::cerr << "sg1Dy has finite width along x\n";
+    return 1;
+  }
+  else if(!vtkMathUtilities::FuzzyCompare(bounds[4],bounds[5]))
+  {
+    std::cerr << "sg1Dy has finite width along z\n";
+    return 1;
+  }
+  strm << "cell1D: " << *cell1D;
+  sg1Dy->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10;
+  cellId = i;
+  cell1D = sg1Dz->GetCell(0,0,i);
+  if (cell1D == nullptr)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell1D->GetCellType() != VTK_LINE)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_LINE << " Returned: " << cell1D->GetCellType() << '\n';
+    return 1;
+  }
+  cell1D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[0],bounds[1]))
+  {
+    std::cerr << "sg1Dz has finite width along x\n";
+    return 1;
+  }
+  else if(!vtkMathUtilities::FuzzyCompare(bounds[2],bounds[3]))
+  {
+    std::cerr << "sg1Dz has finite width along y\n";
+    return 1;
+  }
+  strm << "cell1D: " << *cell1D;
+  sg1Dz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  cellId = 0;
+  cell0D = sg0D->GetCell(0,0,0);
+  if (cell0D == nullptr)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell0D->GetCellType() != VTK_VERTEX)
+  {
+    std::cerr << "vtkStructuredGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_VERTEX << " Returned: " << cell0D->GetCellType() << '\n';
+    return 1;
+  }
+  strm << "cell0D: " << *cell0D;
+  sg0D->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
   strm << endl << endl;
 
   // Test Thread Safe GetCell
@@ -337,7 +574,6 @@ int TestOSG(ostream& strm)
 
   // Test GetCellBounds
 
-  double bounds[6];
   sg3D->GetCellBounds(k * (19 * 19) + j * 19 + i, bounds);
   strm << "GetCellBounds(sg3D): "
        << bounds[0] << ", " << bounds[1] << ", "
@@ -470,7 +706,7 @@ int TestOSG(ostream& strm)
 
   double pcoords[3], weights[8];
   int subId;
-  vtkCell *dummyCell = 0;
+  vtkCell *dummyCell = nullptr;
 
   point3D[0] = 10.5;
   point3D[1] = 12.1;
@@ -487,13 +723,13 @@ int TestOSG(ostream& strm)
 
   point3D[0] = 10.5; point3D[1] = 12.1; point3D[2] = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   vtkCell *found = sg2Dxy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(sg2Dxy) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg2Dxy): " << *found;
   strm << "pcoords: "
@@ -504,13 +740,13 @@ int TestOSG(ostream& strm)
   point3D[0] = 10.5; point3D[1] = 0.0; point3D[2] = 14.7;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   weights[0] = weights[1] = weights[2] = weights[3] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = sg2Dxz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(sg2Dxz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg2Dxz): " << *found;
   strm << "pcoords: "
@@ -521,13 +757,13 @@ int TestOSG(ostream& strm)
   point3D[0] = 0.0; point3D[1] = 12.1; point3D[2] = 14.7;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   weights[0] = weights[1] = weights[2] = weights[3] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = sg2Dyz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(sg2Dyz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg2Dyz): " << *found;
   strm << "pcoords: "
@@ -536,13 +772,13 @@ int TestOSG(ostream& strm)
        << weights[0] << ", " << weights[1] << ", " << weights[2] << ", " << weights[3] << endl;
 
   point3D[0] = 10.5; point3D[1] = 0.0; point3D[2] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = sg1Dx->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(sg1Dx) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg1Dx): " << *found;
   strm << "pcoords: "
@@ -552,13 +788,13 @@ int TestOSG(ostream& strm)
 
 
   point3D[0] = 0.0; point3D[1] = 12.1; point3D[2] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = sg1Dy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(sg1Dy) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg1Dy): " << *found;
   strm << "pcoords: "
@@ -568,13 +804,13 @@ int TestOSG(ostream& strm)
 
 
   point3D[0] = 0.0; point3D[1] = 0.0; point3D[2] = 14.7;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = sg1Dz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(sg1Dz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg1Dz): " << *found;
   strm << "pcoords: "
@@ -631,6 +867,6 @@ int TestOSG(ostream& strm)
 
 int otherStructuredGrid(int,char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
+  std::ostringstream vtkmsg_with_warning_C4701;
   return TestOSG(vtkmsg_with_warning_C4701);
 }

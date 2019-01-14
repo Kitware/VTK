@@ -31,17 +31,17 @@ int TestHighestDensityRegionsStatistics(int , char * [])
   vtkNew<vtkDoubleArray> arrFirstVariable;
   const char *namev1 = "Math";
   arrFirstVariable->SetName(namev1);
-  table->AddColumn(arrFirstVariable.GetPointer());
+  table->AddColumn(arrFirstVariable);
 
   vtkNew<vtkDoubleArray> arrSecondVariable;
   const char *namev2 = "French";
   arrSecondVariable->SetName(namev2);
-  table->AddColumn(arrSecondVariable.GetPointer());
+  table->AddColumn(arrSecondVariable);
 
   vtkNew<vtkDoubleArray> arrThirdVariable;
   const char *namev3 = "MG";
   arrThirdVariable->SetName(namev3);
-  table->AddColumn(arrThirdVariable.GetPointer());
+  table->AddColumn(arrThirdVariable);
 
   int numPoints = 20;
   table->SetNumberOfRows(numPoints);
@@ -65,13 +65,13 @@ int TestHighestDensityRegionsStatistics(int , char * [])
     };
 
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     table->SetValue(i, 0, i); // Known Test Values
     table->SetValue(i, 1, MathValue[i]);
     table->SetValue(i, 2, FrenchValue[i]);
     table->SetValue(i, 3, (MathValue[i] + FrenchValue[i]) / 2.0);
     table->SetValue(i, 4, MathValue[i] - FrenchValue[i]);
-    }
+  }
 
   // Run HDR
   // Set HDR statistics algorithm and its input data port
@@ -82,7 +82,7 @@ int TestHighestDensityRegionsStatistics(int , char * [])
   hdrs->Update();
   cout << "done.\n";
 
-  hdrs->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, table.GetPointer());
+  hdrs->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, table);
   // Select Column Pairs of Interest ( Learn Mode )
   // 1: a valid pair
   hdrs->AddColumnPair(namev1, namev2);
@@ -106,13 +106,13 @@ int TestHighestDensityRegionsStatistics(int , char * [])
 
   std::stringstream ss;
   ss << "HDR (" << namev1 << "," << namev2 << ")";
-  vtkDoubleArray* HDRArray = vtkDoubleArray::SafeDownCast(
+  vtkDoubleArray* HDRArray = vtkArrayDownCast<vtkDoubleArray>(
     outputMetaLearn->GetColumnByName(ss.str().c_str()));
   if (!HDRArray)
-    {
+  {
     cout << "Fail! The HDR column is missing from the result table!" << endl;
     return EXIT_FAILURE;
-    }
+  }
   cout << "## Done." << endl;
 
   return EXIT_SUCCESS;

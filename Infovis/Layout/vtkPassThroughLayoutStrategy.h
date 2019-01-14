@@ -17,12 +17,15 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPassThroughLayoutStrategy - a layout strategy that does absolutely nothing
-//
-// .SECTION Description
-// Yes, this incredible strategy does absoluted nothing to the data
-// so in affect passes through the graph untouched. This strategy
-// is useful in the cases where the graph is already laid out.
+/**
+ * @class   vtkPassThroughLayoutStrategy
+ * @brief   a layout strategy that does absolutely nothing
+ *
+ *
+ * Yes, this incredible strategy does absoluted nothing to the data
+ * so in affect passes through the graph untouched. This strategy
+ * is useful in the cases where the graph is already laid out.
+*/
 
 #ifndef vtkPassThroughLayoutStrategy_h
 #define vtkPassThroughLayoutStrategy_h
@@ -36,35 +39,38 @@ public:
   static vtkPassThroughLayoutStrategy *New();
 
   vtkTypeMacro(vtkPassThroughLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 
-  // Description:
-  // This strategy sets up some data structures
-  // for faster processing of each Layout() call
-  virtual void Initialize();
+  /**
+   * This strategy sets up some data structures
+   * for faster processing of each Layout() call
+   */
+  void Initialize() override;
 
-  // Description:
-  // This is the layout method where the graph that was
-  // set in SetGraph() is laid out. The method can either
-  // entirely layout the graph or iteratively lay out the
-  // graph. If you have an iterative layout please implement
-  // the IsLayoutComplete() method.
-  virtual void Layout();
+  /**
+   * This is the layout method where the graph that was
+   * set in SetGraph() is laid out. The method can either
+   * entirely layout the graph or iteratively lay out the
+   * graph. If you have an iterative layout please implement
+   * the IsLayoutComplete() method.
+   */
+  void Layout() override;
 
-  // Description:
-  // I'm an iterative layout so this method lets the caller
-  // know if I'm done laying out the graph
-  virtual int IsLayoutComplete() {return 1;}
+  /**
+   * I'm an iterative layout so this method lets the caller
+   * know if I'm done laying out the graph
+   */
+  int IsLayoutComplete() override {return 1;}
 
 protected:
   vtkPassThroughLayoutStrategy();
-  ~vtkPassThroughLayoutStrategy();
+  ~vtkPassThroughLayoutStrategy() override;
 
 private:
 
-  vtkPassThroughLayoutStrategy(const vtkPassThroughLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkPassThroughLayoutStrategy&);  // Not implemented.
+  vtkPassThroughLayoutStrategy(const vtkPassThroughLayoutStrategy&) = delete;
+  void operator=(const vtkPassThroughLayoutStrategy&) = delete;
 };
 
 #endif

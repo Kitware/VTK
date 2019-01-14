@@ -13,11 +13,14 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLContextDevice3D - OpenGL class drawing 3D primitives.
-//
-// .SECTION Description
-// This defines the implementation of a 3D context device for drawing simple
-// primitives.
+/**
+ * @class   vtkOpenGLContextDevice3D
+ * @brief   OpenGL class drawing 3D primitives.
+ *
+ *
+ * This defines the implementation of a 3D context device for drawing simple
+ * primitives.
+*/
 
 #ifndef vtkOpenGLContextDevice3D_h
 #define vtkOpenGLContextDevice3D_h
@@ -28,147 +31,172 @@
 #include <vector> // STL Header
 
 class vtkBrush;
-class vtkOpenGLRenderWindow;
 class vtkOpenGLContextDevice2D;
+class vtkOpenGLHelper;
+class vtkOpenGLRenderWindow;
 class vtkPen;
 class vtkRenderer;
-class vtkTransform;
 class vtkShaderProgram;
-namespace vtkgl
-{
-class CellBO;
-}
+class vtkTransform;
 
 class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextDevice3D : public vtkContextDevice3D
 {
 public:
   vtkTypeMacro(vtkOpenGLContextDevice3D, vtkContextDevice3D);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkOpenGLContextDevice3D * New();
 
-  // Description:
-  // Draw a polyline between the specified points.
-  void DrawPoly(const float *verts, int n, const unsigned char *colors, int nc);
+  /**
+   * Draw a polyline between the specified points.
+   */
+  void DrawPoly(const float *verts, int n, const unsigned char *colors, int nc) override;
 
-  // Description:
-  // Draw lines defined by specified pair of points.
-  // \sa DrawPoly()
-  void DrawLines(const float *verts, int n, const unsigned char *colors, int nc);
+  /**
+   * Draw lines defined by specified pair of points.
+   * \sa DrawPoly()
+   */
+  void DrawLines(const float *verts, int n, const unsigned char *colors, int nc) override;
 
-  // Description:
-  // Draw points at the vertex positions specified.
+  /**
+   * Draw points at the vertex positions specified.
+   */
   void DrawPoints(const float *verts, int n,
-                  const unsigned char *colors, int nc);
+                  const unsigned char *colors, int nc) override;
 
-  // Description:
-  // Draw triangles to generate the specified mesh.
+  /**
+   * Draw triangles to generate the specified mesh.
+   */
   void DrawTriangleMesh(const float *mesh, int n,
-                        const unsigned char *colors, int nc);
+                        const unsigned char *colors, int nc) override;
 
-  // Description:
-  // Apply the supplied pen which controls the outlines of shapes, as well as
-  // lines, points and related primitives. This makes a deep copy of the vtkPen
-  // object in the vtkContext2D, it does not hold a pointer to the supplied object.
-  void ApplyPen(vtkPen *pen);
+  /**
+   * Apply the supplied pen which controls the outlines of shapes, as well as
+   * lines, points and related primitives. This makes a deep copy of the vtkPen
+   * object in the vtkContext2D, it does not hold a pointer to the supplied object.
+   */
+  void ApplyPen(vtkPen *pen) override;
 
-  // Description:
-  // Apply the supplied brush which controls the outlines of shapes, as well as
-  // lines, points and related primitives. This makes a deep copy of the vtkBrush
-  // object in the vtkContext2D, it does not hold a pointer to the supplied object.
-  void ApplyBrush(vtkBrush *brush);
+  /**
+   * Apply the supplied brush which controls the outlines of shapes, as well as
+   * lines, points and related primitives. This makes a deep copy of the vtkBrush
+   * object in the vtkContext2D, it does not hold a pointer to the supplied object.
+   */
+  void ApplyBrush(vtkBrush *brush) override;
 
-  // Description:
-  // Set the model view matrix for the display
-  void SetMatrix(vtkMatrix4x4 *m);
+  /**
+   * Set the model view matrix for the display
+   */
+  void SetMatrix(vtkMatrix4x4 *m) override;
 
-  // Description:
-  // Set the model view matrix for the display
-  void GetMatrix(vtkMatrix4x4 *m);
+  /**
+   * Set the model view matrix for the display
+   */
+  void GetMatrix(vtkMatrix4x4 *m) override;
 
-  // Description:
-  // Multiply the current model view matrix by the supplied one
-  void MultiplyMatrix(vtkMatrix4x4 *m);
+  /**
+   * Multiply the current model view matrix by the supplied one
+   */
+  void MultiplyMatrix(vtkMatrix4x4 *m) override;
 
-  // Description:
-  // Push the current matrix onto the stack.
-  void PushMatrix();
+  /**
+   * Push the current matrix onto the stack.
+   */
+  void PushMatrix() override;
 
-  // Description:
-  // Pop the current matrix off of the stack.
-  void PopMatrix();
+  /**
+   * Pop the current matrix off of the stack.
+   */
+  void PopMatrix() override;
 
-  // Description:
-  // Supply a float array of length 4 with x1, y1, width, height specifying
-  // clipping region for the device in pixels.
-  void SetClipping(const vtkRecti &rect);
+  /**
+   * Supply a float array of length 4 with x1, y1, width, height specifying
+   * clipping region for the device in pixels.
+   */
+  void SetClipping(const vtkRecti &rect) override;
 
-  // Description:
-  // Enable or disable the clipping of the scene.
-  void EnableClipping(bool enable);
+  /**
+   * Enable or disable the clipping of the scene.
+   */
+  void EnableClipping(bool enable) override;
 
-  // Description:
-  // Enable/Disable the specified clipping plane.
-  // i is the index of the clipping plane being enabled or disabled (0 - 5).
-  // planeEquation points to the four coefficients of the equation for the
-  // clipping plane: Ax + By + Cz + D = 0.  This is the equation format
-  // expected by glClipPlane.
-  void EnableClippingPlane(int i, double *planeEquation);
-  void DisableClippingPlane(int i);
+  //@{
+  /**
+   * Enable/Disable the specified clipping plane.
+   * i is the index of the clipping plane being enabled or disabled (0 - 5).
+   * planeEquation points to the four coefficients of the equation for the
+   * clipping plane: Ax + By + Cz + D = 0.  This is the equation format
+   * expected by glClipPlane.
+   */
+  void EnableClippingPlane(int i, double *planeEquation) override;
+  void DisableClippingPlane(int i) override;
+  //@}
 
-  // Description
-  // This must be set during initialization
+  /**
+   * This must be set during initialization
+   */
   void Initialize(vtkRenderer *, vtkOpenGLContextDevice2D *);
 
-  // Description:
-  // Begin drawing, pass in the viewport to set up the view.
+  /**
+   * Begin drawing, pass in the viewport to set up the view.
+   */
   virtual void Begin(vtkViewport* viewport);
 
 protected:
   vtkOpenGLContextDevice3D();
-  ~vtkOpenGLContextDevice3D();
+  ~vtkOpenGLContextDevice3D() override;
 
-  // Description:
-  // Begin drawing, turn on the depth buffer.
+  /**
+   * Begin drawing, turn on the depth buffer.
+   */
   virtual void EnableDepthBuffer();
 
-  // Description:
-  // End drawing, turn off the depth buffer.
+  /**
+   * End drawing, turn off the depth buffer.
+   */
   virtual void DisableDepthBuffer();
 
-  vtkgl::CellBO *VCBO;  // vertex + color
+  vtkOpenGLHelper *VCBO;  // vertex + color
   void ReadyVCBOProgram();
-  vtkgl::CellBO *VBO;  // vertex
+  vtkOpenGLHelper *VBO;  // vertex
   void ReadyVBOProgram();
 
   void SetMatrices(vtkShaderProgram *prog);
-  void BuildVBO(vtkgl::CellBO *cbo,
+  void BuildVBO(vtkOpenGLHelper *cbo,
     const float *v, int nv,
     const unsigned char *coolors, int nc,
     float *tcoords);
   void CoreDrawTriangles(std::vector<float> &tverts);
 
+  // do we have wide lines that require special handling
+  virtual bool HaveWideLines();
+
   vtkTransform *ModelMatrix;
 
-  // Description:
-  // The OpenGL render window being used by the device
+  /**
+   * The OpenGL render window being used by the device
+   */
   vtkOpenGLRenderWindow* RenderWindow;
 
-  // Description:
-  // We need to store a pointer to get the camera mats
+  /**
+   * We need to store a pointer to get the camera mats
+   */
   vtkRenderer *Renderer;
 
   std::vector<bool> ClippingPlaneStates;
   std::vector<double> ClippingPlaneValues;
 
 private:
-  vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D &); // Not implemented.
-  void operator=(const vtkOpenGLContextDevice3D &);   // Not implemented.
+  vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D &) = delete;
+  void operator=(const vtkOpenGLContextDevice3D &) = delete;
 
-  // Description:
-  // Private data pointer of the class
+  //@{
+  /**
+   * Private data pointer of the class
+   */
   class Private;
   Private *Storage;
+  //@}
 
   // we need a pointer to this because only
   // the 2D device gets a Begin and sets up

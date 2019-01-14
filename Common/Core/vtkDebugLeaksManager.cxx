@@ -29,17 +29,17 @@ static unsigned int vtkDebugLeaksManagerCount;
 vtkDebugLeaksManager::vtkDebugLeaksManager()
 {
   if(++vtkDebugLeaksManagerCount == 1)
-    {
+  {
     vtkDebugLeaks::ClassInitialize();
-    }
+  }
 }
 
 vtkDebugLeaksManager::~vtkDebugLeaksManager()
 {
   if(--vtkDebugLeaksManagerCount == 0)
-    {
+  {
     vtkDebugLeaks::ClassFinalize();
-    }
+  }
 }
 
 #if defined(_MSC_VER)

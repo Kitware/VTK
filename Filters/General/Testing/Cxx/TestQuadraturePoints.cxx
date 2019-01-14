@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // This example demonstrates the capabilities of vtkQuadraturePointInterpolator
-// vtkQuadraturePointsGenerator and the class required to suppport their
+// vtkQuadraturePointsGenerator and the class required to support their
 // addition.
 //
 // The command line arguments are:
@@ -62,10 +62,10 @@ int TestQuadraturePoints(int argc,char *argv[])
   vtkSmartPointer<vtkTesting> testHelper = vtkSmartPointer<vtkTesting>::New();
   testHelper->AddArguments(argc, argv);
   if (!testHelper->IsFlagSpecified("-D"))
-    {
+  {
     std::cerr << "Error: -D /path/to/data was not specified.";
     return EXIT_FAILURE;
-    }
+  }
   std::string dataRoot=testHelper->GetDataRoot();
   std::string tempDir=testHelper->GetTempDirectory();
   std::string inputFileName=dataRoot+"/Data/Quadratic/CylinderQuadratic.vtk";
@@ -73,30 +73,30 @@ int TestQuadraturePoints(int argc,char *argv[])
   std::string tempBaseline=tempDir+"/TestQuadraturePoints.png";
 
   // Raed, xml or legacy file.
-  vtkUnstructuredGrid *input=0;
+  vtkUnstructuredGrid *input=nullptr;
   vtkSmartPointer<vtkXMLUnstructuredGridReader> xusgr = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
   xusgr->SetFileName(inputFileName.c_str());
 
   vtkSmartPointer<vtkUnstructuredGridReader> lusgr = vtkSmartPointer<vtkUnstructuredGridReader>::New();
   lusgr->SetFileName(inputFileName.c_str());
   if (xusgr->CanReadFile(inputFileName.c_str()))
-    {
+  {
     input=xusgr->GetOutput();
     xusgr->Update();
-    lusgr=NULL;
-    }
+    lusgr=nullptr;
+  }
   else if (lusgr->IsFileValid("unstructured_grid"))
-    {
+  {
     lusgr->SetFileName(inputFileName.c_str());
     input=lusgr->GetOutput();
     lusgr->Update();
-    xusgr=NULL;
-    }
-  if (input==0)
-    {
+    xusgr=nullptr;
+  }
+  if (input==nullptr)
+  {
     std::cerr << "Error: Could not read file " << inputFileName << "." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Add a couple arrays to be used in the demonstrations.
   int warpIdx=GenerateWarpVector(input);
@@ -105,7 +105,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   std::string threshName=input->GetPointData()->GetArray(threshIdx)->GetName();
 
   // Add a quadrature scheme dictionary to the data set. This filter is
-  // solely for our convinience. Typically we would expect that users
+  // solely for our convenience. Typically we would expect that users
   // provide there own in XML format and use the readers or to generate
   // them on the fly.
   vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator> dictGen
@@ -119,27 +119,27 @@ int TestQuadraturePoints(int argc,char *argv[])
   fieldInterp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "QuadratureOffset");
   fieldInterp->SetInputConnection(dictGen->GetOutputPort());
 
-  // Write the dataset as XML. This excercises the information writer.
+  // Write the dataset as XML. This exercises the information writer.
   vtkSmartPointer<vtkXMLUnstructuredGridWriter> xusgw
     = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
   xusgw->SetFileName(tempFile.c_str());
   xusgw->SetInputConnection(fieldInterp->GetOutputPort());
   xusgw->Write();
-  xusgw=NULL;
-  fieldInterp=NULL;
+  xusgw=nullptr;
+  fieldInterp=nullptr;
 
-  // Read the data back in form disk. This excercises the information reader.
-  xusgr=NULL;
+  // Read the data back in form disk. This exercises the information reader.
+  xusgr=nullptr;
   xusgr.TakeReference(vtkXMLUnstructuredGridReader::New());
   xusgr->SetFileName(tempFile.c_str());
   xusgr->Update();
 
   input=xusgr->GetOutput();
-  input->Register(0);
+  input->Register(nullptr);
   input->GetPointData()->SetActiveVectors(warpName.c_str());
   input->GetPointData()->SetActiveScalars(threshName.c_str());
 
-  xusgr=NULL;
+  xusgr=nullptr;
 
  // Demonstrate warp by vector.
   vtkSmartPointer<vtkWarpVector> warper = vtkSmartPointer<vtkWarpVector>::New();
@@ -182,11 +182,11 @@ int TestQuadraturePoints(int argc,char *argv[])
   pdmQPts->SetInputConnection(glyphs->GetOutputPort());
   pdmQPts->SetColorModeToMapScalars();
   pdmQPts->SetScalarModeToUsePointData();
-  if(output->GetPointData()->GetArray(0) == NULL)
-    {
+  if(output->GetPointData()->GetArray(0) == nullptr)
+  {
     vtkGenericWarningMacro( << "no point data in output of vtkQuadraturePointsGenerator" );
     return EXIT_FAILURE;
-    }
+  }
   pdmQPts->SetScalarRange(output->GetPointData()->GetArray(activeScalars)->GetRange());
   vtkSmartPointer<vtkActor> outputActor = vtkSmartPointer<vtkActor>::New();
   outputActor->SetMapper(pdmQPts);
@@ -203,7 +203,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   surfaceActor->GetProperty()->SetRepresentationToSurface();
   surfaceActor->SetMapper(pdmWSurf);
   // Setup left render pane.
-  vtkCamera *camera=0;
+  vtkCamera *camera=nullptr;
   vtkSmartPointer<vtkRenderer> ren0 = vtkSmartPointer<vtkRenderer>::New();
   ren0->SetViewport(0.0,0.0,0.5,1.0);
   ren0->AddActor(outputActor);
@@ -213,7 +213,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   camera->Elevation(95.0);
   camera->SetViewUp(0.0,0.0,1.0);
   camera->Azimuth(180.0);
-  camera=0;
+
   // Setup upper right pane.
   vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
   ren1->SetViewport(0.5,0.5,1.0,1.0);
@@ -228,7 +228,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   camera->OrthogonalizeViewUp();
   camera->Elevation(-10.0);
   camera->Azimuth(55.0);
-  camera=0;
+
   // Setup lower right pane.
   vtkSmartPointer<vtkRenderer> ren2 = vtkSmartPointer<vtkRenderer>::New();
   ren2->SetViewport(0.5,0.0,1.0,0.5);
@@ -236,14 +236,14 @@ int TestQuadraturePoints(int argc,char *argv[])
   ren2->SetBackground(0.328125, 0.347656, 0.425781);
   ren2->AddActor(surfaceActor);
   ren2->ResetCamera();
-  camera=0;
+
   // If interactive mode then we show wireframes for
   // reference.
   if (testHelper->IsInteractiveModeSpecified())
-    {
+  {
     surfaceActor->GetProperty()->SetOpacity(1.0);
     surfaceActor->GetProperty()->SetRepresentationToWireframe();
-    }
+  }
   // Render window
   vtkSmartPointer<vtkRenderWindow> renwin = vtkSmartPointer<vtkRenderWindow>::New();
   renwin->AddRenderer(ren0);
@@ -264,7 +264,7 @@ int TestQuadraturePoints(int argc,char *argv[])
 int GenerateWarpVector(vtkUnstructuredGrid *usg)
 {
   vtkDoubleArray *pts
-    = vtkDoubleArray::SafeDownCast(usg->GetPoints()->GetData());
+    = vtkArrayDownCast<vtkDoubleArray>(usg->GetPoints()->GetData());
 
   vtkIdType nTups
     = usg->GetPointData()->GetArray(0)->GetNumberOfTuples();
@@ -283,7 +283,7 @@ int GenerateWarpVector(vtkUnstructuredGrid *usg)
   double *pda=da->GetPointer(0);
   double *ppts=pts->GetPointer(0);
   for (vtkIdType i=0; i<nTups; ++i)
-    {
+  {
     double zs=(ppts[2]-zmid)/(zmax-zmid); // move z to -1 to 1
     double fzs=zs*zs*zs;                  // z**3
     double r[2];                          // radial vector
@@ -299,14 +299,14 @@ int GenerateWarpVector(vtkUnstructuredGrid *usg)
     pda[2]=0.0;
     pda+=3;                               // next
     ppts+=3;
-    }
+  }
   return idx;
 }
 //-----------------------------------------------------------------------------
 int GenerateThresholdScalar(vtkUnstructuredGrid *usg)
 {
   vtkDoubleArray *pts
-    = vtkDoubleArray::SafeDownCast(usg->GetPoints()->GetData());
+    = vtkArrayDownCast<vtkDoubleArray>(usg->GetPoints()->GetData());
 
   vtkIdType nTups
     = usg->GetPointData()->GetArray(0)->GetNumberOfTuples();
@@ -325,7 +325,7 @@ int GenerateThresholdScalar(vtkUnstructuredGrid *usg)
   double *pda=da->GetPointer(0);
   double *ppts=pts->GetPointer(0);
   for (vtkIdType i=0; i<nTups; ++i)
-    {
+  {
     double zs=(ppts[2]-zmid)/(zmax-zmid); // move z to -1 to 1
     double fzs=zs*zs*zs;                  // z**3
     double r[2];                          // radial vector
@@ -337,7 +337,7 @@ int GenerateThresholdScalar(vtkUnstructuredGrid *usg)
     pda[0]=r[1];                          // copy into result
     pda+=1;                               // next
     ppts+=3;
-    }
+  }
   return idx;
 }
 

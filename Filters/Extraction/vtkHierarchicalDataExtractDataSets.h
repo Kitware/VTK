@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalDataExtractDataSets - extract a number of datasets
-// .SECTION Description
-// Legacy class. Use vtkExtractDataSets instead.
-//
-// .SECTION See Also
-// vtkExtractDataSets
+/**
+ * @class   vtkHierarchicalDataExtractDataSets
+ * @brief   extract a number of datasets
+ *
+ * Legacy class. Use vtkExtractDataSets instead.
+ *
+ * @sa
+ * vtkExtractDataSets
+*/
 
 #ifndef vtkHierarchicalDataExtractDataSets_h
 #define vtkHierarchicalDataExtractDataSets_h
@@ -25,25 +28,23 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractDataSets.h"
 
-//BTX
 struct vtkHierarchicalDataExtractDataSetsInternals;
-//ETX
 
 class VTKFILTERSEXTRACTION_EXPORT vtkHierarchicalDataExtractDataSets :
   public vtkExtractDataSets
 {
 public:
   vtkTypeMacro(vtkHierarchicalDataExtractDataSets,vtkExtractDataSets);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHierarchicalDataExtractDataSets *New();
 
 protected:
   vtkHierarchicalDataExtractDataSets();
-  ~vtkHierarchicalDataExtractDataSets();
+  ~vtkHierarchicalDataExtractDataSets() override;
 
 private:
-  vtkHierarchicalDataExtractDataSets(const vtkHierarchicalDataExtractDataSets&);  // Not implemented.
-  void operator=(const vtkHierarchicalDataExtractDataSets&);  // Not implemented.
+  vtkHierarchicalDataExtractDataSets(const vtkHierarchicalDataExtractDataSets&) = delete;
+  void operator=(const vtkHierarchicalDataExtractDataSets&) = delete;
 };
 
 #endif

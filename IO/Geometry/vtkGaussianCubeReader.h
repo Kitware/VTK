@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGaussianCubeReader - read ASCII Gaussian Cube Data files
-// .SECTION Description
-// vtkGaussianCubeReader is a source object that reads ASCII files following
-// the description in http://www.gaussian.com/00000430.htm
-// The FileName must be specified.
-//
-// .SECTION Thanks
-// Dr. Jean M. Favre who developed and contributed this class.
+/**
+ * @class   vtkGaussianCubeReader
+ * @brief   read ASCII Gaussian Cube Data files
+ *
+ * vtkGaussianCubeReader is a source object that reads ASCII files following
+ * the description in http://www.gaussian.com/00000430.htm
+ * The FileName must be specified.
+ *
+ * @par Thanks:
+ * Dr. Jean M. Favre who developed and contributed this class.
+*/
 
 #ifndef vtkGaussianCubeReader_h
 #define vtkGaussianCubeReader_h
@@ -35,29 +38,26 @@ class VTKIOGEOMETRY_EXPORT vtkGaussianCubeReader : public vtkMoleculeReaderBase
 public:
   static vtkGaussianCubeReader *New();
   vtkTypeMacro(vtkGaussianCubeReader,vtkMoleculeReaderBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGetObjectMacro(Transform,vtkTransform);
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
   vtkImageData *GetGridOutput();
 
 protected:
   vtkGaussianCubeReader();
-  ~vtkGaussianCubeReader();
+  ~vtkGaussianCubeReader() override;
 
-  char *FileName;
   vtkTransform *Transform;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  void ReadSpecificMolecule(FILE* fp);
+  void ReadSpecificMolecule(FILE* fp) override;
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkGaussianCubeReader(const vtkGaussianCubeReader&);  // Not implemented.
-  void operator=(const vtkGaussianCubeReader&);  // Not implemented.
+  vtkGaussianCubeReader(const vtkGaussianCubeReader&) = delete;
+  void operator=(const vtkGaussianCubeReader&) = delete;
 };
 
 #endif

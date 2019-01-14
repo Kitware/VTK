@@ -12,13 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageEllipsoidSource - Create a binary image of an ellipsoid.
-// .SECTION Description
-// vtkImageEllipsoidSource creates a binary image of a ellipsoid.  It was created
-// as an example of a simple source, and to test the mask filter.
-// It is also used internally in vtkImageDilateErode3D.
-
-
+/**
+ * @class   vtkImageEllipsoidSource
+ * @brief   Create a binary image of an ellipsoid.
+ *
+ * vtkImageEllipsoidSource creates a binary image of a ellipsoid.  It was created
+ * as an example of a simple source, and to test the mask filter.
+ * It is also used internally in vtkImageDilateErode3D.
+*/
 
 #ifndef vtkImageEllipsoidSource_h
 #define vtkImageEllipsoidSource_h
@@ -31,38 +32,55 @@ class VTKIMAGINGSOURCES_EXPORT vtkImageEllipsoidSource : public vtkImageAlgorith
 public:
   static vtkImageEllipsoidSource *New();
   vtkTypeMacro(vtkImageEllipsoidSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get the extent of the whole output image.
+  //@{
+  /**
+   * Set/Get the extent of the whole output image.
+   */
   void SetWholeExtent(int extent[6]);
   void SetWholeExtent(int minX, int maxX, int minY, int maxY,
                             int minZ, int maxZ);
   void GetWholeExtent(int extent[6]);
-  int *GetWholeExtent() {return this->WholeExtent;}
+  int *GetWholeExtent() VTK_SIZEHINT(6) {return this->WholeExtent;}
+  //@}
 
-  // Description:
-  // Set/Get the center of the ellipsoid.
+  //@{
+  /**
+   * Set/Get the center of the ellipsoid.
+   */
   vtkSetVector3Macro(Center, double);
   vtkGetVector3Macro(Center, double);
+  //@}
 
-  // Description:
-  // Set/Get the radius of the ellipsoid.
+  //@{
+  /**
+   * Set/Get the radius of the ellipsoid.
+   */
   vtkSetVector3Macro(Radius, double);
   vtkGetVector3Macro(Radius, double);
+  //@}
 
-  // Description:
-  // Set/Get the inside pixel values.
+  //@{
+  /**
+   * Set/Get the inside pixel values.
+   */
   vtkSetMacro(InValue,double);
   vtkGetMacro(InValue,double);
+  //@}
 
-  // Description:
-  // Set/Get the outside pixel values.
+  //@{
+  /**
+   * Set/Get the outside pixel values.
+   */
   vtkSetMacro(OutValue,double);
   vtkGetMacro(OutValue,double);
+  //@}
 
-  // Description:
-  // Set what type of scalar data this source should generate.
+  //@{
+  /**
+   * Set what type of scalar data this source should generate.
+   */
   vtkSetMacro(OutputScalarType,int);
   vtkGetMacro(OutputScalarType,int);
   void SetOutputScalarTypeToFloat()
@@ -85,10 +103,11 @@ public:
     {this->SetOutputScalarType(VTK_CHAR);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+  //@}
 
 protected:
   vtkImageEllipsoidSource();
-  ~vtkImageEllipsoidSource();
+  ~vtkImageEllipsoidSource() override;
 
   int WholeExtent[6];
   double Center[3];
@@ -97,16 +116,16 @@ protected:
   double OutValue;
   int OutputScalarType;
 
-  virtual int RequestInformation (vtkInformation *,
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
+                                  vtkInformationVector *) override;
 
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *,
+                          vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkImageEllipsoidSource(const vtkImageEllipsoidSource&);  // Not implemented.
-  void operator=(const vtkImageEllipsoidSource&);  // Not implemented.
+  vtkImageEllipsoidSource(const vtkImageEllipsoidSource&) = delete;
+  void operator=(const vtkImageEllipsoidSource&) = delete;
 };
 
 

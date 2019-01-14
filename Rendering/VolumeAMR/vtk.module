@@ -1,0 +1,18 @@
+NAME
+  VTK::RenderingVolumeAMR
+LIBRARY_NAME
+  vtkRenderingVolumeAMR
+KIT
+  VTK::Parallel
+DEPENDS
+  VTK::ImagingCore
+  VTK::RenderingVolume
+  VTK::RenderingVolumeOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMath
+  VTK::CommonSystem
+  VTK::FiltersAMR
+  VTK::RenderingCore

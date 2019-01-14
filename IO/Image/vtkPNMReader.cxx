@@ -17,6 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkPNMReader);
 
@@ -26,23 +27,23 @@ static char vtkPNMReaderGetChar(FILE *fp)
   int result;
 
   if ((result = getc(fp)) == EOF )
-    {
+  {
     return '\0';
-    }
+  }
 
   c = (char)result;
   if (c == '#')
-    {
+  {
     do
-      {
+    {
       if ((result = getc(fp)) == EOF )
-        {
+      {
         return '\0';
-        }
-      c = (char)result;
       }
-    while (c != '\n');
+      c = (char)result;
     }
+    while (c != '\n');
+  }
 
   return c;
 }
@@ -53,15 +54,15 @@ static int vtkPNMReaderGetInt(FILE *fp)
   int result = 0;
 
   do
-    {
+  {
     c = vtkPNMReaderGetChar(fp);
-    }
+  }
   while ((c < '1')||(c > '9'));
   do
-    {
+  {
     result = result * 10 + (c - '0');
     c = vtkPNMReaderGetChar(fp);
-    }
+  }
   while ((c >= '0')&&(c <= '9'));
 
   // put the CR/LF or whitespace back.....
@@ -81,40 +82,40 @@ void vtkPNMReader::ExecuteInformation()
   // set the zaxis extent to the VOI z axis
   if (this->DataExtent[4]==0 && this->DataExtent[5] == 0 &&
       (this->DataVOI[4] || this->DataVOI[5]))
-    {
+  {
     this->DataExtent[4] = this->DataVOI[4];
     this->DataExtent[5] = this->DataVOI[5];
-    }
+  }
 
   if (!this->FileName && !this->FilePattern)
-    {
+  {
     vtkErrorMacro(<<"Either a FileName or FilePattern must be specified.");
     return;
-    }
+  }
 
   // Allocate the space for the filename
   this->ComputeInternalFileName(this->DataExtent[4]);
 
   // get the magic number by reading in a file
-  fp = fopen(this->InternalFileName,"rb");
+  fp = vtksys::SystemTools::Fopen(this->InternalFileName, "rb");
   if (!fp)
-    {
+  {
     vtkErrorMacro("Unable to open file " << this->InternalFileName);
     return;
-    }
+  }
 
   do
-    {
+  {
     c = vtkPNMReaderGetChar(fp);
     if (c == '\0')
-      { // Bad file.
+    { // Bad file.
       int invalidExtent[6] = { 0, -1, 0, -1, 0, -1 };
       vtkStreamingDemandDrivenPipeline::SetWholeExtent(
         this->GetOutputInformation(0), invalidExtent);
       fclose(fp);
       return;
-      }
     }
+  }
   while (c != 'P');
   magic[0] = c;
   magic[1] = vtkPNMReaderGetChar(fp);
@@ -138,13 +139,13 @@ void vtkPNMReader::ExecuteInformation()
   // linefeed character as well. (Not part of the PPM standard, but a
   // a hard fact of life.
   if ( c == 0x0d )
-     {
+  {
      c = getc(fp);
      if ( c != 0x0a )
-        {
+     {
         ungetc( c, fp );
-        }
      }
+  }
 
   // Set the header size now that we have parsed it
   this->SetHeaderSize(ftell(fp));
@@ -153,37 +154,37 @@ void vtkPNMReader::ExecuteInformation()
 
   // compare magic number to determine file type
   if ( ! strcmp(magic,"P5") )
-    {
+  {
     comp = 1;
-    }
+  }
   else if ( ! strcmp(magic,"P6") )
-    {
+  {
     comp = 3;
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName
                   <<" is not a binary PGM or PPM!");
     return;
-    }
+  }
 
   // if the user has set the VOI, just make sure its valid
   if (this->DataVOI[0] || this->DataVOI[1] ||
       this->DataVOI[2] || this->DataVOI[3] ||
       this->DataVOI[4] || this->DataVOI[5])
-    {
+  {
     if ((this->DataVOI[0] < 0) ||
         (this->DataVOI[1] >= xsize) ||
         (this->DataVOI[2] < 0) ||
         (this->DataVOI[3] >= ysize))
-      {
+    {
       vtkWarningMacro("The requested VOI is larger than the file's (" << this->InternalFileName << ") extent ");
       this->DataVOI[0] = 0;
       this->DataVOI[1] = xsize - 1;
       this->DataVOI[2] = 0;
       this->DataVOI[3] = ysize - 1;
-      }
     }
+  }
 
   this->DataExtent[0] = 0;
   this->DataExtent[1] = xsize - 1;
@@ -206,25 +207,25 @@ inline int iseol(int c)
 
 int vtkPNMReader::CanReadFile(const char* fname)
 {
-  FILE *fp = fopen(fname, "rb");
+  FILE *fp = vtksys::SystemTools::Fopen(fname, "rb");
   if(!fp)
-    {
+  {
     return 0;
-    }
+  }
   unsigned char magic[3];
   if(fread(magic, 1, 3, fp) != 3)
-    {
+  {
     fclose(fp);
     return 0;
-    }
+  }
   int ok = ((magic[0] == 'P') &&
             iseol(magic[2]) &&
             (magic[1] >= '1' && magic[1] <= '6'));
   fclose(fp);
   if (ok)
-    {
+  {
     return 3;
-    }
+  }
   return 0;
 }
 

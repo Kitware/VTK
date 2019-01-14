@@ -1,0 +1,16 @@
+NAME
+  VTK::ViewsCore
+LIBRARY_NAME
+  vtkViewsCore
+KIT
+  VTK::Views
+GROUPS
+  Rendering
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::InteractionWidgets
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::FiltersGeneral
+  VTK::RenderingCore

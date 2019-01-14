@@ -37,9 +37,7 @@ vtkOrientedPolygonalHandleRepresentation3D
 
 //----------------------------------------------------------------------
 vtkOrientedPolygonalHandleRepresentation3D
-::~vtkOrientedPolygonalHandleRepresentation3D()
-{
-}
+::~vtkOrientedPolygonalHandleRepresentation3D() = default;
 
 //----------------------------------------------------------------------
 void vtkOrientedPolygonalHandleRepresentation3D::UpdateHandle()
@@ -48,13 +46,13 @@ void vtkOrientedPolygonalHandleRepresentation3D::UpdateHandle()
 
   // Our handle actor is a follower. It follows the camera set on it.
   if (this->Renderer)
-    {
+  {
     vtkFollower *follower = vtkFollower::SafeDownCast(this->Actor);
     if (follower)
-      {
+    {
       follower->SetCamera( this->Renderer->GetActiveCamera() );
-      }
     }
+  }
 
   // Update the actor position
   double handlePosition[3];

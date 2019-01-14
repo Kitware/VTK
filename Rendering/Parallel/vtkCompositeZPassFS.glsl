@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 // ============================================================================
 //
 //  Program:   Visualization Toolkit
@@ -15,11 +17,10 @@
 
 // Fragment shader used by the composite z render pass.
 
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
+// the output of this shader
+//VTK::Output::Dec
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 uniform sampler2D depth;
 
 void main(void)

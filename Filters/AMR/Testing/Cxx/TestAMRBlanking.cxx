@@ -53,9 +53,9 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
   amrDataSet->SetGridDescription(description);
   amrDataSet->SetOrigin(origin);
 
-  vtkUniformGrid *gridPtr = NULL;
+  vtkUniformGrid *gridPtr = nullptr;
   switch( description )
-    {
+  {
     case VTK_XY_PLANE:
        // Root block
        ndims[2]   = 1;
@@ -155,7 +155,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
     default:
      assert(
      "ERROR: Unhandled data description! Code should not reach here!" && false);
-    }
+  }
   vtkAMRUtilities::BlankCells(amrDataSet);
   return( amrDataSet );
 }
@@ -165,44 +165,44 @@ int TestAMRVisibility( const int dataDescription )
 {
   int rc = 0;
   vtkOverlappingAMR *myAMR = GetAMRDataSet( dataDescription );
-  assert("pre: AMR dataset is NULL" && (myAMR != NULL) );
+  assert("pre: AMR dataset is nullptr" && (myAMR != nullptr) );
 
   vtkUniformGrid *root = myAMR->GetDataSet(0,0);
-  assert("ERROR: root AMR block is NULL!" && (root != NULL) );
+  assert("ERROR: root AMR block is nullptr!" && (root != nullptr) );
 
   vtkIdType cellIdx = 0;
   for(; cellIdx < root->GetNumberOfCells(); ++cellIdx )
-    {
+  {
     if( root->IsCellVisible(cellIdx) )
-      {
+    {
       rc++;
-      }
-    } // END for all cells
+    }
+  } // END for all cells
 
   if( rc != 0 )
-    {
+  {
     std::cerr << rc << "/" << root->GetNumberOfCells() << " are visible!\n";
-    }
+  }
 
   myAMR->Delete();
   return( rc );
 }
 
 //------------------------------------------------------------------------------
-void CheckTestStatus( int rc, std::string TestName )
+void CheckTestStatus( int rc, const std::string &TestName )
 {
   std::cout << "Test " << TestName << "...";
   std::cout.flush();
   if( rc == 0 )
-    {
+  {
     std::cout << "PASSED!\n";
     std::cout.flush();
-    }
+  }
   else
-    {
+  {
     std::cout << "FAILED!\n";
     std::cout.flush();
-    }
+  }
 }
 
 } // END namespace AMRVisibilityTests

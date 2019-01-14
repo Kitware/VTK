@@ -26,9 +26,9 @@ vtkStandardNewMacro(vtkProgrammableAttributeDataFilter);
 
 vtkProgrammableAttributeDataFilter::vtkProgrammableAttributeDataFilter()
 {
-  this->ExecuteMethod = NULL;
-  this->ExecuteMethodArg = NULL;
-  this->ExecuteMethodArgDelete = NULL;
+  this->ExecuteMethod = nullptr;
+  this->ExecuteMethodArg = nullptr;
+  this->ExecuteMethodArgDelete = nullptr;
   this->InputList = vtkDataSetCollection::New();
 }
 
@@ -36,34 +36,34 @@ vtkProgrammableAttributeDataFilter::~vtkProgrammableAttributeDataFilter()
 {
   // delete the current arg if there is one and a delete meth
   if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
-    {
+  {
     (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
-    }
+  }
   if (this->InputList)
-    {
+  {
     this->InputList->Delete();
-    this->InputList = NULL;
-    }
+    this->InputList = nullptr;
+  }
 }
 
 // Add a dataset to the list of data to process.
 void vtkProgrammableAttributeDataFilter::AddInput(vtkDataSet *ds)
 {
   if ( ! this->InputList->IsItemPresent(ds) )
-    {
+  {
     this->Modified();
     this->InputList->AddItem(ds);
-    }
+  }
 }
 
 // Remove a dataset from the list of data to process.
 void vtkProgrammableAttributeDataFilter::RemoveInput(vtkDataSet *ds)
 {
   if ( this->InputList->IsItemPresent(ds) )
-    {
+  {
     this->Modified();
     this->InputList->RemoveItem(ds);
-    }
+  }
 }
 
 // Specify the function to use to operate on the point attribute data. Note
@@ -72,16 +72,16 @@ void vtkProgrammableAttributeDataFilter::SetExecuteMethod(
   void (*f)(void *), void *arg)
 {
   if ( f != this->ExecuteMethod || arg != this->ExecuteMethodArg )
-    {
+  {
     // delete the current arg if there is one and a delete meth
     if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
-      {
+    {
       (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
-      }
+    }
     this->ExecuteMethod = f;
     this->ExecuteMethodArg = arg;
     this->Modified();
-    }
+  }
 }
 
 // Set the arg delete method. This is used to free user memory.
@@ -89,10 +89,10 @@ void vtkProgrammableAttributeDataFilter::SetExecuteMethodArgDelete(
   void (*f)(void *))
 {
   if ( f != this->ExecuteMethodArgDelete)
-    {
+  {
     this->ExecuteMethodArgDelete = f;
     this->Modified();
-    }
+  }
 }
 
 int vtkProgrammableAttributeDataFilter::RequestData(
@@ -120,10 +120,10 @@ int vtkProgrammableAttributeDataFilter::RequestData(
   output->GetPointData()->PassData(input->GetPointData());
 
   // Now invoke the procedure, if specified.
-  if ( this->ExecuteMethod != NULL )
-    {
+  if ( this->ExecuteMethod != nullptr )
+  {
     (*this->ExecuteMethod)(this->ExecuteMethodArg);
-    }
+  }
 
   return 1;
 }
@@ -136,13 +136,13 @@ void vtkProgrammableAttributeDataFilter::PrintSelf(ostream& os, vtkIndent indent
   this->InputList->PrintSelf(os,indent.GetNextIndent());
 
   if ( this->ExecuteMethod )
-    {
+  {
     os << indent << "An ExecuteMethod has been defined\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "An ExecuteMethod has NOT been defined\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

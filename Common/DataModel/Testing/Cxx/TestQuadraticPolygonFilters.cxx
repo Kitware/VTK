@@ -59,15 +59,15 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   double thetaStep = 4.0 * vtkMath::Pi() / npts;
   double theta;
   for (int i = 0; i < npts/2; i++)
-    {
+  {
     if (i < npts / 4)
-      {
+    {
       theta = thetaStep * i * 2;
-      }
+    }
     else
-      {
+    {
       theta = thetaStep * (i-npts/4) * 2 + thetaStep;
-      }
+    }
 
     double x = ray * cos(theta);
     double y = ray * sin(theta);
@@ -77,37 +77,37 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
     connectivityQuadPoly1[i] = i;
     connectivityQuadPoly2[i] = npts / 2 + i;
     if (i < npts / 4)
-      {
+    {
       connectivityQuads[4*i+0] = i;
       connectivityQuads[4*i+1] = (i + 1) % (npts / 4);
       connectivityQuads[4*i+2] = ((i + 1) % (npts / 4)) + npts / 2;
       connectivityQuads[4*i+3] = i + npts / 2;
-      }
     }
+  }
 
   vtkNew<vtkUnstructuredGrid> ugrid;
-  ugrid->SetPoints(points.GetPointer());
+  ugrid->SetPoints(points);
   ugrid->InsertNextCell(VTK_QUADRATIC_POLYGON, npts/2, connectivityQuadPoly1);
   ugrid->InsertNextCell(VTK_QUADRATIC_POLYGON, npts/2, connectivityQuadPoly2);
   for (int i = 0; i < npts/4; i++)
-    {
+  {
     ugrid->InsertNextCell(VTK_QUAD,4,connectivityQuads + i * 4);
-    }
+  }
 
   delete[] connectivityQuadPoly1;
   delete[] connectivityQuadPoly2;
   delete[] connectivityQuads;
 
-  // to get the cell id whith the picker
+  // to get the cell id with the picker
   vtkNew<vtkIdTypeArray> id;
   id->SetName("CellID");
   id->SetNumberOfComponents(1);
   id->SetNumberOfTuples(ugrid->GetNumberOfCells());
   for (int i = 0; i < ugrid->GetNumberOfCells(); i++)
-    {
+  {
     id->SetValue(i, i);
-    }
-  ugrid->GetCellData()->AddArray(id.GetPointer());
+  }
+  ugrid->GetCellData()->AddArray(id);
 
   // Setup the scalars
   vtkNew<vtkDoubleArray> scalars;
@@ -126,7 +126,7 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   scalars->SetValue(9, 1);
   scalars->SetValue(10, 2);
   scalars->SetValue(11, 1);
-  ugrid->GetPointData()->SetScalars(scalars.GetPointer());
+  ugrid->GetPointData()->SetScalars(scalars);
 
   // clip filter
   //vtkNew<vtkPlane> plane;
@@ -136,7 +136,7 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   //clip->SetClipFunction(plane);
   //clip->GenerateClipScalarsOn();
   clip->SetValue(1.5);
-  clip->SetInputData(ugrid.GetPointer());
+  clip->SetInputData(ugrid);
   clip->Update();
   vtkNew<vtkDataSetMapper> clipMapper;
   clipMapper->SetInputConnection( clip->GetOutputPort());
@@ -144,11 +144,11 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   clipMapper->InterpolateScalarsBeforeMappingOn();
   vtkNew<vtkActor> clipActor;
   clipActor->SetPosition(0.0, 2.0, 0.0);
-  clipActor->SetMapper(clipMapper.GetPointer());
+  clipActor->SetMapper(clipMapper);
 
   // contour filter
   vtkNew<vtkContourFilter> contourFilter;
-  contourFilter->SetInputData(ugrid.GetPointer());
+  contourFilter->SetInputData(ugrid);
   contourFilter->SetValue(0,1.5);
   contourFilter->Update();
   vtkNew<vtkPolyDataNormals> contourNormals;
@@ -157,59 +157,60 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   contourMapper->SetInputConnection(contourNormals->GetOutputPort());
   contourMapper->ScalarVisibilityOff();
   vtkNew<vtkActor> contourActor;
-  contourActor->SetMapper(contourMapper.GetPointer());
+  contourActor->SetMapper(contourMapper);
   contourActor->GetProperty()->SetColor(0,0,0);
   contourActor->SetPosition(0.0,0.01,0.01);
 
   // outline filter
   vtkNew<vtkOutlineFilter> outlineFilter;
-  outlineFilter->SetInputData(ugrid.GetPointer());
+  outlineFilter->SetInputData(ugrid);
   vtkNew<vtkPolyDataMapper> outlineMapper;
   outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
   vtkNew<vtkActor> outlineActor;
-  outlineActor->SetMapper(outlineMapper.GetPointer());
+  outlineActor->SetMapper(outlineMapper);
   outlineActor->GetProperty()->SetColor(0,0,0);
   outlineActor->SetPosition(0.0,0.01,0.01);
 
   // geometry filter
   vtkNew<vtkGeometryFilter> geometryFilter;
-  geometryFilter->SetInputData(ugrid.GetPointer());
+  geometryFilter->SetInputData(ugrid);
   geometryFilter->Update();
   vtkNew<vtkPolyDataMapper> geometryMapper;
   geometryMapper->SetInputConnection(geometryFilter->GetOutputPort());
   geometryMapper->SetScalarRange(1.0, 2.0);
   geometryMapper->InterpolateScalarsBeforeMappingOn();
   vtkNew<vtkActor> geometryActor;
-  geometryActor->SetMapper(geometryMapper.GetPointer());
+  geometryActor->SetMapper(geometryMapper);
 
   // drawing
   vtkNew<vtkRenderer> ren;
   ren->SetBackground(1, 1, 1);
-  ren->AddActor(geometryActor.GetPointer());
-  ren->AddActor(outlineActor.GetPointer());
-  ren->AddActor(clipActor.GetPointer());
-  ren->AddActor(contourActor.GetPointer());
+  ren->AddActor(geometryActor);
+  ren->AddActor(outlineActor);
+  ren->AddActor(clipActor);
+  ren->AddActor(contourActor);
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   renWin->SetSize(600, 600);
   renWin->SetMultiSamples(0);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   renWin->Render();
 
   // tests
-  if (TestPicker(renWin.GetPointer(), ren.GetPointer()) == EXIT_FAILURE)
-    {
+  if (TestPicker(renWin, ren) == EXIT_FAILURE)
+  {
     return EXIT_FAILURE;
-    }
+  }
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+    retVal = vtkRegressionTester::PASSED;
+  }
 
-  return retVal;
+  return (retVal == vtkRegressionTester::PASSED) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int TestPicker(vtkRenderWindow *renWin, vtkRenderer *renderer)
@@ -238,15 +239,15 @@ int TestPicker(vtkRenderWindow *renWin, vtkRenderer *renderer)
                    340, 72,  0 };
 
   for (int i = 0; i < nbTests * 3; i += 3)
-    {
+  {
     if ( GetCellIdFromPickerPosition(renderer, values[i], values[i+1]) !=  values[i+2] )
-      {
+    {
       cerr << "ERROR:  selected cell type is "
            << GetCellIdFromPickerPosition(renderer, values[i], values[i+1])
            << ", should be " << values[i+2] << endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -261,11 +262,11 @@ vtkIdType GetCellIdFromPickerPosition(vtkRenderer *ren, int x, int y)
 
   vtkIdType cellId = -1;
   if (picker->GetDataSet())
-    {
-      vtkIdTypeArray * ids = vtkIdTypeArray::SafeDownCast(
+  {
+      vtkIdTypeArray * ids = vtkArrayDownCast<vtkIdTypeArray>(
         picker->GetDataSet()->GetCellData()->GetArray("CellID"));
       cellId = ids->GetValue(picker->GetCellId());
-    }
+  }
 
   return cellId;
 }

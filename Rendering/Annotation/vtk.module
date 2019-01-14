@@ -1,0 +1,34 @@
+NAME
+  VTK::RenderingAnnotation
+LIBRARY_NAME
+  vtkRenderingAnnotation
+KIT
+  VTK::Rendering
+GROUPS
+  Rendering
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::RenderingCore
+PRIVATE_DEPENDS
+  VTK::CommonMath
+  VTK::CommonTransforms
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+  VTK::FiltersSources
+  VTK::ImagingColor
+  VTK::RenderingFreeType
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::FiltersModeling
+  VTK::FiltersSources
+  VTK::IOGeometry
+  VTK::IOParallel
+  VTK::ImagingColor
+  VTK::ImagingCore
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::RenderingLOD
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

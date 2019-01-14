@@ -66,7 +66,7 @@ int vtkBoostConnectedComponents::RequestData(
 
   // Compute connected components.
   if (vtkDirectedGraph::SafeDownCast(input))
-    {
+  {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
     vtkIntArray* comps = vtkIntArray::New();
     comps->SetName("component");
@@ -76,9 +76,9 @@ int vtkBoostConnectedComponents::RequestData(
     strong_components(g, comps, color_map(color).root_map(root).discover_time_map(discoverTime));
     output->GetVertexData()->AddArray(comps);
     comps->Delete();
-    }
+  }
   else
-    {
+  {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(input);
     vtkIntArray* comps = vtkIntArray::New();
     comps->SetName("component");
@@ -86,7 +86,7 @@ int vtkBoostConnectedComponents::RequestData(
     connected_components(g, comps, color_map(color));
     output->GetVertexData()->AddArray(comps);
     comps->Delete();
-    }
+  }
 
   return 1;
 }

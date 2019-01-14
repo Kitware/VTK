@@ -13,15 +13,19 @@
 
 =========================================================================*/
 
-// .NAME vtkChartParallelCoordinates - Factory class for drawing 2D charts
-//
-// .SECTION Description
-// This defines the interface for a parallel coordinates chart.
+/**
+ * @class   vtkChartParallelCoordinates
+ * @brief   Factory class for drawing 2D charts
+ *
+ *
+ * This defines the interface for a parallel coordinates chart.
+*/
 
 #ifndef vtkChartParallelCoordinates_h
 #define vtkChartParallelCoordinates_h
 
 #include "vtkChartsCoreModule.h" // For export macro
+#include "vtkNew.h" // For vtkNew
 #include "vtkChart.h"
 
 class vtkIdTypeArray;
@@ -33,128 +37,158 @@ class VTKCHARTSCORE_EXPORT vtkChartParallelCoordinates : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartParallelCoordinates, vtkChart);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Creates a parallel coordinates chart
+  /**
+   * Creates a parallel coordinates chart
+   */
   static vtkChartParallelCoordinates* New();
 
-  // Description:
-  // Perform any updates to the item that may be necessary before rendering.
-  // The scene should take care of calling this on all items before their
-  // Paint function is invoked.
-  virtual void Update();
+  /**
+   * Perform any updates to the item that may be necessary before rendering.
+   * The scene should take care of calling this on all items before their
+   * Paint function is invoked.
+   */
+  void Update() override;
 
-  // Description:
-  // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  /**
+   * Paint event for the chart, called whenever the chart needs to be drawn
+   */
+  bool Paint(vtkContext2D *painter) override;
 
-  // Description:
-  // Set the visibility of the specified column.
+  /**
+   * Set the visibility of the specified column.
+   */
   void SetColumnVisibility(const vtkStdString& name, bool visible);
 
-  // Description:
-  // Set the visibility of all columns (true will make them all visible, false
-  // will remove all visible columns).
+  /**
+   * Set the visibility of all columns (true will make them all visible, false
+   * will remove all visible columns).
+   */
   void SetColumnVisibilityAll(bool visible);
 
-  // Description:
-  // Get the visibility of the specified column.
+  /**
+   * Get the visibility of the specified column.
+   */
   bool GetColumnVisibility(const vtkStdString& name);
 
-  // Description:
-  // Get a list of the columns, and the order in which they are displayed.
-  vtkGetObjectMacro(VisibleColumns, vtkStringArray);
+  /**
+   * Get a list of the columns, and the order in which they are displayed.
+   */
+  virtual vtkStringArray* GetVisibleColumns();
 
-  // Description:
-  // Get the plot at the specified index, returns null if the index is invalid.
-  virtual vtkPlot* GetPlot(vtkIdType index);
+  /**
+   * Set the list of visible columns, and the order in which they will be displayed.
+   */
+  virtual void SetVisibleColumns(vtkStringArray* visColumns);
 
-  // Description:
-  // Get the number of plots the chart contains.
-  virtual vtkIdType GetNumberOfPlots();
+  /**
+   * Get the plot at the specified index, returns null if the index is invalid.
+   */
+  vtkPlot* GetPlot(vtkIdType index) override;
 
-  // Description:
-  // Get the axis specified by axisIndex.
-  virtual vtkAxis* GetAxis(int axisIndex);
+  /**
+   * Get the number of plots the chart contains.
+   */
+  vtkIdType GetNumberOfPlots() override;
 
-  // Description:
-  // Get the number of axes in the current chart.
-  virtual vtkIdType GetNumberOfAxes();
+  /**
+   * Get the axis specified by axisIndex.
+   */
+  vtkAxis* GetAxis(int axisIndex) override;
 
-  // Description:
-  // Request that the chart recalculates the range of its axes. Especially
-  // useful in applications after the parameters of plots have been modified.
-  virtual void RecalculateBounds();
+  /**
+   * Get the number of axes in the current chart.
+   */
+  vtkIdType GetNumberOfAxes() override;
 
-  // Description
-  // Set plot to use for the chart. Since this type of chart can
-  // only contain one plot, this will replace the previous plot.
+  /**
+   * Request that the chart recalculates the range of its axes. Especially
+   * useful in applications after the parameters of plots have been modified.
+   */
+  void RecalculateBounds() override;
+
+  /**
+   * Set plot to use for the chart. Since this type of chart can
+   * only contain one plot, this will replace the previous plot.
+   */
   virtual void SetPlot(vtkPlotParallelCoordinates *plot);
 
-//BTX
-  // Description:
-  // Return true if the supplied x, y coordinate is inside the item.
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  /**
+   * Return true if the supplied x, y coordinate is inside the item.
+   */
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse enter event.
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse enter event.
+   */
+  bool MouseEnterEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse move event.
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse move event.
+   */
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse leave event.
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse leave event.
+   */
+  bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse button down event
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse button down event
+   */
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse button release event.
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse button release event.
+   */
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse wheel event, positive delta indicates forward movement of the wheel.
-  virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
-//ETX
+  /**
+   * Mouse wheel event, positive delta indicates forward movement of the wheel.
+   */
+  bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta) override;
 
-//BTX
 protected:
   vtkChartParallelCoordinates();
-  ~vtkChartParallelCoordinates();
+  ~vtkChartParallelCoordinates() override;
 
-  // Description:
-  // Private storage object - where we hide all of our STL objects...
+  //@{
+  /**
+   * Private storage object - where we hide all of our STL objects...
+   */
   class Private;
   Private *Storage;
+  //@}
 
   bool GeometryValid;
 
-  // Description:
-  // Selected indices for the table the plot is rendering
+  /**
+   * Selected indices for the table the plot is rendering
+   */
   vtkIdTypeArray *Selection;
 
-  // Description:
-  // A list of the visible columns in the chart.
-  vtkStringArray *VisibleColumns;
+  /**
+   * Strongly owned internal data for the column visibility.
+   */
+  vtkNew<vtkStringArray> VisibleColumns;
 
-  // Description:
-  // The point cache is marked dirty until it has been initialized.
+  /**
+   * The point cache is marked dirty until it has been initialized.
+   */
   vtkTimeStamp BuildTime;
 
   void ResetSelection();
+  bool ResetAxeSelection(int axe);
+  void ResetAxesSelection();
   void UpdateGeometry();
   void CalculatePlotTransform();
   void SwapAxes(int a1, int a2);
 
 private:
-  vtkChartParallelCoordinates(const vtkChartParallelCoordinates &); // Not implemented.
-  void operator=(const vtkChartParallelCoordinates &);   // Not implemented.
-//ETX
+  vtkChartParallelCoordinates(const vtkChartParallelCoordinates &) = delete;
+  void operator=(const vtkChartParallelCoordinates &) = delete;
+
 };
 
 #endif //vtkChartParallelCoordinates_h

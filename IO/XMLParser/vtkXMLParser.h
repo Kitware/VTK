@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLParser - Parse XML to handle element tags and attributes.
-// .SECTION Description
-// vtkXMLParser reads a stream and parses XML element tags and corresponding
-// attributes.  Each element begin tag and its attributes are sent to
-// the StartElement method.  Each element end tag is sent to the
-// EndElement method.  Subclasses should replace these methods to actually
-// use the tags.
-// .SECTION ToDo: Add commands for parsing in Tcl.
+/**
+ * @class   vtkXMLParser
+ * @brief   Parse XML to handle element tags and attributes.
+ *
+ * vtkXMLParser reads a stream and parses XML element tags and corresponding
+ * attributes.  Each element begin tag and its attributes are sent to
+ * the StartElement method.  Each element end tag is sent to the
+ * EndElement method.  Subclasses should replace these methods to actually
+ * use the tags.
+*/
 
 #ifndef vtkXMLParser_h
 #define vtkXMLParser_h
@@ -38,68 +40,90 @@ class VTKIOXMLPARSER_EXPORT vtkXMLParser : public vtkObject
 {
 public:
   vtkTypeMacro(vtkXMLParser,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkXMLParser* New();
 
-  //BTX
-  // Description:
-  // Get/Set the input stream.
+  //@{
+  /**
+   * Get/Set the input stream.
+   */
   vtkSetMacro(Stream, istream*);
   vtkGetMacro(Stream, istream*);
+  //@}
 
-  // Description:
-  // Used by subclasses and their supporting classes.  These methods
-  // wrap around the tellg and seekg methods of the input stream to
-  // work-around stream bugs on various platforms.
+  //@{
+  /**
+   * Used by subclasses and their supporting classes.  These methods
+   * wrap around the tellg and seekg methods of the input stream to
+   * work-around stream bugs on various platforms.
+   */
   vtkTypeInt64 TellG();
   void SeekG(vtkTypeInt64 position);
-  //ETX
+  //@}
 
-  // Description:
-  // Parse the XML input.
+  /**
+   * Parse the XML input.
+   */
   virtual int Parse();
 
-  // Description:
-  // Parse the XML message. If length is specified, parse only the
-  // first "length" characters
+  //@{
+  /**
+   * Parse the XML message. If length is specified, parse only the
+   * first "length" characters
+   */
   virtual int Parse(const char* inputString);
   virtual int Parse(const char* inputString, unsigned int length);
+  //@}
 
-  // Description:
-  // When parsing fragments of XML or streaming XML, use the following
-  // three methods.  InitializeParser method initialize parser but
-  // does not perform any actual parsing.  ParseChunk parses framgent
-  // of XML. This has to match to what was already
-  // parsed. CleanupParser finishes parsing. If there were errors,
-  // CleanupParser will report them.
+  //@{
+  /**
+   * When parsing fragments of XML, or when streaming XML,
+   * use the following three methods:
+   * - InitializeParser() initializes the parser
+   * but does not perform any actual parsing.
+   * - ParseChunk() parses a fragment of XML;
+   * this has to match to what was already parsed.
+   * - CleanupParser() finishes parsing;
+   * if there were errors, it will report them.
+   */
   virtual int InitializeParser();
   virtual int ParseChunk(const char* inputString, unsigned int length);
   virtual int CleanupParser();
+  //@}
 
-  // Description:
-  // Set and get file name.
+  //@{
+  /**
+   * Set and get file name.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // If this is off (the default), CharacterDataHandler will be called to
-  // process text within XML Elements. If this is on, the text will be
-  // ignored.
+  //@{
+  /**
+   * If this is off (the default), CharacterDataHandler will be called to
+   * process text within XML Elements. If this is on, the text will be
+   * ignored.
+   */
   vtkSetMacro(IgnoreCharacterData, int);
   vtkGetMacro(IgnoreCharacterData, int);
+  //@}
 
-  // Description:
-  // Set and get the encoding the parser should expect (NULL defaults to
-  // Expat's own default encoder, i.e UTF-8).
-  // This should be set before parsing (i.e. a call to Parse()) or
-  // even initializing the parser (i.e. a call to InitializeParser())
+  //@{
+  /**
+   * Set and get the encoding the parser should expect (nullptr defaults to
+   * Expat's own default encoder, i.e UTF-8).
+   * This should be set before parsing (i.e. a call to Parse()) or
+   * even initializing the parser (i.e. a call to InitializeParser())
+   */
   vtkSetStringMacro(Encoding);
   vtkGetStringMacro(Encoding);
+  //@}
 
 protected:
   vtkXMLParser();
-  ~vtkXMLParser();
+  ~vtkXMLParser() override;
 
   // Input stream.  Set by user.
   istream* Stream;
@@ -121,7 +145,7 @@ protected:
   // Expat parser structure.  Exists only during call to Parse().
   void* Parser;
 
-  // Create/Allocate the internal parser (can be overriden by subclasses).
+  // Create/Allocate the internal parser (can be overridden by subclasses).
   virtual int CreateParser();
 
   // Called by Parse() to read the stream and call ParseBuffer.  Can
@@ -178,17 +202,15 @@ protected:
   // routine.
   static int IsSpace(char c);
 
-  //BTX
   friend void vtkXMLParserStartElement(void*, const char*, const char**);
   friend void vtkXMLParserEndElement(void*, const char*);
   friend void vtkXMLParserCharacterDataHandler(void*, const char*, int);
-  //ETX
 
   int IgnoreCharacterData;
 
 private:
-  vtkXMLParser(const vtkXMLParser&);  // Not implemented.
-  void operator=(const vtkXMLParser&);  // Not implemented.
+  vtkXMLParser(const vtkXMLParser&) = delete;
+  void operator=(const vtkXMLParser&) = delete;
 };
 
 //----------------------------------------------------------------------------

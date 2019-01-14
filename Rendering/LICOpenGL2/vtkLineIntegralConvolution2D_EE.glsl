@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 //=========================================================================
 //
 //  Program:   Visualization Toolkit
@@ -17,15 +19,14 @@
 // between LIC pass 1 and LIC pass 2. filtered LIC pass 1, becomes
 // noise for pass2.
 
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
+// the output of this shader
+//VTK::Output::Dec
 
 uniform sampler2D texLIC; // most recent lic pass
 uniform float     uDx;    // fragment size
 uniform float     uDy;    // fragment size
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 // kernel for simple laplace edge enhancement.
 // p=Laplace(p)+p
@@ -66,12 +67,12 @@ void main(void)
 
   if (dontUse)
     {
-    conv = texture2D(texLIC, lictc).r;
+    gl_FragData[0] = vec4(texture2D(texLIC, lictc).rg, 0.0, 1.0);
     }
   else
     {
     conv = clamp(conv, 0.0, 1.0);
+    gl_FragData[0] = vec4(conv,texture2D(texLIC, lictc).g, 0.0, 1.0);
     }
 
-  gl_FragData[0] = vec4(conv, 0.0, 0.0, 1.0);
 }

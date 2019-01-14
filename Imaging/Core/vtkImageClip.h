@@ -12,15 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageClip - Reduces the image extent of the input.
-// .SECTION Description
-// vtkImageClip  will make an image smaller.  The output must have
-// an image extent which is the subset of the input.  The filter has two
-// modes of operation:
-// 1: By default, the data is not copied in this filter.
-// Only the whole extent is modified.
-// 2: If ClipDataOn is set, then you will get no more that the clipped
-// extent.
+/**
+ * @class   vtkImageClip
+ * @brief   Reduces the image extent of the input.
+ *
+ * vtkImageClip  will make an image smaller.  The output must have
+ * an image extent which is the subset of the input.  The filter has two
+ * modes of operation:
+ * 1: By default, the data is not copied in this filter.
+ * Only the whole extent is modified.
+ * 2: If ClipDataOn is set, then you will get no more that the clipped
+ * extent.
+*/
+
 #ifndef vtkImageClip_h
 #define vtkImageClip_h
 
@@ -35,50 +39,56 @@ class VTKIMAGINGCORE_EXPORT vtkImageClip : public vtkImageAlgorithm
 public:
   static vtkImageClip *New();
   vtkTypeMacro(vtkImageClip,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // The whole extent of the output has to be set explicitly.
-  void SetOutputWholeExtent(int extent[6], vtkInformation *outInfo=0);
+  //@{
+  /**
+   * The whole extent of the output has to be set explicitly.
+   */
+  void SetOutputWholeExtent(int extent[6], vtkInformation *outInfo=nullptr);
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY,
                             int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
-  int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
+  int *GetOutputWholeExtent() VTK_SIZEHINT(6) {return this->OutputWholeExtent;}
+  //@}
 
   void ResetOutputWholeExtent();
 
-  // Description:
-  // By default, ClipData is off, and only the WholeExtent is modified.
-  // the data's extent may actually be larger.  When this flag is on,
-  // the data extent will be no more than the OutputWholeExtent.
-  vtkSetMacro(ClipData, int);
-  vtkGetMacro(ClipData, int);
-  vtkBooleanMacro(ClipData, int);
+  //@{
+  /**
+   * By default, ClipData is off, and only the WholeExtent is modified.
+   * the data's extent may actually be larger.  When this flag is on,
+   * the data extent will be no more than the OutputWholeExtent.
+   */
+  vtkSetMacro(ClipData, vtkTypeBool);
+  vtkGetMacro(ClipData, vtkTypeBool);
+  vtkBooleanMacro(ClipData, vtkTypeBool);
+  //@}
 
 protected:
   vtkImageClip();
-  ~vtkImageClip() {}
+  ~vtkImageClip() override {}
 
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;
   int Initialized; // Set the OutputImageExtent for the first time.
   int OutputWholeExtent[6];
 
-  int ClipData;
+  vtkTypeBool ClipData;
 
-  virtual int RequestInformation (vtkInformation *,
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
+                                  vtkInformationVector *) override;
 
   void CopyData(vtkImageData *inData, vtkImageData *outData, int *ext);
 
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) override;
 
 private:
-  vtkImageClip(const vtkImageClip&);  // Not implemented.
-  void operator=(const vtkImageClip&);  // Not implemented.
+  vtkImageClip(const vtkImageClip&) = delete;
+  void operator=(const vtkImageClip&) = delete;
 };
 
 

@@ -21,9 +21,7 @@
 
 #include "vtkArraySort.h"
 
-vtkArraySort::vtkArraySort()
-{
-}
+vtkArraySort::vtkArraySort() = default;
 
 vtkArraySort::vtkArraySort(DimensionT i) :
   Storage(1)
@@ -48,7 +46,7 @@ vtkArraySort::vtkArraySort(DimensionT i, DimensionT j, DimensionT k) :
 
 vtkArraySort::DimensionT vtkArraySort::GetDimensions() const
 {
-  return this->Storage.size();
+  return static_cast<vtkArraySort::DimensionT>(this->Storage.size());
 }
 
 void vtkArraySort::SetDimensions(DimensionT dimensions)
@@ -79,11 +77,11 @@ bool vtkArraySort::operator!=(const vtkArraySort& rhs) const
 ostream& operator<<(ostream& stream, const vtkArraySort& rhs)
 {
   for(vtkArraySort::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
-    {
+  {
     if(i)
       stream << ",";
     stream << rhs[i];
-    }
+  }
 
   return stream;
 }

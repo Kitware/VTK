@@ -14,11 +14,13 @@ from vtk.test import Testing
 try:
     import numpy
 except ImportError:
-    print "Numpy (http://numpy.scipy.org) not found.",
-    print "This test requires numpy!"
-    sys.exit(0)
+    print("Numpy (http://numpy.scipy.org) not found.")
+    print("This test requires numpy!")
+    from vtk.test import Testing
+    Testing.skip()
 
 from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
+import vtk.numpy_interface.dataset_adapter as dsa
 
 
 class TestNumpySupport(Testing.vtkTest):
@@ -55,7 +57,7 @@ class TestNumpySupport(Testing.vtkTest):
         t_z.append(numpy.array([-2147483648, 0, 2147483647], numpy.int32))
         t_z.append(numpy.array([0, 255], numpy.uint8))
         t_z.append(numpy.array([0, 65535], numpy.uint16))
-        t_z.append(numpy.array([0, 4294967295L], numpy.uint32))
+        t_z.append(numpy.array([0, 4294967295], numpy.uint32))
         t_z.append(numpy.array([-1.0e38, 0, 1.0e38], 'f'))
         t_z.append(numpy.array([-1.0e299, 0, 1.0e299], 'd'))
 
@@ -112,11 +114,43 @@ class TestNumpySupport(Testing.vtkTest):
         vtk_arr.InsertNextValue(0)
         vtk_arr.InsertNextValue(1)
         self.assertRaises(AssertionError, vtk_to_numpy, vtk_arr)
-        # Test if non-contiguous arrays are not supported.
-        a = numpy.linspace(0, 1, 100)
-        a.shape = (10, 10)
-        x = a[::2,::2]
-        self.assertRaises(AssertionError, numpy_to_vtk, x)
+
+    def testNonContiguousArray(self):
+        "Test if the non contiguous array are supported"
+        a = numpy.array(range(1, 19), 'd')
+        a.shape = (3, 6)
+        x = a[::2, ::2]
+        vtk_array = numpy_to_vtk(x)
+        self.assertEqual(vtk_array.GetTuple3(0), (1., 3., 5.))
+        self.assertEqual(vtk_array.GetTuple3(1), (13., 15., 17.))
+
+    def testNumpyReferenceWhenDelete(self):
+        "Test if the vtk array keeps the numpy reference in memory"
+        np_array = numpy.array([[1., 3., 5.], [13., 15., 17.]], 'd')
+        vtk_array = numpy_to_vtk(np_array)
+        del np_array
+        np_array = numpy.array([])
+
+        import gc
+        gc.collect()
+
+        self.assertEqual(vtk_array.GetTuple3(0), (1., 3., 5.))
+        self.assertEqual(vtk_array.GetTuple3(1), (13., 15., 17.))
+
+    def testNumpyReduce(self):
+        "Test that reducing methods return scalars."
+        vtk_array = vtk.vtkLongArray()
+        for i in range(0, 10):
+            vtk_array.InsertNextValue(i)
+
+        numpy_vtk_array = dsa.vtkDataArrayToVTKArray(vtk_array)
+        s = numpy_vtk_array.sum()
+        self.assertEqual(s, 45)
+        self.assertTrue(isinstance(s, numpy.signedinteger))
+
+        m = numpy_vtk_array.mean()
+        self.assertEqual(m, 4.5)
+        self.assertTrue(isinstance(m, numpy.floating))
 
 if __name__ == "__main__":
     Testing.main([(TestNumpySupport, 'test')])

@@ -3,7 +3,7 @@ set(NEEDS_DATA
   TestMergeTables.cxx,NO_VALID
   )
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkInfovisCoreCxxTests tests
   ${NEEDS_DATA}
   ArrayDotProductSimilarity.cxx,NO_VALID,NO_DATA
   ArraySparseArrayToTable.cxx,NO_VALID
@@ -12,6 +12,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   ArrayTransposeMatrix.cxx,NO_VALID
   TestArrayNorm.cxx,NO_VALID,NO_DATA
   TestCollapseVerticesByArray.cxx,NO_VALID
+  TestContinuousScatterPlot.cxx,NO_VALID
   TestDataObjectToTable.cxx,NO_VALID
   TestExtractSelectedTree.cxx,NO_VALID
   TestExtractSelectedGraph.cxx,NO_VALID
@@ -27,4 +28,4 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTreeDifferenceFilter.cxx,NO_VALID
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkInfovisCoreCxxTests tests)

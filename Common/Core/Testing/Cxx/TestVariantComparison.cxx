@@ -16,7 +16,7 @@
 #include "vtkVariant.h"
 #include "vtkObject.h"
 
-#include <vtksys/stl/map>
+#include <map>
 #include <cstdio>
 
 int
@@ -118,19 +118,19 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_FALSE(unsigned64Variant < positive64Variant);
   CHECK_EXPRESSION_FALSE(unsigned64Variant < negative64Variant);
 
-  CHECK_EXPRESSION_FALSE(positiveFloat < negativeFloat);
-  CHECK_EXPRESSION_FALSE(positiveDouble < negativeDouble);
+  CHECK_EXPRESSION_FALSE(positiveFloatVariant < negativeFloatVariant);
+  CHECK_EXPRESSION_FALSE(positiveDoubleVariant < negativeDoubleVariant);
 
   CHECK_EXPRESSION_FALSE(alphaString < numberString);
 
   if (errorCount == 0)
-    {
+  {
     cerr << "Test succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << errorCount << " error(s) found!\n";
-    }
+  }
   overallErrorCount += errorCount;
   errorCount = 0;
 
@@ -175,13 +175,13 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_FALSE(positiveFloatVariant < invalidVariant);
 
   if (errorCount == 0)
-    {
+  {
     cerr << "Test succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << errorCount << " error(s) found!\n";
-    }
+  }
   overallErrorCount += errorCount;
   errorCount = 0;
 
@@ -231,19 +231,19 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_TRUE(vtkVariant(d) == vtkVariant(str));
 
   if (errorCount == 0)
-    {
+  {
     cerr << " Test succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << errorCount << " error(s) found!\n";
-    }
+  }
   overallErrorCount += errorCount;
   errorCount = 0;
 
   cerr << "Testing vtkVariant as STL map key... ";
 
-  vtksys_stl::map<vtkVariant, vtkStdString> TestMap;
+  std::map<vtkVariant, vtkStdString> TestMap;
 
   TestMap[vtkVariant(s)] = "short";
   TestMap[vtkVariant(i)] = "int";
@@ -258,13 +258,13 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_TRUE(TestMap.size() == 1);
 
   if (errorCount == 0)
-    {
+  {
     cerr << " Test succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << errorCount << " error(s) found!\n";
-    }
+  }
   overallErrorCount += errorCount;
   errorCount = 0;
 
@@ -272,7 +272,7 @@ TestVariantComparison(int, char *[])
 
   // This one should treat variants containing different types as
   // unequal.
-  vtksys_stl::map<vtkVariant, vtkStdString, vtkVariantStrictWeakOrder> TestMap2;
+  std::map<vtkVariant, vtkStdString, vtkVariantStrictWeakOrder> TestMap2;
   TestMap2[vtkVariant()] = "invalid";
   TestMap2[vtkVariant(s)] = "short";
   TestMap2[vtkVariant(i)] = "int";
@@ -309,21 +309,21 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_TRUE(TestMap2.size() == 8);
 
   if (errorCount == 0)
-    {
+  {
     cerr << " Test succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << errorCount << " error(s) found!\n";
-    }
+  }
   overallErrorCount += errorCount;
 
   if (overallErrorCount == 0)
-    {
+  {
     cerr << "All tests succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << "Some tests failed!  Overall error count: " << overallErrorCount
          << "\n";
     cerr << "Debug information:\n";
@@ -347,7 +347,7 @@ TestVariantComparison(int, char *[])
          << "positive " << positive64 << ", "
          << "negative " << negative64 << ", "
          << "unsigned " << unsigned64 << "\n";
-    }
+  }
 
   fooObject->Delete();
   return (overallErrorCount > 0);

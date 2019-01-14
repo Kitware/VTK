@@ -15,11 +15,11 @@
 #include "vtkVolumeReader.h"
 
 
-// Construct object with NULL file prefix; file pattern "%s.%d"; image range
+// Construct object with nullptr file prefix; file pattern "%s.%d"; image range
 // set to (1,1);
 vtkVolumeReader::vtkVolumeReader()
 {
-  this->FilePrefix = NULL;
+  this->FilePrefix = nullptr;
   this->FilePattern = new char[strlen("%s.%d") + 1];
     strcpy (this->FilePattern, "%s.%d");
   this->ImageRange[0] = this->ImageRange[1] = 1;

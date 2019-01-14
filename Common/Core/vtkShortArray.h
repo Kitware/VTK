@@ -12,67 +12,78 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkShortArray - dynamic, self-adjusting array of short
-// .SECTION Description
-// vtkShortArray is an array of values of type short.  It provides
-// methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
-//
-// The C++ standard does not define the exact size of the short type,
-// so use of this type directly is discouraged.  If an array of 16 bit
-// integers is needed, prefer vtkTypeInt16Array to this class.
+/**
+ * @class   vtkShortArray
+ * @brief   dynamic, self-adjusting array of short
+ *
+ * vtkShortArray is an array of values of type short.  It provides
+ * methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+ *
+ * The C++ standard does not define the exact size of the short type,
+ * so use of this type directly is discouraged.  If an array of 16 bit
+ * integers is needed, prefer vtkTypeInt16Array to this class.
+*/
 
 #ifndef vtkShortArray_h
 #define vtkShortArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkShortArray_cxx)
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE short
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
-#include "vtkDataArrayTemplate.h" // Real Superclass
+#include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
-#ifndef __WRAP__
-#define vtkDataArray vtkDataArrayTemplate<short>
+#ifndef __VTK_WRAP__
+#define vtkDataArray vtkAOSDataArrayTemplate<short>
 #endif
 class VTKCOMMONCORE_EXPORT vtkShortArray : public vtkDataArray
-#ifndef __WRAP__
-#undef vtkDataArray
-#endif
 {
 public:
+  vtkTypeMacro(vtkShortArray, vtkDataArray)
+#ifndef __VTK_WRAP__
+#undef vtkDataArray
+#endif
   static vtkShortArray* New();
-  vtkTypeMacro(vtkShortArray,vtkDataArray);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkDataArrayTemplate, which is ignored
+  // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(short);
 #endif
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
+  static vtkShortArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkShortArray*>(Superclass::FastDownCast(source));
+  }
+
+  /**
+   * Get the minimum data value in its native type.
+   */
   static short GetDataTypeValueMin() { return VTK_SHORT_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static short GetDataTypeValueMax() { return VTK_SHORT_MAX; }
 
 protected:
   vtkShortArray();
-  ~vtkShortArray();
+  ~vtkShortArray() override;
 
 private:
-  //BTX
-  typedef vtkDataArrayTemplate<short> RealSuperclass;
-  //ETX
-  vtkShortArray(const vtkShortArray&);  // Not implemented.
-  void operator=(const vtkShortArray&);  // Not implemented.
+
+  typedef vtkAOSDataArrayTemplate<short> RealSuperclass;
+
+  vtkShortArray(const vtkShortArray&) = delete;
+  void operator=(const vtkShortArray&) = delete;
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkShortArray)
 
 #endif

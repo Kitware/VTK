@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPUnstructuredDataWriter - Superclass for PVTK XML unstructured data writers.
-// .SECTION Description
-// vtkXMLPUnstructuredDataWriter provides PVTK XML writing
-// functionality that is common among all the parallel unstructured
-// data formats.
+/**
+ * @class   vtkXMLPUnstructuredDataWriter
+ * @brief   Superclass for PVTK XML unstructured data writers.
+ *
+ * vtkXMLPUnstructuredDataWriter provides PVTK XML writing
+ * functionality that is common among all the parallel unstructured
+ * data formats.
+*/
 
 #ifndef vtkXMLPUnstructuredDataWriter_h
 #define vtkXMLPUnstructuredDataWriter_h
@@ -31,26 +34,19 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPUnstructuredDataWriter : public vtkXMLPData
 {
 public:
   vtkTypeMacro(vtkXMLPUnstructuredDataWriter,vtkXMLPDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  // See the vtkAlgorithm for a desciption of what these do
-  int ProcessRequest(vtkInformation*,
-                     vtkInformationVector**,
-                     vtkInformationVector*);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkXMLPUnstructuredDataWriter();
-  ~vtkXMLPUnstructuredDataWriter();
+  ~vtkXMLPUnstructuredDataWriter() override;
 
   vtkPointSet* GetInputAsPointSet();
-
   virtual vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter()=0;
-  vtkXMLWriter* CreatePieceWriter(int index);
-  void WritePData(vtkIndent indent);
-
+  vtkXMLWriter* CreatePieceWriter(int index) override;
+  void WritePData(vtkIndent indent) override;
 private:
-  vtkXMLPUnstructuredDataWriter(const vtkXMLPUnstructuredDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPUnstructuredDataWriter&);  // Not implemented.
+  vtkXMLPUnstructuredDataWriter(const vtkXMLPUnstructuredDataWriter&) = delete;
+  void operator=(const vtkXMLPUnstructuredDataWriter&) = delete;
 };
 
 #endif

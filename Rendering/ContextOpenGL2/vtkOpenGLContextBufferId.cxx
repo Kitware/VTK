@@ -21,6 +21,7 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
@@ -28,27 +29,27 @@ vtkStandardNewMacro(vtkOpenGLContextBufferId);
 // ----------------------------------------------------------------------------
 vtkOpenGLContextBufferId::vtkOpenGLContextBufferId()
 {
-  this->Texture=0;
-  this->Context=0;
+  this->Texture=nullptr;
+  this->Context=nullptr;
 }
 
 // ----------------------------------------------------------------------------
 vtkOpenGLContextBufferId::~vtkOpenGLContextBufferId()
 {
-  if(this->Texture!=0)
-    {
+  if(this->Texture!=nullptr)
+  {
     vtkErrorMacro("texture should have been released.");
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkOpenGLContextBufferId::ReleaseGraphicsResources()
 {
-  if(this->Texture!=0)
-    {
+  if(this->Texture!=nullptr)
+  {
     this->Texture->Delete();
-    this->Texture=0;
-    }
+    this->Texture=nullptr;
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -56,11 +57,11 @@ void vtkOpenGLContextBufferId::SetContext(vtkRenderWindow *context)
 {
   vtkOpenGLRenderWindow *c = vtkOpenGLRenderWindow::SafeDownCast(context);
   if (this->Context != c)
-    {
+  {
     this->ReleaseGraphicsResources();
     this->Context = c;
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -72,7 +73,7 @@ vtkRenderWindow *vtkOpenGLContextBufferId::GetContext()
 // ----------------------------------------------------------------------------
 bool vtkOpenGLContextBufferId::IsSupported()
 {
-  assert("pre: context_is_set" && this->GetContext()!=0);
+  assert("pre: context_is_set" && this->GetContext()!=nullptr);
   return vtkTextureObject::IsSupported(this->Context);
 }
 
@@ -81,13 +82,13 @@ void vtkOpenGLContextBufferId::Allocate()
 {
   assert("pre: positive_width" && this->GetWidth()>0);
   assert("pre: positive_height" && this->GetHeight()>0);
-  assert("pre: context_is_set" && this->GetContext()!=0);
+  assert("pre: context_is_set" && this->GetContext()!=nullptr);
 
-  if(this->Texture==0)
-    {
+  if(this->Texture==nullptr)
+  {
     this->Texture=vtkTextureObject::New();
     this->Texture->SetContext(this->Context);
-    }
+  }
   this->Context->MakeCurrent();
   // 3: RGB
   this->Texture->Allocate2D(static_cast<unsigned int>(this->GetWidth()),
@@ -98,7 +99,7 @@ void vtkOpenGLContextBufferId::Allocate()
 // ----------------------------------------------------------------------------
 bool vtkOpenGLContextBufferId::IsAllocated() const
 {
-  return this->Texture!=0 &&
+  return this->Texture!=nullptr &&
     this->Texture->GetWidth()==static_cast<unsigned int>(this->Width) &&
     this->Texture->GetHeight()==static_cast<unsigned int>(this->Height);
 }
@@ -123,53 +124,42 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
 
   vtkIdType result=-1;
   if(x<0 || x>=this->Width)
-    {
+  {
     vtkDebugMacro(<<"x mouse position out of range: x=" << x << " (width="
                     << this->Width <<")");
-    }
+  }
   else
-    {
+  {
     if(y<0 || y>=this->Height)
-      {
+    {
       vtkDebugMacro(<<"y mouse position out of range: y="<< y << " (height="
                       << this->Height << ")");
-      }
+    }
     else
-      {
+    {
       this->Context->MakeCurrent();
+      vtkOpenGLState *ostate = this->Context->GetState();
+
       // Render texture to current write buffer. Texel x,y is rendered at
       // pixel x,y (instead of pixel 0,0 to work around pixel ownership test).
       GLint savedDrawBuffer;
       glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
-      bool savedDepthTest=glIsEnabled(GL_DEPTH_TEST)==GL_TRUE;
-      bool savedAlphaTest=glIsEnabled(GL_ALPHA_TEST)==GL_TRUE;
-      bool savedStencilTest=glIsEnabled(GL_STENCIL_TEST)==GL_TRUE;
-      bool savedBlend=glIsEnabled(GL_BLEND)==GL_TRUE;
+
+      vtkOpenGLState::ScopedglEnableDisable dsaver(ostate,GL_DEPTH_TEST);
+      vtkOpenGLState::ScopedglEnableDisable ssaver(ostate,GL_STENCIL_TEST);
+      vtkOpenGLState::ScopedglEnableDisable bsaver(ostate,GL_BLEND);
 
       if(savedDrawBuffer!=GL_BACK_LEFT)
-        {
+      {
         glDrawBuffer(GL_BACK_LEFT);
-        }
-      if(savedDepthTest)
-        {
-        glDisable(GL_DEPTH_TEST);
-        }
-      if(savedAlphaTest)
-        {
-        glDisable(GL_ALPHA_TEST);
-        }
-      if(savedStencilTest)
-        {
-        glDisable(GL_STENCIL_TEST);
-        }
-      if(savedBlend)
-        {
-        glDisable(GL_BLEND);
-        }
+      }
+      ostate->vtkglDisable(GL_DEPTH_TEST);
+      ostate->vtkglDisable(GL_STENCIL_TEST);
+      ostate->vtkglDisable(GL_BLEND);
 
       this->Texture->CopyToFrameBuffer(x,y,x,y,x,y,
         this->Context->GetSize()[0],
-        this->Context->GetSize()[1],NULL,NULL);
+        this->Context->GetSize()[1],nullptr,nullptr);
 
       GLint savedReadBuffer;
       glGetIntegerv(GL_READ_BUFFER,&savedReadBuffer);
@@ -186,36 +176,20 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       glReadPixels(x,y,1,1,GL_RGB,GL_UNSIGNED_BYTE,rgb);
 
       if(savedReadBuffer!=GL_BACK_LEFT)
-        {
+      {
         glReadBuffer(static_cast<GLenum>(savedReadBuffer));
-        }
+      }
       if(savedDrawBuffer!=GL_BACK_LEFT)
-        {
+      {
         glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
-        }
-      if(savedDepthTest)
-        {
-        glEnable(GL_DEPTH_TEST);
-        }
-      if(savedAlphaTest)
-        {
-        glEnable(GL_ALPHA_TEST);
-        }
-      if(savedStencilTest)
-        {
-        glEnable(GL_STENCIL_TEST);
-        }
-      if(savedBlend)
-        {
-        glEnable(GL_BLEND);
-        }
+      }
 
       int value=(static_cast<int>(rgb[0])<<16)|(static_cast<int>(rgb[1])<<8)
         |static_cast<int>(rgb[2]);
 
       result=static_cast<vtkIdType>(value-1);
-      }
     }
+  }
 
   assert("post: valid_result" && result>=-1 );
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile: vtkTreeIterator.cxx,v $
+  Module:    vtkTreeIterator.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,12 +15,11 @@
 
 #include "vtkTreeIterator.h"
 
-//#include "vtkObjectFactory.h"
 #include "vtkTree.h"
 
 vtkTreeIterator::vtkTreeIterator()
 {
-  this->Tree = NULL;
+  this->Tree = nullptr;
   this->StartVertex = -1;
   this->NextId = -1;
 }
@@ -28,10 +27,10 @@ vtkTreeIterator::vtkTreeIterator()
 vtkTreeIterator::~vtkTreeIterator()
 {
   if (this->Tree)
-    {
+  {
     this->Tree->Delete();
-    this->Tree = NULL;
-    }
+    this->Tree = nullptr;
+  }
 }
 
 void vtkTreeIterator::PrintSelf(ostream& os, vtkIndent indent)
@@ -47,37 +46,37 @@ void vtkTreeIterator::SetTree(vtkTree* tree)
   vtkDebugMacro(<< this->GetClassName() << " (" << this
                 << "): setting Tree to " << tree );
   if (this->Tree != tree)
-    {
+  {
     vtkTree* temp = this->Tree;
     this->Tree = tree;
-    if (this->Tree != NULL) { this->Tree->Register(this); }
-    if (temp != NULL)
-      {
+    if (this->Tree != nullptr) { this->Tree->Register(this); }
+    if (temp != nullptr)
+    {
       temp->UnRegister(this);
-      }
+    }
     this->StartVertex = -1;
     this->Initialize();
     this->Modified();
-    }
+  }
 }
 
 void vtkTreeIterator::SetStartVertex(vtkIdType vertex)
 {
   if (this->StartVertex != vertex)
-    {
+  {
     this->StartVertex = vertex;
     this->Initialize();
     this->Modified();
-    }
+  }
 }
 
 vtkIdType vtkTreeIterator::Next()
 {
   vtkIdType last = this->NextId;
   if(last != -1)
-    {
+  {
     this->NextId = this->NextInternal();
-    }
+  }
   return last;
 }
 

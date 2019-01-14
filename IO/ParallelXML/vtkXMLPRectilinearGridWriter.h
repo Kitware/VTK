@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPRectilinearGridWriter - Write PVTK XML RectilinearGrid files.
-// .SECTION Description
-// vtkXMLPRectilinearGridWriter writes the PVTK XML RectilinearGrid
-// file format.  One rectilinear grid input can be written into a
-// parallel file format with any number of pieces spread across files.
-// The standard extension for this writer's file format is "pvtr".
-// This writer uses vtkXMLRectilinearGridWriter to write the
-// individual piece files.
-
-// .SECTION See Also
-// vtkXMLRectilinearGridWriter
+/**
+ * @class   vtkXMLPRectilinearGridWriter
+ * @brief   Write PVTK XML RectilinearGrid files.
+ *
+ * vtkXMLPRectilinearGridWriter writes the PVTK XML RectilinearGrid
+ * file format.  One rectilinear grid input can be written into a
+ * parallel file format with any number of pieces spread across files.
+ * The standard extension for this writer's file format is "pvtr".
+ * This writer uses vtkXMLRectilinearGridWriter to write the
+ * individual piece files.
+ *
+ * @sa
+ * vtkXMLRectilinearGridWriter
+*/
 
 #ifndef vtkXMLPRectilinearGridWriter_h
 #define vtkXMLPRectilinearGridWriter_h
@@ -37,32 +40,32 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPRectilinearGridWriter : public vtkXMLPStruc
 public:
   static vtkXMLPRectilinearGridWriter* New();
   vtkTypeMacro(vtkXMLPRectilinearGridWriter,vtkXMLPStructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //BTX
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkRectilinearGrid* GetInput();
-  //ETX
 
-  // Description:
-  // Get the default file extension for files written by this writer.
-  const char* GetDefaultFileExtension();
+  /**
+   * Get the default file extension for files written by this writer.
+   */
+  const char* GetDefaultFileExtension() override;
 
 protected:
   vtkXMLPRectilinearGridWriter();
-  ~vtkXMLPRectilinearGridWriter();
+  ~vtkXMLPRectilinearGridWriter() override;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  const char* GetDataSetName();
-  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter();
-  void WritePData(vtkIndent indent);
+  const char* GetDataSetName() override;
+  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter() override;
+  void WritePData(vtkIndent indent) override;
 
 private:
-  vtkXMLPRectilinearGridWriter(const vtkXMLPRectilinearGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLPRectilinearGridWriter&);  // Not implemented.
+  vtkXMLPRectilinearGridWriter(const vtkXMLPRectilinearGridWriter&) = delete;
+  void operator=(const vtkXMLPRectilinearGridWriter&) = delete;
 };
 
 #endif

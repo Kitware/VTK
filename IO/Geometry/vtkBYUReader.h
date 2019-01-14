@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBYUReader - read MOVIE.BYU polygon files
-// .SECTION Description
-// vtkBYUReader is a source object that reads MOVIE.BYU polygon files.
-// These files consist of a geometry file (.g), a scalar file (.s), a
-// displacement or vector file (.d), and a 2D texture coordinate file
-// (.t).
+/**
+ * @class   vtkBYUReader
+ * @brief   read MOVIE.BYU polygon files
+ *
+ * vtkBYUReader is a source object that reads MOVIE.BYU polygon files.
+ * These files consist of a geometry file (.g), a scalar file (.s), a
+ * displacement or vector file (.d), and a 2D texture coordinate file
+ * (.t).
+*/
 
 #ifndef vtkBYUReader_h
 #define vtkBYUReader_h
@@ -31,69 +34,95 @@ public:
   static vtkBYUReader *New();
 
   vtkTypeMacro(vtkBYUReader,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Specify name of geometry FileName.
+  //@{
+  /**
+   * Specify name of geometry FileName.
+   */
   vtkSetStringMacro(GeometryFileName);
   vtkGetStringMacro(GeometryFileName);
+  //@}
 
-  // Description:
-  // Specify name of geometry FileName (alias).
+  /**
+   * Specify name of geometry FileName (alias).
+   */
   virtual void SetFileName(const char* f) { this->SetGeometryFileName(f); }
   virtual char* GetFileName() { return this->GetGeometryFileName(); }
 
-  // Description:
-  // Specify name of displacement FileName.
+  //@{
+  /**
+   * Specify name of displacement FileName.
+   */
   vtkSetStringMacro(DisplacementFileName);
   vtkGetStringMacro(DisplacementFileName);
+  //@}
 
-  // Description:
-  // Specify name of scalar FileName.
+  //@{
+  /**
+   * Specify name of scalar FileName.
+   */
   vtkSetStringMacro(ScalarFileName);
   vtkGetStringMacro(ScalarFileName);
+  //@}
 
-  // Description:
-  // Specify name of texture coordinates FileName.
+  //@{
+  /**
+   * Specify name of texture coordinates FileName.
+   */
   vtkSetStringMacro(TextureFileName);
   vtkGetStringMacro(TextureFileName);
+  //@}
 
-  // Description:
-  // Turn on/off the reading of the displacement file.
-  vtkSetMacro(ReadDisplacement,int);
-  vtkGetMacro(ReadDisplacement,int);
-  vtkBooleanMacro(ReadDisplacement,int);
+  //@{
+  /**
+   * Turn on/off the reading of the displacement file.
+   */
+  vtkSetMacro(ReadDisplacement,vtkTypeBool);
+  vtkGetMacro(ReadDisplacement,vtkTypeBool);
+  vtkBooleanMacro(ReadDisplacement,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Turn on/off the reading of the scalar file.
-  vtkSetMacro(ReadScalar,int);
-  vtkGetMacro(ReadScalar,int);
-  vtkBooleanMacro(ReadScalar,int);
+  //@{
+  /**
+   * Turn on/off the reading of the scalar file.
+   */
+  vtkSetMacro(ReadScalar,vtkTypeBool);
+  vtkGetMacro(ReadScalar,vtkTypeBool);
+  vtkBooleanMacro(ReadScalar,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Turn on/off the reading of the texture coordinate file.
-  // Specify name of geometry FileName.
-  vtkSetMacro(ReadTexture,int);
-  vtkGetMacro(ReadTexture,int);
-  vtkBooleanMacro(ReadTexture,int);
+  //@{
+  /**
+   * Turn on/off the reading of the texture coordinate file.
+   * Specify name of geometry FileName.
+   */
+  vtkSetMacro(ReadTexture,vtkTypeBool);
+  vtkGetMacro(ReadTexture,vtkTypeBool);
+  vtkBooleanMacro(ReadTexture,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Set/Get the part number to be read.
+  //@{
+  /**
+   * Set/Get the part number to be read.
+   */
   vtkSetClampMacro(PartNumber,int,1,VTK_INT_MAX);
   vtkGetMacro(PartNumber,int);
+  //@}
 
-  // Description:
-  // Returns 1 if this file can be read and 0 if the file cannot be read.
-  // Because BYU files do not have anything in the header specifying the file
-  // type, the result is not definitive.  Invalid files may still return 1
-  // although a valid file will never return 0.
+  /**
+   * Returns 1 if this file can be read and 0 if the file cannot be read.
+   * Because BYU files do not have anything in the header specifying the file
+   * type, the result is not definitive.  Invalid files may still return 1
+   * although a valid file will never return 0.
+   */
   static int CanReadFile(const char *filename);
 
 protected:
   vtkBYUReader();
-  ~vtkBYUReader();
+  ~vtkBYUReader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   // This source does not know how to generate pieces yet.
   int ComputeDivisionExtents(vtkDataObject *output,
                              int idx, int numDivisions);
@@ -102,9 +131,9 @@ protected:
   char *DisplacementFileName;
   char *ScalarFileName;
   char *TextureFileName;
-  int ReadDisplacement;
-  int ReadScalar;
-  int ReadTexture;
+  vtkTypeBool ReadDisplacement;
+  vtkTypeBool ReadScalar;
+  vtkTypeBool ReadTexture;
   int PartNumber;
 
   void ReadGeometryFile(FILE *fp, int &numPts, vtkInformation *outInfo);
@@ -112,8 +141,8 @@ protected:
   void ReadScalarFile(int numPts, vtkInformation *outInfo);
   void ReadTextureFile(int numPts, vtkInformation *outInfo);
 private:
-  vtkBYUReader(const vtkBYUReader&);  // Not implemented.
-  void operator=(const vtkBYUReader&);  // Not implemented.
+  vtkBYUReader(const vtkBYUReader&) = delete;
+  void operator=(const vtkBYUReader&) = delete;
 };
 
 #endif

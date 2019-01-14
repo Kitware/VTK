@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -21,7 +19,7 @@
  *              the H5SM shared object header messages package.  Source files
  *              outside the H5SM package should	include H5SMprivate.h instead.
  */
-#ifndef H5SM_PACKAGE
+#if !(defined H5SM_FRIEND || defined H5SM_MODULE)
 #error "Do not include this file outside the H5SM package!"
 #endif
 
@@ -98,7 +96,7 @@
 #define H5SM_B2_SPLIT_PERCENT 100
 #define H5SM_B2_MERGE_PERCENT 40
 
-#define H5SM_LIST_VERSION	0	/* Verion of Shared Object Header Message List Indexes */
+#define H5SM_LIST_VERSION	0	/* Version of Shared Object Header Message List Indexes */
 
 /****************************/
 /* Package Typedefs         */
@@ -201,7 +199,6 @@ struct H5SM_master_table_t {
 /* Typedef for searching an index (list or B-tree) */
 typedef struct {
     H5F_t *file;                        /* File in which sharing is happening */
-    hid_t dxpl_id;                      /* DXPL for sharing messages in heap */
     H5HF_t *fheap;    			/* The heap for this message type, open. */
     void *encoding; 		        /* The message encoded, or NULL */
     size_t encoding_size; 		/* Size of the encoding, or 0 */
@@ -226,7 +223,6 @@ typedef struct {
 typedef struct {
     H5SM_mesg_key_t *key;       /* IN: key for message being incremented */
     H5O_fheap_id_t fheap_id;    /* OUT: fheap ID of record */
-    hid_t dxpl_id;
 } H5SM_incr_ref_opdata;
 
 /* v2 B-tree client callback context */
@@ -256,8 +252,6 @@ H5FL_ARR_EXTERN(H5SM_index_header_t);
 H5FL_EXTERN(H5SM_list_t);
 H5FL_ARR_EXTERN(H5SM_sohm_t);
 
-H5_DLLVAR const H5AC_class_t H5AC_SOHM_TABLE[1];
-H5_DLLVAR const H5AC_class_t H5AC_SOHM_LIST[1];
 H5_DLLVAR const H5B2_class_t H5SM_INDEX[1];
 
 /****************************/
@@ -268,9 +262,9 @@ H5_DLLVAR const H5B2_class_t H5SM_INDEX[1];
 H5_DLL ssize_t H5SM_get_index(const H5SM_master_table_t *table, unsigned type_id);
 
 /* Encode and decode routines, used for B-tree and cache encoding/decoding */
-H5_DLL herr_t H5SM_message_compare(const void *rec1, const void *rec2);
-H5_DLL herr_t H5SM_message_encode(uint8_t *raw, const void *native, void *ctx);
-H5_DLL herr_t H5SM_message_decode(const uint8_t *raw, void *native, void *ctx);
+H5_DLL herr_t H5SM__message_compare(const void *rec1, const void *rec2, int *result);
+H5_DLL herr_t H5SM__message_encode(uint8_t *raw, const void *native, void *ctx);
+H5_DLL herr_t H5SM__message_decode(const uint8_t *raw, void *native, void *ctx);
 
 /* H5B2_remove_t callback to add messages to a list index */
 H5_DLL herr_t H5SM_bt2_convert_to_list_op(const void * record, void *op_data);
@@ -284,8 +278,7 @@ herr_t H5SM_list_free(H5SM_list_t *list);
 
 /* Testing functions */
 #ifdef H5SM_TESTING
-H5_DLL herr_t H5SM_get_mesg_count_test(H5F_t *f, hid_t dxpl_id, unsigned type_id,
-    size_t *mesg_count);
+H5_DLL herr_t H5SM__get_mesg_count_test(H5F_t *f, unsigned type_id, size_t *mesg_count);
 #endif /* H5SM_TESTING */
 
 #endif /* _H5SMpkg_H */

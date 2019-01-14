@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkReebGraphSimplificationFilter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -26,7 +26,7 @@ vtkReebGraphSimplificationFilter::vtkReebGraphSimplificationFilter()
 {
   this->SetNumberOfInputPorts(1);
   this->SimplificationThreshold = 0;
-  this->SimplificationMetric = NULL;
+  this->SimplificationMetric = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -39,10 +39,10 @@ void vtkReebGraphSimplificationFilter::SetSimplificationMetric(
   vtkReebGraphSimplificationMetric *simplificationMetric)
 {
   if (simplificationMetric != this->SimplificationMetric)
-    {
+  {
     this->SimplificationMetric = simplificationMetric;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

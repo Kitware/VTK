@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAMRInterpolatedVelocityField - A concrete class for obtaining
-//  the interpolated velocity values at a point in AMR data.
-//
-//
-// .SECTION Description
-// The main functionality supported here is the point location inside vtkOverlappingAMR data set.
+/**
+ * @class   vtkAMRInterpolatedVelocityField
+ * @brief   A concrete class for obtaining
+ *  the interpolated velocity values at a point in AMR data.
+ *
+ *
+ *
+ * The main functionality supported here is the point location inside vtkOverlappingAMR data set.
+*/
 
 #ifndef vtkAMRInterpolatedVelocityField_h
 #define vtkAMRInterpolatedVelocityField_h
@@ -44,27 +47,28 @@ public:
 
   bool SetLastDataSet(int level, int id);
 
-  //Description: This function is no op. Do not call
-  virtual void SetLastCellId( vtkIdType c, int dataindex );
+  void SetLastCellId( vtkIdType c, int dataindex ) override;
 
-  // Description:
-  // Set the cell id cached by the last evaluation.
-  virtual void SetLastCellId( vtkIdType c )
+  /**
+   * Set the cell id cached by the last evaluation.
+   */
+  void SetLastCellId( vtkIdType c ) override
     { this->Superclass::SetLastCellId( c ); }
 
-  //Description:
- //  Evaluate the velocity field f at point p.
- //  If it succeeds, then both the last data set (this->LastDataSet) and
- //  the last data set location (this->LastLevel, this->LastId) will be
-  // set according to where p is found.  If it fails, either p is out of
-  // bound, in which case both the last data set and the last location
-  // will be invlaid or, in a multi-process setting, p is inbound but not
-  // on the processor.  In the last case, the last data set location is
-  // still valid
+  /**
+   * Evaluate the velocity field f at point p.
+   * If it succeeds, then both the last data set (this->LastDataSet) and
+   * the last data set location (this->LastLevel, this->LastId) will be
+   * set according to where p is found.  If it fails, either p is out of
+   * bound, in which case both the last data set and the last location
+   * will be invalid or, in a multi-process setting, p is inbound but not
+   * on the processor.  In the last case, the last data set location is
+   * still valid
+   */
 
-  virtual int FunctionValues( double * x, double * f );
+  int FunctionValues( double * x, double * f ) override;
 
-  void PrintSelf( ostream & os, vtkIndent indent );
+  void PrintSelf( ostream & os, vtkIndent indent ) override;
 
   // Descriptino:
   // Point location routine.
@@ -76,13 +80,13 @@ protected:
   int LastId;
 
   vtkAMRInterpolatedVelocityField();
-  ~vtkAMRInterpolatedVelocityField();
-  virtual int FunctionValues( vtkDataSet * ds, double * x, double * f )
+  ~vtkAMRInterpolatedVelocityField() override;
+  int FunctionValues( vtkDataSet * ds, double * x, double * f ) override
     { return this->Superclass::FunctionValues( ds, x, f ); }
 
 private:
-  vtkAMRInterpolatedVelocityField(const vtkAMRInterpolatedVelocityField&); //Not implemented
-  void operator = ( const vtkAMRInterpolatedVelocityField& ); // Not implemented.
+  vtkAMRInterpolatedVelocityField(const vtkAMRInterpolatedVelocityField&) = delete;
+  void operator = ( const vtkAMRInterpolatedVelocityField& ) = delete;
 
 };
 

@@ -40,9 +40,7 @@ vtkScalarBarWidget::vtkScalarBarWidget()
 }
 
 //-------------------------------------------------------------------------
-vtkScalarBarWidget::~vtkScalarBarWidget()
-{
-}
+vtkScalarBarWidget::~vtkScalarBarWidget() = default;
 
 //-----------------------------------------------------------------------------
 void vtkScalarBarWidget::SetRepresentation(vtkScalarBarRepresentation *rep)
@@ -55,16 +53,16 @@ void vtkScalarBarWidget::SetScalarBarActor(vtkScalarBarActor *actor)
 {
   vtkScalarBarRepresentation *rep = this->GetScalarBarRepresentation();
   if (!rep)
-    {
+  {
     this->CreateDefaultRepresentation();
     rep = this->GetScalarBarRepresentation();
-    }
+  }
 
   if (rep->GetScalarBarActor() != actor)
-    {
+  {
     rep->SetScalarBarActor(actor);
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -72,10 +70,10 @@ vtkScalarBarActor *vtkScalarBarWidget::GetScalarBarActor()
 {
   vtkScalarBarRepresentation *rep = this->GetScalarBarRepresentation();
   if (!rep)
-    {
+  {
     this->CreateDefaultRepresentation();
     rep = this->GetScalarBarRepresentation();
-    }
+  }
 
   return rep->GetScalarBarActor();
 }
@@ -84,11 +82,11 @@ vtkScalarBarActor *vtkScalarBarWidget::GetScalarBarActor()
 void vtkScalarBarWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
-    {
+  {
     vtkScalarBarRepresentation *rep = vtkScalarBarRepresentation::New();
     this->SetRepresentation(rep);
     rep->Delete();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -96,32 +94,32 @@ void vtkScalarBarWidget::SetCursor(int cState)
 {
   if (   !this->Repositionable && !this->Selectable
       && cState == vtkBorderRepresentation::Inside)
-    {
+  {
     // Don't have a special cursor for the inside if we cannot reposition.
     this->RequestCursorShape(VTK_CURSOR_DEFAULT);
-    }
+  }
   else
-    {
+  {
     this->Superclass::SetCursor(cState);
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
 void vtkScalarBarWidget::MoveAction(vtkAbstractWidget *w)
 {
-  // The the superclass handle most stuff.
+  // The superclass handle most stuff.
   vtkScalarBarWidget::Superclass::MoveAction(w);
 
   vtkScalarBarWidget *self = reinterpret_cast<vtkScalarBarWidget*>(w);
-  vtkScalarBarRepresentation *representation=self->GetScalarBarRepresentation();
+  vtkScalarBarRepresentation *representation = self->GetScalarBarRepresentation();
 
   // Handle the case where we suppress widget translation.
   if (   !self->Repositionable
       && (   representation->GetInteractionState()
           == vtkBorderRepresentation::Inside ) )
-    {
+  {
     representation->MovingOff();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------

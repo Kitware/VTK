@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -121,7 +120,7 @@ try:
     ren1.AddActor(plyActor2)
     ren1.AddActor(plyActor3)
 
-    renWin.SetSize(325, 125)
+    renWin.SetSize(330, 120)
 
     iren.Initialize()
     renWin.Render()
@@ -130,4 +129,4 @@ try:
 #    iren.Start()
 
 except IOError:
-    print  "Unable to test the writers."
+    print("Unable to test the writers.")

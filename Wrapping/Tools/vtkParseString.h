@@ -23,7 +23,7 @@
   This file provides string handling routines.
 
   The two important jobs done by these routines are string tokenization
-  and string cacheing.
+  and string caching.
 
   Tokenization is done as per the rules of a C++ preprocessor, and
   breaks the strings into ids, literals, and operators.  Any string
@@ -32,16 +32,16 @@
   two primary tokenization functions are vtkParse_InitTokenizer()
   and vtkParse_NextToken().
 
-  Cacheing refers to how string memory management is done.  The
+  Caching refers to how string memory management is done.  The
   parser uses "const char *" for all strings, and expects all strings
   to be persistent and constant.  These conditions are automatically
   met by static strings, but dynamically-generated strings must be
-  cached until the parse is complete.  The primary cacheing functions
+  cached until the parse is complete.  The primary caching functions
   are vtkParse_CacheString() and vtkParse_FreeStringCache().
 */
 
-#ifndef VTK_PARSE_STRING_H
-#define VTK_PARSE_STRING_H
+#ifndef vtkParseString_h
+#define vtkParseString_h
 
 #include <stddef.h>
 
@@ -54,11 +54,13 @@ extern "C" {
  */
 typedef enum _parse_char_type
 {
-  CPRE_ID       = 0x01,  /* A-Z a-z and _ */
+  CPRE_NONDIGIT = 0x01,  /* A-Z a-z and _ */
   CPRE_DIGIT    = 0x02,  /* 0-9 */
-  CPRE_IDGIT    = 0x03,  /* 0-9 A-Z a-z and _ */
-  CPRE_HEX      = 0x04,  /* 0-9A-Fa-f */
-  CPRE_EXP      = 0x08,  /* EPep (exponents for floats) */
+  CPRE_XDIGIT   = 0x03,  /* 0-9 A-Z a-z and _ */
+  CPRE_EXTEND   = 0x04,  /* non-ascii character */
+  CPRE_ID       = 0x05,  /* starting char for identifier */
+  CPRE_XID      = 0x07,  /* continuing char for identifier */
+  CPRE_HEX      = 0x08,  /* 0-9 A-F a-f hexadecimal digits */
   CPRE_SIGN     = 0x10,  /* +- (sign for floats) */
   CPRE_QUOTE    = 0x20,  /* " and ' */
   CPRE_HSPACE   = 0x40,  /* space, tab, carriage return */
@@ -199,6 +201,12 @@ size_t vtkParse_SkipId(const char *cp);
  */
 unsigned int vtkParse_HashId(const char *cp);
 
+/**
+ * Decode a single unicode character from utf8, or set error flag to 1.
+ * The character pointer will be advanced by one if an error occurred,
+ * and the return value will be the value of the first octet.
+ */
+unsigned int vtkParse_DecodeUtf8(const char **cpp, int *error_flag);
 
 /**
  * StringCache provides a simple way of allocating strings centrally.
@@ -219,7 +227,7 @@ typedef struct _StringCache
 void vtkParse_InitStringCache(StringCache *cache);
 
 /**
- * Alocate a new string from the cache.
+ * Allocate a new string from the cache.
  * A total of n+1 bytes will be allocated, to leave room for null.
  */
 char *vtkParse_NewString(StringCache *cache, size_t n);
@@ -244,3 +252,4 @@ void vtkParse_FreeStringCache(StringCache *cache);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseString.h */

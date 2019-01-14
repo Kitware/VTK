@@ -36,18 +36,18 @@ vtkCxxSetObjectMacro(vtkCollectTable,SocketController, vtkSocketController);
 vtkCollectTable::vtkCollectTable()
 {
   this->PassThrough = 0;
-  this->SocketController = NULL;
+  this->SocketController = nullptr;
 
   // Controller keeps a reference to this object as well.
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkCollectTable::~vtkCollectTable()
 {
-  this->SetController(0);
-  this->SetSocketController(0);
+  this->SetController(nullptr);
+  this->SetSocketController(nullptr);
 }
 
 //--------------------------------------------------------------------------
@@ -89,75 +89,74 @@ int vtkCollectTable::RequestData(
   int numProcs, myId;
   int idx;
 
-  if (this->Controller == NULL && this->SocketController == NULL)
-    { // Running as a single process.
+  if (this->Controller == nullptr && this->SocketController == nullptr)
+  { // Running as a single process.
     output->ShallowCopy(input);
     return 1;
-    }
+  }
 
-  if (this->Controller == NULL && this->SocketController != NULL)
-    { // This is a client.  We assume no data on client for input.
+  if (this->Controller == nullptr && this->SocketController != nullptr)
+  { // This is a client.  We assume no data on client for input.
     if ( ! this->PassThrough)
-      {
-      vtkTable* table = NULL;;
-      table = vtkTable::New();
+    {
+      vtkTable* table = vtkTable::New();
       this->SocketController->Receive(table, 1, 121767);
       output->ShallowCopy(table);
       table->Delete();
-      table = NULL;
+      table = nullptr;
       return 1;
-      }
+    }
     // If not collected, output will be empty from initialization.
     return 0;
-    }
+  }
 
   myId = this->Controller->GetLocalProcessId();
   numProcs = this->Controller->GetNumberOfProcesses();
 
   if (this->PassThrough)
-    {
+  {
     // Just copy and return (no collection).
     output->ShallowCopy(input);
     return 1;
-    }
+  }
 
   // Collect.
   if (myId == 0)
-    {
+  {
     vtkTable* wholeTable = vtkTable::New();
     wholeTable->ShallowCopy(input);
 
     for (idx = 1; idx < numProcs; ++idx)
-      {
+    {
       vtkTable* curTable = vtkTable::New();
       this->Controller->Receive(curTable, idx, 121767);
       vtkIdType numRows = curTable->GetNumberOfRows();
       vtkIdType numCols = curTable->GetNumberOfColumns();
       for (vtkIdType i = 0; i < numRows; i++)
-        {
+      {
         vtkIdType curRow = wholeTable->InsertNextBlankRow();
         for (vtkIdType j = 0; j < numCols; j++)
-          {
+        {
           wholeTable->SetValue(curRow, j, curTable->GetValue(i, j));
-          }
         }
-      curTable->Delete();
       }
+      curTable->Delete();
+    }
 
     if (this->SocketController)
-      { // Send collected data onto client.
+    { // Send collected data onto client.
       this->SocketController->Send(wholeTable, 1, 121767);
       // output will be empty.
-      }
+    }
     else
-      { // No client. Keep the output here.
+    { // No client. Keep the output here.
       output->ShallowCopy(wholeTable);
-      }
     }
+  }
   else
-    {
+  {
     this->Controller->Send(input, 0, 121767);
-    }
+  }
 
   return 1;
 }

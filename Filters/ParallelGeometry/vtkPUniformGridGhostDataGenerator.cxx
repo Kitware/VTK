@@ -54,8 +54,8 @@ void vtkPUniformGridGhostDataGenerator::PrintSelf(ostream& os,vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkPUniformGridGhostDataGenerator::RegisterGrids(vtkMultiBlockDataSet *in)
 {
-  assert("pre: input multi-block is NULL" && (in != NULL) );
-  assert("pre: Grid Connectivity is NULL" && (this->GridConnectivity != NULL) );
+  assert("pre: input multi-block is nullptr" && (in != nullptr) );
+  assert("pre: Grid Connectivity is nullptr" && (this->GridConnectivity != nullptr) );
 
   this->GridConnectivity->SetController( this->Controller );
   this->GridConnectivity->SetNumberOfGrids( in->GetNumberOfBlocks() );
@@ -66,12 +66,12 @@ void vtkPUniformGridGhostDataGenerator::RegisterGrids(vtkMultiBlockDataSet *in)
   this->GridConnectivity->Initialize();
 
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
-    {
+  {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(in->GetBlock(i));
-    if( grid != NULL )
-      {
+    if( grid != nullptr )
+    {
       vtkInformation *info = in->GetMetaData( i );
-      assert("pre: NULL meta-data" && (info != NULL) );
+      assert("pre: nullptr meta-data" && (info != nullptr) );
       assert("pre: No piece meta-data" &&
              info->Has(vtkDataObject::PIECE_EXTENT()));
 
@@ -81,9 +81,9 @@ void vtkPUniformGridGhostDataGenerator::RegisterGrids(vtkMultiBlockDataSet *in)
           grid->GetCellGhostArray(),
           grid->GetPointData(),
           grid->GetCellData(),
-          NULL);
-      } // END if
-    } // END for all blocks
+          nullptr);
+    } // END if
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -91,11 +91,11 @@ void vtkPUniformGridGhostDataGenerator::GenerateGhostLayers(
     vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out)
 {
   // Sanity check
-  assert("pre: input multi-block is NULL" && (in != NULL) );
-  assert("pre: output multi-block is NULL" && (out != NULL) );
+  assert("pre: input multi-block is nullptr" && (in != nullptr) );
+  assert("pre: output multi-block is nullptr" && (out != nullptr) );
   assert("pre: initialized" && (this->Initialized) );
-  assert("pre: Grid connectivity is NULL" && (this->GridConnectivity != NULL) );
-  assert("pre: controller should not be NULL" && (this->Controller != NULL) );
+  assert("pre: Grid connectivity is nullptr" && (this->GridConnectivity != nullptr) );
+  assert("pre: controller should not be nullptr" && (this->Controller != nullptr) );
 
   // STEP 0: Compute global grid parameters
   this->ComputeGlobalSpacing( in );
@@ -121,25 +121,25 @@ void vtkPUniformGridGhostDataGenerator::GenerateGhostLayers(
 void vtkPUniformGridGhostDataGenerator::ComputeGlobalSpacing(
     vtkMultiBlockDataSet *in)
 {
-  assert("pre: input multi-block is NULL" && (in != NULL) );
-  assert("pre: Controller should not be NULL" && (this->Controller != NULL) );
+  assert("pre: input multi-block is nullptr" && (in != nullptr) );
+  assert("pre: Controller should not be nullptr" && (this->Controller != nullptr) );
 
   for( unsigned int block=0; block < in->GetNumberOfBlocks(); ++block )
-    {
+  {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(in->GetBlock(block));
-    if( grid != NULL )
-      {
+    if( grid != nullptr )
+    {
       grid->GetSpacing(this->GlobalSpacing);
-      } // END if grid is not NULL
-    } // End for all blocks
+    } // END if grid is not nullptr
+  } // End for all blocks
 }
 
 //------------------------------------------------------------------------------
 void vtkPUniformGridGhostDataGenerator::CreateGhostedDataSet(
     vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out)
 {
-  assert( "pre: input multi-block is NULL" && (in != NULL) );
-  assert( "pre: output multi-block is NULL" && (out != NULL) );
+  assert( "pre: input multi-block is nullptr" && (in != nullptr) );
+  assert( "pre: output multi-block is nullptr" && (out != nullptr) );
 
   out->SetNumberOfBlocks( in->GetNumberOfBlocks( ) );
   int wholeExt[6];
@@ -153,9 +153,9 @@ void vtkPUniformGridGhostDataGenerator::CreateGhostedDataSet(
   int dims[3];
 
   for( unsigned int i=0; i < out->GetNumberOfBlocks(); ++i )
+  {
+    if( in->GetBlock(i) != nullptr )
     {
-    if( in->GetBlock(i) != NULL )
-      {
       // STEP 0: Get the computed ghosted grid extent
       this->GridConnectivity->GetGhostedGridExtent(i,ghostedExtent);
 
@@ -165,7 +165,7 @@ void vtkPUniformGridGhostDataGenerator::CreateGhostedDataSet(
       // STEP 2: Construct the ghosted grid instance
       vtkUniformGrid *ghostedGrid = vtkUniformGrid::New();
       assert( "pre: Cannot create ghosted grid instance" &&
-              (ghostedGrid != NULL) );
+              (ghostedGrid != nullptr) );
 
       // STEP 3: Compute the ghosted grid origin
       origin[0] = this->GlobalOrigin[0]+ghostedExtent[0]*this->GlobalSpacing[0];
@@ -185,19 +185,19 @@ void vtkPUniformGridGhostDataGenerator::CreateGhostedDataSet(
 
       out->SetBlock(i,ghostedGrid);
       ghostedGrid->Delete();
-      }
+    }
     else
-      {
-      out->SetBlock( i, NULL );
-      }
-    } // END for all blocks
+    {
+      out->SetBlock( i, nullptr );
+    }
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
 void vtkPUniformGridGhostDataGenerator::ComputeOrigin(vtkMultiBlockDataSet *in)
 {
-  assert("pre: input multi-block is NULL" && (in != NULL) );
-  assert("pre: Controller should not be NULL" && (this->Controller != NULL) );
+  assert("pre: input multi-block is nullptr" && (in != nullptr) );
+  assert("pre: Controller should not be nullptr" && (this->Controller != nullptr) );
 
   double localOrigin[3];
   localOrigin[0] =
@@ -207,20 +207,20 @@ void vtkPUniformGridGhostDataGenerator::ComputeOrigin(vtkMultiBlockDataSet *in)
   // STEP 1: Compute local origin
   double gridOrigin[3];
   for( unsigned int block=0; block < in->GetNumberOfBlocks(); ++block )
-    {
+  {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(in->GetBlock(block));
-    if( grid != NULL )
-      {
+    if( grid != nullptr )
+    {
       grid->GetOrigin( gridOrigin );
       for( int i=0; i < 3; ++i )
-        {
+      {
         if( gridOrigin[i] < localOrigin[i] )
-          {
+        {
           localOrigin[i] = gridOrigin[i];
-          }
-        } // END for all dimensions
-      } // END if grid is not NULL
-    } // END for all blocks
+        }
+      } // END for all dimensions
+    } // END if grid is not nullptr
+  } // END for all blocks
 
   // STEP 2: All reduce
   this->Controller->AllReduce(

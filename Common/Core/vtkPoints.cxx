@@ -36,15 +36,17 @@ vtkPoints* vtkPoints::New(int dataType)
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPoints");
   if (ret)
-    {
+  {
     if (dataType != VTK_FLOAT)
-      {
+    {
       static_cast<vtkPoints*>(ret)->SetDataType(dataType);
-      }
-    return static_cast<vtkPoints*>(ret);
     }
+    return static_cast<vtkPoints*>(ret);
+  }
   // If the factory was unable to create the object, then create it here.
-  return new vtkPoints(dataType);
+  vtkPoints *result = new vtkPoints(dataType);
+  result->InitializeObjectBase();
+  return result;
 }
 
 vtkPoints* vtkPoints::New()
@@ -79,61 +81,14 @@ void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *outPoints)
   this->Data->GetTuples(ptIds, outPoints->Data);
 }
 
-namespace
-{
-  template <class T>
-  void InternalComputeBounds(vtkDataArray* array, double* bounds, T*)
-  {
-    bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
-    bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
-
-    vtkTypedDataArray<T>* tarray = vtkTypedDataArray<T>::FastDownCast(array);
-    if (tarray)
-      {
-      T x[3];
-      vtkIdType numPts = tarray->GetNumberOfTuples();
-      for (vtkIdType i = 0; i < numPts; i++)
-        {
-        tarray->GetTupleValue(i, x);
-        bounds[0] = x[0] < bounds[0] ? x[0] : bounds[0];
-        bounds[1] = x[0] > bounds[1] ? x[0] : bounds[1];
-        bounds[2] = x[1] < bounds[2] ? x[1] : bounds[2];
-        bounds[3] = x[1] > bounds[3] ? x[1] : bounds[3];
-        bounds[4] = x[2] < bounds[4] ? x[2] : bounds[4];
-        bounds[5] = x[2] > bounds[5] ? x[2] : bounds[5];
-        }
-      }
-    else
-      {
-      double x[3];
-      vtkIdType numPts = array->GetNumberOfTuples();
-      for (vtkIdType i = 0; i < numPts; i++)
-        {
-        array->GetTuple(i, x);
-        bounds[0] = x[0] < bounds[0] ? x[0] : bounds[0];
-        bounds[1] = x[0] > bounds[1] ? x[0] : bounds[1];
-        bounds[2] = x[1] < bounds[2] ? x[1] : bounds[2];
-        bounds[3] = x[1] > bounds[3] ? x[1] : bounds[3];
-        bounds[4] = x[2] < bounds[4] ? x[2] : bounds[4];
-        bounds[5] = x[2] > bounds[5] ? x[2] : bounds[5];
-        }
-      }
-  }
-}
-
 // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
 void vtkPoints::ComputeBounds()
 {
   if (this->GetMTime() > this->ComputeTime)
-    {
-    switch (this->Data->GetDataType())
-      {
-      vtkTemplateMacro(
-        InternalComputeBounds(this->Data, this->Bounds, (VTK_TT*)0));
-      }
-
+  {
+    this->Data->ComputeScalarRange(this->Bounds);
     this->ComputeTime.Modified();
-    }
+  }
 }
 
 // Return the bounds of the points.
@@ -150,7 +105,17 @@ void vtkPoints::GetBounds(double bounds[6])
   memcpy(bounds, this->Bounds, 6 * sizeof(double));
 }
 
-int vtkPoints::Allocate(const vtkIdType sz, const vtkIdType ext)
+vtkMTimeType vtkPoints::GetMTime()
+{
+  vtkMTimeType doTime = this->Superclass::GetMTime();
+  if ( this->Data->GetMTime() > doTime )
+  {
+    doTime = this->Data->GetMTime();
+  }
+  return doTime;
+}
+
+vtkTypeBool vtkPoints::Allocate(vtkIdType sz, vtkIdType ext)
 {
   int numComp = this->Data->GetNumberOfComponents();
   return this->Data->Allocate(sz * numComp, ext * numComp);
@@ -162,6 +127,15 @@ void vtkPoints::Initialize()
   this->Modified();
 }
 
+void vtkPoints::Modified()
+{
+  this->Superclass::Modified();
+  if (this->Data)
+  {
+    this->Data->Modified();
+  }
+}
+
 int vtkPoints::GetDataType()
 {
   return this->Data->GetDataType();
@@ -171,9 +145,9 @@ int vtkPoints::GetDataType()
 void vtkPoints::SetDataType(int dataType)
 {
   if (dataType == this->Data->GetDataType())
-    {
+  {
     return;
-    }
+  }
 
   this->Data->Delete();
   this->Data = vtkDataArray::CreateDataArray(dataType);
@@ -186,42 +160,42 @@ void vtkPoints::SetDataType(int dataType)
 // the object.
 void vtkPoints::SetData(vtkDataArray *data)
 {
-  if (data != this->Data && data != NULL)
-    {
+  if (data != this->Data && data != nullptr)
+  {
     if (data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
-      {
+    {
       vtkErrorMacro(<<"Number of components is different...can't set data");
       return;
-      }
+    }
     this->Data->UnRegister(this);
     this->Data = data;
     this->Data->Register(this);
     if (!this->Data->GetName())
-      {
+    {
       this->Data->SetName("Points");
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 // Deep copy of data. Checks consistency to make sure this operation
 // makes sense.
 void vtkPoints::DeepCopy(vtkPoints *da)
 {
-  if (da == NULL)
-    {
+  if (da == nullptr)
+  {
     return;
-    }
-  if (da->Data != this->Data && da->Data != NULL)
-    {
+  }
+  if (da->Data != this->Data && da->Data != nullptr)
+  {
     if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
-      {
+    {
       vtkErrorMacro(<<"Number of components is different...can't copy");
       return;
-      }
+    }
     this->Data->DeepCopy(da->Data);
     this->Modified();
-    }
+  }
 }
 
 // Shallow copy of data (i.e. via reference counting). Checks
@@ -243,16 +217,16 @@ void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Data: " << this->Data << "\n";
   os << indent << "Data Array Name: ";
   if (this->Data->GetName())
-    {
+  {
     os << this->Data->GetName() << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-  double *bounds = this->GetBounds();
+  const double *bounds = this->GetBounds();
   os << indent << "Bounds: \n";
   os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";

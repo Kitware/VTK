@@ -78,6 +78,7 @@ PrintInfo() const
   METAIO_STREAM::cout << "\n"
             << "Maximum = " << m_Maximum << "\n"
             << "Radius = " << m_Radius
+            << "Sigma = " << m_Sigma
             << METAIO_STREAM::endl;
 }
 
@@ -95,6 +96,7 @@ Clear(void)
   MetaObject::Clear();
   m_Maximum = 1;
   m_Radius = 1;
+  m_Sigma = 1;
 }
 
 /** Destroy gaussian information */
@@ -124,6 +126,10 @@ M_SetupReadFields(void)
   MET_InitReadField(mF, "Radius", MET_FLOAT, true);
   m_Fields.push_back(mF);
 
+  mF = new MET_FieldRecordType;
+  MET_InitReadField(mF, "Sigma", MET_FLOAT, true);
+  m_Fields.push_back(mF);
+
 }
 
 void MetaGaussian::
@@ -139,8 +145,11 @@ M_SetupWriteFields(void)
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
-  MET_InitWriteField(mF, "Radius", MET_FLOAT,
-                     m_Radius);
+  MET_InitWriteField(mF, "Radius", MET_FLOAT, m_Radius);
+  m_Fields.push_back(mF);
+
+  mF = new MET_FieldRecordType;
+  MET_InitWriteField(mF, "Sigma", MET_FLOAT, m_Sigma);
   m_Fields.push_back(mF);
 
 }
@@ -175,10 +184,15 @@ M_Read(void)
     m_Radius = (float)mF->value[0];
   }
 
+  mF = MET_GetFieldRecord("Sigma", &m_Fields);
+  if( mF->defined )
+  {
+    m_Sigma = (float)mF->value[0];
+  }
+
   return true;
 }
 
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-

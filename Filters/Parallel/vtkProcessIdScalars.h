@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProcessIdScalars - Sets cell or point scalars to the processor rank.
-//
-// .SECTION Description
-// vtkProcessIdScalars is meant to display which processor owns which cells
-// and points.  It is useful for visualizing the partitioning for
-// streaming or distributed pipelines.
-//
-// .SECTION See Also
-// vtkPolyDataStreamer
+/**
+ * @class   vtkProcessIdScalars
+ * @brief   Sets cell or point scalars to the processor rank.
+ *
+ *
+ * vtkProcessIdScalars is meant to display which processor owns which cells
+ * and points.  It is useful for visualizing the partitioning for
+ * streaming or distributed pipelines.
+ *
+ * @sa
+ * vtkPolyDataStreamer
+*/
 
 #ifndef vtkProcessIdScalars_h
 #define vtkProcessIdScalars_h
@@ -38,11 +41,12 @@ public:
   static vtkProcessIdScalars *New();
 
   vtkTypeMacro(vtkProcessIdScalars,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Option to centerate cell scalars of points scalars.  Default is point
-  // scalars.
+  /**
+   * Option to centerate cell scalars of points scalars.  Default is point
+   * scalars.
+   */
   void SetScalarModeToCellData() {this->SetCellScalarsFlag(1);}
   void SetScalarModeToPointData() {this->SetCellScalarsFlag(0);}
   int GetScalarMode() {return this->CellScalarsFlag;}
@@ -51,37 +55,40 @@ public:
   // This option uses a random mapping between pieces and scalar values.
   // The scalar values are chosen between 0 and 1.  By default, random
   // mode is off.
-  vtkSetMacro(RandomMode, int);
-  vtkGetMacro(RandomMode, int);
-  vtkBooleanMacro(RandomMode, int);
+  vtkSetMacro(RandomMode, vtkTypeBool);
+  vtkGetMacro(RandomMode, vtkTypeBool);
+  vtkBooleanMacro(RandomMode, vtkTypeBool);
 
-  // Description:
-  // By defualt this filter uses the global controller,
-  // but this method can be used to set another instead.
+  //@{
+  /**
+   * By default this filter uses the global controller,
+   * but this method can be used to set another instead.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
 
 protected:
   vtkProcessIdScalars();
-  ~vtkProcessIdScalars();
+  ~vtkProcessIdScalars() override;
 
   // Append the pieces.
   int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkIntArray *MakeProcessIdScalars(int piece, vtkIdType numScalars);
   vtkFloatArray *MakeRandomScalars(int piece, vtkIdType numScalars);
 
   vtkSetMacro(CellScalarsFlag,int);
   int CellScalarsFlag;
-  int RandomMode;
+  vtkTypeBool RandomMode;
 
   vtkMultiProcessController* Controller;
 
 private:
-  vtkProcessIdScalars(const vtkProcessIdScalars&);  // Not implemented.
-  void operator=(const vtkProcessIdScalars&);  // Not implemented.
+  vtkProcessIdScalars(const vtkProcessIdScalars&) = delete;
+  void operator=(const vtkProcessIdScalars&) = delete;
 };
 
 #endif

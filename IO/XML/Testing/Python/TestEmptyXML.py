@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+import os, os.path
 import sys
 import vtk
 from vtk.util.misc import vtkGetDataRoot
@@ -22,9 +22,9 @@ fow.SetFlush(0)
 fow.SetInstance(fow)
 
 # Prepare some test files.
-f = open('emptyFile.vtk', 'wb')
+f = open('emptyFile.vtk', 'wt')
 f.close()
-f = open('junkFile.vtk', 'wb')
+f = open('junkFile.vtk', 'wt')
 f.write("v9np7598mapwcawoiur-,rjpmW9MJV28nun-q38ynq-9.8ugujqvt-8n3-nv8")
 f.close()
 
@@ -121,9 +121,9 @@ for t in types:
     os.remove('empty' + type + '.' + ext)
     os.remove('empty' + type + 'DataSet.' + ext)
     os.remove('emptyP' + type + '.p' + ext)
-    os.remove('emptyP' + type + '_0.' + ext)
+    assert not os.path.exists('emptyP' + type + '_0.' + ext)
     os.remove('emptyP' + type + 'DataSet.p' + ext)
-    os.remove('emptyP' + type + 'DataSet_0.' + ext)
+    assert not os.path.exists('emptyP' + type + 'DataSet_0.' + ext)
 
 os.remove('junkFile.vtk')
 os.remove('emptyFile.vtk')

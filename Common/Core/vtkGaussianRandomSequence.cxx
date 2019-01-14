@@ -15,14 +15,10 @@
 
 
 // ----------------------------------------------------------------------------
-vtkGaussianRandomSequence::vtkGaussianRandomSequence()
-{
-}
+vtkGaussianRandomSequence::vtkGaussianRandomSequence() = default;
 
 // ----------------------------------------------------------------------------
-vtkGaussianRandomSequence::~vtkGaussianRandomSequence()
-{
-}
+vtkGaussianRandomSequence::~vtkGaussianRandomSequence() = default;
 
 // ----------------------------------------------------------------------------
 double vtkGaussianRandomSequence::GetScaledValue(double mean,

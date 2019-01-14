@@ -28,37 +28,37 @@ void vtkContext3D::PrintSelf(ostream &os, vtkIndent indent)
   Superclass::PrintSelf(os, indent);
   os << indent << "Context Device: ";
   if (this->Device)
-    {
+  {
     os << endl;
     this->Device->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 }
 
 bool vtkContext3D::Begin(vtkContextDevice3D *device)
 {
   if (this->Device == device)
-    {
+  {
     return true;
-    }
+  }
   this->Device = device;
   return true;
 }
 
 vtkContextDevice3D * vtkContext3D::GetDevice()
 {
-  return this->Device.GetPointer();
+  return this->Device;
 }
 
 bool vtkContext3D::End()
 {
   if (this->Device)
-    {
-    this->Device = NULL;
-    }
+  {
+    this->Device = nullptr;
+  }
   return true;
 }
 
@@ -116,27 +116,27 @@ void vtkContext3D::ApplyBrush(vtkBrush *brush)
 void vtkContext3D::SetTransform(vtkTransform *transform)
 {
   if (transform)
-    {
+  {
     this->Device->SetMatrix(transform->GetMatrix());
-    }
+  }
 }
 
 vtkTransform * vtkContext3D::GetTransform()
 {
   if (this->Device && this->Transform)
-    {
+  {
     this->Device->GetMatrix(this->Transform->GetMatrix());
     return this->Transform;
-    }
-  return NULL;
+  }
+  return nullptr;
 }
 
 void vtkContext3D::AppendTransform(vtkTransform *transform)
 {
   if(transform)
-    {
+  {
     this->Device->MultiplyMatrix(transform->GetMatrix());
-    }
+  }
 }
 
 void vtkContext3D::PushMatrix()
@@ -161,10 +161,6 @@ void vtkContext3D::DisableClippingPlane(int i)
   this->Device->DisableClippingPlane(i);
 }
 
-vtkContext3D::vtkContext3D()
-{
-}
+vtkContext3D::vtkContext3D() = default;
 
-vtkContext3D::~vtkContext3D()
-{
-}
+vtkContext3D::~vtkContext3D() = default;

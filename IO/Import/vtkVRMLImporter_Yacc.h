@@ -12,8 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVRMLImporter_Yacc.h
-//
+/**
+ * @class   vtkVRMLImporter_Yacc
+ *
+*/
 
 #ifndef vtkVRMLImporter_Yacc_h
 #define vtkVRMLImporter_Yacc_h
@@ -121,13 +123,13 @@ public:
   typedef unsigned char YY_CHAR;
   typedef int yy_state_type;
 private:
-  vtkVRMLYaccData(const vtkVRMLYaccData&); // Not implemented
-  vtkVRMLYaccData& operator=(const vtkVRMLYaccData&); // Not implemented
+  vtkVRMLYaccData(const vtkVRMLYaccData&) = delete;
+  vtkVRMLYaccData& operator=(const vtkVRMLYaccData&) = delete;
 public:
   // Parser variables and functions:
   // Currently-being-define proto.  Prototypes may be nested, so a stack
   // is needed:
-  vtkVRMLVectorType<VrmlNodeType*> *CurrentProtoStack;// = NULL;
+  vtkVRMLVectorType<VrmlNodeType*> *CurrentProtoStack;// = nullptr;
 
   // Some helper routines defined below:
   void beginProto(const char *);
@@ -328,7 +330,7 @@ public:
   void pushNameSpace();
   void popNameSpace();
 
-  // Find a node type, given its name.  Returns NULL if type is not defined.
+  // Find a node type, given its name.  Returns nullptr if type is not defined.
   const VrmlNodeType *find(const char *nm);
 
 };
@@ -340,7 +342,7 @@ public:
 
 VrmlNodeType::VrmlNodeType(const char *nm)
 {
-  assert(nm != NULL);
+  assert(nm != nullptr);
   name = static_cast<char*>(
     vtkVRMLAllocator::AllocateMemory((strlen(nm)+1)*sizeof(char)));
   strcpy(name, nm);
@@ -352,23 +354,23 @@ VrmlNodeType::~VrmlNodeType()
 
   int i;
   for (i = 0;i < eventIns.Count(); i++)
-    {
+  {
     NameTypeRec *r = eventIns[i];
 //    free(r->name);
     delete r;
-    }
+  }
   for (i = 0;i < eventOuts.Count(); i++)
-    {
+  {
     NameTypeRec *r = eventOuts[i];
 //    free(r->name);
     delete r;
-    }
+  }
   for (i = 0;i < fields.Count(); i++)
-    {
+  {
     NameTypeRec *r = fields[i];
 //    free(r->name);
     delete r;
-    }
+  }
 }
 void
 VrmlNodeType::addEventIn(const char *nodeName, int type)
@@ -388,12 +390,13 @@ VrmlNodeType::addField(const char *nodeName, int type)
 void
 VrmlNodeType::addExposedField(const char *nodeName, int type)
 {
-  char tmp[1000];
+  size_t length = 20 + strlen(nodeName);
+  std::vector<char> tmp(length);
   add(fields, nodeName, type);
-  sprintf(tmp, "set_%s", nodeName);
-  add(eventIns, tmp, type);
-  sprintf(tmp, "%s_changed", nodeName);
-  add(eventOuts, tmp, type);
+  snprintf(&tmp[0], length, "set_%s", nodeName);
+  add(eventIns, &tmp[0], type);
+  snprintf(&tmp[0], length, "%s_changed", nodeName);
+  add(eventOuts, &tmp[0], type);
 };
 
 void
@@ -425,14 +428,11 @@ VrmlNodeType::hasExposedField(const char *nodeName) const
 {
   // Must have field "name", eventIn "set_name", and eventOut
   // "name_changed", all with same type:
-  char tmp[1000];
   int type;
   if ( (type = has(fields, nodeName)) == 0) return 0;
 
-  sprintf(tmp, "set_%s\n", nodeName);
   if (type != has(eventIns, nodeName)) return 0;
 
-  sprintf(tmp, "%s_changed", nodeName);
   if (type != has(eventOuts, nodeName)) return 0;
 
   return type;
@@ -441,11 +441,11 @@ int
 VrmlNodeType::has(const vtkVRMLVectorType<NameTypeRec*> &recs, const char *nodeName) const
 {
   for (int i = 0;i < recs.Count(); i++)
-    {
+  {
     NameTypeRec *n = recs.Get(i);
     if (strcmp(n->name, nodeName) == 0)
       return n->type;
-    }
+  }
   return 0;
 }
 
@@ -455,13 +455,13 @@ VrmlNodeType::has(const vtkVRMLVectorType<NameTypeRec*> &recs, const char *nodeN
 //----------------------------------------------------------------------------
 vtkVRMLYaccData::vtkVRMLYaccData()
 {
-  yy_current_buffer = NULL;
-  yy_c_buf_p = NULL;
+  yy_current_buffer = nullptr;
+  yy_c_buf_p = nullptr;
   yy_init = 1;
   yy_start = 0;
   yy_flex_debug = 1;
-  yyin = NULL;
-  yyout = NULL;
+  yyin = nullptr;
+  yyout = nullptr;
   currentLineNumber = 1;
   expectToken = 0;
   parsing_mf = 0;
@@ -470,78 +470,78 @@ vtkVRMLYaccData::vtkVRMLYaccData()
   memyyInput_i = 0;
   memyyInput_j = 0;
   creatingDEF = 0;
-  theyyInput = NULL;
+  theyyInput = nullptr;
 
-  typeList = NULL;
-  useList = NULL;
-  currentField = NULL;
+  typeList = nullptr;
+  useList = nullptr;
+  currentField = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkVRMLYaccData::~vtkVRMLYaccData()
 {
   if (yy_current_buffer)
-    {
+  {
     yy_delete_buffer(yy_current_buffer);
-    yy_current_buffer = NULL;
-    }
+    yy_current_buffer = nullptr;
+  }
 }
 
 
 void vtkVRMLYaccData::addToNameSpace(VrmlNodeType *_type)
 {
-  if (find(_type->getName()) != NULL)
-    {
+  if (find(_type->getName()) != nullptr)
+  {
     cerr << "PROTO " << _type->getName() << " already defined\n";
     return;
-    }
+  }
   *typeList += _type;
 }
 
 //
 // One list is used to store all the node types.  Nested namespaces are
-// separated by NULL elements.
+// separated by nullptr elements.
 // This isn't terribly efficient, but it is nice and simple.
 //
 void vtkVRMLYaccData::pushNameSpace()
 {
-  *typeList += (VrmlNodeType *) NULL;
+  *typeList += (VrmlNodeType *) nullptr;
 }
 
 void vtkVRMLYaccData::popNameSpace()
 {
-  // Remove everything up to and including the next NULL marker:
+  // Remove everything up to and including the next nullptr marker:
   for (int i = 0;i < typeList->Count(); i++)
-    {
+  {
     VrmlNodeType *nodeType = typeList->Pop();
 
-    if (nodeType == NULL)
-      {
+    if (nodeType == nullptr)
+    {
       break;
-      }
+    }
     else
-      {
+    {
       // NOTE:  Instead of just deleting the VrmlNodeTypes, you will
       // probably want to reference count or garbage collect them, since
       // any nodes created as part of the PROTO implementation will
       // probably point back to their VrmlNodeType structure.
       delete nodeType;
-      }
     }
+  }
 }
 
 const VrmlNodeType* vtkVRMLYaccData::find(const char *_name)
 {
   // Look through the type stack:
   for (int i = 0;i < typeList->Count(); i++)
-    {
+  {
     const VrmlNodeType *nt = (*typeList)[i];
-    if (nt != NULL && strcmp(nt->getName(),_name) == 0)
-      {
+    if (nt != nullptr && strcmp(nt->getName(),_name) == 0)
+    {
       return nt;
-      }
     }
-  return NULL;
+  }
+  return nullptr;
 }
 
 
@@ -892,19 +892,19 @@ class vtkVRMLYaccData::FakeAlloca
 public:
   typedef std::list<void *> list_type;
   ~FakeAlloca()
-    {
+  {
       for(list_type::iterator it = this->m_allocs.begin();
           it != this->m_allocs.end(); ++it)
-        {
+      {
         free(*it);
-        }
-    }
+      }
+  }
   void *Allocate(size_t size)
-    {
+  {
       void *rval = malloc(size);
       m_allocs.push_back(rval);
       return rval;
-    }
+  }
 private:
   list_type m_allocs;
 };
@@ -933,11 +933,11 @@ private:
 #define YYBACKUP(token, value) \
 do                                                              \
   if (yychar == YYEMPTY && yylen == 1)                          \
-    { yychar = (token), yylval = (value);                       \
+  { yychar = (token), yylval = (value);                       \
       yychar1 = YYTRANSLATE (yychar);                           \
       YYPOPSTACK;                                               \
       goto yybackup;                                            \
-    }                                                           \
+  }                                                           \
   else                                                          \
     { yyerror ("syntax error: cannot back up"); YYERROR; }      \
 while (0)
@@ -988,7 +988,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   short yyssa[YYINITDEPTH];     /*  the state stack                     */
   YYSTYPE yyvsa[YYINITDEPTH];   /*  the semantic value stack            */
 
-  short *yyss = yyssa;          /*  refer to the stacks thru separate pointers */
+  short *yyss = yyssa;          /*  refer to the stacks through separate pointers */
   YYSTYPE *yyvs = yyvsa;        /*  to allow yyoverflow to reallocate them elsewhere */
 
 #ifdef YYLSP_NEEDED
@@ -1039,7 +1039,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   yylsp = yyls;
 #endif
 
-  /* Push a new state, which is found in  yystate  .  */
+  /* Push a new state, which is found in yystate  .  */
   /* In all cases, when you get here, the value and location stacks
      have just been pushed. so pushing a state here evens the stacks.  */
   yynewstate:
@@ -1047,7 +1047,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   *++yyssp = yystate;
 
   if (yyssp >= yyss + yystacksize - 1)
-    {
+  {
     /* Give user a chance to reallocate the stack */
     /* Use copies of these so that the &'s don't force the real ones into memory. */
     YYSTYPE *yyvs1 = yyvs;
@@ -1084,10 +1084,10 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 #else /* no yyoverflow */
     /* Extend the stack our own way.  */
     if (yystacksize >= YYMAXDEPTH)
-      {
+    {
       yyerror("parser stack overflow");
       return 2;
-      }
+    }
     yystacksize *= 2;
     if (yystacksize > YYMAXDEPTH)
       yystacksize = YYMAXDEPTH;
@@ -1114,7 +1114,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
     if (yyssp >= yyss + yystacksize - 1)
       YYABORT;
-    }
+  }
 
 #if YYDEBUG != 0
   if (yydebug)
@@ -1140,18 +1140,18 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
      or a valid token in external form.  */
 
   if (yychar == YYEMPTY)
-    {
+  {
 #if YYDEBUG != 0
     if (yydebug)
       fprintf(stderr, "Reading a token: ");
 #endif
     yychar = yylex(self);
-    }
+  }
 
   /* Convert token to internal form (in yychar1) for indexing tables with */
 
   if (yychar <= 0)              /* This means end of input. */
-    {
+  {
     yychar1 = 0;
     yychar = YYEOF;           /* Don't call YYLEX any more */
 
@@ -1159,14 +1159,14 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
     if (yydebug)
       fprintf(stderr, "Now at end of input.\n");
 #endif
-    }
+  }
   else
-    {
+  {
     yychar1 = YYTRANSLATE(yychar);
 
 #if YYDEBUG != 0
     if (yydebug)
-      {
+    {
       fprintf (stderr, "Next token is %d (%s", yychar, yytname[yychar1]);
       /* Give the individual parser a way to print the precise meaning
          of a token, for further debugging info.  */
@@ -1174,9 +1174,9 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
       YYPRINT (stderr, yychar, yylval);
 #endif
       fprintf (stderr, ")\n");
-      }
-#endif
     }
+#endif
+  }
 
   yyn += yychar1;
   if (yyn < 0 || yyn > YYLAST || yycheck[yyn] != yychar1)
@@ -1192,12 +1192,12 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
      0, or most negative number => error.  */
 
   if (yyn < 0)
-    {
+  {
     if (yyn == YYFLAG)
       goto yyerrlab;
     yyn = -yyn;
     goto yyreduce;
-    }
+  }
   else if (yyn == 0)
     goto yyerrlab;
 
@@ -1243,7 +1243,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
 #if YYDEBUG != 0
   if (yydebug)
-    {
+  {
     int i;
 
     fprintf (stderr, "Reducing via rule %d (line %d), ",
@@ -1253,7 +1253,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
     for (i = yyprhs[yyn]; yyrhs[i] > 0; i++)
       fprintf (stderr, "%s ", yytname[yyrhs[i]]);
     fprintf (stderr, " -> %s\n", yytname[yyr1[yyn]]);
-    }
+  }
 #endif
 
 
@@ -1277,7 +1277,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   { beginProto(yyvsp[0].string); ;
   break;}
   case 15:
-  { endProto();  //free(yyvsp[-7].string);;
+  { endProto();  //free(yyvsp[-7].string);
   break;}
   case 16:
   { beginProto(yyvsp[0].string); ;
@@ -1333,7 +1333,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   { self->enterNode(yyvsp[0].string); ;
   break;}
   case 35:
-  { self->exitNode(); //free(yyvsp[-4].string);;
+  { self->exitNode(); //free(yyvsp[-4].string);
   break;}
   case 38:
   { self->enterField(yyvsp[0].string); ;
@@ -1388,13 +1388,13 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
 #if YYDEBUG != 0
   if (yydebug)
-    {
+  {
     short *ssp1 = yyss - 1;
     fprintf (stderr, "state stack now");
     while (ssp1 != yyssp)
       fprintf (stderr, " %d", *++ssp1);
     fprintf (stderr, "\n");
-    }
+  }
 #endif
 
   *++yyvsp = yyval;
@@ -1402,18 +1402,18 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 #ifdef YYLSP_NEEDED
   yylsp++;
   if (yylen == 0)
-    {
+  {
     yylsp->first_line = yylloc.first_line;
     yylsp->first_column = yylloc.first_column;
     yylsp->last_line = (yylsp-1)->last_line;
     yylsp->last_column = (yylsp-1)->last_column;
     yylsp->text = 0;
-    }
+  }
   else
-    {
+  {
     yylsp->last_line = (yylsp+yylen-1)->last_line;
     yylsp->last_column = (yylsp+yylen-1)->last_column;
-    }
+  }
 #endif
 
   /* Now "shift" the result of the reduction.
@@ -1435,14 +1435,14 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
   if (! yyerrstatus)
     /* If not already recovering from an error, report this error.  */
-    {
+  {
     ++yynerrs;
 
 #ifdef YYERROR_VERBOSE
     yyn = yypact[yystate];
 
     if (yyn > YYFLAG && yyn < YYLAST)
-      {
+    {
       int size = 0;
       char *msg;
       int x, count;
@@ -1455,38 +1455,38 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
           size += strlen(yytname[x]) + 15, count++;
       msg = (char *) malloc(size + 15);
       if (msg != 0)
-        {
+      {
         strcpy(msg, "parse error");
 
         if (count < 5)
-          {
+        {
           count = 0;
           for (x = (yyn < 0 ? -yyn : 0);
                x < (sizeof(yytname) / sizeof(char *)); x++)
             if (yycheck[x + yyn] == x)
-              {
+            {
               strcat(msg, count == 0 ? ", expecting `" : " or `");
               strcat(msg, yytname[x]);
               strcat(msg, "'");
               count++;
-              }
-          }
+            }
+        }
         yyerror(msg);
         free(msg);
-        }
+      }
       else
         yyerror ("parse error; also virtual memory exceeded");
-      }
+    }
     else
 #endif /* YYERROR_VERBOSE */
       yyerror("parse error");
-    }
+  }
 
   goto yyerrlab1;
   yyerrlab1:   /* here on error raised explicitly by an action */
 
   if (yyerrstatus == 3)
-    {
+  {
     /* if just tried and failed to reuse lookahead token after an error, discard it.  */
 
     /* return failure if at end of input */
@@ -1499,7 +1499,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 #endif
 
     yychar = YYEMPTY;
-    }
+  }
 
   /* Else will try to reuse lookahead token
      after shifting the error token.  */
@@ -1528,13 +1528,13 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
 #if YYDEBUG != 0
   if (yydebug)
-    {
+  {
     short *ssp1 = yyss - 1;
     fprintf (stderr, "Error: state stack now");
     while (ssp1 != yyssp)
       fprintf (stderr, " %d", *++ssp1);
     fprintf (stderr, "\n");
-    }
+  }
 #endif
 
   yyerrhandle:
@@ -1549,12 +1549,12 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
   yyn = yytable[yyn];
   if (yyn < 0)
-    {
+  {
     if (yyn == YYFLAG)
       goto yyerrpop;
     yyn = -yyn;
     goto yyreduce;
-    }
+  }
   else if (yyn == 0)
     goto yyerrpop;
 
@@ -1598,15 +1598,15 @@ void vtkVRMLYaccData::endProto()
 
   // Add this proto definition:
   if (CurrentProtoStack->Count() == 0)
-    {
+  {
     cerr << "Error: Empty PROTO stack!\n";
-    }
+  }
   else
-    {
+  {
     VrmlNodeType *t = CurrentProtoStack->Top();
     CurrentProtoStack->Pop();
     addToNameSpace(t);
-    }
+  }
 }
 
 int vtkVRMLYaccData::addField(const char *type, const char *name)
@@ -1633,18 +1633,18 @@ int vtkVRMLYaccData::add(void (VrmlNodeType::*func)(const char *, int),
   int type = fieldType(typeString);
 
   if (type == 0)
-    {
+  {
     cerr << "Error: invalid field type: " << type << "\n";
-    }
+  }
 
   // Need to add support for Script nodes:
   // if (inScript) ... ???
 
   if (CurrentProtoStack->Count() == 0)
-    {
+  {
     cerr << "Error: declaration outside of prototype\n";
     return 0;
-    }
+  }
   VrmlNodeType *t = CurrentProtoStack->Top();
   (t->*func)(name, type);
 
@@ -1681,11 +1681,11 @@ int vtkVRMLYaccData::fieldType(const char *type)
 void vtkVRMLYaccData::inScript()
 {
   VrmlNodeType::FieldRec *fr = currentField->Top();
-  if (fr->nodeType == NULL ||
+  if (fr->nodeType == nullptr ||
       strcmp(fr->nodeType->getName(), "Script") != 0)
-    {
+  {
     yyerror("interface declaration outside of Script or prototype");
-    }
+  }
 }
 
 
@@ -1702,7 +1702,7 @@ void vtkVRMLYaccData::expect(int type)
 
 #define FLEX_SCANNER
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <io.h>
 #else
 #include <unistd.h>
@@ -1781,12 +1781,12 @@ extern "C" {
 
 #define yyless(n) \
         do \
-                { \
+        { \
                 /* Undo effects of setting up yytext. */ \
                 *yy_cp = yy_hold_char; \
                 yy_c_buf_p = yy_cp = yy_bp + n - YY_MORE_ADJ; \
                 YY_DO_BEFORE_ACTION; /* set up yytext again */ \
-                } \
+        } \
         while ( 0 )
 
 
@@ -4137,11 +4137,11 @@ YY_MALLOC_DECL
 #ifndef YY_INPUT
 #define YY_INPUT(buf,result,max_size) \
         if ( yy_current_buffer->yy_is_interactive ) \
-                { \
+        { \
                 int c = getc( yyin ); \
                 result = c == EOF ? 0 : 1; \
                 buf[0] = (char) c; \
-                } \
+        } \
         else if ( ((result = fread( buf, 1, max_size, yyin )) == 0) \
                   && ferror( yyin ) ) \
                 YY_FATAL_ERROR( "input in flex scanner failed" );
@@ -4242,7 +4242,7 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
   /* I was ambitious and made the whitespace-matching rule aggressive */
 
   if ( yy_init )
-    {
+  {
 #ifdef YY_USER_INIT
     YY_USER_INIT;
 #endif
@@ -4265,10 +4265,10 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
     yy_load_buffer_state();
 
     yy_init = 0;
-    }
+  }
 
   while ( 1 )             /* loops until end-of-file is reached */
-    {
+  {
     yy_cp = yy_c_buf_p;
 
     /* Support of yytext. */
@@ -4282,22 +4282,22 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
     yy_current_state = yy_start;
       yy_match:
     do
-      {
+    {
       YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
       if ( yy_accept[yy_current_state] )
-        {
+      {
         yy_last_accepting_state = yy_current_state;
         yy_last_accepting_cpos = yy_cp;
-        }
+      }
       while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
-        {
+      {
         yy_current_state = (int) yy_def[yy_current_state];
         if ( yy_current_state >= 949 )
           yy_c = yy_meta[(unsigned int) yy_c];
-        }
+      }
       yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
       ++yy_cp;
-      }
+    }
     while ( yy_base[yy_current_state] != 7663 );
 
       yy_find_action:
@@ -4309,7 +4309,7 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
       do_action:      /* This label is used only to access EOF actions. */
 
     if ( yy_flex_debug )
-      {
+    {
       if ( yy_act == 0 )
         fprintf( stderr, "--scanner backing up\n" );
       else if ( yy_act < 49 )
@@ -4322,10 +4322,10 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         fprintf( stderr, "--(end of buffer or a NUL)\n" );
       else
         fprintf( stderr, "--EOF (start condition %d)\n", YY_START );
-      }
+    }
 
     switch ( yy_act )
-      { /* beginning of action switch */
+    { /* beginning of action switch */
       case 0: /* must back up */
         /* undo the effects of YY_DO_BEFORE_ACTION */
         *yy_cp = yy_hold_char;
@@ -4385,52 +4385,52 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         /* All fields may have an IS declaration: */
       case 15:
         YY_USER_ACTION
-          { BEGIN NODE;
+        { BEGIN NODE;
           expectToken = 0;
           yyless(0);
-          }
+        }
         YY_BREAK
       case 16:
             YY_USER_ACTION
-          { BEGIN NODE;
+            { BEGIN NODE;
           expectToken = 0;
           yyless(0); /* put back the IS */
-          }
+            }
         YY_BREAK
           /* All MF field types other than MFNode are completely parsed here */
           /* in the lexer, and one token is returned to the parser.  They all */
           /* share the same rules for open and closing brackets: */
       case 17:
             YY_USER_ACTION
-          { if (parsing_mf) yyerror("Double [");
+            { if (parsing_mf) yyerror("Double [");
           parsing_mf = 1;
           yylval.vec2f = self->FloatArrayNew();
           yylval.vec2f->SetNumberOfComponents(2);
-          }
+            }
         YY_BREAK
       case 18:
             YY_USER_ACTION
-          { if (parsing_mf) yyerror("Double [");
+            { if (parsing_mf) yyerror("Double [");
           parsing_mf = 1;
           yylval.mfint32 = self->IdTypeArrayNew();
-          }
+            }
         YY_BREAK
       case 19:
             YY_USER_ACTION
-          { if (parsing_mf) yyerror("Double [");
+            { if (parsing_mf) yyerror("Double [");
           parsing_mf = 1;
           yylval.vec3f = self->PointsNew();
-          }
+            }
         YY_BREAK
       case 20:
             YY_USER_ACTION
-          { if (!parsing_mf) yyerror("Unmatched ]");
+            { if (!parsing_mf) yyerror("Unmatched ]");
           int tokenFieldType = expectToken;
           BEGIN NODE;
           parsing_mf = 0;
           expectToken = 0;
           return tokenFieldType;
-          }
+            }
       case 21:
         YY_USER_ACTION
           { BEGIN NODE; expectToken = 0; yylval.sfint = 1; return SFBOOL; }
@@ -4439,13 +4439,13 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           { BEGIN NODE; expectToken = 0; yylval.sfint = 0; return SFBOOL; }
       case 23:
         YY_USER_ACTION
-          { BEGIN NODE; expectToken = 0;
+        { BEGIN NODE; expectToken = 0;
           yylval.sfint = atoi(yytext);
           return SFINT32;
-          }
+        }
       case 24:
         YY_USER_ACTION
-          { if (parsing_mf) {
+        { if (parsing_mf) {
           int num;
           num = atoi(yytext);
           yylval.mfint32->InsertNextValue(num);
@@ -4453,7 +4453,7 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           else {
           BEGIN NODE; expectToken = 0; return MFINT32;
           }
-          }
+        }
         YY_BREAK
           /* All the floating-point types are pretty similar: */
           case 25:
@@ -4464,12 +4464,12 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           return SFFLOAT; }
       case 26:
         YY_USER_ACTION
-          { if (parsing_mf) ; /* Add to array... */
+        { if (parsing_mf) ; /* Add to array... */
           else {
           /* No open bracket means a single value: */
           BEGIN NODE; expectToken = 0; return MFFLOAT;
           }
-          }
+        }
         YY_BREAK
           case 27:
             YY_USER_ACTION
@@ -4478,19 +4478,19 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         YY_USER_ACTION
         {
         if (parsing_mf)
-          {
+        {
           // .. add to array...
           float num[2];
           num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(NULL, " "));
+          num[1] = atof(strtok(nullptr, " "));
           // equivalent to: sscanf(yytext, "%f %f", &num[0], &num[1]);
           yylval.vec2f->InsertNextTuple(num);
-          }
+        }
         else
-          {
+        {
           BEGIN NODE; expectToken = 0;
           return MFVEC2F;
-          }
+        }
         }
          YY_BREAK
       case 29:
@@ -4499,18 +4499,18 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           float num[3];
           yylval.vec3f = self->PointsNew();
           num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(NULL, " "));
-          num[2] = atof(strtok(NULL, " "));
+          num[1] = atof(strtok(nullptr, " "));
+          num[2] = atof(strtok(nullptr, " "));
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertPoint(0, num);
           return SFVEC3F; }
       case 30:
         YY_USER_ACTION
-          { if (parsing_mf) { /*  .. add to array... */
+        { if (parsing_mf) { /*  .. add to array... */
           float num[3];
           num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(NULL, " "));
-          num[2] = atof(strtok(NULL, " "));
+          num[1] = atof(strtok(nullptr, " "));
+          num[2] = atof(strtok(nullptr, " "));
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertNextPoint(num);
           //return MFVEC3F;
@@ -4519,18 +4519,18 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           BEGIN NODE; expectToken = 0;
           return MFVEC3F;
           }
-          }
+        }
         YY_BREAK
       case 31:
             YY_USER_ACTION
           { BEGIN NODE; expectToken = 0; return SFROTATION; }
       case 32:
         YY_USER_ACTION
-          { if (parsing_mf) ; /* .. add to array... */
+        { if (parsing_mf) ; /* .. add to array... */
           else {
           BEGIN NODE; expectToken = 0; return MFROTATION;
           }
-          }
+        }
         YY_BREAK
       case 33:
             YY_USER_ACTION
@@ -4538,24 +4538,24 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           float num[3];
           yylval.vec3f = self->PointsNew();
           num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(NULL, " "));
-          num[2] = atof(strtok(NULL, " "));
+          num[1] = atof(strtok(nullptr, " "));
+          num[2] = atof(strtok(nullptr, " "));
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertPoint(0, num);
           return SFCOLOR; }
       case 34:
         YY_USER_ACTION
-          { if (parsing_mf) { /*  .. add to array... */
+        { if (parsing_mf) { /*  .. add to array... */
           float num[3];
           num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(NULL, " "));
-          num[2] = atof(strtok(NULL, " "));
+          num[1] = atof(strtok(nullptr, " "));
+          num[2] = atof(strtok(nullptr, " "));
           yylval.vec3f->InsertNextPoint(num);
           }
           else {
           BEGIN NODE; expectToken = 0; return MFCOLOR;
           }
-          }
+        }
         YY_BREAK
       case 35:
             YY_USER_ACTION
@@ -4572,15 +4572,15 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           /* Anything besides open-quote (or whitespace) is an error: */
       case 38:
             YY_USER_ACTION
-          { yyerror("String missing open-quote");
+            { yyerror("String missing open-quote");
           BEGIN NODE; expectToken = 0; return SFSTRING;
-          }
+            }
         /* Expect open-quote, open-bracket, or whitespace: */
       case 39:
         YY_USER_ACTION
-          { yyerror("String missing open-quote");
+        { yyerror("String missing open-quote");
           BEGIN NODE; expectToken = 0; return MFSTRING;
-          }
+        }
         /* Backslashed-quotes are OK: */
       case 40:
         YY_USER_ACTION
@@ -4600,29 +4600,29 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           { BEGIN NODE; expectToken = 0; return SFSTRING; }
       case 43:
         YY_USER_ACTION
-          { if (parsing_mf) BEGIN MFS; /* ... add to array ... */
+        { if (parsing_mf) BEGIN MFS; /* ... add to array ... */
           else {
           BEGIN NODE; expectToken = 0; return MFSTRING;
           }
-          }
+        }
         YY_BREAK
           /* SFImage: width height numComponents then width*height integers: */
       case 44:
             YY_USER_ACTION
-          { int w, h;
+            { int w, h;
           sscanf(yytext, "%d %d", &w, &h);
           sfImageIntsExpected = 1+w*h;
           sfImageIntsParsed = 0;
           BEGIN IN_SFIMG;
-          }
+            }
         YY_BREAK
       case 45:
             YY_USER_ACTION
-          { ++sfImageIntsParsed;
+            { ++sfImageIntsParsed;
           if (sfImageIntsParsed == sfImageIntsExpected) {
           BEGIN NODE; expectToken = 0; return SFIMAGE;
           }
-          }
+            }
         YY_BREAK
           /* Whitespace and catch-all rules apply to all start states: */
       case 46:
@@ -4677,7 +4677,7 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
       *yy_cp = yy_hold_char;
 
       if ( yy_current_buffer->yy_buffer_status == yy_buffer_state::YY_BUFFER_NEW )
-        {
+      {
         /* We're scanning a new file or input source.  It's
          * possible that this happened because the user
          * just pointed yyin at a new source and called
@@ -4690,7 +4690,7 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         yy_n_chars = yy_current_buffer->yy_n_chars;
         yy_current_buffer->yy_input_file = yyin;
         yy_current_buffer->yy_buffer_status = yy_buffer_state::YY_BUFFER_NORMAL;
-        }
+      }
 
       /* Note that here we test for yy_c_buf_p "<=" to the position
        * of the first EOB in the buffer, since yy_c_buf_p will
@@ -4700,7 +4700,7 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
        * in input().
        */
       if ( yy_c_buf_p <= &yy_current_buffer->yy_ch_buf[yy_n_chars] )
-        { /* This was really a NUL. */
+      { /* This was really a NUL. */
         yy_state_type yy_next_state;
 
         yy_c_buf_p = yytext_ptr + yy_amount_of_matched_text;
@@ -4721,28 +4721,28 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         yy_bp = yytext_ptr + YY_MORE_ADJ;
 
         if ( yy_next_state )
-          {
+        {
                                 /* Consume the NUL. */
           yy_cp = ++yy_c_buf_p;
           yy_current_state = yy_next_state;
           goto yy_match;
-          }
-
-        else
-          {
-          yy_cp = yy_c_buf_p;
-          goto yy_find_action;
-          }
         }
 
-      else switch ( yy_get_next_buffer() )
+        else
         {
+          yy_cp = yy_c_buf_p;
+          goto yy_find_action;
+        }
+      }
+
+      else switch ( yy_get_next_buffer() )
+      {
         case EOB_ACT_END_OF_FILE:
         {
         yy_did_buffer_switch_on_eof = 0;
 
         if ( yywrap() )
-          {
+        {
           /* Note: because we've taken care in
            * yy_get_next_buffer() to have set up
            * yytext, we can now set up
@@ -4756,13 +4756,13 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
 
           yy_act = YY_STATE_EOF(YY_START);
           goto do_action;
-          }
+        }
 
         else
-          {
+        {
           if ( ! yy_did_buffer_switch_on_eof )
             YY_NEW_FILE;
-          }
+        }
         break;
         }
 
@@ -4785,15 +4785,15 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           yy_cp = yy_c_buf_p;
           yy_bp = yytext_ptr + YY_MORE_ADJ;
           goto yy_find_action;
-        }
+      }
       break;
       }
 
       default:
         YY_FATAL_ERROR(
           "fatal flex scanner internal error--no action found" );
-      } /* end of action switch */
-    } /* end of scanning one token */
+    } /* end of action switch */
+  } /* end of scanning one token */
 } /* end of yylex */
 
 
@@ -4817,23 +4817,23 @@ int vtkVRMLYaccData::yy_get_next_buffer()
       "fatal flex scanner internal error--end of buffer missed" );
 
   if ( yy_current_buffer->yy_fill_buffer == 0 )
-    { /* Don't try to fill the buffer, so this is an EOF. */
+  { /* Don't try to fill the buffer, so this is an EOF. */
     if ( yy_c_buf_p - yytext_ptr - YY_MORE_ADJ == 1 )
-      {
+    {
       /* We matched a singled characater, the EOB, so
        * treat this as a final EOF.
        */
       return EOB_ACT_END_OF_FILE;
-      }
+    }
 
     else
-      {
+    {
       /* We matched some text prior to the EOB, first
        * process it.
        */
       return EOB_ACT_LAST_MATCH;
-      }
     }
+  }
 
   /* Try to read more data. */
 
@@ -4850,12 +4850,12 @@ int vtkVRMLYaccData::yy_get_next_buffer()
     yy_n_chars = 0;
 
   else
-    {
+  {
     int num_to_read =
       yy_current_buffer->yy_buf_size - number_to_move - 1;
 
     while ( num_to_read <= 0 )
-      { /* Not enough room in the buffer - grow it. */
+    { /* Not enough room in the buffer - grow it. */
 #ifdef YY_USES_REJECT
       YY_FATAL_ERROR(
         "input buffer overflow, can't enlarge buffer because scanner uses REJECT" );
@@ -4880,7 +4880,7 @@ int vtkVRMLYaccData::yy_get_next_buffer()
       num_to_read = yy_current_buffer->yy_buf_size -
         number_to_move - 1;
 #endif
-      }
+    }
 
     if ( num_to_read > YY_READ_BUF_SIZE )
       num_to_read = YY_READ_BUF_SIZE;
@@ -4888,23 +4888,23 @@ int vtkVRMLYaccData::yy_get_next_buffer()
     /* Read in more data. */
     YY_INPUT( (&yy_current_buffer->yy_ch_buf[number_to_move]),
               yy_n_chars, num_to_read );
-    }
+  }
 
   if ( yy_n_chars == 0 )
-    {
+  {
     if ( number_to_move - YY_MORE_ADJ == 1 )
-      {
+    {
       ret_val = EOB_ACT_END_OF_FILE;
       yyrestart( yyin );
-      }
+    }
 
     else
-      {
+    {
       ret_val = EOB_ACT_LAST_MATCH;
       yy_current_buffer->yy_buffer_status =
         yy_buffer_state::YY_BUFFER_EOF_PENDING;
-      }
     }
+  }
 
   else
     ret_val = EOB_ACT_CONTINUE_SCAN;
@@ -4935,21 +4935,21 @@ vtkVRMLYaccData::yy_state_type vtkVRMLYaccData::yy_get_previous_state()
   yy_current_state = yy_start;
 
   for ( yy_cp = yytext_ptr + YY_MORE_ADJ; yy_cp < yy_c_buf_p; ++yy_cp )
-    {
+  {
     YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
     if ( yy_accept[yy_current_state] )
-      {
+    {
       yy_last_accepting_state = yy_current_state;
       yy_last_accepting_cpos = yy_cp;
-      }
+    }
     while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
-      {
+    {
       yy_current_state = (int) yy_def[yy_current_state];
       if ( yy_current_state >= 949 )
         yy_c = yy_meta[(unsigned int) yy_c];
-      }
-    yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
     }
+    yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
+  }
 
   return yy_current_state;
 }
@@ -4968,16 +4968,16 @@ vtkVRMLYaccData::yy_state_type vtkVRMLYaccData::yy_try_NUL_trans( yy_state_type 
 
   YY_CHAR yy_c = 1;
   if ( yy_accept[yy_current_state] )
-    {
+  {
     yy_last_accepting_state = yy_current_state;
     yy_last_accepting_cpos = yy_cp;
-    }
+  }
   while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
-    {
+  {
     yy_current_state = (int) yy_def[yy_current_state];
     if ( yy_current_state >= 949 )
       yy_c = yy_meta[(unsigned int) yy_c];
-    }
+  }
   yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
   yy_is_jam = (yy_current_state == 948);
 
@@ -5002,12 +5002,12 @@ void vtkVRMLYaccData::yy_switch_to_buffer( YY_BUFFER_STATE new_buffer )
     return;
 
   if ( yy_current_buffer )
-    {
+  {
     /* Flush out information for old buffer. */
     *yy_c_buf_p = yy_hold_char;
     yy_current_buffer->yy_buf_pos = yy_c_buf_p;
     yy_current_buffer->yy_n_chars = yy_n_chars;
-    }
+  }
 
   yy_current_buffer = new_buffer;
   yy_load_buffer_state();
@@ -5058,7 +5058,7 @@ vtkVRMLYaccData::YY_BUFFER_STATE vtkVRMLYaccData::yy_create_buffer( FILE *file, 
 void vtkVRMLYaccData::yy_delete_buffer( YY_BUFFER_STATE b )
 {
   if ( b == yy_current_buffer )
-    yy_current_buffer = (YY_BUFFER_STATE) 0;
+    yy_current_buffer = (YY_BUFFER_STATE) nullptr;
 
   yy_flex_free( (void *) b->yy_ch_buf );
   yy_flex_free( (void *) b );
@@ -5106,14 +5106,14 @@ void vtkVRMLYaccData::yy_fatal_error( const char msg[] )
 #undef yyless
 #define yyless(n) \
         do \
-                { \
+        { \
                 /* Undo effects of setting up yytext. */ \
                 yytext[yyleng] = yy_hold_char; \
                 yy_c_buf_p = yytext + n - YY_MORE_ADJ; \
                 yy_hold_char = *yy_c_buf_p; \
                 *yy_c_buf_p = '\0'; \
                 yyleng = n; \
-                } \
+        } \
         while ( 0 )
 
 
@@ -5163,25 +5163,25 @@ void vtkVRMLYaccData::memyyInput(char *buf, int &result, int max_size,
   self->memyyInput_j = result - static_cast<int>(
     strlen(standardNodes[self->memyyInput_i]));
   if ( self->memyyInput_j == 0 )
-    {
+  {
     self->memyyInput_i++;
-    }
+  }
 }
 
 // Needed to reset the lex input routine to default.
 void vtkVRMLYaccData::defyyInput(char *buf, int &result, int max_size,
                                        vtkVRMLYaccData* self) {
   if ( self->yy_current_buffer->yy_is_interactive )
-    {
+  {
     int c = getc( self->yyin );
     result = c == EOF ? 0 : 1;
     buf[0] = (char) c;
-    }
+  }
   else if( ((result = static_cast<int>(fread( buf, 1, max_size, self->yyin ))) == 0)
             && ferror( self->yyin ) )
-    {
+  {
     self->yy_fatal_error( "input in flex scanner failed" );
-    }
+  }
 }
 
 

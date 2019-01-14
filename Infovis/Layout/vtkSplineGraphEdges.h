@@ -17,12 +17,15 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkSplineGraphEdges - subsample graph edges to make smooth curves
-//
-// .SECTION Description
-// vtkSplineGraphEdges uses a vtkSpline to make edges into nicely sampled
-// splines. By default, the filter will use an optimized b-spline.
-// Otherwise, it will use a custom vtkSpline instance set by the user.
+/**
+ * @class   vtkSplineGraphEdges
+ * @brief   subsample graph edges to make smooth curves
+ *
+ *
+ * vtkSplineGraphEdges uses a vtkSpline to make edges into nicely sampled
+ * splines. By default, the filter will use an optimized b-spline.
+ * Otherwise, it will use a custom vtkSpline instance set by the user.
+*/
 
 #ifndef vtkSplineGraphEdges_h
 #define vtkSplineGraphEdges_h
@@ -38,43 +41,50 @@ class VTKINFOVISLAYOUT_EXPORT vtkSplineGraphEdges : public vtkGraphAlgorithm
 public:
   static vtkSplineGraphEdges *New();
   vtkTypeMacro(vtkSplineGraphEdges,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // If SplineType is CUSTOM, uses this spline.
+  //@{
+  /**
+   * If SplineType is CUSTOM, uses this spline.
+   */
   virtual void SetSpline(vtkSpline* s);
   vtkGetObjectMacro(Spline, vtkSpline);
+  //@}
 
-  //BTX
   enum
-    {
+  {
     BSPLINE = 0,
     CUSTOM
-    };
-  //ETX
+  };
 
-  // Description:
-  // Spline type used by the filter.
-  // BSPLINE (0) - Use optimized b-spline (default).
-  // CUSTOM (1) - Use spline set with SetSpline.
+  //@{
+  /**
+   * Spline type used by the filter.
+   * BSPLINE (0) - Use optimized b-spline (default).
+   * CUSTOM (1) - Use spline set with SetSpline.
+   */
   vtkSetMacro(SplineType, int);
   vtkGetMacro(SplineType, int);
+  //@}
 
-  // Description:
-  // The number of subdivisions in the spline.
+  //@{
+  /**
+   * The number of subdivisions in the spline.
+   */
   vtkSetMacro(NumberOfSubdivisions, vtkIdType);
   vtkGetMacro(NumberOfSubdivisions, vtkIdType);
+  //@}
 
 protected:
   vtkSplineGraphEdges();
-  ~vtkSplineGraphEdges();
+  ~vtkSplineGraphEdges() override;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation *,
     vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) override;
 
-  virtual unsigned long GetMTime();
+  vtkMTimeType GetMTime() override;
 
   void GeneratePoints(vtkGraph* g, vtkIdType e);
   void GenerateBSpline(vtkGraph* g, vtkIdType e);
@@ -83,17 +93,15 @@ protected:
 
   int SplineType;
 
-  //BTX
   vtkSmartPointer<vtkSpline> XSpline;
   vtkSmartPointer<vtkSpline> YSpline;
   vtkSmartPointer<vtkSpline> ZSpline;
-  //ETX
 
   vtkIdType NumberOfSubdivisions;
 
 private:
-  vtkSplineGraphEdges(const vtkSplineGraphEdges&);  // Not implemented.
-  void operator=(const vtkSplineGraphEdges&);  // Not implemented.
+  vtkSplineGraphEdges(const vtkSplineGraphEdges&) = delete;
+  void operator=(const vtkSplineGraphEdges&) = delete;
 };
 
 #endif

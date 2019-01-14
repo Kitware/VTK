@@ -36,13 +36,13 @@ void process(vtkMultiProcessController* controller, void* vtkNotUsed(arg))
 
   // Chose the appropriate task (see task1.cxx and task2.cxx)
   if ( myId == 0 )
-    {
+  {
     task = task1;
-    }
+  }
   else
-    {
+  {
     task = task2;
-    }
+  }
 
 
   // Setup camera
@@ -75,9 +75,9 @@ void process(vtkMultiProcessController* controller, void* vtkNotUsed(arg))
   // Clean-up
   iren->Delete();
   if (mapper)
-    {
+  {
     mapper->Delete();
-    }
+  }
   renWin->Delete();
   cam->Delete();
 
@@ -96,19 +96,19 @@ int main( int argc, char* argv[] )
   // by the external program which launches this application.
   // However, when using threads, we need to set it ourselves.
   if (controller->IsA("vtkThreadedController"))
-    {
+  {
     // Set the number of processes to 2 for this example.
     controller->SetNumberOfProcesses(2);
-    }
+  }
   int numProcs = controller->GetNumberOfProcesses();
 
   if (numProcs != 2)
-    {
+  {
     cerr << "This example requires two processes." << endl;
     controller->Finalize();
     controller->Delete();
     return 1;
-    }
+  }
 
 
   // Execute the function named "process" on both processes

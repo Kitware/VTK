@@ -95,12 +95,12 @@ int TestHierarchicalGraphView(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
  return !retVal;
 }

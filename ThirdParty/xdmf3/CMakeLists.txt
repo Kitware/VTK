@@ -1,31 +1,17 @@
-find_package(Boost REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
+set(XDMF_NO_REALPATH 1)
 
-vtk_module_third_party(xdmf3
-  LIBRARIES vtkxdmf3
-  INCLUDE_DIRS
-   ${CMAKE_CURRENT_SOURCE_DIR}/vtkxdmf3
-   ${CMAKE_CURRENT_SOURCE_DIR}/vtkxdmf3/core
-   ${CMAKE_CURRENT_BINARY_DIR}/vtkxdmf3
-   ${CMAKE_CURRENT_BINARY_DIR}/vtkxdmf3/core
-   ${CMAKE_CURRENT_SOURCE_DIR}/vtkxdmf3/CMake/VersionSuite
-  NO_ADD_SUBDIRECTORY
-)
+# FIXME: xdmf3 only exports symbols properly on Windows.
+unset(CMAKE_CXX_VISIBILITY_PRESET)
+unset(CMAKE_VISIBILITY_INLINES_HIDDEN)
 
-if(VTK_USE_SYSTEM_XDMF3)
-  return()
-endif()
+vtk_module_third_party_internal(
+  LICENSE_FILES "vtkxdmf3/Copyright.txt"
+  VERSION       "1.2.11"
+  STANDARD_INCLUDE_DIRS)
 
-#########################################################################
-# Set Xdmf build environment options the way VTK wants them
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtk_xdmf3.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtk_xdmf3.h")
 
-#?
-
-#########################################################################
-# Setup cmake to pull the library into place as a vtk module
-
-vtk_module_export_info()
-add_subdirectory(vtkxdmf3)
-
-vtk_target_export(vtkxdmf3)
-vtk_target_export(XdmfCore)
+vtk_module_install_headers(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_xdmf3.h")

@@ -21,7 +21,7 @@ if [ $# -lt 1 ]; then
 fi
 
 #
-# Search the CXX, TCL and Python files
+# Search the CXX and Python files
 #
 # You may need to set the paths for these variables.
 vtkExamplePath="/opt/local/share/vtk/examples"
@@ -38,8 +38,6 @@ for term in $@; do
             echo "Searching VTK files in: ${vtkPath}"
             cxxFiles=$(find ${vtkPath} -name "*.cxx")
             grep -l -E -e ${term} ${cxxFiles}
-            tclFiles=$(find ${vtkPath} -name "*.tcl")
-            grep -l -E -e ${term} ${tclFiles}
             pyFiles=$(find ${vtkPath} -name "*.py")
             grep -l -E -e ${term} ${pyFiles}
       fi

@@ -12,41 +12,36 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSplitField - Split a field into single component fields
-// .SECTION Description
-// vtkSplitField is used to split a multi-component field (vtkDataArray)
-// into multiple single component fields. The new fields are put in
-// the same field data as the original field. The output arrays
-// are of the same type as the input array. Example:
-// @verbatim
-// sf->SetInputField("gradient", vtkSplitField::POINT_DATA);
-// sf->Split(0, "firstcomponent");
-// @endverbatim
-// tells vtkSplitField to extract the first component of the field
-// called gradient and create an array called firstcomponent (the
-// new field will be in the output's point data).
-// The same can be done from Tcl:
-// @verbatim
-// sf SetInputField gradient POINT_DATA
-// sf Split 0 firstcomponent
-//
-// AttributeTypes: SCALARS, VECTORS, NORMALS, TCOORDS, TENSORS
-// Field locations: DATA_OBJECT, POINT_DATA, CELL_DATA
-// @endverbatim
-// Note that, by default, the original array is also passed through.
-
-// .SECTION Caveats
-// When using Tcl, Java, Python or Visual Basic bindings, the array name
-// can not be one of the  AttributeTypes when calling Split() which takes
-// strings as arguments. The Tcl (Java etc.) command will
-// always assume the string corresponds to an attribute type when
-// the argument is one of the AttributeTypes. In this situation,
-// use the Split() which takes enums.
-
-// .SECTION See Also
-// vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
-// vtkDataSetAttributes vtkDataArray vtkRearrangeFields
-// vtkAssignAttribute vtkMergeFields
+/**
+ * @class   vtkSplitField
+ * @brief   Split a field into single component fields
+ *
+ * vtkSplitField is used to split a multi-component field (vtkDataArray)
+ * into multiple single component fields. The new fields are put in
+ * the same field data as the original field. The output arrays
+ * are of the same type as the input array. Example:
+ * @verbatim
+ * sf->SetInputField("gradient", vtkSplitField::POINT_DATA);
+ * sf->Split(0, "firstcomponent");
+ * @endverbatim
+ * tells vtkSplitField to extract the first component of the field
+ * called gradient and create an array called firstcomponent (the
+ * new field will be in the output's point data).
+ * Note that, by default, the original array is also passed through.
+ *
+ * @warning
+ * When using Java, Python or Visual Basic bindings, the array name
+ * can not be one of the  AttributeTypes when calling Split() which takes
+ * strings as arguments. The wrapped command will
+ * always assume the string corresponds to an attribute type when
+ * the argument is one of the AttributeTypes. In this situation,
+ * use the Split() which takes enums.
+ *
+ * @sa
+ * vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
+ * vtkDataSetAttributes vtkDataArray vtkRearrangeFields
+ * vtkAssignAttribute vtkMergeFields
+*/
 
 #ifndef vtkSplitField_h
 #define vtkSplitField_h
@@ -62,75 +57,79 @@ class VTKFILTERSGENERAL_EXPORT vtkSplitField : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkSplitField,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Create a new vtkSplitField.
+  /**
+   * Create a new vtkSplitField.
+   */
   static vtkSplitField *New();
 
-  // Description:
-  // Use the  given attribute in the field data given
-  // by fieldLoc as input.
+  /**
+   * Use the given attribute in the field data given
+   * by fieldLoc as input.
+   */
   void SetInputField(int attributeType, int fieldLoc);
 
-  // Description:
-  // Use the array with given name in the field data given
-  // by fieldLoc as input.
+  /**
+   * Use the array with given name in the field data given
+   * by fieldLoc as input.
+   */
   void SetInputField(const char* name, int fieldLoc);
 
-  // Description:
-  // Helper method used by other language bindings. Allows the caller to
-  // specify arguments as strings instead of enums.
+  /**
+   * Helper method used by other language bindings. Allows the caller to
+   * specify arguments as strings instead of enums.
+   */
   void SetInputField(const char* name, const char* fieldLoc);
 
-  // Description:
-  // Create a new array with the given component.
+  /**
+   * Create a new array with the given component.
+   */
   void Split(int component, const char* arrayName);
 
-//BTX
   enum FieldLocations
   {
     DATA_OBJECT=0,
     POINT_DATA=1,
     CELL_DATA=2
   };
-//ETX
 
-//BTX
   struct Component
   {
     int Index;
     char* FieldName;
     Component* Next;   // linked list
     void SetName(const char* name)
-      {
+    {
         delete[] this->FieldName;
-        this->FieldName = 0;
+        this->FieldName = nullptr;
         if (name)
-          {
-          this->FieldName = new char[strlen(name)+1];
-          strcpy(this->FieldName, name);
-          }
-      }
-    Component() { FieldName = 0; }
+        {
+          size_t len = strlen(name)+1;
+          this->FieldName = new char[len];
+#ifdef _MSC_VER
+          strncpy_s(this->FieldName, len, name, len - 1);
+#else
+          strncpy(this->FieldName, name, len);
+#endif
+        }
+    }
+    Component() { FieldName = nullptr; }
     ~Component() { delete[] FieldName; }
   };
-//ETX
 
 protected:
 
-//BTX
   enum FieldTypes
   {
     NAME,
     ATTRIBUTE
   };
-//ETX
 
   vtkSplitField();
-  virtual ~vtkSplitField();
+  ~vtkSplitField() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   char* FieldName;
   int FieldType;
@@ -159,8 +158,8 @@ protected:
   void PrintComponent(Component* op, ostream& os, vtkIndent indent);
   void PrintAllComponents(ostream& os, vtkIndent indent);
 private:
-  vtkSplitField(const vtkSplitField&);  // Not implemented.
-  void operator=(const vtkSplitField&);  // Not implemented.
+  vtkSplitField(const vtkSplitField&) = delete;
+  void operator=(const vtkSplitField&) = delete;
 };
 
 #endif

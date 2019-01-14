@@ -17,15 +17,18 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkSCurveSpline - computes an interpolating spline using a
-// a SCurve basis.
-
-// .SECTION Description
-// vtkSCurveSpline is a concrete implementation of vtkSpline using a
-// SCurve basis.
-
-// .SECTION See Also
-// vtkSpline vtkKochanekSpline
+/**
+ * @class   vtkSCurveSpline
+ * @brief   computes an interpolating spline using a
+ * a SCurve basis.
+ *
+ *
+ * vtkSCurveSpline is a concrete implementation of vtkSpline using a
+ * SCurve basis.
+ *
+ * @sa
+ * vtkSpline vtkKochanekSpline
+*/
 
 #ifndef vtkSCurveSpline_h
 #define vtkSCurveSpline_h
@@ -39,31 +42,34 @@ public:
   static vtkSCurveSpline *New();
 
   vtkTypeMacro(vtkSCurveSpline,vtkSpline);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description
-  // Compute SCurve Splines for each dependent variable
-  void Compute ();
+  /**
+   * Compute SCurve Splines for each dependent variable
+   */
+  void Compute () override;
 
-  // Description:
-  // Evaluate a 1D SCurve spline.
-  virtual double Evaluate (double t);
+  /**
+   * Evaluate a 1D SCurve spline.
+   */
+  double Evaluate (double t) override;
 
-  // Description:
-  // Deep copy of SCurve spline data.
-  virtual void DeepCopy(vtkSpline *s);
+  /**
+   * Deep copy of SCurve spline data.
+   */
+  void DeepCopy(vtkSpline *s) override;
 
   vtkSetMacro(NodeWeight,double);
   vtkGetMacro(NodeWeight,double);
 protected:
   vtkSCurveSpline();
-  ~vtkSCurveSpline() {}
+  ~vtkSCurveSpline() override {}
 
   double NodeWeight;
 
 private:
-  vtkSCurveSpline(const vtkSCurveSpline&);  // Not implemented.
-  void operator=(const vtkSCurveSpline&);  // Not implemented.
+  vtkSCurveSpline(const vtkSCurveSpline&) = delete;
+  void operator=(const vtkSCurveSpline&) = delete;
 };
 
 #endif

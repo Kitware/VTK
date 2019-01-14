@@ -17,31 +17,32 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtListView - A VTK view based on a Qt List view.
-//
-// .SECTION Description
-// vtkQtListView is a VTK view using an underlying QListView.
-//
-// .SECTION Thanks
-// Thanks to Brian Wylie from Sandia National Laboratories for implementing
-// this class
+/**
+ * @class   vtkQtListView
+ * @brief   A VTK view based on a Qt List view.
+ *
+ *
+ * vtkQtListView is a VTK view using an underlying QListView.
+ *
+ * @par Thanks:
+ * Thanks to Brian Wylie from Sandia National Laboratories for implementing
+ * this class
+*/
 
 #ifndef vtkQtListView_h
 #define vtkQtListView_h
 
 #include "vtkViewsQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include "vtkQtView.h"
 
-#include <QPointer>
-#include <QImage>
-#include <QSortFilterProxyModel>
-#include "vtkQtAbstractModelAdapter.h"
-#include "vtkSmartPointer.h"
+#include <QPointer> // Needed for the internal list view
+#include <QImage> // Needed for the icon methods
+#include "vtkSmartPointer.h" // Needed for member variables
 
 class vtkApplyColors;
 class vtkDataObjectToTable;
 class QItemSelection;
+class QSortFilterProxyModel;
 class QListView;
 class vtkQtTableModelAdapter;
 
@@ -52,84 +53,103 @@ Q_OBJECT
 public:
   static vtkQtListView *New();
   vtkTypeMacro(vtkQtListView, vtkQtView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the main container of this view (a  QWidget).
-  // The application typically places the view with a call
-  // to GetWidget(): something like this
-  // this->ui->box->layout()->addWidget(this->View->GetWidget());
-  virtual QWidget* GetWidget();
+  /**
+   * Get the main container of this view (a  QWidget).
+   * The application typically places the view with a call
+   * to GetWidget(): something like this
+   * this->ui->box->layout()->addWidget(this->View->GetWidget());
+   */
+  QWidget* GetWidget() override;
 
   enum
-    {
+  {
     FIELD_DATA = 0,
     POINT_DATA = 1,
     CELL_DATA = 2,
     VERTEX_DATA = 3,
     EDGE_DATA = 4,
     ROW_DATA = 5,
-    };
+  };
 
-  // Description:
-  // The field type to copy into the output table.
-  // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+  //@{
+  /**
+   * The field type to copy into the output table.
+   * Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+   */
   vtkGetMacro(FieldType, int);
   void SetFieldType(int);
+  //@}
 
-  // Description:
-  // Enable drag and drop on this widget
+  /**
+   * Enable drag and drop on this widget
+   */
   void SetEnableDragDrop(bool);
 
-  // Description:
-  // Have the view alternate its row colors
+  /**
+   * Have the view alternate its row colors
+   */
   void SetAlternatingRowColors(bool);
 
-  // Description:
-  // The strategy for how to decorate rows.
-  // Should be one of vtkQtTableModelAdapter::COLORS,
-  // vtkQtTableModelAdapter::ICONS, or
-  // vtkQtTableModelAdapter::NONE. Default is NONE.
+  /**
+   * The strategy for how to decorate rows.
+   * Should be one of vtkQtTableModelAdapter::COLORS,
+   * vtkQtTableModelAdapter::ICONS, or
+   * vtkQtTableModelAdapter::NONE. Default is NONE.
+   */
   void SetDecorationStrategy(int);
 
-  // Description:
-  // The array to use for coloring items in view.  Default is "color".
+  //@{
+  /**
+   * The array to use for coloring items in view.  Default is "color".
+   */
   void SetColorArrayName(const char* name);
   const char* GetColorArrayName();
+  //@}
 
-  // Description:
-  // Whether to color vertices.  Default is off.
+  //@{
+  /**
+   * Whether to color vertices.  Default is off.
+   */
   void SetColorByArray(bool vis);
   bool GetColorByArray();
   vtkBooleanMacro(ColorByArray, bool);
+  //@}
 
-  // Description:
-  // The column to display
+  /**
+   * The column to display
+   */
   void SetVisibleColumn(int col);
 
-  // Description:
-  // The column used to filter on
+  /**
+   * The column used to filter on
+   */
   void SetFilterRegExp(const QRegExp& pattern);
 
-  // Description:
-  // Set the icon ivars. Only used if the decoration strategy is set to ICONS.
+  //@{
+  /**
+   * Set the icon ivars. Only used if the decoration strategy is set to ICONS.
+   */
   void SetIconSheet(QImage sheet);
   void SetIconSize(int w, int h);
   void SetIconSheetSize(int w, int h);
   void SetIconArrayName(const char* name);
+  //@}
 
-  virtual void ApplyViewTheme(vtkViewTheme* theme);
+  void ApplyViewTheme(vtkViewTheme* theme) override;
 
-  // Description:
-  // Updates the view.
-  virtual void Update();
+  /**
+   * Updates the view.
+   */
+  void Update() override;
 
 protected:
   vtkQtListView();
-  ~vtkQtListView();
+  ~vtkQtListView() override;
 
-  virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
-  virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
+  void AddRepresentationInternal(vtkDataRepresentation* rep) override;
+  void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
@@ -137,9 +157,9 @@ private slots:
 private:
   void SetVTKSelection();
 
-  unsigned long LastSelectionMTime;
-  unsigned long LastInputMTime;
-  unsigned long LastMTime;
+  vtkMTimeType LastSelectionMTime;
+  vtkMTimeType LastInputMTime;
+  vtkMTimeType LastMTime;
 
   vtkSetStringMacro(ColorArrayNameInternal);
   vtkGetStringMacro(ColorArrayNameInternal);
@@ -160,8 +180,8 @@ private:
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
-  vtkQtListView(const vtkQtListView&);  // Not implemented.
-  void operator=(const vtkQtListView&);  // Not implemented.
+  vtkQtListView(const vtkQtListView&) = delete;
+  void operator=(const vtkQtListView&) = delete;
 
 };
 

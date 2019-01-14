@@ -1,26 +1,23 @@
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
-if(POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW) # CMake 3.0
-endif()
-if(POLICY CMP0053)
-  cmake_policy(SET CMP0053 NEW) # CMake 3.1
-endif()
+cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+project(MultiBlock)
 
-PROJECT (MultiBlock)
+find_package(VTK
+  COMPONENTS
+    FiltersGeneral
+    FiltersGeometry
+    FiltersSources
+    IOXML
+    RenderingCore
+    TestingCore)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-find_package(VTK COMPONENTS
-  vtkCommonCore
-  vtkFiltersGeometry
-  vtkFiltersSources
-  vtkIOXML
-  vtkInteractionStyle
-  vtkRendering${VTK_RENDERING_BACKEND}
-  vtkTestingCore
-  vtksys
-)
-include(${VTK_USE_FILE})
-
-if(vtkTestingCore_LOADED)
- add_executable(MultiBlock MACOSX_BUNDLE MultiBlock.cxx)
- target_link_libraries(MultiBlock ${VTK_LIBRARIES})
-endif()
+add_executable(MultiBlock MACOSX_BUNDLE MultiBlock.cxx)
+target_link_libraries(MultiBlock
+  PRIVATE
+    ${VTK_LIBRARIES})
+vtk_module_autoinit(
+  TARGETS MultiBlock
+  MODULES ${VTK_LIBRARIES})

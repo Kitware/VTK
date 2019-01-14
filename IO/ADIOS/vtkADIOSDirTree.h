@@ -12,10 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkADIOSDirTree - A directory tree structure holding ADIOS data
+/**
+ * @class   vtkADIOSDirTree
+ * @brief   A directory tree structure holding ADIOS data
+*/
 
 #ifndef vtkADIOSDirTree_h
 #define vtkADIOSDirTree_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include <map>
 #include <string>
@@ -37,19 +42,26 @@ public:
   const std::string& GetName() const { return this->Name; }
   void PrintSelf(std::ostream& os, vtkIndent indent) const;
 
-  // Description:
-  // Access a subdirectory
+  /**
+   * Access a subdirectory
+   */
   const vtkADIOSDirTree* GetDir(const std::string& dirName) const;
 
-  // Description:
-  // Access variables by name
+  //@{
+  /**
+   * Access variables by name
+   */
   const ADIOS::Scalar* GetScalar(const std::string& varName) const;
   const ADIOS::VarInfo* GetArray(const std::string& varName) const;
+  //@}
 
-  // Description:
-  // Access variables all at once
+  //@{
+  /**
+   * Access variables all at once
+   */
   void GetScalars(std::vector<const ADIOS::Scalar*>& vars) const;
   void GetArrays(std::vector<const ADIOS::VarInfo*>& vars) const;
+  //@}
 
 private:
   vtkADIOSDirTree* BuildPath(const std::vector<std::string>& path,
@@ -64,5 +76,7 @@ private:
   std::map<std::string, vtkADIOSDirTree*> SubDirs;
 };
 
+#endif
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkADIOSDirTree.h

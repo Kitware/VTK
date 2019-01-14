@@ -71,10 +71,10 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
   vtkSmartPointer<vtkSelection> res;
   res.TakeReference(sel->Select());
   if (!res)
-    {
+  {
     cerr << "Selection not supported." << endl;
     return;
-    }
+  }
 
   /*
   cerr << "x0 " << x0 << " y0 " << y0 << "\t";
@@ -89,7 +89,7 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
   vtkSelectionNode *cellids = res->GetNode(0);
   MY_CREATE_NEW(vtkExtractSelectedPolyDataIds, extr);
   if (cellids)
-    {
+  {
     extr->SetInputConnection(0, SS1->GetOutputPort());
     vtkSmartPointer<vtkSelection> temp=
       vtkSmartPointer<vtkSelection>::New();
@@ -97,13 +97,13 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
     extr->SetInputData(1, temp);
     extr->Update();
     sMap->SetInputConnection(extr->GetOutputPort());
-    }
+  }
   else
-    {
+  {
     cerr << "Empty color buffer selection -" << endl;
     cerr << "Check display color depth. Must be at least 24 bit." << endl;
     sMap->SetInputData(emptyPD);
-    }
+  }
 }
 
 int TestAreaSelections(int argc, char* argv[])
@@ -202,26 +202,26 @@ int TestAreaSelections(int argc, char* argv[])
   int rgba[4];
   renWin->GetColorBufferSizes(rgba);
   if (rgba[0] < 8 || rgba[1] < 8 || rgba[2] < 8)
-    {
-    cout <<"Color buffer depth must be atleast 8 bit. Currently: "
+  {
+    cout <<"Color buffer depth must be at least 8 bit. Currently: "
       << rgba[0] << ", " << rgba[1] << ", " << rgba[2] << endl;
     return 0;
-    }
+  }
 
   areaPicker->AreaPick(51,78,82,273,renderer);
-  EndPick(NULL, 0, NULL, NULL);
+  EndPick(nullptr, 0, nullptr, nullptr);
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
-  renderer = 0;
-  SS1 = 0;
-  sMap = 0;
-  emptyPD = 0;
+  renderer = nullptr;
+  SS1 = nullptr;
+  sMap = nullptr;
+  emptyPD = nullptr;
 
   // Cleanup
   return !retVal;

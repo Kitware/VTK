@@ -15,7 +15,7 @@ demModel = vtk.vtkDEMReader()
 demModel.SetFileName(VTK_DATA_ROOT + "/Data/SainteHelens.dem")
 demModel.Update()
 
-print demModel
+print(demModel)
 
 lo = Scale * demModel.GetElevationBounds()[0]
 hi = Scale * demModel.GetElevationBounds()[1]
@@ -57,7 +57,6 @@ demMapper16 = vtk.vtkPolyDataMapper()
 demMapper16.SetInputConnection(normals16.GetOutputPort())
 demMapper16.SetScalarRange(lo, hi)
 demMapper16.SetLookupTable(lut)
-demMapper16.ImmediateModeRenderingOn()
 
 demMapper16.Update()
 demActor.AddLODMapper(demMapper16)

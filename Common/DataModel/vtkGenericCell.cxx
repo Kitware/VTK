@@ -28,6 +28,10 @@
 #include "vtkPolygon.h"
 #include "vtkTetra.h"
 #include "vtkHexahedron.h"
+#include "vtkLagrangeCurve.h"
+#include "vtkLagrangeQuadrilateral.h"
+#include "vtkLagrangeHexahedron.h"
+#include "vtkLagrangeWedge.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 #include "vtkPyramid.h"
@@ -51,6 +55,8 @@
 #include "vtkBiQuadraticTriangle.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkLagrangeTriangle.h"
+#include "vtkLagrangeTetra.h"
 #include "vtkIncrementalPointLocator.h"
 
 vtkStandardNewMacro(vtkGenericCell);
@@ -59,13 +65,30 @@ vtkStandardNewMacro(vtkGenericCell);
 // Construct cell.
 vtkGenericCell::vtkGenericCell()
 {
-  this->Cell = vtkEmptyCell::New();
+  for (int i = 0; i < VTK_NUMBER_OF_CELL_TYPES; ++i)
+  {
+    this->CellStore[i] = nullptr;
+  }
+  this->CellStore[VTK_EMPTY_CELL] = vtkEmptyCell::New();
+  this->Cell = this->CellStore[VTK_EMPTY_CELL];
+  this->Points->Delete();
+  this->Points = this->Cell->Points;
+  this->Points->Register(this);
+  this->PointIds->Delete();
+  this->PointIds = this->Cell->PointIds;
+  this->PointIds->Register(this);
 }
 
 //----------------------------------------------------------------------------
 vtkGenericCell::~vtkGenericCell()
 {
-  this->Cell->Delete();
+  for (int i = 0; i < VTK_NUMBER_OF_CELL_TYPES; ++i)
+  {
+    if (this->CellStore[i] != nullptr)
+    {
+      this->CellStore[i]->Delete();
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -155,22 +178,22 @@ vtkCell *vtkGenericCell::GetFace(int faceId)
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericCell::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
+int vtkGenericCell::CellBoundary(int subId, const double pcoords[3], vtkIdList *pts)
 {
   return this->Cell->CellBoundary(subId, pcoords, pts);
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericCell::EvaluatePosition(double x[3], double closestPoint[3],
+int vtkGenericCell::EvaluatePosition(const double x[3], double closestPoint[3],
                                     int& subId, double pcoords[3],
-                                    double& dist2, double *weights)
+                                    double& dist2, double weights[])
 {
   return this->Cell->EvaluatePosition(x, closestPoint, subId,
                                       pcoords, dist2, weights);
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::EvaluateLocation(int& subId, double pcoords[3],
+void vtkGenericCell::EvaluateLocation(int& subId, const double pcoords[3],
                                      double x[3], double *weights)
 {
   this->Cell->EvaluateLocation(subId, pcoords, x, weights);
@@ -200,7 +223,7 @@ void vtkGenericCell::Clip(double value, vtkDataArray *cellScalars,
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericCell::IntersectWithLine(double p1[3], double p2[3], double tol,
+int vtkGenericCell::IntersectWithLine(const double p1[3], const double p2[3], double tol,
                                       double& t, double x[3], double pcoords[3],
                                       int& subId)
 {
@@ -214,7 +237,7 @@ int vtkGenericCell::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::Derivatives(int subId, double pcoords[3], double *values,
+void vtkGenericCell::Derivatives(int subId, const double pcoords[3], const double *values,
                                  int dim, double *derivs)
 {
   this->Cell->Derivatives(subId, pcoords, values, dim, derivs);
@@ -241,9 +264,9 @@ int vtkGenericCell::IsPrimaryCell()
 //----------------------------------------------------------------------------
 vtkCell *vtkGenericCell::InstantiateCell(int cellType)
 {
-  vtkCell *cell = NULL;
+  vtkCell *cell = nullptr;
   switch (cellType)
-    {
+  {
   case VTK_EMPTY_CELL:
     cell = vtkEmptyCell::New();
     break;
@@ -349,7 +372,25 @@ vtkCell *vtkGenericCell::InstantiateCell(int cellType)
   case VTK_POLYHEDRON:
     cell = vtkPolyhedron::New();
     break;
-    }
+  case VTK_LAGRANGE_TRIANGLE:
+    cell = vtkLagrangeTriangle::New();
+    break;
+  case VTK_LAGRANGE_TETRAHEDRON:
+    cell = vtkLagrangeTetra::New();
+    break;
+  case VTK_LAGRANGE_CURVE:
+    cell = vtkLagrangeCurve::New();
+    break;
+  case VTK_LAGRANGE_QUADRILATERAL:
+    cell = vtkLagrangeQuadrilateral::New();
+    break;
+  case VTK_LAGRANGE_HEXAHEDRON:
+    cell = vtkLagrangeHexahedron::New();
+    break;
+  case VTK_LAGRANGE_WEDGE:
+    cell = vtkLagrangeWedge::New();
+    break;
+  }
   return cell;
 }
 
@@ -358,37 +399,45 @@ vtkCell *vtkGenericCell::InstantiateCell(int cellType)
 // has changed and creates a new cell only if necessary.
 void vtkGenericCell::SetCellType(int cellType)
 {
-  if ( this->Cell->GetCellType() != cellType )
+  if (this->Cell->GetCellType() != cellType)
+  {
+    if (cellType < 0 || cellType >= VTK_NUMBER_OF_CELL_TYPES)
     {
+      this->Cell = nullptr;
+    }
+    else if (this->CellStore[cellType] == nullptr)
+    {
+      this->CellStore[cellType] = vtkGenericCell::InstantiateCell(cellType);
+      this->Cell = this->CellStore[cellType];
+    }
+    else
+    {
+      this->Cell = this->CellStore[cellType];
+    }
+    if (this->Cell == nullptr)
+    {
+      vtkErrorMacro( << "Unsupported cell type: " << cellType
+                     << " Setting to vtkEmptyCell" );
+      this->Cell = this->CellStore[VTK_EMPTY_CELL];
+    }
+
     this->Points->UnRegister(this);
-    this->PointIds->UnRegister(this);
-    this->PointIds = NULL;
-    this->Cell->Delete();
-
-    vtkCell *cell = vtkGenericCell::InstantiateCell(cellType);
-
-    if( !cell )
-      {
-      vtkErrorMacro( << "Unsupported cell type! Setting to vtkEmptyCell" );
-      cell = vtkEmptyCell::New();
-      }
-
-    this->Cell = cell;
     this->Points = this->Cell->Points;
     this->Points->Register(this);
+    this->PointIds->UnRegister(this);
     this->PointIds = this->Cell->PointIds;
     this->PointIds->Register(this);
-    }//need to change cell type
+  }
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::InterpolateFunctions(double pcoords[3], double *weights)
+void vtkGenericCell::InterpolateFunctions(const double pcoords[3], double *weights)
 {
   this->Cell->InterpolateFunctions(pcoords,weights);
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::InterpolateDerivs(double pcoords[3], double *derivs)
+void vtkGenericCell::InterpolateDerivs(const double pcoords[3], double *derivs)
 {
   this->Cell->InterpolateDerivs(pcoords,derivs);
 }
@@ -406,27 +455,26 @@ void vtkGenericCell::PrintSelf(ostream& os, vtkIndent indent)
 void vtkGenericCell::SetPoints(vtkPoints *points)
 {
   if (points != this->Points)
-    {
+  {
     this->Points->Delete();
     this->Points = points;
     this->Points->Register(this);
     this->Cell->Points->Delete();
     this->Cell->Points = points;
     this->Cell->Points->Register(this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkGenericCell::SetPointIds(vtkIdList *pointIds)
 {
   if (pointIds != this->PointIds)
-    {
+  {
     this->PointIds->Delete();
     this->PointIds = pointIds;
     this->PointIds->Register(this);
     this->Cell->PointIds->Delete();
     this->Cell->PointIds = pointIds;
     this->Cell->PointIds->Register(this);
-    }
+  }
 }
-

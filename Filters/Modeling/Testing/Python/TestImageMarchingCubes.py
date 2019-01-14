@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -40,7 +39,6 @@ iso.SetInputMemoryLimit(1000)
 isoMapper = vtk.vtkPolyDataMapper()
 isoMapper.SetInputConnection(iso.GetOutputPort())
 isoMapper.ScalarVisibilityOff()
-isoMapper.ImmediateModeRenderingOn()
 
 isoActor = vtk.vtkActor()
 isoActor.SetMapper(isoMapper)

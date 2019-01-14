@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-# This script shows the result of an ideal highpass filter in  spatial domain
+# This script shows the result of an ideal highpass filter in spatial domain
 # Image pipeline
 createReader = vtk.vtkImageReader2Factory()
 reader = createReader.CreateImageReader2("" + str(VTK_DATA_ROOT) + "/Data/fullhead15.png")

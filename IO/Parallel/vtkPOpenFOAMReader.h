@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPOpenFOAMReader - reads a decomposed dataset in OpenFOAM format
-// .SECTION Description
-// vtkPOpenFOAMReader creates a multiblock dataset. It reads
-// parallel-decomposed mesh information and time dependent data.  The
-// polyMesh folders contain mesh information. The time folders contain
-// transient data for the cells. Each folder can contain any number of
-// data files.
-
-// .SECTION Thanks
-// This class was developed by Takuya Oshima at Niigata University,
-// Japan (oshima@eng.niigata-u.ac.jp).
+/**
+ * @class   vtkPOpenFOAMReader
+ * @brief   reads a decomposed dataset in OpenFOAM format
+ *
+ * vtkPOpenFOAMReader creates a multiblock dataset. It reads
+ * parallel-decomposed mesh information and time dependent data.  The
+ * polyMesh folders contain mesh information. The time folders contain
+ * transient data for the cells. Each folder can contain any number of
+ * data files.
+ *
+ * @par Thanks:
+ * This class was developed by Takuya Oshima at Niigata University,
+ * Japan (oshima@eng.niigata-u.ac.jp).
+*/
 
 #ifndef vtkPOpenFOAMReader_h
 #define vtkPOpenFOAMReader_h
@@ -36,41 +39,47 @@ class vtkMultiProcessController;
 class VTKIOPARALLEL_EXPORT vtkPOpenFOAMReader : public vtkOpenFOAMReader
 {
 public:
-  //BTX
+
   enum caseType { DECOMPOSED_CASE = 0, RECONSTRUCTED_CASE = 1 };
-  //ETX
+
   static vtkPOpenFOAMReader *New();
   vtkTypeMacro(vtkPOpenFOAMReader, vtkOpenFOAMReader);
 
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Set and get case type. 0 = decomposed case, 1 = reconstructed case.
+  //@{
+  /**
+   * Set and get case type. 0 = decomposed case, 1 = reconstructed case.
+   */
   void SetCaseType(const int t);
   vtkGetMacro(CaseType, caseType);
-  // Description:
-  // Set and get the controller.
+  //@}
+  //@{
+  /**
+   * Set and get the controller.
+   */
   virtual void SetController(vtkMultiProcessController *);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
 protected:
   vtkPOpenFOAMReader();
-  ~vtkPOpenFOAMReader();
+  ~vtkPOpenFOAMReader() override;
 
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) override;
 
 private:
   vtkMultiProcessController *Controller;
   caseType CaseType;
-  unsigned long MTimeOld;
+  vtkMTimeType MTimeOld;
   int NumProcesses;
   int ProcessId;
 
-  vtkPOpenFOAMReader(const vtkPOpenFOAMReader &); // Not implemented.
-  void operator=(const vtkPOpenFOAMReader &); // Not implemented.
+  vtkPOpenFOAMReader(const vtkPOpenFOAMReader &) = delete;
+  void operator=(const vtkPOpenFOAMReader &) = delete;
 
   void GatherMetaData();
   void BroadcastStatus(int &);

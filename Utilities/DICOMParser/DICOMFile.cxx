@@ -3,8 +3,6 @@
   Program:   DICOMParser
   Module:    DICOMFile.cxx
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 2003 Matt Turek
   All rights reserved.
@@ -273,7 +271,7 @@ char* DICOMFile::ReadAsciiCharArray(int len)
 {
   if (len <= 0)
     {
-    return NULL;
+    return nullptr;
     }
   char* val = new char[len + 1];
   this->Read(val, len);

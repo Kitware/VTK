@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSMPContourGridManyPieces - a subclass of vtkContourGrid that works in parallel
-// vtkSMPContourGridManyPieces performs the same functionaliy as vtkContourGrid but does
-// it using multiple threads. This filter generates a multi-block of vtkPolyData. It
-// will generate a relatively large number of pieces - the number is dependent on
-// the input size and number of threads available. See vtkSMPContourGrid is you are
-// interested in a filter that merges the piece. This will probably be merged with
-// vtkContourGrid in the future.
+/**
+ * @class   vtkSMPContourGridManyPieces
+ * @brief   a subclass of vtkContourGrid that works in parallel
+ * vtkSMPContourGridManyPieces performs the same functionaliy as vtkContourGrid but does
+ * it using multiple threads. This filter generates a multi-block of vtkPolyData. It
+ * will generate a relatively large number of pieces - the number is dependent on
+ * the input size and number of threads available. See vtkSMPContourGrid is you are
+ * interested in a filter that merges the piece. This will probably be merged with
+ * vtkContourGrid in the future.
+*/
 
 #ifndef vtkSMPContourGridManyPieces_h
 #define vtkSMPContourGridManyPieces_h
@@ -28,27 +31,29 @@
 
 class vtkPolyData;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSSMP_EXPORT vtkSMPContourGridManyPieces : public vtkContourGrid
 {
 public:
   vtkTypeMacro(vtkSMPContourGridManyPieces,vtkContourGrid);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Constructor.
+  /**
+   * Constructor.
+   */
   static vtkSMPContourGridManyPieces *New();
 
 protected:
   vtkSMPContourGridManyPieces();
-  ~vtkSMPContourGridManyPieces();
+  ~vtkSMPContourGridManyPieces() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkSMPContourGridManyPieces(const vtkSMPContourGridManyPieces&);  // Not implemented.
-  void operator=(const vtkSMPContourGridManyPieces&);  // Not implemented.
+  vtkSMPContourGridManyPieces(const vtkSMPContourGridManyPieces&) = delete;
+  void operator=(const vtkSMPContourGridManyPieces&) = delete;
 };
-
+#endif //VTK_LEGACY_REMOVE
 #endif

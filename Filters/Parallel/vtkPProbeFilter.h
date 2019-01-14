@@ -12,8 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPProbeFilter - probe dataset in parallel
-// .SECTION Description
+/**
+ * @class   vtkPProbeFilter
+ * @brief   probe dataset in parallel
+ *
+ * This filter works correctly only if the whole geometry dataset
+ * (that specify the point locations used to probe input) is available on all
+ * nodes.
+*/
 
 #ifndef vtkPProbeFilter_h
 #define vtkPProbeFilter_h
@@ -27,36 +33,38 @@ class VTKFILTERSPARALLEL_EXPORT vtkPProbeFilter : public vtkCompositeDataProbeFi
 {
 public:
   vtkTypeMacro(vtkPProbeFilter,vtkCompositeDataProbeFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPProbeFilter *New();
 
-  // Description:
-  // Set and get the controller.
+  //@{
+  /**
+   * Set and get the controller.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-//BTX
 protected:
   vtkPProbeFilter();
-  ~vtkPProbeFilter();
+  ~vtkPProbeFilter() override;
 
   enum
-    {
+  {
     PROBE_COMMUNICATION_TAG=1970
-    };
+  };
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPProbeFilter(const vtkPProbeFilter&);  // Not implemented.
-  void operator=(const vtkPProbeFilter&);  // Not implemented.
-//ETX
+  vtkPProbeFilter(const vtkPProbeFilter&) = delete;
+  void operator=(const vtkPProbeFilter&) = delete;
+
 };
 
 #endif

@@ -42,7 +42,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkSmartPointer.h"
-//#include "vtkBoostSplitTableField.h"
 #include "vtkStringArray.h"
 #include "vtkStringToCategory.h"
 #include "vtkTable.h"
@@ -86,16 +85,16 @@ void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg,
   VTK_CREATE(vtkGraphLayout, layout);
   layout->SetInputData(graph);
   if (circular)
-    {
+  {
     VTK_CREATE(vtkCircularLayoutStrategy, strategy);
     layout->SetLayoutStrategy(strategy);
-    }
+  }
   else
-    {
+  {
     VTK_CREATE(vtkSimple2DLayoutStrategy, strategy);
     strategy->SetMaxNumberOfIterations(10);
     layout->SetLayoutStrategy(strategy);
-    }
+  }
 
   VTK_CREATE(vtkGraphToPolyData, graphToPoly);
   graphToPoly->SetInputConnection(layout->GetOutputPort());
@@ -128,7 +127,7 @@ void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg,
   edgeActor->SetPosition(xoffset, yoffset, 0);
 
   if (labelArray)
-    {
+  {
     VTK_CREATE(vtkLabeledDataMapper, labelMapper);
     labelMapper->SetInputConnection(graphToPoly->GetOutputPort());
     labelMapper->SetLabelModeToLabelFieldData();
@@ -141,7 +140,7 @@ void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg,
     VTK_CREATE(vtkActor2D, labelActor);
     labelActor->SetMapper(labelMapper);
     ren->AddActor(labelActor);
-    }
+  }
 
   ren->AddActor(vertexActor);
   ren->AddActor(edgeActor);
@@ -156,16 +155,16 @@ int TestTableToGraph(int argc, char* argv[])
   const char* label = 0;
   bool circular = true;
   for (int a = 1; a < argc; a++)
-    {
+  {
     if (!strcmp(argv[a], "-L"))
-      {
+    {
       label = "label";
-      }
-    if (!strcmp(argv[a], "-F"))
-      {
-      circular = false;
-      }
     }
+    if (!strcmp(argv[a], "-F"))
+    {
+      circular = false;
+    }
+  }
 
   // Read edge table from a file.
   char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
@@ -175,10 +174,6 @@ int TestTableToGraph(int argc, char* argv[])
   reader->SetFileName(file);
   delete[] file;
   reader->SetHaveHeaders(true);
-
-  //VTK_CREATE(vtkBoostSplitTableField, split);
-  //split->SetInputConnection(reader->GetOutputPort());
-  //split->AddField("Categories", ";");
 
   // Create a simple person table.
   VTK_CREATE(vtkTable, personTable);
@@ -360,7 +355,7 @@ int TestTableToGraph(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
 #if SHOW_QT_DATA_TABLES
     QApplication::exec();
 #else
@@ -369,7 +364,7 @@ int TestTableToGraph(int argc, char* argv[])
 #endif
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

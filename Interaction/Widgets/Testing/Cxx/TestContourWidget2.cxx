@@ -58,24 +58,24 @@ int TestContourWidget2( int argc, char *argv[] )
   contourWidget->On();
 
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (strcmp("-Shift", argv[i]) == 0)
-      {
+    {
       contourWidget->GetEventTranslator()->RemoveTranslation(
                           vtkCommand::LeftButtonPressEvent );
       contourWidget->GetEventTranslator()->SetTranslation(
                         vtkCommand::LeftButtonPressEvent,
                         vtkWidgetEvent::Translate );
-      }
+    }
     else if (strcmp("-Scale", argv[i]) == 0)
-      {
+    {
       contourWidget->GetEventTranslator()->RemoveTranslation(
                           vtkCommand::LeftButtonPressEvent );
       contourWidget->GetEventTranslator()->SetTranslation(
                         vtkCommand::LeftButtonPressEvent,
                         vtkWidgetEvent::Scale );
-      }
     }
+  }
 
 
   vtkSmartPointer<vtkPolyData>  pd =
@@ -87,12 +87,12 @@ int TestContourWidget2( int argc, char *argv[] )
     vtkSmartPointer<vtkCellArray>::New();
   vtkIdType    *lineIndices = new vtkIdType[21];
   for (int i = 0; i< 20; i++)
-    {
+  {
     const double angle = 2.0*vtkMath::Pi()*i/20.0;
     points->InsertPoint(static_cast<vtkIdType>(i), 0.1*cos(angle),
                         0.1*sin(angle), 0.0 );
     lineIndices[i] = static_cast<vtkIdType>(i);
-    }
+  }
 
   lineIndices[20] = 0;
   lines->InsertNextCell(21,lineIndices);

@@ -12,20 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPeriodicTable - Access to information about the elements.
-//
-// .SECTION Description
-// Sourced from the Blue Obelisk Data Repository
-//
-// .SECTION See Also
-// vtkBlueObeliskData vtkBlueObeliskDataParser
+/**
+ * @class   vtkPeriodicTable
+ * @brief   Access to information about the elements.
+ *
+ *
+ * Sourced from the Blue Obelisk Data Repository
+ *
+ * @sa
+ * vtkBlueObeliskData vtkBlueObeliskDataParser
+*/
 
 #ifndef vtkPeriodicTable_h
 #define vtkPeriodicTable_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkNew.h"
+#include "vtkNew.h" // Needed for the static data member
 
 class vtkBlueObeliskData;
 class vtkColor3f;
@@ -36,66 +39,86 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkPeriodicTable : public vtkObject
 {
 public:
   vtkTypeMacro(vtkPeriodicTable, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkPeriodicTable * New();
 
-  // Description:
-  // Access the static vtkBlueObeliskData object for raw access to
-  // BODR data.
+  //@{
+  /**
+   * Access the static vtkBlueObeliskData object for raw access to
+   * BODR data.
+   */
   vtkGetNewMacro(BlueObeliskData, vtkBlueObeliskData);
+  //@}
 
-  // Description:
-  // Returns the number of elements in the periodic table.
+  /**
+   * Returns the number of elements in the periodic table.
+   */
   unsigned short GetNumberOfElements();
 
-  // Description:
-  // Given an atomic number, returns the symbol associated with the
-  // element
-  const char * GetSymbol(const unsigned short atomicNum);
+  /**
+   * Given an atomic number, returns the symbol associated with the
+   * element
+   */
+  const char * GetSymbol(unsigned short atomicNum);
 
-  // Description:
-  // Given an atomic number, returns the name of the element
-  const char * GetElementName(const unsigned short atomicNum);
+  /**
+   * Given an atomic number, returns the name of the element
+   */
+  const char * GetElementName(unsigned short atomicNum);
 
-  // Description:
-  // Given a case-insensitive string that contains the symbol or name
-  // of an element, return the corresponding atomic number.
+  //@{
+  /**
+   * Given a case-insensitive string that contains the symbol or name
+   * of an element, return the corresponding atomic number.
+   */
   unsigned short GetAtomicNumber(const vtkStdString &str);
   unsigned short GetAtomicNumber(const char *str);
+  //@}
 
-  // Description:
-  // Given an atomic number, return the covalent radius of the atom
-  float GetCovalentRadius(const unsigned short atomicNum);
+  /**
+   * Given an atomic number, return the covalent radius of the atom
+   */
+  float GetCovalentRadius(unsigned short atomicNum);
 
-  // Description:
-  // Given an atomic number, returns the van der Waals radius of the
-  // atom
-  float GetVDWRadius(const unsigned short atomicNum);
+  /**
+   * Given an atomic number, returns the van der Waals radius of the
+   * atom
+   */
+  float GetVDWRadius(unsigned short atomicNum);
 
-  // Description:
-  // Fill the given vtkLookupTable to map atomic numbers to the
-  // familiar RGB tuples provided by the Blue Obelisk Data Repository
+  /**
+   * Given an atomic number, returns the van der Waals radius of the
+   * atom
+   */
+  float GetMaxVDWRadius();
+
+  /**
+   * Fill the given vtkLookupTable to map atomic numbers to the
+   * familiar RGB tuples provided by the Blue Obelisk Data Repository
+   */
   void GetDefaultLUT(vtkLookupTable *);
 
-  // Description:
-  // Given an atomic number, return the familiar RGB tuple provided by
-  // the Blue Obelisk Data Repository
+  /**
+   * Given an atomic number, return the familiar RGB tuple provided by
+   * the Blue Obelisk Data Repository
+   */
   void GetDefaultRGBTuple(unsigned short atomicNum, float rgb[3]);
 
-  // Description:
-  // Given an atomic number, return the familiar RGB tuple provided by
-  // the Blue Obelisk Data Repository
+  /**
+   * Given an atomic number, return the familiar RGB tuple provided by
+   * the Blue Obelisk Data Repository
+   */
   vtkColor3f GetDefaultRGBTuple(unsigned short atomicNum);
 
 protected:
   vtkPeriodicTable();
-  ~vtkPeriodicTable();
+  ~vtkPeriodicTable() override;
 
   static vtkNew<vtkBlueObeliskData> BlueObeliskData;
 
 private:
-  vtkPeriodicTable(const vtkPeriodicTable&);   // Not implemented
-  void operator=(const vtkPeriodicTable&); // Not implemented
+  vtkPeriodicTable(const vtkPeriodicTable&) = delete;
+  void operator=(const vtkPeriodicTable&) = delete;
 };
 
 #endif

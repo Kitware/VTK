@@ -50,9 +50,9 @@ vtkGenericContourFilter::vtkGenericContourFilter()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
-  this->InputScalarsSelection = NULL;
+  this->InputScalarsSelection = nullptr;
 
   this->InternalPD = vtkPointData::New();
   this->SecondaryPD = vtkPointData::New();
@@ -64,11 +64,11 @@ vtkGenericContourFilter::~vtkGenericContourFilter()
 {
   this->ContourValues->Delete();
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
-  this->SetInputScalarsSelection(NULL);
+    this->Locator = nullptr;
+  }
+  this->SetInputScalarsSelection(nullptr);
   this->InternalPD->Delete();
   this->SecondaryPD->Delete();
   this->SecondaryCD->Delete();
@@ -77,23 +77,23 @@ vtkGenericContourFilter::~vtkGenericContourFilter()
 //-----------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
-unsigned long vtkGenericContourFilter::GetMTime()
+vtkMTimeType vtkGenericContourFilter::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if (this->ContourValues)
-    {
+  {
     time = this->ContourValues->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
   if (this->Locator)
-    {
+  {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
-  // mTime should also take into account the fact that tesselator is view
+  // mTime should also take into account the fact that tessellator is view
   // dependent
 
   return mTime;
@@ -119,10 +119,10 @@ int vtkGenericContourFilter::RequestData(
   vtkDebugMacro(<< "Executing contour filter");
 
   if(!input)
-    {
+  {
     vtkErrorMacro("No input specified");
     return 1;
-    }
+  }
   vtkPointData *outPd = output->GetPointData();
   vtkCellData *outCd = output->GetCellData();
 
@@ -132,9 +132,9 @@ int vtkGenericContourFilter::RequestData(
   vtkIdType estimatedSize=input->GetEstimatedSize();
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
-    {
+  {
     estimatedSize = 1024;
-    }
+  }
 
   vtkPoints *newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
@@ -148,10 +148,10 @@ int vtkGenericContourFilter::RequestData(
   output->Allocate(numCells);
 
   // locator used to merge potentially duplicate points
-  if(this->Locator==0)
-    {
+  if(this->Locator==nullptr)
+  {
     this->CreateDefaultLocator();
-    }
+  }
   this->Locator->InitPointInsertion(newPts,input->GetBounds(),estimatedSize);
 
   // prepare the output attributes
@@ -165,11 +165,11 @@ int vtkGenericContourFilter::RequestData(
   int attributeType;
 
   for(vtkIdType i = 0; i<c; ++i)
-    {
+  {
     attribute=attributes->GetAttribute(i);
     attributeType=attribute->GetType();
     if(attribute->GetCentering()==vtkPointCentered)
-      {
+    {
       secondaryAttributes = this->SecondaryPD;
 
       attributeArray = vtkDataArray::CreateDataArray(attribute->GetComponentType());
@@ -178,15 +178,15 @@ int vtkGenericContourFilter::RequestData(
       this->InternalPD->AddArray(attributeArray);
       attributeArray->Delete();
       if(this->InternalPD->GetAttribute(attributeType))
-        {
+      {
         this->InternalPD->SetActiveAttribute(
           this->InternalPD->GetNumberOfArrays()-1,attributeType);
-        }
       }
+    }
     else // vtkCellCentered
-      {
+    {
       secondaryAttributes = this->SecondaryCD;
-      }
+    }
 
     attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
     attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
@@ -194,12 +194,12 @@ int vtkGenericContourFilter::RequestData(
     secondaryAttributes->AddArray(attributeArray);
     attributeArray->Delete();
 
-    if(secondaryAttributes->GetAttribute(attributeType)==0)
-      {
+    if(secondaryAttributes->GetAttribute(attributeType)==nullptr)
+    {
       secondaryAttributes->SetActiveAttribute(secondaryAttributes->GetNumberOfArrays()-1,
                                               attributeType);
-      }
     }
+  }
 
   outPd->InterpolateAllocate(this->SecondaryPD,estimatedSize,estimatedSize);
   outCd->CopyAllocate(this->SecondaryCD,estimatedSize,estimatedSize);
@@ -211,18 +211,18 @@ int vtkGenericContourFilter::RequestData(
   vtkGenericCellIterator *cellIt = input->NewCellIterator();
 
   if(this->InputScalarsSelection)
-    {
+  {
     int attrib =
       input->GetAttributes()->FindAttribute(this->InputScalarsSelection);
     if(attrib != -1)
-      {
+    {
       vtkGenericAttribute *a = input->GetAttributes()->GetAttribute(attrib);
       if(a->GetNumberOfComponents() == 1)
-        {
+      {
         input->GetAttributes()->SetActiveAttribute(attrib,0);
-        }
       }
     }
+  }
 
 
   vtkIdType updateCount = numCells/20 + 1;  // update roughly every 5%
@@ -232,20 +232,20 @@ int vtkGenericContourFilter::RequestData(
   input->GetTessellator()->InitErrorMetrics(input);
 
   for(cellIt->Begin(); !cellIt->IsAtEnd() && !abortExecute; cellIt->Next())
-    {
+  {
     if ( !(count % updateCount) )
-      {
+    {
       this->UpdateProgress(static_cast<double>(count) / numCells);
       abortExecute = this->GetAbortExecute();
-      }
+    }
 
     cell = cellIt->GetCell();
-    cell->Contour(this->ContourValues, NULL, input->GetAttributes(),
+    cell->Contour(this->ContourValues, nullptr, input->GetAttributes(),
                   input->GetTessellator(),
                   this->Locator, newVerts, newLines, newPolys, outPd, outCd,
                   this->InternalPD,this->SecondaryPD,this->SecondaryCD);
     ++count;
-    } // for each cell
+  } // for each cell
   cellIt->Delete();
 
   vtkDebugMacro(<<"Created: "
@@ -263,21 +263,21 @@ int vtkGenericContourFilter::RequestData(
   newPts->Delete();
 
   if (newVerts->GetNumberOfCells()>0)
-    {
+  {
     output->SetVerts(newVerts);
-    }
+  }
   newVerts->Delete();
 
   if (newLines->GetNumberOfCells()>0)
-    {
+  {
     output->SetLines(newLines);
-    }
+  }
   newLines->Delete();
 
   if (newPolys->GetNumberOfCells()>0)
-    {
+  {
     output->SetPolys(newPolys);
-    }
+  }
   newPolys->Delete();
 
   this->Locator->Initialize();//releases leftover memory
@@ -291,12 +291,12 @@ int vtkGenericContourFilter::RequestData(
 // an instance of vtkMergePoints is used.
 void vtkGenericContourFilter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
-    {
+  if ( this->Locator == nullptr )
+  {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);
     this->Locator->Delete();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -311,10 +311,10 @@ void vtkGenericContourFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if (this->InputScalarsSelection)
-    {
+  {
     os << indent << "InputScalarsSelection: "
        << this->InputScalarsSelection << endl;
-    }
+  }
 
   os << indent << "Compute Gradients: "
      << (this->ComputeGradients ? "On\n" : "Off\n");
@@ -326,13 +326,13 @@ void vtkGenericContourFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -413,9 +413,9 @@ int vtkGenericContourFilter::FillInputPortInformation(int port,
                                                       vtkInformation* info)
 {
   if(!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
   return 1;
 }

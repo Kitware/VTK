@@ -12,18 +12,32 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageMapToWindowLevelColors - map the input image through a lookup table and window / level it
-// .SECTION Description
-// The vtkImageMapToWindowLevelColors filter will take an input image of any
-// valid scalar type, and map the first component of the image through a
-// lookup table.  This resulting color will be modulated with value obtained
-// by a window / level operation. The result is an image of type
-// VTK_UNSIGNED_CHAR. If the lookup table is not set, or is set to NULL, then
-// the input data will be passed through if it is already of type
-// UNSIGNED_CHAR.
-//
-// .SECTION See Also
-// vtkLookupTable vtkScalarsToColors
+/**
+ * @class   vtkImageMapToWindowLevelColors
+ * @brief   Map an image through a lookup table and/or a window/level.
+ *
+ * The vtkImageMapToWindowLevelColors filter can be used to perform
+ * the following operations depending on its settings:
+ * -# If no lookup table is provided, and if the input data has a single
+ *    component (any numerical scalar type is allowed), then the data is
+ *    mapped through the specified Window/Level.  The type of the output
+ *    scalars will be "unsigned char" with a range of (0,255).
+ * -# If no lookup table is provided, and if the input data is already
+ *    unsigned char, and if the Window/Level is set to 255.0/127.5, then
+ *    the input data will be passed directly to the output.
+ * -# If a lookup table is provided, then the first component of the
+ *    input data is mapped through the lookup table (using the Range of
+ *    the lookup table), and the resulting color is modulated according
+ *    to the Window/Level.  For example, if the input value is 500 and
+ *    the Window/Level are 2000/1000, the output value will be RGB*0.25
+ *    where RGB is the color assigned by the lookup table and 0.25 is
+ *    the modulation factor.
+ * See SetWindow() and SetLevel() for the equations used for modulation.
+ * To map scalars through a lookup table without modulating the resulting
+ * color, use vtkImageMapToColors instead of this filter.
+ * @sa
+ * vtkLookupTable vtkScalarsToColors
+*/
 
 #ifndef vtkImageMapToWindowLevelColors_h
 #define vtkImageMapToWindowLevelColors_h
@@ -37,42 +51,48 @@ class VTKIMAGINGCOLOR_EXPORT vtkImageMapToWindowLevelColors : public vtkImageMap
 public:
   static vtkImageMapToWindowLevelColors *New();
   vtkTypeMacro(vtkImageMapToWindowLevelColors,vtkImageMapToColors);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set / Get the Window to use -> modulation will be performed on the
-  // color based on (S - (L - W/2))/W where S is the scalar value, L is
-  // the level and W is the window.
+  //@{
+  /**
+   * Set / Get the Window to use -> modulation will be performed on the
+   * color based on (S - (L - W/2))/W where S is the scalar value, L is
+   * the level and W is the window.
+   */
   vtkSetMacro( Window, double );
   vtkGetMacro( Window, double );
+  //@}
 
-  // Description:
-  // Set / Get the Level to use -> modulation will be performed on the
-  // color based on (S - (L - W/2))/W where S is the scalar value, L is
-  // the level and W is the window.
+  //@{
+  /**
+   * Set / Get the Level to use -> modulation will be performed on the
+   * color based on (S - (L - W/2))/W where S is the scalar value, L is
+   * the level and W is the window.
+   */
   vtkSetMacro( Level, double );
   vtkGetMacro( Level, double );
+  //@}
 
 protected:
   vtkImageMapToWindowLevelColors();
-  ~vtkImageMapToWindowLevelColors();
+  ~vtkImageMapToWindowLevelColors() override;
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id);
-  virtual int RequestData(vtkInformation *request,
+                           int extent[6], int id) override;
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) override;
 
   double Window;
   double Level;
 
 private:
-  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&);  // Not implemented.
-  void operator=(const vtkImageMapToWindowLevelColors&);  // Not implemented.
+  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&) = delete;
+  void operator=(const vtkImageMapToWindowLevelColors&) = delete;
 };
 
 #endif

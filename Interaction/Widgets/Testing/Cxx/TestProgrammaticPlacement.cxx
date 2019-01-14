@@ -57,7 +57,7 @@ int TestProgrammaticPlacement( int argc, char *argv[] )
   VTK_CREATE(vtkRenderWindow, renWin);
   renWin->AddRenderer(ren1);
 
-  VTK_CREATE(vtkRenderWindowInteractor, iren);;
+  VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renWin);
 
   // Create a test pipeline
@@ -130,9 +130,9 @@ int TestProgrammaticPlacement( int argc, char *argv[] )
   // testing option fails.
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   dWidget->Off();
 
   return !retVal;

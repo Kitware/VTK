@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBridgeExport - manage Windows system differences
-// .SECTION Description
-// The vtkBridgeExport captures some system differences between Unix and
-// Windows operating systems.
+/**
+ * @class   vtkBridgeExport
+ * @brief   manage Windows system differences
+ *
+ * The vtkBridgeExport captures some system differences between Unix and
+ * Windows operating systems.
+*/
 
 #ifndef vtkBridgeExport_h
 #define vtkBridgeExport_h
@@ -26,7 +29,7 @@
 # define VTK_BRIDGE_EXPORT
 #else
 
-#if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
+#if defined(_WIN32) && defined(VTK_BUILD_SHARED_LIBS)
 
  #if defined(vtkBridge_EXPORTS)
   #define VTK_BRIDGE_EXPORT __declspec( dllexport )

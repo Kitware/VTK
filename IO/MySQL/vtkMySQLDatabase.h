@@ -17,18 +17,21 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkMySQLDatabase - maintain a connection to a MySQL database
-//
-// .SECTION Description
-//
-// This class provides a VTK interface to MySQL
-// (http://www.mysql.com).  Unlike file-based databases like SQLite, you
-// talk to MySQL through a client/server connection.  You must specify
-// the hostname, (optional) port to connect to, username, password and
-// database name in order to connect.
-//
-// .SECTION See Also
-// vtkMySQLQuery
+/**
+ * @class   vtkMySQLDatabase
+ * @brief   maintain a connection to a MySQL database
+ *
+ *
+ *
+ * This class provides a VTK interface to MySQL
+ * (http://www.mysql.com).  Unlike file-based databases like SQLite, you
+ * talk to MySQL through a client/server connection.  You must specify
+ * the hostname, (optional) port to connect to, username, password and
+ * database name in order to connect.
+ *
+ * @sa
+ * vtkMySQLQuery
+*/
 
 #ifndef vtkMySQLDatabase_h
 #define vtkMySQLDatabase_h
@@ -43,143 +46,182 @@ class vtkMySQLDatabasePrivate;
 
 class VTKIOMYSQL_EXPORT vtkMySQLDatabase : public vtkSQLDatabase
 {
-//BTX
+
   friend class vtkMySQLQuery;
-//ETX
 
 public:
   vtkTypeMacro(vtkMySQLDatabase, vtkSQLDatabase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkMySQLDatabase *New();
 
-  // Description:
-  // Open a new connection to the database.  You need to set the
-  // filename before calling this function.  Returns true if the
-  // database was opened successfully; false otherwise.
-  bool Open( const char* password = 0 );
+  /**
+   * Open a new connection to the database.  You need to set the
+   * filename before calling this function.  Returns true if the
+   * database was opened successfully; false otherwise.
+   */
+  bool Open( const char* password = 0 ) override;
 
-  // Description:
-  // Close the connection to the database.
-  void Close();
+  /**
+   * Close the connection to the database.
+   */
+  void Close() override;
 
-  // Description:
-  // Return whether the database has an open connection
-  bool IsOpen();
+  /**
+   * Return whether the database has an open connection
+   */
+  bool IsOpen() override;
 
-  // Description:
-  // Return an empty query on this database.
-  vtkSQLQuery* GetQueryInstance();
+  /**
+   * Return an empty query on this database.
+   */
+  vtkSQLQuery* GetQueryInstance() override;
 
-  // Description:
-  // Get the list of tables from the database
-  vtkStringArray* GetTables();
+  /**
+   * Get the list of tables from the database
+   */
+  vtkStringArray* GetTables() override;
 
-  // Description:
-  // Get the list of fields for a particular table
-  vtkStringArray* GetRecord(const char *table);
+  /**
+   * Get the list of fields for a particular table
+   */
+  vtkStringArray* GetRecord(const char *table) override;
 
-  // Description:
-  // Return whether a feature is supported by the database.
-  bool IsSupported(int feature);
+  /**
+   * Return whether a feature is supported by the database.
+   */
+  bool IsSupported(int feature) override;
 
-  // Description:
-  // Did the last operation generate an error
-  bool HasError();
+  /**
+   * Did the last operation generate an error
+   */
+  bool HasError() override;
 
-  // Description:
-  // Get the last error text from the database
-  const char* GetLastErrorText();
+  /**
+   * Get the last error text from the database
+   */
+  const char* GetLastErrorText() override;
 
-  // Description:
-  // String representing database type (e.g. "mysql").
-  vtkGetStringMacro(DatabaseType);
+  //@{
+  /**
+   * String representing database type (e.g. "mysql").
+   */
+  const char* GetDatabaseType() override
+  {
+    return this->DatabaseType;
+  }
+  //@}
 
-  // Description:
-  // The database server host name.
+  //@{
+  /**
+   * The database server host name.
+   */
   vtkSetStringMacro(HostName);
   vtkGetStringMacro(HostName);
+  //@}
 
-  // Description:
-  // The user name for connecting to the database server.
+  //@{
+  /**
+   * The user name for connecting to the database server.
+   */
   vtkSetStringMacro(User);
   vtkGetStringMacro(User);
+  //@}
 
-  // Description:
-  // The user's password for connecting to the database server.
+  //@{
+  /**
+   * The user's password for connecting to the database server.
+   */
   vtkSetStringMacro(Password);
+  //@}
 
-  // Description:
-  // The name of the database to connect to.
+  //@{
+  /**
+   * The name of the database to connect to.
+   */
   vtkSetStringMacro(DatabaseName);
   vtkGetStringMacro(DatabaseName);
+  //@}
 
-  // Description:
-  // Should automatic reconnection be enabled?
-  // This defaults to true.
-  // If you change its value, you must do so before any call to Open().
+  //@{
+  /**
+   * Should automatic reconnection be enabled?
+   * This defaults to true.
+   * If you change its value, you must do so before any call to Open().
+   */
   vtkSetMacro(Reconnect,int);
   vtkGetMacro(Reconnect,int);
   vtkBooleanMacro(Reconnect,int);
+  //@}
 
-  // Description:
-  // The port used for connecting to the database.
+  //@{
+  /**
+   * The port used for connecting to the database.
+   */
   vtkSetClampMacro(ServerPort, int, 0, VTK_INT_MAX);
   vtkGetMacro(ServerPort, int);
+  //@}
 
-  // Description:
-  // Get the URL of the database.
-  virtual vtkStdString GetURL();
+  /**
+   * Get the URL of the database.
+   */
+  vtkStdString GetURL() override;
 
-  // Description:
-  // Return the SQL string with the syntax of the preamble following a
-  // "CREATE TABLE" SQL statement.
-  // NB: this method implements the MySQL-specific IF NOT EXISTS syntax,
-  // used when b = false.
-  virtual vtkStdString GetTablePreamble( bool b ) { return b ? vtkStdString() :"IF NOT EXISTS "; }
+  /**
+   * Return the SQL string with the syntax of the preamble following a
+   * "CREATE TABLE" SQL statement.
+   * NB: this method implements the MySQL-specific IF NOT EXISTS syntax,
+   * used when b = false.
+   */
+  vtkStdString GetTablePreamble( bool b ) override { return b ? vtkStdString() :"IF NOT EXISTS "; }
 
-  // Description:
-  // Return the SQL string with the syntax to create a column inside a
-  // "CREATE TABLE" SQL statement.
-  // NB1: this method implements the MySQL-specific syntax:
-  // \verbatim
-  // `<column name>` <column type> <column attributes>
-  // \endverbatim
-  // NB2: if a column has type SERIAL in the schema, this will be turned
-  // into INT NOT NULL AUTO_INCREMENT. Therefore, one should not pass
-  // NOT NULL as an attribute of a column whose type is SERIAL.
-  virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
-                                               int tblHandle,
-                                               int colHandle );
+  /**
+   * Return the SQL string with the syntax to create a column inside a
+   * "CREATE TABLE" SQL statement.
+   * NB1: this method implements the MySQL-specific syntax:
+   * \verbatim
+   * `<column name>` <column type> <column attributes>
+   * \endverbatim
+   * NB2: if a column has type SERIAL in the schema, this will be turned
+   * into INT NOT nullptr AUTO_INCREMENT. Therefore, one should not pass
+   * NOT nullptr as an attribute of a column whose type is SERIAL.
+   */
+  vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                       int tblHandle,
+                                       int colHandle ) override;
 
-  // Description:
-  // Return the SQL string with the syntax to create an index inside a
-  // "CREATE TABLE" SQL statement.
-  // NB1: this method implements the MySQL-specific syntax:
-  // \verbatim
-  // <index type> [<index name>]  (`<column name 1>`,... )
-  // \endverbatim
-  // NB2: since MySQL supports INDEX creation within a CREATE TABLE statement,
-  // skipped is always returned false.
-  virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
-                                              int tblHandle,
-                                              int idxHandle,
-                                              bool& skipped );
+  /**
+   * Return the SQL string with the syntax to create an index inside a
+   * "CREATE TABLE" SQL statement.
+   * NB1: this method implements the MySQL-specific syntax:
+   * \verbatim
+   * <index type> [<index name>]  (`<column name 1>`,... )
+   * \endverbatim
+   * NB2: since MySQL supports INDEX creation within a CREATE TABLE statement,
+   * skipped is always returned false.
+   */
+  vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
+                                      int tblHandle,
+                                      int idxHandle,
+                                      bool& skipped ) override;
 
-  // Description:
-  // Create a new database, optionally dropping any existing database of the same name.
-  // Returns true when the database is properly created and false on failure.
+  /**
+   * Create a new database, optionally dropping any existing database of the same name.
+   * Returns true when the database is properly created and false on failure.
+   */
   bool CreateDatabase( const char* dbName, bool dropExisting );
 
-  // Description:
-  // Drop a database if it exists.
-  // Returns true on success and false on failure.
+  /**
+   * Drop a database if it exists.
+   * Returns true on success and false on failure.
+   */
   bool DropDatabase( const char* dbName );
 
-  // Description:
-  // Overridden to determine connection parameters given the URL.
-  // This is called by CreateFromURL() to initialize the instance.
-  // Look at CreateFromURL() for details about the URL format.
-  virtual bool ParseURL(const char* url);
+  /**
+   * Overridden to determine connection parameters given the URL.
+   * This is called by CreateFromURL() to initialize the instance.
+   * Look at CreateFromURL() for details about the URL format.
+   */
+  bool ParseURL(const char* url) override;
 
 protected:
   vtkMySQLDatabase();
@@ -201,12 +243,10 @@ private:
   int ServerPort;
   int Reconnect;
 
-//BTX
   vtkMySQLDatabasePrivate* const Private;
-//ETX
 
-  vtkMySQLDatabase(const vtkMySQLDatabase &); // Not implemented.
-  void operator=(const vtkMySQLDatabase &); // Not implemented.
+  vtkMySQLDatabase(const vtkMySQLDatabase &) = delete;
+  void operator=(const vtkMySQLDatabase &) = delete;
 };
 
 #endif // vtkMySQLDatabase_h

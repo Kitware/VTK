@@ -1,20 +1,20 @@
-set(Module_SRCS
-  vtkBiomTableReader.cxx
-  vtkChacoGraphReader.cxx
-  vtkDelimitedTextReader.cxx
-  vtkDIMACSGraphReader.cxx
-  vtkDIMACSGraphWriter.cxx
-  vtkFixedWidthTextReader.cxx
-  vtkISIReader.cxx
-  vtkMultiNewickTreeReader.cxx
-  vtkNewickTreeReader.cxx
-  vtkNewickTreeWriter.cxx
-  vtkPhyloXMLTreeReader.cxx
-  vtkPhyloXMLTreeWriter.cxx
-  vtkRISReader.cxx
-  vtkTulipReader.cxx
-  vtkXGMLReader.cxx
-  vtkXMLTreeReader.cxx
-  )
+set(classes
+  vtkBiomTableReader
+  vtkChacoGraphReader
+  vtkDelimitedTextReader
+  vtkDIMACSGraphReader
+  vtkDIMACSGraphWriter
+  vtkFixedWidthTextReader
+  vtkISIReader
+  vtkMultiNewickTreeReader
+  vtkNewickTreeReader
+  vtkNewickTreeWriter
+  vtkPhyloXMLTreeReader
+  vtkPhyloXMLTreeWriter
+  vtkRISReader
+  vtkTulipReader
+  vtkXGMLReader
+  vtkXMLTreeReader)
 
-vtk_module_library(vtkIOInfovis ${Module_SRCS})
+vtk_module_add_module(VTK::IOInfovis
+  CLASSES ${classes})

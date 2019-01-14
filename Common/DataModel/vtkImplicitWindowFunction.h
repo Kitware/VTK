@@ -12,20 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImplicitWindowFunction - implicit function maps another implicit function to lie within a specified range
-// .SECTION Description
-// vtkImplicitWindowFunction is used to modify the output of another
-// implicit function to lie within a specified "window", or function
-// range. This can be used to add "thickness" to cutting or clipping
-// functions.
-//
-// This class works as follows. First, it evaluates the function value of the
-// user-specified implicit function. Then, based on the window range specified,
-// it maps the function value into the window values specified.
-//
-
-// .SECTION See Also
-// vtkImplicitFunction
+/**
+ * @class   vtkImplicitWindowFunction
+ * @brief   implicit function maps another implicit function to lie within a specified range
+ *
+ * vtkImplicitWindowFunction is used to modify the output of another
+ * implicit function to lie within a specified "window", or function
+ * range. This can be used to add "thickness" to cutting or clipping
+ * functions.
+ *
+ * This class works as follows. First, it evaluates the function value of the
+ * user-specified implicit function. Then, based on the window range specified,
+ * it maps the function value into the window values specified.
+ *
+ *
+ * @sa
+ * vtkImplicitFunction
+*/
 
 #ifndef vtkImplicitWindowFunction_h
 #define vtkImplicitWindowFunction_h
@@ -37,62 +40,79 @@ class VTKCOMMONDATAMODEL_EXPORT vtkImplicitWindowFunction : public vtkImplicitFu
 {
 public:
   vtkTypeMacro(vtkImplicitWindowFunction,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Construct object with window range (0,1) and window values (0,1).
+  /**
+   * Construct object with window range (0,1) and window values (0,1).
+   */
   static vtkImplicitWindowFunction *New();
 
-  // Description
-  // Evaluate window function.
-  double EvaluateFunction(double x[3]);
-  double EvaluateFunction(double x, double y, double z)
-    {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
+  //@{
+  /**
+   * Evaluate window function.
+   */
+  using vtkImplicitFunction::EvaluateFunction;
+  double EvaluateFunction(double x[3]) override;
+  //@}
 
-  // Description
-  // Evaluate window function gradient. Just return implicit function gradient.
-  void EvaluateGradient(double x[3], double n[3]);
+  /**
+   * Evaluate window function gradient. Just return implicit function gradient.
+   */
+  void EvaluateGradient(double x[3], double n[3]) override;
 
-  // Description:
-  // Specify an implicit function to operate on.
+  //@{
+  /**
+   * Specify an implicit function to operate on.
+   */
   virtual void SetImplicitFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
+  //@}
 
-  // Description:
-  // Specify the range of function values which are considered to lie within
-  // the window. WindowRange[0] is assumed to be less than WindowRange[1].
+  //@{
+  /**
+   * Specify the range of function values which are considered to lie within
+   * the window. WindowRange[0] is assumed to be less than WindowRange[1].
+   */
   vtkSetVector2Macro(WindowRange,double);
   vtkGetVectorMacro(WindowRange,double,2);
+  //@}
 
-  // Description:
-  // Specify the range of output values that the window range is mapped
-  // into. This is effectively a scaling and shifting of the original
-  // function values.
+  //@{
+  /**
+   * Specify the range of output values that the window range is mapped
+   * into. This is effectively a scaling and shifting of the original
+   * function values.
+   */
   vtkSetVector2Macro(WindowValues,double);
   vtkGetVectorMacro(WindowValues,double,2);
+  //@}
 
-  // Description:
-  // Override modified time retrieval because of object dependencies.
-  unsigned long GetMTime();
+  /**
+   * Override modified time retrieval because of object dependencies.
+   */
+  vtkMTimeType GetMTime() override;
 
-  // Description:
-  // Participate in garbage collection.
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
+  //@{
+  /**
+   * Participate in garbage collection.
+   */
+  void Register(vtkObjectBase* o) override;
+  void UnRegister(vtkObjectBase* o) override;
+  //@}
 
 protected:
   vtkImplicitWindowFunction();
-  ~vtkImplicitWindowFunction();
+  ~vtkImplicitWindowFunction() override;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) override;
 
   vtkImplicitFunction *ImplicitFunction;
   double WindowRange[2];
   double WindowValues[2];
 
 private:
-  vtkImplicitWindowFunction(const vtkImplicitWindowFunction&);  // Not implemented.
-  void operator=(const vtkImplicitWindowFunction&);  // Not implemented.
+  vtkImplicitWindowFunction(const vtkImplicitWindowFunction&) = delete;
+  void operator=(const vtkImplicitWindowFunction&) = delete;
 };
 
 #endif

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -27,7 +25,8 @@
 /****************/
 /* Module Setup */
 /****************/
-#define H5P_PACKAGE		/*suppress error about including H5Ppkg	  */
+
+#include "H5Pmodule.h"          /* This source code file is part of the H5P module */
 
 
 /***********/
@@ -48,7 +47,8 @@
 /* Definitions for create intermediate groups flag */
 #define H5L_CRT_INTERMEDIATE_GROUP_SIZE         sizeof(unsigned)
 #define H5L_CRT_INTERMEDIATE_GROUP_DEF          0
-
+#define H5L_CRT_INTERMEDIATE_GROUP_ENC          H5P__encode_unsigned
+#define H5L_CRT_INTERMEDIATE_GROUP_DEC          H5P__decode_unsigned
 
 /******************/
 /* Local Typedefs */
@@ -76,10 +76,13 @@ static herr_t H5P_lcrt_reg_prop(H5P_genclass_t *pclass);
 const H5P_libclass_t H5P_CLS_LCRT[1] = {{
     "link create",		/* Class name for debugging     */
     H5P_TYPE_LINK_CREATE,       /* Class type                   */
-    &H5P_CLS_STRING_CREATE_g,	/* Parent class ID              */
-    &H5P_CLS_LINK_CREATE_g,	/* Pointer to class ID          */
-    &H5P_LST_LINK_CREATE_g,	/* Pointer to default property list ID */
+
+    &H5P_CLS_STRING_CREATE_g,	/* Parent class                 */
+    &H5P_CLS_LINK_CREATE_g,	/* Pointer to class             */
+    &H5P_CLS_LINK_CREATE_ID_g,	/* Pointer to class ID          */
+    &H5P_LST_LINK_CREATE_ID_g,	/* Pointer to default property list ID */
     H5P_lcrt_reg_prop,		/* Default property registration routine */
+
     NULL,		        /* Class creation callback      */
     NULL,		        /* Class creation callback info */
     NULL,			/* Class copy callback          */
@@ -98,6 +101,9 @@ const H5P_libclass_t H5P_CLS_LCRT[1] = {{
 /* Local Variables */
 /*******************/
 
+/* Property value defaults */
+static const unsigned H5L_def_intmd_group_g = H5L_CRT_INTERMEDIATE_GROUP_DEF;      /* Default setting for creating intermediate groups */
+
 
 
 /*-------------------------------------------------------------------------
@@ -114,13 +120,14 @@ const H5P_libclass_t H5P_CLS_LCRT[1] = {{
 herr_t
 H5P_lcrt_reg_prop(H5P_genclass_t *pclass)
 {
-    unsigned intmd_group = H5L_CRT_INTERMEDIATE_GROUP_DEF;      /* Default setting for creating intermediate groups */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Register create intermediate groups property */
-    if(H5P_register_real(pclass, H5L_CRT_INTERMEDIATE_GROUP_NAME, H5L_CRT_INTERMEDIATE_GROUP_SIZE, &intmd_group, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
+    if(H5P_register_real(pclass, H5L_CRT_INTERMEDIATE_GROUP_NAME, H5L_CRT_INTERMEDIATE_GROUP_SIZE, &H5L_def_intmd_group_g, 
+            NULL, NULL, NULL, H5L_CRT_INTERMEDIATE_GROUP_ENC, H5L_CRT_INTERMEDIATE_GROUP_DEC,
+            NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
 done:

@@ -402,38 +402,6 @@ const char TestSeedWidgetEventLog[] =
   "MouseMoveEvent 124 104 0 0 0 0 t i\n"
   "RenderEvent 124 104 0 0 0 0 t i\n"
   "LeftButtonReleaseEvent 124 104 0 0 0 0 t i\n"
-  "RenderEvent 124 104 0 0 0 0 t i\n"
-  "MouseMoveEvent 185 166 0 0 0 0 t i\n"
-  "RenderEvent 185 166 0 0 0 0 t i\n"
-  "RightButtonPressEvent 185 166 0 0 0 0 t i\n"
-  "RightButtonReleaseEvent 185 166 0 0 0 0 t i\n"
-  "MouseMoveEvent 184 166 0 0 0 0 t i\n"
-  "MouseMoveEvent 183 166 0 0 0 0 t i\n"
-  "MouseMoveEvent 181 166 0 0 0 0 t i\n"
-  "MouseMoveEvent 179 166 0 0 0 0 t i\n"
-  "MouseMoveEvent 178 166 0 0 0 0 t i\n"
-  "MouseMoveEvent 177 166 0 0 0 0 t i\n"
-  "MouseMoveEvent 157 168 0 0 0 0 t i\n"
-  "MouseMoveEvent 156 168 0 0 0 0 t i\n"
-  "MouseMoveEvent 155 168 0 0 0 0 t i\n"
-  "MouseMoveEvent 154 168 0 0 0 0 t i\n"
-  "LeftButtonPressEvent 154 168 0 0 0 0 t i\n"
-  "StartInteractionEvent 154 168 0 0 0 0 t i\n"
-  "MouseMoveEvent 155 168 0 0 0 0 t i\n"
-  "RenderEvent 155 168 0 0 0 0 t i\n"
-  "MouseMoveEvent 148 161 0 0 0 0 t i\n"
-  "RenderEvent 148 161 0 0 0 0 t i\n"
-  "LeftButtonReleaseEvent 148 161 0 0 0 0 t i\n"
-  "EndInteractionEvent 148 161 0 0 0 0 t i\n"
-  "RenderEvent 148 161 0 0 0 0 t i\n"
-  "MouseMoveEvent 148 160 0 0 0 0 t i\n"
-  "MouseMoveEvent 148 159 0 0 0 0 t i\n"
-  "MouseMoveEvent 144 140 0 0 0 0 t i\n"
-  "MouseMoveEvent 144 139 0 0 0 0 t i\n"
-  "MouseMoveEvent 144 138 0 0 0 0 t i\n"
-  "MouseMoveEvent 144 137 0 0 0 0 t i\n"
-  "MouseMoveEvent 144 136 0 0 0 0 t i\n"
-  "MouseMoveEvent 144 135 0 0 0 0 t i\n"
   ;
 
 
@@ -444,23 +412,31 @@ class vtkSeedCallback : public vtkCommand
 public:
   static vtkSeedCallback *New()
   { return new vtkSeedCallback; }
-  virtual void Execute(vtkObject*, unsigned long event, void *calldata)
+  void Execute(vtkObject*, unsigned long event, void *calldata) override
   {
     if (event == vtkCommand::PlacePointEvent)
-      {
+    {
       std::cout << "Point placed, total of: "
                 << this->SeedRepresentation->GetNumberOfSeeds() << std::endl;
-      }
-    if (event == vtkCommand::InteractionEvent)
-      {
+    }
+    if (event == vtkCommand::StartInteractionEvent)
+    {
       if (calldata)
-        {
+      {
+        std::cout << "Start interacting with seed : "
+                  << *(static_cast< int * >(calldata)) << std::endl;
+      }
+    }
+    if (event == vtkCommand::InteractionEvent)
+    {
+      if (calldata)
+      {
         std::cout << "Interacting with seed : "
                   << *(static_cast< int * >(calldata)) << std::endl;
-        }
       }
+    }
   }
-  vtkSeedCallback() : SeedRepresentation(0) {}
+  vtkSeedCallback() : SeedRepresentation(nullptr) {}
   vtkSeedRepresentation *SeedRepresentation;
 };
 
@@ -512,6 +488,7 @@ int TestSeedWidget(int argc, char *argv[])
     vtkSmartPointer<vtkSeedCallback>::New();
   scbk->SeedRepresentation = rep;
   widget->AddObserver(vtkCommand::PlacePointEvent,scbk);
+  widget->AddObserver(vtkCommand::StartInteractionEvent,scbk);
   widget->AddObserver(vtkCommand::InteractionEvent,scbk);
 
   // Add the actors to the renderer, set the background and size
@@ -532,28 +509,28 @@ int TestSeedWidget(int argc, char *argv[])
   // test removing seeds
   const int startNumSeeds = rep->GetNumberOfSeeds();
   for (int s = 0; s < startNumSeeds; s++)
-    {
+  {
     widget->DeleteSeed(0);
-    }
+  }
 
   const int endNumSeeds = rep->GetNumberOfSeeds();
   if (endNumSeeds != 0)
-    {
+  {
     std::cerr << "After deleting " << startNumSeeds << ", now have "
               << endNumSeeds << std::endl;
     retVal = EXIT_FAILURE;
 
-    if (widget->GetSeed(0) != NULL)
-      {
+    if (widget->GetSeed(0) != nullptr)
+    {
       vtkSeedRepresentation *seedRep =  vtkSeedRepresentation::SafeDownCast(
         widget->GetRepresentation());
       const int widgetStartNumSeeds = seedRep->GetNumberOfSeeds();
       std::cerr << "Still have a seed 0 after deleting all seeds, "
                 << "widget thinks it's rep has " << widgetStartNumSeeds <<
                   std::endl;
-      }
-
     }
+
+  }
 
   return retVal;
 }

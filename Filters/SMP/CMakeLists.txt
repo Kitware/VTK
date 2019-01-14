@@ -1,17 +1,16 @@
-set(Module_SRCS
-  vtkSMPContourGrid.cxx
-  vtkSMPContourGridManyPieces.cxx
-  vtkSMPMergePoints.cxx
-  vtkSMPMergePolyDataHelper.cxx
-  vtkThreadedSynchronizedTemplates3D.cxx
-  vtkThreadedSynchronizedTemplatesCutter3D.cxx
-  vtkSMPTransform.cxx
-  vtkSMPWarpVector.cxx
-  )
+set(classes
+  vtkSMPContourGrid
+  vtkSMPMergePoints
+  vtkSMPMergePolyDataHelper)
 
-set_source_files_properties(
-  vtkSMPMergePolyDataHelper
-  WRAP_EXCLUDE
-  )
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND classes
+    vtkSMPContourGridManyPieces
+    vtkThreadedSynchronizedTemplates3D
+    vtkThreadedSynchronizedTemplatesCutter3D
+    vtkSMPTransform
+    vtkSMPWarpVector)
+endif()
 
-vtk_module_library(vtkFiltersSMP ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersSMP
+  CLASSES ${classes})

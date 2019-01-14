@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile: vtkTreeBFSIterator.h,v $
+  Module:    vtkTreeBFSIterator.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,17 +13,20 @@
 
 =========================================================================*/
 
-// .NAME vtkTreeBFSIterator - breadth first search iterator through a vtkTree
-//
-// .SECTION Description
-// vtkTreeBFSIterator performs a breadth first search traversal of a tree.
-//
-// After setting up the iterator, the normal mode of operation is to
-// set up a <code>while(iter->HasNext())</code> loop, with the statement
-// <code>vtkIdType vertex = iter->Next()</code> inside the loop.
-//
-// .SECTION Thanks
-// Thanks to David Doria for submitting this class.
+/**
+ * @class   vtkTreeBFSIterator
+ * @brief   breadth first search iterator through a vtkTree
+ *
+ *
+ * vtkTreeBFSIterator performs a breadth first search traversal of a tree.
+ *
+ * After setting up the iterator, the normal mode of operation is to
+ * set up a <code>while(iter->HasNext())</code> loop, with the statement
+ * <code>vtkIdType vertex = iter->Next()</code> inside the loop.
+ *
+ * @par Thanks:
+ * Thanks to David Doria for submitting this class.
+*/
 
 #ifndef vtkTreeBFSIterator_h
 #define vtkTreeBFSIterator_h
@@ -39,30 +42,28 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTreeBFSIterator : public vtkTreeIterator
 public:
   static vtkTreeBFSIterator* New();
   vtkTypeMacro(vtkTreeBFSIterator, vtkTreeIterator);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkTreeBFSIterator();
-  ~vtkTreeBFSIterator();
+  ~vtkTreeBFSIterator() override;
 
-  virtual void Initialize();
-  virtual vtkIdType NextInternal();
+  void Initialize() override;
+  vtkIdType NextInternal() override;
 
   vtkTreeBFSIteratorInternals* Internals;
   vtkIntArray* Color;
 
-  //BTX
   enum ColorType
-    {
+  {
     WHITE,
     GRAY,
     BLACK
-    };
-  //ETX
+  };
 
 private:
-  vtkTreeBFSIterator(const vtkTreeBFSIterator &);  // Not implemented.
-  void operator=(const vtkTreeBFSIterator &);        // Not implemented.
+  vtkTreeBFSIterator(const vtkTreeBFSIterator &) = delete;
+  void operator=(const vtkTreeBFSIterator &) = delete;
 };
 
 #endif

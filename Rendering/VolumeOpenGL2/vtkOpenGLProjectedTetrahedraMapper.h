@@ -22,13 +22,16 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkOpenGLProjectedTetrahedraMapper - OpenGL implementation of PT
-//
-// .SECTION Bugs
-// This mapper relies highly on the implementation of the OpenGL pipeline.
-// A typical hardware driver has lots of options and some settings can
-// cause this mapper to produce artifacts.
-//
+/**
+ * @class   vtkOpenGLProjectedTetrahedraMapper
+ * @brief   OpenGL implementation of PT
+ *
+ * @bug
+ * This mapper relies highly on the implementation of the OpenGL pipeline.
+ * A typical hardware driver has lots of options and some settings can
+ * cause this mapper to produce artifacts.
+ *
+*/
 
 #ifndef vtkOpenGLProjectedTetrahedraMapper_h
 #define vtkOpenGLProjectedTetrahedraMapper_h
@@ -36,13 +39,15 @@
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkProjectedTetrahedraMapper.h"
 
-#include "vtkglVBOHelper.h" // used for ivars
+#include "vtkOpenGLHelper.h" // used for ivars
 
 class vtkVisibilitySort;
 class vtkUnsignedCharArray;
 class vtkFloatArray;
 class vtkRenderWindow;
+class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
+class vtkOpenGLVertexBufferObject;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLProjectedTetrahedraMapper
   : public vtkProjectedTetrahedraMapper
@@ -51,32 +56,36 @@ public:
   vtkTypeMacro(vtkOpenGLProjectedTetrahedraMapper,
                        vtkProjectedTetrahedraMapper);
   static vtkOpenGLProjectedTetrahedraMapper *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  virtual void ReleaseGraphicsResources(vtkWindow *window);
+  void ReleaseGraphicsResources(vtkWindow *window) override;
 
-  virtual void Render(vtkRenderer *renderer, vtkVolume *volume);
+  void Render(vtkRenderer *renderer, vtkVolume *volume) override;
 
-  // Description:
-  // Set/get whether to use floating-point rendering buffers rather
-  // than the default.
+  //@{
+  /**
+   * Set/get whether to use floating-point rendering buffers rather
+   * than the default.
+   */
   vtkSetMacro(UseFloatingPointFrameBuffer,bool);
   vtkGetMacro(UseFloatingPointFrameBuffer,bool);
   vtkBooleanMacro(UseFloatingPointFrameBuffer,bool);
+  //@}
 
-  // Description:
-  // Return true if the rendering context provides
-  // the nececessary functionality to use this class.
-  virtual bool IsSupported(vtkRenderWindow *context);
+  /**
+   * Return true if the rendering context provides
+   * the nececessary functionality to use this class.
+   */
+  bool IsSupported(vtkRenderWindow *context) override;
 
 protected:
   vtkOpenGLProjectedTetrahedraMapper();
-  ~vtkOpenGLProjectedTetrahedraMapper();
+  ~vtkOpenGLProjectedTetrahedraMapper() override;
 
   void Initialize(vtkRenderer *ren);
   bool Initialized;
   int  CurrentFBOWidth, CurrentFBOHeight;
-  bool AllocateFBOResources(vtkRenderer *ren);
+  bool AllocateFOResources(vtkRenderer *ren);
   bool CanDoFloatingPointFrameBuffer;
   bool FloatingPointFrameBufferResourcesAllocated;
   bool UseFloatingPointFrameBuffer;
@@ -92,29 +101,37 @@ protected:
   vtkTimeStamp ColorsMappedTime;
 
   // The VBO and its layout.
-  vtkgl::BufferObject VBO;
-  vtkgl::VBOLayout Layout;
+  vtkOpenGLVertexBufferObject *VBO;
 
   // Structures for the various cell types we render.
-  vtkgl::CellBO Tris;
+  vtkOpenGLHelper Tris;
 
   int GaveError;
 
   vtkVolumeProperty *LastProperty;
 
+  vtkOpenGLFramebufferObject *Framebuffer;
+
   float *SqrtTable;
   float SqrtTableBias;
 
-  virtual void ProjectTetrahedra(vtkRenderer *renderer, vtkVolume *volume);
+  virtual void ProjectTetrahedra(vtkRenderer *renderer, vtkVolume *volume,
+    vtkOpenGLRenderWindow* renWin);
 
   float GetCorrectedDepth(float x, float y, float z1, float z2,
                           const float inverse_projection_mat[16],
                           int use_linear_depth_correction,
                           float linear_depth_correction);
 
+  /**
+   * Update progress ensuring that OpenGL state is saved and restored before
+   * invoking progress.
+   */
+  void GLSafeUpdateProgress(double value, vtkOpenGLRenderWindow* context);
+
 private:
-  vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &);  // Not Implemented.
-  void operator=(const vtkOpenGLProjectedTetrahedraMapper &);  // Not Implemented.
+  vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &) = delete;
+  void operator=(const vtkOpenGLProjectedTetrahedraMapper &) = delete;
 
   class vtkInternals;
   vtkInternals *Internals;

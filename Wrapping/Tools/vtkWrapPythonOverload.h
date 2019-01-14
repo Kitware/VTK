@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef VTK_WRAP_PYTHON_OVERLOAD_H
-#define VTK_WRAP_PYTHON_OVERLOAD_H
+#ifndef vtkWrapPythonOverload_h
+#define vtkWrapPythonOverload_h
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
@@ -24,7 +24,7 @@
 void vtkWrapPython_OverloadMethodDef(
   FILE *fp, const char *classname, ClassInfo *data, int *overloadMap,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
-  int numberOfOccurrences, int is_vtkobject, int all_legacy);
+  int numberOfOccurrences, int all_legacy);
 
 /* a master method to choose which overload to call */
 void vtkWrapPython_OverloadMasterMethod(
@@ -37,4 +37,5 @@ int *vtkWrapPython_ArgCountToOverloadMap(
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions,
   int fnum, int is_vtkobject, int *nmax, int *overlap);
 
-#endif /* VTK_WRAP_PYTHON_OVERLOAD_H */
+#endif /* vtkWrapPythonOverload_h */
+/* VTK-HeaderTest-Exclude: vtkWrapPythonOverload.h */

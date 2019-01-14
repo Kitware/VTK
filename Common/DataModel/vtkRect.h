@@ -13,18 +13,23 @@
 
 =========================================================================*/
 
-// .NAME vtkRect - templated base type for storage of 2D rectangles.
-//
-// .SECTION Description
-// This class is a templated data type for storing and manipulating rectangles.
-// The memory layout is a contiguous array of the specified type, such that a
-// float[4] can be cast to a vtkRectf and manipulated. Also a float[12] could
-// be cast and used as a vtkRectf[3].
+/**
+ * @class   vtkRect
+ * @brief   templated base type for storage of 2D rectangles.
+ *
+ *
+ * This class is a templated data type for storing and manipulating rectangles.
+ * The memory layout is a contiguous array of the specified type, such that a
+ * float[4] can be cast to a vtkRectf and manipulated. Also a float[12] could
+ * be cast and used as a vtkRectf[3].
+*/
 
 #ifndef vtkRect_h
 #define vtkRect_h
 
 #include "vtkVector.h"
+
+#include "vtkMath.h" // for Min, Max
 
 template<typename T>
 class vtkRect : public vtkVector<T, 4>
@@ -44,8 +49,10 @@ public:
 
   explicit vtkRect(const T* init) : vtkVector<T, 4>(init) { }
 
-  // Description:
-  // Set the x, y components of the rectangle, and the width/height.
+  //@{
+  /**
+   * Set the x, y components of the rectangle, and the width/height.
+   */
   void Set(const T& x, const T& y, const T& width, const T& height)
   {
     this->Data[0] = x;
@@ -53,54 +60,261 @@ public:
     this->Data[2] = width;
     this->Data[3] = height;
   }
+  //@}
 
-  // Description:
-  // Set the x component of the rectangle bottom corner, i.e. element 0.
+  /**
+   * Set the x component of the rectangle bottom corner, i.e. element 0.
+   */
   void SetX(const T& x) { this->Data[0] = x; }
 
-  // Description:
-  // Get the x component of the rectangle bottom corner, i.e. element 0.
+  /**
+   * Get the x component of the rectangle bottom corner, i.e. element 0.
+   */
   const T& GetX() const { return this->Data[0]; }
 
-  // Description:
-  // Set the y component of the rectangle bottom corner, i.e. element 1.
+  /**
+   * Set the y component of the rectangle bottom corner, i.e. element 1.
+   */
   void SetY(const T& y) { this->Data[1] = y; }
 
-  // Description:
-  // Get the y component of the rectangle bottom corner, i.e. element 1.
+  /**
+   * Get the y component of the rectangle bottom corner, i.e. element 1.
+   */
   const T& GetY() const { return this->Data[1]; }
 
-  // Description:
-  // Set the width of the rectanle, i.e. element 2.
+  /**
+   * Set the width of the rectanle, i.e. element 2.
+   */
   void SetWidth(const T& width) { this->Data[2] = width; }
 
-  // Description:
-  // Get the width of the rectangle, i.e. element 2.
+  /**
+   * Get the width of the rectangle, i.e. element 2.
+   */
   const T& GetWidth() const { return this->Data[2]; }
 
-  // Description:
-  // Set the height of the rectangle, i.e. element 3.
+  /**
+   * Set the height of the rectangle, i.e. element 3.
+   */
   void SetHeight(const T& height) { this->Data[3] = height; }
 
-  // Description:
-  // Get the height of the rectangle, i.e. element 3.
+  /**
+   * Get the height of the rectangle, i.e. element 3.
+   */
   const T& GetHeight() const { return this->Data[3]; }
 
-  // Description:
-  // Legacy method for getting the x position.
-  VTK_LEGACY(const T& X() const);
+  /**
+   * Get the left boundary of the rectangle along the X direction.
+   */
+  const T& GetLeft() const { return this->Data[0]; }
 
-  // Description:
-  // Legacy method for getting the y position.
-  VTK_LEGACY(const T& Y() const);
+  /**
+   * Get the right boundary of the rectangle along the X direction.
+   */
+  T GetRight() const { return this->Data[0] + this->Data[2]; }
 
-  // Description:
-  // Legacy method for getting the width.
-  VTK_LEGACY(const T& Width() const);
+  /**
+   * Get the top boundary of the rectangle along the Y direction.
+   */
+  T GetTop() const { return this->Data[1] + this->Data[3]; }
 
-  // Description:
-  // Legacy method for getting the height.
-  VTK_LEGACY(const T& Height() const);
+  /**
+   * Get the bottom boundary of the rectangle along the Y direction.
+   */
+  const T& GetBottom() const { return this->Data[1]; }
+
+  /**
+   * Get the bottom left corner of the rect as a vtkVector.
+   */
+  vtkVector2<T> GetBottomLeft() const
+  {
+    return vtkVector2<T>(this->GetLeft(), this->GetBottom());
+  }
+
+  /**
+   * Get the top left corner of the rect as a vtkVector.
+   */
+  vtkVector<T, 2> GetTopLeft() const
+  {
+    return vtkVector2<T>(this->GetLeft(), this->GetTop());
+  }
+
+  /**
+   * Get the bottom right corner of the rect as a vtkVector.
+   */
+  vtkVector<T, 2> GetBottomRight() const
+  {
+    return vtkVector2<T>(this->GetRight(), this->GetBottom());
+  }
+
+  /**
+   * Get the bottom left corner of the rect as a vtkVector.
+   */
+  vtkVector<T, 2> GetTopRight() const
+  {
+    return vtkVector2<T>(this->GetRight(), this->GetTop());
+  }
+
+  //@{
+  /**
+   * Expand this rect to contain the point passed in.
+   */
+  void AddPoint(const T point[2])
+  {
+    // This code is written like this to ensure that adding a point gives
+    // exactly the same result as AddRect(vtkRect(x,y,0,0)
+    if (point[0] < this->GetX())
+    {
+      T dx = this->GetX() - point[0];
+      this->SetX(point[0]);
+      this->SetWidth(dx + this->GetWidth());
+    }
+    else if (point[0] > this->GetX())
+    {
+      // this->GetX() is already correct
+      T dx = point[0] - this->GetX();
+      this->SetWidth(vtkMath::Max(dx, this->GetWidth()));
+    }
+  //@}
+
+    if (point[1] < this->GetY())
+    {
+      T dy = this->GetY() - point[1];
+      this->SetY(point[1]);
+      this->SetHeight(dy + this->GetHeight());
+    }
+    else if (point[1] > this->GetY())
+    {
+      // this->GetY() is already correct
+      T dy = point[1] - this->GetY();
+      this->SetHeight(vtkMath::Max(dy, this->GetHeight()));
+    }
+  }
+
+  //@{
+  /**
+   * Expand this rect to contain the point passed in.
+   */
+  void AddPoint(T x, T y)
+  {
+    T point[2] = {x, y};
+    this->AddPoint(point);
+  }
+  //@}
+
+  //@{
+  /**
+   * Expand this rect to contain the rect passed in.
+   */
+  void AddRect(const vtkRect<T> & rect)
+  {
+    if (rect.GetX() < this->GetX())
+    {
+      T dx = this->GetX() - rect.GetX();
+      this->SetX(rect.GetX());
+      this->SetWidth(vtkMath::Max(dx + this->GetWidth(), rect.GetWidth()));
+    }
+    else if (rect.GetX() > this->GetX())
+    {
+      T dx = rect.GetX() - this->GetX();
+      // this->GetX() is already correct
+      this->SetWidth(vtkMath::Max(dx + rect.GetWidth(), this->GetWidth()));
+    }
+    else
+    {
+      // this->GetX() is already correct
+      this->SetWidth(vtkMath::Max(rect.GetWidth(), this->GetWidth()));
+    }
+  //@}
+
+    if (rect.GetY() < this->GetY())
+    {
+      T dy = this->GetY() - rect.GetY();
+      this->SetY(rect.GetY());
+      this->SetHeight(vtkMath::Max(dy + this->GetHeight(), rect.GetHeight()));
+    }
+    else if (rect.GetY() > this->GetY())
+    {
+      T dy = rect.GetY() - this->GetY();
+      // this->GetY() is already correct
+      this->SetHeight(vtkMath::Max(dy + rect.GetHeight(), this->GetHeight()));
+    }
+    else
+    {
+      // this->GetY() is already correct
+      this->SetHeight(vtkMath::Max(rect.GetHeight(), this->GetHeight()));
+    }
+  }
+
+  /**
+   * Returns true if the rect argument overlaps this rect.
+   * If the upper bound of one rect is equal to the lower bound of
+   * the other rect, then this will return false (in that case, the
+   * rects would be considered to be adjacent but not overlapping).
+   */
+  bool IntersectsWith(const vtkRect<T>& rect) const
+  {
+    bool intersects = true;
+
+    if (rect.GetX() < this->GetX())
+    {
+      T dx = this->GetX() - rect.GetX();
+      intersects &= (dx < rect.GetWidth());
+    }
+    else if (rect.GetX() > this->GetX())
+    {
+      T dx = rect.GetX() - this->GetX();
+      intersects &= (dx < this->GetWidth());
+    }
+
+    if (rect.GetY() < this->GetY())
+    {
+      T dy = this->GetY() - rect.GetY();
+      intersects &= (dy < rect.GetHeight());
+    }
+    else if (rect.GetY() > this->GetY())
+    {
+      T dy = rect.GetY() - this->GetY();
+      intersects &= (dy < this->GetHeight());
+    }
+
+    return intersects;
+  }
+
+  /**
+   * Move the rectangle, moving the bottom-left corner
+   * to the given position. The rectangles size remains unchanged.
+   */
+  void MoveTo(T x, T y)
+  {
+    this->Data[0] = x;
+    this->Data[1] = y;
+  }
+
+  /**
+   * Intersect with `other` rectangle. If `this->IntersectsWith(other)` is true,
+   * this method will update this rect to the intersection of `this` and
+   * `other` and return true. If `this->IntersectsWith(other)` returns false,
+   * then this method will return false leaving this rect unchanged.
+   *
+   * Returns true if the intersection was performed otherwise false.
+   */
+  bool Intersect(const vtkRect<T>& other)
+  {
+    if (this->IntersectsWith(other))
+    {
+      const T left = vtkMath::Max(this->GetLeft(), other.GetLeft());
+      const T bottom = vtkMath::Max(this->GetBottom(), other.GetBottom());
+      const T right = vtkMath::Min(this->GetRight(), other.GetRight());
+      const T top = vtkMath::Min(this->GetTop(), other.GetTop());
+
+      this->Data[0] = left;
+      this->Data[1] = bottom;
+      this->Data[2] = (right - left);
+      this->Data[3] = (top - bottom);
+      return true;
+    }
+    return false;
+  }
 };
 
 class vtkRecti : public vtkRect<int>
@@ -129,38 +343,6 @@ public:
     : vtkRect<double>(x, y, width, height) {}
   explicit vtkRectd(const double *init) : vtkRect<double>(init) {}
 };
-
-#ifndef VTK_LEGACY_REMOVE
-template<typename T>
-const T& vtkRect<T>::X() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkRect::X, "VTK 6.0", vtkRect::GetX);
-  return this->GetX();
-}
-
-template<typename T>
-const T& vtkRect<T>::Y() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkRect::Y, "VTK 6.0", vtkRect::GetY);
-  return this->GetY();
-}
-
-template<typename T>
-const T& vtkRect<T>::Width() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkRect::Width, "VTK 6.0", vtkRect::GetWidth);
-  return this->GetWidth();
-}
-
-template<typename T>
-const T& vtkRect<T>::Height() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkRect::Height, "VTK 6.0", vtkRect::GetHeight);
-  return this->GetHeight();
-}
-
-#endif // VTK_LEGACY_REMOVE
-
 
 #endif // vtkRect_h
 // VTK-HeaderTest-Exclude: vtkRect.h

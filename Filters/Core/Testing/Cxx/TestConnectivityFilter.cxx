@@ -35,37 +35,37 @@ void InitializeUnstructuredGrid(vtkUnstructuredGrid *unstructuredGrid, int dataT
   vtkSmartPointer<vtkFloatArray> scalars = vtkSmartPointer<vtkFloatArray>::New();
 
   if(dataType == VTK_DOUBLE)
-    {
+  {
     points->SetDataType(VTK_DOUBLE);
     for(unsigned int i = 0; i < 4; ++i)
-      {
+    {
       randomSequence->Next();
       scalars->InsertNextValue(randomSequence->GetValue());
       double point[3];
       for(unsigned int j = 0; j < 3; ++j)
-        {
+      {
         randomSequence->Next();
         point[j] = randomSequence->GetValue();
-        }
-      cells->InsertCellPoint(points->InsertNextPoint(point));
       }
+      cells->InsertCellPoint(points->InsertNextPoint(point));
     }
+  }
   else
-    {
+  {
     points->SetDataType(VTK_FLOAT);
     for(unsigned int i = 0; i < 4; ++i)
-      {
+    {
       randomSequence->Next();
       scalars->InsertNextValue(randomSequence->GetValue());
       float point[3];
       for(unsigned int j = 0; j < 3; ++j)
-        {
+      {
         randomSequence->Next();
         point[j] = static_cast<float>(randomSequence->GetValue());
-        }
-      cells->InsertCellPoint(points->InsertNextPoint(point));
       }
+      cells->InsertCellPoint(points->InsertNextPoint(point));
     }
+  }
 
   scalars->Squeeze();
   unstructuredGrid->GetPointData()->SetScalars(scalars);
@@ -90,7 +90,7 @@ int FilterUnstructuredGridConnectivity(int dataType, int outputPointsPrecision)
 
   connectivityFilter->Update();
 
-  vtkSmartPointer<vtkUnstructuredGrid> outputUnstructuredGrid = connectivityFilter->GetOutput();
+  vtkSmartPointer<vtkPointSet> outputUnstructuredGrid = connectivityFilter->GetOutput();
   vtkSmartPointer<vtkPoints> points = outputUnstructuredGrid->GetPoints();
 
   return points->GetDataType();
@@ -102,44 +102,44 @@ int TestConnectivityFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   int dataType = FilterUnstructuredGridConnectivity(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
 
   if(dataType != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = FilterUnstructuredGridConnectivity(VTK_DOUBLE, vtkAlgorithm::DEFAULT_PRECISION);
 
   if(dataType != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = FilterUnstructuredGridConnectivity(VTK_FLOAT, vtkAlgorithm::SINGLE_PRECISION);
 
   if(dataType != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = FilterUnstructuredGridConnectivity(VTK_DOUBLE, vtkAlgorithm::SINGLE_PRECISION);
 
   if(dataType != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = FilterUnstructuredGridConnectivity(VTK_FLOAT, vtkAlgorithm::DOUBLE_PRECISION);
 
   if(dataType != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = FilterUnstructuredGridConnectivity(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
 
   if(dataType != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

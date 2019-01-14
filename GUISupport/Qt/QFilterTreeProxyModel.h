@@ -44,8 +44,8 @@ class VTKGUISUPPORTQT_EXPORT QFilterTreeProxyModel : public QSortFilterProxyMode
 
 public:
 
-  QFilterTreeProxyModel(QObject* p = 0);
-  ~QFilterTreeProxyModel();
+  QFilterTreeProxyModel(QObject* p = nullptr);
+  ~QFilterTreeProxyModel() override;
 
   // Description:
   // The 0-based level in the tree hierarchy to filter on. The root is level 0.
@@ -53,8 +53,8 @@ public:
 
 protected:
 
-  virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
-  virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+  bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
+  bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 
 private:
 

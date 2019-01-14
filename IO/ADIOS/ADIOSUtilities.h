@@ -14,6 +14,8 @@
 =========================================================================*/
 #ifndef __ADIOSUtilities_h
 #define __ADIOSUtilities_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include <stdint.h>
 
@@ -44,9 +46,9 @@ public:
     const std::string& msg = "")
   {
     if(actual != expected)
-      {
+    {
       throw WriteError(msg);
-      }
+    }
   }
 
   // Description:
@@ -57,9 +59,9 @@ public:
     const std::string& msg = "")
   {
     if(actual == notExpected)
-      {
+    {
       throw WriteError(msg);
-      }
+    }
   }
 };
 
@@ -79,9 +81,9 @@ public:
     const std::string& msg = "")
   {
     if(actual != expected)
-      {
+    {
       throw ReadError(msg);
-      }
+    }
   }
 
   // Description:
@@ -92,9 +94,9 @@ public:
     const std::string& msg = "")
   {
     if(actual == notExpected)
-      {
+    {
       throw ReadError(msg);
-      }
+    }
   }
 };
 
@@ -145,5 +147,7 @@ bool IsInt(ADIOS_DATATYPES ta);
 
 } // End namespace Type
 } // End namespace ADIOS
+#endif
+#endif
 #endif
 // VTK-HeaderTest-Exclude: ADIOSUtilities.h

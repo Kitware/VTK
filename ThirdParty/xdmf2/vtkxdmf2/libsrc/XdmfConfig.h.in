@@ -101,8 +101,6 @@
 #cmakedefine SIZEOF___INT64
 #endif
 
-#cmakedefine HAVE_STRTOLL
-
 #ifndef SIZEOF_LONG_LONG
 #cmakedefine SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
 #endif
@@ -126,13 +124,8 @@
 #endif
 
 
-#cmakedefine XDMF_HAVE_FCNTL
-#cmakedefine XDMF_HAVE_NETINET
-#cmakedefine XDMF_HAVE_MMAN
-
 #cmakedefine XDMF_USE_ANSI_STDLIB
 #cmakedefine XDMF_NO_STD_NAMESPACE
-#cmakedefine XDMF_SYSTEM_HDF5
 
 #ifndef SIZEOF___INT64
 #cmakedefine SIZEOF___INT64
@@ -153,8 +146,6 @@
 
 #cmakedefine HAVE_NDGM
 
-#cmakedefine XDMF_HAVE_MALLOC_H
-
 #cmakedefine XDMF_BUILD_MPI
 #ifndef XDMF_BUILD_MPI
 #ifndef XDMF_NO_MPI
@@ -162,9 +153,8 @@
 #endif
 #endif
 
-#cmakedefine Xdmf_EXPORTS
 #ifndef Xdmf_EXPORTS
-# define Xdmf_EXPORTS
+#define Xdmf_EXPORTS
 #endif
 
 #endif /* __XdmfConfig_h */

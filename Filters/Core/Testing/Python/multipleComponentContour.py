@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -36,13 +35,11 @@ cf2.SetValue(0,500)
 cf2.SetArrayComponent(1)
 mapper1 = vtk.vtkPolyDataMapper()
 mapper1.SetInputConnection(cf1.GetOutputPort())
-mapper1.SetImmediateModeRendering(1)
 mapper1.SetScalarRange(0,1)
 mapper1.SetScalarVisibility(0)
 mapper1.Update()
 mapper2 = vtk.vtkPolyDataMapper()
 mapper2.SetInputConnection(cf2.GetOutputPort())
-mapper2.SetImmediateModeRendering(1)
 mapper2.SetScalarRange(0,1)
 mapper2.SetScalarVisibility(0)
 actor1 = vtk.vtkActor()

@@ -13,14 +13,17 @@
 
 =========================================================================*/
 
-// .NAME vtkDummyCommunicator - Dummy controller for single process applications.
-//
-// .SECTION Description
-//
-// This is a dummy communicator, which can be used by applications that always
-// require a controller but are also compiled on systems without threads or MPI.
-// Because there is always only one process, no real communication takes place.
-//
+/**
+ * @class   vtkDummyCommunicator
+ * @brief   Dummy controller for single process applications.
+ *
+ *
+ *
+ * This is a dummy communicator, which can be used by applications that always
+ * require a controller but are also compiled on systems without threads or MPI.
+ * Because there is always only one process, no real communication takes place.
+ *
+*/
 
 #ifndef vtkDummyCommunicator_h
 #define vtkDummyCommunicator_h
@@ -33,27 +36,30 @@ class VTKPARALLELCORE_EXPORT vtkDummyCommunicator : public vtkCommunicator
 public:
   vtkTypeMacro(vtkDummyCommunicator, vtkCommunicator);
   static vtkDummyCommunicator *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Since there is no one to communicate with, these methods just report an
-  // error.
-  virtual int SendVoidArray(const void *, vtkIdType, int, int, int) {
+  //@{
+  /**
+   * Since there is no one to communicate with, these methods just report an
+   * error.
+   */
+  int SendVoidArray(const void *, vtkIdType, int, int, int) override {
     vtkWarningMacro("There is no one to send to.");
     return 0;
   }
-  virtual int ReceiveVoidArray(void *, vtkIdType, int, int, int) {
+  int ReceiveVoidArray(void *, vtkIdType, int, int, int) override {
     vtkWarningMacro("There is no one to receive from.");
     return 0;
   }
+  //@}
 
 protected:
   vtkDummyCommunicator();
-  virtual ~vtkDummyCommunicator();
+  ~vtkDummyCommunicator() override;
 
 private:
-  vtkDummyCommunicator(const vtkDummyCommunicator &);   // Not implemented
-  void operator=(const vtkDummyCommunicator &);         // Not implemented
+  vtkDummyCommunicator(const vtkDummyCommunicator &) = delete;
+  void operator=(const vtkDummyCommunicator &) = delete;
 };
 
 #endif //vtkDummyCommunicator_h

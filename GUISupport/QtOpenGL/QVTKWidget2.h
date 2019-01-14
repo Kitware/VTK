@@ -21,8 +21,10 @@
 
 #include "vtkGUISupportQtOpenGLModule.h" // For export macro
 #include <QtOpenGL/QGLWidget>
+#include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
 #include "QVTKWin32Header.h"
+
 
 class vtkGenericOpenGLRenderWindow;
 class vtkEventQtSlotConnect;
@@ -35,15 +37,26 @@ class vtkObject;
 class vtkTDxDevice;
 #endif
 
-//! QVTKWidget2 displays a VTK window in a Qt window.
+/**
+ * @class QVTKWidget2
+ * @brief display a vtkRenderWindow in Qt's QGLWidget.
+ *
+ * QVTKWidget2 provides a way to display VTK data in a Qt QGLWidget. Since
+ * QGLWidget is flagged as obsolete by Qt, it is recommended to use
+ * QVTKOpenGLNativeWidget instead.
+ *
+ * @deprecated Please use QVTKOpenGLNativeWidget instead.
+ */
 class VTKGUISUPPORTQTOPENGL_EXPORT QVTKWidget2 : public QGLWidget
 {
   Q_OBJECT
+  typedef QGLWidget Superclass;
 public:
   //! constructor
-  QVTKWidget2(QWidget* parent = NULL, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
-  QVTKWidget2(QGLContext* ctx, QWidget* parent = NULL, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
-  QVTKWidget2(const QGLFormat& fmt, QWidget* parent = NULL, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
+  VTK_LEGACY(QVTKWidget2(QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0));
+  VTK_LEGACY(QVTKWidget2(vtkGenericOpenGLRenderWindow* w, QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0));
+  VTK_LEGACY(QVTKWidget2(QGLContext* ctx, QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0));
+  VTK_LEGACY(QVTKWidget2(const QGLFormat& fmt, QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0));
   //! destructor
   virtual ~QVTKWidget2();
 
@@ -58,13 +71,6 @@ public:
   // Description:
   // Get the Qt/vtk interactor that was either created by default or set by the user
   virtual QVTKInteractor* GetInteractor();
-
-  // Description:
-  // Set the number of multisamples to use for antialiasing in this GLContext
-  // Note: This will overwrite the MultiSamples of the internal vtkRenderWindow.
-  // Warning: this->GetRenderWindow()->SetMultiSamples() will not have any effect, since
-  // this is not synchronized with the vtkRenderWindow.
-  virtual void SetMultiSamples(int multiSamples);
 
   // Description:
   // Get the number of multisamples used for antialiasing
@@ -84,6 +90,11 @@ public:
   // Make the swap buffers functions public
   void setAutoBufferSwap(bool);
   bool autoBufferSwap() const;
+
+  static QGLFormat GetDefaultVTKFormat(vtkGenericOpenGLRenderWindow* w = nullptr);
+
+signals:
+  void mouseEvent(QMouseEvent* e);
 
 public Q_SLOTS:
 
@@ -161,10 +172,8 @@ protected:
   vtkSmartPointer<vtkEventQtSlotConnect> mConnect;
 
 private:
-  //! unimplemented operator=
-  QVTKWidget2 const& operator=(QVTKWidget2 const&);
-  //! unimplemented copy
-  QVTKWidget2(const QVTKWidget2&);
+  QVTKWidget2 & operator=(QVTKWidget2 const&) = delete;
+  QVTKWidget2(const QVTKWidget2&) = delete;
 
 };
 

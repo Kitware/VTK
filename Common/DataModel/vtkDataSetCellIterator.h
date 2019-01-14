@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataSetCellIterator - Implementation of vtkCellIterator using
-// vtkDataSet API.
+/**
+ * @class   vtkDataSetCellIterator
+ * @brief   Implementation of vtkCellIterator using
+ * vtkDataSet API.
+*/
 
 #ifndef vtkDataSetCellIterator_h
 #define vtkDataSetCellIterator_h
@@ -29,20 +32,20 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDataSetCellIterator: public vtkCellIterator
 public:
   static vtkDataSetCellIterator *New();
   vtkTypeMacro(vtkDataSetCellIterator, vtkCellIterator)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  bool IsDoneWithTraversal();
-  vtkIdType GetCellId();
+  bool IsDoneWithTraversal() override;
+  vtkIdType GetCellId() override;
 
 protected:
   vtkDataSetCellIterator();
-  ~vtkDataSetCellIterator();
+  ~vtkDataSetCellIterator() override;
 
-  void ResetToFirstCell();
-  void IncrementToNextCell();
-  void FetchCellType();
-  void FetchPointIds();
-  void FetchPoints();
+  void ResetToFirstCell() override;
+  void IncrementToNextCell() override;
+  void FetchCellType() override;
+  void FetchPointIds() override;
+  void FetchPoints() override;
 
   friend class vtkDataSet;
   void SetDataSet(vtkDataSet *ds);
@@ -51,8 +54,8 @@ protected:
   vtkIdType CellId;
 
 private:
-  vtkDataSetCellIterator(const vtkDataSetCellIterator &); // Not implemented.
-  void operator=(const vtkDataSetCellIterator &);   // Not implemented.
+  vtkDataSetCellIterator(const vtkDataSetCellIterator &) = delete;
+  void operator=(const vtkDataSetCellIterator &) = delete;
 };
 
 #endif //vtkDataSetCellIterator_h

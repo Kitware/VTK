@@ -24,47 +24,43 @@
 #include "vtkSplitColumnComponents.h"
 #include "vtkTable.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkWebUtilities);
 //----------------------------------------------------------------------------
-vtkWebUtilities::vtkWebUtilities()
-{
-}
+vtkWebUtilities::vtkWebUtilities() = default;
 
 //----------------------------------------------------------------------------
-vtkWebUtilities::~vtkWebUtilities()
-{
-}
+vtkWebUtilities::~vtkWebUtilities() = default;
 
 //----------------------------------------------------------------------------
 std::string vtkWebUtilities::WriteAttributesToJavaScript(
   int field_type, vtkDataSet* dataset)
 {
-  if (dataset == NULL || (
+  if (dataset == nullptr || (
       field_type != vtkDataObject::POINT &&
       field_type != vtkDataObject::CELL) )
-    {
+  {
     return "[]";
-    }
+  }
 
-  vtksys_ios::ostringstream stream;
+  std::ostringstream stream;
 
   vtkNew<vtkDataSetAttributes> clone;
   clone->PassData(dataset->GetAttributes(field_type));
   clone->RemoveArray("vtkValidPointMask");
 
   vtkNew<vtkTable> table;
-  table->SetRowData(clone.GetPointer());
+  table->SetRowData(clone);
 
   vtkNew<vtkSplitColumnComponents> splitter;
-  splitter->SetInputDataObject(table.GetPointer());
+  splitter->SetInputDataObject(table);
   splitter->Update();
 
   vtkNew<vtkJavaScriptDataWriter> writer;
   writer->SetOutputStream(&stream);
   writer->SetInputDataObject(splitter->GetOutputDataObject(0));
-  writer->SetVariableName(NULL);
+  writer->SetVariableName(nullptr);
   writer->SetIncludeFieldNames(false);
   writer->Write();
 
@@ -75,14 +71,14 @@ std::string vtkWebUtilities::WriteAttributesToJavaScript(
 std::string vtkWebUtilities::WriteAttributeHeadersToJavaScript(
   int field_type, vtkDataSet* dataset)
 {
-  if (dataset == NULL || (
+  if (dataset == nullptr || (
       field_type != vtkDataObject::POINT &&
       field_type != vtkDataObject::CELL) )
-    {
+  {
     return "[]";
-    }
+  }
 
-  vtksys_ios::ostringstream stream;
+  std::ostringstream stream;
   stream << "[";
 
   vtkDataSetAttributes* dsa = dataset->GetAttributes(field_type);
@@ -91,24 +87,24 @@ std::string vtkWebUtilities::WriteAttributeHeadersToJavaScript(
   clone->RemoveArray("vtkValidPointMask");
 
   vtkNew<vtkTable> table;
-  table->SetRowData(clone.GetPointer());
+  table->SetRowData(clone);
 
   vtkNew<vtkSplitColumnComponents> splitter;
-  splitter->SetInputDataObject(table.GetPointer());
+  splitter->SetInputDataObject(table);
   splitter->Update();
 
   dsa = vtkTable::SafeDownCast(
     splitter->GetOutputDataObject(0))->GetRowData();
 
   for (int cc=0; cc < dsa->GetNumberOfArrays(); cc++)
-    {
+  {
     const char* name = dsa->GetArrayName(cc);
     if (cc != 0)
-      {
+    {
       stream << ", ";
-      }
-    stream << "\"" << (name? name : "") << "\"";
     }
+    stream << "\"" << (name? name : "") << "\"";
+  }
   stream << "]";
   return stream.str();
 }

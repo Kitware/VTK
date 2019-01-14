@@ -62,13 +62,13 @@ int TestReduceTable(int, char*[])
   modeColumn->SetValue(4, "c");
   modeColumn->SetValue(5, "d");
 
-  table->AddColumn(indexColumn.GetPointer());
-  table->AddColumn(meanColumn.GetPointer());
-  table->AddColumn(medianColumn.GetPointer());
-  table->AddColumn(modeColumn.GetPointer());
+  table->AddColumn(indexColumn);
+  table->AddColumn(meanColumn);
+  table->AddColumn(medianColumn);
+  table->AddColumn(modeColumn);
 
   vtkNew<vtkReduceTable> filter;
-  filter->SetInputData(0, table.GetPointer());
+  filter->SetInputData(0, table);
   filter->SetIndexColumn(0);
   filter->SetReductionMethodForColumn(1, vtkReduceTable::MEAN);
   filter->SetReductionMethodForColumn(2, vtkReduceTable::MEDIAN);
@@ -78,50 +78,50 @@ int TestReduceTable(int, char*[])
   vtkTable *output = filter->GetOutput();
 
   if (output->GetValue(0, 1) != 1)
-    {
+  {
     cout << "ERROR: incorrect value encountered at (0, 1)" << endl;
     return EXIT_FAILURE;
-    }
+  }
   if (output->GetValue(1, 1) != 2)
-    {
+  {
     cout << "ERROR: incorrect value encountered at (1, 1)" << endl;
     return EXIT_FAILURE;
-    }
+  }
   if (output->GetValue(2, 1) != 3)
-    {
+  {
     cout << "ERROR: incorrect value encountered at (2, 1)" << endl;
     return EXIT_FAILURE;
-    }
+  }
   if (output->GetValue(0, 2) != 2)
-    {
+  {
     cout << "ERROR: incorrect value encountered at (0, 2)" << endl;
     return EXIT_FAILURE;
-    }
+  }
   if (output->GetValue(1, 2) != 4)
-    {
+  {
     cout << "ERROR: incorrect value encountered at (1, 2)" << endl;
     return EXIT_FAILURE;
-    }
+  }
   if (output->GetValue(2, 2) != 6)
-    {
+  {
     cout << "ERROR: incorrect value encountered at (2, 2)" << endl;
     return EXIT_FAILURE;
-    }
+  }
   if (output->GetValue(0, 3) != "a")
-    {
+  {
     cout << "ERROR: incorrect value encountered at (0, 3)" << endl;
     return EXIT_FAILURE;
-    }
+  }
   if (output->GetValue(1, 3) != "b")
-    {
+  {
     cout << "ERROR: incorrect value encountered at (1, 3)" << endl;
     return EXIT_FAILURE;
-    }
+  }
   if (output->GetValue(2, 3) != "c")
-    {
+  {
     cout << "ERROR: incorrect value encountered at (2, 3)" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

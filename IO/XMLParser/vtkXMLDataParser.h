@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLDataParser - Used by vtkXMLReader to parse VTK XML files.
-// .SECTION Description
-// vtkXMLDataParser provides a subclass of vtkXMLParser that
-// constructs a representation of an XML data format's file using
-// vtkXMLDataElement to represent each XML element.  This
-// representation is then used by vtkXMLReader and its subclasses to
-// traverse the structure of the file and extract data.
-
-// .SECTION See Also
-// vtkXMLDataElement
+/**
+ * @class   vtkXMLDataParser
+ * @brief   Used by vtkXMLReader to parse VTK XML files.
+ *
+ * vtkXMLDataParser provides a subclass of vtkXMLParser that
+ * constructs a representation of an XML data format's file using
+ * vtkXMLDataElement to represent each XML element.  This
+ * representation is then used by vtkXMLReader and its subclasses to
+ * traverse the structure of the file and extract data.
+ *
+ * @sa
+ * vtkXMLDataElement
+*/
 
 #ifndef vtkXMLDataParser_h
 #define vtkXMLDataParser_h
@@ -37,21 +40,23 @@ class VTKIOXMLPARSER_EXPORT vtkXMLDataParser : public vtkXMLParser
 {
 public:
   vtkTypeMacro(vtkXMLDataParser,vtkXMLParser);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLDataParser* New();
 
-  // Description:
-  // Get the root element from the XML document.
+  /**
+   * Get the root element from the XML document.
+   */
   vtkXMLDataElement* GetRootElement();
 
-  //BTX
-  // Description:
-  // Enumerate big and little endian byte order settings.
+  /**
+   * Enumerate big and little endian byte order settings.
+   */
   enum { BigEndian, LittleEndian };
 
-  // Description:
-  // Read inline data from inside the given element.  Returns the
-  // number of words read.
+  /**
+   * Read inline data from inside the given element.  Returns the
+   * number of words read.
+   */
   size_t ReadInlineData(vtkXMLDataElement* element, int isAscii,
                         void* buffer, vtkTypeUInt64 startWord,
                         size_t numWords, int wordType);
@@ -61,9 +66,10 @@ public:
     { return this->ReadInlineData(element, isAscii, buffer, startWord,
                                   numWords, VTK_CHAR); }
 
-  // Description:
-  // Read from an appended data section starting at the given appended
-  // data offset.  Returns the number of words read.
+  /**
+   * Read from an appended data section starting at the given appended
+   * data offset.  Returns the number of words read.
+   */
   size_t ReadAppendedData(vtkTypeInt64 offset, void* buffer,
                           vtkTypeUInt64 startWord,
                           size_t numWords, int wordType);
@@ -73,66 +79,83 @@ public:
   { return this->ReadAppendedData(offset, buffer, startWord, numWords,
                                     VTK_CHAR); }
 
-  // Description:
-  // Read from an ascii data section starting at the current position in
-  // the stream.  Returns the number of words read.
+  /**
+   * Read from an ascii data section starting at the current position in
+   * the stream.  Returns the number of words read.
+   */
   size_t ReadAsciiData(void* buffer, vtkTypeUInt64 startWord,
                        size_t numWords, int wordType);
 
-  // Description:
-  // Read from a data section starting at the current position in the
-  // stream.  Returns the number of words read.
+  /**
+   * Read from a data section starting at the current position in the
+   * stream.  Returns the number of words read.
+   */
   size_t ReadBinaryData(void* buffer, vtkTypeUInt64 startWord,
                         size_t maxWords, int wordType);
-  //ETX
 
-  // Description:
-  // Get/Set the compressor used to decompress binary and appended data
-  // after reading from the file.
+  //@{
+  /**
+   * Get/Set the compressor used to decompress binary and appended data
+   * after reading from the file.
+   */
   virtual void SetCompressor(vtkDataCompressor*);
   vtkGetObjectMacro(Compressor, vtkDataCompressor);
+  //@}
 
-  // Description:
-  // Get the size of a word of the given type.
+  /**
+   * Get the size of a word of the given type.
+   */
   size_t GetWordTypeSize(int wordType);
 
-  // Description:
-  // Parse the XML input and check that the file is safe to read.
-  // Returns 1 for okay, 0 for error.
-  virtual int Parse();
+  /**
+   * Parse the XML input and check that the file is safe to read.
+   * Returns 1 for okay, 0 for error.
+   */
+  int Parse() override;
 
-  // Description:
-  // Get/Set flag to abort reading of data.  This may be set by a
-  // progress event observer.
+  //@{
+  /**
+   * Get/Set flag to abort reading of data.  This may be set by a
+   * progress event observer.
+   */
   vtkGetMacro(Abort, int);
   vtkSetMacro(Abort, int);
+  //@}
 
-  // Description:
-  // Get/Set progress of reading data.  This may be checked by a
-  // progress event observer.
+  //@{
+  /**
+   * Get/Set progress of reading data.  This may be checked by a
+   * progress event observer.
+   */
   vtkGetMacro(Progress, float);
   vtkSetMacro(Progress, float);
+  //@}
 
-  // Description:
-  // Get/Set the character encoding that will be used to set the attributes's
-  // encoding type of each vtkXMLDataElement created by this parser (i.e.,
-  // the data element attributes will use that encoding internally).
-  // If set to VTK_ENCODING_NONE (default), the attribute encoding type will
-  // not be changed and will default to the vtkXMLDataElement default encoding
-  // type (see vtkXMLDataElement::AttributeEncoding).
+  //@{
+  /**
+   * Get/Set the character encoding that will be used to set the attributes's
+   * encoding type of each vtkXMLDataElement created by this parser (i.e.,
+   * the data element attributes will use that encoding internally).
+   * If set to VTK_ENCODING_NONE (default), the attribute encoding type will
+   * not be changed and will default to the vtkXMLDataElement default encoding
+   * type (see vtkXMLDataElement::AttributeEncoding).
+   */
   vtkSetClampMacro(AttributesEncoding,int,VTK_ENCODING_NONE,VTK_ENCODING_UNKNOWN);
   vtkGetMacro(AttributesEncoding, int);
+  //@}
 
-  // Description:
-  // If you need the text inside XMLElements, turn IgnoreCharacterData off.
-  // This method will then be called when the file is parsed, and the text
-  // will be stored in each XMLDataElement. VTK XML Readers store the
-  // information elsewhere, so the default is to ignore it.
-  virtual void CharacterDataHandler(const char* data, int length);
+  /**
+   * If you need the text inside XMLElements, turn IgnoreCharacterData off.
+   * This method will then be called when the file is parsed, and the text
+   * will be stored in each XMLDataElement. VTK XML Readers store the
+   * information elsewhere, so the default is to ignore it.
+   */
+  void CharacterDataHandler(const char* data, int length) override;
 
-  // Description:
-  // Returns the byte index of where appended data starts (if the
-  // file is using appended data). Valid after the XML is parsed.
+  /**
+   * Returns the byte index of where appended data starts (if the
+   * file is using appended data). Valid after the XML is parsed.
+   */
   vtkTypeInt64 GetAppendedDataPosition()
   {
     return this->AppendedDataPosition;
@@ -140,20 +163,20 @@ public:
 
 protected:
   vtkXMLDataParser();
-  ~vtkXMLDataParser();
+  ~vtkXMLDataParser() override;
 
   // This parser does not support parsing from a string.
-  virtual int Parse(const char*);
-  virtual int Parse(const char*, unsigned int);
+  int Parse(const char*) override;
+  int Parse(const char*, unsigned int) override;
 
   // Implement parsing methods.
-  virtual void StartElement(const char* name, const char** atts);
-  virtual void EndElement(const char*);
+  void StartElement(const char* name, const char** atts) override;
+  void EndElement(const char*) override;
 
-  int ParsingComplete();
+  int ParsingComplete() override;
   int CheckPrimaryAttributes();
   void FindAppendedDataPosition();
-  int ParseBuffer(const char* buffer, unsigned int count);
+  int ParseBuffer(const char* buffer, unsigned int count) override;
 
   void AddElement(vtkXMLDataElement* element);
   void PushOpenElement(vtkXMLDataElement* element);
@@ -239,8 +262,8 @@ protected:
   int AttributesEncoding;
 
 private:
-  vtkXMLDataParser(const vtkXMLDataParser&);  // Not implemented.
-  void operator=(const vtkXMLDataParser&);  // Not implemented.
+  vtkXMLDataParser(const vtkXMLDataParser&) = delete;
+  void operator=(const vtkXMLDataParser&) = delete;
 };
 
 //----------------------------------------------------------------------------

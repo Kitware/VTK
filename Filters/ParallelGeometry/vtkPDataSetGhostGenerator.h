@@ -12,18 +12,20 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkPDataSetGhostGenerator.h -- Base class for parallel ghost generators
-//
-// .SECTION Description
-//  An abstract class that provides common functionality and implements an
-//  interface for all parallel ghost data generators.
-//
-// .SECTION See Also
-// vtkDataSetGhostGenerator, vtkPUniformGridGhostDataGenerator,
-// vtkPStructuredGridGhostDataGenerator, vtkPRectilinearGridGhostDataGenerator
+/**
+ * @class   vtkPDataSetGhostGenerator
+ *
+ *
+ *  An abstract class that provides common functionality and implements an
+ *  interface for all parallel ghost data generators.
+ *
+ * @sa
+ * vtkDataSetGhostGenerator, vtkPUniformGridGhostDataGenerator,
+ * vtkPStructuredGridGhostDataGenerator, vtkPRectilinearGridGhostDataGenerator
+*/
 
-#ifndef VTKPDATASETGHOSTGENERATOR_H_
-#define VTKPDATASETGHOSTGENERATOR_H_
+#ifndef vtkPDataSetGhostGenerator_h
+#define vtkPDataSetGhostGenerator_h
 
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkDataSetGhostGenerator.h"
@@ -36,38 +38,44 @@ class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPDataSetGhostGenerator :
 {
 public:
    vtkTypeMacro(vtkPDataSetGhostGenerator,vtkDataSetGhostGenerator);
-   void PrintSelf(ostream& os, vtkIndent indent);
+   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-   // Description:
-   // Get/Set macro for the multi-process controller. If a controller is not
-   // supplied, then, the global controller is assumed.
+   //@{
+   /**
+    * Get/Set macro for the multi-process controller. If a controller is not
+    * supplied, then, the global controller is assumed.
+    */
    vtkSetMacro(Controller, vtkMultiProcessController*);
    vtkGetMacro(Controller, vtkMultiProcessController*);
+   //@}
 
-   // Description:
-   // Initializes
+   /**
+    * Initializes
+    */
    void Initialize();
 
-   // Description:
-   // Barrier synchronization
+   /**
+    * Barrier synchronization
+    */
    void Barrier();
 
 protected:
   vtkPDataSetGhostGenerator();
-  virtual ~vtkPDataSetGhostGenerator();
+  ~vtkPDataSetGhostGenerator() override;
 
-  // Description:
-  // Creates ghost layers. Implemented by concrete implementations.
+  /**
+   * Creates ghost layers. Implemented by concrete implementations.
+   */
   virtual void GenerateGhostLayers(
-      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out)=0;
+      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) override = 0;
 
   int Rank;
   bool Initialized;
   vtkMultiProcessController *Controller;
 
 private:
-  vtkPDataSetGhostGenerator(const vtkPDataSetGhostGenerator&); // Not implemented
-  void operator=(const vtkPDataSetGhostGenerator&); // Not implemented
+  vtkPDataSetGhostGenerator(const vtkPDataSetGhostGenerator&) = delete;
+  void operator=(const vtkPDataSetGhostGenerator&) = delete;
 };
 
-#endif /* VTKPDATASETGHOSTGENERATOR_H_ */
+#endif /* vtkPDataSetGhostGenerator_h */

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkSynchronizedRenderers.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,21 +18,23 @@
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkCommunicator.h"
+#include "vtkFXAAOptions.h"
+#include "vtkHardwareSelector.h"
 #include "vtkImageData.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkParallelRenderManager.h"
 #include "vtkPNGWriter.h"
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLError.h"
 
-#ifndef VTKGL2
-# include "vtkgl.h"
-#endif
+#include "vtkOpenGLFXAAFilter.h"
 
 #include <cassert>
 
@@ -41,18 +43,18 @@ class vtkSynchronizedRenderers::vtkObserver : public vtkCommand
 {
 public:
   static vtkObserver* New()
-    {
+  {
     vtkObserver* obs = new vtkObserver();
-    obs->Target = NULL;
+    obs->Target = nullptr;
     return obs;
-    }
+  }
 
-  virtual void Execute(vtkObject *, unsigned long eventId, void *)
-    {
+  void Execute(vtkObject *, unsigned long eventId, void *) override
+  {
     if (this->Target && this->Target->GetAutomaticEventHandling())
-      {
+    {
       switch (eventId)
-        {
+      {
       case vtkCommand::StartEvent:
         this->Target->HandleStartRender();
         break;
@@ -64,9 +66,9 @@ public:
       case vtkCommand::AbortCheckEvent:
         this->Target->HandleAbortRender();
         break;
-        }
       }
     }
+  }
 
   vtkSynchronizedRenderers* Target;
 };
@@ -82,58 +84,68 @@ vtkSynchronizedRenderers::vtkSynchronizedRenderers()
   this->Observer = vtkSynchronizedRenderers::vtkObserver::New();
   this->Observer->Target = this;
 
-  this->Renderer = 0;
-  this->ParallelController = 0;
+  this->UseFXAA = false;
+  this->FXAAFilter = nullptr;
+
+  this->Renderer = nullptr;
+  this->ParallelController = nullptr;
   this->ParallelRendering = true;
   this->ImageReductionFactor = 1;
 
   this->WriteBackImages = true;
   this->RootProcessId = 0;
 
-  this->CaptureDelegate = NULL;
+  this->CaptureDelegate = nullptr;
   this->AutomaticEventHandling = true;
 }
 
 //----------------------------------------------------------------------------
 vtkSynchronizedRenderers::~vtkSynchronizedRenderers()
 {
-  this->SetCaptureDelegate(0);
+  this->SetCaptureDelegate(nullptr);
 
-  this->Observer->Target = 0;
+  this->Observer->Target = nullptr;
 
-  this->SetRenderer(0);
-  this->SetParallelController(0);
+  this->SetRenderer(nullptr);
+  this->SetParallelController(nullptr);
   this->Observer->Delete();
-  this->Observer = 0;
+  this->Observer = nullptr;
+
+  // vtkOpenGLFXAAFilter is only available on opengl2:
+  if (this->FXAAFilter)
+  {
+    this->FXAAFilter->Delete();
+    this->FXAAFilter = nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkSynchronizedRenderers::SetRenderer(vtkRenderer* renderer)
 {
   if (this->Renderer  != renderer)
-    {
+  {
     if (this->Renderer)
-      {
+    {
       this->Renderer->RemoveObserver(this->Observer);
-      }
+    }
 
     // The renderer should be OpenGL ...
     vtkOpenGLRenderer *glRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
 
     if(renderer && !glRenderer)
-      {
+    {
         vtkErrorMacro("Received non OpenGL renderer");
         assert(false);
-      }
+    }
 
     vtkSetObjectBodyMacro(Renderer, vtkOpenGLRenderer, glRenderer);
     if (this->Renderer)
-      {
+    {
       this->Renderer->AddObserver(vtkCommand::StartEvent, this->Observer);
       this->Renderer->AddObserver(vtkCommand::EndEvent, this->Observer);
       // this->Renderer->AddObserver(vtkCommand::AbortCheckEvent, this->Observer);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -141,42 +153,47 @@ void vtkSynchronizedRenderers::HandleStartRender()
 {
   if (!this->Renderer || !this->ParallelRendering ||
     !this->ParallelController)
-    {
+  {
     if (this->CaptureDelegate &&
       this->CaptureDelegate->GetAutomaticEventHandling() == false)
-      {
+    {
       this->CaptureDelegate->HandleStartRender();
-      }
-    return;
     }
+    return;
+  }
 
   this->ReducedImage.MarkInValid();
   this->FullImage.MarkInValid();
 
+  // disable FXAA when parallel rendering. We'll do the FXAA pass after the
+  // compositing stage. This avoid any seam artifacts from creeping in.
+  this->UseFXAA = this->Renderer->GetUseFXAA();
+  this->Renderer->SetUseFXAA(false);
+
   if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
-    {
+  {
     this->MasterStartRender();
-    }
+  }
   else
-    {
+  {
     this->SlaveStartRender();
-    }
+  }
 
   this->Renderer->GetViewport(this->LastViewport);
   if (this->ImageReductionFactor > 1)
-    {
+  {
     this->Renderer->SetViewport(
       this->LastViewport[0]/this->ImageReductionFactor,
       this->LastViewport[1]/this->ImageReductionFactor,
       this->LastViewport[2]/this->ImageReductionFactor,
       this->LastViewport[3]/this->ImageReductionFactor);
-    }
+  }
 
   if (this->CaptureDelegate &&
     this->CaptureDelegate->GetAutomaticEventHandling() == false)
-    {
+  {
     this->CaptureDelegate->HandleStartRender();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -208,36 +225,41 @@ void vtkSynchronizedRenderers::HandleEndRender()
 {
   if (this->CaptureDelegate &&
     this->CaptureDelegate->GetAutomaticEventHandling() == false)
-    {
+  {
     this->CaptureDelegate->HandleEndRender();
-    }
+  }
 
   if (!this->Renderer || !this->ParallelRendering ||
     !this->ParallelController)
-    {
+  {
     return;
-    }
+  }
 
   if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
-    {
+  {
     this->MasterEndRender();
-    }
+  }
   else
-    {
+  {
     this->SlaveEndRender();
-    }
+  }
 
   if (this->WriteBackImages)
-    {
+  {
     if (this->ImageReductionFactor > 1 && this->ParallelRendering)
-      {
+    {
       this->CaptureRenderedImage();
-      }
-
-    this->PushImageToScreen();
     }
 
+    this->PushImageToScreen();
+  }
+
+  // restore viewport
   this->Renderer->SetViewport(this->LastViewport);
+
+  // restore FXAA state.
+  this->Renderer->SetUseFXAA(this->UseFXAA);
+  this->UseFXAA = false;
 }
 
 //----------------------------------------------------------------------------
@@ -259,16 +281,16 @@ vtkSynchronizedRenderers::CaptureRenderedImage()
     this->FullImage : this->ReducedImage;
 
   if (!rawImage.IsValid())
-    {
+  {
     if (this->CaptureDelegate)
-      {
+    {
       rawImage = this->CaptureDelegate->CaptureRenderedImage();
-      }
-    else
-      {
-      rawImage.Capture(this->Renderer);
-      }
     }
+    else
+    {
+      rawImage.Capture(this->Renderer);
+    }
+  }
 
   return rawImage;
 }
@@ -281,11 +303,27 @@ void vtkSynchronizedRenderers::PushImageToScreen()
     this->FullImage : this->ReducedImage;
 
   if (!rawImage.IsValid())
-    {
+  {
     return;
-    }
+  }
 
   rawImage.PushToViewport(this->Renderer);
+
+  vtkHardwareSelector *sel = this->Renderer->GetSelector();
+  if (sel)
+  {
+    sel->SavePixelBuffer(sel->GetCurrentPass());
+  }
+
+  if (this->UseFXAA)
+  {
+    if (!this->FXAAFilter)
+    {
+      this->FXAAFilter = vtkOpenGLFXAAFilter::New();
+    }
+    this->FXAAFilter->UpdateConfiguration(this->Renderer->GetFXAAOptions());
+    this->FXAAFilter->Execute(this->Renderer);
+  }
 }
 
 ////----------------------------------------------------------------------------
@@ -320,7 +358,7 @@ void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(
   box.GetBounds(bounds);
 
   if (this->ParallelController->IsA("vtkMPIController"))
-    {
+  {
     double min_bounds[3] = {bounds[0], bounds[2], bounds[4]};
     double max_bounds[3] = {bounds[1], bounds[3], bounds[5]};
     double min_result[3], max_result[3];
@@ -334,28 +372,28 @@ void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(
     bounds[1] = max_result[0];
     bounds[3] = max_result[1];
     bounds[5] = max_result[2];
-    }
+  }
   else
-    {
+  {
     // since vtkSocketController does not support such reduction operation, we
     // simply use point-to-point communication.
     double other_bounds[6];
     if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
-      {
+    {
       this->ParallelController->Send(bounds, 6, 1, COMPUTE_BOUNDS_TAG);
       this->ParallelController->Receive(other_bounds, 6, 1, COMPUTE_BOUNDS_TAG);
-      }
+    }
     else
-      {
+    {
       this->ParallelController->Receive(other_bounds, 6, 1, COMPUTE_BOUNDS_TAG);
       this->ParallelController->Send(bounds, 6, 1, COMPUTE_BOUNDS_TAG);
-      }
+    }
 
     vtkBoundingBox bbox;
     bbox.AddBounds(bounds);
     bbox.AddBounds(other_bounds);
     bbox.GetBounds(bounds);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -371,34 +409,34 @@ void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AutomaticEventHandling: "
     << this->AutomaticEventHandling << endl;
   os << indent << "CaptureDelegate: ";
-  if(this->CaptureDelegate==0)
-    {
+  if(this->CaptureDelegate==nullptr)
+  {
     os << "(none)" << endl;
-    }
+  }
   else
-    {
+  {
     os << this->CaptureDelegate << endl;
-    }
+  }
 
   os << indent << "Renderer: ";
-  if(this->Renderer==0)
-    {
+  if(this->Renderer==nullptr)
+  {
     os << "(none)" << endl;
-    }
+  }
   else
-    {
+  {
     os << this->Renderer << endl;
-    }
+  }
 
   os << indent << "ParallelController: ";
-  if(this->ParallelController==0)
-    {
+  if(this->ParallelController==nullptr)
+  {
     os << "(none)" << endl;
-    }
+  }
   else
-    {
+  {
     os << this->ParallelController << endl;
-    }
+  }
 
 }
 
@@ -468,9 +506,9 @@ bool vtkSynchronizedRenderers::RendererInfo::Restore(vtkMultiProcessStream& stre
   int tag;
   stream >> tag;
   if (tag != 1023)
-    {
+  {
     return false;
-    }
+  }
   stream >> this->ImageReductionFactor
          >> this->Draw
          >> this->CameraParallelProjection
@@ -546,13 +584,13 @@ void vtkSynchronizedRenderers::RendererInfo::CopyFrom(vtkRenderer* ren)
   vtkMatrix4x4 *eyeTransformationMatrix = cam->GetEyeTransformMatrix();
   vtkMatrix4x4 *modelTransformationMatrix = cam->GetModelTransformMatrix();
   for(int i=0; i < 4; ++i)
-    {
+  {
     for(int j=0; j < 4; ++j)
-      {
+    {
        this->EyeTransformMatrix[i*4 + j] = eyeTransformationMatrix->GetElement(i, j);
        this->ModelTransformMatrix[i*4 + j] = modelTransformationMatrix->GetElement(i, j);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -571,22 +609,21 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
   cam->SetViewAngle(this->CameraViewAngle);
   cam->SetParallelScale(this->CameraParallelScale);
 
-  vtkMatrix4x4 *eyeTransformationMatrix = vtkMatrix4x4::New();
-  vtkMatrix4x4 *modelTransformationMatrix = vtkMatrix4x4::New();
+  // We reuse vtkMatrix4x4 objects present on the camera and then use
+  // vtkMatrix4x4::SetElement(). This avoids modifying the mtime of the
+  // camera unless anything truly changed.
+  vtkMatrix4x4 *eyeTransformationMatrix = cam->GetEyeTransformMatrix();
+  vtkMatrix4x4 *modelTransformationMatrix = cam->GetModelTransformMatrix();
+  assert(eyeTransformationMatrix && modelTransformationMatrix);
   for(int i=0; i < 4; ++i)
-    {
+  {
     for(int j=0; j < 4; ++j)
-      {
+    {
       eyeTransformationMatrix->SetElement(i, j, this->EyeTransformMatrix[i * 4 + j]);
       modelTransformationMatrix->SetElement(i, j, this->ModelTransformMatrix[i * 4 + j]);
-      }
     }
-  cam->SetEyeTransformMatrix(eyeTransformationMatrix);
-  cam->SetModelTransformMatrix(modelTransformationMatrix);
-  eyeTransformationMatrix->Delete();
-  modelTransformationMatrix->Delete();
+  }
 }
-
 
 //****************************************************************************
 // vtkSynchronizedRenderers::vtkRawImage Methods
@@ -606,11 +643,11 @@ void vtkSynchronizedRenderers::vtkRawImage::Allocate(int dx, int dy, int numcomp
 {
   if (dx*dy <= this->Data->GetNumberOfTuples() &&
     this->Data->GetNumberOfComponents() == numcomps)
-    {
+  {
     this->Size[0] = dx;
     this->Size[1] = dy;
     return;
-    }
+  }
 
   this->Data = vtkSmartPointer<vtkUnsignedCharArray>::New();
   this->Data->SetNumberOfComponents(numcomps);
@@ -623,10 +660,10 @@ void vtkSynchronizedRenderers::vtkRawImage::Allocate(int dx, int dy, int numcomp
 void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
 {
   if (!this->IsValid())
-    {
+  {
     vtkGenericWarningMacro("Image is not valid. Cannot save PNG.");
     return;
-    }
+  }
 
   vtkImageData* img = vtkImageData::New();
   img->SetDimensions(this->Size[0], this->Size[1], 1);
@@ -649,22 +686,24 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
 bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
 {
   if (!this->IsValid())
-    {
+  {
     vtkGenericWarningMacro("Image not valid. Cannot push to screen.");
     return false;
-    }
+  }
 
   double viewport[4];
   ren->GetViewport(viewport);
   const int* window_size = ren->GetVTKWindow()->GetActualSize();
 
-  glEnable(GL_SCISSOR_TEST);
-  glViewport(
+  vtkOpenGLState *ostate =
+    static_cast<vtkOpenGLRenderWindow *>(ren->GetVTKWindow())->GetState();
+  ostate->vtkglEnable(GL_SCISSOR_TEST);
+  ostate->vtkglViewport(
     static_cast<GLint>(viewport[0]*window_size[0]),
     static_cast<GLint>(viewport[1]*window_size[1]),
     static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
     static_cast<GLsizei>((viewport[3]-viewport[1])*window_size[1]));
-  glScissor(
+  ostate->vtkglScissor(
     static_cast<GLint>(viewport[0]*window_size[0]),
     static_cast<GLint>(viewport[1]*window_size[1]),
     static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
@@ -677,88 +716,34 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
 bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
 {
   if (!this->IsValid())
-    {
+  {
     vtkGenericWarningMacro("Image not valid. Cannot push to screen.");
     return false;
-    }
+  }
 
   vtkOpenGLClearErrorMacro();
-
-#ifdef VTKGL2
-  // always draw the entire image on the entire viewport
+  vtkOpenGLRenderUtilities::MarkDebugEvent("vtkRawImage::PushToViewport begin");
   vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
+  vtkOpenGLState *ostate = renWin->GetState();
+  vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
+
+  // framebuffers have their color premultiplied by alpha.
+  ostate->vtkglEnable(GL_BLEND);
+  ostate->vtkglBlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
+    GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+
+  // always draw the entire image on the entire viewport
+  vtkOpenGLState::ScopedglViewport vsaver(ostate);
+  int renSize[2];
+  ren->GetTiledSize(renSize, renSize + 1);
+  ostate->vtkglViewport(0, 0, renSize[0], renSize[1]);
+
   renWin->DrawPixels(this->GetWidth(), this->GetHeight(),
     this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
     this->GetRawPtr()->GetVoidPointer(0));
-#else
-  (void)ren;
-  glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT| GL_TEXTURE_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  glOrtho(-1.0,1.0,-1.0,1.0,-1.0,1.0);
-
-  GLuint tex=0;
-  glGenTextures(1, &tex);
-  glBindTexture(GL_TEXTURE_2D, tex);
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-  glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-  if (this->Data->GetNumberOfComponents()==4)
-    {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
-      this->GetWidth(), this->GetHeight(), 0,
-      GL_RGBA,
-      GL_UNSIGNED_BYTE,
-      static_cast<const GLvoid*>(
-        this->GetRawPtr()->GetVoidPointer(0)));
-    }
-  else if (this->Data->GetNumberOfComponents()==3)
-    {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
-      this->GetWidth(), this->GetHeight(), 0,
-      GL_RGB,
-      GL_UNSIGNED_BYTE,
-      static_cast<const GLvoid*>(
-        this->GetRawPtr()->GetVoidPointer(0)));
-    }
-  else
-    {
-    vtkGenericWarningMacro("Only 3 or 4 component images are handled.");
-    }
-  glBindTexture(GL_TEXTURE_2D, tex);
-  glDisable(GL_ALPHA_TEST);
-  glDisable(GL_DEPTH_TEST);
-  glEnable(GL_TEXTURE_2D);
-
-  glBegin(GL_QUADS);
-  glTexCoord2f(0.0, 0.0);
-  glVertex2f(-1.0, -1.0);
-
-  glTexCoord2f(1.0, 0.0);
-  glVertex2f(1.0, -1.0);
-
-  glTexCoord2f(1.0, 1.0);
-  glVertex2f(1.0, 1.0);
-
-  glTexCoord2f(0.0, 1.0);
-  glVertex2f(-1.0, 1.0);
-  glEnd();
-
-  glDisable(GL_TEXTURE_2D);
-  glDeleteTextures(1, &tex);
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glPopAttrib();
-#endif
 
   vtkOpenGLStaticCheckErrorMacro("failed after PushToFrameBuffer");
+  vtkOpenGLRenderUtilities::MarkDebugEvent("vtkRawImage::PushToViewport end");
   return true;
 }
 
@@ -794,6 +779,32 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
     viewport_in_pixels[2], viewport_in_pixels[3],
     ren->GetRenderWindow()->GetDoubleBuffer()? 0 : 1,
     this->GetRawPtr());
+
+  // if selecting then pass the processed pixel buffer
+  vtkHardwareSelector *sel = ren->GetSelector();
+  if (sel)
+  {
+    unsigned char *passdata = sel->GetPixelBuffer(sel->GetCurrentPass());
+    unsigned char *destdata = static_cast<unsigned char *>(
+      this->GetRawPtr()->GetVoidPointer(0));
+    if (passdata && destdata)
+    {
+      unsigned int *area = sel->GetArea();
+      unsigned int passwidth = area[2] - area[0] + 1;
+      for (int y = 0; y < image_size[1]; ++y)
+      {
+        for (int x = 0; x < image_size[0]; ++x)
+        {
+          unsigned char *pdptr = passdata + (y * passwidth + x) * 3;
+          destdata[0] = pdptr[0];
+          destdata[1] = pdptr[1];
+          destdata[2] = pdptr[2];
+          destdata += 4;
+        }
+      }
+    }
+  }
+
   this->MarkValid();
   return true;
 }

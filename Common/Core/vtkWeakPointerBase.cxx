@@ -27,37 +27,37 @@ void vtkWeakPointerBaseToObjectBaseFriendship::AddWeakPointer(
   vtkObjectBase *r, vtkWeakPointerBase *p)
 {
   if (r)
-    {
+  {
     vtkWeakPointerBase **l = r->WeakPointers;
-    if (l == 0)
-      {
+    if (l == nullptr)
+    {
       // create a new list if none exists
       l = new vtkWeakPointerBase *[2];
       l[0] = p;
-      l[1] = 0;
+      l[1] = nullptr;
       r->WeakPointers = l;
-      }
+    }
     else
-      {
+    {
       size_t n = 0;
-      while (l[n] != 0) { n++; }
+      while (l[n] != nullptr) { n++; }
       // if n+1 is a power of two, double the list size
       if ((n & (n+1)) == 0)
-        {
+      {
         vtkWeakPointerBase **t = l;
         l = new vtkWeakPointerBase *[(n+1)*2];
         for (size_t i = 0; i < n; i++)
-          {
+        {
           l[i] = t[i];
-          }
+        }
         delete [] t;
         r->WeakPointers = l;
-        }
+      }
       // make sure list is null-terminated
       l[n++] = p;
-      l[n] = 0;
-      }
+      l[n] = nullptr;
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -65,27 +65,27 @@ void vtkWeakPointerBaseToObjectBaseFriendship::RemoveWeakPointer(
   vtkObjectBase *r, vtkWeakPointerBase *p)
 {
   if (r)
-    {
+  {
     vtkWeakPointerBase **l = r->WeakPointers;
-    if (l != 0)
-      {
+    if (l != nullptr)
+    {
       size_t i = 0;
-      while (l[i] != 0 && l[i] != p)
-        {
+      while (l[i] != nullptr && l[i] != p)
+      {
         i++;
-        }
-      while (l[i] != 0)
-        {
+      }
+      while (l[i] != nullptr)
+      {
         l[i] = l[i+1];
         i++;
-        }
-      if (l[0] == 0)
-        {
+      }
+      if (l[0] == nullptr)
+      {
         delete [] l;
-        r->WeakPointers = 0;
-        }
+        r->WeakPointers = nullptr;
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ vtkWeakPointerBase::~vtkWeakPointerBase()
   vtkWeakPointerBaseToObjectBaseFriendship::RemoveWeakPointer(
     this->Object, this);
 
-  this->Object = 0;
+  this->Object = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ vtkWeakPointerBase&
 vtkWeakPointerBase::operator=(vtkObjectBase* r)
 {
   if (this->Object != r)
-    {
+  {
     vtkWeakPointerBaseToObjectBaseFriendship::RemoveWeakPointer(
       this->Object, this);
 
@@ -124,7 +124,7 @@ vtkWeakPointerBase::operator=(vtkObjectBase* r)
 
     vtkWeakPointerBaseToObjectBaseFriendship::AddWeakPointer(
       this->Object, this);
-    }
+  }
 
   return *this;
 }
@@ -134,9 +134,9 @@ vtkWeakPointerBase&
 vtkWeakPointerBase::operator=(const vtkWeakPointerBase& r)
 {
   if (this != &r)
-    {
+  {
     if (this->Object != r.Object)
-      {
+    {
       vtkWeakPointerBaseToObjectBaseFriendship::RemoveWeakPointer(
         this->Object, this);
 
@@ -144,8 +144,8 @@ vtkWeakPointerBase::operator=(const vtkWeakPointerBase& r)
 
       vtkWeakPointerBaseToObjectBaseFriendship::AddWeakPointer(
         this->Object, this);
-      }
     }
+  }
 
   return *this;
 }

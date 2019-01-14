@@ -27,15 +27,7 @@
 
 #ifndef SWIG
 #include "XdmfObject.h"
-#include "H5public.h"
-
-#if (H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=6))
-#include "hdf5.h"
-#else
-extern "C" {
-#include "hdf5.h"
-}
-#endif
+#include "vtk_hdf5.h"
 
 #endif /* SWIG */
 

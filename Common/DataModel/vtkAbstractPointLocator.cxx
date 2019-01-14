@@ -18,19 +18,21 @@
 #include "vtkIdList.h"
 
 
+//-----------------------------------------------------------------------------
 vtkAbstractPointLocator::vtkAbstractPointLocator()
 {
   for(int i=0;i<6;i++)
-    {
+  {
     this->Bounds[i] = 0;
-    }
+  }
+  this->NumberOfBuckets = 0;
 }
 
-vtkAbstractPointLocator::~vtkAbstractPointLocator()
-{
-}
+//-----------------------------------------------------------------------------
+vtkAbstractPointLocator::~vtkAbstractPointLocator() = default;
 
 
+//-----------------------------------------------------------------------------
 // Given a position x-y-z, return the id of the point closest to it.
 vtkIdType vtkAbstractPointLocator::FindClosestPoint(double x, double y, double z)
 {
@@ -40,6 +42,7 @@ vtkIdType vtkAbstractPointLocator::FindClosestPoint(double x, double y, double z
   return this->FindClosestPoint(xyz);
 }
 
+//-----------------------------------------------------------------------------
 void vtkAbstractPointLocator::FindClosestNPoints(int N, double x,
                                          double y, double z,
                                          vtkIdList *result)
@@ -51,6 +54,7 @@ void vtkAbstractPointLocator::FindClosestNPoints(int N, double x,
   this->FindClosestNPoints(N,p,result);
 }
 
+//-----------------------------------------------------------------------------
 void vtkAbstractPointLocator::FindPointsWithinRadius(double R, double x,
                                              double y, double z,
                                              vtkIdList *result)
@@ -62,21 +66,24 @@ void vtkAbstractPointLocator::FindPointsWithinRadius(double R, double x,
   this->FindPointsWithinRadius(R,p,result);
 }
 
+//-----------------------------------------------------------------------------
 void vtkAbstractPointLocator::GetBounds(double* bnds)
 {
   for(int i=0;i<6;i++)
-    {
+  {
     bnds[i] = this->Bounds[i];
-    }
+  }
 }
 
+//-----------------------------------------------------------------------------
 void vtkAbstractPointLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
   for(int i=0;i<6;i++)
-    {
+  {
     os << indent << "Bounds[" << i << "]: " << this->Bounds[i] << "\n";
-    }
-}
+  }
 
+  os << indent << "Number of Buckets: " << this->NumberOfBuckets << "\n";
+}

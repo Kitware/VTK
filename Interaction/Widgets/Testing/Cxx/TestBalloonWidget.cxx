@@ -39,14 +39,14 @@ class vtkBalloonCallback : public vtkCommand
 public:
   static vtkBalloonCallback *New()
     { return new vtkBalloonCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  void Execute(vtkObject *caller, unsigned long, void*) override
+  {
       vtkBalloonWidget *balloonWidget = reinterpret_cast<vtkBalloonWidget*>(caller);
-      if ( balloonWidget->GetCurrentProp() != NULL )
-        {
+      if ( balloonWidget->GetCurrentProp() != nullptr )
+      {
         std::cout << "Prop selected\n";
-        }
-    }
+      }
+  }
 
   vtkActor *PickedActor;
 
@@ -57,15 +57,15 @@ class vtkBalloonPickCallback : public vtkCommand
 public:
   static vtkBalloonPickCallback *New()
     { return new vtkBalloonPickCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  void Execute(vtkObject *caller, unsigned long, void*) override
+  {
       vtkPropPicker *picker = reinterpret_cast<vtkPropPicker*>(caller);
       vtkProp *prop = picker->GetViewProp();
-      if ( prop != NULL )
-        {
+      if ( prop != nullptr )
+      {
         this->BalloonWidget->UpdateBalloonString(prop,"Picked");
-        }
-    }
+      }
+  }
   vtkBalloonWidget *BalloonWidget;
 };
 
@@ -120,7 +120,7 @@ int TestBalloonWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkBalloonWidget> widget = vtkSmartPointer<vtkBalloonWidget>::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
-  widget->AddBalloon(sph,"This is a sphere",NULL);
+  widget->AddBalloon(sph,"This is a sphere",nullptr);
   widget->AddBalloon(cyl,"This is a\ncylinder",image1->GetOutput());
   widget->AddBalloon(cone,"This is a\ncone,\na really big cone,\nyou wouldn't believe how big",image1->GetOutput());
   pcbk->BalloonWidget = widget;

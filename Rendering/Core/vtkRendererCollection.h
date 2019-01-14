@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRendererCollection - a list of renderers
-// .SECTION Description
-// vtkRendererCollection represents and provides methods to manipulate a list
-// of renderers (i.e., vtkRenderer and subclasses). The list is unsorted and
-// duplicate entries are not prevented.
-
-// .SECTION see also
-// vtkRenderer vtkCollection
+/**
+ * @class   vtkRendererCollection
+ * @brief   an ordered list of renderers
+ *
+ * vtkRendererCollection represents and provides methods to manipulate a list
+ * of renderers (i.e., vtkRenderer and subclasses). The list is ordered and
+ * duplicate entries are not prevented.
+ *
+ * @sa
+ * vtkRenderer vtkCollection
+*/
 
 #ifndef vtkRendererCollection_h
 #define vtkRendererCollection_h
@@ -33,48 +36,51 @@ class VTKRENDERINGCORE_EXPORT vtkRendererCollection : public vtkCollection
 public:
   static vtkRendererCollection *New();
   vtkTypeMacro(vtkRendererCollection, vtkCollection);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Add a Renderer to the list.
+  /**
+   * Add a Renderer to the bottom of the list.
+   */
   void AddItem(vtkRenderer *a)
     { this->vtkCollection::AddItem(a); }
 
 
-  // Description:
-  // Get the next Renderer in the list.
-  // Return NULL when at the end of the list.
+  /**
+   * Get the next Renderer in the list.
+   * Return NULL when at the end of the list.
+   */
   vtkRenderer *GetNextItem()
     { return static_cast<vtkRenderer *>(this->GetNextItemAsObject()); }
 
-  // Description:
-  // Forward the Render() method to each renderer in the list.
+  /**
+   * Forward the Render() method to each renderer in the list.
+   */
   void Render();
 
-  // Description:
-  // Get the first Renderer in the list.
-  // Return NULL when at the end of the list.
+  /**
+   * Get the first Renderer in the list.
+   * Return NULL when at the end of the list.
+   */
   vtkRenderer *GetFirstRenderer();
 
-  //BTX
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkRenderer *GetNextRenderer(vtkCollectionSimpleIterator &cookie)
     { return static_cast<vtkRenderer *>(this->GetNextItemAsObject(cookie)); }
-  //ETX
 
 protected:
   vtkRendererCollection() {}
-  ~vtkRendererCollection() {}
+  ~vtkRendererCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o)
     { this->vtkCollection::AddItem(o); }
 
-  vtkRendererCollection(const vtkRendererCollection&);  // Not implemented.
-  void operator=(const vtkRendererCollection&);  // Not implemented.
+  vtkRendererCollection(const vtkRendererCollection&) = delete;
+  void operator=(const vtkRendererCollection&) = delete;
 };
 
 #endif

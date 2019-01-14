@@ -25,6 +25,8 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkTestUtilities.h"
+#include "vtkTestErrorObserver.h"
+#include "vtkNew.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkCompositeRenderManager.h"
 #include "vtkDataSetReader.h"
@@ -85,7 +87,7 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->Argc=0;
-  this->Argv=0;
+  this->Argv=nullptr;
 }
 
 void MyProcess::SetArgs(int anArgc,
@@ -107,22 +109,22 @@ void MyProcess::Execute()
 //  vtkParallelRenderManager *prm = vtkParallelRenderManager::New();
   vtkImageRenderManager *prm = vtkImageRenderManager::New();
 
-  vtkRenderWindowInteractor *iren=0;
+  vtkRenderWindowInteractor *iren=nullptr;
 
   if(me==0)
-    {
+  {
     iren=vtkRenderWindowInteractor::New();
-    }
+  }
 
   // READER
 
   vtkDataSetReader *dsr = vtkDataSetReader::New();
   vtkUnstructuredGrid *ug = vtkUnstructuredGrid::New();
 
-  vtkDataSet *ds = NULL;
+  vtkDataSet *ds = nullptr;
 
   if (me == 0)
-    {
+  {
     char* fname =
       vtkTestUtilities::ExpandDataFileName(
         this->Argc, this->Argv, "Data/tetraMesh.vtk");
@@ -137,19 +139,19 @@ void MyProcess::Execute()
 
     go = 1;
 
-    if ((ds == NULL) || (ds->GetNumberOfCells() == 0))
-      {
-      if (ds)
-        {
-        cout << "Failure: input file has no cells" << endl;
-        }
-      go = 0;
-      }
-    }
-  else
+    if ((ds == nullptr) || (ds->GetNumberOfCells() == 0))
     {
-    ds = static_cast<vtkDataSet *>(ug);
+      if (ds)
+      {
+        cout << "Failure: input file has no cells" << endl;
+      }
+      go = 0;
     }
+  }
+  else
+  {
+    ds = static_cast<vtkDataSet *>(ug);
+  }
 
   vtkMPICommunicator *comm =
     vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
@@ -157,12 +159,12 @@ void MyProcess::Execute()
   comm->Broadcast(&go, 1, 0);
 
   if (!go)
-    {
+  {
     dsr->Delete();
     ug->Delete();
     prm->Delete();
     return;
-    }
+  }
 
   // DATA DISTRIBUTION FILTER
 
@@ -224,7 +226,10 @@ void MyProcess::Execute()
   vtkClearZPass *clearZ=vtkClearZPass::New();
   clearZ->SetDepth(0.9);
 
+  vtkNew<vtkTest::ErrorObserver> errorObserver1;
   vtkCompositeRGBAPass *compositeRGBAPass=vtkCompositeRGBAPass::New();
+  compositeRGBAPass->AddObserver(vtkCommand::ErrorEvent,
+                                 errorObserver1);
   compositeRGBAPass->SetController(this->Controller);
   compositeRGBAPass->SetKdtree(dd->GetKdtree());
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
@@ -261,9 +266,9 @@ void MyProcess::Execute()
   renWin->SetAlphaBitPlanes(1);
 
   if(me==0)
-    {
+  {
     iren->SetRenderWindow(renWin);
-    }
+  }
 
 
   renWin->AddRenderer(renderer);
@@ -290,43 +295,54 @@ void MyProcess::Execute()
   const int MY_RETURN_VALUE_MESSAGE=0x11;
 
   if (me == 0)
-    {
+  {
     renderer->ResetCamera();
     vtkCamera *camera = renderer->GetActiveCamera();
     //camera->UpdateViewport(renderer);
     camera->ParallelProjectionOn();
     camera->SetParallelScale(16);
 
-    renWin->Render();
     if(compositeRGBAPass->IsSupported(
          static_cast<vtkOpenGLRenderWindow *>(renWin)))
-      {
+    {
+      renWin->Render();
       this->ReturnValue=vtkRegressionTester::Test(this->Argc,this->Argv,renWin,
                                                   10);
-      }
+    }
     else
+    {
+      std::string gotMsg(errorObserver1->GetErrorMessage());
+      std::string expectedMsg("Missing required OpenGL extensions");
+      if (gotMsg.find(expectedMsg) == std::string::npos)    \
       {
-      this->ReturnValue=vtkTesting::PASSED; // not supported.
+        std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl;
+        this->ReturnValue=vtkTesting::FAILED;
       }
+      else
+      {
+        std::cout << expectedMsg << std::endl;
+      }
+      this->ReturnValue=vtkTesting::PASSED; // not supported.
+    }
 
     if(this->ReturnValue==vtkRegressionTester::DO_INTERACTOR)
-      {
+    {
       iren->Start();
-      }
+    }
     prm->StopServices();
     for (i=1; i < numProcs; i++)
-      {
-      this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
-      }
-    }
-  else
     {
+      this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
+    }
+  }
+  else
+  {
     prm->StartServices();
     this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
-    }
+  }
 
   if (this->ReturnValue == vtkTesting::PASSED)
-    {
+  {
     // Now try using the memory conserving *Lean methods.  The
     // image produced should be identical
 
@@ -336,7 +352,7 @@ void MyProcess::Execute()
     mapper->Update();
 
     if (me == 0)
-      {
+    {
       renderer->ResetCamera();
       vtkCamera *camera = renderer->GetActiveCamera();
       camera->UpdateViewport(renderer);
@@ -346,34 +362,34 @@ void MyProcess::Execute()
       renWin->Render();
       if(compositeRGBAPass->IsSupported(
            static_cast<vtkOpenGLRenderWindow *>(renWin)))
-        {
+      {
         this->ReturnValue=vtkRegressionTester::Test(this->Argc,this->Argv,
                                                     renWin,10);
-        }
+      }
       else
-        {
+      {
         this->ReturnValue=vtkTesting::PASSED; // not supported.
-        }
+      }
 
       for (i=1; i < numProcs; i++)
-        {
+      {
         this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
-        }
+      }
 
       prm->StopServices();
-      }
+    }
     else
-      {
+    {
       prm->StartServices();
       this->Controller->Receive(&this->ReturnValue,1,0,
                                 MY_RETURN_VALUE_MESSAGE);
-      }
     }
+  }
 
   if(me==0)
-    {
+  {
     iren->Delete();
-    }
+  }
 
   // CLEAN UP
 
@@ -407,24 +423,24 @@ int DistributedDataRenderPass(int argc, char *argv[])
   int me = contr->GetLocalProcessId();
 
   if (numProcs < 2)
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires 2 processes" << endl;
-      }
+    }
     contr->Delete();
     return retVal;
-    }
+  }
 
   if (!contr->IsA("vtkMPIController"))
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires MPI" << endl;
-      }
+    }
     contr->Delete();
     return retVal;   // is this the right error val?   TODO
-    }
+  }
 
   MyProcess *p=MyProcess::New();
   p->SetArgs(argc,argv);

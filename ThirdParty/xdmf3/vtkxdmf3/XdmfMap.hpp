@@ -24,14 +24,18 @@
 #ifndef XDMFMAP_HPP_
 #define XDMFMAP_HPP_
 
+// C Compatible Includes
+#include "Xdmf.hpp"
+#include "XdmfItem.hpp"
+
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfArray;
 class XdmfAttribute;
 class XdmfHeavyDataController;
 
 // Includes
-#include "Xdmf.hpp"
-#include "XdmfItem.hpp"
 
 #include <set>
 
@@ -394,6 +398,8 @@ public:
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfMap(XdmfMap & map);
+
 protected:
 
   XdmfMap();
@@ -416,5 +422,60 @@ private:
   std::vector<shared_ptr<XdmfHeavyDataController> > mRemoteTaskIdsControllers;
 
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFMAP; // Simply as a typedef to ensure correct typing
+typedef struct XDMFMAP XDMFMAP;
+
+XDMF_EXPORT XDMFMAP * XdmfMapNew();
+
+XDMF_EXPORT XDMFMAP ** XdmfMapNewFromIdVector(int ** globalNodeIds, int * numIdsOnNode, int numIds);
+
+XDMF_EXPORT char * XdmfMapGetName(XDMFMAP * map);
+
+XDMF_EXPORT void XdmfMapInsert(XDMFMAP * map, int remoteTaskId, int localNodeId, int remoteLocalNodeId);
+
+XDMF_EXPORT int XdmfMapIsInitialized(XDMFMAP * map);
+
+XDMF_EXPORT void XdmfMapRead(XDMFMAP * map, int * status);
+
+XDMF_EXPORT void XdmfMapRelease(XDMFMAP * map);
+
+XDMF_EXPORT int * XdmfMapRetrieveLocalNodeIds(XDMFMAP * map, int remoteTaskId);
+
+XDMF_EXPORT int XdmfMapRetrieveNumberLocalNodeIds(XDMFMAP * map, int remoteTaskId);
+
+XDMF_EXPORT int XdmfMapRetrieveNumberRemoteTaskIds(XDMFMAP * map);
+
+XDMF_EXPORT int XdmfMapRetrieveNumberRemoteNodeIds(XDMFMAP * map, int remoteTaskId, int localNodeId);
+
+XDMF_EXPORT int * XdmfMapRetrieveRemoteTaskIds(XDMFMAP * map);
+
+XDMF_EXPORT int * XdmfMapRetrieveRemoteNodeIds(XDMFMAP * map, int remoteTaskId, int localNodeId);
+
+XDMF_EXPORT void XdmfMapSetHeavyDataControllers(XDMFMAP * map,
+                                                XDMFHEAVYDATACONTROLLER ** remoteTaskControllers,
+                                                int numRemoteTaskControllers,
+                                                XDMFHEAVYDATACONTROLLER ** localNodeControllers,
+                                                int numberLocalNodeControllers,
+                                                XDMFHEAVYDATACONTROLLER ** remoteLocalNodeControllers,
+                                                int numRemoteLocalNodeControllers,
+                                                int passControl,
+                                                int * status);
+
+XDMF_EXPORT void XdmfMapSetName(XDMFMAP * map, char * newName);
+
+XDMF_ITEM_C_CHILD_DECLARE(XdmfMap, XDMFMAP, XDMF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFMAP_HPP_ */

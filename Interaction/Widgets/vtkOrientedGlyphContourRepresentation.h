@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOrientedGlyphContourRepresentation - Default representation for the contour widget
-// .SECTION Description
-// This class provides the default concrete representation for the
-// vtkContourWidget. It works in conjunction with the
-// vtkContourLineInterpolator and vtkPointPlacer. See vtkContourWidget
-// for details.
-// .SECTION See Also
-// vtkContourRepresentation vtkContourWidget vtkPointPlacer
-// vtkContourLineInterpolator
+/**
+ * @class   vtkOrientedGlyphContourRepresentation
+ * @brief   Default representation for the contour widget
+ *
+ * This class provides the default concrete representation for the
+ * vtkContourWidget. It works in conjunction with the
+ * vtkContourLineInterpolator and vtkPointPlacer. See vtkContourWidget
+ * for details.
+ * @sa
+ * vtkContourRepresentation vtkContourWidget vtkPointPlacer
+ * vtkContourLineInterpolator
+*/
 
 #ifndef vtkOrientedGlyphContourRepresentation_h
 #define vtkOrientedGlyphContourRepresentation_h
@@ -38,92 +41,124 @@ class vtkPoints;
 class VTKINTERACTIONWIDGETS_EXPORT vtkOrientedGlyphContourRepresentation : public vtkContourRepresentation
 {
 public:
-  // Description:
-  // Instantiate this class.
+  /**
+   * Instantiate this class.
+   */
   static vtkOrientedGlyphContourRepresentation *New();
 
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkOrientedGlyphContourRepresentation,vtkContourRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // Specify the cursor shape. Keep in mind that the shape will be
-  // aligned with the  constraining plane by orienting it such that
-  // the x axis of the geometry lies along the normal of the plane.
+  //@{
+  /**
+   * Specify the cursor shape. Keep in mind that the shape will be
+   * aligned with the constraining plane by orienting it such that
+   * the x axis of the geometry lies along the normal of the plane.
+   */
   void SetCursorShape(vtkPolyData *cursorShape);
   vtkPolyData *GetCursorShape();
+  //@}
 
-  // Description:
-  // Specify the shape of the cursor (handle) when it is active.
-  // This is the geometry that will be used when the mouse is
-  // close to the handle or if the user is manipulating the handle.
+  //@{
+  /**
+   * Specify the shape of the cursor (handle) when it is active.
+   * This is the geometry that will be used when the mouse is
+   * close to the handle or if the user is manipulating the handle.
+   */
   void SetActiveCursorShape(vtkPolyData *activeShape);
   vtkPolyData *GetActiveCursorShape();
+  //@}
 
-  // Description:
-  // This is the property used when the handle is not active
-  // (the mouse is not near the handle)
+  //@{
+  /**
+   * This is the property used when the handle is not active
+   * (the mouse is not near the handle)
+   */
   vtkGetObjectMacro(Property,vtkProperty);
+  //@}
 
-  // Description:
-  // This is the property used when the user is interacting
-  // with the handle.
+  //@{
+  /**
+   * This is the property used when the user is interacting
+   * with the handle.
+   */
   vtkGetObjectMacro(ActiveProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // This is the property used by the lines.
+  //@{
+  /**
+   * This is the property used by the lines.
+   */
   vtkGetObjectMacro(LinesProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // Subclasses of vtkOrientedGlyphContourRepresentation must implement these methods. These
-  // are the methods that the widget and its representation use to
-  // communicate with each other.
-  virtual void SetRenderer(vtkRenderer *ren);
-  virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual void WidgetInteraction(double eventPos[2]);
-  virtual int ComputeInteractionState(int X, int Y, int modified=0);
+  //@{
+  /**
+   * Subclasses of vtkOrientedGlyphContourRepresentation must implement these methods. These
+   * are the methods that the widget and its representation use to
+   * communicate with each other.
+   */
+  void SetRenderer(vtkRenderer *ren) override;
+  void BuildRepresentation() override;
+  void StartWidgetInteraction(double eventPos[2]) override;
+  void WidgetInteraction(double eventPos[2]) override;
+  int ComputeInteractionState(int X, int Y, int modified=0) override;
+  //@}
 
-  // Description:
-  // Methods to make this class behave as a vtkProp.
-  virtual void GetActors(vtkPropCollection *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
-  virtual int HasTranslucentPolygonalGeometry();
+  //@{
+  /**
+   * Methods to make this class behave as a vtkProp.
+   */
+  void GetActors(vtkPropCollection *) override;
+  void ReleaseGraphicsResources(vtkWindow *) override;
+  int RenderOverlay(vtkViewport *viewport) override;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
+  //@}
 
-  // Description:
-  // Get the points in this contour as a vtkPolyData.
-  virtual vtkPolyData * GetContourRepresentationAsPolyData();
+  /**
+   * Get the points in this contour as a vtkPolyData.
+   */
+  vtkPolyData * GetContourRepresentationAsPolyData() override;
 
-  // Description:
-  // Controls whether the contour widget should always appear on top
-  // of other actors in the scene. (In effect, this will disable OpenGL
-  // Depth buffer tests while rendering the contour).
-  // Default is to set it to false.
-  vtkSetMacro( AlwaysOnTop, int );
-  vtkGetMacro( AlwaysOnTop, int );
-  vtkBooleanMacro( AlwaysOnTop, int );
+  //@{
+  /**
+   * Controls whether the contour widget should always appear on top
+   * of other actors in the scene. (In effect, this will disable OpenGL
+   * Depth buffer tests while rendering the contour).
+   * Default is to set it to false.
+   */
+  vtkSetMacro( AlwaysOnTop, vtkTypeBool );
+  vtkGetMacro( AlwaysOnTop, vtkTypeBool );
+  vtkBooleanMacro( AlwaysOnTop, vtkTypeBool );
+  //@}
 
-  // Description:
-  // Convenience method to set the line color.
-  // Ideally one should use GetLinesProperty()->SetColor().
+  /**
+   * Convenience method to set the line color.
+   * Ideally one should use GetLinesProperty()->SetColor().
+   */
   void SetLineColor(double r, double g, double b);
 
-  // Description:
-  // A flag to indicate whether to show the Selected nodes
-  // Default is to set it to false.
-  virtual void SetShowSelectedNodes(int);
+  /**
+   * A flag to indicate whether to show the Selected nodes
+   * Default is to set it to false.
+   */
+  void SetShowSelectedNodes(vtkTypeBool) override;
 
-  // Description:
-  // Return the bounds of the representation
-  virtual double *GetBounds();
+  /**
+   * Return the bounds of the representation
+   */
+  double *GetBounds() override;
 
 protected:
   vtkOrientedGlyphContourRepresentation();
-  ~vtkOrientedGlyphContourRepresentation();
+  ~vtkOrientedGlyphContourRepresentation() override;
 
   // Render the cursor
   vtkActor             *Actor;
@@ -175,13 +210,13 @@ protected:
   // widget is focused - maintain this distance during interaction.
   double InteractionOffset[2];
 
-  int AlwaysOnTop;
+  vtkTypeBool AlwaysOnTop;
 
-  virtual void BuildLines();
+  void BuildLines() override;
 
 private:
-  vtkOrientedGlyphContourRepresentation(const vtkOrientedGlyphContourRepresentation&);  //Not implemented
-  void operator=(const vtkOrientedGlyphContourRepresentation&);  //Not implemented
+  vtkOrientedGlyphContourRepresentation(const vtkOrientedGlyphContourRepresentation&) = delete;
+  void operator=(const vtkOrientedGlyphContourRepresentation&) = delete;
 };
 
 #endif

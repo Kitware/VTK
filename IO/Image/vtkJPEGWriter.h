@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkJPEGWriter - Writes JPEG files.
-// .SECTION Description
-// vtkJPEGWriter writes JPEG files. It supports 1 and 3 component data of
-// unsigned char. It relies on the IJG's libjpeg.  Thanks to IJG for
-// supplying a public jpeg IO library.
-
-// .SECTION See Also
-// vtkJPEGReader
+/**
+ * @class   vtkJPEGWriter
+ * @brief   Writes JPEG files.
+ *
+ * vtkJPEGWriter writes JPEG files. It supports 1 and 3 component data of
+ * unsigned char. It relies on the IJG's libjpeg.  Thanks to IJG for
+ * supplying a public jpeg IO library.
+ *
+ * @sa
+ * vtkJPEGReader
+*/
 
 #ifndef vtkJPEGWriter_h
 #define vtkJPEGWriter_h
@@ -35,51 +38,63 @@ class VTKIOIMAGE_EXPORT vtkJPEGWriter : public vtkImageWriter
 public:
   static vtkJPEGWriter *New();
   vtkTypeMacro(vtkJPEGWriter,vtkImageWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // The main interface which triggers the writer to start.
-  virtual void Write();
+  /**
+   * The main interface which triggers the writer to start.
+   */
+  void Write() override;
 
-  // Description:
-  // Compression quality. 0 = Low quality, 100 = High quality
+  //@{
+  /**
+   * Compression quality. 0 = Low quality, 100 = High quality
+   */
   vtkSetClampMacro(Quality, int, 0, 100);
   vtkGetMacro(Quality, int);
+  //@}
 
-  // Description:
-  // Progressive JPEG generation.
-  vtkSetMacro(Progressive, unsigned int);
-  vtkGetMacro(Progressive, unsigned int);
-  vtkBooleanMacro(Progressive, unsigned int);
+  //@{
+  /**
+   * Progressive JPEG generation.
+   */
+  vtkSetMacro(Progressive, vtkTypeUBool);
+  vtkGetMacro(Progressive, vtkTypeUBool);
+  vtkBooleanMacro(Progressive, vtkTypeUBool);
+  //@}
 
-  // Description:
-  // Write the image to memory (a vtkUnsignedCharArray)
-  vtkSetMacro(WriteToMemory, unsigned int);
-  vtkGetMacro(WriteToMemory, unsigned int);
-  vtkBooleanMacro(WriteToMemory, unsigned int);
+  //@{
+  /**
+   * Write the image to memory (a vtkUnsignedCharArray)
+   */
+  vtkSetMacro(WriteToMemory, vtkTypeUBool);
+  vtkGetMacro(WriteToMemory, vtkTypeUBool);
+  vtkBooleanMacro(WriteToMemory, vtkTypeUBool);
+  //@}
 
-  // Description:
-  // When writing to memory this is the result, it will be NULL until the
-  // data is written the first time
+  //@{
+  /**
+   * When writing to memory this is the result, it will be nullptr until the
+   * data is written the first time
+   */
   virtual void SetResult(vtkUnsignedCharArray*);
   vtkGetObjectMacro(Result, vtkUnsignedCharArray);
+  //@}
 
 protected:
   vtkJPEGWriter();
-  ~vtkJPEGWriter();
+  ~vtkJPEGWriter() override;
 
   void WriteSlice(vtkImageData *data, int* uExtent);
 
 private:
   int Quality;
-  unsigned int Progressive;
-  unsigned int WriteToMemory;
+  vtkTypeUBool Progressive;
   vtkUnsignedCharArray *Result;
   FILE *TempFP;
 
 private:
-  vtkJPEGWriter(const vtkJPEGWriter&);  // Not implemented.
-  void operator=(const vtkJPEGWriter&);  // Not implemented.
+  vtkJPEGWriter(const vtkJPEGWriter&) = delete;
+  void operator=(const vtkJPEGWriter&) = delete;
 };
 
 #endif

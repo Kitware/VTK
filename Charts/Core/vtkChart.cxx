@@ -32,6 +32,7 @@ vtkChart::MouseActions::MouseActions()
   this->Select() = vtkContextMouseEvent::RIGHT_BUTTON;
   this->ZoomAxis() = -1;
   this->SelectPolygon() = -1;
+  this->ClickAndDrag() = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -60,7 +61,7 @@ vtkChart::vtkChart()
   this->TitleProperties->SetColor(0.0, 0.0, 0.0);
   this->TitleProperties->SetFontSize(12);
   this->TitleProperties->SetFontFamilyToArial();
-  this->AnnotationLink = NULL;
+  this->AnnotationLink = nullptr;
   this->LayoutStrategy = vtkChart::FILL_SCENE;
   this->RenderEmpty = false;
   this->BackgroundBrush = vtkSmartPointer<vtkBrush>::New();
@@ -73,23 +74,23 @@ vtkChart::vtkChart()
 vtkChart::~vtkChart()
 {
   for(int i=0; i < 4; i++)
-    {
+  {
     if(this->GetAxis(i))
-      {
+    {
       this->GetAxis(i)->RemoveObservers(vtkChart::UpdateRange);
-      }
     }
+  }
   this->TitleProperties->Delete();
   if (this->AnnotationLink)
-    {
+  {
     this->AnnotationLink->Delete();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 vtkPlot * vtkChart::AddPlot(int)
 {
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -108,16 +109,16 @@ bool vtkChart::RemovePlot(vtkIdType)
 bool vtkChart::RemovePlotInstance(vtkPlot* plot)
 {
   if (plot)
-    {
+  {
     vtkIdType numberOfPlots = this->GetNumberOfPlots();
     for (vtkIdType i = 0; i < numberOfPlots; ++i)
-      {
+    {
       if (this->GetPlot(i) == plot)
-        {
+      {
         return this->RemovePlot(i);
-        }
       }
     }
+  }
   return false;
 }
 
@@ -129,7 +130,7 @@ void vtkChart::ClearPlots()
 //-----------------------------------------------------------------------------
 vtkPlot* vtkChart::GetPlot(vtkIdType)
 {
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -141,7 +142,12 @@ vtkIdType vtkChart::GetNumberOfPlots()
 //-----------------------------------------------------------------------------
 vtkAxis* vtkChart::GetAxis(int)
 {
-  return NULL;
+  return nullptr;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::SetAxis(int, vtkAxis*)
+{
 }
 
 //-----------------------------------------------------------------------------
@@ -153,16 +159,15 @@ vtkIdType vtkChart::GetNumberOfAxes()
 //-----------------------------------------------------------------------------
 void vtkChart::RecalculateBounds()
 {
-  return;
 }
 
 //-----------------------------------------------------------------------------
 void vtkChart::SetSelectionMethod(int method)
 {
   if (method == this->SelectionMethod)
-    {
+  {
     return;
-    }
+  }
   this->SelectionMethod = method;
   this->Modified();
 }
@@ -177,10 +182,10 @@ int vtkChart::GetSelectionMethod()
 void vtkChart::SetShowLegend(bool visible)
 {
   if (this->ShowLegend != visible)
-    {
+  {
     this->ShowLegend = visible;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -191,17 +196,17 @@ bool vtkChart::GetShowLegend()
 
 vtkChartLegend * vtkChart::GetLegend()
 {
-  return 0;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
 void vtkChart::SetTitle(const vtkStdString &title)
 {
   if (this->Title != title)
-    {
+  {
     this->Title = title;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -215,10 +220,10 @@ bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
                                       vtkTransform2D *transform)
 {
   if (!x || !y || !transform)
-    {
+  {
     vtkWarningMacro("Called with null arguments.");
     return false;
-    }
+  }
 
   vtkVector2d origin(x->GetMinimum(), y->GetMinimum());
   vtkVector2d scale(x->GetMaximum() - x->GetMinimum(),
@@ -227,19 +232,19 @@ bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
   vtkVector2d factor(1.0, 1.0);
 
   for (int i = 0; i < 2; ++i)
-    {
+  {
     if (fabs(log10(origin[i] / scale[i])) > 2)
-      {
+    {
       shift[i] = floor(log10(origin[i] / scale[i]) / 3.0) * 3.0;
       shift[i] = -origin[i];
-      }
+    }
     if (fabs(log10(scale[i])) > 10)
-      {
+    {
       // We need to scale the transform to show all data, do this in blocks.
       factor[i] = pow(10.0, floor(log10(scale[i]) / 10.0) * -10.0);
       scale[i] = scale[i] * factor[i];
-      }
     }
+  }
   x->SetScalingFactor(factor[0]);
   x->SetShift(shift[0]);
   y->SetScalingFactor(factor[1]);
@@ -249,18 +254,18 @@ bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
   float *min = x->GetPoint1();
   float *max = x->GetPoint2();
   if (fabs(max[0] - min[0]) == 0.0)
-    {
+  {
     return false;
-    }
+  }
   float xScale = scale[0] / (max[0] - min[0]);
 
   // Now the y axis
   min = y->GetPoint1();
   max = y->GetPoint2();
   if (fabs(max[1] - min[1]) == 0.0)
-    {
+  {
     return false;
-    }
+  }
   float yScale = scale[1] / (max[1] - min[1]);
 
   transform->Identity();
@@ -277,10 +282,10 @@ bool vtkChart::CalculateUnscaledPlotTransform(vtkAxis *x, vtkAxis *y,
                                               vtkTransform2D *transform)
 {
   if (!x || !y || !transform)
-    {
+  {
     vtkWarningMacro("Called with null arguments.");
     return false;
-    }
+  }
 
   vtkVector2d scale(x->GetMaximum() - x->GetMinimum(),
                     y->GetMaximum() - y->GetMinimum());
@@ -289,18 +294,18 @@ bool vtkChart::CalculateUnscaledPlotTransform(vtkAxis *x, vtkAxis *y,
   float *min = x->GetPoint1();
   float *max = x->GetPoint2();
   if (fabs(max[0] - min[0]) == 0.0)
-    {
+  {
     return false;
-    }
+  }
   double xScale = scale[0] / (max[0] - min[0]);
 
   // Now the y axis
   min = y->GetPoint1();
   max = y->GetPoint2();
   if (fabs(max[1] - min[1]) == 0.0)
-    {
+  {
     return false;
-    }
+  }
   double yScale = scale[1] / (max[1] - min[1]);
 
   transform->Identity();
@@ -367,18 +372,18 @@ vtkRectf vtkChart::GetSize()
 void vtkChart::SetActionToButton(int action, int button)
 {
   if (action < -1 || action >= MouseActions::MaxAction)
-    {
+  {
     vtkErrorMacro("Error, invalid action value supplied: " << action)
     return;
-    }
+  }
   this->Actions[action] = button;
   for (int i = 0; i < MouseActions::MaxAction; ++i)
-    {
+  {
     if (this->Actions[i] == button && i != action)
-      {
+    {
       this->Actions[i] = -1;
-      }
     }
+  }
 }
 
 int vtkChart::GetActionToButton(int action)
@@ -388,31 +393,48 @@ int vtkChart::GetActionToButton(int action)
 
 void vtkChart::SetClickActionToButton(int action, int button)
 {
-  if (action < vtkChart::SELECT || action > vtkChart::NOTIFY)
-    {
-    vtkErrorMacro("Error, invalid action value supplied: " << action)
+  if (action != vtkChart::SELECT && action != vtkChart::NOTIFY)
+  {
+    vtkErrorMacro("Error, invalid click action value supplied: " << action)
     return;
-    }
-  this->Actions[action - 2] = button;
+  }
+
+  if (action == vtkChart::NOTIFY)
+  {
+    this->ActionsClick[0] = button;
+  }
+  else if (action == vtkChart::SELECT)
+  {
+    this->ActionsClick[1] = button;
+  }
 }
 
 int vtkChart::GetClickActionToButton(int action)
 {
-  return this->Actions[action - 2];
+  if (action == vtkChart::NOTIFY)
+  {
+    return this->ActionsClick[0];
+  }
+  else if (action == vtkChart::SELECT)
+  {
+    return this->ActionsClick[1];
+  }
+
+  return -1;
 }
 
 //-----------------------------------------------------------------------------
 void vtkChart::SetBackgroundBrush(vtkBrush *brush)
 {
-  if(brush == NULL)
-    {
+  if(brush == nullptr)
+  {
     // set to transparent white if brush is null
     this->BackgroundBrush->SetColorF(1, 1, 1, 0);
-    }
+  }
   else
-    {
+  {
     this->BackgroundBrush = brush;
-    }
+  }
 
   this->Modified();
 }
@@ -420,7 +442,7 @@ void vtkChart::SetBackgroundBrush(vtkBrush *brush)
 //-----------------------------------------------------------------------------
 vtkBrush* vtkChart::GetBackgroundBrush()
 {
-  return this->BackgroundBrush.GetPointer();
+  return this->BackgroundBrush;
 }
 
 //-----------------------------------------------------------------------------
@@ -447,21 +469,21 @@ void vtkChart::AxisRangeForwarderCallback(vtkObject*, unsigned long, void*)
 {
   double fullAxisRange[8];
   for(int i=0; i < 4; i++)
-    {
+  {
     this->GetAxis(i)->GetRange(&fullAxisRange[i*2]);
-    }
+  }
   this->InvokeEvent(vtkChart::UpdateRange, fullAxisRange);
 }
 
 //-----------------------------------------------------------------------------
 void vtkChart::SetSelectionMode(int selMode)
-  {
+{
   if (this->SelectionMode == selMode ||
     selMode < vtkContextScene::SELECTION_NONE ||
     selMode > vtkContextScene::SELECTION_TOGGLE)
-    {
+  {
     return;
-    }
+  }
   this->SelectionMode = selMode;
   this->Modified();
 }

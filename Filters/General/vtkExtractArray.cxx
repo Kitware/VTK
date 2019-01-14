@@ -39,9 +39,7 @@ vtkExtractArray::vtkExtractArray() :
   this->SetNumberOfOutputPorts(1);
 }
 
-vtkExtractArray::~vtkExtractArray()
-{
-}
+vtkExtractArray::~vtkExtractArray() = default;
 
 void vtkExtractArray::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -52,11 +50,11 @@ void vtkExtractArray::PrintSelf(ostream& os, vtkIndent indent)
 int vtkExtractArray::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch(port)
-    {
+  {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
       return 1;
-    }
+  }
 
   return 0;
 }
@@ -69,10 +67,10 @@ int vtkExtractArray::RequestData(
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
 
   if(this->Index < 0 || this->Index >= input->GetNumberOfArrays())
-    {
+  {
     vtkErrorMacro(<< "Array index " << this->Index << " out-of-range for vtkArrayData containing " << input->GetNumberOfArrays() << " arrays.");
     return 0;
-    }
+  }
 
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
   output->ClearArrays();

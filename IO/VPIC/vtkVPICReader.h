@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVPICReader - class for reading VPIC data files
-// .SECTION Description
-// vtkDataReader is a helper superclass that reads the vtk data file header,
-// dataset type, and attribute data (point and cell attributes such as
-// scalars, vectors, normals, etc.) from a vtk data file.  See text for
-// the format of the various vtk file types.
-//
-// .SECTION See Also
-// vtkPolyDataReader vtkStructuredPointsReader vtkStructuredGridReader
-// vtkUnstructuredGridReader vtkRectilinearGridReader
+/**
+ * @class   vtkVPICReader
+ * @brief   class for reading VPIC data files
+ *
+ * vtkDataReader is a helper superclass that reads the vtk data file header,
+ * dataset type, and attribute data (point and cell attributes such as
+ * scalars, vectors, normals, etc.) from a vtk data file.  See text for
+ * the format of the various vtk file types.
+ *
+ * @sa
+ * vtkPolyDataReader vtkStructuredPointsReader vtkStructuredGridReader
+ * vtkUnstructuredGridReader vtkRectilinearGridReader
+*/
 
 #ifndef vtkVPICReader_h
 #define vtkVPICReader_h
@@ -36,57 +39,72 @@ class vtkFloatArray;
 class vtkStdString;
 class vtkMultiProcessController;
 class vtkInformation;
-//BTX
+
 class VPICDataSet;
 class GridExchange;
-//ETX
+
 class VTKIOVPIC_EXPORT vtkVPICReader : public vtkImageAlgorithm
 {
 public:
   static vtkVPICReader *New();
   vtkTypeMacro(vtkVPICReader,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Specify file name of VPIC data file to read.
+  //@{
+  /**
+   * Specify file name of VPIC data file to read.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Set the stride in each dimension
+  //@{
+  /**
+   * Set the stride in each dimension
+   */
   vtkSetVector3Macro(Stride, int);
   vtkGetVector3Macro(Stride, int);
+  //@}
 
-  // Description:
-  // Set the simulation file decomposition in each dimension
+  //@{
+  /**
+   * Set the simulation file decomposition in each dimension
+   */
   vtkSetVector2Macro(XExtent, int);
   vtkSetVector2Macro(YExtent, int);
   vtkSetVector2Macro(ZExtent, int);
+  //@}
 
   // Get the full layout size in files for setting the range in GUI
   vtkGetVector2Macro(XLayout, int);
   vtkGetVector2Macro(YLayout, int);
   vtkGetVector2Macro(ZLayout, int);
 
-  // Description:
-  // Get the reader's output
+  //@{
+  /**
+   * Get the reader's output
+   */
   vtkImageData *GetOutput();
   vtkImageData *GetOutput(int index);
+  //@}
 
-  // Description:
-  // The following methods allow selective reading of solutions fields.
-  // By default, ALL data fields on the nodes are read, but this can
-  // be modified.
+  //@{
+  /**
+   * The following methods allow selective reading of solutions fields.
+   * By default, ALL data fields on the nodes are read, but this can
+   * be modified.
+   */
   int GetNumberOfPointArrays();
   const char* GetPointArrayName(int index);
   int GetPointArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
   void DisableAllPointArrays();
   void EnableAllPointArrays();
+  //@}
 
 protected:
   vtkVPICReader();
-  ~vtkVPICReader();
+  ~vtkVPICReader() override;
 
   char *FileName;                       // First field part file giving path
 
@@ -95,7 +113,7 @@ protected:
   int UsedRank;                         // Number of processors used in display
 
   VPICDataSet* vpicData;                // Data structure controlling access
-  GridExchange* exchanger;		// Exchange ghost cells between procs
+  GridExchange* exchanger;              // Exchange ghost cells between procs
 
   vtkIdType NumberOfNodes;              // Number of points in grid
   vtkIdType NumberOfCells;              // Number of cells in grid
@@ -141,9 +159,9 @@ protected:
   vtkCallbackCommand* SelectionObserver;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **inVector,
-                         vtkInformationVector *);
+                         vtkInformationVector *) override;
 
   void LoadVariableData(int var, int timeStep);
   void LoadComponent(
@@ -159,8 +177,8 @@ protected:
 
 
 private:
-  vtkVPICReader(const vtkVPICReader&);  // Not implemented.
-  void operator=(const vtkVPICReader&); // Not implemented.
+  vtkVPICReader(const vtkVPICReader&) = delete;
+  void operator=(const vtkVPICReader&) = delete;
 };
 
 #endif

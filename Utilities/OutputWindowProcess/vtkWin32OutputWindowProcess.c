@@ -113,11 +113,16 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev,
   UpdateWindow(MainWindow);
 
   /* Create a thread to read from standard input and write to the window.  */
-  {DWORD threadId; CreateThread(0, 1024, ReadThreadProc, 0, 0, &threadId);}
+  {
+  DWORD threadId;
+  HANDLE threadHandle = CreateThread(0, 1024, ReadThreadProc, 0, 0, &threadId);
 
   /* Run the event loop until the window is closed.  */
   MainEventLoop();
 
+  CloseHandle(threadHandle);
+  }
+  
   return 0;
 }
 

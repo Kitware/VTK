@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMoleculeToPolyDataFilter - abstract filter class
-// .SECTION Description
-// vtkMoleculeToPolyDataFilter is an abstract filter class whose
-// subclasses take as input datasets of type vtkMolecule and
-// generate polygonal data on output.
+/**
+ * @class   vtkMoleculeToPolyDataFilter
+ * @brief   abstract filter class
+ *
+ * vtkMoleculeToPolyDataFilter is an abstract filter class whose
+ * subclasses take as input datasets of type vtkMolecule and
+ * generate polygonal data on output.
+*/
 
 #ifndef vtkMoleculeToPolyDataFilter_h
 #define vtkMoleculeToPolyDataFilter_h
@@ -31,19 +34,19 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkMoleculeToPolyDataFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkMolecule * GetInput();
 
 protected:
   vtkMoleculeToPolyDataFilter();
-  ~vtkMoleculeToPolyDataFilter();
+  ~vtkMoleculeToPolyDataFilter() override;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkMoleculeToPolyDataFilter(const vtkMoleculeToPolyDataFilter&);  // Not implemented.
-  void operator=(const vtkMoleculeToPolyDataFilter&);  // Not implemented.
+  vtkMoleculeToPolyDataFilter(const vtkMoleculeToPolyDataFilter&) = delete;
+  void operator=(const vtkMoleculeToPolyDataFilter&) = delete;
 };
 
 #endif

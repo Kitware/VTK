@@ -29,14 +29,13 @@ rakeActor = vtk.vtkActor()
 rakeActor.SetMapper(rakeMapper)
 
 integ = vtk.vtkRungeKutta4()
-sl = vtk.vtkStreamLine()
+sl = vtk.vtkStreamTracer()
 sl.SetInputData(pl3d_output)
 sl.SetSourceConnection(rake.GetOutputPort())
 sl.SetIntegrator(integ)
-sl.SetMaximumPropagationTime(0.1)
-sl.SetIntegrationStepLength(0.1)
+sl.SetMaximumPropagation(100)
+sl.SetInitialIntegrationStep(0.1)
 sl.SetIntegrationDirectionToBackward()
-sl.SetStepLength(0.001)
 
 # The ruled surface stiches together lines with triangle strips.
 # Note the SetOnRatio method. It turns on every other strip that

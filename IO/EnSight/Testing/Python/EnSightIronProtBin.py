@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -30,7 +29,6 @@ Contour0.SetValue(0,200)
 Contour0.SetComputeScalars(1)
 mapper = vtk.vtkHierarchicalPolyDataMapper()
 mapper.SetInputConnection(Contour0.GetOutputPort())
-mapper.SetImmediateModeRendering(1)
 mapper.SetScalarRange(0,1)
 mapper.SetScalarVisibility(1)
 actor = vtk.vtkActor()

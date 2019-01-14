@@ -1,35 +1,76 @@
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
-if(POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW) # CMake 3.0
-endif()
-if(POLICY CMP0053)
-  cmake_policy(SET CMP0053 NEW) # CMake 3.1
-endif()
+cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+project(ImageProcessing)
 
-PROJECT(ImageProcessing)
+find_package(VTK
+  OPTIONAL_COMPONENTS
+    TestingCore
+    TestingRendering)
+find_package(VTK
+  COMPONENTS
+    CommonSystem
+    IOImage
+    ImagingFourier
+    ImagingGeneral
+    ImagingSources
+    ImagingStatistics
+    ImagingStencil
+    InteractionStyle
+    RenderingCore
+    RenderingOpenGL2)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-find_package(VTK COMPONENTS
-  vtkIOImage
-  vtkImagingCore
-  vtkInteractionStyle
-  vtkRendering${VTK_RENDERING_BACKEND}
-  vtkTestingRendering
-)
-include(${VTK_USE_FILE})
+add_executable(ImageSlicing MACOSX_BUNDLE
+  ImageSlicing.cxx)
+target_link_libraries(ImageSlicing
+  PRIVATE
+    ${VTK_LIBRARIES})
 
-add_executable(ImageSlicing MACOSX_BUNDLE ImageSlicing.cxx)
-target_link_libraries(ImageSlicing ${VTK_LIBRARIES})
+add_executable(ImageBenchmark
+  ImageBenchmark.cxx)
+target_link_libraries(ImageBenchmark
+  PRIVATE
+    ${VTK_LIBRARIES})
 
-if(BUILD_TESTING)
-  if(vtkTestingRendering_LOADED)
-   ######## Regression Testing ########
-   set(vtk-example ImageProcessingExamples)
-   set(TestImageSlicing_ARGS ${VTK_TEST_DATA_DIR}/Data/headsq/quarter)
-   vtk_add_test_cxx(${vtk-example}CxxTests tests
-     TestImageSlicing.cxx
-     )
-   vtk_test_cxx_executable(${vtk-example}CxxTests tests
-     RENDERING_FACTORY
-     )
- endif()
-endif()
+add_executable(ImageBenchmarkDriver
+  ImageBenchmarkDriver.cxx)
+target_link_libraries(ImageBenchmarkDriver
+  PRIVATE
+    ${VTK_LIBRARIES})
+
+vtk_module_autoinit(
+  TARGETS ImageSlicing
+          ImageBenchmark
+          ImageBenchmarkDriver
+  MODULES ${VTK_LIBRARIES})
+
+if (BUILD_TESTING)
+  include(CTest)
+  if (TARGET VTK::TestingRendering)
+    ######## Regression Testing ########
+    include(ExternalData)
+
+    ExternalData_add_test(ImageProcessingData
+      NAME    "ImageProcessingExampleCxx-ImageBenchmark"
+      COMMAND ImageBenchmark
+              --threads 2
+              --filter resize:kernelsize=4
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+    # FIXME: This test doesn't exit.
+    if (FALSE)
+      ExternalData_Expand_Arguments(ImageProcessingData _
+        DATA{${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data/headsq/,REGEX:.*})
+
+      ExternalData_add_test(ImageProcessingData
+        NAME    "ImageProcessingExampleCxx-ImageSlicing"
+        COMMAND ImageSlicing
+                ${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing/Data/headsq/quarter
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    endif ()
+
+    ExternalData_Add_Target(ImageProcessingData)
+  endif ()
+endif ()

@@ -24,47 +24,47 @@
 class vtkTestReferenceLoop: public vtkObject
 {
 public:
-  static vtkTestReferenceLoop* New() { return new vtkTestReferenceLoop; }
+  static vtkTestReferenceLoop* New()
+  {
+    vtkTestReferenceLoop *ret = new vtkTestReferenceLoop;
+    ret->InitializeObjectBase();
+    return ret;
+  }
   vtkTypeMacro(vtkTestReferenceLoop, vtkObject);
 
-  void Register(vtkObjectBase* o) { this->RegisterInternal(o, 1); }
-  void UnRegister(vtkObjectBase* o) { this->UnRegisterInternal(o, 1); }
+  void Register(vtkObjectBase* o) override { this->RegisterInternal(o, 1); }
+  void UnRegister(vtkObjectBase* o) override { this->UnRegisterInternal(o, 1); }
 
 protected:
   vtkTestReferenceLoop()
-    {
+  {
     this->Other = new vtkTestReferenceLoop(this);
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass("vtkTestReferenceLoop");
-#endif
-    }
+    this->Other->InitializeObjectBase();
+  }
   vtkTestReferenceLoop(vtkTestReferenceLoop* other)
-    {
+  {
     this->Other = other;
     this->Other->Register(this);
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass("vtkTestReferenceLoop");
-#endif
-    }
-  ~vtkTestReferenceLoop()
-    {
+  }
+  ~vtkTestReferenceLoop() override
+  {
     if(this->Other)
-      {
-      this->Other->UnRegister(this);
-      this->Other = 0;
-      }
-    }
-
-  void ReportReferences(vtkGarbageCollector* collector)
     {
-    vtkGarbageCollectorReport(collector, this->Other, "Other");
+      this->Other->UnRegister(this);
+      this->Other = nullptr;
     }
+  }
+
+  void ReportReferences(vtkGarbageCollector* collector) override
+  {
+    vtkGarbageCollectorReport(collector, this->Other, "Other");
+  }
 
   vtkTestReferenceLoop* Other;
 
 private:
-  vtkTestReferenceLoop(const vtkTestReferenceLoop&);  // Not implemented.
-  void operator=(const vtkTestReferenceLoop&);  // Not implemented.
+  vtkTestReferenceLoop(const vtkTestReferenceLoop&) = delete;
+  void operator=(const vtkTestReferenceLoop&) = delete;
 };
 
 // A callback that reports when it is called.
@@ -89,10 +89,10 @@ int TestGarbageCollector(int,char *[])
   called = 0;
   obj->Delete();
   if(!called)
-    {
+  {
     cerr << "Object not immediately collected." << endl;
     return 1;
-    }
+  }
 
   // Create an object, enable deferred collection, and delete it.  It
   // should not be collected yet.
@@ -102,18 +102,18 @@ int TestGarbageCollector(int,char *[])
   called = 0;
   obj->Delete();
   if(called)
-    {
+  {
     cerr << "Object collection not deferred." << endl;
     return 1;
-    }
+  }
 
   // Disable deferred collection.  The object should be deleted now.
   vtkGarbageCollector::DeferredCollectionPop();
   if(!called)
-    {
+  {
     cerr << "Deferred collection did not collect object." << endl;
     return 1;
-    }
+  }
 
   return 0;
 }

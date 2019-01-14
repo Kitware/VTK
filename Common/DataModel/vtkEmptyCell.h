@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkEmptyCell - an empty cell used as a place-holder during processing
-// .SECTION Description
-// vtkEmptyCell is a concrete implementation of vtkCell. It is used
-// during processing to represented a deleted element.
+/**
+ * @class   vtkEmptyCell
+ * @brief   an empty cell used as a place-holder during processing
+ *
+ * vtkEmptyCell is a concrete implementation of vtkCell. It is used
+ * during processing to represented a deleted element.
+*/
 
 #ifndef vtkEmptyCell_h
 #define vtkEmptyCell_h
@@ -28,52 +31,49 @@ class VTKCOMMONDATAMODEL_EXPORT vtkEmptyCell : public vtkCell
 public:
   static vtkEmptyCell *New();
   vtkTypeMacro(vtkEmptyCell,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
-  int GetCellType() {return VTK_EMPTY_CELL;};
-  int GetCellDimension() {return 0;};
-  int GetNumberOfEdges() {return 0;};
-  int GetNumberOfFaces() {return 0;};
-  vtkCell *GetEdge(int) {return 0;};
-  vtkCell *GetFace(int) {return 0;};
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
+  int GetCellType() override {return VTK_EMPTY_CELL;};
+  int GetCellDimension() override {return 0;};
+  int GetNumberOfEdges() override {return 0;};
+  int GetNumberOfFaces() override {return 0;};
+  vtkCell *GetEdge(int)  override  {return nullptr;};
+  vtkCell *GetFace(int)  override  {return nullptr;};
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts1,
                vtkCellArray *lines, vtkCellArray *verts2,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *pts,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut);
+            int insideOut) override;
+  //@}
 
-  int EvaluatePosition(double x[3], double* closestPoint,
+  int EvaluatePosition(const double x[3], double closestPoint[3],
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights);
-  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights);
-  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId);
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs);
-
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
-  virtual void InterpolateFunctions(double pcoords[3], double *weights);
-  virtual void InterpolateDerivs(double pcoords[3], double *derivs);
+                       double& dist2, double weights[]) override;
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
+                        double *weights) override;
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
+                        double x[3], double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
+  void Derivatives(int subId, const double pcoords[3], const double *values,
+                   int dim, double *derivs) override;
 
 protected:
   vtkEmptyCell() {}
-  ~vtkEmptyCell() {}
+  ~vtkEmptyCell() override {}
 
 private:
-  vtkEmptyCell(const vtkEmptyCell&);  // Not implemented.
-  void operator=(const vtkEmptyCell&);  // Not implemented.
+  vtkEmptyCell(const vtkEmptyCell&) = delete;
+  void operator=(const vtkEmptyCell&) = delete;
 };
 
 #endif

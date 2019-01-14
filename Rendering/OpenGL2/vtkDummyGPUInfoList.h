@@ -13,12 +13,15 @@
 
 =========================================================================*/
 
-// .NAME vtkDummyGPUInfoList - Do thing during Probe()
-// .SECTION Description
-// vtkDummyGPUInfoList implements Probe() by just setting the count of
-// GPUs to be zero. Useful when an OS specific implementation is not available.
-// .SECTION See Also
-// vtkGPUInfo vtkGPUInfoList
+/**
+ * @class   vtkDummyGPUInfoList
+ * @brief   Do thing during Probe()
+ *
+ * vtkDummyGPUInfoList implements Probe() by just setting the count of
+ * GPUs to be zero. Useful when an OS specific implementation is not available.
+ * @sa
+ * vtkGPUInfo vtkGPUInfoList
+*/
 
 #ifndef vtkDummyGPUInfoList_h
 #define vtkDummyGPUInfoList_h
@@ -31,22 +34,26 @@ class VTKRENDERINGOPENGL2_EXPORT vtkDummyGPUInfoList : public vtkGPUInfoList
 public:
   static vtkDummyGPUInfoList* New();
   vtkTypeMacro(vtkDummyGPUInfoList, vtkGPUInfoList);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Build the list of vtkInfoGPU if not done yet.
-  // \post probed: IsProbed()
-  virtual void Probe();
+  /**
+   * Build the list of vtkInfoGPU if not done yet.
+   * \post probed: IsProbed()
+   */
+  void Probe() override;
 
 protected:
-  // Description:
-  // Default constructor.
+  //@{
+  /**
+   * Default constructor.
+   */
   vtkDummyGPUInfoList();
-  virtual ~vtkDummyGPUInfoList();
+  ~vtkDummyGPUInfoList() override;
+  //@}
 
 private:
-  vtkDummyGPUInfoList(const vtkDummyGPUInfoList&); // Not implemented.
-  void operator=(const vtkDummyGPUInfoList&); // Not implemented.
+  vtkDummyGPUInfoList(const vtkDummyGPUInfoList&) = delete;
+  void operator=(const vtkDummyGPUInfoList&) = delete;
 };
 
 #endif

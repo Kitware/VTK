@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLPolyData
-// .SECTION Description
-// PolyData representation for WebGL.
+/**
+ * @class   vtkWebGLPolyData
+ *
+ * PolyData representation for WebGL.
+*/
 
 #ifndef vtkWebGLPolyData_h
 #define vtkWebGLPolyData_h
@@ -34,12 +36,12 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLPolyData : public vtkWebGLObject
 public:
   static vtkWebGLPolyData* New();
   vtkTypeMacro(vtkWebGLPolyData, vtkWebGLObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  void GenerateBinaryData();
-  unsigned char* GetBinaryData(int part);
-  int GetBinarySize(int part);
-  int GetNumberOfParts();
+  void GenerateBinaryData() override;
+  unsigned char* GetBinaryData(int part) override;
+  int GetBinarySize(int part) override;
+  int GetNumberOfParts() override;
 
   void GetPoints(vtkTriangleFilter* polydata, vtkActor* actor, int maxSize);
 
@@ -59,13 +61,11 @@ public:
 
 protected:
   vtkWebGLPolyData();
-  ~vtkWebGLPolyData();
+  ~vtkWebGLPolyData() override;
 
 private:
-  vtkWebGLPolyData(const vtkWebGLPolyData&); // Not implemented
-  void operator=(const vtkWebGLPolyData&);   // Not implemented
-
-  vtkTriangleFilter* TriangleFilter;
+  vtkWebGLPolyData(const vtkWebGLPolyData&) = delete;
+  void operator=(const vtkWebGLPolyData&) = delete;
 
   class vtkInternal;
   vtkInternal* Internal;

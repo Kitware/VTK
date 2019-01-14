@@ -29,6 +29,7 @@
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkTimerLog.h"
 #include "vtkGarbageCollector.h"
 #include "vtkTemplateAliasMacro.h"
@@ -47,7 +48,7 @@
 #include "vtkActor.h"
 #include "vtkProperty.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkOpenGLError.h"
 
@@ -62,25 +63,25 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   vtkNew<vtkPolyData> polydata;
   vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(4);
-  polydata->SetPoints(points.Get());
+  polydata->SetPoints(points);
 
   vtkNew<vtkCellArray> tris;
-  polydata->SetPolys(tris.Get());
+  polydata->SetPolys(tris);
 
   vtkNew<vtkFloatArray> tcoords;
   tcoords->SetNumberOfComponents(2);
   tcoords->SetNumberOfTuples(4);
-  polydata->GetPointData()->SetTCoords(tcoords.Get());
+  polydata->GetPointData()->SetTCoords(tcoords);
 
   vtkNew<vtkTrivialProducer> prod;
-  prod->SetOutput(polydata.Get());
+  prod->SetOutput(polydata);
   vtkNew<vtkOpenGLPolyDataMapper> polyDataMapper;
   polyDataMapper->SetInputConnection(prod->GetOutputPort());
   this->PolyDataActor = vtkActor::New();
-  this->PolyDataActor->SetMapper(polyDataMapper.Get());
+  this->PolyDataActor->SetMapper(polyDataMapper);
   vtkNew<vtkTexture> texture;
   texture->RepeatOff();
-  this->PolyDataActor->SetTexture(texture.Get());
+  this->PolyDataActor->SetTexture(texture);
   }
 
   // setup the backing polygon mapper
@@ -88,17 +89,17 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   vtkNew<vtkPolyData> polydata;
   vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(4);
-  polydata->SetPoints(points.Get());
+  polydata->SetPoints(points);
 
   vtkNew<vtkCellArray> tris;
-  polydata->SetPolys(tris.Get());
+  polydata->SetPolys(tris);
 
   vtkNew<vtkTrivialProducer> prod;
-  prod->SetOutput(polydata.Get());
+  prod->SetOutput(polydata);
   vtkNew<vtkOpenGLPolyDataMapper> polyDataMapper;
   polyDataMapper->SetInputConnection(prod->GetOutputPort());
   this->BackingPolyDataActor = vtkActor::New();
-  this->BackingPolyDataActor->SetMapper(polyDataMapper.Get());
+  this->BackingPolyDataActor->SetMapper(polyDataMapper);
   }
 
   // setup the background polygon mapper
@@ -106,21 +107,20 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   vtkNew<vtkPolyData> polydata;
   vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(10);
-  polydata->SetPoints(points.Get());
+  polydata->SetPoints(points);
 
   vtkNew<vtkCellArray> tris;
-  polydata->SetPolys(tris.Get());
+  polydata->SetPolys(tris);
 
   vtkNew<vtkTrivialProducer> prod;
-  prod->SetOutput(polydata.Get());
+  prod->SetOutput(polydata);
   vtkNew<vtkOpenGLPolyDataMapper> polyDataMapper;
   polyDataMapper->SetInputConnection(prod->GetOutputPort());
   this->BackgroundPolyDataActor = vtkActor::New();
-  this->BackgroundPolyDataActor->SetMapper(polyDataMapper.Get());
+  this->BackgroundPolyDataActor->SetMapper(polyDataMapper);
   }
 
-  this->FragmentShaderIndex = 0;
-  this->RenderWindow = 0;
+  this->RenderWindow = nullptr;
   this->TextureSize[0] = 0;
   this->TextureSize[1] = 0;
   this->TextureBytesPerPixel = 1;
@@ -143,7 +143,7 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
 //----------------------------------------------------------------------------
 vtkOpenGLImageSliceMapper::~vtkOpenGLImageSliceMapper()
 {
-  this->RenderWindow = NULL;
+  this->RenderWindow = nullptr;
   this->BackgroundPolyDataActor->UnRegister(this);
   this->BackingPolyDataActor->UnRegister(this);
   this->PolyDataActor->UnRegister(this);
@@ -157,8 +157,7 @@ void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
   this->BackingPolyDataActor->ReleaseGraphicsResources(renWin);
   this->PolyDataActor->ReleaseGraphicsResources(renWin);
 
-  this->FragmentShaderIndex = 0;
-  this->RenderWindow = NULL;
+  this->RenderWindow = nullptr;
   this->Modified();
 }
 
@@ -177,19 +176,19 @@ void vtkOpenGLImageSliceMapper::RecursiveRenderTexturedPolygon(
     extent, xdim, ydim, imageSize, textureSize);
 
   // Check if we can fit this texture in memory
-  if (this->TextureSizeOK(textureSize))
-    {
+  if (this->TextureSizeOK(textureSize, ren))
+  {
     // We can fit it - render
     this->RenderTexturedPolygon(
       ren, property, input, extent, recursive);
-    }
+  }
 
   // If the texture does not fit, then subdivide and render
   // each half.  Unless the graphics card couldn't handle
   // a texture a small as 256x256, because if it can't handle
   // that, then something has gone horribly wrong.
   else if (textureSize[0] > 256 || textureSize[1] > 256)
-    {
+  {
     int subExtent[6];
     subExtent[0] = extent[0]; subExtent[1] = extent[1];
     subExtent[2] = extent[2]; subExtent[3] = extent[3];
@@ -199,10 +198,10 @@ void vtkOpenGLImageSliceMapper::RecursiveRenderTexturedPolygon(
     int idx = ydim;
     int tsize = textureSize[1];
     if (textureSize[0] > textureSize[1])
-      {
+    {
       idx = xdim;
       tsize = textureSize[0];
-      }
+    }
 
     // Divide size by two
     tsize /= 2;
@@ -217,7 +216,7 @@ void vtkOpenGLImageSliceMapper::RecursiveRenderTexturedPolygon(
     subExtent[idx*2 + 1] = extent[idx*2 + 1];
     this->RecursiveRenderTexturedPolygon(
       ren, property, input, subExtent, true);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -227,7 +226,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   vtkImageData *input, int extent[6], bool recursive)
 {
   // get the previous texture load time
-  unsigned long loadTime = this->LoadTime.GetMTime();
+  vtkMTimeType loadTime = this->LoadTime.GetMTime();
 
   // the render window, needed for state information
   vtkOpenGLRenderWindow *renWin =
@@ -238,13 +237,13 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   // if context has changed, verify context capabilities
   if (renWin != this->RenderWindow ||
       renWin->GetContextCreationTime() > loadTime)
-    {
+  {
     // force two initial loads for each new context
     this->RenderWindow = renWin;
     this->LoadCount = 0;
     this->CheckOpenGLCapabilities(renWin);
     reuseTexture = false;
-    }
+  }
 
   vtkOpenGLClearErrorMacro();
 
@@ -268,23 +267,23 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   this->LastSliceNumber = this->SliceNumber;
 
   // get the mtime of the property, including the lookup table
-  unsigned long propertyMTime = 0;
+  vtkMTimeType propertyMTime = 0;
   if (property)
-    {
+  {
     propertyMTime = property->GetMTime();
     if (!this->PassColorData)
-      {
+    {
       vtkScalarsToColors *table = property->GetLookupTable();
       if (table)
-        {
-        unsigned long mtime = table->GetMTime();
+      {
+        vtkMTimeType mtime = table->GetMTime();
         if (mtime > propertyMTime)
-          {
+        {
           propertyMTime = mtime;
-          }
         }
       }
     }
+  }
 
   // need to reload the texture
   if (this->vtkImageMapper3D::GetMTime() > loadTime ||
@@ -292,7 +291,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
       input->GetMTime() > loadTime ||
       orientationChanged || sliceChanged ||
       this->LoadCount < 2 || recursive)
-    {
+  {
     this->LoadCount++;
 
     // get the data to load as a texture
@@ -305,7 +304,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
 
     // generate the data to be used as a texture
     unsigned char *data = this->MakeTextureData(
-      (this->PassColorData ? 0 : property), input, extent, xsize, ysize,
+      (this->PassColorData ? nullptr : property), input, extent, xsize, ysize,
       bytesPerPixel, reuseTexture, reuseData);
 
     this->TextureSize[0] = xsize;
@@ -316,7 +315,8 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     id->SetExtent(0,xsize-1,0,ysize-1,0,0);
     vtkUnsignedCharArray *uca = vtkUnsignedCharArray::New();
     uca->SetNumberOfComponents(bytesPerPixel);
-    uca->SetArray(data,xsize*ysize*bytesPerPixel,reuseData);
+    uca->SetArray(data,xsize*ysize*bytesPerPixel,reuseData,
+                  vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
     id->GetPointData()->SetScalars(uca);
     uca->Delete();
 
@@ -325,37 +325,37 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
 
     if (property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION &&
         !this->ExactPixelMatch)
-      {
+    {
       this->PolyDataActor->GetTexture()->InterpolateOff();
-      }
+    }
     else
-      {
+    {
       this->PolyDataActor->GetTexture()->InterpolateOn();
-      }
+    }
 
     if (this->UseClampToEdge)
-      {
+    {
       this->PolyDataActor->GetTexture()->EdgeClampOn();
-      }
+    }
     else
-      {
+    {
       this->PolyDataActor->GetTexture()->EdgeClampOff();
-      }
+    }
 
     // modify the load time to the current time
     this->LoadTime.Modified();
-    }
+  }
 
   vtkPoints *points = this->Points;
   if (this->ExactPixelMatch && this->SliceFacesCamera)
-    {
-    points = 0;
-    }
+  {
+    points = nullptr;
+  }
 
   this->RenderPolygon(this->PolyDataActor, points, extent, ren);
 
   if (this->Background)
-    {
+  {
     double ambient = property->GetAmbient();
     double diffuse = property->GetDiffuse();
 
@@ -366,7 +366,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     pdProp->SetDiffuse(diffuse);
     pdProp->SetColor(bkcolor[0], bkcolor[1], bkcolor[2]);
     this->RenderBackground(this->BackgroundPolyDataActor, points, extent, ren);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after RenderTexturedPolygon");
 }
@@ -378,43 +378,61 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
 {
   vtkOpenGLClearErrorMacro();
 
-  bool textured = (actor->GetTexture() != NULL);
+  bool textured = (actor->GetTexture() != nullptr);
   vtkPolyData *poly = vtkPolyDataMapper::SafeDownCast(actor->GetMapper())->GetInput();
   vtkPoints *polyPoints = poly->GetPoints();
   vtkCellArray *tris = poly->GetPolys();
   vtkDataArray *polyTCoords = poly->GetPointData()->GetTCoords();
 
-  if (!points)
+  // do we need to rebuild the cell array?
+  int numTris = 2;
+  if (points)
+  {
+    numTris = (points->GetNumberOfPoints() - 2);
+  }
+  if (tris->GetNumberOfConnectivityEntries() != 4*numTris)
+  {
+    tris->Initialize();
+    tris->Allocate(numTris*4);
+    // this wacky code below works for 2 and 4 triangles at least
+    for (vtkIdType i = 0; i < numTris; i++)
     {
+      tris->InsertNextCell(3);
+      tris->InsertCellPoint(numTris + 1 - (i+1)/2);
+      tris->InsertCellPoint(i/2);
+      tris->InsertCellPoint((i % 2 == 0) ? numTris - i/2 : i/2 + 1);
+    }
+    tris->Modified();
+  }
+
+  // now rebuild the points/tcoords as needed
+  if (!points)
+  {
     double coords[12], tcoords[8];
     this->MakeTextureGeometry(extent, coords, tcoords);
 
-    tris->Initialize();
-    tris->InsertNextCell(3);
-    tris->InsertCellPoint(0);
-    tris->InsertCellPoint(1);
-    tris->InsertCellPoint(2);
-    tris->InsertNextCell(3);
-    tris->InsertCellPoint(0);
-    tris->InsertCellPoint(2);
-    tris->InsertCellPoint(3);
 
     polyPoints->SetNumberOfPoints(4);
     if (textured)
-      {
+    {
       polyTCoords->SetNumberOfTuples(4);
-      }
+    }
     for (int i = 0; i < 4; i++)
-      {
+    {
       polyPoints->SetPoint(i, coords[3*i], coords[3*i+1], coords[3*i+2]);
       if (textured)
-        {
+      {
         polyTCoords->SetTuple(i,&tcoords[2*i]);
-        }
       }
     }
-  else if (points->GetNumberOfPoints())
+    polyPoints->Modified();
+    if (textured)
     {
+      polyTCoords->Modified();
+    }
+  }
+  else if (points->GetNumberOfPoints())
+  {
     int xdim, ydim;
     vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
     double *origin = this->DataOrigin;
@@ -429,40 +447,40 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
 
     polyPoints->DeepCopy(points);
     if (textured)
-      {
+    {
       polyTCoords->SetNumberOfTuples(ncoords);
-      }
+    }
 
-    tris->Initialize();
-    tris->Allocate(4*(ncoords-2));
     for (vtkIdType i = 0; i < ncoords; i++)
-      {
+    {
       if (textured)
-        {
+      {
         points->GetPoint(i, coord);
         tcoord[0] = (coord[0] - xshift)/xscale;
         tcoord[1] = (coord[1] - yshift)/yscale;
         polyTCoords->SetTuple(i,tcoord);
-        }
-      if (i >= 2)
-        {
-        tris->InsertNextCell(3);
-        tris->InsertCellPoint(ncoords - (i+1)/2);
-        tris->InsertCellPoint(i/2 - 1);
-        tris->InsertCellPoint((i % 2 == 0) ? ncoords - 1 - i/2 : i/2);
-        }
       }
     }
+    if (textured)
+    {
+      polyTCoords->Modified();
+    }
+  }
+  else // no polygon to render
+  {
+    return;
+  }
 
   if (textured)
-    {
+  {
     actor->GetTexture()->Render(ren);
-    }
+  }
+  actor->GetMapper()->SetClippingPlanes(this->GetClippingPlanes());
   actor->GetMapper()->Render(ren, actor);
   if (textured)
-    {
+  {
     actor->GetTexture()->PostRender(ren);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after RenderPolygon");
 }
@@ -484,7 +502,7 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
   vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
 
   if (!points)
-    {
+  {
     double coords[15], tcoords[10], center[3];
     this->MakeTextureGeometry(extent, coords, tcoords);
     coords[12] = coords[0];
@@ -499,7 +517,7 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
     tris->Initialize();
     polyPoints->SetNumberOfPoints(10);
     for (int side = 0; side < 4; side++)
-      {
+    {
       tris->InsertNextCell(3);
       tris->InsertCellPoint(side);
       tris->InsertCellPoint(side+5);
@@ -508,10 +526,10 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
       tris->InsertCellPoint(side+1);
       tris->InsertCellPoint(side+5);
       tris->InsertCellPoint(side+6);
-      }
+    }
 
     for (int side = 0; side < 5; side++)
-      {
+    {
       polyPoints->SetPoint(side, coords[3*side], coords[3*side+1], coords[3*side+2]);
 
       double dx = coords[3*side+xdim] - center[xdim];
@@ -522,10 +540,10 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
       coords[3*side+ydim] += borderThickness*sy;
 
       polyPoints->SetPoint(side+5, coords[3*side], coords[3*side+1], coords[3*side+2]);
-      }
     }
+  }
   else if (points->GetNumberOfPoints())
-    {
+  {
     vtkIdType ncoords = points->GetNumberOfPoints();
     double coord[3], coord1[3];
 
@@ -541,7 +559,7 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
     polyPoints->SetNumberOfPoints(ncoords*2+2);
 
     for (vtkIdType i = 0; i < ncoords; i++)
-      {
+    {
       tris->InsertNextCell(3);
       tris->InsertCellPoint(i*2);
       tris->InsertCellPoint(i*2+1);
@@ -550,10 +568,10 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
       tris->InsertCellPoint(i*2+2);
       tris->InsertCellPoint(i*2+1);
       tris->InsertCellPoint(i*2+3);
-      }
+    }
 
     for (vtkIdType i = 0; i <= ncoords; i++)
-      {
+    {
       polyPoints->SetPoint(i*2,coord);
 
       points->GetPoint(((i + 1) % ncoords), coord1);
@@ -565,13 +583,13 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
 
       double t;
       if (fabs(dx0 + dx1) > fabs(dy0 + dy1))
-        {
+      {
         t = (dy1 - dy0)/(dx0 + dx1);
-        }
+      }
       else
-        {
+      {
         t = (dx0 - dx1)/(dy0 + dy1);
-        }
+      }
       coord[0] += (t*dx0 + dy0)*borderThickness;
       coord[1] += (t*dy0 - dx0)*borderThickness;
 
@@ -581,9 +599,16 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
       coord[1] = coord1[1];
       dx0 = dx1;
       dy0 = dy1;
-      }
     }
+  }
+  else // no polygon to render
+  {
+    return;
+  }
 
+  polyPoints->GetData()->Modified();
+  tris->Modified();
+  actor->GetMapper()->SetClippingPlanes(this->GetClippingPlanes());
   actor->GetMapper()->Render(ren, actor);
 
   vtkOpenGLCheckErrorMacro("failed after RenderBackground");
@@ -633,19 +658,20 @@ void vtkOpenGLImageSliceMapper::ComputeTextureSize(
 
 //----------------------------------------------------------------------------
 // Determine if a given texture size is supported by the video card
-bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2])
+bool vtkOpenGLImageSliceMapper::TextureSizeOK(
+  const int size[2], vtkRenderer *ren)
 {
-  vtkOpenGLClearErrorMacro();
+  vtkOpenGLRenderWindow *renWin =
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLState *ostate = renWin->GetState();
 
   // First ask OpenGL what the max texture size is
   GLint maxSize;
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
+  ostate->vtkglGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
   if (size[0] > maxSize || size[1] > maxSize)
-    {
+  {
     return 0;
-    }
-
-  vtkOpenGLCheckErrorMacro("failed after TextureSizeOK");
+  }
 
   // if it does fit, we will render it later
   return 1;
@@ -662,9 +688,9 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 
   if (renWin && (renWin != this->RenderWindow ||
       renWin->GetContextCreationTime() > this->LoadTime.GetMTime()))
-    {
+  {
     this->CheckOpenGLCapabilities(renWin);
-    }
+  }
 
   // time the render
   this->Timer->StartTimer();
@@ -682,11 +708,11 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   this->BackingPolyDataActor->SetUserMatrix(matrix);
   this->BackgroundPolyDataActor->SetUserMatrix(matrix);
   if (prop->GetPropertyKeys())
-    {
+  {
     this->PolyDataActor->SetPropertyKeys(prop->GetPropertyKeys());
     this->BackingPolyDataActor->SetPropertyKeys(prop->GetPropertyKeys());
     this->BackgroundPolyDataActor->SetPropertyKeys(prop->GetPropertyKeys());
-    }
+  }
 
 
   // and now enable/disable as needed for our render
@@ -694,24 +720,22 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   //  glDisable(GL_COLOR_MATERIAL);
 
   // do an offset to avoid depth buffer issues
-  if (vtkMapper::GetResolveCoincidentTopology() !=
-      VTK_RESOLVE_SHIFT_ZBUFFER )
-    {
-    double f, u;
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
-    glPolygonOffset(f,u);
-    }
+  // this->PolyDataActor->GetMapper()->
+  //   SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);
+  // this->PolyDataActor->GetMapper()->
+  //   SetRelativeCoincidentTopologyPolygonOffsetParameters(1.0,100);
 
   // Add all the clipping planes  TODO: really in the mapper
   //int numClipPlanes = this->GetNumberOfClippingPlanes();
 
+  vtkOpenGLState *ostate = renWin->GetState();
+
   // Whether to write to the depth buffer and color buffer
-  glDepthMask(this->DepthEnable ? GL_TRUE : GL_FALSE); // supported in all
+  ostate->vtkglDepthMask(this->DepthEnable ? GL_TRUE : GL_FALSE); // supported in all
   if (!this->ColorEnable && !this->MatteEnable)
-    {
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // supported in all
-    }
+  {
+    ostate->vtkglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // supported in all
+  }
 
   // color and lighting related items
   vtkImageProperty *property = prop->GetProperty();
@@ -728,7 +752,7 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   double *bcolor = property->GetBackingColor();
   if (backing &&
       (this->MatteEnable || (this->DepthEnable && !this->ColorEnable)))
-    {
+  {
     // the backing polygon is always opaque
     pdProp = this->BackingPolyDataActor->GetProperty();
     pdProp->SetOpacity(1.0);
@@ -737,7 +761,7 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     pdProp->SetColor(bcolor[0], bcolor[1], bcolor[2]);
     this->RenderPolygon(this->BackingPolyDataActor, this->Points, this->DisplayExtent, ren);
     if (this->Background)
-      {
+    {
       double bkcolor[4];
       this->GetBackgroundColor(property, bkcolor);
       pdProp = this->BackgroundPolyDataActor->GetProperty();
@@ -746,29 +770,29 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
       pdProp->SetDiffuse(diffuse);
       pdProp->SetColor(bkcolor[0], bkcolor[1], bkcolor[2]);
       this->RenderBackground(this->BackgroundPolyDataActor, this->Points, this->DisplayExtent, ren);
-      }
     }
+  }
 
   // render the texture
   if (this->ColorEnable || (!backing && this->DepthEnable))
-    {
+  {
     this->RecursiveRenderTexturedPolygon(
       ren, property, this->GetInput(), this->DisplayExtent, false);
-    }
+  }
 
   // Set the masks back again
-  glDepthMask(GL_TRUE);
+  ostate->vtkglDepthMask(GL_TRUE);
   if (!this->ColorEnable && !this->MatteEnable)
-    {
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    }
+  {
+    ostate->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  }
 
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();
   if (this->TimeToDraw == 0)
-    {
+  {
     this->TimeToDraw = 0.0001;
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }

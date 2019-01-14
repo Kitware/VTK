@@ -25,6 +25,7 @@
 #include "XdmfArray.hpp"
 #include "XdmfArrayType.hpp"
 #include "XdmfFunction.hpp"
+#include "XdmfWriter.hpp"
 #include <stack>
 #include <cmath>
 #include <boost/assign.hpp>
@@ -174,6 +175,16 @@ XdmfFunction::XdmfFunction(std::string newExpression,
   mVariableList(newVariables),
   mExpression(newExpression)
 {
+}
+
+XdmfFunction::XdmfFunction(XdmfFunction & refFunction) :
+  XdmfArrayReference(refFunction),
+  mExpression(refFunction.getExpression())
+{
+  std::vector<std::string> copyVariables = refFunction.getVariableList();
+  for (unsigned int i = 0; i < copyVariables.size(); ++i) {
+    mVariableList[copyVariables[i]] = refFunction.getVariable(copyVariables[i]);
+  }
 }
 
 XdmfFunction::~XdmfFunction()
@@ -399,9 +410,18 @@ XdmfFunction::average(std::vector<shared_ptr<XdmfArray> > values)
 {
   double total = sum(values)->getValue<double>(0);;
   int totalSize = 0;
+  bool release = false;
   for (unsigned int i = 0; i < values.size(); ++i)
   {
+    release = false;
+    if (!values[i]->isInitialized()) {
+      values[i]->read();
+      release = true;
+    }
     totalSize += values[i]->getSize();
+    if (release) {
+      values[i]->release();
+    }
   }
   shared_ptr<XdmfArray> returnArray = XdmfArray::New();
   returnArray->insert(0, total/totalSize);
@@ -863,16 +883,9 @@ XdmfFunction::getItemTag() const
 std::map<std::string, std::string>
 XdmfFunction::getItemProperties() const
 {
-  std::map<std::string, std::string> functionProperties;
+  std::map<std::string, std::string> functionProperties = XdmfArrayReference::getItemProperties();
 
   functionProperties["Expression"] = mExpression;
-  functionProperties["ConstructedType"] = mConstructedType;
-
-  for (std::map<std::string, std::string>::const_iterator constructedIt = mConstructedProperties.begin();
-       constructedIt != mConstructedProperties.end();
-       ++constructedIt) {
-    functionProperties[constructedIt->first] = constructedIt->second;
-  }
 
   std::stringstream variableStream;
 
@@ -1091,6 +1104,7 @@ void
 XdmfFunction::insertVariable(std::string key, shared_ptr<XdmfArray> value)
 {
   mVariableList[key] = value;
+  this->setIsChanged(true);
 }
 
 shared_ptr<XdmfArray>
@@ -1217,12 +1231,14 @@ XdmfFunction::removeVariable(std::string key)
   if (removeWalker != mVariableList.end()) {
     mVariableList.erase(removeWalker);
   }
+  this->setIsChanged(true);
 }
 
 void
 XdmfFunction::setExpression(std::string newExpression)
 {
   mExpression = newExpression;
+  this->setIsChanged(true);
 }
 
 shared_ptr<XdmfArray>
@@ -1360,9 +1376,22 @@ XdmfFunction::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 {
   XdmfItem::traverse(visitor);
 
+  bool originalXPath;
+
+  if (shared_ptr<XdmfWriter> writer =
+        shared_dynamic_cast<XdmfWriter>(visitor)) {
+    originalXPath = writer->getWriteXPaths();
+    writer->setWriteXPaths(false);
+  }
+
   shared_ptr<XdmfArray> spacerarray = XdmfArray::New();
   spacerarray->pushBack((int)0);
   spacerarray->accept(visitor);
+
+  if (shared_ptr<XdmfWriter> writer =
+        shared_dynamic_cast<XdmfWriter>(visitor)) {
+    writer->setWriteXPaths(originalXPath);
+  } 
 
   for (std::map<std::string, shared_ptr<XdmfArray> >::iterator it = mVariableList.begin();
        it != mVariableList.end();
@@ -1370,3 +1399,429 @@ XdmfFunction::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
     it->second->accept(visitor);
   }
 }
+
+// C Wrappers
+
+class XdmfCFunctionInternalImpl : public XdmfFunction::XdmfFunctionInternal {
+  public:
+    static shared_ptr<XdmfCFunctionInternalImpl>
+    New(XDMFARRAY * (*newInternal)(XDMFARRAY **, unsigned int))
+    {
+      shared_ptr<XdmfCFunctionInternalImpl> p (new XdmfCFunctionInternalImpl(newInternal));
+      return p;
+    }
+
+    ~XdmfCFunctionInternalImpl()
+    {
+    }
+
+    virtual shared_ptr<XdmfArray> execute(std::vector<shared_ptr<XdmfArray> > valueVector)
+    {
+      XDMFARRAY ** valueArray = new XDMFARRAY *[valueVector.size()]();
+      for (unsigned int i = 0; i < valueVector.size(); ++i) {
+        valueArray[i] = (XDMFARRAY *)((void *)(valueVector[i].get()));
+      }
+      return shared_ptr<XdmfArray>((XdmfArray *)((*mInternalFunction)(valueArray, valueVector.size())));
+    }
+  private:
+    XdmfCFunctionInternalImpl(XDMFARRAY * (*newInternal)(XDMFARRAY **, unsigned int))
+    {
+      mInternalFunction = newInternal;
+    }
+
+    XDMFARRAY * (*mInternalFunction)(XDMFARRAY **, unsigned int);
+};
+
+class XdmfCOperationInternalImpl : public XdmfFunction::XdmfOperationInternal {
+  public:
+    static shared_ptr<XdmfCOperationInternalImpl>
+    New(XDMFARRAY * (*newInternal)(XDMFARRAY *, XDMFARRAY *))
+    {
+      shared_ptr<XdmfCOperationInternalImpl> p (new XdmfCOperationInternalImpl(newInternal));
+      return p;
+    }
+
+    ~XdmfCOperationInternalImpl()
+    {
+    }
+
+    virtual shared_ptr<XdmfArray> execute(shared_ptr<XdmfArray> val1,
+                                          shared_ptr<XdmfArray> val2)
+    {
+      return shared_ptr<XdmfArray>((XdmfArray *)((*mInternalOperation)((XDMFARRAY *)((void *)(val1.get())), (XDMFARRAY *)((void *)(val2.get())))));
+    }
+  private:
+    XdmfCOperationInternalImpl(XDMFARRAY * (*newInternal)(XDMFARRAY *, XDMFARRAY *))
+    {
+      mInternalOperation = newInternal;
+    }
+
+    XDMFARRAY * (*mInternalOperation)(XDMFARRAY *, XDMFARRAY *);
+};
+
+XDMFFUNCTION * XdmfFunctionNew()
+{
+  try
+  {
+    shared_ptr<XdmfFunction> generatedFunction = XdmfFunction::New();
+    return (XDMFFUNCTION *)((void *)(new XdmfFunction(*generatedFunction.get())));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfFunction> generatedFunction = XdmfFunction::New();
+    return (XDMFFUNCTION *)((void *)(new XdmfFunction(*generatedFunction.get())));
+  }
+}
+
+XDMFFUNCTION * XdmfFunctionNewInit(char * newExpression,  char ** keys, XDMFARRAY ** values, int numVariables)
+{
+  try
+  {
+    std::map<std::string, shared_ptr<XdmfArray> > variableMap;
+    for (int i = 0; i < numVariables; ++i) {
+      variableMap[keys[i]] = shared_ptr<XdmfArray>((XdmfArray *)(values[i]), XdmfNullDeleter());
+    }
+    shared_ptr<XdmfFunction> generatedFunction = XdmfFunction::New(std::string(newExpression), variableMap);
+    return (XDMFFUNCTION *)((void *)(new XdmfFunction(*generatedFunction.get())));
+  }
+  catch (...)
+  {
+    std::map<std::string, shared_ptr<XdmfArray> > variableMap;
+    for (int i = 0; i < numVariables; ++i) {
+      variableMap[keys[i]] = shared_ptr<XdmfArray>((XdmfArray *)(values[i]), XdmfNullDeleter());
+    }
+    shared_ptr<XdmfFunction> generatedFunction = XdmfFunction::New(std::string(newExpression), variableMap);
+    return (XDMFFUNCTION *)((void *)(new XdmfFunction(*generatedFunction.get())));
+  }
+}
+
+int XdmfFunctionAddFunction(char * name, XDMFARRAY *(*functionref)(XDMFARRAY **, unsigned int), int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  try
+  {
+    shared_ptr<XdmfCFunctionInternalImpl> newFunction =
+       XdmfCFunctionInternalImpl::New(functionref);
+    return XdmfFunction::addFunction(name, newFunction);
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfCFunctionInternalImpl> newFunction =
+       XdmfCFunctionInternalImpl::New(functionref);
+    return XdmfFunction::addFunction(name, newFunction);
+  }
+  XDMF_ERROR_WRAP_END(status)
+  return -1;
+}
+
+int XdmfFunctionAddOperation(char newoperator, XDMFARRAY *(*operationref)(XDMFARRAY *, XDMFARRAY *), int priority, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  try
+  {
+    shared_ptr<XdmfCOperationInternalImpl> newOperation =
+       XdmfCOperationInternalImpl::New(operationref);
+    return XdmfFunction::addOperation(newoperator,
+                                      newOperation,
+                                      priority);
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfCOperationInternalImpl> newOperation =
+       XdmfCOperationInternalImpl::New(operationref);
+    return XdmfFunction::addOperation(newoperator,
+                                      newOperation,
+                                      priority);
+  }
+  XDMF_ERROR_WRAP_END(status)
+  return -1;
+}
+
+XDMFARRAY * XdmfFunctionAverage(XDMFARRAY ** values, int numValues)
+{
+  try
+  {
+    std::vector<shared_ptr<XdmfArray> > valueVector;
+    for (int i = 0; i < numValues; ++i) {
+      valueVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)values[i], XdmfNullDeleter()));
+    }
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(XdmfFunction::average(valueVector).get()))));
+  }
+  catch (...)
+  {
+    std::vector<shared_ptr<XdmfArray> > valueVector;
+    for (int i = 0; i < numValues; ++i) {
+      valueVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)values[i], XdmfNullDeleter()));
+    }
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(XdmfFunction::average(valueVector).get()))));
+  }
+}
+
+XDMFARRAY * XdmfFunctionChunk(XDMFARRAY * val1, XDMFARRAY * val2, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  try
+  {
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(XdmfFunction::chunk(shared_ptr<XdmfArray>((XdmfArray *)val1, XdmfNullDeleter()), shared_ptr<XdmfArray>((XdmfArray *)val2, XdmfNullDeleter())).get()))));
+  }
+  catch (...)
+  {
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(XdmfFunction::chunk(shared_ptr<XdmfArray>((XdmfArray *)val1, XdmfNullDeleter()), shared_ptr<XdmfArray>((XdmfArray *)val2, XdmfNullDeleter())).get()))));
+  }
+  XDMF_ERROR_WRAP_END(status)
+  return NULL;
+}
+
+XDMFARRAY * XdmfFunctionEvaluateExpression(char * expression, char ** keys, XDMFARRAY ** values, int numVariables, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  try
+  {
+    std::map<std::string, shared_ptr<XdmfArray> > variableMap;
+    for (int i = 0; i < numVariables; ++i) {
+      variableMap[keys[i]] = shared_ptr<XdmfArray>((XdmfArray *)(values[i]), XdmfNullDeleter());
+    }
+    shared_ptr<XdmfArray> generatedArray = XdmfFunction::evaluateExpression(std::string(expression), variableMap);
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(generatedArray.get()))));
+  }
+  catch (...)
+  {
+    std::map<std::string, shared_ptr<XdmfArray> > variableMap;
+    for (int i = 0; i < numVariables; ++i) {
+      variableMap[keys[i]] = shared_ptr<XdmfArray>((XdmfArray *)(values[i]), XdmfNullDeleter());
+    }
+    shared_ptr<XdmfArray> generatedArray = XdmfFunction::evaluateExpression(std::string(expression), variableMap);
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(generatedArray.get()))));
+  }
+  XDMF_ERROR_WRAP_END(status)
+  return NULL;
+}
+
+XDMFARRAY * XdmfFunctionEvaluateOperation(XDMFARRAY * val1, XDMFARRAY * val2, char operation, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  try
+  {
+    shared_ptr<XdmfArray> generatedArray = XdmfFunction::evaluateOperation(shared_ptr<XdmfArray>((XdmfArray *)(val1), XdmfNullDeleter()), shared_ptr<XdmfArray>((XdmfArray *)(val2), XdmfNullDeleter()), operation);
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(generatedArray.get()))));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfArray> generatedArray = XdmfFunction::evaluateOperation(shared_ptr<XdmfArray>((XdmfArray *)(val1), XdmfNullDeleter()), shared_ptr<XdmfArray>((XdmfArray *)(val2), XdmfNullDeleter()), operation);
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(generatedArray.get()))));
+  }
+  XDMF_ERROR_WRAP_END(status)
+  return NULL;
+}
+
+XDMFARRAY * XdmfFunctionEvaluateFunction(XDMFARRAY ** valueVector, int numValues, char * functionName, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  try
+  {
+    std::vector<shared_ptr<XdmfArray> > evaluatedVector;
+    for (int i = 0; i < numValues; ++i) {
+      evaluatedVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)valueVector[i], XdmfNullDeleter()));
+    }
+    shared_ptr<XdmfArray> generatedArray = XdmfFunction::evaluateFunction(evaluatedVector, std::string(functionName));
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(generatedArray.get()))));
+  }
+  catch (...)
+  {
+    std::vector<shared_ptr<XdmfArray> > evaluatedVector;
+    for (int i = 0; i < numValues; ++i) {
+      evaluatedVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)valueVector[i], XdmfNullDeleter()));
+    }
+    shared_ptr<XdmfArray> generatedArray = XdmfFunction::evaluateFunction(evaluatedVector, std::string(functionName));
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(generatedArray.get()))));
+  }
+  XDMF_ERROR_WRAP_END(status)
+  return NULL;
+}
+
+char * XdmfFunctionGetExpression(XDMFFUNCTION * function)
+{
+  try
+  {
+    char * returnPointer = strdup(((XdmfFunction *)(function))->getExpression().c_str());
+    return returnPointer;
+  }
+  catch (...)
+  {
+    char * returnPointer = strdup(((XdmfFunction *)(function))->getExpression().c_str());
+    return returnPointer;
+  }
+}
+
+unsigned int XdmfFunctionGetNumberVariables(XDMFFUNCTION * function)
+{
+  return ((XdmfFunction *)(function))->getVariableList().size();
+}
+
+int XdmfFunctionGetOperationPriority(char operation)
+{
+  return XdmfFunction::getOperationPriority(operation);
+}
+
+char * XdmfFunctionGetSupportedOperations()
+{
+  try
+  {
+    return strdup(XdmfFunction::getSupportedOperations().c_str());
+  }
+  catch (...)
+  {
+    return strdup(XdmfFunction::getSupportedOperations().c_str());
+  }
+}
+
+char ** XdmfFunctionGetSupportedFunctions()
+{
+  try
+  {
+    std::vector<std::string> supportedFunctions = XdmfFunction::getSupportedFunctions();
+    char ** returnPointer = new char *[supportedFunctions.size()]();
+    for (unsigned int i = 0; i < supportedFunctions.size(); ++i) {
+      returnPointer[i] = strdup(supportedFunctions[i].c_str());
+    }
+    return returnPointer;
+  }
+  catch (...)
+  {
+    std::vector<std::string> supportedFunctions = XdmfFunction::getSupportedFunctions();
+    char ** returnPointer = new char *[supportedFunctions.size()]();
+    for (unsigned int i = 0; i < supportedFunctions.size(); ++i) {
+      returnPointer[i] = strdup(supportedFunctions[i].c_str());
+    }
+    return returnPointer;
+  }
+}
+
+unsigned int XdmfFunctionGetNumberSupportedFunctions()
+{
+  return XdmfFunction::getSupportedFunctions().size();
+}
+
+char * XdmfFunctionGetValidDigitChars()
+{
+  try
+  {
+    return strdup(XdmfFunction::getValidDigitChars().c_str());
+  }
+  catch (...)
+  {
+    return strdup(XdmfFunction::getValidDigitChars().c_str());
+  }
+}
+
+char * XdmfFunctionGetValidVariableChars()
+{
+  try
+  {
+    return strdup(XdmfFunction::getValidVariableChars().c_str());
+  }
+  catch (...)
+  {
+    return strdup(XdmfFunction::getValidVariableChars().c_str());
+  }
+}
+
+XDMFARRAY * XdmfFunctionGetVariable(XDMFFUNCTION * function, char * key)
+{
+  try
+  {
+    shared_ptr<XdmfArray> returnArray = ((XdmfFunction *)function)->getVariable(std::string(key));
+    return (XDMFARRAY *)((void *)(new XdmfArray(*returnArray.get())));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfArray> returnArray = ((XdmfFunction *)function)->getVariable(std::string(key));
+    return (XDMFARRAY *)((void *)(new XdmfArray(*returnArray.get())));
+  }
+}
+
+char ** XdmfFunctionGetVariableList(XDMFFUNCTION * function)
+{
+  try
+  {
+    std::vector<std::string> variablelist = ((XdmfFunction *)(function))->getVariableList();
+    char ** returnpointer = new char *[variablelist.size()]();
+    for (unsigned int i = 0; i < variablelist.size(); ++i) {
+      returnpointer[i] = strdup(variablelist[i].c_str());
+    }
+    return returnpointer;
+  }
+  catch (...)
+  {
+    std::vector<std::string> variablelist = ((XdmfFunction *)(function))->getVariableList();
+    char ** returnpointer = new char *[variablelist.size()]();
+    for (unsigned int i = 0; i < variablelist.size(); ++i) {
+      returnpointer[i] = strdup(variablelist[i].c_str());
+    }
+    return returnpointer;
+  }
+}
+
+XDMFARRAY * XdmfFunctionInterlace(XDMFARRAY * val1, XDMFARRAY * val2, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  try
+  {
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(XdmfFunction::interlace(shared_ptr<XdmfArray>((XdmfArray *)val1, XdmfNullDeleter()), shared_ptr<XdmfArray>((XdmfArray *)val2, XdmfNullDeleter())).get()))));
+  }
+  catch (...)
+  {
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(XdmfFunction::interlace(shared_ptr<XdmfArray>((XdmfArray *)val1, XdmfNullDeleter()), shared_ptr<XdmfArray>((XdmfArray *)val2, XdmfNullDeleter())).get()))));
+  }
+  XDMF_ERROR_WRAP_END(status)
+  return NULL;
+}
+
+void XdmfFunctionInsertVariable(XDMFFUNCTION * function, char * key, XDMFARRAY * value, int passControl)
+{
+  shared_ptr<XdmfArray> insertedValue;
+  if (passControl == 0) {
+    insertedValue = shared_ptr<XdmfArray>((XdmfArray *)value, XdmfNullDeleter());
+  }
+  else {
+    insertedValue = shared_ptr<XdmfArray>((XdmfArray *)value);
+  }
+  ((XdmfFunction *)function)->insertVariable(std::string(key), insertedValue);
+}
+
+void XdmfFunctionRemoveVariable(XDMFFUNCTION * function, char * key)
+{
+  ((XdmfFunction *)(function))->removeVariable(std::string(key));
+}
+
+void XdmfFunctionSetExpression(XDMFFUNCTION * function, char * newExpression, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  ((XdmfFunction *)(function))->setExpression(std::string(newExpression));
+  XDMF_ERROR_WRAP_END(status)
+}
+
+XDMFARRAY * XdmfFunctionSum(XDMFARRAY ** values, int numValues)
+{
+  try
+  {
+    std::vector<shared_ptr<XdmfArray> > valueVector;
+    for (int i = 0; i < numValues; ++i) {
+      valueVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)values[i], XdmfNullDeleter()));
+    }
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(XdmfFunction::sum(valueVector).get()))));
+  }
+  catch (...)
+  {
+    std::vector<shared_ptr<XdmfArray> > valueVector;
+    for (int i = 0; i < numValues; ++i) {
+      valueVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)values[i], XdmfNullDeleter()));
+    }
+    return (XDMFARRAY *)((void *)(new XdmfArray(*(XdmfFunction::sum(valueVector).get()))));
+  }
+}
+
+// C Wrappers for parent classes are generated by macros
+
+XDMF_ITEM_C_CHILD_WRAPPER(XdmfFunction, XDMFFUNCTION)
+XDMF_ARRAYREFERENCE_C_CHILD_WRAPPER(XdmfFunction, XDMFFUNCTION)

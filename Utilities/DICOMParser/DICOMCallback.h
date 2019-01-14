@@ -3,8 +3,6 @@
   Program:   DICOMParser
   Module:    DICOMCallback.h
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 2003 Matt Turek
   All rights reserved.
@@ -89,7 +87,7 @@ class DICOMMemberCallback : public DICOMCallback
                doublebyte element,
                DICOMParser::VRTypes type,
                unsigned char* val,
-               quadbyte len)
+               quadbyte len) override
   {
     if (MemberFunction)
       {

@@ -131,22 +131,22 @@ void vtkSQLDatabaseGraphSource::SetURL(const vtkStdString& url)
     return;
 
   if(this->Implementation->EdgeQuery)
-    {
+  {
     this->Implementation->EdgeQuery->Delete();
     this->Implementation->EdgeQuery = 0;
-    }
+  }
 
   if(this->Implementation->VertexQuery)
-    {
+  {
     this->Implementation->VertexQuery->Delete();
     this->Implementation->VertexQuery = 0;
-    }
+  }
 
   if(this->Implementation->Database)
-    {
+  {
     this->Implementation->Database->Delete();
     this->Implementation->Database = 0;
-    }
+  }
 
   this->Implementation->URL = url;
 
@@ -159,22 +159,22 @@ void vtkSQLDatabaseGraphSource::SetPassword(const vtkStdString& password)
     return;
 
   if(this->Implementation->EdgeQuery)
-    {
+  {
     this->Implementation->EdgeQuery->Delete();
     this->Implementation->EdgeQuery = 0;
-    }
+  }
 
   if(this->Implementation->VertexQuery)
-    {
+  {
     this->Implementation->VertexQuery->Delete();
     this->Implementation->VertexQuery = 0;
-    }
+  }
 
   if(this->Implementation->Database)
-    {
+  {
     this->Implementation->Database->Delete();
     this->Implementation->Database = 0;
-    }
+  }
 
   this->Implementation->Password = password;
 
@@ -242,13 +242,13 @@ int vtkSQLDatabaseGraphSource::RequestDataObject(
 {
   vtkGraph* output = 0;
   if(this->Directed)
-    {
+  {
     output = vtkDirectedGraph::New();
-    }
+  }
   else
-    {
+  {
     output = vtkUndirectedGraph::New();
-    }
+  }
   this->GetExecutive()->SetOutputData(0, output);
   output->Delete();
 
@@ -275,88 +275,88 @@ int vtkSQLDatabaseGraphSource::RequestData(
 
   // Setup the database if it doesn't already exist ...
   if(!this->Implementation->Database)
-    {
+  {
     this->Implementation->Database = vtkSQLDatabase::CreateFromURL(this->Implementation->URL);
     if(!this->Implementation->Database)
-      {
+    {
       vtkErrorMacro(<< "Error creating database using URL: " << this->Implementation->URL.c_str());
       return 0;
-      }
+    }
 
     if(!this->Implementation->Database->Open(this->Implementation->Password))
-      {
+    {
       this->Implementation->Database->Delete();
       this->Implementation->Database = 0;
 
       vtkErrorMacro(<< "Error opening database: " << this->Implementation->URL.c_str());
       return 0;
-      }
     }
+  }
 
   // I have a database: 5% progress
   this->UpdateProgress(.05);
 
   // Setup the edge query if it doesn't already exist ...
   if(!this->Implementation->EdgeQuery)
-    {
+  {
     this->Implementation->EdgeQuery = this->Implementation->Database->GetQueryInstance();
     if(!this->Implementation->EdgeQuery)
-      {
+    {
       vtkErrorMacro(<< "Internal error creating edge query instance.");
       return 0;
-      }
     }
+  }
 
   this->Implementation->EdgeQuery->SetQuery(this->Implementation->EdgeQueryString.c_str());
   if(!this->Implementation->EdgeQuery->Execute())
-    {
+  {
     vtkErrorMacro(<< "Error executing edge query: " << this->Implementation->EdgeQueryString.c_str());
     return 0;
-    }
+  }
 
   // Executed edge query: 30% progress
   this->UpdateProgress(.3);
 
   if(!this->Implementation->EdgeTable)
-    {
+  {
     this->Implementation->EdgeTable = vtkRowQueryToTable::New();
-    }
+  }
   this->Implementation->EdgeTable->SetQuery(this->Implementation->EdgeQuery);
 
   this->Implementation->TableToGraph->SetInputConnection(0, this->Implementation->EdgeTable->GetOutputPort());
 
   // Setup the (optional) vertex query if it doesn't already exist ...
   if(this->Implementation->VertexQueryString.size())
-    {
+  {
     if(!this->Implementation->VertexQuery)
-      {
+    {
       this->Implementation->VertexQuery = this->Implementation->Database->GetQueryInstance();
       if(!this->Implementation->VertexQuery)
-        {
+      {
         vtkErrorMacro(<< "Internal error creating vertex query instance.");
         return 0;
-        }
       }
+    }
 
     this->Implementation->VertexQuery->SetQuery(this->Implementation->VertexQueryString.c_str());
     if(!this->Implementation->VertexQuery->Execute())
-      {
+    {
       vtkErrorMacro(<< "Error executing vertex query: " << this->Implementation->VertexQueryString.c_str());
       return 0;
-      }
+    }
 
     // Executed vertex query: 50% progress
     this->UpdateProgress(.5);
 
     if(!this->Implementation->VertexTable)
-      {
+    {
       this->Implementation->VertexTable = vtkRowQueryToTable::New();
 
-      }
+    }
     this->Implementation->VertexTable->SetQuery(this->Implementation->VertexQuery);
 
     this->Implementation->TableToGraph->SetInputConnection(1, this->Implementation->VertexTable->GetOutputPort());
-    }
+  }
 
   // Set Progress Text
   this->SetProgressText("DatabaseGraphSource:TableToGraph");
@@ -377,28 +377,28 @@ int vtkSQLDatabaseGraphSource::RequestData(
   output->ShallowCopy(this->Implementation->TableToGraph->GetOutput());
 
   if (this->GenerateEdgePedigreeIds)
-    {
+  {
     vtkIdType numEdges = output->GetNumberOfEdges();
     vtkSmartPointer<vtkIdTypeArray> arr =
       vtkSmartPointer<vtkIdTypeArray>::New();
     arr->SetName(this->EdgePedigreeIdArrayName);
     arr->SetNumberOfTuples(numEdges);
     for (vtkIdType i = 0; i < numEdges; ++i)
-      {
-      arr->InsertValue(i, i);
-      }
-    output->GetEdgeData()->SetPedigreeIds(arr);
-    }
-  else
     {
+      arr->InsertValue(i, i);
+    }
+    output->GetEdgeData()->SetPedigreeIds(arr);
+  }
+  else
+  {
     vtkAbstractArray* arr = output->GetEdgeData()->GetAbstractArray(this->EdgePedigreeIdArrayName);
     if (!arr)
-      {
+    {
       vtkErrorMacro(<< "Could not find edge pedigree id array: " << this->EdgePedigreeIdArrayName);
       return 0;
-      }
-    output->GetEdgeData()->SetPedigreeIds(arr);
     }
+    output->GetEdgeData()->SetPedigreeIds(arr);
+  }
 
   // Done: 100% progress
   this->UpdateProgress(1);

@@ -38,6 +38,12 @@ XdmfError::what() const throw()
  *** Public Static Functions ***
  *******************************/
 
+bool
+XdmfError::getCErrorsAreFatal()
+{
+  return XdmfError::mCErrorsAreFatal;
+}
+
 XdmfError::Level
 XdmfError::getLevelLimit()
 {
@@ -48,6 +54,12 @@ XdmfError::Level
 XdmfError::getSuppressionLevel()
 {
   return XdmfError::mSuppressLevel;
+}
+
+void
+XdmfError::setCErrorsAreFatal(bool status)
+{
+  XdmfError::mCErrorsAreFatal = status;
 }
 
 void
@@ -103,3 +115,93 @@ XdmfError::WriteToStream(std::string msg)
 XdmfError::Level XdmfError::mLevelLimit = XdmfError::FATAL;
 XdmfError::Level XdmfError::mSuppressLevel = XdmfError::WARNING;
 std::streambuf* XdmfError::mBuf=std::cout.rdbuf();
+bool XdmfError::mCErrorsAreFatal = false;
+
+// C Wrappers
+
+void XdmfErrorSetCErrorsAreFatal(int status)
+{
+  XdmfError::setCErrorsAreFatal(status);
+}
+
+void XdmfErrorSetLevelLimit(int level, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  switch (level) {
+    case XDMF_ERROR_FATAL:
+      XdmfError::setLevelLimit(XdmfError::FATAL);
+      break;
+    case XDMF_ERROR_WARNING:
+      XdmfError::setLevelLimit(XdmfError::WARNING);
+      break;
+    case XDMF_ERROR_DEBUG:
+      XdmfError::setLevelLimit(XdmfError::DEBUG);
+      break;
+    default:
+      try {
+        XdmfError::message(XdmfError::FATAL, "Error: Invalid Error Level");
+      }
+      catch (XdmfError & e) {
+        throw e;
+      }
+  }
+  XDMF_ERROR_WRAP_END(status)
+}
+
+void XdmfErrorSetSuppressionLevel(int level, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  switch (level) {
+    case XDMF_ERROR_FATAL:
+      XdmfError::setSuppressionLevel(XdmfError::FATAL);
+      break;
+    case XDMF_ERROR_WARNING:
+      XdmfError::setSuppressionLevel(XdmfError::WARNING);
+      break;
+    case XDMF_ERROR_DEBUG:
+      XdmfError::setSuppressionLevel(XdmfError::DEBUG);
+      break;
+    default:
+      XdmfError::message(XdmfError::FATAL, "Error: Invalid Error Level");
+  }
+  XDMF_ERROR_WRAP_END(status)
+}
+
+int XdmfErrorGetCErrorsAreFatal()
+{
+  return XdmfError::getCErrorsAreFatal();
+}
+
+int XdmfErrorGetLevelLimit()
+{
+  if (XdmfError::getLevelLimit() == XdmfError::FATAL) {
+    return XDMF_ERROR_FATAL;
+  }
+  else if (XdmfError::getLevelLimit() == XdmfError::WARNING) {
+    return XDMF_ERROR_WARNING;
+  }
+  else if (XdmfError::getLevelLimit() == XdmfError::DEBUG) {
+    return XDMF_ERROR_DEBUG;
+  }
+  else {
+    XdmfError::message(XdmfError::FATAL, "Error: Invalid Error Level");
+  }
+  return -1;
+}
+
+int XdmfErrorGetSuppressionLevel()
+{
+  if (XdmfError::getSuppressionLevel() == XdmfError::FATAL) {
+    return XDMF_ERROR_FATAL;
+  }
+  else if (XdmfError::getSuppressionLevel() == XdmfError::WARNING) {
+    return XDMF_ERROR_WARNING;
+  }
+  else if (XdmfError::getSuppressionLevel() == XdmfError::DEBUG) {
+    return XDMF_ERROR_DEBUG;
+  }
+  else {
+    XdmfError::message(XdmfError::FATAL, "Error: Invalid Error Level");
+  }
+  return -1;
+}

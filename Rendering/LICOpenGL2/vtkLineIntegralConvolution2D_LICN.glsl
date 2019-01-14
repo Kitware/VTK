@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 //=========================================================================
 //
 //  Program:   Visualization Toolkit
@@ -13,9 +15,8 @@
 //
 //=========================================================================
 
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
+// the output of this shader
+//VTK::Output::Dec
 
 /**
 This shader finalizes the convolution for the LIC computation
@@ -25,7 +26,7 @@ is the number of steps taken.
 
 uniform sampler2D texLIC;
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 void main(void)
 {

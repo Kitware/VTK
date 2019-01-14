@@ -2,6 +2,9 @@
 from vtk import *
 import os.path
 
+from vtk.util.misc import vtkGetDataRoot
+VTK_DATA_ROOT = vtkGetDataRoot()
+
 def setup_view(link, file, domain1, domain2, hue_range):
   reader = vtkDelimitedTextReader()
   reader.SetHaveHeaders(True)
@@ -44,9 +47,9 @@ def setup_view(link, file, domain1, domain2, hue_range):
   return view
 
 if __name__ == "__main__":
-  data_dir = "../../../../VTKData/Data/Infovis/"
+  data_dir = VTK_DATA_ROOT + "/Data/Infovis/"
   if not os.path.exists(data_dir):
-    data_dir = "../../../../../VTKData/Data/Infovis/"
+    data_dir = VTK_DATA_ROOT + "/Data/Infovis/"
   dt_reader = vtkDelimitedTextReader()
   dt_reader.SetHaveHeaders(True)
   dt_reader.SetFileName(data_dir + "document-term.csv")

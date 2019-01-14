@@ -55,9 +55,9 @@ int TestFieldNames(int, char*[])
   arr0->SetNumberOfComponents(1);
   arr0->SetNumberOfTuples(image0->GetNumberOfPoints());
   for(vtkIdType idx=0; idx<numPts; idx++)
-    {
+  {
     arr0->SetTuple1(idx, 1.0);
-    }
+  }
   arr0->SetName("array 0");
   image0->GetPointData()->AddArray(arr0);
 
@@ -65,9 +65,9 @@ int TestFieldNames(int, char*[])
   arr1->Allocate(numPts);
   arr1->SetName("array 1");
   for(vtkIdType idx=0; idx<numPts; idx++)
-    {
+  {
     arr1->SetTuple1(idx, 2.0);
-    }
+  }
   image1->GetPointData()->AddArray(arr1);
 
   vtkNew<vtkMultiBlockDataSet> dataSets;
@@ -79,13 +79,13 @@ int TestFieldNames(int, char*[])
   vtkNew<vtkPolyData> seeds;
   vtkNew<vtkPoints> seedPoints;
   seedPoints->InsertNextPoint(-4.0,0,0);
-  seeds->SetPoints(seedPoints.GetPointer());
+  seeds->SetPoints(seedPoints);
 
 
   //perform the tracing and watch for warning
   vtkNew<vtkStreamTracer> tracer;
-  tracer->SetSourceData(seeds.GetPointer());
-  tracer->SetInputData(dataSets.GetPointer());
+  tracer->SetSourceData(seeds);
+  tracer->SetInputData(dataSets);
   tracer->SetMaximumPropagation(20.0);
 
   //run the tracing
@@ -93,13 +93,13 @@ int TestFieldNames(int, char*[])
 
   //verify results
   vtkPolyData* trace = vtkPolyData::SafeDownCast(tracer->GetOutputDataObject(0));
-  if(   trace->GetPointData()->GetArray("array 0")!=NULL
-     || trace->GetPointData()->GetArray("array 1")!=NULL
-     || trace->GetPointData()->GetArray("RTData")==NULL
+  if(   trace->GetPointData()->GetArray("array 0")!=nullptr
+     || trace->GetPointData()->GetArray("array 1")!=nullptr
+     || trace->GetPointData()->GetArray("RTData")==nullptr
      || trace->GetNumberOfPoints()==0)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

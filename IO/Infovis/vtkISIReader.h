@@ -17,18 +17,21 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkISIReader - reader for ISI files
-//
-// .SECTION Description
-// ISI is a tagged format for expressing bibliographic citations.  Data is
-// structured as a collection of records with each record composed of
-// one-to-many fields.  See
-//
-// http://isibasic.com/help/helpprn.html#dialog_export_format
-//
-// for details.  vtkISIReader will convert an ISI file into a vtkTable, with
-// the set of table columns determined dynamically from the contents of the
-// file.
+/**
+ * @class   vtkISIReader
+ * @brief   reader for ISI files
+ *
+ *
+ * ISI is a tagged format for expressing bibliographic citations.  Data is
+ * structured as a collection of records with each record composed of
+ * one-to-many fields.  See
+ *
+ * http://isibasic.com/help/helpprn.html#dialog_export_format
+ *
+ * for details.  vtkISIReader will convert an ISI file into a vtkTable, with
+ * the set of table columns determined dynamically from the contents of the
+ * file.
+*/
 
 #ifndef vtkISIReader_h
 #define vtkISIReader_h
@@ -43,39 +46,48 @@ class VTKIOINFOVIS_EXPORT vtkISIReader : public vtkTableAlgorithm
 public:
   static vtkISIReader* New();
   vtkTypeMacro(vtkISIReader,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/get the file to load
+  //@{
+  /**
+   * Set/get the file to load
+   */
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Set/get the delimiter to be used for concatenating field data (default: ";")
+  //@{
+  /**
+   * Set/get the delimiter to be used for concatenating field data (default: ";")
+   */
   vtkGetStringMacro(Delimiter);
   vtkSetStringMacro(Delimiter);
+  //@}
 
-  // Description:
-  // Set/get the maximum number of records to read from the file (zero = unlimited)
+  //@{
+  /**
+   * Set/get the maximum number of records to read from the file (zero = unlimited)
+   */
   vtkGetMacro(MaxRecords,int);
   vtkSetMacro(MaxRecords,int);
+  //@}
 
  protected:
   vtkISIReader();
-  ~vtkISIReader();
+  ~vtkISIReader() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) override;
 
   char* FileName;
   char* Delimiter;
   int MaxRecords;
 
 private:
-  vtkISIReader(const vtkISIReader&); // Not implemented
-  void operator=(const vtkISIReader&);   // Not implemented
+  vtkISIReader(const vtkISIReader&) = delete;
+  void operator=(const vtkISIReader&) = delete;
 };
 
 #endif

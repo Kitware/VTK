@@ -12,21 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXYPlotWidget - 2D widget for manipulating a XY plot
-// .SECTION Description
-// This class provides support for interactively manipulating the position,
-// size, and orientation of a XY Plot. It listens to Left mouse events and
-// mouse movement. It will change the cursor shape based on its location. If
-// the cursor is over an edge of thea XY plot it will change the cursor shape
-// to a resize edge shape. If the position of a XY plot is moved to be close to
-// the center of one of the four edges of the viewport, then the XY plot will
-// change its orientation to align with that edge. This orientation is sticky
-// in that it will stay that orientation until the position is moved close to
-// another edge.
-
-// .SECTION See Also
-// vtkInteractorObserver
-
+/**
+ * @class   vtkXYPlotWidget
+ * @brief   2D widget for manipulating a XY plot
+ *
+ * This class provides support for interactively manipulating the position,
+ * size, and orientation of a XY Plot. It listens to Left mouse events and
+ * mouse movement. It will change the cursor shape based on its location. If
+ * the cursor is over an edge of thea XY plot it will change the cursor shape
+ * to a resize edge shape. If the position of a XY plot is moved to be close to
+ * the center of one of the four edges of the viewport, then the XY plot will
+ * change its orientation to align with that edge. This orientation is sticky
+ * in that it will stay that orientation until the position is moved close to
+ * another edge.
+ *
+ * @sa
+ * vtkInteractorObserver
+*/
 
 #ifndef vtkXYPlotWidget_h
 #define vtkXYPlotWidget_h
@@ -40,20 +42,24 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkXYPlotWidget : public vtkInteractorObserve
 public:
   static vtkXYPlotWidget *New();
   vtkTypeMacro(vtkXYPlotWidget,vtkInteractorObserver);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the XY plot used by this Widget. One is created automatically.
+  //@{
+  /**
+   * Get the XY plot used by this Widget. One is created automatically.
+   */
   virtual void SetXYPlotActor(vtkXYPlotActor *);
   vtkGetObjectMacro(XYPlotActor,vtkXYPlotActor);
+  //@}
 
-  // Description:
-  // Methods for turning the interactor observer on and off.
-  virtual void SetEnabled(int);
+  /**
+   * Methods for turning the interactor observer on and off.
+   */
+  void SetEnabled(int) override;
 
 protected:
   vtkXYPlotWidget();
-  ~vtkXYPlotWidget();
+  ~vtkXYPlotWidget() override;
 
   // the actor that is used
   vtkXYPlotActor *XYPlotActor;
@@ -72,7 +78,7 @@ protected:
   // used to compute relative movements
   float StartPosition[2];
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   int State;
   enum WidgetState
   {
@@ -88,7 +94,6 @@ protected:
     Inside,
     Outside
   };
-//ETX
 
   // use to determine what state the mouse is over, edge1 p1, etc.
   // returns a state from the WidgetState enum above
@@ -98,8 +103,8 @@ protected:
   void SetCursor(int State);
 
 private:
-  vtkXYPlotWidget(const vtkXYPlotWidget&);  //Not implemented
-  void operator=(const vtkXYPlotWidget&);  //Not implemented
+  vtkXYPlotWidget(const vtkXYPlotWidget&) = delete;
+  void operator=(const vtkXYPlotWidget&) = delete;
 };
 
 #endif

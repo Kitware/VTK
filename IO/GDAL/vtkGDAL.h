@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGDAL - Shared data for GDAL classes
-// .SECTION Description
-// .SECTION See Also
+/**
+ * @class   vtkGDAL
+ * @brief   Shared data for GDAL classes
+ *
+*/
 
 #ifndef vtkGDAL_h
 #define vtkGDAL_h
@@ -23,21 +25,23 @@
 #include <vtkIOGDALModule.h> // For export macro
 
 class vtkInformationStringKey;
+class vtkInformationIntegerVectorKey;
 
 class VTKIOGDAL_EXPORT vtkGDAL : public vtkObject
 {
  public:
+  vtkTypeMacro(vtkGDAL,vtkObject);
   // Key used to put GDAL map projection string in the output information
   // by readers.
   static vtkInformationStringKey* MAP_PROJECTION();
-
+  static vtkInformationIntegerVectorKey* FLIP_AXIS();
  protected:
 
  private:
   vtkGDAL();  // Static class
-  ~vtkGDAL();
-  vtkGDAL(const vtkGDAL&); // Not implemented.
-  void operator=(const vtkGDAL&); // Not implemented
+  ~vtkGDAL() override;
+  vtkGDAL(const vtkGDAL&) = delete;
+  void operator=(const vtkGDAL&) = delete;
 };
 
 #endif // vtkGDAL_h

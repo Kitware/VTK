@@ -61,9 +61,9 @@ void vtkPPCAStatistics::Learn( vtkTable* inData,
                                vtkMultiBlockDataSet* outMeta )
 {
   if ( ! outMeta )
-    {
+  {
     return;
-    }
+  }
 
   // First calculate correlative statistics on local data set
   this->Superclass::Learn( inData, inParameters, outMeta );
@@ -71,14 +71,14 @@ void vtkPPCAStatistics::Learn( vtkTable* inData,
   // Get a hold of the (sparse) covariance matrix
   vtkTable* sparseCov = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
   if ( ! sparseCov )
-    {
+  {
     return;
-    }
+  }
 
   if ( !this->MedianAbsoluteDeviation )
-    {
+  {
     vtkPMultiCorrelativeStatistics::GatherStatistics( this->Controller, sparseCov );
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -87,10 +87,10 @@ void vtkPPCAStatistics::Test( vtkTable* inData,
                               vtkTable* outMeta )
 {
   if ( this->Controller->GetNumberOfProcesses() > 1 )
-    {
+  {
     vtkWarningMacro( "Parallel PCA: Hypothesis testing not implemented for more than 1 process." );
     return;
-    }
+  }
 
   this->Superclass::Test( inData, inMeta, outMeta );
 }

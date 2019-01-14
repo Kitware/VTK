@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkThresholdGraph - Returns a subgraph of a vtkGraph.
-//
-// .SECTION Description
-// Requires input array, lower and upper threshold. This filter than
-// extracts the subgraph based on these three parameters.
+/**
+ * @class   vtkThresholdGraph
+ * @brief   Returns a subgraph of a vtkGraph.
+ *
+ *
+ * Requires input array, lower and upper threshold. This filter than
+ * extracts the subgraph based on these three parameters.
+*/
 
 #ifndef vtkThresholdGraph_h
 #define vtkThresholdGraph_h
@@ -31,29 +34,34 @@ public:
   static vtkThresholdGraph* New();
   vtkTypeMacro(vtkThresholdGraph, vtkGraphAlgorithm);
 
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Get/Set lower threshold. This would be the value against which
-  // edge or vertex data array value will be compared.
+  //@{
+  /**
+   * Get/Set lower threshold. This would be the value against which
+   * edge or vertex data array value will be compared.
+   */
   vtkGetMacro(LowerThreshold, double);
   vtkSetMacro(LowerThreshold, double);
+  //@}
 
-  // Description:
-  // Get/Set upper threshold. This would be the value against which
-  // edge or vertex data array value will be compared.
+  //@{
+  /**
+   * Get/Set upper threshold. This would be the value against which
+   * edge or vertex data array value will be compared.
+   */
   vtkGetMacro(UpperThreshold, double);
   vtkSetMacro(UpperThreshold, double);
+  //@}
 
-//BTX
 protected:
 
   vtkThresholdGraph();
- ~vtkThresholdGraph();
+ ~vtkThresholdGraph() override;
 
-  virtual int RequestData(vtkInformation*,
+  int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) override;
 
 
 private:
@@ -62,9 +70,9 @@ private:
   double UpperThreshold;
 
 
-  vtkThresholdGraph(const vtkThresholdGraph&);  // Not implemented.
-  void operator =(const vtkThresholdGraph&);    // Not implemented.
-//ETX
+  vtkThresholdGraph(const vtkThresholdGraph&) = delete;
+  void operator =(const vtkThresholdGraph&) = delete;
+
 };
 
 #endif // vtkThresholdGraph_h

@@ -12,22 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCellCenters - generate points at center of cells
-// .SECTION Description
-// vtkCellCenters is a filter that takes as input any dataset and
-// generates on output points at the center of the cells in the dataset.
-// These points can be used for placing glyphs (vtkGlyph3D) or labeling
-// (vtkLabeledDataMapper). (The center is the parametric center of the
-// cell, not necessarily the geometric or bounding box center.) The cell
-// attributes will be associated with the points on output.
-//
-// .SECTION Caveats
-// You can choose to generate just points or points and vertex cells.
-// Vertex cells are drawn during rendering; points are not. Use the ivar
-// VertexCells to generate cells.
-
-// .SECTION See Also
-// vtkGlyph3D vtkLabeledDataMapper
+/**
+ * @class   vtkCellCenters
+ * @brief   generate points at center of cells
+ *
+ * vtkCellCenters is a filter that takes as input any dataset and
+ * generates on output points at the center of the cells in the dataset.
+ * These points can be used for placing glyphs (vtkGlyph3D) or labeling
+ * (vtkLabeledDataMapper). (The center is the parametric center of the
+ * cell, not necessarily the geometric or bounding box center.) The cell
+ * attributes will be associated with the points on output.
+ *
+ * @warning
+ * You can choose to generate just points or points and vertex cells.
+ * Vertex cells are drawn during rendering; points are not. Use the ivar
+ * VertexCells to generate cells.
+ *
+ * @note
+ * Empty cells will be ignored but will require a one by one cell to
+ * point data copy that will make the processing slower.
+ *
+ * @sa
+ * vtkGlyph3D vtkLabeledDataMapper
+ */
 
 #ifndef vtkCellCenters_h
 #define vtkCellCenters_h
@@ -38,31 +45,36 @@
 class VTKFILTERSGENERAL_EXPORT vtkCellCenters : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkCellCenters,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro(vtkCellCenters, vtkPolyDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Construct object with vertex cell generation turned off.
-  static vtkCellCenters *New();
+  /**
+   * Construct object with vertex cell generation turned off.
+   */
+  static vtkCellCenters* New();
 
-  // Description:
-  // Enable/disable the generation of vertex cells. The default
-  // is Off.
-  vtkSetMacro(VertexCells,int);
-  vtkGetMacro(VertexCells,int);
-  vtkBooleanMacro(VertexCells,int);
+  //@{
+  /**
+   * Enable/disable the generation of vertex cells. The default
+   * is Off.
+   */
+  vtkSetMacro(VertexCells, bool);
+  vtkGetMacro(VertexCells, bool);
+  vtkBooleanMacro(VertexCells, bool);
+  //@}
 
 protected:
-  vtkCellCenters();
-  ~vtkCellCenters() {}
+  vtkCellCenters() = default;
+  ~vtkCellCenters() override = default;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int VertexCells;
+  bool VertexCells = false;
+
 private:
-  vtkCellCenters(const vtkCellCenters&);  // Not implemented.
-  void operator=(const vtkCellCenters&);  // Not implemented.
+  vtkCellCenters(const vtkCellCenters&) = delete;
+  void operator=(const vtkCellCenters&) = delete;
 };
 
 #endif

@@ -32,10 +32,10 @@
 int TestPostgreSQLTableReadWrite(int argc, char *argv[])
 {
   if ( argc <= 1 )
-    {
+  {
     cerr << "Usage: " << argv[0] << " <.vtk table file>" << endl;
     return 1;
-    }
+  }
   cerr << "reading a vtkTable from file" << endl;
   vtkSmartPointer<vtkTableReader> tableFileReader =
     vtkSmartPointer<vtkTableReader>::New();
@@ -51,21 +51,21 @@ int TestPostgreSQLTableReadWrite(int argc, char *argv[])
   db->SetDatabaseName( "template1" ); // This is guaranteed to exist
   bool status = db->Open();
   if ( ! status )
-    {
+  {
     cerr << "Couldn't open database.\n";
     return 1;
-    }
+  }
 
   if ( ! db->CreateDatabase( realDatabase.c_str(), true ) )
-    {
+  {
     cerr << "Error: " << db->GetLastErrorText() << endl;
-    }
+  }
   db->SetDatabaseName( realDatabase.c_str() );
   if (!db->Open())
-    {
+  {
     cerr << "Error: " << db->GetLastErrorText() << endl;
     return 1;
-    }
+  }
 
   cerr << "creating a PostgreSQL table from a vtkTable" << endl;
   vtkSmartPointer<vtkTableToPostgreSQLWriter> writerToTest =
@@ -94,14 +94,14 @@ int TestPostgreSQLTableReadWrite(int argc, char *argv[])
   cerr << "verifying that it's the same as what we started with...";
   int result = 0;
   if(vtksys::SystemTools::FilesDiffer(argv[1], "TestPostgreSQLTableReadWrite.vtk"))
-    {
+  {
     cerr << "it's not." << endl;
     result = 1;
-    }
+  }
   else
-    {
+  {
     cerr << "it is!" << endl;
-    }
+  }
 
   //drop the table we created
   vtkSQLQuery* query = db->GetQueryInstance();
@@ -111,10 +111,10 @@ int TestPostgreSQLTableReadWrite(int argc, char *argv[])
   cerr << "dropping the database...";
 
   if ( ! db->DropDatabase( realDatabase.c_str() ) )
-    {
+  {
     cout << "Drop of \"" << realDatabase.c_str() << "\" failed.\n";
     cerr << "\"" << db->GetLastErrorText() << "\"" << endl;
-    }
+  }
 
   //clean up memory
   db->Delete();

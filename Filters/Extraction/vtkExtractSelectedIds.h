@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedIds - extract a list of cells from a dataset
-// .SECTION Description
-// vtkExtractSelectedIds extracts a set of cells and points from within a
-// vtkDataSet. The set of ids to extract are listed within a vtkSelection.
-// This filter adds a scalar array called vtkOriginalCellIds that says what
-// input cell produced each output cell. This is an example of a Pedigree ID
-// which helps to trace back results. Depending on whether the selection has
-// GLOBALIDS, VALUES or INDICES, the selection will use the contents of the
-// array named in the GLOBALIDS DataSetAttribute, and arbitrary array, or the
-// position (tuple id or number) within the cell or point array.
-// .SECTION See Also
-// vtkSelection vtkExtractSelection
+/**
+ * @class   vtkExtractSelectedIds
+ * @brief   extract a list of cells from a dataset
+ *
+ * vtkExtractSelectedIds extracts a set of cells and points from within a
+ * vtkDataSet. The set of ids to extract are listed within a vtkSelection.
+ * This filter adds a scalar array called vtkOriginalCellIds that says what
+ * input cell produced each output cell. This is an example of a Pedigree ID
+ * which helps to trace back results. Depending on whether the selection has
+ * GLOBALIDS, VALUES or INDICES, the selection will use the contents of the
+ * array named in the GLOBALIDS DataSetAttribute, and arbitrary array, or the
+ * position (tuple id or number) within the cell or point array.
+ * @sa
+ * vtkSelection vtkExtractSelection
+*/
 
 #ifndef vtkExtractSelectedIds_h
 #define vtkExtractSelectedIds_h
@@ -39,19 +42,19 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedIds : public vtkExtractSelec
 public:
   static vtkExtractSelectedIds *New();
   vtkTypeMacro(vtkExtractSelectedIds, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkExtractSelectedIds();
-  ~vtkExtractSelectedIds();
+  ~vtkExtractSelectedIds() override;
 
   // Overridden to indicate that the input must be a vtkDataSet.
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) override;
 
 
   int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input,
@@ -60,8 +63,8 @@ protected:
                     vtkDataSet *output);
 
 private:
-  vtkExtractSelectedIds(const vtkExtractSelectedIds&);  // Not implemented.
-  void operator=(const vtkExtractSelectedIds&);  // Not implemented.
+  vtkExtractSelectedIds(const vtkExtractSelectedIds&) = delete;
+  void operator=(const vtkExtractSelectedIds&) = delete;
 };
 
 #endif

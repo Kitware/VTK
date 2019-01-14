@@ -20,13 +20,13 @@ vtkStandardNewMacro(vtkInputStream);
 //----------------------------------------------------------------------------
 vtkInputStream::vtkInputStream()
 {
-  this->Stream = 0;
+  this->Stream = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkInputStream::~vtkInputStream()
 {
-  this->SetStream(0);
+  this->SetStream(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -40,10 +40,10 @@ void vtkInputStream::PrintSelf(ostream& os, vtkIndent indent)
 void vtkInputStream::StartReading()
 {
   if(!this->Stream)
-    {
+  {
     vtkErrorMacro("StartReading() called with no Stream set.");
     return;
-    }
+  }
   this->StreamStartPosition = this->Stream->tellg();
 }
 

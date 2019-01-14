@@ -24,8 +24,8 @@
 //-----------------------------------------------------------------------------
 vtkAbstractContextItem::vtkAbstractContextItem()
 {
-  this->Scene = NULL;
-  this->Parent = NULL;
+  this->Scene = nullptr;
+  this->Parent = nullptr;
   this->Children = new vtkContextScenePrivate(this);
   this->Visible = true;
   this->Interactive = true;
@@ -57,7 +57,7 @@ void vtkAbstractContextItem::Update()
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::AddItem(vtkAbstractContextItem* item)
+vtkIdType vtkAbstractContextItem::AddItem(vtkAbstractContextItem* item)
 {
   return this->Children->AddItem(item);
 }
@@ -69,40 +69,47 @@ bool vtkAbstractContextItem::RemoveItem(vtkAbstractContextItem* item)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::RemoveItem(unsigned int index)
+bool vtkAbstractContextItem::RemoveItem(vtkIdType index)
 {
-  return this->Children->RemoveItem(index);
-}
-
-//-----------------------------------------------------------------------------
-vtkAbstractContextItem* vtkAbstractContextItem::GetItem(unsigned int index)
-{
-  if (index < this->Children->size())
-    {
-    return this->Children->at(index);
-    }
+  if (index >= 0 && index < static_cast<vtkIdType>(this->Children->size()))
+  {
+    return this->Children->RemoveItem(index);
+  }
   else
-    {
-    return 0;
-    }
+  {
+    return false;
+  }
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::GetItemIndex(vtkAbstractContextItem* item)
+vtkAbstractContextItem* vtkAbstractContextItem::GetItem(vtkIdType index)
+{
+  if (index >= 0 && index < static_cast<vtkIdType>(this->Children->size()))
+  {
+    return this->Children->at(index);
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkAbstractContextItem::GetItemIndex(vtkAbstractContextItem* item)
 {
   vtkContextScenePrivate::const_iterator it =
     std::find(this->Children->begin(), this->Children->end(), item);
   if (it == this->Children->end())
-    {
-    return static_cast<unsigned int>(-1);
-    }
+  {
+    return -1;
+  }
   return it - this->Children->begin();
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::GetNumberOfItems()
+vtkIdType vtkAbstractContextItem::GetNumberOfItems()
 {
-  return static_cast<unsigned int>(this->Children->size());
+  return static_cast<vtkIdType>(this->Children->size());
 }
 
 //-----------------------------------------------------------------------------
@@ -112,44 +119,44 @@ void vtkAbstractContextItem::ClearItems()
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::Raise(unsigned int index)
+vtkIdType vtkAbstractContextItem::Raise(vtkIdType index)
 {
   return this->StackAbove(index, this->GetNumberOfItems() - 1);
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::StackAbove(unsigned int index,
-                                                unsigned int under)
+vtkIdType vtkAbstractContextItem::StackAbove(vtkIdType index,
+                                             vtkIdType under)
 {
-  unsigned int res = index;
-  if (index == under)
-    {
+  vtkIdType res = index;
+  if (index == under || index < 0)
+  {
     return res;
-    }
-  unsigned int start = 0;
-  unsigned int middle = 0;
-  unsigned int end = 0;
-  if (under == static_cast<unsigned int>(-1))
-    {
+  }
+  vtkIdType start = 0;
+  vtkIdType middle = 0;
+  vtkIdType end = 0;
+  if (under == -1)
+  {
     start = 0;
     middle = index;
     end = index + 1;
     res = 0;
-    }
+  }
   else if (index > under)
-    {
+  {
     start = under + 1;
     middle = index;
     end = index + 1;
     res = start;
-    }
+  }
   else // if (index < under)
-    {
+  {
     start = index;
     middle = index + 1;
     end = under + 1;
     res = end - 1;
-    }
+  }
   std::rotate(this->Children->begin() + start,
               this->Children->begin() + middle,
               this->Children->begin() + end);
@@ -157,14 +164,14 @@ unsigned int vtkAbstractContextItem::StackAbove(unsigned int index,
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::Lower(unsigned int index)
+vtkIdType vtkAbstractContextItem::Lower(vtkIdType index)
 {
   return this->StackUnder(index, 0);
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::StackUnder(unsigned int child,
-                                                unsigned int above)
+vtkIdType vtkAbstractContextItem::StackUnder(vtkIdType child,
+                                             vtkIdType above)
 {
   return this->StackAbove(child, above - 1);
 }
@@ -238,14 +245,14 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(
   childMouse.SetLastPos(this->MapFromParent(mouse.GetLastPos()));
   for(vtkContextScenePrivate::const_reverse_iterator it =
       this->Children->rbegin(); it != this->Children->rend(); ++it)
-    {
+  {
     vtkAbstractContextItem* item = (*it)->GetPickedItem(childMouse);
     if (item)
-      {
+    {
       return item;
-      }
     }
-  return this->Hit(mouse) ? this : NULL;
+  }
+  return this->Hit(mouse) ? this : nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -253,9 +260,9 @@ void vtkAbstractContextItem::ReleaseGraphicsResources()
 {
   for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
     it != this->Children->end(); ++it)
-    {
+  {
     (*it)->ReleaseGraphicsResources();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -287,30 +294,30 @@ vtkVector2f vtkAbstractContextItem::MapFromParent(const vtkVector2f& point)
 vtkVector2f vtkAbstractContextItem::MapToScene(const vtkVector2f& point)
 {
   if (this->Parent)
-    {
+  {
     vtkVector2f p = this->MapToParent(point);
     p = this->Parent->MapToScene(p);
     return p;
-    }
+  }
   else
-    {
+  {
     return this->MapToParent(point);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
 vtkVector2f vtkAbstractContextItem::MapFromScene(const vtkVector2f& point)
 {
   if (this->Parent)
-    {
+  {
     vtkVector2f p = this->Parent->MapFromScene(point);
     p = this->MapFromParent(p);
     return p;
-    }
+  }
   else
-    {
+  {
     return this->MapFromParent(point);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

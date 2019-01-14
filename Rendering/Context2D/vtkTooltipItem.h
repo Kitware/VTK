@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkTooltipItem - takes care of drawing 2D axes
-//
-// .SECTION Description
-// The vtkTooltipItem is drawn in screen coordinates. It is used to display a
-// tooltip on a scene, giving additional information about an element on the
-// scene, such as in vtkChartXY. It takes care of ensuring that it draws itself
-// within the bounds of the screen.
+/**
+ * @class   vtkTooltipItem
+ * @brief   takes care of drawing 2D axes
+ *
+ *
+ * The vtkTooltipItem is drawn in screen coordinates. It is used to display a
+ * tooltip on a scene, giving additional information about an element on the
+ * scene, such as in vtkChartXY. It takes care of ensuring that it draws itself
+ * within the bounds of the screen.
+*/
 
 #ifndef vtkTooltipItem_h
 #define vtkTooltipItem_h
@@ -37,52 +40,72 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkTooltipItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkTooltipItem, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Creates a 2D Chart object.
+  /**
+   * Creates a 2D Chart object.
+   */
   static vtkTooltipItem *New();
 
-  // Description:
-  // Set the position of the tooltip (in pixels).
+  //@{
+  /**
+   * Set the position of the tooltip (in pixels).
+   */
   vtkSetVector2Macro(Position, float);
   void SetPosition(const vtkVector2f &pos);
+  //@}
 
-  // Description:
-  // Get position of the axis (in pixels).
+  //@{
+  /**
+   * Get position of the axis (in pixels).
+   */
   vtkGetVector2Macro(Position, float);
   vtkVector2f GetPositionVector();
+  //@}
 
-  // Description:
-  // Get/set the text of the item.
+  //@{
+  /**
+   * Get/set the text of the item.
+   */
   virtual void SetText(const vtkStdString &title);
   virtual vtkStdString GetText();
+  //@}
 
-  // Description:
-  // Get a pointer to the vtkTextProperty object that controls the way the
-  // text is rendered.
+  //@{
+  /**
+   * Get a pointer to the vtkTextProperty object that controls the way the
+   * text is rendered.
+   */
   vtkGetObjectMacro(Pen, vtkPen);
+  //@}
 
-  // Description:
-  // Get a pointer to the vtkPen object.
+  //@{
+  /**
+   * Get a pointer to the vtkPen object.
+   */
   vtkGetObjectMacro(Brush, vtkBrush);
+  //@}
 
-  // Description:
-  // Get the vtkTextProperty that governs how the tooltip text is displayed.
+  //@{
+  /**
+   * Get the vtkTextProperty that governs how the tooltip text is displayed.
+   */
   vtkGetObjectMacro(TextProperties, vtkTextProperty);
+  //@}
 
-  // Description:
-  // Update the geometry of the tooltip.
-  virtual void Update();
+  /**
+   * Update the geometry of the tooltip.
+   */
+  void Update() override;
 
-  // Description:
-  // Paint event for the tooltip.
-  virtual bool Paint(vtkContext2D *painter);
+  /**
+   * Paint event for the tooltip.
+   */
+  bool Paint(vtkContext2D *painter) override;
 
-//BTX
 protected:
   vtkTooltipItem();
-  ~vtkTooltipItem();
+  ~vtkTooltipItem() override;
 
   vtkVector2f PositionVector;
   float* Position;
@@ -92,9 +115,9 @@ protected:
   vtkBrush* Brush;
 
 private:
-  vtkTooltipItem(const vtkTooltipItem &); // Not implemented.
-  void operator=(const vtkTooltipItem &);   // Not implemented.
-//ETX
+  vtkTooltipItem(const vtkTooltipItem &) = delete;
+  void operator=(const vtkTooltipItem &) = delete;
+
 };
 
 #endif //vtkTooltipItem_h

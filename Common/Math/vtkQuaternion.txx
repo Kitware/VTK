@@ -43,9 +43,9 @@ template<typename T> T vtkQuaternion<T>::SquaredNorm() const
 {
   T result = 0.0;
   for (int i = 0; i < 4; ++i)
-    {
+  {
     result += this->Data[i] * this->Data[i];
-    }
+  }
   return result;
 }
 
@@ -73,12 +73,12 @@ template<typename T> T vtkQuaternion<T>::Normalize()
 {
   T norm = this->Norm();
   if (norm != 0.0)
-    {
+  {
     for (int i = 0; i < 4; ++i)
-      {
+    {
       this->Data[i] /= norm;
-      }
     }
+  }
   return norm;
 }
 
@@ -94,9 +94,9 @@ template<typename T> vtkQuaternion<T> vtkQuaternion<T>::Normalized() const
 template<typename T> void vtkQuaternion<T>::Conjugate()
 {
   for (int i = 1; i < 4; ++i)
-    {
+  {
     this->Data[i] *= -1.0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -112,13 +112,13 @@ template<typename T> void vtkQuaternion<T>::Invert()
 {
   T squareNorm = this->SquaredNorm();
   if (squareNorm != 0.0)
-    {
+  {
     this->Conjugate();
     for (int i = 0; i < 4; ++i)
-      {
+    {
       this->Data[i] /= squareNorm;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -135,9 +135,9 @@ template<typename CastTo> vtkQuaternion<CastTo> vtkQuaternion<T>::Cast() const
 {
   vtkQuaternion<CastTo> result;
   for (int i = 0; i < 4; ++i)
-    {
+  {
     result[i] = static_cast<CastTo>(this->Data[i]);
-    }
+  }
   return result;
 }
 
@@ -155,18 +155,18 @@ void vtkQuaternion<T>::Set(const T& w, const T& x, const T& y, const T& z)
 template<typename T> void vtkQuaternion<T>::Set(T quat[4])
 {
   for(int i = 0; i < 4; ++i)
-    {
+  {
     this->Data[i] = quat[i];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 template<typename T> void vtkQuaternion<T>::Get(T quat[4]) const
 {
   for(int i = 0; i < 4; ++i)
-    {
+  {
     quat[i] = this->Data[i];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -221,25 +221,27 @@ template<typename T> const T& vtkQuaternion<T>::GetZ() const
 template<typename T>
 T vtkQuaternion<T>::GetRotationAngleAndAxis(T axis[3]) const
 {
-  vtkQuaternion<T> normedQuat(*this);
-  normedQuat.Normalize();
-
-  T angle = acos(normedQuat.GetW()) * 2.0;
-  T f = sin( angle * 0.5 );
+  T w = this->GetW();
+  T x = this->GetX();
+  T y = this->GetY();
+  T z = this->GetZ();
+  T f = sqrt(x*x + y*y + z*z);
   if (f != 0.0)
-    {
-    axis[0] = normedQuat.GetX() / f;
-    axis[1] = normedQuat.GetY() / f;
-    axis[2] = normedQuat.GetZ() / f;
-    }
+  {
+    axis[0] = x / f;
+    axis[1] = y / f;
+    axis[2] = z / f;
+  }
   else
-    {
+  {
+    w = 1.0;
     axis[0] = 0.0;
     axis[1] = 0.0;
     axis[2] = 0.0;
-    }
+  }
 
-  return angle;
+  // atan2() provides a more accurate angle result than acos()
+  return 2.0*atan2(f, w);
 }
 
 //----------------------------------------------------------------------------
@@ -258,19 +260,18 @@ vtkQuaternion<T>::SetRotationAngleAndAxis (const T& angle,
 {
   T axisNorm = x*x + y*y + z*z;
   if (axisNorm != 0.0)
-    {
-    T w = cos(angle / 2.0);
-    this->SetW(w);
-
-    T f = sin( angle / 2.0);
+  {
+    T f = sin(0.5*angle);
+    this->SetW(cos(0.5*angle));
     this->SetX((x / axisNorm) * f);
     this->SetY((y / axisNorm) * f);
     this->SetZ((z / axisNorm) * f);
-    }
+  }
   else
-    {
-    this->Set(0.0, 0.0, 0.0, 0.0);
-    }
+  {
+    // set the quaternion for "no rotation"
+    this->Set(1.0, 0.0, 0.0, 0.0);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -279,9 +280,9 @@ vtkQuaternion<T> vtkQuaternion<T>::operator+(const vtkQuaternion<T>& q) const
 {
   vtkQuaternion<T> ret;
   for (int i = 0; i < 4; ++i)
-    {
+  {
     ret[i] = this->Data[i] + q[i];
-    }
+  }
   return ret;
 }
 
@@ -291,9 +292,9 @@ vtkQuaternion<T> vtkQuaternion<T>::operator-(const vtkQuaternion<T>& q) const
 {
   vtkQuaternion<T> ret;
   for (int i = 0; i < 4; ++i)
-    {
+  {
     ret[i] = this->Data[i] - q[i];
-    }
+  }
   return ret;
 }
 
@@ -335,9 +336,9 @@ vtkQuaternion<T> vtkQuaternion<T>::operator*(const T& scalar) const
 {
   vtkQuaternion<T> ret;
   for (int i = 0; i < 4; ++i)
-    {
+  {
     ret[i] = this->Data[i] * scalar;
-    }
+  }
   return ret;
 }
 
@@ -346,9 +347,9 @@ template<typename T>
 void vtkQuaternion<T>::operator*=(const T& scalar) const
 {
   for (int i = 0; i < 4; ++i)
-    {
+  {
     this->Data[i] *= scalar;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -365,9 +366,9 @@ vtkQuaternion<T> vtkQuaternion<T>::operator/(const T& scalar) const
 {
   vtkQuaternion<T> ret;
   for (int i = 0; i < 4; ++i)
-    {
+  {
     ret[i] = this->Data[i] / scalar;
-    }
+  }
   return ret;
 }
 
@@ -375,9 +376,9 @@ vtkQuaternion<T> vtkQuaternion<T>::operator/(const T& scalar) const
 template<typename T> void vtkQuaternion<T>::operator/=(const T& scalar)
 {
   for (int i = 0; i < 4; ++i)
-    {
+  {
     this->Data[i] /= scalar;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -400,12 +401,12 @@ template<typename T> void vtkQuaternion<T>::ToMatrix3x3(T A[3][3]) const
   // normalization factor, just in case quaternion was not normalized
   T f;
   if (ww + rr == 0.0) //means the quaternion is (0, 0, 0, 0)
-    {
+  {
     A[0][0] = 0.0;  A[1][0] = 0.0;  A[2][0] = 0.0;
     A[0][1] = 0.0;  A[1][1] = 0.0;  A[2][1] = 0.0;
     A[0][2] = 0.0;  A[1][2] = 0.0;  A[2][2] = 0.0;
     return;
-    }
+  }
   f = 1.0/(ww + rr);
 
   T s = (ww - rr)*f;
@@ -456,47 +457,63 @@ template<typename T> void vtkQuaternion<T>::FromMatrix3x3(const T A[3][3])
   T* nTemp[4];
   T* eigenvectorsTemp[4];
   for (int i = 0; i < 4; ++i)
-    {
+  {
     nTemp[i] = n[i];
     eigenvectorsTemp[i] = eigenvectors[i];
-    }
+  }
   vtkMath::JacobiN(nTemp,4,eigenvalues,eigenvectorsTemp);
 
   // the first eigenvector is the one we want
   for (int i = 0; i < 4; ++i)
-    {
+  {
     this->Data[i] = eigenvectors[i][0];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
+// This returns the constant angular velocity interpolation of two quaternions
+// on the unit quaternion sphere :
+// http://web.mit.edu/2.998/www/QuaternionReport1.pdf
 template<typename T> vtkQuaternion<T> vtkQuaternion<T>
 ::Slerp(T t, const vtkQuaternion<T>& q1) const
 {
-  T axis0[3], axis1[3];
-  this->GetRotationAngleAndAxis(axis0);
-  q1.GetRotationAngleAndAxis(axis1);
-  const T dot = vtkMath::Dot(axis0, axis1);
-  double t1, t2;
+  // Canonical scalar product on quaternion
+  T cosTheta = this->GetW() * q1.GetW() +
+               this->GetX() * q1.GetX() +
+               this->GetY() * q1.GetY() +
+               this->GetZ() * q1.GetZ();
+
+  // To prevent the SLERP interpolation from taking the long path
+  // we first check the relative orientation of the two quaternions
+  // If the angle is superior to 90 degrees we take the opposite quaternion
+  // which is closer and represents the same rotation
+  vtkQuaternion<T> qClosest = q1;
+  if (cosTheta < 0)
+  {
+    cosTheta = -cosTheta;
+    qClosest = qClosest * -1;
+  }
 
   // To avoid division by zero, perform a linear interpolation (LERP), if our
   // quarternions are nearly in the same direction, otherwise resort
   // to spherical linear interpolation. In the limiting case (for small
   // angles), SLERP is equivalent to LERP.
-
-  if ((1.0 - fabs(dot)) < 1e-6)
-    {
-    t1 = 1.0-t;
+  T t1, t2;
+  if ((1.0 - fabs(cosTheta)) < 1e-6)
+  {
+    t1 = 1.0 - t;
     t2 = t;
-    }
+  }
   else
-    {
-    const T theta = acos( dot );
-    t1 = sin((1.0-t)*theta)/sin(theta);
-    t2 = sin(t*theta)/sin(theta);
-    }
+  {
+    // Angle (defined by the canonical scalar product for quaternions)
+    // between the two quaternions
+    const T theta = acos(cosTheta);
+    t1 = sin((1.0 - t) * theta) / sin(theta);
+    t2 = sin(t * theta) / sin(theta);
+  }
 
-  return (*this)*t1 + q1*t2;
+  return (*this) * t1 + qClosest * t2;
 }
 
 //----------------------------------------------------------------------------
@@ -522,10 +539,9 @@ template<typename T> vtkQuaternion<T> vtkQuaternion<T>
 template<typename T> void vtkQuaternion<T>::ToUnitLog()
 {
   T axis[3];
-  T angle = this->GetRotationAngleAndAxis(axis);
-  T sinAngle = sin(angle);
+  T angle = 0.5*this->GetRotationAngleAndAxis(axis);
 
-  this->Set(0.0, sinAngle*axis[0], sinAngle*axis[1], sinAngle*axis[2]);
+  this->Set(0.0, angle*axis[0], angle*axis[1], angle*axis[2]);
 }
 
 //----------------------------------------------------------------------------
@@ -539,11 +555,20 @@ template<typename T> vtkQuaternion<T> vtkQuaternion<T>::UnitLog() const
 //----------------------------------------------------------------------------
 template<typename T> void vtkQuaternion<T>::ToUnitExp()
 {
-  T axis[3];
-  T angle = this->GetRotationAngleAndAxis(axis);
+  T x = this->GetX();
+  T y = this->GetY();
+  T z = this->GetZ();
+  T angle = sqrt(x*x + y*y + z*z);
   T sinAngle = sin(angle);
+  T cosAngle = cos(angle);
+  if (angle != 0.0)
+  {
+    x /= angle;
+    y /= angle;
+    z /= angle;
+  }
 
-  this->Set(cos(angle), sinAngle*axis[0], sinAngle*axis[1], sinAngle*axis[2]);
+  this->Set(cosAngle, sinAngle*x, sinAngle*y, sinAngle*z);
 }
 
 //----------------------------------------------------------------------------

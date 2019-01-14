@@ -27,9 +27,7 @@ vtkInformationKeyVectorKey::vtkInformationKeyVectorKey(const char* name, const c
 }
 
 //----------------------------------------------------------------------------
-vtkInformationKeyVectorKey::~vtkInformationKeyVectorKey()
-{
-}
+vtkInformationKeyVectorKey::~vtkInformationKeyVectorKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationKeyVectorKey::PrintSelf(ostream& os, vtkIndent indent)
@@ -41,7 +39,7 @@ void vtkInformationKeyVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationKeyVectorValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationKeyVectorValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationKeyVectorValue, vtkObjectBase);
   std::vector<vtkInformationKey*> Value;
 };
 
@@ -53,13 +51,13 @@ void vtkInformationKeyVectorKey::Append(vtkInformation* info,
     static_cast<vtkInformationKeyVectorValue *>
     (this->GetAsObjectBase(info));
   if(v)
-    {
+  {
     v->Value.push_back(value);
-    }
+  }
   else
-    {
+  {
     this->Set(info, &value, 1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -70,45 +68,45 @@ void vtkInformationKeyVectorKey::AppendUnique(vtkInformation* info,
     static_cast<vtkInformationKeyVectorValue *>
     (this->GetAsObjectBase(info));
   if(v)
-    {
+  {
     int found = 0;
     size_t len = v->Value.size();
     for (size_t i=0; i<len; i++)
-      {
+    {
       if (v->Value[i] == value)
-        {
+      {
         found = 1;
         break;
-        }
       }
+    }
     if (!found)
-      {
-      v->Value.push_back(value);
-      }
-    }
-  else
     {
-    this->Set(info, &value, 1);
+      v->Value.push_back(value);
     }
+  }
+  else
+  {
+    this->Set(info, &value, 1);
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkInformationKeyVectorKey::Set(vtkInformation* info,
-                                     vtkInformationKey** value, int length)
+                                     vtkInformationKey* const*
+                                     value, int length)
 {
   if(value)
-    {
-    vtkInformationKeyVectorValue* v =
-      new vtkInformationKeyVectorValue;
-    this->ConstructClass("vtkInformationKeyVectorValue");
+  {
+    vtkInformationKeyVectorValue* v = new vtkInformationKeyVectorValue;
+    v->InitializeObjectBase();
     v->Value.insert(v->Value.begin(), value, value+length);
     this->SetAsObjectBase(info, v);
     v->Delete();
-    }
+  }
   else
-    {
-    this->SetAsObjectBase(info, 0);
-    }
+  {
+    this->SetAsObjectBase(info, nullptr);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -120,13 +118,13 @@ void vtkInformationKeyVectorKey::RemoveItem(vtkInformation* info,
     (this->GetAsObjectBase(info));
 
   if(v)
-    {
+  {
     std::vector<vtkInformationKey*>::iterator it=std::find(v->Value.begin(),v->Value.end(),value);
     if(it!=v->Value.end())
-      {
+    {
       v->Value.erase(it);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -135,7 +133,7 @@ vtkInformationKey** vtkInformationKeyVectorKey::Get(vtkInformation* info)
   vtkInformationKeyVectorValue* v =
     static_cast<vtkInformationKeyVectorValue *>
     (this->GetAsObjectBase(info));
-  return (v && !v->Value.empty())?(&v->Value[0]):0;
+  return (v && !v->Value.empty())?(&v->Value[0]):nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -143,12 +141,12 @@ vtkInformationKey* vtkInformationKeyVectorKey::Get(vtkInformation* info,
                                                    int idx)
 {
   if (idx >= this->Length(info))
-    {
+  {
     vtkErrorWithObjectMacro(info,
                             "Information does not contain " << idx
                             << " elements. Cannot return information value.");
-    return 0;
-    }
+    return nullptr;
+  }
   vtkInformationKey** values = this->Get(info);
   return values[idx];
 }
@@ -161,13 +159,13 @@ void vtkInformationKeyVectorKey::Get(vtkInformation* info,
     static_cast<vtkInformationKeyVectorValue *>
     (this->GetAsObjectBase(info));
   if(v && value)
-    {
+  {
     for(std::vector<vtkInformationKey*>::size_type i = 0;
         i < v->Value.size(); ++i)
-      {
+    {
       value[i] = v->Value[i];
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -190,14 +188,14 @@ void vtkInformationKeyVectorKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
   if(this->Has(info))
-    {
+  {
     vtkInformationKey** value = this->Get(info);
     int length = this->Length(info);
     const char* sep = "";
     for(int i=0; i < length; ++i)
-      {
-      os << sep << (value[i]? value[i]->GetName() : "(NULL)");
+    {
+      os << sep << (value[i]? value[i]->GetName() : "(nullptr)");
       sep = " ";
-      }
     }
+  }
 }

@@ -32,9 +32,7 @@ vtkImageCacheFilter::vtkImageCacheFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkImageCacheFilter::~vtkImageCacheFilter()
-{
-}
+vtkImageCacheFilter::~vtkImageCacheFilter() = default;
 
 //----------------------------------------------------------------------------
 vtkExecutive* vtkImageCacheFilter::CreateDefaultExecutive()
@@ -56,9 +54,9 @@ void vtkImageCacheFilter::SetCacheSize(int size)
   vtkCachedStreamingDemandDrivenPipeline *csddp =
     vtkCachedStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (csddp)
-    {
+  {
     csddp->SetCacheSize(size);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -67,9 +65,9 @@ int vtkImageCacheFilter::GetCacheSize()
   vtkCachedStreamingDemandDrivenPipeline *csddp =
     vtkCachedStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (csddp)
-    {
+  {
     return csddp->GetCacheSize();
-    }
+  }
   return 0;
 }
 

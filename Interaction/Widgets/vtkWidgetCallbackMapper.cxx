@@ -25,7 +25,7 @@ vtkStandardNewMacro(vtkWidgetCallbackMapper);
 // Callbacks are stored as a pair of (Object,Method) in the map.
 struct vtkCallbackPair
 {
-  vtkCallbackPair():Widget(0),Callback(0) {} //map requires empty constructor
+  vtkCallbackPair():Widget(nullptr),Callback(nullptr) {} //map requires empty constructor
   vtkCallbackPair(vtkAbstractWidget *w, vtkWidgetCallbackMapper::CallbackType f) :
     Widget(w),Callback(f) {}
 
@@ -34,7 +34,7 @@ struct vtkCallbackPair
 };
 
 
-// The map tracks the correspondance between widget events and callbacks
+// The map tracks the correspondence between widget events and callbacks
 class vtkCallbackMap : public std::map<unsigned long, vtkCallbackPair>
 {
 public:
@@ -47,7 +47,7 @@ public:
 vtkWidgetCallbackMapper::vtkWidgetCallbackMapper()
 {
   this->CallbackMap = new vtkCallbackMap;
-  this->EventTranslator = NULL;
+  this->EventTranslator = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -55,28 +55,28 @@ vtkWidgetCallbackMapper::~vtkWidgetCallbackMapper()
 {
   delete this->CallbackMap;
   if ( this->EventTranslator )
-    {
+  {
     this->EventTranslator->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::SetEventTranslator(vtkWidgetEventTranslator *t)
 {
   if ( this->EventTranslator != t )
-    {
+  {
     if (this->EventTranslator)
-      {
+    {
       this->EventTranslator->Delete();
-      }
+    }
     this->EventTranslator = t;
     if (this->EventTranslator)
-      {
+    {
       this->EventTranslator->Register(this);
-      }
+    }
 
     this->Modified();
-    }
+  }
 }
 
 
@@ -103,6 +103,15 @@ void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent,
   this->SetCallbackMethod(widgetEvent,w,f);
 }
 
+//----------------------------------------------------------------------------
+void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent,
+  vtkEventData *edata,
+  unsigned long widgetEvent,
+  vtkAbstractWidget *w, CallbackType f)
+{
+  this->EventTranslator->SetTranslation(VTKEvent, edata, widgetEvent);
+  this->SetCallbackMethod(widgetEvent,w,f);
+}
 
 //----------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long widgetEvent,
@@ -116,11 +125,11 @@ void vtkWidgetCallbackMapper::InvokeCallback(unsigned long widgetEvent)
 {
   vtkCallbackMap::CallbackMapIterator iter = this->CallbackMap->find(widgetEvent);
   if ( iter != this->CallbackMap->end() )
-    {
+  {
     vtkAbstractWidget *w = (*iter).second.Widget;
     CallbackType f = (*iter).second.Callback;
     (*f)(w);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -131,11 +140,11 @@ void vtkWidgetCallbackMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Event Translator: ";
   if ( this->EventTranslator )
-    {
+  {
     os << this->EventTranslator << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 }

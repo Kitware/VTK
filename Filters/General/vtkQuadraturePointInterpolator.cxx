@@ -34,8 +34,8 @@
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkObjectFactory.h"
 
-#include "vtksys/ios/sstream"
-using vtksys_ios::ostringstream;
+#include <sstream>
+using std::ostringstream;
 
 #include "vtkQuadraturePointsUtilities.hxx"
 
@@ -61,11 +61,11 @@ int vtkQuadraturePointInterpolator::FillInputPortInformation(
         vtkInformation *info)
 {
   switch (port)
-    {
+  {
     case 0:
       info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkUnstructuredGrid");
       break;
-    }
+  }
   return 1;
 }
 
@@ -75,11 +75,11 @@ int vtkQuadraturePointInterpolator::FillOutputPortInformation(
         vtkInformation *info)
 {
   switch (port)
-    {
+  {
     case 0:
       info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkUnstructuredGrid");
       break;
-    }
+  }
   return 1;
 }
 
@@ -102,15 +102,15 @@ int vtkQuadraturePointInterpolator::RequestData(
     = vtkUnstructuredGrid::SafeDownCast(tmpDataObj);
 
   // Quick sanity check.
-  if (usgIn==NULL || usgOut==NULL
+  if (usgIn==nullptr || usgOut==nullptr
      || usgIn->GetNumberOfCells()==0
      || usgIn->GetNumberOfPoints()==0
-     || usgIn->GetPointData()==NULL
+     || usgIn->GetPointData()==nullptr
      || usgIn->GetPointData()->GetNumberOfArrays()==0)
-    {
+  {
     vtkWarningMacro("Filter data has not been configured correctly. Aborting.");
     return 1;
-    }
+  }
 
   // Copy the unstructured grid on the input
   usgOut->ShallowCopy(usgIn);
@@ -142,11 +142,11 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
     = usgOut->GetPointData()->GetNumberOfArrays();
 
   vtkDataArray *offsets=this->GetInputArrayToProcess(0,usgOut);
-  if(offsets == NULL)
-    {
+  if(offsets == nullptr)
+  {
     vtkWarningMacro("no Offset array, skipping.");
     return 0;
-    }
+  }
 
   const char* arrayOffsetName = offsets->GetName();
   void *pOffsets = offsets->GetVoidPointer(0);
@@ -155,10 +155,10 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
   vtkInformation *info=offsets->GetInformation();
   vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
   if (!key->Has(info))
-    {
+  {
     vtkWarningMacro("Dictionary is not present in.  Skipping.");
     return 0;
-    }
+  }
   int dictSize= key->Size(info);
   vtkQuadratureSchemeDefinition **dict=new vtkQuadratureSchemeDefinition *[dictSize];
   key->GetRange(info,dict,0,0,dictSize);
@@ -166,7 +166,7 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
 
   // interpolate the arrays
   for (int arrayId=0; arrayId<nArrays; ++arrayId)
-    {
+  {
     // Grab the next array
     vtkDataArray *V=usgOut->GetPointData()->GetArray(arrayId);
     int V_type=V->GetDataType();
@@ -191,9 +191,9 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
 
     // For all cells interpolate.
     switch (V_type)
-      {
+    {
       vtkTemplateMacro(
-        if (!Interpolate(
+        if (!vtkQuadraturePointsUtilities::Interpolate(
                 usgOut,
                 nCells,
                 static_cast<VTK_TT*>(pV),
@@ -202,14 +202,14 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
                 interpolated,
                 pOffsets,
                 O_Type))
-          {
+        {
           vtkWarningMacro("Failed to interpolate fields "
                           "to quadrature points. Aborting.");
           return 0;
-          }
+        }
         );
-      }
     }
+  }
   delete [] dict;
 
   return 1;

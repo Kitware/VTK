@@ -23,32 +23,34 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkTemporalStatistics - Compute statistics of point or cell data as it changes over time
-//
-// .SECTION Description
-//
-// Given an input that changes over time, vtkTemporalStatistics looks at the
-// data for each time step and computes some statistical information of how a
-// point or cell variable changes over time.  For example, vtkTemporalStatistics
-// can compute the average value of "pressure" over time of each point.
-//
-// Note that this filter will require the upstream filter to be run on every
-// time step that it reports that it can compute.  This may be a time consuming
-// operation.
-//
-// vtkTemporalStatistics ignores the temporal spacing.  Each timestep will be
-// weighted the same regardless of how long of an interval it is to the next
-// timestep.  Thus, the average statistic may be quite different from an
-// integration of the variable if the time spacing varies.
-//
-// .SECTION Thanks
-// This class was originally written by Kenneth Moreland (kmorel@sandia.gov)
-// from Sandia National Laboratories.
-//
+/**
+ * @class   vtkTemporalStatistics
+ * @brief   Compute statistics of point or cell data as it changes over time
+ *
+ *
+ *
+ * Given an input that changes over time, vtkTemporalStatistics looks at the
+ * data for each time step and computes some statistical information of how a
+ * point or cell variable changes over time.  For example, vtkTemporalStatistics
+ * can compute the average value of "pressure" over time of each point.
+ *
+ * Note that this filter will require the upstream filter to be run on every
+ * time step that it reports that it can compute.  This may be a time consuming
+ * operation.
+ *
+ * vtkTemporalStatistics ignores the temporal spacing.  Each timestep will be
+ * weighted the same regardless of how long of an interval it is to the next
+ * timestep.  Thus, the average statistic may be quite different from an
+ * integration of the variable if the time spacing varies.
+ *
+ * @par Thanks:
+ * This class was originally written by Kenneth Moreland (kmorel@sandia.gov)
+ * from Sandia National Laboratories.
+ *
+*/
 
-
-#ifndef _vtkTemporalStatistics_h
-#define _vtkTemporalStatistics_h
+#ifndef vtkTemporalStatistics_h
+#define vtkTemporalStatistics_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
@@ -61,65 +63,79 @@ class vtkGraph;
 class VTKFILTERSGENERAL_EXPORT vtkTemporalStatistics : public vtkPassInputTypeAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
   vtkTypeMacro(vtkTemporalStatistics, vtkPassInputTypeAlgorithm);
   static vtkTemporalStatistics *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // Turn on/off the computation of the average values over time.  On by
-  // default.  The resulting array names have "_average" appended to them.
-  vtkGetMacro(ComputeAverage, int);
-  vtkSetMacro(ComputeAverage, int);
-  vtkBooleanMacro(ComputeAverage, int);
+  //@{
+  /**
+   * Turn on/off the computation of the average values over time.  On by
+   * default.  The resulting array names have "_average" appended to them.
+   */
+  vtkGetMacro(ComputeAverage, vtkTypeBool);
+  vtkSetMacro(ComputeAverage, vtkTypeBool);
+  vtkBooleanMacro(ComputeAverage, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Turn on/off the computation of the minimum values over time.  On by
-  // default.  The resulting array names have "_minimum" appended to them.
-  vtkGetMacro(ComputeMinimum, int);
-  vtkSetMacro(ComputeMinimum, int);
-  vtkBooleanMacro(ComputeMinimum, int);
+  //@{
+  /**
+   * Turn on/off the computation of the minimum values over time.  On by
+   * default.  The resulting array names have "_minimum" appended to them.
+   */
+  vtkGetMacro(ComputeMinimum, vtkTypeBool);
+  vtkSetMacro(ComputeMinimum, vtkTypeBool);
+  vtkBooleanMacro(ComputeMinimum, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Turn on/off the computation of the maximum values over time.  On by
-  // default.  The resulting array names have "_maximum" appended to them.
-  vtkGetMacro(ComputeMaximum, int);
-  vtkSetMacro(ComputeMaximum, int);
-  vtkBooleanMacro(ComputeMaximum, int);
+  //@{
+  /**
+   * Turn on/off the computation of the maximum values over time.  On by
+   * default.  The resulting array names have "_maximum" appended to them.
+   */
+  vtkGetMacro(ComputeMaximum, vtkTypeBool);
+  vtkSetMacro(ComputeMaximum, vtkTypeBool);
+  vtkBooleanMacro(ComputeMaximum, vtkTypeBool);
+  //@}
 
   // Definition:
   // Turn on/off the computation of the standard deviation of the values over
   // time.  On by default.  The resulting array names have "_stddev" appended to
   // them.
-  vtkGetMacro(ComputeStandardDeviation, int);
-  vtkSetMacro(ComputeStandardDeviation, int);
-  vtkBooleanMacro(ComputeStandardDeviation, int);
+  vtkGetMacro(ComputeStandardDeviation, vtkTypeBool);
+  vtkSetMacro(ComputeStandardDeviation, vtkTypeBool);
+  vtkBooleanMacro(ComputeStandardDeviation, vtkTypeBool);
 
 protected:
   vtkTemporalStatistics();
-  ~vtkTemporalStatistics();
+  ~vtkTemporalStatistics() override;
 
-  int ComputeAverage;
-  int ComputeMaximum;
-  int ComputeMinimum;
-  int ComputeStandardDeviation;
+  vtkTypeBool ComputeAverage;
+  vtkTypeBool ComputeMaximum;
+  vtkTypeBool ComputeMinimum;
+  vtkTypeBool ComputeStandardDeviation;
 
   // Used when iterating the pipeline to keep track of which timestep we are on.
   int CurrentTimeIndex;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
-  virtual int RequestDataObject(vtkInformation *request,
-                                vtkInformationVector **inputVector,
-                                vtkInformationVector *outputVector);
-  virtual int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
-  virtual int RequestUpdateExtent(vtkInformation *request,
-                                  vtkInformationVector **inputVector,
-                                  vtkInformationVector *outputVector);
-  virtual int RequestData(vtkInformation *request,
+  int RequestDataObject(vtkInformation *request,
+                        vtkInformationVector **inputVector,
+                        vtkInformationVector *outputVector) override;
+  int RequestInformation(vtkInformation *request,
+                         vtkInformationVector **inputVector,
+                         vtkInformationVector *outputVector) override;
+  int RequestUpdateExtent(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation *request,
+                  vtkInformationVector **inputVector,
+                  vtkInformationVector *outputVector) override;
 
   virtual void InitializeStatistics(vtkDataObject *input,
                                     vtkDataObject *output);
@@ -150,8 +166,17 @@ protected:
                                  const char *nameSuffix);
 
 private:
-  vtkTemporalStatistics(const vtkTemporalStatistics &); // Not implemented.
-  void operator=(const vtkTemporalStatistics &);        // Not implemented.
+  vtkTemporalStatistics(const vtkTemporalStatistics &) = delete;
+  void operator=(const vtkTemporalStatistics &) = delete;
+
+  //@{
+  /**
+   * Used to avoid multiple warnings for the same filter when
+   * the number of points or cells in the data set is changing
+   * between time steps.
+   */
+  bool GeneratedChangingTopologyWarning;
 };
+  //@}
 
 #endif //_vtkTemporalStatistics_h

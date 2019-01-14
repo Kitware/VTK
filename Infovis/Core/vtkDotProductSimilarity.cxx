@@ -31,7 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#include <vtksys/stl/algorithm>
+#include <algorithm>
 #include <map>
 #include <stdexcept>
 
@@ -106,9 +106,7 @@ vtkDotProductSimilarity::vtkDotProductSimilarity() :
 
 // ----------------------------------------------------------------------
 
-vtkDotProductSimilarity::~vtkDotProductSimilarity()
-{
-}
+vtkDotProductSimilarity::~vtkDotProductSimilarity() = default;
 
 // ----------------------------------------------------------------------
 
@@ -129,7 +127,7 @@ void vtkDotProductSimilarity::PrintSelf(ostream& os, vtkIndent indent)
 int vtkDotProductSimilarity::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch(port)
-    {
+  {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
       return 1;
@@ -137,7 +135,7 @@ int vtkDotProductSimilarity::FillInputPortInformation(int port, vtkInformation* 
       info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
       return 1;
-    }
+  }
 
   return 0;
 }
@@ -162,11 +160,11 @@ static double DotProduct(
 
   double dot_product = 0.0;
   for(vtkIdType component = 0; component != range_a.GetSize(); ++component)
-    {
+  {
     coordinates_a[component_dimension] = component + range_a.GetBegin();
     coordinates_b[component_dimension] = component + range_b.GetBegin();
     dot_product += input_a->GetValue(coordinates_a) * input_b->GetValue(coordinates_b);
-    }
+  }
   return dot_product;
 }
 
@@ -176,7 +174,7 @@ int vtkDotProductSimilarity::RequestData(
   vtkInformationVector* outputVector)
 {
   try
-    {
+  {
     // Enforce our preconditions ...
     vtkArrayData* const input_a = vtkArrayData::GetData(inputVector[0]);
     if(!input_a)
@@ -191,9 +189,9 @@ int vtkDotProductSimilarity::RequestData(
       throw std::runtime_error("Array on input port 0 must be a matrix.");
 
     vtkArrayData* const input_b = vtkArrayData::GetData(inputVector[1]);
-    vtkDenseArray<double>* input_array_b = 0;
+    vtkDenseArray<double>* input_array_b = nullptr;
     if(input_b)
-      {
+    {
       if(input_b->GetNumberOfArrays() != 1)
         throw std::runtime_error("Array data on input port 1 must contain exactly one array.");
       input_array_b = vtkDenseArray<double>::SafeDownCast(
@@ -202,7 +200,7 @@ int vtkDotProductSimilarity::RequestData(
         throw std::runtime_error("Array on input port 1 must be a vtkDenseArray<double>.");
       if(input_array_b->GetDimensions() != 2)
         throw std::runtime_error("Array on input port 1 must be a matrix.");
-      }
+    }
 
     const vtkIdType vector_dimension = this->VectorDimension;
     if(vector_dimension != 0 && vector_dimension != 1)
@@ -237,59 +235,59 @@ int vtkDotProductSimilarity::RequestData(
 
     typedef threshold_multimap<double, vtkIdType> similarities_t;
     if(input_array_b)
-      {
+    {
       // Compare the first matrix with the second matrix ...
       if(this->FirstSecond)
-        {
+      {
         for(vtkIdType vector_a = vectors_a.GetBegin(); vector_a != vectors_a.GetEnd(); ++vector_a)
-          {
+        {
           similarities_t similarities(this->MinimumThreshold, this->MinimumCount, this->MaximumCount);
 
           for(vtkIdType vector_b = vectors_b.GetBegin(); vector_b != vectors_b.GetEnd(); ++vector_b)
-            {
+          {
             // Can't use std::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
             similarities.insert(std::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_b, vector_a, vector_b, vector_dimension, component_dimension, components_a, components_b), vector_b));
-            }
+          }
 
           for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
-            {
+          {
             source_array->InsertNextValue(vector_a);
             target_array->InsertNextValue(similarity->second);
             similarity_array->InsertNextValue(similarity->first);
-            }
-          }
-        }
-      // Compare the second matrix with the first matrix ...
-      if(this->SecondFirst)
-        {
-        for(vtkIdType vector_b = vectors_b.GetBegin(); vector_b != vectors_b.GetEnd(); ++vector_b)
-          {
-          similarities_t similarities(this->MinimumThreshold, this->MinimumCount, this->MaximumCount);
-
-          for(vtkIdType vector_a = vectors_a.GetBegin(); vector_a != vectors_a.GetEnd(); ++vector_a)
-            {
-            // Can't use std::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
-            similarities.insert(std::pair<const double, vtkIdType>(DotProduct(input_array_b, input_array_a, vector_b, vector_a, vector_dimension, component_dimension, components_b, components_a), vector_a));
-            }
-
-          for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
-            {
-            source_array->InsertNextValue(vector_b);
-            target_array->InsertNextValue(similarity->second);
-            similarity_array->InsertNextValue(similarity->first);
-            }
           }
         }
       }
+      // Compare the second matrix with the first matrix ...
+      if(this->SecondFirst)
+      {
+        for(vtkIdType vector_b = vectors_b.GetBegin(); vector_b != vectors_b.GetEnd(); ++vector_b)
+        {
+          similarities_t similarities(this->MinimumThreshold, this->MinimumCount, this->MaximumCount);
+
+          for(vtkIdType vector_a = vectors_a.GetBegin(); vector_a != vectors_a.GetEnd(); ++vector_a)
+          {
+            // Can't use std::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
+            similarities.insert(std::pair<const double, vtkIdType>(DotProduct(input_array_b, input_array_a, vector_b, vector_a, vector_dimension, component_dimension, components_b, components_a), vector_a));
+          }
+
+          for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
+          {
+            source_array->InsertNextValue(vector_b);
+            target_array->InsertNextValue(similarity->second);
+            similarity_array->InsertNextValue(similarity->first);
+          }
+        }
+      }
+    }
     // Compare the one matrix with itself ...
     else
-      {
+    {
       for(vtkIdType vector_a = vectors_a.GetBegin(); vector_a != vectors_a.GetEnd(); ++vector_a)
-        {
+      {
         similarities_t similarities(this->MinimumThreshold, this->MinimumCount, this->MaximumCount);
 
         for(vtkIdType vector_b = vectors_a.GetBegin(); vector_b != vectors_a.GetEnd(); ++vector_b)
-          {
+        {
           if((vector_b > vector_a) && !this->UpperDiagonal)
             continue;
 
@@ -301,16 +299,16 @@ int vtkDotProductSimilarity::RequestData(
 
           // Can't use std::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
           similarities.insert(std::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_a, vector_a, vector_b, vector_dimension, component_dimension, components_a, components_a), vector_b));
-          }
+        }
 
         for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
-          {
+        {
           source_array->InsertNextValue(vector_a);
           target_array->InsertNextValue(similarity->second);
           similarity_array->InsertNextValue(similarity->first);
-          }
         }
       }
+    }
 
     output->AddColumn(source_array);
     output->AddColumn(target_array);
@@ -321,16 +319,16 @@ int vtkDotProductSimilarity::RequestData(
     similarity_array->Delete();
 
     return 1;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;
-    }
+  }
   catch(...)
-    {
+  {
     vtkErrorMacro(<< "unknown exception");
     return 0;
-    }
+  }
 }
 

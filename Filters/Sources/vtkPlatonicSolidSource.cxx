@@ -24,6 +24,11 @@
 
 vtkStandardNewMacro(vtkPlatonicSolidSource);
 
+// Wrapping this in namespaces because the short names (a, b, c, etc) are
+// throwing warnings on MSVC when inlined methods in vtkGenericDataArray are
+// being used ('warning C4459: declaration of 'c' hides global declaration')
+namespace {
+namespace vtkPlatonicSolidSourceDetail {
 // The geometry and topology of each solid. Solids are centered at
 // the origin with radius 1.0.
 // The golden ration phi = (1+sqrt(5))/2=1.61803398875 enters into many
@@ -77,6 +82,8 @@ static vtkIdType IcosaVerts[] = {
   4,10,9, 5,11,8, 6,8,11, 1,9,3, 1,5,8, 0,3,10, 0,11,5, 7,10,4, 7,6,11,
   2,4,9, 2,8,6
 };
+} // end namespace detail
+} // end anon namespace
 
 vtkPlatonicSolidSource::vtkPlatonicSolidSource()
 {
@@ -93,26 +100,26 @@ int vtkPlatonicSolidSource::RequestData(
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int i;
-  double *pptr, *solidPoints=NULL, solidScale=1.0;
-  vtkIdType *cptr, numPts=0, numCells=0, cellSize=0, *solidVerts=NULL;
+  double *pptr, *solidPoints=nullptr, solidScale=1.0;
+  vtkIdType *cptr, numPts=0, numCells=0, cellSize=0, *solidVerts=nullptr;
 
   vtkDebugMacro(<<"Creating Platonic solid");
 
   // Based on type, select correct connectivity and point arrays
   //
   switch (this->SolidType)
-    {
+  {
     case VTK_SOLID_TETRAHEDRON:
       numPts = 4;
       cellSize = 3;
       numCells = 4;
-      solidPoints = TetraPoints;
-      solidVerts = TetraVerts;
+      solidPoints = vtkPlatonicSolidSourceDetail::TetraPoints;
+      solidVerts = vtkPlatonicSolidSourceDetail::TetraVerts;
       solidScale = 1.0/sqrt(3.0);
       break;
 
@@ -120,8 +127,8 @@ int vtkPlatonicSolidSource::RequestData(
       numPts = 8;
       cellSize = 4;
       numCells = 6;
-      solidPoints = CubePoints;
-      solidVerts = CubeVerts;
+      solidPoints = vtkPlatonicSolidSourceDetail::CubePoints;
+      solidVerts = vtkPlatonicSolidSourceDetail::CubeVerts;
       solidScale = 1.0/sqrt(3.0);
       break;
 
@@ -129,8 +136,8 @@ int vtkPlatonicSolidSource::RequestData(
       numPts = 6;
       cellSize = 3;
       numCells = 8;
-      solidPoints = OctPoints;
-      solidVerts = OctVerts;
+      solidPoints = vtkPlatonicSolidSourceDetail::OctPoints;
+      solidVerts = vtkPlatonicSolidSourceDetail::OctVerts;
       solidScale = 1.0/sqrt(2.0);
       break;
 
@@ -138,8 +145,8 @@ int vtkPlatonicSolidSource::RequestData(
       numPts = 12;
       cellSize = 3;
       numCells = 20;
-      solidPoints = IcosaPoints;
-      solidVerts = IcosaVerts;
+      solidPoints = vtkPlatonicSolidSourceDetail::IcosaPoints;
+      solidVerts = vtkPlatonicSolidSourceDetail::IcosaVerts;
       solidScale = 1.0/0.58778524999243;
       break;
 
@@ -147,11 +154,11 @@ int vtkPlatonicSolidSource::RequestData(
       numPts = 20;
       cellSize = 5;
       numCells = 12;
-      solidPoints = DodePoints;
-      solidVerts = DodeVerts;
+      solidPoints = vtkPlatonicSolidSourceDetail::DodePoints;
+      solidVerts = vtkPlatonicSolidSourceDetail::DodeVerts;
       solidScale = 1.0/1.070466269319;
       break;
-    }
+  }
 
   // Create the solids
   //
@@ -159,13 +166,13 @@ int vtkPlatonicSolidSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     pts->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     pts->SetDataType(VTK_FLOAT);
-    }
+  }
 
   pts->SetNumberOfPoints(numPts);
   vtkCellArray *polys = vtkCellArray::New();
@@ -176,17 +183,17 @@ int vtkPlatonicSolidSource::RequestData(
 
   // Points
   for ( i=0, pptr=solidPoints; i<numPts; i++, pptr+=3 )
-    {
+  {
     pts->SetPoint(i, solidScale*(pptr[0]), solidScale*(pptr[1]),
                      solidScale*(pptr[2]));
-    }
+  }
 
   // Cells
   for ( i=0, cptr=solidVerts; i<numCells; i++, cptr+=cellSize )
-    {
+  {
     polys->InsertNextCell(cellSize,cptr);
     colors->SetTuple1(i,i);
-    }
+  }
 
   // Assemble the output
   output->SetPoints(pts);
@@ -207,25 +214,25 @@ void vtkPlatonicSolidSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Solid Type: " << "\n";
   if ( this->SolidType == VTK_SOLID_TETRAHEDRON )
-    {
+  {
     os << "Tetrahedron\n";
-    }
+  }
   else if ( this->SolidType == VTK_SOLID_CUBE )
-    {
+  {
     os << "Cube\n";
-    }
+  }
   else if ( this->SolidType == VTK_SOLID_OCTAHEDRON )
-    {
+  {
     os << "Octahedron\n";
-    }
+  }
   else if ( this->SolidType == VTK_SOLID_ICOSAHEDRON )
-    {
+  {
     os << "Icosahedron\n";
-    }
+  }
   else //if ( this->SolidType == VTK_SOLID_DODECAHEDRON )
-    {
+  {
     os << "Dodecahedron\n";
-    }
+  }
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision
      << "\n";

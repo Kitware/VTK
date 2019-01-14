@@ -24,9 +24,14 @@
 #ifndef XDMFARRAYTYPE_HPP_
 #define XDMFARRAYTYPE_HPP_
 
-// Includes
+// C Compatible Includes
 #include "XdmfCore.hpp"
+
+#ifdef __cplusplus
+
+// Includes
 #include "XdmfItemProperty.hpp"
+#include <vector>
 
 /**
  * @brief Property describing what types of values an XdmfArray
@@ -70,6 +75,7 @@ public:
   virtual ~XdmfArrayType();
 
   friend class XdmfArray;
+  friend class XdmfCoreItemFactory;
 
   enum Format {
     Unsigned,
@@ -134,27 +140,6 @@ public:
   unsigned int getElementSize() const;
 
   /**
-   * Get the name of the data type.
-   *
-   * Example of use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfArrayType.cpp
-   * @skipline //#getName
-   * @until //#getName
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleArrayType.py
-   * @skipline #//getName
-   * @until #//getName
-   *
-   * @return    The name of the data type.
-   */
-  std::string getName() const;
-
-  /**
    * Gets whether the data type is floating point or not.
    *
    * Example of use:
@@ -196,6 +181,27 @@ public:
    */
   bool getIsSigned() const;
 
+  /**
+   * Get the name of the data type.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfArrayType.cpp
+   * @skipline //#getName
+   * @until //#getName
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleArrayType.py
+   * @skipline #//getName
+   * @until #//getName
+   *
+   * @return    The name of the data type.
+   */
+  std::string getName() const;
+
   void
   getProperties(std::map<std::string, std::string> & collectedProperties) const;
 
@@ -210,10 +216,15 @@ protected:
    * @param name the name of the XdmfArrayType to construct.
    * @param precision the precision, in bytes, of the XdmfArrayType to
    * construct.
+   * @param typeFormat The format description of the XdmfArrayType.
    */
   XdmfArrayType(const std::string & name,
                 const unsigned int precision,
                 const Format typeFormat);
+
+  static std::map<std::string, std::map<unsigned int ,shared_ptr<const XdmfArrayType>(*)()> > mArrayDefinitions;
+
+  static void InitTypes();
 
 private:
 
@@ -227,6 +238,56 @@ private:
   const unsigned int mPrecision;
   std::string mPrecisionString;
   Format mTypeFormat;
+  const char * mTypeId;
+
+  // Allows for up to 16 byte sizes for unsigned, signed, and floating point types
+  // The vector is actually larger than that to allow for the string and uninitialized types
+  static std::vector<shared_ptr<const XdmfArrayType> > mTypes;
+  // Due to uninitialized taking position 0 the size of the array is actually one over the max size
+  static unsigned int mCurrentMaxSize;
+  // Map of typeid to index in mTypes
+  static std::map<std::string, shared_ptr<const XdmfArrayType> > mTypeIdMap;
 };
+
+#endif
+
+#define XDMF_ARRAY_TYPE_INT8    0
+#define XDMF_ARRAY_TYPE_INT16   1
+#define XDMF_ARRAY_TYPE_INT32   2
+#define XDMF_ARRAY_TYPE_INT64   3
+#define XDMF_ARRAY_TYPE_UINT8   4
+#define XDMF_ARRAY_TYPE_UINT16  5
+#define XDMF_ARRAY_TYPE_UINT32  6
+#define XDMF_ARRAY_TYPE_FLOAT32 7
+#define XDMF_ARRAY_TYPE_FLOAT64 8
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// These simply return the values defined above
+XDMFCORE_EXPORT int XdmfArrayTypeInt8();
+XDMFCORE_EXPORT int XdmfArrayTypeInt16();
+XDMFCORE_EXPORT int XdmfArrayTypeInt32();
+XDMFCORE_EXPORT int XdmfArrayTypeInt64();
+XDMFCORE_EXPORT int XdmfArrayTypeFloat32();
+XDMFCORE_EXPORT int XdmfArrayTypeFloat64();
+XDMFCORE_EXPORT int XdmfArrayTypeUInt8();
+XDMFCORE_EXPORT int XdmfArrayTypeUInt16();
+XDMFCORE_EXPORT int XdmfArrayTypeUInt32();
+
+XDMFCORE_EXPORT int XdmfArrayTypeComparePrecision(int type1, int type2, int * status);
+
+XDMFCORE_EXPORT int XdmfArrayTypeGetElementSize(int type, int * status);
+
+XDMFCORE_EXPORT int XdmfArrayTypeGetIsFloat(int type, int * status);
+
+XDMFCORE_EXPORT int XdmfArrayTypeGetIsSigned(int type, int * status);
+
+XDMFCORE_EXPORT char * XdmfArrayTypeGetName(int type, int * status);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFARRAYTYPE_HPP_ */

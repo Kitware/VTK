@@ -42,9 +42,7 @@ vtkPlotSurface::vtkPlotSurface()
 }
 
 //-----------------------------------------------------------------------------
-vtkPlotSurface::~vtkPlotSurface()
-{
-}
+vtkPlotSurface::~vtkPlotSurface() = default;
 
 //-----------------------------------------------------------------------------
 void vtkPlotSurface::PrintSelf(ostream &os, vtkIndent indent)
@@ -56,33 +54,33 @@ void vtkPlotSurface::PrintSelf(ostream &os, vtkIndent indent)
 bool vtkPlotSurface::Paint(vtkContext2D *painter)
 {
   if (!this->Visible)
-    {
+  {
     return false;
-    }
+  }
 
   if (!this->DataHasBeenRescaled)
-    {
+  {
     this->RescaleData();
-    }
+  }
 
   // Get the 3D context.
   vtkContext3D *context = painter->GetContext3D();
 
   if (!context)
-    {
+  {
     return false;
-    }
+  }
 
-  context->ApplyPen(this->Pen.GetPointer());
+  context->ApplyPen(this->Pen);
 
   // draw the surface
-  if (this->Surface.size() > 0)
-    {
+  if (!this->Surface.empty())
+  {
     context->DrawTriangleMesh(this->Surface[0].GetData(),
                               static_cast<int>(this->Surface.size()),
                               this->Colors->GetPointer(0),
                               this->ColorComponents);
-    }
+  }
 
   return true;
 }
@@ -99,13 +97,13 @@ void vtkPlotSurface::SetInputData(vtkTable *input)
   // initialize data ranges to row and column indices if they are not
   // already set.
   if (this->XMinimum == 0 && this->XMaximum == 0)
-    {
+  {
     this->XMaximum = this->NumberOfColumns - 1;
-    }
+  }
   if (this->YMinimum == 0 && this->YMaximum == 0)
-    {
+  {
     this->YMaximum = this->NumberOfRows - 1;
-    }
+  }
 
   this->Points.clear();
   this->Points.resize(this->NumberOfRows * this->NumberOfColumns);
@@ -114,9 +112,9 @@ void vtkPlotSurface::SetInputData(vtkTable *input)
   float surfaceMin = VTK_FLOAT_MAX;
   float surfaceMax = VTK_FLOAT_MIN;
   for (int i = 0; i < this->NumberOfRows; ++i)
-    {
+  {
     for (int j = 0; j < this->NumberOfColumns; ++j)
-      {
+    {
       // X (columns)
       data[pos] = this->ColumnToX(j);
       ++pos;
@@ -131,20 +129,20 @@ void vtkPlotSurface::SetInputData(vtkTable *input)
       ++pos;
 
       if (k < surfaceMin)
-        {
+      {
         surfaceMin = k;
-        }
+      }
       if (k > surfaceMax)
-        {
+      {
         surfaceMax = k;
-        }
       }
     }
+  }
 
   if (this->Chart)
-    {
+  {
     this->Chart->RecalculateBounds();
-    }
+  }
   this->ComputeDataBounds();
 
   // setup lookup table
@@ -203,9 +201,9 @@ void vtkPlotSurface::GenerateSurface()
   float *data = this->Surface[0].GetData();
   int pos = 0;
   for (int i = 0; i < this->NumberOfRows - 1; ++i)
-    {
+  {
     for (int j = 0; j < this->NumberOfColumns - 1; ++j)
-      {
+    {
       float value1 = this->InputTable->GetValue(i, j).ToFloat();
       float value2 = this->InputTable->GetValue(i, j + 1).ToFloat();
       float value3 = this->InputTable->GetValue(i + 1, j + 1).ToFloat();
@@ -220,8 +218,8 @@ void vtkPlotSurface::GenerateSurface()
       this->InsertSurfaceVertex(data, value1, i, j, pos);
       this->InsertSurfaceVertex(data, value3, i + 1, j + 1, pos);
       this->InsertSurfaceVertex(data, value4, i + 1, j, pos);
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -235,11 +233,10 @@ void vtkPlotSurface::InsertSurfaceVertex(float *data, float value, int i,
     data[pos] = value;
     ++pos;
 
-    unsigned char *rgb = this->LookupTable->MapValue(data[pos-1]);
-    const unsigned char constRGB[3] = { rgb[0], rgb[1], rgb[2] };
-    this->Colors->InsertNextTupleValue(&constRGB[0]);
-    this->Colors->InsertNextTupleValue(&constRGB[1]);
-    this->Colors->InsertNextTupleValue(&constRGB[2]);
+    const unsigned char *rgb = this->LookupTable->MapValue(data[pos-1]);
+    this->Colors->InsertNextTypedTuple(&rgb[0]);
+    this->Colors->InsertNextTypedTuple(&rgb[1]);
+    this->Colors->InsertNextTypedTuple(&rgb[2]);
 }
 
 //-----------------------------------------------------------------------------
@@ -266,9 +263,9 @@ void vtkPlotSurface::RescaleData()
   // rescale Points (used by ChartXYZ to generate axes scales).
   int pos = 0;
   for (int i = 0; i < this->NumberOfRows; ++i)
-    {
+  {
     for (int j = 0; j < this->NumberOfColumns; ++j)
-      {
+    {
       // X (columns)
       data[pos] = this->ColumnToX(j);
       ++pos;
@@ -279,8 +276,8 @@ void vtkPlotSurface::RescaleData()
 
       // Z value doesn't change
       ++pos;
-      }
     }
+  }
   this->Chart->RecalculateBounds();
   this->ComputeDataBounds();
   this->DataHasBeenRescaled = true;

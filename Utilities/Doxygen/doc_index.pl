@@ -35,7 +35,7 @@
 #
 # 0.12 (barre)
 #   - change relevancy sorting : for each word, classes are sorted by presence
-#     of the word in the class name, *then* by occurence of the word in the
+#     of the word in the class name, *then* by occurrence of the word in the
 #     class documentation, *then* by alphabetical order
 #
 # 0.11 (barre)
@@ -373,7 +373,7 @@ foreach my $word (@words) {
         }
     }
 
-    # Browse each similar word. It it already exists in the index then group
+    # Browse each similar word. If it already exists in the index then group
     # the current word with it and remove the word from the index.
 
     foreach $similar (@similars) {

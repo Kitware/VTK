@@ -22,14 +22,17 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkUnstructuredGridHomogeneousRayIntegrator - performs peicewise constant ray integration.
-//
-// .SECTION Description
-//
-// vtkUnstructuredGridHomogeneousRayIntegrator performs homogeneous ray
-// integration.  This is a good method to use when volume rendering scalars
-// that are defined on cells.
-//
+/**
+ * @class   vtkUnstructuredGridHomogeneousRayIntegrator
+ * @brief   performs piecewise constant ray integration.
+ *
+ *
+ *
+ * vtkUnstructuredGridHomogeneousRayIntegrator performs homogeneous ray
+ * integration.  This is a good method to use when volume rendering scalars
+ * that are defined on cells.
+ *
+*/
 
 #ifndef vtkUnstructuredGridHomogeneousRayIntegrator_h
 #define vtkUnstructuredGridHomogeneousRayIntegrator_h
@@ -45,25 +48,28 @@ public:
   vtkTypeMacro(vtkUnstructuredGridHomogeneousRayIntegrator,
                        vtkUnstructuredGridVolumeRayIntegrator);
   static vtkUnstructuredGridHomogeneousRayIntegrator *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  virtual void Initialize(vtkVolume *volume, vtkDataArray *scalars);
+  void Initialize(vtkVolume *volume, vtkDataArray *scalars) override;
 
-  virtual void Integrate(vtkDoubleArray *intersectionLengths,
+  void Integrate(vtkDoubleArray *intersectionLengths,
                          vtkDataArray *nearIntersections,
                          vtkDataArray *farIntersections,
-                         float color[4]);
+                         float color[4]) override;
 
-  // Description:
-  // For quick lookup, the transfer function is sampled into a table.
-  // This parameter sets how big of a table to use.  By default, 1024
-  // entries are used.
+  //@{
+  /**
+   * For quick lookup, the transfer function is sampled into a table.
+   * This parameter sets how big of a table to use.  By default, 1024
+   * entries are used.
+   */
   vtkSetMacro(TransferFunctionTableSize, int);
   vtkGetMacro(TransferFunctionTableSize, int);
+  //@}
 
 protected:
   vtkUnstructuredGridHomogeneousRayIntegrator();
-  ~vtkUnstructuredGridHomogeneousRayIntegrator();
+  ~vtkUnstructuredGridHomogeneousRayIntegrator() override;
 
   vtkVolume *Volume;
   vtkVolumeProperty *Property;
@@ -81,8 +87,8 @@ protected:
   virtual void GetTransferFunctionTables(vtkDataArray *scalars);
 
 private:
-  vtkUnstructuredGridHomogeneousRayIntegrator(const vtkUnstructuredGridHomogeneousRayIntegrator&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridHomogeneousRayIntegrator&);  // Not implemented
+  vtkUnstructuredGridHomogeneousRayIntegrator(const vtkUnstructuredGridHomogeneousRayIntegrator&) = delete;
+  void operator=(const vtkUnstructuredGridHomogeneousRayIntegrator&) = delete;
 };
 
 #endif //vtkUnstructuredGridHomogeneousRayIntegrator_h

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageCheckerboard - show two images at once using a checkboard pattern
-// .SECTION Description
-//  vtkImageCheckerboard displays two images as one using a checkerboard
-//  pattern. This filter can be used to compare two images. The
-//  checkerboard pattern is controlled by the NumberOfDivisions
-//  ivar. This controls the number of checkerboard divisions in the whole
-//  extent of the image.
+/**
+ * @class   vtkImageCheckerboard
+ * @brief   show two images at once using a checkboard pattern
+ *
+ *  vtkImageCheckerboard displays two images as one using a checkerboard
+ *  pattern. This filter can be used to compare two images. The
+ *  checkerboard pattern is controlled by the NumberOfDivisions
+ *  ivar. This controls the number of checkerboard divisions in the whole
+ *  extent of the image.
+*/
 
 #ifndef vtkImageCheckerboard_h
 #define vtkImageCheckerboard_h
@@ -32,32 +35,36 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageCheckerboard : public vtkThreadedImageAlg
 public:
   static vtkImageCheckerboard *New();
   vtkTypeMacro(vtkImageCheckerboard,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get the number of divisions along each axis.
+  //@{
+  /**
+   * Set/Get the number of divisions along each axis.
+   */
   vtkSetVector3Macro(NumberOfDivisions,int);
   vtkGetVectorMacro(NumberOfDivisions,int,3);
+  //@}
 
-  // Description:
-  // Set the two inputs to this filter
+  /**
+   * Set the two inputs to this filter
+   */
   virtual void SetInput1Data(vtkDataObject *in) { this->SetInputData(0,in); }
   virtual void SetInput2Data(vtkDataObject *in) { this->SetInputData(1,in); }
 
 protected:
   vtkImageCheckerboard();
-  ~vtkImageCheckerboard() {}
+  ~vtkImageCheckerboard() override {}
 
-  virtual void ThreadedRequestData(vtkInformation *request,
+  void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
                                    vtkImageData **outData,
-                                   int extent[6], int threadId);
+                                   int extent[6], int threadId) override;
   int NumberOfDivisions[3];
 private:
-  vtkImageCheckerboard(const vtkImageCheckerboard&);  // Not implemented.
-  void operator=(const vtkImageCheckerboard&);  // Not implemented.
+  vtkImageCheckerboard(const vtkImageCheckerboard&) = delete;
+  void operator=(const vtkImageCheckerboard&) = delete;
 };
 
 #endif

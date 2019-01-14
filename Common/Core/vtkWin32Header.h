@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWin32Header - manage Windows system differences
-// .SECTION Description
-// The vtkWin32Header captures some system differences between Unix and
-// Windows operating systems.
+/**
+ * @class   vtkWin32Header
+ * @brief   manage Windows system differences
+ *
+ * The vtkWin32Header captures some system differences between Unix and
+ * Windows operating systems.
+*/
 
-#ifndef vtkWIN32Header_h
-#define vtkWIN32Header_h
+#ifndef vtkWin32Header_h
+#define vtkWin32Header_h
 
-#ifndef __VTK_SYSTEM_INCLUDES__INSIDE
-Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
+#ifndef VTK_SYSTEM_INCLUDES_INSIDE
+Do_not_include_vtkWin32Header_directly_vtkSystemIncludes_includes_it;
 #endif
 
 #include "vtkConfigure.h"
@@ -45,7 +48,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 
 //
 // Windows specific stuff------------------------------------------
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32)
 
 // define strict header for windows
 #ifndef STRICT
@@ -83,14 +86,15 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 # endif
   // Enable workaround for windows header name mangling.
   // See VTK/Utilities/Upgrading/README.WindowsMangling.txt for details.
-#if !defined(__WRAP__)
+#if !defined(__VTK_WRAP__) && !defined(__WRAP_GCCXML__)
 # define VTK_WORKAROUND_WINDOWS_MANGLE
 #endif
 
 #if defined(_MSC_VER) // Visual studio
 #pragma warning ( disable : 4311 )
 #pragma warning ( disable : 4312 )
-#endif //
+#endif
+
 #define vtkGetWindowLong GetWindowLongPtr
 #define vtkSetWindowLong SetWindowLongPtr
 #define vtkLONG LONG_PTR
@@ -119,28 +123,12 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 # endif
 #endif
 
-#if defined(__BORLANDC__)
-  // Disable Borland compiler warning messages that often occur in valid code.
-# if !defined(VTK_DISPLAY_WIN32_WARNINGS)
-#  pragma warn -8004 /* assigned a value that is never used */
-#  pragma warn -8008 /* condition is always false */
-#  pragma warn -8026 /* funcs w/class-by-value args not expanded inline */
-#  pragma warn -8027 /* functions w/ do/for/while not expanded inline */
-#  pragma warn -8060 /* possibly incorrect assignment */
-#  pragma warn -8066 /* unreachable code */
-#  pragma warn -8072 /* suspicious pointer arithmetic */
-# endif
-#endif
-
 // Now set up the generic VTK export macro.
 #if defined(VTK_BUILD_SHARED_LIBS)
 # define VTK_EXPORT VTK_ABI_EXPORT
 #else
 # define VTK_EXPORT
 #endif
-
-// this is exclusively for the tcl Init functions
-#define VTK_TK_EXPORT VTK_ABI_EXPORT
 
 #endif
 // VTK-HeaderTest-Exclude: vtkWin32Header.h

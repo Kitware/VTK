@@ -42,12 +42,12 @@ int TestGraph2(int,char *[])
   results.push_back(TestToUndirectedGraph());
 
   for(unsigned int i = 0; i < results.size(); i++)
-    {
+  {
     if(results[i] == EXIT_FAILURE)
-      {
+    {
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -66,20 +66,20 @@ int TestGetEdgeId()
 
   // Test to make sure both edges (in either orientation) are found
   if(g->GetEdgeId(v0, v1) != e0.Id || g->GetEdgeId(v1, v0) != e0.Id)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   if(g->GetEdgeId(v1, v2) != e1.Id || g->GetEdgeId(v2, v1) != e1.Id)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   // Test to make sure -1 is returned if the edge does not exist
   if(g->GetEdgeId(v1, 3) != -1)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -104,9 +104,9 @@ int TestToDirectedGraph()
   // Check that the number of vertices and edges is unchanged
   if(ug->GetNumberOfVertices() != dg->GetNumberOfVertices() ||
      ug->GetNumberOfEdges() != dg->GetNumberOfEdges())
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -131,9 +131,9 @@ int TestToUndirectedGraph()
   // Check that the number of vertices and edges is unchanged
   if(ug->GetNumberOfVertices() != dg->GetNumberOfVertices() ||
      ug->GetNumberOfEdges() != dg->GetNumberOfEdges())
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -548,36 +548,36 @@ int TestGPURayCastTwoComponentsIndependent(int argc, char *argv[])
   double * ptr = static_cast<double *> (image->GetScalarPointer(0, 0, 0));
 
   for (int z = 0; z < dims[2]; ++z)
-    {
+  {
     for (int y = 0; y < dims[1]; ++y)
-      {
+    {
       for (int x = 0; x < dims[0]; ++x)
-        {
+      {
         if (x < dims[0]/2)
-          {
+        {
           *ptr++ = 1.0;
           *ptr++ = 0.0;
-          }
+        }
         else
-          {
+        {
           *ptr++ = 0.0;
           *ptr++ = 1.0;
-          }
         }
       }
     }
+  }
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(301, 300); // Intentional NPOT size
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetInteractorStyle(style);
+  iren->SetRenderWindow(renWin);
 
   renWin->Render();
 
@@ -585,7 +585,7 @@ int TestGPURayCastTwoComponentsIndependent(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
   mapper->AutoAdjustSampleDistancesOff();
   mapper->SetSampleDistance(0.9);
-  mapper->SetInputData(image.GetPointer());
+  mapper->SetInputData(image);
 
   // Color transfer function
   vtkNew<vtkColorTransferFunction> ctf1;
@@ -610,15 +610,15 @@ int TestGPURayCastTwoComponentsIndependent(int argc, char *argv[])
   property->IndependentComponentsOn();
 
   // Set color and opacity functions
-  property->SetColor(0, ctf1.GetPointer());
-  property->SetColor(1, ctf2.GetPointer());
-  property->SetScalarOpacity(0, pf1.GetPointer());
-  property->SetScalarOpacity(1, pf2.GetPointer());
+  property->SetColor(0, ctf1);
+  property->SetColor(1, ctf2);
+  property->SetScalarOpacity(0, pf1);
+  property->SetScalarOpacity(1, pf2);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(mapper.GetPointer());
-  volume->SetProperty(property.GetPointer());
-  ren->AddVolume(volume.GetPointer());
+  volume->SetMapper(mapper);
+  volume->SetProperty(property);
+  ren->AddVolume(volume);
 
   ren->ResetCamera();
 
@@ -626,6 +626,6 @@ int TestGPURayCastTwoComponentsIndependent(int argc, char *argv[])
   renWin->Render();
 
   return vtkTesting::InteractorEventLoop(argc, argv,
-                                         iren.GetPointer(),
+                                         iren,
                                          TestGPURayCastTwoComponentsIndependentLog);
 }

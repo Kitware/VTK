@@ -12,11 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkMultiThreader.h"
 #include "vtkNew.h"
+
+#ifdef _MSC_VER
+#  pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
+#  define __TBB_NO_IMPLICIT_LINKAGE 1
+#endif
 
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
+#include <tbb/parallel_sort.h>
+
+#ifdef _MSC_VER
+#  pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
+#endif
 
 namespace vtk
 {
@@ -24,43 +33,65 @@ namespace detail
 {
 namespace smp
 {
+
+//--------------------------------------------------------------------------------
 template <typename T>
 class FuncCall
 {
   T& o;
 
-  void operator=(const FuncCall&); // not implemented
+  void operator=(const FuncCall&) = delete;
 
 public:
   void operator() (const tbb::blocked_range<vtkIdType>& r) const
-    {
+  {
       o.Execute(r.begin(), r.end());
-    }
+  }
 
   FuncCall (T& _o) : o(_o)
-    {
-    }
+  {
+  }
 };
 
+//--------------------------------------------------------------------------------
 template <typename FunctorInternal>
-static void vtkSMPTools_Impl_For(
+void vtkSMPTools_Impl_For(
   vtkIdType first, vtkIdType last, vtkIdType grain,
   FunctorInternal& fi)
 {
   vtkIdType n = last - first;
   if (!n)
-    {
+  {
     return;
-    }
+  }
   if (grain > 0)
-    {
+  {
     tbb::parallel_for(tbb::blocked_range<vtkIdType>(first, last, grain), FuncCall<FunctorInternal>(fi));
-    }
+  }
   else
-    {
+  {
     tbb::parallel_for(tbb::blocked_range<vtkIdType>(first, last), FuncCall<FunctorInternal>(fi));
-    }
+  }
 }
+
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator>
+void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end)
+{
+  tbb::parallel_sort(begin, end);
 }
+
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator, typename Compare>
+void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end,
+                                  Compare comp)
+{
+  tbb::parallel_sort(begin, end, comp);
 }
-}
+
+
+}//namespace smp
+}//namespace detail
+}//namespace vtk

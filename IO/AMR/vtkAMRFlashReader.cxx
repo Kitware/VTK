@@ -35,7 +35,7 @@
 #include <cassert>
 #include <vector>
 #include <map>
-#include <float.h>
+#include <cfloat>
 #define H5_USE_16_API
 #include "vtk_hdf5.h"
 
@@ -55,10 +55,10 @@ vtkAMRFlashReader::vtkAMRFlashReader()
 vtkAMRFlashReader::~vtkAMRFlashReader()
 {
   delete [] this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
 
   delete this->Internal;
-  this->Internal = NULL;
+  this->Internal = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -70,17 +70,17 @@ void vtkAMRFlashReader::PrintSelf( std::ostream &os, vtkIndent indent )
 //-----------------------------------------------------------------------------
 void vtkAMRFlashReader::SetFileName( const char* fileName )
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
 
   if( fileName && strcmp(fileName,"") &&
-     ( ( this->FileName == NULL ) || strcmp( fileName, this->FileName ) ) )
-    {
+     ( ( this->FileName == nullptr ) || strcmp( fileName, this->FileName ) ) )
+  {
     if( this->FileName )
-      {
+    {
       delete [] this->FileName;
-      this->FileName = NULL;
-      this->Internal->SetFileName( NULL );
-      }
+      this->FileName = nullptr;
+      this->Internal->SetFileName( nullptr );
+    }
 
     this->FileName = new char[ strlen(fileName)+1 ];
     strcpy( this->FileName, fileName );
@@ -92,7 +92,7 @@ void vtkAMRFlashReader::SetFileName( const char* fileName )
 
     this->SetUpDataArraySelections();
     this->InitializeArraySelections();
-    }
+  }
 
   this->Modified();
 }
@@ -100,36 +100,36 @@ void vtkAMRFlashReader::SetFileName( const char* fileName )
 //-----------------------------------------------------------------------------
 void vtkAMRFlashReader::ReadMetaData()
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
   this->Internal->ReadMetaData();
 }
 
 //-----------------------------------------------------------------------------
 int vtkAMRFlashReader::GetBlockLevel( const int blockIdx )
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
   if( !this->IsReady )
-    {
+  {
     return(-1);
-    }
+  }
 
   this->Internal->ReadMetaData();
   if( blockIdx < 0 || blockIdx >= this->Internal->NumberOfBlocks )
-    {
+  {
     vtkErrorMacro( "Block Index (" << blockIdx << ") is out-of-bounds!" );
     return( -1 );
-    }
+  }
   return( this->Internal->Blocks[ blockIdx ].Level-1 );
 }
 
 //-----------------------------------------------------------------------------
 int vtkAMRFlashReader::GetNumberOfBlocks()
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
   if( !this->IsReady )
-    {
+  {
     return 0;
-    }
+  }
 
   this->Internal->ReadMetaData();
   return( this->Internal->NumberOfBlocks );
@@ -138,11 +138,11 @@ int vtkAMRFlashReader::GetNumberOfBlocks()
 //-----------------------------------------------------------------------------
 int vtkAMRFlashReader::GetNumberOfLevels()
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
   if( !this->IsReady )
-    {
+  {
     return 0;
-    }
+  }
 
   this->Internal->ReadMetaData();
   return( this->Internal->NumberOfLevels );
@@ -154,31 +154,31 @@ void vtkAMRFlashReader::ComputeStats(vtkFlashReaderInternal* internal, std::vect
   numBlocks.resize( this->Internal->NumberOfLevels, 0 );
 
   for( int i=0; i < internal->NumberOfBlocks; ++i )
-    {
+  {
     Block &theBlock = internal->Blocks[ i ];
     double* gridMin = theBlock.MinBounds;
     if( gridMin[0] < min[0] )
-      {
+    {
       min[0] = gridMin[0];
-      }
+    }
     if( gridMin[1] < min[1] )
-      {
+    {
       min[1] = gridMin[1];
-      }
+    }
     if( gridMin[2] < min[2] )
-      {
+    {
       min[2] = gridMin[2];
-      }
+    }
     int level = theBlock.Level-1;
     numBlocks[level]++;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 int vtkAMRFlashReader::FillMetaData( )
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
-  assert( "pre: metadata object is NULL" && (this->Metadata != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
+  assert( "pre: metadata object is nullptr" && (this->Metadata != nullptr) );
 
   this->Internal->ReadMetaData();
 
@@ -194,7 +194,7 @@ int vtkAMRFlashReader::FillMetaData( )
   b2level.resize( this->Internal->NumberOfLevels+1, 0 );
 
   for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
-    {
+  {
     Block &theBlock = this->Internal->Blocks[i];
 
     // Start numbering levels from 0!
@@ -206,9 +206,9 @@ int vtkAMRFlashReader::FillMetaData( )
     //compute spacing
     double spacing[3];
     for(int d=0; d<3; ++d)
-      {
+    {
       spacing[d] = (dims[d] > 1)?(theBlock.MaxBounds[d]-theBlock.MinBounds[d])/(dims[d]-1.0):1.0;
-      }
+    }
 
     //compute AMRBox
     vtkAMRBox box(theBlock.MinBounds, dims, spacing, origin,VTK_XYZ_GRID);
@@ -218,7 +218,7 @@ int vtkAMRFlashReader::FillMetaData( )
     this->Metadata->SetAMRBlockSourceIndex(level,id, internalIdx);
 
     b2level[ level ]++;
-    } // END for all blocks
+  } // END for all blocks
 
   return( 1 );
 }
@@ -227,22 +227,22 @@ int vtkAMRFlashReader::FillMetaData( )
 vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid( const int blockIdx )
 {
   if( !this->IsReady )
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
 
   double blockMin[3];
   double blockMax[3];
   double spacings[3];
 
   for( int i=0; i < 3; ++i )
-    {
+  {
     blockMin[i] = this->Internal->Blocks[ blockIdx ].MinBounds[ i ];
     blockMax[i] = this->Internal->Blocks[ blockIdx ].MaxBounds[ i ];
     spacings[i] = (this->Internal->BlockGridDimensions[i]>1)?
         (blockMax[i]-blockMin[i])/
         (this->Internal->BlockGridDimensions[i]-1.0) : 1.0;
-    }
+  }
 
   vtkUniformGrid *ug = vtkUniformGrid::New();
   ug->SetDimensions( this->Internal->BlockGridDimensions );
@@ -255,21 +255,21 @@ vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid( const int blockIdx )
 void  vtkAMRFlashReader::GetAMRGridData(
     const int blockIdx, vtkUniformGrid *block, const char *field)
 {
-  assert( "pre: AMR block is NULL" && (block != NULL) );
+  assert( "pre: AMR block is nullptr" && (block != nullptr) );
   this->Internal->GetBlockAttribute( field, blockIdx, block );
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRFlashReader::SetUpDataArraySelections()
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
   this->Internal->ReadMetaData();
 
   int numAttrs = static_cast< int >( this->Internal->AttributeNames.size() );
   for( int i=0; i < numAttrs; ++i )
-    {
+  {
     this->CellDataArraySelection->AddArray(
         this->Internal->AttributeNames[ i ].c_str()  );
-    }
+  }
 
 }

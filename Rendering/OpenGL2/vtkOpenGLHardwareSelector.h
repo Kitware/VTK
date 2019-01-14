@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLHardwareSelector - implements the device specific code of
-//  vtkOpenGLHardwareSelector.
-//
-// .SECTION Description
-// Implements the device specific code of vtkOpenGLHardwareSelector.
-//
-// .SECTION See Also
-// vtkHardwareSelector
+/**
+ * @class   vtkOpenGLHardwareSelector
+ * @brief   implements the device specific code of
+ *  vtkOpenGLHardwareSelector.
+ *
+ *
+ * Implements the device specific code of vtkOpenGLHardwareSelector.
+ *
+ * @sa
+ * vtkHardwareSelector
+*/
 
 #ifndef vtkOpenGLHardwareSelector_h
 #define vtkOpenGLHardwareSelector_h
@@ -32,47 +35,51 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHardwareSelector : public vtkHardwareS
 public:
   static vtkOpenGLHardwareSelector* New();
   vtkTypeMacro(vtkOpenGLHardwareSelector, vtkHardwareSelector);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Called by the mapper before and after
-  // rendering each prop.
-  virtual void BeginRenderProp();
-  virtual void EndRenderProp()
-    { this->vtkHardwareSelector::EndRenderProp(); }
+  /**
+   * Called by the mapper before and after
+   * rendering each prop.
+   */
+  void BeginRenderProp() override;
+  void EndRenderProp() override;
 
-  // Description:
-  // Called by any vtkMapper or vtkProp subclass to render a composite-index.
-  // Currently indices >= 0xffffff are not supported.
-  virtual void RenderCompositeIndex(unsigned int index);
+  /**
+   * Called by any vtkMapper or vtkProp subclass to render a composite-index.
+   * Currently indices >= 0xffffff are not supported.
+   */
+  void RenderCompositeIndex(unsigned int index) override;
 
-  // Description:
-  // Called by any vtkMapper or vtkProp subclass to render an attribute's id.
-  virtual void RenderAttributeId(vtkIdType attribid);
+  /**
+   * Called by any vtkMapper or subclass to render process id. This has any
+   * effect when this->UseProcessIdFromData is true.
+   */
+  void RenderProcessId(unsigned int processid) override;
 
-  // Description:
-  // Called by any vtkMapper or subclass to render process id. This has any
-  // effect when this->UseProcessIdFromData is true.
-  virtual void RenderProcessId(unsigned int processid);
+  // we need to initialize the depth buffer
+  void BeginSelection() override;
+  void EndSelection() override;
 
 protected:
   vtkOpenGLHardwareSelector();
-  virtual ~vtkOpenGLHardwareSelector();
+  ~vtkOpenGLHardwareSelector() override;
 
-  // Called internally before and after each prop is rendered
+  void PreCapturePass(int pass) override;
+  void PostCapturePass(int pass) override;
+
+  // Called internally before each prop is rendered
   // for device specific configuration/preparation etc.
-  virtual void BeginRenderProp(vtkRenderWindow *);
-  virtual void EndRenderProp(vtkRenderWindow *);
+  void BeginRenderProp(vtkRenderWindow *) override;
+  void EndRenderProp(vtkRenderWindow *) override;
 
-  virtual void SavePixelBuffer(int passNo);
+  void SavePixelBuffer(int passNo) override;
 
-  // for internal state
-  class vtkInternals;
-  vtkInternals* Internals;
+  bool OriginalMultisample;
+  bool OriginalBlending;
 
 private:
-  vtkOpenGLHardwareSelector(const vtkOpenGLHardwareSelector&); // Not implemented.
-  void operator=(const vtkOpenGLHardwareSelector&); // Not implemented.
+  vtkOpenGLHardwareSelector(const vtkOpenGLHardwareSelector&) = delete;
+  void operator=(const vtkOpenGLHardwareSelector&) = delete;
 };
 
 #endif

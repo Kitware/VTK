@@ -23,15 +23,15 @@ static unsigned int vtkGarbageCollectorManagerCount;
 vtkGarbageCollectorManager::vtkGarbageCollectorManager()
 {
   if(++vtkGarbageCollectorManagerCount == 1)
-    {
+  {
     vtkGarbageCollector::ClassInitialize();
-    }
+  }
 }
 
 vtkGarbageCollectorManager::~vtkGarbageCollectorManager()
 {
   if(--vtkGarbageCollectorManagerCount == 0)
-    {
+  {
     vtkGarbageCollector::ClassFinalize();
-    }
+  }
 }

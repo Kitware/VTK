@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLActor - OpenGL actor
-// .SECTION Description
-// vtkOpenGLActor is a concrete implementation of the abstract class vtkActor.
-// vtkOpenGLActor interfaces to the OpenGL rendering library.
+/**
+ * @class   vtkOpenGLActor
+ * @brief   OpenGL actor
+ *
+ * vtkOpenGLActor is a concrete implementation of the abstract class vtkActor.
+ * vtkOpenGLActor interfaces to the OpenGL rendering library.
+*/
 
 #ifndef vtkOpenGLActor_h
 #define vtkOpenGLActor_h
@@ -23,6 +26,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkActor.h"
 
+class vtkInformationIntegerKey;
 class vtkOpenGLRenderer;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
@@ -32,24 +36,34 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLActor : public vtkActor
 public:
   static vtkOpenGLActor *New();
   vtkTypeMacro(vtkOpenGLActor, vtkActor);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Actual actor render method.
-  void Render(vtkRenderer *ren, vtkMapper *mapper);
+  /**
+   * Actual actor render method.
+   */
+  void Render(vtkRenderer *ren, vtkMapper *mapper) override;
 
-  void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
+  virtual void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
 
-  // Description:
-  // Props may provide a mapping from picked value to actual value
-  // This is useful for hardware based pickers where
-  // there is a mapping between the color in the buffer
-  // and the actual pick value
-  virtual vtkIdType GetConvertedPickValue(vtkIdType idIn, int fieldassociation);
+  /**
+   * If this key is set in GetPropertyKeys(), the glDepthMask will be adjusted
+   * prior to rendering translucent objects. This is useful for e.g. depth
+   * peeling.
+
+   * If GetIsOpaque() == true, the depth mask is always enabled, regardless of
+   * this key. Otherwise, the depth mask is disabled for default alpha blending
+   * unless this key is set.
+
+   * If this key is set, the integer value has the following meanings:
+   * 0: glDepthMask(GL_FALSE)
+   * 1: glDepthMask(GL_TRUE)
+   * Anything else: No change to depth mask.
+   */
+  static vtkInformationIntegerKey* GLDepthMaskOverride();
 
 protected:
   vtkOpenGLActor();
-  ~vtkOpenGLActor();
+  ~vtkOpenGLActor() override;
 
   vtkMatrix4x4 *MCWCMatrix;
   vtkMatrix3x3 *NormalMatrix;
@@ -57,8 +71,8 @@ protected:
   vtkTimeStamp KeyMatrixTime;
 
 private:
-  vtkOpenGLActor(const vtkOpenGLActor&);  // Not implemented.
-  void operator=(const vtkOpenGLActor&);  // Not implemented.
+  vtkOpenGLActor(const vtkOpenGLActor&) = delete;
+  void operator=(const vtkOpenGLActor&) = delete;
 };
 
 #endif

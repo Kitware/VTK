@@ -12,24 +12,30 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartVolumeMapper.h"
-
-#include "vtkObjectFactory.h"
-
-#include "vtkColorTransferFunction.h"
-#include "vtkDataArray.h"
-#include "vtkFixedPointVolumeRayCastMapper.h"
-#include "vtkEventForwarderCommand.h"
-#include "vtkImageData.h"
-#include "vtkImageResample.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkVolume.h"
-#include "vtkVolumeProperty.h"
 #include <cassert>
 
+#include "vtkCellData.h"
+#include "vtkCellDataToPointData.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkContourValues.h"
+#include "vtkDataArray.h"
+#include "vtkEventForwarderCommand.h"
+#include "vtkFixedPointVolumeRayCastMapper.h"
 #include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageData.h"
+#include "vtkImageMagnitude.h"
+#include "vtkImageResample.h"
+#include "vtkObjectFactory.h"
+#include "vtkOSPRayVolumeInterface.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPointData.h"
+#include "vtkPointDataToCellData.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkSmartVolumeMapper.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
+
 
 vtkStandardNewMacro( vtkSmartVolumeMapper );
 
@@ -37,6 +43,7 @@ vtkStandardNewMacro( vtkSmartVolumeMapper );
 // Constructor
 // ----------------------------------------------------------------------------
 vtkSmartVolumeMapper::vtkSmartVolumeMapper()
+: VectorMode(DISABLED)
 {
   // Default for Window / Level - no adjustment
   this->FinalColorWindow  = 1.0;
@@ -52,6 +59,18 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->LowResGPUNecessary = 0;
   this->InterpolationMode=VTK_RESLICE_CUBIC;
 
+  // If the render window has a desired update greater than or equal to the
+  // interactive update rate, we apply certain optimizations to ensure that the
+  // rendering is interactive.
+  this->InteractiveUpdateRate = 1.0;
+  // Enable checking whether the render is interactive and use the appropriate
+  // sample distance for rendering
+  this->InteractiveAdjustSampleDistances = 1;
+
+  // Initial sample distance
+  this->AutoAdjustSampleDistances  = 1;
+  this->SampleDistance             = -1.0;
+
   // Create all the mappers we might need
   this->RayCastMapper   = vtkFixedPointVolumeRayCastMapper::New();
 
@@ -61,18 +80,19 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 
   this->GPULowResMapper = vtkGPUVolumeRayCastMapper::New();
 
-  // If the render window has a desired update rate of at least 1 frame
-  // per second or more, we'll consider this interactive
-  this->InteractiveUpdateRate = 1.0;
-
   // This is the resample filter that may be used if we need
   // a lower resolution version of the input for GPU rendering
   this->GPUResampleFilter = vtkImageResample::New();
+
+  // Compute the magnitude of a 3-component image for the SingleComponentMode
+  this->ImageMagnitude = nullptr;
+  this->InputDataMagnitude = vtkImageData::New();
 
   // Turn this on by default - this means that the sample spacing will be
   // automatically computed from the spacing of the input data. This is
   // also true for the GPU ray cast mapper.
   this->RayCastMapper->LockSampleDistanceToInputSpacingOn();
+  this->GPUMapper->LockSampleDistanceToInputSpacingOn();
 
   // Default to the default mode - which will use the best option that
   // is supported by the hardware
@@ -96,7 +116,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->RayCastMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsProgressEvent, cb);
 
   // And the GPU mapper's events
-  // Commented out because too many events are being forwwarded
+  // Commented out because too many events are being forwarded
   // put back in after that is fixed
   /***
   this->GPUMapper->AddObserver(vtkCommand::VolumeMapperRenderStartEvent, cb);
@@ -105,7 +125,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   ***/
 
   // And the low res GPU mapper's events
-  // Commented out because too many events are being forwwarded
+  // Commented out because too many events are being forwarded
   // put back in after that is fixed
   /***
   this->GPULowResMapper->AddObserver(vtkCommand::VolumeMapperRenderStartEvent, cb);
@@ -114,6 +134,8 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   ***/
 
   cb->Delete();
+
+  this->OSPRayMapper = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -122,25 +144,40 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
 {
   if (this->RayCastMapper)
-    {
+  {
     this->RayCastMapper->Delete();
-    this->RayCastMapper = 0;
-    }
+    this->RayCastMapper = nullptr;
+  }
   if (this->GPUMapper)
-    {
+  {
     this->GPUMapper->Delete();
-    this->GPUMapper = 0;
-    }
+    this->GPUMapper = nullptr;
+  }
   if (this->GPULowResMapper)
-    {
+  {
     this->GPULowResMapper->Delete();
-    this->GPULowResMapper = 0;
-    }
+    this->GPULowResMapper = nullptr;
+  }
   if (this->GPUResampleFilter)
-    {
+  {
     this->GPUResampleFilter->Delete();
-    this->GPUResampleFilter = 0;
-    }
+    this->GPUResampleFilter = nullptr;
+  }
+  if (this->ImageMagnitude)
+  {
+    this->ImageMagnitude->Delete();
+    this->ImageMagnitude = nullptr;
+  }
+  if (this->InputDataMagnitude)
+  {
+    this->InputDataMagnitude->Delete();
+    this->InputDataMagnitude = nullptr;
+  }
+  if (this->OSPRayMapper)
+  {
+    this->OSPRayMapper->Delete();
+    this->OSPRayMapper = nullptr;
+  }
 }
 
 
@@ -156,26 +193,52 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   // desired update rate
   this->ComputeRenderMode(ren,vol);
 
-  vtkGPUVolumeRayCastMapper *usedMapper=0;
+  vtkGPUVolumeRayCastMapper *usedMapper=nullptr;
 
   switch ( this->CurrentRenderMode )
-    {
+  {
     case vtkSmartVolumeMapper::RayCastRenderMode:
+      if (this->InteractiveAdjustSampleDistances)
+      {
+        this->RayCastMapper->SetAutoAdjustSampleDistances(
+          ren->GetRenderWindow()->GetDesiredUpdateRate()>=
+          this->InteractiveUpdateRate);
+      }
+      else
+      {
+        this->RayCastMapper->SetAutoAdjustSampleDistances(
+                              this->AutoAdjustSampleDistances);
+      }
       this->RayCastMapper->Render(ren,vol);
       break;
     case vtkSmartVolumeMapper::GPURenderMode:
       if(this->LowResGPUNecessary)
-        {
+      {
         usedMapper=this->GPULowResMapper;
-        }
+      }
       else
-        {
+      {
         usedMapper=this->GPUMapper;
-        }
-      usedMapper->SetAutoAdjustSampleDistances(
-        ren->GetRenderWindow()->GetDesiredUpdateRate()>=
-        this->InteractiveUpdateRate);
+      }
+      if (this->InteractiveAdjustSampleDistances)
+      {
+        usedMapper->SetAutoAdjustSampleDistances(
+          ren->GetRenderWindow()->GetDesiredUpdateRate()>=
+          this->InteractiveUpdateRate);
+      }
+      else
+      {
+        usedMapper->SetAutoAdjustSampleDistances(
+                      this->AutoAdjustSampleDistances);
+      }
       usedMapper->Render(ren, vol);
+      break;
+    case vtkSmartVolumeMapper::OSPRayRenderMode:
+      if (!this->OSPRayMapper)
+      {
+        this->OSPRayMapper = vtkOSPRayVolumeInterface::New();
+      }
+      this->OSPRayMapper->Render(ren, vol);
       break;
     case vtkSmartVolumeMapper::InvalidRenderMode:
       // Silently fail - a render mode that is not
@@ -184,7 +247,7 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     default:
       vtkErrorMacro("Internal Error!");
       break;
-    }
+  }
 }
 
 
@@ -192,61 +255,45 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 // Initialize the render
 // We need to determine whether the GPU or CPU mapper are supported
 // First we need to know what input scalar field we are working with to find
-// out how many components it has. If it has more than one, and we are considering
-// them to be independent components, then we know that neither the RayCast mapper
-// nor the GPU mapper will work.
+// out how many components it has. If it has more than one and we are considering
+// them to be independent components, then only GPU Mapper will be supported.
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
 {
   vtkImageData *input = this->GetInput();
   if (!input)
-    {
+  {
     this->Initialized = 0;
     return;
-    }
+  }
 
-  int usingCellColors=0;
-  // In order to perform a GetScalars we need to make sure that the
-  // input is up to date
-//  input->UpdateInformation();
-//  input->SetUpdateExtentToWholeExtent();
-//  input->Update();
+  int usingCellColors = 0;
+  vtkDataArray* scalars = this->GetScalars(input, this->ScalarMode,
+                                           this->ArrayAccessMode,
+                                           this->ArrayId, this->ArrayName,
+                                           usingCellColors);
 
-  vtkDataArray *scalars  = this->GetScalars(input, this->ScalarMode,
-                                            this->ArrayAccessMode,
-                                            this->ArrayId, this->ArrayName,
-                                            usingCellColors);
+  if (!scalars)
+  {
+    vtkErrorMacro("Could not find the requested vtkDataArray! " <<
+    this->ScalarMode << ", " << this->ArrayAccessMode << ", " <<
+    this->ArrayId << ", " << this->ArrayName);
+    this->Initialized = 0;
+    return;
+  }
 
-  if ( scalars->GetNumberOfComponents() != 1 )
-    {
-    if ( vol->GetProperty()->GetIndependentComponents() )
-      {
-      this->GPUSupported     = 0;
-      if ( usingCellColors )
-        {
-        this->RayCastSupported = 0;
-        }
-      else
-        {
-        this->RayCastSupported = 1;
-        }
-      this->Initialized      = 1;
-      this->SupportStatusCheckTime.Modified();
-      return;
-      }
-    }
+  int const numComp = scalars->GetNumberOfComponents();
+  this->RayCastSupported = (usingCellColors || numComp > 1) ? 0 : 1;
 
-  if ( usingCellColors )
-    {
-    this->RayCastSupported = 0;
-    }
-  else
-    {
-    this->RayCastSupported = 1;
-    }
+  if (!this->RayCastSupported &&
+    this->RequestedRenderMode == vtkSmartVolumeMapper::RayCastRenderMode)
+  {
+    vtkWarningMacro("Data array "<< this->ArrayName << " is not supported by"
+      "FixedPointVolumeRCMapper (either cell data or multiple components).");
+  }
 
   // Make the window current because we need the OpenGL context
-  vtkRenderWindow *win=ren->GetRenderWindow();
+  vtkRenderWindow* win = ren->GetRenderWindow();
   win->MakeCurrent();
 
   this->GPUSupported = this->GPUMapper->IsRenderSupported(win,
@@ -271,56 +318,69 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
          this->SupportStatusCheckTime.GetMTime() > vol->GetProperty()->GetMTime() &&
          this->SupportStatusCheckTime.GetMTime() > this->GetInput()->GetMTime() &&
          this->InitializedBlendMode == this->GetBlendMode() ) )
-    {
+  {
     this->Initialize(ren,vol);
-    }
+  }
 
 
   // Use this as the initial state to simplify the code below
   this->CurrentRenderMode = vtkSmartVolumeMapper::InvalidRenderMode;
 
   if ( !this->GetInput() )
-    {
+  {
     return;
-    }
+  }
 
   double scale[3];
   double spacing[3];
   this->GetInput()->GetSpacing(spacing);
 
+  // Compute the sample distance based on dataset spacing.
+  // It is assumed that a negative SampleDistance means the user would like to
+  // compute volume mapper sample distance based on data spacing.
+  if (this->SampleDistance < 0)
+  {
+    this->SampleDistance =
+      static_cast<float>((spacing[0] + spacing[1] + spacing[2]) / 6.0);
+  }
+
   vtkRenderWindow *win=ren->GetRenderWindow();
 
   switch ( this->RequestedRenderMode )
-    {
+  {
     // Requested ray casting - OK as long as it is supported
     // This ray caster is a software mapper so it is supported as
     // we aren't attempting to render cell scalars
     case vtkSmartVolumeMapper::RayCastRenderMode:
       if ( this->RayCastSupported )
-        {
+      {
         this->CurrentRenderMode = vtkSmartVolumeMapper::RayCastRenderMode;
-        }
+      }
       break;
 
     // Requested GPU - OK as long as it is supported
     case vtkSmartVolumeMapper::GPURenderMode:
       if ( this->GPUSupported )
-        {
+      {
         this->CurrentRenderMode = vtkSmartVolumeMapper::GPURenderMode;
-        }
+      }
       break;
 
       // Requested default mode - select GPU if supported, otherwise RayCast
     case vtkSmartVolumeMapper::DefaultRenderMode:
       // Go with GPU rendering if it is supported
       if ( this->GPUSupported )
-        {
+      {
         this->CurrentRenderMode = vtkSmartVolumeMapper::GPURenderMode;
-        }
+      }
       else if ( this->RayCastSupported )
-        {
+      {
         this->CurrentRenderMode = vtkSmartVolumeMapper::RayCastRenderMode;
-        }
+      }
+      break;
+
+    case vtkSmartVolumeMapper::OSPRayRenderMode:
+      this->CurrentRenderMode = vtkSmartVolumeMapper::OSPRayRenderMode;
       break;
 
       // This should never happen since the SetRequestedRenderMode
@@ -328,20 +388,20 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
     default:
       vtkErrorMacro("Internal Error: Invalid RequestedRenderMode");
       break;
-    }
+  }
 
   switch ( this->CurrentRenderMode )
-    {
+  {
     // We are rendering with the vtkFixedPointVolumeRayCastMapper
     case vtkSmartVolumeMapper::RayCastRenderMode:
       if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME)
-        {
+      {
         this->RayCastMapper->SelectScalarArray(this->ArrayName);
-        }
+      }
       else if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
-        {
+      {
         this->RayCastMapper->SelectScalarArray(this->ArrayId);
-        }
+      }
       this->RayCastMapper->SetScalarMode(this->GetScalarMode());
       this->ConnectMapperInput(this->RayCastMapper);
       this->RayCastMapper->SetClippingPlanes(this->GetClippingPlanes());
@@ -353,24 +413,35 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       this->RayCastMapper->SetBlendMode( this->GetBlendMode() );
       this->RayCastMapper->SetFinalColorWindow(this->FinalColorWindow);
       this->RayCastMapper->SetFinalColorLevel(this->FinalColorLevel);
+      this->RayCastMapper->SetSampleDistance(this->SampleDistance);
       break;
 
     // We are rendering with the vtkGPUVolumeRayCastMapper
     case vtkSmartVolumeMapper::GPURenderMode:
-      if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME)
+      if (this->VectorMode == DISABLED)
+      {
+        // If the internal Magnitude data is not being used, then
+        // set the array selection of the original input.
+        if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME)
         {
-        this->GPUMapper->SelectScalarArray(this->ArrayName);
+          this->GPUMapper->SelectScalarArray(this->ArrayName);
         }
-      else if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+        else if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
         {
-        this->GPUMapper->SelectScalarArray(this->ArrayId);
+          this->GPUMapper->SelectScalarArray(this->ArrayId);
         }
-      this->GPUMapper->SetScalarMode(this->GetScalarMode());
+        this->GPUMapper->SetScalarMode(this->GetScalarMode());
+        this->ConnectMapperInput(this->GPUMapper);
+      }
+      else
+      {
+        // Adjust the input or component weights depending on the
+        // active mode.
+        this->SetupVectorMode(vol);
+      }
+
       this->GPUMapper->SetMaxMemoryInBytes(this->MaxMemoryInBytes);
       this->GPUMapper->SetMaxMemoryFraction(this->MaxMemoryFraction);
-      this->GPUMapper->SetSampleDistance(
-        static_cast<float>((spacing[0] + spacing[1] + spacing[2] ) / 6.0) );
-      this->ConnectMapperInput(this->GPUMapper);
       this->GPUMapper->SetClippingPlanes(this->GetClippingPlanes());
       this->GPUMapper->SetCropping(this->GetCropping());
       this->GPUMapper->SetCroppingRegionPlanes(
@@ -380,6 +451,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       this->GPUMapper->SetBlendMode( this->GetBlendMode() );
       this->GPUMapper->SetFinalColorWindow(this->FinalColorWindow);
       this->GPUMapper->SetFinalColorLevel(this->FinalColorLevel);
+      this->GPUMapper->SetSampleDistance(this->SampleDistance);
 
       // Make the window current because we need the OpenGL context
       win->MakeCurrent();
@@ -392,7 +464,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       // if any of the scale factors is not 1.0, then we do need
       // to use the low res mapper for interactive rendering
       if ( scale[0] != 1.0 || scale[1] != 1.0 || scale[2] != 1.0 )
-        {
+      {
         this->LowResGPUNecessary = 1;
         this->ConnectFilterInput(this->GPUResampleFilter);
         this->GPUResampleFilter->SetInterpolationMode(this->InterpolationMode);
@@ -402,8 +474,6 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 
         this->GPULowResMapper->SetMaxMemoryInBytes(this->MaxMemoryInBytes);
         this->GPULowResMapper->SetMaxMemoryFraction(this->MaxMemoryFraction);
-        this->GPULowResMapper->SetSampleDistance(
-        static_cast<float>((spacing[0] + spacing[1] + spacing[2] ) / 6.0) );
 
         this->GPULowResMapper->SetInputConnection(
           this->GPUResampleFilter->GetOutputPort());
@@ -416,12 +486,16 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
         this->GPULowResMapper->SetBlendMode( this->GetBlendMode() );
         this->GPULowResMapper->SetFinalColorWindow(this->FinalColorWindow);
         this->GPULowResMapper->SetFinalColorLevel(this->FinalColorLevel);
-        }
+        this->GPULowResMapper->SetSampleDistance(this->SampleDistance);
+      }
       else
-        {
+      {
         this->LowResGPUNecessary = 0;
-        }
+      }
 
+      break;
+
+    case vtkSmartVolumeMapper::OSPRayRenderMode:
       break;
 
       // The user selected a RequestedRenderMode that is
@@ -435,59 +509,235 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
     default:
       vtkErrorMacro("Internal Error: Invalid CurrentRenderMode");
       break;
+  }
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::ComputeMagnitudeCellData(vtkImageData* input,
+  vtkDataArray* arr)
+{
+  vtkNew<vtkImageData> tempInput;
+  tempInput->ShallowCopy(input);
+
+  tempInput->GetCellData()->SetActiveAttribute(arr->GetName(),
+    vtkDataSetAttributes::SCALARS);
+
+  // vtkImageMagnitude can only process point data so, data is transformed first
+  // to points and then back to cells.
+  vtkNew<vtkCellDataToPointData> cellToPoints;
+  cellToPoints->SetInputData(tempInput);
+  cellToPoints->Update();
+  tempInput->ShallowCopy(cellToPoints->GetOutput());
+
+  const int id = tempInput->GetPointData()->SetActiveAttribute(arr->GetName(),
+    vtkDataSetAttributes::SCALARS);
+  if (id < 0)
+  {
+    vtkErrorMacro("Failed to set the active attribute in vtkImageMagnitude's input"
+      " (from cellToPoints)!");
+    return;
+  }
+
+  this->ImageMagnitude->SetInputData(tempInput);
+  this->ImageMagnitude->Update();
+
+  vtkNew<vtkPointDataToCellData> pointsToCells;
+  pointsToCells->SetInputConnection(this->ImageMagnitude->GetOutputPort());
+  pointsToCells->Update();
+  this->InputDataMagnitude->ShallowCopy(pointsToCells->GetOutput());
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::ComputeMagnitudePointData(vtkImageData* input,
+  vtkDataArray* arr)
+{
+  vtkNew<vtkImageData> tempInput;
+  tempInput->ShallowCopy(input);
+
+  const int id = tempInput->GetPointData()->SetActiveAttribute(arr->GetName(),
+    vtkDataSetAttributes::SCALARS);
+  if (id < 0)
+  {
+    vtkErrorMacro("Failed to set the active attribute in vtkImageMagnitude's input!");
+    return;
+  }
+
+  this->ImageMagnitude->SetInputData(tempInput);
+  this->ImageMagnitude->Update();
+  this->InputDataMagnitude->ShallowCopy(this->ImageMagnitude->GetOutput());
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
+{
+  vtkImageData* input = this->GetInput();
+  if (!input)
+  {
+    vtkErrorMacro("Failed to setup vector rendering mode! No input.");
+  }
+
+  int isCellData = 0;
+  vtkDataArray* dataArray  = this->GetScalars(input, this->ScalarMode,
+    this->ArrayAccessMode, this->ArrayId, this->ArrayName, isCellData);
+  int const numComponents = dataArray->GetNumberOfComponents();
+
+  switch (this->VectorMode)
+  {
+    case MAGNITUDE:
+    {
+      // ParaView sets mode as MAGNITUDE when there is a single component,
+      // so check whether magnitude makes sense.
+      if (numComponents > 1)
+      {
+        // Recompute magnitude if not up to date
+        if (!this->ImageMagnitude ||
+          input->GetMTime() > this->ImageMagnitude->GetOutput()->GetMTime())
+        {
+          if (!this->ImageMagnitude)
+          {
+            this->ImageMagnitude = vtkImageMagnitude::New();
+          }
+
+          // Proxy dataset (set the active attribute for the magnitude filter)
+          if (isCellData)
+          {
+            this->ComputeMagnitudeCellData(input, dataArray);
+          }
+          else
+          {
+            this->ComputeMagnitudePointData(input, dataArray);
+          }
+        }
+
+        if (this->InputDataMagnitude->GetMTime() > this->MagnitudeUploadTime)
+        {
+          this->GPUMapper->SetInputDataObject(this->InputDataMagnitude);
+          this->GPUMapper->SelectScalarArray("Magnitude");
+          this->MagnitudeUploadTime.Modified();
+        }
+
+      }
+      else
+      {
+        // Data is not multi-component so use the array itself.
+        if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME)
+        {
+          this->GPUMapper->SelectScalarArray(this->ArrayName);
+        }
+        else if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+        {
+          this->GPUMapper->SelectScalarArray(this->ArrayId);
+        }
+        this->GPUMapper->SetArrayAccessMode(this->ArrayAccessMode);
+        this->GPUMapper->SetScalarMode(this->GetScalarMode());
+        this->ConnectMapperInput(this->GPUMapper);
+      }
     }
+    break;
+
+    case COMPONENT:
+    {
+      if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME)
+      {
+        this->GPUMapper->SelectScalarArray(this->ArrayName);
+      }
+      else if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+      {
+        this->GPUMapper->SelectScalarArray(this->ArrayId);
+      }
+      this->GPUMapper->SetArrayAccessMode(this->ArrayAccessMode);
+      this->GPUMapper->SetScalarMode(this->GetScalarMode());
+      this->ConnectMapperInput(this->GPUMapper);
+
+      // GPUMapper supports independent components (separate TFs per component).
+      // To follow the current ParaView convention, the first TF is set on
+      // the currently selected component. TODO: A more robust future
+      // integration of independent components in ParaView should set these
+      // TF's already per component.
+      vtkVolumeProperty* volProp = vol->GetProperty();
+      vtkColorTransferFunction* colortf = volProp->GetRGBTransferFunction(0);
+      if (!colortf)
+      {
+        vtkErrorMacro("Internal Error: No RGBTransferFunction has been set!");
+        return;
+      }
+      volProp->SetColor(this->VectorComponent, colortf);
+
+      vtkPiecewiseFunction* opacitytf = volProp->GetScalarOpacity(0);
+      if (!opacitytf)
+      {
+        vtkErrorMacro("Internal Error: No ScalarOpacity has been set!");
+        return;
+      }
+      volProp->SetScalarOpacity(this->VectorComponent, opacitytf);
+
+      for (int i = 0; i < numComponents; i++)
+      {
+        double const weight = i == this->VectorComponent ? 1.0 : 0.0;
+        volProp->SetComponentWeight(i, weight);
+      }
+    }
+    break;
+
+    default:
+      vtkErrorMacro("Unknown vector rendering mode!");
+      break;
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper *m)
 {
-  assert("pre: m_exists" && m!=0);
+  assert("pre: m_exists" && m != nullptr);
 
-  vtkImageData *input2=m->GetInput();
-  bool needShallowCopy=false;
-  if(input2==0)
-    {
-    // make sure we not create a shallow copy each time to avoid
-    // performance penalty.
-    input2=vtkImageData::New();
-    m->SetInputDataObject(input2);
-    input2->Delete();
-    needShallowCopy=true;
-    }
+  bool needShallowCopy = false;
+  vtkImageData* imData = m->GetInput();
+
+  if (imData == nullptr || imData == this->InputDataMagnitude)
+  {
+    imData = vtkImageData::New();
+    m->SetInputDataObject(imData);
+    needShallowCopy = true;
+    imData->Delete();
+  }
   else
-    {
-    needShallowCopy=input2->GetMTime()<this->GetInput()->GetMTime();
-    }
-  if(needShallowCopy)
-    {
-    input2->ShallowCopy(this->GetInput());
-    }
+  {
+    needShallowCopy =
+      imData->GetMTime() < this->GetInput()->GetMTime();
+
+    m->SetInputDataObject(imData);
+  }
+
+  if (needShallowCopy)
+  {
+    imData->ShallowCopy(this->GetInput());
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ConnectFilterInput(vtkImageResample *f)
 {
-  assert("pre: f_exists" && f!=0);
+  assert("pre: f_exists" && f!=nullptr);
 
   vtkImageData *input2=static_cast<vtkImageData *>(f->GetInput());
   bool needShallowCopy=false;
-  if(input2==0)
-    {
+  if(input2==nullptr)
+  {
     // make sure we not create a shallow copy each time to avoid
     // performance penalty.
     input2=vtkImageData::New();
     f->SetInputDataObject(input2);
     input2->Delete();
     needShallowCopy=true;
-    }
+  }
   else
-    {
+  {
     needShallowCopy=input2->GetMTime()<this->GetInput()->GetMTime();
-    }
+  }
   if(needShallowCopy)
-    {
+  {
     input2->ShallowCopy(this->GetInput());
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -495,28 +745,20 @@ void vtkSmartVolumeMapper::SetRequestedRenderMode(int mode)
 {
   // If we aren't actually changing it, just return
   if ( this->RequestedRenderMode == mode )
-    {
+  {
     return;
-    }
-
-  if (mode == RayCastAndTextureRenderMode || mode == TextureRenderMode)
-    {
-    vtkErrorMacro("RayCastAndTextureRenderMode and \
-                  TextureRenderMode no longer supported");
-    return;
-    }
+  }
 
   // Make sure it is a valid mode
   if ( mode < vtkSmartVolumeMapper::DefaultRenderMode ||
-       mode > vtkSmartVolumeMapper::GPURenderMode)
-    {
+       mode >= vtkSmartVolumeMapper::UndefinedRenderMode)
+  {
     vtkErrorMacro("Invalid Render Mode.");
     return;
-    }
+  }
 
   this->RequestedRenderMode = mode;
   this->Modified();
-
 }
 
 // ----------------------------------------------------------------------------
@@ -530,6 +772,19 @@ void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCast()
 {
   this->SetRequestedRenderMode(vtkSmartVolumeMapper::RayCastRenderMode);
 }
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetRequestedRenderModeToGPU()
+{
+  this->SetRequestedRenderMode(vtkSmartVolumeMapper::GPURenderMode);
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetRequestedRenderModeToOSPRay()
+{
+  this->SetRequestedRenderMode(vtkSmartVolumeMapper::OSPRayRenderMode);
+}
+
 
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ReleaseGraphicsResources(vtkWindow *w)
@@ -574,7 +829,7 @@ void vtkSmartVolumeMapper::CreateCanonicalView(
   this->ComputeRenderMode(ren, volume);
 
   if ( this->CurrentRenderMode == vtkSmartVolumeMapper::GPURenderMode )
-    {
+  {
     vtkVolumeProperty *savedProperty = volume->GetProperty();
     volume->SetProperty(volume2->GetProperty());
     volume->GetProperty()->Modified();
@@ -587,17 +842,17 @@ void vtkSmartVolumeMapper::CreateCanonicalView(
     volume->GetProperty()->Modified();
     volume->GetProperty()->GetScalarOpacity()->Modified();
     volume->GetProperty()->GetRGBTransferFunction()->Modified();
-    }
+  }
   else if ( this->RayCastSupported )
-    {
+  {
     this->RayCastMapper->CreateCanonicalView(volume2,
                                              image, blend_mode,
                                              viewDirection, viewUp);
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Could not create image - no available mapper");
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -615,7 +870,28 @@ void vtkSmartVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << "FinalColorLevel: " << this->FinalColorLevel << endl;
   os << "RequestedRenderMode: " << this->RequestedRenderMode << endl;
   os << "InteractiveUpdateRate: " << this->InteractiveUpdateRate << endl;
+  os << "InteractiveAdjustSampleDistances: " <<
+    this->InteractiveAdjustSampleDistances << endl;
   os << "InterpolationMode: " << this->InterpolationMode << endl;
   os << "MaxMemoryInBytes:" << this->MaxMemoryInBytes << endl;
   os << "MaxMemoryFraction:" << this->MaxMemoryFraction << endl;
+  os << "AutoAdjustSampleDistances: "
+     << this->AutoAdjustSampleDistances << endl;
+  os << indent << "SampleDistance: " << this->SampleDistance << endl;
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetVectorMode(int mode)
+{
+  int const clampedMode = mode < -1 ? -1 : (mode > 1 ? 1 : mode);
+  if (clampedMode != this->VectorMode)
+  {
+    if (clampedMode == MAGNITUDE)
+    {
+      this->InputDataMagnitude->Modified();
+    }
+
+    this->VectorMode = clampedMode;
+    this->Modified();
+  }
 }

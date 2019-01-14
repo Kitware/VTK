@@ -50,17 +50,17 @@ class vtkPickFollowerCallback : public vtkCommand
 public:
   static vtkPickFollowerCallback *New()
     { return new vtkPickFollowerCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  void Execute(vtkObject *caller, unsigned long, void*) override
+  {
 //      vtkPropPicker *picker = reinterpret_cast<vtkPropPicker*>(caller);
       vtkCellPicker *picker = reinterpret_cast<vtkCellPicker*>(caller);
-      if ( picker->GetViewProp() != NULL )
-        {
+      if ( picker->GetViewProp() != nullptr )
+      {
         cout << "Picked\n";
-        }
-    }
+      }
+  }
 
-  vtkPickFollowerCallback() {}
+  vtkPickFollowerCallback() = default;
 };
 
 // -----------------------------------------------------------------------
@@ -297,7 +297,7 @@ int TestFollowerPicking( int argc, char* argv[] )
   VTK_CREATE(vtkCellPicker,picker);
   picker->AddObserver(vtkCommand::EndPickEvent,myCallback);
 
-  // Create the rendering machinary
+  // Create the rendering machinery
   //
   VTK_CREATE(vtkRenderer, ren1);
   follower->SetCamera(ren1->GetActiveCamera());
@@ -337,9 +337,9 @@ int TestFollowerPicking( int argc, char* argv[] )
 
   int retVal = vtkRegressionTestImageThreshold( renWin, 10 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

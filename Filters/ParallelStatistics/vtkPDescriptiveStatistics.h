@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkPDescriptiveStatistics - A class for parallel univariate descriptive statistics
-// .SECTION Description
-// vtkPDescriptiveStatistics is vtkDescriptiveStatistics subclass for parallel datasets.
-// It learns and derives the global statistical model on each node, but assesses each
-// individual data points on the node that owns it.
-
-// .SECTION Thanks
-// Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
+/**
+ * @class   vtkPDescriptiveStatistics
+ * @brief   A class for parallel univariate descriptive statistics
+ *
+ * vtkPDescriptiveStatistics is vtkDescriptiveStatistics subclass for parallel datasets.
+ * It learns and derives the global statistical model on each node, but assesses each
+ * individual data points on the node that owns it.
+ *
+ * @par Thanks:
+ * Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
+*/
 
 #ifndef vtkPDescriptiveStatistics_h
 #define vtkPDescriptiveStatistics_h
@@ -40,28 +43,32 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPDescriptiveStatistics : public vtk
 public:
   static vtkPDescriptiveStatistics* New();
   vtkTypeMacro(vtkPDescriptiveStatistics, vtkDescriptiveStatistics);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get/Set the multiprocess controller. If no controller is set,
-  // single process is assumed.
+  //@{
+  /**
+   * Get/Set the multiprocess controller. If no controller is set,
+   * single process is assumed.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // Execute the parallel calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+  /**
+   * Execute the parallel calculations required by the Learn option.
+   */
+  void Learn( vtkTable* inData,
+              vtkTable* inParameters,
+              vtkMultiBlockDataSet* outMeta ) override;
 
 protected:
   vtkPDescriptiveStatistics();
-  ~vtkPDescriptiveStatistics();
+  ~vtkPDescriptiveStatistics() override;
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPDescriptiveStatistics(const vtkPDescriptiveStatistics&); // Not implemented.
-  void operator=(const vtkPDescriptiveStatistics&); // Not implemented.
+  vtkPDescriptiveStatistics(const vtkPDescriptiveStatistics&) = delete;
+  void operator=(const vtkPDescriptiveStatistics&) = delete;
 };
 
 #endif

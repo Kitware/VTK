@@ -32,9 +32,7 @@ vtkGraphEdge::vtkGraphEdge()
 }
 
 //----------------------------------------------------------------------------
-vtkGraphEdge::~vtkGraphEdge()
-{
-}
+vtkGraphEdge::~vtkGraphEdge() = default;
 
 //----------------------------------------------------------------------------
 void vtkGraphEdge::PrintSelf(ostream& os, vtkIndent indent)

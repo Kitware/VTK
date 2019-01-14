@@ -73,7 +73,7 @@ public class vtkJavaTesting {
     String[] kits = vtkSettings.GetKits();
     int cc;
     for (cc = 0; cc < kits.length; cc++) {
-      vtkJavaTesting.LoadLibrary(lpath, "vtk" + kits[cc] + "Java", verbose);
+      vtkJavaTesting.LoadLibrary(lpath, kits[cc] + "Java", verbose);
     }
     vtkJavaTesting.Tester = new vtk.vtkTesting();
     for (cc = 0; cc < args.length; cc++) {

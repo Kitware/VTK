@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkEvent - a complete specification of a VTK event including all modifiers
-// .SECTION Description
-// vtkEvent is a class that fully describes a VTK event. It is used by the
-// widgets to help specify the mapping between VTK events and widget events.
-
+/**
+ * @class   vtkEvent
+ * @brief   a complete specification of a VTK event including all modifiers
+ *
+ * vtkEvent is a class that fully describes a VTK event. It is used by the
+ * widgets to help specify the mapping between VTK events and widget events.
+*/
 
 #ifndef vtkEvent_h
 #define vtkEvent_h
@@ -29,19 +31,23 @@ class vtkRenderWindowInteractor;
 class VTKINTERACTIONWIDGETS_EXPORT vtkEvent : public vtkObject
 {
 public:
-  // Description:
-  // The object factory constructor.
+  /**
+   * The object factory constructor.
+   */
   static vtkEvent *New();
 
-  // Description:
-  // Standard macros.
+  //@{
+  /**
+   * Standard macros.
+   */
   vtkTypeMacro(vtkEvent,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-//BTX
-  // Description:
-  // Ways to specify modifiers to VTK events. These can be logical OR'd to
-  // produce combinations of modifiers.
+  /**
+   * Ways to specify modifiers to VTK events. These can be logical OR'd to
+   * produce combinations of modifiers.
+   */
   enum EventModifiers {
     AnyModifier = -1,
     NoModifier = 0,
@@ -49,48 +55,62 @@ public:
     ControlModifier = 2,
     AltModifier = 4
   };
-//ETX
 
-  // Description:
-  // Set the modifier for the event.
+  //@{
+  /**
+   * Set the modifier for the event.
+   */
   vtkSetMacro(EventId,unsigned long);
   vtkGetMacro(EventId,unsigned long);
+  //@}
 
-  // Description:
-  // Set the modifier for the event.
+  //@{
+  /**
+   * Set the modifier for the event.
+   */
   vtkSetMacro(Modifier,int);
   vtkGetMacro(Modifier,int);
+  //@}
 
-  // Description:
-  // Set the KeyCode for the event.
+  //@{
+  /**
+   * Set the KeyCode for the event.
+   */
   vtkSetMacro(KeyCode,char);
   vtkGetMacro(KeyCode,char);
+  //@}
 
-  // Description:
-  // Set the repease count for the event.
+  //@{
+  /**
+   * Set the repease count for the event.
+   */
   vtkSetMacro(RepeatCount,int);
   vtkGetMacro(RepeatCount,int);
+  //@}
 
-  // Description:
-  // Set the complex key symbol (compound key strokes) for the event.
+  //@{
+  /**
+   * Set the complex key symbol (compound key strokes) for the event.
+   */
   vtkSetStringMacro(KeySym);
   vtkGetStringMacro(KeySym);
+  //@}
 
-  // Description:
-  // Convenience method computes the event modifier from an interactor.
+  /**
+   * Convenience method computes the event modifier from an interactor.
+   */
   static int GetModifier(vtkRenderWindowInteractor*);
 
-//BTX
-  // Description:
-  // Used to compare whether two events are equal. Takes into account
-  // the EventId as well as the various modifiers.
-  int operator==(vtkEvent*);
-  int operator==(unsigned long VTKEvent);  //event with no modifiers
-//ETX
+  /**
+   * Used to compare whether two events are equal. Takes into account
+   * the EventId as well as the various modifiers.
+   */
+  bool operator==(vtkEvent*);
+  bool operator==(unsigned long VTKEvent);  //event with no modifiers
 
 protected:
   vtkEvent();
-  virtual ~vtkEvent();
+  ~vtkEvent() override;
 
   unsigned long EventId;
   int           Modifier;
@@ -99,8 +119,8 @@ protected:
   char*         KeySym;
 
 private:
-  vtkEvent(const vtkEvent&);  //Not implemented
-  void operator=(const vtkEvent&);  //Not implemented
+  vtkEvent(const vtkEvent&) = delete;
+  void operator=(const vtkEvent&) = delete;
 
 };
 

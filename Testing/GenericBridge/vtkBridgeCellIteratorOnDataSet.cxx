@@ -37,7 +37,7 @@ void vtkBridgeCellIteratorOnDataSet::PrintSelf(ostream& os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 vtkBridgeCellIteratorOnDataSet::vtkBridgeCellIteratorOnDataSet()
 {
-  this->DataSet=0;
+  this->DataSet=nullptr;
   this->Cell=vtkBridgeCell::New();
   this->Id=0;
   this->Size=0;
@@ -47,13 +47,13 @@ vtkBridgeCellIteratorOnDataSet::vtkBridgeCellIteratorOnDataSet()
 //-----------------------------------------------------------------------------
 vtkBridgeCellIteratorOnDataSet::~vtkBridgeCellIteratorOnDataSet()
 {
-  if(this->DataSet!=0)
-    {
+  if(this->DataSet!=nullptr)
+  {
     this->DataSet->Delete();
-    this->DataSet=0;
-    }
+    this->DataSet=nullptr;
+  }
   this->Cell->Delete();
-  this->Cell=0;
+  this->Cell=nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void vtkBridgeCellIteratorOnDataSet::Begin()
 //-----------------------------------------------------------------------------
 // Description:
 // Is there no cell at iterator position? (exit condition).
-int vtkBridgeCellIteratorOnDataSet::IsAtEnd()
+vtkTypeBool vtkBridgeCellIteratorOnDataSet::IsAtEnd()
 {
   return (this->Id>=this->Size);
 }
@@ -82,7 +82,7 @@ int vtkBridgeCellIteratorOnDataSet::IsAtEnd()
 void vtkBridgeCellIteratorOnDataSet::GetCell(vtkGenericAdaptorCell *c)
 {
   assert("pre: not_at_end" && !IsAtEnd());
-  assert("pre: c_exists" && c!=0);
+  assert("pre: c_exists" && c!=nullptr);
 
   vtkBridgeCell *c2=static_cast<vtkBridgeCell *>(c);
   c2->Init(this->DataSet,this->Id);
@@ -101,7 +101,7 @@ vtkGenericAdaptorCell *vtkBridgeCellIteratorOnDataSet::GetCell()
   this->Cell->Init(this->DataSet,this->Id);
   vtkGenericAdaptorCell *result=this->Cell;
 
-  assert("post: result_exits" && result!=0);
+  assert("post: result_exits" && result!=nullptr);
   return result;
 }
 
@@ -120,19 +120,19 @@ void vtkBridgeCellIteratorOnDataSet::Next()
   this->Id++;
 
   if(this->Dim>=0) // skip cells of other dimensions than this->Dim
-    {
+  {
     found=0;
     while( (this->Id<size) && (!found) )
-      {
+    {
       c=this->DataSet->Implementation->GetCell(this->Id);
       found=c->GetCellDimension()==this->Dim;
       this->Id++;
-      }
-    if(found)
-      {
-      this->Id--;
-      }
     }
+    if(found)
+    {
+      this->Id--;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -144,7 +144,7 @@ void vtkBridgeCellIteratorOnDataSet::Next()
 void vtkBridgeCellIteratorOnDataSet::InitWithDataSet(vtkBridgeDataSet *ds,
                                                      int dim)
 {
-  assert("pre: ds_exists" && ds!=0);
+  assert("pre: ds_exists" && ds!=nullptr);
   assert("pre: valid_dim_range" && (dim>=-1) && (dim<=3));
 
   this->Dim=dim;

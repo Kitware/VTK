@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
@@ -24,8 +22,9 @@
 /* Module Setup */
 /****************/
 
-#define H5HF_PACKAGE		/*suppress error about including H5HFpkg  */
+#include "H5HFmodule.h"         /* This source code file is part of the H5HF module */
 #define H5HF_TESTING		/*suppress warning about H5HF testing funcs*/
+
 
 /***********/
 /* Headers */
@@ -96,10 +95,10 @@ H5HF_get_cparam_test(const H5HF_t *fh, H5HF_create_t *cparam)
     /* Get fractal heap creation parameters */
     if(fh->hdr->id_len == (unsigned)(1 + fh->hdr->heap_off_size + fh->hdr->heap_len_size))
         cparam->id_len = 0;
-    else if(fh->hdr->id_len == (1 + fh->hdr->sizeof_size + fh->hdr->sizeof_addr))
+    else if(fh->hdr->id_len == (unsigned)(1 + fh->hdr->sizeof_size + fh->hdr->sizeof_addr))
         cparam->id_len = 1;
     else
-        cparam->id_len = fh->hdr->id_len;
+        H5_CHECKED_ASSIGN(cparam->id_len, uint16_t, fh->hdr->id_len, unsigned);
     cparam->max_man_size = fh->hdr->max_man_size;
     HDmemcpy(&(cparam->managed), &(fh->hdr->man_dtable.cparam), sizeof(H5HF_dtable_cparam_t));
     H5O_msg_copy(H5O_PLINE_ID, &(fh->hdr->pline), &(cparam->pline));
@@ -244,7 +243,7 @@ done:
 unsigned
 H5HF_get_max_root_rows(const H5HF_t *fh)
 {
-    unsigned	ret_value;              /* Return value */
+    unsigned	ret_value = 0;  /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -275,7 +274,7 @@ H5HF_get_max_root_rows(const H5HF_t *fh)
 unsigned
 H5HF_get_dtable_width_test(const H5HF_t *fh)
 {
-    unsigned	ret_value;              /* Return value */
+    unsigned	ret_value = 0;  /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -306,7 +305,7 @@ H5HF_get_dtable_width_test(const H5HF_t *fh)
 unsigned
 H5HF_get_dtable_max_drows_test(const H5HF_t *fh)
 {
-    unsigned	ret_value;              /* Return value */
+    unsigned	ret_value = 0;  /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -341,7 +340,7 @@ H5HF_get_dtable_max_drows_test(const H5HF_t *fh)
 unsigned
 H5HF_get_iblock_max_drows_test(const H5HF_t *fh, unsigned pos)
 {
-    unsigned	ret_value;              /* Return value */
+    unsigned	ret_value = 0;  /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -374,7 +373,7 @@ H5HF_get_iblock_max_drows_test(const H5HF_t *fh, unsigned pos)
 hsize_t
 H5HF_get_dblock_size_test(const H5HF_t *fh, unsigned row)
 {
-    hsize_t	ret_value;              /* Return value */
+    hsize_t	ret_value = 0;          /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -406,7 +405,7 @@ H5HF_get_dblock_size_test(const H5HF_t *fh, unsigned row)
 hsize_t
 H5HF_get_dblock_free_test(const H5HF_t *fh, unsigned row)
 {
-    hsize_t	ret_value;              /* Return value */
+    hsize_t	ret_value = 0;          /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 

@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLHierarchicalDataReader - Reader for hierarchical datasets
-// .SECTION Description
-// vtkXMLHierarchicalDataReader reads the VTK XML hierarchical data file
-// format. XML hierarchical data files are meta-files that point to a list
-// of serial VTK XML files. When reading in parallel, it will distribute
-// sub-blocks among processor. If the number of sub-blocks is less than
-// the number of processors, some processors will not have any sub-blocks
-// for that level. If the number of sub-blocks is larger than the
-// number of processors, each processor will possibly have more than
-// 1 sub-block.
+/**
+ * @class   vtkXMLHierarchicalDataReader
+ * @brief   Reader for hierarchical datasets
+ *
+ * vtkXMLHierarchicalDataReader reads the VTK XML hierarchical data file
+ * format. XML hierarchical data files are meta-files that point to a list
+ * of serial VTK XML files. When reading in parallel, it will distribute
+ * sub-blocks among processor. If the number of sub-blocks is less than
+ * the number of processors, some processors will not have any sub-blocks
+ * for that level. If the number of sub-blocks is larger than the
+ * number of processors, each processor will possibly have more than
+ * 1 sub-block.
+*/
 
 #ifndef vtkXMLHierarchicalDataReader_h
 #define vtkXMLHierarchicalDataReader_h
@@ -36,21 +39,21 @@ class VTKIOXML_EXPORT vtkXMLHierarchicalDataReader : public vtkXMLMultiGroupData
 public:
   static vtkXMLHierarchicalDataReader* New();
   vtkTypeMacro(vtkXMLHierarchicalDataReader,vtkXMLMultiGroupDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkXMLHierarchicalDataReader();
-  ~vtkXMLHierarchicalDataReader();
+  ~vtkXMLHierarchicalDataReader() override;
 
   // Get the name of the data set being read.
-  virtual const char* GetDataSetName()
-    {
+  const char* GetDataSetName() override
+  {
     return "vtkHierarchicalDataSet";
-    }
+  }
 
 private:
-  vtkXMLHierarchicalDataReader(const vtkXMLHierarchicalDataReader&);  // Not implemented.
-  void operator=(const vtkXMLHierarchicalDataReader&);  // Not implemented.
+  vtkXMLHierarchicalDataReader(const vtkXMLHierarchicalDataReader&) = delete;
+  void operator=(const vtkXMLHierarchicalDataReader&) = delete;
 };
 
 #endif

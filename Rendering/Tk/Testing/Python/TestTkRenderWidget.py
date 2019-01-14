@@ -1,9 +1,15 @@
-import os
+import os, sys
 
 import vtk
 from vtk.test import Testing
 
-import Tkinter
+if sys.hexversion < 0x03000000:
+    # for Python2
+    import Tkinter as tkinter
+else:
+    # for Python3
+    import tkinter
+
 from vtk.tk.vtkTkRenderWidget import vtkTkRenderWidget
 
 
@@ -14,14 +20,13 @@ class TestTkRenderWidget(Testing.vtkTest):
     # the pipeline will be created afresh for each and every test.
 
     # create a dummy Tkinter root window.
-    root = Tkinter.Tk()
+    root = tkinter.Tk()
 
     # create a rendering window and renderer
     ren = vtk.vtkRenderer()
     tkrw = vtkTkRenderWidget(root, width=300, height=300)
     tkrw.pack()
-    rw = tkrw.GetRenderWindow()
-    rw.AddRenderer(ren)
+    tkrw.GetRenderWindow().AddRenderer(ren)
 
     # create an actor and give it cone geometry
     cs = vtk.vtkConeSource()
@@ -36,11 +41,13 @@ class TestTkRenderWidget(Testing.vtkTest):
 
     def testvtkTkRenderWidget(self):
         "Test if vtkTkRenderWidget works."
-        self.rw.Render()
+        self.tkrw.Render()
         self.root.update()
         img_file = "TestTkRenderWidget.png"
-        Testing.compareImage(self.rw, Testing.getAbsImagePath(img_file))
+        Testing.compareImage(self.tkrw.GetRenderWindow(),
+                             Testing.getAbsImagePath(img_file))
         Testing.interact()
+        self.root.destroy()
 
     # Dummy tests to demonstrate how the blackbox tests can be done.
     def testParse(self):

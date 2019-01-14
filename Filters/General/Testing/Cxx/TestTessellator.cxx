@@ -6,49 +6,44 @@
  * or without modification, are permitted provided that this Notice and any
  * statement of authorship are reproduced on all copies.
  */
+#include "vtkActor2D.h"
+#include "vtkActor.h"
+#include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellTypes.h"
 #include "vtkCommand.h"
+#include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetMapper.h"
-#include "vtkActor.h"
+#include "vtkEdgeSubdivisionCriterion.h"
+#include "vtkGlyph3D.h"
+#include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
+#include "vtkLabeledDataMapper.h"
+#include "vtkObjectFactory.h"
+#include "vtkPNGWriter.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRandomAttributeGenerator.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkShrinkFilter.h"
-#include "vtkCellTypes.h"
-#include "vtkLabeledDataMapper.h"
-#include "vtkIdTypeArray.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
-#include "vtkPNGWriter.h"
-#include "vtkTextActor.h"
-#include "vtkGlyph3D.h"
 #include "vtkSphereSource.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor2D.h"
-#include "vtkProperty.h"
+#include "vtkStreamingTessellator.h"
 #include "vtkTessellatorFilter.h"
 #include "vtkTestUtilities.h"
+#include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkXMLUnstructuredGridReader.h"
 #include "vtkWindowToImageFilter.h"
-
-#include "vtkStreamingTessellator.h"
-#include "vtkEdgeSubdivisionCriterion.h"
+#include "vtkXMLUnstructuredGridReader.h"
 
 #include <algorithm>
-
-#include "vtkObjectFactory.h"
-#include "vtkIdList.h"
-#include "vtkDataArray.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkCell.h"
-#include "vtkDataSet.h"
-
 using std::copy;
 
 #undef ONLY_WIRE
@@ -83,8 +78,8 @@ static int otriCtr = 0;
 static int vtkOTetCtr = 0;
 static int vtkITetCtr = 0;
 static int vtkTstCode = 0;
-static double* vtkITetPtr = 0;
-static double* vtkOTetPtr = 0;
+static double* vtkITetPtr = nullptr;
+static double* vtkOTetPtr = nullptr;
 
 static struct {
   const char* Name;
@@ -2510,9 +2505,9 @@ class vtkTestTessellatorSubdivision
   public:
     vtkTypeMacro(vtkTestTessellatorSubdivision,vtkEdgeSubdivisionCriterion);
     static vtkTestTessellatorSubdivision* New();
-    virtual void PrintSelf( ostream& os, vtkIndent indent );
+    void PrintSelf( ostream& os, vtkIndent indent ) override;
 
-    virtual bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start );
+    bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start ) override;
 
     static double*  TestPoints;
     static double*  TestPointsCanAmbig;
@@ -2547,7 +2542,7 @@ class vtkTestTessellatorSubdivision
 
  protected:
     vtkTestTessellatorSubdivision();
-    virtual ~vtkTestTessellatorSubdivision();
+    ~vtkTestTessellatorSubdivision() override;
 
     int AmbiguousTests;
     int CurrentTest;
@@ -2557,8 +2552,8 @@ class vtkTestTessellatorSubdivision
     static int* TestListCanAmbig;
 
   private:
-    vtkTestTessellatorSubdivision( const vtkTestTessellatorSubdivision& ); // Not implemented.
-    void operator = ( const vtkTestTessellatorSubdivision& ); // Not implemented.
+    vtkTestTessellatorSubdivision( const vtkTestTessellatorSubdivision& ) = delete;
+    void operator = ( const vtkTestTessellatorSubdivision& ) = delete;
 
 };
 
@@ -2903,9 +2898,7 @@ vtkTestTessellatorSubdivision::vtkTestTessellatorSubdivision()
   this->AmbiguousTests = 0;
 }
 
-vtkTestTessellatorSubdivision::~vtkTestTessellatorSubdivision()
-{
-}
+vtkTestTessellatorSubdivision::~vtkTestTessellatorSubdivision() = default;
 
 void vtkTestTessellatorSubdivision::PrintSelf( ostream& os, vtkIndent indent )
 {
@@ -2961,34 +2954,34 @@ bool vtkTestTessellatorSubdivision::EvaluateEdge( const double* vtkNotUsed(p0), 
   bool returnValue = ( this->CurrentTest & (1<<this->CurrentEdge) ) != 0;
   this->CurrentEdge++;
   if ( this->CurrentEdge > 5 )
-    {
+  {
     this->CurrentEdge = 0;
     if ( this->AmbiguousTests )
-      {
+    {
       do
-        {
+      {
         this->CurrentTestId++;
         this->CurrentTest = this->TestListCanAmbig[ this->CurrentTestId*3 ];
-        } while  ( this->TestListCanAmbig[ this->CurrentTestId*3 + 1 ] < 0 );
-      }
+      } while  ( this->TestListCanAmbig[ this->CurrentTestId*3 + 1 ] < 0 );
+    }
     else
-      {
+    {
       this->CurrentTestId++;
       this->CurrentTest = this->TestList[ this->CurrentTestId ];
-      }
+    }
     if ( this->CurrentTest < 0 )
-      {
+    {
       this->CurrentTestId = 0;
       if ( this->AmbiguousTests )
-        {
+      {
         this->CurrentTest = this->TestListCanAmbig[ 0 ];
-        }
+      }
       else
-        {
+      {
         this->CurrentTest = this->TestList[ 0 ];
-        }
       }
     }
+  }
   return returnValue;
 }
 // ===============================================================================
@@ -3007,11 +3000,11 @@ void TessellatorTriangleProcessorFunction( const double* a, const double* b, con
 #if 0
   vtkUnstructuredGrid* mesh = static_cast<vtkUnstructuredGrid*>(out);
   if ( ! mesh )
-    {
+  {
     std::cerr << "ERROR: You didn't pass me a mesh in which to place the triangle." << std::endl;
     vtkTessellatorError = 1;
     return;
-    }
+  }
 
   vtkPoints* p = mesh->GetPoints();
   vtkIdType ids[3];
@@ -3022,7 +3015,7 @@ void TessellatorTriangleProcessorFunction( const double* a, const double* b, con
 
 #ifdef VTK_GENERATE_BASELINE
   if ( ! vtkTessellatorIsInteractive )
-    {
+  {
     //tessellatorRegressionTest.StdOut()
     otri
       << "  { { " << a[0] << ", " << a[1] << ", " << a[2]
@@ -3030,27 +3023,27 @@ void TessellatorTriangleProcessorFunction( const double* a, const double* b, con
       << " }, { " << c[0] << ", " << c[1] << ", " << c[2]
       << " } },\n";
     ++otriCtr;
-    }
+  }
 #endif // 0
 #ifdef VTK_CHECK_RESULTS
   for ( int pt = 0; pt < 3; ++pt )
-    {
+  {
     if ( vtkOTriPtr[    pt] != a[pt] )
-      {
+    {
       std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tri coord, tri " << vtkOTriCtr << " point a, coord " << pt << "\n";
       vtkTessellatorError = 1;
-      }
+    }
     if ( vtkOTriPtr[3 + pt] != b[pt] )
-      {
+    {
       std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tri coord, tri " << vtkOTriCtr << " point b, coord " << pt << "\n";
       vtkTessellatorError = 1;
-      }
+    }
     if ( vtkOTriPtr[6 + pt] != c[pt] )
-      {
+    {
       std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tri coord, tri " << vtkOTriCtr << " point c, coord " << pt << "\n";
       vtkTessellatorError = 1;
-      }
     }
+  }
   vtkOTriPtr += 9;
   ++vtkOTriCtr;
 #endif // VTK_CHECK_RESULTS
@@ -3061,10 +3054,10 @@ void TessellatorTetrahedronProcessorFunction( const double* a, const double* b, 
 {
   vtkUnstructuredGrid* mesh = static_cast<vtkUnstructuredGrid*>(out);
   if ( ! mesh )
-    {
+  {
     std::cerr << "ERROR: You didn't pass me a mesh in which to place the tetrahedron." << std::endl;
     return;
-    }
+  }
 
   vtkPoints* p = mesh->GetPoints();
   vtkIdType ids[4];
@@ -3076,7 +3069,7 @@ void TessellatorTetrahedronProcessorFunction( const double* a, const double* b, 
 
 #ifdef VTK_GENERATE_BASELINE
   if ( ! vtkTessellatorIsInteractive )
-    {
+  {
     //tessellatorRegressionTest.StdOut()
     otet
       << "  { { " << a[0] << ", " << a[1] << ", " << a[2]
@@ -3085,32 +3078,32 @@ void TessellatorTetrahedronProcessorFunction( const double* a, const double* b, 
       << " }, { " << d[0] << ", " << d[1] << ", " << d[2]
       << " } },\n";
     ++otetCtr;
-    }
+  }
 #endif // 0
 #ifdef VTK_CHECK_RESULTS
   for ( int pt = 0; pt < 3; ++pt )
-    {
+  {
     if ( vtkOTetPtr[    pt] != a[pt] )
-      {
+    {
       std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point a, coord " << pt << "\n";
       vtkTessellatorError = 1;
-      }
+    }
     if ( vtkOTetPtr[3 + pt] != b[pt] )
-      {
+    {
       std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point b, coord " << pt << "\n";
       vtkTessellatorError = 1;
-      }
+    }
     if ( vtkOTetPtr[6 + pt] != c[pt] )
-      {
+    {
       std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point c, coord " << pt << "\n";
       vtkTessellatorError = 1;
-      }
+    }
     if ( vtkOTetPtr[9 + pt] != d[pt] )
-      {
+    {
       std::cerr << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad output tet coord, tet " << vtkOTetCtr << " point d, coord " << pt << "\n";
       vtkTessellatorError = 1;
-      }
     }
+  }
   vtkOTetPtr += 12;
   ++vtkOTetCtr;
 #endif // VTK_CHECK_RESULTS
@@ -3121,10 +3114,10 @@ class vtkTessellatorScreenShot : public vtkCommand
 public:
   static vtkTessellatorScreenShot* New()
     { return new vtkTessellatorScreenShot; }
-  vtkTessellatorScreenShot() { this->RenderWindow = 0; this->FileName = 0; }
+  vtkTessellatorScreenShot() { this->RenderWindow = nullptr; this->FileName = nullptr; }
   vtkRenderWindow* RenderWindow;
   char* FileName;
-  virtual void Execute( vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(event), void* vtkNotUsed(junk) )
+  void Execute( vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(event), void* vtkNotUsed(junk) ) override
   {
     if ( (! this->RenderWindow) || (! this->FileName) )
       return;
@@ -3177,16 +3170,16 @@ int TestTessellator( int argc, char* argv[] )
   int skip = 0;
   vtkTessellatorIsInteractive = 0;
   for ( int i = 0; i < argc; ++i )
-    {
+  {
     if ( ! strcmp( argv[i], "-skip" ) )
-      {
+    {
       skip = 1;
-      }
-    else if ( ! strcmp( argv[i], "-I" ) )
-      {
-      vtkTessellatorIsInteractive = 1;
-      }
     }
+    else if ( ! strcmp( argv[i], "-I" ) )
+    {
+      vtkTessellatorIsInteractive = 1;
+    }
+  }
 
   // Set up the objects for the test
   vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
@@ -3197,32 +3190,32 @@ int TestTessellator( int argc, char* argv[] )
   vtkTestTessellatorSubdivision* tt = vtkTestTessellatorSubdivision::New();
   at->ResetCounts();
 
-  vtkShrinkFilter* sf = 0;
-  vtkActor* a = 0;
-  vtkDataSetMapper* m = 0;
-  vtkRenderer* r = 0;
-  vtkRenderWindow* rw = 0;
-  vtkRenderWindowInteractor* ri = 0;
+  vtkShrinkFilter* sf = nullptr;
+  vtkActor* a = nullptr;
+  vtkDataSetMapper* m = nullptr;
+  vtkRenderer* r = nullptr;
+  vtkRenderWindow* rw = nullptr;
+  vtkRenderWindowInteractor* ri = nullptr;
 
-  vtkUnstructuredGrid* startTet = 0;
-  vtkPoints* startTetPts = 0;
+  vtkUnstructuredGrid* startTet = nullptr;
+  vtkPoints* startTetPts = nullptr;
   vtkIdType startTetConn[4];
   char annotation[512];
   char screenshotfile[512];
-  vtkTextActor* annotationActor = 0;
-  vtkIdTypeArray* pids = 0;
-  vtkTessellatorScreenShot* ss = 0;
-  vtkDataSetMapper* startTetWireMapper = 0;
-  vtkActor* startTetWireActor = 0;
-  vtkLabeledDataMapper* startTetLabelMapper = 0;
-  vtkActor2D* startTetLabelActor = 0;
-  vtkSphereSource* sphere = 0;
-  vtkGlyph3D* vertMarkers = 0;
-  vtkPolyDataMapper* vertMarkerMapper = 0;
-  vtkActor* vertMarkerActor = 0;
+  vtkTextActor* annotationActor = nullptr;
+  vtkIdTypeArray* pids = nullptr;
+  vtkTessellatorScreenShot* ss = nullptr;
+  vtkDataSetMapper* startTetWireMapper = nullptr;
+  vtkActor* startTetWireActor = nullptr;
+  vtkLabeledDataMapper* startTetLabelMapper = nullptr;
+  vtkActor2D* startTetLabelActor = nullptr;
+  vtkSphereSource* sphere = nullptr;
+  vtkGlyph3D* vertMarkers = nullptr;
+  vtkPolyDataMapper* vertMarkerMapper = nullptr;
+  vtkActor* vertMarkerActor = nullptr;
 
   if ( vtkTessellatorIsInteractive )
-    {
+  {
     sf = vtkShrinkFilter::New();
     a = vtkActor::New();
     m = vtkDataSetMapper::New();
@@ -3301,12 +3294,12 @@ int TestTessellator( int argc, char* argv[] )
     vertMarkers->SetScaleFactor(0.125);
     r->AddActor( vertMarkerActor );
 
-    sprintf( screenshotfile, "somethingIsWrong.png" );
+    snprintf( screenshotfile, sizeof(screenshotfile), "somethingIsWrong.png" );
     ss = vtkTessellatorScreenShot::New();
     ss->RenderWindow = rw;
     ss->FileName = screenshotfile;
     ri->AddObserver( vtkCommand::UserEvent, ss );
-    }
+  }
 
   at->SetPrivateData(ug);
   at->SetSubdivisionAlgorithm( tt );
@@ -3317,16 +3310,16 @@ int TestTessellator( int argc, char* argv[] )
   at->SetMaximumNumberOfSubdivisions( 1 );
   at->SetFieldSize( -1, 0 );
 
-  double* tetPoints = 0;
+  double* tetPoints = nullptr;
 
   if ( ! skip )
-    {
+  {
     tetPoints = vtkTestTessellatorSubdivision::TestPoints;
     for ( int g = 0; g < 6; ++g )
-      {
+    {
 #ifdef VTK_GENERATE_BASELINE
       if ( ! vtkTessellatorIsInteractive )
-        {
+      {
         //tessellatorRegressionTest.StdOut()
         itet
           << "  { { " << tetPoints[ 0] << ", " << tetPoints[ 1] << ", " << tetPoints[ 2]
@@ -3334,36 +3327,36 @@ int TestTessellator( int argc, char* argv[] )
           << " }, { " << tetPoints[12] << ", " << tetPoints[13] << ", " << tetPoints[14]
           << " }, { " << tetPoints[18] << ", " << tetPoints[19] << ", " << tetPoints[20]
           << " } },\n";
-        }
+      }
 #endif // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
       for ( int pt = 0; pt < 4; ++pt )
-        {
+      {
         for ( int cr = 0; cr < 3; ++cr, ++vtkITetPtr )
-          {
+        {
           if ( *vtkITetPtr != tetPoints[pt*6 + cr] )
-            {
+          {
             std::cerr
               << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad input tet coord, tet " << vtkITetCtr
               << " point " << pt << " coord " << cr << " was " << tetPoints[pt*6 + cr] << ", expecting " << *vtkITetPtr
               << "\n";
             vtkTessellatorError = 1;
-            }
           }
         }
+      }
       ++vtkITetCtr;
 #endif // VTK_CHECK_RESULTS
       // Test every edge code for a tet with the current edge lengths
       int lastTestId = -1;
       int edgeCode;
       while ( tt->GetCurrentTestId() > lastTestId )
-        {
+      {
         lastTestId = tt->GetCurrentTestId();
         edgeCode = tt->GetCurrentTest();
-        sprintf( screenshotfile, "Tessellator-%03du-%02d.png", lastTestId, edgeCode );
+        snprintf( screenshotfile, sizeof(screenshotfile), "Tessellator-%03du-%02d.png", lastTestId, edgeCode );
 
         if ( vtkTessellatorIsInteractive )
-          {
+        {
           // Draw a nice picture of the starting tet
           startTet->Reset();
           pids->Reset();
@@ -3376,58 +3369,58 @@ int TestTessellator( int argc, char* argv[] )
           pids->InsertTuple1( 1, 1 );
           pids->InsertTuple1( 2, 2 );
           pids->InsertTuple1( 3, 3 );
-          }
+        }
         int k = 4;
         for ( int i=0; i<6; ++i )
-          {
+        {
           if ( ! ((edgeCode >>i) & 1) )
             continue;
           double midpt[3];
           for ( int j=0; j<3; ++j )
             midpt[j] = (tetPoints[6*endpts[i][0]+j] + tetPoints[6*endpts[i][1]+j])/2.;
           if ( vtkTessellatorIsInteractive )
-            {
+          {
             startTetPts->InsertNextPoint( midpt );
             pids->InsertTuple1( k, i+4 );
-            }
-          k++;
           }
-        sprintf( annotation, "Edge code %d = %d%d%d%d%d%d, Test ID %d",
+          k++;
+        }
+        snprintf( annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d",
           edgeCode,
           (edgeCode & 1),      ((edgeCode >> 1)&1), ((edgeCode >> 2)&1),
           ((edgeCode >> 3)&1), ((edgeCode >> 4)&1), ((edgeCode >> 5)&1),
           lastTestId );
         if ( vtkTessellatorIsInteractive )
-          {
+        {
           startTet->SetPoints( startTetPts );
           startTetPts->FastDelete();
           startTet->InsertNextCell( VTK_TETRA, 4, startTetConn );
 
           annotationActor->SetInput( annotation );
-          }
+        }
 #ifdef VTK_GENERATE_BASELINE
         //tessellatorRegressionTest.StdOut() << annotation << "\nOutput Tetrahedra:\n";
         //std::cout << annotation << "\nOutput Tetrahedra:\n";
         if ( otetCtr )
-          {
+        {
           tstc << ", " << otetCtr << " },\n";
-          }
+        }
         tstc << "  { \"" << annotation << "\", " << otetCtr; // << " },\n";
         //otet << "},\n{\n";
 #endif // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
         if ( strcmp( vtkTestSummaries[vtkTstCode].Name, annotation ) )
-          {
+        {
           std::cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation << ", expecting \"" << vtkTestSummaries[vtkTstCode].Name << "\"\n";
           vtkTessellatorError = 1;
-          }
+        }
         if ( vtkOTetCtr != vtkTestSummaries[vtkTstCode].BeginOffset )
-          {
+        {
           std::cerr
             << "ERROR: Test " << vtkTstCode << " started at offset "
             << vtkOTetCtr << ", expecting " << vtkTestSummaries[vtkTstCode].BeginOffset << "--" << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
           vtkTessellatorError = 1;
-          }
+        }
         ++vtkTstCode;
 #endif // VTK_CHECK_RESULTS
         ug->Reset();
@@ -3436,18 +3429,18 @@ int TestTessellator( int argc, char* argv[] )
         ugpts->FastDelete();
         at->AdaptivelySample3Facet( tetPoints, tetPoints + 6, tetPoints + 12, tetPoints + 18 );
         if ( vtkTessellatorIsInteractive )
-          {
+        {
           r->ResetCamera();
           rw->Render();
           ri->Start();
-          }
         }
+      }
 
       tetPoints += 24;
-      }
     }
+  }
   else
-    {
+  {
 #ifdef VTK_CHECK_RESULTS
     vtkTstCode = 384; // First ambiguous case
     vtkITetCtr = 6; // Input tet corresponding to first ambiguous case
@@ -3455,7 +3448,7 @@ int TestTessellator( int argc, char* argv[] )
     vtkITetPtr = &vtkITetList[vtkITetCtr][0][0];
     vtkOTetPtr = &vtkOTetList[vtkOTetCtr][0][0];
 #endif // VTK_CHECK_RESULTS
-    }
+  }
 
 
   // Now loop over ambiguous cases
@@ -3463,12 +3456,12 @@ int TestTessellator( int argc, char* argv[] )
   int edgeCode;
   tt->AmbiguousTestsOn();
   while ( tt->GetCurrentTestId() > lastTestId )
-    {
+  {
     int tet = tt->GetCurrentTet();
     if ( tet < 0 )
       continue;
 
-    sprintf( screenshotfile, "Tessellator-%03da-%02d.png", tt->GetCurrentTestId(), tt->GetCurrentTest() );
+    snprintf( screenshotfile, sizeof(screenshotfile), "Tessellator-%03da-%02d.png", tt->GetCurrentTestId(), tt->GetCurrentTest() );
 
     tetPoints = vtkTestTessellatorSubdivision::TestPointsCanAmbig + 24*tet;
 #ifdef VTK_GENERATE_BASELINE
@@ -3481,26 +3474,26 @@ int TestTessellator( int argc, char* argv[] )
 #endif // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
     for ( int pt = 0; pt < 4; ++pt )
-      {
+    {
       for ( int cr = 0; cr < 3; ++cr, ++vtkITetPtr )
-        {
+      {
         if ( *vtkITetPtr != tetPoints[pt*6 + cr] )
-          {
+        {
           std::cerr
             << "ERROR: Test \"" << vtkTestSummaries[vtkTstCode].Name << "\" bad input tet coord, tet " << vtkITetCtr
             << " point " << pt << " coord " << cr << " was " << tetPoints[pt*6 + cr] << ", expecting " << *vtkITetPtr
             << "\n";
           vtkTessellatorError = 1;
-          }
         }
       }
+    }
     ++vtkITetCtr;
 #endif // VTK_CHECK_RESULTS
     lastTestId = tt->GetCurrentTestId();
     edgeCode = tt->GetCurrentTest();
 
     if ( vtkTessellatorIsInteractive )
-      {
+    {
       // Draw a nice picture of the starting tet
       startTet->Reset();
       pids->Reset();
@@ -3513,73 +3506,73 @@ int TestTessellator( int argc, char* argv[] )
       pids->InsertTuple1( 1, 1 );
       pids->InsertTuple1( 2, 2 );
       pids->InsertTuple1( 3, 3 );
-      }
+    }
     int k=4;
     for ( int i=0; i<6; ++i )
-      {
+    {
       if ( ! ((edgeCode >>i) & 1) )
         continue;
       double midpt[3];
       for ( int j=0; j<3; ++j )
         midpt[j] = (tetPoints[6*endpts[i][0]+j] + tetPoints[6*endpts[i][1]+j])/2.;
       if ( vtkTessellatorIsInteractive )
-        {
+      {
         startTetPts->InsertNextPoint( midpt );
         pids->InsertTuple1( k, i+4 );
-        }
-      k++;
       }
+      k++;
+    }
     if ( vtkTessellatorIsInteractive )
-      {
+    {
       int x = tt->GetCurrentAmbiguousFaces();
       double* fp = vtkTestTessellatorSubdivision::TestFacePointsCanAmbig[tt->GetCurrentTestId()];
       for ( int z=0; z<4; ++z )
-        {
+      {
         if ( x & (1<<z) )
-          {
+        {
           startTetPts->InsertNextPoint( fp );
           pids->InsertTuple1( k++, z+10 );
           fp += 3;
-          }
         }
       }
-    sprintf( annotation, "Edge code %d = %d%d%d%d%d%d, Test ID %d*",
+    }
+    snprintf( annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d*",
       edgeCode,
       (edgeCode & 1),      ((edgeCode >> 1)&1), ((edgeCode >> 2)&1),
       ((edgeCode >> 3)&1), ((edgeCode >> 4)&1), ((edgeCode >> 5)&1),
       lastTestId );
     if ( vtkTessellatorIsInteractive )
-      {
+    {
       startTet->SetPoints( startTetPts );
       startTetPts->FastDelete();
       startTet->InsertNextCell( VTK_TETRA, 4, startTetConn );
 
       annotationActor->SetInput( annotation );
-      }
+    }
 #ifdef VTK_GENERATE_BASELINE
     //tessellatorRegressionTest.StdOut() << annotation << "\nOutput Tetrahedra:\n";
     //std::cout << annotation << "\nOutput Tetrahedra:\n";
     //tstc << "\"" << annotation << "\",\n";
     //tstc << "  { \"" << annotation << "\", " << otetCtr << " },\n";
     if ( otetCtr )
-      {
+    {
       tstc << ", " << otetCtr << " },\n";
-      }
+    }
     tstc << "  { \"" << annotation << "\", " << otetCtr; // << " },\n";
 #endif // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
     if ( strcmp( vtkTestSummaries[vtkTstCode].Name, annotation ) )
-      {
+    {
       std::cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation << ", expecting \"" << vtkTestSummaries[vtkTstCode].Name << "\"\n";
       vtkTessellatorError = 1;
-      }
+    }
     if ( vtkOTetCtr != vtkTestSummaries[vtkTstCode].BeginOffset )
-      {
+    {
       std::cerr
         << "ERROR: Test " << vtkTstCode << " started at offset "
         << vtkOTetCtr << ", expecting " << vtkTestSummaries[vtkTstCode].BeginOffset << "--" << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
       vtkTessellatorError = 1;
-      }
+    }
     ++vtkTstCode;
 #endif // VTK_CHECK_RESULTS
     ug->Reset();
@@ -3588,26 +3581,26 @@ int TestTessellator( int argc, char* argv[] )
     ugpts->FastDelete();
     at->AdaptivelySample3Facet( tetPoints, tetPoints + 6, tetPoints + 12, tetPoints + 18 );
     if ( vtkTessellatorIsInteractive )
-      {
+    {
       r->ResetCamera();
       rw->Render();
       ri->Start();
-      }
     }
+  }
 
   for ( int c=0; c<11; ++c )
-    {
+  {
     std::cout << at->GetCaseCount(c);
     for ( int s=0; s<51; ++s )
       std::cout << " " << at->GetSubcaseCount(c,s);
     std::cout << std::endl;
-    }
+  }
 
   ug->Delete();
   at->Delete();
   tt->Delete();
   if ( vtkTessellatorIsInteractive )
-    {
+  {
     startTet->Delete();
     sf->Delete();
     ri->Delete();
@@ -3615,7 +3608,7 @@ int TestTessellator( int argc, char* argv[] )
     rw->Delete();
     m->Delete();
     a->Delete();
-    }
+  }
 
 #ifdef VTK_GENERATE_BASELINE
   itet << "};\n";
@@ -3630,42 +3623,52 @@ int TestTessellator( int argc, char* argv[] )
 #ifdef VTK_CHECK_RESULTS
   --vtkTstCode;
   if ( vtkOTetCtr != vtkTestSummaries[vtkTstCode].EndOffset )
-    {
+  {
     std::cerr
       << "ERROR: Test " << vtkTstCode << " ended at offset "
       << vtkOTetCtr << ", expecting " << vtkTestSummaries[vtkTstCode].BeginOffset << "--" << vtkTestSummaries[vtkTstCode].EndOffset << "\n";
     vtkTessellatorError = 1;
-    }
+  }
 #endif // VTK_CHECK_RESULTS
 
-#ifdef VTK_DATA_ROOT
   // Test vtkTessellatorFilter and vtkDataSetEdgeSubdivisionCriterion if we have a dataset to use
   char* fname = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/quadraticTetra01.vtu" );
   if ( fname )
-    {
+  {
     vtkXMLUnstructuredGridReader* rdr = vtkXMLUnstructuredGridReader::New();
     rdr->SetFileName( fname );
     delete [] fname ;
-    rdr->Update();
+
+    // Add filter to generate some scalar data.
+    vtkRandomAttributeGenerator* rag = vtkRandomAttributeGenerator::New();
+    rag->SetInputConnection(rdr->GetOutputPort());
+    rag->SetGenerateCellScalars(1);
+    rag->SetGenerateCellVectors(1);
 
     vtkTessellatorFilter* tf = vtkTessellatorFilter::New();
-    tf->SetInputConnection( rdr->GetOutputPort() );
+    tf->SetInputConnection( rag->GetOutputPort() );
     tf->MergePointsOn();
     tf->Update();
 
     for ( int odim = 1; odim < 4; ++odim )
-      {
+    {
       tf->SetOutputDimension( odim );
       tf->Update();
-      }
+    }
 
     tf->MergePointsOff();
     tf->Update();
 
-    rdr->Delete();
-    tf->Delete();
+    if (tf->GetOutput()->GetCellData()->GetNumberOfArrays() != 2)
+    {
+      std::cerr << "ERROR: Failed to pass through cell data!\n";
+      vtkTessellatorError = 1;
     }
-#endif // VTK_DATA_ROOT
+
+    rdr->Delete();
+    rag->Delete();
+    tf->Delete();
+  }
 
   return vtkTessellatorError;
 }

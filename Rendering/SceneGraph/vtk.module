@@ -1,0 +1,17 @@
+NAME
+  VTK::RenderingSceneGraph
+LIBRARY_NAME
+  vtkRenderingSceneGraph
+KIT
+  VTK::Rendering
+DEPENDS
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMath
+  VTK::RenderingCore
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::RenderingOpenGL2
+  VTK::RenderingVolume
+  VTK::TestingCore

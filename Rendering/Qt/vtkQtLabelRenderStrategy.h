@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQtLabelRenderStrategy - Renders labels with Qt
-//
-// .SECTION Description
-// This class uses Qt to render labels and compute sizes. The labels are
-// rendered to a QImage, then EndFrame() converts that image to a vtkImageData
-// and textures the image onto a quad spanning the render area.
+/**
+ * @class   vtkQtLabelRenderStrategy
+ * @brief   Renders labels with Qt
+ *
+ *
+ * This class uses Qt to render labels and compute sizes. The labels are
+ * rendered to a QImage, then EndFrame() converts that image to a vtkImageData
+ * and textures the image onto a quad spanning the render area.
+*/
 
 #ifndef vtkQtLabelRenderStrategy_h
 #define vtkQtLabelRenderStrategy_h
@@ -37,53 +40,58 @@ class vtkTextureMapToPlane;
 class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrategy
 {
  public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkQtLabelRenderStrategy, vtkLabelRenderStrategy);
   static vtkQtLabelRenderStrategy* New();
 
-  // Description:
-  // Compute the bounds of a label. Must be performed after the renderer is set.
-  virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label,
-                                  double bds[4])
+  /**
+   * Compute the bounds of a label. Must be performed after the renderer is set.
+   */
+  void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label,
+                                  double bds[4]) override
     { this->Superclass::ComputeLabelBounds(tprop, label, bds); }
-  virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label,
-                                  double bds[4]);
+  void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label,
+                                  double bds[4]) override;
 
-  // Description:
-  // Render a label at a location in world coordinates.
-  // Must be performed between StartFrame() and EndFrame() calls.
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
+  //@{
+  /**
+   * Render a label at a location in world coordinates.
+   * Must be performed between StartFrame() and EndFrame() calls.
+   */
+  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label) override
     { this->Superclass::RenderLabel(x, tprop, label); }
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label,
-                           int maxWidth)
+  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label,
+                           int maxWidth) override
     { this->Superclass::RenderLabel(x, tprop, label, maxWidth); }
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop,
-                           vtkUnicodeString label);
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop,
-                           vtkUnicodeString label, int maxWidth);
+  void RenderLabel(int x[2], vtkTextProperty* tprop,
+                           vtkUnicodeString label) override;
+  void RenderLabel(int x[2], vtkTextProperty* tprop,
+                           vtkUnicodeString label, int maxWidth) override;
+  //@}
 
-  // Description:
-  // Start a rendering frame. Renderer must be set.
-  virtual void StartFrame();
+  /**
+   * Start a rendering frame. Renderer must be set.
+   */
+  void StartFrame() override;
 
-  // Description:
-  // End a rendering frame.
-  virtual void EndFrame();
+  /**
+   * End a rendering frame.
+   */
+  void EndFrame() override;
 
-  // Description:
-  // Release any graphics resources that are being consumed by this strategy.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *window);
+  /**
+   * Release any graphics resources that are being consumed by this strategy.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
+  void ReleaseGraphicsResources(vtkWindow *window) override;
 
 protected:
   vtkQtLabelRenderStrategy();
-  ~vtkQtLabelRenderStrategy();
+  ~vtkQtLabelRenderStrategy() override;
 
-  //BTX
   class Internals;
   Internals* Implementation;
-  //ETX
 
   vtkQImageToImageSource* QImageToImage;
   vtkPlaneSource* PlaneSource;
@@ -94,8 +102,8 @@ protected:
   bool AntialiasText; // Should the text be antialiased, inherited from render window.
 
 private:
-  vtkQtLabelRenderStrategy(const vtkQtLabelRenderStrategy&);  // Not implemented.
-  void operator=(const vtkQtLabelRenderStrategy&);  // Not implemented.
+  vtkQtLabelRenderStrategy(const vtkQtLabelRenderStrategy&) = delete;
+  void operator=(const vtkQtLabelRenderStrategy&) = delete;
 };
 
 #endif

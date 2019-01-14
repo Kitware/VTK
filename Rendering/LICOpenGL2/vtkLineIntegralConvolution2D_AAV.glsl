@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 //=========================================================================
 //
 //  Program:   Visualization Toolkit
@@ -16,14 +18,13 @@
 // Anti-alias stage in vtkLineIntegralConvolution2D
 // vertical pass of a Gaussian convolution
 
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
+// the output of this shader
+//VTK::Output::Dec
 
 uniform sampler2D texLIC; // input texture
 uniform float     uDy;    // fragment size
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 // neighbor offsets
 vec2 fragDy[3] = vec2[3](vec2(0.0,-uDy), vec2(0.0,0.0), vec2(0.0,uDy));

@@ -33,9 +33,9 @@ int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
   float *scalars = static_cast<float *>(img->GetScalarPointer());
   vtkIdType n = 100*100*100;
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     scalars[i] = 0.0;
-    }
+  }
 
   vtkSmartPointer<vtkImageReslice> reslicer = vtkSmartPointer<vtkImageReslice>::New();
   reslicer->SetInputData(img);
@@ -79,9 +79,9 @@ int TestUpdateExtentReset(int vtkNotUsed(argc), char * vtkNotUsed(argv) [] )
   if (combinedExtent[0] <= combinedExtent[1] ||
       combinedExtent[2] <= combinedExtent[3] ||
       combinedExtent[4] <= combinedExtent[5])
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   reslicer->SetOutputExtent(0, 100, 0, 50, 0, 0);
   // For some reason there was no error reported when the combined extent was
   // was wrong, however you could check in vtkImageReslice::ThreadRequestData

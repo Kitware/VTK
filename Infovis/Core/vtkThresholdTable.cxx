@@ -35,9 +35,7 @@ vtkThresholdTable::vtkThresholdTable() : MinValue(0), MaxValue(VTK_INT_MAX), Mod
 {
 }
 
-vtkThresholdTable::~vtkThresholdTable()
-{
-}
+vtkThresholdTable::~vtkThresholdTable() = default;
 
 void vtkThresholdTable::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -46,18 +44,23 @@ void vtkThresholdTable::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxValue: " << this->MaxValue.ToString() << endl;
   os << indent << "Mode: ";
   switch (this->Mode)
-    {
+  {
     case ACCEPT_LESS_THAN:
       os << "Accept less than";
+      break;
     case ACCEPT_GREATER_THAN:
       os << "Accept greater than";
+      break;
     case ACCEPT_BETWEEN:
       os << "Accept between";
+      break;
     case ACCEPT_OUTSIDE:
       os << "Accept outside";
+      break;
     default:
       os << "Undefined";
-    }
+      break;
+  }
   os << endl;
 }
 
@@ -71,43 +74,43 @@ void vtkThresholdTableThresholdRows(iterT* it, vtkTable* input, vtkTable* output
 {
   vtkIdType maxInd = it->GetNumberOfValues();
   for (vtkIdType i = 0; i < maxInd; i++)
-    {
+  {
     bool accept = false;
     vtkVariant v(it->GetValue(i));
     if (mode == vtkThresholdTable::ACCEPT_LESS_THAN)
-      {
+    {
       accept = vtkThresholdTableCompare(v, max);
-      }
+    }
     else if (mode == vtkThresholdTable::ACCEPT_GREATER_THAN)
-      {
+    {
       accept = vtkThresholdTableCompare(min, v);
-      }
+    }
     else if (mode == vtkThresholdTable::ACCEPT_BETWEEN)
-      {
+    {
       accept = (vtkThresholdTableCompare(min, v) && vtkThresholdTableCompare(v, max));
-      }
+    }
     else if (mode == vtkThresholdTable::ACCEPT_OUTSIDE)
-      {
+    {
       accept = (vtkThresholdTableCompare(v, min) || vtkThresholdTableCompare(max, v));
-      }
+    }
     if (accept)
-      {
+    {
       vtkVariantArray* row = input->GetRow(i);
       output->InsertNextRow(row);
-      }
     }
+  }
 }
 
 void vtkThresholdTable::ThresholdBetween(vtkVariant lower, vtkVariant upper)
 {
   if ( this->MinValue != lower || this->MaxValue != upper ||
        this->Mode != vtkThresholdTable::ACCEPT_BETWEEN)
-    {
+  {
     this->MinValue = lower;
     this->MaxValue = upper;
     this->Mode = vtkThresholdTable::ACCEPT_BETWEEN;
     this->Modified();
-    }
+  }
 }
 
 int vtkThresholdTable::RequestData(
@@ -116,32 +119,32 @@ int vtkThresholdTable::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, inputVector);
-  if (arr == NULL)
-    {
+  if (arr == nullptr)
+  {
     vtkErrorMacro("An input array must be specified.");
     return 0;
-    }
+  }
 
   vtkTable* input = vtkTable::GetData(inputVector[0]);
   vtkTable* output = vtkTable::GetData(outputVector);
 
   for (int n = 0; n < input->GetNumberOfColumns(); n++)
-    {
+  {
     vtkAbstractArray* col = input->GetColumn(n);
     vtkAbstractArray* ncol = vtkAbstractArray::CreateArray(col->GetDataType());
     ncol->SetName(col->GetName());
     ncol->SetNumberOfComponents(col->GetNumberOfComponents());
     output->AddColumn(ncol);
     ncol->Delete();
-    }
+  }
 
   vtkArrayIterator* iter = arr->NewIterator();
   switch (arr->GetDataType())
-    {
+  {
     vtkArrayIteratorTemplateMacro(
       vtkThresholdTableThresholdRows(static_cast<VTK_TT*>(iter), input, output,
         this->MinValue, this->MaxValue, this->Mode));
-    }
+  }
   iter->Delete();
 
   return 1;

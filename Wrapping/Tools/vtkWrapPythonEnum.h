@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef VTK_WRAP_PYTHON_ENUM_H
-#define VTK_WRAP_PYTHON_ENUM_H
+#ifndef vtkWrapPythonEnum_h
+#define vtkWrapPythonEnum_h
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
@@ -24,9 +24,13 @@
 int vtkWrapPython_IsEnumWrapped(
   HierarchyInfo *hinfo, const char *enumname);
 
+/* find and mark all enum parameters by setting IsEnum=1 */
+void vtkWrapPython_MarkAllEnums(
+  NamespaceInfo *contents, HierarchyInfo *hinfo);
+
 /* write out an enum type wrapped in python */
 void vtkWrapPython_GenerateEnumType(
-  FILE *fp, const char *classname, EnumInfo *data);
+  FILE *fp, const char *module, const char *classname, EnumInfo *data);
 
 /* generate code that adds an enum type to a python dict */
 void vtkWrapPython_AddEnumType(
@@ -38,4 +42,5 @@ void vtkWrapPython_AddPublicEnumTypes(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
   NamespaceInfo *data);
 
-#endif /* VTK_WRAP_PYTHON_ENUM_H */
+#endif /* vtkWrapPythonEnum_h */
+/* VTK-HeaderTest-Exclude: vtkWrapPythonEnum.h */

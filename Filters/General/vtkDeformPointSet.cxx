@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkDeformPointSet.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -43,9 +43,7 @@ vtkDeformPointSet::vtkDeformPointSet()
 }
 
 //----------------------------------------------------------------------------
-vtkDeformPointSet::~vtkDeformPointSet()
-{
-}
+vtkDeformPointSet::~vtkDeformPointSet() = default;
 
 //----------------------------------------------------------------------------
 void vtkDeformPointSet::SetControlMeshConnection(vtkAlgorithmOutput* algOutput)
@@ -63,9 +61,9 @@ void vtkDeformPointSet::SetControlMeshData(vtkPolyData *input)
 vtkPolyData *vtkDeformPointSet::GetControlMeshData()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
 
   return vtkPolyData::SafeDownCast(
     this->GetInputDataObject(1, 0));
@@ -89,17 +87,17 @@ int vtkDeformPointSet::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if ( !cmeshInfo )
-    {
+  {
     return 0;
-    }
+  }
   vtkPolyData *cmesh = vtkPolyData::SafeDownCast(
     cmeshInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!cmesh)
-    {
+  {
     return 0;
-    }
+  }
 
-  // Pass the input attributes to the ouput
+  // Pass the input attributes to the output
   output->CopyStructure( input );
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
@@ -110,18 +108,18 @@ int vtkDeformPointSet::RequestData(
   vtkPoints *inPts = input->GetPoints();
   vtkPoints *cmeshPts = cmesh->GetPoints();
   if ( !inPts || !cmeshPts )
-    {
+  {
     return 0;
-    }
+  }
   vtkCellArray *cmeshPolys = cmesh->GetPolys();
   vtkIdType numberOfControlMeshPoints = cmeshPts->GetNumberOfPoints();
   vtkIdType numberOfControlMeshCells = cmeshPolys->GetNumberOfCells();
   vtkIdType numTriangles = cmeshPolys->GetNumberOfConnectivityEntries() / 4;
   if ( numTriangles != numberOfControlMeshCells )
-    {
+  {
     vtkErrorMacro("Control mesh must be a closed, manifold triangular mesh");
     return 0;
-    }
+  }
 
   // We will be modifying the points
   vtkPoints *outPts = input->GetPoints()->NewInstance();
@@ -129,7 +127,7 @@ int vtkDeformPointSet::RequestData(
   outPts->SetNumberOfPoints(numberOfPointSetPoints);
   output->SetPoints(outPts);
 
-  // Start by determing whether weights must be computed or not
+  // Start by determining whether weights must be computed or not
   int abort=0;
   vtkIdType progressInterval=(numberOfPointSetPoints/10 + 1);
   int workLoad=1;
@@ -140,7 +138,7 @@ int vtkDeformPointSet::RequestData(
        this->InitialNumberOfControlMeshCells != numberOfControlMeshCells ||
        this->InitialNumberOfPointSetPoints != numberOfPointSetPoints ||
        this->InitialNumberOfPointSetCells != numberOfPointSetCells )
-    {
+  {
     workLoad = 2;
     // reallocate the weights
     this->Weights->Reset();
@@ -149,19 +147,19 @@ int vtkDeformPointSet::RequestData(
 
     // compute the interpolation weights
     for (ptId=0; ptId < numberOfPointSetPoints && !abort; ++ptId)
-      {
+    {
       if ( ! (ptId % progressInterval) )
-        {
+      {
         vtkDebugMacro(<<"Processing #" << ptId);
         this->UpdateProgress (ptId/(workLoad*numberOfPointSetPoints));
         abort = this->GetAbortExecute();
-        }
+      }
 
       inPts->GetPoint(ptId, x);
       weights = this->Weights->GetPointer(ptId*numberOfControlMeshPoints);
       vtkMeanValueCoordinatesInterpolator::
         ComputeInterpolationWeights(x,cmeshPts,cmeshPolys,weights);
-      }
+    }
 
     // prepare for next execution
     this->InitializeWeights = 0;
@@ -169,31 +167,31 @@ int vtkDeformPointSet::RequestData(
     this->InitialNumberOfControlMeshCells = numberOfControlMeshCells;
     this->InitialNumberOfPointSetPoints = numberOfPointSetPoints;
     this->InitialNumberOfPointSetCells = numberOfPointSetCells;
-    }
+  }
 
   // Okay weights are computed, now interpolate
   double xx[3];
   for (ptId=0; ptId < numberOfPointSetPoints && !abort; ++ptId)
-    {
+  {
     if ( ! (ptId % progressInterval) )
-      {
+    {
       vtkDebugMacro(<<"Processing #" << ptId);
       this->UpdateProgress (ptId/(workLoad*numberOfPointSetPoints));
       abort = this->GetAbortExecute();
-      }
+    }
 
     weights = this->Weights->GetPointer(ptId*numberOfControlMeshPoints);
 
     x[0] = x[1] = x[2] = 0.0;
     for ( pid=0; pid < numberOfControlMeshPoints; ++pid )
-      {
+    {
       cmeshPts->GetPoint(pid,xx);
       x[0] += weights[pid] * xx[0];
       x[1] += weights[pid] * xx[1];
       x[2] += weights[pid] * xx[2];
-      }
-    outPts->SetPoint(ptId,x);
     }
+    outPts->SetPoint(ptId,x);
+  }
 
   // clean up and get out
   outPts->Delete();

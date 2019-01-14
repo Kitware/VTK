@@ -66,7 +66,7 @@ vtkGenericAdaptorCell::vtkGenericAdaptorCell()
   this->PointData->SetScalars( this->PointDataScalars );
   this->PointDataScalars->Delete();
 
-  this->Tuples=0;
+  this->Tuples=nullptr;
   this->TuplesCapacity=0;
 }
 
@@ -117,7 +117,7 @@ int vtkGenericAdaptorCell::IsGeometryLinear()
 // \post valid_result: result>=-1 && result<ac->GetNumberOfAttributes()
 int vtkGenericAdaptorCell::GetHighestOrderAttribute(vtkGenericAttributeCollection *ac)
 {
-  assert("pre: ac_exists" && ac!=0);
+  assert("pre: ac_exists" && ac!=nullptr);
   int result=-1;
   int highestOrder=-1;
   int order;
@@ -125,19 +125,19 @@ int vtkGenericAdaptorCell::GetHighestOrderAttribute(vtkGenericAttributeCollectio
   int c = ac->GetNumberOfAttributes();
   int i=0;
   while(i<c)
-    {
+  {
     a=ac->GetAttribute(i);
     if(a->GetCentering()==vtkPointCentered)
-      {
+    {
       order=this->GetAttributeOrder(a);
       if(order>highestOrder)
-        {
+      {
         highestOrder=order;
         result=i;
-        }
       }
-    ++i;
     }
+    ++i;
+  }
   assert("post: valid_result" && result>=-1 && result<ac->GetNumberOfAttributes());
   return result;
 }
@@ -147,7 +147,7 @@ int vtkGenericAdaptorCell::GetHighestOrderAttribute(vtkGenericAttributeCollectio
 // Does the attribute `a' have no higher-order interpolation for the cell?
 // \pre a_exists: a!=0
 // \post definition: result==(GetAttributeOrder()==1)
-int vtkGenericAdaptorCell::IsAttributeLinear(vtkGenericAttribute *a)
+vtkTypeBool vtkGenericAdaptorCell::IsAttributeLinear(vtkGenericAttribute *a)
 {
   return this->GetAttributeOrder(a) == 1;
 }
@@ -160,7 +160,7 @@ void vtkGenericAdaptorCell::GetBounds(double bounds[6])
   int i, numPts=this->GetNumberOfPoints();
 
   if (numPts)
-    {
+  {
     this->GetPoints()->GetPoint(0, x);
     bounds[0] = x[0];
     bounds[2] = x[1];
@@ -169,7 +169,7 @@ void vtkGenericAdaptorCell::GetBounds(double bounds[6])
     bounds[3] = x[1];
     bounds[5] = x[2];
     for (i=1; i<numPts; i++)
-      {
+    {
       this->GetPoints()->GetPoint(i, x);
       bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
       bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
@@ -177,8 +177,8 @@ void vtkGenericAdaptorCell::GetBounds(double bounds[6])
       bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
       bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
       bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
-      }
     }
+  }
 #endif
   memset(bounds,0,sizeof(double));
   vtkErrorMacro("TO BE DONE");
@@ -203,10 +203,10 @@ double vtkGenericAdaptorCell::GetLength2()
 
   this->GetBounds(this->Bounds);
   for (i=0; i<3; i++)
-    {
+  {
     diff = this->Bounds[2*i+1] - this->Bounds[2*i];
     l += diff * diff;
-    }
+  }
   return l;
 }
 
@@ -234,16 +234,16 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
                                     vtkPointData *secondaryPd,
                                     vtkCellData *secondaryCd)
 {
-  assert("pre: values_exist" && ((contourValues!=0 && f==0) || (contourValues!=0 && f!=0)));
-  assert("pre: attributes_exist" && attributes!=0);
-  assert("pre: tessellator_exists" && tess!=0);
-  assert("pre: locator_exists" && locator!=0);
-  assert("pre: verts_exist" && verts!=0);
-  assert("pre: lines_exist" && lines!=0);
-  assert("pre: polys_exist" && polys!=0);
-  assert("pre: internalPd_exists" && internalPd!=0);
-  assert("pre: secondaryPd_exists" && secondaryPd!=0);
-  assert("pre: secondaryCd_exists" && secondaryCd!=0);
+  assert("pre: values_exist" && ((contourValues!=nullptr && f==nullptr) || (contourValues!=nullptr && f!=nullptr)));
+  assert("pre: attributes_exist" && attributes!=nullptr);
+  assert("pre: tessellator_exists" && tess!=nullptr);
+  assert("pre: locator_exists" && locator!=nullptr);
+  assert("pre: verts_exist" && verts!=nullptr);
+  assert("pre: lines_exist" && lines!=nullptr);
+  assert("pre: polys_exist" && polys!=nullptr);
+  assert("pre: internalPd_exists" && internalPd!=nullptr);
+  assert("pre: secondaryPd_exists" && secondaryPd!=nullptr);
+  assert("pre: secondaryCd_exists" && secondaryCd!=nullptr);
 
   int i;
   int j;
@@ -252,7 +252,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
   double contVal=-1000;
   double *values;
 
-  vtkCell *linearCell = 0;
+  vtkCell *linearCell = nullptr;
   vtkIdType ptsCount = 0;
 
   range[0]=0; // to fix warning
@@ -265,22 +265,22 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
   secondaryCd->Reset();
   int attrib=0;
   while(attrib<attributes->GetNumberOfAttributes())
-    {
+  {
     if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
-      {
+    {
       vtkDataArray *array = secondaryCd->GetArray(attributes->GetAttribute(attrib)->GetName());
       values = attributes->GetAttribute(attrib)->GetTuple(this);
       array->InsertNextTuple(values);
-      }
-    attrib++;
     }
+    attrib++;
+  }
 
   int attribute = this->GetHighestOrderAttribute(attributes);
   if(this->IsGeometryLinear() &&(attribute==-1 || this->IsAttributeLinear(attributes->GetAttribute(attribute))))
-    {
+  {
     // linear case
     switch(this->GetType())
-      {
+    {
       case VTK_HIGHER_ORDER_TRIANGLE:
         linearCell=this->Triangle;
         ptsCount=3;
@@ -308,7 +308,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       default:
         assert("check: impossible case" && 0);
         return;
-      }
+    }
     int currComp=attributes->GetActiveComponent();
 
     double *locals=this->GetParametricCoords();
@@ -328,7 +328,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
     // build the cell
     i=0;
     while(i<ptsCount)
-      {
+    {
       this->EvaluateLocation(0,locals,point);
       linearCell->PointIds->SetId(i, i);
       linearCell->Points->SetPoint(i, point );
@@ -338,62 +338,62 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       attribute_idx=0;
       j=0;
       while(attribute_idx<count)
-        {
+      {
         a = attributes->GetAttribute(attribute_idx);
         if(a->GetCentering()==vtkPointCentered)
-          {
+        {
           this->InterpolateTuple(a,locals,this->Tuples);
           secondaryPd->GetArray(j)->InsertTuple(i,this->Tuples);
           if(attribute_idx==activeAttributeIdx)
+          {
+            if(f==nullptr)
             {
-            if(f==0)
-              {
               contVal = this->Tuples[currComp];
-              }
             }
-          ++j;
           }
-        ++attribute_idx;
+          ++j;
         }
+        ++attribute_idx;
+      }
 
       if(f)
-        {
+      {
         contVal = f->FunctionValue( point );
-        }
+      }
       this->Scalars->SetTuple1( i, contVal ); // value at point i of the
       // current linear cell.
       if(i==0)
-        {
+      {
           range[0]=range[1]=contVal;
-        }
+      }
       else
-        {
+      {
         range[0] = range[0] < contVal ? range[0] : contVal;
         range[1] = range[1] > contVal ? range[1] : contVal;
-        }
+      }
 
       ++i;
       locals=locals+3;
-      }
+    }
 
     // call contour on each value
     for( int vv = 0; vv < numContours; vv++ )
-      {
+    {
       if(values[vv] >= range[0] && values[vv] <= range[1])
-        {
+      {
         linearCell->Contour(values[vv],this->Scalars,locator,verts,lines,
                             polys,secondaryPd, outPd, secondaryCd,
                             0, outCd);
-        }
       }
+    }
 
     return;
-    }
+  }
   // not linear case
   internalPd->Reset();
 
   switch(this->GetDimension())
-    {
+  {
     case 3:
       tess->Tessellate(this, attributes, this->InternalPoints,
                        this->InternalCellArray, internalPd);
@@ -409,9 +409,9 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
     default:
       assert("TODO: dimension 1 and 0" && 0);
       return;
-    }
+  }
 
-  vtkIdType npts, *pts = 0;
+  vtkIdType npts, *pts = nullptr;
   double *point = this->InternalPoints->GetPointer(0);
 
   vtkDataArray *scalars = internalPd->GetArray(attributes->GetActiveAttribute());
@@ -427,48 +427,48 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
   // then contour it.
   for(this->InternalCellArray->InitTraversal();
       this->InternalCellArray->GetNextCell(npts, pts);)
-    {
+  {
     assert("check: valid number of points" && npts == ptsCount);
     range[1] = range[0] = scalars->GetComponent(dataIndex,currComp);
+    secondaryPd->Reset();
     for(i=0; i<ptsCount; i++, point+=3)
-      {
+    {
       linearCell->PointIds->SetId(i, pts[i]);
       linearCell->Points->SetPoint(i, point );
       if(f)
-        {
+      {
         contVal = f->FunctionValue( point );
-        }
+      }
       else
-        {
+      {
         contVal = scalars->GetComponent(dataIndex,currComp);
-        }
+      }
       this->Scalars->SetTuple1( i, contVal ); // value at point i of the
       // current linear simplex.
 
       range[0] = range[0] < contVal ? range[0] : contVal;
       range[1] = range[1] > contVal ? range[1] : contVal;
       // for each point-centered attribute
-      secondaryPd->Reset();
       j=0;
       while(j<c)
-        {
+      {
         secondaryPd->GetArray(j)->InsertTuple(pts[i],
                                               internalPd->GetArray(j)->GetTuple(dataIndex));
         ++j;
-        }
+      }
       ++dataIndex;
 
-      }
+    }
     for( int vv = 0; vv < numContours; vv++ )
-      {
+    {
       if(values[vv] >= range[0] && values[vv] <= range[1])
-        {
+      {
         linearCell->Contour(values[vv],this->Scalars,locator,verts,lines,
                             polys,secondaryPd, outPd, secondaryCd,
                             0, outCd);
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -485,13 +485,13 @@ void vtkGenericAdaptorCell::Clip(double value,
                                  vtkPointData *secondaryPd,
                                  vtkCellData *secondaryCd)
 {
-  assert("pre: attributes_exist" && attributes!=0);
-  assert("pre: tessellator_exists" && tess!=0);
-  assert("pre: locator_exists" && locator!=0);
-  assert("pre: connectivity_exist" && connectivity!=0);
-  assert("pre: internalPd_exists" && internalPd!=0);
-  assert("pre: secondaryPd_exists" && secondaryPd!=0);
-  assert("pre: secondaryCd_exists" && secondaryCd!=0);
+  assert("pre: attributes_exist" && attributes!=nullptr);
+  assert("pre: tessellator_exists" && tess!=nullptr);
+  assert("pre: locator_exists" && locator!=nullptr);
+  assert("pre: connectivity_exist" && connectivity!=nullptr);
+  assert("pre: internalPd_exists" && internalPd!=nullptr);
+  assert("pre: secondaryPd_exists" && secondaryPd!=nullptr);
+  assert("pre: secondaryCd_exists" && secondaryCd!=nullptr);
 
   int i;
   int j;
@@ -499,7 +499,7 @@ void vtkGenericAdaptorCell::Clip(double value,
   double contVal=-1000;
   double *values;
 
-  vtkCell *linearCell = 0;
+  vtkCell *linearCell = nullptr;
   vtkIdType ptsCount = 0;
 
   this->Reset();
@@ -509,22 +509,22 @@ void vtkGenericAdaptorCell::Clip(double value,
   secondaryCd->Reset();
   int attrib=0;
   while(attrib<attributes->GetNumberOfAttributes())
-    {
+  {
     if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
-      {
+    {
       vtkDataArray *array=secondaryCd->GetArray(attributes->GetAttribute(attrib)->GetName());
       values=attributes->GetAttribute(attrib)->GetTuple(this);
       array->InsertNextTuple(values);
-      }
-    attrib++;
     }
+    attrib++;
+  }
 
    int attribute=this->GetHighestOrderAttribute(attributes);
   if(this->IsGeometryLinear() &&(attribute==-1 || this->IsAttributeLinear(attributes->GetAttribute(attribute))))
-    {
+  {
     // linear case
     switch(this->GetType())
-      {
+    {
       case VTK_HIGHER_ORDER_TRIANGLE:
         linearCell=this->Triangle;
         ptsCount=3;
@@ -552,7 +552,7 @@ void vtkGenericAdaptorCell::Clip(double value,
       default:
         assert("check: impossible case" && 0);
         return;
-      }
+    }
     int currComp=attributes->GetActiveComponent();
 
     double *locals=this->GetParametricCoords();
@@ -569,7 +569,7 @@ void vtkGenericAdaptorCell::Clip(double value,
     // build the cell
     i=0;
     while(i<ptsCount)
-      {
+    {
       this->EvaluateLocation(0,locals,point);
       linearCell->PointIds->SetId(i, i);
       linearCell->Points->SetPoint(i, point );
@@ -579,46 +579,46 @@ void vtkGenericAdaptorCell::Clip(double value,
       attribute_idx=0;
       j=0;
       while(attribute_idx<count)
-        {
+      {
         a = attributes->GetAttribute(attribute_idx);
         if(a->GetCentering()==vtkPointCentered)
-          {
+        {
           this->InterpolateTuple(a,locals,this->Tuples);
           secondaryPd->GetArray(j)->InsertTuple(i,this->Tuples);
           if(attribute_idx==activeAttributeIdx)
+          {
+            if(f==nullptr)
             {
-            if(f==0)
-              {
               contVal = this->Tuples[currComp];
-              }
             }
-          ++j;
           }
-        ++attribute_idx;
+          ++j;
         }
+        ++attribute_idx;
+      }
 
       if(f)
-        {
+      {
         contVal = f->FunctionValue( point );
-        }
+      }
       this->Scalars->SetTuple1( i, contVal ); // value at point i of the
       // current linear cell.
 
       ++i;
       locals=locals+3;
-      }
+    }
 
     linearCell->Clip(value,this->Scalars,locator,connectivity,
                      secondaryPd, outPd, secondaryCd, 0, outCd,
                      insideOut);
     return;
-    }
+  }
 
   // Not linear case
   internalPd->Reset();
 
   switch(this->GetDimension())
-    {
+  {
     case 3:
       tess->Tessellate(this, attributes, this->InternalPoints,
                        this->InternalCellArray, internalPd);
@@ -634,9 +634,9 @@ void vtkGenericAdaptorCell::Clip(double value,
     default:
       assert("TODO: dimension 1 and 0" && 0);
       return;
-    }
+  }
 
-  vtkIdType npts, *pts = 0;
+  vtkIdType npts, *pts = nullptr;
   double *point  = this->InternalPoints->GetPointer(0);
 
   vtkDataArray *scalars=internalPd->GetArray(attributes->GetActiveAttribute());
@@ -649,39 +649,39 @@ void vtkGenericAdaptorCell::Clip(double value,
   // then contour it.
   for(this->InternalCellArray->InitTraversal();
       this->InternalCellArray->GetNextCell(npts, pts);)
-    {
+  {
     assert("check: valid number of points" && npts == ptsCount);
+    secondaryPd->Reset();
     for(i=0; i<ptsCount; i++, point+=3)
-      {
+    {
       linearCell->PointIds->SetId(i, pts[i]);
       linearCell->Points->SetPoint(i, point );
       if(f)
-        {
+      {
         contVal = f->FunctionValue( point );
-        }
+      }
       else
-        {
+      {
         contVal = scalars->GetComponent(dataIndex,currComp);
-        }
+      }
       this->Scalars->SetTuple1( i, contVal ); // value at point i of the
       // current linear simplex.
 
       // for each point-centered attribute
-      secondaryPd->Reset();
       j=0;
       while(j<c)
-        {
+      {
         secondaryPd->GetArray(j)->InsertTuple(pts[i],
                                               internalPd->GetArray(j)->GetTuple(dataIndex));
         ++j;
-        }
+      }
       ++dataIndex;
 
-      }
+    }
     linearCell->Clip(value,this->Scalars,locator,connectivity,
                      secondaryPd, outPd, secondaryCd, 0, outCd,
                      insideOut);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -711,13 +711,13 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
                                        vtkCellData *cd,
                                        vtkUnsignedCharArray *types)
 {
-  assert("pre: attributes_exist" && attributes!=0);
-  assert("pre: tessellator_exists" && tess!=0);
-  assert("pre: points_exist" && points!=0);
-  assert("pre: cellArray_exists" && cellArray!=0);
-  assert("pre: internalPd_exists" && internalPd!=0);
-  assert("pre: pd_exist" && pd!=0);
-  assert("pre: cd_exist" && cd!=0);
+  assert("pre: attributes_exist" && attributes!=nullptr);
+  assert("pre: tessellator_exists" && tess!=nullptr);
+  assert("pre: points_exist" && points!=nullptr);
+  assert("pre: cellArray_exists" && cellArray!=nullptr);
+  assert("pre: internalPd_exists" && internalPd!=nullptr);
+  assert("pre: pd_exist" && pd!=nullptr);
+  assert("pre: cd_exist" && cd!=nullptr);
 
   int i;
   int j;
@@ -731,26 +731,26 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
 
   int attribute=this->GetHighestOrderAttribute(attributes);
   if(this->IsGeometryLinear() &&(attribute==-1 || this->IsAttributeLinear(attributes->GetAttribute(attribute))))
-    {
+  {
     // linear case
     this->AllocateTuples(attributes->GetMaxNumberOfComponents());
 
     // for each cell-centered attribute: copy the value
     int attrib=0;
     while(attrib<attributes->GetNumberOfAttributes())
-      {
+    {
       if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
-        {
+      {
         vtkDataArray *array=cd->GetArray(attributes->GetAttribute(attrib)->GetName());
         double *values=attributes->GetAttribute(attrib)->GetTuple(this);
         array->InsertNextTuple(values);
-        }
-      attrib++;
       }
+      attrib++;
+    }
     int numVerts = 0;
 
     switch(this->GetType())
-      {
+    {
       case VTK_HIGHER_ORDER_TRIANGLE:
         linearCellType=VTK_TRIANGLE;
         numVerts=3;
@@ -778,7 +778,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
       default:
         assert("check: impossible case" && 0);
         return;
-      }
+    }
     double *locals=this->GetParametricCoords();
     this->InternalIds->Reset();
     double point[3];
@@ -791,74 +791,74 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
     int newpoint=1;
 
     while(i<numVerts)
-      {
+    {
       this->EvaluateLocation(0,locals,point);
-      if(locator==0) // no merging
-        {
+      if(locator==nullptr) // no merging
+      {
         ptId=points->InsertNextPoint(point );
-        }
+      }
       else // merging
-        {
+      {
         newpoint=locator->InsertUniquePoint(point,ptId);
-        }
+      }
       this->InternalIds->InsertId(i,ptId);
       if(newpoint)
-        {
+      {
         // for each point-centered attribute
         attribute_idx=0;
         j=0;
         while(attribute_idx<count)
-          {
+        {
           a = attributes->GetAttribute(attribute_idx);
           if(a->GetCentering()==vtkPointCentered)
-            {
+          {
             this->InterpolateTuple(a,locals,this->Tuples);
             pd->GetArray(j)->InsertTuple(ptId,this->Tuples);
             ++j;
-            }
-          ++attribute_idx;
           }
+          ++attribute_idx;
         }
+      }
       ++i;
       locals=locals+3;
-      }
+    }
 
     cellArray->InsertNextCell(this->InternalIds );
-    if(types!=0)
-      {
-      types->InsertNextValue(linearCellType);
-      }
-    }
-  else // not linear
+    if(types!=nullptr)
     {
+      types->InsertNextValue(linearCellType);
+    }
+  }
+  else // not linear
+  {
     if( this->GetDimension() == 3)
-      {
+    {
       internalPd->Reset();
       tess->Tessellate(this, attributes, this->InternalPoints, this->InternalCellArray, internalPd);
       linearCellType=VTK_TETRA;
 #ifndef NDEBUG
       valid_npts=4;
 #endif
-      }
+    }
     else
-      {
+    {
       if( this->GetDimension() == 2)
-        {
+      {
         internalPd->Reset();
         tess->Triangulate(this, attributes, this->InternalPoints, this->InternalCellArray, internalPd);
         linearCellType=VTK_TRIANGLE;
 #ifndef NDEBUG
         valid_npts=3;
 #endif
-        }
-      else
-        {
-        linearCellType=0; // for compiler warning
-        }
       }
+      else
+      {
+        linearCellType=0; // for compiler warning
+      }
+    }
 
     vtkIdType npts = 0;
-    vtkIdType *pts = 0;
+    vtkIdType *pts = nullptr;
     double *point  = this->InternalPoints->GetPointer(0);
 
 
@@ -866,20 +866,20 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
     int c=this->InternalCellArray->GetNumberOfCells();
     int attrib=0;
     while(attrib<attributes->GetNumberOfAttributes())
-      {
+    {
       if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
-        {
+      {
         vtkDataArray *array=cd->GetArray(attributes->GetAttribute(attrib)->GetName());
         double *values=attributes->GetAttribute(attrib)->GetTuple(this);
         i=0;
         while(i<c)
-          {
+        {
           array->InsertNextTuple(values);
           ++i;
-          }
         }
-      attrib++;
       }
+      attrib++;
+    }
 
     c=internalPd->GetNumberOfArrays(); // same as pd->GetNumberOfArrays();
 
@@ -888,42 +888,42 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
 
     for(this->InternalCellArray->InitTraversal();
         this->InternalCellArray->GetNextCell(npts, pts);)
-      {
+    {
       assert("check: is_a_simplex" && npts == valid_npts);
       this->InternalIds->Reset();
 
       for(i=0;i<npts;i++, point+=3)
-        {
+      {
         vtkIdType ptId;
-        if(locator==0) // no merging
-          {
+        if(locator==nullptr) // no merging
+        {
           ptId=points->InsertNextPoint(point );
-          }
+        }
         else // merging
-          {
+        {
           newpoint=locator->InsertUniquePoint(point,ptId);
-          }
+        }
         this->InternalIds->InsertId(i,ptId);
         if(newpoint)
-          {
+        {
           // for each point-centered attribute
           j=0;
           while(j<c)
-            {
+          {
             pd->GetArray(j)->InsertTuple(ptId,
                                          internalPd->GetArray(j)->GetTuple(dataIndex));
             ++j;
-            }
           }
+        }
         ++dataIndex;
-        }
+      }
       cellArray->InsertNextCell(this->InternalIds );
-      if(types!=0)
-        {
+      if(types!=nullptr)
+      {
         types->InsertNextValue(linearCellType);
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -938,14 +938,14 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
                                             vtkCellData *cd )
 {
   assert("pre: cell_is_3d" && this->GetDimension()==3);
-  assert("pre: attributes_exist" && attributes!=0);
-  assert("pre: tessellator_exists" && tess!=0);
+  assert("pre: attributes_exist" && attributes!=nullptr);
+  assert("pre: tessellator_exists" && tess!=nullptr);
   assert("pre: valid_face" && index>=0 && index<this->GetNumberOfBoundaries(2));
-  assert("pre: points_exist" && points!=0);
-  assert("pre: cellArray_exists" && cellArray!=0);
-  assert("pre: internalPd_exists" && internalPd!=0);
-  assert("pre: pd_exist" && pd!=0);
-  assert("pre: cd_exists" && cd!=0);
+  assert("pre: points_exist" && points!=nullptr);
+  assert("pre: cellArray_exists" && cellArray!=nullptr);
+  assert("pre: internalPd_exists" && internalPd!=nullptr);
+  assert("pre: pd_exist" && pd!=nullptr);
+  assert("pre: cd_exists" && cd!=nullptr);
 
   int i;
   int j;
@@ -960,7 +960,7 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
 
   int attribute=this->GetHighestOrderAttribute(attributes);
   if(this->IsGeometryLinear() &&(attribute==-1 || this->IsAttributeLinear(attributes->GetAttribute(attribute))))
-    {
+  {
     // LINEAR CASE
     // the cell is linear both in geometry and attributes
     // just create a linear cell of the same type and return
@@ -971,15 +971,15 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
     // for each cell-centered attribute: copy the value
     int attrib=0;
     while(attrib<attributes->GetNumberOfAttributes())
-      {
+    {
       if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
-        {
+      {
         vtkDataArray *array=cd->GetArray(attributes->GetAttribute(attrib)->GetName());
         double *values=attributes->GetAttribute(attrib)->GetTuple(this);
         array->InsertNextTuple(values);
-        }
-      attrib++;
       }
+      attrib++;
+    }
     vtkGenericAttribute *a;
     int count = attributes->GetNumberOfAttributes();
 
@@ -997,40 +997,40 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
     i=0;
     int newpoint=1;
     while(i<numVerts)
-      {
+    {
       local=locals+3*faceVerts[i];
       this->EvaluateLocation(0,local,point);
-      if(locator==0) // no merging
-        {
+      if(locator==nullptr) // no merging
+      {
         ptId=points->InsertNextPoint(point );
-        }
+      }
       else // merging
-        {
+      {
         newpoint=locator->InsertUniquePoint(point,ptId);
-        }
+      }
       this->InternalIds->InsertId(i,ptId);
       if(newpoint)
-        {
+      {
         // for each point-centered attribute
         attribute_idx=0;
         j=0;
         while(attribute_idx<count)
-          {
+        {
           a = attributes->GetAttribute(attribute_idx);
           if(a->GetCentering()==vtkPointCentered)
-            {
+          {
             this->InterpolateTuple(a,local,this->Tuples);
             pd->GetArray(j)->InsertTuple(ptId,this->Tuples);
             ++j;
-            }
-          ++attribute_idx;
           }
+          ++attribute_idx;
         }
-      ++i;
       }
+      ++i;
+    }
     cellArray->InsertNextCell(this->InternalIds );
     return;
-    }
+  }
 
   // NOT LINEAR
   tess->TessellateFace(this, attributes,index,
@@ -1038,27 +1038,27 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
                        this->InternalCellArray, internalPd);
 
   vtkIdType npts=0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   double *point = this->InternalPoints->GetPointer(0);
 
   // for each cell-centered attribute: copy the value
   c=this->InternalCellArray->GetNumberOfCells();
   int attrib=0;
   while(attrib<attributes->GetNumberOfAttributes())
-    {
+  {
     if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
-      {
+    {
       vtkDataArray *array=cd->GetArray(attributes->GetAttribute(attrib)->GetName());
       double *values=attributes->GetAttribute(attrib)->GetTuple(this);
       i=0;
       while(i<c)
-        {
+      {
         array->InsertNextTuple(values);
         ++i;
-        }
       }
-    attrib++;
     }
+    attrib++;
+  }
 
   c=internalPd->GetNumberOfArrays();
   int dataIndex=0;
@@ -1067,37 +1067,37 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
 
   for(this->InternalCellArray->InitTraversal();
       this->InternalCellArray->GetNextCell(npts, pts);)
-    {
+  {
     assert("check: is_a_triangle" && npts == 3);
     this->InternalIds->Reset();
 
     for(i=0;i<npts;i++, point+=3)
-      {
+    {
       vtkIdType ptId;
-      if(locator==0) // no merging
-        {
+      if(locator==nullptr) // no merging
+      {
         ptId=points->InsertNextPoint(point );
-        }
+      }
       else // merging
-        {
+      {
         newpoint=locator->InsertUniquePoint(point,ptId);
-        }
+      }
       this->InternalIds->InsertId(i,ptId);
       if(newpoint)
-        {
+      {
         // for each point-centered attribute
         j=0;
         while(j<c)
-          {
+        {
           pd->GetArray(j)->InsertTuple(ptId,
                                        internalPd->GetArray(j)->GetTuple(dataIndex));
           ++j;
-          }
         }
-      ++dataIndex;
       }
-    cellArray->InsertNextCell(this->InternalIds );
+      ++dataIndex;
     }
+    cellArray->InsertNextCell(this->InternalIds );
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1109,9 +1109,9 @@ void vtkGenericAdaptorCell::AllocateTuples(int size)
   assert("pre: positive_size" && size>0);
 
   if(this->TuplesCapacity<size)
-    {
+  {
     delete [] this->Tuples;
     this->Tuples=new double[size];
     this->TuplesCapacity=size;
-    }
+  }
 }

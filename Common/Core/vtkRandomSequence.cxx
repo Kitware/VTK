@@ -17,14 +17,10 @@
 
 
 // ----------------------------------------------------------------------------
-vtkRandomSequence::vtkRandomSequence()
-{
-}
+vtkRandomSequence::vtkRandomSequence() = default;
 
 // ----------------------------------------------------------------------------
-vtkRandomSequence::~vtkRandomSequence()
-{
-}
+vtkRandomSequence::~vtkRandomSequence() = default;
 
 // ----------------------------------------------------------------------------
 void vtkRandomSequence::PrintSelf(ostream& os, vtkIndent indent)

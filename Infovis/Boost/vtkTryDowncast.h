@@ -19,6 +19,9 @@
 
 =========================================================================*/
 
+#ifndef vtkTryDowncast_h
+#define vtkTryDowncast_h
+
 #include "vtkDenseArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
@@ -66,10 +69,10 @@ public:
 
     TargetT<ValueT>* const target1 = TargetT<ValueT>::SafeDownCast(Source1);
     if(target1)
-      {
+    {
       Succeeded = true;
       this->Functor(target1);
-      }
+    }
   }
 
   vtkObject* Source1;
@@ -101,10 +104,10 @@ public:
     TargetT<ValueT>* const target1 = TargetT<ValueT>::SafeDownCast(Source1);
     TargetT<ValueT>* const target2 = TargetT<ValueT>::SafeDownCast(Source2);
     if(target1 && target2)
-      {
+    {
       Succeeded = true;
       this->Functor(target1, target2);
-      }
+    }
   }
 
   vtkObject* Source1;
@@ -139,10 +142,10 @@ public:
     TargetT<ValueT>* const target2 = TargetT<ValueT>::SafeDownCast(Source2);
     TargetT<ValueT>* const target3 = TargetT<ValueT>::SafeDownCast(Source3);
     if(target1 && target2 && target3)
-      {
+    {
       Succeeded = true;
       this->Functor(target1, target2, target3);
-      }
+    }
   }
 
   vtkObject* Source1;
@@ -180,4 +183,5 @@ bool vtkTryDowncast(vtkObject* source1, vtkObject* source2, vtkObject* source3, 
   return succeeded;
 }
 
+#endif
 // VTK-HeaderTest-Exclude: vtkTryDowncast.h

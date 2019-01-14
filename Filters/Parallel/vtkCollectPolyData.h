@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCollectPolyData - Collect distributed polydata.
-// .SECTION Description
-// This filter has code to collect polydat from across processes onto node 0.
-// Collection can be turned on or off using the "PassThrough" flag.
-
+/**
+ * @class   vtkCollectPolyData
+ * @brief   Collect distributed polydata.
+ *
+ * This filter has code to collect polydat from across processes onto node 0.
+ * Collection can be turned on or off using the "PassThrough" flag.
+*/
 
 #ifndef vtkCollectPolyData_h
 #define vtkCollectPolyData_h
@@ -32,43 +34,52 @@ class VTKFILTERSPARALLEL_EXPORT vtkCollectPolyData : public vtkPolyDataAlgorithm
 public:
   static vtkCollectPolyData *New();
   vtkTypeMacro(vtkCollectPolyData, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // By defualt this filter uses the global controller,
-  // but this method can be used to set another instead.
+  //@{
+  /**
+   * By default this filter uses the global controller,
+   * but this method can be used to set another instead.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // When this filter is being used in client-server mode,
-  // this is the controller used to communicate between
-  // client and server.  Client should not set the other controller.
+  //@{
+  /**
+   * When this filter is being used in client-server mode,
+   * this is the controller used to communicate between
+   * client and server.  Client should not set the other controller.
+   */
   virtual void SetSocketController(vtkSocketController*);
   vtkGetObjectMacro(SocketController, vtkSocketController);
+  //@}
 
-  // Description:
-  // To collect or just copy input to output. Off (collect) by default.
-  vtkSetMacro(PassThrough, int);
-  vtkGetMacro(PassThrough, int);
-  vtkBooleanMacro(PassThrough, int);
+  //@{
+  /**
+   * To collect or just copy input to output. Off (collect) by default.
+   */
+  vtkSetMacro(PassThrough, vtkTypeBool);
+  vtkGetMacro(PassThrough, vtkTypeBool);
+  vtkBooleanMacro(PassThrough, vtkTypeBool);
+  //@}
 
 protected:
   vtkCollectPolyData();
-  ~vtkCollectPolyData();
+  ~vtkCollectPolyData() override;
 
-  int PassThrough;
+  vtkTypeBool PassThrough;
 
   // Data generation method
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkMultiProcessController *Controller;
   vtkSocketController *SocketController;
 
 private:
-  vtkCollectPolyData(const vtkCollectPolyData&); // Not implemented
-  void operator=(const vtkCollectPolyData&); // Not implemented
+  vtkCollectPolyData(const vtkCollectPolyData&) = delete;
+  void operator=(const vtkCollectPolyData&) = delete;
 };
 
 #endif

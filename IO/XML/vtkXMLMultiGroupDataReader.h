@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLMultiGroupDataReader - Reader for multi-block datasets
-// .SECTION Description
-// vtkXMLMultiGroupDataReader is a legacy reader that reads multi group files
-// into multiblock datasets.
+/**
+ * @class   vtkXMLMultiGroupDataReader
+ * @brief   Reader for multi-block datasets
+ *
+ * vtkXMLMultiGroupDataReader is a legacy reader that reads multi group files
+ * into multiblock datasets.
+*/
 
 #ifndef vtkXMLMultiGroupDataReader_h
 #define vtkXMLMultiGroupDataReader_h
@@ -28,21 +31,21 @@ class VTKIOXML_EXPORT vtkXMLMultiGroupDataReader : public vtkXMLMultiBlockDataRe
 public:
   static vtkXMLMultiGroupDataReader* New();
   vtkTypeMacro(vtkXMLMultiGroupDataReader,vtkXMLMultiBlockDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkXMLMultiGroupDataReader();
-  ~vtkXMLMultiGroupDataReader();
+  ~vtkXMLMultiGroupDataReader() override;
 
   // Get the name of the data set being read.
-  virtual const char* GetDataSetName()
-    {
+  const char* GetDataSetName() override
+  {
     return "vtkMultiGroupDataSet";
-    }
+  }
 
 private:
-  vtkXMLMultiGroupDataReader(const vtkXMLMultiGroupDataReader&);  // Not implemented.
-  void operator=(const vtkXMLMultiGroupDataReader&);  // Not implemented.
+  vtkXMLMultiGroupDataReader(const vtkXMLMultiGroupDataReader&) = delete;
+  void operator=(const vtkXMLMultiGroupDataReader&) = delete;
 };
 
 #endif

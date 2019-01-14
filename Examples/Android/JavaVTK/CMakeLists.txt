@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.7...3.12)
 project(JavaVTK)
 
 if (CMAKE_BINARY_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
@@ -8,10 +8,11 @@ endif ()
 find_package(VTK COMPONENTS
   vtkInteractionStyle
   vtkRenderingOpenGL2
+  vtkRenderingFreeType
 )
 include(${VTK_USE_FILE})
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libs/${ANDROID_NDK_ABI_NAME})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libs/${CMAKE_ANDROID_ARCH_ABI})
 message(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 add_subdirectory(jni)
 
@@ -22,9 +23,6 @@ find_program(ANDROID_EXECUTABLE
 if(NOT ANDROID_EXECUTABLE)
   message(FATAL_ERROR "Can not find android command line tool: android")
 endif()
-
-set(ANDROID_TARGET "android-19"
-  CACHE STRING "The Android API to target")
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/AndroidManifest.xml"
@@ -41,7 +39,7 @@ add_custom_target(JavaVTK-ant-configure ALL
           update project
           --name JavaVTK
           --path "${CMAKE_CURRENT_SOURCE_DIR}"
-          --target "${ANDROID_TARGET}"
+          --target "android-${CMAKE_SYSTEM_VERSION}"
   COMMAND "${CMAKE_COMMAND}" -E copy_if_different
           "${CMAKE_CURRENT_SOURCE_DIR}/build.xml"
           "${CMAKE_CURRENT_BINARY_DIR}/build.xml"

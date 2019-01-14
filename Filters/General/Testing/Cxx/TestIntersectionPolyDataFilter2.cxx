@@ -46,6 +46,8 @@ int TestIntersectionPolyDataFilter2(int, char *[])
                             27.6875,
                             -27.4375};
 
+  double surfaceid[2];
+  double tolerance = 1e-6;
   int intersects = vtkIntersectionPolyDataFilter
     ::TriangleTriangleIntersection(&thisCellTri[0],
                                    &thisCellTri[3],
@@ -54,7 +56,8 @@ int TestIntersectionPolyDataFilter2(int, char *[])
                                    &otherCellTri[3],
                                    &otherCellTri[6],
                                    coplanar,
-                                   isectpt1, isectpt2);
+                                   isectpt1, isectpt2,
+                                   surfaceid, tolerance);
 
     std::cerr << "First: "
               << thisCellTri[0] << ", "
@@ -65,10 +68,10 @@ int TestIntersectionPolyDataFilter2(int, char *[])
               << otherCellTri[3] << ", "
               << otherCellTri[6] << std::endl;
   if ( intersects )
-    {
+  {
     std::cerr << "Triangles with shared vertex should not be reported to intersect" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

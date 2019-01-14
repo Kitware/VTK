@@ -450,9 +450,9 @@ int TestRectilinearWipeWidget( int argc, char *argv[] )
 {
   int wipeMode = 0;
   if (argc > 1)
-    {
+  {
     wipeMode = atoi(argv[1]);
-    }
+  }
 
   // Create the RenderWindow, Renderer and both Actors
   //

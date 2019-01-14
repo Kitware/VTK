@@ -36,14 +36,14 @@ struct Reader::InitContext
   : Comm(GlobalComm)
   {
     if(this->RefCount == 0)
-      {
+    {
       int init = 0;
       MPI_Initialized(&init);
       ReadError::TestEq(1, init, "InitContext: MPI is not yet initialized");
 
       int err = adios_read_init_method(Method, this->Comm, MethodArgs.c_str());
       ReadError::TestEq(0, err);
-      }
+    }
     ++this->RefCount;
 
     MPI_Comm_size(this->Comm, &this->CommSize);
@@ -54,12 +54,12 @@ struct Reader::InitContext
   {
     --this->RefCount;
     if(this->RefCount == 0)
-      {
+    {
       // If we've gotten this far then we know that MPI has been initialized
       //already
       MPI_Barrier(this->Comm);
       adios_read_finalize_method(Method);
-      }
+    }
   }
 };
 
@@ -74,7 +74,7 @@ int Reader::InitContext::RefCount = 0;
 struct Reader::ReaderImpl
 {
   ReaderImpl()
-  : File(NULL), StepBegin(0), StepEnd(0)
+  : File(nullptr), StepBegin(0), StepEnd(0)
   { }
 
   ~ReaderImpl()
@@ -82,21 +82,21 @@ struct Reader::ReaderImpl
     for(std::vector<const Attribute*>::iterator a = this->Attributes.begin();
         a != this->Attributes.end();
         ++a)
-      {
+    {
       delete *a;
-      }
+    }
     for(std::vector<const Scalar*>::iterator s = this->Scalars.begin();
         s != this->Scalars.end();
         ++s)
-      {
+    {
       delete *s;
-      }
+    }
     for(std::vector<const VarInfo*>::iterator v = this->Arrays.begin();
         v != this->Arrays.end();
         ++v)
-      {
+    {
       delete *v;
-      }
+    }
   }
 
   ADIOS_FILE *File;
@@ -112,10 +112,10 @@ bool Reader::SetCommunicator(MPI_Comm comm)
 {
   // The communicator can only be set if ADIOS has not yet been initialized
   if(Reader::InitContext::RefCount == 0)
-    {
+  {
     Reader::InitContext::GlobalComm = comm;
     return true;
-    }
+  }
   return false;
 }
 
@@ -124,11 +124,11 @@ bool Reader::SetReadMethod(ReadMethod method, const std::string& methodArgs)
 {
   // The communicator can only be set if ADIOS has not yet been initialized
   if(Reader::InitContext::RefCount == 0)
-    {
+  {
     Reader::InitContext::Method = static_cast<ADIOS_READ_METHOD>(method);
     Reader::InitContext::MethodArgs = methodArgs;
     return true;
-    }
+  }
   return false;
 }
 
@@ -150,7 +150,7 @@ Reader::~Reader()
 //----------------------------------------------------------------------------
 bool Reader::IsOpen() const
 {
-  return this->Impl->File != NULL;
+  return this->Impl->File != nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -174,13 +174,13 @@ const std::vector<const VarInfo*>& Reader::GetArrays() const
 //----------------------------------------------------------------------------
 void Reader::Open(const std::string &fileName)
 {
-  ReadError::TestEq<ADIOS_FILE*>(NULL, this->Impl->File,
+  ReadError::TestEq<ADIOS_FILE*>(nullptr, this->Impl->File,
     "Open: An existing file is already open");
 
   // Open the file
   this->Impl->File = adios_read_open_file(fileName.c_str(),
     this->Ctx->Method, this->Ctx->Comm);
-  ReadError::TestNe<ADIOS_FILE*>(NULL, this->Impl->File);
+  ReadError::TestNe<ADIOS_FILE*>(nullptr, this->Impl->File);
 
   // Poplulate step information
   this->Impl->StepBegin = this->Impl->File->current_step;
@@ -188,42 +188,42 @@ void Reader::Open(const std::string &fileName)
 
   // Polulate attributes
   for(int i = 0; i < this->Impl->File->nattrs; ++i)
-    {
+  {
     this->Impl->Attributes.push_back(new Attribute(this->Impl->File, i));
-    }
+  }
 
   // Preload the scalar data and cache the array metadata
   for(int i = 0; i < this->Impl->File->nvars; ++i)
-    {
+  {
       ADIOS_VARINFO *v = adios_inq_var_byid(this->Impl->File, i);
-      ReadError::TestNe<ADIOS_VARINFO*>(NULL, v);
+      ReadError::TestNe<ADIOS_VARINFO*>(nullptr, v);
 
       if(v->ndim == 0)
-        {
+      {
         this->Impl->Scalars.push_back(new Scalar(this->Impl->File, v));
-        }
+      }
       else
-        {
+      {
         this->Impl->Arrays.push_back(new VarInfo(this->Impl->File, v));
-        }
+      }
       adios_free_varinfo(v);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void Reader::Close()
 {
   if(this->Impl->File)
-    {
+  {
     adios_read_close(this->Impl->File);
-    this->Impl->File = NULL;
-    }
+    this->Impl->File = nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
 void Reader::GetStepRange(int &tStart, int &tEnd) const
 {
-  ReadError::TestNe<ADIOS_FILE*>(NULL, this->Impl->File,
+  ReadError::TestNe<ADIOS_FILE*>(nullptr, this->Impl->File,
     "GetStepRange: File not open");
 
   tStart = this->Impl->StepBegin;
@@ -234,7 +234,7 @@ void Reader::GetStepRange(int &tStart, int &tEnd) const
 void Reader::ScheduleReadArray(int id, void *data, int step, int block)
 {
   ADIOS_SELECTION *sel = adios_selection_writeblock(block);
-  ReadError::TestNe<ADIOS_SELECTION*>(NULL, sel);
+  ReadError::TestNe<ADIOS_SELECTION*>(nullptr, sel);
 
   int err = adios_schedule_read_byid(this->Impl->File, sel, id,
     step, 1, data);

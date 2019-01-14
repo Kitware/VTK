@@ -45,28 +45,28 @@
 #include "vtkSelectionNode.h"
 #include <cassert>
 
-static vtkRenderer *renderer = NULL;
+static vtkRenderer *renderer = nullptr;
 
 class MyEndPickCommand : public vtkCommand
 {
 public:
   MyEndPickCommand()
-    {
-    this->Renderer=0; // no reference counting
-    this->Mask=0; // no reference counting
-    this->DataSet=0;
-    }
+  {
+    this->Renderer=nullptr; // no reference counting
+    this->Mask=nullptr; // no reference counting
+    this->DataSet=nullptr;
+  }
 
-  virtual ~MyEndPickCommand()
-    {
+  ~MyEndPickCommand() override
+  {
     // empty
-    }
+  }
 
-  virtual void Execute(vtkObject *vtkNotUsed(caller),
+  void Execute(vtkObject *vtkNotUsed(caller),
     unsigned long vtkNotUsed(eventId),
-    void *vtkNotUsed(callData))
-    {
-    assert("pre: renderer_exists" && this->Renderer!=0);
+    void *vtkNotUsed(callData)) override
+  {
+    assert("pre: renderer_exists" && this->Renderer!=nullptr);
 
     vtkHardwareSelector *sel = vtkHardwareSelector::New();
     sel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_POINTS);
@@ -92,66 +92,66 @@ public:
     // Reset the mask to false.
     vtkIdType numPoints = this->Mask->GetNumberOfTuples();
     for (vtkIdType i=0; i < numPoints; i++)
-      {
+    {
       this->Mask->SetValue(i,false);
-      }
+    }
 
     vtkSelectionNode *glyphids = res->GetNode(0);
-    if (glyphids!=0)
-      {
+    if (glyphids!=nullptr)
+    {
       vtkAbstractArray *abs=glyphids->GetSelectionList();
-      if(abs==0)
-        {
+      if(abs==nullptr)
+      {
         cout<<"abs is null"<<endl;
-        }
-      vtkIdTypeArray *ids=vtkIdTypeArray::SafeDownCast(abs);
-      if(ids==0)
-        {
+      }
+      vtkIdTypeArray *ids=vtkArrayDownCast<vtkIdTypeArray>(abs);
+      if(ids==nullptr)
+      {
         cout<<"ids is null"<<endl;
-        }
+      }
       else
-        {
+      {
         // modify mask array with selection.
         vtkIdType numSelPoints = ids->GetNumberOfTuples();
         for (vtkIdType i =0; i < numSelPoints; i++)
-          {
+        {
           vtkIdType value = ids->GetValue(i);
           if (value >=0 && value < numPoints)
-            {
+          {
             cout << "Turn On: " << value << endl;
             this->Mask->SetValue(value,true);
-            }
+          }
           else
-            {
+          {
             cout << "Ignoring: " << value << endl;
-            }
           }
         }
       }
+    }
     this->DataSet->Modified();
 
     sel->Delete();
     res->Delete();
-    }
+  }
 
   void SetRenderer(vtkRenderer *r)
-    {
+  {
     this->Renderer=r;
-    }
+  }
 
   vtkRenderer *GetRenderer() const
-    {
+  {
     return this->Renderer;
-    }
+  }
 
   void SetMask(vtkBitArray *m)
-    {
+  {
     this->Mask=m;
-    }
+  }
   void SetDataSet(vtkDataSet* ds)
-    {
+  {
     this->DataSet = ds;
-    }
+  }
 
 protected:
   vtkRenderer *Renderer;
@@ -175,7 +175,6 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   squad->SetThetaResolution(25);
 
   vtkGlyph3DMapper *glypher=vtkGlyph3DMapper::New();
-  //  glypher->SetNestedDisplayLists(0);
   glypher->SetInputConnection(colors->GetOutputPort());
   colors->Delete();
   glypher->SetScaleFactor(0.1);
@@ -203,15 +202,14 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   vtkIdType i=0;
   vtkIdType c=selectionMask->GetNumberOfTuples();
   while(i<c)
-    {
+  {
       selectionMask->SetValue(i,true);
       ++i;
-    }
+  }
   selection->GetPointData()->AddArray(selectionMask);
   selectionMask->Delete();
 
   vtkGlyph3DMapper *glypher2=vtkGlyph3DMapper::New();
-  //  glypher->SetNestedDisplayLists(0);
   glypher2->SetMasking(1);
   glypher2->SetMaskArray("mask");
 
@@ -225,6 +223,7 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer(renderer);
+  renWin->SetMultiSamples(0);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
@@ -262,15 +261,15 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   renderer->ResetCamera();
 
   renWin->Render();
-  areaPicker->AreaPick(51,78,82,273,renderer);
-  cbc->Execute(NULL, 0, NULL);
+  areaPicker->AreaPick(53,78,82,273,renderer);
+  cbc->Execute(nullptr, 0, nullptr);
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

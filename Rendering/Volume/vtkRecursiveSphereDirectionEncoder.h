@@ -13,15 +13,18 @@
 
 =========================================================================*/
 
-// .NAME vtkRecursiveSphereDirectionEncoder - A direction encoder based on the recursive subdivision of an octahedron
-// .SECTION Description
-// vtkRecursiveSphereDirectionEncoder is a direction encoder which uses the
-// vertices of a recursive subdivision of an octahedron (with the vertices
-// pushed out onto the surface of an enclosing sphere) to encode directions
-// into a two byte value.
-//
-// .SECTION see also
-// vtkDirectionEncoder
+/**
+ * @class   vtkRecursiveSphereDirectionEncoder
+ * @brief   A direction encoder based on the recursive subdivision of an octahedron
+ *
+ * vtkRecursiveSphereDirectionEncoder is a direction encoder which uses the
+ * vertices of a recursive subdivision of an octahedron (with the vertices
+ * pushed out onto the surface of an enclosing sphere) to encode directions
+ * into a two byte value.
+ *
+ * @sa
+ * vtkDirectionEncoder
+*/
 
 #ifndef vtkRecursiveSphereDirectionEncoder_h
 #define vtkRecursiveSphereDirectionEncoder_h
@@ -33,54 +36,62 @@ class VTKRENDERINGVOLUME_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkD
 {
 public:
   vtkTypeMacro(vtkRecursiveSphereDirectionEncoder,vtkDirectionEncoder);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
-// Description:
-// Construct the object. Initialize the index table which will be
-// used to map the normal into a patch on the recursively subdivided
-// sphere.
+/**
+ * Construct the object. Initialize the index table which will be
+ * used to map the normal into a patch on the recursively subdivided
+ * sphere.
+ */
   static vtkRecursiveSphereDirectionEncoder *New();
 
 
-  // Description:
-  // Given a normal vector n, return the encoded direction
-  int GetEncodedDirection( float n[3] );
+  /**
+   * Given a normal vector n, return the encoded direction
+   */
+  int GetEncodedDirection( float n[3] ) override;
 
-  // Description:
-  /// Given an encoded value, return a pointer to the normal vector
-  float *GetDecodedGradient( int value );
+  /**
+   * / Given an encoded value, return a pointer to the normal vector
+   */
+  float *GetDecodedGradient( int value ) VTK_SIZEHINT(3) override;
 
-  // Description:
-  // Return the number of encoded directions
-  int GetNumberOfEncodedDirections( void );
+  /**
+   * Return the number of encoded directions
+   */
+  int GetNumberOfEncodedDirections( void ) override;
 
-  // Description:
-  // Get the decoded gradient table. There are
-  // this->GetNumberOfEncodedDirections() entries in the table, each
-  // containing a normal (direction) vector. This is a flat structure -
-  // 3 times the number of directions floats in an array.
-  float *GetDecodedGradientTable( void );
+  /**
+   * Get the decoded gradient table. There are
+   * this->GetNumberOfEncodedDirections() entries in the table, each
+   * containing a normal (direction) vector. This is a flat structure -
+   * 3 times the number of directions floats in an array.
+   */
+  float *GetDecodedGradientTable( void ) override;
 
-  // Description:
-  // Set / Get the recursion depth for the subdivision. This
-  // indicates how many time one triangle on the initial 8-sided
-  // sphere model is replaced by four triangles formed by connecting
-  // triangle edge midpoints. A recursion level of 0 yields 8 triangles
-  // with 6 unique vertices. The normals are the vectors from the
-  // sphere center through the vertices. The number of directions
-  // will be 11 since the four normals with 0 z values will be
-  // duplicated in the table - once with +0 values and the other
-  // time with -0 values, and an addition index will be used to
-  // represent the (0,0,0) normal. If we instead choose a recursion
-  // level of 6 (the maximum that can fit within 2 bytes) the number
-  // of directions is 16643, with 16386 unique directions and a
-  // zero normal.
+  //@{
+  /**
+   * Set / Get the recursion depth for the subdivision. This
+   * indicates how many time one triangle on the initial 8-sided
+   * sphere model is replaced by four triangles formed by connecting
+   * triangle edge midpoints. A recursion level of 0 yields 8 triangles
+   * with 6 unique vertices. The normals are the vectors from the
+   * sphere center through the vertices. The number of directions
+   * will be 11 since the four normals with 0 z values will be
+   * duplicated in the table - once with +0 values and the other
+   * time with -0 values, and an addition index will be used to
+   * represent the (0,0,0) normal. If we instead choose a recursion
+   * level of 6 (the maximum that can fit within 2 bytes) the number
+   * of directions is 16643, with 16386 unique directions and a
+   * zero normal.
+   */
   vtkSetClampMacro( RecursionDepth, int, 0, 6 );
   vtkGetMacro( RecursionDepth, int );
+  //@}
 
 protected:
   vtkRecursiveSphereDirectionEncoder();
-  ~vtkRecursiveSphereDirectionEncoder();
+  ~vtkRecursiveSphereDirectionEncoder() override;
 
   // How far to recursively divide the sphere
   int                     RecursionDepth;
@@ -106,8 +117,8 @@ protected:
   int                   InnerSize;
   int                   GridSize;
 private:
-  vtkRecursiveSphereDirectionEncoder(const vtkRecursiveSphereDirectionEncoder&);  // Not implemented.
-  void operator=(const vtkRecursiveSphereDirectionEncoder&);  // Not implemented.
+  vtkRecursiveSphereDirectionEncoder(const vtkRecursiveSphereDirectionEncoder&) = delete;
+  void operator=(const vtkRecursiveSphereDirectionEncoder&) = delete;
 };
 
 

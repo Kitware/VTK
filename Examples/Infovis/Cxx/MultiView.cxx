@@ -29,7 +29,7 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
-#include <vtksys/stl/vector>
+#include <vector>
 
 class ViewUpdater : public vtkCommand
 {
@@ -43,17 +43,17 @@ public:
     view->AddObserver(vtkCommand::SelectionChangedEvent, this);
   }
 
-  virtual void Execute(vtkObject*, unsigned long, void*)
+  void Execute(vtkObject*, unsigned long, void*) override
   {
     for (unsigned int i = 0; i < this->Views.size(); i++)
-      {
+    {
       this->Views[i]->Update();
-      }
+    }
   }
 private:
-  ViewUpdater() { }
-  ~ViewUpdater() { }
-  vtksys_stl::vector<vtkView*> Views;
+  ViewUpdater() = default;
+  ~ViewUpdater() override = default;
+  std::vector<vtkView*> Views;
 };
 
 int main(int, char*[])
@@ -77,8 +77,15 @@ int main(int, char*[])
   graph->GetVertexData()->AddArray(labels);
 
   vtkTree* tree = vtkTree::New();
-  tree->CheckedShallowCopy(graph);
-
+  bool validTree = tree->CheckedShallowCopy(graph);
+  if (!validTree)
+  {
+    std::cout << "ERROR: Invalid tree" << std::endl;
+    graph->Delete();
+    labels->Delete();
+    tree->Delete();
+    return EXIT_FAILURE;
+  }
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
   vtkDataRepresentation* rep =
     view->SetRepresentationFromInput(tree);
@@ -118,6 +125,6 @@ int main(int, char*[])
   link->Delete();
   update->Delete();
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 

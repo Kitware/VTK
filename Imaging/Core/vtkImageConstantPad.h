@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageConstantPad - Makes image larger by padding with constant.
-// .SECTION Description
-// vtkImageConstantPad changes the image extent of its input.
-// Any pixels outside of the original image extent are filled with
-// a constant value (default is 0.0).
-
-// .SECTION See Also
-// vtkImageWrapPad vtkImageMirrorPad
+/**
+ * @class   vtkImageConstantPad
+ * @brief   Makes image larger by padding with constant.
+ *
+ * vtkImageConstantPad changes the image extent of its input.
+ * Any pixels outside of the original image extent are filled with
+ * a constant value (default is 0.0).
+ *
+ * @sa
+ * vtkImageWrapPad vtkImageMirrorPad
+*/
 
 #ifndef vtkImageConstantPad_h
 #define vtkImageConstantPad_h
@@ -34,17 +37,20 @@ public:
   static vtkImageConstantPad *New();
   vtkTypeMacro(vtkImageConstantPad,vtkImagePadFilter);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get the pad value.
+  //@{
+  /**
+   * Set/Get the pad value.
+   */
   vtkSetMacro(Constant, double);
   vtkGetMacro(Constant, double);
+  //@}
 
 
 protected:
   vtkImageConstantPad();
-  ~vtkImageConstantPad() {}
+  ~vtkImageConstantPad() override {}
 
   double Constant;
 
@@ -52,10 +58,10 @@ protected:
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id);
+                            int ext[6], int id) override;
 private:
-  vtkImageConstantPad(const vtkImageConstantPad&);  // Not implemented.
-  void operator=(const vtkImageConstantPad&);  // Not implemented.
+  vtkImageConstantPad(const vtkImageConstantPad&) = delete;
+  void operator=(const vtkImageConstantPad&) = delete;
 };
 
 #endif

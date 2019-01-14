@@ -35,7 +35,7 @@ public:
   static SystemFontRenderTest *New();
   vtkTypeMacro(SystemFontRenderTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) override;
 };
 
 //----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ int TestSystemFontRendering( int, char * [] )
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(580, 360);
   vtkNew<SystemFontRenderTest> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())

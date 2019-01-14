@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataObjectWriter - write vtk field data
-// .SECTION Description
-// vtkDataObjectWriter is a source object that writes ASCII or binary
-// field data files in vtk format. Field data is a general form of data in
-// matrix form.
-
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-
-// .SECTION See Also
-// vtkFieldData vtkFieldDataReader
+/**
+ * @class   vtkDataObjectWriter
+ * @brief   write vtk field data
+ *
+ * vtkDataObjectWriter is a source object that writes ASCII or binary
+ * field data files in vtk format. Field data is a general form of data in
+ * matrix form.
+ *
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+ *
+ * @sa
+ * vtkFieldData vtkFieldDataReader
+*/
 
 #ifndef vtkDataObjectWriter_h
 #define vtkDataObjectWriter_h
@@ -37,10 +40,12 @@ class VTKIOLEGACY_EXPORT vtkDataObjectWriter : public vtkWriter
 public:
   static vtkDataObjectWriter *New();
   vtkTypeMacro(vtkDataObjectWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Methods delegated to vtkDataWriter, see vtkDataWriter.
+  //@{
+  /**
+   * Methods delegated to vtkDataWriter, see vtkDataWriter.
+   */
   void SetFileName(const char *filename) {this->Writer->SetFileName(filename);};
   char *GetFileName() {return this->Writer->GetFileName();};
   void SetHeader(const char *header) {this->Writer->SetHeader(header);};
@@ -59,19 +64,20 @@ public:
   unsigned char* GetBinaryOutputString() {return this->Writer->GetBinaryOutputString();};
   void SetFieldDataName(const char *fieldname) {this->Writer->SetFieldDataName(fieldname);};
   char *GetFieldDataName() {return this->Writer->GetFieldDataName();};
+  //@}
 
 protected:
   vtkDataObjectWriter();
-  ~vtkDataObjectWriter();
+  ~vtkDataObjectWriter() override;
 
-  void WriteData();
+  void WriteData() override;
   vtkDataWriter *Writer;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkDataObjectWriter(const vtkDataObjectWriter&);  // Not implemented.
-  void operator=(const vtkDataObjectWriter&);  // Not implemented.
+  vtkDataObjectWriter(const vtkDataObjectWriter&) = delete;
+  void operator=(const vtkDataObjectWriter&) = delete;
 };
 
 #endif

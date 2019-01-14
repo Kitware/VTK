@@ -12,21 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorEventRecorder - record and play VTK events passing through a vtkRenderWindowInteractor
-
-// .SECTION Description
-// vtkInteractorEventRecorder records all VTK events invoked from a
-// vtkRenderWindowInteractor. The events are recorded to a
-// file. vtkInteractorEventRecorder can also be used to play those events
-// back and invoke them on an vtkRenderWindowInteractor. (Note: the events
-// can also be played back from a file or string.)
-//
-// The format of the event file is simple. It is:
-//  EventName X Y ctrl shift keycode repeatCount keySym
-// The format also allows "#" comments.
-
-// .SECTION See Also
-// vtkInteractorObserver vtkCallback
+/**
+ * @class   vtkInteractorEventRecorder
+ * @brief   record and play VTK events passing through a vtkRenderWindowInteractor
+ *
+ *
+ * vtkInteractorEventRecorder records all VTK events invoked from a
+ * vtkRenderWindowInteractor. The events are recorded to a
+ * file. vtkInteractorEventRecorder can also be used to play those events
+ * back and invoke them on an vtkRenderWindowInteractor. (Note: the events
+ * can also be played back from a file or string.)
+ *
+ * The format of the event file is simple. It is:
+ *  EventName X Y ctrl shift keycode repeatCount keySym
+ * The format also allows "#" comments.
+ *
+ * @sa
+ * vtkInteractorObserver vtkCallback
+*/
 
 #ifndef vtkInteractorEventRecorder_h
 #define vtkInteractorEventRecorder_h
@@ -40,56 +43,72 @@ class VTKRENDERINGCORE_EXPORT vtkInteractorEventRecorder : public vtkInteractorO
 public:
   static vtkInteractorEventRecorder *New();
   vtkTypeMacro(vtkInteractorEventRecorder,vtkInteractorObserver);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Satisfy the superclass API. Enable/disable listening for events.
-  virtual void SetEnabled(int);
-  virtual void SetInteractor(vtkRenderWindowInteractor* iren);
+  void SetEnabled(int) override;
+  void SetInteractor(vtkRenderWindowInteractor* iren) override;
 
-  // Description:
-  // Set/Get the name of a file events should be written to/from.
+  //@{
+  /**
+   * Set/Get the name of a file events should be written to/from.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Invoke this method to begin recording events. The events will be
-  // recorded to the filename indicated.
+  /**
+   * Invoke this method to begin recording events. The events will be
+   * recorded to the filename indicated.
+   */
   void Record();
 
-  // Description:
-  // Invoke this method to begin playing events from the current position.
-  // The events will be played back from the filename indicated.
+  /**
+   * Invoke this method to begin playing events from the current position.
+   * The events will be played back from the filename indicated.
+   */
   void Play();
 
-  // Description:
-  // Invoke this method to stop recording/playing events.
+  /**
+   * Invoke this method to stop recording/playing events.
+   */
   void Stop();
 
-  // Description:
-  // Rewind to the beginning of the file.
+  /**
+   * Rewind to the beginning of the file.
+   */
   void Rewind();
 
-  // Description:
-  // Enable reading from an InputString as compared to the default
-  // behavior, which is to read from a file.
-  vtkSetMacro(ReadFromInputString,int);
-  vtkGetMacro(ReadFromInputString,int);
-  vtkBooleanMacro(ReadFromInputString,int);
+  //@{
+  /**
+   * Enable reading from an InputString as compared to the default
+   * behavior, which is to read from a file.
+   */
+  vtkSetMacro(ReadFromInputString,vtkTypeBool);
+  vtkGetMacro(ReadFromInputString,vtkTypeBool);
+  vtkBooleanMacro(ReadFromInputString,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Set/Get the string to read from.
+  //@{
+  /**
+   * Set/Get the string to read from.
+   */
   vtkSetStringMacro(InputString);
   vtkGetStringMacro(InputString);
+  //@}
 
 protected:
   vtkInteractorEventRecorder();
-  ~vtkInteractorEventRecorder();
+  ~vtkInteractorEventRecorder() override;
 
   // file to read/write from
   char *FileName;
 
+  //listens to delete events
+  vtkCallbackCommand* DeleteEventCallbackCommand;
+
   // control whether to read from string
-  int ReadFromInputString;
+  vtkTypeBool ReadFromInputString;
   char *InputString;
 
   // for reading and writing
@@ -99,16 +118,17 @@ protected:
   //methods for processing events
   static void ProcessCharEvent(vtkObject* object, unsigned long event,
                                void* clientdata, void* calldata);
+  static void ProcessDeleteEvent(vtkObject* object, unsigned long event,
+                                 void* clientdata, void* calldata);
   static void ProcessEvents(vtkObject* object, unsigned long event,
                             void* clientdata, void* calldata);
 
-  virtual void WriteEvent(const char* event, int pos[2], int ctrlKey,
-                          int shiftKey, int keyCode, int repeatCount,
-                          char* keySym);
+  virtual void WriteEvent(const char* event, int pos[2], int modifiers,
+                          int keyCode, int repeatCount, char* keySym);
 
   virtual void ReadEvent();
 
-//BTX - manage the state of the recorder
+  // Manage the state of the recorder
   int State;
   enum WidgetState
   {
@@ -116,13 +136,20 @@ protected:
     Playing,
     Recording
   };
-//ETX
+
+  // Associate a modifier with a bit
+  enum ModifierKey
+  {
+    ShiftKey=1,
+    ControlKey=2,
+    AltKey=4
+  };
 
   static float StreamVersion;
 
 private:
-  vtkInteractorEventRecorder(const vtkInteractorEventRecorder&);  // Not implemented.
-  void operator=(const vtkInteractorEventRecorder&);  // Not implemented.
+  vtkInteractorEventRecorder(const vtkInteractorEventRecorder&) = delete;
+  void operator=(const vtkInteractorEventRecorder&) = delete;
 
 };
 

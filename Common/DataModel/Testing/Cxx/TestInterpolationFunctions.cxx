@@ -38,7 +38,6 @@
 #include "vtkWedge.h"
 
 // Subclass of vtkNonLinearCell
-//#include "vtkExplicitCell.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticPyramid.h"
@@ -58,7 +57,7 @@
 #include "vtkCubicLine.h"
 
 template <class TCell>
-int TestOneInterpolationFunction()
+int TestOneInterpolationFunction(double eps = VTK_EPSILON)
 {
   TCell *cell = TCell::New();
   int numPts = cell->GetNumberOfPoints();
@@ -66,33 +65,35 @@ int TestOneInterpolationFunction()
   double *coords = cell->GetParametricCoords();
   int r = 0;
   for(int i=0;i<numPts;++i)
-    {
+  {
     double *point = coords + 3*i;
     double sum = 0.;
     cell->InterpolateFunctions(point, sf); // virtual function
     for(int j=0;j<numPts;j++)
-      {
+    {
       sum += sf[j];
       if(j == i)
+      {
+        if( fabs(sf[j] - 1) > eps)
         {
-        if( fabs(sf[j] - 1) > VTK_EPSILON)
-          {
+          std::cout << "fabs(sf[" << j << "] - 1): " << fabs(sf[j] - 1) << std::endl;
           ++r;
-          }
-        }
-      else
-        {
-        if( fabs(sf[j] - 0) > VTK_EPSILON )
-          {
-          ++r;
-          }
         }
       }
-    if( fabs(sum - 1) > VTK_EPSILON )
+      else
       {
-      ++r;
+        if( fabs(sf[j] - 0) > eps )
+        {
+          std::cout << "fabs(sf[" << j << "] - 0): " << fabs(sf[j] - 0) << std::endl;
+          ++r;
+        }
       }
     }
+    if( fabs(sum - 1) > eps )
+    {
+      ++r;
+    }
+  }
 
   // Let's test unity condition on the center point:
   double center[3];
@@ -100,13 +101,13 @@ int TestOneInterpolationFunction()
   cell->InterpolateFunctions(center, sf); // virtual function
   double sum = 0.;
   for(int j=0;j<numPts;j++)
-    {
+  {
     sum += sf[j];
-    }
-  if( fabs(sum - 1) > VTK_EPSILON )
-    {
+  }
+  if( fabs(sum - 1) > eps )
+  {
     ++r;
-    }
+  }
 
   cell->Delete();
   delete[] sf;
@@ -133,14 +134,13 @@ int TestInterpolationFunctions(int, char *[])
   //r += TestOneInterpolationFunction<vtkConvexPointSet>(); // not implemented
   r += TestOneInterpolationFunction<vtkHexagonalPrism>();
   r += TestOneInterpolationFunction<vtkHexahedron>();
-  r += TestOneInterpolationFunction<vtkPentagonalPrism>();
+  r += TestOneInterpolationFunction<vtkPentagonalPrism>(1.e-5);
   r += TestOneInterpolationFunction<vtkPyramid>();
   r += TestOneInterpolationFunction<vtkTetra>();
   r += TestOneInterpolationFunction<vtkVoxel>();
   r += TestOneInterpolationFunction<vtkWedge>();
 
   // Subclass of vtkNonLinearCell
-  //r += TestOneInterpolationFunction<vtkExplicitCell>(); // not implemented
   r += TestOneInterpolationFunction<vtkQuadraticEdge>();
   r += TestOneInterpolationFunction<vtkQuadraticHexahedron>();
   r += TestOneInterpolationFunction<vtkQuadraticPyramid>();

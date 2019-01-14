@@ -12,25 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractGeometry - extract cells that lie either entirely inside or outside of a specified implicit function
-
-// .SECTION Description
-// vtkExtractGeometry extracts from its input dataset all cells that are either
-// completely inside or outside of a specified implicit function. Any type of
-// dataset can be input to this filter. On output the filter generates an
-// unstructured grid.
-//
-// To use this filter you must specify an implicit function. You must also
-// specify whethter to extract cells laying inside or outside of the implicit
-// function. (The inside of an implicit function is the negative values
-// region.) An option exists to extract cells that are neither inside or
-// outside (i.e., boundary).
-//
-// A more efficient version of this filter is available for vtkPolyData input.
-// See vtkExtractPolyDataGeometry.
-
-// .SECTION See Also
-// vtkExtractPolyDataGeometry vtkGeometryFilter vtkExtractVOI
+/**
+ * @class   vtkExtractGeometry
+ * @brief   extract cells that lie either entirely inside or outside of a specified implicit function
+ *
+ *
+ * vtkExtractGeometry extracts from its input dataset all cells that are either
+ * completely inside or outside of a specified implicit function. Any type of
+ * dataset can be input to this filter. On output the filter generates an
+ * unstructured grid.
+ *
+ * To use this filter you must specify an implicit function. You must also
+ * specify whether to extract cells laying inside or outside of the implicit
+ * function. (The inside of an implicit function is the negative values
+ * region.) An option exists to extract cells that are neither inside or
+ * outside (i.e., boundary).
+ *
+ * A more efficient version of this filter is available for vtkPolyData input.
+ * See vtkExtractPolyDataGeometry.
+ *
+ * @sa
+ * vtkExtractPolyDataGeometry vtkGeometryFilter vtkExtractVOI
+*/
 
 #ifndef vtkExtractGeometry_h
 #define vtkExtractGeometry_h
@@ -44,56 +47,67 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractGeometry : public vtkUnstructuredGri
 {
 public:
   vtkTypeMacro(vtkExtractGeometry,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Construct object with ExtractInside turned on.
+  /**
+   * Construct object with ExtractInside turned on.
+   */
   static vtkExtractGeometry *New();
 
-  // Description:
-  // Return the MTime taking into account changes to the implicit function
-  unsigned long GetMTime();
+  /**
+   * Return the MTime taking into account changes to the implicit function
+   */
+  vtkMTimeType GetMTime() override;
 
-  // Description:
-  // Specify the implicit function for inside/outside checks.
+  //@{
+  /**
+   * Specify the implicit function for inside/outside checks.
+   */
   virtual void SetImplicitFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
+  //@}
 
-  // Description:
-  // Boolean controls whether to extract cells that are inside of implicit
-  // function (ExtractInside == 1) or outside of implicit function
-  // (ExtractInside == 0).
-  vtkSetMacro(ExtractInside,int);
-  vtkGetMacro(ExtractInside,int);
-  vtkBooleanMacro(ExtractInside,int);
+  //@{
+  /**
+   * Boolean controls whether to extract cells that are inside of implicit
+   * function (ExtractInside == 1) or outside of implicit function
+   * (ExtractInside == 0).
+   */
+  vtkSetMacro(ExtractInside,vtkTypeBool);
+  vtkGetMacro(ExtractInside,vtkTypeBool);
+  vtkBooleanMacro(ExtractInside,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Boolean controls whether to extract cells that are partially inside.
-  // By default, ExtractBoundaryCells is off.
-  vtkSetMacro(ExtractBoundaryCells,int);
-  vtkGetMacro(ExtractBoundaryCells,int);
-  vtkBooleanMacro(ExtractBoundaryCells,int);
-  vtkSetMacro(ExtractOnlyBoundaryCells,int);
-  vtkGetMacro(ExtractOnlyBoundaryCells,int);
-  vtkBooleanMacro(ExtractOnlyBoundaryCells,int);
+  //@{
+  /**
+   * Boolean controls whether to extract cells that are partially inside.
+   * By default, ExtractBoundaryCells is off.
+   */
+  vtkSetMacro(ExtractBoundaryCells,vtkTypeBool);
+  vtkGetMacro(ExtractBoundaryCells,vtkTypeBool);
+  vtkBooleanMacro(ExtractBoundaryCells,vtkTypeBool);
+  vtkSetMacro(ExtractOnlyBoundaryCells,vtkTypeBool);
+  vtkGetMacro(ExtractOnlyBoundaryCells,vtkTypeBool);
+  vtkBooleanMacro(ExtractOnlyBoundaryCells,vtkTypeBool);
+  //@}
 
 protected:
-  vtkExtractGeometry(vtkImplicitFunction *f=NULL);
-  ~vtkExtractGeometry();
+  vtkExtractGeometry(vtkImplicitFunction *f=nullptr);
+  ~vtkExtractGeometry() override;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkImplicitFunction *ImplicitFunction;
-  int ExtractInside;
-  int ExtractBoundaryCells;
-  int ExtractOnlyBoundaryCells;
+  vtkTypeBool ExtractInside;
+  vtkTypeBool ExtractBoundaryCells;
+  vtkTypeBool ExtractOnlyBoundaryCells;
 
 private:
-  vtkExtractGeometry(const vtkExtractGeometry&);  // Not implemented.
-  void operator=(const vtkExtractGeometry&);  // Not implemented.
+  vtkExtractGeometry(const vtkExtractGeometry&) = delete;
+  void operator=(const vtkExtractGeometry&) = delete;
 };
 
 #endif

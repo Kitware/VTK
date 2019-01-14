@@ -35,9 +35,7 @@ vtkWarpTransform::vtkWarpTransform()
 }
 
 //----------------------------------------------------------------------------
-vtkWarpTransform::~vtkWarpTransform()
-{
-}
+vtkWarpTransform::~vtkWarpTransform() = default;
 
 //------------------------------------------------------------------------
 // Check the InverseFlag, and perform a forward or reverse transform
@@ -47,13 +45,13 @@ void vtkWarpTransformPoint(vtkWarpTransform *self, int inverse,
                            const T input[3], T output[3])
 {
   if (inverse)
-    {
+  {
     self->TemplateTransformInverse(input,output);
-    }
+  }
   else
-    {
+  {
     self->TemplateTransformPoint(input,output);
-    }
+  }
 }
 
 void vtkWarpTransform::InternalTransformPoint(const float input[3],
@@ -78,14 +76,14 @@ void vtkWarpTransformDerivative(vtkWarpTransform *self,
                                        T derivative[3][3])
 {
   if (inverse)
-    {
+  {
     self->TemplateTransformInverse(input,output,derivative);
     vtkMath::Invert3x3(derivative,derivative);
-    }
+  }
   else
-    {
+  {
     self->TemplateTransformPoint(input,output,derivative);
-    }
+  }
 }
 
 void vtkWarpTransform::InternalTransformDerivative(const float input[3],
@@ -104,7 +102,7 @@ void vtkWarpTransform::InternalTransformDerivative(const double input[3],
 
 //----------------------------------------------------------------------------
 // We use Newton's method to iteratively invert the transformation.
-// This is actally quite robust as long as the Jacobian matrix is never
+// This is actually quite robust as long as the Jacobian matrix is never
 // singular.
 template<class T>
 void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
@@ -142,7 +140,7 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
   int i;
 
   for (i = 0; i < n; i++)
-    {
+  {
     // put the inverse point back through the transform
     self->TemplateTransformPoint(inverse,deltaP,derivative);
 
@@ -160,7 +158,7 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
     // (the check on f is to ensure that we don't do too many
     // reduction steps between the Newton steps)
     if (i == 0 || functionValue < lastFunctionValue || f < 0.05)
-      {
+    {
       // here is the critical step in Newton's method
       vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);
 
@@ -172,9 +170,9 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
       // break if less than tolerance in both coordinate systems
       if (errorSquared < toleranceSquared &&
           functionValue < toleranceSquared)
-        {
+      {
         break;
-        }
+      }
 
       // save the last inverse point
       lastInverse[0] = inverse[0];
@@ -198,7 +196,7 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
       f = 1.0;
 
       continue;
-      }
+    }
 
     // the error is increasing, so take a partial step
     // (see Numerical Recipes 9.7 for rationale, this code
@@ -216,12 +214,12 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
     inverse[0] = lastInverse[0] - f*deltaI[0];
     inverse[1] = lastInverse[1] - f*deltaI[1];
     inverse[2] = lastInverse[2] - f*deltaI[2];
-    }
+  }
 
   vtkDebugWithObjectMacro(self, "Inverse Iterations: " << (i+1));
 
   if (i >= n)
-    {
+  {
     // didn't converge: back up to last good result
     inverse[0] = lastInverse[0];
     inverse[1] = lastInverse[1];
@@ -233,7 +231,7 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
          point[0] << ", " << point[1] << ", " << point[2] <<
          ") error = " << sqrt(errorSquared) << " after " <<
          i << " iterations.");
-    }
+  }
 
   output[0] = inverse[0];
   output[1] = inverse[1];

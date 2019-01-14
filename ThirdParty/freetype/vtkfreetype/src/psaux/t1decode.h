@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    PostScript Type 1 decoding routines (specification).                 */
 /*                                                                         */
-/*  Copyright 2000-2001, 2002, 2003 by                                     */
+/*  Copyright 2000-2018 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -16,8 +16,8 @@
 /***************************************************************************/
 
 
-#ifndef __T1DECODE_H__
-#define __T1DECODE_H__
+#ifndef T1DECODE_H_
+#define T1DECODE_H_
 
 
 #include <ft2build.h>
@@ -31,7 +31,11 @@ FT_BEGIN_HEADER
   FT_CALLBACK_TABLE
   const T1_Decoder_FuncsRec  t1_decoder_funcs;
 
+  FT_LOCAL( FT_Int )
+  t1_lookup_glyph_by_stdcharcode_ps( PS_Decoder*  decoder,
+                                     FT_Int       charcode );
 
+#ifdef T1_CONFIG_OPTION_OLD_ENGINE
   FT_LOCAL( FT_Error )
   t1_decoder_parse_glyph( T1_Decoder  decoder,
                           FT_UInt     glyph_index );
@@ -40,6 +44,12 @@ FT_BEGIN_HEADER
   t1_decoder_parse_charstrings( T1_Decoder  decoder,
                                 FT_Byte*    base,
                                 FT_UInt     len );
+#else
+  FT_LOCAL( FT_Error )
+  t1_decoder_parse_metrics( T1_Decoder  decoder,
+                            FT_Byte*    charstring_base,
+                            FT_UInt     charstring_len );
+#endif
 
   FT_LOCAL( FT_Error )
   t1_decoder_init( T1_Decoder           decoder,
@@ -58,7 +68,7 @@ FT_BEGIN_HEADER
 
 FT_END_HEADER
 
-#endif /* __T1DECODE_H__ */
+#endif /* T1DECODE_H_ */
 
 
 /* END */

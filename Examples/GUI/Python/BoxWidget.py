@@ -65,7 +65,7 @@ ren.AddActor(selectActor)
 ren.SetBackground(0.1, 0.2, 0.4)
 renWin.SetSize(300, 300)
 
-# This callback funciton does the actual work: updates the vtkPlanes
+# This callback function does the actual work: updates the vtkPlanes
 # implicit function.  This in turn causes the pipeline to update.
 def SelectPolygons(object, event):
     # object will be the boxWidget

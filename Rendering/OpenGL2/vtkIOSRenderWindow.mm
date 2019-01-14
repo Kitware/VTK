@@ -21,9 +21,10 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkIdList.h"
 #import "vtkObjectFactory.h"
 #import "vtkRendererCollection.h"
-#import "vtkIOSGLView.h"
 
-#import <vtksys/ios/sstream>
+#import <sstream>
+
+#include "vtk_glew.h"
 
 vtkStandardNewMacro(vtkIOSRenderWindow);
 
@@ -36,52 +37,53 @@ vtkIOSRenderWindow::vtkIOSRenderWindow()
   this->SetWindowName("Visualization Toolkit - IOS");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
-  this->Capabilities = 0;
   this->OnScreenInitialized = 0;
   this->OffScreenInitialized = 0;
+  // it seems that LEFT/RIGHT cause issues on IOS so we just use
+  // generic BACK/FRONT
+  this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK);
+  this->BackRightBuffer = static_cast<unsigned int>(GL_BACK);
+  this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT);
+  this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT);
 }
 
 //----------------------------------------------------------------------------
 vtkIOSRenderWindow::~vtkIOSRenderWindow()
 {
   if (this->CursorHidden)
-    {
+  {
     this->ShowCursor();
-    }
+  }
   this->Finalize();
 
   vtkRenderer *ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-    {
+  {
     ren->SetRenderWindow(NULL);
-    }
-
-  delete[] this->Capabilities;
-  this->Capabilities = 0;
+  }
 
   this->SetContextId(NULL);
   this->SetPixelFormat(NULL);
   this->SetRootWindow(NULL);
   this->SetWindowId(NULL);
   this->SetParentId(NULL);
-
 }
 
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::Finalize()
 {
   if(this->OffScreenInitialized)
-    {
+  {
     this->OffScreenInitialized = 0;
     this->DestroyOffScreenWindow();
-    }
+  }
   if(this->OnScreenInitialized)
-    {
+  {
     this->OnScreenInitialized = 0;
     this->DestroyWindow();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -89,20 +91,9 @@ void vtkIOSRenderWindow::DestroyWindow()
 {
   // finish OpenGL rendering
   if (this->OwnContext && this->GetContextId())
-    {
+  {
     this->MakeCurrent();
-
-    // tell each of the renderers that this render window/graphics context
-    // is being removed (the RendererCollection is removed by vtkRenderWindow's
-    // destructor)
-    vtkCollectionSimpleIterator rsit;
-    vtkRenderer *ren;
-    for ( this->Renderers->InitTraversal(rsit);
-          (ren = this->Renderers->GetNextRenderer(rsit));)
-      {
-      ren->SetRenderWindow(NULL);
-      ren->SetRenderWindow(this);
-      }
+    this->ReleaseGraphicsResources(this);
   }
   this->SetContextId(NULL);
   this->SetPixelFormat(NULL);
@@ -111,6 +102,37 @@ void vtkIOSRenderWindow::DestroyWindow()
   this->SetParentId(NULL);
   this->SetRootWindow(NULL);
 }
+
+int vtkIOSRenderWindow::ReadPixels(
+  const vtkRecti& rect, int front, int glFormat, int glType, void* data,
+  int right)
+{
+  if (glFormat != GL_RGB || glType != GL_UNSIGNED_BYTE)
+  {
+    return this->Superclass::ReadPixels(rect, front, glFormat, glType, data,
+                                        right);
+  }
+
+  // iOS has issues with getting RGB so we get RGBA
+  unsigned char* uc4data = new unsigned char[rect.GetWidth() * rect.GetHeight() * 4];
+  int retVal = this->Superclass::ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, uc4data, right);
+
+  unsigned char* dPtr = reinterpret_cast<unsigned char*>(data);
+  const unsigned char* lPtr = uc4data;
+  for (int i = 0, height = rect.GetHeight(); i < height; i++)
+  {
+    for (int j = 0, width = rect.GetWidth(); j < width; j++)
+    {
+      *(dPtr++) = *(lPtr++);
+      *(dPtr++) = *(lPtr++);
+      *(dPtr++) = *(lPtr++);
+      lPtr++;
+    }
+  }
+  delete[] uc4data;
+  return retVal;
+}
+
 
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetWindowName( const char * _arg )
@@ -197,7 +219,7 @@ const char* vtkIOSRenderWindow::ReportCapabilities()
   const char* glVersion = (const char*) glGetString(GL_VERSION);
   const char* glExtensions = (const char*) glGetString(GL_EXTENSIONS);
 
-  vtksys_ios::ostringstream strm;
+  std::ostringstream strm;
   strm << "OpenGL vendor string:  " << glVendor
        << "\nOpenGL renderer string:  " << glRenderer
        << "\nOpenGL version string:  " << glVersion
@@ -217,9 +239,9 @@ int vtkIOSRenderWindow::SupportsOpenGL()
 {
   this->MakeCurrent();
   if (!this->GetContextId() || !this->GetPixelFormat())
-    {
+  {
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -228,9 +250,9 @@ int vtkIOSRenderWindow::IsDirect()
 {
   this->MakeCurrent();
   if (!this->GetContextId() || !this->GetPixelFormat())
-    {
+  {
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -246,11 +268,11 @@ void vtkIOSRenderWindow::SetSize(int x, int y)
   static int resizing = 0;
 
   if ((this->Size[0] != x) || (this->Size[1] != y) || (this->GetParentId()))
-    {
+  {
     this->Modified();
     this->Size[0] = x;
     this->Size[1] = y;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -272,11 +294,11 @@ void vtkIOSRenderWindow::SetPosition(int x, int y)
 
   if ((this->Position[0] != x) || (this->Position[1] != y)
       || (this->GetParentId()))
-    {
+  {
     this->Modified();
     this->Position[0] = x;
     this->Position[1] = y;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -286,74 +308,9 @@ void vtkIOSRenderWindow::Frame()
   this->MakeCurrent();
 
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
-    {
+  {
 //    [(NSOpenGLContext*)this->GetContextId() flushBuffer];
-    }
-   else
-    {
-    glFlush();
-    }
-}
-
-//----------------------------------------------------------------------------
-// Update system if needed due to stereo rendering.
-void vtkIOSRenderWindow::StereoUpdate()
-{
-  // if stereo is on and it wasn't before
-  if (this->StereoRender && (!this->StereoStatus))
-    {
-    switch (this->StereoType)
-      {
-      case VTK_STEREO_CRYSTAL_EYES:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_RED_BLUE:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_ANAGLYPH:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_DRESDEN:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_INTERLACED:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_CHECKERBOARD:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-        this->StereoStatus = 1;
-        break;
-      }
-    }
-  else if ((!this->StereoRender) && this->StereoStatus)
-    {
-    switch (this->StereoType)
-      {
-      case VTK_STEREO_CRYSTAL_EYES:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_RED_BLUE:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_ANAGLYPH:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_DRESDEN:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_INTERLACED:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_CHECKERBOARD:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-        this->StereoStatus = 0;
-        break;
-      }
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -391,10 +348,10 @@ void vtkIOSRenderWindow::CreateAWindow()
 
   for ( this->Renderers->InitTraversal(rsit);
         (renderer = this->Renderers->GetNextRenderer(rsit));)
-    {
+  {
     renderer->SetRenderWindow(0);
     renderer->SetRenderWindow(this);
-    }
+  }
   this->OpenGLInit();
   this->Mapped = 1;
 }
@@ -408,6 +365,8 @@ void vtkIOSRenderWindow::CreateGLContext()
 // Initialize the rendering window.
 void vtkIOSRenderWindow::Initialize ()
 {
+  this->OpenGLInit();
+  this->Mapped = 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -421,9 +380,9 @@ int *vtkIOSRenderWindow::GetSize()
 {
   // if we aren't mapped then just return the ivar
   if (!this->Mapped)
-    {
+  {
     return this->Superclass::GetSize();
-    }
+  }
 
   return this->Superclass::GetSize();
 }
@@ -444,7 +403,7 @@ int *vtkIOSRenderWindow::GetPosition()
 
 //----------------------------------------------------------------------------
 // Change the window to fill the entire screen.
-void vtkIOSRenderWindow::SetFullScreen(int arg)
+void vtkIOSRenderWindow::SetFullScreen(vtkTypeBool arg)
 {
 }
 
@@ -453,17 +412,17 @@ void vtkIOSRenderWindow::SetFullScreen(int arg)
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
 //
-void vtkIOSRenderWindow::SetStereoCapableWindow(int capable)
+void vtkIOSRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 {
   if (this->GetContextId() == 0)
-    {
+  {
     vtkRenderWindow::SetStereoCapableWindow(capable);
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro(<< "Requesting a StereoCapableWindow must be performed "
                     << "before the window is realized, i.e. before a render.");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -504,16 +463,16 @@ void vtkIOSRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 int vtkIOSRenderWindow::GetDepthBufferSize()
 {
   if ( this->Mapped )
-    {
+  {
     GLint size = 0;
     glGetIntegerv( GL_DEPTH_BITS, &size );
     return (int) size;
-    }
+  }
   else
-    {
+  {
     vtkDebugMacro(<< "Window is not mapped yet!" );
     return 24;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -583,29 +542,29 @@ void *vtkIOSRenderWindow::GetPixelFormat()
 
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetWindowInfo(char *info)
+void vtkIOSRenderWindow::SetWindowInfo(const char *info)
 {
-  // The paramater is an ASCII string of a decimal number representing
+  // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)
-    {
+  {
     (void)sscanf(info, "%tu", &tmp);
-    }
+  }
 
   this->SetWindowId (reinterpret_cast<void *>(tmp));
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetParentInfo(char *info)
+void vtkIOSRenderWindow::SetParentInfo(const char *info)
 {
-  // The paramater is an ASCII string of a decimal number representing
+  // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)
-    {
+  {
     (void)sscanf(info, "%tu", &tmp);
-    }
+  }
 
   this->SetParentId (reinterpret_cast<void *>(tmp));
 }
@@ -614,9 +573,9 @@ void vtkIOSRenderWindow::SetParentInfo(char *info)
 void vtkIOSRenderWindow::HideCursor()
 {
   if (this->CursorHidden)
-    {
+  {
     return;
-    }
+  }
   this->CursorHidden = 1;
 }
 
@@ -624,9 +583,9 @@ void vtkIOSRenderWindow::HideCursor()
 void vtkIOSRenderWindow::ShowCursor()
 {
   if (!this->CursorHidden)
-    {
+  {
     return;
-    }
+  }
   this->CursorHidden = 0;
 }
 
@@ -645,8 +604,8 @@ void vtkIOSRenderWindow::SetCursorPosition(int x, int y)
 void vtkIOSRenderWindow::SetCurrentCursor(int shape)
 {
   if (this->InvokeEvent(vtkCommand::CursorChangedEvent, &shape))
-    {
+  {
     return;
-    }
+  }
   this->Superclass::SetCurrentCursor(shape);
 }

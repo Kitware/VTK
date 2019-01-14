@@ -41,17 +41,17 @@ int TestBoostExtractLargestComponent(int, char *[])
   results.push_back(TestInverse(g));
 
   for(unsigned int i = 0; i < results.size(); i++)
-    {
+  {
     if(results[i] == EXIT_SUCCESS)
-      {
+    {
       std::cout << "Test " << i << " passed." << std::endl;
-      }
+    }
     else
-      {
+    {
       std::cout << "Test " << i << " failed!" << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -68,11 +68,11 @@ int TestNormal(vtkMutableUndirectedGraph* g)
   filter->Update();
 
   if(filter->GetOutput()->GetNumberOfVertices() != 3)
-    {
+  {
     std::cout << "Size of largest connected component: " << filter->GetOutput()->GetNumberOfVertices()
               << " (Should have been 3)." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
 }
 
@@ -86,11 +86,11 @@ int TestInverse(vtkMutableUndirectedGraph* g)
   filter->Update();
 
   if(filter->GetOutput()->GetNumberOfVertices() != 4)
-    {
+  {
     std::cout << "Size of remainder: " << filter->GetOutput()->GetNumberOfVertices()
               << " (Should have been 4)." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
 }
 

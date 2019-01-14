@@ -1,66 +1,31 @@
-project(VTKGL2PS)
+set(sources
+  gl2ps.c)
 
-# Dependency mask
-include_regular_expression(".*")
+set(headers
+  gl2ps.h
+  vtk_gl2ps_mangle.h)
 
-# Depend on OpenGL
-if(NOT VTK_OPENGL_HAS_OSMESA)
-  find_package(OpenGL REQUIRED)
-  set(GL2PS_GL_LIBRARIES ${OPENGL_LIBRARIES})
-  set(GL2PS_GL_INCLUDE_DIR ${OPENGL_INCLUDE_DIR})
-else()
-  set(GL2PS_GL_LIBRARIES ${OSMESA_LIBRARY})
-  set(GL2PS_GL_INCLUDE_DIR ${OSMESA_INCLUDE_DIR})
-  if(OPENGL_gl_LIBRARY)
-    list(APPEND GL2PS_GL_LIBRARIES ${OPENGL_gl_LIBRARY})
-  endif()
-endif()
+vtk_module_add_module(VTK::gl2ps
+  SOURCES ${sources}
+  HEADERS ${headers}
+  HEADERS_SUBDIR "vtkgl2ps")
+set_target_properties(gl2ps
+  PROPERTIES
+    DEFINE_SYMBOL GL2PSDLL_EXPORTS)
 
-# Need math on UNIX
-if(UNIX)
-  set(GL2PS_GL_LIBRARIES ${GL2PS_GL_LIBRARIES} m)
-endif()
+if (BUILD_SHARED_LIBS)
+  target_compile_definitions(gl2ps
+    PRIVATE
+      GL2PSDLL)
+endif ()
 
-# Include paths
-include_directories(
-  ${VTKGL2PS_SOURCE_DIR}/
-  ${GL2PS_GL_INCLUDE_DIR}
-)
+target_compile_definitions(gl2ps
+  PRIVATE
+    HAVE_ZLIB
+    HAVE_PNG)
 
-# Source files
-set(GL2PS_srcs
-  gl2ps.c
-)
-
-# Define the library (and install it)
-vtk_add_library(vtkgl2ps ${GL2PS_srcs})
-
-# Setup definitions
-if(WIN32)
-  set_source_files_properties(${GL2PS_srcs}
-    PROPERTIES
-      COMPILE_DEFINITIONS "GL2PSDLL;GL2PSDLL_EXPORTS")
-endif()
-
-set_property(TARGET vtkgl2ps
-   APPEND PROPERTY COMPILE_DEFINITIONS
-   HAVE_ZLIB HAVE_PNG
-)
-
-# Linking
-target_link_libraries(vtkgl2ps
-  ${GL2PS_GL_LIBRARIES}
-  ${vtkzlib_LIBRARIES}
-  ${vtkpng_LIBRARIES}
-)
-if(UNIX)
-  target_link_libraries(vtkgl2ps m)
-endif()
-
-# Install headers
-if(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${VTKGL2PS_SOURCE_DIR}/gl2ps.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkgl2ps/include
-    COMPONENT Development)
-ENDIF()
+if (UNIX)
+  target_link_libraries(gl2ps
+    PRIVATE
+      m)
+endif ()

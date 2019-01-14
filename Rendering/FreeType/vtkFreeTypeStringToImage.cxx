@@ -29,9 +29,9 @@ class vtkFreeTypeStringToImage::Internals
 {
 public:
   Internals()
-    {
+  {
     this->FreeType = vtkFreeTypeTools::GetInstance();
-    }
+  }
   vtkFreeTypeTools *FreeType;
 };
 
@@ -52,16 +52,17 @@ vtkFreeTypeStringToImage::~vtkFreeTypeStringToImage()
 
 //-----------------------------------------------------------------------------
 vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
-                                                const vtkUnicodeString& string)
+                                                const vtkUnicodeString& string,
+                                                int dpi)
 {
   int tmp[4] = { 0, 0, 0, 0 };
   vtkVector2i recti(tmp);
   if (!property)
-    {
+  {
     return recti;
-    }
+  }
 
-  this->Implementation->FreeType->GetBoundingBox(property, string, tmp);
+  this->Implementation->FreeType->GetBoundingBox(property, string, dpi, tmp);
 
   recti.Set(tmp[1] - tmp[0],
             tmp[3] - tmp[2]);
@@ -71,16 +72,17 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
 
 //-----------------------------------------------------------------------------
 vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
-                                                const vtkStdString& string)
+                                                const vtkStdString& string,
+                                                int dpi)
 {
   vtkVector2i recti(0, 0);
   int tmp[4];
   if (!property || string.empty())
-    {
+  {
     return recti;
-    }
+  }
 
-  this->Implementation->FreeType->GetBoundingBox(property, string, tmp);
+  this->Implementation->FreeType->GetBoundingBox(property, string, dpi, tmp);
 
   recti.Set(tmp[1] - tmp[0],
             tmp[3] - tmp[2]);
@@ -91,34 +93,21 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
 //-----------------------------------------------------------------------------
 int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
                                            const vtkUnicodeString& string,
-                                           vtkImageData *data, int textDims[2])
+                                           int dpi, vtkImageData *data,
+                                           int textDims[2])
 {
-  // Get the required size, and initialize a new QImage to draw on.
-  vtkVector2i box = this->GetBounds(property, string);
-  if (box.GetX() == 0 || box.GetY() == 0)
-    {
-    return 0;
-    }
-
   return this->Implementation->FreeType->RenderString(property,
-                                                      string,
+                                                      string, dpi,
                                                       data, textDims);
 }
 
 //-----------------------------------------------------------------------------
 int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
-                                           const vtkStdString& string,
+                                           const vtkStdString& string, int dpi,
                                            vtkImageData *data, int textDims[2])
 {
-  // Get the required size, and initialize a new QImage to draw on.
-  vtkVector2i box = this->GetBounds(property, string);
-  if (box.GetX() == 0 || box.GetY() == 0)
-    {
-    return 0;
-    }
-
-  return this->Implementation->FreeType->RenderString(property, string, data,
-                                                      textDims);
+  return this->Implementation->FreeType->RenderString(property, string, dpi,
+                                                      data, textDims);
 }
 
 //-----------------------------------------------------------------------------

@@ -28,7 +28,7 @@ process. Thus, you might browse or download a pre-built documentation here:
 Nevertheless, Doxygen might still be useful to generate additional
 PDF, Postscript or plain LaTeX output.
 
-This package is made of he following Perl scripts:
+This package is made of the following Perl scripts:
 
 - doc_header2doxygen.pl: convert the VTK headers to the Doxygen format
 - doc_version.pl: extract the VTK version and add it to the documentation set
@@ -171,7 +171,7 @@ Meaning that:
     the script stores the related documentation part in the
     '../../../VTK-doxygen' directory (more precisely in the
     '../../../VTK-doxygen/doc_version.dox' file). The VTK logo is
-    incorporated by using the --logo option. The script searchs for
+    incorporated by using the --logo option. The script searches for
     the VTK version in the '../../Common/vtkVersion.h'. Use --help to
     check how to override these default values.
 
@@ -210,7 +210,7 @@ For example:
     Building pages header...
     Writing documentation to ../../../VTK-doxygen/doc_class2examples.dox...
       - 33 class(es) in 17 file(s) from directories matching @c ^Examples$ on Mon Oct  1 10:53:04 2001
-      - 4 parser(s) : [Java, Python, C++, Tcl]
+      - 4 parser(s) : [Java, Python, C++]
       - at most 20 file(s) per parser (0% over)
      => in 0 s.
     Updating headers...
@@ -220,7 +220,7 @@ Finished in 2 s.
 Meaning that :
 
     The optional '--to ../../../VTK-doxygen' parameter specifies that
-    the script searches (and parses) the Python, Tcl, Java or C++
+    the script searches (and parses) the Python, Java or C++
     *examples* (17 here) in the directories two level up (i.e. ../../
     and below) but updates the C++ class *headers* (32 here) stored in
     the '../../../VTK-doxygen' directory (which is good because they

@@ -29,7 +29,7 @@ leak. For each bogus leak add the suppression to a file.
 set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE
 "${CTEST_SCRIPT_DIRECTORY}/karego-at_vtk_valgrind_supression.txt")
 
-The output of the script also contains a list of the suppresions in use
+The output of the script also contains a list of the suppressions in use
 and the tests that use them. Use that to trim down the suppression
 file to a minimal set, removing all unused suppressions etc.
 """

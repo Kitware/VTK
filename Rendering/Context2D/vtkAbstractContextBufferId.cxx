@@ -26,9 +26,7 @@ vtkAbstractContextBufferId::vtkAbstractContextBufferId()
 }
 
 // ----------------------------------------------------------------------------
-vtkAbstractContextBufferId::~vtkAbstractContextBufferId()
-{
-}
+vtkAbstractContextBufferId::~vtkAbstractContextBufferId() = default;
 
 // ----------------------------------------------------------------------------
 void vtkAbstractContextBufferId::ReleaseGraphicsResources()

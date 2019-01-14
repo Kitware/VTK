@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleTrackball - provides trackball motion control
-
-// .SECTION Description
-// vtkInteractorStyleTrackball is an implementation of vtkInteractorStyle
-// that defines the trackball style. It is now deprecated and as such a
-// subclass of vtkInteractorStyleSwitch
-
-// .SECTION See Also
-// vtkInteractorStyleSwitch vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
+/**
+ * @class   vtkInteractorStyleTrackball
+ * @brief   provides trackball motion control
+ *
+ *
+ * vtkInteractorStyleTrackball is an implementation of vtkInteractorStyle
+ * that defines the trackball style. It is now deprecated and as such a
+ * subclass of vtkInteractorStyleSwitch
+ *
+ * @sa
+ * vtkInteractorStyleSwitch vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
+*/
 
 #ifndef vtkInteractorStyleTrackball_h
 #define vtkInteractorStyleTrackball_h
@@ -33,15 +36,15 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTrackball : public vtkInterac
 public:
   static vtkInteractorStyleTrackball *New();
   vtkTypeMacro(vtkInteractorStyleTrackball,vtkInteractorStyleSwitch);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkInteractorStyleTrackball();
-  ~vtkInteractorStyleTrackball();
+  ~vtkInteractorStyleTrackball() override;
 
 private:
-  vtkInteractorStyleTrackball(const vtkInteractorStyleTrackball&);  // Not implemented.
-  void operator=(const vtkInteractorStyleTrackball&);  // Not implemented.
+  vtkInteractorStyleTrackball(const vtkInteractorStyleTrackball&) = delete;
+  void operator=(const vtkInteractorStyleTrackball&) = delete;
 };
 
 #endif

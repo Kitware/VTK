@@ -1,0 +1,23 @@
+NAME
+  VTK::IOCityGML
+LIBRARY_NAME
+  vtkIOCityGML
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::FiltersGeneral
+  VTK::FiltersModeling
+  VTK::pugixml
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::IOImage
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkOpenGLRenderWindow.h"
 #import <Cocoa/Cocoa.h>
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 
@@ -47,7 +46,7 @@
 {
   self = [super initWithFrame:frameRect];
   if (self)
-    {
+  {
     // Force Cocoa into "multi threaded mode" because VTK spawns pthreads.
     // Apple's docs say: "If you intend to use Cocoa calls, you must force
     // Cocoa into its multithreaded mode before detaching any POSIX threads.
@@ -55,12 +54,12 @@
     // This is enough to ensure that the locks needed by the Cocoa
     // frameworks are put in place"
     if ([NSThread isMultiThreaded] == NO)
-      {
+    {
       [NSThread detachNewThreadSelector:@selector(emptyMethod:)
                                toTarget:self
                              withObject:nil];
-      }
     }
+  }
   return self;
 }
 
@@ -80,13 +79,13 @@
 - (vtkCocoaRenderWindowInteractor *)getInteractor
 {
   if (_myVTKRenderWindow)
-    {
+  {
     return (vtkCocoaRenderWindowInteractor *)_myVTKRenderWindow->GetInteractor();
-    }
+  }
   else
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -96,9 +95,9 @@
   (void)theRect;
 
   if (_myVTKRenderWindow && _myVTKRenderWindow->GetMapped())
-    {
+  {
     _myVTKRenderWindow->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -108,9 +107,9 @@
   //clear out the old tracking area
   NSTrackingArea *trackingArea = [self rolloverTrackingArea];
   if (trackingArea)
-    {
+  {
     [self removeTrackingArea:trackingArea];
-    }
+  }
 
   //create a new tracking area
   NSRect rect = [self visibleRect];
@@ -140,8 +139,8 @@
 //----------------------------------------------------------------------------
 // For generating keysyms that are compatible with other VTK interactors
 static const char *vtkMacCharCodeToKeySymTable[128] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
   "space", "exclam", "quotedbl", "numbersign",
   "dollar", "percent", "ampersand", "quoteright",
   "parenleft", "parenright", "asterisk", "plus",
@@ -162,19 +161,19 @@ static const char *vtkMacCharCodeToKeySymTable[128] = {
 //----------------------------------------------------------------------------
 // For generating keysyms that are compatible with other VTK interactors
 static const char *vtkMacKeyCodeToKeySymTable[128] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, "Return", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  "Tab", 0, 0, "Backspace", 0, "Escape", 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, "period", 0, "asterisk", 0, "plus", 0, "Clear",
-  0, 0, 0, "slash", "KP_Enter", 0, "minus", 0,
-  0, 0, "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5",
-  "KP_6", "KP_7", 0, "KP_8", "KP_9", 0, 0, 0,
-  "F5", "F6", "F7", "F3", "F8", 0, 0, 0,
-  0, "Snapshot", 0, 0, 0, 0, 0, 0,
-  0, 0, "Help", "Home", "Prior", "Delete", "F4", "End",
-  "F2", "Next", "F1", "Left", "Right", "Down", "Up", 0,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, "Return", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  "Tab", nullptr, nullptr, "Backspace", nullptr, "Escape", nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, "period", nullptr, "asterisk", nullptr, "plus", nullptr, "Clear",
+  nullptr, nullptr, nullptr, "slash", "KP_Enter", nullptr, "minus", nullptr,
+  nullptr, nullptr, "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5",
+  "KP_6", "KP_7", nullptr, "KP_8", "KP_9", nullptr, nullptr, nullptr,
+  "F5", "F6", "F7", "F3", "F8", nullptr, nullptr, nullptr,
+  nullptr, "Snapshot", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, "Help", "Home", "Prior", "Delete", "F4", "End",
+  "F2", "Next", "F1", "Left", "Right", "Down", "Up", nullptr,
 };
 
 //----------------------------------------------------------------------------
@@ -187,9 +186,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!interactor || !renWin)
-    {
+  {
     return;
-    }
+  }
 
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner.  Since this is NOT a mouse event, we can not use
@@ -201,88 +200,88 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // Also note that 'mouseLoc' may have nonsense values if a key is pressed
   // while the mouse in not actually in the vtk view but the view is
   // first responder.
-  NSPoint mouseLoc = [[self window] mouseLocationOutsideOfEventStream];
-  mouseLoc = [self convertPoint:mouseLoc fromView:nil];
+  NSPoint windowLoc = [[self window] mouseLocationOutsideOfEventStream];
+  NSPoint viewLoc = [self convertPoint:windowLoc fromView:nil];
+  NSPoint backingLoc = [self convertPointToBacking:viewLoc];
 
   NSUInteger flags = [theEvent modifierFlags];
-  int shiftDown = ((flags & NSShiftKeyMask) != 0);
-  int controlDown = ((flags & (NSControlKeyMask | NSCommandKeyMask)) != 0);
-  int altDown = ((flags & NSAlternateKeyMask) != 0);
+  int shiftDown = ((flags & NSEventModifierFlagShift) != 0);
+  int controlDown = ((flags & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) != 0);
+  int altDown = ((flags & NSEventModifierFlagOption) != 0);
 
   unsigned char charCode = '\0';
-  const char *keySym = 0;
+  const char *keySym = nullptr;
 
   NSEventType type = [theEvent type];
-  BOOL isPress = (type == NSKeyDown);
+  BOOL isPress = (type == NSEventTypeKeyDown);
 
-  if (type == NSKeyUp || type == NSKeyDown)
+  if (type == NSEventTypeKeyUp || type == NSEventTypeKeyDown)
+  {
+    // Try to get the characters associated with the key event as an ASCII string.
+    const char* keyedChars = [[theEvent characters] cStringUsingEncoding:NSASCIIStringEncoding];
+    if (keyedChars)
     {
-    // Get the characters associated with the key event as a utf8 string.
-    // This pointer is only valid for the duration of the current autorelease
-    // context!
-    const char* keyedChars = [[theEvent characters] UTF8String];
-    // Since vtk only supports ASCII, we just blindly use the first element
-    // of the above string, hoping it's ASCII.
-    charCode = (unsigned char)keyedChars[0];
+      charCode = static_cast<unsigned char>(keyedChars[0]);
+    }
     // Get the virtual key code and convert it to a keysym as best we can.
     unsigned short macKeyCode = [theEvent keyCode];
     if (macKeyCode < 128)
-      {
-      keySym = vtkMacKeyCodeToKeySymTable[macKeyCode];
-      }
-    if (keySym == 0 && charCode < 128)
-      {
-      keySym = vtkMacCharCodeToKeySymTable[charCode];
-      }
-    }
-  else if (type == NSFlagsChanged)
     {
+      keySym = vtkMacKeyCodeToKeySymTable[macKeyCode];
+    }
+    if (keySym == nullptr && charCode < 128)
+    {
+      keySym = vtkMacCharCodeToKeySymTable[charCode];
+    }
+  }
+  else if (type == NSEventTypeFlagsChanged)
+  {
     // Check to see what modifier flag changed.
     if (controlDown != interactor->GetControlKey())
-      {
+    {
       keySym = "Control_L";
       isPress = (controlDown != 0);
-      }
+    }
     else if (shiftDown != interactor->GetShiftKey())
-      {
+    {
       keySym = "Shift_L";
       isPress = (shiftDown != 0);
-      }
+    }
     else if (altDown != interactor->GetAltKey())
-      {
+    {
       keySym = "Alt_L";
       isPress = (altDown != 0);
-      }
+    }
     else
-      {
+    {
       return;
-      }
+    }
 
     theEventId = (isPress ?
                   vtkCommand::KeyPressEvent :
                   vtkCommand::KeyReleaseEvent);
-    }
+  }
   else // No info from which to generate a VTK key event!
-    {
+  {
     return;
-    }
+  }
 
-  if (keySym == 0)
-    {
+  if (keySym == nullptr)
+  {
     keySym = "None";
-    }
+  }
 
-  interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
-                                  static_cast<int>(round(mouseLoc.y)),
+  interactor->SetEventInformation(static_cast<int>(backingLoc.x),
+                                  static_cast<int>(backingLoc.y),
                                   controlDown, shiftDown,
                                   charCode, 1, keySym);
   interactor->SetAltKey(altDown);
 
-  interactor->InvokeEvent(theEventId, NULL);
+  interactor->InvokeEvent(theEventId, nullptr);
   if (isPress && charCode != '\0')
-    {
-    interactor->InvokeEvent(vtkCommand::CharEvent, NULL);
-    }
+  {
+    interactor->InvokeEvent(vtkCommand::CharEvent, nullptr);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -295,25 +294,26 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!interactor || !renWin)
-    {
+  {
     return;
-    }
+  }
 
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouse event, we can use locationInWindow.
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
+  NSPoint windowLoc = [theEvent locationInWindow];
+  NSPoint viewLoc = [self convertPoint:windowLoc fromView:nil];
+  NSPoint backingLoc = [self convertPointToBacking:viewLoc];
 
   NSUInteger flags = [theEvent modifierFlags];
-  int shiftDown = ((flags & NSShiftKeyMask) != 0);
-  int controlDown = ((flags & (NSControlKeyMask | NSCommandKeyMask)) != 0);
-  int altDown = ((flags & NSAlternateKeyMask) != 0);
+  int shiftDown = ((flags & NSEventModifierFlagShift) != 0);
+  int controlDown = ((flags & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) != 0);
+  int altDown = ((flags & NSEventModifierFlagOption) != 0);
 
-  interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
-                                  static_cast<int>(round(mouseLoc.y)),
+  interactor->SetEventInformation(static_cast<int>(backingLoc.x),
+                                  static_cast<int>(backingLoc.y),
                                   controlDown, shiftDown);
   interactor->SetAltKey(altDown);
-  interactor->InvokeEvent(theEventId, NULL);
+  interactor->InvokeEvent(theEventId, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -326,29 +326,30 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!interactor || !renWin)
-    {
+  {
     return;
-    }
+  }
 
   // Get the location of the mouse event relative to this NSView's bottom
-  // left corner. Since this is a mouseevent, we can use locationInWindow.
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
+  // left corner. Since this is a mouse event, we can use locationInWindow.
+  NSPoint windowLoc = [theEvent locationInWindow];
+  NSPoint viewLoc = [self convertPoint:windowLoc fromView:nil];
+  NSPoint backingLoc = [self convertPointToBacking:viewLoc];
 
   int clickCount = static_cast<int>([theEvent clickCount]);
   int repeatCount = ((clickCount > 1) ? clickCount - 1 : 0);
 
   NSUInteger flags = [theEvent modifierFlags];
-  int shiftDown = ((flags & NSShiftKeyMask) != 0);
-  int controlDown = ((flags & (NSControlKeyMask | NSCommandKeyMask)) != 0);
-  int altDown = ((flags & NSAlternateKeyMask) != 0);
+  int shiftDown = ((flags & NSEventModifierFlagShift) != 0);
+  int controlDown = ((flags & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) != 0);
+  int altDown = ((flags & NSEventModifierFlagOption) != 0);
 
-  interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
-                                  static_cast<int>(round(mouseLoc.y)),
+  interactor->SetEventInformation(static_cast<int>(backingLoc.x),
+                                  static_cast<int>(backingLoc.y),
                                   controlDown, shiftDown,
                                   0, repeatCount);
   interactor->SetAltKey(altDown);
-  interactor->InvokeEvent(theEventId, NULL);
+  interactor->InvokeEvent(theEventId, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -385,13 +386,13 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // An NSWindow created by vtk automatically does accept such events.
 
   // Ignore motion outside the view in order to mimic other interactors
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
-  if (NSPointInRect(mouseLoc, [self visibleRect]))
-    {
+  NSPoint windowLoc = [theEvent locationInWindow];
+  NSPoint viewLoc = [self convertPoint:windowLoc fromView:nil];
+  if (NSPointInRect(viewLoc, [self visibleRect]))
+  {
     [self invokeVTKMoveEvent:vtkCommand::MouseMoveEvent
                   cocoaEvent:theEvent];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -445,19 +446,19 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   unsigned long eventId = 0;
 
   if (dy > 0)
-    {
+  {
     eventId = vtkCommand::MouseWheelForwardEvent;
-    }
+  }
   else if (dy < 0)
-    {
+  {
     eventId = vtkCommand::MouseWheelBackwardEvent;
-    }
+  }
 
   if (eventId != 0)
-    {
+  {
     [self invokeVTKMoveEvent:eventId
                   cocoaEvent:theEvent];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -506,6 +507,45 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 {
   [self invokeVTKButtonEvent:vtkCommand::MiddleButtonReleaseEvent
                   cocoaEvent:theEvent];
+}
+
+//----------------------------------------------------------------------------
+// Private
+- (void)modifyDPIForBackingScaleFactorOfWindow:(/*nullable*/ NSWindow *)window
+{
+  if (window)
+  {
+    CGFloat backingScaleFactor = [window backingScaleFactor];
+    assert(backingScaleFactor >= 1.0);
+
+    vtkCocoaRenderWindow *renderWindow = [self getVTKRenderWindow];
+    if (renderWindow)
+    {
+      // Ordinarily, DPI is hardcoded to 72, but in order for vtkTextActors
+      // to have the correct apparent size, we adjust it per the NSWindow's
+      // scaling factor.
+      renderWindow->SetDPI(lround(72.0 * backingScaleFactor));
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+// Overridden (from NSView).
+- (void)viewWillMoveToWindow:(/*nullable*/ NSWindow*)inNewWindow
+{
+  [super viewWillMoveToWindow:inNewWindow];
+
+  [self modifyDPIForBackingScaleFactorOfWindow:inNewWindow];
+}
+
+//----------------------------------------------------------------------------
+// Overridden (from NSView).
+- (void)viewDidChangeBackingProperties
+{
+  [super viewDidChangeBackingProperties];
+
+  NSWindow *window = [self window];
+  [self modifyDPIForBackingScaleFactorOfWindow:window];
 }
 
 @end

@@ -35,12 +35,12 @@ namespace ADIOS
 {
 
 //----------------------------------------------------------------------------
-std::ostream& operator<<(std::ostream& os, const ArrayDim d)
+std::ostream& operator<<(std::ostream& os, const ArrayDim& d)
 {
   if(d.ValueS.empty())
-    {
+  {
     return os << d.ValueI;
-    }
+  }
   return os << d.ValueS;
 }
 
@@ -49,9 +49,9 @@ template<typename T, typename TIterator>
 std::string ToString(TIterator begin, TIterator end)
 {
   if(begin == end)
-    {
+  {
     return "";
-    }
+  }
 
   std::stringstream ss;
   std::copy(begin, end-1, std::ostream_iterator<T>(ss, ","));
@@ -82,14 +82,14 @@ struct Writer::InitContext
   : Comm(GlobalComm)
   {
     if(this->RefCount == 0)
-      {
+    {
       int init = 0;
       MPI_Initialized(&init);
       WriteError::TestEq(1, init, "InitContext: MPI is not yet initialized");
 
       int err = adios_init_noxml(this->Comm);
       WriteError::TestEq(0, err);
-      }
+    }
     ++this->RefCount;
 
     MPI_Comm_size(this->Comm, &this->CommSize);
@@ -100,7 +100,7 @@ struct Writer::InitContext
   {
     --this->RefCount;
     if(this->RefCount == 0)
-      {
+    {
       // If we've gotten this far then we know that MPI has been initialized
       // already
       //
@@ -110,11 +110,11 @@ struct Writer::InitContext
       // performance.
       MPI_Barrier(this->Comm);
       adios_finalize(this->Rank);
-      }
+    }
   }
 };
 
-// Dafault communicator is invalid
+// Default communicator is invalid
 MPI_Comm Writer::InitContext::GlobalComm = MPI_COMM_NULL;
 int Writer::InitContext::RefCount = 0;
 
@@ -156,7 +156,7 @@ struct Writer::WriterImpl
     { }
 
     virtual ~ScalarValueT() { }
-    virtual uint64_t GetInt() { return static_cast<uint64_t>(this->ValueT); }
+    uint64_t GetInt() override { return static_cast<uint64_t>(this->ValueT); }
 
     const T ValueT;
   };
@@ -203,10 +203,10 @@ bool Writer::SetCommunicator(MPI_Comm comm)
 {
   // The communicator can only be set if ADIOS has not yet been initialized
   if(Writer::InitContext::RefCount == 0)
-    {
+  {
     Writer::InitContext::GlobalComm = comm;
     return true;
-    }
+  }
   return false;
 }
 
@@ -217,7 +217,7 @@ Writer::Writer(ADIOS::TransportMethod transport,
 {
   int err;
 
-  err = adios_declare_group(&this->Impl->Group, "VTK", "", adios_flag_yes);
+  err = adios_declare_group(&this->Impl->Group, "VTK", "", adios_stat_full);
   WriteError::TestEq(0, err);
 
   err = adios_select_method(this->Impl->Group,
@@ -232,17 +232,17 @@ Writer::~Writer()
   for(s = this->Impl->ScalarRegistry.begin();
       s != this->Impl->ScalarRegistry.end();
       ++s)
-    {
+  {
     delete s->second;
-    }
+  }
 
   std::map<std::string, const WriterImpl::ArrayInfo*>::const_iterator a;
   for(a = this->Impl->ArrayRegistry.begin();
       a != this->Impl->ArrayRegistry.end();
       ++a)
-    {
+  {
     delete a->second;
-    }
+  }
 
   adios_free_group(this->Impl->Group);
   delete this->Impl;
@@ -279,17 +279,17 @@ int Writer::DefineLocalArray(const std::string& path,
   // Verify the dimensions are usable
   for(std::vector<ArrayDim>::const_iterator di = dims.begin();
       di != dims.end(); ++di)
-    {
+  {
     if(!di->ValueS.empty())
-      {
+    {
       std::map<std::string, const WriterImpl::ScalarInfo*>::iterator si =
         this->Impl->ScalarRegistry.find(di->ValueS);
       WriteError::TestNe(this->Impl->ScalarRegistry.end(), si,
         "Dimension scalar variable " + di->ValueS + " is not defined");
       WriteError::TestEq(true, si->second->IsInt,
         "Dimension scalar variable " + di->ValueS + " is not an integer");
-      }
     }
+  }
 
   // Define in the ADIOS group
   std::string dimsLocal = ToString(dims);
@@ -318,7 +318,7 @@ void Writer::WriteScalar(const std::string& path, ADIOS_DATATYPES adiosType,
 
   WriterImpl::ScalarValue *v;
   switch(adiosType)
-    {
+  {
     case adios_byte:
       v = new WriterImpl::ScalarValueT<int8_t>(path,
         *reinterpret_cast<const int8_t*>(val));
@@ -368,13 +368,13 @@ void Writer::WriteScalar(const std::string& path, ADIOS_DATATYPES adiosType,
         *reinterpret_cast<const std::complex<double>*>(val));
       break;
     default:
-      v = NULL;
-    }
+      v = nullptr;
+  }
 
   if(si->second->IsInt)
-    {
+  {
     this->Impl->IntegralScalars[path] = v->GetInt();
-    }
+  }
   this->Impl->ScalarsToWrite.push_back(v);
 }
 
@@ -389,16 +389,16 @@ void Writer::WriteArray(const std::string& path, const void* val)
   for(std::vector<ArrayDim>::const_iterator di = ai->second->Dims.begin();
       di != ai->second->Dims.end();
       ++di)
-    {
+  {
     if(!di->ValueS.empty())
-      {
+    {
       std::map<std::string, size_t>::iterator ivi =
         this->Impl->IntegralScalars.find(di->ValueS);
       WriteError::TestNe(this->Impl->IntegralScalars.end(), ivi,
         "Scalar dimension variable " + di->ValueS +
         " has not yet been written");
-      }
     }
+  }
 
 
   this->Impl->ArraysToWrite.push_back(
@@ -417,16 +417,16 @@ void Writer::Commit(const std::string& fName, bool app)
         this->Impl->ScalarsToWrite.begin();
       svi != this->Impl->ScalarsToWrite.end();
       ++svi)
-    {
+  {
     groupSize += this->Impl->ScalarRegistry[(*svi)->Path]->Size;
-    }
+  }
 
   // Add the array sizes and filter out empties
   for(std::vector<const WriterImpl::ArrayValue*>::iterator avi =
         this->Impl->ArraysToWrite.begin();
       avi != this->Impl->ArraysToWrite.end();
       ++avi)
-    {
+  {
     // This should be guaranteed to exist in the registry
     const WriterImpl::ArrayInfo *ai = this->Impl->ArrayRegistry[(*avi)->Path];
 
@@ -434,28 +434,27 @@ void Writer::Commit(const std::string& fName, bool app)
     for(std::vector<ArrayDim>::const_iterator di = ai->Dims.begin();
         di != ai->Dims.end();
         ++di)
-      {
+    {
       if(numElements == 0)
-        {
+      {
         numElements = di->ValueS.empty() ?
           di->ValueI : this->Impl->IntegralScalars[di->ValueS];
-        }
+      }
       else
-        {
+      {
         numElements *= di->ValueS.empty() ?
           di->ValueI : this->Impl->IntegralScalars[di->ValueS];
-        }
       }
-    groupSize += numElements * ai->ElementSize;
     }
+    groupSize += numElements * ai->ElementSize;
+  }
 
   int err;
 
   // Step 2. Set the buffer size in MB with the full knowledge of the dynamic
   // group size.  Ask for 10% over the group size to account for extra metadata
   int bufSize = (groupSize * 1.1)/(1024*1024) + 1;
-  err = adios_allocate_buffer(ADIOS_BUFFER_ALLOC_LATER, bufSize);
-  WriteError::TestEq(0, err);
+  adios_set_max_buffer_size(bufSize);
 
   // Step 3. Open the file for writing
   int64_t file;
@@ -471,22 +470,22 @@ void Writer::Commit(const std::string& fName, bool app)
         this->Impl->ScalarsToWrite.begin();
       svi != this->Impl->ScalarsToWrite.end();
       ++svi)
-    {
+  {
     err = adios_write(file, (*svi)->Path.c_str(),
       const_cast<void*>((*svi)->Value));
     WriteError::TestEq(0, err);
-    }
+  }
 
   // Step 5: Write Arrays
   for(std::vector<const WriterImpl::ArrayValue*>::iterator avi =
         this->Impl->ArraysToWrite.begin();
       avi != this->Impl->ArraysToWrite.end();
       ++avi)
-    {
+  {
     err = adios_write(file, (*avi)->Path.c_str(),
       const_cast<void*>((*avi)->Value));
     WriteError::TestEq(0, err);
-    }
+  }
 
   // Step 6. Close the file and commit the writes to ADIOS
   adios_close(file);
@@ -496,18 +495,18 @@ void Writer::Commit(const std::string& fName, bool app)
         this->Impl->ScalarsToWrite.begin();
       svi != this->Impl->ScalarsToWrite.end();
       ++svi)
-    {
+  {
     delete *svi;
-    }
+  }
   this->Impl->ScalarsToWrite.clear();
 
   for(std::vector<const WriterImpl::ArrayValue*>::iterator avi =
         this->Impl->ArraysToWrite.begin();
       avi != this->Impl->ArraysToWrite.end();
       ++avi)
-    {
+  {
     delete *avi;
-    }
+  }
   this->Impl->ArraysToWrite.clear();
 }
 

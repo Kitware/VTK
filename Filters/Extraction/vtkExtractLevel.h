@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractLevel - extract levels between min and max from a
-// hierarchical box dataset.
-// .SECTION Description
-// vtkExtractLevel filter extracts the levels between (and including) the user
-// specified min and max levels.
+/**
+ * @class   vtkExtractLevel
+ * @brief   extract levels between min and max from a
+ * hierarchical box dataset.
+ *
+ * vtkExtractLevel filter extracts the levels between (and including) the user
+ * specified min and max levels.
+*/
 
 #ifndef vtkExtractLevel_h
 #define vtkExtractLevel_h
@@ -30,38 +33,40 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractLevel :
 public:
   static vtkExtractLevel* New();
   vtkTypeMacro(vtkExtractLevel, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 
-  // Description:
-  // Select the levels that should be extracted. All other levels will have no
-  // datasets in them.
+  //@{
+  /**
+   * Select the levels that should be extracted. All other levels will have no
+   * datasets in them.
+   */
   void AddLevel(unsigned int level);
   void RemoveLevel(unsigned int level);
   void RemoveAllLevels();
+  //@}
 
-//BTX
 protected:
   vtkExtractLevel();
-  ~vtkExtractLevel();
+  ~vtkExtractLevel() override;
 
-  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**,vtkInformationVector* );
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**,vtkInformationVector* ) override;
 
   /// Implementation of the algorithm.
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) override;
 
-  virtual int FillInputPortInformation(int port,vtkInformation *info);
-  virtual int FillOutputPortInformation(int port,vtkInformation *info);
+  int FillInputPortInformation(int port,vtkInformation *info) override;
+  int FillOutputPortInformation(int port,vtkInformation *info) override;
 
 private:
-  vtkExtractLevel(const vtkExtractLevel&); // Not implemented.
-  void operator=(const vtkExtractLevel&); // Not implemented.
+  vtkExtractLevel(const vtkExtractLevel&) = delete;
+  void operator=(const vtkExtractLevel&) = delete;
 
   class vtkSet;
   vtkSet* Levels;
-//ETX
+
 };
 
 #endif

@@ -20,15 +20,15 @@
 =========================================================================*/
 
 #include "vtkArrayWeights.h"
-#include <vtksys/stl/vector>
+#include <vector>
 
 class vtkArrayWeightsStorage
 {
 public:
   vtkArrayWeightsStorage(size_t size)
     : Storage(size)
-    {
-    }
+  {
+  }
   std::vector<double> Storage;
 };
 
@@ -74,9 +74,9 @@ vtkArrayWeights::vtkArrayWeights(const vtkArrayWeights& other)
 
 // ----------------------------------------------------------------------------
  vtkArrayWeights::~vtkArrayWeights()
-{
+ {
   delete this->Storage;
-}
+ }
 
 // ----------------------------------------------------------------------------
 vtkIdType vtkArrayWeights::GetCount() const

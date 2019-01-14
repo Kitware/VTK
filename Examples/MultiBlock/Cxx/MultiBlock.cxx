@@ -37,7 +37,7 @@
 #include "vtkStructuredGridOutlineFilter.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLStructuredGridReader.h"
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int main(int argc, char* argv[])
 {
@@ -63,10 +63,10 @@ int main(int argc, char* argv[])
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::New();
 
   for (i=0; i<3; i++)
-    {
+  {
     // Here we load the three separate files (each containing
     // a structured grid dataset)
-    vtksys_ios::ostringstream fname;
+    std::ostringstream fname;
     fname << "Data/multicomb_" << i << ".vts" << ends;
     char* cfname =
       vtkTestUtilities::ExpandDataFileName(argc, argv, fname.str().c_str());
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
     // Add the structured grid to the multi-block dataset
     mb->SetBlock(i, sg);
     sg->Delete();
-    }
+  }
   reader->Delete();
 
   // Multi-block can be processed with regular VTK filters in two ways:
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
   iren->Start();
 
   // Cleanup
-  vtkAlgorithm::SetDefaultExecutivePrototype(0);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   of->Delete();
   geom1->Delete();
   geoMapper->Delete();

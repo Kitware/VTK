@@ -43,17 +43,15 @@ vtkPeriodicTable::vtkPeriodicTable()
   this->BlueObeliskData->GetWriteMutex()->Lock();
 
   if (!this->BlueObeliskData->IsInitialized())
-    {
+  {
     this->BlueObeliskData->Initialize();
-    }
+  }
 
   this->BlueObeliskData->GetWriteMutex()->Unlock();
 }
 
 //----------------------------------------------------------------------------
-vtkPeriodicTable::~vtkPeriodicTable()
-{
-}
+vtkPeriodicTable::~vtkPeriodicTable() = default;
 
 //----------------------------------------------------------------------------
 void vtkPeriodicTable::PrintSelf(ostream& os, vtkIndent indent)
@@ -72,16 +70,26 @@ unsigned short vtkPeriodicTable::GetNumberOfElements()
 }
 
 //----------------------------------------------------------------------------
-const char * vtkPeriodicTable::GetSymbol(const unsigned short atomicNum)
+const char * vtkPeriodicTable::GetSymbol(unsigned short atomicNum)
 {
-  assert(atomicNum <= this->GetNumberOfElements());
+  if (atomicNum > this->GetNumberOfElements())
+  {
+    vtkWarningMacro("Atomic number out of range ! Using 0 instead of " << atomicNum);
+    atomicNum = 0;
+  }
+
   return this->BlueObeliskData->GetSymbols()->GetValue(atomicNum).c_str();
 }
 
 //----------------------------------------------------------------------------
-const char * vtkPeriodicTable::GetElementName(const unsigned short atomicNum)
+const char * vtkPeriodicTable::GetElementName(unsigned short atomicNum)
 {
-  assert(atomicNum <= this->GetNumberOfElements());
+  if (atomicNum > this->GetNumberOfElements())
+  {
+    vtkWarningMacro("Atomic number out of range ! Using 0 instead of " << atomicNum);
+    atomicNum = 0;
+  }
+
   return this->BlueObeliskData->GetNames()->GetValue(atomicNum).c_str();
 }
 
@@ -97,27 +105,27 @@ unsigned short vtkPeriodicTable::GetAtomicNumber(const char *str)
   // If the string is null or the BODR object is not initialized, just
   // return 0.
   if (!str)
-    {
+  {
     return 0;
-    }
+  }
 
   // First attempt to just convert the string to an integer. If this
   // works, return the integer
   int atoi_num = atoi(str);
   if (atoi_num > 0 &&
       atoi_num <= static_cast<int>(this->GetNumberOfElements()))
-    {
+  {
     return static_cast<unsigned short>(atoi_num);
-    }
+  }
 
   // Convert str to lowercase
   int i = 0;
   char *lowerStr = new char[strlen(str) + 1];
   strcpy(lowerStr, str);
   while (char &c = lowerStr[i++])
-    {
+  {
     c = tolower(c);
-    }
+  }
 
   // Cache pointers:
   vtkStringArray *lnames = this->BlueObeliskData->GetLowerNames();
@@ -126,81 +134,104 @@ unsigned short vtkPeriodicTable::GetAtomicNumber(const char *str)
 
   // Compare with other lowercase strings
   for (unsigned short ind = 0; ind <= numElements; ++ind)
-    {
+  {
     if (lnames->GetValue(ind).compare(lowerStr) == 0 ||
         lsymbols->GetValue(ind).compare(lowerStr) == 0)
-      {
+    {
       delete [] lowerStr;
       return ind;
-      }
     }
+  }
 
   // Manually test some non-standard names:
   // - Deuterium
   if (strcmp(lowerStr, "d") == 0 ||
       strcmp(lowerStr, "deuterium") == 0 )
-    {
+  {
     delete [] lowerStr;
     return 1;
-    }
+  }
   // - Tritium
   else if (strcmp(lowerStr, "t") == 0 ||
            strcmp(lowerStr, "tritium") == 0 )
-    {
+  {
     delete [] lowerStr;
     return 1;
-    }
+  }
   // - Aluminum (vs. Aluminium)
   else if (strcmp(lowerStr, "aluminum") == 0)
-    {
+  {
     delete [] lowerStr;
     return 13;
-    }
+  }
 
   delete [] lowerStr;
   return 0;
 }
 
 //----------------------------------------------------------------------------
-float vtkPeriodicTable::GetCovalentRadius(const unsigned short atomicNum)
+float vtkPeriodicTable::GetCovalentRadius(unsigned short atomicNum)
 {
-  assert(atomicNum <= this->GetNumberOfElements());
+  if (atomicNum > this->GetNumberOfElements())
+  {
+    vtkWarningMacro("Atomic number out of range ! Using 0 instead of " << atomicNum);
+    atomicNum = 0;
+  }
+
   return this->BlueObeliskData->GetCovalentRadii()->GetValue(atomicNum);
 }
 
 //----------------------------------------------------------------------------
-float vtkPeriodicTable::GetVDWRadius(const unsigned short atomicNum)
+float vtkPeriodicTable::GetVDWRadius(unsigned short atomicNum)
 {
-  assert(atomicNum <= this->GetNumberOfElements());
+  if (atomicNum > this->GetNumberOfElements())
+  {
+    vtkWarningMacro("Atomic number out of range ! Using 0 instead of " << atomicNum);
+    atomicNum = 0;
+  }
+
   return this->BlueObeliskData->GetVDWRadii()->GetValue(atomicNum);
 }
 
 //----------------------------------------------------------------------------
-void vtkPeriodicTable::GetDefaultLUT(vtkLookupTable * lut)
+float vtkPeriodicTable::GetMaxVDWRadius()
+{
+  float maxRadius = 0;
+  for(unsigned short i = 0; i < this->GetNumberOfElements(); i++)
+  {
+    maxRadius = std::max(maxRadius, this->GetVDWRadius(i));
+  }
+  return maxRadius;
+}
+
+//----------------------------------------------------------------------------
+void vtkPeriodicTable::GetDefaultLUT(vtkLookupTable *lut)
 {
   const unsigned short numColors = this->GetNumberOfElements() + 1;
   vtkFloatArray *colors = this->BlueObeliskData->GetDefaultColors();
   lut->SetNumberOfColors(numColors);
+  lut->SetIndexedLookup(true);
   float rgb[3];
   for (vtkIdType i = 0; static_cast<unsigned int>(i) < numColors; ++i)
-    {
-    colors->GetTupleValue(i, rgb);
+  {
+    colors->GetTypedTuple(i, rgb);
     lut->SetTableValue(i, rgb[0], rgb[1], rgb[2]);
-    }
+    lut->SetAnnotation(i, this->GetSymbol(static_cast<unsigned short>(i)));
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkPeriodicTable::GetDefaultRGBTuple(unsigned short atomicNum,
  float rgb[3])
 {
-  this->BlueObeliskData->GetDefaultColors()->GetTupleValue(atomicNum, rgb);
+  this->BlueObeliskData->GetDefaultColors()->GetTypedTuple(atomicNum, rgb);
 }
 
 //----------------------------------------------------------------------------
 vtkColor3f vtkPeriodicTable::GetDefaultRGBTuple(unsigned short atomicNum)
 {
   vtkColor3f result;
-  this->BlueObeliskData->GetDefaultColors()->GetTupleValue(atomicNum,
+  this->BlueObeliskData->GetDefaultColors()->GetTypedTuple(atomicNum,
                                                            result.GetData());
   return result;
 }

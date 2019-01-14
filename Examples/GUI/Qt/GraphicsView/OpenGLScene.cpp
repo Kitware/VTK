@@ -107,12 +107,12 @@ OpenGLScene::OpenGLScene(QGLContext* ctx, QObject* p)
   trans->addAnimation(new QBoolAnimation(1.0, mTreeRingView, "enabled")); // enable at end of transition
 
   // non animated transitions
-  trans = state1->addTransition(this, SIGNAL(enterState4()), state4);
-  trans = state2->addTransition(this, SIGNAL(enterState4()), state4);
-  trans = state3->addTransition(this, SIGNAL(enterState4()), state4);
-  trans = state4->addTransition(this, SIGNAL(enterState1()), state1);
-  trans = state4->addTransition(this, SIGNAL(enterState2()), state2);
-  trans = state4->addTransition(this, SIGNAL(enterState3()), state3);
+  state1->addTransition(this, SIGNAL(enterState4()), state4);
+  state2->addTransition(this, SIGNAL(enterState4()), state4);
+  state3->addTransition(this, SIGNAL(enterState4()), state4);
+  state4->addTransition(this, SIGNAL(enterState1()), state1);
+  state4->addTransition(this, SIGNAL(enterState2()), state2);
+  state4->addTransition(this, SIGNAL(enterState3()), state3);
 
   machine.start();
 
@@ -126,13 +126,9 @@ void OpenGLScene::mousePressEvent(QGraphicsSceneMouseEvent* e)
 {
   QGraphicsScene::mousePressEvent(e);
 
-  // See if its under one our our deactivated items.
-  #if QT_VERSION >= 0x050000
-    // The transform is just the identity matrix.
-    QGraphicsItem* item = itemAt(e->scenePos(),QTransform());
-  #else
-    QGraphicsItem* item = itemAt(e->scenePos());
-  #endif
+  // See if it's under one of our deactivated items.
+  // The transform is just the identity matrix.
+  QGraphicsItem* item = itemAt(e->scenePos(),QTransform());
 
   if(item == mGraphLayoutView && CurrentState != 0)
   {

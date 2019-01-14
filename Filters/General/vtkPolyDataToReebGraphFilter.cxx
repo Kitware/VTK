@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkPolyDataToReebGraphFilter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -32,9 +32,7 @@ vtkPolyDataToReebGraphFilter::vtkPolyDataToReebGraphFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkPolyDataToReebGraphFilter::~vtkPolyDataToReebGraphFilter()
-{
-}
+vtkPolyDataToReebGraphFilter::~vtkPolyDataToReebGraphFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkPolyDataToReebGraphFilter::FillInputPortInformation(int vtkNotUsed(portNumber), vtkInformation *info)
@@ -83,24 +81,24 @@ int vtkPolyDataToReebGraphFilter::RequestData(vtkInformation*,
   // check for the presence of a scalar field
   vtkDataArray *scalarField = input->GetPointData()->GetArray(FieldId);
   if(!scalarField)
-    {
+  {
     vtkElevationFilter* eFilter = vtkElevationFilter::New();
     eFilter->SetInputData(input);
     eFilter->Update();
     output->Build(vtkPolyData::SafeDownCast(eFilter->GetOutput()),
                   "Elevation");
     eFilter->Delete();
-    }
+  }
   else
-    {
+  {
     output->Build(input, FieldId);
-    }
+  }
   if(scalarField)
-    {
-    }
+  {
+  }
   else
-    {
-    }
+  {
+  }
 
   return 1;
 }

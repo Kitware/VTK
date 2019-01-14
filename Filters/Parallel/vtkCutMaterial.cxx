@@ -32,10 +32,10 @@ vtkStandardNewMacro(vtkCutMaterial);
 // Instantiate object with no input and no defined output.
 vtkCutMaterial::vtkCutMaterial()
 {
-  this->MaterialArrayName = NULL;
+  this->MaterialArrayName = nullptr;
   this->SetMaterialArrayName("material");
   this->Material = 0;
-  this->ArrayName = NULL;
+  this->ArrayName = nullptr;
 
   this->UpVector[0] = 0.0;
   this->UpVector[1] = 0.0;
@@ -59,10 +59,10 @@ vtkCutMaterial::vtkCutMaterial()
 vtkCutMaterial::~vtkCutMaterial()
 {
   this->PlaneFunction->Delete();
-  this->PlaneFunction = NULL;
+  this->PlaneFunction = nullptr;
 
-  this->SetMaterialArrayName(NULL);
-  this->SetArrayName(NULL);
+  this->SetMaterialArrayName(nullptr);
+  this->SetArrayName(nullptr);
 }
 
 int vtkCutMaterial::RequestData(
@@ -82,25 +82,24 @@ int vtkCutMaterial::RequestData(
 
   vtkThreshold *thresh;
   vtkCutter *cutter;
-  double *bds;
 
   // Check to see if we have the required field arrays.
-  if (this->MaterialArrayName == NULL || this->ArrayName == NULL)
-    {
+  if (this->MaterialArrayName == nullptr || this->ArrayName == nullptr)
+  {
     vtkErrorMacro("Material and Array names must be set.");
     return 0;
-    }
+  }
 
-  if (input->GetCellData()->GetArray(this->MaterialArrayName) == NULL)
-    {
+  if (input->GetCellData()->GetArray(this->MaterialArrayName) == nullptr)
+  {
     vtkErrorMacro("Could not find cell array " << this->MaterialArrayName);
     return 0;
-    }
-  if (input->GetCellData()->GetArray(this->ArrayName) == NULL)
-    {
+  }
+  if (input->GetCellData()->GetArray(this->ArrayName) == nullptr)
+  {
     vtkErrorMacro("Could not find cell array " << this->ArrayName);
     return 0;
-    }
+  }
 
   // It would be nice to get rid of this in the future.
   thresh = vtkThreshold::New();
@@ -110,7 +109,7 @@ int vtkCutMaterial::RequestData(
   thresh->ThresholdBetween(this->Material-0.5, this->Material+0.5);
   thresh->Update();
 
-  bds = thresh->GetOutput()->GetBounds();
+  const double *bds = thresh->GetOutput()->GetBounds();
   this->CenterPoint[0] = 0.5 * (bds[0] + bds[1]);
   this->CenterPoint[1] = 0.5 * (bds[2] + bds[3]);
   this->CenterPoint[2] = 0.5 * (bds[4] + bds[5]);
@@ -145,10 +144,10 @@ void vtkCutMaterial::ComputeNormal()
   double mag;
 
   if (this->UpVector[0] == 0.0 && this->UpVector[1] == 0.0 && this->UpVector[2] == 0.0)
-    {
+  {
     vtkErrorMacro("Zero magnitude UpVector.");
     this->UpVector[2] = 1.0;
-    }
+  }
 
   tmp[0] = this->MaximumPoint[0] - this->CenterPoint[0];
   tmp[1] = this->MaximumPoint[1] - this->CenterPoint[1];
@@ -157,13 +156,13 @@ void vtkCutMaterial::ComputeNormal()
   mag = vtkMath::Normalize(this->Normal);
   // Rare singularity
   while (mag == 0.0)
-    {
+  {
     tmp[0] = vtkMath::Random();
     tmp[1] = vtkMath::Random();
     tmp[2] = vtkMath::Random();
     vtkMath::Cross(tmp, this->UpVector, this->Normal);
     mag = vtkMath::Normalize(this->Normal);
-    }
+  }
 }
 
 void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
@@ -172,38 +171,37 @@ void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
   vtkIdType idx, bestIdx, num;
   double comp, best;
   vtkCell *cell;
-  double *bds;
 
   // Find the maximum value.
   data = input->GetCellData()->GetArray(this->ArrayName);
-  if (data == NULL)
-    {
+  if (data == nullptr)
+  {
     vtkErrorMacro("What happened to the array " << this->ArrayName);
     return;
-    }
+  }
 
   num = data->GetNumberOfTuples();
   if (num <= 0)
-    {
+  {
     vtkErrorMacro("No values in array " << this->ArrayName);
     return;
-    }
+  }
 
   best = data->GetComponent(0, 0);
   bestIdx = 0;
   for (idx = 1; idx < num; ++idx)
-    {
+  {
     comp = data->GetComponent(idx, 0);
     if (comp > best)
-      {
+    {
       best = comp;
       bestIdx = idx;
-      }
     }
+  }
 
   // Get the cell with the larges value.
   cell = input->GetCell(bestIdx);
-  bds = cell->GetBounds();
+  const double *bds = cell->GetBounds();
   this->MaximumPoint[0] = (bds[0] + bds[1]) * 0.5;
   this->MaximumPoint[1] = (bds[2] + bds[3]) * 0.5;
   this->MaximumPoint[2] = (bds[4] + bds[5]) * 0.5;
@@ -221,13 +219,13 @@ void vtkCutMaterial::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ArrayName: ";
   if ( this->ArrayName)
-    {
+  {
     os << this->ArrayName << endl;
-    }
+  }
   else
-    {
+  {
     os << "(None)" << endl;
-    }
+  }
   os << indent << "MaterialArrayName: " << this->MaterialArrayName << endl;
   os << indent << "Material: " << this->Material << endl;
 

@@ -112,9 +112,7 @@ vtkParallelCoordinatesHistogramRepresentation::vtkParallelCoordinatesHistogramRe
   theme->Delete();
 }
 //------------------------------------------------------------------------------
-vtkParallelCoordinatesHistogramRepresentation::~vtkParallelCoordinatesHistogramRepresentation()
-{
-}
+vtkParallelCoordinatesHistogramRepresentation::~vtkParallelCoordinatesHistogramRepresentation() = default;
 //------------------------------------------------------------------------------
 // Histogram quad color is defined by theme->CellColor
 void vtkParallelCoordinatesHistogramRepresentation::ApplyViewTheme(vtkViewTheme* theme)
@@ -139,25 +137,25 @@ int vtkParallelCoordinatesHistogramRepresentation::ComputeDataProperties()
     return 0;
 
   if (this->UseHistograms)
-    {
+  {
     this->GetHistogramImage(0);
     this->SetHistogramLookupTableRange(0,this->HistogramFilter->GetMaximumBinCount());
     this->HistogramLookupTable->SetRange(this->HistogramLookupTableRange[0],this->HistogramLookupTableRange[1]);
     this->PlotMapper->ScalarVisibilityOn();
-    }
+  }
   else
-    {
+  {
     this->PlotMapper->ScalarVisibilityOff();
-    }
+  }
 
   if (this->ShowOutliers)
-    {
+  {
     this->OutlierActor->VisibilityOn();
-    }
+  }
   else
-    {
+  {
     this->OutlierActor->VisibilityOff();
-    }
+  }
 
   return 1;
 }
@@ -187,19 +185,19 @@ int vtkParallelCoordinatesHistogramRepresentation::RequestData(
 
   // but also show outliers
   if (this->ShowOutliers)
-    {
+  {
     vtkTable* outlierTable = this->GetOutlierData();
 
     if (this->UseCurves)
-      {
-      vtkParallelCoordinatesRepresentation::PlaceCurves(this->OutlierData,outlierTable,NULL);
-      }
-    else
-      {
-      vtkParallelCoordinatesRepresentation::PlaceLines(this->OutlierData,outlierTable,NULL);
-      }
-
+    {
+      vtkParallelCoordinatesRepresentation::PlaceCurves(this->OutlierData,outlierTable,nullptr);
     }
+    else
+    {
+      vtkParallelCoordinatesRepresentation::PlaceLines(this->OutlierData,outlierTable,nullptr);
+    }
+
+  }
 
   this->BuildTime.Modified();
 
@@ -211,13 +209,13 @@ bool vtkParallelCoordinatesHistogramRepresentation::AddToView(vtkView* view)
   this->Superclass::AddToView(view);
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
   if (rv)
-    {
+  {
     rv->GetRenderer()->AddActor(this->OutlierActor);
 
     // not sure what these are for
     //rv->RegisterProgress(...);
     return true;
-    }
+  }
   return false;
 }
 //------------------------------------------------------------------------------
@@ -226,13 +224,13 @@ bool vtkParallelCoordinatesHistogramRepresentation::RemoveFromView(vtkView* view
   this->Superclass::RemoveFromView(view);
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
   if (rv)
-    {
+  {
     rv->GetRenderer()->RemoveActor(this->OutlierActor);
 
     // not sure what these are for
     //rv->UnRegisterProgress(this->OutlineMapper);
     return true;
-    }
+  }
   return false;
 }
 //------------------------------------------------------------------------------
@@ -243,13 +241,13 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceLines(vtkPolyData* polyD
                                                               vtkIdTypeArray* idsToPlot)
 {
   if (this->UseHistograms)
-    {
+  {
     return this->PlaceHistogramLineQuads(polyData);
-    }
+  }
   else
-    {
+  {
     return this->Superclass::PlaceLines(polyData,data,idsToPlot);
-    }
+  }
 }
 //------------------------------------------------------------------------------
 // redirect the line plotting function to the histogram plotting function,
@@ -259,13 +257,13 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceCurves(vtkPolyData* poly
                                                                vtkIdTypeArray* idsToPlot)
 {
   if (this->UseHistograms)
-    {
+  {
     return this->PlaceHistogramCurveQuads(polyData);
-    }
+  }
   else
-    {
+  {
     return this->Superclass::PlaceCurves(polyData,data,idsToPlot);
-    }
+  }
 }
 //------------------------------------------------------------------------------
 // this is a bit tricky.  This class plots selections as lines, regardless
@@ -276,18 +274,18 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceSelection(vtkPolyData* p
                                                                   vtkTable* data,
                                                                   vtkSelectionNode* selectionNode)
 {
-  vtkIdTypeArray* selectedIds = vtkIdTypeArray::SafeDownCast(selectionNode->GetSelectionList());
+  vtkIdTypeArray* selectedIds = vtkArrayDownCast<vtkIdTypeArray>(selectionNode->GetSelectionList());
   if (!selectedIds)
     return 1;
 
   if (this->UseCurves)
-    {
+  {
     this->Superclass::PlaceCurves(polyData,data,selectedIds);
-    }
+  }
   else
-    {
+  {
     this->Superclass::PlaceLines(polyData,data,selectedIds);
-    }
+  }
 
   return 1;
 }
@@ -298,11 +296,11 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramLineQuads(vtkPo
   // histograms and counting the bins.
   int numberOfQuads = 0;
   for (int i=0; i<this->NumberOfAxes-1; i++)
-    {
+  {
     vtkImageData* histogram = this->GetHistogramImage(i);
     if (histogram)
       numberOfQuads += histogram->GetPointData()->GetScalars()->GetNumberOfTuples();
-    }
+  }
 
   if (this->UseCurves)
     numberOfQuads *= this->CurveResolution;
@@ -313,16 +311,16 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramLineQuads(vtkPo
                          numberOfQuads,0);
 
   vtkPoints* points = polyData->GetPoints();
-  float* pointsp = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float* pointsp = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
 
-  vtkDoubleArray* scalars = vtkDoubleArray::SafeDownCast(polyData->GetCellData()->GetScalars());
-  double* scalarsp = scalars->GetPointer(0);//vtkDoubleArray::SafeDownCast(polyData->GetCellData()->GetScalars());
+  vtkDoubleArray* scalars = vtkArrayDownCast<vtkDoubleArray>(polyData->GetCellData()->GetScalars());
+  double* scalarsp = scalars->GetPointer(0);//vtkArrayDownCast<vtkDoubleArray>(polyData->GetCellData()->GetScalars());
 
   // for each histogram, draw a quad for each bin.
   vtkIdType ptId=0;
 //  vtkIdType quadId=0;
   for (int pos=0; pos<this->NumberOfAxes-1; pos++)
-    {
+  {
     int dims[3] = {0,0,0};
     double spacing[3] = {0,0,0};
     vtkImageData* image = this->GetHistogramImage(pos);
@@ -341,11 +339,11 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramLineQuads(vtkPo
 
     // for each bin, draw a quad
     for (int y=0; y<dims[1]; y++)
-      {
+    {
       x2[1] = this->YMin + y * binWidth[1];
 
       for (int x=0; x<dims[0]; x++)
-        {
+      {
         x1[1] = this->YMin + x * binWidth[0];
 
         // the number of rows that fit into this bin
@@ -364,9 +362,9 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramLineQuads(vtkPo
         // in a bin means bright quad.
         //scalars->SetTuple1(quadId++,v);
         *(scalarsp++) = v;//->SetTuple1(quadId++,v);
-        }
       }
     }
+  }
 
   polyData->Modified();
   return 1;
@@ -378,11 +376,11 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
   // histograms and counting the bins.
   int numberOfStrips = 0;
   for (int i=0; i<this->NumberOfAxes-1; i++)
-    {
+  {
     vtkImageData* histogram = this->GetHistogramImage(i);
     if (histogram)
       numberOfStrips += histogram->GetPointData()->GetScalars()->GetNumberOfTuples();
-    }
+  }
 
   int numberOfPointsPerStrip = this->CurveResolution * 2;
 
@@ -392,9 +390,9 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
                          numberOfStrips,0);
 
   vtkPoints *points = polyData->GetPoints();
-  float* pointsp = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float* pointsp = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
 
-  vtkDoubleArray* scalars = vtkDoubleArray::SafeDownCast(polyData->GetCellData()->GetScalars());
+  vtkDoubleArray* scalars = vtkArrayDownCast<vtkDoubleArray>(polyData->GetCellData()->GetScalars());
   double* scalarsp = scalars->GetPointer(0);
 
   // build the default spline
@@ -404,7 +402,7 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
   vtkIdType ptId=0;
   //vtkIdType stripId = 0;
   for (int pos=0; pos<this->NumberOfAxes-1; pos++)
-    {
+  {
     int dims[3] = {0,0,0};
     double spacing[3] = {0,0,0};
     vtkImageData* image = this->GetHistogramImage(pos);
@@ -429,18 +427,18 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
     double dw = binWidth[1] - binWidth[0];
 
     for (int y=0; y<dims[1]; y++)
-      {
+    {
       x2[1] = this->YMin + y * binWidth[1];
 
       for (int x=0; x<dims[0]; x++)
-        {
+      {
         x1[1] = this->YMin + x * binWidth[0];
 
         double v = image->GetScalarComponentAsDouble(x,y,0,0);
         double dy = x2[1] - x1[1];
 
         for (int c=0; c<this->CurveResolution; c++)
-          {
+        {
           xc[0] = this->Xs[pos] + dx*c;
           xc[1] = defSplineValues->GetValue(c)*dy + x1[1];//spline->Evaluate(x1[0]);//spline->Evaluate(x1[0]);
           w = defSplineValues->GetValue(c)*dw + binWidth[0];//bwspline->Evaluate(x1[0]);
@@ -449,12 +447,12 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
 //          points->SetPoint(ptId++, xc[0], xc[1], 0.);
           *(pointsp++) = xc[0]; *(pointsp++) = xc[1]+w; *(pointsp++) = 0.0; ptId++;
           *(pointsp++) = xc[0]; *(pointsp++) = xc[1]; *(pointsp++) = 0.0; ptId++;
-          }
+        }
 
         *(scalarsp++) = v;//->SetTuple1(stripId++,v);
-        }
       }
     }
+  }
 
   polyData->Modified();
   return 1;
@@ -475,13 +473,13 @@ void vtkParallelCoordinatesHistogramRepresentation::PrintSelf(ostream& os, vtkIn
 int vtkParallelCoordinatesHistogramRepresentation::SwapAxisPositions(int position1, int position2)
 {
   if (this->Superclass::SwapAxisPositions(position1,position2))
-    {
+  {
     this->HistogramFilter->Modified();
     if (this->ShowOutliers)
       this->OutlierFilter->Modified();
 
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -489,7 +487,7 @@ int vtkParallelCoordinatesHistogramRepresentation::SwapAxisPositions(int positio
 int vtkParallelCoordinatesHistogramRepresentation::SetRangeAtPosition(int position, double range[2])
 {
   if (this->Superclass::SetRangeAtPosition(position,range))
-    {
+  {
     this->HistogramFilter->SetCustomColumnRange(position,range);
     this->HistogramFilter->Modified();
 
@@ -497,31 +495,31 @@ int vtkParallelCoordinatesHistogramRepresentation::SetRangeAtPosition(int positi
       this->OutlierFilter->Modified();
 
     return 1;
-    }
+  }
   return 0;
 }
 //------------------------------------------------------------------------------
-void vtkParallelCoordinatesHistogramRepresentation::SetUseHistograms(int use)
+void vtkParallelCoordinatesHistogramRepresentation::SetUseHistograms(vtkTypeBool use)
 {
   if (use && this->UseHistograms != use)
-    {
+  {
     this->HistogramFilter->Modified();
 
     if (this->ShowOutliers)
       this->OutlierFilter->Modified();
-    }
+  }
 
   this->UseHistograms = use;
   this->Modified();
 }
 //------------------------------------------------------------------------------
-void vtkParallelCoordinatesHistogramRepresentation::SetShowOutliers(int show)
+void vtkParallelCoordinatesHistogramRepresentation::SetShowOutliers(vtkTypeBool show)
 {
   if (show && this->ShowOutliers != show)
-    {
+  {
     this->HistogramFilter->Modified();
     this->OutlierFilter->Modified();
-    }
+  }
 
   this->ShowOutliers = show;
   this->Modified();
@@ -530,24 +528,24 @@ void vtkParallelCoordinatesHistogramRepresentation::SetShowOutliers(int show)
 void vtkParallelCoordinatesHistogramRepresentation::SetPreferredNumberOfOutliers(int num)
 {
   if (num >= 0)
-    {
+  {
     this->PreferredNumberOfOutliers = num;
     this->OutlierFilter->SetPreferredNumberOfOutliers(num);
     this->Modified();
-    }
+  }
 }
 //------------------------------------------------------------------------------
 void vtkParallelCoordinatesHistogramRepresentation::SetNumberOfHistogramBins(int nx, int ny)
 {
   if (nx > 0 && ny > 0)
-    {
+  {
     this->NumberOfHistogramBins[0] = nx;
     this->NumberOfHistogramBins[1] = ny;
 
     this->HistogramFilter->SetNumberOfBins(nx,ny);
 
     this->Modified();
-    }
+  }
 }
 //------------------------------------------------------------------------------
 void vtkParallelCoordinatesHistogramRepresentation::SetNumberOfHistogramBins(int* n)

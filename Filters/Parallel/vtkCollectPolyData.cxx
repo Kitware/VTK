@@ -34,18 +34,18 @@ vtkCxxSetObjectMacro(vtkCollectPolyData,SocketController, vtkSocketController);
 vtkCollectPolyData::vtkCollectPolyData()
 {
   this->PassThrough = 0;
-  this->SocketController = NULL;
+  this->SocketController = nullptr;
 
   // Controller keeps a reference to this object as well.
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkCollectPolyData::~vtkCollectPolyData()
 {
-  this->SetController(0);
-  this->SetSocketController(0);
+  this->SetController(nullptr);
+  this->SetSocketController(nullptr);
 }
 
 //--------------------------------------------------------------------------
@@ -87,50 +87,49 @@ int vtkCollectPolyData::RequestData(
   int numProcs, myId;
   int idx;
 
-  if (this->Controller == NULL && this->SocketController == NULL)
-    { // Running as a single process.
+  if (this->Controller == nullptr && this->SocketController == nullptr)
+  { // Running as a single process.
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
     return 1;
-    }
+  }
 
-  if (this->Controller == NULL && this->SocketController != NULL)
-    { // This is a client.  We assume no data on client for input.
+  if (this->Controller == nullptr && this->SocketController != nullptr)
+  { // This is a client.  We assume no data on client for input.
     if ( ! this->PassThrough)
-      {
-      vtkPolyData *pd = NULL;;
-      pd = vtkPolyData::New();
+    {
+      vtkPolyData *pd = vtkPolyData::New();
       this->SocketController->Receive(pd, 1, 121767);
       output->CopyStructure(pd);
       output->GetPointData()->PassData(pd->GetPointData());
       output->GetCellData()->PassData(pd->GetCellData());
       pd->Delete();
-      pd = NULL;
+      pd = nullptr;
       return 1;
-      }
+    }
     // If not collected, output will be empty from initialization.
     return 0;
-    }
+  }
 
   myId = this->Controller->GetLocalProcessId();
   numProcs = this->Controller->GetNumberOfProcesses();
 
   if (this->PassThrough)
-    {
+  {
     // Just copy and return (no collection).
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
     return 1;
-    }
+  }
 
   // Collect.
   vtkAppendPolyData *append = vtkAppendPolyData::New();
-  vtkPolyData *pd = NULL;;
+  vtkPolyData *pd = nullptr;
 
   if (myId == 0)
-    {
+  {
     pd = vtkPolyData::New();
     pd->CopyStructure(input);
     pd->GetPointData()->PassData(input->GetPointData());
@@ -138,35 +137,35 @@ int vtkCollectPolyData::RequestData(
     append->AddInputData(pd);
     pd->Delete();
     for (idx = 1; idx < numProcs; ++idx)
-      {
+    {
       pd = vtkPolyData::New();
       this->Controller->Receive(pd, idx, 121767);
       append->AddInputData(pd);
       pd->Delete();
-      pd = NULL;
-      }
+      pd = nullptr;
+    }
     append->Update();
     input = append->GetOutput();
     if (this->SocketController)
-      { // Send collected data onto client.
+    { // Send collected data onto client.
       this->SocketController->Send(input, 1, 121767);
       // output will be empty.
-      }
+    }
     else
-      { // No client. Keep the output here.
+    { // No client. Keep the output here.
       output->CopyStructure(input);
       output->GetPointData()->PassData(input->GetPointData());
       output->GetCellData()->PassData(input->GetCellData());
-      }
-    append->Delete();
-    append = NULL;
     }
+    append->Delete();
+    append = nullptr;
+  }
   else
-    {
+  {
     this->Controller->Send(input, 0, 121767);
     append->Delete();
-    append = NULL;
-    }
+    append = nullptr;
+  }
 
   return 1;
 }

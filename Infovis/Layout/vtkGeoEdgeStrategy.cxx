@@ -33,9 +33,9 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
-#include <vtksys/stl/map>
+#include <utility>
+#include <vector>
+#include <map>
 
 vtkStandardNewMacro(vtkGeoEdgeStrategy);
 
@@ -48,49 +48,49 @@ vtkGeoEdgeStrategy::vtkGeoEdgeStrategy()
 
 void vtkGeoEdgeStrategy::Layout()
 {
-  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int> edgeCount;
-  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int> edgeNumber;
-  vtksys_stl::vector<vtkEdgeType> edgeVector(this->Graph->GetNumberOfEdges());
+  std::map<std::pair<vtkIdType, vtkIdType>, int> edgeCount;
+  std::map<std::pair<vtkIdType, vtkIdType>, int> edgeNumber;
+  std::vector<vtkEdgeType> edgeVector(this->Graph->GetNumberOfEdges());
   vtkSmartPointer<vtkEdgeListIterator> it =
     vtkSmartPointer<vtkEdgeListIterator>::New();
   this->Graph->GetEdges(it);
   while (it->HasNext())
-    {
+  {
     vtkEdgeType e = it->Next();
     vtkIdType src, tgt;
     if (e.Source < e.Target)
-      {
+    {
       src = e.Source;
       tgt = e.Target;
-      }
+    }
     else
-      {
+    {
       src = e.Target;
       tgt = e.Source;
-      }
-    edgeCount[vtksys_stl::pair<vtkIdType, vtkIdType>(src, tgt)]++;
-    edgeVector[e.Id] = e;
     }
+    edgeCount[std::pair<vtkIdType, vtkIdType>(src, tgt)]++;
+    edgeVector[e.Id] = e;
+  }
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
   double* pts = new double[this->NumberOfSubdivisions*3];
   for (vtkIdType eid = 0; eid < numEdges; ++eid)
-    {
+  {
     vtkEdgeType e = edgeVector[eid];
     vtkIdType src, tgt;
     if (e.Source < e.Target)
-      {
+    {
       src = e.Source;
       tgt = e.Target;
-      }
+    }
     else
-      {
+    {
       src = e.Target;
       tgt = e.Source;
-      }
+    }
     // Lookup the total number of edges with this source
     // and target, as well as how many times this pair
     // has been found so far.
-    vtksys_stl::pair<vtkIdType,vtkIdType> p(src, tgt);
+    std::pair<vtkIdType,vtkIdType> p(src, tgt);
     edgeNumber[p]++;
     int cur = edgeNumber[p];
     int total = edgeCount[p];
@@ -104,9 +104,9 @@ void vtkGeoEdgeStrategy::Layout()
     // earth directly between the two endpoints.
     double w[3];
     for (int c = 0; c < 3; ++c)
-      {
+    {
       w[c] = (sourcePt[c] + targetPt[c])/2.0;
-      }
+    }
     vtkMath::Normalize(w);
 
     // The center of the circle used to draw the arc is a
@@ -114,20 +114,20 @@ void vtkGeoEdgeStrategy::Layout()
     // Use cur and total to separate parallel arcs.
     double center[3];
     for (int c = 0; c < 3; ++c)
-      {
+    {
       center[c] = this->ExplodeFactor * this->GlobeRadius * w[c]
                   * (cur + 1) / total;
-      }
+    }
 
     // The vectors u and x are unit vectors pointing from the
     // center of the circle to the two endpoints of the arc,
     // lastPoint and curPoint, respectively.
     double u[3], x[3];
     for (int c = 0; c < 3; ++c)
-      {
+    {
       u[c] = sourcePt[c] - center[c];
       x[c] = targetPt[c] - center[c];
-      }
+    }
     double radius = vtkMath::Norm(u);
     vtkMath::Normalize(u);
     vtkMath::Normalize(x);
@@ -140,9 +140,9 @@ void vtkGeoEdgeStrategy::Layout()
     // We determine whether u points toward the center of the earth
     // by checking whether the dot product of u and w is negative.
     if (vtkMath::Dot(w, u) < 0)
-      {
+    {
       theta = 2.0*vtkMath::Pi() - theta;
-      }
+    }
 
     // We need two perpendicular vectors on the plane of the circle
     // in order to draw the circle.  First we calculate n, a vector
@@ -159,24 +159,24 @@ void vtkGeoEdgeStrategy::Layout()
     // Use the general equation for a circle in three dimensions
     // to draw an arc from the last point to the current point.
     for (int s = 0; s < this->NumberOfSubdivisions; ++s)
-      {
+    {
       double angle = (this->NumberOfSubdivisions - 1.0 - s)
         * theta / (this->NumberOfSubdivisions - 1.0);
       for (int c = 0; c < 3; ++c)
-        {
+      {
         pts[3*s + c] = center[c]
           + radius*cos(angle)*u[c]
           + radius*sin(angle)*v[c];
-        }
       }
+    }
     this->Graph->SetEdgePoints(e.Id, this->NumberOfSubdivisions, pts);
 
     if (eid % 1000 == 0)
-      {
+    {
       double progress = eid / static_cast<double>(numEdges);
       this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
-      }
     }
+  }
   double progress = 1.0;
   this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
   delete [] pts;

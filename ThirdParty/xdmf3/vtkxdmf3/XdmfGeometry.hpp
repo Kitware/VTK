@@ -24,12 +24,12 @@
 #ifndef XDMFGEOMETRY_HPP_
 #define XDMFGEOMETRY_HPP_
 
-// Forward Declarations
-class XdmfGeometryType;
-
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
 #include "XdmfArray.hpp"
+#include "XdmfGeometryType.hpp"
+
+#ifdef __cplusplus
 
 /**
  * @brief Handles the coordinate positions of points in an XdmfGrid.
@@ -97,6 +97,32 @@ public:
   virtual unsigned int getNumberPoints() const;
 
   /**
+   * Gets the origin of the geometry. This value defaults to (0, 0, 0)
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfGeometry.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#getOrigin
+   * @until //#getOrigin
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleGeometry.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//getOrigin
+   * @until #//getOrigin
+   *
+   * @return    A vector containing the current location
+   *            of the origin of this geometry
+   */
+  std::vector<double> getOrigin() const;
+
+  /**
    * Get the XdmfGeometryType associated with this geometry.
    *
    * Example of use:
@@ -120,6 +146,35 @@ public:
    * @return    XdmfGeometryType of this geometry.
    */
   shared_ptr<const XdmfGeometryType> getType() const;
+
+  /**
+   * Sets the origin of the geometry.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfGeometry.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#setOrigin
+   * @until //#setOrigin
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleGeometry.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//setOrigin
+   * @until #//setOrigin
+   *
+   * @param     newX    The new X value of the origin.
+   * @param     newY    The new Y value of the origin.
+   * @param     newZ    The new Z value of the origin.
+   */
+  void setOrigin(double newX, double newY, double newZ = 0.0);
+
+  void setOrigin(std::vector<double> newOrigin);
 
   /**
    * Set the XdmfGeometryType associated with this geometry.
@@ -146,6 +201,8 @@ public:
    */
   void setType(const shared_ptr<const XdmfGeometryType> type);
 
+  XdmfGeometry(XdmfGeometry &);
+
 protected:
 
   XdmfGeometry();
@@ -162,6 +219,42 @@ private:
 
   int mNumberPoints;
   shared_ptr<const XdmfGeometryType> mType;
+
+  std::vector<double> mOrigin;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFGEOMETRY; // Simply as a typedef to ensure correct typing
+typedef struct XDMFGEOMETRY XDMFGEOMETRY; 
+
+XDMF_EXPORT XDMFGEOMETRY * XdmfGeometryNew();
+
+XDMF_EXPORT unsigned int XdmfGeometryGetNumberPoints(XDMFGEOMETRY * geometry);
+
+XDMF_EXPORT double * XdmfGeometryGetOrigin(XDMFGEOMETRY * geometry);
+
+XDMF_EXPORT int XdmfGeometryGetOriginSize(XDMFGEOMETRY * geometry);
+
+XDMF_EXPORT int XdmfGeometryGetType(XDMFGEOMETRY * geometry);
+
+XDMF_EXPORT void XdmfGeometrySetOrigin(XDMFGEOMETRY * geometry, double newX, double newY, double newZ);
+
+XDMF_EXPORT void XdmfGeometrySetOriginArray(XDMFGEOMETRY * geometry, double * originVals, unsigned int numDims);
+
+XDMF_EXPORT void XdmfGeometrySetType(XDMFGEOMETRY * geometry, int type, int * status);
+
+XDMF_ITEM_C_CHILD_DECLARE(XdmfGeometry, XDMFGEOMETRY, XDMF)
+XDMF_ARRAY_C_CHILD_DECLARE(XdmfGeometry, XDMFGEOMETRY, XDMF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFGEOMETRY_HPP_ */

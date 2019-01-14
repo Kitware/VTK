@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLStructuredDataWriter - Superclass for VTK XML structured data writers.
-// .SECTION Description
-// vtkXMLStructuredDataWriter provides VTK XML writing functionality that
-// is common among all the structured data formats.
+/**
+ * @class   vtkXMLStructuredDataWriter
+ * @brief   Superclass for VTK XML structured data writers.
+ *
+ * vtkXMLStructuredDataWriter provides VTK XML writing functionality that
+ * is common among all the structured data formats.
+*/
 
 #ifndef vtkXMLStructuredDataWriter_h
 #define vtkXMLStructuredDataWriter_h
@@ -31,38 +34,50 @@ class VTKIOXML_EXPORT vtkXMLStructuredDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLStructuredDataWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get/Set the number of pieces used to stream the image through the
-  // pipeline while writing to the file.
+  //@{
+  /**
+   * Get/Set the number of pieces used to stream the image through the
+   * pipeline while writing to the file.
+   */
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
+  //@}
 
-  // Description:
-  // Get/Set the piece to write to the file.  If this is
-  // negative, all pieces will be written.
+  //@{
+  /**
+   * Get/Set the piece to write to the file.  If this is
+   * negative, all pieces will be written.
+   */
   vtkSetMacro(WritePiece, int);
   vtkGetMacro(WritePiece, int);
+  //@}
 
-  // Description:
-  // Get/Set the ghost level used to pad each piece.
+  //@{
+  /**
+   * Get/Set the ghost level used to pad each piece.
+   */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
+  //@}
 
-  // Description:
-  // Get/Set the extent of the input that should be treated as the
-  // WholeExtent in the output file.  The default is the WholeExtent
-  // of the input.
+  //@{
+  /**
+   * Get/Set the extent of the input that should be treated as the
+   * WholeExtent in the output file.  The default is the WholeExtent
+   * of the input.
+   */
   vtkSetVector6Macro(WriteExtent, int);
   vtkGetVector6Macro(WriteExtent, int);
+  //@}
 
 protected:
   vtkXMLStructuredDataWriter();
-  ~vtkXMLStructuredDataWriter();
+  ~vtkXMLStructuredDataWriter() override;
 
   // Writing drivers defined by subclasses.
-  virtual void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
+  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) override;
   virtual void WriteAppendedPiece(int index, vtkIndent indent);
   virtual void WriteAppendedPieceData(int index);
   virtual void WriteInlinePiece(vtkIndent indent);
@@ -83,9 +98,11 @@ protected:
   void SetInputUpdateExtent(int piece);
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector);
+                     vtkInformationVector* outputVector) override;
 
   vtkSetVector6Macro(InternalWriteExtent, int);
+
+  static vtkIdType GetNumberOfValues(vtkDataSet* input);
 
   // The extent of the input to write, as specified by user
   int WriteExtent[6];
@@ -112,8 +129,8 @@ protected:
   OffsetsManagerArray *CellDataOM;
 
 private:
-  vtkXMLStructuredDataWriter(const vtkXMLStructuredDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLStructuredDataWriter&);  // Not implemented.
+  vtkXMLStructuredDataWriter(const vtkXMLStructuredDataWriter&) = delete;
+  void operator=(const vtkXMLStructuredDataWriter&) = delete;
 };
 
 #endif

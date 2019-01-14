@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile: vtkSimplePointsWriter.h,v $
+  Module:    vtkSimplePointsWriter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSimplePointsWriter - write a file of xyz coordinates
-// .SECTION Description
-// vtkSimplePointsWriter writes a simple file of xyz coordinates
-
-// .SECTION See Also
-// vtkSimplePointsReader
+/**
+ * @class   vtkSimplePointsWriter
+ * @brief   write a file of xyz coordinates
+ *
+ * vtkSimplePointsWriter writes a simple file of xyz coordinates
+ *
+ * @sa
+ * vtkSimplePointsReader
+*/
 
 #ifndef vtkSimplePointsWriter_h
 #define vtkSimplePointsWriter_h
@@ -30,22 +33,22 @@ class VTKIOLEGACY_EXPORT vtkSimplePointsWriter : public vtkDataSetWriter
 public:
   static vtkSimplePointsWriter *New();
   vtkTypeMacro(vtkSimplePointsWriter,vtkDataSetWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGetMacro(DecimalPrecision, int);
   vtkSetMacro(DecimalPrecision, int);
 
 protected:
   vtkSimplePointsWriter();
-  ~vtkSimplePointsWriter(){}
+  ~vtkSimplePointsWriter() override{}
 
-  void WriteData();
+  void WriteData() override;
 
   int DecimalPrecision;
 
 private:
-  vtkSimplePointsWriter(const vtkSimplePointsWriter&);  // Not implemented.
-  void operator=(const vtkSimplePointsWriter&);  // Not implemented.
+  vtkSimplePointsWriter(const vtkSimplePointsWriter&) = delete;
+  void operator=(const vtkSimplePointsWriter&) = delete;
 };
 
 #endif

@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRIBLight - RIP Light
-// .SECTION Description
-// vtkRIBLight is a subclass of vtkLight that allows the user to
-// specify light source shaders and shadow casting lights for use with
-// RenderMan.
-//
-// .SECTION See Also
-// vtkRIBExporter vtkRIBProperty
+/**
+ * @class   vtkRIBLight
+ * @brief   RIP Light
+ *
+ * vtkRIBLight is a subclass of vtkLight that allows the user to
+ * specify light source shaders and shadow casting lights for use with
+ * RenderMan.
+ *
+ * @sa
+ * vtkRIBExporter vtkRIBProperty
+*/
 
 #ifndef vtkRIBLight_h
 #define vtkRIBLight_h
@@ -34,22 +37,22 @@ class VTKIOEXPORT_EXPORT vtkRIBLight : public vtkLight
 public:
   static vtkRIBLight *New();
   vtkTypeMacro(vtkRIBLight,vtkLight);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkBooleanMacro(Shadows,int);
-  vtkSetMacro(Shadows,int);
-  vtkGetMacro(Shadows,int);
+  vtkBooleanMacro(Shadows,vtkTypeBool);
+  vtkSetMacro(Shadows,vtkTypeBool);
+  vtkGetMacro(Shadows,vtkTypeBool);
 
-  void Render(vtkRenderer *ren, int index);
+  void Render(vtkRenderer *ren, int index) override;
 protected:
   vtkRIBLight();
-  ~vtkRIBLight();
+  ~vtkRIBLight() override;
 
   vtkLight *Light;
-  int Shadows;
+  vtkTypeBool Shadows;
 private:
-  vtkRIBLight(const vtkRIBLight&);  // Not implemented.
-  void operator=(const vtkRIBLight&);  // Not implemented.
+  vtkRIBLight(const vtkRIBLight&) = delete;
+  void operator=(const vtkRIBLight&) = delete;
 };
 
 #endif

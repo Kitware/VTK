@@ -37,7 +37,7 @@
 
 #include "vtkTimerLog.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkSMPContourGridManyPieces);
 
@@ -45,11 +45,12 @@ vtkStandardNewMacro(vtkSMPContourGridManyPieces);
 // of 0.0.
 vtkSMPContourGridManyPieces::vtkSMPContourGridManyPieces()
 {
+  VTK_LEGACY_BODY(
+    vtkSMPContourGridManyPieces::vtkSMPContourGridManyPieces,
+    "VTK 8.1");
 }
 
-vtkSMPContourGridManyPieces::~vtkSMPContourGridManyPieces()
-{
-}
+vtkSMPContourGridManyPieces::~vtkSMPContourGridManyPieces() = default;
 
 namespace
 {
@@ -88,9 +89,7 @@ public:
   {
   }
 
-  ~vtkContourGridManyPiecesFunctor()
-  {
-  }
+  ~vtkContourGridManyPiecesFunctor() = default;
 
   void Initialize()
   {
@@ -105,19 +104,19 @@ public:
 
     // set precision for the points in the output
     if(this->Filter->GetOutputPointsPrecision() == vtkAlgorithm::DEFAULT_PRECISION)
-      {
+    {
       newPts->SetDataType(this->Input->GetPoints()->GetDataType());
-      }
+    }
     else if(this->Filter->GetOutputPointsPrecision() == vtkAlgorithm::SINGLE_PRECISION)
-      {
+    {
       newPts->SetDataType(VTK_FLOAT);
-      }
+    }
     else if(this->Filter->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION)
-      {
+    {
       newPts->SetDataType(VTK_DOUBLE);
-      }
+    }
 
-    output->SetPoints(newPts.GetPointer());
+    output->SetPoints(newPts);
 
     vtkIdType numCells = this->Input->GetNumberOfCells();
 
@@ -125,22 +124,22 @@ public:
       pow(static_cast<double>(numCells),.75));
     estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
     if (estimatedSize < 1024)
-      {
+    {
       estimatedSize = 1024;
-      }
+    }
 
     newPts->Allocate(estimatedSize, estimatedSize);
 
     // vtkNew<vtkNonMergingPointLocator> locator;
-    // locator->SetPoints(newPts.GetPointer());
+    // locator->SetPoints(newPts);
 
     vtkNew<vtkMergePoints> locator;
-    locator->InitPointInsertion (newPts.GetPointer(),
+    locator->InitPointInsertion (newPts,
                                  this->Input->GetBounds(),
                                  this->Input->GetNumberOfPoints());
 
     // vtkNew<vtkPointLocator> locator;
-    // locator->InitPointInsertion (newPts.GetPointer(),
+    // locator->InitPointInsertion (newPts,
     //                              this->Input->GetBounds(),
     //                              this->Input->GetNumberOfPoints());
 
@@ -174,10 +173,10 @@ public:
     T range[2];
 
     for (vtkIdType cellid=begin; cellid<end; cellid++)
-      {
-      this->Input->GetCellPoints(cellid, pids.GetPointer());
+    {
+      this->Input->GetCellPoints(cellid, pids);
       cellScalars->SetNumberOfTuples(pids->GetNumberOfIds());
-      this->InScalars->GetTuples(pids.GetPointer(), cellScalars);
+      this->InScalars->GetTuples(pids, cellScalars);
       int numCellScalars = cellScalars->GetNumberOfComponents()
         * cellScalars->GetNumberOfTuples();
       T* cellScalarPtr = static_cast<T*>(cellScalars->GetVoidPointer(0));
@@ -188,69 +187,69 @@ public:
       for (T *it = cellScalarPtr + 1, *itEnd = cellScalarPtr + numCellScalars;
            it != itEnd;
            ++it)
-        {
+      {
         if (*it <= range[0])
-          {
+        {
           range[0] = *it;
-          } //if scalar <= min range value
+        } //if scalar <= min range value
         if (*it >= range[1])
-          {
+        {
           range[1] = *it;
-          } //if scalar >= max range value
-        } // for all cellScalars
+        } //if scalar >= max range value
+      } // for all cellScalars
 
       bool needCell = false;
       for (int i = 0; i < numValues; i++)
-        {
+      {
         if ((values[i] >= range[0]) && (values[i] <= range[1]))
-            {
+        {
             needCell = true;
-            } // if contour value in range for this cell
-          } // end for numContours
+        } // if contour value in range for this cell
+      } // end for numContours
 
       if (needCell)
-          {
-          this->Input->GetCell(cellid, cell.GetPointer());
+      {
+          this->Input->GetCell(cellid, cell);
 
           for (int i=0; i < numValues; i++)
-            {
+          {
             if ((values[i] >= range[0]) && (values[i] <= range[1]))
-              {
+            {
               cell->Contour(values[i],
                             cellScalars,
-                            locator.GetPointer(),
-                            newVerts.GetPointer(),
-                            newLines.GetPointer(),
-                            newPolys.GetPointer(),
+                            locator,
+                            newVerts,
+                            newLines,
+                            newPolys,
                             inPd,
                             outPd,
                             inCd,
                             cellid,
                             outCd);
-              }
             }
           }
       }
+    }
 
     if (newVerts->GetNumberOfCells())
-      {
-      output->SetVerts(newVerts.GetPointer());
-      }
+    {
+      output->SetVerts(newVerts);
+    }
 
     if (newLines->GetNumberOfCells())
-      {
-      output->SetLines(newLines.GetPointer());
-      }
+    {
+      output->SetLines(newLines);
+    }
 
     if (newPolys->GetNumberOfCells())
-      {
-      output->SetPolys(newPolys.GetPointer());
-      }
+    {
+      output->SetPolys(newPolys);
+    }
 
     output->Squeeze();
 
-    output->Register(0);
-    this->Outputs.Local().push_back(output.GetPointer());
+    output->Register(nullptr);
+    this->Outputs.Local().push_back(output);
   }
 
   void Reduce()
@@ -261,19 +260,19 @@ public:
     vtkSMPThreadLocal<std::vector<vtkPolyData*> >::iterator outIter =
       this->Outputs.begin();
     while(outIter != this->Outputs.end())
-      {
+    {
       std::vector<vtkPolyData*>& outs = *outIter;
       std::vector<vtkPolyData*>::iterator iter = outs.begin();
       while (iter != outs.end())
-        {
+      {
         mp->SetPiece(count++, *iter);
         (*iter)->Delete();
-        iter++;
-        }
-      ++outIter;
+        ++iter;
       }
+      ++outIter;
+    }
 
-    this->Output->SetBlock(0, mp.GetPointer());
+    this->Output->SetBlock(0, mp);
   }
 };
 
@@ -289,24 +288,24 @@ int vtkSMPContourGridManyPieces::RequestData(
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::GetData(outputVector);
 
   if (input->GetNumberOfCells() == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   vtkDataArray* inScalars = this->GetInputArrayToProcess(0,inputVector);
   if (!inScalars)
-    {
+  {
     return 1;
-    }
+  }
 
   // Not thread safe so calculate first.
   input->GetBounds();
 
   int numContours = this->GetNumberOfContours();
   if (numContours < 1)
-    {
+  {
     return 1;
-    }
+  }
 
   double *values=this->GetValues();
 
@@ -317,17 +316,17 @@ int vtkSMPContourGridManyPieces::RequestData(
   // the overhead of allocating data structures, building locators etc.
   // ends up being too big.
   if (inScalars->GetDataType() == VTK_FLOAT)
-    {
+  {
     vtkContourGridManyPiecesFunctor<float> functor(this, input, inScalars, numContours, values, output);
     vtkIdType grain = numCells > 100000 ? numCells / 100 : numCells;
     vtkSMPTools::For(0, numCells, grain, functor);
-    }
+  }
   else if(inScalars->GetDataType() == VTK_DOUBLE)
-    {
+  {
     vtkContourGridManyPiecesFunctor<double> functor(this, input, inScalars, numContours, values, output);
     vtkIdType grain = numCells > 100000 ? numCells / 100 : numCells;
     vtkSMPTools::For(0, numCells, grain, functor);
-    }
+  }
 
   return 1;
 }

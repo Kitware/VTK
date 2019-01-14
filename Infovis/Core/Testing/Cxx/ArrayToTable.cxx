@@ -27,8 +27,8 @@
 #include <vtkSparseArray.h>
 #include <vtkTable.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/stl/stdexcept>
+#include <iostream>
+#include <stdexcept>
 
 #define test_expression(expression) \
 { \
@@ -39,7 +39,7 @@
 int ArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkDenseArray<vtkStdString> > a = vtkSmartPointer<vtkDenseArray<vtkStdString> >::New();
     a->Resize(2);
     a->SetValue(0, "Howdy");
@@ -54,7 +54,7 @@ int ArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     test_expression(c->GetOutput()->GetNumberOfColumns() == 1);
     test_expression(c->GetOutput()->GetNumberOfRows() == 2);
-    test_expression(vtkStdString(c->GetOutput()->GetColumn(0)->GetName()) == "");
+    test_expression(vtkStdString(c->GetOutput()->GetColumn(0)->GetName()).empty());
     test_expression(c->GetOutput()->GetValue(0, 0).ToString() == "Howdy");
     test_expression(c->GetOutput()->GetValue(1, 0).ToString() == "World!");
 
@@ -80,11 +80,11 @@ int ArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(f->GetOutput()->GetValue(1, 1).ToDouble() == 2.0);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

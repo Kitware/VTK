@@ -3,24 +3,33 @@
 # The script to be run must be the first argument.
 import sys
 if len(sys.argv) < 2:
-    print "Usage %s <test script> [<addition arguments>]" % sys.argv[0]
+    print("Usage %s <test script> [<addition arguments>]" % sys.argv[0])
     sys.exit(1)
 for i in range(2, len(sys.argv)):
     if sys.argv[i] == '-A' and i < len(sys.argv)-1:
         sys.path = sys.path + [sys.argv[i+1]]
 
 import vtk
-import math
 
 #these are the modules that define methods/variables
 #used by many scripts. We just include them always
 from backdrop import *
 from mccases import *
-import expr
 import catch
-import info
+import expr
 import file
+import info
+import math
 from vtk.util.colors import *
+
+
+# Mock class that overrides the Start() method from vtkRenderWindowInteractor
+# to do nothing. This allows VTK's python tests to be standard VTK scripts that
+# call Start() on the interactor.
+class vtkTestingInteractor(vtk.vtkRenderWindowInteractor):
+    def Start(self):
+        pass
+
 
 #implementation for lindex.
 def lindex(list, index):
@@ -43,7 +52,7 @@ def gets(file, varName, global_vars):
 
 def tcl_platform(what):
     if what != "platform":
-        raise "Only platform supported as yet!"
+        raise ValueError("Only platform supported as yet!")
     plat = sys.platform
     if plat[:5] == "linux":
         return "unix"
@@ -56,11 +65,11 @@ def get_variable_name(*args):
             continue
         # it is essential to qualify the scope of type since
         # some test define type variable which messes up the
-        # bultin call.
+        # builtin call.
         if __builtins__.type(arg) == __builtins__.type("string"):
             var_name += arg
         else:
-            var_name += `arg`
+            var_name += repr(arg)
     return var_name
 
 #init Tk
@@ -85,6 +94,9 @@ for arg in sys.argv[2:]:
 
 VTK_DATA_ROOT = rtTester.GetDataRoot()
 
+if rtTester.IsInteractiveModeSpecified() == 0:
+    vtk.vtkRenderWindowInteractor = vtkTestingInteractor
+
 # load in the script
 test_script = sys.argv[1]
 
@@ -94,12 +106,12 @@ threshold = -1
 
 # we pass the locals over so that the test script has access to
 # all the locals we have defined here.
-execfile(test_script, globals(), locals())
+exec(compile(open(test_script).read(), test_script, 'exec'), globals(), locals())
 
 local_variables_dict = locals()
 
 
-if "iren" in local_variables_dict.keys():
+if "iren" in local_variables_dict:
     renWin.Render()
 
 if pythonTk:
@@ -111,25 +123,21 @@ rtResult = 0
 if rtTester.IsValidImageSpecified() != 0:
     # look for a renderWindow ImageWindow or ImageViewer
     # first check for some common names
-    if "renWin" in local_variables_dict.keys():
+    if "renWin" in local_variables_dict:
         rtTester.SetRenderWindow(renWin)
         if threshold == -1:
-            threshold = 10
+            threshold = 0.15
     else:
         if threshold == -1:
-            threshold = 5
+            threshold = 0.15
 
-        if "viewer" in local_variables_dict.keys():
+        if "viewer" in local_variables_dict:
             rtTester.SetRenderWindow(viewer.GetRenderWindow())
             viewer.Render()
-        elif "imgWin" in local_variables_dict.keys():
+        elif "imgWin" in local_variables_dict:
             rtTester.SetRenderWindow(imgWin)
             imgWin.Render()
     rtResult = rtTester.RegressionTest(threshold)
-
-if rtTester.IsInteractiveModeSpecified() != 0:
-    if "iren" in local_variables_dict.keys():
-        iren.Start()
 
 if rtResult == 0:
     sys.exit(1)

@@ -1,29 +1,24 @@
-include(vtkGhostscript)
+include("${CMAKE_CURRENT_LIST_DIR}/vtkWkHtmlToImage.cmake")
 
-# Only run GL2PS tests if GhostScript is available
-if(VTK_GHOSTSCRIPT_EXECUTABLE AND (VTK_RENDERING_BACKEND STREQUAL "OpenGL"))
-  set(GL2PSTests
-    TestContextGL2PS.cxx
-    TestGL2PSExporterMultipleRenderers.cxx
-    TestGL2PSExporterRaster.cxx
-    TestGL2PSExporterRasterExclusion.cxx
-    TestGL2PSExporterVector.cxx
-    TestGL2PSExporterVolumeRaster.cxx
-    TestGL2PSTextActor.cxx
-    TestGL2PSTextActor3D.cxx
-    TestGL2PSLabeledDataMapper.cxx
-    TestLinePlotGL2PS.cxx
-    TestStackedPlotGL2PS.cxx
-          )
+if (VTK_WKHTMLTOIMAGE_EXECUTABLE)
+  set(SVGTests
+    TestSVGContextExport.cxx,NO_DATA,NO_VALID
+    TestSVGContextShading.cxx,NO_DATA,NO_VALID
+    TestSVGExporterContextPolyData.cxx,NO_VALID
+    )
 endif()
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+
+vtk_add_test_cxx(vtkIOExportCxxTests tests
   X3DTest.cxx,NO_DATA,NO_VALID
-  ${GL2PSTests}
+  TestOBJExporter.cxx,NO_DATA,NO_VALID
+  TestGLTFExporter.cxx,NO_DATA,NO_VALID
+  TestSingleVTPExporter.cxx,NO_DATA,NO_VALID
+  ${SVGTests}
   TestRIBExporter.cxx,NO_VALID
   UnitTestRIB.cxx,NO_DATA,NO_VALID
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkIOExportCxxTests tests
   RENDERING_FACTORY
   )
 
@@ -32,97 +27,48 @@ find_path(RMANTREE bin/prman HINTS
           /Applications/Pixar/RenderManProServer-19.0
           /opt/pixar/RenderManProServer-19.0
 )
+mark_as_advanced(RMANTREE)
 
 # Tests to run if Renderman is present
 if(RMANTREE)
   # write a Renderman ini file to specify the shaderpath
-  write_file(${${vtk-module}_BINARY_DIR}/Testing/Cxx/rendermn.ini
-          "/shaderpath &:${${vtk-module}_SOURCE_DIR}/Testing/Cxx")
-  add_test(NAME ${vtk-module}-RIBExporterShaderCompile
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/rendermn.ini
+          "/shaderpath &:${CMAKE_CURRENT_SOURCE_DIR}/Testing/Cxx")
+  add_test(NAME VTK::IOExport-RIBExporterShaderCompile
           COMMAND ${RMANTREE}/bin/shader
-          ${${vtk-module}_SOURCE_DIR}/Testing/Data/Input/bozo.sl
-          ${${vtk-module}_SOURCE_DIR}/Testing/Data/Input/dented.sl
-          WORKING_DIRECTORY ${${vtk-module}_BINARY_DIR}/Testing/Cxx
+          ${CMAKE_CURRENT_SOURCE_DIR}/../Data/Input/bozo.sl
+          ${CMAKE_CURRENT_SOURCE_DIR}/../Data/Input/dented.sl
+          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
-  add_test(NAME ${vtk-module}-RIBExporterPrman
+  add_test(NAME VTK::IOExport-RIBExporterPrman
           COMMAND ${RMANTREE}/bin/prman
-            ${VTK_TEST_OUTPUT_DIR}/TestRIBExporter.rib
-          WORKING_DIRECTORY ${${vtk-module}_BINARY_DIR}/Testing/Cxx
+            ${_vtk_build_TEST_OUTPUT_DIRECTORY}/TestRIBExporter.rib
+          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
   # Image diff rman generated tif with baseline
-  set(baseline_dir ${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline)
-  ExternalData_add_test(VTKData
-        NAME ${vtk-module}Cxx-ComparePrmanImage
+  set(baseline_dir ${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline)
+  ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
+        NAME VTK::IOExportCxx-ComparePrmanImage
         COMMAND ${RMANTREE}/bin/cmptiff -d 100
         DATA{${baseline_dir}/TestRIBExporter.tif}
-        ${VTK_TEST_OUTPUT_DIR}/TestRIBExporter.tif
+        ${_vtk_build_TEST_OUTPUT_DIRECTORY}/TestRIBExporter.tif
   )
-  set_tests_properties(${vtk-module}-RIBExporterPrman
+  set_tests_properties(VTK::IOExport-RIBExporterPrman
         PROPERTIES
         DEPENDS
-        "${vtk-module}-TestRIBExporter"
+        "VTK::IOExport-TestRIBExporter"
         DEPENDS
-        "${vtk-module}-RIBExporterShaderCompile"
+        "VTK::IOExport-RIBExporterShaderCompile"
         ENVIRONMENT
         "RMANTREE=${RMANTREE}"
   )
-  set_tests_properties("${vtk-module}Cxx-ComparePrmanImage"
+  set_tests_properties("VTK::IOExportCxx-ComparePrmanImage"
         PROPERTIES
-        DEPENDS "${vtk-module}Cxx-TestRIBExporter"
+        DEPENDS "VTK::IOExportCxx-TestRIBExporter"
         REQUIRED_FILES
-          "${VTK_TEST_OUTPUT_DIR}/TestRIBExporter.tif"
+          "${_vtk_build_TEST_OUTPUT_DIRECTORY}/TestRIBExporter.tif"
   )
 endif()
 
-# The GL2PS tests produce postscript output, which cannot be compared using
-# the built-in image regression framework. The tests added above will create the
-# postscript, while the following tests will convert the postscript to a PNG and
-# run the PNGCompare test target to do an image diff on the output against a
-# baseline.
-if(GL2PSTests)
-  set(TestGL2PSExporterVolumeRasterError 50)
-  foreach(test ${GL2PSTests})
-    string(REGEX REPLACE ",.*" "" testsrc "${test}")
-    get_filename_component(TName ${testsrc} NAME_WE)
-    add_test(NAME ${vtk-module}Cxx-${TName}-RasterizePNG
-      COMMAND ${CMAKE_COMMAND}
-        -DPSFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.ps
-        -DPNGFILE=${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png
-        -DGS_EXECUTABLE=${VTK_GHOSTSCRIPT_EXECUTABLE}
-        -DREMOVEPS=1
-        -P ${CMAKE_CURRENT_SOURCE_DIR}/../../../../CMake/RasterizePostScript.cmake
-    )
-    set_tests_properties("${vtk-module}Cxx-${TName}-RasterizePNG"
-      PROPERTIES
-        DEPENDS "${vtk-module}Cxx-${TName}"
-        REQUIRED_FILES
-          "${VTK_TEST_OUTPUT_DIR}/${TName}.ps"
-        LABELS "${${vtk-module}_TEST_LABELS}"
-    )
-
-    # Convert ps to png
-    get_filename_component(TName ${test} NAME_WE)
-    if(${${TName}Error})
-      set(_error_threshold ${${TName}Error})
-    else()
-      set(_error_threshold 15)
-    endif()
-    # Image diff rasterized png with baseline
-    ExternalData_add_test(VTKData
-      NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
-      COMMAND vtkRenderingGL2PSCxxTests PNGCompare
-        -D ${VTK_TEST_DATA_DIR}
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -E ${_error_threshold}
-        -V DATA{../Data/Baseline/${TName}-rasterRef.png,:}
-        --test-file ${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png
-    )
-    set_tests_properties("${vtk-module}Cxx-${TName}-VerifyRasterizedPNG"
-      PROPERTIES
-        DEPENDS "${vtk-module}Cxx-${TName}-RasterizePNG"
-        REQUIRED_FILES
-          "${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png"
-        LABELS "${${vtk-module}_TEST_LABELS}"
-    )
-  endforeach()
-endif()
+include("${CMAKE_CURRENT_LIST_DIR}/vtkTestingSVG.cmake")
+vtk_add_svg_test(${SVGTests})

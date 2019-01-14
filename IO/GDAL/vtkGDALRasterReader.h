@@ -12,16 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGDALRasterReader - Read raster file formats using GDAL.
-// .SECTION Description
-// vtkGDALRasterReader is a source object that reads raster files and uses
-// GDAL as the underlying library for the task. GDAL is required for this
-// reader. The output of the reader is a vtkUniformGrid instead of vtkImageData
-// to support blanking.
-//
-//
-// .SECTION See Also
-// vtkUniformGrid, vtkImageData
+/**
+ * @class   vtkGDALRasterReader
+ * @brief   Read raster file formats using GDAL.
+ *
+ * vtkGDALRasterReader is a source object that reads raster files and
+ * uses GDAL as the underlying library for the task. GDAL library is
+ * required for this reader. The output of the reader is a
+ * vtkUniformGrid (vtkImageData with blanking) with cell data.
+ * The reader currently supports only north up images. Flips along
+ * X or Y direction are also supported. Arbitrary affine geotransforms or
+ * GCPs are not supported. See GDAL Data Model for more information
+ * https://www.gdal.org/gdal_datamodel.html
+ *
+ *
+ *
+ * @sa
+ * vtkUniformGrid, vtkImageData
+*/
 
 #ifndef vtkGDALRasterReader_h
 #define vtkGDALRasterReader_h
@@ -38,85 +46,134 @@ class VTKIOGDAL_EXPORT vtkGDALRasterReader : public vtkImageReader2
 public:
   static vtkGDALRasterReader* New();
   vtkTypeMacro(vtkGDALRasterReader, vtkImageReader2);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGDALRasterReader();
-  virtual ~vtkGDALRasterReader();
+  ~vtkGDALRasterReader() override;
 
-  // Description:
-  // Set input file name
-  vtkSetStringMacro(FileName);
-  // Get input file name
-  vtkGetStringMacro(FileName);
+  /**
+   * Is this file supported
+   */
+  int CanReadFile(const char* fname) override;
 
-  // Description:
-  // Return proj4 spatial reference
+  /**
+   * Return proj4 spatial reference
+   */
   const char*  GetProjectionString() const;
 
-  // Description:
-  // Return geo-referenced corner points (Upper left,
-  // lower left, lower right, upper right)
+  /**
+   * Returns WKT spatial reference.
+   */
+  const char* GetProjectionWKT () const
+  {
+    return this->ProjectionWKT.c_str();
+  }
+
+  /**
+   * Return geo-referenced corner points (Upper left,
+   * lower left, lower right, upper right)
+   */
   const double* GetGeoCornerPoints();
 
-  // Description:
-  // Set desired width and height of the image
+  /**
+   * Get/Set if bands are collated in one scalar array.
+   * Currently we collate RGB, RGBA, gray alpha and pallete.
+   * The default is true.
+   */
+  vtkSetMacro(CollateBands, bool);
+  vtkGetMacro(CollateBands, bool);
+  vtkBooleanMacro(CollateBands, bool);
+
+  //@{
+  /**
+   * Set desired width and height of the image
+   */
   vtkSetVector2Macro(TargetDimensions, int);
   vtkGetVector2Macro(TargetDimensions, int);
+  //@}
 
-  // Description:
-  // Get raster width and heigth
-  vtkGetVector2Macro(RasterDimensions, int);
+  //@{
+  /**
+   * Get raster width and height in number of pixels (cells)
+   */
+  int* GetRasterDimensions();
+  //@}
 
-  //BTX
-  // Description:
-  // Return metadata as reported by GDAL
+  /**
+   * Return metadata as reported by GDAL
+   */
   const std::vector<std::string>& GetMetaData();
-  //ETX
 
-  // Description:
-  // Return the invalid value for a pixel (for blanking purposes)
-  double GetInvalidValue();
+  /**
+   * Return the invalid value for a pixel (for blanking purposes) in
+   * a specified raster band. Note bandIndex is a 0 based index while
+   * GDAL bands are 1 based indexes. hasNoData indicates if there is a NoData
+   * value associated with this band.
+   */
+  double GetInvalidValue(size_t bandIndex = 0, int* hasNoData = nullptr);
 
-  //BTX
-  // Description:
-  // Return domain metadata
+  /**
+   * Return domain metadata
+   */
   std::vector<std::string> GetDomainMetaData(const std::string& domain);
-  //ETX
 
-  // Description:
-  // Return driver name which was used to read the current data
+  //@{
+  /**
+   * Return driver name which was used to read the current data
+   */
   const std::string& GetDriverShortName();
   const std::string& GetDriverLongName();
+  //@}
+
+  /**
+   * Return the number of cells that are not set to GDAL NODATA
+   */
+  vtkIdType GetNumberOfCells();
+
+  //@{
+  /**
+   * The following methods allow selective reading of bands.
+   * By default, ALL bands are read.
+   */
+  int GetNumberOfCellArrays();
+  const char* GetCellArrayName(int index);
+  int GetCellArrayStatus(const char* name);
+  void SetCellArrayStatus(const char* name, int status);
+  void DisableAllCellArrays();
+  void EnableAllCellArrays();
+  //@}
+
 
 protected:
 
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  int RequestData(vtkInformation* request,
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector) override;
 
-  virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+  int RequestInformation(vtkInformation* request,
+                         vtkInformationVector** inputVector,
+                         vtkInformationVector* outputVector) override;
 
-  virtual int FillOutputPortInformation(int port,
-                                        vtkInformation* info);
+  int FillOutputPortInformation(int port,
+                                vtkInformation* info) override;
 
 protected:
   int TargetDimensions[2];
-  int RasterDimensions[2];
   std::string Projection;
+  std::string ProjectionWKT;
   std::string DomainMetaData;
   std::string DriverShortName;
   std::string DriverLongName;
   std::vector<std::string> Domains;
   std::vector<std::string> MetaData;
+  bool CollateBands;
 
   class vtkGDALRasterReaderInternal;
-  vtkGDALRasterReaderInternal* Implementation;
+  vtkGDALRasterReaderInternal* Impl;
 
 private:
-  vtkGDALRasterReader(const vtkGDALRasterReader&); // Not implemented.
-  void operator=(const vtkGDALRasterReader&); // Not implemented
+  vtkGDALRasterReader(const vtkGDALRasterReader&) = delete;
+  void operator=(const vtkGDALRasterReader&) = delete;
 };
 
 #endif // vtkGDALRasterReader_h

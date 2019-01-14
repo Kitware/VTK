@@ -65,9 +65,9 @@ int main (int, char *[])
   balloonWidget->SetInteractor(renderWindowInteractor);
   balloonWidget->SetRepresentation(balloonRep);
   balloonWidget->AddBalloon(sphereActor,
-                            "This is a sphere",NULL);
+                            "This is a sphere",nullptr);
   balloonWidget->AddBalloon(regularPolygonActor,
-                            "This is a regular polygon",NULL);
+                            "This is a regular polygon",nullptr);
 
   // Add the actors to the scene
   renderer->AddActor(sphereActor);

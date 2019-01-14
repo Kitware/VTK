@@ -35,9 +35,7 @@ vtkCompositeDataProbeFilter::vtkCompositeDataProbeFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkCompositeDataProbeFilter::~vtkCompositeDataProbeFilter()
-{
-}
+vtkCompositeDataProbeFilter::~vtkCompositeDataProbeFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkCompositeDataProbeFilter::FillInputPortInformation(
@@ -45,11 +43,12 @@ int vtkCompositeDataProbeFilter::FillInputPortInformation(
 {
   this->Superclass::FillInputPortInformation(port, info);
   if (port == 1)
-    {
+  {
     // We have to save vtkDataObject since this filter can work on vtkDataSet
     // and vtkCompositeDataSet consisting of vtkDataSet leaf nodes.
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
-    }
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  }
   return 1;
 }
 
@@ -82,93 +81,83 @@ int vtkCompositeDataProbeFilter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!input)
-    {
+  {
     return 0;
-    }
+  }
 
   if (!sourceDS && !sourceComposite)
-    {
+  {
     vtkErrorMacro("vtkDataSet or vtkCompositeDataSet is expected as the input "
       "on port 1");
     return 0;
-    }
+  }
 
   if (sourceDS)
-    {
+  {
     // Superclass knowns exactly what to do.
     return this->Superclass::RequestData(request, inputVector, outputVector);
-    }
+  }
 
-  if (!this->BuildFieldList(sourceComposite))
+  // First, copy the input to the output as a starting point
+  output->CopyStructure(input);
+
+  if (this->BuildFieldList(sourceComposite))
+  {
+    this->InitializeForProbing(input, output);
+
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(sourceComposite->NewIterator());
+    // We do reverse traversal, so that for hierarchical datasets, we traverse the
+    // higher resolution blocks first.
+    int idx=0;
+    for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
-    return 0;
+      sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      if (!sourceDS)
+      {
+        vtkErrorMacro("All leaves in the multiblock dataset must be vtkDataSet.");
+        return 0;
+      }
+
+      if (sourceDS->GetNumberOfPoints() == 0)
+      {
+        continue;
+      }
+
+      this->DoProbing(input, idx, sourceDS, output);
+      idx++;
     }
-
-  vtkSmartPointer<vtkCompositeDataIterator> iter;
-  iter.TakeReference(sourceComposite->NewIterator());
-  // We do reverse traversal, so that for hierarchical datasets, we traverse the
-  // higher resolution blocks first.
-  int idx=0;
-  for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
-    sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (!sourceDS)
-      {
-      vtkErrorMacro("All leaves in the multiblock dataset must be vtkDataSet.");
-      return 0;
-      }
-
-    if (sourceDS->GetNumberOfPoints() == 0)
-      {
-      continue;
-      }
-
-    if (idx==0)
-      {
-      this->InitializeForProbing(input, output);
-      }
-    this->ProbeEmptyPoints(input, idx, sourceDS, output);
-    idx++;
-    }
+  }
 
   this->PassAttributeData(input, sourceComposite, output);
   return 1;
 }
+
 //----------------------------------------------------------------------------
-void vtkCompositeDataProbeFilter::InitializeForProbing(vtkDataSet *input, vtkDataSet *output)
+void vtkCompositeDataProbeFilter::InitializeOutputArrays(vtkPointData *outPD,
+                                                         vtkIdType numPts)
 {
-  this->Superclass::InitializeForProbing(input, output);
-
   if (!this->PassPartialArrays)
+  {
+    this->Superclass::InitializeOutputArrays(outPD, numPts);
+  }
+  else
+  {
+    for (int cc=0; cc < outPD->GetNumberOfArrays(); cc++)
     {
-    return;
-    }
-
-  vtkPointData* outPD = output->GetPointData();
-  vtkIdType numPts = input->GetNumberOfPoints();
-  outPD->SetNumberOfTuples(numPts);
-
-  // Initialize the arrays.
-  for (int cc=0; cc < outPD->GetNumberOfArrays(); cc++)
-    {
-    vtkDataArray* da = outPD->GetArray(cc);
-    if (da)
+      vtkDataArray* da = outPD->GetArray(cc);
+      if (da)
       {
-      double null_value = 0.0;
-      if (da->IsA("vtkDoubleArray") || da->IsA("vtkFloatArray"))
+        da->SetNumberOfTuples(numPts);
+        double null_value = 0.0;
+        if (da->IsA("vtkDoubleArray") || da->IsA("vtkFloatArray"))
         {
-        null_value = vtkMath::Nan();
+          null_value = vtkMath::Nan();
         }
-      for (int kk=0; kk < da->GetNumberOfComponents(); kk++)
-        {
-        da->FillComponent(kk, null_value);
-        }
+        da->Fill(null_value);
       }
     }
-
-  // Override superclass's default behavior to call NullPoint() on every point
-  // that is does not hit since we already initialized arrays with NaNs.
-  this->UseNullPoint = false;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -176,8 +165,8 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
 {
   delete this->PointList;
   delete this->CellList;
-  this->PointList = 0;
-  this->CellList = 0;
+  this->PointList = nullptr;
+  this->CellList = nullptr;
 
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(source->NewIterator());
@@ -185,19 +174,19 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
   int numDatasets = 0;
   for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal();
     iter->GoToNextItem())
-    {
+  {
     vtkDataSet* sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     if (!sourceDS)
-      {
+    {
       vtkErrorMacro("All leaves in the multiblock dataset must be vtkDataSet.");
       return 0;
-      }
-    if (sourceDS->GetNumberOfPoints() == 0)
-      {
-      continue;
-      }
-    numDatasets++;
     }
+    if (sourceDS->GetNumberOfPoints() == 0)
+    {
+      continue;
+    }
+    numDatasets++;
+  }
 
   this->PointList = new vtkDataSetAttributes::FieldList(numDatasets);
   this->CellList = new vtkDataSetAttributes::FieldList(numDatasets);
@@ -206,49 +195,49 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
   bool initializedCD = false;
   for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal();
     iter->GoToNextItem())
-    {
+  {
     vtkDataSet* sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     if (sourceDS->GetNumberOfPoints() == 0)
-      {
+    {
       continue;
-      }
+    }
     if (!initializedPD)
-      {
+    {
       this->PointList->InitializeFieldList(sourceDS->GetPointData());
       initializedPD = true;
-      }
+    }
     else
-      {
+    {
       if (this->PassPartialArrays)
-        {
+      {
         this->PointList->UnionFieldList(sourceDS->GetPointData());
-        }
-      else
-        {
-        this->PointList->IntersectFieldList(sourceDS->GetPointData());
-        }
       }
+      else
+      {
+        this->PointList->IntersectFieldList(sourceDS->GetPointData());
+      }
+    }
 
     if (sourceDS->GetNumberOfCells() > 0)
-      {
+    {
       if (!initializedCD)
-        {
+      {
         this->CellList->InitializeFieldList(sourceDS->GetCellData());
         initializedCD = true;
-        }
+      }
       else
-        {
+      {
         if (this->PassPartialArrays)
-          {
+        {
           this->CellList->UnionFieldList(sourceDS->GetCellData());
-          }
+        }
         else
-          {
-          this->CellList->IntersectFieldList(sourceDS->GetPointData());
-          }
+        {
+          this->CellList->IntersectFieldList(sourceDS->GetCellData());
         }
       }
     }
+  }
   return 1;
 }
 

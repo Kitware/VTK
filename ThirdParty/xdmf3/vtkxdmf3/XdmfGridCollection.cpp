@@ -22,10 +22,34 @@
 /*****************************************************************************/
 
 #include <utility>
+#include "XdmfError.hpp"
 #include "XdmfGeometry.hpp"
 #include "XdmfTopology.hpp"
 #include "XdmfGridCollection.hpp"
 #include "XdmfGridCollectionType.hpp"
+
+class XdmfGridCollection::XdmfGridCollectionImpl : public XdmfGridImpl
+{
+  public:
+  XdmfGridCollectionImpl()
+  {
+    mGridType = "Collection";
+  }
+
+  ~XdmfGridCollectionImpl()
+  {
+  }
+
+  XdmfGridImpl * duplicate()
+  {
+    return new XdmfGridCollectionImpl();
+  }
+
+  std::string getGridType() const
+  {
+    return mGridType;
+  }
+};
 
 shared_ptr<XdmfGridCollection>
 XdmfGridCollection::New()
@@ -36,16 +60,86 @@ XdmfGridCollection::New()
 
 XdmfGridCollection::XdmfGridCollection() :
   XdmfDomain(),
-  XdmfGrid(XdmfGeometry::New(), XdmfTopology::New(), "Collection"),
+  XdmfGrid(shared_ptr<XdmfGeometry>(), shared_ptr<XdmfTopology>(), "Collection"),
   mType(XdmfGridCollectionType::NoCollectionType())
+{
+    mImpl = new XdmfGridCollectionImpl();
+}
+
+XdmfGridCollection::XdmfGridCollection(XdmfGridCollection & refCollection) :
+  XdmfDomain(refCollection),
+  XdmfGrid(refCollection),
+  mType(refCollection.mType)
 {
 }
 
 XdmfGridCollection::~XdmfGridCollection()
 {
+  if (mImpl) {
+    delete mImpl;
+  }
+  mImpl = NULL;
 }
 
 const std::string XdmfGridCollection::ItemTag = "Grid";
+
+void
+XdmfGridCollection::copyGrid(shared_ptr<XdmfGrid> sourceGrid)
+{
+  XdmfGrid::copyGrid(sourceGrid);
+  if (shared_ptr<XdmfGridCollection> classedGrid = shared_dynamic_cast<XdmfGridCollection>(sourceGrid))
+  {
+    // Copy stucture from read grid to this grid
+    while (this->getNumberGridCollections() > 0)
+    {
+      this->removeGridCollection(0);
+    }
+    for (unsigned int i = 0; i < classedGrid->getNumberGridCollections(); ++i)
+    {
+      this->insert(classedGrid->getGridCollection(i));
+    }
+    while (this->getNumberCurvilinearGrids() > 0)
+    {
+      this->removeCurvilinearGrid(0);
+    }
+    for (unsigned int i = 0; i < classedGrid->getNumberCurvilinearGrids(); ++i)
+    {
+      this->insert(classedGrid->getCurvilinearGrid(i));
+    }
+    while (this->getNumberGraphs() > 0)
+    {
+      this->removeGraph(0);
+    }
+    for (unsigned int i = 0; i < classedGrid->getNumberGraphs(); ++i)
+    {
+      this->insert(classedGrid->getGraph(i));
+    }
+    while (this->getNumberRectilinearGrids() > 0)
+    {
+      this->removeRectilinearGrid(0);
+    }
+    for (unsigned int i = 0; i < classedGrid->getNumberRectilinearGrids(); ++i)
+    {
+      this->insert(classedGrid->getRectilinearGrid(i));
+    }
+    while (this->getNumberRegularGrids() > 0)
+    {
+      this->removeRegularGrid(0);
+    }
+    for (unsigned int i = 0; i < classedGrid->getNumberRegularGrids(); ++i)
+    {
+      this->insert(classedGrid->getRegularGrid(i));
+    }
+    while (this->getNumberUnstructuredGrids() > 0)
+    {
+      this->removeUnstructuredGrid(0);
+    }
+    for (unsigned int i = 0; i < classedGrid->getNumberUnstructuredGrids(); ++i)
+    {
+      this->insert(classedGrid->getUnstructuredGrid(i));
+    }
+  }
+}
 
 std::map<std::string, std::string>
 XdmfGridCollection::getItemProperties() const
@@ -87,9 +181,143 @@ XdmfGridCollection::populateItem(const std::map<std::string, std::string> & item
 }
 
 void
+XdmfGridCollection::read()
+{
+  if (mGridController)
+  {
+    if (shared_ptr<XdmfGridCollection> grid = shared_dynamic_cast<XdmfGridCollection>(mGridController->read()))
+    {
+      // Copy stucture from read grid to this grid
+      while(this->getNumberGridCollections() > 0)
+      {
+        this->removeGridCollection(0);
+      }
+      for (unsigned int i = 0; i < grid->getNumberGridCollections(); ++i)
+      {
+        this->insert(grid->getGridCollection(i));
+      }
+      while(this->getNumberUnstructuredGrids() > 0)
+      {
+        this->removeUnstructuredGrid(0);
+      }
+      for (unsigned int i = 0; i < grid->getNumberUnstructuredGrids(); ++i)
+      {
+        this->insert(grid->getUnstructuredGrid(i));
+      }
+      while(this->getNumberCurvilinearGrids() > 0)
+      {
+        this->removeCurvilinearGrid(0);
+      }
+      for (unsigned int i = 0; i < grid->getNumberCurvilinearGrids(); ++i)
+      {
+        this->insert(grid->getCurvilinearGrid(i));
+      }
+      while(this->getNumberRectilinearGrids() > 0)
+      {
+        this->removeRectilinearGrid(0);
+      }
+      for (unsigned int i = 0; i < grid->getNumberRectilinearGrids(); ++i)
+      {
+        this->insert(grid->getRectilinearGrid(i));
+      }
+      while(this->getNumberRegularGrids() > 0)
+      {
+        this->removeRegularGrid(0);
+      }
+      for (unsigned int i = 0; i < grid->getNumberRegularGrids(); ++i)
+      {
+        this->insert(grid->getRegularGrid(i));
+      }
+      while(this->getNumberAttributes() > 0)
+      {
+        this->removeAttribute(0);
+      }
+      for (unsigned int i = 0; i < grid->getNumberAttributes(); ++i)
+      {
+        this->insert(grid->getAttribute(i));
+      }
+      while(this->getNumberInformations() > 0)
+      {
+        this->removeInformation(0);
+      }
+      for (unsigned int i = 0; i < grid->getNumberInformations(); ++i)
+      {
+        this->insert(grid->getInformation(i));
+      }
+      while(this->getNumberSets() > 0)
+      {
+        this->removeSet(0);
+      }
+      for (unsigned int i = 0; i < grid->getNumberSets(); ++i)
+      {
+        this->insert(grid->getSet(i));
+      }
+      while(this->getNumberMaps() > 0)
+      {
+        this->removeMap(0);
+      }
+      for (unsigned int i = 0; i < grid->getNumberMaps(); ++i)
+      {
+        this->insert(grid->getMap(i));
+      }
+    }
+    else if (shared_ptr<XdmfGrid> grid = shared_dynamic_cast<XdmfGrid>(mGridController->read()))
+    {
+      XdmfError::message(XdmfError::FATAL, "Error: Grid Type Mismatch");
+    }
+    else
+    {
+      XdmfError::message(XdmfError::FATAL, "Error: Invalid Grid Reference");
+    }
+  }
+}
+
+void
+XdmfGridCollection::release()
+{
+  while(this->getNumberGridCollections() > 0)
+  {
+    this->removeGridCollection(0);
+  }
+  while(this->getNumberUnstructuredGrids() > 0)
+  {
+    this->removeUnstructuredGrid(0);
+  }
+  while(this->getNumberCurvilinearGrids() > 0)
+  {
+    this->removeCurvilinearGrid(0);
+  }
+  while(this->getNumberRectilinearGrids() > 0)
+  {
+    this->removeRectilinearGrid(0);
+  }
+  while(this->getNumberRegularGrids() > 0)
+  {
+    this->removeRegularGrid(0);
+  }
+  while(this->getNumberAttributes() > 0)
+  {
+    this->removeAttribute(0);
+  }
+  while(this->getNumberInformations() > 0)
+  {
+    this->removeInformation(0);
+  }
+  while(this->getNumberSets() > 0)
+  {
+    this->removeSet(0);
+  }
+  while(this->getNumberMaps() > 0)
+  {
+    this->removeMap(0);
+  }
+}
+
+void
 XdmfGridCollection::setType(const shared_ptr<const XdmfGridCollectionType> type)
 {
   mType = type;
+  this->setIsChanged(true);
 }
 
 void
@@ -103,3 +331,75 @@ XdmfGridCollection::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
   XdmfDomain::traverse(visitor);
   informations.swap(mInformations);
 }
+
+// C Wrappers
+
+XDMFGRIDCOLLECTION * XdmfGridCollectionNew()
+{
+  try
+  {
+    XDMFGRIDCOLLECTION * returnCollection = NULL;
+    shared_ptr<XdmfGridCollection> generatedCollection = XdmfGridCollection::New();
+    returnCollection = (XDMFGRIDCOLLECTION *)((void *)((XdmfItem *)(new XdmfGridCollection(*generatedCollection.get()))));
+    generatedCollection.reset();
+    return returnCollection;
+  }
+  catch (...)
+  {
+    XDMFGRIDCOLLECTION * returnCollection = NULL;
+    shared_ptr<XdmfGridCollection> generatedCollection = XdmfGridCollection::New();
+    returnCollection = (XDMFGRIDCOLLECTION *)((void *)((XdmfItem *)(new XdmfGridCollection(*generatedCollection.get()))));
+    generatedCollection.reset();
+    return returnCollection;
+  }
+}
+
+int XdmfGridCollectionGetType(XDMFGRIDCOLLECTION * collection, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  XdmfItem * tempPointer = (XdmfItem *)collection;
+  XdmfGridCollection * tempCollection = dynamic_cast<XdmfGridCollection *>(tempPointer);
+  shared_ptr<const XdmfGridCollectionType> checkType = tempCollection->getType();
+  if (checkType == XdmfGridCollectionType::NoCollectionType()) {
+    return XDMF_GRID_COLLECTION_TYPE_NO_COLLECTION_TYPE;
+  }
+  else if (checkType == XdmfGridCollectionType::Spatial()) {
+    return XDMF_GRID_COLLECTION_TYPE_SPATIAL;
+  }
+  else if (checkType == XdmfGridCollectionType::Temporal()) {
+    return XDMF_GRID_COLLECTION_TYPE_TEMPORAL;
+  }
+  else {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: Invalid ArrayType.");
+  }
+  XDMF_ERROR_WRAP_END(status)
+  return -1;
+}
+
+void XdmfGridCollectionSetType(XDMFGRIDCOLLECTION * collection, int type, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  XdmfItem * tempPointer = (XdmfItem *)collection;
+  XdmfGridCollection * tempCollection = dynamic_cast<XdmfGridCollection *>(tempPointer);
+  switch (type) {
+    case XDMF_GRID_COLLECTION_TYPE_NO_COLLECTION_TYPE:
+      tempCollection->setType(XdmfGridCollectionType::NoCollectionType());
+      break;
+    case XDMF_GRID_COLLECTION_TYPE_SPATIAL:
+      tempCollection->setType(XdmfGridCollectionType::Spatial());
+      break;
+    case XDMF_GRID_COLLECTION_TYPE_TEMPORAL:
+      tempCollection->setType(XdmfGridCollectionType::Temporal());
+      break;
+    default:
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Invalid ArrayType.");
+      break;
+  }
+  XDMF_ERROR_WRAP_END(status)
+}
+
+XDMF_DOMAIN_C_CHILD_WRAPPER(XdmfGridCollection, XDMFGRIDCOLLECTION)
+XDMF_GRID_C_CHILD_WRAPPER(XdmfGridCollection, XDMFGRIDCOLLECTION)
+XDMF_ITEM_C_CHILD_WRAPPER(XdmfGridCollection, XDMFGRIDCOLLECTION)

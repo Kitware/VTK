@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMapper2D - abstract class specifies interface for objects which render 2D actors
-// .SECTION Description
-// vtkMapper2D is an abstract class which defines the interface for objects
-// which render two dimensional actors (vtkActor2D).
-
-// .SECTION See Also
-// vtkActor2D
+/**
+ * @class   vtkMapper2D
+ * @brief   abstract class specifies interface for objects which render 2D actors
+ *
+ * vtkMapper2D is an abstract class which defines the interface for objects
+ * which render two dimensional actors (vtkActor2D).
+ *
+ * @sa
+ * vtkActor2D
+*/
 
 #ifndef vtkMapper2D_h
 #define vtkMapper2D_h
@@ -33,20 +36,20 @@ class VTKRENDERINGCORE_EXPORT vtkMapper2D : public vtkAbstractMapper
 {
 public:
   vtkTypeMacro(vtkMapper2D, vtkAbstractMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {}
   virtual void RenderOpaqueGeometry(vtkViewport*, vtkActor2D*) {}
   virtual void RenderTranslucentPolygonalGeometry(vtkViewport*, vtkActor2D*) {}
-  virtual int HasTranslucentPolygonalGeometry() { return 0; }
+  virtual vtkTypeBool HasTranslucentPolygonalGeometry() { return 0; }
 
 protected:
   vtkMapper2D() {}
-  ~vtkMapper2D() {}
+  ~vtkMapper2D() override {}
 
 private:
-  vtkMapper2D(const vtkMapper2D&);  // Not implemented.
-  void operator=(const vtkMapper2D&);  // Not implemented.
+  vtkMapper2D(const vtkMapper2D&) = delete;
+  void operator=(const vtkMapper2D&) = delete;
 };
 
 #endif

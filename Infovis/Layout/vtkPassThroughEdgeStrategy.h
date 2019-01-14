@@ -16,11 +16,14 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkPassThroughEdgeStrategy - passes edge routing information through
-//
-// .SECTION Description
-// Simply passes existing edge layout information from the input to the
-// output without making changes.
+/**
+ * @class   vtkPassThroughEdgeStrategy
+ * @brief   passes edge routing information through
+ *
+ *
+ * Simply passes existing edge layout information from the input to the
+ * output without making changes.
+*/
 
 #ifndef vtkPassThroughEdgeStrategy_h
 #define vtkPassThroughEdgeStrategy_h
@@ -33,20 +36,21 @@ class VTKINFOVISLAYOUT_EXPORT vtkPassThroughEdgeStrategy : public vtkEdgeLayoutS
 public:
   static vtkPassThroughEdgeStrategy* New();
   vtkTypeMacro(vtkPassThroughEdgeStrategy,vtkEdgeLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // This is the layout method where the graph that was
-  // set in SetGraph() is laid out.
-  virtual void Layout();
+  /**
+   * This is the layout method where the graph that was
+   * set in SetGraph() is laid out.
+   */
+  void Layout() override;
 
 protected:
   vtkPassThroughEdgeStrategy();
-  ~vtkPassThroughEdgeStrategy();
+  ~vtkPassThroughEdgeStrategy() override;
 
 private:
-  vtkPassThroughEdgeStrategy(const vtkPassThroughEdgeStrategy&);  // Not implemented.
-  void operator=(const vtkPassThroughEdgeStrategy&);  // Not implemented.
+  vtkPassThroughEdgeStrategy(const vtkPassThroughEdgeStrategy&) = delete;
+  void operator=(const vtkPassThroughEdgeStrategy&) = delete;
 };
 
 #endif

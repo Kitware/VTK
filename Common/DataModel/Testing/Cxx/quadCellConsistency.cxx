@@ -45,9 +45,9 @@ void InitializeCell(vtkCell *cell)
   // Default initialize the cell ids to 0,1,2 ... n
   int n = cell->GetNumberOfPoints();
   for(int i=0; i<n; i++)
-    {
+  {
     cell->GetPointIds()->SetId(i, i);
-    }
+  }
 }
 
 // Check that corner points id match quad ones for each edges
@@ -57,18 +57,18 @@ int CompareCellEdges(vtkCell *linear, vtkCell *quadratic)
   int sum = 0;
   int nEdges = linear->GetNumberOfEdges();
   for(int edge = 0; edge < nEdges; edge++)
-    {
+  {
     vtkCell *lEdge = linear->GetEdge(edge);
     vtkCell *qEdge = quadratic->GetEdge(edge);
 
     int n = lEdge->GetNumberOfPoints();
     // Check that the points of the linear cell match the one from the quadratic one
     for( int i=0; i<n; i++)
-      {
+    {
       dif = lEdge->GetPointIds()->GetId(i) - qEdge->GetPointIds()->GetId(i);
       sum += dif;
-      }
     }
+  }
   return sum;
 }
 
@@ -79,7 +79,7 @@ int CompareCellFaces(vtkCell *linear, vtkCell *quadratic)
   int sum = 0;
   int nFaces = linear->GetNumberOfFaces();
   for(int face = 0; face < nFaces; face++)
-    {
+  {
     vtkCell *lFace = linear->GetFace(face);
     vtkCell *qFace = quadratic->GetFace(face);
 
@@ -94,11 +94,11 @@ int CompareCellFaces(vtkCell *linear, vtkCell *quadratic)
       sum++;
     // Check that the points of the linear cell match the one from the quadratic one
     for( int i=0; i<n; i++)
-      {
+    {
       dif = lFace->GetPointIds()->GetId(i) - qFace->GetPointIds()->GetId(i);
       sum += dif;
-      }
     }
+  }
   return sum;
 }
 

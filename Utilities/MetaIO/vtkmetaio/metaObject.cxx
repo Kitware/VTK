@@ -24,6 +24,9 @@
 namespace METAIO_NAMESPACE {
 #endif
 
+// Do not enforce c++11 requirement here, prefer storing the result of
+// std::numeric_limits<double>::max_digits10:
+#define METAIO_MAX_DIGITS10 17
 
 //
 // MetaObject Constructors
@@ -40,7 +43,7 @@ MetaObject(void)
   m_WriteStream = NULL;
   m_FileName[0] = '\0';
   m_Event = NULL;
-  m_DoublePrecision = 6;
+  m_DoublePrecision = METAIO_MAX_DIGITS10;
   m_DistanceUnits = MET_DISTANCE_UNITS_UNKNOWN;
   }
 
@@ -56,7 +59,7 @@ MetaObject(const char * _fileName)
   m_WriteStream = NULL;
   this->Read(_fileName);
   m_Event = NULL;
-  m_DoublePrecision = 6;
+  m_DoublePrecision = METAIO_MAX_DIGITS10;
   m_DistanceUnits = MET_DISTANCE_UNITS_UNKNOWN;
   }
 
@@ -73,7 +76,7 @@ MetaObject(unsigned int dim)
   m_FileName[0] = '\0';
   InitializeEssential(dim);
   m_Event = NULL;
-  m_DoublePrecision = 6;
+  m_DoublePrecision = METAIO_MAX_DIGITS10;
   m_DistanceUnits = MET_DISTANCE_UNITS_UNKNOWN;
   }
 
@@ -106,7 +109,7 @@ ClearFields()
   while( it != end )
     {
     MET_FieldRecordType* field = *it;
-    it++;
+    ++it;
 
     // Check if the pointer is not in one of the user's list
     bool exists = false;
@@ -119,7 +122,7 @@ ClearFields()
         exists = true;
         break;
         }
-      it2++;
+      ++it2;
     }
 
     if(!exists)
@@ -133,7 +136,7 @@ ClearFields()
           exists = true;
           break;
           }
-        it2++;
+        ++it2;
       }
     }
 
@@ -156,7 +159,7 @@ void MetaObject
   while( it != end )
     {
     MET_FieldRecordType* field = *it;
-    it++;
+    ++it;
     delete field;
     }
 
@@ -179,10 +182,10 @@ void MetaObject
         deleted = true;
         break;
         }
-      it2++;
+      ++it2;
       }
 
-    it++;
+    ++it;
 
     if(!deleted)
       {
@@ -536,8 +539,8 @@ PrintInfo(void) const
       }
     METAIO_STREAM::cout << METAIO_STREAM::endl;
 
-    itw++;
-    itr++;
+    ++itw;
+    ++itr;
     }
   }
 
@@ -830,14 +833,13 @@ DistanceUnits(const char * _distanceUnits)
 const char * MetaObject::
 AnatomicalOrientationAcronym(void) const
   {
-  static char str[10];
   int i;
   for(i=0; i<m_NDims; i++)
     {
-    str[i] = MET_OrientationTypeName[m_AnatomicalOrientation[i]][0];
+    m_OrientationAcronym[i] = MET_OrientationTypeName[m_AnatomicalOrientation[i]][0];
     }
-  str[i] = '\0';
-  return str;
+  m_OrientationAcronym[i] = '\0';
+  return m_OrientationAcronym;
   }
 
 const MET_OrientationEnumType * MetaObject::
@@ -907,20 +909,20 @@ AnatomicalOrientation(int _dim, char _ao)
 
 //
 //
-const float * MetaObject::
+const double * MetaObject::
 ElementSpacing(void) const
   {
   return m_ElementSpacing;
   }
 
-float MetaObject::
+double MetaObject::
 ElementSpacing(int _i) const
   {
   return m_ElementSpacing[_i];
   }
 
 void MetaObject::
-ElementSpacing(const float * _elementSpacing)
+ElementSpacing(const double * _elementSpacing)
   {
   int i;
   for(i=0; i<m_NDims; i++)
@@ -930,7 +932,17 @@ ElementSpacing(const float * _elementSpacing)
   }
 
 void MetaObject::
-ElementSpacing(int _i, float _value)
+ElementSpacing(const float * _elementSpacing)
+  {
+  int i;
+  for(i=0; i<m_NDims; i++)
+    {
+    m_ElementSpacing[i] = static_cast<double>(_elementSpacing[i]);
+    }
+  }
+
+void MetaObject::
+ElementSpacing(int _i, double _value)
   {
   m_ElementSpacing[_i] = _value;
   }
@@ -1058,10 +1070,10 @@ Clear(void)
   strcpy(m_ObjectSubTypeName, "");
   strcpy(m_Name, "");
 
-  memset(m_Offset, 0, 10*sizeof(float));
-  memset(m_TransformMatrix, 0, 100*sizeof(float));
-  memset(m_CenterOfRotation, 0, 10*sizeof(float));
-  memset(m_Color, 0, 4*sizeof(float));
+  memset(m_Offset, 0, sizeof(m_Offset));
+  memset(m_TransformMatrix, 0, sizeof(m_TransformMatrix));
+  memset(m_CenterOfRotation, 0, sizeof(m_CenterOfRotation));
+  memset(m_Color, 0, sizeof(m_Color));
 
   m_ID = -1;
   m_Color[0]=1.0f;
@@ -1203,7 +1215,7 @@ M_SetupReadFields(void)
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
-  MET_InitReadField(mF, "CompressedDataSize", MET_FLOAT, false);
+  MET_InitReadField(mF, "CompressedDataSize", MET_ULONG_LONG, false);
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
@@ -1277,7 +1289,7 @@ M_SetupReadFields(void)
   while( it != end )
     {
     m_Fields.push_back(*it);
-    it++;
+    ++it;
     }
 
 
@@ -1404,8 +1416,8 @@ M_SetupWriteFields(void)
       if(m_WriteCompressedDataSize && m_CompressedDataSize>0)
         {
         mF = new MET_FieldRecordType;
-        MET_InitWriteField(mF, "CompressedDataSize", MET_UINT,
-                           m_CompressedDataSize);
+        MET_InitWriteField(mF, "CompressedDataSize", MET_ULONG_LONG,
+                           static_cast<double>(m_CompressedDataSize));
         m_Fields.push_back(mF);
         }
       }
@@ -1484,7 +1496,7 @@ M_SetupWriteFields(void)
   while( it != end )
     {
     m_Fields.push_back(*it);
-    it++;
+    ++it;
     }
   }
 
@@ -1578,7 +1590,7 @@ M_Read(void)
   mF = MET_GetFieldRecord("CompressedDataSize",  &m_Fields);
   if(mF && mF->defined)
     {
-    m_CompressedDataSize = (unsigned int)mF->value[0];
+    m_CompressedDataSize = (unsigned long long)mF->value[0];
     }
 
   mF = MET_GetFieldRecord("BinaryData",  &m_Fields);
@@ -1742,7 +1754,7 @@ M_Read(void)
       {
       for(i=0; i<mF->length && i < 10; i++)
         {
-        m_ElementSpacing[i] = static_cast<float>( mF->value[i] );
+        m_ElementSpacing[i] = mF->value[i];
         if (META_DEBUG)
           {
           METAIO_STREAM::cout << "metaObject: M_Read: elementSpacing["
@@ -1779,7 +1791,7 @@ M_Read(void)
      FieldsContainerType::iterator dup;
      for(dup = m_UserDefinedWriteFields.begin();
          dup != m_UserDefinedWriteFields.end();
-         dup++)
+         ++dup)
        {
        if( (*dup) == mF )
          {
@@ -1790,7 +1802,7 @@ M_Read(void)
        {
        m_UserDefinedWriteFields.push_back(mF);
        }
-     it++;
+     ++it;
    }
 
   return true;
@@ -1906,7 +1918,7 @@ void* MetaObject
         }
       return out;
       }
-    it++;
+    ++it;
   }
   return NULL;
 }
@@ -1964,4 +1976,3 @@ void MetaObject::M_PrepareNewReadStream()
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-

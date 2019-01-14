@@ -61,7 +61,7 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->Argc=0;
-  this->Argv=0;
+  this->Argv=nullptr;
 }
 
 void MyProcess::SetArgs(int anArgc,
@@ -101,7 +101,7 @@ void MyProcess::Execute()
   cout << "Got for Surface " << toPolyData->GetOutput()->GetNumberOfPoints() << " points on process " << me << endl;
 
   if (me == 0)
-    {
+  {
     // Only root node compare the standard Wavelet data with the probed one
     vtkNew<vtkRTAnalyticSource> waveletBase1Piece;
     waveletBase1Piece->Update();
@@ -109,31 +109,31 @@ void MyProcess::Execute()
     vtkImageData *result = sampler->GetOutput();
 
     // Compare RTData Array
-    vtkFloatArray* rtDataRef = vtkFloatArray::SafeDownCast(reference->GetPointData()->GetArray("RTData"));
-    vtkFloatArray* rtDataTest = vtkFloatArray::SafeDownCast(result->GetPointData()->GetArray("RTData"));
+    vtkFloatArray* rtDataRef = vtkArrayDownCast<vtkFloatArray>(reference->GetPointData()->GetArray("RTData"));
+    vtkFloatArray* rtDataTest = vtkArrayDownCast<vtkFloatArray>(result->GetPointData()->GetArray("RTData"));
     vtkIdType sizeRef = rtDataRef->GetNumberOfTuples();
     if(sizeRef == rtDataTest->GetNumberOfTuples() && rtDataRef->GetNumberOfComponents() == 1)
-      {
+    {
       for(vtkIdType idx = 0; idx < sizeRef; ++idx)
-        {
+      {
         if(rtDataRef->GetValue(idx) != rtDataTest->GetValue(idx))
-          {
+        {
           this->ReturnValue = 0;
           return;
-          }
         }
-      return; // OK
       }
+      return; // OK
+    }
 
     this->ReturnValue = 0;
-    }
+  }
   else
-    {
+  {
     if(sampler->GetOutput()->GetNumberOfPoints() != 0 || wavelet->GetOutput()->GetNumberOfPoints() == 0)
-      {
+    {
       this->ReturnValue = 0;
-      }
     }
+  }
 }
 
 }
@@ -159,14 +159,14 @@ int ParallelResampling(int argc, char *argv[])
   int me = contr->GetLocalProcessId();
 
   if (!contr->IsA("vtkMPIController"))
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires MPI" << endl;
-      }
+    }
     contr->Delete();
     return retVal;   // is this the right error val?   TODO
-    }
+  }
 
   MyProcess *p=MyProcess::New();
   p->SetArgs(argc,argv);

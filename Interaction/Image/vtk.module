@@ -1,0 +1,19 @@
+NAME
+  VTK::InteractionImage
+LIBRARY_NAME
+  vtkInteractionImage
+KIT
+  VTK::Interaction
+GROUPS
+  Imaging
+  Rendering
+DEPENDS
+  VTK::CommonCore
+  VTK::RenderingCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::ImagingColor
+  VTK::ImagingCore
+  VTK::InteractionStyle
+  VTK::InteractionWidgets

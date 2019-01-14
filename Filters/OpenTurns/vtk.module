@@ -1,0 +1,20 @@
+NAME
+  VTK::FiltersOpenTurns
+LIBRARY_NAME
+  vtkFiltersOpenTurns
+IMPLEMENTS
+  VTK::ChartsCore
+DEPENDS
+  VTK::ChartsCore
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersCore
+PRIVATE_DEPENDS
+  VTK::ImagingCore
+TEST_DEPENDS
+  VTK::IOInfovis
+  VTK::RenderingContextOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
+  VTK::ViewsContext2D

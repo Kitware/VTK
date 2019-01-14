@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPDataSetWriter - Write any type of PVTK XML file.
-// .SECTION Description
-// vtkXMLPDataSetWriter is a wrapper around the PVTK XML file format
-// writers.  Given an input vtkDataSet, the correct writer is
-// automatically selected based on the type of input.
-
-// .SECTION See Also
-// vtkXMLPImageDataWriter vtkXMLPStructuredGridWriter
-// vtkXMLPRectilinearGridWriter vtkXMLPPolyDataWriter
-// vtkXMLPUnstructuredGridWriter
+/**
+ * @class   vtkXMLPDataSetWriter
+ * @brief   Write any type of PVTK XML file.
+ *
+ * vtkXMLPDataSetWriter is a wrapper around the PVTK XML file format
+ * writers.  Given an input vtkDataSet, the correct writer is
+ * automatically selected based on the type of input.
+ *
+ * @sa
+ * vtkXMLPImageDataWriter vtkXMLPStructuredGridWriter
+ * vtkXMLPRectilinearGridWriter vtkXMLPPolyDataWriter
+ * vtkXMLPUnstructuredGridWriter
+*/
 
 #ifndef vtkXMLPDataSetWriter_h
 #define vtkXMLPDataSetWriter_h
@@ -33,33 +36,32 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPDataSetWriter : public vtkXMLPDataWriter
 {
 public:
   vtkTypeMacro(vtkXMLPDataSetWriter,vtkXMLPDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPDataSetWriter* New();
 
-  //BTX
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkDataSet* GetInput();
-  //ETX
 
 protected:
   vtkXMLPDataSetWriter();
-  ~vtkXMLPDataSetWriter();
+  ~vtkXMLPDataSetWriter() override;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Override writing method from superclass.
-  virtual int WriteInternal();
+  int WriteInternal() override;
 
   // Dummies to satisfy pure virtuals from superclass.
-  const char* GetDataSetName();
-  const char* GetDefaultFileExtension();
-  vtkXMLWriter* CreatePieceWriter(int index);
+  const char* GetDataSetName() override;
+  const char* GetDefaultFileExtension() override;
+  vtkXMLWriter* CreatePieceWriter(int index) override;
 
 private:
-  vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&);  // Not implemented.
-  void operator=(const vtkXMLPDataSetWriter&);  // Not implemented.
+  vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&) = delete;
+  void operator=(const vtkXMLPDataSetWriter&) = delete;
 };
 
 #endif

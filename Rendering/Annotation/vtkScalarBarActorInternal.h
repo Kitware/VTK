@@ -3,7 +3,6 @@
 // VTK-HeaderTest-Exclude: vtkScalarBarActorInternal.h
 
 #include "vtkColor.h" // for AnnotationColors, LabelColorMap, and tuples
-#include "vtkFreeTypeUtilities.h" // for bounding box calculations
 #include "vtkSmartPointer.h" // for "smart vectors"
 #include "vtkStdString.h" // for LabelMap
 
@@ -27,18 +26,18 @@ public:
     *  that need a contiguous array pointer as input.
     */
   T** PointerArray()
-    {
+  {
     // NB: This is relatively evil. But much cheaper than copying the array.
     // It assumes the compiler won't pad the class.
     return reinterpret_cast<T**>(&((*this)[0]));
-    }
+  }
 };
 
 /// A structure to represent pixel coordinates for text or swatch bounds.
 struct vtkScalarBarBox
 {
   /// The position of the box in viewport (pixel) coordinates.
-  vtkTuple<int,2> Posn;
+  vtkTuple<int, 2> Posn;
 
   /**\brief Size of the box, stored as (thickness, length) not (width, height).
     *
@@ -47,7 +46,7 @@ struct vtkScalarBarBox
     * Length is a measure of the box size parallel to the long axis of the scalar bar.
     * When the scalar bar orientation is horizontal, length measures width.
     */
-  vtkTuple<int,2> Size;
+  vtkTuple<int, 2> Size;
 };
 
 /// Internal state for the scalar bar actor shared with subclasses.
@@ -55,21 +54,29 @@ class vtkScalarBarActorInternal
 {
 public:
   vtkScalarBarActorInternal()
-    {
-    this->Viewport = 0;
-    this->SwatchColors = 0;
-    this->SwatchPts = 0;
-    this->Polys = 0;
-    this->AnnotationBoxes = 0;
-    this->AnnotationBoxesMapper = 0;
-    this->AnnotationBoxesActor = 0;
-    this->AnnotationLeaders = 0;
-    this->AnnotationLeadersMapper = 0;
-    this->AnnotationLeadersActor = 0;
-    this->NanSwatch = 0;
-    this->NanSwatchMapper = 0;
-    this->NanSwatchActor = 0;
-    }
+  {
+    this->Viewport = nullptr;
+    this->SwatchColors = nullptr;
+    this->SwatchPts = nullptr;
+    this->Polys = nullptr;
+    this->AnnotationBoxes = nullptr;
+    this->AnnotationBoxesMapper = nullptr;
+    this->AnnotationBoxesActor = nullptr;
+    this->AnnotationLeaders = nullptr;
+    this->AnnotationLeadersMapper = nullptr;
+    this->AnnotationLeadersActor = nullptr;
+    this->NanSwatch = nullptr;
+    this->NanSwatchMapper = nullptr;
+    this->NanSwatchActor = nullptr;
+
+    this->BelowRangeSwatch = nullptr;
+    this->BelowRangeSwatchMapper = nullptr;
+    this->BelowRangeSwatchActor = nullptr;
+
+    this->AboveRangeSwatch = nullptr;
+    this->AboveRangeSwatchMapper = nullptr;
+    this->AboveRangeSwatchActor = nullptr;
+  }
 
   // Define types for smart vectors containing various base classes.
   typedef vtkSmartVector<vtkTextActor> ActorVector;
@@ -87,6 +94,12 @@ public:
 
   /// The thickness and length of the (square) NaN swatch.
   double NanSwatchSize;
+
+  /// The thickness and length of the (square) Below Range swatch.
+  double BelowRangeSwatchSize;
+
+  /// The thickness and length of the (square) Above Range swatch.
+  double AboveRangeSwatchSize;
 
   /// Space in pixels between swatches when in indexed lookup mode.
   double SwatchPad;
@@ -125,6 +138,12 @@ public:
   /// The bounding box of the NaN swatch
   vtkScalarBarBox NanBox;
 
+  /// The bounding box of the Below Range
+  vtkScalarBarBox BelowRangeSwatchBox;
+
+  /// The bounding box of the Above Range
+  vtkScalarBarBox AboveRangeSwatchBox;
+
   /// The bounding box of tick mark anchor points (tick labels are not
   /// fully contained)
   vtkScalarBarBox TickBox;
@@ -133,11 +152,11 @@ public:
   vtkScalarBarBox TitleBox;
 
   /// Map from viewport coordinates to label text of each annotation.
-  std::map<double,vtkStdString> Labels;
+  std::map<double, vtkStdString> Labels;
 
   /// Map from viewport coordinates to the leader line color of each
   /// annotation.
-  std::map<double,vtkColor3ub> LabelColors;
+  std::map<double, vtkColor3ub> LabelColors;
   //@}
 
   /// Cache of classes holding geometry assembled and ready for rendering.
@@ -155,6 +174,14 @@ public:
   vtkPolyData*         NanSwatch;
   vtkPolyDataMapper2D* NanSwatchMapper;
   vtkActor2D*          NanSwatchActor;
+
+  vtkPolyData*         BelowRangeSwatch;
+  vtkPolyDataMapper2D* BelowRangeSwatchMapper;
+  vtkActor2D*          BelowRangeSwatchActor;
+
+  vtkPolyData*         AboveRangeSwatch;
+  vtkPolyDataMapper2D* AboveRangeSwatchMapper;
+  vtkActor2D*          AboveRangeSwatchActor;
   //@}
 };
 

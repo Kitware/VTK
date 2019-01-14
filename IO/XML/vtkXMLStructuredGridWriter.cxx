@@ -87,9 +87,9 @@ void vtkXMLStructuredGridWriter::WriteAppendedPiece(int index,
 {
   this->Superclass::WriteAppendedPiece(index, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   this->WritePointsAppended(this->GetInput()->GetPoints(), indent,
     &this->PointsOM->GetPiece(index));
 }
@@ -110,9 +110,9 @@ void vtkXMLStructuredGridWriter::WriteAppendedPieceData(int index)
   // Let the superclass write its data.
   this->Superclass::WriteAppendedPieceData(index);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for the points array.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -139,9 +139,9 @@ void vtkXMLStructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   // Let the superclass write its data.
   this->Superclass::WriteInlinePiece(indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for the points array.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -153,28 +153,18 @@ void vtkXMLStructuredGridWriter::WriteInlinePiece(vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::CalculateSuperclassFraction(float* fractions)
 {
-  int extent[6];
-  this->GetInputExtent(extent);
-  int dims[3] = {extent[1]-extent[0],
-                 extent[3]-extent[2],
-                 extent[5]-extent[4]};
-
   // The amount of data written by the superclass comes from the
   // point/cell data arrays.
-  vtkIdType superclassPieceSize =
-    (this->GetInput()->GetPointData()->GetNumberOfArrays()*dims[0]*dims[1]*dims[2]+
-     this->GetInput()->GetCellData()->GetNumberOfArrays()*(dims[0]-1)*(dims[1]-1)*(dims[2]-1));
-
+  vtkIdType superclassPieceSize = GetNumberOfValues(this->GetInput());
   // The total data written includes the points array.
-  vtkIdType totalPieceSize =
-    superclassPieceSize + (dims[0] * dims[1] * dims[2]);
+  vtkIdType totalPieceSize = superclassPieceSize + this->GetInput()->GetNumberOfPoints()*3;
   if (totalPieceSize == 0)
-    {
+  {
     totalPieceSize = 1;
-    }
-  fractions[0] = 0;
-  fractions[1] = fractions[0] + float(superclassPieceSize)/totalPieceSize;
-  fractions[2] = 1;
+  }
+  fractions[0] = 0.0f;
+  fractions[1] = static_cast<float>(superclassPieceSize)/totalPieceSize;
+  fractions[2] = 1.0f;
 }
 
 //----------------------------------------------------------------------------

@@ -38,16 +38,16 @@ void vtkStructuredPointsWriter::WriteData()
   vtkDebugMacro(<<"Writing vtk structured points...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
-      {
+  {
       if (fp)
-        {
+      {
         vtkErrorMacro("Ran out of disk space; deleting file: "
                       << this->FileName);
         this->CloseVTKFile(fp);
         unlink(this->FileName);
-        }
-      return;
       }
+      return;
+  }
   //
   // Write structured points specific stuff
   //
@@ -55,42 +55,60 @@ void vtkStructuredPointsWriter::WriteData()
 
   // Write data owned by the dataset
   if (!this->WriteDataSetData(fp, input))
-    {
+  {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
     return;
-    }
+  }
 
-  input->GetDimensions(dim);
-  *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
+  if (this->WriteExtent)
+  {
+    int extent[6];
+    input->GetExtent(extent);
+    *fp << "EXTENT "
+        << extent[0] << " " << extent[1] << " " << extent[2] << " "
+        << extent[3] << " " << extent[4] << " " << extent[5] << "\n";
+  }
+  else
+  {
+    input->GetDimensions(dim);
+    *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
+  }
 
   input->GetSpacing(spacing);
   *fp << "SPACING " << spacing[0] << " " << spacing[1] << " " << spacing[2] << "\n";
 
   input->GetOrigin(origin);
-  // Do the electric slide. Move origin to min corner of extent.
-  // The alternative is to change the format to include an extent instead of dimensions.
-  ext = input->GetExtent();
-  origin[0] += ext[0] * spacing[0];
-  origin[1] += ext[2] * spacing[1];
-  origin[2] += ext[4] * spacing[2];
-  *fp << "ORIGIN " << origin[0] << " " << origin[1] << " " << origin[2] << "\n";
+  if (this->WriteExtent)
+  {
+    *fp << "ORIGIN " << origin[0] << " " << origin[1] << " " << origin[2] << "\n";
+  }
+  else
+  {
+    // Do the electric slide. Move origin to min corner of extent.
+    // The alternative is to change the format to include an extent instead of dimensions.
+    ext = input->GetExtent();
+    origin[0] += ext[0] * spacing[0];
+    origin[1] += ext[2] * spacing[1];
+    origin[2] += ext[4] * spacing[2];
+    *fp << "ORIGIN " << origin[0] << " " << origin[1] << " " << origin[2] << "\n";
+  }
 
   if (!this->WriteCellData(fp, input))
-    {
+  {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
     return;
-    }
+  }
   if (!this->WritePointData(fp, input))
-    {
+  {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
     return;
-    }
+  }
 
   this->CloseVTKFile(fp);
 }

@@ -1,0 +1,168 @@
+
+W is the radius of the points in normalized device coordinates
+so W = 2.0*0.5*glPointSize/rendererWidthInPixels
+
+Use the following vars to simplify the calc.
+mat is the ViewToDeviceMatrix
+
+A = mat[0][0]
+B = mat[0][2]
+C = mat[2][2]
+D = mat[2][3]
+E = mat[0][3]
+
+==============================================================
+==============================================================
+Ortho case
+
+Xdc1 = A * X1  + E
+Xdc1 + W = A * X2 + E
+
+X1 = (Xdc1 - E) / A
+X2 = (Xdc1 + W - E) / A
+
+X2 - X1 = (Xdc1 + W - E) / A - (Xdc1 - E) / A
+
+X2 - X1 = W / A
+
+Xdelta = W / A
+
+Zdc1 = C * Z1 + D
+Zdc2 = C * Z2 + D
+
+Z1 = (Zdc1 - D) / C
+
+Z2 = Z1 + Xdelta
+
+Z2 = (Zdc1 - D) / C + W / A
+
+Zdc2 = C * ((Zdc1 - D) / C + W/A) + D
+
+Zdc2 = (Zdc1 - D)  + C*W/A + D
+
+Zdc2 = Zdc1  + C*W/A
+
+Zdc1 = Zdb1*2.0 - 1.0
+
+Zdb2 = 0.5*(Zdc1 + C*W/A) + 0.5
+
+Zdb2 = 0.5*(Zdb1*2.0 - 1.0 + C*W/A) + 0.5
+
+Zdb2 = 0.5*Zdb1*2.0 - 0.5 + 0.5*C*W/A) + 0.5
+
+Zdb2 = Zdb1 + 0.5*C*W/A
+
+S = C
+R = W/A
+
+For far surface use R = -W/A
+
+==============================================================
+==============================================================
+Perspective Case
+
+
+(X1,?,Z1) and (X2,?,Z2)
+are two points in View Coordinates
+
+(Xdc1,?,Zdc1) and (Xdc2,?,Zdc2)
+are two corresponding points in device coordinates
+
+Xdc2 is W pixels right of Xdc1 so Xdc2 = Xdc1 + W
+Xdc1 and Xdc2 are in the same Zplane so both can use Z1
+
+Applying the VCDC matrix equation
+
+Xdc1 = (A*X1 + B*Z1)/-Z1
+Xdc1 + W = (A*X2 + B*Z1)/-Z1
+
+Xdc1 = -A*X1/Z1 - B
+Xdc1 + W = -A*X2/Z1 - B
+
+A*X1/Z1 + B = -Xdc1
+A*X1/Z1 = -Xdc1 - B
+
+This gives us the formulas for X1 and X2
+
+X1 = Z1*(-Xdc1 - B)/A
+X2 = Z1*(-Xdc1 - W - B)/A
+
+The difference is their width, we solve to get
+
+Xwidth = Z1*(-Xdc1 - W - B)/A - Z1*(-Xdc1 - B)/A
+
+Which nicely simplifies to
+
+Xwidth = -W*Z1/A
+
+Now compute Z1 from Zdc1 and the mat equations
+
+Zdc1 = (C*Z1 + D)/-Z1
+Zdc1 = -C - D/Z1
+
+C + Zdc1 = - D/Z1
+Z1*(C + Zdc1) = -D
+
+Yielding
+
+Z1 = -D/(C + Zdc1)
+
+We want Z2 to be Xwidth in front of Z1 so
+
+Z2 = Z1 + Xwidth
+
+Resulting in
+
+Z1 = -D/(C + Zdc1)
+Z2 = Z1 -W*Z1/A
+Zdc2 = -C - D/Z2;
+
+Which can be expanded out and simplied as follows
+
+Z1 = -D/(C + Zdc1)
+
+Substituting Z1 into the fomula for Z2 yields
+
+Z2 = -D/(C + Zdc1) + W*D/(A*(C + Zdc1))
+Z2 = W*D/(A*(C + Zdc1)) - D/(C + Zdc1)
+Z2 = D * (W/(A*(C + Zdc1)) - 1.0/(C + Zdc1) )
+Z2 = D * (W/A - 1.0)/(C + Zdc1)
+
+Substituting Z2 into the formula for Zdc2 yields
+
+Zdc2 = -C - D/Z2;
+Zdc2 = -C - D/(D * (W/A - 1.0)/(C + Zdc1));
+Zdc2 = -C - (C + Zdc1)/(W/A - 1.0);
+
+Note that the B and D parameters have all dropped out.
+
+Including the OpenGL z -1,1 to 0,1 bias and scale we get
+
+gl_FragDepth = 0.5*(-1.0*C - (C + 2.0*gl_FragCoord.z - 1.0)/(normalVCVSOutput.z*PointSize/A - 1.0)) + 0.5
+
+Let Q = (normalVCVSOutput.z*PointSize/A - 1.0)
+
+gl_FragDepth = 0.5*(-1.0*C - (C + 2.0*gl_FragCoord.z - 1.0)/Q) + 0.5
+
+gl_FragDepth = 0.5*(-C - (C + 2.0*gl_FragCoord.z - 1.0)/Q) + 0.5
+
+gl_FragDepth = 0.5*(-C - (C - 1.0 + 2.0*gl_FragCoord.z)/Q) + 0.5
+
+gl_FragDepth = 0.5*(-C - C/Q + 1.0/Q - 2.0*gl_FragCoord.z/Q) + 0.5
+
+gl_FragDepth = -0.5*C - 0.5*C/Q + 0.5/Q - gl_FragCoord.z/Q + 0.5
+
+
+can be rewritten in what I think is the most compact form as
+
+Q = (normalVCVSOutput.z*W - 1.0)
+gl_FragDepth = (S - gl_FragCoord.z) / Q + S;
+
+where
+
+R = W/A
+
+S = -0.5*C + 0.5
+
+This requires only two uniforms to be set, S and W. In the fragment shader
+it requires 1 multiplication two subtractions one addition and one divide.

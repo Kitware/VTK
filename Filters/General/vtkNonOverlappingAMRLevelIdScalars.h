@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkNonOverlappingAMRLevelIdScalars - generate scalars from levels.
-// .SECTION Description
-// vtkNonOverlappingAMRLevelIdScalars is a filter that generates scalars using
-// the level number for each level. Note that all datasets within a level get
-// the same scalar. The new scalars array is named \c LevelIdScalars.
+/**
+ * @class   vtkNonOverlappingAMRLevelIdScalars
+ * @brief   generate scalars from levels.
+ *
+ * vtkNonOverlappingAMRLevelIdScalars is a filter that generates scalars using
+ * the level number for each level. Note that all datasets within a level get
+ * the same scalar. The new scalars array is named \c LevelIdScalars.
+*/
 
 #ifndef vtkNonOverlappingAMRLevelIdScalars_h
 #define vtkNonOverlappingAMRLevelIdScalars_h
@@ -35,7 +38,6 @@ public:
   vtkTypeMacro(vtkNonOverlappingAMRLevelIdScalars,vtkNonOverlappingAMRAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
 protected:
   vtkNonOverlappingAMRLevelIdScalars();
   ~vtkNonOverlappingAMRLevelIdScalars();
@@ -48,9 +50,9 @@ protected:
   vtkUniformGrid* ColorLevel(vtkUniformGrid* input, int group);
 
 private:
-  vtkNonOverlappingAMRLevelIdScalars(const vtkNonOverlappingAMRLevelIdScalars&); // Not implemented.
-  void operator=(const vtkNonOverlappingAMRLevelIdScalars&); // Not implemented.
-//ETX
+  vtkNonOverlappingAMRLevelIdScalars(const vtkNonOverlappingAMRLevelIdScalars&) = delete;
+  void operator=(const vtkNonOverlappingAMRLevelIdScalars&) = delete;
+
 };
 
 #endif

@@ -69,7 +69,7 @@ int ImageAutoRange(int argc, char *argv[])
   statistics->GetAutoRange(autorange);
 
   for (int i = 0; i < 2; i++)
-    {
+  {
     vtkSmartPointer<vtkRenderer> renderer =
       vtkSmartPointer<vtkRenderer>::New();
     vtkCamera *camera = renderer->GetActiveCamera();
@@ -82,7 +82,7 @@ int ImageAutoRange(int argc, char *argv[])
       vtkSmartPointer<vtkImageSliceMapper>::New();
     imageMapper->SetInputConnection(reader->GetOutputPort());
 
-    double *bounds = imageMapper->GetBounds();
+    const double *bounds = imageMapper->GetBounds();
     double point[3];
     point[0] = 0.5*(bounds[0] + bounds[1]);
     point[1] = 0.5*(bounds[2] + bounds[3]);
@@ -101,17 +101,17 @@ int ImageAutoRange(int argc, char *argv[])
     renderer->AddViewProp(image);
 
     if ((i & 1) == 0)
-      {
+    {
       image->GetProperty()->SetColorWindow(range[1] - range[0]);
       image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
-      }
+    }
     else
-      {
+    {
       image->GetProperty()->SetColorWindow(autorange[1] - autorange[0]);
       image->GetProperty()->SetColorLevel(0.5*(autorange[0] + autorange[1]));
-      }
-
     }
+
+  }
 
   renWin->SetSize(512,256);
 

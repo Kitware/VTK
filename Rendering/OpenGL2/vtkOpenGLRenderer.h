@@ -12,94 +12,178 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLRenderer - OpenGL renderer
-// .SECTION Description
-// vtkOpenGLRenderer is a concrete implementation of the abstract class
-// vtkRenderer. vtkOpenGLRenderer interfaces to the OpenGL graphics library.
+/**
+ * @class   vtkOpenGLRenderer
+ * @brief   OpenGL renderer
+ *
+ * vtkOpenGLRenderer is a concrete implementation of the abstract class
+ * vtkRenderer. vtkOpenGLRenderer interfaces to the OpenGL graphics library.
+*/
 
 #ifndef vtkOpenGLRenderer_h
 #define vtkOpenGLRenderer_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 #include <vector>  // STL Header
+#include <string> // Ivars
 
+class vtkOpenGLFXAAFilter;
 class vtkRenderPass;
+class vtkOpenGLState;
 class vtkOpenGLTexture;
+class vtkOrderIndependentTranslucentPass;
 class vtkTextureObject;
 class vtkDepthPeelingPass;
+class vtkShaderProgram;
+class vtkShadowMapPass;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderer : public vtkRenderer
 {
 public:
   static vtkOpenGLRenderer *New();
   vtkTypeMacro(vtkOpenGLRenderer, vtkRenderer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Concrete open gl render method.
-  void DeviceRender(void);
+  /**
+   * Concrete open gl render method.
+   */
+  void DeviceRender(void) override;
 
-  // Description:
-  // Render translucent polygonal geometry. Default implementation just call
-  // UpdateTranslucentPolygonalGeometry().
-  // Subclasses of vtkRenderer that can deal with depth peeling must
-  // override this method.
-  virtual void DeviceRenderTranslucentPolygonalGeometry();
+  /**
+   * Overridden to support hidden line removal.
+   */
+  void DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 
-  void Clear(void);
+  /**
+   * Render translucent polygonal geometry. Default implementation just call
+   * UpdateTranslucentPolygonalGeometry().
+   * Subclasses of vtkRenderer that can deal with depth peeling must
+   * override this method.
+   */
+  void DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 
-  // Description:
-  // Ask lights to load themselves into graphics pipeline.
-  int UpdateLights(void);
+  void Clear(void) override;
 
-  // Description:
-  // Is rendering at translucent geometry stage using depth peeling and
-  // rendering a layer other than the first one? (Boolean value)
-  // If so, the uniform variables UseTexture and Texture can be set.
-  // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
+  /**
+   * Ask lights to load themselves into graphics pipeline.
+   */
+  int UpdateLights(void) override;
+
+  /**
+   * Is rendering at translucent geometry stage using depth peeling and
+   * rendering a layer other than the first one? (Boolean value)
+   * If so, the uniform variables UseTexture and Texture can be set.
+   * (Used by vtkOpenGLProperty or vtkOpenGLTexture)
+   */
   int GetDepthPeelingHigherLayer();
 
-  // Description:
-  // Set/Get a custom render pass.
-  // Initial value is NULL.
-  void SetPass(vtkRenderPass *p);
-  vtkGetObjectMacro(Pass, vtkRenderPass);
+  /**
+   * Indicate if this system is subject to the Apple/AMD bug
+   * of not having a working glPrimitiveId <rdar://20747550>.
+   * The bug is fixed on macOS 10.11 and later, and this method
+   * will return false when the OS is new enough.
+   */
+  bool HaveApplePrimitiveIdBug();
+
+  /**
+   * Indicate if this system is subject to the apple/NVIDIA bug that causes
+   * crashes in the driver when too many query objects are allocated.
+   */
+  static bool HaveAppleQueryAllocationBug();
+
+  /**
+   * Dual depth peeling may be disabled for certain runtime configurations.
+   * This method returns true if vtkDualDepthPeelingPass will be used in place
+   * of vtkDepthPeelingPass.
+   */
+  bool IsDualDepthPeelingSupported();
+
+  // Get the state object used to keep track of
+  // OpenGL state
+  vtkOpenGLState *GetState();
+
+  // get the standard lighting uniform declarations
+  // for the current set of lights
+  const char *GetLightingUniforms();
+
+  // update the lighting uniforms for this shader if they
+  // are out of date
+  void UpdateLightingUniforms(vtkShaderProgram *prog);
+
+  // get the complexity of the current lights as a int
+  // 0 = no lighting
+  // 1 = headlight
+  // 2 = directional lights
+  // 3 = positional lights
+  enum LightingComplexityEnum {
+    NoLighting = 0,
+    Headlight = 1,
+    Directional = 2,
+    Positional = 3
+  };
+  vtkGetMacro(LightingComplexity, int);
+
+  // get the number of lights turned on
+  vtkGetMacro(LightingCount, int);
+
+  /**
+   * Set the user light transform applied after the camera transform.
+   * Can be null to disable it.
+   */
+  void SetUserLightTransform(vtkTransform* transform);
 
 protected:
   vtkOpenGLRenderer();
-  ~vtkOpenGLRenderer();
+  ~vtkOpenGLRenderer() override;
 
-  // Description:
-  // Check the compilation status of some fragment shader source.
+  /**
+   * Check the compilation status of some fragment shader source.
+   */
   void CheckCompilation(unsigned int fragmentShader);
 
   // Internal method to release graphics resources in any derived renderers.
-  virtual void ReleaseGraphicsResources(vtkWindow *w);
+  void ReleaseGraphicsResources(vtkWindow *w) override;
 
-  // Picking functions to be implemented by sub-classes
-  virtual void DevicePickRender();
-  virtual void StartPick(unsigned int pickFromSize);
-  virtual void UpdatePickId();
-  virtual void DonePick();
-  virtual unsigned int GetPickedId();
-  virtual unsigned int GetNumPickedIds();
-  virtual int GetPickedIds(unsigned int atMost, unsigned int *callerBuffer);
-  virtual double GetPickedZ();
+  /**
+   * Ask all props to update and draw any opaque and translucent
+   * geometry. This includes both vtkActors and vtkVolumes
+   * Returns the number of props that rendered geometry.
+   */
+  int UpdateGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 
-  // Ivars used in picking
-  class vtkGLPickInfo* PickInfo;
-
-  double PickedZ;
+  /**
+   * Check and return the textured background for the current state
+   * If monocular or stereo left eye, check BackgroundTexture
+   * If stereo right eye, check RightBackgroundTexture
+   */
+  vtkTexture* GetCurrentTexturedBackground();
 
   friend class vtkOpenGLProperty;
   friend class vtkOpenGLTexture;
   friend class vtkOpenGLImageSliceMapper;
   friend class vtkOpenGLImageResliceMapper;
 
-  // Description:
-  // Deepth peeling is delegated to an instance of vtkDepthPeelingPass
+  /**
+   * FXAA is delegated to an instance of vtkOpenGLFXAAFilter
+   */
+  vtkOpenGLFXAAFilter *FXAAFilter;
+
+  /**
+   * Depth peeling is delegated to an instance of vtkDepthPeelingPass
+   */
   vtkDepthPeelingPass *DepthPeelingPass;
+
+  /**
+   * Fallback for transparency
+   */
+  vtkOrderIndependentTranslucentPass *TranslucentPass;
+
+  /**
+   * Shadows are delegated to an instance of vtkShadowMapPass
+   */
+  vtkShadowMapPass *ShadowMapPass;
 
   // Is rendering at translucent geometry stage using depth peeling and
   // rendering a layer other than the first one? (Boolean value)
@@ -108,11 +192,20 @@ protected:
   int DepthPeelingHigherLayer;
 
   friend class vtkRenderPass;
-  vtkRenderPass *Pass;
+
+  std::string LightingDeclaration;
+  int LightingComplexity;
+  int LightingCount;
+  vtkMTimeType LightingUpdateTime;
+
+  /**
+   * Optional user transform for lights
+   */
+  vtkSmartPointer<vtkTransform> UserLightTransform;
 
 private:
-  vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.
-  void operator=(const vtkOpenGLRenderer&);  // Not implemented.
+  vtkOpenGLRenderer(const vtkOpenGLRenderer&) = delete;
+  void operator=(const vtkOpenGLRenderer&) = delete;
 };
 
 #endif

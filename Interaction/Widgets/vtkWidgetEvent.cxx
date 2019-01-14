@@ -38,7 +38,7 @@ static const char *vtkWidgetEventStrings[] = {
   "TimedOut",
   "ModifyEvent",
   "Reset",
-  NULL
+  nullptr
 };
 
 vtkStandardNewMacro(vtkWidgetEvent);
@@ -50,21 +50,21 @@ const char *vtkWidgetEvent::GetStringFromEventId(unsigned long event)
 
   // find length of table
   if (!numevents)
+  {
+    while (vtkWidgetEventStrings[numevents] != nullptr)
     {
-    while (vtkWidgetEventStrings[numevents] != NULL)
-      {
       numevents++;
-      }
     }
+  }
 
   if (event < numevents)
-    {
+  {
     return vtkWidgetEventStrings[event];
-    }
+  }
   else
-    {
+  {
     return "NoEvent";
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -72,13 +72,13 @@ unsigned long vtkWidgetEvent::GetEventIdFromString(const char *event)
 {
   unsigned long i;
 
-  for (i = 0; vtkWidgetEventStrings[i] != NULL; i++)
-    {
+  for (i = 0; vtkWidgetEventStrings[i] != nullptr; i++)
+  {
     if (!strcmp(vtkWidgetEventStrings[i],event))
-      {
+    {
       return i;
-      }
     }
+  }
   return vtkWidgetEvent::NoEvent;
 }
 

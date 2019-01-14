@@ -4,6 +4,7 @@ This file demonstrates the creation of a directed graph using the
 Python interface to VTK.
 """
 
+from __future__ import print_function
 from vtk import *
 
 #------------------------------------------------------------------------------
@@ -11,7 +12,7 @@ from vtk import *
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
 
-    print "vtkGraph Example 1: Building a vtkMutableDirectedGraph from scratch."
+    print("vtkGraph Example 1: Building a vtkMutableDirectedGraph from scratch.")
 
     # Create an empty graph
     G = vtkMutableDirectedGraph()
@@ -54,4 +55,4 @@ if __name__ == "__main__":
 
     view.GetInteractor().Start()
 
-    print "vtkGraph Example 1: Finished."
+    print("vtkGraph Example 1: Finished.")

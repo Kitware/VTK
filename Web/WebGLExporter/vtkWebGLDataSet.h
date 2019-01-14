@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLDataSet
-// .SECTION Description
-// vtkWebGLDataSet represent vertices, lines, polygons, and triangles.
+/**
+ * @class   vtkWebGLDataSet
+ *
+ * vtkWebGLDataSet represent vertices, lines, polygons, and triangles.
+*/
 
 #ifndef vtkWebGLDataSet_h
 #define vtkWebGLDataSet_h
@@ -30,7 +32,7 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLDataSet : public vtkObject
 public:
   static vtkWebGLDataSet* New();
   vtkTypeMacro(vtkWebGLDataSet, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   void SetVertices(float* v, int size);
   void SetIndexes(short* i, int size);
@@ -46,13 +48,11 @@ public:
   void GenerateBinaryData();
   bool HasChanged();
 
-  //BTX
   std::string GetMD5();
-  //ETX
 
 protected:
   vtkWebGLDataSet();
-  ~vtkWebGLDataSet();
+  ~vtkWebGLDataSet() override;
 
   int NumberOfVertices;
   int NumberOfPoints;
@@ -72,8 +72,8 @@ protected:
   std::string MD5;
 
 private:
-  vtkWebGLDataSet(const vtkWebGLDataSet&); // Not implemented
-  void operator=(const vtkWebGLDataSet&);   // Not implemented
+  vtkWebGLDataSet(const vtkWebGLDataSet&) = delete;
+  void operator=(const vtkWebGLDataSet&) = delete;
 };
 
 #endif

@@ -45,9 +45,7 @@ vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
 }
 
 //----------------------------------------------------------------------------
-vtkPerturbCoincidentVertices::~vtkPerturbCoincidentVertices()
-{
-}
+vtkPerturbCoincidentVertices::~vtkPerturbCoincidentVertices() = default;
 
 //----------------------------------------------------------------------------
 void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph *output)
@@ -71,9 +69,9 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
   vtkSmartPointer<vtkCoincidentPoints> coincidentPoints =
     vtkSmartPointer<vtkCoincidentPoints>::New();
   for(i = 0; i < numPoints; ++i)
-    {
+  {
     coincidentPoints->AddPoint(i, points->GetPoint(i));
-    }
+  }
 
   coincidentPoints->RemoveNonCoincidentPoints();
   coincidentPoints->InitTraversal();
@@ -93,44 +91,44 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
 
   // Compute shortest edge coming to/from the coincident points.
   vtkIdList * coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
-  while(coincidentPointsList != NULL)
-    {
+  while(coincidentPointsList != nullptr)
+  {
     numCoincidentPoints = coincidentPointsList->GetNumberOfIds();
     for(i = 0; i < numCoincidentPoints; ++i)
-      {
+    {
       vertId = coincidentPointsList->GetId(i);
       vertInDegree = input->GetInDegree(vertId);
       vertOutDegree = input->GetOutDegree(vertId);
       points->GetPoint(vertId, vertEdge1);
 
       for(j = 0; j < vertInDegree; ++j)
-        {
+      {
         inEdge = input->GetInEdge(vertId, j);
         points->GetPoint(inEdge.Source, vertEdge2);
 
         if(vertEdge1[0] != vertEdge2[0] ||
            vertEdge1[1] != vertEdge2[1] ||
            vertEdge1[2] != vertEdge2[2])
-          {
-          edgeLength = vtkMath::Distance2BetweenPoints(vertEdge1, vertEdge2);
-          }
-        shortestEdge = edgeLength < shortestEdge ? edgeLength : shortestEdge;
-        }
-      for(j = 0; j < vertOutDegree; ++j)
         {
+          edgeLength = vtkMath::Distance2BetweenPoints(vertEdge1, vertEdge2);
+        }
+        shortestEdge = edgeLength < shortestEdge ? edgeLength : shortestEdge;
+      }
+      for(j = 0; j < vertOutDegree; ++j)
+      {
         outEdge = input->GetOutEdge(vertId, j);
         points->GetPoint(outEdge.Target, vertEdge2);
         if(vertEdge1[0] != vertEdge2[0] ||
            vertEdge1[1] != vertEdge2[1] ||
            vertEdge1[2] != vertEdge2[2])
-          {
+        {
           edgeLength = vtkMath::Distance2BetweenPoints(vertEdge1, vertEdge2);
-          }
-        shortestEdge = edgeLength < shortestEdge ? edgeLength : shortestEdge;
         }
+        shortestEdge = edgeLength < shortestEdge ? edgeLength : shortestEdge;
       }
-    coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
     }
+    coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
+  }
   shortestEdge = sqrt(shortestEdge);
 
   // Compute the average distance assuming all the points are uniformly dispersed
@@ -142,35 +140,32 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
   double averageDistance = 0.0;
 
   if(boundingDims[2] == 0.0)
-    {
+  {
     averageDistance = sqrt((boundingDims[0]*boundingDims[1])/numPoints);
-    }
+  }
   else
-    {
+  {
     averageDistance = pow(
       (boundingDims[0]*boundingDims[1]*boundingDims[2])/static_cast<double>(numPoints), 1.0/3.0);
-    }
+  }
 
   double spiralPoint[3];
   double point[3];
-  //double distance = sqrt(vtkMath::Distance2BetweenPoints(point1, point2));
-  double scale = 1.0;
-  //scale = (distance * 1.4)/numPoints;
 
   // use the smallest metric to scale the spiral vertices.
-  scale = shortestEdge < averageDistance ? shortestEdge/4 : averageDistance/4;
+  double scale = shortestEdge < averageDistance ? shortestEdge/4 : averageDistance/4;
   vtkSmartPointer<vtkPoints> offsets = vtkSmartPointer<vtkPoints>::New();
 
   coincidentPoints->InitTraversal();
   coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
   // Iterate over each coordinate that may have a set of coincident point ids.
-  while(coincidentPointsList != NULL)
-    {
+  while(coincidentPointsList != nullptr)
+  {
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPointsList->GetNumberOfIds();
     vtkCoincidentPoints::SpiralPoints( numCoincidentPoints + 1, offsets );
     for(i = 0; i < numCoincidentPoints; ++i)
-      {
+    {
       Id = coincidentPointsList->GetId(i);
       points->GetPoint(Id, point);
       offsets->GetPoint(i + 1, spiralPoint);
@@ -179,9 +174,9 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
         point[0] + spiralPoint[0] * scale,
         point[1] + spiralPoint[1] * scale,
         point[2] );
-      }
-    coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
     }
+    coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
+  }
 }
 
 
@@ -189,20 +184,18 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
 struct Coord
 {
   double coord[2];
-  Coord()
-    {
-    }
+  Coord() = default;
   Coord( const double src[3] )
-    {
+  {
     this->coord[0] = src[0];
     this->coord[1] = src[1];
-    }
+  }
 
    static double distance(Coord x,Coord y)
-     {
+   {
       return ( ( x.coord[0] - y.coord[0] ) * ( x.coord[0] - y.coord[0] )
            + ( x.coord[1] - y.coord[1] ) * ( x.coord[1] - y.coord[1] ) );
-     }
+   }
 };
 
 //----------------------------------------------------------------------------
@@ -222,9 +215,9 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
   // Temporary abort as this perturbation method
   // calculates N^2 distances which doesn't scale well.
   if(numPoints > 1000)
-    {
+  {
     return;
-    }
+  }
 
   int numCoincidentPoints = 0;
   double spiralOffsets[3];
@@ -238,9 +231,9 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
   vtkSmartPointer<vtkCoincidentPoints> coincidentPoints =
     vtkSmartPointer<vtkCoincidentPoints>::New();
   for(int i = 0; i < numPoints; ++i)
-    {
+  {
     coincidentPoints->AddPoint(i, points->GetPoint(i));
-    }
+  }
 
   // Note: We're not going to remove the non-coincident
   // points until after computing the distance from all
@@ -249,8 +242,8 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
 
   std::vector<Coord> coincidentFoci;
   vtkIdList * coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
-  while(coincidentPointsList != NULL)
-    {
+  while(coincidentPointsList != nullptr)
+  {
     // Just grabbing the first vertex of each coincident foci
     vtkIdType vertexIndex = coincidentPointsList->GetId(0);
     points->GetPoint(vertexIndex,currentPoint);
@@ -258,26 +251,26 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
 
     // Get next coincident point list
     coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
-    }
+  }
 
   // Compute the shortest intra-distance between coincident point foci
   double shortestDistance = VTK_DOUBLE_MAX;
   int numberOfFoci = static_cast<int>(coincidentFoci.size());
   if (numberOfFoci > 1)
-    {
+  {
     for (int i=0; i<numberOfFoci; ++i)
-      {
+    {
       for (int j=i+1; j<numberOfFoci; ++j)
-        {
+      {
         double distance = Coord::distance(coincidentFoci[i], coincidentFoci[j]);
         shortestDistance = distance < shortestDistance ? distance : shortestDistance;
-        }
       }
     }
+  }
   else
-    {
+  {
     shortestDistance = 0.;
-    }
+  }
 
   // Set the offset distance to be the shortest distance /4 * user setting (perturbFactor)
   double offsetDistance = sqrt(shortestDistance)/4.0 * perturbFactor;
@@ -291,13 +284,13 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
   coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
 
   // Iterate over each coordinate that may have a set of coincident point ids.
-  while(coincidentPointsList != NULL)
-    {
+  while(coincidentPointsList != nullptr)
+  {
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPointsList->GetNumberOfIds();
     vtkCoincidentPoints::SpiralPoints( numCoincidentPoints + 1, offsets );
     for(int i = 0; i < numCoincidentPoints; ++i)
-      {
+    {
       index = coincidentPointsList->GetId(i);
       points->GetPoint(index, currentPoint);
       offsets->GetPoint(i + 1, spiralOffsets);
@@ -306,9 +299,9 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
         currentPoint[0] + spiralOffsets[0] * offsetDistance,
         currentPoint[1] + spiralOffsets[1] * offsetDistance,
         currentPoint[2] );
-      }
-    coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
     }
+    coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
+  }
 }
 
 //----------------------------------------------------------------------------

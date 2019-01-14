@@ -12,19 +12,21 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkUniformGridPartitioner.h -- Partitions a uniform grid by RCB
-//
-// .SECTION Description
-//  A concrete implementation of vtkMultiBlockDataSetAlgorithm that provides
-//  functionality for partitioning a uniform grid. The partitioning method
-//  that is used is Recursive Coordinate Bisection (RCB) where each time
-//  the longest dimension is split.
-//
-// .SECTION See Also
-// vtkStructuredGridPartitioner vtkRectilinearGridPartitioner
+/**
+ * @class   vtkUniformGridPartitioner
+ *
+ *
+ *  A concrete implementation of vtkMultiBlockDataSetAlgorithm that provides
+ *  functionality for partitioning a uniform grid. The partitioning method
+ *  that is used is Recursive Coordinate Bisection (RCB) where each time
+ *  the longest dimension is split.
+ *
+ * @sa
+ * vtkStructuredGridPartitioner vtkRectilinearGridPartitioner
+*/
 
-#ifndef VTKUNIFORMGRIDPARTITIONER_H_
-#define VTKUNIFORMGRIDPARTITIONER_H_
+#ifndef vtkUniformGridPartitioner_h
+#define vtkUniformGridPartitioner_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -39,39 +41,46 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridPartitioner :
   public:
       static vtkUniformGridPartitioner *New();
       vtkTypeMacro(vtkUniformGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-      void PrintSelf(ostream &oss, vtkIndent indent );
+      void PrintSelf(ostream &oss, vtkIndent indent ) override;
 
-      // Description:
-      // Set/Get macro for the number of subdivisions.
+      //@{
+      /**
+       * Set/Get macro for the number of subdivisions.
+       */
       vtkGetMacro(NumberOfPartitions,int);
       vtkSetMacro(NumberOfPartitions,int);
+      //@}
 
-      // Description:
-      // Set/Get macro for the number of ghost layers.
+      //@{
+      /**
+       * Set/Get macro for the number of ghost layers.
+       */
       vtkGetMacro(NumberOfGhostLayers,int);
       vtkSetMacro(NumberOfGhostLayers,int);
+      //@}
 
-      // Description:
-      vtkGetMacro(DuplicateNodes,int);
-      vtkSetMacro(DuplicateNodes,int);
-      vtkBooleanMacro(DuplicateNodes,int);
+      //@{
+      vtkGetMacro(DuplicateNodes,vtkTypeBool);
+      vtkSetMacro(DuplicateNodes,vtkTypeBool);
+      vtkBooleanMacro(DuplicateNodes,vtkTypeBool);
+      //@}
 
   protected:
     vtkUniformGridPartitioner();
-    virtual ~vtkUniformGridPartitioner();
+    ~vtkUniformGridPartitioner() override;
 
     // Standard Pipeline methods
-    virtual int RequestData(
-       vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-    virtual int FillInputPortInformation(int port, vtkInformation *info);
-    virtual int FillOutputPortInformation(int port, vtkInformation *info);
+    int RequestData(
+       vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
+    int FillInputPortInformation(int port, vtkInformation *info) override;
+    int FillOutputPortInformation(int port, vtkInformation *info) override;
 
     int NumberOfPartitions;
     int NumberOfGhostLayers;
-    int DuplicateNodes;
+    vtkTypeBool DuplicateNodes;
   private:
-    vtkUniformGridPartitioner(const vtkUniformGridPartitioner &); // Not implemented
-    void operator=(const vtkUniformGridPartitioner &); // Not implemented
+    vtkUniformGridPartitioner(const vtkUniformGridPartitioner &) = delete;
+    void operator=(const vtkUniformGridPartitioner &) = delete;
 
 };
 

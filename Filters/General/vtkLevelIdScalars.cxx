@@ -19,16 +19,10 @@
 vtkStandardNewMacro(vtkLevelIdScalars);
 
 //------------------------------------------------------------------------------
-vtkLevelIdScalars::vtkLevelIdScalars()
-{
-
-}
+vtkLevelIdScalars::vtkLevelIdScalars() = default;
 
 //------------------------------------------------------------------------------
-vtkLevelIdScalars::~vtkLevelIdScalars()
-{
-
-}
+vtkLevelIdScalars::~vtkLevelIdScalars() = default;
 
 //------------------------------------------------------------------------------
 void vtkLevelIdScalars::PrintSelf(ostream& os, vtkIndent indent)

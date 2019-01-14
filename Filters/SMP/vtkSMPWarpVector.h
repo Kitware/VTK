@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSMPWarpVector - multithreaded vtkWarpVector
-// .SECTION Description
-// Just like parent, but uses the SMP framework to do the work on many threads.
+/**
+ * @class   vtkSMPWarpVector
+ * @brief   multithreaded vtkWarpVector
+ *
+ * Just like parent, but uses the SMP framework to do the work on many threads.
+*/
 
-#ifndef vtkSMPWarpVector_h__
-#define vtkSMPWarpVector_h__
+#ifndef vtkSMPWarpVector_h
+#define vtkSMPWarpVector_h
 
 #include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkWarpVector.h"
@@ -25,28 +28,31 @@
 class vtkInformation;
 class vtkInformationVector;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSSMP_EXPORT vtkSMPWarpVector : public vtkWarpVector
 {
 public :
   vtkTypeMacro(vtkSMPWarpVector,vtkWarpVector);
   static vtkSMPWarpVector *New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected :
   vtkSMPWarpVector();
-  ~vtkSMPWarpVector();
+  ~vtkSMPWarpVector() override;
 
 
-  // Description:
-  // Overridden to use threads.
+  /**
+   * Overridden to use threads.
+   */
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) override;
 
 private :
-  vtkSMPWarpVector(const vtkSMPWarpVector&);  // Not implemented.
-  void operator=(const vtkSMPWarpVector&);  // Not implemented.
+  vtkSMPWarpVector(const vtkSMPWarpVector&) = delete;
+  void operator=(const vtkSMPWarpVector&) = delete;
 
 };
 
-#endif //vtkSMPWarpVector_h__
+#endif //VTK_LEGACY_REMOVE
+#endif //vtkSMPWarpVector_h

@@ -11,9 +11,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkShaderProgram - a glsl shader program
-// .SECTION Description
-// This class contains the vertex, fragment, geometry shaders that combine to make a shader program
+/**
+ * @class   vtkShaderProgram
+ * @brief   a glsl shader program
+ *
+ * This class contains the vertex, fragment, geometry shaders that combine to make a shader program
+*/
+
 #ifndef vtkShaderProgram_h
 #define vtkShaderProgram_h
 
@@ -25,6 +29,7 @@
 
 class vtkMatrix3x3;
 class vtkMatrix4x4;
+class vtkTransformFeedback;
 class vtkShader;
 class VertexArrayObject;
 class vtkWindow;
@@ -41,28 +46,52 @@ class VTKRENDERINGOPENGL2_EXPORT vtkShaderProgram : public vtkObject
 public:
   static vtkShaderProgram *New();
   vtkTypeMacro(vtkShaderProgram, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the vertex shader for this program
+  //@{
+  /**
+   * Get the vertex shader for this program
+   */
   vtkGetObjectMacro(VertexShader, vtkShader);
+  void SetVertexShader(vtkShader*);
+  //@}
 
-  // Description:
-  // Get the fragment shader for this program
+  //@{
+  /**
+   * Get the fragment shader for this program
+   */
   vtkGetObjectMacro(FragmentShader, vtkShader);
+  void SetFragmentShader(vtkShader*);
+  //@}
 
-  // Description:
-  // Get the geometry shader for this program
+  //@{
+  /**
+   * Get the geometry shader for this program
+   */
   vtkGetObjectMacro(GeometryShader, vtkShader);
+  void SetGeometryShader(vtkShader*);
+  //@}
 
-  // Description:
-  // Set/Get flag for if this program is compiled
+  //@{
+  /**
+   * Get/Set a TransformFeedbackCapture object on this shader program.
+   */
+  vtkGetObjectMacro(TransformFeedback, vtkTransformFeedback);
+  void SetTransformFeedback(vtkTransformFeedback *tfc);
+  //@}
+
+  //@{
+  /**
+   * Set/Get flag for if this program is compiled
+   */
   vtkGetMacro(Compiled, bool);
   vtkSetMacro(Compiled, bool);
   vtkBooleanMacro(Compiled, bool);
+  //@}
 
-  // Description:
-  // Set/Get the md5 hash of this program
+  /**
+   * Set/Get the md5 hash of this program
+   */
   std::string GetMD5Hash() const { return this->MD5Hash; }
   void SetMD5Hash(const std::string &hash) { this->MD5Hash = hash; }
 
@@ -89,8 +118,9 @@ public:
    */
   bool isBound() const { return this->Bound; }
 
-  // Description:
-  // release any graphics resources this class is using.
+  /**
+   * release any graphics resources this class is using.
+   */
   void ReleaseGraphicsResources(vtkWindow *win);
 
   /** Get the handle of the shader program. */
@@ -157,6 +187,7 @@ public:
   bool SetUniform2i(const char *name, const int v[2]);
   bool SetUniform2f(const char *name, const float v[2]);
   bool SetUniform3f(const char *name, const float v[3]);
+  bool SetUniform3f(const char *name, const double v[3]);
   bool SetUniform4f(const char *name, const float v[4]);
   bool SetUniform3uc(const char *name, const unsigned char v[3]); // maybe remove
   bool SetUniform4uc(const char *name, const unsigned char v[4]); // maybe remove
@@ -171,10 +202,118 @@ public:
   bool SetUniform2fv(const char *name, const int count, const float (*f)[2]);
   bool SetUniform3fv(const char *name, const int count, const float (*f)[3]);
   bool SetUniform4fv(const char *name, const int count, const float (*f)[4]);
+  bool SetUniformMatrix4x4v(const char *name, const int count, float *v);
+
+  // How many outputs does this program produce
+  // only valid for OpenGL 3.2 or later
+  vtkSetMacro(NumberOfOutputs,unsigned int);
+
+  /**
+   * perform in place string substitutions, indicate if a substitution was done
+   * this is useful for building up shader strings which typically involve
+   * lots of string substitutions.
+   *
+   * \param[in] shader  The source shader object to perform substitutions on
+   * \param[in] search  The string to search for
+   * \param[in] replace The string replacement
+   * \param[in] all     Whether to replace all matches or just the first one
+   * \return    A boolean indicating whether the replacement was successful
+   */
+  static bool Substitute(
+    std::string &source,
+    const std::string &search,
+    const std::string &replace,
+    bool all = true);
+
+  /**
+   * Perform in-place string substitutions on the shader source string and
+   * indicate if one or all substitutions were done. This is useful for building
+   * up shader strings which typically involve a lot of string substitutions.
+   *
+   * \param[in] shader  The source shader object to perform substitutions on
+   * \param[in] search  The string to search for
+   * \param[in] replace The string replacement
+   * \param[in] all     Whether to replace all matches or just the first one
+   * \return    A boolean indicating whether the replacement was successful
+   */
+  static bool Substitute(
+    vtkShader* shader,
+    const std::string &search,
+    const std::string &replace,
+    bool all = true);
+
+  /**
+   * methods to inquire as to what uniforms/attributes are used by
+   * this shader.  This can save some compute time if the uniforms
+   * or attributes are expensive to compute
+   */
+  bool IsUniformUsed(const char *);
+
+  /**
+   * Return true if the compiled and linked shader has an attribute matching @a
+   * name.
+   */
+  bool IsAttributeUsed(const char *name);
+
+  // maps of std::string are super slow when calling find
+  // with a string literal or const char * as find
+  // forces construction/copy/destruction of a
+  // std::string copy of the const char *
+  // In spite of the doubters this can really be a
+  // huge CPU hog.
+  struct cmp_str
+  {
+     bool operator()(const char *a, const char *b) const
+     {
+        return strcmp(a, b) < 0;
+     }
+  };
+
+  //@{
+  /**
+   * When developing shaders, it's often convenient to tweak the shader and
+   * re-render incrementally. This provides a mechanism to do the same. To debug
+   * any shader program, set `FileNamePrefixForDebugging` to a file path e.g.
+   * `/tmp/myshaders`. Subsequently, when `Bind()` is called on the shader
+   * program, it will check for files named `<FileNamePrefixForDebugging>VS.glsl`,
+   * `<FileNamePrefixForDebugging>GS.glsl` and `<FileNamePrefixForDebugging>FS.glsl` for
+   * vertex shader, geometry shader and fragment shader codes respectively. If
+   * a file doesn't exist, then it dumps out the current code to that file.
+   * If the file exists, then the shader is recompiled to use the contents of that file.
+   * Thus, after the files have been dumped in the first render, you can open the files
+   * in a text editor and update as needed. On following render, the modified
+   * contexts from the file will be used.
+   *
+   * This is only intended for debugging during development and should not be
+   * used in production.
+   */
+  vtkSetStringMacro(FileNamePrefixForDebugging);
+  vtkGetStringMacro(FileNamePrefixForDebugging);
+  //@}
+
+  //@{
+  /**
+   * Set/Get times that can be used to track when a set of
+   * uniforms was last updated. This can be used to reduce
+   * redundent SetUniformCalls
+   */
+  enum UniformGroups {
+    CameraGroup,
+    LightingGroup,
+    UserGroup, // always will be last
+  };
+  void SetUniformGroupUpdateTime(int, vtkMTimeType tm);
+  vtkMTimeType GetUniformGroupUpdateTime(int);
+  //@}
+
+  // returns the location for a uniform or attribute in
+  // this program. Is cached for performance.
+  int FindUniform(const char *name);
+  int FindAttributeArray(const char *name);
 
 protected:
   vtkShaderProgram();
-  ~vtkShaderProgram();
+  ~vtkShaderProgram() override;
 
   /***************************************************************
    * The following functions are only for use by the shader cache
@@ -199,8 +338,9 @@ protected:
    */
   bool DetachShader(const vtkShader *shader);
 
-  // Description:
-  // Compile this shader program and attached shaders
+  /**
+   * Compile this shader program and attached shaders
+   */
   virtual int CompileShader();
 
   /**
@@ -224,6 +364,7 @@ protected:
   vtkShader *VertexShader;
   vtkShader *FragmentShader;
   vtkShader *GeometryShader;
+  vtkTransformFeedback *TransformFeedback;
 
   // hash of the shader program
   std::string MD5Hash;
@@ -234,23 +375,35 @@ protected:
   int Handle;
   int VertexShaderHandle;
   int FragmentShaderHandle;
+  int GeometryShaderHandle;
 
   bool Linked;
   bool Bound;
   bool Compiled;
 
+  // for glsl 1.5 or later, how many outputs
+  // does this shader create
+  // they will be bound in order to
+  // fragOutput0 fragOutput1 etc...
+  unsigned int NumberOfOutputs;
+
   std::string Error;
 
-  std::map<std::string, int> Attributes;
+  // since we are using const char * arrays we have to
+  // free our memory :-)
+  void ClearMaps();
+  std::map<const char *, int, cmp_str> AttributeLocs;
+  std::map<const char *, int, cmp_str> UniformLocs;
+
+  std::map<int, vtkMTimeType> UniformGroupMTimes;
 
   friend class VertexArrayObject;
 
 private:
-  int FindAttributeArray(const char *name);
-  int FindUniform(const char *name);
+  vtkShaderProgram(const vtkShaderProgram&) = delete;
+  void operator=(const vtkShaderProgram&) = delete;
 
-  vtkShaderProgram(const vtkShaderProgram&);  // Not implemented.
-  void operator=(const vtkShaderProgram&);  // Not implemented.
+  char* FileNamePrefixForDebugging;
 };
 
 

@@ -115,9 +115,9 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
 {
   bool followCursor = false;
   for (int i = 0; i < argc; i++)
-    {
+  {
     followCursor  |= (strcmp("--FollowCursor", argv[i]) == 0);
-    }
+  }
 
   char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/fullhead15.png");

@@ -80,7 +80,7 @@
          </property>
         </layout>
        </widget>
-       <widget class="QVTKWidget" name="qvtkWidget" >
+       <widget class="QVTKOpenGLWidget" name="qvtkWidget" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
           <horstretch>1</horstretch>
@@ -187,9 +187,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QVTKWidget</class>
+   <class>QVTKOpenGLWidget</class>
    <extends>QWidget</extends>
-   <header>QVTKWidget.h</header>
+   <header>QVTKOpenGLWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

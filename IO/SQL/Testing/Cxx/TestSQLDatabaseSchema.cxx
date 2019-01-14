@@ -49,13 +49,13 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   // Loop over all preambles
   int numPre = schema->GetNumberOfPreambles();
   if ( numPre != 3 )
-    {
+  {
     cerr << "Read " << numPre << " != 3 preamble in test schema.\n";
     status = false;
-    }
+  }
 
   for ( int preHandle = 0; preHandle < numPre; ++ preHandle )
-    {
+  {
     vtkStdString preName = schema->GetPreambleNameFromHandle( preHandle );
     cerr << "Preamble name: "
          << preName
@@ -63,14 +63,14 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
     std::set<vtkStdString>::iterator sit = preNames.find( preName );
     if ( sit != preNames.end() )
-      {
+    {
       preNames.erase ( sit );
-      }
+    }
     else
-      {
+    {
       cerr << "Could not retrieve preamble name " << preName  << " from test schema.\n";
       status = false;
-      }
+    }
 
     vtkStdString preBackend = schema->GetPreambleBackendFromHandle( preHandle );
     cerr << "Preamble backend: "
@@ -79,15 +79,15 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
     std::multiset<vtkStdString>::iterator mit = preBackends.find( preBackend );
     if ( mit != preBackends.end() )
-      {
+    {
       preBackends.erase ( mit );
-      }
+    }
     else
-      {
+    {
       cerr << "Could not retrieve preamble backend " << preBackend  << " from test schema.\n";
       status = false;
-      }
     }
+  }
 
   // Define the correct (reference) columns and types
   std::set<vtkStdString> colNames;
@@ -103,13 +103,13 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   int tblHandle = 0;
   int numCol = schema->GetNumberOfColumnsInTable( tblHandle );
   if ( numCol != 3 )
-    {
+  {
     cerr << "Read " << numCol << " != 3 columns in test schema.\n";
     status = false;
-    }
+  }
 
   for ( int colHandle = 0; colHandle < numCol; ++ colHandle )
-    {
+  {
     vtkStdString colName = schema->GetColumnNameFromHandle( tblHandle, colHandle );
     cerr << "Column name: "
          << colName
@@ -117,14 +117,14 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
     std::set<vtkStdString>::iterator sit = colNames.find( colName );
     if ( sit != colNames.end() )
-      {
+    {
       colNames.erase ( sit );
-      }
+    }
     else
-      {
+    {
       cerr << "Could not retrieve column name " << colName  << " from test schema.\n";
       status = false;
-      }
+    }
 
     int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle );
     cerr << "Column type: "
@@ -133,15 +133,15 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
     std::set<int>::iterator iit = colTypes.find( colType );
     if ( iit != colTypes.end() )
-      {
+    {
       colTypes.erase ( iit );
-      }
+    }
     else
-      {
+    {
       cerr << "Could not retrieve column type " << colType  << " from test schema.\n";
       status = false;
-      }
     }
+  }
 
   // Define the correct (reference) indices and types
   std::set<vtkStdString> idxNames;
@@ -154,13 +154,13 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   // Loop over all indices of the previously created table
   int numIdx = schema->GetNumberOfIndicesInTable( tblHandle );
   if ( numIdx != 2 )
-    {
+  {
     cerr << "Read " << numIdx << " != 2 indices in test schema.\n";
     status = false;
-    }
+  }
 
   for ( int idxHandle = 0; idxHandle < numIdx; ++ idxHandle )
-    {
+  {
     vtkStdString idxName = schema->GetIndexNameFromHandle( tblHandle, idxHandle );
     cerr << "Index name: "
          << idxName
@@ -168,14 +168,14 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
     std::set<vtkStdString>::iterator sit = idxNames.find( idxName );
     if ( sit != idxNames.end() )
-      {
+    {
       idxNames.erase ( sit );
-      }
+    }
     else
-      {
+    {
       cerr << "Could not retrieve index name " << idxName  << " from test schema.\n";
       status = false;
-      }
+    }
 
     int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle );
     cerr << "Index type: "
@@ -184,15 +184,15 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
     std::set<int>::iterator iit = idxTypes.find( idxType );
     if ( iit != idxTypes.end() )
-      {
+    {
       idxTypes.erase ( iit );
-      }
+    }
     else
-      {
+    {
       cerr << "Could not retrieve index type " << idxType  << " from test schema.\n";
       status = false;
-      }
     }
+  }
 
   // Define the correct (reference) triggers and types
   std::multiset<vtkStdString> trgNames;
@@ -218,13 +218,13 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   // Loop over all triggers of the previously created table
   int numTrg = schema->GetNumberOfTriggersInTable( tblHandle );
   if ( numTrg != 3 )
-    {
+  {
     cerr << "Read " << numTrg << " != 3 triggers in test schema.\n";
     status = false;
-    }
+  }
 
   for ( int trgHandle = 0; trgHandle < numTrg; ++ trgHandle )
-    {
+  {
     vtkStdString trgName = schema->GetTriggerNameFromHandle( tblHandle, trgHandle );
     cerr << "Trigger name: "
          << trgName
@@ -232,14 +232,14 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
     std::multiset<vtkStdString>::iterator sit = trgNames.find( trgName );
     if ( sit != trgNames.end() )
-      {
+    {
       trgNames.erase ( sit );
-      }
+    }
     else
-      {
+    {
       cerr << "Could not retrieve trigger name " << trgName  << " from test schema.\n";
       status = false;
-      }
+    }
 
     int trgType = schema->GetTriggerTypeFromHandle( tblHandle, trgHandle );
     cerr << "Trigger type: "
@@ -248,14 +248,14 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
     std::multiset<int>::iterator iit = trgTypes.find( trgType );
     if ( iit != trgTypes.end() )
-      {
+    {
       trgTypes.erase ( iit );
-      }
+    }
     else
-      {
+    {
       cerr << "Could not retrieve trigger type " << trgType  << " from test schema.\n";
       status = false;
-      }
+    }
 
     vtkStdString trgAction = schema->GetTriggerActionFromHandle( tblHandle, trgHandle );
     cerr << "Trigger action: "
@@ -264,14 +264,14 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
     sit = trgActions.find( trgAction );
     if ( sit != trgActions.end() )
-      {
+    {
       trgActions.erase ( sit );
-      }
+    }
     else
-      {
+    {
       cerr << "Could not retrieve trigger action " << trgAction  << " from test schema.\n";
       status = false;
-      }
+    }
 
     vtkStdString trgBackend = schema->GetTriggerBackendFromHandle( tblHandle, trgHandle );
     cerr << "Trigger backend: "
@@ -280,15 +280,15 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
     sit = trgBackends.find( trgBackend );
     if ( sit != trgBackends.end() )
-      {
+    {
       trgBackends.erase ( sit );
-      }
+    }
     else
-      {
+    {
       cerr << "Could not retrieve trigger backend " << trgBackend  << " from test schema.\n";
       status = false;
-      }
     }
+  }
 
   return status ? 0 : 1;
 }

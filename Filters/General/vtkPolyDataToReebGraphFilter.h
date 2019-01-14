@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkPolyDataToReebGraphFilter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyDataToReebGraphFilter - generate a Reeb graph from a scalar
-// field defined on a vtkPolyData.
-// .SECTION Description
-// The filter will first try to pull as a scalar field the vtkDataArray with
-// Id 'fieldId' of the mesh's vtkPointData.
-// If this field does not exist, the filter will use the vtkElevationFilter to
-// generate a default scalar field.
+/**
+ * @class   vtkPolyDataToReebGraphFilter
+ * @brief   generate a Reeb graph from a scalar
+ * field defined on a vtkPolyData.
+ *
+ * The filter will first try to pull as a scalar field the vtkDataArray with
+ * Id 'fieldId' of the mesh's vtkPointData.
+ * If this field does not exist, the filter will use the vtkElevationFilter to
+ * generate a default scalar field.
+*/
 
 #ifndef vtkPolyDataToReebGraphFilter_h
 #define vtkPolyDataToReebGraphFilter_h
@@ -34,32 +37,34 @@ class VTKFILTERSGENERAL_EXPORT vtkPolyDataToReebGraphFilter :
 public:
   static vtkPolyDataToReebGraphFilter* New();
   vtkTypeMacro(vtkPolyDataToReebGraphFilter, vtkDirectedGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set the scalar field id (default = 0).
+  //@{
+  /**
+   * Set the scalar field id (default = 0).
+   */
   vtkSetMacro(FieldId, int);
   vtkGetMacro(FieldId, int);
+  //@}
 
   vtkReebGraph* GetOutput();
 
 protected:
   vtkPolyDataToReebGraphFilter();
-  ~vtkPolyDataToReebGraphFilter();
+  ~vtkPolyDataToReebGraphFilter() override;
 
   int FieldId;
 
-  int FillInputPortInformation(int portNumber, vtkInformation *);
-  int FillOutputPortInformation(int, vtkInformation *);
+  int FillInputPortInformation(int portNumber, vtkInformation *) override;
+  int FillOutputPortInformation(int, vtkInformation *) override;
 
   int RequestData(vtkInformation*,
                   vtkInformationVector**,
-                  vtkInformationVector*);
+                  vtkInformationVector*) override;
 
 private:
-  vtkPolyDataToReebGraphFilter(const vtkPolyDataToReebGraphFilter&);
-  // Not implemented.
-  void operator=(const vtkPolyDataToReebGraphFilter&);  // Not implemented.
+  vtkPolyDataToReebGraphFilter(const vtkPolyDataToReebGraphFilter&) = delete;
+  void operator=(const vtkPolyDataToReebGraphFilter&) = delete;
 };
 
 #endif

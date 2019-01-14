@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -31,7 +30,6 @@ edgePoints.SetValue(1150)
 #
 mapper = vtk.vtkDataSetMapper()
 mapper.SetInputConnection(edgePoints.GetOutputPort())
-mapper.ImmediateModeRenderingOn()
 mapper.ScalarVisibilityOff()
 
 head = vtk.vtkActor()

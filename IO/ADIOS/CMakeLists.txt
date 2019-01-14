@@ -1,51 +1,25 @@
-find_package(ADIOS REQUIRED)
-include_directories(SYSTEM ${ADIOS_INCLUDE_DIRS})
+vtk_module_find_package(
+  PACKAGE ADIOS1
+  VERSION 1.11)
+vtk_module_find_package(
+  PACKAGE Threads)
 
-find_package(MPI REQUIRED)
-include_directories(SYSTEM ${MPI_C_INCLUDE_PATH})
-
-find_package (Threads)
-
-set(Module_SOURCES
-  ADIOSDefs.cxx
-  ADIOSUtilities.cxx
-
-  ADIOSWriter.cxx
-
-  ADIOSAttribute.cxx
-  ADIOSVarInfo.cxx
-  ADIOSScalar.cxx
-  ADIOSReader.cxx
-
-  vtkADIOSUtilities.cxx
-
-  vtkADIOSWriter.cxx
-
-  vtkADIOSDirTree.cxx
-  vtkADIOSReader.cxx
-  )
-
-set_source_files_properties(
-  ADIOSDefs
-  ADIOSUtilities
-
-  ADIOSWriter
-
+set(classes
   ADIOSAttribute
-  ADIOSVarInfo
-  ADIOSScalar
+  ADIOSDefs
   ADIOSReader
-
-  vtkADIOSUtilities
-
-  vtkADIOSWriterDefine
-  vtkADIOSWriterWrite
-
+  ADIOSScalar
+  ADIOSUtilities
+  ADIOSVarInfo
+  ADIOSWriter
   vtkADIOSDirTree
-  WRAP_EXCLUDE
-  )
+  vtkADIOSReader
+  vtkADIOSUtilities
+  vtkADIOSWriter)
 
-vtk_module_library(vtkIOADIOS ${Module_SOURCES})
-target_link_libraries(vtkIOADIOS
-  LINK_PRIVATE ${ADIOS_LIBRARIES} ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
-  )
+vtk_module_add_module(VTK::IOADIOS
+  CLASSES ${classes})
+vtk_module_link(VTK::IOADIOS
+  PRIVATE
+    adios1::adios
+    Threads::Threads)

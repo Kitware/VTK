@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -12,9 +14,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// The following line handle system declarations such a
-// default precisions, or defining precisions to null
-//VTK::System::Dec
+
 
 // all variables that represent positions or directions have a suffix
 // indicating the coordinate system they are in. The possible values are
@@ -22,14 +22,14 @@
 // WC - WC world coordinates
 // VC - View Coordinates
 // DC - Display Coordinates
-attribute vec4 vertexDC;
-attribute vec3 scalarColor;
-attribute float depthArray;
-attribute float attenuationArray;
+in vec4 vertexDC;
+in vec3 scalarColor;
+in float depthArray;
+in float attenuationArray;
 
-varying float fdepth;
-varying float fattenuation;
-varying vec3 fcolor;
+out float fdepth;
+out float fattenuation;
+out vec3 fcolor;
 
 void main()
 {

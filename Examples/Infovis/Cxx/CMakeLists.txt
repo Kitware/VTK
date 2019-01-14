@@ -1,42 +1,81 @@
-cmake_minimum_required(VERSION 2.8.8)
-if(POLICY CMP0020)
-  cmake_policy(SET CMP0020 NEW)
-endif()
-
+cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
 project(Infovis)
 
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
+set(vtk_modules
+find_package(VTK
+  COMPONENTS
+    FiltersSources
+    IOInfovis
+    InfovisCore
+    InfovisLayout
+    InteractionStyle
+    RenderingCore
+    RenderingLabel
+    RenderingOpenGL2)
+  OPTIONAL_COMPONENTS
+    FiltersStatistics
+    GUISupportQt
+    IOSQL
+    ViewsInfovis
+    ViewsQt)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-add_executable(TreeLayout TreeLayout.cxx)
-target_link_libraries(TreeLayout ${VTK_LIBRARIES})
+add_executable(TreeLayout
+  TreeLayout.cxx)
+target_link_libraries(TreeLayout
+  PRIVATE
+    ${vtk_modules})
 
-if(vtkViewsInfovis_LOADED)
-  add_executable(HelloWorld HelloWorld.cxx)
-  target_link_libraries(HelloWorld ${VTK_LIBRARIES})
+vtk_module_autoinit(
+  TARGETS TreeLayout
+  MODULES ${vtk_modules})
 
-  add_executable(Theme Theme.cxx)
-  target_link_libraries(Theme ${VTK_LIBRARIES})
+if (TARGET VTK::ViewsInfovis)
+  add_executable(HelloWorld
+    HelloWorld.cxx)
+  target_link_libraries(HelloWorld
+    PRIVATE
+      ${vtk_modules}
+      vtkViewsInfovis)
 
-  add_executable(CreateTree CreateTree.cxx)
-  target_link_libraries(CreateTree ${VTK_LIBRARIES})
+  add_executable(Theme
+    Theme.cxx)
+  target_link_libraries(Theme
+    PRIVATE
+      ${vtk_modules}
+      vtkViewsInfovis)
 
-  add_executable(MultiView MultiView.cxx)
-  target_link_LIBRARIES(MultiView ${VTK_LIBRARIES})
-endif()
+  add_executable(CreateTree
+    CreateTree.cxx)
+  target_link_libraries(CreateTree
+    PRIVATE
+      ${vtk_modules}
+      vtkViewsInfovis)
 
-# If Qt is enabled include the QT based examples
-if(vtkGUISupportQt_LOADED)
+  add_executable(MultiView
+    MultiView.cxx)
+  target_link_libraries(MultiView
+    PRIVATE
+      ${vtk_modules}
+      vtkViewsInfovis)
+
+  vtk_module_autoinit(
+    TARGETS HelloWorld
+            Theme
+            CreateTree
+            MultiView
+    MODULES ${vtk_modules}
+            vtkViewsInfovis)
+endif ()
+
+# If Qt is enabled include the Qt based examples
+if (TARGET VTK::GUISupportQt AND TARGET VTK::ViewsQt)
   add_subdirectory(EasyView)
   add_subdirectory(CustomLinkView)
-  add_subdirectory(StatsView)
-endif()
-
-if(vtkInfovisParallel_LOADED)
-  add_executable(ParallelBFS ParallelBFS.cxx)
-  find_package(MPI REQUIRED)
-  target_link_libraries(ParallelBFS vtkParallel ${VTK_LIBRARIES} ${MPI_C_LIBRARIES})
-  if (MPI_CXX_LIBRARIES)
-    target_link_libraries(ParallelBFS ${MPI_CXX_LIBRARIES})
-  endif()
-endif()
+  if (TARGET VTK::IOSQL AND TARGET VTK::FiltersStatistics)
+    add_subdirectory(StatsView)
+  endif ()
+endif ()

@@ -3,8 +3,6 @@
   Program:   DICOMParser
   Module:    DICOMParser.h
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 2003 Matt Turek
   All rights reserved.
@@ -70,6 +68,11 @@ class DICOM_EXPORT DICOMParser
   // Opens a file and initializes the parser.
   //
   bool OpenFile(const dicom_stl::string& filename);
+
+  //
+  // Closes the currently open file.
+  //
+  void CloseFile();
 
   //
   // Return the name of the file last processed.
@@ -205,7 +208,7 @@ class DICOM_EXPORT DICOMParser
   void InitTypeMap();
 
   //
-  // Flags for byte swaping header values and
+  // Flags for byte swapping header values and
   // image data.
   //
   bool ByteSwap;

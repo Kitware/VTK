@@ -12,16 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAMREnzoReaderInternal.h -- Low-level Enzo Reader
-//
-// .SECTION Description
-// Consists of the low-level Enzo Reader used by the vtkAMREnzoReader.
-//
-// .SECTION See Also
-// vtkAMREnzoReader vtkAMREnzoParticlesReader
+/**
+ * @class   vtkAMREnzoReaderInternal
+ *
+ *
+ * Consists of the low-level Enzo Reader used by the vtkAMREnzoReader.
+ *
+ * @sa
+ * vtkAMREnzoReader vtkAMREnzoParticlesReader
+*/
 
-#ifndef VTKAMRENZOREADERINTERNAL_HPP_
-#define VTKAMRENZOREADERINTERNAL_HPP_
+#ifndef vtkAMREnzoReaderInternal_h
+#define vtkAMREnzoReaderInternal_h
 
 #include "vtksys/SystemTools.hxx"
 
@@ -161,5 +163,5 @@ public:
 //                     Class  vtkEnzoReaderInternal ( end )
 // ----------------------------------------------------------------------------
 
-#endif /* VTKAMRENZOREADERINTERNAL_HPP_ */
+#endif /* vtkAMREnzoReaderInternal_h */
 // VTK-HeaderTest-Exclude: vtkAMREnzoReaderInternal.h

@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRendererDelegate - Render the props of a vtkRenderer
-// .SECTION Description
-// vtkRendererDelegate is an abstract class with a pure virtual method Render.
-// This method replaces the Render method of vtkRenderer to allow custom
-// rendering from an external project. A RendererDelegate is connected to
-// a vtkRenderer with method SetDelegate(). An external project just
-// has to provide a concrete implementation of vtkRendererDelegate.
-
-// .SECTION See Also
-// vtkRenderer
+/**
+ * @class   vtkRendererDelegate
+ * @brief   Render the props of a vtkRenderer
+ *
+ * vtkRendererDelegate is an abstract class with a pure virtual method Render.
+ * This method replaces the Render method of vtkRenderer to allow custom
+ * rendering from an external project. A RendererDelegate is connected to
+ * a vtkRenderer with method SetDelegate(). An external project just
+ * has to provide a concrete implementation of vtkRendererDelegate.
+ *
+ * @sa
+ * vtkRenderer
+*/
 
 #ifndef vtkRendererDelegate_h
 #define vtkRendererDelegate_h
@@ -35,28 +38,32 @@ class VTKRENDERINGCORE_EXPORT vtkRendererDelegate : public vtkObject
 {
 public:
   vtkTypeMacro(vtkRendererDelegate,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Render the props of vtkRenderer if Used is on.
+  /**
+   * Render the props of vtkRenderer if Used is on.
+   */
   virtual void Render(vtkRenderer *r)=0;
 
-  // Description:
-  // Tells if the delegate has to be used by the renderer or not.
-  // Initial value is off.
+  //@{
+  /**
+   * Tells if the delegate has to be used by the renderer or not.
+   * Initial value is off.
+   */
   vtkSetMacro(Used, bool);
   vtkGetMacro(Used, bool);
   vtkBooleanMacro(Used, bool);
+  //@}
 
 protected:
   vtkRendererDelegate();
-  virtual ~vtkRendererDelegate();
+  ~vtkRendererDelegate() override;
 
   bool Used;
 
 private:
-  vtkRendererDelegate(const vtkRendererDelegate&);  // Not implemented.
-  void operator=(const vtkRendererDelegate&);  // Not implemented.
+  vtkRendererDelegate(const vtkRendererDelegate&) = delete;
+  void operator=(const vtkRendererDelegate&) = delete;
 };
 
 #endif

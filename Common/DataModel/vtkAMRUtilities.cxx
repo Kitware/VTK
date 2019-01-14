@@ -34,7 +34,6 @@
 #define JMAX(ext) ext[3]
 #define KMIN(ext) ext[4]
 #define KMAX(ext) ext[5]
-#define PRINT(x) cout<<"("<<myRank<<")"<<x<<endl;
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::PrintSelf( std::ostream& os, vtkIndent indent )
@@ -46,15 +45,15 @@ void vtkAMRUtilities::PrintSelf( std::ostream& os, vtkIndent indent )
 bool vtkAMRUtilities::HasPartiallyOverlappingGhostCells(
     vtkOverlappingAMR *amr)
 {
-  assert("pre: input AMR data is NULL" && (amr != NULL) );
+  assert("pre: input AMR data is nullptr" && (amr != nullptr) );
   int numLevels = static_cast<int>( amr->GetNumberOfLevels() );
   int levelIdx  = numLevels-1;
   for(; levelIdx > 0; --levelIdx )
-    {
+  {
     int r = amr->GetRefinementRatio( levelIdx );
     unsigned int numDataSets = amr->GetNumberOfDataSets( levelIdx );
     for( unsigned int dataIdx=0; dataIdx < numDataSets; ++dataIdx )
-      {
+    {
       const vtkAMRBox& myBox = amr->GetAMRInfo()->GetAMRBox(levelIdx,dataIdx);
       const int* lo = myBox.GetLoCorner();
       int hi[3];
@@ -68,18 +67,18 @@ bool vtkAMRUtilities::HasPartiallyOverlappingGhostCells(
       // min extent of the box is greater than k*r or if the max extent
       // of the box is less than k*r+(r-1), then the grid partially overlaps.
       for( int i=0; i < 3; ++i )
-        {
+      {
         if(myBox.EmptyDimension(i))
-          {
+        {
           continue;
-          }
+        }
         int minRange[2];
         minRange[0] = coarsenedBox.GetLoCorner()[i]*r;
         minRange[1] = coarsenedBox.GetLoCorner()[i]*r + (r-1);
         if( lo[i] > minRange[0] )
-          {
+        {
           return true;
-          }
+        }
 
         int coarseHi[3];
         coarsenedBox.GetValidHiCorner(coarseHi);
@@ -87,13 +86,13 @@ bool vtkAMRUtilities::HasPartiallyOverlappingGhostCells(
         maxRange[0] = coarseHi[i]*r;
         maxRange[1] = coarseHi[i]*r + (r-1);
         if( hi[i] < maxRange[1] )
-          {
+        {
           return true;
-          }
-        } // END for all dimensions
+        }
+      } // END for all dimensions
 
-      } // END for all data at the current level
-    } // END for all levels
+    } // END for all data at the current level
+  } // END for all levels
   return false;
 }
 
@@ -103,18 +102,18 @@ void vtkAMRUtilities::CopyFieldData(
     vtkFieldData *target, vtkIdType targetIdx,
     vtkFieldData *source, vtkIdType srcIdx )
 {
-  assert("pre: target should not be NULL" && (target != NULL) );
-  assert("pre: source should not be NULL" && (source != NULL) );
+  assert("pre: target should not be nullptr" && (target != nullptr) );
+  assert("pre: source should not be nullptr" && (source != nullptr) );
   assert("pre: number of arrays between source and target does not match!" &&
          (source->GetNumberOfArrays()==target->GetNumberOfArrays() ) );
 
   for( int arrayIdx=0; arrayIdx < source->GetNumberOfArrays(); ++arrayIdx )
-    {
+  {
     vtkDataArray *targetArray = target->GetArray( arrayIdx );
     vtkDataArray *srcArray    = source->GetArray( arrayIdx );
-    assert( "pre: target array is NULL!" && (targetArray != NULL) );
-    assert( "pre: source array is NULL!" && (srcArray != NULL) );
-    assert( "pre: targer/source array number of components mismatch!" &&
+    assert( "pre: target array is nullptr!" && (targetArray != nullptr) );
+    assert( "pre: source array is nullptr!" && (srcArray != nullptr) );
+    assert( "pre: target/source array number of components mismatch!" &&
             (targetArray->GetNumberOfComponents()==
              srcArray->GetNumberOfComponents() ) );
     assert( "pre: target/source array names mismatch!" &&
@@ -128,7 +127,7 @@ void vtkAMRUtilities::CopyFieldData(
 
     // copy the tuple from the source array
     targetArray->SetTuple( targetIdx, srcIdx, srcArray );
-    } // END for all arrays
+  } // END for all arrays
 
 }
 
@@ -138,8 +137,8 @@ void vtkAMRUtilities::CopyFieldsWithinRealExtent(
     vtkUniformGrid *ghostedGrid,
     vtkUniformGrid *strippedGrid)
 {
-  assert("pre: input ghost grid is NULL" && (ghostedGrid != NULL) );
-  assert("pre: input stripped grid is NULL" && (strippedGrid != NULL) );
+  assert("pre: input ghost grid is nullptr" && (ghostedGrid != nullptr) );
+  assert("pre: input stripped grid is nullptr" && (strippedGrid != nullptr) );
 
   // STEP 0: Initialize the unghosted grid fields (point/cell data)
   strippedGrid->GetPointData()->CopyAllOn();
@@ -153,16 +152,16 @@ void vtkAMRUtilities::CopyFieldsWithinRealExtent(
   // CopyAllocate does not allocate the arrays with the prescribed size.
   int arrayIdx = 0;
   for(;arrayIdx < strippedGrid->GetPointData()->GetNumberOfArrays();++arrayIdx)
-    {
+  {
     strippedGrid->GetPointData()->GetArray(arrayIdx)->
         SetNumberOfTuples(strippedGrid->GetNumberOfPoints() );
-    } // END for all node arrays
+  } // END for all node arrays
 
   for(;arrayIdx < strippedGrid->GetCellData()->GetNumberOfArrays();++arrayIdx)
-    {
+  {
     strippedGrid->GetCellData()->GetArray(arrayIdx)->
         SetNumberOfTuples( strippedGrid->GetNumberOfCells() );
-    } // END for all cell arrays
+  } // END for all cell arrays
 
   // STEP 2: Get the data-description
   int dataDescription =
@@ -187,11 +186,11 @@ void vtkAMRUtilities::CopyFieldsWithinRealExtent(
   int ijk[3];
   int lijk[3];
   for(int i=IMIN(realExtent); i <= IMAX(realExtent); ++i)
-    {
+  {
     for(int j=JMIN(realExtent); j <= JMAX(realExtent); ++j)
-      {
+    {
       for( int k=KMIN(realExtent); k <= KMAX(realExtent); ++k)
-        {
+      {
         // Vectorize i,j,k
         ijk[0]=i; ijk[1]=j; ijk[2]=k;
 
@@ -218,7 +217,7 @@ void vtkAMRUtilities::CopyFieldsWithinRealExtent(
         if( (i >= IMIN(realCellExtent)) && (i <= IMAX(realCellExtent))&&
             (j >= JMIN(realCellExtent)) && (j <= JMAX(realCellExtent))&&
             (k >= KMIN(realCellExtent)) && (k <= KMAX(realCellExtent)) )
-          {
+        {
           // Compute the source cell index w.r.t. the ghosted grid
           vtkIdType sourceCellIdx =
               vtkStructuredData::ComputeCellId(
@@ -233,18 +232,18 @@ void vtkAMRUtilities::CopyFieldsWithinRealExtent(
           vtkAMRUtilities::CopyFieldData(
               strippedGrid->GetCellData(),targetCellIdx,
               ghostedGrid->GetCellData(),sourceCellIdx);
-          } // END if within the cell extent
+        } // END if within the cell extent
 
-        } // END for all k
-      } // END for all j
-    } // END for all i
+      } // END for all k
+    } // END for all j
+  } // END for all i
 }
 
 //------------------------------------------------------------------------------
 vtkUniformGrid* vtkAMRUtilities::StripGhostLayersFromGrid(
       vtkUniformGrid* grid, int ghost[6] )
 {
-  assert("pre: input grid is NULL" && (grid != NULL) );
+  assert("pre: input grid is nullptr" && (grid != nullptr) );
 
   // STEP 0: Get the grid properties, i.e., origin, dims, extent, etc.
   double origin[3];
@@ -263,19 +262,19 @@ vtkUniformGrid* vtkAMRUtilities::StripGhostLayersFromGrid(
   // STEP 1: Adjust origin, copyExtent, dims according to the supplied ghost
   // vector.
   for( int i=0; i < 3; ++i )
-    {
+  {
     if( ghost[i*2] > 0)
-      {
+    {
       copyExtent[i*2] += ghost[i*2];
       dims[i]         -= ghost[i*2];
       origin[i]       += ghost[i*2]*spacing[i];
-      }
+    }
     if( ghost[i*2+1] > 0 )
-      {
+    {
       dims[i]           -= ghost[i*2+1];
       copyExtent[i*2+1] -= ghost[i*2+1];
-      }
-    } // END for all dimensions
+    }
+  } // END for all dimensions
 
   // STEP 2: Initialize the unghosted grid
   vtkUniformGrid *myGrid = vtkUniformGrid::New();
@@ -294,24 +293,24 @@ void vtkAMRUtilities::StripGhostLayers(
         vtkOverlappingAMR *ghostedAMRData,
         vtkOverlappingAMR *strippedAMRData)
 {
-  assert("pre: input AMR data is NULL" && (ghostedAMRData != NULL) );
-  assert("pre: outputAMR data is NULL" && (strippedAMRData != NULL) );
+  assert("pre: input AMR data is nullptr" && (ghostedAMRData != nullptr) );
+  assert("pre: outputAMR data is nullptr" && (strippedAMRData != nullptr) );
   double spacing[3];
 
   if( !vtkAMRUtilities::HasPartiallyOverlappingGhostCells( ghostedAMRData ) )
-    {
+  {
     strippedAMRData->ShallowCopy(ghostedAMRData);
     return;
-    }
+  }
 
   // TODO: At some point we should check for overlapping cells within the
   // same level, e.g., consider a level 0 with 2 abutting blocks that is
   // ghosted by N !!!!
   std::vector<int> blocksPerLevel(ghostedAMRData->GetNumberOfLevels());
   for(unsigned int i=0; i<blocksPerLevel.size();i++)
-    {
+  {
     blocksPerLevel[i] = ghostedAMRData->GetNumberOfDataSets(i);
-    }
+  }
   strippedAMRData->Initialize(static_cast<int>(blocksPerLevel.size()),&blocksPerLevel[0]);
   strippedAMRData->SetOrigin(ghostedAMRData->GetOrigin());
   strippedAMRData->SetGridDescription(ghostedAMRData->GetGridDescription());
@@ -320,22 +319,22 @@ void vtkAMRUtilities::StripGhostLayers(
   strippedAMRData->SetSpacing(0, spacing);
   unsigned int dataIdx=0;
   for( ;dataIdx < ghostedAMRData->GetNumberOfDataSets(0); ++dataIdx)
-    {
+  {
     vtkUniformGrid* grid = ghostedAMRData->GetDataSet(0,dataIdx);
     const vtkAMRBox& box = ghostedAMRData->GetAMRBox(0,dataIdx);
     strippedAMRData->SetAMRBox(0,dataIdx,box);
     strippedAMRData->SetDataSet(0,dataIdx,grid);
-    } // END for all data at level 0
+  } // END for all data at level 0
 
   int ghost[6];
   unsigned int levelIdx = 1;
   for( ;levelIdx < ghostedAMRData->GetNumberOfLevels(); ++levelIdx )
-    {
+  {
     dataIdx=0;
     ghostedAMRData->GetSpacing(levelIdx,spacing);
     strippedAMRData->SetSpacing(levelIdx, spacing);
     for(;dataIdx < ghostedAMRData->GetNumberOfDataSets(levelIdx); ++dataIdx)
-      {
+    {
       vtkUniformGrid *grid = ghostedAMRData->GetDataSet( levelIdx, dataIdx );
       int r = ghostedAMRData->GetRefinementRatio( levelIdx );
       vtkAMRBox myBox=ghostedAMRData->GetAMRBox(levelIdx,dataIdx);
@@ -343,8 +342,8 @@ void vtkAMRUtilities::StripGhostLayers(
       strippedBox.RemoveGhosts(r);
 
       strippedAMRData->SetAMRBox(levelIdx,dataIdx, strippedBox);
-      if( grid !=NULL )
-        {
+      if( grid !=nullptr )
+      {
         myBox.GetGhostVector(r, ghost);
 
         vtkUniformGrid *strippedGrid=
@@ -354,9 +353,9 @@ void vtkAMRUtilities::StripGhostLayers(
         strippedAMRData->SetAMRBox(levelIdx,dataIdx,strippedBox);
         strippedAMRData->SetDataSet(levelIdx,dataIdx,strippedGrid);
         strippedGrid->Delete();
-        }
-      } // END for all data at the given level
-    } // END for all levels
+      }
+    } // END for all data at the given level
+  } // END for all levels
 }
 
 //------------------------------------------------------------------------------
@@ -364,13 +363,13 @@ void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
 {
   vtkAMRInformation* info = amr->GetAMRInfo();
   if(!info->HasRefinementRatio())
-    {
+  {
     info->GenerateRefinementRatio();
-    }
+  }
   if(!info->HasChildrenInformation())
-    {
+  {
     info->GenerateParentChildInformation();
-    }
+  }
 
   std::vector<int> processorMap;
   processorMap.resize(amr->GetTotalNumberOfBlocks(),-1);
@@ -379,16 +378,16 @@ void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
   iter->SkipEmptyNodesOn();
 
   for(iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
+  {
     unsigned int index = iter->GetCurrentFlatIndex();
     processorMap[index] = 0;
-    }
+  }
 
   unsigned int numLevels =info->GetNumberOfLevels();
   for(unsigned int i=0; i<numLevels; i++)
-    {
+  {
     BlankGridsAtLevel(amr, i, info->GetChildrenAtLevel(i),processorMap);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -400,13 +399,13 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
   int N;
 
   for( unsigned int dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
-    {
+  {
     const vtkAMRBox& box = amr->GetAMRBox(levelIdx, dataSetIdx);
     vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataSetIdx);
-    if (grid == NULL )
-      {
+    if (grid == nullptr )
+    {
       continue;
-      }
+    }
     N = grid->GetNumberOfCells();
 
     vtkUnsignedCharArray *ghosts = vtkUnsignedCharArray::New();
@@ -415,42 +414,44 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
     ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
 
     if (children.size() > dataSetIdx)
-      {
+    {
       std::vector<unsigned int>& dsChildren = children[dataSetIdx];
       std::vector<unsigned int>::iterator iter;
 
       // For each higher res box fill in the cells that
       // it covers
-      for (iter=dsChildren.begin(); iter!=dsChildren.end(); iter++)
-        {
-        vtkAMRBox ibox;;
+      for (iter=dsChildren.begin(); iter!=dsChildren.end(); ++iter)
+      {
+        vtkAMRBox ibox;
         int childGridIndex  = amr->GetCompositeIndex(levelIdx+1, *iter);
         if(processMap[childGridIndex]<0)
-          {
+        {
           continue;
-          }
+        }
         if (amr->GetAMRInfo()->GetCoarsenedAMRBox(levelIdx+1, *iter, ibox))
-          {
-          ibox.Intersect(box);
+        {
+          bool shouldBeTrue = ibox.Intersect(box);
+          assert(shouldBeTrue); // if the boxes don't intersect, there is a bug
+          (void)shouldBeTrue; // to avoid warning in release
           const int *loCorner=ibox.GetLoCorner();
           int hi[3];
           ibox.GetValidHiCorner(hi);
           for( int iz=loCorner[2]; iz<=hi[2]; iz++ )
-            {
+          {
             for( int iy=loCorner[1]; iy<=hi[1]; iy++ )
-              {
+            {
               for( int ix=loCorner[0]; ix<=hi[0]; ix++ )
-                {
+              {
                 vtkIdType id =  vtkAMRBox::GetCellLinearIndex(box,ix, iy, iz, grid->GetDimensions());
                 ghosts->SetValue(id, ghosts->GetValue(id) | vtkDataSetAttributes::REFINEDCELL);
-                } // END for x
-              } // END for y
-            } // END for z
-          }
-        } // Processing all higher boxes for a specific coarse grid
-      }
+              } // END for x
+            } // END for y
+          } // END for z
+        }
+      } // Processing all higher boxes for a specific coarse grid
+    }
 
     grid->GetCellData()->AddArray(ghosts);
     ghosts->Delete();
-    }
+  }
 }

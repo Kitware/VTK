@@ -17,9 +17,7 @@
 
 
 //----------------------------------------------------------------------------
-vtkNonLinearCell::vtkNonLinearCell()
-{
-}
+vtkNonLinearCell::vtkNonLinearCell() = default;
 
 //----------------------------------------------------------------------------
 void vtkNonLinearCell::PrintSelf(ostream& os, vtkIndent indent)

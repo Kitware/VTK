@@ -69,7 +69,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     if(!rw.GetClassName().equals("vtkXOpenGLRenderWindow")) {
       rw = null;
     } else {
-      System.out.println("The renderwindow has been kept arount to prevent a crash");
+      System.out.println("The renderwindow has been kept around to prevent a crash");
     }
   }
 
@@ -397,7 +397,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     vtkWindowToImageFilter w2if = new vtkWindowToImageFilter();
     w2if.SetInput(rw);
 
-    w2if.SetMagnification(mag);
+    w2if.SetScale(mag);
     w2if.Update();
 
     vtkTIFFWriter writer = new vtkTIFFWriter();

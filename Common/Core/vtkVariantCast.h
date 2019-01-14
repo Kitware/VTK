@@ -19,17 +19,19 @@
 
 =========================================================================*/
 
-// .NAME vtkVariantCast
-// .SECTION Description
-// Converts a vtkVariant to some other type.  Wherever possible, implicit conversions are
-// performed, so this method can be used to convert from nearly any type to a string, or
-// from a string to nearly any type.  Note that some conversions may fail at runtime, such
-// as a conversion from the string "abc" to a numeric type.
-//
-// The optional 'valid' flag can be used by callers to verify whether conversion succeeded.
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkVariantCast
+ *
+ * Converts a vtkVariant to some other type.  Wherever possible, implicit conversions are
+ * performed, so this method can be used to convert from nearly any type to a string, or
+ * from a string to nearly any type.  Note that some conversions may fail at runtime, such
+ * as a conversion from the string "abc" to a numeric type.
+ *
+ * The optional 'valid' flag can be used by callers to verify whether conversion succeeded.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkVariantCast_h
 #define vtkVariantCast_h
@@ -38,7 +40,7 @@
 #include <typeinfo> // for warnings
 
 template<typename T>
-T vtkVariantCast(const vtkVariant& value, bool* valid = 0)
+T vtkVariantCast(const vtkVariant& value, bool* valid = nullptr)
 {
   vtkGenericWarningMacro(
     << "Cannot convert vtkVariant containing [" << value.GetTypeAsString() << "] "
@@ -57,6 +59,12 @@ template<>
 inline char vtkVariantCast<char>(const vtkVariant& value, bool* valid)
 {
   return value.ToChar(valid);
+}
+
+template<>
+inline signed char vtkVariantCast<signed char>(const vtkVariant& value, bool* valid)
+{
+  return value.ToSignedChar(valid);
 }
 
 template<>
@@ -101,25 +109,6 @@ inline unsigned long vtkVariantCast<unsigned long>(const vtkVariant& value, bool
   return value.ToUnsignedLong(valid);
 }
 
-#ifdef VTK_TYPE_USE___INT64
-
-template<>
-inline __int64 vtkVariantCast<__int64>(const vtkVariant& value, bool* valid)
-{
-  return value.To__Int64(valid);
-}
-
-template<>
-inline unsigned __int64 vtkVariantCast<unsigned __int64>(const vtkVariant& value, bool* valid)
-{
-  return value.ToUnsigned__Int64(valid);
-}
-
-#endif
-
-
-#ifdef VTK_TYPE_USE_LONG_LONG
-
 template<>
 inline long long vtkVariantCast<long long>(const vtkVariant& value, bool* valid)
 {
@@ -131,8 +120,6 @@ inline unsigned long long vtkVariantCast<unsigned long long>(const vtkVariant& v
 {
   return value.ToUnsignedLongLong(valid);
 }
-
-#endif
 
 template<>
 inline float vtkVariantCast<float>(const vtkVariant& value, bool* valid)

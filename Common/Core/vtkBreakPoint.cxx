@@ -28,8 +28,8 @@ void vtkBreakPoint::Break()
   cout << "PID " << getpid() << " on " << hostname << " ready for attach"
        << endl;
   while(i==0)
-    {
+  {
     sleep(5);
-    }
+  }
 #endif
 }

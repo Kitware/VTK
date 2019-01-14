@@ -12,27 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRectilinearWipeRepresentation - represent a vtkRectilinearWipeWidget
-// .SECTION Description
-// This class is used to represent and render a vtkRectilinearWipeWidget. To
-// use this class, you need to specify an instance of a
-// vtkImageRectilinearWipe and vtkImageActor. This provides the information
-// for this representation to construct and place itself.
-//
-// The class may be subclassed so that alternative representations can
-// be created.  The class defines an API and a default implementation that
-// the vtkRectilinearWipeWidget interacts with to render itself in the scene.
-
-// .SECTION Caveats
-// The separation of the widget event handling and representation enables
-// users and developers to create new appearances for the widget. It also
-// facilitates parallel processing, where the client application handles
-// events, and remote representations of the widget are slaves to the
-// client (and do not handle events).
-
-// .SECTION See Also
-// vtkRectilinearWipeWidget vtkWidgetRepresentation vtkAbstractWidget
-
+/**
+ * @class   vtkRectilinearWipeRepresentation
+ * @brief   represent a vtkRectilinearWipeWidget
+ *
+ * This class is used to represent and render a vtkRectilinearWipeWidget. To
+ * use this class, you need to specify an instance of a
+ * vtkImageRectilinearWipe and vtkImageActor. This provides the information
+ * for this representation to construct and place itself.
+ *
+ * The class may be subclassed so that alternative representations can
+ * be created.  The class defines an API and a default implementation that
+ * the vtkRectilinearWipeWidget interacts with to render itself in the scene.
+ *
+ * @warning
+ * The separation of the widget event handling and representation enables
+ * users and developers to create new appearances for the widget. It also
+ * facilitates parallel processing, where the client application handles
+ * events, and remote representations of the widget are slaves to the
+ * client (and do not handle events).
+ *
+ * @sa
+ * vtkRectilinearWipeWidget vtkWidgetRepresentation vtkAbstractWidget
+*/
 
 #ifndef vtkRectilinearWipeRepresentation_h
 #define vtkRectilinearWipeRepresentation_h
@@ -53,47 +55,65 @@ class vtkActor2D;
 class VTKINTERACTIONWIDGETS_EXPORT vtkRectilinearWipeRepresentation : public vtkWidgetRepresentation
 {
 public:
-  // Description:
-  // Instantiate this class.
+  /**
+   * Instantiate this class.
+   */
   static vtkRectilinearWipeRepresentation *New();
 
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkRectilinearWipeRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // Specify an instance of vtkImageRectilinearWipe to manipulate.
+  //@{
+  /**
+   * Specify an instance of vtkImageRectilinearWipe to manipulate.
+   */
   void SetRectilinearWipe(vtkImageRectilinearWipe *wipe);
   vtkGetObjectMacro(RectilinearWipe,vtkImageRectilinearWipe);
+  //@}
 
-  // Description:
-  // Specify an instance of vtkImageActor to decorate.
+  //@{
+  /**
+   * Specify an instance of vtkImageActor to decorate.
+   */
   void SetImageActor(vtkImageActor *imageActor);
   vtkGetObjectMacro(ImageActor,vtkImageActor);
+  //@}
 
-  // Description:
-  // The tolerance representing the distance to the widget (in pixels)
-  // in which the cursor is considered to be on the widget, or on a
-  // widget feature (e.g., a corner point or edge).
+  //@{
+  /**
+   * The tolerance representing the distance to the widget (in pixels)
+   * in which the cursor is considered to be on the widget, or on a
+   * widget feature (e.g., a corner point or edge).
+   */
   vtkSetClampMacro(Tolerance,int,1,10);
   vtkGetMacro(Tolerance,int);
+  //@}
 
-  // Description:
-  // Get the properties for the widget. This can be manipulated to set
-  // different colors, line widths, etc.
+  //@{
+  /**
+   * Get the properties for the widget. This can be manipulated to set
+   * different colors, line widths, etc.
+   */
   vtkGetObjectMacro(Property,vtkProperty2D);
+  //@}
 
-  // Description:
-  // Subclasses of vtkRectilinearWipeRepresentation must implement these methods. These
-  // are the methods that the widget and its representation use to
-  // communicate with each other.
-  virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual void WidgetInteraction(double eventPos[2]);
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
+  //@{
+  /**
+   * Subclasses of vtkRectilinearWipeRepresentation must implement these methods. These
+   * are the methods that the widget and its representation use to
+   * communicate with each other.
+   */
+  void BuildRepresentation() override;
+  void StartWidgetInteraction(double eventPos[2]) override;
+  void WidgetInteraction(double eventPos[2]) override;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  //@}
 
-//BTX
   // Enums define the state of the prop relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the
   // widget.
@@ -104,20 +124,22 @@ public:
     MovingVPane,
     MovingCenter
   };
-//ETX
 
-  // Description:
-  // Methods to make this class behave as a vtkProp.
-  virtual void GetActors2D(vtkPropCollection *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
-  virtual int HasTranslucentPolygonalGeometry();
+  //@{
+  /**
+   * Methods to make this class behave as a vtkProp.
+   */
+  void GetActors2D(vtkPropCollection *) override;
+  void ReleaseGraphicsResources(vtkWindow *) override;
+  int RenderOverlay(vtkViewport *viewport) override;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
+  //@}
 
 protected:
   vtkRectilinearWipeRepresentation();
-  ~vtkRectilinearWipeRepresentation();
+  ~vtkRectilinearWipeRepresentation() override;
 
   // Instances that this class manipulates
   vtkImageRectilinearWipe *RectilinearWipe;
@@ -154,8 +176,8 @@ protected:
   int J;
 
 private:
-  vtkRectilinearWipeRepresentation(const vtkRectilinearWipeRepresentation&);  //Not implemented
-  void operator=(const vtkRectilinearWipeRepresentation&);  //Not implemented
+  vtkRectilinearWipeRepresentation(const vtkRectilinearWipeRepresentation&) = delete;
+  void operator=(const vtkRectilinearWipeRepresentation&) = delete;
 };
 
 #endif

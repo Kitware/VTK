@@ -17,10 +17,13 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoTransform - A transformation between two geographic coordinate systems
-// .SECTION Description
-// This class takes two geographic projections and transforms point
-// coordinates between them.
+/**
+ * @class   vtkGeoTransform
+ * @brief   A transformation between two geographic coordinate systems
+ *
+ * This class takes two geographic projections and transforms point
+ * coordinates between them.
+*/
 
 #ifndef vtkGeoTransform_h
 #define vtkGeoTransform_h
@@ -34,48 +37,63 @@ class VTKGEOVISCORE_EXPORT vtkGeoTransform : public vtkAbstractTransform
 {
 public:
   static vtkGeoTransform* New();
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   vtkTypeMacro(vtkGeoTransform,vtkAbstractTransform);
 
-  // Description:
-  // The source geographic projection.
+  //@{
+  /**
+   * The source geographic projection.
+   */
   void SetSourceProjection(vtkGeoProjection* source);
   vtkGetObjectMacro(SourceProjection,vtkGeoProjection);
+  //@}
 
-  // Description:
-  // The target geographic projection.
+  //@{
+  /**
+   * The target geographic projection.
+   */
   void SetDestinationProjection(vtkGeoProjection* dest);
   vtkGetObjectMacro(DestinationProjection,vtkGeoProjection);
+  //@}
 
-  // Description:
-  // Transform many points at once.
-  virtual void TransformPoints( vtkPoints* src, vtkPoints* dst );
+  /**
+   * Transform many points at once.
+   */
+  void TransformPoints( vtkPoints* src, vtkPoints* dst ) override;
 
-  // Description:
-  // Invert the transformation.
-  virtual void Inverse();
+  /**
+   * Invert the transformation.
+   */
+  void Inverse() override;
 
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
-  virtual void InternalTransformPoint( const float in[3], float out[3] );
-  virtual void InternalTransformPoint( const double in[3], double out[3] );
+  //@{
+  /**
+   * This will calculate the transformation without calling Update.
+   * Meant for use only within other VTK classes.
+   */
+  void InternalTransformPoint( const float in[3], float out[3] ) override;
+  void InternalTransformPoint( const double in[3], double out[3] ) override;
+  //@}
 
-  // Description:
-  // This will transform a point and, at the same time, calculate a
-  // 3x3 Jacobian matrix that provides the partial derivatives of the
-  // transformation at that point.  This method does not call Update.
-  // Meant for use only within other VTK classes.
-  virtual void InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] );
-  virtual void InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] );
+  //@{
+  /**
+   * This will transform a point and, at the same time, calculate a
+   * 3x3 Jacobian matrix that provides the partial derivatives of the
+   * transformation at that point.  This method does not call Update.
+   * Meant for use only within other VTK classes.
+   */
+  void InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] ) override;
+  void InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] ) override;
+  //@}
 
-  // Description:
-  // Make another transform of the same type.
-  virtual vtkAbstractTransform* MakeTransform();
+  /**
+   * Make another transform of the same type.
+   */
+  vtkAbstractTransform* MakeTransform() override;
 
 protected:
   vtkGeoTransform();
-  virtual ~vtkGeoTransform();
+  ~vtkGeoTransform() override;
 
   void InternalTransformPoints( double* ptsInOut, vtkIdType numPts, int stride );
 
@@ -83,8 +101,8 @@ protected:
   vtkGeoProjection* DestinationProjection;
 
 private:
-  vtkGeoTransform( const vtkGeoTransform& ); // Not implemented.
-  void operator = ( const vtkGeoTransform& ); // Not implemented.
+  vtkGeoTransform( const vtkGeoTransform& ) = delete;
+  void operator = ( const vtkGeoTransform& ) = delete;
 };
 
 #endif // vtkGeoTransform_h

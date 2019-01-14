@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -22,6 +21,7 @@ viewer = vtk.vtkImageViewer()
 viewer.SetInputConnection(slide.GetOutputPort())
 viewer.SetColorWindow(-1000)
 viewer.SetColorLevel(500)
+viewer.SetSize(150,150)
 viewer.Render()
 #skipping source
 # --- end of script --

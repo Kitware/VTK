@@ -22,9 +22,9 @@ vtkStandardNewMacro(vtkQuadric);
 vtkQuadric::vtkQuadric()
 {
   for ( int i = 0; i < 10; i++ )
-    {
+  {
     this->Coefficients[i] = 1.0;
-    }
+  }
 }
 
 // Set the 10 coefficients of the quadric equation.
@@ -34,19 +34,19 @@ void vtkQuadric::SetCoefficients(double a[10])
 
   // Check if at least one coefficient really changed
   for ( int i = 0; i < 10; i++ )
-    {
+  {
     if ( a[i] != this->Coefficients[i] )
-      {
+    {
       changed = true;
       break;
-      }
     }
+  }
 
   if ( changed )
-    {
+  {
     memcpy(this->Coefficients, a, 10 * sizeof(double));
     this->Modified();
-    }
+  }
 }
 
 // Set the 10 coefficients of the quadric equation.

@@ -47,7 +47,7 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // Get the input and ouptut
+  // Get the input and output
   vtkGraph* input = vtkGraph::SafeDownCast(
       inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -56,13 +56,13 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
 
   vtkSmartPointer<vtkGraph> inputCopy;
   if (vtkDirectedGraph::SafeDownCast(input))
-    {
+  {
     inputCopy = vtkSmartPointer<vtkDirectedGraph>::New();
-    }
+  }
   else
-    {
+  {
     inputCopy = vtkSmartPointer<vtkUndirectedGraph>::New();
-    }
+  }
   inputCopy->ShallowCopy(input);
 
   // Find all of the connected components
@@ -71,7 +71,7 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
   connectedComponents->SetInputData(inputCopy);
   connectedComponents->Update();
 
-  vtkIntArray* components = vtkIntArray::SafeDownCast(
+  vtkIntArray* components = vtkArrayDownCast<vtkIntArray>(
     connectedComponents->GetOutput()->GetVertexData()->GetArray("component"));
 
   // Create an array to store the count of the number of vertices
@@ -81,9 +81,9 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
   std::vector<int> componentCount(componentRange[1] + 1);
 
   for(vtkIdType i = 0; i < components->GetNumberOfTuples(); i++)
-    {
+  {
     componentCount[components->GetValue(i)]++;
-    }
+  }
 
   // Save the original counts
   std::vector<int> originalComponentCount(componentCount.size());
@@ -97,10 +97,10 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
     originalComponentCount.end(), componentCount[0]);
 
   if(it == originalComponentCount.end())
-    {
+  {
     vtkErrorMacro("Should never get to the end of the components!");
     return 0;
-    }
+  }
 
   int largestComponent = it - originalComponentCount.begin();
 
@@ -113,22 +113,22 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
   vtkSmartPointer<vtkIdTypeArray> ids =
     vtkSmartPointer<vtkIdTypeArray>::New();
   for(vtkIdType i = 0; i < components->GetNumberOfTuples(); i++)
-    {
+  {
     if(!this->InvertSelection)
-      {
+    {
       if(components->GetValue(i) == largestComponent)
-        {
-        ids->InsertNextValue(i);
-        }
-      }
-    else
       {
-      if(components->GetValue(i) != largestComponent)
-        {
         ids->InsertNextValue(i);
-        }
       }
     }
+    else
+    {
+      if(components->GetValue(i) != largestComponent)
+      {
+        ids->InsertNextValue(i);
+      }
+    }
+  }
 
   vtkDebugMacro(<< ids->GetNumberOfTuples() << " values selected.");
 

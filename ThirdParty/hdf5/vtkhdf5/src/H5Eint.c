@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,16 +26,14 @@
 /* Module Setup */
 /****************/
 
-#define H5E_PACKAGE		/*suppress error about including H5Epkg   */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5E_init_int_interface
+#include "H5Emodule.h"          /* This source code file is part of the H5E module */
 
 
 /***********/
 /* Headers */
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Epkg.h"		/* Error handling		  	*/
 #include "H5Iprivate.h"		/* IDs                                  */
 #include "H5MMprivate.h"	/* Memory management			*/
@@ -117,27 +113,6 @@ int	H5E_mpi_error_str_len;
 
 
 
-/*--------------------------------------------------------------------------
-NAME
-   H5E_init_int_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5E_init_int_interface()
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5E_init() currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5E_init_int_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    FUNC_LEAVE_NOAPI(H5E_init())
-} /* H5E_init_int_interface() */
-
-
 /*-------------------------------------------------------------------------
  * Function:	H5E_get_msg
  *
@@ -154,7 +129,7 @@ H5E_init_int_interface(void)
 ssize_t
 H5E_get_msg(const H5E_msg_t *msg, H5E_type_t *type, char *msg_str, size_t size)
 {
-    ssize_t       len;          /* Length of error message */
+    ssize_t       len = -1;     /* Length of error message */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -166,9 +141,8 @@ H5E_get_msg(const H5E_msg_t *msg, H5E_type_t *type, char *msg_str, size_t size)
 
     /* Copy the message into the user's buffer, if given */
     if(msg_str) {
-       HDstrncpy(msg_str, msg->msg, MIN((size_t)(len+1), size));
-       if((size_t)len >= size)
-          msg_str[size - 1] = '\0';
+        HDstrncpy(msg_str, msg->msg, size);
+        msg_str[size - 1] = '\0';
     } /* end if */
 
     /* Give the message type, if asked */
@@ -272,10 +246,12 @@ H5E_walk1_cb(int n, H5E_error1_t *err_desc, void *client_data)
         /* try show the process or thread id in multiple processes cases*/
 #ifdef H5_HAVE_PARALLEL
         {
-            int mpi_rank, mpi_initialized;
+            int mpi_rank, mpi_initialized, mpi_finalized;
 
 	    MPI_Initialized(&mpi_initialized);
-	    if(mpi_initialized) {
+            MPI_Finalized(&mpi_finalized);
+
+            if(mpi_initialized && !mpi_finalized) {
 	        MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 	        fprintf(stream, "MPI-process %d", mpi_rank);
 	    } /* end if */
@@ -402,10 +378,12 @@ H5E_walk2_cb(unsigned n, const H5E_error2_t *err_desc, void *client_data)
         /* try show the process or thread id in multiple processes cases*/
 #ifdef H5_HAVE_PARALLEL
         {
-            int mpi_rank, mpi_initialized;
+            int mpi_rank, mpi_initialized, mpi_finalized;
 
 	    MPI_Initialized(&mpi_initialized);
-	    if(mpi_initialized) {
+            MPI_Finalized(&mpi_finalized);
+
+            if(mpi_initialized && !mpi_finalized) {
 	        MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 	        fprintf(stream, "MPI-process %d", mpi_rank);
 	    } /* end if */
@@ -684,7 +662,7 @@ H5E_set_auto(H5E_t *estack, const H5E_auto_op_t *op, void *client_data)
 /*-------------------------------------------------------------------------
  * Function:	H5E_printf_stack
  *
- * Purpose:	Printf-like wrapper around H5E_push_stack.
+ * Purpose:	Printf-like wrapper around H5E__push_stack.
  *
  * Return:	Non-negative on success/Negative on failure
  *
@@ -741,17 +719,7 @@ H5E_printf_stack(H5E_t *estack, const char *file, const char *func, unsigned lin
         HGOTO_DONE(FAIL)
 
     /* If the description doesn't fit into the initial buffer size, allocate more space and try again */
-    while((desc_len = HDvsnprintf(tmp, (size_t)tmp_len, fmt, ap))
-#ifdef H5_VSNPRINTF_WORKS
-            >
-#else /* H5_VSNPRINTF_WORKS */
-            >=
-#endif /* H5_VSNPRINTF_WORKS */
-            (tmp_len - 1)
-#ifndef H5_VSNPRINTF_WORKS
-            || (desc_len < 0)
-#endif /* H5_VSNPRINTF_WORKS */
-            ) {
+    while((desc_len = HDvsnprintf(tmp, (size_t)tmp_len, fmt, ap)) > (tmp_len - 1)) {
         /* shutdown & restart the va_list */
         va_end(ap);
         va_start(ap, fmt);
@@ -760,32 +728,36 @@ H5E_printf_stack(H5E_t *estack, const char *file, const char *func, unsigned lin
         H5MM_xfree(tmp);
 
         /* Allocate a description of the appropriate length */
-#ifdef H5_VSNPRINTF_WORKS
         tmp_len = desc_len + 1;
-#else /* H5_VSNPRINTF_WORKS */
-        tmp_len = 2 * tmp_len;
-#endif /* H5_VSNPRINTF_WORKS */
         if(NULL == (tmp = H5MM_malloc((size_t)tmp_len)))
             HGOTO_DONE(FAIL)
     } /* end while */
 #endif /* H5_HAVE_VASPRINTF */
 
     /* Push the error on the stack */
-    if(H5E_push_stack(estack, file, func, line, cls_id, maj_id, min_id, tmp) < 0)
+    if(H5E__push_stack(estack, file, func, line, cls_id, maj_id, min_id, tmp) < 0)
         HGOTO_DONE(FAIL)
 
 done:
     if(va_started)
         va_end(ap);
+#ifdef H5_HAVE_VASPRINTF
+    /* Memory was allocated with HDvasprintf so it needs to be freed
+     * with HDfree
+     */
+    if(tmp)
+        HDfree(tmp);
+#else /* H5_HAVE_VASPRINTF */
     if(tmp)
         H5MM_xfree(tmp);
+#endif /* H5_HAVE_VASPRINTF */
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E_printf_stack() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5E_push_stack
+ * Function:	H5E__push_stack
  *
  * Purpose:	Pushes a new error record onto error stack for the current
  *		thread.  The error has major and minor IDs MAJ_ID and
@@ -805,7 +777,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5E_push_stack(H5E_t *estack, const char *file, const char *func, unsigned line,
+H5E__push_stack(H5E_t *estack, const char *file, const char *func, unsigned line,
     hid_t cls_id, hid_t maj_id, hid_t min_id, const char *desc)
 {
     herr_t	ret_value = SUCCEED;      /* Return value */
@@ -817,7 +789,7 @@ H5E_push_stack(H5E_t *estack, const char *file, const char *func, unsigned line,
      *		HERROR().  HERROR() is called by HRETURN_ERROR() which could
      *		be called by FUNC_ENTER().
      */
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check */
     HDassert(cls_id > 0);
@@ -868,7 +840,7 @@ H5E_push_stack(H5E_t *estack, const char *file, const char *func, unsigned line,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5E_push_stack() */
+} /* end H5E__push_stack() */
 
 
 /*-------------------------------------------------------------------------
@@ -1011,7 +983,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5E_dump_api_stack(int is_api)
+H5E_dump_api_stack(hbool_t is_api)
 {
     herr_t ret_value = SUCCEED;   /* Return value */
 

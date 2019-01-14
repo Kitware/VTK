@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -15,7 +14,6 @@ facet0 = vtk.vtkFacetReader()
 facet0.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/clown.facet")
 Mapper5 = vtk.vtkPolyDataMapper()
 Mapper5.SetInputConnection(facet0.GetOutputPort())
-Mapper5.SetImmediateModeRendering(1)
 Mapper5.UseLookupTableScalarRangeOff()
 Mapper5.SetScalarVisibility(1)
 Mapper5.SetScalarModeToDefault()

@@ -12,13 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVectorDot - generate scalars from dot product of vectors and normals (e.g., show displacement plot)
-// .SECTION Description
-// vtkVectorDot is a filter to generate scalar values from a dataset.
-// The scalar value at a point is created by computing the dot product
-// between the normal and vector at that point. Combined with the appropriate
-// color map, this can show nodal lines/mode shapes of vibration, or a
-// displacement plot.
+/**
+ * @class   vtkVectorDot
+ * @brief   generate scalars from dot product of vectors and normals (e.g., show displacement plot)
+ *
+ * vtkVectorDot is a filter to generate point scalar values from a dataset.
+ * The scalar value at a point is created by computing the dot product
+ * between the normal and vector at each point. Combined with the appropriate
+ * color map, this can show nodal lines/mode shapes of vibration, or a
+ * displacement plot.
+ *
+ * Note that by default the resulting scalars are mapped into a specified
+ * range. This requires an extra pass in the algorithm. This mapping pass can
+ * be disabled (set MapScalars to off).
+ *
+ * @warning
+ * This class has been threaded with vtkSMPTools. Using TBB or other
+ * non-sequential type (set in the CMake variable
+ * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
+*/
 
 #ifndef vtkVectorDot_h
 #define vtkVectorDot_h
@@ -30,29 +42,56 @@ class VTKFILTERSCORE_EXPORT vtkVectorDot : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkVectorDot,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Construct object with scalar range is (-1,1).
+  /**
+   * Construct object with scalar range (-1,1).
+   */
   static vtkVectorDot *New();
 
-  // Description:
-  // Specify range to map scalars into.
-  vtkSetVector2Macro(ScalarRange,double);
+  //@{
+  /**
+   * Enable/disable the mapping of scalars into a specified range. This will
+   * significantly improve the performance of the algorithm but the resulting
+   * scalar values will strictly be a function of the vector and normal
+   * data. By default, MapScalars is enabled, and the output scalar
+   * values will fall into the range ScalarRange.
+   */
+  vtkSetMacro(MapScalars,vtkTypeBool);
+  vtkGetMacro(MapScalars,vtkTypeBool);
+  vtkBooleanMacro(MapScalars,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Get the range that scalars map into.
+  //@{
+  /**
+   * Specify the range into which to map the scalars. This mapping only
+   * occurs if MapScalars is enabled.
+   */
+  vtkSetVector2Macro(ScalarRange,double);
   vtkGetVectorMacro(ScalarRange,double,2);
+  //@}
+
+  //@{
+  /**
+   * Return the actual range of the generated scalars (prior to mapping).
+   * Note that the data is valid only after the filter executes.
+   */
+  vtkGetVectorMacro(ActualRange,double,2);
+  //@}
 
 protected:
   vtkVectorDot();
-  ~vtkVectorDot() {}
+  ~vtkVectorDot() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  vtkTypeBool MapScalars;
   double ScalarRange[2];
+  double ActualRange[2];
+
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+
 private:
-  vtkVectorDot(const vtkVectorDot&);  // Not implemented.
-  void operator=(const vtkVectorDot&);  // Not implemented.
+  vtkVectorDot(const vtkVectorDot&) = delete;
+  void operator=(const vtkVectorDot&) = delete;
 };
 
 #endif

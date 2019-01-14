@@ -18,6 +18,8 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#include "vtk_glew.h"
+
 #include "QVTKGraphicsItem.h"
 #include <QGLFramebufferObject>
 #include <QGraphicsSceneMouseEvent>
@@ -27,13 +29,12 @@
 #include "QVTKInteractorAdapter.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkEventQtSlotConnect.h"
-#include "vtkgl.h"
 #include "vtkOpenGLError.h"
 
 QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)
   : QGraphicsWidget(p), mContext(ctx)
 {
-  mFBO = NULL;
+  mFBO = nullptr;
   mIren = vtkSmartPointer<QVTKInteractor>::New();
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
@@ -77,10 +78,10 @@ void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
   {
     mWin->SetMapped(1);
     mWin->SetDoubleBuffer(0);
-    mWin->SetFrontBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
-    mWin->SetFrontLeftBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
-    mWin->SetBackBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
-    mWin->SetBackLeftBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
+    mWin->SetFrontBuffer(GL_COLOR_ATTACHMENT0);
+    mWin->SetFrontLeftBuffer(GL_COLOR_ATTACHMENT0);
+    mWin->SetBackBuffer(GL_COLOR_ATTACHMENT0);
+    mWin->SetBackLeftBuffer(GL_COLOR_ATTACHMENT0);
 
     mConnect->Connect(mWin, vtkCommand::StartEvent, this, SLOT(Start()));
     mConnect->Connect(mWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
@@ -105,9 +106,9 @@ QVTKInteractor* QVTKGraphicsItem::GetInteractor() const
 void QVTKGraphicsItem::Update()
 {
   if(this->mWin && this->mFBO)
-    {
+  {
     this->update(boundingRect());
-    }
+  }
 };
 
 void QVTKGraphicsItem::MakeCurrent()
@@ -173,22 +174,16 @@ void QVTKGraphicsItem::SupportsOpenGL(vtkObject*, unsigned long, void*, void* ca
 }
 
 
-#if QT_VERSION >= 0x040600
 void QVTKGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*)
-#else
-void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*)
-#endif
 {
   if(!mWin)
     return;
 
  vtkOpenGLClearErrorMacro();
 
-#if QT_VERSION >= 0x040600
   // tell Qt we're doing our own GL calls
   // if necessary, it'll put us in an OpenGL 1.x compatible state.
   painter->beginNativePainting();
-#endif
 
   if(!mFBO || this->size().toSize() != mFBO->size() || mWin->GetNeverRendered())
   {
@@ -215,14 +210,14 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
   glColor4ub(c.red(),c.green(),c.blue(),c.alpha());
 
   if(c.alpha() < 255)
-    {
+  {
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    }
+  }
   else
-    {
+  {
     glDisable(GL_BLEND);
-    }
+  }
 
   glBegin(GL_QUADS);
   glTexCoord2i(0,1);
@@ -237,9 +232,7 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
-#if QT_VERSION >= 0x040600
   painter->endNativePainting();
-#endif
 
   vtkOpenGLStaticCheckErrorMacro("failed after paint");
 }

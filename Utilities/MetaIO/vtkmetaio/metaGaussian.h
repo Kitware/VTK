@@ -61,19 +61,25 @@ class METAIO_EXPORT MetaGaussian : public MetaObject
 
     MetaGaussian(unsigned int dim);
 
-    ~MetaGaussian(void);
+    ~MetaGaussian(void) MET_OVERRIDE;
 
-    void PrintInfo(void) const;
+    void PrintInfo(void) const MET_OVERRIDE;
 
-    void CopyInfo(const MetaObject * _object);
+    void CopyInfo(const MetaObject * _object) MET_OVERRIDE;
 
-    void  Clear(void);
+    void  Clear(void) MET_OVERRIDE;
 
+    /** Set/Get the maximum value. */
     void Maximum(float val) { m_Maximum = val; }
     float Maximum() const { return m_Maximum; }
 
+    /** Set/Get the radius value. */
     void Radius(float val) { m_Radius = val; }
     float Radius() const { return m_Radius; }
+
+    /** Set/Get the sigma value. */
+    void Sigma(float val) { m_Sigma = val; }
+    float Sigma() const { return m_Sigma; }
 
   ////
   //
@@ -82,17 +88,25 @@ class METAIO_EXPORT MetaGaussian : public MetaObject
   ////
   protected:
 
-    void  M_Destroy(void);
+    void  M_Destroy(void) MET_OVERRIDE;
 
-    void  M_SetupReadFields(void);
+    /** Set up the fields to read a MetaGaussian file. */
+    void  M_SetupReadFields(void) MET_OVERRIDE;
 
-    void  M_SetupWriteFields(void);
+    /** Set up the fields to write a MetaGaussian file. */
+    void  M_SetupWriteFields(void) MET_OVERRIDE;
 
-    bool  M_Read(void);
+    /** Read the MetaGaussian file properties. */
+    bool  M_Read(void) MET_OVERRIDE;
 
+    /** The maximum value of the MetaGaussian object. */
     float m_Maximum;
 
+    /** The radius of the MetaGaussian object. */
     float m_Radius;
+
+    /** The standard deviation of the MetaGaussian object. */
+    float m_Sigma;
 
   };
 

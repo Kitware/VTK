@@ -34,7 +34,7 @@ vtkUnstructuredGrid &operator<<(
 {
   // initialize empty dataset
   if (data.GetNumberOfCells()<1)
-    {
+  {
     vtkPoints *opts=vtkPoints::New();
     data.SetPoints(opts);
     opts->Delete();
@@ -48,7 +48,7 @@ vtkUnstructuredGrid &operator<<(
     cells->Delete();
     types->Delete();
     locs->Delete();
-    }
+  }
 
   // cell to node
   vtkPixelExtent next(ext);
@@ -68,15 +68,15 @@ vtkUnstructuredGrid &operator<<(
   vtkIdType ptIds[4];
 
   for (int i=0; i<4; ++i)
-    {
+  {
     ppts[3*i+2]=0.0;
     for (int j=0; j<2; ++j)
-      {
+    {
       int q=3*i+j;
       ppts[q]=next[id[q]];
-      }
-    ptIds[i]=ptId+i;
     }
+    ptIds[i]=ptId+i;
+  }
 
   data.InsertNextCell(VTK_QUAD,4,ptIds);
 
@@ -90,10 +90,10 @@ void vtkPixelExtentIO::Write(
       const deque<deque<vtkPixelExtent> >&exts)
 {
   if (commRank!=0)
-    {
+  {
     // only rank 0 writes
     return;
-    }
+  }
 
   vtkUnstructuredGrid *data=vtkUnstructuredGrid::New();
 
@@ -110,17 +110,17 @@ void vtkPixelExtentIO::Write(
   size_t nRanks=exts.size();
 
   for (size_t i=0; i<nRanks; ++i)
-    {
+  {
     size_t nBlocks = exts[i].size();
     for (size_t j=0; j<nBlocks; ++j)
-      {
+    {
       const vtkPixelExtent &ext = exts[i][j];
       *data << ext;
 
       rank->InsertNextTuple1(i);
       block->InsertNextTuple1(j);
-      }
     }
+  }
 
   vtkDataSetWriter *idw=vtkDataSetWriter::New();
   idw->SetFileName(fileName);
@@ -138,10 +138,10 @@ void vtkPixelExtentIO::Write(
       const deque<vtkPixelExtent> &exts)
 {
   if (commRank!=0)
-   {
+  {
    // only rank 0 will write
    return;
-   }
+  }
 
   vtkUnstructuredGrid *data=vtkUnstructuredGrid::New();
 
@@ -156,11 +156,11 @@ void vtkPixelExtentIO::Write(
   int *pRank = rank->GetPointer(0);
 
   for (int i=0; i<nExts; ++i)
-    {
+  {
     const vtkPixelExtent &ext = exts[i];
     *data << ext;
     pRank[i] = i;
-    }
+  }
 
   vtkDataSetWriter *idw=vtkDataSetWriter::New();
   idw->SetFileName(fileName);

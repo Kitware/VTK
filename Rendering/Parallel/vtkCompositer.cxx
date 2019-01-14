@@ -29,16 +29,16 @@ vtkCompositer::vtkCompositer()
   this->Controller = vtkMultiProcessController::GetGlobalController();
   this->NumberOfProcesses = 1;
   if (this->Controller)
-    {
+  {
     this->Controller->Register(this);
     this->NumberOfProcesses = this->Controller->GetNumberOfProcesses();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
 vtkCompositer::~vtkCompositer()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 
@@ -46,18 +46,18 @@ vtkCompositer::~vtkCompositer()
 void vtkCompositer::SetController(vtkMultiProcessController *mpc)
 {
   if (this->Controller == mpc)
-    {
+  {
     return;
-    }
+  }
   if (mpc)
-    {
+  {
     mpc->Register(this);
     this->NumberOfProcesses = mpc->GetNumberOfProcesses();
-    }
+  }
   if (this->Controller)
-    {
+  {
     this->Controller->UnRegister(this);
-    }
+  }
   this->Controller = mpc;
 }
 
@@ -80,21 +80,19 @@ void vtkCompositer::ResizeFloatArray(vtkFloatArray* fa, int numComp,
 #ifdef MPIPROALLOC
   vtkIdType fa_size = fa->GetSize();
   if ( fa_size < size*numComp )
-    {
+  {
     float* ptr = fa->GetPointer(0);
     if (ptr)
-      {
-      MPI_Free_mem(ptr);
-      }
-    char* tptr;
-    MPI_Alloc_mem(size*numComp*sizeof(float), NULL, &tptr);
-    ptr = (float*)tptr;
-    fa->SetArray(ptr, size*numComp, 1);
-    }
-  else
     {
-    fa->SetNumberOfTuples(size);
+      MPI_Free_mem(ptr);
     }
+    MPI_Alloc_mem(size*numComp*sizeof(float), nullptr, &ptr);
+    fa->SetArray(ptr, size*numComp, 1);
+  }
+  else
+  {
+    fa->SetNumberOfTuples(size);
+  }
 #else
   fa->SetNumberOfTuples(size);
 #endif
@@ -108,21 +106,19 @@ void vtkCompositer::ResizeUnsignedCharArray(vtkUnsignedCharArray* uca,
   vtkIdType uca_size = uca->GetSize();
 
   if ( uca_size < size*numComp )
-    {
+  {
     unsigned char* ptr = uca->GetPointer(0);
     if (ptr)
-      {
-      MPI_Free_mem(ptr);
-      }
-    char* tptr;
-    MPI_Alloc_mem(size*numComp*sizeof(unsigned char), NULL, &tptr);
-    ptr = (unsigned char*)tptr;
-    uca->SetArray(ptr, size*numComp, 1);
-    }
-  else
     {
-    uca->SetNumberOfTuples(size);
+      MPI_Free_mem(ptr);
     }
+    MPI_Alloc_mem(size*numComp*sizeof(unsigned char), nullptr, &ptr);
+    uca->SetArray(ptr, size*numComp, 1);
+  }
+  else
+  {
+    uca->SetNumberOfTuples(size);
+  }
 #else
   uca->SetNumberOfTuples(size);
 #endif
@@ -133,9 +129,9 @@ void vtkCompositer::DeleteArray(vtkDataArray* da)
 #ifdef MPIPROALLOC
   void* ptr = da->GetVoidPointer(0);
   if (ptr)
-    {
+  {
     MPI_Free_mem(ptr);
-    }
+  }
 #endif
   da->Delete();
 }

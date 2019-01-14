@@ -3,8 +3,6 @@
   Program:   Visualization Toolkit
   Module:    CustomLinkView.h
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright 2007 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
@@ -19,7 +17,7 @@
 //
 // .SECTION Description
 // CustomLinkView shows an alternate way to link various views using
-// vtkEventQtSlotConnect where selection  in a particular view sets
+// vtkEventQtSlotConnect where selection in a particular view sets
 // the same selection in all other views associated.
 
 // Other way to get the same functionality is by using vtkAnnotationLink
@@ -55,7 +53,7 @@ public:
 
   // Constructor/Destructor
   CustomLinkView();
-  ~CustomLinkView();
+  ~CustomLinkView() override;
 
 public slots:
 

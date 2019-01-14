@@ -20,40 +20,38 @@
 vtkStandardNewMacro(vtkWidgetSet);
 
 //----------------------------------------------------------------------
-vtkWidgetSet::vtkWidgetSet()
-{
-}
+vtkWidgetSet::vtkWidgetSet() = default;
 
 //----------------------------------------------------------------------
 vtkWidgetSet::~vtkWidgetSet()
 {
   for (WidgetIteratorType it  = this->Widget.begin();
                           it != this->Widget.end()  ; ++it)
-    {
+  {
     (*it)->UnRegister(this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
-void vtkWidgetSet::SetEnabled(int enabling)
+void vtkWidgetSet::SetEnabled(vtkTypeBool enabling)
 {
   for (WidgetIteratorType it  = this->Widget.begin();
                           it != this->Widget.end()  ; ++it)
-    {
+  {
     (*it)->SetEnabled(enabling);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkWidgetSet::AddWidget( vtkAbstractWidget *w )
 {
   for ( unsigned int i = 0; i < this->Widget.size(); i++)
-    {
+  {
     if (this->Widget[i] == w)
-      {
+    {
       return;
-      }
     }
+  }
 
   this->Widget.push_back(w);
   w->Register(this);
@@ -67,15 +65,15 @@ void vtkWidgetSet::RemoveWidget( vtkAbstractWidget * w)
 {
   for (WidgetIteratorType it  = this->Widget.begin();
                           it != this->Widget.end()  ; ++it)
-    {
+  {
     if (*it == w)
-      {
+    {
       this->Widget.erase(it);
-      static_cast<vtkParallelopipedWidget*>(w)->WidgetSet = NULL;
+      static_cast<vtkParallelopipedWidget*>(w)->WidgetSet = nullptr;
       w->UnRegister(this);
       break;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------

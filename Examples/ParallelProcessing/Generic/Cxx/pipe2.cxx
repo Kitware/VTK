@@ -63,7 +63,7 @@ void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
   // Prime the pipeline. Tell the producer to start computing.
   ip->Update();
 
-  // Get the first data, adjust camera appropriatly
+  // Get the first data, adjust camera appropriately
   cf->GetOutput()->Update();
   pd->ShallowCopy(cf->GetOutput());
   ren->ResetCamera();
@@ -73,12 +73,12 @@ void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
   // Get more data. With every update the XFreq of the rtSource
   // is increased.
   for (int i=0; i<17; i++)
-    {
+  {
     cf->GetOutput()->Update();
     pd->ShallowCopy(cf->GetOutput());
     // Display
     renWin->Render();
-    }
+  }
   // Tell the producer that we are done.
   ip->GetController()->TriggerRMI(0, vtkMultiProcessController::BREAK_RMI_TAG);
 

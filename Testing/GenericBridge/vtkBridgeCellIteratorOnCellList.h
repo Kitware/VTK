@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBridgeCellIteratorOnCellList - Iterate over a list of cells defined
-// on a dataset.
-// See InitWithCells().
-// .SECTION See Also
-// vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorStrategy
+/**
+ * @class   vtkBridgeCellIteratorOnCellList
+ * @brief   Iterate over a list of cells defined
+ * on a dataset.
+ * See InitWithCells().
+ * @sa
+ * vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorStrategy
+*/
 
 #ifndef vtkBridgeCellIteratorOnCellList_h
 #define vtkBridgeCellIteratorOnCellList_h
@@ -33,46 +36,52 @@ public:
   static vtkBridgeCellIteratorOnCellList *New();
   vtkTypeMacro(vtkBridgeCellIteratorOnCellList,
                        vtkBridgeCellIteratorStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Move iterator to first position if any (loop initialization).
-  void Begin();
+  /**
+   * Move iterator to first position if any (loop initialization).
+   */
+  void Begin() override;
 
-  // Description:
-  // Is there no cell at iterator position? (exit condition).
-  int IsAtEnd();
+  /**
+   * Is there no cell at iterator position? (exit condition).
+   */
+  vtkTypeBool IsAtEnd() override;
 
-  // Description:
-  // Cell at current position
-  // \pre not_at_end: !IsAtEnd()
-  // \pre c_exists: c!=0
-  // THREAD SAFE
-  void GetCell(vtkGenericAdaptorCell *c);
+  /**
+   * Cell at current position
+   * \pre not_at_end: !IsAtEnd()
+   * \pre c_exists: c!=0
+   * THREAD SAFE
+   */
+  void GetCell(vtkGenericAdaptorCell *c) override;
 
-  // Description:
-  // Cell at current position.
-  // NOT THREAD SAFE
-  // \pre not_at_end: !IsAtEnd()
-  // \post result_exits: result!=0
-  vtkGenericAdaptorCell *GetCell();
+  /**
+   * Cell at current position.
+   * NOT THREAD SAFE
+   * \pre not_at_end: !IsAtEnd()
+   * \post result_exits: result!=0
+   */
+  vtkGenericAdaptorCell *GetCell() override;
 
-  // Description:
-  // Move iterator to next position. (loop progression).
-  // \pre not_at_end: !IsAtEnd()
-  void Next();
+  /**
+   * Move iterator to next position. (loop progression).
+   * \pre not_at_end: !IsAtEnd()
+   */
+  void Next() override;
 
-  // Description:
-  // Used internally by vtkBridgeCell.
-  // Iterate on neighbors defined by `cells' over the dataset `ds'.
-  // \pre cells_exist: cells!=0
-  // \pre ds_exists: ds!=0
+  /**
+   * Used internally by vtkBridgeCell.
+   * Iterate on neighbors defined by `cells' over the dataset `ds'.
+   * \pre cells_exist: cells!=0
+   * \pre ds_exists: ds!=0
+   */
   void InitWithCells(vtkIdList *cells,
                      vtkBridgeDataSet *ds);
 
 protected:
   vtkBridgeCellIteratorOnCellList();
-  virtual ~vtkBridgeCellIteratorOnCellList();
+  ~vtkBridgeCellIteratorOnCellList() override;
 
   vtkIdList *Cells; // cells traversed by the iterator.
   vtkBridgeDataSet *DataSet;
@@ -80,8 +89,8 @@ protected:
   vtkBridgeCell *Cell; // cell at current position.
 
 private:
-  vtkBridgeCellIteratorOnCellList(const vtkBridgeCellIteratorOnCellList&); // Not implemented
-  void operator=(const vtkBridgeCellIteratorOnCellList&); // Not implemented
+  vtkBridgeCellIteratorOnCellList(const vtkBridgeCellIteratorOnCellList&) = delete;
+  void operator=(const vtkBridgeCellIteratorOnCellList&) = delete;
 };
 
 #endif

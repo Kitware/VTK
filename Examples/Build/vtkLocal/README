@@ -34,12 +34,3 @@ What you should do:
   build-dir/bin directory to your PATH environment variable so the
   DLL can be found (with the Debug, Release, etc. directory name for
   Visual Studio builds).
-
-- If you want to use your classes from Tcl, add your project build tree
-  to the TCLLIBPATH (with the Debug, Release, etc. directory name for
-  Visual Studio builds).  You may load your classes by using
-  "package require vtkLocalTCL" or "package require <project-name>TCL"
-  if you changed the project name.  Windows users should use forward
-  slashes (/) instead of the usual backward slashes (\), and should
-  surround the path by quotes (") if it contains any space.  Remember
-  that TCLLIBPATH is a space-separated list.

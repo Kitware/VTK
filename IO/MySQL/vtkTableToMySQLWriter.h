@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTableToMySQLWriter - store a vtkTable in a MySQL database
-// .SECTION Description
-// vtkTableToMySQLWriter reads a vtkTable and inserts it into a MySQL
-// database.
+/**
+ * @class   vtkTableToMySQLWriter
+ * @brief   store a vtkTable in a MySQL database
+ *
+ * vtkTableToMySQLWriter reads a vtkTable and inserts it into a MySQL
+ * database.
+*/
 
 #ifndef vtkTableToMySQLWriter_h
 #define vtkTableToMySQLWriter_h
@@ -30,25 +33,28 @@ class VTKIOMYSQL_EXPORT vtkTableToMySQLWriter : public vtkTableToDatabaseWriter
 public:
   static vtkTableToMySQLWriter *New();
   vtkTypeMacro(vtkTableToMySQLWriter,vtkTableToDatabaseWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkTable* GetInput();
   vtkTable* GetInput(int port);
+  //@}
 
 protected:
    vtkTableToMySQLWriter();
   ~vtkTableToMySQLWriter();
-  void WriteData();
+  void WriteData() override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkTable *Input;
 
 private:
-  vtkTableToMySQLWriter(const vtkTableToMySQLWriter&);  // Not implemented.
-  void operator=(const vtkTableToMySQLWriter&);  // Not implemented.
+  vtkTableToMySQLWriter(const vtkTableToMySQLWriter&) = delete;
+  void operator=(const vtkTableToMySQLWriter&) = delete;
 };
 
 #endif

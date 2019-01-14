@@ -19,10 +19,11 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkGeoTerrainNode -
-// .SECTION Description Quadtree of poly data terrain patches.
-
-// .SECTION See Also
+/**
+ * @class   vtkGeoTerrainNode
+ *
+ *
+*/
 
 #ifndef vtkGeoTerrainNode_h
 #define vtkGeoTerrainNode_h
@@ -33,87 +34,113 @@
 
 class vtkPolyData;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoTerrainNode : public vtkGeoTreeNode
 {
 public:
   static vtkGeoTerrainNode *New();
   vtkTypeMacro(vtkGeoTerrainNode, vtkGeoTreeNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Every subclass implements these methods returning the specific type.
-  // This is easier than templating.
+  //@{
+  /**
+   * Every subclass implements these methods returning the specific type.
+   * This is easier than templating.
+   */
   vtkGeoTerrainNode* GetChild(int idx);
   vtkGeoTerrainNode* GetParent();
+  //@}
 
-  // Description:
-  // Given, a long, lat position, return altitude in meters
-  // relative to  sea level.
+  /**
+   * Given, a long, lat position, return altitude in meters
+   * relative to sea level.
+   */
   double GetAltitude(double longitude, double latitude);
 
-  // Description:
-  // Get the terrrain model.  The user has to copy the terrain
-  // into this object.
+  //@{
+  /**
+   * Get the terrrain model.  The user has to copy the terrain
+   * into this object.
+   */
   vtkPolyData* GetModel();
   void SetModel(vtkPolyData* model);
+  //@}
 
-  // Description:
-  // Bounding sphere is precomputed for faster updates of terrain.
+  //@{
+  /**
+   * Bounding sphere is precomputed for faster updates of terrain.
+   */
   void UpdateBoundingSphere();
   vtkGetMacro(BoundingSphereRadius, double);
   vtkGetVector3Macro(BoundingSphereCenter, double);
+  //@}
 
   vtkGetVector3Macro(CornerNormal00,double);
   vtkGetVector3Macro(CornerNormal01,double);
   vtkGetVector3Macro(CornerNormal10,double);
   vtkGetVector3Macro(CornerNormal11,double);
 
-  // Description:
-  // For 2D projections, store the bounds of the node in projected space
-  // to quickly determine if a node is offscreen.
+  //@{
+  /**
+   * For 2D projections, store the bounds of the node in projected space
+   * to quickly determine if a node is offscreen.
+   */
   vtkGetVector4Macro(ProjectionBounds,double);
   vtkSetVector4Macro(ProjectionBounds,double);
+  //@}
 
-  // Description:
-  // For 2D projections, store the granularity of the graticule in this node.
+  //@{
+  /**
+   * For 2D projections, store the granularity of the graticule in this node.
+   */
   vtkGetMacro(GraticuleLevel,int);
   vtkSetMacro(GraticuleLevel,int);
+  //@}
 
-  // Description:
-  // For 2D projections, store the maximum deviation of line segment centers
-  // from the actual projection value.
+  //@{
+  /**
+   * For 2D projections, store the maximum deviation of line segment centers
+   * from the actual projection value.
+   */
   vtkGetMacro(Error,double);
   vtkSetMacro(Error,double);
+  //@}
 
-  // Description:
-  // For 2D projections, store the maximum deviation of line segment centers
-  // from the actual projection value.
+  //@{
+  /**
+   * For 2D projections, store the maximum deviation of line segment centers
+   * from the actual projection value.
+   */
   vtkGetMacro(Coverage,float);
   vtkSetMacro(Coverage,float);
+  //@}
 
-  // Description:
-  // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkGeoTreeNode *src);
-  virtual void DeepCopy(vtkGeoTreeNode *src);
+  //@{
+  /**
+   * Shallow and Deep copy.
+   */
+  void ShallowCopy(vtkGeoTreeNode *src) override;
+  void DeepCopy(vtkGeoTreeNode *src) override;
+  //@}
 
-  // Description:
-  // Returns whether this node has valid data associated
-  // with it, or if it is an "empty" node.
-  virtual bool HasData();
+  /**
+   * Returns whether this node has valid data associated
+   * with it, or if it is an "empty" node.
+   */
+  bool HasData() override;
 
-  // Description:
-  // Deletes the data associated with the node to make this
-  // an "empty" node. This is performed when the node has
-  // been unused for a certain amount of time.
-  virtual void DeleteData();
+  /**
+   * Deletes the data associated with the node to make this
+   * an "empty" node. This is performed when the node has
+   * been unused for a certain amount of time.
+   */
+  void DeleteData() override;
 
 protected:
   vtkGeoTerrainNode();
-  ~vtkGeoTerrainNode();
+  ~vtkGeoTerrainNode() override;
 
-//BTX
   vtkSmartPointer<vtkPolyData> Model;
-//ETX
 
   double BoundingSphereRadius;
   double BoundingSphereCenter[3];
@@ -132,8 +159,9 @@ protected:
   float  Coverage;
 
 private:
-  vtkGeoTerrainNode(const vtkGeoTerrainNode&);  // Not implemented.
-  void operator=(const vtkGeoTerrainNode&);  // Not implemented.
+  vtkGeoTerrainNode(const vtkGeoTerrainNode&) = delete;
+  void operator=(const vtkGeoTerrainNode&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

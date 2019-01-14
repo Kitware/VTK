@@ -123,9 +123,9 @@ int TestIconGlyphFilter( int argc, char *argv[])
   view->Render();
   int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 18);
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     view->GetInteractor()->Start();
-    }
+  }
 
   imageReader->Delete();
   iconIndex->Delete();

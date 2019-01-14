@@ -24,12 +24,16 @@
 #ifndef XDMFHEAVYDATACONTROLLER_HPP_
 #define XDMFHEAVYDATACONTROLLER_HPP_
 
+// C Compatible Includes
+#include "XdmfCore.hpp"
+#include "XdmfArrayType.hpp"
+
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfArray;
-class XdmfArrayType;
 
 // Includes
-#include "XdmfCore.hpp"
 #include <string>
 #include <vector>
 #include <map>
@@ -54,6 +58,68 @@ public:
   virtual ~XdmfHeavyDataController() = 0;
 
   /**
+   * Gets a string containing data on the starts,
+   * strides, dimensions, and dataspaces for this controller.
+   *
+   * @return    The string description
+   */
+  std::string getDataspaceDescription() const;
+
+  /**
+   * Get the dimensions of the dataspace owned by this
+   * controller. This is the dimension of the entire heavy dataset,
+   * which may be larger than the dimensions of the array (if reading
+   * a piece of a larger dataset).
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfHDF5Controller.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#getDataspaceDimensions
+   * @until //#getDataspaceDimensions
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleHDF5Controller.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//getDataspaceDimensions
+   * @until #//getDataspaceDimensions
+   *
+   * @return    A vector containing the size in each dimension of the dataspace
+   *            owned by this controller.
+   */
+  std::vector<unsigned int> getDataspaceDimensions() const;
+
+  /**
+   * Get the size of dataspace of the heavy data set owned by this controller.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfHDF5Controller.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#getDataspaceSize
+   * @until //#getDataspaceSize
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleHDF5Controller.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//getDataspaceSize
+   * @until #//getDataspaceSize
+   *
+   * @return    An int containing the size of the heavy data set.
+   */
+  unsigned int getDataspaceSize() const;
+
+  /**
    * Gets the controller in string form. For writing to file.
    *
    * Example of use:
@@ -76,7 +142,7 @@ public:
    *
    * @return    A string that contains relevant information for the controller
    */
-  virtual std::string getDescriptor() const = 0;
+  virtual std::string getDescriptor() const;
 
   /**
    * Get the dimensions of the heavy data set owned by this controller.
@@ -181,6 +247,54 @@ public:
    * @return    An int containing the size of the heavy data set.
    */
   unsigned int getSize() const;
+
+  /**
+   * Get the start index of the heavy data set owned by this controller.
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfHDF5Controller.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#getStart
+   * @until //#getStart
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleHDF5Controller.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//getStart
+   * @until #//getStart
+   *
+   * @return    A vector containing the start index in each dimension of
+   *            the heavy data set owned by this controller.
+   */
+  std::vector<unsigned int> getStart() const;
+
+  /**
+   * Get the stride of the heavy data set owned by this controller.
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfHDF5Controller.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#getStride
+   * @until //#getStride
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleHDF5Controller.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//getStride
+   * @until #//getStride
+   *
+   * @return    A vector containing the stride in each dimension of the
+   *            heavy data set owned by this controller.
+   */
+  std::vector<unsigned int> getStride() const;
 
   /**
    * For use in conjunction with heavy data controllers set to arrays
@@ -290,23 +404,156 @@ public:
    */
   virtual void read(XdmfArray * const array) = 0;
 
+  XdmfHeavyDataController(const XdmfHeavyDataController&);
+
 protected:
 
   XdmfHeavyDataController(const std::string & filePath,
                           const shared_ptr<const XdmfArrayType> & type,
-                          const std::vector<unsigned int> & dimensions);
+                          const std::vector<unsigned int> & starts,
+                          const std::vector<unsigned int> & strides,
+                          const std::vector<unsigned int> & dimensions,
+                          const std::vector<unsigned int> & dataspaces);
 
+  const std::vector<unsigned int> mStart;
+  const std::vector<unsigned int> mStride;
   const std::vector<unsigned int> mDimensions;
+  const std::vector<unsigned int> mDataspaceDimensions;
   const std::string mFilePath;
   unsigned int mArrayStartOffset;
   const shared_ptr<const XdmfArrayType> mType;
 
 private:
 
-  XdmfHeavyDataController(const XdmfHeavyDataController&);  // Not implemented.
   void operator=(const XdmfHeavyDataController &);  // Not implemented.
 
 };
 
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFHEAVYDATACONTROLLER; // Simply as a typedef to ensure correct typing
+typedef struct XDMFHEAVYDATACONTROLLER XDMFHEAVYDATACONTROLLER;
+
+XDMFCORE_EXPORT void XdmfHeavyDataControllerFree(XDMFHEAVYDATACONTROLLER * item);
+
+XDMFCORE_EXPORT unsigned int * XdmfHeavyDataControllerGetDataspaceDimensions(XDMFHEAVYDATACONTROLLER * controller);
+
+XDMFCORE_EXPORT unsigned int * XdmfHeavyDataControllerGetDimensions(XDMFHEAVYDATACONTROLLER * controller);
+
+XDMFCORE_EXPORT char * XdmfHeavyDataControllerGetFilePath(XDMFHEAVYDATACONTROLLER * controller);
+
+XDMFCORE_EXPORT char * XdmfHeavyDataControllerGetName(XDMFHEAVYDATACONTROLLER * controller);
+
+XDMFCORE_EXPORT unsigned int XdmfHeavyDataControllerGetNumberDimensions(XDMFHEAVYDATACONTROLLER * controller);
+
+XDMFCORE_EXPORT unsigned int XdmfHeavyDataControllerGetSize(XDMFHEAVYDATACONTROLLER * controller);
+
+XDMFCORE_EXPORT unsigned int * XdmfHeavyDataControllerGetStart(XDMFHEAVYDATACONTROLLER * controller);
+
+XDMFCORE_EXPORT unsigned int * XdmfHeavyDataControllerGetStride(XDMFHEAVYDATACONTROLLER * controller);
+
+XDMFCORE_EXPORT void XdmfHeavyDataControllerSetArrayOffset(XDMFHEAVYDATACONTROLLER * controller, unsigned int newOffset);
+
+XDMFCORE_EXPORT unsigned int XdmfHeavyDataControllerGetArrayOffset(XDMFHEAVYDATACONTROLLER * controller);
+
+XDMFCORE_EXPORT int XdmfHeavyDataControllerGetType(XDMFHEAVYDATACONTROLLER * controller, int * status);
+
+XDMFCORE_EXPORT void XdmfHeavyDataControllerRead(XDMFHEAVYDATACONTROLLER * controller, void * array, int * status);
+
+#define XDMF_HEAVYCONTROLLER_C_CHILD_DECLARE(ClassName, CClassName, Level)                               \
+                                                                                                         \
+Level##_EXPORT void ClassName##Free( CClassName * item);                                                 \
+Level##_EXPORT unsigned int * ClassName##GetDataspaceDimensions( CClassName * controller);               \
+Level##_EXPORT unsigned int * ClassName##GetDimensions( CClassName * controller);                        \
+Level##_EXPORT char * ClassName##GetFilePath( CClassName * controller);                                  \
+Level##_EXPORT char * ClassName##GetName( CClassName * controller);                                      \
+Level##_EXPORT unsigned int ClassName##GetNumberDimensions( CClassName * controller);                    \
+Level##_EXPORT unsigned int ClassName##GetSize( CClassName * controller);                                \
+Level##_EXPORT unsigned int * ClassName##GetStart( CClassName * controller);                             \
+Level##_EXPORT unsigned int * ClassName##GetStride( CClassName * controller);                            \
+Level##_EXPORT void ClassName##SetArrayOffset( CClassName * controller, unsigned int newOffset);         \
+Level##_EXPORT unsigned int ClassName##GetArrayOffset( CClassName * controller);                         \
+Level##_EXPORT int ClassName##GetType( CClassName * controller, int * status);                           \
+Level##_EXPORT void ClassName##Read( CClassName * controller, void * array, int * status);
+
+
+
+#define XDMF_HEAVYCONTROLLER_C_CHILD_WRAPPER(ClassName, CClassName)                                      \
+                                                                                                         \
+void ClassName##Free( CClassName * item)                                                                 \
+{                                                                                                        \
+  XdmfHeavyDataControllerFree((XDMFHEAVYDATACONTROLLER *)((void *)item));                                \
+}                                                                                                        \
+                                                                                                         \
+unsigned int * ClassName##GetDataspaceDimensions( CClassName * controller)                               \
+{                                                                                                        \
+  return XdmfHeavyDataControllerGetDataspaceDimensions((XDMFHEAVYDATACONTROLLER *)((void *)controller)); \
+}                                                                                                        \
+                                                                                                         \
+unsigned int * ClassName##GetDimensions( CClassName * controller)                                        \
+{                                                                                                        \
+  return XdmfHeavyDataControllerGetDimensions((XDMFHEAVYDATACONTROLLER *)((void *)controller));          \
+}                                                                                                        \
+                                                                                                         \
+char * ClassName##GetFilePath( CClassName * controller)                                                  \
+{                                                                                                        \
+  return XdmfHeavyDataControllerGetFilePath((XDMFHEAVYDATACONTROLLER *)((void *)controller));            \
+}                                                                                                        \
+                                                                                                         \
+char * ClassName##GetName( CClassName * controller)                                                      \
+{                                                                                                        \
+  return XdmfHeavyDataControllerGetName((XDMFHEAVYDATACONTROLLER *)((void *)controller));                \
+}                                                                                                        \
+                                                                                                         \
+unsigned int ClassName##GetNumberDimensions( CClassName * controller)                                    \
+{                                                                                                        \
+  return XdmfHeavyDataControllerGetNumberDimensions((XDMFHEAVYDATACONTROLLER *)((void *)controller));    \
+}                                                                                                        \
+                                                                                                         \
+unsigned int ClassName##GetSize( CClassName * controller)                                                \
+{                                                                                                        \
+  return XdmfHeavyDataControllerGetSize((XDMFHEAVYDATACONTROLLER *)((void *)controller));                \
+}                                                                                                        \
+                                                                                                         \
+unsigned int * ClassName##GetStart( CClassName * controller)                                             \
+{                                                                                                        \
+  return XdmfHeavyDataControllerGetStart((XDMFHEAVYDATACONTROLLER *)((void *)controller));               \
+}                                                                                                        \
+                                                                                                         \
+unsigned int * ClassName##GetStride( CClassName * controller)                                            \
+{                                                                                                        \
+  return XdmfHeavyDataControllerGetStride((XDMFHEAVYDATACONTROLLER *)((void *)controller));              \
+}                                                                                                        \
+                                                                                                         \
+void ClassName##SetArrayOffset( CClassName * controller, unsigned int newOffset)                         \
+{                                                                                                        \
+  XdmfHeavyDataControllerSetArrayOffset((XDMFHEAVYDATACONTROLLER *)((void *)controller), newOffset);     \
+}                                                                                                        \
+                                                                                                         \
+unsigned int ClassName##GetArrayOffset( CClassName * controller)                                         \
+{                                                                                                        \
+  return XdmfHeavyDataControllerGetArrayOffset((XDMFHEAVYDATACONTROLLER *)((void *)controller));         \
+}                                                                                                        \
+                                                                                                         \
+int ClassName##GetType( CClassName * controller, int * status)                                           \
+{                                                                                                        \
+  return XdmfHeavyDataControllerGetType((XDMFHEAVYDATACONTROLLER *)((void *)controller), status);        \
+}                                                                                                        \
+                                                                                                         \
+void ClassName##Read( CClassName * controller, void * array, int * status)                               \
+{                                                                                                        \
+  XdmfHeavyDataControllerRead((XDMFHEAVYDATACONTROLLER *)((void *)controller), array, status);           \
+}
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFHEAVYDATACONTROLLER_HPP_ */

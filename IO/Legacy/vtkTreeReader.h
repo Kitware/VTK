@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTreeReader - read vtkTree data file
-// .SECTION Description
-// vtkTreeReader is a source object that reads ASCII or binary
-// vtkTree data files in vtk format. (see text for format details).
-// The output of this reader is a single vtkTree data object.
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-// .SECTION See Also
-// vtkTree vtkDataReader vtkTreeWriter
+/**
+ * @class   vtkTreeReader
+ * @brief   read vtkTree data file
+ *
+ * vtkTreeReader is a source object that reads ASCII or binary
+ * vtkTree data files in vtk format. (see text for format details).
+ * The output of this reader is a single vtkTree data object.
+ * The superclass of this class, vtkDataReader, provides many methods for
+ * controlling the reading of the data file, see vtkDataReader for more
+ * information.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+ * @sa
+ * vtkTree vtkDataReader vtkTreeWriter
+*/
 
 #ifndef vtkTreeReader_h
 #define vtkTreeReader_h
@@ -38,31 +41,31 @@ class VTKIOLEGACY_EXPORT vtkTreeReader : public vtkDataReader
 public:
   static vtkTreeReader *New();
   vtkTypeMacro(vtkTreeReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the output of this reader.
+  //@{
+  /**
+   * Get the output of this reader.
+   */
   vtkTree *GetOutput();
   vtkTree *GetOutput(int idx);
   void SetOutput(vtkTree *output);
+  //@}
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
 
 protected:
   vtkTreeReader();
-  ~vtkTreeReader();
+  ~vtkTreeReader() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-
-  // Since the Outputs[0] has the same UpdateExtent format
-  // as the generic DataObject we can copy the UpdateExtent
-  // as a default behavior.
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkTreeReader(const vtkTreeReader&);  // Not implemented.
-  void operator=(const vtkTreeReader&);  // Not implemented.
+  vtkTreeReader(const vtkTreeReader&) = delete;
+  void operator=(const vtkTreeReader&) = delete;
 };
 
 #endif

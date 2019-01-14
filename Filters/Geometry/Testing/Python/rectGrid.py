@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -63,13 +62,12 @@ isoActor.SetMapper(isoMapper)
 isoActor.GetProperty().SetColor(GetRGBColor('bisque'))
 isoActor.GetProperty().SetRepresentationToWireframe()
 
-streamer = vtk.vtkStreamLine()
+streamer = vtk.vtkStreamTracer()
 streamer.SetInputConnection(reader.GetOutputPort())
 streamer.SetStartPosition(-1.2, -0.1, 1.3)
-streamer.SetMaximumPropagationTime(500)
-streamer.SetStepLength(0.05)
-streamer.SetIntegrationStepLength(0.05)
-streamer.SetIntegrationDirectionToIntegrateBothDirections()
+streamer.SetMaximumPropagation(500)
+streamer.SetInitialIntegrationStep(0.05)
+streamer.SetIntegrationDirectionToBoth()
 
 streamTube = vtk.vtkTubeFilter()
 streamTube.SetInputConnection(streamer.GetOutputPort())

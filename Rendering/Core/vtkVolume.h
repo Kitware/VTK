@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVolume - represents a volume (data & properties) in a rendered scene
-//
-// .SECTION Description
-// vtkVolume is used to represent a volumetric entity in a rendering scene.
-// It inherits functions related to the volume's position, orientation and
-// origin from vtkProp3D. The volume maintains a reference to the
-// volumetric data (i.e., the volume mapper). The volume also contains a
-// reference to a volume property which contains all common volume rendering
-// parameters.
-
-// .SECTION see also
-// vtkAbstractVolumeMapper vtkVolumeProperty vtkProp3D
+/**
+ * @class   vtkVolume
+ * @brief   represents a volume (data & properties) in a rendered scene
+ *
+ *
+ * vtkVolume is used to represent a volumetric entity in a rendering scene.
+ * It inherits functions related to the volume's position, orientation and
+ * origin from vtkProp3D. The volume maintains a reference to the
+ * volumetric data (i.e., the volume mapper). The volume also contains a
+ * reference to a volume property which contains all common volume rendering
+ * parameters.
+ *
+ * @sa
+ * vtkAbstractVolumeMapper vtkVolumeProperty vtkProp3D
+*/
 
 #ifndef vtkVolume_h
 #define vtkVolume_h
@@ -42,38 +45,49 @@ class VTKRENDERINGCORE_EXPORT vtkVolume : public vtkProp3D
 {
 public:
   vtkTypeMacro(vtkVolume, vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Creates a Volume with the following defaults: origin(0,0,0)
-  // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
-  // orientation=(0,0,0).
+  /**
+   * Creates a Volume with the following defaults: origin(0,0,0)
+   * position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
+   * orientation=(0,0,0).
+   */
   static vtkVolume *New();
 
-  // Description:
-  // Set/Get the volume mapper.
+  //@{
+  /**
+   * Set/Get the volume mapper.
+   */
   void SetMapper(vtkAbstractVolumeMapper *mapper);
   vtkGetObjectMacro(Mapper, vtkAbstractVolumeMapper);
+  //@}
 
-  // Description:
-  // Set/Get the volume property.
-  void SetProperty(vtkVolumeProperty *property);
-  vtkVolumeProperty *GetProperty();
+  //@{
+  /**
+   * Set/Get the volume property.
+   */
+  virtual void SetProperty(vtkVolumeProperty *property);
+  virtual vtkVolumeProperty *GetProperty();
+  //@}
 
-  // Description:
-  // For some exporters and other other operations we must be
-  // able to collect all the actors or volumes. This method
-  // is used in that process.
-  void GetVolumes(vtkPropCollection *vc);
+  /**
+   * For some exporters and other other operations we must be
+   * able to collect all the actors or volumes. This method
+   * is used in that process.
+   */
+  void GetVolumes(vtkPropCollection *vc) override;
 
-  // Description:
-  // Update the volume rendering pipeline by updating the volume mapper
+  /**
+   * Update the volume rendering pipeline by updating the volume mapper
+   */
   void Update();
 
-  // Description:
-  // Get the bounds - either all six at once
-  // (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
-  double *GetBounds();
+  //@{
+  /**
+   * Get the bounds - either all six at once
+   * (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
+   */
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6])
     { this->vtkProp3D::GetBounds(bounds); }
   double GetMinXBound();
@@ -82,103 +96,125 @@ public:
   double GetMaxYBound();
   double GetMinZBound();
   double GetMaxZBound();
+  //@}
 
-  // Description:
-  // Return the MTime also considering the property etc.
-  unsigned long int GetMTime();
+  /**
+   * Return the MTime also considering the property etc.
+   */
+  vtkMTimeType GetMTime() override;
 
-  // Description:
-  // Return the mtime of anything that would cause the rendered image to
-  // appear differently. Usually this involves checking the mtime of the
-  // prop plus anything else it depends on such as properties, mappers,
-  // etc.
-  unsigned long GetRedrawMTime();
+  /**
+   * Return the mtime of anything that would cause the rendered image to
+   * appear differently. Usually this involves checking the mtime of the
+   * prop plus anything else it depends on such as properties, mappers,
+   * etc.
+   */
+  vtkMTimeType GetRedrawMTime() override;
 
-  // Description:
-  // Shallow copy of this vtkVolume. Overloads the virtual vtkProp method.
-  void ShallowCopy(vtkProp *prop);
+  /**
+   * Shallow copy of this vtkVolume. Overloads the virtual vtkProp method.
+   */
+  void ShallowCopy(vtkProp *prop) override;
 
-//BTX
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  // Support the standard render methods.
-  // Depending on the mapper type, the volume may be rendered using
-  // this method (FRAMEBUFFER volume such as texture mapping will
-  // be rendered this way)
-  int RenderVolumetricGeometry(vtkViewport *viewport);
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   * Support the standard render methods.
+   * Depending on the mapper type, the volume may be rendered using
+   * this method (FRAMEBUFFER volume such as texture mapping will
+   * be rendered this way)
+   */
+  int RenderVolumetricGeometry(vtkViewport *viewport) override;
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // Release any graphics resources that are being consumed by this volume.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *);
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * Release any graphics resources that are being consumed by this volume.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   */
   float *GetCorrectedScalarOpacityArray(int);
   float *GetCorrectedScalarOpacityArray()
     { return this->GetCorrectedScalarOpacityArray(0); }
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   */
   float *GetScalarOpacityArray(int);
   float *GetScalarOpacityArray()
     { return this->GetScalarOpacityArray(0); }
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   */
   float *GetGradientOpacityArray(int);
   float *GetGradientOpacityArray()
     { return this->GetGradientOpacityArray(0); }
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   */
   float *GetGrayArray(int);
   float *GetGrayArray()
     { return this->GetGrayArray(0); }
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   */
   float *GetRGBArray(int);
   float *GetRGBArray()
     { return this->GetRGBArray(0); }
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   */
   float GetGradientOpacityConstant(int);
   float GetGradientOpacityConstant()
     { return this->GetGradientOpacityConstant(0); }
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   */
   float  GetArraySize()
     { return static_cast<float>(this->ArraySize); }
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   */
   void UpdateTransferFunctions(vtkRenderer *ren);
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   */
   void UpdateScalarOpacityforSampleSize(vtkRenderer *ren,
                                         float sample_distance);
 
-//ETX
+  /**
+   * Used by vtkHardwareSelector to determine if the prop supports hardware
+   * selection.
+   *
+   * @warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   */
+  bool GetSupportsSelection() override
+   { return true; }
 
 protected:
   vtkVolume();
-  ~vtkVolume();
+  ~vtkVolume() override;
 
   vtkAbstractVolumeMapper *Mapper;
   vtkVolumeProperty *Property;
@@ -229,8 +265,8 @@ protected:
   double ComputeScreenCoverage(vtkViewport *vp);
 
 private:
-  vtkVolume(const vtkVolume&);  // Not implemented.
-  void operator=(const vtkVolume&);  // Not implemented.
+  vtkVolume(const vtkVolume&) = delete;
+  void operator=(const vtkVolume&) = delete;
 };
 
 #endif

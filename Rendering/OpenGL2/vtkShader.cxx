@@ -26,9 +26,7 @@ vtkShader::vtkShader()
   this->ShaderType = vtkShader::Unknown;
 }
 
-vtkShader::~vtkShader()
-{
-}
+vtkShader::~vtkShader() = default;
 
 void vtkShader::SetType(Type type)
 {
@@ -45,39 +43,54 @@ void vtkShader::SetSource(const std::string &source)
 bool vtkShader::Compile()
 {
   if (this->Source.empty() || this->ShaderType == Unknown || !this->Dirty)
-    {
+  {
     return false;
-    }
+  }
 
   // Ensure we delete the previous shader if necessary.
-  if (Handle != 0)
-    {
-    glDeleteShader(static_cast<GLuint>(Handle));
-    Handle = 0;
-    }
+  if (this->Handle != 0)
+  {
+    glDeleteShader(static_cast<GLuint>(this->Handle));
+    this->Handle = 0;
+  }
 
-  GLenum type = ShaderType == Vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
-  // TODO: handle geometry shaders if supported
+  GLenum type = GL_VERTEX_SHADER;
+  switch (this->ShaderType)
+  {
+#ifdef GL_GEOMETRY_SHADER
+    case vtkShader::Geometry:
+      type = GL_GEOMETRY_SHADER;
+      break;
+#endif
+    case vtkShader::Fragment:
+      type = GL_FRAGMENT_SHADER;
+      break;
+    case vtkShader::Vertex:
+    case vtkShader::Unknown:
+    default:
+      type = GL_VERTEX_SHADER;
+      break;
+  }
 
   GLuint handle = glCreateShader(type);
   const GLchar *source = static_cast<const GLchar *>(this->Source.c_str());
-  glShaderSource(handle, 1, &source, NULL);
+  glShaderSource(handle, 1, &source, nullptr);
   glCompileShader(handle);
   GLint isCompiled;
   glGetShaderiv(handle, GL_COMPILE_STATUS, &isCompiled);
 
   // Handle shader compilation failures.
   if (!isCompiled)
-    {
+  {
     GLint length(0);
     glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &length);
     if (length > 1)
-      {
+    {
       char *logMessage = new char[length];
-      glGetShaderInfoLog(handle, length, NULL, logMessage);
+      glGetShaderInfoLog(handle, length, nullptr, logMessage);
       this->Error = logMessage;
       delete[] logMessage;
-      }
+    }
     glDeleteShader(handle);
     return false;
   }
@@ -92,9 +105,9 @@ bool vtkShader::Compile()
 void vtkShader::Cleanup()
 {
   if (this->ShaderType == Unknown || this->Handle == 0)
-    {
+  {
     return;
-    }
+  }
 
   glDeleteShader(static_cast<GLuint>(this->Handle));
   this->Handle = 0;

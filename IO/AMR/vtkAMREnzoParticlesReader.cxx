@@ -46,17 +46,17 @@ static bool FindBlockIndex( hid_t fileIndx, const int blockIdx, hid_t &rootIndx 
   hsize_t numbObjs;
   rootIndx = H5Gopen( fileIndx, "/" );
   if( rootIndx < 0 )
-    {
+  {
     vtkGenericWarningMacro( "Failed to open root node of particles file" );
     return false;
-    }
+  }
 
   bool found = false;
   H5Gget_num_objs( rootIndx, &numbObjs );
   for( int objIndex=0; objIndex < static_cast < int >(numbObjs); objIndex++  )
-    {
+  {
     if( H5Gget_objtype_by_idx( rootIndx, objIndex ) == H5G_GROUP  )
-      {
+    {
       int    blckIndx;
       char   blckName[65];
       H5Gget_objname_by_idx( rootIndx, objIndex, blckName, 64 );
@@ -64,18 +64,18 @@ static bool FindBlockIndex( hid_t fileIndx, const int blockIdx, hid_t &rootIndx 
       // Is this the target block?
       if( (sscanf( blckName, "Grid%d", &blckIndx )==1) &&
           (blckIndx  ==  blockIdx) )
-        {
+      {
         // located the target block
         rootIndx = H5Gopen( rootIndx, blckName );
         if( rootIndx < 0 )
-          {
+        {
           vtkGenericWarningMacro( "Could not locate target block!\n" );
-          }
+        }
         found = true;
         break;
-        }
-      } // END if group
-    } // END for all objects
+      }
+    } // END if group
+  } // END for all objects
   return( found );
 }
 
@@ -86,26 +86,26 @@ static void GetDoubleArrayByName(
     const hid_t rootIdx, const char* name, std::vector<double> &array)
 {
   // turn off warnings
-  void       * pContext = NULL;
+  void       * pContext = nullptr;
   H5E_auto_t   erorFunc;
   H5Eget_auto( &erorFunc, &pContext );
-  H5Eset_auto( NULL, NULL );
+  H5Eset_auto( nullptr, nullptr );
 
   hid_t arrayIdx = H5Dopen( rootIdx, name );
   if( arrayIdx < 0 )
-    {
+  {
       vtkGenericWarningMacro( "Cannot open array: " << name << "\n");
       return;
-    }
+  }
 
   // turn warnings back on
   H5Eset_auto( erorFunc, pContext );
-  pContext = NULL;
+  pContext = nullptr;
 
   // get the number of particles
   hsize_t      dimValus[3];
   hid_t        spaceIdx = H5Dget_space( arrayIdx );
-  H5Sget_simple_extent_dims( spaceIdx, dimValus, NULL );
+  H5Sget_simple_extent_dims( spaceIdx, dimValus, nullptr );
   int          numbPnts = dimValus[0];
 
   array.resize( numbPnts );
@@ -133,7 +133,7 @@ vtkAMREnzoParticlesReader::vtkAMREnzoParticlesReader()
 vtkAMREnzoParticlesReader::~vtkAMREnzoParticlesReader()
 {
   delete this->Internal;
-  this->Internal = NULL;
+  this->Internal = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -147,15 +147,15 @@ void vtkAMREnzoParticlesReader::PrintSelf(
 void vtkAMREnzoParticlesReader::ReadMetaData()
 {
   if( this->Initialized )
-    {
+  {
     return;
-    }
+  }
 
   if( !this->FileName )
-    {
+  {
     vtkErrorMacro("No FileName set!");
     return;
-    }
+  }
 
   this->Internal->SetFileName( this->FileName );
   std::string  tempName( this->FileName );
@@ -164,27 +164,27 @@ void vtkAMREnzoParticlesReader::ReadMetaData()
 
   if( tempName.length() > hExtName.length() &&
        tempName.substr(tempName.length()-hExtName.length() )== hExtName )
-     {
+  {
      this->Internal->MajorFileName =
          tempName.substr( 0, tempName.length() - hExtName.length() );
      this->Internal->HierarchyFileName = tempName;
      this->Internal->BoundaryFileName  =
          this->Internal->MajorFileName + bExtName;
-     }
+  }
   else if( tempName.length() > bExtName.length() &&
       tempName.substr( tempName.length() - bExtName.length() )==bExtName )
-    {
+  {
     this->Internal->MajorFileName =
        tempName.substr( 0, tempName.length() - bExtName.length() );
     this->Internal->BoundaryFileName  = tempName;
     this->Internal->HierarchyFileName =
        this->Internal->MajorFileName + hExtName;
-    }
+  }
   else
-   {
+  {
    vtkErrorMacro( "Enzo file has invalid extension!");
    return;
-   }
+  }
 
    this->Internal->DirectoryName =
        GetEnzoDirectory(this->Internal->MajorFileName.c_str());
@@ -205,10 +205,10 @@ vtkDataArray* vtkAMREnzoParticlesReader::GetParticlesTypeArray(
 
   vtkIntArray *array = vtkIntArray::New();
   if( this->ParticleDataArraySelection->ArrayExists( "particle_type" ) )
-    {
+  {
     this->Internal->LoadAttribute( "particle_type", blockIdx );
     array->DeepCopy( this->Internal->DataArray );
-    }
+  }
   return( array );
 }
 
@@ -216,25 +216,25 @@ vtkDataArray* vtkAMREnzoParticlesReader::GetParticlesTypeArray(
 bool vtkAMREnzoParticlesReader::CheckParticleType(
     const int idx, vtkIntArray *ptypes )
 {
-  assert( "pre: particles type array should not be NULL" && (ptypes != NULL) );
+  assert( "pre: particles type array should not be nullptr" && (ptypes != nullptr) );
 
   if( ptypes->GetNumberOfTuples() > 0 &&
       this->ParticleDataArraySelection->ArrayExists( "particle_type" ) )
-    {
+  {
     int ptype = ptypes->GetValue( idx );
     if( (this->ParticleType==0) || (ptype==this->ParticleType) )
-      {
-      return true;
-      }
-    else
-      {
-      return false;
-      }
-    }
-  else
     {
-    return true;
+      return true;
     }
+    else
+    {
+      return false;
+    }
+  }
+  else
+  {
+    return true;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -248,17 +248,17 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
 
   hid_t fileIndx = H5Fopen( file, H5F_ACC_RDONLY, H5P_DEFAULT );
   if( fileIndx < 0 )
-    {
+  {
     vtkErrorMacro( "Failed opening particles file!" );
-    return NULL;
-    }
+    return nullptr;
+  }
 
   hid_t rootIndx;
   if( ! FindBlockIndex( fileIndx, blockIdx+1,rootIndx ) )
-    {
+  {
     vtkErrorMacro( "Could not locate target block!" );
-    return NULL;
-    }
+    return nullptr;
+  }
 
   //
   // Load the particles position arrays by name.
@@ -276,7 +276,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   GetDoubleArrayByName( rootIndx, "particle_position_y", ycoords );
   GetDoubleArrayByName( rootIndx, "particle_position_z", zcoords );
 
-  vtkIntArray *particleTypes = vtkIntArray::SafeDownCast(
+  vtkIntArray *particleTypes = vtkArrayDownCast<vtkIntArray>(
       this->GetParticlesTypeArray( blockIdx ) );
 
   assert( "Coordinate arrays must have the same size: " &&
@@ -292,19 +292,19 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
 
   vtkIdType NumberOfParticlesLoaded = 0;
   for( int i=0; i < TotalNumberOfParticles; ++i )
-    {
+  {
     if( (i%this->Frequency) == 0  )
-      {
+    {
       if( this->CheckLocation( xcoords[i], ycoords[i],zcoords[i] ) &&
           this->CheckParticleType( i, particleTypes) )
-        {
+      {
         int pidx = NumberOfParticlesLoaded;
         ids->InsertId( pidx, i );
         positions->SetPoint( pidx, xcoords[i],ycoords[i],zcoords[i] );
         ++NumberOfParticlesLoaded;
-        } // END if within requested region
-      } // END if within requested interval
-    } // END for all particles
+      } // END if within requested region
+    } // END if within requested interval
+  } // END for all particles
   H5Gclose( rootIndx );
   H5Fclose( fileIndx );
 
@@ -332,10 +332,10 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
 
   int numArrays = this->ParticleDataArraySelection->GetNumberOfArrays();
   for( int i=0; i < numArrays; ++i )
-    {
+  {
     const char* name = this->ParticleDataArraySelection->GetArrayName( i );
     if( this->ParticleDataArraySelection->ArrayIsEnabled( name ) )
-      {
+    {
       // Note: 0-based indexing is used for loading particles
       this->Internal->LoadAttribute( name, blockIdx );
       assert( "pre: particle attribute size mismatch" &&
@@ -350,20 +350,20 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
 
       vtkIdType numIds = ids->GetNumberOfIds();
       for( vtkIdType pidx=0; pidx < numIds; ++pidx )
-        {
+      {
           vtkIdType particleIdx = ids->GetId( pidx );
           int numComponents = array->GetNumberOfComponents();
           for( int k=0; k < numComponents; ++k )
-            {
+          {
               array->SetComponent( pidx, k,
                   this->Internal->DataArray->GetComponent(
                       particleIdx,k ) );
-            } // END for all components
-        } // END for all ids of loaded particles
+          } // END for all components
+      } // END for all ids of loaded particles
       pdata->AddArray( array );
       array->Delete();
-      } // END if the array is supposed to be loaded
-    } // END for all particle arrays
+    } // END if the array is supposed to be loaded
+  } // END for all particle arrays
 
   ids->Delete();
   return( particles );
@@ -372,35 +372,35 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
 //------------------------------------------------------------------------------
 void vtkAMREnzoParticlesReader::SetupParticleDataSelections()
 {
-  assert( "pre: Intenal reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Intenal reader is nullptr" && (this->Internal != nullptr) );
 
   unsigned int N =
     static_cast<unsigned int>( this->Internal->ParticleAttributeNames.size() );
   for( unsigned int i=0; i < N; ++i )
-    {
+  {
     bool isParticleAttribute =
      vtksys::SystemTools::StringStartsWith(
        this->Internal->ParticleAttributeNames[ i ].c_str( ),
         "particle_" );
 
     if( isParticleAttribute )
-      {
+    {
       this->ParticleDataArraySelection->AddArray(
           this->Internal->ParticleAttributeNames[ i ].c_str() );
-      }
-    } // END for all particles attributes
+    }
+  } // END for all particles attributes
   this->InitializeParticleDataSelections();
 }
 
 //------------------------------------------------------------------------------
 int vtkAMREnzoParticlesReader::GetTotalNumberOfParticles( )
 {
-  assert( "Internal reader is null" && (this->Internal!=NULL) );
+  assert( "Internal reader is null" && (this->Internal!=nullptr) );
   int numParticles = 0;
   for( int blockIdx=0; blockIdx < this->NumberOfBlocks; ++blockIdx )
-    {
+  {
     numParticles += this->Internal->Blocks[ blockIdx ].NumberOfParticles;
-    }
+  }
   return( numParticles );
 }
 
@@ -412,18 +412,18 @@ vtkPolyData* vtkAMREnzoParticlesReader::ReadParticles(const int blkidx)
   int NumParticles = this->Internal->Blocks[ iBlockIdx ].NumberOfParticles;
 
   if( NumParticles <= 0 )
-    {
+  {
     vtkPolyData* emptyParticles = vtkPolyData::New();
-    assert( "Cannot create particles dataset" && ( emptyParticles != NULL ) );
+    assert( "Cannot create particles dataset" && ( emptyParticles != nullptr ) );
     return( emptyParticles );
-    }
+  }
 
   std::string pfile = this->Internal->Blocks[iBlockIdx].ParticleFileName;
-  if( pfile == "" )
-    {
+  if( pfile.empty() )
+  {
     vtkErrorMacro( "No particles file found, string is empty!" );
-    return NULL;
-    }
+    return nullptr;
+  }
 
   vtkPolyData* particles = this->GetParticles(pfile.c_str(), blkidx  );
   return( particles );

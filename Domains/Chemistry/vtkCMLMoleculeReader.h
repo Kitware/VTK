@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCMLMoleculeReader - Read a CML file and output a
-// vtkMolecule object
-// .SECTION Description
+/**
+ * @class   vtkCMLMoleculeReader
+ * @brief   Read a CML file and output a
+ * vtkMolecule object
+ *
+*/
 
 #ifndef vtkCMLMoleculeReader_h
 #define vtkCMLMoleculeReader_h
@@ -29,31 +32,37 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkCMLMoleculeReader : public vtkMoleculeAlgori
 public:
   static vtkCMLMoleculeReader *New();
   vtkTypeMacro(vtkCMLMoleculeReader,vtkMoleculeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get/Set the output (vtkMolecule) that the reader will fill
+  //@{
+  /**
+   * Get/Set the output (vtkMolecule) that the reader will fill
+   */
   vtkMolecule *GetOutput();
-  void SetOutput(vtkMolecule *);
+  void SetOutput(vtkMolecule *) override;
+  //@}
 
-  // Description:
-  // Get/Set the name of the CML file
+  //@{
+  /**
+   * Get/Set the name of the CML file
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkCMLMoleculeReader();
-  ~vtkCMLMoleculeReader();
+  ~vtkCMLMoleculeReader() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
-  int FillOutputPortInformation(int, vtkInformation*);
+                  vtkInformationVector *) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   char *FileName;
 
 private:
-  vtkCMLMoleculeReader(const vtkCMLMoleculeReader&);  // Not implemented.
-  void operator=(const vtkCMLMoleculeReader&);  // Not implemented.
+  vtkCMLMoleculeReader(const vtkCMLMoleculeReader&) = delete;
+  void operator=(const vtkCMLMoleculeReader&) = delete;
 };
 
 #endif

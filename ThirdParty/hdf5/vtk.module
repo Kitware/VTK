@@ -1,0 +1,7 @@
+NAME
+  VTK::hdf5
+LIBRARY_NAME
+  vtkhdf5
+PRIVATE_DEPENDS
+  VTK::zlib
+THIRD_PARTY

@@ -7,6 +7,9 @@ import os
 import os.path
 import vtk
 from vtk.test import Testing
+from vtk.util.misc import vtkGetDataRoot
+
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 class TestTextureGlyph(Testing.vtkTest):
     def testGlyphs(self):
@@ -52,8 +55,7 @@ class TestTextureGlyph(Testing.vtkTest):
         a.SetMapper(m)
 
         # The texture.
-        img_file = os.path.join(Testing.VTK_DATA_ROOT, "Data",
-                                "masonry.bmp")
+        img_file = os.path.join(VTK_DATA_ROOT, "Data", "masonry.bmp")
         img_r = vtk.vtkBMPReader()
         img_r.SetFileName(img_file)
         t = vtk.vtkTexture()
@@ -80,4 +82,3 @@ class TestTextureGlyph(Testing.vtkTest):
 
 if __name__ == "__main__":
     Testing.main([(TestTextureGlyph, 'test')])
-

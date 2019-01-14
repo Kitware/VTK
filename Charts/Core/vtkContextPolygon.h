@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef _vtkContextPolygon_h
-#define _vtkContextPolygon_h
+#ifndef vtkContextPolygon_h
+#define vtkContextPolygon_h
 
 #include "vtkChartsCoreModule.h"
 #include "vtkVector.h" // For vtkVector2f
@@ -74,5 +74,5 @@ private:
   vtkContextPolygonPrivate* const d;
 };
 
-#endif // _vtkContextPolygon_h
+#endif // vtkContextPolygon_h
 // VTK-HeaderTest-Exclude: vtkContextPolygon.h

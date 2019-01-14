@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkErrorCode.h"
 
-#include <string.h>
-#include <ctype.h>
-#include <errno.h>
+#include <cstring>
+#include <cctype>
+#include <cerrno>
 
 // this list should only contain the initial, contiguous
 // set of error codes and should not include UserError
@@ -31,58 +31,58 @@ static const char *vtkErrorCodeErrorStrings[] = {
   "OutOfDiskSpaceError",
   "UnknownError",
   "UserError",
-  NULL
+  nullptr
 };
 
 const char *vtkErrorCode::GetStringFromErrorCode(unsigned long error)
 {
   static unsigned long numerrors = 0;
   if(error < FirstVTKErrorCode)
-    {
+  {
     return strerror(static_cast<int>(error));
-    }
+  }
   else
-    {
+  {
     error -= FirstVTKErrorCode;
-    }
+  }
 
   // find length of table
   if (!numerrors)
+  {
+    while (vtkErrorCodeErrorStrings[numerrors] != nullptr)
     {
-    while (vtkErrorCodeErrorStrings[numerrors] != NULL)
-      {
       numerrors++;
-      }
     }
+  }
   if (error < numerrors)
-    {
+  {
     return vtkErrorCodeErrorStrings[error];
-    }
+  }
   else if (error == vtkErrorCode::UserError)
-    {
+  {
     return "UserError";
-    }
+  }
   else
-    {
+  {
     return "NoError";
-    }
+  }
 }
 
 unsigned long vtkErrorCode::GetErrorCodeFromString(const char *error)
 {
   unsigned long i;
 
-  for (i = 0; vtkErrorCodeErrorStrings[i] != NULL; i++)
-    {
+  for (i = 0; vtkErrorCodeErrorStrings[i] != nullptr; i++)
+  {
     if (!strcmp(vtkErrorCodeErrorStrings[i],error))
-      {
-      return i;
-      }
-    }
-  if (!strcmp("UserError",error))
     {
-    return vtkErrorCode::UserError;
+      return i;
     }
+  }
+  if (!strcmp("UserError",error))
+  {
+    return vtkErrorCode::UserError;
+  }
   return vtkErrorCode::NoError;
 }
 

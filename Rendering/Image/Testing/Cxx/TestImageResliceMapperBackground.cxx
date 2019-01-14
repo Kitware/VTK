@@ -55,7 +55,7 @@ int TestImageResliceMapperBackground(int argc, char* argv[])
   clip->SetOutputWholeExtent(100, 107, 100, 107, 0, 0);
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkRenderer *renderer = vtkRenderer::New();
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.1,0.2,0.4);
@@ -67,7 +67,7 @@ int TestImageResliceMapperBackground(int argc, char* argv[])
     vtkImageResliceMapper *imageMapper = vtkImageResliceMapper::New();
     imageMapper->SetInputConnection(clip->GetOutputPort());
 
-    double *bounds = imageMapper->GetBounds();
+    const double *bounds = imageMapper->GetBounds();
     double point[3];
     point[0] = 0.5*(bounds[0] + bounds[1]);
     point[1] = 0.5*(bounds[2] + bounds[3]);
@@ -87,28 +87,28 @@ int TestImageResliceMapperBackground(int argc, char* argv[])
     image->GetMapper()->SliceFacesCameraOn();
 
     if ((i&1))
-      {
+    {
       imageMapper->ResampleToScreenPixelsOff();
-      }
+    }
     if ((i&2))
-      {
+    {
       imageMapper->SeparateWindowLevelOperationOn();
-      }
+    }
 
     image->GetProperty()->SetColorWindow(255.0);
     image->GetProperty()->SetColorLevel(127.5);
 
     image->Delete();
-    }
+  }
 
   renWin->SetSize(400,400);
 
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   clip->Delete();

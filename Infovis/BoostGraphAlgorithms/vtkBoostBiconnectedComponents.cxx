@@ -33,12 +33,10 @@
 #include "vtkBoostGraphAdapter.h"
 #include <boost/graph/biconnected_components.hpp>
 #include <boost/version.hpp>
-#include <vtksys/stl/vector>
-#include <vtksys/stl/utility>
+#include <vector>
+#include <utility>
 
 using namespace boost;
-using vtksys_stl::vector;
-using vtksys_stl::pair;
 
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
@@ -76,24 +74,24 @@ int vtkBoostBiconnectedComponents::RequestData(
   vtkSmartPointer<vtkIntArray> edgeCompArr = vtkSmartPointer<vtkIntArray>::New();
   edgeCompArr->SetNumberOfTuples(input->GetNumberOfEdges());
   for (vtkIdType i = 0; i < input->GetNumberOfEdges(); ++i)
-    {
+  {
     edgeCompArr->SetValue(i, -1);
-    }
+  }
   if (this->OutputArrayName)
-    {
+  {
     edgeCompArr->SetName(this->OutputArrayName);
-    }
+  }
   else
-    {
+  {
     edgeCompArr->SetName("biconnected component");
-    }
-  vtkGraphEdgePropertyMapHelper<vtkIntArray*> helper(edgeCompArr.GetPointer());
+  }
+  vtkGraphEdgePropertyMapHelper<vtkIntArray*> helper(edgeCompArr);
 
   // Create vector of articulation points and set it up for insertion
   // by the algorithm.
-  vector<vtkIdType> artPoints;
-  pair<size_t, vtksys_stl::back_insert_iterator<vector<vtkIdType> > >
-    res(0, vtksys_stl::back_inserter(artPoints));
+  std::vector<vtkIdType> artPoints;
+  std::pair<size_t, std::back_insert_iterator<std::vector<vtkIdType> > >
+    res(0, std::back_inserter(artPoints));
 
   // Call BGL biconnected_components.
   // It appears that the signature for this
@@ -101,13 +99,13 @@ int vtkBoostBiconnectedComponents::RequestData(
 #if BOOST_VERSION < 103300      // Boost 1.32.x
   // TODO I have no idea what the 1.32 signature is suppose to be
   // res = biconnected_components(
-  //  output, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
+  //  output, helper, std::back_inserter(artPoints), vtkGraphIndexMap());
 #elif BOOST_VERSION < 103400    // Boost 1.33.x
   res = biconnected_components(
-    output, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
+    output, helper, std::back_inserter(artPoints), vtkGraphIndexMap());
 #else                           // Anything after Boost 1.34.x
   res = biconnected_components(
-    output, helper, vtksys_stl::back_inserter(artPoints), vertex_index_map(vtkGraphIndexMap()));
+    output, helper, std::back_inserter(artPoints), vertex_index_map(vtkGraphIndexMap()));
 #endif
 
   size_t numComp = res.first;
@@ -116,44 +114,44 @@ int vtkBoostBiconnectedComponents::RequestData(
   // If isolated, assign a new value.
   vtkSmartPointer<vtkIntArray> vertCompArr = vtkSmartPointer<vtkIntArray>::New();
   if (this->OutputArrayName)
-    {
+  {
     vertCompArr->SetName(this->OutputArrayName);
-    }
+  }
   else
-    {
+  {
     vertCompArr->SetName("biconnected component");
-    }
+  }
   vertCompArr->SetNumberOfTuples(output->GetNumberOfVertices());
   vtkSmartPointer<vtkVertexListIterator> vertIt = vtkSmartPointer<vtkVertexListIterator>::New();
   vtkSmartPointer<vtkOutEdgeIterator> edgeIt = vtkSmartPointer<vtkOutEdgeIterator>::New();
   output->GetVertices(vertIt);
   while (vertIt->HasNext())
-    {
+  {
     vtkIdType u = vertIt->Next();
     output->GetOutEdges(u, edgeIt);
     int comp = -1;
     while (edgeIt->HasNext() && comp == -1)
-      {
+    {
       vtkOutEdgeType e = edgeIt->Next();
       int value = edgeCompArr->GetValue(e.Id);
       comp = value;
-      }
+    }
     if (comp == -1)
-      {
+    {
       comp = static_cast<int>(numComp);
       numComp++;
-      }
-    vertCompArr->SetValue(u, comp);
     }
+    vertCompArr->SetValue(u, comp);
+  }
 
   // Articulation points belong to multiple biconnected components.
   // Indicate these by assigning a component value of -1.
   // It belongs to whatever components its incident edges belong to.
-  vector<vtkIdType>::size_type i;
+  std::vector<vtkIdType>::size_type i;
   for (i = 0; i < artPoints.size(); i++)
-    {
+  {
     vertCompArr->SetValue(artPoints[i], -1);
-    }
+  }
 
   // Add edge and vertex component arrays to the output
   output->GetEdgeData()->AddArray(edgeCompArr);

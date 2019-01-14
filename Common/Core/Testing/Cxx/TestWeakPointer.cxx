@@ -36,7 +36,7 @@ int TestWeakPointer(int,char *[])
     "da2 == ia", "da2 != ia", "da2 < ia", "da2 <= ia", "da2 > ia", "da2 <= ia",
       "da2 > ia", "da2 >= ia",
     "da1 == 0", "da1 != 0", "da1 < 0", "da1 <= 0", "da1 > 0", "da1 >= 0",
-    NULL };
+    nullptr };
 
   vtkWeakPointer<vtkIntArray>  da2(ia);
   vtkWeakPointer<vtkFloatArray> da3;
@@ -61,66 +61,66 @@ int TestWeakPointer(int,char *[])
   testbits = (testbits << 1) | ((da2 <= ia) ? 1 : 0);
   testbits = (testbits << 1) | ((da2 > ia) ? 1 : 0);
   testbits = (testbits << 1) | ((da2 >= ia) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 == 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 != 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 < 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 <= 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 > 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 >= 0) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 == nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 != nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 < nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 <= nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 > nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 >= nullptr) ? 1 : 0);
   if (testbits != correctbits)
-    {
+  {
     unsigned int diffbits = (testbits ^ correctbits);
     int bitcount = 0;
-    while (tests[bitcount] != NULL)
-      {
+    while (tests[bitcount] != nullptr)
+    {
       bitcount++;
-      }
-    for (int ib = 0; ib < bitcount; ++ib)
-      {
-      if (((diffbits >> (bitcount - ib - 1)) & 1) != 0)
-        {
-        cerr << "comparison (" << tests[ib] << ") failed!\n";
-        }
-      }
-    rval = 1;
     }
+    for (int ib = 0; ib < bitcount; ++ib)
+    {
+      if (((diffbits >> (bitcount - ib - 1)) & 1) != 0)
+      {
+        cerr << "comparison (" << tests[ib] << ") failed!\n";
+      }
+    }
+    rval = 1;
+  }
 
   (*da1).SetNumberOfComponents(1);
   if(da2)
-    {
+  {
     da2->SetNumberOfComponents(1);
-    }
+  }
   if(!da2)
-    {
-    cerr << "da2 is NULL!" << "\n";
+  {
+    cerr << "da2 is nullptr!" << "\n";
     rval = 1;
-    }
+  }
   cout << "IntArray: " << da2 << "\n";
 
-  if (da1.GetPointer() == 0)
-    {
-    cerr << "da1.GetPointer() is NULL\n";
+  if (da1 == nullptr)
+  {
+    cerr << "da1 is nullptr\n";
     rval = 1;
-    }
-  if (da2.GetPointer() == 0)
-    {
-    cerr << "da2.GetPointer() is NULL\n";
+  }
+  if (da2 == nullptr)
+  {
+    cerr << "da2 is nullptr\n";
     rval = 1;
-    }
-  if (da3.Get() != 0)
-    {
-    cerr << "da3.GetPointer() is not NULL\n";
+  }
+  if (da3 != nullptr)
+  {
+    cerr << "da3 is not nullptr\n";
     rval = 1;
-    }
+  }
 
-  da2 = 0;
+  da2 = nullptr;
   ia->Delete();
 
-  if (da1.GetPointer() != NULL)
-    {
-    cerr << "da1.GetPointer() is not NULL\n";
+  if (da1 != nullptr)
+  {
+    cerr << "da1 is not nullptr\n";
     rval = 1;
-    }
+  }
 
   return rval;
 }

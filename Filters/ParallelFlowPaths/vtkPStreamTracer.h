@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPStreamTracer -  parallel streamline generators
-// .SECTION Description
-// This class implements parallel streamline generators.
-// Note that all processes must have
-// access to the WHOLE seed source, i.e. the source must be identical
-// on all processes.
-// .SECTION See Also
-// vtkStreamTracer
+/**
+ * @class   vtkPStreamTracer
+ * @brief    parallel streamline generators
+ *
+ * This class implements parallel streamline generators.
+ * Note that all processes must have
+ * access to the WHOLE seed source, i.e. the source must be identical
+ * on all processes.
+ * @sa
+ * vtkStreamTracer
+*/
 
 #ifndef vtkPStreamTracer_h
 #define vtkPStreamTracer_h
@@ -40,15 +43,18 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreamTracer : public vtkStreamTra
 {
 public:
   vtkTypeMacro(vtkPStreamTracer,vtkStreamTracer);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get the controller use in compositing (set to
-  // the global controller by default)
-  // If not using the default, this must be called before any
-  // other methods.
+  //@{
+  /**
+   * Set/Get the controller use in compositing (set to
+   * the global controller by default)
+   * If not using the default, this must be called before any
+   * other methods.
+   */
   virtual void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
   static vtkPStreamTracer * New();
 
@@ -57,8 +63,8 @@ protected:
   vtkPStreamTracer();
   ~vtkPStreamTracer();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkMultiProcessController* Controller;
 
@@ -67,8 +73,8 @@ protected:
 
   int EmptyData;
 private:
-  vtkPStreamTracer(const vtkPStreamTracer&);  // Not implemented.
-  void operator=(const vtkPStreamTracer&);  // Not implemented.
+  vtkPStreamTracer(const vtkPStreamTracer&) = delete;
+  void operator=(const vtkPStreamTracer&) = delete;
 
   void Trace( vtkDataSet *input,
               int vecType,

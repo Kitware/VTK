@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLStructuredGridWriter - Write VTK XML StructuredGrid files.
-// .SECTION Description
-// vtkXMLStructuredGridWriter writes the VTK XML StructuredGrid file
-// format.  One structured grid input can be written into one file in
-// any number of streamed pieces.  The standard extension for this
-// writer's file format is "vts".  This writer is also used to write a
-// single piece of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPStructuredGridWriter
+/**
+ * @class   vtkXMLStructuredGridWriter
+ * @brief   Write VTK XML StructuredGrid files.
+ *
+ * vtkXMLStructuredGridWriter writes the VTK XML StructuredGrid file
+ * format.  One structured grid input can be written into one file in
+ * any number of streamed pieces.  The standard extension for this
+ * writer's file format is "vts".  This writer is also used to write a
+ * single piece of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPStructuredGridWriter
+*/
 
 #ifndef vtkXMLStructuredGridWriter_h
 #define vtkXMLStructuredGridWriter_h
@@ -36,42 +39,42 @@ class VTKIOXML_EXPORT vtkXMLStructuredGridWriter : public vtkXMLStructuredDataWr
 public:
   static vtkXMLStructuredGridWriter* New();
   vtkTypeMacro(vtkXMLStructuredGridWriter,vtkXMLStructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //BTX
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkStructuredGrid* GetInput();
-  //ETX
 
-  // Description:
-  // Get the default file extension for files written by this writer.
-  const char* GetDefaultFileExtension();
+  /**
+   * Get the default file extension for files written by this writer.
+   */
+  const char* GetDefaultFileExtension() override;
 
 protected:
   vtkXMLStructuredGridWriter();
-  ~vtkXMLStructuredGridWriter();
+  ~vtkXMLStructuredGridWriter() override;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void WriteAppendedPiece(int index, vtkIndent indent);
-  void WriteAppendedPieceData(int index);
-  void WriteInlinePiece(vtkIndent indent);
-  void GetInputExtent(int* extent);
-  const char* GetDataSetName();
+  void WriteAppendedPiece(int index, vtkIndent indent) override;
+  void WriteAppendedPieceData(int index) override;
+  void WriteInlinePiece(vtkIndent indent) override;
+  void GetInputExtent(int* extent) override;
+  const char* GetDataSetName() override;
   void CalculateSuperclassFraction(float* fractions);
 
   // The position of the appended data offset attribute for the points
   // array.
   OffsetsManagerGroup *PointsOM;  //one per piece
 
-  virtual void AllocatePositionArrays();
-  virtual void DeletePositionArrays();
+  void AllocatePositionArrays() override;
+  void DeletePositionArrays() override;
 
 private:
-  vtkXMLStructuredGridWriter(const vtkXMLStructuredGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLStructuredGridWriter&);  // Not implemented.
+  vtkXMLStructuredGridWriter(const vtkXMLStructuredGridWriter&) = delete;
+  void operator=(const vtkXMLStructuredGridWriter&) = delete;
 };
 
 #endif

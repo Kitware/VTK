@@ -63,33 +63,33 @@ int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
   // create a regular pentagon
   double pentagon[5][3];
   for (int i = 0; i < 5; i++)
-    {
+  {
     pentagon[i][0] = sin(vtkMath::RadiansFromDegrees(72.0*i));
     pentagon[i][1] = cos(vtkMath::RadiansFromDegrees(72.0*i));
     pentagon[i][2] = 0.0;
-    }
+  }
 
   vtkSmartPointer<vtkCellArray> pentagonCell = vtkSmartPointer<vtkCellArray>::New();
   pentagonCell->InsertNextCell(5);
   for (vtkIdType i = 0; i < 5; i++)
-    {
+  {
     pentagonCell->InsertCellPoint(i);
-    }
+  }
 
   vtkSmartPointer<vtkPoints> pentagonPoints = vtkSmartPointer<vtkPoints>::New();
   pentagonPoints->Initialize();
   for (int i = 0; i < 5; i++)
-    {
+  {
     pentagonPoints->InsertNextPoint(pentagon[i]);
-    }
+  }
 
   vtkSmartPointer<vtkDoubleArray> pointDataArray =
     vtkSmartPointer<vtkDoubleArray>::New();
   pointDataArray->Initialize();
   for (int i = 0; i < 5; i++)
-    {
+  {
     pointDataArray->InsertNextValue((pentagon[i][0]+1.0)/2.0);
-    }
+  }
 
   vtkSmartPointer<vtkPolyData> polydata =
     vtkSmartPointer<vtkPolyData>::New();
@@ -133,24 +133,24 @@ int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
   vtkSmartPointer<vtkPoints> pentagonPoints1 = vtkSmartPointer<vtkPoints>::New();
   pentagonPoints1->Initialize();
   for (int i = 0; i < 5; i++)
-    {
+  {
     pentagonPoints1->InsertNextPoint(pentagon[i]);
-    }
+  }
 
   vtkSmartPointer<vtkCellArray> pentagonCell1 = vtkSmartPointer<vtkCellArray>::New();
   pentagonCell1->InsertNextCell(5);
   for (vtkIdType i = 0; i < 5; i++)
-    {
+  {
     pentagonCell1->InsertCellPoint(i);
-    }
+  }
 
   vtkSmartPointer<vtkDoubleArray> pointDataArray1 =
     vtkSmartPointer<vtkDoubleArray>::New();
   pointDataArray1->Initialize();
   for (int i = 0; i < 5; i++)
-    {
+  {
     pointDataArray1->InsertNextValue((pentagon[i][0]+1.0)/2.0);
-    }
+  }
 
   vtkSmartPointer<vtkPolyData> polydata1 =
     vtkSmartPointer<vtkPolyData>::New();
@@ -208,9 +208,9 @@ int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
   int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

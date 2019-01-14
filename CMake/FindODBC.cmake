@@ -1,54 +1,73 @@
-#
-# Find the ODBC driver manager includes and library.
-#
-# ODBC is an open standard for connecting to different databases in a
-# semi-vendor-independent fashion.  First you install the ODBC driver
-# manager.  Then you need a driver for each separate database you want
-# to connect to (unless a generic one works).  VTK includes neither
-# the driver manager nor the vendor-specific drivers: you have to find
-# those yourself.
-#
-# This module defines
-# ODBC_INCLUDE_DIRECTORIES, where to find sql.h
-# ODBC_LIBRARIES, the libraries to link against to use ODBC
-# ODBC_FOUND.  If false, you cannot build anything that requires MySQL.
+#[==[
+Provides the following variables:
 
-# also defined, but not for general use is
-# ODBC_LIBRARY, where to find the ODBC driver manager library.
+  * `ODBC_INCLUDE_DIRS`: Include directories necessary to use ODBC.
+  * `ODBC_LIBRARIES`: Libraries necessary to use ODBC.
+  * A `ODBC::ODBC` imported target.
+#]==]
 
-SET( ODBC_FOUND 0 )
+# No .pc files are shipped with ODBC on Windows.
+set(_ODBC_use_pkgconfig 0)
+if (NOT WIN32)
+  find_package(PkgConfig)
+  if (PkgConfig_FOUND)
+    set(_ODBC_use_pkgconfig 1)
+  endif ()
+endif ()
 
-FIND_PATH(ODBC_INCLUDE_DIRECTORIES sql.h
-  /usr/include
-  /usr/include/odbc
-  /usr/local/include
-  /usr/local/include/odbc
-  /usr/local/odbc/include
-  "C:/Program Files/ODBC/include"
-  "C:/ODBC/include"
-  DOC "Specify the directory containing sql.h."
-)
+if (_ODBC_use_pkgconfig)
+  pkg_check_modules(_iodbc "libiodbc" QUIET IMPORTED_TARGET)
+  unset(_odbc_target)
+  if (NOT _iodbc_FOUND)
+    pkg_check_modules(_unixodbc "odbc" QUIET IMPORTED_TARGET)
+    if (_unixodbc_FOUND)
+      set(_odbc_target "_unixodbc")
+    endif ()
+  else ()
+    set(_odbc_target "_iodbc")
+  endif ()
 
-FIND_LIBRARY( ODBC_LIBRARY
-  NAMES odbc iodbc unixodbc
-  PATHS
-  /usr/lib
-  /usr/lib/odbc
-  /usr/local/lib
-  /usr/local/lib/odbc
-  /usr/local/odbc/lib
-  "C:/Program Files/ODBC/lib"
-  "C:/ODBC/lib/debug"
-  DOC "Specify the ODBC driver manager library here."
-)
+  set(ODBC_FOUND 0)
+  if (_odbc_target)
+    set(ODBC_FOUND 1)
+    set(ODBC_INCLUDE_DIRS ${${_odbc_target}_INCLUDE_DIRS})
+    set(ODBC_LIBRARIES ${${_odbc_target}_LINK_LIBRARIES})
+    if (NOT TARGET ODBC::ODBC)
+      add_library(ODBC::ODBC INTERFACE IMPORTED)
+      target_link_libraries(ODBC::ODBC
+        INTERFACE "PkgConfig::${_odbc_target}")
+    endif ()
+  endif ()
+  unset(_odbc_target)
+else ()
+  find_path(ODBC_INCLUDE_DIR
+    NAMES sql.h
+    PATHS
+      "C:/Program Files/ODBC"
+      "C:/ODBC"
+    PATH_SUFFIXES include include/odbc
+    DOC "Location of sql.h")
+  mark_as_advanced(ODBC_INCLUDE_DIR)
+  find_library(ODBC_LIBRARY
+    NAMES odbc iodbc unixodbc odbc32
+    PATHS
+      "C:/Program Files/ODBC"
+      "C:/ODBC"
+    PATH_SUFFIXES lib lib/debug
+    DOC "Location of the ODBC library")
+  mark_as_advanced(ODBC_LIBRARY)
 
-IF (ODBC_LIBRARY)
-  IF (ODBC_INCLUDE_DIRECTORIES)
-    SET( ODBC_FOUND 1 )
-  ENDIF ()
-ENDIF ()
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(ODBC
+    REQUIRED_VARS ODBC_INCLUDE_DIR ODBC_LIBRARY)
 
-SET( ODBC_LIBRARIES ${ODBC_LIBRARY} )
-
-MARK_AS_ADVANCED( ODBC_FOUND ODBC_LIBRARY ODBC_EXTRA_LIBRARIES ODBC_INCLUDE_DIRECTORIES )
-
+  if (ODBC_FOUND)
+    add_library(ODBC::ODBC UNKNOWN IMPORTED)
+    set_target_properties(ODBC::ODBC PROPERTIES
+      IMPORTED_LOCATION "${ODBC_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${ODBC_INCLUDE_DIR}")
+    set(ODBC_INCLUDE_DIRS "${ODBC_INCLUDE_DIR}")
+    set(ODBC_LIBRARIES "${ODBC_LIBRARY}")
+  endif ()
+endif ()
+unset(_ODBC_use_pkgconfig)

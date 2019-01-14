@@ -21,18 +21,18 @@ extern const char* x3dAttributeString[];
 namespace vtkX3D
 {
   enum X3DTypes
-    {
+  {
     SFVEC3F, SFVEC2F,
     MFVEC3F, MFVEC2F,
     SFCOLOR, MFCOLOR,
     SFROTATION, MFROTATION,
     SFSTRING, MFSTRING,
     MFINT32, SFIMAGE
-    };
+  };
 
   /* Elements */
   enum X3DElement
-    {
+  {
     Shape = 0,
     Appearance = 1,
     Material = 2,
@@ -204,11 +204,11 @@ namespace vtkX3D
     TextureCoordinate4D,
     TextureTransform3D,
     TextureTransformMatrix3D
-    };
+  };
 
   /* Attributes */
   enum X3DAttribute
-    {
+  {
     DEF = 0,
     USE = 1,
     containerField = 2,
@@ -537,7 +537,7 @@ namespace vtkX3D
     yScale = 325,
     zDimension = 326,
     zSpacing = 327
-    };
+  };
 };
 
 #endif

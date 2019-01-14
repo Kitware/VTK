@@ -7,6 +7,9 @@ import os
 import os.path
 import vtk
 from vtk.test import Testing
+from vtk.util.misc import vtkGetDataRoot
+
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 class TestImagePlaneWidget(Testing.vtkTest):
     def testBug(self):
@@ -18,7 +21,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         v16 = vtk.vtkVolume16Reader()
         v16.SetDataDimensions(64, 64)
         v16.SetDataByteOrderToLittleEndian()
-        v16.SetFilePrefix(os.path.join(Testing.VTK_DATA_ROOT,
+        v16.SetFilePrefix(os.path.join(VTK_DATA_ROOT,
                                        "Data", "headsq", "quarter"))
         v16.SetImageRange(1, 93)
         v16.SetDataSpacing(3.2, 3.2, 1.5)
@@ -28,14 +31,12 @@ class TestImagePlaneWidget(Testing.vtkTest):
         img_data = v16.GetOutput()
 
         # **************************************************
-        # Look here for wierdness.
+        # Look here for weirdness.
 
         # Lets create this data using the data from the reader.
         my_img_data = vtk.vtkImageData()
         my_img_data.SetDimensions(img_data.GetDimensions())
-#        my_img_data.SetWholeExtent(img_data.GetWholeExtent())
         my_img_data.SetExtent(img_data.GetExtent())
-#        my_img_data.SetUpdateExtent(img_data.GetUpdateExtent())
         my_img_data.SetSpacing(img_data.GetSpacing())
         my_img_data.SetOrigin(img_data.GetOrigin())
         my_img_data.SetScalarType(img_data.GetScalarType(), my_img_data.GetInformation())

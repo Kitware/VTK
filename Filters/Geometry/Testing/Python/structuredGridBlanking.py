@@ -3,7 +3,6 @@
 #test exists to verify that structured grid blanking works as expected
 
 import vtk
-from vtk.test import Testing
 
 #make up a toy structured grid with known characteristics
 xlim=10
@@ -15,9 +14,9 @@ sg.SetExtent(0,xlim,0,ylim,0,zlim)
 
 #a handy point iterator, calls action() on each point
 def forEachPoint(xlim,ylim,zlim, action):
-    for z in xrange(0,zlim+1):
-        for y in xrange(0,ylim+1):
-            for x in xrange(0,xlim+1):
+    for z in range(0,zlim+1):
+        for y in range(0,ylim+1):
+            for x in range(0,xlim+1):
                  action((x,y,z))
 
 #make geometry
@@ -44,7 +43,7 @@ if 64 < numcells:
     sg.BlankCell(64)
 if 164 < numcells:
     sg.BlankCell(164)
-for c in xrange(180,261):
+for c in range(180,261):
     if c < sg.GetNumberOfCells():
         sg.BlankCell(c)
 
@@ -53,9 +52,9 @@ dsf.SetInputData(sg)
 dsf.Update()
 nviscells = dsf.GetOutput().GetNumberOfCells()
 if nviscells != 356:
-    print "Problem"
-    print "Test expected 356 visible surface polygons but got", \
-          nviscells
+    print("Problem")
+    print("Test expected 356 visible surface polygons but got", \
+          nviscells)
     exit(-1)
 
 #render it so we can look at it

@@ -35,13 +35,9 @@ vtkStandardNewMacro(vtkVertexGlyphFilter);
 
 //-----------------------------------------------------------------------------
 
-vtkVertexGlyphFilter::vtkVertexGlyphFilter()
-{
-}
+vtkVertexGlyphFilter::vtkVertexGlyphFilter() = default;
 
-vtkVertexGlyphFilter::~vtkVertexGlyphFilter()
-{
-}
+vtkVertexGlyphFilter::~vtkVertexGlyphFilter() = default;
 
 void vtkVertexGlyphFilter::PrintSelf(ostream &os, vtkIndent indent)
 {
@@ -76,41 +72,41 @@ int vtkVertexGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkPolyData *output = vtkPolyData::SafeDownCast(
                                     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPoints *points = 0;
+  vtkPoints *points = nullptr;
   if (psInput)
-    {
+  {
     points = psInput->GetPoints();
-    }
+  }
   else
-    {
+  {
     points = graphInput->GetPoints();
-    }
+  }
 
   // If no points, then nothing to do.
-  if (points == NULL)
-    {
+  if (points == nullptr)
+  {
     return 1;
-    }
+  }
 
   output->SetPoints(points);
   vtkIdType numPoints = points->GetNumberOfPoints();
 
   if (psInput)
-    {
+  {
     output->GetPointData()->PassData(psInput->GetPointData());
-    }
+  }
   else
-    {
+  {
     output->GetPointData()->PassData(graphInput->GetVertexData());
-    }
+  }
 
   VTK_CREATE(vtkCellArray, cells);
   cells->Allocate(2*numPoints);
 
   for (vtkIdType i = 0; i < numPoints; i++)
-    {
+  {
     cells->InsertNextCell(1, &i);
-    }
+  }
   output->SetVerts(cells);
 
   return 1;

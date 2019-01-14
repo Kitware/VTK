@@ -27,19 +27,21 @@
 
 #include "vtkObjectFactory.h"
 
-#include "vtkRegressionTestImage.h"
+// NOTE: @hcwiley commented this out as its not being used, and causes builds
+// to fail with examples on but testing off. Why is this included?
+//#include "vtkRegressionTestImage.h"
 
 class GraphAnimate : public vtkCommand
 {
 public:
   static GraphAnimate *New() { return new GraphAnimate(); }
   vtkTypeMacro(GraphAnimate, vtkCommand);
-  virtual void Execute(vtkObject *, unsigned long, void *)
-    {
+  void Execute(vtkObject *, unsigned long, void *) override
+  {
     this->GraphItem->UpdatePositions();
     this->View->Render();
     this->View->GetRenderWindow()->GetInteractor()->CreateOneShotTimer(10);
-    }
+  }
   vtkGraphItem* GraphItem;
   vtkContextView* View;
 };

@@ -16,6 +16,8 @@
 
 #ifndef _ADIOSVarInfo_h
 #define _ADIOSVarInfo_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include <string>
 #include <vector>
@@ -66,5 +68,7 @@ protected:
 };
 
 } // End namespace ADIOS
+#endif
+#endif
 #endif // _ADIOSVarInfo_h
 // VTK-HeaderTest-Exclude: ADIOSVarInfo.h

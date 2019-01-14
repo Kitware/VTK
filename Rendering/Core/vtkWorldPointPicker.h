@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWorldPointPicker - find world x,y,z corresponding to display x,y,z
-// .SECTION Description
-// vtkWorldPointPicker is used to find the x,y,z world coordinate of a
-// screen x,y,z. This picker cannot pick actors and/or mappers, it
-// simply determines an x-y-z coordinate in world space. (It will always
-// return a x-y-z, even if the selection point is not over a prop/actor.)
-
-// .SECTION Caveats
-// The PickMethod() is not invoked, but StartPickMethod() and EndPickMethod()
-// are.
-
-// .SECTION See Also
-// vtkPropPicker vtkPicker vtkCellPicker vtkPointPicker
+/**
+ * @class   vtkWorldPointPicker
+ * @brief   find world x,y,z corresponding to display x,y,z
+ *
+ * vtkWorldPointPicker is used to find the x,y,z world coordinate of a
+ * screen x,y,z. This picker cannot pick actors and/or mappers, it
+ * simply determines an x-y-z coordinate in world space. (It will always
+ * return a x-y-z, even if the selection point is not over a prop/actor.)
+ *
+ * @warning
+ * The PickMethod() is not invoked, but StartPickMethod() and EndPickMethod()
+ * are.
+ *
+ * @sa
+ * vtkPropPicker vtkPicker vtkCellPicker vtkPointPicker
+*/
 
 #ifndef vtkWorldPointPicker_h
 #define vtkWorldPointPicker_h
@@ -37,22 +40,25 @@ class VTKRENDERINGCORE_EXPORT vtkWorldPointPicker : public vtkAbstractPicker
 public:
   static vtkWorldPointPicker *New();
   vtkTypeMacro(vtkWorldPointPicker,vtkAbstractPicker);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Perform the pick. (This method overload's the superclass.)
+  //@{
+  /**
+   * Perform the pick. (This method overload's the superclass.)
+   */
   int Pick(double selectionX, double selectionY, double selectionZ,
-           vtkRenderer *renderer);
+           vtkRenderer *renderer) override;
   int Pick(double selectionPt[3], vtkRenderer *renderer)
     { return this->vtkAbstractPicker::Pick( selectionPt, renderer); };
+  //@}
 
 protected:
   vtkWorldPointPicker ();
-  ~vtkWorldPointPicker() {}
+  ~vtkWorldPointPicker() override {}
 
 private:
-  vtkWorldPointPicker(const vtkWorldPointPicker&);  // Not implemented.
-  void operator=(const vtkWorldPointPicker&);  // Not implemented.
+  vtkWorldPointPicker(const vtkWorldPointPicker&) = delete;
+  void operator=(const vtkWorldPointPicker&) = delete;
 };
 
 #endif

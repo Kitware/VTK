@@ -9,7 +9,6 @@ Created on Feb 15, 2015 by David Gobbi
 """
 
 import sys
-import exceptions
 import vtk
 from vtk.test import Testing
 
@@ -26,11 +25,19 @@ class TestOverloads(Testing.vtkTest):
         t.SetMatrix([0,1,0,0, 1,0,0,0, 0,0,-1,0, 0,0,0,1])
         self.assertEqual(t.GetMatrix().GetElement(0, 0), 0)
         # mixed number of arguments
-        w = vtk.vtkRenderWindow()
-        w.SetTileScale(2)
-        self.assertEqual(w.GetTileScale(), (2,2))
-        w.SetTileScale(3,4)
-        self.assertEqual(w.GetTileScale(), (3,4))
+        fd = vtk.vtkFieldData()
+        fa = vtk.vtkFloatArray()
+        fa.SetName("Real")
+        ia = vtk.vtkIntArray()
+        ia.SetName("Integer")
+        fd.AddArray(fa)
+        fd.AddArray(ia)
+        a = fd.GetArray("Real")
+        self.assertEqual(id(a), id(fa))
+        i = vtk.reference(0)
+        a = fd.GetArray("Integer", i)
+        self.assertEqual(id(a), id(ia))
+        self.assertEqual(i, 1)
 
     def testConstructors(self):
         """Test overloaded constructors"""

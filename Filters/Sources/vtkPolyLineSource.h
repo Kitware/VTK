@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyLineSource - create a poly line from a list of input points
-// .SECTION Description
-// vtkPolyLineSource is a source object that creates a poly line from
-// user-specified points. The output is a vtkPolyLine.
+/**
+ * @class   vtkPolyLineSource
+ * @brief   create a poly line from a list of input points
+ *
+ * vtkPolyLineSource is a source object that creates a poly line from
+ * user-specified points. The output is a vtkPolyLine.
+*/
 
 #ifndef vtkPolyLineSource_h
 #define vtkPolyLineSource_h
@@ -30,41 +33,56 @@ class VTKFILTERSSOURCES_EXPORT vtkPolyLineSource : public vtkPolyDataAlgorithm
 public:
   static vtkPolyLineSource* New();
   vtkTypeMacro(vtkPolyLineSource, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set the number of points in the poly line.
+  //@{
+  /**
+   * Set the number of points in the poly line.
+   */
   void SetNumberOfPoints(vtkIdType numPoints);
   vtkIdType GetNumberOfPoints();
+  //@}
 
-  // Description:
-  // Set a point location.
+  /**
+   * Resize while preserving data.
+   */
+  void Resize(vtkIdType numPoints);
+
+  /**
+   * Set a point location.
+   */
   void SetPoint(vtkIdType id, double x, double y, double z);
 
-  // Description:
-  // Get the points.
+  //@{
+  /**
+   * Get the points.
+   */
   void SetPoints(vtkPoints* points);
   vtkGetObjectMacro(Points, vtkPoints);
+  //@}
 
-  // Description:
-  // Set whether to close the poly line by connecting the last and first points.
-  vtkSetMacro(Closed, int);
-  vtkGetMacro(Closed, int);
-  vtkBooleanMacro(Closed, int);
+  //@{
+  /**
+   * Set whether to close the poly line by connecting the last and first points.
+   */
+  vtkSetMacro(Closed, vtkTypeBool);
+  vtkGetMacro(Closed, vtkTypeBool);
+  vtkBooleanMacro(Closed, vtkTypeBool);
+  //@}
 
 protected:
   vtkPolyLineSource();
-  ~vtkPolyLineSource();
+  ~vtkPolyLineSource() override;
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector *);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector *) override;
 
   vtkPoints* Points;
 
-  int Closed;
+  vtkTypeBool Closed;
 
 private:
-  vtkPolyLineSource(const vtkPolyLineSource&);  // Not implemented.
-  void operator=(const vtkPolyLineSource&);     // Not implemented.
+  vtkPolyLineSource(const vtkPolyLineSource&) = delete;
+  void operator=(const vtkPolyLineSource&) = delete;
 };
 
 #endif

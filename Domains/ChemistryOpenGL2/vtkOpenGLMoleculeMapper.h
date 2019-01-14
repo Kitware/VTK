@@ -11,10 +11,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLMoleculeMapper - An accelerated class for rendering molecules
-// .SECTION Description
-// A vtkMoleculeMapper that uses imposters to do the rendering. It uses
-// vtkOpenGLSphereMapper and vtkOpenGLStickMapper to do the rendering.
+/**
+ * @class   vtkOpenGLMoleculeMapper
+ * @brief   An accelerated class for rendering molecules
+ *
+ * A vtkMoleculeMapper that uses imposters to do the rendering. It uses
+ * vtkOpenGLSphereMapper and vtkOpenGLStickMapper to do the rendering.
+*/
 
 #ifndef vtkOpenGLMoleculeMapper_h
 #define vtkOpenGLMoleculeMapper_h
@@ -32,26 +35,45 @@ public:
   static vtkOpenGLMoleculeMapper* New();
   vtkTypeMacro(vtkOpenGLMoleculeMapper, vtkMoleculeMapper)
 
-  // Description:
-  // Reimplemented from base class
-  virtual void Render(vtkRenderer *, vtkActor *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  //@{
+  /**
+   * Reimplemented from base class
+   */
+  void Render(vtkRenderer *, vtkActor *) override;
+  void ReleaseGraphicsResources(vtkWindow *) override;
+  //@}
+
+  /**
+   * provide access to the underlying mappers
+   */
+  vtkOpenGLSphereMapper *GetFastAtomMapper() {
+      return this->FastAtomMapper; }
+  /**
+   * allows a mapper to update a selections color buffers
+   * Called from a prop which in turn is called from the selector
+   */
+  void ProcessSelectorPixelBuffers(vtkHardwareSelector *sel,
+    std::vector<unsigned int> &pixeloffsets,
+    vtkProp *prop) override;
 
 protected:
   vtkOpenGLMoleculeMapper();
-  ~vtkOpenGLMoleculeMapper();
+  ~vtkOpenGLMoleculeMapper() override;
 
-  virtual void UpdateAtomGlyphPolyData();
-  virtual void UpdateBondGlyphPolyData();
+  void UpdateAtomGlyphPolyData() override;
+  void UpdateBondGlyphPolyData() override;
 
-  // Description:
-  // Internal mappers
+  //@{
+  /**
+   * Internal mappers
+   */
   vtkNew<vtkOpenGLSphereMapper> FastAtomMapper;
   vtkNew<vtkOpenGLStickMapper> FastBondMapper;
+  //@}
 
 private:
-  vtkOpenGLMoleculeMapper(const vtkOpenGLMoleculeMapper&); // Not implemented.
-  void operator=(const vtkOpenGLMoleculeMapper&); // Not implemented.
+  vtkOpenGLMoleculeMapper(const vtkOpenGLMoleculeMapper&) = delete;
+  void operator=(const vtkOpenGLMoleculeMapper&) = delete;
 };
 
 #endif

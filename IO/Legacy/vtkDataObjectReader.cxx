@@ -23,19 +23,8 @@
 
 vtkStandardNewMacro(vtkDataObjectReader);
 
-vtkDataObjectReader::vtkDataObjectReader()
-{
-  vtkDataObject *output = vtkDataObject::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty.
-  output->ReleaseData();
-  output->Delete();
-}
-
-vtkDataObjectReader::~vtkDataObjectReader()
-{
-}
+vtkDataObjectReader::vtkDataObjectReader() = default;
+vtkDataObjectReader::~vtkDataObjectReader() = default;
 
 //----------------------------------------------------------------------------
 vtkDataObject *vtkDataObjectReader::GetOutput()
@@ -55,52 +44,47 @@ void vtkDataObjectReader::SetOutput(vtkDataObject *output)
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-int vtkDataObjectReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkDataObjectReader::ReadMeshSimple(
+  const std::string& fname, vtkDataObject* output)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-
   char line[256];
-  vtkFieldData *field=NULL;
+  vtkFieldData *field=nullptr;
 
   vtkDebugMacro(<<"Reading vtk field data...");
 
-  if ( !(this->OpenVTKFile()) || !this->ReadHeader())
-    {
+  if ( !(this->OpenVTKFile(fname.c_str())) || !this->ReadHeader())
+  {
     return 1;
-    }
+  }
 
   // Read field data until end-of-file
   //
   while (this->ReadString(line) && !field )
-    {
+  {
     if ( !strncmp(this->LowerCase(line),"field",(unsigned long)5) )
-      {
+    {
       field = this->ReadFieldData(); //reads named field (or first found)
-      if ( field != NULL )
-        {
+      if ( field != nullptr )
+      {
         output->SetFieldData(field);
         field->Delete();
-        }
       }
+    }
 
     else if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
-      {
+    {
       vtkErrorMacro(<<"Field reader cannot read datasets");
       this->CloseVTKFile();
       return 1;
-      }
+    }
 
     else
-      {
+    {
       vtkErrorMacro(<< "Unrecognized keyword: " << line);
       this->CloseVTKFile();
       return 1;
-      }
     }
+  }
   //while field not read
 
   this->CloseVTKFile();

@@ -20,9 +20,7 @@ vtkAbstractRenderDevice::vtkAbstractRenderDevice() : GLMajor(2), GLMinor(1)
 {
 }
 
-vtkAbstractRenderDevice::~vtkAbstractRenderDevice()
-{
-}
+vtkAbstractRenderDevice::~vtkAbstractRenderDevice() = default;
 
 void vtkAbstractRenderDevice::SetRequestedGLVersion(int major, int minor)
 {

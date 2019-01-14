@@ -38,7 +38,7 @@
 #include "vtkGenericCellTessellator.h"
 #include "vtkIncrementalPointLocator.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkGenericCutter);
 vtkCxxSetObjectMacro(vtkGenericCutter,CutFunction,vtkImplicitFunction);
@@ -53,7 +53,7 @@ vtkGenericCutter::vtkGenericCutter(vtkImplicitFunction *cf)
   this->ContourValues = vtkContourValues::New();
   this->CutFunction = cf;
   this->GenerateCutScalars = 0;
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
   this->InternalPD = vtkPointData::New();
   this->SecondaryPD = vtkPointData::New();
@@ -64,12 +64,12 @@ vtkGenericCutter::vtkGenericCutter(vtkImplicitFunction *cf)
 vtkGenericCutter::~vtkGenericCutter()
 {
   this->ContourValues->Delete();
-  this->SetCutFunction(NULL);
+  this->SetCutFunction(nullptr);
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
+    this->Locator = nullptr;
+  }
   this->InternalPD->Delete();
   this->SecondaryPD->Delete();
   this->SecondaryCD->Delete();
@@ -151,25 +151,25 @@ void vtkGenericCutter::GenerateValues(int numContours, double rangeStart,
 // Overload standard modified time function. If cut functions is modified,
 // or contour values modified, then this object is modified as well.
 //
-unsigned long vtkGenericCutter::GetMTime()
+vtkMTimeType vtkGenericCutter::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long contourValuesMTime = this->ContourValues->GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType contourValuesMTime = this->ContourValues->GetMTime();
+  vtkMTimeType time;
 
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
-  if ( this->CutFunction != NULL )
-    {
+  if ( this->CutFunction != nullptr )
+  {
     time = this->CutFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
-  if ( this->Locator != NULL )
-    {
+  if ( this->Locator != nullptr )
+  {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -194,23 +194,23 @@ int vtkGenericCutter::RequestData(
 
   vtkDebugMacro(<< "Executing cutter");
 
-  if (input==0)
-    {
+  if (input==nullptr)
+  {
     vtkErrorMacro("No input specified");
     return 1;
-    }
+  }
 
-  if (this->CutFunction==0)
-    {
+  if (this->CutFunction==nullptr)
+  {
     vtkErrorMacro("No cut function specified");
     return 1;
-    }
+  }
 
   if ( input->GetNumberOfPoints()<1 )
-    {
+  {
     vtkErrorMacro("Input data set is empty");
     return 1;
-    }
+  }
 
   vtkPointData *outPd = output->GetPointData();
   vtkCellData *outCd = output->GetCellData();
@@ -224,9 +224,9 @@ int vtkGenericCutter::RequestData(
     pow(static_cast<double>(numCells), .75)) * numContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
-    {
+  {
       estimatedSize = 1024;
-    }
+  }
 
   vtkPoints *newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
@@ -240,10 +240,10 @@ int vtkGenericCutter::RequestData(
   output->Allocate(numCells);
 
   // locator used to merge potentially duplicate points
-  if(this->Locator==0)
-    {
+  if(this->Locator==nullptr)
+  {
     this->CreateDefaultLocator();
-    }
+  }
   this->Locator->InitPointInsertion(newPts,input->GetBounds(),estimatedSize);
 
   // prepare the output attributes
@@ -257,11 +257,11 @@ int vtkGenericCutter::RequestData(
   int attributeType;
 
   for(vtkIdType i = 0; i<c; ++i)
-    {
+  {
     attribute = attributes->GetAttribute(i);
     attributeType = attribute->GetType();
     if(attribute->GetCentering() == vtkPointCentered)
-      {
+    {
       secondaryAttributes = this->SecondaryPD;
 
       attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
@@ -269,16 +269,16 @@ int vtkGenericCutter::RequestData(
       attributeArray->SetName(attribute->GetName());
       this->InternalPD->AddArray(attributeArray);
       attributeArray->Delete();
-      if(this->InternalPD->GetAttribute(attributeType)==0)
-        {
+      if(this->InternalPD->GetAttribute(attributeType)==nullptr)
+      {
         this->InternalPD->SetActiveAttribute(
           this->InternalPD->GetNumberOfArrays()-1,attributeType);
-        }
       }
+    }
     else // vtkCellCentered
-      {
+    {
       secondaryAttributes = this->SecondaryCD;
-      }
+    }
 
     attributeArray = vtkDataArray::CreateDataArray(attribute->GetComponentType());
     attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
@@ -286,12 +286,12 @@ int vtkGenericCutter::RequestData(
     secondaryAttributes->AddArray(attributeArray);
     attributeArray->Delete();
 
-    if(secondaryAttributes->GetAttribute(attributeType)==0)
-      {
+    if(secondaryAttributes->GetAttribute(attributeType)==nullptr)
+    {
       secondaryAttributes->SetActiveAttribute(secondaryAttributes->GetNumberOfArrays()-1,
                                               attributeType);
-      }
     }
+  }
 
   outPd->InterpolateAllocate(this->SecondaryPD,estimatedSize,estimatedSize);
   outCd->CopyAllocate(this->SecondaryCD,estimatedSize,estimatedSize);
@@ -310,12 +310,12 @@ int vtkGenericCutter::RequestData(
   input->GetTessellator()->InitErrorMetrics(input);
 
   for(cellIt->Begin(); !cellIt->IsAtEnd() && !abortExecute; cellIt->Next())
-    {
+  {
     if ( !(count % updateCount) )
-      {
+    {
       this->UpdateProgress(static_cast<double>(count) / numCells);
       abortExecute = this->GetAbortExecute();
-      }
+    }
 
     cell = cellIt->GetCell();
     cell->Contour(this->ContourValues, this->CutFunction, input->GetAttributes(),
@@ -323,7 +323,7 @@ int vtkGenericCutter::RequestData(
                   this->Locator, newVerts, newLines, newPolys, outPd, outCd,
                   this->InternalPD,this->SecondaryPD,this->SecondaryCD);
     ++count;
-    } // for each cell
+  } // for each cell
   cellIt->Delete();
 
   vtkDebugMacro(<<"Created: "
@@ -341,21 +341,21 @@ int vtkGenericCutter::RequestData(
   newPts->Delete();
 
   if (newVerts->GetNumberOfCells()>0)
-    {
+  {
     output->SetVerts(newVerts);
-    }
+  }
   newVerts->Delete();
 
   if (newLines->GetNumberOfCells()>0)
-    {
+  {
     output->SetLines(newLines);
-    }
+  }
   newLines->Delete();
 
   if (newPolys->GetNumberOfCells()>0)
-    {
+  {
     output->SetPolys(newPolys);
-    }
+  }
   newPolys->Delete();
 
   this->Locator->Initialize();//releases leftover memory
@@ -368,12 +368,12 @@ int vtkGenericCutter::RequestData(
 // an instance of vtkMergePoints is used.
 void vtkGenericCutter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
-    {
+  if ( this->Locator == nullptr )
+  {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);
     this->Locator->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -384,13 +384,13 @@ void vtkGenericCutter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Cut Function: " << this->CutFunction << "\n";
 
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
@@ -402,9 +402,9 @@ int vtkGenericCutter::FillInputPortInformation(int port,
                                                vtkInformation* info)
 {
   if(!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
   return 1;
 }

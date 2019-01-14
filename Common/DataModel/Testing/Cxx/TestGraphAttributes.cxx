@@ -39,125 +39,125 @@
 void TestGraphAttribIterators(vtkGraph *g, int & errors)
 {
   if (g->GetNumberOfVertices() != 10)
-    {
+  {
     cerr << "ERROR: Wrong number of vertices." << endl;
     ++errors;
-    }
+  }
   if (g->GetNumberOfEdges() != 9)
-    {
+  {
     cerr << "ERROR: Wrong number of edges." << endl;
     ++errors;
-    }
+  }
   VTK_CREATE(vtkVertexListIterator, vertices);
   g->GetVertices(vertices);
   vtkIdType numVertices = 0;
   while (vertices->HasNext())
-    {
+  {
     vertices->Next();
     ++numVertices;
-    }
+  }
   if (numVertices != 10)
-    {
+  {
     cerr << "ERROR: Vertex list iterator failed." << endl;
     ++errors;
-    }
+  }
   VTK_CREATE(vtkEdgeListIterator, edges);
   g->GetEdges(edges);
   vtkIdType numEdges = 0;
   while (edges->HasNext())
-    {
+  {
     edges->Next();
     ++numEdges;
-    }
+  }
   if (numEdges != 9)
-    {
+  {
     cerr << "ERROR: Edge list iterator failed." << endl;
     ++errors;
-    }
+  }
   numEdges = 0;
   VTK_CREATE(vtkOutEdgeIterator, outEdges);
   g->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType v = vertices->Next();
     g->GetOutEdges(v, outEdges);
     while (outEdges->HasNext())
-      {
+    {
       vtkOutEdgeType e = outEdges->Next();
       ++numEdges;
       // Count self-loops twice, to ensure all edges are counted twice.
       if (vtkUndirectedGraph::SafeDownCast(g) && v == e.Target)
-        {
+      {
         ++numEdges;
-        }
       }
     }
+  }
   if (vtkDirectedGraph::SafeDownCast(g) && numEdges != 9)
-    {
+  {
     cerr << "ERROR: Out edge iterator failed." << endl;
     ++errors;
-    }
+  }
   if (vtkUndirectedGraph::SafeDownCast(g) && numEdges != 18)
-    {
+  {
     cerr << "ERROR: Undirected out edge iterator failed." << endl;
     ++errors;
-    }
+  }
   numEdges = 0;
   VTK_CREATE(vtkInEdgeIterator, inEdges);
   g->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType v = vertices->Next();
     g->GetInEdges(v, inEdges);
     while (inEdges->HasNext())
-      {
+    {
       vtkInEdgeType e = inEdges->Next();
       ++numEdges;
       // Count self-loops twice, to ensure all edges are counted twice.
       if (vtkUndirectedGraph::SafeDownCast(g) && v == e.Source)
-        {
+      {
         ++numEdges;
-        }
       }
     }
+  }
   if (vtkDirectedGraph::SafeDownCast(g) && numEdges != 9)
-    {
+  {
     cerr << "ERROR: In edge iterator failed." << endl;
     ++errors;
-    }
+  }
   if (vtkUndirectedGraph::SafeDownCast(g) && numEdges != 18)
-    {
+  {
     cerr << "ERROR: Undirected in edge iterator failed." << endl;
     ++errors;
-    }
+  }
   numEdges = 0;
   VTK_CREATE(vtkAdjacentVertexIterator, adjacent);
   g->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType v = vertices->Next();
     g->GetAdjacentVertices(v, adjacent);
     while (adjacent->HasNext())
-      {
+    {
       vtkIdType u = adjacent->Next();
       ++numEdges;
       // Count self-loops twice, to ensure all edges are counted twice.
       if (vtkUndirectedGraph::SafeDownCast(g) && v == u)
-        {
+      {
         ++numEdges;
-        }
       }
     }
+  }
   if (vtkDirectedGraph::SafeDownCast(g) && numEdges != 9)
-    {
+  {
     cerr << "ERROR: In edge iterator failed." << endl;
     ++errors;
-    }
+  }
   if (vtkUndirectedGraph::SafeDownCast(g) && numEdges != 18)
-    {
+  {
     cerr << "ERROR: Undirected in edge iterator failed." << endl;
     ++errors;
-    }
+  }
 }
 
 int TestGraphAttributes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -188,7 +188,7 @@ int TestGraphAttributes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   int weight;
 
   for (vtkIdType i = 0; i < 10; ++i)
-    {
+  {
     stringProp = vertexLabel[rand() % 5];
     weight = rand() % 10;
 //    cout << myRank <<" vertex "<< v <<","<< stringProp <<","<<weight<< endl;
@@ -196,7 +196,7 @@ int TestGraphAttributes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vertexPropertyArr->SetValue(1,weight);
     mdgTree->AddVertex(vertexPropertyArr);
 
-    }
+  }
 
   // Create a valid tree.
   mdgTree->AddEdge(0, 1);
@@ -212,21 +212,21 @@ int TestGraphAttributes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   cerr << "Testing graph conversions ..." << endl;
   if (!t->CheckedShallowCopy(mdgTree))
-    {
+  {
     cerr << "ERROR: Cannot set valid tree." << endl;
     ++errors;
-    }
+  }
 
   if (!dg->CheckedShallowCopy(mdgTree))
-    {
+  {
     cerr << "ERROR: Cannot set valid directed graph." << endl;
     ++errors;
-    }
+  }
   if (!dg->CheckedShallowCopy(t))
-    {
+  {
     cerr << "ERROR: Cannot set tree to directed graph." << endl;
     ++errors;
-    }
+  }
 
   cerr << "... done." << endl;
 
@@ -238,21 +238,21 @@ int TestGraphAttributes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   cerr << "Testing copy on write ..." << endl;
   if (!t->IsSameStructure(mdgTree))
-    {
+  {
     cerr << "ERROR: Tree and directed graph should be sharing the same structure." << endl;
     ++errors;
-    }
+  }
   mdgTree->AddVertex();
   if (t->IsSameStructure(mdgTree))
-    {
+  {
     cerr << "ERROR: Tree and directed graph should not be sharing the same structure." << endl;
     ++errors;
-    }
+  }
   if (t->GetNumberOfVertices() != 10)
-    {
+  {
     cerr << "ERROR: Tree changed when modifying directed graph." << endl;
     ++errors;
-    }
+  }
   cerr << "... done." << endl;
 
   return errors;

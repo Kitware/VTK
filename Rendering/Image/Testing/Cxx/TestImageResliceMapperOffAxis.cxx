@@ -58,7 +58,7 @@ int TestImageResliceMapperOffAxis(int argc, char* argv[])
   delete[] fname;
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkRenderer *renderer = vtkRenderer::New();
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.1, 0.2, 0.4);
@@ -75,7 +75,7 @@ int TestImageResliceMapperOffAxis(int argc, char* argv[])
     property->SetInterpolationTypeToLinear();
 
     for (int j = 0; j < 3; j++)
-      {
+    {
       double normal[3];
       normal[0] = 0;
       normal[1] = 0;
@@ -106,41 +106,41 @@ int TestImageResliceMapperOffAxis(int argc, char* argv[])
       mapper->Delete();
 
       if (i % 2)
-        {
+      {
         image->RotateX(10);
         image->RotateY(5);
         actor->RotateX(10);
         actor->RotateY(5);
-        }
+      }
 
       renderer->AddViewProp(image);
       renderer->AddViewProp(actor);
       image->Delete();
       actor->Delete();
-      }
+    }
 
     property->Delete();
 
     if (i < 2)
-      {
+    {
       camera->ParallelProjectionOn();
-      }
+    }
 
     camera->Azimuth(10);
     camera->Elevation(-120);
     renderer->ResetCamera();
     camera->Dolly(1.2);
     camera->SetParallelScale(125);
-    }
+  }
 
   renWin->SetSize(400,400);
 
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   reader->Delete();

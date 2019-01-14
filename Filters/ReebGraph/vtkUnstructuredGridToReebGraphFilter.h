@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkUnstructuredGridToReebGraphFilter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridToReebGraphFilter - generate a Reeb graph from a
-// scalar field defined on a vtkUnstructuredGrid.
-// .SECTION Description
-// The filter will first try to pull as a scalar field the vtkDataArray with
-// Id 'fieldId' of the mesh's vtkPointData.
-// If this field does not exist, the filter will use the vtkElevationFilter to
-// generate a default scalar field.
+/**
+ * @class   vtkUnstructuredGridToReebGraphFilter
+ * @brief   generate a Reeb graph from a
+ * scalar field defined on a vtkUnstructuredGrid.
+ *
+ * The filter will first try to pull as a scalar field the vtkDataArray with
+ * Id 'fieldId' of the mesh's vtkPointData.
+ * If this field does not exist, the filter will use the vtkElevationFilter to
+ * generate a default scalar field.
+*/
 
 #ifndef vtkUnstructuredGridToReebGraphFilter_h
 #define vtkUnstructuredGridToReebGraphFilter_h
@@ -35,12 +38,15 @@ public:
   static vtkUnstructuredGridToReebGraphFilter* New();
   vtkTypeMacro(vtkUnstructuredGridToReebGraphFilter,
     vtkDirectedGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set the scalar field id (default = 0).
+  //@{
+  /**
+   * Set the scalar field id (default = 0).
+   */
   vtkSetMacro(FieldId, int);
   vtkGetMacro(FieldId, int);
+  //@}
 
   vtkReebGraph* GetOutput();
 
@@ -51,16 +57,16 @@ protected:
 
   int FieldId;
 
-  int FillInputPortInformation(int portNumber, vtkInformation *);
-  int FillOutputPortInformation(int, vtkInformation *);
+  int FillInputPortInformation(int portNumber, vtkInformation *) override;
+  int FillOutputPortInformation(int, vtkInformation *) override;
 
   int RequestData(vtkInformation*,
                   vtkInformationVector**,
-                  vtkInformationVector*);
+                  vtkInformationVector*) override;
 
 private:
-  vtkUnstructuredGridToReebGraphFilter(const vtkUnstructuredGridToReebGraphFilter&); // Not implemented.
-  void operator=(const vtkUnstructuredGridToReebGraphFilter&); // Not implemented.
+  vtkUnstructuredGridToReebGraphFilter(const vtkUnstructuredGridToReebGraphFilter&) = delete;
+  void operator=(const vtkUnstructuredGridToReebGraphFilter&) = delete;
 };
 
 #endif

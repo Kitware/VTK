@@ -24,10 +24,11 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCubeSource);
 
+//-----------------------------------------------------------------------------
 vtkCubeSource::vtkCubeSource(double xL, double yL, double zL)
 {
   this->XLength = fabs(xL);
@@ -43,6 +44,7 @@ vtkCubeSource::vtkCubeSource(double xL, double yL, double zL)
   this->SetNumberOfInputPorts(0);
 }
 
+//-----------------------------------------------------------------------------
 int vtkCubeSource::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
@@ -51,7 +53,7 @@ int vtkCubeSource::RequestData(
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -64,20 +66,20 @@ int vtkCubeSource::RequestData(
   vtkFloatArray *newTCoords; // CCS 7/27/98 Added for Texture Mapping
   vtkCellArray *newPolys;
 
-//
-// Set things up; allocate memory
-//
+  //
+  // Set things up; allocate memory
+  //
   newPoints = vtkPoints::New();
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
@@ -91,27 +93,27 @@ int vtkCubeSource::RequestData(
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
-//
-// Generate points and normals
-//
 
+  //
+  // Generate points and normals
+  //
   for (x[0]=this->Center[0]-this->XLength/2.0, n[0]=(-1.0), n[1]=n[2]=0.0, i=0;
   i<2; i++, x[0]+=this->XLength, n[0]+=2.0)
-    {
+  {
     for (x[1]=this->Center[1]-this->YLength/2.0, j=0; j<2;
     j++, x[1]+=this->YLength)
-      {
+    {
       tc[1] =  x[1] + 0.5;
       for (x[2]=this->Center[2]-this->ZLength/2.0, k=0; k<2;
       k++, x[2]+=this->ZLength)
-        {
+      {
         tc[0] = (x[2] + 0.5) * ( 1 - 2*i );
         newPoints->InsertNextPoint(x);
         newTCoords->InsertNextTuple(tc);
         newNormals->InsertNextTuple(n);
-        }
       }
     }
+  }
   pts[0] = 0; pts[1] = 1; pts[2] = 3; pts[3] = 2;
   newPolys->InsertNextCell(4,pts);
   pts[0] = 4; pts[1] = 6; pts[2] = 7; pts[3] = 5;
@@ -119,21 +121,21 @@ int vtkCubeSource::RequestData(
 
   for (x[1]=this->Center[1]-this->YLength/2.0, n[1]=(-1.0), n[0]=n[2]=0.0, i=0;
   i<2; i++, x[1]+=this->YLength, n[1]+=2.0)
-    {
+  {
     for (x[0]=this->Center[0]-this->XLength/2.0, j=0; j<2;
     j++, x[0]+=this->XLength)
-      {
+    {
       tc[0] = ( x[0] + 0.5 ) * ( 2*i - 1 );
       for (x[2]=this->Center[2]-this->ZLength/2.0, k=0; k<2;
       k++, x[2]+=this->ZLength)
-        {
+      {
         tc[1] = ( x[2] + 0.5 ) * -1;
         newPoints->InsertNextPoint(x);
         newTCoords->InsertNextTuple(tc);
         newNormals->InsertNextTuple(n);
-        }
       }
     }
+  }
   pts[0] = 8; pts[1] = 10; pts[2] = 11; pts[3] = 9;
   newPolys->InsertNextCell(4,pts);
   pts[0] = 12; pts[1] = 13; pts[2] = 15; pts[3] = 14;
@@ -141,28 +143,29 @@ int vtkCubeSource::RequestData(
 
   for (x[2]=this->Center[2]-this->ZLength/2.0, n[2]=(-1.0), n[0]=n[1]=0.0, i=0;
   i<2; i++, x[2]+=this->ZLength, n[2]+=2.0)
-    {
+  {
     for (x[1]=this->Center[1]-this->YLength/2.0, j=0; j<2;
     j++, x[1]+=this->YLength)
-      {
+    {
       tc[1] = x[1] + 0.5;
       for (x[0]=this->Center[0]-this->XLength/2.0, k=0; k<2;
       k++, x[0]+=this->XLength)
-        {
+      {
         tc[0] = ( x[0] + 0.5 ) * ( 2*i - 1 );
         newPoints->InsertNextPoint(x);
         newTCoords->InsertNextTuple(tc);
         newNormals->InsertNextTuple(n);
-        }
       }
     }
+  }
   pts[0] = 16; pts[1] = 18; pts[2] = 19; pts[3] = 17;
   newPolys->InsertNextCell(4,pts);
   pts[0] = 20; pts[1] = 21; pts[2] = 23; pts[3] = 22;
   newPolys->InsertNextCell(4,pts);
-//
-// Update ourselves and release memory
-//
+
+  //
+  // Update ourselves and release memory
+  //
   output->SetPoints(newPoints);
   newPoints->Delete();
 
@@ -179,6 +182,7 @@ int vtkCubeSource::RequestData(
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 // Convenience method allows creation of cube by specifying bounding box.
 void vtkCubeSource::SetBounds(double xMin, double xMax,
                               double yMin, double yMax,
@@ -194,6 +198,7 @@ void vtkCubeSource::SetBounds(double xMin, double xMax,
   this->SetBounds (bounds);
 }
 
+//-----------------------------------------------------------------------------
 void vtkCubeSource::SetBounds(const double bounds[6])
 {
   this->SetXLength(bounds[1]-bounds[0]);
@@ -204,6 +209,18 @@ void vtkCubeSource::SetBounds(const double bounds[6])
                   (bounds[5]+bounds[4])/2.0);
 }
 
+//-----------------------------------------------------------------------------
+void vtkCubeSource::GetBounds(double bounds[6])
+{
+  bounds[0] = this->Center[0] - (this->XLength/2.0);
+  bounds[1] = this->Center[0] + (this->XLength/2.0);
+  bounds[2] = this->Center[1] - (this->YLength/2.0);
+  bounds[3] = this->Center[1] + (this->YLength/2.0);
+  bounds[4] = this->Center[2] - (this->ZLength/2.0);
+  bounds[5] = this->Center[2] + (this->ZLength/2.0);
+}
+
+//-----------------------------------------------------------------------------
 void vtkCubeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

@@ -18,6 +18,8 @@
 #include <vtkCellData.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetTriangleFilter.h>
+#include <vtkDoubleArray.h>
+#include <vtkImageData.h>
 #include <vtkPointData.h>
 #include <vtkPointDataToCellData.h>
 #include <vtkRTAnalyticSource.h>
@@ -26,13 +28,10 @@
 #include <vtkThreshold.h>
 #include <vtkTestUtilities.h>
 
-#define vsp(type, name) \
-        vtkSmartPointer<vtk##type> name = vtkSmartPointer<vtk##type>::New()
-
 int TestCellDataToPointData (int, char*[])
 {
   char const name [] = "RTData";
-  vsp(RTAnalyticSource, wavelet);
+  vtkNew<vtkRTAnalyticSource> wavelet;
     wavelet->SetWholeExtent(-2, 2, -2, 2, -2, 2);
     wavelet->SetCenter(0, 0, 0);
     wavelet->SetMaximum(255);
@@ -44,45 +43,100 @@ int TestCellDataToPointData (int, char*[])
     wavelet->SetYMag(18);
     wavelet->SetZMag(5);
     wavelet->SetSubsampleRate(1);
+    wavelet->Update();
 
-  vsp(PointDataToCellData, p2c);
-    p2c->SetInputConnection(wavelet->GetOutputPort());
+  vtkNew<vtkDoubleArray> dist;
+  dist->SetNumberOfComponents(1);
+  dist->SetName("Dist");
+
+  vtkImageData *original = wavelet->GetOutput();
+  for (vtkIdType i = 0; i < original->GetNumberOfPoints(); ++i)
+  {
+    double p[3];
+    original->GetPoint(i, p);
+    dist->InsertNextValue(p[0]*p[0] + p[1]*p[1] + p[2]*p[2]);
+  }
+  original->GetPointData()->AddArray(dist);
+
+  vtkNew<vtkPointDataToCellData> p2c;
+    p2c->SetInputData(original);
     p2c->PassPointDataOff();
 
-  vsp(CellDataToPointData, sc2p);
+  vtkNew<vtkCellDataToPointData> selectiveC2P;
+  selectiveC2P->SetInputConnection(p2c->GetOutputPort());
+  selectiveC2P->SetProcessAllArrays(false);
+  selectiveC2P->AddCellDataArray(name);
+  selectiveC2P->Update();
+
+  vtkNew<vtkCellDataToPointData> sc2p;
     sc2p->SetInputConnection(p2c->GetOutputPort());
     sc2p->PassCellDataOff();
     sc2p->Update();
 
-  vsp(DataSetTriangleFilter, c2g);
+  vtkNew<vtkDataSetTriangleFilter> c2g;
     c2g->SetInputConnection(p2c->GetOutputPort());
 
-  vsp(CellDataToPointData, uc2p);
+  vtkNew<vtkCellDataToPointData> uc2p;
     uc2p->SetInputConnection(c2g->GetOutputPort());
-    uc2p->Update();
 
   vtkDataArray* const x = sc2p->GetOutput()->GetPointData()->GetArray(name);
-  vtkDataArray* const y = uc2p->GetOutput()->GetPointData()->GetArray(name);
 
-  vtkIdType const nvalues = x->GetNumberOfTuples() * x->GetNumberOfComponents();
-  double mean = 0, variance = 0;
+  // test if selective CellDataToPointData operates on the correct
+  int outNumPArrays = selectiveC2P->GetOutput()->GetPointData()->GetNumberOfArrays(); // should be 1
+  int outNumCArrays = selectiveC2P->GetOutput()->GetCellData()->GetNumberOfArrays(); // should be 0
+  std::string pArrayName = selectiveC2P->GetOutput()->GetPointData()->GetArrayName(0); // should be RTData
 
-  // mean
-  for (vtkIdType i = 0; i < nvalues; ++i)
+  if (outNumPArrays != 1)
+  {
+    std::cerr << "Wrong number of PointData arrays." << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (outNumCArrays != 0)
+  {
+    std::cerr << "Wrong number of CellData arrays." << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (pArrayName != name)
+  {
+    std::cerr << "Array name not matching original name." << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // iterate through the options for which cells contribute to the result
+  // for the cell data to point data filter. since all cells are 3D the
+  // result should be the same.
+  for (int opt=0;opt<3;opt++)
+  {
+    uc2p->SetContributingCellOption(opt);
+    uc2p->Update();
+
+    vtkDataArray* const y = uc2p->GetOutput()->GetPointData()->GetArray(name);
+
+    vtkIdType const nvalues = x->GetNumberOfTuples() * x->GetNumberOfComponents();
+    double mean = 0, variance = 0;
+
+    // mean
+    for (vtkIdType i = 0; i < nvalues; ++i)
     {
-    mean += x->GetTuple1(i) - y->GetTuple1(i);
+      mean += x->GetTuple1(i) - y->GetTuple1(i);
     }
-  mean /= nvalues;
+    mean /= nvalues;
 
-  // variance
-  for (vtkIdType i = 0; i < nvalues; ++i)
+    // variance
+    for (vtkIdType i = 0; i < nvalues; ++i)
     {
-    double z = x->GetTuple1(i) - y->GetTuple1(i);
-    variance += z * z;
+      double z = x->GetTuple1(i) - y->GetTuple1(i);
+      variance += z * z;
     }
-  variance /= nvalues;
+    variance /= nvalues;
 
-  bool const ok = fabs(mean) < 1e-4 && fabs(variance) < 1e-4;
-  return !ok; // zero indicates test succeed
+    if ( !(fabs(mean) < 1e-4 && fabs(variance) < 1e-4) )
+    {
+      cerr << "Failure on option " << opt << endl;
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
 }
-

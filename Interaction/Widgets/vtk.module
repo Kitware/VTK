@@ -1,0 +1,56 @@
+NAME
+  VTK::InteractionWidgets
+LIBRARY_NAME
+  vtkInteractionWidgets
+KIT
+  VTK::Interaction
+GROUPS
+  Rendering
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::FiltersGeneral
+  VTK::FiltersSources
+  VTK::RenderingCore
+PRIVATE_DEPENDS
+  VTK::CommonComputationalGeometry
+  VTK::CommonDataModel
+  VTK::CommonMath
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::FiltersCore
+  VTK::FiltersHybrid
+  VTK::FiltersModeling
+  VTK::ImagingColor
+  VTK::ImagingCore
+  VTK::ImagingGeneral
+  VTK::ImagingHybrid
+  VTK::InteractionStyle
+  VTK::RenderingAnnotation
+  VTK::RenderingFreeType
+  VTK::RenderingVolume
+TEST_DEPENDS
+  VTK::CommonComputationalGeometry
+  VTK::CommonSystem
+  VTK::FiltersExtraction
+  VTK::FiltersFlowPaths
+  VTK::FiltersHybrid
+  VTK::FiltersModeling
+  VTK::FiltersProgrammable
+  VTK::FiltersSelection
+  VTK::FiltersSources
+  VTK::ImagingColor
+  VTK::ImagingGeneral
+  VTK::ImagingHybrid
+  VTK::ImagingSources
+  VTK::ImagingStencil
+  VTK::InteractionImage
+  VTK::InteractionStyle
+  VTK::IOLegacy
+  VTK::IOParallel
+  VTK::IOXML
+  VTK::RenderingAnnotation
+  VTK::RenderingLOD
+  VTK::RenderingOpenGL2
+  VTK::RenderingVolumeOpenGL2
+  VTK::TestingRendering

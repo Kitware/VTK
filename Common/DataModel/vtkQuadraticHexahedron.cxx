@@ -36,10 +36,10 @@ vtkQuadraticHexahedron::vtkQuadraticHexahedron()
   this->Points->SetNumberOfPoints(27);
   this->PointIds->SetNumberOfIds(27);
   for (int i = 0; i < 27; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
-    }
+  }
   this->Points->SetNumberOfPoints(20);
   this->PointIds->SetNumberOfIds(20);
 
@@ -118,10 +118,10 @@ vtkCell *vtkQuadraticHexahedron::GetEdge(int edgeId)
   edgeId = (edgeId < 0 ? 0 : (edgeId > 11 ? 11 : edgeId ));
 
   for (int i=0; i<3; i++)
-    {
+  {
     this->Edge->PointIds->SetId(i,this->PointIds->GetId(HexEdges[edgeId][i]));
     this->Edge->Points->SetPoint(i,this->Points->GetPoint(HexEdges[edgeId][i]));
-    }
+  }
 
   return this->Edge;
 }
@@ -132,10 +132,10 @@ vtkCell *vtkQuadraticHexahedron::GetFace(int faceId)
   faceId = (faceId < 0 ? 0 : (faceId > 5 ? 5 : faceId ));
 
   for (int i=0; i<8; i++)
-    {
+  {
     this->Face->PointIds->SetId(i,this->PointIds->GetId(HexFaces[faceId][i]));
     this->Face->Points->SetPoint(i,this->Points->GetPoint(HexFaces[faceId][i]));
-    }
+  }
 
   return this->Face;
 }
@@ -162,98 +162,111 @@ void vtkQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   this->PointData->CopyAllocate(inPd,27);
   this->CellData->CopyAllocate(inCd,8);
   for (i=0; i<20; i++)
-    {
+  {
     this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
     this->CellScalars->SetValue( i, cellScalars->GetTuple1(i));
-    }
+  }
   for (i=0; i<8; i++)
-    {
+  {
     this->CellData->CopyData(inCd,cellId,i);
-    }
+  }
 
   //Interpolate new values
   double p[3];
   this->Points->Resize(27);
   this->CellScalars->Resize(27);
   for ( numMidPts=0; numMidPts < 7; numMidPts++ )
-    {
+  {
     this->InterpolationFunctions(MidPoints[numMidPts], weights);
 
     x[0] = x[1] = x[2] = 0.0;
     s = 0.0;
     for (i=0; i<20; i++)
-      {
+    {
       this->Points->GetPoint(i, p);
       for (j=0; j<3; j++)
-        {
+      {
         x[j] += p[j] * weights[i];
-        }
-      s += cellScalars->GetTuple1(i) * weights[i];
       }
+      s += cellScalars->GetTuple1(i) * weights[i];
+    }
     this->Points->SetPoint(20+numMidPts,x);
     this->CellScalars->SetValue(20+numMidPts,s);
     this->PointData->InterpolatePoint(inPd, 20+numMidPts,
                                       this->PointIds, weights);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 static const double VTK_DIVERGED = 1.e6;
-static const int VTK_HEX_MAX_ITERATION=10;
-static const double VTK_HEX_CONVERGED=1.e-03;
+static const int VTK_HEX_MAX_ITERATION=20;
+static const double VTK_HEX_CONVERGED=1.e-04;
 
-int vtkQuadraticHexahedron::EvaluatePosition(double* x,
-                                             double* closestPoint,
+int vtkQuadraticHexahedron::EvaluatePosition(const double x[3],
+                                             double closestPoint[3],
                                              int& subId, double pcoords[3],
-                                             double& dist2, double *weights)
+                                             double& dist2, double weights[])
 {
-  int iteration, converged;
-  double  params[3];
-  double  fcol[3], rcol[3], scol[3], tcol[3];
-  int i, j;
-  double  d, pt[3];
+  double  params[3] = {0.5, 0.5, 0.5};
   double derivs[60];
+
+  // compute a bound on the volume to get a scale for an acceptable determinant
+  vtkIdType diagonals[4][2] = { {0, 6}, {1, 7}, {2, 4}, {3, 5} };
+  double longestDiagonal = 0;
+  for (int i=0;i<4;i++)
+  {
+    double pt0[3], pt1[3];
+    this->Points->GetPoint(diagonals[i][0], pt0);
+    this->Points->GetPoint(diagonals[i][1], pt1);
+    double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
+    if (longestDiagonal < d2)
+    {
+      longestDiagonal = d2;
+    }
+  }
+  // longestDiagonal value is already squared
+  double volumeBound = pow(longestDiagonal, 1.5);
+  double determinantTolerance = 1e-20 < .00001*volumeBound ? 1e-20 : .00001*volumeBound;
 
   //  set initial position for Newton's method
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2]=0.5;
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
 
   //  enter iteration loop
-  for (iteration=converged=0;
-       !converged && (iteration < VTK_HEX_MAX_ITERATION);  iteration++)
-    {
+  int converged = 0;
+  for (int iteration=0;!converged && (iteration < VTK_HEX_MAX_ITERATION);  iteration++)
+  {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
-    for (i=0; i<3; i++)
-      {
-      fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
-      }
-    for (i=0; i<20; i++)
-      {
+    double fcol[3] = {0, 0, 0}, rcol[3] = {0, 0, 0}, scol[3] = {0, 0, 0}, tcol[3] = {0, 0, 0};
+    for (int i=0; i<20; i++)
+    {
+      double pt[3];
       this->Points->GetPoint(i, pt);
-      for (j=0; j<3; j++)
-        {
+      for (int j=0; j<3; j++)
+      {
         fcol[j] += pt[j] * weights[i];
         rcol[j] += pt[j] * derivs[i];
         scol[j] += pt[j] * derivs[i+20];
         tcol[j] += pt[j] * derivs[i+40];
-        }
       }
+    }
 
-    for (i=0; i<3; i++)
-      {
+    for (int i=0; i<3; i++)
+    {
       fcol[i] -= x[i];
-      }
+    }
 
     //  compute determinants and generate improvements
-    d=vtkMath::Determinant3x3(rcol,scol,tcol);
-    if ( fabs(d) < 1.e-20)
-      {
+    double d = vtkMath::Determinant3x3(rcol,scol,tcol);
+    if ( fabs(d) < determinantTolerance)
+    {
+      vtkDebugMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
-      }
+    }
 
     pcoords[0] = params[0] - 0.5*vtkMath::Determinant3x3 (fcol,scol,tcol) / d;
     pcoords[1] = params[1] - 0.5*vtkMath::Determinant3x3 (rcol,fcol,tcol) / d;
@@ -263,78 +276,78 @@ int vtkQuadraticHexahedron::EvaluatePosition(double* x,
     if ( ((fabs(pcoords[0]-params[0])) < VTK_HEX_CONVERGED) &&
          ((fabs(pcoords[1]-params[1])) < VTK_HEX_CONVERGED) &&
          ((fabs(pcoords[2]-params[2])) < VTK_HEX_CONVERGED) )
-      {
+    {
       converged = 1;
-      }
+    }
 
     // Test for bad divergence (S.Hirschberg 11.12.2001)
     else if ((fabs(pcoords[0]) > VTK_DIVERGED) ||
              (fabs(pcoords[1]) > VTK_DIVERGED) ||
              (fabs(pcoords[2]) > VTK_DIVERGED))
-      {
+    {
       return -1;
-      }
+    }
 
     //  if not converged, repeat
     else
-      {
+    {
       params[0] = pcoords[0];
       params[1] = pcoords[1];
       params[2] = pcoords[2];
-      }
     }
+  }
 
   //  if not converged, set the parametric coordinates to arbitrary values
   //  outside of element
   if ( !converged )
-    {
+  {
     return -1;
-    }
+  }
 
   this->InterpolationFunctions(pcoords, weights);
 
   if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
   pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
   pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
-    {
+  {
     if (closestPoint)
-      {
+    {
       closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
       dist2 = 0.0; //inside hexahedron
-      }
-    return 1;
     }
+    return 1;
+  }
   else
-    {
+  {
     double pc[3], w[20];
     if (closestPoint)
+    {
+      for (int i=0; i<3; i++) //only approximate, not really true for warped hexa
       {
-      for (i=0; i<3; i++) //only approximate, not really true for warped hexa
-        {
         if (pcoords[i] < 0.0)
-          {
+        {
           pc[i] = 0.0;
-          }
-        else if (pcoords[i] > 1.0)
-          {
-          pc[i] = 1.0;
-          }
-        else
-          {
-          pc[i] = pcoords[i];
-          }
         }
+        else if (pcoords[i] > 1.0)
+        {
+          pc[i] = 1.0;
+        }
+        else
+        {
+          pc[i] = pcoords[i];
+        }
+      }
       this->EvaluateLocation(subId, pc, closestPoint,
                              static_cast<double *>(w));
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
-      }
-    return 0;
     }
+    return 0;
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkQuadraticHexahedron::EvaluateLocation(int& vtkNotUsed(subId),
-                                              double pcoords[3],
+                                              const double pcoords[3],
                                               double x[3], double *weights)
 {
   int i, j;
@@ -344,24 +357,24 @@ void vtkQuadraticHexahedron::EvaluateLocation(int& vtkNotUsed(subId),
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<20; i++)
-    {
+  {
     this->Points->GetPoint(i, pt);
     for (j=0; j<3; j++)
-      {
+    {
       x[j] += pt[j] * weights[i];
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 int vtkQuadraticHexahedron::CellBoundary( int subId,
-                                          double pcoords[3],
+                                          const double pcoords[3],
                                           vtkIdList *pts )
 {
   for ( int i = 0; i < 8; ++ i ) // For each of the eight vertices of the hex
-    {
+  {
     this->Hex->PointIds->SetId( i, this->PointIds->GetId( i ) );
-    }
+  }
 
    return this->Hex->CellBoundary( subId, pcoords, pts );
 }
@@ -384,22 +397,22 @@ void vtkQuadraticHexahedron::Contour(double value,
 
   //contour each linear quad separately
   for (int i=0; i<8; i++) // For each subdivided hexahedron
-    {
+  {
     for (int j=0; j<8; j++) // For each of the eight vertices of the hexhedron
-      {
+    {
       this->Hex->Points->SetPoint(j,this->Points->GetPoint(LinearHexs[i][j]));
       this->Hex->PointIds->SetId(j,LinearHexs[i][j]);
       this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearHexs[i][j]));
-      }
-    this->Hex->Contour(value,this->Scalars,locator,verts,lines,polys,
-                       this->PointData,outPd,this->CellData,cellId,outCd);
     }
+    this->Hex->Contour(value,this->Scalars,locator,verts,lines,polys,
+                       this->PointData,outPd,this->CellData,i,outCd);
+  }
 }
 
 //----------------------------------------------------------------------------
 // Line-hex intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkQuadraticHexahedron::IntersectWithLine(double* p1, double* p2,
+int vtkQuadraticHexahedron::IntersectWithLine(const double* p1, const double* p2,
                                               double tol, double& t,
                                               double* x, double* pcoords,
                                               int& subId)
@@ -411,23 +424,23 @@ int vtkQuadraticHexahedron::IntersectWithLine(double* p1, double* p2,
 
   t = VTK_DOUBLE_MAX;
   for (faceNum=0; faceNum<6; faceNum++)
-    {
+  {
     for (int i=0; i<8; i++)
-      {
+    {
       this->Face->Points->SetPoint(i,
             this->Points->GetPoint(HexFaces[faceNum][i]));
-      }
+    }
 
     if ( this->Face->IntersectWithLine(p1, p2, tol, tTemp,
                                        xTemp, pc, subId) )
-      {
+    {
       intersection = 1;
       if ( tTemp < t )
-        {
+      {
         t = tTemp;
         x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         switch (faceNum)
-          {
+        {
           case 0:
             pcoords[0] = 0.0; pcoords[1] = pc[1]; pcoords[2] = pc[0];
             break;
@@ -451,25 +464,177 @@ int vtkQuadraticHexahedron::IntersectWithLine(double* p1, double* p2,
           case 5:
             pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 1.0;
             break;
-          }
         }
       }
     }
+  }
   return intersection;
 }
 
 //----------------------------------------------------------------------------
-int vtkQuadraticHexahedron::Triangulate(int vtkNotUsed(index),
-                                        vtkIdList *ptIds, vtkPoints *pts)
+int vtkQuadraticHexahedron::Triangulate(
+  int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pts)
 {
-  pts->Reset();
-  ptIds->Reset();
+  // results in 22 tets
+  ptIds->SetNumberOfIds(22*4);
+  pts->SetNumberOfPoints(22*4);
 
-  ptIds->InsertId(0,this->PointIds->GetId(0));
-  pts->InsertPoint(0,this->Points->GetPoint(0));
-
-  ptIds->InsertId(1,this->PointIds->GetId(1));
-  pts->InsertPoint(1,this->Points->GetPoint(1));
+  int p[4];
+  p[0] = 8; p[1] = 11; p[2] = 0; p[3] = 16;
+  vtkIdType counter = 0;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 1; p[1] = 9; p[2] = 8; p[3] = 17;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 2; p[1] = 10; p[2] = 9; p[3] = 18;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 11; p[1] = 8; p[2] = 10; p[3] = 12;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 10; p[1] = 8; p[2] = 9; p[3] = 12;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 11; p[1] = 10; p[2] = 3; p[3] = 19;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 12; p[1] = 9; p[2] = 10; p[3] = 13;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 13; p[1] = 10; p[2] = 12; p[3] = 14;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 11; p[1] = 12; p[2] = 10; p[3] = 14;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 14; p[1] = 11; p[2] = 12; p[3] = 15;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 12; p[1] = 11; p[2] = 8; p[3] = 16;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 4; p[1] = 15; p[2] = 12; p[3] = 16;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 15; p[1] = 11; p[2] = 12; p[3] = 16;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 9; p[1] = 12; p[2] = 8; p[3] = 17;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 12; p[1] = 13; p[2] = 5; p[3] = 17;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 13; p[1] = 12; p[2] = 9; p[3] = 17;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 13; p[1] = 9; p[2] = 10; p[3] = 18;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 13; p[1] = 14; p[2] = 6; p[3] = 18;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 14; p[1] = 13; p[2] = 10; p[3] = 18;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 11; p[1] = 14; p[2] = 10; p[3] = 19;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 14; p[1] = 15; p[2] = 7; p[3] = 19;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
+  p[0] = 15; p[1] = 14; p[2] = 11; p[3] = 19;
+  for (int  i=0; i < 4; i++ )
+  {
+    ptIds->SetId(counter, this->PointIds->GetId(p[i]));
+    pts->SetPoint(counter, this->Points->GetPoint(p[i]));
+    counter++;
+  }
 
   return 1;
 }
@@ -478,7 +643,7 @@ int vtkQuadraticHexahedron::Triangulate(int vtkNotUsed(index),
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
-void vtkQuadraticHexahedron::JacobianInverse(double pcoords[3],
+void vtkQuadraticHexahedron::JacobianInverse(const double pcoords[3],
                                              double **inverse,
                                              double derivs[60])
 {
@@ -492,32 +657,32 @@ void vtkQuadraticHexahedron::JacobianInverse(double pcoords[3],
   // create Jacobian matrix
   m[0] = m0; m[1] = m1; m[2] = m2;
   for (i=0; i < 3; i++) //initialize matrix
-    {
+  {
     m0[i] = m1[i] = m2[i] = 0.0;
-    }
+  }
 
   for ( j=0; j < 20; j++ )
-    {
+  {
     this->Points->GetPoint(j, x);
     for ( i=0; i < 3; i++ )
-      {
+    {
       m0[i] += x[i] * derivs[j];
       m1[i] += x[i] * derivs[20 + j];
       m2[i] += x[i] * derivs[40 + j];
-      }
     }
+  }
 
   // now find the inverse
   if ( vtkMath::InvertMatrix(m,inverse,3) == 0 )
-    {
+  {
     vtkErrorMacro(<<"Jacobian inverse not found");
     return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
-                                         double pcoords[3], double *values,
+                                         const double pcoords[3], const double *values,
                                          int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
@@ -530,19 +695,19 @@ void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
 
   // now compute derivates of values provided
   for (k=0; k < dim; k++) //loop over values per vertex
-    {
+  {
     sum[0] = sum[1] = sum[2] = 0.0;
     for ( i=0; i < 20; i++) //loop over interp. function derivatives
-      {
+    {
       sum[0] += functionDerivs[i] * values[dim*i + k];
       sum[1] += functionDerivs[20 + i] * values[dim*i + k];
       sum[2] += functionDerivs[40 + i] * values[dim*i + k];
-      }
-    for (j=0; j < 3; j++) //loop over derivative directions
-      {
-      derivs[3*k + j] = sum[0]*jI[j][0] + sum[1]*jI[j][1] + sum[2]*jI[j][2];
-      }
     }
+    for (j=0; j < 3; j++) //loop over derivative directions
+    {
+      derivs[3*k + j] = sum[0]*jI[j][0] + sum[1]*jI[j][1] + sum[2]*jI[j][2];
+    }
+  }
 }
 
 
@@ -561,21 +726,21 @@ void vtkQuadraticHexahedron::Clip(double value,
 
   //contour each linear hex separately
   for (int i=0; i<8; i++) // For each subdivided hexahedron
-    {
+  {
     for (int j=0; j<8; j++) // For each of the eight vertices of the hexhedron
-      {
+    {
       this->Hex->Points->SetPoint(j,this->Points->GetPoint(LinearHexs[i][j]));
       this->Hex->PointIds->SetId(j,LinearHexs[i][j]);
       this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearHexs[i][j]));
-      }
-    this->Hex->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
-                    this->CellData,cellId,outCd,insideOut);
     }
+    this->Hex->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
+                    this->CellData,i,outCd,insideOut);
+  }
 }
 
 //----------------------------------------------------------------------------
 // Compute interpolation functions for the twenty nodes.
-void vtkQuadraticHexahedron::InterpolationFunctions(double pcoords[3],
+void vtkQuadraticHexahedron::InterpolationFunctions(const double pcoords[3],
                                                     double weights[20])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric
@@ -622,7 +787,7 @@ void vtkQuadraticHexahedron::InterpolationFunctions(double pcoords[3],
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkQuadraticHexahedron::InterpolationDerivs(double pcoords[3],
+void vtkQuadraticHexahedron::InterpolationDerivs(const double pcoords[3],
                                                  double derivs[60])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric

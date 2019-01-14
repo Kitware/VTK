@@ -24,15 +24,15 @@ void vtkMappedUnstructuredGrid<Implementation, CellIterator>
 ::PrintSelf(ostream &os, vtkIndent indent)
 {
   os << indent << "Implementation:";
-  if (this->Impl == NULL)
-    {
-    os << " NULL" << endl;
-    }
+  if (this->Impl == nullptr)
+  {
+    os << " nullptr" << endl;
+  }
   else
-    {
+  {
     os << endl;
     this->Impl->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -41,9 +41,9 @@ void vtkMappedUnstructuredGrid<Implementation, CellIterator>
 ::CopyStructure(vtkDataSet *ds)
 {
   if (ThisType *grid = ThisType::SafeDownCast(ds))
-    {
+  {
     this->SetImplementation(grid->GetImplementation());
-    }
+  }
 
   this->Superclass::CopyStructure(ds);
 }
@@ -54,9 +54,9 @@ void vtkMappedUnstructuredGrid<Implementation, CellIterator>
 ::ShallowCopy(vtkDataObject *src)
 {
   if (ThisType *grid = ThisType::SafeDownCast(src))
-    {
+  {
     this->SetImplementation(grid->GetImplementation());
-    }
+  }
 
   this->Superclass::ShallowCopy(src);
 }
@@ -74,8 +74,8 @@ template <class Implementation, class CellIterator>
 vtkCell* vtkMappedUnstructuredGrid<Implementation, CellIterator>
 ::GetCell(vtkIdType cellId)
 {
-  this->GetCell(cellId, this->TempCell.GetPointer());
-  return this->TempCell.GetPointer();
+  this->GetCell(cellId, this->TempCell);
+  return this->TempCell;
 }
 
 //------------------------------------------------------------------------------
@@ -88,9 +88,9 @@ void vtkMappedUnstructuredGrid<Implementation, CellIterator>
   this->Points->GetPoints(cell->PointIds, cell->Points);
 
   if (cell->RequiresInitialization())
-    {
+  {
     cell->Initialize();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -162,7 +162,7 @@ void vtkMappedUnstructuredGrid<Implementation, CellIterator>
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
 vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
-::InsertNextCell(int type, vtkIdList *ptIds)
+::InternalInsertNextCell(int type, vtkIdList *ptIds)
 {
   return this->Impl->InsertNextCell(type, ptIds);
 }
@@ -170,7 +170,7 @@ vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
 vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
-::InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds)
+::InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[])
 {
   return this->Impl->InsertNextCell(type, npts, ptIds);
 }
@@ -178,8 +178,8 @@ vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
 vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
-::InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds, vtkIdType nfaces,
-                 vtkIdType *faces)
+::InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces,
+                 const vtkIdType faces[])
 {
   return this->Impl->InsertNextCell(type, npts, ptIds, nfaces, faces);
 }
@@ -187,14 +187,14 @@ vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
 void vtkMappedUnstructuredGrid<Implementation, CellIterator>
-::ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts)
+::InternalReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[])
 {
   this->Impl->ReplaceCell(cellId, npts, pts);
 }
 
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
-unsigned long vtkMappedUnstructuredGrid<Implementation, CellIterator>
+vtkMTimeType vtkMappedUnstructuredGrid<Implementation, CellIterator>
 ::GetMTime()
 {
   return std::max(this->MTime.GetMTime(), this->Impl->GetMTime());
@@ -204,7 +204,7 @@ unsigned long vtkMappedUnstructuredGrid<Implementation, CellIterator>
 template <class Implementation, class CellIterator>
 vtkMappedUnstructuredGrid<Implementation, CellIterator>::
 vtkMappedUnstructuredGrid()
-  : Impl(NULL)
+  : Impl(nullptr)
 {
 }
 

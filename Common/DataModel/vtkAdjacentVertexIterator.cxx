@@ -29,18 +29,18 @@ vtkStandardNewMacro(vtkAdjacentVertexIterator);
 vtkAdjacentVertexIterator::vtkAdjacentVertexIterator()
 {
   this->Vertex = 0;
-  this->Current = 0;
-  this->End = 0;
-  this->Graph = 0;
+  this->Current = nullptr;
+  this->End = nullptr;
+  this->Graph = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkAdjacentVertexIterator::~vtkAdjacentVertexIterator()
 {
   if (this->Graph)
-    {
+  {
     this->Graph->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -59,8 +59,8 @@ void vtkAdjacentVertexIterator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Graph: " << (this->Graph ? "" : "(null)") << endl;
   if (this->Graph)
-    {
+  {
     this->Graph->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "Vertex: " << this->Vertex << endl;
 }

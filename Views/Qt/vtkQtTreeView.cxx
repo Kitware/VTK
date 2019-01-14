@@ -22,9 +22,11 @@
 
 #include <QAbstractItemView>
 #include <QColumnView>
+#include "QFilterTreeProxyModel.h"
 #include <QHeaderView>
 #include <QItemSelection>
 #include <QItemSelectionModel>
+#include <QSortFilterProxyModel>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -83,7 +85,7 @@ vtkQtTreeView::vtkQtTreeView()
   this->SetAlternatingRowColors(false);
   this->SetShowRootNode(false);
   this->CurrentSelectionMTime = 0;
-  this->ColorArrayNameInternal = 0;
+  this->ColorArrayNameInternal = nullptr;
   double defCol[3] = {0.827,0.827,0.827};
   this->ApplyColors->SetDefaultPointColor(defCol);
   this->ApplyColors->SetUseCurrentAnnotationColor(true);
@@ -136,17 +138,17 @@ vtkQtTreeView::~vtkQtTreeView()
 void vtkQtTreeView::SetUseColumnView(int state)
 {
   if (state)
-    {
+  {
     this->ColumnView->show();
     this->TreeView->hide();
     this->View = qobject_cast<QAbstractItemView *>(this->ColumnView);
-    }
+  }
   else
-    {
+  {
     this->ColumnView->hide();
     this->TreeView->show();
     this->View = qobject_cast<QAbstractItemView *>(this->TreeView);
-    }
+  }
 
   // Probably a good idea to make sure the container widget is refreshed
   this->Widget->update();
@@ -163,13 +165,13 @@ QWidget* vtkQtTreeView::GetWidget()
 void vtkQtTreeView::SetShowHeaders(bool state)
 {
   if (state)
-    {
+  {
     this->TreeView->header()->show();
-    }
+  }
   else
-    {
+  {
     this->TreeView->header()->hide();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -190,15 +192,15 @@ void vtkQtTreeView::SetEnableDragDrop(bool state)
 void vtkQtTreeView::SetShowRootNode(bool state)
 {
   if (!state)
-    {
+  {
     this->TreeView->setRootIndex(this->TreeView->model()->index(0,0));
     this->ColumnView->setRootIndex(this->TreeView->model()->index(0,0));
-    }
+  }
   else
-    {
+  {
     this->TreeView->setRootIndex(QModelIndex());
     this->ColumnView->setRootIndex(QModelIndex());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -221,10 +223,10 @@ void vtkQtTreeView::HideAllButFirstColumn()
   this->HiddenColumns.clear();
   this->TreeView->showColumn(0);
   for(int j=1; j<this->TreeAdapter->columnCount(); ++j)
-    {
+  {
     this->TreeView->hideColumn(j);
     this->HiddenColumns << j;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -254,9 +256,9 @@ void vtkQtTreeView::AddRepresentationInternal(vtkDataRepresentation* rep)
   this->ApplyColors->SetInputConnection(0, conn);
 
   if(annConn)
-    {
+  {
     this->ApplyColors->SetInputConnection(1, annConn);
-    }
+  }
 }
 
 
@@ -268,7 +270,7 @@ void vtkQtTreeView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
 
   this->ApplyColors->RemoveInputConnection(0, conn);
   this->ApplyColors->RemoveInputConnection(1, annConn);
-  this->TreeAdapter->SetVTKDataObject(0);
+  this->TreeAdapter->SetVTKDataObject(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -307,28 +309,28 @@ void vtkQtTreeView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
   const QModelIndexList qmil = this->View->selectionModel()->selectedRows();
   QModelIndexList origRows;
   for(int i=0; i<qmil.size(); ++i)
-    {
+  {
     origRows.push_back(this->TreeFilter->mapToSource(qmil[i]));
-    }
+  }
 
   // If in column view mode, don't propagate a selection of a non-leaf node
   // since such a selection is used to expand the next column.
   if(this->ColumnView->isVisible())
-    {
+  {
     bool leafNodeSelected = false;
     for(int i=0; i<origRows.size(); ++i)
-      {
+    {
       if(!this->TreeAdapter->hasChildren(origRows[i]))
-        {
+      {
         leafNodeSelected = true;
         break;
-        }
-      }
-    if(!leafNodeSelected)
-      {
-      return;
       }
     }
+    if(!leafNodeSelected)
+    {
+      return;
+    }
+  }
 
   vtkSelection *VTKIndexSelectList = this->TreeAdapter->QModelIndexListToVTKIndexSelection(origRows);
 
@@ -355,9 +357,9 @@ void vtkQtTreeView::SetVTKSelection()
   // Check to see we actually have data
   vtkDataObject *d = this->TreeAdapter->GetVTKDataObject();
   if (!d)
-    {
+  {
     return;
-    }
+  }
 
   // See if the selection has changed in any way
   vtkDataRepresentation* rep = this->GetRepresentation();
@@ -367,7 +369,7 @@ void vtkQtTreeView::SetVTKSelection()
 
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
-    s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::VERTEX));
+    s, d, vtkSelectionNode::INDICES, nullptr, vtkSelectionNode::VERTEX));
 
   QItemSelection qisList = this->TreeAdapter->
     VTKIndexSelectionToQItemSelection(selection);
@@ -389,9 +391,9 @@ void vtkQtTreeView::SetVTKSelection()
   // Make sure selected items are visible
   // FIXME: Should really recurse up all levels of the tree, this just does one.
   for(int i=0; i<filteredSel.size(); ++i)
-    {
+  {
     this->TreeView->setExpanded(filteredSel[i].parent(), true);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -399,12 +401,12 @@ void vtkQtTreeView::Update()
 {
   vtkDataRepresentation* rep = this->GetRepresentation();
   if (!rep)
-    {
+  {
     // Remove VTK data from the adapter
-    this->TreeAdapter->SetVTKDataObject(0);
+    this->TreeAdapter->SetVTKDataObject(nullptr);
     this->View->update();
     return;
-    }
+  }
   rep->Update();
 
   // Make the data current
@@ -415,66 +417,66 @@ void vtkQtTreeView::Update()
 
   // Special-case: if our input is missing or not-a-tree, or empty then quietly exit.
   if(!tree || !tree->GetNumberOfVertices())
-    {
+  {
     return;
-    }
+  }
 
   vtkAlgorithmOutput *annConn = rep->GetInternalAnnotationOutputPort();
   if(annConn)
-    {
+  {
     annConn->GetProducer()->Update();
-    }
+  }
 
   this->ApplyColors->Update();
 
   if (tree->GetMTime() > this->LastInputMTime)
-    {
+  {
     // Reset the model
-    this->TreeAdapter->SetVTKDataObject(0);
+    this->TreeAdapter->SetVTKDataObject(nullptr);
     this->TreeAdapter->SetVTKDataObject(this->ApplyColors->GetOutput());
 
     if (this->GetColorByArray())
-      {
+    {
       this->TreeAdapter->SetColorColumnName("vtkApplyColors color");
-      }
+    }
     else
-      {
+    {
       this->TreeAdapter->SetColorColumnName("");
-      }
+    }
 
     this->TreeView->resizeColumnToContents(0);
     this->TreeView->collapseAll();
     // Reset show root node if it was false.
     if (this->TreeView->rootIndex() != QModelIndex())
-      {
+    {
       this->SetShowRootNode(false);
-      }
+    }
 
     this->LastInputMTime = tree->GetMTime();
-    }
+  }
 
-  unsigned long atime = rep->GetAnnotationLink()->GetMTime();
+  vtkMTimeType atime = rep->GetAnnotationLink()->GetMTime();
   if (atime > this->CurrentSelectionMTime)
-    {
+  {
     this->SetVTKSelection();
     this->CurrentSelectionMTime = atime;
-    }
+  }
 
   // Re-hide the hidden columns
-  int col;
+  int col = 0;
   foreach (col, this->HiddenColumns)
-    {
+  {
     this->TreeView->hideColumn(col);
-    }
+  }
 
   for (int j=0; j<this->TreeAdapter->columnCount(); ++j)
-    {
+  {
     QString colName = this->TreeAdapter->headerData(j, Qt::Horizontal).toString();
     if(colName == "vtkApplyColors color")
-      {
+    {
       this->TreeView->hideColumn(j);
-      }
     }
+  }
 
   // Redraw the view
   this->TreeView->update();

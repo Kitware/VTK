@@ -12,21 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTimerLog - Timer support and logging
-// .SECTION Description
-// vtkTimerLog contains walltime and cputime measurements associated
-// with a given event.  These results can be later analyzed when
-// "dumping out" the table.
-//
-// In addition, vtkTimerLog allows the user to simply get the current
-// time, and to start/stop a simple timer separate from the timing
-// table logging.
+/**
+ * @class   vtkTimerLog
+ * @brief   Timer support and logging
+ *
+ * vtkTimerLog contains walltime and cputime measurements associated
+ * with a given event.  These results can be later analyzed when
+ * "dumping out" the table.
+ *
+ * In addition, vtkTimerLog allows the user to simply get the current
+ * time, and to start/stop a simple timer separate from the timing
+ * table logging.
+*/
 
 #ifndef vtkTimerLog_h
 #define vtkTimerLog_h
 
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkObject.h"
+
+#include <string> // STL Header
+#include <vector> // STL Header
 
 #ifdef _WIN32
 #include <sys/types.h> // Needed for Win32 implementation of timer
@@ -57,18 +63,24 @@
 #   endif
 #endif
 
-
-#define VTK_LOG_EVENT_LENGTH 40
-
-//BTX
-typedef struct
+struct vtkTimerLogEntry
 {
+  enum LogEntryType
+  {
+    INVALID = -1,
+    STANDALONE,    // an individual, marked event
+    START,         // start of a timed event
+    END,           // end of a timed event
+    INSERTED       // externally timed value
+  };
   double WallTime;
   int CpuTicks;
-  char Event[VTK_LOG_EVENT_LENGTH];
+  std::string Event;
+  LogEntryType Type;
   unsigned char Indent;
-} vtkTimerLogEntry;
-//ETX
+  vtkTimerLogEntry() : WallTime(0), CpuTicks(0), Type(INVALID), Indent(0)
+    {}
+};
 
 class VTKCOMMONSYSTEM_EXPORT vtkTimerLog : public vtkObject
 {
@@ -76,95 +88,131 @@ public:
   static vtkTimerLog *New();
 
   vtkTypeMacro(vtkTimerLog,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // This flag will turn loging of events off or on.
-  // By default, logging is on.
+  /**
+   * This flag will turn logging of events off or on.
+   * By default, logging is on.
+   */
   static void SetLogging(int v) {vtkTimerLog::Logging = v;}
   static int GetLogging() {return vtkTimerLog::Logging;}
   static void LoggingOn() {vtkTimerLog::SetLogging(1);}
   static void LoggingOff() {vtkTimerLog::SetLogging(0);}
 
-  // Description:
-  // Set/Get the maximum number of entries allowed in the timer log
+  //@{
+  /**
+   * Set/Get the maximum number of entries allowed in the timer log
+   */
   static void SetMaxEntries(int a);
   static int  GetMaxEntries();
+  //@}
 
-//BTX
-  // Description:
-  // Record a timing event.  The event is represented by a formatted
-  // string.
-  static void FormatAndMarkEvent(const char *EventString, ...);
-//ETX
+  /**
+   * Record a timing event.  The event is represented by a formatted
+   * string.  The internal buffer is 4096 bytes and will truncate anything longer.
+   */
+#ifndef __VTK_WRAP__
+  static void FormatAndMarkEvent(const char *EventString, ...) VTK_FORMAT_PRINTF(1, 2);
+#endif
 
-  // Description:
-  // Write the timing table out to a file.  Calculate some helpful
-  // statistics (deltas and  percentages) in the process.
+  //@{
+  /**
+   * Write the timing table out to a file.  Calculate some helpful
+   * statistics (deltas and percentages) in the process.
+   */
   static void DumpLog(const char *filename);
+  //@}
 
-  // Description:
-  // I want to time events, so I am creating this interface to
-  // mark events that have a start and an end.  These events can be,
-  // nested. The standard Dumplog ignores the indents.
+  //@{
+  /**
+   * I want to time events, so I am creating this interface to
+   * mark events that have a start and an end.  These events can be,
+   * nested. The standard Dumplog ignores the indents.
+   */
   static void MarkStartEvent(const char *EventString);
   static void MarkEndEvent(const char *EventString);
-//BTX
-  static void DumpLogWithIndents(ostream *os, double threshold);
-//ETX
+  //@}
 
-  // Description:
-  // Programatic access to events.  Indexed from 0 to num-1.
+  //@{
+  /**
+   * Insert an event with a known wall time value (in seconds)
+   * and cpuTicks.
+   */
+  static void InsertTimedEvent(
+    const char *EventString, double time, int cpuTicks);
+  //@}
+
+  static void DumpLogWithIndents(ostream *os, double threshold);
+  static void DumpLogWithIndentsAndPercentages(ostream *os);
+
+  //@{
+  /**
+   * Programmatic access to events.  Indexed from 0 to num-1.
+   */
   static int GetNumberOfEvents();
   static int GetEventIndent(int i);
   static double GetEventWallTime(int i);
   static const char* GetEventString(int i);
+  static vtkTimerLogEntry::LogEntryType GetEventType(int i);
+  //@}
 
-  // Description:
-  // Record a timing event and capture wall time and cpu ticks.
+  /**
+   * Record a timing event and capture wall time and cpu ticks.
+   */
   static void MarkEvent(const char *EventString);
 
-  // Description:
-  // Clear the timing table.  walltime and cputime will also be set
-  // to zero when the first new event is recorded.
+  /**
+   * Clear the timing table.  walltime and cputime will also be set
+   * to zero when the first new event is recorded.
+   */
   static void ResetLog();
 
-  // Description:
-  // Allocate timing table with MaxEntries elements.
-  static void AllocateLog();
+  //@{
+  /**
+   * Allocate timing table with MaxEntries elements.  @deprecated
+   * AllocateLog() should be replaced with SetMaxEntries() (VTK 7.1.0).
+   */
+#ifndef VTK_LEGACY_REMOVE
+  VTK_LEGACY(static void AllocateLog();)
+#endif
+  //@}
 
-  // Description:
-  // Remove timer log.
+  /**
+   * Remove timer log.
+   */
   static void CleanupLog();
 
-  // Description:
-  // Returns the elapsed number of seconds since January 1, 1970. This
-  // is also called Universal Coordinated Time.
+  /**
+   * Returns the elapsed number of seconds since 00:00:00 Coordinated Universal
+   * Time (UTC), Thursday, 1 January 1970. This is also called Unix Time.
+   */
   static double GetUniversalTime();
 
-  // Description:
-  // Returns the CPU time for this process
-  // On Win32 platforms this actually returns wall time.
+  /**
+   * Returns the CPU time for this process
+   * On Win32 platforms this actually returns wall time.
+   */
   static double GetCPUTime();
 
-  // Description:
-  // Set the StartTime to the current time. Used with GetElapsedTime().
+  /**
+   * Set the StartTime to the current time. Used with GetElapsedTime().
+   */
   void StartTimer();
 
-  // Description:
-  // Sets EndTime to the current time. Used with GetElapsedTime().
+  /**
+   * Sets EndTime to the current time. Used with GetElapsedTime().
+   */
   void StopTimer();
 
-  // Description:
-  // Returns the difference between StartTime and EndTime as
-  // a doubleing point value indicating the elapsed time in seconds.
+  /**
+   * Returns the difference between StartTime and EndTime as
+   * a doubleing point value indicating the elapsed time in seconds.
+   */
   double GetElapsedTime();
 
 protected:
   vtkTimerLog() {this->StartTime=0; this->EndTime = 0;}; //insure constructor/destructor protected
-  virtual ~vtkTimerLog() { };
-
-  static vtkTimerLogEntry* GetEvent(int i);
+  ~vtkTimerLog() override { };
 
   static int               Logging;
   static int               Indent;
@@ -172,7 +220,7 @@ protected:
   static int               NextEntry;
   static int               WrapFlag;
   static int               TicksPerSecond;
-  static vtkTimerLogEntry *TimerLog;
+  static std::vector<vtkTimerLogEntry> TimerLog;
 
 #ifdef _WIN32
 #ifndef _WIN32_WCE
@@ -189,21 +237,54 @@ protected:
   static tms               CurrentCpuTicks;
 #endif
 
+  /**
+   * Record a timing event and capture wall time and cpu ticks.
+   */
+  static void MarkEventInternal(
+    const char *EventString, vtkTimerLogEntry::LogEntryType type,
+    vtkTimerLogEntry* entry = nullptr);
+
   // instance variables to support simple timing functionality,
   // separate from timer table logging.
   double StartTime;
   double EndTime;
 
-  //BTX
+  static vtkTimerLogEntry* GetEvent(int i);
+
   static void DumpEntry(ostream& os, int index, double time, double deltatime,
                         int tick, int deltatick, const char *event);
-  //ETX
 
 private:
-  vtkTimerLog(const vtkTimerLog&);  // Not implemented.
-  void operator=(const vtkTimerLog&);  // Not implemented.
+  vtkTimerLog(const vtkTimerLog&) = delete;
+  void operator=(const vtkTimerLog&) = delete;
 };
 
+/**
+ * Helper class to log time within scope
+ */
+class vtkTimerLogScope
+{
+public:
+  vtkTimerLogScope(const char* eventString)
+  {
+    if (eventString)
+    {
+      this->EventString = eventString;
+    }
+    vtkTimerLog::MarkStartEvent(eventString);
+  }
+
+  ~vtkTimerLogScope()
+  {
+    vtkTimerLog::MarkEndEvent(this->EventString.c_str());
+  };
+
+protected:
+  std::string EventString;
+private:
+  vtkTimerLogScope(const vtkTimerLogScope&) = delete;
+  void operator=(const vtkTimerLogScope&) = delete;
+};
 
 //
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());

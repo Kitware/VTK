@@ -29,7 +29,7 @@ vtkBlankStructuredGrid::vtkBlankStructuredGrid()
 {
   this->MinBlankingValue = VTK_FLOAT_MAX;
   this->MaxBlankingValue = VTK_FLOAT_MAX;
-  this->ArrayName = NULL;
+  this->ArrayName = nullptr;
   this->ArrayId = -1;
   this->Component = 0;
 }
@@ -37,7 +37,7 @@ vtkBlankStructuredGrid::vtkBlankStructuredGrid()
 vtkBlankStructuredGrid::~vtkBlankStructuredGrid()
 {
   delete [] this->ArrayName;
-  this->ArrayName = NULL;
+  this->ArrayName = nullptr;
 }
 
 
@@ -51,15 +51,15 @@ void vtkBlankStructuredGridExecute(vtkBlankStructuredGrid *vtkNotUsed(self),
   dptr += comp;
 
   for ( int ptId=0; ptId < numPts; ptId++, dptr+=numComp)
-    {
+  {
     compValue = *dptr;
     unsigned char value = 0;
     if(compValue >= min && compValue <= max)
-      {
+    {
       value |= vtkDataSetAttributes::HIDDENPOINT;
-      }
-    ghosts->SetValue(ptId, value);
     }
+    ghosts->SetValue(ptId, value);
+  }
 }
 
 
@@ -83,7 +83,7 @@ int vtkBlankStructuredGrid::RequestData(
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
   int numPts = input->GetNumberOfPoints();
-  vtkDataArray *dataArray=NULL;
+  vtkDataArray *dataArray=nullptr;
   int numComp;
 
   vtkDebugMacro(<< "Blanking Grid");
@@ -96,21 +96,21 @@ int vtkBlankStructuredGrid::RequestData(
 
   // Get the appropriate data array
   //
-  if ( this->ArrayName != NULL )
-    {
+  if ( this->ArrayName != nullptr )
+  {
     dataArray = pd->GetArray(this->ArrayName);
-    }
+  }
   else if ( this->ArrayId >= 0 )
-    {
+  {
     dataArray = pd->GetArray(this->ArrayId);
-    }
+  }
 
   if ( !dataArray ||
        (numComp=dataArray->GetNumberOfComponents()) <= this->Component )
-    {
+  {
     vtkWarningMacro(<<"Data array not found");
     return 1;
-    }
+  }
   void *dptr = dataArray->GetVoidPointer(0);
 
   // Loop over the data array setting anything within the data range specified
@@ -120,7 +120,7 @@ int vtkBlankStructuredGrid::RequestData(
   ghosts->SetNumberOfValues(numPts);
   ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
   switch(dataArray->GetDataType())
-    {
+  {
     vtkTemplateMacro(
       vtkBlankStructuredGridExecute(this, static_cast<VTK_TT *>(dptr), numPts,
                                     numComp, this->Component,
@@ -128,7 +128,7 @@ int vtkBlankStructuredGrid::RequestData(
                                     this->MaxBlankingValue, ghosts));
     default:
       break;
-    }
+  }
   output->GetPointData()->AddArray(ghosts);
   ghosts->Delete();
 
@@ -144,13 +144,13 @@ void vtkBlankStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Max Blanking Value: " << this->MaxBlankingValue << "\n";
   os << indent << "Array Name: ";
   if ( this->ArrayName )
-    {
+  {
     os << this->ArrayName << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
   os << indent << "Array ID: " << this->ArrayId << "\n";
   os << indent << "Component: " << this->Component << "\n";
 }

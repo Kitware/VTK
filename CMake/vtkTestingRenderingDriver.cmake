@@ -3,7 +3,7 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
     // Set defaults
     vtkTestingInteractor::ValidBaseline = \"Use_-V_for_Baseline\";
     vtkTestingInteractor::TempDirectory =
-      std::string(\"${VTK_TEST_OUTPUT_DIR}\");
+      std::string(\"${_vtk_build_TEST_OUTPUT_DIRECTORY}\");
     vtkTestingInteractor::DataDirectory = std::string(\"Use_-D_for_Data\");
 
     int interactive = 0;
@@ -14,22 +14,22 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
         interactive = 1;
         continue;
         }
-      if (strcmp(av[ii], \"-V\") == 0 && ii < ac-1)
+      if (ii < ac-1 && strcmp(av[ii], \"-V\") == 0)
         {
         vtkTestingInteractor::ValidBaseline = std::string(av[++ii]);
         continue;
         }
-      if (strcmp(av[ii], \"-T\") == 0 && ii < ac-1)
+      if (ii < ac-1 && strcmp(av[ii], \"-T\") == 0)
         {
         vtkTestingInteractor::TempDirectory = std::string(av[++ii]);
         continue;
         }
-      if (strcmp(av[ii], \"-D\") == 0 && ii < ac-1)
+      if (ii < ac-1 && strcmp(av[ii], \"-D\") == 0)
         {
         vtkTestingInteractor::DataDirectory = std::string(av[++ii]);
         continue;
         }
-      if (strcmp(av[ii], \"-E\") == 0 && ii < ac-1)
+      if (ii < ac-1 && strcmp(av[ii], \"-E\") == 0)
         {
         vtkTestingInteractor::ErrorThreshold =
             static_cast<double>(atof(av[++ii]));
@@ -55,6 +55,13 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
 
 SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN
 "
+   if (result == VTK_SKIP_RETURN_CODE)
+     {
+     printf(\"Unsupported runtime configuration: Test returned \"
+            \"VTK_SKIP_RETURN_CODE. Skipping test.\\n\");
+     return result;
+     }
+
    if (!interactive)
      {
      if (vtkTestingInteractor::TestReturnStatus != -1)

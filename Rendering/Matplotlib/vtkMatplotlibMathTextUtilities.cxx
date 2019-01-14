@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkPython.h" // must be the first thing that's included.
+#include "vtkPythonCompatibility.h"
 #include "vtkMatplotlibMathTextUtilities.h"
 
 #include "vtkCommand.h"
@@ -46,7 +47,7 @@ typedef Py_intptr_t     Py_ssize_t;
 #endif
 
 //----------------------------------------------------------------------------
-vtkMatplotlibMathTextUtilities::Availablity
+vtkMatplotlibMathTextUtilities::Availability
 vtkMatplotlibMathTextUtilities::MPLMathTextAvailable =
 vtkMatplotlibMathTextUtilities::NOT_TESTED;
 
@@ -55,33 +56,37 @@ vtkMatplotlibMathTextUtilities::NOT_TESTED;
 // work in release mode builds.
 #define vtkMplStartUpDebugMacro(x) if(debug){vtkGenericWarningMacro(x);}
 
+vtkObjectFactoryNewMacro(vtkMatplotlibMathTextUtilities)
+
 //----------------------------------------------------------------------------
-void vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
+vtkMatplotlibMathTextUtilities::Availability
+vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
 {
   if (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable != NOT_TESTED)
-    {
+  {
     // Already tested. Nothing to do now.
-    return;
-    }
+    return vtkMatplotlibMathTextUtilities::MPLMathTextAvailable;
+  }
 
   // Enable startup debugging output. This will be set to true when
   // VTK_MATPLOTLIB_DEBUG is defined in the process environment.
-  bool debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != NULL);
+  bool debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != nullptr);
 
   // Initialize the python interpretor if needed
   vtkMplStartUpDebugMacro("Initializing Python, if not already.");
   vtkPythonInterpreter::Initialize();
   vtkMplStartUpDebugMacro("Attempting to import matplotlib.");
+  vtkPythonScopeGilEnsurer gilEnsurer;
   if (PyErr_Occurred() || !PyImport_ImportModule("matplotlib") || PyErr_Occurred())
-    {
+  {
     // FIXME: Check if we need this. Wouldn't pipe-ing the stdout/stderr make
     // this unnecessary?
 
     // Fetch the exception info. Note that value and traceback may still be
-    // NULL after the call to PyErr_Fetch().
-    PyObject *type = NULL;
-    PyObject *value = NULL;
-    PyObject *traceback = NULL;
+    // nullptr after the call to PyErr_Fetch().
+    PyObject *type = nullptr;
+    PyObject *value = nullptr;
+    PyObject *traceback = nullptr;
     PyErr_Fetch(&type, &value, &traceback);
     vtkSmartPyObject typeStr(PyObject_Str(type));
     vtkSmartPyObject valueStr(PyObject_Str(value));
@@ -89,62 +94,38 @@ void vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
     vtkMplStartUpDebugMacro(
       "Error during matplotlib import:\n"
       << "\nStack:\n"
-      << (tracebackStr.GetPointer() == NULL
-        ? "(none)"
-        : const_cast<char*>(
-          PyString_AsString(tracebackStr.GetPointer())))
+      << (tracebackStr
+          ? const_cast<char*>(PyString_AsString(tracebackStr))
+          : "(none)")
       << "\nValue:\n"
-      << (valueStr.GetPointer() == NULL
-        ? "(none)"
-        : const_cast<char*>(
-          PyString_AsString(valueStr.GetPointer())))
+      << (valueStr
+          ? const_cast<char*>(PyString_AsString(valueStr))
+          : "(none)")
       << "\nType:\n"
-      << (typeStr.GetPointer() == NULL
-        ? "(none)"
-        : const_cast<char*>(
-          PyString_AsString(typeStr.GetPointer()))));
+      << (typeStr
+          ? const_cast<char*>(PyString_AsString(typeStr))
+          :  "(none)"));
     PyErr_Clear();
     vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
-    }
+  }
   else
-    {
+  {
     vtkMplStartUpDebugMacro("Successfully imported matplotlib.");
     vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = AVAILABLE;
-    }
+  }
+
+  return vtkMatplotlibMathTextUtilities::MPLMathTextAvailable;
 }
 
 //----------------------------------------------------------------------------
-vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
+bool vtkMatplotlibMathTextUtilities::IsAvailable()
 {
-  vtkMatplotlibMathTextUtilities::CheckMPLAvailability();
-
-  // Attempt to import matplotlib to check for availability
-  switch (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable)
-    {
-  case vtkMatplotlibMathTextUtilities::AVAILABLE:
-    break;
-
-  case vtkMatplotlibMathTextUtilities::NOT_TESTED:
-  case vtkMatplotlibMathTextUtilities::UNAVAILABLE:
-  default:
-    return NULL;
-    }
-
-  // Adapted from VTK_OBJECT_FACTORY_NEW_BODY to enable debugging output when
-  // requested.
-  vtkObject* ret =
-    vtkObjectFactory::CreateInstance("vtkMatplotlibMathTextUtilities");
-  if (ret)
-    {
-    return static_cast<vtkMatplotlibMathTextUtilities*>(ret);
-    }
-
-  return new vtkMatplotlibMathTextUtilities;
+  return this->CheckMPLAvailability() == AVAILABLE;
 }
 
 //----------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
-  : Superclass(), MaskParser(NULL), PathParser(NULL), FontPropertiesClass(NULL),
+  : Superclass(), MaskParser(nullptr), PathParser(nullptr), FontPropertiesClass(nullptr),
     ScaleToPowerOfTwo(true)
 {
   this->Interpreter = vtkPythonInterpreter::New();
@@ -162,13 +143,17 @@ vtkMatplotlibMathTextUtilities::~vtkMatplotlibMathTextUtilities()
 //----------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::CleanupPythonObjects()
 {
-  Py_XDECREF(this->MaskParser);
-  Py_XDECREF(this->PathParser);
-  Py_XDECREF(this->FontPropertiesClass);
+  if (Py_IsInitialized())
+  {
+    vtkPythonScopeGilEnsurer gilEnsurer;
+    Py_XDECREF(this->MaskParser);
+    Py_XDECREF(this->PathParser);
+    Py_XDECREF(this->FontPropertiesClass);
 
-  this->MaskParser = NULL;
-  this->PathParser = NULL;
-  this->FontPropertiesClass = NULL;
+    this->MaskParser = nullptr;
+    this->PathParser = nullptr;
+    this->FontPropertiesClass = nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -176,28 +161,28 @@ bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
 {
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
-
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplMathTextLib(PyImport_ImportModule("matplotlib.mathtext"));
-  if (this->CheckForError(mplMathTextLib.GetPointer()))
-    {
+  if (this->CheckForError(mplMathTextLib))
+  {
     return false;
-    }
+  }
 
   vtkSmartPyObject mathTextParserClass(
-        PyObject_GetAttrString(mplMathTextLib.GetPointer(), "MathTextParser"));
-  if (this->CheckForError(mathTextParserClass.GetPointer()))
-    {
+        PyObject_GetAttrString(mplMathTextLib, "MathTextParser"));
+  if (this->CheckForError(mathTextParserClass))
+  {
     return false;
-    }
+  }
 
   this->MaskParser =
-      PyObject_CallFunction(mathTextParserClass.GetPointer(),
+      PyObject_CallFunction(mathTextParserClass,
                             const_cast<char*>("s"), "bitmap");
   if (this->CheckForError(this->MaskParser))
-    {
+  {
     Py_CLEAR(this->MaskParser);
     return false;
-    }
+  }
 
   return true;
 }
@@ -207,26 +192,26 @@ bool vtkMatplotlibMathTextUtilities::InitializePathParser()
 {
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
-
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplTextPathLib(PyImport_ImportModule("matplotlib.textpath"));
-  if (this->CheckForError(mplTextPathLib.GetPointer()))
-    {
+  if (this->CheckForError(mplTextPathLib))
+  {
     return false;
-    }
+  }
 
   vtkSmartPyObject textToPathClass(
-        PyObject_GetAttrString(mplTextPathLib.GetPointer(), "TextToPath"));
-  if (this->CheckForError(textToPathClass.GetPointer()))
-    {
+        PyObject_GetAttrString(mplTextPathLib, "TextToPath"));
+  if (this->CheckForError(textToPathClass))
+  {
     return false;
-    }
+  }
 
-  this->PathParser = PyObject_CallFunction(textToPathClass.GetPointer(), NULL);
+  this->PathParser = PyObject_CallFunction(textToPathClass, nullptr);
   if (this->CheckForError(this->PathParser))
-    {
+  {
     Py_CLEAR(this->PathParser);
     return false;
-    }
+  }
 
   return true;
 }
@@ -236,21 +221,21 @@ bool vtkMatplotlibMathTextUtilities::InitializeFontPropertiesClass()
 {
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
-
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplFontManagerLib(
         PyImport_ImportModule("matplotlib.font_manager"));
-  if (this->CheckForError(mplFontManagerLib.GetPointer()))
-    {
+  if (this->CheckForError(mplFontManagerLib))
+  {
     return false;
-    }
+  }
 
   this->FontPropertiesClass = PyObject_GetAttrString(
-        mplFontManagerLib.GetPointer(), "FontProperties");
+        mplFontManagerLib, "FontProperties");
   if (this->CheckForError(this->FontPropertiesClass))
-    {
+  {
     Py_CLEAR(this->FontPropertiesClass);
     return false;
-    }
+  }
 
   return true;
 }
@@ -258,40 +243,38 @@ bool vtkMatplotlibMathTextUtilities::InitializeFontPropertiesClass()
 //----------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::CheckForError()
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   PyObject *exception = PyErr_Occurred();
   if (exception)
-    {
+  {
     if (this->Debug)
-      {
+    {
       // Fetch the exception info. Note that value and traceback may still be
-      // NULL after the call to PyErr_Fetch().
-      PyObject *type = NULL;
-      PyObject *value = NULL;
-      PyObject *traceback = NULL;
+      // nullptr after the call to PyErr_Fetch().
+      PyObject *type = nullptr;
+      PyObject *value = nullptr;
+      PyObject *traceback = nullptr;
       PyErr_Fetch(&type, &value, &traceback);
       vtkSmartPyObject typeStr(PyObject_Str(type));
       vtkSmartPyObject valueStr(PyObject_Str(value));
       vtkSmartPyObject tracebackStr(PyObject_Str(traceback));
       vtkWarningMacro(<< "Python exception raised:\n"
                       << "\nStack:\n"
-                      << (tracebackStr.GetPointer() == NULL
-                          ? "(none)"
-                          : const_cast<char*>(
-                            PyString_AsString(tracebackStr.GetPointer())))
+                      << (tracebackStr
+                          ? const_cast<char*>(PyString_AsString(tracebackStr))
+                          : "(none)")
                       << "\nValue:\n"
-                      << (valueStr.GetPointer() == NULL
-                          ? "(none)"
-                          : const_cast<char*>(
-                            PyString_AsString(valueStr.GetPointer())))
+                      << (valueStr
+                          ? const_cast<char*>(PyString_AsString(valueStr))
+                          : "(none)")
                       << "\nType:\n"
-                      << (typeStr.GetPointer() == NULL
-                          ? "(none)"
-                          : const_cast<char*>(
-                            PyString_AsString(typeStr.GetPointer()))));
-      }
+                      << (typeStr
+                          ? const_cast<char*>(PyString_AsString(typeStr))
+                          :  "(none)"));
+    }
     PyErr_Clear();
     return true;
-    }
+  }
   return false;
 }
 
@@ -301,11 +284,11 @@ bool vtkMatplotlibMathTextUtilities::CheckForError(PyObject *object)
   // Print any exceptions
   bool result = this->CheckForError();
 
-  if (object == NULL)
-    {
-    vtkDebugMacro(<< "Object is NULL!");
+  if (object == nullptr)
+  {
+    vtkDebugMacro(<< "Object is nullptr!");
     return true;
-    }
+  }
   return result;
 }
 
@@ -313,23 +296,30 @@ bool vtkMatplotlibMathTextUtilities::CheckForError(PyObject *object)
 PyObject *
 vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty *tprop)
 {
+  if (!this->IsAvailable())
+  {
+    vtkErrorMacro(<<"Matplotlib rendering is unavailable.");
+    return nullptr;
+  }
+
   if (!this->FontPropertiesClass)
-    {
+  {
     if (!this->InitializeFontPropertiesClass())
-      {
+    {
       vtkErrorMacro(<<"FontPropertiesClass is not initialized!");
-      return NULL;
-      }
+      return nullptr;
     }
+  }
 
   char tpropFamily[16];
   char tpropStyle[16];
   char tpropVariant[16] = "normal";
   char tpropWeight[16];
+  char tpropStretch[16] = "normal";
   long tpropFontSize;
 
   switch (tprop->GetFontFamily())
-    {
+  {
     default:
     case VTK_ARIAL:
       strcpy(tpropFamily, "sans-serif");
@@ -340,32 +330,33 @@ vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty *tprop)
     case VTK_TIMES:
       strcpy(tpropFamily, "serif");
       break;
-    }
+  }
 
   if (tprop->GetItalic())
-    {
+  {
     strcpy(tpropStyle, "italic");
-    }
+  }
   else
-    {
+  {
     strcpy(tpropStyle, "normal");
-    }
+  }
 
   if (tprop->GetBold())
-    {
+  {
     strcpy(tpropWeight, "bold");
-    }
+  }
   else
-    {
+  {
     strcpy(tpropWeight, "normal");
-    }
+  }
 
   tpropFontSize = tprop->GetFontSize();
 
+  vtkPythonScopeGilEnsurer gilEnsurer;
   return PyObject_CallFunction(this->FontPropertiesClass,
                                const_cast<char*>("sssssi"), tpropFamily,
-                               tpropStyle, tpropVariant, tpropStyle,
-                               tpropWeight, tpropFontSize);
+                               tpropStyle, tpropVariant, tpropWeight,
+                               tpropStretch, tpropFontSize);
 }
 
 //----------------------------------------------------------------------------
@@ -380,7 +371,7 @@ void vtkMatplotlibMathTextUtilities::GetJustifiedBBox(int rows, int cols,
 
   int justifyOffset[2];
   switch (tprop->GetJustification())
-    {
+  {
     default:
     case VTK_TEXT_LEFT:
       justifyOffset[0] = 0;
@@ -391,9 +382,9 @@ void vtkMatplotlibMathTextUtilities::GetJustifiedBBox(int rows, int cols,
     case VTK_TEXT_RIGHT:
       justifyOffset[0] = bbox[1];
       break;
-    }
+  }
   switch (tprop->GetVerticalJustification())
-    {
+  {
     default:
     case VTK_TEXT_BOTTOM:
       justifyOffset[1] = 0;
@@ -404,7 +395,7 @@ void vtkMatplotlibMathTextUtilities::GetJustifiedBBox(int rows, int cols,
     case VTK_TEXT_TOP:
       justifyOffset[1] = bbox[3];
       break;
-    }
+  }
 
   bbox[0] -= justifyOffset[0];
   bbox[1] -= justifyOffset[0];
@@ -422,37 +413,37 @@ void vtkMatplotlibMathTextUtilities::RotateCorners(double angleDeg,
   double s = sin(angleRad);
   // Rotate corners
   for (int i = 0; i < 4; ++i)
-    {
+  {
     int newpt[2];
     newpt[0] = c * corners[i][0] - s * corners[i][1];
     newpt[1] = s * corners[i][0] + c * corners[i][1];
     corners[i][0] = newpt[0];
     corners[i][1] = newpt[1];
-    }
+  }
   // Find new bounds
   bbox[0] = VTK_INT_MAX;
   bbox[1] = VTK_INT_MIN;
   bbox[2] = VTK_INT_MAX;
   bbox[3] = VTK_INT_MIN;
   for (int i = 0; i < 4; ++i)
-    {
+  {
     if (corners[i][0] < bbox[0])
-      {
+    {
       bbox[0] = corners[i][0];
-      }
-    if (corners[i][0] > bbox[1])
-      {
-      bbox[1] = corners[i][0];
-      }
-    if (corners[i][1] < bbox[2])
-      {
-      bbox[2] = corners[i][1];
-      }
-    if (corners[i][1] > bbox[3])
-      {
-      bbox[3] = corners[i][1];
-      }
     }
+    if (corners[i][0] > bbox[1])
+    {
+      bbox[1] = corners[i][0];
+    }
+    if (corners[i][1] < bbox[2])
+    {
+      bbox[2] = corners[i][1];
+    }
+    if (corners[i][1] > bbox[3])
+    {
+      bbox[3] = corners[i][1];
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -472,10 +463,10 @@ bool vtkMatplotlibMathTextUtilities::PrepareImageData(vtkImageData *data,
   targetDims[2] = 1;
   // Scale to the next highest power of 2 if required.
   if (this->ScaleToPowerOfTwo)
-    {
+  {
     targetDims[0] = vtkMath::NearestPowerOfTwo(targetDims[0]);
     targetDims[1] = vtkMath::NearestPowerOfTwo(targetDims[1]);
-    }
+  }
 
   // Calculate the target extent of the image.
   int targetExtent[6];
@@ -504,11 +495,11 @@ bool vtkMatplotlibMathTextUtilities::PrepareImageData(vtkImageData *data,
       fabs(imageSpacing[0] - 1.0) > 1e-10 ||
       fabs(imageSpacing[1] - 1.0) > 1e-10 ||
       fabs(imageSpacing[2] - 1.0) > 1e-10 )
-    {
+  {
     data->SetSpacing(1.0, 1.0, 1.0);
     data->SetExtent(targetExtent);
     data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
-    }
+  }
 
   // Clear the image
   memset(data->GetScalarPointer(), 0,
@@ -519,13 +510,13 @@ bool vtkMatplotlibMathTextUtilities::PrepareImageData(vtkImageData *data,
 
 //----------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
-    vtkTextProperty *tprop, const char *str, unsigned int dpi, int bbox[4])
+    vtkTextProperty *tprop, const char *str, int dpi, int bbox[4])
 {
   vtkTextRenderer::Metrics metrics;
   if (!this->GetMetrics(tprop, str, dpi, metrics))
-    {
+  {
     return false;
-    }
+  }
   std::copy(metrics.BoundingBox.GetData(), metrics.BoundingBox.GetData() + 4,
             bbox);
   return true;
@@ -533,56 +524,60 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
 
 //----------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::GetMetrics(
-    vtkTextProperty *tprop, const char *str, unsigned int dpi,
+    vtkTextProperty *tprop, const char *str, int dpi,
     vtkTextRenderer::Metrics &metrics)
 {
+  if (!this->IsAvailable())
+  {
+    vtkErrorMacro(<<"Matplotlib rendering is unavailable.");
+    return false;
+  }
+
   if (!this->MaskParser)
-    {
+  {
     if (!this->InitializeMaskParser())
-      {
+    {
       vtkErrorMacro(<<"MaskParser is not initialized!");
       return false;
-      }
     }
+  }
 
   vtkDebugMacro(<<"Calculating metrics for '" << str << "'");
 
   long int rows = 0;
   long int cols = 0;
-  // matplotlib.mathtext seems to mishandle the dpi, this conversion makes the
-  // text size match the images produced by vtkFreeTypeUtilities, as well as the
-  // paths generated by StringToPath
-  long int fontSize = tprop->GetFontSize() * 72.0 / static_cast<float>(dpi);
 
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject resultTuple(PyObject_CallMethod(this->MaskParser,
                                                    const_cast<char*>("to_mask"),
                                                    const_cast<char*>("sii"),
                                                    const_cast<char*>(str),
-                                                   fontSize, dpi));
-  if (this->CheckForError(resultTuple.GetPointer()))
-    {
+                                                   tprop->GetFontSize(),
+                                                   dpi));
+  if (this->CheckForError(resultTuple))
+  {
     return false;
-    }
+  }
 
   // numpyArray is a borrowed reference, no smart wrapper needed:
-  PyObject *numpyArray = PyTuple_GetItem(resultTuple.GetPointer(), 0);
+  PyObject *numpyArray = PyTuple_GetItem(resultTuple, 0);
   if (this->CheckForError(numpyArray))
-    {
+  {
     return false;
-    }
+  }
 
   vtkSmartPyObject dimTuple(PyObject_GetAttrString(numpyArray,
                                                 const_cast<char*>("shape")));
-  if (this->CheckForError(dimTuple.GetPointer()))
-    {
+  if (this->CheckForError(dimTuple))
+  {
     return false;
-    }
+  }
 
-  PyArg_ParseTuple(dimTuple.GetPointer(), "ii", &rows, &cols);
+  PyArg_ParseTuple(dimTuple, "ii", &rows, &cols);
   if (this->CheckForError())
-    {
+  {
     return false;
-    }
+  }
 
   int extent[4];
   this->GetJustifiedBBox(rows, cols, tprop, extent);
@@ -604,14 +599,14 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
   metrics.BoundingBox[2] = vtkMath::Floor(bboxd[2]);
   metrics.BoundingBox[3] = vtkMath::Ceil(bboxd[3]);
 
-  metrics.TopLeft[0]     = vtkMath::Round(corners[0][0]);
-  metrics.TopLeft[1]     = vtkMath::Round(corners[0][1]);
-  metrics.TopRight[0]    = vtkMath::Round(corners[1][0]);
-  metrics.TopRight[1]    = vtkMath::Round(corners[1][1]);
-  metrics.BottomLeft[0]  = vtkMath::Round(corners[2][0]);
-  metrics.BottomLeft[1]  = vtkMath::Round(corners[2][1]);
-  metrics.BottomRight[0] = vtkMath::Round(corners[3][0]);
-  metrics.BottomRight[1] = vtkMath::Round(corners[3][1]);
+  metrics.TopLeft[0]     = static_cast<int>(std::round(corners[0][0]));
+  metrics.TopLeft[1]     = static_cast<int>(std::round(corners[0][1]));
+  metrics.TopRight[0]    = static_cast<int>(std::round(corners[1][0]));
+  metrics.TopRight[1]    = static_cast<int>(std::round(corners[1][1]));
+  metrics.BottomLeft[0]  = static_cast<int>(std::round(corners[2][0]));
+  metrics.BottomLeft[1]  = static_cast<int>(std::round(corners[2][1]));
+  metrics.BottomRight[0] = static_cast<int>(std::round(corners[3][0]));
+  metrics.BottomRight[1] = static_cast<int>(std::round(corners[3][1]));
 
   return true;
 }
@@ -620,28 +615,29 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
 bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
                                                   vtkImageData *image,
                                                   vtkTextProperty *tprop,
-                                                  unsigned int dpi,
+                                                  int dpi,
                                                   int textDims[2])
 {
+  if (!this->IsAvailable())
+  {
+    vtkErrorMacro(<<"Matplotlib rendering is unavailable.");
+    return false;
+  }
+
   if (!this->MaskParser)
-    {
+  {
     if (!this->InitializeMaskParser())
-      {
+    {
       vtkErrorMacro(<<"MaskParser is not initialized!");
       return false;
-      }
     }
+  }
 
   vtkDebugMacro(<<"Converting '" << str << "' into MathText image...");
 
   long int rows = 0;
   long int cols = 0;
   long int ind = 0;
-  //long int numPixels = 0;
-  // matplotlib.mathtext seems to mishandle the dpi, this conversion makes the
-  // text size match the images produced by vtkFreeTypeUtilities, as well as the
-  // paths generated by StringToPath
-  long int fontSize = tprop->GetFontSize() * 72.0 / static_cast<float>(dpi);
 
   double *fgColor = tprop->GetColor();
   unsigned char fgR = static_cast<unsigned char>(fgColor[0] * 255);
@@ -656,63 +652,71 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
   double bgA = tprop->GetBackgroundOpacity();
   bool hasBackground = (static_cast<unsigned char>(bgA * 255) != 0);
 
+  double *frameColor = tprop->GetFrameColor();
+  unsigned char frR = static_cast<unsigned char>(frameColor[0] * 255);
+  unsigned char frG = static_cast<unsigned char>(frameColor[1] * 255);
+  unsigned char frB = static_cast<unsigned char>(frameColor[2] * 255);
+  bool hasFrame = tprop->GetFrame() && tprop->GetFrameWidth() > 0;
+  int frW = tprop->GetFrameWidth();
+
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject resultTuple(PyObject_CallMethod(this->MaskParser,
-                                                const_cast<char*>("to_mask"),
-                                                const_cast<char*>("sii"),
-                                                const_cast<char*>(str),
-                                                fontSize, dpi));
-  if (this->CheckForError(resultTuple.GetPointer()))
-    {
+                                                   const_cast<char*>("to_mask"),
+                                                   const_cast<char*>("sii"),
+                                                   const_cast<char*>(str),
+                                                   tprop->GetFontSize(), dpi));
+  if (this->CheckForError(resultTuple))
+  {
     return false;
-    }
+  }
 
   // numpyArray is a borrowed reference, no smart wrapper needed:
-  PyObject *numpyArray = PyTuple_GetItem(resultTuple.GetPointer(), 0);
+  PyObject *numpyArray = PyTuple_GetItem(resultTuple, 0);
   if (this->CheckForError(numpyArray))
-    {
+  {
     return false;
-    }
+  }
 
   vtkSmartPyObject flatArray(PyObject_CallMethod(numpyArray,
                                               const_cast<char*>("flatten"),
                                               const_cast<char*>("")));
-  if (this->CheckForError(flatArray.GetPointer()))
-    {
+  if (this->CheckForError(flatArray))
+  {
     return false;
-    }
+  }
 
-  vtkSmartPyObject list(PyObject_CallMethod(flatArray.GetPointer(),
+  vtkSmartPyObject list(PyObject_CallMethod(flatArray,
                                          const_cast<char*>("tolist"),
                                          const_cast<char*>("")));
-  if (this->CheckForError(list.GetPointer()))
-    {
+  if (this->CheckForError(list))
+  {
     return false;
-    }
+  }
 
   vtkSmartPyObject dimTuple(PyObject_GetAttrString(numpyArray,
                                                 const_cast<char*>("shape")));
-  if (this->CheckForError(dimTuple.GetPointer()))
-    {
+  if (this->CheckForError(dimTuple))
+  {
     return false;
-    }
+  }
 
-  PyArg_ParseTuple(dimTuple.GetPointer(), "ii", &rows, &cols);
+  PyArg_ParseTuple(dimTuple, "ii", &rows, &cols);
   if (this->CheckForError())
-    {
+  {
     return false;
-    }
+  }
 
-  //numPixels = PyObject_Length(list.GetPointer());
+  //numPixels = PyObject_Length(list);
   if (this->CheckForError())
-    {
+  {
     return false;
-    }
+  }
 
   if (textDims)
-    {
+  {
     textDims[0] = cols;
     textDims[1] = rows;
-    }
+  }
 
   // Create justified bounding box.
   int bbox[4];
@@ -721,25 +725,36 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
   this->PrepareImageData(image, bbox);
 
   for (long int row = bbox[3]; row >= bbox[2]; --row)
-    {
+  {
     for (long int col = bbox[0]; col <= bbox[1]; ++col)
-      {
+    {
       // item is borrowed, no need for a smart wrapper
-      PyObject *item = PyList_GetItem(list.GetPointer(), ind++);
+      PyObject *item = PyList_GetItem(list, ind++);
       if (this->CheckForError(item))
-        {
+      {
         return false;
-        }
+      }
       const unsigned char val = static_cast<unsigned char>(PyInt_AsLong(item));
       if (this->CheckForError())
-        {
+      {
         return false;
-        }
+      }
       unsigned char *ptr =
           static_cast<unsigned char*>(image->GetScalarPointer(col, row, 0));
 
-      if (hasBackground)
-        {
+      if (hasFrame && (col < (bbox[0] + frW) || col > (bbox[1] - frW)
+        || row > (bbox[3] - frW) || row < (bbox[2] + frW)))
+      {
+        const float fg_blend = fgA * (val / 255.f);
+        const float fr_blend = 1.f - fg_blend;
+
+        ptr[0] = static_cast<unsigned char>(fr_blend * frR + fg_blend * fgR);
+        ptr[1] = static_cast<unsigned char>(fr_blend * frG + fg_blend * fgG);
+        ptr[2] = static_cast<unsigned char>(fr_blend * frB + fg_blend * fgB);
+        ptr[3] = 255;
+      }
+      else if (hasBackground)
+      {
         const float fg_blend = fgA * (val / 255.f);
         const float bg_blend = 1.f - fg_blend;
 
@@ -747,16 +762,16 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
         ptr[1] = static_cast<unsigned char>(bg_blend * bgG + fg_blend * fgG);
         ptr[2] = static_cast<unsigned char>(bg_blend * bgB + fg_blend * fgB);
         ptr[3] = static_cast<unsigned char>(255 * (fg_blend + bgA * bg_blend));
-        }
+      }
       else
-        {
+      {
         ptr[0] = fgR;
         ptr[1] = fgG;
         ptr[2] = fgB;
         ptr[3] = static_cast<unsigned char>(val * fgA);
-        }
       }
     }
+  }
 
   // Mark the image data as modified, as it is possible that only
   // vtkImageData::Get*Pointer methods will be called, which do not update the
@@ -767,9 +782,9 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
   double angleDeg = tprop->GetOrientation();
   // Save some time if no rotation needed
   if (fabs(angleDeg) < 0.01)
-    {
+  {
     return true;
-    }
+  }
 
   // Corners of original image
   double corners[4][2] = { {static_cast<double>(bbox[0]),
@@ -787,7 +802,7 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
 
   // Also rotate the text dimensions.
   if (textDims)
-    {
+  {
     double text_bbox[4];
     corners[0][0] = static_cast<double>(0);
     corners[0][1] = static_cast<double>(0);
@@ -800,7 +815,7 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
     this->RotateCorners(angleDeg, corners, text_bbox);
     textDims[0] = std::ceil(text_bbox[1] - text_bbox[0]);
     textDims[1] = std::ceil(text_bbox[3] - text_bbox[2]);
-    }
+  }
 
   bbox[0] = vtkMath::Floor(bboxd[0]);
   bbox[1] = vtkMath::Ceil(bboxd[1]);
@@ -812,11 +827,11 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
   rotation->RotateWXYZ(-angleDeg, 0, 0, 1);
   // Dummy image with the output dimensions
   vtkNew<vtkImageData> dummyImage;
-  this->PrepareImageData(dummyImage.GetPointer(), bbox);
+  this->PrepareImageData(dummyImage, bbox);
   vtkNew<vtkImageReslice> rotator;
   rotator->SetInputData(image);
-  rotator->SetInformationInput(dummyImage.GetPointer());
-  rotator->SetResliceTransform(rotation.GetPointer());
+  rotator->SetInformationInput(dummyImage);
+  rotator->SetResliceTransform(rotation);
   rotator->SetInterpolationModeToLinear();
   rotator->Update();
   image->ShallowCopy(rotator->GetOutput());
@@ -827,16 +842,23 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
 //----------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
                                                   vtkPath *path,
-                                                  vtkTextProperty *tprop)
+                                                  vtkTextProperty *tprop,
+                                                  int dpi)
 {
+  if (!this->IsAvailable())
+  {
+    vtkErrorMacro(<<"Matplotlib rendering is unavailable.");
+    return false;
+  }
+
   if (!this->PathParser)
-    {
+  {
     if (!this->InitializePathParser())
-      {
+    {
       vtkErrorMacro(<<"PathParser is not initialized!");
       return false;
-      }
     }
+  }
 
   vtkDebugMacro(<<"Converting '" << str << "' into a vtkPath...");
 
@@ -862,18 +884,20 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
   // Bounding box for all control points, used for justification
   float cbox[4] = {VTK_FLOAT_MAX, VTK_FLOAT_MAX, VTK_FLOAT_MIN, VTK_FLOAT_MIN};
 
-  // The path is always generated at a font size of 100. Use this factor to
+  // The path is always generated using a 100pt font @72 dpi. Use this factor to
   // recover the font.
-  const float fontScale = ((tprop->GetFontSize()) / 100.);
+  const float fontScale = (tprop->GetFontSize() / 100.f) * (dpi / 72.f) ;
+
   path->Reset();
 
   // Create the font property
   vtkSmartPyObject pyFontProp(this->GetFontProperties(tprop));
-  if (this->CheckForError(pyFontProp.GetPointer()))
-    {
+  if (this->CheckForError(pyFontProp))
+  {
     return false;
-    }
+  }
 
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject pyResultTuple(
         PyObject_CallMethod(this->PathParser,
                             const_cast<char*>("get_text_path"),
@@ -882,120 +906,120 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
                             const_cast<char*>(str), // texstring
                             1,                      // boolean, ismath
                             0));                    // boolean, usetex
-  if (this->CheckForError(pyResultTuple.GetPointer()))
-    {
+  if (this->CheckForError(pyResultTuple))
+  {
     return false;
-    }
+  }
 
   // pyVerts and pyCodes are borrowed references -- no need for smart wrappers
-  PyObject *pyVerts = PyTuple_GetItem(pyResultTuple.GetPointer(), 0);
-  PyObject *pyCodes = PyTuple_GetItem(pyResultTuple.GetPointer(), 1);
+  PyObject *pyVerts = PyTuple_GetItem(pyResultTuple, 0);
+  PyObject *pyCodes = PyTuple_GetItem(pyResultTuple, 1);
   if (this->CheckForError(pyVerts)  ||
       this->CheckForError(pyCodes))
-    {
+  {
     return false;
-    }
+  }
 
   // Both verts and codes are lists?
   if (!PySequence_Check(pyVerts) || !PySequence_Check(pyCodes))
-    {
+  {
     return false;
-    }
+  }
 
   numVerts = PySequence_Size(pyVerts);
   numCodes = PySequence_Size(pyCodes);
   if (numVerts != numCodes)
-    {
+  {
     return false;
-    }
+  }
 
   path->Allocate(numVerts);
 
   for (Py_ssize_t i = 0; i < numVerts; ++i)
-    {
+  {
     vtkSmartPyObject pyVert(PySequence_GetItem(pyVerts, i));
     vtkSmartPyObject pyCode(PySequence_GetItem(pyCodes, i));
-    if (this->CheckForError(pyVert.GetPointer()) ||
-        this->CheckForError(pyCode.GetPointer()))
-      {
+    if (this->CheckForError(pyVert) ||
+        this->CheckForError(pyCode))
+    {
       return false;
-      }
+    }
 
     // pyVert is sometimes a numpy array, sometimes it's a tuple.
     // Initialize the following objects in the following conditional, then
     // convert to smart pointers afterwards.
-    PyObject *pyVertXObj = NULL;
-    PyObject *pyVertYObj = NULL;
+    PyObject *pyVertXObj = nullptr;
+    PyObject *pyVertYObj = nullptr;
     if (pyVert->ob_type == &PyTuple_Type)
-      {
-      pyVertXObj = PyTuple_GetItem(pyVert.GetPointer(), 0);
-      pyVertYObj = PyTuple_GetItem(pyVert.GetPointer(), 1);
+    {
+      pyVertXObj = PyTuple_GetItem(pyVert, 0);
+      pyVertYObj = PyTuple_GetItem(pyVert, 1);
       // Increase reference count -- the other branch returns a new reference,
       // this keeps cleanup consistent
       if (pyVertXObj)
-        {
-        Py_INCREF(pyVertXObj);
-        }
-      if (pyVertYObj)
-        {
-        Py_INCREF(pyVertYObj);
-        }
-      }
-    else // Assume numpy array. Convert to list and extract elements.
       {
-      vtkSmartPyObject pyVertList(PyObject_CallMethod(pyVert.GetPointer(),
-                                                   const_cast<char*>("tolist"),
-                                                   NULL));
-      if (this->CheckForError(pyVertList.GetPointer()) ||
-          PySequence_Size(pyVertList.GetPointer()) < 2)
-        {
-        return false;
-        }
-
-      pyVertXObj = PySequence_GetItem(pyVertList.GetPointer(), 0);
-      pyVertYObj = PySequence_GetItem(pyVertList.GetPointer(), 1);
+        Py_INCREF(pyVertXObj);
       }
+      if (pyVertYObj)
+      {
+        Py_INCREF(pyVertYObj);
+      }
+    }
+    else // Assume numpy array. Convert to list and extract elements.
+    {
+      vtkSmartPyObject pyVertList(PyObject_CallMethod(pyVert,
+                                                   const_cast<char*>("tolist"),
+                                                   nullptr));
+      if (this->CheckForError(pyVertList) ||
+          PySequence_Size(pyVertList) < 2)
+      {
+        return false;
+      }
+
+      pyVertXObj = PySequence_GetItem(pyVertList, 0);
+      pyVertYObj = PySequence_GetItem(pyVertList, 1);
+    }
 
     vtkSmartPyObject pyVertX(pyVertXObj);
     vtkSmartPyObject pyVertY(pyVertYObj);
-    if (this->CheckForError(pyVertX.GetPointer()) ||
-        this->CheckForError(pyVertY.GetPointer()))
-      {
+    if (this->CheckForError(pyVertX) ||
+        this->CheckForError(pyVertY))
+    {
       return false;
-      }
+    }
 
-    vert[0] = PyFloat_AsDouble(pyVertX.GetPointer()) * fontScale;
-    vert[1] = PyFloat_AsDouble(pyVertY.GetPointer()) * fontScale;
+    vert[0] = PyFloat_AsDouble(pyVertX) * fontScale;
+    vert[1] = PyFloat_AsDouble(pyVertY) * fontScale;
     if (this->CheckForError())
-      {
+    {
       return false;
-      }
+    }
 
     if (vert[0] < cbox[0])
-      {
+    {
       cbox[0] = vert[0];
-      }
+    }
     if (vert[1] < cbox[1])
-      {
+    {
       cbox[1] = vert[1];
-      }
+    }
     if (vert[0] > cbox[2])
-      {
+    {
       cbox[2] = vert[0];
-      }
+    }
     if (vert[1] > cbox[3])
-      {
+    {
       cbox[3] = vert[1];
-      }
+    }
 
-    code = PyInt_AsLong(pyCode.GetPointer());
+    code = PyInt_AsLong(pyCode);
     if (this->CheckForError())
-      {
+    {
       return false;
-      }
+    }
 
     switch (code)
-      {
+    {
       case pathStop:
         hasOrigin = false;
         break;
@@ -1022,12 +1046,12 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
       default:
         vtkWarningMacro(<<"Unrecognized code: " << code);
         break;
-      }
     }
+  }
 
   // Apply justification:
   switch (tprop->GetJustification())
-    {
+  {
     default:
     case VTK_TEXT_LEFT:
       delta[0] = -cbox[0];
@@ -1038,9 +1062,9 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
     case VTK_TEXT_RIGHT:
       delta[0] = -cbox[2];
       break;
-    }
+  }
   switch (tprop->GetVerticalJustification())
-    {
+  {
     default:
     case VTK_TEXT_BOTTOM:
       delta[1] = -cbox[1];
@@ -1050,7 +1074,7 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
       break;
     case VTK_TEXT_TOP:
       delta[1] = -cbox[3];
-    }
+  }
 
   const double theta = vtkMath::RadiansFromDegrees(tprop->GetOrientation());
   const double sinTheta = sin(theta);
@@ -1059,7 +1083,7 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
   double point[3];
   double newPoint[3];
   for (vtkIdType i = 0; i < points->GetNumberOfPoints(); ++i)
-    {
+  {
     points->GetPoint(i, point);
     point[0] += delta[0];
     point[1] += delta[1];
@@ -1067,16 +1091,46 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
     newPoint[1] = (point[0] * sinTheta) + (point[1] * cosTheta);
     newPoint[2] = point[2];
     points->SetPoint(i, newPoint);
-    }
-
+  }
 
   return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkMatplotlibMathTextUtilities::SetScaleToPowerOfTwo(bool val)
+{
+  if (this->ScaleToPowerOfTwo != val)
+  {
+    this->ScaleToPowerOfTwo = val;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+bool vtkMatplotlibMathTextUtilities::GetScaleToPowerOfTwo()
+{
+  return this->ScaleToPowerOfTwo;
 }
 
 //----------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "MPLMathTextAvailable: ";
+  switch (this->MPLMathTextAvailable)
+  {
+    case vtkMatplotlibMathTextUtilities::NOT_TESTED:
+      os << "Not tested\n";
+      break;
+    case vtkMatplotlibMathTextUtilities::AVAILABLE:
+      os << "Available\n";
+      break;
+    default:
+    case vtkMatplotlibMathTextUtilities::UNAVAILABLE:
+      os << "Unavailable\n";
+      break;
+  }
 
   os << indent << "MaskParser: " << this->MaskParser << endl;
   os << indent << "PathParser: " << this->PathParser << endl;

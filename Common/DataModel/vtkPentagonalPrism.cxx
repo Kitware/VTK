@@ -19,6 +19,12 @@
 // Thanks to Jean Favre (CSCS, Switzerland) who contributed to integrate this
 // class in VTK. <br>
 // Please address all comments to Jean Favre (jfavre at cscs.ch).
+//
+// The Interpolation functions and derivatives were changed in June
+// 2015 by Bill Lorensen. These changes follow the formulation in:
+// http://dilbert.engr.ucdavis.edu/~suku/nem/papers/polyelas.pdf
+// NOTE: An additional copy of this paper is located at:
+// http://www.vtk.org/Wiki/File:ApplicationOfPolygonalFiniteElementsInLinearElasticity.pdf
 
 #include "vtkPentagonalPrism.h"
 
@@ -43,10 +49,10 @@ vtkPentagonalPrism::vtkPentagonalPrism()
   this->PointIds->SetNumberOfIds(10);
 
   for (i = 0; i < 10; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
-    }
+  }
 
   this->Line = vtkLine::New();
   this->Quad = vtkQuad::New();
@@ -56,10 +62,10 @@ vtkPentagonalPrism::vtkPentagonalPrism()
   this->Polygon->Points->SetNumberOfPoints(5);
 
   for (i = 0; i < 5; i++)
-    {
+  {
     this->Polygon->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->Polygon->PointIds->SetId(i,0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -72,16 +78,16 @@ vtkPentagonalPrism::~vtkPentagonalPrism()
 }
 
 //
-//  Method to calculate parametric coordinates in an ten noded
-//  linear prism element from global coordinates.
+//  Method to calculate parametric coordinates in a pentagonal prism
+//  from global coordinates
 //
 static const int VTK_PENTA_MAX_ITERATION=10;
 static const double VTK_PENTA_CONVERGED=1.e-03;
 
 //----------------------------------------------------------------------------
-int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
+int vtkPentagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3],
                                          int& subId, double pcoords[3],
-                                         double& dist2, double *weights)
+                                         double& dist2, double weights[])
 {
   int iteration, converged;
   double  params[3];
@@ -97,39 +103,40 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
   //  enter iteration loop
   for (iteration=converged=0;
        !converged && (iteration < VTK_PENTA_MAX_ITERATION); iteration++)
-    {
+  {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
     for (i=0; i<3; i++)
-      {
+    {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
-      }
+    }
     for (i=0; i<10; i++)
-      {
+    {
       this->Points->GetPoint(i, pt);
       for (j=0; j<3; j++)
-        {
+      {
         fcol[j] += pt[j] * weights[i];
         rcol[j] += pt[j] * derivs[i];
         scol[j] += pt[j] * derivs[i+10];
         tcol[j] += pt[j] * derivs[i+20];
-        }
       }
+    }
 
     for (i=0; i<3; i++)
-      {
+    {
       fcol[i] -= x[i];
-      }
+    }
 
     //  compute determinants and generate improvements
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
     if ( fabs(d) < 1.e-20)
-      {
+    {
+      vtkDebugMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
-      }
+    }
 
     pcoords[0] = params[0] - vtkMath::Determinant3x3 (fcol,scol,tcol) / d;
     pcoords[1] = params[1] - vtkMath::Determinant3x3 (rcol,fcol,tcol) / d;
@@ -139,211 +146,215 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
     if ( ((fabs(pcoords[0]-params[0])) < VTK_PENTA_CONVERGED) &&
          ((fabs(pcoords[1]-params[1])) < VTK_PENTA_CONVERGED) &&
          ((fabs(pcoords[2]-params[2])) < VTK_PENTA_CONVERGED) )
-      {
+    {
       converged = 1;
-      }
+    }
 
     // Test for bad divergence (S.Hirschberg 11.12.2001)
     else if ((fabs(pcoords[0]) > VTK_DIVERGED) ||
              (fabs(pcoords[1]) > VTK_DIVERGED) ||
              (fabs(pcoords[2]) > VTK_DIVERGED))
-      {
+    {
       return -1;
-      }
+    }
 
     //  if not converged, repeat
     else
-      {
+    {
       params[0] = pcoords[0];
       params[1] = pcoords[1];
       params[2] = pcoords[2];
-      }
     }
+  }
 
   //  if not converged, set the parametric coordinates to arbitrary values
   //  outside of element
   if ( !converged )
-    {
+  {
     return -1;
-    }
+  }
 
   this->InterpolationFunctions(pcoords, weights);
 
   if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
   pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
   pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
-    {
+  {
     if (closestPoint)
-      {
+    {
       closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
       dist2 = 0.0; //inside hexahedron
-      }
-    return 1;
     }
+    return 1;
+  }
   else
-    {
+  {
     double pc[3], w[10];
     if (closestPoint)
-      {
+    {
       for (i=0; i<3; i++) //only approximate, not really true for warped hexa
-        {
+      {
         if (pcoords[i] < 0.0)
-          {
+        {
           pc[i] = 0.0;
-          }
-        else if (pcoords[i] > 1.0)
-          {
-          pc[i] = 1.0;
-          }
-        else
-          {
-          pc[i] = pcoords[i];
-          }
         }
+        else if (pcoords[i] > 1.0)
+        {
+          pc[i] = 1.0;
+        }
+        else
+        {
+          pc[i] = pcoords[i];
+        }
+      }
       this->EvaluateLocation(subId, pc, closestPoint,
                              static_cast<double *>(w));
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
-      }
-    return 0;
     }
+    return 0;
+  }
 }
 
 //----------------------------------------------------------------------------
 //
 // Compute iso-parametric interpolation functions
-//
+// See:
+// http://dilbert.engr.ucdavis.edu/~suku/nem/papers/polyelas.pdf
 
-// see vtkPentagonalPrismCellPCoords for V#i values:
-// The general idea is that for Point #0 (V1,V1,0) the shape function should be
-// 0 on the 4 other node. So expr of the line passing through points
-// (x1,y1) and (x2,y2) is as follow:
-// (x1-x2)*y - (y1-y2)*x - (x1*y2 - x2*y1) = 0
-// x(i):=1/2+1/2*Cos( Pi + Pi/4 + i*2*Pi/5)
-// y(i):=1/2+1/2*Sin( Pi + Pi/4 + i*2*Pi/5)
-// For instance EXPRA is x(2)-x(1)
-//              EXPRB is y(2)-y(1) (== x(4)-x(3))
-//              EXPRC is x(1)*y(2)-x(2)*y(1)
-//              EXPRD is x(2)-x(3) (because of sign)
-//              EXPRE is x(2)*y(3)-x(3)*y(2)
-//              EXPRF is x(0)-x(4)
-//              EXPRG is y(4)-y(0)
-//              EXPRH is x(0)*y(4)-x(4)*y(0)
-// EXPRN was deducted to normalize the function
-#define EXPRA 0.26684892042779546;
-#define EXPRB 0.52372049461429937;
-#define EXPRC 0.36619991616704034;
-#define EXPRD 0.41562693777745341;
-#define EXPRE 0.65339106685124182;
-#define EXPRF 0.091949871500910163;
-#define EXPRG 0.58054864046304711;
-#define EXPRH 0.098485126908190265;
-#define EXPRN 9.2621670111997307;
-
-void vtkPentagonalPrism::InterpolationFunctions(double pcoords[3], double sf[10])
+void vtkPentagonalPrism::InterpolationFunctions(const double pcoords[3],
+                                                double weights[10])
 {
-  double r, s, t;
-  r = pcoords[0];
-  s = pcoords[1];
-  t = pcoords[2];
+  // VTK needs parametric coordinates to be between [0,1]. Isoparametric
+  // shape functions are formulated between [-1,1]. Here we do a
+  // coordinate system conversion from [0,1] to [-1,1].
+  double x = 2.0*(pcoords[0]-0.5);
+  double y = 2.0*(pcoords[1]-0.5);
+  double z = pcoords[2]; // z is from 0 to 1
 
-  const double a = EXPRA;
-  const double b = EXPRB;
-  const double c = EXPRC;
-  const double d = EXPRD;
-  const double e = EXPRE;
-  const double f = EXPRF;
-  const double g = EXPRG;
-  const double h = EXPRH;
-  const double n = EXPRN;
+  // From Appendix A.1 Pentagonal reference element (n = 5)
+  double b = 87.05 - 12.7004 * x * x - 12.7004 * y * y;
 
-  //First pentagon
-  sf[0] = -n*(-a*s + b*r - c)*( b*s - a*r - c)*(t - 1.0);
-  sf[1] =  n*( d*s + d*r - e)*( f*s + g*r - h)*(t - 1.0);
-  sf[2] = -n*( b*s - a*r - c)*(-g*s - f*r + h)*(t - 1.0);
-  sf[3] =  n*(-a*s + b*r - c)*( f*s + g*r - h)*(t - 1.0);
-  sf[4] = -n*(-g*s - f*r + h)*( d*s + d*r - e)*(t - 1.0);
+  double a[5];
+  a[0] =
+    -0.092937 * (3.23607 + 4 * x) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y) *
+    (15.2169 + 5.81234 * x + 17.8885 * y);
+  a[1] =
+    - 0.0790569 * (3.80423 - 3.80423 * x - 2.76393 * y) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y ) *
+    (15.2169 + 5.81234 * x + 17.8885 * y );
+  a[2] =
+    - 0.0790569 * (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (3.80423 - 3.80423 * x - 2.76393 * y) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y);
+  a[3] =
+    0.092937 * (3.23607 + 4.0 * x) *
+    (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (3.80423 - 3.80423 * x - 2.76393 * y);
+  a[4] =
+    0.0232343 * (3.23607 + 4.0 * x) *
+    (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (15.2169 + 5.81234 * x + 17.8885 * y);
 
-  //Second pentagon
-  sf[5] =  n*(-a*s + b*r - c)*( b*s - a*r - c)*(t - 0.0);
-  sf[6] = -n*( d*s + d*r - e)*( f*s + g*r - h)*(t - 0.0);
-  sf[7] =  n*( b*s - a*r - c)*(-g*s - f*r + h)*(t - 0.0);
-  sf[8] = -n*(-a*s + b*r - c)*( f*s + g*r - h)*(t - 0.0);
-  //sf[9] =  n*(-g*s - f*r + h)*( d*s + d*r - e)*(t - 0.0);
-  sf[9] = 1. - (sf[0]+sf[1]+sf[2]+sf[3]+sf[4]+sf[5]+sf[6]+sf[7]+sf[8]);
+  for (int i = 0; i < 5; ++i)
+  {
+    weights[i]     = -(a[i] / b) * (z - 1.0);
+    weights[i + 5] = (a[i] / b) * (z - 0.0);
+  }
 }
 
 //----------------------------------------------------------------------------
 //
 // Compute iso-parametric interpolation derivatives
+// See:
+// http://dilbert.engr.ucdavis.edu/~suku/nem/papers/polyelas.pdf
 //
-void vtkPentagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[30])
+void vtkPentagonalPrism::InterpolationDerivs(const double pcoords[3], double derivs[30])
 {
-  double r, s, t;
-  r = pcoords[0];
-  s = pcoords[1];
-  t = pcoords[2];
+  // VTK needs parametric coordinates to be between [0,1]. Isoparametric
+  // shape functions are formulated between [-1,1]. Here we do a
+  // coordinate system conversion from [0,1] to [-1,1].
+  double x = 2.0*(pcoords[0]-0.5);
+  double y = 2.0*(pcoords[1]-0.5);
+  double z = pcoords[2];  // z is from 0 to 1
 
-  const double a = EXPRA;
-  const double b = EXPRB;
-  const double c = EXPRC;
-  const double d = EXPRD;
-  const double e = EXPRE;
-  const double f = EXPRF;
-  const double g = EXPRG;
-  const double h = EXPRH;
-  const double n = EXPRN;
+  double dd[20];
 
-  // r-derivatives
+  // x-derivatives
+  // First pentagon
+  double x2 = x * x;
+  double y2 = y * y;
+  double denom = (-12.7004*x2 - 12.7004*y2 + 87.05);
+  double denom2 = denom * denom;
+
+  // Please excuse the line length. This code was generated using the
+  // symbolic math package SymPy. (http://www.sympy.org)
+
+  dd[0] =  25.4008*x*(-0.371748*x - 0.30075063759)*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 5.81234*(-0.371748*x - 0.30075063759)*(3.80423*x - 2.76393*y - 3.80423)/denom + 3.80423*(-0.371748*x - 0.30075063759)*(5.81234*x + 17.8885*y + 15.2169)/denom - 0.371748*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
+
+  dd[1] =  25.4008*x*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 5.81234*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(3.80423*x - 2.76393*y - 3.80423)/denom + 3.80423*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(5.81234*x + 17.8885*y + 15.2169)/denom + 0.300750630687*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
+
+  dd[2] =  25.4008*x*(-3.80423*x - 2.76393*y + 3.80423)*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)*(3.80423*x - 2.76393*y - 3.80423)/denom2 + 3.80423*(-3.80423*x - 2.76393*y + 3.80423)*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)/denom - 0.459505582146*(-3.80423*x - 2.76393*y + 3.80423)*(3.80423*x - 2.76393*y - 3.80423)/denom - 3.80423*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)*(3.80423*x - 2.76393*y - 3.80423)/denom ;
+
+  dd[3] =  25.4008*x*(0.371748*x + 0.30075063759)*(-3.80423*x - 2.76393*y + 3.80423)*(5.81234*x - 17.8885*y + 15.2169)/denom2 + 5.81234*(0.371748*x + 0.30075063759)*(-3.80423*x - 2.76393*y + 3.80423)/denom - 3.80423*(0.371748*x + 0.30075063759)*(5.81234*x - 17.8885*y + 15.2169)/denom + 0.371748*(-3.80423*x - 2.76393*y + 3.80423)*(5.81234*x - 17.8885*y + 15.2169)/denom ;
+
+  dd[4] =  25.4008*x*(0.0929372*x + 0.075187821201)*(5.81234*x - 17.8885*y + 15.2169)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 5.81234*(0.0929372*x + 0.075187821201)*(5.81234*x - 17.8885*y + 15.2169)/denom + 5.81234*(0.0929372*x + 0.075187821201)*(5.81234*x + 17.8885*y + 15.2169)/denom + 0.0929372*(5.81234*x - 17.8885*y + 15.2169)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
+
+  // y-derivatives
   //First pentagon
-  derivs[0] = -n*(-2*a*b*r + (a*a + b*b)*s + a*c - b*c)*(t - 1.0);
-  derivs[1] =  n*( 2*d*g*r + d*(f + g)*s - d*h - e*g)*(t - 1.0);
-  derivs[2] = -n*( 2*a*f*r + (a*g - b*f)*s - a*h + c*f)*(t - 1.0);
-  derivs[3] =  n*( 2*b*g*r + (b*f - a*g)*s - b*h - c*g)*(t - 1.0);
-  derivs[4] = -n*(-2*d*f*r - d*(f + g)*s + d*h + e*f)*(t - 1.0);
-  //Second pentagon
-  derivs[5] =  n*(-2*a*b*r + (a*a + b*b)*s + a*c - b*c)*(t - 0.0);
-  derivs[6] = -n*( 2*d*g*r + d*(f + g)*s - d*h - e*g)*(t - 0.0);
-  derivs[7] =  n*( 2*a*f*r + (a*g - b*f)*s - a*h + c*f)*(t - 0.0);
-  derivs[8] = -n*( 2*b*g*r + (b*f - a*g)*s - b*h - c*g)*(t - 0.0);
-  //derivs[9] =  n*(-2*d*f*r - d*(f + g)*s + d*h + e*f)*(t - 0.0);
-  derivs[9] = -(derivs[0]+derivs[1]+derivs[2]+derivs[3]+derivs[4]+derivs[5]
-    +derivs[6]+derivs[7]+derivs[8]);
+  dd[10] =  25.4008*y*(-0.371748*x - 0.30075063759)*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 17.8885*(-0.371748*x - 0.30075063759)*(3.80423*x - 2.76393*y - 3.80423)/denom - 2.76393*(-0.371748*x - 0.30075063759)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
 
-  // s-derivatives
-  //First pentagon
-  derivs[10] = -n*(-2*a*b*s + (a*a + b*b)*r + a*c - b*c)*(t - 1.0);
-  derivs[11] =  n*( 2*d*f*s + d*(f + g)*r - d*h - e*f)*(t - 1.0);
-  derivs[12] = -n*(-2*b*g*s + (a*g - b*f)*r + b*h + c*g)*(t - 1.0);
-  derivs[13] =  n*(-2*a*f*s + (b*f - a*g)*r + a*h - c*f)*(t - 1.0);
-  derivs[14] = -n*(-2*d*g*s - d*(f + g)*r + d*h + e*g)*(t - 1.0);
-  //Second pentagon
-  derivs[15] =  n*(-2*a*b*s + (a*a + b*b)*r + a*c - b*c)*(t - 0.0);
-  derivs[16] = -n*( 2*d*f*s + d*(f + g)*r - d*h - e*f)*(t - 0.0);
-  derivs[17] =  n*(-2*b*g*s + (a*g - b*f)*r + b*h + c*g)*(t - 0.0);
-  derivs[18] = -n*(-2*a*f*s + (b*f - a*g)*r + a*h - c*f)*(t - 0.0);
-  //derivs[19] =  n*(-2*d*g*s - d*(f + g)*r + d*h + e*g)*(t - 0.0);
-  derivs[19] = -(derivs[10]+derivs[11]+derivs[12]+derivs[13]+derivs[14]+derivs[15]
-    +derivs[16]+derivs[17]+derivs[18]);
+  dd[11] =  25.4008*y*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 17.8885*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(3.80423*x - 2.76393*y - 3.80423)/denom - 2.76393*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(5.81234*x + 17.8885*y + 15.2169)/denom + 0.218507737617*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
 
-  // t-derivatives
-  //First pentagon
-  derivs[20] = -n*(-a*s + b*r - c)*( b*s - a*r - c);
-  derivs[21] =  n*( d*s + d*r - e)*( f*s + g*r - h);
-  derivs[22] = -n*( b*s - a*r - c)*(-g*s - f*r + h);
-  derivs[23] =  n*(-a*s + b*r - c)*( f*s + g*r - h);
-  derivs[24] = -n*(-g*s - f*r + h)*( d*s + d*r - e);
-  //Second pentagon
-  derivs[25] =  n*(-a*s + b*r - c)*( b*s - a*r - c);
-  derivs[26] = -n*( d*s + d*r - e)*( f*s + g*r - h);
-  derivs[27] =  n*( b*s - a*r - c)*(-g*s - f*r + h);
-  derivs[28] = -n*(-a*s + b*r - c)*( f*s + g*r - h);
-  //derivs[29] =  n*(-g*s - f*r + h)*( d*s + d*r - e);
-  derivs[29] = -(derivs[20]+derivs[21]+derivs[22]+derivs[23]+derivs[24]+derivs[25]
-    +derivs[26]+derivs[27]+derivs[28]);
+  dd[12] =  25.4008*y*(-3.80423*x - 2.76393*y + 3.80423)*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)*(3.80423*x - 2.76393*y - 3.80423)/denom2 - 2.76393*(-3.80423*x - 2.76393*y + 3.80423)*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)/denom + 1.41420935565*(-3.80423*x - 2.76393*y + 3.80423)*(3.80423*x - 2.76393*y - 3.80423)/denom - 2.76393*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)*(3.80423*x - 2.76393*y - 3.80423)/denom ;
+
+  dd[13] =  25.4008*y*(0.371748*x + 0.30075063759)*(-3.80423*x - 2.76393*y + 3.80423)*(5.81234*x - 17.8885*y + 15.2169)/denom2 - 17.8885*(0.371748*x + 0.30075063759)*(-3.80423*x - 2.76393*y + 3.80423)/denom - 2.76393*(0.371748*x + 0.30075063759)*(5.81234*x - 17.8885*y + 15.2169)/denom ;
+
+  dd[14] =  25.4008*y*(0.0929372*x + 0.075187821201)*(5.81234*x - 17.8885*y + 15.2169)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 17.8885*(0.0929372*x + 0.075187821201)*(5.81234*x - 17.8885*y + 15.2169)/denom - 17.8885*(0.0929372*x + 0.075187821201)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
+
+  // z-derivatives
+  // First pentagon
+  double b = 87.05 - 12.7004 * x * x - 12.7004 * y * y;
+  dd[15] =
+    -0.092937 * (3.23607 + 4 * x) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y) *
+    (15.2169 + 5.81234 * x + 17.8885 * y) / b;
+  dd[16] =
+    - 0.0790569 * (3.80423 - 3.80423 * x - 2.76393 * y) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y ) *
+    (15.2169 + 5.81234 * x + 17.8885 * y ) / b;
+  dd[17] =
+    - 0.0790569 * (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (3.80423 - 3.80423 * x - 2.76393 * y) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y) / b;
+  dd[18] =
+    0.092937 * (3.23607 + 4.0 * x) *
+    (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (3.80423 - 3.80423 * x - 2.76393 * y) / b;
+  dd[19] =
+    0.0232343 * (3.23607 + 4.0 * x) *
+    (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (15.2169 + 5.81234 * x + 17.8885 * y) / b;
+
+  for (int i = 0; i < 5; ++i)
+  {
+    derivs[i]      = -dd[i]      * (z - 1.0);  // x deriv first pentagon
+    derivs[i + 5]  =  dd[i]      * (z + 0.0);  // x deriv second pentagon
+    derivs[i + 10] = -dd[i + 10] * (z - 1.0);  // y deriv first pentagon
+    derivs[i + 15] =  dd[i + 10] * (z + 0.0);  // y deriv second pentagon
+    derivs[i + 20] = -dd[i + 15];              // z deriv first pentagon
+    derivs[i + 25] =  dd[i + 15];              // z deriv second pentagon
+  }
+
+  // We compute derivatives in [-1; 1] but we need them in [ 0; 1]
+  for(int i = 0; i < 30; i++)
+  {
+    derivs[i] *= 2;
+  }
 }
 
 //----------------------------------------------------------------------------
-void vtkPentagonalPrism::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], double x[3], double *weights)
+void vtkPentagonalPrism::EvaluateLocation(int& vtkNotUsed(subId), const double pcoords[3], double x[3], double *weights)
 {
   int i, j;
   double pt[3];
@@ -352,13 +363,13 @@ void vtkPentagonalPrism::EvaluateLocation(int& vtkNotUsed(subId), double pcoords
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 10; i++)
-    {
+  {
     this->Points->GetPoint(i, pt);
     for (j = 0; j < 3; j++)
-      {
+    {
       x[j] += pt [j] * weights [i];
-      }
     }
+  }
 }
 static int edges[15][2] = { {0,1}, {1,2}, {2,3},
                             {3,4}, {4,0}, {5,6},
@@ -366,43 +377,40 @@ static int edges[15][2] = { {0,1}, {1,2}, {2,3},
                             {9,5}, {0,5}, {1,6},
                             {2,7}, {3,8}, {4,9} };
 
-static int faces[7][5] = { {0,4,3,2,1}, {5,6,7,8,9},
-                           {0,1,6,5,-1}, {1,2,7,6,-1},
-                           {2,3,8,7,-1}, {3,4,9,8,-1},
-                           {4,0,5,9,-1} };
-
-#define VTK_MAX(a,b)    (((a)>(b))?(a):(b))
-#define VTK_MIN(a,b)    (((a)<(b))?(a):(b))
+static int faces[7][6] = { {0,4,3,2,1,-1}, {5,6,7,8,9,-1},
+                           {0,1,6,5,-1,-1}, {1,2,7,6,-1,-1},
+                           {2,3,8,7,-1,-1}, {3,4,9,8,-1,-1},
+                           {4,0,5,9,-1,-1} };
 
 //----------------------------------------------------------------------------
 // Returns the closest face to the point specified. Closeness is measured
 // parametrically.
-int vtkPentagonalPrism::CellBoundary(int subId, double pcoords[3],
+int vtkPentagonalPrism::CellBoundary(int subId, const double pcoords[3],
                                      vtkIdList *pts)
 {
   // load coordinates
   double *points = this->GetParametricCoords();
   for(int i=0;i<5;i++)
-    {
+  {
     this->Polygon->PointIds->SetId(i, i);
     this->Polygon->Points->SetPoint(i, &points[3*i]);
-    }
+  }
 
   this->Polygon->CellBoundary( subId, pcoords, pts);
 
-  int min = VTK_MIN(pts->GetId( 0 ), pts->GetId( 1 ));
-  int max = VTK_MAX(pts->GetId( 0 ), pts->GetId( 1 ));
+  int min = vtkMath::Min(pts->GetId( 0 ), pts->GetId( 1 ));
+  int max = vtkMath::Max(pts->GetId( 0 ), pts->GetId( 1 ));
 
   //Base on the edge find the quad that correspond:
   int index;
   if( (index = (max - min)) > 1)
-    {
+  {
     index = 6;
-    }
+  }
   else
-    {
+  {
     index += min + 1;
-    }
+  }
 
   double a[3], b[3], u[3], v[3];
   this->Polygon->Points->GetPoint(pts->GetId( 0 ), a);
@@ -415,80 +423,80 @@ int vtkPentagonalPrism::CellBoundary(int subId, double pcoords[3],
   double dot = vtkMath::Dot2D(v, u);
   double uNorm = vtkMath::Norm2D( u );
   if (uNorm)
-    {
+  {
     dot /= uNorm;
-    }
+  }
   dot = (v[0]*v[0] + v[1]*v[1]) - dot*dot;
   // mathematically dot must be >= zero but, surprise surprise, it can actually
   // be negative
   if (dot > 0)
-    {
+  {
     dot = sqrt( dot );
-    }
+  }
   else
-    {
+  {
     dot = 0;
-    }
+  }
   int *verts;
 
   if(pcoords[2] < 0.5)
-    {
+  {
     //could be closer to face 1
     //compare that distance to the distance to the quad.
 
     if(dot < pcoords[2])
-      {
+    {
       //We are closer to the quad face
       verts = faces[index];
       for(int i=0; i<4; i++)
-        {
-        pts->InsertId(i, verts[i]);
-        }
-      }
-    else
       {
-      //we are closer to the penta face 1
-      for(int i=0; i<5; i++)
-        {
-        pts->InsertId(i, faces[0][i]);
-        }
+        pts->InsertId(i, verts[i]);
       }
     }
-  else
+    else
     {
+      //we are closer to the penta face 1
+      for(int i=0; i<5; i++)
+      {
+        pts->InsertId(i, faces[0][i]);
+      }
+    }
+  }
+  else
+  {
     //could be closer to face 2
     //compare that distance to the distance to the quad.
 
     if(dot < (1. - pcoords[2]) )
-      {
+    {
       //We are closer to the quad face
       verts = faces[index];
       for(int i=0; i<4; i++)
-        {
-        pts->InsertId(i, verts[i]);
-        }
-      }
-    else
       {
-      //we are closer to the penta face 2
-      for(int i=0; i<5; i++)
-        {
-        pts->InsertId(i, faces[1][i]);
-        }
+        pts->InsertId(i, verts[i]);
       }
     }
+    else
+    {
+      //we are closer to the penta face 2
+      for(int i=0; i<5; i++)
+      {
+        pts->InsertId(i, faces[1][i]);
+      }
+    }
+  }
 
   // determine whether point is inside of hexagon
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
        pcoords[1] < 0.0 || pcoords[1] > 1.0 ||
        pcoords[2] < 0.0 || pcoords[2] > 1.0 )
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -527,7 +535,7 @@ vtkCell *vtkPentagonalPrism::GetFace(int faceId)
   verts = faces[faceId];
 
   if ( verts[4] != -1 ) // polys cell
-    {
+  {
     // load point id's
     this->Polygon->PointIds->SetId(0,this->PointIds->GetId(verts[0]));
     this->Polygon->PointIds->SetId(1,this->PointIds->GetId(verts[1]));
@@ -543,9 +551,9 @@ vtkCell *vtkPentagonalPrism::GetFace(int faceId)
     this->Polygon->Points->SetPoint(4,this->Points->GetPoint(verts[4]));
 
     return this->Polygon;
-    }
+  }
   else
-    {
+  {
     // load point id's
     this->Quad->PointIds->SetId(0,this->PointIds->GetId(verts[0]));
     this->Quad->PointIds->SetId(1,this->PointIds->GetId(verts[1]));
@@ -559,13 +567,13 @@ vtkCell *vtkPentagonalPrism::GetFace(int faceId)
     this->Quad->Points->SetPoint(3,this->Points->GetPoint(verts[3]));
 
     return this->Quad;
-    }
+  }
 }
 //----------------------------------------------------------------------------
 //
 // Intersect prism faces against line. Each prism face is a quadrilateral.
 //
-int vtkPentagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
+int vtkPentagonalPrism::IntersectWithLine(const double p1[3], const double p2[3], double tol,
                                           double &t, double x[3], double pcoords[3],
                                           int& subId)
 {
@@ -579,7 +587,7 @@ int vtkPentagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol
 
   //first intersect the penta faces
   for (faceNum=0; faceNum<2; faceNum++)
-    {
+  {
     this->Points->GetPoint(faces[faceNum][0], pt1);
     this->Points->GetPoint(faces[faceNum][1], pt2);
     this->Points->GetPoint(faces[faceNum][2], pt3);
@@ -597,14 +605,14 @@ int vtkPentagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol
 
     if ( this->Quad->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) ||
          this->Triangle->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
-      {
+    {
       intersection = 1;
       if ( tTemp < t )
-        {
+      {
         t = tTemp;
         x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         switch (faceNum)
-          {
+        {
           case 0:
             pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 0.0;
             break;
@@ -612,14 +620,14 @@ int vtkPentagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol
           case 1:
             pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 1.0;
             break;
-          }
         }
       }
     }
+  }
 
   //now intersect the _5_ quad faces
   for (faceNum=2; faceNum<5; faceNum++)
-    {
+  {
     this->Points->GetPoint(faces[faceNum][0], pt1);
     this->Points->GetPoint(faces[faceNum][1], pt2);
     this->Points->GetPoint(faces[faceNum][2], pt3);
@@ -631,16 +639,16 @@ int vtkPentagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol
     this->Quad->Points->SetPoint(3,pt4);
 
     if ( this->Quad->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
-      {
+    {
       intersection = 1;
       if ( tTemp < t )
-        {
+      {
         t = tTemp;
         x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         this->EvaluatePosition(x, xTemp, subId, pcoords, dist2, weights);
-        }
       }
     }
+  }
 
   return intersection;
 }
@@ -652,10 +660,10 @@ int vtkPentagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtk
   pts->Reset();
 
   for ( int i=0; i < 4; i++ )
-    {
+  {
     ptIds->InsertId(i,this->PointIds->GetId(i));
     pts->InsertPoint(i,this->Points->GetPoint(i));
-    }
+  }
 
   return 1;
 }
@@ -664,8 +672,8 @@ int vtkPentagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtk
 // Compute derivatives in x-y-z directions. Use chain rule in combination
 // with interpolation function derivatives.
 //
-void vtkPentagonalPrism::Derivatives(int vtkNotUsed(subId), double pcoords[3],
-                                     double *values, int dim, double *derivs)
+void vtkPentagonalPrism::Derivatives(int vtkNotUsed(subId), const double pcoords[3],
+                                     const double *values, int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
   double functionDerivs[30], sum[3];
@@ -677,25 +685,25 @@ void vtkPentagonalPrism::Derivatives(int vtkNotUsed(subId), double pcoords[3],
 
   // now compute derivates of values provided
   for (k=0; k < dim; k++) //loop over values per vertex
-    {
+  {
     sum[0] = sum[1] = sum[2] = 0.0;
     for ( i=0; i < 10; i++) //loop over interp. function derivatives
-      {
+    {
       sum[0] += functionDerivs[i] * values[dim*i + k];
       sum[1] += functionDerivs[10 + i] * values[dim*i + k];
       sum[2] += functionDerivs[20 + i] * values[dim*i + k];
-      }
-    for (j=0; j < 3; j++) //loop over derivative directions
-      {
-      derivs[3*k + j] = sum[0]*jI[j][0] + sum[1]*jI[j][1] + sum[2]*jI[j][2];
-      }
     }
+    for (j=0; j < 3; j++) //loop over derivative directions
+    {
+      derivs[3*k + j] = sum[0]*jI[j][0] + sum[1]*jI[j][1] + sum[2]*jI[j][2];
+    }
+  }
 }
 //----------------------------------------------------------------------------
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
-void vtkPentagonalPrism::JacobianInverse(double pcoords[3], double **inverse,
+void vtkPentagonalPrism::JacobianInverse(const double pcoords[3], double **inverse,
                                          double derivs[24])
 {
   int i, j;
@@ -708,27 +716,27 @@ void vtkPentagonalPrism::JacobianInverse(double pcoords[3], double **inverse,
   // create Jacobian matrix
   m[0] = m0; m[1] = m1; m[2] = m2;
   for (i=0; i < 3; i++) //initialize matrix
-    {
+  {
     m0[i] = m1[i] = m2[i] = 0.0;
-    }
+  }
 
   for ( j=0; j < 10; j++ )
-    {
+  {
     this->Points->GetPoint(j, x);
     for ( i=0; i < 3; i++ )
-      {
+    {
       m0[i] += x[i] * derivs[j];
       m1[i] += x[i] * derivs[10 + j];
       m2[i] += x[i] * derivs[20 + j];
-      }
     }
+  }
 
   // now find the inverse
   if ( vtkMath::InvertMatrix(m,inverse,3) == 0 )
-    {
+  {
     vtkErrorMacro(<<"Jacobian inverse not found");
     return;
-    }
+  }
 
 }
 
@@ -744,35 +752,20 @@ void vtkPentagonalPrism::GetFacePoints (int faceId, int *&pts)
   pts = this->GetFaceArray(faceId);
 }
 
-// How to find the points for the pentagon:
-// The points for the iso parametric pentagon have to be properly chosen so that
-// the inverse Jacobian is defined.
-// To be regular the points have to on the circle, center (1/2,1/2) with radius
-// sqrt(2)/2
-// Then since there is an odd number of points they have to be simmetric
-// to the first bisector
-// Thus I pick the first point to be on this dividing line.
-// We can then express point i (0, 4) to be:
-// Vi_x = CenterOfCircle + 1/2 ( cos( pi + pi/4 + i*2*pi/5) )
-// Vi_y = CenterOfCircle + 1/2 ( sin( pi + pi/4 + i*2*pi/5) )
-
-#define V1 0.14644660940672624
-#define V2 0.72699524986977337
-#define V3 0.054496737905816071
-#define V4 0.99384417029756889
-#define V5 0.57821723252011548
+// See:
+// http://dilbert.engr.ucdavis.edu/~suku/nem/papers/polyelas.pdf
 
 static double vtkPentagonalPrismCellPCoords[30] = {
-V1 , V1 , 0.0,
-V2 , V3 , 0.0,
-V4 , V5 , 0.0,
-V5 , V4 , 0.0,
-V3 , V2 , 0.0,
-V1 , V1 , 1.0,
-V2 , V3 , 1.0,
-V4 , V5 , 1.0,
-V5 , V4 , 1.0,
-V3 , V2 , 1.0};
+  0.654508, 0.975528, 0,
+  0.0954915, 0.793893, 0,
+  0.0954915, 0.206107, 0,
+  0.654508, 0.0244717, 0,
+  1, 0.5, 0,
+  0.654508, 0.975528, 1,
+  0.0954915, 0.793893, 1,
+  0.0954915, 0.206107, 1,
+  0.654508, 0.0244717, 1,
+  1, 0.5, 1};
 
 //----------------------------------------------------------------------------
 double *vtkPentagonalPrism::GetParametricCoords()

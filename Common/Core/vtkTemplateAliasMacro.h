@@ -12,26 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTemplateAliasMacro - Dispatch a scalar processing template.
-// .SECTION Description
-// vtkTemplateAliasMacro is used in a switch statement to
-// automatically generate duplicate code for all enabled scalar types.
-// The code can be written to use VTK_TT to refer to the type, and
-// each case generated will define VTK_TT appropriately.  The
-// difference between this and the standard vtkTemplateMacro is that
-// this version will set VTK_TT to an "alias" for each type.  The
-// alias may be the same type or may be a different type that is the
-// same size/signedness.  This is sufficient when only the numerical
-// value associated with instances of the type is needed, and it
-// avoids unnecessary template instantiations.
-//
-// Example usage:
-//
-//   void* p = dataArray->GetVoidPointer(0);
-//   switch(dataArray->GetDataType())
-//     {
-//     vtkTemplateAliasMacro(vtkMyTemplateFunction(static_cast<VTK_TT*>(p)));
-//     }
+/**
+ * @class   vtkTemplateAliasMacro
+ * @brief   Dispatch a scalar processing template.
+ *
+ * vtkTemplateAliasMacro is used in a switch statement to
+ * automatically generate duplicate code for all enabled scalar types.
+ * The code can be written to use VTK_TT to refer to the type, and
+ * each case generated will define VTK_TT appropriately.  The
+ * difference between this and the standard vtkTemplateMacro is that
+ * this version will set VTK_TT to an "alias" for each type.  The
+ * alias may be the same type or may be a different type that is the
+ * same size/signedness.  This is sufficient when only the numerical
+ * value associated with instances of the type is needed, and it
+ * avoids unnecessary template instantiations.
+ *
+ * Example usage:
+ *
+ *   void* p = dataArray->GetVoidPointer(0);
+ *   switch(dataArray->GetDataType())
+ *     {
+ *     vtkTemplateAliasMacro(vtkMyTemplateFunction(static_cast<VTK_TT*>(p)));
+ *     }
+*/
 
 #ifndef vtkTemplateAliasMacro_h
 #define vtkTemplateAliasMacro_h
@@ -51,12 +54,6 @@
 #define VTK_USE_FLOAT32 1
 #define VTK_USE_FLOAT64 1
 
-// Force UINT64 off if we cannot implement support for it.
-#if defined(VTK_TYPE_USE___INT64) && !defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-# undef VTK_USE_UINT64
-# define VTK_USE_UINT64 0
-#endif
-
 //--------------------------------------------------------------------------
 
 // Define helper macros to switch types on and off.
@@ -72,40 +69,22 @@
   vtkTemplateAliasMacroCase_##value(typeN, call)
 #define vtkTemplateAliasMacroCase_0(typeN, call)                              \
   case VTK_##typeN:                                                           \
-    {                                                                         \
+  {                                                                         \
     vtkGenericWarningMacro("Support for VTK_" #typeN " not compiled.");       \
-    }; break
+  }; break
 #define vtkTemplateAliasMacroCase_1(typeN, call)                              \
   case VTK_##typeN:                                                           \
-    {                                                                         \
+  {                                                                         \
     typedef vtkTypeTraits<VTK_TYPE_NAME_##typeN>::SizedType VTK_TT; call;     \
-    }; break
-
-// Add "long long" to the template macro if it is enabled.
-#if defined(VTK_TYPE_USE_LONG_LONG)
-# define vtkTemplateAliasMacroCase_ll(typeN, call)                            \
-             vtkTemplateAliasMacroCase(typeN, call);
-#else
-# define vtkTemplateAliasMacroCase_ll(typeN, call)
-#endif
-
-// Add "__int64" to the template macro if it is enabled.
-#if defined(VTK_TYPE_USE___INT64)
-# define vtkTemplateAliasMacroCase_i64(typeN, call)                           \
-             vtkTemplateAliasMacroCase(typeN, call);
-#else
-# define vtkTemplateAliasMacroCase_i64(typeN, call)
-#endif
+  }; break
 
 // Define a macro to dispatch calls to a template instantiated over
 // the aliased scalar types.
 #define vtkTemplateAliasMacro(call)                                           \
   vtkTemplateAliasMacroCase(DOUBLE, call);                                    \
   vtkTemplateAliasMacroCase(FLOAT, call);                                     \
-  vtkTemplateAliasMacroCase_ll(LONG_LONG, call)                               \
-  vtkTemplateAliasMacroCase_ll(UNSIGNED_LONG_LONG, call)                      \
-  vtkTemplateAliasMacroCase_i64(__INT64, call)                                \
-  vtkTemplateAliasMacroCase_i64(UNSIGNED___INT64, call)                       \
+  vtkTemplateAliasMacroCase(LONG_LONG, call);                                 \
+  vtkTemplateAliasMacroCase(UNSIGNED_LONG_LONG, call);                        \
   vtkTemplateAliasMacroCase(ID_TYPE, call);                                   \
   vtkTemplateAliasMacroCase(LONG, call);                                      \
   vtkTemplateAliasMacroCase(UNSIGNED_LONG, call);                             \

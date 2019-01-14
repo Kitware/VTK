@@ -21,7 +21,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 
 // Construct with no start and end write methods or arguments.
@@ -31,9 +31,7 @@ vtkWriter::vtkWriter()
   this->SetNumberOfOutputPorts(0);
 }
 
-vtkWriter::~vtkWriter()
-{
-}
+vtkWriter::~vtkWriter() = default;
 
 void vtkWriter::SetInputData(vtkDataObject *input)
 {
@@ -53,9 +51,9 @@ vtkDataObject *vtkWriter::GetInput()
 vtkDataObject *vtkWriter::GetInput(int port)
 {
   if (this->GetNumberOfInputConnections(port) < 1)
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
   return this->GetExecutive()->GetInputData(port, 0);
 }
 
@@ -66,10 +64,10 @@ int vtkWriter::Write()
 {
   // Make sure we have input.
   if (this->GetNumberOfInputConnections(0) < 1)
-    {
+  {
     vtkErrorMacro("No input provided!");
     return 0;
-    }
+  }
 
   // always write even if the data hasn't changed
   this->Modified();
@@ -84,9 +82,9 @@ int vtkWriter::ProcessRequest(vtkInformation *request,
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
@@ -99,45 +97,17 @@ int vtkWriter::RequestData(
   this->SetErrorCode(vtkErrorCode::NoError);
 
   vtkDataObject *input = this->GetInput();
-  int idx;
 
   // make sure input is available
   if ( !input )
-    {
+  {
     vtkErrorMacro(<< "No input!");
     return 0;
-    }
+  }
 
-  for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
-    {
-    if (this->GetInputExecutive(idx, 0) != NULL)
-      {
-      this->GetInputExecutive(idx, 0)->Update();
-      }
-    }
-
-  unsigned long lastUpdateTime =  this->GetInput(0)->GetUpdateTime();
-  for (idx = 1; idx < this->GetNumberOfInputPorts(); ++idx)
-    {
-    if (this->GetInput(idx))
-      {
-      unsigned long updateTime = this->GetInput(idx)->GetUpdateTime();
-      if ( updateTime > lastUpdateTime )
-        {
-        lastUpdateTime = updateTime;
-        }
-      }
-    }
-
-  if (lastUpdateTime < this->WriteTime && this->GetMTime() < this->WriteTime)
-    {
-    // we are up to date
-    return 1;
-    }
-
-  this->InvokeEvent(vtkCommand::StartEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartEvent,nullptr);
   this->WriteData();
-  this->InvokeEvent(vtkCommand::EndEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndEvent,nullptr);
 
   this->WriteTime.Modified();
 
@@ -153,75 +123,75 @@ void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)
 void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent)
 {
   if ( !name || !resname )
-    {
+  {
     return;
-    }
+  }
   int cc = 0;
-  vtksys_ios::ostringstream str;
+  std::ostringstream str;
 
   char buffer[10];
 
   while( name[cc] )
-    {
+  {
     // Encode spaces and %'s (and most non-printable ascii characters)
     // The reader does not support spaces in strings.
     if ( name[cc] < 33  || name[cc] > 126 ||
          name[cc] == '\"' || name[cc] == '%' )
-      {
-      sprintf(buffer, "%02X", static_cast<unsigned char>(name[cc]));
+    {
+      snprintf(buffer, sizeof(buffer), "%02X", static_cast<unsigned char>(name[cc]));
       if (doublePercent)
-        {
-        str << "%%";
-        }
-      else
-        {
-        str << "%";
-        }
-      str << buffer;
-      }
-    else
       {
-      str << name[cc];
+        str << "%%";
       }
-    cc++;
+      else
+      {
+        str << "%";
+      }
+      str << buffer;
     }
+    else
+    {
+      str << name[cc];
+    }
+    cc++;
+  }
   strcpy(resname, str.str().c_str());
 }
 
 void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePercent)
 {
   if (!name)
-    {
+  {
     return;
-    }
+  }
   int cc = 0;
 
   char buffer[10];
 
   while( name[cc] )
-    {
+  {
     // Encode spaces and %'s (and most non-printable ascii characters)
     // The reader does not support spaces in strings.
     if ( name[cc] < 33  || name[cc] > 126 ||
          name[cc] == '\"' || name[cc] == '%' )
-      {
-      sprintf(buffer, "%02X", static_cast<unsigned char>(name[cc]));
+    {
+      snprintf(buffer, sizeof(buffer), "%02X", static_cast<unsigned char>(name[cc]));
       if (doublePercent)
-        {
-        *out << "%%";
-        }
-      else
-        {
-        *out << "%";
-        }
-      *out << buffer;
-      }
-    else
       {
-      *out << name[cc];
+        *out << "%%";
       }
-    cc++;
+      else
+      {
+        *out << "%";
+      }
+      *out << buffer;
     }
+    else
+    {
+      *out << name[cc];
+    }
+    cc++;
+  }
 }
 
 

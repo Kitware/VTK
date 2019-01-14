@@ -1,126 +1,86 @@
-include(vtkQt)
+set(classes
+  QFilterTreeProxyModel
+  QVTKApplication
+  QVTKInteractor
+  QVTKInteractorAdapter
+  QVTKOpenGLNativeWidget
+  QVTKOpenGLWidget
+  QVTKOpenGLWindow
+  vtkEventQtSlotConnect
+  vtkQtAbstractModelAdapter
+  vtkQtAnnotationLayersModelAdapter
+  vtkQtConnection
+  vtkQtDebugLeaksModel
+  vtkQtDebugLeaksView
+  vtkQtTableModelAdapter
+  vtkQtTreeModelAdapter)
 
-# set up sources to build
-set(QVTKLibSrcs
-  vtkEventQtSlotConnect.cxx
-  vtkQtConnection.cxx
-  QVTKApplication.cxx
-  QVTKInteractor.cxx
-  QVTKInteractorAdapter.cxx
-  QVTKWidget.cxx
-  QFilterTreeProxyModel.cxx
-  QVTKPaintEngine.cxx
-  QVTKPaintEngine.h
-  vtkQtAbstractModelAdapter.cxx
-  vtkQtAnnotationLayersModelAdapter.cxx
-  vtkQtDebugLeaksModel.cxx
-  vtkQtDebugLeaksView.cxx
-  vtkQtTableModelAdapter.cxx
-  vtkQtTreeModelAdapter.cxx
-  )
+set(add_qvtkwidget FALSE)
+if (NOT VTK_LEGACY_REMOVE)
+  # QVTKWidget and related classes can only be added on Linux when
+  # X11 support is enabled since it depends on X11.
+  if(WIN32 OR APPLE OR VTK_USE_X)
+    list(APPEND classes
+      QVTKPaintEngine
+      QVTKWidget)
+    set(add_qvtkwidget TRUE)
+  endif ()
+endif ()
 
-set(QVTKMocHeaders
-  QVTKApplication.h
-  QVTKInteractorAdapter.h
-  QVTKInteractorInternal.h
-  QVTKWidget.h
-  vtkQtConnection.h
-  QFilterTreeProxyModel.h
-  vtkQtAbstractModelAdapter.h
-  vtkQtAnnotationLayersModelAdapter.h
-  vtkQtDebugLeaksModel.h
-  vtkQtDebugLeaksView.h
-  vtkQtTableModelAdapter.h
-  vtkQtTreeModelAdapter.h
-  )
+if (VTK_USE_X AND VTK_USE_TDX)
+  list(APPEND classes
+    vtkTDxQtUnixDevices)
+endif ()
 
-if(VTK_USE_X AND VTK_USE_TDX)
-  set(QVTKMocHeaders ${QVTKMocHeaders}
-    vtkTDxQtUnixDevices.h
-    )
-  set(QVTKLibSrcs ${QVTKLibSrcs}
-    vtkTDxQtUnixDevices.cxx
-    )
-endif()
+set(headers
+  QVTKWin32Header.h)
 
-if(VTK_USE_X)
-  find_package(X11 REQUIRED)
-  include_directories(${X11_INCLUDE_DIR})
-endif()
+set(private_headers
+  QVTKInteractorInternal.h)
 
-set(QVTKNonMocHeaders
-  QVTKWin32Header.h
-  vtkEventQtSlotConnect.h
-  QVTKInteractor.h
-  )
+set(qt5_components
+  Widgets)
 
-if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5Widgets REQUIRED QUIET)
-  include_directories(${Qt5Widgets_INCLUDE_DIRS})
-  add_definitions(${Qt5Widgets_DEFINITIONS})
+if (VTK_USE_X)
+  list(APPEND qt5_components
+    X11Extras)
+endif ()
 
-  qt5_wrap_cpp(QVTKLibMocSrcs ${QVTKMocHeaders})
+vtk_module_find_package(
+  PACKAGE     Qt5
+  COMPONENTS  ${qt5_components}
+  FORWARD_VERSION_REQ MINOR
+  VERSION_VAR         Qt5_VERSION)
 
-  set(QT_LIBRARIES ${Qt5Widgets_LIBRARIES})
+set(CMAKE_AUTOMOC 1)
 
-  # When this module is loaded by an app, load Qt too.
-  vtk_module_export_code_find_package(Qt5Widgets)
-else()
-  # import Qt4 build settings
-  set(QT_USE_QTNETWORK 1)
-  find_package(Qt4 REQUIRED QUIET)
-  mark_as_advanced(QT_QMAKE_EXECUTABLE)
-  include(${QT_USE_FILE})
+vtk_module_add_module(VTK::GUISupportQt
+  CLASSES ${classes}
+  HEADERS ${headers}
+  PRIVATE_HEADERS ${private_headers})
 
-  qt4_wrap_cpp(QVTKLibMocSrcs ${QVTKMocHeaders})
-endif()
-
-foreach(opt
-    QT_RCC_EXECUTABLE
-    QT_MOC_EXECUTABLE
-    QT_UIC_EXECUTABLE
-    QT_QMAKE_EXECUTABLE
-    )
-  set(VTK_${opt} "${${opt}}")
-  list(APPEND vtkGUISupportQt_EXPORT_OPTIONS VTK_${opt})
-endforeach()
-
-set(${vtk-module}_NO_HeaderTest 1)
-vtk_module_library(${vtk-module}
-  ${QVTKLibSrcs} ${QVTKLibMocSrcs}
-  ${QVTKNonMocHeaders} ${QVTKMocHeaders}
-  )
-
-vtk_module_link_libraries(${vtk-module} LINK_PUBLIC ${QT_LIBRARIES})
-
-if(VTK_USE_X)
-  vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${X11_LIBRARIES})
-endif()
-
-if(APPLE)
-  if(VTK_USE_CARBON)
-    vtk_module_link_libraries(${vtk-module} LINK_PRIVATE "-framework Carbon" )
-  endif()
-endif()
+vtk_module_link(VTK::GUISupportQt PUBLIC Qt5::Widgets)
+if (VTK_USE_X)
+  vtk_module_link(VTK::GUISupportQt PRIVATE Qt5::X11Extras)
+endif ()
 
 # This build plugin logic should just get migrated into a module I think.
-if(BUILD_SHARED_LIBS)
+cmake_dependent_option(VTK_BUILD_QT_DESIGNER_PLUGIN
+  "Build the VTK Qt plugin for the Qt Designer." ON
+  "BUILD_SHARED_LIBS;NOT VTK_LEGACY_REMOVE;add_qvtkwidget" OFF)
+mark_as_advanced(VTK_BUILD_QT_DESIGNER_PLUGIN)
+
+if (VTK_BUILD_QT_DESIGNER_PLUGIN)
   set(PluginLibSrcs Q4VTKWidgetPlugin.cxx)
 
   set(PluginMocHeaders Q4VTKWidgetPlugin.h)
 
-  if(VTK_QT_VERSION VERSION_GREATER "4")
-    find_package(Qt5Designer REQUIRED QUIET)
-    add_definitions(${Qt5Designer_DEFINITIONS})
-    include_directories(${Qt5Designer_INCLUDE_DIRS})
-    qt5_wrap_cpp(PluginMocSrcs ${PluginMocHeaders})
-    set(QT_LIBRARIES ${Qt5Designer_LIBRARIES})
-  else()
-    add_definitions(-DQT_PLUGIN)
-    include_directories(${QT_QTDESIGNER_INCLUDE_DIR})
-    qt4_wrap_cpp(PluginMocSrcs ${PluginMocHeaders})
-    set(QT_LIBRARIES ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
-  endif()
+  set(qt_component UiPlugin)
+  if (Qt5_VERSION VERSION_LESS "5.5.0")
+    set(qt_component Designer)
+  endif ()
+  find_package(Qt5 COMPONENTS ${qt_component} REQUIRED QUIET)
+  qt5_wrap_cpp(PluginMocSrcs ${PluginMocHeaders} TARGET QVTKWidgetPlugin)
 
   # add QVTK plugin from sources
   # stand-alone as it doesn't depend on QVTK library
@@ -133,7 +93,7 @@ if(BUILD_SHARED_LIBS)
   set_target_properties(QVTKWidgetPlugin PROPERTIES COMPILE_DEFINITIONS QT_NO_DEBUG)
 
   # link with Qt libs
-  vtk_module_link_libraries(QVTKWidgetPlugin ${QT_LIBRARIES})
+  target_link_libraries(QVTKWidgetPlugin Qt5::${qt_component})
 
   # install rules
 
@@ -169,10 +129,10 @@ if(BUILD_SHARED_LIBS)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/PluginInstall.cmake.in
       ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake
       @ONLY)
-    set_target_properties(${vtk-module} PROPERTIES POST_INSTALL_SCRIPT
+    set_target_properties(GUISupportQt PROPERTIES POST_INSTALL_SCRIPT
       ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake)
   endif()
-endif()
+endif ()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.ctest.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.ctest" @ONLY)

@@ -61,13 +61,13 @@ class METAIO_EXPORT MetaGroup : public MetaObject
 
     MetaGroup(unsigned int dim);
 
-    ~MetaGroup(void);
+    ~MetaGroup(void) MET_OVERRIDE;
 
-    void PrintInfo(void) const;
+    void PrintInfo(void) const MET_OVERRIDE;
 
-    void CopyInfo(const MetaObject * _object);
+    void CopyInfo(const MetaObject * _object) MET_OVERRIDE;
 
-    void  Clear(void);
+    void  Clear(void) MET_OVERRIDE;
 
 
   ////
@@ -77,13 +77,13 @@ class METAIO_EXPORT MetaGroup : public MetaObject
   ////
   protected:
 
-    void  M_Destroy(void);
+    void  M_Destroy(void) MET_OVERRIDE;
 
-    void  M_SetupReadFields(void);
+    void  M_SetupReadFields(void) MET_OVERRIDE;
 
-    void  M_SetupWriteFields(void);
+    void  M_SetupWriteFields(void) MET_OVERRIDE;
 
-    bool  M_Read(void);
+    bool  M_Read(void) MET_OVERRIDE;
 
   };
 

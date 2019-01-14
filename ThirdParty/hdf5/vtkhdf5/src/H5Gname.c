@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,7 @@
 /* Module Setup */
 /****************/
 
-#define H5G_PACKAGE		/*suppress error about including H5Gpkg	  */
+#include "H5Gmodule.h"          /* This source code file is part of the H5G module */
 
 
 /***********/
@@ -67,8 +65,6 @@ typedef struct H5G_names_t {
 typedef struct H5G_gnba_iter_t {
     /* In */
     const H5O_loc_t *loc; 	/* The location of the object we're looking for */
-    hid_t lapl_id; 		/* LAPL for operations */
-    hid_t dxpl_id; 		/* DXPL for operations */
 
     /* Out */
     char *path;                 /* Name of the object */
@@ -166,7 +162,7 @@ H5G_normalize(const char *name)
     char *norm;         /* Pointer to the normalized string */
     size_t	s,d;    /* Positions within the strings */
     unsigned    last_slash;     /* Flag to indicate last character was a slash */
-    char *ret_value;    /* Return value */
+    char *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -297,7 +293,7 @@ H5G_build_fullpath(const char *prefix, const char *name)
     size_t path_len;            /* Length of the path */
     size_t name_len;            /* Length of the name */
     unsigned need_sep;          /* Flag to indicate if separator is needed */
-    H5RS_str_t *ret_value;      /* Return value */
+    H5RS_str_t *ret_value = NULL;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -323,10 +319,10 @@ H5G_build_fullpath(const char *prefix, const char *name)
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Build full path */
-    HDstrncpy(full_path, prefix, orig_path_len + 1);
+    HDstrcpy(full_path, prefix);
     if(need_sep)
-        HDstrncat(full_path, "/", 1);
-    HDstrncat(full_path, name, name_len);
+        HDstrcat(full_path, "/");
+    HDstrcat(full_path, name);
 
     /* Create reference counted string for path */
     if(NULL == (ret_value = H5RS_own(full_path)))
@@ -354,7 +350,7 @@ H5RS_str_t *
 H5G_build_fullpath_refstr_str(H5RS_str_t *prefix_r, const char *name)
 {
     const char *prefix;         /* Pointer to raw string for path */
-    H5RS_str_t *ret_value;
+    H5RS_str_t *ret_value = NULL;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -562,10 +558,10 @@ H5G_name_copy(H5G_name_t *dst, const H5G_name_t *src, H5_copy_depth_t depth)
  */
 ssize_t
 H5G_get_name(const H5G_loc_t *loc, char *name/*out*/, size_t size,
-    hbool_t *cached, hid_t lapl_id, hid_t dxpl_id)
+    hbool_t *cached)
 {
     ssize_t len = 0;            /* Length of object's name */
-    ssize_t ret_value;          /* Return value */
+    ssize_t ret_value = -1;     /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -595,7 +591,7 @@ H5G_get_name(const H5G_loc_t *loc, char *name/*out*/, size_t size,
             HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get file ID")
 
         /* Search for name of object */
-        if((len = H5G_get_name_by_addr(file, lapl_id, dxpl_id, loc->oloc, name, size)) < 0) {
+        if((len = H5G_get_name_by_addr(file, loc->oloc, name, size)) < 0) {
             H5I_dec_ref(file);
             HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't determine name")
         } /* end if */
@@ -1062,7 +1058,7 @@ done:
  * Function: H5G_name_replace
  *
  * Purpose: Search the list of open IDs and replace names according to a
- *              particular operation.  The operation occured on the
+ *              particular operation.  The operation occurred on the
  *              SRC_FILE/SRC_FULL_PATH_R object.  The new name (if there is
  *              one) is NEW_NAME_R.  Additional entry location information
  *              (currently only needed for the 'move' operation) is passed in
@@ -1078,8 +1074,7 @@ done:
  */
 herr_t
 H5G_name_replace(const H5O_link_t *lnk, H5G_names_op_t op, H5F_t *src_file,
-    H5RS_str_t *src_full_path_r, H5F_t *dst_file, H5RS_str_t *dst_full_path_r,
-    hid_t dxpl_id)
+    H5RS_str_t *src_full_path_r, H5F_t *dst_file, H5RS_str_t *dst_full_path_r)
 {
     herr_t ret_value = SUCCEED;
 
@@ -1108,7 +1103,7 @@ H5G_name_replace(const H5O_link_t *lnk, H5G_names_op_t op, H5F_t *src_file,
                         tmp_oloc.addr = lnk->u.hard.addr;
 
                         /* Get the type of the object */
-                        if(H5O_obj_type(&tmp_oloc, &obj_type, dxpl_id) < 0)
+                        if(H5O_obj_type(&tmp_oloc, &obj_type) < 0)
                             HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get object type")
 
                         /* Determine which type of objects to operate on */
@@ -1246,7 +1241,7 @@ H5G_get_name_by_addr_cb(hid_t gid, const char *path, const H5L_info_t *linfo,
         H5G_loc_reset(&obj_loc);
 
         /* Find the object */
-        if(H5G_loc_find(&grp_loc, path, &obj_loc/*out*/, udata->lapl_id, udata->dxpl_id) < 0)
+        if(H5G_loc_find(&grp_loc, path, &obj_loc/*out*/) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, H5_ITER_ERROR, "object not found")
         obj_found = TRUE;
 
@@ -1285,14 +1280,14 @@ done:
  *-------------------------------------------------------------------------
  */
 ssize_t
-H5G_get_name_by_addr(hid_t file, hid_t lapl_id, hid_t dxpl_id, const H5O_loc_t *loc,
+H5G_get_name_by_addr(hid_t file, const H5O_loc_t *loc,
     char *name, size_t size)
 {
     H5G_gnba_iter_t udata;      /* User data for iteration */
     H5G_loc_t root_loc;         /* Root group's location */
     hbool_t found_obj = FALSE;  /* If we found the object */
     herr_t status;              /* Status from iteration */
-    ssize_t ret_value;          /* Return value */
+    ssize_t ret_value = -1;     /* Return value */
 
     /* Portably clear udata struct (before FUNC_ENTER) */
     HDmemset(&udata, 0, sizeof(udata));
@@ -1312,12 +1307,10 @@ H5G_get_name_by_addr(hid_t file, hid_t lapl_id, hid_t dxpl_id, const H5O_loc_t *
     else {
         /* Set up user data for iterator */
         udata.loc = loc;
-        udata.lapl_id = lapl_id;
-        udata.dxpl_id = dxpl_id;
         udata.path = NULL;
 
         /* Visit all the links in the file */
-        if((status = H5G_visit(file, "/", H5_INDEX_NAME, H5_ITER_NATIVE, H5G_get_name_by_addr_cb, &udata, lapl_id, dxpl_id)) < 0)
+        if((status = H5G_visit(file, "/", H5_INDEX_NAME, H5_ITER_NATIVE, H5G_get_name_by_addr_cb, &udata)) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "group traversal failed while looking for object name")
         else if(status > 0)
             found_obj = TRUE;
@@ -1331,7 +1324,7 @@ H5G_get_name_by_addr(hid_t file, hid_t lapl_id, hid_t dxpl_id, const H5O_loc_t *
         /* If there's a buffer provided, copy into it, up to the limit of its size */
         if(name) {
             /* Copy the initial path separator */
-            HDstrncpy(name, "/", 2);
+            HDstrncpy(name, "/", (size_t)2);
 
             /* Append the rest of the path */
             /* (less one character, for the initial path separator) */
@@ -1349,4 +1342,3 @@ done:
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G_get_name_by_addr() */
-

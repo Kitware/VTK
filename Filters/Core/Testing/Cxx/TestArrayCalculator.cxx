@@ -44,7 +44,7 @@ int TestArrayCalculator(int argc, char *argv[])
   //with a function
   VTK_CREATE(vtkArrayCalculator, calc);
   calc->SetInputConnection( reader->GetOutputPort() );
-  calc->SetAttributeModeToUsePointData();
+  calc->SetAttributeTypeToPointData();
   calc->AddScalarArrayName("Pres");
   calc->AddScalarArrayName("Temp");
   calc->SetFunction("Temp * Pres");
@@ -54,7 +54,7 @@ int TestArrayCalculator(int argc, char *argv[])
   //now generate a vector with the second calculator
   VTK_CREATE(vtkArrayCalculator, calc2);
   calc2->SetInputConnection( calc->GetOutputPort() );
-  calc2->SetAttributeModeToUsePointData();
+  calc2->SetAttributeTypeToPointData();
   calc2->AddScalarArrayName("Pres");
   calc2->AddScalarArrayName("Temp");
   calc2->AddScalarArrayName("norm");
@@ -66,7 +66,7 @@ int TestArrayCalculator(int argc, char *argv[])
   //confirm that we don't use "Pres" array, but the "PresVector"
   VTK_CREATE(vtkArrayCalculator, calc3);
   calc3->SetInputConnection( calc2->GetOutputPort() );
-  calc3->SetAttributeModeToUsePointData();
+  calc3->SetAttributeTypeToPointData();
   calc3->AddScalarArrayName("Pres");
   calc3->AddVectorArrayName("PresVector");
   calc3->SetFunction("PresVector");
@@ -76,7 +76,7 @@ int TestArrayCalculator(int argc, char *argv[])
   //verify the output is correct
   vtkPolyData *result = vtkPolyData::SafeDownCast( calc3->GetOutput() );
   int retCode = result->GetPointData()->HasArray("Result");
-  vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   return !retCode;
 }
 

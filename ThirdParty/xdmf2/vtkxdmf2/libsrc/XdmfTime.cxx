@@ -76,16 +76,21 @@ XdmfInt32 XdmfTime::UpdateInformation(){
     }else{
         if(attribute){
             XdmfErrorMessage("Unknown Time Type : " << attribute);
+            free((void*)attribute);
             return(XDMF_FAIL);
         }
         // Default
         this->TimeType = XDMF_TIME_SINGLE;
+    }
+    if(attribute){
+        free((void*)attribute);
     }
     // Type == Function ?
     attribute = this->Get("Function");
     if(attribute){
         this->TimeType = XDMF_TIME_FUNCTION;
         this->SetFunction(attribute);
+        free((void*)attribute);
         return(XDMF_SUCCESS);
     }
     attribute = this->Get("Value");
@@ -93,6 +98,7 @@ XdmfInt32 XdmfTime::UpdateInformation(){
         istrstream Value_ist(const_cast<char*>(attribute), strlen(attribute) );
         Value_ist >> dValue;
         this->SetValue(dValue);
+        free((void*)attribute);
     }else{
         XdmfXmlNode     node;
 

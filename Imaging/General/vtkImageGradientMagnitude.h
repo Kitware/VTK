@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageGradientMagnitude - Computes magnitude of the gradient.
-
-// .SECTION Description
-// vtkImageGradientMagnitude computes the gradient magnitude of an image.
-// Setting the dimensionality determines whether the gradient is computed on
-// 2D images, or 3D volumes.  The default is two dimensional XY images.
-
-// .SECTION See Also
-// vtkImageGradient vtkImageMagnitude
+/**
+ * @class   vtkImageGradientMagnitude
+ * @brief   Computes magnitude of the gradient.
+ *
+ *
+ * vtkImageGradientMagnitude computes the gradient magnitude of an image.
+ * Setting the dimensionality determines whether the gradient is computed on
+ * 2D images, or 3D volumes.  The default is two dimensional XY images.
+ *
+ * @sa
+ * vtkImageGradient vtkImageMagnitude
+*/
 
 #ifndef vtkImageGradientMagnitude_h
 #define vtkImageGradientMagnitude_h
@@ -34,39 +37,45 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageGradientMagnitude : public vtkThreadedIma
 public:
   static vtkImageGradientMagnitude *New();
   vtkTypeMacro(vtkImageGradientMagnitude,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // If "HandleBoundariesOn" then boundary pixels are duplicated
-  // So central differences can get values.
-  vtkSetMacro(HandleBoundaries, int);
-  vtkGetMacro(HandleBoundaries, int);
-  vtkBooleanMacro(HandleBoundaries, int);
+  //@{
+  /**
+   * If "HandleBoundariesOn" then boundary pixels are duplicated
+   * So central differences can get values.
+   */
+  vtkSetMacro(HandleBoundaries, vtkTypeBool);
+  vtkGetMacro(HandleBoundaries, vtkTypeBool);
+  vtkBooleanMacro(HandleBoundaries, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Determines how the input is interpreted (set of 2d slices ...)
+  //@{
+  /**
+   * Determines how the input is interpreted (set of 2d slices ...)
+   */
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
+  //@}
 
 protected:
   vtkImageGradientMagnitude();
-  ~vtkImageGradientMagnitude() {}
+  ~vtkImageGradientMagnitude() override {}
 
-  int HandleBoundaries;
+  vtkTypeBool HandleBoundaries;
   int Dimensionality;
 
-  virtual int RequestInformation (vtkInformation*,
+  int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
-  virtual int RequestUpdateExtent(vtkInformation*,
+                                  vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
+                                  vtkInformationVector*) override;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int extent[6], int id);
+                       int extent[6], int id) override;
 private:
-  vtkImageGradientMagnitude(const vtkImageGradientMagnitude&);  // Not implemented.
-  void operator=(const vtkImageGradientMagnitude&);  // Not implemented.
+  vtkImageGradientMagnitude(const vtkImageGradientMagnitude&) = delete;
+  void operator=(const vtkImageGradientMagnitude&) = delete;
 };
 
 #endif

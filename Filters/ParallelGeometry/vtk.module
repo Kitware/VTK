@@ -1,0 +1,33 @@
+NAME
+  VTK::FiltersParallelGeometry
+LIBRARY_NAME
+  vtkFiltersParallelGeometry
+KIT
+  VTK::Parallel
+GROUPS
+  MPI
+IMPLEMENTS
+  VTK::FiltersCore
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::FiltersGeometry
+  VTK::FiltersParallel
+  VTK::ParallelMPI
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::FiltersExtraction
+  VTK::FiltersGeneral
+  VTK::IOLegacy
+  VTK::ParallelCore
+TEST_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::FiltersGeneral
+  VTK::FiltersParallelMPI
+  VTK::IOParallel
+  VTK::IOParallelXML
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::ParallelMPI
+  VTK::TestingCore

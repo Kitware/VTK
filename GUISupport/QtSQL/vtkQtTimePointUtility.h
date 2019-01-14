@@ -17,17 +17,20 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtTimePointUtility - performs common time operations
-//
-// .SECTION Description
-// vtkQtTimePointUtility is provides methods to perform common time operations.
+/**
+ * @class   vtkQtTimePointUtility
+ * @brief   performs common time operations
+ *
+ *
+ * vtkQtTimePointUtility is provides methods to perform common time operations.
+*/
 
 #ifndef vtkQtTimePointUtility_h
 #define vtkQtTimePointUtility_h
 
-#include "vtkGUISupportQtSQLModule.h"
+#include "vtkGUISupportQtSQLModule.h" // For export macro
 #include "vtkObject.h"
-#include <QDateTime>
+#include <QDateTime> // Needed for method return types
 
 class VTKGUISUPPORTQTSQL_EXPORT vtkQtTimePointUtility : public vtkObject
 {
@@ -41,11 +44,12 @@ public:
 
 protected:
   vtkQtTimePointUtility() {}
-  ~vtkQtTimePointUtility() {}
+  ~vtkQtTimePointUtility() override {}
 
 private:
-  vtkQtTimePointUtility(const vtkQtTimePointUtility&);  // Not implemented.
-  void operator=(const vtkQtTimePointUtility&);  // Not implemented.
+  vtkQtTimePointUtility(const vtkQtTimePointUtility&) = delete;
+  void operator=(const vtkQtTimePointUtility&) = delete;
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtTimePointUtility.h

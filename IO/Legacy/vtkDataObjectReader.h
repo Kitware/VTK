@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataObjectReader - read vtk field data file
-// .SECTION Description
-// vtkDataObjectReader is a source object that reads ASCII or binary field
-// data files in vtk format. Fields are general matrix structures used
-// represent complex data. (See text for format details).  The output of this
-// reader is a single vtkDataObject.  The superclass of this class,
-// vtkDataReader, provides many methods for controlling the reading of the
-// data file, see vtkDataReader for more information.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-// .SECTION See Also
-// vtkFieldData vtkDataObjectWriter
+/**
+ * @class   vtkDataObjectReader
+ * @brief   read vtk field data file
+ *
+ * vtkDataObjectReader is a source object that reads ASCII or binary field
+ * data files in vtk format. Fields are general matrix structures used
+ * represent complex data. (See text for format details).  The output of this
+ * reader is a single vtkDataObject.  The superclass of this class,
+ * vtkDataReader, provides many methods for controlling the reading of the
+ * data file, see vtkDataReader for more information.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+ * @sa
+ * vtkFieldData vtkDataObjectWriter
+*/
 
 #ifndef vtkDataObjectReader_h
 #define vtkDataObjectReader_h
@@ -38,24 +41,31 @@ class VTKIOLEGACY_EXPORT vtkDataObjectReader : public vtkDataReader
 public:
   static vtkDataObjectReader *New();
   vtkTypeMacro(vtkDataObjectReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the output field of this reader.
+  //@{
+  /**
+   * Get the output field of this reader.
+   */
   vtkDataObject *GetOutput();
   vtkDataObject *GetOutput(int idx);
   void SetOutput(vtkDataObject *);
+  //@}
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
 
 protected:
   vtkDataObjectReader();
-  ~vtkDataObjectReader();
+  ~vtkDataObjectReader() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkDataObjectReader(const vtkDataObjectReader&);  // Not implemented.
-  void operator=(const vtkDataObjectReader&);  // Not implemented.
+  vtkDataObjectReader(const vtkDataObjectReader&) = delete;
+  void operator=(const vtkDataObjectReader&) = delete;
 };
 
 #endif

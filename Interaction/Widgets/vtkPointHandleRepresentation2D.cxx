@@ -71,9 +71,13 @@ vtkPointHandleRepresentation2D::vtkPointHandleRepresentation2D()
   this->Glypher->SetScaleModeToDataScalingOff();
   this->Glypher->SetScaleFactor(1.0);
 
+  this->MapperCoordinate = vtkCoordinate::New();
+  this->MapperCoordinate->SetCoordinateSystemToDisplay();
+
   this->Mapper = vtkPolyDataMapper2D::New();
   this->Mapper->SetInputConnection(
     this->Glypher->GetOutputPort());
+  this->Mapper->SetTransformCoordinate(this->MapperCoordinate);
 
   // Set up the initial properties
   this->CreateDefaultProperties();
@@ -95,6 +99,7 @@ vtkPointHandleRepresentation2D::~vtkPointHandleRepresentation2D()
 
   this->CursorShape->Delete();
   this->Glypher->Delete();
+  this->MapperCoordinate->Delete();
   this->Mapper->Delete();
   this->Actor->Delete();
 
@@ -106,19 +111,19 @@ vtkPointHandleRepresentation2D::~vtkPointHandleRepresentation2D()
 void vtkPointHandleRepresentation2D::SetCursorShape(vtkPolyData *shape)
 {
   if ( shape != this->CursorShape )
-    {
+  {
     if ( this->CursorShape )
-      {
+    {
       this->CursorShape->Delete();
-      }
+    }
     this->CursorShape = shape;
     if ( this->CursorShape )
-      {
+    {
       this->CursorShape->Register(this);
-      }
+    }
     this->Glypher->SetSourceData(this->CursorShape);
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -130,7 +135,7 @@ vtkPolyData *vtkPointHandleRepresentation2D::GetCursorShape()
 //-------------------------------------------------------------------------
 double* vtkPointHandleRepresentation2D::GetBounds()
 {
-  return NULL;
+  return nullptr;
 }
 
 //-------------------------------------------------------------------------
@@ -141,22 +146,23 @@ void vtkPointHandleRepresentation2D::SetDisplayPosition(double p[3])
   this->FocalPoint->Modified();
 
   if (this->PointPlacer)
-    {
+  {
     // The point placer will compute the world position for us.
     return;
-    }
+  }
 
   double w[4];
   if( this->Renderer )
-    {
+  {
     vtkInteractorObserver::ComputeDisplayToWorld(
       this->Renderer, p[0], p[1], p[2], w);
     this->SetWorldPosition(w);
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
-int vtkPointHandleRepresentation2D::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
+int vtkPointHandleRepresentation2D::
+ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   double pos[3], xyz[3];
   this->FocalPoint->GetPoint(0,pos);
@@ -167,17 +173,17 @@ int vtkPointHandleRepresentation2D::ComputeInteractionState(int X, int Y, int vt
   this->VisibilityOn();
   double tol2 = this->Tolerance * this->Tolerance;
   if ( vtkMath::Distance2BetweenPoints(xyz,pos) <= tol2 )
-    {
+  {
     this->InteractionState = vtkHandleRepresentation::Nearby;
-    }
+  }
   else
-    {
+  {
     this->InteractionState = vtkHandleRepresentation::Outside;
     if ( this->ActiveRepresentation )
-      {
+    {
       this->VisibilityOff();
-      }
     }
+  }
 
   return this->InteractionState;
 }
@@ -188,13 +194,13 @@ int vtkPointHandleRepresentation2D::DetermineConstraintAxis(int constraint,
 {
   // Look for trivial cases: either not constrained or already constrained
   if ( ! this->Constrained )
-    {
+  {
     return -1;
-    }
+  }
   else if ( constraint >= 0 && constraint < 3 )
-    {
+  {
     return constraint;
-    }
+  }
 
   // Okay, figure out constraint based on mouse motion
   double dpos[2];
@@ -218,13 +224,13 @@ void vtkPointHandleRepresentation2D::StartWidgetInteraction(double startEventPos
   this->ConstraintAxis = -1;
   this->WaitCount = 0;
   if ( this->Constrained )
-    {
+  {
     this->WaitingForMotion = 1;
-    }
+  }
   else
-    {
+  {
     this->WaitingForMotion = 0;
-    }
+  }
 }
 
 
@@ -239,20 +245,20 @@ void vtkPointHandleRepresentation2D::WidgetInteraction(double eventPos[2])
   // Process the motion
   if ( this->InteractionState == vtkHandleRepresentation::Selecting ||
        this->InteractionState == vtkHandleRepresentation::Translating )
-    {
+  {
     if ( !this->WaitingForMotion || this->WaitCount++ > 1 )
-      {
+    {
 
       this->ConstraintAxis =
         this->DetermineConstraintAxis(this->ConstraintAxis,eventPos);
       this->Translate(eventPos);
-      }
     }
+  }
 
   else if ( this->InteractionState == vtkHandleRepresentation::Scaling )
-    {
+  {
     this->Scale(eventPos);
-    }
+  }
 
   // Book keeping
   this->LastEventPosition[0] = eventPos[0];
@@ -271,14 +277,14 @@ void vtkPointHandleRepresentation2D::Translate(double eventPos[2])
   dpos[1] = eventPos[1] - pos[1];
 
   if ( this->ConstraintAxis >= 0 )
-    {
+  {
     pos[this->ConstraintAxis] += dpos[this->ConstraintAxis];
-    }
+  }
   else
-    {
+  {
     pos[0] += dpos[0];
     pos[1] += dpos[1];
-    }
+  }
   this->SetDisplayPosition(pos);
 }
 
@@ -301,13 +307,13 @@ void vtkPointHandleRepresentation2D::Scale(double eventPos[2])
 void vtkPointHandleRepresentation2D::Highlight(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->Actor->SetProperty(this->SelectedProperty);
-    }
+  }
   else
-    {
+  {
     this->Actor->SetProperty(this->Property);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -330,13 +336,13 @@ void vtkPointHandleRepresentation2D::BuildRepresentation()
         this->Renderer->GetActiveCamera()->GetMTime() > this->BuildTime) ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
+  {
     double p[3];
     this->GetDisplayPosition(p);
     this->FocalPoint->SetPoint(0, p);
     this->FocalPoint->Modified();
     this->BuildTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -345,12 +351,12 @@ void vtkPointHandleRepresentation2D::ShallowCopy(vtkProp *prop)
   vtkPointHandleRepresentation2D *rep =
     vtkPointHandleRepresentation2D::SafeDownCast(prop);
   if ( rep )
-    {
+  {
     this->SetCursorShape(rep->GetCursorShape());
     this->SetProperty(rep->GetProperty());
     this->SetSelectedProperty(rep->GetSelectedProperty());
     this->Actor->SetProperty(this->Property);
-    }
+  }
   this->Superclass::ShallowCopy(prop);
 }
 
@@ -360,12 +366,12 @@ void vtkPointHandleRepresentation2D::DeepCopy(vtkProp *prop)
   vtkPointHandleRepresentation2D *rep =
     vtkPointHandleRepresentation2D::SafeDownCast(prop);
   if ( rep )
-    {
+  {
     this->SetCursorShape(rep->GetCursorShape());
     this->Property->DeepCopy(rep->GetProperty());
     this->SelectedProperty->DeepCopy(rep->GetSelectedProperty());
     this->Actor->SetProperty(this->Property);
-    }
+  }
   this->Superclass::DeepCopy(prop);
 }
 
@@ -395,30 +401,30 @@ void vtkPointHandleRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Property )
-    {
+  {
     os << indent << "Property: " << this->Property << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Property: (none)\n";
-    }
+  }
 
   if ( this->SelectedProperty )
-    {
+  {
     os << indent << "Selected Property: " << this->SelectedProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Property: (none)\n";
-    }
+  }
 
   if ( this->CursorShape )
-    {
+  {
     os << indent << "Cursor Shape: " << this->CursorShape << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Cursor Shape: (none)\n";
-    }
+  }
 
 }

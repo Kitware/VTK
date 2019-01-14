@@ -32,8 +32,14 @@ vtkTextProperty::vtkTextProperty()
 
   this->BackgroundOpacity  = 0.0;
 
-  this->FontFamilyAsString = 0;
-  this->FontFile = NULL;
+  this->Frame = 0;
+  this->FrameWidth = 1;
+  this->FrameColor[0] = 1.0;
+  this->FrameColor[1] = 1.0;
+  this->FrameColor[2] = 1.0;
+
+  this->FontFamilyAsString = nullptr;
+  this->FontFile = nullptr;
   this->SetFontFamilyAsString( "Arial" );
   this->FontSize = 12;
 
@@ -45,6 +51,7 @@ vtkTextProperty::vtkTextProperty()
 
   this->Justification = VTK_TEXT_LEFT;
   this->VerticalJustification = VTK_TEXT_BOTTOM;
+  this->UseTightBoundingBox = 0;
 
   this->LineOffset = 0.0;
   this->LineSpacing = 1.1; // why not 1.0 ?
@@ -55,23 +62,27 @@ vtkTextProperty::vtkTextProperty()
 //----------------------------------------------------------------------------
 vtkTextProperty::~vtkTextProperty()
 {
-  this->SetFontFamilyAsString(NULL);
-  this->SetFontFile(NULL);
+  this->SetFontFamilyAsString(nullptr);
+  this->SetFontFile(nullptr);
 }
 
 //----------------------------------------------------------------------------
 void vtkTextProperty::ShallowCopy(vtkTextProperty *tprop)
 {
   if (!tprop)
-    {
+  {
     return;
-    }
+  }
 
   this->SetColor(tprop->GetColor());
   this->SetOpacity(tprop->GetOpacity());
 
   this->SetBackgroundColor(tprop->GetBackgroundColor());
   this->SetBackgroundOpacity(tprop->GetBackgroundOpacity());
+
+  this->SetFrame(tprop->GetFrame());
+  this->SetFrameWidth(tprop->GetFrameWidth());
+  this->SetFrameColor(tprop->GetFrameColor());
 
   this->SetFontFamilyAsString(tprop->GetFontFamilyAsString());
   this->SetFontFile(tprop->GetFontFile());
@@ -85,6 +96,8 @@ void vtkTextProperty::ShallowCopy(vtkTextProperty *tprop)
 
   this->SetJustification(tprop->GetJustification());
   this->SetVerticalJustification(tprop->GetVerticalJustification());
+
+  this->SetUseTightBoundingBox(tprop->GetUseTightBoundingBox());
 
   this->SetLineOffset(tprop->GetLineOffset());
   this->SetLineSpacing(tprop->GetLineSpacing());
@@ -123,6 +136,13 @@ void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "BackgroundOpacity: " << this->BackgroundOpacity << "\n";
 
+  os << indent << "Frame: " << (this->Frame ? "On\n" : "Off\n");
+  os << indent << "FrameWidth: " << this->FrameWidth << "\n";
+  os << indent << "FrameColor: ("
+     << this->FrameColor[0] << ", "
+     << this->FrameColor[1] << ", "
+     << this->FrameColor[2] << ")\n";
+
   os << indent << "FontFamilyAsString: "
      << (this->FontFamilyAsString ? this->FontFamilyAsString : "(null)") << endl;
   os << indent << "FontFile: "
@@ -141,8 +161,8 @@ void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Vertical justification: "
      << this->GetVerticalJustificationAsString() << "\n";
 
+  os << indent << "UseTightBoundingBox: " << this->UseTightBoundingBox << "\n";
   os << indent << "Orientation: " << this->Orientation << "\n";
-
   os << indent << "Line Offset: " << this->LineOffset << "\n";
   os << indent << "Line Spacing: " << this->LineSpacing << "\n";
 }

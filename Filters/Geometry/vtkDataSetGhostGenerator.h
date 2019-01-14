@@ -12,22 +12,24 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkDataSetGhostGenerator.h -- Base class for ghost data generators
-//
-// .SECTION Description
-//  An abstract class that provides common functionality and implements an
-//  interface for all ghost data generators. Ghost data generators accept as
-//  input a partitioned data-set, defined by a vtkMultiBlockDataSet, where each
-//  block corresponds to a partition. The output consists of vtkMultiBlockDataSet
-//  where each block holds the corresponding ghosted data-set. For more details,
-//  see concrete implementations.
-//
-// .SECTION See Also
-// vtkUniformGridGhostDataGenerator, vtkStructuredGridGhostDataGenerator,
-// vtkRectilinearGridGhostDataGenerator
+/**
+ * @class   vtkDataSetGhostGenerator
+ *
+ *
+ *  An abstract class that provides common functionality and implements an
+ *  interface for all ghost data generators. Ghost data generators accept as
+ *  input a partitioned data-set, defined by a vtkMultiBlockDataSet, where each
+ *  block corresponds to a partition. The output consists of vtkMultiBlockDataSet
+ *  where each block holds the corresponding ghosted data-set. For more details,
+ *  see concrete implementations.
+ *
+ * @sa
+ * vtkUniformGridGhostDataGenerator, vtkStructuredGridGhostDataGenerator,
+ * vtkRectilinearGridGhostDataGenerator
+*/
 
-#ifndef VTKDATASETGHOSTGENERATOR_H_
-#define VTKDATASETGHOSTGENERATOR_H_
+#ifndef vtkDataSetGhostGenerator_h
+#define vtkDataSetGhostGenerator_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -42,27 +44,31 @@ class VTKFILTERSGEOMETRY_EXPORT vtkDataSetGhostGenerator:
 {
 public:
   vtkTypeMacro(vtkDataSetGhostGenerator,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get for number of ghost layers to generate.
+  //@{
+  /**
+   * Set/Get for number of ghost layers to generate.
+   */
   vtkSetMacro( NumberOfGhostLayers, int );
   vtkGetMacro( NumberOfGhostLayers, int );
+  //@}
 
   // Standard VTK pipeline routines
-  virtual int FillInputPortInformation(int port,vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port,vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
-  virtual int RequestData(
+  int RequestData(
       vtkInformation *rqst, vtkInformationVector **inputVector,
-      vtkInformationVector* outputVector );
+      vtkInformationVector* outputVector ) override;
 
 protected:
   vtkDataSetGhostGenerator();
-  virtual ~vtkDataSetGhostGenerator();
+  ~vtkDataSetGhostGenerator() override;
 
-  // Description:
-  // Generate ghost layers. Implemented by concrete implementations.
+  /**
+   * Generate ghost layers. Implemented by concrete implementations.
+   */
   virtual void GenerateGhostLayers(
       vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) = 0;
 
@@ -70,9 +76,9 @@ protected:
   int NumberOfGhostLayers;
 
 private:
-  vtkDataSetGhostGenerator(const vtkDataSetGhostGenerator&); // Not implemented
-  void operator=(const vtkDataSetGhostGenerator&); // Not implemented
+  vtkDataSetGhostGenerator(const vtkDataSetGhostGenerator&) = delete;
+  void operator=(const vtkDataSetGhostGenerator&) = delete;
 
 };
 
-#endif /* VTKDATASETGHOSTGENERATOR_H_ */
+#endif /* vtkDataSetGhostGenerator_h */

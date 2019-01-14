@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageLuminance - Computes the luminance of the input
-// .SECTION Description
-// vtkImageLuminance calculates luminance from an rgb input.
+/**
+ * @class   vtkImageLuminance
+ * @brief   Computes the luminance of the input
+ *
+ * vtkImageLuminance calculates luminance from an rgb input.
+*/
 
 #ifndef vtkImageLuminance_h
 #define vtkImageLuminance_h
@@ -31,17 +34,17 @@ public:
 
 protected:
   vtkImageLuminance();
-  ~vtkImageLuminance() {}
+  ~vtkImageLuminance() override {}
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector**,
-                                  vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector**,
+                                  vtkInformationVector *) override;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                        int outExt[6], int id);
+                        int outExt[6], int id) override;
 
 private:
-  vtkImageLuminance(const vtkImageLuminance&);  // Not implemented.
-  void operator=(const vtkImageLuminance&);  // Not implemented.
+  vtkImageLuminance(const vtkImageLuminance&) = delete;
+  void operator=(const vtkImageLuminance&) = delete;
 };
 
 #endif

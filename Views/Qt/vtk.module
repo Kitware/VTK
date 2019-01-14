@@ -1,0 +1,21 @@
+NAME
+  VTK::ViewsQt
+LIBRARY_NAME
+  vtkViewsQt
+GROUPS
+  Qt
+DEPENDS
+  VTK::CommonCore
+  VTK::GUISupportQt
+  VTK::ViewsCore
+  VTK::ViewsInfovis
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersExtraction
+  VTK::FiltersGeneral
+  VTK::InfovisCore
+TEST_DEPENDS
+  VTK::InfovisCore
+  VTK::TestingCore
+EXCLUDE_WRAP

@@ -20,10 +20,10 @@ public:
   static vtkMultiCorrelativeAssessFunctor* New();
 
   vtkMultiCorrelativeAssessFunctor() { }
-  virtual ~vtkMultiCorrelativeAssessFunctor() { }
+  ~vtkMultiCorrelativeAssessFunctor() override { }
   virtual bool Initialize( vtkTable* inData, vtkTable* reqModel, bool cholesky = true );
 
-  virtual void operator () ( vtkVariantArray* result, vtkIdType row );
+  void operator () ( vtkDoubleArray* result, vtkIdType row ) override;
 
   vtkIdType GetNumberOfColumns() { return static_cast<vtkIdType>( this->Columns.size() ); }
   vtkDataArray* GetColumn( vtkIdType colIdx ) { return this->Columns[colIdx]; }

@@ -47,17 +47,17 @@ int TestProStarReader( int argc, char *argv[] )
   delete [] fname;
   vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput());
   if(grid->GetNumberOfPoints() != 44)
-    {
+  {
     vtkGenericWarningMacro("Input grid has " << grid->GetNumberOfPoints()
                            << " but should have 44.");
     return 1;
-    }
+  }
   if(grid->GetNumberOfCells() != 10)
-    {
+  {
     vtkGenericWarningMacro("Input grid has " << grid->GetNumberOfCells()
                            << " but should have 10.");
     return 1;
-    }
+  }
 
   // There are render issues with 7 and 9 so we ignore those
   // for the tests.
@@ -66,13 +66,13 @@ int TestProStarReader( int argc, char *argv[] )
   newGrid->Allocate(8);
   vtkIdList* cellIds = vtkIdList::New();
   for(vtkIdType i=0;i<grid->GetNumberOfCells();i++)
-    {
+  {
     if(i != 8 && i != 9)
-      {
+    {
       grid->GetCellPoints(i, cellIds);
       newGrid->InsertNextCell(grid->GetCellType(i), cellIds);
-      }
     }
+  }
   cellIds->Delete();
 
   // Convert to PolyData.
@@ -106,9 +106,9 @@ int TestProStarReader( int argc, char *argv[] )
   int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   actor->Delete();
   mapper->Delete();

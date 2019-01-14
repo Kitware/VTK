@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMultiThreader - A class for performing multithreaded execution
-// .SECTION Description
-// vtkMultithreader is a class that provides support for multithreaded
-// execution using sproc() on an SGI, or pthread_create on any platform
-// supporting POSIX threads.  This class can be used to execute a single
-// method on multiple threads, or to specify a method per thread.
+/**
+ * @class   vtkMultiThreader
+ * @brief   A class for performing multithreaded execution
+ *
+ * vtkMultithreader is a class that provides support for multithreaded
+ * execution using pthreads on POSIX systems, or Win32 threads on
+ * Windows.  This class can be used to execute a single
+ * method on multiple threads, or to specify a method per thread.
+*/
 
 #ifndef vtkMultiThreader_h
 #define vtkMultiThreader_h
@@ -25,34 +28,21 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-#ifdef VTK_USE_SPROC
-#include <sys/types.h> // Needed for unix implementation of sproc
-#include <unistd.h> // Needed for unix implementation of sproc
-#endif
-
-#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
+#if defined(VTK_USE_PTHREADS)
 #include <pthread.h> // Needed for PTHREAD implementation of mutex
 #include <sys/types.h> // Needed for unix implementation of pthreads
 #include <unistd.h> // Needed for unix implementation of pthreads
 #endif
 
-// If VTK_USE_SPROC is defined, then sproc() will be used to create
-// multiple threads on an SGI. If VTK_USE_PTHREADS is defined, then
-// pthread_create() will be used to create multiple threads (on
-// a sun, for example)
+// If VTK_USE_PTHREADS is defined, then pthread_create() will be
+// used to create multiple threads
 
 // Defined in vtkSystemIncludes.h:
 //   VTK_MAX_THREADS
 
 // If VTK_USE_PTHREADS is defined, then the multithreaded
-// function is of type void *, and returns NULL
+// function is of type void *, and returns nullptr
 // Otherwise the type is void which is correct for WIN32
-// and SPROC
-//BTX
-#ifdef VTK_USE_SPROC
-typedef int vtkThreadProcessIDType;
-typedef int vtkMultiThreaderIDType;
-#endif
 
 // Defined in vtkSystemIncludes.h:
 //   VTK_THREAD_RETURN_VALUE
@@ -61,7 +51,7 @@ typedef int vtkMultiThreaderIDType;
 #ifdef VTK_USE_PTHREADS
 typedef void *(*vtkThreadFunctionType)(void *);
 typedef pthread_t vtkThreadProcessIDType;
-// #define VTK_THREAD_RETURN_VALUE  NULL
+// #define VTK_THREAD_RETURN_VALUE  nullptr
 // #define VTK_THREAD_RETURN_TYPE   void *
 typedef pthread_t vtkMultiThreaderIDType;
 #endif
@@ -81,7 +71,6 @@ typedef int vtkThreadProcessIDType;
 // #define VTK_THREAD_RETURN_TYPE void
 typedef int vtkMultiThreaderIDType;
 #endif
-//ETX
 
 class vtkMutexLock;
 
@@ -91,22 +80,20 @@ public:
   static vtkMultiThreader *New();
 
   vtkTypeMacro(vtkMultiThreader,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // This is the structure that is passed to the thread that is
-  // created from the SingleMethodExecute, MultipleMethodExecute or
-  // the SpawnThread method. It is passed in as a void *, and it is
-  // up to the method to cast correctly and extract the information.
-  // The ThreadID is a number between 0 and NumberOfThreads-1 that indicates
-  // the id of this thread. The NumberOfThreads is this->NumberOfThreads for
-  // threads created from SingleMethodExecute or MultipleMethodExecute,
-  // and it is 1 for threads created from SpawnThread.
-  // The UserData is the (void *)arg passed into the SetSingleMethod,
-  // SetMultipleMethod, or SpawnThread method.
-
-  //BTX
-#define ThreadInfoStruct vtkMultiThreader::ThreadInfo
+  /**
+   * This is the structure that is passed to the thread that is
+   * created from the SingleMethodExecute, MultipleMethodExecute or
+   * the SpawnThread method. It is passed in as a void *, and it is
+   * up to the method to cast correctly and extract the information.
+   * The ThreadID is a number between 0 and NumberOfThreads-1 that indicates
+   * the id of this thread. The NumberOfThreads is this->NumberOfThreads for
+   * threads created from SingleMethodExecute or MultipleMethodExecute,
+   * and it is 1 for threads created from SpawnThread.
+   * The UserData is the (void *)arg passed into the SetSingleMethod,
+   * SetMultipleMethod, or SpawnThread method.
+   */
   class ThreadInfo
   {
   public:
@@ -116,84 +103,100 @@ public:
     vtkMutexLock        *ActiveFlagLock;
     void                *UserData;
   };
-  //ETX
 
-  // Description:
-  // Get/Set the number of threads to create. It will be clamped to the range
-  // 1 - VTK_MAX_THREADS, so the caller of this method should check that the
-  // requested number of threads was accepted.
+  //@{
+  /**
+   * Get/Set the number of threads to create. It will be clamped to the range
+   * 1 - VTK_MAX_THREADS, so the caller of this method should check that the
+   * requested number of threads was accepted.
+   */
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   virtual int GetNumberOfThreads();
+  //@}
 
-  // Description:
-  // Set/Get the maximum number of threads to use when multithreading.
-  // This limits and overrides any other settings for multithreading.
-  // A value of zero indicates no limit.
+  //@{
+  /**
+   * Set/Get the maximum number of threads to use when multithreading.
+   * This limits and overrides any other settings for multithreading.
+   * A value of zero indicates no limit.
+   */
   static void SetGlobalMaximumNumberOfThreads(int val);
   static int  GetGlobalMaximumNumberOfThreads();
+  //@}
 
-  // Description:
-  // Set/Get the value which is used to initialize the NumberOfThreads
-  // in the constructor.  Initially this default is set to the number of
-  // processors or VTK_MAX_THREADS (which ever is less).
+  //@{
+  /**
+   * Set/Get the value which is used to initialize the NumberOfThreads
+   * in the constructor.  Initially this default is set to the number of
+   * processors or VTK_MAX_THREADS (which ever is less).
+   */
   static void SetGlobalDefaultNumberOfThreads(int val);
   static int  GetGlobalDefaultNumberOfThreads();
+  //@}
 
-  // These methods are excluded from Tcl wrapping 1) because the
+  // These methods are excluded from wrapping 1) because the
   // wrapper gives up on them and 2) because they really shouldn't be
   // called from a script anyway.
-  //BTX
 
-  // Description:
-  // Execute the SingleMethod (as define by SetSingleMethod) using
-  // this->NumberOfThreads threads.
+  /**
+   * Execute the SingleMethod (as define by SetSingleMethod) using
+   * this->NumberOfThreads threads.
+   */
   void SingleMethodExecute();
 
-  // Description:
-  // Execute the MultipleMethods (as define by calling SetMultipleMethod
-  // for each of the required this->NumberOfThreads methods) using
-  // this->NumberOfThreads threads.
+  /**
+   * Execute the MultipleMethods (as define by calling SetMultipleMethod
+   * for each of the required this->NumberOfThreads methods) using
+   * this->NumberOfThreads threads.
+   */
   void MultipleMethodExecute();
 
-  // Description:
-  // Set the SingleMethod to f() and the UserData field of the
-  // ThreadInfo that is passed to it will be data.
-  // This method (and all the methods passed to SetMultipleMethod)
-  // must be of type vtkThreadFunctionType and must take a single argument of
-  // type void *.
+  /**
+   * Set the SingleMethod to f() and the UserData field of the
+   * ThreadInfo that is passed to it will be data.
+   * This method (and all the methods passed to SetMultipleMethod)
+   * must be of type vtkThreadFunctionType and must take a single argument of
+   * type void *.
+   */
   void SetSingleMethod(vtkThreadFunctionType, void *data );
 
-  // Description:
-  // Set the MultipleMethod at the given index to f() and the UserData
-  // field of the ThreadInfo that is passed to it will be data.
+  /**
+   * Set the MultipleMethod at the given index to f() and the UserData
+   * field of the ThreadInfo that is passed to it will be data.
+   */
   void SetMultipleMethod( int index, vtkThreadFunctionType, void *data );
 
-  // Description:
-  // Create a new thread for the given function. Return a thread id
-  // which is a number between 0 and VTK_MAX_THREADS - 1. This id should
-  // be used to kill the thread at a later time.
+  /**
+   * Create a new thread for the given function. Return a thread id
+   * which is a number between 0 and VTK_MAX_THREADS - 1. This id should
+   * be used to kill the thread at a later time.
+   */
   int SpawnThread( vtkThreadFunctionType, void *data );
 
-  // Description:
-  // Terminate the thread that was created with a SpawnThreadExecute()
+  /**
+   * Terminate the thread that was created with a SpawnThreadExecute()
+   */
   void TerminateThread( int thread_id );
 
-  // Description:
-  // Determine if a thread is still active
-  int IsThreadActive( int threadID );
+  /**
+   * Determine if a thread is still active
+   */
+  vtkTypeBool IsThreadActive( int threadID );
 
-  // Description:
-  // Get the thread identifier of the calling thread.
+  /**
+   * Get the thread identifier of the calling thread.
+   */
   static vtkMultiThreaderIDType GetCurrentThreadID();
 
-  // Description:
-  // Check whether two thread identifiers refer to the same thread.
-  static int ThreadsEqual(vtkMultiThreaderIDType t1,
-                          vtkMultiThreaderIDType t2);
+  /**
+   * Check whether two thread identifiers refer to the same thread.
+   */
+  static vtkTypeBool ThreadsEqual(vtkMultiThreaderIDType t1,
+                                  vtkMultiThreaderIDType t2);
 
 protected:
   vtkMultiThreader();
-  ~vtkMultiThreader();
+  ~vtkMultiThreader() override;
 
   // The number of threads to use
   int                        NumberOfThreads;
@@ -214,20 +217,16 @@ protected:
   vtkThreadProcessIDType     SpawnedThreadProcessID[VTK_MAX_THREADS];
   ThreadInfo                 SpawnedThreadInfoArray[VTK_MAX_THREADS];
 
-//ETX
-
   // Internal storage of the data
   void                       *SingleData;
   void                       *MultipleData[VTK_MAX_THREADS];
 
 private:
-  vtkMultiThreader(const vtkMultiThreader&);  // Not implemented.
-  void operator=(const vtkMultiThreader&);  // Not implemented.
+  vtkMultiThreader(const vtkMultiThreader&) = delete;
+  void operator=(const vtkMultiThreader&) = delete;
 };
 
+using ThreadInfoStruct=vtkMultiThreader::ThreadInfo;
+
 #endif
-
-
-
-
 

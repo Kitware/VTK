@@ -30,20 +30,20 @@ vtkStandardNewMacro(vtkTableWriter);
 
 void vtkTableWriter::WriteData()
 {
-  ostream* fp = 0;
+  ostream* fp = nullptr;
   vtkDebugMacro(<<"Writing vtk table data...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
-    {
+  {
     if (fp)
-      {
+    {
       vtkErrorMacro("Ran out of disk space; deleting file: "
                     << this->FileName);
       this->CloseVTKFile(fp);
       unlink(this->FileName);
-      }
-    return;
     }
+    return;
+  }
   //
   // Write table specific stuff
   //

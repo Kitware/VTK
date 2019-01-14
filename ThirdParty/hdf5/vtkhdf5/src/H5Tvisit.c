@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -35,7 +33,7 @@
 /* Module Setup */
 /****************/
 
-#define H5T_PACKAGE		/*suppress error about including H5Tpkg	  */
+#include "H5Tmodule.h"          /* This source code file is part of the H5T module */
 
 
 /***********/
@@ -136,6 +134,19 @@ H5T__visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op, void *op_value)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADITER, FAIL, "can't visit parent datatype")
             break;
 
+        case H5T_NO_CLASS:
+        case H5T_NCLASSES:
+            /* Not real values */
+            HGOTO_ERROR(H5E_ARGS, H5E_UNSUPPORTED, FAIL, "operation not defined for datatype class")
+            break;
+
+        case H5T_INTEGER:
+        case H5T_FLOAT:
+        case H5T_TIME:
+        case H5T_STRING:
+        case H5T_BITFIELD:
+        case H5T_OPAQUE:
+        case H5T_REFERENCE:
         default:
             /* Visit "simple" datatypes here */
             if(visit_flags & H5T_VISIT_SIMPLE)

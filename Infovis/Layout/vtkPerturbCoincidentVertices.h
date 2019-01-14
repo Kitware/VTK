@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPerturbCoincidentVertices - Perturbs vertices that are coincident.
-//
-// .SECTION Description
-// This filter perturbs vertices in a graph that have coincident coordinates.
-// In particular this happens all the time with graphs that are georeferenced,
-// so we need a nice scheme to perturb the vertices so that when the user
-// zooms in the vertices can be distiquished.
+/**
+ * @class   vtkPerturbCoincidentVertices
+ * @brief   Perturbs vertices that are coincident.
+ *
+ *
+ * This filter perturbs vertices in a graph that have coincident coordinates.
+ * In particular this happens all the time with graphs that are georeferenced,
+ * so we need a nice scheme to perturb the vertices so that when the user
+ * zooms in the vertices can be distiquished.
+*/
 
 #ifndef vtkPerturbCoincidentVertices_h
 #define vtkPerturbCoincidentVertices_h
@@ -40,21 +43,24 @@ class VTKINFOVISLAYOUT_EXPORT vtkPerturbCoincidentVertices : public vtkGraphAlgo
 public:
   static vtkPerturbCoincidentVertices* New();
   vtkTypeMacro(vtkPerturbCoincidentVertices,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Specify the perturbation factor (defaults to 1.0)
+  //@{
+  /**
+   * Specify the perturbation factor (defaults to 1.0)
+   */
   vtkSetMacro(PerturbFactor,double);
   vtkGetMacro(PerturbFactor,double);
+  //@}
 
 protected:
   vtkPerturbCoincidentVertices();
-  ~vtkPerturbCoincidentVertices();
+  ~vtkPerturbCoincidentVertices() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) override;
 
 private:
 
@@ -64,8 +70,8 @@ private:
 
   float PerturbFactor;
 
-  vtkPerturbCoincidentVertices(const vtkPerturbCoincidentVertices&); // Not implemented
-  void operator=(const vtkPerturbCoincidentVertices&);   // Not implemented
+  vtkPerturbCoincidentVertices(const vtkPerturbCoincidentVertices&) = delete;
+  void operator=(const vtkPerturbCoincidentVertices&) = delete;
 };
 
 #endif

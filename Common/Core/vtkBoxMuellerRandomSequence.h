@@ -11,14 +11,17 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
-// .NAME vtkBoxMuellerRandomSequence - Gaussian sequence of pseudo random numbers implemented with the Box-Mueller transform
-// .SECTION Description
-// vtkGaussianRandomSequence is a sequence of pseudo random numbers
-// distributed according to the Gaussian/normal distribution (mean=0 and
-// standard deviation=1).
-//
-// It based is calculation from a uniformly distributed pseudo random sequence.
-// The initial sequence is a vtkMinimalStandardRandomSequence.
+/**
+ * @class   vtkBoxMuellerRandomSequence
+ * @brief   Gaussian sequence of pseudo random numbers implemented with the Box-Mueller transform
+ *
+ * vtkGaussianRandomSequence is a sequence of pseudo random numbers
+ * distributed according to the Gaussian/normal distribution (mean=0 and
+ * standard deviation=1).
+ *
+ * It based is calculation from a uniformly distributed pseudo random sequence.
+ * The initial sequence is a vtkMinimalStandardRandomSequence.
+*/
 
 #ifndef vtkBoxMuellerRandomSequence_h
 #define vtkBoxMuellerRandomSequence_h
@@ -29,37 +32,52 @@
 class VTKCOMMONCORE_EXPORT vtkBoxMuellerRandomSequence: public vtkGaussianRandomSequence
 {
 public:
-  vtkTypeMacro(vtkBoxMuellerRandomSequence,vtkGaussianRandomSequence);
-  void PrintSelf(ostream& os, vtkIndent indent);
-
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
   static vtkBoxMuellerRandomSequence* New();
+  vtkTypeMacro(vtkBoxMuellerRandomSequence,vtkGaussianRandomSequence);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // Current value.
-  virtual double GetValue();
+  /**
+   * Satisfy general API of vtkRandomSequence superclass. Initialize the
+   * sequence with a seed.
+   */
+  void Initialize(vtkTypeUInt32 vtkNotUsed(seed)) override
+  {}
 
-  // Description:
-  // Move to the next number in the random sequence.
-  virtual void Next();
+  /**
+   * Current value.
+   */
+  double GetValue() override;
 
-  // Description:
-  // Return the uniformly distributed sequence of random numbers.
+  /**
+   * Move to the next number in the random sequence.
+   */
+  void Next() override;
+
+  /**
+   * Return the uniformly distributed sequence of random numbers.
+   */
   vtkRandomSequence *GetUniformSequence();
 
-  // Description:
-  // Set the uniformly distributed sequence of random numbers.
-  // Default is a .
+  /**
+   * Set the uniformly distributed sequence of random numbers.
+   * Default is a .
+   */
   void SetUniformSequence(vtkRandomSequence *uniformSequence);
 
 protected:
   vtkBoxMuellerRandomSequence();
-  virtual ~vtkBoxMuellerRandomSequence();
+  ~vtkBoxMuellerRandomSequence() override;
 
   vtkRandomSequence *UniformSequence;
   double Value;
 private:
-  vtkBoxMuellerRandomSequence(const vtkBoxMuellerRandomSequence&);  // Not implemented.
-  void operator=(const vtkBoxMuellerRandomSequence&);  // Not implemented.
+  vtkBoxMuellerRandomSequence(const vtkBoxMuellerRandomSequence&) = delete;
+  void operator=(const vtkBoxMuellerRandomSequence&) = delete;
 };
 
 #endif // #ifndef vtkBoxMuellerRandomSequence_h

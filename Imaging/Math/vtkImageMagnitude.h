@@ -12,10 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageMagnitude - Colapses components with magnitude function..
-// .SECTION Description
-// vtkImageMagnitude takes the magnitude of the components.
-
+/**
+ * @class   vtkImageMagnitude
+ * @brief   Colapses components with magnitude function..
+ *
+ * vtkImageMagnitude takes the magnitude of the components.
+*/
 
 #ifndef vtkImageMagnitude_h
 #define vtkImageMagnitude_h
@@ -32,17 +34,17 @@ public:
 
 protected:
   vtkImageMagnitude();
-  ~vtkImageMagnitude() {}
+  ~vtkImageMagnitude() override {}
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector**,
-                                  vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector**,
+                                  vtkInformationVector *) override;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                        int outExt[6], int id);
+                        int outExt[6], int id) override;
 
 private:
-  vtkImageMagnitude(const vtkImageMagnitude&);  // Not implemented.
-  void operator=(const vtkImageMagnitude&);  // Not implemented.
+  vtkImageMagnitude(const vtkImageMagnitude&) = delete;
+  void operator=(const vtkImageMagnitude&) = delete;
 };
 
 #endif

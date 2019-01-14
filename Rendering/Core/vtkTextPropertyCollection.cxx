@@ -25,11 +25,7 @@ void vtkTextPropertyCollection::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkTextPropertyCollection::vtkTextPropertyCollection()
-{
-}
+vtkTextPropertyCollection::vtkTextPropertyCollection() = default;
 
 //----------------------------------------------------------------------------
-vtkTextPropertyCollection::~vtkTextPropertyCollection()
-{
-}
+vtkTextPropertyCollection::~vtkTextPropertyCollection() = default;

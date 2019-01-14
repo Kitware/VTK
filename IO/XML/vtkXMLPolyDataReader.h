@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPolyDataReader - Read VTK XML PolyData files.
-// .SECTION Description
-// vtkXMLPolyDataReader reads the VTK XML PolyData file format.  One
-// polygonal data file can be read to produce one output.  Streaming
-// is supported.  The standard extension for this reader's file format
-// is "vtp".  This reader is also used to read a single piece of the
-// parallel file format.
-
-// .SECTION See Also
-// vtkXMLPPolyDataReader
+/**
+ * @class   vtkXMLPolyDataReader
+ * @brief   Read VTK XML PolyData files.
+ *
+ * vtkXMLPolyDataReader reads the VTK XML PolyData file format.  One
+ * polygonal data file can be read to produce one output.  Streaming
+ * is supported.  The standard extension for this reader's file format
+ * is "vtp".  This reader is also used to read a single piece of the
+ * parallel file format.
+ *
+ * @sa
+ * vtkXMLPPolyDataReader
+*/
 
 #ifndef vtkXMLPolyDataReader_h
 #define vtkXMLPolyDataReader_h
@@ -35,45 +38,51 @@ class VTKIOXML_EXPORT vtkXMLPolyDataReader : public vtkXMLUnstructuredDataReader
 {
 public:
   vtkTypeMacro(vtkXMLPolyDataReader,vtkXMLUnstructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPolyDataReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkPolyData *GetOutput();
   vtkPolyData *GetOutput(int idx);
+  //@}
 
-  // Description:
-  // Get the number of verts/lines/strips/polys in the output.
+  //@{
+  /**
+   * Get the number of verts/lines/strips/polys in the output.
+   */
   virtual vtkIdType GetNumberOfVerts();
   virtual vtkIdType GetNumberOfLines();
   virtual vtkIdType GetNumberOfStrips();
   virtual vtkIdType GetNumberOfPolys();
+  //@}
 
 protected:
   vtkXMLPolyDataReader();
-  ~vtkXMLPolyDataReader();
+  ~vtkXMLPolyDataReader() override;
 
-  const char* GetDataSetName();
-  void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel);
-  void SetupOutputTotals();
-  void SetupNextPiece();
-  void SetupPieces(int numPieces);
-  void DestroyPieces();
+  const char* GetDataSetName() override;
+  void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel) override;
+  void SetupOutputTotals() override;
+  void SetupNextPiece() override;
+  void SetupPieces(int numPieces) override;
+  void DestroyPieces() override;
 
-  void SetupOutputData();
-  int ReadPiece(vtkXMLDataElement* ePiece);
-  int ReadPieceData();
+  void SetupOutputData() override;
+  int ReadPiece(vtkXMLDataElement* ePiece) override;
+  int ReadPieceData() override;
 
   // Read a data array whose tuples coorrespond to cells.
-  virtual int ReadArrayForCells(vtkXMLDataElement* da,
-    vtkAbstractArray* outArray);
+  int ReadArrayForCells(vtkXMLDataElement* da,
+    vtkAbstractArray* outArray) override;
 
   // Get the number of cells in the given piece.  Valid after
   // UpdateInformation.
-  virtual vtkIdType GetNumberOfCellsInPiece(int piece);
+  vtkIdType GetNumberOfCellsInPiece(int piece) override;
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   // The size of the UpdatePiece.
   int TotalNumberOfVerts;
@@ -106,8 +115,8 @@ protected:
   unsigned long PolysOffset;
 
 private:
-  vtkXMLPolyDataReader(const vtkXMLPolyDataReader&);  // Not implemented.
-  void operator=(const vtkXMLPolyDataReader&);  // Not implemented.
+  vtkXMLPolyDataReader(const vtkXMLPolyDataReader&) = delete;
+  void operator=(const vtkXMLPolyDataReader&) = delete;
 };
 
 #endif

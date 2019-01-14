@@ -3,8 +3,6 @@
   Program:   Visualization Toolkit
   Module:    vtkXdmf3HeavyDataHandler.h
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,21 +13,40 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXdmf3HeavyDataHandler - internal helper for vtkXdmf3Reader
-// .SECTION Description
-// vtkXdmf3Reader uses this class to read the heave data from the XDMF
-// file(s).
-//
-// This file is a helper for the vtkXdmf3Reader and not intended to be
-// part of VTK public API
-// VTK-HeaderTest-Exclude: vtkXdmf3HeavyDataHandler.h
+/**
+ * @class   vtkXdmf3HeavyDataHandler
+ * @brief   internal helper for vtkXdmf3Reader
+ *
+ * vtkXdmf3Reader uses this class to read the heave data from the XDMF
+ * file(s).
+ *
+ * This file is a helper for the vtkXdmf3Reader and not intended to be
+ * part of VTK public API
+*/
 
 #ifndef vtkXdmf3HeavyDataHandler_h
 #define vtkXdmf3HeavyDataHandler_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
 
-#include "XdmfItem.hpp"
+#include "vtk_xdmf3.h"
+
+#include VTKXDMF3_HEADER(core/XdmfInformation.hpp)
+
+#include VTKXDMF3_HEADER(core/XdmfItem.hpp)
+#include VTKXDMF3_HEADER(core/XdmfSharedPtr.hpp)
+
+#include "vtkXdmf3ArrayKeeper.h"
+#include "vtkXdmf3ArraySelection.h"
+
+#include VTKXDMF3_HEADER(XdmfCurvilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfGraph.hpp)
+#include VTKXDMF3_HEADER(XdmfGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfRectilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfRegularGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfSet.hpp)
+#include VTKXDMF3_HEADER(XdmfUnstructuredGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfDomain.hpp)
 
 class vtkDataObject;
 class vtkDataSet;
@@ -38,23 +55,13 @@ class vtkMutableDirectedGraph;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
-class vtkXdmf3ArrayKeeper;
-class vtkXdmf3ArraySelection;
-
-class XdmfCurvilinearGrid;
-class XdmfGraph;
-class XdmfGrid;
-class XdmfItem;
-class XdmfRectilinearGrid;
-class XdmfRegularGrid;
-class XdmfSet;
-class XdmfUnstructuredGrid;
 
 class VTKIOXDMF3_EXPORT vtkXdmf3HeavyDataHandler
 {
 public:
-  //Description:
-  //factory constructor
+  /**
+   * factory constructor
+   */
   static shared_ptr<vtkXdmf3HeavyDataHandler> New(
       vtkXdmf3ArraySelection *fs,
       vtkXdmf3ArraySelection *cs,
@@ -66,24 +73,33 @@ public:
       vtkXdmf3ArrayKeeper *keeper,
       bool asTime );
 
-  //Description:
-  //destructor
+  /**
+   * destructor
+   */
   ~vtkXdmf3HeavyDataHandler();
 
-  //Description:
-  //recursively create and populate vtk data objects for the provided Xdmf item
-  vtkDataObject *Populate(shared_ptr<XdmfItem> item, vtkDataObject *toFill);
+  /**
+   * recursively create and populate vtk data objects for the provided Xdmf item
+   */
+  vtkDataObject *Populate(shared_ptr<XdmfGrid> item, vtkDataObject *toFill);
+  vtkDataObject *Populate(shared_ptr<XdmfDomain> item, vtkDataObject *toFill);
+  vtkDataObject *Populate(shared_ptr<XdmfGraph> item, vtkDataObject *toFill);
 
   vtkXdmf3ArrayKeeper* Keeper;
 
+  shared_ptr<XdmfGrid> testItem1;
+  shared_ptr<XdmfDomain> testItem2;
+
 protected:
 
-  //Description:
-  //constructor
+  /**
+   * constructor
+   */
   vtkXdmf3HeavyDataHandler();
 
-  //Description:
-  //for parallel partitioning
+  /**
+   * for parallel partitioning
+   */
   bool ShouldRead(unsigned int piece, unsigned int npieces);
 
   bool GridEnabled(shared_ptr<XdmfGrid> grid);
@@ -130,3 +146,4 @@ protected:
 };
 
 #endif //vtkXdmf3HeavyDataHandler_h
+// VTK-HeaderTest-Exclude: vtkXdmf3HeavyDataHandler.h

@@ -23,16 +23,16 @@ void vtkActorCollection::ApplyProperties(vtkProperty *p)
 {
   vtkActor *actor;
 
-  if ( p == NULL )
-    {
+  if ( p == nullptr )
+  {
     return;
-    }
+  }
 
   vtkCollectionSimpleIterator ait;
   for ( this->InitTraversal(ait); (actor=this->GetNextActor(ait)); )
-    {
+  {
     actor->GetProperty()->DeepCopy(p);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

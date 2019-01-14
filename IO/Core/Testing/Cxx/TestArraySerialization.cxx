@@ -26,24 +26,24 @@
 #include <vtkSmartPointer.h>
 #include <vtkSparseArray.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/ios/sstream>
+#include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     // Test Read and Write in Ascii text mode
     // Test sparse-array round-trip ...
     vtkSmartPointer<vtkSparseArray<double> > a1 = vtkSmartPointer<vtkSparseArray<double> >::New();
@@ -172,11 +172,11 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     j1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
 
     vtkNew<vtkArrayData> j1d;
-    j1d->AddArray(j1.GetPointer());
+    j1d->AddArray(j1);
 
     vtkNew<vtkArrayWriter> jw;
     jw->WriteToOutputStringOn();
-    jw->SetInputData(j1d.GetPointer());
+    jw->SetInputData(j1d);
     jw->Write();
     vtkStdString js = jw->GetOutputString();
 
@@ -301,11 +301,11 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(be2->GetVariantValue(2).ToUnicodeString() == vtkUnicodeString::from_utf8("fox"));
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

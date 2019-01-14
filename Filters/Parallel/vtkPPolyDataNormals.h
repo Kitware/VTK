@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPPolyDataNormals - compute normals for polygonal mesh
-// .SECTION Description
+/**
+ * @class   vtkPPolyDataNormals
+ * @brief   compute normals for polygonal mesh
+ *
+*/
 
 #ifndef vtkPPolyDataNormals_h
 #define vtkPPolyDataNormals_h
@@ -25,29 +28,32 @@ class VTKFILTERSPARALLEL_EXPORT vtkPPolyDataNormals : public vtkPolyDataNormals
 {
 public:
   vtkTypeMacro(vtkPPolyDataNormals,vtkPolyDataNormals);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPPolyDataNormals *New();
 
-  // Description:
-  // To get piece invariance, this filter has to request an
-  // extra ghost level.  By default piece invariance is on.
-  vtkSetMacro(PieceInvariant, int);
-  vtkGetMacro(PieceInvariant, int);
-  vtkBooleanMacro(PieceInvariant, int);
+  //@{
+  /**
+   * To get piece invariance, this filter has to request an
+   * extra ghost level.  By default piece invariance is on.
+   */
+  vtkSetMacro(PieceInvariant, vtkTypeBool);
+  vtkGetMacro(PieceInvariant, vtkTypeBool);
+  vtkBooleanMacro(PieceInvariant, vtkTypeBool);
+  //@}
 
 protected:
   vtkPPolyDataNormals();
-  ~vtkPPolyDataNormals() {}
+  ~vtkPPolyDataNormals() override {}
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int PieceInvariant;
+  vtkTypeBool PieceInvariant;
 private:
-  vtkPPolyDataNormals(const vtkPPolyDataNormals&);  // Not implemented.
-  void operator=(const vtkPPolyDataNormals&);  // Not implemented.
+  vtkPPolyDataNormals(const vtkPPolyDataNormals&) = delete;
+  void operator=(const vtkPPolyDataNormals&) = delete;
 };
 
 #endif

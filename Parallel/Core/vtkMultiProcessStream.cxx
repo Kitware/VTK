@@ -26,7 +26,7 @@ public:
   DataType Data;
 
   enum Types
-    {
+  {
     int32_value,
     uint32_value,
     char_value,
@@ -37,35 +37,35 @@ public:
     int64_value,
     uint64_value,
     stream_value
-    };
+  };
 
   void Push(const unsigned char* data, size_t length)
-    {
+  {
     for (size_t cc=0; cc < length; cc++)
-      {
+    {
       this->Data.push_back(data[cc]);
-      }
     }
+  }
 
   void Pop(unsigned char* data, size_t length)
-    {
+  {
     for (size_t cc=0; cc < length; cc++)
-      {
+    {
       data[cc] = this->Data.front();
       this->Data.pop_front();
-      }
     }
+  }
 
   void SwapBytes()
-    {
+  {
     DataType::iterator iter = this->Data.begin();
     while (iter != this->Data.end())
-      {
+    {
       unsigned char type = *iter;
       int wordSize = 1;
-      iter++;
+      ++iter;
       switch(type)
-        {
+      {
       case int32_value:
       case uint32_value:
         wordSize = sizeof(int);
@@ -92,35 +92,35 @@ public:
         // We want to bitswap the string size which is an int
         wordSize = sizeof(int);
         break;
-        }
+      }
 
       switch (wordSize)
-        {
+      {
         case 1: break;
         case 4: vtkSwap4(&(*iter)); break;
         case 8: vtkSwap8(&(*iter)); break;
-        }
+      }
 
       // In case of string we don't need to swap char values
       int nbSkip = 0;
       if (type == string_value || type == stream_value)
-        {
+      {
         nbSkip = *reinterpret_cast<int*>(&*iter);
-        }
+      }
 
       while (wordSize>0)
-        {
-        iter++;
+      {
+        ++iter;
         wordSize--;
-        }
+      }
 
       // Skip String chars
       for (int cc=0; cc < nbSkip; cc++)
-        {
-        iter++;
-        }
+      {
+        ++iter;
       }
     }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -138,7 +138,7 @@ vtkMultiProcessStream::vtkMultiProcessStream()
 vtkMultiProcessStream::~vtkMultiProcessStream()
 {
   delete this->Internals;
-  this->Internals = 0;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -146,12 +146,14 @@ vtkMultiProcessStream::vtkMultiProcessStream(const vtkMultiProcessStream& other)
 {
   this->Internals = new vtkMultiProcessStream::vtkInternals();
   this->Internals->Data = other.Internals->Data;
+  this->Endianness = other.Endianness;
 }
 
 //----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator=(const vtkMultiProcessStream& other)
 {
   this->Internals->Data = other.Internals->Data;
+  this->Endianness = other.Endianness;
   return (*this);
 }
 
@@ -176,7 +178,7 @@ bool vtkMultiProcessStream::Empty()
 //----------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(double array[], unsigned int size)
 {
-  assert( "pre: array is NULL!" && (array != NULL) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::double_value );
   this->Internals->Push(
       reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int ) );
@@ -187,7 +189,7 @@ void vtkMultiProcessStream::Push(double array[], unsigned int size)
 //----------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(float array[], unsigned int size)
 {
-  assert( "pre: array is NULL!" && (array != NULL) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::float_value );
   this->Internals->Push(
       reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -198,7 +200,7 @@ void vtkMultiProcessStream::Push(float array[], unsigned int size)
 //----------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(int array[], unsigned int size)
 {
-  assert( "pre: array is NULL!" && (array != NULL) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::int32_value );
   this->Internals->Push(
       reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -209,7 +211,7 @@ void vtkMultiProcessStream::Push(int array[], unsigned int size)
 //----------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(char array[], unsigned int size)
 {
-  assert( "pre: array is NULL!" && (array != NULL) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::char_value );
   this->Internals->Push(
      reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -221,7 +223,7 @@ void vtkMultiProcessStream::Push(char array[], unsigned int size)
 void vtkMultiProcessStream::Push(
     unsigned int array[], unsigned int size )
 {
-  assert( "pre: array is NULL!" && (array != NULL) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::uint32_value );
   this->Internals->Push(
        reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -233,7 +235,7 @@ void vtkMultiProcessStream::Push(
 void vtkMultiProcessStream::Push(
     unsigned char array[], unsigned int size )
 {
-  assert( "pre: array is NULL!" && (array != NULL) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::uchar_value );
   this->Internals->Push(
      reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -244,7 +246,7 @@ void vtkMultiProcessStream::Push(
 void vtkMultiProcessStream::Push(
     vtkTypeInt64 array[], unsigned int size )
 {
-  assert( "pre: array is NULL!" && (array != NULL) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::int64_value );
   this->Internals->Push(
       reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -256,7 +258,7 @@ void vtkMultiProcessStream::Push(
 void vtkMultiProcessStream::Push(
     vtkTypeUInt64 array[], unsigned int size )
 {
-  assert( "pre: array is NULL!" && (array != NULL) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::uint64_value );
   this->Internals->Push(
      reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -271,18 +273,18 @@ void vtkMultiProcessStream::Pop(double*& array, unsigned int& size)
           this->Internals->Data.front()==vtkInternals::double_value);
   this->Internals->Data.pop_front();
 
-  if( array == NULL )
-    {
+  if( array == nullptr )
+  {
     // Get the size of the array
     this->Internals->Pop(
         reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int));
 
     // Allocate array
     array = new double[ size ];
-    assert( "ERROR: cannot allocate array" && (array != NULL) );
-    }
+    assert( "ERROR: cannot allocate array" && (array != nullptr) );
+  }
   else
-    {
+  {
     unsigned int sz;
 
     // Get the size of the array
@@ -290,7 +292,7 @@ void vtkMultiProcessStream::Pop(double*& array, unsigned int& size)
         reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
     assert("ERROR: input array size does not match size of data" &&
             (sz==size) );
-    }
+  }
 
   // Pop the array data
   this->Internals->Pop(
@@ -304,18 +306,18 @@ void vtkMultiProcessStream::Pop(float*& array, unsigned int& size)
           this->Internals->Data.front()==vtkInternals::float_value);
   this->Internals->Data.pop_front();
 
-  if( array == NULL )
-    {
+  if( array == nullptr )
+  {
     // Get the size of the array
     this->Internals->Pop(
         reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
 
     // Allocate array
     array = new float[ size ];
-    assert( "ERROR: cannot allocate array" && (array != NULL) );
-    }
+    assert( "ERROR: cannot allocate array" && (array != nullptr) );
+  }
   else
-    {
+  {
     unsigned int sz;
 
     // Get the size of the array
@@ -323,7 +325,7 @@ void vtkMultiProcessStream::Pop(float*& array, unsigned int& size)
         reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
     assert("ERROR: input array size does not match size of data" &&
                 (sz==size) );
-    }
+  }
 
   // Pop the array data
   this->Internals->Pop(
@@ -337,18 +339,18 @@ void vtkMultiProcessStream::Pop(int*& array, unsigned int& size)
            this->Internals->Data.front()==vtkInternals::int32_value );
   this->Internals->Data.pop_front();
 
-  if( array == NULL )
-    {
+  if( array == nullptr )
+  {
     // Get the size of the array
     this->Internals->Pop(
        reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
 
     // Allocate the array
     array = new int[ size ];
-    assert( "ERROR: cannot allocate array" && (array != NULL) );
-    }
+    assert( "ERROR: cannot allocate array" && (array != nullptr) );
+  }
   else
-    {
+  {
     unsigned int sz;
 
     // Get the size of the array
@@ -356,7 +358,7 @@ void vtkMultiProcessStream::Pop(int*& array, unsigned int& size)
         reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
     assert("ERROR: input array size does not match size of data" &&
                 (sz==size) );
-    }
+  }
 
   // Pop the array data
   this->Internals->Pop(
@@ -370,18 +372,18 @@ void vtkMultiProcessStream::Pop(char*& array, unsigned int& size)
           this->Internals->Data.front()==vtkInternals::char_value );
   this->Internals->Data.pop_front();
 
-  if( array == NULL )
-    {
+  if( array == nullptr )
+  {
     // Get the size of the array
     this->Internals->Pop(
         reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
 
     // Allocate the array
     array = new char[ size ];
-    assert( "ERROR: cannot allocate array" && (array != NULL) );
-    }
+    assert( "ERROR: cannot allocate array" && (array != nullptr) );
+  }
   else
-    {
+  {
     unsigned int sz;
 
     // Get the size of the array
@@ -389,7 +391,7 @@ void vtkMultiProcessStream::Pop(char*& array, unsigned int& size)
         reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
     assert("ERROR: input array size does not match size of data" &&
                 (sz==size) );
-    }
+  }
 
   // Pop the array data
   this->Internals->Pop(
@@ -403,18 +405,18 @@ void vtkMultiProcessStream::Pop(unsigned int*& array, unsigned int& size )
           this->Internals->Data.front()==vtkInternals::uint32_value );
   this->Internals->Data.pop_front();
 
-  if( array == NULL )
-    {
+  if( array == nullptr )
+  {
     // Get the size of the array
     this->Internals->Pop(
         reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
 
     // Allocate the array
     array = new unsigned int[ size ];
-    assert( "ERROR: cannot allocate array" && (array != NULL) );
-    }
+    assert( "ERROR: cannot allocate array" && (array != nullptr) );
+  }
   else
-    {
+  {
     unsigned int sz;
 
     // Get the size of the array
@@ -422,7 +424,7 @@ void vtkMultiProcessStream::Pop(unsigned int*& array, unsigned int& size )
         reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
     assert("ERROR: input array size does not match size of data" &&
                 (sz==size) );
-    }
+  }
 
   // Pop the array data
   this->Internals->Pop(
@@ -436,18 +438,18 @@ void vtkMultiProcessStream::Pop(unsigned char*& array, unsigned int& size )
           this->Internals->Data.front()==vtkInternals::uchar_value );
   this->Internals->Data.pop_front();
 
-  if( array == NULL )
-    {
+  if( array == nullptr )
+  {
     // Get the size of the array
     this->Internals->Pop(
         reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
 
     // Allocate the array
     array = new unsigned char[ size ];
-    assert( "ERROR: cannot allocate array" && (array != NULL) );
-    }
+    assert( "ERROR: cannot allocate array" && (array != nullptr) );
+  }
   else
-    {
+  {
     unsigned int sz;
 
     // Get the size of the array
@@ -455,7 +457,7 @@ void vtkMultiProcessStream::Pop(unsigned char*& array, unsigned int& size )
         reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
     assert("ERROR: input array size does not match size of data" &&
                 (sz==size) );
-    }
+  }
 
   // Pop the array data
   this->Internals->Pop( array, size );
@@ -468,18 +470,18 @@ void vtkMultiProcessStream::Pop(vtkTypeInt64*& array, unsigned int& size )
           this->Internals->Data.front()==vtkInternals::int64_value );
   this->Internals->Data.pop_front();
 
-  if( array == NULL )
-    {
+  if( array == nullptr )
+  {
     // Get the size of the array
     this->Internals->Pop(
         reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
 
     // Allocate the array
     array = new vtkTypeInt64[ size ];
-    assert( "ERROR: cannot allocate array" && (array != NULL) );
-    }
+    assert( "ERROR: cannot allocate array" && (array != nullptr) );
+  }
   else
-    {
+  {
     unsigned int sz;
 
     // Get the size of the array
@@ -487,7 +489,7 @@ void vtkMultiProcessStream::Pop(vtkTypeInt64*& array, unsigned int& size )
         reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
     assert("ERROR: input array size does not match size of data" &&
                 (sz==size) );
-    }
+  }
 
   // Pop the array data
   this->Internals->Pop(
@@ -501,18 +503,18 @@ void vtkMultiProcessStream::Pop(vtkTypeUInt64*& array, unsigned int& size )
           this->Internals->Data.front()==vtkInternals::uint64_value );
   this->Internals->Data.pop_front();
 
-  if( array == NULL )
-    {
+  if( array == nullptr )
+  {
     // Get the size of the array
     this->Internals->Pop(
         reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
 
     // Allocate the array
     array = new vtkTypeUInt64[ size ];
-    assert( "ERROR: cannot allocate array" && (array != NULL) );
-    }
+    assert( "ERROR: cannot allocate array" && (array != nullptr) );
+  }
   else
-    {
+  {
     unsigned int sz;
 
     // Get the size of the array
@@ -520,7 +522,7 @@ void vtkMultiProcessStream::Pop(vtkTypeUInt64*& array, unsigned int& size )
         reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
     assert("ERROR: input array size does not match size of data" &&
                 (sz==size) );
-    }
+  }
 
   // Pop the array data
   this->Internals->Pop(
@@ -625,10 +627,10 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator << (const std::string& va
 
   // Set the string content
   for(int idx=0; idx < size; idx++)
-    {
+  {
     this->Internals->Push( reinterpret_cast<const unsigned char*>(&value[idx]),
                            sizeof(char));
-    }
+  }
   return (*this);
 }
 
@@ -690,12 +692,12 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (int &value)
   // Automatically convert 64 bit values in case we are trying to transfer
   // vtkIdType with processes compiled with 32/64 values.
   if (this->Internals->Data.front() == vtkInternals::int64_value)
-    {
+  {
     vtkTypeInt64 value64;
     (*this) >> value64;
     value = static_cast<int>(value64);
     return (*this);
-    }
+  }
   assert(this->Internals->Data.front() == vtkInternals::int32_value);
   this->Internals->Data.pop_front();
   this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(int));
@@ -747,12 +749,12 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkTypeInt64 &value)
   // Automatically convert 64 bit values in case we are trying to transfer
   // vtkIdType with processes compiled with 32/64 values.
   if (this->Internals->Data.front() == vtkInternals::int32_value)
-    {
+  {
     int value32;
     (*this) >> value32;
     value = value32;
     return (*this);
-    }
+  }
   assert(this->Internals->Data.front() == vtkInternals::int64_value);
   this->Internals->Data.pop_front();
   this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(vtkTypeInt64));
@@ -764,7 +766,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkTypeUInt64 &value)
 {
   assert(this->Internals->Data.front() == vtkInternals::uint64_value);
   this->Internals->Data.pop_front();
-  this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(unsigned int));
+  this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(vtkTypeUInt64));
   return (*this);
 }
 
@@ -779,12 +781,20 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (std::string& value)
                         sizeof(int));
   char c_value;
   for(int idx=0; idx < stringSize; idx++)
-    {
+  {
     this->Internals->Pop( reinterpret_cast<unsigned char*>(&c_value),
                           sizeof(char));
     value += c_value;
-    }
+  }
   return (*this);
+}
+
+//----------------------------------------------------------------------------
+std::vector<unsigned char> vtkMultiProcessStream::GetRawData() const
+{
+  std::vector<unsigned char> data;
+  this->GetRawData(data);
+  return data;
 }
 
 //----------------------------------------------------------------------------
@@ -797,9 +807,9 @@ void vtkMultiProcessStream::GetRawData(std::vector<unsigned char>& data) const
   int cc=1;
   for (iter = this->Internals->Data.begin();
     iter != this->Internals->Data.end(); ++iter, ++cc)
-    {
+  {
     data[cc] = (*iter);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -808,17 +818,17 @@ void vtkMultiProcessStream::SetRawData(const std::vector<unsigned char>& data)
   this->Internals->Data.clear();
   unsigned char endianness = data.front();
   std::vector<unsigned char>::const_iterator iter = data.begin();
-  iter++;
+  ++iter;
   this->Internals->Data.resize(data.size()-1);
   int cc=0;
-  for (;iter != data.end(); iter++, cc++)
-    {
+  for (;iter != data.end(); ++iter, ++cc)
+  {
     this->Internals->Data[cc] = *iter;
-    }
+  }
   if (this->Endianness != endianness)
-    {
+  {
     this->Internals->SwapBytes();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -829,15 +839,15 @@ void vtkMultiProcessStream::GetRawData(
 
   size = this->Size()+1;
   data = new unsigned char[ size+1 ];
-  assert( "pre: cannot allocate raw data buffer" && (data != NULL) );
+  assert( "pre: cannot allocate raw data buffer" && (data != nullptr) );
 
 
   data[0] = this->Endianness;
   vtkInternals::DataType::iterator iter = this->Internals->Data.begin();
   for(int idx=1 ; iter != this->Internals->Data.end(); ++iter, ++idx )
-    {
+  {
     data[ idx ] = *iter;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -846,18 +856,18 @@ void vtkMultiProcessStream::SetRawData(const unsigned char* data,
 {
   this->Internals->Data.clear();
   if (size > 0)
-    {
+  {
     unsigned char endianness = data[0];
     this->Internals->Data.resize(size-1);
     int cc=0;
     for (;cc < static_cast<int>(size-1); cc++)
-      {
+    {
       this->Internals->Data[cc] = data[cc+1];
-      }
-    if (this->Endianness != endianness)
-      {
-      this->Internals->SwapBytes();
-      }
     }
+    if (this->Endianness != endianness)
+    {
+      this->Internals->SwapBytes();
+    }
+  }
 }
 

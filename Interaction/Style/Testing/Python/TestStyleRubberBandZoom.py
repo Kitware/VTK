@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -27,6 +26,7 @@ rbz = vtk.vtkInteractorStyleRubberBandZoom()
 rbz.SetInteractor(iren)
 iren.SetInteractorStyle(rbz)
 renWin.Render()
+ren.GetActiveCamera().SetClippingRange(538.2413295991446, 551.8332823667997)
 # Test style
 iren.SetEventInformationFlipY(250,250,0,0,"0",0,"0")
 iren.InvokeEvent("LeftButtonPressEvent")

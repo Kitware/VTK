@@ -158,7 +158,7 @@ Clear(void)
   while(it != m_PointList.end())
   {
     LandmarkPnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
   }
   m_PointList.clear();
@@ -330,7 +330,7 @@ M_Read(void)
     MET_SizeOfType(m_ElementType, &elementSize);
     METAIO_STL::streamsize readSize = m_NPoints*(m_NDims+4)*elementSize;
 
-    char* _data = new char[readSize];
+    char* _data = new char[static_cast<size_t>(readSize)];
     m_ReadStream->read((char *)_data, readSize);
 
     METAIO_STL::streamsize gc = m_ReadStream->gcount();
@@ -411,7 +411,7 @@ M_Read(void)
     char c = ' ';
     while( (c!='\n') && (!m_ReadStream->eof()))
     {
-      c = m_ReadStream->get();// to avoid unrecognize charactere
+      c = static_cast<char>(m_ReadStream->get());// to avoid unrecognize charactere
     }
   }
 
@@ -456,7 +456,7 @@ M_Write(void)
         MET_SwapByteIfSystemMSB(&c,MET_FLOAT);
         MET_DoubleToValue((double)c,m_ElementType,data,i++);
       }
-      it++;
+      ++it;
     }
     m_WriteStream->write((char *)data,(m_NDims+4)*m_NPoints*elementSize);
     m_WriteStream->write("\n",1);
@@ -481,7 +481,7 @@ M_Write(void)
       }
 
       *m_WriteStream << METAIO_STREAM::endl;
-      it++;
+      ++it;
     }
   }
 
@@ -492,4 +492,3 @@ M_Write(void)
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-

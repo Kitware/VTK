@@ -16,6 +16,8 @@
 
 #ifndef _ADIOSReader_h
 #define _ADIOSReader_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include <stdexcept>
 #include <string>
@@ -57,11 +59,11 @@ public:
   const std::vector<const Attribute*>& GetAttributes() const;
 
   // Description:
-  // Retrieve a list of scalars and thier associated metadata
+  // Retrieve a list of scalars and their associated metadata
   const std::vector<const Scalar*>& GetScalars() const;
 
   // Description:
-  // Retrieve a list of arrays and thier associated metadata
+  // Retrieve a list of arrays and their associated metadata
   const std::vector<const VarInfo*>& GetArrays() const;
 
   // Description:
@@ -89,5 +91,7 @@ private:
 };
 
 } // End anmespace ADIOS
+#endif
+#endif
 #endif
 // VTK-HeaderTest-Exclude: ADIOSReader.h

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
@@ -19,7 +17,7 @@
  * Purpose:	Generic Property Testing Functions
  */
 
-#define H5P_PACKAGE		/*suppress error about including H5Ppkg	  */
+#include "H5Pmodule.h"          /* This source code file is part of the H5P module */
 #define H5P_TESTING		/*suppress warning about H5P testing funcs*/
 
 
@@ -60,8 +58,8 @@
 char *
 H5P_get_class_path_test(hid_t pclass_id)
 {
-    H5P_genclass_t	*pclass;    /* Property class to query */
-    char *ret_value;       /* return value */
+    H5P_genclass_t	*pclass;        /* Property class to query */
+    char *ret_value = NULL;             /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -101,8 +99,8 @@ done:
 hid_t
 H5P_open_class_path_test(const char *path)
 {
-    H5P_genclass_t *pclass=NULL;/* Property class to query */
-    hid_t ret_value;            /* Return value */
+    H5P_genclass_t *pclass = NULL;      /* Property class to query */
+    hid_t ret_value = H5I_INVALID_HID;  /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -124,50 +122,4 @@ done:
 
     FUNC_LEAVE_NOAPI(ret_value)
 }   /* H5P_open_class_path_test() */
-
-
-/*--------------------------------------------------------------------------
- NAME
-    H5P_reset_external_file_test
- PURPOSE
-    Routine to reset external file list
- USAGE
-    herr_t H5P_reset_external_file_test(plist)
-           hid_t dcpl_id; IN: the property list
-
- RETURNS
-    Non-negative on success/Negative on failure
-
- PROGRAMMER
-    Peter Cao
-    April 30, 2007
---------------------------------------------------------------------------*/
-herr_t
-H5P_reset_external_file_test(hid_t dcpl_id)
-{
-    H5O_efl_t       efl;                /* External file list */
-    H5P_genplist_t *plist;              /* Property list */
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
-
-    /* Check arguments */
-    if(NULL == (plist = (H5P_genplist_t *)H5I_object(dcpl_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset creation property list")
-
-    /* get external file list */
-    if(H5P_get(plist, H5D_CRT_EXT_FILE_LIST_NAME, &efl) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get external file list")
-
-    /* Clean up any values set for the external file-list */
-    if(H5O_msg_reset(H5O_EFL_ID, &efl) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "can't release external file list info")
-
-    /* set external file list */
-    if(H5P_set(plist, H5D_CRT_EXT_FILE_LIST_NAME, &efl) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get external file list")
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5P_reset_external_file_test() */
 

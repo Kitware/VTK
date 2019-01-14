@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTransmitRectilinearGridPiece - Redistributes data produced
-// by serial readers
-//
-// .SECTION Description
-// This filter can be used to redistribute data from producers that can't
-// produce data in parallel. All data is produced on first process and
-// the distributed to others using the multiprocess controller.
-
+/**
+ * @class   vtkTransmitRectilinearGridPiece
+ * @brief   Redistributes data produced
+ * by serial readers
+ *
+ *
+ * This filter can be used to redistribute data from producers that can't
+ * produce data in parallel. All data is produced on first process and
+ * the distributed to others using the multiprocess controller.
+*/
 
 #ifndef vtkTransmitPolyDataPiece_h
 #define vtkTransmitPolyDataPiece_h
@@ -34,35 +36,41 @@ class VTKFILTERSPARALLEL_EXPORT vtkTransmitPolyDataPiece : public vtkPolyDataAlg
 public:
   static vtkTransmitPolyDataPiece *New();
   vtkTypeMacro(vtkTransmitPolyDataPiece, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // By defualt this filter uses the global controller,
-  // but this method can be used to set another instead.
+  //@{
+  /**
+   * By default this filter uses the global controller,
+   * but this method can be used to set another instead.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // Turn on/off creating ghost cells (on by default).
-  vtkSetMacro(CreateGhostCells, int);
-  vtkGetMacro(CreateGhostCells, int);
-  vtkBooleanMacro(CreateGhostCells, int);
+  //@{
+  /**
+   * Turn on/off creating ghost cells (on by default).
+   */
+  vtkSetMacro(CreateGhostCells, vtkTypeBool);
+  vtkGetMacro(CreateGhostCells, vtkTypeBool);
+  vtkBooleanMacro(CreateGhostCells, vtkTypeBool);
+  //@}
 
 protected:
   vtkTransmitPolyDataPiece();
-  ~vtkTransmitPolyDataPiece();
+  ~vtkTransmitPolyDataPiece() override;
 
   // Data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   void RootExecute(vtkPolyData *input, vtkPolyData *output, vtkInformation *outInfo);
   void SatelliteExecute(int procId, vtkPolyData *output, vtkInformation *outInfo);
 
-  int CreateGhostCells;
+  vtkTypeBool CreateGhostCells;
   vtkMultiProcessController *Controller;
 
 private:
-  vtkTransmitPolyDataPiece(const vtkTransmitPolyDataPiece&); // Not implemented
-  void operator=(const vtkTransmitPolyDataPiece&); // Not implemented
+  vtkTransmitPolyDataPiece(const vtkTransmitPolyDataPiece&) = delete;
+  void operator=(const vtkTransmitPolyDataPiece&) = delete;
 };
 
 #endif

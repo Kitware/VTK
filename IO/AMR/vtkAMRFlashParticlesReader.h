@@ -12,13 +12,16 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkAMRFlashParticlesReader.cxx -- Reads Flash particles dataset
-//
-// .SECTION Description
-//  A concrete instance of vtkAMRBaseParticlesReader that implements
-//  functionality for reading flash particle datasets.
-#ifndef VTKAMRFLASHPARTICLESREADER_H_
-#define VTKAMRFLASHPARTICLESREADER_H_
+/**
+ * @class   vtkAMRFlashParticlesReader
+ *
+ *
+ *  A concrete instance of vtkAMRBaseParticlesReader that implements
+ *  functionality for reading flash particle datasets.
+*/
+
+#ifndef vtkAMRFlashParticlesReader_h
+#define vtkAMRFlashParticlesReader_h
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseParticlesReader.h"
@@ -35,37 +38,42 @@ class VTKIOAMR_EXPORT vtkAMRFlashParticlesReader :
 public:
   static vtkAMRFlashParticlesReader* New();
   vtkTypeMacro( vtkAMRFlashParticlesReader, vtkAMRBaseParticlesReader );
-  void PrintSelf(ostream &os, vtkIndent indent );
+  void PrintSelf(ostream &os, vtkIndent indent ) override;
 
-  // Description:
-  // See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.
-  int GetTotalNumberOfParticles();
+  /**
+   * See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.
+   */
+  int GetTotalNumberOfParticles() override;
 
 protected:
   vtkAMRFlashParticlesReader();
-  virtual ~vtkAMRFlashParticlesReader();
+  ~vtkAMRFlashParticlesReader() override;
 
-  // Description:
-  // See vtkAMRBaseParticlesReader::ReadMetaData
-  void ReadMetaData();
+  /**
+   * See vtkAMRBaseParticlesReader::ReadMetaData
+   */
+  void ReadMetaData() override;
 
-  // Description:
-  // See vtkAMRBaseParticlesReader::SetupParticlesDataSelections
-  void SetupParticleDataSelections();
+  /**
+   * See vtkAMRBaseParticlesReader::SetupParticlesDataSelections
+   */
+  void SetupParticleDataSelections() override;
 
-  // Description:
-  // See vtkAMRBaseParticlesReader::ReadParticles
-  vtkPolyData* ReadParticles( const int blkidx );
+  /**
+   * See vtkAMRBaseParticlesReader::ReadParticles
+   */
+  vtkPolyData* ReadParticles( const int blkidx ) override;
 
-  // Description:
-  // Reads the particlles of the given block from the given file.
+  /**
+   * Reads the particlles of the given block from the given file.
+   */
   vtkPolyData* GetParticles( const char* file, const int blkidx );
 
   vtkFlashReaderInternal *Internal;
 
 private:
-  vtkAMRFlashParticlesReader( const vtkAMRFlashParticlesReader& ); // Not implemented
-  void operator=(const vtkAMRFlashParticlesReader& ); // Not implemented
+  vtkAMRFlashParticlesReader( const vtkAMRFlashParticlesReader& ) = delete;
+  void operator=(const vtkAMRFlashParticlesReader& ) = delete;
 };
 
-#endif /* VTKAMRFLASHPARTICLESREADER_H_ */
+#endif /* vtkAMRFlashParticlesReader_h */

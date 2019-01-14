@@ -7,35 +7,33 @@
 # This code base should be cleaned up to follow VTK standard and even be
 # integrated into VTK itself. But for now it is provided as is.
 
+set(classes
+  vtkPVWebGLExporter
+  vtkWebGLDataSet
+  vtkWebGLExporter
+  vtkWebGLObject
+  vtkWebGLPolyData
+  vtkWebGLWidget)
 
-set(Module_SRCS
-  vtkPVWebGLExporter.cxx
-  vtkWebGLDataSet.cxx
-  vtkWebGLExporter.cxx
-  vtkWebGLObject.cxx
-  vtkWebGLPolyData.cxx
-  vtkWebGLWidget.cxx
-)
+set(javascript_files
+  webglRenderer.js
+  glMatrix.js)
 
-set_source_files_properties(md5.cxx WRAP_EXCLUDE)
+set(sources)
+set(private_headers)
 
-set(JAVASCRIPT_SRCS
-  webglRenderer
-  glMatrix
-)
+foreach (javascript_file IN LISTS javascript_files)
+  vtk_encode_string(
+    INPUT         "${javascript_file}"
+    HEADER_OUTPUT header
+    SOURCE_OUTPUT source)
+  list(APPEND sources
+    ${source})
+  list(APPEND private_headers
+    ${header})
+endforeach ()
 
-
-foreach(file ${JAVASCRIPT_SRCS})
-  set(src ${CMAKE_CURRENT_SOURCE_DIR}/${file}.js)
-  set(res ${CMAKE_CURRENT_BINARY_DIR}/${file}.h)
-  add_custom_command(
-    OUTPUT ${res}
-    DEPENDS ${src}
-    COMMAND vtkEncodeString
-    ARGS ${res} ${src} ${file}
-    )
-  list(APPEND Module_SRCS ${res})
-  set_source_files_properties(${res} WRAP_EXCLUDE)
-endforeach()
-
-vtk_module_library(${vtk-module} ${Module_SRCS})
+vtk_module_add_module(VTK::WebGLExporter
+  CLASSES ${classes}
+  SOURCES ${sources}
+  PRIVATE_HEADERS ${private_headers})

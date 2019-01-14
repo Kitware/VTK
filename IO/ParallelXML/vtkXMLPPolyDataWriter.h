@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPPolyDataWriter - Write PVTK XML PolyData files.
-// .SECTION Description
-// vtkXMLPPolyDataWriter writes the PVTK XML PolyData file format.
-// One poly data input can be written into a parallel file format with
-// any number of pieces spread across files.  The standard extension
-// for this writer's file format is "pvtp".  This writer uses
-// vtkXMLPolyDataWriter to write the individual piece files.
-
-// .SECTION See Also
-// vtkXMLPolyDataWriter
+/**
+ * @class   vtkXMLPPolyDataWriter
+ * @brief   Write PVTK XML PolyData files.
+ *
+ * vtkXMLPPolyDataWriter writes the PVTK XML PolyData file format.
+ * One poly data input can be written into a parallel file format with
+ * any number of pieces spread across files.  The standard extension
+ * for this writer's file format is "pvtp".  This writer uses
+ * vtkXMLPolyDataWriter to write the individual piece files.
+ *
+ * @sa
+ * vtkXMLPolyDataWriter
+*/
 
 #ifndef vtkXMLPPolyDataWriter_h
 #define vtkXMLPPolyDataWriter_h
@@ -36,31 +39,31 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPPolyDataWriter : public vtkXMLPUnstructured
 public:
   static vtkXMLPPolyDataWriter* New();
   vtkTypeMacro(vtkXMLPPolyDataWriter,vtkXMLPUnstructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //BTX
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkPolyData* GetInput();
-  //ETX
 
-  // Description:
-  // Get the default file extension for files written by this writer.
-  const char* GetDefaultFileExtension();
+  /**
+   * Get the default file extension for files written by this writer.
+   */
+  const char* GetDefaultFileExtension() override;
 
 protected:
   vtkXMLPPolyDataWriter();
-  ~vtkXMLPPolyDataWriter();
+  ~vtkXMLPPolyDataWriter() override;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  const char* GetDataSetName();
-  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter();
+  const char* GetDataSetName() override;
+  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter() override;
 
 private:
-  vtkXMLPPolyDataWriter(const vtkXMLPPolyDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPPolyDataWriter&);  // Not implemented.
+  vtkXMLPPolyDataWriter(const vtkXMLPPolyDataWriter&) = delete;
+  void operator=(const vtkXMLPPolyDataWriter&) = delete;
 };
 
 #endif

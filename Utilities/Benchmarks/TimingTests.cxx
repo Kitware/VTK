@@ -39,13 +39,16 @@ int main( int argc, char *argv[] )
 
   a.TestsToRun.push_back(new glyphTest("Glyphing"));
 
-#ifdef HAVE_CHEMISTRY
   a.TestsToRun.push_back(new moleculeTest("Molecule"));
   a.TestsToRun.push_back(new moleculeTest("MoleculeAtomsOnly",true));
-#endif
 
   a.TestsToRun.push_back(new volumeTest("Volume", false));
   a.TestsToRun.push_back(new volumeTest("VolumeWithShading", true));
+
+  a.TestsToRun.push_back(new depthPeelingTest("DepthPeeling", false));
+  a.TestsToRun.push_back(new depthPeelingTest("DepthPeelingWithNormals", true));
+
+  a.TestsToRun.push_back(new manyActorTest("ManyActors"));
 
   // process them
   return a.ParseCommandLineArguments(argc, argv);

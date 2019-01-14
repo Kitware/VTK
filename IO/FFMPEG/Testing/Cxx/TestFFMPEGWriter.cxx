@@ -62,7 +62,7 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   w->SetBitRateTolerance(1024*1024*3);
   w->Start();
   for ( cc = 2; cc < 99; cc ++ )
-    {
+  {
     cout << ".";
     Fractal0->SetMaximumNumberOfIterations(cc);
     table->SetTableRange(0, cc);
@@ -70,7 +70,7 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     table->ForceBuild();
     table->SetTableValue(cc-1, 0, 0, 0);
     w->Write();
-    }
+  }
   w->End();
   cout << endl;
   cout << "Done writing file TestFFMPEGWriter.avi..." << endl;
@@ -81,19 +81,19 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cout << "TestFFMPEGWriter.avi file exists: " << exists << endl;
   cout << "TestFFMPEGWriter.avi file length: " << length << endl;
   if (!exists)
-    {
+  {
     err = 1;
     cerr << "ERROR: 1 - Test failing because TestFFMPEGWriter.avi file doesn't exist..." << endl;
-    }
+  }
   else
-    {
+  {
     vtksys::SystemTools::RemoveFile("TestFFMPEGWriter.avi");
-    }
+  }
   if (0==length)
-    {
+  {
     err = 2;
     cerr << "ERROR: 2 - Test failing because TestFFMPEGWriter.avi file has zero length..." << endl;
-    }
+  }
 
   colorize->Delete();
   table->Delete();

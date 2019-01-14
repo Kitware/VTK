@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalBoxDataSetAlgorithm - superclass for algorithms that
-// produce vtkHierarchicalBoxDataSet as output.
-// .SECTION Description
-// Algorithms that take any type of data object (including composite dataset)
-// and produce a vtkHierarchicalBoxDataSet in the output can subclass from this
-// class.
+/**
+ * @class   vtkHierarchicalBoxDataSetAlgorithm
+ * @brief   superclass for algorithms that
+ * produce vtkHierarchicalBoxDataSet as output.
+ *
+ * Algorithms that take any type of data object (including composite dataset)
+ * and produce a vtkHierarchicalBoxDataSet in the output can subclass from this
+ * class.
+*/
 
 #ifndef vtkHierarchicalBoxDataSetAlgorithm_h
 #define vtkHierarchicalBoxDataSetAlgorithm_h
@@ -31,75 +34,87 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkHierarchicalBoxDataSetAlgorithm : public
 public:
   static vtkHierarchicalBoxDataSetAlgorithm* New();
   vtkTypeMacro(vtkHierarchicalBoxDataSetAlgorithm, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the output data object for a port on this algorithm.
+  //@{
+  /**
+   * Get the output data object for a port on this algorithm.
+   */
   vtkHierarchicalBoxDataSet* GetOutput();
   vtkHierarchicalBoxDataSet* GetOutput(int);
+  //@}
 
-  // Description:
-  // Assign a data object as input. Note that this method does not
-  // establish a pipeline connection. Use SetInputConnection() to
-  // setup a pipeline connection.
+  //@{
+  /**
+   * Assign a data object as input. Note that this method does not
+   * establish a pipeline connection. Use SetInputConnection() to
+   * setup a pipeline connection.
+   */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
+  //@}
 
-  // Description:
-  // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation* request,
+  /**
+   * see vtkAlgorithm for details
+   */
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+                             vtkInformationVector* outputVector) override;
 
-//BTX
 protected:
   vtkHierarchicalBoxDataSetAlgorithm();
-  ~vtkHierarchicalBoxDataSetAlgorithm();
+  ~vtkHierarchicalBoxDataSetAlgorithm() override;
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestDataObject(vtkInformation*,
                                 vtkInformationVector**,
                                 vtkInformationVector*) {return 1;};
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
                                  vtkInformationVector*) {return 1;};
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestData(vtkInformation*,
                           vtkInformationVector**,
                           vtkInformationVector*) {return 1;};
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  //@{
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*)
-    {
+  {
       return 1;
-    };
+  };
+  //@}
 
   // Create a default executive.
-  virtual vtkExecutive* CreateDefaultExecutive();
+  vtkExecutive* CreateDefaultExecutive() override;
 
   // see algorithm for more info
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkHierarchicalBoxDataSetAlgorithm(const vtkHierarchicalBoxDataSetAlgorithm&); // Not implemented.
-  void operator=(const vtkHierarchicalBoxDataSetAlgorithm&); // Not implemented.
-//ETX
+  vtkHierarchicalBoxDataSetAlgorithm(const vtkHierarchicalBoxDataSetAlgorithm&) = delete;
+  void operator=(const vtkHierarchicalBoxDataSetAlgorithm&) = delete;
+
 };
 
 #endif

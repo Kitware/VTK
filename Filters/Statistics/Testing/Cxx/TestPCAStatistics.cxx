@@ -23,11 +23,6 @@
 
 #include "vtksys/SystemTools.hxx"
 
-//=============================================================================
-// When changing this file, change the corresponding file in
-// StatisticsGnuR/Testing/Cxx as well.
-//=============================================================================
-
 // Perform a fuzzy compare of floats/doubles
 template<class A>
 bool fuzzyCompare(A a, A b) {
@@ -52,13 +47,13 @@ int TestPCAStatistics(int argc, char* argv[])
   result |= TestEigen();
 
   if ( result == EXIT_FAILURE )
-    {
+  {
     cout << "FAILURE" << endl;
-    }
+  }
   else
-    {
+  {
     cout << "SUCCESS" << endl;
-    }
+  }
 
   return result;
 }
@@ -101,21 +96,21 @@ int TestPCARobust2()
   dataset2Arr->SetName( m1Name );
 
   for ( int i = 0; i < nVals; ++ i )
-    {
+  {
     dataset1Arr->InsertNextValue( mingledData[i * 2] );
     dataset2Arr->InsertNextValue( mingledData[i * 2 + 1] );
-    }
+  }
 
   vtkNew<vtkTable> datasetTable;
-  datasetTable->AddColumn( dataset1Arr.GetPointer() );
-  datasetTable->AddColumn( dataset2Arr.GetPointer() );
+  datasetTable->AddColumn( dataset1Arr );
+  datasetTable->AddColumn( dataset2Arr );
 
   // Set PCA statistics algorithm and its input data port
   vtkNew<vtkPCAStatistics> pcas;
 
   // Prepare first test with data
   pcas->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA,
-    datasetTable.GetPointer() );
+    datasetTable );
   pcas->MedianAbsoluteDeviationOn();
 
   // -- Select Column Pairs of Interest ( Learn Mode ) --
@@ -135,16 +130,16 @@ int TestPCARobust2()
                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 9.0 };
 
   for ( vtkIdType j = 0; j < 2; j++ )
-    {
+  {
     for ( vtkIdType i = 0; i < 7; i++ )
-      {
+    {
       if ( outputData->GetValue(i, j+2) !=
         res[ j * outputData->GetNumberOfRows() + i ] )
-        {
+      {
         return EXIT_FAILURE;
-        }
       }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -210,12 +205,12 @@ int TestPCAPart(int argc, char* argv[], bool robustPCA)
   dataset3Arr->SetName( m2Name );
 
   for ( int i = 0; i < nVals; ++ i )
-    {
+  {
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
     dataset3Arr->InsertNextValue( i != 12 ? -1. : -1.001 );
-    }
+  }
 
   vtkTable* datasetTable = vtkTable::New();
   datasetTable->AddColumn( dataset1Arr );
@@ -271,20 +266,20 @@ int TestPCAPart(int argc, char* argv[], bool robustPCA)
 
   cout << "## Calculated the following statistics for data set:\n";
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
-    {
+  {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
 
     if ( b == 0 )
-      {
+    {
       cout << "Primary Statistics\n";
-      }
+    }
     else
-      {
+    {
       cout << "Derived Statistics " << ( b - 1 ) << "\n";
-      }
+    }
 
     outputMeta->Dump();
-    }
+  }
 
   // Check some results of the Test option
   cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics for pseudo-random variables (n="
@@ -303,41 +298,41 @@ int TestPCAPart(int argc, char* argv[], bool robustPCA)
 
   // Loop over Test table
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputTest->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputTest->GetColumnName( i )
            << "="
            << outputTest->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
 #ifdef USE_GNU_R
     // Check if null hypothesis is rejected at specified significance level
     double p = outputTest->GetValueByName( r, "P" ).ToDouble();
     // Must verify that p value is valid (it is set to -1 if R has failed)
     if ( p > -1 && p < alpha )
-      {
+    {
       cout << "N.H. rejected";
 
       ++ nRejected;
-      }
+    }
 #endif // USE_GNU_R
 
     cout << "\n";
-    }
+  }
 
 #ifdef USE_GNU_R
   if ( nRejected < nNonGaussian )
-    {
+  {
     vtkGenericWarningMacro("Rejected only "
                            << nRejected
                            << " null hypotheses of binormality whereas "
                            << nNonGaussian
                            << " variable pairs are not Gaussian");
     testStatus = 1;
-    }
+  }
 #endif // USE_GNU_R
 
   // Test Assess option
@@ -428,26 +423,26 @@ int TestEigen()
   double eigenvaluesGroundTruth[3] = {.5, .166667, 0};
   vtkIdType eigenvaluesCount = eigenvalues->GetNumberOfTuples();
   if (eigenvaluesCount > 3)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   for(vtkIdType i = 0; i < eigenvaluesCount; i++)
-    {
+  {
     std::cout << "Eigenvalue " << i << " = " << eigenvalues->GetValue(i) << std::endl;
     if(!fuzzyCompare(eigenvalues->GetValue(i), eigenvaluesGroundTruth[i]))
-       {
+    {
        std::cerr << "Eigenvalues (GetEigenvalues) are not correct! (" << eigenvalues->GetValue(i)
                  << " vs " << eigenvaluesGroundTruth[i] << ")" << std::endl;
        return EXIT_FAILURE;
-       }
+    }
 
     if(!fuzzyCompare(pcaStatistics->GetEigenvalue(i), eigenvaluesGroundTruth[i]) )
-       {
+    {
        std::cerr << "Eigenvalues (GetEigenvalue) are not correct! (" << pcaStatistics->GetEigenvalue(i)
                  << " vs " << eigenvaluesGroundTruth[i] << ")" << std::endl;
        return EXIT_FAILURE;
-       }
     }
+  }
 
   std::vector<std::vector<double> > eigenvectorsGroundTruth;
   std::vector<double> e0(3);
@@ -471,26 +466,38 @@ int TestEigen()
 
   pcaStatistics->GetEigenvectors(eigenvectors);
   for(vtkIdType i = 0; i < eigenvectors->GetNumberOfTuples(); i++)
-    {
+  {
     std::cout << "Eigenvector " << i << " : ";
     double* evec = new double[eigenvectors->GetNumberOfComponents()];
     eigenvectors->GetTuple(i, evec);
-    for(vtkIdType j = 0; j < eigenvectors->GetNumberOfComponents(); j++)
+    int iamax = 0;
+    double vamax = fabs(eigenvectorsGroundTruth[i][0]);
+    for(vtkIdType j = 1; j < eigenvectors->GetNumberOfComponents(); j++)
+    {
+      double tmp = fabs(eigenvectorsGroundTruth[i][j]);
+      if (tmp > vamax)
       {
+        iamax = j;
+        vamax = tmp;
+      }
+    }
+    double factor = (vamax == eigenvectorsGroundTruth[i][iamax]) ? +1 : -1;
+    for(vtkIdType j = 0; j < eigenvectors->GetNumberOfComponents(); j++)
+    {
       std::cout << evec[j] << " ";
       vtkSmartPointer<vtkDoubleArray> eigenvectorSingle =
         vtkSmartPointer<vtkDoubleArray>::New();
       pcaStatistics->GetEigenvector(i, eigenvectorSingle);
-      if(!fuzzyCompare(eigenvectorsGroundTruth[i][j], evec[j]) ||
-         !fuzzyCompare(eigenvectorsGroundTruth[i][j], eigenvectorSingle->GetValue(j)) )
-         {
+      if(!fuzzyCompare(factor * eigenvectorsGroundTruth[i][j], evec[j]) ||
+         !fuzzyCompare(factor * eigenvectorsGroundTruth[i][j], eigenvectorSingle->GetValue(j)) )
+      {
          std::cerr << "Eigenvectors do not match!" << std::endl;
          return EXIT_FAILURE;
-         }
       }
+    }
     delete[] evec;
     std::cout << std::endl;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

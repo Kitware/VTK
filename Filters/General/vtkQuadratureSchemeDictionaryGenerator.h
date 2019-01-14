@@ -12,18 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQuadratureSchemeDictionaryGenerator
-// .SECTION Description
-//
-// Given an unstructured grid on its input this filter generates
-// for each data array in point data dictionary (ie an instance of
-// vtkInformationQuadratureSchemeDefinitionVectorKey). This filter
-// has been introduced to facilitate testing of the vtkQuadrature*
-// classes as these cannot operate with the dictionary. This class
-// is for testing and should not be used for application development.
-//
-// .SECTION See also
-// vtkQuadraturePointInterpolator, vtkQuadraturePointsGenerator, vtkQuadratureSchemeDefinition
+/**
+ * @class   vtkQuadratureSchemeDictionaryGenerator
+ *
+ *
+ * Given an unstructured grid on its input this filter generates
+ * for each data array in point data dictionary (ie an instance of
+ * vtkInformationQuadratureSchemeDefinitionVectorKey). This filter
+ * has been introduced to facilitate testing of the vtkQuadrature*
+ * classes as these cannot operate with the dictionary. This class
+ * is for testing and should not be used for application development.
+ *
+ * @sa
+ * vtkQuadraturePointInterpolator, vtkQuadraturePointsGenerator, vtkQuadratureSchemeDefinition
+*/
 
 #ifndef vtkQuadratureSchemeDictionaryGenerator_h
 #define vtkQuadratureSchemeDictionaryGenerator_h
@@ -40,25 +42,28 @@ class VTKFILTERSGENERAL_EXPORT vtkQuadratureSchemeDictionaryGenerator : public v
 {
 public:
   vtkTypeMacro(vtkQuadratureSchemeDictionaryGenerator,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkQuadratureSchemeDictionaryGenerator *New();
 
 protected:
-  int FillInputPortInformation(int port, vtkInformation *info);
-  int FillOutputPortInformation(int port, vtkInformation *info);
-  int RequestData(vtkInformation *req, vtkInformationVector **input, vtkInformationVector *output);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation *req, vtkInformationVector **input, vtkInformationVector *output) override;
   vtkQuadratureSchemeDictionaryGenerator();
-  virtual ~vtkQuadratureSchemeDictionaryGenerator();
+  ~vtkQuadratureSchemeDictionaryGenerator() override;
 
 private:
-  vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator &); // Not implemented
-  void operator=(const vtkQuadratureSchemeDictionaryGenerator &); // Not implemented
+  vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator &) = delete;
+  void operator=(const vtkQuadratureSchemeDictionaryGenerator &) = delete;
 
-  // Description:
-  // Generate definitions for each cell type found on the
-  // input data set. The same definition will be used
-  // for all point data arrays.
+  //@{
+  /**
+   * Generate definitions for each cell type found on the
+   * input data set. The same definition will be used
+   * for all point data arrays.
+   */
   int Generate(vtkUnstructuredGrid *usgOut);
 };
+  //@}
 
 #endif

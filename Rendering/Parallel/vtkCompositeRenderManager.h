@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeRenderManager - An object to control sort-last parallel rendering.
-//
-// .SECTION Description:
-// vtkCompositeRenderManager is a subclass of vtkParallelRenderManager that
-// uses compositing to do parallel rendering.  This class has
-// replaced vtkCompositeManager.
-//
-
+/**
+ * @class   vtkCompositeRenderManager
+ * @brief   An object to control sort-last parallel rendering.
+ *
+ *
+ * vtkCompositeRenderManager is a subclass of vtkParallelRenderManager that
+ * uses compositing to do parallel rendering.  This class has
+ * replaced vtkCompositeManager.
+ *
+*/
 
 #ifndef vtkCompositeRenderManager_h
 #define vtkCompositeRenderManager_h
@@ -35,25 +37,24 @@ class VTKRENDERINGPARALLEL_EXPORT vtkCompositeRenderManager : public vtkParallel
 public:
   vtkTypeMacro(vtkCompositeRenderManager, vtkParallelRenderManager);
   static vtkCompositeRenderManager *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get the composite algorithm.
+  //@{
+  /**
+   * Set/Get the composite algorithm.
+   */
   void SetCompositer(vtkCompositer *c);
   vtkGetObjectMacro(Compositer, vtkCompositer);
-
-  // Description:
-  // Get rendering metrics.
-  vtkGetMacro(ImageProcessingTime, double);
+  //@}
 
 protected:
   vtkCompositeRenderManager();
-  ~vtkCompositeRenderManager();
+  ~vtkCompositeRenderManager() override;
 
   vtkCompositer *Compositer;
 
-  virtual void PreRenderProcessing();
-  virtual void PostRenderProcessing();
+  void PreRenderProcessing() override;
+  void PostRenderProcessing() override;
 
   vtkFloatArray *DepthData;
   vtkUnsignedCharArray *TmpPixelData;
@@ -62,8 +63,8 @@ protected:
   int SavedMultiSamplesSetting;
 
 private:
-  vtkCompositeRenderManager(const vtkCompositeRenderManager &);//Not implemented
-  void operator=(const vtkCompositeRenderManager &);  //Not implemented
+  vtkCompositeRenderManager(const vtkCompositeRenderManager &) = delete;
+  void operator=(const vtkCompositeRenderManager &) = delete;
 };
 
 #endif //vtkCompositeRenderManager_h

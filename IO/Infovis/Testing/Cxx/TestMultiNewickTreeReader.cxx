@@ -23,18 +23,18 @@ int TestMultiNewickTreeReader(int argc, char* argv[])
   int error_count = 0;
 
   if (numOfTrees != 3)
-    {
+  {
     ++error_count;
-    }
+  }
 
   for (unsigned int i = 0; i< numOfTrees; i++)
-     {
+  {
      vtkTree * tr =  vtkTree::SafeDownCast(forest->GetPieceAsDataObject(i));
      if (!tr)
-       {
+     {
        ++error_count;
-       }
      }
+  }
 
   cerr << error_count << " errors" << endl;
   return error_count;

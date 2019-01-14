@@ -22,9 +22,10 @@
 #include <vtkArrayPrint.h>
 #include <vtkSparseArray.h>
 #include <vtkSmartPointer.h>
+#include <vtkTestErrorObserver.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/stl/stdexcept>
+#include <iostream>
+#include <stdexcept>
 
 #define test_expression(expression) \
 { \
@@ -35,7 +36,7 @@
 int TestSparseArrayValidation(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     // Create an array ...
     vtkSmartPointer<vtkSparseArray<double> > array = vtkSmartPointer<vtkSparseArray<double> >::New();
     test_expression(array->Validate());
@@ -49,11 +50,16 @@ int TestSparseArrayValidation(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     array->AddValue(0, 1, 3);
     test_expression(array->Validate());
 
+    vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
+      vtkSmartPointer<vtkTest::ErrorObserver>::New();
+    array->AddObserver(vtkCommand::ErrorEvent, errorObserver);
     array->Clear();
     array->AddValue(0, 0, 1);
     array->AddValue(1, 2, 2);
     array->AddValue(0, 0, 4);
     test_expression(!array->Validate());
+    int status = 0;
+    status += errorObserver->CheckErrorMessage("Array contains 1 duplicate coordinates");
 
     array->Clear();
     array->AddValue(0, 0, 1);
@@ -61,10 +67,10 @@ int TestSparseArrayValidation(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(!array->Validate());
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

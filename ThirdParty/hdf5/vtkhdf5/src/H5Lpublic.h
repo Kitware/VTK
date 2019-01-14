@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -40,10 +38,13 @@
 #define H5L_MAX_LINK_NAME_LEN   ((uint32_t)(-1))  /* (4GB - 1) */
 
 /* Macro to indicate operation occurs on same location */
-#define H5L_SAME_LOC 0
+#define H5L_SAME_LOC (hid_t)0
 
 /* Current version of the H5L_class_t struct */
-#define H5L_LINK_CLASS_T_VERS 0
+#define H5L_LINK_CLASS_T_VERS 1
+
+/* Previous versions of the H5L_class_t struct */
+#define H5L_LINK_CLASS_T_VERS_0 0
 
 #ifdef __cplusplus
 extern "C" {
@@ -101,8 +102,10 @@ typedef herr_t (*H5L_copy_func_t)(const char *new_name, hid_t new_loc,
     const void *lnkdata, size_t lnkdata_size);
 
 /* Callback during link traversal */
-typedef herr_t (*H5L_traverse_func_t)(const char *link_name, hid_t cur_group,
+typedef hid_t (*H5L_traverse_0_func_t)(const char *link_name, hid_t cur_group,
     const void *lnkdata, size_t lnkdata_size, hid_t lapl_id);
+typedef hid_t (*H5L_traverse_func_t)(const char *link_name, hid_t cur_group,
+    const void *lnkdata, size_t lnkdata_size, hid_t lapl_id, hid_t dxpl_id);
 
 /* Callback for when the link is deleted */
 typedef herr_t (*H5L_delete_func_t)(const char *link_name, hid_t file,
@@ -114,6 +117,18 @@ typedef ssize_t (*H5L_query_func_t)(const char *link_name, const void *lnkdata,
     size_t lnkdata_size, void *buf /*out*/, size_t buf_size);
 
 /* User-defined link types */
+typedef struct {
+    int version;                    /* Version number of this struct        */
+    H5L_type_t id;                  /* Link type ID                         */
+    const char *comment;            /* Comment for debugging                */
+    H5L_create_func_t create_func;  /* Callback during link creation        */
+    H5L_move_func_t move_func;      /* Callback after moving link           */
+    H5L_copy_func_t copy_func;      /* Callback after copying link          */
+    H5L_traverse_0_func_t trav_func; /* Callback during link traversal       */
+    H5L_delete_func_t del_func;     /* Callback for link deletion           */
+    H5L_query_func_t query_func;    /* Callback for queries                 */
+} H5L_class_0_t;
+
 typedef struct {
     int version;                    /* Version number of this struct        */
     H5L_type_t id;                  /* Link type ID                         */

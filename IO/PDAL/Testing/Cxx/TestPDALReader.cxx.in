@@ -1,0 +1,128 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestGaussianBlurPass.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/**
+ * This tests reading a file using a PDAL reader.
+ */
+
+#include "vtkCamera.h"
+#include "vtkDataArray.h"
+#include "vtkLookupTable.h"
+#include "vtkNew.h"
+#include "vtkPDALReader.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderWindow.h"
+#include "vtkSmartPointer.h"
+#include "vtkTestUtilities.h"
+
+
+
+
+
+int TestPDALReader_@VTK_PDAL_READER_POSTFIX@(int argc, char **argv)
+{
+  const char* fileName = "Data/@VTK_PDAL_READER_TEST_INPUT@";
+  const char* path = vtkTestUtilities::ExpandDataFileName(argc, argv, fileName);
+  vtkNew<vtkPDALReader> reader;
+  //Select source file
+  reader->SetFileName(path);
+  delete [] path;
+
+  //Read the output
+  reader->Update();
+
+  vtkSmartPointer<vtkPolyData> outputData = reader->GetOutput();
+
+  bool useClassification = false;
+  bool useColor = false;
+  vtkDataArray* classification = outputData->GetPointData()->GetArray("Classification");
+  vtkDataArray* intensity = outputData->GetPointData()->GetArray("Intensity");
+  vtkDataArray* color = outputData->GetPointData()->GetArray("Color");
+  double range[2];
+  if (classification)
+  {
+    classification->GetRange(range, 0);
+    if (range[0] != range[1] &&
+        std::string(classification->GetClassName()) != "vtkTypeUInt8Array")
+    {
+      std::cout << "Color by classification " << classification->GetClassName() << "\n";
+      useClassification = true;
+      outputData->GetPointData()->SetActiveScalars("Classification");
+    }
+  }
+  if (! useClassification)
+  {
+    if (color)
+    {
+      color->GetRange(range, 0);
+      if (range[0] != range[1])
+      {
+        std::cout << "Color by color scalar\n";
+        useColor = true;
+        outputData->GetPointData()->SetActiveScalars("Color");
+      }
+    }
+    else
+    {
+      std::cout << "Color by intensity\n";
+      intensity->GetRange(range, 0);
+      outputData->GetPointData()->SetActiveScalars("Intensity");
+    }
+  }
+
+
+  // vtkNew<vtkXMLPolyDataWriter> writer;
+  // writer->SetFileName("test.vtp");
+  // writer->SetInputData(outputData);
+  // writer->Write();
+
+  //Visualise in a render window
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputData(outputData);
+  if (useColor)
+  {
+    mapper->SetColorModeToDirectScalars();
+  }
+  else
+  {
+    mapper->SetScalarRange(range);
+  }
+
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper);
+
+  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkRenderWindow> renderWindow;
+  renderWindow->AddRenderer(renderer);
+
+  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
+  renderWindowInteractor->SetRenderWindow(renderWindow);
+  renderer->AddActor(actor);
+  renderer->ResetCamera();
+
+  vtkCamera *camera=renderer->GetActiveCamera();
+  camera->Elevation(@VTK_PDAL_READER_ELEVATION@);
+
+  int retVal = vtkRegressionTestImageThreshold (renderWindow, 0.2);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    renderWindowInteractor->Start ();
+    retVal = vtkRegressionTester::PASSED;
+  }
+  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
+}

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -123,7 +122,7 @@ try:
     ren1.ResetCameraClippingRange()
     ren1.SetBackground(1, 1, 1)
 
-    renWin.SetSize(375, 200)
+    renWin.SetSize(380, 200)
     renWin.SetMultiSamples(0)
     iren.Initialize()
 
@@ -141,4 +140,4 @@ try:
 #    iren.Start()
 
 except IOError:
-    print  "Couldn't open UGridField.vtk for writing."
+    print("Couldn't open UGridField.vtk for writing.")

@@ -12,12 +12,15 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkLevelIdScalars.h -- Empty class for backwards compatibility
-//
-// .SECTION Description
-//  Empty class for backwards compatibility.
-#ifndef VTKLEVELIDSCALARS_H_
-#define VTKLEVELIDSCALARS_H_
+/**
+ * @class   vtkLevelIdScalars
+ *
+ *
+ *  Empty class for backwards compatibility.
+*/
+
+#ifndef vtkLevelIdScalars_h
+#define vtkLevelIdScalars_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkOverlappingAMRLevelIdScalars.h"
@@ -28,15 +31,15 @@ class VTKFILTERSGENERAL_EXPORT vtkLevelIdScalars :
   public:
     static vtkLevelIdScalars* New();
     vtkTypeMacro(vtkLevelIdScalars,vtkOverlappingAMRLevelIdScalars);
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
   protected:
     vtkLevelIdScalars();
-    virtual ~vtkLevelIdScalars();
+    ~vtkLevelIdScalars() override;
 
   private:
-    vtkLevelIdScalars(const vtkLevelIdScalars&); // Not implemented
-    void operator=(const vtkLevelIdScalars&); // Not implemented
+    vtkLevelIdScalars(const vtkLevelIdScalars&) = delete;
+    void operator=(const vtkLevelIdScalars&) = delete;
 };
 
 #endif /* VTKLEVELIDSCALARS_H_ */

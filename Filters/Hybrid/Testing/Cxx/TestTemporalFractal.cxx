@@ -28,11 +28,12 @@
 #include "vtkThreshold.h"
 #include "vtkTemporalInterpolator.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkInformation.h"
 
 //-------------------------------------------------------------------------
 int TestTemporalFractal(int argc, char *argv[])
 {
-  // we have to use a compsite pipeline
+  // we have to use a composite pipeline
   vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();
   vtkAlgorithm::SetDefaultExecutivePrototype(prototype);
   prototype->Delete();
@@ -89,26 +90,25 @@ int TestTemporalFractal(int argc, char *argv[])
   iren->SetRenderWindow( renWin );
 
   // ask for some specific data points
-  vtkStreamingDemandDrivenPipeline *sdd =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(geom->GetExecutive());
-  sdd->UpdateInformation();
+  vtkInformation* info = geom->GetOutputInformation(0);
+  geom->UpdateInformation();
   double time = -0.6;
   int i;
   for (i = 0; i < 10; ++i)
-    {
+  {
     time = i/25.0 - 0.5;
-    sdd->SetUpdateTimeStep(0, time);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), time);
     mapper->Modified();
     renderer->ResetCameraClippingRange();
     renWin->Render();
-    }
+  }
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
-  vtkAlgorithm::SetDefaultExecutivePrototype(0);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   return !retVal;
 }

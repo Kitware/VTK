@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkResliceImageViewer - Display an image along with a reslice cursor
-// .SECTION Description
-// This class is similar to vtkImageViewer2. It displays the image along with
-// a two cross hairs for reslicing. The cross hairs may be interactively
-// manipulated and are typically used to reslice two other views of
-// vtkResliceImageViewer. See QtVTKRenderWindows for an example. The reslice
-// cursor is used to perform thin or thick MPR through data. The class can
-// also default to the behaviour of vtkImageViewer2 if the Reslice mode is
-// set to RESLICE_AXIS_ALIGNED.
-// .SECTION see also
-// vtkResliceCursor vtkResliceCursorWidget vtkResliceCursorRepresentation
+/**
+ * @class   vtkResliceImageViewer
+ * @brief   Display an image along with a reslice cursor
+ *
+ * This class is similar to vtkImageViewer2. It displays the image along with
+ * a two cross hairs for reslicing. The cross hairs may be interactively
+ * manipulated and are typically used to reslice two other views of
+ * vtkResliceImageViewer. See QtVTKRenderWindows for an example. The reslice
+ * cursor is used to perform thin or thick MPR through data. The class can
+ * also default to the behaviour of vtkImageViewer2 if the Reslice mode is
+ * set to RESLICE_AXIS_ALIGNED.
+ * @sa
+ * vtkResliceCursor vtkResliceCursorWidget vtkResliceCursorRepresentation
+*/
 
 #ifndef vtkResliceImageViewer_h
 #define vtkResliceImageViewer_h
@@ -42,40 +45,53 @@ class VTKINTERACTIONIMAGE_EXPORT vtkResliceImageViewer : public vtkImageViewer2
 {
 public:
 
-  // Description:
-  // Standard VTK methods.
+  //@{
+  /**
+   * Standard VTK methods.
+   */
   static vtkResliceImageViewer *New();
   vtkTypeMacro(vtkResliceImageViewer,vtkImageViewer2);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // Render the resulting image.
-  virtual void Render();
+  /**
+   * Render the resulting image.
+   */
+  void Render() override;
 
-  // Description:
-  // Set/Get the input image to the viewer.
-  virtual void SetInputData(vtkImageData *in);
-  virtual void SetInputConnection(vtkAlgorithmOutput* input);
+  //@{
+  /**
+   * Set/Get the input image to the viewer.
+   */
+  void SetInputData(vtkImageData *in) override;
+  void SetInputConnection(vtkAlgorithmOutput* input) override;
+  //@}
 
-  // Description:
-  // Set window and level for mapping pixels to colors.
-  virtual void SetColorWindow(double s);
-  virtual void SetColorLevel(double s);
+  //@{
+  /**
+   * Set window and level for mapping pixels to colors.
+   */
+  void SetColorWindow(double s) override;
+  void SetColorLevel(double s) override;
+  //@}
 
-  // Description:
-  // Get the internal render window, renderer, image actor, and
-  // image map instances.
+  //@{
+  /**
+   * Get the internal render window, renderer, image actor, and
+   * image map instances.
+   */
   vtkGetObjectMacro(ResliceCursorWidget,vtkResliceCursorWidget);
+  //@}
 
-  // Description:
-  // Set/get the slice orientation
-  //BTX
+  /**
+   * Set/get the slice orientation
+   */
+
   enum
   {
     RESLICE_AXIS_ALIGNED = 0,
     RESLICE_OBLIQUE = 1
   };
-  //ETX
 
   vtkGetMacro(ResliceMode, int);
   virtual void SetResliceMode(int resliceMode);
@@ -84,79 +100,104 @@ public:
   virtual void SetResliceModeToOblique()
     { this->SetResliceMode(vtkResliceImageViewer::RESLICE_OBLIQUE); };
 
-  // Description:
-  // Set/Get the reslice cursor.
+  //@{
+  /**
+   * Set/Get the reslice cursor.
+   */
   vtkResliceCursor * GetResliceCursor();
   void SetResliceCursor( vtkResliceCursor * rc );
+  //@}
 
-  // Description:
-  // Set the lookup table
+  //@{
+  /**
+   * Set the lookup table
+   */
   virtual void SetLookupTable( vtkScalarsToColors * );
   vtkScalarsToColors * GetLookupTable();
+  //@}
 
-  // Description:
-  // Switch to / from thick mode
+  //@{
+  /**
+   * Switch to / from thick mode
+   */
   virtual void SetThickMode( int );
   virtual int GetThickMode();
+  //@}
 
-  // Description:
-  // Reset all views back to initial state
+  /**
+   * Reset all views back to initial state
+   */
   virtual void Reset();
 
-  // Description:
-  // Get the point placer.
+  //@{
+  /**
+   * Get the point placer.
+   */
   vtkGetObjectMacro( PointPlacer, vtkBoundedPlanePointPlacer );
+  //@}
 
-  // Description:
-  // Get the measurements manager
+  //@{
+  /**
+   * Get the measurements manager
+   */
   vtkGetObjectMacro( Measurements, vtkResliceImageViewerMeasurements );
+  //@}
 
-  // Description:
-  // Get the render window interactor
+  //@{
+  /**
+   * Get the render window interactor
+   */
   vtkGetObjectMacro( Interactor, vtkRenderWindowInteractor );
+  //@}
 
-  // Description:
-  // Scroll slices on the mouse wheel ? In the case of MPR
-  // view, it moves one "normalized spacing" in the direction of the normal to
-  // the resliced plane, provided the new center will continue to lie within
-  // the volume.
-  vtkSetMacro( SliceScrollOnMouseWheel, int );
-  vtkGetMacro( SliceScrollOnMouseWheel, int );
-  vtkBooleanMacro( SliceScrollOnMouseWheel, int );
+  //@{
+  /**
+   * Scroll slices on the mouse wheel ? In the case of MPR
+   * view, it moves one "normalized spacing" in the direction of the normal to
+   * the resliced plane, provided the new center will continue to lie within
+   * the volume.
+   */
+  vtkSetMacro( SliceScrollOnMouseWheel, vtkTypeBool );
+  vtkGetMacro( SliceScrollOnMouseWheel, vtkTypeBool );
+  vtkBooleanMacro( SliceScrollOnMouseWheel, vtkTypeBool );
+  //@}
 
-  // Description:
-  // Increment/Decrement slice by 'n' slices
+  /**
+   * Increment/Decrement slice by 'n' slices
+   */
   virtual void IncrementSlice( int n );
 
-  // Description:
   enum { SliceChangedEvent = 1001 };
 
 protected:
   vtkResliceImageViewer();
-  ~vtkResliceImageViewer();
+  ~vtkResliceImageViewer() override;
 
-  virtual void InstallPipeline();
-  virtual void UnInstallPipeline();
-  virtual void UpdateOrientation();
-  virtual void UpdateDisplayExtent();
+  void InstallPipeline() override;
+  void UnInstallPipeline() override;
+  void UpdateOrientation() override;
+  void UpdateDisplayExtent() override;
   virtual void UpdatePointPlacer();
 
-  // Description:
-  // Convenience methods to get the reslice plane and the normalized
-  // spacing between slices in reslice mode.
+  //@{
+  /**
+   * Convenience methods to get the reslice plane and the normalized
+   * spacing between slices in reslice mode.
+   */
   vtkPlane * GetReslicePlane();
   double GetInterSliceSpacingInResliceMode();
+  //@}
 
   vtkResliceCursorWidget            * ResliceCursorWidget;
   vtkBoundedPlanePointPlacer        * PointPlacer;
   int                                 ResliceMode;
   vtkResliceImageViewerMeasurements * Measurements;
-  int                                 SliceScrollOnMouseWheel;
+  vtkTypeBool                                 SliceScrollOnMouseWheel;
   vtkResliceImageViewerScrollCallback * ScrollCallback;
 
 private:
-  vtkResliceImageViewer(const vtkResliceImageViewer&);  // Not implemented.
-  void operator=(const vtkResliceImageViewer&);  // Not implemented.
+  vtkResliceImageViewer(const vtkResliceImageViewer&) = delete;
+  void operator=(const vtkResliceImageViewer&) = delete;
 };
 
 #endif

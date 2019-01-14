@@ -25,9 +25,7 @@ vtkMoleculeToPolyDataFilter::vtkMoleculeToPolyDataFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkMoleculeToPolyDataFilter::~vtkMoleculeToPolyDataFilter()
-{
-}
+vtkMoleculeToPolyDataFilter::~vtkMoleculeToPolyDataFilter() = default;
 
 //----------------------------------------------------------------------------
 vtkMolecule * vtkMoleculeToPolyDataFilter::GetInput()
@@ -40,9 +38,9 @@ int vtkMoleculeToPolyDataFilter::FillInputPortInformation(int port,
                                                           vtkInformation* info)
 {
   if(!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMolecule");
   return 1;
 }

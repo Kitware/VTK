@@ -31,18 +31,18 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   double point1[3];
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     point1[i] = randomSequence->GetValue();
-    }
+  }
   lineSource->SetPoint1(point1);
 
   double point2[3];
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     point2[i] = randomSequence->GetValue();
-    }
+  }
   lineSource->SetPoint2(point2);
 
   lineSource->Update();
@@ -51,24 +51,24 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPoints> outputPoints = polyData->GetPoints();
 
   if(outputPoints->GetDataType() != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   lineSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     point1[i] = randomSequence->GetValue();
-    }
+  }
   lineSource->SetPoint1(point1);
 
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     point2[i] = randomSequence->GetValue();
-    }
+  }
   lineSource->SetPoint2(point2);
 
   lineSource->Update();
@@ -77,9 +77,9 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   outputPoints = polyData->GetPoints();
 
   if(outputPoints->GetDataType() != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   lineSource->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
 
@@ -87,17 +87,17 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   inputPoints->SetDataType(VTK_DOUBLE);
 
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     point1[i] = randomSequence->GetValue();
-    }
+  }
   inputPoints->InsertNextPoint(point1);
 
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     point2[i] = randomSequence->GetValue();
-    }
+  }
   inputPoints->InsertNextPoint(point2);
 
   lineSource->SetPoints(inputPoints);
@@ -108,26 +108,26 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   outputPoints = polyData->GetPoints();
 
   if(outputPoints->GetDataType() != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   inputPoints->Reset();
 
   lineSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     point1[i] = randomSequence->GetValue();
-    }
+  }
   inputPoints->InsertNextPoint(point1);
 
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     point2[i] = randomSequence->GetValue();
-    }
+  }
   inputPoints->InsertNextPoint(point2);
 
   lineSource->SetPoints(inputPoints);
@@ -138,9 +138,9 @@ int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   outputPoints = polyData->GetPoints();
 
   if(outputPoints->GetDataType() != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

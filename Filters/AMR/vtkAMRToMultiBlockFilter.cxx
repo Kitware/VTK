@@ -33,10 +33,7 @@ vtkAMRToMultiBlockFilter::vtkAMRToMultiBlockFilter()
 }
 
 //------------------------------------------------------------------------------
-vtkAMRToMultiBlockFilter::~vtkAMRToMultiBlockFilter()
-{
-
-}
+vtkAMRToMultiBlockFilter::~vtkAMRToMultiBlockFilter() = default;
 
 //------------------------------------------------------------------------------
 void vtkAMRToMultiBlockFilter::PrintSelf( std::ostream &oss, vtkIndent indent )
@@ -48,7 +45,7 @@ void vtkAMRToMultiBlockFilter::PrintSelf( std::ostream &oss, vtkIndent indent )
 int vtkAMRToMultiBlockFilter::FillInputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
-  assert( "pre: information object is NULL!" && (info != NULL) );
+  assert( "pre: information object is nullptr!" && (info != nullptr) );
   info->Set(
       vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkOverlappingAMR");
   return 1;
@@ -58,7 +55,7 @@ int vtkAMRToMultiBlockFilter::FillInputPortInformation(
 int vtkAMRToMultiBlockFilter::FillOutputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
-  assert( "pre: information object is NULL!" && (info != NULL) );
+  assert( "pre: information object is nullptr!" && (info != nullptr) );
   info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
   return 1;
 }
@@ -67,31 +64,31 @@ int vtkAMRToMultiBlockFilter::FillOutputPortInformation(
 void vtkAMRToMultiBlockFilter::CopyAMRToMultiBlock(
     vtkOverlappingAMR *amr, vtkMultiBlockDataSet *mbds )
 {
-  assert( "pre: input AMR dataset is NULL" && (amr != NULL) );
-  assert( "pre: output multi-block dataset is NULL" && (mbds != NULL) );
+  assert( "pre: input AMR dataset is nullptr" && (amr != nullptr) );
+  assert( "pre: output multi-block dataset is nullptr" && (mbds != nullptr) );
 
   mbds->SetNumberOfBlocks( amr->GetTotalNumberOfBlocks( ) );
   unsigned int blockIdx = 0;
   unsigned int levelIdx = 0;
   for( ; levelIdx < amr->GetNumberOfLevels(); ++levelIdx )
-    {
+  {
     unsigned int dataIdx = 0;
     for( ; dataIdx < amr->GetNumberOfDataSets( levelIdx ); ++dataIdx )
-      {
+    {
       vtkUniformGrid *grid = amr->GetDataSet( levelIdx, dataIdx );
-      if( grid != NULL )
-        {
+      if( grid != nullptr )
+      {
         vtkUniformGrid *gridCopy = vtkUniformGrid::New();
         gridCopy->ShallowCopy( grid );
         mbds->SetBlock( blockIdx, gridCopy );
-        }
+      }
       else
-        {
-        mbds->SetBlock( blockIdx, NULL );
-        }
+      {
+        mbds->SetBlock( blockIdx, nullptr );
+      }
       ++blockIdx;
-      } // END for all data
-    } // END for all levels
+    } // END for all data
+  } // END for all levels
 }
 
 //------------------------------------------------------------------------------
@@ -102,19 +99,19 @@ int vtkAMRToMultiBlockFilter::RequestData(
 
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
-  assert( "pre: input information object is NULL" && (input != NULL) );
+  assert( "pre: input information object is nullptr" && (input != nullptr) );
   vtkOverlappingAMR *amrds=
       vtkOverlappingAMR::SafeDownCast(
           input->Get( vtkDataObject::DATA_OBJECT( ) ) );
-  assert( "pre: input data-structure is NULL" && (amrds != NULL) );
+  assert( "pre: input data-structure is nullptr" && (amrds != nullptr) );
 
   // STEP 1: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );
-  assert( "pre: output Co information is NULL" && (output != NULL) );
+  assert( "pre: output Co information is nullptr" && (output != nullptr) );
   vtkMultiBlockDataSet *mbds=
       vtkMultiBlockDataSet::SafeDownCast(
           output->Get( vtkDataObject::DATA_OBJECT() ) );
-  assert( "pre: output multi-block dataset is NULL" && (mbds != NULL) );
+  assert( "pre: output multi-block dataset is nullptr" && (mbds != nullptr) );
 
   // STEP 2: Copy AMR data to multi-block
   this->CopyAMRToMultiBlock( amrds, mbds );

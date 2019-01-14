@@ -42,9 +42,7 @@ vtkBooleanOperationPolyDataFilter::vtkBooleanOperationPolyDataFilter() :
 }
 
 //-----------------------------------------------------------------------------
-vtkBooleanOperationPolyDataFilter::~vtkBooleanOperationPolyDataFilter()
-{
-}
+vtkBooleanOperationPolyDataFilter::~vtkBooleanOperationPolyDataFilter() = default;
 
 //-----------------------------------------------------------------------------
 void vtkBooleanOperationPolyDataFilter::SortPolyData(vtkPolyData* input,
@@ -53,21 +51,21 @@ void vtkBooleanOperationPolyDataFilter::SortPolyData(vtkPolyData* input,
 {
   int numCells = input->GetNumberOfCells();
 
-  vtkDoubleArray *distArray = vtkDoubleArray::SafeDownCast
+  vtkDoubleArray *distArray = vtkArrayDownCast<vtkDoubleArray>
     ( input->GetCellData()->GetArray("Distance") );
 
   for (int cid = 0; cid < numCells; cid++)
-    {
+  {
 
     if ( distArray->GetValue( cid ) > this->Tolerance )
-      {
+    {
       unionList->InsertNextId( cid );
-      }
-    else
-      {
-      interList->InsertNextId( cid );
-      }
     }
+    else
+    {
+      interList->InsertNextId( cid );
+    }
+  }
 }
 
 
@@ -82,9 +80,9 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
   vtkInformation* outInfo1 = outputVector->GetInformationObject(1);
 
   if (!inInfo0 || !inInfo1 || !outInfo0 || !outInfo1)
-    {
+  {
     return 0;
-    }
+  }
 
   vtkPolyData* input0 =
     vtkPolyData::SafeDownCast(inInfo0->Get(vtkDataObject::DATA_OBJECT()));
@@ -97,9 +95,9 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
     vtkPolyData::SafeDownCast(outInfo1->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!input0 || !input1 || !outputSurface || !outputIntersection)
-    {
+  {
     return 0;
-    }
+  }
 
   // Get intersected versions
   vtkSmartPointer<vtkIntersectionPolyDataFilter> PolyDataIntersection =
@@ -111,6 +109,11 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
   PolyDataIntersection->SplitFirstOutputOn();
   PolyDataIntersection->SplitSecondOutputOn();
   PolyDataIntersection->Update();
+
+  if (PolyDataIntersection->GetStatus() != 1)
+  {
+    return 0;
+  }
 
   outputIntersection->CopyStructure(PolyDataIntersection->GetOutput());
   outputIntersection->GetPointData()->PassData(PolyDataIntersection->GetOutput()->GetPointData());
@@ -156,15 +159,15 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
   outputSurface->GetCellData()->CopyAllocate(cellFields);
 
   if ( this->Operation == VTK_UNION || this->Operation == VTK_DIFFERENCE )
-    {
+  {
     this->CopyCells(pd0, outputSurface, 0, pointFields, cellFields, unionList,
                     false);
-    }
+  }
   else if ( this->Operation == VTK_INTERSECTION )
-    {
+  {
     this->CopyCells(pd0, outputSurface, 0, pointFields, cellFields, interList,
                     false);
-    }
+  }
 
   // Label sources for each point and cell.
   vtkSmartPointer< vtkIntArray > pointSourceLabel =
@@ -173,9 +176,9 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
   pointSourceLabel->SetName("PointSource");
   pointSourceLabel->SetNumberOfTuples(outputSurface->GetNumberOfPoints());
   for (vtkIdType ii = 0; ii < outputSurface->GetNumberOfPoints(); ii++)
-    {
+  {
     pointSourceLabel->InsertValue(ii, 0);
-    }
+  }
 
   vtkSmartPointer< vtkIntArray > cellSourceLabel =
     vtkSmartPointer< vtkIntArray >::New();
@@ -183,9 +186,9 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
   cellSourceLabel->SetName("CellSource");
   cellSourceLabel->SetNumberOfValues(outputSurface->GetNumberOfCells());
   for (vtkIdType ii = 0; ii < outputSurface->GetNumberOfCells(); ii++)
-    {
+  {
     cellSourceLabel->InsertValue(ii, 0);
-    }
+  }
 
   interList->Reset();
   unionList->Reset();
@@ -193,31 +196,31 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
   this->SortPolyData(pd1, interList, unionList);
 
   if ( this->Operation == VTK_UNION )
-    {
+  {
     this->CopyCells(pd1, outputSurface, 1, pointFields, cellFields, unionList,
                     false);
-    }
+  }
   else if ( this->Operation == VTK_INTERSECTION || this->Operation == VTK_DIFFERENCE )
-    {
+  {
     this->CopyCells(pd1, outputSurface, 1, pointFields, cellFields, interList,
                     (this->ReorientDifferenceCells == 1 &&
                      this->Operation == VTK_DIFFERENCE));
-    }
+  }
 
   vtkIdType i;
   i = pointSourceLabel->GetNumberOfTuples();
   pointSourceLabel->Resize(outputSurface->GetNumberOfPoints());
   for ( ; i < outputSurface->GetNumberOfPoints(); i++)
-    {
+  {
     pointSourceLabel->InsertValue(i, 1);
-    }
+  }
 
   i = cellSourceLabel->GetNumberOfTuples();
   cellSourceLabel->Resize(outputSurface->GetNumberOfCells());
   for ( ; i < outputSurface->GetNumberOfCells(); i++)
-    {
+  {
     cellSourceLabel->InsertValue(i, 1);
-    }
+  }
 
   outputSurface->GetPointData()->AddArray(pointSourceLabel);
   outputSurface->GetCellData()->AddArray(cellSourceLabel);
@@ -237,7 +240,7 @@ void vtkBooleanOperationPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Operation: ";
   switch ( this->Operation )
-    {
+  {
     case VTK_UNION:
       os << "UNION";
       break;
@@ -249,7 +252,7 @@ void vtkBooleanOperationPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
     case VTK_DIFFERENCE:
       os << "DIFFERENCE";
       break;
-    }
+  }
   os << "\n";
   os << indent << "ReorientDifferenceCells: " << this->ReorientDifferenceCells << "\n";
 }
@@ -258,18 +261,18 @@ void vtkBooleanOperationPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 int vtkBooleanOperationPolyDataFilter::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 0);
-    }
+  }
   return 1;
 }
 
@@ -287,28 +290,28 @@ void vtkBooleanOperationPolyDataFilter
   vtkPointData* outPD = out->GetPointData();
   vtkCellData*  outCD = out->GetCellData();
 
-  vtkFloatArray *outNormals = NULL;
+  vtkFloatArray *outNormals = nullptr;
   if ( reverseCells )
-    {
-    outNormals = vtkFloatArray::SafeDownCast( outPD->GetArray("Normals") );
-    }
+  {
+    outNormals = vtkArrayDownCast<vtkFloatArray>( outPD->GetArray("Normals") );
+  }
 
   vtkIdType numPts = in->GetNumberOfPoints();
 
-  if ( out->GetPoints() == NULL)
-    {
+  if ( out->GetPoints() == nullptr)
+  {
     vtkSmartPointer< vtkPoints > points = vtkSmartPointer< vtkPoints >::New();
     out->SetPoints( points );
-    }
+  }
 
   vtkPoints *newPoints = out->GetPoints();
 
   vtkSmartPointer< vtkIdList > pointMap = vtkSmartPointer< vtkIdList >::New();
   pointMap->SetNumberOfIds( numPts );
   for ( vtkIdType i = 0; i < numPts; i++ )
-    {
+  {
     pointMap->SetId(i, -1);
-    }
+  }
 
   // Filter the cells
   vtkSmartPointer< vtkGenericCell > cell =
@@ -316,17 +319,17 @@ void vtkBooleanOperationPolyDataFilter
   vtkSmartPointer< vtkIdList > newCellPts =
     vtkSmartPointer< vtkIdList >::New();
   for ( vtkIdType cellId = 0; cellId < cellIds->GetNumberOfIds(); cellId++ )
-    {
+  {
     in->GetCell( cellIds->GetId( cellId ), cell );
     vtkIdList *cellPts = cell->GetPointIds();
     vtkIdType numCellPts = cell->GetNumberOfPoints();
 
     for ( vtkIdType i = 0; i < numCellPts; i++ )
-      {
+    {
       vtkIdType ptId = cellPts->GetId( i );
       vtkIdType newId = pointMap->GetId( ptId );
       if ( newId < 0 )
-        {
+      {
         double x[3];
         in->GetPoint( ptId, x );
         newId = newPoints->InsertNextPoint( x );
@@ -334,36 +337,36 @@ void vtkBooleanOperationPolyDataFilter
         outPD->CopyData( pointFieldList, in->GetPointData(), idx, ptId, newId );
 
         if ( reverseCells && outNormals )
-          {
+        {
           float normal[3];
-          outNormals->GetTupleValue( newId, normal );
+          outNormals->GetTypedTuple( newId, normal );
           normal[0] *= -1.0;
           normal[1] *= -1.0;
           normal[2] *= -1.0;
-          outNormals->SetTupleValue( newId, normal );
-          }
-
+          outNormals->SetTypedTuple( newId, normal );
         }
-      newCellPts->InsertId( i, newId );
+
       }
+      newCellPts->InsertId( i, newId );
+    }
     if ( reverseCells )
-      {
+    {
       for (vtkIdType i = 0; i < newCellPts->GetNumberOfIds() / 2; i++)
-        {
+      {
         vtkIdType i1 = i;
         vtkIdType i2 = newCellPts->GetNumberOfIds()-i-1;
 
         vtkIdType id = newCellPts->GetId( i1 );
         newCellPts->SetId( i1, newCellPts->GetId( i2 ) );
         newCellPts->SetId( i2, id );
-        }
       }
+    }
 
     vtkIdType newCellId = out->InsertNextCell( cell->GetCellType(), newCellPts );
     outCD->CopyData( cellFieldList, in->GetCellData(), idx,
                      cellIds->GetId( cellId ), newCellId );
 
     newCellPts->Reset();
-    } // for all cells
+  } // for all cells
 
 }

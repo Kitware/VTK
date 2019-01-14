@@ -48,9 +48,9 @@ int TestVRMLNormals( int argc, char * argv [] )
   // This starts the event loop and as a side effect causes an initial render.
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Delete everything
   importer->Delete();

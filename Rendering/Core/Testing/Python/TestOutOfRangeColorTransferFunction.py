@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import sys
 import vtk
-from vtk.test import Testing
 
 useBelowRangeColor = 0
 if sys.argv.count("--useBelowRangeColor") > 0:
@@ -25,8 +24,8 @@ sphere.SetThetaResolution(32)
 sphere.Update()
 
 pd = sphere.GetOutput().GetPointData()
-for i in xrange(pd.GetNumberOfArrays()):
-    print pd.GetArray(i).GetName()
+for i in range(pd.GetNumberOfArrays()):
+    print(pd.GetArray(i).GetName())
 
 mapper = vtk.vtkPolyDataMapper()
 mapper.SetInputConnection(sphere.GetOutputPort())

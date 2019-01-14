@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLinearContourLineInterpolator - Interpolates supplied nodes with line segments
-// .SECTION Description
-// The line interpolator interpolates supplied nodes (see InterpolateLine)
-// with line segments. The finess of the curve may be controlled using
-// SetMaximumCurveError and SetMaximumNumberOfLineSegments.
-//
-// .SECTION See Also
-// vtkContourLineInterpolator
+/**
+ * @class   vtkLinearContourLineInterpolator
+ * @brief   Interpolates supplied nodes with line segments
+ *
+ * The line interpolator interpolates supplied nodes (see InterpolateLine)
+ * with line segments. The finess of the curve may be controlled using
+ * SetMaximumCurveError and SetMaximumNumberOfLineSegments.
+ *
+ * @sa
+ * vtkContourLineInterpolator
+*/
 
 #ifndef vtkLinearContourLineInterpolator_h
 #define vtkLinearContourLineInterpolator_h
@@ -32,26 +35,30 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkLinearContourLineInterpolator
 {
 public:
 
-  // Description:
-  // Instantiate this class.
+  /**
+   * Instantiate this class.
+   */
   static vtkLinearContourLineInterpolator *New();
 
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkLinearContourLineInterpolator,vtkContourLineInterpolator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  virtual int InterpolateLine( vtkRenderer *ren,
+  int InterpolateLine( vtkRenderer *ren,
                                vtkContourRepresentation *rep,
-                               int idx1, int idx2 );
+                               int idx1, int idx2 ) override;
 
 protected:
   vtkLinearContourLineInterpolator();
-  ~vtkLinearContourLineInterpolator();
+  ~vtkLinearContourLineInterpolator() override;
 
 private:
-  vtkLinearContourLineInterpolator(const vtkLinearContourLineInterpolator&);  //Not implemented
-  void operator=(const vtkLinearContourLineInterpolator&);  //Not implemented
+  vtkLinearContourLineInterpolator(const vtkLinearContourLineInterpolator&) = delete;
+  void operator=(const vtkLinearContourLineInterpolator&) = delete;
 };
 
 #endif

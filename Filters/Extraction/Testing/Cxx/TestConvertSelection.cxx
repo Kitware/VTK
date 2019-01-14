@@ -34,20 +34,20 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vtksys/stl/map>
+#include <map>
 
 template <typename T>
 int CompareArrays(T* a, T* b, vtkIdType n)
 {
   int errors = 0;
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     if (a[i] != b[i])
-      {
+    {
       cerr << "ERROR: Arrays do not match at index " << i << " (" << a[i] << "!=" << b[i] << ")" << endl;
       errors++;
-      }
     }
+  }
   return errors;
 }
 
@@ -79,65 +79,76 @@ const char* SelectionTypeToString(int type)
 int CompareSelections(vtkSelectionNode* a, vtkSelectionNode* b)
 {
   int errors = 0;
+  if (!a || !b)
+  {
+    cerr << "ERROR: Empty Selection Node(s)" << endl;
+    errors++;
+    return errors;
+  }
   if (a->GetContentType() != b->GetContentType())
-    {
+  {
     cerr << "ERROR: Content type " << SelectionTypeToString(a->GetContentType()) << " does not match " << SelectionTypeToString(b->GetContentType()) << endl;
     errors++;
-    }
+  }
   if (a->GetFieldType() != b->GetFieldType())
-    {
+  {
     cerr << "ERROR: Field type " << a->GetFieldType() << " does not match " << b->GetFieldType() << endl;
     errors++;
-    }
+  }
   vtkAbstractArray* arra = a->GetSelectionList();
   vtkAbstractArray* arrb = b->GetSelectionList();
   if (arra->GetName() && !arrb->GetName())
-    {
+  {
     cerr << "ERROR: Array name a is not null but b is" << endl;
     errors++;
-    }
+  }
   else if (!arra->GetName() && arrb->GetName())
-    {
+  {
     cerr << "ERROR: Array name a is null but b is not" << endl;
     errors++;
-    }
+  }
   else if (arra->GetName() && strcmp(arra->GetName(), arrb->GetName()))
-    {
+  {
     cerr << "ERROR: Array name " << arra->GetName() << " does not match " << arrb->GetName() << endl;
     errors++;
-    }
+  }
   if (arra->GetDataType() != arrb->GetDataType())
-    {
+  {
     cerr << "ERROR: Array type " << arra->GetDataType() << " does not match " << arrb->GetDataType() << endl;
     errors++;
-    }
+  }
   else if (arra->GetNumberOfTuples() != arrb->GetNumberOfTuples())
-    {
+  {
     cerr << "ERROR: Array tuples " << arra->GetNumberOfTuples() << " does not match " << arrb->GetNumberOfTuples() << endl;
     errors++;
-    }
+  }
   else
-    {
+  {
     vtkSortDataArray::Sort(arra);
     vtkSortDataArray::Sort(arrb);
     switch (arra->GetDataType())
-      {
+    {
       vtkExtendedTemplateMacro(errors += CompareArrays((VTK_TT*)arra->GetVoidPointer(0), (VTK_TT*)arrb->GetVoidPointer(0), arra->GetNumberOfTuples()));
-      }
     }
+  }
   return errors;
 }
 
 int TestConvertSelectionType(
-  vtksys_stl::map<int, vtkSmartPointer<vtkSelection> >& selMap,
+  std::map<int, vtkSmartPointer<vtkSelection> >& selMap,
   vtkDataObject* data,
   int inputType,
   int outputType,
-  vtkStringArray* arr = 0)
+  vtkStringArray* arr = nullptr,
+  bool allowMissingArray = false)
 {
   cerr << "Testing conversion from type " << SelectionTypeToString(inputType) << " to " << SelectionTypeToString(outputType) << "..." << endl;
-  vtkSelection* s = vtkConvertSelection::ToSelectionType(selMap[inputType], data, outputType, arr);
-  int errors = CompareSelections(selMap[outputType]->GetNode(0), s->GetNode(0));
+  vtkSelection* s = vtkConvertSelection::ToSelectionType(selMap[inputType], data, outputType, arr, -1, allowMissingArray);
+  int errors = 0;
+  if (!allowMissingArray)
+  {
+    errors = CompareSelections(selMap[outputType]->GetNode(0), s->GetNode(0));
+  }
   s->Delete();
   cerr << "...done." << endl;
   return errors;
@@ -163,14 +174,14 @@ void GraphConvertSelections(int & errors, int size)
   g->GetVertexData()->AddArray(stringVertArr);
   VTK_CREATE(vtkPoints, pts);
   for (int i = 0; i < size; i++)
-    {
+  {
     g->AddVertex();
     doubleVertArr->InsertNextValue(i%2);
     stringVertArr->InsertNextValue(vtkVariant(i).ToString());
     pedIdVertArr->InsertNextValue(i);
     globalIdVertArr->InsertNextValue(i);
     pts->InsertNextPoint(i, i%2, 0);
-    }
+  }
   g->SetPoints(pts);
 
   g->GetEdgeData()->AddArray(pedIdVertArr);
@@ -180,11 +191,11 @@ void GraphConvertSelections(int & errors, int size)
   g->GetEdgeData()->AddArray(doubleVertArr);
   g->GetEdgeData()->AddArray(stringVertArr);
   for (int i = 0; i < size; i++)
-    {
+  {
     g->AddEdge(i, i);
-    }
+  }
 
-  vtksys_stl::map<int, vtkSmartPointer<vtkSelection> > selMap;
+  std::map<int, vtkSmartPointer<vtkSelection> > selMap;
 
   VTK_CREATE(vtkSelection, globalIdsSelection);
   VTK_CREATE(vtkSelectionNode, globalIdsSelectionNode);
@@ -195,9 +206,9 @@ void GraphConvertSelections(int & errors, int size)
   globalIdsArr->SetName("GlobalId");
   globalIdsSelectionNode->SetSelectionList(globalIdsArr);
   for (int i = 0; i < size; i += 2)
-    {
+  {
     globalIdsArr->InsertNextValue(i);
-    }
+  }
   selMap[vtkSelectionNode::GLOBALIDS] = globalIdsSelection;
 
   VTK_CREATE(vtkSelection, pedigreeIdsSelection);
@@ -209,9 +220,9 @@ void GraphConvertSelections(int & errors, int size)
   pedigreeIdsArr->SetName("PedId");
   pedigreeIdsSelectionNode->SetSelectionList(pedigreeIdsArr);
   for (int i = 0; i < size; i += 2)
-    {
+  {
     pedigreeIdsArr->InsertNextValue(i);
-    }
+  }
   selMap[vtkSelectionNode::PEDIGREEIDS] = pedigreeIdsSelection;
 
   VTK_CREATE(vtkSelection, valuesSelection);
@@ -223,9 +234,9 @@ void GraphConvertSelections(int & errors, int size)
   valuesArr->SetName("String");
   valuesSelectionNode->SetSelectionList(valuesArr);
   for (int i = 0; i < size; i += 2)
-    {
+  {
     valuesArr->InsertNextValue(vtkVariant(i).ToString());
-    }
+  }
   selMap[vtkSelectionNode::VALUES] = valuesSelection;
 
   VTK_CREATE(vtkSelection, indicesSelection);
@@ -236,9 +247,9 @@ void GraphConvertSelections(int & errors, int size)
   VTK_CREATE(vtkIdTypeArray, indicesArr);
   indicesSelectionNode->SetSelectionList(indicesArr);
   for (int i = 0; i < size; i += 2)
-    {
+  {
     indicesArr->InsertNextValue(i);
-    }
+  }
   selMap[vtkSelectionNode::INDICES] = indicesSelection;
 
   VTK_CREATE(vtkSelection, frustumSelection);
@@ -266,9 +277,9 @@ void GraphConvertSelections(int & errors, int size)
   };
   VTK_CREATE(vtkDoubleArray, frustumArr);
   for (vtkIdType i = 0; i < 32; i++)
-    {
+  {
     frustumArr->InsertNextValue(corners[i]);
-    }
+  }
   frustumSelectionNode->SetSelectionList(frustumArr);
   selMap[vtkSelectionNode::FRUSTUM] = frustumSelection;
 
@@ -281,9 +292,9 @@ void GraphConvertSelections(int & errors, int size)
   locationsArr->SetNumberOfComponents(3);
   locationsSelectionNode->SetSelectionList(locationsArr);
   for (int i = 0; i < size; i += 2)
-    {
+  {
     locationsArr->InsertNextTuple3(i, 0, 0);
-    }
+  }
   selMap[vtkSelectionNode::LOCATIONS] = locationsSelection;
 
   VTK_CREATE(vtkSelection, thresholdsSelection);
@@ -360,13 +371,13 @@ void PolyDataConvertSelections(int & errors, int size)
   g->GetPointData()->AddArray(stringVertArr);
   VTK_CREATE(vtkPoints, pts);
   for (int i = 0; i < size; i++)
-    {
+  {
     doubleVertArr->InsertNextValue(i%2);
     stringVertArr->InsertNextValue(vtkVariant(i).ToString());
     pedIdVertArr->InsertNextValue(i);
     globalIdVertArr->InsertNextValue(i);
     pts->InsertNextPoint(i, i%2, 0);
-    }
+  }
   g->SetPoints(pts);
 
   g->GetCellData()->AddArray(pedIdVertArr);
@@ -380,14 +391,14 @@ void PolyDataConvertSelections(int & errors, int size)
   newLines->Allocate(newLines->EstimateSize(size, 2));
   vtkIdType cellPts[2];
   for (int i = 0; i < size; i++)
-    {
+  {
     cellPts[0] = i;
     cellPts[1] = i;
     newLines->InsertNextCell(2, cellPts);
-    }
+  }
   g->SetLines(newLines);
 
-  vtksys_stl::map<int, vtkSmartPointer<vtkSelection> > selMap;
+  std::map<int, vtkSmartPointer<vtkSelection> > selMap;
 
   VTK_CREATE(vtkSelection, globalIdsSelection);
   VTK_CREATE(vtkSelectionNode, globalIdsSelectionNode);
@@ -398,9 +409,9 @@ void PolyDataConvertSelections(int & errors, int size)
   globalIdsArr->SetName("GlobalId");
   globalIdsSelectionNode->SetSelectionList(globalIdsArr);
   for (int i = 0; i < size; i += 2)
-    {
+  {
     globalIdsArr->InsertNextValue(i);
-    }
+  }
   selMap[vtkSelectionNode::GLOBALIDS] = globalIdsSelection;
 
   VTK_CREATE(vtkSelection, pedigreeIdsSelection);
@@ -412,9 +423,9 @@ void PolyDataConvertSelections(int & errors, int size)
   pedigreeIdsArr->SetName("PedId");
   pedigreeIdsSelectionNode->SetSelectionList(pedigreeIdsArr);
   for (int i = 0; i < size; i += 2)
-    {
+  {
     pedigreeIdsArr->InsertNextValue(i);
-    }
+  }
   selMap[vtkSelectionNode::PEDIGREEIDS] = pedigreeIdsSelection;
 
   VTK_CREATE(vtkSelection, valuesSelection);
@@ -426,9 +437,9 @@ void PolyDataConvertSelections(int & errors, int size)
   valuesArr->SetName("String");
   valuesSelectionNode->SetSelectionList(valuesArr);
   for (int i = 0; i < size; i += 2)
-    {
+  {
     valuesArr->InsertNextValue(vtkVariant(i).ToString());
-    }
+  }
   selMap[vtkSelectionNode::VALUES] = valuesSelection;
 
   VTK_CREATE(vtkSelection, indicesSelection);
@@ -439,9 +450,9 @@ void PolyDataConvertSelections(int & errors, int size)
   VTK_CREATE(vtkIdTypeArray, indicesArr);
   indicesSelectionNode->SetSelectionList(indicesArr);
   for (int i = 0; i < size; i += 2)
-    {
+  {
     indicesArr->InsertNextValue(i);
-    }
+  }
   selMap[vtkSelectionNode::INDICES] = indicesSelection;
 
   VTK_CREATE(vtkSelection, frustumSelection);
@@ -465,9 +476,9 @@ void PolyDataConvertSelections(int & errors, int size)
   };
   VTK_CREATE(vtkDoubleArray, frustumArr);
   for (vtkIdType i = 0; i < 32; i++)
-    {
+  {
     frustumArr->InsertNextValue(corners[i]);
-    }
+  }
   frustumSelectionNode->SetSelectionList(frustumArr);
   selMap[vtkSelectionNode::FRUSTUM] = frustumSelection;
 
@@ -480,9 +491,9 @@ void PolyDataConvertSelections(int & errors, int size)
   locationsArr->SetNumberOfComponents(3);
   locationsSelectionNode->SetSelectionList(locationsArr);
   for (int i = 0; i < size; i += 2)
-    {
+  {
     locationsArr->InsertNextTuple3(i, 0, 0);
-    }
+  }
   selMap[vtkSelectionNode::LOCATIONS] = locationsSelection;
 
   VTK_CREATE(vtkSelection, thresholdsSelection);
@@ -524,6 +535,14 @@ void PolyDataConvertSelections(int & errors, int size)
   //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::PEDIGREEIDS);
   //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::VALUES, arrNames);
   //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::INDICES);
+
+  // Test Quiet Error
+  thresholdsArr->SetName("DoubleTmp");
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::GLOBALIDS, nullptr, true);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::PEDIGREEIDS, nullptr, true);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::VALUES, arrNames, true);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::INDICES, nullptr, true);
+  thresholdsArr->SetName("Double");
 
   //
   // Test cell selections

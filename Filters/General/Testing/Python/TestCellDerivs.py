@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -624,6 +623,8 @@ ren1.ResetCameraClippingRange()
 renWin.SetSize(300, 150)
 
 renWin.Render()
+
+threshold = 0.18
 
 # render the image
 #

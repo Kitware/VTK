@@ -31,8 +31,8 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
+#include <utility>
+#include <vector>
 
 vtkStandardNewMacro(vtkPruneTreeFilter);
 
@@ -43,9 +43,7 @@ vtkPruneTreeFilter::vtkPruneTreeFilter()
   this->ShouldPruneParentVertex = true;
 }
 
-vtkPruneTreeFilter::~vtkPruneTreeFilter()
-{
-}
+vtkPruneTreeFilter::~vtkPruneTreeFilter() = default;
 
 void vtkPruneTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -62,11 +60,11 @@ int vtkPruneTreeFilter::RequestData(
   vtkTree* outputTree = vtkTree::GetData(outputVector);
 
   if (this->ParentVertex < 0 || this->ParentVertex >= inputTree->GetNumberOfVertices())
-    {
+  {
     vtkErrorMacro("Parent vertex must be part of the tree " << this->ParentVertex
       << " >= " << inputTree->GetNumberOfVertices());
     return 0;
-    }
+  }
 
   // Structure for building the tree.
   vtkSmartPointer<vtkMutableDirectedGraph> builder =
@@ -88,55 +86,55 @@ int vtkPruneTreeFilter::RequestData(
   builder->GetFieldData()->DeepCopy(inputTree->GetFieldData());
 
   // Build a copy of the tree, skipping the parent vertex to remove.
-  vtksys_stl::vector< vtksys_stl::pair<vtkIdType, vtkIdType> > vertStack;
+  std::vector< std::pair<vtkIdType, vtkIdType> > vertStack;
   if (inputTree->GetRoot() != this->ParentVertex)
-    {
-    vertStack.push_back(vtksys_stl::make_pair(inputTree->GetRoot(), builder->AddVertex()));
-    }
+  {
+    vertStack.push_back(std::make_pair(inputTree->GetRoot(), builder->AddVertex()));
+  }
   while (!vertStack.empty())
-    {
+  {
     vtkIdType tree_v = vertStack.back().first;
     vtkIdType v = vertStack.back().second;
     builderVertexData->CopyData(inputVertexData, tree_v, v);
     vertStack.pop_back();
     inputTree->GetOutEdges(tree_v, it);
     while (it->HasNext())
-      {
+    {
       vtkOutEdgeType tree_e = it->Next();
       vtkIdType tree_child = tree_e.Target;
       if (this->ShouldPruneParentVertex)
-        {
+      {
         if (tree_child != this->ParentVertex)
-          {
+        {
           vtkIdType child = builder->AddVertex();
           vtkEdgeType e = builder->AddEdge(v, child);
           builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
-          vertStack.push_back(vtksys_stl::make_pair(tree_child, child));
-          }
+          vertStack.push_back(std::make_pair(tree_child, child));
         }
+      }
       else
-        {
+      {
         vtkIdType child = builder->AddVertex();
         vtkEdgeType e = builder->AddEdge(v, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
         if (tree_child != this->ParentVertex)
-          {
-          vertStack.push_back(vtksys_stl::make_pair(tree_child, child));
-          }
+        {
+          vertStack.push_back(std::make_pair(tree_child, child));
+        }
         else
-          {
+        {
           builderVertexData->CopyData(inputVertexData, tree_child, child);
-          }
         }
       }
     }
+  }
 
   // Copy the structure into the output.
   if (!outputTree->CheckedShallowCopy(builder))
-    {
+  {
     vtkErrorMacro(<<"Invalid tree structure.");
     return 0;
-    }
+  }
 
   return 1;
 }

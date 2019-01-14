@@ -42,7 +42,7 @@
 int TestOpenQubeMOPACOrbital(int argc, char *argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/2h2o.out");
+    argc, argv, "Data/2h2o.aux");
 
   vtkNew<vtkOpenQubeMoleculeSource> oq;
   oq->SetFileName(fname);
@@ -55,14 +55,14 @@ int TestOpenQubeMOPACOrbital(int argc, char *argv[])
 
   // If there aren't any bonds, attempt to perceive them
   if (mol->GetNumberOfBonds() == 0)
-    {
+  {
     cout << "No bonds found. Running simple bond perception...\n";
     vtkNew<vtkSimpleBondPerceiver> bonder;
     bonder->SetInputData(mol);
     bonder->Update();
     mol = bonder->GetOutput();
     cout << "Bonds found: " << mol->GetNumberOfBonds() << "\n";
-    }
+  }
 
   vtkNew<vtkMoleculeMapper> molMapper;
   molMapper->SetInputData(mol);
@@ -71,25 +71,25 @@ int TestOpenQubeMOPACOrbital(int argc, char *argv[])
   molMapper->SetAtomicRadiusScaleFactor(0.1);
 
   vtkNew<vtkActor> molActor;
-  molActor->SetMapper(molMapper.GetPointer());
+  molActor->SetMapper(molMapper);
 
   vtkAbstractElectronicData *edata = oq->GetOutput()->GetElectronicData();
   if (!edata)
-    {
-    cout << "NULL vtkAbstractElectronicData returned from "
+  {
+    cout << "null vtkAbstractElectronicData returned from "
             "vtkOpenQubeElectronicData.\n";
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "Num electrons: " << edata->GetNumberOfElectrons() << "\n";
 
   vtkSmartPointer<vtkImageData> data = vtkSmartPointer<vtkImageData>::New();
   data = edata->GetMO(4);
   if (!data)
-    {
-    cout << "NULL vtkImageData returned from vtkOpenQubeElectronicData.\n";
+  {
+    cout << "null vtkImageData returned from vtkOpenQubeElectronicData.\n";
     return EXIT_FAILURE;
-    }
+  }
 
   double range[2];
   data->GetScalarRange(range);
@@ -98,7 +98,7 @@ int TestOpenQubeMOPACOrbital(int argc, char *argv[])
                                                        : fabs(range[1]);
 
   vtkNew<vtkImageShiftScale> t;
-  t->SetInputData(data.GetPointer());
+  t->SetInputData(data);
   t->SetShift(maxAbsVal);
   double magnitude = maxAbsVal + maxAbsVal;
   if(fabs(magnitude) < 1e-10)
@@ -130,21 +130,21 @@ int TestOpenQubeMOPACOrbital(int argc, char *argv[])
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOff();
   volumeProperty->SetInterpolationTypeToLinear();
-  volumeProperty->SetScalarOpacity(compositeOpacity.GetPointer());
-  volumeProperty->SetColor(color.GetPointer());
+  volumeProperty->SetScalarOpacity(compositeOpacity);
+  volumeProperty->SetColor(color);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
-  ren->AddActor(volume.GetPointer());
-  ren->AddActor(molActor.GetPointer());
+  ren->AddActor(volume);
+  ren->AddActor(molActor);
 
   ren->SetBackground(0.0, 0.0, 0.0);
   win->SetSize(450,450);

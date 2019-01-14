@@ -3,9 +3,10 @@ import sys
 try:
     import numpy
 except ImportError:
-    print "Numpy (http://numpy.scipy.org) not found.",
-    print "This test requires numpy!"
-    sys.exit(0)
+    print("Numpy (http://numpy.scipy.org) not found.")
+    print("This test requires numpy!")
+    from vtk.test import Testing
+    Testing.skip()
 
 import vtk
 import vtk.numpy_interface.dataset_adapter as dsa
@@ -47,6 +48,22 @@ elev3.SetLowPoint(0, 0, -10)
 elev3.SetHighPoint(0, 0, 10)
 elev3.SetScalarRange(0, 20)
 
+elev3.Update()
+
+dobj = vtk.vtkImageData()
+dobj.DeepCopy(elev3.GetOutput())
+ds1 = dsa.WrapDataObject(dobj)
+elev_copy = numpy.copy(ds1.PointData['Elevation'])
+elev_copy[1] = numpy.nan
+ghosts = numpy.zeros(ds1.GetNumberOfPoints(), dtype=numpy.uint8)
+ghosts[1] = vtk.vtkDataSetAttributes.DUPLICATEPOINT
+ds1.PointData.append(ghosts, vtk.vtkDataSetAttributes.GhostArrayName())
+assert algs.make_point_mask_from_NaNs(ds1, elev_copy)[1] == vtk.vtkDataSetAttributes.DUPLICATEPOINT | vtk.vtkDataSetAttributes.HIDDENPOINT
+
+cell_array = numpy.zeros(ds1.GetNumberOfCells())
+cell_array[1] = numpy.nan
+assert algs.make_cell_mask_from_NaNs(ds1, cell_array)[1] == vtk.vtkDataSetAttributes.HIDDENCELL
+
 g3 = vtk.vtkMultiBlockDataGroupFilter()
 g3.AddInputConnection(elev3.GetOutputPort())
 g3.AddInputConnection(elev3.GetOutputPort())
@@ -65,18 +82,21 @@ elev3 = cd3.PointData['Elevation']
 
 npa = randomVec.Arrays[0]
 
+def compare(arr, tol):
+    assert algs.all(algs.abs(arr) < tol)
+
 # Test operators
-assert algs.all(1 + randomVec - 1 - randomVec < 1E-4)
+compare(1 + randomVec - 1 - randomVec, 1E-4)
 
 assert (1 + randomVec).DataSet is randomVec.DataSet
 
 # Test slicing and indexing
-assert algs.all(randomVec[randomVec[:,0] > 0.2].Arrays[0] - npa[npa[:,0] > 0.2] < 1E-7)
-assert algs.all(randomVec[algs.where(randomVec[:,0] > 0.2)].Arrays[0] - npa[numpy.where(npa[:,0] > 0.2)] < 1E-7)
-assert algs.all(randomVec[dsa.VTKCompositeDataArray([(slice(None, None, None), slice(0,2,None)), 2])].Arrays[0] - npa[:, 0:2] < 1E-6)
+compare(randomVec[randomVec[:,0] > 0.2].Arrays[0] - npa[npa[:,0] > 0.2], 1E-7)
+compare(randomVec[algs.where(randomVec[:,0] > 0.2)].Arrays[0] - npa[numpy.where(npa[:,0] > 0.2)], 1E-7)
+compare(randomVec[dsa.VTKCompositeDataArray([(slice(None, None, None), slice(0,2,None)), 2])].Arrays[0] - npa[:, 0:2], 1E-6)
 
 # Test ufunc
-assert algs.all(algs.cos(randomVec) - numpy.cos(npa) < 1E-7)
+compare(algs.cos(randomVec) - numpy.cos(npa), 1E-7)
 assert algs.cos(randomVec).DataSet is randomVec.DataSet
 
 # Various numerical ops implemented in VTK
@@ -84,7 +104,7 @@ g = algs.gradient(elev)
 assert algs.all(g[0] == (1, 0, 0))
 
 v = algs.make_vector(elev, g[:,0], elev)
-assert algs.all(algs.gradient(v) == [[1, 0, 0], [0, 0, 0], [1, 0, 0]])
+assert algs.all(algs.gradient(v) == [[1, 0, 1], [0, 0, 0], [0, 0, 0]])
 
 v = algs.make_vector(elev, g[:,0], elev2)
 assert algs.all(algs.curl(v) == [1, 0, 0])
@@ -97,6 +117,20 @@ assert algs.all(algs.det(g) == 2)
 assert algs.all(algs.eigenvalue(g) == [2, 1, 1])
 
 assert algs.all(randomVec[:,0] == randomVec[:,0])
+
+int_array1 = numpy.array([1, 0, 1], dtype=numpy.int)
+int_array2 = numpy.array([0, 1, 0], dtype=numpy.int)
+assert algs.all(algs.bitwise_or(int_array1, int_array2) == 1)
+assert algs.all(algs.bitwise_or(int_array1, dsa.NoneArray) == int_array1)
+assert algs.all(algs.bitwise_or(dsa.NoneArray, int_array1) == int_array1)
+
+comp_array1 = dsa.VTKCompositeDataArray([int_array1, int_array2])
+comp_array2 = dsa.VTKCompositeDataArray([int_array2, int_array1])
+comp_array3 = dsa.VTKCompositeDataArray([int_array2, dsa.NoneArray])
+assert algs.all(algs.bitwise_or(comp_array1, comp_array2) == 1)
+assert algs.all(algs.bitwise_or(comp_array1, dsa.NoneArray) == comp_array1)
+assert algs.all(algs.bitwise_or(dsa.NoneArray, comp_array1) == comp_array1)
+assert algs.all(algs.bitwise_or(comp_array1, comp_array3) == dsa.VTKCompositeDataArray([algs.bitwise_or(int_array1, int_array2), int_array2]))
 
 ssource = vtk.vtkSphereSource()
 ssource.Update()
@@ -119,14 +153,14 @@ g2.Update()
 sphere = dsa.CompositeDataSet(g2.GetOutput())
 
 vn = algs.vertex_normal(sphere)
-assert algs.all(algs.mag(vn) - 1 < 1E-6)
+compare(algs.mag(vn) - 1, 1E-6)
 
 sn = algs.surface_normal(sphere)
-assert algs.all(algs.mag(sn) - 1 < 1E-6)
+compare(algs.mag(sn) - 1, 1E-6)
 
 dot = algs.dot(vn, vn)
 assert dot.DataSet is sphere
-assert algs.all(dot == 1)
+compare(dot - 1, 1E-6)
 assert algs.all(algs.cross(vn, vn) == [0, 0, 0])
 
 fd = sphere.FieldData['field array']

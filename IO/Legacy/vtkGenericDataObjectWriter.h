@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericDataObjectWriter - writes any type of vtk data object to file
-// .SECTION Description
-// vtkGenericDataObjectWriter is a concrete class that writes data objects
-// to disk. The input to this object is any subclass of vtkDataObject.
+/**
+ * @class   vtkGenericDataObjectWriter
+ * @brief   writes any type of vtk data object to file
+ *
+ * vtkGenericDataObjectWriter is a concrete class that writes data objects
+ * to disk. The input to this object is any subclass of vtkDataObject.
+*/
 
 #ifndef vtkGenericDataObjectWriter_h
 #define vtkGenericDataObjectWriter_h
@@ -28,18 +31,18 @@ class VTKIOLEGACY_EXPORT vtkGenericDataObjectWriter : public vtkDataWriter
 public:
   static vtkGenericDataObjectWriter *New();
   vtkTypeMacro(vtkGenericDataObjectWriter,vtkDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkGenericDataObjectWriter();
-  ~vtkGenericDataObjectWriter();
+  ~vtkGenericDataObjectWriter() override;
 
-  void WriteData();
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  void WriteData() override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkGenericDataObjectWriter(const vtkGenericDataObjectWriter&);  // Not implemented.
-  void operator=(const vtkGenericDataObjectWriter&);  // Not implemented.
+  vtkGenericDataObjectWriter(const vtkGenericDataObjectWriter&) = delete;
+  void operator=(const vtkGenericDataObjectWriter&) = delete;
 };
 
 #endif

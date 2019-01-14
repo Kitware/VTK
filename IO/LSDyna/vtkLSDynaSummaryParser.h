@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLSDynaSummaryParser
-// .SECTION Description
-// This is a helper class used by vtkLSDynaReader to read XML files.
-// .SECTION See Also
-// vtkLSDynaReader
+/**
+ * @class   vtkLSDynaSummaryParser
+ *
+ * This is a helper class used by vtkLSDynaReader to read XML files.
+ * @sa
+ * vtkLSDynaReader
+*/
 
 #ifndef vtkLSDynaSummaryParser_h
 #define vtkLSDynaSummaryParser_h
@@ -31,7 +33,7 @@ class VTKIOLSDYNA_EXPORT vtkLSDynaSummaryParser : public vtkXMLParser
 public:
   vtkTypeMacro(vtkLSDynaSummaryParser,vtkXMLParser);
   static vtkLSDynaSummaryParser* New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
 
 
@@ -40,11 +42,11 @@ public:
 
 protected:
   vtkLSDynaSummaryParser();
-  virtual ~vtkLSDynaSummaryParser() { };
+  ~vtkLSDynaSummaryParser() override { };
 
-  virtual void StartElement(const char* name, const char** atts);
-  virtual void EndElement(const char* name);
-  virtual void CharacterDataHandler(const char* data, int length);
+  void StartElement(const char* name, const char** atts) override;
+  void EndElement(const char* name) override;
+  void CharacterDataHandler(const char* data, int length) override;
 
   vtkStdString PartName;
   int PartId;
@@ -55,8 +57,8 @@ protected:
   int InName;
 
 private:
-  vtkLSDynaSummaryParser( const vtkLSDynaSummaryParser& ); // Not implemented.
-  void operator = ( const vtkLSDynaSummaryParser& ); // Not implemented.
+  vtkLSDynaSummaryParser( const vtkLSDynaSummaryParser& ) = delete;
+  void operator = ( const vtkLSDynaSummaryParser& ) = delete;
 };
 
 #endif //vtkLSDynaReader_h

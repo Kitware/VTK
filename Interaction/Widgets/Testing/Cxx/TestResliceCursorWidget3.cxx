@@ -58,41 +58,41 @@ public:
   { return new vtkResliceCursorCallback3; }
 
   void Execute( vtkObject *caller, unsigned long /*ev*/,
-                void *callData )
-    {
+                void *callData ) override
+  {
     vtkImagePlaneWidget* ipw =
       dynamic_cast< vtkImagePlaneWidget* >( caller );
     if (ipw)
-      {
+    {
       double* wl = static_cast<double*>( callData );
 
       if ( ipw == this->IPW[0] )
-        {
+      {
         this->IPW[1]->SetWindowLevel(wl[0],wl[1],1);
         this->IPW[2]->SetWindowLevel(wl[0],wl[1],1);
-        }
-      else if( ipw == this->IPW[1] )
-        {
-        this->IPW[0]->SetWindowLevel(wl[0],wl[1],1);
-        this->IPW[2]->SetWindowLevel(wl[0],wl[1],1);
-        }
-      else if (ipw == this->IPW[2])
-        {
-        this->IPW[0]->SetWindowLevel(wl[0],wl[1],1);
-        this->IPW[1]->SetWindowLevel(wl[0],wl[1],1);
-        }
       }
+      else if( ipw == this->IPW[1] )
+      {
+        this->IPW[0]->SetWindowLevel(wl[0],wl[1],1);
+        this->IPW[2]->SetWindowLevel(wl[0],wl[1],1);
+      }
+      else if (ipw == this->IPW[2])
+      {
+        this->IPW[0]->SetWindowLevel(wl[0],wl[1],1);
+        this->IPW[1]->SetWindowLevel(wl[0],wl[1],1);
+      }
+    }
 
     vtkResliceCursorWidget *rcw = dynamic_cast<
       vtkResliceCursorWidget * >(caller);
     if (rcw)
-      {
+    {
       vtkResliceCursorLineRepresentation *rep = dynamic_cast<
         vtkResliceCursorLineRepresentation * >(rcw->GetRepresentation());
       vtkResliceCursor *rc = rep->GetResliceCursorActor()->
                   GetCursorAlgorithm()->GetResliceCursor();
       for (int i = 0; i < 3; i++)
-        {
+      {
         vtkPlaneSource *ps = static_cast< vtkPlaneSource * >(
             this->IPW[i]->GetPolyDataAlgorithm());
         ps->SetNormal(rc->GetPlane(i)->GetNormal());
@@ -108,14 +108,14 @@ public:
         //this->IPW[i]->GetReslice()->Print(cout);
         //rep->GetReslice()->Print(cout);
         //std::cout << "---------------------" << std::endl;
-        }
       }
+    }
 
     // Render everything
     this->RCW[0]->Render();
-    }
+  }
 
-  vtkResliceCursorCallback3() {}
+  vtkResliceCursorCallback3() = default;
   vtkImagePlaneWidget* IPW[3];
   vtkResliceCursorWidget *RCW[3];
 };
@@ -157,10 +157,10 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
   renWin->SetMultiSamples(0);
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     ren[i] = vtkSmartPointer<vtkRenderer>::New();
     renWin->AddRenderer(ren[i]);
-    }
+  }
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -180,7 +180,7 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
   reader->GetOutput()->GetDimensions(imageDims);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     planeWidget[i] = vtkSmartPointer<vtkImagePlaneWidget>::New();
     planeWidget[i]->SetInteractor( iren );
     planeWidget[i]->SetPicker(picker);
@@ -199,7 +199,7 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
     planeWidget[i]->SetWindowLevel(1358, -27);
     planeWidget[i]->On();
     planeWidget[i]->InteractionOn();
-    }
+  }
 
   planeWidget[1]->SetLookupTable(planeWidget[0]->GetLookupTable());
   planeWidget[2]->SetLookupTable(planeWidget[0]->GetLookupTable());
@@ -220,8 +220,9 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
   vtkSmartPointer< vtkResliceCursorWidget > resliceCursorWidget[3];
   vtkSmartPointer< vtkResliceCursorThickLineRepresentation > resliceCursorRep[3];
 
+  double viewUp[3][3] = {{0, 0, -1}, {0, 0, 1}, {0, 1, 0}};
   for (int i = 0; i < 3; i++)
-    {
+  {
     resliceCursorWidget[i] = vtkSmartPointer< vtkResliceCursorWidget >::New();
     resliceCursorWidget[i]->SetInteractor(iren);
 
@@ -236,9 +237,9 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
     const double minVal = reader->GetOutput()->GetScalarRange()[0];
     if (vtkImageReslice *reslice =
         vtkImageReslice::SafeDownCast(resliceCursorRep[i]->GetReslice()))
-      {
+    {
       reslice->SetBackgroundColor(minVal,minVal,minVal,minVal);
-      }
+    }
 
     resliceCursorWidget[i]->SetDefaultRenderer(ren[i]);
     resliceCursorWidget[i]->SetEnabled(1);
@@ -249,6 +250,7 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
     ren[i]->GetActiveCamera()->SetPosition(camPos);
 
     ren[i]->GetActiveCamera()->ParallelProjectionOn();
+    ren[i]->GetActiveCamera()->SetViewUp(viewUp[i]);
     ren[i]->ResetCamera();
     //ren[i]->ResetCameraClippingRange();
 
@@ -267,7 +269,7 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
     // Make them all share the same color map.
     resliceCursorRep[i]->SetLookupTable(resliceCursorRep[0]->GetLookupTable());
     planeWidget[i]->GetColorMap()->SetLookupTable(resliceCursorRep[0]->GetLookupTable());
-    }
+  }
 
 
   // Add the actors
@@ -280,16 +282,12 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
   renWin->SetSize( 600, 600);
   //renWin->SetFullScreen(1);
 
-  ren[0]->GetActiveCamera()->SetViewUp( 0, 0, -1 );
-  ren[1]->GetActiveCamera()->SetViewUp( 0, 0, 1 );
-  ren[2]->GetActiveCamera()->SetViewUp( 0, 1, 0 );
-
   ren[0]->SetViewport(0,0,0.5,0.5);
   ren[1]->SetViewport(0.5,0,1,0.5);
   ren[2]->SetViewport(0,0.5,0.5,1);
   ren[3]->SetViewport(0.5,0.5,1,1);
 
-  // Set the actors' postions
+  // Set the actors' positions
   //
   renWin->Render();
 
@@ -307,9 +305,9 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
 
   int retVal = vtkRegressionTestImage(renWin);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

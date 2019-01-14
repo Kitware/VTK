@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -26,7 +25,6 @@ extract.ExtractBoundaryCellsOn()
 extract.PassPointsOn()
 sphereMapper = vtk.vtkPolyDataMapper()
 sphereMapper.SetInputConnection(extract.GetOutputPort())
-sphereMapper.GlobalImmediateModeRenderingOn()
 sphereActor = vtk.vtkActor()
 sphereActor.SetMapper(sphereMapper)
 

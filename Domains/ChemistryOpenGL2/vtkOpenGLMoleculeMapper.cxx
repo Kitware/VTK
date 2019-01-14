@@ -19,10 +19,10 @@
 #include "vtkEventForwarderCommand.h"
 #include "vtkGlyph3DMapper.h"
 #include "vtkLookupTable.h"
+#include "vtkMolecule.h"
 #include "vtkObjectFactory.h"
 #include "vtkPeriodicTable.h"
 #include "vtkTrivialProducer.h"
-
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLMoleculeMapper)
@@ -31,9 +31,6 @@ vtkStandardNewMacro(vtkOpenGLMoleculeMapper)
 vtkOpenGLMoleculeMapper::vtkOpenGLMoleculeMapper()
 {
   // Setup glyph mappers
-  vtkNew<vtkLookupTable> lut;
-  this->PeriodicTable->GetDefaultLUT(lut.GetPointer());
-  this->FastAtomMapper->SetLookupTable(lut.GetPointer());
   this->FastAtomMapper->SetScalarRange
     (0, this->PeriodicTable->GetNumberOfElements());
   this->FastAtomMapper->SetColorModeToMapScalars();
@@ -43,15 +40,15 @@ vtkOpenGLMoleculeMapper::vtkOpenGLMoleculeMapper()
   vtkNew<vtkEventForwarderCommand> cb;
   cb->SetTarget(this);
 
-  this->FastAtomMapper->AddObserver(vtkCommand::StartEvent, cb.GetPointer());
-  this->FastAtomMapper->AddObserver(vtkCommand::EndEvent, cb.GetPointer());
+  this->FastAtomMapper->AddObserver(vtkCommand::StartEvent, cb);
+  this->FastAtomMapper->AddObserver(vtkCommand::EndEvent, cb);
   this->FastAtomMapper->AddObserver(vtkCommand::ProgressEvent,
-                                     cb.GetPointer());
+                                     cb);
 
-  this->FastBondMapper->AddObserver(vtkCommand::StartEvent, cb.GetPointer());
-  this->FastBondMapper->AddObserver(vtkCommand::EndEvent, cb.GetPointer());
+  this->FastBondMapper->AddObserver(vtkCommand::StartEvent, cb);
+  this->FastBondMapper->AddObserver(vtkCommand::EndEvent, cb);
   this->FastBondMapper->AddObserver(vtkCommand::ProgressEvent,
-                                     cb.GetPointer());
+                                     cb);
 
   // Connect the trivial producers to forward the glyph polydata
   this->FastAtomMapper->SetInputConnection
@@ -60,9 +57,7 @@ vtkOpenGLMoleculeMapper::vtkOpenGLMoleculeMapper()
     (this->BondGlyphPointOutput->GetOutputPort());
 }
 
-vtkOpenGLMoleculeMapper::~vtkOpenGLMoleculeMapper()
-{
-}
+vtkOpenGLMoleculeMapper::~vtkOpenGLMoleculeMapper() = default;
 
 //----------------------------------------------------------------------------
 void vtkOpenGLMoleculeMapper::Render(vtkRenderer *ren, vtkActor *act )
@@ -72,16 +67,41 @@ void vtkOpenGLMoleculeMapper::Render(vtkRenderer *ren, vtkActor *act )
 
   // Pass rendering call on
   if (this->RenderAtoms)
-    {
+  {
     this->FastAtomMapper->Render(ren, act);
-    //  this->AtomGlyphMapper->Render(ren, act);
-    }
+  }
 
   if (this->RenderBonds)
-    {
+  {
     this->FastBondMapper->Render(ren, act);
-    //  this->BondGlyphMapper->Render(ren, act);
-    }
+  }
+
+  if (this->RenderLattice)
+  {
+    this->LatticeMapper->Render(ren, act);
+  }
+}
+
+void vtkOpenGLMoleculeMapper::ProcessSelectorPixelBuffers(
+  vtkHardwareSelector *sel,
+  std::vector<unsigned int> &pixeloffsets,
+  vtkProp *prop)
+{
+  // forward to helper
+  if (this->RenderAtoms)
+  {
+    this->FastAtomMapper->ProcessSelectorPixelBuffers(sel, pixeloffsets, prop);
+  }
+
+  if (this->RenderBonds)
+  {
+    this->FastBondMapper->ProcessSelectorPixelBuffers(sel, pixeloffsets, prop);
+  }
+
+  if (this->RenderLattice)
+  {
+    this->LatticeMapper->ProcessSelectorPixelBuffers(sel, pixeloffsets, prop);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -97,33 +117,36 @@ void vtkOpenGLMoleculeMapper::ReleaseGraphicsResources(vtkWindow *w)
 void vtkOpenGLMoleculeMapper::UpdateAtomGlyphPolyData()
 {
   this->Superclass::UpdateAtomGlyphPolyData();
-  this->FastAtomMapper->SelectColorArray("Atomic Numbers");
+  this->FastAtomMapper->SetLookupTable(this->AtomGlyphMapper->GetLookupTable());
   this->FastAtomMapper->SetScaleArray("Scale Factors");
+
+  // Copy the color array info:
+  this->FastAtomMapper->SelectColorArray(this->AtomGlyphMapper->GetArrayId());
 }
 
 //----------------------------------------------------------------------------
 // Generate position, scale, and orientation vectors for each bond cylinder
 void vtkOpenGLMoleculeMapper::UpdateBondGlyphPolyData()
 {
+  this->Superclass::UpdateBondGlyphPolyData();
+
   switch(this->BondColorMode)
-    {
+  {
     case SingleColor:
       this->FastBondMapper->SetColorModeToDefault();
       this->FastBondMapper->SetScalarModeToUsePointData();
       break;
     default:
     case DiscreteByAtom:
-      vtkNew<vtkLookupTable> lut;
-      this->PeriodicTable->GetDefaultLUT(lut.GetPointer());
-      this->FastBondMapper->SetLookupTable(lut.GetPointer());
+      this->FastBondMapper->SetLookupTable(
+            this->BondGlyphMapper->GetLookupTable());
       this->FastBondMapper->SetScalarRange
         (0, this->PeriodicTable->GetNumberOfElements());
       this->FastBondMapper->SetScalarModeToUsePointData();
       break;
-    }
+  }
 
   // Setup glypher
-  this->Superclass::UpdateBondGlyphPolyData();
   this->FastBondMapper->SetScaleArray("Scale Factors");
   this->FastBondMapper->SetOrientationArray("Orientation Vectors");
   this->FastBondMapper->SetSelectionIdArray("Selection Ids");

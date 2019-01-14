@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType incremental loading (specification).                        */
 /*                                                                         */
-/*  Copyright 2002, 2003, 2006, 2007, 2008, 2010 by                        */
+/*  Copyright 2002-2018 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -16,11 +16,12 @@
 /***************************************************************************/
 
 
-#ifndef __FTINCREM_H__
-#define __FTINCREM_H__
+#ifndef FTINCREM_H_
+#define FTINCREM_H_
 
 #include <vtkfreetype/include/ft2build.h>
 #include FT_FREETYPE_H
+#include FT_PARAMETER_TAGS_H
 
 #ifdef FREETYPE_H
 #error "freetype.h of FreeType 1 has been loaded!"
@@ -45,7 +46,7 @@ FT_BEGIN_HEADER
    * @description:
    *   This section contains various functions used to perform so-called
    *   `incremental' glyph loading.  This is a mode where all glyphs loaded
-   *   from a given @FT_Face are provided by the client application,
+   *   from a given @FT_Face are provided by the client application.
    *
    *   Apart from that, all other tables are loaded normally from the font
    *   file.  This mode is useful when FreeType is used within another
@@ -331,23 +332,12 @@ FT_BEGIN_HEADER
   typedef FT_Incremental_InterfaceRec*   FT_Incremental_Interface;
 
 
-  /***************************************************************************
-   *
-   * @constant:
-   *   FT_PARAM_TAG_INCREMENTAL
-   *
-   * @description:
-   *   A constant used as the tag of @FT_Parameter structures to indicate
-   *   an incremental loading object to be used by FreeType.
-   *
-   */
-#define FT_PARAM_TAG_INCREMENTAL  FT_MAKE_TAG( 'i', 'n', 'c', 'r' )
-
   /* */
+
 
 FT_END_HEADER
 
-#endif /* __FTINCREM_H__ */
+#endif /* FTINCREM_H_ */
 
 
 /* END */

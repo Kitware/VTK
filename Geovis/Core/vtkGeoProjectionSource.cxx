@@ -44,8 +44,8 @@
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
-#include <vtksys/stl/stack>
-#include <vtksys/stl/utility>
+#include <stack>
+#include <utility>
 
 
 // Heap dump method used for debugging threading issues on windows.
@@ -53,7 +53,7 @@
 //  {
 //  _HEAPINFO hinfo;
 //  int heapstatus;
-//  hinfo._pentry = NULL;
+//  hinfo._pentry = nullptr;
 //  while( ( heapstatus = _heapwalk( &hinfo ) ) == _HEAPOK )
 //    {
 //    //printf( "%6s block at %Fp of size %4.4X\n", ( hinfo._useflag == _USEDENTRY ? "USED" : "FREE" ), hinfo._pentry, hinfo._size );
@@ -88,8 +88,9 @@ vtkCxxSetObjectMacro(vtkGeoProjectionSource, Transform, vtkAbstractTransform);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
 {
+  VTK_LEGACY_BODY(vtkGeoProjectionSource::vtkGeoProjectionSource, "VTK 8.2");
   this->Projection=0;
-  this->Transform = 0;
+  this->Transform = nullptr;
   this->MinCellsPerNode = 20;
 
   this->TransformLock = vtkMutexLock::New();
@@ -99,7 +100,7 @@ vtkGeoProjectionSource::vtkGeoProjectionSource()
 vtkGeoProjectionSource::~vtkGeoProjectionSource()
 {
   this->TransformLock->Delete();
-  this->SetTransform(0);
+  this->SetTransform(nullptr);
 }
 
 void vtkGeoProjectionSource::PrintSelf( ostream& os, vtkIndent indent )
@@ -120,11 +121,11 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
   double latDelta = vtkGeoGraticule::GetLatitudeDelta(level);
   double lonDelta = vtkGeoGraticule::GetLongitudeDelta(level);
   while ((latRange[1] - latRange[0])*(lonRange[1] - lonRange[0])/(latDelta*lonDelta) < this->MinCellsPerNode)
-    {
+  {
     ++level;
     latDelta = vtkGeoGraticule::GetLatitudeDelta(level);
     lonDelta = vtkGeoGraticule::GetLongitudeDelta(level);
-    }
+  }
 
   vtkSmartPointer<vtkGeoGraticule> grat = vtkSmartPointer<vtkGeoGraticule>::New();
   vtkSmartPointer<vtkGeoGraticule> refinedGrat = vtkSmartPointer<vtkGeoGraticule>::New();
@@ -143,7 +144,7 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
   vtkSmartPointer<vtkPolyData> refined = vtkSmartPointer<vtkPolyData>::New();
 
   do
-    {
+  {
     grat->SetLatitudeLevel(level);
     grat->SetLongitudeLevel(level);
     transformFilter->SetInputConnection(grat->GetOutputPort());
@@ -159,7 +160,7 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
     transformFilter->Update();
     refined->DeepCopy(transformFilter->GetOutput());
     ++level;
-    } while (geom->GetNumberOfCells() < this->MinCellsPerNode &&
+  } while (geom->GetNumberOfCells() < this->MinCellsPerNode &&
         level < vtkGeoGraticule::NUMBER_OF_LEVELS);
 
   node->SetGraticuleLevel(level);
@@ -169,9 +170,9 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
   double firstLon = latLonArr->GetComponent(0, 1);
   vtkIdType gridSize[2] = {1, 0};
   while (latLonArr->GetComponent(gridSize[0], 1) != firstLon)
-    {
+  {
     gridSize[0]++;
-    }
+  }
   gridSize[1] = geom->GetNumberOfPoints() / gridSize[0];
 
   // Compute refined grid size
@@ -179,9 +180,9 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
   firstLon = latLonArr->GetComponent(0, 1);
   vtkIdType rgridSize[2] = {1, 0};
   while (latLonArr->GetComponent(rgridSize[0], 1) != firstLon)
-    {
+  {
     rgridSize[0]++;
-    }
+  }
   rgridSize[1] = refined->GetNumberOfPoints() / rgridSize[0];
 
   // Calculate error.
@@ -200,9 +201,9 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
 
   vtkIdType skip = (rgridSize[0]-1) / (gridSize[0]-1);
   for (vtkIdType latInd = 0; latInd < rgridSize[1]-skip; ++latInd)
-    {
+  {
     for (vtkIdType lonInd = 0; lonInd < rgridSize[0]-skip; ++lonInd)
-      {
+    {
       vtkIdType ind00 =   latInd          * rgridSize[0] + lonInd;
       vtkIdType ind01 =   latInd          * rgridSize[0] + lonInd + skip;
       vtkIdType ind11 = ( latInd + skip ) * rgridSize[0] + lonInd + skip;
@@ -213,27 +214,27 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
       refined->GetPoint(ind11, pt11);
       refined->GetPoint(ind10, pt10);
       for (vtkIdType rlatInd = latInd + 1; rlatInd < latInd + skip; ++rlatInd)
-        {
+      {
         latFrac = static_cast<double>(rlatInd - latInd) / skip;
         for (vtkIdType rlonInd = lonInd + 1; rlonInd < lonInd + skip; ++rlonInd)
-          {
+        {
           lonFrac = static_cast<double>(rlonInd - lonInd) / skip;
           refined->GetPoint(rlatInd * rgridSize[0] + rlonInd, curPt);
           for (int c = 0; c < 3; ++c)
-            {
+          {
             interpLon0 = (1.0 - lonFrac)*pt00[c] + lonFrac*pt01[c];
             interpLon1 = (1.0 - lonFrac)*pt10[c] + lonFrac*pt11[c];
             interpPt[c] = (1.0 - latFrac)*interpLon0 + latFrac*interpLon1;
-            }
+          }
           curError = vtkMath::Distance2BetweenPoints(curPt, interpPt);
           if (curError > error)
-            {
+          {
             error = curError;
-            }
           }
         }
       }
     }
+  }
 
   node->GetModel()->DeepCopy(geom);
   node->SetError(sqrt(error));
@@ -244,12 +245,12 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
 {
   this->TransformLock->Lock();
 
-  vtkGeoTerrainNode* root = 0;
+  vtkGeoTerrainNode* root = nullptr;
   if (!(root = vtkGeoTerrainNode::SafeDownCast(r)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch surface nodes from this source.");
     return false;
-    }
+  }
 
   // Let's start with graticule level 2 ... why not?
   root->SetGraticuleLevel(2);
@@ -270,7 +271,7 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
 
   transformFilter->SetInputConnection(grat->GetOutputPort());
   transformFilter->Update();
-  double* realBounds = transformFilter->GetOutput()->GetBounds();
+  const double *realBounds = transformFilter->GetOutput()->GetBounds();
 
   // Extend the bounds just a tad to be safe
   double bounds[4];
@@ -281,19 +282,19 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
 
   // Make the bounds square
   if (bounds[1] - bounds[0] > bounds[3] - bounds[2])
-    {
+  {
     double size = bounds[1] - bounds[0];
     double center = (bounds[2] + bounds[3])/2.0;
     bounds[2] = center - size/2.0;
     bounds[3] = center + size/2.0;
-    }
+  }
   else
-    {
+  {
     double size = bounds[3] - bounds[2];
     double center = (bounds[0] + bounds[1])/2.0;
     bounds[0] = center - size/2.0;
     bounds[1] = center + size/2.0;
-    }
+  }
 
   root->GetModel()->DeepCopy(transformFilter->GetOutput());
   root->SetLatitudeRange(-90.0, 90.0);
@@ -315,22 +316,22 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
 {
   this->TransformLock->Lock();
 
-  vtkGeoTerrainNode* parent = 0;
+  vtkGeoTerrainNode* parent = nullptr;
   if (!(parent = vtkGeoTerrainNode::SafeDownCast(p)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch surface nodes from this source.");
     return false;
-    }
-  vtkGeoTerrainNode* child = 0;
+  }
+  vtkGeoTerrainNode* child = nullptr;
   if (!(child = vtkGeoTerrainNode::SafeDownCast(c)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch surface nodes from this source.");
     return false;
-    }
+  }
   if (!parent->HasData())
-    {
+  {
     return false;
-    }
+  }
 
   // Clip the cells of the children
   double bounds[4];
@@ -354,41 +355,41 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
   latClip->SetClipFunction(latClipPlane);
   latClip->GenerateClippedOutputOn();
   if (index % 2)
-    {
+  {
     latClip->SetInputConnection(lonClip->GetOutputPort(1));
     bounds[0] = center[0];
-    }
+  }
   else
-    {
+  {
     latClip->SetInputConnection(lonClip->GetOutputPort(0));
     bounds[1] = center[0];
-    }
+  }
   latClip->Update();
   if (index / 2)
-    {
+  {
     child->GetModel()->DeepCopy(latClip->GetOutput(1));
     bounds[2] = center[1];
-    }
+  }
   else
-    {
+  {
     child->GetModel()->DeepCopy(latClip->GetOutput(0));
     bounds[3] = center[1];
-    }
+  }
   int level = parent->GetLevel() + 1;
   child->SetLevel(level);
   child->SetProjectionBounds(bounds);
 
   // Set the id
   if (level <= 15)
-    {
+  {
     int id = parent->GetId() | (index << (level*2 - 2));
     child->SetId(id);
-    }
+  }
 
-  double* latRange = 0;
-  double* lonRange = 0;
+  double* latRange = nullptr;
+  double* lonRange = nullptr;
   if (child->GetModel()->GetNumberOfPoints() > 0)
-    {
+  {
     latRange = child->GetModel()->GetPointData()->GetArray("LatLong")->GetRange(0);
     latRange[0] = (latRange[0] < -90) ? -90 : latRange[0];
     latRange[1] = (latRange[1] >  90) ?  90 : latRange[1];
@@ -397,14 +398,14 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
     lonRange[0] = (lonRange[0] < -180) ? -180 : lonRange[0];
     lonRange[1] = (lonRange[1] >  180) ?  180 : lonRange[1];
     child->SetLongitudeRange(lonRange);
-    }
+  }
   else
-    {
+  {
     child->SetLatitudeRange(0.0, 0.0);
     child->SetLongitudeRange(0.0, 0.0);
     this->TransformLock->Unlock();
     return true;
-    }
+  }
 
   // Start with at least graticule level 2.
   child->SetGraticuleLevel(2);
@@ -415,40 +416,40 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
   // We need to do four planar clips to get the desired result.
   // Using vtkBox or vtkPlanes produces a fuzzy clip that is not acceptable.
   for (int i = 0; i < 4; ++i)
-    {
+  {
     vtkSmartPointer<vtkClipPolyData> finalClip = vtkSmartPointer<vtkClipPolyData>::New();
     vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
     if (i == 0)
-      {
+    {
       plane->SetOrigin(bounds[0], 0.0, 0.0);
       plane->SetNormal(1.0, 0.0, 0.0);
-      }
+    }
     else if (i == 1)
-      {
+    {
       plane->SetOrigin(bounds[1], 0.0, 0.0);
       plane->SetNormal(-1.0, 0.0, 0.0);
-      }
+    }
     else if (i == 2)
-      {
+    {
       plane->SetOrigin(0.0, bounds[2], 0.0);
       plane->SetNormal(0.0, 1.0, 0.0);
-      }
+    }
     else if (i == 3)
-      {
+    {
       plane->SetOrigin(0.0, bounds[3], 0.0);
       plane->SetNormal(0.0, -1.0, 0.0);
-      }
+    }
     finalClip->SetClipFunction(plane);
     vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
     pd->DeepCopy(child->GetModel());
     finalClip->SetInputData(pd);
     finalClip->Update();
     child->GetModel()->DeepCopy(finalClip->GetOutput());
-    }
+  }
 
   // The lat/long range could have changed
   if (child->GetModel()->GetNumberOfPoints() > 0)
-    {
+  {
     latRange = child->GetModel()->GetPointData()->GetArray("LatLong")->GetRange(0);
     latRange[0] = (latRange[0] < -90) ? -90 : latRange[0];
     latRange[1] = (latRange[1] >  90) ?  90 : latRange[1];
@@ -457,12 +458,12 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
     lonRange[0] = (lonRange[0] < -180) ? -180 : lonRange[0];
     lonRange[1] = (lonRange[1] >  180) ?  180 : lonRange[1];
     child->SetLongitudeRange(lonRange);
-    }
+  }
   else
-    {
+  {
     child->SetLatitudeRange(0.0, 0.0);
     child->SetLongitudeRange(0.0, 0.0);
-    }
+  }
 
   // Make sure bounds are up to date so we don't have threading issues
   // when we hand this off to the main thread.
@@ -480,7 +481,7 @@ void vtkGeoProjectionSource::SetProjection(int projection)
   vtkSmartPointer<vtkGeoProjection> proj = vtkSmartPointer<vtkGeoProjection>::New();
   proj->SetName(vtkGeoProjection::GetProjectionName(projection));
   trans->SetDestinationProjection(proj);
-  this->SetTransform(trans.GetPointer());
+  this->SetTransform(trans);
 }
 
 //----------------------------------------------------------------------------
@@ -488,4 +489,3 @@ vtkAbstractTransform* vtkGeoProjectionSource::GetTransform()
 {
   return this->Transform;
 }
-

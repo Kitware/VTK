@@ -31,9 +31,7 @@ vtkImplicitHalo::vtkImplicitHalo()
 }
 
 // ----------------------------------------------------------------------------
-vtkImplicitHalo::~vtkImplicitHalo()
-{
-}
+vtkImplicitHalo::~vtkImplicitHalo() = default;
 
 // ----------------------------------------------------------------------------
 double vtkImplicitHalo::EvaluateFunction(double x[3])
@@ -41,23 +39,23 @@ double vtkImplicitHalo::EvaluateFunction(double x[3])
   double result;
   double distance=sqrt(vtkMath::Distance2BetweenPoints(this->Center,x));
   if(distance>this->Radius)
-    {
+  {
     result=0.0;
-    }
+  }
   else
-    {
+  {
     double smallRadius=this->Radius*(1.0-this->FadeOut);
     if(distance<=smallRadius)
-      {
+    {
       result=1.0;
-      }
+    }
     else
-      {
+    {
       // here this->FadeOut and this->Radius cannot be 0.0 as they are handled
       // by the cases seen above.
       result=(1.0-distance/this->Radius)/this->FadeOut;
-      }
     }
+  }
   return result;
 }
 

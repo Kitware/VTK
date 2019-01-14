@@ -12,19 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageSkeleton2D - Skeleton of 2D images.
-// .SECTION Description
-// vtkImageSkeleton2D should leave only single pixel width lines
-// of non-zero-valued pixels (values of 1 are not allowed).
-// It works by erosion on a 3x3 neighborhood with special rules.
-// The number of iterations determines how far the filter can erode.
-// There are three pruning levels:
-//  prune == 0 will leave traces on all angles...
-//  prune == 1 will not leave traces on 135 degree angles, but will on 90.
-//  prune == 2 does not leave traces on any angles leaving only closed loops.
-// Prune defaults to zero. The output scalar type is the same as the input.
-
-
+/**
+ * @class   vtkImageSkeleton2D
+ * @brief   Skeleton of 2D images.
+ *
+ * vtkImageSkeleton2D should leave only single pixel width lines
+ * of non-zero-valued pixels (values of 1 are not allowed).
+ * It works by erosion on a 3x3 neighborhood with special rules.
+ * The number of iterations determines how far the filter can erode.
+ * There are three pruning levels:
+ *  prune == 0 will leave traces on all angles...
+ *  prune == 1 will not leave traces on 135 degree angles, but will on 90.
+ *  prune == 2 does not leave traces on any angles leaving only closed loops.
+ * Prune defaults to zero. The output scalar type is the same as the input.
+*/
 
 #ifndef vtkImageSkeleton2D_h
 #define vtkImageSkeleton2D_h
@@ -37,26 +38,30 @@ class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageSkeleton2D : public vtkImageIterate
 public:
   static vtkImageSkeleton2D *New();
   vtkTypeMacro(vtkImageSkeleton2D,vtkImageIterateFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // When prune is on, only closed loops are left unchanged.
-  vtkSetMacro(Prune,int);
-  vtkGetMacro(Prune,int);
-  vtkBooleanMacro(Prune,int);
+  //@{
+  /**
+   * When prune is on, only closed loops are left unchanged.
+   */
+  vtkSetMacro(Prune,vtkTypeBool);
+  vtkGetMacro(Prune,vtkTypeBool);
+  vtkBooleanMacro(Prune,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Sets the number of cycles in the erosion.
-  void SetNumberOfIterations(int num);
+  /**
+   * Sets the number of cycles in the erosion.
+   */
+  void SetNumberOfIterations(int num) override;
 
 protected:
   vtkImageSkeleton2D();
-  ~vtkImageSkeleton2D() {}
+  ~vtkImageSkeleton2D() override {}
 
-  int Prune;
+  vtkTypeBool Prune;
 
-  virtual int IterativeRequestUpdateExtent(vtkInformation* in,
-                                           vtkInformation* out);
+  int IterativeRequestUpdateExtent(vtkInformation* in,
+                                           vtkInformation* out) override;
   void ThreadedRequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
@@ -64,10 +69,10 @@ protected:
     vtkImageData ***inDataV,
     vtkImageData **outDataV,
     int outExt[6],
-    int id);
+    int id) override;
 private:
-  vtkImageSkeleton2D(const vtkImageSkeleton2D&);  // Not implemented.
-  void operator=(const vtkImageSkeleton2D&);  // Not implemented.
+  vtkImageSkeleton2D(const vtkImageSkeleton2D&) = delete;
+  void operator=(const vtkImageSkeleton2D&) = delete;
 };
 
 #endif

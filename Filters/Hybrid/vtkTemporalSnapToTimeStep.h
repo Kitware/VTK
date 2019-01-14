@@ -12,44 +12,44 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTemporalSnapToTimeStep - modify the time range/steps of temporal data
-// .SECTION Description
-// vtkTemporalSnapToTimeStep  modify the time range or time steps of
-// the data without changing the data itself. The data is not resampled
-// by this filter, only the information accompanying the data is modified.
-
-// .SECTION Thanks
-// John Bidiscombe of CSCS - Swiss National Supercomputing Centre
-// for creating and contributing this class.
-// For related material, please refer to :
-// John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
-// "Time Dependent Processing in a Parallel Pipeline Architecture",
-// IEEE Visualization 2007.
+/**
+ * @class   vtkTemporalSnapToTimeStep
+ * @brief   modify the time range/steps of temporal data
+ *
+ * vtkTemporalSnapToTimeStep  modify the time range or time steps of
+ * the data without changing the data itself. The data is not resampled
+ * by this filter, only the information accompanying the data is modified.
+ *
+ * @par Thanks:
+ * John Bidiscombe of CSCS - Swiss National Supercomputing Centre
+ * for creating and contributing this class.
+ * For related material, please refer to :
+ * John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
+ * "Time Dependent Processing in a Parallel Pipeline Architecture",
+ * IEEE Visualization 2007.
+*/
 
 #ifndef vtkTemporalSnapToTimeStep_h
 #define vtkTemporalSnapToTimeStep_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
-#include "vtkAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
-//BTX
 #include <vector> // used because I am a bad boy. So there.
-//ETX
 
-class VTKFILTERSHYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkTemporalSnapToTimeStep *New();
-  vtkTypeMacro(vtkTemporalSnapToTimeStep, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro(vtkTemporalSnapToTimeStep, vtkPassInputTypeAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-//BTX
   enum {
     VTK_SNAP_NEAREST=0,
     VTK_SNAP_NEXTBELOW_OR_EQUAL,
     VTK_SNAP_NEXTABOVE_OR_EQUAL
   };
-//ETX
+
   vtkSetMacro(SnapMode,int);
   vtkGetMacro(SnapMode,int);
   void SetSnapModeToNearest()          { this->SetSnapMode(VTK_SNAP_NEAREST); }
@@ -58,42 +58,34 @@ public:
 
 protected:
   vtkTemporalSnapToTimeStep();
-  ~vtkTemporalSnapToTimeStep();
+  ~vtkTemporalSnapToTimeStep() override;
 
-  // Description:
-  // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+  /**
+   * see vtkAlgorithm for details
+   */
+  int ProcessRequest(vtkInformation* request,
+                     vtkInformationVector** inputVector,
+                     vtkInformationVector* outputVector) override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info);
+  int RequestUpdateExtent(vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector) override;
 
-  virtual int RequestUpdateExtent (vtkInformation *,
-                                   vtkInformationVector **,
-                                   vtkInformationVector *);
-  virtual int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *);
+  int RequestInformation(vtkInformation* request,
+                         vtkInformationVector** inputVector,
+                         vtkInformationVector* outputVector) override;
 
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation* request,
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector) override;
 
-//BTX
-    std::vector<double>  InputTimeValues;
-    int HasDiscrete;
-    int SnapMode;
-//ETX
+  std::vector<double> InputTimeValues;
+  int HasDiscrete;
+  int SnapMode;
 
 private:
-  vtkTemporalSnapToTimeStep(const vtkTemporalSnapToTimeStep&);  // Not implemented.
-  void operator=(const vtkTemporalSnapToTimeStep&);  // Not implemented.
+  vtkTemporalSnapToTimeStep(const vtkTemporalSnapToTimeStep&) = delete;
+  void operator=(const vtkTemporalSnapToTimeStep&) = delete;
 };
 
-
-
 #endif
-
-
-

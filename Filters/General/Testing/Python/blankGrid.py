@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -39,7 +38,7 @@ plane.Update()
 blankImage = vtk.vtkImageData()
 
 # vtkType.h has definitions for vtk datatypes VTK_INT, VTK_FLOAT, etc. that
-# don't get wrapped in Tcl.
+# don't get wrapped in Python.
 VTK_UNSIGNED_CHAR = 3
 
 blankImage.SetDimensions(57, 33, 1)

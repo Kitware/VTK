@@ -38,9 +38,7 @@ vtkImageStencilAlgorithm::vtkImageStencilAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkImageStencilAlgorithm::~vtkImageStencilAlgorithm()
-{
-}
+vtkImageStencilAlgorithm::~vtkImageStencilAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageStencilAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
@@ -58,9 +56,9 @@ void vtkImageStencilAlgorithm::SetOutput(vtkImageStencilData *output)
 vtkImageStencilData *vtkImageStencilAlgorithm::GetOutput()
 {
   if (this->GetNumberOfOutputPorts() < 1)
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
 
   return vtkImageStencilData::SafeDownCast(
     this->GetExecutive()->GetOutputData(0));
@@ -72,11 +70,11 @@ vtkImageStencilData *vtkImageStencilAlgorithm::AllocateOutputData(
 {
   vtkImageStencilData *res = vtkImageStencilData::SafeDownCast(out);
   if (!res)
-    {
+  {
     vtkWarningMacro("Call to AllocateOutputData with non vtkImageStencilData"
                     " output");
-    return NULL;
-    }
+    return nullptr;
+  }
   res->SetExtent(uExt);
   res->AllocateExtents();
 
@@ -132,23 +130,23 @@ int vtkImageStencilAlgorithm::ProcessRequest(
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     this->RequestData(request, inputVector, outputVector);
     return 1;
-    }
+  }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     this->RequestInformation(request, inputVector, outputVector);
     return 1;
-    }
+  }
 
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     this->RequestUpdateExtent(request, inputVector, outputVector);
     return 1;
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

@@ -4,6 +4,7 @@ This file contains Python code illustrating the creation and manipulation of
 vtkTable objects.
 """
 
+from __future__ import print_function
 from vtk import *
 
 #------------------------------------------------------------------------------
@@ -12,7 +13,7 @@ from vtk import *
 
 if __name__ == "__main__":
     """ Main entry point of this python script """
-    print "vtkTable Example 1: Building a vtkTable from scratch."
+    print("vtkTable Example 1: Building a vtkTable from scratch.")
 
     #----------------------------------------------------------
     # Create an empty table
@@ -46,4 +47,4 @@ if __name__ == "__main__":
 
     T.Dump(6)
 
-    print "vtkTable Example 1: Finished."
+    print("vtkTable Example 1: Finished.")

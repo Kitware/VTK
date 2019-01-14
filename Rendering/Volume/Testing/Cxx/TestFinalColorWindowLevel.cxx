@@ -94,9 +94,9 @@ int TestFinalColorWindowLevel( int argc, char *argv[] )
   iren->SetStillUpdateRate(0.001);
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Clean up
   reader->Delete();

@@ -102,7 +102,6 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
   vtkPolyDataMapper* Mapper5 = vtkPolyDataMapper::New();
   Mapper5->SetInputConnection(Geometry5->GetOutputPort());
-  Mapper5->SetImmediateModeRendering(1);
   Mapper5->UseLookupTableScalarRangeOn();
   Mapper5->SetScalarVisibility(0);
   Mapper5->SetScalarModeToDefault();
@@ -126,7 +125,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   LineSourceWidget0->SetPoint2(6.3766, -0.5886, 26.6274);
   LineSourceWidget0->SetResolution(20);
 
-  vtkPStreamTracer* Stream0 = vtkPStreamTracer::New();;
+  vtkPStreamTracer* Stream0 = vtkPStreamTracer::New();
   Stream0->SetInputConnection(tv->GetOutputPort());
   Stream0->SetSourceConnection(LineSourceWidget0->GetOutputPort());
   Stream0->SetIntegrationStepUnit(2);
@@ -137,7 +136,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   Stream0->SetMaximumNumberOfSteps(2000);
   Stream0->SetTerminalSpeed(1e-12);
 
-  vtkGeometryFilter* Geometry6 = vtkGeometryFilter::New();;
+  vtkGeometryFilter* Geometry6 = vtkGeometryFilter::New();
   Geometry6->SetInputConnection(Stream0->GetOutputPort());
 
   vtkLookupTable* LookupTable1 = vtkLookupTable::New();
@@ -151,7 +150,6 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
   vtkPolyDataMapper* Mapper6 = vtkPolyDataMapper::New();
   Mapper6->SetInputConnection(Geometry6->GetOutputPort());
-  Mapper6->SetImmediateModeRendering(1);
   Mapper6->UseLookupTableScalarRangeOn();
   Mapper6->SetScalarVisibility(1);
   Mapper6->SetScalarModeToUsePointFieldData();
@@ -180,27 +178,27 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   compManager->InitializePieces();
 
   if (myId)
-    {
+  {
     compManager->InitializeRMIs();
     controller->ProcessRMIs();
     controller->Receive(args->retVal, 1, 0, 33);
-    }
+  }
   else
-    {
+  {
     renWin->Render();
     *(args->retVal) =
       vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
     for (int i = 1; i < numProcs; i++)
-      {
+    {
       controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);
       controller->Send(args->retVal, 1, i, 33);
-      }
     }
+  }
 
   if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     compManager->StartInteractor();
-    }
+  }
   renWin->Delete();
   ren->Delete();
   iren->Delete();
@@ -228,10 +226,10 @@ int TestPStream( int argc, char* argv[] )
   // by the external program which launches this application.
   // However, when using threads, we need to set it ourselves.
   if (contr->IsA("vtkThreadedController"))
-    {
+  {
     // Set the number of processes to 2 for this example.
     contr->SetNumberOfProcesses(2);
-    }
+  }
 
   // Added for regression test.
   // ----------------------------------------------

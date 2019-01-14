@@ -39,12 +39,12 @@ int TestBiQuadraticQuad(int, char*[])
 
   vtkNew<vtkBiQuadraticQuad> quad;
   for (int i = 0; i < 9; ++i)
-    {
+  {
     quad->GetPointIds()->SetId(i, i);
-    }
+  }
 
   vtkNew<vtkCellArray> cellArray;
-  cellArray->InsertNextCell(quad.Get());
+  cellArray->InsertNextCell(quad);
 
   vtkNew<vtkDoubleArray> uArray;
   uArray->SetName("u");
@@ -52,44 +52,44 @@ int TestBiQuadraticQuad(int, char*[])
   uArray->SetNumberOfTuples(9);
   // set u(x, y) = x
   for (int i=0; i<9; i++)
-    {
+  {
     uArray->SetValue(i, points->GetPoint(i)[0]);
-    }
+  }
 
   vtkNew<vtkUnstructuredGrid> grid;
-  grid->SetPoints(points.Get());
-  grid->SetCells(VTK_BIQUADRATIC_QUAD, cellArray.Get());
-  grid->GetPointData()->SetScalars(uArray.Get());
+  grid->SetPoints(points);
+  grid->SetCells(VTK_BIQUADRATIC_QUAD, cellArray);
+  grid->GetPointData()->SetScalars(uArray);
 
   double probeX = 2.0 / 3.0;
   double probeY = 0.25;
   vtkNew<vtkPoints> probePoints;
   probePoints->InsertNextPoint(probeX, probeY, 0.0);
   vtkNew<vtkPolyData> probePolyData;
-  probePolyData->SetPoints(probePoints.Get());
+  probePolyData->SetPoints(probePoints);
 
   vtkNew<vtkProbeFilter> prober;
-  prober->SetSourceData(grid.Get());
-  prober->SetInputData(probePolyData.Get());
+  prober->SetSourceData(grid);
+  prober->SetInputData(probePolyData);
   prober->Update();
 
   vtkDataArray* data = prober->GetOutput()->GetPointData()->GetScalars();
-  vtkDoubleArray* doubleData = vtkDoubleArray::SafeDownCast(data);
+  vtkDoubleArray* doubleData = vtkArrayDownCast<vtkDoubleArray>(data);
 
   double interpolated(0.0);
   if (doubleData)
-    {
+  {
     interpolated = doubleData->GetComponent(0, 0);
-    }
+  }
   else
-    {
+  {
     cout << "Failed to downcast prober scalars." << endl;
-    }
+  }
   if (!vtkMathUtilities::FuzzyCompare(interpolated, probeX, 1.0e-6))
-    {
+  {
     cout << "Interpolated value of " << interpolated << " with probe value "
          << probeX << " difference of " << (interpolated - probeX) <<  endl;
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
 }

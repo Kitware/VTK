@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTranslucentPass - Render the translucent polygonal geometry
-// with property key filtering.
-// .SECTION Description
-// vtkTranslucentPass renders the translucent polygonal geometry of all the
-// props that have the keys contained in vtkRenderState.
-//
-// This pass expects an initialized depth buffer and color buffer.
-// Initialized buffers means they have been cleared with farest z-value and
-// background color/gradient/transparent color.
-//
-// .SECTION See Also
-// vtkRenderPass vtkDefaultPass
+/**
+ * @class   vtkTranslucentPass
+ * @brief   Render the translucent polygonal geometry
+ * with property key filtering.
+ *
+ * vtkTranslucentPass renders the translucent polygonal geometry of all the
+ * props that have the keys contained in vtkRenderState.
+ *
+ * This pass expects an initialized depth buffer and color buffer.
+ * Initialized buffers means they have been cleared with farest z-value and
+ * background color/gradient/transparent color.
+ *
+ * @sa
+ * vtkRenderPass vtkDefaultPass
+*/
 
 #ifndef vtkTranslucentPass_h
 #define vtkTranslucentPass_h
@@ -36,27 +39,28 @@ class VTKRENDERINGOPENGL2_EXPORT vtkTranslucentPass : public vtkDefaultPass
 public:
   static vtkTranslucentPass *New();
   vtkTypeMacro(vtkTranslucentPass,vtkDefaultPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //BTX
-  // Description:
-  // Perform rendering according to a render state \p s.
-  // \pre s_exists: s!=0
-  virtual void Render(const vtkRenderState *s);
-  //ETX
+  /**
+   * Perform rendering according to a render state \p s.
+   * \pre s_exists: s!=0
+   */
+  void Render(const vtkRenderState *s) override;
 
  protected:
-  // Description:
-  // Default constructor.
+  /**
+   * Default constructor.
+   */
   vtkTranslucentPass();
 
-  // Description:
-  // Destructor.
-  virtual ~vtkTranslucentPass();
+  /**
+   * Destructor.
+   */
+  ~vtkTranslucentPass() override;
 
  private:
-  vtkTranslucentPass(const vtkTranslucentPass&);  // Not implemented.
-  void operator=(const vtkTranslucentPass&);  // Not implemented.
+  vtkTranslucentPass(const vtkTranslucentPass&) = delete;
+  void operator=(const vtkTranslucentPass&) = delete;
 };
 
 #endif

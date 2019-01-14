@@ -19,69 +19,74 @@
 -------------------------------------------------------------------------*/
 
 #include <vtkFixedWidthTextReader.h>
+#include <vtkNew.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
 #include <vtkVariant.h>
 #include <vtkVariantArray.h>
 #include <vtkTestUtilities.h>
+#include <vtkTestErrorObserver.h>
 #include <vtkIOStream.h>
 
-int
-TestFixedWidthTextReader(int argc, char *argv[])
+int TestFixedWidthTextReader(int argc, char *argv[])
 {
-  cout << "### Pass 1: No headers, field width 10, do not strip whitespace" << endl;
+  std::cout << "### Pass 1: No headers, field width 10, do not strip whitespace" << std::endl;
 
   vtkIdType i, j;
   char *filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                         "Data/fixedwidth.txt");
 
-  cout << "Filename: " << filename << endl;
+  std::cout << "Filename: " << filename << std::endl;
+
+  vtkNew<vtkTest::ErrorObserver> errorObserver1;
 
   vtkFixedWidthTextReader *reader = vtkFixedWidthTextReader::New();
   reader->SetHaveHeaders(false);
   reader->SetFieldWidth(10);
   reader->StripWhiteSpaceOff();
   reader->SetFileName(filename);
+  reader->SetTableErrorObserver(errorObserver1);
   reader->Update();
-
-  cout << "Printing reader info..." << endl;
-  reader->Print(cout);
+  int status = errorObserver1->CheckErrorMessage("Incorrect number of tuples in SetRow. Expected 4, but got 6");
+  std::cout << "Printing reader info..." << std::endl;
+  reader->Print(std::cout);
 
   vtkTable *table = reader->GetOutput();
 
-  cout << "FixedWidth text file has " << table->GetNumberOfRows()
-       << " rows" << endl;
-  cout << "FixedWidth text file has " << table->GetNumberOfColumns()
-       << " columns" << endl;
-  cout << "Column names: " << endl;
+  std::cout << "FixedWidth text file has " << table->GetNumberOfRows()
+            << " rows" << std::endl;
+  std::cout << "FixedWidth text file has " << table->GetNumberOfColumns()
+            << " columns" << std::endl;
+  std::cout << "Column names: " << std::endl;
 
   for (i = 0; i < table->GetNumberOfColumns(); ++i)
-    {
-    cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << endl;
-    }
+  {
+    std::cout << "\tColumn " << i << ": "
+              << table->GetColumn(i)->GetName() << std::endl;
+  }
 
-  cout << "Table contents:" << endl;
+  std::cout << "Table contents:" << std::endl;
 
   for (i = 0; i < table->GetNumberOfRows(); ++i)
-    {
+  {
     vtkVariantArray *row = table->GetRow(i);
 
     for (j = 0; j < row->GetNumberOfTuples(); ++j)
-      {
-      cout << "Row " << i << " column " << j << ": ";
+    {
+      std::cout << "Row " << i << " column " << j << ": ";
 
       vtkVariant value = row->GetValue(j);
       if (! value.IsValid())
-        {
-        cout << "invalid value" << endl;
-        }
+      {
+        std::cout << "invalid value" << std::endl;
+      }
       else
-        {
-        cout << "type " << value.GetTypeAsString() << " value "
-             << value.ToString() << endl;
-        }
+      {
+        std::cout << "type " << value.GetTypeAsString() << " value "
+             << value.ToString() << std::endl;
       }
     }
+  }
 
   reader->Delete();
   delete [] filename;
@@ -94,47 +99,49 @@ TestFixedWidthTextReader(int argc, char *argv[])
   reader->SetFieldWidth(10);
   reader->StripWhiteSpaceOn();
   reader->SetFileName(filename);
+  reader->SetTableErrorObserver(errorObserver1);
   reader->Update();
+  status += errorObserver1->CheckErrorMessage("Incorrect number of tuples in SetRow. Expected 4, but got 6");
   table = reader->GetOutput();
 
 
-  cout << endl << "### Test 2: headers, field width 10, strip whitespace" << endl;
+  std::cout << std::endl << "### Test 2: headers, field width 10, strip whitespace" << std::endl;
 
-  cout << "Printing reader info..." << endl;
-  reader->Print(cout);
+  std::cout << "Printing reader info..." << std::endl;
+  reader->Print(std::cout);
 
-  cout << "FixedWidth text file has " << table->GetNumberOfRows()
-       << " rows" << endl;
-  cout << "FixedWidth text file has " << table->GetNumberOfColumns()
-       << " columns" << endl;
-  cout << "Column names: " << endl;
+  std::cout << "FixedWidth text file has " << table->GetNumberOfRows()
+       << " rows" << std::endl;
+  std::cout << "FixedWidth text file has " << table->GetNumberOfColumns()
+       << " columns" << std::endl;
+  std::cout << "Column names: " << std::endl;
   for (i = 0; i < table->GetNumberOfColumns(); ++i)
-    {
-    cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << endl;
-    }
+  {
+    std::cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << std::endl;
+  }
 
-  cout << "Table contents:" << endl;
+  std::cout << "Table contents:" << std::endl;
 
   for (i = 0; i < table->GetNumberOfRows(); ++i)
-    {
+  {
     vtkVariantArray *row = table->GetRow(i);
 
     for (j = 0; j < row->GetNumberOfTuples(); ++j)
-      {
-      cout << "Row " << i << " column " << j << ": ";
+    {
+      std::cout << "Row " << i << " column " << j << ": ";
 
       vtkVariant value = row->GetValue(j);
       if (! value.IsValid())
-        {
-        cout << "invalid value" << endl;
-        }
+      {
+        std::cout << "invalid value" << std::endl;
+      }
       else
-        {
-        cout << "type " << value.GetTypeAsString() << " value "
-             << value.ToString() << endl;
-        }
+      {
+        std::cout << "type " << value.GetTypeAsString() << " value "
+             << value.ToString() << std::endl;
       }
     }
+  }
 
   reader->Delete();
   delete [] filename;

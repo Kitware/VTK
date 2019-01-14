@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-#ifndef _vtkProteinRibbonFilter_h
-#define _vtkProteinRibbonFilter_h
+#ifndef vtkProteinRibbonFilter_h
+#define vtkProteinRibbonFilter_h
 
-// .NAME vtkProteinRibbonFilter - generates protein ribbons
-// .SECTION Description
-// vtkProteinRibbonFilter is a polydata algorithm that generates protein
-// ribbons.
+/**
+ * @class   vtkProteinRibbonFilter
+ * @brief   generates protein ribbons
+ *
+ * vtkProteinRibbonFilter is a polydata algorithm that generates protein
+ * ribbons.
+*/
 
 #include "vtkDomainsChemistryModule.h" // for export macro
 #include "vtkPolyDataAlgorithm.h"
@@ -35,44 +38,59 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkProteinRibbonFilter
 {
 public:
   vtkTypeMacro(vtkProteinRibbonFilter, vtkPolyDataAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkProteinRibbonFilter* New();
 
-  // Description:
-  // Width of the ribbon coil. Default is 0.3.
+  //@{
+  /**
+   * Width of the ribbon coil. Default is 0.3.
+   */
   vtkGetMacro(CoilWidth, float);
   vtkSetMacro(CoilWidth, float);
+  //@}
 
-  // Description:
-  // Width of the helix part of the ribbon. Default is 1.3.
+  //@{
+  /**
+   * Width of the helix part of the ribbon. Default is 1.3.
+   */
   vtkGetMacro(HelixWidth, float);
   vtkSetMacro(HelixWidth, float);
+  //@}
 
-  // Description:
-  // Smoothing factor of the ribbon. Default is 20.
+  //@{
+  /**
+   * Smoothing factor of the ribbon. Default is 20.
+   */
   vtkGetMacro(SubdivideFactor, int);
   vtkSetMacro(SubdivideFactor, int);
+  //@}
 
-  // Description:
-  // If enabled, small molecules (HETATMs) are drawn as spheres. Default is true.
+  //@{
+  /**
+   * If enabled, small molecules (HETATMs) are drawn as spheres. Default is true.
+   */
   vtkGetMacro(DrawSmallMoleculesAsSpheres, bool);
   vtkSetMacro(DrawSmallMoleculesAsSpheres, bool);
+  //@}
 
-  // Description:
-  // Resolution of the spheres for small molecules. Default is 20.
+  //@{
+  /**
+   * Resolution of the spheres for small molecules. Default is 20.
+   */
   vtkGetMacro(SphereResolution, int);
   vtkSetMacro(SphereResolution, int);
+  //@}
 
 protected:
   vtkProteinRibbonFilter();
-  ~vtkProteinRibbonFilter();
+  ~vtkProteinRibbonFilter() override;
 
-  int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) override;
 
   void CreateThinStrip(vtkPolyData* poly, vtkUnsignedCharArray *pointsColors,
                        vtkPoints* p, std::vector<std::pair<vtkVector3f, bool> >& p1,
@@ -102,8 +120,8 @@ protected:
   bool DrawSmallMoleculesAsSpheres;
 
 private:
-  vtkProteinRibbonFilter(const vtkProteinRibbonFilter&);  // Not implemented.
-  void operator=(const vtkProteinRibbonFilter&);  // Not implemented.
+  vtkProteinRibbonFilter(const vtkProteinRibbonFilter&) = delete;
+  void operator=(const vtkProteinRibbonFilter&) = delete;
 };
 
-#endif // _vtkProteinRibbonFilter_h
+#endif // vtkProteinRibbonFilter_h

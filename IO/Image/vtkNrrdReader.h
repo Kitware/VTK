@@ -18,17 +18,20 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkNrrdReader - Read nrrd files file system
-//
-// .SECTION Description
-//
-// .SECTION Bugs
-//
-// There are several limitations on what type of nrrd files we can read.  This
-// reader only supports nrrd files in raw or ascii format.  Other encodings
-// like hex will result in errors.  When reading in detached headers, this only
-// supports reading one file that is detached.
-//
+/**
+ * @class   vtkNrrdReader
+ * @brief   Read nrrd files file system
+ *
+ *
+ *
+ *
+ * @bug
+ * There are several limitations on what type of nrrd files we can read.  This
+ * reader only supports nrrd files in raw or ascii format.  Other encodings
+ * like hex will result in errors.  When reading in detached headers, this only
+ * supports reading one file that is detached.
+ *
+*/
 
 #ifndef vtkNrrdReader_h
 #define vtkNrrdReader_h
@@ -43,21 +46,21 @@ class VTKIOIMAGE_EXPORT vtkNrrdReader : public vtkImageReader
 public:
   vtkTypeMacro(vtkNrrdReader, vtkImageReader);
   static vtkNrrdReader *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  virtual int CanReadFile(const char *filename);
+  int CanReadFile(const char *filename) override;
 
 protected:
   vtkNrrdReader();
-  ~vtkNrrdReader();
+  ~vtkNrrdReader() override;
 
-  virtual int RequestInformation(vtkInformation *request,
+  int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
+                                 vtkInformationVector *outputVector) override;
 
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) override;
 
   int ReadHeaderInternal(vtkCharArray *headerBuffer);
   virtual int ReadHeader();
@@ -75,8 +78,8 @@ protected:
   int Encoding;
 
 private:
-  vtkNrrdReader(const vtkNrrdReader &);       // Not implemented.
-  void operator=(const vtkNrrdReader &);        // Not implemented.
+  vtkNrrdReader(const vtkNrrdReader &) = delete;
+  void operator=(const vtkNrrdReader &) = delete;
 };
 
 #endif //vtkNrrdReader_h

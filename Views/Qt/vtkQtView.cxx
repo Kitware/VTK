@@ -51,10 +51,5 @@ void vtkQtView::ProcessQtEventsNoUserInput()
 //----------------------------------------------------------------------------
 bool vtkQtView::SaveImage(const char* filename)
 {
-#if QT_VERSION >= 0x050000
-  return this->GetWidget() != 0 ? this->GetWidget()->grab().save(filename) : false;
-#else
-  // This is ok even if this->GetWidget() returns null.
-  return QPixmap::grabWidget(this->GetWidget()).save(filename);
-#endif
+  return this->GetWidget() != nullptr ? this->GetWidget()->grab().save(filename) : false;
 }

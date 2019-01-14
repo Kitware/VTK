@@ -16,7 +16,7 @@
 // This example tests the vtkHandleWidget.
 //
 // The handle that you see is always constrained to lie on a plane (
-// defined by a vtkImplicitPlaneWidget2). It  goes to show that you can place
+// defined by a vtkImplicitPlaneWidget2). It goes to show that you can place
 // constraints on the movement of the handle. You can move the plane around
 // interactively. It exercises the class vtkBoundedPlanePointPlacer.
 
@@ -55,18 +55,18 @@ class vtkTIPW3Callback : public vtkCommand
 public:
   static vtkTIPW3Callback *New()
     { return new vtkTIPW3Callback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  void Execute(vtkObject *caller, unsigned long, void*) override
+  {
       vtkImplicitPlaneWidget2 *planeWidget =
         reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
       vtkImplicitPlaneRepresentation *rep =
         reinterpret_cast<vtkImplicitPlaneRepresentation*>(planeWidget->GetRepresentation());
       rep->GetPlane(this->Plane);
       this->Actor->VisibilityOn();
-    }
+  }
 
-  vtkTIPW3Callback() : Actor(0) { this->Plane = vtkPlane::New(); }
-  ~vtkTIPW3Callback() { this->Plane->Delete(); }
+  vtkTIPW3Callback() : Actor(nullptr) { this->Plane = vtkPlane::New(); }
+  ~vtkTIPW3Callback() override { this->Plane->Delete(); }
 
   vtkPlane *Plane;
   vtkActor *Actor;
@@ -624,12 +624,13 @@ int TestHandleWidget( int argc, char *argv[] )
     vtkSmartPointer<vtkActor>::New();
     outlineActor->SetMapper( outlineMapper);
 
+  double repBounds[6] = { -0.7, 0.7, -0.7, 0.7, -0.7, 0.7 };
   vtkSmartPointer<vtkImplicitPlaneRepresentation> rep =
     vtkSmartPointer<vtkImplicitPlaneRepresentation>::New();
-  rep->SetPlaceFactor(0.7);
+  rep->SetPlaceFactor(1.0);
   rep->GetPlaneProperty()->SetAmbientColor(0.0, 0.5, 0.5);
   rep->GetPlaneProperty()->SetOpacity(0.3);
-  rep->PlaceWidget(outline->GetOutput()->GetBounds());
+  rep->PlaceWidget(repBounds);
   vtkSmartPointer<vtkImplicitPlaneWidget2> planeWidget =
     vtkSmartPointer<vtkImplicitPlaneWidget2>::New();
   planeWidget->SetRepresentation(rep);
@@ -686,13 +687,13 @@ int TestHandleWidget( int argc, char *argv[] )
   // Should we constrain the handles to the oblique plane ?
   bool constrainHandlesToObliquePlane = false;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (strcmp("-ConstrainHandlesToPlane", argv[i]) == 0)
-      {
+    {
       constrainHandlesToObliquePlane = true;
       break;
-      }
     }
+  }
 
   // Set some defaults.
   //
@@ -702,11 +703,11 @@ int TestHandleWidget( int argc, char *argv[] )
   rep->GetPlane(myCallback->Plane);
 
   if (constrainHandlesToObliquePlane)
-    {
+  {
     vtkSmartPointer<vtkBoundedPlanePointPlacer> placer =
       vtkSmartPointer<vtkBoundedPlanePointPlacer>::New();
 
-    // Defin the the plane as the image plane widget's plane
+    // Define the plane as the image plane widget's plane
     placer->SetProjectionNormalToOblique();
     placer->SetObliquePlane(myCallback->Plane);
 
@@ -745,7 +746,7 @@ int TestHandleWidget( int argc, char *argv[] )
     placer->AddBoundingPlane( plane );
 
     handleRep->SetPointPlacer(placer);
-    }
+  }
 
   iren->Initialize();
   renWin->Render();

@@ -23,8 +23,13 @@
 
 #include <sstream>
 #include <utility>
+#include <boost/assign.hpp>
+#include "string.h"
 #include "XdmfArrayType.hpp"
 #include "XdmfError.hpp"
+
+std::map<std::string, std::map<unsigned int ,shared_ptr<const XdmfArrayType>(*)()> >
+  XdmfArrayType::mArrayDefinitions;
 
 // Supported XdmfArrayTypes
 shared_ptr<const XdmfArrayType>
@@ -104,6 +109,22 @@ XdmfArrayType::String()
   return p;
 }
 
+void
+XdmfArrayType::InitTypes()
+{
+  mArrayDefinitions["NONE"][0] = Uninitialized;
+  mArrayDefinitions["CHAR"][1] = Int8;
+  mArrayDefinitions["SHORT"][2] = Int16;
+  mArrayDefinitions["INT"][4] = Int32;
+  mArrayDefinitions["INT"][8] = Int64;
+  mArrayDefinitions["FLOAT"][4] = Float32;
+  mArrayDefinitions["FLOAT"][8] = Float64;
+  mArrayDefinitions["UCHAR"][1] = UInt8;
+  mArrayDefinitions["USHORT"][2] = UInt16;
+  mArrayDefinitions["UINT"][4] = UInt32;
+  mArrayDefinitions["STRING"][0] = String;
+}
+
 XdmfArrayType::XdmfArrayType(const std::string & name,
                              const unsigned int precision,
                              const Format typeFormat) :
@@ -123,6 +144,7 @@ XdmfArrayType::~XdmfArrayType()
 shared_ptr<const XdmfArrayType>
 XdmfArrayType::New(const std::map<std::string, std::string> & itemProperties)
 {
+  InitTypes();
   std::map<std::string, std::string>::const_iterator type =
     itemProperties.find("DataType");
   if(type == itemProperties.end()) {
@@ -132,45 +154,46 @@ XdmfArrayType::New(const std::map<std::string, std::string> & itemProperties)
     // to support old xdmf defaults, return Float32()
     return Float32();
   }
-  const std::string & typeVal = type->second;
-
+  const std::string & typeVal = ConvertToUpper(type->second);
   std::map<std::string, std::string>::const_iterator precision =
     itemProperties.find("Precision");
-  const unsigned int precisionVal = 
-    (precision == itemProperties.end()) ? 0 : atoi(precision->second.c_str()); 
+  const unsigned int precisionVal =
+    (precision == itemProperties.end()) ? 0 : atoi(precision->second.c_str());
+  std::map<std::string, std::map<unsigned int ,shared_ptr<const XdmfArrayType>(*)()> >::const_iterator returnType = mArrayDefinitions.find(typeVal);
+  if (returnType == mArrayDefinitions.end()) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Type not one of accepted values: " + typeVal +
+                       " in XdmfArrayType::New");
+  }
+  else {
+    std::map<unsigned int ,shared_ptr<const XdmfArrayType>(*)()>::const_iterator returnPrecision = returnType->second.find(precisionVal);
 
-  if(typeVal.compare("Float") == 0) {
-    if(precisionVal == 8) {
-      return Float64();
+    // If only one precision is available, assume that if not specified.
+    if (returnType->second.size() == 1 && precisionVal == 0)
+    {
+      return (*((returnType->second.begin())->second))();
     }
-    return Float32();
-  }
-  else if(typeVal.compare("Int") == 0) {
-    if(precisionVal == 8) {
-      return Int64();
+
+    if (returnPrecision == returnType->second.end()) {
+      // Default to 32bit types if not specified otherwise
+      returnPrecision = returnType->second.find(4);
     }
-    return Int32();
-  }
-  else if(typeVal.compare("String") == 0) {
-    return String();
-  }
-  else if(typeVal.compare("Char") == 0) {
-    return Int8();
-  }
-  else if(typeVal.compare("Short") == 0) {
-    return Int16();
-  }
-  else if(typeVal.compare("UChar") == 0) {
-    return UInt8();
-  }
-  else if(typeVal.compare("UShort") == 0) {
-    return UInt16();
-  }
-  else if(typeVal.compare("UInt") == 0) {
-    return UInt32();
-  }
-  else if(typeVal.compare("None") == 0) {
-    return Uninitialized();
+
+    if (returnPrecision == returnType->second.end()) {
+      std::string errorVal = "";
+      if (precision == itemProperties.end()) {
+        errorVal = "0";
+      }
+      else {
+        errorVal = precision->second;
+      }
+      XdmfError::message(XdmfError::FATAL,
+                         "Type not one of accepted precision: " + errorVal +
+                         " in XdmfArrayType::New");
+    }
+    else {
+      return (*(returnPrecision->second))();
+    }
   }
 
   XdmfError::message(XdmfError::FATAL,
@@ -392,4 +415,201 @@ XdmfArrayType::getProperties(std::map<std::string, std::string> & collectedPrope
 {
   collectedProperties.insert(std::make_pair("DataType", mName));
   collectedProperties.insert(std::make_pair("Precision", mPrecisionString));
+}
+
+// C Wrappers
+
+shared_ptr<const XdmfArrayType>
+intToType(int type)
+{
+    switch (type) {
+    case XDMF_ARRAY_TYPE_UINT8:
+      return XdmfArrayType::UInt8();
+      break;
+    case XDMF_ARRAY_TYPE_UINT16:
+      return XdmfArrayType::UInt16();
+      break;
+    case XDMF_ARRAY_TYPE_UINT32:
+      return XdmfArrayType::UInt32();
+      break;
+    case XDMF_ARRAY_TYPE_INT8:
+      return XdmfArrayType::Int8();
+      break;
+    case XDMF_ARRAY_TYPE_INT16:
+      return XdmfArrayType::Int16();
+      break;
+    case XDMF_ARRAY_TYPE_INT32:
+      return XdmfArrayType::Int32();
+      break;
+    case XDMF_ARRAY_TYPE_INT64:
+      return XdmfArrayType::Int64();
+      break;
+    case XDMF_ARRAY_TYPE_FLOAT32:
+      return XdmfArrayType::Float32();
+      break;
+    case XDMF_ARRAY_TYPE_FLOAT64:
+      return XdmfArrayType::Float64();
+      break;
+    default:
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Invalid ArrayType.");
+      break;
+  }
+  return shared_ptr<const XdmfArrayType>();
+}
+
+int
+typeToInt(shared_ptr<const XdmfArrayType> type)
+{
+  std::string typeName = type->getName();
+  unsigned int typePrecision = type->getElementSize();
+  if (typeName == XdmfArrayType::UInt8()->getName())
+  {
+      return XDMF_ARRAY_TYPE_UINT8;
+  }
+  else if (typeName == XdmfArrayType::UInt16()->getName())
+  {
+      return XDMF_ARRAY_TYPE_UINT16;
+  }
+  else if (typeName == XdmfArrayType::UInt32()->getName())
+  {
+      return XDMF_ARRAY_TYPE_UINT32;
+  }
+  else if (typeName == XdmfArrayType::Int8()->getName())
+  {
+      return XDMF_ARRAY_TYPE_INT8;
+  }
+  else if (typeName == XdmfArrayType::Int16()->getName())
+  {
+      return XDMF_ARRAY_TYPE_INT16;
+  }
+  else if (typeName == XdmfArrayType::Int32()->getName() || typeName == XdmfArrayType::Int64()->getName())
+  {
+    if (typePrecision == 4)
+    {
+      return XDMF_ARRAY_TYPE_INT32;
+    }
+    else if (typePrecision == 8)
+    {
+      return XDMF_ARRAY_TYPE_INT64;
+    }
+    else
+    {
+    }
+  }
+  else if (typeName == XdmfArrayType::Float32()->getName() || typeName == XdmfArrayType::Float64()->getName())
+  {
+    if (typePrecision == 4)
+    {
+      return XDMF_ARRAY_TYPE_FLOAT32;
+    }
+    else if (typePrecision == 8)
+    {
+      return XDMF_ARRAY_TYPE_FLOAT64;
+    }
+    else
+    {
+    }
+  }
+  else if (typeName == XdmfArrayType::String()->getName())
+  {
+    //This shouldn't be used from C bindings
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: String type not usable from C.");
+  }
+  else
+  {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: Invalid ArrayType.");
+  }
+  return -1;
+}
+
+int XdmfArrayTypeInt8()
+{
+  return XDMF_ARRAY_TYPE_INT8;
+}
+
+int XdmfArrayTypeInt16()
+{
+  return XDMF_ARRAY_TYPE_INT16;
+}
+
+int XdmfArrayTypeInt32()
+{
+  return XDMF_ARRAY_TYPE_INT32;
+}
+
+int XdmfArrayTypeInt64()
+{
+  return XDMF_ARRAY_TYPE_INT64;
+}
+
+int XdmfArrayTypeFloat32()
+{
+  return XDMF_ARRAY_TYPE_FLOAT32;
+}
+
+int XdmfArrayTypeFloat64()
+{
+  return XDMF_ARRAY_TYPE_FLOAT64;
+}
+
+int XdmfArrayTypeUInt8()
+{
+  return XDMF_ARRAY_TYPE_UINT8;
+}
+
+int XdmfArrayTypeUInt16()
+{
+  return XDMF_ARRAY_TYPE_UINT16;
+}
+
+int XdmfArrayTypeUInt32()
+{
+  return XDMF_ARRAY_TYPE_UINT32;
+}
+
+int XdmfArrayTypeComparePrecision(int type1, int type2, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  shared_ptr<const XdmfArrayType> tempType1 = intToType(type1);
+  shared_ptr<const XdmfArrayType> tempType2 = intToType(type2);
+  shared_ptr<const XdmfArrayType> returnType = XdmfArrayType::comparePrecision(tempType1, tempType2);
+  return typeToInt(returnType);
+  XDMF_ERROR_WRAP_END(status)
+  return -1;
+}
+
+int XdmfArrayTypeGetElementSize(int type, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  return intToType(type)->getElementSize();
+  XDMF_ERROR_WRAP_END(status)
+  return 0;
+}
+
+int XdmfArrayTypeGetIsFloat(int type, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  return intToType(type)->getIsFloat();
+  XDMF_ERROR_WRAP_END(status)
+  return false;
+}
+
+int XdmfArrayTypeGetIsSigned(int type, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  return intToType(type)->getIsSigned();
+  XDMF_ERROR_WRAP_END(status)
+  return false;
+}
+
+char * XdmfArrayTypeGetName(int type, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  char * returnPointer = strdup(intToType(type)->getName().c_str());
+  return returnPointer;
+  XDMF_ERROR_WRAP_END(status)
+  return NULL;
 }

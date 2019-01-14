@@ -19,7 +19,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkPolygonBuilder.h"
-#include "vtkIdList.h"
+#include "vtkIdListCollection.h"
 #include "vtkCell.h"
 #include "vtkDataArray.h"
 
@@ -46,61 +46,70 @@ vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator *locator,
   this->Tris = vtkCellArray::New();
   this->TriOutCd = vtkCellData::New();
   if(this->GenerateTriangles)
-    {
+  {
     this->Tris->Allocate(estimatedSize,estimatedSize/2);
     this->TriOutCd->Initialize();
-    }
-  this->Poly = vtkIdList::New();
+  }
+  this->PolyCollection = vtkIdListCollection::New();
 }
 
 vtkContourHelper::~vtkContourHelper()
 {
   this->Tris->Delete();
   this->TriOutCd->Delete();
-  this->Poly->FastDelete();
+  this->PolyCollection->Delete();
 }
 
 void vtkContourHelper::Contour(vtkCell* cell, double value, vtkDataArray *cellScalars, vtkIdType cellId)
 {
   bool mergeTriangles = (!this->GenerateTriangles) && cell->GetCellDimension()==3;
-  vtkCellData* outCD;
-  vtkCellArray* outPoly;
+  vtkCellData* outCD = nullptr;
+  vtkCellArray* outPoly = nullptr;
   if(mergeTriangles)
-    {
+  {
     outPoly = this->Tris;
     outCD = this->TriOutCd;
-    }
+  }
   else
-    {
+  {
     outPoly = this->Polys;
     outCD = this->OutCd;
-    }
+  }
   cell->Contour(value,cellScalars,this->Locator,  this->Verts, this->Lines,
                 outPoly, this->InPd,this->OutPd,this->InCd,cellId, outCD);
   if(mergeTriangles)
-    {
+  {
     this->PolyBuilder.Reset();
 
     vtkIdType cellSize;
     vtkIdType* cellVerts;
     while(this->Tris->GetNextCell(cellSize,cellVerts))
-      {
+    {
       if(cellSize==3)
-        {
-        this->PolyBuilder.InsertTriangle(cellVerts);
-        }
-      else //for whatever reason, the cell contouring is already outputing polys
-        {
-        vtkIdType outCellId = this->Polys->InsertNextCell(cellSize, cellVerts);
-        this->OutCd->CopyData(this->InCd, cellId, outCellId);
-        }
-      }
-
-    this->PolyBuilder.GetPolygon(this->Poly);
-    if(this->Poly->GetNumberOfIds()!=0)
       {
-      vtkIdType outCellId = this->Polys->InsertNextCell(this->Poly);
-      this->OutCd->CopyData(this->InCd, cellId, outCellId);
+        this->PolyBuilder.InsertTriangle(cellVerts);
+      }
+      else //for whatever reason, the cell contouring is already outputting polys
+      {
+        vtkIdType outCellId = this->Polys->InsertNextCell(cellSize, cellVerts);
+        this->OutCd->CopyData(this->InCd, cellId, outCellId +
+          this->Verts->GetNumberOfCells() + this->Lines->GetNumberOfCells());
       }
     }
+
+    this->PolyBuilder.GetPolygons(this->PolyCollection);
+    int nPolys = this->PolyCollection->GetNumberOfItems();
+    for (int polyId = 0; polyId < nPolys; ++polyId)
+    {
+      vtkIdList* poly = this->PolyCollection->GetItem(polyId);
+      if(poly->GetNumberOfIds()!=0)
+      {
+        vtkIdType outCellId = this->Polys->InsertNextCell(poly);
+        this->OutCd->CopyData(this->InCd, cellId, outCellId +
+          this->Verts->GetNumberOfCells() + this->Lines->GetNumberOfCells());
+      }
+      poly->Delete();
+    }
+    this->PolyCollection->RemoveAllItems();
+  }
 }

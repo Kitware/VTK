@@ -1,5 +1,6 @@
+from __future__ import print_function
+
 import vtk, os, sys
-from vtk.test import Testing
 
 ss = vtk.vtkSphereSource() #make mesh to test with
 
@@ -40,13 +41,13 @@ for datasetString in testwrites:
      os.path.isfile(fname)):
     os.remove(fname)
   else:
-    print "Failed to write " + fname + " to file"
+    print("Failed to write " + fname + " to file")
     failed = True
   gw.WriteToOutputStringOn()
   gw.Write()
   gj = "['"+str(gw.RegisterAndGetOutputString()).replace('\n','')+"']"
   if len(gj) <= 1000:
-    print "Failed to write " + fname + " to buffer"
+    print("Failed to write " + fname + " to buffer")
     failed = True
 
 if failed:

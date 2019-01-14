@@ -1,0 +1,24 @@
+NAME
+  VTK::ParallelMPI
+LIBRARY_NAME
+  vtkParallelMPI
+KIT
+  VTK::Parallel
+GROUPS
+  MPI
+DEPENDS
+  VTK::CommonCore
+  VTK::ParallelCore
+  VTK::mpi
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+TEST_DEPENDS
+  VTK::FiltersParallel
+  VTK::FiltersSources
+  VTK::IOParallel
+  VTK::ImagingCore
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::RenderingParallel
+  VTK::TestingRendering

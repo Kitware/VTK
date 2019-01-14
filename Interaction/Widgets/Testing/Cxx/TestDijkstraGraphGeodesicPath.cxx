@@ -145,7 +145,7 @@ static char TestDijkstraGraphGeodesicPathLog[] =
 int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
 {
   if (argc < 2)
-    {
+  {
     std::cerr
       << "Demonstrates editing capabilities of a contour widget on polygonal \n"
       << "data. For consistency, this accepts a DEM data as input, (to compare\n"
@@ -154,7 +154,7 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
       << "Usage args: [height_offset]."
       << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Read height field.
   char* fname =
@@ -211,16 +211,16 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
   bool   distanceOffsetSpecified = false;
   double distanceOffset = 0.0;
   for (int i = 0; i < argc-1; i++)
-    {
+  {
     if (strcmp("-DistanceOffset", argv[i]) == 0)
-      {
+    {
       distanceOffset = atof(argv[i+1]);
       distanceOffsetSpecified = true;
-      }
     }
+  }
 
   if (distanceOffsetSpecified)
-    {
+  {
     normals->SetInputConnection(warp->GetOutputPort());
     normals->SetFeatureAngle(60);
     normals->SplittingOff();
@@ -230,7 +230,7 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
     normals->ComputeCellNormalsOn();
     normals->ComputePointNormalsOn();
     normals->Update();
-    }
+  }
 
   vtkPolyData *pd = (distanceOffsetSpecified) ? normals->GetOutput()
     : warp->GetPolyDataOutput();
@@ -290,10 +290,10 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
   interpolator->GetPolys()->AddItem( pd );
   rep->SetLineInterpolator(interpolator);
   if (distanceOffsetSpecified)
-    {
+  {
     pointPlacer->SetDistanceOffset( distanceOffset );
     interpolator->SetDistanceOffset( distanceOffset );
-    }
+  }
 
   renWin->Render();
   iren->Initialize();

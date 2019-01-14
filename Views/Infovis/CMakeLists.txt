@@ -1,31 +1,32 @@
-SET(Module_SRCS
-  vtkApplyColors.cxx
-  vtkApplyIcons.cxx
-  vtkDendrogramItem.cxx
-  vtkGraphItem.cxx
-  vtkGraphLayoutView.cxx
-  vtkHeatmapItem.cxx
-  vtkHierarchicalGraphPipeline.cxx
-  vtkHierarchicalGraphView.cxx
-  vtkIcicleView.cxx
-  vtkInteractorStyleAreaSelectHover.cxx
-  vtkInteractorStyleTreeMapHover.cxx
-  vtkParallelCoordinatesHistogramRepresentation.cxx
-  vtkParallelCoordinatesRepresentation.cxx
-  vtkParallelCoordinatesView.cxx
-  vtkRenderedGraphRepresentation.cxx
-  vtkRenderedHierarchyRepresentation.cxx
-  vtkRenderedRepresentation.cxx
-  vtkRenderedSurfaceRepresentation.cxx
-  vtkRenderedTreeAreaRepresentation.cxx
-  vtkRenderView.cxx
-  vtkSCurveSpline.cxx
-  vtkTanglegramItem.cxx
-  vtkTreeAreaView.cxx
-  vtkTreeHeatmapItem.cxx
-  vtkTreeMapView.cxx
-  vtkTreeRingView.cxx
-  vtkViewUpdater.cxx
+set(classes
+  vtkApplyColors
+  vtkApplyIcons
+  vtkDendrogramItem
+  vtkGraphItem
+  vtkGraphLayoutView
+  vtkHeatmapItem
+  vtkHierarchicalGraphPipeline
+  vtkHierarchicalGraphView
+  vtkIcicleView
+  vtkInteractorStyleAreaSelectHover
+  vtkInteractorStyleTreeMapHover
+  vtkParallelCoordinatesHistogramRepresentation
+  vtkParallelCoordinatesRepresentation
+  vtkParallelCoordinatesView
+  vtkRenderedGraphRepresentation
+  vtkRenderedHierarchyRepresentation
+  vtkRenderedRepresentation
+  vtkRenderedSurfaceRepresentation
+  vtkRenderedTreeAreaRepresentation
+  vtkRenderView
+  vtkSCurveSpline
+  vtkTanglegramItem
+  vtkTreeAreaView
+  vtkTreeHeatmapItem
+  vtkTreeMapView
+  vtkTreeRingView
+  vtkViewUpdater
   )
 
-vtk_module_library(vtkViewsInfovis ${Module_SRCS})
+vtk_module_add_module(VTK::ViewsInfovis
+  CLASSES ${classes})

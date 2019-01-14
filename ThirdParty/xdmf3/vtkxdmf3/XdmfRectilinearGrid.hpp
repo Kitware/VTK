@@ -24,12 +24,14 @@
 #ifndef XDMFRECTILINEARGRID_HPP_
 #define XDMFRECTILINEARGRID_HPP_
 
-// Forward Declarations
-class XdmfArray;
-
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
 #include "XdmfGrid.hpp"
+
+#ifdef __cplusplus
+
+// Forward Declarations
+class XdmfArray;
 
 /**
  * @brief A rectilinear grid consists of cells and points arranged on
@@ -306,6 +308,10 @@ public:
    */
   shared_ptr<const XdmfArray> getDimensions() const;
 
+  virtual void read();
+
+  virtual void release();
+
   /**
    * Set the coordinates of the grid along a single axis.
    *
@@ -370,9 +376,13 @@ public:
   void
   setCoordinates(const std::vector<shared_ptr<XdmfArray> > axesCoordinates);
 
+  XdmfRectilinearGrid(XdmfRectilinearGrid &);
+
 protected:
 
   XdmfRectilinearGrid(const std::vector<shared_ptr<XdmfArray> > & axesCoordinates);
+
+  void copyGrid(shared_ptr<XdmfGrid> sourceGrid);
 
   void populateItem(const std::map<std::string, std::string> & itemProperties,
                     const std::vector<shared_ptr<XdmfItem> > & childItems,
@@ -388,8 +398,42 @@ private:
   XdmfRectilinearGrid(const XdmfRectilinearGrid &);  // Not implemented.
   void operator=(const XdmfRectilinearGrid &);  // Not implemented.
 
-  XdmfRectilinearGridImpl * mImpl;
-
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFRECTILINEARGRID; // Simply as a typedef to ensure correct typing
+typedef struct XDMFRECTILINEARGRID XDMFRECTILINEARGRID;
+
+XDMF_EXPORT XDMFRECTILINEARGRID * XdmfRectilinearGridNew(XDMFARRAY ** axesCoordinates, unsigned int numCoordinates, int passControl);
+
+XDMF_EXPORT XDMFRECTILINEARGRID * XdmfRectilinearGridNew2D(XDMFARRAY * xCoordinates, XDMFARRAY * yCoordinates, int passControl);
+
+XDMF_EXPORT XDMFRECTILINEARGRID * XdmfRectilinearGridNew3D(XDMFARRAY * xCoordinates, XDMFARRAY * yCoordinates, XDMFARRAY * zCoordinates, int passControl);
+
+XDMF_EXPORT XDMFARRAY * XdmfRectilinearGridGetCoordinatesByIndex(XDMFRECTILINEARGRID * grid, unsigned int axisIndex, int * status);
+
+XDMF_EXPORT XDMFARRAY ** XdmfRectilinearGridGetCoordinates(XDMFRECTILINEARGRID * grid, int * status);
+
+XDMF_EXPORT int XdmfRectilinearGridGetNumberCoordinates(XDMFRECTILINEARGRID * grid, int * status);
+
+XDMF_EXPORT XDMFARRAY * XdmfRectilinearGridGetDimensions(XDMFRECTILINEARGRID * grid, int * status);
+
+XDMF_EXPORT void XdmfRectilinearGridSetCoordinates(XDMFRECTILINEARGRID * grid, XDMFARRAY ** axesCoordinates, unsigned int numCoordinates, int passControl, int * status);
+
+XDMF_EXPORT void XdmfRectilinearGridSetCoordinatesByIndex(XDMFRECTILINEARGRID * grid, unsigned int index, XDMFARRAY * coordinates, int passControl, int * status);
+
+XDMF_ITEM_C_CHILD_DECLARE(XdmfRectilinearGrid, XDMFRECTILINEARGRID, XDMF)
+XDMF_GRID_C_CHILD_DECLARE(XdmfRectilinearGrid, XDMFRECTILINEARGRID, XDMF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFRECTILINEARGRID_HPP_ */

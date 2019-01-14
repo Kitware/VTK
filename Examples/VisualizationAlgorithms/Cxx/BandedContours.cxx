@@ -20,10 +20,10 @@
 int main (int argc, char *argv[])
 {
   if (argc < 3)
-    {
+  {
     std::cerr << "Usage: " << argv[0] << " InputPolyDataFile(.vtp) NumberOfContours" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Read the file
   vtkSmartPointer<vtkXMLPolyDataReader> reader =
@@ -35,7 +35,19 @@ int main (int argc, char *argv[])
   double scalarRange[2];
   reader->GetOutput()->GetPointData()->GetScalars()->GetRange(scalarRange);
 
+  // Check for a reasonable number of contours to avoid excessive
+  // computation. Here we arbitrarily pick an upper limit of 1000
   int numberOfContours = atoi(argv[2]);
+  if (numberOfContours > 1000)
+  {
+    std::cout << "ERROR: the number of contours " << numberOfContours << " exceeds 1000" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (numberOfContours <= 0)
+  {
+    std::cout << "ERROR: the number of contours " << numberOfContours << " is <= 0" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   vtkSmartPointer<vtkBandedPolyDataContourFilter> bandedContours =
     vtkSmartPointer<vtkBandedPolyDataContourFilter>::New();

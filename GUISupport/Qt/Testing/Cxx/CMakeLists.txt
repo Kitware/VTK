@@ -1,25 +1,39 @@
-include(vtkQt)
-
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   NO_VALID
   TestQtDebugLeaksView.cxx
   TestQtTableModelAdapter.cxx
   TestQtTreeModelAdapter.cxx
+  TestQVTKOpenGLNativeWidgetPicking.cxx
+  TestQVTKOpenGLWidgetPicking.cxx
+  TestQVTKOpenGLNativeWidgetSwapWindows.cxx
+  TestQVTKOpenGLWidgetSwapWindows.cxx
   )
 
-if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5Widgets REQUIRED)
-  include_directories(${Qt5Widgets_INCLUDE_DIRS})
-  add_definitions(${Qt5Widgets_DEFINITIONS})
-else()
-  find_package(Qt4 REQUIRED)
-  include(${QT_USE_FILE})
+vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
+  TestQVTKOpenGLNativeWidget.cxx
+  TestQVTKOpenGLWidget.cxx
+  TestQVTKOpenGLNativeWidgetWithDisabledInteractor.cxx
+  TestQVTKOpenGLNativeWidgetWithMSAA.cxx
+  TestQVTKOpenGLWidgetWithMSAA.cxx
+  )
+
+if(NOT VTK_LEGACY_REMOVE)
+  # tests use legacy QVTKWidget.
+  if(WIN32)
+    vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
+      NO_VALID
+      TestWin32QVTKWidget.cxx)
+  endif()
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
+
+vtk_test_cxx_executable(vtkGUISupportQtCxxTests tests
   QTestApp.cxx)
 
-if(VTK_QT_VERSION VERSION_GREATER "4")
-  set_target_properties(${vtk-module}CxxTests PROPERTIES
-    COMPILE_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
-endif()
+target_link_libraries(vtkGUISupportQtCxxTests
+  PRIVATE
+    Qt5::Widgets)
+
+set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetPicking
+ PROPERTIES RUN_SERIAL ON)

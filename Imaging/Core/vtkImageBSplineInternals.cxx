@@ -40,7 +40,7 @@
 #include "vtkImageBSplineInternals.h"
 #include "vtkAbstractImageInterpolator.h"
 #include <cstddef>
-#include <math.h>
+#include <cmath>
 
 /*--------------------------------------------------------------------------*/
 void vtkImageBSplineInternals::
@@ -135,7 +135,7 @@ InitialCausalCoefficient
                 }
                 return(c[0] + Sum / (1.0 - zn * zn));
             }
-            /* break; (unecessary because of return) */
+            /* break; (unnecessary because of return) */
 
         case VTK_IMAGE_BORDER_MIRROR:
             /* this initialization corresponds to mirror boundaries */
@@ -167,7 +167,7 @@ InitialCausalCoefficient
                 }
                 return(Sum / (1.0 - zn * zn));
             }
-            /* break; (unecessary because of return) */
+            /* break; (unnecessary because of return) */
 
         case VTK_IMAGE_BORDER_REPEAT:
             /* this initialization corresponds to periodic boundaries */
@@ -195,7 +195,7 @@ InitialCausalCoefficient
                 }
                 return(Sum / (1.0 - zn));
             }
-            /* break; (unecessary because of return) */
+            /* break; (unnecessary because of return) */
     }
 
     return(0.0);
@@ -536,26 +536,26 @@ int vtkImageBSplineInterpolatedValue
     long    imax, jmax, kmax;
 
     if (SplineDegree < 0 || SplineDegree > 9)
-      {
+    {
       return 0;
-      }
+    }
 
     /* check for 1D and 2D images */
     imax = SplineDegree;
     jmax = SplineDegree;
     kmax = SplineDegree;
     if (Width == 1)
-      {
+    {
       imax = 0;
-      }
+    }
     if (Height == 1)
-      {
+    {
       jmax = 0;
-      }
+    }
     if (Slices == 1)
-      {
+    {
       kmax = 0;
-      }
+    }
 
     /* compute the interpolation indexes and fractional offsets*/
     if (SplineDegree & 1L) {
@@ -602,7 +602,7 @@ int vtkImageBSplineInterpolatedValue
     }
 
     switch (Border)
-        {
+    {
         case VTK_IMAGE_BORDER_CLAMP:
             /* apply the constant boundary conditions */
             for (l = 0L; l <= SplineDegree; l++) {

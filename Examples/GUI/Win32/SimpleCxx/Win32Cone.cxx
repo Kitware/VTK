@@ -54,19 +54,19 @@ int PASCAL WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
   WNDCLASS    wndclass ;
 
   if (!hPrevInstance)
-    {
+  {
     wndclass.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     wndclass.lpfnWndProc   = WndProc ;
     wndclass.cbClsExtra    = 0 ;
     wndclass.cbWndExtra    = 0 ;
     wndclass.hInstance     = hInstance;
-    wndclass.hIcon         = LoadIcon(NULL,IDI_APPLICATION);
-    wndclass.hCursor       = LoadCursor (NULL, IDC_ARROW);
-    wndclass.lpszMenuName  = NULL;
+    wndclass.hIcon         = LoadIcon(nullptr,IDI_APPLICATION);
+    wndclass.hCursor       = LoadCursor (nullptr, IDC_ARROW);
+    wndclass.lpszMenuName  = nullptr;
     wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndclass.lpszClassName = szAppName;
     RegisterClass (&wndclass);
-    }
+  }
 
   hinst = hInstance;
   hwnd = CreateWindow ( szAppName,
@@ -76,17 +76,17 @@ int PASCAL WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
                         CW_USEDEFAULT,
                         400,
                         480,
-                        NULL,
-                        NULL,
+                        nullptr,
+                        nullptr,
                         hInstance,
-                        NULL);
+                        nullptr);
   ShowWindow (hwnd, nCmdShow);
   UpdateWindow (hwnd);
-  while (GetMessage (&msg, NULL, 0, 0))
-    {
+  while (GetMessage (&msg, nullptr, 0, 0))
+  {
     TranslateMessage (&msg);
     DispatchMessage (&msg);
-    }
+  }
   return msg.wParam;
 }
 
@@ -96,36 +96,36 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   static myVTKApp *theVTKApp;
 
   switch (message)
-    {
+  {
     case WM_CREATE:
-      {
+    {
       ewin = CreateWindow("button","Exit",
                           WS_CHILD | WS_VISIBLE | SS_CENTER,
                           0,400,400,60,
                           hwnd,(HMENU)2,
                           (HINSTANCE)vtkGetWindowLong(hwnd,vtkGWL_HINSTANCE),
-                          NULL);
+                          nullptr);
       theVTKApp = new myVTKApp(hwnd);
       return 0;
-      }
+    }
 
     case WM_COMMAND:
       switch (wParam)
-        {
+      {
         case 2:
           PostQuitMessage (0);
           delete theVTKApp;
-          theVTKApp = NULL;
+          theVTKApp = nullptr;
           break;
-        }
+      }
       return 0;
 
     case WM_DESTROY:
       PostQuitMessage (0);
       delete theVTKApp;
-      theVTKApp = NULL;
+      theVTKApp = nullptr;
       return 0;
-    }
+  }
   return DefWindowProc (hwnd, message, wParam, lParam);
 }
 

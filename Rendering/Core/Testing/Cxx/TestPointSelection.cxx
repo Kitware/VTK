@@ -12,6 +12,8 @@
 
 =========================================================================*/
 
+#include <algorithm>
+
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
@@ -36,7 +38,7 @@
 class PointPickCommand : public vtkCommand
 {
 protected:
-  vtkNew<vtkIdTypeArray> PointIds;
+  std::vector<int> PointIds;
   vtkRenderer *Renderer;
   vtkAreaPicker *Picker;
   vtkPolyDataMapper *Mapper;
@@ -45,46 +47,42 @@ public:
   static PointPickCommand * New() {return new PointPickCommand;}
   vtkTypeMacro(PointPickCommand, vtkCommand);
 
-  PointPickCommand()
-  {
-  }
+  PointPickCommand() = default;
 
-  virtual ~PointPickCommand()
-  {
-  }
+  ~PointPickCommand() override = default;
 
   void SetPointIds(vtkSelection *selection)
   {
   // Find selection node that we're interested in:
   const vtkIdType numNodes = selection->GetNumberOfNodes();
   for (vtkIdType nodeId = 0; nodeId < numNodes; ++nodeId)
-    {
+  {
     vtkSelectionNode *node = selection->GetNode(nodeId);
 
     // Check if the mapper is this instance of MoleculeMapper
     vtkActor *selActor = vtkActor::SafeDownCast(
                node->GetProperties()->Get(vtkSelectionNode::PROP()));
     if (selActor && (selActor->GetMapper() == this->Mapper))
-      {
+    {
       // Separate the selection ids into atoms and bonds
-      vtkIdTypeArray *selIds = vtkIdTypeArray::SafeDownCast(
+      vtkIdTypeArray *selIds = vtkArrayDownCast<vtkIdTypeArray>(
             node->GetSelectionList());
       if (selIds)
-        {
+      {
         vtkIdType numIds = selIds->GetNumberOfTuples();
         for (vtkIdType i = 0; i < numIds; ++i)
-          {
+        {
           vtkIdType curId = selIds->GetValue(i);
-          this->PointIds->InsertNextValue(curId);
-          }
+          this->PointIds.push_back(curId);
         }
       }
     }
   }
+  }
 
-  vtkIdTypeArray *GetPointIds()
+  std::vector<int> &GetPointIds()
   {
-    return this->PointIds.GetPointer();
+    return this->PointIds;
   }
 
   void SetMapper(vtkPolyDataMapper *m)
@@ -102,11 +100,11 @@ public:
     this->Picker = p;
   }
 
-  virtual void Execute(vtkObject *, unsigned long, void *)
+  void Execute(vtkObject *, unsigned long, void *) override
   {
     vtkProp3DCollection *props = this->Picker->GetProp3Ds();
     if (props->GetNumberOfItems() != 0)
-      {
+    {
       // If anything was picked during the fast area pick, do a more detailed
       // pick.
       vtkNew<vtkHardwareSelector> selector;
@@ -123,7 +121,7 @@ public:
       this->SetPointIds(result);
       this->DumpPointSelection();
       result->Delete();
-      }
+    }
   }
 
   // Convenience function to print out the atom and bond ids that belong to
@@ -133,10 +131,11 @@ public:
     // Print selection
     cerr << "\n### Selection ###\n";
     cerr << "Points: ";
-    for (vtkIdType i = 0; i < this->PointIds->GetNumberOfTuples(); i++)
-      {
-      cerr << this->PointIds->GetValue(i) << " ";
-      }
+    for (std::vector<int>::iterator i = this->PointIds.begin();
+         i != this->PointIds.end(); ++i)
+    {
+      cerr << *i << " ";
+    }
     cerr << endl;
   }
 };
@@ -151,15 +150,15 @@ int TestPointSelection(int argc, char *argv[])
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(sphereMapper.GetPointer());
+  actor->SetMapper(sphereMapper);
 
   vtkNew<vtkRenderer> ren;
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   vtkNew<vtkRenderWindow> win;
   win->SetMultiSamples(0);
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   ren->SetBackground(0.0,0.0,0.0);
   win->SetSize(450,450);
@@ -168,45 +167,46 @@ int TestPointSelection(int argc, char *argv[])
 
   // Setup picker
   vtkNew<vtkInteractorStyleRubberBandPick> pickerInt;
-  iren->SetInteractorStyle(pickerInt.GetPointer());
+  iren->SetInteractorStyle(pickerInt);
   vtkNew<vtkRenderedAreaPicker> picker;
-  iren->SetPicker(picker.GetPointer());
+  iren->SetPicker(picker);
 
   // We'll follow up the cheap RenderedAreaPick with a detailed selection
   // to obtain the atoms and bonds.
   vtkNew<PointPickCommand> com;
-  com->SetRenderer(ren.GetPointer());
-  com->SetPicker(picker.GetPointer());
-  com->SetMapper(sphereMapper.GetPointer());
-  picker->AddObserver(vtkCommand::EndPickEvent, com.GetPointer());
+  com->SetRenderer(ren);
+  com->SetPicker(picker);
+  com->SetMapper(sphereMapper);
+  picker->AddObserver(vtkCommand::EndPickEvent, com);
 
   // Make pick -- lower left quarter of renderer
   win->Render();
-  picker->AreaPick(0, 0, 225, 225, ren.GetPointer());
+  picker->AreaPick(0, 0, 225, 225, ren);
   win->Render();
 
   // Interact if desired
-  int retVal = vtkRegressionTestImage(win.GetPointer());
+  int retVal = vtkRegressionTestImage(win);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Verify pick
-  if (com->GetPointIds()->GetNumberOfTuples() < 7 ||
-      com->GetPointIds()->GetValue(0) != 0  ||
-      com->GetPointIds()->GetValue(1) != 26 ||
-      com->GetPointIds()->GetValue(2) != 27 ||
-      com->GetPointIds()->GetValue(3) != 32 ||
-      com->GetPointIds()->GetValue(4) != 33 ||
-      com->GetPointIds()->GetValue(5) != 38 ||
-      com->GetPointIds()->GetValue(6) != 39
+  std::vector<int> &pIds = com->GetPointIds();
+  if (pIds.size() < 7 ||
+      std::find(pIds.begin(), pIds.end(), 0) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 26) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 27) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 32) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 33) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 38) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 39) == pIds.end()
       )
-    {
+  {
     cerr << "Incorrect atoms/bonds picked! (if any picks were performed inter"
             "actively this could be ignored).\n";
     return EXIT_FAILURE;
-    }
+  }
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }

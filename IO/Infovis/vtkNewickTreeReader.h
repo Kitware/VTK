@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkNewickTreeReader - read vtkTree from Newick formatted file
-// .SECTION Description
-// vtkNewickTreeReader is a source object that reads Newick tree format
-// files.
-// The output of this reader is a single vtkTree data object.
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION Thanks
-// This class is adapted from code originally written by Yu-Wei Wu.
-// .SECTION See Also
-// vtkTree vtkDataReader
+/**
+ * @class   vtkNewickTreeReader
+ * @brief   read vtkTree from Newick formatted file
+ *
+ * vtkNewickTreeReader is a source object that reads Newick tree format
+ * files.
+ * The output of this reader is a single vtkTree data object.
+ * The superclass of this class, vtkDataReader, provides many methods for
+ * controlling the reading of the data file, see vtkDataReader for more
+ * information.
+ * @par Thanks:
+ * This class is adapted from code originally written by Yu-Wei Wu.
+ * @sa
+ * vtkTree vtkDataReader
+*/
 
 #ifndef vtkNewickTreeReader_h
 #define vtkNewickTreeReader_h
@@ -41,35 +44,35 @@ class VTKIOINFOVIS_EXPORT vtkNewickTreeReader : public vtkDataReader
 public:
   static vtkNewickTreeReader *New();
   vtkTypeMacro(vtkNewickTreeReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the output of this reader.
+  //@{
+  /**
+   * Get the output of this reader.
+   */
   vtkTree *GetOutput();
   vtkTree *GetOutput(int idx);
   void SetOutput(vtkTree *output);
   int ReadNewickTree(const char * buffer, vtkTree & tree);
+  //@}
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
 
 protected:
   vtkNewickTreeReader();
-  ~vtkNewickTreeReader();
+  ~vtkNewickTreeReader() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-
-  // Since the Outputs[0] has the same UpdateExtent format
-  // as the generic DataObject we can copy the UpdateExtent
-  // as a default behavior.
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
   void CountNodes(const char * buffer, vtkIdType *numNodes);
   vtkIdType BuildTree(char *buffer, vtkMutableDirectedGraph *g,
     vtkDoubleArray *weights, vtkStringArray *names, vtkIdType parent);
 private:
-  vtkNewickTreeReader(const vtkNewickTreeReader&);  // Not implemented.
-  void operator=(const vtkNewickTreeReader&);  // Not implemented.
+  vtkNewickTreeReader(const vtkNewickTreeReader&) = delete;
+  void operator=(const vtkNewickTreeReader&) = delete;
 };
 
 #endif

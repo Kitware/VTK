@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRenderWindowCollection - a list of RenderWindows
-// .SECTION Description
-// vtkRenderWindowCollection represents and provides methods to manipulate a
-// list of RenderWindows. The list is unsorted and duplicate entries are
-// not prevented.
-
-// .SECTION see also
-// vtkRenderWindow vtkCollection
+/**
+ * @class   vtkRenderWindowCollection
+ * @brief   an ordered list of RenderWindows
+ *
+ * vtkRenderWindowCollection represents and provides methods to manipulate a
+ * list of RenderWindows. The list is ordered and duplicate entries are
+ * not prevented.
+ *
+ * @sa
+ * vtkRenderWindow vtkCollection
+*/
 
 #ifndef vtkRenderWindowCollection_h
 #define vtkRenderWindowCollection_h
@@ -33,46 +36,47 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowCollection : public vtkCollection
  public:
   static vtkRenderWindowCollection *New();
   vtkTypeMacro(vtkRenderWindowCollection,vtkCollection);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Add a RenderWindow to the list.
+  /**
+   * Add a RenderWindow to the bottom of the list.
+   */
   void AddItem(vtkRenderWindow *a)
-    {
+  {
       this->vtkCollection::AddItem(a);
-    }
+  }
 
-  // Description:
-  // Get the next RenderWindow in the list. Return NULL when at the end of the
-  // list.
+  /**
+   * Get the next RenderWindow in the list. Return NULL when at the end of the
+   * list.
+   */
   vtkRenderWindow *GetNextItem()
-    {
+  {
       return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject());
-    }
+  }
 
-  //BTX
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkRenderWindow *GetNextRenderWindow(vtkCollectionSimpleIterator &cookie)
-    {
+  {
       return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject(cookie));
-    }
-  //ETX
+  }
 
 protected:
   vtkRenderWindowCollection() {}
-  ~vtkRenderWindowCollection() {}
+  ~vtkRenderWindowCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o)
-    {
+  {
       this->vtkCollection::AddItem(o);
-    }
+  }
 
 private:
-  vtkRenderWindowCollection(const vtkRenderWindowCollection&);  // Not implemented.
-  void operator=(const vtkRenderWindowCollection&);  // Not implemented.
+  vtkRenderWindowCollection(const vtkRenderWindowCollection&) = delete;
+  void operator=(const vtkRenderWindowCollection&) = delete;
 };
 #endif

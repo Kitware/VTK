@@ -17,29 +17,29 @@
 #include "vtkSetGet.h"
 #include "vtkObject.h"
 
-#include <string.h>
-#include <ctype.h>
+#include <cstring>
+#include <cctype>
 
 //----------------------------------------------------------------
 vtkOldStyleCallbackCommand::vtkOldStyleCallbackCommand()
 {
-  this->ClientData = NULL;
-  this->Callback = NULL;
-  this->ClientDataDeleteCallback = NULL;
+  this->ClientData = nullptr;
+  this->Callback = nullptr;
+  this->ClientDataDeleteCallback = nullptr;
 }
 
 vtkOldStyleCallbackCommand::~vtkOldStyleCallbackCommand()
 {
   if (this->ClientDataDeleteCallback)
-    {
+  {
     this->ClientDataDeleteCallback(this->ClientData);
-    }
+  }
 }
 
 void vtkOldStyleCallbackCommand::Execute(vtkObject *,unsigned long, void *)
 {
   if (this->Callback)
-    {
+  {
     this->Callback(this->ClientData);
-    }
+  }
 }

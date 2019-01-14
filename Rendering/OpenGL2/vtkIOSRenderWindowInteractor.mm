@@ -31,10 +31,6 @@ void (*vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (
 //----------------------------------------------------------------------------
 vtkIOSRenderWindowInteractor::vtkIOSRenderWindowInteractor()
 {
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    this->IDLookup[i] = NULL;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -54,14 +50,14 @@ void vtkIOSRenderWindowInteractor::Initialize()
 {
   // make sure we have a RenderWindow and camera
   if ( !this->RenderWindow )
-    {
+  {
     vtkErrorMacro(<<"No renderer defined!");
     return;
-    }
+  }
   if (this->Initialized)
-    {
+  {
     return;
-    }
+  }
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
   vtkIOSRenderWindow *renWin = (vtkIOSRenderWindow *)(this->RenderWindow);
@@ -79,9 +75,9 @@ void vtkIOSRenderWindowInteractor::Initialize()
 void vtkIOSRenderWindowInteractor::Enable()
 {
   if (this->Enabled)
-    {
+  {
     return;
-    }
+  }
 
   // Set the RenderWindow's interactor so that when the vtkIOSGLView tries
   // to handle events from the OS it will either handle them or ignore them
@@ -95,15 +91,15 @@ void vtkIOSRenderWindowInteractor::Enable()
 void vtkIOSRenderWindowInteractor::Disable()
 {
   if (!this->Enabled)
-    {
+  {
     return;
-    }
+  }
 
 #ifdef VTK_USE_TDX
   if(this->Device->GetInitialized())
-    {
+  {
     this->Device->Close();
-    }
+  }
 #endif
 
   // Set the RenderWindow's interactor so that when the vtkIOSGLView tries
@@ -146,19 +142,19 @@ void vtkIOSRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *ar
 {
   if ( f != vtkIOSRenderWindowInteractor::ClassExitMethod
   || arg != vtkIOSRenderWindowInteractor::ClassExitMethodArg)
-    {
+  {
     // delete the current arg if there is a delete method
     if ((vtkIOSRenderWindowInteractor::ClassExitMethodArg)
      && (vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete))
-      {
+    {
       (*vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete)
         (vtkIOSRenderWindowInteractor::ClassExitMethodArg);
-      }
+    }
     vtkIOSRenderWindowInteractor::ClassExitMethod = f;
     vtkIOSRenderWindowInteractor::ClassExitMethodArg = arg;
 
     // no call to this->Modified() since this is a class member function
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -166,48 +162,11 @@ void vtkIOSRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *ar
 void vtkIOSRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
 {
   if (f != vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete)
-    {
+  {
     vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete = f;
 
     // no call to this->Modified() since this is a class member function
-    }
-}
-
-// This function is used to return an index given an ID
-int vtkIOSRenderWindowInteractor::GetContactIndex(void *dwID)
-{
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    if (this->IDLookup[i] == dwID)
-      {
-      return i;
-      }
-    }
-
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    if (this->IDLookup[i] == NULL)
-      {
-      this->IDLookup[i] = dwID;
-      return i;
-      }
-    }
-
-  // Out of contacts
-  return -1;
-}
-
-// This function is used to return an index given an ID
-void vtkIOSRenderWindowInteractor::ClearContactIndex(void *dwID)
-{
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    if (this->IDLookup[i] == dwID)
-      {
-      this->IDLookup[i] = NULL;
-      return;
-      }
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -220,12 +179,12 @@ void vtkIOSRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 void vtkIOSRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
-    {
+  {
     this->InvokeEvent(vtkCommand::ExitEvent,NULL);
-    }
+  }
   else if (this->ClassExitMethod)
-    {
+  {
     (*this->ClassExitMethod)(this->ClassExitMethodArg);
-    }
+  }
   this->TerminateApp();
 }

@@ -12,112 +12,122 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFunctionParser - Parse and evaluate a mathematical expression
-// .SECTION Description
-// vtkFunctionParser is a class that takes in a mathematical expression as
-// a char string, parses it, and evaluates it at the specified values of
-// the variables in the input string.
-//
-// You can use the "if" operator to create conditional expressions
-// such as if ( test, trueresult, falseresult). These evaluate the boolean
-// valued test expression and then evaluate either the trueresult or the
-// falseresult expression to produce a final (scalar or vector valued) value.
-// "test" may contain <,>,=,|,&, and () and all three subexpressions can
-// evaluate arbitrary function operators (ln, cos, +, if, etc)
-//
-// .SECTION Thanks
-// Juha Nieminen (juha.nieminen@gmail.com) for relicensing this branch of the
-// function parser code that this class is based upon under the new BSD license
-// so that it could be used in VTK. Note, the BSD license applies to this
-// version of the function parser only (by permission of the author), and not
-// the original library.
-//
-// Thomas Dunne (thomas.dunne@iwr.uni-heidelberg.de) for adding code for
-// two-parameter-parsing and a few functions (sign, min, max).
-//
-// Sid Sydoriak (sxs@lanl.gov) for adding boolean operations and
-// conditional expressions and for fixing a variety of bugs.
+/**
+ * @class   vtkFunctionParser
+ * @brief   Parse and evaluate a mathematical expression
+ *
+ * vtkFunctionParser is a class that takes in a mathematical expression as
+ * a char string, parses it, and evaluates it at the specified values of
+ * the variables in the input string.
+ *
+ * You can use the "if" operator to create conditional expressions
+ * such as if ( test, trueresult, falseresult). These evaluate the boolean
+ * valued test expression and then evaluate either the trueresult or the
+ * falseresult expression to produce a final (scalar or vector valued) value.
+ * "test" may contain <,>,=,|,&, and () and all three subexpressions can
+ * evaluate arbitrary function operators (ln, cos, +, if, etc)
+ *
+ * @par Thanks:
+ * Juha Nieminen (juha.nieminen@gmail.com) for relicensing this branch of the
+ * function parser code that this class is based upon under the new BSD license
+ * so that it could be used in VTK. Note, the BSD license applies to this
+ * version of the function parser only (by permission of the author), and not
+ * the original library.
+ *
+ * @par Thanks:
+ * Thomas Dunne (thomas.dunne@iwr.uni-heidelberg.de) for adding code for
+ * two-parameter-parsing and a few functions (sign, min, max).
+ *
+ * @par Thanks:
+ * Sid Sydoriak (sxs@lanl.gov) for adding boolean operations and
+ * conditional expressions and for fixing a variety of bugs.
+*/
 
 #ifndef vtkFunctionParser_h
 #define vtkFunctionParser_h
 
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkTuple.h" // needed for vtkTuple
+#include <vector> // needed for vector
+#include <string> // needed for string.
 
 #define VTK_PARSER_IMMEDIATE 1
 #define VTK_PARSER_UNARY_MINUS 2
+#define VTK_PARSER_UNARY_PLUS 3
 
 // supported math functions
-#define VTK_PARSER_ADD 3
-#define VTK_PARSER_SUBTRACT 4
-#define VTK_PARSER_MULTIPLY 5
-#define VTK_PARSER_DIVIDE 6
-#define VTK_PARSER_POWER 7
-#define VTK_PARSER_ABSOLUTE_VALUE 8
-#define VTK_PARSER_EXPONENT 9
-#define VTK_PARSER_CEILING 10
-#define VTK_PARSER_FLOOR 11
-#define VTK_PARSER_LOGARITHM 12
-#define VTK_PARSER_LOGARITHME 13
-#define VTK_PARSER_LOGARITHM10 14
-#define VTK_PARSER_SQUARE_ROOT 15
-#define VTK_PARSER_SINE 16
-#define VTK_PARSER_COSINE 17
-#define VTK_PARSER_TANGENT 18
-#define VTK_PARSER_ARCSINE 19
-#define VTK_PARSER_ARCCOSINE 20
-#define VTK_PARSER_ARCTANGENT 21
-#define VTK_PARSER_HYPERBOLIC_SINE 22
-#define VTK_PARSER_HYPERBOLIC_COSINE 23
-#define VTK_PARSER_HYPERBOLIC_TANGENT 24
-#define VTK_PARSER_MIN 25
-#define VTK_PARSER_MAX 26
-#define VTK_PARSER_SIGN 28
+#define VTK_PARSER_ADD 4
+#define VTK_PARSER_SUBTRACT 5
+#define VTK_PARSER_MULTIPLY 6
+#define VTK_PARSER_DIVIDE 7
+#define VTK_PARSER_POWER 8
+#define VTK_PARSER_ABSOLUTE_VALUE 9
+#define VTK_PARSER_EXPONENT 10
+#define VTK_PARSER_CEILING 11
+#define VTK_PARSER_FLOOR 12
+#define VTK_PARSER_LOGARITHM 13
+#define VTK_PARSER_LOGARITHME 14
+#define VTK_PARSER_LOGARITHM10 15
+#define VTK_PARSER_SQUARE_ROOT 16
+#define VTK_PARSER_SINE 17
+#define VTK_PARSER_COSINE 18
+#define VTK_PARSER_TANGENT 19
+#define VTK_PARSER_ARCSINE 20
+#define VTK_PARSER_ARCCOSINE 21
+#define VTK_PARSER_ARCTANGENT 22
+#define VTK_PARSER_HYPERBOLIC_SINE 23
+#define VTK_PARSER_HYPERBOLIC_COSINE 24
+#define VTK_PARSER_HYPERBOLIC_TANGENT 25
+#define VTK_PARSER_MIN 26
+#define VTK_PARSER_MAX 27
+#define VTK_PARSER_SIGN 29
 
 // functions involving vectors
-#define VTK_PARSER_CROSS 27
-#define VTK_PARSER_VECTOR_UNARY_MINUS 29
-#define VTK_PARSER_DOT_PRODUCT 30
-#define VTK_PARSER_VECTOR_ADD 31
-#define VTK_PARSER_VECTOR_SUBTRACT 32
-#define VTK_PARSER_SCALAR_TIMES_VECTOR 33
-#define VTK_PARSER_VECTOR_TIMES_SCALAR 34
-#define VTK_PARSER_VECTOR_OVER_SCALAR 35
-#define VTK_PARSER_MAGNITUDE 36
-#define VTK_PARSER_NORMALIZE 37
+#define VTK_PARSER_CROSS 28
+#define VTK_PARSER_VECTOR_UNARY_MINUS 30
+#define VTK_PARSER_VECTOR_UNARY_PLUS 31
+#define VTK_PARSER_DOT_PRODUCT 32
+#define VTK_PARSER_VECTOR_ADD 33
+#define VTK_PARSER_VECTOR_SUBTRACT 34
+#define VTK_PARSER_SCALAR_TIMES_VECTOR 35
+#define VTK_PARSER_VECTOR_TIMES_SCALAR 36
+#define VTK_PARSER_VECTOR_OVER_SCALAR 37
+#define VTK_PARSER_MAGNITUDE 38
+#define VTK_PARSER_NORMALIZE 39
 
 // constants involving vectors
-#define VTK_PARSER_IHAT 38
-#define VTK_PARSER_JHAT 39
-#define VTK_PARSER_KHAT 40
+#define VTK_PARSER_IHAT 40
+#define VTK_PARSER_JHAT 41
+#define VTK_PARSER_KHAT 42
 
 // code for if(bool, trueval, falseval) resulting in a scalar
-#define VTK_PARSER_IF 41
+#define VTK_PARSER_IF 43
 
 // code for if(bool, truevec, falsevec) resulting in a vector
-#define VTK_PARSER_VECTOR_IF 42
+#define VTK_PARSER_VECTOR_IF 44
 
 // codes for boolean expressions
-#define VTK_PARSER_LESS_THAN 43
+#define VTK_PARSER_LESS_THAN 45
 
 // codes for boolean expressions
-#define VTK_PARSER_GREATER_THAN 44
+#define VTK_PARSER_GREATER_THAN 46
 
 // codes for boolean expressions
-#define VTK_PARSER_EQUAL_TO 45
+#define VTK_PARSER_EQUAL_TO 47
 
 // codes for boolean expressions
-#define VTK_PARSER_AND 46
+#define VTK_PARSER_AND 48
 
 // codes for boolean expressions
-#define VTK_PARSER_OR 47
+#define VTK_PARSER_OR 49
 
 // codes for scalar variables come before those for vectors. Do not define
 // values for VTK_PARSER_BEGIN_VARIABLES+1, VTK_PARSER_BEGIN_VARIABLES+2, ...,
 // because they are used to look up variables numbered 1, 2, ...
-#define VTK_PARSER_BEGIN_VARIABLES 48
+#define VTK_PARSER_BEGIN_VARIABLES 50
 
-// the value that is retuned as a result if there is an error
+// the value that is returned as a result if there is an error
 #define VTK_PARSER_ERROR_RESULT VTK_FLOAT_MAX
 
 class VTKCOMMONMISC_EXPORT vtkFunctionParser : public vtkObject
@@ -125,56 +135,74 @@ class VTKCOMMONMISC_EXPORT vtkFunctionParser : public vtkObject
 public:
   static vtkFunctionParser *New();
   vtkTypeMacro(vtkFunctionParser, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Return parser's MTime
-  unsigned long int GetMTime();
+  /**
+   * Return parser's MTime
+   */
+  vtkMTimeType GetMTime() override;
 
-  // Description:
-  // Set/Get input string to evaluate.
+  //@{
+  /**
+   * Set/Get input string to evaluate.
+   */
   void SetFunction(const char *function);
   vtkGetStringMacro(Function);
+  //@}
 
-  // Description:
-  // Check whether the result is a scalar result.  If it isn't, then
-  // either the result is a vector or an error has occurred.
+  /**
+   * Check whether the result is a scalar result.  If it isn't, then
+   * either the result is a vector or an error has occurred.
+   */
   int IsScalarResult();
 
-  // Description:
-  // Check whether the result is a vector result.  If it isn't, then
-  // either the result is scalar or an error has occurred.
+  /**
+   * Check whether the result is a vector result.  If it isn't, then
+   * either the result is scalar or an error has occurred.
+   */
   int IsVectorResult();
 
-  // Description:
-  // Get a scalar result from evaluating the input function.
+  /**
+   * Get a scalar result from evaluating the input function.
+   */
   double GetScalarResult();
 
-  // Description:
-  // Get a vector result from evaluating the input function.
-  double* GetVectorResult();
+  //@{
+  /**
+   * Get a vector result from evaluating the input function.
+   */
+  double* GetVectorResult() VTK_SIZEHINT(3);
   void GetVectorResult(double result[3]) {
     double *r = this->GetVectorResult();
     result[0] = r[0]; result[1] = r[1]; result[2] = r[2]; };
+  //@}
 
-  // Description:
-  // Set the value of a scalar variable.  If a variable with this name
-  // exists, then its value will be set to the new value.  If there is not
-  // already a variable with this name, variableName will be added to the
-  // list of variables, and its value will be set to the new value.
+  //@{
+  /**
+   * Set the value of a scalar variable.  If a variable with this name
+   * exists, then its value will be set to the new value.  If there is not
+   * already a variable with this name, variableName will be added to the
+   * list of variables, and its value will be set to the new value.
+   */
   void SetScalarVariableValue(const char* variableName, double value);
   void SetScalarVariableValue(int i, double value);
+  //@}
 
-  // Description:
-  // Get the value of a scalar variable.
+  //@{
+  /**
+   * Get the value of a scalar variable.
+   */
   double GetScalarVariableValue(const char* variableName);
   double GetScalarVariableValue(int i);
+  //@}
 
-  // Description:
-  // Set the value of a vector variable.  If a variable with this name
-  // exists, then its value will be set to the new value.  If there is not
-  // already a variable with this name, variableName will be added to the
-  // list of variables, and its value will be set to the new value.
+  //@{
+  /**
+   * Set the value of a vector variable.  If a variable with this name
+   * exists, then its value will be set to the new value.  If there is not
+   * already a variable with this name, variableName will be added to the
+   * list of variables, and its value will be set to the new value.
+   */
   void SetVectorVariableValue(const char* variableName, double xValue,
                               double yValue, double zValue);
   void SetVectorVariableValue(const char* variableName,
@@ -184,73 +212,122 @@ public:
                               double zValue);
   void SetVectorVariableValue(int i, const double values[3]) {
     this->SetVectorVariableValue(i,values[0],values[1],values[2]);};
+  //@}
 
-  // Description:
-  // Get the value of a vector variable.
-  double* GetVectorVariableValue(const char* variableName);
+  //@{
+  /**
+   * Get the value of a vector variable.
+   */
+  double* GetVectorVariableValue(const char* variableName) VTK_SIZEHINT(3);
   void GetVectorVariableValue(const char* variableName, double value[3]) {
     double *r = this->GetVectorVariableValue(variableName);
     value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };
-  double* GetVectorVariableValue(int i);
+  double* GetVectorVariableValue(int i) VTK_SIZEHINT(3);
   void GetVectorVariableValue(int i, double value[3]) {
     double *r = this->GetVectorVariableValue(i);
     value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };
+  //@}
 
-  // Description:
-  // Get the number of scalar variables.
-  vtkGetMacro(NumberOfScalarVariables,int);
+  /**
+   * Get the number of scalar variables.
+   */
+  int GetNumberOfScalarVariables()
+    { return static_cast<int>(this->ScalarVariableNames.size()); }
 
-  // Description:
-  // Get the number of vector variables.
-  vtkGetMacro(NumberOfVectorVariables,int);
+  /**
+   * Get scalar variable index or -1 if not found
+   */
+  int GetScalarVariableIndex(const char *name);
 
-  // Description:
-  // Get the ith scalar variable name.
-  char* GetScalarVariableName(int i);
+  /**
+   * Get the number of vector variables.
+   */
+  int GetNumberOfVectorVariables()
+    { return static_cast<int>(this->VectorVariableNames.size()); }
 
-  // Description:
-  // Get the ith vector variable name.
-  char* GetVectorVariableName(int i);
+  /**
+   * Get scalar variable index or -1 if not found
+   */
+  int GetVectorVariableIndex(const char *name);
 
-  // Description:
-  // Remove all the current variables.
+  /**
+   * Get the ith scalar variable name.
+   */
+  const char* GetScalarVariableName(int i);
+
+  /**
+   * Get the ith vector variable name.
+   */
+  const char* GetVectorVariableName(int i);
+
+  //@{
+  /**
+   * Returns whether a scalar variable is needed for the function evaluation.
+   * This is only valid after a successful Parse(). Thus, call GetScalarResult()
+   * or IsScalarResult() or similar method before calling this.
+   */
+  bool GetScalarVariableNeeded(int i);
+  bool GetScalarVariableNeeded(const char* variableName);
+  //@}
+
+  //@{
+  /**
+   * Returns whether a vector variable is needed for the function evaluation.
+   * This is only valid after a successful Parse(). Thus, call GetVectorResult()
+   * or IsVectorResult() or similar method before calling this.
+   */
+  bool GetVectorVariableNeeded(int i);
+  bool GetVectorVariableNeeded(const char* variableName);
+  //@}
+
+  /**
+   * Remove all the current variables.
+   */
   void RemoveAllVariables();
 
-  // Description:
-  // Remove all the scalar variables.
+  /**
+   * Remove all the scalar variables.
+   */
   void RemoveScalarVariables();
 
-  // Description:
-  // Remove all the vector variables.
+  /**
+   * Remove all the vector variables.
+   */
   void RemoveVectorVariables();
 
-  // Description:
-  // When ReplaceInvalidValues is on, all invalid values (such as
-  // sqrt(-2), note that function parser does not handle complex
-  // numbers) will be replaced by ReplacementValue. Otherwise an
-  // error will be reported
-  vtkSetMacro(ReplaceInvalidValues,int);
-  vtkGetMacro(ReplaceInvalidValues,int);
-  vtkBooleanMacro(ReplaceInvalidValues,int);
+  //@{
+  /**
+   * When ReplaceInvalidValues is on, all invalid values (such as
+   * sqrt(-2), note that function parser does not handle complex
+   * numbers) will be replaced by ReplacementValue. Otherwise an
+   * error will be reported
+   */
+  vtkSetMacro(ReplaceInvalidValues,vtkTypeBool);
+  vtkGetMacro(ReplaceInvalidValues,vtkTypeBool);
+  vtkBooleanMacro(ReplaceInvalidValues,vtkTypeBool);
   vtkSetMacro(ReplacementValue,double);
   vtkGetMacro(ReplacementValue,double);
+  //@}
 
-  // Description:
-  // Check the validity of the function expression.
+  /**
+   * Check the validity of the function expression.
+   */
   void CheckExpression(int &pos, char **error);
 
-  // Description:
-  // Allow the user to force the function to be re-parsed
+  /**
+   * Allow the user to force the function to be re-parsed
+   */
   void InvalidateFunction();
 
 protected:
   vtkFunctionParser();
-  ~vtkFunctionParser();
+  ~vtkFunctionParser() override;
 
   int Parse();
 
-  // Description:
-  // Evaluate the function, returning true on success, false on failure.
+  /**
+   * Evaluate the function, returning true on success, false on failure.
+   */
   bool Evaluate();
 
   int CheckSyntax();
@@ -278,10 +355,16 @@ protected:
   int GetMathConstantNumber(int currentIndex);
   int GetMathConstantStringLength(int mathConstantNumber);
   unsigned char GetElementaryOperatorNumber(char op);
-  unsigned char GetOperandNumber(int currentIndex);
+  unsigned int GetOperandNumber(int currentIndex);
   int GetVariableNameLength(int variableNumber);
 
   int DisambiguateOperators();
+
+  /**
+   * Collects meta-data about which variables are needed by the current
+   * function. This is called only after a successful call to this->Parse().
+   */
+  void UpdateNeededVariables();
 
   vtkSetStringMacro(ParseError);
 
@@ -291,12 +374,13 @@ protected:
   char* FunctionWithSpaces;
 
   int FunctionLength;
-  int NumberOfScalarVariables;
-  int NumberOfVectorVariables;
-  char** ScalarVariableNames;
-  char** VectorVariableNames;
-  double* ScalarVariableValues;
-  double** VectorVariableValues;
+  std::vector<std::string> ScalarVariableNames;
+  std::vector<std::string> VectorVariableNames;
+  std::vector<double> ScalarVariableValues;
+  std::vector<vtkTuple<double, 3> >  VectorVariableValues;
+  std::vector<bool> ScalarVariableNeeded;
+  std::vector<bool> VectorVariableNeeded;
+
   unsigned char *ByteCode;
   int ByteCodeSize;
   double *Immediates;
@@ -311,15 +395,15 @@ protected:
   vtkTimeStamp EvaluateMTime;
   vtkTimeStamp CheckMTime;
 
-  int ReplaceInvalidValues;
+  vtkTypeBool ReplaceInvalidValues;
   double ReplacementValue;
 
   int   ParseErrorPositon;
   char* ParseError;
 
 private:
-  vtkFunctionParser(const vtkFunctionParser&);  // Not implemented.
-  void operator=(const vtkFunctionParser&);  // Not implemented.
+  vtkFunctionParser(const vtkFunctionParser&) = delete;
+  void operator=(const vtkFunctionParser&) = delete;
 };
 
 #endif

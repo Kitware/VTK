@@ -17,21 +17,23 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtSQLQuery - query class associated with vtkQtSQLDatabase
-//
-// .SECTION Description
-// Implements vtkSQLQuery using an underlying QSQLQuery.
+/**
+ * @class   vtkQtSQLQuery
+ * @brief   query class associated with vtkQtSQLDatabase
+ *
+ *
+ * Implements vtkSQLQuery using an underlying QSQLQuery.
+*/
 
 #ifndef vtkQtSQLQuery_h
 #define vtkQtSQLQuery_h
 
 // Check for Qt SQL module before defining this class.
-#include <qglobal.h>
+#include <qglobal.h> // Needed to check if SQL is available
 #if (QT_EDITION & QT_MODULE_SQL)
 
-#include "vtkGUISupportQtSQLModule.h"
+#include "vtkGUISupportQtSQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
-#include "vtkType.h"
 
 class vtkVariant;
 class vtkQtSQLQueryInternals;
@@ -41,41 +43,49 @@ class VTKGUISUPPORTQTSQL_EXPORT vtkQtSQLQuery : public vtkSQLQuery
 public:
   static vtkQtSQLQuery* New();
   vtkTypeMacro(vtkQtSQLQuery, vtkSQLQuery);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Execute the query.  This must be performed
-  // before any field name or data access functions
-  // are used.
-  virtual bool Execute();
+  /**
+   * Execute the query.  This must be performed
+   * before any field name or data access functions
+   * are used.
+   */
+  bool Execute() override;
 
-  // Description:
-  // The number of fields in the query result.
-  virtual int GetNumberOfFields();
+  /**
+   * The number of fields in the query result.
+   */
+  int GetNumberOfFields() override;
 
-  // Description:
-  // Return the name of the specified query field.
-  virtual const char* GetFieldName(int col);
+  /**
+   * Return the name of the specified query field.
+   */
+  const char* GetFieldName(int col) override;
 
-  // Description:
-  // Return the type of the specified query field, as defined in vtkType.h.
-  virtual int GetFieldType(int col);
+  /**
+   * Return the type of the specified query field, as defined in vtkType.h.
+   */
+  int GetFieldType(int col) override;
 
-  // Description:
-  // Advance row, return false if past end.
-  virtual bool NextRow();
+  /**
+   * Advance row, return false if past end.
+   */
+  bool NextRow() override;
 
-  // Description:
-  // Return data in current row, field c
-  virtual vtkVariant DataValue(vtkIdType c);
+  /**
+   * Return data in current row, field c
+   */
+  vtkVariant DataValue(vtkIdType c) override;
 
-  // Description:
-  // Returns true if an error is set, otherwise false.
-  virtual bool HasError();
+  /**
+   * Returns true if an error is set, otherwise false.
+   */
+  bool HasError() override;
 
-  // Description:
-  // Get the last error text from the query
-  virtual const char* GetLastErrorText();
+  /**
+   * Get the last error text from the query
+   */
+  const char* GetLastErrorText() override;
 
 protected:
   vtkQtSQLQuery();
@@ -91,8 +101,8 @@ private:
 
   char* LastErrorText;
 
-  vtkQtSQLQuery(const vtkQtSQLQuery &); // Not implemented.
-  void operator=(const vtkQtSQLQuery &); // Not implemented.
+  vtkQtSQLQuery(const vtkQtSQLQuery &) = delete;
+  void operator=(const vtkQtSQLQuery &) = delete;
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)

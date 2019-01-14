@@ -62,10 +62,10 @@ int TestCategoricalColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 #if 0
   vtkIdType numSchemes = palettes->GetNumberOfColorSchemes();
   for (vtkIdType i = 0; i < numSchemes; ++ i)
-    {
+  {
     palettes->SetColorScheme(i);
     std::cout << i << ": " << palettes->GetColorSchemeName() << std::endl;
-    }
+  }
 #endif
   palettes->SetColorSchemeByName("Brewer Qualitative Accent");
   palettes->BuildLookupTable(lut);
@@ -82,7 +82,7 @@ int TestCategoricalColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   const unsigned char* rgba = lut->MapValue(0.);
   std::string v = "0x" + RGBAToHexString(rgba);
   if (expectedColors[0] != v)
-    {
+  {
     std::cout
       << "Fail for "
       << std::setw(3) << std::left
@@ -92,11 +92,11 @@ int TestCategoricalColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       << expectedColors[0]
       << std::endl;
     res &= false;
-    }
+  }
   rgba = lut->MapValue(3.);
   v = "0x" + RGBAToHexString(rgba);
   if (expectedColors[3] != v)
-    {
+  {
     std::cout
       << "Fail for "
       << std::setw(3) << std::left
@@ -106,7 +106,7 @@ int TestCategoricalColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       << expectedColors[3]
       << std::endl;
     res &= false;
-    }
+  }
 
   vtkDoubleArray* data = vtkDoubleArray::New();
   data->InsertNextValue(0.);
@@ -120,11 +120,11 @@ int TestCategoricalColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkUnsignedCharArray* color = lut->MapScalars(data, VTK_RGBA, 0);
   unsigned char* cval;
   for (vtkIdType i = 0; i < color->GetNumberOfTuples(); ++ i)
-    {
+  {
     cval = color->GetPointer(i * 4);
     v = "0x" + RGBAToHexString(cval);
     if (expectedColors[data->GetTuple1(i)] != v)
-      {
+    {
       std::cout
         << "Fail for "
         << std::setw(3) << std::left
@@ -134,12 +134,12 @@ int TestCategoricalColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         << expectedColors[data->GetTuple1(i)]
         << std::endl;
       res &= false;
-      }
     }
+  }
   cval = lut->GetNanColorAsUnsignedChars();
   v = "0x" + RGBAToHexString(cval);
   if (expectedColors[-999] != v)
-    {
+  {
     std::cout
       << "Fail for "
       << "NaN: got: "
@@ -148,7 +148,7 @@ int TestCategoricalColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       << expectedColors[-999]
       << std::endl;
     res &= false;
-    }
+  }
 
   color->Delete();
   data->Delete();

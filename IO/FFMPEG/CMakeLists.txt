@@ -1,34 +1,31 @@
-find_package(FFMPEG)
-include(vtkTestFFMPEG)
+vtk_module_find_package(
+  PACKAGE FFMPEG
+  VERSION 2.3.3
+  FORWARD_VERSION_REQ MINOR
+  COMPONENTS
+    avformat
+    avcodec
+    avutil
+    swscale)
 
-set(Module_SRCS
-  vtkFFMPEGWriter.cxx
-  )
+set(classes
+  vtkFFMPEGWriter)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkFFMPEGConfig.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkFFMPEGConfig.h @ONLY
-  )
+set_source_files_properties(vtkFFMPEGWriter.cxx
+  PROPERTIES
+    COMPILE_DEFINITIONS __STDC_CONSTANT_MACROS)
 
-if(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/vtkFFMPEGConfig.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
-    COMPONENT Development)
-endif()
+# vtkFFMPEGVideoSource requires ffmpeg 3.1 or later.
+if (NOT FFMPEG_VERSION VERSION_LESS "3.1")
+  list(APPEND classes
+    vtkFFMPEGVideoSource)
+endif ()
 
-include_directories(${FFMPEG_INCLUDE_DIR})
-
-set_source_files_properties( vtkFFMPEGWriter.cxx
-  PROPERTIES COMPILE_DEFINITIONS __STDC_CONSTANT_MACROS
-  )
-
-set(_ffmpeg_libs ${FFMPEG_avformat_LIBRARY} ${FFMPEG_avcodec_LIBRARY}
-  ${FFMPEG_avutil_LIBRARY}
-  )
-
-if(NOT VTK_FFMPEG_HAS_IMG_CONVERT)
-  list(APPEND _ffmpeg_libs ${FFMPEG_swscale_LIBRARY})
-endif()
-
-vtk_module_library(vtkIOFFMPEG ${Module_SRCS})
-
-vtk_module_link_libraries(vtkIOFFMPEG LINK_PRIVATE ${_ffmpeg_libs})
+vtk_module_add_module(VTK::IOFFMPEG
+  CLASSES ${classes})
+vtk_module_link(VTK::IOFFMPEG
+  PRIVATE
+    FFMPEG::avformat
+    FFMPEG::avcodec
+    FFMPEG::avutil
+    FFMPEG::swscale)

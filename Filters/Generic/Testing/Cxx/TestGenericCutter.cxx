@@ -57,7 +57,6 @@ int TestGenericCutter(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
 
@@ -106,7 +105,7 @@ int TestGenericCutter(int argc, char* argv[])
 
   cutter->Update(); //So that we can call GetRange() on the scalars
 
-  assert(cutter->GetOutput()!=0);
+  assert(cutter->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut = vtkLookupTable::New();
@@ -116,14 +115,14 @@ int TestGenericCutter(int argc, char* argv[])
   mapper->SetLookupTable(lut);
   mapper->SetInputConnection( cutter->GetOutputPort() );
 
-  if(cutter->GetOutput()->GetPointData()!=0)
+  if(cutter->GetOutput()->GetPointData()!=nullptr)
+  {
+    if(cutter->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
-    if(cutter->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
       mapper->SetScalarRange( cutter->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -135,9 +134,9 @@ int TestGenericCutter(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

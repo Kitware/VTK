@@ -2643,7 +2643,7 @@ int TestLabelPlacementMapper2D( int argc, char* argv[] )
   double* ptsrc = vtkLabelPlacer2DTestPoints;
 #endif
   for ( i = 0; i < static_cast<int>( TXTMULT * vtkTextLabelListLength); ++ i )
-    {
+  {
     labelText->SetValue( i, vtkTextLabelList[i % vtkTextLabelListLength] );
     priorities->SetValue( i, i );
 #ifdef GENERATE_TEST_POINTS
@@ -2653,16 +2653,16 @@ int TestLabelPlacementMapper2D( int argc, char* argv[] )
     //pts->SetPoint( i, vtkMath::Random(), vtkMath::Random(), vtkMath::Random() ); // 3-D
 #else // GENERATE_TEST_POINTS
     if ( i % vtkTextLabelListLength == 0 )
-      {
+    {
       ptsrc = vtkLabelPlacer2DTestPoints;
-      }
+    }
     pts->SetPoint( i,
       ptsrc[0] + double( ( i / vtkTextLabelListLength ) % PTSMULT ),
       ptsrc[1] + double( ( i / vtkTextLabelListLength ) / PTSMULT ),
       -1. ); // 2-D
     ptsrc += 2;
 #endif // GENERATE_TEST_POINTS
-    }
+  }
 #ifdef GENERATE_TEST_POINTS
   cout << "};\n";
 #endif
@@ -2721,13 +2721,13 @@ int TestLabelPlacementMapper2D( int argc, char* argv[] )
 
   int retval = vtkRegressionTestImageThreshold( rw, 60.0 );
   if ( retval == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     ri->Start();
 #ifdef GENERATE_TEST_POINTS
     vtkIndent indent;
     cam->PrintSelf( cout, indent );
 #endif // GENERATE_TEST_POINTS
-    }
+  }
 
   pts->Delete();
   polyData->Delete();

@@ -22,7 +22,14 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
+#include "vtkTestErrorObserver.h"
+#include "vtkExecutive.h"
+
+#include <algorithm>
 #include <sstream>
+#include <vector>
+
+#include <vtksys/SystemTools.hxx>
 
 //----------------------------------------------------------------------------
 const double densities[] = {
@@ -58,24 +65,24 @@ int TestExtractFunctionalBagPlot(int , char * [])
   const int numPoints = 20;
 
   for (int j = 0; j < numCols; j++)
-    {
+  {
     vtkNew<vtkDoubleArray> arr;
     std::stringstream ss;
     ss << "Var" << j;
     arr->SetName(ss.str().c_str());
     arr->SetNumberOfValues(numPoints);
-    table->AddColumn(arr.GetPointer());
-    }
+    table->AddColumn(arr);
+  }
 
   table->SetNumberOfRows(numPoints);
 
   for (int j = 0; j < numCols; j++)
-    {
+  {
     for (int i = 0; i < numPoints; i++)
-      {
+    {
       table->SetValue(i, j, i * j);
-      }
     }
+  }
 
   // Create a density table
 
@@ -87,23 +94,55 @@ int TestExtractFunctionalBagPlot(int , char * [])
   varName->SetName("ColName");
   varName->SetNumberOfValues(numCols);
   for (int j = 0; j < numCols; j++)
-    {
+  {
     double d = densities[j];
     density->SetValue(j, d);
     varName->SetValue(j, table->GetColumn(j)->GetName());
-    }
+  }
 
   vtkNew<vtkTable> inTableDensity;
-  inTableDensity->AddColumn(density.GetPointer());
-  inTableDensity->AddColumn(varName.GetPointer());
+  inTableDensity->AddColumn(density);
+  inTableDensity->AddColumn(varName);
+  std::vector<double> sortedDensities(
+    densities, densities + sizeof(densities) / sizeof(double));
+  double totalSumOfDensities = 0.;
+  for (std::size_t i = 0; i < sortedDensities.size(); i++)
+  {
+    totalSumOfDensities += sortedDensities[i];
+  }
+
+  std::sort(sortedDensities.begin(), sortedDensities.end());
+  double sumOfDensities = 0.;
+  double sumForP50 = totalSumOfDensities * 0.5;
+  double sumForP95 = totalSumOfDensities * ((100. - 95.)  / 100.);
+  double p50 = 0.;
+  double p95 = 0.;
+  for (std::size_t i = 0; i < sortedDensities.size(); i++)
+  {
+    sumOfDensities += sortedDensities[i];
+    if (sumOfDensities >= sumForP50 && p50 == 0.)
+    {
+      p50 = sortedDensities[i];
+    }
+    if (sumOfDensities >= sumForP95 && p95 == 0.)
+    {
+      p95 = sortedDensities[i];
+    }
+  }
 
   vtkNew<vtkExtractFunctionalBagPlot> ebp;
+  ebp->SetDensityForP50(p50);
+  ebp->SetDensityForPUser(p95);
+  ebp->SetPUser(95);
 
+  vtkNew<vtkTest::ErrorObserver> errorObserver1;
    // First verify that absence of input does not cause trouble
+  ebp->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver1);
   ebp->Update();
+  int status = errorObserver1->CheckErrorMessage("Input port 0 of algorithm vtkExtractFunctionalBagPlot");
 
-  ebp->SetInputData(0, table.GetPointer());
-  ebp->SetInputData(1, inTableDensity.GetPointer());
+  ebp->SetInputData(0, table);
+  ebp->SetInputData(1, inTableDensity);
   ebp->SetInputArrayToProcess(0, 1, 0,
     vtkDataObject::FIELD_ASSOCIATION_ROWS, "Density");
   ebp->SetInputArrayToProcess(1, 1, 0,
@@ -111,34 +150,42 @@ int TestExtractFunctionalBagPlot(int , char * [])
   ebp->Update();
 
   vtkTable* outBPTable = ebp->GetOutput();
-
-  vtkDoubleArray* q3Points =
-    vtkDoubleArray::SafeDownCast(outBPTable->GetColumnByName("Q3Points"));
+  vtkDoubleArray* q3Points = nullptr;
+  for (vtkIdType i = 0; i < outBPTable->GetNumberOfColumns(); i++)
+  {
+    const char* colName = outBPTable->GetColumnName(i);
+    if (vtksys::SystemTools::StringStartsWith(colName, "Q3Points"))
+    {
+      q3Points =
+        vtkArrayDownCast<vtkDoubleArray>(outBPTable->GetColumn(i));
+      break;
+    }
+  }
   vtkDoubleArray* q2Points =
-    vtkDoubleArray::SafeDownCast(outBPTable->GetColumnByName("QMedPoints"));
+    vtkArrayDownCast<vtkDoubleArray>(outBPTable->GetColumnByName("QMedPoints"));
 
   if (!q3Points || !q2Points)
-    {
+  {
     outBPTable->Dump();
     cout << "## Failure: Missing Q3Points or QMedPoints columns!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (q3Points->GetNumberOfTuples() != numPoints ||
     q2Points->GetNumberOfTuples() != numPoints)
-    {
+  {
     outBPTable->Dump();
     cout << "## Failure: Bad number of tuples in Q3Points or QMedPoints columns!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (q3Points->GetNumberOfComponents() != 2 ||
     q2Points->GetNumberOfComponents() != 2)
-    {
+  {
     outBPTable->Dump();
     cout << "## Failure: Q3Points or QMedPoints does not have 2 components!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Verify last values
   double q3v[2];
@@ -146,11 +193,11 @@ int TestExtractFunctionalBagPlot(int , char * [])
   double q2v[2];
   q2Points->GetTuple(19, q2v);
 
-  if (q3v[0] != 95 || q3v[1] != 304 || q2v[0] != 171 || q2v[1] != 209)
-    {
+  if (q3v[0] != 114 || q3v[1] != 285 || q2v[0] != 171 || q2v[1] != 209)
+  {
     outBPTable->Dump();
     cout << "## Failure: bad values found in Q3Points or QMedPoints" << endl;
     return EXIT_FAILURE;
-    }
-  return EXIT_SUCCESS;
+  }
+  return status;
 }

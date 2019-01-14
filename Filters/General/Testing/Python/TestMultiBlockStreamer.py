@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -36,7 +35,6 @@ Geometry5.SetInputData(output)
 
 Mapper5 = vtk.vtkPolyDataMapper()
 Mapper5.SetInputConnection(Geometry5.GetOutputPort())
-Mapper5.SetImmediateModeRendering(1)
 Mapper5.UseLookupTableScalarRangeOn()
 Mapper5.SetScalarVisibility(0)
 Mapper5.SetScalarModeToDefault()
@@ -123,7 +121,6 @@ LookupTable1.Build()
 
 Mapper10 = vtk.vtkPolyDataMapper()
 Mapper10.SetInputConnection(Ribbon0.GetOutputPort())
-Mapper10.SetImmediateModeRendering(1)
 Mapper10.UseLookupTableScalarRangeOn()
 Mapper10.SetScalarVisibility(1)
 Mapper10.SetScalarModeToUsePointFieldData()

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -31,10 +29,7 @@
 /* Module Setup */
 /****************/
 
-#define H5E_PACKAGE		/*suppress error about including H5Epkg   */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5E__init_deprec_interface
+#include "H5Emodule.h"          /* This source code file is part of the H5E module */
 
 
 /***********/
@@ -82,51 +77,6 @@
 /*******************/
 
 
-
-/*--------------------------------------------------------------------------
-NAME
-   H5E__init_deprec_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5E__init_deprec_interface()
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5E_init() currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5E__init_deprec_interface(void)
-{
-    FUNC_ENTER_STATIC_NOERR
-
-    FUNC_LEAVE_NOAPI(H5E_init())
-} /* H5E__init_deprec_interface() */
-
-
-/*--------------------------------------------------------------------------
-NAME
-   H5E__term_deprec_interface -- Terminate interface
-USAGE
-    herr_t H5E__term_deprec_interface()
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Terminates interface.  (Just resets H5_interface_initialize_g
-    currently).
-
---------------------------------------------------------------------------*/
-herr_t
-H5E__term_deprec_interface(void)
-{
-    FUNC_ENTER_PACKAGE_NOERR
-
-    /* Mark closed */
-    H5_interface_initialize_g = 0;
-
-    FUNC_LEAVE_NOAPI(0)
-} /* H5E__term_deprec_interface() */
-
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 
 /*-------------------------------------------------------------------------
@@ -152,6 +102,7 @@ H5Eget_major(H5E_major_t maj)
     char        *ret_value;     /* Return value */
 
     FUNC_ENTER_API_NOCLEAR(NULL)
+    H5TRACE1("*s", "i", maj);
 
     /* Get the message object */
     if(NULL == (msg = (H5E_msg_t *)H5I_object_verify(maj, H5I_ERROR_MSG)))
@@ -204,6 +155,7 @@ H5Eget_minor(H5E_minor_t min)
     char        *ret_value;     /* Return value */
 
     FUNC_ENTER_API_NOCLEAR(NULL)
+    H5TRACE1("*s", "i", min);
 
     /* Get the message object */
     if(NULL == (msg = (H5E_msg_t *)H5I_object_verify(min, H5I_ERROR_MSG)))
@@ -264,7 +216,7 @@ H5Epush1(const char *file, const char *func, unsigned line,
     H5TRACE6("e", "*s*sIuii*s", file, func, line, maj, min, str);
 
     /* Push the error on the default error stack */
-    if(H5E_push_stack(NULL, file, func, line, H5E_ERR_CLS_g, maj, min, str) < 0)
+    if(H5E__push_stack(NULL, file, func, line, H5E_ERR_CLS_g, maj, min, str) < 0)
         HGOTO_ERROR(H5E_ERROR, H5E_CANTSET, FAIL, "can't push error on stack")
 
 done:
@@ -275,7 +227,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Eclear1
  *
- * Purpose:	This function is for backward compatbility.
+ * Purpose:	This function is for backward compatibility.
  *              Clears the error stack for the specified error stack.
  *
  * Return:	Non-negative on success/Negative on failure
@@ -306,7 +258,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Eprint1
  *
- * Purpose:	This function is for backward compatbility.
+ * Purpose:	This function is for backward compatibility.
  *              Prints the error stack in some default way.  This is just a
  *		convenience function for H5Ewalk() with a function that
  *		prints error messages.  Users are encouraged to write there
@@ -344,7 +296,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Ewalk1
  *
- * Purpose:	This function is for backward compatbility.
+ * Purpose:	This function is for backward compatibility.
  *              Walks the error stack for the current thread and calls some
  *		function for each error along the way.
  *
@@ -383,7 +335,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Eget_auto1
  *
- * Purpose:	This function is for backward compatbility.
+ * Purpose:	This function is for backward compatibility.
  *              Returns the current settings for the automatic error stack
  *		traversal function and its data for specific error stack.
  *		Either (or both) arguments may be null in which case the
@@ -434,7 +386,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Eset_auto1
  *
- * Purpose:	This function is for backward compatbility.
+ * Purpose:	This function is for backward compatibility.
  *              Turns on or off automatic printing of errors for certain
  *              error stack.  When turned on (non-null FUNC pointer) any
  *              API function which returns an error indication will first

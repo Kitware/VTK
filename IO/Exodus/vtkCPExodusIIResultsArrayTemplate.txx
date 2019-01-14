@@ -38,9 +38,9 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
   os << indent << "Number of arrays: " << this->Arrays.size() << "\n";
   vtkIndent deeper = indent.GetNextIndent();
   for (size_t i = 0; i < this->Arrays.size(); ++i)
-    {
+  {
     os << deeper << "Array " << i << ": " << this->Arrays.at(i) << "\n";
-    }
+  }
 
   os << indent << "TempDoubleArray: " << this->TempDoubleArray << "\n";
   os << indent << "Save: " << this->Save << "\n";
@@ -73,17 +73,17 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::Initialize()
 {
   if(!this->Save)
-    {
+  {
     for (size_t i = 0; i < this->Arrays.size(); ++i)
-      {
+    {
       delete this->Arrays[i];
-      }
     }
+  }
   this->Arrays.clear();
-  this->Arrays.push_back(NULL);
+  this->Arrays.push_back(nullptr);
 
   delete [] this->TempDoubleArray;
-  this->TempDoubleArray = NULL;
+  this->TempDoubleArray = nullptr;
 
   this->MaxId = -1;
   this->Size = 0;
@@ -98,22 +98,22 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 {
   vtkDataArray *da = vtkDataArray::FastDownCast(output);
   if (!da)
-    {
+  {
     vtkWarningMacro(<<"Input is not a vtkDataArray");
     return;
-    }
+  }
 
   if (da->GetNumberOfComponents() != this->GetNumberOfComponents())
-    {
+  {
     vtkWarningMacro(<<"Incorrect number of components in input array.");
     return;
-    }
+  }
 
   const vtkIdType numPoints = ptIds->GetNumberOfIds();
   for (vtkIdType i = 0; i < numPoints; ++i)
-    {
+  {
     da->SetTuple(i, this->GetTuple(ptIds->GetId(i)));
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -122,21 +122,21 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 {
   vtkDataArray *da = vtkDataArray::FastDownCast(output);
   if (!da)
-    {
+  {
     vtkErrorMacro(<<"Input is not a vtkDataArray");
     return;
-    }
+  }
 
   if (da->GetNumberOfComponents() != this->GetNumberOfComponents())
-    {
+  {
     vtkErrorMacro(<<"Incorrect number of components in input array.");
     return;
-    }
+  }
 
   for (vtkIdType daTupleId = 0; p1 <= p2; ++p1)
-    {
+  {
     da->SetTuple(daTupleId++, this->GetTuple(p1));
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ template <class Scalar> vtkArrayIterator*
 vtkCPExodusIIResultsArrayTemplate<Scalar>::NewIterator()
 {
   vtkErrorMacro(<<"Not implemented.");
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -161,9 +161,9 @@ template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
   bool valid = true;
   Scalar val = vtkVariantCast<Scalar>(value, &valid);
   if (valid)
-    {
+  {
     return this->Lookup(val, 0);
-    }
+  }
   return -1;
 }
 
@@ -175,14 +175,14 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
   Scalar val = vtkVariantCast<Scalar>(value, &valid);
   ids->Reset();
   if (valid)
-    {
+  {
     vtkIdType index = 0;
     while ((index = this->Lookup(val, index)) >= 0)
-      {
+    {
       ids->InsertNextId(index);
       ++index;
-      }
     }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -212,9 +212,9 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::GetTuple(vtkIdType i, double *tuple)
 {
   for (size_t comp = 0; comp < this->Arrays.size(); ++comp)
-    {
+  {
     tuple[comp] = static_cast<double>(this->Arrays[comp][i]);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -231,22 +231,25 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
   ids->Reset();
   vtkIdType index = 0;
   while ((index = this->Lookup(value, index)) >= 0)
-    {
+  {
     ids->InsertNextId(index);
     ++index;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> Scalar vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetValue(vtkIdType idx)
+template <class Scalar>
+typename vtkCPExodusIIResultsArrayTemplate<Scalar>::ValueType
+vtkCPExodusIIResultsArrayTemplate<Scalar>::GetValue(vtkIdType idx) const
 {
-  return this->GetValueReference(idx);
+  return const_cast<vtkCPExodusIIResultsArrayTemplate<Scalar>*>(
+        this)->GetValueReference(idx);
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> Scalar& vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetValueReference(vtkIdType idx)
+template <class Scalar>
+typename vtkCPExodusIIResultsArrayTemplate<Scalar>::ValueType&
+vtkCPExodusIIResultsArrayTemplate<Scalar>::GetValueReference(vtkIdType idx)
 {
   const vtkIdType tuple = idx / this->NumberOfComponents;
   const vtkIdType comp = idx % this->NumberOfComponents;
@@ -255,16 +258,16 @@ template <class Scalar> Scalar& vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetTupleValue(vtkIdType tupleId, Scalar *tuple)
+::GetTypedTuple(vtkIdType tupleId, Scalar *tuple) const
 {
   for (size_t comp = 0; comp < this->Arrays.size(); ++comp)
-    {
+  {
     tuple[comp] = this->Arrays[comp][tupleId];
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> int vtkCPExodusIIResultsArrayTemplate<Scalar>
+template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::Allocate(vtkIdType, vtkIdType)
 {
   vtkErrorMacro("Read only container.")
@@ -272,7 +275,7 @@ template <class Scalar> int vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> int vtkCPExodusIIResultsArrayTemplate<Scalar>
+template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::Resize(vtkIdType)
 {
   vtkErrorMacro("Read only container.")
@@ -419,6 +422,14 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
+::InsertVariantValue(vtkIdType, vtkVariant)
+{
+  vtkErrorMacro("Read only container.")
+  return;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::RemoveTuple(vtkIdType)
 {
   vtkErrorMacro("Read only container.")
@@ -443,7 +454,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::SetTupleValue(vtkIdType, const Scalar*)
+::SetTypedTuple(vtkIdType, const Scalar*)
 {
   vtkErrorMacro("Read only container.")
   return;
@@ -451,7 +462,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertTupleValue(vtkIdType, const Scalar*)
+::InsertTypedTuple(vtkIdType, const Scalar*)
 {
   vtkErrorMacro("Read only container.")
   return;
@@ -459,7 +470,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertNextTupleValue(const Scalar *)
+::InsertNextTypedTuple(const Scalar *)
 {
   vtkErrorMacro("Read only container.")
   return -1;
@@ -492,7 +503,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 //------------------------------------------------------------------------------
 template <class Scalar> vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::vtkCPExodusIIResultsArrayTemplate()
-  : TempDoubleArray(NULL), Save(false)
+  : TempDoubleArray(nullptr), Save(false)
 {
 }
 
@@ -502,13 +513,13 @@ template <class Scalar> vtkCPExodusIIResultsArrayTemplate<Scalar>
 {
   typedef typename std::vector<Scalar*>::const_iterator ArrayIterator;
   if(!this->Save)
-    {
+  {
     for (ArrayIterator it = this->Arrays.begin(), itEnd = this->Arrays.end();
          it != itEnd; ++it)
-      {
+    {
       delete [] *it;
-      }
     }
+  }
   delete [] this->TempDoubleArray;
 }
 
@@ -517,11 +528,11 @@ template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::Lookup(const Scalar &val, vtkIdType index)
 {
   while (index <= this->MaxId)
-    {
+  {
     if (this->GetValueReference(index++) == val)
-      {
+    {
       return index;
-      }
     }
+  }
   return -1;
 }

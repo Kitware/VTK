@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOverlappingAMRLevelIdScalars - generate scalars from levels.
-// .SECTION Description
-// vtkOverlappingAMRLevelIdScalars is a filter that generates scalars using
-// the level number for each level. Note that all datasets within a level get
-// the same scalar. The new scalars array is named \c LevelIdScalars.
+/**
+ * @class   vtkOverlappingAMRLevelIdScalars
+ * @brief   generate scalars from levels.
+ *
+ * vtkOverlappingAMRLevelIdScalars is a filter that generates scalars using
+ * the level number for each level. Note that all datasets within a level get
+ * the same scalar. The new scalars array is named \c LevelIdScalars.
+*/
 
 #ifndef vtkOverlappingAMRLevelIdScalars_h
 #define vtkOverlappingAMRLevelIdScalars_h
@@ -33,24 +36,23 @@ class VTKFILTERSGENERAL_EXPORT vtkOverlappingAMRLevelIdScalars :
 public:
   static vtkOverlappingAMRLevelIdScalars* New();
   vtkTypeMacro(vtkOverlappingAMRLevelIdScalars,vtkOverlappingAMRAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-//BTX
 protected:
   vtkOverlappingAMRLevelIdScalars();
-  ~vtkOverlappingAMRLevelIdScalars();
+  ~vtkOverlappingAMRLevelIdScalars() override;
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) override;
 
   void AddColorLevels(vtkUniformGridAMR *input, vtkUniformGridAMR *output);
   vtkUniformGrid* ColorLevel(vtkUniformGrid* input, int group);
 
 private:
-  vtkOverlappingAMRLevelIdScalars(const vtkOverlappingAMRLevelIdScalars&); // Not implemented.
-  void operator=(const vtkOverlappingAMRLevelIdScalars&); // Not implemented.
-//ETX
+  vtkOverlappingAMRLevelIdScalars(const vtkOverlappingAMRLevelIdScalars&) = delete;
+  void operator=(const vtkOverlappingAMRLevelIdScalars&) = delete;
+
 };
 
 #endif

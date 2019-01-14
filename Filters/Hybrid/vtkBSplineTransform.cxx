@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile: vtkBSplineTransform.cxx,v $
+  Module:    vtkBSplineTransform.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -20,7 +20,7 @@
 #include "vtkTrivialProducer.h"
 #include "vtkObjectFactory.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkBSplineTransform);
 
@@ -71,7 +71,7 @@ static int vtkBSplineTransformBorder(
   int pointIsInvalid = 0;
 
   switch (borderMode)
-    {
+  {
     case VTK_BSPLINE_EDGE:
       // coefficient at edge continues infinitely past edge
       // (this is continuous and smooth)
@@ -81,51 +81,51 @@ static int vtkBSplineTransformBorder(
       // coefficients past edge are all zero
       // (this is continuous and smooth)
       for (int i = 0; i < 3; i++)
-        {
+      {
         // note: "ext" is just the size subtract one
         if (ext[i] != 0)
-          {
+        {
           if (gridId1[i] == 0)
-            {
+          {
             ff[i][0] = 0.0;
             gg[i][0] = 0.0;
-            }
+          }
           else if (gridId2[i] == 0)
-            {
+          {
             ff[i][0] = 0.0; ff[i][1] = 0.0;
             gg[i][0] = 0.0; gg[i][1] = 0.0;
-            }
+          }
           else if (gridId3[i] == 0)
-            {
+          {
             ff[i][0] = 0.0; ff[i][1] = 0.0; ff[i][2] = 0.0;
             gg[i][0] = 0.0; gg[i][1] = 0.0; gg[i][2] = 0.0;
-            }
+          }
           else if (gridId3[i] < 0)
-            {
+          {
             pointIsInvalid = 1;
-            }
+          }
 
           if (gridId2[i] == ext[i])
-            {
+          {
             ff[i][3] = 0.0;
             gg[i][3] = 0.0;
-            }
+          }
           else if (gridId1[i] == ext[i])
-            {
+          {
             ff[i][2] = 0.0; ff[i][3] = 0.0;
             gg[i][2] = 0.0; gg[i][3] = 0.0;
-            }
+          }
           else if (gridId0[i] == ext[i])
-            {
+          {
             ff[i][1] = 0.0; ff[i][2] = 0.0; ff[i][3] = 0.0;
             gg[i][1] = 0.0; gg[i][2] = 0.0; gg[i][3] = 0.0;
-            }
+          }
           else if (gridId0[i] > ext[i])
-            {
+          {
             pointIsInvalid = 1;
-            }
           }
         }
+      }
       break;
 
     case VTK_BSPLINE_ZERO_AT_BORDER:
@@ -133,57 +133,57 @@ static int vtkBSplineTransformBorder(
       // grid-spacing past the bounds of the grid
       // (this is continuous but not smooth)
       for (int j = 0; j < 3; j++)
-        {
+      {
         // note: "ext" is just the size subtract one
         if (ext[j] != 0)
-          {
+        {
           if (gridId1[j] == 0)
-            {
+          {
             ff[j][0] = 0.0;
             if (gg[j])
-              {
-              gg[j][0] = 0.0;
-              }
-            }
-          else if (gridId2[j] == 0)
             {
+              gg[j][0] = 0.0;
+            }
+          }
+          else if (gridId2[j] == 0)
+          {
             ff[j][2] -= ff[j][0];
             ff[j][0] = 0.0;
             ff[j][1] = 0.0;
             gg[j][2] -= gg[j][0];
             gg[j][0] = 0.0;
             gg[j][1] = 0.0;
-            }
+          }
           else if (gridId2[j] < 0)
-            {
+          {
             pointIsInvalid = 1;
-            }
+          }
 
           if (gridId2[j] == ext[j])
-            {
+          {
             ff[j][3] = 0.0;
             gg[j][3] = 0.0;
-            }
+          }
           else if (gridId1[j] == ext[j])
-            {
+          {
             ff[j][1] -= ff[j][3];
             ff[j][2] = 0.0;
             ff[j][3] = 0.0;
             gg[j][1] -= gg[j][3];
             gg[j][2] = 0.0;
             gg[j][3] = 0.0;
-            }
+          }
           else if (gridId1[j] > ext[j])
-            {
+          {
             pointIsInvalid = 1;
-            }
           }
         }
+      }
       break;
-    }
+  }
 
   for (int k = 0; k < 3; k++)
-    {
+  {
     // clamp to the boundary limits
     int emax = ext[k];
     if (gridId0[k] < 0) { gridId0[k] = 0; }
@@ -194,7 +194,7 @@ static int vtkBSplineTransformBorder(
     if (gridId2[k] > emax) { gridId2[k] = emax; }
     if (gridId3[k] < 0) { gridId3[k] = 0; }
     if (gridId3[k] > emax) { gridId3[k] = emax; }
-    }
+  }
 
   return pointIsInvalid;
 }
@@ -244,11 +244,11 @@ void vtkBSplineTransformFunction<T>::Cubic(
 
   // compute the weights
   for (int i = 0; i < 3; i++)
-    {
+  {
     ext[i] = gridExt[2*i + 1] - gridExt[2*i];
 
     if (ext[i] != 0)
-      {
+    {
       // change point into integer plus fraction
       int idx = vtkMath::Floor(point[i]);
       double f = point[i] - idx;
@@ -260,8 +260,8 @@ void vtkBSplineTransformFunction<T>::Cubic(
       gridId3[i] = idx++;
 
       vtkBSplineTransformWeights(ff[i], gg[i], f);
-      }
     }
+  }
 
   // do bounds check, most points will be inside so optimize for that
   int pointIsInvalid = 0;
@@ -269,10 +269,10 @@ void vtkBSplineTransformFunction<T>::Cubic(
   if ((gridId0[0] | (ext[0] - gridId3[0]) |
        gridId0[1] | (ext[1] - gridId3[1]) |
        gridId0[2] | (ext[2] - gridId3[2])) < 0)
-    {
+  {
     pointIsInvalid = vtkBSplineTransformBorder(
       gridId0, gridId1, gridId2, gridId3, ff, gg, ext, borderMode);
-    }
+  }
 
   // Compute the indices into the data
   vtkIdType factX[4],factY[4],factZ[4];
@@ -298,18 +298,18 @@ void vtkBSplineTransformFunction<T>::Cubic(
   displacement[2] = 0.0;
 
   if (derivatives)
-    {
+  {
     for (int i = 0; i < 3; i++)
-      {
+    {
       derivatives[i][0] = 0.0;
       derivatives[i][1] = 0.0;
       derivatives[i][2] = 0.0;
-      }
     }
+  }
 
   // if point is valid, do the interpolation
   if (!pointIsInvalid)
-    {
+  {
     T *gridPtr = static_cast<T *>(gridPtrVoid);
 
     // shortcut for 1D and 2D images (ext is size subtract 1)
@@ -326,32 +326,32 @@ void vtkBSplineTransformFunction<T>::Cubic(
     displacement[1] = 0;
     displacement[2] = 0;
     for (int j = jl; j < jm; j++)
-      {
+    {
       T *gridPtr1 = gridPtr + factZ[j];
       vZ[0] = 0;
       vZ[1] = 0;
       vZ[2] = 0;
       for (int k = kl; k < km; k++)
-        {
+      {
         T *gridPtr2 = gridPtr1 + factY[k];
         vY[0] = 0;
         vY[1] = 0;
         vY[2] = 0;
         if (!derivatives)
-          {
+        {
           for (int l = 0; l < 4; l++)
-            {
+          {
             T *gridPtr3 = gridPtr2 + factX[l];
             double f = fX[l];
             vY[0] += gridPtr3[0] * f;
             vY[1] += gridPtr3[1] * f;
             vY[2] += gridPtr3[2] * f;
-            }
           }
+        }
         else
-          {
+        {
           for (int l = 0; l < 4; l++)
-            {
+          {
             T *gridPtr3 = gridPtr2 + factX[l];
             double f = fX[l];
             double gff = gX[l]*fY[k]*fZ[j];
@@ -372,17 +372,17 @@ void vtkBSplineTransformFunction<T>::Cubic(
             derivatives[2][0] += inVal * gff;
             derivatives[2][1] += inVal * fgf;
             derivatives[2][2] += inVal * ffg;
-            }
           }
+        }
           vZ[0] += vY[0]*fY[k];
           vZ[1] += vY[1]*fY[k];
           vZ[2] += vY[2]*fY[k];
-        }
+      }
       displacement[0] += vZ[0]*fZ[j];
       displacement[1] += vZ[1]*fZ[j];
       displacement[2] += vZ[2]*fZ[j];
-      }
     }
+  }
 }
 
 } // end anonymous namespace
@@ -394,15 +394,15 @@ vtkBSplineTransform::vtkBSplineTransform()
   this->BorderMode = VTK_BSPLINE_EDGE;
   this->InverseTolerance = 1e-6;
   this->DisplacementScale = 1.0;
-  this->CalculateSpline = 0;
-  this->GridPointer = 0;
+  this->CalculateSpline = nullptr;
+  this->GridPointer = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkBSplineTransform::~vtkBSplineTransform()
 {
   this->ConnectionHolder->Delete();
-  this->ConnectionHolder = 0;
+  this->ConnectionHolder = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -418,7 +418,7 @@ void vtkBSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
 const char *vtkBSplineTransform::GetBorderModeAsString()
 {
   switch (this->BorderMode)
-    {
+  {
     case VTK_BSPLINE_EDGE:
       return "Edge";
     case VTK_BSPLINE_ZERO:
@@ -427,19 +427,19 @@ const char *vtkBSplineTransform::GetBorderModeAsString()
       return "ZeroAtBorder";
     default:
       break;
-    }
+  }
 
   return "Unknown";
 }
 
 //----------------------------------------------------------------------------
 // need to check the input image data to determine MTime
-unsigned long vtkBSplineTransform::GetMTime()
+vtkMTimeType vtkBSplineTransform::GetMTime()
 {
-  unsigned long mtime,result;
+  vtkMTimeType mtime,result;
   result = vtkWarpTransform::GetMTime();
   if (this->GetCoefficientData())
-    {
+  {
     vtkAlgorithm* inputAlgorithm =
       this->ConnectionHolder->GetInputAlgorithm(0, 0);
     inputAlgorithm->UpdateInformation();
@@ -449,7 +449,7 @@ unsigned long vtkBSplineTransform::GetMTime()
         inputAlgorithm->GetExecutive());
     mtime = sddp->GetPipelineMTime();
     result = ( mtime > result ? mtime : result );
-    }
+  }
 
   return result;
 }
@@ -459,12 +459,12 @@ void vtkBSplineTransform::ForwardTransformPoint(const double inPoint[3],
                                                 double outPoint[3])
 {
   if (!this->GridPointer || !this->CalculateSpline)
-    {
+  {
     outPoint[0] = inPoint[0];
     outPoint[1] = inPoint[1];
     outPoint[2] = inPoint[2];
     return;
-    }
+  }
 
   void *gridPtr = this->GridPointer;
   double *spacing = this->GridSpacing;
@@ -487,7 +487,7 @@ void vtkBSplineTransform::ForwardTransformPoint(const double inPoint[3],
   point[1] = (inPoint[1] - origin[1])/spacing[1];
   point[2] = (inPoint[2] - origin[2])/spacing[2];
 
-  this->CalculateSpline(point, displacement, 0,
+  this->CalculateSpline(point, displacement, nullptr,
                         gridPtr, extent, increments, this->BorderMode);
 
   outPoint[0] = inPoint[0] + displacement[0]*scale;
@@ -519,13 +519,13 @@ void vtkBSplineTransform::ForwardTransformDerivative(const double inPoint[3],
                                                      double derivative[3][3])
 {
   if (!this->GridPointer || !this->CalculateSpline)
-    {
+  {
     outPoint[0] = inPoint[0];
     outPoint[1] = inPoint[1];
     outPoint[2] = inPoint[2];
     vtkMath::Identity3x3(derivative);
     return;
-    }
+  }
 
   void *gridPtr = this->GridPointer;
   double *spacing = this->GridSpacing;
@@ -547,12 +547,12 @@ void vtkBSplineTransform::ForwardTransformDerivative(const double inPoint[3],
                         gridPtr,extent,increments, this->BorderMode);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     derivative[i][0] = derivative[i][0]*scale/spacing[0];
     derivative[i][1] = derivative[i][1]*scale/spacing[1];
     derivative[i][2] = derivative[i][2]*scale/spacing[2];
     derivative[i][i] += 1.0;
-    }
+  }
 
   outPoint[0] = inPoint[0] + displacement[0]*scale;
   outPoint[1] = inPoint[1] + displacement[1]*scale;
@@ -574,17 +574,17 @@ void vtkBSplineTransform::ForwardTransformDerivative(const float point[3],
   this->ForwardTransformDerivative(fpoint,fpoint,fderivative);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     derivative[i][0] = static_cast<float>(fderivative[i][0]);
     derivative[i][1] = static_cast<float>(fderivative[i][1]);
     derivative[i][2] = static_cast<float>(fderivative[i][2]);
     output[i] = static_cast<float>(fpoint[i]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 // We use Newton's method to iteratively invert the transformation.
-// This is actally quite robust as long as the Jacobian matrix is never
+// This is actually quite robust as long as the Jacobian matrix is never
 // singular.
 // Note that this is similar to vtkWarpTransform::InverseTransformPoint()
 // but has been optimized specifically for uniform grid transforms.
@@ -593,12 +593,12 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
                                                      double derivative[3][3])
 {
   if (!this->GridPointer || !this->CalculateSpline)
-    {
+  {
     outPoint[0] = inPoint[0];
     outPoint[1] = inPoint[1];
     outPoint[2] = inPoint[2];
     return;
-    }
+  }
 
   void *gridPtr = this->GridPointer;
   double *spacing = this->GridSpacing;
@@ -634,7 +634,7 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
 
   // first guess at inverse point, just subtract displacement
   // (the inverse point is given in i,j,k indices plus fractions)
-  this->CalculateSpline(point, deltaP, 0,
+  this->CalculateSpline(point, deltaP, nullptr,
                         gridPtr, extent, increments, this->BorderMode);
 
   inverse[0] = point[0] - deltaP[0]*scale*invSpacing[0];
@@ -649,7 +649,7 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
   int i, j;
 
   for (i = 0; i < n; i++)
-    {
+  {
     this->CalculateSpline(inverse, deltaP, derivative,
                           gridPtr, extent, increments, this->BorderMode);
 
@@ -660,12 +660,12 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
 
     // convert derivative
     for (j = 0; j < 3; j++)
-      {
+    {
       derivative[j][0] = derivative[j][0]*scale*invSpacing[0];
       derivative[j][1] = derivative[j][1]*scale*invSpacing[1];
       derivative[j][2] = derivative[j][2]*scale*invSpacing[2];
       derivative[j][j] += 1.0;
-      }
+    }
 
     // get the current function value
     functionValue = (deltaP[0]*deltaP[0] +
@@ -674,7 +674,7 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
 
     // if the function value is decreasing, do next Newton step
     if (i == 0 || functionValue < lastFunctionValue)
-      {
+    {
       // here is the critical step in Newton's method
       vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);
 
@@ -686,9 +686,9 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
       // break if less than tolerance in both coordinate systems
       if (errorSquared < toleranceSquared &&
           functionValue < toleranceSquared)
-        {
+      {
         break;
-        }
+      }
 
       // save the last inverse point
       lastInverse[0] = inverse[0];
@@ -712,7 +712,7 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
       f = 1.0;
 
       continue;
-      }
+    }
 
     // the error is increasing, so take a partial step
     // (see Numerical Recipes 9.7 for rationale, this code
@@ -730,10 +730,10 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
     inverse[0] = lastInverse[0] - f*deltaI[0]*invSpacing[0];
     inverse[1] = lastInverse[1] - f*deltaI[1]*invSpacing[1];
     inverse[2] = lastInverse[2] - f*deltaI[2]*invSpacing[2];
-    }
+  }
 
   if (i >= n)
-    {
+  {
     // didn't converge: back up to last good result
     inverse[0] = lastInverse[0];
     inverse[1] = lastInverse[1];
@@ -743,7 +743,7 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
                     inPoint[0] << ", " << inPoint[1] << ", " << inPoint[2] <<
                     ") error = " << sqrt(errorSquared) << " after " <<
                     i << " iterations.");
-    }
+  }
 
   // convert point
   outPoint[0] = inverse[0]*spacing[0] + origin[0];
@@ -766,12 +766,12 @@ void vtkBSplineTransform::InverseTransformDerivative(const float point[3],
   this->InverseTransformDerivative(fpoint,fpoint,fderivative);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     output[i] = static_cast<float>(fpoint[i]);
     derivative[i][0] = static_cast<float>(fderivative[i][0]);
     derivative[i][1] = static_cast<float>(fderivative[i][1]);
     derivative[i][2] = static_cast<float>(fderivative[i][2]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -811,27 +811,27 @@ void vtkBSplineTransform::InternalDeepCopy(vtkAbstractTransform *transform)
   this->CalculateSpline = gridTransform->CalculateSpline;
   this->ConnectionHolder->SetInputConnection(
     0, gridTransform->ConnectionHolder->GetNumberOfInputConnections(0) ?
-    gridTransform->ConnectionHolder->GetInputConnection(0, 0) : 0);
+    gridTransform->ConnectionHolder->GetInputConnection(0, 0) : nullptr);
   this->SetDisplacementScale(gridTransform->DisplacementScale);
   this->SetBorderMode(gridTransform->BorderMode);
 
   if (this->InverseFlag != gridTransform->InverseFlag)
-    {
+  {
     this->InverseFlag = gridTransform->InverseFlag;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkBSplineTransform::InternalUpdate()
 {
   vtkImageData *grid = this->GetCoefficientData();
-  this->GridPointer = 0;
+  this->GridPointer = nullptr;
 
-  if (grid == 0)
-    {
+  if (grid == nullptr)
+  {
     return;
-    }
+  }
 
   vtkAlgorithm* inputAlgorithm =
     this->ConnectionHolder->GetInputAlgorithm(0, 0);
@@ -841,14 +841,14 @@ void vtkBSplineTransform::InternalUpdate()
   grid = this->GetCoefficientData();
 
   if (grid->GetNumberOfScalarComponents() != 3)
-    {
+  {
     vtkErrorMacro(<< "TransformPoint: displacement grid must have 3 components");
     return;
-    }
+  }
 
   // get the correct spline calculation function according to the grid type
   switch (grid->GetScalarType())
-    {
+  {
     case VTK_FLOAT:
       this->CalculateSpline = &(vtkBSplineTransformFunction<float>::Cubic);
       break;
@@ -856,10 +856,10 @@ void vtkBSplineTransform::InternalUpdate()
       this->CalculateSpline = &(vtkBSplineTransformFunction<double>::Cubic);
       break;
     default:
-      this->CalculateSpline = 0;
+      this->CalculateSpline = nullptr;
       vtkErrorMacro("InternalUpdate: grid type must be float or double");
       break;
-    }
+  }
 
   this->GridPointer = grid->GetScalarPointer();
   grid->GetSpacing(this->GridSpacing);

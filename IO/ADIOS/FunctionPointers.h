@@ -28,7 +28,7 @@ class Functor0Args : public BaseFunctor
 {
 public:
   virtual ~Functor0Args() { }
-  virtual void ExecVoid()
+  void ExecVoid() override
   {
     (*this)();
   }
@@ -47,7 +47,7 @@ public:
 
   virtual ~MemberFunction0Args() { }
 
-  virtual TReturn operator() ()
+  TReturn operator() () override
   { return (this->Instance->*this->FunctionPtr)(); }
 
 private:
@@ -66,7 +66,7 @@ public:
 
   virtual ~MemberFunction1Arg() { }
 
-  virtual TReturn operator() ()
+  TReturn operator() () override
   { return (this->Instance->*this->FunctionPtr)(this->Arg1); }
 
 private:
@@ -87,7 +87,7 @@ public:
 
   virtual ~MemberFunction2Args() { }
 
-  virtual TReturn operator() ()
+  TReturn operator() () override
   { return (this->Instance->*this->FunctionPtr)(this->Arg1, this->Arg2); }
 
 private:
@@ -111,7 +111,7 @@ public:
 
   virtual ~MemberFunction3Args() { }
 
-  virtual TReturn operator() ()
+  TReturn operator() () override
   {
     return (this->Instance->*this->FunctionPtr)
       (this->Arg1, this->Arg2, this->Arg3);

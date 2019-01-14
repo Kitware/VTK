@@ -52,16 +52,16 @@ class vtkSeedNonUniformRepresentationCallback : public vtkCommand
 public:
   static vtkSeedNonUniformRepresentationCallback *New()
     { return new vtkSeedNonUniformRepresentationCallback; }
-  virtual void Execute( vtkObject *o, unsigned long event, void* )
-    {
+  void Execute( vtkObject *o, unsigned long event, void* ) override
+  {
     vtkSeedWidget *sw = vtkSeedWidget::SafeDownCast(o);
     if (sw && event == vtkCommand::PlacePointEvent)
-      {
+    {
       std::cout << "Point placed, total of:" << this->SeedRepresentation->GetNumberOfSeeds() << "\n";
-      }
     }
+  }
 
-  vtkSeedNonUniformRepresentationCallback() : SeedRepresentation(0) {}
+  vtkSeedNonUniformRepresentationCallback() : SeedRepresentation(nullptr) {}
   vtkSeedRepresentation *SeedRepresentation;
 };
 

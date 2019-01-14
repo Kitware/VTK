@@ -68,20 +68,20 @@ int TestGL2PSMathTextActor3D(int, char *[])
   // Render the anchor points to check alignment:
   vtkNew<vtkPolyData> anchors;
   vtkNew<vtkPoints> points;
-  anchors->SetPoints(points.GetPointer());
+  anchors->SetPoints(points);
   vtkNew<vtkCellArray> verts;
-  anchors->SetVerts(verts.GetPointer());
+  anchors->SetVerts(verts);
   vtkNew<vtkUnsignedCharArray> colors;
   colors->SetNumberOfComponents(4);
-  anchors->GetCellData()->SetScalars(colors.GetPointer());
+  anchors->GetCellData()->SetScalars(colors);
 
   for (size_t row = 0; row < 3; ++row)
-    {
+  {
     for (size_t col = 0; col < 3; ++col)
-      {
+    {
       vtkNew<vtkTextActor3D> actor;
       switch (row)
-        {
+      {
         case 0:
           actor->GetTextProperty()->SetJustificationToRight();
           break;
@@ -91,9 +91,9 @@ int TestGL2PSMathTextActor3D(int, char *[])
         case 2:
           actor->GetTextProperty()->SetJustificationToLeft();
           break;
-        }
+      }
       switch (col)
-        {
+      {
         case 0:
           actor->GetTextProperty()->SetVerticalJustificationToBottom();
           break;
@@ -103,7 +103,7 @@ int TestGL2PSMathTextActor3D(int, char *[])
         case 2:
           actor->GetTextProperty()->SetVerticalJustificationToTop();
           break;
-        }
+      }
       actor->GetTextProperty()->SetFontSize(20);
       actor->GetTextProperty()->SetOrientation(45.0 * (3 * row + col));
       actor->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .26);
@@ -112,22 +112,22 @@ int TestGL2PSMathTextActor3D(int, char *[])
                                                    1. - row * .26);
       actor->GetTextProperty()->SetBackgroundOpacity(0.25);
       actor->SetPosition(x[col], y[row], 0.);
-      setupTextActor3D(actor.GetPointer(), anchors.GetPointer());
-      ren->AddActor(actor.GetPointer());
-      }
+      setupTextActor3D(actor, anchors);
+      ren->AddActor(actor);
     }
+  }
 
   vtkNew<vtkPolyDataMapper> anchorMapper;
-  anchorMapper->SetInputData(anchors.GetPointer());
+  anchorMapper->SetInputData(anchors);
   vtkNew<vtkActor> anchorActor;
-  anchorActor->SetMapper(anchorMapper.GetPointer());
+  anchorActor->SetMapper(anchorMapper);
   anchorActor->GetProperty()->SetPointSize(5);
-  ren->AddActor(anchorActor.GetPointer());
+  ren->AddActor(anchorActor);
 
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   ren->SetBackground(0.0, 0.0, 0.0);
   ren->GetActiveCamera()->SetPosition(width/2, height/2, 1400);
@@ -139,7 +139,7 @@ int TestGL2PSMathTextActor3D(int, char *[])
   win->Render();
 
   vtkNew<vtkGL2PSExporter> exp;
-  exp->SetRenderWindow(win.GetPointer());
+  exp->SetRenderWindow(win);
   exp->SetFileFormatToPS();
   exp->CompressOff();
   exp->SetSortToSimple();

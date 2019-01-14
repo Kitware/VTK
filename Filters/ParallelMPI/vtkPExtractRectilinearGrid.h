@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPExtractRectilinearGrid - Extract VOI and/or sub-sample a distributed
-//  rectilinear grid dataset.
-//
-// .SECTION Description
-//  vtkPExtractRectilinearGrid inherits from vtkExtractVOI & provides additional
-//  functionality when dealing with a distributed dataset. Specifically, when
-//  sub-sampling a dataset, a gap may be introduced between partitions. This
-//  filter handles such cases correctly by growing the grid to the right to
-//  close the gap.
-//
-// .SECTION See Also
-//  vtkExtractRectilinearGrid
+/**
+ * @class   vtkPExtractRectilinearGrid
+ * @brief   Extract VOI and/or sub-sample a distributed
+ *  rectilinear grid dataset.
+ *
+ *
+ *  vtkPExtractRectilinearGrid inherits from vtkExtractVOI & provides additional
+ *  functionality when dealing with a distributed dataset. Specifically, when
+ *  sub-sampling a dataset, a gap may be introduced between partitions. This
+ *  filter handles such cases correctly by growing the grid to the right to
+ *  close the gap.
+ *
+ * @sa
+ *  vtkExtractRectilinearGrid
+*/
 
 #ifndef vtkPExtractRectilinearGrid_h
 #define vtkPExtractRectilinearGrid_h
@@ -42,7 +45,7 @@ class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractRectilinearGrid :
 public:
   static vtkPExtractRectilinearGrid* New();
   vtkTypeMacro(vtkPExtractRectilinearGrid,vtkExtractRectilinearGrid);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPExtractRectilinearGrid();
@@ -50,17 +53,17 @@ protected:
 
   // Standard VTK Pipeline methods
   virtual int RequestData(
-      vtkInformation*, vtkInformationVector**,vtkInformationVector*);
+      vtkInformation*, vtkInformationVector**,vtkInformationVector*) override;
   virtual int RequestInformation(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+      vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   virtual int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+      vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMPIController* Controller;
 
 private:
-  vtkPExtractRectilinearGrid(const vtkPExtractRectilinearGrid&); // Not implemented.
-  void operator=(const vtkPExtractRectilinearGrid&); // Not implemented.
+  vtkPExtractRectilinearGrid(const vtkPExtractRectilinearGrid&) = delete;
+  void operator=(const vtkPExtractRectilinearGrid&) = delete;
 };
 
 #endif /* VTKPEXTRACTRECTILINEARGRID_H_ */

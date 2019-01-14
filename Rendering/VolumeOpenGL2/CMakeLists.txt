@@ -1,57 +1,54 @@
-include(vtkObjectFactory)
-
-set(Module_SRCS
-  vtkOpenGLGPUVolumeRayCastMapper.cxx
-  vtkOpenGLProjectedTetrahedraMapper.cxx
-  vtkOpenGLRayCastImageDisplayHelper.cxx
-  vtkSmartVolumeMapper.cxx
-  )
-
-set_source_files_properties(
-  vtkVolumeShader
-  WRAP_EXCLUDE
-  )
+set(classes
+  vtkMultiBlockVolumeMapper
+  vtkOpenGLGPUVolumeRayCastMapper
+  vtkOpenGLProjectedTetrahedraMapper
+  vtkOpenGLRayCastImageDisplayHelper
+  vtkOpenGLTransferFunction2D
+  vtkOpenGLUniforms
+  vtkOpenGLVolumeGradientOpacityTable
+  vtkOpenGLVolumeOpacityTable
+  vtkOpenGLVolumeRGBTable
+  vtkSmartVolumeMapper
+  vtkVolumeInputHelper
+  vtkVolumeTexture)
 
 set(shader_files
   shaders/raycasterfs.glsl
   shaders/raycastervs.glsl
   shaders/vtkglProjectedTetrahedraVS.glsl
-  shaders/vtkglProjectedTetrahedraFS.glsl
-  )
+  shaders/vtkglProjectedTetrahedraFS.glsl)
 
-unset(shader_h_files)
-foreach(file ${shader_files})
-  get_filename_component(file_we ${file} NAME_WE)
-  set(src  ${CMAKE_CURRENT_SOURCE_DIR}/${file})
-  set(res  ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.cxx)
-  set(resh ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.h)
-  list(APPEND shader_h_files ${resh})
-  add_custom_command(
-    OUTPUT ${res} ${resh}
-    DEPENDS ${src} vtkEncodeString
-    COMMAND vtkEncodeString
-    ARGS ${res} ${src} ${file_we}
-      --build-header VTKRENDERINGVOLUMEOPENGL2_EXPORT
-      vtkRenderingVolumeOpenGL2Module.h
-    )
-  list(APPEND Module_SRCS ${res})
-  set_source_files_properties(${file_we} WRAP_EXCLUDE)
-endforeach()
+set(sources)
+set(headers)
+foreach (shader_file IN LISTS shader_files)
+  vtk_encode_string(
+    INPUT         "${shader_file}"
+    EXPORT_SYMBOL "VTKRENDERINGVOLUMEOPENGL2_EXPORT"
+    EXPORT_HEADER "vtkRenderingVolumeOpenGL2Module.h"
+    HEADER_OUTPUT header
+    SOURCE_OUTPUT source)
+  list(APPEND sources ${source})
+  list(APPEND header ${header})
+endforeach ()
 
 # Now for the object factory.
 set(opengl_overrides
   GPUVolumeRayCastMapper
   ProjectedTetrahedraMapper
-  RayCastImageDisplayHelper
-  )
+  RayCastImageDisplayHelper)
 
-foreach(_override ${opengl_overrides})
-  vtk_add_override(vtk${_override} vtkOpenGL${_override})
-endforeach()
-vtk_object_factory_configure("${vtk_module_overrides}")
+foreach (opengl_override IN LISTS opengl_overrides)
+  vtk_object_factory_declare(
+    BASE "vtk${opengl_override}"
+    OVERRIDE "vtkOpenGL${opengl_override}")
+endforeach ()
 
-list(APPEND Module_SRCS
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
-set_source_files_properties(${vtk-module}ObjectFactory.cxx WRAP_EXCLUDE)
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKRENDERINGVOLUMEOPENGL2_EXPORT")
 
-vtk_module_library(vtkRenderingVolumeOpenGL2 ${Module_SRCS})
+vtk_module_add_module(VTK::RenderingVolumeOpenGL2
+  CLASSES ${classes}
+  SOURCES ${sources} ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${headers} ${vtk_object_factory_header})

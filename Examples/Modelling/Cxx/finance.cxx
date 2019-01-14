@@ -42,15 +42,16 @@ int main( int argc, char *argv[] )
   double bounds[6];
 
   if (argc < 2)
-    {
-    cout << "Usage: " << argv[0] << " financial_file" << endl;
-    return 1;
-    }
+  {
+    std::cout << "Usage: " << argv[0] << " financial_file" << endl;
+    return EXIT_FAILURE;
+  }
   char* fname = argv[1];
 
   // read data
-  vtkSmartPointer<vtkDataSet> dataSet = ReadFinancialData(fname, "MONTHLY_PAYMENT","INTEREST_RATE",
-                                          "LOAN_AMOUNT","TIME_LATE");
+  vtkSmartPointer<vtkDataSet> dataSet =
+    ReadFinancialData(fname, "MONTHLY_PAYMENT","INTEREST_RATE",
+                      "LOAN_AMOUNT","TIME_LATE");
   // construct pipeline for original population
   vtkSmartPointer<vtkGaussianSplatter> popSplatter =
     vtkSmartPointer<vtkGaussianSplatter>::New();
@@ -145,7 +146,7 @@ int main( int argc, char *argv[] )
   renWin->Render();
   iren->Start();
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const char *x, const char *y, const char *z, const char *s)
@@ -155,20 +156,33 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
   int i, npts;
   char tag[80];
 
-  if ( (file = fopen(filename,"r")) == 0 )
-    {
-    cerr << "ERROR: Can't open file: " << filename << "\n";
-    return NULL;
-    }
+  if ( (file = fopen(filename,"r")) == nullptr )
+  {
+    std::cerr << "ERROR: Can't open file: " << filename << std::endl;
+    return nullptr;
+  }
 
   int n = fscanf (file, "%s %d", tag, &npts); // read number of points
   if (n != 2)
-    {
-    cerr << "ERROR: Can't read file: " << filename << "\n";
+  {
+    std::cerr << "ERROR: Can't read file: " << filename << std::endl;
     fclose(file);
-    return NULL;
-    }
-
+    return nullptr;
+  }
+  // Check for a reasonable npts
+  if (npts <= 0)
+  {
+    std::cerr << "ERROR: Number of points must be greater that 0" << std::endl;
+    fclose(file);
+    return nullptr;
+  }
+  // We arbitrarily pick a large upper limit on npts
+  if (npts > VTK_INT_MAX / 10)
+  {
+    std::cerr << "ERROR: npts (" << npts << ") is unreasonably large" << std::endl;
+    fclose(file);
+    return nullptr;
+  }
   vtkSmartPointer<vtkUnstructuredGrid> dataSet =
     vtkSmartPointer<vtkUnstructuredGrid>::New();
   float *xV = new float[npts];
@@ -178,15 +192,15 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
 
   if ( ! ParseFile(file, x, xV) || ! ParseFile(file, y, yV) ||
        ! ParseFile(file, z, zV) || ! ParseFile(file, s, sV) )
-    {
-    cerr << "Couldn't read data!\n";
+  {
+    std::cerr << "ERROR: Couldn't read data!" << std::endl;
     delete [] xV;
     delete [] yV;
     delete [] zV;
     delete [] sV;
     fclose(file);
-    return NULL;
-    }
+    return nullptr;
+  }
 
   vtkSmartPointer<vtkPoints> newPts =
     vtkSmartPointer<vtkPoints>::New();
@@ -194,11 +208,11 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
     vtkSmartPointer<vtkFloatArray>::New();
 
   for (i=0; i<npts; i++)
-    {
+  {
     xyz[0] = xV[i]; xyz[1] = yV[i]; xyz[2] = zV[i];
     newPts->InsertPoint(i, xyz);
     newScalars->InsertValue(i, sV[i]);
-    }
+  }
 
   dataSet->SetPoints(newPts);
   dataSet->GetPointData()->SetScalars(newScalars);
@@ -220,46 +234,46 @@ static int ParseFile(FILE *file, const char *label, float *data)
   float min=VTK_FLOAT_MAX;
   float max=(-VTK_FLOAT_MAX);
 
-  if ( file == NULL || label == NULL ) return 0;
+  if ( file == nullptr || label == nullptr ) return 0;
 
   rewind(file);
 
   if (fscanf(file, "%s %d", tag, &npts) != 2)
-    {
-    cerr << "IO Error " << __FILE__ << ":" << __LINE__ << "\n";
+  {
+    std::cerr << "ERROR: IO Error " << __FILE__ << ":" << __LINE__ << std::endl;
     return 0;
-    }
+  }
 
   while ( !readData && fscanf(file, "%s", tag) == 1 )
-    {
+  {
     if ( ! strcmp(tag,label) )
-      {
+    {
       readData = 1;
       for (i=0; i<npts; i++)
-        {
+      {
         if (fscanf(file, "%f", data+i) != 1)
-          {
-          cerr << "IO Error " << __FILE__ << ":" << __LINE__ << "\n";
+        {
+          std::cerr << "ERROR: IO Error " << __FILE__ << ":" << __LINE__ << std::endl;
           return 0;
-          }
+        }
         if ( data[i] < min ) min = data[i];
         if ( data[i] > min ) max = data[i];
-        }
+      }
       // normalize data
       for (i=0; i<npts; i++) data[i] = min + data[i]/(max-min);
-      }
+    }
     else
-      {
+    {
       for (i=0; i<npts; i++)
-        {
+      {
         if (fscanf(file, "%*f") != 0)
-          {
-          cerr << "IO Error " << __FILE__ << ":" << __LINE__ << "\n";
+        {
+          std::cerr << "ERROR: IO Error " << __FILE__ << ":" << __LINE__ << std::endl;
           return 0;
-          }
         }
       }
     }
+  }
 
   if ( ! readData ) return 0;
   else return 1;

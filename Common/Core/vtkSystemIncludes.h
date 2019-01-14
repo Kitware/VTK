@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSystemIncludes - transition VTK to ANSI C++, centralize
-// inclusion of system files
-// .SECTION Description
-// The vtkSystemIncludes centralizes the inclusion of system include
-// files.
+/**
+ * @class   vtkSystemIncludes
+ * @brief   transition VTK to ANSI C++, centralize
+ * inclusion of system files
+ *
+ * The vtkSystemIncludes centralizes the inclusion of system include
+ * files.
+*/
 
 #ifndef vtkSystemIncludes_h
 #define vtkSystemIncludes_h
 
 /* first include the local configuration for this machine */
-#define __VTK_SYSTEM_INCLUDES__INSIDE
+#define VTK_SYSTEM_INCLUDES_INSIDE
 #include "vtkWin32Header.h"
-#undef __VTK_SYSTEM_INCLUDES__INSIDE
+#undef VTK_SYSTEM_INCLUDES_INSIDE
 
 // The language wrapper files do not need the real streams.  They
 // define VTK_STREAMS_FWD_ONLY so that the streams are only
@@ -39,32 +42,21 @@
 // Setup the basic types to be used by VTK.
 #include "vtkType.h"
 
+// Define some macros to provide wrapping hints
+#include "vtkWrappingHints.h"
+
 // this should be removed at some point
 #define VTK_USE_EXECUTIVES
 
-#define __VTK_SYSTEM_INCLUDES__INSIDE
+#define VTK_SYSTEM_INCLUDES_INSIDE
 #include "vtkOStreamWrapper.h"    // Include the ostream wrapper.
 #include "vtkOStrStreamWrapper.h" // Include the ostrstream wrapper.
-#undef __VTK_SYSTEM_INCLUDES__INSIDE
+#undef VTK_SYSTEM_INCLUDES_INSIDE
 
 // Include generic stuff.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-// Borland C++ defines several of the stdlib.h and string.h symbols in
-// sub-headers search.h and mem.h.  These sub-headers have using
-// declarations to pull functions from the std namespace to the global
-// namespace, but they are defined only if the header was not included
-// through the C++-style cstdlib or cstring header.  These outer
-// headers are included by the streams library in C++-style and
-// include blockers are put in place that prevent including the
-// C-style versions from ever including the sub-headers.  Therefore we
-// have to include the sub-headers here to get the using declarations.
-#if defined(__BORLANDC__)
-# include <mem.h>    /* mem... functions from string.h */
-# include <search.h> /* search functions from stdlib.h */
-#endif
 
 // These types define error codes for vtk functions
 #define VTK_OK                 1
@@ -112,11 +104,10 @@
 #define VTK_MAX_VRCOMP                  4
 
 // If VTK_USE_PTHREADS is defined, then the multithreaded
-// function is of type void *, and returns NULL
+// function is of type void *, and returns nullptr
 // Otherwise the type is void which is correct for WIN32
-// and SPROC
 #ifdef VTK_USE_PTHREADS
-#define VTK_THREAD_RETURN_VALUE  NULL
+#define VTK_THREAD_RETURN_VALUE  nullptr
 #define VTK_THREAD_RETURN_TYPE   void *
 #endif
 

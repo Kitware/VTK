@@ -3,8 +3,6 @@
   Program:   DICOMParser
   Module:    DICOMConfig.h
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 2003 Matt Turek
   All rights reserved.
@@ -50,7 +48,7 @@
 #endif
 
 #ifdef DICOM_DLL
-  #ifdef DICOM_EXPORT_SYMBOLS
+  #ifdef DICOMParser_EXPORTS
     #define DICOM_EXPORT __declspec(dllexport)
     #define DICOM_EXPIMP_TEMPLATE
   #else

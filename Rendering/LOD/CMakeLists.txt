@@ -1,5 +1,6 @@
-set(Module_SRCS
-  vtkLODActor.cxx
-  vtkQuadricLODActor.cxx)
+set(classes
+  vtkLODActor
+  vtkQuadricLODActor)
 
-vtk_module_library(vtkRenderingLOD ${Module_SRCS})
+vtk_module_add_module(VTK::RenderingLOD
+  CLASSES ${classes})

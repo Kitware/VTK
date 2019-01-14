@@ -6,20 +6,34 @@
 /* addition by O. Heudecker, AWI-Bremerhaven, 12.3.1998 */
 /* added correction by John Sheldon and Hans Vahlenkamp 15.4.1998*/
 
-#include "ncconfig.h"
+
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>	/* DEBUG */
-#include <errno.h>
-#ifndef ENOERR
-#define ENOERR 0
-#endif
-#include <fcntl.h>
-#include <ffio.h>
-#include <unistd.h>
 #include <string.h>
+#include <assert.h>
+#include <errno.h>
+#ifndef NC_NOERR
+#define NC_NOERR 0
+#endif
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#if 0
 /* Insertion by O. R. Heudecker, AWI-Bremerhaven 12.3.98 (1 line)*/
+#include <ffio.h>
 #include <fortran.h>
+#endif
 
 #include "ncio.h"
 #include "fbits.h"
@@ -34,6 +48,12 @@
 
 #define ALWAYS_NC_SHARE 0 /* DEBUG */
 
+/* Forward */
+static int ncio_ffio_filesize(ncio *nciop, off_t *filesizep);
+static int ncio_ffio_pad_length(ncio *nciop, off_t length);
+static int ncio_ffio_close(ncio *nciop, int doUnlink);
+
+
 /* Begin OS */
 
 /*
@@ -46,6 +66,8 @@ blksize(int fd)
 {
 	struct ffc_stat_s sb;
 	struct ffsw sw;
+#ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
+#ifdef HAVE_FCNTL_H
 	if (fffcntl(fd, FC_STAT, &sb, &sw) > -1)
 	{
 #ifdef __crayx1
@@ -56,6 +78,8 @@ blksize(int fd)
 			return (size_t) sb.st_oblksize;
 #endif
 	}
+#endif
+#endif
 	/* else, silent in the face of error */
 	return (size_t) 32768;
 }
@@ -72,7 +96,7 @@ fgrow(const int fd, const off_t len)
 	if (fffcntl(fd, FC_STAT, &sb, &sw) < 0)
 		return errno;
 	if (len < sb.st_size)
-		return ENOERR;
+		return NC_NOERR;
 	{
 		const long dumb = 0;
 			/* cache current position */
@@ -87,7 +111,7 @@ fgrow(const int fd, const off_t len)
 			return errno;
 	}
 	/* else */
-	return ENOERR;
+	return NC_NOERR;
 }
 
 
@@ -104,7 +128,7 @@ fgrow2(const int fd, const off_t len)
 	if (fffcntl(fd, FC_STAT, &sb, &sw) < 0)
 		return errno;
 	if (len <= sb.st_size)
-		return ENOERR;
+		return NC_NOERR;
 	{
 	    const char dumb = 0;
 	    /* we don't use ftruncate() due to problem with FAT32 file systems */
@@ -119,13 +143,13 @@ fgrow2(const int fd, const off_t len)
 	    if (ffseek(fd, pos, SEEK_SET) < 0)
 		return errno;
 	}
-	return ENOERR;
+	return NC_NOERR;
 }
 /* End OS */
 /* Begin ffio */
 
 static int
-ffio_pgout(ncio *const nciop, 
+ffio_pgout(ncio *const nciop,
 	off_t const offset,  const size_t extent,
 	const void *const vp, off_t *posp)
 {
@@ -148,7 +172,7 @@ ffio_pgout(ncio *const nciop,
 	}
 	*posp += extent;
 
-	return ENOERR;
+	return NC_NOERR;
 }
 
 
@@ -180,14 +204,14 @@ ffio_pgin(ncio *const nciop,
 	if(nread != extent)
 	{
 		status = errno;
-		if(nread == -1 || status != ENOERR)
+		if(nread == -1 || status != NC_NOERR)
 			return status;
 		/* else it's okay we read 0. */
 	}
 	*nreadp = nread;
 	*posp += nread;
 
-	return ENOERR;
+	return NC_NOERR;
 }
 
 /* */
@@ -195,7 +219,7 @@ ffio_pgin(ncio *const nciop,
 typedef struct ncio_ffio {
 	off_t pos;
 	/* buffer */
-	off_t	bf_offset; 
+	off_t	bf_offset;
 	size_t	bf_extent;
 	size_t	bf_cnt;
 	void	*bf_base;
@@ -206,7 +230,7 @@ static int
 ncio_ffio_rel(ncio *const nciop, off_t offset, int rflags)
 {
 	ncio_ffio *ffp = (ncio_ffio *)nciop->pvt;
-	int status = ENOERR;
+	int status = NC_NOERR;
 
 	assert(ffp->bf_offset <= offset);
 	assert(ffp->bf_cnt != 0);
@@ -239,11 +263,11 @@ ncio_ffio_get(ncio *const nciop,
 		void **const vpp)
 {
 	ncio_ffio *ffp = (ncio_ffio *)nciop->pvt;
-	int status = ENOERR;
+	int status = NC_NOERR;
 #ifdef X_ALIGN
 	size_t rem;
 #endif
-	
+
 	if(fIsSet(rflags, RGN_WRITE) && !fIsSet(nciop->ioflags, NC_WRITE))
 		return EPERM; /* attempt to write readonly file */
 
@@ -290,7 +314,7 @@ ncio_ffio_get(ncio *const nciop,
 		 extent,
 		 ffp->bf_base,
 		 &ffp->bf_cnt, &ffp->pos);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		return status;
 
 	ffp->bf_offset = offset;
@@ -308,7 +332,7 @@ ncio_ffio_get(ncio *const nciop,
 #else
 	*vpp = (char *)ffp->bf_base;
 #endif
-	return ENOERR;
+	return NC_NOERR;
 }
 
 
@@ -316,8 +340,8 @@ static int
 ncio_ffio_move(ncio *const nciop, off_t to, off_t from,
 			size_t nbytes, int rflags)
 {
-	int status = ENOERR;
-	off_t lower = from;	
+	int status = NC_NOERR;
+	off_t lower = from;
 	off_t upper = to;
 	char *base;
 	size_t diff = upper - lower;
@@ -326,12 +350,12 @@ ncio_ffio_move(ncio *const nciop, off_t to, off_t from,
 	rflags &= RGN_NOLOCK; /* filter unwanted flags */
 
 	if(to == from)
-		return ENOERR; /* NOOP */
-	
+		return NC_NOERR; /* NOOP */
+
 	if(to > from)
 	{
 		/* growing */
-		lower = from;	
+		lower = from;
 		upper = to;
 	}
 	else
@@ -347,14 +371,14 @@ ncio_ffio_move(ncio *const nciop, off_t to, off_t from,
 	status = ncio_ffio_get(nciop, lower, extent, RGN_WRITE|rflags,
 			(void **)&base);
 
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		return status;
 
 	if(to > from)
-		(void) memmove(base + diff, base, nbytes); 
+		(void) memmove(base + diff, base, nbytes);
 	else
-		(void) memmove(base, base + diff, nbytes); 
-		
+		(void) memmove(base, base + diff, nbytes);
+
 	(void) ncio_ffio_rel(nciop, lower, RGN_MODIFIED);
 
 	return status;
@@ -373,7 +397,7 @@ ncio_ffio_sync_noffflush(ncio *const nciop)
 	/* run some innocuous ffio routine to get if any errno */
 	if(fffcntl(nciop->fd, FC_STAT, &si, &ffstatus) < 0)
 		return ffstatus.sw_error;
-	return ENOERR;
+	return NC_NOERR;
 }
 /* this tests to see if the global FFIO layer is being called for
  * returns ~0 if it is, else returns 0
@@ -392,14 +416,16 @@ ncio_ffio_global_test(const char *ControlString)
 static int
 ncio_ffio_sync(ncio *const nciop)
 {
+	int test_flush;
 #ifdef __crayx1
 	struct ffsw stat;
-	if(ffflush(nciop->fd,&stat) < 0)
+	test_flush = ffflush(nciop->fd,&stat) < 0;
 #else
-	if(ffflush(nciop->fd) < 0)
+	test_flush = ffflush(nciop->fd) < 0;
 #endif
+	if(test_flush)
 		return errno;
-	return ENOERR;
+	return NC_NOERR;
 }
 
 static void
@@ -439,7 +465,7 @@ ncio_ffio_init2(ncio *const nciop, size_t *sizehintp)
 		return ENOMEM;
 	}
 	/* else */
-	return ENOERR;
+	return NC_NOERR;
 }
 
 
@@ -452,7 +478,9 @@ ncio_ffio_init(ncio *const nciop)
 	*((ncio_getfunc **)&nciop->get) = ncio_ffio_get; /* cast away const */
 	*((ncio_movefunc **)&nciop->move) = ncio_ffio_move; /* cast away const */
 	*((ncio_syncfunc **)&nciop->sync) = ncio_ffio_sync; /* cast away const */
-	*((ncio_freefunc **)&nciop->free) = ncio_ffio_free; /* cast away const */
+	*((ncio_filesizefunc **)&nciop->filesize) = ncio_ffio_filesize; /* cast away const */
+	*((ncio_pad_lengthfunc **)&nciop->pad_length) = ncio_ffio_pad_length; /* cast away const */
+	*((ncio_closefunc **)&nciop->close) = ncio_ffio_close; /* cast away const */
 
 	ffp->pos = -1;
 	ffp->bf_offset = OFF_NONE;
@@ -471,19 +499,19 @@ ncio_free(ncio *nciop)
 
 	if(nciop->free != NULL)
 		nciop->free(nciop->pvt);
-	
+
 	free(nciop);
 }
 
 
 static ncio *
-ncio_new(const char *path, int ioflags)
+ncio_ffio_new(const char *path, int ioflags)
 {
 	size_t sz_ncio = M_RNDUP(sizeof(ncio));
 	size_t sz_path = M_RNDUP(strlen(path) +1);
 	size_t sz_ncio_pvt;
 	ncio *nciop;
- 
+
 #if ALWAYS_NC_SHARE /* DEBUG */
 	fSet(ioflags, NC_SHARE);
 #endif
@@ -496,7 +524,7 @@ ncio_new(const char *path, int ioflags)
 	nciop = (ncio *) malloc(sz_ncio + sz_path + sz_ncio_pvt);
 	if(nciop == NULL)
 		return NULL;
-	
+
 	nciop->ioflags = ioflags;
 	*((int *)&nciop->fd) = -1; /* cast away const */
 
@@ -514,7 +542,7 @@ ncio_new(const char *path, int ioflags)
 /* put all the FFIO assign specific code here
  * returns a pointer to an internal static char location
  * which may change when the function is called again
- * if the returned pointer is NULL this indicates that an error occured
+ * if the returned pointer is NULL this indicates that an error occurred
  * check errno for the netCDF error value
  */
 /* prototype fortran subroutines */
@@ -540,7 +568,7 @@ ncio_ffio_assign(const char *filename) {
 
 /* put things into known states */
 	memset(buffer,'\0',BUFLEN);
-	errno = ENOERR;
+	errno = NC_NOERR;
 
 /* set up Fortran character pointers */
 #ifdef __crayx1
@@ -554,7 +582,7 @@ ncio_ffio_assign(const char *filename) {
 #endif
 	if (istat == 0) {	/* user has already specified an assign */
 		return buffer;
-	} else if (istat > 0 || istat < -1) {	/* error occured */
+	} else if (istat > 0 || istat < -1) {	/* error occurred */
 		errno = EINVAL;
 		return (const char *) NULL;
 	} /* istat = -1 -> no assign for file */
@@ -562,7 +590,7 @@ ncio_ffio_assign(const char *filename) {
 	if(envstr == (char *) NULL) {
 		 envstr = "bufa:336:2";		/* this should be macroized */
 	}
-	
+
 	/* Insertion by Olaf Heudecker, AWI-Bremerhaven, 12.8.1998
 	   to allow more versatile FFIO-assigns */
 	/* this is unnecessary and could have been included
@@ -598,9 +626,10 @@ static const size_t NCIO_MINBLOCKSIZE = 256;
 static const size_t NCIO_MAXBLOCKSIZE = 268435456; /* sanity check, about X_SIZE_T_MAX/8 */
 
 int
-ncio_create(const char *path, int ioflags,
+ffio_create(const char *path, int ioflags,
 	size_t initialsz,
 	off_t igeto, size_t igetsz, size_t *sizehintp,
+	void* parameters,
 	ncio **nciopp, void **const igetvpp)
 {
 	ncio *nciop;
@@ -618,12 +647,12 @@ ncio_create(const char *path, int ioflags,
 	if(path == NULL || *path == 0)
 		return EINVAL;
 
-	nciop = ncio_new(path, ioflags);
+	nciop = ncio_ffio_new(path, ioflags);
 	if(nciop == NULL)
 		return ENOMEM;
 
 	if ((ControlString = ncio_ffio_assign(path)) == (const char *)NULL) {
-		/* an error occured - just punt */
+		/* an error occurred - just punt */
 		status = errno;
 		goto unwind_new;
 	}
@@ -661,13 +690,13 @@ ncio_create(const char *path, int ioflags,
 	}
 
 	status = ncio_ffio_init2(nciop, sizehintp);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		goto unwind_open;
 
 	if(initialsz != 0)
 	{
 		status = fgrow(fd, (off_t)initialsz);
-		if(status != ENOERR)
+		if(status != NC_NOERR)
 			goto unwind_open;
 	}
 
@@ -677,27 +706,28 @@ ncio_create(const char *path, int ioflags,
 				igeto, igetsz,
                         	RGN_WRITE,
                         	igetvpp);
-		if(status != ENOERR)
+		if(status != NC_NOERR)
 			goto unwind_open;
 	}
 
 	*nciopp = nciop;
-	return ENOERR;
+	return NC_NOERR;
 
 unwind_open:
 	(void) ffclose(fd);
 	/* ?? unlink */
 	/*FALLTHRU*/
 unwind_new:
-	ncio_free(nciop);
+	ncio_close(nciop,!fIsSet(ioflags, NC_NOCLOBBER));
 	return status;
 }
 
 
 int
-ncio_open(const char *path,
+ffio_open(const char *path,
 	int ioflags,
 	off_t igeto, size_t igetsz, size_t *sizehintp,
+	void* parameters,
 	ncio **nciopp, void **const igetvpp)
 {
 	ncio *nciop;
@@ -710,12 +740,12 @@ ncio_open(const char *path,
 	if(path == NULL || *path == 0)
 		return EINVAL;
 
-	nciop = ncio_new(path, ioflags);
+	nciop = ncio_ffio_new(path, ioflags);
 	if(nciop == NULL)
 		return ENOMEM;
 
 	if ((ControlString = ncio_ffio_assign(path)) == (const char *)NULL) {
-		/* an error occured - just punt */
+		/* an error occurred - just punt */
 		status = errno;
 		goto unwind_new;
 	}
@@ -752,7 +782,7 @@ ncio_open(const char *path,
 	}
 
 	status = ncio_ffio_init2(nciop, sizehintp);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		goto unwind_open;
 
 	if(igetsz != 0)
@@ -761,29 +791,29 @@ ncio_open(const char *path,
 				igeto, igetsz,
                         	0,
                         	igetvpp);
-		if(status != ENOERR)
+		if(status != NC_NOERR)
 			goto unwind_open;
 	}
 
 	*nciopp = nciop;
-	return ENOERR;
+	return NC_NOERR;
 
 unwind_open:
 	(void) ffclose(fd);
 	/*FALLTHRU*/
 unwind_new:
-	ncio_free(nciop);
+	ncio_close(nciop,0);
 	return status;
 }
 
 
-/* 
- * Get file size in bytes.  
+/*
+ * Get file size in bytes.
  * Is use of ffseek() really necessary, or could we use standard fstat() call
  * and get st_size member?
  */
-int
-ncio_filesize(ncio *nciop, off_t *filesizep)
+static int
+ncio_ffio_filesize(ncio *nciop, off_t *filesizep)
 {
     off_t filesize, current, reset;
 
@@ -792,11 +822,11 @@ ncio_filesize(ncio *nciop, off_t *filesizep)
 
     current = ffseek(nciop->fd, 0, SEEK_CUR);  /* save current */
     *filesizep = ffseek(nciop->fd, 0, SEEK_END); /* get size */
-    reset = ffseek(nciop->fd, current, SEEK_SET); /* reset */ 
+    reset = ffseek(nciop->fd, current, SEEK_SET); /* reset */
 
     if(reset != current)
 	return EINVAL;
-    return ENOERR;
+    return NC_NOERR;
 }
 
 
@@ -807,10 +837,10 @@ ncio_filesize(ncio *nciop, off_t *filesizep)
  * size, perhaps as the result of having been previously written in
  * NOFILL mode.
  */
-int
-ncio_pad_length(ncio *nciop, off_t length)
+static int
+ncio_ffio_pad_length(ncio *nciop, off_t length)
 {
-	int status = ENOERR;
+	int status = NC_NOERR;
 
 	if(nciop == NULL)
 		return EINVAL;
@@ -819,18 +849,18 @@ ncio_pad_length(ncio *nciop, off_t length)
 	        return EPERM; /* attempt to write readonly file */
 
 	status = nciop->sync(nciop);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 	        return status;
 
 	status = fgrow2(nciop->fd, length);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 	        return errno;
-	return ENOERR;
+	return NC_NOERR;
 }
 
 
-int 
-ncio_close(ncio *nciop, int doUnlink)
+static int
+ncio_ffio_close(ncio *nciop, int doUnlink)
 {
 	/*
          * TODO: I believe this function is lacking the de-assignment of the
@@ -838,7 +868,7 @@ ncio_close(ncio *nciop, int doUnlink)
          * 2002-07-10.
 	 */
 
-	int status = ENOERR;
+	int status = NC_NOERR;
 
 	if(nciop == NULL)
 		return EINVAL;
@@ -846,11 +876,11 @@ ncio_close(ncio *nciop, int doUnlink)
 	status = nciop->sync(nciop);
 
 	(void) ffclose(nciop->fd);
-	
+
 	if(doUnlink)
 		(void) unlink(nciop->path);
 
-	ncio_free(nciop);
+	ncio__ffio_free(nciop);
 
 	return status;
 }

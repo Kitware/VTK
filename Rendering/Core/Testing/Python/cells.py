@@ -18,12 +18,12 @@
 =========================================================================
 '''
 
-import tempfile
 import os
 import vtk
 import vtk.test.Testing
-from vtk.util.misc import vtkGetDataRoot
+from vtk.util.misc import vtkGetDataRoot, vtkGetTempDir
 VTK_DATA_ROOT = vtkGetDataRoot()
+VTK_TEMP_DIR = vtkGetTempDir()
 
 class cells(vtk.test.Testing.vtkTest):
 
@@ -619,11 +619,11 @@ class cells(vtk.test.Testing.vtkTest):
             aRIBProperty.SetVariable("veinfreq", "float")
             aRIBProperty.AddVariable("warpfreq", "float")
             aRIBProperty.AddVariable("veincolor", "color")
-            aRIBProperty.AddParameter("veinfreq", " 2")
-            aRIBProperty.AddParameter("veincolor", "1.0000 1.0000 0.9412")
+            aRIBProperty.AddSurfaceShaderParameter("veinfreq", " 2")
+            aRIBProperty.AddSurfaceShaderParameter("veincolor", "1.0000 1.0000 0.9412")
             bRIBProperty = vtk.vtkRIBProperty()
             bRIBProperty.SetVariable("Km", "float")
-            bRIBProperty.SetParameter("Km", "1.0")
+            bRIBProperty.SetSurfaceShaderParameter("Km", "1.0")
             bRIBProperty.SetDisplacementShader("dented")
             bRIBProperty.SetSurfaceShader("plastic")
         aProperty = vtk.vtkProperty()
@@ -651,15 +651,15 @@ class cells(vtk.test.Testing.vtkTest):
         ren.AddActor(aPentaActor);aPentaActor.GetProperty().SetDiffuseColor(.2, .4, .7)
         ren.AddActor(aHexaActor);aHexaActor.GetProperty().SetDiffuseColor(.7, .5, 1)
 
-        if hasattr(vtk, 'vtkRIBLight'):
-            aRIBLight = vtk.vtkRIBLight()
+        aRIBLight = vtk.vtkRIBLight()
+        aRIBLight.SetIntensity(0.7)
 
         ren.AddLight(aRIBLight)
         aLight = vtk.vtkLight()
 
         aLight.PositionalOn()
         aLight.SetConeAngle(10.0)
-        aLight.SetIntensity(20.0)
+        aLight.SetIntensity(0.7)
         ren.AddLight(aLight)
 
         ren.ResetCamera()
@@ -668,8 +668,7 @@ class cells(vtk.test.Testing.vtkTest):
         ren.GetActiveCamera().Dolly(2.8)
         ren.ResetCameraClippingRange()
 
-        # write to the temp directory if possible, otherwise use .
-        dir = tempfile.gettempdir()
+        dir = VTK_TEMP_DIR
 
         atext = vtk.vtkTexture()
         pnmReader = vtk.vtkBMPReader()
@@ -748,7 +747,7 @@ class cells(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "cells.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file))
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":

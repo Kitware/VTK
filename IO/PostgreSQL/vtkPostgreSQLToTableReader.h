@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPostgreSQLToTableReader - Read a PostgreSQL table as a vtkTable
-// .SECTION Description
-// vtkPostgreSQLToTableReader reads a table from a PostgreSQL database and
-// outputs it as a vtkTable.
+/**
+ * @class   vtkPostgreSQLToTableReader
+ * @brief   Read a PostgreSQL table as a vtkTable
+ *
+ * vtkPostgreSQLToTableReader reads a table from a PostgreSQL database and
+ * outputs it as a vtkTable.
+*/
 
 #ifndef vtkPostgreSQLToTableReader_h
 #define vtkPostgreSQLToTableReader_h
@@ -31,16 +34,16 @@ class VTKIOPOSTGRESQL_EXPORT vtkPostgreSQLToTableReader :
 public:
   static vtkPostgreSQLToTableReader *New();
   vtkTypeMacro(vtkPostgreSQLToTableReader,vtkDatabaseToTableReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
    vtkPostgreSQLToTableReader();
   ~vtkPostgreSQLToTableReader();
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) override;
 private:
-  vtkPostgreSQLToTableReader(const vtkPostgreSQLToTableReader&); // Not implemented.
-  void operator=(const vtkPostgreSQLToTableReader&); // Not implemented.
+  vtkPostgreSQLToTableReader(const vtkPostgreSQLToTableReader&) = delete;
+  void operator=(const vtkPostgreSQLToTableReader&) = delete;
 };
 
 #endif

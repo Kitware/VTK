@@ -21,13 +21,9 @@
 vtkStandardNewMacro(vtkCylindricalTransform);
 
 //----------------------------------------------------------------------------
-vtkCylindricalTransform::vtkCylindricalTransform()
-{
-}
+vtkCylindricalTransform::vtkCylindricalTransform() = default;
 
-vtkCylindricalTransform::~vtkCylindricalTransform()
-{
-}
+vtkCylindricalTransform::~vtkCylindricalTransform() = default;
 
 void vtkCylindricalTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -45,10 +41,10 @@ void vtkCylindricalTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 
   // copy the inverse flag, which is used
   if (this->InverseFlag != cylindricalTransform->InverseFlag)
-    {
+  {
     this->InverseFlag = cylindricalTransform->InverseFlag;
     this->Modified();
-    }
+  }
 }
 
 vtkAbstractTransform *vtkCylindricalTransform::MakeTransform()
@@ -70,7 +66,7 @@ void vtkCylindricalToRectangular(const T inPoint[3], T outPoint[3],
   outPoint[2] = z;
 
   if (derivative)
-    {
+  {
     derivative[0][0] =    costheta;
     derivative[0][1] = -r*sintheta;
     derivative[0][2] =           0;
@@ -82,7 +78,7 @@ void vtkCylindricalToRectangular(const T inPoint[3], T outPoint[3],
     derivative[2][0] =           0;
     derivative[2][1] =           0;
     derivative[2][2] =           1;
-    }
+  }
 }
 
 template<class T>
@@ -96,28 +92,28 @@ void vtkRectangularToCylindrical(const T inPoint[3], T outPoint[3])
 
   outPoint[0] = static_cast<T>(sqrt(rr));
   if (rr == 0)
-    {
+  {
     outPoint[1] = 0;
-    }
+  }
   else
-    {
+  {
     // Change range to [0, 2*Pi], otherwise the same as atan2(y, x)
     outPoint[1] = T(vtkMath::Pi()) + atan2(-y, -x);
-    }
+  }
   outPoint[2] = z;
 }
 
 void vtkCylindricalTransform::ForwardTransformPoint(const float inPoint[3],
                                                     float outPoint[3])
 {
-  vtkCylindricalToRectangular(inPoint, outPoint, static_cast<float (*)[3]>(0));
+  vtkCylindricalToRectangular(inPoint, outPoint, static_cast<float (*)[3]>(nullptr));
 }
 
 void vtkCylindricalTransform::ForwardTransformPoint(const double inPoint[3],
                                                     double outPoint[3])
 {
   vtkCylindricalToRectangular(inPoint, outPoint,
-                              static_cast<double (*)[3]>(0));
+                              static_cast<double (*)[3]>(nullptr));
 }
 
 void vtkCylindricalTransform::ForwardTransformDerivative(

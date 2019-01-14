@@ -30,9 +30,7 @@ vtkInformationVariantVectorKey
 }
 
 //----------------------------------------------------------------------------
-vtkInformationVariantVectorKey::~vtkInformationVariantVectorKey()
-{
-}
+vtkInformationVariantVectorKey::~vtkInformationVariantVectorKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationVariantVectorKey::PrintSelf(ostream& os, vtkIndent indent)
@@ -44,7 +42,7 @@ void vtkInformationVariantVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationVariantVectorValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationVariantVectorValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationVariantVectorValue, vtkObjectBase);
   std::vector<vtkVariant> Value;
   static vtkVariant Invalid;
 };
@@ -58,13 +56,13 @@ void vtkInformationVariantVectorKey::Append(vtkInformation* info, const vtkVaria
     static_cast<vtkInformationVariantVectorValue *>(
       this->GetAsObjectBase(info));
   if(v)
-    {
+  {
     v->Value.push_back(value);
-    }
+  }
   else
-    {
+  {
     this->Set(info, &value, 1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -72,29 +70,29 @@ void vtkInformationVariantVectorKey::Set(vtkInformation* info, const vtkVariant*
                                          int length)
 {
   if(value)
-    {
+  {
     if(this->RequiredLength >= 0 && length != this->RequiredLength)
-      {
+    {
       vtkErrorWithObjectMacro(
         info,
         "Cannot store vtkVariant vector of length " << length
         << " with key " << this->Location << "::" << this->Name
         << " which requires a vector of length "
         << this->RequiredLength << ".  Removing the key instead.");
-      this->SetAsObjectBase(info, 0);
+      this->SetAsObjectBase(info, nullptr);
       return;
-      }
+    }
     vtkInformationVariantVectorValue* v =
       new vtkInformationVariantVectorValue;
-    this->ConstructClass("vtkInformationVariantVectorValue");
+    v->InitializeObjectBase();
     v->Value.insert(v->Value.begin(), value, value+length);
     this->SetAsObjectBase(info, v);
     v->Delete();
-    }
+  }
   else
-    {
-    this->SetAsObjectBase(info, 0);
-    }
+  {
+    this->SetAsObjectBase(info, nullptr);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -104,7 +102,7 @@ const vtkVariant* vtkInformationVariantVectorKey::Get(
   const vtkInformationVariantVectorValue* v =
     static_cast<const vtkInformationVariantVectorValue *>(
       this->GetAsObjectBase(info));
-  return (v && !v->Value.empty())?(&v->Value[0]):0;
+  return (v && !v->Value.empty())?(&v->Value[0]):nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -112,12 +110,12 @@ const vtkVariant& vtkInformationVariantVectorKey::Get(
   vtkInformation* info, int idx) const
 {
   if (idx >= this->Length(info))
-    {
+  {
     vtkErrorWithObjectMacro(info,
                             "Information does not contain " << idx
                             << " elements. Cannot return information value.");
     return vtkInformationVariantVectorValue::Invalid;
-    }
+  }
   const vtkVariant* values = this->Get(info);
   return values[idx];
 }
@@ -130,13 +128,13 @@ void vtkInformationVariantVectorKey::Get(vtkInformation* info,
     static_cast<const vtkInformationVariantVectorValue *>(
       this->GetAsObjectBase(info));
   if(v && value)
-    {
+  {
     for(std::vector<vtkVariant>::size_type i = 0;
         i < v->Value.size(); ++i)
-      {
+    {
       value[i] = v->Value[i];
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -160,14 +158,14 @@ void vtkInformationVariantVectorKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
   if(this->Has(info))
-    {
+  {
     const vtkVariant* value = this->Get(info);
     int length = this->Length(info);
     const char* sep = "";
     for(int i=0; i < length; ++i)
-      {
+    {
       os << sep << value[i];
       sep = " ";
-      }
     }
+  }
 }

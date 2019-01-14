@@ -45,22 +45,22 @@ int TestImageDataToPointSet(int, char*[])
 
   vtkIdType numPoints = inData->GetNumberOfPoints();
   if (numPoints != outData->GetNumberOfPoints())
-    {
+  {
     std::cout << "Got wrong number of points: " << numPoints << " vs "
               << outData->GetNumberOfPoints() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   vtkIdType numCells = inData->GetNumberOfCells();
   if (numCells != outData->GetNumberOfCells())
-    {
+  {
     std::cout << "Got wrong number of cells: " << numCells << " vs "
               << outData->GetNumberOfCells() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   for (vtkIdType pointId = 0; pointId < numPoints; pointId++)
-    {
+  {
     double inPoint[3];
     double outPoint[3];
 
@@ -70,12 +70,12 @@ int TestImageDataToPointSet(int, char*[])
     if (   (inPoint[0] != outPoint[0])
         || (inPoint[1] != outPoint[1])
         || (inPoint[2] != outPoint[2]) )
-      {
+    {
       std::cout << "Got mismatched point coordinates." << std::endl;
       std::cout << "Input: " << inPoint[0] << " " << inPoint[1] << " " << inPoint[2] << std::endl;
       std::cout << "Output: " << outPoint[0] << " " << outPoint[1] << " " << outPoint[2] << std::endl;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }

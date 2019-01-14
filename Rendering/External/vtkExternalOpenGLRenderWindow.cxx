@@ -13,6 +13,8 @@
 
 =========================================================================*/
 
+#include "vtk_glew.h"
+
 #include "vtkExternalOpenGLRenderWindow.h"
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
@@ -34,13 +36,19 @@ vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)
 {
+  // Make sure all important OpenGL options are set for VTK
+  this->OpenGLInit();
+
+  // Use hardware acceleration
+  this->SetIsDirect(1);
+
   if (this->AutomaticWindowPositionAndResize)
-    {
+  {
     int info[4];
     glGetIntegerv(GL_VIEWPORT, info);
     this->SetPosition(info[0], info[1]);
     this->SetSize(info[2], info[3]);
-    }
+  }
 
   // For stereo, render the correct eye based on the OpenGL buffer mode
   GLint bufferType;
@@ -49,24 +57,24 @@ void vtkExternalOpenGLRenderWindow::Start(void)
   vtkRenderer* renderer;
   for (this->GetRenderers()->InitTraversal(sit);
     (renderer = this->GetRenderers()->GetNextRenderer(sit)); )
-    {
+  {
     if (bufferType == GL_BACK_RIGHT || bufferType == GL_RIGHT
       || bufferType == GL_FRONT_RIGHT)
-      {
+    {
       this->StereoRenderOn();
       this->SetStereoTypeToRight();
-      }
-    else
-      {
-      this->SetStereoTypeToLeft();
-      }
     }
+    else
+    {
+      this->SetStereoTypeToLeft();
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
-void vtkExternalOpenGLRenderWindow::Render()
+bool vtkExternalOpenGLRenderWindow::IsCurrent(void)
 {
-  this->Superclass::Render();
+  return true;
 }
 
 //----------------------------------------------------------------------------

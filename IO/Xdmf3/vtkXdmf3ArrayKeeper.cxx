@@ -3,8 +3,6 @@
   Program:   Visualization Toolkit
   Module:    vtkXdmf3ArrayKeeper.cxx
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,7 +16,8 @@
 
 #include "vtkXdmf3ArrayKeeper.h"
 
-#include "XdmfArray.hpp"
+#include "vtk_xdmf3.h"
+#include VTKXDMF3_HEADER(core/XdmfArray.hpp)
 
 //------------------------------------------------------------------------------
 vtkXdmf3ArrayKeeper::vtkXdmf3ArrayKeeper()
@@ -51,16 +50,16 @@ void vtkXdmf3ArrayKeeper::Release(bool force)
   //int cnt = 0;
   //int total = 0;
   while (it != this->end())
-    {
+  {
     //total++;
     vtkXdmf3ArrayKeeper::iterator current = it++;
     if (force || (current->second != this->generation))
-      {
+    {
       XdmfArray* atCurrent = current->first;
       atCurrent->release();
       this->erase(current);
       //cnt++;
-      }
     }
+  }
   //cerr << "released " << cnt << "/" << total << " arrays" << endl;
 }

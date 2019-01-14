@@ -1,14 +1,5 @@
-/*============================================================================
-  KWSys - Kitware System Library
-  Copyright 2000-2009 Kitware, Inc., Insight Software Consortium
-
-  Distributed under the OSI-approved BSD License (the "License");
-  see accompanying file Copyright.txt for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even the
-  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the License for more information.
-============================================================================*/
+/* Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+   file Copyright.txt or https://cmake.org/licensing#kwsys for details.  */
 // Original Copyright notice:
 // Copyright (C) 1991 Texas Instruments Incorporated.
 //
@@ -33,21 +24,125 @@
 #include <@KWSYS_NAMESPACE@/Configure.h>
 #include <@KWSYS_NAMESPACE@/Configure.hxx>
 
-#include <@KWSYS_NAMESPACE@/stl/string>
-
-/* Define this macro temporarily to keep the code readable.  */
-#if !defined (KWSYS_NAMESPACE) && !@KWSYS_NAMESPACE@_NAME_IS_KWSYS
-# define kwsys_stl @KWSYS_NAMESPACE@_stl
-#endif
+#include <string>
 
 /* Disable useless Borland warnings.  KWSys tries not to force things
    on its includers, but there is no choice here.  */
 #if defined(__BORLANDC__)
-# pragma warn -8027 /* function not inlined.  */
+#  pragma warn - 8027 /* function not inlined.  */
 #endif
 
-namespace @KWSYS_NAMESPACE@
+namespace @KWSYS_NAMESPACE@ {
+
+// Forward declaration
+class RegularExpression;
+
+/** \class RegularExpressionMatch
+ * \brief Stores the pattern matches of a RegularExpression
+ */
+class @KWSYS_NAMESPACE@_EXPORT RegularExpressionMatch
 {
+public:
+  RegularExpressionMatch();
+
+  bool isValid() const;
+  void clear();
+
+  std::string::size_type start() const;
+  std::string::size_type end() const;
+  std::string::size_type start(int n) const;
+  std::string::size_type end(int n) const;
+  std::string match(int n) const;
+
+  enum
+  {
+    NSUBEXP = 10
+  };
+
+private:
+  friend class RegularExpression;
+  const char* startp[NSUBEXP];
+  const char* endp[NSUBEXP];
+  const char* searchstring;
+};
+
+/**
+ * \brief Creates an invalid match object
+ */
+inline RegularExpressionMatch::RegularExpressionMatch()
+{
+  startp[0] = 0;
+  endp[0] = 0;
+  searchstring = 0;
+}
+
+/**
+ * \brief Returns true if the match pointers are valid
+ */
+inline bool RegularExpressionMatch::isValid() const
+{
+  return (this->startp[0] != 0);
+}
+
+/**
+ * \brief Resets to the (invalid) construction state.
+ */
+inline void RegularExpressionMatch::clear()
+{
+  startp[0] = 0;
+  endp[0] = 0;
+  searchstring = 0;
+}
+
+/**
+ * \brief Returns the start index of the full match.
+ */
+inline std::string::size_type RegularExpressionMatch::start() const
+{
+  return static_cast<std::string::size_type>(this->startp[0] - searchstring);
+}
+
+/**
+ * \brief Returns the end index of the full match.
+ */
+inline std::string::size_type RegularExpressionMatch::end() const
+{
+  return static_cast<std::string::size_type>(this->endp[0] - searchstring);
+}
+
+/**
+ * \brief Returns the start index of nth submatch.
+ *        start(0) is the start of the full match.
+ */
+inline std::string::size_type RegularExpressionMatch::start(int n) const
+{
+  return static_cast<std::string::size_type>(this->startp[n] -
+                                             this->searchstring);
+}
+
+/**
+ * \brief Returns the end index of nth submatch.
+ *        end(0) is the end of the full match.
+ */
+inline std::string::size_type RegularExpressionMatch::end(int n) const
+{
+  return static_cast<std::string::size_type>(this->endp[n] -
+                                             this->searchstring);
+}
+
+/**
+ * \brief Returns the nth submatch as a string.
+ */
+inline std::string RegularExpressionMatch::match(int n) const
+{
+  if (this->startp[n] == 0) {
+    return std::string();
+  } else {
+    return std::string(
+      this->startp[n],
+      static_cast<std::string::size_type>(this->endp[n] - this->startp[n]));
+  }
+}
 
 /** \class RegularExpression
  * \brief Implements pattern matching with regular expressions.
@@ -73,10 +168,10 @@ namespace @KWSYS_NAMESPACE@
  * and utilities.
  *
  * Example: The perl code
- * 
+ *
  *    $filename =~ m"([a-z]+)\.cc";
  *    print $1;
- *    
+ *
  * Is written as follows in C++
  *
  *    RegularExpression re("([a-z]+)\\.cc");
@@ -108,7 +203,7 @@ namespace @KWSYS_NAMESPACE@
  *
  *  ?        Matches preceding pattern zero or once only
  *
- * ()        Saves a matched expression and uses it in a  later match
+ * ()        Saves a matched expression and uses it in a later match
  *
  * Note that more than one of these metacharacters can be  used
  * in  a  single  regular expression in order to create complex
@@ -124,21 +219,21 @@ namespace @KWSYS_NAMESPACE@
  * object as an argument and creates an object initialized with the
  * information from the given RegularExpression object.
  *
- * The  find  member function  finds   the  first  occurence   of  the regualr
+ * The  find  member function  finds   the  first  occurrence  of  the regular
  * expression of that object in the string given to find as an argument.  Find
  * returns a boolean, and  if true,  mutates  the private  data appropriately.
  * Find sets pointers to the beginning and end of  the thing last  found, they
  * are pointers into the actual string  that was searched.   The start and end
- * member functions return indicies  into the searched string that  correspond
+ * member functions return indices  into the searched string that  correspond
  * to the beginning   and  end pointers  respectively.   The    compile member
  * function takes a char* and puts the  compiled version of the char* argument
  * into the object's private data fields.  The == and  != operators only check
  * the  to see  if   the compiled  regular  expression   is the same, and  the
  * deep_equal functions also checks  to see if the  start and end pointers are
  * the same.  The is_valid  function returns false if  program is set to NULL,
- * (i.e. there is no valid compiled exression).  The set_invalid function sets
- * the  program to NULL  (Warning: this deletes the compiled  expression). The
- * following examples may help clarify regular expression usage:
+ * (i.e. there is no valid compiled  expression).  The  set_invalid   function
+ * sets the program to NULL (Warning:  this deletes the compiled  expression).
+ * The following examples may help clarify regular expression usage:
  *
  *   *  The regular expression  "^hello" matches  a "hello"  only at  the
  *      beginning of a  line.  It would match "hello  there" but not "hi,
@@ -176,38 +271,41 @@ namespace @KWSYS_NAMESPACE@
  *
  *   *  The regular expression "(..p)b" matches  something ending with pb
  *      and beginning with whatever the two characters before the first p
- *      encounterd in the line were.  It would find  "repb" in "rep drepa
+ *      encountered in the line were.  It would find "repb" in "rep drepa
  *      qrepb".  The regular expression "(..p)a"  would find "repa qrepb"
  *      in "rep drepa qrepb"
  *
  *   *  The regular expression "d(..p)" matches something ending  with p,
  *      beginning with d, and having  two characters  in between that are
- *      the same as the two characters before  the first p  encounterd in
+ *      the same as the two characters before  the first p encountered in
  *      the line.  It would match "drepa qrepb" in "rep drepa qrepb".
  *
+ * All methods of RegularExpression can be called simultaneously from
+ * different threads but only if each invocation uses an own instance of
+ * RegularExpression.
  */
-class @KWSYS_NAMESPACE@_EXPORT RegularExpression 
+class @KWSYS_NAMESPACE@_EXPORT RegularExpression
 {
 public:
   /**
    * Instantiate RegularExpression with program=NULL.
    */
-  inline RegularExpression ();        
+  inline RegularExpression();
 
   /**
    * Instantiate RegularExpression with compiled char*.
    */
-  inline RegularExpression (char const*);
+  inline RegularExpression(char const*);
 
   /**
    * Instantiate RegularExpression as a copy of another regular expression.
    */
-  RegularExpression (RegularExpression const&);
+  RegularExpression(RegularExpression const&);
 
   /**
    * Instantiate RegularExpression with compiled string.
    */
-  inline RegularExpression (kwsys_stl::string const&);
+  inline RegularExpression(std::string const&);
 
   /**
    * Destructor.
@@ -218,59 +316,73 @@ public:
    * Compile a regular expression into internal code
    * for later pattern matching.
    */
-  bool compile (char const*);
+  bool compile(char const*);
 
   /**
    * Compile a regular expression into internal code
    * for later pattern matching.
    */
-  inline bool compile (kwsys_stl::string const&);
+  inline bool compile(std::string const&);
+
+  /**
+   * Matches the regular expression to the given string.
+   * Returns true if found, and sets start and end indexes
+   * in the RegularExpressionMatch instance accordingly.
+   *
+   * This method is thread safe when called with different
+   * RegularExpressionMatch instances.
+   */
+  bool find(char const*, RegularExpressionMatch&) const;
 
   /**
    * Matches the regular expression to the given string.
    * Returns true if found, and sets start and end indexes accordingly.
    */
-  bool find (char const*);
+  inline bool find(char const*);
 
   /**
    * Matches the regular expression to the given std string.
    * Returns true if found, and sets start and end indexes accordingly.
    */
-  inline bool find (kwsys_stl::string const&);
+  inline bool find(std::string const&);
 
   /**
-   * Index to start of first find.
+   * Match indices
    */
-  inline kwsys_stl::string::size_type start() const;
+  inline RegularExpressionMatch const& regMatch() const;
+  inline std::string::size_type start() const;
+  inline std::string::size_type end() const;
+  inline std::string::size_type start(int n) const;
+  inline std::string::size_type end(int n) const;
 
   /**
-   * Index to end of first find.
+   * Match strings
    */
-  inline kwsys_stl::string::size_type end() const;
+  inline std::string match(int n) const;
 
   /**
    * Copy the given regular expression.
    */
-  RegularExpression& operator= (const RegularExpression& rxp);
+  RegularExpression& operator=(const RegularExpression& rxp);
 
   /**
    * Returns true if two regular expressions have the same
    * compiled program for pattern matching.
    */
-  bool operator== (RegularExpression const&) const;
+  bool operator==(RegularExpression const&) const;
 
   /**
    * Returns true if two regular expressions have different
    * compiled program for pattern matching.
    */
-  inline bool operator!= (RegularExpression const&) const;
+  inline bool operator!=(RegularExpression const&) const;
 
   /**
    * Returns true if have the same compiled regular expressions
    * and the same start and end pointers.
    */
-  bool deep_equal (RegularExpression const&) const;
-  
+  bool deep_equal(RegularExpression const&) const;
+
   /**
    * True if the compiled regexp is valid.
    */
@@ -279,34 +391,23 @@ public:
   /**
    * Marks the regular expression as invalid.
    */
-  inline void set_invalid();            
+  inline void set_invalid();
 
-  /**
-   * Destructor.
-   */
-  // awf added
-  kwsys_stl::string::size_type start(int n) const;
-  kwsys_stl::string::size_type end(int n) const;
-  kwsys_stl::string match(int n) const;
-  
-  enum { NSUBEXP = 10 };
-private: 
-  const char* startp[NSUBEXP];
-  const char* endp[NSUBEXP];
-  char  regstart;                       // Internal use only
-  char  reganch;                        // Internal use only
-  const char* regmust;                  // Internal use only
-  kwsys_stl::string::size_type regmlen;                // Internal use only
-  char* program;   
-  int   progsize;
-  const char* searchstring;
+private:
+  RegularExpressionMatch regmatch;
+  char regstart;                  // Internal use only
+  char reganch;                   // Internal use only
+  const char* regmust;            // Internal use only
+  std::string::size_type regmlen; // Internal use only
+  char* program;
+  int progsize;
 };
 
 /**
  * Create an empty regular expression.
  */
-inline RegularExpression::RegularExpression () 
-{ 
+inline RegularExpression::RegularExpression()
+{
   this->program = 0;
 }
 
@@ -314,20 +415,19 @@ inline RegularExpression::RegularExpression ()
  * Creates a regular expression from string s, and
  * compiles s.
  */
-inline RegularExpression::RegularExpression (const char* s) 
-{  
+inline RegularExpression::RegularExpression(const char* s)
+{
   this->program = 0;
-  if ( s )
-    {
+  if (s) {
     this->compile(s);
-    }
+  }
 }
 
 /**
  * Creates a regular expression from string s, and
  * compiles s.
  */
-inline RegularExpression::RegularExpression (const kwsys_stl::string& s)
+inline RegularExpression::RegularExpression(const std::string& s)
 {
   this->program = 0;
   this->compile(s);
@@ -336,18 +436,18 @@ inline RegularExpression::RegularExpression (const kwsys_stl::string& s)
 /**
  * Destroys and frees space allocated for the regular expression.
  */
-inline RegularExpression::~RegularExpression () 
+inline RegularExpression::~RegularExpression()
 {
-//#ifndef WIN32
-  delete [] this->program;
-//#endif
+  //#ifndef _WIN32
+  delete[] this->program;
+  //#endif
 }
 
 /**
  * Compile a regular expression into internal code
  * for later pattern matching.
  */
-inline bool RegularExpression::compile (kwsys_stl::string const& s)
+inline bool RegularExpression::compile(std::string const& s)
 {
   return this->compile(s.c_str());
 }
@@ -356,98 +456,94 @@ inline bool RegularExpression::compile (kwsys_stl::string const& s)
  * Matches the regular expression to the given std string.
  * Returns true if found, and sets start and end indexes accordingly.
  */
-inline bool RegularExpression::find (kwsys_stl::string const& s)
+inline bool RegularExpression::find(const char* s)
+{
+  return this->find(s, this->regmatch);
+}
+
+/**
+ * Matches the regular expression to the given std string.
+ * Returns true if found, and sets start and end indexes accordingly.
+ */
+inline bool RegularExpression::find(std::string const& s)
 {
   return this->find(s.c_str());
 }
 
 /**
- * Set the start position for the regular expression.
+ * Returns the internal match object
  */
-inline kwsys_stl::string::size_type RegularExpression::start () const 
+inline RegularExpressionMatch const& RegularExpression::regMatch() const
 {
-  return static_cast<kwsys_stl::string::size_type>(
-    this->startp[0] - searchstring);
+  return this->regmatch;
 }
 
+/**
+ * Returns the start index of the full match.
+ */
+inline std::string::size_type RegularExpression::start() const
+{
+  return regmatch.start();
+}
 
 /**
- * Returns the start/end index of the last item found.
+ * Returns the end index of the full match.
  */
-inline kwsys_stl::string::size_type RegularExpression::end () const 
+inline std::string::size_type RegularExpression::end() const
 {
-  return static_cast<kwsys_stl::string::size_type>(
-    this->endp[0] - searchstring);
+  return regmatch.end();
+}
+
+/**
+ * Return start index of nth submatch. start(0) is the start of the full match.
+ */
+inline std::string::size_type RegularExpression::start(int n) const
+{
+  return regmatch.start(n);
+}
+
+/**
+ * Return end index of nth submatch. end(0) is the end of the full match.
+ */
+inline std::string::size_type RegularExpression::end(int n) const
+{
+  return regmatch.end(n);
+}
+
+/**
+ * Return nth submatch as a string.
+ */
+inline std::string RegularExpression::match(int n) const
+{
+  return regmatch.match(n);
 }
 
 /**
  * Returns true if two regular expressions have different
  * compiled program for pattern matching.
  */
-inline bool RegularExpression::operator!= (const RegularExpression& r) const 
+inline bool RegularExpression::operator!=(const RegularExpression& r) const
 {
-  return(!(*this == r));
+  return (!(*this == r));
 }
 
 /**
  * Returns true if a valid regular expression is compiled
  * and ready for pattern matching.
  */
-inline bool RegularExpression::is_valid () const 
+inline bool RegularExpression::is_valid() const
 {
   return (this->program != 0);
 }
 
-
-inline void RegularExpression::set_invalid () 
+inline void RegularExpression::set_invalid()
 {
-//#ifndef WIN32
-  delete [] this->program;
-//#endif
+  //#ifndef _WIN32
+  delete[] this->program;
+  //#endif
   this->program = 0;
 }
 
-/**
- * Return start index of nth submatch. start(0) is the start of the full match.
- */
-inline kwsys_stl::string::size_type RegularExpression::start(int n) const
-{
-  return static_cast<kwsys_stl::string::size_type>(
-    this->startp[n] - searchstring);
-}
-
-
-/**
- * Return end index of nth submatch. end(0) is the end of the full match.
- */
-inline kwsys_stl::string::size_type RegularExpression::end(int n) const
-{
-  return static_cast<kwsys_stl::string::size_type>(
-    this->endp[n] - searchstring);
-}
-
-/**
- * Return nth submatch as a string.
- */
-inline kwsys_stl::string RegularExpression::match(int n) const
-{
-  if (this->startp[n]==0)
-    {
-    return kwsys_stl::string("");
-    }
-  else
-    {
-    return kwsys_stl::string(this->startp[n],
-                             static_cast<kwsys_stl::string::size_type>(
-                               this->endp[n] - this->startp[n]));
-    }
-}
-
 } // namespace @KWSYS_NAMESPACE@
-
-/* Undefine temporary macro.  */
-#if !defined (KWSYS_NAMESPACE) && !@KWSYS_NAMESPACE@_NAME_IS_KWSYS
-# undef kwsys_stl
-#endif
 
 #endif

@@ -1,313 +1,89 @@
-cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
-
-option(VTK_ENABLE_KITS "Build VTK using kits instead of modules." OFF)
-mark_as_advanced(VTK_ENABLE_KITS)
-if(VTK_ENABLE_KITS)
-  # Kits use INTERFACE libraries which were introduced in 3.0.
-  cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-endif()
-
-foreach(p
-    CMP0020 # CMake 2.8.11
-    CMP0022 # CMake 2.8.12
-    CMP0025 # CMake 3.0
-    CMP0053 # CMake 3.1
+cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
+foreach(policy
+    CMP0083 # CMake 3.14
     )
-  if(POLICY ${p})
-    cmake_policy(SET ${p} NEW)
+  if(POLICY ${policy})
+    cmake_policy(SET ${policy} NEW)
   endif()
 endforeach()
 
-# Set a consistent MACOSX_RPATH default across all CMake versions.
-# When CMake 2.8.12 is required, change this default to 1.
-# When CMake 3.0.0 is required, remove this block (see CMP0042).
-if(NOT DEFINED CMAKE_MACOSX_RPATH)
-  set(CMAKE_MACOSX_RPATH 0)
+if(CMAKE_SYSTEM_NAME STREQUAL "Android" AND CMAKE_VERSION VERSION_LESS 3.7)
+  message(FATAL_ERROR "CMake 3.7 or above is required to build for Android")
 endif()
+
+if (POLICY CMP0063)
+  cmake_policy(SET CMP0063 NEW)
+endif ()
+if (POLICY CMP0065)
+  cmake_policy(SET CMP0065 NEW)
+endif ()
 
 project(VTK)
 
-# Objective-C++ compile flags.
-# CMake has no equivalent of CMAKE_CXX_FLAGS for Objective-C++ (bug #4756)
-# so we provide this in case the user needs to specify flags specifically
-# for Objective-C++ source files.  For example, to build with garbage
-# collection support, the -fobjc-gc flag would be used.
-IF(APPLE)
-  SET(VTK_OBJCXX_FLAGS_DEFAULT "")
-  SET(VTK_REQUIRED_OBJCXX_FLAGS ${VTK_OBJCXX_FLAGS_DEFAULT} CACHE STRING "Extra flags for Objective-C++ compilation")
-  MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
-ENDIF()
+set(vtk_cmake_dir "${VTK_SOURCE_DIR}/CMake")
+list(INSERT CMAKE_MODULE_PATH 0 "${vtk_cmake_dir}")
 
-set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
-set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
+if (APPLE)
+  include(vtkApple)
+endif ()
 
-include(vtkModuleMacros)
-include(vtkExternalData)
-
-# Set a default build type if none was specified
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  message(STATUS "Setting build type to 'Debug' as none was specified.")
-  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
-  # Set the possible values of build type for cmake-gui
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
-    "MinSizeRel" "RelWithDebInfo")
-endif()
-
-# Test input data staging directory.
-file(RELATIVE_PATH vtk_reldir "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
-set(VTK_TEST_DATA_DIR "${ExternalData_BINARY_ROOT}/${vtk_reldir}/Testing")
-
-# Test input data directory.
-set(VTK_TEST_INPUT_DIR "${VTK_SOURCE_DIR}/Testing/Data")
-
-# Test output directory.
-set(VTK_TEST_OUTPUT_DIR "${VTK_BINARY_DIR}/Testing/Temporary")
-
-# Set up our directory structure for output libraries and binaries
-if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/bin")
-endif()
-if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-  if(UNIX)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/lib")
-  else()
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/bin")
-  endif()
-endif()
-if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
-  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/lib")
-endif()
-mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
-  CMAKE_LIBRARY_OUTPUT_DIRECTORY
-  CMAKE_ARCHIVE_OUTPUT_DIRECTORY
-  )
-
+# must be before the following iOS / Android
 include(vtkVersion)
 set(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 
 option(VTK_IOS_BUILD "Build vtk.framework for iOS" OFF)
+mark_as_advanced(VTK_IOS_BUILD)
 if (VTK_IOS_BUILD)
   include(vtkiOS)
   return()
 endif()
 
 option(VTK_ANDROID_BUILD "Build VTK for Android" OFF)
+mark_as_advanced(VTK_ANDROID_BUILD)
 if (VTK_ANDROID_BUILD)
   include(vtkAndroid)
   return()
 endif()
 
-# some specific defaults for Andriod to give folks
-# a reasonable starting point
-if (ANDROID OR APPLE_IOS)
-  SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT 2
-       CACHE STRING "Result from TRY_RUN" FORCE)
-  SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT__TRYRUN_OUTPUT ""
-       CACHE STRING "Output from TRY_RUN" FORCE)
-  SET( VTK_TYPE_CHAR_IS_SIGNED 1
-     CACHE STRING "Result from TRY_RUN" FORCE)
-  SET( VTK_ANSI_STREAM_EOF_RESULT 0
-     CACHE STRING "Result from TRY_RUN" FORCE)
-  SET( KWSYS_CHAR_IS_SIGNED 1
-     CACHE STRING "Result from TRY_RUN" FORCE)
-  SET( KWSYS_LFS_WORKS 2
-     CACHE STRING "Result from TRY_RUN" FORCE)
-  SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT ""
-     CACHE STRING "Output from TRY_RUN" FORCE)
+include(vtkCompilerChecks)
+include(vtkCompilerPlatformFlags)
+include(vtkCompilerExtraFlags)
+include(vtkInitializeBuildType)
+include(vtkSupportMacros)
+include(vtkDownload)
+include(vtkTesting)
+include(vtkDirectories)
+include(vtkMobileDevices)
+include(vtkCrossCompiling)
+include(vtkWrapSettings)
+include(vtkObjectFactory)
+include(vtkCMakeBackports)
 
-  option(BUILD_SHARED_LIBS "should be off for embedded" OFF)
-  set(VTK_RENDERING_BACKEND OpenGL2)
-  set(Module_vtkRenderingCore ON)
-  option(VTK_Group_Rendering "off for embedded" OFF)
-  option(VTK_Group_StandAlone "off for embedded" OFF)
-  option(VTK_Group_Imaging "off for embedded" OFF)
-  option(VTK_Group_MPI "off for embedded" OFF)
-  option(VTK_Group_Views "off for embedded" OFF)
-  option(VTK_Group_Qt "off for embedded" OFF)
-  option(VTK_Group_Tk "off for embedded" OFF)
-  option(VTK_Group_Web "off for embedded" OFF)
+# Setup compiler flags for dynamic analysis
+# Should be included after vtkTesting
+include(vtkCompilerDynamicAnalysisFlags)
 
-  # need int version for CPP
-  if (${OPENGL_ES_VERSION} MATCHES 2.0)
-    set(OPENGL_ES_VERSION_INT 20)
-  endif()
-  if (${OPENGL_ES_VERSION} MATCHES 3.0)
-    set(OPENGL_ES_VERSION_INT 30)
-  endif()
-
-  if (APPLE_IOS)
-    unset(OPENGL_INCLUDE_DIR CACHE)
-    if (${OPENGL_ES_VERSION} MATCHES 2.0)
-      find_path(OPENGL_INCLUDE_DIR ES2/gl.h
-                ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
-                ${_OPENGL_INCLUDE_DIR})
-    elseif (${OPENGL_ES_VERSION} MATCHES 3.0)
-      find_path(OPENGL_INCLUDE_DIR ES3/gl.h
-                ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
-                ${_OPENGL_INCLUDE_DIR})
-    endif()
-    find_library(OPENGL_gl_LIBRARY
-       NAMES OpenGLES
-       PATHS
-         ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks
-         ${_OPENGL_LIB_PATH}
-       )
-  elseif (ANDROID)
-    unset(OPENGL_INCLUDE_DIR CACHE)
-    unset(OPENGL_gl_LIBRARY CACHE)
-    unset(OPENGL_egl_LIBRARY CACHE)
-
-    if (${OPENGL_ES_VERSION} MATCHES 2.0)
-      find_path(OPENGL_INCLUDE_DIR GLES2/gl2.h
-         ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include
-         ${_OPENGL_INCLUDE_PATH}
-         NO_DEFAULT_PATH
-         )
-      find_library(OPENGL_gl_LIBRARY
-         NAMES GLESv2
-         PATHS
-           ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
-           ${_OPENGL_LIB_PATH}
-         )
-    elseif (${OPENGL_ES_VERSION} MATCHES 3.0)
-      find_path(OPENGL_INCLUDE_DIR GLES3/gl3.h
-         ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include
-         ${_OPENGL_INCLUDE_PATH}
-         )
-      find_library(OPENGL_gl_LIBRARY
-         NAMES GLESv3
-         PATHS
-           ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
-           ${_OPENGL_LIB_PATH}
-         )
-    endif()
-    find_library(OPENGL_egl_LIBRARY
-       NAMES EGL
-       PATHS
-         ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
-         ${_OPENGL_LIB_PATH}
-       )
-  endif()
-else()
-  # Choose static or shared libraries.
-  option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
-endif()
+#-----------------------------------------------------------------------------
+# Do we want examples built?
+option(VTK_BUILD_EXAMPLES "Build VTK examples." OFF)
 
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 #-----------------------------------------------------------------------------
-# VTK installation structure
-if(NOT VTK_INSTALL_RUNTIME_DIR)
-  set(VTK_INSTALL_RUNTIME_DIR bin)
-endif()
-if(NOT VTK_INSTALL_LIBRARY_DIR)
-  set(VTK_INSTALL_LIBRARY_DIR lib)
-endif()
-if(NOT VTK_INSTALL_ARCHIVE_DIR)
-  set(VTK_INSTALL_ARCHIVE_DIR lib)
-endif()
-if(NOT VTK_INSTALL_INCLUDE_DIR)
-  set(VTK_INSTALL_INCLUDE_DIR include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
-endif()
-if(NOT VTK_INSTALL_DATA_DIR)
-  set(VTK_INSTALL_DATA_DIR share/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
-endif()
-if(NOT VTK_INSTALL_DOC_DIR)
-  set(VTK_INSTALL_DOC_DIR share/doc/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
-endif()
-if(NOT VTK_INSTALL_PACKAGE_DIR)
-  set(VTK_INSTALL_PACKAGE_DIR "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
-endif()
-if(NOT VTK_INSTALL_DOXYGEN_DIR)
-  set(VTK_INSTALL_DOXYGEN_DIR ${VTK_INSTALL_DOC_DIR}/doxygen)
-endif()
-if(NOT VTK_INSTALL_TCL_DIR)
-  # tclsh searches <prefix>/lib/tcltk and its subdirectories for pkgIndex.tcl files
-  set(VTK_INSTALL_TCL_DIR lib/tcltk/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
-endif()
-if(NOT VTK_INSTALL_EXPORT_NAME)
-  set(VTK_INSTALL_EXPORT_NAME VTKTargets)
-endif()
-if(NOT VTK_MODULES_DIR)
-  set(VTK_MODULES_DIR "${VTK_BINARY_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
-endif()
-if(NOT VTK_WWW_DIR)
-  set(VTK_WWW_DIR "${VTK_BINARY_DIR}/www")
-endif()
-if(NOT VTK_INSTALL_PYTHON_MODULE_DIR)
-  set (VTK_INSTALL_PYTHON_MODULE_DIR "-NOTFOUND" CACHE
-       PATH "Directory where python modules will be installed")
-  mark_as_advanced(VTK_INSTALL_PYTHON_MODULE_DIR)
-endif()
-if(NOT VTK_BUILD_PYTHON_MODULE_DIR)
-  set (VTK_BUILD_PYTHON_MODULE_DIR "-NOTFOUND" CACHE
-       PATH "Directory where python modules will be put inside the build tree")
-  mark_as_advanced(VTK_BUILD_PYTHON_MODULE_DIR)
-endif()
-if (CMAKE_CROSSCOMPILING AND NOT COMPILE_TOOLS_IMPORTED)
-  # if CMAKE_CROSSCOMPILING is true, we need to import build-tools targets.
-  find_package(VTKCompileTools REQUIRED)
-  set (COMPILE_TOOLS_IMPORTED TRUE)
-endif()
-
-#-----------------------------------------------------------------------------
-# Do we try to use system libraries by default?
-option(VTK_USE_SYSTEM_LIBRARIES "Use the system's libraries by default." OFF)
-mark_as_advanced(VTK_USE_SYSTEM_LIBRARIES)
-
-#-----------------------------------------------------------------------------
-# The third party macros are still used in one or two third party builds.
-include(vtkThirdParty)
-
-#-----------------------------------------------------------------------------
-include(vtkCompilerExtras)
-include(vtkBuildPath)
-
-#-----------------------------------------------------------------------------
-if(NOT EXISTS "${VTK_SOURCE_DIR}/.ExternalData/README.rst")
-  # This file is always present in version-controlled source trees
-  # so we must have been extracted from a source tarball with no
-  # data objects needed for testing.  Turn off tests by default
-  # since enabling them requires network access or manual data
-  # store configuration.
-  option(BUILD_TESTING "Build the testing tree." OFF)
-endif()
-include(CTest)
-
-#-----------------------------------------------------------------------------
-if(APPLE)
-  mark_as_advanced(
-    CMAKE_OSX_ARCHITECTURES
-    CMAKE_OSX_DEPLOYMENT_TARGET
-    CMAKE_OSX_SYSROOT
-    )
-endif()
+# Add the Remote Subdirectory
+#add_subdirectory(Remote)
 
 #-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
-INCLUDE(CheckCXXSourceRuns)
-FILE(READ "${VTK_CMAKE_DIR}/vtkRequireLargeFilesSupport.cxx"
+include(CheckCXXSourceRuns)
+file(READ "${vtk_cmake_dir}/vtkRequireLargeFilesSupport.cxx"
   VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE)
-CHECK_CXX_SOURCE_RUNS("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
+check_cxx_source_runs("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
   CMAKE_REQUIRE_LARGE_FILE_SUPPORT "Support for 64 bit file systems")
-SET(VTK_REQUIRE_LARGE_FILE_SUPPORT ${CMAKE_REQUIRE_LARGE_FILE_SUPPORT})
-
-#-----------------------------------------------------------------------------
-# Does the const_reverse_iterator have the comparison operators? Before GCC
-# 4.1 they were not present.
-include(CheckCXXSourceCompiles)
-set(VTK_CONST_REVERSE_ITERATOR_COMPARISON_FILE
-"#include <vector>
-int main()
-{
-  std::vector<int> test;
-  std::vector<int>::const_reverse_iterator it = test.rbegin();
-  it != test.rend();
-  return 0;
-}")
-check_cxx_source_compiles("${VTK_CONST_REVERSE_ITERATOR_COMPARISON_FILE}"
-  VTK_CONST_REVERSE_ITERATOR_COMPARISON)
+set(VTK_REQUIRE_LARGE_FILE_SUPPORT ${CMAKE_REQUIRE_LARGE_FILE_SUPPORT})
 
 #-----------------------------------------------------------------------------
 # Provide compatibility options.
@@ -315,220 +91,231 @@ option(VTK_LEGACY_REMOVE "Remove all legacy code completely." OFF)
 option(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
 mark_as_advanced(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
 
-#-----------------------------------------------------------------------------
-# VTK requires special compiler flags on some platforms.
-include(vtkDetermineCompilerFlags)
-
 # Tell VTK source files they are being built inside VTK.
 add_definitions(-DVTK_IN_VTK)
 
-#-----------------------------------------------------------------------------
-if(BUILD_TESTING)
-  include(vtkLegacyData)
-endif()
-
-# Provide an option for tests requiring "large" input data
-option(VTK_USE_LARGE_DATA "Enable tests requiring \"large\" data" OFF)
-
-#-----------------------------------------------------------------------------
-# Platform configuration tests.
-include(TestBigEndian)
-TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
-
-include(FindThreads)
-set(VTK_USE_WIN32_THREADS 0)
-set(VTK_USE_PTHREADS 0)
-set(VTK_HP_PTHREADS 0)
-set(VTK_USE_SPROC 0)
-# if win32 threads and pthreads are available figure out which
-# one the compiler is setup to use.  If you can not figure it
-# out default to pthreads.
-if(CMAKE_USE_PTHREADS_INIT AND CMAKE_USE_WIN32_THREADS_INIT)
-  if(DEFINED VTK_THREAD_MODEL)
-    set(output "${VTK_THREAD_MODEL}")
-  else()
-    execute_process(COMMAND "${CMAKE_C_COMPILER}" -v OUTPUT_VARIABLE output
-      ERROR_VARIABLE output RESULT_VARIABLE result TIMEOUT 10)
-  endif()
-  if(output MATCHES "Thread model: posix")
-    set(VTK_THREAD_MODEL "Thread model: posix" CACHE STRING
-      "Thread model used by gcc.")
-    set(CMAKE_USE_WIN32_THREADS_INIT 0)
-  elseif(output MATCHES "Thread model: win32")
-    set(VTK_THREAD_MODEL "Thread model: win32" CACHE STRING
-      "Thread model used by gcc.")
-    set(CMAKE_USE_PTHREADS_INIT 0)
-  else()
-    set(VTK_THREAD_MODEL "Thread model: posix" CACHE STRING
-      "Thread model used by gcc.")
-    set(CMAKE_USE_WIN32_THREADS_INIT 0)
-  endif()
-endif()
-mark_as_advanced(VTK_THREAD_MODEL)
-if(CMAKE_USE_WIN32_THREADS_INIT)
-  set(VTK_USE_WIN32_THREADS 1)
-  set(CMAKE_THREAD_LIBS_INIT "")
-elseif(CMAKE_USE_PTHREADS_INIT)
-  set(VTK_USE_PTHREADS 1)
-  if(CMAKE_HP_PTHREADS_INIT)
-    set(VTK_HP_PTHREADS 1)
-  endif()
-elseif(CMAKE_USE_SPROC_INIT)
-  set(VTK_USE_SPROC 1)
-endif()
-set(CMAKE_THREAD_LIBS "${CMAKE_THREAD_LIBS_INIT}" CACHE STRING "Thread library used.")
-mark_as_advanced(CMAKE_THREAD_LIBS)
-set(VTK_MAX_THREADS "64" CACHE STRING
-  "Max number of threads vktMultiThreader will allocate.")
-mark_as_advanced(VTK_MAX_THREADS)
-
-include(TestForANSIStreamHeaders)
-include(TestForSTDNamespace)
-include(TestForANSIForScope)
 include(CheckTypeSize)
 
-# Simulate old CMakeBackwardCompatibilityCXX test.
-include(TestForSSTREAM)
+# Kits bundle multiple modules together into a single library, this
+# is used to dramatically reduce the number of generated libraries.
+option(VTK_ENABLE_KITS "Build VTK using kits instead of modules." OFF)
+mark_as_advanced(VTK_ENABLE_KITS)
 
-# Tests for various integer, bool and float types
-include(vtkTestTypes)
+option(VTK_USE_MPI "Support MPI" OFF)
 
-# Socket tests etc.
-#INCLUDE(Parallel/VTKParallelCMakeTests.cmake)
+set(VTK_BUILD_TESTING "WANT"
+  CACHE STRING "Build all modules by default")
+set_property(CACHE VTK_BUILD_TESTING
+  PROPERTY
+    STRINGS "ON;OFF;WANT")
 
-# Check for full template specialization support by compiler.
-include(vtkTestFullSpecialization)
+include(vtkEncodeString)
 
-# Check for explicit template instantiation support by compiler.
-include(vtkTestExplicitInstantiation)
+set(vtk_requested_modules)
+set(vtk_rejected_modules)
+if (VTK_WRAP_PYTHON)
+  list(APPEND vtk_requested_modules
+    VTK::WrappingPythonCore
+    VTK::WrappingTools
+    VTK::PythonInterpreter)
+else ()
+  list(APPEND vtk_rejected_modules
+    VTK::Python)
+endif ()
+if (VTK_WRAP_JAVA)
+  list(APPEND vtk_requested_modules
+    VTK::Java
+    VTK::WrappingTools)
+else ()
+  list(APPEND vtk_rejected_modules
+    VTK::Java)
+endif ()
+if (VTK_USE_MPI)
+  set(VTK_GROUP_ENABLE_MPI ON)
+else ()
+  # Reject `VTK::mpi`, but allow those which happen to be part of the group to
+  # be built.
+  set(_vtk_module_group_default_MPI "DONT_WANT")
+  list(APPEND vtk_rejected_modules
+    VTK::mpi)
+endif ()
 
-# Test for atomics and other compiler intrinsics
-include(vtkTestBuiltins)
+if (VTK_BUILD_TESTING)
+  list(APPEND vtk_requested_modules
+    # Required for just about all VTK tests.
+    VTK::TestingCore)
+endif ()
 
-#-----------------------------------------------------------------------------
+list(APPEND vtk_requested_modules
+  # Required for just about everything.
+  VTK::CommonCore
+  VTK::CommonDataModel
+  # Required for wrapping with hierarchy files.
+  VTK::WrappingTools)
 
-# Check the severity of EOF bugs in the streams library.
-# this must be after the test for the long types
-INCLUDE(vtkTestStreamsLibrary)
+if (vtk_requested_modules)
+  list(REMOVE_DUPLICATES vtk_requested_modules)
+endif ()
+if (vtk_rejected_modules)
+  list(REMOVE_DUPLICATES vtk_rejected_modules)
+endif ()
 
-#-----------------------------------------------------------------------------
-# Dispatch the build into the proper subdirectories.
-SET(VTK_HAS_EXODUS 1)
+set_property(GLOBAL
+  PROPERTY
+    "_vtk_module_autoinit_include" "\"vtkAutoInit.h\"")
 
-#-----------------------------------------------------------------------------
-# Provide a few configuration options.
-OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
+option(VTK_BUILD_ALL_MODULES "Build all modules by default" OFF)
+mark_as_advanced(VTK_BUILD_ALL_MODULES)
 
-#-----------------------------------------------------------------------------
-# Configure files with settings for use by the build.
+# Turn on these groups by default.
+set(_vtk_module_group_default_StandAlone "WANT")
+set(_vtk_module_group_default_Rendering "WANT")
 
-# Include the sockets test.
-# FIXME: The test should be moved and rewritten.
-include(VTKParallelCMakeTests)
+include(vtkModule)
+set(vtk_source_directories
+  "${CMAKE_CURRENT_SOURCE_DIR}/Accelerators"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Charts"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Common"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Domains"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Filters"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Geovis"
+  "${CMAKE_CURRENT_SOURCE_DIR}/GUISupport"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Imaging"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Infovis"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Interaction"
+  "${CMAKE_CURRENT_SOURCE_DIR}/IO"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Parallel"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Rendering"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
+  "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Utilities"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Views"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Web"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Wrapping")
+vtk_module_find_modules(vtk_module_files ${vtk_source_directories})
+vtk_module_find_kits(vtk_kit_files ${vtk_source_directories})
+vtk_module_scan(
+  MODULE_FILES        ${vtk_module_files}
+  KIT_FILES           ${vtk_kit_files}
+  REQUEST_MODULES     ${vtk_requested_modules}
+  REJECT_MODULES      ${vtk_rejected_modules}
+  PROVIDES_MODULES    vtk_modules
+  PROVIDES_KITS       vtk_kits
+  REQUIRES_MODULES    vtk_required_modules
+  UNRECOGNIZED_MODULES vtk_unrecognized_modules
+  WANT_BY_DEFAULT     "${VTK_BUILD_ALL_MODULES}"
+  ENABLE_TESTS        "${VTK_BUILD_TESTING}")
 
-# Add the option for build the Python wrapping to VTK.
-option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF)
-set(VTK_PYTHON_VERSION 2 CACHE STRING
-    "Python version to use: 2, 2.x, or empty")
+if (vtk_required_modules OR vtk_unrecognized_modules)
+  message(FATAL_ERROR
+    "The following modules were requested or required, but not found: "
+    "${vtk_required_modules};${vtk_unrecognized_modules}.")
+endif ()
 
-# Add the option for build the Python wrapping to VTK.
-option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
+list(FIND vtk_modules "VTK::Python" vtk_python_idx)
+if (NOT vtk_python_idx EQUAL "-1")
+  include(vtkModuleWrapPython)
+  vtk_module_python_default_destination(VTK_PYTHON_SITE_PACKAGES_SUFFIX)
+endif ()
 
-# FIXME: This variable should not be necessary once we are done
-set(VTK_IGNORE_BTX ON CACHE INTERNAL "VTK modular always ignores BTX")
+set(vtk_cmake_destination
+  "${CMAKE_INSTALL_LIBDIR}/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 
-# Force reset of hints file location in cache if it was moved
-if(VTK_WRAP_HINTS)
-  if(NOT EXISTS ${VTK_WRAP_HINTS})
-    set(VTK_WRAP_HINTS "VTK_WRAP_HINTS-NOTFOUND")
+option(VTK_ENABLE_KITS "Enable kits compilation" OFF)
+mark_as_advanced(VTK_ENABLE_KITS)
+
+option(VTK_USE_EXTERNAL "Use external copies of third party libraries by default" OFF)
+mark_as_advanced(VTK_USE_EXTERNAL)
+
+vtk_module_build(
+  MODULES             ${vtk_modules}
+  KITS                ${vtk_kits}
+  INSTALL_EXPORT      VTK
+  HEADERS_DESTINATION "include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
+  CMAKE_DESTINATION   "${vtk_cmake_destination}"
+  LIBRARY_NAME_SUFFIX "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
+  VERSION             "${VTK_VERSION}"
+  SOVERSION           "1"
+  TEST_DATA_TARGET    VTKData
+  BUILD_WITH_KITS     "${VTK_ENABLE_KITS}"
+  USE_EXTERNAL        "${VTK_USE_EXTERNAL}"
+  TEST_INPUT_DATA_DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
+  TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing")
+include(vtkModuleJson)
+vtk_module_json(
+  MODULES ${vtk_modules}
+  OUTPUT  "modules.json")
+include(vtkModuleGraphviz)
+vtk_module_graphviz(
+  MODULES ${vtk_modules}
+  KIT_CLUSTERS ON
+  PRIVATE_DEPENDENCIES OFF
+  OUTPUT  "modules.dot")
+
+# Create target to download data from the VTKData group.  This must come after
+# all tests have been added that reference the group, so we put it last.
+if(VTK_DATA_EXCLUDE_FROM_ALL)
+  set_property(TARGET VTKData PROPERTY EXCLUDE_FROM_ALL 1)
+  if(BUILD_TESTING AND NOT VTK_DATA_EXCLUDE_FROM_ALL_NO_WARNING)
+    message(WARNING "VTK_DATA_EXCLUDE_FROM_ALL is ON so test data "
+      "(needed because BUILD_TESTING is ON) may not be available "
+      "without manually building the 'VTKData' target.")
   endif()
 endif()
 
-find_file(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping/Tools
-  NO_CMAKE_FIND_ROOT_PATH)
-mark_as_advanced(VTK_WRAP_HINTS)
+if (VTK_WRAP_PYTHON)
+  get_property(vtk_required_python_modules GLOBAL
+    PROPERTY  vtk_required_python_modules)
+  if (vtk_required_python_modules)
+    list(REMOVE_DUPLICATES vtk_required_python_modules)
+  endif ()
+  string(REPLACE ";" "\n" vtk_required_python_modules "${vtk_required_python_modules}")
+  file(WRITE "${CMAKE_BINARY_DIR}/requirements.txt"
+    "${vtk_required_python_modules}\n")
+  vtk_module_wrap_python(
+    MODULES         ${vtk_modules}
+    INSTALL_EXPORT  VTK
+    PYTHON_PACKAGE  "vtkmodules"
+    MODULE_DESTINATION  "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
+    CMAKE_DESTINATION   "${vtk_cmake_destination}"
+    WRAPPED_MODULES vtk_python_wrapped_modules
+    TARGET          VTK::vtkpythonmodules)
 
-if(BUILD_TESTING OR VTK_WRAP_PYTHON)
-  # Need PYTHON_EXECUTABLE for HeaderTesting or python wrapping
-  find_package(PythonInterp ${VTK_PYTHON_VERSION} QUIET)
-  mark_as_advanced(PYTHON_EXECUTABLE)
-endif()
-
-if(VTK_WRAP_PYTHON)
-  set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
-  set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
-  set(VTK_PYTHON_EXE vtkpython)
-  # Force the WrappingPythonCore module to on if wrapping is on
-  set(Module_vtkWrappingPythonCore ON CACHE BOOL "Core Python wrapping library"
-    FORCE)
-else()
-  # if wrapping is not on then force WrappingPythonCore module to be off
-  set(Module_vtkWrappingPythonCore OFF CACHE BOOL "Core Python wrapping library"
-    FORCE)
-endif()
-
-if(VTK_WRAP_JAVA)
-  set(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping/Java")
-  # Wrapping executables.
-  set(VTK_WRAP_JAVA_EXE  vtkWrapJava)
-  set(VTK_PARSE_JAVA_EXE vtkParseJava)
-  set(Module_vtkWrappingJava ON CACHE BOOL "Core Java wrapping library"
-    FORCE)
-
-  # Java package location.
-  set(VTK_JAVA_JAR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/vtk.jar)
-  set(VTK_JAVA_HOME ${VTK_BINARY_DIR}/java/vtk)
-  file(MAKE_DIRECTORY ${VTK_JAVA_HOME})
-else()
-  set(Module_vtkWrappingJava OFF CACHE BOOL "Core Java wrapping library"
-    FORCE)
-endif()
-
-# Now for Tcl wrapping.
-option(VTK_WRAP_TCL "Should VTK Tcl wrapping be built?" OFF)
-if(VTK_WRAP_TCL)
-  set(VTK_WRAP_TCL_EXE vtkWrapTcl)
-  set(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
-  set(VTK_TCL_EXE vtk)
-  # Tcl package location.
-  set(VTK_TCL_HOME ${VTK_BINARY_DIR}/Wrapping/Tcl)
-  # Force the WrappingTcl module to on if wrapping is on
-  set(Module_vtkWrappingTcl ON CACHE BOOL "Core Tcl wrapping library"
-    FORCE)
-else()
-  # if wrapping is not on then force WrappingTcl module to be off
-  set(Module_vtkWrappingTcl OFF CACHE BOOL "Core Tcl wrapping library"
-    FORCE)
-endif()
-
-if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
-  set(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
-endif()
-
-# This is not normally necessary, but could be desirable in some circumstances.
-option(VTK_MAKE_INSTANTIATORS "Should all modules build instantiators" OFF)
-mark_as_advanced(VTK_MAKE_INSTANTIATORS)
-
-#----------------------------------------------------------------------
-# Load the module DAG, assess all modules etc.
-include(vtkModuleTop)
-
-# Now build the Python wrapping if necessary.
-if(VTK_WRAP_PYTHON)
   add_subdirectory(Wrapping/Python)
-endif()
+endif ()
+
+if (VTK_WRAP_JAVA)
+  add_subdirectory(Wrapping/Java)
+endif ()
+
+ExternalData_Add_Target(VTKData)
+
+set(vtk_cmake_build_dir
+  "${CMAKE_CURRENT_BINARY_DIR}/${vtk_cmake_destination}")
+include(vtkInstallCMakePackage)
+
+cmake_dependent_option(VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS
+  "Suppress warnings from third-party libraries from showing on CDash" OFF
+  "VTK_BUILD_TESTING" OFF)
+mark_as_advanced(VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS)
+
+configure_file(
+  "${vtk_cmake_dir}/CTestCustom.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake"
+  @ONLY)
+
+option(VTK_BUILD_EXAMPLES "Build VTK examples." OFF)
+if (VTK_BUILD_EXAMPLES)
+  add_subdirectory(Examples)
+endif ()
 
 if(BUILD_TESTING)
   add_subdirectory(Testing/Install)
 endif()
 
-if(BUILD_EXAMPLES)
-  add_subdirectory(Examples)
-endif()
-
 # The doxygen documentation needs to be aware of all modules.
-option(BUILD_DOCUMENTATION "Build the VTK documentation" OFF)
-if(BUILD_DOCUMENTATION)
+option(VTK_BUILD_DOCUMENTATION "Build the VTK documentation" OFF)
+if(VTK_BUILD_DOCUMENTATION)
   add_subdirectory(Utilities/Doxygen)
 endif()
 
@@ -539,45 +326,9 @@ if(BUILD_TESTING AND VTK_WRAP_PYTHON)
   add_subdirectory(Utilities/vtkTclTest2Py)
 endif()
 
-# Configure the CTestCustom.cmake file now that everything is done.
-set(memcheck_excluded_tests "  # These tests do not run any VTK code\n")
-foreach(vtk-module ${VTK_MODULES_ALL})
-  set(memcheck_excluded_tests
-    "${memcheck_excluded_tests}  ${vtk-module}-HeaderTest\n")
-endforeach()
-configure_file("${VTK_CMAKE_DIR}/CTestCustom.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake" @ONLY)
+# TODO: The VTKCompileTools package.
+# TODO: HeaderTest exclusions for memcheck.
 
 #-----------------------------------------------------------------------------
-# Export all targets at once from the build tree in their final configuration.
-get_property(_vtk_targets GLOBAL PROPERTY VTK_TARGETS)
-get_property(_vtk_compiletools_targets GLOBAL PROPERTY VTK_COMPILETOOLS_TARGETS)
-set (_vtk_all_targets ${_vtk_targets} ${_vtk_compiletools_targets})
-if (_vtk_all_targets)
-  list(REMOVE_DUPLICATES _vtk_all_targets)
-  export(TARGETS ${_vtk_all_targets} FILE ${VTK_BINARY_DIR}/VTKTargets.cmake)
-endif()
-# Add a virtual target that can be used to build all compile tools.
-add_custom_target(vtkCompileTools)
-if (_vtk_compiletools_targets)
-  list(REMOVE_DUPLICATES _vtk_compiletools_targets)
-  export(TARGETS ${_vtk_compiletools_targets}
-         FILE ${VTK_BINARY_DIR}/VTKCompileToolsConfig.cmake)
-  add_dependencies(vtkCompileTools ${_vtk_compiletools_targets})
-endif()
-
-unset(_vtk_targets)
-unset(_vtk_compiletools_targets)
-unset(_vtk_all_targets)
-
-# Create target to download data from the VTKData group.  This must come after
-# all tests have been added that reference the group, so we put it last.
-ExternalData_Add_Target(VTKData)
-if(VTK_DATA_EXCLUDE_FROM_ALL)
-  set_property(TARGET VTKData PROPERTY EXCLUDE_FROM_ALL 1)
-  if(BUILD_TESTING AND NOT VTK_DATA_EXCLUDE_FROM_ALL_NO_WARNING)
-    message(WARNING "VTK_DATA_EXCLUDE_FROM_ALL is ON so test data "
-      "(needed because BUILD_TESTING is ON) may not be available "
-      "without manually building the 'VTKData' target.")
-  endif()
-endif()
+# Do this at the end so the all variables it uses are setup.
+include(vtkBuildPath)

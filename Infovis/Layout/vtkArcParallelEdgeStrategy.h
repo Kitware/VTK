@@ -16,11 +16,14 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkArcParallelEdgeStrategy - routes parallel edges as arcs
-//
-// .SECTION Description
-// Parallel edges are drawn as arcs, and self-loops are drawn as ovals.
-// When only one edge connects two vertices it is drawn as a straight line.
+/**
+ * @class   vtkArcParallelEdgeStrategy
+ * @brief   routes parallel edges as arcs
+ *
+ *
+ * Parallel edges are drawn as arcs, and self-loops are drawn as ovals.
+ * When only one edge connects two vertices it is drawn as a straight line.
+*/
 
 #ifndef vtkArcParallelEdgeStrategy_h
 #define vtkArcParallelEdgeStrategy_h
@@ -35,27 +38,31 @@ class VTKINFOVISLAYOUT_EXPORT vtkArcParallelEdgeStrategy : public vtkEdgeLayoutS
 public:
   static vtkArcParallelEdgeStrategy* New();
   vtkTypeMacro(vtkArcParallelEdgeStrategy,vtkEdgeLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // This is the layout method where the graph that was
-  // set in SetGraph() is laid out.
-  virtual void Layout();
+  /**
+   * This is the layout method where the graph that was
+   * set in SetGraph() is laid out.
+   */
+  void Layout() override;
 
-  // Description:
-  // Get/Set the number of subdivisions on each edge.
+  //@{
+  /**
+   * Get/Set the number of subdivisions on each edge.
+   */
   vtkGetMacro(NumberOfSubdivisions, int);
   vtkSetMacro(NumberOfSubdivisions, int);
+  //@}
 
 protected:
   vtkArcParallelEdgeStrategy();
-  ~vtkArcParallelEdgeStrategy();
+  ~vtkArcParallelEdgeStrategy() override;
 
   int NumberOfSubdivisions;
 
 private:
-  vtkArcParallelEdgeStrategy(const vtkArcParallelEdgeStrategy&);  // Not implemented.
-  void operator=(const vtkArcParallelEdgeStrategy&);  // Not implemented.
+  vtkArcParallelEdgeStrategy(const vtkArcParallelEdgeStrategy&) = delete;
+  void operator=(const vtkArcParallelEdgeStrategy&) = delete;
 };
 
 #endif

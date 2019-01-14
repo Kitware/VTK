@@ -28,10 +28,10 @@ vtkSQLDatabase * PostgreSQLCreateFunction(const char* URL)
 
   if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
       protocol == "psql")
-    {
+  {
     db = vtkPostgreSQLDatabase::New();
     db->ParseURL(URL);
-    }
+  }
 
   return db;
 }
@@ -47,15 +47,15 @@ struct VTKIOPOSTGRESQL_EXPORT vtkIOPostgreSQL_AutoInit
 VTKIOPOSTGRESQL_EXPORT void vtkIOPostgreSQL_AutoInit_Construct()
 {
   if (++vtkIOPostgreSQLCount == 1)
-    {
+  {
     vtkSQLDatabase::RegisterCreateFromURLCallback(PostgreSQLCreateFunction);
-    }
+  }
 }
 
 VTKIOPOSTGRESQL_EXPORT void vtkIOPostgreSQL_AutoInit_Destruct()
 {
   if (--vtkIOPostgreSQLCount == 0)
-    {
+  {
     vtkSQLDatabase::UnRegisterCreateFromURLCallback(PostgreSQLCreateFunction);
-    }
+  }
 }

@@ -2982,227 +2982,227 @@ extern int vtkEncodedArrayWin32OutputWindowProcessWrite(const char* fname)
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_0, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_0), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_0))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_1, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_1), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_1))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_2, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_2), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_2))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_3, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_3), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_3))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_4, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_4), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_4))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_5, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_5), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_5))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_6, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_6), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_6))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_7, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_7), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_7))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_8, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_8), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_8))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_9, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_9), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_9))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_10, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_10), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_10))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_11, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_11), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_11))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_12, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_12), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_12))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_13, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_13), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_13))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_14, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_14), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_14))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_15, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_15), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_15))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_16, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_16), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_16))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_17, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_17), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_17))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_18, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_18), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_18))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_19, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_19), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_19))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_20, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_20), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_20))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_21, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_21), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_21))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_22, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_22), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_22))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_23, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_23), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_23))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_24, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_24), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_24))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_25, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_25), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_25))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_26, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_26), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_26))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   if(fwrite(vtkEncodedArrayWin32OutputWindowProcess_27, 1,
             sizeof(vtkEncodedArrayWin32OutputWindowProcess_27), ofp) !=
        sizeof(vtkEncodedArrayWin32OutputWindowProcess_27))
-    {
+  {
     fclose(ofp);
     _unlink(fname);
     return 0;
-    }
+  }
   fclose(ofp);
   return 1;
 }

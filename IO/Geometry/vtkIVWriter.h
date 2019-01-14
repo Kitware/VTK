@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkIVWriter - export polydata into OpenInventor 2.0 format.
-// .SECTION Description
-// vtkIVWriter is a concrete subclass of vtkWriter that writes OpenInventor 2.0
-// files.
-//
-// .SECTION See Also
-// vtkPolyDataWriter
-
+/**
+ * @class   vtkIVWriter
+ * @brief   export polydata into OpenInventor 2.0 format.
+ *
+ * vtkIVWriter is a concrete subclass of vtkWriter that writes OpenInventor 2.0
+ * files.
+ *
+ * @sa
+ * vtkPolyDataWriter
+*/
 
 #ifndef vtkIVWriter_h
 #define vtkIVWriter_h
@@ -34,39 +36,45 @@ class VTKIOGEOMETRY_EXPORT vtkIVWriter : public vtkWriter
 public:
   static vtkIVWriter *New();
   vtkTypeMacro(vtkIVWriter,vtkWriter);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkPolyData* GetInput();
   vtkPolyData* GetInput(int port);
+  //@}
 
-  // Description:
-  // Specify file name of vtk polygon data file to write.
+  //@{
+  /**
+   * Specify file name of vtk polygon data file to write.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkIVWriter()
-    {
-    this->FileName = NULL;
-    }
+  {
+    this->FileName = nullptr;
+  }
 
-  ~vtkIVWriter()
-    {
+  ~vtkIVWriter() override
+  {
     delete[] this->FileName;
-    }
+  }
 
-  void WriteData();
+  void WriteData() override;
   void WritePolyData(vtkPolyData *polyData, FILE *fp);
 
   char *FileName;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkIVWriter(const vtkIVWriter&);  // Not implemented.
-  void operator=(const vtkIVWriter&);  // Not implemented.
+  vtkIVWriter(const vtkIVWriter&) = delete;
+  void operator=(const vtkIVWriter&) = delete;
 };
 
 #endif

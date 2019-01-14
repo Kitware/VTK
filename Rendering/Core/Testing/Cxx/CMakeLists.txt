@@ -1,15 +1,29 @@
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  set(extra_opengl2_tests
-    TestCompositePolyDataMapper2.cxx,NO_DATA
-    # the following produce incorrect results in OpenGL
-    TestTranslucentLUTAlphaBlending.cxx
-    TestTranslucentLUTTextureAlphaBlending.cxx
-    TestAreaSelections.cxx
-    )
+set(extra_opengl2_tests)
+if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
+  list(APPEND extra_opengl2_tests TestOffscreenIsOffscreen.cxx,NO_DATA,NO_VALID)
 endif()
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   ${extra_opengl2_tests}
+  TestBlockOpacity.cxx TestBlockVisibility.cxx
+  TestCompositeDataPointGaussian.cxx,NO_DATA
+  TestCompositeDataPointGaussianSelection.cxx,NO_DATA
+  TestCompositePolyDataMapper2.cxx,NO_DATA
+  TestCompositePolyDataMapper2Picking.cxx,NO_DATA
+  TestCompositePolyDataMapper2Scalars.cxx,NO_DATA
+  TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA
+  TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA
+  TestCompositePolyDataMapper2MixedGeometryEdges.cxx,NO_DATA
+  # composite glyphs are only supported on OpenGL2.
+  TestGlyph3DMapperTreeIndexingCompositeGlyphs.cxx,NO_DATA
+  TestMultiBlockPartialArrayPointData.cxx
+  TestMultiBlockPartialArrayFieldData.cxx
+  # the following produce incorrect results in OpenGL
+  TestTranslucentLUTAlphaBlending.cxx
+  TestTranslucentLUTTextureAlphaBlending.cxx
+  TestAreaSelections.cxx
+  TestValuePassFloatingPoint.cxx
+  TestToggleOSWithInteractor.cxx,NO_DATA
   otherCoordinate.cxx,NO_DATA,NO_VALID
   FrustumClip.cxx
   Mace.cxx
@@ -21,24 +35,31 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestAssemblyBounds.cxx,NO_VALID
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
-  TestBlockOpacity.cxx
   TestColorByCellDataStringArray.cxx
   TestColorByPointDataStringArray.cxx
   TestColorByStringArrayDefaultLookupTable.cxx
   TestColorByStringArrayDefaultLookupTable2D.cxx
+  TestColorTransferFunction.cxx,NO_VALID
   TestColorTransferFunctionStringArray.cxx,NO_VALID
   TestDirectScalarsToColors.cxx
   TestDiscretizableColorTransferFunction.cxx,NO_VALID
   TestDiscretizableColorTransferFunctionStringArray.cxx,NO_VALID
+  TestDiscretizableColorTransferFunctionOpacity.cxx,NO_VALID
   TestEdgeFlags.cxx
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx
+  TestGlyph3DMapper2.cxx,NO_VALID,NO_RT,NO_DATA
   TestGlyph3DMapperArrow.cxx
+  TestGlyph3DMapperIndexing.cxx,NO_DATA
   TestGlyph3DMapperMasking.cxx
   TestGlyph3DMapperOrientationArray.cxx
+  TestGlyph3DMapperQuaternionArray.cxx
   TestGlyph3DMapperPicking.cxx
+  TestGlyph3DMapperTreeIndexing.cxx,NO_DATA
   TestGradientBackground.cxx
+  TestHiddenLineRemovalPass.cxx
   TestHomogeneousTransformOfActor.cxx
+  TestImageAndAnnotations.cxx,NO_DATA
   TestInteractorStyleImageProperty.cxx,NO_VALID
   TestInteractorTimers.cxx,NO_VALID
   TestLabeledContourMapper.cxx
@@ -50,8 +71,13 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOffAxisStereo.cxx
   TestOrderedTriangulator.cxx
   TestOpacity.cxx
+  TestStereoBackgroundLeft.cxx
+  TestStereoBackgroundRight.cxx
   TestOSConeCxx.cxx
+  TestOnAndOffScreenConeCxx.cxx
+  TestPickTextActor.cxx,NO_VALID
   TestPointSelection.cxx,NO_VALID
+  TestPointSelectionWithCellData.cxx,NO_VALID
   TestPolygonSelection.cxx
   TestResetCameraVerticalAspectRatio.cxx
   TestResetCameraVerticalAspectRatioParallel.cxx
@@ -70,6 +96,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTStripsNormalsColorsTCoords.cxx
   TestTStripsNormalsTCoords.cxx
   TestTStripsTCoords.cxx
+  TestWindowToImageFilter.cxx
   otherLookupTable.cxx,NO_VALID
   otherLookupTableWithEnabling.cxx,NO_VALID
   RenderNonFinite.cxx
@@ -78,10 +105,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )
 
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  set_source_files_properties(
-   TestEdgeFlags.cxx # fails on OpenGL Mesa
-    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
-endif()
+set_source_files_properties(
+  TestEdgeFlags.cxx # fails on OpenGL Mesa
+  PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkRenderingCoreCxxTests tests)

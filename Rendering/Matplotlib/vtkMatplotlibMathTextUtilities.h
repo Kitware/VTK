@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMatplotlibMathTextUtilities - Access to MatPlotLib MathText rendering
-// .SECTION Description
-// vtkMatplotlibMathTextUtilities provides access to the MatPlotLib MathText
-// implementation.
-//
-// This class is aware of a number of environment variables that can be used to
-// configure and debug python initialization (all are optional):
-// - VTK_MATPLOTLIB_DEBUG: Enable verbose debugging output during initialization
-// of the python environment.
+/**
+ * @class   vtkMatplotlibMathTextUtilities
+ * @brief   Access to MatPlotLib MathText rendering
+ *
+ * vtkMatplotlibMathTextUtilities provides access to the MatPlotLib MathText
+ * implementation.
+ *
+ * This class is aware of a number of environment variables that can be used to
+ * configure and debug python initialization (all are optional):
+ * - VTK_MATPLOTLIB_DEBUG: Enable verbose debugging output during initialization
+ * of the python environment.
+*/
 
 #ifndef vtkMatplotlibMathTextUtilities_h
 #define vtkMatplotlibMathTextUtilities_h
@@ -40,51 +43,60 @@ class VTKRENDERINGMATPLOTLIB_EXPORT vtkMatplotlibMathTextUtilities :
 {
 public:
   vtkTypeMacro(vtkMatplotlibMathTextUtilities, vtkMathTextUtilities);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkMatplotlibMathTextUtilities *New();
 
-  // Description:
-  // Given a text property and a string, get the bounding box {xmin, xmax,
-  // ymin, ymax} of the rendered string in pixels. The origin of the bounding
-  // box is the anchor point described by the horizontal and vertical
-  // justification text property variables.
-  // Returns true on success, false otherwise.
-  bool GetBoundingBox(vtkTextProperty *tprop, const char *str,
-                      unsigned int dpi, int bbox[4]);
+  bool IsAvailable() override;
 
-  bool GetMetrics(vtkTextProperty *tprop, const char *str,
-                  unsigned int dpi, vtkTextRenderer::Metrics &metrics);
+  /**
+   * Given a text property and a string, get the bounding box {xmin, xmax,
+   * ymin, ymax} of the rendered string in pixels. The origin of the bounding
+   * box is the anchor point described by the horizontal and vertical
+   * justification text property variables.
+   * Returns true on success, false otherwise.
+   */
+  bool GetBoundingBox(vtkTextProperty *tprop, const char *str, int dpi,
+                      int bbox[4]) override;
 
-  // Description:
-  // Render the given string @a str into the vtkImageData @a data with a
-  // resolution of @a dpi. The image is resized automatically. textDims
-  // will be overwritten by the pixel width and height of the rendered string.
-  // This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
-  // not match the dimensions of the rendered text.
-  // The origin of the image's extents is aligned with the anchor point
-  // described by the text property's vertical and horizontal justification
-  // options.
+  bool GetMetrics(vtkTextProperty *tprop, const char *str, int dpi,
+                  vtkTextRenderer::Metrics &metrics) override;
+
+  /**
+   * Render the given string @a str into the vtkImageData @a data with a
+   * resolution of @a dpi. The image is resized automatically. textDims
+   * will be overwritten by the pixel width and height of the rendered string.
+   * This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
+   * not match the dimensions of the rendered text.
+   * The origin of the image's extents is aligned with the anchor point
+   * described by the text property's vertical and horizontal justification
+   * options.
+   */
   bool RenderString(const char *str, vtkImageData *data, vtkTextProperty *tprop,
-                    unsigned int dpi, int textDims[2] = NULL);
+                    int dpi, int textDims[2] = NULL) override;
 
-  // Description:
-  // Parse the MathText expression in str and fill path with a contour of the
-  // glyphs. The origin of the path coordinates is aligned with the anchor point
-  // described by the text property's horizontal and vertical justification
-  // options.
-  bool StringToPath(const char *str, vtkPath *path, vtkTextProperty *tprop);
+  /**
+   * Parse the MathText expression in str and fill path with a contour of the
+   * glyphs. The origin of the path coordinates is aligned with the anchor point
+   * described by the text property's horizontal and vertical justification
+   * options.
+   */
+  bool StringToPath(const char *str, vtkPath *path, vtkTextProperty *tprop,
+                    int dpi) override;
 
-  // Description:
-  // Set to true if the graphics implmentation requires texture image dimensions
-  // to be a power of two. Default is true, but this member will be set
-  // appropriately when GL is inited.
-  vtkSetMacro(ScaleToPowerOfTwo, bool);
-  vtkGetMacro(ScaleToPowerOfTwo, bool);
+  //@{
+  /**
+   * Set to true if the graphics implementation requires texture image dimensions
+   * to be a power of two. Default is true, but this member will be set
+   * appropriately when GL is inited.
+   */
+  void SetScaleToPowerOfTwo(bool val) override;
+  bool GetScaleToPowerOfTwo() override;
+  //@}
 
 protected:
   vtkMatplotlibMathTextUtilities();
-  virtual ~vtkMatplotlibMathTextUtilities();
+  ~vtkMatplotlibMathTextUtilities() override;
 
   bool InitializeMaskParser();
   bool InitializePathParser();
@@ -93,15 +105,17 @@ protected:
   bool CheckForError();
   bool CheckForError(PyObject *object);
 
-  // Description:
-  // Returns a matplotlib.font_manager.FontProperties PyObject, initialized from
-  // the vtkTextProperty tprop.
+  /**
+   * Returns a matplotlib.font_manager.FontProperties PyObject, initialized from
+   * the vtkTextProperty tprop.
+   */
   PyObject * GetFontProperties(vtkTextProperty *tprop);
 
-  // Description:
-  // Cleanup and destroy any python objects. This is called during destructor as
-  // well as when the Python interpreter is finalized. Thus this class must
-  // handle the case where the internal python objects disappear between calls.
+  /**
+   * Cleanup and destroy any python objects. This is called during destructor as
+   * well as when the Python interpreter is finalized. Thus this class must
+   * handle the case where the internal python objects disappear between calls.
+   */
   void CleanupPythonObjects();
 
   vtkPythonInterpreter* Interpreter;
@@ -117,28 +131,38 @@ protected:
   static void RotateCorners(double angleDeg, double corners[4][2],
                             double bbox[4]);
 
-  // Description:
-  // Used for runtime checking of matplotlib's mathtext availability.
-  enum Availablity
-    {
-    NOT_TESTED = 0,
-    AVAILABLE,
-    UNAVAILABLE
-    };
-
   bool ScaleToPowerOfTwo;
   bool PrepareImageData(vtkImageData *data, int bbox[4]);
 
-  // Function used to check MPL availability and update MPLMathTextAvailable.
-  // This will do tests only the first time this method is called.
-  static void CheckMPLAvailability();
-
 private:
-  vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&); // Not implemented.
-  void operator=(const vtkMatplotlibMathTextUtilities&); // Not implemented.
+  vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&) = delete;
+  void operator=(const vtkMatplotlibMathTextUtilities&) = delete;
 
+  /**
+   * Used for runtime checking of matplotlib's mathtext availability.
+   * @sa IsAvailable
+   */
+  enum Availability
+  {
+    NOT_TESTED = 0,
+    AVAILABLE,
+    UNAVAILABLE
+  };
 
-  static Availablity MPLMathTextAvailable;
+  /**
+   * Function used to check MPL availability and update MPLMathTextAvailable.
+   * This will do tests only the first time this method is called. This method
+   * is called internally when matplotlib rendering is first needed and is used
+   * to implement IsAvailable.
+   */
+  static Availability CheckMPLAvailability();
+
+  //@{
+  /**
+   * Cache the availability of matplotlib in the current python session.
+   */
+  static Availability MPLMathTextAvailable;
 };
+  //@}
 
 #endif

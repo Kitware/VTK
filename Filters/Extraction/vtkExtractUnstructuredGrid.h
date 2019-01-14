@@ -12,26 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractUnstructuredGrid - extract subset of unstructured grid geometry
-// .SECTION Description
-// vtkExtractUnstructuredGrid is a general-purpose filter to
-// extract geometry (and associated data) from an unstructured grid
-// dataset. The extraction process is controlled by specifying a range
-// of point ids, cell ids, or a bounding box (referred to as "Extent").
-// Those cells laying within these regions are sent to the output.
-// The user has the choice of merging coincident points (Merging is on)
-// or using the original point set (Merging is off).
-
-// .SECTION Caveats
-// If merging is off, the input points are copied through to the
-// output. This means unused points may be present in the output data.
-// If merging is on, then coincident points with different point attribute
-// values are merged.
-
-// .SECTION See Also
-// vtkImageDataGeometryFilter vtkStructuredGridGeometryFilter
-// vtkRectilinearGridGeometryFilter
-// vtkExtractGeometry vtkExtractVOI
+/**
+ * @class   vtkExtractUnstructuredGrid
+ * @brief   extract subset of unstructured grid geometry
+ *
+ * vtkExtractUnstructuredGrid is a general-purpose filter to
+ * extract geometry (and associated data) from an unstructured grid
+ * dataset. The extraction process is controlled by specifying a range
+ * of point ids, cell ids, or a bounding box (referred to as "Extent").
+ * Those cells laying within these regions are sent to the output.
+ * The user has the choice of merging coincident points (Merging is on)
+ * or using the original point set (Merging is off).
+ *
+ * @warning
+ * If merging is off, the input points are copied through to the
+ * output. This means unused points may be present in the output data.
+ * If merging is on, then coincident points with different point attribute
+ * values are merged.
+ *
+ * @sa
+ * vtkImageDataGeometryFilter vtkStructuredGridGeometryFilter
+ * vtkRectilinearGridGeometryFilter
+ * vtkExtractGeometry vtkExtractVOI
+*/
 
 #ifndef vtkExtractUnstructuredGrid_h
 #define vtkExtractUnstructuredGrid_h
@@ -45,102 +48,136 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractUnstructuredGrid : public vtkUnstruc
 {
 public:
   vtkTypeMacro(vtkExtractUnstructuredGrid,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Construct with all types of clipping turned off.
+  /**
+   * Construct with all types of clipping turned off.
+   */
   static vtkExtractUnstructuredGrid *New();
 
-  // Description:
-  // Turn on/off selection of geometry by point id.
-  vtkSetMacro(PointClipping,int);
-  vtkGetMacro(PointClipping,int);
-  vtkBooleanMacro(PointClipping,int);
+  //@{
+  /**
+   * Turn on/off selection of geometry by point id.
+   */
+  vtkSetMacro(PointClipping,vtkTypeBool);
+  vtkGetMacro(PointClipping,vtkTypeBool);
+  vtkBooleanMacro(PointClipping,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Turn on/off selection of geometry by cell id.
-  vtkSetMacro(CellClipping,int);
-  vtkGetMacro(CellClipping,int);
-  vtkBooleanMacro(CellClipping,int);
+  //@{
+  /**
+   * Turn on/off selection of geometry by cell id.
+   */
+  vtkSetMacro(CellClipping,vtkTypeBool);
+  vtkGetMacro(CellClipping,vtkTypeBool);
+  vtkBooleanMacro(CellClipping,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Turn on/off selection of geometry via bounding box.
-  vtkSetMacro(ExtentClipping,int);
-  vtkGetMacro(ExtentClipping,int);
-  vtkBooleanMacro(ExtentClipping,int);
+  //@{
+  /**
+   * Turn on/off selection of geometry via bounding box.
+   */
+  vtkSetMacro(ExtentClipping,vtkTypeBool);
+  vtkGetMacro(ExtentClipping,vtkTypeBool);
+  vtkBooleanMacro(ExtentClipping,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Specify the minimum point id for point id selection.
+  //@{
+  /**
+   * Specify the minimum point id for point id selection.
+   */
   vtkSetClampMacro(PointMinimum,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(PointMinimum,vtkIdType);
+  //@}
 
-  // Description:
-  // Specify the maximum point id for point id selection.
+  //@{
+  /**
+   * Specify the maximum point id for point id selection.
+   */
   vtkSetClampMacro(PointMaximum,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(PointMaximum,vtkIdType);
+  //@}
 
-  // Description:
-  // Specify the minimum cell id for point id selection.
+  //@{
+  /**
+   * Specify the minimum cell id for point id selection.
+   */
   vtkSetClampMacro(CellMinimum,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(CellMinimum,vtkIdType);
+  //@}
 
-  // Description:
-  // Specify the maximum cell id for point id selection.
+  //@{
+  /**
+   * Specify the maximum cell id for point id selection.
+   */
   vtkSetClampMacro(CellMaximum,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(CellMaximum,vtkIdType);
+  //@}
 
-  // Description:
-  // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
+  /**
+   * Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
+   */
   void SetExtent(double xMin, double xMax, double yMin, double yMax,
                  double zMin, double zMax);
 
-  // Description:
-  // Set / get a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
+  //@{
+  /**
+   * Set / get a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
+   */
   void SetExtent(double extent[6]);
-  double *GetExtent() { return this->Extent;};
+  double *GetExtent() VTK_SIZEHINT(6) { return this->Extent;};
+  //@}
 
-  // Description:
-  // Turn on/off merging of coincident points. Note that is merging is
-  // on, points with different point attributes (e.g., normals) are merged,
-  // which may cause rendering artifacts.
-  vtkSetMacro(Merging,int);
-  vtkGetMacro(Merging,int);
-  vtkBooleanMacro(Merging,int);
+  //@{
+  /**
+   * Turn on/off merging of coincident points. Note that is merging is
+   * on, points with different point attributes (e.g., normals) are merged,
+   * which may cause rendering artifacts.
+   */
+  vtkSetMacro(Merging,vtkTypeBool);
+  vtkGetMacro(Merging,vtkTypeBool);
+  vtkBooleanMacro(Merging,vtkTypeBool);
+  //@}
 
-  // Description:
-  // Set / get a spatial locator for merging points. By
-  // default an instance of vtkMergePoints is used.
+  //@{
+  /**
+   * Set / get a spatial locator for merging points. By
+   * default an instance of vtkMergePoints is used.
+   */
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
+  //@}
 
-  // Description:
-  // Create default locator. Used to create one when none is specified.
+  /**
+   * Create default locator. Used to create one when none is specified.
+   */
   void CreateDefaultLocator();
 
-  // Description:
-  // Return the MTime also considering the locator.
-  unsigned long GetMTime();
+  /**
+   * Return the MTime also considering the locator.
+   */
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkExtractUnstructuredGrid();
-  ~vtkExtractUnstructuredGrid() {}
+  ~vtkExtractUnstructuredGrid() override {}
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkIdType PointMinimum;
   vtkIdType PointMaximum;
   vtkIdType CellMinimum;
   vtkIdType CellMaximum;
   double Extent[6];
-  int PointClipping;
-  int CellClipping;
-  int ExtentClipping;
+  vtkTypeBool PointClipping;
+  vtkTypeBool CellClipping;
+  vtkTypeBool ExtentClipping;
 
-  int Merging;
+  vtkTypeBool Merging;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkExtractUnstructuredGrid(const vtkExtractUnstructuredGrid&);  // Not implemented.
-  void operator=(const vtkExtractUnstructuredGrid&);  // Not implemented.
+  vtkExtractUnstructuredGrid(const vtkExtractUnstructuredGrid&) = delete;
+  void operator=(const vtkExtractUnstructuredGrid&) = delete;
 };
 
 #endif

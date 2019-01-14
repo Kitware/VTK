@@ -1,12 +1,15 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from vtk import *
 import os.path
+from vtk.util.misc import vtkGetDataRoot
+VTK_DATA_ROOT = vtkGetDataRoot()
 
-data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
+data_dir = VTK_DATA_ROOT + "/Data/Infovis/SQLite/"
 if not os.path.exists(data_dir):
-  data_dir = "../../../../../VTKData/Data/Infovis/SQLite/"
+  data_dir = VTK_DATA_ROOT + "/Data/Infovis/SQLite/"
 if not os.path.exists(data_dir):
-  data_dir = "../../../../../../VTKData/Data/Infovis/SQLite/"
+  data_dir = VTK_DATA_ROOT + "/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "temperatures.db"
 
 # Pull the table from the database
@@ -18,14 +21,14 @@ databaseToTable.SetQuery("select * from main_tbl")
 databaseToTable.Update()
 inputTable = databaseToTable.GetOutput()
 numRows = inputTable.GetNumberOfRows()
-print "Input Table Rows: " , numRows
+print("Input Table Rows: " , numRows)
 
 # Divide the table into 4
 # Note1: using data specific method
 subSize = numRows/4
 leftOver = numRows - subSize*4
-print "subSize: ", subSize
-print "leftOver: ", leftOver
+print("subSize: ", subSize)
+print("leftOver: ", leftOver)
 
 # Python knows nothing of enumerated types
 # 6 = vtkDataObject::FIELD_ASSOCIATION_ROWS
@@ -59,14 +62,14 @@ threshold.SetMaxValue(vtkVariant(subSize*4+leftOver-1))
 threshold.Update()
 subTable4 = vtkTable()
 subTable4.DeepCopy(threshold.GetOutput())
-print "SubTable1 Rows: " , subTable1.GetNumberOfRows()
-print "SubTable2 Rows: " , subTable2.GetNumberOfRows()
-print "SubTable3 Rows: " , subTable3.GetNumberOfRows()
-print "SubTable4 Rows: " , subTable4.GetNumberOfRows()
+print("SubTable1 Rows: " , subTable1.GetNumberOfRows())
+print("SubTable2 Rows: " , subTable2.GetNumberOfRows())
+print("SubTable3 Rows: " , subTable3.GetNumberOfRows())
+print("SubTable4 Rows: " , subTable4.GetNumberOfRows())
 
 
 # Calculate offline(non-streaming) descriptive statistics
-print "# Calculate offline descriptive statistics:"
+print("# Calculate offline descriptive statistics:")
 ds = vtkDescriptiveStatistics()
 ds.SetInputConnection(databaseToTable.GetOutputPort())
 ds.AddColumn("Temp1")
@@ -86,7 +89,7 @@ inter.AddColumn("Temp2")
 
 
 # Calculate online(streaming) descriptive statistics
-print "# Calculate online descriptive statistics:"
+print("# Calculate online descriptive statistics:")
 ss = vtkStreamingStatistics()
 ss.SetStatisticsAlgorithm(inter)
 ss.SetInputData(subTable1)

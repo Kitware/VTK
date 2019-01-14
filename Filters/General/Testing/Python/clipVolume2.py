@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -15,7 +14,7 @@ sample.SetSampleDimensions(20,20,20)
 sample.SetImplicitFunction(quadric)
 sample.ComputeNormalsOff()
 # Program a bandpass filter to clip a range of data. What we do is transform the
-# scalars so that values laying betweeen (minRange,maxRange) are >= 0.0; all
+# scalars so that values laying between (minRange,maxRange) are >= 0.0; all
 # others are < 0.0,
 dataset = vtk.vtkImplicitDataSet()
 dataset.SetDataSet(sample.GetOutput())

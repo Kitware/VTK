@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
-#include <ctype.h>
+#include <cctype>
 
 #include <map>
 #include <utility>
@@ -41,8 +41,8 @@ class vtkMapType : public MapBase {};
 
 vtkMapArrayValues::vtkMapArrayValues()
 {
-  this->InputArrayName = 0;
-  this->OutputArrayName = 0;
+  this->InputArrayName = nullptr;
+  this->OutputArrayName = nullptr;
   this->SetOutputArrayName("ArrayMap");
   this->FieldType = vtkMapArrayValues::POINT_DATA;
   this->OutputArrayType = VTK_INT;
@@ -54,42 +54,52 @@ vtkMapArrayValues::vtkMapArrayValues()
 
 vtkMapArrayValues::~vtkMapArrayValues()
 {
-  this->SetInputArrayName(0);
-  this->SetOutputArrayName(0);
+  this->SetInputArrayName(nullptr);
+  this->SetOutputArrayName(nullptr);
   delete this->Map;
 }
 
-void vtkMapArrayValues::AddToMap(char *from, int to)
+void vtkMapArrayValues::AddToMap(const char *from, int to)
 {
-  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
+  vtkVariant fromVar(from);
+  vtkVariant toVar(to);
+  this->Map->insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
 
 void vtkMapArrayValues::AddToMap(int from, int to)
 {
-  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
+  vtkVariant fromVar(from);
+  vtkVariant toVar(to);
+  this->Map->insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
 
-void vtkMapArrayValues::AddToMap(int from, char *to)
+void vtkMapArrayValues::AddToMap(int from, const char *to)
 {
-  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
+  vtkVariant fromVar(from);
+  vtkVariant toVar(to);
+  this->Map->insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
 
-void vtkMapArrayValues::AddToMap(char *from, char *to)
+void vtkMapArrayValues::AddToMap(const char *from, const char *to)
 {
-  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
+  vtkVariant fromVar(from);
+  vtkVariant toVar(to);
+  this->Map->insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
 
 void vtkMapArrayValues::AddToMap(vtkVariant from, vtkVariant to)
 {
-  this->Map->insert(std::make_pair(from, to));
+  vtkVariant fromVar(from);
+  vtkVariant toVar(to);
+  this->Map->insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
@@ -120,28 +130,28 @@ int vtkMapArrayValues::RequestData(
   vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
   if(!this->InputArrayName)
-    {
+  {
     //vtkErrorMacro(<<"Input array not specified.");
     output->ShallowCopy(input);
     return 1;
-    }
+  }
 
-  vtkDataSetAttributes* ods=0;
+  vtkDataSetAttributes* ods=nullptr;
   if (vtkDataSet::SafeDownCast(input))
-    {
+  {
     vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
     vtkDataSet *dsOutput = vtkDataSet::SafeDownCast(output);
     // This has to be here because it initialized all field datas.
     dsOutput->CopyStructure( dsInput );
 
     if ( dsOutput->GetFieldData() && dsInput->GetFieldData() )
-      {
+    {
       dsOutput->GetFieldData()->PassData( dsInput->GetFieldData() );
-      }
+    }
     dsOutput->GetPointData()->PassData( dsInput->GetPointData() );
     dsOutput->GetCellData()->PassData( dsInput->GetCellData() );
     switch (this->FieldType)
-      {
+    {
       case vtkMapArrayValues::POINT_DATA:
         ods = dsOutput->GetPointData();
         break;
@@ -151,15 +161,15 @@ int vtkMapArrayValues::RequestData(
       default:
         vtkErrorMacro(<<"Data must be point or cell for vtkDataSet");
         return 0;
-      }
     }
+  }
   else if (vtkGraph::SafeDownCast(input))
-    {
+  {
     vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
     vtkGraph *graphOutput = vtkGraph::SafeDownCast(output);
     graphOutput->ShallowCopy( graphInput );
     switch (this->FieldType)
-      {
+    {
       case vtkMapArrayValues::VERTEX_DATA:
         ods = graphOutput->GetVertexData();
         break;
@@ -169,97 +179,97 @@ int vtkMapArrayValues::RequestData(
       default:
         vtkErrorMacro(<<"Data must be vertex or edge for vtkGraph");
         return 0;
-      }
     }
+  }
   else if (vtkTable::SafeDownCast(input))
-    {
+  {
     vtkTable *tableInput = vtkTable::SafeDownCast(input);
     vtkTable *tableOutput = vtkTable::SafeDownCast(output);
     tableOutput->ShallowCopy( tableInput );
     switch (this->FieldType)
-      {
+    {
       case vtkMapArrayValues::ROW_DATA:
         ods = tableOutput->GetRowData();
         break;
       default:
         vtkErrorMacro(<<"Data must be row for vtkTable");
         return 0;
-      }
     }
+  }
   else
-    {
+  {
     vtkErrorMacro(<<"Invalid input type");
     return 0;
-    }
+  }
 
   vtkAbstractArray *inputArray = ods->GetAbstractArray(this->InputArrayName);
   if (!inputArray)
-    {
+  {
     return 1;
-    }
+  }
   vtkAbstractArray *outputArray =
       vtkAbstractArray::CreateArray(this->OutputArrayType);
-  vtkDataArray *outputDataArray = vtkDataArray::SafeDownCast(outputArray);
+  vtkDataArray *outputDataArray = vtkArrayDownCast<vtkDataArray>(outputArray);
   vtkStringArray *outputStringArray =
-      vtkStringArray::SafeDownCast(outputArray);
+      vtkArrayDownCast<vtkStringArray>(outputArray);
   outputArray->SetName(this->OutputArrayName);
 
   // Are we copying the input array values to the output array before
   // the mapping?
   if(this->PassArray)
-    {
+  {
     // Make sure the DeepCopy will succeed
     if((inputArray->IsA("vtkDataArray") && outputArray->IsA("vtkDataArray"))
          || (inputArray->IsA("vtkStringArray")
              && outputArray->IsA("vtkStringArray")))
-      {
+    {
       outputArray->DeepCopy(inputArray);
-      }
+    }
     else
-      {
+    {
       vtkIdType numComps = inputArray->GetNumberOfComponents();
       vtkIdType numTuples = inputArray->GetNumberOfTuples();
       outputArray->SetNumberOfComponents(numComps);
       outputArray->SetNumberOfTuples(numTuples);
       for (vtkIdType i = 0; i < numTuples; ++i)
-        {
+      {
         for (vtkIdType j = 0; j < numComps; ++j)
-          {
+        {
           outputArray->InsertVariantValue(
             i*numComps + j, inputArray->GetVariantValue(i*numComps + j));
-          }
         }
       }
     }
+  }
   else
-    {
+  {
     outputArray->SetNumberOfComponents(inputArray->GetNumberOfComponents());
     outputArray->SetNumberOfTuples(inputArray->GetNumberOfTuples());
 
     // Fill the output array with a default value
     if(outputDataArray)
-      {
+    {
       outputDataArray->FillComponent(0, this->FillValue);
-      }
     }
+  }
 
   // Use the internal map to set the mapped values in the output array
   vtkIdList* results = vtkIdList::New();
   for(MapBase::iterator i = this->Map->begin(); i != this->Map->end(); ++i)
-    {
+  {
     inputArray->LookupValue(i->first, results);
     for(vtkIdType j=0; j<results->GetNumberOfIds(); ++j)
-      {
+    {
       if(outputDataArray)
-        {
+      {
         outputDataArray->SetComponent(results->GetId(j), 0, i->second.ToDouble());
-        }
+      }
       else if(outputStringArray)
-        {
+      {
         outputStringArray->SetValue(results->GetId(j), i->second.ToString());
-        }
       }
     }
+  }
 
   // Finally, add the array to the appropriate vtkDataSetAttributes
   ods->AddArray(outputArray);
@@ -285,23 +295,23 @@ void vtkMapArrayValues::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Input array name: ";
   if (this->InputArrayName)
-    {
+  {
     os << this->InputArrayName << endl;
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 
   os << indent << "Output array name: ";
   if (this->OutputArrayName)
-    {
+  {
     os << this->OutputArrayName << endl;
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
   os << indent << "Field type: " << this->FieldType << endl;
   os << indent << "Output array type: " << this->OutputArrayType << endl;
   os << indent << "PassArray: " << this->PassArray << endl;

@@ -40,9 +40,9 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
 
   this->CaptionActor2D = vtkCaptionActor2D::New();
   this->CaptionActor2D->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
-  this->CaptionActor2D->GetPositionCoordinate()->SetReferenceCoordinate(0);
+  this->CaptionActor2D->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->CaptionActor2D->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
-  this->CaptionActor2D->GetPosition2Coordinate()->SetReferenceCoordinate(0);
+  this->CaptionActor2D->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
   this->CaptionActor2D->GetPositionCoordinate()->SetValue(10,10);
   this->CaptionActor2D->GetPosition2Coordinate()->SetValue(20,20);
   this->CaptionActor2D->SetCaption("Caption Here");
@@ -64,28 +64,28 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
 //-------------------------------------------------------------------------
 vtkCaptionRepresentation::~vtkCaptionRepresentation()
 {
-  this->SetCaptionActor2D(0);
+  this->SetCaptionActor2D(nullptr);
   this->CaptionGlyph->Delete();
-  this->SetAnchorRepresentation(0);
+  this->SetAnchorRepresentation(nullptr);
 }
 
 //-------------------------------------------------------------------------
 void vtkCaptionRepresentation::SetCaptionActor2D(vtkCaptionActor2D *capActor)
 {
   if ( capActor != this->CaptionActor2D )
-    {
+  {
     if ( this->CaptionActor2D )
-      {
+    {
       this->CaptionActor2D->Delete();
-      }
+    }
     this->CaptionActor2D = capActor;
     if ( this->CaptionActor2D )
-      {
+    {
       this->CaptionActor2D->Register(this);
       this->CaptionActor2D->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
-      this->CaptionActor2D->GetPositionCoordinate()->SetReferenceCoordinate(0);
+      this->CaptionActor2D->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
       this->CaptionActor2D->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
-      this->CaptionActor2D->GetPosition2Coordinate()->SetReferenceCoordinate(0);
+      this->CaptionActor2D->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
       this->CaptionActor2D->GetPositionCoordinate()->SetValue(10,10);
       this->CaptionActor2D->GetPosition2Coordinate()->SetValue(20,20);
       this->CaptionActor2D->SetAttachmentPoint(0,0,0);
@@ -94,27 +94,27 @@ void vtkCaptionRepresentation::SetCaptionActor2D(vtkCaptionActor2D *capActor)
       this->CaptionActor2D->ThreeDimensionalLeaderOn();
       this->CaptionActor2D->SetLeaderGlyphConnection(
         this->CaptionGlyph->GetOutputPort());
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 //-------------------------------------------------------------------------
 void vtkCaptionRepresentation::SetAnchorRepresentation(vtkPointHandleRepresentation3D *rep)
 {
   if ( rep != this->AnchorRepresentation )
-    {
+  {
     if ( this->AnchorRepresentation )
-      {
+    {
       this->AnchorRepresentation->Delete();
-      }
+    }
     this->AnchorRepresentation = rep;
     if ( this->AnchorRepresentation )
-      {
+    {
       this->AnchorRepresentation->Register(this);
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -137,7 +137,7 @@ void vtkCaptionRepresentation::BuildRepresentation()
        this->CaptionActor2D->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
+  {
 
     // If the text actor's text scaling is off, we still want to be able
     // to change the caption's text size programmatically by changing a
@@ -148,7 +148,7 @@ void vtkCaptionRepresentation::BuildRepresentation()
         && this->CaptionActor2D->GetCaption()
         && (this->CaptionActor2D->GetTextActor()->GetTextScaleMode()
             == vtkTextActor::TEXT_SCALE_MODE_NONE ))
-      {
+    {
       // Create a dummy text mapper for getting font sizes
       vtkTextMapper *textMapper = vtkTextMapper::New();
       vtkTextProperty *tprop = textMapper->GetTextProperty();
@@ -162,7 +162,7 @@ void vtkCaptionRepresentation::BuildRepresentation()
       this->CaptionActor2D->GetCaptionTextProperty()->SetFontSize(fsize);
       textMapper->Delete();
       this->AdjustCaptionBoundary();
-      }
+    }
 
     // Ask the superclass the size and set the caption
     int *pos1 = this->PositionCoordinate->
@@ -171,34 +171,43 @@ void vtkCaptionRepresentation::BuildRepresentation()
       GetComputedDisplayValue(this->Renderer);
 
     if ( this->CaptionActor2D )
-      {
+    {
       this->CaptionActor2D->GetPositionCoordinate()->SetValue(pos1[0],pos1[1]);
       this->CaptionActor2D->GetPosition2Coordinate()->SetValue(pos2[0],pos2[1]);
-      }
+    }
 
     // Note that the transform is updated by the superclass
     this->Superclass::BuildRepresentation();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkCaptionRepresentation::AdjustCaptionBoundary()
 {
   if(this->CaptionActor2D->GetCaption())
-    {
+  {
     vtkTextRenderer* tren = vtkTextRenderer::GetInstance();
     if (!tren)
-      {
+    {
       vtkErrorMacro(<<"Failed getting the vtkTextRenderer instance");
       return;
-      }
+    }
+
+    vtkWindow *win = this->Renderer->GetVTKWindow();
+    if (!win)
+    {
+      vtkErrorMacro(<<"No render window available: cannot determine DPI.");
+      return;
+    }
 
     int text_bbox[4];
     if (!tren->GetBoundingBox(this->CaptionActor2D->GetCaptionTextProperty(),
-                              this->CaptionActor2D->GetCaption(), text_bbox))
-      {
+                              this->CaptionActor2D->GetCaption(), text_bbox,
+                              win->GetDPI()))
+    {
+      vtkErrorMacro(<<"Error calculating caption bounding box.");
       return;
-      }
+    }
 
     // The bounding box was the area that is going to be filled with pixels
     // given a text origin of (0, 0). Now get the real size we need, i.e.
@@ -217,11 +226,11 @@ void vtkCaptionRepresentation::AdjustCaptionBoundary()
 
     double* pos2 = this->Position2Coordinate->GetValue();
     if(pos2[0] != text_size[0] || pos2[1] != text_size[1])
-      {
+    {
       this->Position2Coordinate->SetValue(text_size[0], text_size[1], 0);
       this->Modified();
-      }
     }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -268,7 +277,7 @@ int vtkCaptionRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *w)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkCaptionRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkCaptionRepresentation::HasTranslucentPolygonalGeometry()
 {
   this->BuildRepresentation();
   int result = this->Superclass::HasTranslucentPolygonalGeometry();

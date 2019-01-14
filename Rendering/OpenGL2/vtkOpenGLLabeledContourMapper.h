@@ -12,23 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLLabeledContourMapper
-// .SECTION Description
-// vtkOpenGLLabeledContourMapper is an override for vtkLabeledContourMapper
-// that implements stenciling using the OpenGL2 API.
+/**
+ * @class   vtkOpenGLLabeledContourMapper
+ *
+ * vtkOpenGLLabeledContourMapper is an override for vtkLabeledContourMapper
+ * that implements stenciling using the OpenGL2 API.
+*/
 
-#ifndef vtkOpenGLLabelContourMapper_h
-#define vtkOpenGLLabelContourMapper_h
+#ifndef vtkOpenGLLabeledContourMapper_h
+#define vtkOpenGLLabeledContourMapper_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkLabeledContourMapper.h"
 
 class vtkMatrix4x4;
-namespace vtkgl
-{
-class CellBO;
-}
-
+class vtkOpenGLHelper;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLabeledContourMapper
     : public vtkLabeledContourMapper
@@ -36,32 +34,34 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLabeledContourMapper
 public:
   static vtkOpenGLLabeledContourMapper *New();
   vtkTypeMacro(vtkOpenGLLabeledContourMapper, vtkLabeledContourMapper)
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Release graphics resources
-  void ReleaseGraphicsResources(vtkWindow *win);
+  /**
+   * Release graphics resources
+   */
+  void ReleaseGraphicsResources(vtkWindow *win) override;
 
 protected:
   vtkOpenGLLabeledContourMapper();
-  ~vtkOpenGLLabeledContourMapper();
+  ~vtkOpenGLLabeledContourMapper() override;
 
-  // We override this for compatibilty with the OpenGL backend:
+  // We override this for compatibility with the OpenGL backend:
   // The old backend pushes actor matrices onto the matrix stack, so the text
   // actors already accounted for any transformations on this mapper's actor.
   // The new backend passes each actor's matrix to the shader individually, and
   // this mapper's actor matrix doesn't affect the label rendering.
-  bool CreateLabels(vtkActor *actor);
+  bool CreateLabels(vtkActor *actor) override;
 
-  bool ApplyStencil(vtkRenderer *ren, vtkActor *act);
-  bool RemoveStencil();
+  bool ApplyStencil(vtkRenderer *ren, vtkActor *act) override;
+  bool RemoveStencil(vtkRenderer *ren) override;
 
-  vtkgl::CellBO *StencilBO;
+  vtkOpenGLHelper *StencilBO;
   vtkMatrix4x4 *TempMatrix4;
 
 
 private:
-  vtkOpenGLLabeledContourMapper(const vtkOpenGLLabeledContourMapper&);  // Not implemented.
-  void operator=(const vtkOpenGLLabeledContourMapper&);  // Not implemented.
+  vtkOpenGLLabeledContourMapper(const vtkOpenGLLabeledContourMapper&) = delete;
+  void operator=(const vtkOpenGLLabeledContourMapper&) = delete;
 };
 
 #endif

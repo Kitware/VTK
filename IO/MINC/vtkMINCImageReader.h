@@ -45,25 +45,28 @@ THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGES.
 
 =========================================================================*/
-// .NAME vtkMINCImageReader - A reader for MINC files.
-// .SECTION Description
-// MINC is a NetCDF-based medical image file format that was developed
-// at the Montreal Neurological Institute in 1992.
-// This class will read a MINC file into VTK, rearranging the data to
-// match the VTK x, y, and z dimensions, and optionally rescaling
-// real-valued data to VTK_FLOAT if RescaleRealValuesOn() is set.
-// If RescaleRealValues is off, then the data will be stored in its
-// original data type and the GetRescaleSlope(), GetRescaleIntercept()
-// method can be used to retrieve global rescaling parameters.
-// If the original file had a time dimension, the SetTimeStep() method
-// can be used to specify a time step to read.
-// All of the original header information can be accessed though the
-// GetImageAttributes() method.
-// .SECTION See Also
-// vtkMINCImageWriter vtkMINCImageAttributes
-// .SECTION Thanks
-// Thanks to David Gobbi for writing this class and Atamai Inc. for
-// contributing it to VTK.
+/**
+ * @class   vtkMINCImageReader
+ * @brief   A reader for MINC files.
+ *
+ * MINC is a NetCDF-based medical image file format that was developed
+ * at the Montreal Neurological Institute in 1992.
+ * This class will read a MINC file into VTK, rearranging the data to
+ * match the VTK x, y, and z dimensions, and optionally rescaling
+ * real-valued data to VTK_FLOAT if RescaleRealValuesOn() is set.
+ * If RescaleRealValues is off, then the data will be stored in its
+ * original data type and the GetRescaleSlope(), GetRescaleIntercept()
+ * method can be used to retrieve global rescaling parameters.
+ * If the original file had a time dimension, the SetTimeStep() method
+ * can be used to specify a time step to read.
+ * All of the original header information can be accessed though the
+ * GetImageAttributes() method.
+ * @sa
+ * vtkMINCImageWriter vtkMINCImageAttributes
+ * @par Thanks:
+ * Thanks to David Gobbi for writing this class and Atamai Inc. for
+ * contributing it to VTK.
+*/
 
 #ifndef vtkMINCImageReader_h
 #define vtkMINCImageReader_h
@@ -85,74 +88,93 @@ public:
   vtkTypeMacro(vtkMINCImageReader,vtkImageReader2);
 
   static vtkMINCImageReader *New();
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set the file name.
-  virtual void SetFileName(const char *name);
+  /**
+   * Set the file name.
+   */
+  void SetFileName(const char *name) override;
 
-  // Description:
-  // Get the entension for this file format.
-  virtual const char* GetFileExtensions() {
+  /**
+   * Get the entension for this file format.
+   */
+  const char* GetFileExtensions() override {
     return ".mnc"; }
 
-  // Description:
-  // Get the name of this file format.
-  virtual const char* GetDescriptiveName() {
+  /**
+   * Get the name of this file format.
+   */
+  const char* GetDescriptiveName() override {
     return "MINC"; }
 
-  // Description:
-  // Test whether the specified file can be read.
-  virtual int CanReadFile(const char* name);
+  /**
+   * Test whether the specified file can be read.
+   */
+  int CanReadFile(const char* name) override;
 
-  // Description:
-  // Get a matrix that describes the orientation of the data.
-  // The three columns of the matrix are the direction cosines
-  // for the x, y and z dimensions respectively.
+  /**
+   * Get a matrix that describes the orientation of the data.
+   * The three columns of the matrix are the direction cosines
+   * for the x, y and z dimensions respectively.
+   */
   virtual vtkMatrix4x4 *GetDirectionCosines();
 
-  // Description:
-  // Get the slope and intercept for rescaling the scalar values
-  // to real data values.  To convert scalar values to real values,
-  // use the equation y = x*RescaleSlope + RescaleIntercept.
+  //@{
+  /**
+   * Get the slope and intercept for rescaling the scalar values
+   * to real data values.  To convert scalar values to real values,
+   * use the equation y = x*RescaleSlope + RescaleIntercept.
+   */
   virtual double GetRescaleSlope();
   virtual double GetRescaleIntercept();
+  //@}
 
-  // Description:
-  // Rescale real data values to float.  If this is done, the
-  // RescaleSlope and RescaleIntercept will be set to 1 and 0
-  // respectively.  This is off by default.
-  vtkSetMacro(RescaleRealValues, int);
-  vtkBooleanMacro(RescaleRealValues, int);
-  vtkGetMacro(RescaleRealValues, int);
+  //@{
+  /**
+   * Rescale real data values to float.  If this is done, the
+   * RescaleSlope and RescaleIntercept will be set to 1 and 0
+   * respectively.  This is off by default.
+   */
+  vtkSetMacro(RescaleRealValues, vtkTypeBool);
+  vtkBooleanMacro(RescaleRealValues, vtkTypeBool);
+  vtkGetMacro(RescaleRealValues, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Get the scalar range of the output from the information in
-  // the file header.  This is more efficient that computing the
-  // scalar range, but in some cases the MINC file stores an
-  // incorrect valid_range and the DataRange will be incorrect.
-  virtual double *GetDataRange();
+  //@{
+  /**
+   * Get the scalar range of the output from the information in
+   * the file header.  This is more efficient that computing the
+   * scalar range, but in some cases the MINC file stores an
+   * incorrect valid_range and the DataRange will be incorrect.
+   */
+  virtual double *GetDataRange() VTK_SIZEHINT(2);
   virtual void GetDataRange(double range[2]) {
     double *r = this->GetDataRange();
     range[0] = r[0]; range[1] = r[1]; };
+  //@}
 
-  // Description:
-  // Get the number of time steps in the file.
+  /**
+   * Get the number of time steps in the file.
+   */
   virtual int GetNumberOfTimeSteps();
 
-  // Description:
-  // Set the time step to read.
+  //@{
+  /**
+   * Set the time step to read.
+   */
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
+  //@}
 
-  // Description:
-  // Get the image attributes, which contain patient information and
-  // other useful metadata.
+  /**
+   * Get the image attributes, which contain patient information and
+   * other useful metadata.
+   */
   virtual vtkMINCImageAttributes *GetImageAttributes();
 
 protected:
   vtkMINCImageReader();
-  ~vtkMINCImageReader();
+  ~vtkMINCImageReader() override;
 
   int MINCImageType;
   int MINCImageTypeSigned;
@@ -166,7 +188,7 @@ protected:
   vtkMatrix4x4 *DirectionCosines;
   double RescaleSlope;
   double RescaleIntercept;
-  int RescaleRealValues;
+  vtkTypeBool RescaleRealValues;
   vtkMINCImageAttributes *ImageAttributes;
 
   int FileNameHasChanged;
@@ -178,12 +200,12 @@ protected:
   virtual void FindRangeAndRescaleValues();
   static int ConvertMINCTypeToVTKType(int minctype, int mincsigned);
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
+  void ExecuteInformation() override;
+  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
 
 private:
-  vtkMINCImageReader(const vtkMINCImageReader&); // Not implemented
-  void operator=(const vtkMINCImageReader&);  // Not implemented
+  vtkMINCImageReader(const vtkMINCImageReader&) = delete;
+  void operator=(const vtkMINCImageReader&) = delete;
 
 };
 

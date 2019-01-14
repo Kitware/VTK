@@ -12,10 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLMultiBlockDataWriter - writer for vtkMultiBlockDataSet.
-// .SECTION Description
-// vtkXMLMultiBlockDataWriter is a vtkXMLCompositeDataWriter subclass to handle
-// vtkMultiBlockDataSet.
+/**
+ * @class   vtkXMLMultiBlockDataWriter
+ * @brief   writer for vtkMultiBlockDataSet.
+ *
+ * vtkXMLMultiBlockDataWriter is a vtkXMLCompositeDataWriter subclass to handle
+ * vtkMultiBlockDataSet.
+*/
+
 #ifndef vtkXMLMultiBlockDataWriter_h
 #define vtkXMLMultiBlockDataWriter_h
 
@@ -27,29 +31,29 @@ class VTKIOXML_EXPORT vtkXMLMultiBlockDataWriter : public vtkXMLCompositeDataWri
 public:
   static vtkXMLMultiBlockDataWriter* New();
   vtkTypeMacro(vtkXMLMultiBlockDataWriter, vtkXMLCompositeDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the default file extension for files written by this writer.
-  virtual const char* GetDefaultFileExtension()
+  /**
+   * Get the default file extension for files written by this writer.
+   */
+  const char* GetDefaultFileExtension() override
     { return "vtm"; }
 
-//BTX
 protected:
   vtkXMLMultiBlockDataWriter();
-  ~vtkXMLMultiBlockDataWriter();
+  ~vtkXMLMultiBlockDataWriter() override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Internal method called recursively to create the xml tree for the children
   // of compositeData.
-  virtual int WriteComposite(vtkCompositeDataSet* compositeData,
-    vtkXMLDataElement* parent, int &writerIdx);
+  int WriteComposite(vtkCompositeDataSet* compositeData,
+    vtkXMLDataElement* parent, int &writerIdx) override;
 
 private:
-  vtkXMLMultiBlockDataWriter(const vtkXMLMultiBlockDataWriter&); // Not implemented.
-  void operator=(const vtkXMLMultiBlockDataWriter&); // Not implemented.
-//ETX
+  vtkXMLMultiBlockDataWriter(const vtkXMLMultiBlockDataWriter&) = delete;
+  void operator=(const vtkXMLMultiBlockDataWriter&) = delete;
+
 };
 
 #endif

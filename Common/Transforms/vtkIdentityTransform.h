@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkIdentityTransform - a transform that doesn't do anything
-// .SECTION Description
-// vtkIdentityTransform is a transformation which will simply pass coordinate
-// data unchanged.  All other transform types can also do this, however,
-// the vtkIdentityTransform does so with much greater efficiency.
-// .SECTION see also
-// vtkLinearTransform
-
+/**
+ * @class   vtkIdentityTransform
+ * @brief   a transform that doesn't do anything
+ *
+ * vtkIdentityTransform is a transformation which will simply pass coordinate
+ * data unchanged.  All other transform types can also do this, however,
+ * the vtkIdentityTransform does so with much greater efficiency.
+ * @sa
+ * vtkLinearTransform
+*/
 
 #ifndef vtkIdentityTransform_h
 #define vtkIdentityTransform_h
@@ -33,78 +35,98 @@ public:
   static vtkIdentityTransform *New();
 
   vtkTypeMacro(vtkIdentityTransform,vtkLinearTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Apply the transformation to a series of points, and append the
-  // results to outPts.
-  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
+  /**
+   * Apply the transformation to a series of points, and append the
+   * results to outPts.
+   */
+  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts) override;
 
-  // Description:
-  // Apply the transformation to a series of normals, and append the
-  // results to outNms.
-  void TransformNormals(vtkDataArray *inNms, vtkDataArray *outNms);
+  /**
+   * Apply the transformation to a series of normals, and append the
+   * results to outNms.
+   */
+  void TransformNormals(vtkDataArray *inNms, vtkDataArray *outNms) override;
 
-  // Description:
-  // Apply the transformation to a series of vectors, and append the
-  // results to outVrs.
-  void TransformVectors(vtkDataArray *inVrs, vtkDataArray *outVrs);
+  /**
+   * Apply the transformation to a series of vectors, and append the
+   * results to outVrs.
+   */
+  void TransformVectors(vtkDataArray *inVrs, vtkDataArray *outVrs) override;
 
-  // Description:
-  // Apply the transformation to a combination of points, normals
-  // and vectors.
+  /**
+   * Apply the transformation to a combination of points, normals
+   * and vectors.
+   */
   void TransformPointsNormalsVectors(vtkPoints *inPts,
                                      vtkPoints *outPts,
                                      vtkDataArray *inNms,
                                      vtkDataArray *outNms,
                                      vtkDataArray *inVrs,
-                                     vtkDataArray *outVrs);
+                                     vtkDataArray *outVrs,
+                                     int nOptionalVectors = 0,
+                                     vtkDataArray** inVrsArr = nullptr,
+                                     vtkDataArray** outVrsArr = nullptr) override;
 
   // Invert the transformation.  This doesn't do anything to the
   // identity transformation.
-  void Inverse() {}
+  void Inverse() override {}
 
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
-  void InternalTransformPoint(const float in[3], float out[3]);
-  void InternalTransformPoint(const double in[3], double out[3]);
+  //@{
+  /**
+   * This will calculate the transformation without calling Update.
+   * Meant for use only within other VTK classes.
+   */
+  void InternalTransformPoint(const float in[3], float out[3]) override;
+  void InternalTransformPoint(const double in[3], double out[3]) override;
+  //@}
 
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
-  void InternalTransformNormal(const float in[3], float out[3]);
-  void InternalTransformNormal(const double in[3], double out[3]);
+  //@{
+  /**
+   * This will calculate the transformation without calling Update.
+   * Meant for use only within other VTK classes.
+   */
+  void InternalTransformNormal(const float in[3], float out[3]) override;
+  void InternalTransformNormal(const double in[3], double out[3]) override;
+  //@}
 
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
-  void InternalTransformVector(const float in[3], float out[3]);
-  void InternalTransformVector(const double in[3], double out[3]);
+  //@{
+  /**
+   * This will calculate the transformation without calling Update.
+   * Meant for use only within other VTK classes.
+   */
+  void InternalTransformVector(const float in[3], float out[3]) override;
+  void InternalTransformVector(const double in[3], double out[3]) override;
+  //@}
 
-  // Description:
-  // This will calculate the transformation as well as its derivative
-  // without calling Update.  Meant for use only within other VTK
-  // classes.
+  //@{
+  /**
+   * This will calculate the transformation as well as its derivative
+   * without calling Update.  Meant for use only within other VTK
+   * classes.
+   */
   void InternalTransformDerivative(const float in[3], float out[3],
-                                   float derivative[3][3]);
+                                   float derivative[3][3]) override;
   void InternalTransformDerivative(const double in[3], double out[3],
-                                   double derivative[3][3]);
+                                   double derivative[3][3]) override;
+  //@}
 
-  // Description:
-  // Make a transform of the same type.  This will actually
-  // return the same transform.
-  vtkAbstractTransform *MakeTransform();
+  /**
+   * Make a transform of the same type.  This will actually
+   * return the same transform.
+   */
+  vtkAbstractTransform *MakeTransform() override;
 
 protected:
   vtkIdentityTransform();
-  ~vtkIdentityTransform();
+  ~vtkIdentityTransform() override;
 
-  void InternalDeepCopy(vtkAbstractTransform *t);
+  void InternalDeepCopy(vtkAbstractTransform *t) override;
 
 private:
-  vtkIdentityTransform(const vtkIdentityTransform&);  // Not implemented.
-  void operator=(const vtkIdentityTransform&);  // Not implemented.
+  vtkIdentityTransform(const vtkIdentityTransform&) = delete;
+  void operator=(const vtkIdentityTransform&) = delete;
 };
 
 #endif

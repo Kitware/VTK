@@ -1,0 +1,19 @@
+NAME
+  VTK::IOSegY
+LIBRARY_NAME
+  vtkIOSegY
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOImage
+PRIVATE_DEPENDS
+  VTK::CommonCore
+TEST_DEPENDS
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

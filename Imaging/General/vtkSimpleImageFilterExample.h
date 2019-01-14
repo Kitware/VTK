@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSimpleImageFilterExample - Simple example of an image-image filter.
-// .SECTION Description
-// This is an example of a simple image-image filter. It copies it's input
-// to it's output (point by point). It shows how templates can be used
-// to support various data types.
-// .SECTION See also
-// vtkSimpleImageToImageFilter
+/**
+ * @class   vtkSimpleImageFilterExample
+ * @brief   Simple example of an image-image filter.
+ *
+ * This is an example of a simple image-image filter. It copies it's input
+ * to it's output (point by point). It shows how templates can be used
+ * to support various data types.
+ * @sa
+ * vtkSimpleImageToImageFilter
+*/
 
 #ifndef vtkSimpleImageFilterExample_h
 #define vtkSimpleImageFilterExample_h
@@ -35,12 +38,12 @@ public:
 protected:
 
   vtkSimpleImageFilterExample() {}
-  ~vtkSimpleImageFilterExample() {}
+  ~vtkSimpleImageFilterExample() override {}
 
-  virtual void SimpleExecute(vtkImageData* input, vtkImageData* output);
+  void SimpleExecute(vtkImageData* input, vtkImageData* output) override;
 private:
-  vtkSimpleImageFilterExample(const vtkSimpleImageFilterExample&);  // Not implemented.
-  void operator=(const vtkSimpleImageFilterExample&);  // Not implemented.
+  vtkSimpleImageFilterExample(const vtkSimpleImageFilterExample&) = delete;
+  void operator=(const vtkSimpleImageFilterExample&) = delete;
 };
 
 #endif

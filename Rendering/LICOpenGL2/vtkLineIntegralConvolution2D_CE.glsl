@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 //=========================================================================
 //
 //  Program:   Visualization Toolkit
@@ -17,15 +19,14 @@
 // if the min and max are tweaked it can generate out-of-range values
 // these will be clamped in 0 to 1
 
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
+// the output of this shader
+//VTK::Output::Dec
 
 uniform sampler2D texLIC;  // most recent lic pass
 uniform float uMin;        // min gray scale color value
 uniform float uMaxMinDiff; // max-min
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 void main( void )
 {

@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCullerCollection - a list of Cullers
-// .SECTION Description
-// vtkCullerCollection represents and provides methods to manipulate a list
-// of Cullers (i.e., vtkCuller and subclasses). The list is unsorted and
-// duplicate entries are not prevented.
-
-// .SECTION see also
-// vtkCuller vtkCollection
+/**
+ * @class   vtkCullerCollection
+ * @brief   an ordered list of Cullers
+ *
+ * vtkCullerCollection represents and provides methods to manipulate a list
+ * of Cullers (i.e., vtkCuller and subclasses). The list is ordered and
+ * duplicate entries are not prevented.
+ *
+ * @sa
+ * vtkCuller vtkCollection
+*/
 
 #ifndef vtkCullerCollection_h
 #define vtkCullerCollection_h
@@ -33,63 +36,65 @@ class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
  public:
   static vtkCullerCollection *New();
   vtkTypeMacro(vtkCullerCollection,vtkCollection);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Add an Culler to the list.
+  /**
+   * Add an Culler to the bottom of the list.
+   */
   void AddItem(vtkCuller *a)
-    {
+  {
       this->vtkCollection::AddItem(a);
-    }
+  }
 
-  // Description:
-  // Get the next Culler in the list.
+  /**
+   * Get the next Culler in the list.
+   */
   vtkCuller *GetNextItem()
-    {
+  {
       return static_cast<vtkCuller *>(this->GetNextItemAsObject());
-    }
+  }
 
-  // Description:
-  // Get the last Culler in the list.
+  /**
+   * Get the last Culler in the list.
+   */
   vtkCuller *GetLastItem();
 
-  //BTX
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkCuller *GetNextCuller(vtkCollectionSimpleIterator &cookie)
-    {
+  {
       return static_cast<vtkCuller *>(this->GetNextItemAsObject(cookie));
-    }
-  //ETX
+  }
 
 protected:
   vtkCullerCollection() {}
-  ~vtkCullerCollection() {}
+  ~vtkCullerCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o)
-    {
+  {
       this->vtkCollection::AddItem(o);
-    }
+  }
 
 private:
-  vtkCullerCollection(const vtkCullerCollection&);  // Not implemented.
-  void operator=(const vtkCullerCollection&);  // Not implemented.
+  vtkCullerCollection(const vtkCullerCollection&) = delete;
+  void operator=(const vtkCullerCollection&) = delete;
 };
 
 
 inline vtkCuller *vtkCullerCollection::GetLastItem()
 {
-  if ( this->Bottom == NULL )
-    {
-    return NULL;
-    }
+  if ( this->Bottom == nullptr )
+  {
+    return nullptr;
+  }
   else
-    {
+  {
     return static_cast<vtkCuller *>(this->Bottom->Item);
-    }
+  }
 }
 
 #endif

@@ -17,18 +17,18 @@
 
 vtkStandardNewMacro(vtkAssemblyPaths);
 
-unsigned long vtkAssemblyPaths::GetMTime()
+vtkMTimeType vtkAssemblyPaths::GetMTime()
 {
-  unsigned long mtime = this->vtkCollection::GetMTime();
+  vtkMTimeType mtime = this->vtkCollection::GetMTime();
 
   vtkAssemblyPath *path;
   for (this->InitTraversal(); (path = this->GetNextItem());)
-    {
-    unsigned long pathMTime = path->GetMTime();
+  {
+    vtkMTimeType pathMTime = path->GetMTime();
     if (pathMTime > mtime)
-      {
+    {
       mtime = pathMTime;
-      }
     }
+  }
   return mtime;
 }

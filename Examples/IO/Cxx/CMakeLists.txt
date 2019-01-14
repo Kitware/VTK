@@ -1,43 +1,75 @@
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
-if(POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW) # CMake 3.0
-endif()
-if(POLICY CMP0053)
-  cmake_policy(SET CMP0053 NEW) # CMake 3.1
-endif()
+cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+project(IO)
 
-PROJECT (IO)
+find_package(VTK
+  OPTIONAL_COMPONENTS
+    IOExport
+    IOImport
+    TestingRendering)
+find_package(VTK
+  COMPONENTS
+    CommonCore
+    IOGeometry
+    IOLegacy
+    IOXML
+    InteractionStyle)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-find_package(VTK COMPONENTS
-  vtkCommonCore
-  vtkIOLegacy
-  vtkIOXML
-  vtkTestingRendering
-  vtksys
-)
-include(${VTK_USE_FILE})
+add_executable(DumpXMLFile MACOSX_BUNDLE
+  DumpXMLFile.cxx)
+target_link_libraries(DumpXMLFile
+  PRIVATE
+    ${VTK_LIBRARIES})
 
-add_executable(DumpXMLFile MACOSX_BUNDLE DumpXMLFile.cxx)
-target_link_libraries(DumpXMLFile ${VTK_LIBRARIES})
+add_executable(ParticleReader MACOSX_BUNDLE
+  ParticleReader.cxx)
+target_link_libraries(ParticleReader
+  PRIVATE
+    ${VTK_LIBRARIES})
 
-add_executable(ParticleReader MACOSX_BUNDLE ParticleReader.cxx)
-target_link_libraries(ParticleReader ${VTK_LIBRARIES})
+vtk_module_autoinit(
+  TARGETS DumpXMLFile
+          ParticleReader
+  MODULES ${VTK_LIBRARIES})
 
-if(BUILD_TESTING)
-  if(vtkTestingRendering_LOADED)
+if (TARGET VTK::IOExport AND TARGET VTK::IOImport)
+  add_executable(objtovtp
+    objtovtp.cxx)
+  target_link_libraries(objtovtp
+    PRIVATE
+      ${VTK_LIBRARIES}
+      VTK::IOExport
+      VTK::IOImport)
+
+  vtk_module_autoinit(
+    TARGETS objtovtp
+    MODULES ${VTK_LIBRARIES}
+            VTK::IOExport
+            VTK::IOImport)
+endif ()
+
+if (BUILD_TESTING)
+  include(CTest)
+  if (TARGET VTK::TestingRendering)
     ######## Regression Testing ########
-    set(vtk-example IOExamples)
-    set(TestDumpXMLFile_ARGS "DATA{${VTK_TEST_INPUT_DIR}/cow.vtp}")
-    set(TestParticleReader_ARGS
-      "${VTK_TEST_DATA_DIR}/Data/golf.csv"
-      ${VTK_TEST_OUTPUT_DIR}/TestParticleReader.vtp)
-    vtk_add_test_cxx(${vtk-example}CxxTests tests
-      NO_DATA NO_VALID NO_OUTPUT
-      TestParticleReader.cxx
-      TestDumpXMLFile.cxx
-      )
-    vtk_test_cxx_executable(${vtk-example}CxxTests tests
-      RENDERING_FACTORY
-      )
-  endif()
-endif()
+    include(ExternalData)
+
+    ExternalData_add_test(IOData
+      NAME    "IOExampleCxx-TestDumpXMLFile"
+      COMMAND DumpXMLFile
+              DATA{${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data/cow.vtp}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+    ExternalData_add_test(IOData
+      NAME    "IOExampleCxx-TestParticleReader"
+      COMMAND ParticleReader
+              DATA{${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data/golf.csv}
+              ${CMAKE_CURRENT_BINARY_DIR}/Testing/Temporary/TestParticleReader.vtp
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+    ExternalData_Add_Target(IOData)
+  endif ()
+endif ()

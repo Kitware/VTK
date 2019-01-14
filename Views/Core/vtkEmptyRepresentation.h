@@ -17,9 +17,11 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkEmptyRepresentation -
-//
-// .SECTION Description
+/**
+ * @class   vtkEmptyRepresentation
+ *
+ *
+*/
 
 #ifndef vtkEmptyRepresentation_h
 #define vtkEmptyRepresentation_h
@@ -35,29 +37,29 @@ class VTKVIEWSCORE_EXPORT vtkEmptyRepresentation : public vtkDataRepresentation
 public:
   static vtkEmptyRepresentation* New();
   vtkTypeMacro(vtkEmptyRepresentation, vtkDataRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Since this representation has no inputs, override superclass
-  // implementation with one that ignores "port" and "conn" and still allows it
-  // to have an annotation output.
-  virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort()
+  /**
+   * Since this representation has no inputs, override superclass
+   * implementation with one that ignores "port" and "conn" and still allows it
+   * to have an annotation output.
+   */
+  vtkAlgorithmOutput* GetInternalAnnotationOutputPort() override
     { return this->GetInternalAnnotationOutputPort(0); }
-  virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port)
+  vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port) override
     { return this->GetInternalAnnotationOutputPort(port, 0); }
-  virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port, int conn);
+  vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port, int conn) override;
 
 protected:
   vtkEmptyRepresentation();
-  ~vtkEmptyRepresentation();
+  ~vtkEmptyRepresentation() override;
 
 private:
-  vtkEmptyRepresentation(const vtkEmptyRepresentation&); // Not implemented
-  void operator=(const vtkEmptyRepresentation&);   // Not implemented
+  vtkEmptyRepresentation(const vtkEmptyRepresentation&) = delete;
+  void operator=(const vtkEmptyRepresentation&) = delete;
 
-//BTX
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomains;
-//ETX
+
 };
 
 #endif

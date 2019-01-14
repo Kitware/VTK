@@ -1,0 +1,8 @@
+NAME
+  VTK::vpic
+LIBRARY_NAME
+  vtkvpic
+DEPENDS
+  VTK::CommonCore
+  VTK::vtksys
+THIRD_PARTY

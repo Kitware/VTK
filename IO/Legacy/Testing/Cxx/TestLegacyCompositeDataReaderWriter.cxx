@@ -33,11 +33,11 @@ int Validate(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
   vtk_assert(input->GetOrigin()[2] == result->GetOrigin()[2]);
 
   for (unsigned int level=0; level < input->GetNumberOfLevels(); level++)
-    {
+  {
     vtk_assert(input->GetNumberOfDataSets(level) ==
       result->GetNumberOfDataSets(level));
 
-    }
+  }
 
   cout << "Audit Input" << endl;
   input->Audit();
@@ -72,16 +72,16 @@ int TestLegacyCompositeDataReaderWriter(int argc, char *argv[])
   vtkOverlappingAMR* result =
     vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
   if (Validate(input, result) == TEST_FAILED)
-    {
+  {
     return TEST_FAILED;
-    }
+  }
 
   cout << "Test Binary IO" << endl;
 
   writer->SetFileTypeToBinary();
   writer->Write();
 
-  reader->SetFileName(0);
+  reader->SetFileName(nullptr);
   reader->SetFileName(filename.c_str());
   reader->Update();
   return Validate(input,

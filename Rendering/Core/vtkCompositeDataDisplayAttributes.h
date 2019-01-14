@@ -12,106 +12,246 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataDisplayAttributes - rendering attributes for a
-// multi-block dataset.
-// .SECTION Description
-// The vtkCompositeDataDisplayAttributes class stores display attributes
-// for individual blocks in a multi-block dataset.
+/**
+ * @class   vtkCompositeDataDisplayAttributes
+ * @brief   Rendering attributes for a multi-block dataset.
+ *
+ * The vtkCompositeDataDisplayAttributes class stores display attributes
+ * for individual blocks in a multi-block dataset. It uses the actual data
+ * block's pointer as a key (vtkDataObject*).
+ *
+ * @warning It is considered unsafe to dereference key pointers at any time,
+ * they should only serve as keys to access the internal map.
+*/
 
 #ifndef vtkCompositeDataDisplayAttributes_h
 #define vtkCompositeDataDisplayAttributes_h
+#include <functional>               // for std::function
+#include <unordered_map>            // for std::unordered_map
 
-#include "vtkRenderingCoreModule.h" // for export macro
+#include "vtkColor.h"               // for vtkColor3d
 #include "vtkObject.h"
-#include "vtkColor.h" // for vtkColor3d
+#include "vtkRenderingCoreModule.h" // for export macro
 
-#include <map> // for std::map
+
+class vtkBoundingBox;
+class vtkDataObject;
 
 class VTKRENDERINGCORE_EXPORT vtkCompositeDataDisplayAttributes : public vtkObject
 {
 public:
   static vtkCompositeDataDisplayAttributes* New();
   vtkTypeMacro(vtkCompositeDataDisplayAttributes, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Returns true if any block has any block visibility is set.
+  /**
+   * Returns true if any block has any block visibility is set.
+   */
   bool HasBlockVisibilities() const;
 
-  // Description:
-  // Set/get the visibility for the block with \p flat_index.
-  void SetBlockVisibility(unsigned int flat_index, bool visible);
-  bool GetBlockVisibility(unsigned int flat_index) const;
+  //@{
+  /**
+   * Set/get the visibility for the block with \p data_object.
+   */
+  void SetBlockVisibility(vtkDataObject* data_object, bool visible);
+  bool GetBlockVisibility(vtkDataObject* data_object) const;
+  //@}
 
-  // Description:
-  // Returns true if the block with the given flat_index has a visiblity
-  // set.
-  bool HasBlockVisibility(unsigned int flat_index) const;
+  /**
+   * Returns true if the block with the given data_object has a visibility
+   * set.
+   */
+  bool HasBlockVisibility(vtkDataObject* data_object) const;
 
-  // Description:
-  // Removes the block visibility flag for the block with flat_index.
-  void RemoveBlockVisibility(unsigned int flat_index);
+  /**
+   * Removes the block visibility flag for the block with data_object.
+   */
+  void RemoveBlockVisibility(vtkDataObject* data_object);
 
-  // Description:
-  // Removes all block visibility flags. The effectively sets the visibility
-  // for all blocks to true.
-  void RemoveBlockVisibilites();
+  /**
+   * Removes all block visibility flags. This effectively sets the visibility
+   * for all blocks to true.
+   */
+  void RemoveBlockVisibilities();
+  // This method is deprecated and will be removed in VTK 8.2. It is misspelled.
+  VTK_LEGACY(void RemoveBlockVisibilites());
 
-  // Description:
-  // Set/get the color for the block with \p flat_index.
-  void SetBlockColor(unsigned int flat_index, const double color[3]);
-  void GetBlockColor(unsigned int flat_index, double color[3]) const;
-  vtkColor3d GetBlockColor(unsigned int flat_index) const;
+  /**
+   * Returns true if any block has any block pickability is set.
+   */
+  bool HasBlockPickabilities() const;
 
-  // Description:
-  // Returns true if any block has any block color is set.
+  //@{
+  /**
+   * Set/get the pickability for the block with \p data_object.
+   */
+  void SetBlockPickability(vtkDataObject* data_object, bool visible);
+  bool GetBlockPickability(vtkDataObject* data_object) const;
+  //@}
+
+  /**
+   * Returns true if the block with the given data_object has a pickability
+   * set.
+   */
+  bool HasBlockPickability(vtkDataObject* data_object) const;
+
+  /**
+   * Removes the block pickability flag for the block with data_object.
+   */
+  void RemoveBlockPickability(vtkDataObject* data_object);
+
+  /**
+   * Removes all block pickability flags. This effectively sets the pickability
+   * for all blocks to true.
+   */
+  void RemoveBlockPickabilities();
+
+  //@{
+  /**
+   * Set/get the color for the block with \p data_object.
+   */
+  void SetBlockColor(vtkDataObject* data_object, const double color[3]);
+  void GetBlockColor(vtkDataObject* data_object, double color[3]) const;
+  vtkColor3d GetBlockColor(vtkDataObject* data_object) const;
+  //@}
+
+  /**
+   * Returns true if any block has any block color is set.
+   */
   bool HasBlockColors() const;
 
-  // Description:
-  // Returns true if the block with the given \p flat_index has a color.
-  bool HasBlockColor(unsigned int flat_index) const;
+  /**
+   * Returns true if the block with the given \p data_object has a color.
+   */
+  bool HasBlockColor(vtkDataObject* data_object) const;
 
-  // Description:
-  // Removes the block color for the block with \p flat_index.
-  void RemoveBlockColor(unsigned int flat_index);
+  /**
+   * Removes the block color for the block with \p data_object.
+   */
+  void RemoveBlockColor(vtkDataObject* data_object);
 
-  // Description:
-  // Removes all block colors.
+  /**
+   * Removes all block colors.
+   */
   void RemoveBlockColors();
 
-  // Description:
-  // Set/get the opacity for the block with flat_index.
-  void SetBlockOpacity(unsigned int flat_index, double opacity);
-  double GetBlockOpacity(unsigned int flat_index) const;
+  //@{
+  /**
+   * Set/get the opacity for the block with data_object.
+   */
+  void SetBlockOpacity(vtkDataObject* data_object, double opacity);
+  double GetBlockOpacity(vtkDataObject* data_object) const;
+  //@}
 
-  // Description:
-  // Returns true if any block has an opacity set.
+  /**
+   * Returns true if any block has an opacity set.
+   */
   bool HasBlockOpacities() const;
 
-  // Description:
-  // Returns true if the block with flat_index has an opacity set.
-  bool HasBlockOpacity(unsigned int flat_index) const;
+  /**
+   * Returns true if the block with data_object has an opacity set.
+   */
+  bool HasBlockOpacity(vtkDataObject* data_object) const;
 
-  // Description:
-  // Removes the set opacity for the block with flat_index.
-  void RemoveBlockOpacity(unsigned int flat_index);
+  /**
+   * Removes the set opacity for the block with data_object.
+   */
+  void RemoveBlockOpacity(vtkDataObject* data_object);
 
-  // Description:
-  // Removes all block opacities.
+  /**
+   * Removes all block opacities.
+   */
   void RemoveBlockOpacities();
 
+  //@{
+  /**
+   * Set/get the material for the block with data_object.
+   * Only rendering backends that support advanced materials need to respect these.
+   */
+  void SetBlockMaterial(vtkDataObject* data_object, const std::string& material);
+  const std::string& GetBlockMaterial(vtkDataObject* data_object) const;
+  //@}
+
+  /**
+   * Returns true if any block has an material set.
+   */
+  bool HasBlockMaterials() const;
+
+  /**
+   * Returns true if the block with data_object has an material set.
+   */
+  bool HasBlockMaterial(vtkDataObject* data_object) const;
+
+  /**
+   * Removes the set material for the block with data_object.
+   */
+  void RemoveBlockMaterial(vtkDataObject* data_object);
+
+  /**
+   * Removes all block materialss.
+   */
+  void RemoveBlockMaterials();
+
+  /**
+   * If the input \a dobj is a vtkCompositeDataSet, we will loop over the
+   * hierarchy recursively starting from initial index 0 and use only visible
+   * blocks, which is specified in the vtkCompositeDataDisplayAttributes \a cda,
+   * to compute the \a bounds.
+   */
+  static void ComputeVisibleBounds(
+    vtkCompositeDataDisplayAttributes* cda,
+    vtkDataObject *dobj,
+    double bounds[6]);
+
+  /**
+   * Get the DataObject corresponding to the node with index flat_index under
+   * parent_obj. Traverses the entire hierarchy recursively.
+   */
+  static vtkDataObject* DataObjectFromIndex(const unsigned int flat_index,
+    vtkDataObject* parent_obj, unsigned int& current_flat_index);
+
+  void VisitVisibilities(std::function<bool(vtkDataObject*, bool)> visitor)
+  {
+    for (auto entry : this->BlockVisibilities)
+    {
+      if (visitor(entry.first, entry.second))
+      {
+        break;
+      }
+    }
+  }
 protected:
   vtkCompositeDataDisplayAttributes();
-  ~vtkCompositeDataDisplayAttributes();
+  ~vtkCompositeDataDisplayAttributes() override;
 
 private:
-  vtkCompositeDataDisplayAttributes(const vtkCompositeDataDisplayAttributes&); // Not implemented.
-  void operator=(const vtkCompositeDataDisplayAttributes&); // Not implemented.
+  vtkCompositeDataDisplayAttributes(const vtkCompositeDataDisplayAttributes&) = delete;
+  void operator=(const vtkCompositeDataDisplayAttributes&) = delete;
 
-private:
-  std::map<unsigned int, bool> BlockVisibilities;
-  std::map<unsigned int, vtkColor3d> BlockColors;
-  std::map<unsigned int, double> BlockOpacities;
+  /**
+   * If the input data \a dobj is a vtkCompositeDataSet, we will
+   * loop over the hierarchy recursively starting from the initial block
+   * and use only visible blocks, which is specified in the
+   * vtkCompositeDataDisplayAttributes \a cda, to compute bounds and the
+   * result bounds will be set to the vtkBoundingBox \a bbox. The \a parentVisible
+   * is the visibility for the starting block.
+   */
+  static void ComputeVisibleBoundsInternal(
+    vtkCompositeDataDisplayAttributes* cda,
+    vtkDataObject *dobj,
+    vtkBoundingBox* bbox,
+    bool parentVisible = true);
+
+  using BoolMap = std::unordered_map<vtkDataObject*, bool>;
+  using DoubleMap = std::unordered_map<vtkDataObject*, double>;
+  using ColorMap = std::unordered_map<vtkDataObject*, vtkColor3d>;
+  using StringMap = std::unordered_map<vtkDataObject*, std::string>;
+
+  BoolMap BlockVisibilities;
+  ColorMap BlockColors;
+  DoubleMap BlockOpacities;
+  StringMap BlockMaterials;
+  BoolMap BlockPickabilities;
 };
 
 #endif // vtkCompositeDataDisplayAttributes_h

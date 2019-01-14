@@ -21,8 +21,8 @@
     </organization>
 
     <issueManagement>
-        <system>Mantis</system>
-        <url>http://vtk.org/Bug/</url>
+        <system>GitLab</system>
+        <url>https://gitlab.kitware.com/vtk/vtk/issues</url>
     </issueManagement>
 
     <licenses>

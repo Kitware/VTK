@@ -12,9 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Include blockers needed since vtkImageIterator.h includes this file
-// when VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION is defined.
-
 #ifndef vtkImageIterator_txx
 #define vtkImageIterator_txx
 
@@ -25,10 +22,10 @@
 template <class DType>
 vtkImageIterator<DType>::vtkImageIterator()
 {
-  this->Pointer = 0;
-  this->EndPointer = 0;
-  this->SpanEndPointer = 0;
-  this->SliceEndPointer = 0;
+  this->Pointer = nullptr;
+  this->EndPointer = nullptr;
+  this->SpanEndPointer = nullptr;
+  this->SliceEndPointer = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -47,9 +44,9 @@ void vtkImageIterator<DType>::Initialize(vtkImageData *id, int *ext)
 
   // if the extent is empty then the end pointer should equal the beg pointer
   if (ext[1] < ext[0] || ext[3] < ext[2] || ext[5] < ext[4])
-    {
+  {
     this->EndPointer = this->Pointer;
-    }
+  }
 
   this->SpanEndPointer =
     this->Pointer + this->Increments[0]*(ext[1] - ext[0] + 1);
@@ -72,11 +69,11 @@ void vtkImageIterator<DType>::NextSpan()
   this->Pointer += this->Increments[1];
   this->SpanEndPointer += this->Increments[1];
   if (this->Pointer >= this->SliceEndPointer)
-    {
+  {
     this->Pointer += this->ContinuousIncrements[2];
     this->SpanEndPointer += this->ContinuousIncrements[2];
     this->SliceEndPointer += this->Increments[2];
-    }
+  }
 }
 
 #endif

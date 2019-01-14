@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkCompositedSynchronizedRenderers.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -77,6 +77,9 @@ void vtkCompositedSynchronizedRenderers::SlaveEndRender()
 
   this->Compositer->CompositeBuffer(rawImage.GetRawPtr(), depth_buffer,
     resultColor, result_depth);
+  depth_buffer->Delete();
+  resultColor->Delete();
+  result_depth->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -113,11 +116,11 @@ void vtkCompositedSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Compositer: ";
   if (this->Compositer)
-    {
-    this->Compositer->PrintSelf(os, indent.GetNextIndent());;
-    }
+  {
+    this->Compositer->PrintSelf(os, indent.GetNextIndent());
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 }

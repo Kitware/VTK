@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -56,6 +55,10 @@ depthSort.Update()
 mapper = vtk.vtkPolyDataMapper()
 mapper.SetInputConnection(depthSort.GetOutputPort())
 mapper.SetScalarRange(0,depthSort.GetOutput().GetNumberOfCells())
+mapper.SetScalarVisibility(1);
+mapper.SelectColorArray("sortedCellIds");
+mapper.SetUseLookupTableScalarRange(0);
+mapper.SetScalarMode(vtk.VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetOpacity(0.5)

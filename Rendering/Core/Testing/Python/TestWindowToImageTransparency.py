@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -30,10 +29,10 @@ renWin.SetSize(256, 256)
 # render first image
 renWin.Render()
 if 0 == renWin.GetAlphaBitPlanes():
-    print "Failed to find a visual with alpha bit planes."
+    print("Failed to find a visual with alpha bit planes.")
     exit(0)
 else:
-    print "GetAlphaBitPlanes: " + str(renWin.GetAlphaBitPlanes())
+    print("GetAlphaBitPlanes: " + str(renWin.GetAlphaBitPlanes()))
 
 # create window to image filter, grabbing RGB and alpha
 w2i = vtk.vtkWindowToImageFilter()

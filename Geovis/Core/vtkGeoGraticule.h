@@ -17,16 +17,19 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoGraticule - Create a polygonal lat-long grid
-//
-// .SECTION Description
-// This filter generates polydata to illustrate the distortions introduced
-// by a map projection. The level parameter specifies the number of lines
-// to be drawn. Poles are treated differently than other regions; hence the
-// use of a Level parameter instead of a NumberOfLines parameter.
-// The latitude and longitude are specified as half-open intervals with units
-// of degrees. By default the latitude bounds are [-90,90[ and the longitude
-// bounds are [0,180[.
+/**
+ * @class   vtkGeoGraticule
+ * @brief   Create a polygonal lat-long grid
+ *
+ *
+ * This filter generates polydata to illustrate the distortions introduced
+ * by a map projection. The level parameter specifies the number of lines
+ * to be drawn. Poles are treated differently than other regions; hence the
+ * use of a Level parameter instead of a NumberOfLines parameter.
+ * The latitude and longitude are specified as half-open intervals with units
+ * of degrees. By default the latitude bounds are [-90,90[ and the longitude
+ * bounds are [0,180[.
+*/
 
 #ifndef vtkGeoGraticule_h
 #define vtkGeoGraticule_h
@@ -36,69 +39,83 @@
 
 class vtkPolyData;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoGraticule : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGeoGraticule* New();
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   vtkTypeMacro(vtkGeoGraticule,vtkPolyDataAlgorithm);
 
-  // Description:
-  // The latitude bounds of the graticule.
+  //@{
+  /**
+   * The latitude bounds of the graticule.
+   */
   vtkSetVector2Macro(LatitudeBounds,double);
   vtkGetVector2Macro(LatitudeBounds,double);
+  //@}
 
-  // Description:
-  // The longitude bounds of the graticule.
+  //@{
+  /**
+   * The longitude bounds of the graticule.
+   */
   vtkSetVector2Macro(LongitudeBounds,double);
   vtkGetVector2Macro(LongitudeBounds,double);
+  //@}
 
-  //BTX
   enum LevelLimits {
     LEVEL_MIN = 0,
     LEVEL_MAX = 11,
     NUMBER_OF_LEVELS = ( LEVEL_MAX - LEVEL_MIN + 1 )
   };
-  //ETX
 
-  // Description:
-  // The frequency level of latitude lines.
+  //@{
+  /**
+   * The frequency level of latitude lines.
+   */
   vtkSetClampMacro(LatitudeLevel,int,LEVEL_MIN,LEVEL_MAX);
   vtkGetMacro(LatitudeLevel,int);
+  //@}
 
-  // Description:
-  // The frequency level of longitude lines.
+  //@{
+  /**
+   * The frequency level of longitude lines.
+   */
   vtkSetClampMacro(LongitudeLevel,int,LEVEL_MIN,LEVEL_MAX);
   vtkGetMacro(LongitudeLevel,int);
+  //@}
 
-  // Description:
-  // The latitude delta at a certain frequency level.
+  /**
+   * The latitude delta at a certain frequency level.
+   */
   static double GetLatitudeDelta(int level)
     { return LatitudeLevelTics[level]; }
 
-  // Description:
-  // The longitude delta at a certain frequency level.
+  /**
+   * The longitude delta at a certain frequency level.
+   */
   static double GetLongitudeDelta(int level)
     { return LongitudeLevelTics[level]; }
 
-  // Description:
-  // Set//get the type(s) of cells that will be
-  // output by the filter. By default, polylines
-  // are output. You may also request quadrilaterals.
-  // This is a bit vector of GeometryType enums.
+  //@{
+  /**
+   * Set//get the type(s) of cells that will be
+   * output by the filter. By default, polylines
+   * are output. You may also request quadrilaterals.
+   * This is a bit vector of GeometryType enums.
+   */
   vtkSetMacro(GeometryType,int);
   vtkGetMacro(GeometryType,int);
+  //@}
 
-  //BTX
   enum GeometryType {
     POLYLINES      = 0x1,
     QUADRILATERALS = 0x2
   };
-  //ETX
 
 protected:
   vtkGeoGraticule();
-  virtual ~vtkGeoGraticule();
+  ~vtkGeoGraticule() override;
 
   int GeometryType;
   double LatitudeBounds[2];
@@ -106,19 +123,23 @@ protected:
   int LatitudeLevel;
   int LongitudeLevel;
 
-  // Description:
-  // The distance between tic marks at each level, in degrees.
+  //@{
+  /**
+   * The distance between tic marks at each level, in degrees.
+   */
   static double LatitudeLevelTics[NUMBER_OF_LEVELS];
   static double LongitudeLevelTics[NUMBER_OF_LEVELS];
+  //@}
 
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
   void GenerateGraticule( vtkPolyData* output, double latbds[2], double lngbds[2] );
   int ComputeLineLevel( int ticId, int baseLevel, const double* levelIncrements );
 
 private:
-  vtkGeoGraticule( const vtkGeoGraticule& ); // Not implemented.
-  void operator = ( const vtkGeoGraticule& ); // Not implemented.
+  vtkGeoGraticule( const vtkGeoGraticule& ) = delete;
+  void operator = ( const vtkGeoGraticule& ) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif // vtkGeoGraticule_h

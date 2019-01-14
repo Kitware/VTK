@@ -33,20 +33,20 @@ vtkStandardNewMacro(vtkBSPIntersections);
 
 #define REGIONCHECK(err)     \
 if (this->BuildRegionList()) \
-  {                          \
+{                          \
   return err;                \
-  }
+}
 
 #define REGIONIDCHECK_RETURNERR(id, err) \
 if (this->BuildRegionList()) \
-  {                          \
+{                          \
   return err;                \
-  }                          \
-if ((id < 0) || (id >= this->NumberOfRegions)) \
-  {                                            \
-  vtkErrorMacro(<< "Invalid region ID");       \
-  return err;                                  \
-  }
+}                          \
+if (((id) < 0) || ((id) >= this->NumberOfRegions))  \
+{                                                 \
+  vtkErrorMacro(<< "Invalid region ID");            \
+  return (err);                                     \
+}
 
 //----------------------------------------------------------------------------
 
@@ -75,9 +75,9 @@ void vtkBSPIntersections::ComputeIntersectionsUsingDataBoundsOff()
 //----------------------------------------------------------------------------
 vtkBSPIntersections::vtkBSPIntersections()
 {
-  this->Cuts = NULL;
+  this->Cuts = nullptr;
   this->NumberOfRegions = 0;
-  this->RegionList = NULL;
+  this->RegionList = nullptr;
   this->ComputeIntersectionsUsingDataBounds = 0;
   vtkMath::UninitializeBounds(this->CellBoundsCache);
 }
@@ -85,55 +85,55 @@ vtkBSPIntersections::vtkBSPIntersections()
 //----------------------------------------------------------------------------
 vtkBSPIntersections::~vtkBSPIntersections()
 {
-  this->SetCuts(NULL);
+  this->SetCuts(nullptr);
   delete [] this->RegionList;
 }
 //----------------------------------------------------------------------------
 int vtkBSPIntersections::BuildRegionList()
 {
-  if ((this->RegionList != NULL) &&
+  if ((this->RegionList != nullptr) &&
       (this->RegionListBuildTime > this->GetMTime()))
-    {
+  {
     return 0;
-    }
+  }
 
   delete [] this->RegionList;
-  this->RegionList = NULL;
+  this->RegionList = nullptr;
 
-  vtkKdNode *top = NULL;
+  vtkKdNode *top = nullptr;
   if (this->Cuts)
-    {
+  {
     top = this->Cuts->GetKdNodeTree();
-    }
+  }
 
   if (!top)
-    {
+  {
     return 1;
-    }
+  }
 
   this->NumberOfRegions = vtkBSPIntersections::NumberOfLeafNodes(top);
 
   if (this->NumberOfRegions < 1)
-    {
+  {
     vtkErrorMacro(<< "vtkBSPIntersections::BuildRegionList no cuts in vtkBSPCut object");
     return 1;
-    }
+  }
 
   this->RegionList = new vtkKdNode * [this->NumberOfRegions];
 
   if (!this->RegionList)
-    {
+  {
     vtkErrorMacro(<< "vtkBSPIntersections::BuildRegionList memory allocation");
     return 1;
-    }
+  }
 
   int fail = this->SelfRegister(top);
 
   if (fail)
-    {
+  {
     vtkErrorMacro(<< "vtkBSPIntersections::BuildRegionList bad ids in vtkBSPCut object");
     return 1;
-    }
+  }
 
   int min=0;
   int max=0;
@@ -149,25 +149,25 @@ int vtkBSPIntersections::SelfRegister(vtkKdNode *kd)
 {
   int fail = 0;
 
-  if (kd->GetLeft() == NULL)
-    {
+  if (kd->GetLeft() == nullptr)
+  {
     int id = kd->GetID();
 
     if ((id < 0) || (id >= this->NumberOfRegions))
-      {
-      return 1;
-      }
-    this->RegionList[id] = kd;
-    }
-  else
     {
+      return 1;
+    }
+    this->RegionList[id] = kd;
+  }
+  else
+  {
     fail = this->SelfRegister(kd->GetLeft());
 
     if (!fail)
-      {
+    {
       fail = this->SelfRegister(kd->GetRight());
-      }
     }
+  }
 
   return fail;
 }
@@ -176,13 +176,13 @@ int vtkBSPIntersections::NumberOfLeafNodes(vtkKdNode *kd)
 {
   int nLeafNodes=1;
 
-  if (kd->GetLeft() != NULL)
-    {
+  if (kd->GetLeft() != nullptr)
+  {
     int numLeft = vtkBSPIntersections::NumberOfLeafNodes(kd->GetLeft());
     int numRight = vtkBSPIntersections::NumberOfLeafNodes(kd->GetRight());
 
     nLeafNodes = numLeft + numRight;
-    }
+  }
 
   return nLeafNodes;
 }
@@ -192,18 +192,18 @@ void vtkBSPIntersections::SetIDRanges(vtkKdNode *kd, int &min, int &max)
   int tempMin=0;
   int tempMax=0;
 
-  if (kd->GetLeft() == NULL)
-    {
+  if (kd->GetLeft() == nullptr)
+  {
     min = kd->GetID();
     max = kd->GetID();
-    }
+  }
   else
-    {
+  {
     vtkBSPIntersections::SetIDRanges(kd->GetLeft(), min, max);
     vtkBSPIntersections::SetIDRanges(kd->GetRight(), tempMin, tempMax);
     max = (tempMax > max) ? tempMax : max;
     min = (tempMin < min) ? tempMin : min;
-    }
+  }
 
   kd->SetMinID(min);
   kd->SetMaxID(max);
@@ -291,10 +291,10 @@ int vtkBSPIntersections::IntersectsBox(int *ids, int len,
   int nnodes = 0;
 
   if (len > 0)
-    {
+  {
     nnodes = this->_IntersectsBox(this->Cuts->GetKdNodeTree(), ids, len,
                              x0, x1, y0, y1, z0, z1);
-    }
+  }
   return nnodes;
 }
 
@@ -310,15 +310,15 @@ int vtkBSPIntersections::_IntersectsBox(vtkKdNode *node, int *ids, int len,
                              this->ComputeIntersectionsUsingDataBounds);
 
   if (!result)
-    {
+  {
     return 0;
-    }
+  }
 
-  if (node->GetLeft() == NULL)
-    {
+  if (node->GetLeft() == nullptr)
+  {
     ids[0] = node->GetID();
     return 1;
-    }
+  }
 
   nnodes1 = _IntersectsBox(node->GetLeft(), ids, len, x0, x1, y0, y1, z0, z1);
 
@@ -326,13 +326,13 @@ int vtkBSPIntersections::_IntersectsBox(vtkKdNode *node, int *ids, int len,
   listlen = len - nnodes1;
 
   if (listlen > 0)
-    {
+  {
     nnodes2 = _IntersectsBox(node->GetRight(), idlist, listlen, x0, x1, y0, y1, z0, z1);
-    }
+  }
   else
-    {
+  {
     nnodes2 = 0;
-    }
+  }
 
   return (nnodes1 + nnodes2);
 }
@@ -360,10 +360,10 @@ int vtkBSPIntersections::IntersectsSphere2(int *ids, int len,
   int nnodes = 0;
 
   if (len > 0)
-    {
+  {
     nnodes = this->_IntersectsSphere2(this->Cuts->GetKdNodeTree(),
       ids, len, x, y, z, rSquared);
-    }
+  }
   return nnodes;
 }
 
@@ -378,15 +378,15 @@ int vtkBSPIntersections::_IntersectsSphere2(vtkKdNode *node, int *ids, int len,
                              this->ComputeIntersectionsUsingDataBounds);
 
   if (!result)
-    {
+  {
     return 0;
-    }
+  }
 
-  if (node->GetLeft() == NULL)
-    {
+  if (node->GetLeft() == nullptr)
+  {
     ids[0] = node->GetID();
     return 1;
-    }
+  }
 
   nnodes1 = _IntersectsSphere2(node->GetLeft(), ids, len, x, y, z, rSquared);
 
@@ -394,13 +394,13 @@ int vtkBSPIntersections::_IntersectsSphere2(vtkKdNode *node, int *ids, int len,
   listlen = len - nnodes1;
 
   if (listlen > 0)
-    {
+  {
     nnodes2 = _IntersectsSphere2(node->GetRight(), idlist, listlen, x, y, z, rSquared);
-    }
+  }
   else
-    {
+  {
     nnodes2 = 0;
-    }
+  }
 
   return (nnodes1 + nnodes2);
 }
@@ -447,9 +447,9 @@ int vtkBSPIntersections::_IntersectsCell(vtkKdNode *node, int *ids, int len,
                                 cellRegion, this->CellBoundsCache);
 
   if (intersects)
-    {
+  {
     if (node->GetLeft())
-      {
+    {
       nnodes1 = this->_IntersectsCell(node->GetLeft(), ids, len, cell,
                                 cellRegion);
 
@@ -457,28 +457,28 @@ int vtkBSPIntersections::_IntersectsCell(vtkKdNode *node, int *ids, int len,
       listlen = len - nnodes1;
 
       if (listlen > 0)
-        {
+      {
         nnodes2 = this->_IntersectsCell(node->GetRight(), idlist, listlen, cell,
                                   cellRegion);
-        }
+      }
       else
-        {
+      {
         nnodes2 = 0;
-        }
+      }
 
       result = nnodes1 + nnodes2;
-      }
+    }
     else
-      {
+    {
       ids[0] = node->GetID();     // leaf node (spatial region)
 
       result = 1;
-      }
     }
+  }
   else
-    {
+  {
     result = 0;
-    }
+  }
 
   return result;
 }

@@ -14,16 +14,18 @@
 =========================================================================*/
 #include "vtkWindow.h"
 
+#include "vtkCommand.h"
 #include "vtkToolkits.h"
 
 
 //-----------------------------------------------------------------------------
-// Construct an instance of  vtkRenderWindow with its screen size
+// Construct an instance of vtkRenderWindow with its screen size
 // set to 300x300, borders turned on, positioned at (0,0), double
 // buffering turned on.
 vtkWindow::vtkWindow()
 {
-  this->OffScreenRendering = 0;
+  this->ShowWindow = true;
+  this->UseOffScreenBuffers = false;
   this->Size[0] = this->Size[1] = 0;
   this->Position[0] = this->Position[1] = 0;
   this->Mapped = 0;
@@ -32,7 +34,7 @@ vtkWindow::vtkWindow()
   strcpy( this->WindowName, windowname );
   this->Erase = 1;
   this->DoubleBuffer = 0;
-  this->DPI = 120;
+  this->DPI = 72;
   this->TileViewport[0] = 0;
   this->TileViewport[1] = 0;
   this->TileViewport[2] = 1.0;
@@ -47,7 +49,7 @@ vtkWindow::vtkWindow()
 // Destructor for the vtkWindow object.
 vtkWindow::~vtkWindow()
 {
-  this->SetWindowName( NULL );
+  this->SetWindowName( nullptr );
 }
 
 //-----------------------------------------------------------------------------
@@ -78,11 +80,12 @@ void vtkWindow::SetSize(int x, int y)
 {
   if ( this->Size[0] != x
     || this->Size[1] != y )
-    {
+  {
     this->Size[0] = x;
     this->Size[1] = y;
     this->Modified();
-    }
+    this->InvokeEvent(vtkCommand::WindowResizeEvent, nullptr);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -102,11 +105,11 @@ void vtkWindow::SetPosition(int x, int y)
 {
   if ( this->Position[0] != x
     || this->Position[1] != y )
-    {
+  {
     this->Modified();
     this->Position[0] = x;
     this->Position[1] = y;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -116,13 +119,13 @@ void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Erase: " << (this->Erase ? "On\n" : "Off\n");
   if ( this->WindowName )
-    {
+  {
     os << indent << "Window Name: " << this->WindowName << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Window Name: (none)\n";
-    }
+  }
 
   // Can only print out the ivars because the window may not have been
   // created yet.
@@ -131,7 +134,8 @@ void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
   //  temp = this->GetSize();
   os << indent << "Size: (" << this->Size[0] << ", " << this->Size[1] << ")\n";
   os << indent << "Mapped: " << this->Mapped << "\n";
-  os << indent << "OffScreenRendering: " << this->OffScreenRendering << "\n";
+  os << indent << "ShowWindow: " << this->ShowWindow << "\n";
+  os << indent << "UseOffScreenBuffers: " << this->UseOffScreenBuffers << "\n";
   os << indent << "Double Buffered: " << this->DoubleBuffer << "\n";
   os << indent << "DPI: " << this->DPI << "\n";
   os << indent << "TileScale: (" << this->TileScale[0] << ", "

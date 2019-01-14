@@ -31,18 +31,18 @@ void vtkSimpleImageFilterExampleExecute(vtkImageData* input,
   int dims[3];
   input->GetDimensions(dims);
   if (input->GetScalarType() != output->GetScalarType())
-    {
+  {
     vtkGenericWarningMacro(<< "Execute: input ScalarType, " << input->GetScalarType()
     << ", must match out ScalarType " << output->GetScalarType());
     return;
-    }
+  }
 
   int size = dims[0]*dims[1]*dims[2];
 
   for(int i=0; i<size; i++)
-    {
+  {
     outPtr[i] = inPtr[i];
-    }
+  }
 }
 
 void vtkSimpleImageFilterExample::SimpleExecute(vtkImageData* input,
@@ -53,7 +53,7 @@ void vtkSimpleImageFilterExample::SimpleExecute(vtkImageData* input,
   void* outPtr = output->GetScalarPointer();
 
   switch(output->GetScalarType())
-    {
+  {
     // This is simply a #define for a big case list. It handles all
     // data types VTK supports.
     vtkTemplateMacro(
@@ -63,5 +63,5 @@ void vtkSimpleImageFilterExample::SimpleExecute(vtkImageData* input,
     default:
       vtkGenericWarningMacro("Execute: Unknown input ScalarType");
       return;
-    }
+  }
 }

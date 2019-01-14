@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPMaskPoints - parallel Mask Points
-// .SECTION Description
-// The difference between this implementation and vtkMaskPoints is
-// the use of the vtkMultiProcessController and that
-// ProportionalMaximumNumberOfPoints is obeyed.
+/**
+ * @class   vtkPMaskPoints
+ * @brief   parallel Mask Points
+ *
+ * The difference between this implementation and vtkMaskPoints is
+ * the use of the vtkMultiProcessController and that
+ * ProportionalMaximumNumberOfPoints is obeyed.
+*/
 
 #ifndef vtkPMaskPoints_h
 #define vtkPMaskPoints_h
@@ -31,27 +34,30 @@ class VTKFILTERSPARALLEL_EXPORT vtkPMaskPoints : public vtkMaskPoints
 public:
   static vtkPMaskPoints *New();
   vtkTypeMacro(vtkPMaskPoints,vtkMaskPoints);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set the communicator object for interprocess communication
+  //@{
+  /**
+   * Set the communicator object for interprocess communication
+   */
   virtual vtkMultiProcessController* GetController();
   virtual void SetController(vtkMultiProcessController*);
+  //@}
 
 protected:
   vtkPMaskPoints();
-  ~vtkPMaskPoints();
+  ~vtkPMaskPoints() override;
 
-  virtual void InternalScatter(unsigned long*, unsigned long *, int, int);
-  virtual void InternalGather(unsigned long*, unsigned long*, int, int);
-  virtual int InternalGetNumberOfProcesses();
-  virtual int InternalGetLocalProcessId();
-  virtual void InternalBarrier();
+  void InternalScatter(unsigned long*, unsigned long *, int, int) override;
+  void InternalGather(unsigned long*, unsigned long*, int, int) override;
+  int InternalGetNumberOfProcesses() override;
+  int InternalGetLocalProcessId() override;
+  void InternalBarrier() override;
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPMaskPoints(const vtkPMaskPoints&);  // Not implemented.
-  void operator=(const vtkPMaskPoints&);  // Not implemented.
+  vtkPMaskPoints(const vtkPMaskPoints&) = delete;
+  void operator=(const vtkPMaskPoints&) = delete;
 };
 
 #endif

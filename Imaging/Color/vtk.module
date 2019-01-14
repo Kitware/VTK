@@ -1,0 +1,20 @@
+NAME
+  VTK::ImagingColor
+LIBRARY_NAME
+  vtkImagingColor
+KIT
+  VTK::Imaging
+GROUPS
+  Imaging
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+  VTK::ImagingCore
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonSystem
+TEST_DEPENDS
+  VTK::IOImage
+  VTK::ImagingCore
+  VTK::TestingCore

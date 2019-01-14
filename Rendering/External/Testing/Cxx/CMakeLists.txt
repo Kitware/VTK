@@ -1,13 +1,11 @@
-INCLUDE_DIRECTORIES(
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
-FIND_PACKAGE(GLUT REQUIRED)
+# TODO: Make FindGLUT use imported targets.
+find_package(GLUT REQUIRED QUIET)
+include_directories(${GLUT_INCLUDE_DIR})
 
-VTK_ADD_TEST_CXX(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkRenderingExternalCxxTests tests
   TestGLUTRenderWindow.cxx
   )
 
-VTK_TEST_CXX_EXECUTABLE(${vtk-module}CxxTests tests)
-TARGET_LINK_LIBRARIES(${vtk-module}CxxTests LINK_PRIVATE
-  vtkRenderingExternal ${OPENGL_gl_LIBRARY} ${GLUT_LIBRARY})
+vtk_test_cxx_executable(vtkRenderingExternalCxxTests tests)
+target_link_libraries(vtkRenderingExternalCxxTests PRIVATE
+  ${GLUT_LIBRARY})

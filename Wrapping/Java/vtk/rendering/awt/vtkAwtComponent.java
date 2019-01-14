@@ -90,7 +90,7 @@ public class vtkAwtComponent extends vtkAbstractComponent<Canvas> {
     if (!this.renderWindow.GetClassName().equals("vtkXOpenGLRenderWindow")) {
       this.renderWindow = null;
     } else {
-      System.out.println("The renderwindow has been kept arount to prevent a crash");
+      System.out.println("The renderwindow has been kept around to prevent a crash");
     }
     this.lock.unlock();
     vtkObject.JAVA_OBJECT_MANAGER.gc(false);
@@ -105,7 +105,7 @@ public class vtkAwtComponent extends vtkAbstractComponent<Canvas> {
   }
 
   /**
-   * Set a callback that get's called once the window is properly created and can be
+   * Set a callback that gets called once the window is properly created and can be
    * customized in its settings.
    *
    * Once called the callback will be released.

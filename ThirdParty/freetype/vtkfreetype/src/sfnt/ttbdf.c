@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    TrueType and OpenType embedded BDF properties (body).                */
 /*                                                                         */
-/*  Copyright 2005, 2006, 2010 by                                          */
+/*  Copyright 2005-2018 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -48,7 +48,7 @@
       FT_Stream  stream = FT_FACE(face)->stream;
 
 
-      if ( bdf->table != NULL )
+      if ( bdf->table )
         FT_FRAME_RELEASE( bdf->table );
 
       bdf->table_end    = NULL;
@@ -74,7 +74,7 @@
          length < 8                             ||
          FT_FRAME_EXTRACT( length, bdf->table ) )
     {
-      error = SFNT_Err_Invalid_Table;
+      error = FT_THROW( Invalid_Table );
       goto Exit;
     }
 
@@ -131,7 +131,7 @@
   BadTable:
     FT_FRAME_RELEASE( bdf->table );
     FT_ZERO( bdf );
-    error = SFNT_Err_Invalid_Table;
+    error = FT_THROW( Invalid_Table );
     goto Exit;
   }
 
@@ -143,7 +143,7 @@
   {
     TT_BDF     bdf   = &face->bdf;
     FT_Size    size  = FT_FACE(face)->size;
-    FT_Error   error = SFNT_Err_Ok;
+    FT_Error   error = FT_Err_Ok;
     FT_Byte*   p;
     FT_UInt    count;
     FT_Byte*   strike;
@@ -163,9 +163,9 @@
     p      = bdf->table + 8;
     strike = p + 4 * count;
 
-    error = SFNT_Err_Invalid_Argument;
+    error = FT_ERR( Invalid_Argument );
 
-    if ( size == NULL || property_name == NULL )
+    if ( !size || !property_name )
       goto Exit;
 
     property_len = ft_strlen( property_name );
@@ -176,6 +176,7 @@
     {
       FT_UInt  _ppem  = FT_NEXT_USHORT( p );
       FT_UInt  _count = FT_NEXT_USHORT( p );
+
 
       if ( _ppem == size->metrics.y_ppem )
       {
@@ -192,6 +193,7 @@
     for ( ; count > 0; count-- )
     {
       FT_UInt  type = FT_PEEK_USHORT( p + 4 );
+
 
       if ( ( type & 0x10 ) != 0 )
       {
@@ -215,7 +217,7 @@
             {
               aprop->type   = BDF_PROPERTY_TYPE_ATOM;
               aprop->u.atom = (const char*)bdf->strings + value;
-              error         = SFNT_Err_Ok;
+              error         = FT_Err_Ok;
               goto Exit;
             }
             break;
@@ -223,13 +225,13 @@
           case 0x02:
             aprop->type      = BDF_PROPERTY_TYPE_INTEGER;
             aprop->u.integer = (FT_Int32)value;
-            error            = SFNT_Err_Ok;
+            error            = FT_Err_Ok;
             goto Exit;
 
           case 0x03:
             aprop->type       = BDF_PROPERTY_TYPE_CARDINAL;
             aprop->u.cardinal = value;
-            error             = SFNT_Err_Ok;
+            error             = FT_Err_Ok;
             goto Exit;
 
           default:
@@ -244,7 +246,12 @@
     return error;
   }
 
-#endif /* TT_CONFIG_OPTION_BDF */
+#else /* !TT_CONFIG_OPTION_BDF */
+
+  /* ANSI C doesn't like empty source files */
+  typedef int  _tt_bdf_dummy;
+
+#endif /* !TT_CONFIG_OPTION_BDF */
 
 
 /* END */

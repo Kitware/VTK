@@ -5,15 +5,13 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#define H5Z_PACKAGE		/*suppress error about including H5Zpkg	  */
+#include "H5Zmodule.h"          /* This source code file is part of the H5Z module */
 
 
 #include "H5private.h"		/* Generic Functions			*/
@@ -72,12 +70,10 @@ H5Z_class2_t H5Z_SZIP[1] = {{
  * Programmer:	Quincey Koziol
  *              Monday, April  7, 2003
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static htri_t
-H5Z_can_apply_szip(hid_t UNUSED dcpl_id, hid_t type_id, hid_t UNUSED space_id)
+H5Z_can_apply_szip(hid_t H5_ATTR_UNUSED dcpl_id, hid_t type_id, hid_t H5_ATTR_UNUSED space_id)
 {
     const H5T_t	*type;                  /* Datatype */
     unsigned dtype_size;                /* Datatype's size (in bits) */
@@ -87,25 +83,25 @@ H5Z_can_apply_szip(hid_t UNUSED dcpl_id, hid_t type_id, hid_t UNUSED space_id)
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Get datatype */
-    if(NULL == (type = H5I_object_verify(type_id, H5I_DATATYPE)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
+    if(NULL == (type = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
 
     /* Get datatype's size, for checking the "bits-per-pixel" */
     if((dtype_size = (8 * H5T_get_size(type))) == 0)
-	HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype size")
+        HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype size")
 
     /* Range check datatype's size */
     if(dtype_size > 32 && dtype_size != 64)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FALSE, "invalid datatype size")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FALSE, "invalid datatype size")
 
     /* Get datatype's endianness order */
     if((dtype_order = H5T_get_order(type)) == H5T_ORDER_ERROR)
-	HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "can't retrieve datatype endianness order")
+        HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "can't retrieve datatype endianness order")
 
     /* Range check datatype's endianness order */
     /* (Note: this may not handle non-atomic datatypes well) */
     if(dtype_order != H5T_ORDER_LE && dtype_order != H5T_ORDER_BE)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FALSE, "invalid datatype endianness order")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FALSE, "invalid datatype endianness order")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -158,20 +154,20 @@ H5Z_set_local_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id)
         HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
 
     /* Get datatype */
-    if(NULL == (type = H5I_object_verify(type_id, H5I_DATATYPE)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
+    if(NULL == (type = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
 
     /* Get the filter's current parameters */
     if(H5P_get_filter_by_id(dcpl_plist, H5Z_FILTER_SZIP, &flags, &cd_nelmts, cd_values, 0, NULL, NULL) < 0)
-	HGOTO_ERROR(H5E_PLINE, H5E_CANTGET, FAIL, "can't get szip parameters")
+        HGOTO_ERROR(H5E_PLINE, H5E_CANTGET, FAIL, "can't get szip parameters")
 
     /* Get datatype's size, for checking the "bits-per-pixel" */
     if((dtype_size = (8 * H5T_get_size(type))) == 0)
-	HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype size");
+        HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype size");
 
     /* Get datatype's precision, in case is less than full bits  */
     if((dtype_precision = H5T_get_precision(type)) == 0)
-	HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype precision");
+        HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype precision");
 
     if(dtype_precision < dtype_size) {
         dtype_offset = H5T_get_offset(type);
@@ -179,9 +175,9 @@ H5Z_set_local_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id)
             dtype_precision = dtype_size;
     } /* end if */
     if(dtype_precision > 24) {
-	if(dtype_precision <= 32)
+        if(dtype_precision <= 32)
             dtype_precision = 32;
-	else if(dtype_precision <= 64)
+        else if(dtype_precision <= 64)
             dtype_precision = 64;
     } /* end if */
 
@@ -190,7 +186,7 @@ H5Z_set_local_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id)
 
     /* Get dataspace */
     if(NULL == (ds = (H5S_t *)H5I_object_verify(space_id, H5I_DATASPACE)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a data space")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataspace")
 
     /* Get dimensions for dataspace */
     if((ndims = H5S_get_simple_extent_dims(ds, dims, NULL)) < 0)
@@ -225,11 +221,11 @@ H5Z_set_local_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id)
     } /* end else */
 
     /* Assign the final value to the scanline */
-    H5_ASSIGN_OVERFLOW(cd_values[H5Z_SZIP_PARM_PPS],scanline,hsize_t,unsigned);
+    H5_CHECKED_ASSIGN(cd_values[H5Z_SZIP_PARM_PPS], unsigned, scanline, hsize_t);
 
     /* Get datatype's endianness order */
     if((dtype_order = H5T_get_order(type)) == H5T_ORDER_ERROR)
-	HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype endianness order")
+        HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype endianness order")
 
     /* Set the correct endianness flag for szip */
     /* (Note: this may not handle non-atomic datatypes well) */
@@ -243,13 +239,17 @@ H5Z_set_local_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id)
             cd_values[H5Z_SZIP_PARM_MASK] |= SZ_MSB_OPTION_MASK;
             break;
 
+        case H5T_ORDER_ERROR:
+        case H5T_ORDER_VAX:
+        case H5T_ORDER_MIXED:
+        case H5T_ORDER_NONE:
         default:
             HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype endianness order")
     } /* end switch */
 
     /* Modify the filter's parameters for this dataset */
     if(H5P_modify_filter(dcpl_plist, H5Z_FILTER_SZIP, flags, H5Z_SZIP_TOTAL_NPARMS, cd_values) < 0)
-	HGOTO_ERROR(H5E_PLINE, H5E_CANTSET, FAIL, "can't set local szip parameters")
+        HGOTO_ERROR(H5E_PLINE, H5E_CANTSET, FAIL, "can't set local szip parameters")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -267,10 +267,6 @@ done:
  *
  * Programmer:	Kent Yang
  *              Tuesday, April 1, 2003
- *
- * Modifications:
- *              Quincey Koziol, April 2, 2003
- *              Cleaned up code.
  *
  *-------------------------------------------------------------------------
  */
@@ -298,13 +294,13 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
 
     /* Check arguments */
     if (cd_nelmts!=4)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, 0, "invalid deflate aggression level")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, 0, "invalid number of filter parameters")
 
     /* Copy the filter parameters into the szip parameter block */
-    H5_ASSIGN_OVERFLOW(sz_param.options_mask,cd_values[H5Z_SZIP_PARM_MASK],unsigned,int);
-    H5_ASSIGN_OVERFLOW(sz_param.bits_per_pixel,cd_values[H5Z_SZIP_PARM_BPP],unsigned,int);
-    H5_ASSIGN_OVERFLOW(sz_param.pixels_per_block,cd_values[H5Z_SZIP_PARM_PPB],unsigned,int);
-    H5_ASSIGN_OVERFLOW(sz_param.pixels_per_scanline,cd_values[H5Z_SZIP_PARM_PPS],unsigned,int);
+    H5_CHECKED_ASSIGN(sz_param.options_mask, int, cd_values[H5Z_SZIP_PARM_MASK], unsigned);
+    H5_CHECKED_ASSIGN(sz_param.bits_per_pixel, int, cd_values[H5Z_SZIP_PARM_BPP], unsigned);
+    H5_CHECKED_ASSIGN(sz_param.pixels_per_block, int, cd_values[H5Z_SZIP_PARM_PPB], unsigned);
+    H5_CHECKED_ASSIGN(sz_param.pixels_per_scanline, int, cd_values[H5Z_SZIP_PARM_PPS], unsigned);
 
     /* Input; uncompress */
     if (flags & H5Z_FLAG_REVERSE) {
@@ -312,12 +308,12 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
         size_t nalloc;  /* Number of bytes the compressed block will expand into */
 
         /* Get the size of the uncompressed buffer */
-        newbuf = *buf;
+        newbuf = (unsigned char *)(*buf);
         UINT32DECODE(newbuf,stored_nalloc);
-        H5_ASSIGN_OVERFLOW(nalloc,stored_nalloc,uint32_t,size_t);
+        H5_CHECKED_ASSIGN(nalloc, size_t, stored_nalloc, uint32_t);
 
         /* Allocate space for the uncompressed buffer */
-        if(NULL==(outbuf = H5MM_malloc(nalloc)))
+        if(NULL == (outbuf = (unsigned char *)H5MM_malloc(nalloc)))
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0, "memory allocation failed for szip decompression")
 
         /* Decompress the buffer */
@@ -333,14 +329,14 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
         *buf = outbuf;
         outbuf = NULL;
         *buf_size = nalloc;
-        ret_value = nalloc;
+        ret_value = size_out;
     }
     /* Output; compress */
     else {
         unsigned char *dst = NULL;    /* Temporary pointer to new output buffer */
 
         /* Allocate space for the compressed buffer & header (assume data won't get bigger) */
-        if(NULL==(dst=outbuf = H5MM_malloc(nbytes+4)))
+        if(NULL == (dst=outbuf = (unsigned char *)H5MM_malloc(nbytes+4)))
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0, "unable to allocate szip destination buffer")
 
         /* Encode the uncompressed length */
@@ -350,7 +346,7 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
         /* Compress the buffer */
         size_out = nbytes;
         if(SZ_OK!= SZ_BufftoBuffCompress(dst, &size_out, *buf, nbytes, &sz_param))
-	    HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "overflow")
+            HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "overflow")
         HDassert(size_out<=nbytes);
 
         /* Free the input buffer */
@@ -359,7 +355,7 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
         /* Set return values */
         *buf = outbuf;
         outbuf = NULL;
-        *buf_size = size_out+4;
+        *buf_size = nbytes+4;
         ret_value = size_out+4;
     }
 

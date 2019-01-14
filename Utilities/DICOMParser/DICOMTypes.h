@@ -4,8 +4,6 @@
   Program:   DICOMParser
   Module:    DICOMTypes.h
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 2003 Matt Turek
   All rights reserved.

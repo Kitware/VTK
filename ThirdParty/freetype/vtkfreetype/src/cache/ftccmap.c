@@ -4,8 +4,7 @@
 /*                                                                         */
 /*    FreeType CharMap cache (body)                                        */
 /*                                                                         */
-/*  Copyright 2000-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,   */
-/*            2010, 2011 by                                                */
+/*  Copyright 2000-2018 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -32,43 +31,6 @@
 #define FT_COMPONENT  trace_cache
 
 
-#ifdef FT_CONFIG_OPTION_OLD_INTERNALS
-
-  typedef enum  FTC_OldCMapType_
-  {
-    FTC_OLD_CMAP_BY_INDEX    = 0,
-    FTC_OLD_CMAP_BY_ENCODING = 1,
-    FTC_OLD_CMAP_BY_ID       = 2
-
-  } FTC_OldCMapType;
-
-
-  typedef struct  FTC_OldCMapIdRec_
-  {
-    FT_UInt  platform;
-    FT_UInt  encoding;
-
-  } FTC_OldCMapIdRec, *FTC_OldCMapId;
-
-
-  typedef struct  FTC_OldCMapDescRec_
-  {
-    FTC_FaceID       face_id;
-    FTC_OldCMapType  type;
-
-    union
-    {
-      FT_UInt           index;
-      FT_Encoding       encoding;
-      FTC_OldCMapIdRec  id;
-
-    } u;
-
-  } FTC_OldCMapDescRec, *FTC_OldCMapDesc;
-
-#endif /* FT_CONFIG_OLD_INTERNALS */
-
-
   /*************************************************************************/
   /*                                                                       */
   /* Each FTC_CMapNode contains a simple array to map a range of character */
@@ -88,7 +50,7 @@
 
   /* compute a query/node hash */
 #define FTC_CMAP_HASH( faceid, index, charcode )         \
-          ( _FTC_FACE_ID_HASH( faceid ) + 211 * (index) + \
+          ( FTC_FACE_ID_HASH( faceid ) + 211 * (index) + \
             ( (charcode) / FTC_CMAP_INDICES_MAX )      )
 
   /* the charmap query */
@@ -101,8 +63,6 @@
   } FTC_CMapQueryRec, *FTC_CMapQuery;
 
 #define FTC_CMAP_QUERY( x )  ((FTC_CMapQuery)(x))
-#define FTC_CMAP_QUERY_HASH( x )                                         \
-          FTC_CMAP_HASH( (x)->face_id, (x)->cmap_index, (x)->char_code )
 
   /* the cmap cache node */
   typedef struct  FTC_CMapNodeRec_
@@ -116,12 +76,10 @@
   } FTC_CMapNodeRec, *FTC_CMapNode;
 
 #define FTC_CMAP_NODE( x ) ( (FTC_CMapNode)( x ) )
-#define FTC_CMAP_NODE_HASH( x )                                      \
-          FTC_CMAP_HASH( (x)->face_id, (x)->cmap_index, (x)->first )
 
   /* if (indices[n] == FTC_CMAP_UNKNOWN), we assume that the corresponding */
   /* glyph indices haven't been queried through FT_Get_Glyph_Index() yet   */
-#define FTC_CMAP_UNKNOWN  ( (FT_UInt16)-1 )
+#define FTC_CMAP_UNKNOWN  (FT_UInt16)~0
 
 
   /*************************************************************************/
@@ -240,18 +198,18 @@
   /*************************************************************************/
 
 
-  FT_CALLBACK_TABLE_DEF
+  static
   const FTC_CacheClassRec  ftc_cmap_cache_class =
   {
-    ftc_cmap_node_new,
-    ftc_cmap_node_weight,
-    ftc_cmap_node_compare,
-    ftc_cmap_node_remove_faceid,
-    ftc_cmap_node_free,
+    ftc_cmap_node_new,           /* FTC_Node_NewFunc      node_new           */
+    ftc_cmap_node_weight,        /* FTC_Node_WeightFunc   node_weight        */
+    ftc_cmap_node_compare,       /* FTC_Node_CompareFunc  node_compare       */
+    ftc_cmap_node_remove_faceid, /* FTC_Node_CompareFunc  node_remove_faceid */
+    ftc_cmap_node_free,          /* FTC_Node_FreeFunc     node_free          */
 
     sizeof ( FTC_CacheRec ),
-    ftc_cache_init,
-    ftc_cache_done,
+    ftc_cache_init,              /* FTC_Cache_InitFunc    cache_init         */
+    ftc_cache_done,              /* FTC_Cache_DoneFunc    cache_done         */
   };
 
 
@@ -267,21 +225,6 @@
   }
 
 
-#ifdef FT_CONFIG_OPTION_OLD_INTERNALS
-
-  /*
-   *  Unfortunately, it is not possible to support binary backwards
-   *  compatibility in the cmap cache.  The FTC_CMapCache_Lookup signature
-   *  changes were too deep, and there is no clever hackish way to detect
-   *  what kind of structure we are being passed.
-   *
-   *  On the other hand it seems that no production code is using this
-   *  function on Unix distributions.
-   */
-
-#endif
-
-
   /* documentation is in ftcache.h */
 
   FT_EXPORT_DEF( FT_UInt )
@@ -295,7 +238,7 @@
     FTC_Node          node;
     FT_Error          error;
     FT_UInt           gindex = 0;
-    FT_PtrDist        hash;
+    FT_Offset         hash;
     FT_Int            no_cmap_change = 0;
 
 
@@ -316,59 +259,11 @@
       return 0;
     }
 
-#ifdef FT_CONFIG_OPTION_OLD_INTERNALS
+    query.face_id    = face_id;
+    query.cmap_index = (FT_UInt)cmap_index;
+    query.char_code  = char_code;
 
-    /*
-     * If cmap_index is greater than the maximum number of cachable
-     * charmaps, we assume the request is from a legacy rogue client 
-     * using old internal header. See include/config/ftoption.h.
-     */
-    if ( cmap_index > FT_MAX_CHARMAP_CACHEABLE && !no_cmap_change )
-    {
-      FTC_OldCMapDesc  desc = (FTC_OldCMapDesc) face_id;
-
-
-      char_code     = (FT_UInt32)cmap_index;
-      query.face_id = desc->face_id;
-
-
-      switch ( desc->type )
-      {
-      case FTC_OLD_CMAP_BY_INDEX:
-        query.cmap_index = desc->u.index;
-        query.char_code  = (FT_UInt32)cmap_index;
-        break;
-
-      case FTC_OLD_CMAP_BY_ENCODING:
-        {
-          FT_Face  face;
-
-
-          error = FTC_Manager_LookupFace( cache->manager, desc->face_id,
-                                          &face );
-          if ( error )
-            return 0;
-
-          FT_Select_Charmap( face, desc->u.encoding );
-
-          return FT_Get_Char_Index( face, char_code );
-        }
-
-      default:
-        return 0;
-      }
-    }
-    else
-
-#endif /* FT_CONFIG_OPTION_OLD_INTERNALS */
-
-    {
-      query.face_id    = face_id;
-      query.cmap_index = (FT_UInt)cmap_index;
-      query.char_code  = char_code;
-    }
-
-    hash = FTC_CMAP_HASH( face_id, cmap_index, char_code );
+    hash = FTC_CMAP_HASH( face_id, (FT_UInt)cmap_index, char_code );
 
 #if 1
     FTC_CACHE_LOOKUP_CMP( cache, ftc_cmap_node_compare, hash, &query,
@@ -401,12 +296,6 @@
                                       &face );
       if ( error )
         goto Exit;
-
-#ifdef FT_MAX_CHARMAP_CACHEABLE
-      /* something rotten can happen with rogue clients */
-      if ( cmap_index > FT_MAX_CHARMAP_CACHEABLE )
-        return 0; /* XXX: should return appropriate error */
-#endif
 
       if ( (FT_UInt)cmap_index < (FT_UInt)face->num_charmaps )
       {

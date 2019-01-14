@@ -15,6 +15,7 @@
 
 #ifndef vtkMPI_h
 #define vtkMPI_h
+#ifndef __VTK_WRAP__
 
 #ifndef USE_STDARG
  #define USE_STDARG
@@ -45,9 +46,9 @@ class VTKPARALLELMPI_EXPORT vtkMPICommunicatorReceiveDataInfo
 {
 public:
   vtkMPICommunicatorReceiveDataInfo()
-    {
+  {
     this->Handle=0;
-    }
+  }
   MPI_Datatype DataType;
   MPI_Status Status;
   MPI_Comm* Handle;
@@ -68,5 +69,6 @@ public:
 };
 
 
+#endif
 #endif // vtkMPI_h
 // VTK-HeaderTest-Exclude: vtkMPI.h

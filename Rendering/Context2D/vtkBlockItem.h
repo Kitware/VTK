@@ -13,11 +13,14 @@
 
 =========================================================================*/
 
-// .NAME vtkBlockItem - a vtkContextItem that draws a block (optional label).
-//
-// .SECTION Description
-// This is a vtkContextItem that can be placed into a vtkContextScene. It draws
-// a block of the given dimensions, and reacts to mouse events.
+/**
+ * @class   vtkBlockItem
+ * @brief   a vtkContextItem that draws a block (optional label).
+ *
+ *
+ * This is a vtkContextItem that can be placed into a vtkContextScene. It draws
+ * a block of the given dimensions, and reacts to mouse events.
+*/
 
 #ifndef vtkBlockItem_h
 #define vtkBlockItem_h
@@ -32,70 +35,80 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkBlockItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkBlockItem, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkBlockItem *New();
 
-  // Description:
-  // Paint event for the item.
-  virtual bool Paint(vtkContext2D *painter);
+  /**
+   * Paint event for the item.
+   */
+  bool Paint(vtkContext2D *painter) override;
 
-//BTX
-  // Description:
-  // Returns true if the supplied x, y coordinate is inside the item.
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  /**
+   * Returns true if the supplied x, y coordinate is inside the item.
+   */
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse enter event.
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse enter event.
+   */
+  bool MouseEnterEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse move event.
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse move event.
+   */
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse leave event.
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse leave event.
+   */
+  bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse button down event.
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  /**
+   * Mouse button down event.
+   */
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Mouse button release event.
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
-//ETX
+  /**
+   * Mouse button release event.
+   */
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Set the block label.
+  /**
+   * Set the block label.
+   */
   virtual void SetLabel(const vtkStdString &label);
 
-  // Description:
-  // Get the block label.
+  /**
+   * Get the block label.
+   */
   virtual vtkStdString GetLabel();
 
-  // Description:
-  // Set the dimensions of the block, elements 0 and 1 are the x and y
-  // coordinate of the bottom corner. Elements 2 and 3 are the width and
-  // height.
-  // Initial value is (0,0,0,0).
+  //@{
+  /**
+   * Set the dimensions of the block, elements 0 and 1 are the x and y
+   * coordinate of the bottom corner. Elements 2 and 3 are the width and
+   * height.
+   * Initial value is (0,0,0,0).
+   */
   vtkSetVector4Macro(Dimensions, float);
+  //@}
 
-  // Description:
-  // Get the dimensions of the block, elements 0 and 1 are the x and y
-  // coordinate of the bottom corner. Elements 2 and 3 are the width and
-  // height.
-  // Initial value is (0,0,0,0)
+  //@{
+  /**
+   * Get the dimensions of the block, elements 0 and 1 are the x and y
+   * coordinate of the bottom corner. Elements 2 and 3 are the width and
+   * height.
+   * Initial value is (0,0,0,0)
+   */
   vtkGetVector4Macro(Dimensions, float);
+  //@}
 
-//BTX
   void SetScalarFunctor(double (*scalarFunction)(double, double));
-//ETX
 
-//BTX
 protected:
   vtkBlockItem();
-  ~vtkBlockItem();
+  ~vtkBlockItem() override;
 
   float Dimensions[4];
 
@@ -107,9 +120,9 @@ protected:
   double (*scalarFunction)(double, double);
 
 private:
-  vtkBlockItem(const vtkBlockItem &); // Not implemented.
-  void operator=(const vtkBlockItem &);   // Not implemented.
-//ETX
+  vtkBlockItem(const vtkBlockItem &) = delete;
+  void operator=(const vtkBlockItem &) = delete;
+
 };
 
 #endif //vtkBlockItem_h

@@ -44,9 +44,9 @@ public:
   vtkTypeMacro(vtkCaptionActor2DConnection,vtkAlgorithm);
 
   vtkCaptionActor2DConnection()
-    {
+  {
       this->SetNumberOfInputPorts(1);
-    }
+  }
 };
 
 vtkStandardNewMacro(vtkCaptionActor2DConnection);
@@ -92,9 +92,9 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   // What is actually drawn
   this->TextActor = vtkTextActor::New();
   this->TextActor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
-  this->TextActor->GetPositionCoordinate()->SetReferenceCoordinate(NULL);
+  this->TextActor->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->TextActor->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
-  this->TextActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
+  this->TextActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
   this->TextActor->SetTextScaleModeToProp();
   this->TextActor->SetTextProperty(this->CaptionTextProperty);
 
@@ -185,7 +185,7 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
   this->TextActor->Delete();
 
   this->LeaderGlyphConnectionHolder->Delete();
-  this->LeaderGlyphConnectionHolder = 0;
+  this->LeaderGlyphConnectionHolder = nullptr;
 
   this->BorderPolyData->Delete();
   this->BorderMapper->Delete();
@@ -204,7 +204,7 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
   this->LeaderMapper3D->Delete();
   this->LeaderActor3D->Delete();
 
-  this->SetCaptionTextProperty(NULL);
+  this->SetCaptionTextProperty(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -225,6 +225,10 @@ void vtkCaptionActor2D::SetLeaderGlyphData(vtkPolyData* leader)
 //----------------------------------------------------------------------------
 vtkPolyData* vtkCaptionActor2D::GetLeaderGlyph()
 {
+  if (this->LeaderGlyphConnectionHolder->GetNumberOfInputConnections(0) < 1)
+  {
+    return nullptr;
+  }
   return vtkPolyData::SafeDownCast(
     this->LeaderGlyphConnectionHolder->GetInputDataObject(0, 0));
 }
@@ -261,21 +265,21 @@ int vtkCaptionActor2D::RenderOverlay(vtkViewport *viewport)
   renderedSomething += this->TextActor->RenderOverlay(viewport);
 
   if ( this->Border )
-    {
+  {
     renderedSomething += this->BorderActor->RenderOverlay(viewport);
-    }
+  }
 
   if ( this->Leader )
-    {
+  {
     if ( this->ThreeDimensionalLeader )
-      {
+    {
       renderedSomething += this->LeaderActor3D->RenderOverlay(viewport);
-      }
-    else
-      {
-      renderedSomething += this->LeaderActor2D->RenderOverlay(viewport);
-      }
     }
+    else
+    {
+      renderedSomething += this->LeaderActor2D->RenderOverlay(viewport);
+    }
+  }
 
   return renderedSomething;
 }
@@ -324,68 +328,68 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   pt[0] = p2[0]; pt[1] = p2[1]; pt[2] = minPt[2] = 0.0;
   if ( !this->AttachEdgeOnly &&
     (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
-    {
+  {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1];
-    }
+  }
 
   pt[0] = (p2[0]+p3[0])/2.0;
   if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
-    {
+  {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1];
-    }
+  }
 
   pt[0] = p3[0];
   if ( !this->AttachEdgeOnly &&
     (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
-    {
+  {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1];
-    }
+  }
 
   pt[1] = (p2[1]+p3[1])/2.0;
   if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
-    {
+  {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1];
-    }
+  }
 
   pt[1] = p3[1];
   if ( !this->AttachEdgeOnly &&
     (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
-    {
+  {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1];
-    }
+  }
 
   pt[0] = (p2[0]+p3[0])/2.0;
   if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
-    {
+  {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1];
-    }
+  }
 
   pt[0] = p2[0];
   if ( !this->AttachEdgeOnly &&
     (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
-    {
+  {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1];
-    }
+  }
 
   pt[1] = (p2[1]+p3[1])/2.0;
   if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
-    {
+  {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1];
-    }
+  }
 
   // Set the leader coordinates in appropriate coordinate system
   // The pipeline is connected differently depending on the dimension
   // and availability of a leader head.
   if ( this->Leader )
-    {
+  {
     pts = this->LeaderPolyData->GetPoints();
 
     w1 = this->AttachmentPointCoordinate->GetComputedWorldValue(viewport);
@@ -411,9 +415,9 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     double w3[4];
     viewport->GetWorldPoint(w3);
     if ( w3[3] != 0.0 )
-      {
+    {
       w3[0] /= w3[3]; w3[1] /= w3[3]; w3[2] /= w3[3];
-      }
+    }
     w2 = w3;
 
     pts->SetPoint(0, w1);
@@ -424,10 +428,10 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
     pts->Modified();
     this->HeadPolyData->Modified();
-    }
+  }
 
   if ( this->GetLeaderGlyph() )
-    {
+  {
     this->LeaderGlyphConnectionHolder->GetInputAlgorithm()->Update();
 
     // compute the scale
@@ -464,12 +468,12 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     this->LeaderMapper3D->SetInputConnection(
       this->AppendLeader->GetOutputPort());
     this->AppendLeader->Update();
-    }
+  }
   else
-    {
+  {
     this->LeaderMapper2D->SetInputData(this->LeaderPolyData);
     this->LeaderMapper3D->SetInputData(this->LeaderPolyData);
-    }
+  }
 
   // assign properties
   //
@@ -488,21 +492,21 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   int renderedSomething = 0;
   renderedSomething += this->TextActor->RenderOpaqueGeometry(viewport);
   if ( this->Border )
-    {
+  {
     renderedSomething += this->BorderActor->RenderOpaqueGeometry(viewport);
-    }
+  }
 
   if ( this->Leader )
-    {
+  {
     if ( this->ThreeDimensionalLeader )
-      {
+    {
       renderedSomething += this->LeaderActor3D->RenderOpaqueGeometry(viewport);
-      }
-    else
-      {
-      renderedSomething += this->LeaderActor2D->RenderOpaqueGeometry(viewport);
-      }
     }
+    else
+    {
+      renderedSomething += this->LeaderActor2D->RenderOpaqueGeometry(viewport);
+    }
+  }
 
   return renderedSomething;
 }
@@ -510,7 +514,7 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkCaptionActor2D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkCaptionActor2D::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }
@@ -522,24 +526,24 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Text Actor: " << this->TextActor << "\n";
   if (this->CaptionTextProperty)
-    {
+  {
     os << indent << "Caption Text Property:\n";
     this->CaptionTextProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Caption Text Property: (none)\n";
-    }
+  }
 
   os << indent << "Caption: ";
   if ( this->TextActor->GetInput() )
-    {
+  {
     os << this->TextActor->GetInput() << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "Leader: " << (this->Leader ? "On\n" : "Off\n");
   os << indent << "Three Dimensional Leader: "
@@ -549,13 +553,13 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumLeader Glyph Size: "
      << this->MaximumLeaderGlyphSize << "\n";
   if ( ! this->GetLeaderGlyph() )
-    {
+  {
     os << indent << "Leader Glyph: (none)\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Leader Glyph: (" << this->GetLeaderGlyph() << ")\n";
-    }
+  }
   os << indent << "Padding: " << this->Padding << "\n";
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
   os << indent << "AttachEdgeOnly: " << (this->AttachEdgeOnly ? "On\n" : "Off\n");
@@ -565,20 +569,27 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
 void vtkCaptionActor2D::ShallowCopy(vtkProp *prop)
 {
   vtkCaptionActor2D *a = vtkCaptionActor2D::SafeDownCast(prop);
-  if ( a != NULL )
-    {
+  if ( a != nullptr )
+  {
     this->SetCaption(a->GetCaption());
     this->SetAttachmentPoint(a->GetAttachmentPoint());
     this->SetBorder(a->GetBorder());
     this->SetLeader(a->GetLeader());
     this->SetThreeDimensionalLeader(a->GetThreeDimensionalLeader());
-    this->SetLeaderGlyphConnection(
-      a->LeaderGlyphConnectionHolder->GetInputConnection(0, 0));
+    if (a->LeaderGlyphConnectionHolder->GetNumberOfInputConnections(0) < 1)
+    {
+      this->SetLeaderGlyphConnection(nullptr);
+    }
+    else
+    {
+     this->SetLeaderGlyphConnection(
+        a->LeaderGlyphConnectionHolder->GetInputConnection(0, 0));
+    }
     this->SetLeaderGlyphSize(a->GetLeaderGlyphSize());
     this->SetMaximumLeaderGlyphSize(a->GetMaximumLeaderGlyphSize());
     this->SetPadding(a->GetPadding());
     this->SetCaptionTextProperty(a->GetCaptionTextProperty());
-    }
+  }
 
   // Now do superclass
   this->vtkActor2D::ShallowCopy(prop);

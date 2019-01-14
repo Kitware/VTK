@@ -38,7 +38,6 @@
 #include "vtkWedge.h"
 
 // Subclass of vtkNonLinearCell
-//#include "vtkExplicitCell.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticPyramid.h"
@@ -61,7 +60,7 @@
 
 
 template <class TCell>
-int TestOneInterpolationDerivs()
+int TestOneInterpolationDerivs(double eps = VTK_EPSILON)
 {
   TCell *cell = TCell::New();
   int numPts = cell->GetNumberOfPoints();
@@ -70,19 +69,19 @@ int TestOneInterpolationDerivs()
   double *coords = cell->GetParametricCoords();
   int r = 0;
   for(int i=0;i<numPts;++i)
-    {
+  {
     double *point = coords + 3*i;
     double sum = 0.;
     cell->InterpolateDerivs(point, derivs); // static function
     for(int j=0;j<dim*numPts;j++)
-      {
+    {
       sum += derivs[j];
-      }
-    if( fabs(sum) > VTK_EPSILON )
-      {
-      ++r;
-      }
     }
+    if( fabs(sum) > eps )
+    {
+      ++r;
+    }
+  }
 
   // Let's test zero condition on the center point:
   double center[3];
@@ -90,13 +89,13 @@ int TestOneInterpolationDerivs()
   cell->InterpolateDerivs(center, derivs); // static function
   double sum = 0.;
   for(int j=0;j<dim*numPts;j++)
-    {
+  {
     sum += derivs[j];
-    }
-  if( fabs(sum) > VTK_EPSILON )
-    {
+  }
+  if( fabs(sum) > eps )
+  {
     ++r;
-    }
+  }
 
   cell->Delete();
   delete[] derivs;
@@ -124,14 +123,13 @@ int TestInterpolationDerivs(int, char *[])
   //r += TestOneInterpolationDerivs<vtkConvexPointSet>(); // not implemented
   r += TestOneInterpolationDerivs<vtkHexagonalPrism>();
   r += TestOneInterpolationDerivs<vtkHexahedron>();
-  r += TestOneInterpolationDerivs<vtkPentagonalPrism>();
+  r += TestOneInterpolationDerivs<vtkPentagonalPrism>(1.e-05);
   r += TestOneInterpolationDerivs<vtkPyramid>();
   //r += TestOneInterpolationDerivs<vtkTetra>();
   r += TestOneInterpolationDerivs<vtkVoxel>();
   r += TestOneInterpolationDerivs<vtkWedge>();
 
   // Subclasses of vtkNonLinearCell
-  //r += TestOneInterpolationDerivs<vtkExplicitCell>(); // not implemented
   r += TestOneInterpolationDerivs<vtkQuadraticEdge>();
   r += TestOneInterpolationDerivs<vtkQuadraticHexahedron>();
   r += TestOneInterpolationDerivs<vtkQuadraticPyramid>();

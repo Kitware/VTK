@@ -24,7 +24,6 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkTypeTemplate.h" // For vtkTypeTemplate
 
 
 //----------------------------------------------------------------------------
@@ -38,12 +37,14 @@ vtkSMPWarpVector::vtkSMPWarpVector()
   // by default process active point vectors
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::VECTORS);
+
+  VTK_LEGACY_BODY(
+    vtkSMPWarpVector::vtkSMPWarpVector,
+    "VTK 8.1");
 }
 
 //----------------------------------------------------------------------------
-vtkSMPWarpVector::~vtkSMPWarpVector()
-{
-}
+vtkSMPWarpVector::~vtkSMPWarpVector() = default;
 
 //----------------------------------------------------------------------------
 template <class T1, class T2>
@@ -66,7 +67,7 @@ public:
     vtkIdType nend = begin + size;
 
     for (vtkIdType index = begin; index < nend; index++)
-      {
+    {
       *outPts = *inPts + sf * (T1)(*inVec);
       inPts++; outPts++; inVec++;
       /*
@@ -75,7 +76,7 @@ public:
       *outPts = *inPts + sf * (T1)(*inVec);
       inPts++; outPts++; inVec++;
       */
-      }
+    }
   }
 };
 
@@ -108,13 +109,13 @@ void vtkSMPWarpVectorExecute(vtkSMPWarpVector *self,
 
   // call templated function
   switch (vectors->GetDataType())
-    {
+  {
     vtkTemplateMacro(
       vtkSMPWarpVectorExecute2(self, inIter, outIter,
                                (VTK_TT *)(inVecIter), size));
     default:
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -131,10 +132,10 @@ int vtkSMPWarpVector::RequestData(
   vtkPointSet *input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input)
-    {
+  {
     // Let the superclass handle vtkImageData and vtkRectilinearGrid
     return this->Superclass::RequestData(request, inputVector, outputVector);
-    }
+  }
   vtkPointSet *output = vtkPointSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -144,19 +145,19 @@ int vtkSMPWarpVector::RequestData(
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
-  if (input == NULL || input->GetPoints() == NULL)
-    {
+  if (input == nullptr || input->GetPoints() == nullptr)
+  {
     return 1;
-    }
+  }
   numPts = input->GetPoints()->GetNumberOfPoints();
 
   vtkDataArray *vectors = this->GetInputArrayToProcess(0,inputVector);
 
   if ( !vectors || !numPts)
-    {
+  {
     vtkDebugMacro(<<"No input data");
     return 1;
-    }
+  }
 
   // SETUP AND ALLOCATE THE OUTPUT
   numPts = input->GetNumberOfPoints();
@@ -175,7 +176,7 @@ int vtkSMPWarpVector::RequestData(
 
   // call templated function
   switch (input->GetPoints()->GetDataType())
-    {
+  {
     vtkTemplateMacro(
       vtkSMPWarpVectorExecute(this,
                               (VTK_TT *)(inIter),
@@ -184,7 +185,7 @@ int vtkSMPWarpVector::RequestData(
                               vectors));
     default:
       break;
-    }
+  }
 
 
   // now pass the data.

@@ -62,6 +62,7 @@ int TestGPURayCastFourComponentsMIP(int argc,
   volumeProperty=vtkVolumeProperty::New();
   volumeProperty->IndependentComponentsOff();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
+  volumeProperty->SetShade(1);
 
   vtkPiecewiseFunction *f = vtkPiecewiseFunction::New();
   f->AddPoint(0,0.0);
@@ -78,7 +79,7 @@ int TestGPURayCastFourComponentsMIP(int argc,
 
   int retVal;
   if(valid)
-    {
+  {
     iren->Initialize();
     ren1->SetBackground(0.1,0.4,0.2);
     ren1->ResetCamera();
@@ -86,15 +87,15 @@ int TestGPURayCastFourComponentsMIP(int argc,
 
     retVal = vtkTesting::Test(argc, argv, renWin, 75);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   iren->Delete();
   renWin->Delete();
@@ -106,11 +107,11 @@ int TestGPURayCastFourComponentsMIP(int argc,
   reader->Delete();
 
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }

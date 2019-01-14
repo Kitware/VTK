@@ -41,14 +41,14 @@ int TestGeoAssignCoordinates(int argc, char *argv[])
   VTK_CREATE(vtkDoubleArray, longitude);
   longitude->SetName("longitude");
   for (vtkIdType i = -90; i <= 90; i += 10)
-    {
+  {
     for (vtkIdType j = -180; j < 180; j += 20)
-      {
+    {
       g->AddVertex();
       latitude->InsertNextValue(i);
       longitude->InsertNextValue(j);
-      }
     }
+  }
   g->GetVertexData()->AddArray(latitude);
   g->GetVertexData()->AddArray(longitude);
 
@@ -73,12 +73,12 @@ int TestGeoAssignCoordinates(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Initialize();
     iren->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

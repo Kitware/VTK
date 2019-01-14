@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -18,10 +16,7 @@
  *      the datatype offset for the H5T interface.
  */
 
-#define H5T_PACKAGE		/*suppress error about including H5Tpkg	  */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5T_init_offset_interface
+#include "H5Tmodule.h"          /* This source code file is part of the H5T module */
 
 
 #include "H5private.h"		/* Generic Functions			*/
@@ -32,39 +27,18 @@
 /* Static local functions */
 static herr_t H5T_set_offset(const H5T_t *dt, size_t offset);
 
-
-/*--------------------------------------------------------------------------
-NAME
-   H5T_init_offset_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5T_init_offset_interface()
-
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5T_init_iterface currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5T_init_offset_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    FUNC_LEAVE_NOAPI(H5T_init())
-} /* H5T_init_offset_interface() */
 
 
 /*-------------------------------------------------------------------------
  * Function:	H5Tget_offset
  *
  * Purpose:	Retrieves the bit offset of the first significant bit.	The
- *		signficant bits of an atomic datum can be offset from the
+ *		significant bits of an atomic datum can be offset from the
  *		beginning of the memory for that datum by an amount of
  *		padding. The `offset' property specifies the number of bits
  *		of padding that appear to the "right of" the value.  That is,
  *		if we have a 32-bit datum with 16-bits of precision having
- *		the value 0x1122 then it will be layed out in memory as (from
+ *		the value 0x1122 then it will be laid out in memory as (from
  *		small byte address toward larger byte addresses):
  *
  *		    Big	     Big       Little	Little
@@ -110,12 +84,12 @@ done:
  * Function:	H5T_get_offset
  *
  * Purpose:	Retrieves the bit offset of the first significant bit.	The
- *		signficant bits of an atomic datum can be offset from the
+ *		significant bits of an atomic datum can be offset from the
  *		beginning of the memory for that datum by an amount of
  *		padding. The `offset' property specifies the number of bits
  *		of padding that appear to the "right of" the value.  That is,
  *		if we have a 32-bit datum with 16-bits of precision having
- *		the value 0x1122 then it will be layed out in memory as (from
+ *		the value 0x1122 then it will be laid out in memory as (from
  *		small byte address toward larger byte addresses):
  *
  *		    Big	     Big       Little	Little
@@ -138,7 +112,7 @@ done:
 int
 H5T_get_offset(const H5T_t *dt)
 {
-    int	ret_value;
+    int	ret_value = -1;         /* Return value */
 
     FUNC_ENTER_NOAPI(-1)
 
@@ -160,12 +134,12 @@ done:
  * Function:	H5Tset_offset
  *
  * Purpose:	Sets the bit offset of the first significant bit.  The
- *		signficant bits of an atomic datum can be offset from the
+ *		significant bits of an atomic datum can be offset from the
  *		beginning of the memory for that datum by an amount of
  *		padding. The `offset' property specifies the number of bits
  *		of padding that appear to the "right of" the value.  That is,
  *		if we have a 32-bit datum with 16-bits of precision having
- *		the value 0x1122 then it will be layed out in memory as (from
+ *		the value 0x1122 then it will be laid out in memory as (from
  *		small byte address toward larger byte addresses):
  *
  *		    Big	     Big       Little	Little
@@ -229,12 +203,12 @@ done:
  * Function:	H5T_set_offset
  *
  * Purpose:	Sets the bit offset of the first significant bit.  The
- *		signficant bits of an atomic datum can be offset from the
+ *		significant bits of an atomic datum can be offset from the
  *		beginning of the memory for that datum by an amount of
  *		padding. The `offset' property specifies the number of bits
  *		of padding that appear to the "right of" the value.  That is,
  *		if we have a 32-bit datum with 16-bits of precision having
- *		the value 0x1122 then it will be layed out in memory as (from
+ *		the value 0x1122 then it will be laid out in memory as (from
  *		small byte address toward larger byte addresses):
  *
  *		    Big	     Big       Little	Little

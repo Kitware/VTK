@@ -142,9 +142,9 @@ int TestMultiBlock(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   geom->Delete();
@@ -156,6 +156,6 @@ int TestMultiBlock(int argc, char* argv[])
   reader->Delete();
   shrink->Delete();
 
-  vtkAlgorithm::SetDefaultExecutivePrototype(0);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   return !retVal;
 }

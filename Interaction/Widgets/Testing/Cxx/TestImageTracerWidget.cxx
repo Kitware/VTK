@@ -223,10 +223,7 @@ const char ImageTracerWidgetEventLog[] =
   "MouseMoveEvent 353 145 0 0 0 0 Shift_L\n"
   "MouseMoveEvent 352 147 0 0 0 0 Shift_L\n"
   "MouseMoveEvent 352 148 0 0 0 0 Shift_L\n"
-  "MouseMoveEvent 352 150 0 0 0 0 Shift_L\n"
-  "MouseMoveEvent 351 152 0 0 0 0 Shift_L\n"
-  "MouseMoveEvent 350 156 0 0 0 0 Shift_L\n"
-  "MouseMoveEvent 349 158 0 0 0 0 Shift_L\n"
+  "MouseMoveEvent 352 149 0 0 0 0 Shift_L\n"
   "RightButtonReleaseEvent 349 158 0 0 0 0 Shift_L\n"
   "MouseMoveEvent 381 179 0 0 0 0 Shift_L\n"
   "LeftButtonPressEvent 381 179 0 0 0 0 Shift_L\n"
@@ -259,7 +256,7 @@ class vtkITWCallback : public vtkCommand
 public:
   static vtkITWCallback *New()
   { return new vtkITWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkImageTracerWidget *tracerWidget =
       reinterpret_cast<vtkImageTracerWidget*>(caller);
@@ -269,9 +266,9 @@ public:
     SplineWidget->SetClosed(closed);
 
     if (!closed)
-      {
+    {
       Actor->GetMapper()->SetInputConnection(Extract->GetOutputPort());
-      }
+    }
 
     int npts = tracerWidget->GetNumberOfHandles();
     if (npts < 2) { return; }
@@ -283,15 +280,15 @@ public:
     SplineWidget->InitializeHandles(points);
 
     if (closed)
-      {
+    {
       SplineWidget->GetPolyData(SplinePoly);
       Stencil->Update();
       Actor->GetMapper()->SetInputConnection(Stencil->GetOutputPort());
-      }
+    }
   }
 
-  vtkITWCallback():SplineWidget(0),Actor(0),Stencil(0),Extract(0),
-                   PathPoly(0),SplinePoly(0){}
+  vtkITWCallback():SplineWidget(nullptr),Actor(nullptr),Stencil(nullptr),Extract(nullptr),
+                   PathPoly(nullptr),SplinePoly(nullptr){}
 
   vtkSplineWidget *SplineWidget;
   vtkImageActor   *Actor;
@@ -309,7 +306,7 @@ class vtkSW2Callback : public vtkCommand
 public:
   static vtkSW2Callback *New()
   { return new vtkSW2Callback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkSplineWidget *splineWidget =
       reinterpret_cast<vtkSplineWidget*>(caller);
@@ -320,25 +317,25 @@ public:
 
     Points->Reset();
     for (int i = 0; i < npts; ++i)
-      {
+    {
       Points->InsertNextPoint(splineWidget->GetHandlePosition(i));
-      }
+    }
 
     if (closed)
-      {
+    {
       if (TracerWidget->GetAutoClose())
-        {
+      {
         Points->InsertNextPoint(splineWidget->GetHandlePosition(0));
-        }
+      }
       splineWidget->GetPolyData(SplinePoly);
       Stencil->Update();
       Actor->GetMapper()->SetInputConnection(Stencil->GetOutputPort());
-      }
+    }
 
     TracerWidget->InitializeHandles(Points);
   }
 
-  vtkSW2Callback():Points(0),TracerWidget(0),Actor(0),Stencil(0),SplinePoly(0){}
+  vtkSW2Callback():Points(nullptr),TracerWidget(nullptr),Actor(nullptr),Stencil(nullptr),SplinePoly(nullptr){}
 
   vtkPoints            *Points;
   vtkImageTracerWidget *TracerWidget;
@@ -353,7 +350,6 @@ int TestImageTracerWidget( int argc, char *argv[] )
 
   // Increase polygon offsets to support some OpenGL drivers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(10,10);
 
 // Start by loading some data.
 //
@@ -431,7 +427,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
   imageTracerWidget->SetDefaultRenderer(ren1);
   imageTracerWidget->SetCaptureRadius(1.5);
   imageTracerWidget->GetGlyphSource()->SetColor(1, 0, 0);
-  imageTracerWidget->GetGlyphSource()->SetScale(3.0);
+  imageTracerWidget->GetGlyphSource()->SetScale(9.0);
   imageTracerWidget->GetGlyphSource()->SetRotationAngle(45.0);
   imageTracerWidget->GetGlyphSource()->Modified();
   imageTracerWidget->ProjectToPlaneOn();

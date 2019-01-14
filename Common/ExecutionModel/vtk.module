@@ -1,0 +1,23 @@
+NAME
+  VTK::CommonExecutionModel
+LIBRARY_NAME
+  vtkCommonExecutionModel
+DESCRIPTION
+  Core algorithms and execution
+KIT
+  VTK::Common
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+PRIVATE_DEPENDS
+  VTK::CommonMisc
+  VTK::CommonSystem
+TEST_DEPENDS
+  VTK::FiltersCore
+  VTK::FiltersSources
+  VTK::IOCore
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::TestingCore

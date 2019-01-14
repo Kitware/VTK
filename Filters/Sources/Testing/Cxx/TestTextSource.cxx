@@ -33,9 +33,9 @@ int TestTextSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   textSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
@@ -46,9 +46,9 @@ int TestTextSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

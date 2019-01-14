@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageDivergence - Divergence of a vector field.
-// .SECTION Description
-// vtkImageDivergence takes a 3D vector field
-// and creates a scalar field which
-// which represents the rate of change of the vector field.
-// The definition of Divergence:
-// Given V = P(x,y,z), Q(x,y,z), R(x,y,z),
-// Divergence = dP/dx + dQ/dy + dR/dz.
+/**
+ * @class   vtkImageDivergence
+ * @brief   Divergence of a vector field.
+ *
+ * vtkImageDivergence takes a 3D vector field
+ * and creates a scalar field which
+ * which represents the rate of change of the vector field.
+ * The definition of Divergence:
+ * Given V = P(x,y,z), Q(x,y,z), R(x,y,z),
+ * Divergence = dP/dx + dQ/dy + dR/dz.
+*/
 
 #ifndef vtkImageDivergence_h
 #define vtkImageDivergence_h
@@ -35,20 +38,20 @@ public:
 
 protected:
   vtkImageDivergence();
-  ~vtkImageDivergence() {}
+  ~vtkImageDivergence() override {}
 
-  virtual int RequestUpdateExtent(vtkInformation*,
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
-  virtual int RequestInformation (vtkInformation*,
+                                  vtkInformationVector*) override;
+  int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
+                                  vtkInformationVector*) override;
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id);
+                       int ext[6], int id) override;
 
 private:
-  vtkImageDivergence(const vtkImageDivergence&);  // Not implemented.
-  void operator=(const vtkImageDivergence&);  // Not implemented.
+  vtkImageDivergence(const vtkImageDivergence&) = delete;
+  void operator=(const vtkImageDivergence&) = delete;
 };
 
 #endif

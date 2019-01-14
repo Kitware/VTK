@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoImageNode - A node in a multi-resolution image tree.
-//
-// .SECTION Description
-// vtkGeoImageNode contains an image tile in a multi-resolution image tree,
-// along with metadata about that image's extents.
-//
-// .SECTION See Also
-// vtkGeoTreeNode vtkGeoTerrainNode
+/**
+ * @class   vtkGeoImageNode
+ * @brief   A node in a multi-resolution image tree.
+ *
+ *
+ * vtkGeoImageNode contains an image tile in a multi-resolution image tree,
+ * along with metadata about that image's extents.
+ *
+ * @sa
+ * vtkGeoTreeNode vtkGeoTerrainNode
+*/
 
 #ifndef vtkGeoImageNode_h
 #define vtkGeoImageNode_h
@@ -37,70 +40,85 @@
 class vtkPolyData;
 class vtkTexture;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoImageNode : public vtkGeoTreeNode
 {
 public:
   static vtkGeoImageNode *New();
   vtkTypeMacro(vtkGeoImageNode, vtkGeoTreeNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Every subclass implements these methods returning the specific type.
-  // This is easier than templating.
+  //@{
+  /**
+   * Every subclass implements these methods returning the specific type.
+   * This is easier than templating.
+   */
   vtkGeoImageNode* GetChild(int idx);
   vtkGeoImageNode* GetParent();
+  //@}
 
-  // Description:
-  // Get the image tile.
+  //@{
+  /**
+   * Get the image tile.
+   */
   vtkImageData* GetImage();
   void SetImage(vtkImageData* image);
+  //@}
 
-  // Description:
-  // Get the image tile.
+  //@{
+  /**
+   * Get the image tile.
+   */
   vtkTexture* GetTexture();
   void SetTexture(vtkTexture* texture);
+  //@}
 
-  // Description:
-  // This crops the image as small as possible while still covering the
-  // patch.  The Longitude Latitude range may get bigger to reflect the
-  // actual size of the image.
-  // If prefix is specified, writes the tile to that location.
+  /**
+   * This crops the image as small as possible while still covering the
+   * patch.  The Longitude Latitude range may get bigger to reflect the
+   * actual size of the image.
+   * If prefix is specified, writes the tile to that location.
+   */
   void CropImageForTile(vtkImageData* image,double* imageLonLatExt,
-    const char* prefix = 0);
+    const char* prefix = nullptr);
 
-  // Description:
-  // This loads the image from a tile database at the specified location.
+  /**
+   * This loads the image from a tile database at the specified location.
+   */
   void LoadAnImage(const char* prefix);
 
-  // Description:
-  // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkGeoTreeNode *src);
-  virtual void DeepCopy(vtkGeoTreeNode *src);
+  //@{
+  /**
+   * Shallow and Deep copy.
+   */
+  void ShallowCopy(vtkGeoTreeNode *src) override;
+  void DeepCopy(vtkGeoTreeNode *src) override;
+  //@}
 
   // Returns whether this node has valid data associated
   // with it, or if it is an "empty" node.
-  virtual bool HasData();
+  bool HasData() override;
 
-  // Description:
-  // Deletes the data associated with the node to make this
-  // an "empty" node. This is performed when the node has
-  // been unused for a certain amount of time.
-  virtual void DeleteData();
+  /**
+   * Deletes the data associated with the node to make this
+   * an "empty" node. This is performed when the node has
+   * been unused for a certain amount of time.
+   */
+  void DeleteData() override;
 
 protected:
   vtkGeoImageNode();
-  ~vtkGeoImageNode();
+  ~vtkGeoImageNode() override;
 
   int PowerOfTwo(int val);
 
-//BTX
   vtkSmartPointer<vtkImageData> Image;
   vtkSmartPointer<vtkTexture> Texture;
-//ETX
 
 private:
-  vtkGeoImageNode(const vtkGeoImageNode&);  // Not implemented.
-  void operator=(const vtkGeoImageNode&);  // Not implemented.
+  vtkGeoImageNode(const vtkGeoImageNode&) = delete;
+  void operator=(const vtkGeoImageNode&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

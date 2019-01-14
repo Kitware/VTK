@@ -12,14 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPOutlineCornerFilter - create wireframe outline corners for arbitrary data set
-// .SECTION Description
-// vtkPOutlineCornerFilter works like vtkOutlineCornerFilter,
-// but it looks for data
-// partitions in other processes.  It assumes the filter is operated
-// in a data parallel pipeline.
-
-
+/**
+ * @class   vtkPOutlineCornerFilter
+ * @brief   create wireframe outline corners for arbitrary data set
+ *
+ * vtkPOutlineCornerFilter works like vtkOutlineCornerFilter,
+ * but it looks for data
+ * partitions in other processes.  It assumes the filter is operated
+ * in a data parallel pipeline.
+*/
 
 #ifndef vtkPOutlineCornerFilter_h
 #define vtkPOutlineCornerFilter_h
@@ -35,42 +36,47 @@ class VTKFILTERSPARALLEL_EXPORT vtkPOutlineCornerFilter : public vtkPolyDataAlgo
 {
 public:
   vtkTypeMacro(vtkPOutlineCornerFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Construct outline corner filter with default corner factor = 0.2
+  /**
+   * Construct outline corner filter with default corner factor = 0.2
+   */
   static vtkPOutlineCornerFilter *New();
 
-  // Description:
-  // Set/Get the factor that controls the relative size of the corners
-  // to the length of the corresponding bounds
-  // Typically vtkSetClampMacro(CornerFactor, double, 0.001, 0.5) would
-  // used but since we are chaining this to an internal method we rewrite
-  // the code in the macro
+  /**
+   * Set/Get the factor that controls the relative size of the corners
+   * to the length of the corresponding bounds
+   * Typically vtkSetClampMacro(CornerFactor, double, 0.001, 0.5) would
+   * used but since we are chaining this to an internal method we rewrite
+   * the code in the macro
+   */
   virtual void SetCornerFactor(double cornerFactor);
   virtual double GetCornerFactorMinValue()  { return 0.001;}
   virtual double GetCornerFactorMaxValue() { return 0.5; }
 
   vtkGetMacro(CornerFactor, double);
 
-  // Description:
-  // Set and get the controller.
+  //@{
+  /**
+   * Set and get the controller.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
 protected:
   vtkPOutlineCornerFilter();
-  ~vtkPOutlineCornerFilter();
+  ~vtkPOutlineCornerFilter() override;
 
   vtkMultiProcessController* Controller;
   vtkOutlineCornerSource *OutlineCornerSource;
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   double CornerFactor;
 private:
-  vtkPOutlineCornerFilter(const vtkPOutlineCornerFilter&);  // Not implemented.
-  void operator=(const vtkPOutlineCornerFilter&);  // Not implemented.
+  vtkPOutlineCornerFilter(const vtkPOutlineCornerFilter&) = delete;
+  void operator=(const vtkPOutlineCornerFilter&) = delete;
 
   vtkPOutlineFilterInternals* Internals;
 };

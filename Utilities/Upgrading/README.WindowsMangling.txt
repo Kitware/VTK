@@ -89,10 +89,8 @@ of whether windows.h has been included before it:
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 # undef GetClassNameW
 # undef GetClassNameA
-  //BTX
   const char* GetClassNameA() const;
   const char* GetClassNameW() const;
-  //ETX
 #endif
 
 The method GetClassName has three cases.  If windows.h is not included
@@ -103,9 +101,7 @@ preprocessor will not recursively expand a macro, so replacement stops
 there and the GetClassName method is declared.  When UNICODE is
 defined the same process occurs but through GetClassNameW instead.
 The methods GetClassNameA and GetClassNameW are not mangled so they
-can be provided directly.  They are surrounded by a BTX/ETX pair
-because they should not be wrapped since scripting language code will
-not be mangled by windows.h.
+can be provided directly.
 
 Now that all three names are provided we can address the fact that
 GetClassName is supposed to be a virtual function.  When a subclass

@@ -18,6 +18,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
+#include <functional>
+#include <vector>
 
 static const int Target = 10000;
 
@@ -89,6 +91,9 @@ public:
 
 };
 
+// For sorting comparison
+bool myComp (double a, double b) { return (a<b); }
+
 int TestSMP(int, char*[])
 {
   //vtkSMPTools::Initialize(8);
@@ -102,16 +107,16 @@ int TestSMP(int, char*[])
 
   int total = 0;
   while(itr1 != end1)
-    {
+  {
     total += *itr1;
     ++itr1;
-    }
+  }
 
   if (total != Target)
-    {
+  {
     cerr << "Error: ARangeFunctor did not generate " << Target << endl;
     return 1;
-    }
+  }
 
   InitializableFunctor functor2;
 
@@ -123,17 +128,44 @@ int TestSMP(int, char*[])
   int newTarget = Target;
   total = 0;
   while(itr2 != end2)
-    {
+  {
     newTarget += 5; // This is the initial value of each object
     total += (*itr2)->GetValue();
     ++itr2;
-    }
+  }
 
   if (total != newTarget)
-    {
+  {
     cerr << "Error: InitializableRangeFunctor did not generate " << newTarget << endl;
     return 1;
+  }
+
+  // Test sorting
+  double data0[] = {2,1,0,3,9,6,7,3,8,4,5};
+  std::vector<double> myvector (data0, data0+11);
+  double data1[] = {2,1,0,3,9,6,7,3,8,4,5};
+  double sdata[] = {0,1,2,3,3,4,5,6,7,8,9};
+
+  // using default comparison (operator <):
+  vtkSMPTools::Sort(myvector.begin(), myvector.begin()+11);
+  for (int i=0; i<11; ++i)
+  {
+    if ( myvector[i] != sdata[i] )
+    {
+      cerr << "Error: Bad vector sort!" << endl;
+      return 1;
     }
+  }
+
+  vtkSMPTools::Sort(data1,data1+11,myComp);
+  for (int i=0; i<11; ++i)
+  {
+    if ( data1[i] != sdata[i] )
+    {
+      cerr << "Error: Bad comparison sort!" << endl;
+      return 1;
+    }
+  }
 
   return 0;
 }

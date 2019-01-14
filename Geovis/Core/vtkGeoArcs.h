@@ -17,12 +17,15 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoArcs - Layout graph edges on a globe as arcs.
-//
-// .SECTION Description
-// vtkGeoArcs produces arcs for each line in the input polydata. This is useful
-// for viewing lines on a sphere (e.g. the earth). The arcs may "jump" above
-// the sphere's surface using ExplodeFactor.
+/**
+ * @class   vtkGeoArcs
+ * @brief   Layout graph edges on a globe as arcs.
+ *
+ *
+ * vtkGeoArcs produces arcs for each line in the input polydata. This is useful
+ * for viewing lines on a sphere (e.g. the earth). The arcs may "jump" above
+ * the sphere's surface using ExplodeFactor.
+*/
 
 #ifndef vtkGeoArcs_h
 #define vtkGeoArcs_h
@@ -30,48 +33,59 @@
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoArcs : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGeoArcs *New();
 
   vtkTypeMacro(vtkGeoArcs,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // The base radius used to determine the earth's surface.
-  // Default is the earth's radius in meters.
+  //@{
+  /**
+   * The base radius used to determine the earth's surface.
+   * Default is the earth's radius in meters.
+   */
   vtkSetMacro(GlobeRadius, double);
   vtkGetMacro(GlobeRadius, double);
+  //@}
 
-  // Description:
-  // Factor on which to "explode" the arcs away from the surface.
-  // A value of 0.0 keeps the values on the surface.
-  // Values larger than 0.0 push the arcs away from the surface by a distance
-  // proportional to the distance between the points.
-  // The default is 0.2.
+  //@{
+  /**
+   * Factor on which to "explode" the arcs away from the surface.
+   * A value of 0.0 keeps the values on the surface.
+   * Values larger than 0.0 push the arcs away from the surface by a distance
+   * proportional to the distance between the points.
+   * The default is 0.2.
+   */
   vtkSetMacro(ExplodeFactor, double);
   vtkGetMacro(ExplodeFactor, double);
+  //@}
 
-  // Description:
-  // The number of subdivisions in the arc.
-  // The default is 20.
+  //@{
+  /**
+   * The number of subdivisions in the arc.
+   * The default is 20.
+   */
   vtkSetMacro(NumberOfSubdivisions, int);
   vtkGetMacro(NumberOfSubdivisions, int);
+  //@}
 
 protected:
   vtkGeoArcs();
-  ~vtkGeoArcs() {}
+  ~vtkGeoArcs() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double GlobeRadius;
   double ExplodeFactor;
   int NumberOfSubdivisions;
 
 private:
-  vtkGeoArcs(const vtkGeoArcs&);  // Not implemented.
-  void operator=(const vtkGeoArcs&);  // Not implemented.
+  vtkGeoArcs(const vtkGeoArcs&) = delete;
+  void operator=(const vtkGeoArcs&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

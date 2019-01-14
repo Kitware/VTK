@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLWidget
-// .SECTION Description
-// Widget representation for WebGL.
+/**
+ * @class   vtkWebGLWidget
+ *
+ * Widget representation for WebGL.
+*/
 
 #ifndef vtkWebGLWidget_h
 #define vtkWebGLWidget_h
@@ -31,18 +33,18 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLWidget : public vtkWebGLObject
 public:
   static vtkWebGLWidget* New();
   vtkTypeMacro(vtkWebGLWidget, vtkWebGLObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  void GenerateBinaryData();
-  unsigned char* GetBinaryData(int part);
-  int GetBinarySize(int part);
-  int GetNumberOfParts();
+  void GenerateBinaryData() override;
+  unsigned char* GetBinaryData(int part) override;
+  int GetBinarySize(int part) override;
+  int GetNumberOfParts() override;
 
   void GetDataFromColorMap(vtkActor2D* actor);
 
 protected:
     vtkWebGLWidget();
-    ~vtkWebGLWidget();
+    ~vtkWebGLWidget() override;
 
     unsigned char* binaryData;
     int binarySize;
@@ -56,8 +58,8 @@ protected:
     std::vector <double*>colors;      //x, r, g, b
 
 private:
-  vtkWebGLWidget(const vtkWebGLWidget&); // Not implemented
-  void operator=(const vtkWebGLWidget&); // Not implemented
+  vtkWebGLWidget(const vtkWebGLWidget&) = delete;
+  void operator=(const vtkWebGLWidget&) = delete;
 
 };
 

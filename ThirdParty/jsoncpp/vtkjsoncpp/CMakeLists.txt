@@ -1,37 +1,37 @@
-project(JsonCpp)
+set(sources
+  jsoncpp.cpp)
 
-set(vtkjsoncpp_THIRD_PARTY 1)
-set(vtkjsoncpp_LIBRARIES vtkjsoncpp)
-vtk_module_export_info()
+set(headers
+  json/json-forwards.h
+  json/json.h
+  "${CMAKE_CURRENT_BINARY_DIR}/json/vtkjsoncpp_config.h")
 
-if(VTK_REQUIRE_LARGE_FILE_SUPPORT)
-  add_definitions(
-    -D_LARGEFILE_SOURCE
-    -D_LARGEFILE64_SOURCE
-    -D_LARGE_FILES
-    -D_FILE_OFFSET_BITS=64
-    )
-endif()
+if (BUILD_SHARED_LIBS)
+  set(JSON_DLL 1)
+endif ()
 
-set(JSONCPP_SOURCES
-  json_tool.h
-  json_reader.cpp
-  json_batchallocator.h
-  json_valueiterator.inl
-  json_value.cpp
-  json_writer.cpp
-)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/json/vtkjsoncpp_config.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/json/vtkjsoncpp_config.h")
 
-include_directories(${JsonCpp_SOURCE_DIR})
-
-if(BUILD_SHARED_LIBS AND WIN32)
-  add_definitions(-DJSON_DLL_BUILD)
-endif()
-vtk_add_library(vtkjsoncpp ${JSONCPP_SOURCES})
-
-if(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(DIRECTORY
-    ${JsonCpp_SOURCE_DIR}/json
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkjsoncpp
-    COMPONENT Development)
-endif()
+vtk_module_add_module(VTK::jsoncpp
+  SOURCES ${sources}
+  HEADERS ${headers}
+  HEADERS_SUBDIR vtkjsoncpp/json)
+if (VTK_REQUIRE_LARGE_FILE_SUPPORT)
+  target_compile_definitions(jsoncpp
+    PRIVATE
+      _LARGEFILE_SOURCE
+      _LARGEFILE64_SOURCE
+      _LARGE_FILES
+      _FILE_OFFSET_BITS=64)
+endif ()
+target_include_directories(jsoncpp
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/json>")
+target_compile_features(jsoncpp
+  PUBLIC
+    cxx_std_11)
+set_target_properties(jsoncpp
+  PROPERTIES
+    DEFINE_SYMBOL JSON_DLL_BUILD)

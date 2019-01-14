@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME Test of vtkNew.
-// .SECTION Description
-// Tests instantiations of the vtkNew class template.
+/**
+ * @class   Test
+ *
+ * Tests instantiations of the vtkNew class template.
+*/
 
 #ifndef vtkTestNewVar_h
 #define vtkTestNewVar_h
@@ -30,27 +32,37 @@ public:
   static vtkTestNewVar * New();
 
   vtkTypeMacro(vtkTestNewVar, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the reference count for the points object.
+  /**
+   * Get the reference count for the points object.
+   */
   vtkIdType GetPointsRefCount();
 
-  // Description:
-  // This is just for testing - return the points as a vtkObject so that it can
-  // be assigned to a vtkSmartPointer without including the vtkPoints2D header
-  // and defeating part of the point of the test.
+  /**
+   * This is just for testing - return the points as a vtkObject so that it can
+   * be assigned to a vtkSmartPointer without including the vtkPoints2D header
+   * and defeating part of the point of the test.
+   */
   vtkObject * GetPoints();
+
+  /**
+   * This is just for testing - return the points as a vtkObject so that it can
+   * be assigned to a vtkSmartPointer without including the vtkPoints2D header
+   * and defeating part of the point of the test.
+   * Using implicit conversion to raw pointer.
+   */
+  vtkObject * GetPoints2();
 
 protected:
   vtkTestNewVar();
-  ~vtkTestNewVar();
+  ~vtkTestNewVar() override;
 
   vtkNew<vtkPoints2D> Points;
 
 private:
-  vtkTestNewVar(const vtkTestNewVar&);  // Not implemented.
-  void operator=(const vtkTestNewVar&);  // Not implemented.
+  vtkTestNewVar(const vtkTestNewVar&) = delete;
+  void operator=(const vtkTestNewVar&) = delete;
 };
 
 #endif

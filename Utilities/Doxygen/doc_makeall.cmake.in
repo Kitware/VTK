@@ -76,7 +76,7 @@ set(DATA_ROOT "@VTK_DATA_ROOT@")
 # GITWEB, GITWEB_SUFFIX, GITWEB_CHECKOUT,
 # GITWEB_DATA, GITWEB_DATA_SUFFIX, GITWEB_DATA_CHECKOUT:
 # URL to the GITWeb of the project + same in checkout mode (i.e. appending a
-# file  name to this URL will retrieve the contents of the file). In the same way
+# file name to this URL will retrieve the contents of the file). In the same way
 # GITWEB_SUFFIX will be appended to the result.
 # Same applies to GITWEB_DATA, which is the URL to the GITWeb
 # of the Data's project.
@@ -168,7 +168,7 @@ set(VTK_TAGFILE_DEST_DIR "${DOXTEMP}")
 # SOURCE_DIRECTORIES
 #
 # This list is processed by several perl scripts below. Keeping it in one
-# list avoids the possiblity that multiple lists might get out of sync with
+# list avoids the possibility that multiple lists might get out of sync with
 # rushed edits...
 #
 set(SOURCE_DIRECTORIES
@@ -236,14 +236,30 @@ endforeach()
 # ----------------------------------------------------------------------------
 # Convert the VTK headers to the Doxygen format.
 
-step(1 "convert VTK headers to doxygen format")
-execute_process(COMMAND ${PERL}
-  "${PATH_TO_VTK_DOX_SCRIPTS}/doc_header2doxygen.pl"
-  --to "${INTERMEDIATE_DOX_DIR}"
-  --relativeto "${SOURCE_DIR}/${REL_PATH_TO_TOP}"
-  ${SOURCE_DIRECTORIES}
-  RESULT_VARIABLE rv
+step(1 "copy VTK headers to working directory")
+foreach(var
+  Accelerators
+  Charts
+  Common
+  Documentation
+  Domains
+  Filters
+  Geovis
+  GUISupport
+  Imaging
+  Infovis
+  Interaction
+  IO
+  Parallel
+  Rendering
+  Views
+  Web
 )
+  file(COPY "${SOURCE_DIR}/${var}"
+    DESTINATION "${INTERMEDIATE_DOX_DIR}"
+    FILES_MATCHING PATTERN "*.h"
+    )
+endforeach()
 
 # ----------------------------------------------------------------------------
 # Build the Events invocation list.

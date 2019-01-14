@@ -60,7 +60,7 @@ int TestGaussianBlurPass(int argc, char* argv[])
   renWin->AddRenderer(renderer);
 
   vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
+      vtkOpenGLRenderer::SafeDownCast(renderer);
 
   // create the basic VTK render steps
   vtkSmartPointer<vtkRenderStepsPass> basicPasses =
@@ -127,7 +127,6 @@ int TestGaussianBlurPass(int argc, char* argv[])
   vtkSmartPointer<vtkPolyDataMapper> coneMapper=
     vtkSmartPointer<vtkPolyDataMapper>::New();
   coneMapper->SetInputConnection(cone->GetOutputPort());
-  coneMapper->SetImmediateModeRendering(1);
 
   vtkSmartPointer<vtkActor> coneActor=
     vtkSmartPointer<vtkActor>::New();
@@ -147,19 +146,10 @@ int TestGaussianBlurPass(int argc, char* argv[])
   renderer->ResetCamera();
   renWin->Render();
 
-  if(peeling->GetLastRenderingUsedDepthPeeling())
-    {
-    cout<<"depth peeling was used"<<endl;
-    }
-  else
-    {
-    cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-    }
-
   retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return !retVal;
 }

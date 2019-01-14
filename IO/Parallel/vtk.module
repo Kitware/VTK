@@ -1,0 +1,38 @@
+NAME
+  VTK::IOParallel
+LIBRARY_NAME
+  vtkIOParallel
+IMPLEMENTABLE
+KIT
+  VTK::Parallel
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOCore
+  VTK::IOGeometry
+  VTK::IOImage
+  VTK::IOLegacy
+  VTK::IONetCDF
+  VTK::jsoncpp
+PRIVATE_DEPENDS
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::FiltersCore
+  VTK::FiltersExtraction
+  VTK::FiltersParallel
+  VTK::ParallelCore
+  VTK::exodusII
+  VTK::netcdf
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::ImagingCore
+  VTK::InteractionImage
+  VTK::ParallelMPI
+  VTK::RenderingOpenGL2
+  VTK::RenderingParallel
+  VTK::TestingCore
+  VTK::TestingRendering

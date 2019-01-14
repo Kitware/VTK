@@ -19,7 +19,7 @@
 // ----------------------------------------------------------------------------
 vtkProcess::vtkProcess()
 {
-  this->Controller=0;
+  this->Controller=nullptr;
   this->ReturnValue=0;
 }
 
@@ -49,12 +49,12 @@ void vtkProcess::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReturnValue: " << this->ReturnValue << endl;
   os << indent << "Controller: ";
   if(this->Controller)
-    {
+  {
     os << endl;
     this->Controller->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 }

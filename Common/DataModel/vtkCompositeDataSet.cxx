@@ -26,19 +26,15 @@ vtkInformationKeyMacro(vtkCompositeDataSet, NAME, String);
 vtkInformationKeyMacro(vtkCompositeDataSet, CURRENT_PROCESS_CAN_LOAD_BLOCK, Integer);
 
 //----------------------------------------------------------------------------
-vtkCompositeDataSet::vtkCompositeDataSet()
-{
-}
+vtkCompositeDataSet::vtkCompositeDataSet() = default;
 
 //----------------------------------------------------------------------------
-vtkCompositeDataSet::~vtkCompositeDataSet()
-{
-}
+vtkCompositeDataSet::~vtkCompositeDataSet() = default;
 
 //----------------------------------------------------------------------------
 vtkCompositeDataSet* vtkCompositeDataSet::GetData(vtkInformation* info)
 {
-  return info? vtkCompositeDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkCompositeDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -52,9 +48,9 @@ vtkCompositeDataSet* vtkCompositeDataSet::GetData(vtkInformationVector* v,
 void vtkCompositeDataSet::ShallowCopy(vtkDataObject* src)
 {
   if (src == this)
-    {
+  {
     return;
-    }
+  }
 
   this->Superclass::ShallowCopy(src);
   this->Modified();
@@ -64,9 +60,9 @@ void vtkCompositeDataSet::ShallowCopy(vtkDataObject* src)
 void vtkCompositeDataSet::DeepCopy(vtkDataObject* src)
 {
   if (src == this)
-    {
+  {
     return;
-    }
+  }
 
   this->Superclass::DeepCopy(src);
   this->Modified();
@@ -84,10 +80,10 @@ unsigned long vtkCompositeDataSet::GetActualMemorySize()
   unsigned long memSize = 0;
   vtkCompositeDataIterator* iter = this->NewIterator();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
+  {
     vtkDataObject* dobj = iter->GetCurrentDataObject();
     memSize += dobj->GetActualMemorySize();
-    }
+  }
   iter->Delete();
   return memSize;
 }
@@ -98,15 +94,32 @@ vtkIdType vtkCompositeDataSet::GetNumberOfPoints()
   vtkIdType numPts = 0;
   vtkCompositeDataIterator* iter = this->NewIterator();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
+  {
     vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     if (ds)
-      {
+    {
       numPts += ds->GetNumberOfPoints();
-      }
     }
+  }
   iter->Delete();
   return numPts;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkCompositeDataSet::GetNumberOfCells()
+{
+  vtkIdType numCells = 0;
+  vtkCompositeDataIterator* iter = this->NewIterator();
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  {
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    if (ds)
+    {
+      numCells += ds->GetNumberOfCells();
+    }
+  }
+  iter->Delete();
+  return numCells;
 }
 
 //----------------------------------------------------------------------------

@@ -42,7 +42,7 @@ int TestGraphWeightEuclideanDistanceFilter(int, char *[])
   weightFilter->SetInputData(g);
   weightFilter->Update();
 
-  vtkFloatArray* weights = vtkFloatArray::SafeDownCast(weightFilter->GetOutput()->GetEdgeData()->GetArray("Weights"));
+  vtkFloatArray* weights = vtkArrayDownCast<vtkFloatArray>(weightFilter->GetOutput()->GetEdgeData()->GetArray("Weights"));
 
   std::vector<float> correctWeights;
   correctWeights.push_back(1.0f);
@@ -50,14 +50,14 @@ int TestGraphWeightEuclideanDistanceFilter(int, char *[])
   correctWeights.push_back(2.0f);
 
   for(vtkIdType i = 0; i < weights->GetNumberOfTuples(); ++i)
-    {
+  {
     float w = weights->GetValue(i);
     if(!FuzzyCompare<float>(w, correctWeights[i]))
-      {
+    {
       std::cerr << "Weight " << i << " was " << w << " and should have been " << correctWeights[i] << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -66,8 +66,8 @@ template<typename T>
 static bool FuzzyCompare(const T a, const T b)
 {
   if(fabs(static_cast<float>(a) - static_cast<float>(b)) < 1e-4)
-    {
+  {
     return true;
-    }
+  }
   return false;
 }

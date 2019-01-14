@@ -1,0 +1,7 @@
+NAME
+  VTK::exodusII
+LIBRARY_NAME
+  vtkexodusII
+DEPENDS
+  VTK::netcdf
+THIRD_PARTY

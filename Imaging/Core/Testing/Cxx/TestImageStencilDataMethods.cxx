@@ -25,9 +25,9 @@ int TestImageStencilDataMethods(int argc, char *argv[])
   vtkSmartPointer<vtkTesting> testing =
     vtkSmartPointer<vtkTesting>::New();
   for (int cc = 1; cc < argc; cc ++ )
-    {
+  {
     testing->AddArgument(argv[cc]);
-    }
+  }
 
   // Test the IsInside method
   vtkSmartPointer<vtkImageStencilData> stencil3 =
@@ -39,20 +39,20 @@ int TestImageStencilDataMethods(int argc, char *argv[])
   int expectedOut[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   int expectedIn[12] = { 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0 };
   for (int idX = 0; idX < 12; idX++)
-    {
+  {
     for (int idY = -1; idY <= 1; idY++)
-      {
+    {
       for (int idZ = -1; idZ <= 1; idZ++)
-        {
+      {
         int *expected = ((idY == 0 && idZ == 0) ? expectedIn : expectedOut);
         if (stencil3->IsInside(idX, idY, idZ) != expected[idX])
-          {
+        {
           cerr << "IsInside(" << idX << ", " << idY << ", " << idZ << ") failed\n";
           return EXIT_FAILURE;
-          }
         }
       }
     }
+  }
 
   return EXIT_SUCCESS;
 }

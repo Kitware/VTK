@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBar - Bar class for vtk
-// .SECTION Description
-// None.
+/**
+ * @class   vtkBar
+ * @brief   Bar class for vtk
+ *
+ * None.
+*/
 
 #ifndef vtkBar_h
 #define vtkBar_h
@@ -30,10 +33,10 @@ public:
 
 protected:
   vtkBar() {}
-  ~vtkBar() {}
+  ~vtkBar() override {}
 private:
-  vtkBar(const vtkBar&);  // Not implemented.
-  void operator=(const vtkBar&);  // Not implemented.
+  vtkBar(const vtkBar&) = delete;
+  void operator=(const vtkBar&) = delete;
 };
 
 #endif

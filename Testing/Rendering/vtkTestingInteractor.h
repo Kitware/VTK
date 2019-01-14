@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyrgight notice for more information.
 
 =========================================================================*/
-// .NAME vtkTestingInteractor - A RenderWindowInteractor for testing
-// .SECTION Description
-// Provides a Start() method that passes arguments to a test for
-// regression testing and returns. This permits programs that
-// run as tests to exit gracefully during the test run without needing
-// interaction.
-// .SECTION See Also
-// vtkTestingObjectFactory
+/**
+ * @class   vtkTestingInteractor
+ * @brief   A RenderWindowInteractor for testing
+ *
+ * Provides a Start() method that passes arguments to a test for
+ * regression testing and returns. This permits programs that
+ * run as tests to exit gracefully during the test run without needing
+ * interaction.
+ * @sa
+ * vtkTestingObjectFactory
+*/
 
 #ifndef vtkTestingInteractor_h
 #define vtkTestingInteractor_h
@@ -28,23 +31,25 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactoryCollection.h" // Generated object overrides
 
-//BTX
 #include <string> // STL Header; Required for string
-//ETX
 
 class VTKTESTINGRENDERING_EXPORT vtkTestingInteractor : public vtkRenderWindowInteractor
 {
 public:
-  // Description:
-  // Standard object factory instantiation method.
+  /**
+   * Standard object factory instantiation method.
+   */
   static vtkTestingInteractor* New();
 
-  // Description:
-  // Type and printing information.
+  //@{
+  /**
+   * Type and printing information.
+   */
   vtkTypeMacro(vtkTestingInteractor,vtkRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  virtual void Start();
+  void Start() override;
 
   static int         TestReturnStatus;  // Return status of the test
   static double      ErrorThreshold;    // Error Threshold
@@ -56,8 +61,8 @@ protected:
   vtkTestingInteractor() {}
 
 private:
-  vtkTestingInteractor(const vtkTestingInteractor&); // Not implemented
-  void operator=(const vtkTestingInteractor&);       // Not implemented
+  vtkTestingInteractor(const vtkTestingInteractor&) = delete;
+  void operator=(const vtkTestingInteractor&) = delete;
 
 };
 

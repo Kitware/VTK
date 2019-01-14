@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -79,10 +77,7 @@
 /* Module Setup */
 /****************/
 
-#define H5G_PACKAGE		/*suppress error about including H5Gpkg   */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5G_init_interface
+#include "H5Gmodule.h"          /* This source code file is part of the H5G module */
 
 
 /***********/
@@ -90,6 +85,7 @@
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5ACprivate.h"	/* Metadata cache			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Gpkg.h"		/* Groups		  		*/
 #include "H5Iprivate.h"		/* IDs			  		*/
@@ -120,6 +116,9 @@
 /* Package Variables */
 /*********************/
 
+/* Package initialization variable */
+hbool_t H5_PKG_INIT_VAR = FALSE;
+
 
 /*****************************/
 /* Library Private Variables */
@@ -133,41 +132,18 @@
 /* Group ID class */
 static const H5I_class_t H5I_GROUP_CLS[1] = {{
     H5I_GROUP,			/* ID class value */
-    H5I_CLASS_REUSE_IDS,	/* Class flags */
+    0,				/* Class flags */
     0,				/* # of reserved IDs for class */
-    (H5I_free_t)H5G_close	/* Callback routine for closing objects of this class */
+    (H5I_free_t)H5G__close_cb	/* Callback routine for closing objects of this class */
 }};
 
+/* Flag indicating "top" of interface has been initialized */
+static hbool_t H5G_top_package_initialize_s = FALSE;
+
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G__init
- *
- * Purpose:	Initialize the interface from some other package.
- *
- * Return:	Success:	non-negative
- *		Failure:	negative
- *
- * Programmer:	Quincey Koziol
- *              Saturday, November 11, 2006
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5G__init(void)
-{
-    herr_t ret_value = SUCCEED;   /* Return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
-    /* FUNC_ENTER() does all the work */
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G__init() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5G_init_interface
+ * Function:	H5G__init_package
  *
  * Purpose:	Initializes the H5G interface.
  *
@@ -177,7 +153,7 @@ done:
  *		Monday, January	 5, 1998
  *
  * Notes:       The group creation properties are registered in the property
- *              list interface initialization routine (H5P_init_interface)
+ *              list interface initialization routine (H5P_init_package)
  *              so that the file creation property class can inherit from it
  *              correctly. (Which allows the file creation property list to
  *              control the group creation properties of the root group of
@@ -185,30 +161,71 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-static herr_t
-H5G_init_interface(void)
+herr_t
+H5G__init_package(void)
 {
     herr_t          ret_value = SUCCEED;  /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Initialize the atom group for the group IDs */
     if(H5I_register_type(H5I_GROUP_CLS) < 0)
 	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to initialize interface")
 
+    /* Mark "top" of interface as initialized, too */
+    H5G_top_package_initialize_s = TRUE;
+
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_init_interface() */
+} /* end H5G__init_package() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_term_interface
+ * Function:	H5G_top_term_package
  *
- * Purpose:	Terminates the H5G interface
+ * Purpose:	Close the "top" of the interface, releasing IDs, etc.
  *
  * Return:	Success:	Positive if anything is done that might
  *				affect other interfaces; zero otherwise.
+ * 		Failure:	Negative.
  *
+ * Programmer:	Quincey Koziol
+ *		Sunday, September	13, 2015
+ *
+ *-------------------------------------------------------------------------
+ */
+int
+H5G_top_term_package(void)
+{
+    int	n = 0;
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    if(H5G_top_package_initialize_s) {
+        if(H5I_nmembers(H5I_GROUP) > 0) {
+            (void)H5I_clear_type(H5I_GROUP, FALSE, FALSE);
+            n++; /*H5I*/
+        } /* end if */
+
+        /* Mark closed */
+        if(0 == n)
+            H5G_top_package_initialize_s = FALSE;
+    } /* end if */
+
+    FUNC_LEAVE_NOAPI(n)
+} /* end H5G_top_term_package() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5G_term_package
+ *
+ * Purpose:	Terminates the H5G interface
+ *
+ * Note:	Finishes shutting down the interface, after
+ *		H5G_top_term_package() is called
+ *
+ * Return:	Success:	Positive if anything is done that might
+ *				affect other interfaces; zero otherwise.
  * 		Failure:	Negative.
  *
  * Programmer:	Robb Matzke
@@ -217,30 +234,27 @@ done:
  *-------------------------------------------------------------------------
  */
 int
-H5G_term_interface(void)
+H5G_term_package(void)
 {
     int	n = 0;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if(H5_interface_initialize_g) {
-        if((n = H5I_nmembers(H5I_GROUP)))
-            H5I_clear_type(H5I_GROUP, FALSE, FALSE);
-        else {
-            /* Close deprecated interface */
-            n += H5G__term_deprec_interface();
+    if(H5_PKG_INIT_VAR) {
+        /* Sanity checks */
+        HDassert(0 == H5I_nmembers(H5I_GROUP));
+        HDassert(FALSE == H5G_top_package_initialize_s);
 
-            /* Destroy the group object id group */
-            H5I_dec_type_ref(H5I_GROUP);
+        /* Destroy the group object id group */
+        n += (H5I_dec_type_ref(H5I_GROUP) > 0);
 
-            /* Mark closed */
-            H5_interface_initialize_g = 0;
-            n = 1; /*H5I*/
-        } /* end else */
+        /* Mark closed */
+        if(0 == n)
+            H5_PKG_INIT_VAR = FALSE;
     } /* end if */
 
     FUNC_LEAVE_NOAPI(n)
-} /* end H5G_term_interface() */
+} /* end H5G_term_package() */
 
 
 /*-------------------------------------------------------------------------
@@ -262,7 +276,7 @@ H5G_term_interface(void)
  *				writing.  Call H5Gclose() when finished with
  *				the group.
  *
- *		Failure:	FAIL
+ *		Failure:	H5I_INVALID_HID
  *
  * Programmer:  Quincey Koziol
  *	        April 5, 2007
@@ -277,46 +291,43 @@ H5Gcreate2(hid_t loc_id, const char *name, hid_t lcpl_id, hid_t gcpl_id,
     H5G_t	   *grp = NULL;         /* New group created */
     hid_t	    ret_value;          /* Return value */
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE5("i", "i*siii", loc_id, name, lcpl_id, gcpl_id, gapl_id);
 
     /* Check arguments */
     if(H5G_loc(loc_id, &loc) < 0)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a location")
     if(!name || !*name)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "no name")
 
     /* Get correct property list */
     if(H5P_DEFAULT == lcpl_id)
         lcpl_id = H5P_LINK_CREATE_DEFAULT;
     else
         if(TRUE != H5P_isa_class(lcpl_id, H5P_LINK_CREATE))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not link creation property list")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not link creation property list")
 
     /* Check group creation property list */
     if(H5P_DEFAULT == gcpl_id)
         gcpl_id = H5P_GROUP_CREATE_DEFAULT;
     else
         if(TRUE != H5P_isa_class(gcpl_id, H5P_GROUP_CREATE))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not group create property list")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not group create property list")
 
-    /* Check the group access property list */
-    if(H5P_DEFAULT == gapl_id)
-        gapl_id = H5P_GROUP_ACCESS_DEFAULT;
-    else
-        if(TRUE != H5P_isa_class(gapl_id, H5P_GROUP_ACCESS))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not group access property list")
+    /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&gapl_id, H5P_CLS_GACC, loc_id, TRUE) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, H5I_INVALID_HID, "can't set access property list info")
 
     /* Create the new group & get its ID */
-    if(NULL == (grp = H5G__create_named(&loc, name, lcpl_id, gcpl_id, gapl_id, H5AC_dxpl_id)))
-        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create group")
+    if(NULL == (grp = H5G__create_named(&loc, name, lcpl_id, gcpl_id)))
+        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, H5I_INVALID_HID, "unable to create group")
     if((ret_value = H5I_register(H5I_GROUP, grp, TRUE)) < 0)
-	HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register group")
+	HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register group")
 
 done:
     if(ret_value < 0)
         if(grp && H5G_close(grp) < 0)
-            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, FAIL, "unable to release group")
+            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, H5I_INVALID_HID, "unable to release group")
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gcreate2() */
@@ -350,7 +361,7 @@ done:
  *				writing.  Call H5Gclose() when finished with
  *				the group.
  *
- *		Failure:	FAIL
+ *		Failure:	H5I_INVALID_HID
  *
  * Programmer:  Peter Cao
  *	        May 08, 2005
@@ -365,26 +376,23 @@ H5Gcreate_anon(hid_t loc_id, hid_t gcpl_id, hid_t gapl_id)
     H5G_obj_create_t gcrt_info;         /* Information for group creation */
     hid_t	    ret_value;
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE3("i", "iii", loc_id, gcpl_id, gapl_id);
 
     /* Check arguments */
     if(H5G_loc(loc_id, &loc) < 0)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a location")
 
     /* Check group creation property list */
     if(H5P_DEFAULT == gcpl_id)
         gcpl_id = H5P_GROUP_CREATE_DEFAULT;
     else
         if(TRUE != H5P_isa_class(gcpl_id, H5P_GROUP_CREATE))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not group create property list")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not group create property list")
 
-    /* Check the group access property list */
-    if(H5P_DEFAULT == gapl_id)
-        gapl_id = H5P_GROUP_ACCESS_DEFAULT;
-    else
-        if(TRUE != H5P_isa_class(gapl_id, H5P_GROUP_ACCESS))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not group access property list")
+    /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&gapl_id, H5P_CLS_GACC, loc_id, TRUE) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, H5I_INVALID_HID, "can't set access property list info")
 
     /* Set up group creation info */
     gcrt_info.gcpl_id = gcpl_id;
@@ -392,10 +400,10 @@ H5Gcreate_anon(hid_t loc_id, hid_t gcpl_id, hid_t gapl_id)
     HDmemset(&gcrt_info.cache, 0, sizeof(gcrt_info.cache));
 
     /* Create the new group & get its ID */
-    if(NULL == (grp = H5G__create(loc.oloc->file, &gcrt_info, H5AC_dxpl_id)))
-        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create group")
+    if(NULL == (grp = H5G__create_anon(loc.oloc->file, &gcrt_info)))
+        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, H5I_INVALID_HID, "unable to create group")
     if((ret_value = H5I_register(H5I_GROUP, grp, TRUE)) < 0)
-	HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register group")
+	HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register group")
 
 done:
     /* Release the group's object header, if it was created */
@@ -404,17 +412,17 @@ done:
 
         /* Get the new group's object location */
         if(NULL == (oloc = H5G_oloc(grp)))
-            HDONE_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get object location of group")
+            HDONE_ERROR(H5E_SYM, H5E_CANTGET, H5I_INVALID_HID, "unable to get object location of group")
 
         /* Decrement refcount on group's object header in memory */
-        if(H5O_dec_rc_by_loc(oloc, H5AC_dxpl_id) < 0)
-           HDONE_ERROR(H5E_SYM, H5E_CANTDEC, FAIL, "unable to decrement refcount on newly created object")
+        if(H5O_dec_rc_by_loc(oloc) < 0)
+           HDONE_ERROR(H5E_SYM, H5E_CANTDEC, H5I_INVALID_HID, "unable to decrement refcount on newly created object")
     } /* end if */
 
     /* Cleanup on failure */
     if(ret_value < 0)
         if(grp && H5G_close(grp) < 0)
-            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, FAIL, "unable to release group")
+            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, H5I_INVALID_HID, "unable to release group")
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gcreate_anon() */
@@ -430,7 +438,7 @@ done:
  *              Property List, which H5Gopen1() does not.
  *
  * Return:	Success:	Object ID of the group.
- *		Failure:	FAIL
+ *		Failure:	H5I_INVALID_HID
  *
  * Programmer:	James Laird
  *		Thursday, July 27, 2006
@@ -444,35 +452,31 @@ H5Gopen2(hid_t loc_id, const char *name, hid_t gapl_id)
     H5G_loc_t	loc;                    /* Location of parent for group */
     hid_t       ret_value;              /* Return value */
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE3("i", "i*si", loc_id, name, gapl_id);
 
     /* Check args */
     if(H5G_loc(loc_id, &loc) < 0)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a location")
     if(!name || !*name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "no name")
 
-    /* Check the group access property list */
-    if(H5P_DEFAULT == gapl_id)
-        gapl_id = H5P_GROUP_ACCESS_DEFAULT;
-    else
-        if(TRUE != H5P_isa_class(gapl_id, H5P_GROUP_ACCESS))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not group access property list")
+    /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&gapl_id, H5P_CLS_GACC, loc_id, FALSE) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, H5I_INVALID_HID, "can't set access property list info")
 
     /* Open the group */
-    if((grp = H5G__open_name(&loc, name, gapl_id, H5AC_dxpl_id)) == NULL)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open group")
+    if(NULL == (grp = H5G__open_name(&loc, name)))
+        HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, H5I_INVALID_HID, "unable to open group")
 
     /* Register an ID for the group */
     if((ret_value = H5I_register(H5I_GROUP, grp, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register group")
+        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register group")
 
 done:
-    if(ret_value < 0) {
+    if(ret_value < 0)
         if(grp && H5G_close(grp) < 0)
-            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, FAIL, "unable to release group")
-    } /* end if */
+            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, H5I_INVALID_HID, "unable to release group")
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gopen2() */
@@ -487,7 +491,7 @@ done:
  *				property list.  The property list ID should be
  *				released by calling H5Pclose().
  *
- *		Failure:	FAIL
+ *		Failure:	H5I_INVALID_HID
  *
  * Programmer:	Quincey Koziol
  *		Tuesday, October 25, 2005
@@ -497,118 +501,22 @@ done:
 hid_t
 H5Gget_create_plist(hid_t group_id)
 {
-    H5G_t		*group = NULL;
-    hid_t		ret_value = FAIL;
+    H5G_t	*group = NULL;
+    hid_t	ret_value = H5I_INVALID_HID;        /* Return value */
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE1("i", "i", group_id);
 
     /* Check args */
     if(NULL == (group = (H5G_t *)H5I_object_verify(group_id, H5I_GROUP)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a group")
 
-    if((ret_value = H5G_get_create_plist(group)) < 0)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group")
+    if((ret_value = H5G__get_create_plist(group)) < 0)
+	HGOTO_ERROR(H5E_SYM, H5E_CANTGET, H5I_INVALID_HID, "can't get group's creation property list")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gget_create_plist() */
-
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5G_get_create_plist
- *
- * Purpose:	Private function for H5Gget_create_plist
- *
- * Return:	Success:	ID for a copy of the group creation
- *				property list.  The property list ID should be
- *				released by calling H5Pclose().
- *
- *		Failure:	FAIL
- *
- * Programmer:	Quincey Koziol
- *		Tuesday, October 25, 2005
- *
- *-------------------------------------------------------------------------
- */
-hid_t
-H5G_get_create_plist(H5G_t *grp)
-{
-    H5O_linfo_t         linfo;		        /* Link info message            */
-    htri_t	        ginfo_exists;
-    htri_t	        linfo_exists;
-    htri_t              pline_exists;
-    H5P_genplist_t      *gcpl_plist;
-    H5P_genplist_t      *new_plist;
-    hid_t		new_gcpl_id = FAIL;
-    hid_t		ret_value = FAIL;
-
-    FUNC_ENTER_NOAPI(FAIL)
-
-    /* Copy the default group creation property list */
-    if(NULL == (gcpl_plist = (H5P_genplist_t *)H5I_object(H5P_LST_GROUP_CREATE_g)))
-         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get default group creation property list")
-    if((new_gcpl_id = H5P_copy_plist(gcpl_plist, TRUE)) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to copy the creation property list")
-    if(NULL == (new_plist = (H5P_genplist_t *)H5I_object(new_gcpl_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-
-    /* Retrieve any object creation properties */
-    if(H5O_get_create_plist(&grp->oloc, H5AC_ind_dxpl_id, new_plist) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get object creation info")
-
-    /* Check for the group having a group info message */
-    if((ginfo_exists = H5O_msg_exists(&(grp->oloc), H5O_GINFO_ID, H5AC_ind_dxpl_id)) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to read object header")
-    if(ginfo_exists) {
-        H5O_ginfo_t ginfo;		/* Group info message            */
-
-        /* Read the group info */
-        if(NULL == H5O_msg_read(&(grp->oloc), H5O_GINFO_ID, &ginfo, H5AC_ind_dxpl_id))
-            HGOTO_ERROR(H5E_SYM, H5E_BADMESG, FAIL, "can't get group info")
-
-        /* Set the group info for the property list */
-        if(H5P_set(new_plist, H5G_CRT_GROUP_INFO_NAME, &ginfo) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set group info")
-    } /* end if */
-
-    /* Check for the group having a link info message */
-    if((linfo_exists = H5G__obj_get_linfo(&(grp->oloc), &linfo, H5AC_ind_dxpl_id)) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to read object header")
-    if(linfo_exists) {
-        /* Set the link info for the property list */
-        if(H5P_set(new_plist, H5G_CRT_LINK_INFO_NAME, &linfo) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set link info")
-    } /* end if */
-
-    /* Check for the group having a pipeline message */
-    if((pline_exists = H5O_msg_exists(&(grp->oloc), H5O_PLINE_ID, H5AC_ind_dxpl_id)) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to read object header")
-    if(pline_exists) {
-        H5O_pline_t pline;      /* Pipeline message */
-
-        /* Read the pipeline */
-        if(NULL == H5O_msg_read(&(grp->oloc), H5O_PLINE_ID, &pline, H5AC_ind_dxpl_id))
-            HGOTO_ERROR(H5E_SYM, H5E_BADMESG, FAIL, "can't get link pipeline")
-
-        /* Set the pipeline for the property list */
-        if(H5P_set(new_plist, H5O_CRT_PIPELINE_NAME, &pline) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set link pipeline")
-    } /* end if */
-
-    /* Set the return value */
-    ret_value = new_gcpl_id;
-
-done:
-    if(ret_value < 0) {
-        if(new_gcpl_id > 0)
-            if(H5I_dec_app_ref(new_gcpl_id) < 0)
-                HDONE_ERROR(H5E_SYM, H5E_CANTDEC, FAIL, "can't free")
-    } /* end if */
-
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_get_create_plist() */
 
 
 /*-------------------------------------------------------------------------
@@ -646,7 +554,7 @@ H5Gget_info(hid_t grp_id, H5G_info_t *grp_info)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
 
     /* Retrieve the group's information */
-    if(H5G__obj_info(loc.oloc, grp_info/*out*/, H5AC_ind_dxpl_id) < 0)
+    if(H5G__get_info(&loc, grp_info/*out*/) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve group info")
 
 done:
@@ -672,10 +580,6 @@ H5Gget_info_by_name(hid_t loc_id, const char *name, H5G_info_t *grp_info,
     hid_t lapl_id)
 {
     H5G_loc_t	loc;                    /* Location of group */
-    H5G_loc_t   grp_loc;                /* Location used to open group */
-    H5G_name_t  grp_path;            	/* Opened object group hier. path */
-    H5O_loc_t   grp_oloc;            	/* Opened object object location */
-    hbool_t     loc_found = FALSE;      /* Location at 'name' found */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -688,30 +592,16 @@ H5Gget_info_by_name(hid_t loc_id, const char *name, H5G_info_t *grp_info,
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name")
     if(!grp_info)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no info struct")
-    if(H5P_DEFAULT == lapl_id)
-        lapl_id = H5P_LINK_ACCESS_DEFAULT;
-    else
-        if(TRUE != H5P_isa_class(lapl_id, H5P_LINK_ACCESS))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not link access property list ID")
 
-    /* Set up opened group location to fill in */
-    grp_loc.oloc = &grp_oloc;
-    grp_loc.path = &grp_path;
-    H5G_loc_reset(&grp_loc);
-
-    /* Find the group object */
-    if(H5G_loc_find(&loc, name, &grp_loc/*out*/, lapl_id, H5AC_ind_dxpl_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "group not found")
-    loc_found = TRUE;
+    /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&lapl_id, H5P_CLS_LACC, loc_id, FALSE) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Retrieve the group's information */
-    if(H5G__obj_info(grp_loc.oloc, grp_info/*out*/, H5AC_ind_dxpl_id) < 0)
+    if(H5G__get_info_by_name(&loc, name, grp_info/*out*/) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve group info")
 
 done:
-    if(loc_found && H5G_loc_free(&grp_loc) < 0)
-        HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "can't free location")
-
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gget_info_by_name() */
 
@@ -735,10 +625,6 @@ H5Gget_info_by_idx(hid_t loc_id, const char *group_name, H5_index_t idx_type,
     H5_iter_order_t order, hsize_t n, H5G_info_t *grp_info, hid_t lapl_id)
 {
     H5G_loc_t	loc;                    /* Location of group */
-    H5G_loc_t   grp_loc;                /* Location used to open group */
-    H5G_name_t  grp_path;            	/* Opened object group hier. path */
-    H5O_loc_t   grp_oloc;            	/* Opened object object location */
-    hbool_t     loc_found = FALSE;      /* Entry at 'name' found */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -756,31 +642,16 @@ H5Gget_info_by_idx(hid_t loc_id, const char *group_name, H5_index_t idx_type,
 	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid iteration order specified")
     if(!grp_info)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no info struct")
-    if(H5P_DEFAULT == lapl_id)
-        lapl_id = H5P_LINK_ACCESS_DEFAULT;
-    else
-        if(TRUE != H5P_isa_class(lapl_id, H5P_LINK_ACCESS))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not link access property list ID")
 
-    /* Set up opened group location to fill in */
-    grp_loc.oloc = &grp_oloc;
-    grp_loc.path = &grp_path;
-    H5G_loc_reset(&grp_loc);
-
-    /* Find the object's location, according to the order in the index */
-    if(H5G_loc_find_by_idx(&loc, group_name, idx_type, order, n, &grp_loc/*out*/, lapl_id, H5AC_ind_dxpl_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "group not found")
-    loc_found = TRUE;
+    /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&lapl_id, H5P_CLS_LACC, loc_id, FALSE) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Retrieve the group's information */
-    if(H5G__obj_info(grp_loc.oloc, grp_info/*out*/, H5AC_ind_dxpl_id) < 0)
+    if(H5G__get_info_by_idx(&loc, group_name, idx_type, order, n, grp_info/*out*/) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve group info")
 
 done:
-    /* Release the object location */
-    if(loc_found && H5G_loc_free(&grp_loc) < 0)
-        HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "can't free location")
-
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gget_info_by_idx() */
 
@@ -801,14 +672,14 @@ done:
 herr_t
 H5Gclose(hid_t group_id)
 {
-    herr_t ret_value = SUCCEED;         /* Return value */
+    herr_t  ret_value = SUCCEED;    /* Return value                     */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", group_id);
 
     /* Check args */
     if(NULL == H5I_object_verify(group_id,H5I_GROUP))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group")
 
     /*
      * Decrement the counter on the group atom.	 It will be freed if the count
@@ -820,4 +691,80 @@ H5Gclose(hid_t group_id)
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gclose() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Gflush
+ *
+ * Purpose:     Flushes all buffers associated with a group to disk.
+ *
+ * Return:      Non-negative on success, negative on failure
+ *
+ * Programmer:  Mike McGreevy
+ *              May 19, 2010
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Gflush(hid_t group_id)
+{
+    H5G_t *grp;                 /* Group for this operation */
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE1("e", "i", group_id);
+    
+    /* Check args */
+    if(NULL == (grp = (H5G_t *)H5I_object_verify(group_id, H5I_GROUP)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group")
+
+    /* Set up collective metadata if appropriate */
+    if(H5CX_set_loc(group_id) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+
+    /* Flush group's metadata to file */
+    if(H5G__flush(grp, group_id) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTFLUSH, FAIL, "unable to flush group")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5Gflush */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Grefresh
+ *
+ * Purpose:     Refreshes all buffers associated with a group.
+ *
+ * Return:      Non-negative on success, negative on failure
+ *
+ * Programmer:  Mike McGreevy
+ *              July 21, 2010
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Grefresh(hid_t group_id)
+{
+    H5G_t *grp;                 /* Group for this operation */
+    herr_t ret_value = SUCCEED; /* Return value */
+    
+    FUNC_ENTER_API(FAIL)
+    H5TRACE1("e", "i", group_id);
+
+    /* Check args */
+    if(NULL == (grp = (H5G_t *)H5I_object_verify(group_id, H5I_GROUP)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group")
+
+    /* Set up collective metadata if appropriate */
+    if(H5CX_set_loc(group_id) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+
+    /* Call private function to refresh group object */
+    if((H5G__refresh(grp, group_id)) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTLOAD, FAIL, "unable to refresh group")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5Grefresh */
 

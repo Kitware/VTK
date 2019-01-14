@@ -62,14 +62,14 @@ int TestMoleculeMapperPropertyUpdate(int, char *[])
   mol->AppendBond( O1,  H5, 1);
 
   vtkNew<vtkMoleculeMapper> molmapper;
-  molmapper->SetInputData(mol.GetPointer());
+  molmapper->SetInputData(mol);
 
   molmapper->UseBallAndStickSettings();
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(molmapper.GetPointer());
+  actor->SetMapper(molmapper);
   actor->GetProperty()->SetAmbient(0.0);
-  actor->GetProperty()->SetDiffuse(0.0);
+  actor->GetProperty()->SetDiffuse(1.0);
   actor->GetProperty()->SetSpecular(0.0);
   actor->GetProperty()->SetSpecularPower(40);
 
@@ -79,11 +79,11 @@ int TestMoleculeMapperPropertyUpdate(int, char *[])
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
 
   ren->SetBackground(0.0, 0.0, 0.0);
   win->SetSize(450, 450);

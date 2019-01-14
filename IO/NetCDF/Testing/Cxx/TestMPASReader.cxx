@@ -45,21 +45,21 @@ int TestMPASReader( int argc, char *argv[] )
   // Basic visualisation.
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   // Read file names.
   char* fName = vtkTestUtilities::ExpandDataFileName(
     argc, argv,"Data/NetCDF/MPASReader.nc");
   std::string fileName(fName);
   delete []fName;
-  fName = NULL;
+  fName = nullptr;
 
   // make 2 loops for 2 actors since the reader can read in the file
   // as an sphere or as a plane
   for(int i=0;i<2;i++)
-    {
+  {
     // Create the reader.
     vtkNew<vtkMPASReader> reader;
     reader->SetFileName(fileName.c_str());
@@ -84,22 +84,22 @@ int TestMPASReader( int argc, char *argv[] )
 
     int* values = reader->GetVerticalLevelRange();
     if(values[0] != 0 || values[1] != 3)
-      {
+    {
       vtkGenericWarningMacro("Vertical level range is incorrect.");
       return 1;
-      }
+    }
     values = reader->GetLayerThicknessRange();
     if(values[0] != 0 || values[1] != 200000)
-      {
+    {
       vtkGenericWarningMacro("Layer thickness range is incorrect.");
       return 1;
-      }
+    }
     values = reader->GetCenterLonRange();
     if(values[0] != 0 || values[1] != 360)
-      {
+    {
       vtkGenericWarningMacro("Center lon range is incorrect.");
       return 1;
-      }
+    }
 
     // Create a mapper and LUT.
     vtkNew<vtkPolyDataMapper> mapper;
@@ -112,14 +112,14 @@ int TestMPASReader( int argc, char *argv[] )
 
     // Create the actor.
     vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper.GetPointer());
+    actor->SetMapper(mapper);
     if(i == 1)
-      {
+    {
       actor->SetScale(30000);
       actor->AddPosition(4370000, 0, 0);
-      }
-    ren->AddActor(actor.GetPointer());
     }
+    ren->AddActor(actor);
+  }
 
   vtkNew<vtkCamera> camera;
   ren->ResetCamera(-4370000, 12370000, -6370000, 6370000, -6370000, 6370000);
@@ -131,12 +131,12 @@ int TestMPASReader( int argc, char *argv[] )
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 0.25 );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   cerr << !retVal << " is the return val\n";
   return !retVal;

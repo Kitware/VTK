@@ -71,13 +71,13 @@ int TestGPURayCastMIPBinaryMask(int argc, char *argv[])
   // in the data.
   double distance=spacing[0];
   if(distance>spacing[1])
-    {
+  {
     distance=spacing[1];
-    }
+  }
   if(distance>spacing[2])
-    {
+  {
     distance=spacing[2];
-    }
+  }
   distance=distance/2.0;
 
   // This does not take the screen size of a cell into account.
@@ -126,20 +126,20 @@ int TestGPURayCastMIPBinaryMask(int argc, char *argv[])
   center[1] -= origin[1];
   center[2] -= origin[2];
   for (int z = 0; z < dim[2]; z++)
-    {
+  {
     for (int y = 0; y < dim[1]; y++)
-      {
+    {
       for (int x = 0; x < dim[0]; x++)
-        {
+      {
         const double distanceSq =
           ((double)x*spacing[0]-center[0]) * ((double)x*spacing[0]-center[0]) +
           ((double)y*spacing[1]-center[1]) * ((double)y*spacing[1]-center[1]) +
           ((double)z*spacing[2]-center[2]) * ((double)z*spacing[2]-center[2]);
         *ptr = (distanceSq < radiusSq ? 255 : 0);
         ++ptr;
-        }
       }
     }
+  }
 
   mapper->SetMaskInput(mask);
 
@@ -157,10 +157,10 @@ int TestGPURayCastMIPBinaryMask(int argc, char *argv[])
   renWin->Render();
 
   if (!mapper->IsRenderSupported(renWin,property))
-    {
+  {
     cout << "Required extensions not supported." << endl;
     return EXIT_SUCCESS;
-    }
+  }
 
   ren->AddViewProp(volume);
   iren->Initialize();

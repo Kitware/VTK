@@ -19,7 +19,7 @@
 //----------------------------------------------------------------
 vtkEventForwarderCommand::vtkEventForwarderCommand()
 {
-  this->Target = NULL;
+  this->Target = nullptr;
 }
 
 //----------------------------------------------------------------
@@ -28,8 +28,8 @@ void vtkEventForwarderCommand::Execute(vtkObject *,
                                        void *call_data)
 {
   if (this->Target)
-    {
+  {
     this->Target->InvokeEvent(event, call_data);
-    }
+  }
 }
 

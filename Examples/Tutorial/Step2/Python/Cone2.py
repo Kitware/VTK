@@ -12,6 +12,7 @@
 # is observed.
 #
 
+from __future__ import print_function
 import vtk
 import time
 
@@ -19,7 +20,7 @@ import time
 # define the callback
 #
 def myCallback(obj,string):
-    print "Starting a render"
+    print("Starting a render")
 
 
 #
@@ -49,7 +50,7 @@ renWin.AddRenderer( ren1 )
 renWin.SetSize( 300, 300 )
 
 #
-# now we loop over 360 degreeees and render the cone each time
+# now we loop over 360 degrees and render the cone each time
 #
 for i in range(0,360):
     time.sleep(0.03)

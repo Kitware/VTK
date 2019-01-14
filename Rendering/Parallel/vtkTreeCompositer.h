@@ -40,16 +40,19 @@
 // version available from Los Alamos National Laboratory.
 
 
-// .NAME vtkTreeCompositer - Implements tree based compositing.
-//
-// .SECTION Description
-// vtkTreeCompositer operates in multiple processes.  Each compositer has
-// a render window.  They use a vtkMultiProcessController to communicate
-// the color and depth buffer to process 0's render window.
-// It will not handle transparency well.
-//
-// .SECTION See Also
-// vtkCompositeManager
+/**
+ * @class   vtkTreeCompositer
+ * @brief   Implements tree based compositing.
+ *
+ *
+ * vtkTreeCompositer operates in multiple processes.  Each compositer has
+ * a render window.  They use a vtkMultiProcessController to communicate
+ * the color and depth buffer to process 0's render window.
+ * It will not handle transparency well.
+ *
+ * @sa
+ * vtkCompositeManager
+*/
 
 #ifndef vtkTreeCompositer_h
 #define vtkTreeCompositer_h
@@ -63,18 +66,18 @@ class VTKRENDERINGPARALLEL_EXPORT vtkTreeCompositer : public vtkCompositer
 public:
   static vtkTreeCompositer *New();
   vtkTypeMacro(vtkTreeCompositer,vtkCompositer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  virtual void CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
-                               vtkDataArray *pTmp, vtkFloatArray *zTmp);
+  void CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
+                       vtkDataArray *pTmp, vtkFloatArray *zTmp) override;
 
 protected:
   vtkTreeCompositer();
-  ~vtkTreeCompositer();
+  ~vtkTreeCompositer() override;
 
 private:
-  vtkTreeCompositer(const vtkTreeCompositer&); // Not implemented
-  void operator=(const vtkTreeCompositer&); // Not implemented
+  vtkTreeCompositer(const vtkTreeCompositer&) = delete;
+  void operator=(const vtkTreeCompositer&) = delete;
 };
 
 #endif

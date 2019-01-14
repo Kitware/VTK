@@ -12,27 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkActor2D.h"
 #include "vtkBiDimensionalRepresentation.h"
-#include "vtkHandleRepresentation.h"
-#include "vtkCoordinate.h"
-#include "vtkRenderer.h"
-#include "vtkMath.h"
-#include "vtkLine.h"
-#include "vtkTextProperty.h"
-#include "vtkWindow.h"
 #include "vtkCellArray.h"
+#include "vtkCommand.h"
+#include "vtkCoordinate.h"
+#include "vtkInteractorObserver.h"
+#include "vtkHandleRepresentation.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointHandleRepresentation2D.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
-#include "vtkActor2D.h"
+#include "vtkProperty2D.h"
+#include "vtkRenderer.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
-#include "vtkProperty2D.h"
-#include "vtkPointHandleRepresentation2D.h"
-#include "vtkObjectFactory.h"
-#include "vtkInteractorObserver.h"
+#include "vtkWindow.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 
 //----------------------------------------------------------------------
@@ -40,10 +40,10 @@ vtkBiDimensionalRepresentation::vtkBiDimensionalRepresentation()
 {
   // By default, use one of these handles
   this->HandleRepresentation  = vtkPointHandleRepresentation2D::New();
-  this->Point1Representation = NULL;
-  this->Point2Representation = NULL;
-  this->Point3Representation = NULL;
-  this->Point4Representation = NULL;
+  this->Point1Representation = nullptr;
+  this->Point2Representation = nullptr;
+  this->Point3Representation = nullptr;
+  this->Point4Representation = nullptr;
   this->InstantiateHandleRepresentation();
 
   this->Modifier = 0;
@@ -54,7 +54,7 @@ vtkBiDimensionalRepresentation::vtkBiDimensionalRepresentation()
   this->Line2Visibility = 1;
 
   this->LabelFormat = new char[6];
-  sprintf(this->LabelFormat,"%s","%0.3g");
+  snprintf(this->LabelFormat,6,"%s","%0.3g");
 
   this->ID = VTK_ID_MAX;
   this->IDInitialized = 0;
@@ -66,37 +66,37 @@ vtkBiDimensionalRepresentation::vtkBiDimensionalRepresentation()
 vtkBiDimensionalRepresentation::~vtkBiDimensionalRepresentation()
 {
   if ( this->HandleRepresentation )
-    {
+  {
     this->HandleRepresentation->Delete();
-    }
+  }
   if ( this->Point1Representation )
-    {
+  {
     this->Point1Representation->Delete();
-    }
+  }
   if ( this->Point2Representation )
-    {
+  {
     this->Point2Representation->Delete();
-    }
+  }
   if ( this->Point3Representation )
-    {
+  {
     this->Point3Representation->Delete();
-    }
+  }
   if ( this->Point4Representation )
-    {
+  {
     this->Point4Representation->Delete();
-    }
+  }
 
-  this->SetLabelFormat(0);
+  this->SetLabelFormat(nullptr);
 }
 
 //----------------------------------------------------------------------
 void vtkBiDimensionalRepresentation
 ::SetHandleRepresentation(vtkHandleRepresentation *handle)
 {
-  if ( handle == NULL || handle == this->HandleRepresentation )
-    {
+  if ( handle == nullptr || handle == this->HandleRepresentation )
+  {
     return;
-    }
+  }
 
   this->Modified();
   this->HandleRepresentation->Delete();
@@ -108,10 +108,10 @@ void vtkBiDimensionalRepresentation
   this->Point3Representation->Delete();
   this->Point4Representation->Delete();
 
-  this->Point1Representation = NULL;
-  this->Point2Representation = NULL;
-  this->Point3Representation = NULL;
-  this->Point4Representation = NULL;
+  this->Point1Representation = nullptr;
+  this->Point2Representation = nullptr;
+  this->Point3Representation = nullptr;
+  this->Point4Representation = nullptr;
 
   this->InstantiateHandleRepresentation();
 }
@@ -233,28 +233,28 @@ void vtkBiDimensionalRepresentation::GetPoint4DisplayPosition(double pos[3])
 void vtkBiDimensionalRepresentation::InstantiateHandleRepresentation()
 {
   if ( ! this->Point1Representation )
-    {
+  {
     this->Point1Representation = this->HandleRepresentation->NewInstance();
     this->Point1Representation->ShallowCopy(this->HandleRepresentation);
-    }
+  }
 
   if ( ! this->Point2Representation )
-    {
+  {
     this->Point2Representation = this->HandleRepresentation->NewInstance();
     this->Point2Representation->ShallowCopy(this->HandleRepresentation);
-    }
+  }
 
   if ( ! this->Point3Representation )
-    {
+  {
     this->Point3Representation = this->HandleRepresentation->NewInstance();
     this->Point3Representation->ShallowCopy(this->HandleRepresentation);
-    }
+  }
 
   if ( ! this->Point4Representation )
-    {
+  {
     this->Point4Representation = this->HandleRepresentation->NewInstance();
     this->Point4Representation->ShallowCopy(this->HandleRepresentation);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -285,9 +285,9 @@ double vtkBiDimensionalRepresentation::GetLength2()
 void vtkBiDimensionalRepresentation::SetID(vtkIdType id)
 {
   if (id == this->ID)
-    {
+  {
     return;
-    }
+  }
 
   this->ID = id;
   this->IDInitialized = 1;
@@ -317,21 +317,24 @@ void vtkBiDimensionalRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Label Position: (" << labelPosition[0]
     << ", " << labelPosition[1] << "," << labelPosition[2] << ")\n";
 
-  double worldLabelPosition[3] = {0.0, 0.0, 0.0};
-  this->GetWorldLabelPosition(worldLabelPosition);
-  os << indent << "World Label Position: (" << worldLabelPosition[0]
-    << ", " << worldLabelPosition[1] << "," << worldLabelPosition[2] << ")\n";
+  if (this->Renderer)
+  {
+    double worldLabelPosition[3] = {0.0, 0.0, 0.0};
+    this->GetWorldLabelPosition(worldLabelPosition);
+    os << indent << "World Label Position: (" << worldLabelPosition[0]
+      << ", " << worldLabelPosition[1] << "," << worldLabelPosition[2] << ")\n";
+  }
 
   os << indent << "Label Text: " << this->GetLabelText() << "\n";
   os << indent << "Label Format: ";
   if ( this->LabelFormat )
-    {
+  {
     os << this->LabelFormat << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(null))\n";
-    }
+  }
 
   os << indent << "Point1 Representation\n";
   this->Point1Representation->PrintSelf(os,indent.GetNextIndent());

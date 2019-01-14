@@ -17,20 +17,23 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtAnnotationLayersModelAdapter - Adapts annotations to a Qt item model.
-//
-// .SECTION Description
-// vtkQtAnnotationLayersModelAdapter is a QAbstractItemModel with a
-//    vtkAnnotationLayers as its underlying data model.
-//
-// .SECTION See also
-// vtkQtAbstractModelAdapter vtkQtTableModelAdapter
+/**
+ * @class   vtkQtAnnotationLayersModelAdapter
+ * @brief   Adapts annotations to a Qt item model.
+ *
+ *
+ * vtkQtAnnotationLayersModelAdapter is a QAbstractItemModel with a
+ *    vtkAnnotationLayers as its underlying data model.
+ *
+ * @sa
+ * vtkQtAbstractModelAdapter vtkQtTableModelAdapter
+*/
 
 #ifndef vtkQtAnnotationLayersModelAdapter_h
 #define vtkQtAnnotationLayersModelAdapter_h
 
+#include "vtkConfigure.h"
 #include "vtkGUISupportQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include "vtkQtAbstractModelAdapter.h"
 
 class vtkAnnotationLayers;
@@ -41,43 +44,51 @@ class VTKGUISUPPORTQT_EXPORT vtkQtAnnotationLayersModelAdapter : public vtkQtAbs
   Q_OBJECT
 
 public:
-  vtkQtAnnotationLayersModelAdapter(QObject *parent = 0);
-  vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* ann, QObject *parent = 0);
-  ~vtkQtAnnotationLayersModelAdapter();
+  vtkQtAnnotationLayersModelAdapter(QObject *parent = nullptr);
+  vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* ann, QObject *parent = nullptr);
+  ~vtkQtAnnotationLayersModelAdapter() override;
 
-  // Description:
-  // Set/Get the VTK data object as input to this adapter
-  virtual void SetVTKDataObject(vtkDataObject *data);
-  virtual vtkDataObject* GetVTKDataObject() const;
+  //@{
+  /**
+   * Set/Get the VTK data object as input to this adapter
+   */
+  void SetVTKDataObject(vtkDataObject *data) override;
+  vtkDataObject* GetVTKDataObject() const override;
+  //@}
 
-  // Description:
-  // Selection conversion from VTK land to Qt land
+  //@{
+  /**
+   * Selection conversion from VTK land to Qt land
+   */
   virtual vtkAnnotationLayers* QModelIndexListToVTKAnnotationLayers(
     const QModelIndexList qmil) const;
   virtual QItemSelection VTKAnnotationLayersToQItemSelection(
     vtkAnnotationLayers *vtkann) const;
-  virtual vtkSelection* QModelIndexListToVTKIndexSelection(
-    const QModelIndexList qmil) const;
-  virtual QItemSelection VTKIndexSelectionToQItemSelection(
-    vtkSelection *vtksel) const;
+  vtkSelection* QModelIndexListToVTKIndexSelection(
+    const QModelIndexList qmil) const override;
+  QItemSelection VTKIndexSelectionToQItemSelection(
+    vtkSelection *vtksel) const override;
+  //@}
 
-  virtual void SetKeyColumnName(const char* name);
-  virtual void SetColorColumnName(const char* name);
+  void SetKeyColumnName(const char* name) override;
+  void SetColorColumnName(const char* name) override;
 
-  // Description:
-  // Set up the model based on the current table.
+  //@{
+  /**
+   * Set up the model based on the current table.
+   */
   void setAnnotationLayers(vtkAnnotationLayers* annotations);
   vtkAnnotationLayers* annotationLayers() const { return this->Annotations; }
-  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-  bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-  Qt::ItemFlags flags(const QModelIndex &index) const;
+  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+  bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+  Qt::ItemFlags flags(const QModelIndex &index) const override;
   QVariant headerData(int section, Qt::Orientation orientation,
-                      int role = Qt::DisplayRole) const;
+                      int role = Qt::DisplayRole) const override;
   QModelIndex index(int row, int column,
-                    const QModelIndex &parent = QModelIndex()) const;
-  QModelIndex parent(const QModelIndex &index) const;
-  int rowCount(const QModelIndex &parent = QModelIndex()) const;
-  int columnCount(const QModelIndex &parent = QModelIndex()) const;
+                    const QModelIndex &parent = QModelIndex()) const override;
+  QModelIndex parent(const QModelIndex &index) const override;
+  int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+  int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 /*
   Qt::DropActions supportedDropActions() const;
   Qt::DropActions supportedDragActions() const;
@@ -88,13 +99,15 @@ public:
   virtual QStringList mimeTypes () const ;
 */
 private:
+  //@}
 
   bool noAnnotationsCheck() const;
 
   vtkAnnotationLayers*   Annotations;
 
-  vtkQtAnnotationLayersModelAdapter(const vtkQtAnnotationLayersModelAdapter &);  // Not implemented
-  void operator=(const vtkQtAnnotationLayersModelAdapter&);  // Not implemented.
+  vtkQtAnnotationLayersModelAdapter(const vtkQtAnnotationLayersModelAdapter &) = delete;
+  void operator=(const vtkQtAnnotationLayersModelAdapter&) = delete;
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtAnnotationLayersModelAdapter.h

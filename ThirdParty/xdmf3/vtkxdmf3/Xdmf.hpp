@@ -76,6 +76,9 @@
 * a topology could be shared across multiple grids or a grid
 * could be included in multiple grid collections and/or the domain.
 *
+* Comparing objects is done by comparing pointer addresses,
+* a deep copy will not produce an equivalent object.
+*
 *
 * C++ Examples:
 *
@@ -149,14 +152,19 @@
 # undef XDMFDSM_TEMPLATE
 # define XDMFDSM_TEMPLATE extern
 
-# ifdef vtkxdmf3_EXPORTS
+# undef XDMFUTILS_EXPORT
+# define XDMFUTILS_EXPORT __declspec(dllimport)
+# undef XDMFUTILS_TEMPLATE
+# define XDMFUTILS_TEMPLATE extern
+
+# ifdef XDMF_EXPORTS
 # define XDMF_EXPORT __declspec(dllexport)
 # define XDMF_TEMPLATE
-# else /* vtkxdmf3_EXPORTS */
+# else /* XDMF_EXPORTS */
 # define XDMF_EXPORT __declspec(dllimport)
 # define XDMF_TEMPLATE extern
-# endif /* vtkxdmf3_EXPORTS */
-#endif
+# endif /* XDMF_EXPORTS */
+#endif /* XDMFSTATIC */
 
 /* Compiler Warnings */
 #ifndef XDMF_DEBUG
@@ -169,6 +177,11 @@
 
 /* Compiler Optimizations will result in an 'internal compiler error', so turn them off */
 #pragma optimize("g", off)
+
+#pragma warning( disable : 4297 ) /* __declspec(nothrow), throw(), noexcept(true), or noexcept was specified in the function */
+#pragma warning( disable : 4800 ) /* 'int': forcing value to bool 'true' or 'false' (performance warning) */
+#pragma warning( disable : 4250 ) /* inherits insert via dominance */
+#pragma warning( disable : 4521 ) /* multiple copy constructors */
 
 #else /* _WIN32 */
 /* We don't need to export/import since there are no dlls */

@@ -12,49 +12,54 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHandleWidget - a general widget for moving handles
-// .SECTION Description
-// The vtkHandleWidget is used to position a handle.  A handle is a widget
-// with a position (in display and world space). Various appearances are
-// available depending on its associated representation. The widget provides
-// methods for translation, including constrained translation along
-// coordinate axes. To use this widget, create and associate a representation
-// with the widget.
-//
-// .SECTION Event Bindings
-// By default, the widget responds to the following VTK events (i.e., it
-// watches the vtkRenderWindowInteractor for these events):
-// <pre>
-//   LeftButtonPressEvent - select focal point of widget
-//   LeftButtonReleaseEvent - end selection
-//   MiddleButtonPressEvent - translate widget
-//   MiddleButtonReleaseEvent - end translation
-//   RightButtonPressEvent - scale widget
-//   RightButtonReleaseEvent - end scaling
-//   MouseMoveEvent - interactive movement across widget
-// </pre>
-//
-// Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events
-// into the vtkHandleWidget's widget events:
-// <pre>
-//   vtkWidgetEvent::Select -- focal point is being selected
-//   vtkWidgetEvent::EndSelect -- the selection process has completed
-//   vtkWidgetEvent::Translate -- translate the widget
-//   vtkWidgetEvent::EndTranslate -- end widget translation
-//   vtkWidgetEvent::Scale -- scale the widget
-//   vtkWidgetEvent::EndScale -- end scaling the widget
-//   vtkWidgetEvent::Move -- a request for widget motion
-// </pre>
-//
-// In turn, when these widget events are processed, the vtkHandleWidget
-// invokes the following VTK events on itself (which observers can listen for):
-// <pre>
-//   vtkCommand::StartInteractionEvent (on vtkWidgetEvent::Select)
-//   vtkCommand::EndInteractionEvent (on vtkWidgetEvent::EndSelect)
-//   vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
-// </pre>
-//
+/**
+ * @class   vtkHandleWidget
+ * @brief   a general widget for moving handles
+ *
+ * The vtkHandleWidget is used to position a handle.  A handle is a widget
+ * with a position (in display and world space). Various appearances are
+ * available depending on its associated representation. The widget provides
+ * methods for translation, including constrained translation along
+ * coordinate axes. To use this widget, create and associate a representation
+ * with the widget.
+ *
+ * @par Event Bindings:
+ * By default, the widget responds to the following VTK events (i.e., it
+ * watches the vtkRenderWindowInteractor for these events):
+ * <pre>
+ *   LeftButtonPressEvent - select focal point of widget
+ *   LeftButtonReleaseEvent - end selection
+ *   MiddleButtonPressEvent - translate widget
+ *   MiddleButtonReleaseEvent - end translation
+ *   RightButtonPressEvent - scale widget
+ *   RightButtonReleaseEvent - end scaling
+ *   MouseMoveEvent - interactive movement across widget
+ * </pre>
+ *
+ * @par Event Bindings:
+ * Note that the event bindings described above can be changed using this
+ * class's vtkWidgetEventTranslator. This class translates VTK events
+ * into the vtkHandleWidget's widget events:
+ * <pre>
+ *   vtkWidgetEvent::Select -- focal point is being selected
+ *   vtkWidgetEvent::EndSelect -- the selection process has completed
+ *   vtkWidgetEvent::Translate -- translate the widget
+ *   vtkWidgetEvent::EndTranslate -- end widget translation
+ *   vtkWidgetEvent::Scale -- scale the widget
+ *   vtkWidgetEvent::EndScale -- end scaling the widget
+ *   vtkWidgetEvent::Move -- a request for widget motion
+ * </pre>
+ *
+ * @par Event Bindings:
+ * In turn, when these widget events are processed, the vtkHandleWidget
+ * invokes the following VTK events on itself (which observers can listen for):
+ * <pre>
+ *   vtkCommand::StartInteractionEvent (on vtkWidgetEvent::Select)
+ *   vtkCommand::EndInteractionEvent (on vtkWidgetEvent::EndSelect)
+ *   vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
+ * </pre>
+ *
+*/
 
 #ifndef vtkHandleWidget_h
 #define vtkHandleWidget_h
@@ -68,58 +73,99 @@ class vtkHandleRepresentation;
 class VTKINTERACTIONWIDGETS_EXPORT vtkHandleWidget : public vtkAbstractWidget
 {
 public:
-  // Description:
-  // Instantiate this class.
+  /**
+   * Instantiate this class.
+   */
   static vtkHandleWidget *New();
 
-  // Description:
-  // Standard VTK class macros.
+  //@{
+  /**
+   * Standard VTK class macros.
+   */
   vtkTypeMacro(vtkHandleWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  // Description:
-  // Specify an instance of vtkWidgetRepresentation used to represent this
-  // widget in the scene. Note that the representation is a subclass of vtkProp
-  // so it can be added to the renderer independent of the widget.
+  /**
+   * Specify an instance of vtkWidgetRepresentation used to represent this
+   * widget in the scene. Note that the representation is a subclass of vtkProp
+   * so it can be added to the renderer independent of the widget.
+   */
   void SetRepresentation(vtkHandleRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
 
-  // Description:
-  // Return the representation as a vtkHandleRepresentation.
+  /**
+   * Return the representation as a vtkHandleRepresentation.
+   */
   vtkHandleRepresentation *GetHandleRepresentation()
     {return reinterpret_cast<vtkHandleRepresentation*>(this->WidgetRep);}
 
-  // Description:
-  // Create the default widget representation if one is not set. By default
-  // an instance of vtkPointHandleRepresenation3D is created.
-  void CreateDefaultRepresentation();
+  /**
+   * Create the default widget representation if one is not set. By default
+   * an instance of vtkPointHandleRepresentation3D is created.
+   */
+  void CreateDefaultRepresentation() override;
 
-  // Description:
-  // Enable / disable axis constrained motion of the handles. By default the
-  // widget responds to the shift modifier to constrain the handle along the
-  // axis closest aligned with the motion vector.
-  vtkSetMacro( EnableAxisConstraint, int );
-  vtkGetMacro( EnableAxisConstraint, int );
-  vtkBooleanMacro( EnableAxisConstraint, int );
+  //@{
+  /**
+   * Enable / disable axis constrained motion of the handles. By default the
+   * widget responds to the shift modifier to constrain the handle along the
+   * axis closest aligned with the motion vector.
+   */
+  vtkSetMacro( EnableAxisConstraint, vtkTypeBool );
+  vtkGetMacro( EnableAxisConstraint, vtkTypeBool );
+  vtkBooleanMacro( EnableAxisConstraint, vtkTypeBool );
+  //@}
 
-  // Description:
-  // Allow resizing of handles ? By default the right mouse button scales
-  // the handle size.
-  vtkSetMacro( AllowHandleResize, int );
-  vtkGetMacro( AllowHandleResize, int );
-  vtkBooleanMacro( AllowHandleResize, int );
+  //@{
+  /**
+   * Enable moving of handles. By default, the handle can be moved.
+   */
+  vtkSetMacro(EnableTranslation, vtkTypeBool);
+  vtkGetMacro(EnableTranslation, vtkTypeBool);
+  vtkBooleanMacro(EnableTranslation, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Get the widget state.
+  //@{
+  /**
+   * Allow resizing of handles ? By default the right mouse button scales
+   * the handle size.
+   */
+  vtkSetMacro( AllowHandleResize, vtkTypeBool );
+  vtkGetMacro( AllowHandleResize, vtkTypeBool );
+  vtkBooleanMacro( AllowHandleResize, vtkTypeBool );
+  //@}
+
+  //@{
+  /**
+   * Get the widget state.
+   */
   vtkGetMacro( WidgetState, int );
+  //@}
 
-  //BTX - manage the state of the widget
-  enum _WidgetState {Start=0,Active};
-  //ETX
+  //@{
+  /**
+   * Allow the widget to be visible as an inactive representation when disabled.
+   * By default, this is false i.e. the representation is not visible when the
+   * widget is disabled.
+   */
+  vtkSetMacro( ShowInactive, vtkTypeBool );
+  vtkGetMacro( ShowInactive, vtkTypeBool );
+  vtkBooleanMacro( ShowInactive, vtkTypeBool );
+  //@}
+
+  // Manage the state of the widget
+  enum _WidgetState {Start=0,Active,Inactive};
+
+  /**
+   * Enable/disable widget.
+   * Custom override for the SetEnabled method to allow for the inactive state.
+   **/
+  void SetEnabled(int enabling) override;
 
 protected:
   vtkHandleWidget();
-  ~vtkHandleWidget();
+  ~vtkHandleWidget() override;
 
   // These are the callbacks for this widget
   static void GenericAction(vtkHandleWidget*);
@@ -128,19 +174,25 @@ protected:
   static void TranslateAction(vtkAbstractWidget*);
   static void ScaleAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
+  static void SelectAction3D(vtkAbstractWidget*);
+  static void MoveAction3D(vtkAbstractWidget*);
 
   // helper methods for cursor management
-  void SetCursor(int state);
+  void SetCursor(int state) override;
 
   int WidgetState;
-  int EnableAxisConstraint;
+  vtkTypeBool EnableAxisConstraint;
+  vtkTypeBool EnableTranslation;
 
   // Allow resizing of handles.
-  int AllowHandleResize;
+  vtkTypeBool AllowHandleResize;
+
+  // Keep representation visible when disabled
+  vtkTypeBool ShowInactive;
 
 private:
-  vtkHandleWidget(const vtkHandleWidget&);  //Not implemented
-  void operator=(const vtkHandleWidget&);  //Not implemented
+  vtkHandleWidget(const vtkHandleWidget&) = delete;
+  void operator=(const vtkHandleWidget&) = delete;
 };
 
 #endif

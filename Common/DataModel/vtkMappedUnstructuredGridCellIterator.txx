@@ -33,26 +33,26 @@ void vtkMappedUnstructuredGridCellIterator<Implementation>
 ::PrintSelf(ostream &os, vtkIndent indent)
 {
   os << indent << "Implementation:";
-  if (this->Impl == NULL)
-    {
-    os << " NULL" << endl;
-    }
+  if (this->Impl == nullptr)
+  {
+    os << " nullptr" << endl;
+  }
   else
-    {
+  {
     os << endl;
     this->Impl->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 
   os << indent << "GridPoints:";
-  if (this->GridPoints == NULL)
-    {
-    os << " NULL" << endl;
-    }
+  if (this->GridPoints == nullptr)
+  {
+    os << " nullptr" << endl;
+  }
   else
-    {
+  {
     os << endl;
     this->GridPoints->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -75,8 +75,8 @@ vtkIdType vtkMappedUnstructuredGridCellIterator<Implementation>
 template <class Implementation>
 vtkMappedUnstructuredGridCellIterator<Implementation>
 ::vtkMappedUnstructuredGridCellIterator()
-  : Impl(NULL),
-    GridPoints(NULL),
+  : Impl(nullptr),
+    GridPoints(nullptr),
     CellId(0),
     NumberOfCells(0)
 {
@@ -139,4 +139,8 @@ void vtkMappedUnstructuredGridCellIterator<Implementation>
   this->GridPoints = grid->GetPoints();
   this->CellId = 0;
   this->NumberOfCells = grid->GetNumberOfCells();
+  if(this->GridPoints)
+  {
+    this->Points->SetDataType(this->GridPoints->GetDataType());
+  }
 }

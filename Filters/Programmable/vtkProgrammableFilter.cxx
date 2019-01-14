@@ -17,6 +17,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkGraph.h"
+#include "vtkMolecule.h"
 #include "vtkPolyData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
@@ -32,9 +33,9 @@ vtkStandardNewMacro(vtkProgrammableFilter);
 // Construct programmable filter with empty execute method.
 vtkProgrammableFilter::vtkProgrammableFilter()
 {
-  this->ExecuteMethod = NULL;
-  this->ExecuteMethodArg = NULL;
-  this->ExecuteMethodArgDelete = NULL;
+  this->ExecuteMethod = nullptr;
+  this->ExecuteMethodArg = nullptr;
+  this->ExecuteMethodArgDelete = nullptr;
   this->CopyArrays = false;
 }
 
@@ -42,9 +43,9 @@ vtkProgrammableFilter::~vtkProgrammableFilter()
 {
   // delete the current arg if there is one and a delete meth
   if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
-    {
+  {
     (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
-    }
+  }
 }
 
 
@@ -54,43 +55,49 @@ vtkProgrammableFilter::~vtkProgrammableFilter()
 // the correct type of the input data.
 vtkPolyData *vtkProgrammableFilter::GetPolyDataInput()
 {
-  return (vtkPolyData *)this->GetInput();
+  return static_cast<vtkPolyData*>(this->GetInput());
 }
 
 // Get the input as a concrete type.
 vtkStructuredPoints *vtkProgrammableFilter::GetStructuredPointsInput()
 {
-  return (vtkStructuredPoints *)this->GetInput();
+  return static_cast<vtkStructuredPoints*>(this->GetInput());
 }
 
 // Get the input as a concrete type.
 vtkStructuredGrid *vtkProgrammableFilter::GetStructuredGridInput()
 {
-  return (vtkStructuredGrid *)this->GetInput();
+  return  static_cast<vtkStructuredGrid*>(this->GetInput());
 }
 
 // Get the input as a concrete type.
 vtkUnstructuredGrid *vtkProgrammableFilter::GetUnstructuredGridInput()
 {
-  return (vtkUnstructuredGrid *)this->GetInput();
+  return static_cast<vtkUnstructuredGrid*>(this->GetInput());
 }
 
 // Get the input as a concrete type.
 vtkRectilinearGrid *vtkProgrammableFilter::GetRectilinearGridInput()
 {
-  return (vtkRectilinearGrid *)this->GetInput();
+  return static_cast<vtkRectilinearGrid*>(this->GetInput());
 }
 
 // Get the input as a concrete type.
 vtkGraph *vtkProgrammableFilter::GetGraphInput()
 {
-  return (vtkGraph *)this->GetInput();
+  return static_cast<vtkGraph*>(this->GetInput());
+}
+
+// Get the input as a concrete type.
+vtkMolecule *vtkProgrammableFilter::GetMoleculeInput()
+{
+  return static_cast<vtkMolecule*>(this->GetInput());
 }
 
 // Get the input as a concrete type.
 vtkTable *vtkProgrammableFilter::GetTableInput()
 {
-  return (vtkTable *)this->GetInput();
+  return static_cast<vtkTable*>(this->GetInput());
 }
 
 // Specify the function to use to operate on the point attribute data. Note
@@ -99,16 +106,16 @@ void vtkProgrammableFilter::SetExecuteMethod(void (*f)(void *),
   void *arg)
 {
   if ( f != this->ExecuteMethod || arg != this->ExecuteMethodArg )
-    {
+  {
     // delete the current arg if there is one and a delete meth
     if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
-      {
+    {
       (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
-      }
+    }
     this->ExecuteMethod = f;
     this->ExecuteMethodArg = arg;
     this->Modified();
-    }
+  }
 }
 
 // Set the arg delete method. This is used to free user memory.
@@ -116,10 +123,10 @@ void vtkProgrammableFilter::SetExecuteMethodArgDelete(
   void (*f)(void *))
 {
   if ( f != this->ExecuteMethodArgDelete)
-    {
+  {
     this->ExecuteMethodArgDelete = f;
     this->Modified();
-    }
+  }
 }
 
 
@@ -129,107 +136,130 @@ int vtkProgrammableFilter::RequestData(
   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = 0;
+  vtkInformation *inInfo = nullptr;
   if (inputVector[0]->GetNumberOfInformationObjects() > 0)
-    {
+  {
     inInfo = inputVector[0]->GetInformationObject(0);
-    }
+  }
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
   if (inInfo)
-    {
+  {
     vtkDataObject *objInput = inInfo->Get(vtkDataObject::DATA_OBJECT());
     if (vtkDataSet::SafeDownCast(objInput))
-      {
+    {
       vtkDataSet *dsInput = vtkDataSet::SafeDownCast(objInput);
       vtkDataSet *dsOutput = vtkDataSet::SafeDownCast(
         outInfo->Get(vtkDataObject::DATA_OBJECT()));
       // First, copy the input to the output as a starting point
       if (dsInput && dsOutput && dsInput->GetDataObjectType() == dsOutput->GetDataObjectType())
-        {
+      {
         if (this->CopyArrays)
-          {
+        {
           dsOutput->ShallowCopy( dsInput );
-          }
+        }
         else
-          {
+        {
           dsOutput->CopyStructure( dsInput );
-          }
         }
       }
+    }
     if (vtkGraph::SafeDownCast(objInput))
-      {
+    {
       vtkGraph *graphInput = vtkGraph::SafeDownCast(objInput);
       vtkGraph *graphOutput = vtkGraph::SafeDownCast(
         outInfo->Get(vtkDataObject::DATA_OBJECT()));
       // First, copy the input to the output as a starting point
       if (graphInput && graphOutput && graphInput->GetDataObjectType() == graphOutput->GetDataObjectType())
-        {
+      {
         if (this->CopyArrays)
-          {
+        {
           graphOutput->ShallowCopy( graphInput );
-          }
+        }
         else
-          {
+        {
           graphOutput->CopyStructure( graphInput );
-          }
         }
       }
-    if (vtkTable::SafeDownCast(objInput))
+    }
+    if (vtkMolecule::SafeDownCast(objInput))
+    {
+      vtkMolecule *molInput = vtkMolecule::SafeDownCast(objInput);
+      vtkMolecule *molOutput = vtkMolecule::SafeDownCast(
+        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+      // First, copy the input to the output as a starting point
+      if (molInput && molOutput && molInput->GetDataObjectType() == molOutput->GetDataObjectType())
       {
+        if (this->CopyArrays)
+        {
+          molOutput->ShallowCopy(molInput);
+        }
+        else
+        {
+          molOutput->CopyStructure(molInput);
+        }
+      }
+    }
+    if (vtkTable::SafeDownCast(objInput))
+    {
       vtkTable *tableInput = vtkTable::SafeDownCast(objInput);
       vtkTable *tableOutput = vtkTable::SafeDownCast(
         outInfo->Get(vtkDataObject::DATA_OBJECT()));
       // First, copy the input to the output as a starting point
       if (tableInput && tableOutput && tableInput->GetDataObjectType() == tableOutput->GetDataObjectType())
-        {
+      {
         if (this->CopyArrays)
-          {
+        {
           tableOutput->ShallowCopy( tableInput );
-          }
         }
       }
+    }
     if (vtkCompositeDataSet::SafeDownCast(objInput))
-      {
+    {
       vtkCompositeDataSet *cdsInput = vtkCompositeDataSet::SafeDownCast(objInput);
       vtkCompositeDataSet *cdsOutput = vtkCompositeDataSet::SafeDownCast(
         outInfo->Get(vtkDataObject::DATA_OBJECT()));
       // First, copy the input to the output as a starting point
       if (cdsInput && cdsOutput && cdsInput->GetDataObjectType() == cdsOutput->GetDataObjectType())
-        {
+      {
         cdsOutput->CopyStructure(cdsInput);
         vtkCompositeDataIterator* iter = cdsInput->NewIterator();
         for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-          {
-          vtkDataSet* iblock = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-          vtkDataSet* oblock = iblock->NewInstance();
+        {
+          vtkDataObject* iblock = iter->GetCurrentDataObject();
+          vtkDataObject* oblock = iblock->NewInstance();
           if (iblock)
-            {
+          {
             if (this->CopyArrays)
-              {
+            {
               oblock->ShallowCopy(iblock);
-              }
+            }
             else
+            {
+              vtkDataSet* iblockDS = vtkDataSet::SafeDownCast(iblock);
+              vtkDataSet* oblockDS = vtkDataSet::SafeDownCast(oblock);
+              if (iblockDS && oblockDS)
               {
-              oblock->CopyStructure( iblock );
+                oblockDS->CopyStructure(iblockDS);
               }
             }
+          }
           cdsOutput->SetDataSet(iter, oblock);
           oblock->Delete();
-          }
-        iter->Delete();
         }
+        iter->Delete();
       }
     }
+  }
 
   vtkDebugMacro(<<"Executing programmable filter");
 
   // Now invoke the procedure, if specified.
-  if ( this->ExecuteMethod != NULL )
-    {
+  if ( this->ExecuteMethod != nullptr )
+  {
     (*this->ExecuteMethod)(this->ExecuteMethodArg);
-    }
+  }
 
   return 1;
 }
@@ -240,6 +270,7 @@ int vtkProgrammableFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInf
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMolecule");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }

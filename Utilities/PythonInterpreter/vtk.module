@@ -1,0 +1,11 @@
+NAME
+  VTK::PythonInterpreter
+LIBRARY_NAME
+  vtkPythonInterpreter
+DEPENDS
+  VTK::CommonCore
+  VTK::Python
+  VTK::vtksys
+PRIVATE_DEPENDS
+  VTK::CommonMisc
+EXCLUDE_WRAP

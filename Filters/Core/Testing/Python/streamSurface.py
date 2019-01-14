@@ -39,14 +39,13 @@ seeds.SetResolution(10)
 
 integ = vtk.vtkRungeKutta4()
 
-sl = vtk.vtkStreamLine()
+sl = vtk.vtkStreamTracer()
 sl.SetIntegrator(integ)
 sl.SetInputData(pl3d_output)
 sl.SetSourceConnection(seeds.GetOutputPort())
-sl.SetMaximumPropagationTime(0.1)
-sl.SetIntegrationStepLength(0.1)
+sl.SetMaximumPropagation(100)
+sl.SetInitialIntegrationStep(0.1)
 sl.SetIntegrationDirectionToBackward()
-sl.SetStepLength(0.001)
 
 scalarSurface = vtk.vtkRuledSurfaceFilter ()
 scalarSurface.SetInputConnection(sl.GetOutputPort())

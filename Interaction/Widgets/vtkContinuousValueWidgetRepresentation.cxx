@@ -39,9 +39,7 @@ vtkContinuousValueWidgetRepresentation::vtkContinuousValueWidgetRepresentation()
 }
 
 //----------------------------------------------------------------------
-vtkContinuousValueWidgetRepresentation::~vtkContinuousValueWidgetRepresentation()
-{
-}
+vtkContinuousValueWidgetRepresentation::~vtkContinuousValueWidgetRepresentation() = default;
 
 //----------------------------------------------------------------------
 void vtkContinuousValueWidgetRepresentation::PlaceWidget(double *vtkNotUsed(bds[6]))

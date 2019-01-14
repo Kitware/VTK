@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDatabaseToTableReader - Read an SQL table as a vtkTable
-// .SECTION Description
-// vtkDatabaseToTableReader reads a table from an SQL database, outputting
-// it as a vtkTable.
+/**
+ * @class   vtkDatabaseToTableReader
+ * @brief   Read an SQL table as a vtkTable
+ *
+ * vtkDatabaseToTableReader reads a table from an SQL database, outputting
+ * it as a vtkTable.
+*/
 
 #ifndef vtkDatabaseToTableReader_h
 #define vtkDatabaseToTableReader_h
@@ -31,35 +34,38 @@ class VTKIOSQL_EXPORT vtkDatabaseToTableReader : public vtkTableAlgorithm
 {
 public:
   vtkTypeMacro(vtkDatabaseToTableReader,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set the database associated with this reader
+  /**
+   * Set the database associated with this reader
+   */
   bool SetDatabase(vtkSQLDatabase *db);
 
-  // Description:
-  // Set the name of the table that you'd like to convert to a vtkTable
-  // Returns false if the specified table does not exist in the database.
+  /**
+   * Set the name of the table that you'd like to convert to a vtkTable
+   * Returns false if the specified table does not exist in the database.
+   */
   bool SetTableName(const char *name);
 
-  // Description:
-  // Check if the currently specified table name exists in the database.
+  /**
+   * Check if the currently specified table name exists in the database.
+   */
   bool CheckIfTableExists();
 
   vtkSQLDatabase *GetDatabase() { return this->Database; }
 
 protected:
    vtkDatabaseToTableReader();
-  ~vtkDatabaseToTableReader();
+  ~vtkDatabaseToTableReader() override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) = 0;
+                          vtkInformationVector *) override = 0;
   vtkSQLDatabase *Database;
-  //BTX
+
   std::string TableName;
-  //ETX
+
 private:
-  vtkDatabaseToTableReader(const vtkDatabaseToTableReader&);  // Not implemented.
-  void operator=(const vtkDatabaseToTableReader&);  // Not implemented.
+  vtkDatabaseToTableReader(const vtkDatabaseToTableReader&) = delete;
+  void operator=(const vtkDatabaseToTableReader&) = delete;
 };
 
 #endif

@@ -53,13 +53,13 @@ int TestScientificPlot(int, char * [])
   float inc = 3.0 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     double v = -1.0 + i * inc;
     table->SetValue(i, 0, v);
     table->SetValue(i, 1, cos(v));
     table->SetValue(i, 2, sin(v) + 0.0);
     table->SetValue(i, 3, v*v*v);
-    }
+  }
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);

@@ -17,38 +17,49 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoGlobeSource - Spherical globe source.
-//
-// .SECTION Description
-// vtkGeoGlobeSource is a 3D vtkGeoSource suitable for use in vtkGeoTerrain.
-// It uses the vtkGlobeSource filter to produce terrain patches.
+/**
+ * @class   vtkGeoGlobeSource
+ * @brief   Spherical globe source.
+ *
+ *
+ * vtkGeoGlobeSource is a 3D vtkGeoSource suitable for use in vtkGeoTerrain.
+ * It uses the vtkGlobeSource filter to produce terrain patches.
+*/
+
+#ifndef vtkGeoGlobeSource_h
+#define vtkGeoGlobeSource_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoSource.h"
 
 class vtkGeoTerrainNode;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoGlobeSource : public vtkGeoSource
 {
 public:
   static vtkGeoGlobeSource *New();
   vtkTypeMacro(vtkGeoGlobeSource,vtkGeoSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Fetches a low-resolution sphere for the entire globe.
-  virtual bool FetchRoot(vtkGeoTreeNode* root);
+  /**
+   * Fetches a low-resolution sphere for the entire globe.
+   */
+  bool FetchRoot(vtkGeoTreeNode* root) override;
 
-  // Description:
-  // Fetches a refined geometry patch, a section of a sphere.
-  virtual bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child);
+  /**
+   * Fetches a refined geometry patch, a section of a sphere.
+   */
+  bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child) override;
 
 protected:
   vtkGeoGlobeSource();
-  ~vtkGeoGlobeSource();
+  ~vtkGeoGlobeSource() override;
 
 private:
-  vtkGeoGlobeSource(const vtkGeoGlobeSource&); // Not implemented
-  void operator=(const vtkGeoGlobeSource&); // Not implemented
+  vtkGeoGlobeSource(const vtkGeoGlobeSource&) = delete;
+  void operator=(const vtkGeoGlobeSource&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
+#endif

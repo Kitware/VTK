@@ -1,0 +1,18 @@
+NAME
+  VTK::IOPostgreSQL
+LIBRARY_NAME
+  vtkIOPostgreSQL
+KIT
+  VTK::IO
+IMPLEMENTS
+  VTK::IOSQL
+DEPENDS
+  VTK::CommonCore
+  VTK::IOSQL
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::TestingCore
+  VTK::TestingIOSQL

@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageReader - Superclass of transformable binary file readers.
-// .SECTION Description
-// vtkImageReader provides methods needed to read a region from a file.
-// It supports both transforms and masks on the input data, but as a result
-// is more complicated and slower than its parent class vtkImageReader2.
-
-// .SECTION See Also
-// vtkBMPReader vtkPNMReader vtkTIFFReader
+/**
+ * @class   vtkImageReader
+ * @brief   Superclass of transformable binary file readers.
+ *
+ * vtkImageReader provides methods needed to read a region from a file.
+ * It supports both transforms and masks on the input data, but as a result
+ * is more complicated and slower than its parent class vtkImageReader2.
+ *
+ * @sa
+ * vtkBMPReader vtkPNMReader vtkTIFFReader
+*/
 
 #ifndef vtkImageReader_h
 #define vtkImageReader_h
@@ -37,29 +40,38 @@ class VTKIOIMAGE_EXPORT vtkImageReader : public vtkImageReader2
 public:
   static vtkImageReader *New();
   vtkTypeMacro(vtkImageReader,vtkImageReader2);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/get the data VOI. You can limit the reader to only
-  // read a subset of the data.
+  //@{
+  /**
+   * Set/get the data VOI. You can limit the reader to only
+   * read a subset of the data.
+   */
   vtkSetVector6Macro(DataVOI,int);
   vtkGetVector6Macro(DataVOI,int);
+  //@}
 
-  // Description:
-  // Set/Get the Data mask.  The data mask is a simply integer whose bits are
-  // treated as a mask to the bits read from disk.  That is, the data mask is
-  // bitwise-and'ed to the numbers read from disk.  This ivar is stored as 64
-  // bits, the largest mask you will need.  The mask will be truncated to the
-  // data size required to be read (using the least significant bits).
+  //@{
+  /**
+   * Set/Get the Data mask.  The data mask is a simply integer whose bits are
+   * treated as a mask to the bits read from disk.  That is, the data mask is
+   * bitwise-and'ed to the numbers read from disk.  This ivar is stored as 64
+   * bits, the largest mask you will need.  The mask will be truncated to the
+   * data size required to be read (using the least significant bits).
+   */
   vtkGetMacro(DataMask, vtkTypeUInt64);
   vtkSetMacro(DataMask, vtkTypeUInt64);
+  //@}
 
-  // Description:
-  // Set/Get transformation matrix to transform the data from slice space
-  // into world space. This matrix must be a permutation matrix. To qualify,
-  // the sums of the rows must be + or - 1.
+  //@{
+  /**
+   * Set/Get transformation matrix to transform the data from slice space
+   * into world space. This matrix must be a permutation matrix. To qualify,
+   * the sums of the rows must be + or - 1.
+   */
   virtual void SetTransform(vtkTransform*);
   vtkGetObjectMacro(Transform,vtkTransform);
+  //@}
 
   // Warning !!!
   // following should only be used by methods or template helpers, not users
@@ -70,14 +82,28 @@ public:
 
   int OpenAndSeekFile(int extent[6], int slice);
 
-  // Description:
-  // Set/get the scalar array name for this data set.
+  //@{
+  /**
+   * Set/get the scalar array name for this data set.
+   */
   vtkSetStringMacro(ScalarArrayName);
   vtkGetStringMacro(ScalarArrayName);
+  //@}
+
+  /**
+   * vtkImageReader itself can read raw binary files. That being the case,
+   * we need to implement `CanReadFile` to return success for any file.
+   * Subclasses that read specific file format should override and implement
+   * appropriate checks for file format.
+   */
+  int CanReadFile(const char*) override
+  {
+    return 1; // I think I can read the file but I cannot prove it
+  }
 
 protected:
   vtkImageReader();
-  ~vtkImageReader();
+  ~vtkImageReader() override;
 
   vtkTypeUInt64 DataMask;
 
@@ -94,14 +120,14 @@ protected:
 
   char *ScalarArrayName;
 
-  virtual int RequestInformation(vtkInformation* request,
+  int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+                                 vtkInformationVector* outputVector) override;
 
-  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo);
+  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo) override;
 private:
-  vtkImageReader(const vtkImageReader&);  // Not implemented.
-  void operator=(const vtkImageReader&);  // Not implemented.
+  vtkImageReader(const vtkImageReader&) = delete;
+  void operator=(const vtkImageReader&) = delete;
 };
 
 #endif

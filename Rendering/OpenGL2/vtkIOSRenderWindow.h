@@ -12,30 +12,32 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkIOSRenderWindow - IOS OpenGL rendering window
-//
-// .SECTION Description
-// vtkIOSRenderWindow is a concrete implementation of the abstract
-// class vtkOpenGLRenderWindow. It is only available on Mac OS X 10.5
-// and later.
-// To use this class, build VTK with VTK_USE_IOS turned ON (this is
-// the default).
-// This class can be used by 32 and 64 bit processes, and either in
-// garbage collected or reference counted modes. ARC is not supported.
-// vtkIOSRenderWindow uses Objective-C++, and the OpenGL and
-// IOS APIs. This class's default behaviour is to create an NSWindow and
-// a vtkIOSGLView which are used together to draw all VTK content.
-// If you already have an NSWindow and vtkIOSGLView and you want this
-// class to use them you must call both SetRootWindow() and SetWindowId(),
-// respectively, early on (before WindowInitialize() is executed).
-//
-// .SECTION See Also
-// vtkOpenGLRenderWindow vtkIOSGLView
-
-// .SECTION Warning
-// This header must be in C++ only because it is included by .cxx files.
-// That means no Objective-C may be used. That's why some instance variables
-// are void* instead of what they really should be.
+/**
+ * @class   vtkIOSRenderWindow
+ * @brief   IOS OpenGL rendering window
+ *
+ *
+ * vtkIOSRenderWindow is a concrete implementation of the abstract
+ * class vtkOpenGLRenderWindow. It is only available on iOS.
+ * To use this class, build VTK with VTK_USE_IOS turned ON (this is
+ * the default).
+ * This class can be used by 32 and 64 bit processes, and either in
+ * garbage collected or reference counted modes. ARC is not supported.
+ * vtkIOSRenderWindow uses Objective-C++, and the OpenGL and
+ * IOS APIs. This class's default behaviour is to create an NSWindow and
+ * a vtkIOSGLView which are used together to draw all VTK content.
+ * If you already have an NSWindow and vtkIOSGLView and you want this
+ * class to use them you must call both SetRootWindow() and SetWindowId(),
+ * respectively, early on (before WindowInitialize() is executed).
+ *
+ * @sa
+ * vtkOpenGLRenderWindow vtkIOSGLView
+ *
+ * @warning
+ * This header must be in C++ only because it is included by .cxx files.
+ * That means no Objective-C may be used. That's why some instance variables
+ * are void* instead of what they really should be.
+*/
 
 #ifndef vtkIOSRenderWindow_h
 #define vtkIOSRenderWindow_h
@@ -48,269 +50,322 @@ class VTKRENDERINGOPENGL2_EXPORT vtkIOSRenderWindow : public vtkOpenGLRenderWind
 public:
   static vtkIOSRenderWindow *New();
   vtkTypeMacro(vtkIOSRenderWindow,vtkOpenGLRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Begin the rendering process.
-  virtual void Start();
+  /**
+   * Begin the rendering process.
+   */
+  void Start() override;
 
-  // Description:
-  // Finish the rendering process.
-  virtual void Frame();
+  /**
+   * Finish the rendering process.
+   */
+  void Frame() override;
 
-  // Description:
-  // Specify various window parameters.
+  /**
+   * Specify various window parameters.
+   */
   virtual void WindowConfigure();
 
-  // Description:
-  // Initialize the window for rendering.
-  //  virtual void WindowInitialize();
+  /**
+   * Initialize the window for rendering.
+   * virtual void WindowInitialize();
+   */
 
-  // Description:
-  // Initialize the rendering window.
-  virtual void Initialize();
+  /**
+   * Initialize the rendering window.
+   */
+  void Initialize() override;
 
-  // Description:
-  // Change the window to fill the entire screen.  This is only partially
-  // implemented for the vtkIOSRenderWindow.  It can only be called
-  // before the window has been created, and it might not work on all
-  // versions of OS X.
-  virtual void SetFullScreen(int);
+  /**
+   * Change the window to fill the entire screen.  This is only partially
+   * implemented for the vtkIOSRenderWindow.  It can only be called
+   * before the window has been created, and it might not work on all
+   * versions of OS X.
+   */
+  void SetFullScreen(vtkTypeBool) override;
 
-  // Description:
-  // Remap the window.  This is not implemented for the vtkIOSRenderWindow.
-  virtual void WindowRemap();
+  /**
+   * Remap the window.  This is not implemented for the vtkIOSRenderWindow.
+   */
+  void WindowRemap() override;
 
-  // Description:
-  // Set the preferred window size to full screen.  This is not implemented
-  // for the vtkIOSRenderWindow.
+  /**
+   * Set the preferred window size to full screen.  This is not implemented
+   * for the vtkIOSRenderWindow.
+   */
   virtual void PrefFullScreen();
 
-  // Description:
-  // Set the size of the window in pixels.
-  virtual void SetSize(int a[2]);
-  virtual void SetSize(int,int);
+  //@{
+  /**
+   * Set the size of the window in pixels.
+   */
+  void SetSize(int a[2]) override;
+  void SetSize(int,int) override;
+  //@}
 
-  // Description:
-  // Get the current size of the window in pixels.
-  virtual int *GetSize();
+  /**
+   * Get the current size of the window in pixels.
+   */
+  int *GetSize() VTK_SIZEHINT(2) override;
 
-  // Description:
-  // Set the position of the window.
-  virtual void SetPosition(int a[2]);
-  virtual void SetPosition(int,int);
+  //@{
+  /**
+   * Set the position of the window.
+   */
+  void SetPosition(int a[2]) override;
+  void SetPosition(int,int) override;
+  //@}
 
-  // Description:
-  // Get the current size of the screen in pixels.
-  virtual int *GetScreenSize();
+  /**
+   * Get the current size of the screen in pixels.
+   */
+  int *GetScreenSize() VTK_SIZEHINT(2) override;
 
-  // Description:
-  // Get the position in screen coordinates of the window.
-  virtual int *GetPosition();
+  /**
+   * Get the position in screen coordinates of the window.
+   */
+  int *GetPosition() VTK_SIZEHINT(2) override;
 
-  // Description:
-  // Set the name of the window. This appears at the top of the window
-  // normally.
-  virtual void SetWindowName(const char *);
+  /**
+   * Set the name of the window. This appears at the top of the window
+   * normally.
+   */
+  void SetWindowName(const char *) override;
 
-  void SetNextWindowInfo(char *)
-    {
+  void SetNextWindowInfo(const char *) override
+  {
       vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
-    }
-  virtual void* GetGenericDrawable()
-    {
+  }
+  void* GetGenericDrawable() override
+  {
       vtkWarningMacro("Method not implemented.");
       return 0;
-    }
-  virtual void SetDisplayId(void*)
-    {
+  }
+  void SetDisplayId(void*) override
+  {
       vtkWarningMacro("Method not implemented.");
-    }
-  virtual void *GetGenericDisplayId()
-    {
+  }
+  void *GetGenericDisplayId() override
+  {
       vtkWarningMacro("Method not implemented.");
       return 0;
-    }
+  }
 
-  // Description:
-  // Set this RenderWindow's window id to a pre-existing window.
-  // The paramater is an ASCII string of a decimal number representing
-  // a pointer to the window.
-  virtual void SetWindowInfo(char*);
+  /**
+   * Set this RenderWindow's window id to a pre-existing window.
+   * The parameter is an ASCII string of a decimal number representing
+   * a pointer to the window.
+   */
+  void SetWindowInfo(const char*) override;
 
-  // Description:
-  // See the documenation for SetParentId().  This method allows the ParentId
-  // to be set as an ASCII string of a decimal number that is the memory
-  // address of the parent UIView.
-  virtual void SetParentInfo(char*);
+  /**
+   * See the documentation for SetParentId().  This method allows the ParentId
+   * to be set as an ASCII string of a decimal number that is the memory
+   * address of the parent UIView.
+   */
+  void SetParentInfo(const char*) override;
 
-  void SetNextWindowId(void*)
-    {
+  void SetNextWindowId(void*) override
+  {
       vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
-    }
+  }
 
-  // Description:
-  // Initialize the render window from the information associated
-  // with the currently activated OpenGL context.
-  virtual bool InitializeFromCurrentContext();
+  /**
+   * Initialize the render window from the information associated
+   * with the currently activated OpenGL context.
+   */
+  bool InitializeFromCurrentContext() override;
 
-  // Description:
-  // Update system if needed due to stereo rendering.
-  virtual void StereoUpdate();
+  /**
+   * Prescribe that the window be created in a stereo-capable mode. This
+   * method must be called before the window is realized. This method
+   * overrides the superclass method since this class can actually check
+   * whether the window has been realized yet.
+   */
+  void SetStereoCapableWindow(vtkTypeBool capable) override;
 
-  // Description:
-  // Prescribe that the window be created in a stereo-capable mode. This
-  // method must be called before the window is realized. This method
-  // overrrides the superclass method since this class can actually check
-  // whether the window has been realized yet.
-  virtual void SetStereoCapableWindow(int capable);
+  /**
+   * Make this windows OpenGL context the current context.
+   */
+  void MakeCurrent() override;
 
-  // Description:
-  // Make this windows OpenGL context the current context.
-  virtual void MakeCurrent();
+  /**
+   * Tells if this window is the current OpenGL context for the calling thread.
+   */
+  bool IsCurrent() override;
 
-  // Description:
-  // Tells if this window is the current OpenGL context for the calling thread.
-  virtual bool IsCurrent();
+  /**
+   * Test if the window has a valid drawable. This is
+   * currently only an issue on Mac OS X IOS where rendering
+   * to an invalid drawable results in all OpenGL calls to fail
+   * with "invalid framebuffer operation".
+   */
+  bool IsDrawable() override;
 
-  // Description:
-  // Test if the window has a valid drawable. This is
-  // currently only an issue on Mac OS X IOS where rendering
-  // to an invalid drawable results in all OpenGL calls to fail
-  // with "invalid framebuffer operation".
-  virtual bool IsDrawable();
-
-  // Description:
-  // Update this window's OpenGL context, e.g. when the window is resized.
+  /**
+   * Update this window's OpenGL context, e.g. when the window is resized.
+   */
   void UpdateContext();
 
-  // Description:
-  // Get report of capabilities for the render window
-  const char *ReportCapabilities();
+  /**
+   * Get report of capabilities for the render window
+   */
+  const char *ReportCapabilities() override;
 
-  // Description:
-  // Does this render window support OpenGL? 0-false, 1-true
-  int SupportsOpenGL();
+  /**
+   * Does this render window support OpenGL? 0-false, 1-true
+   */
+  int SupportsOpenGL() override;
 
-  // Description:
-  // Is this render window using hardware acceleration? 0-false, 1-true
-  int IsDirect();
+  /**
+   * Is this render window using hardware acceleration? 0-false, 1-true
+   */
+  int IsDirect() override;
 
-  // Description:
-  // If called, allow MakeCurrent() to skip cache-check when called.
-  // MakeCurrent() reverts to original behavior of cache-checking
-  // on the next render.
-  virtual void SetForceMakeCurrent();
+  /**
+   * If called, allow MakeCurrent() to skip cache-check when called.
+   * MakeCurrent() reverts to original behavior of cache-checking
+   * on the next render.
+   */
+  void SetForceMakeCurrent() override;
 
-  // Description:
-  // Check to see if an event is pending for this window.
-  // This is a useful check to abort a long render.
-  virtual  int GetEventPending();
+  /**
+   * Check to see if an event is pending for this window.
+   * This is a useful check to abort a long render.
+   */
+   int GetEventPending() override;
 
-  // Description:
-  // Initialize OpenGL for this window.
+  //@{
+  /**
+   * Initialize OpenGL for this window.
+   */
   virtual void SetupPalette(void *hDC);
   virtual void SetupPixelFormat(void *hDC, void *dwFlags, int debug,
                                 int bpp=16, int zbpp=16);
+  //@}
 
-  // Description:
-  // Clean up device contexts, rendering contexts, etc.
-  void Finalize();
+  /**
+   * Clean up device contexts, rendering contexts, etc.
+   */
+  void Finalize() override;
 
-  // Description:
-  // Get the size of the depth buffer.
-  int GetDepthBufferSize();
+  /**
+   * Get the size of the depth buffer.
+   */
+  int GetDepthBufferSize() override;
 
-  // Description:
-  // Hide or Show the mouse cursor, it is nice to be able to hide the
-  // default cursor if you want VTK to display a 3D cursor instead.
-  // Set cursor position in window (note that (0,0) is the lower left
-  // corner).
-  virtual void HideCursor();
-  virtual void ShowCursor();
-  virtual void SetCursorPosition(int x, int y);
+  //@{
+  /**
+   * Hide or Show the mouse cursor, it is nice to be able to hide the
+   * default cursor if you want VTK to display a 3D cursor instead.
+   * Set cursor position in window (note that (0,0) is the lower left
+   * corner).
+   */
+  void HideCursor() override;
+  void ShowCursor() override;
+  void SetCursorPosition(int x, int y) override;
+  //@}
 
-  // Description:
-  // Change the shape of the cursor.
-  virtual void SetCurrentCursor(int);
+  /**
+   * Change the shape of the cursor.
+   */
+  void SetCurrentCursor(int) override;
 
-  // Description:
-  // Get the WindowCreated flag. It is 1 if this object created an instance
-  // of NSWindow, 0 otherwise.
+  /**
+   * Get the WindowCreated flag. It is 1 if this object created an instance
+   * of NSWindow, 0 otherwise.
+   */
   virtual int GetWindowCreated();
 
-  // Description:
-  // Accessors for the OpenGL context (Really an NSOpenGLContext*).
+  //@{
+  /**
+   * Accessors for the OpenGL context (Really an NSOpenGLContext*).
+   */
   void SetContextId(void *);
   void *GetContextId();
-  virtual void *GetGenericContext()   {return this->GetContextId();}
+  void *GetGenericContext() override  {return this->GetContextId();}
+  //@}
 
-  // Description:
-  // Sets the NSWindow* associated with this vtkRenderWindow.
-  // This class' default behaviour, that is, if you never call
-  // SetWindowId()/SetRootWindow() is to create an NSWindow and a
-  // vtkIOSGLView (UIView subclass) which are used together to draw
-  // all vtk stuff into. If you already have an NSWindow and UIView and
-  // you want this class to use them you must call both SetRootWindow()
-  // and SetWindowId(), respectively, early on (before WindowInitialize()
-  // is executed). In the case of Java, you should call only SetWindowId().
+  /**
+   * Sets the NSWindow* associated with this vtkRenderWindow.
+   * This class' default behaviour, that is, if you never call
+   * SetWindowId()/SetRootWindow() is to create an NSWindow and a
+   * vtkIOSGLView (UIView subclass) which are used together to draw
+   * all vtk stuff into. If you already have an NSWindow and UIView and
+   * you want this class to use them you must call both SetRootWindow()
+   * and SetWindowId(), respectively, early on (before WindowInitialize()
+   * is executed). In the case of Java, you should call only SetWindowId().
+   */
   virtual void SetRootWindow(void *);
 
-  // Description:
-  // Returns the NSWindow* associated with this vtkRenderWindow.
+  /**
+   * Returns the NSWindow* associated with this vtkRenderWindow.
+   */
   virtual void *GetRootWindow();
 
-  // Description:
-  // Sets the UIView* associated with this vtkRenderWindow.
-  // This class' default behaviour, that is, if you never call this
-  // SetWindowId()/SetRootWindow() is to create an NSWindow and a
-  // vtkIOSGLView (UIView subclass) which are used together to draw all
-  // vtk stuff into. If you already have an NSWindow and UIView and you
-  // want this class to use them you must call both SetRootWindow()
-  // and SetWindowId(), respectively, early on (before WindowInitialize()
-  // is executed). In the case of Java, you should call only SetWindowId().
-  virtual void SetWindowId(void *);
+  /**
+   * Sets the UIView* associated with this vtkRenderWindow.
+   * This class' default behaviour, that is, if you never call this
+   * SetWindowId()/SetRootWindow() is to create an NSWindow and a
+   * vtkIOSGLView (UIView subclass) which are used together to draw all
+   * vtk stuff into. If you already have an NSWindow and UIView and you
+   * want this class to use them you must call both SetRootWindow()
+   * and SetWindowId(), respectively, early on (before WindowInitialize()
+   * is executed). In the case of Java, you should call only SetWindowId().
+   */
+  void SetWindowId(void *) override;
 
-  // Description:
-  // Returns the UIView* associated with this vtkRenderWindow.
+  /**
+   * Returns the UIView* associated with this vtkRenderWindow.
+   */
   virtual void *GetWindowId();
-  virtual void *GetGenericWindowId() {return this->GetWindowId();}
+  void *GetGenericWindowId() override {return this->GetWindowId();}
 
-  // Description:
-  // Set the UIView* for the vtkRenderWindow to be parented within.  The
-  // Position and Size of the RenderWindow will set the rectangle of the
-  // UIView that the vtkRenderWindow will create within this parent.
-  // If you set the WindowId, then this ParentId will be ignored.
-  virtual void SetParentId(void *UIView);
+  /**
+   * Set the UIView* for the vtkRenderWindow to be parented within.  The
+   * Position and Size of the RenderWindow will set the rectangle of the
+   * UIView that the vtkRenderWindow will create within this parent.
+   * If you set the WindowId, then this ParentId will be ignored.
+   */
+  void SetParentId(void *UIView) override;
 
-  // Description:
-  // Get the parent UIView* for this vtkRenderWindow.  This method will
-  // return "NULL" if the parent was not set with SetParentId() or
-  // SetParentInfo().
+  /**
+   * Get the parent UIView* for this vtkRenderWindow.  This method will
+   * return "NULL" if the parent was not set with SetParentId() or
+   * SetParentInfo().
+   */
   virtual void *GetParentId();
-  virtual void *GetGenericParentId() { return this->GetParentId(); }
+  void *GetGenericParentId() override { return this->GetParentId(); }
 
-  // Description:
-  // Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
+  //@{
+  /**
+   * Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
+   */
   void SetPixelFormat(void *pixelFormat);
   void *GetPixelFormat();
+  //@}
 
 protected:
   vtkIOSRenderWindow();
-  ~vtkIOSRenderWindow();
+  ~vtkIOSRenderWindow() override;
 
   void CreateGLContext();
 
-  void CreateAWindow();
-  void DestroyWindow();
+  void CreateAWindow() override;
+  void DestroyWindow() override;
   void DestroyOffScreenWindow();
 
   int OffScreenInitialized;
   int OnScreenInitialized;
 
+  // IOS seems to have issues with getting RGB data
+  int ReadPixels(
+    const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right=0) override;
+
 private:
-  vtkIOSRenderWindow(const vtkIOSRenderWindow&);  // Not implemented.
-  void operator=(const vtkIOSRenderWindow&);  // Not implemented.
+  vtkIOSRenderWindow(const vtkIOSRenderWindow&) = delete;
+  void operator=(const vtkIOSRenderWindow&) = delete;
 
 private:
   int      WindowCreated;
@@ -318,7 +373,6 @@ private:
   int      CursorHidden;
 
   int      ForceMakeCurrent;
-  char     *Capabilities;
 };
 
 #endif

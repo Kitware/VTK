@@ -39,19 +39,19 @@ int TestDIMACSGraphReader(int argc, char* argv[])
   // 5 edges and 5 vertices
   vtkGraph * G = vtkGraph::SafeDownCast( src_pattern->GetOutput() );
   if(G->GetNumberOfVertices() != 5)
-    {
+  {
     cout << "\tERROR: iso_pattern.gr vertex count wrong. "
          << "Expected 5, Got " << G->GetNumberOfVertices()
          << endl;
     return 1;
-    }
+  }
   if(G->GetNumberOfEdges() != 5)
-    {
+  {
     cout << "\tERROR: iso_pattern.gr edge count wrong. "
          << "Expected 5, Got " << G->GetNumberOfEdges()
          << endl;
     return 1;
-    }
+  }
 
   return 0;
 }

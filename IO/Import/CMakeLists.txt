@@ -1,12 +1,13 @@
-set(Module_SRCS
-  vtk3DSImporter.cxx
-  vtkImporter.cxx
-  vtkVRMLImporter.cxx
-)
-
-set_source_files_properties(
+set(classes
+  vtk3DSImporter
   vtkImporter
-  ABSTRACT
-  )
+  vtkVRMLImporter
+  vtkOBJImporter
+  vtkOBJImporterInternals)
 
-vtk_module_library(vtkIOImport ${Module_SRCS})
+set(headers
+  vtk3DS.h)
+
+vtk_module_add_module(VTK::IOImport
+  CLASSES ${classes}
+  HEADERS ${headers})

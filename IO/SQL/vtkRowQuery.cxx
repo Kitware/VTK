@@ -21,10 +21,10 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
-#include "vtksys/stl/algorithm"
+#include "algorithm"
 #include "vtkVariantArray.h"
 
-#include <ctype.h>
+#include <cctype>
 
 
 vtkRowQuery::vtkRowQuery()
@@ -32,9 +32,7 @@ vtkRowQuery::vtkRowQuery()
   this->CaseSensitiveFieldNames = false;
 }
 
-vtkRowQuery::~vtkRowQuery()
-{
-}
+vtkRowQuery::~vtkRowQuery() = default;
 
 void vtkRowQuery::PrintSelf(ostream &os, vtkIndent indent)
 {
@@ -43,7 +41,7 @@ void vtkRowQuery::PrintSelf(ostream &os, vtkIndent indent)
     << this->CaseSensitiveFieldNames << endl;
 }
 
-int vtkRowQuery::GetFieldIndex(char* name)
+int vtkRowQuery::GetFieldIndex(const char* name)
 {
   vtkStdString lcSearchName(name);
   std::transform(lcSearchName.begin(),
@@ -54,33 +52,33 @@ int vtkRowQuery::GetFieldIndex(char* name)
   int index;
   bool found = false;
   for (index = 0; index < this->GetNumberOfFields(); index++)
-    {
+  {
     if (this->CaseSensitiveFieldNames)
-      {
+    {
       if (!strcmp(name, this->GetFieldName(index)))
-        {
+      {
         found = true;
         break;
-        }
       }
+    }
     else
-      {
+    {
       vtkStdString fieldName(this->GetFieldName(index));
       std::transform(fieldName.begin(),
                         fieldName.end(),
                         fieldName.begin(),
                         (int(*)(int))tolower);
       if (lcSearchName == fieldName)
-        {
+      {
         found = true;
         break;
-        }
       }
     }
+  }
   if (found)
-    {
+  {
     return index;
-    }
+  }
   return -1;
 }
 
@@ -88,14 +86,14 @@ int vtkRowQuery::GetFieldIndex(char* name)
 bool vtkRowQuery::NextRow(vtkVariantArray* rowArray)
 {
   if (!this->NextRow())
-    {
+  {
     return false;
-    }
+  }
   rowArray->Reset();
   for (int col = 0; col < this->GetNumberOfFields(); col++)
-    {
+  {
     rowArray->InsertNextValue(this->DataValue(col));
-    }
+  }
   return true;
 }
 

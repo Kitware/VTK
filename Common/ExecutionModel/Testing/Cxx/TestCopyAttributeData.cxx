@@ -31,8 +31,8 @@
 #include "vtkVariant.h"
 #include "vtkSmartPointer.h"
 
-#include <math.h>
-#include <string.h>
+#include <cmath>
+#include <cstring>
 
 // Make a dummy image filter that does nothing but call CopyAttributeData.
 class vtkDummyImageFilter : public vtkImageAlgorithm
@@ -42,17 +42,17 @@ public:
   vtkTypeMacro(vtkDummyImageFilter,vtkImageAlgorithm);
 
 protected:
-  vtkDummyImageFilter() {};
-  ~vtkDummyImageFilter() {};
+  vtkDummyImageFilter() = default;
+  ~vtkDummyImageFilter() override = default;
 
   int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) override;
 
 private:
-  vtkDummyImageFilter(const vtkDummyImageFilter&);  // Not implemented.
-  void operator=(const vtkDummyImageFilter&);  // Not implemented.
+  vtkDummyImageFilter(const vtkDummyImageFilter&) = delete;
+  void operator=(const vtkDummyImageFilter&) = delete;
 };
 
 vtkStandardNewMacro(vtkDummyImageFilter);
@@ -102,13 +102,13 @@ int TestCopyAttributeData(int,char *[])
   pointVectors->SetNumberOfTuples(numPoints);
 
   for (vtkIdType i = 0; i < numPoints; i++)
-    {
+  {
     double v[3];
     v[0] = sin(i*0.5);
     v[1] = cos(i*0.5);
     v[2] = sin(i*0.1);
     pointVectors->SetTuple(i, v);
-    }
+  }
 
   vtkSmartPointer<vtkIntArray> cellScalars =
     vtkSmartPointer<vtkIntArray>::New();
@@ -121,11 +121,11 @@ int TestCopyAttributeData(int,char *[])
   cellStrings->SetNumberOfValues(numCells);
 
   for (vtkIdType j = 0; j < numCells; j++)
-    {
+  {
     vtkVariant val(j);
     cellScalars->SetValue(j, j);
     cellStrings->SetValue(j, val.ToString());
-    }
+  }
 
   image->GetPointData()->SetVectors(pointVectors);
   image->GetCellData()->SetScalars(cellScalars);
@@ -137,24 +137,22 @@ int TestCopyAttributeData(int,char *[])
   filter->SetInputData(image);
 
   for (int r = 0; r < 2; r++)
-    {
-    filter->UpdateInformation();
-    filter->SetUpdateExtent(outExt);
-    filter->Update();
+  {
+    filter->UpdateExtent(outExt);
 
     vtkImageData *output = filter->GetOutput();
 
     vtkDataArray *outPointVectors = output->GetPointData()->GetVectors();
     vtkDataArray *outCellScalars = output->GetCellData()->GetScalars();
-    vtkStringArray *outCellStrings = vtkStringArray::SafeDownCast(
+    vtkStringArray *outCellStrings = vtkArrayDownCast<vtkStringArray>(
       output->GetCellData()->GetAbstractArray("CellStrings"));
 
     for (int zId = outExt[4]; zId <= outExt[5]; zId++)
-      {
+    {
       for (int yId = outExt[2]; yId <= outExt[3]; yId++)
-        {
+      {
         for (int xId = outExt[0]; xId <= outExt[1]; xId++)
-          {
+        {
           vtkIdType inIdx = (zId - extent[4])*(extent[3] - extent[2] + 1);
           inIdx = (inIdx + yId - extent[2])*(extent[1] - extent[0] + 1);
           inIdx = inIdx + xId - extent[0];
@@ -165,21 +163,21 @@ int TestCopyAttributeData(int,char *[])
           pointVectors->GetTuple(inIdx, v1);
           outPointVectors->GetTuple(outIdx, v2);
           if (v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2])
-            {
+          {
             cerr << "point attribute value mismatch ";
             return 1;
-            }
           }
         }
       }
+    }
 
     for (int zId = outExt[4]; zId < outExt[5]; zId++)
-      {
+    {
       int ye = (outExt[2] == outExt[3]);
       for (int yId = outExt[2]; yId < outExt[3] + ye; yId++)
-        {
+      {
         for (int xId = outExt[0]; xId < outExt[1]; xId++)
-          {
+        {
           vtkIdType inIdx = (zId - extent[4])*(extent[3] - extent[2]);
           inIdx = (inIdx + yId - extent[2])*(extent[1] - extent[0]);
           inIdx = inIdx + xId - extent[0];
@@ -190,18 +188,18 @@ int TestCopyAttributeData(int,char *[])
           cellScalars->GetTuple(inIdx, &s1);
           outCellScalars->GetTuple(outIdx, &s2);
           if (s1 != s2)
-            {
+          {
             cerr << "cell attribute value mismatch\n";
             return 1;
-            }
+          }
           if (cellStrings->GetValue(inIdx) != outCellStrings->GetValue(outIdx))
-            {
+          {
             cerr << "cell attribute string mismatch\n";
             return 1;
-            }
           }
         }
       }
+    }
 
     // try again with full extent to test pass data
     outExt[0] = extent[0];
@@ -210,7 +208,7 @@ int TestCopyAttributeData(int,char *[])
     outExt[3] = extent[3];
     outExt[4] = extent[4];
     outExt[5] = extent[5];
-    }
+  }
 
   return 0;
 }

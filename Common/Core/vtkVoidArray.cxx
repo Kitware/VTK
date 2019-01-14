@@ -21,7 +21,7 @@ typedef void *voidPtr;
 
 // Instantiate object.
 vtkVoidArray::vtkVoidArray()
-  : NumberOfPointers(0),Size(0),Array(NULL)
+  : NumberOfPointers(0),Size(0),Array(nullptr)
 {
 }
 
@@ -31,18 +31,18 @@ vtkVoidArray::~vtkVoidArray()
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkVoidArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
+vtkTypeBool vtkVoidArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 {
-  if ( sz > this->Size || this->Array != NULL )
-    {
+  if ( sz > this->Size || this->Array != nullptr )
+  {
     delete [] this->Array;
 
     this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Array = new voidPtr[this->Size]) == NULL )
-      {
+    if ( (this->Array = new voidPtr[this->Size]) == nullptr )
+    {
       return 0;
-      }
     }
+  }
 
   this->NumberOfPointers = 0;
 
@@ -53,7 +53,7 @@ int vtkVoidArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 void vtkVoidArray::Initialize()
 {
   delete [] this->Array;
-  this->Array = NULL;
+  this->Array = nullptr;
   this->Size = 0;
   this->NumberOfPointers = 0;
 }
@@ -61,14 +61,14 @@ void vtkVoidArray::Initialize()
 // Deep copy of another void array.
 void vtkVoidArray::DeepCopy(vtkVoidArray *va)
 {
-  // Do nothing on a NULL input.
-  if (va == NULL)
-    {
+  // Do nothing on a nullptr input.
+  if (va == nullptr)
+  {
     return;
-    }
+  }
 
   if ( this != va )
-    {
+  {
     delete [] this->Array;
 
     this->NumberOfPointers = va->NumberOfPointers;
@@ -76,7 +76,7 @@ void vtkVoidArray::DeepCopy(vtkVoidArray *va)
 
     this->Array = new voidPtr[this->Size];
     memcpy(this->Array, va->GetVoidPointer(0), this->Size*sizeof(void *));
-    }
+  }
 }
 
 void** vtkVoidArray::WritePointer(vtkIdType id,
@@ -84,30 +84,30 @@ void** vtkVoidArray::WritePointer(vtkIdType id,
 {
   vtkIdType newSize=id+number;
   if ( newSize > this->Size )
-    {
+  {
     this->ResizeAndExtend(newSize);
-    }
+  }
   if ( newSize > this->NumberOfPointers )
-    {
+  {
     this->NumberOfPointers = newSize;
-    }
+  }
   return this->Array + id;
 }
 
 void vtkVoidArray::InsertVoidPointer(vtkIdType id, void* p)
 {
   if ( id >= this->Size )
-    {
+  {
     if (!this->ResizeAndExtend(id+1))
-      {
+    {
       return;
-      }
     }
+  }
   this->Array[id] = p;
   if ( id >= this->NumberOfPointers )
-    {
+  {
     this->NumberOfPointers = id+1;
-    }
+  }
 }
 
 vtkIdType vtkVoidArray::InsertNextVoidPointer(void* p)
@@ -124,37 +124,37 @@ void** vtkVoidArray::ResizeAndExtend(vtkIdType sz)
   vtkIdType newSize;
 
   if ( sz > this->Size )
-    {
+  {
     newSize = this->Size + sz;
-    }
+  }
   else if (sz == this->Size)
-    {
+  {
     return this->Array;
-    }
+  }
   else
-    {
+  {
     newSize = sz;
-    }
+  }
 
   if (newSize <= 0)
-    {
+  {
     this->Initialize();
-    return 0;
-    }
+    return nullptr;
+  }
 
-  if ( (newArray = new voidPtr[newSize]) == NULL )
-    {
+  if ( (newArray = new voidPtr[newSize]) == nullptr )
+  {
     vtkErrorMacro(<< "Cannot allocate memory\n");
-    return 0;
-    }
+    return nullptr;
+  }
 
   memcpy(newArray, this->Array,
          (sz < this->Size ? sz : this->Size) * sizeof(voidPtr));
 
   if (newSize < this->Size)
-    {
+  {
     this->NumberOfPointers = newSize;
-    }
+  }
   this->Size = newSize;
   delete [] this->Array;
   this->Array = newArray;
@@ -167,11 +167,11 @@ void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if (this->Array)
-    {
+  {
     os << indent << "Array: " << this->Array << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Array: (null)\n";
-    }
+  }
 }

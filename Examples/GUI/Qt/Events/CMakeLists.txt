@@ -1,16 +1,12 @@
-cmake_minimum_required(VERSION 2.8.8)
-if(POLICY CMP0020)
-  cmake_policy(SET CMP0020 NEW)
-endif()
-if(POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW) # CMake 3.0
-endif()
-if(POLICY CMP0043)
-  cmake_policy(SET CMP0043 NEW) # CMake 3.0
-endif()
-if(POLICY CMP0053)
-  cmake_policy(SET CMP0053 NEW) # CMake 3.1
-endif()
+cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+foreach(p
+    CMP0071 # 3.10: Let AUTOMOC and AUTOUIC process GENERATED files
+    )
+  if(POLICY ${p})
+    cmake_policy(SET ${p} NEW)
+  endif()
+endforeach()
+
 project(QtEvents)
 
 find_package(VTK COMPONENTS
@@ -41,26 +37,10 @@ include_directories(
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5Widgets)
-  qt5_wrap_ui(UI_Srcs ${UIs})
+find_package(Qt5 COMPONENTS Widgets)
+qt5_wrap_ui(UI_Srcs ${UIs})
 
-  add_executable(qtevents
-    MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
-  qt5_use_modules(qtevents Core Gui Widgets)
-  target_link_libraries(qtevents ${VTK_LIBRARIES})
-else()
-  find_package(Qt4 REQUIRED)
-  include(${QT_USE_FILE})
-  # Use what VTK built with
-  set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
-  set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
-  set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
-  qt4_wrap_ui(UI_Srcs ${UIs})
-
-  add_executable(qtevents MACOSX_BUNDLE ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
-  target_link_libraries(qtevents
-    ${QT_LIBRARIES}
-    ${VTK_LIBRARIES}
-  )
-endif()
+add_executable(qtevents
+  MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
+target_link_libraries(qtevents Qt5::Core Qt5::Gui Qt5::Widgets)
+target_link_libraries(qtevents ${VTK_LIBRARIES})

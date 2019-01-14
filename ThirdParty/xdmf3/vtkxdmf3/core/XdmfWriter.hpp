@@ -24,14 +24,17 @@
 #ifndef XDMFWRITER_HPP_
 #define XDMFWRITER_HPP_
 
+// C Compatible Includes
+#include "XdmfCore.hpp"
+#include "XdmfHeavyDataWriter.hpp"
+#include "XdmfVisitor.hpp"
+
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfArray;
 class XdmfInformation;
 class XdmfHeavyDataWriter;
-
-// Includes
-#include "XdmfCore.hpp"
-#include "XdmfVisitor.hpp"
 
 /**
  * @brief Traverse the Xdmf graph and write light and heavy data
@@ -269,6 +272,31 @@ public:
   Mode getMode() const;
 
   /**
+   * Gets whether XML is rebuilt with each write.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfWriter.cpp
+   * @skipline //#heavyinitialization
+   * @until //#heavyinitialization
+   * @skipline //#getRebuildXML
+   * @until //#getRebuildXML
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleWriter.py
+   * @skipline #//heavyinitialization
+   * @until #//heavyinitialization
+   * @skipline #//getRebuildXML
+   * @until #//getRebuildXML
+   *
+   * @return    Whether XML will be rebuilt.
+   */
+  bool getRebuildXML();
+
+  /**
    * Get whether this writer is set to write xpaths.
    *
    * Example of use:
@@ -400,6 +428,31 @@ public:
   void setMode(const Mode mode);
 
   /**
+   * Sets whether XML will be rebuilt with each write.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfWriter.cpp
+   * @skipline //#heavyinitialization
+   * @until //#heavyinitialization
+   * @skipline //#setRebuildXML
+   * @until //#setRebuildXML
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleWriter.py
+   * @skipline #//heavyinitialization
+   * @until #//heavyinitialization
+   * @skipline #//setRebuildXML
+   * @until #//setRebuildXML
+   *
+   * @param     newStatus       Whether to rebuild XML.
+   */
+  void setRebuildXML(bool newStatus);
+
+  /**
    * Set whether to write xpaths for this writer.
    *
    * Example of use:
@@ -495,6 +548,7 @@ public:
   virtual void visit(XdmfItem & item,
                      const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfWriter(const XdmfWriter &);
 
 protected:
 
@@ -502,8 +556,16 @@ protected:
              shared_ptr<XdmfHeavyDataWriter> heavyDataWriter,
              std::ostream * stream = NULL);
 
+  xmlNodePtr getXMLNode(XdmfItem * item, xmlDocPtr parentDoc, xmlNodePtr parentNode);
+  bool getHasXMLArchive(XdmfItem * item);
+  void setXMLNode(XdmfItem * item, xmlNodePtr & newNode);
+
   void setDocumentTitle(std::string title);
   void setVersionString(std::string version);
+
+  bool mRebuildAlreadyVisited;
+
+  std::map<XdmfItem *, xmlNodePtr> mXMLArchive;
 
 private:
 
@@ -512,12 +574,56 @@ private:
    */
   class XdmfWriterImpl;
 
-  XdmfWriter(const XdmfWriter &);  // Not implemented.
   void operator=(const XdmfWriter &);  // Not implemented.
 
   XdmfWriterImpl * mImpl;
 
 };
 
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define XDMF_WRITER_MODE_DEFAULT                30
+#define XDMF_WRITER_MODE_DISTRIBUTED_HEAVY_DATA 31
+
+// C wrappers go here
+
+struct XDMFWRITER; // Simply as a typedef to ensure correct typing
+typedef struct XDMFWRITER XDMFWRITER;
+
+XDMFCORE_EXPORT XDMFWRITER * XdmfWriterNew(char * fileName);
+
+XDMFCORE_EXPORT XDMFWRITER * XdmfWriterNewSpecifyHeavyDataWriter(char * fileName, XDMFHEAVYDATAWRITER * heavyDataWriter);
+
+XDMFCORE_EXPORT void XdmfWriterFree(XDMFWRITER * item);
+
+XDMFCORE_EXPORT char * XdmfWriterGetFilePath(XDMFWRITER * writer, int * status);
+
+XDMFCORE_EXPORT XDMFHEAVYDATAWRITER * XdmfWriterGetHeavyDataWriter(XDMFWRITER * writer, int * status);
+
+XDMFCORE_EXPORT unsigned int XdmfWriterGetLightDataLimit(XDMFWRITER * writer, int * status);
+
+XDMFCORE_EXPORT int XdmfWriterGetMode(XDMFWRITER * writer, int * status);
+
+XDMFCORE_EXPORT int XdmfWriterGetWriteXPaths(XDMFWRITER * writer, int * status);
+
+XDMFCORE_EXPORT int XdmfWriterGetXPathParse(XDMFWRITER * writer, int * status);
+
+XDMFCORE_EXPORT void XdmfWriterSetHeavyDataWriter(XDMFWRITER * writer, XDMFHEAVYDATAWRITER * heavyDataWriter, int transferOwnership, int * status);
+
+XDMFCORE_EXPORT void XdmfWriterSetLightDataLimit(XDMFWRITER * writer, unsigned int numValues, int * status);
+
+XDMFCORE_EXPORT void XdmfWriterSetMode(XDMFWRITER * writer, int mode, int * status);
+
+XDMFCORE_EXPORT void XdmfWriterSetWriteXPaths(XDMFWRITER * writer, int writeXPaths, int * status);
+
+XDMFCORE_EXPORT void XdmfWriterSetXPathParse(XDMFWRITER * writer, int xPathParse, int * status);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFWRITER_HPP_ */

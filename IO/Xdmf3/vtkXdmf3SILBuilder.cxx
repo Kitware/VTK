@@ -3,8 +3,6 @@
   Program:   Visualization Toolkit
   Module:    vtkXdmf3SILBuilder.cxx
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -31,9 +29,9 @@
 //------------------------------------------------------------------------------
 vtkXdmf3SILBuilder::vtkXdmf3SILBuilder()
 {
-  this->SIL = NULL;
-  this->NamesArray = NULL;
-  this->CrossEdgesArray = NULL;
+  this->SIL = nullptr;
+  this->NamesArray = nullptr;
+  this->CrossEdgesArray = nullptr;
   this->RootVertex = -1;
   this->BlocksRoot = -1;
   this->HierarchyRoot = -1;
@@ -44,41 +42,41 @@ vtkXdmf3SILBuilder::vtkXdmf3SILBuilder()
 vtkXdmf3SILBuilder::~vtkXdmf3SILBuilder()
 {
   if (this->SIL)
-    {
+  {
     this->SIL->Delete();
-    }
+  }
   if (this->NamesArray)
-    {
+  {
     this->NamesArray->Delete();
-    }
+  }
   if (this->CrossEdgesArray)
-    {
+  {
     this->CrossEdgesArray->Delete();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkXdmf3SILBuilder::Initialize()
 {
   if (this->SIL)
-    {
+  {
     this->SIL->Delete();
-    }
+  }
   this->SIL = vtkMutableDirectedGraph::New();
   this->SIL->Initialize();
 
   if (this->NamesArray)
-    {
+  {
     this->NamesArray->Delete();
-    }
+  }
   this->NamesArray = vtkStringArray::New();
   this->NamesArray->SetName("Names");
   this->SIL->GetVertexData()->AddArray(this->NamesArray);
 
   if (this->CrossEdgesArray)
-    {
+  {
     this->CrossEdgesArray->Delete();
-    }
+  }
 
   this->CrossEdgesArray = vtkUnsignedCharArray::New();
   this->CrossEdgesArray->SetName("CrossEdges");

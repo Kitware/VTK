@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkChart2DHistogram - Chart for 2D histograms.
-//
-// .SECTION Description
-// This defines the interface for a 2D histogram chart.
+/**
+ * @class   vtkChart2DHistogram
+ * @brief   Chart for 2D histograms.
+ *
+ *
+ * This defines the interface for a 2D histogram chart.
+*/
 
-#ifndef vtkChart2DHistogram_h
-#define vtkChart2DHistogram_h
+#ifndef vtkChartHistogram2D_h
+#define vtkChartHistogram2D_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartXY.h"
@@ -34,47 +37,52 @@ class VTKCHARTSCORE_EXPORT vtkChartHistogram2D : public vtkChartXY
 {
 public:
   vtkTypeMacro(vtkChartHistogram2D, vtkChartXY);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // Creates a 2D histogram chart
+  /**
+   * Creates a 2D histogram chart
+   */
   static vtkChartHistogram2D* New();
 
-  // Description:
-  // Perform any updates to the item that may be necessary before rendering.
-  // The scene should take care of calling this on all items before their
-  // Paint function is invoked.
-  virtual void Update();
+  /**
+   * Perform any updates to the item that may be necessary before rendering.
+   * The scene should take care of calling this on all items before their
+   * Paint function is invoked.
+   */
+  void Update() override;
 
   virtual void SetInputData(vtkImageData *data, vtkIdType z = 0);
   virtual void SetTransferFunction(vtkScalarsToColors *function);
 
-  // Description:
-  // Return true if the supplied x, y coordinate is inside the item.
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  /**
+   * Return true if the supplied x, y coordinate is inside the item.
+   */
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
-  // Description:
-  // Get the plot at the specified index, returns null if the index is invalid.
-  virtual vtkPlot* GetPlot(vtkIdType index);
+  /**
+   * Get the plot at the specified index, returns null if the index is invalid.
+   */
+  vtkPlot* GetPlot(vtkIdType index) override;
 
 protected:
   vtkChartHistogram2D();
-  ~vtkChartHistogram2D();
+  ~vtkChartHistogram2D() override;
 
   vtkSmartPointer<vtkPlotHistogram2D> Histogram;
 
-  // Description:
-  // The point cache is marked dirty until it has been initialized.
+  /**
+   * The point cache is marked dirty until it has been initialized.
+   */
   vtkTimeStamp BuildTime;
 
   class Private;
   Private* Storage;
 
-  virtual bool UpdateLayout(vtkContext2D *painter);
+  bool UpdateLayout(vtkContext2D *painter) override;
 
 private:
-  vtkChartHistogram2D(const vtkChartHistogram2D &); // Not implemented.
-  void operator=(const vtkChartHistogram2D &);   // Not implemented.
+  vtkChartHistogram2D(const vtkChartHistogram2D &) = delete;
+  void operator=(const vtkChartHistogram2D &) = delete;
 };
 
-#endif //vtkChart2DHistogram_h
+#endif //vtkChartHistogram2D_h

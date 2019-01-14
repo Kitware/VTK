@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkViewUpdater - Updates views automatically
-//
-// .SECTION Description
-// vtkViewUpdater registers with annotation change events for a set of
-// annotation links, and updates all views when an annotation link fires an
-// annotation changed event. This is often needed when multiple views share
-// a selection with vtkAnnotationLink.
+/**
+ * @class   vtkViewUpdater
+ * @brief   Updates views automatically
+ *
+ *
+ * vtkViewUpdater registers with annotation change events for a set of
+ * annotation links, and updates all views when an annotation link fires an
+ * annotation changed event. This is often needed when multiple views share
+ * a selection with vtkAnnotationLink.
+*/
 
 #ifndef vtkViewUpdater_h
 #define vtkViewUpdater_h
@@ -39,7 +42,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkViewUpdater : public vtkObject
 public:
   static vtkViewUpdater *New();
   vtkTypeMacro(vtkViewUpdater, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void AddView(vtkView* view);
   void RemoveView(vtkView* view);
@@ -48,16 +51,15 @@ public:
 
 protected:
   vtkViewUpdater();
-  ~vtkViewUpdater();
+  ~vtkViewUpdater() override;
 
 private:
-  vtkViewUpdater(const vtkViewUpdater&);  // Not implemented.
-  void operator=(const vtkViewUpdater&);  // Not implemented.
+  vtkViewUpdater(const vtkViewUpdater&) = delete;
+  void operator=(const vtkViewUpdater&) = delete;
 
-//BTX
   class vtkViewUpdaterInternals;
   vtkViewUpdaterInternals* Internals;
-//ETX
+
 };
 
 #endif

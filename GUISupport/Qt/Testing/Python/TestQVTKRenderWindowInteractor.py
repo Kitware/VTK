@@ -13,7 +13,6 @@ except ImportError:
 
 import vtk
 from vtk.qt4.QVTKRenderWindowInteractor import *
-from vtk.test import Testing
 
 class TestQVTKRenderWindowInteractor(Testing.vtkTest):
     def testQVTKRenderWindowInteractor(self):

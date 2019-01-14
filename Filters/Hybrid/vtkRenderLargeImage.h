@@ -12,10 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRenderLargeImage - Use tiling to generate a large rendering
-// .SECTION Description
-// vtkRenderLargeImage provides methods needed to read a region from a file.
-
+/**
+ * @class   vtkRenderLargeImage
+ * @brief   Use tiling to generate a large rendering
+ *
+ * vtkRenderLargeImage provides methods needed to read a region from a file.
+*/
 
 #ifndef vtkRenderLargeImage_h
 #define vtkRenderLargeImage_h
@@ -34,34 +36,43 @@ class VTKFILTERSHYBRID_EXPORT vtkRenderLargeImage : public vtkAlgorithm
 public:
   static vtkRenderLargeImage *New();
   vtkTypeMacro(vtkRenderLargeImage,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // The magnification of the current render window
+  //@{
+  /**
+   * The magnification of the current render window
+   */
   vtkSetMacro(Magnification,int);
   vtkGetMacro(Magnification,int);
+  //@}
 
-  // Description:
-  // Indicates what renderer to get the pixel data from.
+  /**
+   * Indicates what renderer to get the pixel data from.
+   */
   virtual void SetInput(vtkRenderer*);
 
-  // Description:
-  // Returns which renderer is being used as the source for the pixel data.
+  //@{
+  /**
+   * Returns which renderer is being used as the source for the pixel data.
+   */
   vtkGetObjectMacro(Input,vtkRenderer);
+  //@}
 
-  // Description:
-  // Get the output data object for a port on this algorithm.
+  /**
+   * Get the output data object for a port on this algorithm.
+   */
   vtkImageData* GetOutput();
 
-  // Description:
-  // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation*,
+  /**
+   * see vtkAlgorithm for details
+   */
+  int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) override;
 
 protected:
   vtkRenderLargeImage();
-  ~vtkRenderLargeImage();
+  ~vtkRenderLargeImage() override;
 
   int Magnification;
   vtkRenderer *Input;
@@ -71,7 +82,7 @@ protected:
                            vtkInformationVector **, vtkInformationVector *);
 
   // see algorithm for more info
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   // Adjust the coordinates of all 2D actors to fit new window size
   void Rescale2DActors();
@@ -84,8 +95,8 @@ protected:
   vtkRenderLargeImage2DHelperClass *StoredData;
 
 private:
-  vtkRenderLargeImage(const vtkRenderLargeImage&);  // Not implemented.
-  void operator=(const vtkRenderLargeImage&);  // Not implemented.
+  vtkRenderLargeImage(const vtkRenderLargeImage&) = delete;
+  void operator=(const vtkRenderLargeImage&) = delete;
 };
 
 #endif

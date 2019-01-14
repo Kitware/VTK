@@ -27,7 +27,8 @@
 #include "vtkStructuredExtent.h"
 #include "vtkObjectFactory.h"
 #include "vtkLineIntegralConvolution2D.h"
-#include "vtkFrameBufferObject2.h"
+#include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLState.h"
 #include "vtkRenderbuffer.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkTextureObject.h"
@@ -43,7 +44,7 @@
 #include <deque>
 using std::deque;
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkTextureObjectVS.h"
 
 #define vtkImageDataLIC2DDEBUG 0
@@ -60,7 +61,7 @@ vtkStandardNewMacro(vtkImageDataLIC2D);
 //----------------------------------------------------------------------------
 vtkImageDataLIC2D::vtkImageDataLIC2D()
 {
-  this->Context = NULL;
+  this->Context = nullptr;
   this->OwnWindow = false;
   this->OpenGLExtensionsSupported = 0;
 
@@ -86,7 +87,6 @@ vtkImageDataLIC2D::vtkImageDataLIC2D()
         0,
         vtkDataObject::FIELD_ASSOCIATION_POINTS,
         vtkDataSetAttributes::VECTORS);
-
 }
 
 //----------------------------------------------------------------------------
@@ -94,7 +94,7 @@ vtkImageDataLIC2D::~vtkImageDataLIC2D()
 {
   this->NoiseSource->Delete();
   this->ImageCast->Delete();
-  this->SetContext(NULL);
+  this->SetContext(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -103,41 +103,41 @@ int vtkImageDataLIC2D::SetContext(vtkRenderWindow * renWin)
   vtkOpenGLRenderWindow *rw = vtkOpenGLRenderWindow::SafeDownCast(renWin);
 
   if (this->Context == rw)
-    {
+  {
     return this->OpenGLExtensionsSupported;
-    }
+  }
 
   if (this->Context && this->OwnWindow)
-    {
+  {
     this->Context->Delete();
-    }
+  }
   this->Modified();
-  this->Context = NULL;
+  this->Context = nullptr;
   this->OwnWindow = false;
   this->OpenGLExtensionsSupported = 0;
 
   vtkOpenGLRenderWindow *context = vtkOpenGLRenderWindow::SafeDownCast(renWin);
   if (context)
-    {
+  {
     context->Render();
     context->MakeCurrent();
 
     bool featureSupport
       = vtkLineIntegralConvolution2D::IsSupported(context)
       && vtkPixelBufferObject::IsSupported(context)
-      && vtkFrameBufferObject2::IsSupported(context)
+      && vtkOpenGLFramebufferObject::IsSupported(context)
       && vtkRenderbuffer::IsSupported(context)
       && vtkTextureObject::IsSupported(context);
 
     if (!featureSupport)
-      {
+    {
       vtkErrorMacro("Required OpenGL extensions not supported.");
       return 0;
-      }
+    }
 
     this->OpenGLExtensionsSupported = 1;
     this->Context = context;
-    }
+  }
 
   return 1;
 }
@@ -152,14 +152,14 @@ vtkRenderWindow* vtkImageDataLIC2D::GetContext()
 int vtkImageDataLIC2D::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
 
   if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
 
   return 1;
 }
@@ -172,24 +172,24 @@ void vtkImageDataLIC2D::TranslateInputExtent(
 {
   int nPlanar = 0;
   for (int q=0; q<3; ++q)
-    {
+  {
     int qq = 2*q;
     if (inWholeExt[qq] == inWholeExt[qq+1])
-      {
+    {
       resultExt[qq] = inExt[qq];
       resultExt[qq+1] = inExt[qq];
       nPlanar += 1;
-      }
+    }
     else
-      {
+    {
       resultExt[qq] = inExt[qq] * this->Magnification;
       resultExt[qq+1] = (inExt[qq+1] + 1) * this->Magnification - 1;
-      }
     }
+  }
   if (nPlanar != 1)
-    {
+  {
     vtkErrorMacro("Non-planar dataset");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -211,10 +211,10 @@ int vtkImageDataLIC2D::RequestInformation(
   this->TranslateInputExtent(wholeExtent, wholeExtent, ext);
 
   for (int axis = 0; axis < 3; axis++)
-    {
+  {
     // Change the data spacing
     spacing[axis] /= this->Magnification;
-    }
+  }
   vtkDebugMacro( << "WHOLE_EXTENT: " << PRINTEXTENT( ext ) << endl );
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6);
@@ -239,7 +239,7 @@ int vtkImageDataLIC2D::RequestUpdateExtent (
 
   vtkDebugMacro( << "Requested UPDATE_EXTENT: " <<  PRINTEXTENT( ext ) << endl );
   for (int axis = 0; axis < 3; axis++)
-    {
+  {
     int wholeMin = ext[axis*2];
     int wholeMax = ext[axis*2+1];
 
@@ -249,20 +249,20 @@ int vtkImageDataLIC2D::RequestUpdateExtent (
 
     ext[axis*2] = wholeMin;
     ext[axis*2+1] = wholeMax;
-    }
+  }
   vtkDebugMacro( << "UPDATE_EXTENT: " <<  PRINTEXTENT( ext ) << endl );
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
 
   inInfo = inputVector[1]->GetInformationObject(0);
   if (inInfo)
-    {
+  {
     // always request the whole noise image.
     inInfo->Set(
         vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
         inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
         6);
-    }
+  }
 
   return 1;
 }
@@ -278,10 +278,10 @@ int vtkImageDataLIC2D::RequestData(
   vtkImageData *input
      = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if ( !input )
-    {
+  {
     vtkErrorMacro("Empty input");
     return 0;
-    }
+  }
 
   int dims[3];
   input->GetDimensions(dims);
@@ -289,84 +289,84 @@ int vtkImageDataLIC2D::RequestData(
   int dataDescription = vtkStructuredData::GetDataDescription(dims);
 
   if (  vtkStructuredData::GetDataDimension( dataDescription ) != 2  )
-    {
+  {
     vtkErrorMacro( "Input is not a 2D image." );
     return 0;
-    }
+  }
 
   vtkIdType numPoints = input->GetNumberOfPoints();
   vtkDataArray *inVectors = this->GetInputArrayToProcess(0, inputVector);
   if ( !inVectors )
-    {
+  {
     vtkErrorMacro("Vectors are required for line integral convolution.");
     return 0;
-    }
+  }
 
   if ( inVectors->GetNumberOfTuples() != numPoints )
-    {
+  {
     vtkErrorMacro( "Only point vectors are supported." );
     return 0;
-    }
+  }
 
   if ( !this->Context )
-    {
+  {
     vtkRenderWindow * renWin = vtkRenderWindow::New();
     if ( this->SetContext(renWin) == 0 )
-      {
+    {
       vtkErrorMacro("Missing required OpenGL extensions");
       renWin->Delete();
       return 0;
-      }
-    this->OwnWindow = true;
     }
+    this->OwnWindow = true;
+  }
 
   this->Context->MakeCurrent();
   vtkOpenGLClearErrorMacro();
 
   // Noise.
   vtkInformation *noiseInfo = inputVector[1]->GetInformationObject(0);
-  vtkImageData *noise = NULL;
+  vtkImageData *noise = nullptr;
   if ( noiseInfo )
-    {
+  {
     noise
       = vtkImageData::SafeDownCast(noiseInfo->Get(vtkDataObject::DATA_OBJECT()));
     if ( !noise )
-      {
+    {
       vtkErrorMacro(
         "Invalid noise dataset on input "
         "Default noise dataset is used");
-      }
+    }
 
-    if ( (noise->GetPointData()==0)
-      || (noise->GetPointData()->GetScalars()==0) )
-      {
+    if ( (noise->GetPointData()==nullptr)
+      || (noise->GetPointData()->GetScalars()==nullptr) )
+    {
       vtkErrorMacro(
         "Noise dataset missing point data scalars. "
         "Default noise dataset is used");
-      noise = NULL;
-      }
+      noise = nullptr;
+    }
 
     double noiseRange[2];
     vtkDataArray *inVals = noise->GetPointData()->GetScalars();
     inVals->GetRange(noiseRange);
     if ( (noiseRange[0] < 0.0) || (noiseRange[1] > 1.0) )
-      {
+    {
       vtkErrorMacro(
         "Noise dataset has values out of range 0.0 to 1.0."
         "Default noise dataset is used");
-      noise = NULL;
-      }
+      noise = nullptr;
     }
+  }
 
   if ( !noise )
-    {
+  {
     this->ImageCast->Update();
     noise = this->ImageCast->GetOutput();
-    }
+  }
 
   int comp[3] = {0, 0, 0};
   switch (dataDescription)
-    {
+  {
   case VTK_XY_PLANE:
     comp[0] = 0;
     comp[1] = 1;
@@ -384,7 +384,7 @@ int vtkImageDataLIC2D::RequestData(
     comp[1] = 2;
     comp[2] = 1;
     break;
-    }
+  }
 
   // size of output
   int magDims[3];
@@ -428,7 +428,7 @@ int vtkImageDataLIC2D::RequestData(
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
               "idlic2d_vectors.vtk",
-              vectorTex, NULL, NULL);
+              vectorTex, nullptr, nullptr);
   #endif
 
   // magnify vectors
@@ -438,13 +438,13 @@ int vtkImageDataLIC2D::RequestData(
 
   vtkTextureObject *magVectorTex = vectorTex;
   if (this->Magnification > 1)
-    {
+  {
     magVectorTex = vtkTextureObject::New();
     magVectorTex->SetContext(this->Context);
     magVectorTex->Create2D(magVectorSize[0], magVectorSize[1], 4, VTK_FLOAT, false);
     vtkLineIntegralConvolution2D::SetVectorTexParameters(magVectorTex);
 
-    vtkFrameBufferObject2 *drawFbo = vtkFrameBufferObject2::New();
+    vtkOpenGLFramebufferObject *drawFbo = vtkOpenGLFramebufferObject::New();
     drawFbo->SetContext(this->Context);
     drawFbo->SaveCurrentBindings();
     drawFbo->Bind(GL_FRAMEBUFFER);
@@ -455,24 +455,14 @@ int vtkImageDataLIC2D::RequestData(
     drawFbo->CheckFrameBufferStatus(GL_FRAMEBUFFER);
     drawFbo->InitializeViewport(magVectorSize[0], magVectorSize[1]);
 
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    float minXTexCoord=static_cast<float>(
-      static_cast<double>(0.5)/magVectorSize[0]);
-    float minYTexCoord=static_cast<float>(
-      static_cast<double>(0.5)/magVectorSize[1]);
-
-    float maxXTexCoord=static_cast<float>(
-      static_cast<double>(magVectorSize[0]-0.5)/magVectorSize[0]);
-    float maxYTexCoord=static_cast<float>(
-      static_cast<double>(magVectorSize[1]-0.5)/magVectorSize[1]);
+    this->Context->GetState()->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
+    this->Context->GetState()->vtkglClear(GL_COLOR_BUFFER_BIT);
 
     float tcoords[] = {
-      minXTexCoord, minYTexCoord,
-      maxXTexCoord, minYTexCoord,
-      maxXTexCoord, maxYTexCoord,
-      minXTexCoord, maxYTexCoord};
+      0.0f, 0.0f,
+      1.0f, 0.0f,
+      1.0f, 1.0f,
+      0.0f, 1.0f};
 
     float verts[] = {
       -1.0f, -1.0f, 0.0f,
@@ -480,18 +470,38 @@ int vtkImageDataLIC2D::RequestData(
       1.0f, 1.0f, 0.0f,
       -1.0f, 1.0f, 0.0f};
 
-    vectorTex->CopyToFrameBuffer(tcoords, verts, NULL, NULL);
+    vtkOpenGLHelper shaderHelper;
 
+    // build the shader source code
+    shaderHelper.Program =
+      this->Context->GetShaderCache()->ReadyShaderProgram(
+        vtkTextureObjectVS,
+        "//VTK::System::Dec\n"
+        "in vec2 tcoordVC;\n"
+        "uniform sampler2D source;\n"
+        "//VTK::Output::Dec\n"
+        "void main(void) {\n"
+        "  gl_FragData[0] = texture2D(source,tcoordVC); }\n",
+        "");
+
+    // bind and activate this texture
+    vectorTex->Activate();
+    int sourceId = vectorTex->GetTextureUnit();
+    shaderHelper.Program->SetUniformi("source",sourceId);
+    vectorTex->CopyToFrameBuffer(tcoords, verts,
+      shaderHelper.Program, shaderHelper.VAO);
+    vectorTex->Deactivate();
     vectorTex->Delete();
+    shaderHelper.ReleaseGraphicsResources(this->Context);
 
     drawFbo->UnBind(GL_FRAMEBUFFER);
     drawFbo->Delete();
-    }
+  }
 
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
               "idlic2d_magvectors.vtk",
-              magVectorTex, NULL, NULL);
+              magVectorTex, nullptr, nullptr);
   #endif
 
   // send noise data to a texture
@@ -504,9 +514,9 @@ int vtkImageDataLIC2D::RequestData(
   int noiseComp = inNoise->GetNumberOfComponents();
 
   if (inNoise->GetDataType() != VTK_FLOAT)
-    {
+  {
     vtkErrorMacro("noise dataset was not float");
-    }
+  }
 
   vtkPixelTransfer::Blit(
         noiseExt,
@@ -534,7 +544,7 @@ int vtkImageDataLIC2D::RequestData(
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
           "idlic2d_noise.vtk",
-          noiseTex, NULL, NULL);
+          noiseTex, nullptr, nullptr);
   #endif
 
   // step size conversion to normalize image space
@@ -594,7 +604,7 @@ int vtkImageDataLIC2D::RequestData(
             magLicGuardExtents,
             magLicExtents,
             magVectorTex,
-            NULL,
+            nullptr,
             noiseTex);
 
   LICer->Delete();
@@ -602,19 +612,19 @@ int vtkImageDataLIC2D::RequestData(
   magVectorTex->Delete();
 
   if ( !licTex )
-    {
+  {
     vtkErrorMacro("Failed to compute LIC");
     return 0;
-    }
+  }
 
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
           "idlic2d_lic.vtk",
-          licTex, NULL, NULL);
+          licTex, nullptr, nullptr);
   #endif
 
   // transfer lic from texture to vtk array
-  vtkIdType nOutTups = magLicExtent.Size();
+  vtkIdType nOutTups = static_cast<vtkIdType>(magLicExtent.Size());
   vtkFloatArray *licOut = vtkFloatArray::New();
   licOut->SetNumberOfComponents(3);
   licOut->SetNumberOfTuples(nOutTups);
@@ -639,28 +649,28 @@ int vtkImageDataLIC2D::RequestData(
   // mask and convert to gray scale 3 components
   float *pLicOut = licOut->GetPointer(0);
   for (vtkIdType i=0; i<nOutTups; ++i)
-    {
+  {
     float lic = pLicOut[3*i];
     float mask = pLicOut[3*i+1];
     if ( mask )
-      {
+    {
       pLicOut[3*i+1] = pLicOut[3*i+2] = pLicOut[3*i] = 0.0f;
-      }
-    else
-      {
-      pLicOut[3*i+1] = pLicOut[3*i+2] = lic;
-      }
     }
+    else
+    {
+      pLicOut[3*i+1] = pLicOut[3*i+2] = lic;
+    }
+  }
 
   // setup output
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkImageData *output
     = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!output)
-    {
+  {
     vtkErrorMacro("Empty output");
     return 1;
-    }
+  }
 
   output->SetExtent(magUpdateExt);
   output->SetSpacing(spacing);

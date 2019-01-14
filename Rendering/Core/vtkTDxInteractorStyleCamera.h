@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTDxInteractorStyleCamera - interactive manipulation of the camera with a 3DConnexion device
-
-// .SECTION Description
-// vtkTDxInteractorStyleCamera allows the end-user to manipulate tha camera
-// with a 3DConnexion device.
-
-// .SECTION See Also
-// vtkInteractorStyle vtkRenderWindowInteractor
-// vtkTDxInteractorStyle
+/**
+ * @class   vtkTDxInteractorStyleCamera
+ * @brief   interactive manipulation of the camera with a 3DConnexion device
+ *
+ *
+ * vtkTDxInteractorStyleCamera allows the end-user to manipulate tha camera
+ * with a 3DConnexion device.
+ *
+ * @sa
+ * vtkInteractorStyle vtkRenderWindowInteractor
+ * vtkTDxInteractorStyle
+*/
 
 #ifndef vtkTDxInteractorStyleCamera_h
 #define vtkTDxInteractorStyleCamera_h
@@ -35,23 +38,22 @@ class VTKRENDERINGCORE_EXPORT vtkTDxInteractorStyleCamera : public vtkTDxInterac
 public:
   static vtkTDxInteractorStyleCamera *New();
   vtkTypeMacro(vtkTDxInteractorStyleCamera,vtkTDxInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //BTX
-  // Description:
-  // Action on motion event.
-  // \pre: motionInfo_exist: motionInfo!=0
-  virtual void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo);
-  //ETX
+  /**
+   * Action on motion event.
+   * \pre: motionInfo_exist: motionInfo!=0
+   */
+  void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo) override;
 
 protected:
   vtkTDxInteractorStyleCamera();
-  virtual ~vtkTDxInteractorStyleCamera();
+  ~vtkTDxInteractorStyleCamera() override;
 
   vtkTransform *Transform; // Used for internal intermediate calculation.
 
 private:
-  vtkTDxInteractorStyleCamera(const vtkTDxInteractorStyleCamera&);  // Not implemented.
-  void operator=(const vtkTDxInteractorStyleCamera&);  // Not implemented.
+  vtkTDxInteractorStyleCamera(const vtkTDxInteractorStyleCamera&) = delete;
+  void operator=(const vtkTDxInteractorStyleCamera&) = delete;
 };
 #endif

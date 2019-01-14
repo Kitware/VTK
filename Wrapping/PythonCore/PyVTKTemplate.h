@@ -20,31 +20,22 @@
   and provides the corresponding python type.
 -----------------------------------------------------------------------*/
 
-#ifndef __PyVTKTemplate_h
-#define __PyVTKTemplate_h
+#ifndef PyVTKTemplate_h
+#define PyVTKTemplate_h
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
 
-// The PyVTKTemplate is a wrapper around a dict.
-struct PyVTKTemplate {
-  PyObject_HEAD
-  PyObject *dict;
-  PyObject *doc;
-  const char *name;
-  const char *module;
-};
-
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKTemplate_Type;
 
-#define PyVTKTemplate_Check(obj) ((obj)->ob_type == &PyVTKTemplate_Type)
+#define PyVTKTemplate_Check(obj) \
+  (Py_TYPE(obj) == &PyVTKTemplate_Type)
 
 extern "C"
 {
 VTKWRAPPINGPYTHONCORE_EXPORT
-PyObject *PyVTKTemplate_New(const char *name, const char *modulename,
-                            const char *docstring[]);
+PyObject *PyVTKTemplate_New(const char *name, const char *docstring);
 
 VTKWRAPPINGPYTHONCORE_EXPORT
 int PyVTKTemplate_AddItem(PyObject *self, PyObject *val);

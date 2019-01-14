@@ -35,9 +35,7 @@ vtkPieceScalars::vtkPieceScalars()
 }
 
 //----------------------------------------------------------------------------
-vtkPieceScalars::~vtkPieceScalars()
-{
-}
+vtkPieceScalars::~vtkPieceScalars() = default;
 
 //----------------------------------------------------------------------------
 // Append data sets into single unstructured grid
@@ -60,37 +58,37 @@ int vtkPieceScalars::RequestData(
   vtkIdType num;
 
   if (this->CellScalarsFlag)
-    {
+  {
     num = input->GetNumberOfCells();
-    }
+  }
   else
-    {
+  {
     num = input->GetNumberOfPoints();
-    }
+  }
 
   int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
   if (this->RandomMode)
-    {
+  {
     pieceColors = this->MakeRandomScalars(piece, num);
-    }
+  }
   else
-    {
+  {
     pieceColors = this->MakePieceScalars(piece, num);
-    }
+  }
 
   output->ShallowCopy(input);
   pieceColors->SetName("Piece");
   if (this->CellScalarsFlag)
-    {
+  {
     output->GetCellData()->AddArray(pieceColors);
     output->GetCellData()->SetActiveScalars(pieceColors->GetName());
-    }
+  }
   else
-    {
+  {
     output->GetPointData()->AddArray(pieceColors);
     output->GetPointData()->SetActiveScalars(pieceColors->GetName());
-    }
+  }
 
   pieceColors->Delete();
 
@@ -100,16 +98,13 @@ int vtkPieceScalars::RequestData(
 //----------------------------------------------------------------------------
 vtkIntArray *vtkPieceScalars::MakePieceScalars(int piece, vtkIdType num)
 {
-  vtkIdType i;
-  vtkIntArray *pieceColors = NULL;
-
-  pieceColors = vtkIntArray::New();
+  vtkIntArray *pieceColors = vtkIntArray::New();
   pieceColors->SetNumberOfTuples(num);
 
-  for (i = 0; i < num; ++i)
-    {
+  for (vtkIdType i = 0; i < num; ++i)
+  {
     pieceColors->SetValue(i, piece);
-    }
+  }
 
   return pieceColors;
 }
@@ -117,20 +112,16 @@ vtkIntArray *vtkPieceScalars::MakePieceScalars(int piece, vtkIdType num)
 //----------------------------------------------------------------------------
 vtkFloatArray *vtkPieceScalars::MakeRandomScalars(int piece, vtkIdType num)
 {
-  vtkIdType i;
-  vtkFloatArray *pieceColors = NULL;
-  float randomValue;
-
   vtkMath::RandomSeed(piece);
-  randomValue = static_cast<float>(vtkMath::Random());
+  float randomValue = static_cast<float>(vtkMath::Random());
 
-  pieceColors = vtkFloatArray::New();
+  vtkFloatArray *pieceColors = vtkFloatArray::New();
   pieceColors->SetNumberOfTuples(num);
 
-  for (i = 0; i < num; ++i)
-    {
+  for (vtkIdType i = 0; i < num; ++i)
+  {
     pieceColors->SetValue(i, randomValue);
-    }
+  }
 
   return pieceColors;
 }
@@ -142,11 +133,11 @@ void vtkPieceScalars::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "RandomMode: " << this->RandomMode << endl;
   if (this->CellScalarsFlag)
-    {
+  {
     os << indent << "ScalarMode: CellData\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "ScalarMode: PointData\n";
-    }
+  }
 }

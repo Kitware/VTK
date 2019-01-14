@@ -25,23 +25,176 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkCell.h"
+#include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPointSet.h"
 #include "vtkCellData.h"
 #include "vtkIntArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkTimeStamp.h"
+#include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkExtractCells);
 
-#include <set>
 #include <algorithm>
+#include <numeric>
+#include <vector>
+
+namespace {
+struct FastPointMap
+{
+  using ConstIteratorType = const vtkIdType*;
+
+  vtkNew<vtkIdList> Map;
+  vtkIdType LastInput;
+  vtkIdType LastOutput;
+
+  ConstIteratorType CBegin() const
+  {
+    return this->Map->GetPointer(0);
+  }
+
+  ConstIteratorType CEnd() const
+  {
+    return this->Map->GetPointer(this->Map->GetNumberOfIds());
+  }
+
+  vtkIdType* Reset(vtkIdType numValues)
+  {
+    this->LastInput = -1;
+    this->LastOutput = -1;
+    this->Map->SetNumberOfIds(numValues);
+    return this->Map->GetPointer(0);
+  }
+
+  // Map inputId to the new PointId. If inputId is invalid, return -1.
+  vtkIdType LookUp(vtkIdType inputId)
+  {
+    vtkIdType outputId = -1;
+    ConstIteratorType first;
+    ConstIteratorType last;
+
+    if (this->LastOutput >= 0)
+    {
+      // Here's the optimization: since the point ids are usually requested
+      // with some locality, we can reduce the search range by caching the
+      // results of the last lookup. This reduces the number of lookups and
+      // improves CPU cache behavior.
+
+      // Offset is the distance (in input space) between the last lookup and
+      // the current id. Since the point map is sorted and unique, this is the
+      // maximum distance that the current ID can be from the previous one.
+      vtkIdType offset = inputId - this->LastInput;
+
+      // Our search range is from the last output location
+      first = this->CBegin() + this->LastOutput;
+      last = first + offset;
+
+      // Ensure these are correctly ordered (offset may be < 0):
+      if (last < first)
+      {
+        std::swap(first, last);
+      }
+
+      // Adjust last to be past-the-end:
+      ++last;
+
+      // Clamp to map bounds:
+      first = std::max(first, this->CBegin());
+      last = std::min(last, this->CEnd());
+    }
+    else
+    { // First run, use full range:
+      first = this->CBegin();
+      last = this->CEnd();
+    }
+
+    outputId = this->BinaryFind(first, last, inputId);
+    if (outputId >= 0)
+    {
+      this->LastInput = inputId;
+      this->LastOutput = outputId;
+    }
+
+    return outputId;
+  }
+
+private:
+  // Modified version of std::lower_bound that returns as soon as a value is
+  // found (rather than finding the beginning of a sequence). Returns the
+  // position in the list, or -1 if not found.
+  vtkIdType BinaryFind(ConstIteratorType first, ConstIteratorType last,
+                       vtkIdType val) const
+  {
+    vtkIdType len = last - first;
+
+    while (len > 0)
+    {
+      // Select median
+      vtkIdType half = len / 2;
+      ConstIteratorType middle = first + half;
+
+      const vtkIdType &mVal = *middle;
+      if (mVal < val)
+      { // This soup is too cold.
+        first = middle;
+        ++first;
+        len = len - half - 1;
+      }
+      else if (val < mVal)
+      { // This soup is too hot!
+        len = half;
+      }
+      else
+      { // This soup is juuuust right.
+        return middle - this->Map->GetPointer(0);
+      }
+    }
+
+    return -1;
+  }
+};
+} // end anon namespace
 
 class vtkExtractCellsSTLCloak
 {
 public:
-  std::set<vtkIdType> IdTypeSet;
+  std::vector<vtkIdType> CellIds;
+  vtkTimeStamp ModifiedTime;
+  vtkTimeStamp SortTime;
+  FastPointMap PointMap;
+
+  void Modified()
+  {
+    this->ModifiedTime.Modified();
+  }
+
+  inline bool IsPrepared() const
+  {
+    return this->ModifiedTime.GetMTime() < this->SortTime.GetMTime();
+  }
+
+  void Prepare(vtkIdType numInputCells)
+  {
+    if (!this->IsPrepared())
+    {
+      vtkSMPTools::Sort(this->CellIds.begin(), this->CellIds.end());
+      auto last = std::unique(this->CellIds.begin(), this->CellIds.end());
+      auto first=this->CellIds.begin();
+
+      // These lines clamp the ids to the number of cells in the
+      // dataset. Otherwise segfaults occur when cellIds are greater than the
+      // number of input cells, in particular when cellId==numInputCells.
+      auto clampLast = std::find(first, last, numInputCells);
+      last = ( clampLast != last ? clampLast : last );
+
+      this->CellIds.resize(std::distance(first, last));
+      this->SortTime.Modified();
+    }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -64,50 +217,68 @@ void vtkExtractCells::SetCellList(vtkIdList *l)
   delete this->CellList;
   this->CellList = new vtkExtractCellsSTLCloak;
 
-  if (l != NULL)
-    {
+  if (l != nullptr)
+  {
     this->AddCellList(l);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractCells::AddCellList(vtkIdList *l)
 {
-  if (l == NULL)
-    {
+  const vtkIdType inputSize = l ? l->GetNumberOfIds() : 0;
+  if (inputSize == 0)
+  {
     return;
-    }
+  }
 
-  vtkIdType ncells = l->GetNumberOfIds();
+  const vtkIdType *inputBegin = l->GetPointer(0);
+  const vtkIdType *inputEnd = inputBegin + inputSize;
 
-  if (ncells == 0)
-    {
-    return;
-    }
+  const std::size_t oldSize = this->CellList->CellIds.size();
+  const std::size_t newSize = oldSize + static_cast<std::size_t>(inputSize);
+  this->CellList->CellIds.resize(newSize);
 
-  for (int i=0; i<ncells; i++)
-    {
-    this->CellList->IdTypeSet.insert(l->GetId(i));
-    }
+  auto outputBegin = this->CellList->CellIds.begin();
+  std::advance(outputBegin, oldSize);
 
-  this->Modified();
+  std::copy(inputBegin, inputEnd, outputBegin);
 
-  return;
+  this->CellList->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
 {
-  if (to < from) return;
+  if (to < from || to < 0 )
+  {
+    vtkWarningMacro("Bad cell range: (" << to << "," << from << ")");
+    return;
+  }
 
-  for (vtkIdType id=from; id <= to; id++)
-    {
-    this->CellList->IdTypeSet.insert(id);
-    }
+  // This range specification is inconsistent with C++. Left for backward
+  // compatibility reasons.
+  const vtkIdType inputSize = to - from + 1; // +1 to include 'to'
+  const std::size_t oldSize = this->CellList->CellIds.size();
+  const std::size_t newSize = oldSize + static_cast<std::size_t>(inputSize);
 
-  this->Modified();
+  this->CellList->CellIds.resize(newSize);
 
-  return;
+  auto outputBegin = this->CellList->CellIds.begin() + oldSize;
+  auto outputEnd = this->CellList->CellIds.begin() + newSize;
+
+  std::iota(outputBegin, outputEnd, from);
+
+  this->CellList->Modified();
+}
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkExtractCells::GetMTime()
+{
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  mTime = std::max(mTime, this->CellList->ModifiedTime.GetMTime());
+  mTime = std::max(mTime, this->CellList->SortTime.GetMTime());
+  return mTime;
 }
 
 //----------------------------------------------------------------------------
@@ -126,28 +297,26 @@ int vtkExtractCells::RequestData(
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  this->InputIsUgrid =
-    ((vtkUnstructuredGrid::SafeDownCast(input)) != NULL);
-
+  // Sort/uniquify the cell ids if needed.
   vtkIdType numCellsInput = input->GetNumberOfCells();
-  vtkIdType numCells = this->CellList->IdTypeSet.size();
+  this->CellList->Prepare(numCellsInput);
+
+  this->InputIsUgrid =
+    ((vtkUnstructuredGrid::SafeDownCast(input)) != nullptr);
+
+  vtkIdType numCells = static_cast<vtkIdType>(this->CellList->CellIds.size());
 
   if (numCells == numCellsInput)
-    {
-    #if 0
+  {
     this->Copy(input, output);
-
-    return;
-   #else
-    // The Copy method seems to have a bug, causing codes using ExtractCells to die
-    #endif
-    }
+    return 1;
+  }
 
   vtkPointData *PD = input->GetPointData();
   vtkCellData *CD = input->GetCellData();
 
   if (numCells == 0)
-    {
+  {
     // set up a ugrid with same data arrays as input, but
     // no points, cells or data.
 
@@ -166,13 +335,12 @@ int vtkExtractCells::RequestData(
     pts->Delete();
 
     return 1;
-    }
+  }
+
   vtkPointData *newPD = output->GetPointData();
   vtkCellData *newCD  = output->GetCellData();
 
-  vtkIdList *ptIdMap = reMapPointIds(input);
-
-  vtkIdType numPoints = ptIdMap->GetNumberOfIds();
+  vtkIdType numPoints = reMapPointIds(input);
 
   newPD->CopyGlobalIdsOn();
   newPD->CopyAllocate(PD, numPoints);
@@ -182,35 +350,46 @@ int vtkExtractCells::RequestData(
 
   vtkPoints *pts = vtkPoints::New();
   if(vtkPointSet* inputPS = vtkPointSet::SafeDownCast(input))
-    {
+  {
     // preserve input datatype
     pts->SetDataType(inputPS->GetPoints()->GetDataType());
-    }
+  }
   pts->SetNumberOfPoints(numPoints);
 
-  for (vtkIdType newId =0; newId<numPoints; newId++)
+  // Copy points and point data:
+  vtkPointSet *pointSet;
+  if ((pointSet = vtkPointSet::SafeDownCast(input)))
+  { // Optimize when a vtkPoints object exists in the input:
+    vtkNew<vtkIdList> dstIds; // contiguous range [0, numPoints)
+    dstIds->SetNumberOfIds(numPoints);
+    std::iota(dstIds->GetPointer(0), dstIds->GetPointer(numPoints), 0);
+
+    pts->InsertPoints(dstIds, this->CellList->PointMap.Map, pointSet->GetPoints());
+    newPD->CopyData(PD, this->CellList->PointMap.Map, dstIds);
+  }
+  else
+  { // Slow path if we have to query the dataset:
+    for (vtkIdType newId = 0; newId < numPoints; ++newId)
     {
-    vtkIdType oldId = ptIdMap->GetId(newId);
-
-    pts->SetPoint(newId, input->GetPoint(oldId));
-
-    newPD->CopyData(PD, oldId, newId);
+      vtkIdType oldId = this->CellList->PointMap.Map->GetId(newId);
+      pts->SetPoint(newId, input->GetPoint(oldId));
+      newPD->CopyData(PD, oldId, newId);
     }
+  }
 
   output->SetPoints(pts);
   pts->Delete();
 
   if (this->InputIsUgrid)
-    {
-    this->CopyCellsUnstructuredGrid(ptIdMap, input, output);
-    }
+  {
+    this->CopyCellsUnstructuredGrid(input, output);
+  }
   else
-    {
-    this->CopyCellsDataSet(ptIdMap, input, output);
-    }
+  {
+    this->CopyCellsDataSet(input, output);
+  }
 
-  ptIdMap->Delete();
-
+  this->CellList->PointMap.Reset(0);
   output->Squeeze();
 
   return 1;
@@ -219,155 +398,94 @@ int vtkExtractCells::RequestData(
 //----------------------------------------------------------------------------
 void vtkExtractCells::Copy(vtkDataSet *input, vtkUnstructuredGrid *output)
 {
+  // If input is unstructured grid just deep copy through
   if (this->InputIsUgrid)
-    {
+  {
     output->DeepCopy(vtkUnstructuredGrid::SafeDownCast(input));
     return;
-    }
+  }
 
+  vtkIdType numPoints = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
 
   vtkPointData *PD = input->GetPointData();
   vtkCellData *CD = input->GetCellData();
-
   vtkPointData *newPD = output->GetPointData();
   vtkCellData *newCD  = output->GetCellData();
-
-  vtkIdType numPoints = input->GetNumberOfPoints();
+  newPD->CopyAllocate(PD, numPoints);
+  newCD->CopyAllocate(CD, numCells);
 
   output->Allocate(numCells);
 
-  newPD->CopyAllocate(PD, numPoints);
-
-  newCD->CopyAllocate(CD, numCells);
-
   vtkPoints *pts = vtkPoints::New();
   pts->SetNumberOfPoints(numPoints);
-
-  for (vtkIdType i=0; i<numPoints; i++)
-    {
-    pts->SetPoint(i, input->GetPoint(i));
-    }
-  newPD->DeepCopy(PD);
-
   output->SetPoints(pts);
 
+  for (vtkIdType i=0; i<numPoints; i++)
+  {
+    pts->SetPoint(i, input->GetPoint(i));
+  }
+  newPD->DeepCopy(PD);
   pts->Delete();
 
   vtkIdList *cellPoints = vtkIdList::New();
-
   for (vtkIdType cellId=0; cellId < numCells; cellId++)
-    {
+  {
     input->GetCellPoints(cellId, cellPoints);
-
     output->InsertNextCell(input->GetCellType(cellId), cellPoints);
-    }
+  }
   newCD->DeepCopy(CD);
-
   cellPoints->Delete();
 
   output->Squeeze();
-
-  return;
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkExtractCells::findInSortedList(vtkIdList *idList, vtkIdType id)
-{
-  vtkIdType numids = idList->GetNumberOfIds();
-
-  if (numids < 8) return idList->IsId(id);
-
-  vtkIdType L, R, M;
-  L=0;
-  R=numids-1;
-
-  vtkIdType *ids = idList->GetPointer(0);
-
-  vtkIdType loc = -1;
-
-  while (R > L)
-    {
-    if (R == L+1)
-      {
-      if (ids[R] == id)
-        {
-        loc = R;
-        }
-      else if (ids[L] == id)
-        {
-        loc = L;
-        }
-      break;
-      }
-
-    M = (R + L) / 2;
-
-    if (ids[M] > id)
-      {
-      R = M;
-      continue;
-      }
-    else if (ids[M] < id)
-      {
-      L = M;
-      continue;
-      }
-    else
-      {
-      loc = M;
-      break;
-      }
-    }
-  return loc;
-}
-
-//----------------------------------------------------------------------------
-vtkIdList *vtkExtractCells::reMapPointIds(vtkDataSet *grid)
+vtkIdType vtkExtractCells::reMapPointIds(vtkDataSet *grid)
 {
   vtkIdType totalPoints = grid->GetNumberOfPoints();
 
   char *temp = new char [totalPoints];
 
   if (!temp)
-    {
+  {
     vtkErrorMacro(<< "vtkExtractCells::reMapPointIds memory allocation");
-    return NULL;
-    }
+    return 0;
+  }
   memset(temp, 0, totalPoints);
 
-  int numberOfIds = 0;
-  int i;
+  vtkIdType numberOfIds = 0;
+  vtkIdType i;
   vtkIdType id;
   vtkIdList *ptIds = vtkIdList::New();
-  std::set<vtkIdType>::iterator cellPtr;
+  std::vector<vtkIdType>::const_iterator cellPtr;
 
   if (!this->InputIsUgrid)
-    {
-    for (cellPtr = this->CellList->IdTypeSet.begin();
-         cellPtr != this->CellList->IdTypeSet.end();
+  {
+    for (cellPtr = this->CellList->CellIds.cbegin();
+         cellPtr != this->CellList->CellIds.cend();
          ++cellPtr)
-      {
+    {
       grid->GetCellPoints(*cellPtr, ptIds);
 
       vtkIdType nIds = ptIds->GetNumberOfIds();
 
       vtkIdType *ptId = ptIds->GetPointer(0);
 
-      for (i=0; i<nIds; i++)
-        {
+      for (i=0; i<nIds; ++i)
+      {
         id = *ptId++;
 
         if (temp[id] == 0)
-          {
-          numberOfIds++;
+        {
+          ++numberOfIds;
           temp[id] = 1;
-          }
         }
       }
     }
+  }
   else
-    {
+  {
     vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::SafeDownCast(grid);
 
     this->SubSetUGridCellArraySize = 0;
@@ -378,10 +496,10 @@ vtkIdList *vtkExtractCells::reMapPointIds(vtkDataSet *grid)
     this->SubSetUGridCellArraySize = 0;
     vtkIdType maxid = ugrid->GetCellLocationsArray()->GetMaxId();
 
-    for (cellPtr = this->CellList->IdTypeSet.begin();
-         cellPtr != this->CellList->IdTypeSet.end();
+    for (cellPtr = this->CellList->CellIds.cbegin();
+         cellPtr != this->CellList->CellIds.cend();
          ++cellPtr)
-      {
+    {
       if (*cellPtr > maxid) continue;
 
       vtkIdType loc = locs[*cellPtr];
@@ -390,37 +508,41 @@ vtkIdList *vtkExtractCells::reMapPointIds(vtkDataSet *grid)
 
       this->SubSetUGridCellArraySize += (1 + nIds);
 
-      for (i=0; i<nIds; i++)
-        {
+      for (i=0; i<nIds; ++i)
+      {
         id = cellArray[loc++];
 
         if (temp[id] == 0)
-          {
-          numberOfIds++;
+        {
+          ++numberOfIds;
           temp[id] = 1;
-          }
         }
       }
     }
+  }
+  ptIds->Delete();
+  ptIds = nullptr;
 
-  ptIds->SetNumberOfIds(numberOfIds);
-  vtkIdType next=0;
+  vtkIdType *pointMap = this->CellList->PointMap.Reset(numberOfIds);
 
   for (id=0; id<totalPoints; id++)
+  {
+    if (temp[id])
     {
-    if (temp[id]) ptIds->SetId(next++, id);
+      (*pointMap++) = id;
     }
+  }
 
   delete [] temp;
 
-  return ptIds;
+  return numberOfIds;
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
+void vtkExtractCells::CopyCellsDataSet(vtkDataSet *input,
                                        vtkUnstructuredGrid *output)
 {
-  output->Allocate(this->CellList->IdTypeSet.size());
+  output->Allocate(static_cast<vtkIdType>(this->CellList->CellIds.size()));
 
   vtkCellData *oldCD = input->GetCellData();
   vtkCellData *newCD = output->GetCellData();
@@ -428,61 +550,59 @@ void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
   // We only create vtkOriginalCellIds for the output data set if it does not
   // exist in the input data set.  If it is in the input data set then we
   // let CopyData() take care of copying it over.
-  vtkIdTypeArray *origMap = 0;
-  if(oldCD->GetArray("vtkOriginalCellIds") == 0)
-    {
+  vtkIdTypeArray *origMap = nullptr;
+  if(oldCD->GetArray("vtkOriginalCellIds") == nullptr)
+  {
     origMap = vtkIdTypeArray::New();
     origMap->SetNumberOfComponents(1);
     origMap->SetName("vtkOriginalCellIds");
     newCD->AddArray(origMap);
     origMap->Delete();
-    }
+  }
 
   vtkIdList *cellPoints = vtkIdList::New();
 
-  std::set<vtkIdType>::iterator cellPtr;
+  std::vector<vtkIdType>::const_iterator cellPtr;
 
-  for (cellPtr = this->CellList->IdTypeSet.begin();
-       cellPtr != this->CellList->IdTypeSet.end();
+  for (cellPtr = this->CellList->CellIds.cbegin();
+       cellPtr != this->CellList->CellIds.cend();
        ++cellPtr)
-    {
+  {
     vtkIdType cellId = *cellPtr;
 
     input->GetCellPoints(cellId, cellPoints);
 
     for (int i=0; i < cellPoints->GetNumberOfIds(); i++)
-      {
+    {
       vtkIdType oldId = cellPoints->GetId(i);
 
-      vtkIdType newId = vtkExtractCells::findInSortedList(ptMap, oldId);
+      vtkIdType newId = this->CellList->PointMap.LookUp(oldId);
+      assert("Old id exists in map." && newId >= 0);
 
       cellPoints->SetId(i, newId);
-      }
+    }
     vtkIdType newId = output->InsertNextCell(input->GetCellType(cellId), cellPoints);
 
     newCD->CopyData(oldCD, cellId, newId);
     if(origMap)
-      {
+    {
       origMap->InsertNextValue(cellId);
-      }
     }
+  }
 
   cellPoints->Delete();
-
-  return;
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
-                                                vtkDataSet *input,
+void vtkExtractCells::CopyCellsUnstructuredGrid(vtkDataSet *input,
                                                 vtkUnstructuredGrid *output)
 {
   vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::SafeDownCast(input);
-  if (ugrid == NULL)
-    {
-    this->CopyCellsDataSet(ptMap, input, output);
+  if (ugrid == nullptr)
+  {
+    this->CopyCellsDataSet(input, output);
     return;
-    }
+  }
 
   vtkCellData *oldCD = input->GetCellData();
   vtkCellData *newCD = output->GetCellData();
@@ -490,23 +610,23 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
   // We only create vtkOriginalCellIds for the output data set if it does not
   // exist in the input data set.  If it is in the input data set then we
   // let CopyData() take care of copying it over.
-  vtkIdTypeArray *origMap = 0;
-  if(oldCD->GetArray("vtkOriginalCellIds") == 0)
-    {
+  vtkIdTypeArray *origMap = nullptr;
+  if(oldCD->GetArray("vtkOriginalCellIds") == nullptr)
+  {
     origMap = vtkIdTypeArray::New();
     origMap->SetNumberOfComponents(1);
     origMap->SetName("vtkOriginalCellIds");
     newCD->AddArray(origMap);
     origMap->Delete();
-    }
+  }
 
-  int numCells = static_cast<int>(this->CellList->IdTypeSet.size());
+  vtkIdType numCells = static_cast<vtkIdType>(this->CellList->CellIds.size());
 
   vtkCellArray *cellArray = vtkCellArray::New();                 // output
   vtkIdTypeArray *newcells = vtkIdTypeArray::New();
   newcells->SetNumberOfValues(this->SubSetUGridCellArraySize);
   cellArray->SetCells(numCells, newcells);
-  int cellArrayIdx = 0;
+  vtkIdType cellArrayIdx = 0;
 
   vtkIdTypeArray *locationArray = vtkIdTypeArray::New();
   locationArray->SetNumberOfValues(numCells);
@@ -514,18 +634,18 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
   vtkUnsignedCharArray *typeArray = vtkUnsignedCharArray::New();
   typeArray->SetNumberOfValues(numCells);
 
-  int nextCellId = 0;
+  vtkIdType nextCellId = 0;
 
-  std::set<vtkIdType>::iterator cellPtr;                           // input
+  std::vector<vtkIdType>::const_iterator cellPtr; // input
   vtkIdType *cells = ugrid->GetCells()->GetPointer();
   vtkIdType maxid = ugrid->GetCellLocationsArray()->GetMaxId();
   vtkIdType *locs = ugrid->GetCellLocationsArray()->GetPointer(0);
   vtkUnsignedCharArray *types = ugrid->GetCellTypesArray();
 
-  for (cellPtr = this->CellList->IdTypeSet.begin();
-       cellPtr != this->CellList->IdTypeSet.end();
+  for (cellPtr = this->CellList->CellIds.cbegin();
+       cellPtr != this->CellList->CellIds.cend();
        ++cellPtr)
-    {
+  {
     if (*cellPtr > maxid) continue;
 
     vtkIdType oldCellId = *cellPtr;
@@ -541,20 +661,21 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
     newcells->SetValue(cellArrayIdx++, size);
 
     for (int i=0; i<size; i++)
-      {
+    {
       vtkIdType oldId = *pts++;
-      vtkIdType newId = vtkExtractCells::findInSortedList(ptMap, oldId);
+      vtkIdType newId = this->CellList->PointMap.LookUp(oldId);
+      assert("Old id exists in map." && newId >= 0);
 
       newcells->SetValue(cellArrayIdx++, newId);
-      }
+    }
 
     newCD->CopyData(oldCD, oldCellId, nextCellId);
     if(origMap)
-      {
+    {
       origMap->InsertNextValue(oldCellId);
-      }
-    nextCellId++;
     }
+    nextCellId++;
+  }
 
   output->SetCells(typeArray, locationArray, cellArray);
 
@@ -562,8 +683,6 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
   locationArray->Delete();
   newcells->Delete();
   cellArray->Delete();
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -578,4 +697,3 @@ void vtkExtractCells::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
-

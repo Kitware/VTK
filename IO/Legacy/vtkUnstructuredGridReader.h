@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridReader - read vtk unstructured grid data file
-// .SECTION Description
-// vtkUnstructuredGridReader is a source object that reads ASCII or binary
-// unstructured grid data files in vtk format. (see text for format details).
-// The output of this reader is a single vtkUnstructuredGrid data object.
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-// .SECTION See Also
-// vtkUnstructuredGrid vtkDataReader
+/**
+ * @class   vtkUnstructuredGridReader
+ * @brief   read vtk unstructured grid data file
+ *
+ * vtkUnstructuredGridReader is a source object that reads ASCII or binary
+ * unstructured grid data files in vtk format. (see text for format details).
+ * The output of this reader is a single vtkUnstructuredGrid data object.
+ * The superclass of this class, vtkDataReader, provides many methods for
+ * controlling the reading of the data file, see vtkDataReader for more
+ * information.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+ * @sa
+ * vtkUnstructuredGrid vtkDataReader
+*/
 
 #ifndef vtkUnstructuredGridReader_h
 #define vtkUnstructuredGridReader_h
@@ -38,31 +41,31 @@ class VTKIOLEGACY_EXPORT vtkUnstructuredGridReader : public vtkDataReader
 public:
   static vtkUnstructuredGridReader *New();
   vtkTypeMacro(vtkUnstructuredGridReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the output of this reader.
+  //@{
+  /**
+   * Get the output of this reader.
+   */
   vtkUnstructuredGrid *GetOutput();
   vtkUnstructuredGrid *GetOutput(int idx);
   void SetOutput(vtkUnstructuredGrid *output);
+  //@}
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
 
 protected:
   vtkUnstructuredGridReader();
-  ~vtkUnstructuredGridReader();
+  ~vtkUnstructuredGridReader() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-
-  // Since the Outputs[0] has the same UpdateExtent format
-  // as the generic DataObject we can copy the UpdateExtent
-  // as a default behavior.
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridReader&);  // Not implemented.
+  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&) = delete;
+  void operator=(const vtkUnstructuredGridReader&) = delete;
 };
 
 #endif

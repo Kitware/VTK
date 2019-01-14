@@ -11,11 +11,11 @@ if(VTK_MYSQL_TEST_URL)
     set(TestMySQLTableReadWrite_ARGS
       DATA{../Data/Input/simple_table.vtk})
   endif()
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
+  vtk_add_test_cxx(vtkIOMySQLCxxTests tests
     NO_DATA NO_VALID
     TestMySQLDatabase.cxx
     TestMySQLTableReadWrite.cxx
     )
 
-  vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+  vtk_test_cxx_executable(vtkIOMySQLCxxTests tests)
 endif()

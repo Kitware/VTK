@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMoleculeToBondStickFilter - Generate polydata with cylinders
-// representing bonds
+/**
+ * @class   vtkMoleculeToBondStickFilter
+ * @brief   Generate polydata with cylinders
+ * representing bonds
+*/
 
 #ifndef vtkMoleculeToBondStickFilter_h
 #define vtkMoleculeToBondStickFilter_h
@@ -28,20 +31,20 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToBondStickFilter
 {
  public:
   vtkTypeMacro(vtkMoleculeToBondStickFilter,vtkMoleculeToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkMoleculeToBondStickFilter *New();
 
 protected:
   vtkMoleculeToBondStickFilter();
-  ~vtkMoleculeToBondStickFilter();
+  ~vtkMoleculeToBondStickFilter() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) override;
 
 private:
-  vtkMoleculeToBondStickFilter(const vtkMoleculeToBondStickFilter&);  // Not implemented.
-  void operator=(const vtkMoleculeToBondStickFilter&);  // Not implemented.
+  vtkMoleculeToBondStickFilter(const vtkMoleculeToBondStickFilter&) = delete;
+  void operator=(const vtkMoleculeToBondStickFilter&) = delete;
 };
 
 #endif

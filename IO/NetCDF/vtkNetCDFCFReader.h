@@ -20,13 +20,15 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkNetCDFCFReader
-//
-// .SECTION Description
-//
-// Reads netCDF files that follow the CF convention.  Details on this convention
-// can be found at <http://cf-pcmdi.llnl.gov/>.
-//
+/**
+ * @class   vtkNetCDFCFReader
+ *
+ *
+ *
+ * Reads netCDF files that follow the CF convention.  Details on this convention
+ * can be found at <http://cf-pcmdi.llnl.gov/>.
+ *
+*/
 
 #ifndef vtkNetCDFCFReader_h
 #define vtkNetCDFCFReader_h
@@ -47,37 +49,45 @@ class VTKIONETCDF_EXPORT vtkNetCDFCFReader : public vtkNetCDFReader
 public:
   vtkTypeMacro(vtkNetCDFCFReader, vtkNetCDFReader);
   static vtkNetCDFCFReader *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  // Description:
-  // If on (the default), then 3D data with latitude/longitude dimensions
-  // will be read in as curvilinear data shaped like spherical coordinates.
-  // If false, then the data will always be read in Cartesian coordinates.
-  vtkGetMacro(SphericalCoordinates, int);
-  vtkSetMacro(SphericalCoordinates, int);
-  vtkBooleanMacro(SphericalCoordinates, int);
+  //@{
+  /**
+   * If on (the default), then 3D data with latitude/longitude dimensions
+   * will be read in as curvilinear data shaped like spherical coordinates.
+   * If false, then the data will always be read in Cartesian coordinates.
+   */
+  vtkGetMacro(SphericalCoordinates, vtkTypeBool);
+  vtkSetMacro(SphericalCoordinates, vtkTypeBool);
+  vtkBooleanMacro(SphericalCoordinates, vtkTypeBool);
+  //@}
 
-  // Description:
-  // The scale and bias of the vertical component of spherical coordinates.  It
-  // is common to write the vertical component with respect to something other
-  // than the center of the sphere (for example, the surface).  In this case, it
-  // might be necessary to scale and/or bias the vertical height.  The height
-  // will become height*scale + bias.  Keep in mind that if the positive
-  // attribute of the vertical dimension is down, then the height is negated.
-  // By default the scale is 1 and the bias is 0 (that is, no change).  The
-  // scaling will be adjusted if it results in invalid (negative) vertical
-  // values.
+  //@{
+  /**
+   * The scale and bias of the vertical component of spherical coordinates.  It
+   * is common to write the vertical component with respect to something other
+   * than the center of the sphere (for example, the surface).  In this case, it
+   * might be necessary to scale and/or bias the vertical height.  The height
+   * will become height*scale + bias.  Keep in mind that if the positive
+   * attribute of the vertical dimension is down, then the height is negated.
+   * By default the scale is 1 and the bias is 0 (that is, no change).  The
+   * scaling will be adjusted if it results in invalid (negative) vertical
+   * values.
+   */
   vtkGetMacro(VerticalScale, double);
   vtkSetMacro(VerticalScale, double);
   vtkGetMacro(VerticalBias, double);
   vtkSetMacro(VerticalBias, double);
+  //@}
 
-  // Description:
-  // Set/get the data type of the output.  The index used is taken from the list
-  // of VTK data types in vtkType.h.  Valid types are VTK_IMAGE_DATA,
-  // VTK_RECTILINEAR_GRID, VTK_STRUCTURED_GRID, and VTK_UNSTRUCTURED_GRID.  In
-  // addition you can set the type to -1 (the default), and this reader will
-  // pick the data type best suited for the dimensions being read.
+  //@{
+  /**
+   * Set/get the data type of the output.  The index used is taken from the list
+   * of VTK data types in vtkType.h.  Valid types are VTK_IMAGE_DATA,
+   * VTK_RECTILINEAR_GRID, VTK_STRUCTURED_GRID, and VTK_UNSTRUCTURED_GRID.  In
+   * addition you can set the type to -1 (the default), and this reader will
+   * pick the data type best suited for the dimensions being read.
+   */
   vtkGetMacro(OutputType, int);
   virtual void SetOutputType(int type);
   void SetOutputTypeToAutomatic() { this->SetOutputType(-1); }
@@ -87,43 +97,45 @@ public:
   void SetOutputTypeToUnstructured() {
     this->SetOutputType(VTK_UNSTRUCTURED_GRID);
   }
+  //@}
 
-  // Description:
-  // Returns true if the given file can be read.
+  /**
+   * Returns true if the given file can be read.
+   */
   static int CanReadFile(const char *filename);
 
 protected:
   vtkNetCDFCFReader();
-  ~vtkNetCDFCFReader();
+  ~vtkNetCDFCFReader() override;
 
-  int SphericalCoordinates;
+  vtkTypeBool SphericalCoordinates;
 
   double VerticalScale;
   double VerticalBias;
 
   int OutputType;
 
-  virtual int RequestDataObject(vtkInformation *request,
+  int RequestDataObject(vtkInformation *request,
                                 vtkInformationVector **inputVector,
-                                vtkInformationVector *outputVector);
+                                vtkInformationVector *outputVector) override;
 
-  virtual int RequestInformation(vtkInformation *request,
+  int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
+                                 vtkInformationVector *outputVector) override;
 
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) override;
 
-//BTX
-  // Description:
-  // Interprets the special conventions of COARDS.
-  virtual int ReadMetaData(int ncFD);
-  virtual int IsTimeDimension(int ncFD, int dimId);
-  virtual vtkSmartPointer<vtkDoubleArray> GetTimeValues(int ncFD, int dimId);
-//ETX
+  //@{
+  /**
+   * Interprets the special conventions of COARDS.
+   */
+  int ReadMetaData(int ncFD) override;
+  int IsTimeDimension(int ncFD, int dimId) override;
+  vtkSmartPointer<vtkDoubleArray> GetTimeValues(int ncFD, int dimId) override;
+  //@}
 
-//BTX
   class vtkDimensionInfo {
   public:
     vtkDimensionInfo() { };
@@ -200,14 +212,14 @@ protected:
   vtkDependentDimensionInfoVector *DependentDimensionInfo;
 
   // Finds the dependent dimension information for the given set of dimensions.
-  // Returns NULL if no information has been recorded.
+  // Returns nullptr if no information has been recorded.
   vtkDependentDimensionInfo *FindDependentDimensionInfo(vtkIntArray *dims);
-//ETX
 
-  // Description:
-  // Given the list of dimensions, identify the longitude, latitude, and
-  // vertical dimensions.  -1 is returned for any not found.  The results depend
-  // on the values in this->DimensionInfo.
+  /**
+   * Given the list of dimensions, identify the longitude, latitude, and
+   * vertical dimensions.  -1 is returned for any not found.  The results depend
+   * on the values in this->DimensionInfo.
+   */
   virtual void IdentifySphericalCoordinates(vtkIntArray *dimensions,
                                             int &longitudeDim,
                                             int &latitudeDim,
@@ -225,31 +237,37 @@ protected:
     COORDS_SPHERICAL_PSIDED_CELLS
   };
 
-  // Description:
-  // Based on the given dimensions and the current state of the reader, returns
-  // how the coordinates should be interpreted.  The returned value is one of
-  // the CoordinateTypesEnum identifiers.
+  /**
+   * Based on the given dimensions and the current state of the reader, returns
+   * how the coordinates should be interpreted.  The returned value is one of
+   * the CoordinateTypesEnum identifiers.
+   */
   CoordinateTypesEnum CoordinateType(vtkIntArray *dimensions);
 
-  // Description:
-  // Returns false for spherical dimensions, which should use cell data.
-  virtual bool DimensionsAreForPointData(vtkIntArray *dimensions);
+  /**
+   * Returns false for spherical dimensions, which should use cell data.
+   */
+  bool DimensionsAreForPointData(vtkIntArray *dimensions) override;
 
-  // Description:
-  // Convenience function that takes piece information and then returns a set of
-  // extents to load based on this->WholeExtent.  The result is returned in
-  // extent.
+  /**
+   * Convenience function that takes piece information and then returns a set of
+   * extents to load based on this->WholeExtent.  The result is returned in
+   * extent.
+   */
   void ExtentForDimensionsAndPiece(int pieceNumber,
                                    int numberOfPieces,
                                    int ghostLevels,
                                    int extent[6]);
 
-  // Description:
-  // Overridden to retrieve stored extent for unstructured data.
-  virtual void GetUpdateExtentForOutput(vtkDataSet *output, int extent[6]);
+  /**
+   * Overridden to retrieve stored extent for unstructured data.
+   */
+  void GetUpdateExtentForOutput(vtkDataSet *output, int extent[6]) override;
 
-  // Description:
-  // Internal methods for setting rectilinear coordinates.
+  //@{
+  /**
+   * Internal methods for setting rectilinear coordinates.
+   */
   void AddRectilinearCoordinates(vtkImageData *imageOutput);
   void AddRectilinearCoordinates(vtkRectilinearGrid *rectilinearOutput);
   void FakeRectilinearCoordinates(vtkRectilinearGrid *rectilinearOutput);
@@ -262,9 +280,12 @@ protected:
                                    const int extent[6]);
   void Add2DRectilinearCoordinates(vtkUnstructuredGrid *unstructuredOutput,
                                    const int extent[6]);
+  //@}
 
-  // Description:
-  // Internal methods for setting spherical coordinates.
+  //@{
+  /**
+   * Internal methods for setting spherical coordinates.
+   */
   void Add1DSphericalCoordinates(vtkPoints *points, const int extent[6]);
   void Add2DSphericalCoordinates(vtkPoints *points, const int extent[6]);
   void Add1DSphericalCoordinates(vtkStructuredGrid *structuredOutput);
@@ -273,25 +294,30 @@ protected:
                                  const int extent[6]);
   void Add2DSphericalCoordinates(vtkUnstructuredGrid *unstructuredOutput,
                                  const int extent[6]);
+  //@}
 
-  // Description:
-  // Internal method for building unstructred cells that match structured cells.
+  /**
+   * Internal method for building unstructred cells that match structured cells.
+   */
   void AddStructuredCells(vtkUnstructuredGrid *unstructuredOutput,
                           const int extent[6]);
 
-  // Description:
-  // Internal methods for creating unstructured cells.
+  //@{
+  /**
+   * Internal methods for creating unstructured cells.
+   */
   void AddUnstructuredRectilinearCoordinates(
                                         vtkUnstructuredGrid *unstructuredOutput,
                                         const int extent[6]);
   void AddUnstructuredSphericalCoordinates(
                                         vtkUnstructuredGrid *unstructuredOutput,
                                         const int extent[6]);
+  //@}
 
 
 private:
-  vtkNetCDFCFReader(const vtkNetCDFCFReader &); // Not implemented
-  void operator=(const vtkNetCDFCFReader &);    // Not implemented
+  vtkNetCDFCFReader(const vtkNetCDFCFReader &) = delete;
+  void operator=(const vtkNetCDFCFReader &) = delete;
 };
 
 #endif //vtkNetCDFCFReader_h

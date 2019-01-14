@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWin32VideoSource - Video-for-Windows video digitizer
-// .SECTION Description
-// vtkWin32VideoSource grabs frames or streaming video from a
-// Video for Windows compatible device on the Win32 platform.
-// .SECTION Caveats
-// With some capture cards, if this class is leaked and ReleaseSystemResources
-// is not called, you may have to reboot before you can capture again.
-// vtkVideoSource used to keep a global list and delete the video sources
-// if your program leaked, due to exit crashes that was removed.
-//
-// .SECTION See Also
-// vtkVideoSource vtkMILVideoSource
+/**
+ * @class   vtkWin32VideoSource
+ * @brief   Video-for-Windows video digitizer
+ *
+ * vtkWin32VideoSource grabs frames or streaming video from a
+ * Video for Windows compatible device on the Win32 platform.
+ * @warning
+ * With some capture cards, if this class is leaked and ReleaseSystemResources
+ * is not called, you may have to reboot before you can capture again.
+ * vtkVideoSource used to keep a global list and delete the video sources
+ * if your program leaked, due to exit crashes that was removed.
+ *
+ * @sa
+ * vtkVideoSource vtkMILVideoSource
+*/
 
 #ifndef vtkWin32VideoSource_h
 #define vtkWin32VideoSource_h
@@ -38,66 +41,85 @@ class VTKIOVIDEO_EXPORT vtkWin32VideoSource : public vtkVideoSource
 public:
   static vtkWin32VideoSource *New();
   vtkTypeMacro(vtkWin32VideoSource,vtkVideoSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Standard VCR functionality: Record incoming video.
-  void Record();
+  /**
+   * Standard VCR functionality: Record incoming video.
+   */
+  void Record() override;
 
-  // Description:
-  // Standard VCR functionality: Play recorded video.
-  void Play();
+  /**
+   * Standard VCR functionality: Play recorded video.
+   */
+  void Play() override;
 
-  // Description:
-  // Standard VCR functionality: Stop recording or playing.
-  void Stop();
+  /**
+   * Standard VCR functionality: Stop recording or playing.
+   */
+  void Stop() override;
 
-  // Description:
-  // Grab a single video frame.
-  void Grab();
+  /**
+   * Grab a single video frame.
+   */
+  void Grab() override;
 
-  // Description:
-  // Request a particular frame size (set the third value to 1).
-  void SetFrameSize(int x, int y, int z);
-  virtual void SetFrameSize(int dim[3]) {
+  //@{
+  /**
+   * Request a particular frame size (set the third value to 1).
+   */
+  void SetFrameSize(int x, int y, int z) override;
+  void SetFrameSize(int dim[3]) override {
     this->SetFrameSize(dim[0], dim[1], dim[2]); };
+  //@}
 
-  // Description:
-  // Request a particular frame rate (default 30 frames per second).
-  void SetFrameRate(float rate);
+  /**
+   * Request a particular frame rate (default 30 frames per second).
+   */
+  void SetFrameRate(float rate) override;
 
-  // Description:
-  // Request a particular output format (default: VTK_RGB).
-  void SetOutputFormat(int format);
+  /**
+   * Request a particular output format (default: VTK_RGB).
+   */
+  void SetOutputFormat(int format) override;
 
-  // Description:
-  // Turn on/off the preview (overlay) window.
+  //@{
+  /**
+   * Turn on/off the preview (overlay) window.
+   */
   void SetPreview(int p);
   vtkBooleanMacro(Preview,int);
   vtkGetMacro(Preview,int);
+  //@}
 
-  // Description:
-  // Bring up a modal dialog box for video format selection.
+  /**
+   * Bring up a modal dialog box for video format selection.
+   */
   void VideoFormatDialog();
 
-  // Description:
-  // Bring up a modal dialog box for video input selection.
+  /**
+   * Bring up a modal dialog box for video input selection.
+   */
   void VideoSourceDialog();
 
-  // Description:
-  // Initialize the driver (this is called automatically when the
-  // first grab is done).
-  void Initialize();
+  /**
+   * Initialize the driver (this is called automatically when the
+   * first grab is done).
+   */
+  void Initialize() override;
 
-  // Description:
-  // Free the driver (this is called automatically inside the
-  // destructor).
-  void ReleaseSystemResources();
+  /**
+   * Free the driver (this is called automatically inside the
+   * destructor).
+   */
+  void ReleaseSystemResources() override;
 
-  // Description:
-  // For internal use only
+  //@{
+  /**
+   * For internal use only
+   */
   void LocalInternalGrab(void*);
   void OnParentWndDestroy();
+  //@}
 
 protected:
   vtkWin32VideoSource();
@@ -111,14 +133,14 @@ protected:
 
   void CheckBuffer();
   void UnpackRasterLine(char *outptr, char *inptr,
-                        int start, int count);
+                        int start, int count) override;
 
   void DoVFWFormatSetup();
   void DoVFWFormatCheck();
 
 private:
-  vtkWin32VideoSource(const vtkWin32VideoSource&);  // Not implemented.
-  void operator=(const vtkWin32VideoSource&);  // Not implemented.
+  vtkWin32VideoSource(const vtkWin32VideoSource&) = delete;
+  void operator=(const vtkWin32VideoSource&) = delete;
 };
 
 #endif

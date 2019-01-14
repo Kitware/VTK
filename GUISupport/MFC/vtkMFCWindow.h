@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef C_VTK_MFC_WINDOW
-#define C_VTK_MFC_WINDOW
+#ifndef vtkMFCWindow_h
+#define vtkMFCWindow_h
 
 #include "vtkGUISupportMFCModule.h" // For export macro
 #include "afxwin.h"

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Perform psuedo volume rendering in a structured grid by compositing
+# Perform pseudo volume rendering in a structured grid by compositing
 # translucent cut planes. This same trick can be used for unstructured
 # grids. Note that for better results, more planes can be created. Also,
 # if your data is vtkImageData, there are much faster methods for volume

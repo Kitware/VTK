@@ -36,9 +36,9 @@ int TestContextImage(int argc, char * argv [])
 
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
-  view->GetRenderWindow()->SetSize(275, 275);
+  view->GetRenderWindow()->SetSize(320, 181);
   vtkNew<vtkImageItem> item;
-  view->GetScene()->AddItem(item.GetPointer());
+  view->GetScene()->AddItem(item);
 
   vtkNew<vtkPNGReader> reader;
   reader->SetFileName(logo);

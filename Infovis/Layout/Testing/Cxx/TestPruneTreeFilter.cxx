@@ -59,9 +59,9 @@ int TestPruneTreeFilter(int argc, char* argv[])
   VTK_CREATE(vtkIdTypeArray, idArr);
   idArr->SetName("id");
   for (vtkIdType i = 0; i < 11; ++i)
-    {
+  {
     idArr->InsertNextValue(i);
-    }
+  }
   tree->GetVertexData()->AddArray(idArr);
 
   VTK_CREATE(vtkPruneTreeFilter, prune);
@@ -97,12 +97,12 @@ int TestPruneTreeFilter(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Initialize();
     iren->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

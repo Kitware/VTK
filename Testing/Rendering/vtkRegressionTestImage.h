@@ -14,6 +14,7 @@
 =========================================================================*/
 #ifndef vtkRegressionTestImage_h
 #define vtkRegressionTestImage_h
+#ifndef __VTK_WRAP__
 
 // Includes and a macro necessary for saving the image produced by a cxx
 // example program. This capability is critical for regression testing.
@@ -25,17 +26,21 @@ class vtkRegressionTester : public vtkTesting
 {
 protected:
   vtkRegressionTester() {}
-  ~vtkRegressionTester() {}
+  ~vtkRegressionTester() override {}
 private:
-  vtkRegressionTester(const vtkRegressionTester&);  // Not implemented.
-  void operator=(const vtkRegressionTester&);  // Not implemented.
+  vtkRegressionTester(const vtkRegressionTester&) = delete;
+  void operator=(const vtkRegressionTester&) = delete;
 };
 
+// 0.15 threshold is arbitrary but found to
+// allow most graphics system variances to pass
+// when they should and fail when they should
 #define vtkRegressionTestImage(rw) \
-vtkTesting::Test(argc, argv, rw, 10)
+vtkTesting::Test(argc, argv, rw, 0.15)
 
 #define vtkRegressionTestImageThreshold(rw, t) \
 vtkTesting::Test(argc, argv, rw, t)
 
+#endif
 #endif // vtkRegressionTestImage_h
 // VTK-HeaderTest-Exclude: vtkRegressionTestImage.h

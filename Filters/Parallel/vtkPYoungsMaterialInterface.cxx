@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    $RCSfile: vtkYoungsMaterialInterface.cxx,v $
+Module:    vtkYoungsMaterialInterface.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -31,7 +31,7 @@ vtkCxxSetObjectMacro(vtkPYoungsMaterialInterface, Controller, vtkMultiProcessCon
 //-----------------------------------------------------------------------------
 vtkPYoungsMaterialInterface::vtkPYoungsMaterialInterface()
 {
-  this->Controller = 0 ;
+  this->Controller = nullptr ;
   this->SetController( vtkMultiProcessController::GetGlobalController() );
 
   vtkDebugMacro(<<"vtkPYoungsMaterialInterface::vtkPYoungsMaterialInterface() ok\n");
@@ -40,7 +40,7 @@ vtkPYoungsMaterialInterface::vtkPYoungsMaterialInterface()
 //-----------------------------------------------------------------------------
 vtkPYoungsMaterialInterface::~vtkPYoungsMaterialInterface()
 {
-  this->SetController( 0 );
+  this->SetController( nullptr );
 }
 
 //-----------------------------------------------------------------------------
@@ -55,16 +55,16 @@ void vtkPYoungsMaterialInterface::Aggregate( int nmat, int* inputsPerMaterial )
 {
   vtkIdType nprocs = this->Controller->GetNumberOfProcesses();
   if ( nprocs < 2 )
-    {
+  {
     return;
-    }
+  }
 
   // Now get ready for parallel calculations
   vtkCommunicator* com = this->Controller->GetCommunicator();
   if ( ! com )
-    {
+  {
     vtkErrorMacro(<<"No parallel communicator.");
-    }
+  }
 
   // Gather inputs per material from all processes
   vtkIdType myid = this->Controller->GetLocalProcessId();
@@ -73,27 +73,27 @@ void vtkPYoungsMaterialInterface::Aggregate( int nmat, int* inputsPerMaterial )
 
   // Scan sum : done by all processes, not optimal but easy
   for ( vtkIdType m = 0; m < nmat; ++ m )
-    {
+  {
     for( vtkIdType p = 1; p < nprocs; ++ p )
-      {
+    {
       vtkIdType pnmat = p * nmat + m;
       tmp[pnmat] += tmp[pnmat - nmat];
-      }
     }
+  }
 
   vtkIdType offset = (nprocs - 1) * nmat;
   this->NumberOfDomains = 0;
   for ( int m = 0; m < nmat; ++ m )
-    {
+  {
     // Sum all counts from all processes
     int inputsPerMaterialSum = tmp[offset + m];
     if( inputsPerMaterialSum > this->NumberOfDomains )
-      {
+    {
       this->NumberOfDomains = inputsPerMaterialSum;
-      }
+    }
 
     // Calculate partial sum of all preceding processors
     inputsPerMaterial[m] = ( myid ? tmp[( myid - 1) * nmat + m] : 0 );
-    }
+  }
   delete[] tmp;
 }

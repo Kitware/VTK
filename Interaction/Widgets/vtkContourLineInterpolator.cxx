@@ -19,14 +19,10 @@
 
 
 //----------------------------------------------------------------------
-vtkContourLineInterpolator::vtkContourLineInterpolator()
-{
-}
+vtkContourLineInterpolator::vtkContourLineInterpolator() = default;
 
 //----------------------------------------------------------------------
-vtkContourLineInterpolator::~vtkContourLineInterpolator()
-{
-}
+vtkContourLineInterpolator::~vtkContourLineInterpolator() = default;
 
 //----------------------------------------------------------------------
 int vtkContourLineInterpolator::UpdateNode( vtkRenderer *,
@@ -51,36 +47,36 @@ void vtkContourLineInterpolator::GetSpan( int nodeIndex,
   nodeIndices->SetNumberOfComponents(2);
 
   for ( int i = 0; i < 3; i++ )
-    {
+  {
     index[0] = start++;
     index[1] = end++;
 
     if ( rep->GetClosedLoop() )
-      {
+    {
       if ( index[0] < 0 )
-        {
+      {
         index[0] += rep->GetNumberOfNodes();
-        }
-      if ( index[1] < 0 )
-        {
-        index[1] += rep->GetNumberOfNodes();
-        }
-      if ( index[0] >= rep->GetNumberOfNodes() )
-        {
-        index[0] -= rep->GetNumberOfNodes();
-        }
-      if ( index[1] >= rep->GetNumberOfNodes() )
-        {
-        index[1] -= rep->GetNumberOfNodes();
-        }
       }
+      if ( index[1] < 0 )
+      {
+        index[1] += rep->GetNumberOfNodes();
+      }
+      if ( index[0] >= rep->GetNumberOfNodes() )
+      {
+        index[0] -= rep->GetNumberOfNodes();
+      }
+      if ( index[1] >= rep->GetNumberOfNodes() )
+      {
+        index[1] -= rep->GetNumberOfNodes();
+      }
+    }
 
     if ( index[0] >= 0 && index[0] < rep->GetNumberOfNodes() &&
          index[1] >= 0 && index[1] < rep->GetNumberOfNodes() )
-      {
-      nodeIndices->InsertNextTupleValue( index );
-      }
+    {
+      nodeIndices->InsertNextTypedTuple( index );
     }
+  }
 }
 
 //----------------------------------------------------------------------

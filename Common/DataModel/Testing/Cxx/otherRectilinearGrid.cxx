@@ -24,11 +24,12 @@
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkLongArray.h"
+#include "vtkMathUtilities.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkShortArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int TestORG(ostream& strm)
 {
@@ -49,11 +50,11 @@ int TestORG(ostream& strm)
   vtkDoubleArray *zdata = vtkDoubleArray::New();
 
   for (i = 0; i < 20; i++)
-    {
+  {
     xdata->InsertNextValue((double) i);
     ydata->InsertNextValue((double) i);
     zdata->InsertNextValue((double) i);
-    }
+  }
 
   rg3D->SetDimensions(20,20,20);
   rg3D->SetXCoordinates(xdata);
@@ -90,18 +91,18 @@ int TestORG(ostream& strm)
 
   int l = 0;
   for (k = 0; k < 20; k++)
-    {
+  {
     for (j = 0; j < 20; j++)
-      {
+    {
       for (i = 0; i < 20; i++)
-        {
+      {
         shortScalars3D->InsertComponent(l,0,i);
         shortScalars3D->InsertComponent(l,0,j);
         shortScalars3D->InsertComponent(l,0,k);
         l++;
-        }
       }
     }
+  }
 
   vtkShortArray *shortScalars2D = vtkShortArray::New();
   shortScalars2D->SetNumberOfComponents(2);
@@ -109,14 +110,14 @@ int TestORG(ostream& strm)
 
   l = 0;
   for (j = 0; j < 20; j++)
-    {
+  {
     for (i = 0; i < 20; i++)
-      {
+    {
       shortScalars2D->InsertComponent(l,0,i);
       shortScalars2D->InsertComponent(l,0,j);
       l++;
-      }
     }
+  }
 
   vtkShortArray *shortScalars1D = vtkShortArray::New();
   shortScalars1D->SetNumberOfComponents(1);
@@ -124,10 +125,10 @@ int TestORG(ostream& strm)
 
   l = 0;
   for (i = 0; i < 20; i++)
-    {
+  {
     shortScalars1D->InsertComponent(l,0,i);
     l++;
-    }
+  }
 
   vtkShortArray *shortScalars0D = vtkShortArray::New();
   shortScalars0D->SetNumberOfComponents(1);
@@ -169,9 +170,9 @@ int TestORG(ostream& strm)
   rg3D->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10; j = 15;
@@ -181,9 +182,9 @@ int TestORG(ostream& strm)
   rg2Dxy->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
 
@@ -194,9 +195,9 @@ int TestORG(ostream& strm)
   rg2Dxz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10; j = 15;
@@ -206,9 +207,9 @@ int TestORG(ostream& strm)
   rg2Dyz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -218,9 +219,9 @@ int TestORG(ostream& strm)
   rg1Dx->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -230,9 +231,9 @@ int TestORG(ostream& strm)
   rg1Dy->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -242,9 +243,9 @@ int TestORG(ostream& strm)
   rg1Dz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   cellId = 0;
@@ -253,9 +254,245 @@ int TestORG(ostream& strm)
   rg0D->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
+  strm << endl << endl;
+
+  // Test GetCell(i,j,k)
+  i = 10; j = 15; k = 7;
+  cellId = k * (19 * 19) + j * 19 + i;
+  cell3D = rg3D->GetCell(i,j,k);
+  if (cell3D == nullptr)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell3D->GetCellType() != VTK_VOXEL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_VOXEL << " Returned: " << cell3D->GetCellType() << '\n';
+    return 1;
+  }
+  strm << "cell3D: " << *cell3D ;
+  rg3D->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10; j = 15;
+  cellId = j * 19 + i;
+  cell2D = rg2Dxy->GetCell(i,j,0);
+  if (cell2D == nullptr)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell2D->GetCellType() != VTK_PIXEL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_PIXEL << " Returned: " << cell2D->GetCellType() << '\n';
+    return 1;
+  }
+  double bounds[6];
+  cell2D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[4],bounds[5]))
+  {
+    std::cerr << "rg2Dxy has finite width along z\n";
+    return 1;
+  }
+  strm << "cell2D: " << *cell2D ;
+  rg2Dxy->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10; j = 15;
+  cellId = j * 19 + i;
+  cell2D = rg2Dxz->GetCell(i,0,j);
+  if (cell2D == nullptr)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell2D->GetCellType() != VTK_PIXEL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_PIXEL << " Returned: " << cell2D->GetCellType() << '\n';
+    return 1;
+  }
+  cell2D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[2],bounds[3]))
+  {
+    std::cerr << "rg2Dxz has finite width along y\n";
+    return 1;
+  }
+  strm << "cell2D: " << *cell2D ;
+  rg2Dxz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10; j = 15;
+  cellId = j * 19 + i;
+  cell2D = rg2Dyz->GetCell(0,i,j);
+  if (cell2D == nullptr)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell2D->GetCellType() != VTK_PIXEL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_PIXEL << " Returned: " << cell2D->GetCellType() << '\n';
+    return 1;
+  }
+  cell2D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[0],bounds[1]))
+  {
+    std::cerr << "rg2Dyz has finite width along x\n";
+    return 1;
+  }
+  strm << "cell2D: " << *cell2D ;
+  rg2Dyz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10;
+  cellId = i;
+  cell1D = rg1Dx->GetCell(i,0,0);
+  if (cell1D == nullptr)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell1D->GetCellType() != VTK_LINE)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_LINE << " Returned: " << cell1D->GetCellType() << '\n';
+    return 1;
+  }
+  cell1D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[2],bounds[3]))
+  {
+    std::cerr << "rg1Dx has finite width along y\n";
+    return 1;
+  }
+  else if(!vtkMathUtilities::FuzzyCompare(bounds[4],bounds[5]))
+  {
+    std::cerr << "rg1Dx has finite width along z\n";
+    return 1;
+  }
+  strm << "cell1D: " << *cell1D;
+  rg1Dx->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10;
+  cellId = i;
+  cell1D = rg1Dy->GetCell(0,i,0);
+  if (cell1D == nullptr)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell1D->GetCellType() != VTK_LINE)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_LINE << " Returned: " << cell1D->GetCellType() << '\n';
+    return 1;
+  }
+  cell1D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[0],bounds[1]))
+  {
+    std::cerr << "rg1Dy has finite width along x\n";
+    return 1;
+  }
+  else if(!vtkMathUtilities::FuzzyCompare(bounds[4],bounds[5]))
+  {
+    std::cerr << "rg1Dy has finite width along z\n";
+    return 1;
+  }
+  strm << "cell1D: " << *cell1D;
+  rg1Dy->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10;
+  cellId = i;
+  cell1D = rg1Dz->GetCell(0,0,i);
+  if (cell1D == nullptr)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell1D->GetCellType() != VTK_LINE)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_LINE << " Returned: " << cell1D->GetCellType() << '\n';
+    return 1;
+  }
+  cell1D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[0],bounds[1]))
+  {
+    std::cerr << "rg1Dz has finite width along x\n";
+    return 1;
+  }
+  else if(!vtkMathUtilities::FuzzyCompare(bounds[2],bounds[3]))
+  {
+    std::cerr << "rg1Dz has finite width along y\n";
+    return 1;
+  }
+  strm << "cell1D: " << *cell1D;
+  rg1Dz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  cellId = 0;
+  cell0D = rg0D->GetCell(0,0,0);
+  if (cell0D == nullptr)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned nullptr instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell0D->GetCellType() != VTK_VERTEX)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_VERTEX << " Returned: " << cell0D->GetCellType() << '\n';
+    return 1;
+  }
+  strm << "cell0D: " << *cell0D;
+  rg0D->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
   strm << endl << endl;
 
   // Test Thread Safe GetCell
@@ -300,8 +537,6 @@ int TestORG(ostream& strm)
   strm << "gcell0D: " << *gcell0D;
 
   // Test GetCellBounds
-
-  double bounds[6];
   rg3D->GetCellBounds(k * (19 * 19) + j * 19 + i, bounds);
   strm << "GetCellBounds(rg3D): "
        << bounds[0] << ", " << bounds[1] << ", "
@@ -434,7 +669,7 @@ int TestORG(ostream& strm)
 
   double pcoords[3], weights[8];
   int subId;
-  vtkCell *dummyCell = NULL;
+  vtkCell *dummyCell = nullptr;
 
   point3D[0] = 10.5;
   point3D[1] = 12.1;
@@ -451,13 +686,13 @@ int TestORG(ostream& strm)
 
   point3D[0] = 10.5; point3D[1] = 12.1; point3D[2] = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   vtkCell *found = rg2Dxy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(rg2Dxy) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg2Dxy): " << *found;
   strm << "pcoords: "
@@ -468,13 +703,13 @@ int TestORG(ostream& strm)
   point3D[0] = 10.5; point3D[1] = 0.0; point3D[2] = 14.7;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   weights[0] = weights[1] = weights[2] = weights[3] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = rg2Dxz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(rg2Dxz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg2Dxz): " << *found;
   strm << "pcoords: "
@@ -485,13 +720,13 @@ int TestORG(ostream& strm)
   point3D[0] = 0.0; point3D[1] = 12.1; point3D[2] = 14.7;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   weights[0] = weights[1] = weights[2] = weights[3] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = rg2Dyz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(rg2Dyz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg2Dyz): " << *found;
   strm << "pcoords: "
@@ -500,13 +735,13 @@ int TestORG(ostream& strm)
        << weights[0] << ", " << weights[1] << ", " << weights[2] << ", " << weights[3] << endl;
 
   point3D[0] = 10.5; point3D[1] = 0.0; point3D[2] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = rg1Dx->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(rg1Dx) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg1Dx): " << *found;
   strm << "pcoords: "
@@ -516,13 +751,13 @@ int TestORG(ostream& strm)
 
 
   point3D[0] = 0.0; point3D[1] = 12.1; point3D[2] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = rg1Dy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(rg1Dy) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg1Dy): " << *found;
   strm << "pcoords: "
@@ -532,13 +767,13 @@ int TestORG(ostream& strm)
 
 
   point3D[0] = 0.0; point3D[1] = 0.0; point3D[2] = 14.7;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = rg1Dz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
-    {
+  if (found == nullptr)
+  {
     strm << "FindAndGetCell(rg1Dz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg1Dz): " << *found;
   strm << "pcoords: "
@@ -599,6 +834,6 @@ int TestORG(ostream& strm)
 
 int otherRectilinearGrid(int,char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
+  std::ostringstream vtkmsg_with_warning_C4701;
   return TestORG(vtkmsg_with_warning_C4701);
 }

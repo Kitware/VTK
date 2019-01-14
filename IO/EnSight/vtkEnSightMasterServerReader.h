@@ -12,7 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkEnSightMasterServerReader - reader for compund EnSight files
+/**
+ * @class   vtkEnSightMasterServerReader
+ * @brief   reader for compound EnSight files
+*/
 
 #ifndef vtkEnSightMasterServerReader_h
 #define vtkEnSightMasterServerReader_h
@@ -26,33 +29,40 @@ class VTKIOENSIGHT_EXPORT vtkEnSightMasterServerReader : public vtkGenericEnSigh
 {
 public:
   vtkTypeMacro(vtkEnSightMasterServerReader, vtkGenericEnSightReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkEnSightMasterServerReader* New();
 
-  // Description:
-  // Determine which file should be read for piece
+  /**
+   * Determine which file should be read for piece
+   */
   int DetermineFileName(int piece);
 
-  // Description:
-  // Get the file name that will be read.
+  //@{
+  /**
+   * Get the file name that will be read.
+   */
   vtkGetStringMacro(PieceCaseFileName);
+  //@}
 
-  // Description:
-  // Set or get the current piece.
+  //@{
+  /**
+   * Set or get the current piece.
+   */
   vtkSetMacro(CurrentPiece, int);
   vtkGetMacro(CurrentPiece, int);
+  //@}
 
-  int CanReadFile(const char *fname);
+  int CanReadFile(const char *fname) override;
 
 protected:
   vtkEnSightMasterServerReader();
-  ~vtkEnSightMasterServerReader();
+  ~vtkEnSightMasterServerReader() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *) override;
 
   vtkSetStringMacro(PieceCaseFileName);
   char* PieceCaseFileName;
@@ -60,8 +70,8 @@ protected:
   int CurrentPiece;
 
 private:
-  vtkEnSightMasterServerReader(const vtkEnSightMasterServerReader&);  // Not implemented.
-  void operator=(const vtkEnSightMasterServerReader&);  // Not implemented.
+  vtkEnSightMasterServerReader(const vtkEnSightMasterServerReader&) = delete;
+  void operator=(const vtkEnSightMasterServerReader&) = delete;
 };
 
 #endif

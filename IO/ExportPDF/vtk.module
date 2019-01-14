@@ -1,0 +1,22 @@
+NAME
+  VTK::IOExportPDF
+LIBRARY_NAME
+  vtkIOExportPDF
+GROUPS
+  Rendering
+IMPLEMENTS
+  VTK::IOExport
+DEPENDS
+  VTK::IOExport
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::ImagingCore
+  VTK::libharu
+TEST_DEPENDS
+  VTK::ChartsCore
+  VTK::FiltersModeling
+  VTK::ImagingCore
+  VTK::InteractionStyle
+  VTK::RenderingContextOpenGL2
+  VTK::TestingRendering
+  VTK::ViewsContext2D

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -108,13 +107,12 @@ try:
     isoActor.GetProperty().SetColor(GetRGBColor('bisque'))
     isoActor.GetProperty().SetRepresentationToWireframe()
 
-    streamer = vtk.vtkStreamLine()
+    streamer = vtk.vtkStreamTracer()
     streamer.SetInputConnection(fd2ad.GetOutputPort())
     streamer.SetStartPosition(-1.2, -0.1, 1.3)
-    streamer.SetMaximumPropagationTime(500)
-    streamer.SetStepLength(0.05)
-    streamer.SetIntegrationStepLength(0.05)
-    streamer.SetIntegrationDirectionToIntegrateBothDirections()
+    streamer.SetMaximumPropagation(500)
+    streamer.SetInitialIntegrationStep(0.05)
+    streamer.SetIntegrationDirectionToBoth()
 
     streamTube = vtk.vtkTubeFilter()
     streamTube.SetInputConnection(streamer.GetOutputPort())
@@ -185,4 +183,4 @@ try:
 #    iren.Start()
 
 except IOError:
-    print  "Couldn't open RGridField.vtk for writing."
+    print("Couldn't open RGridField.vtk for writing.")

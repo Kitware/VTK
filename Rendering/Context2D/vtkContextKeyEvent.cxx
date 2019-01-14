@@ -19,14 +19,6 @@
 
 #include <cassert>
 
-vtkContextKeyEvent::vtkContextKeyEvent()
-{
-}
-
-vtkContextKeyEvent::~vtkContextKeyEvent()
-{
-}
-
 void vtkContextKeyEvent::SetInteractor(vtkRenderWindowInteractor *interactor)
 {
   this->Interactor = interactor;
@@ -34,18 +26,18 @@ void vtkContextKeyEvent::SetInteractor(vtkRenderWindowInteractor *interactor)
 
 vtkRenderWindowInteractor* vtkContextKeyEvent::GetInteractor() const
 {
-  return this->Interactor.GetPointer();
+  return this->Interactor;
 }
 
 char vtkContextKeyEvent::GetKeyCode() const
 {
   if (this->Interactor)
-    {
+  {
     return this->Interactor->GetKeyCode();
-    }
+  }
   else
-    {
+  {
     // This should never happen, perhaps there is a better return value?
     return 0;
-    }
+  }
 }

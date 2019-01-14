@@ -36,8 +36,9 @@ vtkCxxSetObjectMacro(vtkPResampleFilter, Controller, vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
 vtkPResampleFilter::vtkPResampleFilter()
+  : UseInputBounds(0)
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->UseInputBoundsOn();
   this->CustomSamplingBounds[0] = this->CustomSamplingBounds[2] = this->CustomSamplingBounds[4] = 0;
@@ -50,7 +51,7 @@ vtkPResampleFilter::vtkPResampleFilter()
 //----------------------------------------------------------------------------
 vtkPResampleFilter::~vtkPResampleFilter()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -60,41 +61,41 @@ double* vtkPResampleFilter::CalculateBounds(vtkDataSet* input)
   input->GetBounds(localBounds);
 
   if (!this->Controller)
-    {
+  {
     memcpy(this->Bounds, localBounds, 6*sizeof(double));
-    }
+  }
   else
-    {
+  {
     double localBoundsMin[3], globalBoundsMin[3];
     double localBoundsMax[3], globalBoundsMax[3];
     for (int i=0; i<3; i++)
-      {
-      // Change unitialized bounds to something that will work
+    {
+      // Change uninitialized bounds to something that will work
       // with collective MPI calls.
       if (localBounds[2*i] > localBounds[2*i+1])
-        {
+      {
         localBounds[2*i] = VTK_DOUBLE_MAX;
         localBounds[2*i+1] = -VTK_DOUBLE_MAX;
-        }
+      }
       localBoundsMin[i] = localBounds[2*i];
       localBoundsMax[i] = localBounds[2*i+1];
-      }
+    }
     this->Controller->AllReduce(localBoundsMin, globalBoundsMin, 3, vtkCommunicator::MIN_OP);
     this->Controller->AllReduce(localBoundsMax, globalBoundsMax, 3, vtkCommunicator::MAX_OP);
     for (int i=0; i<3; i++)
-      {
+    {
       if (globalBoundsMin[i] <= globalBoundsMax[i])
-        {
+      {
         this->Bounds[2*i] = globalBoundsMin[i];
         this->Bounds[2*i+1] = globalBoundsMax[i];
-        }
+      }
       else
-        {
+      {
         this->Bounds[2*i] = 0;
         this->Bounds[2*i+1] = 0;
-        }
       }
     }
+  }
 
   cout << "Bounds: "
     << localBounds[0] << " "
@@ -132,7 +133,8 @@ int vtkPResampleFilter::RequestUpdateExtent(vtkInformation *,
   // necessarily related. The output extent is controlled by the
   // resampled dataset whereas the input extent is controlled by
   // input data.
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(inInfo);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
   return 1;
 }
 
@@ -165,7 +167,7 @@ int vtkPResampleFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkNew<vtkPProbeFilter> probeFilter;
   probeFilter->SetController(this->Controller);
   probeFilter->SetSourceData(input);
-  probeFilter->SetInputData(source.GetPointer());
+  probeFilter->SetInputData(source);
   probeFilter->Update();
   output->ShallowCopy(probeFilter->GetOutput());
 
@@ -176,9 +178,9 @@ int vtkPResampleFilter::RequestData(vtkInformation *vtkNotUsed(request),
 int vtkPResampleFilter::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
 }
@@ -190,7 +192,7 @@ void vtkPResampleFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller " << this->Controller << endl;
   os << indent << "UseInputBounds " << this->UseInputBounds << endl;
   if(this->UseInputBounds == 0)
-    {
+  {
     os << indent << "CustomSamplingBounds ["
        << this->CustomSamplingBounds[0] << ", "
        << this->CustomSamplingBounds[1] << ", "
@@ -199,7 +201,7 @@ void vtkPResampleFilter::PrintSelf(ostream& os, vtkIndent indent)
        << this->CustomSamplingBounds[4] << ", "
        << this->CustomSamplingBounds[5] << "]"
        << endl;
-    }
+  }
   os << indent << "SamplingDimension "
      << this->SamplingDimension[0] << " x "
      << this->SamplingDimension[1] << " x "

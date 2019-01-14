@@ -16,6 +16,8 @@
 
 #ifndef _ADIOSWriter_h
 #define _ADIOSWriter_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include <limits>
 #include <sstream>
@@ -110,4 +112,6 @@ private:
 };
 
 }
+#endif
+#endif
 #endif // _ADIOSWriter_h

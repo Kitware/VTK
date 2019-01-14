@@ -21,6 +21,8 @@
 #include "vtkTransform2D.h"
 #include "vtkVector.h"
 
+#include <cassert>
+
 vtkStandardNewMacro(vtkContextClip);
 
 //-----------------------------------------------------------------------------
@@ -33,9 +35,7 @@ vtkContextClip::vtkContextClip()
 }
 
 //-----------------------------------------------------------------------------
-vtkContextClip::~vtkContextClip()
-{
-}
+vtkContextClip::~vtkContextClip() = default;
 
 //-----------------------------------------------------------------------------
 bool vtkContextClip::Paint(vtkContext2D *painter)
@@ -68,6 +68,7 @@ void vtkContextClip::SetClip(float x, float y, float width, float height)
   this->Dims[1] = y;
   this->Dims[2] = width;
   this->Dims[3] = height;
+  assert(width >= 0 && height >= 0);
 }
 
 //-----------------------------------------------------------------------------

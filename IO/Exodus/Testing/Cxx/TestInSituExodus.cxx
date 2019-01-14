@@ -88,17 +88,17 @@ bool readExodusCopy(std::string fileName, vtkMultiBlockDataSet *mbds)
   // Enable all nodal result (point data) arrays
   int numNodeArrays = reader->GetNumberOfObjectArrays(vtkExodusIIReader::NODAL);
   for (int i = 0; i < numNodeArrays; ++i)
-    {
+  {
     reader->SetObjectArrayStatus(vtkExodusIIReader::NODAL, i, 1);
-    }
+  }
 
   // Enable all element result (cell data) arrays
   int numElementBlockArrays =
       reader->GetNumberOfObjectArrays(vtkExodusIIReader::ELEM_BLOCK);
   for (int i = 0; i < numElementBlockArrays; ++i)
-    {
+  {
     reader->SetObjectArrayStatus(vtkExodusIIReader::ELEM_BLOCK, i, 1);
-    }
+  }
 
   reader->Update();
   mbds->ShallowCopy(reader->GetOutput());
@@ -108,15 +108,15 @@ bool readExodusCopy(std::string fileName, vtkMultiBlockDataSet *mbds)
 
 vtkUnstructuredGridBase* getConnectivityBlock(vtkMultiBlockDataSet *mbds)
 {
-  vtkUnstructuredGridBase *result = NULL;
+  vtkUnstructuredGridBase *result = nullptr;
    if (vtkDataObject *tmpDO = mbds->GetBlock(0))
-     {
+   {
      if (vtkMultiBlockDataSet *tmpMBDS =
          vtkMultiBlockDataSet::SafeDownCast(tmpDO))
-       {
+     {
        result = vtkUnstructuredGridBase::SafeDownCast(tmpMBDS->GetBlock(0));
-       }
      }
+   }
    return result;
 }
 
@@ -132,29 +132,29 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
   vtkIdType refNumPoints = ref->GetNumberOfPoints();
   vtkIdType testNumPoints = test->GetNumberOfPoints();
   if (refNumPoints != testNumPoints)
-    {
+  {
     FAILB("Number of points do not match (" << refNumPoints << ", "
           << testNumPoints << ").")
-    }
+  }
 
   // Compare coordinate data
   double refPoint[3] = {0., 0., 0.};
   double testPoint[3] = {0., 0., 0.};
   for (vtkIdType pointId = 0; pointId < testNumPoints; ++pointId)
-    {
+  {
     ref->GetPoint(pointId, refPoint);
     test->GetPoint(pointId, testPoint);
     if (fabs(refPoint[0] - testPoint[0]) > 1e-5
         || fabs(refPoint[1] - testPoint[1]) > 1e-5
         || fabs(refPoint[2] - testPoint[2]) > 1e-5)
-      {
+    {
       FAILB("Point mismatch at point index: " << pointId
             << "\n\tExpected: " << refPoint[0] << " " << refPoint[1] << " "
             << refPoint[2]
             << "\n\tActual: " << testPoint[0] << " " << testPoint[1] << " "
             << testPoint[2])
-      }
     }
+  }
 
   // Compare point data
   // Number of point data arrays may not match -- the reference reader
@@ -164,7 +164,7 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
   int refNumPointDataArrays = refPointData->GetNumberOfArrays();
   int testNumPointDataArrays = testPointData->GetNumberOfArrays();
   if (refNumPointDataArrays != testNumPointDataArrays)
-    {
+  {
 #ifdef GLOM_WORKAROUND
     cerr << "Warning: "
             "Point data array count mismatch. This may not be an error, as "
@@ -180,14 +180,14 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
           << " Define GLOM_WORKAROUND in " << __FILE__ << " to treat this "
           << "message as a warning.")
 #endif
-    }
+  }
   for (int arrayIndex = 0; arrayIndex < testNumPointDataArrays; ++arrayIndex)
-    {
+  {
     vtkDataArray *testArray = testPointData->GetArray(arrayIndex);
     const char *arrayName = testArray->GetName();
     vtkDataArray *refArray = refPointData->GetArray(arrayName);
-    if (refArray == NULL)
-      {
+    if (refArray == nullptr)
+    {
 #ifdef GLOM_WORKAROUND
       cerr << "Warning: "
            << "Testing point data array '" << arrayName
@@ -204,56 +204,56 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
             << " Define GLOM_WORKAROUND in " << __FILE__ << " to treat this "
             << "message as a warning.")
 #endif
-      }
+    }
 
     int refNumComponents = refArray->GetNumberOfComponents();
     int testNumComponents = testArray->GetNumberOfComponents();
     if (refNumComponents != testNumComponents)
-      {
+    {
       FAILB("Number of components mismatch for point data array '"
             << arrayName << "'")
-      }
+    }
 
     vtkIdType refNumTuples = refArray->GetNumberOfTuples();
     vtkIdType testNumTuples = testArray->GetNumberOfTuples();
     if (refNumTuples != testNumTuples)
-      {
+    {
       FAILB("Number of tuples mismatch for point data array '"
             << arrayName << "'")
-      }
+    }
 
     std::vector<double> refTuple(refNumComponents);
     std::vector<double> testTuple(testNumComponents);
     for (vtkIdType i = 0; i < testNumTuples; ++i)
-      {
+    {
       refArray->GetTuple(i, &refTuple[0]);
       testArray->GetTuple(i, &testTuple[0]);
       if (!std::equal(refTuple.begin(), refTuple.end(), testTuple.begin(),
                      fuzzyEqual<double>))
-        {
+      {
         std::stringstream refString;
         std::stringstream testString;
         for (int comp = 0; comp < refNumComponents; ++comp)
-          {
+        {
           refString << refTuple[comp] << " ";
           testString << testTuple[comp] << " ";
-          }
+        }
         FAILB("Tuple mismatch for point data array '" << arrayName
               << "' at tuple index: " << i << "\n"
               << "Expected:\n\t" << refString.str() << "\n"
               << "Actual:\n\t" << testString.str());
-        }
       }
     }
+  }
 
   // Compare number of cells
   vtkIdType refNumCells = ref->GetNumberOfCells();
   vtkIdType testNumCells = test->GetNumberOfCells();
   if (refNumCells != testNumCells)
-    {
+  {
     FAILB("Number of cells do not match (" << refNumCells << ", "
           << testNumCells << ").")
-    }
+  }
 
   // Compare connectivity data
   vtkNew<vtkGenericCell> refCell;
@@ -270,50 +270,50 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
        !refCellIter->IsDoneWithTraversal() &&
        !testCellIter->IsDoneWithTraversal();
        ++cellId, refCellIter->GoToNextCell(), testCellIter->GoToNextCell())
-    {
+  {
     // Lookup cells in iterators:
-    refCellIter->GetCell(refCell.GetPointer());
-    testCellIter->GetCell(testCell.GetPointer());
+    refCellIter->GetCell(refCell);
+    testCellIter->GetCell(testCell);
 
     if (refCell->GetCellType() != testCell->GetCellType())
-      {
+    {
       FAILB("Cell types do not match!")
-      }
+    }
     refNumPoints = refCell->GetNumberOfPoints();
     testNumPoints = testCell->GetNumberOfPoints();
     if (refNumPoints != testNumPoints)
-      {
+    {
       FAILB("Number of cell points do not match (" << refNumPoints << ", "
             << testNumPoints << ") for cellId " << cellId)
-      }
+    }
 
     for (vtkIdType pointId = 0; pointId < testNumPoints; ++pointId)
-      {
+    {
       if (refCell->GetPointId(pointId) != testCell->GetPointId(pointId))
-        {
+      {
         FAILB("Point id mismatch in cellId " << cellId)
-        }
+      }
       refCell->Points->GetPoint(pointId, refPoint);
       testCell->Points->GetPoint(pointId, testPoint);
       if (fabs(refPoint[0] - testPoint[0]) > 1e-5
           || fabs(refPoint[1] - testPoint[1]) > 1e-5
           || fabs(refPoint[2] - testPoint[2]) > 1e-5)
-        {
+      {
         FAILB("Point mismatch in cellId " << cellId
               << "\n\tExpected: " << refPoint[0] << " " << refPoint[1] << " "
               << refPoint[2]
               << "\n\tActual: " << testPoint[0] << " " << testPoint[1] << " "
               << testPoint[2])
-        }
       }
     }
+  }
 
   // Verify that all cells were checked
   if (!refCellIter->IsDoneWithTraversal() ||
       !testCellIter->IsDoneWithTraversal())
-    {
+  {
     FAILB("Did not finish traversing all cells (an iterator is still valid).")
-    }
+  }
 
   // Compare cell data
   // Number of cell data arrays probably won't match -- the reference reader
@@ -323,7 +323,7 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
   int refNumCellDataArrays = refCellData->GetNumberOfArrays();
   int testNumCellDataArrays = testCellData->GetNumberOfArrays();
   if (refNumCellDataArrays != testNumCellDataArrays)
-    {
+  {
 #ifdef GLOM_WORKAROUND
     cerr << "Warning: "
          << "Cell data array count mismatch. This may not be an error, as "
@@ -339,14 +339,14 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
           << " Define GLOM_WORKAROUND in " << __FILE__ << " to treat this "
           << "message as a warning.")
 #endif
-    }
+  }
   for (int arrayIndex = 0; arrayIndex < testNumCellDataArrays; ++arrayIndex)
-    {
+  {
     vtkDataArray *testArray = testCellData->GetArray(arrayIndex);
     const char *arrayName = testArray->GetName();
     vtkDataArray *refArray = refCellData->GetArray(arrayName);
-    if (refArray == NULL)
-      {
+    if (refArray == nullptr)
+    {
 #ifdef GLOM_WORKAROUND
       cerr << "Warning: "
            << "Testing cell data array '" << arrayName
@@ -363,47 +363,47 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
             << " Define GLOM_WORKAROUND in " << __FILE__ << " to treat this "
             << "message as a warning.")
 #endif
-      }
+    }
 
     int refNumComponents = refArray->GetNumberOfComponents();
     int testNumComponents = testArray->GetNumberOfComponents();
     if (refNumComponents != testNumComponents)
-      {
+    {
       FAILB("Number of components mismatch for cell data array '"
             << arrayName << "'")
-      }
+    }
 
     vtkIdType refNumTuples = refArray->GetNumberOfTuples();
     vtkIdType testNumTuples = testArray->GetNumberOfTuples();
     if (refNumTuples != testNumTuples)
-      {
+    {
       FAILB("Number of tuples mismatch for cell data array '"
             << arrayName << "'")
-      }
+    }
 
     std::vector<double> refTuple(refNumComponents);
     std::vector<double> testTuple(testNumComponents);
     for (vtkIdType i = 0; i < testNumTuples; ++i)
-      {
+    {
       refArray->GetTuple(i, &refTuple[0]);
       testArray->GetTuple(i, &testTuple[0]);
       if (!std::equal(refTuple.begin(), refTuple.end(), testTuple.begin(),
                      fuzzyEqual<double>))
-        {
+      {
         std::stringstream refString;
         std::stringstream testString;
         for (int comp = 0; comp < refNumComponents; ++comp)
-          {
+        {
           refString << refTuple[comp] << " ";
           testString << testTuple[comp] << " ";
-          }
+        }
         FAILB("Tuple mismatch for cell data array '" << arrayName
               << "' at tuple index: " << i << "\n"
               << "Expected:\n\t" << refString.str() << "\n"
               << "Actual:\n\t" << testString.str());
-        }
       }
     }
+  }
 
   return true;
 }
@@ -418,10 +418,10 @@ void populateAttributes(vtkDataSet *ref, vtkDataSet *test)
   refScalars->SetName("test-scalars");
   double point[3];
   for (vtkIdType pointId = 0; pointId < numPoints; ++pointId)
-    {
+  {
     ref->GetPoint(pointId, point);
     refScalars->InsertNextTuple1((sin(point[0] * point[1]) + cos(point[2])));
-    }
+  }
   vtkNew<vtkCPExodusIIResultsArrayTemplate<double> > testScalars;
   testScalars->SetName("test-scalars");
   double *testScalarArray = new double[numPoints];
@@ -430,8 +430,8 @@ void populateAttributes(vtkDataSet *ref, vtkDataSet *test)
   testScalars->SetExodusScalarArrays(std::vector<double*>(1, testScalarArray),
                                      numPoints);
 
-  ref->GetPointData()->SetScalars(refScalars.GetPointer());
-  test->GetPointData()->SetScalars(testScalars.GetPointer());
+  ref->GetPointData()->SetScalars(refScalars);
+  test->GetPointData()->SetScalars(testScalars);
 
   // And some fake normals
   vtkNew<vtkFloatArray> refNormals;
@@ -444,23 +444,23 @@ void populateAttributes(vtkDataSet *ref, vtkDataSet *test)
   double normal[3];
   double norm;
   for (vtkIdType pointId = 0; pointId < numPoints; ++pointId)
-    {
+  {
     ref->GetPoint(pointId, point);
     norm = sqrt(point[0]*point[0] + point[1]*point[1] + point[2]*point[2]);
     if (norm > 1e-5)
-      {
+    {
       testNormalArrayX[pointId] = normal[0] = (point[1] / norm);
       testNormalArrayY[pointId] = normal[1] = (point[0] / norm);
       testNormalArrayZ[pointId] = normal[2] = (point[2] / norm);
-      }
+    }
     else
-      {
+    {
       testNormalArrayX[pointId] = normal[0] = 1.0;
       testNormalArrayY[pointId] = normal[1] = 0.0;
       testNormalArrayZ[pointId] = normal[2] = 0.0;
-      }
-    refNormals->SetTuple(pointId, normal);
     }
+    refNormals->SetTuple(pointId, normal);
+  }
   vtkNew<vtkCPExodusIIResultsArrayTemplate<double> > testNormals;
   testNormals->SetName("test-normals");
   std::vector<double*> testNormalVector;
@@ -469,8 +469,8 @@ void populateAttributes(vtkDataSet *ref, vtkDataSet *test)
   testNormalVector.push_back(testNormalArrayZ);
   testNormals->SetExodusScalarArrays(testNormalVector, numPoints);
 
-  ref->GetPointData()->SetNormals(refNormals.GetPointer());
-  test->GetPointData()->SetNormals(testNormals.GetPointer());
+  ref->GetPointData()->SetNormals(refNormals);
+  test->GetPointData()->SetNormals(testNormals);
 }
 
 void testContourFilter(vtkUnstructuredGridBase *input,
@@ -485,7 +485,7 @@ void testContourFilter(vtkUnstructuredGridBase *input,
   contour->Update();
   timer->StopTimer();
   output = contour->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -501,7 +501,7 @@ void testDataSetSurfaceFilter(vtkUnstructuredGridBase *input,
   extractSurface->Update();
   timer->StopTimer();
   output = extractSurface->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -519,13 +519,13 @@ void testCutterFilter(vtkUnstructuredGridBase *input,
   // Cutter (slice, polydata output)
   vtkNew<vtkCutter> cutter;
   cutter->SetInputData(input);
-  cutter->SetCutFunction(slicePlane.GetPointer());
+  cutter->SetCutFunction(slicePlane);
   cutter->SetGenerateTriangles(0);
   timer->StartTimer();
   cutter->Update();
   timer->StopTimer();
   output = cutter->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -542,7 +542,7 @@ void testExtractGeometryFilter(vtkUnstructuredGridBase *input,
 
   vtkNew<vtkExtractGeometry> extract;
   extract->SetInputData(input);
-  extract->SetImplicitFunction(slicePlane.GetPointer());
+  extract->SetImplicitFunction(slicePlane);
   extract->SetExtractInside(1);
   extract->SetExtractOnlyBoundaryCells(1);
   extract->SetExtractBoundaryCells(1);
@@ -550,7 +550,7 @@ void testExtractGeometryFilter(vtkUnstructuredGridBase *input,
   extract->Update();
   timer->StopTimer();
   output = extract->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -575,7 +575,7 @@ void testGlyph3DFilter(vtkUnstructuredGridBase *input,
   glypher->Update();
   timer->StopTimer();
   output = glypher->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -590,7 +590,7 @@ void testWarpScalarFilter(vtkUnstructuredGridBase *input,
   warpScalar->Update();
   timer->StopTimer();
   output = warpScalar->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -606,7 +606,7 @@ void testWarpVectorFilter(vtkUnstructuredGridBase *input,
   warpVector->Update();
   timer->StopTimer();
   output = warpVector->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -626,7 +626,7 @@ void testPipeline(vtkUnstructuredGridBase *input, vtkDataSet *&output,
   warpVector->Update();
   timer->StopTimer();
   output = warpVector->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -634,35 +634,35 @@ void testPipeline(vtkUnstructuredGridBase *input, vtkDataSet *&output,
 { \
   timeLog_.clear(); \
   timeLog_.resize(repeat_, -500); \
-  for (int benchmark = 0; benchmark < repeat_; ++benchmark) \
-    { \
+  for (int benchmark = 0; benchmark < (repeat_); ++benchmark) \
+  { \
     double &benchmarkTime = timeLog_[benchmark]; \
     call_; \
-    if (benchmark + 1 != repeat_) \
-      { \
+    if (benchmark + 1 != (repeat_)) \
+    { \
       reset_; \
-      } \
     } \
+  } \
 }
 
 // Check that refOutput == testOutput, then delete and clear the outputs.
-bool validateFilterOutput(std::string name,
+bool validateFilterOutput(const std::string &name,
                           vtkDataSet *&refOutput, vtkDataSet *&testOutput)
 {
   if (refOutput->GetNumberOfPoints() == 0)
-    {
+  {
     FAILB("Reference " << name << " produced an empty output!")
-    }
+  }
   if (!compareDataSets(refOutput, testOutput))
-    {
+  {
     FAILB(name << " output mismatch.")
-    }
+  }
   cout << name << " produced " << refOutput->GetNumberOfPoints()
        << " points and " << refOutput->GetNumberOfCells() << " cells." << endl;
   refOutput->Delete();
-  refOutput = NULL;
+  refOutput = nullptr;
   testOutput->Delete();
-  testOutput = NULL;
+  testOutput = nullptr;
   return true;
 }
 
@@ -679,24 +679,24 @@ void printTimingInfo(const std::string &name,
   double testMax(0.0);
 
   for (size_t i = 0; i < ref.size(); ++i)
-    {
+  {
     refAverage += ref[i];
     testAverage += test[i];
     refMin = std::min(refMin, ref[i]);
     refMax = std::max(refMax, ref[i]);
     testMin = std::min(testMin, test[i]);
     testMax = std::max(testMax, test[i]);
-    }
+  }
   refAverage  /= static_cast<double>(ref.size());
   testAverage /= static_cast<double>(test.size());
 
   double refStdev(0.0);
   double testStdev(0.0);
   for (size_t i = 0; i < ref.size(); ++i)
-    {
+  {
     refStdev += (ref[i] - refAverage) * (ref[i] - refAverage);
     testStdev += (test[i] - testAverage) * (test[i] - testAverage);
-    }
+  }
   refStdev = std::sqrt(refStdev / static_cast<double>(ref.size()));
   testStdev = std::sqrt(testStdev / static_cast<double>(test.size()));
 
@@ -750,14 +750,14 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   int numBenchmarks = 1;
 
   // Temporary variables for outputs.
-  vtkDataSet *refOutput(NULL);
-  vtkDataSet *testOutput(NULL);
+  vtkDataSet *refOutput(nullptr);
+  vtkDataSet *testOutput(nullptr);
 
 #ifdef PROFILE
   // Profiling, multirun:
   std::vector<double> profileTimes;
   doBenchmark(PROFILE(test, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               profileTimes, numBenchmarks);
   return true;
 #endif
@@ -767,15 +767,15 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> benchmarkRefTimes;
   std::vector<double> benchmarkTestTimes;
   doBenchmark(BENCHMARK(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               benchmarkRefTimes, numBenchmarks);
   doBenchmark(BENCHMARK(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               benchmarkTestTimes, numBenchmarks);
   if (!validateFilterOutput("Benchmark:", refOutput, testOutput))
-    {
+  {
     return false;
-    }
+  }
   printTimingInfo("Benchmark", benchmarkRefTimes, benchmarkTestTimes);
   return true;
 #endif
@@ -788,30 +788,30 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> contourRefTimes;
   std::vector<double> contourTestTimes;
   doBenchmark(testContourFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               contourRefTimes, numBenchmarks);
   doBenchmark(testContourFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               contourTestTimes, numBenchmarks);
   if (!validateFilterOutput("Contour filter", refOutput, testOutput))
-    {
+  {
     return false;
-    }
+  }
   printTimingInfo("contour", contourRefTimes, contourTestTimes);
 
   // Extract surface
   std::vector<double> dataSetSurfaceRefTimes;
   std::vector<double> dataSetSurfaceTestTimes;
   doBenchmark(testDataSetSurfaceFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               dataSetSurfaceRefTimes, numBenchmarks);
   doBenchmark(testDataSetSurfaceFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               dataSetSurfaceTestTimes, numBenchmarks);
   if (!validateFilterOutput("Data set surface filter", refOutput, testOutput))
-    {
+  {
     return false;
-    }
+  }
   printTimingInfo("dataset surface", dataSetSurfaceRefTimes,
                   dataSetSurfaceTestTimes);
 
@@ -819,30 +819,30 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> cutterRefTimes;
   std::vector<double> cutterTestTimes;
   doBenchmark(testCutterFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               cutterRefTimes, numBenchmarks);
   doBenchmark(testCutterFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               cutterTestTimes, numBenchmarks);
   if (!validateFilterOutput("Cutter", refOutput, testOutput))
-    {
+  {
     return false;
-    }
+  }
   printTimingInfo("cutter", cutterRefTimes, cutterTestTimes);
 
   // Extract geometry
   std::vector<double> extractGeometryRefTimes;
   std::vector<double> extractGeometryTestTimes;
   doBenchmark(testExtractGeometryFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               extractGeometryRefTimes, numBenchmarks);
   doBenchmark(testExtractGeometryFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               extractGeometryTestTimes, numBenchmarks);
   if (!validateFilterOutput("Extract geometry", refOutput, testOutput))
-    {
+  {
     return false;
-    }
+  }
   printTimingInfo("extract geometry", extractGeometryRefTimes,
                   extractGeometryTestTimes);
 
@@ -850,66 +850,66 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> glyph3dRefTimes;
   std::vector<double> glyph3dTestTimes;
   doBenchmark(testGlyph3DFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               glyph3dRefTimes, numBenchmarks);
   doBenchmark(testGlyph3DFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               glyph3dTestTimes, numBenchmarks);
   if (!validateFilterOutput("Glyph3D", refOutput, testOutput))
-    {
+  {
     return false;
-    }
+  }
   printTimingInfo("glyph3d", glyph3dRefTimes, glyph3dTestTimes);
 
   // Warp scalar
   std::vector<double> warpScalarRefTimes;
   std::vector<double> warpScalarTestTimes;
   doBenchmark(testWarpScalarFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               warpScalarRefTimes, numBenchmarks);
   doBenchmark(testWarpScalarFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               warpScalarTestTimes, numBenchmarks);
   if (!validateFilterOutput("Warp scalar", refOutput, testOutput))
-    {
+  {
     return false;
-    }
+  }
   printTimingInfo("warp scalar", warpScalarRefTimes, warpScalarTestTimes);
 
   // Warp vector
   std::vector<double> warpVectorRefTimes;
   std::vector<double> warpVectorTestTimes;
   doBenchmark(testWarpVectorFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               warpVectorRefTimes, numBenchmarks);
   doBenchmark(testWarpVectorFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               warpVectorTestTimes, numBenchmarks);
   if (!validateFilterOutput("Warp vector", refOutput, testOutput))
-    {
+  {
     return false;
-    }
+  }
   printTimingInfo("warp vector", warpVectorRefTimes, warpVectorTestTimes);
 
   // mini-mapped pipeline (Warp scalar + vector)
   std::vector<double> pipelineRefTimes;
   std::vector<double> pipelineTestTimes;
   doBenchmark(testPipeline(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               pipelineRefTimes, numBenchmarks);
   doBenchmark(testPipeline(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               pipelineTestTimes, numBenchmarks);
   // Ensure that the mapped test produced a mapped output:
   if (!testOutput->IsA("vtkCPExodusIIElementBlock"))
-    {
+  {
     cerr << "Pipeline test did not produce a mapped output object!" << endl;
     return false;
-    }
+  }
   if (!validateFilterOutput("Pipeline test", refOutput, testOutput))
-    {
+  {
     return false;
-    }
+  }
   printTimingInfo("pipeline", pipelineRefTimes, pipelineTestTimes);
 
   return true;
@@ -926,26 +926,26 @@ bool testCopies(vtkUnstructuredGridBase *test)
 
   // Deep copy: test --> vtk
   vtkTarget->DeepCopy(test);
-  if (!compareDataSets(test, vtkTarget.GetPointer()))
-    {
+  if (!compareDataSets(test, vtkTarget))
+  {
     FAILB("Deep copy insitu --> VTK failed.")
-    }
+  }
   vtkTarget->Reset();
 
   // Shallow copy: test --> vtk
   vtkTarget->ShallowCopy(test); // Should really deep copy.
-  if (!compareDataSets(test, vtkTarget.GetPointer()))
-    {
+  if (!compareDataSets(test, vtkTarget))
+  {
     FAILB("Shallow copy insitu --> VTK failed.")
-    }
+  }
   vtkTarget->Reset();
 
   // Shallow copy: test --> test
   mappedTarget->ShallowCopy(test);
   if (!compareDataSets(test, mappedTarget))
-    {
+  {
     FAILB("Shallow copy insitu --> insitu failed.")
-    }
+  }
   mappedTarget->Initialize();
 
   return true;
@@ -958,9 +958,9 @@ void testSaveArrays()
   testScalars->SetName("test-scalars");
   double *testScalarArray = new double[numPoints];
   for(int i=0;i<numPoints;i++)
-    {
+  {
     testScalarArray[i] = 1;
-    }
+  }
   // Call SetExodusScalarArrays a couple of times to make sure
   // we don't free the same memory multiple times. The final call
   // is the one that should actually free the array.
@@ -984,12 +984,12 @@ int TestInSituExodus(int argc, char *argv[])
 
   // Read reference copy
   vtkNew<vtkMultiBlockDataSet> refMBDS;
-  readExodusCopy(fileName, refMBDS.GetPointer());
-  vtkUnstructuredGridBase *refGrid(getConnectivityBlock(refMBDS.GetPointer()));
+  readExodusCopy(fileName, refMBDS);
+  vtkUnstructuredGridBase *refGrid(getConnectivityBlock(refMBDS));
   if (!refGrid)
-    {
+  {
     FAIL("Error retrieving reference element block container.");
-    }
+  }
 
   // Read in-situ copy
   vtkNew<vtkCPExodusIIInSituReader> reader;
@@ -998,30 +998,30 @@ int TestInSituExodus(int argc, char *argv[])
   vtkMultiBlockDataSet *testMBDS = reader->GetOutput();
   vtkUnstructuredGridBase *grid(getConnectivityBlock(testMBDS));
   if (!grid)
-    {
+  {
     FAIL("Error retrieving testing element block container.")
-    }
+  }
 
 #ifndef PROFILE // These just add noise during profiling:
   // Compare
   if (!compareDataSets(refGrid, grid))
-    {
+  {
     FAIL("In-situ data set doesn't match reference data!")
-    }
+  }
 
   if (!testCopies(grid))
-    {
+  {
     FAIL("A copy test failed.")
-    }
+  }
 #endif
 
   populateAttributes(refGrid, grid);
 
   // Test selected filters
   if (!testFilters(refGrid, grid))
-    {
+  {
     FAIL("Pipeline test failed!")
-    }
+  }
 
   testSaveArrays();
 

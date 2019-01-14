@@ -18,7 +18,6 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-//#include "vtkDiskSource.h"
 #include "vtkLineSource.h"
 #include "vtkRotationalExtrusionFilter.h"
 #include "vtkMath.h"
@@ -51,7 +50,7 @@ int vtkSectorSource::RequestData(
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -105,10 +104,10 @@ int vtkSectorSource::RequestData(
   rotateFilter->SetAngle( this->EndAngle - this->StartAngle );
 
   if (piece == 0 && numPieces > 0)
-    {
+  {
     rotateFilter->Update();
     output->ShallowCopy(rotateFilter->GetOutput());
-    }
+  }
 //  }
 
   return 1;
@@ -122,7 +121,7 @@ void vtkSectorSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OuterRadius: " << this->OuterRadius << "\n";
   os << indent << "ZCoord: " << this->ZCoord << "\n";
   os << indent << "StartAngle: " << this->StartAngle << "\n";
-  os << indent << "EndAngle: " << this->EndAngle << "\n";;
+  os << indent << "EndAngle: " << this->EndAngle << "\n";
   os << indent << "CircumferentialResolution: " << this->CircumferentialResolution << "\n";
   os << indent << "RadialResolution: " << this->RadialResolution << "\n";
 }

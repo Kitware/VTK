@@ -26,9 +26,9 @@
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 
-#include <vtksys/stl/vector>
-#include <vtksys/stl/map>
-#include <vtksys/stl/utility>
+#include <vector>
+
+#include <utility>
 
 // In Boost 1.34.1, boost/pending/relaxed_heap.hpp does not include <climits>
 // but uses CHAR_BIT. gcc>=4.3 has stricter and cleaner header files
@@ -49,7 +49,6 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 using namespace boost;
-using namespace vtksys_stl;
 
 template <typename Graph>
 void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
@@ -64,36 +63,36 @@ void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
   timer->StartTimer();
   int count = 0;
   for (int r = 0; r < repeat; r++)
-    {
+  {
     for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
-      {
+    {
       typename graph_traits<Graph>::out_edge_iterator oi, oiEnd;
       boost::tie(oi, oiEnd) = out_edges(*vi, g);
       count++;
-      }
     }
+  }
   timer->StopTimer();
   double time_out_edges = timer->GetElapsedTime();
   cerr << "getting out edges: " << time_out_edges / count << " sec." << endl;
 
   Edge e = *(edges(g).first);
   Vertex v = *(vertices(g).first);
-  vector<Edge> edge_vec;
-  vector<Vertex> vert_vec;
+  std::vector<Edge> edge_vec;
+  std::vector<Vertex> vert_vec;
 
   timer->StartTimer();
   count = 0;
   for (int r = 0; r < repeat; r++)
-    {
+  {
     for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
-      {
+    {
       typename graph_traits<Graph>::out_edge_iterator oi, oiEnd;
       for (boost::tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
-        {
+      {
         count++;
-        }
       }
     }
+  }
   timer->StopTimer();
   double time_inc = timer->GetElapsedTime();
   cerr << "+increment: " << time_inc / count << " sec." << endl;
@@ -102,20 +101,20 @@ void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
   timer->StartTimer();
   count = 0;
   for (int r = 0; r < repeat; r++)
-    {
+  {
     edge_vec.clear();
     vert_vec.clear();
     for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
-      {
+    {
       typename graph_traits<Graph>::out_edge_iterator oi, oiEnd;
       for (boost::tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
-        {
+      {
         edge_vec.push_back(e);
         vert_vec.push_back(v);
         count++;
-        }
       }
     }
+  }
   timer->StopTimer();
   double time_push_back = timer->GetElapsedTime();
   cerr << "+push_back: " << time_push_back / count << " sec." << endl;
@@ -124,21 +123,21 @@ void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
   timer->StartTimer();
   count = 0;
   for (int r = 0; r < repeat; r++)
-    {
+  {
     edge_vec.clear();
     vert_vec.clear();
     for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
-      {
+    {
       typename graph_traits<Graph>::out_edge_iterator oi, oiEnd;
       for (boost::tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
-        {
+      {
         Edge e1 = *oi;
         edge_vec.push_back(e1);
         vert_vec.push_back(v);
         count++;
-        }
       }
     }
+  }
   timer->StopTimer();
   double time_deref = timer->GetElapsedTime();
   cerr << "+dereference: " << time_deref / count << " sec." << endl;
@@ -147,22 +146,22 @@ void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
   timer->StartTimer();
   count = 0;
   for (int r = 0; r < repeat; r++)
-    {
+  {
     edge_vec.clear();
     vert_vec.clear();
     for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
-      {
+    {
       typename graph_traits<Graph>::out_edge_iterator oi, oiEnd;
       for (boost::tie(oi, oiEnd) = out_edges(*vi, g); oi != oiEnd; ++oi)
-        {
+      {
         Edge e1 = *oi;
         edge_vec.push_back(e1);
         Vertex v1 = target(e1, g);
         vert_vec.push_back(v1);
         count++;
-        }
       }
     }
+  }
   timer->StopTimer();
   double time_target = timer->GetElapsedTime();
   cerr << "+target: " << time_target / count << " sec." << endl;
@@ -177,71 +176,71 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
 
   VTK_CREATE(vtkTimerLog, timer);
 
-  vector<Vertex> graphVerts;
-  vector<Edge> graphEdges;
+  std::vector<Vertex> graphVerts;
+  std::vector<Edge> graphEdges;
   typename graph_traits<Graph>::vertex_iterator vi, viEnd;
 
   // Create a graph
   timer->StartTimer();
   for (int i = 0; i < numVertices; ++i)
-    {
+  {
     add_vertex(g);
-    }
+  }
   timer->StopTimer();
   cerr << "vertex insertion: " << timer->GetElapsedTime() / numVertices  << " sec." << endl;
 
   if (static_cast<int>(num_vertices(g)) != numVertices)
-    {
+  {
     cerr << "ERROR: Number of vertices (" << num_vertices(g)
          << ") not as expected (" << numVertices << ")." << endl;
     errors++;
-    }
+  }
 
   for (boost::tie(vi, viEnd) = vertices(g); vi != viEnd; ++vi)
-    {
+  {
     graphVerts.push_back(*vi);
-    }
+  }
 
   timer->StartTimer();
   for (int i = 0; i < numEdges; ++i)
-    {
+  {
     int u = static_cast<int>(vtkMath::Random(0, numVertices));
     int v = static_cast<int>(vtkMath::Random(0, numVertices));
     add_edge(graphVerts[u], graphVerts[v], g);
-    }
+  }
   timer->StopTimer();
   cerr << "edge insertion: " << timer->GetElapsedTime() / numEdges  << " sec." << endl;
 
   if (static_cast<int>(num_edges(g)) != numEdges)
-    {
+  {
     cerr << "ERROR: Number of edges (" << num_edges(g)
          << ") not as expected (" << numEdges << ")." << endl;
     errors++;
-    }
+  }
 
   typename graph_traits<Graph>::edge_iterator ei, eiEnd;
   for (boost::tie(ei, eiEnd) = edges(g); ei != eiEnd; ++ei)
-    {
+  {
     graphEdges.push_back(*ei);
-    }
+  }
 
   TestTraversal(g, repeat, errors);
 
 #if 0
   timer->StartTimer();
   while (num_edges(g) > 0)
-    {
+  {
     remove_edge(*(edges(g).first), g);
-    }
+  }
   timer->StopTimer();
   cerr << "edge deletion: " << timer->GetElapsedTime() / numEdges  << " sec." << endl;
 
   // Perform edge deletions followed by accesses
   timer->StartTimer();
   while (num_vertices(g) > 0)
-    {
+  {
     remove_vertex(*(vertices(g).first), g);
-    }
+  }
   timer->StopTimer();
   cerr << "vertex deletion: " << timer->GetElapsedTime() / numVertices  << " sec." << endl;
 #endif
@@ -282,15 +281,15 @@ int TestBoostAdapter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkMutableDirectedGraph *builder = vtkMutableDirectedGraph::New();
   builder->AddVertex();
   for (vtkIdType i = 1; i < numVertices; i++)
-    {
+  {
     builder->AddChild(static_cast<vtkIdType>(vtkMath::Random(0, i)));
-    }
+  }
   vtkTree* t = vtkTree::New();
   if (!t->CheckedShallowCopy(builder))
-    {
+  {
     cerr << "Invalid tree structure!" << endl;
     ++errors;
-    }
+  }
   TestTraversal(t, repeat, errors);
   builder->Delete();
   t->Delete();

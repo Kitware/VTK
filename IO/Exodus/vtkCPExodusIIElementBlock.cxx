@@ -45,9 +45,9 @@ bool vtkCPExodusIIElementBlockImpl::SetExodusConnectivityArray(
     int nodesPerElement)
 {
   if (!elements)
-    {
+  {
     return false;
-    }
+  }
 
   // Try to figure out the vtk cell type:
   if (type.size() < 3)
@@ -59,38 +59,38 @@ bool vtkCPExodusIIElementBlockImpl::SetExodusConnectivityArray(
   std::string typekey = type.substr(0, 3);
   std::transform(typekey.begin(), typekey.end(), typekey.begin(), ::toupper);
   if (typekey == "CIR" || typekey == "SPH")
-    {
+  {
     this->CellType = VTK_VERTEX;
-    }
+  }
   else if (typekey == "TRU" || typekey == "BEA")
-    {
+  {
     this->CellType = VTK_LINE;
-    }
+  }
   else if (typekey == "TRI")
-    {
+  {
     this->CellType = VTK_TRIANGLE;
-    }
+  }
   else if (typekey == "QUA" || typekey == "SHE")
-    {
+  {
     this->CellType = VTK_QUAD;
-    }
+  }
   else if (typekey == "TET")
-    {
+  {
     this->CellType = VTK_TETRA;
-    }
+  }
   else if (typekey == "WED")
-    {
+  {
     this->CellType = VTK_WEDGE;
-    }
+  }
   else if (typekey == "HEX")
-    {
+  {
     this->CellType = VTK_HEXAHEDRON;
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<< "Unknown cell type: " << type);
     return false;
-    }
+  }
 
   this->CellSize = static_cast<vtkIdType>(nodesPerElement);
   this->NumberOfCells = static_cast<vtkIdType>(numElements);
@@ -135,11 +135,11 @@ void vtkCPExodusIIElementBlockImpl::GetPointCells(vtkIdType ptId,
 
   element = std::find(element, elementEnd, targetElement);
   while (element != elementEnd)
-    {
+  {
     cellIds->InsertNextId(static_cast<vtkIdType>((element - this->Elements)
                                                  / this->CellSize));
     element = std::find(element, elementEnd, targetElement);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -154,14 +154,14 @@ void vtkCPExodusIIElementBlockImpl::GetIdsOfCellsOfType(int type,
 {
   array->Reset();
   if (type == this->CellType)
-    {
+  {
     array->SetNumberOfComponents(1);
     array->Allocate(this->NumberOfCells);
     for (vtkIdType i = 0; i < this->NumberOfCells; ++i)
-      {
+    {
       array->InsertNextValue(i);
-      }
     }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -174,7 +174,6 @@ int vtkCPExodusIIElementBlockImpl::IsHomogeneous()
 void vtkCPExodusIIElementBlockImpl::Allocate(vtkIdType, int)
 {
   vtkErrorMacro("Read only container.")
-  return;
 }
 
 //------------------------------------------------------------------------------
@@ -185,7 +184,7 @@ vtkIdType vtkCPExodusIIElementBlockImpl::InsertNextCell(int, vtkIdList*)
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkCPExodusIIElementBlockImpl::InsertNextCell(int, vtkIdType, vtkIdType*)
+vtkIdType vtkCPExodusIIElementBlockImpl::InsertNextCell(int, vtkIdType, const vtkIdType[])
 {
   vtkErrorMacro("Read only container.")
   return -1;
@@ -193,22 +192,21 @@ vtkIdType vtkCPExodusIIElementBlockImpl::InsertNextCell(int, vtkIdType, vtkIdTyp
 
 //------------------------------------------------------------------------------
 vtkIdType vtkCPExodusIIElementBlockImpl::InsertNextCell(
-    int, vtkIdType, vtkIdType*, vtkIdType, vtkIdType*)
+    int, vtkIdType, const vtkIdType[], vtkIdType, const vtkIdType[])
 {
   vtkErrorMacro("Read only container.")
   return -1;
 }
 
 //------------------------------------------------------------------------------
-void vtkCPExodusIIElementBlockImpl::ReplaceCell(vtkIdType, int, vtkIdType*)
+void vtkCPExodusIIElementBlockImpl::ReplaceCell(vtkIdType, int, const vtkIdType[])
 {
   vtkErrorMacro("Read only container.")
-  return;
 }
 
 //------------------------------------------------------------------------------
 vtkCPExodusIIElementBlockImpl::vtkCPExodusIIElementBlockImpl()
-  : Elements(NULL),
+  : Elements(nullptr),
     CellType(VTK_EMPTY_CELL),
     CellSize(0),
     NumberOfCells(0)

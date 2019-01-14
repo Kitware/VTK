@@ -31,6 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkTestUtilities.h"
+#include "vtkTexture.h"
 #include "vtkTransform.h"
 
 #include <vtksys/SystemTools.hxx>
@@ -67,7 +68,7 @@ int TestGlobeSource(int argc, char* argv[])
   VTK_CREATE(vtkDoubleArray, textureCoords);
   textureCoords->SetNumberOfComponents(2);
 
-  vtkDoubleArray* array = vtkDoubleArray::SafeDownCast(
+  vtkDoubleArray* array = vtkArrayDownCast<vtkDoubleArray>(
       globeSource->GetOutput(0)->GetPointData()->GetAbstractArray("LatLong"));
 
   double range[] = { (latRange[0]  - latRange[1]),
@@ -80,16 +81,16 @@ int TestGlobeSource(int argc, char* argv[])
   // Lower values of lat / long will correspond to
   // texture coordinate = 0 (for both s & t).
   for(int i=0; i < array->GetNumberOfTuples(); ++i)
-    {
+  {
 
-     array->GetTupleValue(i, val);
+     array->GetTypedTuple(i, val);
 
      // Get the texture coordinates in [0,1] range.
      newVal[1] = (latRange[0]  - val[0])  / range[0];
      newVal[0] = (longRange[0] - val[1]) / range[1];
 
      textureCoords->InsertNextTuple(newVal);
-    }
+  }
 
   globeSource->GetOutput(0)->GetPointData()->SetTCoords(textureCoords);
   mapper->SetInputConnection( globeSource->GetOutputPort() );
@@ -121,9 +122,9 @@ int TestGlobeSource(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renWinInt->Start();
-    }
+  }
 
   delete []image;
   return !retVal;

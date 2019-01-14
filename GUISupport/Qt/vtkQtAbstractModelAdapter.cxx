@@ -25,7 +25,7 @@ int vtkQtAbstractModelAdapter::ModelColumnToFieldDataColumn(int col) const
 {
   int result = -1;
   switch (this->ViewType)
-    {
+  {
     case FULL_VIEW:
       result = col;
       break;
@@ -35,6 +35,6 @@ int vtkQtAbstractModelAdapter::ModelColumnToFieldDataColumn(int col) const
     default:
       vtkGenericWarningMacro("vtkQtAbstractModelAdapter: Bad view type.");
       break;
-    };
+  };
   return result;
 }

@@ -28,20 +28,11 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 #==========================================================================
-vtk_module_impl()
-vtk_module_export("")
 
-option(VTK_USE_SYSTEM_MPI4PY "Use system 'mpi4py' Python package" OFF)
-mark_as_advanced(VTK_USE_SYSTEM_MPI4PY)
-
-if (NOT VTK_USE_SYSTEM_MPI4PY)
-  # Configure mpi4py.
-  set (MPI4PY_INSTALL_PACKAGE_DIR "${VTK_INSTALL_LIBRARY_DIR}/site-packages")
-  set (MPI4PY_PACKAGE_BINARY_DIR  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/site-packages")
-
-  # Block warnings unless we are instructed to allow them.
-  # SET(VTKMPI4PY_WARNINGS_ALLOW 1)
-  vtk_third_party_warning_suppress(VTKMPI4PY C)
-
-  add_subdirectory(vtkmpi4py)
-endif ()
+vtk_module_third_party(
+  INTERNAL
+    LICENSE_FILES "vtkmpi4py/LICENSE.rst"
+    VERSION       "2.0.0"
+  EXTERNAL
+    PACKAGE mpi4py
+    TARGETS mpi4py::mpi4py)

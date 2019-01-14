@@ -24,9 +24,7 @@ vtkInformationDataObjectMetaDataKey::vtkInformationDataObjectMetaDataKey(const c
 }
 
 //----------------------------------------------------------------------------
-vtkInformationDataObjectMetaDataKey::~vtkInformationDataObjectMetaDataKey()
-{
-}
+vtkInformationDataObjectMetaDataKey::~vtkInformationDataObjectMetaDataKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationDataObjectMetaDataKey::CopyDefaultInformation(
@@ -35,9 +33,9 @@ void vtkInformationDataObjectMetaDataKey::CopyDefaultInformation(
   vtkInformation* toInfo)
 {
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     this->ShallowCopy(fromInfo, toInfo);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

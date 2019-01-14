@@ -27,9 +27,7 @@ vtkInformationStringKey::vtkInformationStringKey(const char* name, const char* l
 }
 
 //----------------------------------------------------------------------------
-vtkInformationStringKey::~vtkInformationStringKey()
-{
-}
+vtkInformationStringKey::~vtkInformationStringKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationStringKey::PrintSelf(ostream& os, vtkIndent indent)
@@ -41,7 +39,7 @@ void vtkInformationStringKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationStringValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationStringValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationStringValue, vtkObjectBase);
   std::string Value;
 };
 
@@ -49,35 +47,41 @@ public:
 void vtkInformationStringKey::Set(vtkInformation* info, const char* value)
 {
   if (value)
-    {
+  {
     if(vtkInformationStringValue* oldv =
        static_cast<vtkInformationStringValue *>
        (this->GetAsObjectBase(info)))
-      {
+    {
       if (oldv->Value != value)
-        {
+      {
         // Replace the existing value.
         oldv->Value = value;
         // Since this sets a value without call SetAsObjectBase(),
         // the info has to be modified here (instead of
         // vtkInformation::SetAsObjectBase()
         info->Modified(this);
-        }
       }
+    }
     else
-      {
+    {
       // Allocate a new value.
       vtkInformationStringValue* v = new vtkInformationStringValue;
-      this->ConstructClass("vtkInformationStringValue");
+      v->InitializeObjectBase();
       v->Value = value;
       this->SetAsObjectBase(info, v);
       v->Delete();
-      }
     }
+  }
   else
-    {
-    this->SetAsObjectBase(info, 0);
-    }
+  {
+    this->SetAsObjectBase(info, nullptr);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationStringKey::Set(vtkInformation *info, const std::string &s)
+{
+  this->Set(info, s.c_str());
 }
 
 //----------------------------------------------------------------------------
@@ -85,7 +89,7 @@ const char* vtkInformationStringKey::Get(vtkInformation* info)
 {
   vtkInformationStringValue* v =
     static_cast<vtkInformationStringValue *>(this->GetAsObjectBase(info));
-  return v?v->Value.c_str():0;
+  return v?v->Value.c_str():nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -99,7 +103,7 @@ void vtkInformationStringKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
   if(this->Has(info))
-    {
+  {
     os << this->Get(info);
-    }
+  }
 }

@@ -34,13 +34,12 @@ vtkStandardNewMacro(vtkGeoRandomGraphSource);
 
 vtkGeoRandomGraphSource::vtkGeoRandomGraphSource()
 {
+  VTK_LEGACY_BODY(vtkGeoRandomGraphSource::vtkGeoRandomGraphSource, "VTK 8.2");
 }
 
 // ----------------------------------------------------------------------
 
-vtkGeoRandomGraphSource::~vtkGeoRandomGraphSource()
-{
-}
+vtkGeoRandomGraphSource::~vtkGeoRandomGraphSource() = default;
 
 // ----------------------------------------------------------------------
 
@@ -67,12 +66,12 @@ int vtkGeoRandomGraphSource::RequestData(
   latArr->SetName("latitude");
   lonArr->SetName("longitude");
   for (vtkIdType v = 0; v < output->GetNumberOfVertices(); ++v)
-    {
+  {
     double lat = vtkMath::Random()*180.0 - 90.0;
     double lon = vtkMath::Random()*360.0 - 180.0;
     latArr->SetValue(v, lat);
     lonArr->SetValue(v, lon);
-    }
+  }
   output->GetVertexData()->AddArray(latArr);
   output->GetVertexData()->AddArray(lonArr);
   latArr->Delete();
@@ -80,4 +79,3 @@ int vtkGeoRandomGraphSource::RequestData(
 
   return 1;
 }
-

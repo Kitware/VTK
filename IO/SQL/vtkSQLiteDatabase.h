@@ -17,28 +17,31 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkSQLiteDatabase - maintain a connection to an SQLite database
-//
-// .SECTION Description
-//
-// SQLite (http://www.sqlite.org) is a public-domain SQL database
-// written in C++.  It's small, fast, and can be easily embedded
-// inside other applications.  Its databases are stored in files.
-//
-// This class provides a VTK interface to SQLite.  You do not need to
-// download any external libraries: we include a copy of SQLite 3.3.16
-// in VTK/Utilities/vtksqlite.
-//
-// If you want to open a database that stays in memory and never gets
-// written to disk, pass in the URL 'sqlite://:memory:'; otherwise,
-// specifiy the file path by passing the URL 'sqlite://<file_path>'.
-//
-// .SECTION Thanks
-// Thanks to Andrew Wilson and Philippe Pebay from Sandia National
-// Laboratories for implementing this class.
-//
-// .SECTION See Also
-// vtkSQLiteQuery
+/**
+ * @class   vtkSQLiteDatabase
+ * @brief   maintain a connection to an SQLite database
+ *
+ *
+ *
+ * SQLite (http://www.sqlite.org) is a public-domain SQL database
+ * written in C++.  It's small, fast, and can be easily embedded
+ * inside other applications.  Its databases are stored in files.
+ *
+ * This class provides a VTK interface to SQLite.  You do not need to
+ * download any external libraries: we include a copy of SQLite 3.3.16
+ * in VTK/Utilities/vtksqlite.
+ *
+ * If you want to open a database that stays in memory and never gets
+ * written to disk, pass in the URL 'sqlite://:memory:'; otherwise,
+ * specify the file path by passing the URL 'sqlite://<file_path>'.
+ *
+ * @par Thanks:
+ * Thanks to Andrew Wilson and Philippe Pebay from Sandia National
+ * Laboratories for implementing this class.
+ *
+ * @sa
+ * vtkSQLiteQuery
+*/
 
 #ifndef vtkSQLiteDatabase_h
 #define vtkSQLiteDatabase_h
@@ -49,105 +52,125 @@
 class vtkSQLQuery;
 class vtkSQLiteQuery;
 class vtkStringArray;
-struct vtk_sqlite3;
+class vtkSQLiteDatabaseInternals;
 
 class VTKIOSQL_EXPORT vtkSQLiteDatabase : public vtkSQLDatabase
 {
-  //BTX
+
   friend class vtkSQLiteQuery;
-  //ETX
 
 public:
   vtkTypeMacro(vtkSQLiteDatabase, vtkSQLDatabase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkSQLiteDatabase *New();
 
-  //BTX
   enum {
     USE_EXISTING,
     USE_EXISTING_OR_CREATE,
     CREATE_OR_CLEAR,
     CREATE
   };
-  //ETX
 
-  // Description:
-  // Open a new connection to the database.  You need to set the
-  // filename before calling this function.  Returns true if the
-  // database was opened successfully; false otherwise.
-  // - USE_EXISTING (default) - Fail if the file does not exist.
-  // - USE_EXISTING_OR_CREATE - Create a new file if necessary.
-  // - CREATE_OR_CLEAR - Create new or clear existing file.
-  // - CREATE - Create new, fail if file exists.
-  bool Open(const char* password);
+  //@{
+  /**
+   * Open a new connection to the database.  You need to set the
+   * filename before calling this function.  Returns true if the
+   * database was opened successfully; false otherwise.
+   * - USE_EXISTING (default) - Fail if the file does not exist.
+   * - USE_EXISTING_OR_CREATE - Create a new file if necessary.
+   * - CREATE_OR_CLEAR - Create new or clear existing file.
+   * - CREATE - Create new, fail if file exists.
+   */
+  bool Open(const char* password) override;
   bool Open(const char* password, int mode);
+  //@}
 
-  // Description:
-  // Close the connection to the database.
-  void Close();
+  /**
+   * Close the connection to the database.
+   */
+  void Close() override;
 
-  // Description:
-  // Return whether the database has an open connection
-  bool IsOpen();
+  /**
+   * Return whether the database has an open connection
+   */
+  bool IsOpen() override;
 
-  // Description:
-  // Return an empty query on this database.
-  vtkSQLQuery* GetQueryInstance();
+  /**
+   * Return an empty query on this database.
+   */
+  vtkSQLQuery* GetQueryInstance() override;
 
-  // Description:
-  // Get the list of tables from the database
-  vtkStringArray* GetTables();
+  /**
+   * Get the list of tables from the database
+   */
+  vtkStringArray* GetTables() override;
 
-  // Description:
-  // Get the list of fields for a particular table
-  vtkStringArray* GetRecord(const char *table);
+  /**
+   * Get the list of fields for a particular table
+   */
+  vtkStringArray* GetRecord(const char *table) override;
 
-  // Description:
-  // Return whether a feature is supported by the database.
-  bool IsSupported(int feature);
+  /**
+   * Return whether a feature is supported by the database.
+   */
+  bool IsSupported(int feature) override;
 
-  // Description:
-  // Did the last operation generate an error
-  bool HasError();
+  /**
+   * Did the last operation generate an error
+   */
+  bool HasError() override;
 
-  // Description:
-  // Get the last error text from the database
-  const char* GetLastErrorText();
+  /**
+   * Get the last error text from the database
+   */
+  const char* GetLastErrorText() override;
 
-  // Description:
-  // String representing database type (e.g. "sqlite").
-  vtkGetStringMacro(DatabaseType);
+  //@{
+  /**
+   * String representing database type (e.g. "sqlite").
+   */
+  const char* GetDatabaseType() override
+  {
+    return this->DatabaseType;
+  }
+  //@}
 
-  // Description:
-  // String representing the database filename.
+  //@{
+  /**
+   * String representing the database filename.
+   */
   vtkGetStringMacro(DatabaseFileName);
   vtkSetStringMacro(DatabaseFileName);
+  //@}
 
-  // Description:
-  // Get the URL of the database.
-  virtual vtkStdString GetURL();
+  /**
+   * Get the URL of the database.
+   */
+  vtkStdString GetURL() override;
 
-  // Description:
-  // Return the SQL string with the syntax to create a column inside a
-  // "CREATE TABLE" SQL statement.
-  // NB: this method implements the SQLite-specific syntax:
-  // <column name> <column type> <column attributes>
-  virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+  /**
+   * Return the SQL string with the syntax to create a column inside a
+   * "CREATE TABLE" SQL statement.
+   * NB: this method implements the SQLite-specific syntax:
+   * <column name> <column type> <column attributes>
+   */
+  vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
                                                int tblHandle,
-                                               int colHandle );
+                                               int colHandle ) override;
 
 protected:
   vtkSQLiteDatabase();
-  ~vtkSQLiteDatabase();
+  ~vtkSQLiteDatabase() override;
 
-  // Description:
-  // Overridden to determine connection parameters given the URL.
-  // This is called by CreateFromURL() to initialize the instance.
-  // Look at CreateFromURL() for details about the URL format.
-  virtual bool ParseURL(const char* url);
+  /**
+   * Overridden to determine connection parameters given the URL.
+   * This is called by CreateFromURL() to initialize the instance.
+   * Look at CreateFromURL() for details about the URL format.
+   */
+  bool ParseURL(const char* url) override;
 
 private:
-  vtk_sqlite3 *SQLiteInstance;
+  vtkSQLiteDatabaseInternals *Internal;
 
   // We want this to be private, a user of this class
   // should not be setting this for any reason
@@ -160,8 +183,8 @@ private:
 
   vtkStdString TempURL;
 
-  vtkSQLiteDatabase(const vtkSQLiteDatabase &); // Not implemented.
-  void operator=(const vtkSQLiteDatabase &); // Not implemented.
+  vtkSQLiteDatabase(const vtkSQLiteDatabase &) = delete;
+  void operator=(const vtkSQLiteDatabase &) = delete;
 };
 
 #endif // vtkSQLiteDatabase_h

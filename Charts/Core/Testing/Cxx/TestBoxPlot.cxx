@@ -37,7 +37,7 @@ int TestBoxPlot(int , char* [])
   view->GetRenderWindow()->SetMultiSamples(0);
 
   vtkNew<vtkChartBox> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Creates a vtkPlotBox input table
   // The vtkPlotBox object will display 4 (arbitrary) box plots
@@ -45,33 +45,33 @@ int TestBoxPlot(int , char* [])
   vtkNew<vtkTable> inputBoxPlotTable;
 
   for (int i = 0; i < numParam; i++)
-    {
+  {
     char num[10];
-    sprintf(num, "P%d", i);
+    snprintf(num, sizeof(num), "P%d", i);
     vtkNew<vtkIntArray> arrIndex;
     arrIndex->SetName(num);
-    inputBoxPlotTable->AddColumn(arrIndex.GetPointer());
-    }
+    inputBoxPlotTable->AddColumn(arrIndex);
+  }
 
   inputBoxPlotTable->SetNumberOfRows(5);
 
   // This scaling parameter can be used to test Y axis positioning
   const double scale = 1e02;
   for (int i = 0; i < numParam; i++)
-    {
+  {
     inputBoxPlotTable->SetValue(0, i, (i/2) * scale); //Q0
     inputBoxPlotTable->SetValue(1, i, (2*i + 2 - i) * scale); //Q1
     inputBoxPlotTable->SetValue(2, i, (2*i + 4) * scale); //Q2
     inputBoxPlotTable->SetValue(3, i, (2*i + 7) * scale); //Q3
     inputBoxPlotTable->SetValue(4, i, (2*i + 8) * scale); //Q4
-    }
+  }
 
   vtkNew<vtkLookupTable> lookup;
   lookup->SetNumberOfColors(5);
   lookup->SetRange(0, 4);
   lookup->Build();
 
-  chart->GetPlot(0)->SetInputData(inputBoxPlotTable.GetPointer());
+  chart->GetPlot(0)->SetInputData(inputBoxPlotTable);
   chart->SetColumnVisibilityAll(true);
   chart->SetShowLegend(true);
 
@@ -86,7 +86,7 @@ int TestBoxPlot(int , char* [])
   labels->SetValue(2, "Param 2");
   labels->SetValue(3, "Param 3");
   labels->SetValue(4, "Param 4");
-  chart->GetPlot(0)->SetLabels(labels.GetPointer());
+  chart->GetPlot(0)->SetLabels(labels);
 
   // Manually change the color of one serie
   double rgb[3] = { 0.5, 0.5, 0.5 };

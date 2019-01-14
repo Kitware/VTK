@@ -91,7 +91,7 @@ int TestImageResliceMapperAlpha(int argc, char* argv[])
   colors2->SetOutputFormatToRGB();
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkRenderer *renderer = vtkRenderer::New();
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.1,0.2,0.4);
@@ -118,27 +118,27 @@ int TestImageResliceMapperAlpha(int argc, char* argv[])
     imageMapper2->Delete();
 
     if (i == 0)
-      {
+    {
       imageMapper2->SetInputConnection(grid->GetOutputPort());
       image2->GetProperty()->SetOpacity(0.5);
-      }
+    }
     else if (i == 1)
-      {
+    {
       imageMapper2->SetInputConnection(colors->GetOutputPort());
       camera->Elevation(30);
-      }
+    }
     else if (i == 2)
-      {
+    {
       imageMapper2->SetInputConnection(colors2->GetOutputPort());
       image2->GetProperty()->SetOpacity(0.5);
-      }
+    }
     else
-      {
+    {
       imageMapper2->SetInputConnection(grid->GetOutputPort());
       image2->GetProperty()->SetLookupTable(table2);
       image2->GetProperty()->SetOpacity(0.9);
       image->RotateWXYZ(30, 1, 0.5, 0);
-      }
+    }
 
     renderer->AddViewProp(image);
     renderer->AddViewProp(image2);
@@ -148,7 +148,7 @@ int TestImageResliceMapperAlpha(int argc, char* argv[])
 
     image->Delete();
     image2->Delete();
-    }
+  }
 
   colors->Delete();
   colors2->Delete();
@@ -160,9 +160,9 @@ int TestImageResliceMapperAlpha(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   reader->Delete();

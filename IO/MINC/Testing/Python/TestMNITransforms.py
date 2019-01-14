@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -153,4 +152,4 @@ try:
         pass
 
 except IOError:
-    print  "Unable to test the writer/reader."
+    print("Unable to test the writer/reader.")

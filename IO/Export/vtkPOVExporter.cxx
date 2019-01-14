@@ -83,7 +83,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include "vtkObjectFactory.h"
 
@@ -140,8 +140,8 @@ public:
 //============================================================================
 vtkPOVExporter::vtkPOVExporter()
 {
-  this->FileName = NULL;
-  this->FilePtr = NULL;
+  this->FileName = nullptr;
+  this->FilePtr = nullptr;
   this->Internals = new vtkPOVInternals;
 }
 
@@ -154,29 +154,33 @@ vtkPOVExporter::~vtkPOVExporter()
 void vtkPOVExporter::WriteData()
 {
   // make sure user specified a filename
-  if (this->FileName == NULL)
-    {
+  if (this->FileName == nullptr)
+  {
     vtkErrorMacro(<< "Please specify file name to create");
     return;
-    }
+  }
 
   //get the renderer
-  vtkRenderer *renderer =
-    this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  vtkRenderer *renderer = this->ActiveRenderer;
+  if (!renderer)
+  {
+    renderer = this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  }
+
   // make sure it has at least one actor
   if (renderer->GetActors()->GetNumberOfItems() < 1)
-    {
+  {
     vtkErrorMacro(<< "no actors found for writing .pov file.");
     return;
-    }
+  }
 
   // try opening the file
   this->FilePtr = fopen(this->FileName, "w");
-  if (this->FilePtr == NULL)
-    {
+  if (this->FilePtr == nullptr)
+  {
     vtkErrorMacro (<< "Cannot open " << this->FileName);
     return;
-    }
+  }
 
 
   // write header
@@ -189,19 +193,19 @@ void vtkPOVExporter::WriteData()
   vtkLightCollection *lc = renderer->GetLights();
   vtkCollectionSimpleIterator sit;
   lc->InitTraversal(sit);
-  if (lc->GetNextLight(sit) == NULL)
-    {
+  if (lc->GetNextLight(sit) == nullptr)
+  {
     vtkWarningMacro(<< "No light defined, creating one at camera position");
     renderer->CreateLight();
-    }
+  }
   vtkLight *light;
   for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit));)
-    {
+  {
     if (light->GetSwitch())
-      {
+    {
       this->WriteLight(light);
-      }
     }
+  }
 
   // write actors
   vtkActorCollection *ac = renderer->GetActors();
@@ -209,13 +213,13 @@ void vtkPOVExporter::WriteData()
   vtkCollectionSimpleIterator ait;
   vtkActor *anActor, *aPart;
   for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
-    {
+  {
     for (anActor->InitPathTraversal(); (apath = anActor->GetNextPath()); )
-      {
+    {
       aPart = static_cast<vtkActor *>(apath->GetLastNode()->GetViewProp());
       this->WriteActor(aPart);
-      }
     }
+  }
 
   fclose(this->FilePtr);
 }
@@ -246,13 +250,13 @@ void vtkPOVExporter::WriteCamera(vtkCamera *camera)
 {
   fprintf(this->FilePtr, "camera {\n");
   if (camera->GetParallelProjection())
-    {
+  {
     fprintf(this->FilePtr, "\torthographic\n");
-    }
+  }
   else
-    {
+  {
     fprintf(this->FilePtr, "\tperspective\n");
-    }
+  }
 
   double *position = camera->GetPosition();
   fprintf(this->FilePtr, "\tlocation <%f, %f, %f>\n",
@@ -290,15 +294,15 @@ void vtkPOVExporter::WriteLight(vtkLight *light)
           light->GetIntensity());
 
   if (light->GetPositional())
-    {
+  {
     fprintf(this->FilePtr, "\tspotlight\n");
     fprintf(this->FilePtr, "\tradius %f\n", light->GetConeAngle());
     fprintf(this->FilePtr, "\tfalloff %f\n", light->GetExponent());
-    }
+  }
   else
-    {
+  {
     fprintf(this->FilePtr, "\tparallel\n");
-    }
+  }
   double *focal    = light->GetFocalPoint();
   fprintf(this->FilePtr, "\tpoint_at <%f, %f, %f>\n",
           focal[0], focal[1], focal[2]);
@@ -308,19 +312,23 @@ void vtkPOVExporter::WriteLight(vtkLight *light)
 
 void vtkPOVExporter::WriteActor(vtkActor *actor)
 {
-  if (actor->GetMapper() == NULL)
-    {
+  if (actor->GetMapper() == nullptr)
+  {
     return;
-    }
+  }
+  if (actor->GetVisibility() == 0)
+  {
+    return;
+  }
 
   // write geometry, first ask the pipeline to update data
-  vtkDataSet *dataset = NULL;
+  vtkDataSet *dataset = nullptr;
   vtkSmartPointer<vtkDataSet> tempDS;
 
   vtkDataObject* dObj = actor->GetMapper()->GetInputDataObject(0, 0);
   vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dObj);
   if (cd)
-    {
+  {
     vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
     gf->SetInputConnection(actor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
@@ -328,39 +336,39 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
     gf->Delete();
 
     dataset = tempDS;
-    }
+  }
   else
-    {
+  {
     dataset = actor->GetMapper()->GetInput();
-    }
+  }
 
-  if (dataset == NULL)
-    {
+  if (dataset == nullptr)
+  {
     return;
-    }
+  }
   actor->GetMapper()->GetInputAlgorithm()->Update();
 
   // convert non polygon data to polygon data if needed
-  vtkGeometryFilter *geometryFilter = NULL;
-  vtkPolyData *polys = NULL;;
+  vtkGeometryFilter *geometryFilter = nullptr;
+  vtkPolyData *polys = nullptr;
   if (dataset->GetDataObjectType() != VTK_POLY_DATA)
-    {
+  {
     geometryFilter = vtkGeometryFilter::New();
     geometryFilter->SetInputConnection(
       actor->GetMapper()->GetInputConnection(0, 0));
     geometryFilter->Update();
     polys = geometryFilter->GetOutput();
-    }
+  }
   else
-    {
+  {
     polys = static_cast<vtkPolyData *>(dataset);
-    }
+  }
 
   // we only export Polygons and Triangle Strips
   if ((polys->GetNumberOfPolys() == 0) && (polys->GetNumberOfStrips() == 0))
-    {
+  {
       return;
-    }
+  }
 
   // write point coordinates
   vtkPoints *points = polys->GetPoints();
@@ -372,27 +380,27 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   fprintf(this->FilePtr, "\tvertex_vectors {\n");
   fprintf(this->FilePtr, VTKPOV_CNTFMT, points->GetNumberOfPoints());
   for (vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
-    {
+  {
     double *pos = points->GetPoint(i);
     fprintf(this->FilePtr, "\t\t<%f, %f, %f>,\n", pos[0], pos[1], pos[2]);
-    }
+  }
   fprintf(this->FilePtr, "\t}\n");
 
   // write vertex normal
   vtkPointData *pointData = polys->GetPointData();
   if (pointData->GetNormals())
-    {
+  {
     vtkDataArray *normals = pointData->GetNormals();
     fprintf(this->FilePtr, "\tnormal_vectors {\n");
     fprintf(this->FilePtr, VTKPOV_CNTFMT, normals->GetNumberOfTuples());
     for (vtkIdType i = 0; i < normals->GetNumberOfTuples(); i++)
-      {
+    {
       double *normal = normals->GetTuple(i);
       fprintf(this->FilePtr, "\t\t<%f, %f, %f>,\n",
               normal[0], normal[1], normal[2]);
-      }
-    fprintf(this->FilePtr, "\t}\n");
     }
+    fprintf(this->FilePtr, "\t}\n");
+  }
 
   // TODO: write texture coordinates (uv vectors)
 
@@ -400,10 +408,10 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   // the scalar data visibility is on
   bool scalar_visible = false;
   if (actor->GetMapper()->GetScalarVisibility())
-    {
+  {
     vtkUnsignedCharArray *color_array = actor->GetMapper()->MapScalars(1.0);
-    if (color_array != NULL)
-      {
+    if (color_array != nullptr)
+    {
       scalar_visible = true;
       fprintf(this->FilePtr, "\ttexture_list {\n");
       fprintf(this->FilePtr, VTKPOV_CNTFMT, color_array->GetNumberOfTuples());
@@ -415,22 +423,22 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
                 color[1]/255.0,
                 color[2]/255.0,
                 1.0 - color[3]/255.0);
-        }
-      fprintf(this->FilePtr, "\t}\n");
       }
+      fprintf(this->FilePtr, "\t}\n");
     }
+  }
 
   // write polygons
   if (polys->GetNumberOfPolys() > 0)
-    {
+  {
     this->WritePolygons(polys, scalar_visible);
-    }
+  }
 
   // write triangle strips
   if (polys->GetNumberOfStrips() > 0)
-    {
+  {
     this->WriteTriangleStrips(polys, scalar_visible);
-    }
+  }
 
   // write transformation for the actor, it is column major and looks like transposed
   vtkMatrix4x4 *matrix = actor->GetMatrix();
@@ -458,9 +466,9 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   fprintf(this->FilePtr, "}\n\n");
 
   if (geometryFilter)
-    {
+  {
     geometryFilter->Delete();
-    }
+  }
 }
 
 void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
@@ -469,21 +477,21 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
   // assuming polygon are simple and can be triangulated into "fans"
   vtkIdType numtriangles = 0;
   vtkCellArray *cells = polys->GetPolys();
-  vtkIdType npts = 0, *pts = 0;
+  vtkIdType npts = 0, *pts = nullptr;
 
   // first pass,
   // calculate how many triangles there will be after triangulation
   for (cells->InitTraversal(); cells->GetNextCell(npts, pts);)
-    {
+  {
     // the number of triangles for each polygon will be # of vertex - 2
     numtriangles += (npts - 2);
-    }
+  }
 
   // second pass, triangulate and write face indices
   fprintf(this->FilePtr, "\tface_indices {\n");
   fprintf(this->FilePtr, VTKPOV_CNTFMT, numtriangles);
   for (cells->InitTraversal(); cells->GetNextCell(npts, pts);)
-    {
+  {
     vtkIdType triangle[3];
     // the first triangle
     triangle[0] = pts[0];
@@ -493,42 +501,42 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
     fprintf(this->FilePtr, VTKPOV_TRIFMT1,
             triangle[0], triangle[1], triangle[2]);
     if (scalar_visible)
-      {
+    {
       fprintf(this->FilePtr, VTKPOV_TRIFMT2,
               triangle[0], triangle[1], triangle[2]);
-      }
+    }
     else
-      {
+    {
       fprintf(this->FilePtr, "\n");
-      }
+    }
 
   // the rest of triangles
     for (vtkIdType i = 3; i < npts; i++)
-      {
+    {
       triangle[1] = triangle[2];
       triangle[2] = pts[i];
       fprintf(this->FilePtr, VTKPOV_TRIFMT1,
               triangle[0], triangle[1], triangle[2]);
       if (scalar_visible)
-        {
+      {
         fprintf(this->FilePtr, VTKPOV_TRIFMT2,
                 triangle[0], triangle[1], triangle[2]);
-        }
+      }
       else
-        {
+      {
         fprintf(this->FilePtr, "\n");
-        }
       }
     }
+  }
   fprintf(this->FilePtr, "\t}\n");
 
   // third pass, the same thing as 2nd pass but for normal_indices
   if (polys->GetPointData()->GetNormals())
-    {
+  {
     fprintf(this->FilePtr, "\tnormal_indices {\n");
     fprintf(this->FilePtr, VTKPOV_CNTFMT, numtriangles);
     for (cells->InitTraversal(); cells->GetNextCell(npts, pts);)
-      {
+    {
       vtkIdType triangle[3];
       // the first triangle
       triangle[0] = pts[0];
@@ -541,16 +549,16 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
 
       // the rest of triangles
       for (vtkIdType i = 3; i < npts; i++)
-        {
+      {
         triangle[1] = triangle[2];
         triangle[2] = pts[i];
         fprintf(this->FilePtr, VTKPOV_TRIFMT1,
                 triangle[0], triangle[1], triangle[2]);
         fprintf(this->FilePtr, "\n");
-        }
       }
-    fprintf(this->FilePtr, "\t}\n");
     }
+    fprintf(this->FilePtr, "\t}\n");
+  }
 
   // TODO: 4th pass, texture indices
 
@@ -562,20 +570,20 @@ void vtkPOVExporter::WriteTriangleStrips(
   // convert triangle strips into triangles
   vtkIdType numtriangles = 0;
   vtkCellArray *cells = polys->GetStrips();
-  vtkIdType npts = 0, *pts = 0;
+  vtkIdType npts = 0, *pts = nullptr;
 
   // first pass, calculate how many triangles there will be after conversion
   for (cells->InitTraversal(); cells->GetNextCell(npts, pts);)
-    {
+  {
     // the number of triangles for each polygon will be # of vertex - 2
     numtriangles += (npts - 2);
-    }
+  }
 
   // second pass, convert to triangles and write face indices
   fprintf(this->FilePtr, "\tface_indices {\n");
   fprintf(this->FilePtr, VTKPOV_CNTFMT, numtriangles);
   for (cells->InitTraversal(); cells->GetNextCell(npts, pts);)
-    {
+  {
     vtkIdType triangle[3];
     // the first triangle
     triangle[0] = pts[0];
@@ -585,43 +593,43 @@ void vtkPOVExporter::WriteTriangleStrips(
     fprintf(this->FilePtr, VTKPOV_TRIFMT1,
             triangle[0], triangle[1], triangle[2]);
     if (scalar_visible)
-      {
+    {
       fprintf(this->FilePtr, VTKPOV_TRIFMT2,
               triangle[0], triangle[1], triangle[2]);
-      }
+    }
     else
-      {
+    {
       fprintf(this->FilePtr, "\n");
-      }
+    }
 
   // the rest of triangles
     for (vtkIdType i = 3; i < npts; i++)
-      {
+    {
       triangle[0] = triangle[1];
       triangle[1] = triangle[2];
       triangle[2] = pts[i];
       fprintf(this->FilePtr, VTKPOV_TRIFMT1,
               triangle[0], triangle[1], triangle[2]);
       if (scalar_visible)
-        {
+      {
         fprintf(this->FilePtr, VTKPOV_TRIFMT2,
                 triangle[0], triangle[1], triangle[2]);
-        }
+      }
       else
-        {
+      {
         fprintf(this->FilePtr, "\n");
-        }
       }
     }
+  }
   fprintf(this->FilePtr, "\t}\n");
 
   // third pass, the same thing as 2nd pass but for normal_indices
   if (polys->GetPointData()->GetNormals())
-    {
+  {
     fprintf(this->FilePtr, "\tnormal_indices {\n");
     fprintf(this->FilePtr, VTKPOV_CNTFMT, numtriangles);
     for (cells->InitTraversal(); cells->GetNextCell(npts, pts);)
-      {
+    {
       vtkIdType triangle[3];
       // the first triangle
       triangle[0] = pts[0];
@@ -634,17 +642,17 @@ void vtkPOVExporter::WriteTriangleStrips(
 
       // the rest of triangles
       for (vtkIdType i = 3; i < npts; i++)
-        {
+      {
         triangle[0] = triangle[1];
         triangle[1] = triangle[2];
         triangle[2] = pts[i];
         fprintf(this->FilePtr, VTKPOV_TRIFMT1,
                 triangle[0], triangle[1], triangle[2]);
         fprintf(this->FilePtr, "\n");
-        }
       }
-    fprintf(this->FilePtr, "\t}\n");
     }
+    fprintf(this->FilePtr, "\t}\n");
+  }
 
   // TODO: 4th pass, texture indices
 }
@@ -675,11 +683,11 @@ void vtkPOVExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   if (this->FileName)
-    {
+  {
     os << indent << "FileName: " << this->FileName << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "FileName: (null)\n";
-    }
+  }
 }

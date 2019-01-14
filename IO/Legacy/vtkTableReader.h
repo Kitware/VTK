@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTableReader - read vtkTable data file
-// .SECTION Description
-// vtkTableReader is a source object that reads ASCII or binary
-// vtkTable data files in vtk format. (see text for format details).
-// The output of this reader is a single vtkTable data object.
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-// .SECTION See Also
-// vtkTable vtkDataReader vtkTableWriter
+/**
+ * @class   vtkTableReader
+ * @brief   read vtkTable data file
+ *
+ * vtkTableReader is a source object that reads ASCII or binary
+ * vtkTable data files in vtk format. (see text for format details).
+ * The output of this reader is a single vtkTable data object.
+ * The superclass of this class, vtkDataReader, provides many methods for
+ * controlling the reading of the data file, see vtkDataReader for more
+ * information.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+ * @sa
+ * vtkTable vtkDataReader vtkTableWriter
+*/
 
 #ifndef vtkTableReader_h
 #define vtkTableReader_h
@@ -38,31 +41,31 @@ class VTKIOLEGACY_EXPORT vtkTableReader : public vtkDataReader
 public:
   static vtkTableReader *New();
   vtkTypeMacro(vtkTableReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the output of this reader.
+  //@{
+  /**
+   * Get the output of this reader.
+   */
   vtkTable *GetOutput();
   vtkTable *GetOutput(int idx);
   void SetOutput(vtkTable *output);
+  //@}
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
 
 protected:
   vtkTableReader();
-  ~vtkTableReader();
+  ~vtkTableReader() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-
-  // Since the Outputs[0] has the same UpdateExtent format
-  // as the generic DataObject we can copy the UpdateExtent
-  // as a default behavior.
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkTableReader(const vtkTableReader&);  // Not implemented.
-  void operator=(const vtkTableReader&);  // Not implemented.
+  vtkTableReader(const vtkTableReader&) = delete;
+  void operator=(const vtkTableReader&) = delete;
 };
 
 #endif

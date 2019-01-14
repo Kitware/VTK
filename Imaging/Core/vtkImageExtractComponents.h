@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageExtractComponents - Outputs a single component
-// .SECTION Description
-// vtkImageExtractComponents takes an input with any number of components
-// and outputs some of them.  It does involve a copy of the data.
-
-// .SECTION See Also
-// vtkImageAppendComponents
+/**
+ * @class   vtkImageExtractComponents
+ * @brief   Outputs a single component
+ *
+ * vtkImageExtractComponents takes an input with any number of components
+ * and outputs some of them.  It does involve a copy of the data.
+ *
+ * @sa
+ * vtkImageAppendComponents
+*/
 
 #ifndef vtkImageExtractComponents_h
 #define vtkImageExtractComponents_h
@@ -32,35 +35,41 @@ class VTKIMAGINGCORE_EXPORT vtkImageExtractComponents : public vtkThreadedImageA
 public:
   static vtkImageExtractComponents *New();
   vtkTypeMacro(vtkImageExtractComponents,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Set/Get the components to extract.
+  //@{
+  /**
+   * Set/Get the components to extract.
+   */
   void SetComponents(int c1);
   void SetComponents(int c1, int c2);
   void SetComponents(int c1, int c2, int c3);
   vtkGetVector3Macro(Components,int);
+  //@}
 
-  // Description:
-  // Get the number of components to extract. This is set implicitly by the
-  // SetComponents() method.
+  //@{
+  /**
+   * Get the number of components to extract. This is set implicitly by the
+   * SetComponents() method.
+   */
   vtkGetMacro(NumberOfComponents,int);
+  //@}
 
 protected:
   vtkImageExtractComponents();
-  ~vtkImageExtractComponents() {}
+  ~vtkImageExtractComponents() override {}
 
   int NumberOfComponents;
   int Components[3];
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector**,
-                                  vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector**,
+                                  vtkInformationVector *) override;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id);
+                       int ext[6], int id) override;
 private:
-  vtkImageExtractComponents(const vtkImageExtractComponents&);  // Not implemented.
-  void operator=(const vtkImageExtractComponents&);  // Not implemented.
+  vtkImageExtractComponents(const vtkImageExtractComponents&) = delete;
+  void operator=(const vtkImageExtractComponents&) = delete;
 };
 
 #endif

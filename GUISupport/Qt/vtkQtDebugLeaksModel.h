@@ -12,18 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQtDebugLeaksModel - model class that observes the vtkDebugLeaks singleton
-//
-// .SECTION Description
-// This class is used internally by the vtkQtDebugLeaksView.  It installs an
-// observer on the vtkDebugLeaks singleton and uses the observer to maintain
-// a model of all vtkObjectBase dervied objects that are alive in memory.
+/**
+ * @class   vtkQtDebugLeaksModel
+ * @brief   model class that observes the vtkDebugLeaks singleton
+ *
+ *
+ * This class is used internally by the vtkQtDebugLeaksView.  It installs an
+ * observer on the vtkDebugLeaks singleton and uses the observer to maintain
+ * a model of all vtkObjectBase dervied objects that are alive in memory.
+*/
 
 #ifndef vtkQtDebugLeaksModel_h
 #define vtkQtDebugLeaksModel_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include <QStandardItemModel>
 
 class vtkObjectBase;
@@ -34,17 +36,19 @@ class VTKGUISUPPORTQT_EXPORT vtkQtDebugLeaksModel : public QStandardItemModel
 
 public:
 
-  vtkQtDebugLeaksModel(QObject* p=0);
-  virtual ~vtkQtDebugLeaksModel();
+  vtkQtDebugLeaksModel(QObject* p=nullptr);
+  ~vtkQtDebugLeaksModel() override;
 
-  // Description:
-  // Get the list of objects in the model that have the given class name
+  /**
+   * Get the list of objects in the model that have the given class name
+   */
   QList<vtkObjectBase*> getObjects(const QString& className);
 
-  // Description:
-  // Return an item model that contains only objects with the given class name.
-  // The model has two columns: object address (string), object reference count (integer)
-  // The caller is allowed to reparent or delete the returned model.
+  /**
+   * Return an item model that contains only objects with the given class name.
+   * The model has two columns: object address (string), object reference count (integer)
+   * The caller is allowed to reparent or delete the returned model.
+   */
   QStandardItemModel* referenceCountModel(const QString& className);
 
 protected slots:
@@ -56,7 +60,7 @@ protected slots:
   void onAboutToQuit();
 
   // Inherited method from QAbstractItemModel
-  virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+  Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 private:
 
@@ -77,14 +81,14 @@ class ReferenceCountModel : public QStandardItemModel
   Q_OBJECT
 
 public:
-  ReferenceCountModel(QObject* p=0);
-  ~ReferenceCountModel();
+  ReferenceCountModel(QObject* p=nullptr);
+  ~ReferenceCountModel() override;
   void addObject(vtkObjectBase* obj);
   void removeObject(vtkObjectBase* obj);
   QString pointerAsString(void* ptr);
 
   // Inherited method from QAbstractItemModel
-  virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+  Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 protected slots:
   void updateReferenceCounts();
@@ -92,3 +96,4 @@ protected slots:
 
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtDebugLeaksModel.h

@@ -17,21 +17,24 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPostgreSQLQuery - vtkSQLQuery implementation for PostgreSQL databases
-//
-// .SECTION Description
-//
-// This is an implementation of vtkSQLQuery for PostgreSQL databases.  See
-// the documentation for vtkSQLQuery for information about what the
-// methods do.
-//
-// .SECTION Thanks
-//
-// Thanks to David Thompson and Andy Wilson from Sandia National
-// Laboratories for implementing this class.
-//
-// .SECTION See Also
-// vtkSQLDatabase vtkSQLQuery vtkPostgreSQLDatabase
+/**
+ * @class   vtkPostgreSQLQuery
+ * @brief   vtkSQLQuery implementation for PostgreSQL databases
+ *
+ *
+ *
+ * This is an implementation of vtkSQLQuery for PostgreSQL databases.  See
+ * the documentation for vtkSQLQuery for information about what the
+ * methods do.
+ *
+ *
+ * @par Thanks:
+ * Thanks to David Thompson and Andy Wilson from Sandia National
+ * Laboratories for implementing this class.
+ *
+ * @sa
+ * vtkSQLDatabase vtkSQLQuery vtkPostgreSQLDatabase
+*/
 
 #ifndef vtkPostgreSQLQuery_h
 #define vtkPostgreSQLQuery_h
@@ -48,56 +51,69 @@ class VTKIOPOSTGRESQL_EXPORT vtkPostgreSQLQuery : public vtkSQLQuery
 {
 public:
   static vtkPostgreSQLQuery* New();
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   vtkTypeMacro(vtkPostgreSQLQuery, vtkSQLQuery);
 
-  // Description:
-  // Execute the query.  This must be performed
-  // before any field name or data access functions
-  // are used.
-  bool Execute();
+  /**
+   * Execute the query.  This must be performed
+   * before any field name or data access functions
+   * are used.
+   */
+  bool Execute() override;
 
-  // Description:
-  // The number of fields in the query result.
-  int GetNumberOfFields();
+  /**
+   * The number of fields in the query result.
+   */
+  int GetNumberOfFields() override;
 
-  // Description:
-  // Return the name of the specified query field.
-  const char* GetFieldName( int i );
+  /**
+   * Return the name of the specified query field.
+   */
+  const char* GetFieldName( int i ) override;
 
-  // Description:
-  // Return the type of the field, using the constants defined in vtkType.h.
-  int GetFieldType( int i );
+  /**
+   * Return the type of the field, using the constants defined in vtkType.h.
+   */
+  int GetFieldType( int i ) override;
 
-  // Description:
-  // Advance row, return false if past end.
-  bool NextRow();
+  /**
+   * Advance row, return false if past end.
+   */
+  bool NextRow() override;
 
-  // Description:
-  // Return true if there is an error on the current query.
-  bool HasError();
+  /**
+   * Return true if there is an error on the current query.
+   */
+  bool HasError() override;
 
-  // Description:
-  // Begin, abort (roll back), or commit a transaction.
-  bool BeginTransaction();
-  bool RollbackTransaction();
-  bool CommitTransaction();
+  //@{
+  /**
+   * Begin, abort (roll back), or commit a transaction.
+   */
+  bool BeginTransaction() override;
+  bool RollbackTransaction() override;
+  bool CommitTransaction() override;
+  //@}
 
-  // Description:
-  // Return data in current row, field c
-  vtkVariant DataValue( vtkIdType c );
+  /**
+   * Return data in current row, field c
+   */
+  vtkVariant DataValue( vtkIdType c ) override;
 
-  // Description:
-  // Get the last error text from the query
-  const char* GetLastErrorText();
+  /**
+   * Get the last error text from the query
+   */
+  const char* GetLastErrorText() override;
 
-  // Description:
-  // Escape a string for inclusion into an SQL query
-  virtual vtkStdString EscapeString( vtkStdString s, bool addSurroundingQuotes = true );
+  /**
+   * Escape a string for inclusion into an SQL query
+   */
+  vtkStdString EscapeString( vtkStdString s, bool addSurroundingQuotes = true ) override;
 
-  // Description:
-  // Unlike some databases, Postgres can tell you right away how many
-  // rows are in the results of your query.
+  /**
+   * Unlike some databases, Postgres can tell you right away how many
+   * rows are in the results of your query.
+   */
   int GetNumberOfRows();
 
 protected:
@@ -117,13 +133,11 @@ protected:
 
   void DeleteQueryResults();
 
-  //BTX
   friend class vtkPostgreSQLDatabase;
-  //ETX
 
 private:
-  vtkPostgreSQLQuery( const vtkPostgreSQLQuery& ); // Not implemented.
-  void operator = ( const vtkPostgreSQLQuery& ); // Not implemented.
+  vtkPostgreSQLQuery( const vtkPostgreSQLQuery& ) = delete;
+  void operator = ( const vtkPostgreSQLQuery& ) = delete;
 };
 
 #endif // vtkPostgreSQLQuery_h

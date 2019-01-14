@@ -1,0 +1,28 @@
+NAME
+  VTK::DomainsChemistryOpenGL2
+LIBRARY_NAME
+  vtkDomainsChemistryOpenGL2
+DESCRIPTION
+  OpenGL support for chemistry data
+KIT
+  VTK::OpenGL
+IMPLEMENTS
+  VTK::DomainsChemistry
+DEPENDS
+  VTK::CommonCore
+  VTK::DomainsChemistry
+  VTK::RenderingOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMath
+  VTK::glew
+  VTK::RenderingCore
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersSources
+  VTK::InteractionStyle
+  VTK::IOGeometry
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

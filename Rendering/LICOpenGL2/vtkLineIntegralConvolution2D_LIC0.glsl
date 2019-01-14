@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 //=========================================================================
 //
 //  Program:   Visualization Toolkit
@@ -17,9 +19,8 @@
 This shader initializes the convolution for the LIC computation.
 */
 
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
+// the output of this shader
+//VTK::Output::Dec
 
 uniform sampler2D texMaskVectors;
 uniform sampler2D texNoise;
@@ -30,7 +31,7 @@ uniform int   uPassNo;         // in pass 1 hpf of pass 0 is convolved.
 uniform float uMaskThreshold;  // if |V| < uMaskThreshold render transparent
 uniform vec2  uNoiseBoundsPt1; // tc of upper right pt of noise texture
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 // convert from vector coordinate space to noise coordinate space.
 // the noise texture is tiled across the *whole* domain

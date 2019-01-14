@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -22,11 +21,8 @@ v16.SetDataSpacing(3.2, 3.2, 1.5)
 
 #---------------------------------------------------------
 # set up the volume rendering
-rayCastFunction = vtk.vtkVolumeRayCastCompositeFunction()
-
-volumeMapper = vtk.vtkVolumeRayCastMapper()
+volumeMapper = vtk.vtkFixedPointVolumeRayCastMapper()
 volumeMapper.SetInputConnection(v16.GetOutputPort())
-volumeMapper.SetVolumeRayCastFunction(rayCastFunction)
 volumeMapper.CroppingOn()
 volumeMapper.SetCroppingRegionPlanes(0.0, 141.6, 0.0, 201.6, 0.0, 138.0)
 

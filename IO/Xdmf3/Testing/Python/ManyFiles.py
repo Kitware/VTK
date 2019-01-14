@@ -3,6 +3,8 @@ This test verifies that vtk's Xdmf reader will read a sampling of small
 to moderate size data files that cover a spectrum of file format features.
 """
 
+from __future__ import print_function
+
 import sys
 import vtk
 from vtk.util.misc import vtkGetDataRoot
@@ -58,14 +60,14 @@ if __name__ == "__main__":
   for fname in testfilenames:
     xr = vtk.vtkXdmf3Reader()
     afname = "" + str(VTK_DATA_ROOT) + "/Data/XDMF/" + fname
-    print "Trying ", afname
+    print ("Trying %s" % afname)
     xr.CanReadFile(afname)
     xr.SetFileName(afname)
     xr.UpdateInformation()
     xr.Update()
     ds = xr.GetOutputDataObject(0)
     if not ds:
-      print "Got zero output from known good file"
+      print("Got zero output from known good file")
       sys.exit(vtk.VTK_ERROR)
     #if res != vtk.VTK_OK:
     #  print "Could not read", afname

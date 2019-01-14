@@ -27,8 +27,8 @@ int otherFieldData(int,char *[])
 
   char name[128];
   for(i=0; i<5; i++)
-    {
-    sprintf(name, "Array%d", i);
+  {
+    snprintf(name, sizeof(name), "Array%d", i);
     fa = vtkFloatArray::New();
     fa->SetName(name);
     // the tuples must be set before being read to avoid a UMR
@@ -38,14 +38,13 @@ int otherFieldData(int,char *[])
     fa->SetTuple1(2,0.0);
     fd->AddArray(fa);
     fa->Delete();
-    }
+  }
 
   // Coverage
   vtkFieldData::Iterator it(fd);
   vtkFieldData::Iterator it2(it);
-
-  it = it;
-  it2 = it;
+  (void)it;
+  (void)it2;
 
   fd->Allocate(20);
   fd->CopyFieldOff("Array0");
@@ -66,9 +65,9 @@ int otherFieldData(int,char *[])
   int arrayComp;
   int a = fd->GetArrayContainingComponent(1, arrayComp);
   if (a != 1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Obsolete API.
   double tuple[10];

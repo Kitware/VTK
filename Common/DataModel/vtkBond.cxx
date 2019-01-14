@@ -25,7 +25,7 @@ vtkBond::vtkBond(vtkMolecule *parent, vtkIdType id,
                  vtkIdType beginAtomId, vtkIdType endAtomId)
   : Molecule(parent), Id(id), BeginAtomId(beginAtomId), EndAtomId(endAtomId)
 {
-  assert(parent != 0);
+  assert(parent != nullptr);
   assert(id < parent->GetNumberOfBonds());
   assert(beginAtomId < parent->GetNumberOfAtoms());
   assert(endAtomId < parent->GetNumberOfAtoms());
@@ -78,13 +78,13 @@ vtkAtom vtkBond::GetEndAtom()
 }
 
 //----------------------------------------------------------------------------
-const vtkAtom vtkBond::GetBeginAtom() const
+vtkAtom vtkBond::GetBeginAtom() const
 {
   return this->Molecule->GetAtom(this->BeginAtomId);
 }
 
 //----------------------------------------------------------------------------
-const vtkAtom vtkBond::GetEndAtom() const
+vtkAtom vtkBond::GetEndAtom() const
 {
   return this->Molecule->GetAtom(this->EndAtomId);
 }

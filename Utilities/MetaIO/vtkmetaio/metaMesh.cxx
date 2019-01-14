@@ -204,7 +204,7 @@ Clear(void)
   while(it_pnt != m_PointList.end())
   {
     MeshPoint* pnt = *it_pnt;
-    it_pnt++;
+    ++it_pnt;
     delete pnt;
   }
 
@@ -213,7 +213,7 @@ Clear(void)
   while(it_celllinks != m_CellLinks.end())
   {
     MeshCellLink* link = *it_celllinks;
-    it_celllinks++;
+    ++it_celllinks;
     delete link;
   }
 
@@ -222,7 +222,7 @@ Clear(void)
   while(it_pointdata != m_PointData.end())
   {
     MeshDataBase* data = *it_pointdata;
-    it_pointdata++;
+    ++it_pointdata;
     delete data;
   }
 
@@ -231,7 +231,7 @@ Clear(void)
   while(it_celldata != m_CellData.end())
   {
     MeshDataBase* data = *it_celldata;
-    it_celldata++;
+    ++it_celldata;
     delete data;
   }
 
@@ -245,7 +245,7 @@ Clear(void)
       while(it_cell != m_CellListArray[i]->end())
       {
         MeshCell* cell = *it_cell;
-        it_cell++;
+        ++it_cell;
         delete cell;
       }
       delete m_CellListArray[i];
@@ -446,7 +446,7 @@ M_Read(void)
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
-    int gc = m_ReadStream->gcount();
+    int gc = static_cast<int>(m_ReadStream->gcount());
     if(gc != readSize)
     {
       METAIO_STREAM::cout << "MetaMesh: m_Read: Points not read completely"
@@ -569,7 +569,7 @@ M_Read(void)
     char c = ' ';
     while( (c!='\n') && (!m_ReadStream->eof()))
       {
-      c = m_ReadStream->get();// to avoid unrecognize charactere
+      c = static_cast<char>(m_ReadStream->get());// to avoid unrecognize charactere
       }
     }
 
@@ -625,7 +625,7 @@ M_Read(void)
       char* _data = new char[readSize];
       m_ReadStream->read((char *)_data, readSize);
 
-      int gc = m_ReadStream->gcount();
+      int gc = static_cast<int>(m_ReadStream->gcount());
       if(gc != readSize)
         {
         METAIO_STREAM::cout << "MetaMesh: m_Read: Cells not read completely"
@@ -695,7 +695,7 @@ M_Read(void)
       char c = ' ';
       while( (c!='\n') && (!m_ReadStream->eof()))
       {
-        c = m_ReadStream->get();// to avoid unrecognized characters
+        c = static_cast<char>(m_ReadStream->get());// to avoid unrecognized characters
       }
     }
     }
@@ -747,7 +747,7 @@ M_Read(void)
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
-    int gc = m_ReadStream->gcount();
+    int gc = static_cast<int>(m_ReadStream->gcount());
     if(gc != readSize)
       {
       METAIO_STREAM::cout << "MetaMesh: m_Read: Cell Link not read completely"
@@ -830,7 +830,7 @@ M_Read(void)
       char c = ' ';
       while( (c!='\n') && (!m_ReadStream->eof()))
         {
-        c = m_ReadStream->get();// to avoid unrecognized characters
+        c = static_cast<char>(m_ReadStream->get());// to avoid unrecognized characters
         }
       }
     }
@@ -880,7 +880,7 @@ M_Read(void)
   char* _data = new char[pointDataSize];
   m_ReadStream->read((char *)_data, pointDataSize);
 
-  unsigned int gc = m_ReadStream->gcount();
+  unsigned int gc = static_cast<unsigned int>(m_ReadStream->gcount());
   if(gc != pointDataSize)
     {
     METAIO_STREAM::cout << "MetaMesh: m_Read: PointData not read completely"
@@ -1046,7 +1046,7 @@ M_Read(void)
   char* _celldata = new char[cellDataSize];
   m_ReadStream->read((char *)_celldata, cellDataSize);
 
-  unsigned int gcCell = m_ReadStream->gcount();
+  unsigned int gcCell = static_cast<unsigned int>(m_ReadStream->gcount());
   if(gcCell != cellDataSize)
     {
     METAIO_STREAM::cout << "MetaMesh: m_Read: data not read completely"
@@ -1207,7 +1207,7 @@ M_Write(void)
         MET_SwapByteIfSystemMSB(&pntX,MET_FLOAT);
         MET_DoubleToValue((double)pntX,m_PointType,data,i++);
         }
-      it++;
+      ++it;
       }
     m_WriteStream->write((char *)data,(m_NDims+1)*m_NPoints*elementSize);
     m_WriteStream->write("\n",1);
@@ -1226,7 +1226,7 @@ M_Write(void)
         *m_WriteStream << (*it)->m_X[d] << " ";
         }
       *m_WriteStream << METAIO_STREAM::endl;
-      it++;
+      ++it;
       }
     }
 
@@ -1283,7 +1283,7 @@ M_Write(void)
             MET_SwapByteIfSystemMSB(&pntId,MET_INT);
             MET_DoubleToValue((double)pntId,MET_INT,data,j++);
             }
-          it++;
+          ++it;
         }
         m_WriteStream->write((char *)data,totalCellsSize*sizeof(int));
         m_WriteStream->write("\n",1);
@@ -1304,7 +1304,7 @@ M_Write(void)
             }
 
           *m_WriteStream << METAIO_STREAM::endl;
-          it++;
+          ++it;
           }
         }
     }
@@ -1328,7 +1328,7 @@ M_Write(void)
       while(it != itEnd)
         {
         cellLinksSize += static_cast<int>(2+(*it)->m_Links.size());
-        it++;
+        ++it;
         }
       mF = new MET_FieldRecordType;
       MET_InitWriteField(mF, "CellLinksSize", MET_INT,cellLinksSize);
@@ -1371,9 +1371,9 @@ M_Write(void)
           int links = (*it2);
           MET_SwapByteIfSystemMSB(&links,MET_INT);
           MET_DoubleToValue((double)links,MET_INT,data,j++);
-          it2++;
+          ++it2;
           }
-        it++;
+        ++it;
         }
         m_WriteStream->write((char *)data,cellLinksSize*sizeof(int));
         m_WriteStream->write("\n",1);
@@ -1393,10 +1393,10 @@ M_Write(void)
         while(it2 != it2End)
           {
           *m_WriteStream << (*it2) << " ";
-          it2++;
+          ++it2;
           }
         *m_WriteStream << METAIO_STREAM::endl;
-        it++;
+        ++it;
         }
       }
     }
@@ -1418,7 +1418,7 @@ M_Write(void)
     while(it != itEnd)
       {
       pointDataSize += (*it)->GetSize();
-      it++;
+      ++it;
       }
 
     mF = new MET_FieldRecordType;
@@ -1443,7 +1443,7 @@ M_Write(void)
     while(it != itEnd)
       {
       (*it)->Write(m_WriteStream);
-      it++;
+      ++it;
       }
     m_WriteStream->write("\n",1);
 
@@ -1466,7 +1466,7 @@ M_Write(void)
     while(it != itEnd)
       {
       cellDataSize += (*it)->GetSize();
-      it++;
+      ++it;
       }
 
     mF = new MET_FieldRecordType;
@@ -1492,7 +1492,7 @@ M_Write(void)
     while(it != itEnd)
       {
       (*it)->Write(m_WriteStream);
-      it++;
+      ++it;
       }
     m_WriteStream->write("\n",1);
     }

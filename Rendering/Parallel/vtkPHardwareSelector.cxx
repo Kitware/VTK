@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkPHardwareSelector.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -23,18 +23,18 @@ class vtkPHardwareSelector::vtkObserver : public vtkCommand
 {
 public:
   static vtkObserver* New() { return new vtkObserver(); }
-  virtual void Execute(vtkObject *, unsigned long eventId,
-                       void *)
-    {
+  void Execute(vtkObject *, unsigned long eventId,
+               void *) override
+  {
     if (eventId == vtkCommand::StartEvent)
-      {
+    {
       this->Target->StartRender();
-      }
-    else if (eventId == vtkCommand::EndEvent)
-      {
-      this->Target->EndRender();
-      }
     }
+    else if (eventId == vtkCommand::EndEvent)
+    {
+      this->Target->EndRender();
+    }
+  }
   vtkPHardwareSelector* Target;
 };
 
@@ -52,7 +52,7 @@ vtkPHardwareSelector::vtkPHardwareSelector()
 //----------------------------------------------------------------------------
 vtkPHardwareSelector::~vtkPHardwareSelector()
 {
-  this->Observer->Target = 0;
+  this->Observer->Target = nullptr;
   this->Observer->Delete();
 }
 
@@ -60,9 +60,9 @@ vtkPHardwareSelector::~vtkPHardwareSelector()
 bool vtkPHardwareSelector::CaptureBuffers()
 {
   if (this->ProcessIsRoot)
-    {
+  {
     return this->Superclass::CaptureBuffers();
-    }
+  }
 
   this->InvokeEvent(vtkCommand::StartEvent);
   this->BeginSelection();
@@ -72,17 +72,17 @@ bool vtkPHardwareSelector::CaptureBuffers()
 
   for (this->CurrentPass = MIN_KNOWN_PASS;
     this->CurrentPass < MAX_KNOWN_PASS; this->CurrentPass++)
-    {
+  {
     if (this->PassRequired(this->CurrentPass))
-      {
+    {
       break;
-      }
     }
+  }
 
   if (this->CurrentPass == MAX_KNOWN_PASS)
-    {
+  {
     this->EndRender();
-    }
+  }
   return false;
 }
 
@@ -96,20 +96,20 @@ void vtkPHardwareSelector::EndRender()
 {
   this->CurrentPass++;
   for (; this->CurrentPass < MAX_KNOWN_PASS; this->CurrentPass++)
-    {
+  {
     if (this->PassRequired(this->CurrentPass))
-      {
+    {
       break;
-      }
     }
+  }
 
   if (this->CurrentPass>=MAX_KNOWN_PASS)
-    {
+  {
     vtkRenderWindow* rwin = this->Renderer->GetRenderWindow();
     rwin->RemoveObserver(this->Observer);
     this->EndSelection();
     this->InvokeEvent(vtkCommand::EndEvent);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

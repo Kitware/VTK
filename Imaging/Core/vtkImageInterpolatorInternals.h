@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInterpolatorInternals - internals for vtkImageInterpolator
+/**
+ * @class   vtkInterpolatorInternals
+ * @brief   internals for vtkImageInterpolator
+*/
 
-#ifndef vtkInterpolatorInternals_h
-#define vtkInterpolatorInternals_h
+#ifndef vtkImageInterpolatorInternals_h
+#define vtkImageInterpolatorInternals_h
 
 #include "vtkMath.h"
 
@@ -40,10 +43,13 @@ struct vtkInterpolationWeights : public vtkInterpolationInfo
   int WeightExtent[6];
   int KernelSize[3];
   int WeightType; // VTK_FLOAT or VTK_DOUBLE
+  void *Workspace;
+  int LastY;
+  int LastZ;
 
-  // partial copy contstructor from superclass
+  // partial copy constructor from superclass
   vtkInterpolationWeights(const vtkInterpolationInfo &info) :
-    vtkInterpolationInfo(info) {}
+    vtkInterpolationInfo(info), Workspace(nullptr) {}
 };
 
 // The internal math functions for the interpolators
@@ -97,15 +103,9 @@ inline int vtkInterpolationMath::Floor(double x, F &f)
 {
 #if defined VTK_INTERPOLATE_64BIT_FLOOR
   x += (103079215104.0 + VTK_INTERPOLATE_FLOOR_TOL);
-#ifdef VTK_TYPE_USE___INT64
-  __int64 i = static_cast<__int64>(x);
-  f = x - i;
-  return static_cast<int>(i - 103079215104i64);
-#else
   long long i = static_cast<long long>(x);
   f = static_cast<F>(x - i);
   return static_cast<int>(i - 103079215104LL);
-#endif
 #elif defined VTK_INTERPOLATE_32BIT_FLOOR
   x += (2147483648.0 + VTK_INTERPOLATE_FLOOR_TOL);
   unsigned int i = static_cast<unsigned int>(x);
@@ -129,13 +129,8 @@ inline int vtkInterpolationMath::Round(double x)
 {
 #if defined VTK_INTERPOLATE_64BIT_FLOOR
   x += (103079215104.5 + VTK_INTERPOLATE_FLOOR_TOL);
-#ifdef VTK_TYPE_USE___INT64
-  __int64 i = static_cast<__int64>(x);
-  return static_cast<int>(i - 103079215104i64);
-#else
   long long i = static_cast<long long>(x);
   return static_cast<int>(i - 103079215104LL);
-#endif
 #elif defined VTK_INTERPOLATE_32BIT_FLOOR
   x += (2147483648.5 + VTK_INTERPOLATE_FLOOR_TOL);
   unsigned int i = static_cast<unsigned int>(x);

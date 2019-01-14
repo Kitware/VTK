@@ -14,6 +14,7 @@
 
 #ifndef vtkLSDynaPart_h
 #define vtkLSDynaPart_h
+#ifndef __VTK_WRAP__
 
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkObject.h"
@@ -29,7 +30,7 @@ public:
   static vtkLSDynaPart *New();
 
   vtkTypeMacro(vtkLSDynaPart,vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //Description: Set the type of the part
   void SetPartType(int type);
@@ -137,7 +138,7 @@ public:
 
 protected:
   vtkLSDynaPart();
-  ~vtkLSDynaPart();
+  ~vtkLSDynaPart() override;
 
   vtkUnstructuredGrid* RemoveDeletedCells();
 
@@ -190,8 +191,9 @@ protected:
   InternalCurrentPointInfo *CurrentPointPropInfo;
 
 private:
-  vtkLSDynaPart( const vtkLSDynaPart& ); // Not implemented.
-  void operator = ( const vtkLSDynaPart& ); // Not implemented.
+  vtkLSDynaPart( const vtkLSDynaPart& ) = delete;
+  void operator = ( const vtkLSDynaPart& ) = delete;
 };
 
+#endif
 #endif // VTKLSDYNAPART

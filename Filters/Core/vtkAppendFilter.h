@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAppendFilter - appends one or more datasets together into a single unstructured grid
-// .SECTION Description
-// vtkAppendFilter is a filter that appends one of more datasets into a single
-// unstructured grid. All geometry is extracted and appended, but point
-// attributes (i.e., scalars, vectors, normals, field data, etc.) are extracted
-// and appended only if all datasets have the point attributes available.
-// (For example, if one dataset has scalars but another does not, scalars will
-// not be appended.)
-
-// .SECTION See Also
-// vtkAppendPolyData
+/**
+ * @class   vtkAppendFilter
+ * @brief   appends one or more datasets together into a single unstructured grid
+ *
+ * vtkAppendFilter is a filter that appends one of more datasets into a single
+ * unstructured grid. All geometry is extracted and appended, but point
+ * attributes (i.e., scalars, vectors, normals, field data, etc.) are extracted
+ * and appended only if all datasets have the point attributes available.
+ * (For example, if one dataset has scalars but another does not, scalars will
+ * not be appended.)
+ *
+ * @sa
+ * vtkAppendPolyData
+*/
 
 #ifndef vtkAppendFilter_h
 #define vtkAppendFilter_h
@@ -37,56 +40,70 @@ class VTKFILTERSCORE_EXPORT vtkAppendFilter : public vtkUnstructuredGridAlgorith
 {
 public:
   static vtkAppendFilter *New();
-
   vtkTypeMacro(vtkAppendFilter,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-//BTX
-  // Description:
-  // Get any input of this filter.
+  //@{
+  /**
+   * Get any input of this filter.
+   */
   vtkDataSet *GetInput(int idx);
-  vtkDataSet *GetInput()
-    {return this->GetInput( 0 );}
-//ETX
+  vtkDataSet* GetInput() { return this->GetInput(0); }
+  //@}
 
-  // Description:
-  // Get if the filter should merge coincidental points
-  // Note: The filter will only merge points if the ghost cell array doesn't exist
-  // Defaults to Off
-  vtkGetMacro(MergePoints,int);
+  //@{
+  /**
+   * Get/Set if the filter should merge coincidental points
+   * Note: The filter will only merge points if the ghost cell array doesn't exist
+   * Defaults to Off
+   */
+  vtkGetMacro(MergePoints, vtkTypeBool);
+  vtkSetMacro(MergePoints, vtkTypeBool);
+  vtkBooleanMacro(MergePoints, vtkTypeBool);
+  //@}
 
-  // Description:
-  // Set the filter to merge coincidental points.
-  // Note: The filter will only merge points if the ghost cell array doesn't exist
-  // Defaults to Off
-  vtkSetMacro(MergePoints,int);
+  //@{
+  /**
+   * Get/Set the tolerance to use to find coincident points when `MergePoints`
+   * is `true`. Default is 0.0.
+   *
+   * This is simply passed on to the internal vtkLocator used to merge points.
+   * @sa `vtkLocator::SetTolerance`.
+   */
+  vtkSetClampMacro(Tolerance, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Tolerance, double);
+  //@}
 
-  vtkBooleanMacro(MergePoints,int);
-
-  // Description:
-  // Remove a dataset from the list of data to append.
+  /**
+   * Remove a dataset from the list of data to append.
+   */
   void RemoveInputData(vtkDataSet *in);
 
-  // Description:
-  // Returns a copy of the input array.  Modifications to this list
-  // will not be reflected in the actual inputs.
+  /**
+   * Returns a copy of the input array.  Modifications to this list
+   * will not be reflected in the actual inputs.
+   */
   vtkDataSetCollection *GetInputList();
 
-  // Description:
-  // Set/get the desired precision for the output types. See the documentation
-  // for the vtkAlgorithm::Precision enum for an explanation of the available
-  // precision settings.
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::Precision enum for an explanation of the available
+   * precision settings.
+   */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
+  //@}
 
 protected:
   vtkAppendFilter();
-  ~vtkAppendFilter();
+  ~vtkAppendFilter() override;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *,
+                          vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   // list of data sets to append together.
   // Here as a convenience.  It is a copy of the input array.
@@ -94,13 +111,14 @@ protected:
 
   //If true we will attempt to merge points. Must also not have
   //ghost cells defined.
-  int MergePoints;
+  vtkTypeBool MergePoints;
 
   int OutputPointsPrecision;
+  double Tolerance;
 
 private:
-  vtkAppendFilter(const vtkAppendFilter&);  // Not implemented.
-  void operator=(const vtkAppendFilter&);  // Not implemented.
+  vtkAppendFilter(const vtkAppendFilter&) = delete;
+  void operator=(const vtkAppendFilter&) = delete;
 
   // Get all input data sets that have points, cells, or both.
   // Caller must delete the returned vtkDataSetCollection.
@@ -109,7 +127,8 @@ private:
   void AppendArrays(int attributesType,
                     vtkInformationVector **inputVector,
                     vtkIdType* globalIds,
-                    vtkUnstructuredGrid* output);
+                    vtkUnstructuredGrid* output,
+                    vtkIdType totalNumberOfElements);
 };
 
 

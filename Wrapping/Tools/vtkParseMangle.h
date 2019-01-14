@@ -23,8 +23,8 @@
  * This file contains utilities doing name mangling
  */
 
-#ifndef VTK_PARSE_MANGLE_H
-#define VTK_PARSE_MANGLE_H
+#ifndef vtkParseMangle_h
+#define vtkParseMangle_h
 
 #include <stddef.h>
 
@@ -51,3 +51,4 @@ size_t vtkParse_MangledLiteral(const char *name, char *new_name);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseMangle.h */

@@ -66,9 +66,9 @@ int TestSmartVolumeMapper(int argc,
   t->SetShift(-range[0]);
   double magnitude=range[1]-range[0];
   if(magnitude==0.0)
-    {
+  {
     magnitude=1.0;
-    }
+  }
   t->SetScale(255.0/magnitude);
   t->SetOutputScalarTypeToUnsignedChar();
 
@@ -128,12 +128,6 @@ int TestSmartVolumeMapper(int argc,
   volumeMapper->SetRequestedRenderMode(2);
   renWin->Render();
 
-  // 3D texture mode. For coverage.
-#ifndef VTK_OPENGL2
-  volumeMapper->SetRequestedRenderModeToRayCastAndTexture();
-  renWin->Render();
-#endif
-
   // Software mode, for coverage. It also makes sure we will get the same
   // regression image on all platforms.
   volumeMapper->SetRequestedRenderModeToRayCast();
@@ -141,9 +135,9 @@ int TestSmartVolumeMapper(int argc,
 
   retVal = vtkTesting::Test(argc, argv, renWin, 75);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   volumeMapper->Delete();
   volumeProperty->Delete();

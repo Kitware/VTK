@@ -25,9 +25,7 @@ vtkInformationDoubleKey::vtkInformationDoubleKey(const char* name, const char* l
 }
 
 //----------------------------------------------------------------------------
-vtkInformationDoubleKey::~vtkInformationDoubleKey()
-{
-}
+vtkInformationDoubleKey::~vtkInformationDoubleKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationDoubleKey::PrintSelf(ostream& os, vtkIndent indent)
@@ -39,7 +37,7 @@ void vtkInformationDoubleKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationDoubleValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationDoubleValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationDoubleValue, vtkObjectBase);
   double Value;
 };
 
@@ -49,26 +47,26 @@ void vtkInformationDoubleKey::Set(vtkInformation* info, double value)
   if(vtkInformationDoubleValue* oldv =
      static_cast<vtkInformationDoubleValue *>(
        this->GetAsObjectBase(info)))
-    {
+  {
     if (oldv->Value != value)
-      {
+    {
       // Replace the existing value.
       oldv->Value = value;
       // Since this sets a value without call SetAsObjectBase(),
       // the info has to be modified here (instead of
       // vtkInformation::SetAsObjectBase()
       info->Modified(this);
-      }
     }
+  }
   else
-    {
+  {
     // Allocate a new value.
     vtkInformationDoubleValue* v = new vtkInformationDoubleValue;
-    this->ConstructClass("vtkInformationDoubleValue");
+    v->InitializeObjectBase();
     v->Value = value;
     this->SetAsObjectBase(info, v);
     v->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -84,13 +82,13 @@ double vtkInformationDoubleKey::Get(vtkInformation* info)
 void vtkInformationDoubleKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   if (this->Has(from))
-    {
+  {
     this->Set(to, this->Get(from));
-    }
+  }
   else
-    {
-    this->SetAsObjectBase(to, 0); // doesn't exist in from, so remove the key
-    }
+  {
+    this->SetAsObjectBase(to, nullptr); // doesn't exist in from, so remove the key
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -98,9 +96,9 @@ void vtkInformationDoubleKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
   if(this->Has(info))
-    {
+  {
     os << this->Get(info);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -109,8 +107,8 @@ double* vtkInformationDoubleKey::GetWatchAddress(vtkInformation* info)
   if(vtkInformationDoubleValue* v =
      static_cast<vtkInformationDoubleValue *>(
        this->GetAsObjectBase(info)))
-    {
+  {
     return &v->Value;
-    }
-  return 0;
+  }
+  return nullptr;
 }

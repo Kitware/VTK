@@ -38,9 +38,9 @@ vtkQtConnection::vtkQtConnection(vtkEventQtSlotConnect* owner)
   this->Callback = vtkCallbackCommand::New();
   this->Callback->SetCallback(vtkQtConnection::DoCallback);
   this->Callback->SetClientData(this);
-  this->VTKObject = 0;
-  this->QtObject = 0;
-  this->ClientData = 0;
+  this->VTKObject = nullptr;
+  this->QtObject = nullptr;
+  this->ClientData = nullptr;
   this->VTKEvent = vtkCommand::NoEvent;
 }
 
@@ -48,10 +48,10 @@ vtkQtConnection::vtkQtConnection(vtkEventQtSlotConnect* owner)
 vtkQtConnection::~vtkQtConnection()
 {
   if(this->VTKObject)
-    {
+  {
     this->VTKObject->RemoveObserver(this->Callback);
     //Qt takes care of disconnecting slots
-    }
+  }
   this->Callback->Delete();
 }
 
@@ -67,17 +67,17 @@ void vtkQtConnection::DoCallback(vtkObject* vtk_obj, unsigned long event,
 void vtkQtConnection::Execute(vtkObject* caller, unsigned long e, void* call_data)
 {
   if(e != vtkCommand::DeleteEvent ||
-     (e == vtkCommand::DeleteEvent && this->VTKEvent == vtkCommand::DeleteEvent))
-    {
+     (this->VTKEvent == vtkCommand::DeleteEvent))
+  {
     emit EmitExecute(caller, e, ClientData, call_data, this->Callback);
-    }
+  }
 
   if(e == vtkCommand::DeleteEvent)
-    {
+  {
     this->Owner->Disconnect(this->VTKObject, this->VTKEvent, this->QtObject,
       this->QtSlot.toLatin1().data(),
       this->ClientData);
-    }
+  }
 }
 
 bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long e,
@@ -119,9 +119,9 @@ void vtkQtConnection::SetConnection(
   vtk_obj->AddObserver(e, this->Callback, priority);
 
   if(e != vtkCommand::DeleteEvent)
-    {
+  {
     vtk_obj->AddObserver(vtkCommand::DeleteEvent, this->Callback);
-    }
+  }
 
   // make a connection between this and the Qt object
   qt_obj->connect(
@@ -140,12 +140,12 @@ void vtkQtConnection::deleteConnection()
 void vtkQtConnection::PrintSelf(ostream& os, vtkIndent indent)
 {
   if(this->VTKObject && this->QtObject)
-    {
+  {
     os << indent <<
           this->VTKObject->GetClassName() << ":" <<
           vtkCommand::GetStringFromEventId(this->VTKEvent) << "  <---->  " <<
           this->QtObject->metaObject()->className() << "::" <<
           this->QtSlot.toLatin1().data() << "\n";
-    }
+  }
 }
 

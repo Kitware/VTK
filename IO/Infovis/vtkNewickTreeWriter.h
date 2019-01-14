@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkNewickTreeWriter - write vtkTree data to Newick format.
-// .SECTION Description
-// vtkNewickTreeWriter is writes a vtkTree to a Newick formatted file
-// or string.
+/**
+ * @class   vtkNewickTreeWriter
+ * @brief   write vtkTree data to Newick format.
+ *
+ * vtkNewickTreeWriter is writes a vtkTree to a Newick formatted file
+ * or string.
+*/
 
 #ifndef vtkNewickTreeWriter_h
 #define vtkNewickTreeWriter_h
@@ -31,43 +34,53 @@ class VTKIOINFOVIS_EXPORT vtkNewickTreeWriter : public vtkDataWriter
 public:
   static vtkNewickTreeWriter *New();
   vtkTypeMacro(vtkNewickTreeWriter,vtkDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkTree* GetInput();
   vtkTree* GetInput(int port);
+  //@}
 
-  // Description:
-  // Get/Set the name of the input's tree edge weight array.
-  // This array must be part of the input tree's EdgeData.
-  // The default name is "weight".  If this array cannot be
-  // found, then no edge weights will be included in the
-  // output of this writer.
+  //@{
+  /**
+   * Get/Set the name of the input's tree edge weight array.
+   * This array must be part of the input tree's EdgeData.
+   * The default name is "weight".  If this array cannot be
+   * found, then no edge weights will be included in the
+   * output of this writer.
+   */
   vtkGetMacro(EdgeWeightArrayName, vtkStdString);
   vtkSetMacro(EdgeWeightArrayName, vtkStdString);
+  //@}
 
-  // Description:
-  // Get/Set the name of the input's tree node name array.
-  // This array must be part of the input tree's VertexData.
-  // The default name is "node name".  If this array cannot
-  // be found, then no node names will be included in the
-  // output of this writer.
+  //@{
+  /**
+   * Get/Set the name of the input's tree node name array.
+   * This array must be part of the input tree's VertexData.
+   * The default name is "node name".  If this array cannot
+   * be found, then no node names will be included in the
+   * output of this writer.
+   */
   vtkGetMacro(NodeNameArrayName, vtkStdString);
   vtkSetMacro(NodeNameArrayName, vtkStdString);
+  //@}
 
 protected:
   vtkNewickTreeWriter();
-  ~vtkNewickTreeWriter() {}
+  ~vtkNewickTreeWriter() override {}
 
-  void WriteData();
+  void WriteData() override;
 
-  // Description:
-  // Write one vertex.  This function calls itself recursively for
-  // any children of the input vertex.
+  /**
+   * Write one vertex.  This function calls itself recursively for
+   * any children of the input vertex.
+   */
   void WriteVertex(ostream *fp, vtkTree* const input, vtkIdType vertex);
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkStdString EdgeWeightArrayName;
   vtkStdString NodeNameArrayName;
@@ -76,8 +89,8 @@ protected:
   vtkAbstractArray *NodeNameArray;
 
 private:
-  vtkNewickTreeWriter(const vtkNewickTreeWriter&);  // Not implemented.
-  void operator=(const vtkNewickTreeWriter&);  // Not implemented.
+  vtkNewickTreeWriter(const vtkNewickTreeWriter&) = delete;
+  void operator=(const vtkNewickTreeWriter&) = delete;
 };
 
 #endif

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -34,7 +33,6 @@ Glyph0.SetScaleFactor(.25)
 Glyph0.SetSourceConnection(Sphere0.GetOutputPort())
 Mapper5 = vtk.vtkPolyDataMapper()
 Mapper5.SetInputConnection(Glyph0.GetOutputPort())
-Mapper5.SetImmediateModeRendering(1)
 Mapper5.UseLookupTableScalarRangeOff()
 Mapper5.SetScalarVisibility(1)
 Mapper5.SetScalarModeToDefault()
@@ -59,7 +57,6 @@ Tuber0.SetVaryRadius(0)
 Tuber0.SetRadiusFactor(10)
 Mapper7 = vtk.vtkPolyDataMapper()
 Mapper7.SetInputConnection(Tuber0.GetOutputPort())
-Mapper7.SetImmediateModeRendering(1)
 Mapper7.UseLookupTableScalarRangeOff()
 Mapper7.SetScalarVisibility(1)
 Mapper7.SetScalarModeToDefault()

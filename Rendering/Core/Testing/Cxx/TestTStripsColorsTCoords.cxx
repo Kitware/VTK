@@ -78,9 +78,9 @@ int TestTStripsColorsTCoords(int argc, char *argv[])
   colors->SetTuple(3,yellow);
 
   vtkPolyData *polyData = stripper->GetOutput();
-  polyData->Register(NULL);
+  polyData->Register(nullptr);
   stripper->Delete();
-  polyData->GetPointData()->SetNormals(NULL);
+  polyData->GetPointData()->SetNormals(nullptr);
   polyData->GetPointData()->SetScalars(colors);
   colors->Delete();
 
@@ -89,7 +89,7 @@ int TestTStripsColorsTCoords(int argc, char *argv[])
   polyData->Delete();
 
   vtkActor *actor = vtkActor::New();
-  actor->GetProperty()->SetTexture("texture",texture);
+  actor->GetProperty()->SetTexture("mytexture",texture);
   texture->Delete();
   actor->SetMapper(mapper);
   mapper->Delete();
@@ -112,9 +112,9 @@ int TestTStripsColorsTCoords(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImageThreshold(renWin,18);
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     interactor->Start();
-    }
+  }
 
   renderer->Delete();
   renWin->Delete();

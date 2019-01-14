@@ -23,8 +23,8 @@
   Data structures used by vtkParse.
 */
 
-#ifndef VTK_PARSE_DATA_H
-#define VTK_PARSE_DATA_H
+#ifndef vtkParseData_h
+#define vtkParseData_h
 
 #include "vtkParseType.h"
 #include "vtkParseString.h"
@@ -43,6 +43,42 @@ typedef enum _parse_access_t
   VTK_ACCESS_PROTECTED = 1,
   VTK_ACCESS_PRIVATE   = 2
 } parse_access_t;
+
+/**
+ * Comment type constants
+ */
+typedef enum _parse_dox_t
+{
+  DOX_COMMAND_OTHER = 0,
+  DOX_COMMAND_DEF,
+  DOX_COMMAND_CATEGORY,
+  DOX_COMMAND_INTERFACE,
+  DOX_COMMAND_PROTOCOL,
+  DOX_COMMAND_CLASS,
+  DOX_COMMAND_ENUM,
+  DOX_COMMAND_STRUCT,
+  DOX_COMMAND_UNION,
+  DOX_COMMAND_NAMESPACE,
+  DOX_COMMAND_TYPEDEF,
+  DOX_COMMAND_FN,
+  DOX_COMMAND_PROPERTY,
+  DOX_COMMAND_VAR,
+  DOX_COMMAND_NAME,
+  DOX_COMMAND_DEFGROUP,
+  DOX_COMMAND_ADDTOGROUP,
+  DOX_COMMAND_WEAKGROUP,
+  DOX_COMMAND_EXAMPLE,
+  DOX_COMMAND_FILE,
+  DOX_COMMAND_DIR,
+  DOX_COMMAND_MAINPAGE,
+  DOX_COMMAND_PAGE,
+  DOX_COMMAND_SUBPAGE,
+  DOX_COMMAND_INTERNAL,
+  DOX_COMMAND_PACKAGE,
+  DOX_COMMAND_PRIVATESECTION,
+  DOX_COMMAND_PROTECTEDSECTION,
+  DOX_COMMAND_PUBLICSECTION,
+} parse_dox_t;
 
 /**
  * ItemType constants
@@ -79,6 +115,19 @@ typedef struct _FunctionInfo FunctionInfo;
 typedef struct _FileInfo FileInfo;
 
 /**
+ * CommentInfo is for storing comments by category
+ * This is for comments that cannot be immediately attached to an item,
+ * for example class comments that come at the top of the header file
+ * rather than immediately before the class that they document.
+ */
+typedef struct _CommentInfo
+{
+  parse_dox_t Type;
+  const char *Comment;
+  const char *Name;
+} CommentInfo;
+
+/**
  * TemplateInfo holds template definitions
  */
 typedef struct _TemplateInfo
@@ -101,7 +150,7 @@ struct _ValueInfo
   parse_access_t Access;
   const char    *Name;
   const char    *Comment;
-  const char    *Value;      /* for vars or default paramter values */
+  const char    *Value;      /* for vars or default parameters values */
   unsigned int   Type;       /* as defined in vtkParseType.h   */
   const char    *Class;      /* classname for type */
   int            Count;      /* total number of values, if known */
@@ -130,6 +179,8 @@ struct _FunctionInfo
   int            NumberOfParameters;
   ValueInfo    **Parameters;
   ValueInfo     *ReturnValue; /* NULL for constructors and destructors */
+  int            NumberOfPreconds;
+  const char   **Preconds;    /* preconditions */
   const char    *Macro;       /* the macro that defined this function */
   const char    *SizeHint;    /* hint the size e.g. for operator[] */
   int            IsOperator;
@@ -199,6 +250,8 @@ typedef struct _ClassInfo
   UsingInfo    **Usings;
   int            NumberOfNamespaces;
   struct _ClassInfo **Namespaces;
+  int            NumberOfComments;
+  CommentInfo  **Comments;
   int            IsAbstract;
   int            IsFinal;
   int            HasDelete;
@@ -251,6 +304,7 @@ void vtkParse_InitValue(ValueInfo *val);
 void vtkParse_InitEnum(EnumInfo *item);
 void vtkParse_InitUsing(UsingInfo *item);
 void vtkParse_InitTemplate(TemplateInfo *arg);
+void vtkParse_InitComment(CommentInfo *arg);
 /*@}*/
 
 /**
@@ -266,6 +320,7 @@ void vtkParse_CopyValue(ValueInfo *data, const ValueInfo *orig);
 void vtkParse_CopyEnum(EnumInfo *data, const EnumInfo *orig);
 void vtkParse_CopyUsing(UsingInfo *data, const UsingInfo *orig);
 void vtkParse_CopyTemplate(TemplateInfo *data, const TemplateInfo *orig);
+void vtkParse_CopyComment(CommentInfo *data, const CommentInfo *orig);
 /*@}*/
 
 /**
@@ -282,6 +337,7 @@ void vtkParse_FreeValue(ValueInfo *val);
 void vtkParse_FreeEnum(EnumInfo *item);
 void vtkParse_FreeUsing(UsingInfo *item);
 void vtkParse_FreeTemplate(TemplateInfo *arg);
+void vtkParse_FreeComment(CommentInfo *arg);
 /*@}*/
 
 
@@ -310,6 +366,7 @@ void vtkParse_AddConstantToClass(ClassInfo *info, ValueInfo *item);
 void vtkParse_AddVariableToClass(ClassInfo *info, ValueInfo *item);
 void vtkParse_AddTypedefToClass(ClassInfo *info, ValueInfo *item);
 void vtkParse_AddUsingToClass(ClassInfo *info, UsingInfo *item);
+void vtkParse_AddCommentToClass(ClassInfo *info, CommentInfo *item);
 void vtkParse_AddNamespaceToNamespace(NamespaceInfo *info,NamespaceInfo *item);
 void vtkParse_AddClassToNamespace(NamespaceInfo *info, ClassInfo *item);
 void vtkParse_AddFunctionToNamespace(NamespaceInfo *info, FunctionInfo *item);
@@ -318,6 +375,7 @@ void vtkParse_AddConstantToNamespace(NamespaceInfo *info, ValueInfo *item);
 void vtkParse_AddVariableToNamespace(NamespaceInfo *info, ValueInfo *item);
 void vtkParse_AddTypedefToNamespace(NamespaceInfo *info, ValueInfo *item);
 void vtkParse_AddUsingToNamespace(NamespaceInfo *info, UsingInfo *item);
+void vtkParse_AddCommentToNamespace(NamespaceInfo *info, CommentInfo *item);
 void vtkParse_AddParameterToFunction(FunctionInfo *info, ValueInfo *item);
 void vtkParse_AddParameterToTemplate(TemplateInfo *info, ValueInfo *item);
 /*@}*/
@@ -332,3 +390,4 @@ void vtkParse_AddDefaultConstructors(ClassInfo *data, StringCache *cache);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseData.h */

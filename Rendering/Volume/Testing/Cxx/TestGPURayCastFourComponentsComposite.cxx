@@ -77,22 +77,22 @@ int TestGPURayCastFourComponentsComposite(int argc,
 
   int retVal;
   if(valid)
-    {
+  {
     iren->Initialize();
     ren1->SetBackground(0.1,0.4,0.2);
     ren1->ResetCamera();
     renWin->Render();
     retVal = vtkTesting::Test(argc, argv, renWin, 75);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   iren->Delete();
   renWin->Delete();
@@ -106,11 +106,11 @@ int TestGPURayCastFourComponentsComposite(int argc,
   reader->Delete();
 
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }

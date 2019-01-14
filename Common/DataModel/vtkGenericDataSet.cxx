@@ -30,7 +30,7 @@ vtkCxxSetObjectMacro(vtkGenericDataSet,Tessellator,vtkGenericCellTessellator);
 //----------------------------------------------------------------------------
 vtkGenericDataSet::vtkGenericDataSet()
 {
-  this->Tessellator = 0;
+  this->Tessellator = nullptr;
   this->Attributes = vtkGenericAttributeCollection::New();
   vtkMath::UninitializeBounds(this->Bounds);
 }
@@ -38,10 +38,10 @@ vtkGenericDataSet::vtkGenericDataSet()
 //----------------------------------------------------------------------------
 vtkGenericDataSet::~vtkGenericDataSet()
 {
-  if(this->Tessellator!=0)
-    {
+  if(this->Tessellator!=nullptr)
+  {
     this->Tessellator->Delete();
-    }
+  }
   this->Attributes->Delete();
 }
 
@@ -77,7 +77,7 @@ void vtkGenericDataSet::PrintSelf(ostream& os, vtkIndent indent)
 // \pre types_exist: types!=0
 void vtkGenericDataSet::GetCellTypes(vtkCellTypes *types)
 {
-  assert("pre: types_exist" && types!=0);
+  assert("pre: types_exist" && types!=nullptr);
 
   unsigned char type;
   vtkGenericCellIterator *it = this->NewCellIterator(-1);
@@ -86,15 +86,15 @@ void vtkGenericDataSet::GetCellTypes(vtkCellTypes *types)
   types->Reset();
   it->Begin();
   while(!it->IsAtEnd())
-    {
+  {
     it->GetCell(c);
     type=c->GetType();
     if ( ! types->IsType(type) )
-      {
+    {
       types->InsertNextType(type);
-      }
-    it->Next();
     }
+    it->Next();
+  }
   c->Delete();
   it->Delete();
 }
@@ -129,9 +129,9 @@ double *vtkGenericDataSet::GetCenter()
 {
   this->ComputeBounds();
   for (int i=0; i<3; i++)
-    {
+  {
     this->Center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) * 0.5;
-    }
+  }
   return this->Center;
 }
 
@@ -142,9 +142,9 @@ void vtkGenericDataSet::GetCenter(double center[3])
 {
   this->ComputeBounds();
   for (int i=0; i<3; i++)
-    {
+  {
     center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) * 0.5;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -157,20 +157,20 @@ double vtkGenericDataSet::GetLength()
 
   this->ComputeBounds();
   for (i=0; i<3; i++)
-    {
+  {
     result = this->Bounds[2*i+1] - this->Bounds[2*i];
     l += result * result;
-    }
+  }
   result = sqrt(l);
   assert("post: positive_result" && result>=0);
   return result;
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkGenericDataSet::GetMTime()
+vtkMTimeType vtkGenericDataSet::GetMTime()
 {
-  unsigned long result;
-  unsigned long mtime;
+  vtkMTimeType result;
+  vtkMTimeType mtime;
 
   result = this->Superclass::GetMTime();
 
@@ -178,17 +178,17 @@ unsigned long int vtkGenericDataSet::GetMTime()
   result = ( mtime > result ? mtime : result );
 
   if(this->Tessellator)
-    {
+  {
     mtime = this->Tessellator->GetMTime();
     result = ( mtime > result ? mtime : result );
-    }
+  }
 
   return result;
 }
 
 //----------------------------------------------------------------------------
 // Description:
-// Actual size of the data in kilobytes; only valid after the pipeline has
+// Actual size of the data in kibibytes (1024 bytes); only valid after the pipeline has
 // updated. It is guaranteed to be greater than or equal to the memory
 // required to represent the data.
 unsigned long vtkGenericDataSet::GetActualMemorySize()
@@ -209,7 +209,7 @@ int vtkGenericDataSet::GetDataObjectType()
 //----------------------------------------------------------------------------
 vtkGenericDataSet* vtkGenericDataSet::GetData(vtkInformation* info)
 {
-  return info ? vtkGenericDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info ? vtkGenericDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -24,16 +24,19 @@
 
 
 // Construct object with number of subdivisions set to 1.
-vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()
-{
-  this->NumberOfSubdivisions = 1;
-}
+vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter() = default;
 
 int vtkInterpolatingSubdivisionFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
+  vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  if (!this->Superclass::RequestData(request, inputVector,
+                                     outputVector))
+  {
+    return 0;
+  }
+
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -44,7 +47,7 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkIdType numPts, numCells;
+  vtkIdType numCells;
   int level;
   vtkPoints *outputPts;
   vtkCellArray *outputPolys;
@@ -52,14 +55,6 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
   vtkCellData *outputCD;
   vtkIntArray *edgeData;
 
-  numPts=input->GetNumberOfPoints();
-  numCells=input->GetNumberOfCells();
-
-  if (numPts < 1 || numCells < 1)
-    {
-    vtkDebugMacro(<<"No data to interpolate!");
-    return 1;
-    }
 
   //
   // Initialize and check input
@@ -70,35 +65,9 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
   inputDS->GetPointData()->PassData(input->GetPointData());
   inputDS->GetCellData()->PassData(input->GetCellData());
 
-  // check for triangles in input; if none, stop execution
-  inputDS->BuildLinks();
-  vtkCellArray *polys = inputDS->GetPolys();
-  int hasTris = 0;
-  vtkIdType numCellPts = 0, *pts = 0;
-  polys->InitTraversal();
-
-  while(polys->GetNextCell(numCellPts, pts))
-    {
-    if (numCellPts == 3)
-      {
-      if (inputDS->IsTriangle(pts[0], pts[1], pts[2]))
-        {
-        hasTris = 1;
-        break;
-        }
-      }
-    }
-
-  if (!hasTris)
-    {
-    vtkWarningMacro( << this->GetClassName() << " only operates on triangles, but this data set has no triangles to operate on.");
-    inputDS->Delete();
-    return 1;
-    }
-
   for (level = 0; level < this->NumberOfSubdivisions; level++)
-    {
-    // Generate topology  for the input dataset
+  {
+    // Generate topology for the input dataset
     inputDS->BuildLinks();
     numCells = inputDS->GetNumberOfCells ();
 
@@ -126,7 +95,7 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
     edgeData->SetNumberOfTuples(numCells);
 
     if (this->GenerateSubdivisionPoints (inputDS, edgeData, outputPts, outputPD) == 0)
-      {
+    {
       outputPts->Delete();
       outputPD->Delete();
       outputCD->Delete();
@@ -135,7 +104,7 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
       edgeData->Delete();
       vtkErrorMacro("Subdivision failed.");
       return 0;
-      }
+    }
     this->GenerateSubdivisionCells (inputDS, edgeData, outputPolys, outputCD);
 
     // start the next iteration with the input set to the output we just created
@@ -147,7 +116,7 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
     inputDS->GetPointData()->PassData(outputPD); outputPD->Delete();
     inputDS->GetCellData()->PassData(outputCD); outputCD->Delete();
     inputDS->Squeeze();
-    } // each level
+  } // each level
 
   output->SetPoints(inputDS->GetPoints());
   output->SetPolys(inputDS->GetPolys());
@@ -163,6 +132,7 @@ int vtkInterpolatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
                                                  vtkIdType p1, vtkIdType p2,
                                                  vtkIntArray *edgeData,
                                                  vtkIdList *cellIds)
+
 {
   int edgeId = 0;
   int currentCellId = 0;
@@ -176,24 +146,24 @@ int vtkInterpolatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
 
   // find the edge that has the point we are looking for
   for ( i=0; i < cellIds->GetNumberOfIds(); i++)
-    {
+  {
     currentCellId = cellIds->GetId(i);
     cell = mesh->GetCell(currentCellId);
     numEdges = cell->GetNumberOfEdges();
     tp1 = cell->GetPointId(2);
     tp2 = cell->GetPointId(0);
     for (edgeId=0; edgeId < numEdges; edgeId++)
-      {
+    {
       if ( (tp1 == p1 && tp2 == p2) ||
            (tp2 == p1 && tp1 == p2))
-        {
+      {
         // found the edge, return the stored value
         return (int) edgeData->GetComponent(currentCellId,edgeId);
-        }
+      }
       tp1 = tp2;
       tp2 = cell->GetPointId(edgeId + 1);
-      }
     }
+  }
   vtkErrorMacro("Edge should have been found... but couldn't find it!!");
   return 0;
 }
@@ -206,18 +176,18 @@ vtkIdType vtkInterpolatingSubdivisionFilter::InterpolatePosition (
   int i, j;
 
   for (j = 0; j < 3; j++)
-    {
+  {
     x[j] = 0.0;
-    }
+  }
 
   for (i = 0; i < stencil->GetNumberOfIds(); i++)
-    {
+  {
     inputPts->GetPoint(stencil->GetId(i), xx);
     for (j = 0; j < 3; j++)
-      {
+    {
       x[j] += xx[j] * weights[i];
-      }
     }
+  }
   return outputPts->InsertNextPoint (x);
 }
 
@@ -235,11 +205,11 @@ void vtkInterpolatingSubdivisionFilter::GenerateSubdivisionCells (vtkPolyData *i
 
   // Now create new cells from existing points and generated edge points
   for (cellId=0; cellId < numCells; cellId++)
-    {
+  {
     if ( inputDS->GetCellType(cellId) != VTK_TRIANGLE )
-      {
+    {
       continue;
-      }
+    }
     // get the original point ids and the ids stored as cell data
     inputDS->GetCellPoints(cellId, npts, pts);
     edgeData->GetTuple(cellId, edgePts);
@@ -247,38 +217,36 @@ void vtkInterpolatingSubdivisionFilter::GenerateSubdivisionCells (vtkPolyData *i
     id = 0;
     newCellPts[id++] = pts[0];
     newCellPts[id++] = (int) edgePts[1];
-    newCellPts[id++] = (int) edgePts[0];
+    newCellPts[id] = (int) edgePts[0];
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
 
     id = 0;
     newCellPts[id++] = (int) edgePts[1];
     newCellPts[id++] = pts[1];
-    newCellPts[id++] = (int) edgePts[2];
+    newCellPts[id] = (int) edgePts[2];
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
 
     id = 0;
     newCellPts[id++] = (int) edgePts[2];
     newCellPts[id++] = pts[2];
-    newCellPts[id++] = (int) edgePts[0];
+    newCellPts[id] = (int) edgePts[0];
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
 
     id = 0;
     newCellPts[id++] = (int) edgePts[1];
     newCellPts[id++] = (int) edgePts[2];
-    newCellPts[id++] = (int) edgePts[0];
+    newCellPts[id] = (int) edgePts[0];
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
-    }
+  }
 }
 
 void vtkInterpolatingSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  os << indent << "Number of subdivisions: " << this->NumberOfSubdivisions << endl;
 }
 
 

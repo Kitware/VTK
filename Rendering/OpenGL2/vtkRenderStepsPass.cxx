@@ -51,53 +51,53 @@ vtkRenderStepsPass::vtkRenderStepsPass()
   this->SequencePass->SetPasses(rpc);
   rpc->Delete();
   this->CameraPass->SetDelegatePass(this->SequencePass);
-  this->PostProcessPass = NULL;
+  this->PostProcessPass = nullptr;
 }
 
 // ----------------------------------------------------------------------------
 vtkRenderStepsPass::~vtkRenderStepsPass()
 {
   if (this->CameraPass)
-    {
+  {
     this->CameraPass->Delete();
-    this->CameraPass = 0;
-    }
-  if (this->LightsPass)
-    {
-    this->LightsPass->Delete();
-    this->LightsPass = 0;
-    }
-  if (this->OpaquePass)
-    {
-    this->OpaquePass->Delete();
-    this->OpaquePass = 0;
-    }
-  if (this->TranslucentPass)
-    {
-    this->TranslucentPass->Delete();
-    this->TranslucentPass = 0;
-    }
-  if (this->VolumetricPass)
-    {
-    this->VolumetricPass->Delete();
-    this->VolumetricPass = 0;
-    }
-  if (this->OverlayPass)
-    {
-    this->OverlayPass->Delete();
-    this->OverlayPass = 0;
-    }
-  if (this->PostProcessPass)
-    {
-    this->PostProcessPass->Delete();
-    this->PostProcessPass = 0;
-    }
-  if (this->SequencePass)
-    {
-    this->SequencePass->Delete();
-    this->SequencePass = 0;
-    }
+    this->CameraPass = nullptr;
   }
+  if (this->LightsPass)
+  {
+    this->LightsPass->Delete();
+    this->LightsPass = nullptr;
+  }
+  if (this->OpaquePass)
+  {
+    this->OpaquePass->Delete();
+    this->OpaquePass = nullptr;
+  }
+  if (this->TranslucentPass)
+  {
+    this->TranslucentPass->Delete();
+    this->TranslucentPass = nullptr;
+  }
+  if (this->VolumetricPass)
+  {
+    this->VolumetricPass->Delete();
+    this->VolumetricPass = nullptr;
+  }
+  if (this->OverlayPass)
+  {
+    this->OverlayPass->Delete();
+    this->OverlayPass = nullptr;
+  }
+  if (this->PostProcessPass)
+  {
+    this->PostProcessPass->Delete();
+    this->PostProcessPass = nullptr;
+  }
+  if (this->SequencePass)
+  {
+    this->SequencePass->Delete();
+    this->SequencePass = nullptr;
+  }
+}
 
 // ----------------------------------------------------------------------------
 void vtkRenderStepsPass::PrintSelf(ostream& os, vtkIndent indent)
@@ -105,68 +105,68 @@ void vtkRenderStepsPass::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "CameraPass:";
-  if (this->CameraPass != 0)
-    {
+  if (this->CameraPass != nullptr)
+  {
     this->CameraPass->PrintSelf(os, indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
   os << indent << "LightsPass:";
-  if (this->LightsPass != 0)
-    {
+  if (this->LightsPass != nullptr)
+  {
     this->LightsPass->PrintSelf(os, indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
   os << indent << "opaquePass:";
-  if (this->OpaquePass != 0)
-    {
+  if (this->OpaquePass != nullptr)
+  {
     this->OpaquePass->PrintSelf(os, indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
   os << indent << "TranslucentPass:";
-  if (this->TranslucentPass != 0)
-    {
+  if (this->TranslucentPass != nullptr)
+  {
     this->TranslucentPass->PrintSelf(os, indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
   os << indent << "VolumetricPass:";
-  if (this->VolumetricPass != 0)
-    {
+  if (this->VolumetricPass != nullptr)
+  {
     this->VolumetricPass->PrintSelf(os, indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
   os << indent << "OverlayPass:";
-  if (this->OverlayPass != 0)
-    {
+  if (this->OverlayPass != nullptr)
+  {
     this->OverlayPass->PrintSelf(os, indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
   os << indent << "PostProcessPass:";
-  if (this->PostProcessPass != 0)
-    {
+  if (this->PostProcessPass != nullptr)
+  {
     this->PostProcessPass->PrintSelf(os, indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -175,44 +175,44 @@ void vtkRenderStepsPass::PrintSelf(ostream& os, vtkIndent indent)
 // \pre s_exists: s!=0
 void vtkRenderStepsPass::Render(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s != 0);
+  assert("pre: s_exists" && s != nullptr);
 
   vtkRenderPassCollection *passes =
     this->SequencePass->GetPasses();
   passes->RemoveAllItems();
 
   if (this->LightsPass)
-    {
+  {
     passes->AddItem(this->LightsPass);
-    }
+  }
   if (this->OpaquePass)
-    {
+  {
     passes->AddItem(this->OpaquePass);
-    }
+  }
   if (this->TranslucentPass)
-    {
+  {
     passes->AddItem(this->TranslucentPass);
-    }
+  }
   if (this->VolumetricPass)
-    {
+  {
     passes->AddItem(this->VolumetricPass);
-    }
+  }
   if (this->OverlayPass)
-    {
+  {
     passes->AddItem(this->OverlayPass);
-    }
+  }
 
   this->NumberOfRenderedProps = 0;
   if (this->CameraPass)
-    {
+  {
     this->CameraPass->Render(s);
     this->NumberOfRenderedProps += this->CameraPass->GetNumberOfRenderedProps();
-    }
+  }
   if (this->PostProcessPass)
-    {
+  {
     this->PostProcessPass->Render(s);
     this->NumberOfRenderedProps += this->PostProcessPass->GetNumberOfRenderedProps();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -222,34 +222,34 @@ void vtkRenderStepsPass::Render(const vtkRenderState *s)
 // \pre w_exists: w!=0
 void vtkRenderStepsPass::ReleaseGraphicsResources(vtkWindow *w)
 {
-  assert("pre: w_exists" && w != 0);
+  assert("pre: w_exists" && w != nullptr);
 
   if (this->CameraPass)
-    {
+  {
     this->CameraPass->ReleaseGraphicsResources(w);
-    }
+  }
   if (this->LightsPass)
-    {
+  {
     this->LightsPass->ReleaseGraphicsResources(w);
-    }
+  }
   if (this->OpaquePass)
-    {
+  {
     this->OpaquePass->ReleaseGraphicsResources(w);
-    }
+  }
   if (this->TranslucentPass)
-    {
+  {
     this->TranslucentPass->ReleaseGraphicsResources(w);
-    }
+  }
   if (this->VolumetricPass)
-    {
+  {
     this->VolumetricPass->ReleaseGraphicsResources(w);
-    }
+  }
   if (this->OverlayPass)
-    {
+  {
     this->OverlayPass->ReleaseGraphicsResources(w);
-    }
+  }
   if (this->PostProcessPass)
-    {
+  {
     this->PostProcessPass->ReleaseGraphicsResources(w);
-    }
+  }
 }

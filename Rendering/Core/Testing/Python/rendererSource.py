@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -97,7 +96,6 @@ aPlane = vtk.vtkPlaneSource()
 
 aPlaneMapper = vtk.vtkPolyDataMapper()
 aPlaneMapper.SetInputConnection(aPlane.GetOutputPort())
-aPlaneMapper.ImmediateModeRenderingOn()
 
 screen = vtk.vtkActor()
 screen.SetMapper(aPlaneMapper)

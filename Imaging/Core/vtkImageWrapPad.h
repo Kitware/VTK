@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageWrapPad - Makes an image larger by wrapping existing data.
-// .SECTION Description
-// vtkImageWrapPad performs a modulo operation on the output pixel index
-// to determine the source input index.  The new image extent of the
-// output has to be specified.  Input has to be the same scalar type as
-// output.
-
+/**
+ * @class   vtkImageWrapPad
+ * @brief   Makes an image larger by wrapping existing data.
+ *
+ * vtkImageWrapPad performs a modulo operation on the output pixel index
+ * to determine the source input index.  The new image extent of the
+ * output has to be specified.  Input has to be the same scalar type as
+ * output.
+*/
 
 #ifndef vtkImageWrapPad_h
 #define vtkImageWrapPad_h
@@ -38,17 +40,17 @@ public:
 
 protected:
   vtkImageWrapPad() {}
-  ~vtkImageWrapPad() {}
+  ~vtkImageWrapPad() override {}
 
-  void ComputeInputUpdateExtent (int inExt[6], int outExt[6], int wExt[6]);
+  void ComputeInputUpdateExtent (int inExt[6], int outExt[6], int wExt[6]) override;
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id);
+                            int ext[6], int id) override;
 private:
-  vtkImageWrapPad(const vtkImageWrapPad&);  // Not implemented.
-  void operator=(const vtkImageWrapPad&);  // Not implemented.
+  vtkImageWrapPad(const vtkImageWrapPad&) = delete;
+  void operator=(const vtkImageWrapPad&) = delete;
 };
 
 #endif

@@ -33,11 +33,9 @@ vtkExtractVectorComponents::vtkExtractVectorComponents()
   this->OutputsInitialized = 0;
 }
 
-vtkExtractVectorComponents::~vtkExtractVectorComponents()
-{
-}
+vtkExtractVectorComponents::~vtkExtractVectorComponents() = default;
 
-// Get the output dataset representing velocity x-component. If output is NULL
+// Get the output dataset representing velocity x-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 0.)
@@ -46,7 +44,7 @@ vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
   return this->GetOutput(0);
 }
 
-// Get the output dataset representing velocity y-component. If output is NULL
+// Get the output dataset representing velocity y-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 1.)
@@ -55,7 +53,7 @@ vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
   return this->GetOutput(1);
 }
 
-// Get the output dataset representing velocity z-component. If output is NULL
+// Get the output dataset representing velocity z-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 2.)
@@ -68,20 +66,20 @@ vtkDataSet *vtkExtractVectorComponents::GetVzComponent()
 void vtkExtractVectorComponents::SetInputData(vtkDataSet *input)
 {
   if (this->GetNumberOfInputConnections(0) > 0 && this->GetInput(0) == input )
-    {
+  {
     return;
-    }
+  }
 
   this->Superclass::SetInputData(0, input);
 
-  if ( input == NULL )
-    {
+  if ( input == nullptr )
+  {
     return;
-    }
+  }
 
   vtkDataSet *output;
   if ( ! this->OutputsInitialized )
-    {
+  {
     output = input->NewInstance();
     this->GetExecutive()->SetOutputData(0, output);
     output->Delete();
@@ -93,13 +91,13 @@ void vtkExtractVectorComponents::SetInputData(vtkDataSet *input)
     output->Delete();
     this->OutputsInitialized = 1;
     return;
-    }
+  }
 
   // since the input has changed we might need to create a new output
   // It seems that output 0 is the correct type as a result of the call to
   // the superclass's SetInput.  Check the type of output 1 instead.
   if (strcmp(this->GetOutput(1)->GetClassName(),input->GetClassName()))
-    {
+  {
     output = input->NewInstance();
     this->GetExecutive()->SetOutputData(0, output);
     output->Delete();
@@ -110,18 +108,18 @@ void vtkExtractVectorComponents::SetInputData(vtkDataSet *input)
     this->GetExecutive()->SetOutputData(2, output);
     output->Delete();
     vtkWarningMacro(<<" a new output had to be created since the input type changed.");
-    }
+  }
 }
 
 template <class T>
 void vtkExtractComponents(int numVectors, T* vectors, T* vx, T* vy, T* vz)
 {
   for (int i=0; i<numVectors; i++)
-    {
+  {
     vx[i] = vectors[3*i];
     vy[i] = vectors[3*i+1];
     vz[i] = vectors[3*i+2];
-    }
+  }
 }
 
 int vtkExtractVectorComponents::RequestData(
@@ -143,91 +141,92 @@ int vtkExtractVectorComponents::RequestData(
   vtkDataArray *vectors, *vectorsc;
   vtkDataArray *vx, *vy, *vz;
   vtkDataArray *vxc, *vyc, *vzc;
-  vtkPointData *pd, *outVx, *outVy=0, *outVz=0;
-  vtkCellData *cd, *outVxc, *outVyc=0, *outVzc=0;
+  vtkPointData *pd, *outVx, *outVy=nullptr, *outVz=nullptr;
+  vtkCellData *cd, *outVxc, *outVyc=nullptr, *outVzc=nullptr;
 
   vtkDebugMacro(<<"Extracting vector components...");
 
   // taken out of previous update method.
   output->CopyStructure(input);
   if (!this->ExtractToFieldData)
-    {
+  {
     this->GetVyComponent()->CopyStructure(input);
     this->GetVzComponent()->CopyStructure(input);
-    }
+  }
 
   pd = input->GetPointData();
   cd = input->GetCellData();
   outVx = output->GetPointData();
   outVxc = output->GetCellData();
   if (!this->ExtractToFieldData)
-    {
+  {
     outVy = this->GetVyComponent()->GetPointData();
     outVz = this->GetVzComponent()->GetPointData();
     outVyc = this->GetVyComponent()->GetCellData();
     outVzc = this->GetVzComponent()->GetCellData();
-    }
+  }
 
   vectors = pd->GetVectors();
   vectorsc = cd->GetVectors();
-  if ( (vectors == NULL ||
+  if ( (vectors == nullptr ||
         ((numVectors = vectors->GetNumberOfTuples()) < 1) ) &&
-       (vectorsc == NULL ||
+       (vectorsc == nullptr ||
         ((numVectorsc = vectorsc->GetNumberOfTuples()) < 1)))
-    {
+  {
     vtkErrorMacro(<<"No vector data to extract!");
     return 1;
-    }
+  }
 
   const char* name;
   if (vectors)
-    {
+  {
     name = vectors->GetName();
-    }
+  }
   else if (vectorsc)
-    {
+  {
     name = vectorsc->GetName();
-    }
+  }
   else
-    {
-    name = 0;
-    }
+  {
+    name = nullptr;
+  }
 
-  char* newName;
+  size_t newNameSize;
   if (name)
-    {
-    newName = new char[strlen(name)+10];
-    }
+  {
+    newNameSize = strlen(name)+10;
+  }
   else
-    {
-    newName = new char[10];
+  {
+    newNameSize = 10;
     name = "";
-    }
+  }
+  char* newName = new char[newNameSize];
 
   if (vectors)
-    {
+  {
     vx = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vx->SetNumberOfTuples(numVectors);
-    sprintf(newName, "%s-x", name);
+    snprintf(newName, newNameSize, "%s-x", name);
     vx->SetName(newName);
     vy = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vy->SetNumberOfTuples(numVectors);
-    sprintf(newName, "%s-y", name);
+    snprintf(newName, newNameSize, "%s-y", name);
     vy->SetName(newName);
     vz = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vz->SetNumberOfTuples(numVectors);
-    sprintf(newName, "%s-z", name);
+    snprintf(newName, newNameSize, "%s-z", name);
     vz->SetName(newName);
 
     switch (vectors->GetDataType())
-      {
+    {
       vtkTemplateMacro(
         vtkExtractComponents(numVectors,
                              static_cast<VTK_TT *>(vectors->GetVoidPointer(0)),
                              static_cast<VTK_TT *>(vx->GetVoidPointer(0)),
                              static_cast<VTK_TT *>(vy->GetVoidPointer(0)),
                              static_cast<VTK_TT *>(vz->GetVoidPointer(0))));
-      }
+    }
 
     outVx->PassData(pd);
     outVx->AddArray(vx);
@@ -235,12 +234,12 @@ int vtkExtractVectorComponents::RequestData(
     vx->Delete();
 
     if (this->ExtractToFieldData)
-      {
+    {
       outVx->AddArray(vy);
       outVx->AddArray(vz);
-      }
+    }
     else
-      {
+    {
       outVy->PassData(pd);
       outVy->AddArray(vy);
       outVy->SetActiveScalars(vy->GetName());
@@ -248,28 +247,28 @@ int vtkExtractVectorComponents::RequestData(
       outVz->PassData(pd);
       outVz->AddArray(vz);
       outVz->SetActiveScalars(vz->GetName());
-      }
+    }
     vy->Delete();
     vz->Delete();
-    }
+  }
 
   if (vectorsc)
-    {
+  {
     vxc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vxc->SetNumberOfTuples(numVectorsc);
-    sprintf(newName, "%s-x", name);
+    snprintf(newName, newNameSize, "%s-x", name);
     vxc->SetName(newName);
     vyc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vyc->SetNumberOfTuples(numVectorsc);
-    sprintf(newName, "%s-y", name);
+    snprintf(newName, newNameSize, "%s-y", name);
     vyc->SetName(newName);
     vzc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vzc->SetNumberOfTuples(numVectorsc);
-    sprintf(newName, "%s-z", name);
+    snprintf(newName, newNameSize, "%s-z", name);
     vzc->SetName(newName);
 
     switch (vectorsc->GetDataType())
-      {
+    {
       vtkTemplateMacro(
         vtkExtractComponents(numVectorsc,
                              static_cast<VTK_TT *>(
@@ -277,7 +276,7 @@ int vtkExtractVectorComponents::RequestData(
                              static_cast<VTK_TT *>(vxc->GetVoidPointer(0)),
                              static_cast<VTK_TT *>(vyc->GetVoidPointer(0)),
                              static_cast<VTK_TT *>(vzc->GetVoidPointer(0))));
-      }
+    }
 
     outVxc->PassData(cd);
     outVxc->AddArray(vxc);
@@ -285,12 +284,12 @@ int vtkExtractVectorComponents::RequestData(
     vxc->Delete();
 
     if (this->ExtractToFieldData)
-      {
+    {
       outVxc->AddArray(vyc);
       outVxc->AddArray(vzc);
-      }
+    }
     else
-      {
+    {
       outVyc->PassData(cd);
       outVyc->AddArray(vyc);
       outVyc->SetActiveScalars(vyc->GetName());
@@ -298,10 +297,10 @@ int vtkExtractVectorComponents::RequestData(
       outVzc->PassData(cd);
       outVzc->AddArray(vzc);
       outVzc->SetActiveScalars(vzc->GetName());
-      }
+    }
     vyc->Delete();
     vzc->Delete();
-    }
+  }
   delete[] newName;
 
   return 1;

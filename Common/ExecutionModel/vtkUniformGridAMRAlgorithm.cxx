@@ -32,10 +32,7 @@ vtkUniformGridAMRAlgorithm::vtkUniformGridAMRAlgorithm()
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGridAMRAlgorithm::~vtkUniformGridAMRAlgorithm()
-{
-
-}
+vtkUniformGridAMRAlgorithm::~vtkUniformGridAMRAlgorithm() = default;
 
 //------------------------------------------------------------------------------
 void vtkUniformGridAMRAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
@@ -78,29 +75,29 @@ int vtkUniformGridAMRAlgorithm::ProcessRequest(
 {
   // create the output
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
+  {
     return this->RequestDataObject(request, inputVector, outputVector);
-    }
+  }
 
   // generate the data
   if(request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
-    {
+  {
     int retVal = this->RequestData(request,inputVector,outputVector);
     return( retVal );
-    }
+  }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     return this->RequestInformation(request, inputVector, outputVector);
-    }
+  }
 
   // set update extent
   if( request->Has(
         vtkCompositeDataPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     return( this->RequestUpdateExtent(request,inputVector,outputVector) );
-    }
+  }
 
 
   return( this->Superclass::ProcessRequest(request,inputVector,outputVector) );
@@ -132,8 +129,8 @@ int vtkUniformGridAMRAlgorithm::FillInputPortInformation(
 vtkDataObject* vtkUniformGridAMRAlgorithm::GetInput(int port)
 {
   if( this->GetNumberOfInputConnections(port) < 1 )
-    {
-    return NULL;
-    }
+  {
+    return nullptr;
+  }
   return this->GetExecutive()->GetInputData(port,0);
 }

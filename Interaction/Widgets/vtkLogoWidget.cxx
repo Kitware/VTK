@@ -26,17 +26,15 @@ vtkLogoWidget::vtkLogoWidget()
 }
 
 //-------------------------------------------------------------------------
-vtkLogoWidget::~vtkLogoWidget()
-{
-}
+vtkLogoWidget::~vtkLogoWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkLogoWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkLogoRepresentation::New();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------

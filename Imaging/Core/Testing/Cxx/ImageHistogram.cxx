@@ -37,8 +37,8 @@ int ImageHistogram(int argc, char *argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkInteractorStyle> style;
   vtkNew<vtkRenderWindow> renWin;
-  iren->SetRenderWindow(renWin.GetPointer());
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetRenderWindow(renWin);
+  iren->SetInteractorStyle(style);
 
   vtkNew<vtkPNGReader> reader;
 
@@ -62,26 +62,26 @@ int ImageHistogram(int argc, char *argv[])
   range[1] = range[0] + (nbins - 1)*histogram->GetBinSpacing();
 
   for (int i = 0; i < 2; i++)
-    {
+  {
     vtkNew<vtkRenderer> renderer;
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.0,0.0,0.0);
     renderer->SetViewport(0.5*(i&1), 0.0,
                           0.5 + 0.5*(i&1), 1.0);
-    renWin->AddRenderer(renderer.GetPointer());
+    renWin->AddRenderer(renderer);
 
     vtkNew<vtkImageSliceMapper> imageMapper;
     if ((i & 1) == 0)
-      {
+    {
       imageMapper->SetInputConnection(reader->GetOutputPort());
-      }
+    }
     else
-      {
+    {
       imageMapper->SetInputConnection(histogram->GetOutputPort());
       imageMapper->BorderOn();
-      }
+    }
 
-    double *bounds = imageMapper->GetBounds();
+    const double *bounds = imageMapper->GetBounds();
     double point[3];
     point[0] = 0.5*(bounds[0] + bounds[1]);
     point[1] = 0.5*(bounds[2] + bounds[3]);
@@ -95,22 +95,22 @@ int ImageHistogram(int argc, char *argv[])
     camera->SetParallelScale(128);
 
     vtkNew<vtkImageSlice> image;
-    image->SetMapper(imageMapper.GetPointer());
+    image->SetMapper(imageMapper);
 
-    renderer->AddViewProp(image.GetPointer());
+    renderer->AddViewProp(image);
 
     if ((i & 1) == 0)
-      {
+    {
       image->GetProperty()->SetColorWindow(range[1] - range[0]);
       image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
-      }
+    }
     else
-      {
+    {
       image->GetProperty()->SetInterpolationTypeToNearest();
       image->GetProperty()->SetColorWindow(255.0);
       image->GetProperty()->SetColorLevel(127.5);
-      }
     }
+  }
 
   renWin->SetSize(512,256);
 

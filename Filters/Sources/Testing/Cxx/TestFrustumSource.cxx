@@ -39,17 +39,17 @@ int TestFrustumSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   double position[3];
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     position[i] = randomSequence->GetValue();
-    }
+  }
   camera->SetPosition(position);
   double focalPoint[3];
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     focalPoint[i] = randomSequence->GetValue();
-    }
+  }
   camera->SetFocalPoint(focalPoint);
   double planeCoefficients[24];
   camera->GetFrustumPlanes(1.0, planeCoefficients);
@@ -64,9 +64,9 @@ int TestFrustumSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   frustumSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
@@ -75,16 +75,16 @@ int TestFrustumSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   frustumSource->SetLinesLength(linesLength);
 
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     position[i] = randomSequence->GetValue();
-    }
+  }
   camera->SetPosition(position);
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     focalPoint[i] = randomSequence->GetValue();
-    }
+  }
   camera->SetFocalPoint(focalPoint);
   camera->GetFrustumPlanes(1.0, planeCoefficients);
 
@@ -97,9 +97,9 @@ int TestFrustumSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

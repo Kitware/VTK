@@ -39,6 +39,15 @@ vtkArrowSource::vtkArrowSource()
   this->SetNumberOfInputPorts(0);
 }
 
+int vtkArrowSource::RequestInformation(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  outputVector->GetInformationObject(0)->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+  return Superclass::RequestInformation(request, inputVector, outputVector);
+}
+
 int vtkArrowSource::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
@@ -47,7 +56,7 @@ int vtkArrowSource::RequestData(
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -94,18 +103,18 @@ int vtkArrowSource::RequestData(
  tf2->SetInputConnection(append->GetOutputPort());
 
   if (piece == 0 && numPieces > 0)
-    {
+  {
     if (this->Invert)
-      {
+    {
       tf2->Update();
       output->ShallowCopy(tf2->GetOutput());
-      }
+    }
     else
-      {
+    {
       append->Update();
       output->ShallowCopy(append->GetOutput());
-      }
     }
+  }
 
   cone->Delete();
   trans0->Delete();

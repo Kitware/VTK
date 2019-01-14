@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPStructuredDataWriter - Superclass for PVTK XML structured data writers.
-// .SECTION Description
-// vtkXMLPStructuredDataWriter provides PVTK XML writing functionality
-// that is common among all the parallel structured data formats.
+/**
+ * @class   vtkXMLPStructuredDataWriter
+ * @brief   Superclass for PVTK XML structured data writers.
+ *
+ * vtkXMLPStructuredDataWriter provides PVTK XML writing functionality
+ * that is common among all the parallel structured data formats.
+*/
 
 #ifndef vtkXMLPStructuredDataWriter_h
 #define vtkXMLPStructuredDataWriter_h
@@ -32,34 +35,25 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPStructuredDataWriter : public vtkXMLPDataWr
 {
 public:
   vtkTypeMacro(vtkXMLPStructuredDataWriter,vtkXMLPDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  // See the vtkAlgorithm for a description of what these do
-  virtual int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkXMLPStructuredDataWriter();
-  ~vtkXMLPStructuredDataWriter();
+  ~vtkXMLPStructuredDataWriter() override;
 
   virtual vtkXMLStructuredDataWriter* CreateStructuredPieceWriter()=0;
-  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
-  void WritePPieceAttributes(int index);
-  vtkXMLWriter* CreatePieceWriter(int index);
+  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) override;
+  void WritePPieceAttributes(int index) override;
+  vtkXMLWriter* CreatePieceWriter(int index) override;
 
-  virtual int RequestUpdateExtent(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
+  int WriteInternal() override;
 
-  virtual int WriteInternal();
-
-  virtual int WritePieces();
-  virtual int WritePiece(int index);
+  void PrepareSummaryFile() override;
+  int WritePiece(int index) override;
 
 private:
-  vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPStructuredDataWriter&);  // Not implemented.
+  vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&) = delete;
+  void operator=(const vtkXMLPStructuredDataWriter&) = delete;
 
   typedef std::map<int, std::vector<int> > ExtentsType;
   ExtentsType Extents;

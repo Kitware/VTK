@@ -79,26 +79,26 @@ public:
     { return new SwitchLabelsCallback; }
 
   void SetLabeledDataMapper(vtkLabeledDataMapper *aLabeledDataMapper)
-    {
+  {
       this->LabeledDataMapper=aLabeledDataMapper;
-    }
+  }
   void SetRenderWindow(vtkRenderWindow *aRenWin)
-    {
+  {
       this->RenWin=aRenWin;
-    }
+  }
 
-  virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
-    {
+  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) override
+  {
       if(this->LabeledDataMapper->GetLabelMode()==VTK_LABEL_SCALARS)
-        {
+      {
         this->LabeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
-        }
+      }
       else
-        {
+      {
         this->LabeledDataMapper->SetLabelMode(VTK_LABEL_SCALARS);
-        }
+      }
       this->RenWin->Render();
-    }
+  }
 protected:
   vtkLabeledDataMapper *LabeledDataMapper;
   vtkRenderWindow *RenWin;
@@ -116,12 +116,6 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadTet4.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tetraMesh.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Test2_Volume.vtu");
-
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadQuad01.vtu");
 
   reader->SetFileName( cfname );
   delete[] cfname;
@@ -160,7 +154,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 
   tessellator->Update(); //So that we can call GetRange() on the scalars
 
-  assert(tessellator->GetOutput()!=0);
+  assert(tessellator->GetOutput()!=nullptr);
 
   // for debugging clipping on the hexa
 #if 0
@@ -201,14 +195,14 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   mapper->SetInputConnection( tessellator->GetOutputPort() );
 #endif
   mapper->SetLookupTable(lut);
-  if(tessellator->GetOutput()->GetPointData()!=0)
+  if(tessellator->GetOutput()->GetPointData()!=nullptr)
+  {
+    if(tessellator->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
-    if(tessellator->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
       mapper->SetScalarRange( tessellator->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -243,14 +237,14 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     SwitchLabelsCallback *switchLabels=SwitchLabelsCallback::New();
     switchLabels->SetRenderWindow(renWin);
     switchLabels->SetLabeledDataMapper(labeledDataMapper);
     iren->AddObserver(vtkCommand::UserEvent,switchLabels);
     switchLabels->Delete();
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

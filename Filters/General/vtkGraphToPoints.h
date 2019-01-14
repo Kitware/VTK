@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGraphToPoints - convert a vtkGraph a set of points.
-//
-// .SECTION Description
-// Converts a vtkGraph to a vtkPolyData containing a set of points.
-// This assumes that the points
-// of the graph have already been filled (perhaps by vtkGraphLayout).
-// The vertex data is passed along to the point data.
+/**
+ * @class   vtkGraphToPoints
+ * @brief   convert a vtkGraph a set of points.
+ *
+ *
+ * Converts a vtkGraph to a vtkPolyData containing a set of points.
+ * This assumes that the points
+ * of the graph have already been filled (perhaps by vtkGraphLayout).
+ * The vertex data is passed along to the point data.
+*/
 
 #ifndef vtkGraphToPoints_h
 #define vtkGraphToPoints_h
@@ -36,23 +39,25 @@ class VTKFILTERSGENERAL_EXPORT vtkGraphToPoints : public vtkPolyDataAlgorithm
 public:
   static vtkGraphToPoints *New();
   vtkTypeMacro(vtkGraphToPoints,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkGraphToPoints();
-  ~vtkGraphToPoints() {}
+  ~vtkGraphToPoints() override {}
 
-  // Description:
-  // Convert the vtkGraph into vtkPolyData.
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  /**
+   * Convert the vtkGraph into vtkPolyData.
+   */
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  // Description:
-  // Set the input type of the algorithm to vtkGraph.
-  int FillInputPortInformation(int port, vtkInformation* info);
+  /**
+   * Set the input type of the algorithm to vtkGraph.
+   */
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkGraphToPoints(const vtkGraphToPoints&);  // Not implemented.
-  void operator=(const vtkGraphToPoints&);  // Not implemented.
+  vtkGraphToPoints(const vtkGraphToPoints&) = delete;
+  void operator=(const vtkGraphToPoints&) = delete;
 };
 
 #endif

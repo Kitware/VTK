@@ -26,21 +26,21 @@
 #include <vtkVariant.h>
 #include <vtkTestErrorObserver.h>
 
-#include <vtksys/stl/iterator>
-#include <vtksys/ios/iostream>
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/stdexcept>
+#include <iterator>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
 
 static int TestErrorsAndWarnings();
 
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
-    vtksys_ios::ostringstream buffer; \
+  { \
+    std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 // Sample strings - nothing risque, I hope ...
@@ -53,7 +53,7 @@ static const vtkUnicodeString sample_utf8_mixed = vtkUnicodeString::from_utf8("a
 int TestUnicodeStringArrayAPI(int, char*[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkUnicodeStringArray> array =
       vtkSmartPointer<vtkUnicodeStringArray>::New();
     array->ClearLookup(); // noop
@@ -99,7 +99,7 @@ int TestUnicodeStringArrayAPI(int, char*[])
     vtkSmartPointer<vtkUnicodeStringArray> array3 =
       vtkSmartPointer<vtkUnicodeStringArray>::New();
     void * ptr1 = array3->GetVoidPointer(0);
-    test_expression(ptr1 == NULL);
+    test_expression(ptr1 == nullptr);
 
     array3->InsertTuple(0, 1, array);
     test_expression(array3->GetValue(0) == array->GetValue(1));
@@ -134,7 +134,7 @@ int TestUnicodeStringArrayAPI(int, char*[])
     array3->LookupValue(vtkUnicodeString::from_utf8("foobar"), lookupIds);
     test_expression(lookupIds->GetNumberOfIds() == 3);
 
-    array3->DeepCopy(NULL); // noop
+    array3->DeepCopy(nullptr); // noop
     array3->DeepCopy(array3); // noop
     array3->DeepCopy(array);
     test_expression(array3->GetActualMemorySize() == array->GetActualMemorySize());
@@ -155,7 +155,7 @@ int TestUnicodeStringArrayAPI(int, char*[])
     vtkSmartPointer<vtkIdList> interpIds =
       vtkSmartPointer<vtkIdList>::New();
 
-    array3->InterpolateTuple(5, interpIds, array4, NULL); // noop
+    array3->InterpolateTuple(5, interpIds, array4, nullptr); // noop
 
     interpIds->InsertId(0, 0);
     interpIds->InsertId(1, 1);
@@ -188,18 +188,18 @@ int TestUnicodeStringArrayAPI(int, char*[])
     array3->GetVoidPointer(0);
 
     if (TestErrorsAndWarnings() != 0)
-      {
+    {
       return EXIT_FAILURE;
-      }
+    }
     array3->Print(std::cout);
 
     return EXIT_SUCCESS;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return EXIT_FAILURE;
-    }
+  }
 }
 
 int TestErrorsAndWarnings()
@@ -214,32 +214,32 @@ int TestErrorsAndWarnings()
   array->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   array->AddObserver(vtkCommand::WarningEvent, errorObserver);
 
-  // ERROR: Not implmented
-  array->SetVoidArray(0, 1, 1);
+  // ERROR: Not implemented
+  array->SetVoidArray(nullptr, 1, 1);
   if (errorObserver->GetError())
-    {
+  {
     std::cout << "Caught expected error: "
               << errorObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Not implemented' error" << std::endl;
     ++status;
-    }
+  }
   errorObserver->Clear();
 
-  // ERROR: Not implmented
+  // ERROR: Not implemented
   array->NewIterator();
   if (errorObserver->GetError())
-    {
+  {
     std::cout << "Caught expected error: "
               << errorObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Not implemented' error" << std::endl;
     ++status;
-    }
+  }
   errorObserver->Clear();
 
   // Warning: Input and output array data types do not match.
@@ -247,57 +247,57 @@ int TestErrorsAndWarnings()
     vtkSmartPointer<vtkDoubleArray>::New();
   array->SetTuple(0, 0, doubleArray);
   if (errorObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << errorObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Input and output array data types do not match.' warning" << std::endl;
     ++status;
-    }
+  }
   errorObserver->Clear();
 
   // Warning: Input and output array data types do not match.
   array->InsertTuple(0, 0, doubleArray);
   if (errorObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << errorObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Input and output array data types do not match.' warning" << std::endl;
     ++status;
-    }
+  }
   errorObserver->Clear();
 
   // Warning: Input and output array data types do not match.
   array->InsertNextTuple(0, doubleArray);
   if (errorObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << errorObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Input and output array data types do not match.' warning" << std::endl;
     ++status;
-    }
+  }
   errorObserver->Clear();
 
   // Warning: Input and output array data types do not match.
   array->DeepCopy(doubleArray);
   if (errorObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << errorObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Input and output array data types do not match.' warning" << std::endl;
     ++status;
-    }
+  }
   errorObserver->Clear();
 
   // Warning: Input and output array data types do not match.
@@ -305,15 +305,15 @@ int TestErrorsAndWarnings()
     vtkSmartPointer<vtkIdList>::New();
   array->InsertTuples(id1, id1, doubleArray);
   if (errorObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << errorObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Input and output array data types do not match.' warning" << std::endl;
     ++status;
-    }
+  }
   errorObserver->Clear();
 
   // Warning: Input and output id array sizes do not match.
@@ -323,29 +323,29 @@ int TestErrorsAndWarnings()
   id2->SetNumberOfIds(5);
   array->InsertTuples(id1, id2, array);
   if (errorObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << errorObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Input and output id array sizes do not match.' warning" << std::endl;
     ++status;
-    }
+  }
   errorObserver->Clear();
 
   // ERROR: Cannot CopyValue from array of type
-  array->InterpolateTuple(0, id1, doubleArray, NULL);
+  array->InterpolateTuple(0, id1, doubleArray, nullptr);
   if (errorObserver->GetError())
-    {
+  {
     std::cout << "Caught expected warning: "
               << errorObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Cannot CopyValue from array of type' error" << std::endl;
     ++status;
-    }
+  }
   errorObserver->Clear();
 
   // ERROR: All arrays to InterpolateValue() must be of same type.
@@ -354,15 +354,15 @@ int TestErrorsAndWarnings()
                           2, array,
                           0.0);
   if (errorObserver->GetError())
-    {
+  {
     std::cout << "Caught expected warning: "
               << errorObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'All arrays to InterpolateValue() must be of same type.' error" << std::endl;
     ++status;
-    }
+  }
   errorObserver->Clear();
 
   return status;

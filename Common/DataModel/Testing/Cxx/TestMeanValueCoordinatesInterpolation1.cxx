@@ -139,12 +139,12 @@ int TestMeanValueCoordinatesInterpolation1( int argc, char *argv[] )
   newPolys->SetNumberOfCells(polys->GetNumberOfCells()-1);
   newPolys->Initialize();
   for (int i = 2; i < polys->GetNumberOfCells(); i++)
-    {
+  {
     pids[0] = p[4*i+1];
     pids[1] = p[4*i+2];
     pids[2] = p[4*i+3];
     newPolys->InsertNextCell(3,pids);
-    }
+  }
   spherePoly->SetPolys(newPolys);
 
   // Now clip the sphere in half and display it
@@ -214,9 +214,9 @@ int TestMeanValueCoordinatesInterpolation1( int argc, char *argv[] )
   int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

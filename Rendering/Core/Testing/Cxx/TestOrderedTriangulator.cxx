@@ -90,9 +90,9 @@ int TestOrderedTriangulator(int argc, char *argv[])
   vtkPoints *Points = vtkPoints::New();
   Points->SetNumberOfPoints(6);
   for(i=0;i<6;i++,p+=3)
-    {
+  {
     Points->SetPoint(i, p);
-    }
+  }
 
   //first case
   for(i=0;i<6;i++)
@@ -224,9 +224,9 @@ int TestOrderedTriangulator(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Clean up
   Points->Delete();

@@ -1,0 +1,30 @@
+======================
+THANKS: MPI for Python
+======================
+
+:Author:  Lisandro Dalcin
+:Contact: dalcinl@gmail.com
+
+
+I would like to thank everybody who contributed in any way, with code,
+hints, testing, bug reports, ideas, moral support, or even
+complaints...
+
+   -- Lisandro
+
+Brian Granger
+Albert Strasheim
+Frank Eisenmenger
+Fernando Perez
+Matthew Turk
+Wonseok Shin
+Sam Skillman
+Greg Tener
+Amir Khosrowshahi
+Eilif Muller
+Andreas Klöckner
+Christoph Statz
+Thomas Spura
+Yaroslav Halchenko
+Aron Ahmadia
+Christoph Deil

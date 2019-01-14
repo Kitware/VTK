@@ -19,13 +19,16 @@
 
 =========================================================================*/
 
-// .NAME vtkAnnotationLayers - Stores a ordered collection of annotation sets
-//
-// .SECTION Description
-// vtkAnnotationLayers stores a vector of annotation layers. Each layer
-// may contain any number of vtkAnnotation objects. The ordering of the
-// layers introduces a prioritization of annotations. Annotations in
-// higher layers may obscure annotations in lower layers.
+/**
+ * @class   vtkAnnotationLayers
+ * @brief   Stores a ordered collection of annotation sets
+ *
+ *
+ * vtkAnnotationLayers stores a vector of annotation layers. Each layer
+ * may contain any number of vtkAnnotation objects. The ordering of the
+ * layers introduces a prioritization of annotations. Annotations in
+ * higher layers may obscure annotations in lower layers.
+*/
 
 #ifndef vtkAnnotationLayers_h
 #define vtkAnnotationLayers_h
@@ -40,72 +43,88 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAnnotationLayers : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkAnnotationLayers, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkAnnotationLayers* New();
 
-  // Description:
-  // The current annotation associated with this annotation link.
+  //@{
+  /**
+   * The current annotation associated with this annotation link.
+   */
   virtual void SetCurrentAnnotation(vtkAnnotation* ann);
   vtkGetObjectMacro(CurrentAnnotation, vtkAnnotation);
+  //@}
 
-  // Description:
-  // The current selection associated with this annotation link.
-  // This is simply the selection contained in the current annotation.
+  //@{
+  /**
+   * The current selection associated with this annotation link.
+   * This is simply the selection contained in the current annotation.
+   */
   virtual void SetCurrentSelection(vtkSelection* sel);
   virtual vtkSelection* GetCurrentSelection();
+  //@}
 
-  // Description:
-  // The number of annotations in a specific layer.
+  /**
+   * The number of annotations in a specific layer.
+   */
   unsigned int GetNumberOfAnnotations();
 
-  // Description:
-  // Retrieve an annotation from a layer.
+  /**
+   * Retrieve an annotation from a layer.
+   */
   vtkAnnotation* GetAnnotation(unsigned int idx);
 
-  // Description:
-  // Add an annotation to a layer.
+  /**
+   * Add an annotation to a layer.
+   */
   void AddAnnotation(vtkAnnotation* ann);
 
-  // Description:
-  // Remove an annotation from a layer.
+  /**
+   * Remove an annotation from a layer.
+   */
   void RemoveAnnotation(vtkAnnotation* ann);
 
-  // Description:
-  // Initialize the data structure to an empty state.
-  virtual void Initialize();
+  /**
+   * Initialize the data structure to an empty state.
+   */
+  void Initialize() override;
 
-  // Description:
-  // Copy data from another data object into this one
-  // which references the same member annotations.
-  virtual void ShallowCopy(vtkDataObject* other);
+  /**
+   * Copy data from another data object into this one
+   * which references the same member annotations.
+   */
+  void ShallowCopy(vtkDataObject* other) override;
 
-  // Description:
-  // Copy data from another data object into this one,
-  // performing a deep copy of member annotations.
-  virtual void DeepCopy(vtkDataObject* other);
+  /**
+   * Copy data from another data object into this one,
+   * performing a deep copy of member annotations.
+   */
+  void DeepCopy(vtkDataObject* other) override;
 
-  // Description:
-  // Retrieve a vtkAnnotationLayers stored inside an information object.
+  //@{
+  /**
+   * Retrieve a vtkAnnotationLayers stored inside an information object.
+   */
   static vtkAnnotationLayers* GetData(vtkInformation* info);
   static vtkAnnotationLayers* GetData(vtkInformationVector* v, int i=0);
+  //@}
 
-  // Description:
-  // The modified time for this object.
-  virtual unsigned long GetMTime();
+  /**
+   * The modified time for this object.
+   */
+  vtkMTimeType GetMTime() override;
 
-//BTX
 protected:
   vtkAnnotationLayers();
-  ~vtkAnnotationLayers();
+  ~vtkAnnotationLayers() override;
 
   class Internals;
   Internals* Implementation;
   vtkAnnotation* CurrentAnnotation;
 
 private:
-  vtkAnnotationLayers(const vtkAnnotationLayers&);  // Not implemented.
-  void operator=(const vtkAnnotationLayers&);  // Not implemented.
-//ETX
+  vtkAnnotationLayers(const vtkAnnotationLayers&) = delete;
+  void operator=(const vtkAnnotationLayers&) = delete;
+
 };
 
 #endif

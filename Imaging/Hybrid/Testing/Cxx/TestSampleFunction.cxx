@@ -1,6 +1,12 @@
 #include <vtkSmartPointer.h>
 #include <vtkSampleFunction.h>
 #include <vtkSphere.h>
+#include <vtkImageData.h>
+#include <vtkPointData.h>
+#include <vtkDataArray.h>
+
+#include <vtkRTAnalyticSource.h>
+
 
 #include "vtkTestErrorObserver.h"
 
@@ -17,29 +23,29 @@ int TestSampleFunction(int, char *[])
 
   // Check for model bounds error
   if (errorObserver->GetError())
-    {
+  {
     std::cout << "Caught expected error: "
               << errorObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected error regarding model bounds" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   errorObserver->Clear();
 
   // Check for missing implicit function error
   sf1->Update();
   if (errorObserver->GetError())
-    {
+  {
     std::cout << "Caught expected error: "
               << errorObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected error regarding missing implicit function" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   sf1->Print(std::cout);
 
@@ -78,6 +84,55 @@ int TestSampleFunction(int, char *[])
   sf3->SetNormalArrayName("sphereNormals");
   sf3->ComputeNormalsOff();
   sf3->Update();
+
+  // Test ability to process a subset of the data (update extent)
+  int dims[] = {10,17,37};
+  int extent[] = {2,8, 3,13, 25,30};
+
+  vtkSmartPointer<vtkSampleFunction> sf4 =
+    vtkSmartPointer<vtkSampleFunction>::New();
+  sf4->SetSampleDimensions(dims);
+  sf4->SetImplicitFunction(sphere);
+  sf4->SetModelBounds(xmin, xmax, ymin, ymax, zmin, zmax);
+  sf4->ComputeNormalsOn();
+  sf4->UpdateInformation();
+  sf4->Update();
+
+  vtkDataArray *sa = sf4->GetOutput()->GetPointData()->GetScalars();
+  double *s4 = static_cast<double*>(sa->GetVoidPointer(0));
+
+  vtkSmartPointer<vtkSampleFunction> sf5 =
+    vtkSmartPointer<vtkSampleFunction>::New();
+  sf5->SetSampleDimensions(dims);
+  sf5->SetImplicitFunction(sphere);
+  sf5->SetModelBounds(xmin, xmax, ymin, ymax, zmin, zmax);
+  sf5->ComputeNormalsOn();
+  sf5->UpdateExtent(extent);
+
+  sa = sf5->GetOutput()->GetPointData()->GetScalars();
+  double *s5 = static_cast<double*>(sa->GetVoidPointer(0));
+
+  // Now ensure that within the extent the difference between
+  // the data is zero.
+  double sWE, sUE;
+  int i, j, k;
+  double *sPtr = s5;
+  for (k=extent[4]; k<=extent[5]; ++k)
+  {
+    for (j=extent[2]; j<=extent[3]; ++j)
+    {
+      for (i=extent[0]; i<=extent[1]; ++i)
+      {
+        sWE = *(s4 + i + j*dims[0] + k*dims[0]*dims[1]);
+        sUE = *sPtr++;
+        if ( (sWE-sUE) != 0.0 )
+        {
+          std::cout << "Inconsistent update extent computation" << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
+    }
+  }
 
   // Now exercise the Set/Get methods
   int dimensions[3];

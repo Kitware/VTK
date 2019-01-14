@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMutexLock - mutual exclusion locking class
-// .SECTION Description
-// vtkMutexLock allows the locking of variables which are accessed
-// through different threads.  This header file also defines
-// vtkSimpleMutexLock which is not a subclass of vtkObject.
+/**
+ * @class   vtkMutexLock
+ * @brief   mutual exclusion locking class
+ *
+ * vtkMutexLock allows the locking of variables which are accessed
+ * through different threads.  This header file also defines
+ * vtkSimpleMutexLock which is not a subclass of vtkObject.
+*/
 
 #ifndef vtkMutexLock_h
 #define vtkMutexLock_h
@@ -25,14 +28,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-//BTX
-
-#ifdef VTK_USE_SPROC
-#include <abi_mutex.h> // Needed for SPROC implementation of mutex
-typedef abilock_t vtkMutexType;
-#endif
-
-#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
+#if defined(VTK_USE_PTHREADS)
 #include <pthread.h> // Needed for PTHREAD implementation of mutex
 typedef pthread_mutex_t vtkMutexType;
 #endif
@@ -41,11 +37,9 @@ typedef pthread_mutex_t vtkMutexType;
 typedef vtkWindowsHANDLE vtkMutexType;
 #endif
 
-#ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
 #ifndef VTK_USE_WIN32_THREADS
 typedef int vtkMutexType;
-#endif
 #endif
 #endif
 
@@ -61,12 +55,14 @@ public:
 
   void Delete() {delete this;}
 
-  // Description:
-  // Lock the vtkMutexLock
+  /**
+   * Lock the vtkMutexLock
+   */
   void Lock( void );
 
-  // Description:
-  // Unlock the vtkMutexLock
+  /**
+   * Unlock the vtkMutexLock
+   */
   void Unlock( void );
 
 protected:
@@ -74,11 +70,9 @@ protected:
   vtkMutexType   MutexLock;
 
 private:
-  vtkSimpleMutexLock(const vtkSimpleMutexLock& other); // no copy constructor
-  vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs); // no copy assignment
+  vtkSimpleMutexLock(const vtkSimpleMutexLock& other) = delete;
+  vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs) = delete;
 };
-
-//ETX
 
 class VTKCOMMONCORE_EXPORT vtkMutexLock : public vtkObject
 {
@@ -86,26 +80,27 @@ public:
   static vtkMutexLock *New();
 
   vtkTypeMacro(vtkMutexLock,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Lock the vtkMutexLock
+  /**
+   * Lock the vtkMutexLock
+   */
   void Lock( void );
 
-  // Description:
-  // Unlock the vtkMutexLock
+  /**
+   * Unlock the vtkMutexLock
+   */
   void Unlock( void );
 
 protected:
-  //BTX
+
   friend class vtkConditionVariable; // needs to get at SimpleMutexLock.
-  //ETX
 
   vtkSimpleMutexLock   SimpleMutexLock;
   vtkMutexLock() {}
 private:
-  vtkMutexLock(const vtkMutexLock&);  // Not implemented.
-  void operator=(const vtkMutexLock&);  // Not implemented.
+  vtkMutexLock(const vtkMutexLock&) = delete;
+  void operator=(const vtkMutexLock&) = delete;
 };
 
 

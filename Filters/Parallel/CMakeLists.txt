@@ -1,49 +1,55 @@
-set(Module_SRCS
-  vtkCollectGraph.cxx
-  vtkCollectPolyData.cxx
-  vtkCollectTable.cxx
-  vtkCutMaterial.cxx
-  vtkDuplicatePolyData.cxx
-  vtkExtractCTHPart.cxx
-  vtkExtractPolyDataPiece.cxx
-  vtkExtractUnstructuredGridPiece.cxx
-  vtkExtractUserDefinedPiece.cxx
-  vtkPCellDataToPointData.cxx
-  vtkPExtractArraysOverTime.cxx
-  vtkPKdTree.cxx
-  vtkPLinearExtrusionFilter.cxx
-  vtkPMaskPoints.cxx
-  vtkPOutlineCornerFilter.cxx
-  vtkPOutlineFilter.cxx
-  vtkPOutlineFilterInternals.cxx
-  vtkPPolyDataNormals.cxx
-  vtkPProbeFilter.cxx
-  vtkPProjectSphereFilter.cxx
-  vtkPReflectionFilter.cxx
-  vtkPResampleFilter.cxx
-  vtkPSphereSource.cxx
-  vtkPYoungsMaterialInterface.cxx
-  vtkPassThroughFilter.cxx
-  vtkPieceRequestFilter.cxx
-  vtkPieceScalars.cxx
-  vtkPipelineSize.cxx
-  vtkProcessIdScalars.cxx
-  vtkRectilinearGridOutlineFilter.cxx
-  vtkTransmitPolyDataPiece.cxx
-  vtkTransmitStructuredDataPiece.cxx
-  vtkTransmitRectilinearGridPiece.cxx
-  vtkTransmitStructuredGridPiece.cxx
-  vtkTransmitUnstructuredGridPiece.cxx
-  )
-set_source_files_properties(
-  vtkBlockDistribution.h
-  HEADER_FILE_ONLY
-  )
+set(classes
+  vtkAggregateDataSetFilter
+  vtkAngularPeriodicFilter
+  vtkCollectGraph
+  vtkCollectPolyData
+  vtkCollectTable
+  vtkCutMaterial
+  vtkDuplicatePolyData
+  vtkExtractCTHPart
+  vtkExtractPolyDataPiece
+  vtkExtractUnstructuredGridPiece
+  vtkExtractUserDefinedPiece
+  vtkIntegrateAttributes
+  vtkPCellDataToPointData
+  vtkPExtractDataArraysOverTime
+  vtkPExtractSelectedArraysOverTime
+  vtkPeriodicFilter
+  vtkPKdTree
+  vtkPLinearExtrusionFilter
+  vtkPMaskPoints
+  vtkPOutlineCornerFilter
+  vtkPOutlineFilter
+  vtkPOutlineFilterInternals
+  vtkPPolyDataNormals
+  vtkPProbeFilter
+  vtkPProjectSphereFilter
+  vtkPReflectionFilter
+  vtkPResampleFilter
+  vtkPSphereSource
+  vtkPYoungsMaterialInterface
+  vtkPassThroughFilter
+  vtkPieceRequestFilter
+  vtkPieceScalars
+  vtkPipelineSize
+  vtkProcessIdScalars
+  vtkRectilinearGridOutlineFilter
+  vtkRemoveGhosts
+  vtkTransmitPolyDataPiece
+  vtkTransmitStructuredDataPiece
+  vtkTransmitRectilinearGridPiece
+  vtkTransmitStructuredGridPiece
+  vtkTransmitUnstructuredGridPiece
+  vtkUnstructuredGridGhostCellsGenerator)
 
-set_source_files_properties(
-  ${vtk-module}ObjectFactory.cxx
-  vtkPOutlineFilterInternals.cxx
-  WRAP_EXCLUDE
-  )
+set(headers
+  vtkBlockDistribution.h)
 
-vtk_module_library(vtkFiltersParallel ${Module_SRCS})
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND classes
+    vtkPExtractArraysOverTime)
+endif ()
+
+vtk_module_add_module(VTK::FiltersParallel
+  CLASSES ${classes}
+  HEADERS ${headers})

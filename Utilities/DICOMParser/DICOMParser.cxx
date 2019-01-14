@@ -3,8 +3,6 @@
   Program:   DICOMParser
   Module:    DICOMParser.cxx
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 2003 Matt Turek
   All rights reserved.
@@ -80,7 +78,7 @@ public:
 DICOMParser::DICOMParser() : ParserOutputFile()
 {
   this->Implementation = new DICOMParserImplementation();
-  this->DataFile = NULL;
+  this->DataFile = nullptr;
   this->ToggleByteSwapImageData = false;
   this->TransferSyntaxCB = new DICOMMemberCallback<DICOMParser>;
   this->InitTypeMap();
@@ -95,11 +93,8 @@ DICOMParser::GetFileName()
 
 bool DICOMParser::OpenFile(const dicom_stl::string& filename)
 {
-  if (this->DataFile)
-    {
-    // Deleting the DataFile closes the file
-    delete this->DataFile;
-    }
+  // Deleting the DataFile closes any previously opened file
+  delete this->DataFile;
   this->DataFile = new DICOMFile();
   bool val = this->DataFile->Open(filename);
 
@@ -124,6 +119,13 @@ bool DICOMParser::OpenFile(const dicom_stl::string& filename)
 #endif
 
   return val;
+}
+
+void DICOMParser::CloseFile()
+{
+  // Deleting the DataFile closes any previously opened file
+  delete this->DataFile;
+  this->DataFile = 0;
 }
 
 DICOMParser::~DICOMParser() {
@@ -456,7 +458,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
     dicom_stl::vector<DICOMCallback*> * cbVector = mv.second;
     for (dicom_stl::vector<DICOMCallback*>::iterator cbiter = cbVector->begin();
          cbiter != cbVector->end();
-         cbiter++)
+         ++cbiter)
       {
       (*cbiter)->Execute(this,      // parser
                        ge.first,  // group
@@ -591,7 +593,7 @@ void DICOMParser::DumpTag(dicom_stream::ostream& out, doublebyte group, doubleby
     }
   else
     {
-    out << (tempdata ? reinterpret_cast<char*>(tempdata) : "NULL");
+    out << (tempdata ? reinterpret_cast<char*>(tempdata) : "nullptr");
     }
 
   out << dicom_stream::dec << dicom_stream::endl;
@@ -623,7 +625,7 @@ void DICOMParser::AddDICOMTagCallbacks(doublebyte group, doublebyte element, VRT
     {
     for (dicom_stl::vector<DICOMCallback*>::iterator iter = cbVector->begin();
          iter != cbVector->end();
-         iter++)
+         ++iter)
       {
       dicom_stl::vector<DICOMCallback*>* callbacks = (*miter).second.second;
       callbacks->push_back(*iter);
@@ -656,7 +658,7 @@ void DICOMParser::AddDICOMTagCallbackToAllTags(DICOMCallback* cb)
   DICOMParserMap::iterator miter;
   for (miter = Implementation->Map.begin();
        miter != Implementation->Map.end();
-       miter++)
+       ++miter)
   {
   dicom_stl::vector<DICOMCallback*>* callbacks = (*miter).second.second;
   callbacks->push_back(cb);
@@ -760,7 +762,7 @@ void DICOMParser::GetGroupsElementsDatatypes(dicom_stl::vector<doublebyte>& grou
 
   for (giter = this->Implementation->Groups.begin(), eiter = this->Implementation->Elements.begin(), diter = this->Implementation->Datatypes.begin();
        (giter != this->Implementation->Groups.end()) && (eiter != this->Implementation->Elements.end()) && (diter != this->Implementation->Datatypes.end());
-       giter++, eiter++, diter++)
+       ++giter, ++eiter, ++diter)
     {
     groups.push_back(*giter);
     elements.push_back(*eiter);
@@ -774,7 +776,7 @@ void DICOMParser::ClearAllDICOMTagCallbacks()
 
   for (mapIter = this->Implementation->Map.begin();
        mapIter != this->Implementation->Map.end();
-       mapIter++)
+       ++mapIter)
        {
        dicom_stl::pair<const DICOMMapKey, DICOMMapValue> mapPair = *mapIter;
        DICOMMapValue mapVal = mapPair.second;

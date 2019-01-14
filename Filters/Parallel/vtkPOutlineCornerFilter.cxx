@@ -44,7 +44,7 @@ vtkCxxSetObjectMacro(vtkPOutlineCornerFilter, Controller, vtkMultiProcessControl
 
 vtkPOutlineCornerFilter::vtkPOutlineCornerFilter ()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->CornerFactor = 0.2;
   this->Internals = new vtkPOutlineFilterInternals;
@@ -53,8 +53,8 @@ vtkPOutlineCornerFilter::vtkPOutlineCornerFilter ()
 
 vtkPOutlineCornerFilter::~vtkPOutlineCornerFilter ()
 {
-  this->SetController(0);
-  this->Internals->SetController(0);
+  this->SetController(nullptr);
+  this->Internals->SetController(nullptr);
   delete this->Internals;
 }
 
@@ -74,13 +74,13 @@ void vtkPOutlineCornerFilter::SetCornerFactor(double cornerFactor)
                                  : cornerFactor));
 
   if ( this->CornerFactor != tempCornerFactor)
-    {
+  {
     std::cerr << "CornerFactor: " << tempCornerFactor
               << std::endl;
     this->CornerFactor = tempCornerFactor;
     this->Internals->SetCornerFactor(tempCornerFactor);
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------

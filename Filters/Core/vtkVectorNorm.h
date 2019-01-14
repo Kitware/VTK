@@ -12,17 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVectorNorm - generate scalars from Euclidean norm of vectors
-// .SECTION Description
-// vtkVectorNorm is a filter that generates scalar values by computing
-// Euclidean norm of vector triplets. Scalars can be normalized
-// 0<=s<=1 if desired.
-//
-// Note that this filter operates on point or cell attribute data, or
-// both.  By default, the filter operates on both point and cell data
-// if vector point and cell data, respectively, are available from the
-// input. Alternatively, you can choose to generate scalar norm values
-// for just cell or point data.
+/**
+ * @class   vtkVectorNorm
+ * @brief   generate scalars from Euclidean norm of vectors
+ *
+ * vtkVectorNorm is a filter that generates scalar values by computing
+ * Euclidean norm of vector triplets. Scalars can be normalized
+ * 0<=s<=1 if desired.
+ *
+ * Note that this filter operates on point or cell attribute data, or
+ * both.  By default, the filter operates on both point and cell data
+ * if vector point and cell data, respectively, are available from the
+ * input. Alternatively, you can choose to generate scalar norm values
+ * for just cell or point data.
+ *
+ * @warning
+ * This class has been threaded with vtkSMPTools. Using TBB or other
+ * non-sequential type (set in the CMake variable
+ * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
+*/
 
 #ifndef vtkVectorNorm_h
 #define vtkVectorNorm_h
@@ -34,30 +42,37 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
+class vtkDataArray;
+class vtkFloatArray;
+
 class VTKFILTERSCORE_EXPORT vtkVectorNorm : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkVectorNorm,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Construct with normalize flag off.
+  /**
+   * Construct with normalize flag off.
+   */
   static vtkVectorNorm *New();
 
-  // Description:
-  // Specify whether to normalize scalar values.
-  vtkSetMacro(Normalize,int);
-  vtkGetMacro(Normalize,int);
-  vtkBooleanMacro(Normalize,int);
 
-  // Description:
-  // Control how the filter works to generate scalar data from the
-  // input vector data. By default, (AttributeModeToDefault) the
-  // filter will generate the scalar norm for point and cell data (if
-  // vector data present in the input). Alternatively, you can
-  // explicitly set the filter to generate point data
-  // (AttributeModeToUsePointData) or cell data
-  // (AttributeModeToUseCellData).
+  // Specify whether to normalize scalar values. If the data is normalized,
+  // then it will fall in the range [0,1].
+  vtkSetMacro(Normalize,vtkTypeBool);
+  vtkGetMacro(Normalize,vtkTypeBool);
+  vtkBooleanMacro(Normalize,vtkTypeBool);
+
+  //@{
+  /**
+   * Control how the filter works to generate scalar data from the
+   * input vector data. By default, (AttributeModeToDefault) the
+   * filter will generate the scalar norm for point and cell data (if
+   * vector data present in the input). Alternatively, you can
+   * explicitly set the filter to generate point data
+   * (AttributeModeToUsePointData) or cell data
+   * (AttributeModeToUseCellData).
+   */
   vtkSetMacro(AttributeMode,int);
   vtkGetMacro(AttributeMode,int);
   void SetAttributeModeToDefault()
@@ -67,18 +82,23 @@ public:
   void SetAttributeModeToUseCellData()
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
   const char *GetAttributeModeAsString();
+  //@}
 
 protected:
   vtkVectorNorm();
-  ~vtkVectorNorm() {}
+  ~vtkVectorNorm() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int Normalize;  // normalize 0<=n<=1 if true.
+  vtkTypeBool Normalize;  // normalize 0<=n<=1 if true.
   int AttributeMode; //control whether to use point or cell data, or both
+
 private:
-  vtkVectorNorm(const vtkVectorNorm&);  // Not implemented.
-  void operator=(const vtkVectorNorm&);  // Not implemented.
+  vtkVectorNorm(const vtkVectorNorm&) = delete;
+  void operator=(const vtkVectorNorm&) = delete;
+
+  // Helper function
+  void GenerateScalars(vtkIdType num, vtkDataArray *v, vtkFloatArray *s);
 };
 
 #endif

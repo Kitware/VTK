@@ -28,7 +28,7 @@
 int TestThreadedSynchronizedTemplates3D(int, char *[])
 {
   static const int dim = 256;
-  static int ext[6] = { 0, dim - 1, 0, dim - 1, 0, dim - 1 };
+  static const int ext[6] = { 0, dim - 1, 0, dim - 1, 0, dim - 1 };
 
   //vtkSMPTools::Initialize(4);
   vtkNew<vtkTimerLog> tl;
@@ -64,13 +64,13 @@ int TestThreadedSynchronizedTemplates3D(int, char *[])
     cf->GetOutputDataObject(0))->NewIterator());
   iter->InitTraversal();
   while(!iter->IsDoneWithTraversal())
-    {
+  {
     vtkPolyData* piece =
       static_cast<vtkPolyData*>(iter->GetCurrentDataObject());
     parNumCells += piece->GetNumberOfCells();
     ++numPieces;
     iter->GoToNextItem();
-    }
+  }
 
   cout << "Total num. cells: " << parNumCells << endl;
 
@@ -92,10 +92,10 @@ int TestThreadedSynchronizedTemplates3D(int, char *[])
   cout << "Serial num. cells: " << serNumCells << endl;
 
   if (parNumCells != serNumCells)
-    {
+  {
     cout << "Number of cells did not match." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "Success!" << endl;
   cout << "speedup = " << serialTime/parallelTime << "x with "

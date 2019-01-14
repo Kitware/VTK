@@ -1,0 +1,14 @@
+NAME
+  VTK::IOVeraOut
+LIBRARY_NAME
+  vtkIOVeraOut
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::hdf5

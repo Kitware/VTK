@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkInformationKey.h"
+#include "vtkInformationKeyLookup.h"
 
 #include "vtkDebugLeaks.h"
 #include "vtkInformation.h"
@@ -23,43 +24,45 @@ class vtkInformationKeyToInformationFriendship
 public:
   static void SetAsObjectBase(vtkInformation* info, vtkInformationKey* key,
                               vtkObjectBase* value)
-    {
+  {
     info->SetAsObjectBase(key, value);
-    }
+  }
   static const vtkObjectBase* GetAsObjectBase(const vtkInformation* info,
                                         const vtkInformationKey* key)
-    {
+  {
     return info->GetAsObjectBase(key);
-    }
+  }
   static vtkObjectBase* GetAsObjectBase(vtkInformation* info,
                                         vtkInformationKey* key)
-    {
+  {
     return info->GetAsObjectBase(key);
-    }
+  }
   static void ReportAsObjectBase(vtkInformation* info, vtkInformationKey* key,
                                  vtkGarbageCollector* collector)
-    {
+  {
     info->ReportAsObjectBase(key, collector);
-    }
+  }
 };
 
 //----------------------------------------------------------------------------
 vtkInformationKey::vtkInformationKey(const char* name, const char* location)
 {
   // Save the name and location.
-  this->Name = 0;
+  this->Name = nullptr;
   this->SetName(name);
 
-  this->Location = 0;
+  this->Location = nullptr;
   this->SetLocation(location);
+
+  vtkInformationKeyLookup::RegisterKey(this, name, location);
 }
 
 //----------------------------------------------------------------------------
 vtkInformationKey::~vtkInformationKey()
 {
   this->SetReferenceCount(0);
-  this->SetName(0);
-  this->SetLocation(0);
+  this->SetName(nullptr);
+  this->SetLocation(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -119,7 +122,7 @@ int vtkInformationKey::Has(vtkInformation* info)
 //----------------------------------------------------------------------------
 void vtkInformationKey::Remove(vtkInformation* info)
 {
-  this->SetAsObjectBase(info, 0);
+  this->SetAsObjectBase(info, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -139,9 +142,9 @@ void vtkInformationKey::Print(ostream& os, vtkInformation* info)
 {
   // Just print the value type and pointer by default.
   if(vtkObjectBase* value = this->GetAsObjectBase(info))
-    {
+  {
     os << value->GetClassName() << "(" << value << ")";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -153,13 +156,6 @@ void vtkInformationKey::ReportAsObjectBase(vtkInformation* info,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_DEBUG_LEAKS
-void vtkInformationKey::ConstructClass(const char* name)
-{
-  vtkDebugLeaks::ConstructClass(name);
-}
-#else
 void vtkInformationKey::ConstructClass(const char*)
 {
 }
-#endif

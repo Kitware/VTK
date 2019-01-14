@@ -19,11 +19,14 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayToTable - Converts one- and two-dimensional vtkArrayData
-// objects to vtkTable
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkArrayToTable
+ * @brief   Converts one- and two-dimensional vtkArrayData
+ * objects to vtkTable
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkArrayToTable_h
 #define vtkArrayToTable_h
@@ -36,22 +39,22 @@ class VTKINFOVISCORE_EXPORT vtkArrayToTable : public vtkTableAlgorithm
 public:
   static vtkArrayToTable* New();
   vtkTypeMacro(vtkArrayToTable, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkArrayToTable();
-  ~vtkArrayToTable();
+  ~vtkArrayToTable() override;
 
-  int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) override;
 
 private:
-  vtkArrayToTable(const vtkArrayToTable&); // Not implemented
-  void operator=(const vtkArrayToTable&);   // Not implemented
+  vtkArrayToTable(const vtkArrayToTable&) = delete;
+  void operator=(const vtkArrayToTable&) = delete;
 };
 
 #endif

@@ -40,9 +40,9 @@ vtkStreamingStatistics::vtkStreamingStatistics()
   this->SetNumberOfInputPorts(3);
   this->SetNumberOfOutputPorts(3);
 
-  // Initialize internal stats algorithm to NULL
-  this->StatisticsAlgorithm = 0;
-  this->SetStatisticsAlgorithm(0);
+  // Initialize internal stats algorithm to nullptr
+  this->StatisticsAlgorithm = nullptr;
+  this->SetStatisticsAlgorithm(nullptr);
 
   // Initialize internal model
   this->InternalModel = vtkMultiBlockDataSet::New();
@@ -52,35 +52,35 @@ vtkStreamingStatistics::vtkStreamingStatistics()
 vtkStreamingStatistics::~vtkStreamingStatistics()
 {
   // Release/delete internal stats algorithm
-  this->SetStatisticsAlgorithm(0);
-  this->StatisticsAlgorithm = 0;
+  this->SetStatisticsAlgorithm(nullptr);
+  this->StatisticsAlgorithm = nullptr;
 
-  // Release/delete internal model to NULL
+  // Release/delete internal model to nullptr
   this->InternalModel->Delete();
-  this->InternalModel = 0;
+  this->InternalModel = nullptr;
 }
 
 // ----------------------------------------------------------------------
 int vtkStreamingStatistics::FillInputPortInformation( int port, vtkInformation* info )
 {
   if ( port == INPUT_DATA )
-    {
+  {
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
     return 1;
-    }
+  }
   else if ( port == INPUT_MODEL )
-    {
+  {
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
     return 1;
-    }
+  }
   else if ( port == LEARN_PARAMETERS )
-    {
+  {
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -89,20 +89,20 @@ int vtkStreamingStatistics::FillInputPortInformation( int port, vtkInformation* 
 int vtkStreamingStatistics::FillOutputPortInformation( int port, vtkInformation* info )
 {
   if ( port == OUTPUT_DATA )
-    {
+  {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
     return 1;
-    }
+  }
   else if ( port == OUTPUT_MODEL )
-    {
+  {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
     return 1;
-    }
+  }
   else if ( port == OUTPUT_TEST )
-    {
+  {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -133,11 +133,11 @@ int vtkStreamingStatistics::RequestData( vtkInformation*,
 
   // Make sure the statistics algorithm is set
   if ( !this->StatisticsAlgorithm )
-    {
+  {
     vtkErrorMacro("StatisticsAlgorithm not set! Punting!")
     cerr << "StatisticsAlgorithm not set! Punting!" << endl;
     return 0;
-    }
+  }
 
   // Set the input into my stats algorithms
   this->StatisticsAlgorithm->SetInputData(inData);
@@ -166,10 +166,10 @@ void vtkStreamingStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   if (this->StatisticsAlgorithm)
-    {
+  {
     os << indent << "StatisticsAlgorithm:\n";
     vtkIndent i2 = indent.GetNextIndent();
     this->StatisticsAlgorithm->PrintSelf(os,i2);
-    }
+  }
   os << indent << "InternalModel: " << this->InternalModel << "\n";
 }

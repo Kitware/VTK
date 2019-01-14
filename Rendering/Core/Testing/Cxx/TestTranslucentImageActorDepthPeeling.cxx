@@ -37,7 +37,7 @@ int TestTranslucentImageActorDepthPeeling(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
   renWin->Delete();
 
-  renWin->SetMultiSamples(1);
+  renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
 
   vtkRenderer *renderer = vtkRenderer::New();
@@ -67,18 +67,18 @@ int TestTranslucentImageActorDepthPeeling(int argc, char* argv[])
 
   renWin->Render();
   if(renderer->GetLastRenderingUsedDepthPeeling())
-    {
+  {
     cout<<"depth peeling was used"<<endl;
-    }
+  }
   else
-    {
+  {
     cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-    }
+  }
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   return !retVal;

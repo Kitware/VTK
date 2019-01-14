@@ -26,14 +26,12 @@
 //-----------------------------------------------------------------------------
 vtkGenericSubdivisionErrorMetric::vtkGenericSubdivisionErrorMetric()
 {
-  this->GenericCell = NULL;
-  this->DataSet = 0;
+  this->GenericCell = nullptr;
+  this->DataSet = nullptr;
 }
 
 //-----------------------------------------------------------------------------
-vtkGenericSubdivisionErrorMetric::~vtkGenericSubdivisionErrorMetric()
-{
-}
+vtkGenericSubdivisionErrorMetric::~vtkGenericSubdivisionErrorMetric() = default;
 
 //-----------------------------------------------------------------------------
 // Avoid reference loop
