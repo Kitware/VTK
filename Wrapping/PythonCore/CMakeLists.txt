@@ -6,6 +6,12 @@ set(classes
   vtkSmartPyObject)
 
 set(headers
+  PyVTKMethodDescriptor.h
+  PyVTKNamespace.h
+  PyVTKObject.h
+  PyVTKReference.h
+  PyVTKSpecialObject.h
+  PyVTKTemplate.h
   vtkPythonCompatibility.h)
 
 set(sources
@@ -19,12 +25,7 @@ set(sources
 
 set(private_headers
   PyVTKExtras.h
-  PyVTKMethodDescriptor.h
-  PyVTKNamespace.h
-  PyVTKObject.h
-  PyVTKReference.h
-  PyVTKSpecialObject.h
-  PyVTKTemplate.h)
+)
 
 vtk_module_add_module(VTK::WrappingPythonCore
   CLASSES ${classes}
