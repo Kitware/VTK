@@ -213,6 +213,7 @@ H5O__cache_get_final_load_size(const void *image, size_t image_len,
     HDassert(udata);
     HDassert(actual_len);
     HDassert(*actual_len == image_len);
+    (void)image_len;
 
     /* Deserialize the object header prefix */
     if(H5O__prefix_deserialize((const uint8_t *)image, udata) < 0)
@@ -321,6 +322,7 @@ H5O__cache_deserialize(const void *image, size_t len, void *_udata,
     HDassert(udata->common.f);
     HDassert(udata->common.cont_msg_info);
     HDassert(dirty);
+    (void)len;
 
     /* Check for partially deserialized object header */
     /* (Object header prefix will be deserialized if the object header came
@@ -777,6 +779,7 @@ H5O__cache_chk_deserialize(const void *image, size_t len, void *_udata,
     HDassert(udata);
     HDassert(udata->oh);
     HDassert(dirty);
+    (void)len;
 
     /* Allocate space for the object header data structure */
     if(NULL == (chk_proxy = H5FL_CALLOC(H5O_chunk_proxy_t))) 

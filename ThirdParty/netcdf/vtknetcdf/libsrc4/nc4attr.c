@@ -45,6 +45,8 @@ nc4_get_att_special(NC_HDF5_FILE_INFO_T* h5, const char* name,
                     nc_type* filetypep, nc_type mem_type, size_t* lenp,
                     int* attnump, int is_long, void* data)
 {
+   (void)is_long;
+
    /* Fail if asking for att id */
    if(attnump)
       return NC_EATTMETA;

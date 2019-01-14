@@ -1407,7 +1407,7 @@ void vtkSVGContextDevice2D::DrawString(float *point,
     text->SetFloatAttribute("y", 0.f);
 
     std::string utf8String = string.utf8_str();
-    text->SetCharacterData(utf8String.c_str(), utf8String.size());
+    text->SetCharacterData(utf8String.c_str(), static_cast<int>(utf8String.size()));
   }
   else
   {

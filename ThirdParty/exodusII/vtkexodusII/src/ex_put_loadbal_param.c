@@ -82,6 +82,7 @@ int ex_put_loadbal_param(int exoid, int64_t num_int_nodes, int64_t num_bor_nodes
   if (ex_int64_status(exoid) & EX_MAPS_INT64_DB) {
     map_type = NC_INT64;
   }
+  (void)processor;
   /*-----------------------------Execution begins-----------------------------*/
 
   EX_FUNC_ENTER();

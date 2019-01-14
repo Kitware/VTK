@@ -89,6 +89,11 @@ int nc_create_par(const char *path, int cmode, MPI_Comm comm,
 	      MPI_Info info, int *ncidp)
 {
 #ifndef USE_PARALLEL
+   (void)path;
+   (void)cmode;
+   (void)comm;
+   (void)info;
+   (void)ncidp;
    return NC_ENOPAR;
 #else
    NC_MPI_INFO data;
@@ -179,6 +184,11 @@ nc_open_par(const char *path, int mode, MPI_Comm comm,
 	    MPI_Info info, int *ncidp)
 {
 #ifndef USE_PARALLEL
+   (void)path;
+   (void)mode;
+   (void)comm;
+   (void)info;
+   (void)ncidp;
    return NC_ENOPAR;
 #else
    NC_MPI_INFO mpi_data;
@@ -238,6 +248,11 @@ nc_open_par_fortran(const char *path, int mode, int comm,
 		    int info, int *ncidp)
 {
 #ifndef USE_PARALLEL
+   (void)path;
+   (void)mode;
+   (void)comm;
+   (void)info;
+   (void)ncidp;
    return NC_ENOPAR;
 #else
    MPI_Comm comm_c;
@@ -329,6 +344,8 @@ nc_var_par_access(int ncid, int varid, int par_access)
        return stat;
 
 #ifndef USE_PARALLEL
+    (void)varid;
+    (void)par_access;
     return NC_ENOPAR;
 #else
     return ncp->dispatch->var_par_access(ncid,varid,par_access);
@@ -374,6 +391,11 @@ nc_create_par_fortran(const char *path, int cmode, int comm,
 		      int info, int *ncidp)
 {
 #ifndef USE_PARALLEL
+   (void)path;
+   (void)cmode;
+   (void)comm;
+   (void)info;
+   (void)ncidp;
    return NC_ENOPAR;
 #else
    MPI_Comm comm_c;

@@ -4245,7 +4245,7 @@ H5Pget_mdc_log_options(hid_t plist_id, hbool_t *is_enabled, char *location,
                        size_t *location_size, hbool_t *start_on_access)
 {
     H5P_genplist_t *plist;              /* Property list pointer */
-    char *location_ptr;                 /* Pointer to location string */
+    char *location_ptr = NULL;          /* Pointer to location string */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)

@@ -957,7 +957,7 @@ virtual double *Get##name() VTK_SIZEHINT(2)\
 //----------------------------------------------------------------------------
 // Deprecation attribute.
 
-#if !defined(VTK_DEPRECATED)
+#if !defined(VTK_DEPRECATED) && !defined(VTK_WRAPPING_CXX)
 # if __cplusplus >= 201402L && defined(__has_cpp_attribute)
 #  if __has_cpp_attribute(deprecated)
 #   define VTK_DEPRECATED [[deprecated]]

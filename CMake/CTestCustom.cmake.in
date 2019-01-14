@@ -16,7 +16,7 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "sysinfoapi.h.*: note: see declaration of 'GetVersion'"
 
   # Suppress notes from template instantiation backtraces.
-  "note: see reference to class template instantiation"
+  "note: see reference to (class|function) template instantiation"
 
   # Qt headers cause C4127 warnings with MSVC. Nothing we can do to fix them.
   "[Qq]t([Cc]ore|[Gg]ui).*(warning|note)"
@@ -27,6 +27,9 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
 set(cdash_show_third_party_warnings "@VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")
 if (NOT cdash_show_third_party_warnings)
   list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
+    # HDF5 lex/yacc sources compilation lacks the "ThirdParty" part of the path.
+    "hl/src/H5LT(parse|analyze)"
+
     # Suppress ThirdParty source code from displaying warnings.
     "[Tt]hird[Pp]arty")
 endif ()

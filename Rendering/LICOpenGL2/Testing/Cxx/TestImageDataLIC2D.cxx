@@ -305,7 +305,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   // array to hold the results
   vtkPixelExtent licDataExt(outWidth, outHeight);
 
-  size_t licDataSize = licDataExt.Size();
+  vtkIdType licDataSize = static_cast<vtkIdType>(licDataExt.Size());
 
   vtkSmartPointer<vtkFloatArray> licData
     = vtkSmartPointer<vtkFloatArray>::New();

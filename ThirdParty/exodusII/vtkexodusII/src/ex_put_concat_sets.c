@@ -76,8 +76,8 @@ int ex_put_concat_sets(int exoid, ex_entity_type set_type, const struct ex_set_s
   const void_int *sets_entry_index    = set_specs->sets_entry_index;
   const void_int *sets_dist_index     = set_specs->sets_dist_index;
   const void *    sets_dist_fact      = set_specs->sets_dist_fact;
-  size_t          i, num_df, num_entry;
-  int             cur_num_sets, num_sets;
+  size_t          num_df, num_entry;
+  int             i, cur_num_sets, num_sets;
   int             dimid, varid, set_id_ndx, dims[1];
   int *           set_stat = NULL;
   int             set_int_type, int_size;

@@ -27,6 +27,8 @@
 #include "XdmfFunction.hpp"
 #include <boost/tokenizer.hpp>
 
+#include <sstream>
+
 shared_ptr<XdmfGeometry> XdmfGeometry::New()
 {
   shared_ptr<XdmfGeometry> p(new XdmfGeometry());
@@ -342,8 +344,11 @@ void XdmfGeometrySetType(XDMFGEOMETRY * geometry, int type, int * status)
       ((XdmfGeometry *) geometry)->setType(XdmfGeometryType::Spherical());
       break;
     default:
-      XdmfError::message(XdmfError::FATAL,
-                         "Error: Invalid Geometry Type: Code " + type);
+      {
+        std::stringstream sstr;
+        sstr << "Error: Invalid Geometry Type: Code " << type;
+        XdmfError::message(XdmfError::FATAL, sstr.str());
+      }
       break;
   }
   XDMF_ERROR_WRAP_END(status)

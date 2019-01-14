@@ -28,6 +28,8 @@
 #include "XdmfAttributeType.hpp"
 #include "XdmfError.hpp"
 #include "XdmfArray.hpp"
+
+#include <sstream>
 //-----------------------------------------------------------------------------
 XDMF_CHILDREN_IMPLEMENTATION(XdmfAttribute, XdmfArray, AuxiliaryArray, Name)
 //-----------------------------------------------------------------------------
@@ -350,8 +352,11 @@ void XdmfAttributeSetCenter(XDMFATTRIBUTE * attribute, int center, int * status)
       ((XdmfAttribute *)attribute)->setCenter(XdmfAttributeCenter::Node());
       break;
     default:
-      XdmfError::message(XdmfError::FATAL,
-                         "Error: Invalid Attribute Center: Code " + center);
+      {
+        std::stringstream sstr;
+        sstr << "Error: Invalid Attribute Center: Code " << center;
+        XdmfError::message(XdmfError::FATAL, sstr.str());
+      }
       break;
   }
   XDMF_ERROR_WRAP_END(status)
@@ -383,8 +388,11 @@ void XdmfAttributeSetType(XDMFATTRIBUTE * attribute, int type, int * status)
       ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::NoAttributeType());
       break;
     default:
-      XdmfError::message(XdmfError::FATAL,
-                         "Error: Invalid Attribute Type: Code " + type);
+      {
+        std::stringstream sstr;
+        sstr << "Error: Invalid Attribute Type: Code " << type;
+        XdmfError::message(XdmfError::FATAL, sstr.str());
+      }
       break;
   }
   XDMF_ERROR_WRAP_END(status)
