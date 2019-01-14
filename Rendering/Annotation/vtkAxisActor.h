@@ -15,7 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * vtkAxisActor creates an axis with tick marks, labels, and/or a title,
  * depending on the particular instance variable settings. It is assumed that
- * the axes is part of a bounding box and is orthoganal to one of the
+ * the axes is part of a bounding box and is orthogonal to one of the
  * coordinate axes.  To use this class, you typically specify two points
  * defining the start and end points of the line (xyz definition using
  * vtkCoordinate class), the axis type (X, Y or Z), the axis location in

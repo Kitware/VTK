@@ -20,7 +20,7 @@
  * of the major continents of the earth. The OnRatio determines
  * how much of the data is actually used. The radius defines the radius
  * of the sphere at which the continents are placed. Obtains data from
- * an imbedded array of coordinates.
+ * an embedded array of coordinates.
 */
 
 #ifndef vtkEarthSource_h

@@ -76,7 +76,7 @@ int TestGDALRasterNoDataValue(int argc, char** argv)
     ++numErrors;
   }
 
-  // test that we read the NoData value corectly
+  // test that we read the NoData value correctly
   double nodata = reader->GetInvalidValue(0);
   double expectedNodata = -3.40282346638529993e+38;
   double tolerance = 1e+26;

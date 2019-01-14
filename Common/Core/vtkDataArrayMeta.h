@@ -139,7 +139,7 @@ public:
   VTK_ITER_INLINE GenericTupleSize(vtkDataArray *) {}
 };
 
-// Specialize for dynamic types, mimicing integral_constant API:
+// Specialize for dynamic types, mimicking integral_constant API:
 template <>
 struct GenericTupleSize<DynamicTupleSize>
 {

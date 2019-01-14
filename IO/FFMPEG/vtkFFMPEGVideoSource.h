@@ -127,7 +127,7 @@ public:
   void InternalGrab() override;
 
   // is the video at the end of file?
-  // Usefull for while loops
+  // Useful for while loops
   vtkGetMacro(EndOfFile,bool);
 
   // Is the video stream stereo 3d

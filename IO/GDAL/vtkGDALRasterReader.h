@@ -77,7 +77,7 @@ public:
 
   /**
    * Get/Set if bands are collated in one scalar array.
-   * Currently we collate RGB, RGBA, gray alpha and pallete.
+   * Currently we collate RGB, RGBA, gray alpha and palette.
    * The default is true.
    */
   vtkSetMacro(CollateBands, bool);

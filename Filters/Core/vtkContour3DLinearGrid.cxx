@@ -106,7 +106,7 @@ struct BaseCell
 
   // Set up the case table. This is done by accessing standard VTK cells and
   // repackaging the case table for efficiency. The format of the case table
-  // is as follows: a linear array, organized into two parts: 1) offets into
+  // is as follows: a linear array, organized into two parts: 1) offsets into
   // the second part, and 2) the cases. The first 2^NumVerts entries are the
   // offsets which refer to the 2^NumVerts cases in the second part. Each
   // case is represented by the number of edges, followed by pairs of
@@ -392,7 +392,7 @@ struct CellIter
   const unsigned short *Cases;
   vtkIdType Incr;
 
-  // Refernces to unstructured grid for cell traversal.
+  // References to unstructured grid for cell traversal.
   vtkIdType NumCells;
   const unsigned char *Types;
   const vtkIdType *Conn;
@@ -806,7 +806,7 @@ struct ContourCellsST : public ContourCellsBase<TIP,TOP,TS>
 };//ContourCellsST
 
 
-// Dispath method for Fast path processing. Handles template dispatching etc.
+// Dispatch method for Fast path processing. Handles template dispatching etc.
 template <typename TS>
 void ProcessFastPath(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
                      TS *s, double isoValue, vtkScalarTree *st, vtkPoints *outPts,

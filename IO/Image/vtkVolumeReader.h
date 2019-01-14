@@ -30,7 +30,7 @@
  * read. Thus to read an image set ImageRange[0] = ImageRange[1] = slice
  * number. The default behavior is to read a single file (i.e., image slice 1).
  *
- * The DataMask instance variable is used to read data files with imbedded
+ * The DataMask instance variable is used to read data files with embedded
  * connectivity or segmentation information. For example, some data has
  * the high order bit set to indicate connected surface. The DataMask allows
  * you to select this data. Other important ivars include HeaderSize, which

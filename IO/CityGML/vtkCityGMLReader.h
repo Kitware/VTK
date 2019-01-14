@@ -34,7 +34,7 @@
 
  * The leafs of the multiblock dataset (which are polygonal datasets)
  * have a field array with one element called "gml_id" which
- * coresponds to the gml:id for gml:TriangulatedSurface,
+ * corresponds to the gml:id for gml:TriangulatedSurface,
  * gml:MultiSurface or gml:CompositeSurface in the CityGML file. If
  * the poly dataset has a texture, we specify this with a point array
  * called "tcoords" and a field array with one element called

@@ -251,7 +251,7 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTree( vtkHyperTreeGridNonOrien
   } // if ( ! inCursor->IsLeaf() && inCursor->GetCurrentDepth() < this->Depth )
   else
   {
-    // Input cursor is at leaf, check whether it is withing range
+    // Input cursor is at leaf, check whether it is within range
     double value = this->InScalars->GetTuple1( inId );
     if( ! ( this->InMaterialMask && this->InMaterialMask->GetValue( inId ) )
         && value >= this->LowerThreshold && value <= this->UpperThreshold )
@@ -303,7 +303,7 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTreeWithCreateNewMask( vtkHype
   } // if ( ! inCursor->IsLeaf() && inCursor->GetCurrentDepth() < this->Depth )
   else
   {
-    // Input cursor is at leaf, check whether it is withing range
+    // Input cursor is at leaf, check whether it is within range
     double value = this->InScalars->GetTuple1( outId );
     discard = value < this->LowerThreshold || value > this->UpperThreshold;
   } // else

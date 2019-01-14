@@ -72,7 +72,7 @@
  * the Voronoi tessellation requires unique input points.
  *
  * @warning
- * This is a novel approach which implements an embarrasingly parallel
+ * This is a novel approach which implements an embarrassingly parallel
  * algorithm. At the core of the algorithm a locator is used to determine
  * points close to a specified position. A vtkStaticPointLocator2D is used
  * because it is both threaded (when constructed) and supports thread-safe

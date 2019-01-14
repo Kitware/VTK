@@ -43,7 +43,7 @@ int TestRasterReprojectionFilter(int argc, char* argv[])
   reader->SetFileName(fname);
   delete[] fname;
 
-  // test that we read the NoData value corectly
+  // test that we read the NoData value correctly
   reader->Update();
   double nodata = reader->GetInvalidValue(0);
   double expectedNodata = -32768;
