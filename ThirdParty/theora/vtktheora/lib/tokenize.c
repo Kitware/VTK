@@ -234,6 +234,7 @@ int oc_enc_tokenize_ac(oc_enc_ctx *_enc,int _pli,ptrdiff_t _fragi,
   int                  ti;
   int                  zzj;
   int                  qc;
+  (void)_fragi;
   huffi=_enc->huff_idxs[_enc->state.frame_type][1][_pli+1>>1];
   eob_run=_enc->eob_run[_pli];
   memset(tokens[0],0,sizeof(tokens[0]));
