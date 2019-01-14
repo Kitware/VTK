@@ -24,6 +24,10 @@ set(sources
   PyVTKSpecialObject.cxx
   PyVTKTemplate.cxx)
 
+set(private_headers
+  PyVTKExtras.h
+)
+
 vtk_module_add_module(VTK::WrappingPythonCore
   CLASSES ${classes}
   SOURCES ${sources}
