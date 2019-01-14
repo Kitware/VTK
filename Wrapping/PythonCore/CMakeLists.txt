@@ -6,7 +6,6 @@ set(classes
   vtkSmartPyObject)
 
 set(headers
-  PyVTKExtras.h
   PyVTKMethodDescriptor.h
   PyVTKNamespace.h
   PyVTKObject.h
