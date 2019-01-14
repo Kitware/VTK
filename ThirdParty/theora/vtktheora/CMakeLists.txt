@@ -45,7 +45,7 @@ vtk_module_add_module(VTK::theora
 target_include_directories(theora
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>")
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
 set_target_properties(theora
   PROPERTIES
     C_VISIBILITY_PRESET "hidden")
