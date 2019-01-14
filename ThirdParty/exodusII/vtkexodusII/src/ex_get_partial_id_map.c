@@ -48,7 +48,7 @@ int ex_get_partial_id_map(int exoid, ex_entity_type map_type, int64_t start_enti
                           int64_t num_entities, void_int *map)
 {
   int         dimid, mapid, status;
-  size_t      i;
+  int64_t     i;
   size_t      num_entries;
   size_t      start[1], count[1];
   char        errmsg[MAX_ERR_LENGTH];
