@@ -2156,6 +2156,7 @@ H5A__attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_s
     HDassert(file_dst);
     HDassert(cpy_info);
     HDassert(!cpy_info->copy_without_attr);
+    (void)cpy_info;
 
     /* Allocate space for the destination message */
     if(NULL == (attr_dst = H5FL_CALLOC(H5A_t)))
