@@ -67,7 +67,7 @@ static char* queryallow =
 static char* userpwdallow =
 "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$&'()*+,-.;=_~?#/";
 
-#ifndef HAVE_STRNCMP
+#ifndef HAVE_STRNDUP
 #define strndup ncstrndup
 /* Not all systems have strndup, so provide one*/
 char*
