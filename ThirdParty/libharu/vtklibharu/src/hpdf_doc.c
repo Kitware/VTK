@@ -1785,7 +1785,7 @@ HPDF_SetPageLayout  (HPDF_Doc          pdf,
     if (!HPDF_HasDoc (pdf))
         return HPDF_INVALID_DOCUMENT;
 
-    if (layout < 0 || layout >= HPDF_PAGE_LAYOUT_EOF)
+    if (layout < HPDF_PAGE_LAYOUT_SINGLE || layout >= HPDF_PAGE_LAYOUT_EOF)
         return HPDF_RaiseError (&pdf->error, HPDF_PAGE_LAYOUT_OUT_OF_RANGE,
                 (HPDF_STATUS)layout);
 
@@ -1822,7 +1822,7 @@ HPDF_SetPageMode  (HPDF_Doc        pdf,
     if (!HPDF_HasDoc (pdf))
         return HPDF_INVALID_DOCUMENT;
 
-    if (mode < 0 || mode >= HPDF_PAGE_MODE_EOF)
+    if (mode < HPDF_PAGE_MODE_USE_NONE || mode >= HPDF_PAGE_MODE_EOF)
         return HPDF_RaiseError (&pdf->error, HPDF_PAGE_MODE_OUT_OF_RANGE,
                 (HPDF_STATUS)mode);
 
@@ -1909,7 +1909,7 @@ HPDF_AddPageLabel  (HPDF_Doc             pdf,
     if (!page_label)
         return HPDF_CheckError (&pdf->error);
 
-    if (style < 0 || style >= HPDF_PAGE_NUM_STYLE_EOF)
+    if (style < HPDF_PAGE_NUM_STYLE_DECIMAL || style >= HPDF_PAGE_NUM_STYLE_EOF)
         return HPDF_RaiseError (&pdf->error, HPDF_PAGE_NUM_STYLE_OUT_OF_RANGE,
                     (HPDF_STATUS)style);
 
