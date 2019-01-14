@@ -27,10 +27,12 @@
 #include "vtkMath.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLCellToVTKCellMap.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLHelper.h"
 #include "vtkOpenGLIndexBufferObject.h"
@@ -2482,9 +2484,10 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                           GL_UNSIGNED_INT,
                           nullptr);
       this->Primitives[i].IBO->Release();
-
-      int stride = (mode == GL_POINTS ? 1 : (mode == GL_LINES ? 2 : 3));
-      this->PrimitiveIDOffset += (int)this->Primitives[i].IBO->IndexCount/stride;
+      if (i < 3)
+      {
+        this->PrimitiveIDOffset = this->CellCellMap->GetPrimitiveOffsets()[i+1];
+      }
     }
   }
 }
@@ -2632,9 +2635,8 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildBufferObjects(
   return false;
 }
 
+
 // create the cell scalar array adjusted for ogl Cells
-
-
 void vtkOpenGLPolyDataMapper::AppendCellTextures(
   vtkRenderer * /*ren*/,
   vtkActor *,
@@ -2642,25 +2644,26 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
   int representation,
   std::vector<unsigned char> &newColors,
   std::vector<float> &newNorms,
-  vtkPolyData *poly)
+  vtkPolyData *poly,
+  vtkOpenGLCellToVTKCellMap *ccmap)
 {
   vtkPoints *points = poly->GetPoints();
 
   if (this->HaveCellScalars || this->HaveCellNormals)
   {
-    this->UpdateCellMaps(prims, representation, points);
+    ccmap->Update(prims, representation, points);
 
     if (this->HaveCellScalars)
     {
       int numComp = this->Colors->GetNumberOfComponents();
       unsigned char *colorPtr = this->Colors->GetPointer(0);
       assert(numComp == 4);
-      newColors.reserve(numComp*this->CellCellMap.size());
+      newColors.reserve(numComp*ccmap->GetSize());
       // use a single color value?
       if (this->FieldDataTupleId > -1 &&
           this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA)
       {
-        for (size_t i = 0; i < this->CellCellMap.size(); i++)
+        for (size_t i = 0; i < ccmap->GetSize(); i++)
         {
           for (int j = 0; j < numComp; j++)
           {
@@ -2670,11 +2673,11 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
       }
       else
       {
-        for (size_t i = 0; i < this->CellCellMap.size(); i++)
+        for (size_t i = 0; i < ccmap->GetSize(); i++)
         {
           for (int j = 0; j < numComp; j++)
           {
-            newColors.push_back(colorPtr[this->CellCellMap[i]*numComp + j]);
+            newColors.push_back(colorPtr[ccmap->GetValue(i)*numComp + j]);
           }
         }
       }
@@ -2684,12 +2687,12 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     {
       // create the cell scalar array adjusted for ogl Cells
       vtkDataArray *n = this->CurrentInput->GetCellData()->GetNormals();
-      newNorms.reserve(4*this->CellCellMap.size());
-      for (size_t i = 0; i < this->CellCellMap.size(); i++)
+      newNorms.reserve(4*ccmap->GetSize());
+      for (size_t i = 0; i < ccmap->GetSize(); i++)
       {
         // RGB32F requires a later version of OpenGL than 3.2
         // with 3.2 we know we have RGBA32F hence the extra value
-        double *norms = n->GetTuple(this->CellCellMap[i]);
+        double *norms = n->GetTuple(ccmap->GetValue(i));
         newNorms.push_back(norms[0]);
         newNorms.push_back(norms[1]);
         newNorms.push_back(norms[2]);
@@ -2709,7 +2712,7 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
   std::vector<unsigned char> newColors;
   std::vector<float> newNorms;
   this->AppendCellTextures(ren, actor, prims, representation,
-    newColors, newNorms, this->CurrentInput);
+    newColors, newNorms, this->CurrentInput, this->CellCellMap);
 
   // allocate as needed
   if (this->HaveCellScalars)
@@ -2838,6 +2841,8 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   prims[2] =  poly->GetPolys();
   prims[3] =  poly->GetStrips();
 
+  this->CellCellMap->SetStartOffset(0);
+
   // only rebuild what we need to
   // if the data or mapper or selection state changed
   // then rebuild the cell arrays
@@ -2859,6 +2864,10 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     this->CellTextureBuildState = this->TempState;
     this->BuildCellTextures(ren, act, prims, representation);
   }
+
+  // if we have offsets from the cell map then use them
+  this->CellCellMap->BuildPrimitiveOffsetsIfNeeded(
+    prims, representation, poly->GetPoints());
 
   // Set the texture if we are going to use texture
   // for coloring with a point attribute.
@@ -3223,61 +3232,6 @@ void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//-----------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::MakeCellCellMap(
-  std::vector<vtkIdType> &cellCellMap,
-  vtkCellArray **prims, int representation, vtkPoints *points)
-{
-  cellCellMap.clear();
-
-  vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-      prims, cellCellMap, representation, points);
-}
-
-void vtkOpenGLPolyDataMapper::UpdateCellMaps(
-  vtkCellArray **prims, int representation, vtkPoints *points)
-{
-  std::ostringstream toString;
-  toString.str("");
-  toString.clear();
-  toString << (prims[0]->GetNumberOfCells() ? prims[0]->GetMTime() : 0) <<
-    'A' << (prims[1]->GetNumberOfCells() ? prims[1]->GetMTime() : 0) <<
-    'B' << (prims[2]->GetNumberOfCells() ? prims[2]->GetMTime() : 0) <<
-    'C' << (prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0) <<
-    'D' << representation <<
-    'E' << (points ? points->GetMTime() : 0);
-
-  // is it up to date? If so return
-  if (this->CellMapsBuildString == toString.str())
-  {
-    return;
-  }
-
-  this->MakeCellCellMap(this->CellCellMap,
-    prims, representation, points);
-
-  this->CellMapsBuildString = toString.str();
-}
-
-namespace
-{
-  unsigned int convertToCells(
-    unsigned int *offset,
-    unsigned int *stride,
-    unsigned int inval )
-  {
-    if (inval < offset[0])
-    {
-      return inval;
-    }
-    if (inval < offset[1])
-    {
-      return offset[0] + (inval - offset[0]) / stride[0];
-    }
-    return offset[0] + (offset[1] - offset[0]) / stride[0] + (inval - offset[1]) / stride[1];
-  }
-}
-
 void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
   vtkHardwareSelector *sel,
   std::vector<unsigned int> &pixeloffsets,
@@ -3417,17 +3371,6 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
   unsigned char *rawclowdata = sel->GetRawPixelBuffer(vtkHardwareSelector::CELL_ID_LOW24);
   unsigned char *rawchighdata = sel->GetRawPixelBuffer(vtkHardwareSelector::CELL_ID_HIGH24);
 
-  // build the mapping of point primID to cell primID
-  // aka when we render triangles in point picking mode
-  // how do we map primid to what would normally be primid
-  unsigned int offset[2];
-  unsigned int stride[2];
-  offset[0] = static_cast<unsigned int>(this->Primitives[PrimitiveVertices].IBO->IndexCount);
-  stride[0] = representation == VTK_POINTS ? 1 : 2;
-  offset[1] = offset[0] + static_cast<unsigned int>(
-    this->Primitives[PrimitiveLines].IBO->IndexCount);
-  stride[1] = representation == VTK_POINTS ? 1 : representation == VTK_WIREFRAME ? 2 : 3;
-
   // do we need to do anything to the composite pass data?
   if (currPass == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
   {
@@ -3440,7 +3383,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
 
     if (compositedata && compositeArray && rawclowdata)
     {
-      this->UpdateCellMaps(prims, representation, poly->GetPoints());
+      this->CellCellMap->Update(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {
@@ -3456,11 +3399,8 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval = inval << 8;
         inval |= rawclowdata[pos];
         inval -= 1;
-        if (pointPicking)
-        {
-          inval = convertToCells(offset, stride, inval);
-        }
-        vtkIdType vtkCellId = this->CellCellMap[inval];
+        vtkIdType vtkCellId = this->CellCellMap->
+          ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
         unsigned int outval =  compositeArray->GetValue(vtkCellId) + 1;
         compositedata[pos] = outval & 0xff;
         compositedata[pos + 1] = (outval & 0xff00) >> 8;
@@ -3479,7 +3419,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
 
     if (rawclowdata)
     {
-      this->UpdateCellMaps(prims, representation, poly->GetPoints());
+      this->CellCellMap->Update(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {
@@ -3495,15 +3435,8 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval = inval << 8;
         inval |= rawclowdata[pos];
         inval -= 1;
-        if (pointPicking)
-        {
-          inval = convertToCells(offset, stride, inval);
-        }
-        vtkIdType outval = inval;
-        if (!this->CellCellMap.empty())
-        {
-          outval = this->CellCellMap[outval];
-        }
+        vtkIdType outval = this->CellCellMap->
+          ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
         if (cellArrayId)
         {
           outval = cellArrayId->GetValue(outval);
@@ -3525,7 +3458,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
 
     if (rawchighdata)
     {
-      this->UpdateCellMaps(prims, representation, poly->GetPoints());
+      this->CellCellMap->Update(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {
@@ -3538,15 +3471,8 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval = inval << 8;
         inval |= rawclowdata[pos];
         inval -= 1;
-        if (pointPicking)
-        {
-          inval = convertToCells(offset, stride, inval);
-        }
-        vtkIdType outval = inval;
-        if (!this->CellCellMap.empty())
-        {
-          outval = this->CellCellMap[outval];
-        }
+        vtkIdType outval = this->CellCellMap->
+          ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
         if (cellArrayId)
         {
           outval = cellArrayId->GetValue(outval);

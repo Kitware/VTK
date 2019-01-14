@@ -102,20 +102,6 @@ public:
   size_t CreateEdgeFlagIndexBuffer(
     vtkCellArray *cells, vtkDataArray *edgeflags);
 
-  // Create supporting arrays that are needed when rendering cell data
-  // Some VTK cells have to be broken into smaller cells for OpenGL
-  // When we have cell data we have to map cell attributes from the VTK
-  // cell number to the actual OpenGL cell
-  // The following code fills in
-  //
-  //   cellCellMap which maps a openGL cell id to the VTK cell it came from
-  //
-  static void CreateCellSupportArrays(
-    vtkCellArray *[4],
-    std::vector<vtkIdType> &cellCellMap,
-    int representation,
-    vtkPoints *points);
-
   // Description:
   // used to create an IBO for cell Vertices as points
   size_t CreateVertexIndexBuffer(vtkCellArray **cells);

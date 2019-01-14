@@ -51,8 +51,11 @@
 
 #include <algorithm>
 #include <string>
+#include <vector>
 
-#ifndef NDEBUG // a debug implementation
+// uncomment the folowing line to add in state debugging information
+//#define USE_STATE_DEBUGGING 1
+#ifdef USE_STATE_DEBUGGING
 
 class VTKRENDERINGOPENGL2_EXPORT vtkStateStorage
 {
@@ -120,7 +123,7 @@ inline void vtkStateStorage::Append(const T &value, const char *name)
   this->Storage.insert(this->Storage.end(), start, start + sizeof(T));
 }
 
-#else // release implementation
+#else // normal implementation
 
 class VTKRENDERINGOPENGL2_EXPORT vtkStateStorage
 {
@@ -157,7 +160,7 @@ inline void vtkStateStorage::Append(const T &value, const char *)
   this->Storage.insert(this->Storage.end(), start, start + sizeof(T));
 }
 
-#endif // Release implementation
+#endif // normal implementation
 
 #endif // vtkStateStorage_h
 
