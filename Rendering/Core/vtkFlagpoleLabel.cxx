@@ -17,6 +17,7 @@
 
 #include "vtkBoundingBox.h"
 #include "vtkCamera.h"
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkLineSource.h"
@@ -235,6 +236,7 @@ vtkFlagpoleLabel::vtkFlagpoleLabel()
     TextProperty(vtkTextProperty::New()),
     RenderedDPI(-1)
 {
+  this->LineSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   this->BasePosition[0] = 0.0;
   this->BasePosition[1] = 0.0;
   this->BasePosition[2] = 0.0;
@@ -263,8 +265,8 @@ vtkFlagpoleLabel::vtkFlagpoleLabel()
   this->PoleActor->SetMapper(this->PoleMapper);
 
   vtkNew<vtkPoints> points;
-  points->SetDataTypeToFloat();
-  vtkFloatArray* quadPoints = vtkFloatArray::FastDownCast(points->GetData());
+  points->SetDataTypeToDouble();
+  vtkDoubleArray* quadPoints = vtkDoubleArray::FastDownCast(points->GetData());
   assert(quadPoints);
   quadPoints->SetNumberOfComponents(3);
   quadPoints->SetNumberOfTuples(4);
@@ -335,6 +337,9 @@ bool vtkFlagpoleLabel::InputIsValid()
 //------------------------------------------------------------------------------
 void vtkFlagpoleLabel::UpdateInternals(vtkRenderer *ren)
 {
+  this->PoleActor->SetProperty(this->GetProperty());
+  this->QuadActor->SetProperty(this->GetProperty());
+
   if (this->TextureIsStale(ren))
   {
     this->GenerateTexture(ren);
@@ -414,8 +419,8 @@ void vtkFlagpoleLabel::GenerateQuad(vtkRenderer *ren)
   tc->Modified();
 
   // Now figure out the world coordinates for our quad (the hard part...):
-  vtkFloatArray *quadPoints =
-      vtkFloatArray::FastDownCast(this->Quad->GetPoints()->GetData());
+  vtkDoubleArray *quadPoints =
+      vtkDoubleArray::FastDownCast(this->Quad->GetPoints()->GetData());
   assert(quadPoints);
 
   // determine scaling, the default is 1.0 = 1000 texels across the screen
