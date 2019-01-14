@@ -82,8 +82,8 @@ endif()
 
 #if so, test whether -i_dynamic is needed
 if(_MAY_BE_INTEL_COMPILER)
-  include(${VTK_CMAKE_DIR}/TestNO_ICC_IDYNAMIC_NEEDED.cmake)
-  testno_icc_idynamic_needed(NO_ICC_IDYNAMIC_NEEDED ${VTK_CMAKE_DIR})
+  include(${vtk_cmake_dir}/TestNO_ICC_IDYNAMIC_NEEDED.cmake)
+  testno_icc_idynamic_needed(NO_ICC_IDYNAMIC_NEEDED ${vtk_cmake_dir})
   if(NO_ICC_IDYNAMIC_NEEDED)
     set(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS}")
   else()
