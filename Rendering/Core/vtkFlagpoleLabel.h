@@ -26,7 +26,7 @@
 #define vtkFlagpoleLabel_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkProp3D.h"
+#include "vtkActor.h"
 #include "vtkNew.h" // For.... vtkNew!
 #include "vtkSmartPointer.h" // For.... vtkSmartPointer!
 
@@ -40,11 +40,11 @@ class vtkTextProperty;
 class vtkTextRenderer;
 class vtkTexture;
 
-class VTKRENDERINGCORE_EXPORT vtkFlagpoleLabel: public vtkProp3D
+class VTKRENDERINGCORE_EXPORT vtkFlagpoleLabel: public vtkActor
 {
 public:
   static vtkFlagpoleLabel* New();
-  vtkTypeMacro(vtkFlagpoleLabel, vtkProp3D)
+  vtkTypeMacro(vtkFlagpoleLabel, vtkActor)
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
@@ -67,14 +67,14 @@ public:
    * Force the actor to render during the opaque or translucent pass.
    * @{
    */
-  virtual void SetForceOpaque(bool opaque);
-  virtual bool GetForceOpaque();
-  virtual void ForceOpaqueOn();
-  virtual void ForceOpaqueOff();
-  virtual void SetForceTranslucent(bool trans);
-  virtual bool GetForceTranslucent();
-  virtual void ForceTranslucentOn();
-  virtual void ForceTranslucentOff();
+  void SetForceOpaque(bool opaque) override;
+  bool GetForceOpaque() override;
+  void ForceOpaqueOn() override;
+  void ForceOpaqueOff() override;
+  void SetForceTranslucent(bool trans) override;
+  bool GetForceTranslucent() override;
+  void ForceTranslucentOn() override;
+  void ForceTranslucentOff() override;
   /**@}*/
 
   /**
