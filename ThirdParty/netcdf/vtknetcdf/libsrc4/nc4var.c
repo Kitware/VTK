@@ -1498,7 +1498,7 @@ NC4_inq_varid(int ncid, const char *name, int *varidp)
    char norm_name[NC_MAX_NAME + 1];
    int retval;
    uint32_t nn_hash;
-   int i;
+   size_t i;
 
    if (!name)
       return NC_EINVAL;
@@ -1557,7 +1557,7 @@ NC4_rename_var(int ncid, int varid, const char *name)
    NC_VAR_INFO_T *var, *tmp_var;
    uint32_t nn_hash;
    int retval = NC_NOERR;
-   int i;
+   size_t i;
 
    if (!name)
       return NC_EINVAL;
@@ -1690,6 +1690,9 @@ int
 NC4_var_par_access(int ncid, int varid, int par_access)
 {
 #ifndef USE_PARALLEL4
+   (void)ncid;
+   (void)varid;
+   (void)par_access;
    return NC_ENOPAR;
 #else
    NC *nc;

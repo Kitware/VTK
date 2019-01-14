@@ -234,7 +234,7 @@ NC_mktmp(const char* base)
 	    char spid[7];
 	    if(rno < 0) rno = -rno;
             snprintf(spid,sizeof(spid),"%06d",rno);
-            strncat(tmp,spid,sizeof(tmp));
+            strncat(tmp,spid,sizeof(tmp) - strlen(tmp) - 1);
 	}
 #endif /* HAVE_MKTEMP */
 #ifdef _MSC_VER
