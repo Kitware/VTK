@@ -159,7 +159,7 @@ XdmfGridControllerRead(XDMFGRIDCONTROLLER * controller)
   {
     XdmfGridController referenceController = *(XdmfGridController *)(controller);
     shared_ptr<XdmfGrid> returnGrid = referenceController.read();
-    XDMFGRID * returnPointer;
+    XDMFGRID * returnPointer = NULL;
     if (shared_ptr<XdmfCurvilinearGrid> curvilinearGrid =
         shared_dynamic_cast<XdmfCurvilinearGrid>(returnGrid))
     {

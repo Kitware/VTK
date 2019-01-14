@@ -213,7 +213,7 @@ XdmfGridTemplate::getNumberGridCollections() const
 }
 
 void
-XdmfGridTemplate::insert(const shared_ptr<XdmfGridCollection> GridCollection)
+XdmfGridTemplate::insert(const shared_ptr<XdmfGridCollection> /*GridCollection*/)
 {
   XdmfError::message(XdmfError::FATAL, "Error: Attempting to use insert to add an XdmfGridCollection to an XdmfGridTemplate. "
                                        "Use addStep instead of insert to add to an XdmfGridTemplate");
@@ -236,7 +236,7 @@ XdmfGridTemplate::removeGridCollection(const unsigned int index)
 }
 
 void
-XdmfGridTemplate::removeGridCollection(const std::string & Name)
+XdmfGridTemplate::removeGridCollection(const std::string & /*Name*/)
 {
   XdmfError::message(XdmfError::FATAL, "Error: Removing Grids by name from XdmfGridTemplate is not supported");
 }
@@ -345,7 +345,7 @@ XdmfGridTemplate::getNumberCurvilinearGrids() const
 }
 
 void
-XdmfGridTemplate::insert(const shared_ptr<XdmfCurvilinearGrid> CurvilinearGrid)
+XdmfGridTemplate::insert(const shared_ptr<XdmfCurvilinearGrid> /*CurvilinearGrid*/)
 {
   XdmfError::message(XdmfError::FATAL, "Error: Attempting to use insert to add an XdmfCurvilinearGrid to an XdmfGridTemplate. "
                                        "Use addStep instead of insert to add to an XdmfGridTemplate");
@@ -368,7 +368,7 @@ XdmfGridTemplate::removeCurvilinearGrid(const unsigned int index)
 }
 
 void
-XdmfGridTemplate::removeCurvilinearGrid(const std::string & Name)
+XdmfGridTemplate::removeCurvilinearGrid(const std::string & /*Name*/)
 {
   XdmfError::message(XdmfError::FATAL, "Error: Removing Grids by name from XdmfGridTemplate is not supported");
 }
@@ -477,7 +477,7 @@ XdmfGridTemplate::getNumberRectilinearGrids() const
 }
 
 void
-XdmfGridTemplate::insert(const shared_ptr<XdmfRectilinearGrid> RectilinearGrid)
+XdmfGridTemplate::insert(const shared_ptr<XdmfRectilinearGrid> /*RectilinearGrid*/)
 {
   XdmfError::message(XdmfError::FATAL, "Error: Attempting to use insert to add a XdmfRectilinearGrid to an XdmfGridTemplate."
                                        "Use addStep instead of insert to add to an XdmfGridTemplate");
@@ -500,7 +500,7 @@ XdmfGridTemplate::removeRectilinearGrid(const unsigned int index)
 }
 
 void
-XdmfGridTemplate::removeRectilinearGrid(const std::string & Name)
+XdmfGridTemplate::removeRectilinearGrid(const std::string & /*Name*/)
 {
   XdmfError::message(XdmfError::FATAL, "Error: Removing Grids by name from XdmfGridTemplate is not supported");
 }
@@ -609,7 +609,7 @@ XdmfGridTemplate::getNumberRegularGrids() const
 }
 
 void
-XdmfGridTemplate::insert(const shared_ptr<XdmfRegularGrid> RegularGrid)
+XdmfGridTemplate::insert(const shared_ptr<XdmfRegularGrid> /*RegularGrid*/)
 {
   XdmfError::message(XdmfError::FATAL, "Error: Attempting to use insert to add an XdmfRegularGrid to an XdmfGridTemplate."
                                        "Use addStep instead of insert to add to an XdmfGridTemplate");
@@ -794,7 +794,7 @@ XdmfGridTemplate::populateItem(const std::map<std::string, std::string> & itemPr
         if (array->getName().compare("Data Description") == 0) {
           // Split description into substrings based on the " character
 
-          if (array->getNumberHeavyDataControllers() > 0 & !mHeavyWriter) {
+          if (array->getNumberHeavyDataControllers() > 0 && !mHeavyWriter) {
             mHeavyWriter = reader->generateHeavyDataWriter(array->getHeavyDataController(0)->getName(), array->getHeavyDataController(0)->getFilePath());
           }
 

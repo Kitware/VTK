@@ -115,25 +115,25 @@ XdmfDomain::populateItem(const std::map<std::string, std::string> & itemProperti
        shared_dynamic_cast<XdmfGridCollection>(*iter)) {
       this->insert(gridCollection);
     }
-    else if(shared_ptr<XdmfCurvilinearGrid> grid =
+    else if(shared_ptr<XdmfCurvilinearGrid> curvilinear_grid =
             shared_dynamic_cast<XdmfCurvilinearGrid>(*iter)) {
-      this->insert(grid);
+      this->insert(curvilinear_grid);
     }
     else if(shared_ptr<XdmfGraph> graph =
             shared_dynamic_cast<XdmfGraph>(*iter)) {
       this->insert(graph);
     }
-    else if(shared_ptr<XdmfRectilinearGrid> grid =
+    else if(shared_ptr<XdmfRectilinearGrid> rect_grid =
             shared_dynamic_cast<XdmfRectilinearGrid>(*iter)) {
-      this->insert(grid);
+      this->insert(rect_grid);
     }
-    else if(shared_ptr<XdmfRegularGrid> grid =
+    else if(shared_ptr<XdmfRegularGrid> regular_grid =
             shared_dynamic_cast<XdmfRegularGrid>(*iter)) {
-      this->insert(grid);
+      this->insert(regular_grid);
     }
-    else if(shared_ptr<XdmfUnstructuredGrid> grid =
+    else if(shared_ptr<XdmfUnstructuredGrid> unstructured_grid =
             shared_dynamic_cast<XdmfUnstructuredGrid>(*iter)) {
-      this->insert(grid);
+      this->insert(unstructured_grid);
     }
   }
 }

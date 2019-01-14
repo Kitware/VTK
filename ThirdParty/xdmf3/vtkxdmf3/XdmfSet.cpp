@@ -28,6 +28,8 @@
 #include "XdmfSetType.hpp"
 #include "XdmfError.hpp"
 
+#include <sstream>
+
 XDMF_CHILDREN_IMPLEMENTATION(XdmfSet, XdmfAttribute, Attribute, Name)
 
   shared_ptr<XdmfSet>
@@ -239,8 +241,11 @@ void XdmfSetSetType(XDMFSET * set, int type, int * status)
       newType = XdmfSetType::Edge();
       break;
     default:
-      XdmfError::message(XdmfError::FATAL,
-                         "Error: Invalid Set Type: Code " + type);
+      {
+        std::stringstream sstr;
+        sstr << "Error: Invalid Set Type: Code " << type;
+        XdmfError::message(XdmfError::FATAL, sstr.str());
+      }
       break;
   }
   ((XdmfSet *)set)->setType(newType);

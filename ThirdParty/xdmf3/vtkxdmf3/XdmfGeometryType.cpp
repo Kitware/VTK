@@ -26,6 +26,8 @@
 #include "XdmfError.hpp"
 #include "string.h"
 
+#include <sstream>
+
 std::map<std::string, shared_ptr<const XdmfGeometryType>(*)()> XdmfGeometryType::mGeometryDefinitions;
 
 // Supported XdmfGeometryTypes
@@ -184,8 +186,9 @@ unsigned int XdmfGeometryTypeGetDimensions(int type, int * status)
       break;
     default:
       try {
-        XdmfError::message(XdmfError::FATAL,
-                           "Error: Invalid Geometry Type: Code " + type);
+        std::stringstream sstr;
+        sstr << "Error: Invalid Geometry Type: Code " << type;
+        XdmfError::message(XdmfError::FATAL, sstr.str());
       }
       catch (XdmfError & e) {
         throw e;
