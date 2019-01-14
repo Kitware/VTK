@@ -187,6 +187,7 @@ stream_stride_block(const bitstream* s)
 #ifdef BIT_STREAM_STRIDED
   return s->mask + 1;
 #else
+  (void)s;
   return 1;
 #endif
 }
@@ -198,6 +199,7 @@ stream_stride_delta(const bitstream* s)
 #ifdef BIT_STREAM_STRIDED
   return s->delta / (s->mask + 1);
 #else
+  (void)s;
   return 0;
 #endif
 }
