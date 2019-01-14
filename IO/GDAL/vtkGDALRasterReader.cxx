@@ -398,6 +398,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   this->UniformGridData->SetSpacing(spacing[0], spacing[1], spacing[2]);
   this->UniformGridData->SetOrigin(origin[0], origin[1], origin[2]);
 
+  // band indexes are 0 based
   std::vector<int> groupIndex;
   double completedBand = 0.0;
   if (this->Reader->CollateBands)
@@ -405,15 +406,15 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
     if (redBand && greenBand && blueBand)
     {
       allBands[redIndex - 1] = nullptr;
-      groupIndex.push_back(redIndex);
+      groupIndex.push_back(redIndex - 1);
       allBands[greenIndex - 1] = nullptr;
-      groupIndex.push_back(greenIndex);
+      groupIndex.push_back(greenIndex - 1);
       allBands[blueIndex - 1] = nullptr;
-      groupIndex.push_back(blueIndex);
+      groupIndex.push_back(blueIndex - 1);
       if (alphaBand)
       {
         allBands[alphaIndex - 1] = nullptr;
-        groupIndex.push_back(alphaIndex);
+        groupIndex.push_back(alphaIndex - 1);
         this->Reader->SetNumberOfScalarComponents(4);
         rawUniformGridData.resize(4 * destWidth * destHeight * pixelSpace);
 
@@ -470,11 +471,11 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
     else if (grayBand)
     {
       allBands[grayIndex - 1] = nullptr;
-      groupIndex.push_back(grayIndex);
+      groupIndex.push_back(grayIndex - 1);
       if (alphaBand)
       {
         allBands[alphaIndex - 1] = nullptr;
-        groupIndex.push_back(alphaIndex);
+        groupIndex.push_back(alphaIndex - 1);
         // Luminance alpha
         this->Reader->SetNumberOfScalarComponents(2);
         rawUniformGridData.resize(2 * destWidth * destHeight * pixelSpace);
@@ -510,7 +511,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
     else if (paletteBand)
     {
       allBands[paletteIndex - 1] = nullptr;
-      groupIndex.push_back(paletteIndex);
+      groupIndex.push_back(paletteIndex - 1);
       // Read indexes
       this->Reader->SetNumberOfScalarComponents(1);
       rawUniformGridData.resize(destWidth * destHeight * pixelSpace);
@@ -598,9 +599,9 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
       {
         int bandIndex = groupIndex[bi];
         RAW_TYPE TNoDataValue = 0;
-        if (this->HasNoDataValue[bandIndex - 1])
+        if (this->HasNoDataValue[bandIndex])
         {
-          TNoDataValue = static_cast<RAW_TYPE>(this->NoDataValue[bandIndex - 1]);
+          TNoDataValue = static_cast<RAW_TYPE>(this->NoDataValue[bandIndex]);
         }
 
         targetIndex = i * groupIndex.size() +
@@ -609,7 +610,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
                       bi * targetWidth * targetHeight;
 
         RAW_TYPE tmp = rawUniformGridData[sourceIndex];
-        if (this->HasNoDataValue[bandIndex - 1] && tmp == TNoDataValue)
+        if (this->HasNoDataValue[bandIndex] && tmp == TNoDataValue)
         {
           this->UniformGridData->BlankCell(targetIndex);
         }
