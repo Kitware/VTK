@@ -140,6 +140,7 @@ The remaining information it uses is assumed to be provided by the
 function (_vtk_module_wrap_java_library name)
   set(_vtk_java_library_sources)
   set(_vtk_java_library_java_sources)
+  set(_vtk_java_library_link_depends)
   foreach (_vtk_java_module IN LISTS ARGN)
     _vtk_module_get_module_property("${_vtk_java_module}"
       PROPERTY  "exclude_wrap"
@@ -156,10 +157,34 @@ function (_vtk_module_wrap_java_library name)
       ${_vtk_java_sources})
     list(APPEND _vtk_java_library_java_sources
       ${_vtk_java_java_sources})
+
+    _vtk_module_get_module_property("${_vtk_java_module}"
+      PROPERTY  "depends"
+      VARIABLE  _vtk_java_module_depends)
+    foreach (_vtk_java_module_depend IN LISTS _vtk_java_module_depends)
+      _vtk_module_get_module_property("${_vtk_java_module_depend}"
+        PROPERTY  "exclude_wrap"
+        VARIABLE  _vtk_java_module_depend_exclude_wrap)
+      if (_vtk_java_module_depend_exclude_wrap)
+        continue ()
+      endif ()
+
+      _vtk_module_get_module_property("${_vtk_java_module_depend}"
+        PROPERTY  "library_name"
+        VARIABLE  _vtk_java_depend_library_name)
+
+      # XXX(kits): This doesn't work for kits.
+      list(APPEND _vtk_java_library_link_depends
+        "${_vtk_java_depend_library_name}Java")
+    endforeach ()
   endforeach ()
 
   if (NOT _vtk_java_library_sources)
     return ()
+  endif ()
+
+  if (_vtk_java_library_link_depends)
+    list(REMOVE_DUPLICATES _vtk_java_library_link_depends)
   endif ()
 
   set(_vtk_java_target "${name}Java")
@@ -192,6 +217,7 @@ function (_vtk_module_wrap_java_library name)
   target_link_libraries("${_vtk_java_target}"
     PRIVATE
       ${ARGN}
+      ${_vtk_java_library_link_depends}
       VTK::Java)
 endfunction ()
 
