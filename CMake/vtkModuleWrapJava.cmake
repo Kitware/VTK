@@ -51,7 +51,8 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
     else ()
       message(FATAL_ERROR
         "The ${module} hierarchy file is attached to a non-imported target "
-        "and a hierarchy target is missing.")
+        "and a hierarchy target (${_vtk_java_target_name}-hierarchy) is "
+        "missing.")
     endif ()
   endif ()
 
