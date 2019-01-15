@@ -108,7 +108,7 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
         VTK::ParseJava
         "${_vtk_java_header}"
         "${_vtk_java_args_file}"
-        "${_vtk_java_hierarchy_file}")
+        "${_vtk_java_command_depend}")
   endforeach ()
 
   set("${sources}"
