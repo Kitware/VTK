@@ -8,6 +8,7 @@ IMPLEMENTS
   VTK::IOExport
 DEPENDS
   VTK::IOExport
+  VTK::RenderingContext2D
 PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::ImagingCore
