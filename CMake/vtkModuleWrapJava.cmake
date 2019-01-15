@@ -68,8 +68,16 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
     list(APPEND _vtk_java_classes
       "${_vtk_java_basename}")
 
+    # The vtkWrapJava tool has special logic for the `vtkRenderWindow` class.
+    # This extra logic requires its wrappers to be compiled as ObjC++ code
+    # instead.
+    set(_vtk_java_ext "cxx")
+    if (APPLE AND _vtk_java_basename STREQUAL "vtkRenderWindow")
+      set(_vtk_java_ext "mm")
+    endif ()
+
     set(_vtk_java_source_output
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_basename}Java.cxx")
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_basename}Java.${_vtk_java_ext}")
     list(APPEND _vtk_java_sources
       "${_vtk_java_source_output}")
 
