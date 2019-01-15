@@ -322,18 +322,27 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
   if (this->GetCoordShiftAndScaleMethod() ==
       vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
   {
+    // first compute the diagonal size and distance from origin for this data
+    // we use squared values to avoid sqrt calls
+    double diag2 = 0.0;
+    double dist2 = 0.0;
     for (int i = 0; i < array->GetNumberOfComponents(); ++i)
     {
       double range[2];
       array->GetRange(range, i);
-      double dshift = 0.5 * (range[1] + range[0]);
       double delta = range[1] - range[0];
-      if (delta > 0 && (
-        fabs(dshift) / delta > 1.0e3 || fabs(log10(delta)) > 3.0))
-      {
-        useSS = true;
-        break;
-      }
+      diag2 += (delta*delta);
+      double dshift = 0.5 * (range[1] + range[0]);
+      dist2 += (dshift*dshift);
+    }
+    // if the data is far from the origin relative to it's size
+    // or if the size itself is huge when not far from the origin
+    // or if it is a point, but far from the origin
+    if ((diag2 > 0 &&
+          (fabs(dist2) / diag2 > 1.0e6 || fabs(log10(diag2)) > 3.0))
+        || (diag2 == 0 && dist2 > 1.0e6))
+    {
+      useSS = true;
     }
   }
   if (useSS ||
