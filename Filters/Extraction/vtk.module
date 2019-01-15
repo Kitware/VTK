@@ -9,10 +9,10 @@ KIT
 GROUPS
   StandAlone
 DEPENDS
+  VTK::CommonCore
   VTK::CommonExecutionModel
   VTK::FiltersGeneral
 PRIVATE_DEPENDS
-  VTK::CommonCore
   VTK::CommonDataModel
   VTK::FiltersCore
   VTK::FiltersStatistics

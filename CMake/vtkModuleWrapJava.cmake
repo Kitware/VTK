@@ -51,7 +51,8 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
     else ()
       message(FATAL_ERROR
         "The ${module} hierarchy file is attached to a non-imported target "
-        "and a hierarchy target is missing.")
+        "and a hierarchy target (${_vtk_java_target_name}-hierarchy) is "
+        "missing.")
     endif ()
   endif ()
 
@@ -67,8 +68,16 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
     list(APPEND _vtk_java_classes
       "${_vtk_java_basename}")
 
+    # The vtkWrapJava tool has special logic for the `vtkRenderWindow` class.
+    # This extra logic requires its wrappers to be compiled as ObjC++ code
+    # instead.
+    set(_vtk_java_ext "cxx")
+    if (APPLE AND _vtk_java_basename STREQUAL "vtkRenderWindow")
+      set(_vtk_java_ext "mm")
+    endif ()
+
     set(_vtk_java_source_output
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_basename}Java.cxx")
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_basename}Java.${_vtk_java_ext}")
     list(APPEND _vtk_java_sources
       "${_vtk_java_source_output}")
 
@@ -107,7 +116,7 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
         VTK::ParseJava
         "${_vtk_java_header}"
         "${_vtk_java_args_file}"
-        "${_vtk_java_hierarchy_file}")
+        "${_vtk_java_command_depend}")
   endforeach ()
 
   set("${sources}"
@@ -139,6 +148,7 @@ The remaining information it uses is assumed to be provided by the
 function (_vtk_module_wrap_java_library name)
   set(_vtk_java_library_sources)
   set(_vtk_java_library_java_sources)
+  set(_vtk_java_library_link_depends)
   foreach (_vtk_java_module IN LISTS ARGN)
     _vtk_module_get_module_property("${_vtk_java_module}"
       PROPERTY  "exclude_wrap"
@@ -155,10 +165,34 @@ function (_vtk_module_wrap_java_library name)
       ${_vtk_java_sources})
     list(APPEND _vtk_java_library_java_sources
       ${_vtk_java_java_sources})
+
+    _vtk_module_get_module_property("${_vtk_java_module}"
+      PROPERTY  "depends"
+      VARIABLE  _vtk_java_module_depends)
+    foreach (_vtk_java_module_depend IN LISTS _vtk_java_module_depends)
+      _vtk_module_get_module_property("${_vtk_java_module_depend}"
+        PROPERTY  "exclude_wrap"
+        VARIABLE  _vtk_java_module_depend_exclude_wrap)
+      if (_vtk_java_module_depend_exclude_wrap)
+        continue ()
+      endif ()
+
+      _vtk_module_get_module_property("${_vtk_java_module_depend}"
+        PROPERTY  "library_name"
+        VARIABLE  _vtk_java_depend_library_name)
+
+      # XXX(kits): This doesn't work for kits.
+      list(APPEND _vtk_java_library_link_depends
+        "${_vtk_java_depend_library_name}Java")
+    endforeach ()
   endforeach ()
 
   if (NOT _vtk_java_library_sources)
     return ()
+  endif ()
+
+  if (_vtk_java_library_link_depends)
+    list(REMOVE_DUPLICATES _vtk_java_library_link_depends)
   endif ()
 
   set(_vtk_java_target "${name}Java")
@@ -175,14 +209,19 @@ function (_vtk_module_wrap_java_library name)
       PROPERTY
         PREFIX "")
   endif ()
-  if (APPLE)
-    set_property(TARGET "${_vtk_java_target}"
-      PROPERTY
-        SUFFIX ".jnilib")
-  endif ()
   set_property(TARGET "${_vtk_java_target}"
     PROPERTY
       "_vtk_module_java_files" "${_vtk_java_library_java_sources}")
+
+  if (APPLE)
+    add_custom_command(
+      TARGET  "${_vtk_java_target}"
+      POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E create_symlink
+              "$<TARGET_FILE_NAME:${_vtk_java_target}>"
+              "$<TARGET_FILE_DIR:${_vtk_java_target}>/$<TARGET_PROPERTY:${_vtk_java_target},PREFIX>${_vtk_java_target}.jnilib"
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+  endif ()
 
   vtk_module_autoinit(
     MODULES ${ARGN}
@@ -191,6 +230,7 @@ function (_vtk_module_wrap_java_library name)
   target_link_libraries("${_vtk_java_target}"
     PRIVATE
       ${ARGN}
+      ${_vtk_java_library_link_depends}
       VTK::Java)
 endfunction ()
 
