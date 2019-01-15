@@ -29,12 +29,6 @@ configure_file(
   "${vtk_cmake_build_dir}/vtk-config.cmake"
   @ONLY)
 
-# For convenience, a file is written to the top of the build tree. At some
-# point, this should probably be deprecated and warn when it is used.
-file(GENERATE
-  OUTPUT  "${CMAKE_BINARY_DIR}/vtk-config.cmake"
-  CONTENT "include(\"${vtk_cmake_build_dir}/vtk-config.cmake\")\n")
-
 option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
 mark_as_advanced(VTK_RELOCATABLE_INSTALL)
 if (VTK_RELOCATABLE_INSTALL)
@@ -50,6 +44,16 @@ include(CMakePackageConfigHelpers)
 write_basic_package_version_file("${vtk_cmake_build_dir}/vtk-config-version.cmake"
   VERSION "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}"
   COMPATIBILITY SameMinorVersion)
+
+# For convenience, a package is written to the top of the build tree. At some
+# point, this should probably be deprecated and warn when it is used.
+file(GENERATE
+  OUTPUT  "${CMAKE_BINARY_DIR}/vtk-config.cmake"
+  CONTENT "include(\"${vtk_cmake_build_dir}/vtk-config.cmake\")\n")
+configure_file(
+  "${vtk_cmake_build_dir}/vtk-config-version.cmake"
+  "${CMAKE_BINARY_DIR}/vtk-config-version.cmake"
+  COPYONLY)
 
 set(vtk_cmake_module_files
   FindADIOS1.cmake
