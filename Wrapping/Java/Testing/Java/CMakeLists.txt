@@ -22,6 +22,12 @@ foreach (java_test IN LISTS java_test_names)
     "${vtk_java_class_output}/vtk/test/${java_test}.class")
 endforeach ()
 
+if (CMAKE_GENERATOR MATCHES "Ninja")
+  set(vtk_jar_depends "${vtk_jar_file}")
+else ()
+  set(vtk_jar_depends "vtkjava")
+endif ()
+
 # Compile Java Tests
 add_custom_command(
   OUTPUT  ${java_test_classes}
@@ -31,7 +37,7 @@ add_custom_command(
           -target "${VTK_JAVA_TARGET_VERSION}"
           -d "${vtk_java_class_output}"
           ${java_test_files}
-  DEPENDS "${vtk_jar_file}"
+  DEPENDS "${vtk_jar_depends}"
           ${java_test_files}
   COMMENT "Compiling Java Tests")
 add_custom_target(vtkJavaTests ALL
