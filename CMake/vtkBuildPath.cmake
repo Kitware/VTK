@@ -49,7 +49,7 @@ string(REPLACE "xxx_path_var" "${PATH_VARIABLE}" PATH_LINES "${PATH_TEMP}")
 if(VTK_WRAP_PYTHON)
   # FOR THE PYTHONPATH VARIABLE, if PYTHON is wrapped
   # replace the path to the python-specific files
-  string(REPLACE "xxx_add_path" "${VTK_BUILD_PYTHON_MODULES_DIR}" PATH_TEMP "${PATH_FORMAT}")
+  string(REPLACE "xxx_add_path" "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}" PATH_TEMP "${PATH_FORMAT}")
   # replace pathvar by PYTHONPATH
   string(REPLACE "xxx_path_var" "PYTHONPATH" PATH_TEMP "${PATH_TEMP}")
   # apped the line to the file
