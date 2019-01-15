@@ -209,14 +209,19 @@ function (_vtk_module_wrap_java_library name)
       PROPERTY
         PREFIX "")
   endif ()
-  if (APPLE)
-    set_property(TARGET "${_vtk_java_target}"
-      PROPERTY
-        SUFFIX ".jnilib")
-  endif ()
   set_property(TARGET "${_vtk_java_target}"
     PROPERTY
       "_vtk_module_java_files" "${_vtk_java_library_java_sources}")
+
+  if (APPLE)
+    add_custom_command(
+      TARGET  "${_vtk_java_target}"
+      POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E create_symlink
+              "$<TARGET_FILE_NAME:${_vtk_java_target}>"
+              "$<TARGET_FILE_DIR:${_vtk_java_target}>/$<TARGET_PROPERTY:${_vtk_java_target},PREFIX>${_vtk_java_target}.jnilib"
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+  endif ()
 
   vtk_module_autoinit(
     MODULES ${ARGN}
