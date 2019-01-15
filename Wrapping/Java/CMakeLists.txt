@@ -92,6 +92,7 @@ endif ()
 
 set(vtk_java_class_output
   "${CMAKE_CURRENT_BINARY_DIR}/class")
+file(MAKE_DIRECTORY "${vtk_java_class_output}")
 
 set(java_input_files)
 set(java_class_files)

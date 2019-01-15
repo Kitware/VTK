@@ -12,6 +12,7 @@ set(java_test_names
 
 set(vtk_java_class_output
   "${CMAKE_CURRENT_BINARY_DIR}/class")
+file(MAKE_DIRECTORY "${vtk_java_class_output}")
 
 set(java_test_files)
 set(java_test_classes)
