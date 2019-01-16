@@ -96,11 +96,6 @@ add_definitions(-DVTK_IN_VTK)
 
 include(CheckTypeSize)
 
-# Kits bundle multiple modules together into a single library, this
-# is used to dramatically reduce the number of generated libraries.
-option(VTK_ENABLE_KITS "Build VTK using kits instead of modules." OFF)
-mark_as_advanced(VTK_ENABLE_KITS)
-
 option(VTK_USE_MPI "Support MPI" OFF)
 
 set(VTK_BUILD_TESTING "WANT"
