@@ -146,7 +146,7 @@ int vtkTemporalSphereSource::RequestData(
     this->ActualTimeStep = std::find_if(
       this->TimeStepValues.begin(),
       this->TimeStepValues.end(),
-      std::bind2nd( vtkTestTemporalCacheSimpleWithinTolerance( ), requestedTimeValue ))
+      std::bind( vtkTestTemporalCacheSimpleWithinTolerance( ), std::placeholders::_1, requestedTimeValue ))
       - this->TimeStepValues.begin();
     this->ActualTimeStep = this->ActualTimeStep + this->TimeStepRange[0];
   }

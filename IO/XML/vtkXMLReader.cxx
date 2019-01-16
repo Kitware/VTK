@@ -52,6 +52,7 @@
 #include <locale> // C++ locale
 #include <sstream>
 #include <vector>
+#include <cctype>
 
 vtkCxxSetObjectMacro(vtkXMLReader,ReaderErrorObserver,vtkCommand);
 vtkCxxSetObjectMacro(vtkXMLReader,ParserErrorObserver,vtkCommand);
@@ -1021,17 +1022,17 @@ namespace {
 
 void ltrim(std::string &s)
 {
-  s.erase(s.begin(),
-          std::find_if(s.begin(),
-                       s.end(),
-                       std::not1(std::ptr_fun<int, int>(isspace))));
+    s.erase(s.begin(),
+            std::find_if(s.begin(),
+                         s.end(),
+                         [] (int ch) { return !std::isspace(ch); }));
 }
 
 void rtrim(std::string &s)
 {
   s.erase(std::find_if(s.rbegin(),
                        s.rend(),
-                       std::not1(std::ptr_fun<int, int>(isspace))).base(),
+                       [] (int ch) { return !std::isspace(ch); }).base(),
           s.end());
 }
 
