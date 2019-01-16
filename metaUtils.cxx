@@ -29,9 +29,9 @@ inline bool IsBlank(int c)
 #include "metaUtils.h"
 
 #include <cassert>
-#include <stdio.h>
-#include <ctype.h>
-#include <stddef.h>
+#include <cctype>
+#include <cstddef>
+#include <cstdio>
 
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -45,9 +45,9 @@ inline bool IsBlank(int c)
 #endif
 
 #include <algorithm>
+#include <cstdlib>
+#include <cstring>
 #include <limits>
-#include <stdlib.h>
-#include <string.h>
 #include <string>
 
 #if defined (__BORLANDC__) && (__BORLANDC__ >= 0x0580)
@@ -76,7 +76,7 @@ MET_GetFieldRecord(const char * _fieldName,
       return *fieldIter;
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -116,7 +116,7 @@ bool MET_SizeOfType(MET_ValueEnumType _vType, int *s)
 //
 //
 //
-bool MET_SystemByteOrderMSB(void)
+bool MET_SystemByteOrderMSB()
   {
   const int l = 1;
   const char * u = (const char *) & l;
@@ -125,7 +125,7 @@ bool MET_SystemByteOrderMSB(void)
     {
     return false;
     }
-   else
+  else
     {
     return true;
     }
@@ -205,7 +205,7 @@ char* MET_ReadSubType(METAIO_STREAM::istream &_fp)
   char s[1024];
   _fp.getline( s, 500 );
   METAIO_STL::string value = s;
-  size_t position = value.find("=");
+  size_t position = value.find('=');
   if(position!=METAIO_STL::string::npos)
     {
     value = value.substr(position+2,value.size()-position);
@@ -519,12 +519,12 @@ METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
 
   // Allocate the stream if necessary
   z_stream* d_stream = compressionTable->compressedStream;
-  if(compressionTable->compressedStream == NULL)
+  if(compressionTable->compressedStream == nullptr)
     {
     d_stream = new z_stream;
-    d_stream->zalloc = (alloc_func)0;
-    d_stream->zfree = (free_func)0;
-    d_stream->opaque = (voidpf)0;
+    d_stream->zalloc = (alloc_func)nullptr;
+    d_stream->zfree = (free_func)nullptr;
+    d_stream->opaque = (voidpf)nullptr;
     inflateInit2(d_stream,47); // allow both gzip and zlib compression headers
     compressionTable->compressedStream = d_stream;
     compressionTable->buffer = new char[1001];
@@ -697,9 +697,9 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
   {
 
   z_stream  z;
-  z.zalloc  = (alloc_func)0;
-  z.zfree   = (free_func)0;
-  z.opaque  = (voidpf)0;
+  z.zalloc  = (alloc_func)nullptr;
+  z.zfree   = (free_func)nullptr;
+  z.opaque  = (voidpf)nullptr;
 
   // Compression rate
   // Choices are Z_BEST_SPEED,Z_BEST_COMPRESSION,Z_DEFAULT_COMPRESSION
@@ -766,9 +766,9 @@ bool MET_PerformUncompression(const unsigned char * sourceCompressed,
   {
   z_stream d_stream;
 
-  d_stream.zalloc = (alloc_func)0;
-  d_stream.zfree = (free_func)0;
-  d_stream.opaque = (voidpf)0;
+  d_stream.zalloc = (alloc_func)nullptr;
+  d_stream.zfree = (free_func)nullptr;
+  d_stream.opaque = (voidpf)nullptr;
 
   inflateInit2(&d_stream,47); // allow both gzip and zlib compression headers
 
@@ -1260,7 +1260,7 @@ bool MET_Read(METAIO_STREAM::istream &fp,
       }
     if(!found)
       {
-      if( newFields != NULL )
+      if( newFields != nullptr )
         {
         MET_SkipToVal(fp);
         if(fp.eof())
@@ -1583,7 +1583,7 @@ bool MET_WriteFieldToFile(METAIO_STREAM::ostream & _fp, const char *_fieldName,
   size_t i;
   MET_FieldRecordType f;
 
-  sprintf(f.name, "%s", _fieldName);
+  snprintf(f.name, sizeof(f.name), "%s", _fieldName);
   f.defined = false;
   f.dependsOn = -1;
   f.length = static_cast<int>(_n);
@@ -1711,7 +1711,7 @@ bool MET_WriteFieldToFile(METAIO_STREAM::ostream & _fp, const char *_fieldName,
   {
   MET_FieldRecordType f;
 
-  sprintf(f.name, "%s", _fieldName);
+  snprintf(f.name, sizeof(f.name), "%s", _fieldName);
   f.defined = false;
   f.dependsOn = -1;
   f.length = 1;

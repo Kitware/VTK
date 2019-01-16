@@ -9,7 +9,7 @@
   implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the License for more information.
 ============================================================================*/
-#include <stdio.h>
+#include <cstdio>
 
 #ifdef _MSC_VER
 #pragma warning(disable:4702)
@@ -18,7 +18,7 @@
 
 
 #include "metaImageUtils.h"
-#include <string.h>
+#include <cstring>
 
 #if (METAIO_USE_NAMESPACE)
 namespace METAIO_NAMESPACE {

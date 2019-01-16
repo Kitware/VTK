@@ -15,10 +15,10 @@
 #pragma warning(disable:4702)
 #endif
 
-#include <stdio.h>
-#include <ctype.h>
+#include <cctype>
+#include <cstdio>
+#include <cstring> // for memset
 #include <string>
-#include <string.h> // for memset
 
 #if defined (__BORLANDC__) && (__BORLANDC__ >= 0x0580)
 #include <mem.h>
@@ -129,14 +129,14 @@ Radius(float r1,float r2, float r3)
 }
 
 const float*  MetaEllipse::
-Radius(void) const
+Radius() const
 {
   return m_Radius;
 }
 
 /** Clear ellipse information */
 void MetaEllipse::
-Clear(void)
+Clear()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaEllipse: Clear" << METAIO_STREAM::endl;
   MetaObject::Clear();
@@ -150,14 +150,14 @@ Clear(void)
 
 /** Destroy ellipse information */
 void MetaEllipse::
-M_Destroy(void)
+M_Destroy()
 {
   MetaObject::M_Destroy();
 }
 
 /** Set Read fields */
 void MetaEllipse::
-M_SetupReadFields(void)
+M_SetupReadFields()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaEllipse: M_SetupReadFields" << METAIO_STREAM::endl;
 
@@ -175,7 +175,7 @@ M_SetupReadFields(void)
 }
 
 void MetaEllipse::
-M_SetupWriteFields(void)
+M_SetupWriteFields()
 {
   strcpy(m_ObjectTypeName,"Ellipse");
   MetaObject::M_SetupWriteFields();
@@ -189,7 +189,7 @@ M_SetupWriteFields(void)
 
 
 bool MetaEllipse::
-M_Read(void)
+M_Read()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaEllipse: M_Read: Loading Header" << METAIO_STREAM::endl;
 

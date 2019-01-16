@@ -104,13 +104,13 @@ class METAIO_EXPORT MetaImage : public MetaObject
               int _elementNumberOfChannels=1,
               void *_elementData=NULL);
 
-    ~MetaImage(void) MET_OVERRIDE;
+    ~MetaImage(void) override;
 
-    void PrintInfo(void) const MET_OVERRIDE;
+    void PrintInfo(void) const override;
 
-    void CopyInfo(const MetaObject * _object) MET_OVERRIDE;
+    void CopyInfo(const MetaObject * _object) override;
 
-    void Clear(void) MET_OVERRIDE;
+    void Clear(void) override;
 
     // Legacy for floating point elementSpacing
     bool InitializeEssential(int _nDims,
@@ -298,7 +298,7 @@ class METAIO_EXPORT MetaImage : public MetaObject
                              const void * _constElementData=NULL);
 
 
-    bool Append(const char *_headName=NULL) MET_OVERRIDE;
+    bool Append(const char *_headName=NULL) override;
 
 
     typedef METAIO_STL::pair<long,long> CompressionOffsetType;
@@ -344,13 +344,13 @@ class METAIO_EXPORT MetaImage : public MetaObject
     char               m_ElementDataFileName[255];
 
 
-    void  M_Destroy(void) MET_OVERRIDE;
+    void  M_Destroy(void) override;
 
-    void  M_SetupReadFields(void) MET_OVERRIDE;
+    void  M_SetupReadFields(void) override;
 
-    void  M_SetupWriteFields(void) MET_OVERRIDE;
+    void  M_SetupWriteFields(void) override;
 
-    bool  M_Read(void) MET_OVERRIDE;
+    bool  M_Read(void) override;
 
     // _dataQuantity is expressed in number of pixels. Internally it will be
     // scaled by the number of components and number of bytes per component.

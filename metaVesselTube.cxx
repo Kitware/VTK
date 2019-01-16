@@ -16,8 +16,8 @@
 
 #include "metaVesselTube.h"
 
-#include <stdio.h>
-#include <ctype.h>
+#include <cctype>
+#include <cstdio>
 #include <string>
 
 
@@ -170,7 +170,7 @@ PointDim(const char* pointDim)
 }
 
 const char* MetaVesselTube::
-PointDim(void) const
+PointDim() const
 {
   return m_PointDim;
 }
@@ -182,7 +182,7 @@ NPoints(int npnt)
 }
 
 int MetaVesselTube::
-NPoints(void) const
+NPoints() const
 {
   return m_NPoints;
 }
@@ -194,7 +194,7 @@ Root(bool root)
 }
 
 bool MetaVesselTube::
-Root(void) const
+Root() const
 {
   return m_Root;
 }
@@ -207,7 +207,7 @@ Artery(bool artery)
 }
 
 bool MetaVesselTube::
-Artery(void) const
+Artery() const
 {
   return m_Artery;
 }
@@ -220,14 +220,14 @@ ParentPoint(int parentpoint)
 }
 
 int MetaVesselTube::
-ParentPoint(void) const
+ParentPoint() const
 {
   return m_ParentPoint;
 }
 
 /** Clear VesselTube information */
 void MetaVesselTube::
-Clear(void)
+Clear()
 {
   if(META_DEBUG)
     {
@@ -254,14 +254,14 @@ Clear(void)
 
 /** Destroy VesselTube information */
 void MetaVesselTube::
-M_Destroy(void)
+M_Destroy()
 {
   MetaObject::M_Destroy();
 }
 
 /** Set Read fields */
 void MetaVesselTube::
-M_SetupReadFields(void)
+M_SetupReadFields()
 {
   if(META_DEBUG)
     {
@@ -303,7 +303,7 @@ M_SetupReadFields(void)
 }
 
 void MetaVesselTube::
-M_SetupWriteFields(void)
+M_SetupWriteFields()
 {
   strcpy(m_ObjectTypeName,"Tube");
   strcpy(m_ObjectSubTypeName,"Vessel");
@@ -366,7 +366,7 @@ M_SetupWriteFields(void)
 
 
 bool MetaVesselTube::
-M_Read(void)
+M_Read()
 {
   if(META_DEBUG)
     {
@@ -468,7 +468,7 @@ M_Read(void)
   int posID = -1;
 
   int pntDim;
-  char** pntVal = NULL;
+  char** pntVal = nullptr;
   MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
 
   if(META_DEBUG)
@@ -965,7 +965,7 @@ M_Read(void)
 }
 
 MET_ValueEnumType MetaVesselTube::
-ElementType(void) const
+ElementType() const
 {
   return m_ElementType;
 }
@@ -977,7 +977,7 @@ ElementType(MET_ValueEnumType _elementType)
 }
 
 bool MetaVesselTube::
-M_Write(void)
+M_Write()
 {
 
   if(!MetaObject::M_Write())

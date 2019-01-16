@@ -16,8 +16,8 @@
 
 #include "metaTube.h"
 
-#include <stdio.h>
-#include <ctype.h>
+#include <cctype>
+#include <cstdio>
 #include <string>
 
 #if (METAIO_USE_NAMESPACE)
@@ -147,7 +147,7 @@ PointDim(const char* pointDim)
 }
 
 const char* MetaTube::
-PointDim(void) const
+PointDim() const
 {
   return m_PointDim;
 }
@@ -159,7 +159,7 @@ NPoints(int npnt)
 }
 
 int MetaTube::
-NPoints(void) const
+NPoints() const
 {
   return m_NPoints;
 }
@@ -171,7 +171,7 @@ Root(bool root)
 }
 
 bool MetaTube::
-Root(void) const
+Root() const
 {
   return m_Root;
 }
@@ -184,14 +184,14 @@ ParentPoint(int parentpoint)
 }
 
 int MetaTube::
-ParentPoint(void) const
+ParentPoint() const
 {
   return m_ParentPoint;
 }
 
 /** Clear tube information */
 void MetaTube::
-Clear(void)
+Clear()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaTube: Clear" << METAIO_STREAM::endl;
   MetaObject::Clear();
@@ -214,14 +214,14 @@ Clear(void)
 
 /** Destroy tube information */
 void MetaTube::
-M_Destroy(void)
+M_Destroy()
 {
   MetaObject::M_Destroy();
 }
 
 /** Set Read fields */
 void MetaTube::
-M_SetupReadFields(void)
+M_SetupReadFields()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaTube: M_SetupReadFields" << METAIO_STREAM::endl;
 
@@ -255,7 +255,7 @@ M_SetupReadFields(void)
 }
 
 void MetaTube::
-M_SetupWriteFields(void)
+M_SetupWriteFields()
 {
   strcpy(m_ObjectTypeName,"Tube");
   MetaObject::M_SetupWriteFields();
@@ -304,7 +304,7 @@ M_SetupWriteFields(void)
 
 
 bool MetaTube::
-M_Read(void)
+M_Read()
 {
   if(META_DEBUG)
     {
@@ -382,7 +382,7 @@ M_Read(void)
   int posID = -1;
 
   int pntDim;
-  char** pntVal = NULL;
+  char** pntVal = nullptr;
   MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
 
   if(META_DEBUG)
@@ -719,7 +719,7 @@ M_Read(void)
 }
 
 MET_ValueEnumType MetaTube::
-ElementType(void) const
+ElementType() const
 {
   return m_ElementType;
 }
@@ -731,7 +731,7 @@ ElementType(MET_ValueEnumType _elementType)
 }
 
 bool MetaTube::
-M_Write(void)
+M_Write()
 {
 
   if(!MetaObject::M_Write())
