@@ -33,6 +33,8 @@
 #include "vtkSimpleReader.h"
 #include "vtkStdString.h" // For API using strings
 
+#include <locale> // For locale settings
+
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
@@ -553,6 +555,8 @@ protected:
   vtkTypeBool ReadAllFields;
   int FileMajorVersion;
   int FileMinorVersion;
+
+  std::locale CurrentLocale;
 
   void InitializeCharacteristics();
   int CharacterizeFile(); //read entire file, storing important characteristics
