@@ -94,6 +94,11 @@ public:
    */
   void SetSize(int,int) override;
   void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
+  /**
+   * Specify the size of the rendering window in pixels but do not resize
+   * the XWindow. Useful when resizing is done interactively.
+   */
+  void SetSizeNoXResize(int,int);
 
   //@{
   /**

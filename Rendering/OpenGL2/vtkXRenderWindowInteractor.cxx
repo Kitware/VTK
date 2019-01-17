@@ -36,6 +36,13 @@
 
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
+template<int EventType>
+int XEventTypeEquals (Display*, XEvent* event, XPointer)
+{
+  return event->type == EventType;
+}
+
+
 // Map between the X native id to our own integer count id.  Note this
 // is separate from the TimerMap in the vtkRenderWindowInteractor
 // superclass.  This is used to avoid passing 64-bit values back
@@ -367,11 +374,16 @@ void vtkXRenderWindowInteractor::Initialize()
       XMapWindow(this->DisplayId, XtWindow(this->Top));
     }
     XSync(this->DisplayId,False);
+
+    if (ren->GetShowWindow())
+    {
+      // Wait for the MapNotify event
+      XEvent e;
+      XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>, nullptr);
+    }
   }
   else
   {
-    XWindowAttributes attribs;
-
     XtRealizeWidget(this->Top);
     XSync(this->DisplayId,False);
     ren->SetWindowId(XtWindow(this->Top));
@@ -381,14 +393,15 @@ void vtkXRenderWindowInteractor::Initialize()
       XMapWindow(this->DisplayId, XtWindow(this->Top));
     }
     XSync(this->DisplayId,False);
-
-    //  Find the current window size
-    XGetWindowAttributes(this->DisplayId,
-                         XtWindow(this->Top), &attribs);
-    size[0] = attribs.width;
-    size[1] = attribs.height;
-    ren->SetSize(size[0], size[1]);
   }
+  XWindowAttributes attribs;
+  //  Find the current window size
+  XGetWindowAttributes(this->DisplayId,
+                       XtWindow(this->Top), &attribs);
+
+  size[0] = attribs.width;
+  size[1] = attribs.height;
+  ren->SetSize(size[0], size[1]);
 
   this->WindowId = XtWindow(this->Top);
 
@@ -501,6 +514,19 @@ void vtkXRenderWindowInteractor::UpdateSize(int x,int y)
     this->RenderWindow->SetSize(x,y);
   }
 }
+
+//-------------------------------------------------------------------------
+void vtkXRenderWindowInteractor::UpdateSizeNoXResize(int x,int y)
+{
+  // if the size changed send this on to the RenderWindow
+  if ((x != this->Size[0])||(y != this->Size[1]))
+  {
+    this->Size[0] = x;
+    this->Size[1] = y;
+    static_cast<vtkXOpenGLRenderWindow *>(this->RenderWindow)->SetSizeNoXResize(x, y);
+  }
+}
+
 
 //-------------------------------------------------------------------------
 void vtkXRenderWindowInteractorTimer(XtPointer client_data,
@@ -617,7 +643,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       if (width != me->Size[0] || height != me->Size[1])
       {
         bool resizeSmaller=width<=me->Size[0] && height<=me->Size[1];
-        me->UpdateSize(width, height);
+        me->UpdateSizeNoXResize(width, height);
         xp = (reinterpret_cast<XButtonEvent*>(event))->x;
         yp = (reinterpret_cast<XButtonEvent*>(event))->y;
         me->SetEventPosition(xp, me->Size[1] - yp - 1);
