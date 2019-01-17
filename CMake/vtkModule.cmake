@@ -2598,9 +2598,9 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_hierar
       CONTENT "")
   endif ()
 
-  get_property(_vtk_hierarchy_headers
-    TARGET    "${_vtk_build_module}"
-    PROPERTY  "INTERFACE_vtk_module_headers")
+  _vtk_module_get_module_property("${_vtk_build_module}"
+    PROPERTY  "headers"
+    VARIABLE  _vtk_hierarchy_headers)
   set(_vtk_hierarchy_data_content "")
   foreach (_vtk_hierarchy_header IN LISTS _vtk_hierarchy_headers)
     string(APPEND _vtk_hierarchy_data_content
