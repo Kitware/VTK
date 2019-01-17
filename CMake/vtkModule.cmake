@@ -2984,7 +2984,7 @@ function (vtk_module_add_module name)
   _vtk_module_standard_includes(
     TARGET  "${_vtk_add_module_real_target}"
     ${_vtk_add_module_includes_interface}
-    HEADERS_DESTINATION "${_vtk_build_headers_destination}")
+    HEADERS_DESTINATION "${_vtk_build_HEADERS_DESTINATION}")
 
   vtk_module_autoinit(
     MODULES ${_vtk_add_module_depends}
@@ -3008,7 +3008,7 @@ function (vtk_module_add_module name)
 
       get_filename_component(_vtk_add_module_header_name "${_vtk_add_module_header}" NAME)
       list(APPEND _vtk_add_module_headers_install
-        "\${_vtk_module_import_prefix}/${_vtk_build_headers_destination}/${_vtk_add_module_header_name}")
+        "\${_vtk_module_import_prefix}/${_vtk_build_HEADERS_DESTINATION}/${_vtk_add_module_header_name}")
     endforeach ()
 
     set_property(TARGET "${_vtk_add_module_real_target}"
