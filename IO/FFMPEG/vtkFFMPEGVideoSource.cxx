@@ -534,7 +534,25 @@ void *vtkFFMPEGVideoSource::Drain(vtkMultiThreader::ThreadInfo *data)
     if (ret == 0)
     {
       vtkThreadSleep(startTime + frame/rate);
-      this->InternalGrab();
+      if (this->VideoCallback)
+      {
+        vtkFFMPEGVideoSourceVideoCallbackData cbd;
+        cbd.Height = this->Internal->Frame->height;
+        int p = 0;
+        while (this->Internal->Frame->data[p] != nullptr && p < 8)
+        {
+          cbd.LineSize[p] = this->Internal->Frame->linesize[p];
+          cbd.Data[p] = this->Internal->Frame->data[p];
+          ++p;
+        }
+        cbd.Caller = this;
+        cbd.ClientData = this->VideoCallbackClientData;
+        this->VideoCallback(cbd);
+      }
+      else
+      {
+        this->InternalGrab();
+      }
       frame++;
     }
 
