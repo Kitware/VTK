@@ -2604,7 +2604,7 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_hierar
   set(_vtk_hierarchy_data_content "")
   foreach (_vtk_hierarchy_header IN LISTS _vtk_hierarchy_headers)
     string(APPEND _vtk_hierarchy_data_content
-      "${_vtk_hierarchy_header};${_vtk_build_module}\n")
+      "${_vtk_hierarchy_header};${_vtk_hierarchy_library_name}\n")
   endforeach ()
   file(GENERATE
     OUTPUT  "${_vtk_hierarchy_data_file}"
