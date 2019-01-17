@@ -6,6 +6,7 @@ vtk_add_test_python(
   TestAdaptiveSubdivisionFilter.py
   TestBandedContourFilter.py
   TestBandedContourFilter2.py
+  TestBandedContourFilter3.py
   TestBoxFunction.py
   TestContourLoopExtraction.py
   TestContourLoopExtraction2.py
