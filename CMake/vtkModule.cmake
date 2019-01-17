@@ -2526,7 +2526,7 @@ function (_vtk_module_write_wrap_hierarchy)
   set(_vtk_hierarchy_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_library_name}-hierarchy.data")
   set(_vtk_hierarchy_depends_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_hierarchy_library_name}-hierarchy.depends.args")
 
-  set_property(TARGET "${_vtk_add_module_target_name}"
+  set_property(TARGET "${_vtk_add_module_real_target}"
     PROPERTY
       "INTERFACE_vtk_module_hierarchy" "${_vtk_hierarchy_file}")
 
@@ -2551,7 +2551,7 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_hierar
       PROPERTY  "_vtk_module_${_vtk_build_module}_depends")
   else ()
     get_property(_vtk_hierarchy_depends GLOBAL
-      TARGET    "${_vtk_add_module_target_name}"
+      TARGET    "${_vtk_add_module_real_target}"
       PROPERTY  "INTERFACE_vtk_module_depends")
   endif ()
 
@@ -2633,12 +2633,12 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_hierar
   add_custom_target("${_vtk_add_module_target_name}-hierarchy" ALL
     DEPENDS
       "${_vtk_hierarchy_file}")
-  set_property(TARGET "${_vtk_add_module_target_name}"
+  set_property(TARGET "${_vtk_add_module_real_target}"
     PROPERTY
       "INTERFACE_vtk_module_hierarchy" "${_vtk_hierarchy_file}")
 
   if (_vtk_build_INSTALL_HEADERS)
-    set_property(TARGET "${_vtk_add_module_target_name}"
+    set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_hierarchy_install" "\${_vtk_module_import_prefix}/${_vtk_build_HIERARCHY_DESTINATION}/${_vtk_hierarchy_filename}")
     install(
@@ -3011,11 +3011,11 @@ function (vtk_module_add_module name)
         "\${_vtk_module_import_prefix}/${_vtk_build_headers_destination}/${_vtk_add_module_header_name}")
     endforeach ()
 
-    set_property(TARGET "${_vtk_add_module_target_name}"
+    set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_headers" "${_vtk_add_module_headers_build}")
     if (_vtk_build_INSTALL_HEADERS)
-      set_property(TARGET "${_vtk_add_module_target_name}"
+      set_property(TARGET "${_vtk_add_module_real_target}"
         PROPERTY
           "INTERFACE_vtk_module_headers_install" "${_vtk_add_module_headers_install}")
     endif ()
