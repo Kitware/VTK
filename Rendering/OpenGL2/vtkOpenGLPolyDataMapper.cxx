@@ -1284,19 +1284,24 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       "uniform float ZCalcR;\n"
       );
     vtkShaderProgram::Substitute(FSSource,
+      "//VTK::Depth::Impl",
+      "float xpos = 2.0*gl_PointCoord.x - 1.0;\n"
+      "  float ypos = 1.0 - 2.0*gl_PointCoord.y;\n"
+      "  float len2 = xpos*xpos+ ypos*ypos;\n"
+      "  if (len2 > 1.0) { discard; }\n"
+      "  vec3 normalVCVSOutput = normalize(\n"
+      "    vec3(2.0*gl_PointCoord.x - 1.0, 1.0 - 2.0*gl_PointCoord.y, sqrt(1.0 - len2)));\n"
+      "  gl_FragDepth = gl_FragCoord.z + normalVCVSOutput.z*ZCalcS*ZCalcR;\n"
+      "  if (cameraParallel == 0)\n"
+      "  {\n"
+      "    float ZCalcQ = (normalVCVSOutput.z*ZCalcR - 1.0);\n"
+      "    gl_FragDepth = (ZCalcS - gl_FragCoord.z) / ZCalcQ + ZCalcS;\n"
+      "  }\n"
+      );
+
+    vtkShaderProgram::Substitute(FSSource,
       "//VTK::Normal::Impl",
-
-      " float xpos = 2.0*gl_PointCoord.x - 1.0;\n"
-      " float ypos = 1.0 - 2.0*gl_PointCoord.y;\n"
-      " float len2 = xpos*xpos+ ypos*ypos;\n"
-      " if (len2 > 1.0) { discard; }\n"
-      " vec3 normalVCVSOutput = normalize(\n"
-      "   vec3(2.0*gl_PointCoord.x - 1.0, 1.0 - 2.0*gl_PointCoord.y, sqrt(1.0 - len2)));\n"
-
-      " gl_FragDepth = gl_FragCoord.z + normalVCVSOutput.z*ZCalcS*ZCalcR;\n"
-      " if (cameraParallel == 0) {\n"
-      "  float ZCalcQ = (normalVCVSOutput.z*ZCalcR - 1.0);\n"
-      "  gl_FragDepth = (ZCalcS - gl_FragCoord.z) / ZCalcQ + ZCalcS; }\n"
+      "//Normal computed in Depth::Impl"
       );
 
      shaders[vtkShader::Fragment]->SetSource(FSSource);
@@ -1329,15 +1334,19 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       "uniform float ZCalcR;\n"
       );
     vtkShaderProgram::Substitute(FSSource,
-      "//VTK::Normal::Impl",
-
+      "//VTK::Depth::Impl",
       "float len2 = tubeBasis1.x*tubeBasis1.x + tubeBasis1.y*tubeBasis1.y;\n"
-      "float lenZ = clamp(sqrt(1.0 - len2),0.0,1.0);\n"
+      "  float lenZ = clamp(sqrt(1.0 - len2),0.0,1.0);\n"
+      "  gl_FragDepth = gl_FragCoord.z + lenZ*ZCalcS*ZCalcR/clamp(tubeBasis2.z,0.5,1.0);\n"
+      "  if (cameraParallel == 0)\n"
+      "  {\n"
+      "    float ZCalcQ = (lenZ*ZCalcR/clamp(tubeBasis2.z,0.5,1.0) - 1.0);\n"
+      "    gl_FragDepth = (ZCalcS - gl_FragCoord.z) / ZCalcQ + ZCalcS;\n"
+      "  }\n"
+      );
+    vtkShaderProgram::Substitute(FSSource,
+      "//VTK::Normal::Impl",
       "vec3 normalVCVSOutput = normalize(tubeBasis1 + tubeBasis2*lenZ);\n"
-      " gl_FragDepth = gl_FragCoord.z + lenZ*ZCalcS*ZCalcR/clamp(tubeBasis2.z,0.5,1.0);\n"
-      " if (cameraParallel == 0) {\n"
-      "  float ZCalcQ = (lenZ*ZCalcR/clamp(tubeBasis2.z,0.5,1.0) - 1.0);\n"
-      "  gl_FragDepth = (ZCalcS - gl_FragCoord.z) / ZCalcQ + ZCalcS; }\n"
       );
 
     vtkShaderProgram::Substitute(GSSource,
