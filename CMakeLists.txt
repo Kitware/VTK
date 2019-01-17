@@ -166,6 +166,12 @@ mark_as_advanced(VTK_BUILD_ALL_MODULES)
 set(_vtk_module_group_default_StandAlone "WANT")
 set(_vtk_module_group_default_Rendering "WANT")
 
+set(vtk_enable_tests "${VTK_BUILD_TESTING}")
+if (VTK_FORBID_DOWNLOADS)
+  message(STATUS "Module testing disabled due to `VTK_FORBID_DOWNLOADS` being set.")
+  set(vtk_enable_tests "OFF")
+endif ()
+
 include(vtkModule)
 set(vtk_source_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Accelerators"
@@ -199,7 +205,7 @@ vtk_module_scan(
   REQUIRES_MODULES    vtk_required_modules
   UNRECOGNIZED_MODULES vtk_unrecognized_modules
   WANT_BY_DEFAULT     "${VTK_BUILD_ALL_MODULES}"
-  ENABLE_TESTS        "${VTK_BUILD_TESTING}")
+  ENABLE_TESTS        "${vtk_enable_tests}")
 
 if (vtk_required_modules OR vtk_unrecognized_modules)
   message(FATAL_ERROR
