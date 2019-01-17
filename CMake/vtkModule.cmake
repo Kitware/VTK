@@ -2873,6 +2873,9 @@ function (vtk_module_add_module name)
 
   get_property(_vtk_add_module_depends GLOBAL
     PROPERTY  "_vtk_module_${_vtk_build_module}_depends")
+  set_property(TARGET "${_vtk_add_module_real_target}"
+    PROPERTY
+      "INTERFACE_vtk_module_depends" "${_vtk_add_module_depends}")
   set(_vtk_add_module_includes_interface)
   if (_vtk_add_module_HEADER_ONLY)
     target_link_libraries("${_vtk_add_module_real_target}"
