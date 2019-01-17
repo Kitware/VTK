@@ -32,6 +32,8 @@
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkWriter.h"
 
+#include <locale> // For locale settings
+
 class vtkCellArray;
 class vtkDataArray;
 class vtkDataSet;
@@ -314,6 +316,8 @@ protected:
   char* GlobalIdsName;
   char* PedigreeIdsName;
   char* EdgeFlagsName;
+
+  std::locale CurrentLocale;
 
   int WriteArray(ostream *fp, int dataType, vtkAbstractArray *data, const char *format,
                  vtkIdType num, vtkIdType numComp);
