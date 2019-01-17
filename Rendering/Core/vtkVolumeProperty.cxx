@@ -163,6 +163,9 @@ void vtkVolumeProperty::UpdateMTimes()
     this->GradientOpacityMTime[i].Modified();
     this->TransferFunction2DMTime[i].Modified();
   }
+  this->LabelColorMTime.Modified();
+  this->LabelScalarOpacityMTime.Modified();
+  this->LabelGradientOpacityMTime.Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -241,6 +244,15 @@ vtkMTimeType vtkVolumeProperty::GetMTime()
   }
 
   time = this->IsoSurfaceValues->GetMTime();
+  mTime = vtkMath::Max(mTime, time);
+
+  time = this->LabelColorMTime;
+  mTime = vtkMath::Max(mTime, time);
+
+  time = this->LabelScalarOpacityMTime;
+  mTime = vtkMath::Max(mTime, time);
+
+  time = this->LabelGradientOpacityMTime;
   mTime = vtkMath::Max(mTime, time);
 
   return mTime;
@@ -736,6 +748,108 @@ vtkContourValues* vtkVolumeProperty::GetIsoSurfaceValues()
 }
 
 //-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetLabelColor(int label,
+                                      vtkColorTransferFunction* color)
+{
+  if (this->LabelColor.count(label))
+  {
+    if (this->LabelColor[label] == color)
+    {
+      return;
+    }
+    if (this->LabelColor[label] != nullptr)
+    {
+      this->LabelColor[label]->UnRegister(this);
+    }
+  }
+  this->LabelColor[label] = color;
+  if (this->LabelColor[label] != nullptr)
+  {
+    this->LabelColor[label]->Register(this);
+  }
+  this->LabelColorMTime.Modified();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkColorTransferFunction* vtkVolumeProperty::GetLabelColor(int label)
+{
+  if (this->LabelColor.count(label) == 0)
+  {
+    return nullptr;
+  }
+  return this->LabelColor[label];
+}
+
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetLabelScalarOpacity(int label,
+                                              vtkPiecewiseFunction* function)
+{
+  if (this->LabelScalarOpacity.count(label))
+  {
+    if (this->LabelScalarOpacity[label] == function)
+    {
+      return;
+    }
+    if (this->LabelScalarOpacity[label] != nullptr)
+    {
+      this->LabelScalarOpacity[label]->UnRegister(this);
+    }
+  }
+  this->LabelScalarOpacity[label] = function;
+  if (this->LabelScalarOpacity[label] != nullptr)
+  {
+    this->LabelScalarOpacity[label]->Register(this);
+  }
+  this->LabelScalarOpacityMTime.Modified();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkVolumeProperty::GetLabelScalarOpacity(int label)
+{
+  if (this->LabelScalarOpacity.count(label) == 0)
+  {
+    return nullptr;
+  }
+  return this->LabelScalarOpacity[label];
+}
+
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetLabelGradientOpacity(int label,
+                                                vtkPiecewiseFunction* function)
+{
+  if (this->LabelGradientOpacity.count(label))
+  {
+    if (this->LabelGradientOpacity[label] == function)
+    {
+      return;
+    }
+    if (this->LabelGradientOpacity[label] != nullptr)
+    {
+      this->LabelGradientOpacity[label]->UnRegister(this);
+    }
+  }
+  this->LabelGradientOpacity[label] = function;
+  if (this->LabelGradientOpacity[label] != nullptr)
+  {
+    this->LabelGradientOpacity[label]->Register(this);
+  }
+  this->LabelGradientOpacityMTime.Modified();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkVolumeProperty::GetLabelGradientOpacity(int label)
+{
+  if (this->LabelGradientOpacity.count(label) == 0)
+  {
+    return nullptr;
+  }
+  return this->LabelGradientOpacity[label];
+}
+
+//-----------------------------------------------------------------------------
 // Print the state of the volume property.
 void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -795,9 +909,47 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
        << "\n";
   }
 
+  if (!this->LabelColor.empty())
+  {
+    os << indent << "Label Color Transfer Functions:"
+       << "\n";
+    for (auto it = this->LabelColor.begin(); it != LabelColor.end(); ++it)
+    {
+      os << indent.GetNextIndent() << "Label: " << it->first << " "
+         << it->second;
+    }
+  }
+  if (!this->LabelScalarOpacity.empty())
+  {
+    os << indent << "Label Scalar Opacity Transfer Functions:"
+       << "\n";
+    for (auto it = this->LabelScalarOpacity.begin();
+         it != LabelScalarOpacity.end();
+         ++it)
+    {
+      os << indent.GetNextIndent() << "Label: " << it->first << " "
+         << it->second;
+    }
+  }
+  if (!this->LabelGradientOpacity.empty())
+  {
+    os << indent << "Label Gradient Opacity Transfer Functions:"
+       << "\n";
+    for (auto it = this->LabelGradientOpacity.begin();
+         it != LabelGradientOpacity.end();
+         ++it)
+    {
+      os << indent.GetNextIndent() << "Label: " << it->first << " "
+         << it->second;
+    }
+  }
+
   // These variables should not be printed to the user:
   // this->GradientOpacityMTime
   // this->GrayTransferFunctionMTime
   // this->RGBTransferFunctionMTime
   // this->ScalarOpacityMTime
+  // this->LabelColorMTime
+  // this->LabelScalarOpacityMTime
+  // this->LabelGradientOpacityMTime
 }

@@ -59,6 +59,9 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+// STL includes
+#include <unordered_map>
+
 class vtkColorTransferFunction;
 class vtkContourValues;
 class vtkImageData;
@@ -464,6 +467,47 @@ public:
   vtkGetMacro(ClippedVoxelIntensity, double);
   //@}
 
+  //@{
+  /**
+   * Set/Get the color transfer function for a label in the label map.
+   */
+  void SetLabelColor(int label, vtkColorTransferFunction* function);
+  vtkColorTransferFunction* GetLabelColor(int label);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the opacity transfer function for a label in the label map.
+   */
+  void SetLabelScalarOpacity(int label, vtkPiecewiseFunction* function);
+  vtkPiecewiseFunction* GetLabelScalarOpacity(int label);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the gradient opacity function for a label in the label map.
+   */
+  void SetLabelGradientOpacity(int label, vtkPiecewiseFunction* function);
+  vtkPiecewiseFunction* GetLabelGradientOpacity(int label);
+  //@}
+
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * Get the time that label color transfer functions were set
+   */
+  vtkGetMacro(LabelColorMTime, vtkTimeStamp);
+
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * Get the time that label scalar opacity transfer functions were set
+   */
+  vtkGetMacro(LabelScalarOpacityMTime, vtkTimeStamp);
+
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * Get the time that label gradient opacity transfer functions were set
+   */
+  vtkGetMacro(LabelGradientOpacityMTime, vtkTimeStamp);
 
 protected:
   vtkVolumeProperty();
@@ -508,6 +552,10 @@ protected:
   vtkImageData* TransferFunction2D[VTK_MAX_VRCOMP];
   vtkTimeStamp TransferFunction2DMTime[VTK_MAX_VRCOMP];
 
+  vtkTimeStamp LabelColorMTime;
+  vtkTimeStamp LabelScalarOpacityMTime;
+  vtkTimeStamp LabelGradientOpacityMTime;
+
   int Shade[VTK_MAX_VRCOMP];
   double Ambient[VTK_MAX_VRCOMP];
   double Diffuse[VTK_MAX_VRCOMP];
@@ -521,6 +569,13 @@ protected:
    * Contour values for isosurface blend mode
    */
   vtkNew<vtkContourValues> IsoSurfaceValues;
+
+  /**
+   * Label map transfer functions
+   */
+  std::unordered_map<int, vtkColorTransferFunction*> LabelColor;
+  std::unordered_map<int, vtkPiecewiseFunction*> LabelScalarOpacity;
+  std::unordered_map<int, vtkPiecewiseFunction*> LabelGradientOpacity;
 
 private:
   vtkVolumeProperty(const vtkVolumeProperty&) = delete;
