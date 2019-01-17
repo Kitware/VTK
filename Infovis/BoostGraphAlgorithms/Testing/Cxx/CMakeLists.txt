@@ -11,7 +11,7 @@ vtk_add_test_cxx(vtkInfovisBoostGraphAlgorithmsCxxTests tests
   )
 vtk_test_cxx_executable(vtkInfovisBoostGraphAlgorithmsCxxTests tests)
 
-find_package(Boost REQUIRED QUIET)
+find_package(Boost REQUIRED)
 target_link_libraries(vtkInfovisBoostGraphAlgorithmsCxxTests
   PRIVATE
     Boost::boost)
