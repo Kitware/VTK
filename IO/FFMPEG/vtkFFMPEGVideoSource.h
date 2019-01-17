@@ -54,6 +54,17 @@ struct vtkFFMPEGVideoSourceAudioCallbackData
   void *ClientData;
 };
 
+// video callback struct, outside the class so that we
+// can forward ref it
+struct vtkFFMPEGVideoSourceVideoCallbackData
+{
+  int Height;
+  int LineSize[8];
+  unsigned char* Data[8]; // nullptr for empty planes
+  vtkFFMPEGVideoSource *Caller;
+  void *ClientData;
+};
+
 class VTKIOFFMPEG_EXPORT vtkFFMPEGVideoSource : public vtkVideoSource
 {
 public:
@@ -140,11 +151,24 @@ public:
   // instead you should have enough buffering that you can consume
   // the provided data and return. Typically even 1 second of
   // buffer storage is enough to prevent blocking.
-  typedef std::function<void(vtkFFMPEGVideoSourceAudioCallbackData &data)> AudioCallbackType;
+  typedef std::function<void(vtkFFMPEGVideoSourceAudioCallbackData const &data)> AudioCallbackType;
   void SetAudioCallback(AudioCallbackType cb, void *clientData)
   {
     this->AudioCallback = cb;
     this->AudioCallbackClientData = clientData;
+  }
+
+  // we do not use Invoke Observers here because this callback
+  // will happen in a different thread that could conflict
+  // with events from other threads. In this function you should
+  // not block the thread (for example waiting for video to play)
+  // instead you should have enough buffering that you can consume
+  // the provided data and return.
+  typedef std::function<void(vtkFFMPEGVideoSourceVideoCallbackData const &data)> VideoCallbackType;
+  void SetVideoCallback(VideoCallbackType cb, void *clientData)
+  {
+    this->VideoCallback = cb;
+    this->VideoCallbackClientData = clientData;
   }
 
   //@{
@@ -194,6 +218,9 @@ protected:
   void ReadFrame();
 
   bool Stereo3D;
+
+  VideoCallbackType VideoCallback;
+  void *VideoCallbackClientData;
 
 private:
   vtkFFMPEGVideoSource(const vtkFFMPEGVideoSource&) = delete;
