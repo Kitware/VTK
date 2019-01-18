@@ -301,6 +301,12 @@ int vtkBandedPolyDataContourFilter::RequestData(
     return 0;
   }
 
+  if ( this->ContourValues->GetNumberOfContours() < 1 )
+  {
+    vtkWarningMacro(<<"No contour values");
+    return 1;
+  }
+
   // Set up supplemental data structures for processing edge/generating
   // intersections. First we sort the contour values into an ascending
   // list of clip values including the extreme min/max values.

@@ -35,13 +35,19 @@ src.SetOutput(ds)
 
 # Generate contour bands
 bands = vtk.vtkBandedPolyDataContourFilter()
-bands.SetInputConnection(src.GetOutputPort())
-clip_values=[ 15.0, 16.25, 17.5, 18.75, 20 ]
-for v in clip_values:
-    bands.SetValue(clip_values.index(v), v)
 bands.SetScalarModeToIndex()
 bands.GenerateContourEdgesOn()
 bands.ClippingOff()
+bands.SetInputConnection(src.GetOutputPort())
+
+# This should be handled safely with a warning message
+bands.SetNumberOfContours(0)
+bands.Update()
+
+# Now add contour values, some of which are equal to point scalars
+clip_values=[ 15.0, 16.25, 17.5, 18.75, 20 ]
+for v in clip_values:
+    bands.SetValue(clip_values.index(v), v)
 bands.Update()
 
 # Map the indices to clip values
