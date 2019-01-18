@@ -51,6 +51,9 @@ public:
   vtkGetVector3Macro(RightHandOrientation, double);
   vtkSetVector3Macro(RightHandOrientation, double);
 
+  /**
+   * up vector must be normalized.
+   */
   vtkGetVector3Macro(UpVector, double);
   vtkSetVector3Macro(UpVector, double);
 protected:
