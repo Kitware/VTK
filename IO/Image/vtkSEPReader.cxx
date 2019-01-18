@@ -18,6 +18,7 @@
 #include "vtksys/SystemTools.hxx"
 
 #include <iostream>
+#include <sstream>
 #include <string>
 
 vtkStandardNewMacro(vtkSEPReader);
@@ -46,6 +47,7 @@ void TrimString(std::string &s)
 vtkSEPReader::vtkSEPReader()
 {
   this->SetNumberOfInputPorts(0);
+  this->SetFileLowerLeft(1);
 }
 
 //-----------------------------------------------------------------------------
@@ -130,6 +132,11 @@ int vtkSEPReader::ReadHeader()
     {
       std::string key = splittedLine[0];
       std::string value = splittedLine[1];
+      std::istringstream iss(value);
+      iss.imbue(std::locale::classic());
+      double d_value;
+      iss >> d_value;
+
       ::TrimString(key);
       ::TrimString(value);
       if (key.length() == 2 && key[0] == 'n')
@@ -139,11 +146,11 @@ int vtkSEPReader::ReadHeader()
       }
       else if (key.length() == 2 && key[0] == 'd')
       {
-        this->DataSpacing[key[1] - '0' - 1] = atoi(value.c_str());
+        this->DataSpacing[key[1] - '0' - 1] = d_value;
       }
       else if (key.length() == 2 && key[0] == 'o')
       {
-        this->DataOrigin[key[1] - '0' - 1] = atoi(value.c_str());
+        this->DataOrigin[key[1] - '0' - 1] = d_value;
       }
       else if (key == "data_format")
       {
