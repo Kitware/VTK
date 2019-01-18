@@ -3,10 +3,11 @@ set(classes
   vtkOpenGLGPUVolumeRayCastMapper
   vtkOpenGLProjectedTetrahedraMapper
   vtkOpenGLRayCastImageDisplayHelper
-  vtkOpenGLTransferFunction2D
   vtkOpenGLVolumeGradientOpacityTable
+  vtkOpenGLVolumeLookupTable
   vtkOpenGLVolumeOpacityTable
   vtkOpenGLVolumeRGBTable
+  vtkOpenGLVolumeTransferFunction2D
   vtkSmartVolumeMapper
   vtkVolumeInputHelper
   vtkVolumeTexture)
@@ -16,6 +17,10 @@ set(shader_files
   shaders/raycastervs.glsl
   shaders/vtkglProjectedTetrahedraVS.glsl
   shaders/vtkglProjectedTetrahedraFS.glsl)
+
+set(template_classes
+  vtkOpenGLVolumeLookupTables
+)
 
 set(sources)
 set(headers)
@@ -49,5 +54,6 @@ vtk_object_factory_configure(
 
 vtk_module_add_module(VTK::RenderingVolumeOpenGL2
   CLASSES ${classes}
+  TEMPLATE_CLASSES  ${template_classes}
   SOURCES ${sources} ${vtk_object_factory_source}
   PRIVATE_HEADERS ${headers} ${vtk_object_factory_header})

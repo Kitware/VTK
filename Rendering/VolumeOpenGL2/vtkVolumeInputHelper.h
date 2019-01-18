@@ -32,14 +32,14 @@
 #ifndef __VTK_WRAP__
 #include <map>
 
-#include "vtkSmartPointer.h"                 // For SmartPointer
-#include "vtkTimeStamp.h"                    // For TimeStamp
+#include "vtkOpenGLVolumeLookupTables.h"
+#include "vtkSmartPointer.h" // For SmartPointer
+#include "vtkTimeStamp.h"    // For TimeStamp
 
-
-class vtkOpenGLVolumeGradientOpacityTables;
-class vtkOpenGLVolumeOpacityTables;
-class vtkOpenGLVolumeRGBTables;
-class vtkOpenGLTransferFunctions2D;
+class vtkOpenGLVolumeGradientOpacityTable;
+class vtkOpenGLVolumeOpacityTable;
+class vtkOpenGLVolumeRGBTable;
+class vtkOpenGLVolumeTransferFunction2D;
 class vtkRenderer;
 class vtkShaderProgram;
 class vtkVolume;
@@ -52,8 +52,10 @@ public:
   vtkVolumeInputHelper() = default;
   vtkVolumeInputHelper(vtkSmartPointer<vtkVolumeTexture> tex, vtkVolume* vol);
 
-  void RefreshTransferFunction(vtkRenderer* ren, const int uniformIndex,
-    const int blendMode, const float samplingDist);
+  void RefreshTransferFunction(vtkRenderer* ren,
+                               const int uniformIndex,
+                               const int blendMode,
+                               const float samplingDist);
   void ForceTransferInit();
 
   void ActivateTransferFunction(vtkShaderProgram* prog, const int blendMode);
@@ -68,7 +70,8 @@ public:
    * Defines the various component modes supported by
    * vtkGPUVolumeRayCastMapper.
    */
-  enum ComponentMode {
+  enum ComponentMode
+  {
     INVALID = 0,
     INDEPENDENT = 1,
     LA = 2,
@@ -79,10 +82,16 @@ public:
   /**
    * Transfer function internal structures and helpers.
    */
-  vtkSmartPointer<vtkOpenGLVolumeGradientOpacityTables> GradientOpacityTables;
-  vtkSmartPointer<vtkOpenGLVolumeOpacityTables> OpacityTables;
-  vtkSmartPointer<vtkOpenGLVolumeRGBTables> RGBTables;
-  vtkSmartPointer<vtkOpenGLTransferFunctions2D> TransferFunctions2D;
+  vtkSmartPointer<
+    vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeGradientOpacityTable>>
+    GradientOpacityTables;
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeOpacityTable>>
+    OpacityTables;
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeRGBTable>>
+    RGBTables;
+  vtkSmartPointer<
+    vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeTransferFunction2D>>
+    TransferFunctions2D;
 
   /**
    * Maps uniform texture variable names to its corresponding texture unit.
@@ -113,14 +122,21 @@ protected:
   void CreateTransferFunction1D(vtkRenderer* ren, const int index);
   void CreateTransferFunction2D(vtkRenderer* ren, const int index);
 
-  void UpdateTransferFunctions(vtkRenderer* ren, const int blendMode,
-    const float samplingDist);
-  int UpdateOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
-    unsigned int component, const int blendMode, const float samplingDist);
-  int UpdateColorTransferFunction(vtkRenderer* ren, vtkVolume* vol,
-    unsigned int component);
-  int UpdateGradientOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
-    unsigned int component, const float samplingDist);
+  void UpdateTransferFunctions(vtkRenderer* ren,
+                               const int blendMode,
+                               const float samplingDist);
+  int UpdateOpacityTransferFunction(vtkRenderer* ren,
+                                    vtkVolume* vol,
+                                    unsigned int component,
+                                    const int blendMode,
+                                    const float samplingDist);
+  int UpdateColorTransferFunction(vtkRenderer* ren,
+                                  vtkVolume* vol,
+                                  unsigned int component);
+  int UpdateGradientOpacityTransferFunction(vtkRenderer* ren,
+                                            vtkVolume* vol,
+                                            unsigned int component,
+                                            const float samplingDist);
   void UpdateTransferFunction2D(vtkRenderer* ren, unsigned int component);
 
   void ReleaseGraphicsTransfer1D(vtkWindow* window);

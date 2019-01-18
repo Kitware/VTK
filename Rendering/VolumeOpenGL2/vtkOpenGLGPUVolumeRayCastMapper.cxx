@@ -90,7 +90,7 @@
 #include "vtkOpenGLVolumeGradientOpacityTable.h"
 #include "vtkOpenGLVolumeOpacityTable.h"
 #include "vtkOpenGLVolumeRGBTable.h"
-#include "vtkOpenGLTransferFunction2D.h"
+#include "vtkOpenGLVolumeTransferFunction2D.h"
 
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
@@ -763,13 +763,17 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   {
     vtkColorTransferFunction* colorTransferFunc =
       volumeProperty->GetRGBTransferFunction(1);
-    this->Mask1RGBTable->Update(colorTransferFunc, componentRange,
+    this->Mask1RGBTable->Update(colorTransferFunc,
+                                componentRange,
+                                0, 0, 0,
                                 vtkTextureObject::Nearest,
                                 vtkOpenGLRenderWindow::SafeDownCast(
                                   ren->GetRenderWindow()));
 
     colorTransferFunc = volumeProperty->GetRGBTransferFunction(2);
-    this->Mask2RGBTable->Update(colorTransferFunc, componentRange,
+    this->Mask2RGBTable->Update(colorTransferFunc,
+                                componentRange,
+                                0, 0, 0,
                                 vtkTextureObject::Nearest,
                                 vtkOpenGLRenderWindow::SafeDownCast(
                                   ren->GetRenderWindow()));
