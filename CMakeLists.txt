@@ -305,17 +305,6 @@ vtk_module_graphviz(
   PRIVATE_DEPENDENCIES OFF
   OUTPUT  "modules.dot")
 
-# Create target to download data from the VTKData group.  This must come after
-# all tests have been added that reference the group, so we put it last.
-if(VTK_DATA_EXCLUDE_FROM_ALL)
-  set_property(TARGET VTKData PROPERTY EXCLUDE_FROM_ALL 1)
-  if(BUILD_TESTING AND NOT VTK_DATA_EXCLUDE_FROM_ALL_NO_WARNING)
-    message(WARNING "VTK_DATA_EXCLUDE_FROM_ALL is ON so test data "
-      "(needed because BUILD_TESTING is ON) may not be available "
-      "without manually building the 'VTKData' target.")
-  endif()
-endif()
-
 if (VTK_WRAP_PYTHON)
   get_property(vtk_required_python_modules GLOBAL
     PROPERTY  vtk_required_python_modules)
@@ -342,6 +331,17 @@ if (VTK_WRAP_JAVA)
 endif ()
 
 ExternalData_Add_Target(VTKData)
+
+# Create target to download data from the VTKData group.  This must come after
+# all tests have been added that reference the group, so we put it last.
+if(VTK_DATA_EXCLUDE_FROM_ALL)
+  set_property(TARGET VTKData PROPERTY EXCLUDE_FROM_ALL 1)
+  if(BUILD_TESTING AND NOT VTK_DATA_EXCLUDE_FROM_ALL_NO_WARNING)
+    message(WARNING "VTK_DATA_EXCLUDE_FROM_ALL is ON so test data "
+      "(needed because BUILD_TESTING is ON) may not be available "
+      "without manually building the 'VTKData' target.")
+  endif()
+endif()
 
 set(vtk_cmake_build_dir
   "${CMAKE_CURRENT_BINARY_DIR}/${vtk_cmake_destination}")
