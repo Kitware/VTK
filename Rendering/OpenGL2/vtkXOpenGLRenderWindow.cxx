@@ -434,8 +434,13 @@ void vtkXOpenGLRenderWindow::SetShowWindow(bool val)
       XSync(this->DisplayId,False);
       // guarantee that the window is mapped before the program continues
       // on to do the OpenGL rendering.
-      XEvent e;
-      XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>, nullptr);
+      XWindowAttributes winattr;
+      XGetWindowAttributes(this->DisplayId, this->WindowId, &winattr);
+      if (winattr.map_state == IsUnmapped)
+      {
+        XEvent e;
+        XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>, nullptr);
+      }
       this->Mapped = 1;
     }
     else
@@ -443,8 +448,14 @@ void vtkXOpenGLRenderWindow::SetShowWindow(bool val)
       vtkDebugMacro(" UnMapping the xwindow\n");
       XUnmapWindow(this->DisplayId, this->WindowId);
       XSync(this->DisplayId,False);
-      XEvent e;
-      XIfEvent(this->DisplayId, &e, XEventTypeEquals<UnmapNotify>, nullptr);
+      XWindowAttributes winattr;
+      XGetWindowAttributes(this->DisplayId, this->WindowId, &winattr);
+      // guarantee that the window is unmapped before the program continues
+      if (winattr.map_state != IsUnmapped)
+      {
+        XEvent e;
+        XIfEvent(this->DisplayId, &e, XEventTypeEquals<UnmapNotify>, nullptr);
+      }
       this->Mapped = 0;
     }
   }
@@ -986,10 +997,16 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
       XResizeWindow(this->DisplayId,this->WindowId,
                     static_cast<unsigned int>(width),
                     static_cast<unsigned int>(height));
-      // this is an async call so we wait until we
-      // know it has been resized.
-      XEvent e;
-      XIfEvent(this->DisplayId, &e, XEventTypeEquals<ConfigureNotify>, nullptr);
+      // this is an async call so we wait until we know it has been resized.
+      XSync(this->DisplayId, False);
+      XWindowAttributes attribs;
+      XGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
+      if (attribs.width != width || attribs.height != height)
+      {
+        XEvent e;
+        XIfEvent(this->DisplayId, &e, XEventTypeEquals<ConfigureNotify>,
+                 nullptr);
+      }
     }
 
     this->Modified();
