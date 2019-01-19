@@ -35,3 +35,7 @@ vtk_module_link(VTK::RenderingTk
   PRIVATE
     ${TCL_LIBRARY}
     ${TK_LIBRARY})
+vtk_module_include(VTK::RenderingTk
+  PRIVATE
+    ${TCL_INCLUDE_PATH}
+    ${TK_INCLUDE_PATH})
