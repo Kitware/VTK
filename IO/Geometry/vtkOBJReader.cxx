@@ -970,7 +970,7 @@ void vtkOBJReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: "
-     << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "Comment: "
+     << (this->Comment ? this->Comment : "(none)") << "\n";
 
 }

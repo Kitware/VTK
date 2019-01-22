@@ -473,6 +473,10 @@ void vtkPLYReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: "
-     << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "Comments:\n";
+  indent = indent.GetNextIndent();
+  for(int i = 0; i < this->Comments->GetNumberOfValues(); ++i)
+  {
+    os << indent << this->Comments->GetValue(i) << "\n";
+  }
 }
