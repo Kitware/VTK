@@ -122,12 +122,12 @@ protected:
   /**
    * material Mask
    */
-  vtkBitArray* MaterialMask;
+  vtkBitArray* Mask;
 
   /**
    * Pure Material Mask
    */
-  vtkBitArray* PureMaterialMask;
+  vtkBitArray* PureMask;
 
   /**
    * Dimension of input grid

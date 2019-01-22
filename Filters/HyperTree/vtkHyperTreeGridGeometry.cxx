@@ -300,11 +300,11 @@ int vtkHyperTreeGridGeometry::ProcessTrees( vtkHyperTreeGrid* input,
   this->OutData->CopyAllocate( this->InData );
 
   // Retrieve material mask
-  this->MaterialMask = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
+  this->Mask = input->HasMask() ? input->GetMask() : nullptr;
 
 
   // Retrieve pure material mask
-  this->PureMaterialMask = input->GetPureMaterialMask();
+  this->PureMask = input->GetPureMask();
 
 
   // Retrieve interface data when relevant
@@ -495,7 +495,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf2D( vtkHyperTreeGridNonOrientedGeometr
   } // if ( this->HasInterface )
 
   // In 2D all unmasked faces are generated
-  if ( ! this->MaterialMask || ! this->MaterialMask->GetValue( inId ) )
+  if ( ! this->Mask || ! this->Mask->GetValue( inId ) )
   {
     // Insert face into 2D geometry depending on orientation
     // this->AddFace( inId, cursor->GetOrigin(), cursor->GetSize(), 0, this->Orientation );
@@ -516,7 +516,7 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
   if ( isCentralChild )
   {
     //FR Si elle est masque ce sont ses soeurs qui feront de toute facon le fboulot
-    if ( this->MaterialMask ? this->MaterialMask->GetValue( cursor->GetGlobalNodeIndex() ) : 0 )
+    if ( this->Mask ? this->Mask->GetValue( cursor->GetGlobalNodeIndex() ) : 0 )
     {
       return;
     }
@@ -532,13 +532,13 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
 
   //FR Parce que le curseur est un super curseur
   bool pureMask = false;
-  if ( this->MaterialMask != 0 )
+  if ( this->Mask != 0 )
   {
-    pureMask = this->PureMaterialMask->GetValue( cursor->GetGlobalNodeIndex() ) != 0 ;
+    pureMask = this->PureMask->GetValue( cursor->GetGlobalNodeIndex() ) != 0 ;
   }
   if( ! pureMask )
   {
-    //FR La maille courante est donc pure (pureMask == false car GetPureMaterialMask()->GetValue(..) retourne false)
+    //FR La maille courante est donc pure (pureMask == false car GetPureMask()->GetValue(..) retourne false)
     std::set<int> childList;
 
     const unsigned int numChildren = cursor->GetNumberOfChildren();
@@ -558,9 +558,9 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
           {
             idN = cursor->GetGlobalNodeIndex( this->Dimension + neighborIdx );
           }
-          if( ! isValidN || ( this->MaterialMask && this->PureMaterialMask->GetValue( idN ) ) )
+          if( ! isValidN || ( this->Mask && this->PureMask->GetValue( idN ) ) )
           {
-            //FR La maille voisine n'existe pas ou n'est pas pure (PureMaterialMask->GetValue(id) retourne false)
+            //FR La maille voisine n'existe pas ou n'est pas pure (PureMask->GetValue(id) retourne false)
             //FR Fille du bord
             int iMin = ( f == 0 && o == 1 ) ? this->BranchFactor - 1 : 0;
             int iMax = ( f == 0 && o == 0 ) ? 1 : this->BranchFactor;
@@ -615,7 +615,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( vtkHyperTreeGridNonOrientedVonNeum
     return;
   }
   unsigned level = superCursor->GetLevel();
-  int masked = this->MaterialMask ? this->MaterialMask->GetValue( inId ) : 0;
+  int masked = this->Mask ? this->Mask->GetValue( inId ) : 0;
 
   // Reset interface variables if needed
   if ( this->HasInterface )
@@ -671,7 +671,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( vtkHyperTreeGridNonOrientedVonNeum
     int maskedN = 1;
     if ( treeN )
     {
-      maskedN  = this->MaterialMask ? this->MaterialMask->GetValue( idN ) : 0;
+      maskedN  = this->Mask ? this->Mask->GetValue( idN ) : 0;
     }
 
     // In 3D masked and unmasked cells are handled differently:

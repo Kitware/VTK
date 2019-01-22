@@ -36,7 +36,7 @@ vtkHyperTreeGridDepthLimiter::vtkHyperTreeGridDepthLimiter()
   this->Depth = 0;
 
   // Default mask is emplty
-  this->OutMaterialMask = nullptr;
+  this->OutMask = nullptr;
 
   // Output indices begin at 0
   this->CurrentId = 0;
@@ -48,10 +48,10 @@ vtkHyperTreeGridDepthLimiter::vtkHyperTreeGridDepthLimiter()
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridDepthLimiter::~vtkHyperTreeGridDepthLimiter()
 {
-  if( this->OutMaterialMask )
+  if( this->OutMask )
   {
-    this->OutMaterialMask->Delete();
-    this->OutMaterialMask = nullptr;
+    this->OutMask->Delete();
+    this->OutMask = nullptr;
   }
 }
 
@@ -61,7 +61,7 @@ void vtkHyperTreeGridDepthLimiter::PrintSelf( ostream& os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
 
   os << indent << "Depth: " << this->Depth << endl;
-  os << indent << "OutMaterialMask: " << this->OutMaterialMask << endl;
+  os << indent << "OutMask: " << this->OutMask << endl;
   os << indent << "CurrentId: " << this->CurrentId << endl;
 }
 
@@ -94,7 +94,7 @@ int vtkHyperTreeGridDepthLimiter::ProcessTrees( vtkHyperTreeGrid* input,
   output->SetXCoordinates( input->GetXCoordinates() );
   output->SetYCoordinates( input->GetYCoordinates() );
   output->SetZCoordinates( input->GetZCoordinates() );
-//JBDEL2  output->SetMaterialMaskIndex( input->GetMaterialMaskIndex() );
+//JBDEL2  output->SetMaskIndex( input->GetMaskIndex() );
   output->SetHasInterface( input->GetHasInterface() );
   output->SetInterfaceNormalsName( input->GetInterfaceNormalsName() );
   output->SetInterfaceInterceptsName( input->GetInterfaceInterceptsName() );
@@ -108,13 +108,13 @@ int vtkHyperTreeGridDepthLimiter::ProcessTrees( vtkHyperTreeGrid* input,
   this->CurrentId = 0;
 
   // Create material mask bit array if one is present on input
-  if( input->HasMaterialMask() )
+  if( input->HasMask() )
   {
-    this->OutMaterialMask = vtkBitArray::New();
+    this->OutMask = vtkBitArray::New();
   }
 
   // Retrieve material mask
-  this->InMaterialMask = this->OutMaterialMask ? input->GetMaterialMask() : 0;
+  this->InMask = this->OutMask ? input->GetMask() : 0;
 
   // Output indices begin at 0
   this->CurrentId = 0;
@@ -138,10 +138,10 @@ int vtkHyperTreeGridDepthLimiter::ProcessTrees( vtkHyperTreeGrid* input,
   } // it
 
   // Squeeze and set output material mask if necessary
-  if( this->OutMaterialMask )
+  if( this->OutMask )
   {
-    this->OutMaterialMask->Squeeze();
-    output->SetMaterialMask( this->OutMaterialMask );
+    this->OutMask->Squeeze();
+    output->SetMask( this->OutMask );
   }
 
   return 1;
@@ -162,20 +162,20 @@ void vtkHyperTreeGridDepthLimiter::RecursivelyProcessTree( vtkHyperTreeGridNonOr
   outTree->SetGlobalIndexFromLocal( outCursor->GetVertexId(), outId );
 
   // Update material mask if relevant
-  if( this->InMaterialMask )
+  if( this->InMask )
   {
     // Check whether non-leaf at maximum depth is reached
     if ( inCursor->GetLevel() == this->Depth && ! inCursor->IsLeaf() )
     {
       // If yes, then it becomes an output leaf that must be visible
-      this->OutMaterialMask->InsertValue( outId, 0 );
+      this->OutMask->InsertValue( outId, 0 );
     }
     else
     {
       // Otherwise, use input mask value
-      this->OutMaterialMask->InsertValue( outId, this->InMaterialMask->GetValue( inId )  );
+      this->OutMask->InsertValue( outId, this->InMask->GetValue( inId )  );
     }
-  } // if ( this->InMaterialMask )
+  } // if ( this->InMask )
 
   // Copy output cell data from that of input cell
   this->OutData->CopyData( this->InData, inId, outId );

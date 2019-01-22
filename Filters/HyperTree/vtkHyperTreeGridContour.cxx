@@ -288,10 +288,10 @@ int vtkHyperTreeGridContour::ProcessTrees( vtkHyperTreeGrid* input,
   this->CurrentId = 0;
 
   // Retrieve material mask
-  this->InMaterialMask = input->HasMaterialMask() ? input->GetMaterialMask() : 0;
+  this->InMask = input->HasMask() ? input->GetMask() : 0;
 
   // Estimate output size as a multiple of 1024
-  vtkIdType numCells = input->GetNumberOfPoints();
+  vtkIdType numCells = input->GetNumberOfVertices();
   int numContours = this->ContourValues->GetNumberOfContours();
   vtkIdType estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>( numCells ), .75 ) );
   estimatedSize *= numContours;
@@ -330,15 +330,11 @@ int vtkHyperTreeGridContour::ProcessTrees( vtkHyperTreeGrid* input,
   }
   this->Locator->InitPointInsertion( newPts, input->GetBounds(), estimatedSize );
 
-  vtkCellData* inCd = input->GetCellData();
-  vtkCellData* outCd = output->GetCellData();
-  outCd->CopyAllocate( inCd, estimatedSize, estimatedSize );
-
   // Instantiate a contour helper for convenience, with triangle generation on
   this->Helper = new vtkContourHelper( this->Locator,
                                        newVerts, newLines, newPolys,
-                                       input->GetPointData(), input->GetCellData(),
-                                       output->GetPointData(), output->GetCellData(),
+                                       input->GetPointData(), nullptr,
+                                       output->GetPointData(), nullptr,
                                        estimatedSize, true );
 
   // Create storage to keep track of selected cells
@@ -554,7 +550,7 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree( vtkHyperTreeGridNonOriente
       } // child
     } // if( selected )
   } // if ( ! supercursor->IsLeaf() )
-  else if ( ! this->InMaterialMask || ! this->InMaterialMask->GetTuple1( id ) )
+  else if ( ! this->InMask || ! this->InMask->GetTuple1( id ) )
   {
     // Cell is not masked, iterate over its corners
     unsigned int numLeavesCorners = 1 << dim;
@@ -618,5 +614,5 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree( vtkHyperTreeGridNonOriente
         ++ this->CurrentId;
       } // if ( owner )
     } // cornerIdx
-  } // else if ( ! this->InMaterialMask || this->InMaterialMask->GetTuple1( id ) )
+  } // else if ( ! this->InMask || this->InMask->GetTuple1( id ) )
 }

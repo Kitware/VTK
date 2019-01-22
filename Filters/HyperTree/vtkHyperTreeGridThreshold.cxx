@@ -38,7 +38,7 @@ vtkHyperTreeGridThreshold::vtkHyperTreeGridThreshold()
   this->UpperThreshold = vtkMath::Inf();
 
   // This filter always creates an output with a material mask
-  this->OutMaterialMask = vtkBitArray::New();
+  this->OutMask = vtkBitArray::New();
 
   // Output indices begin at 0
   this->CurrentId = 0;
@@ -60,10 +60,10 @@ vtkHyperTreeGridThreshold::vtkHyperTreeGridThreshold()
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridThreshold::~vtkHyperTreeGridThreshold()
 {
-  if( this->OutMaterialMask )
+  if( this->OutMask )
   {
-    this->OutMaterialMask->Delete();
-    this->OutMaterialMask = nullptr;
+    this->OutMask->Delete();
+    this->OutMask = nullptr;
   }
 }
 
@@ -74,7 +74,7 @@ void vtkHyperTreeGridThreshold::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "LowerThreshold: " << this->LowerThreshold << endl;
   os << indent << "UpperThreshold: " << this->UpperThreshold << endl;
-  os << indent << "OutMaterialMask: " << this->OutMaterialMask << endl;
+  os << indent << "OutMask: " << this->OutMask << endl;
   os << indent << "CurrentId: " << this->CurrentId << endl;
 
   if( this->InScalars )
@@ -126,13 +126,13 @@ int vtkHyperTreeGridThreshold::ProcessTrees( vtkHyperTreeGrid* input,
   }
 
   // Retrieve material mask
-  this->InMaterialMask = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
+  this->InMask = input->HasMask() ? input->GetMask() : nullptr;
 
   if ( this->JustCreateNewMask )
   {
     output->ShallowCopy( input );
 
-    this->OutMaterialMask->SetNumberOfTuples( output->GetNumberOfPoints() );
+    this->OutMask->SetNumberOfTuples( output->GetNumberOfVertices() );
 
     // Iterate over all input and output hyper trees
     vtkIdType outIndex;
@@ -156,7 +156,7 @@ int vtkHyperTreeGridThreshold::ProcessTrees( vtkHyperTreeGrid* input,
     output->SetXCoordinates( input->GetXCoordinates() );
     output->SetYCoordinates( input->GetYCoordinates() );
     output->SetZCoordinates( input->GetZCoordinates() );
-//JBDEL2    output->SetMaterialMaskIndex( input->GetMaterialMaskIndex() );
+//JBDEL2    output->SetMaskIndex( input->GetMaskIndex() );
     output->SetHasInterface( input->GetHasInterface() );
     output->SetInterfaceNormalsName( input->GetInterfaceNormalsName() );
     output->SetInterfaceInterceptsName( input->GetInterfaceInterceptsName() );
@@ -188,10 +188,10 @@ int vtkHyperTreeGridThreshold::ProcessTrees( vtkHyperTreeGrid* input,
   }
 
   // Squeeze and set output material mask if necessary
-  if( this->OutMaterialMask )
+  if( this->OutMask )
   {
-    this->OutMaterialMask->Squeeze();
-    output->SetMaterialMask( this->OutMaterialMask );
+    this->OutMask->Squeeze();
+    output->SetMask( this->OutMask );
   }
 
   this->UpdateProgress( 1. );
@@ -218,10 +218,10 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTree( vtkHyperTreeGridNonOrien
   // Flag to recursively decide whether a tree node should discarded
   bool discard = true;
 
-  if ( this->InMaterialMask && this->InMaterialMask->GetValue( inId ) )
+  if ( this->InMask && this->InMask->GetValue( inId ) )
   {
     // Mask output cell if necessary
-    this->OutMaterialMask->InsertTuple1 ( outId, discard );
+    this->OutMask->InsertTuple1 ( outId, discard );
 
     // Return whether current node is within range
     return discard;
@@ -253,7 +253,7 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTree( vtkHyperTreeGridNonOrien
   {
     // Input cursor is at leaf, check whether it is within range
     double value = this->InScalars->GetTuple1( inId );
-    if( ! ( this->InMaterialMask && this->InMaterialMask->GetValue( inId ) )
+    if( ! ( this->InMask && this->InMask->GetValue( inId ) )
         && value >= this->LowerThreshold && value <= this->UpperThreshold )
     {
       // Cell is not masked and is within range, keep it
@@ -262,7 +262,7 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTree( vtkHyperTreeGridNonOrien
   } // else
 
   // Mask output cell if necessary
-  this->OutMaterialMask->InsertTuple1 ( outId, discard );
+  this->OutMask->InsertTuple1 ( outId, discard );
 
   // Return whether current node is within range
   return discard;
@@ -277,10 +277,10 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTreeWithCreateNewMask( vtkHype
   // Flag to recursively decide whether a tree node should discarded
   bool discard = true;
 
-  if ( this->InMaterialMask && this->InMaterialMask->GetValue( outId ) )
+  if ( this->InMask && this->InMask->GetValue( outId ) )
   {
     // Mask output cell if necessary
-    this->OutMaterialMask->InsertTuple1 ( outId, discard );
+    this->OutMask->InsertTuple1 ( outId, discard );
 
     // Return whether current node is within range
     return discard;
@@ -309,7 +309,7 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTreeWithCreateNewMask( vtkHype
   } // else
 
   // Mask output cell if necessary
-  this->OutMaterialMask->InsertTuple1 ( outId, discard );
+  this->OutMask->InsertTuple1 ( outId, discard );
 
   // Return whether current node is within range
   return discard;

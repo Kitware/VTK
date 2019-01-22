@@ -104,7 +104,7 @@ int vtkRandomHyperTreeGridSource::RequestData(vtkInformation *,
   {
     array->SetNumberOfComponents(1);
     array->SetNumberOfTuples(numPoints);
-    double step = (maxBound - minBound) / static_cast<double>(numPoints);
+    double step = (maxBound - minBound) / static_cast<double>(numPoints - 1);
     for (int i = 0; i < numPoints; ++i)
     {
       array->SetTypedComponent(i, 0, minBound + step * i);

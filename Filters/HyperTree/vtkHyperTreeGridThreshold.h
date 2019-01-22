@@ -118,12 +118,12 @@ protected:
   /**
    * Input material mask
    */
-  vtkBitArray* InMaterialMask;
+  vtkBitArray* InMask;
 
   /**
    * Output material mask constructed by this filter
    */
-  vtkBitArray* OutMaterialMask;
+  vtkBitArray* OutMask;
 
   /**
    * Keep track of current index in output hyper tree grid

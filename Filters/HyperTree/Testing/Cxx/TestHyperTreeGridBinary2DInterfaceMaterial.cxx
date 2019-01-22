@@ -43,9 +43,9 @@ int TestHyperTreeGridBinary2DInterfaceMaterial( int argc, char* argv[] )
   htGrid->SetGridScale( 1.5, 1., 10. );  // this is to test that orientation fixes scale
   htGrid->SetBranchFactor( 2 );
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
-  htGrid->UseMaterialMaskOn();
+  htGrid->UseMaskOn();
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
-  htGrid->SetMaterialMask( "111111|0000 1111 1111 1111 1111|1111 0001 0111 0101 1011 1111 0111|1111 0111 1111 1111 1111 1111|1111 1111 1111 1111|1111" );
+  htGrid->SetMask( "111111|0000 1111 1111 1111 1111|1111 0001 0111 0101 1011 1111 0111|1111 0111 1111 1111 1111 1111|1111 1111 1111 1111|1111" );
   htGrid->GenerateInterfaceFieldsOn();
   htGrid->Update();
   vtkHyperTreeGrid* H = vtkHyperTreeGrid::SafeDownCast( htGrid->GetOutput() );
@@ -56,7 +56,7 @@ int TestHyperTreeGridBinary2DInterfaceMaterial( int argc, char* argv[] )
   H->SetInterfaceInterceptsName( interceptsName );
 
   // Modify intercepts array
-  vtkDataArray* interArray = vtkDataSet::SafeDownCast( htGrid->GetOutput() )->GetPointData()->GetArray( "Intercepts" );
+  vtkDataArray* interArray = vtkHyperTreeGrid::SafeDownCast( htGrid->GetOutput() )->GetPointData()->GetArray( "Intercepts" );
   for ( vtkIdType i = 0; i < interArray->GetNumberOfTuples(); ++ i )
   {
     interArray->SetTuple3( i, -.25, -.5, -1. );
@@ -64,11 +64,11 @@ int TestHyperTreeGridBinary2DInterfaceMaterial( int argc, char* argv[] )
 
   // Geometries
   vtkNew<vtkHyperTreeGridGeometry> geometry1;
-  geometry1->SetInputConnection( htGrid->GetOutputPort() );
+  geometry1->SetInputData( H );
   geometry1->Update();
   vtkPolyData* pd = geometry1->GetPolyDataOutput();
   vtkNew<vtkHyperTreeGridGeometry> geometry2;
-  geometry2->SetInputConnection( htGrid->GetOutputPort() );
+  geometry2->SetInputData( H );
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();

@@ -167,7 +167,7 @@ protected:
   /**
    * material Mask
    */
-  vtkBitArray* InMaterialMask;
+  vtkBitArray* InMask;
 
 private:
   vtkHyperTreeGridPlaneCutter(const vtkHyperTreeGridPlaneCutter&) = delete;

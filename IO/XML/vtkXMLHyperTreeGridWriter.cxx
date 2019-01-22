@@ -19,9 +19,11 @@
 
 #include "vtkXMLHyperTreeGridWriter.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkBitArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
+#include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkIdTypeArray.h"
@@ -84,17 +86,12 @@ int vtkXMLHyperTreeGridWriter::WriteData()
   }
 
   // Coordinates for grid (can be replaced by origin and scale)
-  if (!this->WriteGridCoordinates(indent.GetNextIndent()))
+  if (!this->WriteGrid(indent.GetNextIndent()))
   {
     return 0;
   }
 
-  if (!this->WriteDescriptor(indent.GetNextIndent()))
-  {
-    return 0;
-  }
-
-  if (!this->WriteAttributeData(indent.GetNextIndent()))
+  if (!this->WriteTrees(indent.GetNextIndent()))
   {
     return 0;
   }
@@ -128,37 +125,28 @@ void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes
   this->Superclass::WritePrimaryElementAttributes(os, indent);
   vtkHyperTreeGrid* input = this->GetInput();
 
+  int extent[6];
+  input->GetExtent(extent);
+
   this->WriteScalarAttribute("Dimension", (int) input->GetDimension());
+  this->WriteScalarAttribute("Orientation",
+                             (unsigned char) input->GetOrientation());
   this->WriteScalarAttribute("BranchFactor", (int) input->GetBranchFactor());
   this->WriteScalarAttribute("TransposedRootIndexing",
                              (bool)input->GetTransposedRootIndexing());
-  this->WriteVectorAttribute("GridSize", 3, (int*) input->GetGridSize());
-
-  // vtkHyperTreeGrid does not yet store origin and scale but
-  // calculate as place holder
-  vtkDataArray* xcoord = input->GetXCoordinates();
-  vtkDataArray* ycoord = input->GetYCoordinates();
-  vtkDataArray* zcoord = input->GetZCoordinates();
-
-  double gridOrigin[3] = {xcoord->GetTuple1(0),
-                          ycoord->GetTuple1(0),
-                          zcoord->GetTuple1(0)};
-
-  double gridScale[3] = {xcoord->GetTuple1(1)-xcoord->GetTuple1(0),
-                         ycoord->GetTuple1(1)-ycoord->GetTuple1(0),
-                         zcoord->GetTuple1(1)-zcoord->GetTuple1(0)};
-
-  this->WriteVectorAttribute("GridOrigin", 3, gridOrigin);
-  this->WriteVectorAttribute("GridScale", 3, gridScale);
+  this->WriteVectorAttribute("Extent", 6, (int*) input->GetExtent());
+  this->WriteVectorAttribute("Dimensions", 3, (int*) input->GetDimensions());
+  this->WriteScalarAttribute("NumberOfVertices", input->GetNumberOfVertices());
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
+int vtkXMLHyperTreeGridWriter::WriteGrid(vtkIndent indent)
 {
   vtkHyperTreeGrid* input = this->GetInput();
   ostream& os = *(this->Stream);
-  os << indent << "<Coordinates>\n";
+  os << indent << "<Grid>\n";
 
+  // Coordinates of the grid
   this->WriteArrayInline(input->GetXCoordinates(), indent.GetNextIndent(),
                          "XCoordinates",
                          input->GetXCoordinates()->GetNumberOfValues());
@@ -169,7 +157,12 @@ int vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
                          "ZCoordinates",
                          input->GetZCoordinates()->GetNumberOfValues());
 
-  os << indent << "</Coordinates>\n";
+  // Write mask on grid
+  this->WriteArrayInline(input->GetMask(), indent.GetNextIndent(),
+                         "Mask",
+                         input->GetMask()->GetNumberOfValues());
+
+  os << indent << "</Grid>\n";
   os.flush();
   if (os.fail())
   {
@@ -189,17 +182,26 @@ namespace {
     int level,
     std::vector<std::string> &descriptor)
   {
+    // Retrieve input grid
+    vtkHyperTreeGrid* input = inCursor->GetGrid();
+
     if ( ! inCursor->IsLeaf() )
     {
       descriptor[level] += 'R';
+
       // If input cursor is not a leaf, recurse to all children
-      int numChildren = inCursor->GetNumberOfChildren();
+      int numChildren = input->GetNumberOfChildren();
       for ( int child = 0; child < numChildren; ++ child )
       {
-        inCursor->ToChild( child );
+        // Create child cursor from parent in input grid
+        vtkHyperTreeGridNonOrientedCursor* childCursor = inCursor->Clone();
+        childCursor->ToChild( child );
+
         // Recurse
-        BuildDescriptor( inCursor, level+1, descriptor );
-        inCursor->ToParent();
+        BuildDescriptor( childCursor, level+1, descriptor );
+
+        // Clean up
+        childCursor->Delete();
       } // child
     }
     else
@@ -210,91 +212,109 @@ namespace {
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
+int vtkXMLHyperTreeGridWriter::WriteTrees(vtkIndent indent)
 {
   vtkHyperTreeGrid* input = this->GetInput();
   vtkIdType maxLevels = input->GetNumberOfLevels();
 
   ostream& os = *(this->Stream);
-  os << indent << "<Topology>\n";
+  os << indent << "<Trees>\n";
+  vtkIndent treeIndent = indent.GetNextIndent();
 
   // Collect description by processing depth first and writing breadth first
-  std::vector<std::string> descByLevel(maxLevels);
   vtkIdType inIndex;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
   input->InitializeTreeIterator( it );
-  vtkNew<vtkHyperTreeGridNonOrientedCursor> inCursor;
+
   while ( it.GetNextTree( inIndex ) )
   {
-    // CEA Warning TODO Write inIndex in XML file
     // Initialize new grid cursor at root of current input tree
-    input->InitializeNonOrientedCursor( inCursor, inIndex );
+    vtkHyperTreeGridNonOrientedCursor* inCursor = input->NewNonOrientedCursor( inIndex );
+    vtkHyperTree* tree = inCursor->GetTree();
+    vtkIdType count = tree->GetNumberOfVertices();
+    vtkIdType offset = tree->GetGlobalIndexFromLocal(0);;
+
+    os << treeIndent << "<Tree";
+    this->WriteScalarAttribute("Index", inIndex);
+    this->WriteScalarAttribute("Offset", offset);
+    this->WriteScalarAttribute("Count", count);
+    os << ">\n";
+
     // Recursively compute descriptor for this tree, appending any
     // entries for each of the levels in descByLevel.
+    std::vector<std::string> descByLevel(maxLevels);
     BuildDescriptor(inCursor, 0, descByLevel );
-  }
 
-  // Build the BitArray from the level descriptors
-  vtkNew<vtkBitArray> descriptor;
+    // Clean up
+    inCursor->Delete();
 
-  std::string::const_iterator dit;
-  for (int l = 0; l < maxLevels; l++)
-  {
-    for (dit = descByLevel[l].begin(); dit != descByLevel[l].end(); ++dit)
+    // Build the BitArray from the level descriptors
+    vtkNew<vtkBitArray> descriptor;
+    std::string::const_iterator dit;
+    for (int l = 0; l < maxLevels; l++)
     {
-      switch (*dit)
+      for (dit = descByLevel[l].begin(); dit != descByLevel[l].end(); ++dit)
       {
-        case 'R':    //  Refined cell
-          descriptor->InsertNextValue(1);
-          break;
+        switch (*dit)
+        {
+          case 'R':    //  Refined cell
+            descriptor->InsertNextValue(1);
+            break;
 
-        case '.':    // Leaf cell
-          descriptor->InsertNextValue(0);
-          break;
+          case '.':    // Leaf cell
+            descriptor->InsertNextValue(0);
+            break;
 
-        default:
-          vtkErrorMacro(<< "Unrecognized character: "
-                        << *dit
-                        << " in string "
-                        << descByLevel[l]);
-          return 0;
+          default:
+            vtkErrorMacro(<< "Unrecognized character: "
+                          << *dit
+                          << " in string "
+                          << descByLevel[l]);
+            return 0;
+        }
       }
     }
+    descriptor->Squeeze();
+    vtkIndent descIndent = treeIndent.GetNextIndent();
+    this->WriteArrayInline(descriptor, descIndent, "Descriptor", descriptor->GetNumberOfValues());
+
+    // Write the point data and cell data arrays for tree.
+    os << descIndent << "<PointData>\n";
+    vtkPointData* pd = input->GetPointData();
+
+    for (int i = 0; i < pd->GetNumberOfArrays(); ++i)
+    {
+      vtkAbstractArray* a = pd->GetAbstractArray(i);
+      vtkAbstractArray* b = a->NewInstance();
+
+      // BitArray processed
+      vtkBitArray *aBit = vtkArrayDownCast<vtkBitArray>(a);
+      if (aBit)
+      {
+        vtkBitArray *bBit = vtkArrayDownCast<vtkBitArray>(b);
+        bBit->SetNumberOfTuples(count / bBit->GetNumberOfComponents());
+
+        // Assuming count is a number of values, not a number of tuples:
+        for (vtkIdType j = offset; j < offset + count; ++j)
+        {
+          bBit->SetValue(j, aBit->GetValue(j + offset));
+        }
+      }
+      // DataArray processed
+      else
+      {
+        void* data = a->GetVoidPointer(offset);
+        b->SetVoidArray(data, count, 0);
+      }
+      this->WriteArrayInline(b, descIndent.GetNextIndent(), a->GetName());
+    }
+
+    // Increment to next tree with PointData
+    os << descIndent << "</PointData>\n";
+    os << treeIndent << "</Tree>\n";
   }
-  descriptor->Squeeze();
-  this->WriteArrayInline(descriptor, indent.GetNextIndent(), "Descriptor",
-                         descriptor->GetNumberOfValues());
+  os << indent << "</Trees>\n";
 
-  os << indent << "</Topology>\n";
-
-  os.flush();
-  if (os.fail())
-  {
-    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-    return 0;
-  }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkXMLHyperTreeGridWriter::WriteAttributeData(vtkIndent indent)
-{
-  // Write the point data and cell data arrays.
-  vtkDataSet* input = this->GetInputAsDataSet();
-
-  // Split progress between point data and cell data arrays.
-  float progressRange[2] = { 0.f, 0.f };
-  this->GetProgressRange(progressRange);
-  int pdArrays = input->GetPointData()->GetNumberOfArrays();
-  int total = (pdArrays)? (pdArrays):1;
-  float fractions[3] = { 0.f, static_cast<float>(pdArrays) / total, 1.f };
-
-  // Set the range of progress for the point data arrays.
-  this->SetProgressRange(progressRange, 0, fractions);
-
-  this->WritePointDataInline(input->GetPointData(), indent);
-
-  ostream& os = *(this->Stream);
   os.flush();
   if (os.fail())
   {

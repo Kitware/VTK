@@ -58,7 +58,7 @@ public:
    * Copy the internal geometric and topological structure of a
    * vtkUniformHyperTreeGrid object.
    */
-  void CopyStructure( vtkDataSet* ) override;
+  void CopyStructure( vtkDataObject* ) override;
 
   //@{
   /**
@@ -158,11 +158,6 @@ public:
   unsigned long GetActualMemorySizeBytes() override;
 
   /**
-   * Return an invalid number of cells as dual grid API not implemented
-   */
-  vtkIdType GetNumberOfCells() override { return -1; } ;
-
-  /**
    * Return tree located at given index of hyper tree grid
    * NB: This will construct a new HyperTree if grid slot is empty.
    */
@@ -183,14 +178,6 @@ protected:
    * Computation of bounds
    */
   void ComputeBounds() override;
-
-  /**
-   * Override this method which is not implemented for uniform
-   * hypertree grids.
-   * This is to prevent run-time errors caused by the absence of
-   * explicit X/Y/Z coordinates.
-   */
-  void ComputeDualGrid() override;
 
   /**
    * Grid Origin

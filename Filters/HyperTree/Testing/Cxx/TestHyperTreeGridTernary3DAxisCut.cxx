@@ -25,6 +25,7 @@
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
 #include "vtkProperty.h"
@@ -46,9 +47,16 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
   htGrid->SetBranchFactor( 3 );
   htGrid->SetDescriptor( "RRR .R. .RR ..R ..R .R.|R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ..........................." );
 
+  // DualGrid
+  vtkNew<vtkHyperTreeGridToDualGrid> dualFilter;
+  dualFilter->SetInputConnection( htGrid->GetOutputPort() );
+
   // Outline
   vtkNew<vtkOutlineFilter> outline;
-  outline->SetInputConnection( htGrid->GetOutputPort() );
+  outline->SetInputConnection( dualFilter->GetOutputPort() );
+  outline->Update();
+  double outBd[6];
+  outline->GetOutput()->GetBounds( outBd );
 
   // Axis cuts
   vtkNew<vtkHyperTreeGridAxisCut> axisCut1;
@@ -144,6 +152,33 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
+
+  // Compare bounds
+  bool differenceDetected = false;
+  for (int i = 0; i < 6; i++)
+  {
+    if ((bd[i] - outBd[i]) * (bd[i] - outBd[i]) > 0.0000001)
+    {
+      differenceDetected = true;
+    }
+  }
+
+  if (differenceDetected)
+  {
+    std::cerr << "Error: REPORTED BOUNDS ARE INVALID" << std::endl;
+    std::cerr << "htg: "
+      << bd[0] << ", " << bd[1] << ", "
+      << bd[2] << ", " << bd[3] << ", "
+      << bd[4] << ", " << bd[5]
+      << std::endl;
+    std::cerr << "outline: "
+      << outBd[0] << ", " << outBd[1] << ", "
+      << outBd[2] << ", " << outBd[3] << ", "
+      << outBd[4] << ", " << outBd[5]
+      << std::endl;
+    return 1; // Failed
+  }
+
 
   int retVal = vtkRegressionTestImageThreshold( renWin, 30 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )

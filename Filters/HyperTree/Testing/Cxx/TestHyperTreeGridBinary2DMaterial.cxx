@@ -24,6 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -43,9 +44,13 @@ int TestHyperTreeGridBinary2DMaterial( int argc, char* argv[] )
   htGrid->SetGridSize( 2, 3, 1 );
   htGrid->SetGridScale( 1.5, 1., 10. );  // this is to test that orientation fixes scale
   htGrid->SetBranchFactor( 2 );
-  htGrid->UseMaterialMaskOn();
+  htGrid->UseMaskOn();
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
-  htGrid->SetMaterialMask( "111111|0000 1111 1111 1111 1111|1111 0001 0111 0101 1011 1111 0111|1111 0111 1111 1111 1111 1111|1111 1111 1111 1111|1111" );
+  htGrid->SetMask( "111111|0000 1111 1111 1111 1111|1111 0001 0111 0101 1011 1111 0111|1111 0111 1111 1111 1111 1111|1111 1111 1111 1111|1111" );
+
+  // DualGrid
+  vtkNew<vtkHyperTreeGridToDualGrid> dualFilter;
+  dualFilter->SetInputConnection( htGrid->GetOutputPort() );
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
@@ -57,7 +62,7 @@ int TestHyperTreeGridBinary2DMaterial( int argc, char* argv[] )
   vtkNew<vtkContourFilter> contour;
   int nContours = 3;
   contour->SetNumberOfContours( nContours );
-  contour->SetInputConnection( htGrid->GetOutputPort() );
+  contour->SetInputConnection( dualFilter->GetOutputPort() );
   double resolution = ( maxLevel - 1 ) / ( nContours + 1. );
   double isovalue = resolution;
   for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
@@ -77,7 +82,7 @@ int TestHyperTreeGridBinary2DMaterial( int argc, char* argv[] )
   mapper3->SetInputConnection( contour->GetOutputPort() );
   mapper3->ScalarVisibilityOff();
   vtkNew<vtkDataSetMapper> mapper4;
-  mapper4->SetInputConnection( htGrid->GetOutputPort() );
+  mapper4->SetInputConnection( dualFilter->GetOutputPort() );
   mapper4->ScalarVisibilityOff();
 
   // Actors

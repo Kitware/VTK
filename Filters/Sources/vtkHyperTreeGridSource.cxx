@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkHyperTreeGridSource);
 vtkCxxSetObjectMacro(vtkHyperTreeGridSource, DescriptorBits, vtkBitArray);
-vtkCxxSetObjectMacro(vtkHyperTreeGridSource, MaterialMaskBits, vtkBitArray);
+vtkCxxSetObjectMacro(vtkHyperTreeGridSource, MaskBits, vtkBitArray);
 vtkCxxSetObjectMacro(vtkHyperTreeGridSource, Quadric, vtkQuadric);
 
 //----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->UseDescriptor = true;
 
   // By default do not use the material mask
-  this->UseMaterialMask = false;
+  this->UseMask = false;
 
   // By default do not generate interface vector fields
   this->GenerateInterfaceFields = false;
@@ -90,13 +90,13 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   this->Descriptor = new char[2];
   this->Descriptor[0] = '.';
   this->Descriptor[1] = 0;
-  this->MaterialMask = new char[2];
-  this->MaterialMask[0] = '0';
-  this->MaterialMask[1] = 0;
+  this->Mask = new char[2];
+  this->Mask[0] = '0';
+  this->Mask[1] = 0;
 
   // Grid description & material mask as bit arrays
   this->DescriptorBits = nullptr;
-  this->MaterialMaskBits = nullptr;
+  this->MaskBits = nullptr;
   this->LevelZeroMaterialIndex = nullptr;
   this->LevelZeroMaterialMap.clear();
 
@@ -135,10 +135,10 @@ vtkHyperTreeGridSource::~vtkHyperTreeGridSource()
     this->DescriptorBits = nullptr;
   }
 
-  if ( this->MaterialMaskBits )
+  if ( this->MaskBits )
   {
-    this->MaterialMaskBits->UnRegister( this );
-    this->MaterialMaskBits = nullptr;
+    this->MaskBits->UnRegister( this );
+    this->MaskBits = nullptr;
   }
 
   if ( this->LevelZeroMaterialIndex )
@@ -152,8 +152,8 @@ vtkHyperTreeGridSource::~vtkHyperTreeGridSource()
   delete [] this->Descriptor;
   this->Descriptor = nullptr;
 
-  delete [] this->MaterialMask;
-  this->MaterialMask = nullptr;
+  delete [] this->Mask;
+  this->Mask = nullptr;
 
   if ( this->Quadric )
   {
@@ -203,14 +203,14 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
   }
 
   os << indent << "UseDescriptor: " << this->UseDescriptor << endl;
-  os << indent << "UseMaterialMask: " << this->UseMaterialMask << endl;
+  os << indent << "UseMask: " << this->UseMask << endl;
   os << indent << "GenerateInterfaceFields:" << this->GenerateInterfaceFields << endl;
 
   os << indent << "LevelZeroMaterialIndex: " << this->LevelZeroMaterialIndex << endl;
   os << indent << "Descriptor: " << this->Descriptor << endl;
-  os << indent << "MaterialMask: " << this->MaterialMask << endl;
+  os << indent << "Mask: " << this->Mask << endl;
   os << indent << "LevelDescriptors: " << this->LevelDescriptors.size() << endl;
-  os << indent << "LevelMaterialMasks: " << this->LevelMaterialMasks.size() << endl;
+  os << indent << "LevelMasks: " << this->LevelMasks.size() << endl;
   os << indent << "LevelCounters: " << this->LevelCounters.size() << endl;
 
   if ( this->Quadric )
@@ -369,7 +369,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   output->SetDimension( this->Dimension );
   output->SetOrientation( this->Orientation );
   output->SetBranchFactor( this->BranchFactor );
-//JBDEL2  output->SetMaterialMaskIndex( this->LevelZeroMaterialIndex );
+//JBDEL2  output->SetMaskIndex( this->LevelZeroMaterialIndex );
 
   //  Set parameters that depend on dimension
   switch ( this->Dimension )
@@ -565,7 +565,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     outData->GetArray( a )->Squeeze();
   }
 
-  assert( "post: dataset_and_data_size_match" && output->CheckAttributes() == 0 );
+  assert( "post: dataset_and_data_size_match" );//DDM && output->CheckAttributes() == 0 );
 
   this->LevelBitsIndexCnt.clear();
   this->LevelBitsIndex.clear();
@@ -665,10 +665,10 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   size_t descLen = strlen( this->Descriptor );
 
   // Verify that grid and material specifications are consistent
-  if ( this->UseMaterialMask && strlen( this->MaterialMask ) != descLen )
+  if ( this->UseMask && strlen( this->Mask ) != descLen )
   {
     vtkErrorMacro(<<"Material mask is used but has length "
-                  << strlen( this->MaterialMask )
+                  << strlen( this->Mask )
                   << " != "
                   << descLen
                   << " which is the length of the grid descriptor.");
@@ -689,17 +689,17 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
 
   // Reset parsed level containers:
   this->LevelDescriptors.clear();
-  this->LevelMaterialMasks.clear();
+  this->LevelMasks.clear();
 
   for ( size_t i = 0; i < descLen; ++ i )
   {
     char c = this->Descriptor[i];
-    char m = this->UseMaterialMask ? this->MaterialMask[i] : 0;
+    char m = this->UseMask ? this->Mask[i] : 0;
     switch ( c )
     {
       case ' ':
         // Space is allowed as separator, verify mask consistency if needed
-        if ( this->UseMaterialMask && m != ' ' )
+        if ( this->UseMask && m != ' ' )
         {
           vtkErrorMacro(<<"Space separators do not match between "
                         "descriptor and material mask.");
@@ -709,7 +709,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
 
       case '|':
         //  A level is complete, verify mask consistency if needed
-        if ( this->UseMaterialMask && m != '|' )
+        if ( this->UseMask && m != '|' )
         {
           vtkErrorMacro(<<"Level separators do not match between "
                         "descriptor and material mask.");
@@ -718,7 +718,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
 
         // Store descriptor and material mask for current level
         this->LevelDescriptors.push_back( descriptor.str() );
-        this->LevelMaterialMasks.push_back( mask.str() );
+        this->LevelMasks.push_back( mask.str() );
 
         // Check whether cursor is still at rool level
         if ( rootLevel )
@@ -766,7 +766,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
       case '1':
       case 'R':
         //  Refined cell, verify mask consistency if needed
-        if ( this->UseMaterialMask && m == '0' )
+        if ( this->UseMask && m == '0' )
         {
           vtkErrorMacro(<<"A refined branch must contain material.");
           return 0;
@@ -776,7 +776,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
 
         // Append characters to per level descriptor and material mask if used
         descriptor << c;
-        if ( this->UseMaterialMask )
+        if ( this->UseMask )
         {
           mask << m;
         }
@@ -789,7 +789,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
 
         // Append characters to per level descriptor and material mask if used
         descriptor << c;
-        if ( this->UseMaterialMask )
+        if ( this->UseMask )
         {
           mask << m;
         }
@@ -820,9 +820,9 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
 
   // Push per-level descriptor and material mask if used
   this->LevelDescriptors.push_back( descriptor.str() );
-  if ( this->UseMaterialMask )
+  if ( this->UseMask )
   {
-    this->LevelMaterialMasks.push_back( mask.str() );
+    this->LevelMasks.push_back( mask.str() );
   }
   unsigned int nLevels =
     static_cast<unsigned int>( this->LevelDescriptors.size() );
@@ -969,17 +969,17 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor( vtkHyperTreeGrid* ou
     // Increment current level counter
     ++ this->LevelCounters.at( level );
 
-    if( this->UseMaterialMask )
+    if( this->UseMask )
     {
-      output->GetMaterialMask()->InsertTuple1( id, 0 );
+      output->GetMask()->InsertTuple1( id, 0 );
     }
   } // if ( subdivide )
 
-  else if ( this->UseMaterialMask )
+  else if ( this->UseMask )
   {
     // Blank leaf if needed
-    bool masked = this->LevelMaterialMasks.at( level ).at( pointer ) == '0' ? 1 : 0;
-    output->GetMaterialMask()->InsertTuple1( id, masked );
+    bool masked = this->LevelMasks.at( level ).at( pointer ) == '0' ? 1 : 0;
+    output->GetMask()->InsertTuple1( id, masked );
   } // else if
 }
 
@@ -987,11 +987,11 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor( vtkHyperTreeGrid* ou
 int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
 {
   // Verify that grid and material specifications are consistent
-  if ( this->UseMaterialMask && ! this->LevelZeroMaterialIndex
-       && this->MaterialMaskBits->GetSize() != this->DescriptorBits->GetSize() )
+  if ( this->UseMask && ! this->LevelZeroMaterialIndex
+       && this->MaskBits->GetSize() != this->DescriptorBits->GetSize() )
   {
     vtkErrorMacro(<<"Material mask is used but has length "
-                  << this->MaterialMaskBits->GetSize()
+                  << this->MaskBits->GetSize()
                   << " != "
                   << this->DescriptorBits->GetSize()
                   << " which is the length of the grid descriptor.");
@@ -1197,30 +1197,30 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor( vtkHyperTreeGrid* outp
     // Increment current level counter
     ++ this->LevelCounters.at( level );
 
-    if( this->UseMaterialMask )
+    if( this->UseMask )
     {
-      output->GetMaterialMask()->InsertTuple1( id, 0 );
+      output->GetMask()->InsertTuple1( id, 0 );
     }
   } // if ( subdivide )
   else
   {
     bool isMasked = false;
 
-    if ( this->UseMaterialMask  )
+    if ( this->UseMask  )
     {
       if ( this->LevelZeroMaterialIndex )
       {
         isMasked = ( level == 0 ) ? false :
-          this->MaterialMaskBits->GetValue( startIdx - this->LevelBitsIndex[1] + pointer ) == 0;
+          this->MaskBits->GetValue( startIdx - this->LevelBitsIndex[1] + pointer ) == 0;
       }
       else
       {
-        isMasked = this->MaterialMaskBits->GetValue( startIdx + pointer ) == 0;
+        isMasked = this->MaskBits->GetValue( startIdx + pointer ) == 0;
       }
     }
 
     // Blank leaf if needed
-    output->GetMaterialMask()->InsertTuple1( id, isMasked ? 1 : 0 );
+    output->GetMask()->InsertTuple1( id, isMasked ? 1 : 0 );
   } // else
 }
 
@@ -1315,9 +1315,9 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeGrid* output,
   if ( subdivide && level + 1 < this->MaximumLevel )
   {
     // Cell is subdivided so it cannot be masked
-    if( this->UseMaterialMask )
+    if( this->UseMask )
     {
-      output->GetMaterialMask()->InsertTuple1( id, 0 );
+      output->GetMask()->InsertTuple1( id, 0 );
     }
 
     // Subdivide hyper tree grid leaf
@@ -1420,9 +1420,9 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeGrid* output,
   } // if ( subdivide )
   else
   {
-    if( this->UseMaterialMask )
+    if( this->UseMask )
     {
-      output->GetMaterialMask()->InsertTuple1( id, ( nPos > 0 ) ? 1 : 0 );
+      output->GetMask()->InsertTuple1( id, ( nPos > 0 ) ? 1 : 0 );
     }
 
     // Cell values
@@ -1519,7 +1519,7 @@ vtkBitArray* vtkHyperTreeGridSource::ConvertDescriptorStringToBitArray( const st
 }
 
 //----------------------------------------------------------------------------
-vtkBitArray* vtkHyperTreeGridSource::ConvertMaterialMaskStringToBitArray( const std::string& str )
+vtkBitArray* vtkHyperTreeGridSource::ConvertMaskStringToBitArray( const std::string& str )
 {
   return ConvertDescriptorStringToBitArray( str );
 }

@@ -566,8 +566,8 @@ bool vtkHyperTreeGridNonOrientedMooreSuperCursor::GetCornerCursors( unsigned int
       // refined to a leaf, that leaf does Non own the corner
       owner = false;
     }
-    else if ( this->GetGrid()->HasMaterialMask()
-               && this->GetGrid()->GetMaterialMask()->GetTuple1( cursor.GetGlobalNodeIndex() ) )
+    else if ( this->GetGrid()->HasMask()
+               && this->GetGrid()->GetMask()->GetTuple1( cursor.GetGlobalNodeIndex() ) )
     {
       // If neighbor cell is masked, that leaf does Non own the corner
       owner = false;
