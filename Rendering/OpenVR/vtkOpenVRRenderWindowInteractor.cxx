@@ -513,7 +513,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
     }
 
     // for each controller create mouse move event
-    for (uint32_t unTrackedDevice = vr::k_unTrackedDeviceIndex_Hmd + 1;
+    for (uint32_t unTrackedDevice = vr::k_unTrackedDeviceIndex_Hmd;
          unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++ )
     {
       // is it not connected?
@@ -521,7 +521,8 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
       {
         continue;
       }
-      if (pHMD->GetTrackedDeviceClass( unTrackedDevice ) != vr::TrackedDeviceClass_Controller)
+      if (!(pHMD->GetTrackedDeviceClass( unTrackedDevice ) == vr::TrackedDeviceClass_Controller ||
+        pHMD->GetTrackedDeviceClass( unTrackedDevice ) == vr::TrackedDeviceClass_HMD))
       {
         continue;
       }
@@ -533,42 +534,49 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
         continue;
       }
 
-      vr::ETrackedControllerRole role = pHMD->GetControllerRoleForTrackedDeviceIndex(unTrackedDevice);
-
-      // 0 = right hand 1 = left
-      int pointerIndex =
-        (role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? 0 : 1);
-      this->PointerIndexLookup[pointerIndex] = unTrackedDevice;
-      this->SetPointerIndex(pointerIndex);
-
       double pos[3] = {0.0};
       double ppos[3] = {0.0};
       double wxyz[4] = {0.0};
       double wdir[3] = {0.0};
       this->ConvertPoseToWorldCoordinates(tdPose, pos, wxyz, ppos, wdir);
-      this->SetWorldEventPosition(pos[0],pos[1],pos[2],pointerIndex);
-      this->SetWorldEventOrientation(wxyz[0],wxyz[1],wxyz[2],wxyz[3],pointerIndex);
-      this->SetPhysicalEventPosition(ppos[0], ppos[1], ppos[2], pointerIndex);
-
-      vtkNew<vtkMatrix4x4> poseMatrixWorld;
-      vtkNew<vtkMatrix4x4> poseMatrixPhysical;
-      this->ConvertOpenVRPoseToMatrices(tdPose, poseMatrixWorld, poseMatrixPhysical);
-      this->SetWorldEventPose(poseMatrixWorld,pointerIndex);
-      this->SetPhysicalEventPose(poseMatrixPhysical,pointerIndex);
-
-      // so even though we have world coordinates we have to convert them to
-      // screen coordinates because all of VTKs picking code is currently
-      // based on screen coordinates
-      ren->SetWorldPoint(pos[0],pos[1],pos[2],1.0);
-      ren->WorldToDisplay();
-      double *displayCoords = ren->GetDisplayPoint();
-      this->SetEventPosition(displayCoords[0], displayCoords[1], pointerIndex);
-
       vtkNew<vtkEventDataMove3D> ed;
-      ed->SetDevice(pointerIndex ? vtkEventDataDevice::LeftController : vtkEventDataDevice::RightController);
       ed->SetWorldPosition(pos);
       ed->SetWorldOrientation(wxyz);
       ed->SetWorldDirection(wdir);
+      if (unTrackedDevice == vr::k_unTrackedDeviceIndex_Hmd)
+      {
+        // The HMD is not a controller, but we still want move events.
+        ed->SetDevice(vtkEventDataDevice::HeadMountedDisplay);
+      }
+      else
+      {
+        vr::ETrackedControllerRole role = pHMD->GetControllerRoleForTrackedDeviceIndex(unTrackedDevice);
+
+        // 0 = right hand 1 = left
+        int pointerIndex =
+          (role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? 0 : 1);
+        ed->SetDevice(pointerIndex ? vtkEventDataDevice::LeftController : vtkEventDataDevice::RightController);
+        this->PointerIndexLookup[pointerIndex] = unTrackedDevice;
+        this->SetPointerIndex(pointerIndex);
+
+        this->SetWorldEventPosition(pos[0],pos[1],pos[2],pointerIndex);
+        this->SetWorldEventOrientation(wxyz[0],wxyz[1],wxyz[2],wxyz[3],pointerIndex);
+        this->SetPhysicalEventPosition(ppos[0], ppos[1], ppos[2], pointerIndex);
+        vtkNew<vtkMatrix4x4> poseMatrixWorld;
+        vtkNew<vtkMatrix4x4> poseMatrixPhysical;
+        this->ConvertOpenVRPoseToMatrices(tdPose, poseMatrixWorld, poseMatrixPhysical);
+        this->SetWorldEventPose(poseMatrixWorld,pointerIndex);
+        this->SetPhysicalEventPose(poseMatrixPhysical,pointerIndex);
+
+        // so even though we have world coordinates we have to convert them to
+        // screen coordinates because all of VTKs picking code is currently
+        // based on screen coordinates
+        ren->SetWorldPoint(pos[0],pos[1],pos[2],1.0);
+        ren->WorldToDisplay();
+        double *displayCoords = ren->GetDisplayPoint();
+        this->SetEventPosition(displayCoords[0], displayCoords[1], pointerIndex);
+      }
+
       if (this->Enabled)
       {
         this->InvokeEvent(vtkCommand::Move3DEvent, ed);

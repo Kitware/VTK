@@ -42,6 +42,8 @@
 
 #include <cmath>
 
+namespace
+{
 void setOrientation(vtkTransform* trans, const double* orientation)
 {
   trans->Identity();
@@ -80,6 +82,7 @@ void getTorsoTransform(vtkTransform* trans, double Vup[3], double inVr[3]) {
     mat->SetElement(i, 2, Vr[i]);
   }
   trans->SetMatrix(mat);
+}
 }
 
 vtkStandardNewMacro(vtkOpenGLAvatar);
