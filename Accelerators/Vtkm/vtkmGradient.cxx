@@ -56,15 +56,11 @@ class vtkmGradientFilterPolicy
       : public vtkm::filter::PolicyBase<vtkmGradientFilterPolicy>
   {
   public:
-    typedef GradientTypes FieldTypeList;
-    typedef tovtkm::TypeListTagVTMOut FieldStorageList;
+    using FieldTypeList = GradientTypes;
 
-    typedef tovtkm::CellListStructuredInVTK StructuredCellSetList;
-    typedef tovtkm::CellListUnstructuredInVTK UnstructuredCellSetList;
-    typedef tovtkm::CellListAllInVTK AllCellSetList;
-
-    typedef vtkm::TypeListTagFieldVec3 CoordinateTypeList;
-    typedef tovtkm::PointListInVTK CoordinateStorageList;
+    using StructuredCellSetList = tovtkm::CellListStructuredInVTK;
+    using UnstructuredCellSetList = tovtkm::CellListUnstructuredInVTK;
+    using AllCellSetList = tovtkm::CellListAllInVTK;
   };
 
 vtkm::cont::DataSet CopyDataSetStructure(const vtkm::cont::DataSet& ds)

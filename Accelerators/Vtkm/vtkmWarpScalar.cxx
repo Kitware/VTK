@@ -38,41 +38,6 @@
 
 vtkStandardNewMacro(vtkmWarpScalar)
 
-namespace {
-// This class is pretty similar to vtkmInputFilterPolicy except that it adds
-// the support for ArrayHandle and ArrayHandleConstant
-class vtkmWarpScalarFilterPolicy : public
-    vtkm::filter::PolicyBase<vtkmWarpScalarFilterPolicy>
-{
-public:
-  using FieldTypeList = tovtkm::FieldTypeInVTK;
-
-  using vecType = vtkm::Vec<vtkm::FloatDefault, 3>;
-  struct TypeListVTKMWarpScalarTags : vtkm::ListTagBase<
-      vtkm::cont::ArrayHandle<vtkm::FloatDefault>::StorageTag,
-      vtkm::cont::ArrayHandleConstant<vecType>::StorageTag,
-      vtkm::cont::ArrayHandleConstant<vtkm::FloatDefault>::StorageTag,
-#if defined(VTKM_FILTER_INCLUDE_AOS)
-                                          tovtkm::vtkAOSArrayContainerTag
-#endif
-#if defined(VTKM_FILTER_INCLUDE_SOA)
-                                          ,tovtkm::vtkSOAArrayContainerTag
-#endif
->
-  {
-  };
-  using FieldStorageList = TypeListVTKMWarpScalarTags;
-
-  using StructuredCellSetList = tovtkm::CellListStructuredInVTK;
-  using UnstructuredCellSetList = tovtkm::CellListUnstructuredInVTK;
-  using AllCellSetList = tovtkm::CellListAllInVTK;
-
-  using CoordinateTypeList = vtkm::TypeListTagFieldVec3;
-  using CoordinateStorageList = tovtkm::PointListInVTK;
-};
-
-}
-
 //------------------------------------------------------------------------------
 vtkmWarpScalar::vtkmWarpScalar() : vtkWarpScalar()
 {
@@ -198,7 +163,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
       warpScalar.SetScalarFactorField(std::string(inScalars->GetName()));
     }
 
-    vtkmWarpScalarFilterPolicy policy;
+    vtkmInputFilterPolicy policy;
     auto result = warpScalar.Execute(in, policy);
     vtkDataArray* warpScalarResult = fromvtkm::Convert(result.GetField("warpscalar",
                   vtkm::cont::Field::Association::POINTS));

@@ -1,11 +1,4 @@
 
-if(NOT TARGET vtkm::cuda)
-  set(conditional_tests
-    TestVTKMLevelOfDetail.cxx
-    )
-endif()
-
-
 vtk_add_test_cxx(vtkAcceleratorsVTKmCxxTests tests
   TestVTKMCleanGrid.cxx
   TestVTKMCoordinateSystemTransform.cxx,NO_VALID
@@ -16,6 +9,7 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmCxxTests tests
   TestVTKMGradient.cxx,NO_VALID
   TestVTKMGradientAndVorticity.cxx,NO_VALID
   TestVTKMHistogram.cxx,NO_VALID
+  TestVTKMLevelOfDetail.cxx
   TestVTKMMarchingCubes.cxx
   TestVTKMMarchingCubes2.cxx
   TestVTKMNDHistogram.cxx,NO_VALID
@@ -28,10 +22,7 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmCxxTests tests
   TestVTKMTriangleMeshPointNormals.cxx
   TestVTKMWarpScalar.cxx
   TestVTKMWarpVector.cxx
-  ${conditional_tests}
   )
-
-
 
 if (TARGET vtkm::cuda)
   #the enable_language call is scoped! so we have to re-enable
