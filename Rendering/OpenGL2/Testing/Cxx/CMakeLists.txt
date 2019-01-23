@@ -1,6 +1,7 @@
 vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestBlurAndSobelPasses.cxx
   TestCoincident.cxx
+  TestCompositePolyDataMapper2CustomShader.cxx,NO_DATA
   TestCompositePolyDataMapper2NaNPartial.cxx,NO_DATA
   TestCompositePolyDataMapper2Pickability.cxx,NO_DATA
   TestCompositePolyDataMapper2SharedArray.cxx,NO_DATA

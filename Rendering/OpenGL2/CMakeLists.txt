@@ -54,6 +54,7 @@ set(classes
   vtkOpenGLRenderWindow
   vtkOpenGLRenderer
   vtkOpenGLShaderCache
+  vtkOpenGLShaderProperty
   vtkOpenGLSkybox
   vtkOpenGLSphereMapper
   vtkOpenGLState
@@ -62,6 +63,7 @@ set(classes
   vtkOpenGLTextActor3D
   vtkOpenGLTextMapper
   vtkOpenGLTexture
+  vtkOpenGLUniforms
   vtkOpenGLVertexArrayObject
   vtkOpenGLVertexBufferObject
   vtkOpenGLVertexBufferObjectCache
@@ -172,6 +174,8 @@ set(opengl_overrides
   PolyDataMapper
   PolyDataMapper2D
   Property
+  ShaderProperty
+  Uniforms
   Renderer
   RenderTimerLog
   Skybox

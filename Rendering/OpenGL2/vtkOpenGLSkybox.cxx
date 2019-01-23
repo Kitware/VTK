@@ -27,6 +27,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
+#include "vtkOpenGLShaderProperty.h"
 #include "vtkTexture.h"
 
 #include <cmath>
@@ -57,7 +58,8 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
   this->SetMapper(this->CubeMapper);
   this->OpenGLActor->SetMapper(this->CubeMapper);
 
-  this->CubeMapper->AddShaderReplacement(
+  vtkOpenGLShaderProperty * sp = vtkOpenGLShaderProperty::SafeDownCast(this->OpenGLActor->GetShaderProperty());
+  sp->AddShaderReplacement(
     vtkShader::Vertex,
     "//VTK::PositionVC::Dec", // replace
     true, // before the standard replacements
@@ -65,7 +67,7 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
     "out vec3 TexCoords;\n",
     false // only do it once
     );
-  this->CubeMapper->AddShaderReplacement(
+  sp->AddShaderReplacement(
     vtkShader::Vertex,
     "//VTK::PositionVC::Impl", // replace
     true, // before the standard replacements
@@ -116,10 +118,11 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
 
   if (this->LastProjection != this->Projection)
   {
+    vtkOpenGLShaderProperty * sp = vtkOpenGLShaderProperty::SafeDownCast(this->OpenGLActor->GetShaderProperty());
     if (this->Projection == vtkSkybox::Cube)
     {
       // Replace VTK fragment shader
-      this->CubeMapper->SetFragmentShaderCode(
+      sp->SetFragmentShaderCode(
         "//VTK::System::Dec\n"  // always start with this line
         "//VTK::Output::Dec\n"  // always have this line in your FS
         "in vec3 TexCoords;\n"
@@ -133,7 +136,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
     if (this->Projection == vtkSkybox::Sphere)
     {
       // Replace VTK fragment shader
-      this->CubeMapper->SetFragmentShaderCode(
+      sp->SetFragmentShaderCode(
         "//VTK::System::Dec\n"  // always start with this line
         "//VTK::Output::Dec\n"  // always have this line in your FS
         "in vec3 TexCoords;\n"
@@ -155,7 +158,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
     if (this->Projection == vtkSkybox::StereoSphere)
     {
       // Replace VTK fragment shader
-      this->CubeMapper->SetFragmentShaderCode(
+      sp->SetFragmentShaderCode(
         "//VTK::System::Dec\n"  // always start with this line
         "//VTK::Output::Dec\n"  // always have this line in your FS
         "in vec3 TexCoords;\n"
@@ -178,7 +181,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
     if (this->Projection == vtkSkybox::Floor)
     {
       // Replace VTK fragment shader
-      this->CubeMapper->SetFragmentShaderCode(
+      sp->SetFragmentShaderCode(
         "//VTK::System::Dec\n"  // always start with this line
         "//VTK::Output::Dec\n"  // always have this line in your FS
         "in vec3 TexCoords;\n"
