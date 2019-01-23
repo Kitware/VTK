@@ -296,7 +296,7 @@ void WriteMesh(
   }
 
   // if we have vertex colors then write them out
-  aPart->GetMapper()->MapScalars(1.0);
+  aPart->GetMapper()->MapScalars(pd, 1.0);
   if (aPart->GetMapper()->GetColorMapColors())
   {
     vtkUnsignedCharArray *da = aPart->GetMapper()->GetColorMapColors();
