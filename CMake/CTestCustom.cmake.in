@@ -26,6 +26,9 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # This is secondary output from MSVC, not indicate the warning per se.
   "note: see declaration of"
 
+  # function cast in vtkLogger/loguru
+  "vtkLogger.cxx.*: warning: cast between incompatible function types"
+
   # Qt headers cause C4127 warnings with MSVC. Nothing we can do to fix them.
   "[Qq]t([Cc]ore|[Gg]ui).*(warning|note)"
   # Qt has some functions marked as `__forceinline` which MSVC refuses to inline.

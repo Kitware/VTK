@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkWin32OutputWindow.h"
 
+#include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
@@ -50,16 +51,15 @@ LRESULT APIENTRY vtkWin32OutputWindowWndProc(HWND hWnd, UINT message,
 //----------------------------------------------------------------------------
 vtkWin32OutputWindow::vtkWin32OutputWindow()
 {
-  // Default to sending output to stderr/cerr when running a dashboard:
-  //
-  if(getenv("DART_TEST_FROM_DART") ||
-    getenv("DASHBOARD_TEST_FROM_CTEST"))
+  // Default to sending output to stderr/cerr when running a dashboard
+  // and logging is not enabled.
+  if (getenv("DART_TEST_FROM_DART") || getenv("DASHBOARD_TEST_FROM_CTEST"))
   {
-    this->SendToStdErr = true;
+    this->SetDisplayModeToDefault();
   }
   else
   {
-    this->SendToStdErr = false;
+    this->SetDisplayModeToNever();
   }
 }
 
@@ -83,6 +83,8 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
     return;
   }
 
+  const auto streamtype = this->GetDisplayStream(this->GetCurrentMessageType());
+
   // Create a buffer big enough to hold the entire text
   char* buffer = new char[strlen(someText)+1];
   // Start at the beginning
@@ -97,10 +99,16 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
     {
       vtkWin32OutputWindow::AddText(someText);
       OutputDebugString(someText);
-
-      if (this->SendToStdErr)
+      switch (streamtype)
       {
-        cerr << someText;
+        case StreamType::StdOutput:
+          cout << someText;
+          break;
+        case StreamType::StdError:
+          cerr << someText;
+          break;
+        default:
+          break;
       }
     }
     // if a new line is found copy it to the buffer
@@ -115,11 +123,18 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
       vtkWin32OutputWindow::AddText("\r\n");
       OutputDebugString(buffer);
       OutputDebugString("\r\n");
-
-      if (this->SendToStdErr)
+      switch (streamtype)
       {
-        cerr << buffer;
-        cerr << "\r\n";
+        case StreamType::StdOutput:
+          cout << buffer;
+          cout << "\r\n";
+          break;
+        case StreamType::StdError:
+          cerr << buffer;
+          cerr << "\r\n";
+          break;
+        default:
+          break;
       }
     }
   }
@@ -327,7 +342,6 @@ void vtkWin32OutputWindow::PromptText(const char* someText)
 void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
   if (vtkWin32OutputWindowOutputWindow)
   {
     os << indent << "OutputWindow: "
@@ -337,6 +351,35 @@ void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "OutputWindow: (null)\n";
   }
-
-  os << indent << "SendToStdErr: " << this->SendToStdErr << "\n";
 }
+
+//----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
+void vtkWin32OutputWindow::SetSendToStdErr(bool val)
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkWin32OutputWindow::SetSendToStdErr, "VTK 8.3", vtkWin32OutputWindow::SetDisplayMode);
+  this->SetDisplayMode(val ? ALWAYS_STDERR : DEFAULT);
+}
+
+bool vtkWin32OutputWindow::GetSendToStdErr()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkWin32OutputWindow::GetSendToStdErr, "VTK 8.3", vtkWin32OutputWindow::GetDisplayMode);
+  return this->GetDisplayMode() == ALWAYS_STDERR;
+}
+
+void vtkWin32OutputWindow::SendToStdErrOn()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkWin32OutputWindow::SendToStdErrOn, "VTK 8.3", vtkWin32OutputWindow::SetDisplayMode)
+  this->SetDisplayMode(ALWAYS_STDERR);
+}
+void vtkWin32OutputWindow::SendToStdErrOff()
+{
+
+  VTK_LEGACY_REPLACED_BODY(
+    vtkWin32OutputWindow::SendToStdErrOff, "VTK 8.3", vtkWin32OutputWindow::SetDisplayMode)
+  this->SetDisplayMode(DEFAULT);
+}
+#endif

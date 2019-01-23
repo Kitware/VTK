@@ -23,5 +23,7 @@
 #include <locale> // C++ locale
 
 #include <vtksys/SystemInformation.hxx> // for stacktrace
+
+#include <vtkLogger.h> // for logging
 #endif
 // VTK-HeaderTest-Exclude: vtkTestDriver.h

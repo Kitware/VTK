@@ -1,5 +1,7 @@
 SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
 "
+    vtksys::SystemInformation::SetStackTraceOnError(1);
+
     // Set defaults
     vtkTestingInteractor::ValidBaseline = \"Use_-V_for_Baseline\";
     vtkTestingInteractor::TempDirectory =
@@ -35,7 +37,16 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
             static_cast<double>(atof(av[++ii]));
         continue;
         }
+      if (ii < ac-1 && strcmp(av[ii], \"-v\") == 0)
+        {
+        vtkLogger::SetStderrVerbosity(static_cast<vtkLogger::Verbosity>(atoi(av[++ii])));
+        continue;
+        }
       }
+
+    // init logging
+    vtkLogger::Init(ac, av, nullptr);
+
     vtkSmartPointer<vtkTestingObjectFactory> factory = vtkSmartPointer<vtkTestingObjectFactory>::New();
     if (!interactive)
       {

@@ -16,8 +16,10 @@
 #include "vtkPythonInterpreter.h"
 
 #include "vtkCommand.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOutputWindow.h"
 #include "vtkPythonStdStreamCaptureHelper.h"
 #include "vtkResourceFileLocator.h"
 #include "vtkVersion.h"
@@ -46,17 +48,8 @@ extern wchar_t* _Py_DecodeUTF8_surrogateescape(const char* s, Py_ssize_t size);
 #define VTK_PATH_SEPARATOR "/"
 #endif
 
-#define VTKPY_DEBUG_MESSAGE(x)                                                                     \
-  if (vtkPythonInterpreter::GetPythonVerboseFlag() > 0)                                            \
-  {                                                                                                \
-    cout << "# vtk: " x << endl;                                                                   \
-  }
-
-#define VTKPY_DEBUG_MESSAGE_VV(x)                                                                  \
-  if (vtkPythonInterpreter::GetPythonVerboseFlag() > 1)                                            \
-  {                                                                                                \
-    cout << "# vtk: " x << endl;                                                                   \
-  }
+#define VTKPY_DEBUG_MESSAGE(x) vtkLog(INFO, x)
+#define VTKPY_DEBUG_MESSAGE_VV(x) vtkLog(1, x)
 
 namespace
 {
@@ -383,6 +376,16 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
       vtkPythonInterpreter::PythonVerboseFlag = 2;
     }
   }
+
+  // update log verbosity such that default is to only show errors/warnings.
+  // this avoids show the standard loguru INFO messages for executable args etc.
+  // unless `-v` was specified.
+  vtkLogger::SetStderrVerbosity(
+    static_cast<vtkLogger::Verbosity>(vtkPythonInterpreter::PythonVerboseFlag - 1));
+
+  vtkLogger::Init(argc, argv, nullptr); // since `-v` and `-vv` are parsed as Python verbosity flags
+                                        // and not log verbosity flags.
+
   vtkPythonInterpreter::Initialize(1);
 
 #if PY_VERSION_HEX >= 0x03000000
@@ -476,14 +479,14 @@ int vtkPythonInterpreter::RunSimpleString(const char* script)
   vtkPythonInterpreter::ConsoleBuffering = false;
   if (!vtkPythonInterpreter::StdErrBuffer.empty())
   {
-    vtkOutputWindowDisplayErrorText(vtkPythonInterpreter::StdErrBuffer.c_str());
+    vtkOutputWindow::GetInstance()->DisplayErrorText(vtkPythonInterpreter::StdErrBuffer.c_str());
     NotifyInterpreters(
       vtkCommand::ErrorEvent, const_cast<char*>(vtkPythonInterpreter::StdErrBuffer.c_str()));
     vtkPythonInterpreter::StdErrBuffer.clear();
   }
   if (!vtkPythonInterpreter::StdOutBuffer.empty())
   {
-    vtkOutputWindowDisplayText(vtkPythonInterpreter::StdOutBuffer.c_str());
+    vtkOutputWindow::GetInstance()->DisplayText(vtkPythonInterpreter::StdOutBuffer.c_str());
     NotifyInterpreters(
       vtkCommand::SetOutputEvent, const_cast<char*>(vtkPythonInterpreter::StdOutBuffer.c_str()));
     vtkPythonInterpreter::StdOutBuffer.clear();
@@ -513,7 +516,7 @@ void vtkPythonInterpreter::WriteStdOut(const char* txt)
   }
   else
   {
-    vtkOutputWindowDisplayText(txt);
+    vtkOutputWindow::GetInstance()->DisplayText(txt);
     NotifyInterpreters(vtkCommand::SetOutputEvent, const_cast<char*>(txt));
   }
 }
@@ -532,7 +535,7 @@ void vtkPythonInterpreter::WriteStdErr(const char* txt)
   }
   else
   {
-    vtkOutputWindowDisplayErrorText(txt);
+    vtkOutputWindow::GetInstance()->DisplayErrorText(txt);
     NotifyInterpreters(vtkCommand::ErrorEvent, const_cast<char*>(txt));
   }
 }
@@ -678,7 +681,10 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
   };
 
   vtkNew<vtkResourceFileLocator> locator;
-  locator->SetPrintDebugInformation(vtkPythonInterpreter::GetPythonVerboseFlag() > 1);
+  if (vtkPythonInterpreter::GetPythonVerboseFlag() > 1)
+  {
+    locator->SetLogVerbosity(vtkLogger::VERBOSITY_1);
+  }
   std::string path = locator->Locate(vtkdir, prefixes, "vtkmodules/__init__.py");
   if (!path.empty())
   {

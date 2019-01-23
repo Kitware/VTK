@@ -40,6 +40,7 @@ private:
   vtkOutputWindowCleanup& operator=(const vtkOutputWindowCleanup& rhs) = delete;
 };
 
+class vtkOutputWindowPrivateAccessor;
 class VTKCOMMONCORE_EXPORT vtkOutputWindow : public vtkObject
 {
 public:
@@ -103,12 +104,54 @@ public:
    * restores that incorrect behavior. When false (default),
    * vtkOutputWindow uses `cerr` for debug, error and warning messages, and
    * `cout` for text messages.
+   *
+   * @deprecated use `SetDisplayModeToAlwaysStdErr` instead.
    */
-  vtkSetMacro(UseStdErrorForAllMessages, bool);
-  vtkGetMacro(UseStdErrorForAllMessages, bool);
-  vtkBooleanMacro(UseStdErrorForAllMessages, bool);
+  VTK_LEGACY(void SetUseStdErrorForAllMessages(bool));
+  VTK_LEGACY(bool GetUseStdErrorForAllMessages());
+  VTK_LEGACY(void UseStdErrorForAllMessagesOn());
+  VTK_LEGACY(void UseStdErrorForAllMessagesOff());
   //@}
 
+  //@{
+  /**
+   * Flag indicates how the vtkOutputWindow handles displaying of text to
+   * `stderr` / `stdout`. Default is `DEFAULT` except in
+   * `vtkWin32OutputWindow` where on non dashboard runs, the default is
+   * `NEVER`.
+   *
+   * `NEVER` indicates that the messages should never be forwarded to the
+   * standard output/error streams.
+   *
+   * `ALWAYS` will result in error/warning/debug messages being posted to the
+   * standard error stream, while text messages to standard output stream.
+   *
+   * `ALWAYS_STDERR` will result in all messages being posted to the standard
+   * error stream (this was default behavior in VTK 8.1 and earlier).
+   *
+   * `DEFAULT` is similar to `ALWAYS` except when logging is enabled. If
+   * logging is enabled, messages posted to the output window using VTK error/warning macros such as
+   * `vtkErrorMacro`, `vtkWarningMacro` etc. will not posted on any of the output streams. This is
+   * done to avoid duplicate messages on these streams since these macros also result in add items
+   * to the log.
+   *
+   * @note vtkStringOutputWindow does not result this flag as is never forwards
+   * any text to the output streams.
+   */
+  enum DisplayModes
+  {
+    DEFAULT = -1,
+    NEVER = 0,
+    ALWAYS = 1,
+    ALWAYS_STDERR = 2
+  };
+  vtkSetClampMacro(DisplayMode, int, DEFAULT, ALWAYS_STDERR);
+  vtkGetMacro(DisplayMode, int);
+  void SetDisplayModeToDefault() { this->SetDisplayMode(vtkOutputWindow::DEFAULT); }
+  void SetDisplayModeToNever() { this->SetDisplayMode(vtkOutputWindow::NEVER); }
+  void SetDisplayModeToAlways() { this->SetDisplayMode(vtkOutputWindow::ALWAYS); }
+  void SetDisplayModeToAlwaysStdErr() { this->SetDisplayMode(vtkOutputWindow::ALWAYS_STDERR); }
+  //@}
 protected:
   vtkOutputWindow();
   ~vtkOutputWindow() override;
@@ -129,12 +172,29 @@ protected:
    */
   vtkGetMacro(CurrentMessageType, MessageTypes);
 
+  enum class StreamType
+  {
+    Null,
+    StdOutput,
+    StdError,
+  };
+
+  /**
+   * Returns the standard output stream to post the message of the given type
+   * on.
+   */
+  virtual StreamType GetDisplayStream(MessageTypes msgType) const;
+
   bool PromptUser;
-  bool UseStdErrorForAllMessages;
 
 private:
   static vtkOutputWindow* Instance;
   MessageTypes CurrentMessageType;
+  int DisplayMode;
+  int InStandardMacros; // used to suppress display to output streams from standard macros when
+                        // logging is enabled.
+
+  friend class vtkOutputWindowPrivateAccessor;
 
 private:
   vtkOutputWindow(const vtkOutputWindow&) = delete;

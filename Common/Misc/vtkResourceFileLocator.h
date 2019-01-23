@@ -49,10 +49,24 @@ public:
   /**
    * Enable/disable printing of testing of various path during `Locate`
    * to `stdout`.
+   *
+   * @deprecated Instead use `SetLogVerbosity` to specify the verbosity at which
+   * this instance should log trace information. Default is
+   * `vtkLogger::VERBOSITY_TRACE`.
    */
-  vtkSetMacro(PrintDebugInformation, bool);
-  vtkGetMacro(PrintDebugInformation, bool);
-  vtkBooleanMacro(PrintDebugInformation, bool);
+  VTK_LEGACY(void SetPrintDebugInformation(bool));
+  VTK_LEGACY(bool GetPrintDebugInformation());
+  VTK_LEGACY(void PrintDebugInformationOn());
+  VTK_LEGACY(void PrintDebugInformationOff());
+  //@}
+
+  //@{
+  /**
+   * The log verbosity to use when logging information about the resource
+   * searching. Default is `vtkLogger::VERBOSITY_TRACE`.
+   */
+  vtkSetMacro(LogVerbosity, int);
+  vtkGetMacro(LogVerbosity, int);
   //@}
 
   //@{
@@ -96,11 +110,12 @@ protected:
   vtkResourceFileLocator();
   ~vtkResourceFileLocator() override;
 
-  bool PrintDebugInformation;
 
 private:
   vtkResourceFileLocator(const vtkResourceFileLocator&) = delete;
   void operator=(const vtkResourceFileLocator&) = delete;
+
+  int LogVerbosity;
 };
 
 #if defined(_WIN32) && !defined(__CYGWIN__)

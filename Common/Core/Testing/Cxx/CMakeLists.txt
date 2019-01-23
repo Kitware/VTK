@@ -111,6 +111,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestGarbageCollector.cxx
   TestGenericDataArrayAPI.cxx
   TestInformationKeyLookup.cxx
+  TestLogger.cxx
   TestLookupTable.cxx
   TestLookupTableThreaded.cxx
   TestMath.cxx

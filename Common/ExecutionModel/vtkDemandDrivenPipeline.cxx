@@ -31,6 +31,7 @@
 #include "vtkInformationRequestKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
@@ -184,6 +185,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
     if(this->PipelineMTime > this->DataObjectTime.GetMTime())
     {
       // Request data type from the algorithm.
+      vtkLogf(TRACE, "%s execute-data-object", vtkLogIdentifier(this->Algorithm));
       result = this->ExecuteDataObject(request,inInfoVec,outInfoVec);
 
       // Make sure the data object exists for all output ports.
@@ -233,6 +235,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
       }
 
       // Request information from the algorithm.
+      vtkLogf(TRACE, "%s execute-information", vtkLogIdentifier(this->Algorithm));
       result = this->ExecuteInformation(request,inInfoVec,outInfoVec);
 
       // Information is now up to date.
@@ -270,6 +273,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
       }
 
       // Request data from the algorithm.
+      vtkLogf(TRACE, "%s execute-data", vtkLogIdentifier(this->Algorithm));
       result = this->ExecuteData(request,inInfoVec,outInfoVec);
 
       // Data are now up to date.
