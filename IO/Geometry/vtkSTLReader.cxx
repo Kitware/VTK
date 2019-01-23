@@ -705,9 +705,6 @@ void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "File Name: "
-     <<(this->FileName ? this->FileName : "(none)") << "\n";
-
   os << indent << "Merging: " <<(this->Merging ? "On\n" : "Off\n");
   os << indent << "ScalarTags: " <<(this->ScalarTags ? "On\n" : "Off\n");
   os << indent << "Locator: ";

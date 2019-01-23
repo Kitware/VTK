@@ -88,22 +88,22 @@ public:
   //@}
 
   /**
-  * Get header string.
-  * If an ASCII STL file contains multiple solids then
-  * headers are separated by newline character.
-  * If a binary STL file is read, the first zero-terminated
-  * string is stored in this header, the full header is available
-  * by using GetBinaryHeader().
-  * \sa GetBinaryHeader()
-  */
+   * Get header string.
+   * If an ASCII STL file contains multiple solids then
+   * headers are separated by newline character.
+   * If a binary STL file is read, the first zero-terminated
+   * string is stored in this header, the full header is available
+   * by using GetBinaryHeader().
+   * \sa GetBinaryHeader()
+   */
   vtkGetStringMacro(Header);
 
   /**
-  * Get binary file header string.
-  * If ASCII STL file is read then BinaryHeader is not set,
-  * and the header can be retrieved using.GetHeader() instead.
-  * \sa GetHeader()
-  */
+   * Get binary file header string.
+   * If ASCII STL file is read then BinaryHeader is not set,
+   * and the header can be retrieved using.GetHeader() instead.
+   * \sa GetHeader()
+   */
   vtkGetObjectMacro(BinaryHeader, vtkUnsignedCharArray);
 
 protected:
