@@ -286,7 +286,7 @@ private:
 #define vtkMakeMappedUnstructuredGrid(_className, _impl)                                           \
   vtkMakeExportedMappedUnstructuredGrid(_className, _impl, )
 
-#define vtkMakeMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl)              \
+#define vtkMakeMappedUnstructuredGridWithIter(_className, _impl, _cIter)                           \
   vtkMakeExportedMappedUnstructuredGridWithIter(_className, _impl, _cIter, )
 
 #endif // vtkMappedUnstructuredGrid_h
