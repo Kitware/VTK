@@ -28,6 +28,7 @@
 #include "vtkTransform.h"
 #include "vtkVolumeCollection.h"
 #include "vtkVolumeProperty.h"
+#include "vtkShaderProperty.h"
 
 #include <cmath>
 
@@ -40,6 +41,7 @@ vtkVolume::vtkVolume()
 {
   this->Mapper                      = nullptr;
   this->Property                    = nullptr;
+  this->ShaderProperty              = nullptr;
 
   for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
   {
@@ -60,6 +62,10 @@ vtkVolume::~vtkVolume()
   if (this->Property )
   {
     this->Property->UnRegister(this);
+  }
+  if (this->ShaderProperty)
+  {
+    this->ShaderProperty->UnRegister(this);
   }
 
   this->SetMapper(nullptr);
@@ -87,6 +93,7 @@ void vtkVolume::ShallowCopy(vtkProp *prop)
   {
     this->SetMapper(v->GetMapper());
     this->SetProperty(v->GetProperty());
+    this->SetShaderProperty(v->GetShaderProperty());
   }
 
   // Now do superclass
@@ -414,6 +421,31 @@ vtkVolumeProperty *vtkVolume::GetProperty()
     this->Property->Delete();
   }
   return this->Property;
+}
+
+void vtkVolume::SetShaderProperty(vtkShaderProperty *property)
+{
+  if( this->ShaderProperty != property )
+  {
+    if (this->ShaderProperty != nullptr) {this->ShaderProperty->UnRegister(this);}
+    this->ShaderProperty = property;
+    if (this->ShaderProperty != nullptr)
+    {
+      this->ShaderProperty->Register(this);
+    }
+    this->Modified();
+  }
+}
+
+vtkShaderProperty *vtkVolume::GetShaderProperty()
+{
+  if( this->ShaderProperty == nullptr )
+  {
+    this->ShaderProperty = vtkShaderProperty::New();
+    this->ShaderProperty->Register(this);
+    this->ShaderProperty->Delete();
+  }
+  return this->ShaderProperty;
 }
 
 vtkMTimeType vtkVolume::GetMTime()

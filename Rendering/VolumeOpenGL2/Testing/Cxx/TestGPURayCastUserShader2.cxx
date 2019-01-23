@@ -34,6 +34,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+#include "vtkShaderProperty.h"
 
 #include <TestGPURayCastUserShader2_FS.h>
 
@@ -84,24 +85,27 @@ int TestGPURayCastUserShader2(int argc, char* argv[])
   vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
   mapper->SetUseJittering(0);
-  // Clear all custom shader tag replacements
-  // The following code is mainly for regression testing as we do not have any
-  // custom shader replacements.
-  mapper->ClearAllShaderReplacements(vtkShader::Vertex);
-  mapper->ClearAllShaderReplacements(vtkShader::Fragment);
-  mapper->ClearAllShaderReplacements(vtkShader::Geometry);
-  mapper->ClearAllShaderReplacements();
 
   // Tell the mapper to use the min and max of the color function nodes as the
   // lookup table range instead of the volume scalar range.
   mapper->SetColorRangeType(vtkGPUVolumeRayCastMapper::NATIVE);
 
+  vtkNew<vtkShaderProperty> shaderProperty;
+  // Clear all custom shader tag replacements
+  // The following code is mainly for regression testing as we do not have any
+  // custom shader replacements.
+  shaderProperty->ClearAllVertexShaderReplacements();
+  shaderProperty->ClearAllFragmentShaderReplacements();
+  shaderProperty->ClearAllGeometryShaderReplacements();
+  shaderProperty->ClearAllShaderReplacements();
+
   // Modify the shader to color based on the depth of the translucent voxel
-  mapper->SetFragmentShaderCode(TestGPURayCastUserShader2_FS);
+  shaderProperty->SetFragmentShaderCode(TestGPURayCastUserShader2_FS);
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(mapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetShaderProperty(shaderProperty);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);

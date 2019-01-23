@@ -80,7 +80,7 @@ class vtkTextureObject;
 class vtkVolume;
 class vtkVolumeInputHelper;
 class vtkVolumeTexture;
-class vtkOpenGLUniforms;
+class vtkOpenGLShaderProperty;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
   public vtkGPUVolumeRayCastMapper
@@ -153,50 +153,6 @@ public:
    */
   bool PreLoadData(vtkRenderer* ren, vtkVolume* vol);
 
-  //@{
-  /**
-   * This function enables you to apply your own substitutions
-   * to the shader creation process. The shader code in this class
-   * is created by applying a bunch of string replacements to a
-   * shader template. Using this function you can apply your
-   * own string replacements to add features you desire.
-   */
-  void AddShaderReplacement(
-    vtkShader::Type shaderType, // vertex, fragment, etc
-    const std::string& originalValue,
-    bool replaceFirst,  // do this replacement before the default
-    const std::string& replacementValue,
-    bool replaceAll);
-  void ClearShaderReplacement(
-    vtkShader::Type shaderType, // vertex, fragment, etc
-    const std::string& originalValue,
-    bool replaceFirst);
-  void ClearAllShaderReplacements(vtkShader::Type shaderType);
-  void ClearAllShaderReplacements();
-  //@}
-
-  //@{
-  /**
-   * Allow the program to set the shader codes used directly
-   * instead of using the built in templates. Be aware, if
-   * set, this template will be used for all cases,
-   * primitive types, picking etc.
-   */
-  vtkSetStringMacro(VertexShaderCode);
-  vtkGetStringMacro(VertexShaderCode);
-  vtkSetStringMacro(FragmentShaderCode);
-  vtkGetStringMacro(FragmentShaderCode);
-  //@}
-
-  //@{
-  /**
-   * The Uniforms object allows to set custom uniform variables
-   * that are used in replacement shader code.
-   */
-  vtkGetObjectMacro(FragmentCustomUniforms,vtkOpenGLUniforms);
-  vtkGetObjectMacro(VertexCustomUniforms,vtkOpenGLUniforms);
-  //@}
-
   // Description:
   // Delete OpenGL objects.
   // \post done: this->OpenGLObjectsCreated==0
@@ -243,7 +199,8 @@ protected:
   // Method that performs the actual rendering given a volume and a shader
   void DoGPURender(vtkRenderer* ren,
                    vtkOpenGLCamera* cam,
-                   vtkShaderProgram* shaderProgram);
+                   vtkShaderProgram* shaderProgram,
+                   vtkOpenGLShaderProperty* shaderProperty);
 
   // Description:
   // Update the reduction factor of the render viewport (this->ReductionFactor)
@@ -281,7 +238,7 @@ protected:
   /**
    * Create the basic shader template strings before substitutions
    */
-  void GetShaderTemplate(std::map<vtkShader::Type, vtkShader*>& shaders);
+  void GetShaderTemplate(std::map<vtkShader::Type, vtkShader*>& shaders, vtkOpenGLShaderProperty * p);
 
   /**
    * Perform string replacements on the shader templates
@@ -294,7 +251,7 @@ protected:
    *  ReplaceShaderValues.
    */
   void ReplaceShaderCustomUniforms(
-    std::map<vtkShader::Type, vtkShader*>& shaders );
+    std::map<vtkShader::Type, vtkShader*>& shaders, vtkOpenGLShaderProperty * p );
   void ReplaceShaderBase(std::map<vtkShader::Type, vtkShader*>& shaders,
     vtkRenderer* ren, vtkVolume* vol, int numComps);
   void ReplaceShaderTermination(std::map<vtkShader::Type, vtkShader*>& shaders,
@@ -331,13 +288,6 @@ protected:
 
   double ReductionFactor;
   int    CurrentPass;
-  char *VertexShaderCode;
-  char *FragmentShaderCode;
-  std::map<const vtkShader::ReplacementSpec, vtkShader::ReplacementValue>
-    UserShaderReplacements;
-
-  vtkNew<vtkOpenGLUniforms> FragmentCustomUniforms;
-  vtkNew<vtkOpenGLUniforms> VertexCustomUniforms;
 
 public:
   using VolumeInput = vtkVolumeInputHelper;

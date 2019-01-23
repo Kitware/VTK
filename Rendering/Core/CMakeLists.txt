@@ -85,6 +85,7 @@ set(classes
   vtkRendererSource
   vtkSelectVisiblePoints
   vtkShaderDeviceAdapter2
+  vtkShaderProperty
   vtkSkybox
   vtkTextActor
   vtkTextActor3D
@@ -93,6 +94,7 @@ set(classes
   vtkTransformCoordinateSystems
   vtkTransformInterpolator
   vtkTupleInterpolator
+  vtkUniforms
   vtkViewDependentErrorMetric
   vtkViewport
   vtkVisibilitySort
