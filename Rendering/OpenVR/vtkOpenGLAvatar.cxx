@@ -42,12 +42,47 @@
 
 #include <cmath>
 
+namespace
+{
 void setOrientation(vtkTransform* trans, const double* orientation)
 {
   trans->Identity();
   trans->RotateZ(orientation[2]);
   trans->RotateX(orientation[0]);
   trans->RotateY(orientation[1]);
+}
+
+void MultiplyComponents(double a[3], double scale[3])
+{
+  a[0] *= scale[0];
+  a[1] *= scale[1];
+  a[2] *= scale[2];
+}
+
+// calculate a rotation purely around Vup, using an approximate Vr (right)
+// that isn't orthogonal.
+void getTorsoTransform(vtkTransform* trans, double Vup[3], double inVr[3]) {
+  double Vr[3] = { inVr[0], inVr[1], inVr[2] };
+
+  // make Vr orthogonal to Vup
+  double Vtemp[3] = { Vup[0], Vup[1], Vup[2] };
+  vtkMath::MultiplyScalar(Vtemp, vtkMath::Dot(Vup, Vr));
+  vtkMath::Subtract(Vr, Vtemp, Vr);
+  vtkMath::Normalize(Vr);
+  // get third basis vector
+  double Vfr[3];
+  vtkMath::Cross(Vup, Vr, Vfr);
+  // make new rotation matrix. Basis vectors form the rotation piece.
+  trans->Identity();
+  vtkNew<vtkMatrix4x4> mat;
+  trans->GetMatrix(mat);
+  for (int i = 0; i < 3; ++i) {
+    mat->SetElement(i, 0, Vfr[i]);
+    mat->SetElement(i, 1, Vup[i]);
+    mat->SetElement(i, 2, Vr[i]);
+  }
+  trans->SetMatrix(mat);
+}
 }
 
 vtkStandardNewMacro(vtkOpenGLAvatar);
@@ -154,9 +189,14 @@ void vtkOpenGLAvatar::CalcBody()
   this->BodyPosition[TORSO][2] = this->HeadPosition[2];
 
   // keep the head orientation in the direction of the up vector.
-  this->BodyOrientation[TORSO][0] = this->HeadOrientation[0] * this->UpVector[0];
-  this->BodyOrientation[TORSO][1] = this->HeadOrientation[1] * this->UpVector[1];
-  this->BodyOrientation[TORSO][2] = this->HeadOrientation[2] * this->UpVector[2];
+  // use the vector between the hands as a guide for torso's rotation (Vright).
+  double torsoRight[3];
+  vtkMath::Subtract(this->RightHandPosition, this->LeftHandPosition, torsoRight);
+
+  vtkNew<vtkTransform> trans;
+  getTorsoTransform(trans, this->UpVector, torsoRight);
+
+  trans->GetOrientation(this->BodyOrientation[TORSO]);
 
   // Initial try - keep forearm rigidly attached to hand.
   this->BodyPosition[LEFT_FORE][0] = this->LeftHandPosition[0];
@@ -177,10 +217,12 @@ void vtkOpenGLAvatar::CalcBody()
 
   // Attach upper arm at shoulder, and rotate to hit the end of the forearm.
   // end of forearm, relative to the hand at 0, is elbow pos.
-  double shoulderPos[3] = {-0.138, -0.5, -0.61};
-  vtkNew<vtkTransform> trans;
+  double shoulderPos[3] = {-0.138, -0.53, -0.60};
+  double scale[3];
+  this->GetScale(scale);
   setOrientation(trans, this->BodyOrientation[TORSO]);
   // calculate relative left shoulder position (to torso)
+  MultiplyComponents(shoulderPos, scale);
   trans->TransformPoint(shoulderPos, this->BodyPosition[LEFT_UPPER]);
 
   // move with torso
@@ -188,7 +230,7 @@ void vtkOpenGLAvatar::CalcBody()
   this->BodyPosition[LEFT_UPPER][1] += this->BodyPosition[TORSO][1];
   this->BodyPosition[LEFT_UPPER][2] += this->BodyPosition[TORSO][2];
 
-  shoulderPos[2] = +0.61;
+  shoulderPos[2] = +0.60 * scale[2];
   // calculate relative right shoulder position (to torso)
   trans->TransformPoint(shoulderPos, this->BodyPosition[RIGHT_UPPER]);
 
@@ -200,6 +242,7 @@ void vtkOpenGLAvatar::CalcBody()
   // orient the upper left arm to aim at the elbow.
   double leftElbowPos[3] = {-0.85, 0.02, 0};
   setOrientation(trans, this->LeftHandOrientation);
+  MultiplyComponents(leftElbowPos, scale);
   trans->TransformPoint(leftElbowPos, leftElbowPos);
   leftElbowPos[0] += this->LeftHandPosition[0];
   leftElbowPos[1] += this->LeftHandPosition[1];
@@ -218,6 +261,7 @@ void vtkOpenGLAvatar::CalcBody()
   // now the right upper arm
   double rightElbowPos[3] = {-0.85, 0.02, 0};
   setOrientation(trans, this->RightHandOrientation);
+  MultiplyComponents(rightElbowPos, scale);
   trans->TransformPoint(rightElbowPos, rightElbowPos);
   rightElbowPos[0] += this->RightHandPosition[0];
   rightElbowPos[1] += this->RightHandPosition[1];
