@@ -195,6 +195,7 @@ void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
 //----------------------------------------------------------------------------
 void vtkPolyLineRepresentation::GetPolyData(vtkPolyData* pd)
 {
+  this->PolyLineSource->Update();
   pd->ShallowCopy(this->PolyLineSource->GetOutput());
 }
 

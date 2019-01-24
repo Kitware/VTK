@@ -250,6 +250,7 @@ void vtkSplineRepresentation::SetResolution(int resolution)
 //----------------------------------------------------------------------------
 void vtkSplineRepresentation::GetPolyData(vtkPolyData* pd)
 {
+  this->ParametricFunctionSource->Update();
   pd->ShallowCopy(this->ParametricFunctionSource->GetOutput());
 }
 

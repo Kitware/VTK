@@ -198,6 +198,7 @@ vtkSphereRepresentation::~vtkSphereRepresentation()
 //----------------------------------------------------------------------
 void vtkSphereRepresentation::GetPolyData(vtkPolyData* pd)
 {
+  this->SphereSource->Update();
   pd->ShallowCopy(this->SphereSource->GetOutput());
 }
 

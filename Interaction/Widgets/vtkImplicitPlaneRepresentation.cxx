@@ -1561,6 +1561,7 @@ void vtkImplicitPlaneRepresentation::SetNormalToZAxis(vtkTypeBool var)
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::GetPolyData(vtkPolyData* pd)
 {
+  this->Cutter->Update();
   pd->ShallowCopy(this->Cutter->GetOutput());
 }
 
