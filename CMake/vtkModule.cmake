@@ -4102,7 +4102,7 @@ function (vtk_module_third_party_internal)
   if (_vtk_third_party_internal_LICENSE_FILES)
     install(
       FILES       ${_vtk_third_party_internal_LICENSE_FILES}
-      DESTINATION "${_vtk_build_LICENSE_DESTINATION}/${_vtk_build_module}/"
+      DESTINATION "${_vtk_build_LICENSE_DESTINATION}/${_vtk_third_party_internal_library_name}/"
       COMPONENT   "license")
   endif ()
 
