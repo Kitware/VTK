@@ -16,8 +16,8 @@
 
 #include "metaSurface.h"
 
-#include <stdio.h>
-#include <ctype.h>
+#include <cctype>
+#include <cstdio>
 #include <string>
 
 #if (METAIO_USE_NAMESPACE)
@@ -128,7 +128,7 @@ PointDim(const char* pointDim)
 }
 
 const char* MetaSurface::
-PointDim(void) const
+PointDim() const
 {
   return m_PointDim;
 }
@@ -140,14 +140,14 @@ NPoints(int npnt)
 }
 
 int MetaSurface::
-NPoints(void) const
+NPoints() const
 {
   return m_NPoints;
 }
 
 /** Clear Surface information */
 void MetaSurface::
-Clear(void)
+Clear()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaSurface: Clear" << METAIO_STREAM::endl;
   MetaObject::Clear();
@@ -167,14 +167,14 @@ Clear(void)
 
 /** Destroy Surface information */
 void MetaSurface::
-M_Destroy(void)
+M_Destroy()
 {
   MetaObject::M_Destroy();
 }
 
 /** Set Read fields */
 void MetaSurface::
-M_SetupReadFields(void)
+M_SetupReadFields()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaSurface: M_SetupReadFields" << METAIO_STREAM::endl;
 
@@ -203,7 +203,7 @@ M_SetupReadFields(void)
 }
 
 void MetaSurface::
-M_SetupWriteFields(void)
+M_SetupWriteFields()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaSurface: M_SetupWriteFields" << METAIO_STREAM::endl;
 
@@ -238,7 +238,7 @@ M_SetupWriteFields(void)
 }
 
 MET_ValueEnumType MetaSurface::
-ElementType(void) const
+ElementType() const
 {
   return m_ElementType;
 }
@@ -251,7 +251,7 @@ ElementType(MET_ValueEnumType _elementType)
 
 
 bool MetaSurface::
-M_Read(void)
+M_Read()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaSurface: M_Read: Loading Header" << METAIO_STREAM::endl;
 
@@ -284,7 +284,7 @@ M_Read(void)
   }
 
   int pntDim;
-  char** pntVal = NULL;
+  char** pntVal = nullptr;
   MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
 
   int i;
@@ -409,7 +409,7 @@ M_Read(void)
 
 
 bool MetaSurface::
-M_Write(void)
+M_Write()
 {
 
   if(META_DEBUG) METAIO_STREAM::cout << "MetaSurface: M_Write" << METAIO_STREAM::endl;

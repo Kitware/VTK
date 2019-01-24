@@ -15,8 +15,8 @@
 #pragma warning(disable:4702)
 #endif
 
-#include <stdio.h>
-#include <ctype.h>
+#include <cctype>
+#include <cstdio>
 #include <string>
 
 #if (METAIO_USE_NAMESPACE)
@@ -85,7 +85,7 @@ CopyInfo(const MetaObject * _object)
 
 /** Clear group information */
 void MetaGroup::
-Clear(void)
+Clear()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaGroup: Clear" << METAIO_STREAM::endl;
   MetaObject::Clear();
@@ -93,14 +93,14 @@ Clear(void)
 
 /** Destroy group information */
 void MetaGroup::
-M_Destroy(void)
+M_Destroy()
 {
   MetaObject::M_Destroy();
 }
 
 /** Set Read fields */
 void MetaGroup::
-M_SetupReadFields(void)
+M_SetupReadFields()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaGroup: M_SetupReadFields" << METAIO_STREAM::endl;
 
@@ -116,7 +116,7 @@ M_SetupReadFields(void)
 }
 
 void MetaGroup::
-M_SetupWriteFields(void)
+M_SetupWriteFields()
 {
   strcpy(m_ObjectTypeName,"Group");
   MetaObject::M_SetupWriteFields();
@@ -128,7 +128,7 @@ M_SetupWriteFields(void)
 
 
 bool MetaGroup::
-M_Read(void)
+M_Read()
 {
   if(META_DEBUG)
     {

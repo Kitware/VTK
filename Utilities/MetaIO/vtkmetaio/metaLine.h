@@ -80,11 +80,11 @@ class METAIO_EXPORT MetaLine : public MetaObject
 
     MetaLine(unsigned int dim);
 
-    ~MetaLine(void) MET_OVERRIDE;
+    ~MetaLine(void) override;
 
-    void PrintInfo(void) const MET_OVERRIDE;
+    void PrintInfo(void) const override;
 
-    void CopyInfo(const MetaObject * _object) MET_OVERRIDE;
+    void CopyInfo(const MetaObject * _object) override;
 
 
     //    NPoints(...)
@@ -100,7 +100,7 @@ class METAIO_EXPORT MetaLine : public MetaObject
     const char* PointDim(void) const;
 
 
-    void  Clear(void) MET_OVERRIDE;
+    void  Clear(void) override;
 
     PointListType & GetPoints(void) {return m_PointList;}
     const PointListType & GetPoints(void) const {return m_PointList;}
@@ -117,15 +117,15 @@ class METAIO_EXPORT MetaLine : public MetaObject
 
     bool  m_ElementByteOrderMSB;
 
-    void  M_Destroy(void) MET_OVERRIDE;
+    void  M_Destroy(void) override;
 
-    void  M_SetupReadFields(void) MET_OVERRIDE;
+    void  M_SetupReadFields(void) override;
 
-    void  M_SetupWriteFields(void) MET_OVERRIDE;
+    void  M_SetupWriteFields(void) override;
 
-    bool  M_Read(void) MET_OVERRIDE;
+    bool  M_Read(void) override;
 
-    bool  M_Write(void) MET_OVERRIDE;
+    bool  M_Write(void) override;
 
     int   m_NPoints;      // "NPoints = "         0
 

@@ -70,10 +70,10 @@ class MetaFileOutputStream : public MetaOutputStream
   public:
 
     MetaFileOutputStream(const char* name);
-    ~MetaFileOutputStream() MET_OVERRIDE {}
+    ~MetaFileOutputStream() override {}
 
-    bool Open() MET_OVERRIDE;
-    bool Close() MET_OVERRIDE;
+    bool Open() override;
+    bool Close() override;
 
     METAIO_STL::string GetFileName();
 
