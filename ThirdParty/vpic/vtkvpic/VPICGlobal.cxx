@@ -337,7 +337,7 @@ void VPICGlobal::buildFileNames()
    this->baseFileName = new string[this->numberOfDirectories];
 
    // From the full path name of the .vpc file find the directory name
-   string::size_type dirPos = this->globalFile.rfind(Slash);
+   string::size_type dirPos = this->globalFile.find_last_of(Slash);
    if (dirPos == string::npos) {
       cerr << "Bad input file name " << this->globalFile << endl;
       exit(1);
