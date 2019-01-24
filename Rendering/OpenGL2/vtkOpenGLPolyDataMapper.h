@@ -36,6 +36,7 @@ class vtkCellArray;
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
+class vtkOpenGLCellToVTKCellMap;
 class vtkOpenGLRenderTimer;
 class vtkOpenGLTexture;
 class vtkOpenGLBufferObject;
@@ -202,18 +203,6 @@ public:
     PrimitiveVertices,
     PrimitiveEnd
   };
-
-  void UpdateCellMaps(
-    vtkCellArray **prims, int representation,
-    vtkPoints *points);
-
-  /**
-   * Get access to the map of glprim to vtkcell ids
-   */
-  static void MakeCellCellMap(
-    std::vector<vtkIdType> &cellCellMap,
-    vtkCellArray **prims, int representation,
-    vtkPoints *points);
 
   /**
    * Select a data array from the point/cell data
@@ -482,7 +471,8 @@ protected:
     int representation,
     std::vector<unsigned char> &colors,
     std::vector<float> &normals,
-    vtkPolyData *pd);
+    vtkPolyData *pd,
+    vtkOpenGLCellToVTKCellMap *ccmap);
 
   vtkTextureObject *CellScalarTexture;
   vtkOpenGLBufferObject *CellScalarBuffer;
@@ -531,9 +521,7 @@ protected:
   unsigned int TimerQueryCounter;
 
   // stores the mapping from vtk cells to gl_PrimitiveId
-  std::vector<vtkIdType> CellCellMap;
-  std::vector<vtkIdType> PointCellMap;
-  std::string CellMapsBuildString;
+  vtkNew<vtkOpenGLCellToVTKCellMap> CellCellMap;
 
   // compute and set the maximum point and cell ID used in selection
   virtual void UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor *actor);

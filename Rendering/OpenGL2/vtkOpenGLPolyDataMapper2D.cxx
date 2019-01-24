@@ -24,6 +24,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLCellToVTKCellMap.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLPolyDataMapper.h"
@@ -529,12 +530,11 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
   prims[1] =  poly->GetLines();
   prims[2] =  poly->GetPolys();
   prims[3] =  poly->GetStrips();
-  std::vector<vtkIdType> cellCellMap;
   vtkDataArray *c = this->Colors;
   if (this->HaveCellScalars)
   {
-    vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-      prims, cellCellMap, VTK_SURFACE, poly->GetPoints());
+    this->CellCellMap->Update(
+      prims, VTK_SURFACE, poly->GetPoints());
 
     if (!this->CellScalarTexture)
     {
@@ -549,17 +549,17 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     unsigned char *colorPtr = this->Colors->GetPointer(0);
     int numComp = this->Colors->GetNumberOfComponents();
     assert(numComp == 4);
-    for (size_t i = 0; i < cellCellMap.size(); i++)
+    for (size_t i = 0; i < this->CellCellMap->GetSize(); i++)
     {
       for (int j = 0; j < numComp; j++)
       {
-        newColors.push_back(colorPtr[cellCellMap[i]*numComp + j]);
+        newColors.push_back(colorPtr[this->CellCellMap->GetValue(i)*numComp + j]);
       }
     }
     this->CellScalarBuffer->Upload(newColors,
       vtkOpenGLBufferObject::ArrayBuffer);
     this->CellScalarTexture->CreateTextureBuffer(
-      static_cast<unsigned int>(cellCellMap.size()),
+      static_cast<unsigned int>(this->CellCellMap->GetSize()),
       numComp,
       VTK_UNSIGNED_CHAR,
       this->CellScalarBuffer);

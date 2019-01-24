@@ -39,6 +39,7 @@ class vtkActor2D;
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkMatrix4x4;
 class vtkOpenGLBufferObject;
+class vtkOpenGLCellToVTKCellMap;
 class vtkOpenGLHelper;
 class vtkOpenGLVertexBufferObjectGroup;
 class vtkPoints;
@@ -145,6 +146,9 @@ protected:
 
   // do we have wide lines that require special handling
   virtual bool HaveWideLines(vtkViewport *, vtkActor2D *);
+
+  // stores the mapping from vtk cells to gl_PrimitiveId
+  vtkNew<vtkOpenGLCellToVTKCellMap> CellCellMap;
 
 private:
   vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&) = delete;

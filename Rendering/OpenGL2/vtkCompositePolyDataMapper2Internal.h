@@ -21,8 +21,8 @@ public:
   unsigned int StartIndex[vtkOpenGLPolyDataMapper::PrimitiveEnd];
   unsigned int NextIndex[vtkOpenGLPolyDataMapper::PrimitiveEnd];
 
-  // Point Line Poly Strip end
-  size_t PrimOffsets[5];
+  // stores the mapping from vtk cells to gl_PrimitiveId
+  vtkNew<vtkOpenGLCellToVTKCellMap> CellCellMap;
 };
 
 //===================================================================

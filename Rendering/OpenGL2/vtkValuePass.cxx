@@ -25,6 +25,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLCellToVTKCellMap.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLPolyDataMapper.h"
@@ -443,13 +444,12 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
         prims[3] = poly->GetStrips();
         int representation = property->GetRepresentation();
         vtkPoints *points = poly->GetPoints();
-        std::vector<vtkIdType> aCellCellMap;
-        vtkOpenGLPolyDataMapper::MakeCellCellMap
-          (aCellCellMap,
+        vtkNew<vtkOpenGLCellToVTKCellMap> aCellCellMap;
+        aCellCellMap->Update(
            prims, representation, points);
-        for (size_t c = 0; c < aCellCellMap.size(); ++c)
+        for (size_t c = 0; c < aCellCellMap->GetSize(); ++c)
         {
-          this->ImplFloat->CellCellMap.push_back(aCellCellMap[c]+offset);
+          this->ImplFloat->CellCellMap.push_back(aCellCellMap->GetValue(c)+offset);
         }
         offset += poly->GetNumberOfCells();
       }
@@ -464,9 +464,13 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
       prims[3] = poly->GetStrips();
       int representation = property->GetRepresentation();
       vtkPoints *points = poly->GetPoints();
-      vtkOpenGLPolyDataMapper::MakeCellCellMap
-          (this->ImplFloat->CellCellMap,
-           prims, representation, points);
+      vtkNew<vtkOpenGLCellToVTKCellMap> aCellCellMap;
+      aCellCellMap->Update(
+          prims, representation, points);
+      for (size_t c = 0; c < aCellCellMap->GetSize(); ++c)
+      {
+        this->ImplFloat->CellCellMap.push_back(aCellCellMap->GetValue(c));
+      }
     }
 
     break; //only ever draw one actor at a time in value mode so OK

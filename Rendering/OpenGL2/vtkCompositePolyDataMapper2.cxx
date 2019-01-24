@@ -33,6 +33,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLCellToVTKCellMap.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
@@ -355,7 +356,7 @@ void vtkCompositeMapperHelper2::DrawIBO(
         if (primType <= PrimitiveTriStrips)
         {
           this->SetShaderValues(prog, starthdata,
-            starthdata->PrimOffsets[primType]);
+            starthdata->CellCellMap->GetPrimitiveOffsets()[primType]);
         }
         glDrawRangeElements(mode,
           static_cast<GLuint>(starthdata->StartVertex),
@@ -451,6 +452,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
   double bounds[6];
   this->Data.begin()->second->Data->GetPoints()->GetBounds(bounds);
   bbox.SetBounds(bounds);
+  vtkCompositeMapperHelperData *prevhdata = nullptr;
   for (iter = this->Data.begin(); iter != this->Data.end(); ++iter)
   {
     vtkCompositeMapperHelperData *hdata = iter->second;
@@ -465,6 +467,9 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
     }
 
     vtkIdType voffset = 0;
+    // vert cell offset starts at the end of the last block
+    hdata->CellCellMap->SetStartOffset(
+      prevhdata ? prevhdata->CellCellMap->GetFinalOffset() : 0);
     this->AppendOneBufferObject(ren, act, hdata,
       voffset, newColors, newNorms);
     hdata->StartVertex = static_cast<unsigned int>(voffset);
@@ -474,6 +479,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
       hdata->NextIndex[i] =
         static_cast<unsigned int>(this->IndexArray[i].size());
     }
+    prevhdata = hdata;
   }
 
   // clear color cache
@@ -681,25 +687,12 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   prims[2] =  poly->GetPolys();
   prims[3] =  poly->GetStrips();
 
-  // vert cell offset starts at the end of the last block
-  hdata->PrimOffsets[0] = (!newColors.empty() ? newColors.size()/4 : newNorms.size()/4);
-  hdata->PrimOffsets[1] = hdata->PrimOffsets[0] +
-    prims[0]->GetNumberOfConnectivityEntries() -
-    prims[0]->GetNumberOfCells();
-
+  // needs to get a cell call map passed in
   this->AppendCellTextures(ren, act, prims, representation,
-    newColors, newNorms, poly);
+    newColors, newNorms, poly, hdata->CellCellMap);
 
-  hdata->PrimOffsets[2] = hdata->PrimOffsets[1] +
-    prims[1]->GetNumberOfConnectivityEntries() -
-    2*prims[1]->GetNumberOfCells();
-
-  hdata->PrimOffsets[4] = (!newColors.empty() ? newColors.size()/4 : newNorms.size()/4);
-
-  // we back compute the strip number
-  size_t triCount = prims[3]->GetNumberOfConnectivityEntries()
-    - 3*prims[3]->GetNumberOfCells();
-  hdata->PrimOffsets[3] = hdata->PrimOffsets[4] - triCount;
+  hdata->CellCellMap->BuildPrimitiveOffsetsIfNeeded(
+    prims, representation, poly->GetPoints());
 
   // do we have texture maps?
   bool haveTextures = (this->ColorTextureMap || act->GetTexture() || act->GetProperty()->GetNumberOfTextures());
@@ -940,25 +933,6 @@ void vtkCompositeMapperHelper2::ProcessSelectorPixelBuffers(
   }
 }
 
-namespace
-{
-  unsigned int convertToCells(
-    unsigned int *offset,
-    unsigned int *stride,
-    unsigned int inval )
-  {
-    if (inval < offset[0])
-    {
-      return inval;
-    }
-    if (inval < offset[1])
-    {
-      return offset[0] + (inval - offset[0]) / stride[0];
-    }
-    return offset[0] + (offset[1] - offset[0]) / stride[0] + (inval - offset[1]) / stride[1];
-  }
-}
-
 void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
   vtkHardwareSelector *sel,
   vtkProp *prop,
@@ -1110,17 +1084,6 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
   unsigned char *rawclowdata = sel->GetRawPixelBuffer(vtkHardwareSelector::CELL_ID_LOW24);
   unsigned char *rawchighdata = sel->GetRawPixelBuffer(vtkHardwareSelector::CELL_ID_HIGH24);
 
-  // build the mapping of point primID to cell primID
-  // aka when we render triangles in point picking mode
-  // how do we map primid to what would normally be primid
-  unsigned int offset[2];
-  unsigned int stride[2];
-  offset[0] = static_cast<unsigned int>(this->Primitives[PrimitiveVertices].IBO->IndexCount);
-  stride[0] = representation == VTK_POINTS ? 1 : 2;
-  offset[1] = offset[0] + static_cast<unsigned int>(
-    this->Primitives[PrimitiveLines].IBO->IndexCount);
-  stride[1] = representation == VTK_POINTS ? 1 : representation == VTK_WIREFRAME ? 2 : 3;
-
   // do we need to do anything to the composite pass data?
   if (currPass == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
   {
@@ -1133,7 +1096,7 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
 
     if (compositedata && compositeArray && rawclowdata)
     {
-      this->UpdateCellMaps(prims, representation, poly->GetPoints());
+      hdata->CellCellMap->Update(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {
@@ -1149,12 +1112,8 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
         inval = inval << 8;
         inval |= rawclowdata[pos];
         inval -= 1;
-        inval -= static_cast<int>(hdata->PrimOffsets[0]);
-        if (pointPicking)
-        {
-          inval = convertToCells(offset, stride, inval);
-        }
-        vtkIdType vtkCellId = this->CellCellMap[inval];
+        vtkIdType vtkCellId = hdata->CellCellMap->
+          ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
         unsigned int outval =  compositeArray->GetValue(vtkCellId) + 1;
         compositedata[pos] = outval & 0xff;
         compositedata[pos + 1] = (outval & 0xff00) >> 8;
@@ -1172,7 +1131,7 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
 
     if (rawclowdata)
     {
-      this->UpdateCellMaps(prims, representation, poly->GetPoints());
+      hdata->CellCellMap->Update(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {
@@ -1188,12 +1147,8 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
         inval = inval << 8;
         inval |= rawclowdata[pos];
         inval -= 1;
-        inval -= static_cast<int>(hdata->PrimOffsets[0]);
-        if (pointPicking)
-        {
-          inval = convertToCells(offset, stride, inval);
-        }
-        vtkIdType outval = this->CellCellMap[inval];
+        vtkIdType outval = hdata->CellCellMap->
+          ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
         if (cellArrayId)
         {
           outval = cellArrayId->GetValue(outval);
@@ -1215,7 +1170,7 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
 
     if (rawchighdata)
     {
-      this->UpdateCellMaps(prims, representation, poly->GetPoints());
+      hdata->CellCellMap->Update(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {
@@ -1228,12 +1183,8 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
         inval = inval << 8;
         inval |= rawclowdata[pos];
         inval -= 1;
-        inval -= static_cast<int>(hdata->PrimOffsets[0]);
-        if (pointPicking)
-        {
-          inval = convertToCells(offset, stride, inval);
-        }
-        vtkIdType outval = this->CellCellMap[inval];
+        vtkIdType outval = hdata->CellCellMap->
+          ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
         if (cellArrayId)
         {
           outval = cellArrayId->GetValue(outval);

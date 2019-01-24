@@ -27,6 +27,7 @@ set(classes
   vtkOpenGLBillboardTextActor3D
   vtkOpenGLBufferObject
   vtkOpenGLCamera
+  vtkOpenGLCellToVTKCellMap
   vtkOpenGLFXAAFilter
   vtkOpenGLFramebufferObject
   vtkOpenGLGL2PSHelper
