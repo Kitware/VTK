@@ -162,8 +162,6 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int ComputeScalarIndex(double);
-  int IsContourValue(double val);
   int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *inScalars,
                vtkDoubleArray *outScalars,
                vtkPointData *inPD, vtkPointData *outPD, vtkIdType edgePts[]);

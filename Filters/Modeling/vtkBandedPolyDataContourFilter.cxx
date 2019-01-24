@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <numeric>
 #include <vector>
 
 #include "vtkCellArray.h"
@@ -43,16 +44,48 @@ namespace {
 constexpr vtkIdType NO_INTERSECTION=-999;
 
 //------------------------------------------------------------------------------
-// Find the clip value for val, i.e. the largest clip value < val+tol
-// Expects that the scalar range minimum and maximum are included in the
-// range [b,e)
-template<typename It>
-It ClipValue( double val, It b, It e, double tol )
+// Bookkeeping of polygon points
+enum class PointType
 {
-  It iter = std::upper_bound( b, e, val+tol );
-  if ( b != iter ) --iter;
-  return iter;
+  VERTEX=0,      // a point of the original cell with a scalar value
+                 // NOT equal to a clip value
+  CLIP_VERTEX=1, // a point of the original cell with a scalar value
+                 // equal to a clip value
+  EDGE=2         // a point on the edge of the original cell. By definition
+                 // its scalar value is a clip value
+};
+
+struct Point {
+  vtkIdType pid;
+  double    scalar;
+  PointType type;
+};
+
+#ifndef NDEBUG
+// utility function for debugging: output a polygon point
+inline std::ostream& operator<<(std::ostream& os, const Point& p )
+{
+  constexpr const char* const txt[] = {"V", "CV", "CE"};
+  os << "[" << txt[(int)p.type] << ":" << "("<<p.pid<<")" << p.scalar<< "]";
+  return os;
 }
+
+// utility function for debugging: output a vector
+template<typename T>
+std::ostream& operator<<(std::ostream& os, std::vector<T> const& container)
+{
+  auto b = std::begin(container);
+  auto e = std::end(container);
+
+  os << "{";
+  auto it = b;
+  if ( it != e ) os << *it++;
+  for ( ; it != e; ++it ) os << ","<<*it;
+  os << "}";
+  return os;
+}
+#endif
+
 } // unnamed namespace
 
 struct vtkBandedPolyDataContourFilterInternals {
@@ -60,6 +93,43 @@ struct vtkBandedPolyDataContourFilterInternals {
   std::vector<double> ClipValues;
   int ClipIndex[2]; //indices outside of this range (inclusive) are clipped
   double ClipTolerance; //used to clean up numerical problems
+
+  // Find the clip value for val, i.e. the largest clip value <= val+tol
+  // Expects that the scalar range minimum and maximum are included in the
+  // range [b,e)
+  template<typename It>
+  It ComputeClipValue(double val, It b, It e)
+  {
+    It iter = std::upper_bound( b, e, val+ClipTolerance/2 );
+    if ( b != iter ) --iter;
+    assert( *iter <= val+ClipTolerance/2 || iter == b );
+    return iter;
+  }
+
+  std::vector<double>::iterator ComputeClipValue(double val)
+  {
+    return ComputeClipValue(val, ClipValues.begin(), ClipValues.end());
+  }
+
+  template <typename It>
+  bool IsClipValue(double val, It clip)
+  {
+    assert( clip != ClipValues.end() );
+    return *clip >= val-ClipTolerance/2 && *clip <= val+ClipTolerance/2;
+  }
+
+  double ComputeClipScalar(double val)
+  {
+    auto iter = ComputeClipValue(val);
+    assert( iter != ClipValues.end() );
+    return *iter;
+  }
+
+  int ComputeClipIndex(double val)
+  {
+    return static_cast<int>(std::distance(ClipValues.begin(),
+                                          ComputeClipValue(val)));
+  }
 };
 
 //------------------------------------------------------------------------------
@@ -91,28 +161,6 @@ vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
 }
 
 //------------------------------------------------------------------------------
-int vtkBandedPolyDataContourFilter::ComputeScalarIndex(double val)
-{
-  // find the largest clip value less than val+tolerance
-  auto iter = ClipValue(val,
-                        this->Internal->ClipValues.begin(),
-                        this->Internal->ClipValues.end(),
-                        this->Internal->ClipTolerance/2 );
-  return std::distance( this->Internal->ClipValues.begin(), iter );
-}
-
-//------------------------------------------------------------------------------
-int vtkBandedPolyDataContourFilter::IsContourValue(double val)
-{
-  auto iter = ClipValue(val,
-                        this->Internal->ClipValues.begin(),
-                        this->Internal->ClipValues.end(),
-                        this->Internal->ClipTolerance/2 );
-  return iter != this->Internal->ClipValues.end() &&
-                 *iter >= val-this->Internal->ClipTolerance/2;
-}
-
-//------------------------------------------------------------------------------
 // Interpolate the input scalars and create intermediate points between
 // v1 and v2 at the contour values.
 // The point ids are returned in the edgePts array, arranged from v1 to v2 if
@@ -127,11 +175,11 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
                                              vtkPointData *outPD,
                                              vtkIdType edgePts[] )
 {
-  double low  = inScalars->GetComponent(v1,this->Component);
+  double low = inScalars->GetComponent(v1,this->Component);
   double high = inScalars->GetComponent(v2,this->Component);
-  auto b = this->Internal->ClipValues.begin() + this->ComputeScalarIndex(low);
-  auto e = this->Internal->ClipValues.begin() + this->ComputeScalarIndex(high);
-  assert( e != this->Internal->ClipValues.end() );
+  auto b = this->Internal->ComputeClipValue(low);
+  auto e = this->Internal->ComputeClipValue(high);
+  assert(e != this->Internal->ClipValues.end());
 
   if (b == e)
   {
@@ -155,16 +203,14 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
 
   // start with the first clip value larger than low
   ++b;
-
-  // Avoid generating an intersection point too close to t==1
-  if (*e < high - this->Internal->ClipTolerance/2) ++e;
+  // include the clipvalue for high
+  ++e;
 
   vtkIdType* pt = reverse ? edgePts + std::distance(b, e) - 1 : edgePts;
   const int inc = reverse ? -1 : +1;
   for (auto iter = b; iter != e; ++iter)
   {
     double t = (*iter - low) / (high - low);
-    assert( t > FLT_EPSILON && t < 1-FLT_EPSILON );
     x[0] = x1[0] + t*(x2[0]-x1[0]);
     x[1] = x1[1] + t*(x2[1]-x1[1]);
     x[2] = x1[2] + t*(x2[2]-x1[2]);
@@ -214,7 +260,7 @@ inline int vtkBandedPolyDataContourFilter::InsertLine(vtkCellArray *cells,
 //------------------------------------------------------------------------------
 int vtkBandedPolyDataContourFilter::ComputeClippedIndex(double s )
 {
-  int idx = this->ComputeScalarIndex(s);
+  int idx = this->Internal->ComputeClipIndex(s);
 
   if ( !this->Clipping ||
        (idx >= this->Internal->ClipIndex[0] &&
@@ -271,7 +317,6 @@ int vtkBandedPolyDataContourFilter::RequestData(
   vtkDataArray *inScalars = pd->GetScalars();
   int abort=0;
   vtkPoints *newPts;
-  int i;
   vtkIdType npts = 0;
   vtkIdType cellId=0;
   vtkIdType *pts = nullptr;
@@ -319,7 +364,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
   // sort the contour values
   std::vector<double> contourValues;
   contourValues.reserve( this->ContourValues->GetNumberOfContours() );
-  for ( i = 0; i < this->ContourValues->GetNumberOfContours(); ++i )
+  for (int i = 0; i < this->ContourValues->GetNumberOfContours(); ++i )
   {
     contourValues.push_back(this->ContourValues->GetValue(i));
   }
@@ -360,8 +405,8 @@ int vtkBandedPolyDataContourFilter::RequestData(
   const int numClipValues = static_cast<int>(this->Internal->ClipValues.size());
 
   this->Internal->ClipIndex[0] =
-    this->ComputeScalarIndex(this->ContourValues->GetValue(0));
-  this->Internal->ClipIndex[1] = this->ComputeScalarIndex(
+    this->Internal->ComputeClipIndex(this->ContourValues->GetValue(0));
+  this->Internal->ClipIndex[1] = this->Internal->ComputeClipIndex(
     this->ContourValues->GetValue(this->ContourValues->GetNumberOfContours()-1));
 
   //
@@ -390,12 +435,12 @@ int vtkBandedPolyDataContourFilter::RequestData(
   outPD->SetScalars(outScalars);
   outScalars->Delete();
 
-  for (i=0; i<numPts; i++)
+  for (int i=0; i<numPts; i++)
   {
     newPts->InsertPoint(i,inPts->GetPoint(i));
     outPD->CopyData(pd, i, i);
     double value = inScalars->GetComponent(i,this->Component);
-    outScalars->InsertTuple(i, &value);
+    outScalars->InsertTypedComponent(i, 0, value);
   }
 
   // These are the new cell scalars
@@ -418,7 +463,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
     for ( verts->InitTraversal(); verts->GetNextCell(npts,pts) && !abort;
           abort=this->GetAbortExecute() )
     {
-      for (i=0; i<npts; i++)
+      for (int i=0; i<npts; i++)
       {
         cellId = this->InsertCell( newVerts,
                                    1,pts+i,cellId,
@@ -450,7 +495,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
     for ( lines->InitTraversal(); lines->GetNextCell(npts,pts) && !abort;
           abort=this->GetAbortExecute() )
     {
-      for (i=0; i<(npts-1); i++)
+      for (int i=0; i<(npts-1); i++)
       {
         numEdgePts = this->ClipEdge(pts[i],pts[i+1],newPts,inScalars,outScalars,
                                     pd,outPD, fullLine );
@@ -471,7 +516,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
     for ( lines->InitTraversal(); lines->GetNextCell(npts,pts) && !abort;
           abort=this->GetAbortExecute() )
     {
-      for (i=0; i<(npts-1); i++)
+      for (int i=0; i<(npts-1); i++)
       {
         v = pts[i];
         vR = pts[i+1];
@@ -562,10 +607,8 @@ int vtkBandedPolyDataContourFilter::RequestData(
     }
     maxCellSize *= (1 + numClipValues);
 
-    vtkIdType *newPolygon = new vtkIdType [maxCellSize];
-    double *s = new double [maxCellSize]; //scalars at vertices
-    int *isContourValue = new int [maxCellSize];
-    vtkIdType *fullPoly = new vtkIdType [maxCellSize];
+    std::vector<vtkIdType> pointIds;
+    pointIds.reserve(maxCellSize);
 
     // Lump strips and polygons together.
     // Decompose strips into triangles.
@@ -593,6 +636,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
     numPolys = polys->GetNumberOfCells();
     vtkIdType updateCount = numPolys/20 + 1;
     vtkIdType count=0;
+    pointIds.resize(this->Internal->ClipValues.size(),-1);
     for ( polys->InitTraversal(); polys->GetNextCell(npts,pts) && !abort;
       abort=this->GetAbortExecute() )
     {
@@ -601,17 +645,17 @@ int vtkBandedPolyDataContourFilter::RequestData(
         this->UpdateProgress(0.1 + 0.45*(static_cast<double>(count)/numPolys));
       }
 
-      for (i=0; i<npts; i++)
+      for (int i=0; i<npts; i++)
       {
         v = pts[i];
         vR = pts[(i+1) % npts];
         if ( edgeTable->IsEdge(v,vR) == -1 )
         {
           numEdgePts = this->ClipEdge(v,vR,newPts,inScalars,outScalars,
-                                      pd,outPD,fullPoly);
+                                      pd,outPD,&pointIds[0]);
           if ( numEdgePts > 0 )
           {
-            intList->InsertNextCell(numEdgePts,fullPoly);
+            intList->InsertNextCell(numEdgePts,&pointIds[0]);
             edgeTable->InsertEdge(v,vR, //associate ints with edge
                                   intList->GetInsertLocation(numEdgePts));
           }
@@ -627,11 +671,16 @@ int vtkBandedPolyDataContourFilter::RequestData(
     //
     vtkCellArray *newPolys = vtkCellArray::New();
     newPolys->Allocate(polys->GetSize());
-    int intersectionPoint;
-    int mL, mR, m2L, m2R;
-    int numPointsToAdd, numLeftPointsToAdd, numRightPointsToAdd;
-    int numPolyPoints, numFullPts;
     count = 0;
+
+    // polygon point ids, point types, scalars
+    std::vector<Point> polygon;
+    polygon.reserve(maxCellSize + 1);
+
+    // indices into the polygon point vector
+    std::vector<int> index;
+    index.reserve(maxCellSize + 1);
+
     for ( polys->InitTraversal(); polys->GetNextCell(npts,pts) && !abort;
           abort=this->GetAbortExecute() )
     {
@@ -644,27 +693,27 @@ int vtkBandedPolyDataContourFilter::RequestData(
       //Create a new polygon that includes all the points including the
       //intersection vertices. This hugely simplifies the logic of the
       //code.
-      for ( intersectionPoint=0, numFullPts=0, i=0; i<npts; i++)
+      polygon.clear();
+      index.clear();
+      bool hasClippedEdges = false;
+      for (int i=0; i<npts; i++)
       {
         v = pts[i];
         vR = pts[(i+1)%npts];
 
         double scalar = outScalars->GetTypedComponent(v,0);
-        auto iter = ClipValue( scalar,
-                               this->Internal->ClipValues.begin(),
-                               this->Internal->ClipValues.end(),
-                               this->Internal->ClipTolerance/2 );
-        isContourValue[numFullPts] =
-             *iter > scalar - this->Internal->ClipTolerance/2;
-        // Snap to the clip value
-        s[numFullPts] = isContourValue[numFullPts] ? *iter : scalar;
-        fullPoly[numFullPts++] = v;
+        auto iter = this->Internal->ComputeClipValue(scalar);
+        const bool isClip = this->Internal->IsClipValue( scalar, iter );
+        polygon.push_back({v,
+                           isClip ? *iter : scalar,
+                           (isClip ? PointType::CLIP_VERTEX
+                                   : PointType::VERTEX)});
 
         //see whether intersection points need to be added.
         intLoc=edgeTable->IsEdge(v,vR);
         if ( intLoc != -1 && intLoc != NO_INTERSECTION )
         {
-          intersectionPoint = 1;
+          hasClippedEdges = true;
           intList->GetCell(intLoc,numIntPts,intPts);
           int first,last,inc;
           if ( v < vR )
@@ -677,148 +726,169 @@ int vtkBandedPolyDataContourFilter::RequestData(
           }
           for ( int k = first; k != last; k += inc )
           {
-            s[numFullPts] = outScalars->GetTypedComponent(intPts[k],0);
-            assert( this->IsContourValue( s[numFullPts] ) );
-            isContourValue[numFullPts] = 1;
-            fullPoly[numFullPts++] = intPts[k];
+            polygon.push_back({intPts[k],
+                               outScalars->GetTypedComponent(intPts[k],0),
+                               PointType::EDGE});
           }
         }
       } //for all points and edges
 
-      // Find the starting vertex, i.e. the vertex with the lowest scalar value
-      const int idx = std::distance( s, std::min_element( s, s+numFullPts ) );
+      auto point_less = [](const Point& p1, const Point& p2)
+                         { return p1.scalar < p2.scalar; };
 
       //Trivial output - completely in a contour band or a triangle
-      if ( ! intersectionPoint || numFullPts == 3 )
+      if (!hasClippedEdges || polygon.size() == 3)
       {
-        cellId = this->InsertCell(newPolys,npts,pts,cellId,s[idx],newScalars);
+        auto it = std::min_element(polygon.begin(), polygon.end(), point_less);
+        cellId = this->InsertCell(newPolys,npts,pts,cellId,
+                                  it->scalar, newScalars);
         continue;
       }
 
-      //Produce contour edges if requested
-      if ( this->GenerateContourEdges )
+      // Initialize the indexing array. Starts with the starting vertex, and
+      // then iterates around the polygon.
+      index.resize(polygon.size());
+      std::iota(index.begin(), index.end(), 0);
+
+      // Find the starting vertex, i.e. the vertex with the lowest scalar value,
+      // and rotate the indexing array such that it is the first of the indices
+      auto indexed_less = [&polygon,&point_less](int i1, int i2)
+                         { return point_less(polygon[i1], polygon[i2]); };
+      std::rotate(index.begin(),
+                  std::min_element(index.begin(), index.end(), indexed_less),
+                  index.end());
+
+      // Add a duplicate of the starting vertex at the end to avoid having to
+      // test for validity of iterators before dereferencing. Note that the
+      // duplicate of the point is never referenced from the indexing array.
+      index.push_back( index.front() );   // add another idx at the end
+      polygon.push_back(polygon.front()); // and a copy of the point
+
+      // Contour edges at the boundaries of the cell
+      if (this->GenerateContourEdges)
       {
-        for (i=0; i < numFullPts; i++)
-        {
-          if ( isContourValue[i] && isContourValue[(i+1)%numFullPts] &&
-               s[i] == s[(i+1)%numFullPts] )
+        for (auto it = index.begin(); it != index.end()-1; ++it) {
+          const auto& p1 = polygon[*it];
+          const auto& p2 = polygon[*(it+1)];
+          if (p1.type != PointType::VERTEX && p2.type != PointType::VERTEX &&
+              p1.scalar == p2.scalar)
           {
             contourEdges->InsertNextCell(2);
-            contourEdges->InsertCellPoint(fullPoly[i]);
-            contourEdges->InsertCellPoint(fullPoly[(i+1)%numFullPts]);
+            contourEdges->InsertCellPoint(p1.pid);
+            contourEdges->InsertCellPoint(p2.pid);
           }
         }
       }
 
-      //Find the first intersection points in the polygons starting
-      //from this vertex and build a polygon.
-      numPointsToAdd = 1;
-      for ( mR=idx, intersectionPoint=0; !intersectionPoint; )
-      {
-        numPointsToAdd++;
-        mR = (mR + 1) % numFullPts;
-        if ( isContourValue[mR] && s[mR] != s[idx] ) intersectionPoint = 1;
-      }
-      for ( mL=idx, intersectionPoint=0; !intersectionPoint; )
-      {
-        numPointsToAdd++;
-        mL = (mL + numFullPts - 1) % numFullPts;
-        if ( isContourValue[mL] && s[mL] != s[idx] ) intersectionPoint = 1;
-      }
-      for ( numPolyPoints=0, i=0; i<numPointsToAdd; i++)
-      {
-        newPolygon[numPolyPoints++] = fullPoly[(mL+i)%numFullPts];
-      }
-      if(numPolyPoints >= 3)
-      {
-        cellId = this->InsertCell(newPolys,numPolyPoints,newPolygon,
-                                  cellId,s[idx],newScalars);
-      }
-      if ( this->GenerateContourEdges )
-      {
-        contourEdges->InsertNextCell(2);
-        contourEdges->InsertCellPoint(fullPoly[mR]);
-        contourEdges->InsertCellPoint(fullPoly[mL]);
-      }
+      // start from the lowest clipvalue
+      double clip_scalar =
+               this->Internal->ComputeClipScalar(polygon[index.front()].scalar);
 
-      //We've got an edge (mL,mR) that marks the edge of the region not yet
-      //clipped. We move this edge forward from intersection point to
-      //intersection point.
-      m2R = mR;
-      m2L = mL;
-      while ( m2R != m2L )
+      vtkDebugMacro( << "clip_scalar="<<clip_scalar<<"\n"
+                     << "\tpolygon=" << polygon <<"\n"
+                     << "\tindex=" << index );
+
+      // traverse the polygon points from the starting vertex going
+      // left/clockwise (reverse through indices) and
+      // right/counter-clockwise (forward through indices)
+      typedef std::vector<int>::iterator It;
+      typedef std::reverse_iterator<It> RevIt;
+      It r1 = index.begin();
+      It l1 = index.end()-1;
+      while (r1<l1)
       {
-        numPointsToAdd = (mL > mR ? mL-mR+1 : numFullPts-(mR-mL)+1);
-        if ( numPointsToAdd == 3 )
-        {//just a triangle left
-          for (i=0; i<numPointsToAdd; i++)
-          {
-            newPolygon[i] = fullPoly[(mR+i)%numFullPts];
-          }
-          cellId = this->InsertCell(newPolys,numPointsToAdd,newPolygon,
-                                    cellId,s[mR],newScalars);
-          if ( this->GenerateContourEdges )
-          {
-            contourEdges->InsertNextCell(2);
-            contourEdges->InsertCellPoint(fullPoly[mR]);
-            contourEdges->InsertCellPoint(fullPoly[mL]);
-          }
-          break;
-        }
-        else //find the next intersection points
+        auto in_band = [&clip_scalar,&polygon](int i)
+                       { return (polygon[i].scalar == clip_scalar) ||
+                                ((polygon[i].type == PointType::VERTEX &&
+                                  polygon[i].scalar > clip_scalar)); };
+
+        assert( polygon[*l1].type == PointType::VERTEX ||
+                polygon[*r1].type == PointType::VERTEX ||
+                polygon[*l1].scalar == polygon[*r1].scalar );
+        assert( in_band(*r1) );
+        assert( in_band(*l1) );
+
+        // find next left and right band ends
+        auto r2 = std::find_if_not(r1, l1, in_band);
+        auto l2 = std::find_if_not(RevIt(l1), RevIt(r2), in_band).base() - 1;
+
+        vtkDebugMacro( <<"band: clip_scalar="<<clip_scalar
+                       <<" points=["
+                       << *l2  << polygon[*l2]
+                       << " -> " << *l1 << polygon[*l1]
+                       << " -> " << *r1 << polygon[*r1]
+                       << " -> " << *r2 << polygon[*r2]<<"]" );
+
+        // If r2 or l2 refers to a point with a scalar smaller than the
+        // current clip scalar, it is on an edge with decreasing scalars.
+        //
+        // Restart contouring of the remaining polygon by discarding points
+        // of lower clip values (i.e. points already traversed by r1 and l1),
+        // find the new vertex with lowest scalar and initialize iterators and
+        // clip_scalar
+        if ((polygon[*l2].scalar < clip_scalar) ||
+            (polygon[*r2].scalar < clip_scalar))
         {
-          numLeftPointsToAdd = 0;
-          numRightPointsToAdd = 0;
-          for ( intersectionPoint=0;
-                !intersectionPoint && ((m2R+1)%numFullPts) != m2L; )
-          {
-            numRightPointsToAdd++;
-            m2R = (m2R + 1) % numFullPts;
-            if ( isContourValue[m2R] ) intersectionPoint = 1;
-          }
-          for ( intersectionPoint=0;
-                !intersectionPoint && ((m2L+numFullPts-1)%numFullPts) != m2R; )
-          {
-            numLeftPointsToAdd++;
-            m2L = (m2L + numFullPts - 1) % numFullPts;
-            if ( isContourValue[m2L] ) intersectionPoint = 1;
-          }
+          auto it = std::rotate( index.begin(), r1, l1+1 );
+          // note: the duplicate at the end is automatically discarded
+          index.resize( std::distance( index.begin(), it ) );
 
-          //specify the polygon vertices. From m2L to mL, then mR to m2R.
-          for ( numPolyPoints=0, i=0; i<numLeftPointsToAdd; i++)
-          {
-            newPolygon[numPolyPoints++] = fullPoly[(m2L+i)%numFullPts];
-          }
-          newPolygon[numPolyPoints++] = fullPoly[mL];
-          newPolygon[numPolyPoints++] = fullPoly[mR];
-          for ( i=1; i<=numRightPointsToAdd; i++)
-          {
-            newPolygon[numPolyPoints++] = fullPoly[(mR+i)%numFullPts];
-          }
+          // find the index of the new starting vertex
+          auto indexed_vertex_scalar_less = [&polygon](int i1, int i2)
+          { return ((polygon[i1].type != PointType::EDGE) &&
+                    (polygon[i1].scalar < polygon[i2].scalar)); };
+          it = std::min_element(index.begin(), index.end(),
+                                indexed_vertex_scalar_less);
+          std::rotate( index.begin(), it, index.end() );
+          index.push_back( index.front() ); // duplicate of the first point
 
-          //add the polygon
-          if(numPolyPoints < 3)
-          {
-            break;
-          }
-          cellId = this->InsertCell(newPolys,numPolyPoints,newPolygon,
-                                    cellId,s[mR],newScalars);
-          if ( this->GenerateContourEdges )
+          clip_scalar = this->Internal->ComputeClipScalar(
+                                                 polygon[index.front()].scalar);
+
+          vtkDebugMacro( << "clip_scalar="<<clip_scalar<<"\n"
+                         << "\tpolygon=" << polygon <<"\n"
+                         << "\tindex=" << index );
+
+          r1 = index.begin();
+          l1 = index.end()-1;
+          continue;
+        }
+
+        assert( *l1 == *r2 || // first band
+                r2 == l1 ||   // last band
+                ((polygon[*l2].type != PointType::VERTEX) &&
+                 (polygon[*r2].type != PointType::VERTEX) &&
+                 (polygon[*l2].scalar == polygon[*r2].scalar)) );
+
+        // copy point ids from l2 to l1 and from r1 to r2
+        auto l = l1+1;
+        auto r = r2+1;
+         // do not duplicate the first point
+        if ( *l1 == *r1 ) --l;
+         // for last contour band r1->r2 spans entire polygon
+        if ( r2 == l1 ) l = l2;
+        pointIds.resize(std::distance(l2,l) + std::distance(r1,r));
+        if (pointIds.size() >= 3)
+        {
+          auto copyPointIds = [&polygon](int i){ return polygon[i].pid; };
+          auto it = std::transform( l2, l, pointIds.begin(), copyPointIds);
+          std::transform(r1, r, it, copyPointIds);
+          vtkDebugMacro(<< "clip_scalar="<<clip_scalar<<"\n"
+                        <<" pointIds="<<pointIds);
+          cellId = this->InsertCell(newPolys,static_cast<int>(pointIds.size()),
+                                    &pointIds[0],cellId,clip_scalar,newScalars);
+          if (this->GenerateContourEdges && r2 != l1)
           {
             contourEdges->InsertNextCell(2);
-            contourEdges->InsertCellPoint(fullPoly[mR]);
-            contourEdges->InsertCellPoint(fullPoly[mL]);
+            contourEdges->InsertCellPoint(polygon[*r2].pid);
+            contourEdges->InsertCellPoint(polygon[*l2].pid);
           }
-          mL = m2L;
-          mR = m2R;
-        }//add a polygon
-      }//while still removing polygons
+        }
+        r1=r2;
+        l1=l2;
+        clip_scalar = polygon[*r1].scalar;
+      }
     }//for all polygons
-
-    delete [] s;
-    delete [] newPolygon;
-    delete [] isContourValue;
-    delete [] fullPoly;
 
     output->SetPolys(newPolys);
     newPolys->Delete();
