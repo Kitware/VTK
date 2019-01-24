@@ -235,20 +235,15 @@ endfunction ()
 
 # If set, use the maximum number of processors for tests. Otherwise, just use 1
 # processor by default.
-if (MPIEXEC_MAX_NUMPROCS)
-  set(_vtk_mpi_max_numprocs_default "${MPIEXEC_MAX_NUMPROCS}")
-else ()
-  set(_vtk_mpi_max_numprocs_default 1)
-endif ()
-set(VTK_MPI_MAX_NUMPROCS "${_vtk_mpi_max_numprocs_default}" CACHE STRING
-  "Maximum number of processors available to run parallel applications.")
+set(VTK_MPI_NUMPROCS "2" CACHE STRING
+  "Number of processors available to run parallel tests.")
 # Hide the variable if we don't have `MPIEXEC_EXECUTABLE` anyways.
 if (MPIEXEC_EXECUTABLE)
   set(_vtk_mpi_max_numprocs_type STRING)
 else ()
   set(_vtk_mpi_max_numprocs_type INTERNAL)
 endif ()
-set_property(CACHE VTK_MPI_MAX_NUMPROCS
+set_property(CACHE VTK_MPI_NUMPROCS
   PROPERTY
     TYPE "${_vtk_mpi_max_numprocs_type}")
 
@@ -361,7 +356,7 @@ variables (using the first one which is set):
 
   - `<NAME>_NUMPROCS`
   - `<EXENAME>_NUMPROCS`
-  - `VTK_MPI_MAX_NUMPROCS` (defaults to `MPIEXEC_MAX_NUMPROCS`)
+  - `VTK_MPI_NUMPROCS` (defaults to `2`)
 
 Additional flags may be passed to tests using the `${_vtk_build_test}_ARGS`
 variable or the `<NAME>_ARGS` variable.
@@ -376,7 +371,7 @@ function (vtk_add_test_mpi exename _tests)
 
   set(_vtk_fail_regex "(\n|^)ERROR: " "instance(s)? still around")
 
-  set(default_numprocs ${VTK_MPI_MAX_NUMPROCS})
+  set(default_numprocs ${VTK_MPI_NUMPROCS})
   if (${exename}_NUMPROCS)
     set(default_numprocs ${${exename}_NUMPROCS})
   endif ()
@@ -630,7 +625,7 @@ This forces running with the `pvtkpython` executable.
 function (vtk_add_test_python_mpi)
   set(_vtk_test_python_suffix "-MPI")
 
-  set(numprocs "${VTK_MPI_MAX_NUMPROCS}")
+  set(numprocs "${VTK_MPI_NUMPROCS}")
   if (${_vtk_build_test}_NUMPROCS)
     set(numprocs "${${_vtk_build_test}_NUMPROCS}")
   endif ()
