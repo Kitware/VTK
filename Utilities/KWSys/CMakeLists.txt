@@ -1,6 +1,7 @@
 #-----------------------------------------------------------------------------
 # Configure KWSys to be named "vtksys".
 SET(KWSYS_NAMESPACE vtksys)
+SET(KWSYS_BUILD_PIC 1)
 SET(KWSYS_ALIAS_TARGET VTK::vtksys)
 SET(KWSYS_USE_Base64 1)
 SET(KWSYS_USE_CommandLineArguments 1)
