@@ -3370,6 +3370,7 @@ vtk_module_find_package(
   [OPTIONAL_COMPONENTS  <component>...]
   [FORWARD_VERSION_REQ  <MAJOR|MINOR|PATCH|EXACT>]
   [VERSION_VAR          <varname>]
+  [CONFIG_MODE]
   [PRIVATE])
 ```
 
@@ -3385,6 +3386,8 @@ The `PACKAGE` argument is the only required argument. The rest are optional.
     `<PACKAGE>_VERSION`). It may contain `@` in which case it will be
     configured. This is useful for modules which only provide components of the
     actual version number.
+  * `CONFIG_MODE`: If present, pass `CONFIG` to the underlying `find_package`
+    call.
   * `PRIVATE`: The dependency should not be exported to the install.
 
 Note that `PRIVATE` is *only* applicable for private dependencies on interface
@@ -3409,7 +3412,7 @@ macro (vtk_module_find_package)
   # Note: when adding arguments here, add them to the `unset` block at the end
   # of the function.
   cmake_parse_arguments(_vtk_find_package
-    "PRIVATE"
+    "PRIVATE;CONFIG_MODE"
     "PACKAGE;VERSION;FORWARD_VERSION_REQ;VERSION_VAR"
     "COMPONENTS;OPTIONAL_COMPONENTS"
     ${ARGN})
@@ -3447,8 +3450,14 @@ macro (vtk_module_find_package)
       "${_vtk_find_package_PACKAGE}_VERSION")
   endif ()
 
+  set(_vtk_find_package_config)
+  if (_vtk_find_package_CONFIG_MODE)
+    set(_vtk_find_package_config "CONFIG")
+  endif ()
+
   find_package("${_vtk_find_package_PACKAGE}"
     ${_vtk_find_package_VERSION}
+    ${_vtk_find_package_config}
     COMPONENTS          ${_vtk_find_package_COMPONENTS}
     OPTIONAL_COMPONENTS ${_vtk_find_package_OPTIONAL_COMPONENTS})
   if (NOT ${_vtk_find_package_PACKAGE}_FOUND)
@@ -3466,6 +3475,9 @@ macro (vtk_module_find_package)
     set_property(GLOBAL
       PROPERTY
         "${_vtk_find_package_base_package}_version" "${_vtk_find_package_VERSION}")
+    set_property(GLOBAL
+      PROPERTY
+        "${_vtk_find_package_base_package}_config" "${_vtk_find_package_CONFIG_MODE}")
     set_property(GLOBAL APPEND
       PROPERTY
         "${_vtk_find_package_base_package}_components" "${_vtk_find_package_COMPONENTS}")
@@ -3682,12 +3694,19 @@ if (_vtk_module_find_package_enabled)
       set(_vtk_export_base_package "${_vtk_export_base}_${_vtk_export_package}")
       get_property(_vtk_export_version GLOBAL
         PROPERTY "${_vtk_export_base_package}_version")
+      get_property(_vtk_export_config GLOBAL
+        PROPERTY "${_vtk_export_base_package}_config")
       get_property(_vtk_export_exact GLOBAL
         PROPERTY "${_vtk_export_base_package}_exact")
       get_property(_vtk_export_components GLOBAL
         PROPERTY "${_vtk_export_base_package}_components")
       get_property(_vtk_export_optional_components GLOBAL
         PROPERTY "${_vtk_export_base_package}_optional_components")
+
+      set(_vtk_export_config_arg)
+      if (_vtk_export_config)
+        set(_vtk_export_config_arg CONFIG)
+      endif ()
 
       set(_vtk_export_exact_arg)
       if (_vtk_export_exact)
@@ -3698,6 +3717,7 @@ if (_vtk_module_find_package_enabled)
 "  find_package(${_vtk_export_package}
     ${_vtk_export_version}
     ${_vtk_export_exact_arg}
+    ${_vtk_export_config_arg}
     \${_vtk_module_find_package_quiet}
     \${_vtk_module_find_package_required}
     COMPONENTS          ${_vtk_export_components}
@@ -3817,6 +3837,7 @@ vtk_module_third_party_external(
   [LIBRARIES    <target-or-variable>...]
   [FORWARD_VERSION_REQ  <MAJOR|MINOR|PATCH|EXACT>]
   [VERSION              <version>]
+  [CONFIG_MODE]
   [STANDARD_INCLUDE_DIRS])
 ```
 
@@ -3837,12 +3858,13 @@ Only the `PACKAGE` argument is required. The arguments are as follows:
   * `LIBRARIES`: The libraries to link from the package. If a variable name is
     given, it will be dereferenced, however a warning that imported targets are
     not being used will be emitted.
+  * `CONFIG_MODE`: Force `CONFIG` mode.
   * `FORWARD_VERSION_REQ` and `VERSION_VAR`: See documentation for
     `vtk_module_find_package`.
 #]==]
 function (vtk_module_third_party_external)
   cmake_parse_arguments(_vtk_third_party_external
-    "STANDARD_INCLUDE_DIRS"
+    "STANDARD_INCLUDE_DIRS;CONFIG_MODE"
     "VERSION;PACKAGE;FORWARD_VERSION_REQ;VERSION_VAR"
     "COMPONENTS;OPTIONAL_COMPONENTS;LIBRARIES;INCLUDE_DIRS;DEFINES;TARGETS"
     ${ARGN})
@@ -3877,18 +3899,30 @@ function (vtk_module_third_party_external)
   endif ()
 
   if (_vtk_third_party_external_TARGETS)
+    set(_vtk_third_party_external_config_mode)
+    if (_vtk_third_party_external_CONFIG_MODE)
+      set(_vtk_third_party_external_config_mode "CONFIG_MODE")
+    endif ()
+
     # If we have targets, they must be exported to the install as well.
     vtk_module_find_package(
       PACKAGE             "${_vtk_third_party_external_PACKAGE}"
       VERSION             "${_vtk_third_party_external_VERSION}"
       COMPONENTS          ${_vtk_third_party_external_COMPONENTS}
       OPTIONAL_COMPONENTS ${_vtk_third_party_external_OPTIONAL_COMPONENTS}
+      ${_vtk_third_party_external_config_mode}
       ${_vtk_third_party_external_args})
   else ()
+    set(_vtk_third_party_external_config)
+    if (_vtk_third_party_external_CONFIG_MODE)
+      set(_vtk_third_party_external_config "CONFIG")
+    endif ()
+
     # If there are no targets, the install uses strings and therefore does not
     # need to find the dependency again.
     find_package("${_vtk_third_party_external_PACKAGE}"
       ${_vtk_third_party_external_VERSION}
+      ${_vtk_third_party_external_config}
       COMPONENTS          ${_vtk_third_party_external_COMPONENTS}
       OPTIONAL_COMPONENTS ${_vtk_third_party_external_OPTIONAL_COMPONENTS})
   endif ()
