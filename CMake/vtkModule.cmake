@@ -2860,6 +2860,10 @@ function (vtk_module_add_module name)
         ${_vtk_add_module_HEADERS}
         ${_vtk_add_module_PRIVATE_HEADERS})
 
+      set_property(TARGET "${_vtk_add_module_real_target}"
+        PROPERTY
+          POSITION_INDEPENDENT_CODE ON)
+
       if (NOT _vtk_build_module STREQUAL _vtk_add_module_real_target)
         add_library("${_vtk_build_module}" ALIAS
           "${_vtk_add_module_real_target}")
