@@ -18,6 +18,11 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # Suppress notes from template instantiation backtraces.
   "note: see reference to (class|function) template instantiation"
 
+  # This is secondary output from clang, not indicating the warning per se.
+  "[0-9]* warnings? generated"
+  "note: \\(skipping [0-9]* expansions in backtrace"
+  "note: expanded from (here|macro)"
+
   # Qt headers cause C4127 warnings with MSVC. Nothing we can do to fix them.
   "[Qq]t([Cc]ore|[Gg]ui).*(warning|note)"
   # Qt has some functions marked as `__forceinline` which MSVC refuses to inline.
