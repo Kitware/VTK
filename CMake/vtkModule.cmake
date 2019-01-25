@@ -3231,6 +3231,22 @@ As of right now, it only applies the `LIBRARY_NAME_SUFFIX` option to the
 library, but other properties may be set in the future as use cases arise.
 #]==]
 function (_vtk_module_apply_properties target)
+  cmake_parse_arguments(_vtk_apply_properties
+    ""
+    "BASENAME"
+    ""
+    ${ARGN})
+
+  if (_vtk_apply_properties_UNPARSE_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for _vtk_module_apply_properties: "
+      "${_vtk_apply_properties_UNPARSE_ARGUMENTS}.")
+  endif ()
+
+  if (NOT DEFINED _vtk_apply_properties_BASENAME)
+    set(_vtk_apply_properties_BASENAME "${target}")
+  endif ()
+
   get_property(_vtk_add_module_type
     TARGET    "${target}"
     PROPERTY  TYPE)
@@ -3239,7 +3255,7 @@ function (_vtk_module_apply_properties target)
     return ()
   endif ()
 
-  set(_vtk_add_module_library_name "${target}")
+  set(_vtk_add_module_library_name "${_vtk_apply_properties_BASENAME}")
   get_property(_vtk_add_module_target_name GLOBAL
     PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
   if (_vtk_add_module_target_name STREQUAL "${target}")
@@ -3308,11 +3324,21 @@ Some modules may have associated executables with them. By using
 `vtk_module_add_executable`, the target will be installed following the options
 given to the associated `vtk_module_build` command. Its name will also be
 changed according to the `LIBRARY_NAME_SUFFIX` option.
+
+```
+vtk_module_add_executable(<name>
+  [NO_INSTALL]
+  [BASENAME <basename>])
+```
+
+If `NO_INSTALL` is specified, the executable will not be installed. If
+`BASENAME` is given, it will be used as the name of the executable rather than
+the target name.
 #]==]
 function (vtk_module_add_executable name)
   cmake_parse_arguments(_vtk_add_executable
     "NO_INSTALL"
-    ""
+    "BASENAME"
     ""
     ${ARGN})
 
@@ -3345,7 +3371,15 @@ function (vtk_module_add_executable name)
       PRIVATE
         ${_vtk_add_executable_private_depends})
   endif ()
-  _vtk_module_apply_properties("${_vtk_add_executable_target_name}")
+
+  set(_vtk_add_executable_property_args)
+  if (DEFINED _vtk_add_executable_BASENAME)
+    list(APPEND _vtk_add_executable_property_args
+      BASENAME "${_vtk_add_executable_BASENAME}")
+  endif ()
+
+  _vtk_module_apply_properties("${_vtk_add_executable_target_name}"
+    ${_vtk_add_executable_property_args})
   _vtk_module_standard_includes(TARGET "${_vtk_add_executable_target_name}")
 
   if (NOT _vtk_add_executable_NO_INSTALL)
