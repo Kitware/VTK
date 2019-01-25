@@ -197,7 +197,7 @@ endforeach ()
 if (VTK_OPENGL_HAS_OSMESA)
   list(APPEND classes vtkOSOpenGLRenderWindow)
 endif ()
-if (VTK_OPENGL_HAS_EGL OR ANDROID)
+if (VTK_OPENGL_HAS_EGL)
   list(APPEND classes vtkEGLRenderWindow)
   set_source_files_properties(vtkEGLRenderWindow.cxx
     PROPERTIES
@@ -365,8 +365,6 @@ endif()
 
 if (ANDROID)
   vtk_module_link(VTK::RenderingOpenGL2
-    PUBLIC
-      OpenGL::EGL
     PRIVATE
       android)
 endif ()
