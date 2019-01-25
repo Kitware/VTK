@@ -92,7 +92,6 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
               CXX "${_vtk_java_header}"
       COMMENT "Generating Java wrapper sources for ${_vtk_java_basename}"
       DEPENDS
-        VTK::WrapJava
         "${_vtk_java_header}"
         "${_vtk_java_args_file}"
         "${_vtk_java_command_depend}")
@@ -113,7 +112,6 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
               CXX "${_vtk_java_header}"
       COMMENT "Generating Java sources for ${_vtk_java_basename}"
       DEPENDS
-        VTK::ParseJava
         "${_vtk_java_header}"
         "${_vtk_java_args_file}"
         "${_vtk_java_command_depend}")

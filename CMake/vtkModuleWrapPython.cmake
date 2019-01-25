@@ -140,7 +140,6 @@ $<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_python_ge
               CXX "${_vtk_python_header}"
       COMMENT "Generating Python wrapper sources for ${_vtk_python_basename}"
       DEPENDS
-        VTK::WrapPython
         "${_vtk_python_header}"
         "${_vtk_python_args_file}"
         "${_vtk_python_command_depend}")
@@ -311,7 +310,6 @@ function (_vtk_module_wrap_python_library name)
             "${_vtk_python_init_impl_output}"
     COMMENT "Generating the Python module initialization sources for ${name}"
     DEPENDS
-      VTK::WrapPythonInit
       "${_vtk_python_init_data_file}")
 
   if (_vtk_python_BUILD_STATIC)
