@@ -16,6 +16,13 @@ if (VTK_BINARY_DIR)
               --test-command
                 "${CMAKE_CTEST_COMMAND}"
                   -C $<CONFIGURATION>)
+    if (WIN32)
+      set(example_path "$ENV{PATH};${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+      string(REPLACE ";" "\;" example_path "${example_path}")
+      set_property(TEST "VTKExample-${dir}" APPEND
+        PROPERTY
+          ENVIRONMENT "PATH=${example_path}")
+    endif ()
   endfunction ()
 else ()
   macro (add_example dir)
