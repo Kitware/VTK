@@ -16,6 +16,7 @@
 #define vtkNoise200x200_h
 
 #ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 /*
  * Resource generated for file:
@@ -1568,6 +1569,7 @@ static const unsigned char *file_noise200x200_vtk_sections[4] = {
 
 static const unsigned int file_noise200x200_vtk_nb_sections = 4;
 
+#endif
 #endif
 
 #endif
