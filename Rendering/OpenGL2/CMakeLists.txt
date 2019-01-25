@@ -102,6 +102,16 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
 
+# add opengl support test execulatble on windows
+if (WIN32 AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR))
+  vtk_module_add_executable(vtkTestOpenGLVersion vtkTestOpenGLVersion.cxx)
+  set_target_properties(vtkTestOpenGLVersion
+    PROPERTIES
+      WIN32_EXECUTABLE TRUE)
+  target_link_libraries(vtkTestOpenGLVersion PRIVATE opengl32)
+  list(APPEND headers vtkTestOpenGLVersion.h)
+endif ()
+
 set(sources)
 set(private_headers)
 
@@ -371,12 +381,4 @@ if (NOT ANDROID AND
     NOT VTK_OPENGL_USE_GLES)
   vtk_module_add_executable(vtkProbeOpenGLVersion vtkProbeOpenGLVersion.cxx)
   target_link_libraries(vtkProbeOpenGLVersion PRIVATE RenderingOpenGL2)
-endif ()
-
-if (WIN32 AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR))
-  vtk_module_add_executable(vtkTestOpenGLVersion vtkTestOpenGLVersion.cxx)
-  set_target_properties(vtkTestOpenGLVersion
-    PROPERTIES
-      WIN32_EXECUTABLE TRUE)
-  target_link_libraries(vtkTestOpenGLVersion PRIVATE opengl32)
 endif ()
