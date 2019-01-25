@@ -1168,7 +1168,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
         vtkShaderProgram::Substitute(FSSource,
         "//VTK::Picking::Impl",
         "  int idx = (vertexIDVSOutput + 1);\n idx = ((idx & 0xff000000) >> 24);\n"
-        "  gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, float(idx/65536)/255.0, 1.0);\n");
+        "  gl_FragData[0] = vec4(float(idx)/255.0, 0.0, 0.0, 1.0);\n");
         break;
 
       // cell ID is just gl_PrimitiveID
@@ -1186,7 +1186,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
         vtkShaderProgram::Substitute(FSSource,
         "//VTK::Picking::Impl",
         "  int idx = (gl_PrimitiveID + 1 + PrimitiveIDOffset);\n idx = ((idx & 0xff000000) >> 24);\n"
-        "  gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, float(idx/65536)/255.0, 1.0);\n");
+        "  gl_FragData[0] = vec4(float(idx)/255.0, 0.0, 0.0, 1.0);\n");
         break;
 
       default: // actor process and composite
