@@ -12,6 +12,8 @@ if (VTK_BINARY_DIR)
                 "${CMAKE_CURRENT_BINARY_DIR}/${dir}"
               --build-options
                 "-DBUILD_TESTING=ON"
+                "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
+                "-DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}"
                 "-DVTK_DIR=${vtk_cmake_build_dir}"
               --test-command
                 "${CMAKE_CTEST_COMMAND}"
