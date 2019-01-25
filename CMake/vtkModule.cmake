@@ -2616,9 +2616,14 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_hierar
     set(_vtk_hierarchy_command_depends ${_vtk_hierarchy_depends_targets})
   endif ()
 
+  set(_vtk_hierarchy_tool_target "VTK::WrapHierarchy")
+  if (TARGET VTKCompileTools::WrapHierarchy)
+    set(_vtk_hierarchy_tool_target "VTKCompileTools::WrapHierarchy")
+  endif ()
+
   add_custom_command(
     OUTPUT  "${_vtk_hierarchy_file}"
-    COMMAND VTK::WrapHierarchy
+    COMMAND "${_vtk_hierarchy_tool_target}"
             "@${_vtk_hierarchy_args_file}"
             -o "${_vtk_hierarchy_file}"
             "${_vtk_hierarchy_data_file}"

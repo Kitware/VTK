@@ -81,9 +81,19 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
     list(APPEND _vtk_java_sources
       "${_vtk_java_source_output}")
 
+    set(_vtk_java_wrap_target "VTK::WrapJava")
+    if (TARGET VTKCompileTools::WrapJava)
+      set(_vtk_java_wrap_target "VTKCompileTools::WrapJava")
+    endif ()
+
+    set(_vtk_java_parse_target "VTK::ParseJava")
+    if (TARGET VTKCompileTools::ParseJava)
+      set(_vtk_java_parse_target "VTKCompileTools::ParseJava")
+    endif ()
+
     add_custom_command(
       OUTPUT  "${_vtk_java_source_output}"
-      COMMAND VTK::WrapJava
+      COMMAND "${_vtk_java_wrap_target}"
               "@${_vtk_java_args_file}"
               -o "${_vtk_java_source_output}"
               "${_vtk_java_header}"
@@ -103,7 +113,7 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
 
     add_custom_command(
       OUTPUT  "${_vtk_java_java_source_output}"
-      COMMAND VTK::ParseJava
+      COMMAND "${_vtk_java_parse_target}"
               "@${_vtk_java_args_file}"
               -o "${_vtk_java_java_source_output}"
               "${_vtk_java_header}"

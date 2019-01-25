@@ -1,0 +1,16 @@
+#[==[.md
+# vtkcompiletools-config.cmake
+
+This file is used by CMake when finding VTK's compile tools.
+#]==]
+
+cmake_policy(PUSH)
+cmake_policy(VERSION 3.8...3.12)
+
+set("${CMAKE_FIND_PACKAGE_NAME}_VERSION" "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@")
+
+set("${CMAKE_FIND_PACKAGE_NAME}_FOUND" 1)
+include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-properties.cmake")
+
+cmake_policy(POP)

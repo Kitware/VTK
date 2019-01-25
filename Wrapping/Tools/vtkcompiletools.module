@@ -1,0 +1,5 @@
+NAME
+  VTKCompileTools::WrappingTools
+LIBRARY_NAME
+  vtkWrappingTools
+EXCLUDE_WRAP
