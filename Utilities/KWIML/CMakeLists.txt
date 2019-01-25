@@ -15,9 +15,6 @@ vtk_module_third_party_internal(
   LICENSE_FILES "vtkkwiml/Copyright.txt"
   VERSION       "1.0.0")
 
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtk_kwiml.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtk_kwiml.h")
 vtk_module_install_headers(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_kwiml.h")
+  FILES "${CMAKE_CURRENT_SOURCE_DIR}/vtk_kwiml.h")
 
