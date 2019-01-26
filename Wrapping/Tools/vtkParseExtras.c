@@ -381,7 +381,6 @@ void vtkParse_ExpandTypedef(
   valinfo->Type = (baseType | pointers | refbit | qualifiers | attributes);
   valinfo->Class = classname;
   valinfo->Function = typedefinfo->Function;
-  valinfo->Count *= typedefinfo->Count;
 }
 
 /* Expand any unrecognized types within a variable, parameter, or typedef
