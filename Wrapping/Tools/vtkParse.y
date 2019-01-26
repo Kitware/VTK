@@ -1141,7 +1141,7 @@ void preSig(const char *arg)
     if (n > 0)
     {
       memmove(&signature[n], signature, sigLength);
-      strncpy(signature, arg, n);
+      memmove(signature, arg, n);
       sigLength += n;
     }
     signature[sigLength] = '\0';
@@ -1157,10 +1157,9 @@ void postSig(const char *arg)
     checkSigSize(n);
     if (n > 0)
     {
-      strncpy(&signature[sigLength], arg, n);
+      strncpy(&signature[sigLength], arg, n + 1);
       sigLength += n;
     }
-    signature[sigLength] = '\0';
   }
 }
 
