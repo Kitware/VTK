@@ -83,9 +83,6 @@
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
 
-/* required for VTK_USE_64BIT_IDS */
-#include "vtkConfigure.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -135,20 +132,6 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
       break;
     case VTK_PARSE_LONG:
       typeChar = 'l';
-      break;
-    case VTK_PARSE_UNSIGNED_ID_TYPE:
-#ifdef VTK_USE_64BIT_IDS
-      typeChar = 'K';
-#else
-      typeChar = 'I';
-#endif
-      break;
-    case VTK_PARSE_ID_TYPE:
-#ifdef VTK_USE_64BIT_IDS
-      typeChar = 'k';
-#else
-      typeChar = 'i';
-#endif
       break;
     case VTK_PARSE_SIZE_T:
     case VTK_PARSE_UNSIGNED_LONG_LONG:

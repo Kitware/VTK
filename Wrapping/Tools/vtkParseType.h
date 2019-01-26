@@ -173,8 +173,6 @@
 #define VTK_PARSE_DOUBLE              0x07
 #define VTK_PARSE_UNKNOWN             0x08
 #define VTK_PARSE_OBJECT              0x09
-#define VTK_PARSE_ID_TYPE             0x0A
-#define VTK_PARSE_UNSIGNED_ID_TYPE    0x1A
 #define VTK_PARSE_LONG_LONG           0x0B
 #define VTK_PARSE_UNSIGNED_LONG_LONG  0x1B
 #define VTK_PARSE___INT64             0x0C
@@ -211,8 +209,6 @@
 #define VTK_PARSE_DOUBLE_PTR              0x207
 #define VTK_PARSE_UNKNOWN_PTR             0x208
 #define VTK_PARSE_OBJECT_PTR              0x209
-#define VTK_PARSE_ID_TYPE_PTR             0x20A
-#define VTK_PARSE_UNSIGNED_ID_TYPE_PTR    0x21A
 #define VTK_PARSE_LONG_LONG_PTR           0x20B
 #define VTK_PARSE_UNSIGNED_LONG_LONG_PTR  0x21B
 #define VTK_PARSE___INT64_PTR             0x20C
@@ -250,8 +246,6 @@
 #define VTK_PARSE_DOUBLE_REF              0x107
 #define VTK_PARSE_UNKNOWN_REF             0x108
 #define VTK_PARSE_OBJECT_REF              0x109
-#define VTK_PARSE_ID_TYPE_REF             0x10A
-#define VTK_PARSE_UNSIGNED_ID_TYPE_REF    0x11A
 #define VTK_PARSE_LONG_LONG_REF           0x10B
 #define VTK_PARSE_UNSIGNED_LONG_LONG_REF  0x11B
 #define VTK_PARSE___INT64_REF             0x10C

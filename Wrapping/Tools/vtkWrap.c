@@ -147,7 +147,6 @@ int vtkWrap_IsNumeric(ValueInfo *val)
     case VTK_PARSE_SHORT:
     case VTK_PARSE_INT:
     case VTK_PARSE_LONG:
-    case VTK_PARSE_ID_TYPE:
     case VTK_PARSE_LONG_LONG:
     case VTK_PARSE___INT64:
     case VTK_PARSE_SIGNED_CHAR:
@@ -194,7 +193,6 @@ int vtkWrap_IsInteger(ValueInfo *val)
     case VTK_PARSE_SHORT:
     case VTK_PARSE_INT:
     case VTK_PARSE_LONG:
-    case VTK_PARSE_ID_TYPE:
     case VTK_PARSE_LONG_LONG:
     case VTK_PARSE___INT64:
     case VTK_PARSE_UNSIGNED_CHAR:
@@ -681,7 +679,8 @@ void vtkWrap_FindCountHints(
            strcmp(theFunc->Name, "GetTypedTuple") == 0) &&
           theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
           theFunc->NumberOfParameters == 1 &&
-          theFunc->Parameters[0]->Type == VTK_PARSE_ID_TYPE)
+          vtkWrap_IsScalar(theFunc->Parameters[0]) &&
+          vtkWrap_IsInteger(theFunc->Parameters[0]))
       {
         theFunc->ReturnValue->CountHint = countMethod;
       }
@@ -692,7 +691,8 @@ void vtkWrap_FindCountHints(
                 strcmp(theFunc->Name, "InsertTuple") == 0 ||
                 strcmp(theFunc->Name, "InsertTypedTuple") == 0) &&
                theFunc->NumberOfParameters == 2 &&
-               theFunc->Parameters[0]->Type == VTK_PARSE_ID_TYPE &&
+               vtkWrap_IsScalar(theFunc->Parameters[0]) &&
+               vtkWrap_IsInteger(theFunc->Parameters[0]) &&
                theFunc->Parameters[1]->Count == 0)
       {
         theFunc->Parameters[1]->CountHint = countMethod;
@@ -955,7 +955,6 @@ const char *vtkWrap_GetTypeName(ValueInfo *val)
     case VTK_PARSE_UNSIGNED_SHORT: return "unsigned short";
     case VTK_PARSE_UNSIGNED_LONG:  return "unsigned long";
     case VTK_PARSE_UNSIGNED_CHAR:  return "unsigned char";
-    case VTK_PARSE_ID_TYPE:        return "vtkIdType";
     case VTK_PARSE_LONG_LONG:      return "long long";
     case VTK_PARSE___INT64:        return "__int64";
     case VTK_PARSE_UNSIGNED_LONG_LONG: return "unsigned long long";
