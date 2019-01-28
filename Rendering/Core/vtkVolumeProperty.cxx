@@ -766,6 +766,7 @@ void vtkVolumeProperty::SetLabelColor(int label,
   if (this->LabelColor[label] != nullptr)
   {
     this->LabelColor[label]->Register(this);
+    this->LabelMapLabels.insert(label);
   }
   this->LabelColorMTime.Modified();
   this->Modified();
@@ -800,6 +801,7 @@ void vtkVolumeProperty::SetLabelScalarOpacity(int label,
   if (this->LabelScalarOpacity[label] != nullptr)
   {
     this->LabelScalarOpacity[label]->Register(this);
+    this->LabelMapLabels.insert(label);
   }
   this->LabelScalarOpacityMTime.Modified();
   this->Modified();
@@ -834,6 +836,7 @@ void vtkVolumeProperty::SetLabelGradientOpacity(int label,
   if (this->LabelGradientOpacity[label] != nullptr)
   {
     this->LabelGradientOpacity[label]->Register(this);
+    this->LabelMapLabels.insert(label);
   }
   this->LabelGradientOpacityMTime.Modified();
   this->Modified();
@@ -847,6 +850,32 @@ vtkPiecewiseFunction* vtkVolumeProperty::GetLabelGradientOpacity(int label)
     return nullptr;
   }
   return this->LabelGradientOpacity[label];
+}
+
+//-----------------------------------------------------------------------------
+std::size_t vtkVolumeProperty::GetNumberOfLabels()
+{
+  // Erase labels that were added re-assigned to null pointers
+  for (auto it = this->LabelMapLabels.begin();
+       it != this->LabelMapLabels.end();)
+  {
+    if (!this->GetLabelColor(*it) && !this->GetLabelScalarOpacity(*it) &&
+        !this->GetLabelGradientOpacity(*it))
+    {
+      it = this->LabelMapLabels.erase(it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
+  return this->LabelMapLabels.size();
+}
+
+//-----------------------------------------------------------------------------
+std::set<int> vtkVolumeProperty::GetLabelMapLabels()
+{
+  return this->LabelMapLabels;
 }
 
 //-----------------------------------------------------------------------------

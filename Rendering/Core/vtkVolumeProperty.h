@@ -60,6 +60,7 @@
 #include "vtkObject.h"
 
 // STL includes
+#include <set>
 #include <unordered_map>
 
 class vtkColorTransferFunction;
@@ -509,6 +510,18 @@ public:
    */
   vtkGetMacro(LabelGradientOpacityMTime, vtkTimeStamp);
 
+  /**
+   * Get the number of labels that are provided with transfer functions using
+   * either SetLabelColor, SetLabelScalarOpacity or SetLabelGradientOpacity.
+   */
+  std::size_t GetNumberOfLabels();
+
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * Get access to the internal set that keeps track of labels
+   */
+  std::set<int> GetLabelMapLabels();
+
 protected:
   vtkVolumeProperty();
   ~vtkVolumeProperty() override;
@@ -576,6 +589,7 @@ protected:
   std::unordered_map<int, vtkColorTransferFunction*> LabelColor;
   std::unordered_map<int, vtkPiecewiseFunction*> LabelScalarOpacity;
   std::unordered_map<int, vtkPiecewiseFunction*> LabelGradientOpacity;
+  std::set<int> LabelMapLabels;
 
 private:
   vtkVolumeProperty(const vtkVolumeProperty&) = delete;
