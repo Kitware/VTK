@@ -59,8 +59,7 @@ if (NOT TARGET vtkWrapPython)
     vtkWrapPythonType.c)
   target_link_libraries(vtkWrapPython
     PRIVATE
-      VTK::WrappingTools
-      VTK::CommonCore)
+      VTK::WrappingTools)
   add_executable(VTK::WrapPython ALIAS
     vtkWrapPython)
 
