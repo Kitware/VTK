@@ -21,7 +21,6 @@
 
 #include "vtkParseExtras.h"
 #include "vtkParseString.h"
-#include "vtkType.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -382,7 +381,6 @@ void vtkParse_ExpandTypedef(
   valinfo->Type = (baseType | pointers | refbit | qualifiers | attributes);
   valinfo->Class = classname;
   valinfo->Function = typedefinfo->Function;
-  valinfo->Count *= typedefinfo->Count;
 }
 
 /* Expand any unrecognized types within a variable, parameter, or typedef
@@ -423,43 +421,6 @@ struct vtk_type_struct
   unsigned int type;
 };
 
-/* Simple utility for mapping VTK types to VTK_PARSE types */
-unsigned int vtkParse_MapType(int vtktype)
-{
-  static unsigned int typemap[] =
-  {
-    VTK_PARSE_VOID,               /* VTK_VOID                0 */
-    0,                            /* VTK_BIT                 1 */
-    VTK_PARSE_CHAR,               /* VTK_CHAR                2 */
-    VTK_PARSE_UNSIGNED_CHAR,      /* VTK_UNSIGNED_CHAR       3 */
-    VTK_PARSE_SHORT,              /* VTK_SHORT               4 */
-    VTK_PARSE_UNSIGNED_SHORT,     /* VTK_UNSIGNED_SHORT      5 */
-    VTK_PARSE_INT,                /* VTK_INT                 6 */
-    VTK_PARSE_UNSIGNED_INT,       /* VTK_UNSIGNED_INT        7 */
-    VTK_PARSE_LONG,               /* VTK_LONG                8 */
-    VTK_PARSE_UNSIGNED_LONG,      /* VTK_UNSIGNED_LONG       9 */
-    VTK_PARSE_FLOAT,              /* VTK_FLOAT              10 */
-    VTK_PARSE_DOUBLE,             /* VTK_DOUBLE             11 */
-    VTK_PARSE_ID_TYPE,            /* VTK_ID_TYPE            12 */
-    VTK_PARSE_STRING,             /* VTK_STRING             13 */
-    0,                            /* VTK_OPAQUE             14 */
-    VTK_PARSE_SIGNED_CHAR,        /* VTK_SIGNED_CHAR        15 */
-    VTK_PARSE_LONG_LONG,          /* VTK_LONG_LONG          16 */
-    VTK_PARSE_UNSIGNED_LONG_LONG, /* VTK_UNSIGNED_LONG_LONG 17 */
-    VTK_PARSE___INT64,            /* VTK___INT64            18 */
-    VTK_PARSE_UNSIGNED___INT64,   /* VTK_UNSIGNED___INT64   19 */
-    0,                            /* VTK_VARIANT            20 */
-    0,                            /* VTK_OBJECT             21 */
-    VTK_PARSE_UNICODE_STRING      /* VTK_UNICODE_STRING     22 */
-    };
-
-  if (vtktype > 0 && vtktype <= VTK_UNICODE_STRING)
-  {
-    return typemap[vtktype];
-  }
-  return 0;
-}
-
 /* Get a type from a type name, and return the number of characters used.
  * If the "classname" argument is not NULL, then it is used to return
  * the short name for the type, e.g. "long int" becomes "long", while
@@ -472,19 +433,8 @@ size_t vtkParse_BasicTypeFromString(
 {
   /* The various typedefs and types specific to VTK */
   static struct vtk_type_struct vtktypes[] = {
-    { 9,  "vtkIdType", VTK_ID_TYPE },
-    { 12, "vtkStdString", VTK_STRING },
-    { 16, "vtkUnicodeString", VTK_UNICODE_STRING },
-    { 11, "vtkTypeInt8", VTK_TYPE_INT8 },
-    { 12, "vtkTypeUInt8", VTK_TYPE_UINT8 },
-    { 12, "vtkTypeInt16", VTK_TYPE_INT16 },
-    { 13, "vtkTypeUInt16", VTK_TYPE_UINT16 },
-    { 12, "vtkTypeInt32", VTK_TYPE_INT32 },
-    { 13, "vtkTypeUInt32", VTK_TYPE_UINT32 },
-    { 12, "vtkTypeInt64", VTK_TYPE_INT64 },
-    { 13, "vtkTypeUInt64", VTK_TYPE_UINT64 },
-    { 14, "vtkTypeFloat32", VTK_TYPE_FLOAT32 },
-    { 14, "vtkTypeFloat64", VTK_TYPE_FLOAT64 },
+    { 12, "vtkStdString", VTK_PARSE_STRING },
+    { 16, "vtkUnicodeString", VTK_PARSE_UNICODE_STRING },
     { 0, 0, 0 } };
 
   /* Other typedefs and types */
@@ -644,7 +594,7 @@ size_t vtkParse_BasicTypeFromString(
           if (n == vtktypes[i].len && strncmp(cp, vtktypes[i].name, n) == 0)
           {
             classname = vtktypes[i].name;
-            base_bits = vtkParse_MapType((int)vtktypes[i].type);
+            base_bits = vtktypes[i].type;
           }
         }
       }

@@ -22,9 +22,6 @@
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
 
-/* needed for VTK_LEGACY_REMOVE */
-#include "vtkConfigure.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -189,8 +186,7 @@ static void vtkWrapPython_RemovePrecededMethods(
               }
               /* integer promotion precedence */
               else if ((indirect1 == indirect2) &&
-                       ((baseType1 == VTK_PARSE_INT) ||
-                        (baseType1 == VTK_PARSE_ID_TYPE)) &&
+                       (baseType1 == VTK_PARSE_INT) &&
                        ((baseType2 == VTK_PARSE_SHORT) ||
                         (baseType2 == VTK_PARSE_SIGNED_CHAR) ||
                         ((baseType2 == VTK_PARSE_CHAR) && unsigned2)))
@@ -198,8 +194,7 @@ static void vtkWrapPython_RemovePrecededMethods(
                 if (!vote2) { vote1 = 1; }
               }
               else if ((indirect1 == indirect2) &&
-                       ((baseType2 == VTK_PARSE_INT) ||
-                        (baseType2 == VTK_PARSE_ID_TYPE)) &&
+                       (baseType2 == VTK_PARSE_INT) &&
                        ((baseType1 == VTK_PARSE_SHORT) ||
                         (baseType1 == VTK_PARSE_SIGNED_CHAR) ||
                         ((baseType1 == VTK_PARSE_CHAR) && unsigned1)))
@@ -453,7 +448,6 @@ static int vtkWrapPython_IsValueWrappable(
     VTK_PARSE_INT, VTK_PARSE_UNSIGNED_INT,
     VTK_PARSE_SHORT, VTK_PARSE_UNSIGNED_SHORT,
     VTK_PARSE_LONG, VTK_PARSE_UNSIGNED_LONG,
-    VTK_PARSE_ID_TYPE, VTK_PARSE_UNSIGNED_ID_TYPE,
     VTK_PARSE_SSIZE_T, VTK_PARSE_SIZE_T,
     VTK_PARSE_UNKNOWN,
     VTK_PARSE_LONG_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,

@@ -21,9 +21,6 @@
 #include "vtkWrapText.h"
 #include "vtkParseExtras.h"
 
-/* required for VTK_LEGACY_REMOVE */
-#include "vtkConfigure.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

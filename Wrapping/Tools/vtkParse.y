@@ -104,6 +104,7 @@ to the more usual form y x; without parentheses.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #define yyerror(a) print_parser_error(a, NULL, 0)
 #define yywrap() 1
 
@@ -126,53 +127,9 @@ to the more usual form y x; without parentheses.
 # pragma warning (disable: 4244) /* conversion to smaller integer type */
 #endif
 
-/* Map from the type anonymous_enumeration in vtkType.h to the
-   VTK wrapping type system number for the type. */
-
 #include "vtkParse.h"
 #include "vtkParsePreprocess.h"
 #include "vtkParseData.h"
-#include "vtkType.h"
-
-static unsigned int vtkParseTypeMap[] =
-  {
-  VTK_PARSE_VOID,               /* VTK_VOID                0 */
-  0,                            /* VTK_BIT                 1 */
-  VTK_PARSE_CHAR,               /* VTK_CHAR                2 */
-  VTK_PARSE_UNSIGNED_CHAR,      /* VTK_UNSIGNED_CHAR       3 */
-  VTK_PARSE_SHORT,              /* VTK_SHORT               4 */
-  VTK_PARSE_UNSIGNED_SHORT,     /* VTK_UNSIGNED_SHORT      5 */
-  VTK_PARSE_INT,                /* VTK_INT                 6 */
-  VTK_PARSE_UNSIGNED_INT,       /* VTK_UNSIGNED_INT        7 */
-  VTK_PARSE_LONG,               /* VTK_LONG                8 */
-  VTK_PARSE_UNSIGNED_LONG,      /* VTK_UNSIGNED_LONG       9 */
-  VTK_PARSE_FLOAT,              /* VTK_FLOAT              10 */
-  VTK_PARSE_DOUBLE,             /* VTK_DOUBLE             11 */
-  VTK_PARSE_ID_TYPE,            /* VTK_ID_TYPE            12 */
-  VTK_PARSE_STRING,             /* VTK_STRING             13 */
-  0,                            /* VTK_OPAQUE             14 */
-  VTK_PARSE_SIGNED_CHAR,        /* VTK_SIGNED_CHAR        15 */
-  VTK_PARSE_LONG_LONG,          /* VTK_LONG_LONG          16 */
-  VTK_PARSE_UNSIGNED_LONG_LONG, /* VTK_UNSIGNED_LONG_LONG 17 */
-  VTK_PARSE___INT64,            /* VTK___INT64            18 */
-  VTK_PARSE_UNSIGNED___INT64,   /* VTK_UNSIGNED___INT64   19 */
-  0,                            /* VTK_VARIANT            20 */
-  0,                            /* VTK_OBJECT             21 */
-  VTK_PARSE_UNICODE_STRING      /* VTK_UNICODE_STRING     22 */
-  };
-
-/* Define some constants to simplify references to the table lookup in
-   the primitive_type production rule code.  */
-#define VTK_PARSE_INT8 vtkParseTypeMap[VTK_TYPE_INT8]
-#define VTK_PARSE_UINT8 vtkParseTypeMap[VTK_TYPE_UINT8]
-#define VTK_PARSE_INT16 vtkParseTypeMap[VTK_TYPE_INT16]
-#define VTK_PARSE_UINT16 vtkParseTypeMap[VTK_TYPE_UINT16]
-#define VTK_PARSE_INT32 vtkParseTypeMap[VTK_TYPE_INT32]
-#define VTK_PARSE_UINT32 vtkParseTypeMap[VTK_TYPE_UINT32]
-#define VTK_PARSE_INT64 vtkParseTypeMap[VTK_TYPE_INT64]
-#define VTK_PARSE_UINT64 vtkParseTypeMap[VTK_TYPE_UINT64]
-#define VTK_PARSE_FLOAT32 vtkParseTypeMap[VTK_TYPE_FLOAT32]
-#define VTK_PARSE_FLOAT64 vtkParseTypeMap[VTK_TYPE_FLOAT64]
 
 /* Define the kinds of [[attributes]] to collect */
 enum
@@ -1141,7 +1098,7 @@ void preSig(const char *arg)
     if (n > 0)
     {
       memmove(&signature[n], signature, sigLength);
-      strncpy(signature, arg, n);
+      memmove(signature, arg, n);
       sigLength += n;
     }
     signature[sigLength] = '\0';
@@ -1157,10 +1114,9 @@ void postSig(const char *arg)
     checkSigSize(n);
     if (n > 0)
     {
-      strncpy(&signature[sigLength], arg, n);
+      strncpy(&signature[sigLength], arg, n + 1);
       sigLength += n;
     }
-    signature[sigLength] = '\0';
   }
 }
 
@@ -1813,9 +1769,9 @@ unsigned int add_indirection_to_array(unsigned int type)
    and five from '(' constructor_args ')' in initializer */
 %expect 10
 
-/* Expect 122 reduce/reduce conflicts, these can be cleared by removing
+/* Expect 111 reduce/reduce conflicts, these can be cleared by removing
    either '<' or angle_brackets_sig from constant_expression_item. */
-%expect-rr 122
+%expect-rr 111
 
 /* The parser will shift/reduce values <str> or <integer>, where
    <str> is for IDs and <integer> is for types, modifiers, etc. */
@@ -1949,19 +1905,6 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token WCHAR_T
 %token SIGNED
 %token UNSIGNED
-
-/* VTK typedef types */
-%token IdType
-%token TypeInt8
-%token TypeUInt8
-%token TypeInt16
-%token TypeUInt16
-%token TypeInt32
-%token TypeUInt32
-%token TypeInt64
-%token TypeUInt64
-%token TypeFloat32
-%token TypeFloat64
 
 /* VTK macros */
 %token SetVector2Macro
@@ -3049,17 +2992,6 @@ simple_id:
   | NULLPTR_T { postSig($<str>1); }
   | SIZE_T { postSig($<str>1); }
   | SSIZE_T { postSig($<str>1); }
-  | TypeInt8 { $<str>$ = "vtkTypeInt8"; postSig($<str>$); }
-  | TypeUInt8 { $<str>$ = "vtkTypeUInt8"; postSig($<str>$); }
-  | TypeInt16 { $<str>$ = "vtkTypeInt16"; postSig($<str>$); }
-  | TypeUInt16 { $<str>$ = "vtkTypeUInt16"; postSig($<str>$); }
-  | TypeInt32 { $<str>$ = "vtkTypeInt32"; postSig($<str>$); }
-  | TypeUInt32 { $<str>$ = "vtkTypeUInt32"; postSig($<str>$); }
-  | TypeInt64 { $<str>$ = "vtkTypeInt64"; postSig($<str>$); }
-  | TypeUInt64 { $<str>$ = "vtkTypeUInt64"; postSig($<str>$); }
-  | TypeFloat32 { $<str>$ = "vtkTypeFloat32"; postSig($<str>$); }
-  | TypeFloat64 { $<str>$ = "vtkTypeFloat64"; postSig($<str>$); }
-  | IdType { $<str>$ = "vtkIdType"; postSig($<str>$); }
 
 /*
  * An identifier with no side-effects.
@@ -3200,17 +3132,6 @@ type_name:
   | NULLPTR_T { typeSig($<str>1); $<integer>$ = VTK_PARSE_NULLPTR_T; }
   | SSIZE_T { typeSig($<str>1); $<integer>$ = VTK_PARSE_SSIZE_T; }
   | SIZE_T { typeSig($<str>1); $<integer>$ = VTK_PARSE_SIZE_T; }
-  | TypeInt8 { typeSig("vtkTypeInt8"); $<integer>$ = VTK_PARSE_INT8; }
-  | TypeUInt8 { typeSig("vtkTypeUInt8"); $<integer>$ = VTK_PARSE_UINT8; }
-  | TypeInt16 { typeSig("vtkTypeInt16"); $<integer>$ = VTK_PARSE_INT16; }
-  | TypeUInt16 { typeSig("vtkTypeUInt16"); $<integer>$ = VTK_PARSE_UINT16; }
-  | TypeInt32 { typeSig("vtkTypeInt32"); $<integer>$ = VTK_PARSE_INT32; }
-  | TypeUInt32 { typeSig("vtkTypeUInt32"); $<integer>$ = VTK_PARSE_UINT32; }
-  | TypeInt64 { typeSig("vtkTypeInt64"); $<integer>$ = VTK_PARSE_INT64; }
-  | TypeUInt64 { typeSig("vtkTypeUInt64"); $<integer>$ = VTK_PARSE_UINT64; }
-  | TypeFloat32 { typeSig("vtkTypeFloat32"); $<integer>$ = VTK_PARSE_FLOAT32; }
-  | TypeFloat64 { typeSig("vtkTypeFloat64"); $<integer>$ = VTK_PARSE_FLOAT64; }
-  | IdType { typeSig("vtkIdType"); $<integer>$ = VTK_PARSE_ID_TYPE; }
 
 primitive_type:
     AUTO   { postSig("auto "); $<integer>$ = 0; }
@@ -4275,7 +4196,7 @@ unsigned int guess_constant_type(const char *valstring)
     {
       if (is_unsigned)
       {
-        if ((preproc_uint_t)val <= VTK_UNSIGNED_INT_MAX)
+        if ((preproc_uint_t)val <= UINT_MAX)
         {
           return VTK_PARSE_UNSIGNED_INT;
         }
@@ -4286,7 +4207,7 @@ unsigned int guess_constant_type(const char *valstring)
       }
       else
       {
-        if (val >= VTK_INT_MIN && val <= VTK_INT_MAX)
+        if (val >= INT_MIN && val <= INT_MAX)
         {
           return VTK_PARSE_INT;
         }
@@ -5206,11 +5127,6 @@ FileInfo *vtkParse_ParseFile(
     }
   }
 
-  /* should explicitly check for vtkConfigure.h, or even explicitly load it */
-#ifdef VTK_USE_64BIT_IDS
-  vtkParsePreprocess_AddMacro(preprocessor, "VTK_USE_64BIT_IDS", NULL);
-#endif
-
   data->FileName = vtkstrdup(filename);
 
   clearComment();
@@ -5343,7 +5259,6 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
               case VTK_PARSE_FLOAT_PTR:
               case VTK_PARSE_VOID_PTR:
               case VTK_PARSE_DOUBLE_PTR:
-              case VTK_PARSE_ID_TYPE_PTR:
               case VTK_PARSE_LONG_LONG_PTR:
               case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
               case VTK_PARSE___INT64_PTR:

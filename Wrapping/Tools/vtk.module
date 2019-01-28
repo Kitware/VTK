@@ -2,7 +2,4 @@ NAME
   VTK::WrappingTools
 LIBRARY_NAME
   vtkWrappingTools
-PRIVATE_DEPENDS
-  VTK::CommonCore
-  VTK::vtksys
 EXCLUDE_WRAP
