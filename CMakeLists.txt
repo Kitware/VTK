@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
 foreach(policy
     CMP0083 # CMake 3.14
+    CMP0071 # CMake 3.10
     )
   if(POLICY ${policy})
     cmake_policy(SET ${policy} NEW)
@@ -74,7 +75,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 #-----------------------------------------------------------------------------
 # Add the Remote Subdirectory
-#add_subdirectory(Remote)
+add_subdirectory(Remote)
 
 #-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
@@ -194,6 +195,7 @@ set(vtk_source_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Interaction"
   "${CMAKE_CURRENT_SOURCE_DIR}/IO"
   "${CMAKE_CURRENT_SOURCE_DIR}/Parallel"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Remote"
   "${CMAKE_CURRENT_SOURCE_DIR}/Rendering"
   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
   "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty"
@@ -227,6 +229,7 @@ vtk_module_scan(
   UNRECOGNIZED_MODULES vtk_unrecognized_modules
   WANT_BY_DEFAULT     "${VTK_BUILD_ALL_MODULES}"
   ENABLE_TESTS        "${vtk_enable_tests}")
+
 
 if (vtk_required_modules OR vtk_unrecognized_modules)
   message(FATAL_ERROR
