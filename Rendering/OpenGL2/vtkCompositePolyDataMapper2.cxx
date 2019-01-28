@@ -24,14 +24,13 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -1888,23 +1887,27 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
   // block.
   flat_index++;
 
-  vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
-  vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::SafeDownCast(dobj);
-  if (mbds || mpds)
+  auto dObjTree = vtkDataObjectTree::SafeDownCast(dobj);
+  if (dObjTree)
   {
-    unsigned int numChildren = mbds? mbds->GetNumberOfBlocks() :
-      mpds->GetNumberOfPieces();
-    for (unsigned int cc=0 ; cc < numChildren; cc++)
+    using SmartDOTIter = vtkSmartPointer<vtkDataObjectTreeIterator>;
+    auto iter = SmartDOTIter::Take(dObjTree->NewTreeIterator());
+    iter->TraverseSubTreeOff();
+    iter->VisitOnlyLeavesOff();
+    iter->SkipEmptyNodesOff();
+    for (iter->InitTraversal();
+         !iter->IsDoneWithTraversal();
+         iter->GoToNextItem())
     {
-      vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
-      if (child == nullptr)
+      auto child = iter->GetCurrentDataObject();
+      if (!child)
       {
-        // speeds things up when dealing with nullptr blocks (which is common with
-        // AMRs).
-        flat_index++;
-        continue;
+        ++flat_index;
       }
-      this->BuildRenderValues(renderer, actor, child, flat_index);
+      else
+      {
+        this->BuildRenderValues(renderer, actor, child, flat_index);
+      }
     }
   }
   else
