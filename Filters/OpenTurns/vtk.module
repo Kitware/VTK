@@ -14,6 +14,7 @@ PRIVATE_DEPENDS
   VTK::ImagingCore
 TEST_DEPENDS
   VTK::IOInfovis
+  VTK::InteractionStyle
   VTK::RenderingContextOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
