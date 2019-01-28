@@ -129,9 +129,14 @@ $<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_python_ge
     list(APPEND _vtk_python_sources
       "${_vtk_python_source_output}")
 
+    set(_vtk_python_wrap_target "VTK::WrapPython")
+    if (TARGET VTKCompileTools::WrapPython)
+      set(_vtk_python_wrap_target "VTKCompileTools::WrapPython")
+    endif ()
+
     add_custom_command(
       OUTPUT  "${_vtk_python_source_output}"
-      COMMAND VTK::WrapPython
+      COMMAND "${_vtk_python_wrap_target}"
               "@${_vtk_python_args_file}"
               -o "${_vtk_python_source_output}"
               "${_vtk_python_header}"
@@ -140,7 +145,6 @@ $<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_python_ge
               CXX "${_vtk_python_header}"
       COMMENT "Generating Python wrapper sources for ${_vtk_python_basename}"
       DEPENDS
-        VTK::WrapPython
         "${_vtk_python_header}"
         "${_vtk_python_args_file}"
         "${_vtk_python_command_depend}")
@@ -302,16 +306,20 @@ function (_vtk_module_wrap_python_library name)
     "${_vtk_python_init_output}"
     "${_vtk_python_init_impl_output}")
 
+  set(_vtk_python_wrap_target "VTK::WrapPythonInit")
+  if (TARGET VTKCompileTools::WrapPythonInit)
+    set(_vtk_python_wrap_target "VTKCompileTools::WrapPythonInit")
+  endif ()
+
   add_custom_command(
     OUTPUT  "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
-    COMMAND VTK::WrapPythonInit
+    COMMAND "${_vtk_python_wrap_target}"
             "${_vtk_python_init_data_file}"
             "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
     COMMENT "Generating the Python module initialization sources for ${name}"
     DEPENDS
-      VTK::WrapPythonInit
       "${_vtk_python_init_data_file}")
 
   if (_vtk_python_BUILD_STATIC)

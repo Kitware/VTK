@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+
 include(ExternalProject)
 
 # Convenience variables
@@ -52,17 +54,8 @@ if (NOT EXISTS ${CMAKE_FRAMEWORK_INSTALL_PREFIX})
   endif()
 endif()
 
-# First, determine how to build
-if (CMAKE_GENERATOR MATCHES "NMake Makefiles")
-  set(VTK_BUILD_COMMAND BUILD_COMMAND nmake)
-elseif (CMAKE_GENERATOR MATCHES "Ninja")
-  set(VTK_BUILD_COMMAND BUILD_COMMAND ninja)
-else()
-  set(VTK_BUILD_COMMAND BUILD_COMMAND make)
-endif()
-
 # make sure we have a CTestCustom.cmake file
-configure_file("${VTK_CMAKE_DIR}/CTestCustom.cmake.in"
+configure_file("${vtk_cmake_dir}/CTestCustom.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake" @ONLY)
 
 # Compile a minimal VTK for its compile tools
@@ -73,16 +66,14 @@ macro(compile_vtk_tools)
     PREFIX ${CMAKE_BINARY_DIR}/CompileTools
     BINARY_DIR ${CMAKE_BINARY_DIR}/CompileTools
     INSTALL_COMMAND ""
-    ${VTK_BUILD_COMMAND} vtkCompileTools
     BUILD_ALWAYS 1
     CMAKE_CACHE_ARGS
+      -DVTK_BUILD_COMPILE_TOOLS_ONLY:BOOL=ON
       -DCMAKE_BUILD_TYPE:STRING=Release
       -DVTK_BUILD_ALL_MODULES:BOOL=OFF
-      -DVTK_Group_Rendering:BOOL=OFF
-      -DVTK_Group_StandAlone:BOOL=ON
       -DBUILD_SHARED_LIBS:BOOL=ON
-      -DBUILD_EXAMPLES:BOOL=OFF
-      -DBUILD_TESTING:BOOL=OFF
+      -DVTK_BUILD_EXAMPLES:BOOL=OFF
+      -DVTK_BUILD_TESTING:BOOL=OFF
       -DCMAKE_MAKE_PROGRAM:FILEPATH=${CMAKE_MAKE_PROGRAM}
   )
 endmacro()
@@ -106,76 +97,91 @@ if(BUILD_TESTING)
 endif()
 
 # expose some module options
-option(Module_vtkRenderingOpenGL2 "Include Polygonal Rendering Support" ON)
-option(Module_vtkInteractionStyle "Include InteractionStyle module" ON)
-option(Module_vtkInteractionWidgets "Include InteractionWidgets module" OFF)
-option(Module_vtkIOXML "Include IO/XML Module" OFF)
-option(Module_vtkDICOM "Turn on or off this module" OFF)
-option(Module_vtkFiltersModeling "Turn on or off this module" OFF)
-option(Module_vtkFiltersSources "Turn on or off this module" OFF)
-option(Module_vtkIOGeometry "Turn on or off this module" OFF)
-option(Module_vtkIOLegacy "Turn on or off this module" OFF)
-option(Module_vtkIOImage "Turn on or off this module" OFF)
-option(Module_vtkIOPLY "Turn on or off this module" OFF)
-option(Module_vtkIOInfovis "Turn on or off this module" OFF)
-option(Module_vtkRenderingFreeType "Turn on or off this module" OFF)
-option(Module_vtkRenderingImage "Turn on or off this module" OFF)
-option(Module_vtkRenderingVolumeOpenGL2 "Include Volume Rendering Support" ON)
-option(Module_vtkRenderingLOD "Include LOD Rendering Support" OFF)
+set(module_options
+  #DICOM
+  FiltersModeling
+  FiltersSources
+  IOGeometry
+  IOImage
+  IOInfovis
+  IOLegacy
+  IOPLY
+  IOXML
+  InteractionStyle
+  InteractionWidgets
+  RenderingFreeType
+  RenderingImage
+  RenderingLOD
+  RenderingOpenGL2
+  RenderingVolumeOpenGL2)
 
+set(IOXML_desc "Include IO/XML Module")
+set(InteractionStyle_desc "Include InteractionStyle module")
+set(InteractionWidgets_desc "Include InteractionWidgets module")
+set(RenderingLOD_desc "Include LOD Rendering Support")
+set(RenderingOpenGL2_desc "Include Polygonal Rendering Support")
+set(RenderingVolumeOpenGL2_desc "Include Volume Rendering Support")
 
-if (Module_vtkDICOM)
+set(InteractionStyle_default ON)
+set(RenderingOpenGL2_default ON)
+set(RenderingVolumeOpenGL2_default ON)
+
+foreach (module IN LISTS module_options)
+  set(desc "Turn on or off this module")
+  if (DEFINED "${module}_desc")
+    set(desc "${${module}_desc}")
+  endif ()
+  set(default OFF)
+  if (DEFINED "${module}_default")
+    set(default "${${module}_default}")
+  endif ()
+  option(VTK_MODULE_ENABLE_VTK_${module} "${desc}" ${default})
+  set("enable_option_${module}" "DONT_WANT")
+  if (VTK_MODULE_ENABLE_VTK_${module})
+    set("enable_option_${module}" "YES")
+  endif ()
+endforeach ()
+
+# XXX(FIXME): DICOM has not been added back into the main build yet.
+if (FALSE AND Module_vtkDICOM)
   set(DICOM_OPTION -DModule_vtkDICOM:BOOL=ON)
 endif()
-
-mark_as_advanced(Module_${vtk-module})
 
 # Now cross-compile VTK with custom toolchains
 set(ios_cmake_flags
   -DBUILD_SHARED_LIBS:BOOL=OFF
-  -DBUILD_TESTING:BOOL=OFF
+  -DVTK_BUILD_TESTING:BOOL=OFF
   -DVTK_BUILD_EXAMPLES:BOOL=${VTK_BUILD_EXAMPLES}
   -DVTK_USE_64BIT_IDS:BOOL=OFF
-  -DVTK_Group_Rendering:BOOL=OFF
-  -DVTK_Group_StandAlone:BOOL=OFF
-  -DVTK_Group_Imaging:BOOL=OFF
-  -DVTK_Group_MPI:BOOL=OFF
-  -DVTK_Group_Views:BOOL=OFF
-  -DVTK_Group_Qt:BOOL=OFF
-  -DVTK_Group_Tk:BOOL=OFF
-  -DVTK_Group_Web:BOOL=OFF
-  -DModule_vtkRenderingOpenGL2:BOOL=${Module_vtkRenderingOpenGL2}
-  -DModule_vtkInteractionStyle:BOOL=${Module_vtkInteractionStyle}
-  -DModule_vtkInteractionWidgets:BOOL=${Module_vtkInteractionWidgets}
-  -DModule_vtkIOXML:BOOL=${Module_vtkIOXML}
+  -DVTK_GROUP_ENABLE_Rendering:STRING=DONT_WANT
+  -DVTK_GROUP_ENABLE_StandAlone:STRING=DONT_WANT
+  -DVTK_GROUP_ENABLE_Imaging:STRING=DONT_WANT
+  -DVTK_GROUP_ENABLE_MPI:STRING=DONT_WANT
+  -DVTK_GROUP_ENABLE_Views:STRING=DONT_WANT
+  -DVTK_GROUP_ENABLE_Qt:STRING=DONT_WANT
+  -DVTK_GROUP_ENABLE_Web:STRING=DONT_WANT
+  -DVTK_MODULE_ENABLE_VTK_RenderingOpenGL2:STRING=${enable_option_RenderingOpenGL2}
+  -DVTK_MODULE_ENABLE_VTK_InteractionStyle:STRING=${enable_option_InteractionStyle}
+  -DVTK_MODULE_ENABLE_VTK_InteractionWidgets:STRING=${enable_option_InteractionWidgets}
+  -DVTK_MODULE_ENABLE_VTK_IOXML:STRING=${enable_option_IOXML}
+  -DVTK_MODULE_ENABLE_VTK_FiltersModeling:STRING=${enable_option_FiltersModeling}
+  -DVTK_MODULE_ENABLE_VTK_FiltersSources:STRING=${enable_option_FiltersSources}
+  -DVTK_MODULE_ENABLE_VTK_IOGeometry:STRING=${enable_option_IOGeometry}
+  -DVTK_MODULE_ENABLE_VTK_IOLegacy:STRING=${enable_option_IOLegacy}
+  -DVTK_MODULE_ENABLE_VTK_IOImage:STRING=${enable_option_IOImage}
+  -DVTK_MODULE_ENABLE_VTK_IOPLY:STRING=${enable_option_IOPLY}
+  -DVTK_MODULE_ENABLE_VTK_IOInfovis:STRING=${enable_option_IOInfovis}
+  -DVTK_MODULE_ENABLE_VTK_RenderingFreeType:STRING=${enable_option_RenderingFreeType}
+  -DVTK_MODULE_ENABLE_VTK_RenderingImage:STRING=${enable_option_RenderingImage}
+  -DVTK_MODULE_ENABLE_VTK_RenderingVolumeOpenGL2:STRING=${enable_option_RenderingVolumeOpenGL2}
+  -DVTK_MODULE_ENABLE_VTK_RenderingLOD:STRING=${enable_option_RenderingLOD}
   ${DICOM_OPTION}
-  -DModule_vtkFiltersModeling:BOOL=${Module_vtkFiltersModeling}
-  -DModule_vtkFiltersSources:BOOL=${Module_vtkFiltersSources}
-  -DModule_vtkIOGeometry:BOOL=${Module_vtkIOGeometry}
-  -DModule_vtkIOLegacy:BOOL=${Module_vtkIOLegacy}
-  -DModule_vtkIOImage:BOOL=${Module_vtkIOImage}
-  -DModule_vtkIOPLY:BOOL=${Module_vtkIOPLY}
-  -DModule_vtkIOInfovis:BOOL=${Module_vtkIOInfovis}
-  -DModule_vtkRenderingFreeType:BOOL=${Module_vtkRenderingFreeType}
-  -DModule_vtkRenderingImage:BOOL=${Module_vtkRenderingImage}
-  -DModule_vtkRenderingVolumeOpenGL2:BOOL=${Module_vtkRenderingVolumeOpenGL2}
-  -DModule_vtkRenderingLOD:BOOL=${Module_vtkRenderingLOD}
 )
 
 if (Module_vtkDICOM AND IOS_EMBED_BITCODE)
   # libvtkzlib does not contain bitcode
   list (APPEND ios_cmake_flags
     -DBUILD_DICOM_PROGRAMS:BOOL=OFF
-    )
-endif()
-
-if (Module_vtkRenderingOpenGL2 OR Module_vtkRenderingVolumeOpenGL2)
-  list (APPEND ios_cmake_flags
-    -DVTK_RENDERING_BACKEND:STRING=OpenGL2
-    )
-else()
-  list (APPEND ios_cmake_flags
-    -DVTK_RENDERING_BACKEND:STRING=None
     )
 endif()
 

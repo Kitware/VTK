@@ -38,21 +38,21 @@ mark_as_advanced(VTK_OPENGL_HAS_OSMESA)
 option(VTK_OPENGL_USE_GLES "Use the OpenGL ES API" OFF)
 mark_as_advanced(VTK_OPENGL_USE_GLES)
 
+set(default_has_egl OFF)
+if (ANDROID)
+  set(default_has_egl ON)
+endif ()
+
 #-----------------------------------------------------------------------------
 # EGL variables
 #-----------------------------------------------------------------------------
 # OpenGL implementation supports EGL for creating offscreen context.
-option(VTK_OPENGL_HAS_EGL "The OpenGL library being used supports EGL" OFF)
+option(VTK_OPENGL_HAS_EGL "The OpenGL library being used supports EGL" "${default_has_egl}")
 mark_as_advanced(VTK_OPENGL_HAS_EGL)
 
 set(VTK_DEFAULT_EGL_DEVICE_INDEX "0" CACHE STRING
   "EGL device (graphics card) index to use by default for EGL render windows.")
 mark_as_advanced(VTK_DEFAULT_EGL_DEVICE_INDEX)
-
-# Some sanity checks for use of EGL.
-if (VTK_OPENGL_HAS_EGL AND ANDROID)
-  message(FATAL_ERROR "You cannot use VTK_OPENGL_HAS_EGL on the ANDROID platform")
-endif()
 
 #-----------------------------------------------------------------------------
 # Irrespective of support for offscreen API, VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN

@@ -203,6 +203,19 @@ set(vtk_source_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Wrapping")
 vtk_module_find_modules(vtk_module_files ${vtk_source_directories})
 vtk_module_find_kits(vtk_kit_files ${vtk_source_directories})
+
+# If we're building only the compile tools, limit what is done.
+option(VTK_BUILD_COMPILE_TOOLS_ONLY "Build only VTK's compile tools" OFF)
+mark_as_advanced(VTK_BUILD_COMPILE_TOOLS_ONLY)
+if (VTK_BUILD_COMPILE_TOOLS_ONLY)
+  set(vtk_requested_modules
+    VTKCompileTools::WrappingTools)
+  set(vtk_rejected_modules)
+  set(vtk_module_files
+    "${CMAKE_CURRENT_SOURCE_DIR}/Wrapping/Tools/vtkcompiletools.module")
+  set(vtk_kit_files)
+endif ()
+
 vtk_module_scan(
   MODULE_FILES        ${vtk_module_files}
   KIT_FILES           ${vtk_kit_files}
@@ -227,19 +240,28 @@ if (NOT vtk_python_idx EQUAL "-1")
   vtk_module_python_default_destination(VTK_PYTHON_SITE_PACKAGES_SUFFIX)
 endif ()
 
-set(vtk_cmake_destination
-  "${CMAKE_INSTALL_LIBDIR}/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
-
 option(VTK_ENABLE_KITS "Enable kits compilation" OFF)
 mark_as_advanced(VTK_ENABLE_KITS)
 
 option(VTK_USE_EXTERNAL "Use external copies of third party libraries by default" OFF)
 mark_as_advanced(VTK_USE_EXTERNAL)
 
+set(vtk_install_export VTK)
+set(vtk_cmake_destination
+  "${CMAKE_INSTALL_LIBDIR}/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+set(vtk_target_package)
+if (VTK_BUILD_COMPILE_TOOLS_ONLY)
+  set(vtk_install_export VTKCompileTools)
+  set(vtk_cmake_destination
+    "${CMAKE_INSTALL_LIBDIR}/cmake/vtkcompiletools-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+  set(vtk_target_package PACKAGE "${vtk_install_export}")
+endif ()
+
 vtk_module_build(
   MODULES             ${vtk_modules}
   KITS                ${vtk_kits}
-  INSTALL_EXPORT      VTK
+  INSTALL_EXPORT      "${vtk_install_export}"
+  ${vtk_target_package}
   HEADERS_DESTINATION "include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
   CMAKE_DESTINATION   "${vtk_cmake_destination}"
   LIBRARY_NAME_SUFFIX "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
@@ -301,7 +323,11 @@ ExternalData_Add_Target(VTKData)
 
 set(vtk_cmake_build_dir
   "${CMAKE_CURRENT_BINARY_DIR}/${vtk_cmake_destination}")
-include(vtkInstallCMakePackage)
+if (NOT VTK_BUILD_COMPILE_TOOLS_ONLY)
+  include(vtkInstallCMakePackage)
+else ()
+  include(vtkInstallCMakePackageCompileTools)
+endif ()
 
 cmake_dependent_option(VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS
   "Suppress warnings from third-party libraries from showing on CDash" OFF

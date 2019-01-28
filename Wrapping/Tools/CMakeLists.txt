@@ -1,6 +1,11 @@
 # Allow the user to customize their build with some local options
 include("${CMAKE_CURRENT_SOURCE_DIR}/LocalUserOptions.cmake" OPTIONAL)
 
+set(ns "VTK")
+if (VTK_BUILD_COMPILE_TOOLS_ONLY)
+  set(ns "VTKCompileTools")
+endif ()
+
 set(sources
   vtkParse.tab.c
   vtkParseData.c
@@ -31,22 +36,33 @@ set_property(SOURCE vtkParseMain.c
   PROPERTY
     COMPILE_DEFINITIONS "VTK_PARSE_VERSION=\"${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}\"")
 
-vtk_module_add_module(VTK::WrappingTools
+vtk_module_add_module("${ns}::WrappingTools"
   SOURCES ${sources}
   HEADERS ${headers}
   FORCE_STATIC)
+# This is a hard-coded path because `vtkType.h` from `VTK::CommonCore` is
+# used for VTK's integer types. However, it is not a public dependency. In
+# order for the compile tools project to be as minimal as possible, the
+# `VTK::CommonCore` target should also not be created.
+vtk_module_include("${ns}::WrappingTools"
+  PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../Common/Core"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../Utilities/KWIML")
 
-if (NOT TARGET VTK::WrapHierarchy)
-  vtk_module_add_executable(vtkWrapHierarchy vtkWrapHierarchy.c)
-  target_link_libraries(vtkWrapHierarchy
+if (NOT TARGET "${ns}::WrapHierarchy")
+  vtk_module_add_executable(WrapHierarchy
+    BASENAME vtkWrapHierarchy
+    vtkWrapHierarchy.c)
+  target_link_libraries(WrapHierarchy
     PRIVATE
-      VTK::WrappingTools)
-  add_executable(VTK::WrapHierarchy ALIAS
-    vtkWrapHierarchy)
+      "${ns}::WrappingTools")
+  add_executable("${ns}::WrapHierarchy" ALIAS
+    WrapHierarchy)
 endif ()
 
-if (NOT TARGET vtkWrapPython)
-  vtk_module_add_executable(vtkWrapPython
+if (NOT TARGET WrapPython)
+  vtk_module_add_executable(WrapPython
+    BASENAME vtkWrapPython
     vtkWrapPython.c
     vtkWrapPythonClass.c
     vtkWrapPythonConstant.c
@@ -57,29 +73,35 @@ if (NOT TARGET vtkWrapPython)
     vtkWrapPythonOverload.c
     vtkWrapPythonTemplate.c
     vtkWrapPythonType.c)
-  target_link_libraries(vtkWrapPython
+  target_link_libraries(WrapPython
     PRIVATE
-      VTK::WrappingTools)
-  add_executable(VTK::WrapPython ALIAS
-    vtkWrapPython)
+      "${ns}::WrappingTools")
+  add_executable("${ns}::WrapPython" ALIAS
+    WrapPython)
 
-  vtk_module_add_executable(vtkWrapPythonInit vtkWrapPythonInit.c)
-  add_executable(VTK::WrapPythonInit ALIAS
-    vtkWrapPythonInit)
+  vtk_module_add_executable(WrapPythonInit
+    BASENAME vtkWrapPythonInit
+    vtkWrapPythonInit.c)
+  add_executable("${ns}::WrapPythonInit" ALIAS
+    WrapPythonInit)
 endif ()
 
-if (NOT TARGET vtkWrapJava)
-  vtk_module_add_executable(vtkParseJava vtkParseJava.c)
-  target_link_libraries(vtkParseJava
+if (NOT TARGET WrapJava)
+  vtk_module_add_executable(ParseJava
+    BASENAME vtkParseJava
+    vtkParseJava.c)
+  target_link_libraries(ParseJava
     PRIVATE
-      VTK::WrappingTools)
-  add_executable(VTK::ParseJava ALIAS
-    vtkParseJava)
+      "${ns}::WrappingTools")
+  add_executable("${ns}::ParseJava" ALIAS
+    ParseJava)
 
-  vtk_module_add_executable(vtkWrapJava vtkWrapJava.c)
-  target_link_libraries(vtkWrapJava
+  vtk_module_add_executable(WrapJava
+    BASENAME vtkWrapJava
+    vtkWrapJava.c)
+  target_link_libraries(WrapJava
     PRIVATE
-      VTK::WrappingTools)
-  add_executable(VTK::WrapJava ALIAS
-    vtkWrapJava)
+      "${ns}::WrappingTools")
+  add_executable("${ns}::WrapJava" ALIAS
+    WrapJava)
 endif ()
