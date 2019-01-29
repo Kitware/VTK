@@ -36,6 +36,7 @@ vtkStandardNewMacro(vtkAppendDataSets);
 vtkAppendDataSets::vtkAppendDataSets()
   : MergePoints(false)
   , Tolerance(0.0)
+  , ForceUnstructuredGridOutput(false)
   , OutputPointsPrecision(DEFAULT_PRECISION)
 {
 }
@@ -46,34 +47,6 @@ vtkAppendDataSets::~vtkAppendDataSets()
 }
 
 //----------------------------------------------------------------------------
-// Remove a dataset from the list of data to append.
-void vtkAppendDataSets::RemoveInputData(vtkDataSet *ds)
-{
-  if (!ds)
-  {
-    return;
-  }
-  int numCons = this->GetNumberOfInputConnections(0);
-  for (int i = 0; i < numCons; i++)
-  {
-    if (this->GetInput(i) == ds)
-    {
-      this->RemoveInputConnection(0, this->GetInputConnection(0, i));
-    }
-  }
-}
-
-//----------------------------------------------------------------------------
-vtkDataSet *vtkAppendDataSets::GetInput(int idx)
-{
-  if (idx >= this->GetNumberOfInputConnections(0) || idx < 0)
-  {
-    return nullptr;
-  }
-
-  return vtkDataSet::SafeDownCast(this->GetExecutive()->GetInputData(0, idx));
-}
-
 namespace
 {
 
@@ -106,7 +79,7 @@ int vtkAppendDataSets::RequestDataObject(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  bool allPolyData = AreAllInputsPolyData(inputVector[0]);
+  bool allPolyData = !this->ForceUnstructuredGridOutput && AreAllInputsPolyData(inputVector[0]);
 
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   if (input)

@@ -44,19 +44,6 @@ public:
   vtkTypeMacro(vtkAppendDataSets, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  /**
-   * Remove a dataset from the list of data to append.
-   */
-  void RemoveInputData(vtkDataSet *in);
-
-  //@{
-  /**
-   * Get any input of this filter.
-   */
-  vtkDataSet *GetInput(int idx);
-  vtkDataSet* GetInput() { return this->GetInput(0); }
-  //@}
-
   //@{
   /**
    * Get/Set if the filter should merge coincidental points
@@ -80,13 +67,31 @@ public:
   vtkGetMacro(Tolerance, double);
   //@}
 
+  /**
+   * Force output to be a vtkUnstructuredGrid, regardless of whether all the inputs
+   * are vtkPolyData.
+   */
+  vtkSetMacro(ForceUnstructuredGridOutput, bool);
+  vtkGetMacro(ForceUnstructuredGridOutput, bool);
+  vtkBooleanMacro(ForceUnstructuredGridOutput, bool);
+
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::Precision enum for an explanation of the available
+   * precision settings.
+   */
+  vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
+  vtkGetMacro(OutputPointsPrecision, int);
+  //@}
+
 protected:
   vtkAppendDataSets();
   ~vtkAppendDataSets() override;
 
   // Usual data generation method
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
+                        vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
@@ -96,6 +101,9 @@ protected:
 
   // Tolerance used for point merging
   double Tolerance;
+
+  // If true, always make the output vtkUnstructuredGrid
+  bool ForceUnstructuredGridOutput;
 
   // Precision of output points.
   int OutputPointsPrecision;
