@@ -509,6 +509,7 @@ void vtkOrientationMarkerWidget::UpdateOutline()
   points->SetPoint( 1, vp[2]-1, vp[1]+1, 0 );
   points->SetPoint( 2, vp[2]-1, vp[3]-1, 0 );
   points->SetPoint( 3, vp[0]+1, vp[3]-1, 0 );
+  this->Outline->Modified();
 }
 
 //-------------------------------------------------------------------------
