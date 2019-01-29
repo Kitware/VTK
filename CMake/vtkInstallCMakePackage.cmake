@@ -149,7 +149,7 @@ install(
   COMPONENT   "development")
 
 install(
-  FILES       "${VTK_SOURCE_DIR}/Copyright.txt"
+  FILES       "${CMAKE_CURRENT_LIST_DIR}/../Copyright.txt"
   DESTINATION "${CMAKE_INSTALL_DOCDIR}"
   COMPONENT   "license")
 
