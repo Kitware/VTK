@@ -28,8 +28,7 @@ void vtkOpenGLVolumeGradientOpacityTable::InternalUpdate(
   int vtkNotUsed(blendMode),
   double vtkNotUsed(sampleDistance),
   double vtkNotUsed(unitDistance),
-  int filterValue,
-  vtkOpenGLRenderWindow* renWin)
+  int filterValue)
 {
   vtkPiecewiseFunction* gradientOpacity =
     vtkPiecewiseFunction::SafeDownCast(func);

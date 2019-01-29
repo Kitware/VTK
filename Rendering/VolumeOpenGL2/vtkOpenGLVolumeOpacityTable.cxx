@@ -27,8 +27,7 @@ void vtkOpenGLVolumeOpacityTable::InternalUpdate(vtkObject* func,
                                                  int blendMode,
                                                  double sampleDistance,
                                                  double unitDistance,
-                                                 int filterValue,
-                                                 vtkOpenGLRenderWindow* renWin)
+                                                 int filterValue)
 {
   vtkPiecewiseFunction* scalarOpacity =
     vtkPiecewiseFunction::SafeDownCast(func);

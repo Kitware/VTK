@@ -44,8 +44,7 @@ protected:
                       int blendMode,
                       double sampleDistance,
                       double unitDistance,
-                      int filterValue,
-                      vtkOpenGLRenderWindow* renWin) override;
+                      int filterValue) override;
 
   /**
    * Test whether the internal function needs to be updated.

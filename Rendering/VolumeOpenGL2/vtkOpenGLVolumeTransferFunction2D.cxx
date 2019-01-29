@@ -34,11 +34,10 @@ vtkOpenGLVolumeTransferFunction2D::vtkOpenGLVolumeTransferFunction2D()
 //--------------------------------------------------------------------------
 void vtkOpenGLVolumeTransferFunction2D::InternalUpdate(
   vtkObject* func,
-  int blendMode,
-  double sampleDistance,
-  double unitDistance,
-  int filterValue,
-  vtkOpenGLRenderWindow* renWin)
+  int vtkNotUsed(blendMode),
+  double vtkNotUsed(sampleDistance),
+  double vtkNotUsed(unitDistance),
+  int filterValue)
 {
   vtkImageData* transfer2D = vtkImageData::SafeDownCast(func);
   if (!transfer2D)

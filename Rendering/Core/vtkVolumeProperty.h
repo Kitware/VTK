@@ -60,8 +60,8 @@
 #include "vtkObject.h"
 
 // STL includes
-#include <set>
-#include <unordered_map>
+#include <set>                      // For labelmap labels set
+#include <unordered_map>            // For labelmap transfer function maps
 
 class vtkColorTransferFunction;
 class vtkContourValues;

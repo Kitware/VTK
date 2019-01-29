@@ -54,8 +54,7 @@ protected:
                       int blendMode,
                       double sampleDistance,
                       double unitDistance,
-                      int filterValue,
-                      vtkOpenGLRenderWindow* renWin) override;
+                      int filterValue) override;
 
   /**
    * Compute the ideal texture size based on the number of labels and transfer

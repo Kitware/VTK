@@ -179,7 +179,7 @@ void vtkOpenGLVolumeLookupTable::Update(vtkObject* func,
     }
 
     this->InternalUpdate(
-      func, blendMode, sampleDistance, unitDistance, filterValue, renWin);
+      func, blendMode, sampleDistance, unitDistance, filterValue);
     this->LastInterpolation = filterValue;
     this->BuildTime.Modified();
   }
@@ -229,8 +229,7 @@ void vtkOpenGLVolumeLookupTable::InternalUpdate(
   int vtkNotUsed(blendMode),
   double vtkNotUsed(sampleDistance),
   double vtkNotUsed(unitDistance),
-  int vtkNotUsed(filterValue),
-  vtkOpenGLRenderWindow* vtkNotUsed(renWin))
+  int vtkNotUsed(filterValue))
 {
 }
 

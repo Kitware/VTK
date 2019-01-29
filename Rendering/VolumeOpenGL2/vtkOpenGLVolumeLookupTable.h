@@ -103,8 +103,7 @@ protected:
                               int blendMode,
                               double sampleDistance,
                               double unitDistance,
-                              int filterValue,
-                              vtkOpenGLRenderWindow* renWin);
+                              int filterValue);
 
   /**
    * Compute ideal width and height for the texture based on function provided

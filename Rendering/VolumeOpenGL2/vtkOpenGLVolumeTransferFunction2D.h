@@ -54,8 +54,7 @@ protected:
                       int blendMode,
                       double sampleDistance,
                       double unitDistance,
-                      int filterValue,
-                      vtkOpenGLRenderWindow* renWin) override;
+                      int filterValue) override;
 
   /**
    * Override needs update to not test for scalar range changes since the range

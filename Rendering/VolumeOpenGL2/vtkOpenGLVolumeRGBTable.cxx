@@ -33,8 +33,7 @@ void vtkOpenGLVolumeRGBTable::InternalUpdate(vtkObject* func,
                                              int vtkNotUsed(blendMode),
                                              double vtkNotUsed(sampleDistance),
                                              double vtkNotUsed(unitDistance),
-                                             int filterValue,
-                                             vtkOpenGLRenderWindow* renWin)
+                                             int filterValue)
 {
   vtkColorTransferFunction* scalarRGB =
     vtkColorTransferFunction::SafeDownCast(func);

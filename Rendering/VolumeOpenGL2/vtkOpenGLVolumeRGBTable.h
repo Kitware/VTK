@@ -42,8 +42,7 @@ protected:
                       int blendMode,
                       double sampleDistance,
                       double unitDistance,
-                      int filterValue,
-                      vtkOpenGLRenderWindow* renWin) override;
+                      int filterValue) override;
 
 private:
   vtkOpenGLVolumeRGBTable(const vtkOpenGLVolumeRGBTable&) = delete;

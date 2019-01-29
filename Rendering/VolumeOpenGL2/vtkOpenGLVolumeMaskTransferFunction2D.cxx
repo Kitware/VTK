@@ -33,11 +33,10 @@ vtkOpenGLVolumeMaskTransferFunction2D::vtkOpenGLVolumeMaskTransferFunction2D()
 //----------------------------------------------------------------------------
 void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(
   vtkObject* func,
-  int blendMode,
-  double sampleDistance,
-  double unitDistance,
-  int filterValue,
-  vtkOpenGLRenderWindow* renWin)
+  int vtkNotUsed(blendMode),
+  double vtkNotUsed(sampleDistance),
+  double vtkNotUsed(unitDistance),
+  int filterValue)
 {
   if (!func)
   {
