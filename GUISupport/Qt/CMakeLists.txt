@@ -71,65 +71,47 @@ cmake_dependent_option(VTK_BUILD_QT_DESIGNER_PLUGIN
 mark_as_advanced(VTK_BUILD_QT_DESIGNER_PLUGIN)
 
 if (VTK_BUILD_QT_DESIGNER_PLUGIN)
-  set(PluginLibSrcs Q4VTKWidgetPlugin.cxx)
+  set(plugin_srcs
+    Q4VTKWidgetPlugin.cxx
+    Q4VTKWidgetPlugin.h)
 
-  set(PluginMocHeaders Q4VTKWidgetPlugin.h)
+  # The VTK_INSTALL_QT_PLUGIN_DIR variable sets the location
+  # in which the Qt plugin will be installed.
+  if(NOT VTK_INSTALL_QT_PLUGIN_DIR)
+    set(VTK_INSTALL_QT_PLUGIN_DIR qt5/plugins/designer)
+  endif()
 
-  set(qt_component UiPlugin)
-  if (Qt5_VERSION VERSION_LESS "5.5.0")
-    set(qt_component Designer)
+  set(module_destination "${CMAKE_INSTALL_LIBDIR}")
+  if (WIN32)
+    set(module_destination "${CMAKE_INSTALL_BINDIR}")
   endif ()
-  find_package(Qt5 COMPONENTS ${qt_component} REQUIRED)
-  qt5_wrap_cpp(PluginMocSrcs ${PluginMocHeaders} TARGET QVTKWidgetPlugin)
+
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${module_destination}/${VTK_INSTALL_QT_PLUGIN_DIR}")
+
+  find_package(Qt5 COMPONENTS UiPlugin REQUIRED)
 
   # add QVTK plugin from sources
   # stand-alone as it doesn't depend on QVTK library
-  add_library(QVTKWidgetPlugin
-    SHARED
-    ${PluginLibSrcs}
-    ${PluginMocSrcs}
-    )
-
-  set_target_properties(QVTKWidgetPlugin PROPERTIES COMPILE_DEFINITIONS QT_NO_DEBUG)
-
-  # link with Qt libs
-  target_link_libraries(QVTKWidgetPlugin Qt5::${qt_component})
+  add_library(QVTKWidgetPlugin MODULE
+    ${plugin_srcs})
+  target_compile_definitions(QVTKWidgetPlugin
+    PRIVATE
+      QT_NO_DEBUG)
+  target_link_libraries(QVTKWidgetPlugin
+    PRIVATE
+      Qt5::UiPlugin)
+  if (WIN32)
+    set_target_properties(QVTKWidgetPlugin
+      PROPERTIES
+        DEBUG_POSTFIX "d")
+  endif ()
 
   # install rules
 
-  # The VTK_INSTALL_QT_PLUGIN_DIR variable sets the location
-  # in which the Qt plugin will be installed.  It may or may not contain
-  # variable references to CMAKE_INSTALL_PREFIX and VTK_INSTALL_QT_DIR.
-  # The default is to install to VTK_INSTALL_QT_DIR under the installation
-  # prefix.  The default VTK_INSTALL_QT_DIR will allow the designer plugin
-  # path to be set to vtk-install-prefix/plugins to get the plugin.
-  if(NOT VTK_INSTALL_QT_DIR)
-    set(VTK_INSTALL_QT_DIR plugins/designer)
-  endif()
-
   # If no runtime is to be installed then do not install the qt plugin.
-  if(VTK_INSTALL_NO_RUNTIME)
-    set(VTK_INSTALL_NO_QT_PLUGIN 1)
-  endif()
-
-  if(NOT VTK_INSTALL_NO_QT_PLUGIN)
-    # Set default plugin install directory.
-    set(DOLLAR "$")
-    if(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
-    else()
-      set(VTK_INSTALL_QT_PLUGIN_DIR
-        "${DOLLAR}{CMAKE_INSTALL_PREFIX}/${DOLLAR}{VTK_INSTALL_QT_DIR}"
-        CACHE STRING "Directory in which the VTK Qt plugin is placed during installation.")
-      mark_as_advanced(VTK_INSTALL_QT_PLUGIN_DIR)
-    endif()
-
-    # Configure the plugin install script.  This is used instead of
-    # INSTALL TARGETS to allow the plugin to be installed outside the
-    # main install prefix.  Attach the script as a post-install script.
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/PluginInstall.cmake.in
-      ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake
-      @ONLY)
-    set_target_properties(GUISupportQt PROPERTIES POST_INSTALL_SCRIPT
-      ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake)
-  endif()
+  if(NOT VTK_INSTALL_NO_RUNTIME)
+    install(
+      TARGETS QVTKWidgetPlugin
+      LIBRARY DESTINATION "${module_destination}/${VTK_INSTALL_QT_PLUGIN_DIR}")
+  endif ()
 endif ()
