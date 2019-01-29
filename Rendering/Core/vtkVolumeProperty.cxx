@@ -96,6 +96,22 @@ vtkVolumeProperty::~vtkVolumeProperty()
       this->DefaultGradientOpacity[i]->UnRegister(this);
     }
   }
+  for (auto it = this->LabelColor.begin(); it != this->LabelColor.end(); ++it)
+  {
+    (*it).second->UnRegister(this);
+  }
+  for (auto it = this->LabelScalarOpacity.begin();
+       it != this->LabelScalarOpacity.end();
+       ++it)
+  {
+    (*it).second->UnRegister(this);
+  }
+  for (auto it = this->LabelGradientOpacity.begin();
+       it != this->LabelGradientOpacity.end();
+       ++it)
+  {
+    (*it).second->UnRegister(this);
+  }
 }
 
 //-----------------------------------------------------------------------------
