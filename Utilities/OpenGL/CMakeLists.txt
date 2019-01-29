@@ -41,6 +41,12 @@ else ()
 
   cmake_policy(POP)
 
+  if (APPLE)
+    vtk_module_definitions(VTK::opengl
+      INTERFACE
+        GL_SILENCE_DEPRECATION)
+  endif ()
+
   if (VTK_USE_OPENGL_DELAYED_LOAD)
     vtk_module_link(VTK::opengl
       PRIVATE
