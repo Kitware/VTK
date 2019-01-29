@@ -133,6 +133,3 @@ if (VTK_BUILD_QT_DESIGNER_PLUGIN)
       ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake)
   endif()
 endif ()
-
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.ctest.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.ctest" @ONLY)
