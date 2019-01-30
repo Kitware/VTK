@@ -2563,7 +2563,14 @@ virt_specifier:
     ID
     {
       postSig(" "); postSig($<str>1);
-      if (strcmp($<str>1, "final") == 0) { currentFunction->IsFinal = 1; }
+      if (strcmp($<str>1, "final") == 0)
+      {
+        currentFunction->IsFinal = 1;
+      }
+      else if (strcmp($<str>1, "override") == 0) {
+      {
+        currentFunction->IsOverride = 1; }
+      }
     }
 
 opt_body_as_trailer:

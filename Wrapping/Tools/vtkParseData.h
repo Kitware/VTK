@@ -192,6 +192,7 @@ struct _FunctionInfo
   int            IsConst;     /* methods only */
   int            IsDeleted;   /* methods only */
   int            IsFinal;     /* methods only */
+  int            IsOverride;  /* methods only */
   int            IsExplicit;  /* constructors only */
 #ifndef VTK_PARSE_LEGACY_REMOVE
   int            NumberOfArguments;   /* legacy */
