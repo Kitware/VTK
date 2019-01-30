@@ -127,6 +127,10 @@ vtkDataWriter::~vtkDataWriter()
 // Open a vtk data file. Returns nullptr if error.
 ostream *vtkDataWriter::OpenVTKFile()
 {
+  // Save current locale settings and set standard one to
+  // avoid locale issues - for instance with the decimal separator.
+  this->CurrentLocale = std::locale::global(std::locale::classic());
+
   ostream *fptr;
 
   if ((!this->WriteToOutputString) && ( !this->FileName ))
@@ -2242,6 +2246,9 @@ void vtkDataWriter::WriteData()
 void vtkDataWriter::CloseVTKFile(ostream *fp)
 {
   vtkDebugMacro(<<"Closing vtk file\n");
+
+  // Restore the previous locale settings
+  std::locale::global(this->CurrentLocale);
 
   if ( fp != nullptr )
   {
