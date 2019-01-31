@@ -448,7 +448,7 @@ int vtkImageDataLIC2D::RequestData(
     drawFbo->SetContext(this->Context);
     drawFbo->SaveCurrentBindings();
     drawFbo->Bind(GL_FRAMEBUFFER);
-    drawFbo->AddColorAttachment(GL_FRAMEBUFFER, 0U, magVectorTex);
+    drawFbo->AddColorAttachment(0U, magVectorTex);
     drawFbo->ActivateDrawBuffer(0U);
     //drawFbo->AddColorAttachment(vtkgl::FRAMEBUFFER_EXT, 0U, vectorTex);
     //drawFbo->ActivateReadBuffer(0U);

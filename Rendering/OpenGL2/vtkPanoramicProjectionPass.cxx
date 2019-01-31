@@ -151,7 +151,7 @@ void vtkPanoramicProjectionPass::InitOpenGLResources(vtkOpenGLRenderWindow* renW
     this->FrameBufferObject->SetContext(renWin);
     this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
     this->FrameBufferObject->Resize(this->CubeResolution, this->CubeResolution);
-    this->FrameBufferObject->AddDepthAttachment(vtkOpenGLFramebufferObject::GetDrawMode());
+    this->FrameBufferObject->AddDepthAttachment();
     this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
   }
 }
@@ -331,13 +331,9 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
 
   s2.SetFrameBuffer(this->FrameBufferObject);
 
-  this->CubeMapTexture->Activate();
-
   this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
-  this->FrameBufferObject->RemoveColorAttachments(vtkOpenGLFramebufferObject::GetBothMode(), 6);
-  this->FrameBufferObject->AddColorAttachment(
-    vtkOpenGLFramebufferObject::GetBothMode(), 0, this->CubeMapTexture, 0, faceIndex);
-
+  this->FrameBufferObject->Bind();
+  this->FrameBufferObject->AddColorAttachment(0, this->CubeMapTexture, 0, faceIndex);
   this->FrameBufferObject->ActivateBuffer(0);
 
   this->FrameBufferObject->Start(this->CubeResolution, this->CubeResolution);
@@ -349,8 +345,8 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
 
   r->SetUserLightTransform(nullptr);
 
+  this->FrameBufferObject->RemoveColorAttachment(0);
   this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
-  this->CubeMapTexture->Deactivate();
 
   r->SetActiveCamera(oldCamera);
 }

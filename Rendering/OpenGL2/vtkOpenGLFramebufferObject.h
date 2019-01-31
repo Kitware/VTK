@@ -46,8 +46,7 @@
  * have draw and read framebuffer objects (bindings) and then for the currently
  * bound FramebufferObjects you have active draw and read buffers.
  *
- * A single FramebufferObject can be bound to both Draw and Read. Likewise
- * a single buffer can be activated for both draw and read operations. You
+ * A single FramebufferObject can be bound to both Draw and Read. You
  * cannot assign and activate a TextureObject for drawing on the FO and
  * at the same time pass it in as a Texture to the shader program. That
  * type of operation is very common and must be done in two steps.
@@ -61,7 +60,6 @@
  * fbo->SetContext(renWin);
  * fbo->SaveCurrentBindingsAndBuffers();
  * fbo->PopulateFramebuffer(width, height);
- * fbo->Start();
  *
  * ...
  *
@@ -77,7 +75,6 @@
  * fbo->AddColorAttachment(0, vtkTextureObj);
  * fbo->AddDepthAttachment(); // auto create depth buffer
  * fbo->ActivateBuffer(0);
- * fbo->Start();
  *
  * ...
  *
@@ -92,7 +89,6 @@
  * // setup the FBO once
  * fbo->SetContext(renWin);
  * fbo->SaveCurrentBindingsAndBuffers();
- * fbo->Bind();
  * fbo->AddColorAttachment(0, vtkTextureObj);
  * fbo->AddDepthAttachment(); // auto create depth buffer
  * fbo->RestorePreviousBindingsAndBuffers();
@@ -101,13 +97,12 @@
  * fbo->SaveCurrentBindingsAndBuffers();
  * fbo->Bind();
  * fbo->ActivateBuffer(0);
- * fbo->Start();
  * ... // render here etc
  * fbo->RestorePreviousBindingsAndBuffers();
  *\endcode
  *
- * If you with to only bind/attach the draw buffers or read buffers there
- * are mode specific versions of most methods that only apply to the
+ * If you with to only bind the framebuffer for drawing or reading there
+ * are mode specific versions of some methods that only apply to the
  * mode specified Draw/Read/Both. The mode argument uses OpenGL constants
  * so this class provides convenience methods to return them named
  * GetDrawMode() GetReadMode() and GetBothMode() so that your code
@@ -125,7 +120,6 @@
  * a DepthBuffer was automatically created for you, you now need to do it
  * explicitly using AddDepthAttachment().
  *
- * This class should be named vtkOpenGLFramebufferObject (FO)
  * Note the capitalization of FramebufferObject
  *
  * @sa
@@ -134,6 +128,16 @@
 
 #ifndef vtkOpenGLFramebufferObject_h
 #define vtkOpenGLFramebufferObject_h
+
+
+/* Dec 2018 this class has been cleaned up such that
+ * AddColorAttachment and AddDepthAttachment no longer
+ * take a mode argument. The mode is determined by how
+ * the framebuffer is bound. If you are using these methods
+ * and need to support both the old and new signatures you
+ * can check for the following define in your code.
+ */
+#define VTK_UPDATED_FRAMEBUFFER
 
 /**
  * A variant of vtkErrorMacro that is used to verify framebuffer
@@ -299,39 +303,33 @@ public:
   //@{
   /**
    * Directly assign/remove a texture to color attachments.
-   * Same as the Set methods but also does an attach call
-   * so the FO has to be bound when called.
    */
   void AddColorAttachment(
-        unsigned int mode,
         unsigned int attId,
         vtkTextureObject* tex,
         unsigned int zslice = 0,
         unsigned int format = 0,
         unsigned int mipmapLevel = 0);
   void AddColorAttachment(
-        unsigned int mode,
         unsigned int attId,
         vtkRenderbuffer* tex);
-  void RemoveColorAttachment(unsigned int mode, unsigned int index);
-  void RemoveColorAttachments(unsigned int mode, unsigned int num);
+  void RemoveColorAttachment(unsigned int index);
+  void RemoveColorAttachments(unsigned int num);
   //@}
 
   /**
    * Return the number of color attachments for the given mode
    */
-  int GetNumberOfColorAttachments(unsigned int mode);
+  int GetNumberOfColorAttachments();
 
   //@{
   /**
    * Directly assign/remove a texture/renderbuffer to depth attachments.
    */
-  void AddDepthAttachment() {
-    this->AddDepthAttachment(this->GetBothMode()); }
-  void AddDepthAttachment(unsigned int mode);
-  void AddDepthAttachment(unsigned int mode, vtkTextureObject* tex);
-  void AddDepthAttachment(unsigned int mode, vtkRenderbuffer* tex);
-  void RemoveDepthAttachment(unsigned int mode);
+  void AddDepthAttachment();
+  void AddDepthAttachment(vtkTextureObject* tex);
+  void AddDepthAttachment(vtkRenderbuffer* tex);
+  void RemoveDepthAttachment();
   //@}
 
   //@{
@@ -494,35 +492,12 @@ public:
    */
   void Resize(int width, int height);
 
-  // Deprecated
-  void RemoveTexColorAttachments(unsigned int mode, unsigned int num)
-    { this->RemoveColorAttachments(mode, num); }
-  void RemoveTexColorAttachment(unsigned int mode, unsigned int attId)
-    { this->RemoveColorAttachment(mode, attId); }
-  void RemoveRenDepthAttachment(unsigned int mode)
-    { this->RemoveDepthAttachment(mode); }
-  void RemoveTexDepthAttachment(unsigned int mode)
-    { this->RemoveDepthAttachment(mode); }
-
 protected:
-  void SetColorBuffer(unsigned int mode,
-    unsigned int index, vtkTextureObject *texture,
-    unsigned int zslice=0, unsigned int format=0, unsigned int mipmapLevel=0);
-  void SetColorBuffer(unsigned int mode,
-    unsigned int index, vtkRenderbuffer *rb);
-  void SetDepthBuffer(unsigned int mode, vtkTextureObject *depthTexture);
-  void SetDepthBuffer(unsigned int mode, vtkRenderbuffer *depthBuffer);
-
-  /**
-   * Attach all buffers to the FO if not already done so
-   */
-  void Attach();
-
   /**
    * Attach a specific buffer
    */
-  void AttachColorBuffer(unsigned int mode, unsigned int index);
-  void AttachDepthBuffer(unsigned int mode);
+  void AttachColorBuffer(unsigned int index);
+  void AttachDepthBuffer();
 
   /**
    * Load all necessary extensions.
@@ -598,10 +573,8 @@ protected:
   int LastSize[2];
   std::vector<unsigned int> ActiveBuffers;
 
-  vtkFOInfo *DrawDepthBuffer;
-  vtkFOInfo *ReadDepthBuffer;
-  std::map<unsigned int, vtkFOInfo *> DrawColorBuffers;
-  std::map<unsigned int, vtkFOInfo *> ReadColorBuffers;
+  vtkFOInfo *DepthBuffer;
+  std::map<unsigned int, vtkFOInfo *> ColorBuffers;
 
 private:
   vtkOpenGLFramebufferObject(const vtkOpenGLFramebufferObject&) = delete;

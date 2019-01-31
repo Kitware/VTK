@@ -157,15 +157,15 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
     target->Create2D(newWidth,newHeight,4,VTK_UNSIGNED_CHAR,false);
   }
 
-  fbo->AddColorAttachment(
-    fbo->GetBothMode(), 0, target);
+  fbo->Bind();
+  fbo->AddColorAttachment(0, target);
 
   // because the same FBO can be used in another pass but with several color
   // buffers, force this pass to use 1, to avoid side effects from the
   // render of the previous frame.
   fbo->ActivateBuffer(0);
 
-  fbo->AddDepthAttachment(fbo->GetBothMode());
+  fbo->AddDepthAttachment();
   fbo->StartNonOrtho(newWidth,newHeight);
   ostate->vtkglViewport(0, 0, newWidth, newHeight);
   ostate->vtkglScissor(0, 0, newWidth, newHeight);

@@ -228,10 +228,8 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
   cout << "gx1 TOid=" << this->Gx1->GetHandle() <<endl;
   cout << "gy1 TOid=" << this->Gy1->GetHandle() <<endl;
 #endif
-  this->FrameBufferObject->AddColorAttachment(
-    this->FrameBufferObject->GetDrawMode(), 0,this->Gx1);
-  this->FrameBufferObject->AddColorAttachment(
-    this->FrameBufferObject->GetDrawMode(), 1,this->Gy1);
+  this->FrameBufferObject->AddColorAttachment(0,this->Gx1);
+  this->FrameBufferObject->AddColorAttachment(1,this->Gy1);
   unsigned int indices[2]={0,1};
   this->FrameBufferObject->ActivateDrawBuffers(indices,2);
 

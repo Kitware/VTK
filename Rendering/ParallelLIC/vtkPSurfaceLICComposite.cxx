@@ -1366,13 +1366,13 @@ int vtkPSurfaceLICComposite::Gather(
 
   this->FBO->SaveCurrentBindings();
   this->FBO->Bind(GL_FRAMEBUFFER);
-  this->FBO->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U, newImage);
+  this->FBO->AddColorAttachment(0U, newImage);
   this->FBO->ActivateDrawBuffer(0U);
 
   vtkRenderbuffer *depthBuf = vtkRenderbuffer::New();
   depthBuf->SetContext(this->Context);
   depthBuf->CreateDepthAttachment(winExtSize[0], winExtSize[1]);
-  this->FBO->AddDepthAttachment(GL_DRAW_FRAMEBUFFER, depthBuf);
+  this->FBO->AddDepthAttachment(depthBuf);
 
   vtkCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
 
@@ -1531,8 +1531,8 @@ int vtkPSurfaceLICComposite::Gather(
   }
 
   this->FBO->DeactivateDrawBuffers();
-  this->FBO->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
-  this->FBO->RemoveRenDepthAttachment(GL_DRAW_FRAMEBUFFER);
+  this->FBO->RemoveColorAttachment(0U);
+  this->FBO->RemoveDepthAttachment();
   this->FBO->UnBind(GL_FRAMEBUFFER);
   depthBuf->Delete();
 

@@ -189,8 +189,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
                             VTK_UNSIGNED_CHAR,false);
     }
 
-    this->FrameBufferObject->AddColorAttachment(
-      this->FrameBufferObject->GetBothMode(), 0,this->Pass2);
+    this->FrameBufferObject->AddColorAttachment(0,this->Pass2);
     this->FrameBufferObject->Start(w, h);
 
 #ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG

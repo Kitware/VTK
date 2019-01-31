@@ -512,7 +512,7 @@ int vtkStructuredGridLIC2D::RequestData(
   vtkOpenGLFramebufferObject *fbo = vtkOpenGLFramebufferObject::New();
   fbo->SetContext(renWin);
   fbo->Bind();
-  fbo->AddColorAttachment(fbo->GetBothMode(), 0,vector2);
+  fbo->AddColorAttachment(0, vector2);
   fbo->ActivateDrawBuffer(0);
   fbo->ActivateReadBuffer(0);
 

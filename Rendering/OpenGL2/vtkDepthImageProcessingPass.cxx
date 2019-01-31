@@ -119,16 +119,15 @@ void vtkDepthImageProcessingPass::RenderDelegate(const vtkRenderState *s,
   }
 
   s2.SetFrameBuffer(fbo);
-
-  fbo->AddColorAttachment(
-    fbo->GetDrawMode(), 0,colortarget);
+  fbo->Bind();
+  fbo->AddColorAttachment(0, colortarget);
 
   // because the same FBO can be used in another pass but with several color
   // buffers, force this pass to use 1, to avoid side effects from the
   // render of the previous frame.
   fbo->ActivateDrawBuffer(0);
 
-  fbo->AddDepthAttachment(fbo->GetDrawMode(), depthtarget);
+  fbo->AddDepthAttachment(depthtarget);
   fbo->StartNonOrtho(newWidth, newHeight);
 
   // 2. Delegate render in FBO
