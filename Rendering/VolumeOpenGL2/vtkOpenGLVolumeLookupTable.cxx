@@ -113,9 +113,11 @@ void vtkOpenGLVolumeLookupTable::ReleaseGraphicsResources(vtkWindow* window)
 }
 
 //--------------------------------------------------------------------------
-void vtkOpenGLVolumeLookupTable::ComputeIdealTextureSize(vtkObject* func,
-                                                         int& width,
-                                                         int& height)
+void vtkOpenGLVolumeLookupTable::ComputeIdealTextureSize(
+  vtkObject* func,
+  int& width,
+  int& height,
+  vtkOpenGLRenderWindow* renWin)
 {
   vtkColorTransferFunction* scalarRGB =
     vtkColorTransferFunction::SafeDownCast(func);
@@ -139,6 +141,8 @@ void vtkOpenGLVolumeLookupTable::ComputeIdealTextureSize(vtkObject* func,
     width = dims[0];
     height = dims[1];
   }
+  height =
+    height > 1 ? this->GetMaximumSupportedTextureWidth(renWin, height) : 1;
 }
 
 //--------------------------------------------------------------------------
@@ -165,11 +169,9 @@ void vtkOpenGLVolumeLookupTable::Update(vtkObject* func,
   if (this->NeedsUpdate(func, scalarRange, blendMode, sampleDistance))
   {
     int idealW = 1024;
-    int idealH = 1;
-    this->ComputeIdealTextureSize(func, idealW, idealH);
+    int newHeight = 1;
+    this->ComputeIdealTextureSize(func, idealW, newHeight, renWin);
     int const newWidth = this->GetMaximumSupportedTextureWidth(renWin, idealW);
-    int newHeight =
-      idealH > 1 ? this->GetMaximumSupportedTextureWidth(renWin, idealH) : 1;
     if (!this->Table || this->TextureWidth != newWidth ||
         this->TextureHeight != newHeight)
     {

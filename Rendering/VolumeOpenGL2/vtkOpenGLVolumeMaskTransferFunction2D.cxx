@@ -22,6 +22,8 @@
 #include "vtkTextureObject.h"
 #include "vtkVolumeProperty.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkOpenGLVolumeMaskTransferFunction2D);
 
 //----------------------------------------------------------------------------
@@ -49,20 +51,20 @@ void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(
   }
 
   std::set<int> labels = prop->GetLabelMapLabels();
-  int labelCount = 0;
-  for (auto it = labels.begin(); it != labels.end(); ++it, ++labelCount)
+  std::fill(this->Table, this->Table + this->TextureWidth * 4, 0.0f);
+  for (auto i = 1; i < this->TextureHeight; ++i)
   {
     float* tmpColor = new float[this->TextureWidth * 3];
-    memset(tmpColor, 1.0f, this->TextureWidth * 3 * sizeof(float));
-    vtkColorTransferFunction* color = prop->GetLabelColor(*it);
+    std::fill(tmpColor, tmpColor + this->TextureWidth * 3, 1.0f);
+    vtkColorTransferFunction* color = prop->GetLabelColor(i);
     if (color)
     {
       color->GetTable(
         this->LastRange[0], this->LastRange[1], this->TextureWidth, tmpColor);
     }
     float* tmpOpacity = new float[this->TextureWidth];
-    memset(tmpOpacity, 1.0f, this->TextureWidth * sizeof(float));
-    vtkPiecewiseFunction* opacity = prop->GetLabelScalarOpacity(*it);
+    std::fill(tmpOpacity, tmpOpacity + this->TextureWidth, 1.0f);
+    vtkPiecewiseFunction* opacity = prop->GetLabelScalarOpacity(i);
     if (opacity)
     {
       opacity->GetTable(
@@ -72,17 +74,16 @@ void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(
     float* tmpColorPtr = tmpColor;
     float* tmpOpacityPtr = tmpOpacity;
     float* tmpTablePtr = tmpTable;
-    for (int i = 0; i < this->TextureWidth; ++i)
+    for (int j = 0; j < this->TextureWidth; ++j)
     {
-      for (int j = 0; j < 3; ++j)
+      for (int k = 0; k < 3; ++k)
       {
         *tmpTablePtr++ = *tmpColorPtr++;
       }
-      *tmpTablePtr++ = *tmpOpacityPtr;
+      *tmpTablePtr++ = *tmpOpacityPtr++;
     }
     float* tablePtr = this->Table;
-    tablePtr += labelCount * this->TextureWidth * 4;
-    // tmpTablePtr = tmpTable;
+    tablePtr += i * this->TextureWidth * 4;
     memcpy(tablePtr, tmpTable, this->TextureWidth * 4 * sizeof(float));
     delete[] tmpColor;
     delete[] tmpOpacity;
@@ -100,7 +101,11 @@ void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLVolumeMaskTransferFunction2D::ComputeIdealTextureSize(vtkObject* func, int& width, int& height)
+void vtkOpenGLVolumeMaskTransferFunction2D::ComputeIdealTextureSize(
+  vtkObject* func,
+  int& width,
+  int& height,
+  vtkOpenGLRenderWindow* vtkNotUsed(renWin))
 {
   vtkVolumeProperty* prop = vtkVolumeProperty::SafeDownCast(func);
   if (!prop)
@@ -108,7 +113,10 @@ void vtkOpenGLVolumeMaskTransferFunction2D::ComputeIdealTextureSize(vtkObject* f
     return;
   }
   width = 1024;
-  height = prop->GetNumberOfLabels();
+  // Set the height to one more than the max label value. The extra row will be
+  // for the special label 0 that represents un-masked values. It is also
+  // necessary to ensure that the shader indexing is correct.
+  height = *(prop->GetLabelMapLabels().rbegin()) + 1;
 }
 
 //----------------------------------------------------------------------------

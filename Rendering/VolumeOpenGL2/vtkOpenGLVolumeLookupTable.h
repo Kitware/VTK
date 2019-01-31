@@ -110,7 +110,8 @@ protected:
    */
   virtual void ComputeIdealTextureSize(vtkObject* func,
                                        int& width,
-                                       int& height);
+                                       int& height,
+                                       vtkOpenGLRenderWindow* renWin);
 
   /**
    * Allocate internal data table

@@ -88,6 +88,7 @@
 #include <vtkVolumeInputHelper.h>
 
 #include "vtkOpenGLVolumeGradientOpacityTable.h"
+#include "vtkOpenGLVolumeMaskTransferFunction2D.h"
 #include "vtkOpenGLVolumeOpacityTable.h"
 #include "vtkOpenGLVolumeRGBTable.h"
 #include "vtkOpenGLVolumeTransferFunction2D.h"
@@ -247,7 +248,6 @@ public:
   void RefreshMaskTransfer(vtkRenderer* ren, VolumeInput& input);
   int UpdateMaskTransfer(vtkRenderer* ren, vtkVolume* vol,
                                   unsigned int component);
-//REMOVE//  void InitializeMaskTransfer(vtkRenderer* ren, VolumeInput& input);
   void SetupMaskTransfer(vtkRenderer* ren);
   void ReleaseGraphicsMaskTransfer(vtkWindow* window);
   void DeleteMaskTransfer();
@@ -368,7 +368,9 @@ public:
   /**
    * Feature specific.
    */
-  void SetMaskShaderParameters(vtkShaderProgram* prog, int noOfComponents);
+  void SetMaskShaderParameters(vtkShaderProgram* prog,
+                               vtkVolumeProperty* prop,
+                               int noOfComponents);
   void SetRenderToImageParameters(vtkShaderProgram* prog);
   void SetAdvancedShaderParameters(vtkRenderer* ren, vtkShaderProgram* prog,
     vtkVolume* vol, vtkVolumeTexture::VolumeBlock* block, int numComp);
@@ -466,8 +468,7 @@ public:
 
   std::ostringstream ExtensionsStringStream;
 
-  vtkSmartPointer<vtkOpenGLVolumeRGBTable> Mask1RGBTable;
-  vtkSmartPointer<vtkOpenGLVolumeRGBTable> Mask2RGBTable;
+  vtkSmartPointer<vtkOpenGLVolumeMaskTransferFunction2D> LabelMapTransfer2D;
 
   vtkTimeStamp ShaderBuildTime;
 
@@ -631,27 +632,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupMaskTransfer(
 
   if (this->Parent->MaskInput != nullptr &&
       this->Parent->MaskType == LabelMapMaskType &&
-      !this->Mask1RGBTable)
+      !this->LabelMapTransfer2D)
   {
-    this->Mask1RGBTable = vtkSmartPointer<vtkOpenGLVolumeRGBTable>::New();
-    this->Mask2RGBTable = vtkSmartPointer<vtkOpenGLVolumeRGBTable>::New();
+    this->LabelMapTransfer2D =
+      vtkSmartPointer<vtkOpenGLVolumeMaskTransferFunction2D>::New();
   }
 
   this->InitializationTime.Modified();
 }
-
-//REMOVE////----------------------------------------------------------------------------
-//void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeMaskTransfer(
-//  vtkRenderer* ren, VolumeInput& input)
-//{
-//  const int transferMode = input.Volume->GetProperty()->GetTransferFunctionMode();
-//  const int indepComp = this->Parent->AssembledInputs[0].ComponentMode ==
-//   VolumeInput::INDEPENDENT ? 1 : 0;
-//  const int numComp = this->Parent->AssembledInputs[0].Texture->GetLoadedScalars(
-//    )->GetNumberOfComponents();
-//
-//  this->SetupMaskTransfer(ren);
-//}
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RefreshMaskTransfer(
@@ -661,7 +649,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RefreshMaskTransfer(
   if (this->NeedToInitializeResources ||
     input.Volume->GetProperty()->GetMTime() > this->InitializationTime.GetMTime())
   {
-//REMOVE//        this->InitializeMaskTransfer(ren, input);
     this->SetupMaskTransfer(ren);
   }
   this->UpdateMaskTransfer(ren, vol, 0);
@@ -727,22 +714,16 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren)
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ReleaseGraphicsMaskTransfer(
   vtkWindow* window)
 {
-  if (this->Mask1RGBTable)
+  if (this->LabelMapTransfer2D)
   {
-    this->Mask1RGBTable->ReleaseGraphicsResources(window);
-  }
-
-  if (this->Mask2RGBTable)
-  {
-    this->Mask2RGBTable->ReleaseGraphicsResources(window);
+    this->LabelMapTransfer2D->ReleaseGraphicsResources(window);
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteMaskTransfer()
 {
-  this->Mask1RGBTable = nullptr;
-  this->Mask2RGBTable = nullptr;
+  this->LabelMapTransfer2D = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -761,22 +742,14 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   if (this->Parent->MaskInput != nullptr &&
       this->Parent->MaskType == LabelMapMaskType)
   {
-    vtkColorTransferFunction* colorTransferFunc =
-      volumeProperty->GetRGBTransferFunction(1);
-    this->Mask1RGBTable->Update(colorTransferFunc,
-                                componentRange,
-                                0, 0, 0,
-                                vtkTextureObject::Nearest,
-                                vtkOpenGLRenderWindow::SafeDownCast(
-                                  ren->GetRenderWindow()));
-
-    colorTransferFunc = volumeProperty->GetRGBTransferFunction(2);
-    this->Mask2RGBTable->Update(colorTransferFunc,
-                                componentRange,
-                                0, 0, 0,
-                                vtkTextureObject::Nearest,
-                                vtkOpenGLRenderWindow::SafeDownCast(
-                                  ren->GetRenderWindow()));
+    this->LabelMapTransfer2D->Update(
+      volumeProperty,
+      componentRange,
+      0,
+      0,
+      0,
+      vtkTextureObject::Nearest,
+      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
   }
 
   return 0;
@@ -3648,7 +3621,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetCameraShaderParameters(
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMaskShaderParameters(
-  vtkShaderProgram* prog, int noOfComponents)
+  vtkShaderProgram* prog, vtkVolumeProperty* prop, int noOfComponents)
 {
   if (this->CurrentMask)
   {
@@ -3657,18 +3630,22 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMaskShaderParameters(
     prog->SetUniformi("in_mask", maskTex->GetTextureUnit());
   }
 
-  if(noOfComponents == 1 &&
-     this->Parent->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+  if (noOfComponents == 1 &&
+      this->Parent->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
   {
-    if (this->Parent->MaskInput != nullptr && this->Parent->MaskType == LabelMapMaskType)
+    if (this->Parent->MaskInput != nullptr &&
+        this->Parent->MaskType == LabelMapMaskType)
     {
-      this->Mask1RGBTable->Activate();
-      prog->SetUniformi("in_mask1",
-        this->Mask1RGBTable->GetTextureUnit());
-
-      this->Mask2RGBTable->Activate();
-      prog->SetUniformi("in_mask2", this->Mask2RGBTable->GetTextureUnit());
+      this->LabelMapTransfer2D->Activate();
+      prog->SetUniformi("in_labelMapTransfer",
+                        this->LabelMapTransfer2D->GetTextureUnit());
       prog->SetUniformf("in_maskBlendFactor", this->Parent->MaskBlendFactor);
+      float maskRange[2] = {0.0f, 1.0f};
+      maskRange[1] = *(prop->GetLabelMapLabels().rbegin());
+      float scale, bias;
+      vtkVolumeTexture::GetScaleAndBias(VTK_UNSIGNED_CHAR, maskRange, scale, bias);
+      prog->SetUniformf("in_mask_scale", scale);
+      prog->SetUniformf("in_mask_bias", bias);
     }
   }
 }
@@ -3775,10 +3752,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::FinishRendering(
   if(numComp == 1 &&
      this->Parent->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
   {
-    if (this->Parent->MaskInput != nullptr && this->Parent->MaskType == LabelMapMaskType)
+    if (this->Parent->MaskInput != nullptr &&
+        this->Parent->MaskType == LabelMapMaskType)
     {
-      this->Mask1RGBTable->Deactivate();
-      this->Mask2RGBTable->Deactivate();
+      this->LabelMapTransfer2D->Deactivate();
     }
   }
 
@@ -3872,7 +3849,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderSingleInput(vtkRenderer
     cam->GetKeyMatrices(ren, wcvc, norm, vcdc, wcdc);
     this->SetVolumeShaderParameters(prog, independent, numComp, wcvc);
 
-    this->SetMaskShaderParameters(prog, numComp);
+    this->SetMaskShaderParameters(prog, vol->GetProperty(), numComp);
     this->SetLightingShaderParameters(ren, prog, vol, numSamplers);
     this->SetCameraShaderParameters(prog, ren, cam);
     this->SetAdvancedShaderParameters(ren, prog, vol, block, numComp);

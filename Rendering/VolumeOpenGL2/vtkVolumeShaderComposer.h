@@ -2542,8 +2542,10 @@ namespace vtkvolume
     {
       return std::string("\
         \nuniform float in_maskBlendFactor;\
-        \nuniform sampler2D in_mask1;\
-        \nuniform sampler2D in_mask2;"
+        \nuniform sampler2D in_labelMapTransfer;\
+        \nuniform float in_mask_scale;\
+        \nuniform float in_mask_bias;\
+        \n"
       );
     }
   }
@@ -2593,30 +2595,23 @@ namespace vtkvolume
         \n  float opacity = computeOpacity(scalar);\
         \n  // Get the mask value at this same location\
         \n  vec4 maskValue = texture3D(in_mask, g_dataPos);\
+        \n  maskValue.r = maskValue.r * in_mask_scale + in_mask_bias;\
         \n  if(maskValue.r == 0.0)\
         \n    {\
         \n    g_srcColor = computeColor(scalar, opacity);\
+        \n    g_srcColor.a = opacity;\
         \n    }\
         \n  else\
         \n    {\
-        \n    if (maskValue.r == 1.0/255.0)\
-        \n      {\
-        \n      g_srcColor = texture2D(in_mask1, vec2(scalar.w,0.0));\
-        \n      }\
-        \n    else\
-        \n      {\
-        \n      // maskValue.r == 2.0/255.0\
-        \n      g_srcColor = texture2D(in_mask2, vec2(scalar.w,0.0));\
-        \n      }\
-        \n    g_srcColor.a = 1.0;\
-        \n    if(in_maskBlendFactor < 1.0)\
+        \n    g_srcColor = texture2D(in_labelMapTransfer,\
+                                     vec2(scalar.r, maskValue.r));\
+        \n    if (in_maskBlendFactor < 1.0)\
         \n      {\
         \n      g_srcColor = (1.0 - in_maskBlendFactor) *\
-        \n                    computeColor(scalar, opacity) +\
-        \n                    in_maskBlendFactor * g_srcColor;\
+        \n                   computeColor(scalar, opacity) +\
+        \n                   in_maskBlendFactor * g_srcColor;\
         \n      }\
         \n    }\
-        \n    g_srcColor.a = opacity;\
         \n  }"
       );
     }

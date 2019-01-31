@@ -62,7 +62,8 @@ protected:
    */
   void ComputeIdealTextureSize(vtkObject* func,
                                int& width,
-                               int& height) override;
+                               int& height,
+                               vtkOpenGLRenderWindow* renWin) override;
 
 private:
   vtkOpenGLVolumeMaskTransferFunction2D(const vtkOpenGLVolumeLookupTable&) =

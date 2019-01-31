@@ -767,6 +767,11 @@ vtkContourValues* vtkVolumeProperty::GetIsoSurfaceValues()
 void vtkVolumeProperty::SetLabelColor(int label,
                                       vtkColorTransferFunction* color)
 {
+  if (label == 0)
+  {
+    vtkWarningMacro(<< "Ignoring attempt to set label map for label \"0\"");
+    return;
+  }
   if (this->LabelColor.count(label))
   {
     if (this->LabelColor[label] == color)
@@ -802,6 +807,11 @@ vtkColorTransferFunction* vtkVolumeProperty::GetLabelColor(int label)
 void vtkVolumeProperty::SetLabelScalarOpacity(int label,
                                               vtkPiecewiseFunction* function)
 {
+  if (label == 0)
+  {
+    vtkWarningMacro(<< "Ignoring attempt to set label map for label \"0\"");
+    return;
+  }
   if (this->LabelScalarOpacity.count(label))
   {
     if (this->LabelScalarOpacity[label] == function)
@@ -837,6 +847,11 @@ vtkPiecewiseFunction* vtkVolumeProperty::GetLabelScalarOpacity(int label)
 void vtkVolumeProperty::SetLabelGradientOpacity(int label,
                                                 vtkPiecewiseFunction* function)
 {
+  if (label == 0)
+  {
+    vtkWarningMacro(<< "Ignoring attempt to set label map for label \"0\"");
+    return;
+  }
   if (this->LabelGradientOpacity.count(label))
   {
     if (this->LabelGradientOpacity[label] == function)
@@ -871,6 +886,12 @@ vtkPiecewiseFunction* vtkVolumeProperty::GetLabelGradientOpacity(int label)
 //-----------------------------------------------------------------------------
 std::size_t vtkVolumeProperty::GetNumberOfLabels()
 {
+  return this->GetLabelMapLabels().size();
+}
+
+//-----------------------------------------------------------------------------
+std::set<int> vtkVolumeProperty::GetLabelMapLabels()
+{
   // Erase labels that were added re-assigned to null pointers
   for (auto it = this->LabelMapLabels.begin();
        it != this->LabelMapLabels.end();)
@@ -885,12 +906,6 @@ std::size_t vtkVolumeProperty::GetNumberOfLabels()
       ++it;
     }
   }
-  return this->LabelMapLabels.size();
-}
-
-//-----------------------------------------------------------------------------
-std::set<int> vtkVolumeProperty::GetLabelMapLabels()
-{
   return this->LabelMapLabels;
 }
 
