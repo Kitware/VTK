@@ -116,7 +116,8 @@ void vtkOpenGLVolumeMaskTransferFunction2D::ComputeIdealTextureSize(
   // Set the height to one more than the max label value. The extra row will be
   // for the special label 0 that represents un-masked values. It is also
   // necessary to ensure that the shader indexing is correct.
-  height = *(prop->GetLabelMapLabels().rbegin()) + 1;
+  std::set<int> const labels = prop->GetLabelMapLabels();
+  height = labels.empty() ? 1 : *(labels.crbegin()) + 1;
 }
 
 //----------------------------------------------------------------------------
