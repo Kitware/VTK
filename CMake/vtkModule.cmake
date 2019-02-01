@@ -2045,7 +2045,15 @@ function (vtk_module_build)
         # private dependencies are actually linked.
         get_property(_vtk_build_kit_module_private_depends GLOBAL
           PROPERTY "_vtk_module_${_vtk_build_kit_module}_private_depends")
-        foreach (_vtk_build_kit_module_private_depend IN LISTS _vtk_build_kit_module_private_depends)
+        # Also grab optional dependencies since they end up being private
+        # links.
+        get_property(_vtk_build_kit_module_optional_depends GLOBAL
+          PROPERTY "_vtk_module_${_vtk_build_kit_module}_optional_depends")
+        foreach (_vtk_build_kit_module_private_depend IN LISTS _vtk_build_kit_module_private_depends _vtk_build_kit_module_optional_depends)
+          if (NOT TARGET "${_vtk_build_kit_module_private_depend}")
+            continue ()
+          endif ()
+
           # But we don't need to link to modules that are part of the kit we are
           # building.
           list(FIND _vtk_build_kit_modules "${_vtk_build_kit_module_private_depend}" _vtk_build_idx)
