@@ -14,9 +14,9 @@
 =========================================================================*/
 
 #include "vtkCollection.h"
+#include "vtkCollectionRange.h"
 #include "vtkIntArray.h"
 #include "vtkNew.h"
-#include "vtkRange.h"
 #include "vtkSmartPointer.h"
 
 #include <algorithm>

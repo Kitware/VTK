@@ -16,7 +16,6 @@
 #ifndef vtkRange_h
 #define vtkRange_h
 
-#include "vtkCollectionRange.h"
 #include "vtkMeta.h"
 
 #include <iterator>
@@ -31,7 +30,7 @@ namespace vtk
  *
  * Currently supports:
  *
- * - vtkCollection:
+ * - vtkCollection (`#include <vtkCollectionRange.h>`):
  *   - ItemType is the (non-pointer) result type of GetNextItem() if this method
  *     exists on the collection type, otherwise vtkObject is used.
  *   - Iterators fulfill the STL InputIterator concept with some exceptions:
