@@ -1341,7 +1341,7 @@ void vtkXdmf3DataSet::VTKToXdmf(
 
   bool OK = true;
   vtkDataArray *vCoords = dataSet->GetXCoordinates();
-  OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xZCoords.get());
+  OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xXCoords.get());
   if (OK)
   {
     vCoords = dataSet->GetYCoordinates();
@@ -1349,7 +1349,7 @@ void vtkXdmf3DataSet::VTKToXdmf(
     if (OK)
     {
       vCoords = dataSet->GetZCoordinates();
-      OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xXCoords.get());
+      OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xZCoords.get());
     }
   }
 
