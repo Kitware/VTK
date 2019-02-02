@@ -965,6 +965,21 @@ const char *vtkParseHierarchy_GetProperty(
   return NULL;
 }
 
+/* Check whether the header was named after the type */
+int vtkParseHierarchy_IsPrimary(const HierarchyEntry *entry)
+{
+  size_t n = strlen(entry->Name);
+
+  if (entry->HeaderFile &&
+      strncmp(entry->HeaderFile, entry->Name, n) == 0 &&
+      entry->HeaderFile[n] == '.')
+  {
+    return 1;
+  }
+
+  return 0;
+}
+
 /* Expand all unrecognized types in the template args of a type
  * using the typedefs in the HierarchyInfo struct.
  * Return a cached string (or the original string if no change). */
