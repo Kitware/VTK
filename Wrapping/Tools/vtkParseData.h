@@ -186,6 +186,7 @@ struct _FunctionInfo
   int            IsOperator;
   int            IsVariadic;
   int            IsLegacy;    /* marked as a legacy method or function */
+  int            IsExcluded;  /* marked as excluded from wrapping */
   int            IsStatic;    /* methods only */
   int            IsVirtual;   /* methods only */
   int            IsPureVirtual; /* methods only */
@@ -256,6 +257,7 @@ typedef struct _ClassInfo
   int            IsAbstract;
   int            IsFinal;
   int            HasDelete;
+  int            IsExcluded;
 } ClassInfo;
 
 /**

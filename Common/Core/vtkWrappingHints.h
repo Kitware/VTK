@@ -25,6 +25,8 @@
 
 #ifdef __VTK_WRAP__
 #define VTK_WRAP_HINTS_DEFINED
+// Exclude a method or class from wrapping
+#define VTK_WRAPEXCLUDE [[vtk::wrapexclude]]
 // The return value points to a newly-created VTK object.
 #define VTK_NEWINSTANCE [[vtk::newinstance]]
 // The parameter is a pointer to a zerocopy buffer.
@@ -36,6 +38,7 @@
 #endif
 
 #ifndef VTK_WRAP_HINTS_DEFINED
+#define VTK_WRAPEXCLUDE
 #define VTK_NEWINSTANCE
 #define VTK_ZEROCOPY
 #define VTK_EXPECTS(x)

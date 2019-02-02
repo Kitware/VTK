@@ -2567,9 +2567,9 @@ virt_specifier:
       {
         currentFunction->IsFinal = 1;
       }
-      else if (strcmp($<str>1, "override") == 0) {
+      else if (strcmp($<str>1, "override") == 0)
       {
-        currentFunction->IsOverride = 1; }
+        currentFunction->IsOverride = 1;
       }
     }
 
@@ -2632,6 +2632,10 @@ structor_declaration:
       if (getType() & VTK_PARSE_EXPLICIT)
       {
         currentFunction->IsExplicit = 1;
+      }
+      if (getType() & VTK_PARSE_WRAPEXCLUDE)
+      {
+        currentFunction->IsExcluded = 1;
       }
       currentFunction->Name = $<str>1;
       currentFunction->Comment = vtkstrdup(getComment());
@@ -3845,6 +3849,11 @@ void start_class(const char *classname, int is_struct_or_union)
     currentClass->ItemType = VTK_UNION_INFO;
   }
 
+  if (getType() & VTK_PARSE_WRAPEXCLUDE)
+  {
+    currentClass->IsExcluded = 1;
+  }
+
   if (classname && classname[0] != '\0')
   {
     /* if name of class being defined contains "::" or "<..>", then skip it */
@@ -3885,6 +3894,8 @@ void start_class(const char *classname, int is_struct_or_union)
   vtkParse_InitFunction(currentFunction);
   startSig();
   clearComment();
+  clearType();
+  clearTypeId();
 }
 
 /* reached the end of a class definition */
@@ -4643,6 +4654,12 @@ void handle_attribute(const char *att, int pack)
       print_parser_error("attribute takes no ...", att, l);
       exit(1);
     }
+    else if (l == 16 && strncmp(att, "vtk::wrapexclude", l) == 0 &&
+             !args && (role == VTK_PARSE_ATTRIB_DECL ||
+                       role == VTK_PARSE_ATTRIB_CLASS))
+    {
+      setTypeMod(VTK_PARSE_WRAPEXCLUDE);
+    }
     else if (l == 16 && strncmp(att, "vtk::newinstance", l) == 0 &&
              !args && role == VTK_PARSE_ATTRIB_DECL)
     {
@@ -4786,6 +4803,14 @@ void output_function()
       reject_function();
       return;
     }
+  }
+
+  /* exclude from wrapping */
+  if (currentFunction->ReturnValue &&
+      currentFunction->ReturnValue->Type & VTK_PARSE_WRAPEXCLUDE)
+  {
+    currentFunction->ReturnValue->Type ^= VTK_PARSE_WRAPEXCLUDE;
+    currentFunction->IsExcluded = 1;
   }
 
   /* friend */
