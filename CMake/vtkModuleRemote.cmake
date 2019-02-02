@@ -113,27 +113,31 @@ endfunction()
 
 # Download and turn on a remote module.
 #
-# The module CMake option is created: Module_${module_name}, which defaults to OFF.
-# Once set to ON, the module is downloaded into the Remote module group.
+# The CMake variable VTK_MODULE_ENABLE_VTK_${module_name} is created
+# if it does not exist. The variable is set to DEFAULT.
+# Once set to WANT or YES, the module is downloaded into the Remote module
+# group.
 #
-# A module name and description are required.  The description will show up in
-# the CMake user interface.
+# A module name and description are required.  The description will
+# show up in the CMake user interface.
 #
 # The following options are currently supported:
 #    [GIT_REPOSITORY url]        # URL of git repo
 #    [GIT_TAG tag]               # Git branch name, commit id or tag
 function(vtk_fetch_module _name _description)
-  option(Module_${_name} "${_description}" OFF)
-  mark_as_advanced(Module_${_name})
-
-
-  # Fetch_$_remote_module} is deprecated. To maintain backward compatibility:
-  if(Fetch_${_name})
-    message(WARNING "Fetch_${_name} is deprecated, please use Module_${_name} to download and enable the remote module.")
-    set(Module_${_name} ON CACHE FORCE "${_description}")
+  # If the variable does not exist, create it and set its value to
+  # DEFAULT.
+  if(NOT VTK_MODULE_ENABLE_VTK_${_name})
+    set("VTK_MODULE_ENABLE_VTK_${_name}" "DEFAULT"
+      CACHE STRING "Enable the ${name} module. ${_description}")
+    mark_as_advanced("VTK_MODULE_ENABLE_VTK_${_name}")
+    set_property(CACHE "VTK_MODULE_ENABLE_VTK_${_name}"
+      PROPERTY
+      STRINGS "YES;WANT;DONT_WANT;NO;DEFAULT")
   endif()
-
-  if(Module_${_name})
+  # If the variable is WANT or YES, download the module.
+  if (${VTK_MODULE_ENABLE_VTK_${_name}} STREQUAL "WANT" OR
+      ${VTK_MODULE_ENABLE_VTK_${_name}} STREQUAL "YES")
     vtk_download_attempt_check(Module_${_name})
     include(CMakeParseArguments)
     cmake_parse_arguments(_fetch_options "" "GIT_REPOSITORY;GIT_TAG" "" ${ARGN})
@@ -146,8 +150,7 @@ function(vtk_fetch_module _name _description)
       OUTPUT_VARIABLE ov
       OUTPUT_STRIP_TRAILING_WHITESPACE
       )
-    string(REGEX REPLACE "^git version (.+)$" "\\1" _version "${ov}")
-    if("${_version}" VERSION_LESS 1.6.6)
+    if(GIT_VERSION_STRING VERSION_LESS 1.6.6)
       message(FATAL_ERROR "Git version 1.6.6 or later is required.")
     endif()
     _fetch_with_git("${GIT_EXECUTABLE}"
