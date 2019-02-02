@@ -478,6 +478,7 @@ int checkFunctionSignature(ClassInfo *data)
   /* some functions will not get wrapped no matter what else */
   if (currentFunction->IsOperator ||
       currentFunction->ArrayFailure ||
+      currentFunction->IsExcluded ||
       !currentFunction->IsPublic ||
       !currentFunction->Name)
   {
@@ -717,7 +718,9 @@ void outputFunction(FILE *fp, ClassInfo *data)
           numberOfWrappedFunctions++;
   }
 
-  if (currentFunction->IsPublic && args_ok &&
+  if (!currentFunction->IsExcluded &&
+      currentFunction->IsPublic &&
+      args_ok &&
       strcmp(data->Name,currentFunction->Name) &&
       strcmp(data->Name, currentFunction->Name + 1))
   {
@@ -848,7 +851,8 @@ int main(int argc, char *argv[])
   }
 
   /* get the main class */
-  if ((data = file_info->MainClass) == NULL)
+  data = file_info->MainClass;
+  if (data == NULL || data->IsExcluded)
   {
     fclose(fp);
     exit(0);

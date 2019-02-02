@@ -649,6 +649,7 @@ int vtkWrapPython_WrapOneClass(
     FunctionInfo *func = data->Functions[i];
 
     if (func->Name &&
+        !func->IsExcluded &&
         func->Access == VTK_ACCESS_PUBLIC &&
         strcmp("New", func->Name) == 0 &&
         func->NumberOfParameters == 0 &&
@@ -661,7 +662,8 @@ int vtkWrapPython_WrapOneClass(
   /* create any enum types defined in the class */
   for (i = 0; i < data->NumberOfEnums; i++)
   {
-    if (data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
+    if (!data->Enums[i]->IsExcluded &&
+        data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
     {
       vtkWrapPython_GenerateEnumType(
         fp, module, classname, data->Enums[i]);
