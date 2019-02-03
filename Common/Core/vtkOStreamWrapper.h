@@ -26,7 +26,6 @@
 
 #ifndef vtkOStreamWrapper_h
 #define vtkOStreamWrapper_h
-#ifndef __VTK_WRAP__
 
 #include "vtkCommonCoreModule.h"
 
@@ -40,7 +39,7 @@ class vtkLargeInteger;
 class vtkSmartPointerBase;
 class vtkStdString;
 
-class VTKCOMMONCORE_EXPORT vtkOStreamWrapper
+class VTKCOMMONCORE_EXPORT VTK_WRAPEXCLUDE vtkOStreamWrapper
 {
   class std_string;
 public:
@@ -156,6 +155,5 @@ private:
 };
   //@}
 
-#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkOStreamWrapper.h
