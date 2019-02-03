@@ -5,6 +5,6 @@
 vtk_fetch_module(Powercrust
   "Powercrust Surface reconstruction from unorganized points"
   GIT_REPOSITORY https://github.com/lorensen/Powercrust
-  # February 1, 2019 - updated for new vtk module API
-  GIT_TAG fb3d08d06fb504a431b9f5882e8086b932815cf0
+  # February 3, 2019 - use delete and override
+  GIT_TAG f6ada83275d4107a90dff7afe209b25601467265
   )
