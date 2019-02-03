@@ -249,21 +249,6 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 "bitor"         return('|');
 "compl"         return('~');
 
-"vtkSetVector2Macro"   return(SetVector2Macro);
-"vtkSetVector3Macro"   return(SetVector3Macro);
-"vtkSetVector4Macro"   return(SetVector4Macro);
-"vtkSetVector6Macro"   return(SetVector6Macro);
-"vtkGetVector2Macro"   return(GetVector2Macro);
-"vtkGetVector3Macro"   return(GetVector3Macro);
-"vtkGetVector4Macro"   return(GetVector4Macro);
-"vtkGetVector6Macro"   return(GetVector6Macro);
-"vtkSetVectorMacro"    return(SetVectorMacro);
-"vtkGetVectorMacro"    return(GetVectorMacro);
-"vtkViewportCoordinateMacro" return(ViewportCoordinateMacro);
-"vtkWorldCoordinateMacro" return(WorldCoordinateMacro);
-"VTK_WRAP_EXTERN"      ;
-"VTK_BYTE_SWAP_DECL"   return(VTK_BYTE_SWAP_DECL);
-
 "("{PS}({ID}"::")*"&" {
       size_t i = 1;
       size_t j;
