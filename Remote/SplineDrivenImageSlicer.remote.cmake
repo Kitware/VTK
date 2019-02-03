@@ -5,6 +5,6 @@
 vtk_fetch_module(SplineDrivenImageSlicer
   "Spline Driven Image Slicer - http://www.vtkjournal.org/browse/publication/838"
   GIT_REPOSITORY https://github.com/lorensen/midas-journal-838.git
-# New VTK module API January 29, 2019
-  GIT_TAG df5ee9ea4a9eeed2d07bbe488cc2be209bf0e49d
+# February 3, 2019 - use delete and override
+  GIT_TAG a208cd4fd8c59e5c84844a5fa789cc39dd090520
   )
