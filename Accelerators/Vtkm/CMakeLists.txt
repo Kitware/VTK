@@ -144,15 +144,27 @@ if (TARGET vtkm::cuda)
 endif ()
 
 if (MSVC)
+  set(msvc_warning_flags
+    # Generates numerous false positives with template code about unreachable
+    # code
+    /wd4702
+    # Generates numerous warning that implicit assignment operators can't be
+    # constructed. This is understood and we don't care.
+    /wd4512
+    # Generates numerous warning that implicit constructors can't be
+    # constructed. This is understood and we don't care.
+    /wd4510)
+  set(vtkm_msvc_flags)
+  foreach (msvc_warning_flag IN LISTS msvc_warning_flags)
+    if (TARGET vtkm::cuda)
+      list(APPEND vtkm_msvc_flags
+        $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=${msvc_warning_flag},${msvc_warning_flag}>)
+    else ()
+      list(APPEND vtkm_msvc_flags
+        ${msvc_warning_flag})
+    endif ()
+  endforeach ()
   vtk_module_compile_options(VTK::AcceleratorsVTKm
     PRIVATE
-      # Generates numerous false positives with template code about unreachable
-      # code
-      /wd4702
-      # Generates numerous warning that implicit assignment operators can't be
-      # constructed. This is understood and we don't care.
-      /wd4512
-      # Generates numerous warning that implicit constructors can't be
-      # constructed. This is understood and we don't care.
-      /wd4510)
+      ${msvc_warning_flags})
 endif ()
