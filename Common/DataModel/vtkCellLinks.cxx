@@ -131,11 +131,11 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
   vtkIdType numCells = data->GetNumberOfCells();
   int j;
   vtkIdType cellId;
-  unsigned short *linkLoc;
+  vtkIdType *linkLoc;
 
   // fill out lists with number of references to cells
-  linkLoc = new unsigned short[numPts];
-  memset(linkLoc, 0, numPts*sizeof(unsigned short));
+  linkLoc = new vtkIdType[numPts];
+  memset(linkLoc, 0, numPts*sizeof(vtkIdType));
 
   // Use fast path if polydata
   if ( data->GetDataObjectType() == VTK_POLY_DATA )
@@ -209,7 +209,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
 {
   vtkIdType numPts = data->GetNumberOfPoints();
   vtkIdType j, cellId;
-  unsigned short *linkLoc;
+  vtkIdType *linkLoc;
   vtkIdType npts=0;
   vtkIdType *pts=nullptr;
   vtkIdType loc = Connectivity->GetTraversalLocation();
@@ -229,8 +229,8 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
   this->MaxId = numPts - 1;
 
   // fill out lists with references to cells
-  linkLoc = new unsigned short[numPts];
-  memset(linkLoc, 0, numPts*sizeof(unsigned short));
+  linkLoc = new vtkIdType[numPts];
+  memset(linkLoc, 0, numPts*sizeof(vtkIdType));
 
   cellId = 0;
   for (Connectivity->InitTraversal();
