@@ -186,12 +186,14 @@ struct _FunctionInfo
   int            IsOperator;
   int            IsVariadic;
   int            IsLegacy;    /* marked as a legacy method or function */
+  int            IsExcluded;  /* marked as excluded from wrapping */
   int            IsStatic;    /* methods only */
   int            IsVirtual;   /* methods only */
   int            IsPureVirtual; /* methods only */
   int            IsConst;     /* methods only */
   int            IsDeleted;   /* methods only */
   int            IsFinal;     /* methods only */
+  int            IsOverride;  /* methods only */
   int            IsExplicit;  /* constructors only */
 #ifndef VTK_PARSE_LEGACY_REMOVE
   int            NumberOfArguments;   /* legacy */
@@ -255,6 +257,7 @@ typedef struct _ClassInfo
   int            IsAbstract;
   int            IsFinal;
   int            HasDelete;
+  int            IsExcluded;
 } ClassInfo;
 
 /**

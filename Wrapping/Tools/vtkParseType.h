@@ -76,9 +76,10 @@
 /**
  * Attributes (used for hints)
  */
-#define VTK_PARSE_ATTRIBUTES  0x03000000
+#define VTK_PARSE_ATTRIBUTES  0x07000000
 #define VTK_PARSE_NEWINSTANCE 0x01000000
 #define VTK_PARSE_ZEROCOPY    0x02000000
+#define VTK_PARSE_WRAPEXCLUDE 0x04000000
 
 /**
  * Special

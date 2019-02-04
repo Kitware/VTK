@@ -376,7 +376,7 @@ static char **append_class_contents(
 
       line = append_scope_to_line(line, &m, &maxlen, scope);
       line = append_class_to_line(line, &m, &maxlen, class_info);
-      tmpflags = "WRAP_EXCLUDE_PYTHON";
+      tmpflags = "WRAPEXCLUDE";
     }
     else if (data->Items[i].Type == VTK_ENUM_INFO)
     {
@@ -429,9 +429,8 @@ static char **append_class_contents(
  * Append all types in a namespace
  */
 static char **append_namespace_contents(
-  char **lines, size_t *np, NamespaceInfo *data, ClassInfo *main_class,
-  const char *scope, const char *header_file, const char *module_name,
-  const char *flags)
+  char **lines, size_t *np, NamespaceInfo *data, const char *scope,
+  const char *header_file, const char *module_name, const char *flags)
 {
   int i;
   const char *tmpflags;
@@ -473,21 +472,17 @@ static char **append_namespace_contents(
   /* add a line for each type that is found */
   for (i = 0; i < data->NumberOfItems; i++)
   {
-    tmpflags = 0;
+    tmpflags = flags;
     m = 0;
     line[m] = '\0';
 
     if (data->Items[i].Type == VTK_CLASS_INFO ||
         data->Items[i].Type == VTK_STRUCT_INFO)
     {
-      ClassInfo *class_info =
-        data->Classes[data->Items[i].Index];
-
-      /* all but the main class in each file is excluded from wrapping */
-      tmpflags = "WRAP_EXCLUDE_PYTHON";
-      if (class_info == main_class)
+      ClassInfo *class_info = data->Classes[data->Items[i].Index];
+      if (class_info->IsExcluded)
       {
-        tmpflags = flags;
+        tmpflags = "WRAPEXCLUDE";
       }
 
       line = append_scope_to_line(line, &m, &maxlen, scope);
@@ -495,9 +490,14 @@ static char **append_namespace_contents(
     }
     else if (data->Items[i].Type == VTK_ENUM_INFO)
     {
+      EnumInfo *enum_info = data->Enums[data->Items[i].Index];
+      if (enum_info->IsExcluded)
+      {
+        tmpflags = "WRAPEXCLUDE";
+      }
+
       line = append_scope_to_line(line, &m, &maxlen, scope);
-      line = append_enum_to_line(line, &m, &maxlen,
-        data->Enums[data->Items[i].Index]);
+      line = append_enum_to_line(line, &m, &maxlen, enum_info);
     }
     else if (data->Items[i].Type == VTK_TYPEDEF_INFO)
     {
@@ -536,8 +536,8 @@ static char **append_namespace_contents(
         data->Namespaces[data->Items[i].Index]->Name)
     {
       lines = append_namespace_contents(lines, np,
-        data->Namespaces[data->Items[i].Index], 0,
-        scope, header_file, module_name, "WRAP_EXCLUDE_PYTHON");
+        data->Namespaces[data->Items[i].Index],
+        scope, header_file, module_name, "WRAPEXCLUDE");
     }
   }
 
@@ -597,7 +597,7 @@ static char **vtkWrapHierarchy_ParseHeaderFile(
 
   /* append the file contents to the output */
   lines = append_namespace_contents(
-    lines, &n, data->Contents, data->MainClass, 0,
+    lines, &n, data->Contents, 0,
     header_file, module_name, flags);
 
   vtkParse_Free(data);

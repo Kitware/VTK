@@ -316,12 +316,14 @@ virtual type *Get##name () VTK_SIZEHINT(2) \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
 } \
+VTK_WRAPEXCLUDE \
 virtual void Get##name (type &_arg1, type &_arg2) \
 { \
     _arg1 = this->name[0]; \
     _arg2 = this->name[1]; \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << ")"); \
 } \
+VTK_WRAPEXCLUDE \
 virtual void Get##name (type _arg[2]) \
 { \
   this->Get##name (_arg[0], _arg[1]);\
@@ -350,6 +352,7 @@ virtual type *Get##name () VTK_SIZEHINT(3) \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
 } \
+VTK_WRAPEXCLUDE \
 virtual void Get##name (type &_arg1, type &_arg2, type &_arg3) \
 { \
     _arg1 = this->name[0]; \
@@ -357,6 +360,7 @@ virtual void Get##name (type &_arg1, type &_arg2, type &_arg3) \
     _arg3 = this->name[2]; \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << ")"); \
 } \
+VTK_WRAPEXCLUDE \
 virtual void Get##name (type _arg[3]) \
 { \
   this->Get##name (_arg[0], _arg[1], _arg[2]);\
@@ -387,6 +391,7 @@ virtual type *Get##name () VTK_SIZEHINT(4) \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
 } \
+VTK_WRAPEXCLUDE \
 virtual void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4) \
 { \
     _arg1 = this->name[0]; \
@@ -395,6 +400,7 @@ virtual void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4) \
     _arg4 = this->name[3]; \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")"); \
 } \
+VTK_WRAPEXCLUDE \
 virtual void Get##name (type _arg[4]) \
 { \
   this->Get##name (_arg[0], _arg[1], _arg[2], _arg[3]);\
@@ -426,6 +432,7 @@ virtual type *Get##name () VTK_SIZEHINT(6) \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
 } \
+VTK_WRAPEXCLUDE \
 virtual void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4, type &_arg5, type &_arg6) \
 { \
     _arg1 = this->name[0]; \
@@ -436,6 +443,7 @@ virtual void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4, type
     _arg6 = this->name[5]; \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << "," << _arg5 <<"," << _arg6 << ")"); \
 } \
+VTK_WRAPEXCLUDE \
 virtual void Get##name (type _arg[6]) \
 { \
   this->Get##name (_arg[0], _arg[1], _arg[2], _arg[3], _arg[4], _arg[5]);\
@@ -470,6 +478,7 @@ virtual type *Get##name () VTK_SIZEHINT(count)\
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
 } \
+VTK_WRAPEXCLUDE \
 virtual void Get##name (type data[count]) \
 { \
   for (int i=0; i<count; i++) { data[i] = this->name[i]; }\

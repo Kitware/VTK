@@ -111,10 +111,15 @@ HierarchyEntry *vtkParseHierarchy_FindEntryEx(
  * Get properties for the class.  Returns NULL if the property
  * is not set, and returns either an empty string or a value string
  * if the property is set. The properties supported are as follows:
- * "WRAP_EXCLUDE_PYTHON"
+ * "WRAPEXCLUDE"
  */
 const char *vtkParseHierarchy_GetProperty(
   const HierarchyEntry *entry, const char *property);
+
+/**
+ * Check whether item's name is the same as the header name.
+ */
+int vtkParseHierarchy_IsPrimary(const HierarchyEntry *entry);
 
 /**
  * Check whether class is derived from baseclass.

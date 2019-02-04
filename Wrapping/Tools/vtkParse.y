@@ -216,11 +216,6 @@ void handle_function_type(ValueInfo *param, const char *name,
 void handle_attribute(const char *att, int pack);
 void add_legacy_parameter(FunctionInfo *func, ValueInfo *param);
 
-void outputSetVectorMacro(const char *var, unsigned int paramType,
-                          const char *typeText, int n);
-void outputGetVectorMacro(const char *var, unsigned int paramType,
-                          const char *typeText, int n);
-
 
 /*----------------------------------------------------------------
  * String utility methods
@@ -310,23 +305,6 @@ static const char *vtkstrcat4(const char *str1, const char *str2,
   cp[2] = str3;
   cp[3] = str4;
   return vtkstrncat(4, cp);
-}
-
-static const char *vtkstrcat7(const char *str1, const char *str2,
-                              const char *str3, const char *str4,
-                              const char *str5, const char *str6,
-                              const char *str7)
-{
-  const char *cp[7];
-
-  cp[0] = str1;
-  cp[1] = str2;
-  cp[2] = str3;
-  cp[3] = str4;
-  cp[4] = str5;
-  cp[5] = str6;
-  cp[6] = str7;
-  return vtkstrncat(7, cp);
 }
 
 /*----------------------------------------------------------------
@@ -1906,23 +1884,6 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token SIGNED
 %token UNSIGNED
 
-/* VTK macros */
-%token SetVector2Macro
-%token SetVector3Macro
-%token SetVector4Macro
-%token SetVector6Macro
-%token GetVector2Macro
-%token GetVector3Macro
-%token GetVector4Macro
-%token GetVector6Macro
-%token SetVectorMacro
-%token GetVectorMacro
-%token ViewportCoordinateMacro
-%token WorldCoordinateMacro
-
-/* VTK special tokens */
-%token VTK_BYTE_SWAP_DECL
-
 %%
 /*
  * Here is the start of the grammar
@@ -1958,7 +1919,6 @@ declaration:
   | function_definition
   | template_declaration
   | explicit_instantiation
-  | declaration_macro
   | id_expression ';'
   | ';'
 
@@ -2097,8 +2057,6 @@ member_declaration:
   | method_definition
   | template_member_declaration
   | explicit_instantiation
-  | declaration_macro
-  | VTK_BYTE_SWAP_DECL ignored_parentheses
   | id_expression ';'
   | ';'
 
@@ -2563,7 +2521,14 @@ virt_specifier:
     ID
     {
       postSig(" "); postSig($<str>1);
-      if (strcmp($<str>1, "final") == 0) { currentFunction->IsFinal = 1; }
+      if (strcmp($<str>1, "final") == 0)
+      {
+        currentFunction->IsFinal = 1;
+      }
+      else if (strcmp($<str>1, "override") == 0)
+      {
+        currentFunction->IsOverride = 1;
+      }
     }
 
 opt_body_as_trailer:
@@ -2625,6 +2590,10 @@ structor_declaration:
       if (getType() & VTK_PARSE_EXPLICIT)
       {
         currentFunction->IsExplicit = 1;
+      }
+      if (getType() & VTK_PARSE_WRAPEXCLUDE)
+      {
+        currentFunction->IsExcluded = 1;
       }
       currentFunction->Name = $<str>1;
       currentFunction->Comment = vtkstrdup(getComment());
@@ -3287,159 +3256,6 @@ attribute_token:
     identifier_sig
   | identifier_sig scope_operator_sig identifier_sig
 
-
-/*
- * VTK Macros
- */
-
-declaration_macro:
-  SetVector2Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
-   {
-   chopSig();
-   outputSetVectorMacro($<str>3, getType(), copySig(), 2);
-   }
-| GetVector2Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
-   {
-   chopSig();
-   outputGetVectorMacro($<str>3, getType(), copySig(), 2);
-   }
-| SetVector3Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
-   {
-   chopSig();
-   outputSetVectorMacro($<str>3, getType(), copySig(), 3);
-   }
-| GetVector3Macro  '(' simple_id ',' {startSig(); markSig();} store_type ')'
-   {
-   chopSig();
-   outputGetVectorMacro($<str>3, getType(), copySig(), 3);
-   }
-| SetVector4Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
-   {
-   chopSig();
-   outputSetVectorMacro($<str>3, getType(), copySig(), 4);
-   }
-| GetVector4Macro  '(' simple_id ',' {startSig(); markSig();} store_type ')'
-   {
-   chopSig();
-   outputGetVectorMacro($<str>3, getType(), copySig(), 4);
-   }
-| SetVector6Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
-   {
-   chopSig();
-   outputSetVectorMacro($<str>3, getType(), copySig(), 6);
-   }
-| GetVector6Macro  '(' simple_id ',' {startSig(); markSig();} store_type ')'
-   {
-   chopSig();
-   outputGetVectorMacro($<str>3, getType(), copySig(), 6);
-   }
-| SetVectorMacro  '(' simple_id ',' {startSig(); markSig();}
-     store_type ',' INT_LITERAL ')'
-   {
-   const char *typeText;
-   chopSig();
-   typeText = copySig();
-   currentFunction->Macro = "vtkSetVectorMacro";
-   currentFunction->Name = vtkstrcat("Set", $<str>3);
-   currentFunction->Signature =
-     vtkstrcat7("void ", currentFunction->Name, "(", typeText,
-                " a[", $<str>8, "]);");
-   currentFunction->Comment = vtkstrdup(getComment());
-   add_parameter(currentFunction, (VTK_PARSE_POINTER | getType()),
-                 getTypeId(), (int)strtol($<str>8, NULL, 0));
-   set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-   output_function();
-   }
-| GetVectorMacro  '(' simple_id ',' {startSig();}
-     store_type ',' INT_LITERAL ')'
-   {
-   chopSig();
-   currentFunction->Macro = "vtkGetVectorMacro";
-   currentFunction->Name = vtkstrcat("Get", $<str>3);
-   postSig(" *");
-   postSig(currentFunction->Name);
-   postSig("();");
-   currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, (VTK_PARSE_POINTER | getType()),
-              getTypeId(), (int)strtol($<str>8, NULL, 0));
-   output_function();
-   }
-| ViewportCoordinateMacro '(' simple_id ')'
-   {
-     currentFunction->Macro = "vtkViewportCoordinateMacro";
-     currentFunction->Name = vtkstrcat3("Get", $<str>3, "Coordinate");
-     currentFunction->Signature =
-       vtkstrcat3("vtkCoordinate *", currentFunction->Name, "();");
-     currentFunction->Comment = vtkstrdup(getComment());
-     set_return(currentFunction, VTK_PARSE_OBJECT_PTR, "vtkCoordinate", 0);
-     output_function();
-
-     currentFunction->Macro = "vtkViewportCoordinateMacro";
-     currentFunction->Name = vtkstrcat("Set", $<str>3);
-     currentFunction->Signature =
-       vtkstrcat3("void ", currentFunction->Name, "(double, double);");
-     currentFunction->Comment = vtkstrdup(getComment());
-     add_parameter(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
-     add_parameter(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
-     set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-     output_function();
-
-     currentFunction->Macro = "vtkViewportCoordinateMacro";
-     currentFunction->Name = vtkstrcat("Set", $<str>3);
-     currentFunction->Signature =
-       vtkstrcat3("void ", currentFunction->Name, "(double a[2]);");
-     currentFunction->Comment = vtkstrdup(getComment());
-     add_parameter(currentFunction, VTK_PARSE_DOUBLE_PTR, "double", 2);
-     set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-     output_function();
-
-     currentFunction->Macro = "vtkViewportCoordinateMacro";
-     currentFunction->Name = vtkstrcat("Get", $<str>3);
-     currentFunction->Signature =
-       vtkstrcat3("double *", currentFunction->Name, "();");
-     currentFunction->Comment = vtkstrdup(getComment());
-     set_return(currentFunction, VTK_PARSE_DOUBLE_PTR, "double", 2);
-     output_function();
-   }
-| WorldCoordinateMacro '(' simple_id ')'
-   {
-     currentFunction->Macro = "vtkWorldCoordinateMacro";
-     currentFunction->Name = vtkstrcat3("Get", $<str>3, "Coordinate");
-     currentFunction->Signature =
-       vtkstrcat3("vtkCoordinate *", currentFunction->Name, "();");
-     currentFunction->Comment = vtkstrdup(getComment());
-     set_return(currentFunction, VTK_PARSE_OBJECT_PTR, "vtkCoordinate", 0);
-     output_function();
-
-     currentFunction->Macro = "vtkWorldCoordinateMacro";
-     currentFunction->Name = vtkstrcat("Set", $<str>3);
-     currentFunction->Signature =
-       vtkstrcat3("void ", currentFunction->Name, "(double, double, double);");
-     currentFunction->Comment = vtkstrdup(getComment());
-     add_parameter(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
-     add_parameter(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
-     add_parameter(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
-     set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-     output_function();
-
-     currentFunction->Macro = "vtkWorldCoordinateMacro";
-     currentFunction->Name = vtkstrcat("Set", $<str>3);
-     currentFunction->Signature =
-       vtkstrcat3("void ", currentFunction->Name, "(double a[3]);");
-     currentFunction->Comment = vtkstrdup(getComment());
-     add_parameter(currentFunction, VTK_PARSE_DOUBLE_PTR, "double", 3);
-     set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-     output_function();
-
-     currentFunction->Macro = "vtkWorldCoordinateMacro";
-     currentFunction->Name = vtkstrcat("Get", $<str>3);
-     currentFunction->Signature =
-       vtkstrcat3("double *", currentFunction->Name, "();");
-     currentFunction->Comment = vtkstrdup(getComment());
-     set_return(currentFunction, VTK_PARSE_DOUBLE_PTR, "double", 3);
-     output_function();
-   }
-
 /*
  * Operators
  */
@@ -3838,6 +3654,11 @@ void start_class(const char *classname, int is_struct_or_union)
     currentClass->ItemType = VTK_UNION_INFO;
   }
 
+  if (getType() & VTK_PARSE_WRAPEXCLUDE)
+  {
+    currentClass->IsExcluded = 1;
+  }
+
   if (classname && classname[0] != '\0')
   {
     /* if name of class being defined contains "::" or "<..>", then skip it */
@@ -3878,6 +3699,8 @@ void start_class(const char *classname, int is_struct_or_union)
   vtkParse_InitFunction(currentFunction);
   startSig();
   clearComment();
+  clearType();
+  clearTypeId();
 }
 
 /* reached the end of a class definition */
@@ -4636,6 +4459,12 @@ void handle_attribute(const char *att, int pack)
       print_parser_error("attribute takes no ...", att, l);
       exit(1);
     }
+    else if (l == 16 && strncmp(att, "vtk::wrapexclude", l) == 0 &&
+             !args && (role == VTK_PARSE_ATTRIB_DECL ||
+                       role == VTK_PARSE_ATTRIB_CLASS))
+    {
+      setTypeMod(VTK_PARSE_WRAPEXCLUDE);
+    }
     else if (l == 16 && strncmp(att, "vtk::newinstance", l) == 0 &&
              !args && role == VTK_PARSE_ATTRIB_DECL)
     {
@@ -4779,6 +4608,14 @@ void output_function()
       reject_function();
       return;
     }
+  }
+
+  /* exclude from wrapping */
+  if (currentFunction->ReturnValue &&
+      currentFunction->ReturnValue->Type & VTK_PARSE_WRAPEXCLUDE)
+  {
+    currentFunction->ReturnValue->Type ^= VTK_PARSE_WRAPEXCLUDE;
+    currentFunction->IsExcluded = 1;
   }
 
   /* friend */
@@ -4985,72 +4822,6 @@ void output_friend_function()
   currentClass = NULL;
   output_function();
   currentClass = tmpc;
-}
-
-void outputSetVectorMacro(const char *var, unsigned int paramType,
-                          const char *typeText, int n)
-{
-  static const char *mnames[] = {
-    NULL, NULL,
-    "vtkSetVector2Macro", "vtkSetVector3Macro", "vtkSetVector4Macro",
-    NULL,
-    "vtkSetVector6Macro",
-    NULL };
-  char ntext[32];
-  int i, m;
-  m = (n > 7 ? 0 : n);
-
-  sprintf(ntext, "%i", n);
-
-  currentFunction->Macro = mnames[m];
-  currentFunction->Name = vtkstrcat("Set", var);
-  startSig();
-  postSig("void ");
-  postSig(currentFunction->Name);
-  postSig("(");
-  postSig(typeText);
-  for (i = 1; i < n; i++)
-  {
-    postSig(", ");
-    postSig(typeText);
-  }
-  postSig(");");
-  for (i = 0; i < n; i++)
-  {
-    add_parameter(currentFunction, paramType, getTypeId(), 0);
-  }
-  set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-  output_function();
-
-  currentFunction->Macro = mnames[m];
-  currentFunction->Name = vtkstrcat("Set", var);
-  currentFunction->Signature =
-    vtkstrcat7("void ", currentFunction->Name, "(", typeText,
-               " a[", ntext, "]);");
-  add_parameter(currentFunction, (VTK_PARSE_POINTER | paramType),
-                getTypeId(), n);
-  set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-  output_function();
-}
-
-void outputGetVectorMacro(const char *var, unsigned int paramType,
-                          const char *typeText, int n)
-{
-  static const char *mnames[] = {
-    NULL, NULL,
-    "vtkGetVector2Macro", "vtkGetVector3Macro", "vtkGetVector4Macro",
-    NULL,
-    "vtkGetVector6Macro",
-    NULL };
-  int m;
-  m = (n > 7 ? 0 : n);
-
-  currentFunction->Macro = mnames[m];
-  currentFunction->Name = vtkstrcat("Get", var);
-  currentFunction->Signature =
-    vtkstrcat4(typeText, " *", currentFunction->Name, "();");
-  set_return(currentFunction, (VTK_PARSE_POINTER | paramType), getTypeId(), n);
-  output_function();
 }
 
 /* Set a flag to recurse into included files */

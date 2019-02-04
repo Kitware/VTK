@@ -152,8 +152,10 @@ void vtkParse_InitFunction(FunctionInfo *func)
   func->IsConst = 0;
   func->IsDeleted = 0;
   func->IsFinal = 0;
+  func->IsOverride = 0;
   func->IsExplicit = 0;
   func->IsLegacy = 0;
+  func->IsExcluded = 0;
 
 #ifndef VTK_PARSE_LEGACY_REMOVE
   /* everything below here is legacy information, *
@@ -235,8 +237,10 @@ void vtkParse_CopyFunction(FunctionInfo *func, const FunctionInfo *orig)
   func->IsConst = orig->IsConst;
   func->IsDeleted = orig->IsDeleted;
   func->IsFinal = orig->IsFinal;
+  func->IsOverride = orig->IsOverride;
   func->IsExplicit = orig->IsExplicit;
   func->IsLegacy = orig->IsLegacy;
+  func->IsExcluded = orig->IsExcluded;
 
 #ifndef VTK_PARSE_LEGACY_REMOVE
   /* everything below here is legacy information, *
@@ -453,6 +457,7 @@ void vtkParse_InitClass(ClassInfo *cls)
   cls->IsAbstract = 0;
   cls->IsFinal = 0;
   cls->HasDelete = 0;
+  cls->IsExcluded = 0;
 }
 
 /* Copy a Class struct */
@@ -606,6 +611,7 @@ void vtkParse_CopyClass(ClassInfo *cls, const ClassInfo *orig)
   cls->IsAbstract = orig->IsAbstract;
   cls->IsFinal = orig->IsFinal;
   cls->HasDelete = orig->HasDelete;
+  cls->IsExcluded = orig->IsExcluded;
 }
 
 /* Free a Class struct */

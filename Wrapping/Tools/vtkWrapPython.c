@@ -185,6 +185,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
     {
       currentFunction = data->Functions[i];
       if (currentFunction->Access == VTK_ACCESS_PUBLIC &&
+          !currentFunction->IsExcluded &&
           strcmp(currentFunction->Class, data->Name) == 0)
       {
         classname = "void";
@@ -505,6 +506,11 @@ int main(int argc, char *argv[])
   for (i = 0; i < contents->NumberOfClasses; i++)
   {
     data = contents->Classes[i];
+    if (data->IsExcluded)
+    {
+      continue;
+    }
+
     is_vtkobject = wrapAsVTKObject[i];
 
     /* if "hinfo" is present, wrap everything, else just the main class */

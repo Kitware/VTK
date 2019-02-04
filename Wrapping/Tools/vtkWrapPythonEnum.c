@@ -61,7 +61,8 @@ void vtkWrapPython_MarkAllEnums(
     for (i = 0; i < n; i++)
     {
       currentFunction = data->Functions[i];
-      if (currentFunction->Access == VTK_ACCESS_PUBLIC)
+      if (!currentFunction->IsExcluded &&
+          currentFunction->Access == VTK_ACCESS_PUBLIC)
       {
         /* we start with the return value */
         val = currentFunction->ReturnValue;
@@ -239,7 +240,8 @@ void vtkWrapPython_AddPublicEnumTypes(
 
   for (i = 0; i < data->NumberOfEnums; i++)
   {
-    if (data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
+    if (!data->Enums[i]->IsExcluded &&
+        data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
     {
       vtkWrapPython_AddEnumType(
         fp, indent, dictvar, objvar, pythonname, data->Enums[i]);
