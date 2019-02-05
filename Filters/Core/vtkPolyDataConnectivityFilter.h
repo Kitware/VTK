@@ -195,8 +195,9 @@ public:
 
   //@{
   /**
-   * Mark visited point ids ? It may be useful to extract the visited point
-   * ids for use by a downstream filter. Default is OFF.
+   * Specify whether to record input point ids that appear in the output connected
+   * components. It may be useful to extract the visited point ids for use by a
+   * downstream filter. Default is OFF.
    */
   vtkSetMacro( MarkVisitedPointIds, vtkTypeBool );
   vtkGetMacro( MarkVisitedPointIds, vtkTypeBool );
@@ -205,8 +206,8 @@ public:
 
   //@{
   /**
-   * Get the visited point ids. This is valid only if MarkVisitedPointIds
-   * has been set.
+   * Get the input point ids that appear in the output connected components. This is
+   * non-empty only if MarkVisitedPointIds has been set.
    */
   vtkGetObjectMacro( VisitedPointIds, vtkIdList );
   //@}
