@@ -47,7 +47,7 @@ public:
 
   class Link {
   public:
-    unsigned short ncells;
+    vtkIdType ncells;
     vtkIdType *cells;
   };
 
@@ -90,7 +90,7 @@ public:
   /**
    * Get the number of cells using the point specified by ptId.
    */
-  unsigned short GetNcells(vtkIdType ptId) { return this->Array[ptId].ncells;};
+  vtkIdType GetNcells(vtkIdType ptId) { return this->Array[ptId].ncells;};
 
   /**
    * Return a list of cell ids using the point.
@@ -175,7 +175,7 @@ protected:
   /**
    * Insert a cell id into the list of cells using the point.
    */
-  void InsertCellReference(vtkIdType ptId, unsigned short pos,
+  void InsertCellReference(vtkIdType ptId, vtkIdType pos,
                            vtkIdType cellId);
 
   Link *Array;   // pointer to data
@@ -191,7 +191,7 @@ private:
 
 //----------------------------------------------------------------------------
 inline void vtkCellLinks::InsertCellReference(vtkIdType ptId,
-                                              unsigned short pos,
+                                              vtkIdType pos,
                                               vtkIdType cellId)
 {
   this->Array[ptId].cells[pos] = cellId;
