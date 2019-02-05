@@ -55,6 +55,7 @@ public:
   vtkSmartPointer(const vtkSmartPointer<U>& r):
     vtkSmartPointerBase(CheckType(r.GetPointer())) {}
 
+#ifndef __VTK_WRAP__
   /**
    * Move the contents of @a r into @a this.
    */
@@ -62,6 +63,7 @@ public:
             typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
   vtkSmartPointer(vtkSmartPointer<U>&& r) noexcept
     : vtkSmartPointerBase(std::move(r)) {}
+#endif
 
   //@{
   /**

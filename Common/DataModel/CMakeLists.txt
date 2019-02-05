@@ -232,7 +232,9 @@ set(template_classes
 set(headers
   vtkCellType.h
   vtkColor.h
+  vtkCompositeDataSetRange.h
   vtkDataArrayDispatcher.h
+  vtkDataObjectTreeRange.h
   vtkDispatcher.h
   vtkDispatcher_Private.h
   vtkDoubleDispatcher.h

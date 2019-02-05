@@ -21,6 +21,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkRange.h"
 
+#ifndef __VTK_WRAP__
+
 namespace vtk
 {
 namespace detail
@@ -34,7 +36,7 @@ template <typename CollectionType> struct CollectionIterator;
 template <typename T>
 struct IsCollection : std::is_base_of<vtkCollection, T> {};
 
-template <typename CollectionType, typename T = void>
+template <typename CollectionType, typename T = CollectionType>
 using EnableIfIsCollection =
 typename std::enable_if<IsCollection<CollectionType>::value, T>::type;
 
@@ -253,22 +255,10 @@ private:
   vtkSmartPointer<CollectionType> Collection;
 };
 
-// IterableTraits specialization to hook into vtk::Range.
-template <typename CollectionType,
-          typename = EnableIfIsCollection<CollectionType>>
-struct IterableTraits
-{
-  static_assert(IsCollection<CollectionType>::value,
-                "Invalid vtkCollection subclass.");
-
-  using ItemType = typename GetCollectionItemType<CollectionType>::Type;
-  using RangeType = CollectionRange<CollectionType>;
-};
-
-
-
 }
 } // end namespace vtk::detail
+
+#endif // __VTK_WRAP__
 
 #endif // vtkCollectionRange_h
 

@@ -15,9 +15,8 @@
 
 #include "vtkBoundingBox.h"
 #include "vtkCompositeDataDisplayAttributes.h"
-#include "vtkCompositeDataIterator.h"
 #include "vtkDataObjectTree.h"
-#include "vtkDataObjectTreeIterator.h"
+#include "vtkDataObjectTreeRange.h"
 #include "vtkDataSet.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
@@ -279,18 +278,11 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
   vtkDataObjectTree *dObjTree = vtkDataObjectTree::SafeDownCast(dobj);
   if (dObjTree)
   {
-    auto iter = vtkSmartPointer<vtkDataObjectTreeIterator>::Take(dObjTree->NewTreeIterator());
-    iter->TraverseSubTreeOff();
-    iter->SkipEmptyNodesOn();
-    iter->VisitOnlyLeavesOff(); // Visit nodes to maintain parent visibility.
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    using Opts = vtk::DataObjectTreeOptions;
+    for (vtkDataObject *child : vtk::Range(dObjTree, Opts::SkipEmptyNodes))
     {
-      vtkDataObject *child = iter->GetCurrentDataObject();
-      if (child)
-      {
-        vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
-              cda, child, bbox, blockVisible);
-      }
+      vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
+            cda, child, bbox, blockVisible);
     }
   }
   else if (dobj && blockVisible == true)
@@ -326,14 +318,9 @@ vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
   vtkDataObjectTree *dObjTree = vtkDataObjectTree::SafeDownCast(parent_obj);
   if (dObjTree)
   {
-    auto iter = vtkSmartPointer<vtkDataObjectTreeIterator>::Take(dObjTree->NewTreeIterator());
-    iter->TraverseSubTreeOff();
-    iter->VisitOnlyLeavesOff();
-    iter->SkipEmptyNodesOff();
-
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    using Opts = vtk::DataObjectTreeOptions;
+    for (vtkDataObject *child : vtk::Range(dObjTree, Opts::None))
     {
-      vtkDataObject *child = iter->GetCurrentDataObject();
       if (child)
       {
         const auto data = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(

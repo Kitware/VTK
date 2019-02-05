@@ -76,13 +76,6 @@ public:
   using value = decltype(impl(std::declval<T*>()));
 };
 
-// Traits class that should define RangeType, which would point to the range
-// proxy for Iterable. This is only used by vtk::Range calls.
-// It is included here to ensure that the stub is defined before any
-// specializations.
-template <typename Iterable, typename /*SFINAE stub*/>
-struct IterableTraits;
-
 }
 } // end namespace vtk::detail
 

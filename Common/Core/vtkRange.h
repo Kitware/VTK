@@ -17,6 +17,7 @@
 #define vtkRange_h
 
 #include "vtkMeta.h"
+#include "vtkRangeIterableTraits.h"
 
 #include <iterator>
 #include <type_traits>
@@ -30,7 +31,7 @@ namespace vtk
  *
  * Currently supports:
  *
- * - vtkCollection (`#include <vtkCollectionRange.h>`):
+ * - vtkCollection and subclasses (`#include <vtkCollectionRange.h>`):
  *   - ItemType is the (non-pointer) result type of GetNextItem() if this method
  *     exists on the collection type, otherwise vtkObject is used.
  *   - Iterators fulfill the STL InputIterator concept with some exceptions:
@@ -42,6 +43,16 @@ namespace vtk
  *       - ItemType*& references aren't generally desired.
  *       - ItemType& references are unconventional for vtkObjects.
  *       - ItemType** pointers are unruly.
+ * - vtkCompositeDataSet (`#include <vtkCompositeDataSetRange.h>`)
+ *   - vtk::CompositeDataSetOptions: None, SkipEmptyNodes.
+ *     - Ex. vtk::Range(compDS, vtk::CompositeDataSetOptions::SkipEmptyNodes);
+ *   - Read-only -- reference types not supported.
+ * - vtkDataObjectTree (`#include <vtkDataObjectTreeRange.h>`)
+ *   - vtk::DataObjectTreeOptions:
+ *     None, SkipEmptyNodes, VisitOnlyLeaves, TraverseSubTree.
+ *     - Ex. vtk::Range(dObjTree, vtk::DataObjectTreeOptions::TraverseSubTree |
+ *                                vtk::DataObjectTreeOptions::SkipEmptyNodes);
+ *   - Read-only -- reference types not supported.
  *
  * Usage:
  *
@@ -53,20 +64,22 @@ namespace vtk
  *
  * // or:
  *
- * auto range = vtk::Range(myCollection);
+ * using Opts = vtk::vtkDataObjectTreeOptions;
+ * auto range = vtk::Range(dataObjTree,
+ *                         Opts::TraverseSubTree | Opts::VisitOnlyLeaves);
  * some_algo(range.begin(), range.end());
  *
  * ```
  */
-template <typename IterablePtr>
-auto Range(IterablePtr iterable)
+template <typename IterablePtr, typename... Options>
+auto Range(IterablePtr iterable, Options&&... opts)
 -> typename detail::IterableTraits<
        typename detail::StripPointers<IterablePtr>::type
    >::RangeType
 {
   using Iterable = typename detail::StripPointers<IterablePtr>::type;
   using RangeType = typename detail::IterableTraits<Iterable>::RangeType;
-  return RangeType{iterable};
+  return RangeType{iterable, std::forward<Options>(opts)...};
 }
 
 } // end namespace vtk

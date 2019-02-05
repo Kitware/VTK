@@ -31,6 +31,7 @@
 #include "vtkSystemIncludes.h"
 #include <math.h>
 #include <typeinfo>
+#include <type_traits> // for std::underlying type.
 
 //----------------------------------------------------------------------------
 // Check for unsupported old compilers.
@@ -1019,6 +1020,46 @@ virtual double *Get##name() VTK_SIZEHINT(2)\
 #ifndef VTK_FALLTHROUGH
 # define VTK_FALLTHROUGH ((void)0)
 #endif
+
+//----------------------------------------------------------------------------
+// Macro to generate bitflag operators for C++11 scoped enums.
+
+#define VTK_GENERATE_BITFLAG_OPS(EnumType) \
+  inline EnumType operator|(EnumType f1, EnumType f2) \
+  { \
+    using T = typename std::underlying_type<EnumType>::type; \
+    return static_cast<EnumType>(static_cast<T>(f1) | static_cast<T>(f2)); \
+  } \
+  inline EnumType operator&(EnumType f1, EnumType f2) \
+  { \
+    using T = typename std::underlying_type<EnumType>::type; \
+    return static_cast<EnumType>(static_cast<T>(f1) & static_cast<T>(f2)); \
+  } \
+  inline EnumType operator^(EnumType f1, EnumType f2) \
+  { \
+    using T = typename std::underlying_type<EnumType>::type; \
+    return static_cast<EnumType>(static_cast<T>(f1) ^ static_cast<T>(f2)); \
+  } \
+  inline EnumType operator~(EnumType f1) \
+  { \
+    using T = typename std::underlying_type<EnumType>::type; \
+    return static_cast<EnumType>(~static_cast<T>(f1)); \
+  } \
+  inline EnumType& operator|=(EnumType &f1, EnumType f2) \
+  { \
+    using T = typename std::underlying_type<EnumType>::type; \
+    return f1 = static_cast<EnumType>(static_cast<T>(f1) | static_cast<T>(f2)); \
+  } \
+  inline EnumType& operator&=(EnumType &f1, EnumType f2) \
+  { \
+    using T = typename std::underlying_type<EnumType>::type; \
+    return f1 = static_cast<EnumType>(static_cast<T>(f1) & static_cast<T>(f2)); \
+  } \
+  inline EnumType& operator^=(EnumType &f1, EnumType f2) \
+  { \
+    using T = typename std::underlying_type<EnumType>::type; \
+    return f1 = static_cast<EnumType>(static_cast<T>(f1) ^ static_cast<T>(f2)); \
+  }
 
 #endif
 // VTK-HeaderTest-Exclude: vtkSetGet.h

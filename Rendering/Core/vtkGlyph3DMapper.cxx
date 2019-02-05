@@ -20,9 +20,11 @@
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDataArray.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeIterator.h"
+#include "vtkDataObjectTreeRange.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -619,23 +621,17 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
   {
     if (sourceTableTree)
     {
-      vtkDataObjectTreeIterator *sTTIter = sourceTableTree->NewTreeIterator();
-      sTTIter->SetTraverseSubTree(false);
-      sTTIter->SetVisitOnlyLeaves(false);
-      sTTIter->SetSkipEmptyNodes(false);
+      auto sTTRange = vtk::Range(sourceTableTree);
+      auto sTTIter = sTTRange.begin();
 
       // Advance to first indexed dataset:
-      sTTIter->InitTraversal();
-      int idx = 0;
-      for (; idx < indexRange[0]; ++idx)
-      {
-        sTTIter->GoToNextItem();
-      }
+      int idx = indexRange[0];
+      std::advance(sTTIter, idx);
 
       // Add the bounds from the appropriate datasets:
       while (idx <= indexRange[1])
       {
-        vtkDataObject *sourceDObj = sTTIter->GetCurrentDataObject();
+        vtkDataObject *sourceDObj = *sTTIter;
 
         // The source table tree may have composite nodes:
         vtkCompositeDataSet *sourceCDS =
@@ -692,10 +688,9 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
         }
 
         // Move to the next node in the source table tree.
-        sTTIter->GoToNextItem();
+        ++sTTIter;
         ++idx;
       }
-      sTTIter->Delete();
     }
   }
   else // non-source-table-tree table
