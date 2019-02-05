@@ -540,7 +540,6 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
       bounds[2*i+1] = this->MaxPnt[i] + delta;
     }
   }
-  assert( static_cast<vtkIdType>(divs[0])*divs[1]*divs[2] < totalBins );
   return static_cast<vtkIdType>(divs[0])*divs[1]*divs[2];
 }
 
