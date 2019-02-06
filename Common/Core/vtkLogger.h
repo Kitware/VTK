@@ -158,7 +158,6 @@
 class VTKCOMMONCORE_EXPORT vtkLogger : public vtkObjectBase
 {
 public:
-  static vtkLogger* New();
   vtkBaseTypeMacro(vtkLogger, vtkObjectBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
