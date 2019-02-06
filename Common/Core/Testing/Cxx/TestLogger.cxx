@@ -57,5 +57,8 @@ int TestLogger(int, char* [])
        << "--------------------------------------------" << endl;
 
   vtkGenericWarningMacro("testing generic warning -- should only show up in the log");
+
+  // remove callback since the user-data becomes invalid out of this function.
+  vtkLogger::RemoveCallback("sonnet-grabber");
   return EXIT_SUCCESS;
 }
