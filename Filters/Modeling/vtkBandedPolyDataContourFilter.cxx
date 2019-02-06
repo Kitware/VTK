@@ -829,7 +829,8 @@ int vtkBandedPolyDataContourFilter::RequestData(
         if ((polygon[*l2].scalar < clip_scalar) ||
             (polygon[*r2].scalar < clip_scalar))
         {
-          auto it = std::rotate( index.begin(), r1, l1+1 );
+          auto it = index.begin() + std::distance(r1, l1 + 1);
+          std::rotate(index.begin(), r1, l1 + 1);
           // note: the duplicate at the end is automatically discarded
           index.resize( std::distance( index.begin(), it ) );
 
