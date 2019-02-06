@@ -108,7 +108,7 @@ set_property(CACHE VTK_BUILD_TESTING
 #-----------------------------------------------------------------------------
 # Add an option to enable/disable logging support.
 option(VTK_ENABLE_LOGGING "Enable logging support." ON)
-
+mark_as_advanced(VTK_ENABLE_LOGGING)
 
 include(vtkEncodeString)
 
