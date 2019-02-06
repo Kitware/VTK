@@ -112,26 +112,14 @@ protected:
   //If true we will attempt to merge points. Must also not have
   //ghost cells defined.
   vtkTypeBool MergePoints;
+  double Tolerance;
 
   int OutputPointsPrecision;
-  double Tolerance;
 
 private:
   vtkAppendFilter(const vtkAppendFilter&) = delete;
   void operator=(const vtkAppendFilter&) = delete;
-
-  // Get all input data sets that have points, cells, or both.
-  // Caller must delete the returned vtkDataSetCollection.
-  vtkDataSetCollection* GetNonEmptyInputs(vtkInformationVector ** inputVector);
-
-  void AppendArrays(int attributesType,
-                    vtkInformationVector **inputVector,
-                    vtkIdType* globalIds,
-                    vtkUnstructuredGrid* output,
-                    vtkIdType totalNumberOfElements);
 };
 
 
 #endif
-
-
