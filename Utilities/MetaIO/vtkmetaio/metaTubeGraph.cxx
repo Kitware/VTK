@@ -15,8 +15,8 @@
 #pragma warning(disable:4702)
 #endif
 
-#include <stdio.h>
-#include <ctype.h>
+#include <cctype>
+#include <cstdio>
 #include <string>
 
 #if (METAIO_USE_NAMESPACE)
@@ -117,7 +117,7 @@ PointDim(const char* pointDim)
 }
 
 const char* MetaTubeGraph::
-PointDim(void) const
+PointDim() const
 {
   return m_PointDim;
 }
@@ -129,7 +129,7 @@ NPoints(int npnt)
 }
 
 int MetaTubeGraph::
-NPoints(void) const
+NPoints() const
 {
   return m_NPoints;
 }
@@ -141,7 +141,7 @@ Root(int root)
 }
 
 int MetaTubeGraph::
-Root(void) const
+Root() const
 {
   return m_Root;
 }
@@ -149,7 +149,7 @@ Root(void) const
 
 /** Clear tube information */
 void MetaTubeGraph::
-Clear(void)
+Clear()
 {
   if(META_DEBUG)
     {
@@ -174,14 +174,14 @@ Clear(void)
 
 /** Destroy tube information */
 void MetaTubeGraph::
-M_Destroy(void)
+M_Destroy()
 {
   MetaObject::M_Destroy();
 }
 
 /** Set Read fields */
 void MetaTubeGraph::
-M_SetupReadFields(void)
+M_SetupReadFields()
 {
   if(META_DEBUG)
     {
@@ -213,7 +213,7 @@ M_SetupReadFields(void)
 }
 
 void MetaTubeGraph::
-M_SetupWriteFields(void)
+M_SetupWriteFields()
 {
   strcpy(m_ObjectTypeName,"TubeGraph");
   MetaObject::M_SetupWriteFields();
@@ -298,7 +298,7 @@ M_SetupWriteFields(void)
 
 
 bool MetaTubeGraph::
-M_Read(void)
+M_Read()
 {
   if(META_DEBUG)
     {
@@ -347,7 +347,7 @@ M_Read(void)
   int posGraphNode = -1;
 
   int pntDim;
-  char** pntVal = NULL;
+  char** pntVal = nullptr;
   MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
 
   if(META_DEBUG)
@@ -502,7 +502,7 @@ M_Read(void)
 }
 
 MET_ValueEnumType MetaTubeGraph::
-ElementType(void) const
+ElementType() const
 {
   return m_ElementType;
 }
@@ -514,7 +514,7 @@ ElementType(MET_ValueEnumType _elementType)
 }
 
 bool MetaTubeGraph::
-M_Write(void)
+M_Write()
 {
 
   if(!MetaObject::M_Write())

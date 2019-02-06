@@ -76,13 +76,13 @@ class METAIO_EXPORT MetaArray : public MetaForm
               bool _allocateElementData=false,
               bool _autoFreeElementData=false);
 
-    ~MetaArray(void) MET_OVERRIDE;
+    ~MetaArray(void) override;
 
-    void  PrintInfo(void) const MET_OVERRIDE;
+    void  PrintInfo(void) const override;
 
-    void  CopyInfo(const MetaForm * _form) MET_OVERRIDE;
+    void  CopyInfo(const MetaForm * _form) override;
 
-    void  Clear(void) MET_OVERRIDE;
+    void  Clear(void) override;
 
     bool  InitializeEssential(int _nDims,
                               MET_ValueEnumType _elementType,
@@ -188,13 +188,13 @@ class METAIO_EXPORT MetaArray : public MetaForm
 
     void *             m_ElementData;
 
-    void  M_Destroy(void) MET_OVERRIDE;
+    void  M_Destroy(void) override;
 
-    void  M_SetupReadFields(void) MET_OVERRIDE;
+    void  M_SetupReadFields(void) override;
 
-    void  M_SetupWriteFields(void) MET_OVERRIDE;
+    void  M_SetupWriteFields(void) override;
 
-    bool  M_Read(void) MET_OVERRIDE;
+    bool  M_Read(void) override;
 
     bool  M_ReadElements(METAIO_STREAM::ifstream * _fstream,
                          void * _data,

@@ -219,10 +219,9 @@ typedef struct
                                   //   meta data
    } MET_FieldRecordType;
 
-#if __cplusplus >= 201103L
-#define MET_OVERRIDE override
-#else
-#define MET_OVERRIDE
+// Emulate C++11 snprintf on old MSVC.
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#define snprintf _snprintf
 #endif
 
 #if (METAIO_USE_NAMESPACE)

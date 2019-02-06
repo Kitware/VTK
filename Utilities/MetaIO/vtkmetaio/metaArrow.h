@@ -61,13 +61,13 @@ class METAIO_EXPORT MetaArrow : public MetaObject
 
     MetaArrow(unsigned int dim);
 
-    ~MetaArrow(void) MET_OVERRIDE;
+    ~MetaArrow(void) override;
 
-    void PrintInfo(void) const MET_OVERRIDE;
+    void PrintInfo(void) const override;
 
-    void CopyInfo(const MetaObject * _object) MET_OVERRIDE;
+    void CopyInfo(const MetaObject * _object) override;
 
-    void  Clear(void) MET_OVERRIDE;
+    void  Clear(void) override;
 
     void  Length(float length);
     float Length(void) const;
@@ -86,13 +86,13 @@ class METAIO_EXPORT MetaArrow : public MetaObject
   ////
   protected:
 
-    void  M_Destroy(void) MET_OVERRIDE;
+    void  M_Destroy(void) override;
 
-    void  M_SetupReadFields(void) MET_OVERRIDE;
+    void  M_SetupReadFields(void) override;
 
-    void  M_SetupWriteFields(void) MET_OVERRIDE;
+    void  M_SetupWriteFields(void) override;
 
-    bool  M_Read(void) MET_OVERRIDE;
+    bool  M_Read(void) override;
 
     float M_Length; // default 1.0
 

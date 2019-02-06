@@ -94,10 +94,10 @@ public:
  MetaContour(const MetaContour *_Contour);
  MetaContour(unsigned int dim);
 
- ~MetaContour(void) MET_OVERRIDE;
+ ~MetaContour(void) override;
 
-  void PrintInfo(void) const MET_OVERRIDE;
-  void CopyInfo(const MetaObject * _object) MET_OVERRIDE;
+  void PrintInfo(void) const override;
+  void CopyInfo(const MetaObject * _object) override;
 
   //    NPoints(...)
   //       Required Field
@@ -127,7 +127,7 @@ public:
   void DisplayOrientation(int display);
   int  DisplayOrientation() const;
 
-  void  Clear(void) MET_OVERRIDE;
+  void  Clear(void) override;
 
   ControlPointListType & GetControlPoints(void)
     {return m_ControlPointsList;}
@@ -142,11 +142,11 @@ public:
 protected:
 
   bool  m_ElementByteOrderMSB;
-  void  M_Destroy(void) MET_OVERRIDE;
-  void  M_SetupReadFields(void) MET_OVERRIDE;
-  void  M_SetupWriteFields(void) MET_OVERRIDE;
-  bool  M_Read(void) MET_OVERRIDE;
-  bool  M_Write(void) MET_OVERRIDE;
+  void  M_Destroy(void) override;
+  void  M_SetupReadFields(void) override;
+  void  M_SetupWriteFields(void) override;
+  bool  M_Read(void) override;
+  bool  M_Write(void) override;
 
   int m_NControlPoints;
   int m_NInterpolatedPoints;

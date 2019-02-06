@@ -16,8 +16,8 @@
 
 #include "metaBlob.h"
 
-#include <stdio.h>
-#include <ctype.h>
+#include <cctype>
+#include <cstdio>
 #include <string>
 
 #if (METAIO_USE_NAMESPACE)
@@ -128,7 +128,7 @@ PointDim(const char* pointDim)
 }
 
 const char* MetaBlob::
-PointDim(void) const
+PointDim() const
 {
   return m_PointDim;
 }
@@ -140,7 +140,7 @@ NPoints(size_t npnt)
 }
 
 size_t MetaBlob::
-NPoints(void) const
+NPoints() const
 {
   return m_NPoints;
 }
@@ -148,7 +148,7 @@ NPoints(void) const
 
 /** Clear blob information */
 void MetaBlob::
-Clear(void)
+Clear()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaBlob: Clear" << METAIO_STREAM::endl;
   MetaObject::Clear();
@@ -169,14 +169,14 @@ Clear(void)
 
 /** Destroy blob information */
 void MetaBlob::
-M_Destroy(void)
+M_Destroy()
 {
   MetaObject::M_Destroy();
 }
 
 /** Set Read fields */
 void MetaBlob::
-M_SetupReadFields(void)
+M_SetupReadFields()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaBlob: M_SetupReadFields" << METAIO_STREAM::endl;
 
@@ -205,7 +205,7 @@ M_SetupReadFields(void)
 }
 
 MET_ValueEnumType MetaBlob::
-ElementType(void) const
+ElementType() const
 {
   return m_ElementType;
 }
@@ -218,7 +218,7 @@ ElementType(MET_ValueEnumType _elementType)
 
 
 void MetaBlob::
-M_SetupWriteFields(void)
+M_SetupWriteFields()
 {
   strcpy(m_ObjectTypeName,"Blob");
   MetaObject::M_SetupWriteFields();
@@ -253,7 +253,7 @@ M_SetupWriteFields(void)
 
 
 bool MetaBlob::
-M_Read(void)
+M_Read()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaBlob: M_Read: Loading Header" << METAIO_STREAM::endl;
 
@@ -294,7 +294,7 @@ M_Read(void)
   }
 
   int pntDim;
-  char** pntVal = NULL;
+  char** pntVal = nullptr;
   MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
 
 
@@ -426,7 +426,7 @@ M_Read(void)
 
 
 bool MetaBlob::
-M_Write(void)
+M_Write()
 {
 
   if(!MetaObject::M_Write())

@@ -16,9 +16,9 @@
 
 #include "metaContour.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <ctype.h>
+#include <cassert>
+#include <cctype>
+#include <cstdio>
 #include <string>
 
 #if (METAIO_USE_NAMESPACE)
@@ -141,7 +141,7 @@ ControlPointDim(const char* pointDim)
 }
 
 const char* MetaContour::
-ControlPointDim(void) const
+ControlPointDim() const
 {
   return m_ControlPointDim;
 }
@@ -153,26 +153,26 @@ InterpolatedPointDim(const char* pointDim)
 }
 
 const char* MetaContour::
-InterpolatedPointDim(void) const
+InterpolatedPointDim() const
 {
   return m_InterpolatedPointDim;
 }
 
 int MetaContour::
-NControlPoints(void) const
+NControlPoints() const
 {
   return m_NControlPoints;
 }
 
 int MetaContour::
-NInterpolatedPoints(void) const
+NInterpolatedPoints() const
 {
   return m_NInterpolatedPoints;
 }
 
 
 MET_InterpolationEnumType
-MetaContour::Interpolation(void) const
+MetaContour::Interpolation() const
 {
   return m_InterpolationType;
 }
@@ -185,7 +185,7 @@ void MetaContour::Interpolation(MET_InterpolationEnumType _interpolation)
 
 /** Clear Contour information */
 void MetaContour::
-Clear(void)
+Clear()
 {
   if(META_DEBUG)
     {
@@ -229,7 +229,7 @@ Clear(void)
 
 /** Destroy Contour information */
 void MetaContour::
-M_Destroy(void)
+M_Destroy()
 {
   MetaObject::M_Destroy();
 }
@@ -263,7 +263,7 @@ DisplayOrientation() const
 
 /** Set Read fields */
 void MetaContour::
-M_SetupReadFields(void)
+M_SetupReadFields()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaContour: M_SetupReadFields" << METAIO_STREAM::endl;
 
@@ -298,7 +298,7 @@ M_SetupReadFields(void)
 }
 
 void MetaContour::
-M_SetupWriteFields(void)
+M_SetupWriteFields()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaContour: M_SetupWriteFields" << METAIO_STREAM::endl;
 
@@ -345,7 +345,7 @@ M_SetupWriteFields(void)
 
 
 bool MetaContour::
-M_Read(void)
+M_Read()
 {
   if(META_DEBUG) METAIO_STREAM::cout << "MetaContour: M_Read: Loading Header" << METAIO_STREAM::endl;
 
@@ -399,7 +399,7 @@ M_Read(void)
     }
 
   int pntDim;
-  char** pntVal = NULL;
+  char** pntVal = nullptr;
   MET_StringToWordArray(m_ControlPointDim, &pntDim, &pntVal);
 
   int i;
@@ -728,7 +728,7 @@ M_Read(void)
 
 
 bool MetaContour::
-M_Write(void)
+M_Write()
 {
   if(META_DEBUG)
     {
