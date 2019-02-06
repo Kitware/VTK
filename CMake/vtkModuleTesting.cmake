@@ -453,18 +453,15 @@ function (vtk_test_cxx_executable exename _tests)
     return()
   endif ()
 
-  set(test_driver vtkTestDriver.h)
   if (RENDERING_FACTORY)
     include("${_vtkModuleTesting_dir}/vtkTestingRenderingDriver.cmake")
     set(test_driver vtkTestingObjectFactory.h)
+  else ()
+    include("${_vtkModuleTesting_dir}/vtkTestingDriver.cmake")
+    set(test_driver vtkTestDriver.h)
   endif ()
 
   set(extra_sources ${args})
-
-  if (_vtk_build_test)
-    set(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
-      "    vtksys::SystemInformation::SetStackTraceOnError(1);\n ${CMAKE_TESTDRIVER_BEFORE_TESTMAIN}")
-  endif ()
 
   create_test_sourcelist(test_sources "${exename}.cxx" ${${_tests}}
     EXTRA_INCLUDE "${test_driver}")

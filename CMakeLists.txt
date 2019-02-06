@@ -105,6 +105,11 @@ set_property(CACHE VTK_BUILD_TESTING
   PROPERTY
     STRINGS "ON;OFF;WANT")
 
+#-----------------------------------------------------------------------------
+# Add an option to enable/disable logging support.
+option(VTK_ENABLE_LOGGING "Enable logging support." ON)
+
+
 include(vtkEncodeString)
 
 set(vtk_requested_modules)
@@ -142,6 +147,10 @@ else ()
   set(_vtk_module_group_default_MPI "DONT_WANT")
   list(APPEND vtk_rejected_modules
     VTK::mpi)
+endif ()
+if (VTK_ENABLE_LOGGING)
+  list(APPEND vtk_requested_modules
+    VTK::loguru)
 endif ()
 
 if (VTK_BUILD_TESTING)

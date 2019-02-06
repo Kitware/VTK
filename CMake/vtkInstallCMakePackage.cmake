@@ -99,6 +99,7 @@ set(vtk_cmake_module_files
   vtkObjectFactory.cmake
   vtkObjectFactory.cxx.in
   vtkObjectFactory.h.in
+  vtkTestingDriver.cmake
   vtkTestingRenderingDriver.cmake
   vtkTopologicalSort.cmake)
 set(vtk_cmake_patch_files

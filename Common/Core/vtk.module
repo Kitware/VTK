@@ -13,6 +13,8 @@ DEPENDS
   VTK::vtksys
 PRIVATE_DEPENDS
   VTK::utf8
+OPTIONAL_DEPENDS
+  VTK::loguru
 TEST_DEPENDS
   VTK::CommonDataModel
   VTK::CommonSystem
