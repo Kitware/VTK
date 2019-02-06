@@ -65,7 +65,7 @@
 
 
 //------------------------------------------------------------------------------
-struct LabelMetric
+struct PDILabelMetric
 {
   bool Valid;
   double Value;
@@ -77,40 +77,26 @@ struct LabelMetric
 };
 
 //------------------------------------------------------------------------------
-struct LabelInfo
+struct PDILabelInfo
 {
   // Position in actor space:
   vtkVector3d Position;
 
-  // Orientation (normalized, world space)
-  vtkVector3d RightW; // Left --> Right
-  vtkVector3d UpW; // Bottom --> Top
-
-  // Orientation (normalized in world space, represented in actor space)
-  vtkVector3d RightA; // Left --> Right
-  vtkVector3d UpA; // Bottom --> Top
-
-  // Corner locations (actor space):
-  vtkVector3d TLa;
-  vtkVector3d TRa;
-  vtkVector3d BRa;
-  vtkVector3d BLa;
+  // Which directions are label right and up in display space
+  vtkVector2d RightD;
+  vtkVector2d UpD;
 
   // Corner location (display space):
   vtkVector2i TLd;
   vtkVector2i TRd;
   vtkVector2i BRd;
   vtkVector2i BLd;
-
-  // Factor to scale the text actor by:
-  double ScaleDisplayToActor;
 };
 
 //------------------------------------------------------------------------------
-struct LabelHelper
+struct PDILabelHelper
 {
   double orientation;
-  float boxPoints[10];
 };
 
 namespace {
@@ -157,10 +143,10 @@ struct vtkLabeledContourPolyDataItem::Private
   vtkAbstractContextItem* item;
 
   // One entry per isoline.
-  std::vector<LabelMetric> LabelMetrics;
+  std::vector<PDILabelMetric> LabelMetrics;
 
-  // One LabelInfo per label groups by isoline.
-  std::vector<std::vector<LabelInfo> > LabelInfos;
+  // One PDILabelInfo per label groups by isoline.
+  std::vector<std::vector<PDILabelInfo> > LabelInfos;
 
   // Info for calculating display coordinates:
   vtkTuple<double, 16> AMVP; // actor-model-view-projection matrix
@@ -174,9 +160,8 @@ struct vtkLabeledContourPolyDataItem::Private
   vtkTuple<double, 4> ViewportBounds;
 
   // Needed to orient the labels
-  vtkVector3d CameraRight;
-  vtkVector3d CameraUp;
-  vtkVector3d CameraForward;
+  vtkVector2d CameraRight;
+  vtkVector2d CameraUp;
 
   vtkTuple<double, 9> forwardMatrix;
   vtkTuple<double, 9> inverseMatrix;
@@ -201,7 +186,7 @@ struct vtkLabeledContourPolyDataItem::Private
   bool PixelIsVisible(const vtkVector2<ScalarType> &dispCoord) const;
 
   bool LineCanBeLabeled(vtkPoints *points, vtkIdType numIds,
-                        const vtkIdType *ids, const LabelMetric &metrics);
+                        const vtkIdType *ids, const PDILabelMetric &metrics);
 
   // Determine the first smooth position on the line defined by ids that is
   // 1.2x the length of the label (in display coordinates).
@@ -209,18 +194,18 @@ struct vtkLabeledContourPolyDataItem::Private
   // starting location. This can be used to ensure that labels are placed a
   // minimum distance apart.
   bool NextLabel(vtkPoints *points, vtkIdType &numIds, vtkIdType *&ids,
-                 const LabelMetric &metrics, LabelInfo &info,
+                 const PDILabelMetric &metrics, PDILabelInfo &info,
                  double targetSmoothness, double skipDistance);
 
   // Configure the text actor:
-  bool BuildLabel(vtkTextActor3D *actor, LabelHelper* helper, const LabelMetric &metric,
-                  const LabelInfo &info);
+  bool BuildLabel(vtkTextActor3D *actor, PDILabelHelper* helper, const PDILabelMetric &metric,
+                  const PDILabelInfo &info);
 
   // Compute the scaling factor and corner info for the label
-  void ComputeLabelInfo(LabelInfo &info, const LabelMetric &metrics);
+  void ComputeLabelInfo(PDILabelInfo &info, const PDILabelMetric &metrics);
 
   // Test if the display quads overlap:
-  bool TestOverlap(const LabelInfo &a, const LabelInfo &b);
+  bool TestOverlap(const PDILabelInfo &a, const PDILabelInfo &b);
 };
 
 
@@ -304,11 +289,6 @@ bool vtkLabeledContourPolyDataItem::Paint(vtkContext2D* painter)
   double startRender = vtkTimerLog::GetUniversalTime();
 
   this->Superclass::Paint(painter);
-
-  if (!this->RenderBackgrounds(painter))
-  {
-    return false;
-  }
 
   if (!this->RenderLabels(painter))
   {
@@ -511,8 +491,8 @@ bool vtkLabeledContourPolyDataItem::PrepareRender()
   vtkIdType *ids;
   for (lines->InitTraversal(); lines->GetNextCell(numPts, ids);)
   {
-    this->Internal->LabelMetrics.push_back(LabelMetric());
-    LabelMetric &metric = this->Internal->LabelMetrics.back();
+    this->Internal->LabelMetrics.push_back(PDILabelMetric());
+    PDILabelMetric &metric = this->Internal->LabelMetrics.back();
     if (!(metric.Valid = (numPts > 0)))
     {
       // Mark as invalid and skip if there are no points.
@@ -551,7 +531,7 @@ bool vtkLabeledContourPolyDataItem::PrepareRender()
   }
 
   // Update metrics with appropriate text info:
-  typedef std::vector<LabelMetric>::iterator MetricsIter;
+  typedef std::vector<PDILabelMetric>::iterator MetricsIter;
   for (MetricsIter it = this->Internal->LabelMetrics.begin(),
        itEnd = this->Internal->LabelMetrics.end(); it != itEnd; ++it)
   {
@@ -597,7 +577,7 @@ bool vtkLabeledContourPolyDataItem::PlaceLabels()
   tols.push_back(0.200);
   tols.push_back(0.300);
 
-  typedef std::vector<LabelMetric>::const_iterator MetricsIterator;
+  typedef std::vector<PDILabelMetric>::const_iterator MetricsIterator;
   MetricsIterator metric = this->Internal->LabelMetrics.begin();
 
   // Identify smooth parts of the isoline for labeling
@@ -608,14 +588,14 @@ bool vtkLabeledContourPolyDataItem::PlaceLabels()
   {
     assert(metric != this->Internal->LabelMetrics.end());
 
-    this->Internal->LabelInfos.push_back(std::vector<LabelInfo>());
+    this->Internal->LabelInfos.push_back(std::vector<PDILabelInfo>());
 
     // Test if it is possible to place a label (e.g. the line is big enough
     // to not be completely obscured)
     if (this->Internal->LineCanBeLabeled(points, numIds, origIds, *metric))
     {
-      std::vector<LabelInfo> &infos = this->Internal->LabelInfos.back();
-      LabelInfo info;
+      std::vector<PDILabelInfo> &infos = this->Internal->LabelInfos.back();
+      PDILabelInfo info;
       // If no labels are found, increase the tolerance:
       for (std::vector<double>::const_iterator it = tols.begin(),
            itEnd = tols.end(); it != itEnd && infos.empty(); ++it)
@@ -637,8 +617,8 @@ bool vtkLabeledContourPolyDataItem::PlaceLabels()
 //------------------------------------------------------------------------------
 bool vtkLabeledContourPolyDataItem::ResolveLabels()
 {
-  typedef std::vector<LabelInfo>::iterator InnerIterator;
-  typedef std::vector<std::vector<LabelInfo> >::iterator OuterIterator;
+  typedef std::vector<PDILabelInfo>::iterator InnerIterator;
+  typedef std::vector<std::vector<PDILabelInfo> >::iterator OuterIterator;
 
   bool removedA = false;
   bool removedB = false;
@@ -716,8 +696,8 @@ bool vtkLabeledContourPolyDataItem::ResolveLabels()
 //------------------------------------------------------------------------------
 bool vtkLabeledContourPolyDataItem::CreateLabels()
 {
-  typedef std::vector<LabelMetric> MetricVector;
-  typedef std::vector<LabelInfo> InfoVector;
+  typedef std::vector<PDILabelMetric> MetricVector;
+  typedef std::vector<PDILabelInfo> InfoVector;
 
   std::vector<InfoVector>::const_iterator outerLabels =
       this->Internal->LabelInfos.begin();
@@ -742,7 +722,7 @@ bool vtkLabeledContourPolyDataItem::CreateLabels()
   MetricVector::const_iterator metricsEnd = this->Internal->LabelMetrics.end();
   vtkTextActor3D **actor = this->TextActors;
   vtkTextActor3D **actorEnd = this->TextActors + this->NumberOfUsedTextActors;
-  LabelHelper **helper = this->LabelHelpers;
+  PDILabelHelper **helper = this->LabelHelpers;
 
   while (metrics != metricsEnd &&
          outerLabels != outerLabelsEnd &&
@@ -758,45 +738,6 @@ bool vtkLabeledContourPolyDataItem::CreateLabels()
     ++metrics;
     ++outerLabels;
   }
-
-  return true;
-}
-
-//------------------------------------------------------------------------------
-bool vtkLabeledContourPolyDataItem::RenderBackgrounds(vtkContext2D* painter)
-{
-  vtkPen* pen = painter->GetPen();
-  vtkBrush* brush = painter->GetBrush();
-
-  double prevPenColor[4];
-  unsigned char prevPenOpacity;
-  double prevBrushColor[4];
-  double prevBrushOpacity;
-
-  pen->GetColorF(prevPenColor);
-  prevPenOpacity = pen->GetOpacity();
-  brush->GetColorF(prevBrushColor);
-  prevBrushOpacity = brush->GetOpacityF();
-
-  double bgcolor[3];
-  double bgopacity;
-
-  for (vtkIdType i = 0; i < this->NumberOfUsedTextActors; ++i)
-  {
-    vtkTextProperty* tprop = this->TextActors[i]->GetTextProperty();
-    tprop->GetBackgroundColor(bgcolor);
-    bgopacity = tprop->GetBackgroundOpacity();
-    pen->SetColorF(bgcolor);
-    pen->SetOpacityF(bgopacity);
-    brush->SetColorF(bgcolor);
-    brush->SetOpacityF(bgopacity);
-    painter->DrawQuad(this->LabelHelpers[i]->boxPoints);
-  }
-
-  pen->SetColorF(prevPenColor);
-  pen->SetOpacity(prevPenOpacity);
-  brush->SetColorF(prevBrushColor);
-  brush->SetOpacityF(prevBrushOpacity);
 
   return true;
 }
@@ -840,10 +781,10 @@ bool vtkLabeledContourPolyDataItem::AllocateTextActors(vtkIdType num)
         this->TextActors[i] = vtkTextActor3D::New();
       }
 
-      this->LabelHelpers = new LabelHelper*[this->NumberOfTextActors];
+      this->LabelHelpers = new PDILabelHelper*[this->NumberOfTextActors];
       for (vtkIdType i = 0; i < this->NumberOfTextActors; ++i)
       {
-        this->LabelHelpers[i] = new LabelHelper();
+        this->LabelHelpers[i] = new PDILabelHelper();
       }
     }
 
@@ -937,9 +878,8 @@ bool vtkLabeledContourPolyDataItem::Private::SetViewInfo(vtkContextScene* contex
     return false;
   }
 
-  this->CameraRight.Set(1.0, 0.0, 0.0);
-  this->CameraUp.Set(0.0, 1.0, 0.0);
-  this->CameraForward.Set(0.0, 0.0, -1.0);
+  this->CameraRight.Set(1.0, 0.0);
+  this->CameraUp.Set(0.0, 1.0);
 
   // figure out the same aspect ratio used by the render engine
   // (see vtkOpenGLCamera::Render())
@@ -1015,7 +955,7 @@ bool vtkLabeledContourPolyDataItem::Private::SetViewInfo(vtkContextScene* contex
 //------------------------------------------------------------------------------
 bool vtkLabeledContourPolyDataItem::Private::LineCanBeLabeled(
     vtkPoints *points, vtkIdType numIds, const vtkIdType *ids,
-    const LabelMetric &metrics)
+    const PDILabelMetric &metrics)
 {
   vtkTuple<int, 4> bbox(0);
   vtkVector3d actorCoord;
@@ -1073,7 +1013,7 @@ bool vtkLabeledContourPolyDataItem::Private::PixelIsVisible(
 //------------------------------------------------------------------------------
 bool vtkLabeledContourPolyDataItem::Private::NextLabel(
     vtkPoints *points, vtkIdType &numIds, vtkIdType *&ids,
-    const LabelMetric &metrics, LabelInfo &info, double targetSmoothness,
+    const PDILabelMetric &metrics, PDILabelInfo &info, double targetSmoothness,
     double skipDistance)
 {
   if (numIds < 2)
@@ -1218,25 +1158,24 @@ bool vtkLabeledContourPolyDataItem::Private::NextLabel(
     vtkIdType endIdx = curIdx - 1;
 
     // The direction of the text.
-    vtkVector3d prevPointWorld;
-    vtkVector3d startPointWorld;
-    this->ActorToWorld(prevPoint, prevPointWorld);
-    this->ActorToWorld(startPoint, startPointWorld);
-    info.RightW = (prevPointWorld - startPointWorld).Normalized();
+    vtkVector2d prevDisplay;
+    vtkVector2d startDisplay;
+    this->ActorToDisplay(prevPoint, prevDisplay);
+    this->ActorToDisplay(startPoint, startDisplay);
+    info.RightD = (prevDisplay - startDisplay).Normalized();
+
     // Ensure the text reads left->right:
-    if (info.RightW.Dot(this->CameraRight) < 0.)
+    if (info.RightD.Dot(this->CameraRight) < 0.)
     {
-      info.RightW = -info.RightW;
+      info.RightD = -info.RightD;
     }
 
-    // The up vector. Cross the forward direction with the orientation and
-    // ensure that the result vector is in the same hemisphere as CameraUp
-    info.UpW = info.RightW.Compare(this->CameraForward, 10e-10)
-        ? this->CameraUp
-        : info.RightW.Cross(this->CameraForward).Normalized();
-    if (info.UpW.Dot(this->CameraUp) < 0.)
+    info.UpD[0] = info.RightD[1];
+    info.UpD[1] = -info.RightD[0];
+
+    if (info.UpD.Dot(this->CameraUp) < 0.)
     {
-      info.UpW = -info.UpW;
+      info.UpD = -info.UpD;
     }
 
     // Walk through the segment lengths to find where the center is for label
@@ -1276,108 +1215,40 @@ bool vtkLabeledContourPolyDataItem::Private::NextLabel(
 
 //------------------------------------------------------------------------------
 bool vtkLabeledContourPolyDataItem::Private::BuildLabel(vtkTextActor3D *actor,
-                                                        LabelHelper *helper,
-                                                        const LabelMetric &metric,
-                                                        const LabelInfo &info)
+                                                        PDILabelHelper *helper,
+                                                        const PDILabelMetric &metric,
+                                                        const PDILabelInfo &info)
 
 {
   assert(metric.Valid);
   actor->SetInput(metric.Text.c_str());
 
   helper->orientation =
-    vtkMath::DegreesFromRadians(atan2(info.RightW[1], info.RightW[0]));
-
-  helper->boxPoints[0] = info.TLa[0];  helper->boxPoints[1] = info.TLa[1];
-  helper->boxPoints[2] = info.TRa[0];  helper->boxPoints[3] = info.TRa[1];
-  helper->boxPoints[4] = info.BRa[0];  helper->boxPoints[5] = info.BRa[1];
-  helper->boxPoints[6] = info.BLa[0];  helper->boxPoints[7] = info.BLa[1];
-  helper->boxPoints[8] = info.TLa[0];  helper->boxPoints[9] = info.TLa[1];
+    vtkMath::DegreesFromRadians(atan2(info.RightD[1], info.RightD[0]));
 
   actor->SetTextProperty(metric.TProp);
   actor->SetPosition(const_cast<double*>(info.Position.GetData()));
-
-  vtkNew<vtkTransform> xform;
-  xform->PostMultiply();
-
-  xform->Translate((-info.Position).GetData());
-
-  xform->Scale(info.ScaleDisplayToActor,
-               info.ScaleDisplayToActor,
-               info.ScaleDisplayToActor);
-
-  vtkVector3d forward = info.UpA.Cross(info.RightA);
-  double rot[16];
-  rot[4 * 0 + 0] = info.RightA[0];
-  rot[4 * 1 + 0] = info.RightA[1];
-  rot[4 * 2 + 0] = info.RightA[2];
-  rot[4 * 3 + 0] = 0;
-  rot[4 * 0 + 1] = info.UpA[0];
-  rot[4 * 1 + 1] = info.UpA[1];
-  rot[4 * 2 + 1] = info.UpA[2];
-  rot[4 * 3 + 1] = 0;
-  rot[4 * 0 + 2] = forward[0];
-  rot[4 * 1 + 2] = forward[1];
-  rot[4 * 2 + 2] = forward[2];
-  rot[4 * 3 + 2] = 0;
-  rot[4 * 0 + 3] = 0;
-  rot[4 * 1 + 3] = 0;
-  rot[4 * 2 + 3] = 0;
-  rot[4 * 3 + 3] = 1;
-  xform->Concatenate(rot);
-
-  xform->Translate(info.Position.GetData());
-  actor->SetUserTransform(xform);
 
   return true;
 }
 
 //------------------------------------------------------------------------------
 void vtkLabeledContourPolyDataItem::Private::ComputeLabelInfo(
-    LabelInfo &info, const LabelMetric &metrics)
+    PDILabelInfo &info, const PDILabelMetric &metrics)
 {
-  // Convert the right and up vectors into actor space:
-  vtkVector3d worldPosition;
-  this->ActorToWorld(info.Position, worldPosition);
+  vtkVector2d displayPosition;
+  this->ActorToDisplay(info.Position, displayPosition);
 
-  vtkVector3d endW = worldPosition + info.RightW;
-  vtkVector3d endA;
-  this->WorldToActor(endW, endA);
-  info.RightA = endA - info.Position;
+  // Compute the corners of the quad.  Display coordinates are used to detect
+  // collisions.  Note that we make this a little bigger (4px) than a tight
+  // bbox to give a little breathing room around the text.
+  vtkVector2d displayHalfWidth = (0.5 * metrics.Dimensions[0] + 2) * info.RightD;
+  vtkVector2d displayHalfHeight = (0.5 * metrics.Dimensions[1] + 2) * info.UpD;
 
-  endW = worldPosition + info.UpW;
-  this->WorldToActor(endW, endA);
-  info.UpA = endA - info.Position;
-
-  // Compute scaling factor. Use the Up vector for deltas as we know it is
-  // perpendicular to the view axis:
-  vtkVector3d delta = info.UpA * (0.5 * metrics.Dimensions[0]);
-  vtkVector3d leftActor = info.Position - delta;
-  vtkVector3d rightActor = info.Position + delta;
-  vtkVector2d leftDisplay;
-  vtkVector2d rightDisplay;
-  this->ActorToDisplay(leftActor, leftDisplay);
-  this->ActorToDisplay(rightActor, rightDisplay);
-  info.ScaleDisplayToActor = static_cast<double>(metrics.Dimensions[0]) /
-      (rightDisplay - leftDisplay).Norm();
-
-  // Compute the corners of the quad. Actor coordinates are used to create the
-  // background rectangle, display coordinates are used to detect collisions.
-  // Note that we make this a little bigger (4px) than a tight bbox to give a
-  // little breathing room around the text.
-  vtkVector3d halfWidth =
-      ((0.5 * metrics.Dimensions[0] + 2) * info.ScaleDisplayToActor)
-      * info.RightA;
-  vtkVector3d halfHeight =
-      ((0.5 * metrics.Dimensions[1] + 2) * info.ScaleDisplayToActor)
-      * info.UpA;
-  info.TLa = info.Position + halfHeight - halfWidth;
-  info.TRa = info.Position + halfHeight + halfWidth;
-  info.BRa = info.Position - halfHeight + halfWidth;
-  info.BLa = info.Position - halfHeight - halfWidth;
-  this->ActorToDisplay(info.TLa, info.TLd);
-  this->ActorToDisplay(info.TRa, info.TRd);
-  this->ActorToDisplay(info.BRa, info.BRd);
-  this->ActorToDisplay(info.BLa, info.BLd);
+  info.TLd = (displayPosition + displayHalfHeight - displayHalfWidth).Cast<int>();
+  info.TRd = (displayPosition + displayHalfHeight + displayHalfWidth).Cast<int>();
+  info.BRd = (displayPosition - displayHalfHeight + displayHalfWidth).Cast<int>();
+  info.BLd = (displayPosition - displayHalfHeight - displayHalfWidth).Cast<int>();
 }
 
 // Anonymous namespace for some TestOverlap helpers:
@@ -1394,7 +1265,7 @@ void perp(vtkVector2i &vec)
 // Return true if t is positive for all points in other (e.g. all points in
 // 'other' are outside the polygon containing 'point').
 bool allOutside(const vtkVector2i &point, const vtkVector2i &direction,
-                const LabelInfo &other)
+                const PDILabelInfo &other)
 {
   vtkVector2i testVector;
 
@@ -1429,7 +1300,7 @@ bool allOutside(const vtkVector2i &point, const vtkVector2i &direction,
 // by traversing the corners counter-clockwise and using the perp() function.
 // Use allOutside() to determine whether the other polygon is outside the edge.
 // Return true if the axis separates the polygons.
-bool testAxis(const LabelInfo &poly, const vtkVector2i &edgeStart,
+bool testAxis(const PDILabelInfo &poly, const vtkVector2i &edgeStart,
               const vtkVector2i &edgeEnd)
 {
   // Vector pointing out of polygon:
@@ -1446,8 +1317,8 @@ bool testAxis(const LabelInfo &poly, const vtkVector2i &edgeStart,
 // Ref: http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
 // In essence, look for an axis that separates the two rectangles.
 // Return true if overlap occurs.
-bool vtkLabeledContourPolyDataItem::Private::TestOverlap(const LabelInfo &a,
-                                                   const LabelInfo &b)
+bool vtkLabeledContourPolyDataItem::Private::TestOverlap(const PDILabelInfo &a,
+                                                   const PDILabelInfo &b)
 {
   // Note that the order of the points matters, must be CCW to get the correct
   // perpendicular vector:
