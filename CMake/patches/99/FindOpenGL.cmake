@@ -331,7 +331,9 @@ else()
      (NOT OPENGL_USE_EGL AND
           OPENGL_opengl_LIBRARY AND
           OPENGL_glx_LIBRARY) OR
-     (    OPENGL_USE_EGL))
+     (NOT OPENGL_USE_GLES3 AND
+      NOT OPENGL_USE_GLES2 AND
+          OPENGL_USE_EGL))
     list(APPEND _OpenGL_REQUIRED_VARS OPENGL_opengl_LIBRARY)
   endif()
 
