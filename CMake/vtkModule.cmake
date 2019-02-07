@@ -503,6 +503,7 @@ function (vtk_module_scan)
     # Use argument splitting.
     string(REGEX REPLACE "( |\n)+" ";" _vtk_scan_kit_args "${_vtk_scan_kit_args}")
     _vtk_module_parse_kit_args(_vtk_scan_kit_name ${_vtk_scan_kit_args})
+    _vtk_module_debug(kit "@_vtk_scan_kit_name@ declared by @_vtk_scan_kit_file@")
 
     list(APPEND _vtk_scan_all_kits
       "${_vtk_scan_kit_name}")
@@ -535,6 +536,7 @@ function (vtk_module_scan)
     # Use argument splitting.
     string(REGEX REPLACE "( |\n)+" ";" _vtk_scan_module_args "${_vtk_scan_module_args}")
     _vtk_module_parse_module_args(_vtk_scan_module_name ${_vtk_scan_module_args})
+    _vtk_module_debug(module "@_vtk_scan_module_name@ declared by @_vtk_scan_module_file@")
 
     # Determine whether we should provide a user-visible option for this
     # module.
