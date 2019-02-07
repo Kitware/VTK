@@ -735,9 +735,11 @@ function (vtk_module_scan)
   # as arguments.
   foreach (_vtk_scan_request_module IN LISTS _vtk_scan_REQUEST_MODULES)
     set("_vtk_scan_provide_${_vtk_scan_request_module}" ON)
+    _vtk_module_debug(provide "@_vtk_scan_request_module@ is provided via `REQUEST_MODULES`")
   endforeach ()
   foreach (_vtk_scan_reject_module IN LISTS _vtk_scan_REJECT_MODULES)
     set("_vtk_scan_provide_${_vtk_scan_reject_module}" OFF)
+    _vtk_module_debug(provide "@_vtk_scan_reject_module@ is not provided via `REJECT_MODULES`")
   endforeach ()
 
   # Traverse the graph classifying the quad-state for enabling modules into a
@@ -753,6 +755,7 @@ function (vtk_module_scan)
       # Mark enabled modules as to-be-provided. Any errors with requiring a
       # disabled module will be dealt with later.
       set("_vtk_scan_provide_${_vtk_scan_module}" ON)
+      _vtk_module_debug(provide "@_vtk_scan_module@ is provided due to `YES` setting")
     elseif (_vtk_scan_enable_${_vtk_scan_module} STREQUAL "WANT")
       # Check to see if we can provide this module by checking of any of its
       # dependencies have been disabled.
@@ -763,9 +766,11 @@ function (vtk_module_scan)
       endif ()
 
       set("_vtk_scan_provide_${_vtk_scan_module}" ON)
+      _vtk_module_debug(provide "@_vtk_scan_module@ is provided due to `WANT` setting")
       foreach (_vtk_scan_module_depend IN LISTS "${_vtk_scan_module}_DEPENDS" "${_vtk_scan_module}_PRIVATE_DEPENDS" _vtk_scan_test_depends)
         if (DEFINED "_vtk_scan_provide_${_vtk_scan_module_depend}" AND NOT _vtk_scan_provide_${_vtk_scan_module_depend})
           set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
+          _vtk_module_debug(provide "@_vtk_scan_module@ is not provided due to not provided dependency @_vtk_scan_module_depend@")
           break ()
         endif ()
       endforeach ()
@@ -774,12 +779,14 @@ function (vtk_module_scan)
       foreach (_vtk_scan_module_depend IN LISTS "${_vtk_scan_module}_DEPENDS" "${_vtk_scan_module}_PRIVATE_DEPENDS" _vtk_scan_test_depends)
         if (DEFINED "_vtk_scan_provide_${_vtk_scan_module_depend}" AND NOT _vtk_scan_provide_${_vtk_scan_module_depend})
           set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
+          _vtk_module_debug(provide "@_vtk_scan_module@ is not provided due to not provided dependency @_vtk_scan_module_depend@")
           break ()
         endif ()
       endforeach ()
     elseif (_vtk_scan_enable_${_vtk_scan_module} STREQUAL "NO")
       # Disable the module.
       set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
+      _vtk_module_debug(provide "@_vtk_scan_module@ is not provided due to `NO` setting")
     endif ()
 
     # Collect disabled modules into a list.
@@ -855,9 +862,13 @@ function (vtk_module_scan)
         set("_vtk_scan_provide_${_vtk_scan_module_depend}" ON)
 
         if (NOT _vtk_scan_module_depend IN_LIST _vtk_scan_current_modules)
+          if (NOT TARGET "${_vtk_scan_module_depend}")
+            _vtk_module_debug(provide "@_vtk_scan_module_depend@ is external and required due to dependency from @_vtk_scan_module@")
+          endif ()
           list(APPEND _vtk_scan_required_modules
             "${_vtk_scan_module_depend}")
         else ()
+          _vtk_module_debug(provide "@_vtk_scan_module_depend@ is provided due to dependency from @_vtk_scan_module@")
           list(APPEND _vtk_scan_provided_modules
             "${_vtk_scan_module_depend}")
         endif ()
