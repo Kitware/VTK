@@ -672,6 +672,8 @@ function (vtk_module_scan)
           "The ${_vtk_scan_module_name} belongs to the "
           "${${_vtk_scan_module_name}_KIT} kit, but it has not been scanned.")
       endif ()
+
+      _vtk_module_debug(kit "@_vtk_scan_module_name@ belongs to the ${${_vtk_scan_module_name}_KIT} kit")
     endif ()
 
     # Set properties for building.
