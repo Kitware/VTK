@@ -16,6 +16,36 @@ APIs. They may start with `_vtk_module`, but they are intended for use in cases
 of language wrappers or dealing with trickier third party packages.
 #]==]
 
+#[==[.md INTERNAL
+## Debugging
+
+The `_vtk_module_debug` function is provided to assist in debugging. It is
+controlled by the `_vtk_module_log` variable which contains a list of "domains"
+to debug.
+
+```
+_vtk_module_debug(<domain> <format>)
+```
+
+If the `domain` is enabled for debugging, the `format` argument is configured
+and printed. It should contain `@` variable expansions to replace rather than
+it being done outside. This helps to avoid the cost of generating large strings
+when debugging is disabled.
+#]==]
+
+function (_vtk_module_debug domain format)
+  if (NOT _vtk_module_log STREQUAL "ALL" AND
+      NOT domain IN_LIST _vtk_module_log)
+    return ()
+  endif ()
+
+  string(CONFIGURE "${format}" _vtk_module_debug_msg)
+  if (_vtk_module_debug_msg)
+    message(STATUS
+      "VTK module debug ${domain}: ${_vtk_module_debug_msg}")
+  endif ()
+endfunction ()
+
 # TODO: Support finding `vtk.module` and `vtk.kit` contents in the
 # `CMakeLists.txt` files for the module via a comment header.
 
