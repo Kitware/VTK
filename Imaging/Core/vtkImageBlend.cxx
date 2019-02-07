@@ -817,6 +817,19 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
   vtkImageStencilIterator<T> outIter(outData, stencil, extent);
   vtkImageIterator<double> tmpIter(tmpData, extent);
 
+  double minA, maxA;
+  if (outData->GetScalarType() == VTK_DOUBLE ||
+      outData->GetScalarType() == VTK_FLOAT)
+  {
+    minA = 0.0;
+    maxA = 1.0;
+  }
+  else
+  {
+    minA = static_cast<double>(outData->GetScalarTypeMin());
+    maxA = static_cast<double>(outData->GetScalarTypeMax());
+  }
+
   double *tmpPtr = tmpIter.BeginSpan();
   double *tmpSpanEndPtr = tmpIter.EndSpan();
   while (!outIter.IsAtEnd())
@@ -838,6 +851,7 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
           outPtr[0] = T(tmpPtr[0]*factor);
           outPtr[1] = T(tmpPtr[1]*factor);
           outPtr[2] = T(tmpPtr[2]*factor);
+          outPtr[3] = T(tmpPtr[3] * (maxA - minA) + minA);
           tmpPtr += 4;
           outPtr += outC;
         }
@@ -852,6 +866,7 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
             factor = 1.0/tmpPtr[1];
           }
           outPtr[0] = T(tmpPtr[0]*factor);
+          outPtr[1] = T(tmpPtr[1] * (maxA - minA) + minA);
           tmpPtr += 2;
           outPtr += outC;
         }
