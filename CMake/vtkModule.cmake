@@ -633,6 +633,7 @@ function (vtk_module_scan)
             PROPERTY
               TYPE INTERNAL)
         endif ()
+        _vtk_module_debug(module "@_vtk_scan_module_name@ hidden by its `CONDITION`")
         continue ()
       endif ()
     endif ()
