@@ -776,7 +776,7 @@ function (vtk_module_scan)
           set_property(GLOBAL APPEND
             PROPERTY
               "_vtk_module_test_modules" "${_vtk_scan_module}")
-          set(_vtk_scan_test_wants "_vtk_scan_wants_marker;${${_vtk_scan_module}_TEST_DEPENDS}")
+          set(_vtk_scan_test_wants _vtk_scan_wants_marker ${${_vtk_scan_module}_TEST_DEPENDS})
         elseif (_vtk_scan_ENABLE_TESTS STREQUAL "DEFAULT")
           set_property(GLOBAL APPEND
             PROPERTY
