@@ -137,6 +137,8 @@
 #include "vtkObjectBase.h"
 #include "vtkSetGet.h" // needed for macros
 
+#include <string> // needed for std::string
+
 #if defined(_MSC_VER)
 #include <sal.h>	// Needed for _In_z_ etc annotations
 #endif
