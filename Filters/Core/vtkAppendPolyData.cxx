@@ -127,13 +127,10 @@ void vtkAppendPolyData::SetInputConnectionByNumber(int num,
   this->SetNthInputConnection(0, num, input);
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 //----------------------------------------------------------------------------
 int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
     vtkPolyData* inputs[], int numInputs)
 {
-  VTK_LEGACY_BODY(vtkAppendPolyData::ExecuteAppend, "VTK 9.0");
-
   int idx;
   vtkPolyData *ds;
   vtkPoints  *inPts;
@@ -448,8 +445,6 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   return 1;
 }
 
-#endif // !defined(VTK_LEGACY_REMOVE)
-
 //----------------------------------------------------------------------------
 // This method is much too long, and has to be broken up!
 // Append data sets into single polygonal data set.
@@ -579,7 +574,6 @@ void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 //----------------------------------------------------------------------------
 namespace {
 struct AppendDataWorker
@@ -613,8 +607,6 @@ struct AppendDataWorker
 void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
                                    vtkIdType offset)
 {
-  VTK_LEGACY_BODY(vtkAppendPolyData::ExecuteAppend, "VTK 9.0");
-
   assert("Arrays have same number of components." &&
          src->GetNumberOfComponents() == dest->GetNumberOfComponents());
   assert("Destination array has enough tuples." &&
@@ -633,8 +625,6 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
 vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
                                           vtkIdType offset)
 {
-  VTK_LEGACY_BODY(vtkAppendPolyData::ExecuteAppend, "VTK 9.0");
-
   vtkIdType *pSrc, *end, *pNum;
 
   if (src == nullptr)
@@ -664,7 +654,6 @@ vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
 
   return pDest;
 }
-#endif // !defined(VTK_LEGACY_REMOVE)
 
 //----------------------------------------------------------------------------
 int vtkAppendPolyData::FillInputPortInformation(int port, vtkInformation *info)
