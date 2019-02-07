@@ -117,7 +117,7 @@ void vtkOutputWindowDisplayErrorText(const char* fname,
   vtkLogger::Log(vtkLogger::VERBOSITY_ERROR, fname, lineno, message);
 
   std::ostringstream vtkmsg;
-  vtkmsg << "ERROR: In " << fname << ", line " << lineno << "\n" << message;
+  vtkmsg << "ERROR: In " << fname << ", line " << lineno << "\n" << message << "\n\n";
   if (sourceObj && sourceObj->HasObserver(vtkCommand::ErrorEvent))
   {
     sourceObj->InvokeEvent(vtkCommand::ErrorEvent, const_cast<char*>(vtkmsg.str().c_str()));
@@ -135,7 +135,7 @@ void vtkOutputWindowDisplayWarningText(const char* fname,
   vtkLogger::Log(vtkLogger::VERBOSITY_WARNING, fname, lineno, message);
 
   std::ostringstream vtkmsg;
-  vtkmsg << "Warning: In " << fname << ", line " << lineno << "\n" << message;
+  vtkmsg << "Warning: In " << fname << ", line " << lineno << "\n" << message << "\n\n";
   if (sourceObj && sourceObj->HasObserver(vtkCommand::WarningEvent))
   {
     sourceObj->InvokeEvent(vtkCommand::WarningEvent, const_cast<char*>(vtkmsg.str().c_str()));
@@ -155,7 +155,7 @@ void vtkOutputWindowDisplayGenericWarningText(const char* fname, int lineno, con
   {
     vtkOutputWindowPrivateAccessor helper_raii(win);
     std::ostringstream vtkmsg;
-    vtkmsg << "Generic Warning: In " << fname << ", line " << lineno << "\n" << message;
+    vtkmsg << "Generic Warning: In " << fname << ", line " << lineno << "\n" << message << "\n\n";
     win->DisplayGenericWarningText(vtkmsg.str().c_str());
   }
 }
@@ -169,7 +169,7 @@ void vtkOutputWindowDisplayDebugText(const char* fname,
   {
     vtkOutputWindowPrivateAccessor helper_raii(win);
     std::ostringstream vtkmsg;
-    vtkmsg << "Debug: In " << fname << ", line " << lineno << "\n" << message;
+    vtkmsg << "Debug: In " << fname << ", line " << lineno << "\n" << message << "\n\n";
     win->DisplayDebugText(vtkmsg.str().c_str());
   }
 }

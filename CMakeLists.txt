@@ -107,7 +107,11 @@ set_property(CACHE VTK_BUILD_TESTING
 
 #-----------------------------------------------------------------------------
 # Add an option to enable/disable logging support.
-option(VTK_ENABLE_LOGGING "Enable logging support." ON)
+# presently not supported on andriod builds due to issues
+# building loguru with backtrace capabilities.
+cmake_dependent_option(VTK_ENABLE_LOGGING
+  "Enable logging support." ON
+  "NOT VTK_ANDROID_BUILD" OFF)
 mark_as_advanced(VTK_ENABLE_LOGGING)
 
 include(vtkEncodeString)

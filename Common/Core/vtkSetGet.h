@@ -561,7 +561,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*, in
     {                                                                \
       vtkmsg << "(nullptr): ";                                       \
     }                                                                \
-    vtkmsg << "" x << "\n\n";                                        \
+    vtkmsg << "" x;                                                  \
     vtkOutputWindowDisplayErrorText(                                 \
         __FILE__, __LINE__, vtkmsg.str(), _object);                  \
     vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();            \
@@ -592,7 +592,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*, in
     {                                                                \
       vtkmsg << "(nullptr): ";                                       \
     }                                                                \
-    vtkmsg << "" x << "\n\n";                                        \
+    vtkmsg << "" x;                                                  \
     vtkOutputWindowDisplayWarningText(                               \
         __FILE__, __LINE__, vtkmsg.str(), _object);                  \
     vtkmsg.rdbuf()->freeze(0);                                       \
@@ -626,7 +626,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*, in
     {                                                                            \
       vtkmsg << "(nullptr): ";                                                   \
     }                                                                            \
-    vtkmsg << "" x << "\n\n";                                                    \
+    vtkmsg << "" x;                                                              \
     vtkOutputWindowDisplayDebugText(__FILE__, __LINE__, vtkmsg.str(), _object);  \
     vtkmsg.rdbuf()->freeze(0);                                                   \
   }                                                                              \
