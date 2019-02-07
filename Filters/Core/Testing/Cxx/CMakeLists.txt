@@ -1,6 +1,5 @@
 vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestAppendArcLength.cxx,NO_VALID
-  TestAppendDataSets.cxx,NO_VALID
   TestAppendFilter.cxx,NO_VALID
   TestAppendMolecule.cxx,NO_VALID
   TestAppendPolyData.cxx,NO_VALID
