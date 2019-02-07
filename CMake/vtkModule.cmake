@@ -807,6 +807,13 @@ function (vtk_module_scan)
           endif ()
         endif ()
 
+        if (DEFINED "_vtk_scan_provide_${_vtk_scan_module_depend}")
+          if (NOT _vtk_scan_provide_${_vtk_scan_module_depend})
+            message(FATAL_ERROR
+              "The `${_vtk_scan_module_depend} should be provided, but is disabled.")
+          endif ()
+          continue ()
+        endif ()
         set("_vtk_scan_provide_${_vtk_scan_module_depend}" ON)
 
         if (NOT _vtk_scan_module_depend IN_LIST _vtk_scan_current_modules)
