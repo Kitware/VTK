@@ -577,6 +577,7 @@ function (vtk_module_scan)
 
       if (NOT VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe} STREQUAL "DEFAULT")
         set("_vtk_scan_enable_${_vtk_scan_module_name}" "${VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}}")
+        _vtk_module_debug(enable "@_vtk_scan_module_name@ is `${_vtk_scan_enable_${_vtk_scan_module_name}}` by cache value")
       endif ()
 
       # Check the state of any groups the module belongs to.
@@ -614,6 +615,7 @@ function (vtk_module_scan)
 
         if (NOT _vtk_scan_group_enable STREQUAL "DEFAULT")
           set("_vtk_scan_enable_${_vtk_scan_module_name}" "${_vtk_scan_group_enable}")
+          _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using group `@_vtk_scan_group@` setting: @_vtk_scan_group_enable@")
         endif ()
       endforeach ()
 
@@ -642,6 +644,7 @@ function (vtk_module_scan)
       else ()
         set("_vtk_scan_enable_${_vtk_scan_module_name}" "DONT_WANT")
       endif ()
+      _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using `WANT_BY_DEFAULT`: ${_vtk_scan_enable_${_vtk_scan_module_name}}")
     endif ()
 
     list(APPEND _vtk_scan_all_modules
