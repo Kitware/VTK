@@ -335,6 +335,22 @@ public:
    */
   static Verbosity GetCurrentVerbosityCutoff();
 
+  /**
+   * Convenience function to convert an integer to matching verbosity level. If
+   * val is less than or equal to vtkLogger::VERBOSITY_INVALID, then
+   * vtkLogger::VERBOSITY_INVALID is returned. If value is greater than
+   * vtkLogger::VERBOSITY_MAX, then vtkLogger::VERBOSITY_MAX is returned.
+   */
+  static Verbosity ConvertToVerbosity(int value);
+
+  /**
+   * Convenience function to convert a string to matching verbosity level.
+   * vtkLogger::VERBOSITY_INVALID will be return for invalid strings.
+   * Accepted string values are OFF, ERROR, WARNING, INFO, TRACE, MAX, INVALID or ASCII
+   * representation for an integer in the range [-9,9].
+   */
+  static Verbosity ConvertToVerbosity(const char* value);
+
   //@{
   /**
    * @internal
@@ -370,7 +386,6 @@ public:
     LSInternals* Internals;
   };
 #endif
-
   //@}
 protected:
   vtkLogger();

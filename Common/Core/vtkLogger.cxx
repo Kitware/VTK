@@ -252,3 +252,57 @@ void vtkLogger::Logf(vtkLogger::Verbosity verbosity,
   (void)format;
 #endif
 }
+
+//----------------------------------------------------------------------------
+vtkLogger::Verbosity vtkLogger::ConvertToVerbosity(int value)
+{
+  if (value <= vtkLogger::VERBOSITY_INVALID)
+  {
+    return vtkLogger::VERBOSITY_INVALID;
+  }
+  else if (value > vtkLogger::VERBOSITY_MAX)
+  {
+    return vtkLogger::VERBOSITY_MAX;
+  }
+  return static_cast<vtkLogger::Verbosity>(value);
+}
+
+//----------------------------------------------------------------------------
+vtkLogger::Verbosity vtkLogger::ConvertToVerbosity(const char* text)
+{
+  if (text != nullptr)
+  {
+    try
+    {
+      return vtkLogger::ConvertToVerbosity(std::stoi(text));
+    }
+    catch (std::exception&)
+    {
+      if (std::string("OFF").compare(text) == 0)
+      {
+        return vtkLogger::VERBOSITY_OFF;
+      }
+      else if (std::string("ERROR").compare(text) == 0)
+      {
+        return vtkLogger::VERBOSITY_ERROR;
+      }
+      else if (std::string("WARNING").compare(text) == 0)
+      {
+        return vtkLogger::VERBOSITY_WARNING;
+      }
+      else if (std::string("INFO").compare(text) == 0)
+      {
+        return vtkLogger::VERBOSITY_INFO;
+      }
+      else if (std::string("TRACE").compare(text) == 0)
+      {
+        return vtkLogger::VERBOSITY_TRACE;
+      }
+      else if (std::string("MAX").compare(text) == 0)
+      {
+        return vtkLogger::VERBOSITY_MAX;
+      }
+    }
+  }
+  return vtkLogger::VERBOSITY_INVALID;
+}
