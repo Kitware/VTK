@@ -1,6 +1,7 @@
 set(classes
   vtkAppendArcLength
   vtkAppendCompositeDataLeaves
+  vtkAppendDataSets
   vtkAppendFilter
   vtkAppendPolyData
   vtkAppendSelection
