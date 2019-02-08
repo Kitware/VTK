@@ -92,6 +92,11 @@ void vtkPlotHistogram2D::GetBounds(double bounds[4])
   if (this->Input)
   {
     std::copy(this->Input->GetBounds(), this->Input->GetBounds() + 4, bounds);
+
+    // Adding a spacing increment is necessary in order to draw in the context 2D correctly
+    double* spacing = this->Input->GetSpacing();
+    bounds[1] += spacing[0];
+    bounds[3] += spacing[1];
   }
   else
   {
