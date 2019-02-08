@@ -50,6 +50,7 @@
 #include <vtkNew.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkTesting.h>
+#include <vtkLogger.h>
 
 namespace {
 
@@ -69,6 +70,7 @@ static void MakeCurrentCallback(vtkObject* vtkNotUsed(caller),
                                 void * vtkNotUsed(clientData),
                                 void * vtkNotUsed(callData))
 {
+  vtkLogScopeFunction(1);
   if (initialized)
   {
     glutSetWindow(windowId);
@@ -79,10 +81,21 @@ static void MakeCurrentCallback(vtkObject* vtkNotUsed(caller),
    whenever the window needs to be re-painted. */
 void display()
 {
+  vtkLogScopeFunction(INFO);
   if (!initialized)
   {
-    vtkNew<vtkExternalOpenGLRenderWindow> renWin;
-    externalVTKWidget->SetRenderWindow(renWin);
+    vtkLogScopef(INFO, "do-initialize");
+    // since `handleResize` may get called before display, we may have already
+    // created and resized the vtkExternalOpenGLRenderWindow, hence we don't
+    // recreate it here.
+    auto renWin = externalVTKWidget->GetRenderWindow();
+
+    // since our example here is not setting up the `glViewport`, we don't want
+    // the vtkExternalOpenGLRenderWindow to update its size based on the
+    // glViewport hence we must disable automatic position and size.
+    renWin->AutomaticWindowPositionAndResizeOff();
+
+    assert(renWin != nullptr);
     vtkNew<vtkCallbackCommand> callback;
     callback->SetCallback(MakeCurrentCallback);
     renWin->AddObserver(vtkCommand::WindowMakeCurrentEvent,
@@ -128,12 +141,14 @@ void display()
   GLfloat ambient[] = {1.0f, 1.0f, 0.2f,  1.0f};
   glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
 
+  vtkLogScopef(INFO, "do-vtk-render");
   externalVTKWidget->GetRenderWindow()->Render();
   glutSwapBuffers();
 }
 
 void test()
 {
+  vtkLogScopeFunction(INFO);
   bool interactiveMode = false;
   vtkTesting* t = vtkTesting::New();
   for(int cc = 1; cc < NumArgs; cc++)
@@ -160,6 +175,7 @@ void test()
 
 void handleResize(int w, int h)
 {
+  vtkLogScopef(INFO, "handleResize: %d, %d", w, h);
   externalVTKWidget->GetRenderWindow()->SetSize(w, h);
   glutPostRedisplay();
 }
@@ -178,6 +194,7 @@ int TestGLUTRenderWindow(int argc, char* argv[])
   ArgV = argv;
   glutInit(&argc, argv);                 // Initialize GLUT
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL);
+  vtkLog(INFO, "glutInitWindowSize: " << windowW << ", " << windowH);
   glutInitWindowSize(windowW, windowH);   // Set the window's initial width & height
   glutInitWindowPosition(101, 201); // Position the window's initial top-left corner
   windowId = glutCreateWindow("VTK External Window Test"); // Create a window with the given title
