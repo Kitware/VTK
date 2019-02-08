@@ -122,27 +122,6 @@ int vtkAppendDataSets::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  bool reallyMergePoints = false;
-  if (this->MergePoints == 1 &&
-      inputVector[0]->GetNumberOfInformationObjects() > 0 )
-  {
-    reallyMergePoints = true;
-
-    // ensure that none of the inputs has ghost-cells.
-    // (originally the code was checking for ghost cells only on 1st input,
-    // that's not sufficient).
-    for (int cc = 0; cc < inputVector[0]->GetNumberOfInformationObjects(); cc++)
-    {
-      vtkDataSet * tempData = vtkDataSet::GetData(inputVector[0], cc);
-      if (tempData->HasAnyGhostCells())
-      {
-        vtkDebugMacro(<< "Ghost cells present, so points will not be merged");
-        reallyMergePoints = false;
-        break;
-      }
-    }
-  }
-
   // get the output info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
