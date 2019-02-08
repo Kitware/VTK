@@ -48,8 +48,10 @@ extern wchar_t* _Py_DecodeUTF8_surrogateescape(const char* s, Py_ssize_t size);
 #define VTK_PATH_SEPARATOR "/"
 #endif
 
-#define VTKPY_DEBUG_MESSAGE(x) vtkLog(INFO, x)
-#define VTKPY_DEBUG_MESSAGE_VV(x) vtkLog(1, x)
+#define VTKPY_DEBUG_MESSAGE(x)                                                                     \
+  vtkVLog(vtkLogger::ConvertToVerbosity(vtkPythonInterpreter::GetLogVerbosity()), x)
+#define VTKPY_DEBUG_MESSAGE_VV(x)                                                                  \
+  vtkVLog(vtkLogger::ConvertToVerbosity(vtkPythonInterpreter::GetLogVerbosity() + 1), x)
 
 namespace
 {
@@ -184,7 +186,7 @@ bool vtkPythonInterpreter::CaptureStdin = false;
 bool vtkPythonInterpreter::ConsoleBuffering = false;
 std::string vtkPythonInterpreter::StdErrBuffer;
 std::string vtkPythonInterpreter::StdOutBuffer;
-int vtkPythonInterpreter::PythonVerboseFlag = 0;
+int vtkPythonInterpreter::LogVerbosity = vtkLogger::VERBOSITY_TRACE;
 
 vtkStandardNewMacro(vtkPythonInterpreter);
 //----------------------------------------------------------------------------
@@ -364,24 +366,34 @@ void vtkPythonInterpreter::PrependPythonPath(const char* dir)
 int vtkPythonInterpreter::PyMain(int argc, char** argv)
 {
   vtksys::SystemTools::EnableMSVCDebugHook();
-  vtkPythonInterpreter::PythonVerboseFlag = 0;
+
+  int count_v = 0;
   for (int cc = 0; cc < argc; ++cc)
   {
     if (argv[cc] && strcmp(argv[cc], "-v") == 0)
     {
-      vtkPythonInterpreter::PythonVerboseFlag += 1;
+      ++count_v;
     }
     if (argv[cc] && strcmp(argv[cc], "-vv") == 0)
     {
-      vtkPythonInterpreter::PythonVerboseFlag = 2;
+      count_v += 2;
     }
   }
 
-  // update log verbosity such that default is to only show errors/warnings.
-  // this avoids show the standard loguru INFO messages for executable args etc.
-  // unless `-v` was specified.
-  vtkLogger::SetStderrVerbosity(
-    static_cast<vtkLogger::Verbosity>(vtkPythonInterpreter::PythonVerboseFlag - 1));
+  if (count_v > 0)
+  {
+    // change the vtkPythonInterpreter's log verbosity. We only touch it
+    // if the command line arguments explicitly requested a certain verbosity.
+    vtkPythonInterpreter::SetLogVerbosity(vtkLogger::VERBOSITY_INFO);
+    vtkLogger::SetStderrVerbosity(vtkLogger::ConvertToVerbosity(count_v - 1));
+  }
+  else
+  {
+    // update log verbosity such that default is to only show errors/warnings.
+    // this avoids show the standard loguru INFO messages for executable args etc.
+    // unless `-v` was specified.
+    vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_WARNING);
+  }
 
   vtkLogger::Init(argc, argv, nullptr); // since `-v` and `-vv` are parsed as Python verbosity flags
                                         // and not log verbosity flags.
@@ -681,13 +693,33 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
   };
 
   vtkNew<vtkResourceFileLocator> locator;
-  if (vtkPythonInterpreter::GetPythonVerboseFlag() > 1)
-  {
-    locator->SetLogVerbosity(vtkLogger::VERBOSITY_1);
-  }
+  locator->SetLogVerbosity(vtkPythonInterpreter::GetLogVerbosity() + 1);
+
   std::string path = locator->Locate(vtkdir, prefixes, "vtkmodules/__init__.py");
   if (!path.empty())
   {
     vtkSafePrependPythonPath(path);
   }
 }
+
+//----------------------------------------------------------------------------
+void vtkPythonInterpreter::SetLogVerbosity(int val)
+{
+  vtkPythonInterpreter::LogVerbosity = vtkLogger::ConvertToVerbosity(val);
+}
+
+//----------------------------------------------------------------------------
+int vtkPythonInterpreter::GetLogVerbosity()
+{
+  return vtkPythonInterpreter::LogVerbosity;
+}
+
+#if !defined(VTK_LEGACY_REMOVE)
+//----------------------------------------------------------------------------
+int vtkPythonInterpreter::GetPythonVerboseFlag()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkPythonInterpreter::GetPythonVerboseFlag, "VTK 8.3", vtkPythonInterpreter::GetLogVerbosity);
+  return vtkPythonInterpreter::LogVerbosity == vtkLogger::VERBOSITY_INFO ? 1 : 0;
+}
+#endif

@@ -141,7 +141,16 @@ public:
   static bool GetCaptureStdin();
   //@}
 
-  static int GetPythonVerboseFlag() { return vtkPythonInterpreter::PythonVerboseFlag; }
+  VTK_LEGACY(static int GetPythonVerboseFlag());
+
+  //@{
+  /**
+   * Get/Set the verbosity level at which vtkPythonInterpreter should generate
+   * log output. Default value is `vtkLogger::VERBOSITY_TRACE`.
+   */
+  static void SetLogVerbosity(int);
+  static int GetLogVerbosity();
+  //@}
 
 protected:
   vtkPythonInterpreter();
@@ -193,7 +202,10 @@ private:
    */
   static void SetupVTKPythonPaths();
 
-  static int PythonVerboseFlag;
+  /**
+   * Verbosity level to use when logging info.
+   */
+  static int LogVerbosity;
 };
 
 // For tracking global interpreters
