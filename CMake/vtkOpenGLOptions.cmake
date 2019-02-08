@@ -34,13 +34,15 @@ mark_as_advanced(VTK_OPENGL_HAS_OSMESA)
 #-----------------------------------------------------------------------------
 # GLES variables
 #-----------------------------------------------------------------------------
-# OpenGLES implementation.
-option(VTK_OPENGL_USE_GLES "Use the OpenGL ES API" OFF)
-mark_as_advanced(VTK_OPENGL_USE_GLES)
 
 set(default_has_egl OFF)
 if (ANDROID)
+  set(VTK_OPENGL_USE_GLES ON CACHE INTERNAL "Use the OpenGL ES API")
   set(default_has_egl ON)
+else ()
+  # OpenGLES implementation.
+  option(VTK_OPENGL_USE_GLES "Use the OpenGL ES API" OFF)
+  mark_as_advanced(VTK_OPENGL_USE_GLES)
 endif ()
 
 #-----------------------------------------------------------------------------
