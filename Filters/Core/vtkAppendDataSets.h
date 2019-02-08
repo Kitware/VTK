@@ -67,14 +67,6 @@ public:
   vtkGetMacro(Tolerance, double);
   //@}
 
-  /**
-   * Force output to be a vtkUnstructuredGrid, regardless of whether all the inputs
-   * are vtkPolyData.
-   */
-  vtkSetMacro(ForceUnstructuredGridOutput, bool);
-  vtkGetMacro(ForceUnstructuredGridOutput, bool);
-  vtkBooleanMacro(ForceUnstructuredGridOutput, bool);
-
   //@{
   /**
    * Set/get the desired precision for the output types. See the documentation
@@ -91,7 +83,7 @@ protected:
 
   // Usual data generation method
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
-                        vtkInformationVector* outputVector) override;
+    vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
@@ -101,9 +93,6 @@ protected:
 
   // Tolerance used for point merging
   double Tolerance;
-
-  // If true, always make the output vtkUnstructuredGrid
-  bool ForceUnstructuredGridOutput;
 
   // Precision of output points.
   int OutputPointsPrecision;
@@ -116,11 +105,6 @@ private:
   // Caller must delete the returned vtkDataSetCollection.
   vtkDataSetCollection* GetNonEmptyInputs(vtkInformationVector ** inputVector);
 
-  void AppendArrays(int attributesType,
-                    vtkInformationVector **inputVector,
-                    vtkIdType* globalIds,
-                    vtkDataSet* output,
-                    vtkIdType totalNumberOfElements);
 };
 
 #endif

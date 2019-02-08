@@ -115,11 +115,8 @@ public:
   vtkGetMacro(OutputPointsPrecision,int);
   //@}
 
-  /**
-   * @deprecated Use this filter directly.
-   */
-  VTK_LEGACY(int ExecuteAppend(vtkPolyData* output,
-    vtkPolyData* inputs[], int numInputs) VTK_SIZEHINT(inputs, numInputs));
+  int ExecuteAppend(vtkPolyData* output,
+    vtkPolyData* inputs[], int numInputs) VTK_SIZEHINT(inputs, numInputs);
 
 protected:
   vtkAppendPolyData();
@@ -136,19 +133,13 @@ protected:
                           vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int, vtkInformation *) override;
 
-  /**
-   *  An efficient templated way to append data.
-   * @deprecated Only needed for deprecated public member function ExecuteAppend
-   */
-  VTK_LEGACY(void AppendData(vtkDataArray *dest, vtkDataArray *src, vtkIdType offset));
+  // An efficient templated way to append data.
+  void AppendData(vtkDataArray *dest, vtkDataArray *src, vtkIdType offset);
 
 
-  /**
-   * An efficient way to append cells.
-   * @deprecated Only needed for deprecated public member function ExecuteAppend
-   */
-  VTK_LEGACY(vtkIdType *AppendCells(vtkIdType *pDest, vtkCellArray *src,
-                                    vtkIdType offset));
+  // An efficient way to append cells.
+  vtkIdType *AppendCells(vtkIdType *pDest, vtkCellArray *src,
+                         vtkIdType offset);
 
  private:
   // hide the superclass' AddInput() from the user and the compiler

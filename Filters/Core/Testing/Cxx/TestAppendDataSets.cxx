@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestAppendPolyData.cxx
+  Module:    TestAppendDataSets.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -233,6 +233,7 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
     if (numInputTuples != outputArray->GetNumberOfTuples())
     {
       std::cerr << "Number of tuples in output does not match total number of tuples in input arrays\n";
+      std::cerr << "Expected " << numInputTuples << ", but got " << outputArray->GetNumberOfTuples() << std::endl;
       return 0;
     }
 
