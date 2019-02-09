@@ -60,5 +60,16 @@ int TestLogger(int, char* [])
 
   // remove callback since the user-data becomes invalid out of this function.
   vtkLogger::RemoveCallback("sonnet-grabber");
+
+  // test out explicit scope start and end markers.
+  {
+    vtkLogStartScope(INFO, "scope-0");
+  }
+  vtkLogStartScopef(INFO, "scope-1", "scope %d", 1);
+  vtkLog(INFO, "some text");
+  vtkLogEndScope("scope-1");
+  {
+    vtkLogEndScope("scope-0");
+  }
   return EXIT_SUCCESS;
 }

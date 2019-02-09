@@ -96,6 +96,13 @@
  *  vtkLogScopef(INFO, "Will indent all log messages within this scope.");
  *  // in a function, you may use vtkLogScopeFunction(INFO)
  *
+ *  // scope can be explicitly started and closed by vtkLogStartScope (or
+ *  // vtkLogStartScopef) and vtkLogEndScope
+ *  vtkLogStartScope(INFO, "id-used-as-message");
+ *  vtkLogStartScopef(INFO, "id", "message-%d", 1);
+ *  vtkLogEndScope("id");
+ *  vtkLogEndScope("id-used-as-message");
+ *
  *  // alternatively, you can use streams instead of printf-style
  *  vtkLog(INFO, "I'm hungry for some " << 3.14159 << "!");
  *  vtkLogIf(INFO, ptr != nullptr, "ptr is " << "nullptr");
@@ -358,9 +365,14 @@ public:
    * Not intended for public use, please use the logging macros instead.
    */
   static void Log(Verbosity verbosity, const char* fname, unsigned int lineno, const char* txt);
+  static void StartScope(
+    Verbosity verbosity, const char* id, const char* fname, unsigned int lineno);
+  static void EndScope(const char* id);
 #if !defined(__WRAP__)
   static void Logf(Verbosity verbosity, const char* fname, unsigned int lineno,
       VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(4, 5);
+  static void StartScopef(Verbosity verbosity, const char* id, const char* fname,
+    unsigned int lineno, VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(5, 6);
 
   class VTKCOMMONCORE_EXPORT LogScopeRAII
   {
@@ -477,6 +489,23 @@ private:
   vtkVLogScopef(vtkLogger::VERBOSITY_##verbosity_name, __VA_ARGS__)
 
 #define vtkLogScopeFunction(verbosity_name) vtkLogScopef(verbosity_name, __func__)
+
+//@{
+/**
+ * Explicitly mark start and end of log scope. This is useful in cases where the
+ * start and end of the scope does not happen within the same C++ scope.
+ */
+#define vtkLogStartScope(verbosity_name, id)                                                       \
+  vtkLogger::StartScope(vtkLogger::VERBOSITY_##verbosity_name, id, __FILE__, __LINE__)
+#define vtkLogEndScope(id) vtkLogger::EndScope(id)
+
+#define vtkLogStartScopef(verbosity_name, id, ...)                                                 \
+  vtkLogger::StartScopef(vtkLogger::VERBOSITY_##verbosity_name, id, __FILE__, __LINE__, __VA_ARGS__)
+
+#define vtkVLogStartScope(level, id) vtkLogger::StartScope(level, id, __FILE__, __LINE__)
+#define vtkVLogStartScopef(level, id, ...)                                                         \
+  vtkLogger::StartScopef(level, id, __FILE__, __LINE__, __VA_ARGS__)
+//@}
 
 #else // if VTK_ENABLE_LOGGING
 
