@@ -69,11 +69,7 @@ static void parse_print_help(FILE *fp, const char *cmd, int multi)
   {
     fprintf(fp,
     "  --hints <file>    the hints file to use\n"
-    "  --types <file>    the type hierarchy file to use\n"
-    "  --concrete        force concrete class (ignored, deprecated)\n"
-    "  --abstract        force abstract class (ignored, deprecated)\n"
-    "  --vtkobject       vtkObjectBase-derived class (ignored, deprecated)\n"
-    "  --special         non-vtkObjectBase class (ignored, deprecated)\n");
+    "  --types <file>    the type hierarchy file to use\n");
   }
 }
 
@@ -269,7 +265,6 @@ static int parse_check_options(int argc, char *argv[], int multi)
   options.Files = NULL;
   options.InputFileName = NULL;
   options.OutputFileName = NULL;
-  options.HierarchyFileName = 0;
   options.NumberOfHierarchyFileNames = 0;
   options.HierarchyFileNames = NULL;
   options.NumberOfHintFileNames = 0;
@@ -377,7 +372,6 @@ static int parse_check_options(int argc, char *argv[], int multi)
       if (options.NumberOfHierarchyFileNames == 0)
       {
         options.HierarchyFileNames = (char **)malloc(sizeof(char *));
-        options.HierarchyFileName = argv[i]; // legacy
       }
       else if ((options.NumberOfHierarchyFileNames & (options.NumberOfHierarchyFileNames - 1)) == 0)
       {
@@ -385,14 +379,6 @@ static int parse_check_options(int argc, char *argv[], int multi)
           options.HierarchyFileNames, 2*options.NumberOfHierarchyFileNames*sizeof(char *));
       }
       options.HierarchyFileNames[options.NumberOfHierarchyFileNames++] = argv[i];
-    }
-    else if (strcmp(argv[i], "--vtkobject") == 0 ||
-             strcmp(argv[i], "--special") == 0 ||
-             strcmp(argv[i], "--abstract") == 0 ||
-             strcmp(argv[i], "--concrete") == 0)
-    {
-      fprintf(stderr, "Warning: the %s option is deprecated "
-              "and will be ignored.\n", argv[i]);
     }
   }
 
@@ -409,7 +395,6 @@ OptionInfo *vtkParse_GetCommandLineOptions(void)
 FileInfo *vtkParse_Main(int argc, char *argv[])
 {
   int argi;
-  int expected_files;
   FILE *ifile;
   FILE *hfile = 0;
   int nhfiles;
@@ -433,16 +418,13 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   /* read the args into the static OptionInfo struct */
   argi = parse_check_options(argn, args, 0);
 
-  /* was output file already specified by the "-o" option? */
-  expected_files = (options.OutputFileName == NULL ? 2 : 1);
-
   /* verify number of args, print usage if not valid */
   if (argi == 0)
   {
     free(args);
     exit(0);
   }
-  else if (argi < 0 || options.NumberOfFiles != expected_files)
+  else if (argi < 0 || options.NumberOfFiles != 1)
   {
     parse_print_help(stderr, args[0], 0);
     exit(1);
@@ -455,14 +437,6 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   {
     fprintf(stderr, "Error opening input file %s\n", options.InputFileName);
     exit(1);
-  }
-
-  if (options.OutputFileName == NULL &&
-      options.NumberOfFiles > 1)
-  {
-    /* allow outfile to be given after infile, if "-o" option not used */
-    options.OutputFileName = options.Files[1];
-    fprintf(stderr, "Deprecated: specify output file with \"-o\".\n");
   }
 
   /* free the expanded args */
