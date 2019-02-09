@@ -59,6 +59,8 @@ static void parse_print_help(FILE *fp, const char *cmd, int multi)
     "  -I <dir>          add an include directory\n"
     "  -D <macro[=def]>  define a preprocessor macro\n"
     "  -U <macro>        undefine a preprocessor macro\n"
+    "  -imacros <file>   read macros from a header file\n"
+    "  -undef            do not predefine platform macros\n"
     "  @<file>           read arguments from a file\n",
     parse_exename(cmd));
 
@@ -298,6 +300,20 @@ static int parse_check_options(int argc, char *argv[], int multi)
           options.Files, 2*options.NumberOfFiles*sizeof(char *));
       }
       options.Files[options.NumberOfFiles++] = argv[i];
+    }
+    else if (strcmp(argv[i], "-imacros") == 0)
+    {
+      i++;
+      if (i >= argc || argv[i][0] == '-')
+      {
+        return -1;
+      }
+      cp = argv[i];
+      vtkParse_IncludeMacros(cp);
+    }
+    else if (strcmp(argv[i], "-undef") == 0)
+    {
+      vtkParse_UndefinePlatformMacros();
     }
     else if (argv[i][0] == '-' && isalpha(argv[i][1]))
     {

@@ -156,6 +156,9 @@ int            parseDebug;
 /* the "preprocessor" */
 PreprocessInfo *preprocessor = NULL;
 
+/* whether to pre-define platform-specific macros */
+int            PredefinePlatformMacros = 1;
+
 /* include dirs specified on the command line */
 int            NumberOfIncludeDirectories= 0;
 const char   **IncludeDirectories;
@@ -163,6 +166,10 @@ const char   **IncludeDirectories;
 /* macros specified on the command line */
 int            NumberOfDefinitions = 0;
 const char   **Definitions;
+
+/* include specified on the command line */
+int            NumberOfMacroIncludes = 0;
+const char   **MacroIncludes;
 
 /* options that can be set by the programs that use the parser */
 int            Recursive = 0;
@@ -4862,7 +4869,8 @@ FileInfo *vtkParse_ParseFile(
   preprocessor = (PreprocessInfo *)malloc(sizeof(PreprocessInfo));
   vtkParsePreprocess_Init(preprocessor, filename);
   preprocessor->Strings = data->Strings;
-  vtkParsePreprocess_AddStandardMacros(preprocessor, VTK_PARSE_NATIVE);
+  vtkParsePreprocess_AddStandardMacros(preprocessor,
+    PredefinePlatformMacros ? VTK_PARSE_NATIVE : VTK_PARSE_UNDEF);
 
   /* add include files specified on the command line */
   for (i = 0; i < NumberOfIncludeDirectories; i++)
@@ -4896,6 +4904,13 @@ FileInfo *vtkParse_ParseFile(
       }
       vtkParsePreprocess_AddMacro(preprocessor, &cp[1], definition);
     }
+  }
+
+  /* add include files that contain macros to pre-define */
+  for (i = 0; i < NumberOfMacroIncludes; i++)
+  {
+    vtkParsePreprocess_IncludeFile(
+      preprocessor, MacroIncludes[i], VTK_PARSE_CURDIR_INCLUDE);
   }
 
   data->FileName = vtkstrdup(filename);
@@ -5126,6 +5141,24 @@ void vtkParse_UndefineMacro(const char *name)
   vtkParse_AddStringToArray(&Definitions, &NumberOfDefinitions, cp);
 }
 
+/** Do not define any platform-specific macros.  */
+void vtkParse_UndefinePlatformMacros()
+{
+  PredefinePlatformMacros = 0;
+}
+
+/** Add an include file to read macros from, for use with -imacro. */
+void vtkParse_IncludeMacros(const char *filename)
+{
+  size_t n = strlen(filename);
+  char *cp;
+
+  cp = (char *)malloc(n+1);
+  strcpy(cp, filename);
+
+  vtkParse_AddStringToArray(&MacroIncludes, &NumberOfMacroIncludes, cp);
+}
+
 /** Add an include directory, for use with the "-I" option.  */
 void vtkParse_IncludeDirectory(const char *dirname)
 {
@@ -5163,5 +5196,6 @@ const char *vtkParse_FindIncludeFile(const char *filename)
     vtkParsePreprocess_IncludeDirectory(&info, IncludeDirectories[i]);
   }
 
-  return vtkParsePreprocess_FindIncludeFile(&info, filename, 0, &val);
+  return vtkParsePreprocess_FindIncludeFile(
+    &info, filename, VTK_PARSE_SOURCE_INCLUDE, &val);
 }
