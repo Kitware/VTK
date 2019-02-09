@@ -210,6 +210,10 @@ const char   **Definitions;
 int            NumberOfMacroIncludes = 0;
 const char   **MacroIncludes;
 
+/* for dumping diagnostics about macros */
+int            DumpMacros = 0;
+const char    *DumpFileName = NULL;
+
 /* options that can be set by the programs that use the parser */
 int            Recursive = 0;
 const char    *CommandName = NULL;
@@ -11143,6 +11147,52 @@ void output_friend_function()
   currentClass = tmpc;
 }
 
+/* dump predefined macros to the specified file. */
+void dump_macros(const char *filename)
+{
+  MacroInfo *macro = NULL;
+  FILE *ofile = stdout;
+  int i;
+
+  if (filename)
+  {
+    ofile = fopen(filename, "w");
+    if (!ofile)
+    {
+      fprintf(stderr, "Error opening output file %s\n", filename);
+      return;
+    }
+  }
+
+  while ((macro = vtkParsePreprocess_NextMacro(preprocessor, macro)) != 0)
+  {
+    if (macro->IsFunction)
+    {
+      fprintf(ofile, "#define %s(", macro->Name);
+      for (i = 0; i < macro->NumberOfParameters; i++)
+      {
+        fprintf(ofile, "%s%s", (i == 0 ? "" : ","),
+                macro->Parameters[i]);
+      }
+      fprintf(ofile, ")%s%s\n", (macro->Definition ? " " : ""),
+              macro->Definition);
+    }
+    else if (macro->Definition)
+    {
+      fprintf(ofile, "#define %s %s\n", macro->Name, macro->Definition);
+    }
+    else
+    {
+      fprintf(ofile, "#define %s\n", macro->Name);
+    }
+  }
+
+  if (filename)
+  {
+    fclose(ofile);
+  }
+}
+
 /* Set a flag to recurse into included files */
 void vtkParse_SetRecursive(int option)
 {
@@ -11292,6 +11342,12 @@ FileInfo *vtkParse_ParseFile(
 
   /* assign doxygen comments to their targets */
   assignComments(data->Contents);
+
+  /* dump macros, for diagnostic purposes */
+  if (DumpMacros)
+  {
+    dump_macros(DumpFileName);
+  }
 
   vtkParsePreprocess_Free(preprocessor);
   preprocessor = NULL;
@@ -11471,6 +11527,13 @@ void vtkParse_IncludeMacros(const char *filename)
   vtkParse_AddStringToArray(&MacroIncludes, &NumberOfMacroIncludes, cp);
 }
 
+/** Dump macros to the specified file (stdout if NULL). */
+void vtkParse_DumpMacros(const char *filename)
+{
+  DumpMacros = 1;
+  DumpFileName = filename;
+}
+
 /** Add an include directory, for use with the "-I" option.  */
 void vtkParse_IncludeDirectory(const char *dirname)
 {
@@ -11498,7 +11561,7 @@ void vtkParse_IncludeDirectory(const char *dirname)
 const char *vtkParse_FindIncludeFile(const char *filename)
 {
   static StringCache cache = {0, 0, 0, 0};
-  static PreprocessInfo info = {0, 0, 0, 0, 0, 0, &cache, 0, 0, 0};
+  static PreprocessInfo info = {0, 0, 0, 0, 0, 0, &cache, 0, 0, 0, 0};
   int val;
   int i;
 

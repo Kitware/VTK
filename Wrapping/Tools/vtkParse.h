@@ -50,6 +50,11 @@ void vtkParse_UndefinePlatformMacros();
 void vtkParse_IncludeMacros(const char *filename);
 
 /**
+ * Dump macros to the specified file (stdout if NULL).
+ */
+void vtkParse_DumpMacros(const char *filename);
+
+/**
  * Add an include directory, for use with the "-I" option.
  */
 void vtkParse_IncludeDirectory(const char *dirname);

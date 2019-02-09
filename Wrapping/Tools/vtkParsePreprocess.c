@@ -139,6 +139,7 @@ static MacroInfo *preproc_new_macro(
 {
   MacroInfo *macro = (MacroInfo *)malloc(sizeof(MacroInfo));
   vtkParsePreprocess_InitMacro(macro);
+  macro->Ordinal = ++info->MacroCounter;
 
   if (name)
   {
@@ -3859,6 +3860,53 @@ int vtkParsePreprocess_RemoveMacro(
 }
 
 /**
+ * Go through macros in order of definition.
+ * Pass NULL to start.  Will return NULL when done.
+ */
+MacroInfo *vtkParsePreprocess_NextMacro(
+  PreprocessInfo *info, MacroInfo *macro)
+{
+  MacroInfo **mptr;
+  int i, n;
+  int ordinal = 0;
+  int maxord = 0;
+
+  if (macro)
+  {
+    ordinal = macro->Ordinal;
+  }
+
+  /* do a brute-force search for the next ordinal */
+  n = PREPROC_HASH_TABLE_SIZE;
+  do
+  {
+    ++ordinal;
+    for (i = 0; i < n; i++)
+    {
+      mptr = info->MacroHashTable[i];
+      if (mptr)
+      {
+        while (*mptr)
+        {
+          macro = *mptr++;
+          if (macro->Ordinal == ordinal)
+          {
+            return macro;
+          }
+          else if (macro->Ordinal > maxord)
+          {
+            maxord = macro->Ordinal;
+          }
+        }
+      }
+    }
+  }
+  while (ordinal <= maxord);
+
+  return NULL;
+}
+
+/**
  * Expand a macro, argstring is ignored if not a function macro
  */
 const char *vtkParsePreprocess_ExpandMacro(
@@ -4516,6 +4564,7 @@ void vtkParsePreprocess_InitMacro(MacroInfo *macro)
   macro->Name = NULL;
   macro->Definition = NULL;
   macro->Comment = NULL;
+  macro->Ordinal = 0;
   macro->NumberOfParameters = 0;
   macro->Parameters = NULL;
   macro->IsFunction = 0;
@@ -4550,6 +4599,7 @@ void vtkParsePreprocess_Init(
   info->IsExternal = 0;
   info->ConditionalDepth = 0;
   info->ConditionalDone = 0;
+  info->MacroCounter = 0;
 
   if (filename)
   {

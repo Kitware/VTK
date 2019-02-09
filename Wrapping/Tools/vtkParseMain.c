@@ -68,6 +68,7 @@ static void parse_print_help(FILE *fp, const char *cmd, int multi)
   if (!multi)
   {
     fprintf(fp,
+    "  -dM               dump all macro definitions to output\n"
     "  --hints <file>    the hints file to use\n"
     "  --types <file>    the type hierarchy file to use\n");
   }
@@ -269,6 +270,7 @@ static int parse_check_options(int argc, char *argv[], int multi)
   options.HierarchyFileNames = NULL;
   options.NumberOfHintFileNames = 0;
   options.HintFileNames = NULL;
+  options.DumpMacros = 0;
 
   for (i = 1; i < argc; i++)
   {
@@ -309,6 +311,10 @@ static int parse_check_options(int argc, char *argv[], int multi)
     else if (strcmp(argv[i], "-undef") == 0)
     {
       vtkParse_UndefinePlatformMacros();
+    }
+    else if (strcmp(argv[i], "-dM") == 0)
+    {
+      options.DumpMacros = 1;
     }
     else if (argv[i][0] == '-' && isalpha(argv[i][1]))
     {
@@ -442,8 +448,13 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   /* free the expanded args */
   free(args);
 
-  /* make sure than an output file was given on the command line */
-  if (options.OutputFileName == NULL)
+  /* make sure that an output file was given on the command line,
+   * unless dumping info in which case stdout will be used instead */
+  if (options.DumpMacros)
+  {
+    vtkParse_DumpMacros(options.OutputFileName);
+  }
+  else if (options.OutputFileName == NULL)
   {
     fprintf(stderr, "No output file was specified\n");
     fclose(ifile);
@@ -456,6 +467,13 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   if (!data)
   {
     exit(1);
+  }
+
+  /* check whether -dM option was set */
+  if (options.DumpMacros)
+  {
+    /* do nothing (the dump occurred in ParseFile above) */
+    exit(0);
   }
 
   /* open and parse each hint file, if given on the command line */

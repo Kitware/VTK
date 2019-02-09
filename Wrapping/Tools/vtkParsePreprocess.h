@@ -64,6 +64,7 @@ typedef struct _MacroInfo
   const char    *Name;
   const char    *Definition;
   const char    *Comment; /* unused */
+  int            Ordinal; /* gives order of definition */
   int            NumberOfParameters; /* only if IsFunction == 1 */
   const char   **Parameters; /* symbols for parameters */
   int            IsFunction; /* this macro requires arguments */
@@ -88,6 +89,7 @@ typedef struct _PreprocessInfo
   int            IsExternal;       /* label all macros as "external" */
   int            ConditionalDepth; /* internal state variable */
   int            ConditionalDone;  /* internal state variable */
+  int            MacroCounter;     /* for ordering macro definitions */
 } PreprocessInfo;
 
 /**
@@ -183,6 +185,13 @@ int vtkParsePreprocess_AddMacro(
  */
 int vtkParsePreprocess_RemoveMacro(
   PreprocessInfo *info, const char *name);
+
+/**
+ * Go through macros in order of definition.
+ * Pass NULL to start.  Will return NULL when done.
+ */
+MacroInfo *vtkParsePreprocess_NextMacro(
+  PreprocessInfo *info, MacroInfo *macro);
 
 /**
  * Return a preprocessor symbol struct, or NULL if not found.

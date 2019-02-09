@@ -59,6 +59,7 @@ typedef struct _OptionInfo
   char        **HintFileNames;      /* all of the hints arguments */
   int           NumberOfHierarchyFileNames; /* the total number of types argument */
   char        **HierarchyFileNames; /* the file preceded by "--types" */
+  int           DumpMacros; /* dump macros to output */
 } OptionInfo;
 
 #ifdef __cplusplus
