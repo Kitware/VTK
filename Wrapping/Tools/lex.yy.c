@@ -5135,8 +5135,9 @@ void preprocessor_directive(const char *text, size_t l)
       if (Recursive && ep - cp > 3)
       {
         const char *dp;
-        dp = vtkParsePreprocess_FindIncludeFile(preprocessor,
-          &cp[1], (*cp != '\"'), &already_loaded);
+        dp = vtkParsePreprocess_FindIncludeFile(preprocessor, &cp[1],
+          (*cp != '\"' ? VTK_PARSE_SYSTEM_INCLUDE : VTK_PARSE_SOURCE_INCLUDE),
+          &already_loaded);
         if (dp)
         {
           yyin = fopen(dp, "r");

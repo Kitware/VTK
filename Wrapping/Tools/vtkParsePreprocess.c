@@ -139,6 +139,7 @@ static MacroInfo *preproc_new_macro(
 {
   MacroInfo *macro = (MacroInfo *)malloc(sizeof(MacroInfo));
   vtkParsePreprocess_InitMacro(macro);
+  macro->Ordinal = ++info->MacroCounter;
 
   if (name)
   {
@@ -1608,7 +1609,7 @@ static int preproc_add_include_file(PreprocessInfo *info, const char *name)
  * see if the file was previously found without going to the filesystem.
  */
 const char *preproc_find_include_file(
-  PreprocessInfo *info, const char *filename, int system_first,
+  PreprocessInfo *info, const char *filename, preproc_search_t order,
   int cache_only)
 {
   int i, n, ii, nn;
@@ -1618,6 +1619,7 @@ const char *preproc_find_include_file(
   char *output;
   size_t outputsize = 16;
   int count;
+  int extra = 0;
 
   /* allow filename to be terminated by quote or bracket */
   m = 0;
@@ -1627,9 +1629,13 @@ const char *preproc_find_include_file(
   /* search file system for the file */
   output = (char *)malloc(outputsize);
 
-  if (system_first != 0)
+  if (order == VTK_PARSE_SOURCE_INCLUDE)
   {
-    system_first = 1;
+    extra = 1;
+  }
+  else if (order == VTK_PARSE_CURDIR_INCLUDE)
+  {
+    extra = (info->FileName ? 2 : 1);
   }
 
   if (cache_only != 0)
@@ -1691,12 +1697,12 @@ const char *preproc_find_include_file(
   for (count = 0; count < (2-cache_only); count++)
   {
     n = info->NumberOfIncludeDirectories;
-    for (i = 0; i < (n+1-system_first); i++)
+    for (i = 0; i < (n+extra); i++)
     {
       /* search the directory of the file being processed */
-      if (i == 0 && system_first == 0)
+      if (i < extra)
       {
-        if (info->FileName)
+        if (info->FileName && i+1 == extra)
         {
           j = strlen(info->FileName);
           while (j > 0)
@@ -1742,7 +1748,7 @@ const char *preproc_find_include_file(
       /* check all the search paths */
       else
       {
-        directory = info->IncludeDirectories[i-1+system_first];
+        directory = info->IncludeDirectories[i-extra];
         j = strlen(directory);
         if (j + m + 2 > outputsize)
         {
@@ -1799,7 +1805,7 @@ const char *preproc_find_include_file(
 
 /**
  * Convert a raw string into a normal string.  This is a helper
- * function for preproc_include_file() to allow raw strings to
+ * function for vtkParsePreprocess_IncludeFile() to allow raw strings to
  * be used in preprocessor directives.
  */
 void preproc_escape_string(
@@ -1877,8 +1883,8 @@ void preproc_escape_string(
  * Include a file.  All macros defined in the included file
  * will have their IsExternal flag set.
  */
-static int preproc_include_file(
-  PreprocessInfo *info, const char *filename, int system_first)
+int vtkParsePreprocess_IncludeFile(
+  PreprocessInfo *info, const char *filename, preproc_search_t order)
 {
   const char *switchchars = "\n\r\"\'\?\\/*()";
   char switchchar[256];
@@ -1896,7 +1902,7 @@ static int preproc_include_file(
   int save_external;
 
   /* check to see if the file has already been included */
-  const char *path = preproc_find_include_file(info, filename, system_first, 1);
+  const char *path = preproc_find_include_file(info, filename, order, 1);
   if (path != 0)
   {
 #if PREPROC_DEBUG
@@ -1912,7 +1918,7 @@ static int preproc_include_file(
     return VTK_PARSE_OK;
   }
   /* go to the filesystem */
-  path = preproc_find_include_file(info, filename, system_first, 0);
+  path = preproc_find_include_file(info, filename, order, 0);
   if (path == NULL)
   {
 #if PREPROC_DEBUG
@@ -2243,7 +2249,8 @@ static int preproc_evaluate_include(
         return VTK_PARSE_SYNTAX_ERROR;
       }
 
-      return preproc_include_file(info, filename, 0);
+      return vtkParsePreprocess_IncludeFile(info, filename,
+                                            VTK_PARSE_SOURCE_INCLUDE);
     }
     else if (*cp == '<')
     {
@@ -2255,7 +2262,8 @@ static int preproc_evaluate_include(
         return VTK_PARSE_SYNTAX_ERROR;
       }
 
-      return preproc_include_file(info, filename, 1);
+      return vtkParsePreprocess_IncludeFile(info, filename,
+                                            VTK_PARSE_SYSTEM_INCLUDE);
     }
   }
 
@@ -2367,7 +2375,7 @@ preproc_add_macro_definition(info, #x, PREPROC_MACRO_TO_STRING2(x))
  * Add all standard preprocessory macros.  Specify the platform.
  */
 void vtkParsePreprocess_AddStandardMacros(
-  PreprocessInfo *info, int platform)
+  PreprocessInfo *info, preproc_platform_t platform)
 {
   int save_external = info->IsExternal;
   info->IsExternal = 1;
@@ -3852,6 +3860,53 @@ int vtkParsePreprocess_RemoveMacro(
 }
 
 /**
+ * Go through macros in order of definition.
+ * Pass NULL to start.  Will return NULL when done.
+ */
+MacroInfo *vtkParsePreprocess_NextMacro(
+  PreprocessInfo *info, MacroInfo *macro)
+{
+  MacroInfo **mptr;
+  int i, n;
+  int ordinal = 0;
+  int maxord = 0;
+
+  if (macro)
+  {
+    ordinal = macro->Ordinal;
+  }
+
+  /* do a brute-force search for the next ordinal */
+  n = PREPROC_HASH_TABLE_SIZE;
+  do
+  {
+    ++ordinal;
+    for (i = 0; i < n; i++)
+    {
+      mptr = info->MacroHashTable[i];
+      if (mptr)
+      {
+        while (*mptr)
+        {
+          macro = *mptr++;
+          if (macro->Ordinal == ordinal)
+          {
+            return macro;
+          }
+          else if (macro->Ordinal > maxord)
+          {
+            maxord = macro->Ordinal;
+          }
+        }
+      }
+    }
+  }
+  while (ordinal <= maxord);
+
+  return NULL;
+}
+
+/**
  * Expand a macro, argstring is ignored if not a function macro
  */
 const char *vtkParsePreprocess_ExpandMacro(
@@ -4483,15 +4538,14 @@ void vtkParsePreprocess_IncludeDirectory(
 }
 
 /**
- * Find an include file in the path.  If system_first is set,
- * then the current directory is not searched.
+ * Find an include file in the path.
  */
 const char *vtkParsePreprocess_FindIncludeFile(
-  PreprocessInfo *info, const char *filename, int system_first,
+  PreprocessInfo *info, const char *filename, preproc_search_t order,
   int *already_loaded)
 {
   const char *cp;
-  cp = preproc_find_include_file(info, filename, system_first, 1);
+  cp = preproc_find_include_file(info, filename, order, 1);
   if (cp)
   {
     *already_loaded = 1;
@@ -4499,7 +4553,7 @@ const char *vtkParsePreprocess_FindIncludeFile(
   }
 
   *already_loaded = 0;
-  return preproc_find_include_file(info, filename, system_first, 0);
+  return preproc_find_include_file(info, filename, order, 0);
 }
 
 /**
@@ -4510,6 +4564,7 @@ void vtkParsePreprocess_InitMacro(MacroInfo *macro)
   macro->Name = NULL;
   macro->Definition = NULL;
   macro->Comment = NULL;
+  macro->Ordinal = 0;
   macro->NumberOfParameters = 0;
   macro->Parameters = NULL;
   macro->IsFunction = 0;
@@ -4544,6 +4599,7 @@ void vtkParsePreprocess_Init(
   info->IsExternal = 0;
   info->ConditionalDepth = 0;
   info->ConditionalDone = 0;
+  info->MacroCounter = 0;
 
   if (filename)
   {

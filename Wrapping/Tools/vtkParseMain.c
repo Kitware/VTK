@@ -59,6 +59,8 @@ static void parse_print_help(FILE *fp, const char *cmd, int multi)
     "  -I <dir>          add an include directory\n"
     "  -D <macro[=def]>  define a preprocessor macro\n"
     "  -U <macro>        undefine a preprocessor macro\n"
+    "  -imacros <file>   read macros from a header file\n"
+    "  -undef            do not predefine platform macros\n"
     "  @<file>           read arguments from a file\n",
     parse_exename(cmd));
 
@@ -66,12 +68,9 @@ static void parse_print_help(FILE *fp, const char *cmd, int multi)
   if (!multi)
   {
     fprintf(fp,
+    "  -dM               dump all macro definitions to output\n"
     "  --hints <file>    the hints file to use\n"
-    "  --types <file>    the type hierarchy file to use\n"
-    "  --concrete        force concrete class (ignored, deprecated)\n"
-    "  --abstract        force abstract class (ignored, deprecated)\n"
-    "  --vtkobject       vtkObjectBase-derived class (ignored, deprecated)\n"
-    "  --special         non-vtkObjectBase class (ignored, deprecated)\n");
+    "  --types <file>    the type hierarchy file to use\n");
   }
 }
 
@@ -267,11 +266,11 @@ static int parse_check_options(int argc, char *argv[], int multi)
   options.Files = NULL;
   options.InputFileName = NULL;
   options.OutputFileName = NULL;
-  options.HierarchyFileName = 0;
   options.NumberOfHierarchyFileNames = 0;
   options.HierarchyFileNames = NULL;
   options.NumberOfHintFileNames = 0;
   options.HintFileNames = NULL;
+  options.DumpMacros = 0;
 
   for (i = 1; i < argc; i++)
   {
@@ -298,6 +297,24 @@ static int parse_check_options(int argc, char *argv[], int multi)
           options.Files, 2*options.NumberOfFiles*sizeof(char *));
       }
       options.Files[options.NumberOfFiles++] = argv[i];
+    }
+    else if (strcmp(argv[i], "-imacros") == 0)
+    {
+      i++;
+      if (i >= argc || argv[i][0] == '-')
+      {
+        return -1;
+      }
+      cp = argv[i];
+      vtkParse_IncludeMacros(cp);
+    }
+    else if (strcmp(argv[i], "-undef") == 0)
+    {
+      vtkParse_UndefinePlatformMacros();
+    }
+    else if (strcmp(argv[i], "-dM") == 0)
+    {
+      options.DumpMacros = 1;
     }
     else if (argv[i][0] == '-' && isalpha(argv[i][1]))
     {
@@ -361,7 +378,6 @@ static int parse_check_options(int argc, char *argv[], int multi)
       if (options.NumberOfHierarchyFileNames == 0)
       {
         options.HierarchyFileNames = (char **)malloc(sizeof(char *));
-        options.HierarchyFileName = argv[i]; // legacy
       }
       else if ((options.NumberOfHierarchyFileNames & (options.NumberOfHierarchyFileNames - 1)) == 0)
       {
@@ -369,14 +385,6 @@ static int parse_check_options(int argc, char *argv[], int multi)
           options.HierarchyFileNames, 2*options.NumberOfHierarchyFileNames*sizeof(char *));
       }
       options.HierarchyFileNames[options.NumberOfHierarchyFileNames++] = argv[i];
-    }
-    else if (strcmp(argv[i], "--vtkobject") == 0 ||
-             strcmp(argv[i], "--special") == 0 ||
-             strcmp(argv[i], "--abstract") == 0 ||
-             strcmp(argv[i], "--concrete") == 0)
-    {
-      fprintf(stderr, "Warning: the %s option is deprecated "
-              "and will be ignored.\n", argv[i]);
     }
   }
 
@@ -393,7 +401,6 @@ OptionInfo *vtkParse_GetCommandLineOptions(void)
 FileInfo *vtkParse_Main(int argc, char *argv[])
 {
   int argi;
-  int expected_files;
   FILE *ifile;
   FILE *hfile = 0;
   int nhfiles;
@@ -417,16 +424,13 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   /* read the args into the static OptionInfo struct */
   argi = parse_check_options(argn, args, 0);
 
-  /* was output file already specified by the "-o" option? */
-  expected_files = (options.OutputFileName == NULL ? 2 : 1);
-
   /* verify number of args, print usage if not valid */
   if (argi == 0)
   {
     free(args);
     exit(0);
   }
-  else if (argi < 0 || options.NumberOfFiles != expected_files)
+  else if (argi < 0 || options.NumberOfFiles != 1)
   {
     parse_print_help(stderr, args[0], 0);
     exit(1);
@@ -441,19 +445,16 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
     exit(1);
   }
 
-  if (options.OutputFileName == NULL &&
-      options.NumberOfFiles > 1)
-  {
-    /* allow outfile to be given after infile, if "-o" option not used */
-    options.OutputFileName = options.Files[1];
-    fprintf(stderr, "Deprecated: specify output file with \"-o\".\n");
-  }
-
   /* free the expanded args */
   free(args);
 
-  /* make sure than an output file was given on the command line */
-  if (options.OutputFileName == NULL)
+  /* make sure that an output file was given on the command line,
+   * unless dumping info in which case stdout will be used instead */
+  if (options.DumpMacros)
+  {
+    vtkParse_DumpMacros(options.OutputFileName);
+  }
+  else if (options.OutputFileName == NULL)
   {
     fprintf(stderr, "No output file was specified\n");
     fclose(ifile);
@@ -466,6 +467,13 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   if (!data)
   {
     exit(1);
+  }
+
+  /* check whether -dM option was set */
+  if (options.DumpMacros)
+  {
+    /* do nothing (the dump occurred in ParseFile above) */
+    exit(0);
   }
 
   /* open and parse each hint file, if given on the command line */

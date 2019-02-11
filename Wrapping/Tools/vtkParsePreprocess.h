@@ -64,6 +64,7 @@ typedef struct _MacroInfo
   const char    *Name;
   const char    *Definition;
   const char    *Comment; /* unused */
+  int            Ordinal; /* gives order of definition */
   int            NumberOfParameters; /* only if IsFunction == 1 */
   const char   **Parameters; /* symbols for parameters */
   int            IsFunction; /* this macro requires arguments */
@@ -88,14 +89,25 @@ typedef struct _PreprocessInfo
   int            IsExternal;       /* label all macros as "external" */
   int            ConditionalDepth; /* internal state variable */
   int            ConditionalDone;  /* internal state variable */
+  int            MacroCounter;     /* for ordering macro definitions */
 } PreprocessInfo;
 
 /**
  * Platforms.  Always choose native unless crosscompiling.
  */
-enum _preproc_platform_t {
-  VTK_PARSE_NATIVE = 0
-};
+typedef enum _preproc_platform_t {
+  VTK_PARSE_NATIVE,
+  VTK_PARSE_UNDEF
+} preproc_platform_t;
+
+/**
+ * Search methods for include files.
+ */
+typedef enum _preproc_search_t {
+  VTK_PARSE_CURDIR_INCLUDE, /* look in current directory first */
+  VTK_PARSE_SOURCE_INCLUDE, /* look in source directory first */
+  VTK_PARSE_SYSTEM_INCLUDE  /* search system directories first */
+} preproc_search_t;
 
 /**
  * Directive return values.
@@ -152,12 +164,13 @@ int vtkParsePreprocess_EvaluateExpression(
   preproc_int_t *val, int *is_unsigned);
 
 /**
- * Add all standard preprocessor symbols. Use VTK_PARSE_NATIVE
- * as the platform.  In the future, other platform specifiers
- * might be added to allow crosscompiling.
+ * Add all standard preprocessor symbols. Use VTK_PARSE_NATIVE for
+ * the platform to add the same macros as the native compiler.  For
+ * cross-compiling, use VTK_PARSE_UNDEF and then define the macros
+ * for the target platform.
  */
 void vtkParsePreprocess_AddStandardMacros(
-  PreprocessInfo *info, int platform);
+  PreprocessInfo *info, preproc_platform_t platform);
 
 /**
  * Add a preprocessor symbol, including a definition.  Return
@@ -172,6 +185,13 @@ int vtkParsePreprocess_AddMacro(
  */
 int vtkParsePreprocess_RemoveMacro(
   PreprocessInfo *info, const char *name);
+
+/**
+ * Go through macros in order of definition.
+ * Pass NULL to start.  Will return NULL when done.
+ */
+MacroInfo *vtkParsePreprocess_NextMacro(
+  PreprocessInfo *info, MacroInfo *macro);
 
 /**
  * Return a preprocessor symbol struct, or NULL if not found.
@@ -217,15 +237,22 @@ void vtkParsePreprocess_IncludeDirectory(
   PreprocessInfo *info, const char *name);
 
 /**
- * Find an include file in the path.  If system_first is set, then
- * the current directory is ignored unless it is explicitly in the
- * path.  A null return value indicates that the file was not found.
+ * Find an include file in the path.  If order is VTK_PARSE_SYSTEM_INCLUDE,
+ * then the current directory is ignored unless it is explicitly in the
+ * search path.  A null return value indicates that the file was not found.
  * If already_loaded is set, then the file was already loaded.  This
  * preprocessor never loads the same file twice.
  */
 const char *vtkParsePreprocess_FindIncludeFile(
-  PreprocessInfo *info, const char *filename, int system_first,
+  PreprocessInfo *info, const char *filename, preproc_search_t order,
   int *already_loaded);
+
+/**
+ * Process a file as if included from a source file.  The return value
+ * will be VTK_PARSE_OK if no errors occurred.
+ */
+int vtkParsePreprocess_IncludeFile(
+  PreprocessInfo *info, const char *filename, preproc_search_t order);
 
 /**
  * Initialize a preprocessor symbol struct.
