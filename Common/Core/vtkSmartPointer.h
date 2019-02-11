@@ -30,7 +30,6 @@
 template <class T>
 class vtkSmartPointer: public vtkSmartPointerBase
 {
-  static T* CheckType(T* t) { return t; }
 public:
   /**
    * Initialize smart pointer to nullptr.
@@ -51,9 +50,10 @@ public:
    * Initialize smart pointer with a new reference to the same object
    * referenced by given smart pointer.
    */
-  template <class U>
-  vtkSmartPointer(const vtkSmartPointer<U>& r):
-    vtkSmartPointerBase(CheckType(r.GetPointer())) {}
+  template <class U, typename = typename std::enable_if<
+                         std::is_convertible<U *, T *>::value>::type>
+  vtkSmartPointer(const vtkSmartPointer<U> &r)
+      : vtkSmartPointerBase(r.GetPointer()) {}
 
 #ifndef __VTK_WRAP__
   /**
@@ -94,10 +94,10 @@ public:
    * Assign object to reference.  This removes any reference to an old
    * object.
    */
-  template <class U>
-  vtkSmartPointer& operator=(const vtkSmartPointer<U>& r)
-  {
-    this->vtkSmartPointerBase::operator=(CheckType(r.GetPointer()));
+  template <class U, typename = typename std::enable_if<
+                         std::is_convertible<U *, T *>::value>::type>
+  vtkSmartPointer &operator=(const vtkSmartPointer<U> &r) {
+    this->vtkSmartPointerBase::operator=(r.GetPointer());
     return *this;
   }
   //@}
