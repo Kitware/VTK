@@ -33,22 +33,22 @@ void log_handler(void* user_data, const vtkLogger::Message& message)
 int TestLogger(int, char* [])
 {
   std::string lines;
-  vtkLogf(INFO, "changing verbosity to %d", vtkLogger::VERBOSITY_TRACE);
+  vtkLogF(INFO, "changing verbosity to %d", vtkLogger::VERBOSITY_TRACE);
   vtkLogger::AddCallback("sonnet-grabber", log_handler, &lines, vtkLogger::VERBOSITY_2);
   vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_TRACE);
   vtkLogScopeFunction(TRACE);
   {
-    vtkLogScopef(TRACE, "Sonnet 18");
+    vtkLogScopeF(TRACE, "Sonnet 18");
     auto whom = "thee";
     vtkLog(2, "Shall I compare " << whom << " to a summer's day?");
 
     auto what0 = "lovely";
     auto what1 = "temperate";
-    vtkLogf(2, "Thou art more %s and more %s:", what0, what1);
+    vtkLogF(2, "Thou art more %s and more %s:", what0, what1);
 
     auto month = "May";
     vtkLogIf(2, true, << "Rough winds do shake the darling buds of " << month << ",");
-    vtkLogIff(2, true, "And %s’s lease hath all too short a date;", "summers");
+    vtkLogIfF(2, true, "And %s’s lease hath all too short a date;", "summers");
   }
 
   cerr << "--------------------------------------------" << endl
@@ -65,7 +65,7 @@ int TestLogger(int, char* [])
   {
     vtkLogStartScope(INFO, "scope-0");
   }
-  vtkLogStartScopef(INFO, "scope-1", "scope %d", 1);
+  vtkLogStartScopeF(INFO, "scope-1", "scope %d", 1);
   vtkLog(INFO, "some text");
   vtkLogEndScope("scope-1");
   {

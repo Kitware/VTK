@@ -265,7 +265,7 @@ void vtkLogger::Log(vtkLogger::Verbosity verbosity,
 }
 
 //----------------------------------------------------------------------------
-void vtkLogger::Logf(vtkLogger::Verbosity verbosity,
+void vtkLogger::LogF(vtkLogger::Verbosity verbosity,
   const char* fname,
   unsigned int lineno,
   const char* format,
@@ -314,7 +314,7 @@ void vtkLogger::EndScope(const char* id)
 }
 
 //----------------------------------------------------------------------------
-void vtkLogger::StartScopef(Verbosity verbosity, const char* id, const char* fname,
+void vtkLogger::StartScopeF(Verbosity verbosity, const char* id, const char* fname,
   unsigned int lineno, const char* format, ...)
 {
 #if VTK_ENABLE_LOGGING

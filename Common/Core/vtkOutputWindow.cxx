@@ -73,7 +73,7 @@ void vtkOutputWindowDisplayText(const char* message)
 
 void vtkOutputWindowDisplayErrorText(const char* message)
 {
-  vtkLogf(ERROR, "%s", message);
+  vtkLogF(ERROR, "%s", message);
   if (auto win = vtkOutputWindow::GetInstance())
   {
     vtkOutputWindowPrivateAccessor helper_raii(win);
@@ -83,7 +83,7 @@ void vtkOutputWindowDisplayErrorText(const char* message)
 
 void vtkOutputWindowDisplayWarningText(const char* message)
 {
-  vtkLogf(WARNING, "%s", message);
+  vtkLogF(WARNING, "%s", message);
   if (auto win = vtkOutputWindow::GetInstance())
   {
     vtkOutputWindowPrivateAccessor helper_raii(win);
@@ -93,7 +93,7 @@ void vtkOutputWindowDisplayWarningText(const char* message)
 
 void vtkOutputWindowDisplayGenericWarningText(const char* message)
 {
-  vtkLogf(WARNING, "%s", message);
+  vtkLogF(WARNING, "%s", message);
   if (auto win = vtkOutputWindow::GetInstance())
   {
     vtkOutputWindowPrivateAccessor helper_raii(win);
@@ -103,7 +103,7 @@ void vtkOutputWindowDisplayGenericWarningText(const char* message)
 
 void vtkOutputWindowDisplayDebugText(const char* message)
 {
-  vtkLogf(INFO, "%s", message);
+  vtkLogF(INFO, "%s", message);
   if (auto win = vtkOutputWindow::GetInstance())
   {
     vtkOutputWindowPrivateAccessor helper_raii(win);

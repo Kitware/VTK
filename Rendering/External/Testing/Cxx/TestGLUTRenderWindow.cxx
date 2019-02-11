@@ -84,7 +84,7 @@ void display()
   vtkLogScopeFunction(INFO);
   if (!initialized)
   {
-    vtkLogScopef(INFO, "do-initialize");
+    vtkLogScopeF(INFO, "do-initialize");
     // since `handleResize` may get called before display, we may have already
     // created and resized the vtkExternalOpenGLRenderWindow, hence we don't
     // recreate it here.
@@ -141,7 +141,7 @@ void display()
   GLfloat ambient[] = {1.0f, 1.0f, 0.2f,  1.0f};
   glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
 
-  vtkLogScopef(INFO, "do-vtk-render");
+  vtkLogScopeF(INFO, "do-vtk-render");
   externalVTKWidget->GetRenderWindow()->Render();
   glutSwapBuffers();
 }
@@ -175,7 +175,7 @@ void test()
 
 void handleResize(int w, int h)
 {
-  vtkLogScopef(INFO, "handleResize: %d, %d", w, h);
+  vtkLogScopeF(INFO, "handleResize: %d, %d", w, h);
   externalVTKWidget->GetRenderWindow()->SetSize(w, h);
   glutPostRedisplay();
 }

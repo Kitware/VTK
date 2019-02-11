@@ -26,7 +26,7 @@
 #endif
 
 #define VTK_FILE_LOCATOR_DEBUG_MESSAGE(...)                                                        \
-  vtkVLogf(static_cast<vtkLogger::Verbosity>(this->LogVerbosity), __VA_ARGS__)
+  vtkVLogF(static_cast<vtkLogger::Verbosity>(this->LogVerbosity), __VA_ARGS__)
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 // Implementation for Windows win32 code but not cygwin
@@ -57,7 +57,7 @@ std::string vtkResourceFileLocator::Locate(const std::string& anchor,
   const std::vector<std::string>& landmark_prefixes, const std::string& landmark,
   const std::string& defaultDir)
 {
-  vtkVLogScopef(
+  vtkVLogScopeF(
     static_cast<vtkLogger::Verbosity>(this->LogVerbosity), "looking for '%s'", landmark.c_str());
   std::vector<std::string> path_components;
   vtksys::SystemTools::SplitPath(anchor, path_components);
