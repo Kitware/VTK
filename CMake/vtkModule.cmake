@@ -2625,8 +2625,16 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_hierar
   endif ()
 
   set(_vtk_hierarchy_tool_target "VTK::WrapHierarchy")
+  set(_vtk_hierarchy_macros_args)
   if (TARGET VTKCompileTools::WrapHierarchy)
     set(_vtk_hierarchy_tool_target "VTKCompileTools::WrapHierarchy")
+    if (TARGET VTKCompileTools_macros)
+      list(APPEND _vtk_hierarchy_command_depends
+        "VTKCompileTools_macros")
+      list(APPEND _vtk_hierarchy_macros_args
+        -undef
+        -imacros "${_VTKCompileTools_macros_file}")
+    endif ()
   endif ()
 
   add_custom_command(
@@ -2636,6 +2644,7 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_hierar
             -o "${_vtk_hierarchy_file}"
             "${_vtk_hierarchy_data_file}"
             "@${_vtk_hierarchy_depends_args_file}"
+            ${_vtk_hierarchy_macros_args}
     COMMENT "Generating the wrap hierarchy for ${_vtk_build_module}"
     DEPENDS
       ${_vtk_hierarchy_headers}
