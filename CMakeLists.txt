@@ -273,6 +273,13 @@ if (VTK_BUILD_COMPILE_TOOLS_ONLY)
   set(vtk_target_package PACKAGE "${vtk_install_export}")
 endif ()
 
+set(VTK_CUSTOM_LIBRARY_SUFFIX "<DEFAULT>"
+  CACHE STRING "Custom library file name suffix (defaults to ${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})")
+mark_as_advanced(VTK_CUSTOM_LIBRARY_SUFFIX)
+if (VTK_CUSTOM_LIBRARY_SUFFIX STREQUAL "<DEFAULT>")
+  set(VTK_CUSTOM_LIBRARY_SUFFIX "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+endif ()
+
 vtk_module_build(
   MODULES             ${vtk_modules}
   KITS                ${vtk_kits}
@@ -280,7 +287,7 @@ vtk_module_build(
   ${vtk_target_package}
   HEADERS_DESTINATION "include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
   CMAKE_DESTINATION   "${vtk_cmake_destination}"
-  LIBRARY_NAME_SUFFIX "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
+  LIBRARY_NAME_SUFFIX "${VTK_CUSTOM_LIBRARY_SUFFIX}"
   VERSION             "${VTK_VERSION}"
   SOVERSION           "1"
   TEST_DATA_TARGET    VTKData
