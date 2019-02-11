@@ -25,6 +25,7 @@
 
 #include "vtkSmartPointerBase.h"
 #include "vtkNew.h"  // For converting New pointers to Smart pointers
+#include <type_traits> // for enable_if
 
 template <class T>
 class vtkSmartPointer: public vtkSmartPointerBase
@@ -53,6 +54,16 @@ public:
   template <class U>
   vtkSmartPointer(const vtkSmartPointer<U>& r):
     vtkSmartPointerBase(CheckType(r.GetPointer())) {}
+
+#ifndef __VTK_WRAP__
+  /**
+   * Move the contents of @a r into @a this.
+   */
+  template <class U,
+            typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
+  vtkSmartPointer(vtkSmartPointer<U>&& r) noexcept
+    : vtkSmartPointerBase(std::move(r)) {}
+#endif
 
   //@{
   /**

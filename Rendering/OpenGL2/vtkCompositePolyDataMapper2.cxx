@@ -21,11 +21,11 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkCommand.h"
 #include "vtkCompositeDataDisplayAttributes.h"
-#include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDataObjectTree.h"
-#include "vtkDataObjectTreeIterator.h"
+#include "vtkDataObjectTreeRange.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkImageData.h"
@@ -1280,11 +1280,10 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
       (this->ColorMode == VTK_COLOR_MODE_DEFAULT ||
        this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS))
   {
-    vtkSmartPointer<vtkCompositeDataIterator> iter;
-    iter.TakeReference(input->NewIterator());
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    using Opts = vtk::CompositeDataSetOptions;
+    for (vtkDataObject *dObj : vtk::Range(input, Opts::SkipEmptyNodes))
     {
-      vtkPolyData *pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
+      vtkPolyData *pd = vtkPolyData::SafeDownCast(dObj);
       if (pd)
       {
         int cellFlag;
@@ -1841,16 +1840,9 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
   auto dObjTree = vtkDataObjectTree::SafeDownCast(dobj);
   if (dObjTree)
   {
-    using SmartDOTIter = vtkSmartPointer<vtkDataObjectTreeIterator>;
-    auto iter = SmartDOTIter::Take(dObjTree->NewTreeIterator());
-    iter->TraverseSubTreeOff();
-    iter->VisitOnlyLeavesOff();
-    iter->SkipEmptyNodesOff();
-    for (iter->InitTraversal();
-         !iter->IsDoneWithTraversal();
-         iter->GoToNextItem())
+    using Opts = vtk::DataObjectTreeOptions;
+    for (vtkDataObject *child : vtk::Range(dObjTree, Opts::None))
     {
-      auto child = iter->GetCurrentDataObject();
       if (!child)
       {
         ++flat_index;

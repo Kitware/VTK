@@ -8,9 +8,11 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestAMRBox.cxx
   TestBiQuadraticQuad.cxx
   TestCompositeDataSets.cxx
+  TestCompositeDataSetRange.cxx
   TestComputeBoundingSphere.cxx
   TestDataArrayDispatcher.cxx
   TestDataObject.cxx
+  TestDataObjectTreeRange.cxx
   TestDispatchers.cxx
   TestFieldList.cxx
   TestGenericCell.cxx

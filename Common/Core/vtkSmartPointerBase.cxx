@@ -90,6 +90,15 @@ vtkSmartPointerBase::operator=(const vtkSmartPointerBase& r)
 }
 
 //----------------------------------------------------------------------------
+vtkSmartPointerBase &vtkSmartPointerBase::operator=(vtkSmartPointerBase &&r) noexcept
+{
+  using std::swap;
+  swap(this->Object, r.Object);
+  r = nullptr; // Unregister our old object.
+  return *this;
+}
+
+//----------------------------------------------------------------------------
 void vtkSmartPointerBase::Report(vtkGarbageCollector* collector,
                                  const char* desc)
 {

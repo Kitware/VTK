@@ -252,6 +252,7 @@ set(headers
   vtkAtomicTypes.h
   vtkAutoInit.h
   vtkBuffer.h
+  vtkCollectionRange.h
   vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayMeta.h
