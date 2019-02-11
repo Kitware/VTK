@@ -90,8 +90,8 @@
  *  // to add a indentifier for a vtkObjectBase or subclass
  *  vtkLogF(INFO, "The object is %s", vtkLogIdentifier(vtkobject));
  *
- *  // add a line conditionally to log if the condition fails:
- *  vtkLogIfF(INFO, ptr != nullptr, "ptr is nullptr (some number: %.3f)", *  3.14159);
+ *  // add a line conditionally to log if the condition succeeds:
+ *  vtkLogIfF(INFO, ptr == nullptr, "ptr is nullptr (some number: %.3f)", *  3.14159);
  *
  *  vtkLogScopeF(INFO, "Will indent all log messages within this scope.");
  *  // in a function, you may use vtkLogScopeFunction(INFO)
@@ -105,7 +105,7 @@
  *
  *  // alternatively, you can use streams instead of printf-style
  *  vtkLog(INFO, "I'm hungry for some " << 3.14159 << "!");
- *  vtkLogIF(INFO, ptr != nullptr, "ptr is " << "nullptr");
+ *  vtkLogIF(INFO, ptr == nullptr, "ptr is " << "nullptr");
  *
  * @endcode
  *
@@ -444,15 +444,15 @@ private:
 
 //@{
 /**
- * Add to log only when the `cond` fails.
+ * Add to log only when the `cond` passes.
  *
  *     // using printf-style
- *     vtkLogIfF(ERROR, ptr != nullptr, "`ptr` cannot be null!");
- *     vtkVLogIfF(vtkLogger::VERBOSITY_ERROR, ptr != nullptr, "`ptr` cannot be null!");
+ *     vtkLogIfF(ERROR, ptr == nullptr, "`ptr` cannot be null!");
+ *     vtkVLogIfF(vtkLogger::VERBOSITY_ERROR, ptr == nullptr, "`ptr` cannot be null!");
  *
  *     // using streams
- *     vtkLogIf(ERROR, ptr != nullptr, "`ptr` cannot be null!");
- *     vtkVLogIf(vtkLogger::VERBOSITY_ERROR, ptr != nullptr, << "`ptr` cannot be null!");
+ *     vtkLogIf(ERROR, ptr == nullptr, "`ptr` cannot be null!");
+ *     vtkVLogIf(vtkLogger::VERBOSITY_ERROR, ptr == nullptr, << "`ptr` cannot be null!");
  *
  */
 #define vtkVLogIfF(level, cond, ...)                                                               \
