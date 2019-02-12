@@ -22,13 +22,13 @@
 #define VTK_OPENGL_ES_VERSION 30
 
 /* Mobile device support. */
-#cmakedefine VTK_MODULE_vtkglew_ANDROID
+#cmakedefine VTK_MODULE_vtkglew_GLES3
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
 #endif
 
-#ifdef VTK_MODULE_vtkglew_ANDROID
+#ifdef VTK_MODULE_vtkglew_GLES3
 # include <GLES3/gl3.h>
 #elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
 # include <OpenGLES/ES3/gl.h>
