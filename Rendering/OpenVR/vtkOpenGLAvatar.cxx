@@ -61,7 +61,8 @@ void MultiplyComponents(double a[3], double scale[3])
 
 // calculate a rotation purely around Vup, using an approximate Vr (right)
 // that isn't orthogonal.
-void getTorsoTransform(vtkTransform* trans, double Vup[3], double inVr[3]) {
+// Reverse Vr, front if torso isn't facing the same way as the head.
+void getTorsoTransform(vtkTransform* trans, double Vup[3], double inVr[3], double HeadOrientation[3]) {
   double Vr[3] = { inVr[0], inVr[1], inVr[2] };
 
   // make Vr orthogonal to Vup
@@ -72,6 +73,19 @@ void getTorsoTransform(vtkTransform* trans, double Vup[3], double inVr[3]) {
   // get third basis vector
   double Vfr[3];
   vtkMath::Cross(Vup, Vr, Vfr);
+  // temporarily use trans to test Vfr versus head orientation
+  setOrientation(trans, HeadOrientation);
+  double Vhead[3] = { 1, 0, 0 };
+  trans->TransformPoint(Vhead, Vhead);
+  if (vtkMath::Dot(Vfr, Vhead) < 0) {
+    // torso is facing behind the head. Swap.
+    Vr[0] = -Vr[0];
+    Vr[1] = -Vr[1];
+    Vr[2] = -Vr[2];
+    Vfr[0] = -Vfr[0];
+    Vfr[1] = -Vfr[1];
+    Vfr[2] = -Vfr[2];
+  }
   // make new rotation matrix. Basis vectors form the rotation piece.
   trans->Identity();
   vtkNew<vtkMatrix4x4> mat;
@@ -194,7 +208,7 @@ void vtkOpenGLAvatar::CalcBody()
   vtkMath::Subtract(this->RightHandPosition, this->LeftHandPosition, torsoRight);
 
   vtkNew<vtkTransform> trans;
-  getTorsoTransform(trans, this->UpVector, torsoRight);
+  getTorsoTransform(trans, this->UpVector, torsoRight, this->HeadOrientation);
 
   trans->GetOrientation(this->BodyOrientation[TORSO]);
 
