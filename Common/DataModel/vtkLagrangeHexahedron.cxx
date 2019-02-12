@@ -39,6 +39,7 @@ vtkLagrangeHexahedron::vtkLagrangeHexahedron()
   this->Order[3] = 8;
   this->Points->SetNumberOfPoints(8);
   this->PointIds->SetNumberOfIds(8);
+  this->CellScalars->SetNumberOfTuples(this->Order[3]);
   for (int i = 0; i < 8; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
