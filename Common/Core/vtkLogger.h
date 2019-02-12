@@ -489,6 +489,7 @@ private:
   vtkVLogScopeF(vtkLogger::VERBOSITY_##verbosity_name, __VA_ARGS__)
 
 #define vtkLogScopeFunction(verbosity_name) vtkLogScopeF(verbosity_name, __func__)
+#define vtkVLogScopeFunction(level) vtkVLogScopeF(level, __func__)
 
 //@{
 /**
@@ -521,6 +522,7 @@ private:
 #define vtkVLogScopeF(level, ...)
 #define vtkLogScopeF(verbosity_name, ...)
 #define vtkLogScopeFunction(verbosity_name)
+#define vtkVLogScopeFunction(level)
 #define vtkLogStartScope(verbosity_name, id)
 #define vtkLogEndScope(id)
 #define vtkLogStartScopeF(verbosity_name, id, ...)
