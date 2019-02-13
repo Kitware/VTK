@@ -78,7 +78,7 @@ bool LSDynaMetaData::AddPointArray( const std::string& name, int numComponents, 
   }
 
 //-----------------------------------------------------------------------------
-int LSDynaMetaData::GetTotalMaterialCount()
+vtkIdType LSDynaMetaData::GetTotalMaterialCount()
 {
   return
     this->Dict["NUMMAT8"] + this->Dict["NUMMATT"] + this->Dict["NUMMAT4"] +

@@ -324,7 +324,7 @@ int LSDynaFamily::SkipToWord( SectionType sType, vtkIdType sId, vtkIdType wordNu
     this->FNum = mark.FileNumber;
     this->FAdapt = this->FileAdaptLevels[ this->FNum ];
   }
-  vtkLSDynaOff_t offset = mark.Offset * this->WordSize;
+  vtkLSDynaOff_t offset = static_cast<vtkLSDynaOff_t>(mark.Offset * this->WordSize);
   // FIXME: Handle case where wordNumber + mark.Offset > (7=factor)*512*512
   if ( VTK_LSDYNA_SEEKTELL(this->FD,offset,SEEK_SET) != offset )
   {
@@ -365,7 +365,7 @@ int LSDynaFamily::SkipWords( vtkIdType numWords )
   //determine where we are currently in the file
   vtkIdType currentPos = VTK_LSDYNA_TELL(this->FD);
 
-  VTK_LSDYNA_SEEK(this->FD, offset, SEEK_CUR);
+  VTK_LSDYNA_SEEK(this->FD, static_cast<vtkLSDynaOff_t>(offset), SEEK_CUR);
   vtkIdType amountMoved = VTK_LSDYNA_TELL(this->FD) - currentPos;
 
   offset -= amountMoved;
@@ -392,7 +392,7 @@ int LSDynaFamily::SkipWords( vtkIdType numWords )
     }
 
     //seek into the file the current offset amount
-    VTK_LSDYNA_SEEK(this->FD, offset, SEEK_CUR);
+    VTK_LSDYNA_SEEK(this->FD, static_cast<vtkLSDynaOff_t>(offset), SEEK_CUR);
     amountMoved = VTK_LSDYNA_TELL(this->FD);
     offset -= amountMoved;
   }
@@ -534,7 +534,7 @@ vtkIdType LSDynaFamily::InitPartialChunkBuffering( const vtkIdType& numTuples,
     this->BufferInfo->leftOver=(numTuples%size) * numComps;
     this->BufferInfo->loopTimes=(numTuples/size);
   }
-  int numChunks = this->BufferInfo->loopTimes;
+  vtkIdType numChunks = this->BufferInfo->loopTimes;
   if(this->BufferInfo->leftOver>0)
   {
     ++numChunks;
@@ -810,7 +810,7 @@ void LSDynaFamily::OpenFileHandles()
   if (VTK_LSDYNA_ISBADFILE(this->FD) && this->FileHandlesClosed)
   {
     this->FD = VTK_LSDYNA_OPENFILE(this->Files[this->FNum].c_str());
-    VTK_LSDYNA_SEEK(this->FD,this->FWord,SEEK_SET);
+    VTK_LSDYNA_SEEK(this->FD,static_cast<vtkLSDynaOff_t>(this->FWord),SEEK_SET);
     this->FileHandlesClosed=false;
   }
 }
