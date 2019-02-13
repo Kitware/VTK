@@ -2075,6 +2075,8 @@ function (vtk_module_build)
         "The requested ${_vtk_build_module} module is not a VTK module.")
     endif ()
 
+    _vtk_module_debug(building "@_vtk_build_module@ is being built")
+
     get_filename_component(_vtk_build_module_dir "${_vtk_build_module_file}" DIRECTORY)
     file(RELATIVE_PATH _vtk_build_module_subdir "${CMAKE_SOURCE_DIR}" "${_vtk_build_module_dir}")
     add_subdirectory(
