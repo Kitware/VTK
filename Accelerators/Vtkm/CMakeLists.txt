@@ -143,6 +143,12 @@ if (TARGET vtkm::cuda)
     PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
 endif ()
 
+# We need to install the private headers so that consumers of VTK can write
+# new VTK-m filters and do data conversions correctly.
+vtk_module_install_headers(
+    FILES   ${private_headers}
+    SUBDIR  "vtkmlib")
+
 if (MSVC)
   set(msvc_warning_flags
     # Generates numerous false positives with template code about unreachable
