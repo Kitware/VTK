@@ -17,6 +17,7 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
 
   # Suppress notes from template instantiation backtraces.
   "note: see reference to (class|function) template instantiation"
+  "note: while compiling class template member function"
 
   # This is secondary output from clang, not indicating the warning per se.
   "[0-9]* warnings? generated"
@@ -30,7 +31,7 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkLogger.cxx.*: warning: cast between incompatible function types"
 
   # Qt headers cause C4127 warnings with MSVC. Nothing we can do to fix them.
-  "[Qq]t([Cc]ore|[Gg]ui).*(warning|note)"
+  "[Qq]t([Cc]ore|[Gg]ui|[Tt]est|[Ww]idgets).*(warning|note)"
   # Qt has some functions marked as `__forceinline` which MSVC refuses to inline.
   "[Qq]t.*warning C4714"
   "[Qq]t.*note: see declaration of")
