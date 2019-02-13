@@ -10,6 +10,8 @@
 #include "vtkTable.h"
 #include "vtkDoubleArray.h"
 
+#include "vtkIncrementalOctreePointLocator.h"
+#include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -39,6 +41,13 @@
 #include "vtkTestConditionals.txx"
 
 using namespace vtk;
+
+static int expectedDOFIndices1[] = {
+   0, 1,
+   3, 2,
+   4, 5,
+   7, 6
+};
 
 static int expectedDOFIndices2[] = {
    0,  8,  1,
@@ -465,11 +474,76 @@ bool TestIntersection(T hex)
   return ok;
 }
 
+template<typename T>
+bool TestContour(T hex)
+{
+  bool ok = true;
+  double testPlanes[][6] = {
+      { 0., 0., 0.,    1., 0., 0. },
+      { 0., 0., 0.,    0., 1., 0. },
+      { 0., 0., 0.,    0., 0., 1. }
+  };
+  int testContourPointCount[] = {
+    (hex->GetOrder()[0] + 1) * (hex->GetOrder()[1] + 1),
+    (hex->GetOrder()[1] + 1) * (hex->GetOrder()[2] + 1),
+    (hex->GetOrder()[2] + 1) * (hex->GetOrder()[0] + 1),
+  };
+  for (unsigned tp = 0; tp < sizeof(testPlanes) / sizeof(testPlanes[0]); ++tp)
+  {
+    vtkVector3d origin(testPlanes[tp]);
+    vtkVector3d normal(testPlanes[tp] + 3);
+    int np = hex->GetNumberOfPoints();
+    vtkNew<vtkDoubleArray> contourScalars;
+    vtkNew<vtkPoints> contourPoints;
+    vtkNew<vtkIncrementalOctreePointLocator> locator;
+    vtkNew<vtkCellArray> verts;
+    vtkNew<vtkCellArray> lines;
+    vtkNew<vtkCellArray> polys;
+    vtkNew<vtkPointData> inPd;
+    vtkNew<vtkPointData> outPd;
+    vtkNew<vtkCellData> inCd;
+    vtkNew<vtkCellData> outCd;
+    contourScalars->SetNumberOfTuples(np);
+    locator->InitPointInsertion(contourPoints, hex->GetBounds());
+    for (vtkIdType ii = 0; ii < np; ++ii)
+    {
+      vtkVector3d pt(hex->GetPoints()->GetPoint(ii));
+      double distance = normal.Dot(origin - pt);
+      contourScalars->SetTuple1(ii, distance);
+    }
+    hex->Contour(
+      0.0, contourScalars, locator,
+      verts, lines, polys,
+      inPd, outPd, inCd, /* cellId */ 0, outCd
+    );
+
+    int stat = static_cast<int>(contourPoints->GetNumberOfPoints());
+    std::cout
+      << "\nContour planar function: orig " << origin << " norm " << normal
+      << "\n";
+    std::ostringstream tname;
+    tname << "Contour: num points out should be " << testContourPointCount[tp];
+    ok &= testEqual(stat, testContourPointCount[tp], tname.str());
+    for (int pp = 0; pp < stat; ++pp)
+    {
+      vtkVector3d pt(contourPoints->GetPoint(pp));
+      double distance = normal.Dot(origin - pt);
+      std::ostringstream testName;
+      testName << "  Contour point " << pp << ": distance ";
+      ok &= testNearlyEqual(distance, 0.0, testName.str(), 1e-5);
+    }
+  }
+  return ok;
+}
+
 int LagrangeHexahedron(int argc, char* argv[])
 {
   (void)argc;
   (void)argv;
   bool ok = true;
+
+  vtkVector3i testOrder1(1, 1, 1);
+  vtkSmartPointer<vtkLagrangeHexahedron> hex1 = CreateCell(testOrder1);
 
   vtkVector3i testOrder2(2, 2, 2);
   vtkSmartPointer<vtkLagrangeHexahedron> hex2 = CreateCell(testOrder2);
@@ -478,6 +552,7 @@ int LagrangeHexahedron(int argc, char* argv[])
   vtkSmartPointer<vtkLagrangeHexahedron> hex3 = CreateCell(testOrder3);
 
   // I. Low-level methods
+  ok &= TestDOFIndices(hex1, expectedDOFIndices1);
   ok &= TestDOFIndices(hex2, expectedDOFIndices2);
   ok &= TestDOFIndices(hex3, expectedDOFIndices3);
   ok &= TestGetFace(hex3, expectedFacePoints333);
@@ -485,8 +560,12 @@ int LagrangeHexahedron(int argc, char* argv[])
 
   // II. High-level methods
   ok &= TestEvaluation(hex2);
+  ok &= TestIntersection(hex1);
   ok &= TestIntersection(hex2);
   ok &= TestIntersection(hex3);
+  ok &= TestContour(hex1);
+  ok &= TestContour(hex2);
+  ok &= TestContour(hex3);
 
   return ok ? 0 : 1;
 }
