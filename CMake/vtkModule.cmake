@@ -746,6 +746,7 @@ function (vtk_module_scan)
   # boolean stored in the `_vtk_scan_provide_` variables.
   foreach (_vtk_scan_module IN LISTS _vtk_scan_all_modules)
     if (NOT _vtk_scan_module IN_LIST _vtk_scan_current_modules)
+      _vtk_module_debug(provide "@_vtk_scan_module@ is ignored because it is not in the current scan set")
       continue ()
     endif ()
 
@@ -793,6 +794,10 @@ function (vtk_module_scan)
     if (DEFINED "_vtk_scan_provide_${_vtk_scan_module}" AND NOT _vtk_scan_provide_${_vtk_scan_module})
       list(APPEND _vtk_scan_disabled_modules
         "${_vtk_scan_module}")
+    endif ()
+
+    if (NOT DEFINED "_vtk_scan_provide_${_vtk_scan_module}")
+      _vtk_module_debug(provide "@_vtk_scan_module@ is indeterminite (${_vtk_scan_enable_${_vtk_scan_module}})")
     endif ()
   endforeach ()
 
