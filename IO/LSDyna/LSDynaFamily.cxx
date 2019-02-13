@@ -534,7 +534,7 @@ vtkIdType LSDynaFamily::InitPartialChunkBuffering( const vtkIdType& numTuples,
     this->BufferInfo->leftOver=(numTuples%size) * numComps;
     this->BufferInfo->loopTimes=(numTuples/size);
   }
-  int numChunks = this->BufferInfo->loopTimes;
+  vtkIdType numChunks = this->BufferInfo->loopTimes;
   if(this->BufferInfo->leftOver>0)
   {
     ++numChunks;
