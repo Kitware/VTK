@@ -16,12 +16,14 @@
 #ifndef vtkCollectionRange_h
 #define vtkCollectionRange_h
 
+#ifndef __VTK_WRAP__
+
 #include "vtkCollection.h"
 #include "vtkMeta.h"
 #include "vtkSmartPointer.h"
 #include "vtkRange.h"
 
-#ifndef __VTK_WRAP__
+#include <cassert>
 
 namespace vtk
 {

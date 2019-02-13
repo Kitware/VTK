@@ -37,15 +37,126 @@ bool TestConfig(vtkCompositeDataSet *cds,
   refIter->SetSkipEmptyNodes((opts & Opts::SkipEmptyNodes) != Opts::None);
   refIter->InitTraversal();
 
-  for (auto dObj : vtk::Range(cds, opts))
+  // ref is a vtk::CompositeDataSetNodeReference:
+  for (auto node : vtk::Range(cds, opts))
   {
     if (refIter->IsDoneWithTraversal())
     {
-      TEST_FAIL("vtkCompositeIterator finished before Range iterator.");
+      TEST_FAIL("Reference iterator finished before Range iterator.");
     }
-    if (dObj != refIter->GetCurrentDataObject())
+
+    auto refDObj = refIter->GetCurrentDataObject();
+
+    // Test operator bool ()
+    if (node)
     {
-      TEST_FAIL("Range iterator does not match vtkCompositeDataIterator.");
+      if (!refDObj)
+      {
+        TEST_FAIL("NodeReference::operator bool () incorrectly returned true.");
+      }
+    }
+    else if (refDObj)
+    {
+      TEST_FAIL("NodeReference::operator bool () incorrectly returned false.");
+    }
+
+    // Test GetDataObject()
+    if (node.GetDataObject() != refDObj)
+    {
+      TEST_FAIL("NodeReference::GetDataObject() does not match reference.");
+    }
+
+    // Test operator vtkDataObject* ()
+    if (node != refDObj)
+    {
+      TEST_FAIL("NodeReference::operator vtkDataObject* () "
+                "does not match reference.");
+    }
+
+    // Test operator -> ()
+    if (node)
+    {
+      if (node->GetMTime() != refDObj->GetMTime())
+      {
+        TEST_FAIL("NodeReference::operator -> () "
+                  "does not match reference.");
+      }
+    }
+
+    // Test SetDataObject(vtkDataObject*)
+    {
+      // Set to invalid pointer, check that other iterator also shows same
+      // pointer
+      vtkSmartPointer<vtkDataObject> cache = node.GetDataObject();
+      vtkNew<vtkPolyData> dummy;
+      node.SetDataObject(dummy);
+
+      // Sanity check -- see note below about the buggy internal iterator's
+      // GetCurrentDataObject method. This check ensure that our iterators
+      // behave as expected when assigned to:
+      if (node.GetDataObject() != dummy)
+      {
+        TEST_FAIL("NodeReference::SetDataObject(vtkDataObject*) and "
+                  "NodeReference::GetDataObject() are not sane.");
+      }
+
+      // NOTE refIter->GetCurrentDataObject is buggy -- it caches the
+      // vtkDataObject pointer internally, so if the dataset changes, the
+      // iterator will hold a stale value. Look up the data object in the
+      // dataset instead. See VTK issue #17529.
+//      vtkDataObject *refDummy = refIter->GetCurrentDataObject();
+      vtkDataObject *refDummy = refIter->GetDataSet()->GetDataSet(refIter);
+      node.SetDataObject(cache);
+
+      if (refDummy != dummy)
+      {
+        TEST_FAIL("NodeReference::SetDataObject(vtkDataObject*) "
+                  "failed to set object.");
+      }
+    }
+
+    // Test operator=(vtkDataObject*)
+    {
+      // Set to invalid pointer, check that other iterator also shows same
+      // pointer
+      vtkSmartPointer<vtkDataObject> cache = node.GetDataObject();
+      vtkNew<vtkPolyData> dummy;
+      node = dummy; // NodeReference::operator=(vtkDataObject*)
+
+      // Sanity check -- see note below about the buggy internal iterator's
+      // GetCurrentDataObject method. This check ensure that our iterators
+      // behave as expected when assigned to:
+      if (node.GetDataObject() != dummy)
+      {
+        TEST_FAIL("NodeReference::operator=(vtkDataObject*) and "
+                  "NodeReference::GetDataObject() are not sane.");
+      }
+
+      // NOTE refIter->GetCurrentDataObject is buggy -- it caches the
+      // vtkDataObject pointer internally, so if the dataset changes, the
+      // iterator will hold a stale value. Look up the data object in the
+      // dataset instead. See VTK issue #17529.
+//      vtkDataObject *refDummy = refIter->GetCurrentDataObject();
+      vtkDataObject *refDummy = refIter->GetDataSet()->GetDataSet(refIter);
+      node.SetDataObject(cache);
+
+      if (refDummy != dummy)
+      {
+        TEST_FAIL("NodeReference::operator=(vtkDataObject*) "
+                  "failed to set object.");
+      }
+    }
+
+    // Test GetFlatIndex()
+    if (node.GetFlatIndex() != refIter->GetCurrentFlatIndex())
+    {
+      TEST_FAIL("NodeReference::GetFlatIndex() does not match reference.");
+    }
+
+    // Test HasMetaData
+    if (node.HasMetaData() != (refIter->HasCurrentMetaData() != 0))
+    {
+      TEST_FAIL("NodeReference::HasMetaData() does not match reference.");
     }
 
     refIter->GoToNextItem();

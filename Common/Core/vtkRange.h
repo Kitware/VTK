@@ -43,16 +43,26 @@ namespace vtk
  *       - ItemType*& references aren't generally desired.
  *       - ItemType& references are unconventional for vtkObjects.
  *       - ItemType** pointers are unruly.
+ *
  * - vtkCompositeDataSet (`#include <vtkCompositeDataSetRange.h>`)
  *   - vtk::CompositeDataSetOptions: None, SkipEmptyNodes.
  *     - Ex. vtk::Range(compDS, vtk::CompositeDataSetOptions::SkipEmptyNodes);
- *   - Read-only -- reference types not supported.
+ *   - Reverse iteration is not supported. Use vtkCompositeDataIterator directly
+ *     instead for this.
+ *   - Dereferencing the iterator yeilds a vtk::CompositeDataSetNodeReference
+ *     that provides additional API to get the node's flat index, data object,
+ *     and metadata. See that class's documentation for more information.
+ *
  * - vtkDataObjectTree (`#include <vtkDataObjectTreeRange.h>`)
  *   - vtk::DataObjectTreeOptions:
  *     None, SkipEmptyNodes, VisitOnlyLeaves, TraverseSubTree.
  *     - Ex. vtk::Range(dObjTree, vtk::DataObjectTreeOptions::TraverseSubTree |
  *                                vtk::DataObjectTreeOptions::SkipEmptyNodes);
- *   - Read-only -- reference types not supported.
+ *   - Reverse iteration is not supported. Use vtkDataObjectTreeIterator
+ *     directly instead for this.
+ *   - Dereferencing the iterator yeilds a vtk::CompositeDataSetNodeReference
+ *     that provides additional API to get the node's flat index, data object,
+ *     and metadata. See that class's documentation for more information.
  *
  * Usage:
  *

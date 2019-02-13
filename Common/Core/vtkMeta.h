@@ -16,7 +16,6 @@
 #ifndef vtkMeta_h
 #define vtkMeta_h
 
-#include <cassert>
 #include <type_traits>
 #include <utility>
 
@@ -29,6 +28,7 @@
 // Forward decs for StripPointers:
 template <typename ArrayType> class vtkNew;
 template <typename ArrayType> class vtkSmartPointer;
+template <typename ArrayType> class vtkWeakPointer;
 
 namespace vtk
 {
@@ -57,6 +57,12 @@ struct StripPointers<vtkNew<ArrayType>>
 
 template <typename ArrayType>
 struct StripPointers<vtkSmartPointer<ArrayType>>
+{
+  using type = ArrayType;
+};
+
+template <typename ArrayType>
+struct StripPointers<vtkWeakPointer<ArrayType>>
 {
   using type = ArrayType;
 };
