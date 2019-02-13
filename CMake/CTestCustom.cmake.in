@@ -17,6 +17,7 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
 
   # Suppress notes from template instantiation backtraces.
   "note: see reference to (class|function) template instantiation"
+  "note: while compiling class template member function"
 
   # This is secondary output from clang, not indicating the warning per se.
   "[0-9]* warnings? generated"
