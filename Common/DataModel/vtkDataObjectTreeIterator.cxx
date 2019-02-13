@@ -298,7 +298,7 @@ int vtkDataObjectTreeIterator::IsDoneWithTraversal()
 //----------------------------------------------------------------------------
 void vtkDataObjectTreeIterator::GoToFirstItem()
 {
-  this->CurrentFlatIndex = 0;
+  this->SetCurrentFlatIndex(0);
   this->Internals->Iterator->Initialize(this->Reverse !=0, this->DataSet);
   this->NextInternal();
 
@@ -349,6 +349,8 @@ void vtkDataObjectTreeIterator::NextInternal()
     this->Internals->Iterator->Next();
   }
   while (!this->TraverseSubTree && this->Internals->Iterator->InSubTree());
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------

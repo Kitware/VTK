@@ -44,14 +44,14 @@ void vtkCompositeDataIterator::SetDataSet(vtkCompositeDataSet* ds)
 //----------------------------------------------------------------------------
 void vtkCompositeDataIterator::InitTraversal()
 {
-  this->Reverse = 0;
+  this->SetReverse(0);
   this->GoToFirstItem();
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositeDataIterator::InitReverseTraversal()
 {
-  this->Reverse = 1;
+  this->SetReverse(1);
   this->GoToFirstItem();
 }
 
