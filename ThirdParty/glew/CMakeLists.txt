@@ -9,7 +9,7 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS)
 
 if (ANDROID)
-  set(VTK_MODULE_vtkglew_ANDROID 1)
+  set(VTK_MODULE_vtkglew_GLES3 1)
 endif ()
 
 include(vtkDetectLibraryType)
