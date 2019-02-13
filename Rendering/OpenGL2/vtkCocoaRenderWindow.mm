@@ -548,7 +548,12 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
         // Convert the given new size from pixels to points.
         NSRect backingNewRect = NSMakeRect(0.0, 0.0, (CGFloat)x, (CGFloat)y);
         NSRect newRect = [window convertRectFromBacking:backingNewRect];
+        NSView *theView = (NSView*)this->GetWindowId();
+
+        // Set the window size and the view size.
         [window setContentSize:newRect.size];
+        [theView setFrame:newRect];
+        [theView setNeedsDisplay:YES];
 
         resizing = false;
       }
@@ -847,6 +852,9 @@ void vtkCocoaRenderWindow::CreateAWindow()
       vtkCocoaGLView *glView = [[vtkCocoaGLView alloc] initWithFrame:viewRect];
       [glView setWantsBestResolutionOpenGLSurface:wantsBest];
       [window setContentView:glView];
+      // We have to set the frame's view rect again to work around rounding
+      // that occurs when setting the window's content view.
+      [glView setFrame:viewRect];
       this->SetWindowId(glView);
       this->ViewCreated = 1;
       [glView setVTKRenderWindow:this];
