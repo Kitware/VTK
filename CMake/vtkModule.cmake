@@ -2082,6 +2082,12 @@ function (vtk_module_build)
     add_subdirectory(
       "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}"
       "${CMAKE_BINARY_DIR}/${_vtk_build_module_subdir}")
+
+    if (NOT TARGET "${_vtk_build_module}")
+      message(FATAL_ERROR
+        "The ${_vtk_build_module} is being built, but a matching target was "
+        "not created.")
+    endif ()
   endforeach ()
 
   if (_vtk_build_BUILD_WITH_KITS)
