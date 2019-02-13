@@ -2,6 +2,8 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkCell.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
@@ -14,8 +16,6 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataIterator.h"
 
 #include <vector>
 
@@ -130,14 +130,11 @@ int vtkLinearSelector::RequestData( vtkInformation* vtkNotUsed( request ),
   } // if ( ! compositeInput )
 
   // Now traverse the input
-  vtkCompositeDataIterator* inputIterator = compositeInput->NewIterator();
-  inputIterator->SkipEmptyNodesOn();
-  inputIterator->InitTraversal();
-  inputIterator->GoToFirstItem();
-  for ( ; ! inputIterator->IsDoneWithTraversal(); inputIterator->GoToNextItem() )
+  using Opts = vtk::CompositeDataSetOptions;
+  for (auto node : vtk::Range(compositeInput, Opts::SkipEmptyNodes))
   {
     // Retrieve indices of current object
-    vtkDataSet* input = vtkDataSet::SafeDownCast( inputIterator->GetCurrentDataObject() );
+    vtkDataSet* input = vtkDataSet::SafeDownCast( node.GetDataObject() );
     vtkIdTypeArray* indices = vtkIdTypeArray::New();
     this->SeekIntersectingCells( input, indices );
 
@@ -145,7 +142,8 @@ int vtkLinearSelector::RequestData( vtkInformation* vtkNotUsed( request ),
     vtkSelectionNode* n = vtkSelectionNode::New();
     n->SetContentType( vtkSelectionNode::INDICES );
     n->SetFieldType( vtkSelectionNode::CELL );
-    n->GetProperties()->Set( vtkSelectionNode::COMPOSITE_INDEX(), inputIterator->GetCurrentFlatIndex() );
+    n->GetProperties()->Set( vtkSelectionNode::COMPOSITE_INDEX(),
+                             static_cast<int>(node.GetFlatIndex()) );
     n->SetSelectionList( indices );
     output->AddNode( n );
 
@@ -153,9 +151,6 @@ int vtkLinearSelector::RequestData( vtkInformation* vtkNotUsed( request ),
     n->Delete();
     indices->Delete();
   }
-
-  // Clean up
-  inputIterator->Delete();
 
   return 1;
 }

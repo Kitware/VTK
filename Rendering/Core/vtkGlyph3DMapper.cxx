@@ -798,11 +798,11 @@ double* vtkGlyph3DMapper::GetBounds()
   }
 
   vtkBoundingBox bbox;
-  vtkCompositeDataIterator* iter = cd->NewIterator();
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-    iter->GoToNextItem())
+
+  using Opts = vtk::CompositeDataSetOptions;
+  for (vtkDataObject *dObj : vtk::Range(cd, Opts::SkipEmptyNodes))
   {
-    ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    ds = vtkDataSet::SafeDownCast(dObj);
     if (ds)
     {
       double tmpBounds[6];
@@ -811,9 +811,8 @@ double* vtkGlyph3DMapper::GetBounds()
     }
   }
   bbox.GetBounds(this->Bounds);
-  iter->Delete();
-  return this->Bounds;
 
+  return this->Bounds;
 }
 
 //-------------------------------------------------------------------------

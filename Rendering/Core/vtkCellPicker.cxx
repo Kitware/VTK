@@ -17,7 +17,7 @@
 
 #include "vtkCommand.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkMath.h"
 #include "vtkBox.h"
 #include "vtkPiecewiseFunction.h"
@@ -429,18 +429,15 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
         vtkCompositeDataSet::SafeDownCast(mapper->GetInputDataObject(0,0));
     if ( composite )
     {
-      vtkSmartPointer<vtkCompositeDataIterator> iter;
-      iter.TakeReference( composite->NewIterator() );
-      for (iter->InitTraversal();
-           !iter->IsDoneWithTraversal();
-           iter->GoToNextItem())
+      using Opts = vtk::CompositeDataSetOptions;
+      for (auto node : vtk::Range(composite, Opts::SkipEmptyNodes))
       {
-        vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+        vtkDataSet* ds = vtkDataSet::SafeDownCast(node.GetDataObject());
         if (!ds)
         {
           vtkDebugMacro(<< "Skipping "
-                        << iter->GetCurrentDataObject()->GetClassName()
-                        << " block at index "<< iter->GetCurrentFlatIndex()
+                        << node.GetDataObject()->GetClassName()
+                        << " block at index " << node.GetFlatIndex()
                         << ": not a dataset");
           continue;
         }
@@ -475,7 +472,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
         {
           tMin = t;
 
-          flatIndex = iter->GetCurrentFlatIndex();
+          flatIndex = node.GetFlatIndex();
           data = ds;
           locator = loc;
 
