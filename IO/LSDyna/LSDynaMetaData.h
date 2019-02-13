@@ -43,7 +43,7 @@ public:
 
   bool AddCellArray( int cellType, const std::string& name, int numComponents, int status );
 
-  int GetTotalMaterialCount();
+  vtkIdType GetTotalMaterialCount();
 
   void Reset();
 
