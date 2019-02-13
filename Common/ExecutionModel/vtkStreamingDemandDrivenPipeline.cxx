@@ -164,7 +164,7 @@ int vtkStreamingDemandDrivenPipeline
     }
     if(N2E)
     {
-      vtkLogf(TRACE, "%s execute-update-time", vtkLogIdentifier(this->Algorithm));
+      vtkLogF(TRACE, "%s execute-update-time", vtkLogIdentifier(this->Algorithm));
       result = this->CallAlgorithm(request, vtkExecutive::RequestUpstream,
                                    inInfoVec, outInfoVec);
       // Propagate the update extent to all inputs.
@@ -207,7 +207,7 @@ int vtkStreamingDemandDrivenPipeline
       {
         return 0;
       }
-      vtkLogf(TRACE, "%s execute-time-dependent-information", vtkLogIdentifier(this->Algorithm));
+      vtkLogF(TRACE, "%s execute-time-dependent-information", vtkLogIdentifier(this->Algorithm));
       result = this->CallAlgorithm(request, vtkExecutive::RequestUpstream,
                                    inInfoVec, outInfoVec);
     }
@@ -328,7 +328,7 @@ int vtkStreamingDemandDrivenPipeline
       {
         // Invoke the request on the algorithm.
         this->LastPropogateUpdateExtentShortCircuited = 0;
-        vtkLogf(TRACE, "%s execute-update-extent", vtkLogIdentifier(this->Algorithm));
+        vtkLogF(TRACE, "%s execute-update-extent", vtkLogIdentifier(this->Algorithm));
         result = this->CallAlgorithm(request, vtkExecutive::RequestUpstream,
                                      inInfoVec, outInfoVec);
 

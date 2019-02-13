@@ -53,7 +53,7 @@
  *
  * vtkLogger provides several macros (again, based on `loguru`) that can be
  * used to add the log. Both printf-style and stream-style is supported. All
- * printf-style macros are suffixed with `f` to distinguish them from the stream
+ * printf-style macros are suffixed with `F` to distinguish them from the stream
  * macros. Another pattern in naming macros is the presence of `V`
  * e.g. `vtkVLog` vs `vtkLog`. A macro with the `V` prefix takes a fully
  * qualified verbosity enum e.g. `vtkLogger::VERBOSITY_INFO` or
@@ -80,25 +80,32 @@
  *  vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_1);
  *
  *  // add a line to log using the verbosity name.
- *  vtkLogf(INFO, "I'm hungry for some %.3f!", 3.14159);
- *  vtkLogf(0, "same deal");
+ *  vtkLogF(INFO, "I'm hungry for some %.3f!", 3.14159);
+ *  vtkLogF(0, "same deal");
  *
  *  // add a line to log using the verbosity enum.
- *  vtkVLogf(vtkLogger::VERBOSITY_INFO, "I'm hungry for some %.3f!", 3.14159);
- *  vtkVLogf(vtkLogger::VERBOSITY_0, "same deal");
+ *  vtkVLogF(vtkLogger::VERBOSITY_INFO, "I'm hungry for some %.3f!", 3.14159);
+ *  vtkVLogF(vtkLogger::VERBOSITY_0, "same deal");
  *
  *  // to add a indentifier for a vtkObjectBase or subclass
- *  vtkLogf(INFO, "The object is %s", vtkLogIdentifier(vtkobject));
+ *  vtkLogF(INFO, "The object is %s", vtkLogIdentifier(vtkobject));
  *
- *  // add a line conditionally to log if the condition fails:
- *  vtkLogIff(INFO, ptr != nullptr, "ptr is nullptr (some number: %.3f)", *  3.14159);
+ *  // add a line conditionally to log if the condition succeeds:
+ *  vtkLogIfF(INFO, ptr == nullptr, "ptr is nullptr (some number: %.3f)", *  3.14159);
  *
- *  vtkLogScopef(INFO, "Will indent all log messages within this scope.");
+ *  vtkLogScopeF(INFO, "Will indent all log messages within this scope.");
  *  // in a function, you may use vtkLogScopeFunction(INFO)
+ *
+ *  // scope can be explicitly started and closed by vtkLogStartScope (or
+ *  // vtkLogStartScopef) and vtkLogEndScope
+ *  vtkLogStartScope(INFO, "id-used-as-message");
+ *  vtkLogStartScopeF(INFO, "id", "message-%d", 1);
+ *  vtkLogEndScope("id");
+ *  vtkLogEndScope("id-used-as-message");
  *
  *  // alternatively, you can use streams instead of printf-style
  *  vtkLog(INFO, "I'm hungry for some " << 3.14159 << "!");
- *  vtkLogIf(INFO, ptr != nullptr, "ptr is " << "nullptr");
+ *  vtkLogIF(INFO, ptr == nullptr, "ptr is " << "nullptr");
  *
  * @endcode
  *
@@ -335,6 +342,22 @@ public:
    */
   static Verbosity GetCurrentVerbosityCutoff();
 
+  /**
+   * Convenience function to convert an integer to matching verbosity level. If
+   * val is less than or equal to vtkLogger::VERBOSITY_INVALID, then
+   * vtkLogger::VERBOSITY_INVALID is returned. If value is greater than
+   * vtkLogger::VERBOSITY_MAX, then vtkLogger::VERBOSITY_MAX is returned.
+   */
+  static Verbosity ConvertToVerbosity(int value);
+
+  /**
+   * Convenience function to convert a string to matching verbosity level.
+   * vtkLogger::VERBOSITY_INVALID will be return for invalid strings.
+   * Accepted string values are OFF, ERROR, WARNING, INFO, TRACE, MAX, INVALID or ASCII
+   * representation for an integer in the range [-9,9].
+   */
+  static Verbosity ConvertToVerbosity(const char* value);
+
   //@{
   /**
    * @internal
@@ -342,9 +365,14 @@ public:
    * Not intended for public use, please use the logging macros instead.
    */
   static void Log(Verbosity verbosity, const char* fname, unsigned int lineno, const char* txt);
+  static void StartScope(
+    Verbosity verbosity, const char* id, const char* fname, unsigned int lineno);
+  static void EndScope(const char* id);
 #if !defined(__WRAP__)
-  static void Logf(Verbosity verbosity, const char* fname, unsigned int lineno,
+  static void LogF(Verbosity verbosity, const char* fname, unsigned int lineno,
       VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(4, 5);
+  static void StartScopeF(Verbosity verbosity, const char* id, const char* fname,
+    unsigned int lineno, VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(5, 6);
 
   class VTKCOMMONCORE_EXPORT LogScopeRAII
   {
@@ -370,7 +398,6 @@ public:
     LSInternals* Internals;
   };
 #endif
-
   //@}
 protected:
   vtkLogger();
@@ -389,19 +416,19 @@ private:
  * or higher.
  *
  *     // using printf-style
- *     vtkLogf(INFO, "Hello %s", "world!");
- *     vtkVLogf(vtkLogger::VERBOSITY_INFO, "Hello %s", "world!");
+ *     vtkLogF(INFO, "Hello %s", "world!");
+ *     vtkVLogF(vtkLogger::VERBOSITY_INFO, "Hello %s", "world!");
  *
  *     // using streams
  *     vtkLog(INFO, "Hello " << "world!");
  *     vtkVLog(vtkLogger::VERBOSITY_INFO, << "Hello world!");
  *
  */
-#define vtkVLogf(level, ...)                                                                       \
+#define vtkVLogF(level, ...)                                                                       \
   ((level) > vtkLogger::GetCurrentVerbosityCutoff())                                               \
     ? (void)0                                                                                      \
-    : vtkLogger::Logf(level, __FILE__, __LINE__, __VA_ARGS__)
-#define vtkLogf(verbosity_name, ...) vtkVLogf(vtkLogger::VERBOSITY_##verbosity_name, __VA_ARGS__)
+    : vtkLogger::LogF(level, __FILE__, __LINE__, __VA_ARGS__)
+#define vtkLogF(verbosity_name, ...) vtkVLogF(vtkLogger::VERBOSITY_##verbosity_name, __VA_ARGS__)
 #define vtkVLog(level, x)                                                                          \
   if ((level) <= vtkLogger::GetCurrentVerbosityCutoff())                                           \
   {                                                                                                \
@@ -417,24 +444,24 @@ private:
 
 //@{
 /**
- * Add to log only when the `cond` fails.
+ * Add to log only when the `cond` passes.
  *
  *     // using printf-style
- *     vtkLogIff(ERROR, ptr != nullptr, "`ptr` cannot be null!");
- *     vtkVLogIff(vtkLogger::VERBOSITY_ERROR, ptr != nullptr, "`ptr` cannot be null!");
+ *     vtkLogIfF(ERROR, ptr == nullptr, "`ptr` cannot be null!");
+ *     vtkVLogIfF(vtkLogger::VERBOSITY_ERROR, ptr == nullptr, "`ptr` cannot be null!");
  *
  *     // using streams
- *     vtkLogIf(ERROR, ptr != nullptr, "`ptr` cannot be null!");
- *     vtkVLogIf(vtkLogger::VERBOSITY_ERROR, ptr != nullptr, << "`ptr` cannot be null!");
+ *     vtkLogIf(ERROR, ptr == nullptr, "`ptr` cannot be null!");
+ *     vtkVLogIf(vtkLogger::VERBOSITY_ERROR, ptr == nullptr, << "`ptr` cannot be null!");
  *
  */
-#define vtkVLogIff(level, cond, ...)                                                               \
+#define vtkVLogIfF(level, cond, ...)                                                               \
   ((level) > vtkLogger::GetCurrentVerbosityCutoff() || (cond) == false)                            \
     ? (void)0                                                                                      \
-    : vtkLogger::Logf(level, __FILE__, __LINE__, __VA_ARGS__)
+    : vtkLogger::LogF(level, __FILE__, __LINE__, __VA_ARGS__)
 
-#define vtkLogIff(verbosity_name, cond, ...)                                                       \
-  vtkVLogIff(vtkLogger::VERBOSITY_##verbosity_name, cond, __VA_ARGS__)
+#define vtkLogIfF(verbosity_name, cond, ...)                                                       \
+  vtkVLogIfF(vtkLogger::VERBOSITY_##verbosity_name, cond, __VA_ARGS__)
 
 #define vtkVLogIf(level, cond, x)                                                                  \
   if ((level) <= vtkLogger::GetCurrentVerbosityCutoff() && (cond))                                 \
@@ -453,30 +480,54 @@ private:
 #define VTKLOG_CONCAT(s1, s2) VTKLOG_CONCAT_IMPL(s1, s2)
 #define VTKLOG_ANONYMOUS_VARIABLE(x) VTKLOG_CONCAT(x, __LINE__)
 
-#define vtkVLogScopef(level, ...)                                                                  \
+#define vtkVLogScopeF(level, ...)                                                                  \
   auto VTKLOG_ANONYMOUS_VARIABLE(msg_context) = ((level) > vtkLogger::GetCurrentVerbosityCutoff()) \
     ? vtkLogger::LogScopeRAII()                                                                    \
     : vtkLogger::LogScopeRAII(level, __FILE__, __LINE__, __VA_ARGS__)
 
-#define vtkLogScopef(verbosity_name, ...)                                                          \
-  vtkVLogScopef(vtkLogger::VERBOSITY_##verbosity_name, __VA_ARGS__)
+#define vtkLogScopeF(verbosity_name, ...)                                                          \
+  vtkVLogScopeF(vtkLogger::VERBOSITY_##verbosity_name, __VA_ARGS__)
 
-#define vtkLogScopeFunction(verbosity_name) vtkLogScopef(verbosity_name, __func__)
+#define vtkLogScopeFunction(verbosity_name) vtkLogScopeF(verbosity_name, __func__)
+#define vtkVLogScopeFunction(level) vtkVLogScopeF(level, __func__)
+
+//@{
+/**
+ * Explicitly mark start and end of log scope. This is useful in cases where the
+ * start and end of the scope does not happen within the same C++ scope.
+ */
+#define vtkLogStartScope(verbosity_name, id)                                                       \
+  vtkLogger::StartScope(vtkLogger::VERBOSITY_##verbosity_name, id, __FILE__, __LINE__)
+#define vtkLogEndScope(id) vtkLogger::EndScope(id)
+
+#define vtkLogStartScopeF(verbosity_name, id, ...)                                                 \
+  vtkLogger::StartScopeF(vtkLogger::VERBOSITY_##verbosity_name, id, __FILE__, __LINE__, __VA_ARGS__)
+
+#define vtkVLogStartScope(level, id) vtkLogger::StartScope(level, id, __FILE__, __LINE__)
+#define vtkVLogStartScopeF(level, id, ...)                                                         \
+  vtkLogger::StartScopeF(level, id, __FILE__, __LINE__, __VA_ARGS__)
+//@}
 
 #else // if VTK_ENABLE_LOGGING
 
 // define empty macros for non-logging enabled VTK builds.
-#define vtkVLogf(level, ...)
-#define vtkLogf(verbosity_name, ...)
+#define vtkVLogF(level, ...)
+#define vtkLogF(verbosity_name, ...)
 #define vtkVLog(level, x)
 #define vtkLog(verbosity_name, x)
-#define vtkVLogIff(level, cond, ...)
-#define vtkLogIff(verbosity_name, cond, ...)
+#define vtkVLogIfF(level, cond, ...)
+#define vtkLogIfF(verbosity_name, cond, ...)
 #define vtkVLogIf(level, cond, x)
 #define vtkLogIf(verbosity_name, cond, x)
-#define vtkVLogScopef(level, ...)
-#define vtkLogScopef(verbosity_name, ...)
+#define vtkVLogScopeF(level, ...)
+#define vtkLogScopeF(verbosity_name, ...)
 #define vtkLogScopeFunction(verbosity_name)
+#define vtkVLogScopeFunction(level)
+#define vtkLogStartScope(verbosity_name, id)
+#define vtkLogEndScope(id)
+#define vtkLogStartScopeF(verbosity_name, id, ...)
+#define vtkVLogStartScope(level, id)
+#define vtkVLogStartScopeF(level, id, ...)
 
 #endif // if VTK_ENABLE_LOGGING
 
