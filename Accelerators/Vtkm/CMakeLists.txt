@@ -134,6 +134,9 @@ vtk_module_add_module(VTK::AcceleratorsVTKm
 vtk_module_set_property(VTK::AcceleratorsVTKm
   PROPERTY  JOB_POOL_COMPILE
   VALUE     vtkm_pool)
+vtk_module_link(VTK::AcceleratorsVTKm
+  PRIVATE
+    vtkm_worklet)
 
 if (TARGET vtkm::cuda)
   vtk_module_set_property(VTK::AcceleratorsVTKm
