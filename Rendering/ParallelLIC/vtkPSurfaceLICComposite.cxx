@@ -86,7 +86,7 @@ string mpifn(int rank, const char *fn)
 // this is a non-scalable operation so
 // only use it for debugging.
 
-// #define DUPLICATE_COMMUNICATOR
+#define DUPLICATE_COMMUNICATOR 0
 
 // ***************************************************************************
 static
