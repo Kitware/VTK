@@ -529,7 +529,7 @@ static double SignedZero(bool sign) {
 // because it constant-propagated the radix and concluded that the last
 // condition was always true. By moving it into a separate function the
 // compiler wouldn't warn anymore.
-#if _MSC_VER
+#ifdef _MSC_VER
 #pragma optimize("",off)
 static bool IsDecimalDigitForRadix(int c, int radix) {
   return '0' <= c && c <= '9' && (c - '0') < radix;
