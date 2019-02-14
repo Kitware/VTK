@@ -53,7 +53,7 @@ XdmfHDF::XdmfHDF() {
   this->UseSerialFile = 0;
   // We may have been compiled with Parallel IO support, but be run only on a single
   // machine without mpiexec. Disable parallel if just one process.
-#if H5_HAVE_PARALLEL && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=6)))
+#if defined(H5_HAVE_PARALLEL) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=6)))
   int valid, nprocs=0;
   MPI_Initialized(&valid);
   if (valid) 
@@ -276,7 +276,7 @@ XdmfHDF::Mkdir( XdmfString Name )
 
   XdmfDebug( " Checking for Existance of HDF Directory " << Name );
   H5E_BEGIN_TRY {
-#if (!H5_USE_16_API && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
+#if (!defined(H5_USE_16_API) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
     NewDirectory = H5Gopen( this->Cwd, Name, H5P_DEFAULT );
 #else
     NewDirectory = H5Gopen( this->Cwd, Name );
@@ -284,7 +284,7 @@ XdmfHDF::Mkdir( XdmfString Name )
   } H5E_END_TRY;
   if ( NewDirectory < 0 ) {
     XdmfDebug( " Creating HDF Directory " << Name );
-#if (!H5_USE_16_API && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
+#if (!defined(H5_USE_16_API) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
     H5Gcreate(this->Cwd, Name , 0, H5P_DEFAULT, H5P_DEFAULT);
 #else
     H5Gcreate(this->Cwd, Name , 0);
@@ -369,7 +369,7 @@ XdmfHDF::CreateDataset( XdmfConstString path ) {
 
     // This is no necessarily an error
     H5E_BEGIN_TRY {
-#if (!H5_USE_16_API && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
+#if (!defined(H5_USE_16_API) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
       Directory = H5Gopen( this->Cwd, Pathname, H5P_DEFAULT );
 #else
       Directory = H5Gopen( this->Cwd, Pathname );
@@ -390,7 +390,7 @@ XdmfHDF::CreateDataset( XdmfConstString path ) {
         if( *TmpSlash == '/' ){
           *TmpSlash = '\0';
           H5E_BEGIN_TRY {
-#if (!H5_USE_16_API && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
+#if (!defined(H5_USE_16_API) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
             Directory = H5Gopen( this->Cwd, Pathname, H5P_DEFAULT );
 #else
             Directory = H5Gopen( this->Cwd, Pathname );
@@ -398,7 +398,7 @@ XdmfHDF::CreateDataset( XdmfConstString path ) {
           } H5E_END_TRY;
           if( Directory < 0 ){
             XdmfDebug("Creating Directory" << Pathname );
-#if (!H5_USE_16_API && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
+#if (!defined(H5_USE_16_API) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
             Directory = H5Gcreate( this->Cwd, Pathname, 0, H5P_DEFAULT, H5P_DEFAULT);
 #else
             Directory = H5Gcreate( this->Cwd, Pathname, 0);
@@ -429,7 +429,7 @@ XdmfHDF::CreateDataset( XdmfConstString path ) {
     this->Dataset=H5I_BADID;
     }
   H5E_BEGIN_TRY {
-#if (!H5_USE_16_API && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
+#if (!defined(H5_USE_16_API) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
     this->Dataset = H5Dopen( this->Cwd, this->Path, H5P_DEFAULT );
 #else
     this->Dataset = H5Dopen( this->Cwd, this->Path );
@@ -438,7 +438,7 @@ XdmfHDF::CreateDataset( XdmfConstString path ) {
   if( this->Dataset < 0 ) {
     if(this->Compression <= 0){
       XdmfDebug("Creating New Contiguous Dataset");
-#if (!H5_USE_16_API && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
+#if (!defined(H5_USE_16_API) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
       this->Dataset = H5Dcreate(this->Cwd,
         this->Path,
         this->GetDataType(),
@@ -480,7 +480,7 @@ XdmfHDF::CreateDataset( XdmfConstString path ) {
       compression = MIN(this->Compression, 9);
       XdmfDebug("Compression Level = " << compression);
       H5Pset_deflate(Prop, compression);
-#if (!H5_USE_16_API && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
+#if (!defined(H5_USE_16_API) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
       this->Dataset = H5Dcreate(this->Cwd,
         this->Path,
         this->GetDataType(),
@@ -515,7 +515,7 @@ XdmfHDF::OpenDataset() {
     H5Dclose(this->Dataset);
   }
 
-#if (!H5_USE_16_API && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
+#if (!defined(H5_USE_16_API) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
   this->Dataset = H5Dopen(this->Cwd, this->Path, H5P_DEFAULT);
 #else
   this->Dataset = H5Dopen(this->Cwd, this->Path);
@@ -746,7 +746,7 @@ XdmfHDF::DoOpen( XdmfConstString DataSetName, XdmfConstString access ) {
     } else if( STRCASECMP( this->Domain, "GASS" ) == 0 ) {
     } else {
       // Check for Parallel HDF5 ... MPI must already be initialized
-#if H5_HAVE_PARALLEL && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=6)))
+#if defined(H5_HAVE_PARALLEL) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=6)))
       if((!this->UseSerialFile) && (STRCASECMP( this->Domain, "SERIAL" ) != 0 )) {
         XdmfDebug("Using Parallel File Interface, Path = " << this->GetWorkingDirectory() );
 
@@ -819,7 +819,7 @@ XdmfDebug("this->File = " << this->File);
       return( XDMF_FAIL );  
     }
   }
-#if (!H5_USE_16_API && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
+#if (!defined(H5_USE_16_API) && ((H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))))
     this->Cwd = H5Gopen(this->File, "/", H5P_DEFAULT);
 #else
     this->Cwd = H5Gopen(this->File, "/");
