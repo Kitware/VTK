@@ -240,11 +240,7 @@ bool vtkODBCDatabase::IsSupported(int feature)
       return false;
 
     case VTK_SQL_FEATURE_POSITIONAL_PLACEHOLDERS:
-#if MYSQL_VERSION_ID >= 40108
       return true;
-#else
-      return false;
-#endif
 
     case VTK_SQL_FEATURE_PREPARED_QUERIES:
     {
