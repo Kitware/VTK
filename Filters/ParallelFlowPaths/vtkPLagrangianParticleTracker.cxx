@@ -1021,8 +1021,9 @@ bool vtkPLagrangianParticleTracker::CheckParticlePathsRenderingThreshold(
     if (this->UseParticlePathsRenderingThreshold)
     {
       // Reduce the totalNumberOfPoints to check if we need to display the particle paths.
-      vtkIdType totalNPoints = particlePathsOutput->GetNumberOfPoints();
-      this->Controller->AllReduce(&totalNPoints, &totalNPoints, 1, vtkCommunicator::SUM_OP);
+      vtkIdType localNPoints = particlePathsOutput->GetNumberOfPoints();
+      vtkIdType totalNPoints;
+      this->Controller->AllReduce(&localNPoints, &totalNPoints, 1, vtkCommunicator::SUM_OP);
       return totalNPoints > this->ParticlePathsRenderingPointsThreshold;
     }
     else
