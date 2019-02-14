@@ -1,5 +1,5 @@
-if (ANDROID)
-  set(VTK_MODULE_vtkglew_ANDROID 1)
+if (VTK_OPENGL_USE_GLES OR ANDROID)
+  set(VTK_MODULE_vtkglew_GLES3 1)
 endif()
 
 if (NOT BUILD_SHARED_LIBS)
