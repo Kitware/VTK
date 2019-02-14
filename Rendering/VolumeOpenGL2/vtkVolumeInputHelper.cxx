@@ -139,7 +139,7 @@ int vtkVolumeInputHelper::UpdateOpacityTransferFunction(vtkRenderer* ren, vtkVol
     samplingDist,
     componentRange,
     volumeProperty->GetScalarOpacityUnitDistance(component),
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
     filterVal,
 #else
     vtkTextureObject::Nearest,
@@ -188,7 +188,7 @@ int vtkVolumeInputHelper::UpdateColorTransferFunction(vtkRenderer* ren, vtkVolum
   this->RGBTables->GetTable(component)->Update(
     volumeProperty->GetRGBTransferFunction(component),
     componentRange,
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
     filterVal,
 #else
     vtkTextureObject::Nearest,
@@ -246,7 +246,7 @@ int vtkVolumeInputHelper::UpdateGradientOpacityTransferFunction(vtkRenderer* ren
     samplingDist,
     componentRange,
     volumeProperty->GetScalarOpacityUnitDistance(component),
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
     filterVal,
 #else
     vtkTextureObject::Nearest,
@@ -265,7 +265,7 @@ void vtkVolumeInputHelper::UpdateTransferFunction2D(vtkRenderer* ren,
     component : 0;
 
   vtkImageData* transfer2D = prop->GetTransferFunction2D(lutIndex);
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   int const interp = prop->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
     vtkTextureObject::Linear : vtkTextureObject::Nearest;
 #else

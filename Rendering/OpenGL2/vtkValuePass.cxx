@@ -704,7 +704,7 @@ void vtkValuePass::ReleaseFBO(vtkWindow* win)
 //-----------------------------------------------------------------------------
 bool vtkValuePass::IsFloatingPointModeSupported()
 {
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   return true;
 #else
   return true;
@@ -744,7 +744,7 @@ void vtkValuePass::GetFloatImageData(int const format, int const width,
 
   // Calling pack alignment ensures any window size can be grabbed.
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
 #endif
 

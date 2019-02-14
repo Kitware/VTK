@@ -2366,7 +2366,7 @@ void vtkOpenGLPolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* ren, vtkAct
 void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 {
   // Set the PointSize and LineWidget
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
 #endif
 
@@ -2463,7 +2463,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       GLenum mode = this->GetOpenGLMode(representation, i);
       if (pointPicking)
       {
-  #if GL_ES_VERSION_3_0 != 1
+  #ifndef GL_ES_VERSION_3_0
         glPointSize(this->GetPointPickingPrimitiveSize(i));
   #endif
         mode = GL_POINTS;

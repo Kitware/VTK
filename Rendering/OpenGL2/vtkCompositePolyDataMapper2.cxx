@@ -308,7 +308,7 @@ void vtkCompositeMapperHelper2::DrawIBO(
   {
     if (pointSize > 0)
     {
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
       glPointSize(pointSize); // need to use shader value
 #endif
     }

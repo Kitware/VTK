@@ -50,7 +50,7 @@
 #endif
 
 /* some fixes for both ES 2 and 3 */
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
 #  define glDrawBuffer(arg)
 #  define GL_BACK_LEFT 0
 #  define GL_BACK_RIGHT 0
@@ -67,7 +67,7 @@
 #endif
 
 /*** deal with some GLES 3.0 specific issues ***/
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
 #  define GLEW_ARB_vertex_array_object 1
 #  define GLEW_ARB_instanced_arrays 1
 #endif

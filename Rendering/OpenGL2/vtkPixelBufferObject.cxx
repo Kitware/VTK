@@ -61,7 +61,7 @@ static const char *BufferObjectUsageAsString[9]=
 // access modes
 const GLenum OpenGLBufferObjectAccess[2]=
 {
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   GL_MAP_WRITE_BIT,
   GL_MAP_READ_BIT
 #else
@@ -412,7 +412,7 @@ void *vtkPixelBufferObject::MapBuffer(
   glBufferData(target, size, nullptr, usage);
   vtkOpenGLCheckErrorMacro("failed at glBufferData");
 
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   void *pPBO = glMapBufferRange(target, 0, size, access);
 #else
   void *pPBO = glMapBuffer(target, access);
@@ -457,7 +457,7 @@ void *vtkPixelBufferObject::MapBuffer(BufferType mode)
   glBindBuffer(target, ioBuf);
   vtkOpenGLCheckErrorMacro("failed at glBindBuffer");
 
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   void *pPBO = glMapBufferRange(this->BufferTarget, 0, this->Size, access);
 #else
   void *pPBO = glMapBuffer(target, access);
@@ -546,7 +546,7 @@ bool vtkPixelBufferObject::Upload3D(
 
   if (data)
   {
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
     void* ioMem = glMapBufferRange(this->BufferTarget, 0, size, GL_MAP_WRITE_BIT);
 #else
     void* ioMem = glMapBuffer(this->BufferTarget, GL_WRITE_ONLY);
@@ -727,7 +727,7 @@ bool vtkPixelBufferObject::Download3D(
   this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
 
 
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   void* ioMem = glMapBufferRange(this->BufferTarget, 0, this->Size, GL_MAP_READ_BIT);
 #else
   void* ioMem = glMapBuffer(this->BufferTarget, GL_READ_ONLY);

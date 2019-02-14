@@ -549,7 +549,7 @@ int vtkOpenGLRenderWindow::GetDefaultTextureInternalFormat(
   {
     switch (result)
     {
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
       case GL_RGB: result = GL_SRGB8; break;
       case GL_RGBA: result = GL_SRGB8_ALPHA8; break;
 #else
@@ -649,7 +649,7 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
   // on mesa we may not have float textures even though we think we do
   // this is due to Mesa being impacted by a patent issue with SGI
   // that is due to expire in the US in summer 2018
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   const char *glVersion =
     reinterpret_cast<const char *>(glGetString(GL_VERSION));
   if (glVersion && strstr(glVersion,"Mesa") != nullptr &&
