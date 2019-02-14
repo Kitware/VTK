@@ -19,6 +19,12 @@ endif()
 option(VTK_USE_X "Use X for VTK render windows" ${default_use_x})
 mark_as_advanced(VTK_USE_X)
 
+# If your OpenGL implementation has a libGL containing GLX symbols, set this to on.
+# When on, GLX will not be included as a required component for OpenGL.
+option(VTK_OPENGL_LIBGL_HAS_GLX
+  "GLX symbols are defined in OpenGL lib" OFF)
+mark_as_advanced(VTK_OPENGL_LIBGL_HAS_GLX)
+
 # For optional APIs that could be available for the OpenGL implementation
 # being used, we define VTK_OPENGL_HAS_<feature> options. These are not to be
 # treated as mutually exclusive.

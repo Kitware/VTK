@@ -1,6 +1,7 @@
 include(vtkOpenGLOptions)
 
 set(opengl_components OpenGL)
+set(opengl_optional_components)
 if (WIN32)
   set(opengl_targets OpenGL::GL)
 else ()
@@ -9,7 +10,8 @@ endif ()
 if (VTK_USE_X)
   # XXX(nvidia): It seems that on some Ubuntu installations with manually
   # installed nVidia drivers, GLX is not found. Investigation is necessary.
-  list(APPEND opengl_components GLX)
+
+  list(APPEND opengl_optional_components GLX)
   list(APPEND opengl_targets OpenGL::GLX)
 endif ()
 if (VTK_OPENGL_USE_GLES)
@@ -33,13 +35,28 @@ else ()
   endif ()
 
   vtk_module_third_party_external(
-    PACKAGE       OpenGL
-    COMPONENTS    ${opengl_components}
-    TARGETS       ${opengl_targets}
-    INCLUDE_DIRS  OPENGL_INCLUDE_DIR
-    LIBRARIES     OPENGL_LIBRARIES)
+    PACKAGE             OpenGL
+    COMPONENTS          ${opengl_components}
+    OPTIONAL_COMPONENTS ${opengl_optional_components}
+    TARGETS             ${opengl_targets}
+    INCLUDE_DIRS        OPENGL_INCLUDE_DIR
+    LIBRARIES           OPENGL_LIBRARIES)
 
   cmake_policy(POP)
+
+  if (VTK_USE_X)
+    if (VTK_OPENGL_LIBGL_HAS_GLX AND OPENGL_glx_LIBRARY AND OPENGL_GLX_INCLUDE_DIR)
+      message(STATUS
+        "VTK_OPENGL_LIBGL_HAS_GLX is ON, but a separate GLX library was found. "
+        "You can turn this option off."
+      )
+    elseif (NOT VTK_OPENGL_LIBGL_HAS_GLX AND NOT (OPENGL_glx_LIBRARY AND OPENGL_GLX_INCLUDE_DIR))
+      message(STATUS
+        "Could not find a separate GLX library. Try setting VTK_OPENGL_LIBGL_HAS_GLX to ON "
+        "if the linker complains that glX* symbols are not found."
+      )
+    endif ()
+  endif ()
 
   if (APPLE)
     vtk_module_definitions(VTK::opengl
