@@ -561,11 +561,11 @@ function (vtk_module_scan)
           set_property(CACHE "VTK_GROUP_ENABLE_${_vtk_scan_group}"
             PROPERTY
               STRINGS "YES;WANT;DONT_WANT;NO;DEFAULT")
-          _vtk_module_verify_enable_value("VTK_GROUP_ENABLE_${_vtk_scan_group}")
           set_property(CACHE "VTK_GROUP_ENABLE_${_vtk_scan_group}"
             PROPERTY
               TYPE "${_vtk_scan_option_default_type}")
         endif ()
+        _vtk_module_verify_enable_value("VTK_GROUP_ENABLE_${_vtk_scan_group}")
 
         if (NOT VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe} STREQUAL "DEFAULT")
           continue ()

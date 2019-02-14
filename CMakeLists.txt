@@ -140,7 +140,7 @@ else ()
     VTK::RenderingTk)
 endif ()
 if (VTK_USE_MPI)
-  set(VTK_GROUP_ENABLE_MPI ON)
+  set(VTK_GROUP_ENABLE_MPI YES)
 else ()
   # Reject `VTK::mpi`, but allow those which happen to be part of the group to
   # be built.
