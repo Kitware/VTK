@@ -44,20 +44,6 @@ else ()
 
   cmake_policy(POP)
 
-  if (VTK_USE_X)
-    if (VTK_OPENGL_LIBGL_HAS_GLX AND OPENGL_glx_LIBRARY AND OPENGL_GLX_INCLUDE_DIR)
-      message(STATUS
-        "VTK_OPENGL_LIBGL_HAS_GLX is ON, but a separate GLX library was found. "
-        "You can turn this option off."
-      )
-    elseif (NOT VTK_OPENGL_LIBGL_HAS_GLX AND NOT (OPENGL_glx_LIBRARY AND OPENGL_GLX_INCLUDE_DIR))
-      message(STATUS
-        "Could not find a separate GLX library. Try setting VTK_OPENGL_LIBGL_HAS_GLX to ON "
-        "if the linker complains that glX* symbols are not found."
-      )
-    endif ()
-  endif ()
-
   if (APPLE)
     vtk_module_definitions(VTK::opengl
       INTERFACE
