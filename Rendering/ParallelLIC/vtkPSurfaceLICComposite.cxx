@@ -1210,7 +1210,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
     }
   }
 
-  #if vtkSurfaceLICCompoisteDEBUG>=2
+  #if vtkPSurfaceLICCompositeDEBUG>=2
   cerr << *this << endl;
   #endif
 

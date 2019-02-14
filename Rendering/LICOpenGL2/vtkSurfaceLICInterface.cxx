@@ -484,7 +484,7 @@ void vtkSurfaceLICInterface::ApplyLIC()
     #ifdef vtkSurfaceLICMapperTIME
     this->EndTimerEvent("vtkSurfaceLICMapper::ScatterLIC");
     #endif
-    #if vtkSurfaceLICMapperDEBUG >= 2
+    #if vtkSurfaceLICInterfaceDEBUG >= 2
     vtkTextureIO::Write(
           mpifn(comm,"slicp_new_lic.vtm"),
           this->Internals->LICImage,
