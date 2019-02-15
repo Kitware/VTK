@@ -239,7 +239,6 @@ vtk_module_scan(
   WANT_BY_DEFAULT     "${VTK_BUILD_ALL_MODULES}"
   ENABLE_TESTS        "${vtk_enable_tests}")
 
-
 if (vtk_required_modules OR vtk_unrecognized_modules)
   message(FATAL_ERROR
     "The following modules were requested or required, but not found: "

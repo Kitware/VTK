@@ -136,8 +136,9 @@ function(vtk_fetch_module _name _description)
       STRINGS "YES;WANT;DONT_WANT;NO;DEFAULT")
   endif()
   # If the variable is WANT or YES, download the module.
-  if (${VTK_MODULE_ENABLE_VTK_${_name}} STREQUAL "WANT" OR
-      ${VTK_MODULE_ENABLE_VTK_${_name}} STREQUAL "YES")
+  if (VTK_MODULE_ENABLE_VTK_${_name} STREQUAL "WANT" OR
+      VTK_MODULE_ENABLE_VTK_${_name} STREQUAL "YES" OR
+      (VTK_MODULE_ENABLE_VTK_${_name} STREQUAL "DEFAULT" AND VTK_BUILD_ALL_MODULES))
     vtk_download_attempt_check(Module_${_name})
     include(CMakeParseArguments)
     cmake_parse_arguments(_fetch_options "" "GIT_REPOSITORY;GIT_TAG" "" ${ARGN})
