@@ -13,4 +13,50 @@ set("${CMAKE_FIND_PACKAGE_NAME}_FOUND" 1)
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-targets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-properties.cmake")
 
+set(_compile_tools_empty_input_file "${CMAKE_BINARY_DIR}/CMakeFiles/${CMAKE_FIND_PACKAGE_NAME}_empty.h")
+set(_compile_tools_output_file "${CMAKE_BINARY_DIR}/CMakeFiles/${CMAKE_FIND_PACKAGE_NAME}_macros.h")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR
+    CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(_compile_tools_command
+    -dM -E
+    -o "${_compile_tools_output_file}"
+    "${_compile_tools_empty_input_file}")
+else ()
+  if (NOT ${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY)
+    message(WARNING
+      "The detected C++ compiler (${CMAKE_CXX_COMPILER_ID}) is unsupported for "
+      "correct builds under cross-compilation. Please file an issue with VTK "
+      "for this configuration.")
+  endif ()
+endif ()
+
+if (_compile_tools_command)
+  if (NOT TARGET "${CMAKE_FIND_PACKAGE_NAME}_macros")
+    # Generate the input file.
+    file(GENERATE
+      OUTPUT  "${_compile_tools_empty_input_file}"
+      CONTENT "")
+
+    separate_arguments(_compile_tools_flags NATIVE_COMMAND "${CMAKE_CXX_FLAGS}")
+
+    # Add a custom command and target to generate the macro headers.
+    add_custom_command(
+      OUTPUT  "${_compile_tools_output_file}"
+      COMMAND "${CMAKE_CXX_COMPILER}"
+              ${_compile_tools_flags}
+              ${_compile_tools_command}
+      DEPENDS "${CMAKE_CXX_COMPILER}"
+              "${_compile_tools_empty_input_file}"
+      COMMENT "Detecting builtin compiler preprocessor defines for ${CMAKE_FIND_PACKAGE_NAME}")
+    add_custom_target("${CMAKE_FIND_PACKAGE_NAME}_macros"
+      DEPENDS
+        "${_compile_tools_output_file}")
+    unset(_compile_tools_flags)
+  endif ()
+  set("_${CMAKE_FIND_PACKAGE_NAME}_macros_file" "${_compile_tools_output_file}")
+endif ()
+unset(_compile_tools_command)
+unset(_compile_tools_output_file)
+unset(_compile_tools_empty_input_file)
+
 cmake_policy(POP)

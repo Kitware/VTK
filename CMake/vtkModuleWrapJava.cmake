@@ -81,9 +81,18 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
     list(APPEND _vtk_java_sources
       "${_vtk_java_source_output}")
 
+    set(_vtk_java_command_depends)
     set(_vtk_java_wrap_target "VTK::WrapJava")
+    set(_vtk_java_macros_args)
     if (TARGET VTKCompileTools::WrapJava)
       set(_vtk_java_wrap_target "VTKCompileTools::WrapJava")
+      if (TARGET VTKCompileTools_macros)
+        list(APPEND _vtk_java_command_depends
+          "VTKCompileTools_macros")
+        list(APPEND _vtk_java_macros_args
+          -undef
+          -imacros "${_VTKCompileTools_macros_file}")
+      endif ()
     endif ()
 
     set(_vtk_java_parse_target "VTK::ParseJava")
@@ -98,13 +107,15 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
               -o "${_vtk_java_source_output}"
               "${_vtk_java_header}"
               --types "${_vtk_java_hierarchy_file}"
+              ${_vtk_java_macros_args}
       IMPLICIT_DEPENDS
               CXX "${_vtk_java_header}"
       COMMENT "Generating Java wrapper sources for ${_vtk_java_basename}"
       DEPENDS
         "${_vtk_java_header}"
         "${_vtk_java_args_file}"
-        "${_vtk_java_command_depend}")
+        "${_vtk_java_command_depend}"
+        ${_vtk_java_command_depends})
 
     set(_vtk_java_java_source_output
       "${_vtk_java_JAVA_OUTPUT}/${_vtk_java_basename}.java")
@@ -118,13 +129,15 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_java_genex_
               -o "${_vtk_java_java_source_output}"
               "${_vtk_java_header}"
               --types "${_vtk_java_hierarchy_file}"
+              ${_vtk_java_macros_args}
       IMPLICIT_DEPENDS
               CXX "${_vtk_java_header}"
       COMMENT "Generating Java sources for ${_vtk_java_basename}"
       DEPENDS
         "${_vtk_java_header}"
         "${_vtk_java_args_file}"
-        "${_vtk_java_command_depend}")
+        "${_vtk_java_command_depend}"
+        ${_vtk_java_command_depends})
   endforeach ()
 
   set("${sources}"

@@ -129,9 +129,18 @@ $<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_python_ge
     list(APPEND _vtk_python_sources
       "${_vtk_python_source_output}")
 
+    set(_vtk_python_command_depends)
     set(_vtk_python_wrap_target "VTK::WrapPython")
+    set(_vtk_python_macros_args)
     if (TARGET VTKCompileTools::WrapPython)
       set(_vtk_python_wrap_target "VTKCompileTools::WrapPython")
+      if (TARGET VTKCompileTools_macros)
+        list(APPEND _vtk_python_command_depends
+          "VTKCompileTools_macros")
+        list(APPEND _vtk_python_macros_args
+          -undef
+          -imacros "${_VTKCompileTools_macros_file}")
+      endif ()
     endif ()
 
     add_custom_command(
@@ -141,13 +150,15 @@ $<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_python_ge
               -o "${_vtk_python_source_output}"
               "${_vtk_python_header}"
               --types "${_vtk_python_hierarchy_file}"
+              ${_vtk_python_macros_args}
       IMPLICIT_DEPENDS
               CXX "${_vtk_python_header}"
       COMMENT "Generating Python wrapper sources for ${_vtk_python_basename}"
       DEPENDS
         "${_vtk_python_header}"
         "${_vtk_python_args_file}"
-        "${_vtk_python_command_depend}")
+        "${_vtk_python_command_depend}"
+        ${_vtk_python_command_depends})
   endforeach ()
 
   set("${sources}"
