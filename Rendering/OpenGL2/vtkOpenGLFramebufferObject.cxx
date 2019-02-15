@@ -101,7 +101,7 @@ public:
     {
       if (this->Texture->GetNumberOfDimensions() == 3)
       {
-  #if GL_ES_VERSION_3_0 != 1
+  #ifndef GL_ES_VERSION_3_0
         glFramebufferTexture3D(
               (GLenum)mode,
               this->Attachment,
@@ -145,7 +145,7 @@ public:
     {
       if (this->Texture->GetNumberOfDimensions() == 3)
       {
-  #if GL_ES_VERSION_3_0 != 1
+  #ifndef GL_ES_VERSION_3_0
         glFramebufferTexture3D(
               (GLenum)mode,
               this->Attachment,
@@ -1236,7 +1236,7 @@ void vtkOpenGLFramebufferObject::DisplayBuffer(int value)
   }
   else
   {
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
       vtkErrorMacro("Attempt to use bad display destintation");
 #else
     if(value>=GL_AUX0)

@@ -521,7 +521,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     static_cast<unsigned int>(
       this->ViewportWidth*this->ViewportHeight*OcclusionRatio);
 
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   GLuint queryId;
   glGenQueries(1,&queryId);
 #endif
@@ -544,7 +544,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     this->State->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // render the translucent geometry
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
     glBeginQuery(GL_SAMPLES_PASSED,queryId);
 #endif
 
@@ -564,7 +564,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     this->State->vtkglDepthFunc( GL_LEQUAL );
     this->State->vtkglDisable(GL_BLEND);
 
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
     glEndQuery(GL_SAMPLES_PASSED);
     glGetQueryObjectuiv(queryId,GL_QUERY_RESULT,&nbPixels);
 #endif

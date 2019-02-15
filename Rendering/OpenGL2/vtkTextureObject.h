@@ -58,7 +58,7 @@ public:
 
 // ClampToBorder is not supported in ES 2.0
 // Wrap values.
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   enum
   {
     ClampToEdge=0,
@@ -232,7 +232,7 @@ public:
                          int numComps, int dataType, void *data[6]);
 
 // 1D  textures are not supported in ES 2.0 or 3.0
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
 
   /**
    * Create a 1D texture using the PBO.

@@ -36,6 +36,7 @@
 #if !defined(vtkSurfaceLICMapperTIME)
 #include "vtkTimerLog.h"
 #endif
+#define vtkSurfaceLICMapperDEBUG 0
 
 //----------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkSurfaceLICMapper);

@@ -1601,7 +1601,7 @@ void vtkDualDepthPeelingPass::StartTranslucentOcclusionQuery()
   // ES 3.0 only supports checking if *any* samples passed. We'll just use
   // that query to stop peeling once all frags are processed, and ignore the
   // requested occlusion ratio.
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   glBeginQuery(GL_ANY_SAMPLES_PASSED, this->TranslucentOcclusionQueryId);
 #else // GL ES 3.0
   glBeginQuery(GL_SAMPLES_PASSED, this->TranslucentOcclusionQueryId);
@@ -1615,7 +1615,7 @@ void vtkDualDepthPeelingPass::EndTranslucentOcclusionQuery()
   // sync the stream.
   TIME_FUNCTION(vtkDualDepthPeelingPass::EndTranslucentOcclusionQuery);
 
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   glEndQuery(GL_ANY_SAMPLES_PASSED);
   GLuint anySamplesPassed;
   glGetQueryObjectuiv(this->TranslucentOcclusionQueryId, GL_QUERY_RESULT,
@@ -1635,7 +1635,7 @@ void vtkDualDepthPeelingPass::StartVolumetricOcclusionQuery()
   // ES 3.0 only supports checking if *any* samples passed. We'll just use
   // that query to stop peeling once all frags are processed, and ignore the
   // requested occlusion ratio.
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   glBeginQuery(GL_ANY_SAMPLES_PASSED, this->VolumetricOcclusionQueryId);
 #else // GL ES 3.0
   glBeginQuery(GL_SAMPLES_PASSED, this->VolumetricOcclusionQueryId);
@@ -1649,7 +1649,7 @@ void vtkDualDepthPeelingPass::EndVolumetricOcclusionQuery()
   // sync the stream.
   TIME_FUNCTION(vtkDualDepthPeelingPass::EndVolumetricOcclusionQuery);
 
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   glEndQuery(GL_ANY_SAMPLES_PASSED);
   GLuint anySamplesPassed;
   glGetQueryObjectuiv(this->VolumetricOcclusionQueryId, GL_QUERY_RESULT,

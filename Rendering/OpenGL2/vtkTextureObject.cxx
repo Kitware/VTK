@@ -77,7 +77,7 @@ static const char *DepthTextureCompareFunctionAsString[8]=
 };
 
 // Mapping from Wrap values to OpenGL values
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   //--------------------------------------------------------------------------
   static GLint OpenGLWrap[4]=
   {
@@ -535,7 +535,7 @@ void vtkTextureObject::SendParameters()
         GL_TEXTURE_MAG_FILTER,
         OpenGLMagFilter[this->MagnificationFilter]);
 
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   glTexParameterfv(this->Target, GL_TEXTURE_BORDER_COLOR, this->BorderColor);
 
   if(this->DepthTextureCompare)
@@ -756,7 +756,7 @@ unsigned int vtkTextureObject::GetDefaultFormat(int vtktype, int numComps,
     return GL_DEPTH_COMPONENT;
   }
 
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   if(this->SupportsTextureInteger && shaderSupportsTextureInt
      && (vtktype==VTK_SIGNED_CHAR||vtktype==VTK_UNSIGNED_CHAR||
          vtktype==VTK_SHORT||vtktype==VTK_UNSIGNED_SHORT||vtktype==VTK_INT||
@@ -957,7 +957,7 @@ unsigned int vtkTextureObject::GetWrapRMode(int vtktype)
 }
 
 // 1D  textures are not supported in ES 2.0 or 3.0
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
 
 //----------------------------------------------------------------------------
 bool vtkTextureObject::Create1D(int numComps,
@@ -1336,7 +1336,7 @@ vtkPixelBufferObject* vtkTextureObject::Download()
   pbo->Bind(vtkPixelBufferObject::PACKED_BUFFER);
   this->Bind();
 
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   glGetTexImage(this->Target, 0, this->Format, this->Type, BUFFER_OFFSET(0));
 #else
   // you can do something with glReadPixels and binding a texture as a FBO

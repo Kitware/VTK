@@ -35,6 +35,8 @@
 
 #include <vector>
 
+#define vtkSurfaceLICHelperDEBUG 0
+
 // Description
 // find min/max of unmasked fragments across all regions
 // download each search each region individually
@@ -82,7 +84,7 @@ void vtkSurfaceLICHelper::StreamingFindMinMax(
     pbo->Delete();
     pbo = nullptr;
   }
-  #if vtkSurfaceLICMapperDEBUG >= 1
+  #if vtkSurfaceLICHelperDEBUG >= 1
   cerr << "min=" << min << " max=" << max << endl;
   #endif
 }

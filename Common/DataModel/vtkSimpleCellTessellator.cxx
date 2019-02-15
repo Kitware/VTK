@@ -2520,7 +2520,7 @@ void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell *cell,
   //this->EdgeTable->DumpTable();
 }
 
-//#define SLOW_API 1
+#define SLOW_API 0
 //-----------------------------------------------------------------------------
 // Return number of cells using edge #edgeId
 int vtkSimpleCellTessellator::GetNumberOfCellsUsingEdge( int edgeId )

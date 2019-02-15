@@ -399,7 +399,7 @@ void vtkOpenGLState::vtkglClearDepth(double val)
 #endif
   {
     this->CurrentState.ClearDepth = val;
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
     ::glClearDepthf(static_cast<GLclampf>(val));
 #else
     ::glClearDepth(val);
@@ -756,7 +756,7 @@ void vtkOpenGLState::vtkglGetIntegerv(GLenum pname, GLint *params)
   vtkCheckOpenGLErrorsWithStack("glGetInteger");
 }
 
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
 void vtkOpenGLState::vtkglGetDoublev(GLenum pname, double *)
 {
   vtkGenericWarningMacro("glGetDouble not supported on OpenGL ES, requested: " << pname);
@@ -867,7 +867,7 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
 
   ::glDepthFunc( this->CurrentState.DepthFunc );
 
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   ::glClearDepthf(this->CurrentState.ClearDepth);
 #else
   ::glClearDepth(this->CurrentState.ClearDepth);
