@@ -1341,8 +1341,14 @@ void DICOMAppHelper::StudyUIDCallback(DICOMParser *,
 {
   delete this->StudyUID;
 
-  this->StudyUID = new dicom_stl::string(reinterpret_cast<char*>(val));
-
+  if (val)
+    {
+    this->StudyUID = new dicom_stl::string(reinterpret_cast<char*>(val));
+    }
+  else
+    {
+    this->StudyUID = new dicom_stl::string();
+    }
 }
 
 void DICOMAppHelper::StudyIDCallback(DICOMParser *,
@@ -1372,8 +1378,13 @@ void DICOMAppHelper::GantryAngleCallback(DICOMParser * parser,
                            unsigned char* val,
                            quadbyte)
 {
-  float fval = DICOMFile::ReturnAsFloat(val,
-                                        parser->GetDICOMFile()->GetPlatformIsBigEndian ());
+  float fval = 0;
+
+  if (val)
+    {
+    fval = DICOMFile::ReturnAsFloat(val,
+      parser->GetDICOMFile()->GetPlatformIsBigEndian());
+    }
 
   this->GantryAngle = fval;
 }
