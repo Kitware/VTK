@@ -32,6 +32,8 @@ set(classes
   vtkEdgeSubdivisionCriterion
   vtkElevationFilter
   vtkExecutionTimer
+  vtkExplicitStructuredGridCrop
+  vtkExplicitStructuredGridToUnstructuredGrid
   vtkFeatureEdges
   vtkFieldDataToAttributeDataFilter
   vtkFlyingEdges2D
@@ -43,6 +45,7 @@ set(classes
   vtkHedgeHog
   vtkHull
   vtkIdFilter
+  vtkImageDataToExplicitStructuredGrid
   vtkImageAppend
   vtkImplicitPolyDataDistance
   vtkMarchingCubes
@@ -89,6 +92,7 @@ set(classes
   vtkTriangleMeshPointNormals
   vtkTubeFilter
   vtkUnstructuredGridQuadricDecimation
+  vtkUnstructuredGridToExplicitStructuredGrid
   vtkVectorDot
   vtkVectorNorm
   vtkVoronoi2D

@@ -5,7 +5,8 @@ vtk_module_test_data(
   Data/can.ex2
   Data/cow.vtp
   Data/delaunay3d.vtu
-  Data/disk_out_ref_surface.vtp)
+  Data/disk_out_ref_surface.vtp
+  Data/explicitStructuredGrid.vtu)
 
 add_subdirectory(Cxx)
 

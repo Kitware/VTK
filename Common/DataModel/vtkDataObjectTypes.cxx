@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkDataSet.h"
 #include  "vtkDirectedAcyclicGraph.h"
 #include  "vtkDirectedGraph.h"
+#include  "vtkExplicitStructuredGrid.h"
 #include  "vtkGenericDataSet.h"
 #include  "vtkGraph.h"
 #include  "vtkHierarchicalBoxDataSet.h"
@@ -47,6 +48,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkTree.h"
 #include  "vtkUndirectedGraph.h"
 #include  "vtkUniformGrid.h"
+#include  "vtkUniformHyperTreeGrid.h"
 #include  "vtkUnstructuredGrid.h"
 
 #include  "vtkArrayData.h"
@@ -97,6 +99,8 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkUnstructuredGridBase",
   "vtkPartitionedDataSet",
   "vtkPartitionedDataSetCollection",
+  "vtkUniformHyperTreeGrid",
+  "vtkExplicitStructuredGrid",
   nullptr
 };
 
@@ -279,6 +283,14 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkPartitionedDataSetCollection") == 0)
   {
     return vtkPartitionedDataSetCollection::New();
+  }
+  else if(strcmp(type, "vtkUniformHyperTreeGrid") == 0)
+  {
+    return vtkUniformHyperTreeGrid::New();
+  }
+  else if(strcmp(type, "vtkExplicitStructuredGrid") == 0)
+  {
+    return vtkExplicitStructuredGrid::New();
   }
 
   vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type

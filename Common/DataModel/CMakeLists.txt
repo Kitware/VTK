@@ -51,6 +51,7 @@ set(classes
   vtkEdgeListIterator
   vtkEdgeTable
   vtkEmptyCell
+  vtkExplicitStructuredGrid
   vtkExtractStructuredGridHelper
   vtkFieldData
   vtkGenericAdaptorCell
