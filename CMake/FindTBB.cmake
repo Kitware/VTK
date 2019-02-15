@@ -68,6 +68,41 @@
 #  FindTBB helper functions and macros
 #
 
+#====================================================
+# Fix the library path in case it is a linker script
+#====================================================
+function(tbb_extract_real_library library real_library)
+  if(NOT UNIX OR NOT EXISTS ${library})
+    set(${real_library} "${library}" PARENT_SCOPE)
+    return()
+  endif()
+
+  #Read in the first 4 bytes and see if they are the ELF magic number
+  set(_elf_magic "7f454c46")
+  file(READ ${library} _hex_data OFFSET 0 LIMIT 4 HEX)
+  if(_hex_data STREQUAL _elf_magic)
+    #we have opened a elf binary so this is what
+    #we should link to
+    set(${real_library} "${library}" PARENT_SCOPE)
+    return()
+  endif()
+
+  file(READ ${library} _data OFFSET 0 LIMIT 1024)
+  if("${_data}" MATCHES "INPUT \\(([^(]+)\\)")
+    #extract out the .so name from REGEX MATCH command
+    set(_proper_so_name "${CMAKE_MATCH_1}")
+
+    #construct path to the real .so which is presumed to be in the same directory
+    #as the input file
+    get_filename_component(_so_dir "${library}" DIRECTORY)
+    set(${real_library} "${_so_dir}/${_proper_so_name}" PARENT_SCOPE)
+  else()
+    #unable to determine what this library is so just hope everything works
+    #and pass it unmodified.
+    set(${real_library} "${library}" PARENT_SCOPE)
+  endif()
+endfunction()
+
 #===============================================
 # Do the final processing for the package find.
 #===============================================
@@ -85,20 +120,26 @@ macro(findpkg_finish PREFIX TARGET_NAME)
     endif ()
 
     if (NOT TARGET "TBB::${TARGET_NAME}")
+      if (${PREFIX}_LIBRARY_RELEASE)
+        tbb_extract_real_library(${${PREFIX}_LIBRARY_RELEASE} real_release)
+      endif ()
+      if (${PREFIX}_LIBRARY_DEBUG)
+        tbb_extract_real_library(${${PREFIX}_LIBRARY_DEBUG} real_debug)
+      endif ()
       add_library(TBB::${TARGET_NAME} UNKNOWN IMPORTED)
       set_target_properties(TBB::${TARGET_NAME} PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES "${${PREFIX}_INCLUDE_DIR}")
       if (${PREFIX}_LIBRARY_DEBUG AND ${PREFIX}_LIBRARY_RELEASE)
         set_target_properties(TBB::${TARGET_NAME} PROPERTIES
-          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_RELEASE}"
-          IMPORTED_LOCATION_DEBUG "${${PREFIX}_LIBRARY_DEBUG}"
-          IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}")
+          IMPORTED_LOCATION "${real_release}"
+          IMPORTED_LOCATION_DEBUG "${real_debug}"
+          IMPORTED_LOCATION_RELEASE "${real_release}")
       elseif (${PREFIX}_LIBRARY_RELEASE)
         set_target_properties(TBB::${TARGET_NAME} PROPERTIES
-          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_RELEASE}")
+          IMPORTED_LOCATION "${real_release}")
       elseif (${PREFIX}_LIBRARY_DEBUG)
         set_target_properties(TBB::${TARGET_NAME} PROPERTIES
-          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_DEBUG}")
+          IMPORTED_LOCATION "${real_debug}")
       endif ()
     endif ()
 
