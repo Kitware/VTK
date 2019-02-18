@@ -129,6 +129,12 @@ using DebugWeakPointer = ObjectType*;
  * - Get the current flat index within the parent range:
  *   - `unsigned int NodeReference::GetFlatIndex() const`
  *
+ * Assigning one reference to another assigns the vtkDataObject* pointer to the
+ * target reference. Assigning to non-leaf nodes invalidates all iterators /
+ * references.
+ *
+ * Equality testing compares each reference's DataObject and FlatIndex.
+ *
  * @warning The NodeReference shares state with the OwnerType iterator that
  * generates it. Incrementing or destroying the parent iterator will invalidate
  * the reference. In debugging builds, these misuses will be caught via runtime
@@ -168,6 +174,33 @@ protected:
 
 public:
   friend OwnerType; // To allow access to protected methods/base class
+
+  CompositeDataSetNodeReference() = delete;
+  CompositeDataSetNodeReference(const CompositeDataSetNodeReference &src) = default;
+  CompositeDataSetNodeReference(CompositeDataSetNodeReference&&) noexcept = default;
+  ~CompositeDataSetNodeReference() = default;
+
+  // Assigns the DataObject from src to this:
+  CompositeDataSetNodeReference& operator=(const CompositeDataSetNodeReference &src)
+  {
+    this->SetDataObject(src.GetDataObject());
+    return *this;
+  }
+
+  // Compares data object and flat index:
+  friend bool operator==(const CompositeDataSetNodeReference &lhs,
+                         const CompositeDataSetNodeReference &rhs)
+  {
+    return lhs.GetDataObject() == rhs.GetDataObject() &&
+           lhs.GetFlatIndex() == rhs.GetFlatIndex();
+  }
+
+  // Compares data object and flat index:
+  friend bool operator!=(const CompositeDataSetNodeReference &lhs,
+                         const CompositeDataSetNodeReference &rhs)
+  {
+    return lhs != rhs;
+  }
 
   vtkDataObject* GetDataObject() const
   {

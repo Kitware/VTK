@@ -20,11 +20,39 @@
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 
+#include <algorithm>
+
 #define TEST_FAIL(msg) \
   std::cerr << "Test failed! " msg << "\n"; \
   return false
 
 namespace {
+
+bool TestCopy(vtkCompositeDataSet *src)
+{
+  // Clone dataset:
+  auto dst = vtkSmartPointer<vtkCompositeDataSet>::Take(src->NewInstance());
+
+  // Create tree structure:
+  dst->CopyStructure(src);
+
+  { // Copy dataset pointer into new datset:
+    const auto srcRange = vtk::Range(src);
+    const auto dstRange = vtk::Range(dst);
+    std::copy(srcRange.begin(), srcRange.end(), dstRange.begin());
+  }
+
+  { // Verify that the dataset pointers are correct:
+    const auto srcRange = vtk::Range(src);
+    const auto dstRange = vtk::Range(dst);
+    if (!std::equal(srcRange.begin(), srcRange.end(), dstRange.begin()))
+    {
+      TEST_FAIL("Range iterators failed with std::copy/std::equal.");
+    }
+  }
+
+  return true;
+}
 
 // Test that the for-range iterators behave the same as the regular iterators.
 bool TestConfig(vtkCompositeDataSet *cds,
@@ -181,6 +209,10 @@ bool TestOptions(vtkCompositeDataSet *cds)
   if (!TestConfig(cds, Opts::SkipEmptyNodes))
   {
     TEST_FAIL("Error while testing options 'SkipEmptyNodes'.");
+  }
+  if (!TestCopy(cds))
+  {
+    TEST_FAIL("Error while testing iterator copy.");
   }
 
   return true;

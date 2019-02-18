@@ -20,11 +20,42 @@
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 
+#include <algorithm>
+
 #define TEST_FAIL(msg) \
   std::cerr << "Test failed! " msg << "\n"; \
   return false
 
 namespace {
+
+bool TestCopy(vtkDataObjectTree *src)
+{
+  // Clone dataset:
+  auto dst = vtkSmartPointer<vtkDataObjectTree>::Take(src->NewInstance());
+
+  // Create tree structure:
+  dst->CopyStructure(src);
+
+  using Opts = vtk::DataObjectTreeOptions;
+  const Opts opts = Opts::TraverseSubTree | Opts::VisitOnlyLeaves;
+
+  { // Copy dataset pointers into new dataset:
+    const auto srcRange = vtk::Range(src, opts);
+    const auto dstRange = vtk::Range(dst, opts);
+    std::copy(srcRange.begin(), srcRange.end(), dstRange.begin());
+  }
+
+  { // Verify that the dataset pointers are correct:
+    const auto srcRange = vtk::Range(src, opts);
+    const auto dstRange = vtk::Range(dst, opts);
+    if (!std::equal(srcRange.begin(), srcRange.end(), dstRange.begin()))
+    {
+      TEST_FAIL("Range iterators failed with std::copy/std::equal.");
+    }
+  }
+
+  return true;
+}
 
 // Test that the for-range iterators behave the same as the regular iterators.
 bool TestConfig(vtkDataObjectTree *cds,
@@ -192,6 +223,10 @@ bool TestOptions(vtkDataObjectTree *cds)
   if (!TestConfig(cds, Opts::TraverseSubTree))
   {
     TEST_FAIL("Error while testing options 'TraverseSubTree'.");
+  }
+  if (!TestCopy(cds))
+  {
+    TEST_FAIL("Error while testing iterator copy.");
   }
 
   return true;
