@@ -24,6 +24,9 @@
  * contains a set of polylines that represent the intersection between
  * the two input surfaces.
  *
+ * @warning This filter is not designed to perform 2D boolean operations,
+ * and in fact relies on the inputs having no co-planar, overlapping cells.
+ *
  * This code was contributed in the VTK Journal paper:
  * "Boolean Operations on Surfaces in VTK Without External Libraries"
  * by Cory Quammen, Chris Weigle C., Russ Taylor
