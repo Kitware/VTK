@@ -60,13 +60,19 @@ public:
   /**
    * Values used for setting the desired output precision for various
    * algorithms. Currently, the following algorithms support changing their
-   * output precision: vtkAppendFilter, vtkAppendPoints, vtkContourFilter,
-   * vtkContourGrid, vtkCutter, vtkGlyph3D, vtkGeometryFilter,
-   * vtkGridSynchronizedTemplates3D,
-   * vtkPolyDataNormals, vtkSynchronizedTemplatesCutter3D,
-   * vtkTableBasedClipDataSet, vtkThreshold, vtkTransformFilter, and
-   * vtkTransformPolyData.
-
+   * output precision: vtkAppendPolyData, vtkCleanPolyData, vtkClipPolyData,
+   * vtkConnectivityFilter, vtkDecimatePolylineFilter, vtkDecimatePro, vtkDelaunay3D,
+   * vtkFeatureEdges, vtkGlyph3D, vtkHedgeHog, vtkMaskPoints, vtkPolyDataConnectivityFilter,
+   * vtkSmoothPolyDataFilter, vtkStaticCleanPolyData, vtkThresholdPoints, vtkTubeFilter,
+   * vtkAppendPoints, vtkTransformFilter, vtkTransformPolyDataFilter,
+   * vtkLinearToQuadraticCellsFilter, vtkProcrustesAlignmentFilter,
+   * vtkAdaptiveSubdivisionFilter, vtkBoundedPointSource, vtkArcSource, vtkConeSource,
+   * vtkCubeSource, vtkCylinderSource, vtkDiskSource, vtkEllipseArcSource,
+   * vtkEllipticalButtonSource, vtkFrustumSource, vtkGlyphSource2D, vtkLineSource,
+   * vtkOutlineSource, vtkParametricFunctionSource, vtkPlaneSource, vtkPlatonicSolidSource,
+   * vtkPointSource, vtkRectangularButtonSource, vtkRegularPolygonSource, vtkSphereSource,
+   * vtkSuperquadricSource, vtkTessellatedBoxSource, vtkTextSource, vtkTexturedSphereSource,
+   * vtkImageToPoints, vtkDepthImageToPointCloud.
    * SINGLE_PRECISION - Output single-precision floating-point (i.e. float)
    * DOUBLE_PRECISION - Output double-precision floating-point (i.e. double)
    * DEFAULT_PRECISION - Output precision should match the input precision.
