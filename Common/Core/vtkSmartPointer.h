@@ -24,93 +24,159 @@
 #define vtkSmartPointer_h
 
 #include "vtkSmartPointerBase.h"
-#include "vtkNew.h"  // For converting New pointers to Smart pointers
-#include <type_traits> // for enable_if
+
+#include "vtkNew.h" // for vtkNew.h
+#include "vtkMeta.h" // for IsComplete
+
+#include <type_traits> // for is_base_of
+#include <utility> // for std::move
 
 template <class T>
 class vtkSmartPointer: public vtkSmartPointerBase
 {
+  // These static asserts only fire when the function calling CheckTypes is
+  // used. Thus, this smart pointer class may still be used as a member variable
+  // with a forward declared T, so long as T is defined by the time the calling
+  // function is used.
+  template <typename U = T>
+  static void CheckTypes() noexcept
+  {
+    static_assert(vtk::detail::IsComplete<T>::value,
+                  "vtkSmartPointer<T>'s T type has not been defined. Missing "
+                  "include?");
+    static_assert(vtk::detail::IsComplete<U>::value,
+                  "Cannot store an object with undefined type in "
+                  "vtkSmartPointer. Missing include?");
+    static_assert(std::is_base_of<T, U>::value,
+                  "Argument type is not compatible with vtkSmartPointer<T>'s "
+                  "T type.");
+    static_assert(std::is_base_of<vtkObjectBase, T>::value,
+                  "vtkSmartPointer can only be used with subclasses of "
+                  "vtkObjectBase.");
+  }
+
 public:
   /**
    * Initialize smart pointer to nullptr.
    */
-  vtkSmartPointer() {}
-
-  /**
-   * Initialize smart pointer to given object.
-   */
-  vtkSmartPointer(T* r): vtkSmartPointerBase(r) {}
-
-  /**
-   * Initialize smart pointer to given object.
-   */
-  vtkSmartPointer(vtkNew<T>& r): vtkSmartPointerBase(r.GetPointer()) {}
+  vtkSmartPointer() noexcept
+    : vtkSmartPointerBase()
+  {
+  }
 
   /**
    * Initialize smart pointer with a new reference to the same object
    * referenced by given smart pointer.
+   * @{
    */
-  template <class U, typename = typename std::enable_if<
-                         std::is_convertible<U *, T *>::value>::type>
-  vtkSmartPointer(const vtkSmartPointer<U> &r)
-      : vtkSmartPointerBase(r.GetPointer()) {}
+  // Need both overloads because the copy-constructor must be non-templated:
+  vtkSmartPointer(const vtkSmartPointer &r)
+    : vtkSmartPointerBase(r)
+  {
+  }
 
-#ifndef __VTK_WRAP__
+  template <class U>
+  vtkSmartPointer(const vtkSmartPointer<U> &r)
+      : vtkSmartPointerBase(r)
+  {
+    vtkSmartPointer::CheckTypes<U>();
+  }
+  /* @} **/
+
   /**
    * Move the contents of @a r into @a this.
+   * @{
    */
-  template <class U,
-            typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
+  // Need both overloads because the move-constructor must be non-templated:
+  vtkSmartPointer(vtkSmartPointer &&r) noexcept
+    : vtkSmartPointerBase(std::move(r))
+  {
+  }
+
+  template <class U>
   vtkSmartPointer(vtkSmartPointer<U>&& r) noexcept
-    : vtkSmartPointerBase(std::move(r)) {}
-#endif
+    : vtkSmartPointerBase(std::move(r))
+  {
+    vtkSmartPointer::CheckTypes<U>();
+  }
+  /**@}*/
+
+  /**
+   * Initialize smart pointer to given object.
+   * @{
+   */
+  vtkSmartPointer(T* r)
+    : vtkSmartPointerBase(r)
+  {
+    vtkSmartPointer::CheckTypes();
+  }
+
+  template <typename U>
+  vtkSmartPointer(const vtkNew<U> &r)
+    : vtkSmartPointerBase(r.Object)
+  { // Create a new reference on copy
+    vtkSmartPointer::CheckTypes<U>();
+  }
+  //@}
+
+  /**
+   * Move the pointer from the vtkNew smart pointer to the new vtkSmartPointer,
+   * stealing its reference and resetting the vtkNew object to nullptr.
+   */
+  template <typename U>
+  vtkSmartPointer(vtkNew<U> &&r) noexcept
+    : vtkSmartPointerBase(r.Object, vtkSmartPointerBase::NoReference{})
+  { // Steal the reference on move
+    vtkSmartPointer::CheckTypes<U>();
+
+    r.Object = nullptr;
+  }
 
   //@{
   /**
    * Assign object to reference.  This removes any reference to an old
    * object.
    */
-  vtkSmartPointer& operator=(T* r)
+  // Need this since the compiler won't recognize template functions as
+  // assignment operators.
+  vtkSmartPointer& operator=(const vtkSmartPointer &r)
   {
-    this->vtkSmartPointerBase::operator=(r);
+    this->vtkSmartPointerBase::operator=(r.GetPointer());
     return *this;
   }
-  //@}
 
-  //@{
-  /**
-   * Assign object to reference.  This removes a reference to an old
-   * object.
-   */
-  vtkSmartPointer& operator=(vtkNew<T>& r)
+  template <class U>
+  vtkSmartPointer& operator=(const vtkSmartPointer<U> &r)
   {
-    this->vtkSmartPointerBase::operator=(r);
-    return *this;
-  }
-  //@}
+    vtkSmartPointer::CheckTypes<U>();
 
-  //@{
-  /**
-   * Assign object to reference.  This removes any reference to an old
-   * object.
-   */
-  template <class U, typename = typename std::enable_if<
-                         std::is_convertible<U *, T *>::value>::type>
-  vtkSmartPointer &operator=(const vtkSmartPointer<U> &r) {
     this->vtkSmartPointerBase::operator=(r.GetPointer());
     return *this;
   }
   //@}
 
+  /**
+   * Assign object to reference.  This removes any reference to an old
+   * object.
+   */
+  template <typename U>
+  vtkSmartPointer& operator=(const vtkNew<U> &r)
+  {
+    vtkSmartPointer::CheckTypes<U>();
+
+    this->vtkSmartPointerBase::operator=(r.Object);
+    return *this;
+  }
+
   //@{
   /**
    * Get the contained pointer.
    */
-  T* GetPointer() const
+  T* GetPointer() const noexcept
   {
     return static_cast<T*>(this->Object);
   }
-  T* Get() const
+  T* Get() const noexcept
   {
     return static_cast<T*>(this->Object);
   }
@@ -119,7 +185,7 @@ public:
   /**
    * Get the contained pointer.
    */
-  operator T* () const
+  operator T* () const noexcept
   {
     return static_cast<T*>(this->Object);
   }
@@ -128,7 +194,7 @@ public:
    * Dereference the pointer and return a reference to the contained
    * object.
    */
-  T& operator*() const
+  T& operator*() const noexcept
   {
     return *static_cast<T*>(this->Object);
   }
@@ -136,7 +202,7 @@ public:
   /**
    * Provides normal pointer target member access using operator ->.
    */
-  T* operator->() const
+  T* operator->() const noexcept
   {
     return static_cast<T*>(this->Object);
   }
@@ -224,22 +290,33 @@ private:
 };
 
 #define VTK_SMART_POINTER_DEFINE_OPERATOR(op) \
-  template <class T> \
+  template <class T, class U> \
   inline bool \
-  operator op (const vtkSmartPointer<T>& l, const vtkSmartPointer<T>& r) \
+  operator op (const vtkSmartPointer<T>& l, const vtkSmartPointer<U>& r) \
   { \
     return (l.GetPointer() op r.GetPointer()); \
   } \
-  template <class T> \
-  inline bool operator op (T* l, const vtkSmartPointer<T>& r) \
+  template <class T, class U> \
+  inline bool operator op (T* l, const vtkSmartPointer<U>& r) \
   { \
     return (l op r.GetPointer()); \
   } \
-  template <class T> \
-  inline bool operator op (const vtkSmartPointer<T>& l, T* r) \
+  template <class T, class U> \
+  inline bool operator op (const vtkSmartPointer<T>& l, U* r) \
   { \
     return (l.GetPointer() op r); \
+  } \
+  template <class T, class U> \
+  inline bool operator op (const vtkNew<T>& l, const vtkSmartPointer<U>& r) \
+  { \
+    return (l.GetPointer() op r.GetPointer()); \
+  } \
+  template <class T, class U> \
+  inline bool operator op (const vtkSmartPointer<T>& l, const vtkNew<U>& r) \
+  { \
+    return (l.GetPointer() op r.GetPointer); \
   }
+
 /**
  * Compare smart pointer values.
  */

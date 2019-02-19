@@ -107,7 +107,7 @@ vtkSmartPointer<vtkDataObjectTree> CreateDataSet()
   {
     vtkNew<vtkPolyData> pd;
     mbds->SetBlock(blockNum, pd);
-    return pd;
+    return {pd};
   };
 
   auto addMultiBlock = [](unsigned int blockNum, vtkMultiBlockDataSet *mbds)
@@ -161,7 +161,7 @@ vtkSmartPointer<vtkDataObjectTree> CreateDataSet()
   cds40->SetNumberOfBlocks(1);
   addPolyData(0, cds40);
 
-  // move needed to silence warnings while calling the New->SmartPointer ctor.
+  // explicit move needed to silence warnings about C++11 defect
   return std::move(cds00);
 }
 

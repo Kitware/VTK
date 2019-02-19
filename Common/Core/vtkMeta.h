@@ -62,7 +62,7 @@ struct StripPointers<vtkSmartPointer<ArrayType>>
 };
 
 //------------------------------------------------------------------------------
-// Test if a type is complete, or if a specialization exists.
+// Test if a type is defined (true) or just forward declared (false).
 template <typename T>
 struct IsComplete
 {
@@ -71,9 +71,10 @@ private:
   template <typename U, std::size_t = sizeof(U)>
   static std::true_type impl(U*);
   static std::false_type impl(...);
+  using bool_constant = decltype(impl(std::declval<T*>()));
 
 public:
-  using value = decltype(impl(std::declval<T*>()));
+  static constexpr bool value = bool_constant::value;
 };
 
 }

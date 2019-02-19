@@ -32,6 +32,8 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkSurfaceLICComposite.h"
+#include "vtkImageData.h"
+#include "vtkTextureObject.h"
 
 #include <vector>
 

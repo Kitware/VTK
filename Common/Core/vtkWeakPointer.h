@@ -45,24 +45,136 @@
 
 #include "vtkWeakPointerBase.h"
 
+#include "vtkNew.h" // for vtkNew
+#include "vtkMeta.h" // for IsComplete
+
+#include <type_traits> // for is_base_of
+#include <utility> // for std::move
+
 template <class T>
 class vtkWeakPointer: public vtkWeakPointerBase
 {
+  // These static asserts only fire when the function calling CheckTypes is
+  // used. Thus, this smart pointer class may still be used as a member variable
+  // with a forward declared T, so long as T is defined by the time the calling
+  // function is used.
+  template <typename U = T>
+  static void CheckTypes() noexcept
+  {
+    static_assert(vtk::detail::IsComplete<T>::value,
+                  "vtkWeakPointer<T>'s T type has not been defined. Missing "
+                  "include?");
+    static_assert(vtk::detail::IsComplete<U>::value,
+                  "Cannot store an object with undefined type in "
+                  "vtkWeakPointer. Missing include?");
+    static_assert(std::is_base_of<T, U>::value,
+                  "Argument type is not compatible with vtkWeakPointer<T>'s "
+                  "T type.");
+    static_assert(std::is_base_of<vtkObjectBase, T>::value,
+                  "vtkWeakPointer can only be used with subclasses of "
+                  "vtkObjectBase.");
+  }
+
 public:
   /**
    * Initialize smart pointer to nullptr.
    */
-  vtkWeakPointer() {}
-
-  /**
-   * Initialize smart pointer to given object.
-   */
-  vtkWeakPointer(T* r): vtkWeakPointerBase(r) {}
+  vtkWeakPointer() noexcept
+    : vtkWeakPointerBase()
+  {
+  }
 
   /**
    * Initialize smart pointer with the given smart pointer.
+   * @{
    */
-  vtkWeakPointer(const vtkWeakPointerBase& r): vtkWeakPointerBase(r) {}
+  vtkWeakPointer(const vtkWeakPointer& r)
+    : vtkWeakPointerBase(r)
+  {
+  }
+
+  template <class U>
+  vtkWeakPointer(const vtkWeakPointer<U> &r)
+      : vtkWeakPointerBase(r)
+  {
+    vtkWeakPointer::CheckTypes<U>();
+  }
+  /* @} **/
+
+  /**
+   * Move r's object into the new weak pointer, setting r to nullptr.
+   * @{
+   */
+  vtkWeakPointer(vtkWeakPointer &&r) noexcept
+    : vtkWeakPointerBase(std::move(r))
+  {
+  }
+
+  template <class U>
+  vtkWeakPointer(vtkWeakPointer<U> &&r) noexcept
+      : vtkWeakPointerBase(std::move(r))
+  {
+    vtkWeakPointer::CheckTypes<U>();
+  }
+  /* @} **/
+
+  /**
+   * Initialize smart pointer to given object.
+   * @{
+   */
+  vtkWeakPointer(T* r)
+    : vtkWeakPointerBase(r)
+  {
+    vtkWeakPointer::CheckTypes();
+  }
+
+  template <typename U>
+  vtkWeakPointer(const vtkNew<U> &r)
+    : vtkWeakPointerBase(r.Object)
+  { // Create a new reference on copy
+    vtkWeakPointer::CheckTypes<U>();
+  }
+  //@}
+
+  //@{
+  /**
+   * Assign object to reference.
+   */
+  vtkWeakPointer& operator=(const vtkWeakPointer& r)
+  {
+    this->vtkWeakPointerBase::operator=(r);
+    return *this;
+  }
+
+  template <class U>
+  vtkWeakPointer& operator=(const vtkWeakPointer<U> &r)
+  {
+    vtkWeakPointer::CheckTypes<U>();
+
+    this->vtkWeakPointerBase::operator=(r);
+    return *this;
+  }
+  //@}
+
+  //@{
+  /**
+   * Move r's object into this weak pointer, setting r to nullptr.
+   */
+  vtkWeakPointer& operator=(vtkWeakPointer &&r) noexcept
+  {
+    this->vtkWeakPointerBase::operator=(std::move(r));
+    return *this;
+  }
+
+  template <class U>
+  vtkWeakPointer& operator=(vtkWeakPointer<U> &&r) noexcept
+  {
+    vtkWeakPointer::CheckTypes<U>();
+
+    this->vtkWeakPointerBase::operator=(std::move(r));
+    return *this;
+  }
+  //@}
 
   //@{
   /**
@@ -70,18 +182,17 @@ public:
    */
   vtkWeakPointer& operator=(T* r)
   {
+    vtkWeakPointer::CheckTypes();
     this->vtkWeakPointerBase::operator=(r);
     return *this;
   }
-  //@}
 
-  //@{
-  /**
-   * Assign object to reference.
-   */
-  vtkWeakPointer& operator=(const vtkWeakPointerBase& r)
+  template <typename U>
+  vtkWeakPointer& operator=(const vtkNew<U> &r)
   {
-    this->vtkWeakPointerBase::operator=(r);
+    vtkWeakPointer::CheckTypes<U>();
+
+    this->vtkWeakPointerBase::operator=(r.Object);
     return *this;
   }
   //@}
@@ -90,20 +201,15 @@ public:
   /**
    * Get the contained pointer.
    */
-  T* GetPointer() const
+  T* GetPointer() const noexcept
   {
     return static_cast<T*>(this->Object);
   }
-  T* Get() const
+  T* Get() const noexcept
   {
     return static_cast<T*>(this->Object);
   }
-  //@}
-
-  /**
-   * Get the contained pointer.
-   */
-  operator T* () const
+  operator T* () const noexcept
   {
     return static_cast<T*>(this->Object);
   }
@@ -112,7 +218,7 @@ public:
    * Dereference the pointer and return a reference to the contained
    * object.
    */
-  T& operator*() const
+  T& operator*() const noexcept
   {
     return *static_cast<T*>(this->Object);
   }
@@ -120,7 +226,7 @@ public:
   /**
    * Provides normal pointer target member access using operator ->.
    */
-  T* operator->() const
+  T* operator->() const noexcept
   {
     return static_cast<T*>(this->Object);
   }
@@ -157,22 +263,33 @@ private:
 };
 
 #define VTK_WEAK_POINTER_DEFINE_OPERATOR(op) \
-  template <class T> \
+  template <class T, class U> \
   inline bool \
-  operator op (const vtkWeakPointer<T>& l, const vtkWeakPointer<T>& r) \
+  operator op (const vtkWeakPointer<T>& l, const vtkWeakPointer<U>& r) \
   { \
     return (l.GetPointer() op r.GetPointer()); \
   } \
-  template <class T> \
-  inline bool operator op (T* l, const vtkWeakPointer<T>& r) \
+  template <class T, class U> \
+  inline bool operator op (T* l, const vtkWeakPointer<U>& r) \
   { \
     return (l op r.GetPointer()); \
   } \
-  template <class T> \
-  inline bool operator op (const vtkWeakPointer<T>& l, T* r) \
+  template <class T, class U> \
+  inline bool operator op (const vtkWeakPointer<T>& l, U* r) \
   { \
     return (l.GetPointer() op r); \
+  } \
+  template <class T, class U> \
+  inline bool operator op (const vtkNew<T>& l, const vtkWeakPointer<U>& r) \
+  { \
+    return (l.GetPointer() op r.GetPointer()); \
+  } \
+  template <class T, class U> \
+  inline bool operator op (const vtkWeakPointer<T>& l, const vtkNew<U>& r) \
+  { \
+    return (l.GetPointer() op r.GetPointer); \
   }
+
 /**
  * Compare smart pointer values.
  */

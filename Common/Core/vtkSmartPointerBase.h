@@ -35,7 +35,7 @@ public:
   /**
    * Initialize smart pointer to nullptr.
    */
-  vtkSmartPointerBase();
+  vtkSmartPointerBase() noexcept;
 
   /**
    * Initialize smart pointer to given object.
@@ -48,7 +48,6 @@ public:
    */
   vtkSmartPointerBase(const vtkSmartPointerBase& r);
 
-#ifndef __VTK_WRAP__
   /**
    * Move the pointee from @a r into @a this and reset @ r.
    */
@@ -57,7 +56,6 @@ public:
   {
     r.Object = nullptr;
   }
-#endif // __VTK_WRAP__
 
   /**
    * Destroy smart pointer and remove the reference to its object.
@@ -71,15 +69,12 @@ public:
    */
   vtkSmartPointerBase& operator=(vtkObjectBase* r);
   vtkSmartPointerBase& operator=(const vtkSmartPointerBase& r);
-#ifndef __VTK_WRAP__
-  vtkSmartPointerBase& operator=(vtkSmartPointerBase&& r) noexcept;
-#endif // __VTK_WRAP__
   //@}
 
   /**
    * Get the contained pointer.
    */
-  vtkObjectBase* GetPointer() const
+  vtkObjectBase* GetPointer() const noexcept
   {
     // Inline implementation so smart pointer comparisons can be fully
     // inlined.
@@ -104,7 +99,7 @@ protected:
 
 private:
   // Internal utility methods.
-  void Swap(vtkSmartPointerBase& r);
+  void Swap(vtkSmartPointerBase& r) noexcept;
   void Register();
 };
 
