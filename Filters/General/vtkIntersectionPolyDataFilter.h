@@ -54,7 +54,10 @@
  * indicating if the cell has any free edges. A watertight surface will have
  * 0 everywhere for this array!
  *
- * Author: Adam Updegrove updega2@gmail.com
+ * @author Adam Updegrove updega2@gmail.com
+ *
+ * @warning This filter is not designed to perform 2D boolean operations,
+ * and in fact relies on the inputs having no co-planar, overlapping cells.
 */
 
 #ifndef vtkIntersectionPolyDataFilter_h
