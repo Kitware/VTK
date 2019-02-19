@@ -20,9 +20,9 @@
 #include <vtk_loguru.h>
 #endif
 
+#include <cstdlib>
 #include <memory>
 #include <sstream>
-#include <string>
 #include <vector>
 
 //=============================================================================
@@ -362,36 +362,35 @@ vtkLogger::Verbosity vtkLogger::ConvertToVerbosity(const char* text)
 {
   if (text != nullptr)
   {
-    try
+    char* end = nullptr;
+    const int ivalue = static_cast<int>(std::strtol(text, &end, 10));
+    if (end != text && *end == '\0')
     {
-      return vtkLogger::ConvertToVerbosity(std::stoi(text));
+      return vtkLogger::ConvertToVerbosity(ivalue);
     }
-    catch (std::exception&)
+    if (std::string("OFF").compare(text) == 0)
     {
-      if (std::string("OFF").compare(text) == 0)
-      {
-        return vtkLogger::VERBOSITY_OFF;
-      }
-      else if (std::string("ERROR").compare(text) == 0)
-      {
-        return vtkLogger::VERBOSITY_ERROR;
-      }
-      else if (std::string("WARNING").compare(text) == 0)
-      {
-        return vtkLogger::VERBOSITY_WARNING;
-      }
-      else if (std::string("INFO").compare(text) == 0)
-      {
-        return vtkLogger::VERBOSITY_INFO;
-      }
-      else if (std::string("TRACE").compare(text) == 0)
-      {
-        return vtkLogger::VERBOSITY_TRACE;
-      }
-      else if (std::string("MAX").compare(text) == 0)
-      {
-        return vtkLogger::VERBOSITY_MAX;
-      }
+      return vtkLogger::VERBOSITY_OFF;
+    }
+    else if (std::string("ERROR").compare(text) == 0)
+    {
+      return vtkLogger::VERBOSITY_ERROR;
+    }
+    else if (std::string("WARNING").compare(text) == 0)
+    {
+      return vtkLogger::VERBOSITY_WARNING;
+    }
+    else if (std::string("INFO").compare(text) == 0)
+    {
+      return vtkLogger::VERBOSITY_INFO;
+    }
+    else if (std::string("TRACE").compare(text) == 0)
+    {
+      return vtkLogger::VERBOSITY_TRACE;
+    }
+    else if (std::string("MAX").compare(text) == 0)
+    {
+      return vtkLogger::VERBOSITY_MAX;
     }
   }
   return vtkLogger::VERBOSITY_INVALID;
