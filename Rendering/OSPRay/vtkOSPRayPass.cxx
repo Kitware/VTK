@@ -31,6 +31,7 @@
 #include "vtkVolumetricPass.h"
 
 #include "ospray/ospray.h"
+#include "ospray/version.h"
 
 #include <sstream>
 #include <stdexcept>
