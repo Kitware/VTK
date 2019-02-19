@@ -2588,11 +2588,11 @@ function_sig:
  */
 
 structor_declaration:
-    structor_sig { closeSig(); }
-    opt_ctor_initializer { openSig(); }
-    function_trailer_clause
+    structor_sig
+    opt_noexcept_specifier
+    func_attribute_specifier_seq
+    virt_specifier_seq
     {
-      postSig(";");
       closeSig();
       if (getType() & VTK_PARSE_VIRTUAL)
       {
@@ -2608,6 +2608,15 @@ structor_declaration:
       }
       currentFunction->Name = $<str>1;
       currentFunction->Comment = vtkstrdup(getComment());
+    }
+    opt_ctor_initializer
+    {
+      openSig();
+    }
+    opt_body_as_trailer
+    {
+      postSig(";");
+      closeSig();
       vtkParseDebug("Parsed func", currentFunction->Name);
     }
 
