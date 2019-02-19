@@ -108,6 +108,12 @@ vtkLogger::~vtkLogger() {}
 void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v"*/)
 {
 #if VTK_ENABLE_LOGGING
+  if (argc == 0)
+  { // loguru::init can't handle this case -- call the no-arg overload.
+    vtkLogger::Init();
+    return;
+  }
+
   loguru::g_preamble_date = false;
   loguru::g_preamble_time = false;
   loguru::init(argc, argv, verbosity_flag);
@@ -116,6 +122,15 @@ void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v
   (void)argv;
   (void)verbosity_flag;
 #endif
+}
+
+//----------------------------------------------------------------------------
+void vtkLogger::Init()
+{
+  int argc = 1;
+  char dummy[1] = { '\0' };
+  char* argv[2] = { dummy, nullptr };
+  vtkLogger::Init(argc, argv);
 }
 
 //----------------------------------------------------------------------------
