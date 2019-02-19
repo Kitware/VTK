@@ -12,7 +12,6 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonMisc
   VTK::ParallelCore
-  VTK::mpi
 TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::IOImage
