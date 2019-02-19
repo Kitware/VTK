@@ -235,8 +235,11 @@ public:
    * You can also use something else instead of '-v' flag by the via
    * `verbosity_flag` argument. You can also set to nullptr to skip parsing
    * verbosity level from the command line arguments.
+   * @{
    */
   static void Init(int& argc, char* argv[], const char* verbosity_flag = "-v");
+  static void Init();
+  /** @} */
 
   /**
    * Set the verbosity level for the output logged to stderr. Everything with a
