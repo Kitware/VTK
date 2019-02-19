@@ -25,6 +25,7 @@
 #include "vtkViewNodeCollection.h"
 
 #include "ospray/ospray.h"
+#include "ospray/version.h"
 #include <stdexcept>
 
 //============================================================================
