@@ -116,5 +116,7 @@ subdirectory using the `subtree` merge strategy.
 
 Initial conversions will require a manual push by the maintainers since the
 conversion involves a root commit which is not allowed under normal
-circumstances. Please send an email to the mailing list asking for assistance
-if necessary.
+circumstances. Please post a message on the [VTK Discourse][] forum asking
+for assistance if necessary.
+
+[VTK Discourse]: https://discourse.vtk.org/

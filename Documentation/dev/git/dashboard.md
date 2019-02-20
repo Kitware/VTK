@@ -42,4 +42,7 @@ Make your edits, test it, and commit the result.  Create a patch file with:
 
     $ git format-patch origin/dashboard
 
-And email the results to the developer's mailing list.
+And post the results in the [Development][] category in the [VTK Discourse][] forum.
+
+[Development]: https://discourse.vtk.org/c/development
+[VTK Discourse]: https://discourse.vtk.org/

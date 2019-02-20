@@ -26,7 +26,7 @@ Learning Resources
 
 * General information is available at the [VTK Homepage][].
 
-* Community discussion takes place on the [VTK Mailing Lists][].
+* Community discussion takes place on the [VTK Discourse][] forum.
 
 * Commercial [support][Kitware Support] and [training][Kitware Training]
   are available from [Kitware][].
@@ -34,9 +34,9 @@ Learning Resources
 * Doxygen-generated nightly reference documentation is
   available [online][Doxygen].
 
-[VTK Homepage]: https://www.vtk.org
+[VTK Homepage]: https://www.vtk.org/
 [Doxygen]: https://www.vtk.org/doc/nightly/html
-[VTK Mailing Lists]: https://www.vtk.org/mailing-lists/
+[VTK Discourse]: https://discourse.vtk.org/
 [Kitware]: https://www.kitware.com/
 [Kitware Support]: https://www.kitware.com/what-we-offer/#support
 [Kitware Training]: https://www.kitware.com/what-we-offer/#training
@@ -48,7 +48,7 @@ If you have found a bug:
 
 1. If you have a patch, please read the [CONTRIBUTING.md][] document.
 
-2. Otherwise, please join the one of the [VTK Mailing Lists][] and ask
+2. Otherwise, please join the [VTK Discourse][] forum and ask
    about the expected and observed behaviors to determine if it is
    really a bug.
 

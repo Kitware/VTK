@@ -55,10 +55,10 @@ Additional Resources
 * The VTK Testing directories (e.g., VTK/Graphics/Testing) contain other
   examples. These are not commented, and designed for testing.
 
-* The VTK Mailing List http://public.kitware.com/mailman/listinfo/vtkusers
+* The VTK Discourse forum http://discourse.vtk.org/
 
-* The VTK Web Pages http://public.kitware.com/
+* The VTK Web Pages https://vtk.org/Wiki/VTK
 
 * Commercial support and resources from Kitware:
-  - The VTK User's Guide http://www.kitware.com/products/vtkguide.html
-  - Support Contracts http://www.kitware.com/products/vtksupport.html
+  - The VTK User's Guide https://vtk.org/documentation/
+  - Support Contracts https://www.kitware.com/what-we-offer/#support
