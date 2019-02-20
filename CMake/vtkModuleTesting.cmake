@@ -632,6 +632,8 @@ function (vtk_add_test_python_mpi)
     "${MPIEXEC_NUMPROC_FLAG}" "${numprocs}"
     ${MPIEXEC_PREFLAGS})
 
-  set(_vtk_testing_python_exe "$<TARGET_FILE:VTK::pvtkpython>")
+  if (NOT _vtk_testing_python_exe)
+    set(_vtk_testing_python_exe "$<TARGET_FILE:VTK::pvtkpython>")
+  endif ()
   vtk_add_test_python(${ARGN})
 endfunction ()
