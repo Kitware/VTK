@@ -701,7 +701,8 @@ class DataSetAttributes(VTKObjectWrapper):
 
         # Fixup input array length:
         if not isinstance(narray, numpy.ndarray) or numpy.ndim(narray) == 0: # Scalar input
-            tmparray = numpy.empty(arrLength, dtype=narray.dtype)
+            dtype = narray.dtype if isinstance(narray, numpy.ndarray) else type(narray)
+            tmparray = numpy.empty(arrLength, dtype=dtype)
             tmparray.fill(narray)
             narray = tmparray
         elif narray.shape[0] != arrLength: # Vector input
