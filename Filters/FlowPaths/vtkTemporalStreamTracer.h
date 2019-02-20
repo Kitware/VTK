@@ -376,7 +376,7 @@ public:
     int           RequestIndex;
 
     // Track which process we are
-    int           UpdatePiece;
+    int           UpdatePieceId;
     int           UpdateNumPieces;
 
     // Important for Caching of Cells/Ids/Weights etc

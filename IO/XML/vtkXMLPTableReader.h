@@ -209,7 +209,7 @@ protected:
   /**
   * The update request.
   */
-  int UpdatePiece;
+  int UpdatePieceId;
   int UpdateNumberOfPieces;
 
   /**
