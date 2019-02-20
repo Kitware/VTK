@@ -2077,6 +2077,7 @@ template_member_declaration:
   | template_head template_member_declaration
   | template_head alias_declaration
   | template_head variable_declaration
+  | template_head friend_declaration
 
 friend_declaration:
     FRIEND ignored_class
