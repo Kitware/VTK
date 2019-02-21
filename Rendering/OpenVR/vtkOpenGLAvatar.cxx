@@ -21,7 +21,10 @@
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
+#include "vtkOpenVRCamera.h"
+#include "vtkOpenVRRay.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -161,6 +164,9 @@ vtkOpenGLAvatar::vtkOpenGLAvatar()
     this->BodyActor[i]->SetProperty(this->GetProperty());
   }
 
+  // this->LeftRay->SetShow(true);
+  // this->RightRay->SetShow(true);
+
 }
 
 vtkOpenGLAvatar::~vtkOpenGLAvatar() = default;
@@ -184,14 +190,76 @@ void vtkOpenGLAvatar::Render(vtkRenderer *ren, vtkMapper *mapper)
 
 
   // send a render to the mapper; update pipeline
-  mapper->Render(ren, this->HeadActor);
-  this->LeftHandMapper->Render(ren, this->LeftHandActor);
-  this->RightHandMapper->Render(ren, this->RightHandActor);
+  if (this->HeadActor->GetVisibility())
+  {
+    mapper->Render(ren, this->HeadActor);
+  }
+  if (this->LeftHandActor->GetVisibility())
+  {
+    this->LeftHandMapper->Render(ren, this->LeftHandActor);
+  }
+  if (this->RightHandActor->GetVisibility())
+  {
+    this->RightHandMapper->Render(ren, this->RightHandActor);
+  }
   for (int i = 0; i < NUM_BODY; ++i) {
     this->BodyActor[i]->SetScale(this->GetScale());
     this->BodyActor[i]->SetPosition(this->BodyPosition[i]);
     this->BodyActor[i]->SetOrientation(this->BodyOrientation[i]);
-    this->BodyMapper[i]->Render(ren, this->BodyActor[i]);
+    if (this->BodyActor[i]->GetVisibility())
+    {
+      this->BodyMapper[i]->Render(ren, this->BodyActor[i]);
+    }
+  }
+  if (this->LeftRay->GetShow() || this->RightRay->GetShow())
+  {
+    auto renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+    vtkOpenVRCamera *cam =
+      static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
+    if (renWin && cam)
+    {
+
+      vtkNew<vtkTransform> trans;
+      vtkNew<vtkMatrix4x4> mat;
+      vtkMatrix4x4 *wcdc; // we only need this one.
+      vtkMatrix4x4 *wcvc;
+      vtkMatrix3x3 *norms;
+      vtkMatrix4x4 *vcdc;
+      // VRRay needs the complete model -> device (screen) transform.
+      // Get world -> device from the camera.
+      cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
+      vtkNew<vtkMatrix4x4> controller2device;
+
+      if (this->LeftRay->GetShow())
+      {
+        trans->Translate(this->LeftHandPosition);
+        //RotateZ, RotateX, and finally RotateY
+        trans->RotateZ(this->LeftHandOrientation[2]);
+        trans->RotateX(this->LeftHandOrientation[0]);
+        trans->RotateY(this->LeftHandOrientation[1]);
+        // VRRay and avatar are off by 90.
+        trans->RotateY(-90);
+        trans->GetMatrix(mat);
+        // OpenGL expects transpose of VTK transforms.
+        mat->Transpose();
+        trans->SetMatrix(mat);
+        vtkMatrix4x4::Multiply4x4(trans->GetMatrix(), wcdc, controller2device);
+        this->LeftRay->Render(renWin, controller2device);
+      }
+      if (this->RightRay->GetShow())
+      {
+        trans->Translate(this->RightHandPosition);
+        trans->RotateZ(this->RightHandOrientation[2]);
+        trans->RotateX(this->RightHandOrientation[0]);
+        trans->RotateY(this->RightHandOrientation[1]);
+        trans->RotateY(-90);
+        trans->GetMatrix(mat);
+        mat->Transpose();
+        trans->SetMatrix(mat);
+        vtkMatrix4x4::Multiply4x4(trans->GetMatrix(), wcdc, controller2device);
+        this->RightRay->Render(renWin, controller2device);
+      }
+    }
   }
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
@@ -204,8 +272,19 @@ void vtkOpenGLAvatar::CalcBody()
 
   // keep the head orientation in the direction of the up vector.
   // use the vector between the hands as a guide for torso's rotation (Vright).
-  double torsoRight[3];
-  vtkMath::Subtract(this->RightHandPosition, this->LeftHandPosition, torsoRight);
+  double torsoRight[3] = {0, 0, 0};
+  if (this->UseLeftHand && this->UseRightHand) {
+    vtkMath::Subtract(this->RightHandPosition, this->LeftHandPosition, torsoRight);
+  }
+  else if (this->UseLeftHand)
+  {
+    vtkMath::Subtract(this->HeadPosition, this->LeftHandPosition, torsoRight);
+  }
+  else if (this->UseRightHand)
+  {
+    vtkMath::Subtract(this->RightHandPosition, this->HeadPosition, torsoRight);
+  }
+  // else no hands, and torsoRight remains zero.
 
   vtkNew<vtkTransform> trans;
   getTorsoTransform(trans, this->UpVector, torsoRight, this->HeadOrientation);
@@ -314,4 +393,43 @@ double *vtkOpenGLAvatar::GetBounds()
 void vtkOpenGLAvatar::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+void vtkOpenGLAvatar::SetUseLeftHand(bool val)
+{
+  this->Superclass::SetUseLeftHand(val);
+  this->LeftHandActor->SetVisibility(val);
+  this->BodyActor[LEFT_FORE]->SetVisibility(val);
+  bool upperViz = val && !this->ShowHandsOnly;
+  this->BodyActor[LEFT_UPPER]->SetVisibility(upperViz);
+}
+void vtkOpenGLAvatar::SetUseRightHand(bool val)
+{
+  this->Superclass::SetUseRightHand(val);
+  this->RightHandActor->SetVisibility(val);
+  this->BodyActor[RIGHT_FORE]->SetVisibility(val);
+  bool upperViz = val && !this->ShowHandsOnly;
+  this->BodyActor[RIGHT_UPPER]->SetVisibility(upperViz);
+}
+
+void vtkOpenGLAvatar::SetShowHandsOnly(bool val)
+{
+  std::cout << "Hiding parts" << std::endl;
+  this->Superclass::SetShowHandsOnly(val);
+  this->HeadActor->SetVisibility(!val);
+  this->BodyActor[TORSO]->SetVisibility(!val);
+  bool upperViz = !val && this->BodyActor[LEFT_UPPER]->GetVisibility();
+  this->BodyActor[LEFT_UPPER]->SetVisibility(upperViz);
+  upperViz = !val && this->BodyActor[RIGHT_UPPER]->GetVisibility();
+  this->BodyActor[RIGHT_UPPER]->SetVisibility(upperViz);
+}
+
+void vtkOpenGLAvatar::SetLeftShowRay(bool val)
+{
+  this->LeftRay->SetShow(val);
+}
+
+void vtkOpenGLAvatar::SetRightShowRay(bool val)
+{
+  this->RightRay->SetShow(val);
 }

@@ -66,6 +66,10 @@ vtkAvatar::vtkAvatar()
   this->UpVector[1] = 1.0;
   this->UpVector[2] = 0.0;
 
+  UseLeftHand = true;
+  UseRightHand = true;
+  ShowHandsOnly = false;
+
 }
 
 //------------------------------------------------------------------------------
