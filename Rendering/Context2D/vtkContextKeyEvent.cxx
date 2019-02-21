@@ -19,6 +19,10 @@
 
 #include <cassert>
 
+vtkContextKeyEvent::vtkContextKeyEvent()
+{
+}
+
 void vtkContextKeyEvent::SetInteractor(vtkRenderWindowInteractor *interactor)
 {
   this->Interactor = interactor;

@@ -17,11 +17,9 @@
 #include "vtkGarbageCollector.h"
 
 //----------------------------------------------------------------------------
-vtkSmartPointerBase::vtkSmartPointerBase():
-  Object(nullptr)
+vtkSmartPointerBase::vtkSmartPointerBase() noexcept
+  : Object(nullptr)
 {
-  // Add a reference to the object.
-  this->Register();
 }
 
 //----------------------------------------------------------------------------
@@ -67,12 +65,15 @@ vtkSmartPointerBase::~vtkSmartPointerBase()
 vtkSmartPointerBase&
 vtkSmartPointerBase::operator=(vtkObjectBase* r)
 {
-  // This is an exception-safe assignment idiom that also gives the
-  // correct order of register/unregister calls to all objects
-  // involved.  A temporary is constructed that references the new
-  // object.  Then the main pointer and temporary are swapped and the
-  // temporary's destructor unreferences the old object.
-  vtkSmartPointerBase(r).Swap(*this);
+  if (r != this->Object)
+  {
+    // This is an exception-safe assignment idiom that also gives the
+    // correct order of register/unregister calls to all objects
+    // involved.  A temporary is constructed that references the new
+    // object.  Then the main pointer and temporary are swapped and the
+    // temporary's destructor unreferences the old object.
+    vtkSmartPointerBase(r).Swap(*this);
+  }
   return *this;
 }
 
@@ -80,21 +81,15 @@ vtkSmartPointerBase::operator=(vtkObjectBase* r)
 vtkSmartPointerBase&
 vtkSmartPointerBase::operator=(const vtkSmartPointerBase& r)
 {
-  // This is an exception-safe assignment idiom that also gives the
-  // correct order of register/unregister calls to all objects
-  // involved.  A temporary is constructed that references the new
-  // object.  Then the main pointer and temporary are swapped and the
-  // temporary's destructor unreferences the old object.
-  vtkSmartPointerBase(r).Swap(*this);
-  return *this;
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointerBase &vtkSmartPointerBase::operator=(vtkSmartPointerBase &&r) noexcept
-{
-  using std::swap;
-  swap(this->Object, r.Object);
-  r = nullptr; // Unregister our old object.
+  if (&r != this && r.Object != this->Object)
+  {
+    // This is an exception-safe assignment idiom that also gives the
+    // correct order of register/unregister calls to all objects
+    // involved.  A temporary is constructed that references the new
+    // object.  Then the main pointer and temporary are swapped and the
+    // temporary's destructor unreferences the old object.
+    vtkSmartPointerBase(r).Swap(*this);
+  }
   return *this;
 }
 
@@ -106,7 +101,7 @@ void vtkSmartPointerBase::Report(vtkGarbageCollector* collector,
 }
 
 //----------------------------------------------------------------------------
-void vtkSmartPointerBase::Swap(vtkSmartPointerBase& r)
+void vtkSmartPointerBase::Swap(vtkSmartPointerBase& r) noexcept
 {
   // Just swap the pointers.  This is used internally by the
   // assignment operator.

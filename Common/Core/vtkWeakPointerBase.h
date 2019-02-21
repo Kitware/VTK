@@ -36,7 +36,7 @@ public:
   /**
    * Initialize smart pointer to nullptr.
    */
-  vtkWeakPointerBase() : Object(nullptr) {}
+  vtkWeakPointerBase() noexcept : Object(nullptr) {}
 
   /**
    * Initialize smart pointer to given object.
@@ -44,9 +44,14 @@ public:
   vtkWeakPointerBase(vtkObjectBase* r);
 
   /**
-   * Initialize weak pointer .
+   * Copy r's data object into the new weak pointer.
    */
   vtkWeakPointerBase(const vtkWeakPointerBase& r);
+
+  /**
+   * Move r's object into the new weak pointer, setting r to nullptr.
+   */
+  vtkWeakPointerBase(vtkWeakPointerBase&& r) noexcept;
 
   /**
    * Destroy smart pointer.
@@ -60,6 +65,7 @@ public:
    */
   vtkWeakPointerBase& operator=(vtkObjectBase* r);
   vtkWeakPointerBase& operator=(const vtkWeakPointerBase& r);
+  vtkWeakPointerBase& operator=(vtkWeakPointerBase &&r) noexcept;
   //@}
 
   /**

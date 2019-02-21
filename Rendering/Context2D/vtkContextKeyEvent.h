@@ -34,7 +34,7 @@ class vtkRenderWindowInteractor;
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextKeyEvent
 {
 public:
-  vtkContextKeyEvent() {}
+  vtkContextKeyEvent();
 
   /**
    * Set the interactor for the key event.

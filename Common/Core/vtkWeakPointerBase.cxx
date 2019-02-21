@@ -19,7 +19,10 @@ class vtkWeakPointerBaseToObjectBaseFriendship
 {
 public:
   static void AddWeakPointer(vtkObjectBase *r, vtkWeakPointerBase *p);
-  static void RemoveWeakPointer(vtkObjectBase *r, vtkWeakPointerBase *p);
+  static void RemoveWeakPointer(vtkObjectBase *r, vtkWeakPointerBase *p) noexcept;
+  static void ReplaceWeakPointer(vtkObjectBase *r,
+                                 vtkWeakPointerBase *bad,
+                                 vtkWeakPointerBase *good) noexcept;
 };
 
 //----------------------------------------------------------------------------
@@ -62,7 +65,7 @@ void vtkWeakPointerBaseToObjectBaseFriendship::AddWeakPointer(
 
 //----------------------------------------------------------------------------
 void vtkWeakPointerBaseToObjectBaseFriendship::RemoveWeakPointer(
-  vtkObjectBase *r, vtkWeakPointerBase *p)
+  vtkObjectBase *r, vtkWeakPointerBase *p) noexcept
 {
   if (r)
   {
@@ -89,6 +92,29 @@ void vtkWeakPointerBaseToObjectBaseFriendship::RemoveWeakPointer(
 }
 
 //----------------------------------------------------------------------------
+void vtkWeakPointerBaseToObjectBaseFriendship::
+ReplaceWeakPointer(vtkObjectBase *r,
+                   vtkWeakPointerBase *bad,
+                   vtkWeakPointerBase *good) noexcept
+{
+  if (r)
+  {
+    vtkWeakPointerBase **l = r->WeakPointers;
+    if (l != nullptr)
+    {
+      for (; *l != nullptr; ++l)
+      {
+        if (*l == bad)
+        {
+          *l = good;
+          break;
+        }
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
 vtkWeakPointerBase::vtkWeakPointerBase(vtkObjectBase* r) :
   Object(r)
 {
@@ -100,6 +126,16 @@ vtkWeakPointerBase::vtkWeakPointerBase(const vtkWeakPointerBase& r) :
   Object(r.Object)
 {
   vtkWeakPointerBaseToObjectBaseFriendship::AddWeakPointer(r.Object, this);
+}
+
+//----------------------------------------------------------------------------
+vtkWeakPointerBase::vtkWeakPointerBase(vtkWeakPointerBase&& r) noexcept
+  : Object(r.Object)
+{
+  r.Object = nullptr;
+  vtkWeakPointerBaseToObjectBaseFriendship::ReplaceWeakPointer(this->Object,
+                                                               &r,
+                                                               this);
 }
 
 //----------------------------------------------------------------------------
@@ -144,6 +180,29 @@ vtkWeakPointerBase::operator=(const vtkWeakPointerBase& r)
 
       vtkWeakPointerBaseToObjectBaseFriendship::AddWeakPointer(
         this->Object, this);
+    }
+  }
+
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+vtkWeakPointerBase&
+vtkWeakPointerBase::operator=(vtkWeakPointerBase &&r) noexcept
+{
+  if (this != &r)
+  {
+    if (this->Object != r.Object)
+    {
+      vtkWeakPointerBaseToObjectBaseFriendship::RemoveWeakPointer(
+        this->Object, this);
+
+      // WTB std::exchange
+      this->Object = r.Object;
+      r.Object = nullptr;
+
+      vtkWeakPointerBaseToObjectBaseFriendship::ReplaceWeakPointer(
+        this->Object, &r, this);
     }
   }
 
