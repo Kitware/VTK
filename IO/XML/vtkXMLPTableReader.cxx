@@ -461,7 +461,7 @@ int vtkXMLPTableReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 //----------------------------------------------------------------------------
 void vtkXMLPTableReader::SetupUpdateExtent(int piece, int numberOfPieces)
 {
-  this->UpdatePiece = piece;
+  this->UpdatePieceId = piece;
   this->UpdateNumberOfPieces = numberOfPieces;
 
   // If more pieces are requested than available, just return empty
@@ -472,10 +472,10 @@ void vtkXMLPTableReader::SetupUpdateExtent(int piece, int numberOfPieces)
   }
 
   // Find the range of pieces to read.
-  if (this->UpdatePiece < this->UpdateNumberOfPieces)
+  if (this->UpdatePieceId < this->UpdateNumberOfPieces)
   {
-    this->StartPiece = (this->UpdatePiece * this->NumberOfPieces) / this->UpdateNumberOfPieces;
-    this->EndPiece = ((this->UpdatePiece + 1) * this->NumberOfPieces) / this->UpdateNumberOfPieces;
+    this->StartPiece = (this->UpdatePieceId * this->NumberOfPieces) / this->UpdateNumberOfPieces;
+    this->EndPiece = ((this->UpdatePieceId + 1) * this->NumberOfPieces) / this->UpdateNumberOfPieces;
   }
   else
   {

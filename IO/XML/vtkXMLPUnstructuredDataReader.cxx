@@ -186,7 +186,7 @@ void vtkXMLPUnstructuredDataReader::SetupOutputData()
 void vtkXMLPUnstructuredDataReader::SetupUpdateExtent(
   int piece, int numberOfPieces, int ghostLevel)
 {
-  this->UpdatePiece = piece;
+  this->UpdatePieceId = piece;
   this->UpdateNumberOfPieces = numberOfPieces;
   this->UpdateGhostLevel = ghostLevel;
 
@@ -198,11 +198,11 @@ void vtkXMLPUnstructuredDataReader::SetupUpdateExtent(
   }
 
   // Find the range of pieces to read.
-  if (this->UpdatePiece < this->UpdateNumberOfPieces)
+  if (this->UpdatePieceId < this->UpdateNumberOfPieces)
   {
-    this->StartPiece = ((this->UpdatePiece*this->NumberOfPieces) /
+    this->StartPiece = ((this->UpdatePieceId * this->NumberOfPieces) /
                         this->UpdateNumberOfPieces);
-    this->EndPiece = (((this->UpdatePiece+1)*this->NumberOfPieces) /
+    this->EndPiece = (((this->UpdatePieceId + 1) * this->NumberOfPieces) /
                       this->UpdateNumberOfPieces);
   }
   else
