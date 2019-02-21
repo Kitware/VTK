@@ -22,12 +22,12 @@ another for rc1). Plausible deadlines should be used; they can be edited later.
 
 ### Annoucements
 
-Announcements should be sent to developers first and Linux distribution
+Announcements should be posted on the [VTK Discourse][] forum and Linux distribution
 maintainers.
 
-#### Mailing List
+#### VTK Community Announcement
 
-Announce to the developer list (vtk-developers@vtk.org) that a release is being
+Announce to the [Development][] category that a release is being
 planned. Template:
 
     Hi,
@@ -341,3 +341,6 @@ Send an email to `vtk-developers@vtk.org`, `vtkusers@vtk.org`. Also inform
 
 For the final release, a blog post, release notes, and a Source article should
 be made.
+
+[VTK Discourse]: https://discourse.vtk.org
+[Development]: https://discourse.vtk.org/c/development

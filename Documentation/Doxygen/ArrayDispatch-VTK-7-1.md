@@ -1274,4 +1274,6 @@ restrictions are not met.
 Hopefully this has convinced you that the `vtkArrayDispatch` and related tools
 are worth using to create flexible, efficient, typesafe implementations for
 your work with VTK. Please direct any questions you may have on the subject to
-the VTK mailing lists.
+the [VTK Discourse][] forum.
+
+[VTK Discourse]: https://discourse.vtk.org

@@ -123,7 +123,7 @@ inline MPI_Datatype vtkMPICommunicatorGetMPIType(int vtkType)
     case VTK_ID_TYPE:           return MPI_LONG_LONG;
 #else
     case VTK_ID_TYPE:
-      vtkGenericWarningMacro("This systems MPI doesn't seem to support 64 bit ids and you have 64 bit IDs turned on. Please contact VTK mailing list.");
+      vtkGenericWarningMacro("This systems MPI doesn't seem to support 64 bit ids and you have 64 bit IDs turned on. Please seek assistance on the VTK Discourse (https://discourse.vtk.org/).");
       return MPI_LONG;
 #endif
 #else //VTK_USE_64BIT_IDS
