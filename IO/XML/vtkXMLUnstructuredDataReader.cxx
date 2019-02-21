@@ -515,8 +515,12 @@ int vtkXMLUnstructuredDataReader::ReadPieceData()
       int needToRead = this->PointsNeedToReadTimeStep(eNested);
       if( needToRead )
       {
-        // Read the array.
-        if(!this->ReadArrayForPoints(eNested, output->GetPoints()->GetData()))
+        // Read the array. Test for abort before and after the read. Before
+        // so that we can skip the read, after to prevent unwanted error
+        // messages.
+        if (!this->AbortExecute &&
+            !this->ReadArrayForPoints(eNested, output->GetPoints()->GetData()) &&
+            !this->AbortExecute)
         {
           vtkErrorMacro("Cannot read points array from " << ePoints->GetName()
             << " in piece " << this->Piece
@@ -560,12 +564,20 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   this->SetProgressRange(progressRange, 0, fractions);
 
   // Read the cell offsets.
+  if (this->AbortExecute)
+  {
+    return 0;
+  }
   vtkXMLDataElement* eOffsets = this->FindDataArrayWithName(eCells, "offsets");
-  if(!eOffsets)
+  if(!eOffsets && !this->AbortExecute)
   {
     vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
                   << " in piece " << this->Piece
                   << " because the \"offsets\" array could not be found.");
+    return 0;
+  }
+  if (this->AbortExecute)
+  {
     return 0;
   }
   vtkAbstractArray* ac1 = this->CreateArray(eOffsets);
@@ -584,11 +596,23 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   }
   c1->SetNumberOfTuples(numberOfCells);
   if(!this->ReadArrayValues(eOffsets, 0, c1,
-                            0, numberOfCells, CELL_DATA))
+                            0, numberOfCells, CELL_DATA) && !this->AbortExecute)
   {
     vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
                   << " in piece " << this->Piece
                   << " because the \"offsets\" array is not long enough.");
+    if (ac1)
+    {
+      ac1->Delete();
+    }
+    return 0;
+  }
+  if (this->AbortExecute)
+  {
+    if (ac1)
+    {
+      ac1->Delete();
+    }
     return 0;
   }
   vtkIdTypeArray* cellOffsets = this->ConvertToIdTypeArray(c1);
@@ -647,12 +671,24 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     return 0;
   }
   c0->SetNumberOfTuples(cpLength);
-  if(!this->ReadArrayValues(eConn, 0, c0, 0, cpLength, CELL_DATA))
+  if (this->AbortExecute)
+  {
+    cellOffsets->Delete();
+    if (ac0) { ac0->Delete(); }
+    return 0;
+  }
+  if(!this->ReadArrayValues(eConn, 0, c0, 0, cpLength, CELL_DATA) && !this->AbortExecute)
   {
     vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
                   << " in piece " << this->Piece
                   << " because the \"connectivity\" array is not long enough.");
     cellOffsets->Delete();
+    return 0;
+  }
+  if (this->AbortExecute)
+  {
+    cellOffsets->Delete();
+    if (ac0) { ac0->Delete(); }
     return 0;
   }
   vtkIdTypeArray* cellPoints = this->ConvertToIdTypeArray(c0);
@@ -1057,4 +1093,3 @@ int vtkXMLUnstructuredDataReader::CellsNeedToReadTimeStep(vtkXMLDataElement *eNe
   // all other cases we don't need to read:
   return 0;
 }
-
