@@ -78,8 +78,8 @@ int TestGLTFExporter(int argc, char *argv[])
   exporter->SetRenderWindow(window);
   exporter->SetFileName(filename.c_str());
   exporter->InlineDataOn();
-  std::string estring = exporter->WriteToString();
   // for debugging uncomment below
+  // std::string estring = exporter->WriteToString();
   // cout << estring;
   exporter->Write();
 

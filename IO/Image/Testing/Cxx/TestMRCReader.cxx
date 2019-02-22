@@ -46,14 +46,9 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
   reader->GetOutput()->GetCenter(center);
   reader->GetOutput()->GetSpacing(spacing);
   double center1[3] = { center[0], center[1], center[2] };
-  double center2[3] = { center[0], center[1], center[2] };
   if (size[2] % 2 == 1)
   {
     center1[2] += 0.5*spacing[2];
-  }
-  if (size[0] % 2 == 1)
-  {
-    center2[0] += 0.5*spacing[0];
   }
   double vrange[2];
   reader->GetOutput()->GetScalarRange(vrange);
