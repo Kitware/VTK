@@ -19,6 +19,7 @@
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkHardwareSelector.h"
@@ -335,12 +336,13 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     blockAct->SetProperty(blockProp.GetPointer());
     double origColor[4];
     blockProp->GetColor(origColor);
-    vtkCompositeDataIterator* iter = cd->NewIterator();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-      iter->GoToNextItem())
+
+    using Opts = vtk::CompositeDataSetOptions;
+    for (auto node : vtk::Range(cd, Opts::SkipEmptyNodes))
     {
-      auto curIndex = iter->GetCurrentFlatIndex();
-      auto currentObj = iter->GetCurrentDataObject();
+      auto curIndex = node.GetFlatIndex();
+      auto currentObj = node.GetDataObject();
+
       // Skip invisible blocks and unpickable ones when performing selection:
       bool blockVis =
         (this->BlockAttributes && this->BlockAttributes->HasBlockVisibility(currentObj)) ?
@@ -352,7 +354,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       {
         continue;
       }
-      ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      ds = vtkDataSet::SafeDownCast(currentObj);
       if (ds)
       {
         if (selector)
@@ -372,7 +374,6 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
         this->Render(ren, blockAct.GetPointer(), ds);
       }
     }
-    iter->Delete();
   }
 
   if (selector)

@@ -118,6 +118,10 @@ public:
 protected:
   vtkCompositeDataIterator();
   ~vtkCompositeDataIterator() override;
+
+  // Use macro to ensure MTime is updated:
+  vtkSetMacro(Reverse, int);
+
   vtkTypeBool SkipEmptyNodes;
   int Reverse;
   vtkCompositeDataSet* DataSet;

@@ -16,8 +16,8 @@
 
 #include "vtkCharArray.h"
 #include "vtkCompositeDataProbeFilter.h"
-#include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -411,10 +411,10 @@ void vtkResampleToImage::ComputeDataBounds(vtkDataObject* data, double bounds[6]
     bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
     bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
 
-    vtkCompositeDataIterator *iter = cdata->NewIterator();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    using Opts = vtk::CompositeDataSetOptions;
+    for (vtkDataObject *dObj : vtk::Range(cdata, Opts::SkipEmptyNodes))
     {
-      vtkDataSet *ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      vtkDataSet *ds = vtkDataSet::SafeDownCast(dObj);
       if (!ds)
       {
         vtkGenericWarningMacro("vtkCompositeDataSet leaf not vtkDataSet. Skipping.");
@@ -428,6 +428,5 @@ void vtkResampleToImage::ComputeDataBounds(vtkDataObject* data, double bounds[6]
         bounds[2*i + 1] = vtkMath::Max(bounds[2*i + 1], b[2*i + 1]);
       }
     }
-    iter->Delete();
   }
 }

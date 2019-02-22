@@ -17,8 +17,8 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkCompositeDataProbeFilter.h"
-#include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
@@ -350,11 +350,10 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
 
     this->Prober->SetSourceData(source);
 
-    vtkSmartPointer<vtkCompositeDataIterator> iter;
-    iter.TakeReference(input->NewIterator());
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    using Opts = vtk::CompositeDataSetOptions;
+    for (auto node : vtk::Range(input, Opts::SkipEmptyNodes))
     {
-      vtkDataSet *ds = static_cast<vtkDataSet*>(iter->GetCurrentDataObject());
+      vtkDataSet *ds = static_cast<vtkDataSet*>(node.GetDataObject());
       if (ds)
       {
         this->Prober->SetInputData(ds);
@@ -367,7 +366,7 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
         {
           this->SetBlankPointsAndCells(block);
         }
-        output->SetDataSet(iter, block);
+        node.SetDataObject(output, block);
         block->Delete();
       }
     }

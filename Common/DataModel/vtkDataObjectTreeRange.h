@@ -18,6 +18,7 @@
 
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataObjectTree.h"
+#include "vtkCompositeDataSetNodeReference.h"
 #include "vtkMeta.h"
 #include "vtkRange.h"
 #include "vtkSmartPointer.h"
@@ -51,32 +52,23 @@ namespace detail
 struct DataObjectTreeRange;
 struct DataObjectTreeIterator;
 
-//------------------------------------------------------------------------------
-// vtkDataObjectTree iterator. Reference, value, and pointer types are all
-// `vtkDataObject*` since:
-// a) values: vtkDataObject* instead of vtkDataObject because vtkObjects can't
-//    be copied/assigned.
-// b) references: TODO These could be implemented if needed, but it's a lot of
-//    work and greatly complicates usage/implementation -- See the constraints on
-//    the DataArrayTupleRange for example. Unless this is implemented, these
-//    containers are read only.
-// c) pointers: Returning ItemType** from operator-> would be useless.
-//
-// There are no const_reference, etc, since VTK is not const correct and marking
-// vtkObjects consts makes them unusable.
+using DataObjectTreeIteratorReference =
+    vtk::CompositeDataSetNodeReference<vtkDataObjectTreeIterator,
+                                       DataObjectTreeIterator>;
+
 struct DataObjectTreeIterator :
     public std::iterator<std::forward_iterator_tag,
                          vtkDataObject*,
                          int,
-                         vtkDataObject*,
-                         vtkDataObject*>
+                         DataObjectTreeIteratorReference,
+                         DataObjectTreeIteratorReference>
 {
 private:
   using Superclass = std::iterator<std::forward_iterator_tag,
                                    vtkDataObject*,
                                    int,
-                                   vtkDataObject*,
-                                   vtkDataObject*>;
+                                   DataObjectTreeIteratorReference,
+                                   DataObjectTreeIteratorReference>;
   using InternalIterator = vtkDataObjectTreeIterator;
   using SmartIterator = vtkSmartPointer<InternalIterator>;
 
@@ -87,7 +79,7 @@ public:
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
 
-  DataObjectTreeIterator(const DataObjectTreeIterator& o) noexcept
+  DataObjectTreeIterator(const DataObjectTreeIterator& o)
     : Iterator(o.Iterator ? SmartIterator::Take(o.Iterator->NewInstance())
                           : nullptr)
   {
@@ -96,7 +88,7 @@ public:
 
   DataObjectTreeIterator(DataObjectTreeIterator&&) noexcept = default;
 
-  DataObjectTreeIterator& operator=(const DataObjectTreeIterator& o) noexcept
+  DataObjectTreeIterator& operator=(const DataObjectTreeIterator& o)
   {
     this->Iterator = o.Iterator ? SmartIterator::Take(o.Iterator->NewInstance())
                                 : nullptr;
@@ -104,37 +96,31 @@ public:
     return *this;
   }
 
-  DataObjectTreeIterator& operator=(DataObjectTreeIterator&& o) noexcept
-  {
-    this->Iterator = std::move(o.Iterator);
-    return *this;
-  }
-
-  DataObjectTreeIterator& operator++() noexcept // prefix
+  DataObjectTreeIterator& operator++() // prefix
   {
     this->Increment();
     return *this;
   }
 
-  DataObjectTreeIterator operator++(int) noexcept // postfix
+  DataObjectTreeIterator operator++(int) // postfix
   {
     DataObjectTreeIterator other(*this);
     this->Increment();
     return other;
   }
 
-  reference operator*() const noexcept
+  reference operator*() const
   {
     return this->GetData();
   }
 
-  pointer operator->() const noexcept
+  pointer operator->() const
   {
     return this->GetData();
   }
 
   friend bool operator==(const DataObjectTreeIterator& lhs,
-                         const DataObjectTreeIterator& rhs) noexcept
+                         const DataObjectTreeIterator& rhs)
   {
     // A null internal iterator means it is an 'end' sentinal.
     InternalIterator *l = lhs.Iterator;
@@ -159,7 +145,7 @@ public:
   }
 
   friend bool operator!=(const DataObjectTreeIterator& lhs,
-                         const DataObjectTreeIterator& rhs) noexcept
+                         const DataObjectTreeIterator& rhs)
   {
     return !(lhs == rhs); // let the compiler handle this one =)
   }
@@ -217,11 +203,11 @@ private:
     this->Iterator->GoToNextItem();
   }
 
-  vtkDataObject* GetData() const
+  DataObjectTreeIteratorReference GetData() const
   {
     assert(this->Iterator != nullptr);
     assert(!this->Iterator->IsDoneWithTraversal());
-    return this->Iterator->GetCurrentDataObject();
+    return DataObjectTreeIteratorReference{this->Iterator};
   }
 
   mutable SmartIterator Iterator;
@@ -229,8 +215,6 @@ private:
 
 //------------------------------------------------------------------------------
 // DataObjectTree range proxy.
-// The const_iterators/references are the same as the non-const versions, since
-// vtkObjects marked const are unusable.
 struct DataObjectTreeRange
 {
 private:
@@ -241,12 +225,12 @@ public:
   using size_type = int;
   using iterator = DataObjectTreeIterator;
   using const_iterator = DataObjectTreeIterator;
-  using reference = vtkDataObject*;
-  using const_reference = vtkDataObject*;
+  using reference = DataObjectTreeIteratorReference;
+  using const_reference = const DataObjectTreeIteratorReference;
   using value_type = vtkDataObject*;
 
   DataObjectTreeRange(vtkDataObjectTree *cds,
-                      DataObjectTreeOptions opts = DataObjectTreeOptions::None) noexcept
+                      DataObjectTreeOptions opts = DataObjectTreeOptions::None)
     : DataObjectTree(cds)
     , Options(opts)
   {
@@ -264,7 +248,7 @@ public:
   }
 
   // This is O(N), since the size requires traversal due to various options.
-  size_type size() const noexcept
+  size_type size() const
   {
     size_type result = 0;
     auto iter = this->NewIterator();

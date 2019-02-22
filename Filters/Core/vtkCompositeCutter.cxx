@@ -16,8 +16,9 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDataSet.h"
 #include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
@@ -33,7 +34,6 @@
 
 #include <cmath>
 #include "vtkObjectFactory.h"
-#include "vtkCompositeDataIterator.h"
 #include "vtkSmartPointer.h"
 #include <cassert>
 
@@ -108,17 +108,16 @@ int vtkCompositeCutter::RequestUpdateExtent(vtkInformation *, vtkInformationVect
     std::vector<int> intersected;
 
     vtkCompositeDataSet * meta= vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()));
-    vtkSmartPointer<vtkCompositeDataIterator> iter;
-    iter.TakeReference(meta->NewIterator());
-    iter->SetSkipEmptyNodes(false);
-    for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+
+    for (auto node : vtk::Range(meta))
     {
-      double* bb = iter->GetCurrentMetaData()->Get(vtkDataObject::BOUNDING_BOX());
+      vtkInformation *info = node.GetMetaData();
+      double* bb = info->Get(vtkDataObject::BOUNDING_BOX());
       for (int c=0; c < this->ContourValues->GetNumberOfContours(); c++)
       {
         if(IntersectBox(this->GetCutFunction(),bb,this->ContourValues->GetValue(c)))
         {
-          intersected.push_back(iter->GetCurrentFlatIndex());
+          intersected.push_back(static_cast<int>(node.GetFlatIndex()));
           break;
         }
       }
@@ -141,16 +140,13 @@ int vtkCompositeCutter::RequestData(vtkInformation *request,
     return Superclass::RequestData(request,inputVector,outputVector);
   }
 
-  vtkSmartPointer<vtkCompositeDataIterator> itr;
-  itr.TakeReference(inData->NewIterator());
-  itr->SetSkipEmptyNodes(true);
-
   vtkNew<vtkAppendPolyData> append;
   int numObjects(0);
-  itr->GoToFirstItem();
-  while(!itr->IsDoneWithTraversal())
+
+  using Opts = vtk::CompositeDataSetOptions;
+  for (vtkDataObject *dObj : vtk::Range(inData, Opts::SkipEmptyNodes))
   {
-    vtkDataSet* data = vtkDataSet::SafeDownCast(itr->GetCurrentDataObject());
+    vtkDataSet* data = vtkDataSet::SafeDownCast(dObj);
     assert(data);
     inInfo->Set(vtkDataObject::DATA_OBJECT(),data);
     vtkNew<vtkPolyData> out;
@@ -158,7 +154,6 @@ int vtkCompositeCutter::RequestData(vtkInformation *request,
     this->Superclass::RequestData(request,inputVector,outputVector);
     append->AddInputData(out);
     numObjects++;
-    itr->GoToNextItem();
   }
   append->Update();
 
