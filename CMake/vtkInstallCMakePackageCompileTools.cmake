@@ -14,7 +14,7 @@ configure_file(
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file("${vtk_cmake_build_dir}/vtkcompiletools-config-version.cmake"
   VERSION "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}"
-  COMPATIBILITY SameMinorVersion)
+  COMPATIBILITY AnyNewerVersion)
 
 # For convenience, a package is written to the top of the build tree. At some
 # point, this should probably be deprecated and warn when it is used.
