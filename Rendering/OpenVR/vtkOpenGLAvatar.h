@@ -52,9 +52,8 @@ public:
 
   //Set Ray parameters
   void SetLeftShowRay(bool v);
-  void SetLeftRayLength(double length);
   void SetRightShowRay(bool v);
-  void SetRightRayLength(double length);
+  void SetRayLength(double length);
 
 protected:
   vtkOpenGLAvatar();

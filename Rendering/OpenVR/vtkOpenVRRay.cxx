@@ -45,7 +45,7 @@ vtkOpenVRRay::vtkOpenVRRay()
 vtkOpenVRRay::~vtkOpenVRRay()
 {
   this->ModelVBO->Delete();
-  this->ModelVBO = 0;
+  this->ModelVBO = nullptr;
 }
 
 void vtkOpenVRRay::PrintSelf(ostream& os, vtkIndent indent)
