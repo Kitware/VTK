@@ -30,6 +30,7 @@
 class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;
 class vtkOpenGLRenderer;
+class vtkOpenVRRay;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenGLAvatar : public vtkAvatar
 {
@@ -44,6 +45,15 @@ public:
   void Render(vtkRenderer *ren, vtkMapper *mapper) override;
 
   double *GetBounds() VTK_SIZEHINT(6) override;
+
+  void SetUseLeftHand(bool val) override;
+  void SetUseRightHand(bool val) override;
+  void SetShowHandsOnly(bool val) override;
+
+  //Set Ray parameters
+  void SetLeftShowRay(bool v);
+  void SetRightShowRay(bool v);
+  void SetRayLength(double length);
 
 protected:
   vtkOpenGLAvatar();
@@ -60,6 +70,10 @@ protected:
   vtkNew<vtkOpenGLActor> RightHandActor;
   vtkNew<vtkOpenGLPolyDataMapper> BodyMapper[NUM_BODY];
   vtkNew<vtkOpenGLActor> BodyActor[NUM_BODY];
+
+  vtkNew<vtkOpenVRRay> LeftRay;
+  vtkNew<vtkOpenVRRay> RightRay;
+
 
 private:
   vtkOpenGLAvatar(const vtkOpenGLAvatar&) = delete;

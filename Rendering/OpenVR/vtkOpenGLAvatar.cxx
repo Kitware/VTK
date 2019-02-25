@@ -21,7 +21,10 @@
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
+#include "vtkOpenVRCamera.h"
+#include "vtkOpenVRRay.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -61,8 +64,17 @@ void MultiplyComponents(double a[3], double scale[3])
 
 // calculate a rotation purely around Vup, using an approximate Vr (right)
 // that isn't orthogonal.
-void getTorsoTransform(vtkTransform* trans, double Vup[3], double inVr[3]) {
+// Reverse Vr, front if torso isn't facing the same way as the head.
+void getTorsoTransform(vtkTransform* trans, double Vup[3], double inVr[3], double HeadOrientation[3]) {
   double Vr[3] = { inVr[0], inVr[1], inVr[2] };
+  // temporarily use trans for head orientation
+  setOrientation(trans, HeadOrientation);
+  if (Vr[0] == 0 && Vr[1] == 0 && Vr[2] == 0)
+  {
+    // no information from hands, use head orientation and Vup.
+    Vr[2] = 1;
+    trans->TransformPoint(Vr, Vr);
+  }
 
   // make Vr orthogonal to Vup
   double Vtemp[3] = { Vup[0], Vup[1], Vup[2] };
@@ -72,6 +84,18 @@ void getTorsoTransform(vtkTransform* trans, double Vup[3], double inVr[3]) {
   // get third basis vector
   double Vfr[3];
   vtkMath::Cross(Vup, Vr, Vfr);
+  // temporarily use trans to test Vfr versus head orientation
+  double Vhead[3] = { 1, 0, 0 };
+  trans->TransformPoint(Vhead, Vhead);
+  if (vtkMath::Dot(Vfr, Vhead) < 0) {
+    // torso is facing behind the head. Swap.
+    Vr[0] = -Vr[0];
+    Vr[1] = -Vr[1];
+    Vr[2] = -Vr[2];
+    Vfr[0] = -Vfr[0];
+    Vfr[1] = -Vfr[1];
+    Vfr[2] = -Vfr[2];
+  }
   // make new rotation matrix. Basis vectors form the rotation piece.
   trans->Identity();
   vtkNew<vtkMatrix4x4> mat;
@@ -147,6 +171,9 @@ vtkOpenGLAvatar::vtkOpenGLAvatar()
     this->BodyActor[i]->SetProperty(this->GetProperty());
   }
 
+  // this->LeftRay->SetShow(true);
+  // this->RightRay->SetShow(true);
+
 }
 
 vtkOpenGLAvatar::~vtkOpenGLAvatar() = default;
@@ -170,14 +197,77 @@ void vtkOpenGLAvatar::Render(vtkRenderer *ren, vtkMapper *mapper)
 
 
   // send a render to the mapper; update pipeline
-  mapper->Render(ren, this->HeadActor);
-  this->LeftHandMapper->Render(ren, this->LeftHandActor);
-  this->RightHandMapper->Render(ren, this->RightHandActor);
+  if (this->HeadActor->GetVisibility())
+  {
+    mapper->Render(ren, this->HeadActor);
+  }
+  if (this->LeftHandActor->GetVisibility())
+  {
+    this->LeftHandMapper->Render(ren, this->LeftHandActor);
+  }
+  if (this->RightHandActor->GetVisibility())
+  {
+    this->RightHandMapper->Render(ren, this->RightHandActor);
+  }
   for (int i = 0; i < NUM_BODY; ++i) {
     this->BodyActor[i]->SetScale(this->GetScale());
     this->BodyActor[i]->SetPosition(this->BodyPosition[i]);
     this->BodyActor[i]->SetOrientation(this->BodyOrientation[i]);
-    this->BodyMapper[i]->Render(ren, this->BodyActor[i]);
+    if (this->BodyActor[i]->GetVisibility())
+    {
+      this->BodyMapper[i]->Render(ren, this->BodyActor[i]);
+    }
+  }
+  if (this->LeftRay->GetShow() || this->RightRay->GetShow())
+  {
+    auto renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+    vtkOpenVRCamera *cam =
+      static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
+    if (renWin && cam)
+    {
+
+      vtkNew<vtkTransform> trans;
+      vtkNew<vtkMatrix4x4> mat;
+      vtkMatrix4x4 *wcdc; // we only need this one.
+      vtkMatrix4x4 *wcvc;
+      vtkMatrix3x3 *norms;
+      vtkMatrix4x4 *vcdc;
+      // VRRay needs the complete model -> device (screen) transform.
+      // Get world -> device from the camera.
+      cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
+      vtkNew<vtkMatrix4x4> controller2device;
+
+      if (this->LeftRay->GetShow())
+      {
+        trans->Translate(this->LeftHandPosition);
+        //RotateZ, RotateX, and finally RotateY
+        trans->RotateZ(this->LeftHandOrientation[2]);
+        trans->RotateX(this->LeftHandOrientation[0]);
+        trans->RotateY(this->LeftHandOrientation[1]);
+        // VRRay and avatar are off by 90.
+        trans->RotateY(-90);
+        trans->GetMatrix(mat);
+        // OpenGL expects transpose of VTK transforms.
+        mat->Transpose();
+        trans->SetMatrix(mat);
+        vtkMatrix4x4::Multiply4x4(trans->GetMatrix(), wcdc, controller2device);
+        this->LeftRay->Render(renWin, controller2device);
+      }
+      if (this->RightRay->GetShow())
+      {
+        trans->Identity();
+        trans->Translate(this->RightHandPosition);
+        trans->RotateZ(this->RightHandOrientation[2]);
+        trans->RotateX(this->RightHandOrientation[0]);
+        trans->RotateY(this->RightHandOrientation[1]);
+        trans->RotateY(-90);
+        trans->GetMatrix(mat);
+        mat->Transpose();
+        trans->SetMatrix(mat);
+        vtkMatrix4x4::Multiply4x4(trans->GetMatrix(), wcdc, controller2device);
+        this->RightRay->Render(renWin, controller2device);
+      }
+    }
   }
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
@@ -188,13 +278,44 @@ void vtkOpenGLAvatar::CalcBody()
   this->BodyPosition[TORSO][1] = this->HeadPosition[1];
   this->BodyPosition[TORSO][2] = this->HeadPosition[2];
 
+  vtkNew<vtkTransform> trans;
+  double scale[3];
+  this->GetScale(scale);
+  // get an approximate elbow position, rigidly attaching forearm to hand,
+  // to use for torso orientation.
+  double leftElbowPos[3] = {-0.85, 0.02, 0};
+  setOrientation(trans, this->LeftHandOrientation);
+  MultiplyComponents(leftElbowPos, scale);
+  trans->TransformPoint(leftElbowPos, leftElbowPos);
+  leftElbowPos[0] += this->LeftHandPosition[0];
+  leftElbowPos[1] += this->LeftHandPosition[1];
+  leftElbowPos[2] += this->LeftHandPosition[2];
+
+  double rightElbowPos[3] = {-0.85, 0.02, 0};
+  setOrientation(trans, this->RightHandOrientation);
+  MultiplyComponents(rightElbowPos, scale);
+  trans->TransformPoint(rightElbowPos, rightElbowPos);
+  rightElbowPos[0] += this->RightHandPosition[0];
+  rightElbowPos[1] += this->RightHandPosition[1];
+  rightElbowPos[2] += this->RightHandPosition[2];
+
   // keep the head orientation in the direction of the up vector.
   // use the vector between the hands as a guide for torso's rotation (Vright).
-  double torsoRight[3];
-  vtkMath::Subtract(this->RightHandPosition, this->LeftHandPosition, torsoRight);
+  double torsoRight[3] = {0, 0, 0};
+  if (this->UseLeftHand && this->UseRightHand) {
+    vtkMath::Subtract(rightElbowPos, leftElbowPos, torsoRight);
+  }
+  else if (this->UseLeftHand)
+  {
+    vtkMath::Subtract(this->HeadPosition, leftElbowPos, torsoRight);
+  }
+  else if (this->UseRightHand)
+  {
+    vtkMath::Subtract(rightElbowPos, this->HeadPosition, torsoRight);
+  }
+  // else no hands, and torsoRight remains zero.
 
-  vtkNew<vtkTransform> trans;
-  getTorsoTransform(trans, this->UpVector, torsoRight);
+  getTorsoTransform(trans, this->UpVector, torsoRight, this->HeadOrientation);
 
   trans->GetOrientation(this->BodyOrientation[TORSO]);
 
@@ -218,8 +339,6 @@ void vtkOpenGLAvatar::CalcBody()
   // Attach upper arm at shoulder, and rotate to hit the end of the forearm.
   // end of forearm, relative to the hand at 0, is elbow pos.
   double shoulderPos[3] = {-0.138, -0.53, -0.60};
-  double scale[3];
-  this->GetScale(scale);
   setOrientation(trans, this->BodyOrientation[TORSO]);
   // calculate relative left shoulder position (to torso)
   MultiplyComponents(shoulderPos, scale);
@@ -240,13 +359,6 @@ void vtkOpenGLAvatar::CalcBody()
   this->BodyPosition[RIGHT_UPPER][2] += this->BodyPosition[TORSO][2];
 
   // orient the upper left arm to aim at the elbow.
-  double leftElbowPos[3] = {-0.85, 0.02, 0};
-  setOrientation(trans, this->LeftHandOrientation);
-  MultiplyComponents(leftElbowPos, scale);
-  trans->TransformPoint(leftElbowPos, leftElbowPos);
-  leftElbowPos[0] += this->LeftHandPosition[0];
-  leftElbowPos[1] += this->LeftHandPosition[1];
-  leftElbowPos[2] += this->LeftHandPosition[2];
   // upper-arm extends along +x at zero rotation. rotate (1,0,0) to
   // vector between shoulder and elbow.
   double leftUpperDir[3], cross[3], startDir[3] = { 1, 0, 0 };
@@ -259,13 +371,6 @@ void vtkOpenGLAvatar::CalcBody()
   trans->GetOrientation(this->BodyOrientation[LEFT_UPPER]);
 
   // now the right upper arm
-  double rightElbowPos[3] = {-0.85, 0.02, 0};
-  setOrientation(trans, this->RightHandOrientation);
-  MultiplyComponents(rightElbowPos, scale);
-  trans->TransformPoint(rightElbowPos, rightElbowPos);
-  rightElbowPos[0] += this->RightHandPosition[0];
-  rightElbowPos[1] += this->RightHandPosition[1];
-  rightElbowPos[2] += this->RightHandPosition[2];
   // upper-arm extends along +x at zero rotation. rotate (1,0,0) to
   // vector between shoulder and elbow.
   double rightUpperDir[3];
@@ -300,4 +405,48 @@ double *vtkOpenGLAvatar::GetBounds()
 void vtkOpenGLAvatar::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+void vtkOpenGLAvatar::SetUseLeftHand(bool val)
+{
+  this->Superclass::SetUseLeftHand(val);
+  this->LeftHandActor->SetVisibility(val);
+  this->BodyActor[LEFT_FORE]->SetVisibility(val);
+  bool upperViz = val && !this->ShowHandsOnly;
+  this->BodyActor[LEFT_UPPER]->SetVisibility(upperViz);
+}
+void vtkOpenGLAvatar::SetUseRightHand(bool val)
+{
+  this->Superclass::SetUseRightHand(val);
+  this->RightHandActor->SetVisibility(val);
+  this->BodyActor[RIGHT_FORE]->SetVisibility(val);
+  bool upperViz = val && !this->ShowHandsOnly;
+  this->BodyActor[RIGHT_UPPER]->SetVisibility(upperViz);
+}
+
+void vtkOpenGLAvatar::SetShowHandsOnly(bool val)
+{
+  this->Superclass::SetShowHandsOnly(val);
+  this->HeadActor->SetVisibility(!val);
+  this->BodyActor[TORSO]->SetVisibility(!val);
+  bool upperViz = !val && this->BodyActor[LEFT_UPPER]->GetVisibility();
+  this->BodyActor[LEFT_UPPER]->SetVisibility(upperViz);
+  upperViz = !val && this->BodyActor[RIGHT_UPPER]->GetVisibility();
+  this->BodyActor[RIGHT_UPPER]->SetVisibility(upperViz);
+}
+
+void vtkOpenGLAvatar::SetLeftShowRay(bool val)
+{
+  this->LeftRay->SetShow(val);
+}
+
+void vtkOpenGLAvatar::SetRightShowRay(bool val)
+{
+  this->RightRay->SetShow(val);
+}
+
+void vtkOpenGLAvatar::SetRayLength(double length)
+{
+  this->LeftRay->SetLength(length);
+  this->RightRay->SetLength(length);
 }

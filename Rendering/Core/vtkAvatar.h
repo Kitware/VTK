@@ -52,10 +52,34 @@ public:
   vtkSetVector3Macro(RightHandOrientation, double);
 
   /**
-   * up vector must be normalized.
+   * Up vector, in world coords. Must be normalized.
    */
   vtkGetVector3Macro(UpVector, double);
   vtkSetVector3Macro(UpVector, double);
+
+  //@{
+  /**
+   * Normally, hand position/orientation is set explicitly.
+   * If set to false, hand and arm will follow the torso
+   * in a neutral position.
+   */
+  vtkSetMacro(UseLeftHand, bool);
+  vtkGetMacro(UseLeftHand, bool);
+  vtkBooleanMacro(UseLeftHand, bool);
+  vtkSetMacro(UseRightHand, bool);
+  vtkGetMacro(UseRightHand, bool);
+  vtkBooleanMacro(UseRightHand, bool);
+  //@}
+
+  //@{
+  /**
+   * Show just the hands. Default false.
+   */
+  vtkSetMacro(ShowHandsOnly, bool);
+  vtkGetMacro(ShowHandsOnly, bool);
+  vtkBooleanMacro(ShowHandsOnly, bool);
+  //@}
+
 protected:
   vtkAvatar();
   ~vtkAvatar() override;
@@ -78,6 +102,11 @@ protected:
   double BodyOrientation[NUM_BODY][3];
 
   double UpVector[3];
+
+  bool UseLeftHand;
+  bool UseRightHand;
+  bool ShowHandsOnly;
+
 private:
   vtkAvatar(const vtkAvatar&) = delete;
   void operator=(const vtkAvatar&) = delete;
