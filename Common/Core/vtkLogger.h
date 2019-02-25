@@ -411,7 +411,6 @@ private:
   void operator=(const vtkLogger&) = delete;
 };
 
-#if VTK_ENABLE_LOGGING
 //@{
 /**
  * Add to log given the verbosity level.
@@ -510,29 +509,6 @@ private:
 #define vtkVLogStartScopeF(level, id, ...)                                                         \
   vtkLogger::StartScopeF(level, id, __FILE__, __LINE__, __VA_ARGS__)
 //@}
-
-#else // if VTK_ENABLE_LOGGING
-
-// define empty macros for non-logging enabled VTK builds.
-#define vtkVLogF(level, ...)
-#define vtkLogF(verbosity_name, ...)
-#define vtkVLog(level, x)
-#define vtkLog(verbosity_name, x)
-#define vtkVLogIfF(level, cond, ...)
-#define vtkLogIfF(verbosity_name, cond, ...)
-#define vtkVLogIf(level, cond, x)
-#define vtkLogIf(verbosity_name, cond, x)
-#define vtkVLogScopeF(level, ...)
-#define vtkLogScopeF(verbosity_name, ...)
-#define vtkLogScopeFunction(verbosity_name)
-#define vtkVLogScopeFunction(level)
-#define vtkLogStartScope(verbosity_name, id)
-#define vtkLogEndScope(id)
-#define vtkLogStartScopeF(verbosity_name, id, ...)
-#define vtkVLogStartScope(level, id)
-#define vtkVLogStartScopeF(level, id, ...)
-
-#endif // if VTK_ENABLE_LOGGING
 
 /**
  * Convenience macro to generate an identifier string for any vtkObjectBase subclass.
