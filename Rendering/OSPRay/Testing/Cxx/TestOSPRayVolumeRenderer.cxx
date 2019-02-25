@@ -75,6 +75,7 @@ int TestOSPRayVolumeRenderer(int argc, char *argv[])
   vtkProperty* property = dssActor->GetProperty();
   property->SetDiffuseColor(0.5, 0.5, 0.5);
 
+  reader->Update();
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
 

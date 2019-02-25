@@ -18,7 +18,6 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkContourValues.h"
 #include "vtkDataArray.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkInformation.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
@@ -344,24 +343,14 @@ void vtkOSPRayVolumeMapperNode::UpdateTransferFunction(vtkVolume* vol,
   this->TFVals.resize(this->NumColors*3);
   this->TFOVals.resize(this->NumColors);
   double tfRangeD[2];
+  //prefer transfer function's range
   colorTF->GetRange(tfRangeD);
-
-  if (dataRange && (dataRange[1]>dataRange[0]))
+  //but use data's range if we can and we have to
+  if (dataRange && (dataRange[1]>dataRange[0]) &&
+      (tfRangeD[1]<=tfRangeD[0]))
   {
-    vtkObject *ren = this->GetRenderable();
-    //todo:
-    //promote GetColorRangeType() to vtkVolumeMapper or vtkVolumeProperty,
-    //document that it is only respected by some vtkVolumeMappers,
-    //and get rid of these availability checks.
-    auto asGPUVRCM = vtkGPUVolumeRayCastMapper::SafeDownCast(ren);
-    if (ren->IsA("vtkSmartVolumeMapper") || ren->IsA("vtkOSPRayVolumeMapper") ||
-        (asGPUVRCM &&
-         asGPUVRCM->GetColorRangeType() == vtkGPUVolumeRayCastMapper::TFRangeType::SCALAR))
-    {
-      //use provided array data range instead of LUT range
-      tfRangeD[0] = dataRange[0];
-      tfRangeD[1] = dataRange[1];
-    }
+    tfRangeD[0] = dataRange[0];
+    tfRangeD[1] = dataRange[1];
   }
   osp::vec2f tfRange = {float(tfRangeD[0]), float(tfRangeD[1])};
   scalarTF->GetTable(tfRangeD[0],
