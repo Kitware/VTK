@@ -16,7 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
 #include <vtk_loguru.h>
 #endif
 
@@ -29,7 +29,7 @@
 class vtkLogger::LogScopeRAII::LSInternals
 {
 public:
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   std::unique_ptr<loguru::LogScopeRAII> Data;
 #endif
 };
@@ -44,9 +44,13 @@ vtkLogger::LogScopeRAII::LogScopeRAII(vtkLogger::Verbosity verbosity,
   unsigned int lineno,
   const char* format,
   ...)
+#if VTK_MODULE_ENABLE_VTK_loguru
   : Internals(new LSInternals())
+#else
+  : Internals(nullptr)
+#endif
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   va_list vlist;
   va_start(vlist, format);
   auto result = loguru::vstrprintf(format, vlist);
@@ -69,7 +73,7 @@ vtkLogger::LogScopeRAII::~LogScopeRAII()
 
 namespace detail
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
 using scope_pair = std::pair<std::string, std::shared_ptr<loguru::LogScopeRAII> >;
 static std::vector<scope_pair>& get_vector()
 {
@@ -107,7 +111,7 @@ vtkLogger::~vtkLogger() {}
 //----------------------------------------------------------------------------
 void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v"*/)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   if (argc == 0)
   { // loguru::init can't handle this case -- call the no-arg overload.
     vtkLogger::Init();
@@ -136,7 +140,7 @@ void vtkLogger::Init()
 //----------------------------------------------------------------------------
 void vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity level)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   loguru::g_stderr_verbosity = static_cast<loguru::Verbosity>(level);
 #else
   (void)level;
@@ -148,7 +152,7 @@ void vtkLogger::LogToFile(const char* path,
   vtkLogger::FileMode filemode,
   vtkLogger::Verbosity verbosity)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   loguru::add_file(
     path, static_cast<loguru::FileMode>(filemode), static_cast<loguru::Verbosity>(verbosity));
 #else
@@ -161,7 +165,7 @@ void vtkLogger::LogToFile(const char* path,
 //----------------------------------------------------------------------------
 void vtkLogger::EndLogToFile(const char* path)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   loguru::remove_callback(path);
 #else
   (void)path;
@@ -171,7 +175,7 @@ void vtkLogger::EndLogToFile(const char* path)
 //----------------------------------------------------------------------------
 void vtkLogger::SetThreadName(const std::string& name)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   loguru::set_thread_name(name.c_str());
 #else
   (void)name;
@@ -181,7 +185,7 @@ void vtkLogger::SetThreadName(const std::string& name)
 //----------------------------------------------------------------------------
 std::string vtkLogger::GetThreadName()
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   char buffer[128];
   loguru::get_thread_name(buffer, 128, false);
   return std::string(buffer);
@@ -198,7 +202,7 @@ void vtkLogger::AddCallback(const char* id,
   vtkLogger::CloseHandlerCallbackT on_close,
   vtkLogger::FlushHandlerCallbackT on_flush)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   loguru::add_callback(id,
     reinterpret_cast<loguru::log_handler_t>(callback),
     user_data,
@@ -218,7 +222,7 @@ void vtkLogger::AddCallback(const char* id,
 //----------------------------------------------------------------------------
 bool vtkLogger::RemoveCallback(const char* id)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   return loguru::remove_callback(id);
 #else
   (void)id;
@@ -247,7 +251,7 @@ void vtkLogger::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 bool vtkLogger::IsEnabled()
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   return true;
 #else
   return false;
@@ -257,10 +261,10 @@ bool vtkLogger::IsEnabled()
 //----------------------------------------------------------------------------
 vtkLogger::Verbosity vtkLogger::GetCurrentVerbosityCutoff()
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   return static_cast<vtkLogger::Verbosity>(loguru::current_verbosity_cutoff());
 #else
-  return VERBOSITY_INVALID;
+  return VERBOSITY_INVALID; // return lowest value so no logging macros will be evaluated.
 #endif
 }
 
@@ -270,7 +274,7 @@ void vtkLogger::Log(vtkLogger::Verbosity verbosity,
   unsigned int lineno,
   const char* txt)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   loguru::log(static_cast<loguru::Verbosity>(verbosity), fname, lineno, "%s", txt);
 #else
   (void)verbosity;
@@ -287,7 +291,7 @@ void vtkLogger::LogF(vtkLogger::Verbosity verbosity,
   const char* format,
   ...)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   va_list vlist;
   va_start(vlist, format);
   auto result = loguru::vstrprintf(format, vlist);
@@ -305,7 +309,7 @@ void vtkLogger::LogF(vtkLogger::Verbosity verbosity,
 void vtkLogger::StartScope(
   Verbosity verbosity, const char* id, const char* fname, unsigned int lineno)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   detail::push_scope(id,
     verbosity > vtkLogger::GetCurrentVerbosityCutoff()
       ? std::make_shared<loguru::LogScopeRAII>()
@@ -322,7 +326,7 @@ void vtkLogger::StartScope(
 //----------------------------------------------------------------------------
 void vtkLogger::EndScope(const char* id)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   detail::pop_scope(id);
 #else
   (void)id;
@@ -333,7 +337,7 @@ void vtkLogger::EndScope(const char* id)
 void vtkLogger::StartScopeF(Verbosity verbosity, const char* id, const char* fname,
   unsigned int lineno, const char* format, ...)
 {
-#if VTK_ENABLE_LOGGING
+#if VTK_MODULE_ENABLE_VTK_loguru
   if (verbosity > vtkLogger::GetCurrentVerbosityCutoff())
   {
     detail::push_scope(id, std::make_shared<loguru::LogScopeRAII>());

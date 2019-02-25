@@ -479,14 +479,6 @@ if (vtk_include_dirs)
       ${vtk_include_dirs})
 endif ()
 
-if(VTK_ENABLE_LOGGING)
-  vtk_module_definitions(VTK::CommonCore
-    PUBLIC VTK_ENABLE_LOGGING=1)
-else()
-  vtk_module_definitions(VTK::CommonCore
-    PUBLIC VTK_ENABLE_LOGGING=0)
-endif()
-
 vtk_module_link(VTK::CommonCore
   PUBLIC
     Threads::Threads
