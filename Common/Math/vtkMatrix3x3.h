@@ -154,6 +154,11 @@ public:
    */
   double * GetData() { return *this->Element; }
 
+  /**
+   * Return a pointer to the first element of the matrix (double[9]).
+   */
+  const double * GetData() const { return *this->Element; }
+
 protected:
   vtkMatrix3x3();
   ~vtkMatrix3x3() override;

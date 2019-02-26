@@ -170,6 +170,11 @@ public:
    */
   double *GetData() { return *this->Element; }
 
+  /**
+   * Returns the raw double array holding the matrix.
+   */
+  const double *GetData() const { return *this->Element; }
+
 protected:
   vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); };
   ~vtkMatrix4x4() override {}
