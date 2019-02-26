@@ -172,6 +172,17 @@ public:
   vtkGetMacro(CompoundThreshold,double);
   //@}
 
+  //@{
+  /**
+   * Set whether to use the alpha weighted blending calculation on the alpha
+   * component. If false, the alpha component is set to the sum of the product
+   * of opacity and alpha from all inputs.
+   */
+  vtkSetMacro(CompoundAlpha,vtkTypeBool);
+  vtkGetMacro(CompoundAlpha,vtkTypeBool);
+  vtkBooleanMacro(CompoundAlpha,vtkTypeBool);
+  //@}
+
 protected:
   vtkImageBlend();
   ~vtkImageBlend() override;
@@ -202,6 +213,7 @@ protected:
   int BlendMode;
   double CompoundThreshold;
   int DataWasPassed;
+  vtkTypeBool CompoundAlpha;
 
 private:
   vtkImageBlend(const vtkImageBlend&) = delete;
