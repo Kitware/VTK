@@ -195,6 +195,7 @@ void vtkEGLRenderWindow::Frame()
         && impl->Display != EGL_NO_DISPLAY)
     {
       eglSwapBuffers(impl->Display, impl->Surface);
+      glFinish();
       vtkDebugMacro(<< " eglSwapBuffers\n");
     }
   }
@@ -203,6 +204,7 @@ void vtkEGLRenderWindow::Frame()
     if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
     {
       eglSwapBuffers( eglGetCurrentDisplay(), eglGetCurrentSurface( EGL_DRAW ) );
+      glFinish();
       vtkDebugMacro(<< " eglSwapBuffers\n");
     }
   }
