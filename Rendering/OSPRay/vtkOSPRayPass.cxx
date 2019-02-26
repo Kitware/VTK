@@ -171,6 +171,7 @@ vtkOSPRayPass::~vtkOSPRayPass()
     this->RenderPassCollection->Delete();
     this->RenderPassCollection = 0;
   }
+  ospShutdown();
 }
 
 // ----------------------------------------------------------------------------
