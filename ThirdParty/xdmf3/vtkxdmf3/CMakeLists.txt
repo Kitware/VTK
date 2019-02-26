@@ -353,7 +353,8 @@ if(NOT XDMF_BUILD_CORE_ONLY)
 
   if(WIN32)
     if (BUILD_SHARED_LIBS)
-      set_target_properties(${XDMF_LIBNAME} PROPERTIES
+      # XXX(kitware) using correct target name
+      set_target_properties(xdmf3 PROPERTIES
         DEFINE_SYMBOL XDMF_EXPORTS)
     endif ()
   endif()
