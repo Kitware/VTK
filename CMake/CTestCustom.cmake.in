@@ -43,7 +43,34 @@ if (NOT cdash_show_third_party_warnings)
     "hl/src/H5LT(parse|analyze)"
 
     # Suppress ThirdParty source code from displaying warnings.
-    "[Tt]hird[Pp]arty")
+    "[Tt]hird[Pp]arty"
+
+    # sometimes we use system third party headers with issues
+    # in this case liblas
+    "include/liblas"
+
+    # in this case a redefinition of strndup between netcdf and
+    # /usr/include/x86_64-linux-gnu/bits/string2.h  but the warning
+    # does not include ThirdParty in the line
+    "bits/string2\\.h"
+
+    # some windows link warnings related to hdf5 that do not include
+    # ThirdParty in the message
+    "H5.*\\.c\\.obj : warning LNK4221"
+
+    # ThirdParty xdmf2 uses sbrk which has been marked deprecated but
+    # produces a warning without ThirdParty ala
+    # /usr/include/unistd.h:587:7: note: 'sbrk' has been explicitly marked deprecated here
+    "note: 'sbrk' has been explicitly marked deprecated here"
+
+    # libproj source code includes the line
+    # return 0;       /* supresses a warning */
+    # which is listed as context for another warning
+    # and causes a match due to the work warning in it
+    "return 0;       /\\* supresses a warning \\*/"
+
+
+  )
 endif ()
 
 list(APPEND CTEST_CUSTOM_COVERAGE_EXCLUDE
