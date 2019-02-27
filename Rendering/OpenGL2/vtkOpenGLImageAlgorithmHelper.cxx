@@ -131,6 +131,8 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
 
   vtkNew<vtkOpenGLFramebufferObject> fbo;
   fbo->SetContext(this->RenderWindow);
+  fbo->SaveCurrentBindingsAndBuffers();
+  fbo->Bind();
   vtkOpenGLState *ostate = this->RenderWindow->GetState();
 
   outputTex->Create2D(outDims[0], outDims[1], 4, VTK_FLOAT, false);
@@ -192,6 +194,7 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
     outPBO->UnmapPackedBuffer();
     outPBO->Delete();
   }
+  fbo->RestorePreviousBindingsAndBuffers();
 }
 
 // ----------------------------------------------------------------------------
