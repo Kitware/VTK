@@ -712,8 +712,9 @@ FindCellsAlongLine(const double a0[3], const double a1[3], double vtkNotUsed(tol
   delete [] cellHasBeenVisited;
 }
 
-// This functor identifies candidate cells as to whether they may
-// intersects a specified plane.
+// This functor identifies candidate cells as to whether they may intersect
+// a specified plane. Locator bins are culled first, and if they intersect
+// the plane, then the cell bounding boxes are used.
 template <typename TId>
 struct CellPlaneCandidates
 {
@@ -722,8 +723,8 @@ struct CellPlaneCandidates
   double Origin[3];
   double Normal[3];
   unsigned char *CellVisited;
-  double BinRadius;
   double BinOffsetX, BinOffsetY, BinOffsetZ;
+  double BinRadius;
 
   CellPlaneCandidates(CellProcessor<TId> *p, const vtkCellBinner *b,
                       const double *o, const double *n, unsigned char *visited) :
@@ -738,17 +739,70 @@ struct CellPlaneCandidates
     this->Normal[2] = n[2];
     vtkMath::Normalize(this->Normal);
 
-    // The BinRadius is used to cull bins quickly. It's a variant of a sphere
-    // tree test (with the center of a sphere corrsponding to the center of a
-    // bin).
-    this->BinRadius = sqrt(this->Binner->hX*this->Binner->hX +
-                           this->Binner->hY*this->Binner->hY +
-                           this->Binner->hZ*this->Binner->hZ);
-
     // Offset from the bin origin to the bin center
     this->BinOffsetX = this->Binner->hX / 2.0;
     this->BinOffsetY = this->Binner->hY / 2.0;
     this->BinOffsetZ = this->Binner->hZ / 2.0;
+
+    // The BinRadius is used to cull bins quickly. It's a variant of a sphere
+    // tree test (with the center of a sphere corrsponding to the center of a
+    // bin). Note that the plane orientation affects the radius: the end
+    // result is that a smaller sphere radius can typically be used (as
+    // compared to using the 0.5*(diagonal length) of a bin). This radius
+    // needs only to be computed once since the relative orientation of each
+    // bin to the plane is unchanged during processing. The bin radius is
+    // simply the maximum distance that one of the eight bin corner points is
+    // away from a plane passing through the center of the bin.
+    double x[3], d, dMax=0.0;
+    x[0] = -this->BinOffsetX;
+    x[1] = -this->BinOffsetY;
+    x[2] = -this->BinOffsetZ;
+    d = vtkMath::Dot(x,this->Normal); //simplified because plane passes through origin
+    dMax = ( d > dMax ? d : dMax);
+
+    x[0] =  this->BinOffsetX;
+    x[1] = -this->BinOffsetY;
+    x[2] = -this->BinOffsetZ;
+    d = vtkMath::Dot(x,this->Normal);
+    dMax = ( d > dMax ? d : dMax);
+
+    x[0] = -this->BinOffsetX;
+    x[1] =  this->BinOffsetY;
+    x[2] = -this->BinOffsetZ;
+    d = vtkMath::Dot(x,this->Normal);
+    dMax = ( d > dMax ? d : dMax);
+
+    x[0] =  this->BinOffsetX;
+    x[1] =  this->BinOffsetY;
+    x[2] = -this->BinOffsetZ;
+    d = vtkMath::Dot(x,this->Normal);
+    dMax = ( d > dMax ? d : dMax);
+
+    x[0] = -this->BinOffsetX;
+    x[1] = -this->BinOffsetY;
+    x[2] =  this->BinOffsetZ;
+    d = vtkMath::Dot(x,this->Normal);
+    dMax = ( d > dMax ? d : dMax);
+
+    x[0] =  this->BinOffsetX;
+    x[1] = -this->BinOffsetY;
+    x[2] =  this->BinOffsetZ;
+    d = vtkMath::Dot(x,this->Normal);
+    dMax = ( d > dMax ? d : dMax);
+
+    x[0] = -this->BinOffsetX;
+    x[1] =  this->BinOffsetY;
+    x[2] =  this->BinOffsetZ;
+    d = vtkMath::Dot(x,this->Normal);
+    dMax = ( d > dMax ? d : dMax);
+
+    x[0] =  this->BinOffsetX;
+    x[1] =  this->BinOffsetY;
+    x[2] =  this->BinOffsetZ;
+    d = vtkMath::Dot(x,this->Normal);
+    dMax = ( d > dMax ? d : dMax);
+
+    this->BinRadius = dMax;
   }
 
   // Operate on slabs (e.g., z-slab) of bins. The algorithm works by checking
