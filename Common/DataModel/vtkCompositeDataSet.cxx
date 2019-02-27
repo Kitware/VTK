@@ -17,6 +17,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
+#include "vtkBoundingBox.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
@@ -126,24 +127,20 @@ vtkIdType vtkCompositeDataSet::GetNumberOfCells()
 void vtkCompositeDataSet::GetBounds(double bounds[6])
 {
   double bds[6];
-  bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
-
+  vtkBoundingBox bbox;
   vtkCompositeDataIterator* iter = this->NewIterator();
+
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     if (ds)
     {
       ds->GetBounds(bds);
-      bounds[0] = (bds[0] < bounds[0] ? bds[0] : bounds[0]);
-      bounds[2] = (bds[2] < bounds[2] ? bds[2] : bounds[2]);
-      bounds[4] = (bds[4] < bounds[4] ? bds[4] : bounds[4]);
-      bounds[1] = (bds[1] > bounds[1] ? bds[1] : bounds[1]);
-      bounds[3] = (bds[3] > bounds[3] ? bds[3] : bounds[3]);
-      bounds[5] = (bds[5] > bounds[5] ? bds[5] : bounds[5]);
+      bbox.AddBounds(bds);
     }
   }
+
+  bbox.GetBounds(bounds);
   iter->Delete();
 }
 
