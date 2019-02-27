@@ -104,6 +104,18 @@ public:
   void FindCellsAlongLine(const double p1[3], const double p2[3],
                           double tolerance, vtkIdList *cells) override;
 
+  //@{
+  /**
+   * Given an unbounded plane defined by an origin o[3] and unit normal n[3],
+   * return the list of unique cell ids in the buckets containing the
+   * plane. It is possible that an empty cell list is returned. The user must
+   * provide the vtkIdList cell list to populate. This method returns data
+   * only after the locator has been built.
+   */
+  void FindCellsAlongPlane(const double o[3], const double n[3],
+                           double tolerance, vtkIdList *cells);
+  //@}
+
   /**
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line. The cell is returned as a cell id and as a generic cell.

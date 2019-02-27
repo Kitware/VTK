@@ -481,8 +481,7 @@ void DoContour(vtkSMPContourGrid* filter,
     vtkIdType numBatches;
     for (int i=0; i < numContours; ++i)
     {
-      scalarTree->InitTraversal(values[i]);
-      numBatches = scalarTree->GetNumberOfCellBatches();
+      numBatches = scalarTree->GetNumberOfCellBatches(values[i]);
       if ( numBatches > 0 )
       {
         vtkSMPTools::For(0, numBatches, functor);

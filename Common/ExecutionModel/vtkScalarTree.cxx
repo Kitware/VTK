@@ -19,6 +19,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
+
 vtkCxxSetObjectMacro(vtkScalarTree,DataSet,vtkDataSet);
 vtkCxxSetObjectMacro(vtkScalarTree,Scalars,vtkDataArray);
 
@@ -36,6 +37,15 @@ vtkScalarTree::~vtkScalarTree()
 {
   this->SetDataSet(nullptr);
   this->SetScalars(nullptr);
+}
+
+//-----------------------------------------------------------------------------
+// Shallow copy enough information for a clone to produce the same result on
+// the same data.
+void vtkScalarTree::ShallowCopy(vtkScalarTree *stree)
+{
+  this->SetDataSet(stree->GetDataSet());
+  this->SetScalars(stree->GetScalars());
 }
 
 //-----------------------------------------------------------------------------

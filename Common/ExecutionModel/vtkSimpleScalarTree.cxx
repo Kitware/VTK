@@ -21,7 +21,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkStandardNewMacro(vtkSimpleScalarTree);
 
 class vtkScalarNode {};
 
@@ -32,6 +31,10 @@ public:
   TScalar min;
   TScalar max;
 };
+
+//---The VTK Classes proper------------------------------------------------------
+
+vtkStandardNewMacro(vtkSimpleScalarTree);
 
 //-----------------------------------------------------------------------------
 // Instantiate scalar tree with maximum level of 20 and branching
@@ -50,7 +53,7 @@ vtkSimpleScalarTree::vtkSimpleScalarTree()
   this->ChildNumber = 0;
   this->CellId = 0;
 
-  // For supporting parallel computing, list of possible candidates
+  // Variable for parallel traversal
   this->CandidateCells = nullptr;
   this->NumCandidates = 0;
 }
@@ -59,11 +62,21 @@ vtkSimpleScalarTree::vtkSimpleScalarTree()
 vtkSimpleScalarTree::~vtkSimpleScalarTree()
 {
   delete [] this->Tree;
-  if ( this->CandidateCells )
+}
+
+//-----------------------------------------------------------------------------
+// Shallow copy enough information for a clone to produce the same result on
+// the same data.
+void vtkSimpleScalarTree::ShallowCopy(vtkScalarTree *stree)
+{
+  vtkSimpleScalarTree *sst = vtkSimpleScalarTree::SafeDownCast(stree);
+  if ( sst != nullptr )
   {
-    delete [] this->CandidateCells;
-    this->CandidateCells = nullptr;
+    this->SetMaxLevel(sst->GetMaxLevel());
+    this->SetBranchingFactor(sst->GetBranchingFactor());
   }
+  // Now do superclass
+  this->Superclass::ShallowCopy(stree);
 }
 
 //-----------------------------------------------------------------------------
@@ -365,8 +378,27 @@ vtkCell *vtkSimpleScalarTree::GetNextCell(vtkIdType& cellId,
 
 //-----------------------------------------------------------------------------
 // Return the number of cell batches.
-vtkIdType vtkSimpleScalarTree::GetNumberOfCellBatches()
+
+//-----------------------------------------------------------------------------
+// Return the number of chunks of data that can be iterated over.
+vtkIdType vtkSimpleScalarTree::
+GetNumberOfCellBatches(double scalarValue)
 {
+  // Modified time prevents rebuilding
+  this->BuildTree();
+  vtkScalarRange<double> *TTree =
+    static_cast< vtkScalarRange<double> * > (this->Tree);
+
+  this->ScalarValue = scalarValue;
+  this->TreeIndex = this->TreeSize;
+
+  // Check root of tree for overlap with scalar value
+  //
+  if ( TTree[0].min > scalarValue || TTree[0].max < scalarValue )
+  {
+    return 0;
+  }
+
   // Basically we do a traversal of the tree and identify potential candidates.
   // It is essential that InitTraversal() has been called first.
   this->NumCandidates = 0;
@@ -406,8 +438,7 @@ vtkIdType vtkSimpleScalarTree::GetNumberOfCellBatches()
 }
 
 //-----------------------------------------------------------------------------
-// Return the next batch of cells to process. Here we just use the branching
-// factor (i.e., group size) as the batch size.
+// Return the number of chunks of data that can be iterated over.
 const vtkIdType* vtkSimpleScalarTree::
 GetCellBatch(vtkIdType batchNum, vtkIdType& numCells)
 {

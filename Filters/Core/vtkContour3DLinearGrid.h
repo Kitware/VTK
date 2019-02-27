@@ -21,12 +21,13 @@
  * tetrahedra, hexahedra, voxels, pyramids, and/or wedges. (The cells are
  * linear in the sense that each cell edge is a straight line.) The filter is
  * designed for high-speed, specialized operation. All other cell types are
- * skipped and produce no output.
+ * skipped and produce no output. (Note: the filter will also process
+ * input vtkCompositeDataSets containing vtkUnstructuredGrids.)
  *
- * To use this filter you must specify an input unstructured grid, and one or
- * more contour values.  You can either use the method SetValue() to specify
- * each contour value, or use GenerateValues() to generate a series of evenly
- * spaced contours.
+ * To use this filter you must specify an input unstructured grid or
+ * vtkCompositeDataSet, and one or more contour values.  You can either use
+ * the method SetValue() to specify each contour value, or use
+ * GenerateValues() to generate a series of evenly spaced contours.
  *
  * The filter performance varies depending on optional output
  * information. Basically if point merging is required (when PointMerging,
@@ -37,18 +38,37 @@
  * many situations the results of the fast path are quite good and do not
  * require additional processing.
  *
- * Finally note that an option exists to use a vtkScalarTree, which is an
- * object that accelerates isosurface extraction, at an initial cost of
- * building the scalar tree. (This feature is useful for exploratory
- * isosurface extraction when the isovalue is frequently changed.)
+ * Note that another performance option exists, using a vtkScalarTree, which
+ * is an object that accelerates isosurface extraction, at the initial cost
+ * of building the scalar tree. (This feature is useful for exploratory
+ * isosurface extraction when the isovalue is frequently changed.) In some
+ * cases this can improve performance, however this algorithm is so highly
+ * tuned that random memory jumps (due to random access of cells provided by
+ * the scalar tree) can actually negatively impact performance, especially if
+ * the input dataset type consists of homogeneous cell types.
  *
- * @warning The fast path simply produces output points and triangles (the
- * fast path executes when MergePoints if off; InterpolateAttributes is off;
- * and ComputeNormals is off). Since the fast path does not merge points, it
+ * @warning
+ * When the input is of type vtkCompositeDataSet the filter will process the
+ * unstructured grid(s) contained in the composite data set. As a result the
+ * output of this filter is then a vtkMultiPieceDataSet containing multiple
+ * vtkPolyData. When a vtkUnstructuredGrid is provided as input the
+ * output is a single vtkPolyData.
+ *
+ * @warning
+ * The fast path simply produces output points and triangles (the fast path
+ * executes when MergePoints if off; InterpolateAttributes is off; and
+ * ComputeNormals is off). Since the fast path does not merge points, it
  * produces many more output points, typically on the order of 5-6x more than
  * when MergePoints is enabled. Adding in the other options point merging,
  * field interpolation, and normal generation results in additional
  * performance impacts. By default the fast path is enabled.
+ *
+ * @warning
+ * When a vtkCompositeDataSet is provided as input, and UseScalarTree is
+ * enabled and a ScalarTree specified, then the specified scalar tree is
+ * cloned to create new ones for each piece of the composite
+ * dataset. Otherwise (i.e., when vtkUnstructuredGrid input) the specified
+ * scalar tree is directly used (no cloning required).
  *
  * @warning
  * Internal to this filter, a caching iterator is used to traverse the cells
@@ -87,20 +107,22 @@
  * @sa
  * vtkContourGrid vtkContourFilter vtkFlyingEdges3D vtkMarchingCubes
  * vtkPolyDataNormals vtkStaticEdgeLocatorTemplate.h vtkScalarTree
+ * vtkSpanSpace
  */
 
 #ifndef vtkContour3DLinearGrid_h
 #define vtkContour3DLinearGrid_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkDataObjectAlgorithm.h"
 #include "vtkContourValues.h" // Needed for inline methods
 
+class vtkPolyData;
 class vtkUnstructuredGrid;
 class vtkScalarTree;
+struct vtkScalarTreeMap;
 
-
-class VTKFILTERSCORE_EXPORT vtkContour3DLinearGrid : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkContour3DLinearGrid : public vtkDataObjectAlgorithm
 {
 public:
   //@{
@@ -108,7 +130,7 @@ public:
    * Standard methods for construction, type info, and printing.
    */
   static vtkContour3DLinearGrid *New();
-  vtkTypeMacro(vtkContour3DLinearGrid,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkContour3DLinearGrid,vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -239,9 +261,17 @@ protected:
   int NumberOfThreadsUsed;
   bool LargeIds; //indicate whether integral ids are large(==true) or not
 
+  // Manage scalar trees, including mapping scalar tree to input dataset
   vtkTypeBool UseScalarTree;
   vtkScalarTree *ScalarTree;
+  struct vtkScalarTreeMap *ScalarTreeMap;
 
+  // Process the data: input unstructured grid and output polydata
+  void ProcessPiece(vtkUnstructuredGrid *input, vtkDataArray *inScalars, vtkPolyData *output);
+
+  int RequestDataObject(vtkInformation* request,
+                        vtkInformationVector** inputVector,
+                        vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
                   vtkInformationVector* outputVector) override;
