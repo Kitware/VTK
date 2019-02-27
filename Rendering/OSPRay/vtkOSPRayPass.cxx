@@ -31,7 +31,6 @@
 #include "vtkVolumetricPass.h"
 
 #include "ospray/ospray.h"
-#include "ospray/version.h"
 
 #include <sstream>
 #include <stdexcept>
@@ -87,31 +86,13 @@ vtkOSPRayPass::vtkOSPRayPass()
     {
       av[i] = args[i - 1].c_str();
     }
-    try
-    {
-      ospInit(&ac, av);
-    }
-    catch (std::runtime_error &vtkNotUsed(e))
-    {
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 6
-      ospShutdown();
-#endif
-    }
+    ospInit(&ac, av);
     delete [] av;
   }
   else
   {
     const char* av[] = {"pvOSPRay\0"};
-    try
-    {
-      ospInit(&ac, av);
-    }
-    catch (std::runtime_error &vtkNotUsed(e))
-    {
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 6
-      ospShutdown();
-#endif
-    }
+    ospInit(&ac, av);
   }
 
   vtkOSPRayViewNodeFactory *vnf = vtkOSPRayViewNodeFactory::New();
@@ -132,7 +113,6 @@ vtkOSPRayPass::vtkOSPRayPass()
 
   this->SequencePass->SetPasses(this->RenderPassCollection);
   this->CameraPass->SetDelegatePass(this->SequencePass);
-
 }
 
 // ----------------------------------------------------------------------------

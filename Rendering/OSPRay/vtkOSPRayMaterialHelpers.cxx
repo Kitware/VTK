@@ -21,12 +21,6 @@
 #include "vtkTexture.h"
 
 #include "ospray/ospray.h"
-#include "ospray/version.h"
-
-#define VTK_OSPRAY_VERSION \
-  OSPRAY_VERSION_MAJOR * 10000 + \
-  OSPRAY_VERSION_MINOR * 100 + \
-  OSPRAY_VERSION_PATCH
 
 //------------------------------------------------------------------------------
 OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture
@@ -272,7 +266,6 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET1F(thickness);
   }
 
-#if VTK_OSPRAY_VERSION >= 10401 // 1.4.1
   // Alloy added in 1.4.1
   else if (implname == "Alloy")
   {
@@ -281,33 +274,7 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET3F(edgeColor);
     OSPSET1F(roughness);
   }
-#endif
 
-#if VTK_OSPRAY_VERSION < 10600 // 1.6.0
-  // Matte, Plastic, Velvet no longer listed in documentation in 1.6.0
-  else if (implname == "Matte")
-  {
-    oMaterial = NewMaterial(orn, oRenderer, implname);
-    OSPSET3F(reflectance);
-  }
-  else if (implname == "Plastic")
-  {
-    oMaterial = NewMaterial(orn, oRenderer, implname);
-    OSPSET3F(pigmentColor);
-    OSPSET1F(eta);
-    OSPSET1F(roughness);
-    OSPSET1F(thickness);
-  }
-  else if (implname == "Velvet")
-  {
-    oMaterial = NewMaterial(orn, oRenderer, implname);
-    OSPSET3F(reflectance);
-    OSPSET1F(backScattering);
-    OSPSET3F(horizonScatteringColor);
-    OSPSET1F(horizonScatteringFallOff);
-  }
-#else // OSPRay >= 1.6.0
-  // Principled and CarPaint added in 1.6.0
   else if (implname == "Principled")
   {
     oMaterial = NewMaterial(orn, oRenderer, implname);
@@ -385,7 +352,6 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET3F(flipflopColor);
     OSPSET1F(flipflopFalloff);
   }
-#endif
   else
   {
     vtkGenericWarningMacro(
@@ -404,29 +370,15 @@ OSPMaterial vtkOSPRayMaterialHelpers::NewMaterial(vtkOSPRayRendererNode *orn,
 {
   OSPMaterial result;
 
-#if VTK_OSPRAY_VERSION >= 10500 // 1.5.0
-
   (void)oRenderer;
   const std::string rendererType = vtkOSPRayRendererNode::GetRendererType(orn->GetRenderer());
   result = ospNewMaterial2(rendererType.c_str(), ospMatName.c_str());
-
-#else // ospray < 1.5.0
-
-  (void)orn;
-  result = ospNewMaterial(oRenderer, ospMatName.c_str());
-
-#endif
 
   if (!result)
   {
     vtkGenericWarningMacro("OSPRay failed to create material: " << ospMatName
                            << ". Trying OBJMaterial instead.");
-#if VTK_OSPRAY_VERSION >= 10500 // 1.5.0
   result = ospNewMaterial2(rendererType.c_str(), "OBJMaterial");
-#else
-  result = ospNewMaterial(oRenderer, "OBJMaterial");
-#endif
-
   }
 
   return result;

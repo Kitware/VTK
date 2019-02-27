@@ -62,7 +62,7 @@ namespace vtkOSPRayMaterialHelpers {
                            std::string nickname);
 
   /**
-   * Wraps ospNewMaterial or ospNewMaterial2, depending on OSPRay version.
+   * Wraps ospNewMaterial
    */
   OSPMaterial NewMaterial(vtkOSPRayRendererNode *orn,
                           OSPRenderer oRenderer,

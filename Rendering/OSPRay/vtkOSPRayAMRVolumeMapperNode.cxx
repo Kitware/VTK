@@ -43,7 +43,6 @@
 #endif
 
 #include "ospray/ospray.h"
-#include "ospray/version.h"
 
 namespace ospray
 {
@@ -83,10 +82,6 @@ vtkOSPRayAMRVolumeMapperNode::vtkOSPRayAMRVolumeMapperNode()
   this->TransferFunction = nullptr;
   this->SamplingRate = 0.5f;
   this->OldSamplingRate = -1.f;
-  if (OSPRAY_VERSION_MAJOR < 1 || (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR < 4))
-  {
-    vtkErrorMacro("vtkOSPRayAMRVolumeMapperNode Requires at least OSPRay 1.4");
-  }
 }
 
 //----------------------------------------------------------------------------

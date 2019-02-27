@@ -25,7 +25,6 @@
 #include "vtkViewNodeCollection.h"
 
 #include "ospray/ospray.h"
-#include "ospray/version.h"
 #include <stdexcept>
 
 //============================================================================
@@ -36,17 +35,7 @@ vtkOSPRayWindowNode::vtkOSPRayWindowNode()
 {
   int ac = 1;
   const char* av[] = {"pvOSPRay\0"};
-  try
-  {
-    ospInit(&ac, av);
-  }
-  catch (std::runtime_error &vtkNotUsed(e))
-  {
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 6
-    ospShutdown();
-#endif
-    //cerr << "warning: double init" << endl;
-  }
+  ospInit(&ac, av);
   vtkOSPRayViewNodeFactory *fac = vtkOSPRayViewNodeFactory::New();
   this->SetMyFactory(fac);
   fac->Delete();

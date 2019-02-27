@@ -23,7 +23,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
 
-#include "ospray/version.h"
 #include <vector>
 
 vtkInformationKeyMacro(vtkOSPRayLightNode, IS_AMBIENT, Integer);

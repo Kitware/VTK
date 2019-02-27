@@ -32,7 +32,6 @@
 #include <algorithm>
 
 #include "ospray/ospray.h"
-#include "ospray/version.h"
 
 #include <cassert>
 
@@ -122,12 +121,6 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       //ok can happen in paraview client server mode for example
       return;
     }
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR < 6
-    if (fieldAssociation != 0)
-    {
-      vtkWarningMacro("Only point aligned data supported currently.");
-    }
-#endif
 
     int numberOfCells = dataSet->GetNumberOfCells();
     int numberOfPoints = dataSet->GetNumberOfPoints();
@@ -152,11 +145,7 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
         {
           ospRelease(this->OSPRayVolume);
         }
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
         this->OSPRayVolume = ospNewVolume("unstructured_volume");
-#else
-        this->OSPRayVolume = ospNewVolume("tetrahedral_volume");
-#endif
         this->Cache->AddToCache(tstep, this->OSPRayVolume);
 
         this->Vertices.clear();
@@ -177,18 +166,15 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
           vtkCell *cell = dataSet->GetCell(i);
           if (cell->GetCellType() == VTK_TETRA)
           {
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
             for (int j=0; j<4; j++)
             {
               this->Cells.push_back(-1);
             }
-#endif
             for (int j=0; j<4; j++)
             {
               this->Cells.push_back(cell->GetPointId(j));
             }
           }
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
           else if (cell->GetCellType() == VTK_HEXAHEDRON)
           {
             for (int j=0; j<8; j++)
@@ -214,16 +200,11 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
                             << cell->GetCellType()
                             << ". Ignored.");
           }
-#endif
         }
 
         // Now the point data to volume render
         this->Field.clear();
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 6
         for (int j = 0; j < (fieldAssociation ? numberOfCells : numberOfPoints); j++)
-#else
-        for(int j=0; j<numberOfPoints; j++)
-#endif
         {
           //TODO: when OSP TET volume gets other types, use them
           //TODO: try pass ref to entire array instead of this val by val copy
@@ -238,30 +219,20 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
 
         OSPData fieldData = ospNewData(this->Field.size(),OSP_FLOAT,this->Field.data(),0);
         assert(fieldData);
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 6
         if (fieldAssociation)
         {
           ospSetData(this->OSPRayVolume, "cellField", fieldData);
         }
         else
-#endif
         {
           ospSetData(this->OSPRayVolume, "field", fieldData);
         }
 
         OSPData indicesData = ospNewData(this->Cells.size()/4,OSP_INT4,this->Cells.data(),0);
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
         ospSetData(this->OSPRayVolume, "indices", indicesData);
-#else
-        ospSetData(this->OSPRayVolume, "tetrahedra", indicesData);
-#endif
 
         ospSet1i(this->OSPRayVolume, "nVertices", static_cast<int>(this->Vertices.size()));
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
         ospSet1i(this->OSPRayVolume, "nCells", static_cast<int>(this->Cells.size())/8);
-#else
-        ospSet1i(this->OSPRayVolume, "nTetrahedra", static_cast<int>(this->Cells.size())/4);
-#endif
       }
     }
 

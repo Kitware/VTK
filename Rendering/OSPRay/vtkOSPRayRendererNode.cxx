@@ -49,8 +49,6 @@
 #include "vtkVolumeCollection.h"
 #include "vtkWeakPointer.h"
 
-#include "ospray/version.h"
-
 #include <algorithm>
 #include <cmath>
 #include <map>
@@ -770,8 +768,6 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     it->GoToNextItem();
   }
 
-#if OSPRAY_VERSION_MAJOR > 1 || \
-    (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 2)
   if (!hasAmbient &&
       (this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)) > 0)
       )
@@ -785,7 +781,6 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     ospCommit(ospAmbient);
     this->Lights.push_back(ospAmbient);
   }
-#endif
 
   bool bgreused = this->Internal->SetupPathTraceBackground(oRenderer);
   OSPData lightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
@@ -969,12 +964,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       (this->GetCompositeOnGL(static_cast<vtkRenderer*>(this->Renderable))!=0);
 
     double *bg = ren->GetBackground();
-#if OSPRAY_VERSION_MAJOR > 1 || \
-    (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 3)
-   ospSet4f(oRenderer,"bgColor", bg[0], bg[1], bg[2], ren->GetBackgroundAlpha());
-#else
-    ospSet3f(oRenderer,"bgColor", bg[0], bg[1], bg[2]);
-#endif
+    ospSet4f(oRenderer,"bgColor", bg[0], bg[1], bg[2], ren->GetBackgroundAlpha());
 
   }
   else
@@ -1197,19 +1187,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 
     const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
     memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
-#if OSPRAY_VERSION_MAJOR > 1 || \
-    (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 3)
-    //nothing, already preset
-#else
-    //with qt5 VTK requires alpha channel, set it here
-    unsigned char *pix = this->Buffer;
-    for (int i = 0; i < this->Size[0]*this->Size[1]; i++)
-    {
-      pix+=3;
-      *pix = 255*ren->GetBackgroundAlpha();
-      pix++;
-    }
-#endif
     ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
 
     if (this->ComputeDepth)
