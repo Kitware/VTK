@@ -231,28 +231,8 @@ void WriteMesh(
   trif->Update();
   vtkPolyData *tris = trif->GetOutput();
 
-  // write out the mesh
-  Json::Value aprim;
-  aprim["mode"] = 4;
-  Json::Value attribs;
-
-  // write the triangles
-  {
-    vtkCellArray *da = tris->GetPolys();
-    WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
-
-    // write the accessor
-    Json::Value acc;
-    acc["bufferView"] = bufferViews.size() -1;
-    acc["byteOffset"] = 0;
-    acc["type"] = "SCALAR";
-    acc["componentType"] = GL_UNSIGNED_INT;
-    acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfCells()*3);
-    aprim["indices"] = accessors.size();
-    accessors.append(acc);
-  }
-
   // write the point locations
+  int pointAccessor = 0;
   {
     vtkDataArray *da = tris->GetPoints()->GetData();
     WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
@@ -276,11 +256,12 @@ void WriteMesh(
     maxs.append(range[5]);
     acc["min"] = mins;
     acc["max"] = maxs;
-    attribs["POSITION"] = accessors.size();
+    pointAccessor = accessors.size();
     accessors.append(acc);
   }
 
   // if we have vertex colors then write them out
+  int vertColorAccessor = -1;
   aPart->GetMapper()->MapScalars(tris, 1.0);
   if (aPart->GetMapper()->GetColorMapColors())
   {
@@ -295,12 +276,13 @@ void WriteMesh(
     acc["componentType"] = GL_UNSIGNED_BYTE;
     acc["normalized"] = true;
     acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfTuples());
-    attribs["COLOR_0"] = accessors.size();
+    vertColorAccessor = accessors.size();
     accessors.append(acc);
   }
 
   // if we have tcoords then write them out
   // first check for colortcoords
+  int tcoordAccessor = -1;
   vtkFloatArray *tcoords =
     aPart->GetMapper()->GetColorCoordinates();
   if (!tcoords)
@@ -321,15 +303,113 @@ void WriteMesh(
     acc["componentType"] = GL_FLOAT;
     acc["normalized"] = false;
     acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfTuples());
-    attribs["TEXCOORD_0"] = accessors.size();
+    tcoordAccessor = accessors.size();
     accessors.append(acc);
   }
 
-  aprim["attributes"] = attribs;
+  // to store the primitives
+  Json::Value prims;
+
+  // write out the verts
+  if (tris->GetVerts() && tris->GetVerts()->GetNumberOfCells())
+  {
+    Json::Value aprim;
+    aprim["mode"] = 0;
+    Json::Value attribs;
+
+    vtkCellArray *da = tris->GetVerts();
+    WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+
+    // write the accessor
+    Json::Value acc;
+    acc["bufferView"] = bufferViews.size() -1;
+    acc["byteOffset"] = 0;
+    acc["type"] = "SCALAR";
+    acc["componentType"] = GL_UNSIGNED_INT;
+    acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfCells());
+    aprim["indices"] = accessors.size();
+    accessors.append(acc);
+
+    attribs["POSITION"] = pointAccessor;
+    if (vertColorAccessor >= 0)
+    {
+      attribs["COLOR_0"] = vertColorAccessor;
+    }
+    if (tcoordAccessor >= 0)
+    {
+      attribs["TEXCOORD_0"] = tcoordAccessor;
+    }
+    aprim["attributes"] = attribs;
+    prims.append(aprim);
+  }
+
+  // write out the lines
+  if (tris->GetLines() && tris->GetLines()->GetNumberOfCells())
+  {
+    Json::Value aprim;
+    aprim["mode"] = 1;
+    Json::Value attribs;
+
+    vtkCellArray *da = tris->GetLines();
+    WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+
+    // write the accessor
+    Json::Value acc;
+    acc["bufferView"] = bufferViews.size() -1;
+    acc["byteOffset"] = 0;
+    acc["type"] = "SCALAR";
+    acc["componentType"] = GL_UNSIGNED_INT;
+    acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfCells()*2);
+    aprim["indices"] = accessors.size();
+    accessors.append(acc);
+
+    attribs["POSITION"] = pointAccessor;
+    if (vertColorAccessor >= 0)
+    {
+      attribs["COLOR_0"] = vertColorAccessor;
+    }
+    if (tcoordAccessor >= 0)
+    {
+      attribs["TEXCOORD_0"] = tcoordAccessor;
+    }
+    aprim["attributes"] = attribs;
+    prims.append(aprim);
+  }
+
+  // write out the triangles
+  if (tris->GetPolys() && tris->GetPolys()->GetNumberOfCells())
+  {
+    Json::Value aprim;
+    aprim["mode"] = 4;
+    Json::Value attribs;
+
+    vtkCellArray *da = tris->GetPolys();
+    WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+
+    // write the accessor
+    Json::Value acc;
+    acc["bufferView"] = bufferViews.size() -1;
+    acc["byteOffset"] = 0;
+    acc["type"] = "SCALAR";
+    acc["componentType"] = GL_UNSIGNED_INT;
+    acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfCells()*3);
+    aprim["indices"] = accessors.size();
+    accessors.append(acc);
+
+    attribs["POSITION"] = pointAccessor;
+    if (vertColorAccessor >= 0)
+    {
+      attribs["COLOR_0"] = vertColorAccessor;
+    }
+    if (tcoordAccessor >= 0)
+    {
+      attribs["TEXCOORD_0"] = tcoordAccessor;
+    }
+    aprim["attributes"] = attribs;
+    prims.append(aprim);
+  }
 
   Json::Value amesh;
-  Json::Value prims;
-  prims.append(aprim);
   amesh["primitives"] = prims;
   meshes.append(amesh);
 
@@ -598,7 +678,7 @@ void vtkGLTFExporter::WriteToStream(ostream &output)
           {
             aPart->GetMapper()->GetInputAlgorithm()->Update();
             vtkPolyData *pd = findPolyData(aPart->GetMapper()->GetInputDataObject(0,0));
-            if (pd && pd->GetPolys() && pd->GetPolys()->GetNumberOfCells() > 0)
+            if (pd && pd->GetNumberOfCells() > 0)
             {
               foundVisibleProp = true;
               WriteMesh(accessors, buffers, bufferViews,
