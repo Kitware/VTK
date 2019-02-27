@@ -294,7 +294,7 @@ public:
     return retval;
   }
 
-  bool SetupPathTraceBackground(OSPRenderer oRenderer)
+  bool SetupPathTraceBackground()
   {
     vtkRenderer *ren = vtkRenderer::SafeDownCast
       (this->Owner->GetRenderable());
@@ -785,7 +785,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     this->Lights.push_back(ospAmbient);
   }
 
-  bool bgreused = this->Internal->SetupPathTraceBackground(oRenderer);
+  bool bgreused = this->Internal->SetupPathTraceBackground();
   OSPData lightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
     (this->Lights.size()?&this->Lights[0]:nullptr), 0);
   ospSetData(oRenderer, "lights", lightArray);

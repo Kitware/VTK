@@ -141,7 +141,6 @@ void vtkOSPRayLightNode::Render(bool prepass)
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-    OSPRenderer oRenderer = orn->GetORenderer();
 
     vtkLight *light = vtkLight::SafeDownCast(this->GetRenderable());
     int lt = light->GetLightType();
