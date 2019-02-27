@@ -23,6 +23,44 @@
 #include "ospray/ospray.h"
 
 //------------------------------------------------------------------------------
+OSPTexture vtkOSPRayMaterialHelpers::NewTexture2D(const osp::vec2i &size,
+                           const OSPTextureFormat type,
+                           void *data,
+                           const uint32_t _flags,
+                           size_t sizeOf)
+{
+  auto texture = ospNewTexture("texture2d");
+  if (texture == nullptr)
+    return nullptr;
+
+  auto flags = _flags; // because the input value is declared const, use a copy
+
+  bool sharedBuffer = flags & OSP_TEXTURE_SHARED_BUFFER;
+
+  flags &= ~OSP_TEXTURE_SHARED_BUFFER;
+
+  const auto texelBytes  = sizeOf;
+  const auto totalTexels = size.x * size.y;
+  const auto totalBytes  = totalTexels * texelBytes;
+
+  auto data_handle = ospNewData(totalBytes,
+                                OSP_RAW,
+                                data,
+                                sharedBuffer ? OSP_DATA_SHARED_BUFFER : 0);
+
+  ospCommit(data_handle);
+  ospSetObject(texture, "data", data_handle);
+  ospRelease(data_handle);
+
+  ospSet1i(texture, "type", static_cast<int>(type));
+  ospSet1i(texture, "flags", static_cast<int>(flags));
+  ospSet2i(texture, "size", size.x, size.y);
+  ospCommit(texture);
+
+  return texture;
+}
+
+//------------------------------------------------------------------------------
 OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture
   (vtkImageData *vColorTextureMap)
 {
@@ -64,43 +102,51 @@ OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture
   }
   OSPTexture t2d;
   OSPTextureFormat ospformat = OSP_TEXTURE_RGB8;
+  size_t sizeOf = 0;
   if (scalartype == VTK_FLOAT)
   {
+    sizeOf = sizeof(float);
     if (comps == 1)
     {
       ospformat = OSP_TEXTURE_R32F;
     }
     else if (comps == 3)
     {
+      sizeOf *= 3;
       ospformat = OSP_TEXTURE_RGB32F;
     }
     else if (comps == 4)
     {
+      sizeOf *= 4;
       ospformat = OSP_TEXTURE_RGBA32F;
     }
   }
   else
   {
+    sizeOf = sizeof(char);
     if (comps == 1)
     {
       ospformat = OSP_TEXTURE_R8;
     }
     else if (comps == 3)
     {
+      sizeOf *= 3;
       ospformat = OSP_TEXTURE_RGB8;
     }
     else if (comps == 4)
     {
+      sizeOf *= 4;
       ospformat = OSP_TEXTURE_RGBA8;
     }
   }
-  t2d = ospNewTexture2D
+  t2d = vtkOSPRayMaterialHelpers::NewTexture2D
     (
      osp::vec2i{xsize+1,
          ysize+1},
      ospformat,
      obuffer,
-     OSP_TEXTURE_FILTER_NEAREST|OSP_TEXTURE_SHARED_BUFFER);
+     OSP_TEXTURE_FILTER_NEAREST|OSP_TEXTURE_SHARED_BUFFER,
+     sizeOf);
   ospCommit(t2d);
   if (incompatible)
   {

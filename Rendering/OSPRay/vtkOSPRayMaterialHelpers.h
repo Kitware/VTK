@@ -41,6 +41,16 @@ class vtkOSPRayRendererNode;
 namespace vtkOSPRayMaterialHelpers {
 
   /**
+   * Helper function to make a 2d OSPRay Texture.
+   * Was promoted from OSPRay because of deprecation there.
+   */
+  OSPTexture NewTexture2D(const osp::vec2i &size,
+                           const OSPTextureFormat type,
+                           void *data,
+                           const uint32_t _flags,
+                           size_t sizeOf);
+
+  /**
    * Manufacture an ospray texture from a 2d vtkImageData
    */
   OSPTexture VTKToOSPTexture(vtkImageData *vColorTextureMap);

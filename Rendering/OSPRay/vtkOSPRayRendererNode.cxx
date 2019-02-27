@@ -39,6 +39,7 @@
 #include "vtkOSPRayCameraNode.h"
 #include "vtkOSPRayLightNode.h"
 #include "vtkOSPRayVolumeNode.h"
+#include "vtkOSPRayMaterialHelpers.h"
 #include "vtkOSPRayMaterialLibrary.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -169,9 +170,10 @@ namespace ospray {
       // nearest texture filtering required for depth textures -- we don't want interpolation of depth values...
       osp::vec2i texSize = {static_cast<int>(glDepthBufferWidth),
                             static_cast<int>(glDepthBufferHeight)};
-      OSPTexture depthTexture = ospNewTexture2D((osp::vec2i&)texSize,
-                                                  OSP_TEXTURE_R32F, ospDepthBuffer,
-                                                  OSP_TEXTURE_FILTER_NEAREST);
+      OSPTexture depthTexture = vtkOSPRayMaterialHelpers::NewTexture2D((osp::vec2i&)texSize,
+                                                                          OSP_TEXTURE_R32F, ospDepthBuffer,
+                                                                          OSP_TEXTURE_FILTER_NEAREST,
+                                                                          sizeof(float));
 
       return depthTexture;
     }
@@ -361,12 +363,13 @@ public:
         ochars[1] = bg1[1]*255;
         ochars[2] = bg1[2]*255;
       }
-      OSPTexture t2d = ospNewTexture2D
+      OSPTexture t2d = vtkOSPRayMaterialHelpers::NewTexture2D
         (
          osp::vec2i{jsize,isize},
          OSP_TEXTURE_RGB8,
          ochars,
-         0);//OSP_TEXTURE_FILTER_NEAREST);
+         0,
+         3*sizeof(char));
 
       OSPLight ospLight = vtkOSPRayLightNode::NewLight("hdri");
       ospSetObject(ospLight, "map", t2d);
