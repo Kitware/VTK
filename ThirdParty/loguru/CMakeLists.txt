@@ -1,11 +1,6 @@
-vtk_module_third_party(
-  INTERNAL
+vtk_module_third_party_internal(
     LICENSE_FILES "vtkloguru/LICENSE"
     VERSION       "2.0"
-    STANDARD_INCLUDE_DIRS
-  EXTERNAL
-    PACKAGE loguru
-    TARGETS loguru::loguru
     STANDARD_INCLUDE_DIRS)
 
 configure_file(
