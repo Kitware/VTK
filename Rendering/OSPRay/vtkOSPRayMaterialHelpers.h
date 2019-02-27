@@ -43,7 +43,7 @@ namespace vtkOSPRayMaterialHelpers {
   /**
    * Manufacture an ospray texture from a 2d vtkImageData
    */
-  OSPTexture2D VTKToOSPTexture(vtkImageData *vColorTextureMap);
+  OSPTexture VTKToOSPTexture(vtkImageData *vColorTextureMap);
 
   /**
    * Construct a set of ospray materials for all of the material names.

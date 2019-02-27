@@ -117,7 +117,7 @@ namespace ospray {
 
       The OSPRay frame buffer object must have been constructed with the OSP_FB_DEPTH flag.
     */
-    OSPTexture2D getOSPDepthTextureFromOpenGLPerspective(const double &fovy,
+    OSPTexture getOSPDepthTextureFromOpenGLPerspective(const double &fovy,
                                                          const double &aspect,
                                                          const double &zNear,
                                                          const double &zFar,
@@ -171,7 +171,7 @@ namespace ospray {
       // nearest texture filtering required for depth textures -- we don't want interpolation of depth values...
       osp::vec2i texSize = {static_cast<int>(glDepthBufferWidth),
                             static_cast<int>(glDepthBufferHeight)};
-      OSPTexture2D depthTexture = ospNewTexture2D((osp::vec2i&)texSize,
+      OSPTexture depthTexture = ospNewTexture2D((osp::vec2i&)texSize,
                                                   OSP_TEXTURE_R32F, ospDepthBuffer,
                                                   OSP_TEXTURE_FILTER_NEAREST);
 
@@ -363,17 +363,15 @@ public:
         ochars[1] = bg1[1]*255;
         ochars[2] = bg1[2]*255;
       }
-      OSPTexture2D t2d = ospNewTexture2D
+      OSPTexture t2d = ospNewTexture2D
         (
          osp::vec2i{jsize,isize},
          OSP_TEXTURE_RGB8,
          ochars,
          0);//OSP_TEXTURE_FILTER_NEAREST);
 
-      OSPLight ospLight = vtkOSPRayLightNode::NewLight(this->Owner,
-                                                       oRenderer,
-                                                       "hdri");
-      ospSetObject(ospLight, "map", ((OSPTexture2D)(t2d)));
+      OSPLight ospLight = vtkOSPRayLightNode::NewLight("hdri");
+      ospSetObject(ospLight, "map", t2d);
       double *up = vtkOSPRayRendererNode::GetNorthPole(ren);
       if (up)
         {
@@ -779,9 +777,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
       )
   {
     //hardcode an ambient light for AO since OSP 1.2 stopped doing so.
-    OSPLight ospAmbient = vtkOSPRayLightNode::NewLight(this,
-                                                       oRenderer,
-                                                       "AmbientLight");
+    OSPLight ospAmbient = vtkOSPRayLightNode::NewLight("AmbientLight");
     ospSetString(ospAmbient, "name", "default_ambient");
     ospSet3f(ospAmbient, "color", 1.f, 1.f, 1.f);
     ospSet1f(ospAmbient, "intensity",
@@ -1183,7 +1179,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       cameraDir.z -= cameraPos[2];
       cameraDir = ospray::opengl::normalize(cameraDir);
 
-      OSPTexture2D glDepthTex = ospray::opengl::getOSPDepthTextureFromOpenGLPerspective
+      OSPTexture glDepthTex = ospray::opengl::getOSPDepthTextureFromOpenGLPerspective
         (fovy, aspect, zNear, zFar,
          (osp::vec3f&)cameraDir, (osp::vec3f&)cameraUp,
          this->GetZBuffer(), this->ODepthBuffer, viewportWidth, viewportHeight);

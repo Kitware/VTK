@@ -29,7 +29,7 @@
   OSPRAY_VERSION_PATCH
 
 //------------------------------------------------------------------------------
-OSPTexture2D vtkOSPRayMaterialHelpers::VTKToOSPTexture
+OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture
   (vtkImageData *vColorTextureMap)
 {
   unsigned char *ochars = nullptr;
@@ -68,7 +68,7 @@ OSPTexture2D vtkOSPRayMaterialHelpers::VTKToOSPTexture
   } else {
     obuffer = vColorTextureMap->GetScalarPointer();
   }
-  OSPTexture2D t2d;
+  OSPTexture t2d;
   OSPTextureFormat ospformat = OSP_TEXTURE_RGB8;
   if (scalartype == VTK_FLOAT)
   {
@@ -177,8 +177,8 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   if (texname) \
   { \
     vtkImageData* vColorTextureMap = vtkImageData::SafeDownCast(texname->GetInput()); \
-    OSPTexture2D t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap); \
-    ospSetObject(oMaterial, #texname, ((OSPTexture2D)(t2d))); \
+    OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap); \
+    ospSetObject(oMaterial, #texname, t2d); \
   }
 
 //------------------------------------------------------------------------------

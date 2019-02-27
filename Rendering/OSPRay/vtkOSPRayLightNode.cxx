@@ -112,19 +112,10 @@ double vtkOSPRayLightNode::GetRadius(vtkLight *light)
 }
 
 //----------------------------------------------------------------------------
-OSPLight vtkOSPRayLightNode::NewLight(vtkOSPRayRendererNode *orn,
-                                      OSPRenderer oRenderer,
-                                      const std::string& lightType)
+OSPLight vtkOSPRayLightNode::NewLight(const std::string& lightType)
 {
   OSPLight result;
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
-  (void)oRenderer;
-  const std::string rendererType = vtkOSPRayRendererNode::GetRendererType(orn->GetRenderer());
-  result = ospNewLight2(rendererType.c_str(), lightType.c_str());
-#else
-  (void)orn;
-  result = ospNewLight(oRenderer, lightType.c_str());
-#endif
+  result = ospNewLight3(lightType.c_str());
 
   if (!result)
   {
@@ -164,7 +155,7 @@ void vtkOSPRayLightNode::Render(bool prepass)
     }
     if (vtkOSPRayLightNode::GetIsAmbient(light))
     {
-      ospLight = NewLight(orn, oRenderer, "ambient");
+      ospLight = NewLight("ambient");
       color[0] = static_cast<float>(light->GetDiffuseColor()[0]);
       color[1] = static_cast<float>(light->GetDiffuseColor()[1]);
       color[2] = static_cast<float>(light->GetDiffuseColor()[2]);
@@ -193,11 +184,11 @@ void vtkOSPRayLightNode::Render(bool prepass)
       float coneAngle = static_cast<float>(light->GetConeAngle());
       if (coneAngle <= 0.0)
       {
-        ospLight = NewLight(orn, oRenderer, "PointLight");
+        ospLight = NewLight("PointLight");
       }
       else
       {
-        ospLight = NewLight(orn, oRenderer, "SpotLight");
+        ospLight = NewLight("SpotLight");
         double fx, fy, fz;
         light->GetTransformedFocalPoint(fx, fy, fz);
         if (lt == VTK_LIGHT_TYPE_SCENE_LIGHT)
@@ -252,7 +243,7 @@ void vtkOSPRayLightNode::Render(bool prepass)
       direction[0] = fx - px;
       direction[1] = fy - py;
       direction[2] = fz - pz;
-      ospLight = NewLight(orn, oRenderer, "DirectionalLight");
+      ospLight = NewLight("DirectionalLight");
       ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI = static_cast<float>
         (vtkOSPRayLightNode::LightScale*
