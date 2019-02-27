@@ -24,9 +24,15 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#if defined(LIBAVFORMAT_VERSION_MAJOR) && LIBAVFORMAT_VERSION_MAJOR >= 57
+extern "C" {
+#include <libavutil/imgutils.h>
+}
+#endif
+
 //---------------------------------------------------------------------------
 class vtkFFMPEGWriterInternal
-    {
+{
 public:
   vtkFFMPEGWriterInternal(vtkFFMPEGWriter *creator);
   ~vtkFFMPEGWriterInternal();
@@ -51,9 +57,11 @@ private:
   AVFrame *rgbInput;
   AVFrame *yuvOutput;
 
+  AVCodecContext *avCodecContext;
+
   int openedFile;
   int closedFile;
-    };
+};
 
 //---------------------------------------------------------------------------
 vtkFFMPEGWriterInternal::vtkFFMPEGWriterInternal(vtkFFMPEGWriter *creator)
@@ -85,6 +93,256 @@ vtkFFMPEGWriterInternal::~vtkFFMPEGWriterInternal()
     this->End();
   }
 }
+
+
+// for newer versions of ffmpeg use the new API as the old has been deprecated
+#if defined(LIBAVFORMAT_VERSION_MAJOR) && LIBAVFORMAT_VERSION_MAJOR >= 57
+
+//---------------------------------------------------------------------------
+int vtkFFMPEGWriterInternal::Start()
+{
+  this->closedFile = 0;
+
+#ifdef NDEBUG
+  av_log_set_level(AV_LOG_ERROR);
+#endif
+
+  //choose avi media file format
+  this->avOutputFormat = av_guess_format("avi", nullptr, nullptr);
+  if (!this->avOutputFormat)
+  {
+    vtkGenericWarningMacro (<< "Could not open the avi media file format.");
+    return 0;
+  }
+
+  if (this->Writer->GetCompression())
+  {
+    //choose a codec that is easily playable on windows
+    this->avOutputFormat->video_codec = AV_CODEC_ID_MJPEG;
+  }
+  else
+  {
+    this->avOutputFormat->video_codec = AV_CODEC_ID_RAWVIDEO;
+  }
+
+  //create the format context that wraps all of the media output structures
+  if (avformat_alloc_output_context2(&this->avFormatContext,
+    this->avOutputFormat, nullptr, this->Writer->GetFileName()) < 0)
+  {
+    vtkGenericWarningMacro (<< "Could not open the format context.");
+    return 0;
+  }
+
+  AVCodec *codec;
+  if (!(codec = avcodec_find_encoder(this->avOutputFormat->video_codec)))
+  {
+    vtkGenericWarningMacro (<< "Failed to get video codec.");
+    return 0;
+  }
+
+  //create a stream for that file
+  this->avStream = avformat_new_stream(this->avFormatContext, codec);
+  if (!this->avStream)
+  {
+    vtkGenericWarningMacro (<< "Could not create video stream.");
+    return 0;
+  }
+
+  //Set up the codec.
+  if (!(this->avCodecContext = avcodec_alloc_context3(codec)))
+  {
+    vtkGenericWarningMacro (<< "Failed to allocate codec context.");
+    return 0;
+  }
+
+  this->avStream->codecpar->codec_id = static_cast<AVCodecID>(this->avOutputFormat->video_codec);
+  this->avStream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+  this->avStream->codecpar->width = this->Dim[0];
+  this->avStream->codecpar->height = this->Dim[1];
+  if (this->Writer->GetCompression())
+  {
+    this->avStream->codecpar->format = AV_PIX_FMT_YUVJ420P;
+  }
+  else
+  {
+    this->avStream->codecpar->format = AV_PIX_FMT_BGR24;
+  }
+  this->avStream->time_base.den = this->FrameRate;
+  this->avStream->time_base.num = 1;
+
+  if( !this->Writer->GetBitRate() )
+  {
+    //allow a variable quality/size tradeoff
+    switch (this->Writer->GetQuality())
+    {
+      case 0:
+        this->avStream->codecpar->bit_rate = 3*1024*1024;
+        break;
+      case 1:
+        this->avStream->codecpar->bit_rate = 6*1024*1024;
+        break;
+      default:
+        this->avStream->codecpar->bit_rate = 12*1024*1024;
+        break;
+    }
+  }
+  else
+  {
+    this->avStream->codecpar->bit_rate = this->Writer->GetBitRate();
+  }
+
+
+  //to do playback at actual recorded rate, this will need more work see also below
+  avcodec_parameters_to_context(this->avCodecContext, this->avStream->codecpar);
+  this->avCodecContext->time_base.den = this->FrameRate;
+  this->avCodecContext->time_base.num = 1;
+  // this->avCodecContext->max_b_frames = 2;
+  //about one full frame per second
+  this->avCodecContext->gop_size = this->FrameRate;
+  if (this->avFormatContext->oformat->flags & AVFMT_GLOBALHEADER)
+  {
+      this->avCodecContext->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+  }
+  if(!this->Writer->GetBitRateTolerance())
+  {
+    this->avCodecContext->bit_rate_tolerance = this->avCodecContext->bit_rate; //ffmpeg won't create a codec if brt<br
+  }
+  else
+  {
+    this->avCodecContext->bit_rate_tolerance = this->Writer->GetBitRateTolerance();
+  }
+  avcodec_parameters_from_context(this->avStream->codecpar, this->avCodecContext);
+
+  if (avcodec_open2(this->avCodecContext, codec, nullptr) < 0)
+  {
+    vtkGenericWarningMacro (<< "Could not open codec.");
+    return 0;
+  }
+
+  //for the output of the writer's input...
+  this->rgbInput = av_frame_alloc();
+  if (!this->rgbInput)
+  {
+    vtkGenericWarningMacro (<< "Could not make rgbInput avframe." );
+    return 0;
+  }
+  this->rgbInput->format = AV_PIX_FMT_RGB24;
+  this->rgbInput->width = this->avCodecContext->width;
+  this->rgbInput->height = this->avCodecContext->height;
+  av_frame_get_buffer(this->rgbInput, 1);
+
+  //and for the output to the codec's input.
+  this->yuvOutput = av_frame_alloc();
+  if (!this->yuvOutput)
+  {
+    vtkGenericWarningMacro (<< "Could not make yuvOutput avframe." );
+    return 0;
+  }
+  this->yuvOutput->format = this->avCodecContext->pix_fmt;
+  this->yuvOutput->width = this->avCodecContext->width;
+  this->yuvOutput->height = this->avCodecContext->height;
+  this->yuvOutput->pts = 0;
+  av_frame_get_buffer(this->yuvOutput, 1);
+
+  //Finally, open the file and start it off.
+  if (!(this->avOutputFormat->flags & AVFMT_NOFILE))
+  {
+    if (avio_open(&this->avFormatContext->pb, this->Writer->GetFileName(), AVIO_FLAG_WRITE) < 0)
+    {
+      vtkGenericWarningMacro (<< "Could not open " << this->Writer->GetFileName() << "." );
+      return 0;
+    }
+  }
+  this->openedFile = 1;
+
+  if (avformat_write_header(this->avFormatContext, nullptr) < 0)
+  {
+    vtkGenericWarningMacro (<< "Could not allocate avcodec private data.");
+    return 0;
+  }
+  return 1;
+}
+
+//---------------------------------------------------------------------------
+int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
+{
+  this->Writer->GetInputAlgorithm(0, 0)->UpdateWholeExtent();
+
+  //copy the image from the input to the RGB buffer while flipping Y
+  unsigned char *rgb = (unsigned char*)id->GetScalarPointer();
+  unsigned char *src;
+  for (int y = 0; y < this->avCodecContext->height; y++)
+  {
+    src = rgb + (this->avCodecContext->height-y-1) * this->avCodecContext->width * 3; //flip Y
+    unsigned char *dest =
+      &this->rgbInput->data[0][y*this->rgbInput->linesize[0]];
+    memcpy((void*)dest, (void*)src, this->avCodecContext->width*3);
+  }
+
+  //convert that to YUV for input to the codec
+  SwsContext* convert_ctx = sws_getContext(
+    this->avCodecContext->width,
+    this->avCodecContext->height, AV_PIX_FMT_RGB24,
+    this->avCodecContext->width, this->avCodecContext->height,
+    this->avCodecContext->pix_fmt,
+    SWS_BICUBIC, nullptr, nullptr, nullptr);
+
+  if(convert_ctx == nullptr)
+  {
+    vtkGenericWarningMacro(<< "swscale context initialization failed");
+    return 0;
+  }
+
+  int result = sws_scale(convert_ctx,
+    this->rgbInput->data, this->rgbInput->linesize,
+    0, this->avCodecContext->height,
+    this->yuvOutput->data, this->yuvOutput->linesize
+    );
+
+  sws_freeContext(convert_ctx);
+
+  if(!result)
+  {
+    vtkGenericWarningMacro(<< "sws_scale() failed");
+    return 0;
+  }
+
+  int ret = avcodec_send_frame(this->avCodecContext, this->yuvOutput);
+  this->yuvOutput->pts++;
+
+  if (ret < 0)
+  {
+    return 1;
+  }
+
+  //run the encoder
+  AVPacket pkt;
+  av_init_packet(&pkt);
+  pkt.data = nullptr;
+  pkt.size = 0;
+
+  while (!ret)
+  {
+    //dump the compressed result to file
+    ret = avcodec_receive_packet(this->avCodecContext, &pkt);
+    if (!ret)
+    {
+      pkt.stream_index = this->avStream->index;
+      int wret = av_write_frame(this->avFormatContext, &pkt);
+      if (wret < 0)
+      {
+        vtkGenericWarningMacro (<< "Problem encoding frame." );
+        return 0;
+      }
+    }
+  }
+
+  return 1;
+}
+
+// for old versions of ffmpeg use the old API, eventually remove this code
+// The new API was introduced around 2016
+#else
 
 //---------------------------------------------------------------------------
 int vtkFFMPEGWriterInternal::Start()
@@ -320,6 +578,8 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
 
   return 1;
 }
+
+#endif
 
 //---------------------------------------------------------------------------
 void vtkFFMPEGWriterInternal::End()
