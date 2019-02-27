@@ -441,9 +441,9 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
   this->Internal = new vtkOSPRayRendererNodeInternals(this);
 
 #ifdef VTKOSPRAY_ENABLE_DENOISER
-    DenoiserDevice = oidn::newDevice();
-    DenoiserDevice.commit();
-    DenoiserFilter = DenoiserDevice.newFilter("RT");
+  this->DenoiserDevice = oidn::newDevice();
+  this->DenoiserDevice.commit();
+  this->DenoiserFilter = this->DenoiserDevice.newFilter("RT");
 #endif
 }
 
@@ -1007,7 +1007,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       this->ColorBuffer.resize(size);
       this->NormalBuffer.resize(size);
       this->AlbedoBuffer.resize(size);
-      DenoiserDirty = true;
+      this->DenoiserDirty = true;
       ospSet1f(this->OFrameBuffer, "gamma", 1.0f);
       ospCommit(this->OFrameBuffer);
       ospFrameBufferClear
@@ -1248,12 +1248,13 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
 #ifdef VTKOSPRAY_ENABLE_DENOISER
     memcpy((void*)&this->ColorBuffer[0], rgba, this->Size[0]*this->Size[1]*4*sizeof(float));
-    if (UseDenoiser && this->AccumulateCount >= this->DenoiserThreshold)
+    if (this->UseDenoiser && this->AccumulateCount >= this->DenoiserThreshold)
     {
-      Denoise();
+      this->Denoise();
     }
     //VTK appears to need an RGBA8 buffer, but the denoiser only supports floats right now.  Convert.
-    for (size_t i = 0; i < this->ImageX*this->ImageY; i++) {
+    for (size_t i = 0; i < static_cast<size_t>(this->ImageX*this->ImageY); i++)
+    {
       const int bi = i*4;
       this->Buffer[bi] = (unsigned char)std::min(this->ColorBuffer[i].x*255.f,255.f);
       this->Buffer[bi+1] = (unsigned char)std::min(this->ColorBuffer[i].y*255.f,255.f);
@@ -1269,9 +1270,10 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 
 void vtkOSPRayRendererNode::Denoise()
 {
+#ifdef VTKOSPRAY_ENABLE_DENOISER
   this->DenoisedBuffer = ColorBuffer;
-  if (this->DenoiserDirty) {
-
+  if (this->DenoiserDirty)
+  {
     this->DenoiserFilter.setImage("color", (void*)this->ColorBuffer.data(),
         oidn::Format::Float3, this->ImageX, this->ImageY, 0, sizeof(osp::vec4f));
 
@@ -1302,6 +1304,7 @@ void vtkOSPRayRendererNode::Denoise()
   this->DenoiserFilter.execute();
   //Carson: not sure we need two buffers
   this->ColorBuffer = this->DenoisedBuffer;
+#endif
 }
 
 //----------------------------------------------------------------------------

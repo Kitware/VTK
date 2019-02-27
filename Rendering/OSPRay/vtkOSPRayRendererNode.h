@@ -28,10 +28,8 @@
 
 #include "ospray/ospray.h" // for ospray handle types
 
-//#define VTKOSPRAY_ENABLE_DENOISER 1
-
 #ifdef VTKOSPRAY_ENABLE_DENOISER
-#include <OpenImageDenoise/oidn.hpp>
+#include <OpenImageDenoise/oidn.hpp> // for denoiser structures
 #endif
 
 class vtkInformationDoubleKey;
@@ -239,18 +237,6 @@ public:
    */
   void EnableDenoiser(bool enabled) { this->UseDenoiser = enabled; }
 
-#ifdef VTKOSPRAY_ENABLE_DENOISER
-    oidn::DeviceRef DenoiserDevice;
-    oidn::FilterRef DenoiserFilter;
-#endif
-    bool UseDenoiser{true};
-    bool DenoiserDirty{true};
-    unsigned int DenoiserThreshold{4};
-    std::vector<osp::vec4f> ColorBuffer;
-    std::vector<osp::vec3f> NormalBuffer;
-    std::vector<osp::vec3f> AlbedoBuffer;
-    std::vector<osp::vec4f> DenoisedBuffer;
-
 protected:
   vtkOSPRayRendererNode();
   ~vtkOSPRayRendererNode();
@@ -279,6 +265,18 @@ protected:
   vtkMTimeType AccumulateTime;
   vtkMatrix4x4 *AccumulateMatrix;
   vtkOSPRayRendererNodeInternals *Internal;
+
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+  oidn::DeviceRef DenoiserDevice;
+  oidn::FilterRef DenoiserFilter;
+#endif
+  bool UseDenoiser{false};
+  bool DenoiserDirty{true};
+  unsigned int DenoiserThreshold{4};
+  std::vector<osp::vec4f> ColorBuffer;
+  std::vector<osp::vec3f> NormalBuffer;
+  std::vector<osp::vec3f> AlbedoBuffer;
+  std::vector<osp::vec4f> DenoisedBuffer;
 
 private:
   vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) = delete;

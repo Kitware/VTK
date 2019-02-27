@@ -43,17 +43,14 @@ find_package(ospray 1.8 REQUIRED)
 vtk_module_link(VTK::RenderingOSPRay
   PUBLIC
     ${OSPRAY_LIBRARIES}
+  PRIVATE
     ${OPENIMAGEDENIOSE}
-    /home/carson/opt/oidn-0.8.1.x86_64.linux/lib/libOpenImageDenoise.so  #Carson: Hack
 )
 
 vtk_module_include(VTK::RenderingOSPRay
   PUBLIC
     ${OSPRAY_INCLUDE_DIRS}
-    /home/carson/opt/oidn-0.8.1.x86_64.linux/include #Carson: Hack
 )
-
-#target_link_libraries(VTK::RenderingOSPRay OpenImageDenoise)
 
 # TODO: FindOSPRay should do this.
 # OSPRay_Core uses MMTime which is in it's own special library.
