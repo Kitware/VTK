@@ -190,6 +190,8 @@ vtkInformationKeyMacro(vtkOSPRayRendererNode, EAST_POLE, DoubleVector);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MATERIAL_LIBRARY, ObjectBase);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, VIEW_TIME, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, TIME_CACHE_SIZE, Integer);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, DENOISER_THRESHOLD, Integer);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, ENABLE_DENOISER, Integer);
 
 class vtkOSPRayRendererNodeInternals
 {
@@ -722,6 +724,58 @@ int vtkOSPRayRendererNode::GetTimeCacheSize(vtkRenderer *renderer)
 }
 
 //----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetDenoiserThreshold(int value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::DENOISER_THRESHOLD(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOSPRayRendererNode::GetDenoiserThreshold(vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return 4;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::DENOISER_THRESHOLD()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::DENOISER_THRESHOLD()));
+  }
+  return 4;
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetEnableDenoiser(int value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::ENABLE_DENOISER(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOSPRayRendererNode::GetEnableDenoiser(vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return 1;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::ENABLE_DENOISER()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::ENABLE_DENOISER()));
+  }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1248,7 +1302,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
 #ifdef VTKOSPRAY_ENABLE_DENOISER
     memcpy((void*)&this->ColorBuffer[0], rgba, this->Size[0]*this->Size[1]*4*sizeof(float));
-    if (this->UseDenoiser && this->AccumulateCount >= this->DenoiserThreshold)
+    if (this->GetEnableDenoiser(static_cast<vtkRenderer*>(this->Renderable)) && this->AccumulateCount >= this->GetDenoiserThreshold(static_cast<vtkRenderer*>(this->Renderable)))
     {
       this->Denoise();
     }

@@ -228,14 +228,27 @@ public:
   vtkRenderer *GetRenderer();
 
   /**
-   * set accumulation threshold when image denoised.
+   * Accumulation threshold when above which denoising kicks in.
    */
-  void SetDenoiserThreshold(unsigned int threshold) { this->DenoiserThreshold = threshold; }
+  static vtkInformationIntegerKey* DENOISER_THRESHOLD();
+  //@{
+  /**
+   * Convenience method to set/get DENOISER_THRESHOLD on a vtkRenderer.
+   */
+  static void SetDenoiserThreshold(int , vtkRenderer *renderer);
+  static int GetDenoiserThreshold(vtkRenderer *renderer);
+  //@}
 
   /**
-   * Enable/Disable denoiser (if supported).  Default is on when supported.
+   * Enable denoising (if supported).
    */
-  void EnableDenoiser(bool enabled) { this->UseDenoiser = enabled; }
+  static vtkInformationIntegerKey* ENABLE_DENOISER();
+  /**
+   * Convenience method to set/get ENABLE_DENOISER on a vtkRenderer.
+   */
+  static void SetEnableDenoiser(int , vtkRenderer *renderer);
+  static int GetEnableDenoiser(vtkRenderer *renderer);
+  //@}
 
 protected:
   vtkOSPRayRendererNode();
@@ -270,9 +283,7 @@ protected:
   oidn::DeviceRef DenoiserDevice;
   oidn::FilterRef DenoiserFilter;
 #endif
-  bool UseDenoiser{false};
   bool DenoiserDirty{true};
-  unsigned int DenoiserThreshold{4};
   std::vector<osp::vec4f> ColorBuffer;
   std::vector<osp::vec3f> NormalBuffer;
   std::vector<osp::vec3f> AlbedoBuffer;
