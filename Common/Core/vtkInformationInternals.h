@@ -68,6 +68,9 @@ public:
       }
     }
   }
+
+private:
+  vtkInformationInternals(vtkInformationInternals const &) = delete;
 };
 
 #undef VTK_INFORMATION_USE_HASH_MAP
