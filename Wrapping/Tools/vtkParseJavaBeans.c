@@ -316,6 +316,7 @@ int checkFunctionSignature(ClassInfo *data)
   if (currentFunction->IsOperator ||
       currentFunction->ArrayFailure ||
       currentFunction->IsExcluded ||
+      currentFunction->IsDeleted ||
       !currentFunction->IsPublic ||
       !currentFunction->Name)
   {

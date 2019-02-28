@@ -174,6 +174,7 @@ static void vtkWrapPython_PrintProtocol(
   {
     func = finfo->Contents->Functions[i];
     if (func->Name && func->IsOperator &&
+        !func->IsDeleted && !func->IsExcluded &&
         strcmp(func->Name, "operator<<") == 0)
     {
       if (func->NumberOfParameters == 2 &&
@@ -258,7 +259,8 @@ static void vtkWrapPython_RichCompareProtocol(
         continue;
       }
     }
-    if (func->IsOperator && func->Name != NULL)
+    if (func->IsOperator && func->Name != NULL &&
+        !func->IsDeleted && !func->IsExcluded)
     {
       if (strcmp(func->Name, "operator<") == 0)
       {
@@ -407,6 +409,7 @@ static void vtkWrapPython_SequenceProtocol(
     func = data->Functions[i];
 
     if (func->Name && func->IsOperator &&
+        !func->IsDeleted && !func->IsExcluded &&
         strcmp(func->Name, "operator[]") == 0  &&
         vtkWrapPython_MethodCheck(data, func, hinfo))
     {
