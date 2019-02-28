@@ -527,13 +527,24 @@ const char * vtkOSPRayMaterialLibrary::WriteBuffer()
   }
 
   root["materials"] = materials;
-  Json::FastWriter fast;
-  std::string sFast = fast.write(root);
 
-  char *buf = new char[sFast.length()+1];
-  memcpy(buf, sFast.c_str(), sFast.length());
-  buf[sFast.length()] =0;
-  return buf;
+  Json::StreamWriterBuilder builder;
+  builder["commentStyle"] = "None";
+  builder["indentation"] = "   ";
+  std::unique_ptr<Json::StreamWriter> writer(
+      builder.newStreamWriter());
+  std::ostringstream result;
+  writer->write(root, &result);
+  std::string rstring = result.str();
+
+  if (rstring.size())
+  {
+    char *buf = new char[rstring.size()+1];
+    memcpy(buf, rstring.c_str(), rstring.size());
+    buf[rstring.size()] = 0;
+    return buf;
+  }
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------

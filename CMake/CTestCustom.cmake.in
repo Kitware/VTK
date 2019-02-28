@@ -69,7 +69,10 @@ if (NOT cdash_show_third_party_warnings)
     # and causes a match due to the work warning in it
     "return 0;       /\\* supresses a warning \\*/"
 
-
+    # boost graph lib causes a warning on gcc with code that
+    # boost uses internally. An example for you template fans is
+    # /source/Infovis/BoostGraphAlgorithms/Testing/Cxx/TestBoostAdapter.cxx:221:47: warning: '*((void*)(& ei)+32).__gnu_cxx::__normal_iterator<boost::detail::stored_edge_property<long unsigned int, boost::property<boost::edge_index_t, unsigned int> >*, std::vector<boost::detail::stored_edge_property<long unsigned int, boost::property<boost::edge_index_t, unsigned int> >, std::allocator<boost::detail::stored_edge_property<long unsigned int, boost::property<boost::edge_index_t, unsigned int> > > > >::_M_current' may be used uninitialized in this function [-Wmaybe-uninitialized]
+    "[Bb]oost[Gg]raph.*edge_property.*may be used uninitialized"
   )
 endif ()
 
