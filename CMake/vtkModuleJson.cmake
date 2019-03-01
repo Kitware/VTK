@@ -49,9 +49,6 @@ Example output:
       "third_party": <bool>,
       "wrap_exclude": <bool>,
       "kit": "...",
-      "groups": [
-        "..."
-      ],
       "depends": [
         "..."
       ],
@@ -73,9 +70,6 @@ Example output:
       "modules": [
       ]
     }
-  ]
-  "groups": [
-    "..."
   ]
 }
 ```
@@ -157,7 +151,6 @@ function (vtk_module_json)
     _vtk_json_bool(_vtk_json_contents "third_party" _vtk_json_third_party)
     _vtk_json_bool(_vtk_json_contents "wrap_exclude" _vtk_json_wrap_exclude)
     string(APPEND _vtk_json_contents "\"kit\": ${_vtk_json_kit_name}, ")
-    # _vtk_json_string_list(_vtk_json_contents "groups" _vtk_json_groups)
     _vtk_json_string_list(_vtk_json_contents "depends" _vtk_json_depends)
     _vtk_json_string_list(_vtk_json_contents "optional_depends" _vtk_json_optional_depends)
     _vtk_json_string_list(_vtk_json_contents "private_depends" _vtk_json_private_depends)
