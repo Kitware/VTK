@@ -57,7 +57,7 @@ int TestHyperTreeGridTernarySphereMaterialReflections( int argc, char* argv[] )
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
   htGrid->UseDescriptorOff();
-  htGrid->UseMaterialMaskOn();
+  htGrid->UseMaskOn();
   vtkNew<vtkQuadric> quadric;
   quadric->SetCoefficients( 1., 1., 1.,
                             0, 0., 0.,

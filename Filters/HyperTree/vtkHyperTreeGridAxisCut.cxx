@@ -44,7 +44,7 @@ vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
   this->PlanePositionRealUse = 0.;
 
   // Default mask is empty
-  this->OutMaterialMask = nullptr;
+  this->OutMask = nullptr;
 
   // Output indices begin at 0
   this->CurrentId = 0;
@@ -56,10 +56,10 @@ vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridAxisCut::~vtkHyperTreeGridAxisCut()
 {
-  if( this->OutMaterialMask )
+  if( this->OutMask )
   {
-    this->OutMaterialMask->Delete();
-    this->OutMaterialMask = nullptr;
+    this->OutMask->Delete();
+    this->OutMask = nullptr;
   }
 }
 
@@ -70,7 +70,7 @@ void vtkHyperTreeGridAxisCut::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "PlaneNormalAxis : " << this->PlaneNormalAxis << endl;
   os << indent << "PlanePosition : " << this->PlanePosition << endl;
-  os << indent << "OutMaterialMask: " << this->OutMaterialMask << endl;
+  os << indent << "OutMask: " << this->OutMask << endl;
   os << indent << "CurrentId: " << this->CurrentId << endl;
 }
 
@@ -170,13 +170,13 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
   this->CurrentId = 0;
 
   // Create material mask bit array if one is present on input
-  if( input->HasMaterialMask() )
+  if( input->HasMask() )
   {
-    this->OutMaterialMask = vtkBitArray::New();
+    this->OutMask = vtkBitArray::New();
   }
 
   // Retrieve material mask
-  this->InMaterialMask = this->OutMaterialMask ? input->GetMaterialMask() : 0;
+  this->InMask = this->OutMask ? input->GetMask() : 0;
 
   // Storage for root cell Cartesian coordinates
   unsigned int i,j,k;
@@ -237,13 +237,13 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
   } // it
 
 //JBDEL2   // Set material mask index
-//JBDEL2  output->SetMaterialMaskIndex( position );
+//JBDEL2  output->SetMaskIndex( position );
 
   // Squeeze and set output material mask if necessary
-  if( this->OutMaterialMask )
+  if( this->OutMask )
   {
-    this->OutMaterialMask->Squeeze();
-    output->SetMaterialMask( this->OutMaterialMask );
+    this->OutMask->Squeeze();
+    output->SetMask( this->OutMask );
   }
 
   return 1;
@@ -266,9 +266,9 @@ void vtkHyperTreeGridAxisCut::RecursivelyProcessTree(
   outTree->SetGlobalIndexFromLocal( outCursor->GetVertexId(), outId );
 
   // Update material mask if relevant
-  if( this->InMaterialMask )
+  if( this->InMask )
   {
-    this->OutMaterialMask->InsertValue( outId, this->InMaterialMask->GetValue( inId )  );
+    this->OutMask->InsertValue( outId, this->InMask->GetValue( inId )  );
   }
 
   // Copy output cell data from that of input cell

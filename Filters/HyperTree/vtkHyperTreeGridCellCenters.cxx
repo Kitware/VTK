@@ -160,7 +160,7 @@ void vtkHyperTreeGridCellCenters::ProcessTrees()
   this->Points = vtkPoints::New();
 
   // Retrieve material mask
-  this->InMaterialMask = this->Input->HasMaterialMask() ? this->Input->GetMaterialMask() : 0;
+  this->InMask = this->Input->HasMask() ? this->Input->GetMask() : 0;
 
   // Iterate over all hyper trees
   vtkIdType index;
@@ -205,7 +205,7 @@ void vtkHyperTreeGridCellCenters::RecursivelyProcessTree( vtkHyperTreeGridNonOri
     vtkIdType id = cursor->GetGlobalNodeIndex();
 
     // If leaf is masked, skip it
-    if ( this->InMaterialMask && this->InMaterialMask->GetValue( id ) )
+    if ( this->InMask && this->InMask->GetValue( id ) )
     {
       return;
     }
@@ -220,7 +220,7 @@ void vtkHyperTreeGridCellCenters::RecursivelyProcessTree( vtkHyperTreeGridNonOri
     // Copy cell center data from leaf data, when needed
     if ( this->VertexCells )
     {
-      this->OutData->CopyData( this->InData, id, outId );
+    this->OutData->CopyData( this->InData, id, outId );
     }
   }
   else

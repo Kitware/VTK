@@ -23,6 +23,7 @@
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -45,9 +46,12 @@ int TestHyperTreeGridBinary2DContour( int argc, char* argv[] )
   htGrid->SetBranchFactor( 2 );
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
 
+  // DualGrid
+  vtkNew<vtkHyperTreeGridToDualGrid> dualFilter;
+  dualFilter->SetInputConnection( htGrid->GetOutputPort() );
+
   // Contour
   vtkNew<vtkHyperTreeGridContour> contour;
-  contour->SetInputConnection( htGrid->GetOutputPort() );
   int nContours = 3;
   contour->SetNumberOfContours( nContours );
   contour->SetInputConnection( htGrid->GetOutputPort() );

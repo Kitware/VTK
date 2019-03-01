@@ -26,6 +26,7 @@
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGraph.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationExecutivePortVectorKey.h"
@@ -555,6 +556,12 @@ vtkAbstractArray *vtkAlgorithm::GetInputAbstractArrayToProcess(
         GetVertexData()->GetAbstractArray(name);
     }
 
+    if (vtkHyperTreeGrid::SafeDownCast(input))
+    {
+      return vtkHyperTreeGrid::SafeDownCast(input)->
+        GetPointData()->GetAbstractArray(name);
+    }
+
     vtkDataSet *inputDS = vtkDataSet::SafeDownCast(input);
     if (!inputDS)
     {
@@ -581,6 +588,12 @@ vtkAbstractArray *vtkAlgorithm::GetInputAbstractArrayToProcess(
     vtkDataSet *inputDS = vtkDataSet::SafeDownCast(input);
     if (!inputDS)
     {
+      if (vtkHyperTreeGrid::SafeDownCast(input))
+      {
+        int fType = inArrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
+        return vtkHyperTreeGrid::SafeDownCast(input)->
+          GetPointData()->GetAbstractAttribute(fType);
+      }
       vtkErrorMacro("Attempt to get point or cell data from a data object");
       return nullptr;
     }

@@ -1,7 +1,7 @@
 /*==================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHyperTreeGridBinary2DDepthLimiterMaterial.cxx
+  Module:    TestHyperTreeGridToDualGrid.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,29 +12,33 @@
      PURPOSE.  See the above copyright notice for more information.
 
 ===================================================================*/
-// .SECTION Thanks
-// This test was written by Philippe Pebay, 2016
-// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+// This test verifies that VTK can obtain the dual grid representation
+// for a HyperTreeGrid.
 
-#include "vtkHyperTreeGridDepthLimiter.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGridToDualGrid.h"
+#include "vtkHyperTreeGridToUnstructuredGrid.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkShrinkFilter.h"
+#include "vtkUnstructuredGrid.h"
 
-int TestHyperTreeGridBinary2DDepthLimiterMaterial( int argc, char* argv[] )
+#include "vtkDataSetWriter.h"
+
+int TestHyperTreeGridToDualGrid( int argc, char* argv[] )
 {
+  // Writer for debug
+  // vtkNew<vtkDataSetWriter> writer;
+
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   int maxLevel = 6;
@@ -44,35 +48,41 @@ int TestHyperTreeGridBinary2DDepthLimiterMaterial( int argc, char* argv[] )
   htGrid->SetDimension( 2 );
   htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetBranchFactor( 2 );
-  htGrid->UseMaskOn();
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
-  htGrid->SetMask( "111111|0000 1111 1111 1111 1111|1111 0001 0111 0101 1011 1111 0111|1111 0111 1111 1111 1111 1111|1111 1111 1111 1111|1111" );
 
-  // Depth limiter
-  vtkNew<vtkHyperTreeGridDepthLimiter> depth;
-  depth->SetInputConnection( htGrid->GetOutputPort() );
-  depth->SetDepth( 2 );
+  // Geometry
+  vtkNew<vtkHyperTreeGridToDualGrid> dualfilter;
+  dualfilter->SetInputConnection( htGrid->GetOutputPort() );
+  dualfilter->Update();
+  vtkUnstructuredGrid *dual = vtkUnstructuredGrid::SafeDownCast(dualfilter->GetOutput());
+  // dual->PrintSelf(cerr, vtkIndent(0));
+  // writer->SetFileName("fooDual.vtk");
+  // writer->SetInputData(dual);
+  // writer->Write();
 
-  // Geometries
-  vtkNew<vtkHyperTreeGridGeometry> geometry1;
-  geometry1->SetInputConnection( htGrid->GetOutputPort() );
-  geometry1->Update();
-  vtkPolyData* pd = geometry1->GetPolyDataOutput();
-  vtkNew<vtkHyperTreeGridGeometry> geometry2;
-  geometry2->SetInputConnection( depth->GetOutputPort() );
+  vtkNew<vtkHyperTreeGridToUnstructuredGrid> gfilter;
+  gfilter->SetInputConnection( htGrid->GetOutputPort() );
+  gfilter->Update();
+  // vtkUnstructuredGrid *primal = vtkUnstructuredGrid::SafeDownCast(gfilter->GetOutput());
+  // writer->SetFileName("fooPrimal.vtk");
+  // writer->SetInputData(primal);
+  // writer->Write();
 
-  // Shrink
-  vtkNew<vtkShrinkFilter> shrink;
-  shrink->SetInputConnection( geometry2->GetOutputPort() );
-  shrink->SetShrinkFactor( .8 );
+  vtkNew<vtkHyperTreeGridGeometry> sfilter;
+  sfilter->SetInputConnection( htGrid->GetOutputPort() );
+  sfilter->Update();
+  // vtkPolyData *skin = vtkPolyData::SafeDownCast(sfilter->GetOutput());
+  // writer->SetFileName("fooSkin.vtk");
+  // writer->SetInputData(skin);
+  // writer->Write();
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkDataSetMapper> mapper1;
-  mapper1->SetInputConnection( shrink->GetOutputPort() );
-  mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
-  vtkNew<vtkPolyDataMapper> mapper2;
-  mapper2->SetInputConnection( geometry1->GetOutputPort() );
+  mapper1->SetInputConnection( dualfilter->GetOutputPort() );
+  //mapper1->SetScalarRange( dual->GetCellData()->GetScalars()->GetRange() ); //no cell data yet
+  vtkNew<vtkDataSetMapper> mapper2;
+  mapper2->SetInputConnection( dualfilter->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
 
   // Actors
@@ -85,11 +95,11 @@ int TestHyperTreeGridBinary2DDepthLimiterMaterial( int argc, char* argv[] )
 
   // Camera
   double bd[6];
-  pd->GetBounds( bd );
+  dual->GetBounds( bd );
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
-  camera->SetFocalPoint( pd->GetCenter() );
-  camera->SetPosition( .5 * bd[1], .5 * bd[3], 6. );
+  camera->SetFocalPoint( dual->GetCenter() );
+  camera->SetPosition( .5 * (bd[0] + bd[1]), .5 *(bd[2] + bd[3]), 6. );
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
@@ -111,7 +121,7 @@ int TestHyperTreeGridBinary2DDepthLimiterMaterial( int argc, char* argv[] )
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin, 70 );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 2 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

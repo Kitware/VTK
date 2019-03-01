@@ -341,7 +341,7 @@ void vtkUniformHyperTreeGrid::GetLevelZeroOriginFromIndex(
 }
 
 //-----------------------------------------------------------------------------
-void vtkUniformHyperTreeGrid::CopyStructure( vtkDataSet* ds )
+void vtkUniformHyperTreeGrid::CopyStructure( vtkDataObject* ds )
 {
   assert( "pre: ds_exists" && ds!=nullptr );
   vtkUniformHyperTreeGrid* uhtg = vtkUniformHyperTreeGrid::SafeDownCast( ds );
@@ -376,14 +376,6 @@ void vtkUniformHyperTreeGrid::ComputeBounds()
 }
 
 //-----------------------------------------------------------------------------
-void vtkUniformHyperTreeGrid::ComputeDualGrid()
-{
-  // We do not allow for computation of the dual for uniform hypertree grids
-  vtkErrorMacro(<<"Dual grid computation not allowed for uniform hypertree grids!");
-  return;
-}
-
-//-----------------------------------------------------------------------------
 void vtkUniformHyperTreeGrid::ShallowCopy( vtkDataObject* src )
 {
   vtkHyperTreeGrid* uhtg = vtkUniformHyperTreeGrid::SafeDownCast( src );
@@ -414,7 +406,7 @@ unsigned long vtkUniformHyperTreeGrid::GetActualMemorySizeBytes()
 {
   unsigned long size = 0; // in bytes
 
-  size += ( this->vtkDataSet::GetActualMemorySize() << 10 );
+  size += ( this->vtkDataObject::GetActualMemorySize() << 10 );
 
   // Iterate over all trees in grid
   vtkHyperTreeGridIterator it;

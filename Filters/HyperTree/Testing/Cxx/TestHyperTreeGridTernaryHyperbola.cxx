@@ -24,6 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkContourFilter.h"
+#include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
@@ -48,13 +49,17 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetBranchFactor( 3 );
   htGrid->UseDescriptorOff();
-  htGrid->UseMaterialMaskOff();
+  htGrid->UseMaskOff();
   vtkNew<vtkQuadric> quadric;
   quadric->SetCoefficients( 1., -1., 0.,
                             0., 0., 0.,
                             -12., 12., 0.,
                             1. );
   htGrid->SetQuadric( quadric );
+
+  // DualGrid
+  vtkNew<vtkHyperTreeGridToDualGrid> dualFilter;
+  dualFilter->SetInputConnection( htGrid->GetOutputPort() );
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
@@ -65,7 +70,7 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
 
   // Contour
   vtkNew<vtkContourFilter> contour;
-  contour->SetInputConnection( htGrid->GetOutputPort() );
+  contour->SetInputConnection( dualFilter->GetOutputPort() );
   contour->SetNumberOfContours( 0 );
   contour->SetValue( 0, 0 );
   contour->SetInputArrayToProcess( 0, 0, 0,

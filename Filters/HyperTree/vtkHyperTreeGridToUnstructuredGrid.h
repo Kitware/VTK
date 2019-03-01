@@ -83,7 +83,7 @@ protected:
   /**
    * Output material mask constructed by this filter
    */
-  vtkBitArray* MaterialMask;
+  vtkBitArray* Mask;
 
   /**
    * Storage for points of output unstructured mesh

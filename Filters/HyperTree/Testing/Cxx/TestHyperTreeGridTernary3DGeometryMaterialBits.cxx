@@ -44,7 +44,7 @@ int TestHyperTreeGridTernary3DGeometryMaterialBits( int argc, char* argv[] )
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
-  htGrid->UseMaterialMaskOn();
+  htGrid->UseMaskOn();
   const std::string descriptor = "RRR _R. _RR ..R _.R .R_ |" // Level 0 refinement
    "R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ...........................";
   const std::string materialMask = //"111 011 011 111 011 110|" // Level 0 materials are not needed, visible cells are described with LevelZeroMaterialIndex
@@ -56,8 +56,8 @@ int TestHyperTreeGridTernary3DGeometryMaterialBits( int argc, char* argv[] )
   vtkBitArray* desc = htGrid->ConvertDescriptorStringToBitArray( descriptor );
   htGrid->SetDescriptorBits(desc);
   desc->Delete();
-  vtkBitArray* mat = htGrid->ConvertMaterialMaskStringToBitArray( materialMask );
-  htGrid->SetMaterialMaskBits(mat);
+  vtkBitArray* mat = htGrid->ConvertMaskStringToBitArray( materialMask );
+  htGrid->SetMaskBits(mat);
   mat->Delete();
   htGrid->Update();
 

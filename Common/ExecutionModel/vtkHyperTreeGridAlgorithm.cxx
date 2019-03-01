@@ -16,11 +16,11 @@
 
 #include "vtkBitArray.h"
 #include "vtkCommand.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"

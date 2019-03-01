@@ -84,7 +84,7 @@ int vtkUniformHyperTreeGridSource::RequestData( vtkInformation*,
   output->SetDimension( this->Dimension );
   output->SetOrientation( this->Orientation );
   output->SetBranchFactor( this->BranchFactor );
-//JBDEL2  output->SetMaterialMaskIndex( this->LevelZeroMaterialIndex );
+//JBDEL2  output->SetMaskIndex( this->LevelZeroMaterialIndex );
 
   //  Set parameters that depend on dimension
   switch ( this->Dimension )
@@ -310,7 +310,7 @@ int vtkUniformHyperTreeGridSource::RequestData( vtkInformation*,
     outData->GetArray( a )->Squeeze();
   }
 
-  assert( "post: dataset_and_data_size_match" && output->CheckAttributes() == 0 );
+  assert( "post: dataset_and_data_size_match" );//DDM && output->CheckAttributes() == 0 );
 
   this->LevelBitsIndexCnt.clear();
   this->LevelBitsIndex.clear();

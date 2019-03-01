@@ -24,6 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -45,6 +46,10 @@ int TestHyperTreeGridBinary2D( int argc, char* argv[] )
   htGrid->SetBranchFactor( 2 );
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
 
+  // DualGrid
+  vtkNew<vtkHyperTreeGridToDualGrid> dualFilter;
+  dualFilter->SetInputConnection( htGrid->GetOutputPort() );
+
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
@@ -55,7 +60,7 @@ int TestHyperTreeGridBinary2D( int argc, char* argv[] )
   vtkNew<vtkContourFilter> contour;
   int nContours = 3;
   contour->SetNumberOfContours( nContours );
-  contour->SetInputConnection( htGrid->GetOutputPort() );
+  contour->SetInputConnection( dualFilter->GetOutputPort() );
   double resolution = ( maxLevel - 1 ) / ( nContours + 1. );
   double isovalue = resolution;
   for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
@@ -75,7 +80,7 @@ int TestHyperTreeGridBinary2D( int argc, char* argv[] )
   mapper3->SetInputConnection( contour->GetOutputPort() );
   mapper3->ScalarVisibilityOff();
   vtkNew<vtkDataSetMapper> mapper4;
-  mapper4->SetInputConnection( htGrid->GetOutputPort() );
+  mapper4->SetInputConnection( dualFilter->GetOutputPort() );
   mapper4->ScalarVisibilityOff();
 
   // Actors

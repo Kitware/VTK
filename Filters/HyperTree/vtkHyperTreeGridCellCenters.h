@@ -91,7 +91,7 @@ protected:
   vtkPointData* InPointData;
   vtkPointData* OutPointData;
 
-  vtkBitArray* InMaterialMask;
+  vtkBitArray* InMask;
 
 private:
   vtkHyperTreeGridCellCenters(const vtkHyperTreeGridCellCenters&) = delete;

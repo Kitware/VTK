@@ -22,6 +22,7 @@
 #include "vtkCamera.h"
 #include "vtkPointData.h"
 #include "vtkContourFilter.h"
+#include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
 #include "vtkProperty.h"
@@ -41,19 +42,23 @@ int TestHyperTreeGridTernary3DDualContourMaterial( int argc, char* argv[] )
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
-  htGrid->UseMaterialMaskOn();
+  htGrid->UseMaskOn();
   htGrid->SetDescriptor( "RRR .R. .RR ..R ..R .R.|R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ..........................." );
-  htGrid->SetMaterialMask( "111 011 011 111 011 110|111111111111111111111111111 111111111111111111111111111 000000000100110111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 000110011100000100100010100|000001011011111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111001111111101111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111|000000000111100100111100100 000000000111001001111001001 000000111100100111111111111 000000111001001111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 110110110100111110111000000|111111111111111111111111111  11111111111111111111111111" );
+  htGrid->SetMask( "111 011 011 111 011 110|111111111111111111111111111 111111111111111111111111111 000000000100110111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 000110011100000100100010100|000001011011111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111001111111101111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111|000000000111100100111100100 000000000111001001111001001 000000111100100111111111111 000000111001001111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 110110110100111110111000000|111111111111111111111111111  11111111111111111111111111" );
+
+  // DualGrid
+  vtkNew<vtkHyperTreeGridToDualGrid> dualFilter;
+  dualFilter->SetInputConnection( htGrid->GetOutputPort() );
 
   // Outline
   vtkNew<vtkOutlineFilter> outline;
-  outline->SetInputConnection( htGrid->GetOutputPort() );
+  outline->SetInputConnection( dualFilter->GetOutputPort() );
 
   // Contour
   vtkNew<vtkContourFilter> contour;
   int nContours = 4;
   contour->SetNumberOfContours( nContours );
-  contour->SetInputConnection( htGrid->GetOutputPort() );
+  contour->SetInputConnection( dualFilter->GetOutputPort() );
   contour->GenerateTrianglesOn();
   double resolution = ( maxLevel - 1 ) / ( nContours + 1. );
   double isovalue = resolution;
@@ -83,10 +88,12 @@ int TestHyperTreeGridTernary3DDualContourMaterial( int argc, char* argv[] )
   actor2->SetMapper( mapper2 );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
+  actor2->GetProperty()->SetInterpolationToFlat();
   vtkNew<vtkActor> actor3;
   actor3->SetMapper( mapper3 );
   actor3->GetProperty()->SetColor( .1, .1, .1 );
   actor3->GetProperty()->SetLineWidth( 1 );
+  actor3->GetProperty()->SetInterpolationToFlat();
 
   // Camera
   double bd[6];
@@ -117,7 +124,7 @@ int TestHyperTreeGridTernary3DDualContourMaterial( int argc, char* argv[] )
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin, 95 );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 40 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

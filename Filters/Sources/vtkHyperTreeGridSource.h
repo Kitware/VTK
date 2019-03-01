@@ -159,9 +159,9 @@ public:
    * NB: This is only used when UseDescriptor is ON
    * Default: false
    */
-  vtkSetMacro(UseMaterialMask, bool);
-  vtkGetMacro(UseMaterialMask, bool);
-  vtkBooleanMacro(UseMaterialMask, bool);
+  vtkSetMacro(UseMask, bool);
+  vtkGetMacro(UseMask, bool);
+  vtkBooleanMacro(UseMask, bool);
   //@}
 
   //@{
@@ -187,8 +187,8 @@ public:
   /**
    * Set/Get the string used to as a material mask.
    */
-  vtkSetStringMacro(MaterialMask);
-  vtkGetStringMacro(MaterialMask);
+  vtkSetStringMacro(Mask);
+  vtkGetStringMacro(Mask);
   //@}
 
   //@{
@@ -208,8 +208,8 @@ public:
   /**
    * Set/Get the bitarray used as a material mask.
    */
-  virtual void SetMaterialMaskBits( vtkBitArray* );
-  vtkGetObjectMacro( MaterialMaskBits, vtkBitArray );
+  virtual void SetMaskBits( vtkBitArray* );
+  vtkGetObjectMacro( MaskBits, vtkBitArray );
   //@}
 
   //@{
@@ -239,7 +239,7 @@ public:
    * Helpers to convert string descriptors & mask to bit arrays
    */
   vtkBitArray* ConvertDescriptorStringToBitArray( const std::string& );
-  vtkBitArray* ConvertMaterialMaskStringToBitArray( const std::string& );
+  vtkBitArray* ConvertMaskStringToBitArray( const std::string& );
   //@}
 
 protected:
@@ -328,7 +328,7 @@ protected:
   unsigned int BranchFactor;
   unsigned int BlockSize;
   bool UseDescriptor;
-  bool UseMaterialMask;
+  bool UseMask;
   bool GenerateInterfaceFields;
 
   vtkDataArray* XCoordinates;
@@ -336,12 +336,12 @@ protected:
   vtkDataArray* ZCoordinates;
 
   char* Descriptor;
-  char* MaterialMask;
+  char* Mask;
   std::vector<std::string> LevelDescriptors;
-  std::vector<std::string> LevelMaterialMasks;
+  std::vector<std::string> LevelMasks;
 
   vtkBitArray* DescriptorBits;
-  vtkBitArray* MaterialMaskBits;
+  vtkBitArray* MaskBits;
   std::vector<vtkIdType> LevelBitsIndex;
   std::vector<vtkIdType> LevelBitsIndexCnt;
 

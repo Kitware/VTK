@@ -169,7 +169,7 @@ protected:
    */
   vtkDataArray* InScalars;
 
-  vtkBitArray* InMaterialMask;
+  vtkBitArray* InMask;
 
 private:
   vtkHyperTreeGridContour(const vtkHyperTreeGridContour&) = delete;

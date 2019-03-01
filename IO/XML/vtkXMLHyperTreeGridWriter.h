@@ -25,13 +25,9 @@
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
-#include "vtkNew.h" // For ivar
 
-class OffsetsManagerGroup;
-class vtkBitArray;
-class vtkIdTypeArray;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridCursor;
+class vtkHyperTreeGridNonOrientedCursor;
 
 class VTKIOXML_EXPORT vtkXMLHyperTreeGridWriter : public vtkXMLWriter
 {
@@ -39,6 +35,24 @@ public:
   vtkTypeMacro(vtkXMLHyperTreeGridWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLHyperTreeGridWriter* New();
+
+  //@{
+  /**
+   * Get/Set the number of pieces used to stream the table through the
+   * pipeline while writing to the file.
+   */
+  vtkSetMacro(NumberOfPieces, int);
+  vtkGetMacro(NumberOfPieces, int);
+  //@}
+
+  //@{
+  /**
+   * Get/Set the piece to write to the file.  If this is
+   * negative or equal to the NumberOfPieces, all pieces will be written.
+   */
+  vtkSetMacro(WritePiece, int);
+  vtkGetMacro(WritePiece, int);
+  //@}
 
   /**
    * Get/Set the writer's input.
@@ -68,31 +82,24 @@ protected:
   // ... dim, size, origin>
   void WritePrimaryElementAttributes(ostream &, vtkIndent) override;
 
-  // Grid coordinates (if origin and scale are not specified)
-  int WriteGridCoordinates(vtkIndent);
+  // Grid coordinates and mask
+  int WriteGrid(vtkIndent);
 
-  // Tree Structure
-  int WriteDescriptor(vtkIndent);
-
-  // Writes PointData and CellData attribute data.
-  int WriteAttributeData(vtkIndent);
+  // Tree Descriptor and  PointData
+  int WriteTrees(vtkIndent);
 
   // </HyperTreeGrid>
   int FinishPrimaryElement(vtkIndent);
 
-  // Helper to simplify writing appended array data
-  void WriteAppendedArrayDataHelper(vtkAbstractArray *array,
-                                    OffsetsManager &offsets);
+  /**
+   * Number of pieces used for streaming.
+   */
+  int NumberOfPieces;
 
-  OffsetsManagerGroup *CoordsOMG;
-
-  vtkNew<vtkBitArray> Descriptor;
-  OffsetsManager *DescriptorOM;
-
-  vtkIdTypeArray *MaterialMask;
-  OffsetsManager *MaterialMaskOM;
-
-  OffsetsManagerGroup *AttributeDataOMG;
+  /**
+   * Which piece to write, if not all.
+   */
+  int WritePiece;
 
 private:
   vtkXMLHyperTreeGridWriter(const vtkXMLHyperTreeGridWriter&) = delete;

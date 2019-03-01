@@ -67,7 +67,7 @@ vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
   this->InsideOut = 0;
 
   // This filter always creates an output with a material mask
-  this->OutMaterialMask = vtkBitArray::New();
+  this->OutMask = vtkBitArray::New();
 
   // Output indices begin at 0
   this->CurrentId = 0;
@@ -79,10 +79,10 @@ vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridAxisClip::~vtkHyperTreeGridAxisClip()
 {
-  if( this->OutMaterialMask )
+  if( this->OutMask )
   {
-    this->OutMaterialMask->Delete();
-    this->OutMaterialMask = nullptr;
+    this->OutMask->Delete();
+    this->OutMask = nullptr;
   }
 
   if ( this->Quadric )
@@ -105,7 +105,7 @@ void vtkHyperTreeGridAxisClip::PrintSelf( ostream& os, vtkIndent indent )
      <<  this->Bounds[2] << "-" <<  this->Bounds[3] << ", "
      <<  this->Bounds[4] << "-" <<  this->Bounds[5] << endl;
   os << indent << "InsideOut: " << this->InsideOut << endl;
-  os << indent << "OutMaterialMask: " << this->OutMaterialMask << endl;
+  os << indent << "OutMask: " << this->OutMask << endl;
   os << indent << "CurrentId: " << this->CurrentId << endl;
 
   if ( this->Quadric )
@@ -337,7 +337,7 @@ int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
   output->SetOrientation( input->GetOrientation() );
   output->SetTransposedRootIndexing( input->GetTransposedRootIndexing() );
   output->SetBranchFactor( input->GetBranchFactor() );
-//JBDEL2  output->SetMaterialMaskIndex( input->GetMaterialMaskIndex() );
+//JBDEL2  output->SetMaskIndex( input->GetMaskIndex() );
   output->SetHasInterface( input->GetHasInterface() );
   output->SetInterfaceNormalsName( input->GetInterfaceNormalsName() );
   output->SetInterfaceInterceptsName( input->GetInterfaceInterceptsName() );
@@ -351,7 +351,7 @@ int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
   this->CurrentId = 0;
 
   // Retrieve material mask
-  this->InMaterialMask = input->HasMaterialMask() ? input->GetMaterialMask() : 0;
+  this->InMask = input->HasMask() ? input->GetMask() : 0;
 
   // Storage for Cartesian indices
   unsigned int cart[3];
@@ -468,13 +468,13 @@ int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
   } // it
 
   // Set material mask index
-//JBDEL2   output->SetMaterialMaskIndex( position );
+//JBDEL2   output->SetMaskIndex( position );
 
   // Squeeze and set output material mask if necessary
-  if( this->OutMaterialMask )
+  if( this->OutMask )
   {
-    this->OutMaterialMask->Squeeze();
-    output->SetMaterialMask( this->OutMaterialMask );
+    this->OutMask->Squeeze();
+    output->SetMask( this->OutMask );
   }
 
   return 1;
@@ -523,12 +523,12 @@ void vtkHyperTreeGridAxisClip::RecursivelyProcessTree( vtkHyperTreeGridNonOrient
       inCursor->ToParent();
     } // inChild
   } // if ( ! cursor->IsLeaf() && ! clipped )
-  else if ( ! clipped && this->InMaterialMask && this->InMaterialMask->GetValue( inId ) )
+  else if ( ! clipped && this->InMask && this->InMask->GetValue( inId ) )
   {
     // Handle case of not clipped but nonetheless masked leaf cells
     clipped = true;
   } // else
 
   // Mask output cell if necessary
-  this->OutMaterialMask->InsertTuple1 ( outId, clipped );
+  this->OutMask->InsertTuple1 ( outId, clipped );
 }

@@ -357,7 +357,7 @@ protected:
   vtkTexture *Texture;
   vtkTypeBool PickTextureData;
 
-  vtkBitArray* InMaterialMask;
+  vtkBitArray* InMask;
   double WordlPoint[3];
 
 private:

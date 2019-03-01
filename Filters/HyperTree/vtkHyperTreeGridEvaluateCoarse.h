@@ -155,7 +155,7 @@ private:
 
   std::vector<vtkDataArray*> Arrays;
 
-  vtkBitArray* MaterialMask;
+  vtkBitArray* Mask;
 };
 
 #endif // vtkHyperTreeGridEvaluateCoarse_h

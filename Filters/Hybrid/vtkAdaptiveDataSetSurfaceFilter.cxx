@@ -158,7 +158,7 @@ int vtkAdaptiveDataSetSurfaceFilter::RequestData( vtkInformation* request,
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // Get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
+  vtkDataObject *input = vtkDataObject::SafeDownCast(
     inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
@@ -173,14 +173,17 @@ int vtkAdaptiveDataSetSurfaceFilter::RequestData( vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkAdaptiveDataSetSurfaceFilter::DataSetExecute( vtkDataSet* inputDS,
+int vtkAdaptiveDataSetSurfaceFilter::DataSetExecute( vtkDataObject* inputDS,
                                                      vtkPolyData* output )
 {
   // Retrieve input grid
   vtkHyperTreeGrid* input = vtkHyperTreeGrid::SafeDownCast( inputDS );
   if ( ! input )
   {
-    return vtkDataSetSurfaceFilter::DataSetExecute( inputDS, output );
+cout << "ERROR HERE IN vtkAdaptiveDataSetSurfaceFilter::DataSetExecute\n";
+cout << "ERROR HERE IN vtkAdaptiveDataSetSurfaceFilter::DataSetExecute\n";
+cout << "ERROR HERE IN vtkAdaptiveDataSetSurfaceFilter::DataSetExecute\n";
+    return -1;//vtkDataSetSurfaceFilter::DataSetExecute( inputDS, output );
   }
 
   // Retrieve useful grid parameters for speed of access
@@ -191,6 +194,7 @@ int vtkAdaptiveDataSetSurfaceFilter::DataSetExecute( vtkDataSet* inputDS,
   this->InData = static_cast<vtkDataSetAttributes*>( input->GetPointData() );
   this->OutData = static_cast<vtkDataSetAttributes*>( output->GetCellData() );
   this->OutData->CopyAllocate( this->InData );
+/* JD JD JD
   if ( this->PassThroughCellIds )
   {
     this->OriginalCellIds = vtkIdTypeArray::New();
@@ -198,7 +202,7 @@ int vtkAdaptiveDataSetSurfaceFilter::DataSetExecute( vtkDataSet* inputDS,
     this->OriginalCellIds->SetNumberOfComponents( 1 );
     this->OutData->AddArray( this->OriginalCellIds );
   }
-
+*/
   // Init renderer information
   if ( this->ViewPointDepend && this->ParallelProjection && this->Renderer )
   {
@@ -321,6 +325,13 @@ int vtkAdaptiveDataSetSurfaceFilter::DataSetExecute( vtkDataSet* inputDS,
   return 1;
 }
 
+//----------------------------------------------------------------------------
+int vtkAdaptiveDataSetSurfaceFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  return 1;
+}
+
 //-----------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees( vtkHyperTreeGrid* input,
                                                     vtkPolyData* output )
@@ -347,10 +358,10 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees( vtkHyperTreeGrid* input,
   }
 
   // Retrieve material mask
-  this->MaterialMask = input->HasMaterialMask() ? input->GetMaterialMask() : 0;
+  this->Mask = input->HasMask() ? input->GetMask() : 0;
 
   //
-  vtkUnsignedCharArray* ghost = input->GetPointGhostArray();
+  vtkUnsignedCharArray* ghost = nullptr; //DDM input->GetPointGhostArray();
   if ( ghost )
   {
     this->OutData->CopyFieldOff( vtkDataSetAttributes::GhostArrayName() );
@@ -555,7 +566,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf2D( vtkHyperTreeGridNonOriented
   }
 
   // In 2D all unmasked faces are generated
-  if ( ! this->MaterialMask  || ! this->MaterialMask->GetValue( id ) )
+  if ( ! this->Mask  || ! this->Mask->GetValue( id ) )
   {
     // Insert face into 2D geometry depending on orientation
     this->AddFace( id, cursor->GetOrigin(), cursor->GetSize(), 0, this->Orientation );
@@ -593,7 +604,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf3D(
   // Cell at super cursor center is a leaf, retrieve its global index, level, and mask
   vtkIdType idcenter = superCursor->GetGlobalNodeIndex();
   unsigned level = superCursor->GetLevel();
-  int masked = this->MaterialMask ? this->MaterialMask->GetValue( idcenter ) : 0;
+  int masked = this->Mask ? this->Mask->GetValue( idcenter ) : 0;
 
   // Iterate over all cursors of Von Neumann neighborhood around center
   unsigned int nc = superCursor->GetNumberOfCursors() - 1;
@@ -609,7 +620,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf3D(
     int maskedN = 1;
     if ( treeN )
     {
-      maskedN = this->MaterialMask ? this->MaterialMask->GetValue( idN ) : 0;
+      maskedN = this->Mask ? this->Mask->GetValue( idN ) : 0;
     }
 
     // In 3D masked and unmasked cells are handled differently:

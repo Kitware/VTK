@@ -34,7 +34,7 @@
 #define vtkAdaptiveDataSetSurfaceFilter_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
-#include "vtkDataSetSurfaceFilter.h"
+#include "vtkGeometryFilter.h"
 
 class vtkBitArray;
 class vtkCamera;
@@ -44,11 +44,11 @@ class vtkRenderer;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 class vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight;
 
-class VTKFILTERSHYBRID_EXPORT vtkAdaptiveDataSetSurfaceFilter : public vtkDataSetSurfaceFilter
+class VTKFILTERSHYBRID_EXPORT vtkAdaptiveDataSetSurfaceFilter : public vtkGeometryFilter
 {
 public:
   static vtkAdaptiveDataSetSurfaceFilter* New();
-  vtkTypeMacro( vtkAdaptiveDataSetSurfaceFilter, vtkDataSetSurfaceFilter );
+  vtkTypeMacro( vtkAdaptiveDataSetSurfaceFilter, vtkGeometryFilter );
   void PrintSelf( ostream&, vtkIndent ) override;
 
   //@{
@@ -118,18 +118,6 @@ public:
   vtkGetMacro( DynamicDecimateLevelMax, int );
   //@}
 
-  //@{
-  /**
-   * Turn on/off merging of coincident points. Note that is merging is
-   * on, points with different point attributes (e.g., normals) are merged,
-   * which may cause rendering artifacts.
-   * JB L'implique sur le temps de restitution peut etre fortement impacte
-   * (x2 dans certain cas).
-   */
-  vtkSetMacro( Merging, bool );
-  vtkGetMacro( Merging, bool );
-  //@}
-
 protected:
   vtkAdaptiveDataSetSurfaceFilter();
   ~vtkAdaptiveDataSetSurfaceFilter() override;
@@ -137,7 +125,8 @@ protected:
   int RequestData( vtkInformation* vtkNotUsed(request),
                    vtkInformationVector** inputVector,
                    vtkInformationVector* outputVector ) override;
-  int DataSetExecute( vtkDataSet* input, vtkPolyData* output ) override;
+  int DataSetExecute( vtkDataObject* input, vtkPolyData* output ) /*override*/;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   /**
    * Main routine to generate external boundary
@@ -184,9 +173,9 @@ protected:
   unsigned int Orientation;
 
   /**
-   * Material Mashk
+   * Visibility Mask
    */
-  vtkBitArray* MaterialMask;
+  vtkBitArray* Mask;
 
   /**
    * Storage for points of output unstructured mesh
@@ -202,7 +191,6 @@ protected:
    *JB Un locator est utilise afin de produire un maillage avec moins
    *JB de points. Le gain en 3D est de l'ordre d'un facteur 4 !
    */
-  bool Merging;
   vtkIncrementalPointLocator* Locator;
 
   /**

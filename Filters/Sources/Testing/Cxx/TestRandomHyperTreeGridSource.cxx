@@ -82,7 +82,7 @@ void ConstructScene(vtkRenderer *renderer, int numPieces)
   renderer->AddActor(label);
 
   renderer->ResetCamera();
-  renderer->GetActiveCamera()->Zoom(1.25);
+  renderer->GetActiveCamera()->Zoom(1.3);
 }
 
 } // end anon namespace

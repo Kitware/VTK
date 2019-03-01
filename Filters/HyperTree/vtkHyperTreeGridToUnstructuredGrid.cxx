@@ -115,7 +115,7 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees( vtkHyperTreeGrid* input,
   this->OutData->CopyAllocate( this->InData );
 
   // Retrieve material mask
-  this->MaterialMask = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
+  this->Mask = input->HasMask() ? input->GetMask() : nullptr;
 
   // Iterate over all hyper trees
   vtkIdType index;
@@ -140,7 +140,7 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees( vtkHyperTreeGrid* input,
       break;
     case 2:
       // 2D cells are quadrilaterals
-      output->SetCells( VTK_QUAD, this->Cells );
+      output->SetCells( VTK_PIXEL, this->Cells );
       break;
     case 3:
       // 3D cells are voxels (i.e. hexahedra with indexing order equal to that of cursors)
@@ -163,7 +163,7 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursivelyProcessTree( vtkHyperTreeGri
     vtkIdType id = cursor->GetGlobalNodeIndex();
 
     // If leaf is masked, skip it
-    if ( this->MaterialMask && this->MaterialMask->GetValue( id ) )
+    if ( this->Mask && this->Mask->GetValue( id ) )
     {
       return;
     }

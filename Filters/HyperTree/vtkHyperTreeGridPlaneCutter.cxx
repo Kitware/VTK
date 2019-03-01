@@ -200,7 +200,7 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
   this->InData  = input->GetPointData();
 
   // Retrieve material mask
-  this->InMaterialMask = input->HasMaterialMask() ? input->GetMaterialMask() : 0;
+  this->InMask = input->HasMask() ? input->GetMask() : 0;
 
   // Compute cut on dual or primal input depending on specification
   if ( this->Dual )
@@ -243,7 +243,7 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
 
     // Create storage to keep track of selected cells
     this->SelectedCells = vtkBitArray::New();
-    vtkIdType numCells = input->GetNumberOfPoints();
+    vtkIdType numCells = input->GetNumberOfVertices();
     this->SelectedCells->SetNumberOfTuples( numCells );
     for ( vtkIdType i = 0; i < numCells; ++ i )
     {
@@ -320,7 +320,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
 {
   // If cursor is at a masked cell stop recursion
   vtkIdType inId = cursor->GetGlobalNodeIndex();
-  if ( this->InMaterialMask && this->InMaterialMask->GetValue( inId ) )
+  if ( this->InMask && this->InMask->GetValue( inId ) )
   {
     return;
   }
@@ -419,7 +419,7 @@ bool vtkHyperTreeGridPlaneCutter::RecursivelyPreProcessTree( vtkHyperTreeGridNon
 {
   // If cursor is at a masked cell stop recursion
   vtkIdType id = cursor->GetGlobalNodeIndex();
-  if ( this->InMaterialMask && this->InMaterialMask->GetValue( id ) )
+  if ( this->InMask && this->InMask->GetValue( id ) )
   {
     return false;
   }
@@ -474,7 +474,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual( vtkHyperTreeGridNo
 {
   // If cursor is at a masked cell stop recursion
   vtkIdType id = cursor->GetGlobalNodeIndex();
-  if ( this->InMaterialMask && this->InMaterialMask->GetValue( id ) )
+  if ( this->InMask && this->InMask->GetValue( id ) )
   {
     return;
   }

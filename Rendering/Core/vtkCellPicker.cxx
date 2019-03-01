@@ -812,7 +812,7 @@ double vtkCellPicker::IntersectHyperTreeGridWithLine( const double p1[3],
   double scale[3];
   grid->GetGridScale( scale );
   int extent[6];
-  grid->GetGridExtent( extent );
+  grid->GetExtent( extent );
 
   // Determine normal vector of the grid
   double normal[] = { 0., 0., 0., 1. };
@@ -915,12 +915,18 @@ double vtkCellPicker::IntersectHyperTreeGridWithLine( const double p1[3],
     grid->GetIndexFromLevelZeroCoordinates( index, i, j, k );
 
     // Retrieve material mask
-    this->InMaterialMask = grid->HasMaterialMask() ? grid->GetMaterialMask() : nullptr;
+    this->InMask = grid->HasMask() ? grid->GetMask() : nullptr;
 
     // Reset pick information
     this->ResetPickInfo();
     this->Mapper = mapper;
-    this->DataSet = grid;
+
+    //DDM
+    this->DataSet = nullptr;// grid;
+    //abstractHTGmapper is not in cmakelists, so this function is all dead code
+    //when we do make start to exercise this we can add a new dataobject to vtkPicker::DataObject and set that instead of dataset
+    //DDM
+
     this->SubId = 0;
     this->PointId = -1;
 
@@ -945,7 +951,7 @@ double vtkCellPicker::IntersectHyperTreeGridWithLine( const double p1[3],
     }
 
     // If picked cell is masked then no picking occurred
-    if ( this->InMaterialMask && this->InMaterialMask->GetValue( this->CellId ) )
+    if ( this->InMask && this->InMask->GetValue( this->CellId ) )
     {
       return VTK_DOUBLE_MAX;
     }
