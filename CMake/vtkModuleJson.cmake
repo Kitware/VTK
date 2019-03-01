@@ -62,7 +62,7 @@ Example output:
         "..."
       ]
     }
-  ]
+  ],
   "kits": [
     {
       "name": "...",
