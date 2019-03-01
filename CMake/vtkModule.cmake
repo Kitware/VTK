@@ -2548,8 +2548,8 @@ function (_vtk_module_write_wrap_hierarchy)
     "$<TARGET_PROPERTY:${_vtk_add_module_target_name_iface},INCLUDE_DIRECTORIES>")
   file(GENERATE
     OUTPUT  "${_vtk_hierarchy_args_file}"
-    CONTENT "$<$<BOOL:${_vtk_hierarchy_genex_compile_definitions}>:\n-D\"$<JOIN:${_vtk_hierarchy_genex_compile_definitions},\"\n-D\">\">\n
-$<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\"$<JOIN:${_vtk_hierarchy_genex_include_directories},\"\n-I\">\">\n")
+    CONTENT "$<$<BOOL:${_vtk_hierarchy_genex_compile_definitions}>:\n-D\'$<JOIN:${_vtk_hierarchy_genex_compile_definitions},\'\n-D\'>\'>\n
+$<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierarchy_genex_include_directories},\'\n-I\'>\'>\n")
 
   get_property(_vtk_hierarchy_depends_is_global GLOBAL
     PROPERTY  "_vtk_module_${_vtk_build_module}_depends"
