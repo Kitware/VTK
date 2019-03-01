@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkDistributedDataFilter.h
+  Module:    vtkPDistributedDataFilter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,7 +18,7 @@
 ----------------------------------------------------------------------------*/
 
 /**
- * @class   vtkDistributedDataFilter
+ * @class   vtkPDistributedDataFilter
  * @brief   Distribute data among processors
  *
  *
@@ -86,32 +86,32 @@
  * vtkKdTree vtkPKdTree vtkBSPCuts
 */
 
-#ifndef vtkDistributedDataFilter_h
-#define vtkDistributedDataFilter_h
+#ifndef vtkPDistributedDataFilter_h
+#define vtkPDistributedDataFilter_h
 
-#include "vtkFiltersParallelMPIModule.h" // For export macro
+#include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
 
 class vtkBSPCuts;
 class vtkDataArray;
-class vtkDistributedDataFilterSTLCloak;
 class vtkFloatArray;
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkIntArray;
 class vtkMultiProcessController;
+class vtkPDistributedDataFilterSTLCloak;
 class vtkPKdTree;
 class vtkUnstructuredGrid;
 
-class VTKFILTERSPARALLELMPI_EXPORT vtkDistributedDataFilter: public vtkDataObjectAlgorithm
+class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPDistributedDataFilter: public vtkDataObjectAlgorithm
 {
-  vtkTypeMacro(vtkDistributedDataFilter,
+  vtkTypeMacro(vtkPDistributedDataFilter,
     vtkDataObjectAlgorithm);
 
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkDistributedDataFilter *New();
+  static vtkPDistributedDataFilter *New();
 
   //@{
   /**
@@ -191,13 +191,13 @@ public:
    */
   void SetBoundaryMode(int mode);
   void SetBoundaryModeToAssignToOneRegion()
-    { this->SetBoundaryMode(vtkDistributedDataFilter::ASSIGN_TO_ONE_REGION); }
+    { this->SetBoundaryMode(vtkPDistributedDataFilter::ASSIGN_TO_ONE_REGION); }
   void SetBoundaryModeToAssignToAllIntersectingRegions()
   { this->SetBoundaryMode(
-      vtkDistributedDataFilter::ASSIGN_TO_ALL_INTERSECTING_REGIONS);
+      vtkPDistributedDataFilter::ASSIGN_TO_ALL_INTERSECTING_REGIONS);
   }
   void SetBoundaryModeToSplitBoundaryCells()
-    { this->SetBoundaryMode(vtkDistributedDataFilter::SPLIT_BOUNDARY_CELLS); }
+    { this->SetBoundaryMode(vtkPDistributedDataFilter::SPLIT_BOUNDARY_CELLS); }
   int GetBoundaryMode();
   //@}
 
@@ -262,8 +262,8 @@ public:
   void SetUserRegionAssignments(const int *map, int numRegions);
 
 protected:
-  vtkDistributedDataFilter();
-  ~vtkDistributedDataFilter();
+  vtkPDistributedDataFilter();
+  ~vtkPDistributedDataFilter();
 
   /**
    * Another way to set ClipCells and IncludeAllIntersectingCells.
@@ -511,14 +511,14 @@ private:
    * ?
    */
   vtkIdTypeArray **MakeProcessLists(vtkIdTypeArray **pointIds,
-                                 vtkDistributedDataFilterSTLCloak *procs);
+                                 vtkPDistributedDataFilterSTLCloak *procs);
 
   /**
    * ?
    */
   vtkIdList **BuildRequestedGrids( vtkIdTypeArray **globalPtIds,
                         vtkUnstructuredGrid *grid,
-                        vtkDistributedDataFilterSTLCloak *ptIdMap);
+                        vtkPDistributedDataFilterSTLCloak *ptIdMap);
 
   //@{
   /**
@@ -538,14 +538,14 @@ private:
                                     int AddCellsIAlreadyHave);
   vtkUnstructuredGrid *AddGhostCellsUniqueCellAssignment(
                            vtkUnstructuredGrid *myGrid,
-                           vtkDistributedDataFilterSTLCloak *globalToLocalMap);
+                           vtkPDistributedDataFilterSTLCloak *globalToLocalMap);
   vtkUnstructuredGrid *AddGhostCellsDuplicateCellAssignment(
                            vtkUnstructuredGrid *myGrid,
-                           vtkDistributedDataFilterSTLCloak *globalToLocalMap);
+                           vtkPDistributedDataFilterSTLCloak *globalToLocalMap);
   vtkUnstructuredGrid *SetMergeGhostGrid(
                        vtkUnstructuredGrid *ghostCellGrid,
                        vtkUnstructuredGrid *incomingGhostCells,
-                       int ghostLevel, vtkDistributedDataFilterSTLCloak *idMap);
+                       int ghostLevel, vtkPDistributedDataFilterSTLCloak *idMap);
   //@}
 
   //@{
@@ -564,7 +564,7 @@ private:
    * ?
    */
   static int GlobalPointIdIsUsed(vtkUnstructuredGrid *grid,
-               int ptId, vtkDistributedDataFilterSTLCloak *globalToLocal);
+               int ptId, vtkPDistributedDataFilterSTLCloak *globalToLocal);
   static int LocalPointIdIsUsed(vtkUnstructuredGrid *grid, int ptId);
   static vtkIdType FindId(vtkIdTypeArray *ids, vtkIdType gid, vtkIdType startLoc);
   //@}
@@ -638,8 +638,8 @@ private:
 
   vtkBSPCuts* UserCuts;
 
-  vtkDistributedDataFilter(const vtkDistributedDataFilter&) = delete;
-  void operator=(const vtkDistributedDataFilter&) = delete;
+  vtkPDistributedDataFilter(const vtkPDistributedDataFilter&) = delete;
+  void operator=(const vtkPDistributedDataFilter&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

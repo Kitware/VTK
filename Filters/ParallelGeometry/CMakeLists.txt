@@ -13,6 +13,7 @@ vtk_object_factory_configure(
 set(classes
   vtkPConnectivityFilter
   vtkPDataSetGhostGenerator
+  vtkPDistributedDataFilter
   vtkPStructuredGridConnectivity
   vtkPStructuredGridGhostDataGenerator
   vtkPUniformGridGhostDataGenerator
