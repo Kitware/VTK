@@ -104,6 +104,10 @@ set(VTK_BUILD_TESTING "WANT"
 set_property(CACHE VTK_BUILD_TESTING
   PROPERTY
     STRINGS "ON;OFF;WANT")
+set(BUILD_TESTING OFF)
+if (VTK_BUILD_TESTING)
+  set(BUILD_TESTING ON)
+endif ()
 
 #-----------------------------------------------------------------------------
 # Add an option to enable/disable logging support.
