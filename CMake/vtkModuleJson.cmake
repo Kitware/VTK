@@ -60,6 +60,9 @@ Example output:
       ],
       "implements": [
         "..."
+      ],
+      "headers": [
+        "..."
       ]
     }
   ],
@@ -125,12 +128,24 @@ function (vtk_module_json)
       PROPERTY "_vtk_module_${_vtk_json_module}_implements")
     get_property(_vtk_json_library_name GLOBAL
       PROPERTY "_vtk_module_${_vtk_json_module}_library_name")
+    get_property(_vtk_json_module_file GLOBAL
+      PROPERTY "_vtk_module_${_vtk_json_module}_file")
 
     set(_vtk_json_kit_name "null")
     if (_vtk_json_kit)
       list(APPEND _vtk_json_kits
         "${_vtk_json_kit}")
       set(_vtk_json_kit_name "\"${_vtk_json_kit}\"")
+    endif ()
+    set(_vtk_json_headers "")
+    if (TARGET "${_vtk_json_module}")
+      _vtk_module_get_module_property("${_vtk_json_module}"
+        PROPERTY  "headers"
+        VARIABLE  _vtk_json_headers)
+      get_filename_component(_vtk_json_module_dir "${_vtk_json_module_file}" DIRECTORY)
+      file(RELATIVE_PATH _vtk_json_module_subdir "${CMAKE_SOURCE_DIR}" "${_vtk_json_module_dir}")
+      string(REPLACE "${CMAKE_SOURCE_DIR}/${_vtk_json_module_subdir}/" "" _vtk_json_headers "${_vtk_json_headers}")
+      string(REPLACE "${CMAKE_BINARY_DIR}/${_vtk_json_module_subdir}/" "" _vtk_json_headers "${_vtk_json_headers}")
     endif ()
 
     string(APPEND _vtk_json_contents "\"${_vtk_json_module}\": {")
@@ -145,6 +160,7 @@ function (vtk_module_json)
     _vtk_json_string_list(_vtk_json_contents "optional_depends" _vtk_json_optional_depends)
     _vtk_json_string_list(_vtk_json_contents "private_depends" _vtk_json_private_depends)
     _vtk_json_string_list(_vtk_json_contents "implements" _vtk_json_implements)
+    _vtk_json_string_list(_vtk_json_contents "headers" _vtk_json_headers)
     string(APPEND _vtk_json_contents "}, ")
   endforeach ()
   string(APPEND _vtk_json_contents "}, ")
