@@ -565,7 +565,7 @@ int vtkWrap_HasPublicDestructor(ClassInfo *data)
     func = data->Functions[i];
 
     if (vtkWrap_IsDestructor(data, func) &&
-        func->Access != VTK_ACCESS_PUBLIC)
+        (func->Access != VTK_ACCESS_PUBLIC || func->IsDeleted))
     {
       return 0;
     }
@@ -589,7 +589,7 @@ int vtkWrap_HasPublicCopyConstructor(ClassInfo *data)
         func->NumberOfParameters == 1 &&
         func->Parameters[0]->Class &&
         strcmp(func->Parameters[0]->Class, data->Name) == 0 &&
-        func->Access != VTK_ACCESS_PUBLIC)
+        (func->Access != VTK_ACCESS_PUBLIC || func->IsDeleted))
     {
       return 0;
     }
