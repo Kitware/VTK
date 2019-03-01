@@ -36,7 +36,7 @@ class vtkRenderer;
 class vtkTextActor3D;
 class vtkTextProperty;
 class vtkTextPropertyCollection;
-struct LabelHelper;
+struct PDILabelHelper;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkLabeledContourPolyDataItem : public vtkPolyDataItem
 {
@@ -127,7 +127,6 @@ protected:
   bool PlaceLabels();
   bool ResolveLabels();
   virtual bool CreateLabels();
-  bool RenderBackgrounds(vtkContext2D* painter);
   bool RenderLabels(vtkContext2D* painter);
 
   bool AllocateTextActors(vtkIdType num);
@@ -140,7 +139,7 @@ protected:
   vtkIdType NumberOfUsedTextActors;
   vtkTextActor3D **TextActors;
 
-  LabelHelper** LabelHelpers;
+  PDILabelHelper** LabelHelpers;
 
   vtkSmartPointer<vtkTextPropertyCollection> TextProperties;
   vtkSmartPointer<vtkDoubleArray> TextPropertyMapping;
