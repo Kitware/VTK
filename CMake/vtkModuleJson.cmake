@@ -123,6 +123,8 @@ function (vtk_module_json)
       PROPERTY "_vtk_module_${_vtk_json_module}_optional_depends")
     get_property(_vtk_json_implements GLOBAL
       PROPERTY "_vtk_module_${_vtk_json_module}_implements")
+    get_property(_vtk_json_library_name GLOBAL
+      PROPERTY "_vtk_module_${_vtk_json_module}_library_name")
 
     set(_vtk_json_kit_name "null")
     if (_vtk_json_kit)
@@ -130,21 +132,9 @@ function (vtk_module_json)
         "${_vtk_json_kit}")
       set(_vtk_json_kit_name "\"${_vtk_json_kit}\"")
     endif ()
-    set(_vtk_json_library_name "null")
-    if (TARGET "${_vtk_json_module}")
-      get_property(_vtk_json_library_type
-        TARGET    "${_vtk_json_module}"
-        PROPERTY  TYPE)
-      if (NOT _vtk_json_library_type STREQUAL "INTERFACE_LIBRARY")
-        get_property(_vtk_json_library
-          TARGET    "${_vtk_json_module}"
-          PROPERTY  LIBRARY_OUTPUT_NAME)
-        set(_vtk_json_library_name "\"${_vtk_json_library}\"")
-      endif ()
-    endif ()
 
     string(APPEND _vtk_json_contents "\"${_vtk_json_module}\": {")
-    string(APPEND _vtk_json_contents "\"library_name\": ${_vtk_json_library_name}, ")
+    string(APPEND _vtk_json_contents "\"library_name\": \"${_vtk_json_library_name}\", ")
     string(APPEND _vtk_json_contents "\"description\": \"${_vtk_json_description}\", ")
     _vtk_json_bool(_vtk_json_contents "enabled" "TARGET;${_vtk_json_module}")
     _vtk_json_bool(_vtk_json_contents "implementable" _vtk_json_implementable)
