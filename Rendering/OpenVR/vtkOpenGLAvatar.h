@@ -31,6 +31,8 @@ class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;
 class vtkOpenGLRenderer;
 class vtkOpenVRRay;
+class vtkBillboardTextActor3D;
+class vtkTextProperty;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenGLAvatar : public vtkAvatar
 {
@@ -55,6 +57,9 @@ public:
   void SetRightShowRay(bool v);
   void SetRayLength(double length);
 
+  void SetLabel(const char *label);
+  vtkTextProperty* GetLabelTextProperty();
+
 protected:
   vtkOpenGLAvatar();
   ~vtkOpenGLAvatar() override;
@@ -74,6 +79,7 @@ protected:
   vtkNew<vtkOpenVRRay> LeftRay;
   vtkNew<vtkOpenVRRay> RightRay;
 
+  vtkNew<vtkBillboardTextActor3D> LabelActor;
 
 private:
   vtkOpenGLAvatar(const vtkOpenGLAvatar&) = delete;

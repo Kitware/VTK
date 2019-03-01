@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkOpenGLAvatar.h"
 
+#include "vtkBillboardTextActor3D.h"
 #include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
@@ -31,6 +32,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
+#include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkVectorOperators.h"
@@ -128,7 +130,7 @@ void getElbowPosition(double *outElbow, double Vup[3], double inShoulder[3],
   {
     vtkVector3d planeNorm = shoulderHand.Cross(vtkVector3d(Vup));
     vtkVector3d toElbow = shoulderHand.Cross(planeNorm).Normalized();
-    // heron's formula to find height, using 1/2 perimeter
+    // heron's formula to find area, using 1/2 perimeter
     double p = 0.5 * (forearmLength + upperLength + shLength);
     double area =
       sqrt(p * (p - forearmLength) * (p - upperLength) * (p - shLength));
@@ -220,9 +222,9 @@ vtkOpenGLAvatar::vtkOpenGLAvatar()
     this->BodyActor[i]->SetProperty(this->GetProperty());
   }
 
-  // this->LeftRay->SetShow(true);
-  // this->RightRay->SetShow(true);
-
+  this->LabelActor->GetTextProperty()->SetFontSize ( 12 );
+  this->LabelActor->GetTextProperty()->SetColor ( 1.0, 1.0, .4 );
+  this->LabelActor->GetTextProperty()->SetJustificationToCentered();
 }
 
 vtkOpenGLAvatar::~vtkOpenGLAvatar() = default;
@@ -318,6 +320,10 @@ void vtkOpenGLAvatar::Render(vtkRenderer *ren, vtkMapper *mapper)
       }
     }
   }
+  vtkVector3d labelPos = vtkVector3d(this->HeadPosition) + 0.7 * this->GetScale()[0] * vtkVector3d(this->UpVector);
+  this->LabelActor->SetPosition(labelPos.GetData());
+  ren->AddActor(this->LabelActor);
+
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
@@ -486,4 +492,14 @@ void vtkOpenGLAvatar::SetRayLength(double length)
 {
   this->LeftRay->SetLength(length);
   this->RightRay->SetLength(length);
+}
+
+void vtkOpenGLAvatar::SetLabel(const char *label)
+{
+  this->LabelActor->SetInput(label);
+}
+
+vtkTextProperty* vtkOpenGLAvatar::GetLabelTextProperty()
+{
+  return this->LabelActor->GetTextProperty();
 }
