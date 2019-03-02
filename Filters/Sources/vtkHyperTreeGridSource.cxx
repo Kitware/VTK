@@ -565,7 +565,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     outData->GetArray( a )->Squeeze();
   }
 
-  assert( "post: dataset_and_data_size_match" );//DDM && output->CheckAttributes() == 0 );
+  // assert( "post: dataset_and_data_size_match" );//DDM && output->CheckAttributes() == 0 );
 
   this->LevelBitsIndexCnt.clear();
   this->LevelBitsIndex.clear();
