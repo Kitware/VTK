@@ -2,6 +2,9 @@ vtk_object_factory_declare(
   BASE      vtkConnectivityFilter
   OVERRIDE  vtkPConnectivityFilter)
 vtk_object_factory_declare(
+  BASE      vtkDistributedDataFilter
+  OVERRIDE  vtkPDistributedDataFilter)
+vtk_object_factory_declare(
   BASE      vtkUnstructuredGridGhostCellsGenerator
   OVERRIDE  vtkPUnstructuredGridGhostCellsGenerator)
 

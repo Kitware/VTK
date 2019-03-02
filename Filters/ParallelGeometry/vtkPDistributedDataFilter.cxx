@@ -155,110 +155,14 @@ void convertGhostLevelsToBitFields(vtkDataSetAttributes* dsa, unsigned int bit)
 }
 };
 
-class vtkPDistributedDataFilter::vtkInternals
-{
-public:
-  std::vector<int> UserRegionAssignments;
-};
-
 //----------------------------------------------------------------------------
 vtkPDistributedDataFilter::vtkPDistributedDataFilter()
 {
-  this->Kdtree = nullptr;
-
-  this->Controller = nullptr;
-  this->SetController(vtkMultiProcessController::GetGlobalController());
-
-  this->Target = nullptr;
-  this->Source = nullptr;
-
-  this->NumConvexSubRegions = 0;
-  this->ConvexSubRegionBounds = nullptr;
-
-  this->MinimumGhostLevel = 0;
-  this->GhostLevel = 0;
-
-  this->RetainKdtree = 1;
-  this->IncludeAllIntersectingCells = 0;
-  this->ClipCells = 0;
-
-  this->Timing = 0;
-
-  this->UseMinimalMemory = 0;
-
-  this->UserCuts = nullptr;
-  this->Internals = new vtkPDistributedDataFilter::vtkInternals();
 }
 
 //----------------------------------------------------------------------------
 vtkPDistributedDataFilter::~vtkPDistributedDataFilter()
 {
-  if (this->Kdtree)
-  {
-    this->Kdtree->Delete();
-    this->Kdtree = nullptr;
-  }
-
-  this->SetController(nullptr);
-
-  delete [] this->Target;
-  this->Target= nullptr;
-
-  delete [] this->Source;
-  this->Source= nullptr;
-
-  delete [] this->ConvexSubRegionBounds;
-  this->ConvexSubRegionBounds = nullptr;
-
-  if (this->UserCuts)
-  {
-    this->UserCuts->Delete();
-    this->UserCuts = nullptr;
-  }
-
-  delete this->Internals;
-  this->Internals = nullptr;
-}
-
-//----------------------------------------------------------------------------
-void vtkPDistributedDataFilter::SetCuts(vtkBSPCuts* cuts)
-{
-  if (cuts == this->UserCuts)
-  {
-    return;
-  }
-  if (this->UserCuts)
-  {
-    this->UserCuts->Delete();
-    this->UserCuts = nullptr;
-  }
-  if (cuts)
-  {
-    cuts->Register(this);
-    this->UserCuts = cuts;
-  }
-  // Delete the Kdtree so that it is regenerated next time.
-  if (this->Kdtree)
-  {
-    this->Kdtree->SetCuts(cuts);
-  }
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkPDistributedDataFilter::SetUserRegionAssignments(
-  const int *map, int numRegions)
-{
-  std::vector<int> copy(this->Internals->UserRegionAssignments);
-  this->Internals->UserRegionAssignments.resize(numRegions);
-  for (int cc=0; cc < numRegions; cc++)
-  {
-    this->Internals->UserRegionAssignments[cc] = map[cc];
-  }
-  if (copy != this->Internals->UserRegionAssignments)
-  {
-    this->Modified();
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -300,194 +204,8 @@ vtkIdType *vtkPDistributedDataFilter::GetGlobalNodeIds(vtkDataSet *set)
   return ia->GetPointer(0);
 }
 
-//----------------------------------------------------------------------------
-void vtkPDistributedDataFilter::SetController(vtkMultiProcessController *c)
-{
-  if (this->Kdtree)
-  {
-    this->Kdtree->SetController(c);
-  }
-
-  if ((c == nullptr) || (c->GetNumberOfProcesses() == 0))
-  {
-    this->NumProcesses = 1;
-    this->MyId = 0;
-  }
-
-  if (this->Controller == c)
-  {
-    return;
-  }
-
-  this->Modified();
-
-  if (this->Controller != nullptr)
-  {
-    this->Controller->UnRegister(this);
-    this->Controller = nullptr;
-  }
-
-  if (c == nullptr)
-  {
-    return;
-  }
-
-  this->Controller = c;
-
-  c->Register(this);
-  this->NumProcesses = c->GetNumberOfProcesses();
-  this->MyId    = c->GetLocalProcessId();
-}
-
-//----------------------------------------------------------------------------
-void vtkPDistributedDataFilter::SetBoundaryMode(int mode)
-{
-  switch (mode)
-  {
-    case vtkPDistributedDataFilter::ASSIGN_TO_ONE_REGION:
-      this->AssignBoundaryCellsToOneRegionOn();
-      break;
-    case vtkPDistributedDataFilter::ASSIGN_TO_ALL_INTERSECTING_REGIONS:
-      this->AssignBoundaryCellsToAllIntersectingRegionsOn();
-      break;
-    case vtkPDistributedDataFilter::SPLIT_BOUNDARY_CELLS:
-      this->DivideBoundaryCellsOn();
-      break;
-  }
-}
-
-//----------------------------------------------------------------------------
-int vtkPDistributedDataFilter::GetBoundaryMode()
-{
-  if (!this->IncludeAllIntersectingCells && !this->ClipCells)
-  {
-    return vtkPDistributedDataFilter::ASSIGN_TO_ONE_REGION;
-  }
-  if (this->IncludeAllIntersectingCells && !this->ClipCells)
-  {
-    return vtkPDistributedDataFilter::ASSIGN_TO_ALL_INTERSECTING_REGIONS;
-  }
-  if (this->IncludeAllIntersectingCells && this->ClipCells)
-  {
-    return vtkPDistributedDataFilter::SPLIT_BOUNDARY_CELLS;
-  }
-
-  return -1;
-}
-
-//----------------------------------------------------------------------------
-void vtkPDistributedDataFilter::AssignBoundaryCellsToOneRegionOn()
-{
-  this->SetAssignBoundaryCellsToOneRegion(1);
-}
-
-//----------------------------------------------------------------------------
-void vtkPDistributedDataFilter::AssignBoundaryCellsToOneRegionOff()
-{
-  this->SetAssignBoundaryCellsToOneRegion(0);
-}
-
-//----------------------------------------------------------------------------
-void vtkPDistributedDataFilter::SetAssignBoundaryCellsToOneRegion(int val)
-{
-  if (val)
-  {
-    this->IncludeAllIntersectingCells = 0;
-    this->ClipCells = 0;
-  }
-}
-
-//----------------------------------------------------------------------------
-void
-vtkPDistributedDataFilter::AssignBoundaryCellsToAllIntersectingRegionsOn()
-{
-  this->SetAssignBoundaryCellsToAllIntersectingRegions(1);
-}
-
-//----------------------------------------------------------------------------
-void
-vtkPDistributedDataFilter::AssignBoundaryCellsToAllIntersectingRegionsOff()
-{
-  this->SetAssignBoundaryCellsToAllIntersectingRegions(0);
-}
-
-//----------------------------------------------------------------------------
-void
-vtkPDistributedDataFilter::SetAssignBoundaryCellsToAllIntersectingRegions(int val)
-{
-  if (val)
-  {
-    this->IncludeAllIntersectingCells = 1;
-    this->ClipCells = 0;
-  }
-}
-void vtkPDistributedDataFilter::DivideBoundaryCellsOn()
-{
-  this->SetDivideBoundaryCells(1);
-}
-void vtkPDistributedDataFilter::DivideBoundaryCellsOff()
-{
-  this->SetDivideBoundaryCells(0);
-}
-void vtkPDistributedDataFilter::SetDivideBoundaryCells(int val)
-{
-  if (val)
-  {
-    this->IncludeAllIntersectingCells = 1;
-    this->ClipCells = 1;
-  }
-}
-
-
 //============================================================================
 // Execute
-
-//-------------------------------------------------------------------------
-
-int vtkPDistributedDataFilter::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
-{
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  int piece, numPieces, ghostLevels;
-
-  // We require preceding filters to refrain from creating ghost cells.
-
-  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  ghostLevels = 0;
-
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-              numPieces);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-              ghostLevels);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkPDistributedDataFilter::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
-{
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
-               6);
-
-  return 1;
-}
-
 
 //----------------------------------------------------------------------------
 int vtkPDistributedDataFilter::RequestData(
@@ -887,10 +605,10 @@ int vtkPDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set
     return 1;
   }
 
-  if (this->Internals->UserRegionAssignments.size() > 0)
+  if (this->UserRegionAssignments.size() > 0)
   {
     if (
-      static_cast<int>(this->Internals->UserRegionAssignments.size()) !=
+      static_cast<int>(this->UserRegionAssignments.size()) !=
       nregions)
     {
       vtkWarningMacro("Mismatch in number of user-defined regions and regions"
@@ -899,7 +617,7 @@ int vtkPDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set
     else
     {
       this->Kdtree->AssignRegions(
-        &this->Internals->UserRegionAssignments[0], nregions);
+        &this->UserRegionAssignments[0], nregions);
     }
   }
 
@@ -4689,69 +4407,6 @@ vtkUnstructuredGrid *vtkPDistributedDataFilter::MergeGrids(
   mc->Delete();
 
   return newGrid;
-}
-
-//-------------------------------------------------------------------------
-int vtkPDistributedDataFilter::RequestDataObject(vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
-{
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (!inInfo)
-  {
-    return 0;
-  }
-
-  vtkDataObject *input = vtkDataObject::GetData(inInfo);
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  if (input)
-  {
-    vtkDataObject *output = vtkDataObject::GetData(outInfo);
-    // If input is composite dataset, output is a vtkMultiBlockDataSet of
-    // unstructrued grids.
-    // If input is a dataset, output is an unstructured grid.
-    if (!output ||
-      (input->IsA("vtkCompositeDataSet") && !output->IsA("vtkMultiBlockDataSet")) ||
-      (input->IsA("vtkDataSet") && !output->IsA("vtkUnstructuredGrid")))
-    {
-      vtkDataObject* newOutput = nullptr;
-      if (input->IsA("vtkCompositeDataSet"))
-      {
-        newOutput = vtkMultiBlockDataSet::New();
-      }
-      else // if (input->IsA("vtkDataSet"))
-      {
-        newOutput = vtkUnstructuredGrid::New();
-      }
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
-      newOutput->Delete();
-    }
-    return 1;
-  }
-
-  return 0;
-}
-
-//-------------------------------------------------------------------------
-int vtkPDistributedDataFilter::FillInputPortInformation(int, vtkInformation *info)
-{
-  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-  return 1;
-}
-
-//-------------------------------------------------------------------------
-vtkPKdTree *vtkPDistributedDataFilter::GetKdtree()
-{
-  if (this->Kdtree == nullptr)
-  {
-    this->Kdtree = vtkPKdTree::New();
-    this->Kdtree->AssignRegionsContiguous();
-    this->Kdtree->SetTiming(this->GetTiming());
-  }
-
-  return this->Kdtree;
 }
 
 //-------------------------------------------------------------------------

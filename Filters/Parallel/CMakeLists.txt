@@ -5,6 +5,7 @@ set(classes
   vtkCollectPolyData
   vtkCollectTable
   vtkCutMaterial
+  vtkDistributedDataFilter
   vtkDuplicatePolyData
   vtkExtractCTHPart
   vtkExtractPolyDataPiece
