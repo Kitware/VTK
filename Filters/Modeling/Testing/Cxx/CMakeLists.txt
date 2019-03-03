@@ -7,6 +7,7 @@ vtk_add_test_cxx(vtkFiltersModelingCxxTests tests
   TestRotationalExtrusion.cxx
   TestSelectEnclosedPoints.cxx
   TestVolumeOfRevolutionFilter.cxx
+  UnitTestCollisionDetectionFilter.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   UnitTestSubdivisionFilters.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   )
 vtk_test_cxx_executable(vtkFiltersModelingCxxTests tests)
