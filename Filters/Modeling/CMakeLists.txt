@@ -2,6 +2,7 @@ set(classes
   vtkAdaptiveSubdivisionFilter
   vtkBandedPolyDataContourFilter
   vtkButterflySubdivisionFilter
+  vtkCollisionDetectionFilter
   vtkContourLoopExtraction
   vtkCookieCutter
   vtkDijkstraGraphGeodesicPath
