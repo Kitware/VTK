@@ -156,7 +156,7 @@ set(vtk_java_rsp_file
 
 file(GENERATE
   OUTPUT  "${vtk_java_rsp_file}"
-  CONTENT "$<JOIN:${java_input_files},\n>\n")
+  CONTENT "\'$<JOIN:${java_input_files},\'\n\'>\'\n")
 
 # Set the javac source version
 set(VTK_JAVA_SOURCE_VERSION "1.6" CACHE STRING "javac source version")
