@@ -386,7 +386,7 @@ void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
   }
 
   vr::VRCompositor()->WaitGetPoses(this->TrackedDevicePose,
-    vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+    vr::k_unMaxTrackedDeviceCount, nullptr, 0 );
 
   // update the camera values based on the pose
   if ( this->TrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid )
@@ -490,7 +490,7 @@ void vtkOpenVRRenderWindow::Render()
   else
   {
     vr::VRCompositor()->WaitGetPoses(this->TrackedDevicePose,
-      vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+      vr::k_unMaxTrackedDeviceCount, nullptr, 0 );
   }
 
   this->vtkRenderWindow::Render();
