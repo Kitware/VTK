@@ -46,6 +46,7 @@ int UnitTestCollisionDetectionFilter (int, char*[])
   vtkSmartPointer<vtkTest::ErrorObserver>  collisionObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
 
+  collision->SetOpacity(.99);
   collision->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, executiveObserver);
   collision->Update();
 #if ERROR_OBSERVER_ENHANCEMENTS
@@ -115,6 +116,7 @@ int UnitTestCollisionDetectionFilter (int, char*[])
   collision->SetMatrix(1, transform1->GetMatrix());
   collision->SetMatrix(1, transform1->GetMatrix());
 
+  collision->GenerateScalarsOff();
   collision->GenerateScalarsOn();
   collision->SetCollisionModeToAllContacts();
   collision->DebugOn();
@@ -132,6 +134,27 @@ int UnitTestCollisionDetectionFilter (int, char*[])
 
   collision->SetCollisionModeToFirstContact();
   collision->Update();
+  if (!collision->IsA("vtkCollisionDetectionFilter"))
+    {
+      std::cout << "IsA(\"vtkCollisionDetectionFilter\") FAILED" << std::endl;
+    }
+  if (collision->IsA("vtkXXX"))
+    {
+      std::cout << "IsA(\"XXX\") FAILED" << std::endl;
+    }
+  if (collision->IsTypeOf("vtkPolyDataAlgorithm"))
+    {
+      std::cout << "collision->IsTypeOf(\"vtkPolyDataAlgorithm\") FAILED" << std::endl;
+    }
+  std::cout << "GetCollisionModeMin/Max Value "
+            << collision->GetCollisionModeMinValue() << ", "
+            << collision->GetCollisionModeMaxValue() << std::endl;
+  std::cout << "GetOpacity Min/Max Value "
+            << collision->GetOpacityMinValue() << ", "
+            << collision->GetOpacityMaxValue() << std::endl;
+  vtkCollisionDetectionFilter *newCollision = collision->NewInstance();
+  std::cout << "NewInstance: " << newCollision << std::endl;
+  newCollision->Delete();
 
   return status;
 }
