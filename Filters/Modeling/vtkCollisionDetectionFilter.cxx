@@ -581,7 +581,7 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(
   int npts, double *pts, double bounds[6],
   int npts2, double *pts2,
   double bounds2[6], double tol2,
-  double x1[3], double x2[3], int CollisionMode)
+  double x1[3], double x2[3], int collisionMode)
 {
   double n[3], n2[3], coords[3];
   int i, j;
@@ -621,7 +621,7 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(
                == 1))
       {
         Num++;
-        if (CollisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS ||
+        if (collisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS ||
           Num == 2)
         {
           return 1;
@@ -660,7 +660,7 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(
                   x[Num][k] = pts[k+3*ii] + u*(pts[k+(3*((ii+1)%npts))]-pts[k+3*ii]);
                 }
                 Num++;
-                if (CollisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS ||
+                if (collisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS ||
                   Num == 2)
                 {
                   return 1;
@@ -699,7 +699,7 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(
                == 1))
       {
         Num++;
-        if (CollisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS ||
+        if (collisionMode != vtkCollisionDetectionFilter::VTK_ALL_CONTACTS ||
           Num == 2)
         {
           return 1;

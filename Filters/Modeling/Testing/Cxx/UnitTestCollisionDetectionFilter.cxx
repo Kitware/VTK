@@ -93,7 +93,7 @@ int UnitTestCollisionDetectionFilter (int, char*[])
   collisionObserver->Clear();
 
   collision->SetInputData(0, sphere1->GetOutput());
-  vtkPolyData *pd0 = collision->GetInputData(0);
+  collision->GetInputData(0);
   collision->SetInputConnection(1, sphere2->GetOutputPort());
   vtkSmartPointer<vtkTransform> transform1 =
     vtkSmartPointer<vtkTransform>::New();
