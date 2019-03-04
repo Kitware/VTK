@@ -38,12 +38,6 @@ vtkBorderRepresentation::vtkBorderRepresentation()
 {
   this->InteractionState = vtkBorderRepresentation::Outside;
 
-  this->ShowVerticalBorder = BORDER_ON;
-  this->ShowHorizontalBorder = BORDER_ON;
-  this->ProportionalResize = 0;
-  this->Tolerance = 3;
-  this->SelectionPoint[0] = this->SelectionPoint[1] = 0.0;
-
   // Initial positioning information
   this->Negotiated = 0;
   this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
@@ -95,13 +89,6 @@ vtkBorderRepresentation::vtkBorderRepresentation()
   this->PolygonProperty->SetOpacity(this->PolygonOpacity);
   this->PolygonProperty->SetPointSize(0.f);
   this->BWActorPolygon->SetProperty(this->PolygonProperty);
-
-  this->MinimumSize[0] = 1;
-  this->MinimumSize[1] = 1;
-  this->MaximumSize[0] = 100000;
-  this->MaximumSize[1] = 100000;
-
-  this->Moving = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -118,7 +105,8 @@ void vtkBorderRepresentation::ComputeRoundCorners()
 
   // Create round corners after the transform as we do not want to scale the corners
   vtkPolyData* pd = this->BWTransformFilter->GetOutput();
-  vtkPoints* pdPoints = pd->GetPoints();
+  vtkNew<vtkPoints> pdPoints;
+  pdPoints->DeepCopy(pd->GetPoints());
 
   if (lines->GetNumberOfCells() != 1 || this->CornerResolution == 0)
   {
@@ -371,6 +359,86 @@ void vtkBorderRepresentation::WidgetInteraction(double eventPos[2])
         par2[1] = par2[1] + delY;
       }
       break;
+  }
+
+  // Enforce bounds to keep the widget on screen and bigger than minimum size
+  if (!this->ProportionalResize && this->EnforceNormalizedViewportBounds)
+  {
+    switch (this->InteractionState)
+    {
+      case vtkBorderRepresentation::AdjustingP0:
+        par1[0] = std::min(
+          std::max(par1[0] /*+ delX*/, 0.0), par2[0] - this->MinimumNormalizedViewportSize[0]);
+        par1[1] = std::min(
+          std::max(par1[1] /*+ delY*/, 0.0), par2[1] - this->MinimumNormalizedViewportSize[1]);
+        break;
+      case vtkBorderRepresentation::AdjustingP1:
+        par2[0] = std::min(
+          std::max(par2[0] /*+ delX2*/, par1[0] + this->MinimumNormalizedViewportSize[0]), 1.0);
+        par1[1] = std::min(
+          std::max(par1[1] /*+ delY2*/, 0.0), par2[1] - this->MinimumNormalizedViewportSize[1]);
+        break;
+      case vtkBorderRepresentation::AdjustingP2:
+        par2[0] = std::min(
+          std::max(par2[0] /*+ delX*/, par1[0] + this->MinimumNormalizedViewportSize[0]), 1.0);
+        par2[1] = std::min(
+          std::max(par2[1] /*+ delY*/, par1[1] + this->MinimumNormalizedViewportSize[1]), 1.0);
+        break;
+      case vtkBorderRepresentation::AdjustingP3:
+        par1[0] = std::min(
+          std::max(par1[0] /*+ delX2*/, 0.0), par2[0] - this->MinimumNormalizedViewportSize[0]);
+        par2[1] = std::min(
+          std::max(par2[1] /*+ delY2*/, par1[1] + this->MinimumNormalizedViewportSize[1]), 1.0);
+        break;
+      case vtkBorderRepresentation::AdjustingE0:
+        par1[1] = std::min(
+          std::max(par1[1] /*+ delY*/, 0.0), par2[1] - this->MinimumNormalizedViewportSize[1]);
+        break;
+      case vtkBorderRepresentation::AdjustingE1:
+        par2[0] = std::min(
+          std::max(par2[0] /*+ delX*/, par1[0] + this->MinimumNormalizedViewportSize[0]), 1.0);
+        break;
+      case vtkBorderRepresentation::AdjustingE2:
+        par2[1] = std::min(
+          std::max(par2[1] /*+ delY*/, par1[1] + this->MinimumNormalizedViewportSize[1]), 1.0);
+        break;
+      case vtkBorderRepresentation::AdjustingE3:
+        par1[0] = std::min(
+          std::max(par1[0] /*+ delX*/, 0.0), par2[0] - this->MinimumNormalizedViewportSize[0]);
+        break;
+      case vtkBorderRepresentation::Inside:
+        if (this->Moving)
+        {
+          // Keep border from moving off normalized screen
+          if (par1[0] < 0.0)
+          {
+            double delta = -par1[0];
+            par1[0] += delta;
+            par2[0] += delta;
+          }
+          if (par1[1] < 0.0)
+          {
+            double delta = -par1[1];
+            par1[1] += delta;
+            par2[1] += delta;
+          }
+          if (par2[0] > 1.0)
+          {
+            double delta = par2[0] - 1.0;
+            par1[0] -= delta;
+            par2[0] -= delta;
+          }
+          if (par2[1] > 1.0)
+          {
+            double delta = par2[1] - 1.0;
+            par1[1] -= delta;
+            par2[1] -= delta;
+          }
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   // Modify the representation
@@ -798,7 +866,11 @@ void vtkBorderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Polygon Property: (none)" << endl;
   }
 
+  os << indent << "Enforce Normalized Viewport Bounds: "
+     << (this->EnforceNormalizedViewportBounds ? "On\n" : "Off\n");
   os << indent << "Proportional Resize: " << (this->ProportionalResize ? "On" : "Off") << endl;
+  os << indent << "Minimum Normalized Viewport Size: " << this->MinimumNormalizedViewportSize[0]
+     << " " << this->MinimumNormalizedViewportSize[1] << endl;
   os << indent << "Minimum Size: " << this->MinimumSize[0] << " " << this->MinimumSize[1] << endl;
   os << indent << "Maximum Size: " << this->MaximumSize[0] << " " << this->MaximumSize[1] << endl;
 

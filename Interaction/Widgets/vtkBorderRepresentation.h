@@ -139,11 +139,29 @@ public:
 
   ///@{
   /**
+   * Whether to enforce the minimum normalized viewport size and limit
+   * the normalized viewport coordinates to [0.0 -> 1.0]. This keeps
+   * widgets from being moved offscreen or being scaled down past their
+   * minimum viewport size.
+   *
+   * Off by Default.
+   *
+   * Note: ProportionalResize must be off for this function to take effect.
+   */
+  vtkSetMacro(EnforceNormalizedViewportBounds, vtkTypeBool);
+  vtkGetMacro(EnforceNormalizedViewportBounds, vtkTypeBool);
+  vtkBooleanMacro(EnforceNormalizedViewportBounds, vtkTypeBool);
+  //@}
+
+  //@{
+  /**
    * Indicate whether resizing operations should keep the x-y directions
    * proportional to one another. Also, if ProportionalResize is on, then
    * the rectangle (Position,Position2) is a bounding rectangle, and the
    * representation will be placed in the rectangle in such a way as to
    * preserve the aspect ratio of the representation.
+   *
+   * Off by Default.
    */
   vtkSetMacro(ProportionalResize, vtkTypeBool);
   vtkGetMacro(ProportionalResize, vtkTypeBool);
@@ -152,9 +170,23 @@ public:
 
   ///@{
   /**
+   * Specify a minimum and/or maximum size [0.0 -> 1.0] that this representation
+   * can take. These methods require two values: size values in the x and y
+   * directions, respectively.
+   *
+   * Default is { 0.0, 0.0 }.
+   */
+  vtkSetVector2Macro(MinimumNormalizedViewportSize, double);
+  vtkGetVector2Macro(MinimumNormalizedViewportSize, double);
+  //@}
+
+  //@{
+  /**
    * Specify a minimum and/or maximum size (in pixels) that this representation
    * can take. These methods require two values: size values in the x and y
    * directions, respectively.
+   *
+   * Default is { 1, 1 }.
    */
   vtkSetVector2Macro(MinimumSize, int);
   vtkGetVector2Macro(MinimumSize, int);
@@ -167,6 +199,8 @@ public:
    * The tolerance representing the distance to the widget (in pixels)
    * in which the cursor is considered to be on the widget, or on a
    * widget feature (e.g., a corner point or edge).
+   *
+   * Default is 3.
    */
   vtkSetClampMacro(Tolerance, int, 1, 10);
   vtkGetMacro(Tolerance, int);
@@ -324,14 +358,15 @@ protected:
   ~vtkBorderRepresentation() override;
 
   // Ivars
-  int ShowVerticalBorder;
-  int ShowHorizontalBorder;
+  int ShowVerticalBorder = BORDER_ON;
+  int ShowHorizontalBorder = BORDER_ON;
   vtkNew<vtkProperty2D> BorderProperty;
   vtkNew<vtkProperty2D> PolygonProperty;
-  vtkTypeBool ProportionalResize;
-  int Tolerance;
-  vtkTypeBool Moving;
-  double SelectionPoint[2];
+  vtkTypeBool EnforceNormalizedViewportBounds = 0;
+  vtkTypeBool ProportionalResize = 0;
+  int Tolerance = 3;
+  vtkTypeBool Moving = 0;
+  double SelectionPoint[2] = { 0.0, 0.0 };
 
   // Layout (position of lower left and upper right corners of border)
   vtkNew<vtkCoordinate> PositionCoordinate;
@@ -364,8 +399,9 @@ protected:
   vtkNew<vtkActor2D> BWActorPolygon;
 
   // Constraints on size
-  int MinimumSize[2];
-  int MaximumSize[2];
+  double MinimumNormalizedViewportSize[2] = { 0.0, 0.0 };
+  int MinimumSize[2] = { 1, 1 };
+  int MaximumSize[2] = { VTK_INT_MAX, VTK_INT_MAX };
 
   // Properties of the border
   double BorderColor[3] = { 1.0, 1.0, 1.0 };
