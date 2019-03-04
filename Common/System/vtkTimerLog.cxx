@@ -84,15 +84,6 @@ tms     vtkTimerLog::CurrentCpuTicks;
 #endif
 
 //----------------------------------------------------------------------------
-// Allocate timing table with MaxEntries elements.
-#ifndef VTK_LEGACY_REMOVE
-void vtkTimerLog::AllocateLog()
-{
-  vtkTimerLog::TimerLog.resize(vtkTimerLog::MaxEntries);
-}
-#endif
-
-//----------------------------------------------------------------------------
 // Remove timer log.
 void vtkTimerLog::CleanupLog()
 {

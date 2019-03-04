@@ -1005,8 +1005,6 @@ public:
     RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2);
   }
   static void RGBToHSV(float r, float g, float b, float *h, float *s, float *v);
-  VTK_LEGACY(static double* RGBToHSV(const double rgb[3]) VTK_SIZEHINT(3));
-  VTK_LEGACY(static double* RGBToHSV(double r, double g, double b) VTK_SIZEHINT(3));
   static void RGBToHSV(const double rgb[3], double hsv[3]) {
     RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2);
   }
@@ -1025,8 +1023,6 @@ public:
     HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2);
   }
   static void HSVToRGB(float h, float s, float v, float *r, float *g, float *b);
-  VTK_LEGACY(static double* HSVToRGB(const double hsv[3]) VTK_SIZEHINT(3));
-  VTK_LEGACY(static double* HSVToRGB(double h, double s, double v) VTK_SIZEHINT(3));
   static void HSVToRGB(const double hsv[3], double rgb[3])
     { HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2); }
   static void HSVToRGB(double h, double s, double v, double *r, double *g, double *b);
@@ -1041,7 +1037,6 @@ public:
   }
   static void LabToXYZ(double L, double a, double b,
                        double *x, double *y, double *z);
-  VTK_LEGACY(static double *LabToXYZ(const double lab[3]) VTK_SIZEHINT(3));
   //@}
 
   //@{
@@ -1053,7 +1048,6 @@ public:
   }
   static void XYZToLab(double x, double y, double z,
                        double *L, double *a, double *b);
-  VTK_LEGACY(static double *XYZToLab(const double xyz[3]) VTK_SIZEHINT(3));
   //@}
 
   //@{
@@ -1065,7 +1059,6 @@ public:
   }
   static void XYZToRGB(double x, double y, double z,
                        double *r, double *g, double *b);
-  VTK_LEGACY(static double *XYZToRGB(const double xyz[3]) VTK_SIZEHINT(3));
   //@}
 
   //@{
@@ -1077,7 +1070,6 @@ public:
   }
   static void RGBToXYZ(double r, double g, double b,
                        double *x, double *y, double *z);
-  VTK_LEGACY(static double *RGBToXYZ(const double rgb[3]) VTK_SIZEHINT(3));
   //@}
 
   //@{
@@ -1092,7 +1084,6 @@ public:
   }
   static void RGBToLab(double red, double green, double blue,
                        double *L, double *a, double *b);
-  VTK_LEGACY(static double *RGBToLab(const double rgb[3]) VTK_SIZEHINT(3));
   //@}
 
   //@{
@@ -1104,7 +1095,6 @@ public:
   }
   static void LabToRGB(double L, double a, double b,
                        double *red, double *green, double *blue);
-  VTK_LEGACY(static double *LabToRGB(const double lab[3]) VTK_SIZEHINT(3));
   //@}
 
   //@{

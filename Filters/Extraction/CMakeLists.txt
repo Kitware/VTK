@@ -34,11 +34,5 @@ set(classes
   vtkSelector
   vtkValueSelector)
 
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND classes
-    vtkExtractArraysOverTime
-    vtkExtractSelectionLegacy)
-endif ()
-
 vtk_module_add_module(VTK::FiltersExtraction
   CLASSES ${classes})

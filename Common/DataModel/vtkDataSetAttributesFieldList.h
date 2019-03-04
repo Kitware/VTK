@@ -56,7 +56,6 @@
 #define vtkDataSetAttributesFieldList_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkSetGet.h"                // for VTK_LEGACY
 #include "vtkSmartPointer.h"          // for vtkSmartPointer
 #include "vtkSystemIncludes.h"
 
@@ -125,24 +124,6 @@ public:
    */
   void TransformData(int inputIndex, vtkDataSetAttributes* input, vtkDataSetAttributes* output,
     std::function<void(vtkAbstractArray*, vtkAbstractArray*)> op) const;
-
-  //@{
-  /**
-   * vtkDataSetAttributes::FieldList used a different internal data structure in
-   * older versions of VTK. This exposes that API for legacy applications.
-   *
-   * Using these methods should be avoided in new code and should be replaced in
-   * old code as these methods can be slow.
-   *
-   * @deprecated VTK 8.2
-   */
-  VTK_LEGACY(int IsAttributePresent(int attrType) const);
-  VTK_LEGACY(int GetNumberOfFields() const);
-  VTK_LEGACY(int GetFieldIndex(int i) const);
-  VTK_LEGACY(const char* GetFieldName(int i) const);
-  VTK_LEGACY(int GetFieldComponents(int i) const);
-  VTK_LEGACY(int GetDSAIndex(int index, int i) const);
-  //@}
 
 protected:
   /**

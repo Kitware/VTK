@@ -75,31 +75,6 @@ public:
   vtkBooleanMacro(PreserveTopology, bool);
   //@}
 
-
-  //@{
-  /**
-   * These functions is provided for compile-time compatibility with the old
-   * vtkExtractSelection which is now renamed to vtkExtractSelectionLegacy and deprecated.
-   * These functions do not have any effect on the behavior or vtkExtractSelection.
-   */
-  VTK_LEGACY(void SetShowBounds(bool));
-  VTK_LEGACY(bool GetShowBounds());
-  VTK_LEGACY(void ShowBoundsOn());
-  VTK_LEGACY(void ShowBoundsOff());
-  //@}
-
-  //@{
-  /**
-   * These functions is provided for compile-time compatibility with the old
-   * vtkExtractSelection which is now renamed to vtkExtractSelectionLegacy and deprecated.
-   * These functions do not have any effect on the behavior or vtkExtractSelection.
-   */
-  VTK_LEGACY(void SetUseProbeForLocations(bool));
-  VTK_LEGACY(bool GetUseProbeForLocations());
-  VTK_LEGACY(void UseProbeForLocationsOn());
-  VTK_LEGACY(void UseProbeForLocationsOff());
-  //@}
-
 protected:
   vtkExtractSelection();
   ~vtkExtractSelection() override;

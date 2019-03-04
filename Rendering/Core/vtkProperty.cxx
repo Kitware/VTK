@@ -268,28 +268,6 @@ vtkTexture* vtkProperty::GetTexture(const char* name)
   return iter->second;
 }
 
-#ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
-void vtkProperty::SetTexture(int, vtkTexture*)
-{
-  VTK_LEGACY_BODY(vtkProperty::SetTexture, "VTK 8.2");
-}
-
-//----------------------------------------------------------------------------
-vtkTexture* vtkProperty::GetTexture(int)
-{
-  VTK_LEGACY_BODY(vtkProperty::GetTexture, "VTK 8.2");
-  return nullptr;
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::RemoveTexture(int)
-{
-  VTK_LEGACY_BODY(vtkProperty::RemoveTexture, "VTK 8.2");
-}
-
-#endif
-
 //----------------------------------------------------------------------------
 int vtkProperty::GetNumberOfTextures()
 {

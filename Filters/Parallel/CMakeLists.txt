@@ -45,11 +45,6 @@ set(classes
 set(headers
   vtkBlockDistribution.h)
 
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND classes
-    vtkPExtractArraysOverTime)
-endif ()
-
 vtk_module_add_module(VTK::FiltersParallel
   CLASSES ${classes}
   HEADERS ${headers})

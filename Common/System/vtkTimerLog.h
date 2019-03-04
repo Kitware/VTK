@@ -167,16 +167,6 @@ public:
    */
   static void ResetLog();
 
-  //@{
-  /**
-   * Allocate timing table with MaxEntries elements.  @deprecated
-   * AllocateLog() should be replaced with SetMaxEntries() (VTK 7.1.0).
-   */
-#ifndef VTK_LEGACY_REMOVE
-  VTK_LEGACY(static void AllocateLog();)
-#endif
-  //@}
-
   /**
    * Remove timer log.
    */
