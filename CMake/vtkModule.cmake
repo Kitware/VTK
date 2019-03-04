@@ -3021,34 +3021,34 @@ function (vtk_module_add_module name)
             "${_vtk_build_module}"
     TARGETS "${_vtk_add_module_real_target}")
 
+  set(_vtk_add_module_headers_build)
+  set(_vtk_add_module_headers_install)
+  foreach (_vtk_add_module_header IN LISTS _vtk_add_module_HEADERS)
+    if (IS_ABSOLUTE "${_vtk_add_module_header}")
+      list(APPEND _vtk_add_module_headers_build
+        "${_vtk_add_module_header}")
+    else ()
+      list(APPEND _vtk_add_module_headers_build
+        "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_add_module_header}")
+    endif ()
+
+    get_filename_component(_vtk_add_module_header_name "${_vtk_add_module_header}" NAME)
+    list(APPEND _vtk_add_module_headers_install
+      "\${_vtk_module_import_prefix}/${_vtk_build_HEADERS_DESTINATION}/${_vtk_add_module_header_name}")
+  endforeach ()
+
+  set_property(TARGET "${_vtk_add_module_real_target}"
+    PROPERTY
+      "INTERFACE_vtk_module_headers" "${_vtk_add_module_headers_build}")
+  if (_vtk_build_INSTALL_HEADERS)
+    set_property(TARGET "${_vtk_add_module_real_target}"
+      PROPERTY
+        "INTERFACE_vtk_module_headers_install" "${_vtk_add_module_headers_install}")
+  endif ()
+
   get_property(_vtk_add_module_exclude_wrap GLOBAL
     PROPERTY  "_vtk_module_${_vtk_build_module}_exclude_wrap")
   if (NOT _vtk_add_module_exclude_wrap)
-    set(_vtk_add_module_headers_build)
-    set(_vtk_add_module_headers_install)
-    foreach (_vtk_add_module_header IN LISTS _vtk_add_module_HEADERS)
-      if (IS_ABSOLUTE "${_vtk_add_module_header}")
-        list(APPEND _vtk_add_module_headers_build
-          "${_vtk_add_module_header}")
-      else ()
-        list(APPEND _vtk_add_module_headers_build
-          "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_add_module_header}")
-      endif ()
-
-      get_filename_component(_vtk_add_module_header_name "${_vtk_add_module_header}" NAME)
-      list(APPEND _vtk_add_module_headers_install
-        "\${_vtk_module_import_prefix}/${_vtk_build_HEADERS_DESTINATION}/${_vtk_add_module_header_name}")
-    endforeach ()
-
-    set_property(TARGET "${_vtk_add_module_real_target}"
-      PROPERTY
-        "INTERFACE_vtk_module_headers" "${_vtk_add_module_headers_build}")
-    if (_vtk_build_INSTALL_HEADERS)
-      set_property(TARGET "${_vtk_add_module_real_target}"
-        PROPERTY
-          "INTERFACE_vtk_module_headers_install" "${_vtk_add_module_headers_install}")
-    endif ()
-
     _vtk_module_write_wrap_hierarchy()
   endif ()
 
