@@ -1,20 +1,24 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCollisionDetectionFilter.cxx
-  Language:  C++
-  RCS:   $Id$
+  Module:    vtkCollisionDetection.cxx
 
-  Copyright (c) 2003-2004 Goodwin Lawlor
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.
+     PURPOSE.  See the above copyright notice for more information.
 
+  Copyright (c) 2003 and onwards, Goodwin Lawlor
+  All rights reserved.
+
+  http://www.bioengineering-research.com/copyright.html for copyright details
 =========================================================================*/
-#include <cstdlib>
+
 #include "vtkCollisionDetectionFilter.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkOBBTree.h"
 #include "vtkMatrix4x4.h"
@@ -41,15 +45,13 @@
 #include "vtkTransform.h"
 #include "vtkSmartPointer.h"
 #include "vtkCellArray.h"
-#include <vtkTrivialProducer.h>
+#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkCollisionDetectionFilter);
 
 // Constructs with initial 0 values.
 vtkCollisionDetectionFilter::vtkCollisionDetectionFilter()
 {
-  vtkDebugMacro(<< "Initializing object");
-
   // Ask the superclass to set the number of connections.
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfInputConnections(0,1);
@@ -63,8 +65,8 @@ vtkCollisionDetectionFilter::vtkCollisionDetectionFilter()
   this->BoxTolerance = 0.0;
   this->CellTolerance = 0.0;
   this->NumberOfCellsPerNode = 2;
-  this->tree0 = vtkOBBTree::New();
-  this->tree1 = vtkOBBTree::New();
+  this->Tree0 = vtkOBBTree::New();
+  this->Tree1 = vtkOBBTree::New();
   this->GenerateScalars = 0;
   this->CollisionMode = VTK_ALL_CONTACTS;
   this->Opacity = 1.0;
@@ -73,13 +75,13 @@ vtkCollisionDetectionFilter::vtkCollisionDetectionFilter()
 // Destroy any allocated memory.
 vtkCollisionDetectionFilter::~vtkCollisionDetectionFilter()
 {
-  if (this->tree0 != NULL)
+  if (this->Tree0 != NULL)
   {
-    this->tree0->Delete();
+    this->Tree0->Delete();
   }
-  if (this->tree1 != NULL)
+  if (this->Tree1 != NULL)
   {
-    this->tree1->Delete();
+    this->Tree1->Delete();
   }
 
   if (this->Matrix[0])
@@ -108,7 +110,6 @@ vtkCollisionDetectionFilter::~vtkCollisionDetectionFilter()
 // Set and Get the input data...
 void vtkCollisionDetectionFilter::SetInputData(int idx, vtkPolyData *input)
 {
-
   if (2 <= idx || idx < 0)
   {
     vtkErrorMacro(<< "Index " << idx
@@ -122,9 +123,6 @@ void vtkCollisionDetectionFilter::SetInputData(int idx, vtkPolyData *input)
   inputProducer->SetOutput(input);
   this->SetNthInputConnection(idx, 0, input ? inputProducer->GetOutputPort() : 0);
 }
-
-
-
 
 //----------------------------------------------------------------------------
 vtkPolyData *vtkCollisionDetectionFilter::GetInputData(int idx)
@@ -191,8 +189,6 @@ void vtkCollisionDetectionFilter::SetTransform(
   this->Modified();
 }
 
-
-
 void vtkCollisionDetectionFilter::SetMatrix(int i, vtkMatrix4x4 *matrix)
 {
   if (i > 1 || i < 0)
@@ -221,17 +217,19 @@ void vtkCollisionDetectionFilter::SetMatrix(int i, vtkMatrix4x4 *matrix)
   vtkDebugMacro(<< "Setting matrix: " << i << " to point to " << matrix << endl);
 
   if(matrix)
+  {
     this->Matrix[i] = matrix;
-    matrix->Register(this);
-    vtkMatrixToLinearTransform *transform =
-      vtkMatrixToLinearTransform::New();
-    // Consistent Register and UnRegisters.
-    transform->Register(this);
-    transform->Delete();
-    transform->SetInput(matrix);
-    this->Transform[i] = transform;
-    vtkDebugMacro(<< "Setting Transform " << i << " to points to: " << transform << endl);
-    this->Modified();
+  }
+  matrix->Register(this);
+  vtkMatrixToLinearTransform *transform =
+    vtkMatrixToLinearTransform::New();
+  // Consistent Register and UnRegisters.
+  transform->Register(this);
+  transform->Delete();
+  transform->SetInput(matrix);
+  this->Transform[i] = transform;
+  vtkDebugMacro(<< "Setting Transform " << i << " to points to: " << transform << endl);
+  this->Modified();
 }
 
 vtkMatrix4x4* vtkCollisionDetectionFilter::GetMatrix(int i)
@@ -476,28 +474,24 @@ int vtkCollisionDetectionFilter::RequestData(
    }
   this->InvokeEvent(vtkCommand::StartEvent, NULL);
 
-
   // rebuild the obb trees... they do their own mtime checking with input data
-  tree0->SetDataSet(input[0]);
-  tree0->AutomaticOn();
-  tree0->SetNumberOfCellsPerNode(this->NumberOfCellsPerNode);
-  tree0->BuildLocator();
+  Tree0->SetDataSet(input[0]);
+  Tree0->AutomaticOn();
+  Tree0->SetNumberOfCellsPerNode(this->NumberOfCellsPerNode);
+  Tree0->BuildLocator();
 
-  tree1->SetDataSet(input[1]);
-  tree1->AutomaticOn();
-  tree1->SetNumberOfCellsPerNode(this->NumberOfCellsPerNode);
-  tree1->BuildLocator();
+  Tree1->SetDataSet(input[1]);
+  Tree1->AutomaticOn();
+  Tree1->SetNumberOfCellsPerNode(this->NumberOfCellsPerNode);
+  Tree1->BuildLocator();
 
   // Set the Box Tolerance
-  tree0->SetTolerance(this->BoxTolerance);
-  tree1->SetTolerance(this->BoxTolerance);
-
-
-
+  Tree0->SetTolerance(this->BoxTolerance);
+  Tree1->SetTolerance(this->BoxTolerance);
 
   // Do the collision detection...
   int boxTests =
-    tree0->IntersectWithOBBTree(tree1,  matrix, ComputeCollisions, this);
+    Tree0->IntersectWithOBBTree(Tree1,  matrix, ComputeCollisions, this);
 
   matrix->Delete();
   tmpMatrix->Delete();
@@ -760,5 +754,13 @@ void vtkCollisionDetectionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Box Tolerance: " << this->GetBoxTolerance() << "\n";
   os << indent << "Cell Tolerance: " << this->GetCellTolerance() << "\n";
   os << indent << "Number of cells per Node: " << this->GetNumberOfCellsPerNode() << "\n";
-
+  os << indent << "GenerateScalars: " << (this->GetGenerateScalars() ? "On" : "Off") << "\n";
+  os << indent << "Collision Mode: " << this->GetCollisionModeAsString() << "\n";
+  os << indent << "Opacity: " << this->GetOpacity() << "\n";
+  os << indent << "InputData 0: " << this->GetInput(0) << "\n";
+  os << indent << "InputData 1: " << this->GetInput(1) << "\n";
+  os << indent << "Transform 0: " << this->GetTransform(0) << "\n";
+  os << indent << "Transform 1: " << this->GetTransform(1) << "\n";
+  os << indent << "Matrix 0: " << this->GetMatrix(0) << "\n";
+  os << indent << "Matrix 1: " << this->GetMatrix(1) << "\n";
 }
