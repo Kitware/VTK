@@ -49,9 +49,6 @@ Example output:
       "third_party": <bool>,
       "wrap_exclude": <bool>,
       "kit": "...",
-      "groups": [
-        "..."
-      ],
       "depends": [
         "..."
       ],
@@ -63,9 +60,12 @@ Example output:
       ],
       "implements": [
         "..."
+      ],
+      "headers": [
+        "..."
       ]
     }
-  ]
+  ],
   "kits": [
     {
       "name": "...",
@@ -73,9 +73,6 @@ Example output:
       "modules": [
       ]
     }
-  ]
-  "groups": [
-    "..."
   ]
 }
 ```
@@ -129,6 +126,10 @@ function (vtk_module_json)
       PROPERTY "_vtk_module_${_vtk_json_module}_optional_depends")
     get_property(_vtk_json_implements GLOBAL
       PROPERTY "_vtk_module_${_vtk_json_module}_implements")
+    get_property(_vtk_json_library_name GLOBAL
+      PROPERTY "_vtk_module_${_vtk_json_module}_library_name")
+    get_property(_vtk_json_module_file GLOBAL
+      PROPERTY "_vtk_module_${_vtk_json_module}_file")
 
     set(_vtk_json_kit_name "null")
     if (_vtk_json_kit)
@@ -136,32 +137,30 @@ function (vtk_module_json)
         "${_vtk_json_kit}")
       set(_vtk_json_kit_name "\"${_vtk_json_kit}\"")
     endif ()
-    set(_vtk_json_library_name "null")
+    set(_vtk_json_headers "")
     if (TARGET "${_vtk_json_module}")
-      get_property(_vtk_json_library_type
-        TARGET    "${_vtk_json_module}"
-        PROPERTY  TYPE)
-      if (NOT _vtk_json_library_type STREQUAL "INTERFACE_LIBRARY")
-        get_property(_vtk_json_library
-          TARGET    "${_vtk_json_module}"
-          PROPERTY  LIBRARY_OUTPUT_NAME)
-        set(_vtk_json_library_name "\"${_vtk_json_library}\"")
-      endif ()
+      _vtk_module_get_module_property("${_vtk_json_module}"
+        PROPERTY  "headers"
+        VARIABLE  _vtk_json_headers)
+      get_filename_component(_vtk_json_module_dir "${_vtk_json_module_file}" DIRECTORY)
+      file(RELATIVE_PATH _vtk_json_module_subdir "${CMAKE_SOURCE_DIR}" "${_vtk_json_module_dir}")
+      string(REPLACE "${CMAKE_SOURCE_DIR}/${_vtk_json_module_subdir}/" "" _vtk_json_headers "${_vtk_json_headers}")
+      string(REPLACE "${CMAKE_BINARY_DIR}/${_vtk_json_module_subdir}/" "" _vtk_json_headers "${_vtk_json_headers}")
     endif ()
 
     string(APPEND _vtk_json_contents "\"${_vtk_json_module}\": {")
-    string(APPEND _vtk_json_contents "\"library_name\": ${_vtk_json_library_name}, ")
+    string(APPEND _vtk_json_contents "\"library_name\": \"${_vtk_json_library_name}\", ")
     string(APPEND _vtk_json_contents "\"description\": \"${_vtk_json_description}\", ")
     _vtk_json_bool(_vtk_json_contents "enabled" "TARGET;${_vtk_json_module}")
     _vtk_json_bool(_vtk_json_contents "implementable" _vtk_json_implementable)
     _vtk_json_bool(_vtk_json_contents "third_party" _vtk_json_third_party)
     _vtk_json_bool(_vtk_json_contents "wrap_exclude" _vtk_json_wrap_exclude)
     string(APPEND _vtk_json_contents "\"kit\": ${_vtk_json_kit_name}, ")
-    # _vtk_json_string_list(_vtk_json_contents "groups" _vtk_json_groups)
     _vtk_json_string_list(_vtk_json_contents "depends" _vtk_json_depends)
     _vtk_json_string_list(_vtk_json_contents "optional_depends" _vtk_json_optional_depends)
     _vtk_json_string_list(_vtk_json_contents "private_depends" _vtk_json_private_depends)
     _vtk_json_string_list(_vtk_json_contents "implements" _vtk_json_implements)
+    _vtk_json_string_list(_vtk_json_contents "headers" _vtk_json_headers)
     string(APPEND _vtk_json_contents "}, ")
   endforeach ()
   string(APPEND _vtk_json_contents "}, ")
