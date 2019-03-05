@@ -436,18 +436,6 @@ public:
   vtkTexture* GetTexture(const char* name);
   //@}
 
-  //@{
-  /**
-   * Set/Get the texture object to control rendering texture maps. This will
-   * be a vtkTexture object. A property does not need to have an associated
-   * texture map and multiple properties can share one texture. Textures
-   * must be assigned unique names.
-   */
-  VTK_LEGACY(void SetTexture(int unit, vtkTexture* texture));
-  VTK_LEGACY(vtkTexture* GetTexture(int unit));
-  VTK_LEGACY(void RemoveTexture(int unit));
-  //@}
-
   /**
    * Remove a texture from the collection.
    */
@@ -475,22 +463,6 @@ public:
    * resources to release.
    */
   virtual void ReleaseGraphicsResources(vtkWindow *win);
-
-
-#ifndef VTK_LEGACY_REMOVE
-  // deprecated. Textures should use names not units
-  enum VTKTextureUnit
-  {
-    VTK_TEXTURE_UNIT_0 = 0,
-    VTK_TEXTURE_UNIT_1,
-    VTK_TEXTURE_UNIT_2,
-    VTK_TEXTURE_UNIT_3,
-    VTK_TEXTURE_UNIT_4,
-    VTK_TEXTURE_UNIT_5,
-    VTK_TEXTURE_UNIT_6,
-    VTK_TEXTURE_UNIT_7
-  };
-#endif
 
   //@{
   /**
