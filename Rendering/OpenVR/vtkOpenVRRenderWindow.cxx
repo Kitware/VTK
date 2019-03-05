@@ -486,6 +486,12 @@ void vtkOpenVRRenderWindow::Render()
   {
     this->UpdateHMDMatrixPose();
   }
+  else
+  {
+    vr::VRCompositor()->WaitGetPoses(this->TrackedDevicePose,
+      vr::k_unMaxTrackedDeviceCount, nullptr, 0 );
+  }
+
   this->vtkRenderWindow::Render();
 }
 
