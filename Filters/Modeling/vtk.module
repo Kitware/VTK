@@ -24,4 +24,5 @@ TEST_DEPENDS
   VTK::IOXML
   VTK::InteractionStyle
   VTK::RenderingOpenGL2
+  VTK::RenderingFreeType
   VTK::TestingRendering
