@@ -271,11 +271,7 @@ class vtkPlotStackedSegment : public vtkObject {
           {
             start = this->BadPoints->GetValue(i++) + 1;
           }
-          if (start < nPoints)
-          {
-            end = nPoints;
-          }
-          else
+          if (start >= nPoints)
           {
             // They are all bad points
             return;

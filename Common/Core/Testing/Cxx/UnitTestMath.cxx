@@ -13,6 +13,10 @@
 
 =========================================================================*/
 
+//
+// Note if you fix this test to fill in all the empty tests
+// then remove the cppcheck suppression in VTKcppcheckSuppressions.txt
+//
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkSmartPointer.h"

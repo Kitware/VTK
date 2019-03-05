@@ -542,11 +542,7 @@ void ComputeBounds(A *a, int n, vtkIdTypeArray *bad, double bounds[2])
     {
       start = bad->GetValue(i++) + 1;
     }
-    if (start < n)
-    {
-      end = n;
-    }
-    else
+    if (start >= n)
     {
       // They are all bad points, return early.
       return;
