@@ -31,6 +31,7 @@ set(ANDROID_NATIVE_API_LEVEL "21" CACHE STRING "Android Native API Level")
 set(ANDROID_ARCH_ABI "armeabi" CACHE STRING "Target Android architecture/abi")
 
 # find android
+set(example_flags)
 if (VTK_BUILD_EXAMPLES)
   find_program(ANDROID_EXECUTABLE
     NAMES android
@@ -46,6 +47,11 @@ if (VTK_BUILD_EXAMPLES)
   if(NOT ANT_EXECUTABLE)
     message(FATAL_ERROR "Can not find ant build tool: ant")
   endif()
+
+  list(APPEND example_flags
+    -DANDROID_EXECUTABLE:FILE=${ANDROID_EXECUTABLE}
+    -DANT_EXECUTABLE:FILE=${ANT_EXECUTABLE}
+  )
 endif()
 
 # Fail if the install path is invalid
@@ -90,8 +96,7 @@ mark_as_advanced(
 
 # Now cross-compile VTK with the android toolchain
 set(android_cmake_flags
-  -DANDROID_EXECUTABLE:FILE=${ANDROID_EXECUTABLE}
-  -DANT_EXECUTABLE:FILE=${ANT_EXECUTABLE}
+  ${example_flags}
   -DBUILD_SHARED_LIBS:BOOL=OFF
   -DVTK_BUILD_TESTING:STRING=OFF
   -DVTK_BUILD_EXAMPLES:BOOL=${VTK_BUILD_EXAMPLES}
