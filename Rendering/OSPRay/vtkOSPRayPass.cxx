@@ -57,6 +57,8 @@ public:
   vtkOSPRayPass *Parent;
 };
 
+int vtkOSPRayPass::OSPDeviceRefCount = 0;
+
 // ----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOSPRayPassInternals);
 
@@ -68,32 +70,7 @@ vtkOSPRayPass::vtkOSPRayPass()
 {
   this->SceneGraph = nullptr;
 
-  int ac = 1;
-  const char* envArgs = getenv("VTKOSPRAY_ARGS");
-  if (envArgs)
-  {
-    std::stringstream ss(envArgs);
-    std::string arg;
-    std::vector<std::string> args;
-    while (ss >> arg)
-    {
-      args.push_back(arg);
-    }
-    ac = static_cast<int>(args.size()+1);
-    const char** av = new const char*[ac];
-    av[0] = "pvOSPRay";
-    for(int i=1;i < ac; i++)
-    {
-      av[i] = args[i - 1].c_str();
-    }
-    ospInit(&ac, av);
-    delete [] av;
-  }
-  else
-  {
-    const char* av[] = {"pvOSPRay\0"};
-    ospInit(&ac, av);
-  }
+  vtkOSPRayPass::OSPInit();
 
   vtkOSPRayViewNodeFactory *vnf = vtkOSPRayViewNodeFactory::New();
   this->Internal = vtkOSPRayPassInternals::New();
@@ -151,7 +128,8 @@ vtkOSPRayPass::~vtkOSPRayPass()
     this->RenderPassCollection->Delete();
     this->RenderPassCollection = 0;
   }
-  ospShutdown();
+
+  vtkOSPRayPass::OSPShutdown();
 }
 
 // ----------------------------------------------------------------------------
@@ -257,5 +235,50 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
       delete[] ontoZ;
       delete[] ontoRGBA;
     }
+  }
+}
+
+// ----------------------------------------------------------------------------
+void vtkOSPRayPass::OSPInit()
+{
+  int ac = 1;
+  if (OSPDeviceRefCount == 0)
+  {
+    const char* envArgs = getenv("VTKOSPRAY_ARGS");
+    if (envArgs)
+    {
+      std::stringstream ss(envArgs);
+      std::string arg;
+      std::vector<std::string> args;
+      while (ss >> arg)
+      {
+        args.push_back(arg);
+      }
+      ac = static_cast<int>(args.size()+1);
+      const char** av = new const char*[ac];
+      av[0] = "pvOSPRay";
+      for(int i=1;i < ac; i++)
+      {
+        av[i] = args[i - 1].c_str();
+      }
+      ospInit(&ac, av);
+      delete [] av;
+    }
+    else
+    {
+      const char* av[] = {"pvOPSRay"};
+      ospInit(&ac, av);
+    }
+  }
+  OSPDeviceRefCount++;
+}
+
+// ----------------------------------------------------------------------------
+void vtkOSPRayPass::OSPShutdown()
+{
+  --OSPDeviceRefCount;
+  if (OSPDeviceRefCount == 0)
+  {
+    ospShutdown();
   }
 }

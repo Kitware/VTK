@@ -17,6 +17,7 @@
 #include "vtkCollectionIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkOSPRayViewNodeFactory.h"
 #include "vtkRendererCollection.h"
@@ -33,9 +34,7 @@ vtkStandardNewMacro(vtkOSPRayWindowNode);
 //----------------------------------------------------------------------------
 vtkOSPRayWindowNode::vtkOSPRayWindowNode()
 {
-  int ac = 1;
-  const char* av[] = {"pvOSPRay\0"};
-  ospInit(&ac, av);
+  vtkOSPRayPass::OSPInit();
   vtkOSPRayViewNodeFactory *fac = vtkOSPRayViewNodeFactory::New();
   this->SetMyFactory(fac);
   fac->Delete();
@@ -44,7 +43,7 @@ vtkOSPRayWindowNode::vtkOSPRayWindowNode()
 //----------------------------------------------------------------------------
 vtkOSPRayWindowNode::~vtkOSPRayWindowNode()
 {
-  ospShutdown();
+  vtkOSPRayPass::OSPShutdown();
 }
 
 //----------------------------------------------------------------------------
