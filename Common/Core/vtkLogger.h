@@ -404,7 +404,7 @@ public:
   //@}
 protected:
   vtkLogger();
-  ~vtkLogger();
+  ~vtkLogger() override;
 
 private:
   vtkLogger(const vtkLogger&) = delete;
