@@ -161,11 +161,11 @@ bool vtkGDALRasterReprojection::Reproject(GDALDataset* input,
   }
   warpOptions->pfnTransformer = GDALGenImgProjTransform;
 
-  // Set multithreaded option, even though it does not seem to work
-  char** stringWarpOptions = NULL;
-  stringWarpOptions =
-    CSLSetNameValue(stringWarpOptions, "NUM_THREADS", "ALL_CPUS");
-  warpOptions->papszWarpOptions = stringWarpOptions;
+  // multithreaded option seems to cause a data race
+  // char** stringWarpOptions = NULL;
+  // stringWarpOptions =
+  //   CSLSetNameValue(stringWarpOptions, "NUM_THREADS", "ALL_CPUS");
+  // warpOptions->papszWarpOptions = stringWarpOptions;
 
   CPLErr err = GDALReprojectImage(input,
                                   input->GetProjectionRef(),
