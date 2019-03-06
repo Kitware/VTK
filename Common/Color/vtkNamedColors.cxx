@@ -900,7 +900,7 @@ void vtkColorStringParser::RGBAFuncStringToRGBA(vtkStdString color,
       ++delimiterCount;
     }
   }
-  this->StateGood = (delimiterCount + 1 == argCount);
+  this->StateGood = this->StateGood && (delimiterCount + 1 == argCount);
 
   // Parse arguments.
   const char* start = color.c_str() + pos + 1;

@@ -592,6 +592,9 @@ redundantAssignment:*/Testing/*
 // 13 warnings
 useInitializationList:*
 
+// lots of placeholder code for future tests
+knownConditionTrueFalse:Common/Core/Testing/Cxx/UnitTestMath.cxx
+
 // False positive: Condition 'this->FileIndex<0' is always true
 // <https://trac.cppcheck.net/ticket/8924>
 knownConditionTrueFalse:IO/AMR/vtkAMRFlashReaderInternal.cxx
