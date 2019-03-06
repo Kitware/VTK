@@ -38,7 +38,6 @@ class vtkPolyDataMapper;
 class vtkRenderer;
 class vtkTextProperty;
 class vtkTextRenderer;
-class vtkTexture;
 
 class VTKRENDERINGCORE_EXPORT vtkFlagpoleLabel: public vtkActor
 {
@@ -152,7 +151,6 @@ protected:
   // Rendering stuffies
   vtkNew<vtkTextRenderer> TextRenderer;
   vtkNew<vtkImageData> Image;
-  vtkNew<vtkTexture> Texture;
   vtkNew<vtkPolyData> Quad;
   vtkNew<vtkPolyDataMapper> QuadMapper;
   vtkNew<vtkActor> QuadActor;

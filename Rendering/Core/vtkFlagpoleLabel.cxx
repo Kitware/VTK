@@ -248,6 +248,7 @@ vtkFlagpoleLabel::vtkFlagpoleLabel()
   this->FlagSize = 1.0;
 
   // Connect internal rendering pipeline:
+  this->Texture = vtkTexture::New();
   this->Texture->InterpolateOn();
   this->Texture->SetInputData(this->Image);
   this->QuadMapper->SetInputData(this->Quad);
