@@ -138,15 +138,15 @@ class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter
   {
     if ( this->CollisionMode == VTK_ALL_CONTACTS )
     {
-      return (char *)"AllContacts";
+      return "AllContacts";
     }
     else if (this->CollisionMode == VTK_FIRST_CONTACT)
     {
-      return (char *)"FirstContact";
+      return "FirstContact";
     }
     else
     {
-      return (char *)"HalfContacts";
+      return "HalfContacts";
     }
   }
   //@}

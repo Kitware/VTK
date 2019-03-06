@@ -42,7 +42,7 @@ void vtkParse_UndefineMacro(const char *name);
 /**
  * Do not pre-define any macros related to the system or platform.
  */
-void vtkParse_UndefinePlatformMacros();
+void vtkParse_UndefinePlatformMacros(void);
 
 /**
  * Read macros from the provided header file.

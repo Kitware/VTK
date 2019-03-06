@@ -32,7 +32,7 @@ public:
 
 protected:
   vtkExplicitStructuredGridToUnstructuredGrid() = default;
-  ~vtkExplicitStructuredGridToUnstructuredGrid() = default;
+  ~vtkExplicitStructuredGridToUnstructuredGrid() override = default;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestData(vtkInformation*,
