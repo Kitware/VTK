@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-//TODO:
+// TODO:
 // Add support for timesteps
 // Add streaming support.
 
@@ -26,15 +26,17 @@
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkStandardNewMacro(vtkXMLHyperTreeGridWriter);
+#define vtkXMLOffsetsManager_DoNotInclude
+#include "vtkXMLOffsetsManager.h"
+#undef vtkXMLOffsetsManager_DoNotInclude
 
-//----------------------------------------------------------------------------
-vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter() = default;
+#include <cassert>
+
+vtkStandardNewMacro(vtkXMLHyperTreeGridWriter);
 
 //----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -61,8 +63,7 @@ const char* vtkXMLHyperTreeGridWriter::GetDataSetName()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHyperTreeGridWriter::FillInputPortInformation(
-  int, vtkInformation* info)
+int vtkXMLHyperTreeGridWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   return 1;
@@ -71,7 +72,7 @@ int vtkXMLHyperTreeGridWriter::FillInputPortInformation(
 //----------------------------------------------------------------------------
 int vtkXMLHyperTreeGridWriter::WriteData()
 {
-  //write XML header and VTK file header and file attributes
+  // write XML header and VTK file header and file attributes
   if (!this->StartFile())
   {
     return 0;
@@ -103,6 +104,70 @@ int vtkXMLHyperTreeGridWriter::WriteData()
     return 0;
   }
 
+  // Write all appended data by tree using Helper function
+  if (this->DataMode == vtkXMLWriter::Appended)
+  {
+    vtkHyperTreeGrid* input = this->GetInput();
+    vtkPointData* pd = input->GetPointData();
+    vtkIdType numberOfPointDataArrays = pd->GetNumberOfArrays();
+
+    this->StartAppendedData();
+
+    // Write the field data arrays.
+    if (this->FieldDataOM->GetNumberOfElements())
+    {
+      vtkNew<vtkFieldData> fieldDataCopy;
+      this->UpdateFieldData(fieldDataCopy);
+
+      this->WriteFieldDataAppendedData(fieldDataCopy, this->CurrentTimeIndex, this->FieldDataOM);
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+        return 0;
+      }
+    }
+
+    // Write the Coordinates arrays
+    if (this->CoordsOMG->GetNumberOfElements())
+    {
+      assert(this->CoordsOMG->GetNumberOfElements() == 3);
+      this->WriteAppendedArrayDataHelper(input->GetXCoordinates(), this->CoordsOMG->GetElement(0));
+      this->WriteAppendedArrayDataHelper(input->GetYCoordinates(), this->CoordsOMG->GetElement(1));
+      this->WriteAppendedArrayDataHelper(input->GetZCoordinates(), this->CoordsOMG->GetElement(2));
+    }
+
+    // Write the data for each tree
+    vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
+    input->InitializeTreeIterator(it);
+    vtkIdType inIndex;
+    int treeIndx = 0;
+    while (it.GetNextTree(inIndex))
+    {
+      vtkHyperTreeGridNonOrientedCursor* inCursor = input->NewNonOrientedCursor(inIndex);
+      vtkHyperTree* tree = inCursor->GetTree();
+      vtkIdType numberOfVertices = tree->GetNumberOfVertices();
+      vtkIdType globalOffset = tree->GetGlobalIndexFromLocal(0);
+      ;
+
+      // Tree Descriptor
+      this->WriteAppendedArrayDataHelper(
+        this->Descriptors[treeIndx], this->DescriptorOMG->GetElement(treeIndx));
+      // Tree Mask
+      this->WriteAppendedArrayDataHelper(
+        this->Masks[treeIndx], this->MaskOMG->GetElement(treeIndx));
+      // Point Data
+      for (int i = 0; i < pd->GetNumberOfArrays(); i++)
+      {
+        vtkAbstractArray* a = pd->GetAbstractArray(i);
+        int pdIndx = treeIndx * numberOfPointDataArrays + i;
+        this->WritePointDataAppendedArrayDataHelper(
+          a, globalOffset, numberOfVertices, this->PointDataOMG->GetElement(pdIndx));
+      }
+      treeIndx++;
+    }
+
+    this->EndAppendedData();
+  }
+
   if (!this->EndFile())
   {
     return 0;
@@ -119,8 +184,7 @@ int vtkXMLHyperTreeGridWriter::StartPrimaryElement(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes
-  (ostream &os, vtkIndent indent)
+void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes(ostream& os, vtkIndent indent)
 {
   this->Superclass::WritePrimaryElementAttributes(os, indent);
   vtkHyperTreeGrid* input = this->GetInput();
@@ -128,14 +192,12 @@ void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes
   int extent[6];
   input->GetExtent(extent);
 
-  this->WriteScalarAttribute("Dimension", (int) input->GetDimension());
-  this->WriteScalarAttribute("Orientation",
-                             (unsigned char) input->GetOrientation());
-  this->WriteScalarAttribute("BranchFactor", (int) input->GetBranchFactor());
-  this->WriteScalarAttribute("TransposedRootIndexing",
-                             (bool)input->GetTransposedRootIndexing());
-  this->WriteVectorAttribute("Extent", 6, (int*) input->GetExtent());
-  this->WriteVectorAttribute("Dimensions", 3, (int*) input->GetDimensions());
+  this->WriteScalarAttribute("Dimension", (int)input->GetDimension());
+  this->WriteScalarAttribute("Orientation", (int)input->GetOrientation());
+  this->WriteScalarAttribute("BranchFactor", (int)input->GetBranchFactor());
+  this->WriteScalarAttribute("TransposedRootIndexing", (bool)input->GetTransposedRootIndexing());
+  this->WriteVectorAttribute("GridSize", 3, (int*)input->GetGridSize());
+  this->WriteVectorAttribute("GridExtent", 6, extent);
   this->WriteScalarAttribute("NumberOfVertices", input->GetNumberOfVertices());
 }
 
@@ -146,21 +208,42 @@ int vtkXMLHyperTreeGridWriter::WriteGrid(vtkIndent indent)
   ostream& os = *(this->Stream);
   os << indent << "<Grid>\n";
 
-  // Coordinates of the grid
-  this->WriteArrayInline(input->GetXCoordinates(), indent.GetNextIndent(),
-                         "XCoordinates",
-                         input->GetXCoordinates()->GetNumberOfValues());
-  this->WriteArrayInline(input->GetYCoordinates(), indent.GetNextIndent(),
-                         "YCoordinates",
-                         input->GetYCoordinates()->GetNumberOfValues());
-  this->WriteArrayInline(input->GetZCoordinates(), indent.GetNextIndent(),
-                         "ZCoordinates",
-                         input->GetZCoordinates()->GetNumberOfValues());
-
-  // Write mask on grid
-  this->WriteArrayInline(input->GetMask(), indent.GetNextIndent(),
-                         "Mask",
-                         input->GetMask()->GetNumberOfValues());
+  if (this->DataMode == Appended)
+  {
+    // Coordinates of the grid
+    this->CoordsOMG->Allocate(3, this->NumberOfTimeSteps);
+    this->WriteArrayAppended(input->GetXCoordinates(),
+      indent.GetNextIndent(),
+      this->CoordsOMG->GetElement(0),
+      "XCoordinates",
+      input->GetXCoordinates()->GetNumberOfTuples());
+    this->WriteArrayAppended(input->GetYCoordinates(),
+      indent.GetNextIndent(),
+      this->CoordsOMG->GetElement(1),
+      "YCoordinates",
+      input->GetYCoordinates()->GetNumberOfTuples());
+    this->WriteArrayAppended(input->GetZCoordinates(),
+      indent.GetNextIndent(),
+      this->CoordsOMG->GetElement(2),
+      "ZCoordinates",
+      input->GetZCoordinates()->GetNumberOfTuples());
+  }
+  else
+  {
+    // Coordinates of the grid
+    this->WriteArrayInline(input->GetXCoordinates(),
+      indent.GetNextIndent(),
+      "XCoordinates",
+      input->GetXCoordinates()->GetNumberOfValues());
+    this->WriteArrayInline(input->GetYCoordinates(),
+      indent.GetNextIndent(),
+      "YCoordinates",
+      input->GetYCoordinates()->GetNumberOfValues());
+    this->WriteArrayInline(input->GetZCoordinates(),
+      indent.GetNextIndent(),
+      "ZCoordinates",
+      input->GetZCoordinates()->GetNumberOfValues());
+  }
 
   os << indent << "</Grid>\n";
   os.flush();
@@ -173,42 +256,74 @@ int vtkXMLHyperTreeGridWriter::WriteGrid(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkXMLHyperTreeGridWriter::vtkXMLHyperTreeGridWriter() = default;
+vtkXMLHyperTreeGridWriter::vtkXMLHyperTreeGridWriter()
+  : CoordsOMG(new OffsetsManagerGroup)
+  , DescriptorOMG(new OffsetsManagerGroup)
+  , MaskOMG(new OffsetsManagerGroup)
+  , PointDataOMG(new OffsetsManagerGroup)
+{
+}
 
 //----------------------------------------------------------------------------
-namespace {
-  void BuildDescriptor
-  ( vtkHyperTreeGridNonOrientedCursor* inCursor,
-    int level,
-    std::vector<std::string> &descriptor)
+vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter()
+{
+  delete this->CoordsOMG;
+  delete this->DescriptorOMG;
+  delete this->MaskOMG;
+  delete this->PointDataOMG;
+}
+
+//----------------------------------------------------------------------------
+namespace
+{
+//
+// Depth first recursion to walk the tree in child order
+// Used to create the breadth first BitArray descriptor appending
+// node and leaf indicator by level
+//
+void BuildDescriptor(vtkHyperTreeGridNonOrientedCursor* inCursor,
+  int level,
+  std::vector<std::string>& descriptor,
+  std::vector<std::string>& mask)
+{
+  // Retrieve input grid
+  vtkHyperTreeGrid* input = inCursor->GetGrid();
+
+  // Append to mask string
+  vtkIdType id = inCursor->GetGlobalNodeIndex();
+  if (input->HasMask())
   {
-    // Retrieve input grid
-    vtkHyperTreeGrid* input = inCursor->GetGrid();
-
-    if ( ! inCursor->IsLeaf() )
-    {
-      descriptor[level] += 'R';
-
-      // If input cursor is not a leaf, recurse to all children
-      int numChildren = input->GetNumberOfChildren();
-      for ( int child = 0; child < numChildren; ++ child )
-      {
-        // Create child cursor from parent in input grid
-        vtkHyperTreeGridNonOrientedCursor* childCursor = inCursor->Clone();
-        childCursor->ToChild( child );
-
-        // Recurse
-        BuildDescriptor( childCursor, level+1, descriptor );
-
-        // Clean up
-        childCursor->Delete();
-      } // child
-    }
+    if (input->GetMask()->GetValue(id))
+      mask[level] += '1';
     else
-    {
-      descriptor[level] += '.';
-    }
+      mask[level] += '0';
   }
+
+  // Append to descriptor string
+  if (!inCursor->IsLeaf())
+  {
+    descriptor[level] += 'R';
+
+    // If input cursor is not a leaf, recurse to all children
+    int numChildren = input->GetNumberOfChildren();
+    for (int child = 0; child < numChildren; ++child)
+    {
+      // Create child cursor from parent in input grid
+      vtkHyperTreeGridNonOrientedCursor* childCursor = inCursor->Clone();
+      childCursor->ToChild(child);
+
+      // Recurse
+      BuildDescriptor(childCursor, level + 1, descriptor, mask);
+
+      // Clean up
+      childCursor->Delete();
+    } // child
+  }
+  else
+  {
+    descriptor[level] += '.';
+  }
+}
 }
 
 //----------------------------------------------------------------------------
@@ -216,101 +331,189 @@ int vtkXMLHyperTreeGridWriter::WriteTrees(vtkIndent indent)
 {
   vtkHyperTreeGrid* input = this->GetInput();
   vtkIdType maxLevels = input->GetNumberOfLevels();
+  vtkPointData* pd = input->GetPointData();
+  vtkIdType numberOfPointDataArrays = pd->GetNumberOfArrays();
+
+  // Count the actual number of hypertrees represented in this hypertree grid
+  vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
+  input->InitializeTreeIterator(it);
+  this->NumberOfTrees = 0;
+  vtkIdType inIndex;
+  while (it.GetNextTree(inIndex))
+  {
+    this->NumberOfTrees++;
+  }
+
+  // Allocate offsets managers for appended data
+  if (this->DataMode == Appended)
+  {
+    this->DescriptorOMG->Allocate(this->NumberOfTrees, this->NumberOfTimeSteps);
+    this->MaskOMG->Allocate(this->NumberOfTrees, this->NumberOfTimeSteps);
+    this->PointDataOMG->Allocate(
+      this->NumberOfTrees * numberOfPointDataArrays, this->NumberOfTimeSteps);
+  }
 
   ostream& os = *(this->Stream);
   os << indent << "<Trees>\n";
   vtkIndent treeIndent = indent.GetNextIndent();
 
   // Collect description by processing depth first and writing breadth first
-  vtkIdType inIndex;
-  vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
-  input->InitializeTreeIterator( it );
-
-  while ( it.GetNextTree( inIndex ) )
+  input->InitializeTreeIterator(it);
+  int treeIndx = 0;
+  while (it.GetNextTree(inIndex))
   {
     // Initialize new grid cursor at root of current input tree
-    vtkHyperTreeGridNonOrientedCursor* inCursor = input->NewNonOrientedCursor( inIndex );
+    vtkHyperTreeGridNonOrientedCursor* inCursor = input->NewNonOrientedCursor(inIndex);
     vtkHyperTree* tree = inCursor->GetTree();
-    vtkIdType count = tree->GetNumberOfVertices();
-    vtkIdType offset = tree->GetGlobalIndexFromLocal(0);;
+    vtkIdType globalOffset = tree->GetGlobalIndexFromLocal(0);
+    ;
+    vtkIdType numberOfVertices = tree->GetNumberOfVertices();
 
     os << treeIndent << "<Tree";
     this->WriteScalarAttribute("Index", inIndex);
-    this->WriteScalarAttribute("Offset", offset);
-    this->WriteScalarAttribute("Count", count);
+    this->WriteScalarAttribute("GlobalOffset", globalOffset);
+    this->WriteScalarAttribute("NumberOfVertices", numberOfVertices);
     os << ">\n";
 
     // Recursively compute descriptor for this tree, appending any
-    // entries for each of the levels in descByLevel.
+    // entries for each of the levels in descByLevel for output.
+    // Collect the masked indicator at the same time
     std::vector<std::string> descByLevel(maxLevels);
-    BuildDescriptor(inCursor, 0, descByLevel );
+    std::vector<std::string> maskByLevel(maxLevels);
+    BuildDescriptor(inCursor, 0, descByLevel, maskByLevel);
 
     // Clean up
     inCursor->Delete();
 
-    // Build the BitArray from the level descriptors
-    vtkNew<vtkBitArray> descriptor;
-    std::string::const_iterator dit;
+    // Descriptor BitArray
+    vtkBitArray* descriptor = vtkBitArray::New();
+    std::string::const_iterator liter;
     for (int l = 0; l < maxLevels; l++)
     {
-      for (dit = descByLevel[l].begin(); dit != descByLevel[l].end(); ++dit)
+      for (liter = descByLevel[l].begin(); liter != descByLevel[l].end(); ++liter)
       {
-        switch (*dit)
+        switch (*liter)
         {
-          case 'R':    //  Refined cell
+          case 'R': //  Refined cell
             descriptor->InsertNextValue(1);
             break;
-
-          case '.':    // Leaf cell
+          case '.': // Leaf cell
             descriptor->InsertNextValue(0);
             break;
-
           default:
-            vtkErrorMacro(<< "Unrecognized character: "
-                          << *dit
-                          << " in string "
+            vtkErrorMacro(<< "Unrecognized character: " << *liter << " in string "
                           << descByLevel[l]);
             return 0;
         }
       }
     }
     descriptor->Squeeze();
-    vtkIndent descIndent = treeIndent.GetNextIndent();
-    this->WriteArrayInline(descriptor, descIndent, "Descriptor", descriptor->GetNumberOfValues());
+    this->Descriptors.push_back(descriptor);
 
-    // Write the point data and cell data arrays for tree.
-    os << descIndent << "<PointData>\n";
+    // Mask BitAarray
+    vtkBitArray* mask = vtkBitArray::New();
+    if (input->GetMask())
+    {
+      for (int l = 0; l < maxLevels; l++)
+      {
+        for (liter = maskByLevel[l].begin(); liter != maskByLevel[l].end(); ++liter)
+        {
+          switch (*liter)
+          {
+            case '0': // Not masked
+              mask->InsertNextValue(0);
+              break;
+            case '1': // Masked
+              mask->InsertNextValue(1);
+              break;
+            default:
+              vtkErrorMacro(<< "Unrecognized character: " << *liter << " in string "
+                            << maskByLevel[l]);
+              return 0;
+          }
+        }
+      }
+      mask->Squeeze();
+      this->Masks.push_back(mask);
+    }
+
+    vtkIndent infoIndent = treeIndent.GetNextIndent();
+
+    // Write the descriptor and mask BitArrays
+    if (this->DataMode == Appended)
+    {
+      this->WriteArrayAppended(descriptor,
+        infoIndent,
+        this->DescriptorOMG->GetElement(treeIndx),
+        "Descriptor",
+        descriptor->GetNumberOfValues());
+      if (input->GetMask())
+      {
+        this->WriteArrayAppended(
+          mask, infoIndent, this->MaskOMG->GetElement(treeIndx), "Mask", mask->GetNumberOfValues());
+      }
+    }
+    else
+    {
+      this->WriteArrayInline(descriptor, infoIndent, "Descriptor", descriptor->GetNumberOfValues());
+      if (input->GetMask())
+      {
+        this->WriteArrayInline(mask, infoIndent, "Mask", mask->GetNumberOfValues());
+      }
+    }
+
+    // Write the point data
+    os << infoIndent << "<PointData>\n";
     vtkPointData* pd = input->GetPointData();
 
     for (int i = 0; i < pd->GetNumberOfArrays(); ++i)
     {
       vtkAbstractArray* a = pd->GetAbstractArray(i);
       vtkAbstractArray* b = a->NewInstance();
+      int numberOfComponents = a->GetNumberOfComponents();
 
       // BitArray processed
-      vtkBitArray *aBit = vtkArrayDownCast<vtkBitArray>(a);
+      vtkBitArray* aBit = vtkArrayDownCast<vtkBitArray>(a);
       if (aBit)
       {
-        vtkBitArray *bBit = vtkArrayDownCast<vtkBitArray>(b);
-        bBit->SetNumberOfTuples(count / bBit->GetNumberOfComponents());
+        vtkBitArray* bBit = vtkArrayDownCast<vtkBitArray>(b);
+        bBit->SetNumberOfTuples(numberOfVertices / bBit->GetNumberOfComponents());
 
         // Assuming count is a number of values, not a number of tuples:
-        for (vtkIdType j = offset; j < offset + count; ++j)
+        for (vtkIdType j = globalOffset; j < globalOffset + numberOfVertices; ++j)
         {
-          bBit->SetValue(j, aBit->GetValue(j + offset));
+          bBit->SetValue(j, aBit->GetValue(j + globalOffset));
         }
       }
       // DataArray processed
       else
       {
-        void* data = a->GetVoidPointer(offset);
-        b->SetVoidArray(data, count, 0);
+        // Purpose setting b array is to use the globalOffset into PointData
+        void* data = a->GetVoidPointer(globalOffset * numberOfComponents);
+        b->SetNumberOfTuples(numberOfVertices);
+        b->SetNumberOfComponents(numberOfComponents);
+        b->SetVoidArray(data, numberOfVertices * numberOfComponents, 0);
       }
-      this->WriteArrayInline(b, descIndent.GetNextIndent(), a->GetName());
+
+      // Write the data or XML description for appended data
+      if (this->DataMode == Appended)
+      {
+        this->WriteArrayAppended(b,
+          infoIndent.GetNextIndent(),
+          this->PointDataOMG->GetElement(treeIndx * numberOfPointDataArrays + i),
+          a->GetName(),
+          numberOfVertices * numberOfComponents);
+      }
+      else
+      {
+        this->WriteArrayInline(
+          b, infoIndent.GetNextIndent(), a->GetName(), numberOfVertices * numberOfComponents);
+      }
     }
+    treeIndx++;
 
     // Increment to next tree with PointData
-    os << descIndent << "</PointData>\n";
+    os << infoIndent << "</PointData>\n";
     os << treeIndent << "</Tree>\n";
   }
   os << indent << "</Trees>\n";
@@ -339,4 +542,69 @@ int vtkXMLHyperTreeGridWriter::FinishPrimaryElement(vtkIndent indent)
     return 0;
   }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLHyperTreeGridWriter::WriteAppendedArrayDataHelper(vtkAbstractArray* array,
+  OffsetsManager& offsets)
+{
+  this->WriteArrayAppendedData(array,
+    offsets.GetPosition(this->CurrentTimeIndex),
+    offsets.GetOffsetValue(this->CurrentTimeIndex));
+
+  vtkDataArray* dArray = vtkArrayDownCast<vtkDataArray>(array);
+  if (dArray)
+  {
+    double* range = dArray->GetRange(-1);
+    this->ForwardAppendedDataDouble(
+      offsets.GetRangeMinPosition(this->CurrentTimeIndex), range[0], "RangeMin");
+    this->ForwardAppendedDataDouble(
+      offsets.GetRangeMaxPosition(this->CurrentTimeIndex), range[1], "RangeMax");
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLHyperTreeGridWriter::WritePointDataAppendedArrayDataHelper(vtkAbstractArray* a,
+  vtkIdType globalOffset,
+  vtkIdType numberOfVertices,
+  OffsetsManager& offsets)
+{
+  vtkAbstractArray* b = a->NewInstance();
+  int numberOfComponents = a->GetNumberOfComponents();
+
+  // BitArray processed
+  vtkBitArray* aBit = vtkArrayDownCast<vtkBitArray>(a);
+  if (aBit)
+  {
+    vtkBitArray* bBit = vtkArrayDownCast<vtkBitArray>(b);
+    bBit->SetNumberOfTuples(numberOfVertices / bBit->GetNumberOfComponents());
+
+    // Assuming count is a number of values, not a number of tuples:
+    for (vtkIdType j = globalOffset; j < globalOffset + numberOfVertices; ++j)
+    {
+      bBit->SetValue(j, aBit->GetValue(j + globalOffset));
+    }
+  }
+  // DataArray processed
+  else
+  {
+    // Purpose setting b array is to use the offset into PointData
+    void* data = a->GetVoidPointer(globalOffset * numberOfComponents);
+    b->SetNumberOfTuples(numberOfVertices);
+    b->SetNumberOfComponents(numberOfComponents);
+    b->SetVoidArray(data, numberOfVertices * numberOfComponents, 0);
+  }
+
+  this->WriteArrayAppendedData(
+    b, offsets.GetPosition(this->CurrentTimeIndex), offsets.GetOffsetValue(this->CurrentTimeIndex));
+
+  vtkDataArray* dArray = vtkArrayDownCast<vtkDataArray>(a);
+  if (dArray)
+  {
+    double* range = dArray->GetRange(-1);
+    this->ForwardAppendedDataDouble(
+      offsets.GetRangeMinPosition(this->CurrentTimeIndex), range[0], "RangeMin");
+    this->ForwardAppendedDataDouble(
+      offsets.GetRangeMaxPosition(this->CurrentTimeIndex), range[1], "RangeMax");
+  }
 }

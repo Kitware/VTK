@@ -12,7 +12,8 @@ set(classes
   vtkXMLPUnstructuredGridWriter
   vtkXMLPHierarchicalBoxDataWriter
   vtkXMLPMultiBlockDataWriter
-  vtkXMLPUniformGridAMRWriter)
+  vtkXMLPUniformGridAMRWriter
+  vtkXMLPHyperTreeGridWriter)
 
 vtk_module_add_module(VTK::IOParallelXML
   CLASSES ${classes})

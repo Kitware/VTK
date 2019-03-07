@@ -18,41 +18,29 @@
  *
  * vtkXMLHyperTreeGridWriter writes the VTK XML HyperTreeGrid file
  * format. The standard extension for this writer's file format is "htg".
-*/
+ */
 
 #ifndef vtkXMLHyperTreeGridWriter_h
 #define vtkXMLHyperTreeGridWriter_h
 
+#include "vtkBitArray.h"
 #include "vtkIOXMLModule.h" // For export macro
+#include "vtkNew.h"         // For ivar
 #include "vtkXMLWriter.h"
 
+#include <vector> // std::vector
+
+class OffsetsManagerGroup;
+class OffsetsManagerArray;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
 
 class VTKIOXML_EXPORT vtkXMLHyperTreeGridWriter : public vtkXMLWriter
 {
 public:
-  vtkTypeMacro(vtkXMLHyperTreeGridWriter,vtkXMLWriter);
+  vtkTypeMacro(vtkXMLHyperTreeGridWriter, vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLHyperTreeGridWriter* New();
-
-  //@{
-  /**
-   * Get/Set the number of pieces used to stream the table through the
-   * pipeline while writing to the file.
-   */
-  vtkSetMacro(NumberOfPieces, int);
-  vtkGetMacro(NumberOfPieces, int);
-  //@}
-
-  //@{
-  /**
-   * Get/Set the piece to write to the file.  If this is
-   * negative or equal to the NumberOfPieces, all pieces will be written.
-   */
-  vtkSetMacro(WritePiece, int);
-  vtkGetMacro(WritePiece, int);
-  //@}
 
   /**
    * Get/Set the writer's input.
@@ -80,7 +68,7 @@ protected:
   int StartPrimaryElement(vtkIndent);
 
   // ... dim, size, origin>
-  void WritePrimaryElementAttributes(ostream &, vtkIndent) override;
+  void WritePrimaryElementAttributes(ostream&, vtkIndent) override;
 
   // Grid coordinates and mask
   int WriteGrid(vtkIndent);
@@ -91,15 +79,25 @@ protected:
   // </HyperTreeGrid>
   int FinishPrimaryElement(vtkIndent);
 
-  /**
-   * Number of pieces used for streaming.
-   */
-  int NumberOfPieces;
+  // Descriptors for individual hypertrees
+  std::vector<vtkBitArray*> Descriptors;
 
-  /**
-   * Which piece to write, if not all.
-   */
-  int WritePiece;
+  // Masks for individual hypertrees
+  std::vector<vtkBitArray*> Masks;
+
+  // Helper to simplify writing appended array data
+  void WriteAppendedArrayDataHelper(vtkAbstractArray* array, OffsetsManager& offsets);
+  void WritePointDataAppendedArrayDataHelper(vtkAbstractArray* array,
+    vtkIdType treeOffset,
+    vtkIdType treeCount,
+    OffsetsManager& offsets);
+
+  OffsetsManagerGroup* CoordsOMG;
+  OffsetsManagerGroup* DescriptorOMG;
+  OffsetsManagerGroup* MaskOMG;
+  OffsetsManagerGroup* PointDataOMG;
+
+  int NumberOfTrees;
 
 private:
   vtkXMLHyperTreeGridWriter(const vtkXMLHyperTreeGridWriter&) = delete;
