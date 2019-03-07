@@ -188,12 +188,6 @@ protected:
   vtkCellArray* Cells;
 
   /**
-   *JB Un locator est utilise afin de produire un maillage avec moins
-   *JB de points. Le gain en 3D est de l'ordre d'un facteur 4 !
-   */
-  vtkIncrementalPointLocator* Locator;
-
-  /**
    * Pointer to the renderer in use
    */
   vtkRenderer *Renderer;

@@ -272,7 +272,7 @@ class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter
 
 protected:
   vtkCollisionDetectionFilter();
-  ~vtkCollisionDetectionFilter();
+  ~vtkCollisionDetectionFilter() override;
 
   // Usual data generation method
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;

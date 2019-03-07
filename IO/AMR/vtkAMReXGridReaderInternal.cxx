@@ -1167,8 +1167,8 @@ void vtkAMReXGridReaderInternal::Convert(
 void vtkAMReXGridReaderInternal::PermuteOrder(
   void* out, const void* in, long nitems, const int* outord, const int* inord, int REALSIZE)
 {
-  char* pin = (char*)in;
-  char* pout = (char*)out;
+  char const * pin = static_cast<char const *>(in);
+  char* pout = static_cast<char *>(out);
 
   pin--;
   pout--;

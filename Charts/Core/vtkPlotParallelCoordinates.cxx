@@ -138,10 +138,9 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
 
   vtkIdType selection = 0;
   vtkIdType id = 0;
-  vtkIdType selectionSize = 0;
   if (this->Selection)
   {
-    selectionSize = this->Selection->GetNumberOfTuples();
+    vtkIdType selectionSize = this->Selection->GetNumberOfTuples();
     if (selectionSize)
     {
       this->Selection->GetTypedTuple(selection, &id);
