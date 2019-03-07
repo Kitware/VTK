@@ -951,10 +951,23 @@ if (HDF5_FOUND)
 
     if (NOT TARGET "hdf5::${hdf5_target_name}")
       add_library("hdf5::${hdf5_target_name}" UNKNOWN IMPORTED)
+      if (DEFINED "HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}")
+        set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}}")
+      elseif (DEFINED "HDF5_${hdf5_lang}_LIBRARY")
+        set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY}")
+      elseif (DEFINED "HDF5_${hdf5_target_name}_LIBRARY")
+        set(_hdf5_location "${HDF5_${hdf5_target_name}_LIBRARY}")
+      else ()
+        # Error if we still don't have the location.
+        message(SEND_ERROR
+          "HDF5 was found, but a different variable was set which contains "
+          "its location.")
+      endif ()
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
-        IMPORTED_LOCATION "${HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}}"
+        IMPORTED_LOCATION "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_INCLUDE_DIRS}"
         INTERFACE_COMPILE_DEFINTIONS "${HDF5_${hdf5_lang}_DEFINITIONS}")
+      unset(_hdf5_location)
     endif ()
 
     if (NOT FIND_HL)
@@ -973,10 +986,23 @@ if (HDF5_FOUND)
 
     if (NOT TARGET "hdf5::${hdf5_target_name}")
       add_library("hdf5::${hdf5_target_name}" UNKNOWN IMPORTED)
+      if (DEFINED "HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}")
+        set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}}")
+      elseif (DEFINED "HDF5_${hdf5_lang}_LIBRARY")
+        set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY}")
+      elseif (DEFINED "HDF5_${hdf5_target_name}_LIBRARY")
+        set(_hdf5_location "${HDF5_${hdf5_target_name}_LIBRARY}")
+      else ()
+        # Error if we still don't have the location.
+        message(SEND_ERROR
+          "HDF5 was found, but a different variable was set which contains "
+          "its location.")
+      endif ()
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
-        IMPORTED_LOCATION "${HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}}"
+        IMPORTED_LOCATION "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_HL_INCLUDE_DIRS}"
         INTERFACE_COMPILE_DEFINTIONS "${HDF5_${hdf5_lang}_HL_DEFINITIONS}")
+      unset(_hdf5_location)
     endif ()
   endforeach ()
   unset(hdf5_lang)
