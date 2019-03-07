@@ -135,14 +135,14 @@ public:
   /**
    * Compute the center of the triangle.
    */
-  static void TriangleCenter(double p1[3], double p2[3], double p3[3],
+  static void TriangleCenter(const double p1[3], const double p2[3], const double p3[3],
                              double center[3]);
 
   /**
    * Compute the area of a triangle in 3D.
    * See also vtkTriangle::ComputeArea()
    */
-  static double TriangleArea(double p1[3], double p2[3], double p3[3]);
+  static double TriangleArea(const double p1[3], const double p2[3], const double p3[3]);
 
   /**
    * Compute the circumcenter (center[3]) and radius squared (method
@@ -187,12 +187,12 @@ public:
   /**
    * Compute the triangle normal from three points.
    */
-  static void ComputeNormal(double v1[3], double v2[3], double v3[3], double n[3]);
+  static void ComputeNormal(const double v1[3], const double v2[3], const double v3[3], double n[3]);
 
   /**
    * Compute the (unnormalized) triangle normal direction from three points.
    */
-  static void ComputeNormalDirection(double v1[3], double v2[3], double v3[3],
+  static void ComputeNormalDirection(const double v1[3], const double v2[3], const double v3[3],
                                      double n[3]);
 
   // Description:
@@ -246,8 +246,8 @@ inline int vtkTriangle::GetParametricCenter(double pcoords[3])
 }
 
 //----------------------------------------------------------------------------
-inline void vtkTriangle::ComputeNormalDirection(double v1[3], double v2[3],
-                                       double v3[3], double n[3])
+inline void vtkTriangle::ComputeNormalDirection(const double v1[3], const double v2[3],
+                                                const double v3[3], double n[3])
 {
   double ax, ay, az, bx, by, bz;
 
@@ -261,8 +261,8 @@ inline void vtkTriangle::ComputeNormalDirection(double v1[3], double v2[3],
 }
 
 //----------------------------------------------------------------------------
-inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
-                                       double v3[3], double n[3])
+inline void vtkTriangle::ComputeNormal(const double v1[3], const double v2[3],
+                                       const double v3[3], double n[3])
 {
   double length;
 
@@ -277,8 +277,8 @@ inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
 }
 
 //----------------------------------------------------------------------------
-inline void vtkTriangle::TriangleCenter(double p1[3], double p2[3],
-                                        double p3[3], double center[3])
+inline void vtkTriangle::TriangleCenter(const double p1[3], const double p2[3],
+                                        const double p3[3], double center[3])
 {
   center[0] = (p1[0]+p2[0]+p3[0]) / 3.0;
   center[1] = (p1[1]+p2[1]+p3[1]) / 3.0;
@@ -286,7 +286,7 @@ inline void vtkTriangle::TriangleCenter(double p1[3], double p2[3],
 }
 
 //----------------------------------------------------------------------------
-inline double vtkTriangle::TriangleArea(double p1[3], double p2[3], double p3[3])
+inline double vtkTriangle::TriangleArea(const double p1[3], const double p2[3], const double p3[3])
 {
   double n[3];
   vtkTriangle::ComputeNormalDirection(p1,p2,p3,n);
