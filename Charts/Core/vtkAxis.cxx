@@ -1305,11 +1305,10 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     }
 
     double mult = max > min ? 1.0 : -1.0;
-    double range = 0.0;
     int n = 0;
     if (this->LogScaleActive)
     {
-      range = mult > 0.0 ? pow(10.0, max) - pow(10.0, min)
+      double range = mult > 0.0 ? pow(10.0, max) - pow(10.0, min)
         : pow(10.0, min) - pow(10.0, max);
       n = vtkContext2D::FloatToInt(range / pow(10.0, this->TickInterval));
     }
@@ -1319,7 +1318,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     }
     else
     {
-      range = mult > 0.0 ? max - min : min - max;
+      double range = mult > 0.0 ? max - min : min - max;
       n = vtkContext2D::FloatToInt(range / this->TickInterval);
     }
     for (int i = 0; i <= n; ++i)

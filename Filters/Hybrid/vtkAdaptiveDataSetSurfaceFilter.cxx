@@ -74,7 +74,6 @@ vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
 
   // Default Locator is 0
   this->Merging = false;
-  this->Locator = nullptr;
 }
 
 //-----------------------------------------------------------------------------
