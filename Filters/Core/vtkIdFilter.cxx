@@ -32,13 +32,18 @@ vtkIdFilter::vtkIdFilter()
   this->PointIds = 1;
   this->CellIds = 1;
   this->FieldData = 0;
-  this->IdsArrayName = nullptr;
-  this->SetIdsArrayName("vtkIdFilter_Ids");
+  this->PointIdsArrayName = nullptr;
+  this->CellIdsArrayName = nullptr;
+
+  // these names are set to the same name for backwards compatibility.
+  this->SetPointIdsArrayName("vtkIdFilter_Ids");
+  this->SetCellIdsArrayName("vtkIdFilter_Ids");
 }
 
 vtkIdFilter::~vtkIdFilter()
 {
-  delete [] IdsArrayName;
+  delete [] this->PointIdsArrayName;
+  delete [] this->CellIdsArrayName;
 }
 
 //
@@ -87,7 +92,7 @@ int vtkIdFilter::RequestData(
       ptIds->SetValue(id, id);
     }
 
-    ptIds->SetName(this->IdsArrayName);
+    ptIds->SetName(this->PointIdsArrayName);
     if ( ! this->FieldData )
     {
       int idx = outPD->AddArray(ptIds);
@@ -97,7 +102,7 @@ int vtkIdFilter::RequestData(
     else
     {
       outPD->AddArray(ptIds);
-      outPD->CopyFieldOff(this->IdsArrayName);
+      outPD->CopyFieldOff(this->PointIdsArrayName);
     }
     ptIds->Delete();
   }
@@ -114,7 +119,7 @@ int vtkIdFilter::RequestData(
       cellIds->SetValue(id, id);
     }
 
-    cellIds->SetName(this->IdsArrayName);
+    cellIds->SetName(this->CellIdsArrayName);
     if ( ! this->FieldData )
     {
       int idx = outCD->AddArray(cellIds);
@@ -124,7 +129,7 @@ int vtkIdFilter::RequestData(
     else
     {
       outCD->AddArray(cellIds);
-      outCD->CopyFieldOff(this->IdsArrayName);
+      outCD->CopyFieldOff(this->CellIdsArrayName);
     }
     cellIds->Delete();
   }
@@ -142,6 +147,27 @@ void vtkIdFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point Ids: "    << (this->PointIds ? "On\n" : "Off\n");
   os << indent << "Cell Ids: "     << (this->CellIds ? "On\n" : "Off\n");
   os << indent << "Field Data: "   << (this->FieldData ? "On\n" : "Off\n");
-  os << indent << "IdsArrayName: " << (this->IdsArrayName ? this->IdsArrayName
+  os << indent << "PointIdsArrayName: " << (this->PointIdsArrayName ? this->PointIdsArrayName
+       : "(none)") << "\n";
+  os << indent << "CellIdsArrayName: " << (this->CellIdsArrayName ? this->CellIdsArrayName
        : "(none)") << "\n";
 }
+
+#if !defined(VTK_LEGACY_REMOVE)
+void vtkIdFilter::SetIdsArrayName(const char* name)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkIdFilter::SetIdsArrayName, "VTK 8.3",
+      vtkIdFilter::SetPointIdsArrayName or vtkIdFilter::SetCellIdsArrayName);
+  this->SetPointIdsArrayName(name);
+  this->SetCellIdsArrayName(name);
+}
+#endif
+
+#if !defined(VTK_LEGACY_REMOVE)
+const char* vtkIdFilter::GetIdsArrayName()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkIdFilter::GetIdsArrayName, "VTK 8.3",
+      vtkIdFilter::GetPointIdsArrayName or vtkIdFilter::GetCellIdsArrayName);
+  return this->GetPointIdsArrayName();
+}
+#endif
