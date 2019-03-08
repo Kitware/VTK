@@ -174,6 +174,14 @@ public:
   vtkSetMacro(Mapped, vtkTypeBool);
 
 protected:
+  /**
+   * Overridden to not attempt to read pixels if `this->ReadyForRendering` is
+   * false. In that case, this method will simply return `VTK_ERROR`. Otherwise,
+   * the superclass' implementation will be called.
+   */
+  int ReadPixels(
+    const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right) override;
+
   int DirectStatus;
   int SupportsOpenGLStatus;
   bool CurrentStatus;

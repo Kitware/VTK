@@ -277,3 +277,15 @@ void vtkGenericOpenGLRenderWindow::SetCurrentCursor(int cShape)
     this->InvokeEvent(vtkCommand::CursorChangedEvent, &cShape);
   }
 }
+
+int vtkGenericOpenGLRenderWindow::ReadPixels(
+  const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right)
+{
+  if (this->ReadyForRendering)
+  {
+    return this->Superclass::ReadPixels(rect, front, glFormat, glType, data, right);
+  }
+
+  vtkWarningMacro("`ReadPixels` called before window is ready for rendering; ignoring.");
+  return VTK_ERROR;
+}
