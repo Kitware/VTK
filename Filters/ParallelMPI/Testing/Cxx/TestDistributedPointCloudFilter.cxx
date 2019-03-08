@@ -89,7 +89,8 @@ int TestDistributedPointCloudFilter(int argc, char* argv[])
   // attach initial ids and process ids
   vtkNew<vtkIdFilter> idFilter;
   idFilter->SetInputData(inputPoly);
-  idFilter->SetIdsArrayName("OriginalId");
+  idFilter->SetPointIdsArrayName("OriginalId");
+  idFilter->SetCellIdsArrayName("OriginalId");
   vtkNew<vtkProcessIdScalars> procIdScalars;
   procIdScalars->SetInputConnection(idFilter->GetOutputPort());
   procIdScalars->Update();

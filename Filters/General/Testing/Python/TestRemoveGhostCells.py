@@ -8,7 +8,8 @@ def addGlobalIds(dataset):
     ids = vtk.vtkIdFilter()
     ids.PointIdsOn()
     ids.CellIdsOn()
-    ids.SetIdsArrayName("vtkGlobalIds")
+    ids.SetPointIdsArrayName("vtkGlobalIds")
+    ids.SetCellIdsArrayName("vtkGlobalIds")
     ids.SetInputDataObject(dataset)
     ids.Update()
 

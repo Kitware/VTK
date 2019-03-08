@@ -76,13 +76,30 @@ public:
 
   //@{
   /**
-   * Set/Get the name of the Ids array if generated. By default the Ids
-   * are named "vtkIdFilter_Ids", but this can be changed with this function.
+   * @deprecated use SetPointIdsArrayName/GetPointIdsArrayName or
+   * SetCellIdsArrayName/GetCellIdsArrayName.
    */
-  vtkSetStringMacro(IdsArrayName);
-  vtkGetStringMacro(IdsArrayName);
+  VTK_LEGACY(void SetIdsArrayName(const char*));
+  VTK_LEGACY(const char* GetIdsArrayName());
   //@}
 
+  //@{
+  /**
+   * Set/Get the name of the Ids array for points, if generated. By default,
+   * set to "vtkIdFilter_Ids" for backwards compatibility.
+   */
+  vtkSetStringMacro(PointIdsArrayName);
+  vtkGetStringMacro(PointIdsArrayName);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the name of the Ids array for points, if generated. By default,
+   * set to "vtkIdFilter_Ids" for backwards compatibility.
+   */
+  vtkSetStringMacro(CellIdsArrayName);
+  vtkGetStringMacro(CellIdsArrayName);
+  //@}
 protected:
   vtkIdFilter();
   ~vtkIdFilter() override;
@@ -92,7 +109,8 @@ protected:
   vtkTypeBool PointIds;
   vtkTypeBool CellIds;
   vtkTypeBool FieldData;
-  char *IdsArrayName;
+  char *PointIdsArrayName;
+  char *CellIdsArrayName;
 
 private:
   vtkIdFilter(const vtkIdFilter&) = delete;
@@ -100,5 +118,3 @@ private:
 };
 
 #endif
-
-

@@ -35,13 +35,13 @@ int TestExtractThresholdsMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)
 
   // Block 1: has PointId point data array
   vtkNew<vtkIdFilter> spherePointIDSource;
-  spherePointIDSource->SetIdsArrayName("PointId");
+  spherePointIDSource->SetPointIdsArrayName("PointId");
   spherePointIDSource->PointIdsOn();
   spherePointIDSource->SetInputConnection(sphere->GetOutputPort());
 
   // Block 2: has CellId cell data array
   vtkNew<vtkIdFilter> sphereCellIDSource;
-  sphereCellIDSource->SetIdsArrayName("CellId");
+  sphereCellIDSource->SetCellIdsArrayName("CellId");
   sphereCellIDSource->CellIdsOn();
   sphereCellIDSource->SetInputConnection(sphere->GetOutputPort());
 
