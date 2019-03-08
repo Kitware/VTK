@@ -90,9 +90,7 @@ public:
   /**
    * Select the version-appropriate signature for ospNewLight.
    */
-  static OSPLight NewLight(vtkOSPRayRendererNode *orn,
-                           OSPRenderer oRenderer,
-                           const std::string& lightType);
+  static OSPLight NewLight(const std::string& lightType);
 
 protected:
   vtkOSPRayLightNode();

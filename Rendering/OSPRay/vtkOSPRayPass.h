@@ -74,6 +74,15 @@ public:
    */
   virtual void RenderInternal(const vtkRenderState *s);
 
+  //@{
+  /**
+   * Wrapper around ospray's init and shutdown that protect
+   * with a reference count.
+   */
+  //@}
+  static void OSPInit();
+  static void OSPShutdown();
+
  protected:
   /**
    * Default constructor.
@@ -96,6 +105,8 @@ public:
  private:
   vtkOSPRayPass(const vtkOSPRayPass&) = delete;
   void operator=(const vtkOSPRayPass&) = delete;
+
+  static int OSPDeviceRefCount;
 
   vtkOSPRayPassInternals *Internal;
 };

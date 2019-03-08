@@ -21,15 +21,47 @@
 #include "vtkTexture.h"
 
 #include "ospray/ospray.h"
-#include "ospray/version.h"
-
-#define VTK_OSPRAY_VERSION \
-  OSPRAY_VERSION_MAJOR * 10000 + \
-  OSPRAY_VERSION_MINOR * 100 + \
-  OSPRAY_VERSION_PATCH
 
 //------------------------------------------------------------------------------
-OSPTexture2D vtkOSPRayMaterialHelpers::VTKToOSPTexture
+OSPTexture vtkOSPRayMaterialHelpers::NewTexture2D(const osp::vec2i &size,
+                           const OSPTextureFormat type,
+                           void *data,
+                           const uint32_t _flags,
+                           size_t sizeOf)
+{
+  auto texture = ospNewTexture("texture2d");
+  if (texture == nullptr)
+    return nullptr;
+
+  auto flags = _flags; // because the input value is declared const, use a copy
+
+  bool sharedBuffer = flags & OSP_TEXTURE_SHARED_BUFFER;
+
+  flags &= ~OSP_TEXTURE_SHARED_BUFFER;
+
+  const auto texelBytes  = sizeOf;
+  const auto totalTexels = size.x * size.y;
+  const auto totalBytes  = totalTexels * texelBytes;
+
+  auto data_handle = ospNewData(totalBytes,
+                                OSP_RAW,
+                                data,
+                                sharedBuffer ? OSP_DATA_SHARED_BUFFER : 0);
+
+  ospCommit(data_handle);
+  ospSetObject(texture, "data", data_handle);
+  ospRelease(data_handle);
+
+  ospSet1i(texture, "type", static_cast<int>(type));
+  ospSet1i(texture, "flags", static_cast<int>(flags));
+  ospSet2i(texture, "size", size.x, size.y);
+  ospCommit(texture);
+
+  return texture;
+}
+
+//------------------------------------------------------------------------------
+OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture
   (vtkImageData *vColorTextureMap)
 {
   unsigned char *ochars = nullptr;
@@ -68,45 +100,53 @@ OSPTexture2D vtkOSPRayMaterialHelpers::VTKToOSPTexture
   } else {
     obuffer = vColorTextureMap->GetScalarPointer();
   }
-  OSPTexture2D t2d;
+  OSPTexture t2d;
   OSPTextureFormat ospformat = OSP_TEXTURE_RGB8;
+  size_t sizeOf = 0;
   if (scalartype == VTK_FLOAT)
   {
+    sizeOf = sizeof(float);
     if (comps == 1)
     {
       ospformat = OSP_TEXTURE_R32F;
     }
     else if (comps == 3)
     {
+      sizeOf *= 3;
       ospformat = OSP_TEXTURE_RGB32F;
     }
     else if (comps == 4)
     {
+      sizeOf *= 4;
       ospformat = OSP_TEXTURE_RGBA32F;
     }
   }
   else
   {
+    sizeOf = sizeof(char);
     if (comps == 1)
     {
       ospformat = OSP_TEXTURE_R8;
     }
     else if (comps == 3)
     {
+      sizeOf *= 3;
       ospformat = OSP_TEXTURE_RGB8;
     }
     else if (comps == 4)
     {
+      sizeOf *= 4;
       ospformat = OSP_TEXTURE_RGBA8;
     }
   }
-  t2d = ospNewTexture2D
+  t2d = vtkOSPRayMaterialHelpers::NewTexture2D
     (
      osp::vec2i{xsize+1,
          ysize+1},
      ospformat,
      obuffer,
-     OSP_TEXTURE_FILTER_NEAREST|OSP_TEXTURE_SHARED_BUFFER);
+     OSP_TEXTURE_FILTER_NEAREST|OSP_TEXTURE_SHARED_BUFFER,
+     sizeOf);
   ospCommit(t2d);
   if (incompatible)
   {
@@ -177,8 +217,8 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   if (texname) \
   { \
     vtkImageData* vColorTextureMap = vtkImageData::SafeDownCast(texname->GetInput()); \
-    OSPTexture2D t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap); \
-    ospSetObject(oMaterial, #texname, ((OSPTexture2D)(t2d))); \
+    OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap); \
+    ospSetObject(oMaterial, #texname, t2d); \
   }
 
 //------------------------------------------------------------------------------
@@ -272,7 +312,6 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET1F(thickness);
   }
 
-#if VTK_OSPRAY_VERSION >= 10401 // 1.4.1
   // Alloy added in 1.4.1
   else if (implname == "Alloy")
   {
@@ -281,33 +320,7 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET3F(edgeColor);
     OSPSET1F(roughness);
   }
-#endif
 
-#if VTK_OSPRAY_VERSION < 10600 // 1.6.0
-  // Matte, Plastic, Velvet no longer listed in documentation in 1.6.0
-  else if (implname == "Matte")
-  {
-    oMaterial = NewMaterial(orn, oRenderer, implname);
-    OSPSET3F(reflectance);
-  }
-  else if (implname == "Plastic")
-  {
-    oMaterial = NewMaterial(orn, oRenderer, implname);
-    OSPSET3F(pigmentColor);
-    OSPSET1F(eta);
-    OSPSET1F(roughness);
-    OSPSET1F(thickness);
-  }
-  else if (implname == "Velvet")
-  {
-    oMaterial = NewMaterial(orn, oRenderer, implname);
-    OSPSET3F(reflectance);
-    OSPSET1F(backScattering);
-    OSPSET3F(horizonScatteringColor);
-    OSPSET1F(horizonScatteringFallOff);
-  }
-#else // OSPRay >= 1.6.0
-  // Principled and CarPaint added in 1.6.0
   else if (implname == "Principled")
   {
     oMaterial = NewMaterial(orn, oRenderer, implname);
@@ -385,7 +398,6 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET3F(flipflopColor);
     OSPSET1F(flipflopFalloff);
   }
-#endif
   else
   {
     vtkGenericWarningMacro(
@@ -404,29 +416,15 @@ OSPMaterial vtkOSPRayMaterialHelpers::NewMaterial(vtkOSPRayRendererNode *orn,
 {
   OSPMaterial result;
 
-#if VTK_OSPRAY_VERSION >= 10500 // 1.5.0
-
   (void)oRenderer;
   const std::string rendererType = vtkOSPRayRendererNode::GetRendererType(orn->GetRenderer());
   result = ospNewMaterial2(rendererType.c_str(), ospMatName.c_str());
-
-#else // ospray < 1.5.0
-
-  (void)orn;
-  result = ospNewMaterial(oRenderer, ospMatName.c_str());
-
-#endif
 
   if (!result)
   {
     vtkGenericWarningMacro("OSPRay failed to create material: " << ospMatName
                            << ". Trying OBJMaterial instead.");
-#if VTK_OSPRAY_VERSION >= 10500 // 1.5.0
   result = ospNewMaterial2(rendererType.c_str(), "OBJMaterial");
-#else
-  result = ospNewMaterial(oRenderer, "OBJMaterial");
-#endif
-
   }
 
   return result;

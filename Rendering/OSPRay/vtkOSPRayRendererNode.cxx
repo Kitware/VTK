@@ -39,6 +39,7 @@
 #include "vtkOSPRayCameraNode.h"
 #include "vtkOSPRayLightNode.h"
 #include "vtkOSPRayVolumeNode.h"
+#include "vtkOSPRayMaterialHelpers.h"
 #include "vtkOSPRayMaterialLibrary.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -48,8 +49,6 @@
 #include "vtkVolume.h"
 #include "vtkVolumeCollection.h"
 #include "vtkWeakPointer.h"
-
-#include "ospray/version.h"
 
 #include <algorithm>
 #include <cmath>
@@ -117,7 +116,7 @@ namespace ospray {
 
       The OSPRay frame buffer object must have been constructed with the OSP_FB_DEPTH flag.
     */
-    OSPTexture2D getOSPDepthTextureFromOpenGLPerspective(const double &fovy,
+    OSPTexture getOSPDepthTextureFromOpenGLPerspective(const double &fovy,
                                                          const double &aspect,
                                                          const double &zNear,
                                                          const double &zFar,
@@ -171,9 +170,10 @@ namespace ospray {
       // nearest texture filtering required for depth textures -- we don't want interpolation of depth values...
       osp::vec2i texSize = {static_cast<int>(glDepthBufferWidth),
                             static_cast<int>(glDepthBufferHeight)};
-      OSPTexture2D depthTexture = ospNewTexture2D((osp::vec2i&)texSize,
-                                                  OSP_TEXTURE_R32F, ospDepthBuffer,
-                                                  OSP_TEXTURE_FILTER_NEAREST);
+      OSPTexture depthTexture = vtkOSPRayMaterialHelpers::NewTexture2D((osp::vec2i&)texSize,
+                                                                          OSP_TEXTURE_R32F, ospDepthBuffer,
+                                                                          OSP_TEXTURE_FILTER_NEAREST,
+                                                                          sizeof(float));
 
       return depthTexture;
     }
@@ -294,7 +294,7 @@ public:
     return retval;
   }
 
-  bool SetupPathTraceBackground(OSPRenderer oRenderer)
+  bool SetupPathTraceBackground()
   {
     vtkRenderer *ren = vtkRenderer::SafeDownCast
       (this->Owner->GetRenderable());
@@ -363,17 +363,16 @@ public:
         ochars[1] = bg1[1]*255;
         ochars[2] = bg1[2]*255;
       }
-      OSPTexture2D t2d = ospNewTexture2D
+      OSPTexture t2d = vtkOSPRayMaterialHelpers::NewTexture2D
         (
          osp::vec2i{jsize,isize},
          OSP_TEXTURE_RGB8,
          ochars,
-         0);//OSP_TEXTURE_FILTER_NEAREST);
+         0,
+         3*sizeof(char));
 
-      OSPLight ospLight = vtkOSPRayLightNode::NewLight(this->Owner,
-                                                       oRenderer,
-                                                       "hdri");
-      ospSetObject(ospLight, "map", ((OSPTexture2D)(t2d)));
+      OSPLight ospLight = vtkOSPRayLightNode::NewLight("hdri");
+      ospSetObject(ospLight, "map", t2d);
       double *up = vtkOSPRayRendererNode::GetNorthPole(ren);
       if (up)
         {
@@ -772,16 +771,12 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     it->GoToNextItem();
   }
 
-#if OSPRAY_VERSION_MAJOR > 1 || \
-    (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 2)
   if (!hasAmbient &&
       (this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)) > 0)
       )
   {
     //hardcode an ambient light for AO since OSP 1.2 stopped doing so.
-    OSPLight ospAmbient = vtkOSPRayLightNode::NewLight(this,
-                                                       oRenderer,
-                                                       "AmbientLight");
+    OSPLight ospAmbient = vtkOSPRayLightNode::NewLight("AmbientLight");
     ospSetString(ospAmbient, "name", "default_ambient");
     ospSet3f(ospAmbient, "color", 1.f, 1.f, 1.f);
     ospSet1f(ospAmbient, "intensity",
@@ -789,9 +784,8 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     ospCommit(ospAmbient);
     this->Lights.push_back(ospAmbient);
   }
-#endif
 
-  bool bgreused = this->Internal->SetupPathTraceBackground(oRenderer);
+  bool bgreused = this->Internal->SetupPathTraceBackground();
   OSPData lightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
     (this->Lights.size()?&this->Lights[0]:nullptr), 0);
   ospSetData(oRenderer, "lights", lightArray);
@@ -973,12 +967,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       (this->GetCompositeOnGL(static_cast<vtkRenderer*>(this->Renderable))!=0);
 
     double *bg = ren->GetBackground();
-#if OSPRAY_VERSION_MAJOR > 1 || \
-    (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 3)
-   ospSet4f(oRenderer,"bgColor", bg[0], bg[1], bg[2], ren->GetBackgroundAlpha());
-#else
-    ospSet3f(oRenderer,"bgColor", bg[0], bg[1], bg[2]);
-#endif
+    ospSet4f(oRenderer,"bgColor", bg[0], bg[1], bg[2], ren->GetBackgroundAlpha());
 
   }
   else
@@ -1183,7 +1172,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       cameraDir.z -= cameraPos[2];
       cameraDir = ospray::opengl::normalize(cameraDir);
 
-      OSPTexture2D glDepthTex = ospray::opengl::getOSPDepthTextureFromOpenGLPerspective
+      OSPTexture glDepthTex = ospray::opengl::getOSPDepthTextureFromOpenGLPerspective
         (fovy, aspect, zNear, zFar,
          (osp::vec3f&)cameraDir, (osp::vec3f&)cameraUp,
          this->GetZBuffer(), this->ODepthBuffer, viewportWidth, viewportHeight);
@@ -1201,19 +1190,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 
     const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
     memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
-#if OSPRAY_VERSION_MAJOR > 1 || \
-    (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 3)
-    //nothing, already preset
-#else
-    //with qt5 VTK requires alpha channel, set it here
-    unsigned char *pix = this->Buffer;
-    for (int i = 0; i < this->Size[0]*this->Size[1]; i++)
-    {
-      pix+=3;
-      *pix = 255*ren->GetBackgroundAlpha();
-      pix++;
-    }
-#endif
     ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
 
     if (this->ComputeDepth)

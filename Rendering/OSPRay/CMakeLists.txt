@@ -32,7 +32,7 @@ vtk_module_add_module(VTK::RenderingOSPRay
   PRIVATE_HEADERS ${vtk_object_factory_header})
 
 # TODO: Send patches upstream to export targets from ospray.
-find_package(ospray REQUIRED)
+find_package(ospray 1.8 REQUIRED)
 vtk_module_link(VTK::RenderingOSPRay
   PUBLIC
     ${OSPRAY_LIBRARIES})
