@@ -136,6 +136,16 @@ public:
     this->RenderWindowObserverIds.push_back(
       renWin->AddObserver(vtkCommand::CursorChangedEvent, this, &QVTKInternals::renderWindowEventHandler));
 
+    // First and foremost, make sure vtkRenderWindow is not using offscreen
+    // buffers as that throws off all logic to render in the buffers we're
+    // building and frankly unnecessary.
+    if (this->RenderWindow->GetUseOffScreenBuffers())
+    {
+      vtkGenericWarningMacro("disabling `UseOffScreenBuffers` since QVTKRenderWindowAdapter already "
+          "uses offscreen buffers (FBO) for rendering");
+      this->RenderWindow->SetUseOffScreenBuffers(false);
+    }
+
     // since new context is being setup, call `OpenGLInitContext` which is stuff
     // to do when new context is created.
     this->RenderWindow->SetForceMaximumHardwareLineWidth(1);
