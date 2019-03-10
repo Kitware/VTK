@@ -183,8 +183,13 @@ public:
 
   double devicePixelRatio() const
   {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
     return this->ParentWindow ? this->ParentWindow->devicePixelRatio()
                               : this->ParentWidget->devicePixelRatioF();
+#else
+    return this->ParentWindow ? this->ParentWindow->devicePixelRatio()
+                              : this->ParentWidget->devicePixelRatio();
+#endif
   }
 
   QSize screenSize() const
@@ -490,6 +495,7 @@ bool QVTKRenderWindowAdapter::QVTKInternals::needToRecreateFBO() const
     }
   }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
   const auto sizes = this->FBO->sizes();
 
   if (sizes.size() != neededColorAttachments)
@@ -497,6 +503,12 @@ bool QVTKRenderWindowAdapter::QVTKInternals::needToRecreateFBO() const
     vtkLogF(TRACE, "%d != %d", sizes.size(), neededColorAttachments);
     return true;
   }
+#else
+  // Qt 5.5 doesn't support multiple attachments to FBOs
+  // We'll warn about it and just check for the 1 attachment.
+  QVector<QSize> sizes;
+  sizes.push_back(this->FBO->size());
+#endif
 
   const QSize winsize(renWin->GetSize()[0], renWin->GetSize()[1]);
   for (const QSize& asize : sizes)
@@ -551,14 +563,25 @@ void QVTKRenderWindowAdapter::QVTKInternals::recreateFBO()
   renWin->SetFrontBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
   if (renWin->GetDoubleBuffer())
   {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
     this->FBO->addColorAttachment(size);
     attachmentIncrement++;
+#else
+    static bool warn_once = true;
+    if (warn_once)
+    {
+      warn_once = false;
+      vtkGenericWarningMacro("Double buffering is not supported in when using Qt 5.5. Consider "
+                             "upgrading to Qt 5.6 or newer.");
+    }
+#endif
   }
   renWin->SetBackLeftBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
   renWin->SetBackBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
 
   if (/*this->Context->format().stereo() &&*/ renWin->GetStereoCapableWindow())
   {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
     this->FBO->addColorAttachment(size);
     attachmentIncrement++;
     renWin->SetFrontRightBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
@@ -568,6 +591,17 @@ void QVTKRenderWindowAdapter::QVTKInternals::recreateFBO()
       attachmentIncrement++;
     }
     renWin->SetBackRightBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
+#else
+    static bool warn_once = true;
+    if (warn_once)
+    {
+      warn_once = false;
+      vtkGenericWarningMacro(
+        "Stereo is not supported in when using Qt 5.5. Consider upgrading to Qt 5.6 or newer.");
+    }
+    renWin->SetFrontRightBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
+    renWin->SetBackRightBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
+#endif
   }
   else
   {

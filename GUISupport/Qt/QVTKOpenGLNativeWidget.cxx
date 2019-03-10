@@ -229,7 +229,11 @@ void QVTKOpenGLNativeWidget::paintGL()
       QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_2_Core>();
     if (f)
     {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
       const QSize deviceSize = this->size() * this->devicePixelRatioF();
+#else
+      const QSize deviceSize = this->size() * this->devicePixelRatio();
+#endif
       this->RenderWindowAdapter->blit(
         this->defaultFramebufferObject(), GL_COLOR_ATTACHMENT0, QRect(QPoint(0, 0), deviceSize));
     }

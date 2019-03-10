@@ -229,7 +229,11 @@ void QVTKOpenGLWindow::paintGL()
       QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_2_Core>();
     if (f)
     {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
       const QSize deviceSize = this->size() * this->devicePixelRatioF();
+#else
+      const QSize deviceSize = this->size() * this->devicePixelRatio();
+#endif
       const auto fmt = this->context()->format();
       if (fmt.stereo() && this->RenderWindow->GetStereoRender() &&
         this->RenderWindow->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
