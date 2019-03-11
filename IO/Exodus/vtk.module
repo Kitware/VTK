@@ -23,3 +23,6 @@ TEST_DEPENDS
   VTK::InteractionStyle
   VTK::RenderingOpenGL2
   VTK::TestingRendering
+  VTK::FiltersSources
+  VTK::CommonSystem
+  VTK::FiltersExtraction
