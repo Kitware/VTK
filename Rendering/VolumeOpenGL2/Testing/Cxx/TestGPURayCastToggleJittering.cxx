@@ -41,7 +41,6 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSphereSource.h>
 #include <vtkStructuredPointsReader.h>
-#include <vtkTestingObjectFactory.h>
 #include <vtkTestUtilities.h>
 #include <vtkVolume.h>
 #include <vtkVolumeProperty.h>

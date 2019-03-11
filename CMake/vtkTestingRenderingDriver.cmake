@@ -47,6 +47,9 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
     // init logging
     vtkLogger::Init(ac, av, nullptr);
 
+    // turn on windows stack traces if applicable
+    vtkWindowsTestUtilitiesSetupForTesting();
+
     vtkSmartPointer<vtkTestingObjectFactory> factory = vtkSmartPointer<vtkTestingObjectFactory>::New();
     if (!interactive)
       {

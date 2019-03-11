@@ -3,7 +3,8 @@ set(headers
   vtkTestDriver.h
   vtkTestErrorObserver.h
   vtkTestingColors.h
-  vtkTestUtilities.h)
+  vtkTestUtilities.h
+  vtkWindowsTestUtilities.h)
 
 set(templates
   vtkTestConditionals.txx)
@@ -12,6 +13,11 @@ vtk_module_add_module(VTK::TestingCore
   HEADERS   ${headers}
   TEMPLATES ${templates}
   HEADER_ONLY)
+
+if (WIN32 AND MSVC)
+  vtk_module_link(VTK::TestingCore INTERFACE dbghelp)
+endif()
+
 
 # Write out a summary of the configuration for use in the
 # `TestSystemInformation` test.

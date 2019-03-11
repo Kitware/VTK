@@ -25,5 +25,8 @@
 #include <vtksys/SystemInformation.hxx> // for stacktrace
 
 #include <vtkLogger.h> // for logging
+
+#include "vtkWindowsTestUtilities.h" // for windows stack trace
+
 #endif
 // VTK-HeaderTest-Exclude: vtkTestDriver.h
