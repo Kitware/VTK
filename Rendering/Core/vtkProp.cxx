@@ -21,6 +21,7 @@
 #include "vtkInformationKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationDoubleVectorKey.h"
+#include "vtkShaderProperty.h"
 #include <cassert>
 
 vtkCxxSetObjectMacro(vtkProp,PropertyKeys,vtkInformation);
@@ -49,6 +50,8 @@ vtkProp::vtkProp()
   this->Consumers = nullptr;
 
   this->PropertyKeys=nullptr;
+
+  this->ShaderProperty = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -64,6 +67,11 @@ vtkProp::~vtkProp()
   if(this->PropertyKeys!=nullptr)
   {
     this->PropertyKeys->Delete();
+  }
+
+  if (this->ShaderProperty)
+  {
+    this->ShaderProperty->UnRegister(this);
   }
 }
 
@@ -81,6 +89,7 @@ void vtkProp::ShallowCopy(vtkProp *prop)
   this->Visibility = prop->GetVisibility();
   this->Pickable   = prop->GetPickable();
   this->Dragable   = prop->GetDragable();
+  this->SetShaderProperty(prop->GetShaderProperty());
 }
 
 //----------------------------------------------------------------------------
@@ -352,4 +361,29 @@ bool vtkProp::RenderFilteredOverlay(vtkViewport *v,
     result=false;
   }
   return result;
+}
+
+void vtkProp::SetShaderProperty(vtkShaderProperty *property)
+{
+  if( this->ShaderProperty != property )
+  {
+    if (this->ShaderProperty != nullptr) {this->ShaderProperty->UnRegister(this);}
+    this->ShaderProperty = property;
+    if (this->ShaderProperty != nullptr)
+    {
+      this->ShaderProperty->Register(this);
+    }
+    this->Modified();
+  }
+}
+
+vtkShaderProperty *vtkProp::GetShaderProperty()
+{
+  if( this->ShaderProperty == nullptr )
+  {
+    this->ShaderProperty = vtkShaderProperty::New();
+    this->ShaderProperty->Register(this);
+    this->ShaderProperty->Delete();
+  }
+  return this->ShaderProperty;
 }

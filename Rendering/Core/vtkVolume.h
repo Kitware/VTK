@@ -39,7 +39,6 @@ class vtkPropCollection;
 class vtkVolumeCollection;
 class vtkWindow;
 class vtkVolumeProperty;
-class vtkShaderProperty;
 class vtkAbstractVolumeMapper;
 
 class VTKRENDERINGCORE_EXPORT vtkVolume : public vtkProp3D
@@ -69,14 +68,6 @@ public:
    */
   virtual void SetProperty(vtkVolumeProperty *property);
   virtual vtkVolumeProperty *GetProperty();
-  //@}
-
-  //@{
-  /**
-   * Set/Get the shader property.
-   */
-  virtual void SetShaderProperty(vtkShaderProperty *property);
-  virtual vtkShaderProperty *GetShaderProperty();
   //@}
 
   /**
@@ -227,7 +218,6 @@ protected:
 
   vtkAbstractVolumeMapper *Mapper;
   vtkVolumeProperty *Property;
-  vtkShaderProperty *ShaderProperty;
 
   // The rgb transfer function array - for unsigned char data this
   // is 256 elements, for short or unsigned short it is 65536 elements
