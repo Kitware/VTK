@@ -73,6 +73,11 @@ public:
       bool replaceFirst,  // do this replacement before the default
       const std::string& replacementValue,
       bool replaceAll) override;
+  virtual void AddGeometryShaderReplacement(
+      const std::string& originalValue,
+      bool replaceFirst,  // do this replacement before the default
+      const std::string& replacementValue,
+      bool replaceAll) override;
 
   virtual int GetNumberOfShaderReplacements() override;
   virtual std::string GetNthShaderReplacementTypeAsString( vtkIdType index ) override;
@@ -87,6 +92,9 @@ public:
       const std::string& originalValue,
       bool replaceFirst) override;
   virtual void ClearFragmentShaderReplacement(
+      const std::string& originalValue,
+      bool replaceFirst) override;
+  virtual void ClearGeometryShaderReplacement(
       const std::string& originalValue,
       bool replaceFirst) override;
   virtual void ClearAllVertexShaderReplacements() override;

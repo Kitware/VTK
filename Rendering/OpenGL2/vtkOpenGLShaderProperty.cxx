@@ -54,6 +54,15 @@ void vtkOpenGLShaderProperty::AddFragmentShaderReplacement(
   this->AddShaderReplacement(vtkShader::Fragment,originalValue,replaceFirst,replacementValue,replaceAll);
 }
 
+void vtkOpenGLShaderProperty::AddGeometryShaderReplacement(
+    const std::string& originalValue,
+    bool replaceFirst,  // do this replacement before the default
+    const std::string& replacementValue,
+    bool replaceAll)
+{
+  this->AddShaderReplacement(vtkShader::Geometry,originalValue,replaceFirst,replacementValue,replaceAll);
+}
+
 int vtkOpenGLShaderProperty::GetNumberOfShaderReplacements()
 {
   return UserShaderReplacements.size();
@@ -106,6 +115,13 @@ void vtkOpenGLShaderProperty::ClearFragmentShaderReplacement(
     bool replaceFirst)
 {
   this->ClearShaderReplacement(vtkShader::Fragment,originalValue,replaceFirst);
+}
+
+void vtkOpenGLShaderProperty::ClearGeometryShaderReplacement(
+    const std::string& originalValue,
+    bool replaceFirst)
+{
+  this->ClearShaderReplacement(vtkShader::Geometry,originalValue,replaceFirst);
 }
 
 void vtkOpenGLShaderProperty::ClearAllVertexShaderReplacements()

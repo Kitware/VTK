@@ -64,6 +64,8 @@ public:
   vtkGetStringMacro(VertexShaderCode);
   vtkSetStringMacro(FragmentShaderCode);
   vtkGetStringMacro(FragmentShaderCode);
+  vtkSetStringMacro(GeometryShaderCode);
+  vtkGetStringMacro(GeometryShaderCode);
   //@}
 
   //@{
@@ -73,6 +75,7 @@ public:
      */
   vtkGetObjectMacro(FragmentCustomUniforms,vtkUniforms);
   vtkGetObjectMacro(VertexCustomUniforms,vtkUniforms);
+  vtkGetObjectMacro(GeometryCustomUniforms,vtkUniforms);
   //@}
 
   //@{
@@ -93,6 +96,11 @@ public:
       bool replaceFirst,  // do this replacement before the default
       const std::string& replacementValue,
       bool replaceAll) = 0;
+  virtual void AddGeometryShaderReplacement(
+      const std::string& originalValue,
+      bool replaceFirst,  // do this replacement before the default
+      const std::string& replacementValue,
+      bool replaceAll) = 0;
   virtual int GetNumberOfShaderReplacements() = 0;
   virtual std::string GetNthShaderReplacementTypeAsString( vtkIdType index ) = 0;
   virtual void GetNthShaderReplacement(
@@ -107,6 +115,9 @@ public:
   virtual void ClearFragmentShaderReplacement(
       const std::string& originalValue,
       bool replaceFirst) = 0;
+  virtual void ClearGeometryShaderReplacement(
+      const std::string& originalValue,
+      bool replaceFirst) = 0;
   virtual void ClearAllVertexShaderReplacements() = 0;
   virtual void ClearAllFragmentShaderReplacements() = 0;
   virtual void ClearAllGeometryShaderReplacements() = 0;
@@ -119,10 +130,12 @@ protected:
 
   char *VertexShaderCode;
   char *FragmentShaderCode;
+  char *GeometryShaderCode;
   vtkTimeStamp ShaderReplacementTime;
 
   vtkNew<vtkUniforms> FragmentCustomUniforms;
   vtkNew<vtkUniforms> VertexCustomUniforms;
+  vtkNew<vtkUniforms> GeometryCustomUniforms;
 
 private:
   vtkShaderProperty(const vtkShaderProperty&) = delete;
