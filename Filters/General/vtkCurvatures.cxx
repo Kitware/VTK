@@ -22,6 +22,7 @@
 #include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -51,14 +52,11 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
 
     int numPts = mesh->GetNumberOfPoints();
 
-    // vtkData
-    vtkIdList* vertices, *vertices_n, *neighbours;
-
     //     create-allocate
-    vertices   = vtkIdList::New();
-    vertices_n = vtkIdList::New();
-    neighbours = vtkIdList::New();
-    vtkDoubleArray* meanCurvature = vtkDoubleArray::New();
+    const vtkNew<vtkIdList> vertices;
+    const vtkNew<vtkIdList> vertices_n;
+    const vtkNew<vtkIdList> neighbours;
+    const vtkNew<vtkDoubleArray> meanCurvature;
     meanCurvature->SetName("Mean_Curvature");
     meanCurvature->SetNumberOfComponents(1);
     meanCurvature->SetNumberOfTuples(numPts);
@@ -187,12 +185,8 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     mesh->GetPointData()->SetActiveScalars("Mean_Curvature");
 
     vtkDebugMacro("Set Values of Mean Curvature: Done");
-    // clean
-    vertices  ->Delete();
-    vertices_n->Delete();
-    neighbours->Delete();
 
-    if (meanCurvature) meanCurvature->Delete();
+    // clean
     delete [] num_neighb;
 };
 //--------------------------------------------
@@ -268,7 +262,7 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
 
     int numPts = output->GetNumberOfPoints();
     // put curvature in vtkArray
-    vtkDoubleArray* gaussCurvature = vtkDoubleArray::New();
+    const vtkNew<vtkDoubleArray> gaussCurvature;
     gaussCurvature->SetName("Gauss_Curvature");
     gaussCurvature->SetNumberOfComponents(1);
     gaussCurvature->SetNumberOfTuples(numPts);
@@ -293,7 +287,6 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
     /*******************************************************/
     delete [] K;
     delete [] dA;
-    if (gaussCurvature) gaussCurvature->Delete();
     /*******************************************************/
 };
 
@@ -304,13 +297,12 @@ void vtkCurvatures::GetMaximumCurvature(vtkPolyData *input,vtkPolyData *output)
 
   vtkIdType numPts = input->GetNumberOfPoints();
 
-  vtkDoubleArray *maximumCurvature = vtkDoubleArray::New();
+  const vtkNew<vtkDoubleArray> maximumCurvature;
   maximumCurvature->SetNumberOfComponents(1);
   maximumCurvature->SetNumberOfTuples(numPts);
   maximumCurvature->SetName("Maximum_Curvature");
   output->GetPointData()->AddArray(maximumCurvature);
   output->GetPointData()->SetActiveScalars("Maximum_Curvature");
-  maximumCurvature->Delete();
 
   vtkDoubleArray *gauss = static_cast<vtkDoubleArray *>(
     output->GetPointData()->GetArray("Gauss_Curvature"));
@@ -345,13 +337,12 @@ void vtkCurvatures::GetMinimumCurvature(vtkPolyData *input,vtkPolyData *output)
 
   vtkIdType numPts = input->GetNumberOfPoints();
 
-  vtkDoubleArray *minimumCurvature = vtkDoubleArray::New();
+  const vtkNew<vtkDoubleArray> minimumCurvature;
   minimumCurvature->SetNumberOfComponents(1);
   minimumCurvature->SetNumberOfTuples(numPts);
   minimumCurvature->SetName("Minimum_Curvature");
   output->GetPointData()->AddArray(minimumCurvature);
   output->GetPointData()->SetActiveScalars("Minimum_Curvature");
-  minimumCurvature->Delete();
 
   vtkDoubleArray *gauss = static_cast<vtkDoubleArray *>(
     output->GetPointData()->GetArray("Gauss_Curvature"));
