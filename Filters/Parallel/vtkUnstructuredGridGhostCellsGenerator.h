@@ -23,7 +23,7 @@
  * of these filters serves to unify the API for serial and parallel builds.
  *
  * @sa
- * vtkDistributedDataFilter
+ * vtkPDistributedDataFilter
  * vtkPUnstructuredGridGhostCellsGenerator
  *
  *

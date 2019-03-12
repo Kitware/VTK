@@ -17,6 +17,10 @@ vtk_add_test_mpi(vtkFiltersParallelGeometryCxxTests-MPI data_tests_4_procs
   ParallelConnectivity4,ParallelConnectivity.cxx,TESTING_DATA,NO_VALID
   )
 
+vtk_add_test_mpi(vtkFiltersParallelGeometryCxxTests-MPI data_tests_4_procs
+  TestPolyhedralMeshDistributedDataFilter.cxx,TESTING_DATA,NO_VALID
+)
+
 set(all_tests
   ${tests}
   ${data_tests_1_proc}

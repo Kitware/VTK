@@ -1,5 +1,4 @@
 set(classes
-  vtkDistributedDataFilter
   vtkDistributedPointCloudFilter
   vtkPExtractGrid
   vtkPExtractRectilinearGrid

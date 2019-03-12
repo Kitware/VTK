@@ -2,12 +2,6 @@ vtk_add_test_mpi(vtkFiltersParallelMPICxxTests-MPI tests
   TestImplicitConnectivity.cxx
   )
 
-set(vtkFiltersParallelMPICxxTests-MPI_NUMPROCS 4)
-vtk_add_test_mpi(vtkFiltersParallelMPICxxTests-MPI test_4_procs
-  TESTING_DATA
-  TestPolyhedralMeshDistributedDataFilter.cxx,NO_VALID
-)
-
 set(vtkFiltersParallelMPICxxTests-MPI_NUMPROCS 1)
 vtk_add_test_mpi(vtkFiltersParallelMPICxxTests-MPI test_1_procs
   TestDistributedPointCloudFilter1,TestDistributedPointCloudFilter.cxx
@@ -22,7 +16,6 @@ set(vtkFiltersParallelMPICxxTests-MPI_NUMPROCS 5)
 vtk_add_test_mpi(vtkFiltersParallelMPICxxTests-MPI test_5_procs
   TestDistributedPointCloudFilter5,TestDistributedPointCloudFilter.cxx
   )
-
 
 set(all_tests
   ${tests}
