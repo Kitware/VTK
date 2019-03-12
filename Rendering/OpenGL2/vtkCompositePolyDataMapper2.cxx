@@ -39,6 +39,7 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
+#include "vtkOpenGLShaderProperty.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -1549,12 +1550,14 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
   helper->SetCompositeIdArrayName(this->GetCompositeIdArrayName());
   helper->SetProcessIdArrayName(this->GetProcessIdArrayName());
   helper->SetCellIdArrayName(this->GetCellIdArrayName());
+  helper->SetStatic(1);
+#ifndef VTK_LEGACY_REMOVE
   helper->ClearAllShaderReplacements();
   helper->SetVertexShaderCode(this->GetVertexShaderCode());
   helper->SetGeometryShaderCode(this->GetGeometryShaderCode());
   helper->SetFragmentShaderCode(this->GetFragmentShaderCode());
-  helper->SetStatic(1);
-  for (auto& repl : this->UserShaderReplacements)
+  const vtkOpenGLShaderProperty::ReplacementMap allReps = this->LegacyShaderProperty->GetAllShaderReplacements();
+  for (auto& repl : allReps)
   {
     const vtkShader::ReplacementSpec& spec = repl.first;
     const vtkShader::ReplacementValue& values = repl.second;
@@ -1562,6 +1565,7 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
     helper->AddShaderReplacement(spec.ShaderType, spec.OriginalValue, spec.ReplaceFirst,
       values.Replacement, values.ReplaceAll);
   }
+#endif
 }
 
 //-----------------------------------------------------------------------------

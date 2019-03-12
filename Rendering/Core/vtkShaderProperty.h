@@ -60,6 +60,7 @@ public:
      */
   bool HasVertexShaderCode();
   bool HasFragmentShaderCode();
+  bool HasGeometryShaderCode();
   vtkSetStringMacro(VertexShaderCode);
   vtkGetStringMacro(VertexShaderCode);
   vtkSetStringMacro(FragmentShaderCode);
