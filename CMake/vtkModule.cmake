@@ -2238,7 +2238,7 @@ function (vtk_module_build)
       ${_vtk_build_tests_handled})
     set_property(GLOBAL
       PROPERTY
-        _vtk_module_test_modules "${_vtk_module_test_modules}")
+        _vtk_module_test_modules "${_vtk_build_test_modules}")
   endif ()
 endfunction ()
 
