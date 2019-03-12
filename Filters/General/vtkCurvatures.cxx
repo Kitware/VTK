@@ -54,14 +54,10 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     // vtkData
     vtkIdList* vertices, *vertices_n, *neighbours;
 
-    vtkTriangle* facet;
-    vtkTriangle* neighbour;
     //     create-allocate
     vertices   = vtkIdList::New();
     vertices_n = vtkIdList::New();
     neighbours = vtkIdList::New();
-    facet      = vtkTriangle::New();
-    neighbour  = vtkTriangle::New();
     vtkDoubleArray* meanCurvature = vtkDoubleArray::New();
     meanCurvature->SetName("Mean_Curvature");
     meanCurvature->SetNumberOfComponents(1);
@@ -124,20 +120,20 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
           mesh->GetPoint(v_r,end);
           mesh->GetPoint(v_o,oth);
           // compute normal of f
-          facet->ComputeNormal(ore,end,oth,n_f);
+          vtkTriangle::ComputeNormal(ore,end,oth,n_f);
           // compute common edge
           e[0] = end[0]; e[1] = end[1]; e[2] = end[2];
           e[0] -= ore[0]; e[1] -= ore[1]; e[2] -= ore[2];
           length = double(vtkMath::Normalize(e));
-          Af = double(facet->TriangleArea(ore,end,oth));
+          Af = double(vtkTriangle::TriangleArea(ore,end,oth));
           // find 3 corners of n: in order!
           mesh->GetCellPoints(n,vertices_n);
           mesh->GetPoint(vertices_n->GetId(0),vn0);
           mesh->GetPoint(vertices_n->GetId(1),vn1);
           mesh->GetPoint(vertices_n->GetId(2),vn2);
-          Af += double(facet->TriangleArea(vn0,vn1,vn2));
+          Af += double(vtkTriangle::TriangleArea(vn0,vn1,vn2));
           // compute normal of n
-          neighbour->ComputeNormal(vn0,vn1,vn2,n_n);
+          vtkTriangle::ComputeNormal(vn0,vn1,vn2,n_n);
           // the cosine is n_f * n_n
           cs = double(vtkMath::Dot(n_f,n_n));
           // the sin is (n_f x n_n) * e
@@ -195,8 +191,6 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     vertices  ->Delete();
     vertices_n->Delete();
     neighbours->Delete();
-    facet     ->Delete();
-    neighbour ->Delete();
 
     if (meanCurvature) meanCurvature->Delete();
     delete [] num_neighb;
@@ -215,8 +209,6 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
       vtkErrorMacro("No points/cells to operate on");
       return;
     }
-
-    vtkTriangle* facet = vtkTriangle::New();
 
     // other data
     vtkIdType Nv   = output->GetNumberOfPoints();
@@ -264,7 +256,7 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
       alpha2 = acos(-CLAMP_MACRO(ac3));
 
       // surf. area
-      A = double(facet->TriangleArea(v0,v1,v2));
+      A = double(vtkTriangle::TriangleArea(v0,v1,v2));
       // UPDATE
       dA[vert[0]] += A;
       dA[vert[1]] += A;
@@ -299,7 +291,6 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
 
     vtkDebugMacro("Set Values of Gauss Curvature: Done");
     /*******************************************************/
-    if (facet) facet->Delete();
     delete [] K;
     delete [] dA;
     if (gaussCurvature) gaussCurvature->Delete();
