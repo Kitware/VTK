@@ -24,6 +24,8 @@
 
 #include <sstream>
 
+#define ERROR_OBSERVER_ENHANCEMENTS 0
+
 int UnitTestCollisionDetectionFilter (int, char*[])
 {
   int status = EXIT_SUCCESS;
