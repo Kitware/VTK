@@ -146,3 +146,5 @@ if __name__ == '__main__':
       displayHelp()
       exit(0)
     main(sys.argv[1], sys.argv[2:])
+    print('This program is deprecated.')
+    print('Please consider using FindNeededModules.py instead.')
