@@ -18,11 +18,11 @@ PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::vtksys
 TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersExtraction
   VTK::FiltersGeometry
+  VTK::FiltersSources
   VTK::IOImage
   VTK::InteractionStyle
   VTK::RenderingOpenGL2
   VTK::TestingRendering
-  VTK::FiltersSources
-  VTK::CommonSystem
-  VTK::FiltersExtraction
