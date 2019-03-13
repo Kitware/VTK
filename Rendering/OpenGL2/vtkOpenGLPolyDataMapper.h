@@ -325,6 +325,9 @@ protected:
   virtual void ReplaceShaderRenderPass(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act, bool prePass);
+  virtual void ReplaceShaderCustomUniforms(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkActor *act);
   virtual void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
@@ -356,6 +359,11 @@ protected:
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
   //@}
+
+  /**
+   * Set the value of user-defined uniform variables, called by UpdateShader
+   */
+  virtual void SetCustomUniforms( vtkOpenGLHelper & cellBO, vtkActor *actor);
 
   /**
    * Set the shader parameters related to the mapper/input data, called by UpdateShader

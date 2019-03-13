@@ -49,6 +49,7 @@
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkOpenGLShaderProperty.h"
+#include "vtkOpenGLUniforms.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -619,6 +620,32 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderRenderPass(
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Geometry]->SetSource(GSSource);
   shaders[vtkShader::Fragment]->SetSource(FSSource);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::ReplaceShaderCustomUniforms(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkActor *actor)
+{
+  vtkShaderProperty * sp = actor->GetShaderProperty();
+
+  vtkShader* vertexShader = shaders[vtkShader::Vertex];
+  vtkOpenGLUniforms * vu = static_cast<vtkOpenGLUniforms*>(sp->GetVertexCustomUniforms());
+  vtkShaderProgram::Substitute(vertexShader,
+    "//VTK::CustomUniforms::Dec",
+    vu->GetDeclarations());
+
+  vtkShader* fragmentShader = shaders[vtkShader::Fragment];
+  vtkOpenGLUniforms * fu = static_cast<vtkOpenGLUniforms*>(sp->GetFragmentCustomUniforms());
+  vtkShaderProgram::Substitute(fragmentShader,
+    "//VTK::CustomUniforms::Dec",
+    fu->GetDeclarations());
+
+  vtkShader* geometryShader = shaders[vtkShader::Geometry];
+  vtkOpenGLUniforms * gu = static_cast<vtkOpenGLUniforms*>(sp->GetGeometryCustomUniforms());
+  vtkShaderProgram::Substitute(geometryShader,
+    "//VTK::CustomUniforms::Dec",
+    gu->GetDeclarations());
 }
 
 //------------------------------------------------------------------------------
@@ -1669,6 +1696,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   vtkRenderer *ren, vtkActor *actor)
 {
   this->ReplaceShaderRenderPass(shaders, ren, actor, true);
+  this->ReplaceShaderCustomUniforms(shaders,actor);
   this->ReplaceShaderColor(shaders, ren, actor);
   this->ReplaceShaderNormal(shaders, ren, actor);
   this->ReplaceShaderLight(shaders, ren, actor);
@@ -1866,6 +1894,7 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
 
   if (cellBO.Program)
   {
+    this->SetCustomUniforms( cellBO, actor);
     this->SetMapperShaderParameters(cellBO, ren, actor);
     this->SetPropertyShaderParameters(cellBO, ren, actor);
     this->SetCameraShaderParameters(cellBO, ren, actor);
@@ -1876,6 +1905,17 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
   }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
+}
+
+void vtkOpenGLPolyDataMapper::SetCustomUniforms( vtkOpenGLHelper & cellBO, vtkActor *actor)
+{
+  vtkShaderProperty * sp = actor->GetShaderProperty();
+  auto vu = static_cast<vtkOpenGLUniforms*>(sp->GetVertexCustomUniforms());
+  vu->SetUniforms( cellBO.Program );
+  auto fu = static_cast<vtkOpenGLUniforms*>(sp->GetFragmentCustomUniforms());
+  fu->SetUniforms( cellBO.Program );
+  auto gu = static_cast<vtkOpenGLUniforms*>(sp->GetGeometryCustomUniforms());
+  gu->SetUniforms( cellBO.Program );
 }
 
 void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,

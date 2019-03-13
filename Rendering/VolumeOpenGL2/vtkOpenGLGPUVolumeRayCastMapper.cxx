@@ -2343,6 +2343,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCustomUniforms(
     vtkShaderProgram::Substitute(fragmentShader,
       "//VTK::CustomUniforms::Dec",
       fu->GetDeclarations());
+
+    vtkShader* geometryShader = shaders[vtkShader::Geometry];
+    vtkOpenGLUniforms * gu = static_cast<vtkOpenGLUniforms*>(p->GetGeometryCustomUniforms());
+    vtkShaderProgram::Substitute(geometryShader,
+      "//VTK::CustomUniforms::Dec",
+      gu->GetDeclarations());
 }
 
 //-----------------------------------------------------------------------------
@@ -3789,6 +3795,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   vu->SetUniforms( prog );
   auto fu = static_cast<vtkOpenGLUniforms*>(shaderProperty->GetFragmentCustomUniforms());
   fu->SetUniforms( prog );
+  auto gu = static_cast<vtkOpenGLUniforms*>(shaderProperty->GetGeometryCustomUniforms());
+  gu->SetUniforms( prog );
 
   this->SetShaderParametersRenderPass();
   if (!this->Impl->MultiVolume)
