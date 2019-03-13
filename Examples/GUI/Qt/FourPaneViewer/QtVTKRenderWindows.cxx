@@ -139,17 +139,17 @@ QtVTKRenderWindows::QtVTKRenderWindows( int vtkNotUsed(argc), char *argv[])
     riw[i]->SetRenderWindow(renderWindow);
   }
 
-  this->ui->view1->SetRenderWindow(riw[0]->GetRenderWindow());
+  this->ui->view1->setRenderWindow(riw[0]->GetRenderWindow());
   riw[0]->SetupInteractor(
-      this->ui->view1->GetRenderWindow()->GetInteractor());
+      this->ui->view1->renderWindow()->GetInteractor());
 
-  this->ui->view2->SetRenderWindow(riw[1]->GetRenderWindow());
+  this->ui->view2->setRenderWindow(riw[1]->GetRenderWindow());
   riw[1]->SetupInteractor(
-      this->ui->view2->GetRenderWindow()->GetInteractor());
+      this->ui->view2->renderWindow()->GetInteractor());
 
-  this->ui->view3->SetRenderWindow(riw[2]->GetRenderWindow());
+  this->ui->view3->setRenderWindow(riw[2]->GetRenderWindow());
   riw[2]->SetupInteractor(
-      this->ui->view3->GetRenderWindow()->GetInteractor());
+      this->ui->view3->renderWindow()->GetInteractor());
 
   for (int i = 0; i < 3; i++)
   {
@@ -178,9 +178,9 @@ QtVTKRenderWindows::QtVTKRenderWindows( int vtkNotUsed(argc), char *argv[])
     vtkSmartPointer< vtkRenderer >::New();
 
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
-  this->ui->view4->SetRenderWindow(renderWindow);
-  this->ui->view4->GetRenderWindow()->AddRenderer(ren);
-  vtkRenderWindowInteractor *iren = this->ui->view4->GetInteractor();
+  this->ui->view4->setRenderWindow(renderWindow);
+  this->ui->view4->renderWindow()->AddRenderer(ren);
+  vtkRenderWindowInteractor *iren = this->ui->view4->interactor();
 
   for (int i = 0; i < 3; i++)
   {
@@ -340,7 +340,7 @@ void QtVTKRenderWindows::Render()
   {
     riw[i]->Render();
   }
-  this->ui->view3->GetRenderWindow()->Render();
+  this->ui->view3->renderWindow()->Render();
 }
 
 void QtVTKRenderWindows::AddDistanceMeasurementToView1()

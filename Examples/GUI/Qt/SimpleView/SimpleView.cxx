@@ -60,8 +60,8 @@ SimpleView::SimpleView()
 
   // VTK/Qt wedded
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
-  this->ui->qvtkWidget->SetRenderWindow(renderWindow);
-  this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(ren);
+  this->ui->qvtkWidget->setRenderWindow(renderWindow);
+  this->ui->qvtkWidget->renderWindow()->AddRenderer(ren);
 
   // Just a bit of Qt interest: Culling off the
   // point data and handing it to a vtkQtTableView

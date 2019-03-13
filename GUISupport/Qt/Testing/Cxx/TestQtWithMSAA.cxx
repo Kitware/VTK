@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestQVTKOpenGLNativeWidgetWithMSAA.cxx
+  Module:    TestQVTKOpenGLWidgetWithMSAA.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,12 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Tests QVTKOpenGLNativeWidget with MSAA (based on TestQVTKOpenGLNativeWidget)
-#include "QVTKOpenGLNativeWidget.h"
+// Tests QVTKOpenGLWidget/QVTKOpenGLNativeWidget/QVTKOpenGLWindow with MSAA
+#include "TestQtCommon.h"
 #include "vtkActor.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
@@ -25,11 +26,14 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 
-int TestQVTKOpenGLNativeWidgetWithMSAA(int argc, char* argv[])
+int TestQtWithMSAA(int argc, char* argv[])
 {
-  // enable multisampling.
-  vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(8);
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
+  // disable multisampling globally.
+  vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(0);
+
+  auto type = detail::select_widget(argc, argv);
+  // setup default format, if needed.
+  detail::set_default_format(type);
 
   QApplication app(argc, argv);
 
@@ -37,9 +41,9 @@ int TestQVTKOpenGLNativeWidgetWithMSAA(int argc, char* argv[])
   vtktesting->AddArguments(argc, argv);
 
   vtkNew<vtkGenericOpenGLRenderWindow> window;
+  window->SetMultiSamples(8); // enable multisampling
 
-  QVTKOpenGLNativeWidget widget;
-  widget.SetRenderWindow(window);
+  auto widgetOrWindow = detail::create_widget_or_window(type, window);
 
   vtkNew<vtkRenderer> ren;
   ren->SetGradientBackground(1);
@@ -51,11 +55,12 @@ int TestQVTKOpenGLNativeWidgetWithMSAA(int argc, char* argv[])
   mapper->SetInputConnection(sphere->GetOutputPort());
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
+  actor->GetProperty()->SetRepresentationToWireframe();
   ren->AddActor(actor);
 
+  detail::show(widgetOrWindow, QSize(300, 300));
+
   vtktesting->SetRenderWindow(window);
-  widget.show();
-  app.processEvents();
 
   int retVal = vtktesting->RegressionTest(10);
   switch (retVal)

@@ -14,8 +14,7 @@
 =========================================================================*/
 // Tests QVTKOpenGLNativeWidget with a vtkRenderWindowInteractor that has its
 // EnableRender flag disabled.
-
-#include "QVTKOpenGLNativeWidget.h"
+#include "TestQtCommon.h"
 #include "vtkActor.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkPolyDataMapper.h"
@@ -24,47 +23,32 @@
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
 
-#include <QApplication>
-#include <QEventLoop>
 #include <QImage>
-#include <QSurfaceFormat>
-#include <QTimer>
 
-void WaitQtEventLoop(int msec)
-{
-  QTimer timer;
-  timer.setSingleShot(true);
-  QEventLoop loop;
-  QObject::connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-  timer.start(msec);
-  loop.exec();
-}
-
-int TestQVTKOpenGLNativeWidgetWithDisabledInteractor(int argc, char* argv[])
+int TestQtWithDisabledInteractor(int argc, char* argv[])
 {
   // Disable multisampling
   vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(0);
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
+
+  auto type = detail::select_widget(argc, argv);
+  // setup default format, if needed.
+  detail::set_default_format(type);
 
   QApplication app(argc, argv);
 
   auto vtktesting = vtkSmartPointer<vtkTesting>::New();
   vtktesting->AddArguments(argc, argv);
 
-  QVTKOpenGLNativeWidget widget;
-  widget.resize(100, 100);
+  auto widgetOrWindow = detail::create_widget_or_window(type, nullptr);
 
-  auto renWin = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
-  widget.SetRenderWindow(renWin);
-
+  auto renWin = detail::get_render_window(widgetOrWindow);
   auto ren = vtkSmartPointer<vtkRenderer>::New();
   ren->GradientBackgroundOn();
   ren->SetBackground2(0.7, 0.7, 0.7);
   renWin->AddRenderer(ren);
   renWin->Render();
 
-  widget.show();
-  app.processEvents();
+  detail::show(widgetOrWindow, QSize(100, 100));
 
   // Set interactor to not call Render() on the vtkRenderWindow. Clients might
   // set this to enforce a specified framerate by rendering only when a timer
@@ -78,15 +62,12 @@ int TestQVTKOpenGLNativeWidgetWithDisabledInteractor(int argc, char* argv[])
   actor->SetMapper(mapper);
   ren->AddActor(actor);
   ren->ResetCamera();
-  renWin->Render();
+  renWin->Render(); // this will render a sphere at 100x100.
 
-  // Resize widget to trigger recreating FBO
-  widget.resize(150, 150);
-
-  // Due to the asynchronous implementation
-  // of events in qt, wait a while to make
-  // sure the resize is taken into account.
-  WaitQtEventLoop(200);
+  // Resize widget. this should to retrigger a VTK render since
+  // the interactor is disabled. We should still see the rendering result from
+  // earlier.
+  detail::show(widgetOrWindow, QSize(300, 300));
 
   // Get output image filename
   const std::string tempDir(vtktesting->GetTempDirectory());
@@ -100,7 +81,7 @@ int TestQVTKOpenGLNativeWidgetWithDisabledInteractor(int argc, char* argv[])
 
   // Capture widget using Qt. Don't use vtkTesting to capture the image, because
   // this should test what the widget displays, not what VTK renders.
-  const QImage image = widget.grabFramebuffer();
+  const QImage image = detail::grab_framebuffer(widgetOrWindow);
   if (!image.save(QString::fromStdString(fileName)))
   {
     std::cout << "ERROR: Saving image failed" << std::endl;

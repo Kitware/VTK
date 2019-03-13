@@ -289,6 +289,7 @@ void vtkRenderWindowInteractor::UpdateSize(int x,int y)
     this->Size[0] = this->EventSize[0] = x;
     this->Size[1] = this->EventSize[1] = y;
     this->RenderWindow->SetSize(x,y);
+    this->InvokeEvent(vtkCommand::WindowResizeEvent);
   }
 }
 

@@ -89,6 +89,16 @@ void vtkGenericOpenGLRenderWindow::SetBackRightBuffer(unsigned int b)
   this->BackRightBuffer = b;
 }
 
+void vtkGenericOpenGLRenderWindow::SetDefaultFrameBufferId(unsigned int id)
+{
+  this->DefaultFrameBufferId = id;
+}
+
+void vtkGenericOpenGLRenderWindow::SetOwnContext(int val)
+{
+  this->OwnContext = val;
+}
+
 void vtkGenericOpenGLRenderWindow::Finalize()
 {
   // tell each of the renderers that this render window/graphics context
@@ -266,4 +276,16 @@ void vtkGenericOpenGLRenderWindow::SetCurrentCursor(int cShape)
     this->Modified();
     this->InvokeEvent(vtkCommand::CursorChangedEvent, &cShape);
   }
+}
+
+int vtkGenericOpenGLRenderWindow::ReadPixels(
+  const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right)
+{
+  if (this->ReadyForRendering)
+  {
+    return this->Superclass::ReadPixels(rect, front, glFormat, glType, data, right);
+  }
+
+  vtkWarningMacro("`ReadPixels` called before window is ready for rendering; ignoring.");
+  return VTK_ERROR;
 }

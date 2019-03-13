@@ -50,12 +50,12 @@ int main( int argc, char * argv [] )
   QVTKOpenGLWidget qvtkWidget;
 
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
-  qvtkWidget.SetRenderWindow(renderWindow);
+  qvtkWidget.setRenderWindow(renderWindow);
 
   // Set up my 2D world...
   vtkNew<vtkContextView> view;; // This contains a chart object
-  view->SetRenderWindow(qvtkWidget.GetRenderWindow());
-  view->SetInteractor(qvtkWidget.GetInteractor());
+  view->SetRenderWindow(qvtkWidget.renderWindow());
+  view->SetInteractor(qvtkWidget.interactor());
 
   vtkNew<vtkChartXY> chart;
   chart->SetTitle("Chart");

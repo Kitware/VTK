@@ -6,6 +6,7 @@ set(classes
   QVTKOpenGLNativeWidget
   QVTKOpenGLWidget
   QVTKOpenGLWindow
+  QVTKRenderWindowAdapter
   vtkEventQtSlotConnect
   vtkQtAbstractModelAdapter
   vtkQtAnnotationLayersModelAdapter
@@ -41,13 +42,15 @@ set(private_headers
 set(qt5_components
   Widgets)
 
-if (VTK_USE_X)
+if (VTK_USE_X AND add_qvtkwidget)
+  # X11Extras is only needed for QVTKWidget, which is a deprecated class.
   list(APPEND qt5_components
     X11Extras)
 endif ()
 
 vtk_module_find_package(
   PACKAGE     Qt5
+  VERSION     5.5.1
   COMPONENTS  ${qt5_components}
   FORWARD_VERSION_REQ MINOR
   VERSION_VAR         Qt5_VERSION)
@@ -60,7 +63,8 @@ vtk_module_add_module(VTK::GUISupportQt
   PRIVATE_HEADERS ${private_headers})
 
 vtk_module_link(VTK::GUISupportQt PUBLIC Qt5::Widgets)
-if (VTK_USE_X)
+if (VTK_USE_X AND add_qvtkwidget)
+  # X11Extras is only needed for QVTKWidget, which is a deprecated class.
   vtk_module_link(VTK::GUISupportQt PRIVATE Qt5::X11Extras)
 endif ()
 

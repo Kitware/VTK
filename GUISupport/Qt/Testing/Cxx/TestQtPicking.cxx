@@ -12,19 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Tests picking actors with QVTKOpenGLWidget and vtkPropPicker.
+// Tests picking actors with
+// QVTKOpenGLWidget/QVTKOpenGLWindow/QVTKOpenGLNativeWidget and vtkPropPicker.
+#include "TestQtCommon.h"
 
-#include "QVTKOpenGLWidget.h"
 #include "vtkActor2D.h"
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkMath.h"
 #include "vtkPolyDataMapper2D.h"
-#include "vtkProperty2D.h"
 #include "vtkPropPicker.h"
-#include "vtkRenderer.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
 #include <QApplication>
@@ -34,19 +35,19 @@
 #include <cmath>
 #include <vector>
 
-int TestQVTKOpenGLWidgetPicking(int argc, char* argv[])
+int TestQtPicking(int argc, char* argv[])
 {
   // Disable multisampling
   vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(0);
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+
+  auto type = detail::select_widget(argc, argv);
+  // setup default format, if needed.
+  detail::set_default_format(type);
 
   QApplication app(argc, argv);
 
-  QVTKOpenGLWidget widget;
-
   auto renWin = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
-  widget.SetRenderWindow(renWin);
-
+  auto widgetOrWindow = detail::create_widget_or_window(type, renWin);
   auto interactor = renWin->GetInteractor();
 
   auto ren = vtkSmartPointer<vtkRenderer>::New();
@@ -88,21 +89,7 @@ int TestQVTKOpenGLWidgetPicking(int argc, char* argv[])
 
   ren->GetActiveCamera()->SetPosition(0.0, 0.0, 9.0);
 
-  widget.show();
-
-  // Make sure that the widget context is valid before making OpenGL calls.
-  // This should only take up to 4 calls to processEvents(). If this test keeps
-  // timing out, consider that the widget initialization is broken.
-  while (!widget.isValid())
-  {
-    app.processEvents();
-  }
-
-  // always process events before a resize to flush
-  // out any leftover old resize events.
-  app.processEvents();
-  widget.resize(300, 300);
-  app.processEvents();
+  detail::show(widgetOrWindow, QSize(300, 300));
 
   auto picker = vtkSmartPointer<vtkPropPicker>::New();
 
@@ -179,8 +166,9 @@ int TestQVTKOpenGLWidgetPicking(int argc, char* argv[])
   }
 
   // Check that picks outside of spheres hit no actors
-  bool missesOk = std::all_of(misses.begin(), misses.end(),
-    [](const vtkSmartPointer<vtkActor2D> & actor) { return (actor == nullptr); });
+  bool missesOk = std::all_of(misses.begin(),
+    misses.end(),
+    [](const vtkSmartPointer<vtkActor2D>& actor) { return (actor == nullptr); });
   if (!missesOk)
   {
     std::cout << "ERROR: Picking outside of actors failed" << std::endl;

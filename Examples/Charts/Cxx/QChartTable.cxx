@@ -48,7 +48,7 @@ int main( int argc, char * argv [] )
   QVTKOpenGLWidget *qvtkWidget = new QVTKOpenGLWidget(&mainWindow);
 
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
-  qvtkWidget->SetRenderWindow(renderWindow);
+  qvtkWidget->setRenderWindow(renderWindow);
 
   // Set up my 2D world...
   vtkNew<vtkContextView> view; // This contains a chart object

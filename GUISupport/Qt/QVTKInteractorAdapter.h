@@ -53,7 +53,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKInteractorAdapter : public QObject
 public:
   // Description:
   // Constructor: takes QObject parent
-  QVTKInteractorAdapter(QObject* parent);
+  QVTKInteractorAdapter(QObject* parent = nullptr);
 
   // Description:
   // Destructor
