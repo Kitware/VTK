@@ -58,7 +58,9 @@ public:
     {
       PrintOne( i, os, inNext);
       if( i < GetNumberOfTuples() - 1 )
+      {
         os << std::endl << inNext;
+      }
     }
   }
 protected:
@@ -80,7 +82,9 @@ protected:
       {
         PrintVec((tupleIndex+i)*nbComp, nbComp, os );
         if( i < w - 1 )
+        {
           os << std::endl << indent;
+        }
       }
     }
   }
@@ -380,7 +384,9 @@ public:
     {
       uniformT * uni = dynamic_cast<uniformT*>(it->second);
       if (uni)
+      {
         return &(uni->GetValue());
+      }
     }
     return nullptr;
   }
@@ -442,7 +448,9 @@ public:
     {
       bool r = uni.second->SetUniform( uni.first.c_str(), p );
       if( !r )
+      {
         vtkErrorMacro( << "vtkOpenGLUniform: couldn't set custom uniform variable " << uni.first << endl );
+      }
       res &= r;
     }
     return res;
@@ -469,7 +477,9 @@ public:
   {
     UniformMap::iterator it = Uniforms.find(name);
     if (it != Uniforms.end())
+    {
       return it->second;
+    }
     return nullptr;
   }
 
@@ -811,7 +821,11 @@ void vtkOpenGLUniforms::SetUniformMatrix4x4v (const char *name, const int count,
 void vtkOpenGLUniforms::SetUniform3f (const char *name, const double v[3])
 {
   std::vector<float> sv;
-  for( int i = 0; i < 3; ++i ) sv.push_back( static_cast<float>(v[i]) );
+  sv.reserve(3);
+  for( int i = 0; i < 3; ++i )
+  {
+    sv.push_back( static_cast<float>(v[i]) );
+  }
   this->Internals->SetUniformValue<std::vector<float>,UniformVec3f>(name,sv);
 }
 
@@ -830,18 +844,28 @@ void vtkOpenGLUniforms::SetUniform4uc (const char *name, const unsigned char v[4
 void vtkOpenGLUniforms::SetUniformMatrix (const char *name, vtkMatrix3x3 *v)
 {
   std::vector<float> sv;
+  sv.reserve(9);
   for( int i = 0; i < 3; ++i )
+  {
     for( int j = 0; j < 3; ++j )
+    {
       sv.push_back( static_cast<float>( v->GetElement( i, j) ) );
+    }
+  }
   this->Internals->SetUniformValue<std::vector<float>,UniformMat3f>(name,sv);
 }
 
 void vtkOpenGLUniforms::SetUniformMatrix (const char *name, vtkMatrix4x4 *v)
 {
   std::vector<float> sv;
+  sv.reserve(16);
   for( int i = 0; i < 4; ++i )
+  {
     for( int j = 0; j < 4; ++j )
+    {
       sv.push_back( static_cast<float>( v->GetElement( i, j) ) );
+    }
+  }
   this->Internals->SetUniformValue<std::vector<float>,UniformMat4f>(name,sv);
 }
 
@@ -969,8 +993,12 @@ bool vtkOpenGLUniforms::GetUniformMatrix (const char *name, vtkMatrix3x3 *v)
   if( val )
   {
     for( unsigned i = 0; i < 3; ++i )
+    {
       for( unsigned j = 0; j < 3; ++j )
+      {
         v->SetElement( static_cast<int>(i), static_cast<int>(j), static_cast<double>((*val)[3*i+j]) );
+      }
+    }
     return true;
   }
   return false;
@@ -982,8 +1010,12 @@ bool vtkOpenGLUniforms::GetUniformMatrix (const char *name, vtkMatrix4x4 *v)
   if( val )
   {
     for( unsigned i = 0; i < 4; ++i )
+    {
       for( unsigned j = 0; j < 4; ++j )
+      {
         v->SetElement( static_cast<int>(i), static_cast<int>(j), static_cast<double>((*val)[4*i+j]) );
+      }
+    }
     return true;
   }
   return false;

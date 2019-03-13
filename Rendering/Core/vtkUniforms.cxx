@@ -29,11 +29,17 @@ std::string vtkUniforms::TupleTypeToString( TupleType tt )
 vtkUniforms::TupleType vtkUniforms::StringToTupleType( const std::string & s )
 {
   if( s == "TupleTypeScalar" )
+  {
     return vtkUniforms::TupleTypeScalar;
+  }
   else if( s == "TupleTypeVector" )
+  {
     return vtkUniforms::TupleTypeVector;
+  }
   else if( s == "TupleTypeMatrix" )
+  {
     return vtkUniforms::TupleTypeMatrix;
+  }
   return vtkUniforms::TupleTypeInvalid;
 }
 
@@ -41,18 +47,28 @@ vtkUniforms::TupleType vtkUniforms::StringToTupleType( const std::string & s )
 std::string vtkUniforms::ScalarTypeToString( int scalarType )
 {
   if( scalarType == VTK_INT )
+  {
     return "int";
+  }
   else if ( scalarType == VTK_FLOAT )
+  {
     return "float";
+  }
   return "invalid";
 }
 
 int vtkUniforms::StringToScalarType( const std::string & s )
 {
   if( s == "int" )
+  {
     return VTK_INT;
+  }
   else if( s == "float" )
+  {
     return VTK_FLOAT;
+  }
   else
+  {
     return VTK_VOID;
+  }
 }
