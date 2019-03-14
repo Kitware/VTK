@@ -285,6 +285,14 @@ void vtkOSPRayTestInteractor::OnKeyPress()
     this->GLRenderer->GetRenderWindow()->Render();
   }
 
+  if(key == "N")
+  {
+    bool set = vtkOSPRayRendererNode::GetEnableDenoiser(this->GLRenderer);
+    vtkOSPRayRendererNode::SetEnableDenoiser(!set, this->GLRenderer);
+    cerr << "denoiser " << (!set?"ON":"OFF") << endl;
+    this->GLRenderer->GetRenderWindow()->Render();
+  }
+
   // Forward events
   vtkInteractorStyleTrackballCamera::OnKeyPress();
 }

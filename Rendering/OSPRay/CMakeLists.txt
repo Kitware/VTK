@@ -31,14 +31,26 @@ vtk_module_add_module(VTK::RenderingOSPRay
   SOURCES ${vtk_object_factory_source}
   PRIVATE_HEADERS ${vtk_object_factory_header})
 
+option(VTKOSPRAY_ENABLE_DENOISER "build OSPRay Renderer using OpenImageDenoise")
+if (VTKOSPRAY_ENABLE_DENOISER)
+  find_package(OpenImageDenoise 0.8 REQUIRED)
+  add_definitions(-DVTKOSPRAY_ENABLE_DENOISER)
+  set(OPENIMAGEDENIOSE OpenImageDenoise)
+endif()
+
 # TODO: Send patches upstream to export targets from ospray.
 find_package(ospray 1.8 REQUIRED)
 vtk_module_link(VTK::RenderingOSPRay
   PUBLIC
-    ${OSPRAY_LIBRARIES})
+    ${OSPRAY_LIBRARIES}
+  PRIVATE
+    ${OPENIMAGEDENIOSE}
+)
+
 vtk_module_include(VTK::RenderingOSPRay
   PUBLIC
-    ${OSPRAY_INCLUDE_DIRS})
+    ${OSPRAY_INCLUDE_DIRS}
+)
 
 # TODO: FindOSPRay should do this.
 # OSPRay_Core uses MMTime which is in it's own special library.

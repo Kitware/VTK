@@ -28,6 +28,10 @@
 
 #include "ospray/ospray.h" // for ospray handle types
 
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+#include <OpenImageDenoise/oidn.hpp> // for denoiser structures
+#endif
+
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
@@ -37,6 +41,7 @@ class vtkMatrix4x4;
 class vtkOSPRayRendererNodeInternals;
 class vtkOSPRayMaterialLibrary;
 class vtkRenderer;
+
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayRendererNode :
   public vtkRendererNode
@@ -222,9 +227,37 @@ public:
    */
   vtkRenderer *GetRenderer();
 
+  /**
+   * Accumulation threshold when above which denoising kicks in.
+   */
+  static vtkInformationIntegerKey* DENOISER_THRESHOLD();
+  //@{
+  /**
+   * Convenience method to set/get DENOISER_THRESHOLD on a vtkRenderer.
+   */
+  static void SetDenoiserThreshold(int , vtkRenderer *renderer);
+  static int GetDenoiserThreshold(vtkRenderer *renderer);
+  //@}
+
+  /**
+   * Enable denoising (if supported).
+   */
+  static vtkInformationIntegerKey* ENABLE_DENOISER();
+  /**
+   * Convenience method to set/get ENABLE_DENOISER on a vtkRenderer.
+   */
+  static void SetEnableDenoiser(int , vtkRenderer *renderer);
+  static int GetEnableDenoiser(vtkRenderer *renderer);
+  //@}
+
 protected:
   vtkOSPRayRendererNode();
   ~vtkOSPRayRendererNode();
+
+  /**
+   * Denoise the colors stored in ColorBuffer and put into Buffer
+   */
+  void Denoise();
 
   //internal structures
   unsigned char *Buffer;
@@ -241,9 +274,20 @@ protected:
   bool CompositeOnGL;
   float* ODepthBuffer;
   int AccumulateCount;
+  int ActorCount;
   vtkMTimeType AccumulateTime;
   vtkMatrix4x4 *AccumulateMatrix;
   vtkOSPRayRendererNodeInternals *Internal;
+
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+  oidn::DeviceRef DenoiserDevice;
+  oidn::FilterRef DenoiserFilter;
+#endif
+  bool DenoiserDirty{true};
+  std::vector<osp::vec4f> ColorBuffer;
+  std::vector<osp::vec3f> NormalBuffer;
+  std::vector<osp::vec3f> AlbedoBuffer;
+  std::vector<osp::vec4f> DenoisedBuffer;
 
 private:
   vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) = delete;

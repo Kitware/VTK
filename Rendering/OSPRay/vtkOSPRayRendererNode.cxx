@@ -190,6 +190,8 @@ vtkInformationKeyMacro(vtkOSPRayRendererNode, EAST_POLE, DoubleVector);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MATERIAL_LIBRARY, ObjectBase);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, VIEW_TIME, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, TIME_CACHE_SIZE, Integer);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, DENOISER_THRESHOLD, Integer);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, ENABLE_DENOISER, Integer);
 
 class vtkOSPRayRendererNodeInternals
 {
@@ -435,9 +437,16 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
   this->CompositeOnGL = false;
   this->Accumulate = true;
   this->AccumulateCount = 0;
+  this->ActorCount = 0;
   this->AccumulateTime = 0;
   this->AccumulateMatrix = vtkMatrix4x4::New();
   this->Internal = new vtkOSPRayRendererNodeInternals(this);
+
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+  this->DenoiserDevice = oidn::newDevice();
+  this->DenoiserDevice.commit();
+  this->DenoiserFilter = this->DenoiserDevice.newFilter("RT");
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -715,6 +724,58 @@ int vtkOSPRayRendererNode::GetTimeCacheSize(vtkRenderer *renderer)
 }
 
 //----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetDenoiserThreshold(int value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::DENOISER_THRESHOLD(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOSPRayRendererNode::GetDenoiserThreshold(vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return 4;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::DENOISER_THRESHOLD()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::DENOISER_THRESHOLD()));
+  }
+  return 4;
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetEnableDenoiser(int value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::ENABLE_DENOISER(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOSPRayRendererNode::GetEnableDenoiser(vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return 1;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::ENABLE_DENOISER()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::ENABLE_DENOISER()));
+  }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -860,10 +921,10 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   it->Delete();
 
   if (!bgreused)
-    {
+  {
     //hack to ensure progressive rendering resets when background changes
     this->AccumulateTime = 0;
-    }
+  }
   this->Apply(operation,false);
 }
 
@@ -904,7 +965,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
   {
     OSPRenderer oRenderer = nullptr;
     static std::string previousType;
-    std::string type = this->GetRendererType(static_cast<vtkRenderer*>(this->Renderable));
+    std::string type = this->GetRendererType(ren);
     if (!this->ORenderer || previousType != type)
     {
       this->Traverse(invalidate);
@@ -960,11 +1021,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     }
 
     ospSet1i(oRenderer,"aoSamples",
-             this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)));
+             this->GetAmbientSamples(ren));
     ospSet1i(oRenderer,"spp",
-             this->GetSamplesPerPixel(static_cast<vtkRenderer*>(this->Renderable)));
+             this->GetSamplesPerPixel(ren));
     this->CompositeOnGL =
-      (this->GetCompositeOnGL(static_cast<vtkRenderer*>(this->Renderable))!=0);
+      (this->GetCompositeOnGL(ren)!=0);
 
     double *bg = ren->GetBackground();
     ospSet4f(oRenderer,"bgColor", bg[0], bg[1], bg[2], ren->GetBackgroundAlpha());
@@ -980,18 +1041,37 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     {
       this->ImageX = this->Size[0];
       this->ImageY = this->Size[1];
+      const size_t size = this->ImageX*this->ImageY;
       ospRelease(this->OFrameBuffer);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
       this->OFrameBuffer = ospNewFrameBuffer
         (isize,
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+         OSP_FB_RGBA32F,
+#else
          OSP_FB_RGBA8,
-         OSP_FB_COLOR | (this->ComputeDepth? OSP_FB_DEPTH : 0) | (this->Accumulate? OSP_FB_ACCUM : 0));
+#endif
+         OSP_FB_COLOR
+         | (this->ComputeDepth? OSP_FB_DEPTH : 0)
+         | (this->Accumulate? OSP_FB_ACCUM : 0)
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+         | OSP_FB_NORMAL | OSP_FB_ALBEDO
+#endif
+         );
+      this->DenoisedBuffer.resize(size);
+      this->ColorBuffer.resize(size);
+      this->NormalBuffer.resize(size);
+      this->AlbedoBuffer.resize(size);
+      this->DenoiserDirty = true;
       ospSet1f(this->OFrameBuffer, "gamma", 1.0f);
       ospCommit(this->OFrameBuffer);
       ospFrameBufferClear
         (this->OFrameBuffer,
-         OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0));
+         OSP_FB_COLOR
+         | (this->ComputeDepth ? OSP_FB_DEPTH : 0)
+         | (this->Accumulate ? OSP_FB_ACCUM : 0)
+         );
 #pragma GCC diagnostic pop
       delete[] this->Buffer;
       this->Buffer = new unsigned char[this->Size[0]*this->Size[1]*4];
@@ -1034,10 +1114,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       vtkMTimeType m = 0;
       vtkActorCollection *ac = ren->GetActors();
       int nitems = ac->GetNumberOfItems();
-      if (nitems != this->AccumulateCount)
+      if (nitems != this->ActorCount)
       {
         //TODO: need a hash or something to really check for added/deleted
-        this->AccumulateCount = nitems;
+        this->ActorCount = nitems;
+        this->AccumulateCount = 0;
         canReuse = false;
       }
       if (canReuse)
@@ -1127,9 +1208,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 #pragma GCC diagnostic ignored "-Wextra"
         ospFrameBufferClear
           (this->OFrameBuffer,
-           OSP_FB_COLOR |
-           (this->ComputeDepth ? OSP_FB_DEPTH : 0) | OSP_FB_ACCUM);
+           OSP_FB_COLOR
+           | (this->ComputeDepth ? OSP_FB_DEPTH : 0)
+           | OSP_FB_ACCUM);
 #pragma GCC diagnostic pop
+        this->AccumulateCount = 0;
       }
     }
     else if (!this->Accumulate)
@@ -1197,12 +1280,14 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
     ospRenderFrame(this->OFrameBuffer, oRenderer,
-      OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0));
+                   OSP_FB_COLOR
+                   | (this->ComputeDepth ? OSP_FB_DEPTH : 0)
+                   | (this->Accumulate ? OSP_FB_ACCUM : 0)
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+                   | OSP_FB_NORMAL | OSP_FB_ALBEDO
+#endif
+                   );
 #pragma GCC diagnostic pop
-
-    const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
-    memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
-    ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
 
     if (this->ComputeDepth)
     {
@@ -1220,7 +1305,76 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       }
       ospUnmapFrameBuffer(Z, this->OFrameBuffer);
     }
+
+    this->AccumulateCount+=this->GetSamplesPerPixel(ren);
+    const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+    //std::copy(rgba, this->Size[0]*this->Size[1]*4*sizeof(float), &this->ColorBuffer[0]);
+    memcpy(&this->ColorBuffer[0], rgba, this->Size[0]*this->Size[1]*4*sizeof(float));
+    if (
+        this->GetEnableDenoiser(ren) &&
+        (this->AccumulateCount >= this->GetDenoiserThreshold(ren))
+       )
+    {
+      this->Denoise();
+    }
+    //VTK appears to need an RGBA8 buffer, but the denoiser only supports floats right now.  Convert.
+    for (size_t i = 0; i < static_cast<size_t>(this->ImageX*this->ImageY); i++)
+    {
+      const int bi = i*4;
+      this->Buffer[bi] = static_cast<unsigned char>(std::min(this->ColorBuffer[i].x*255.f,255.f));
+      this->Buffer[bi+1] = static_cast<unsigned char>(std::min(this->ColorBuffer[i].y*255.f,255.f));
+      this->Buffer[bi+2] = static_cast<unsigned char>(std::min(this->ColorBuffer[i].z*255.f,255.f));
+      this->Buffer[bi+3] = 255;
+    }
+#else
+    //std::copy((unsigned char*)rgba, this->Size[0]*this->Size[1]*4*sizeof(float), &this->Buffer[0]);
+    memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
+#endif
+    ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
   }
+}
+
+void vtkOSPRayRendererNode::Denoise()
+{
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+  this->DenoisedBuffer = this->ColorBuffer;
+  if (this->DenoiserDirty)
+  {
+    this->DenoiserFilter.setImage("color", (void*)this->ColorBuffer.data(),
+        oidn::Format::Float3, this->ImageX, this->ImageY, 0, sizeof(osp::vec4f));
+
+    this->DenoiserFilter.setImage("normal", (void*)this->NormalBuffer.data(),
+        oidn::Format::Float3, this->ImageX, this->ImageY, 0, sizeof(osp::vec3f));
+
+    this->DenoiserFilter.setImage("albedo", (void*)this->AlbedoBuffer.data(),
+        oidn::Format::Float3, this->ImageX, this->ImageY, 0, sizeof(osp::vec3f));
+
+    this->DenoiserFilter.setImage("output", (void*)this->DenoisedBuffer.data(),
+        oidn::Format::Float3, this->ImageX, this->ImageY, 0, sizeof(osp::vec4f));
+
+    this->DenoiserFilter.commit();
+    this->DenoiserDirty = false;
+  }
+
+  const auto size = this->ImageX*this->ImageY;
+  const osp::vec4f* rgba = static_cast<const osp::vec4f*>
+    (ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR));
+  std::copy(rgba, rgba+size, this->ColorBuffer.begin());
+  ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
+  const osp::vec3f* normal = static_cast<const osp::vec3f*>
+    (ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_NORMAL));
+  std::copy(normal, normal+size, this->NormalBuffer.begin());
+  ospUnmapFrameBuffer(normal, this->OFrameBuffer);
+  const osp::vec3f* albedo = static_cast<const osp::vec3f*>
+    (ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_ALBEDO));
+  std::copy(albedo, albedo+size, this->AlbedoBuffer.begin());
+  ospUnmapFrameBuffer(albedo, this->OFrameBuffer);
+
+  this->DenoiserFilter.execute();
+  //Carson: not sure we need two buffers
+  this->ColorBuffer = this->DenoisedBuffer;
+#endif
 }
 
 //----------------------------------------------------------------------------
