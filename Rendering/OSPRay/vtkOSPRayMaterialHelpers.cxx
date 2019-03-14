@@ -43,10 +43,13 @@ OSPTexture vtkOSPRayMaterialHelpers::NewTexture2D(const osp::vec2i &size,
   const auto totalTexels = size.x * size.y;
   const auto totalBytes  = totalTexels * texelBytes;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextra"
   auto data_handle = ospNewData(totalBytes,
                                 OSP_RAW,
                                 data,
                                 sharedBuffer ? OSP_DATA_SHARED_BUFFER : 0);
+#pragma GCC diagnostic pop
 
   ospCommit(data_handle);
   ospSetObject(texture, "data", data_handle);

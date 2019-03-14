@@ -981,6 +981,8 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       this->ImageX = this->Size[0];
       this->ImageY = this->Size[1];
       ospRelease(this->OFrameBuffer);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextra"
       this->OFrameBuffer = ospNewFrameBuffer
         (isize,
          OSP_FB_RGBA8,
@@ -990,6 +992,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       ospFrameBufferClear
         (this->OFrameBuffer,
          OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0));
+#pragma GCC diagnostic pop
       delete[] this->Buffer;
       this->Buffer = new unsigned char[this->Size[0]*this->Size[1]*4];
       delete[] this->ZBuffer;
@@ -1120,17 +1123,23 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       }
       if (!canReuse)
       {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextra"
         ospFrameBufferClear
           (this->OFrameBuffer,
            OSP_FB_COLOR |
            (this->ComputeDepth ? OSP_FB_DEPTH : 0) | OSP_FB_ACCUM);
+#pragma GCC diagnostic pop
       }
     }
     else if (!this->Accumulate)
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextra"
       ospFrameBufferClear
         (this->OFrameBuffer,
          OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0));
+#pragma GCC diagnostic pop
     }
 
     vtkCamera *cam = vtkRenderer::SafeDownCast(this->Renderable)->GetActiveCamera();
@@ -1185,8 +1194,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     }
     ospCommit(oRenderer);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextra"
     ospRenderFrame(this->OFrameBuffer, oRenderer,
       OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0));
+#pragma GCC diagnostic pop
 
     const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
     memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
