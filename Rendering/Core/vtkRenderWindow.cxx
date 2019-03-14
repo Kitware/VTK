@@ -40,7 +40,6 @@ vtkAbstractObjectFactoryNewMacro(vtkRenderWindow)
 // buffering turned on, stereo capable off.
 vtkRenderWindow::vtkRenderWindow()
 {
-  this->IsPicking = 0;
   this->Borders = 1;
   this->FullScreen = 0;
   this->OldScreen[0] = this->OldScreen[1] = 0;
@@ -425,7 +424,6 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Borders: " << (this->Borders ? "On\n":"Off\n");
-  os << indent << "IsPicking: " << (this->IsPicking ? "On\n":"Off\n");
   os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n":"Off\n");
   os << indent << "Full Screen: " << (this->FullScreen ? "On\n":"Off\n");
   os << indent << "Renderers:\n";
@@ -998,3 +996,22 @@ const char *vtkRenderWindow::GetStereoTypeAsString()
       return "";
   }
 }
+
+#if !defined(VTK_LEGACY_REMOVE)
+vtkTypeBool vtkRenderWindow::GetIsPicking()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::GetIsPicking, "VTK 8.3");
+}
+void vtkRenderWindow::SetIsPicking(vtkTypeBool)
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::SetIsPicking, "VTK 8.3");
+}
+void vtkRenderWindow::IsPickingOn()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::IsPickingOn, "VTK 8.3");
+}
+void vtkRenderWindow::IsPickingOff()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::IsPickingOff, "VTK 8.3");
+}
+#endif

@@ -191,44 +191,35 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
   HGLRC current = wglGetCurrentContext();
   if (this->ContextId != current)
   {
-    if(this->IsPicking && current)
+    if (wglMakeCurrent(this->DeviceContext, this->ContextId) != TRUE)
     {
-      vtkErrorMacro("Attempting to call MakeCurrent for a different window"
-                    " than the one doing the picking, this can causes crashes"
-                    " and/or bad pick results");
-    }
-    else
-    {
-      if (wglMakeCurrent(this->DeviceContext, this->ContextId) != TRUE)
+      LPVOID lpMsgBuf;
+      ::FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr,
+        GetLastError(),
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+        (LPTSTR) &lpMsgBuf,
+        0,
+        nullptr
+        );
+      if(lpMsgBuf)
       {
-        LPVOID lpMsgBuf;
-        ::FormatMessage(
-          FORMAT_MESSAGE_ALLOCATE_BUFFER |
-          FORMAT_MESSAGE_FROM_SYSTEM |
-          FORMAT_MESSAGE_IGNORE_INSERTS,
-          nullptr,
-          GetLastError(),
-          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-          (LPTSTR) &lpMsgBuf,
-          0,
-          nullptr
-          );
-        if(lpMsgBuf)
-        {
 #ifdef UNICODE
-          wchar_t *wmsg = new wchar_t [mbstowcs(nullptr, (const char*)lpMsgBuf, 32000)+1];
-          wchar_t *wtemp = new wchar_t [mbstowcs(nullptr, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000)+1];
-          mbstowcs(wmsg, (const char*)lpMsgBuf, 32000);
-          mbstowcs(wtemp, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000);
-          vtkErrorMacro(<< wcscat(wtemp, wmsg));
-          delete [] wmsg;
-          delete [] wtemp;
+        wchar_t *wmsg = new wchar_t [mbstowcs(nullptr, (const char*)lpMsgBuf, 32000)+1];
+        wchar_t *wtemp = new wchar_t [mbstowcs(nullptr, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000)+1];
+        mbstowcs(wmsg, (const char*)lpMsgBuf, 32000);
+        mbstowcs(wtemp, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000);
+        vtkErrorMacro(<< wcscat(wtemp, wmsg));
+        delete [] wmsg;
+        delete [] wtemp;
 #else
-          vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: "
-                        << (LPCTSTR)lpMsgBuf);
+        vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: "
+                      << (LPCTSTR)lpMsgBuf);
 #endif
-          ::LocalFree( lpMsgBuf );
-        }
+        ::LocalFree( lpMsgBuf );
       }
     }
   }

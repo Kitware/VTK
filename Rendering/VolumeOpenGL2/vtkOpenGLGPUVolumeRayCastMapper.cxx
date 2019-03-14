@@ -1379,7 +1379,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CheckPickingState(vtkRenderer
     selectorPicking &= selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_CELLS;
   }
 
-  this->IsPicking = selectorPicking || ren->GetRenderWindow()->GetIsPicking();
+  this->IsPicking = selectorPicking;
   if (this->IsPicking)
   {
     // rebuild the shader on every pass

@@ -719,11 +719,6 @@ int getPickState(vtkRenderer *ren)
     return selector->GetCurrentPass();
   }
 
-  if (ren->GetRenderWindow()->GetIsPicking())
-  {
-    return vtkHardwareSelector::ACTOR_PASS;
-  }
-
   return vtkHardwareSelector::MIN_KNOWN_PASS - 1;
 }
 }
