@@ -381,7 +381,7 @@ void vtkOSPRayVolumeMapperNode::UpdateTransferFunction(vtkVolume* vol,
   OSPData tfAlphaData = ospNewData(this->NumColors, OSP_FLOAT, &this->TFOVals[0]);
   ospSetData(this->TransferFunction, "opacities", tfAlphaData);
 
-  ospSetVec2f(this->TransferFunction, "valueRange", tfRange);
+  ospSet2f(this->TransferFunction, "valueRange", tfRange.x, tfRange.y);
   ospCommit(this->TransferFunction);
   ospSetObject(this->OSPRayVolume, "transferFunction",
                this->TransferFunction);
