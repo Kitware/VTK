@@ -188,7 +188,7 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl", "");
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != nullptr);
+  bool picking = (selector != nullptr);
   if (picking)
   {
     if (!selector ||
@@ -429,7 +429,7 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
   this->MapScalars(1.0);
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != nullptr);
+  bool picking = (selector != nullptr);
 
   vtkOpenGLStickMapperCreateVBO(
     poly,

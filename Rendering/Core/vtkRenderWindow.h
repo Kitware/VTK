@@ -478,9 +478,15 @@ public:
   virtual int CheckAbortStatus();
   //@}
 
-  vtkGetMacro(IsPicking,vtkTypeBool);
-  vtkSetMacro(IsPicking,vtkTypeBool);
-  vtkBooleanMacro(IsPicking,vtkTypeBool);
+  //@{
+  /**
+   * @deprecated in VTK 8.3
+   */
+  VTK_LEGACY(vtkTypeBool GetIsPicking());
+  VTK_LEGACY(void SetIsPicking(vtkTypeBool));
+  VTK_LEGACY(void IsPickingOn());
+  VTK_LEGACY(void IsPickingOff());
+  //@}
 
   /**
    * Check to see if a mouse button has been pressed.  All other events
@@ -710,7 +716,6 @@ protected:
   int   NeverRendered;
   int   NumberOfLayers;
   int CurrentCursor;
-  vtkTypeBool IsPicking;
   float AnaglyphColorSaturation;
   int AnaglyphColorMask[2];
   int MultiSamples;

@@ -283,8 +283,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
 
   vtkHardwareSelector* selector = ren->GetSelector();
 
-  if (!selector && !ren->GetRenderWindow()->GetIsPicking()
-      && GLEW_ARB_instanced_arrays)
+  if (!selector && GLEW_ARB_instanced_arrays)
   {
     // if there is no triangle, culling is useless.
     // GLEW_ARB_gpu_shader5 is needed by the culling shader.

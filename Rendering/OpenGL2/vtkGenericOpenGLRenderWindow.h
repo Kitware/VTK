@@ -159,12 +159,6 @@ public:
   vtkSetVector2Macro(ScreenSize,int);
 
   /**
-  * Overridden to invoke vtkCommand::StartPickEvent and
-  * vtkCommand::EndPickEvent.
-  */
-  void SetIsPicking(vtkTypeBool isPicking) override;
-
-  /**
    * Overridden to invoke vtkCommand::CursorChangedEvent
    */
   void SetCurrentCursor(int cShape) override;
