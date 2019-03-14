@@ -206,7 +206,7 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
   }
 
   // Set the attributes on hypertree grid using the header of the first Piece
-  if (this->Piece == 0)
+  if (this->Piece == this->StartPiece)
   {
     output->SetDimension(input->GetDimension());
     output->SetOrientation(input->GetOrientation());
