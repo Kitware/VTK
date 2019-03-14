@@ -35,6 +35,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTable.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataObjectWriter.h"
@@ -270,7 +271,8 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
 
   vtkDataSet* curDS = vtkDataSet::SafeDownCast(dObj);
   vtkTable* curTable = vtkTable::SafeDownCast(dObj);
-  if (!curDS && !curTable)
+  vtkHyperTreeGrid* curHTG = vtkHyperTreeGrid::SafeDownCast(dObj);
+  if (!curDS && !curTable && !curHTG)
   {
     if (dObj)
     {
@@ -477,7 +479,8 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
     vtkSmartPointer<vtkXMLWriter>& writer = this->Internal->Writers[i];
     vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     vtkTable* table = vtkTable::SafeDownCast(iter->GetCurrentDataObject());
-    if (ds == nullptr && table == nullptr)
+    vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(iter->GetCurrentDataObject());
+    if (ds == nullptr && table == nullptr && htg == nullptr)
     {
       writer = nullptr;
       continue;
