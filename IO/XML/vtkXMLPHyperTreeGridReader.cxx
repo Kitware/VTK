@@ -209,6 +209,7 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
   if (this->Piece == 0)
   {
     output->SetDimension(input->GetDimension());
+    output->SetOrientation(input->GetOrientation());
     output->SetBranchFactor(input->GetBranchFactor());
     output->SetTransposedRootIndexing(input->GetTransposedRootIndexing());
     output->SetGridSize(input->GetGridSize());
