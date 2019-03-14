@@ -204,7 +204,7 @@ public:
 
 protected:
   vtkDistributedDataFilter();
-  ~vtkDistributedDataFilter();
+  ~vtkDistributedDataFilter() override;
 
   /**
    * Another way to set ClipCells and IncludeAllIntersectingCells.

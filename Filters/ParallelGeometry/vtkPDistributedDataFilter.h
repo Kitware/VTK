@@ -113,7 +113,7 @@ public:
 
 protected:
   vtkPDistributedDataFilter();
-  ~vtkPDistributedDataFilter();
+  ~vtkPDistributedDataFilter() override;
 
   /**
    * Build a vtkUnstructuredGrid for a spatial region from the
