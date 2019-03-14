@@ -205,10 +205,10 @@ public:
     return QSize();
   }
 
-  void makeCurrent()
+  bool makeCurrent()
   {
     Q_ASSERT(this->Context && this->Surface);
-    this->Context->makeCurrent(this->Surface);
+    return this->Context->makeCurrent(this->Surface);
   }
 
   bool isCurrent() const
@@ -541,7 +541,8 @@ bool QVTKRenderWindowAdapter::QVTKInternals::needToRecreateFBO() const
 void QVTKRenderWindowAdapter::QVTKInternals::recreateFBO()
 {
   vtkLogF(TRACE, "recreateFBO");
-  this->Context->makeCurrent(this->Surface);
+  Q_ASSERT(this->Context && this->Surface);
+  Q_ASSERT(this->isCurrent());
   this->FBO.reset(nullptr);
 
   auto renWin = this->RenderWindow;

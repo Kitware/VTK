@@ -15,6 +15,7 @@
 #include "vtkGenericOpenGLRenderWindow.h"
 
 #include "vtkCommand.h"
+#include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -242,13 +243,21 @@ void vtkGenericOpenGLRenderWindow::Render()
 {
   if (this->ReadyForRendering)
   {
-    // Query current GL state and store them
-    this->SaveGLState();
+    this->MakeCurrent();
+    if (!this->IsCurrent())
+    {
+      vtkLogF(TRACE, "rendering skipped since `MakeCurrent` was not successful.");
+    }
+    else
+    {
+      // Query current GL state and store them
+      this->SaveGLState();
 
-    this->Superclass::Render();
+      this->Superclass::Render();
 
-    // Restore state to previous known value
-    this->RestoreGLState();
+      // Restore state to previous known value
+      this->RestoreGLState();
+    }
   }
 }
 
