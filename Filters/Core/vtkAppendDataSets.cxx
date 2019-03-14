@@ -167,7 +167,7 @@ int vtkAppendDataSets::RequestData(
       cleaner->ConvertLinesToPointsOff();
       cleaner->ConvertPolysToLinesOff();
       cleaner->ConvertStripsToPolysOff();
-      cleaner->SetTolerance(this->GetTolerance());
+      cleaner->SetAbsoluteTolerance(this->GetTolerance());
       cleaner->ToleranceIsAbsoluteOn();
       cleaner->Update();
       output->ShallowCopy(cleaner->GetOutput());
