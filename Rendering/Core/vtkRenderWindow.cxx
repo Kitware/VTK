@@ -1001,6 +1001,7 @@ const char *vtkRenderWindow::GetStereoTypeAsString()
 vtkTypeBool vtkRenderWindow::GetIsPicking()
 {
   VTK_LEGACY_BODY(vtkRenderWindow::GetIsPicking, "VTK 8.3");
+  return false;
 }
 void vtkRenderWindow::SetIsPicking(vtkTypeBool)
 {
