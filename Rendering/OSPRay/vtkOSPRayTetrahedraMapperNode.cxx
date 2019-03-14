@@ -141,7 +141,7 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
                             nullptr;
       if (cached_Volume)
       {
-        this->OSPRayVolume = (OSPVolume)cached_Volume;
+        this->OSPRayVolume = static_cast<OSPVolume>(cached_Volume);
       }
       else
       {

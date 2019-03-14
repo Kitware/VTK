@@ -53,7 +53,7 @@ public:
    */
   void Set(double tstep, std::shared_ptr<T> payload)
   {
-    if (static_cast<int>(this->Contents.size()) >= this->Size)
+    if (this->Contents.size() >= this->Size)
     {
       return;
     }
@@ -79,7 +79,7 @@ public:
    * Set/Get the number of slots available in the cache.
    * Default is 0.
    */
-  void SetSize(int sz)
+  void SetSize(size_t sz)
   {
     if (sz == this->Size)
     {
@@ -91,8 +91,7 @@ public:
     }
     this->Size = sz;
   }
-
-  int GetSize()
+  size_t GetSize()
   {
     return this->Size;
   }
@@ -123,7 +122,7 @@ private:
     this->Size = 0;
   }
 
-  int Size;
+  size_t Size;
 
   std::map<double, std::shared_ptr<T> > Contents;
 };

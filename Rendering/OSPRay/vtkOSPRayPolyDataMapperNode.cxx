@@ -1329,8 +1329,12 @@ void vtkOSPRayPolyDataMapperNode::PopulateCache()
       ospAddGeometry(instanceModel, g);
     }
     ospCommit(instanceModel);
-    ospcommon::affine3f xfm = ospcommon::affine3f(ospcommon::one);
-    auto instance = ospNewInstance(instanceModel, (osp::affine3f&)xfm);
+    osp::affine3f xfm {
+      1,0,0,
+      0,1,0,
+      0,0,1,
+      0,0,0};
+    auto instance = ospNewInstance(instanceModel, xfm);
     ospCommit(instance);
     auto instanceCacheEntry = std::make_shared<vtkOSPRayCacheItemObject>((OSPObject)instance);
     instanceCacheEntry->size = this->Geometries.size();
@@ -1352,14 +1356,14 @@ void vtkOSPRayPolyDataMapperNode::RenderGeometries()
     auto cacheEntry = this->InstanceCache->Get(tstep);
     if (cacheEntry->size > 0)
     {
-      OSPGeometry instance = (OSPGeometry)cacheEntry->object;
+      OSPGeometry instance = static_cast<OSPGeometry>(cacheEntry->object);
       ospAddGeometry(oModel, instance);
     }
     return;
   }
   else if (this->UseGeometryCache && this->GeometryCache->Contains(tstep))
   {
-    auto& geometriesCache = this->GeometryCache->Get(tstep)->Geometries;
+    auto& geometriesCache = this->GeometryCache->Get(tstep)->GeometriesAtTime;
     for (auto g : geometriesCache)
     {
       ospAddGeometry(oModel, g);

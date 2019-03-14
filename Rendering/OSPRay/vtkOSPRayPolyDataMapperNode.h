@@ -64,12 +64,12 @@ protected:
 
     vtkOSPRayCacheItemGeometries() = default;
     vtkOSPRayCacheItemGeometries(const std::vector<OSPGeometry>& geometries_)
-      : Geometries(geometries_)
+      : GeometriesAtTime(geometries_)
     {}
 
     ~vtkOSPRayCacheItemGeometries() = default;
 
-    std::vector<OSPGeometry> Geometries;
+    std::vector<OSPGeometry> GeometriesAtTime;
   };
 
   std::vector<OSPGeometry> Geometries;

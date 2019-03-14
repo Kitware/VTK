@@ -130,7 +130,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       auto cached_Volume = this->Cache->Get(tstep);
       if (cached_Volume)
       {
-        this->OSPRayVolume = (OSPVolume)cached_Volume->object;
+        this->OSPRayVolume = static_cast<OSPVolume>(cached_Volume->object);
       }
       else
       {
