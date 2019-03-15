@@ -15,8 +15,15 @@ Extensions:
 
 ##Public VTK classes:
 
+- **vtkADIOS2ImageCoreReader.h/.cxx** : a generic multiblock reader for image data developed at Kitware Inc. It will use existing arrays to populate dimension of the image, adding timesteps info, point and cell data accordingly. No predefined schema is needed. It can work in serial or MPI mode.
+
 - **vtkVARMultiBlock .h/.cxx** : multiblock reader for ImageData and UnstructuredData types using VTK ADIOS2 Readers (VAR) implementation developed at Oak Ridge National Laboratory (ORNL). Reads bp files/streams with a vtk.xml attribute schema the reuses the [VTK XML file formats schemas](https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf)
 
+## **Core: VTK ADIOS2 CORE READERS**
+
+Developed at Kitware Inc
+- **vtkADIOS2CoreArraySelection.h/.cxx**: Array selection for client and server communication
+- **vtkADIOS2CoreTypeTraits.h** TypeTraits from adios2 type to vtk type
 
 ## **VAR: VTK ADIOS2 READERS**
 

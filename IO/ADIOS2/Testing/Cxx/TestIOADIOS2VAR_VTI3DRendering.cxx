@@ -56,7 +56,7 @@ namespace
 {
 MPI_Comm MPIGetComm()
 {
-  MPI_Comm comm = nullptr;
+  MPI_Comm comm = MPI_COMM_NULL;
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
   vtkMPICommunicator* vtkComm = vtkMPICommunicator::SafeDownCast(controller->GetCommunicator());
   if (vtkComm)
