@@ -60,7 +60,7 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(
   vBoxLayout->addWidget(container);
 
   // Forward signals triggered by the internal QVTKOpenGLWindow
-  QObject::connect(this->VTKOpenGLWindow, &QVTKOpenGLWindow::windowEvent,
+  QObject::connect(this->VTKOpenGLWindow.data(), &QVTKOpenGLWindow::windowEvent,
       [this](QEvent* evt)
       {
         QApplication::sendEvent(this, evt);
