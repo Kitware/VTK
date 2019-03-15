@@ -694,7 +694,7 @@ void vtkTriangle::ComputeNormal(vtkPoints *p, int vtkNotUsed(numPts),
 // return value) of a triangle defined by the three points x1, x2, and
 // x3. (Note that the coordinates are 2D. 3D points can be used but
 // the z-component will be ignored.)
-double vtkTriangle::Circumcircle(double  x1[2], double x2[2], double x3[2],
+double vtkTriangle::Circumcircle(const double  x1[2], const double x2[2], const double x3[2],
                                  double center[2])
 {
   double n12[2], n13[2], x12[2], x13[2];
@@ -766,8 +766,8 @@ double vtkTriangle::Circumcircle(double  x1[2], double x2[2], double x3[2],
 // point x is on a vertex. If one coordinates are zero, the point x is on an
 // edge. In this method, you must specify the vertex coordinates x1->x3.
 // Returns 0 if triangle is degenerate.
-int vtkTriangle::BarycentricCoords(double x[2], double  x1[2], double x2[2],
-                                   double x3[2], double bcoords[3])
+int vtkTriangle::BarycentricCoords(const double x[2], const double  x1[2], const double x2[2],
+                                   const double x3[2], double bcoords[3])
 {
   double *A[3], p[3], a1[3], a2[3], a3[3];
   int i;
@@ -803,7 +803,7 @@ int vtkTriangle::BarycentricCoords(double x[2], double  x1[2], double x2[2],
 // Project triangle defined in 3D to 2D coordinates. Returns 0 if degenerate
 // triangle; non-zero value otherwise. Input points are x1->x3; output 2D
 // points are v1->v3.
-int vtkTriangle::ProjectTo2D(double x1[3], double x2[3], double x3[3],
+int vtkTriangle::ProjectTo2D(const double x1[3], const double x2[3], const double x3[3],
                              double v1[2], double v2[2], double v3[2])
 {
   double n[3], v21[3], v31[3], v[3], xLen;
@@ -974,7 +974,7 @@ void vtkTriangle::Clip(double value, vtkDataArray *cellScalars,
 //----------------------------------------------------------------------------
 namespace
 {
-double Determinant(double a[3], double b[3], double c[3], double d[3])
+double Determinant(const double a[3], const double b[3], const double c[3], const double d[3])
 {
   // If > 0, d lies above the plane defined by (a,b,c)
   // if < 0, d lies below the plane defined by (a,b,c)
@@ -1010,8 +1010,8 @@ int Orientation(const double p1[2], const double p2[2], const double p3[2])
   return ( signedArea > 0. ? Counterclockwise : Clockwise );
 }
 
-int CoplanarTrianglesIntersect(double p1[2], double q1[2], double r1[2],
-                               double p2[2], double q2[2], double r2[2])
+int CoplanarTrianglesIntersect(const double p1[2], const double q1[2], const double r1[2],
+                               const double p2[2], const double q2[2], const double r2[2])
 {
   // Determine whether or not triangle T1 = (p1,q1,r1) intersects triangle
   // T2 = (p2,q2,r2), assuming that they are coplanar. This method is adapted
@@ -1100,7 +1100,7 @@ int CoplanarTrianglesIntersect(double p1[2], double q1[2], double r1[2],
     return 0;
   }
 
-  double* T2[3] = {p2,q2,r2};
+  const double* T2[3] = {p2,q2,r2};
   p2 = T2[index];
   q2 = T2[(index+1)%3];
   r2 = T2[(index+2)%3];
@@ -1284,8 +1284,8 @@ int CoplanarTrianglesIntersect(double p1[2], double q1[2], double r1[2],
 // Determine whether or not triangle (p1,q1,r1) intersects triangle (p2,q2,r2).
 // This method is adapted from Olivier Devillers, Philippe Guigue. Faster
 // Triangle-Triangle Intersection Tests. RR-4488, IN-RIA. 2002. <inria-00072100>
-int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
-                                    double p2[3], double q2[3], double r2[3])
+int vtkTriangle::TrianglesIntersect(const double p1[3], const double q1[3], const double r1[3],
+                                    const double p2[3], const double q2[3], const double r2[3])
 {
   // Triangle T1 = (p1,q1,r1) and lies in plane Pi1
   // Triangle T2 = (p2,q2,r2) and lies in plane Pi2
@@ -1341,7 +1341,7 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
   }
 
   bool degenerate = false;
-  double* points[3] = {p1,q1,r1};
+  const double* points[3] = {p1,q1,r1};
   for (int i=0;i<3;i++)
   {
     if (std::abs( det1[i] ) < eps)
@@ -1401,7 +1401,7 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
   }
   assert(index1 >= 0 && index1 < 3);
 
-  double* T1[3] = {p1,q1,r1};
+  const double* T1[3] = {p1,q1,r1};
   p1 = T1[index1];
   q1 = T1[(index1+1)%3];
   r1 = T1[(index1+2)%3];
@@ -1418,7 +1418,7 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
   }
   assert(index2 >= 0 && index2 < 3);
 
-  double* T2[3] = {p2,q2,r2};
+  const double* T2[3] = {p2,q2,r2};
   p2 = T2[index2];
   q2 = T2[(index2+1)%3];
   r2 = T2[(index2+2)%3];
@@ -1453,8 +1453,8 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
 // coordinate values p1, p2, p3. Method is via comparing dot products.
 // (Note: in current implementation the tolerance only works in the
 // neighborhood of the three vertices of the triangle.
-int vtkTriangle::PointInTriangle(double x[3], double p1[3], double p2[3],
-                                 double p3[3], double tol2)
+int vtkTriangle::PointInTriangle(const double x[3], const double p1[3], const double p2[3],
+                                 const double p3[3], const double tol2)
 {
   double       x1[3], x2[3], x3[3], v13[3], v21[3], v32[3];
   double       n1[3], n2[3], n3[3];
@@ -1539,7 +1539,7 @@ double vtkTriangle::GetParametricDistance(const double pcoords[3])
 
 
 //----------------------------------------------------------------------------
-void vtkTriangle::ComputeQuadric(double x1[3], double x2[3], double x3[3],
+void vtkTriangle::ComputeQuadric(const double x1[3], const double x2[3], const double x3[3],
                                  double quadric[4][4])
 {
   double crossX1X2[3], crossX2X3[3], crossX3X1[3];
@@ -1575,7 +1575,7 @@ void vtkTriangle::ComputeQuadric(double x1[3], double x2[3], double x3[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkTriangle::ComputeQuadric(double x1[3], double x2[3], double x3[3],
+void vtkTriangle::ComputeQuadric(const double x1[3], const double x2[3], const double x3[3],
                                  vtkQuadric *quadric)
 {
   double quadricMatrix[4][4];

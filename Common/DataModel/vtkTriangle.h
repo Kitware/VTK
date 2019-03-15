@@ -135,14 +135,14 @@ public:
   /**
    * Compute the center of the triangle.
    */
-  static void TriangleCenter(double p1[3], double p2[3], double p3[3],
+  static void TriangleCenter(const double p1[3], const double p2[3], const double p3[3],
                              double center[3]);
 
   /**
    * Compute the area of a triangle in 3D.
    * See also vtkTriangle::ComputeArea()
    */
-  static double TriangleArea(double p1[3], double p2[3], double p3[3]);
+  static double TriangleArea(const double p1[3], const double p2[3], const double p3[3]);
 
   /**
    * Compute the circumcenter (center[3]) and radius squared (method
@@ -150,7 +150,7 @@ public:
    * and x3. (Note that the coordinates are 2D. 3D points can be used
    * but the z-component will be ignored.)
    */
-  static double Circumcircle(double  p1[2], double p2[2], double p3[2],
+  static double Circumcircle(const double  p1[2], const double p2[2], const double p3[2],
                             double center[2]);
 
   /**
@@ -165,8 +165,8 @@ public:
    * edge. In this method, you must specify the vertex coordinates x1->x3.
    * Returns 0 if triangle is degenerate.
    */
-  static int BarycentricCoords(double x[2], double  x1[2], double x2[2],
-                               double x3[2], double bcoords[3]);
+  static int BarycentricCoords(const double x[2], const double  x1[2], const double x2[2],
+                               const double x3[2], double bcoords[3]);
 
 
   /**
@@ -174,7 +174,7 @@ public:
    * degenerate triangle; non-zero value otherwise. Input points are x1->x3;
    * output 2D points are v1->v3.
    */
-  static int ProjectTo2D(double x1[3], double x2[3], double x3[3],
+  static int ProjectTo2D(const double x1[3], const double x2[3], const double x3[3],
                          double v1[2], double v2[2], double v3[2]);
 
   /**
@@ -187,12 +187,12 @@ public:
   /**
    * Compute the triangle normal from three points.
    */
-  static void ComputeNormal(double v1[3], double v2[3], double v3[3], double n[3]);
+  static void ComputeNormal(const double v1[3], const double v2[3], const double v3[3], double n[3]);
 
   /**
    * Compute the (unnormalized) triangle normal direction from three points.
    */
-  static void ComputeNormalDirection(double v1[3], double v2[3], double v3[3],
+  static void ComputeNormalDirection(const double v1[3], const double v2[3], const double v3[3],
                                      double n[3]);
 
   // Description:
@@ -200,8 +200,8 @@ public:
   // (p2,q2,r2). This method is adapted from Olivier Devillers, Philippe Guigue.
   // Faster Triangle-Triangle Intersection Tests. RR-4488, IN-RIA. 2002.
   // <inria-00072100>.
-  static int TrianglesIntersect(double p1[3], double q1[3], double r1[3],
-                                double p2[3], double q2[3], double r2[3]);
+  static int TrianglesIntersect(const double p1[3], const double q1[3], const double r1[3],
+                                const double p2[3], const double q2[3], const double r2[3]);
 
   // Description:
   // Given a point x, determine whether it is inside (within the
@@ -209,9 +209,9 @@ public:
   // coordinate values p1, p2, p3. Method is via comparing dot products.
   // (Note: in current implementation the tolerance only works in the
   // neighborhood of the three vertices of the triangle.
-  static int PointInTriangle(double x[3], double x1[3],
-                             double x2[3], double x3[3],
-                             double tol2);
+  static int PointInTriangle(const double x[3], const double x1[3],
+                             const double x2[3], const double x3[3],
+                             const double tol2);
 
   //@{
   /**
@@ -220,9 +220,9 @@ public:
    * Lindstrom's Siggraph 2000 paper, "Out-of-Core Simplification of
    * Large Polygonal Models")
    */
-  static void ComputeQuadric(double x1[3], double x2[3], double x3[3],
+  static void ComputeQuadric(const double x1[3], const double x2[3], const double x3[3],
                              double quadric[4][4]);
-  static void ComputeQuadric(double x1[3], double x2[3], double x3[3],
+  static void ComputeQuadric(const double x1[3], const double x2[3], const double x3[3],
                              vtkQuadric *quadric);
   //@}
 
@@ -246,8 +246,8 @@ inline int vtkTriangle::GetParametricCenter(double pcoords[3])
 }
 
 //----------------------------------------------------------------------------
-inline void vtkTriangle::ComputeNormalDirection(double v1[3], double v2[3],
-                                       double v3[3], double n[3])
+inline void vtkTriangle::ComputeNormalDirection(const double v1[3], const double v2[3],
+                                                const double v3[3], double n[3])
 {
   double ax, ay, az, bx, by, bz;
 
@@ -261,8 +261,8 @@ inline void vtkTriangle::ComputeNormalDirection(double v1[3], double v2[3],
 }
 
 //----------------------------------------------------------------------------
-inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
-                                       double v3[3], double n[3])
+inline void vtkTriangle::ComputeNormal(const double v1[3], const double v2[3],
+                                       const double v3[3], double n[3])
 {
   double length;
 
@@ -277,8 +277,8 @@ inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
 }
 
 //----------------------------------------------------------------------------
-inline void vtkTriangle::TriangleCenter(double p1[3], double p2[3],
-                                        double p3[3], double center[3])
+inline void vtkTriangle::TriangleCenter(const double p1[3], const double p2[3],
+                                        const double p3[3], double center[3])
 {
   center[0] = (p1[0]+p2[0]+p3[0]) / 3.0;
   center[1] = (p1[1]+p2[1]+p3[1]) / 3.0;
@@ -286,7 +286,7 @@ inline void vtkTriangle::TriangleCenter(double p1[3], double p2[3],
 }
 
 //----------------------------------------------------------------------------
-inline double vtkTriangle::TriangleArea(double p1[3], double p2[3], double p3[3])
+inline double vtkTriangle::TriangleArea(const double p1[3], const double p2[3], const double p3[3])
 {
   double n[3];
   vtkTriangle::ComputeNormalDirection(p1,p2,p3,n);
