@@ -266,6 +266,7 @@ protected:
   OSPModel OModel;
   OSPRenderer ORenderer;
   OSPFrameBuffer OFrameBuffer;
+  OSPData OLightArray;
   int ImageX, ImageY;
   std::vector<OSPLight> Lights;
   int NumActors;

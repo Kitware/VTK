@@ -21,7 +21,7 @@
 #include "vtkInformation.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
-#include "vtkOSPRayVolumeCache.h"
+#include "vtkOSPRayCache.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
@@ -45,8 +45,8 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
   this->NumColors = 128;
   this->OSPRayVolume = nullptr;
   this->TransferFunction = nullptr;
-  this->Cache = new vtkOSPRayVolumeCache;
-  this->UseSharedBuffers = true;
+  this->Cache = new vtkOSPRayCache<vtkOSPRayCacheItemObject>;
+  this->UseSharedBuffers = false;
   this->SharedData = nullptr;
 }
 
@@ -127,10 +127,10 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
     {
       double tstep = vtkOSPRayRendererNode::GetViewTime(ren);
-      auto cached_Volume = this->Cache->GetFromCache(tstep);
+      auto cached_Volume = this->Cache->Get(tstep);
       if (cached_Volume)
       {
-        this->OSPRayVolume = cached_Volume;
+        this->OSPRayVolume = static_cast<OSPVolume>(cached_Volume->object);
       }
       else
       {
@@ -200,7 +200,11 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         {
           this->OSPRayVolume = ospNewVolume("block_bricked_volume");
         }
-        this->Cache->AddToCache(tstep, this->OSPRayVolume);
+        if (this->Cache->HasRoom())
+        {
+          auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(this->OSPRayVolume);
+          this->Cache->Set(tstep, std::move(cacheEntry));
+        }
         //
         // Send Volumetric data to OSPRay
         //

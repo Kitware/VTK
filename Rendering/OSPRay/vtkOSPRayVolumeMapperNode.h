@@ -22,6 +22,7 @@
 #ifndef vtkOSPRayVolumeMapperNode_h
 #define vtkOSPRayVolumeMapperNode_h
 
+#include "vtkOSPRayCache.h" // For common cache infrastructure
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
@@ -30,7 +31,6 @@
 class vtkAbstractArray;
 class vtkDataSet;
 class vtkVolume;
-class vtkOSPRayVolumeCache;
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeMapperNode :
   public vtkVolumeMapperNode
@@ -78,7 +78,7 @@ protected:
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
 
-  vtkOSPRayVolumeCache *Cache;
+  vtkOSPRayCache<vtkOSPRayCacheItemObject> *Cache;
 
 private:
   vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) = delete;

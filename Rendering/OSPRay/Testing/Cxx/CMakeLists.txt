@@ -45,6 +45,8 @@ vtk_add_test_cxx(vtkRenderingOSPRayCxxTests tests
   TestPathTracerMaterialLibrary.cxx,NO_VALID
   TestPathTracerMaterials.cxx
   TestPathTracerShadows.cxx
+  # Miscelaneous tests
+  TestOSPRayCache.cxx
   )
 vtk_test_cxx_executable(vtkRenderingOSPRayCxxTests tests RENDERING_FACTORY
   vtkOSPRayTestInteractor.cxx

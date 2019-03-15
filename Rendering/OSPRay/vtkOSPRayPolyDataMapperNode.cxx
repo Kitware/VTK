@@ -38,6 +38,16 @@
 #include "vtkSmartPointer.h"
 
 #include "ospray/ospray.h"
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+#include "ospcommon/AffineSpace.h"
+// Undo disabling of warning.
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 #include "ospray/version.h"
 
 #include <map>
@@ -45,39 +55,6 @@
 //============================================================================
 
 namespace vtkosp {
-
-  //------------------------------------------------------------------------------
-  class MyGeom {
-    //A cache for the ospray meshes we make for this actor.
-    //When something else in the scene changes but this actor doesn't we
-    //reuse instead of recreating. RendererNode has a higher level cache
-    //that prevent spatial sorting when nothing changes other than camera.
-  public:
-    std::vector<OSPGeometry> geoms;
-    ~MyGeom()
-    {
-      std::vector<OSPGeometry>::iterator it = geoms.begin();
-      while (it != geoms.end())
-      {
-        ospRelease((OSPGeometry)*it);
-        ++it;
-      }
-      geoms.clear();
-    }
-    void Add(OSPGeometry geo)
-    {
-      geoms.push_back(geo);
-    }
-    void AddMyselfTo(OSPModel oModel)
-    {
-      std::vector<OSPGeometry>::iterator it = geoms.begin();
-      while (it != geoms.end())
-      {
-        ospAddGeometry(oModel, *it);
-        ++it;
-      }
-    }
-  };
 
   //------------------------------------------------------------------------------
   void VToOPointNormals(
@@ -212,9 +189,7 @@ namespace vtkosp {
                               int numPointColors,
                               osp::vec4f *PointColors,
                               int numPointValueTextureCoords,
-                              float *pointValueTextureCoords,
-                              OSPModel oModel
-                              )
+                              float *pointValueTextureCoords)
   {
     OSPGeometry ospMesh = ospNewGeometry("spheres");
     int width=4;
@@ -272,12 +247,12 @@ namespace vtkosp {
         //using 1D texture for point value LUT
         tc = new osp::vec2f[indexArray.size()];
         for (size_t i = 0; i < indexArray.size(); i++)
-          {
+        {
           float t1;
           int index1 = indexArray[i];
           t1 = pointValueTextureCoords[index1+0];
           tc[i] = osp::vec2f{t1,0};
-          }
+        }
         OSPData tcs = ospNewData(indexArray.size(), OSP_FLOAT2, &tc[0]);
         ospSetData(ospMesh, "texcoord", tcs);
       }
@@ -287,13 +262,13 @@ namespace vtkosp {
         float *itc = textureCoordinates;
         tc = new osp::vec2f[indexArray.size()];
         for (size_t i = 0; i < indexArray.size(); i++)
-          {
+        {
           float t1,t2;
           int index1 = indexArray[i];
           t1 = itc[index1*2+0];
           t2 = itc[index1*2+1];
           tc[i] = osp::vec2f{t1,t2};
-          }
+        }
         OSPData tcs = ospNewData(indexArray.size(), OSP_FLOAT2, &tc[0]);
         ospSetData(ospMesh, "texcoord", tcs);
       }
@@ -329,7 +304,6 @@ namespace vtkosp {
       ospSetMaterial(ospMesh, actorMaterial);
     }
 
-    ospAddGeometry(oModel, ospMesh);
     ospCommit(ospMesh);
     ospRelease(_PointColors);
     ospRelease(_mdata);
@@ -355,8 +329,7 @@ namespace vtkosp {
                                 int numPointColors,
                                 osp::vec4f *PointColors,
                                 int numPointValueTextureCoords,
-                                float *pointValueTextureCoords,
-                                OSPModel oModel
+                                float *pointValueTextureCoords
                                 )
   {
     OSPGeometry ospMesh = ospNewGeometry("cylinders");
@@ -421,7 +394,7 @@ namespace vtkosp {
         //using 1D texture for point value LUT
         tc = new osp::vec2f[indexArray.size()];
         for (size_t i = 0; i < indexArray.size(); i+=2)
-          {
+        {
           float t1,t2;
           int index1 = indexArray[i+0];
           t1 = pointValueTextureCoords[index1+0];
@@ -429,7 +402,7 @@ namespace vtkosp {
           int index2 = indexArray[i+1];
           t2 = pointValueTextureCoords[index2+0];
           tc[i+1] = osp::vec2f{t2,0};
-          }
+        }
         OSPData tcs = ospNewData(indexArray.size(), OSP_FLOAT2, &tc[0]);
         ospSetData(ospMesh, "texcoord", tcs);
         ospSetData(ospMesh, "vertex.texcoord", tcs);
@@ -486,7 +459,6 @@ namespace vtkosp {
       ospSetMaterial(ospMesh, actorMaterial);
     }
 
-    ospAddGeometry(oModel, ospMesh);
     ospCommit(ospMesh);
     ospRelease(_PointColors);
     ospRelease(_mdata);
@@ -511,8 +483,7 @@ namespace vtkosp {
                                 int numPointColors,
                                 osp::vec4f *PointColors,
                                 int numPointValueTextureCoords,
-                                float *pointValueTextureCoords,
-                                OSPModel oModel
+                                float *pointValueTextureCoords
                                 )
   {
     OSPGeometry ospMesh = ospNewGeometry("trianglemesh");
@@ -612,7 +583,6 @@ namespace vtkosp {
       ospSetMaterial(ospMesh, actorMaterial);
     }
 
-    ospAddGeometry(oModel, ospMesh);
     ospCommit(ospMesh);
     ospRelease(index);
     ospRelease(_normals);
@@ -745,13 +715,17 @@ vtkStandardNewMacro(vtkOSPRayPolyDataMapperNode);
 //----------------------------------------------------------------------------
 vtkOSPRayPolyDataMapperNode::vtkOSPRayPolyDataMapperNode()
 {
-  this->OSPMeshes = nullptr;
+  this->UseInstanceCache = true;
+  this->UseGeometryCache = true;
+  this->GeometryCache = new vtkOSPRayCache<vtkOSPRayCacheItemGeometries>;
+  this->InstanceCache = new vtkOSPRayCache<vtkOSPRayCacheItemObject>;
 }
 
 //----------------------------------------------------------------------------
 vtkOSPRayPolyDataMapperNode::~vtkOSPRayPolyDataMapperNode()
 {
-  delete (vtkosp::MyGeom*)this->OSPMeshes;
+  delete this->GeometryCache;
+  delete this->InstanceCache;
 }
 
 //----------------------------------------------------------------------------
@@ -762,23 +736,20 @@ void vtkOSPRayPolyDataMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 void vtkOSPRayPolyDataMapperNode::ORenderPoly(
-  void *renderer, void *model,
+  void *renderer,
   vtkOSPRayActorNode *aNode, vtkPolyData * poly,
   double *ambientColor,
   double *diffuseColor,
   double opacity,
   std::string materialName)
 {
-  //todo: this is ugly {
   vtkOSPRayRendererNode *orn =
     static_cast<vtkOSPRayRendererNode *>(
       this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
 
   OSPRenderer oRenderer = static_cast<OSPRenderer>(renderer);
-  OSPModel oModel = static_cast<OSPModel>(model);
   vtkActor *act = vtkActor::SafeDownCast(aNode->GetRenderable());
   vtkProperty *property = act->GetProperty();
-  vtkosp::MyGeom *myMeshes = (vtkosp::MyGeom*)this->OSPMeshes;
 
   //make geometry
   std::vector<double> _vertices;
@@ -995,8 +966,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
   //create an ospray mesh for the vertex cells
   if (conn.vertex_index.size())
   {
-    myMeshes
-      ->Add(vtkosp::RenderAsSpheres(vertices,
+    this->Geometries.emplace_back(vtkosp::RenderAsSpheres(vertices,
                                     conn.vertex_index, conn.vertex_reverse,
                                     pointSize, scaleArray, scaleFunction,
                                     useCustomMaterial,
@@ -1005,11 +975,9 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                     numTextureCoordinates, textureCoordinates,
                                     numCellMaterials, cellMaterials,
                                     numPointColors, pointColors,
-                                    numPointValueTextureCoords, pointValueTextureCoords,
-                                    oModel
+                                    numPointValueTextureCoords, pointValueTextureCoords
                                     ));
   }
-
 
   //create an ospray mesh for the line cells
   if (conn.line_index.size())
@@ -1017,8 +985,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
     //format depends on representation style
     if (property->GetRepresentation() == VTK_POINTS)
     {
-      myMeshes
-        ->Add(vtkosp::RenderAsSpheres(vertices,
+      this->Geometries.emplace_back(vtkosp::RenderAsSpheres(vertices,
                                       conn.line_index, conn.line_reverse,
                                       pointSize, scaleArray, scaleFunction,
                                       useCustomMaterial,
@@ -1027,14 +994,12 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                       numTextureCoordinates, textureCoordinates,
                                       numCellMaterials, cellMaterials,
                                       numPointColors, pointColors,
-                                      numPointValueTextureCoords, pointValueTextureCoords,
-                                      oModel
+                                      numPointValueTextureCoords, pointValueTextureCoords
                                       ));
     }
     else
     {
-      myMeshes
-        ->Add(vtkosp::RenderAsCylinders(vertices,
+        this->Geometries.emplace_back(vtkosp::RenderAsCylinders(vertices,
                                         conn.line_index, conn.line_reverse,
                                         lineWidth, scaleArray, scaleFunction,
                                         useCustomMaterial,
@@ -1043,8 +1008,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                         numTextureCoordinates, textureCoordinates,
                                         numCellMaterials, cellMaterials,
                                         numPointColors, pointColors,
-                                        numPointValueTextureCoords, pointValueTextureCoords,
-                                        oModel
+                                        numPointValueTextureCoords, pointValueTextureCoords
                                         ));
     }
   }
@@ -1057,8 +1021,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
     {
       case VTK_POINTS:
       {
-        myMeshes
-          ->Add(vtkosp::RenderAsSpheres(vertices,
+          this->Geometries.emplace_back(vtkosp::RenderAsSpheres(vertices,
                                         conn.triangle_index, conn.triangle_reverse,
                                         pointSize, scaleArray, scaleFunction,
                                         useCustomMaterial,
@@ -1067,15 +1030,13 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                         numTextureCoordinates, textureCoordinates,
                                         numCellMaterials, cellMaterials,
                                         numPointColors, pointColors,
-                                        numPointValueTextureCoords, pointValueTextureCoords,
-                                        oModel
+                                        numPointValueTextureCoords, pointValueTextureCoords
                                         ));
         break;
       }
       case VTK_WIREFRAME:
       {
-        myMeshes
-          ->Add(vtkosp::RenderAsCylinders(vertices,
+          this->Geometries.emplace_back(vtkosp::RenderAsCylinders(vertices,
                                           conn.triangle_index, conn.triangle_reverse,
                                           lineWidth, scaleArray, scaleFunction,
                                           useCustomMaterial,
@@ -1084,8 +1045,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                           numTextureCoordinates, textureCoordinates,
                                           numCellMaterials, cellMaterials,
                                           numPointColors, pointColors,
-                                          numPointValueTextureCoords, pointValueTextureCoords,
-                                          oModel
+                                          numPointValueTextureCoords, pointValueTextureCoords
                                           ));
         break;
       }
@@ -1109,8 +1069,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                                              opacity);
           ospCommit(oMaterial2);
 
-          myMeshes
-            ->Add(vtkosp::RenderAsCylinders(vertices,
+          this->Geometries.emplace_back(vtkosp::RenderAsCylinders(vertices,
                                             conn2.triangle_index, conn2.triangle_reverse,
                                             lineWidth, scaleArray, scaleFunction,
                                             false,
@@ -1119,8 +1078,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                             0, textureCoordinates,
                                             numCellMaterials, cellMaterials,
                                             numPointColors, pointColors,
-                                            0, pointValueTextureCoords,
-                                            oModel
+                                            0, pointValueTextureCoords
                                             ));
         }
 
@@ -1149,8 +1107,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
             numNormals = vNormals->GetNumberOfTuples();
           }
         }
-        myMeshes
-          ->Add(vtkosp::RenderAsTriangles(position,
+        this->Geometries.emplace_back(vtkosp::RenderAsTriangles(position,
                                           conn.triangle_index, conn.triangle_reverse,
                                           useCustomMaterial,
                                           oMaterial,
@@ -1159,8 +1116,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                           numTextureCoordinates, textureCoordinates,
                                           numCellMaterials, cellMaterials,
                                           numPointColors, pointColors,
-                                          numPointValueTextureCoords, pointValueTextureCoords,
-                                          oModel
+                                          numPointValueTextureCoords, pointValueTextureCoords
                                           ));
         delete[] normals;
       }
@@ -1173,26 +1129,22 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
     {
       case VTK_POINTS:
       {
-        myMeshes
-          ->Add(vtkosp::RenderAsSpheres(vertices,
+          this->Geometries.emplace_back(vtkosp::RenderAsSpheres(vertices,
                                         conn.strip_index, conn.strip_reverse,
                                         pointSize, scaleArray, scaleFunction,
                                         useCustomMaterial,
                                         oMaterial,
                                         vColorTextureMap,
                                         numTextureCoordinates, textureCoordinates,
-
                                         numCellMaterials, cellMaterials,
                                         numPointColors, pointColors,
-                                        numPointValueTextureCoords, pointValueTextureCoords,
-                                        oModel
+                                        numPointValueTextureCoords, pointValueTextureCoords
                                         ));
         break;
       }
       case VTK_WIREFRAME:
       {
-        myMeshes
-          ->Add(vtkosp::RenderAsCylinders(vertices,
+          this->Geometries.emplace_back(vtkosp::RenderAsCylinders(vertices,
                                           conn.strip_index, conn.strip_reverse,
                                           lineWidth, scaleArray, scaleFunction,
                                           useCustomMaterial,
@@ -1201,8 +1153,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                           numTextureCoordinates, textureCoordinates,
                                           numCellMaterials, cellMaterials,
                                           numPointColors, pointColors,
-                                          numPointValueTextureCoords, pointValueTextureCoords,
-                                          oModel
+                                          numPointValueTextureCoords, pointValueTextureCoords
                                           ));
         break;
       }
@@ -1226,8 +1177,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                                              opacity);
           ospCommit(oMaterial2);
 
-          myMeshes
-            ->Add(vtkosp::RenderAsCylinders(vertices,
+          this->Geometries.emplace_back(vtkosp::RenderAsCylinders(vertices,
                                             conn2.strip_index, conn2.strip_reverse,
                                             lineWidth, scaleArray, scaleFunction,
                                             false,
@@ -1236,8 +1186,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                             0, textureCoordinates,
                                             numCellMaterials, cellMaterials,
                                             numPointColors, pointColors,
-                                            0, pointValueTextureCoords,
-                                            oModel
+                                            0, pointValueTextureCoords
                                             ));
         }
         osp::vec3f *normals = nullptr;
@@ -1265,8 +1214,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
             numNormals = vNormals->GetNumberOfTuples();
           }
         }
-        myMeshes
-          ->Add(vtkosp::RenderAsTriangles(position,
+        this->Geometries.emplace_back(vtkosp::RenderAsTriangles(position,
                                           conn.strip_index, conn.strip_reverse,
                                           useCustomMaterial,
                                           oMaterial,
@@ -1275,8 +1223,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                           numTextureCoordinates, textureCoordinates,
                                           numCellMaterials, cellMaterials,
                                           numPointColors, pointColors,
-                                          numPointValueTextureCoords, pointValueTextureCoords,
-                                          oModel
+                                          numPointValueTextureCoords, pointValueTextureCoords
                                           ));
         delete[] normals;
       }
@@ -1287,21 +1234,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
   delete[] pointColors;
   delete[] pointValueTextureCoords;
   delete[] textureCoordinates;
-}
 
-void vtkOSPRayPolyDataMapperNode::AddMeshesToModel(void *arg)
-{
-  vtkosp::MyGeom *myMeshes = (vtkosp::MyGeom*)this->OSPMeshes;
-  OSPModel oModel = static_cast<OSPModel>(arg);
-  myMeshes->AddMyselfTo(oModel);
-}
-
-void vtkOSPRayPolyDataMapperNode::CreateNewMeshes()
-{
-  vtkosp::MyGeom *myMeshes = (vtkosp::MyGeom*)this->OSPMeshes;
-  delete myMeshes;
-  myMeshes = new vtkosp::MyGeom();
-  this->OSPMeshes = myMeshes;
 }
 
 //----------------------------------------------------------------------------
@@ -1309,7 +1242,7 @@ void vtkOSPRayPolyDataMapperNode::Invalidate(bool prepass)
 {
   if (prepass)
   {
-      this->RenderTime = 0;
+    this->RenderTime = 0;
   }
 }
 
@@ -1324,29 +1257,31 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
 
     if (act->GetVisibility() == false)
     {
-      delete (vtkosp::MyGeom*)this->OSPMeshes;
-      this->OSPMeshes = nullptr;
       return;
     }
 
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
+    this->GeometryCache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
+    this->InstanceCache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
+
+    double tstep = vtkOSPRayRendererNode::GetViewTime(orn->GetRenderer());
 
     //if there are no changes, just reuse last result
     vtkMTimeType inTime = aNode->GetMTime();
-#if 1 //turn off to force rebuilds for debugging
-    if (this->RenderTime >= inTime)
+    if ((this->RenderTime >= inTime ||
+         (this->UseInstanceCache && this->InstanceCache->Contains(tstep)) ||
+         (this->UseGeometryCache && this->GeometryCache->Contains(tstep))))
     {
-      OSPModel oModel = static_cast<OSPModel>(orn->GetOModel());
-      this->AddMeshesToModel(oModel);
+      //cout << "REUSE" << endl;
+      this->RenderGeometries();
       return;
     }
-#endif
+    //cout << "DRAW" << endl;
     this->RenderTime = inTime;
-
-    //something changed so make new meshes
-    this->CreateNewMeshes();
+    this->ClearGeometries();
 
     vtkPolyData *poly = nullptr;
     vtkMapper *mapper = act->GetMapper();
@@ -1359,7 +1294,6 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
       vtkProperty * property = act->GetProperty();
       this->ORenderPoly(
         orn->GetORenderer(),
-        orn->GetOModel(),
         aNode,
         poly,
         property->GetAmbientColor(),
@@ -1368,5 +1302,93 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
         ""
         );
     }
+    this->PopulateCache();
+    this->RenderGeometries();
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayPolyDataMapperNode::PopulateCache()
+{
+
+  vtkOSPRayRendererNode *orn =
+    static_cast<vtkOSPRayRendererNode *>(
+      this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+  double tstep = vtkOSPRayRendererNode::GetViewTime(orn->GetRenderer());
+
+  if (this->UseGeometryCache)
+  {
+    auto cacheEntry = std::make_shared<vtkOSPRayCacheItemGeometries>(this->Geometries);
+    this->GeometryCache->Set(tstep, cacheEntry);
+  }
+  if (this->UseInstanceCache)
+  {
+    OSPModel instanceModel = ospNewModel();
+    for (auto g : this->Geometries)
+    {
+      ospAddGeometry(instanceModel, g);
+    }
+    ospCommit(instanceModel);
+    osp::affine3f xfm {
+      1,0,0,
+      0,1,0,
+      0,0,1,
+      0,0,0};
+    auto instance = ospNewInstance(instanceModel, xfm);
+    ospCommit(instance);
+    auto instanceCacheEntry = std::make_shared<vtkOSPRayCacheItemObject>((OSPObject)instance);
+    instanceCacheEntry->size = this->Geometries.size();
+    this->InstanceCache->Set(tstep, instanceCacheEntry);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayPolyDataMapperNode::RenderGeometries()
+{
+  vtkOSPRayRendererNode *orn =
+    static_cast<vtkOSPRayRendererNode *>(
+      this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+  double tstep = vtkOSPRayRendererNode::GetViewTime(orn->GetRenderer());
+  auto oModel = orn->GetOModel();
+
+  if (this->UseInstanceCache && this->InstanceCache->Contains(tstep))
+  {
+    auto cacheEntry = this->InstanceCache->Get(tstep);
+    if (cacheEntry->size > 0)
+    {
+      OSPGeometry instance = static_cast<OSPGeometry>(cacheEntry->object);
+      ospAddGeometry(oModel, instance);
+    }
+    return;
+  }
+  else if (this->UseGeometryCache && this->GeometryCache->Contains(tstep))
+  {
+    auto& geometriesCache = this->GeometryCache->Get(tstep)->GeometriesAtTime;
+    for (auto g : geometriesCache)
+    {
+      ospAddGeometry(oModel, g);
+    }
+    return;
+  }
+  for (auto g : this->Geometries)
+  {
+    ospAddGeometry(oModel, g);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayPolyDataMapperNode::ClearGeometries()
+{
+  vtkOSPRayRendererNode *orn =
+    static_cast<vtkOSPRayRendererNode *>(
+      this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+  //We can't delete if we may reuse.
+  if (vtkOSPRayRendererNode::GetTimeCacheSize(orn->GetRenderer())==0)
+  {
+    for (auto g : this->Geometries)
+    {
+      ospRelease(g);
+    }
+  }
+  this->Geometries.clear();
 }

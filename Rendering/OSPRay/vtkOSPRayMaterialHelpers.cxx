@@ -148,8 +148,10 @@ OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture
          ysize+1},
      ospformat,
      obuffer,
-     OSP_TEXTURE_FILTER_NEAREST|OSP_TEXTURE_SHARED_BUFFER,
-     sizeOf);
+     OSP_TEXTURE_FILTER_NEAREST
+     // |OSP_TEXTURE_SHARED_BUFFER  //Carson: this was breaking caching, vtk deleting tex data
+     , sizeOf
+     );
   ospCommit(t2d);
   if (incompatible)
   {

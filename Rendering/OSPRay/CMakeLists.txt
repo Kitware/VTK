@@ -8,7 +8,6 @@ set(classes
   vtkOSPRayMaterialLibrary
   vtkOSPRayPass
   vtkOSPRayPolyDataMapperNode
-  vtkOSPRayVolumeCache
   vtkOSPRayRendererNode
   vtkOSPRayTetrahedraMapperNode
   vtkOSPRayViewNodeFactory

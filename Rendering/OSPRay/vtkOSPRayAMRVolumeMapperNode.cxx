@@ -21,7 +21,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
-#include "vtkOSPRayVolumeCache.h"
+#include "vtkOSPRayCache.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkRenderer.h"
 #include "vtkUniformGridAMRDataIterator.h"
@@ -150,10 +150,10 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
     if (!this->OSPRayVolume || amr->GetMTime() > this->BuildTime)
     {
       double tstep = vtkOSPRayRendererNode::GetViewTime(ren);
-      auto cached_Volume = this->Cache->GetFromCache(tstep);
+      auto cached_Volume = this->Cache->Get(tstep);
       if (cached_Volume)
       {
-        this->OSPRayVolume = cached_Volume;
+        this->OSPRayVolume = static_cast<OSPVolume>(cached_Volume->object);
       }
       else
       {
@@ -162,7 +162,11 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
           ospRelease(this->OSPRayVolume);
         }
         this->OSPRayVolume = ospNewVolume("amr_volume");
-        this->Cache->AddToCache(tstep, this->OSPRayVolume);
+        if (this->Cache->HasRoom())
+        {
+          auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(this->OSPRayVolume);
+          this->Cache->Set(tstep, cacheEntry);
+        }
         volDirty=true;
 
         unsigned int lastLevel=0;

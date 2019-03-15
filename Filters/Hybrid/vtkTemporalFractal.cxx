@@ -1006,7 +1006,6 @@ void vtkTemporalFractal::Traverse(int &blockId,
           this->SetBlockInfo(grid, level, ext,onFace);
         }
         this->OutputUtil->AddDataSet(newData,level);
-        assert(newData->GetReferenceCount()==2);
         this->Levels->InsertValue(blockId, level);
         ++blockId;
       }

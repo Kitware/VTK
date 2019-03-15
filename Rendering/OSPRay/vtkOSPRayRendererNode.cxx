@@ -430,6 +430,7 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
   this->ODepthBuffer = nullptr;
   this->OModel = nullptr;
   this->ORenderer = nullptr;
+  this->OLightArray = nullptr;
   this->NumActors = 0;
   this->ComputeDepth = true;
   this->OFrameBuffer = nullptr;
@@ -847,9 +848,10 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   }
 
   bool bgreused = this->Internal->SetupPathTraceBackground();
-  OSPData lightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
+  ospRelease(this->OLightArray);
+  this->OLightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
     (this->Lights.size()?&this->Lights[0]:nullptr), 0);
-  ospSetData(oRenderer, "lights", lightArray);
+  ospSetData(oRenderer, "lights", this->OLightArray);
 
   //actors
   OSPModel oModel=nullptr;
@@ -933,7 +935,7 @@ void vtkOSPRayRendererNode::Invalidate(bool prepass)
 {
   if (prepass)
   {
-      this->RenderTime = 0;
+    this->RenderTime = 0;
   }
 }
 
@@ -1012,6 +1014,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       float epsilon = 1e-5*logDiam;
       ospSet1f(oRenderer, "epsilon", epsilon);
       ospSet1f(oRenderer, "aoDistance", diam*0.3);
+      ospSet1i(oRenderer, "autoEpsilon", 0);
+    }
+    else
+    {
+      ospSet1f(oRenderer, "epsilon", 0.001f);
     }
 
     vtkVolumeCollection *vc = ren->GetVolumes();
