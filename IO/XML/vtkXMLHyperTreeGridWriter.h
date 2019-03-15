@@ -23,9 +23,8 @@
 #ifndef vtkXMLHyperTreeGridWriter_h
 #define vtkXMLHyperTreeGridWriter_h
 
-#include "vtkBitArray.h"
+#include "vtkBitArray.h"    // For ivar
 #include "vtkIOXMLModule.h" // For export macro
-#include "vtkNew.h"         // For ivar
 #include "vtkXMLWriter.h"
 
 #include <vector> // std::vector

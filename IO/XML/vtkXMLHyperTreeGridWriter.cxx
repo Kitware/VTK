@@ -464,8 +464,6 @@ int vtkXMLHyperTreeGridWriter::WriteTrees(vtkIndent indent)
 
     // Write the point data
     os << infoIndent << "<PointData>\n";
-    vtkPointData* pd = input->GetPointData();
-
     for (int i = 0; i < pd->GetNumberOfArrays(); ++i)
     {
       vtkAbstractArray* a = pd->GetAbstractArray(i);

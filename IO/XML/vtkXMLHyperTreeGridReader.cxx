@@ -201,7 +201,7 @@ int vtkXMLHyperTreeGridReader::ReadPiece(vtkXMLDataElement* ePiece, int piece)
 //----------------------------------------------------------------------------
 int vtkXMLHyperTreeGridReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
-  return 1;
+  return this->ReadPiece(ePiece, 0);
 }
 
 //----------------------------------------------------------------------------
