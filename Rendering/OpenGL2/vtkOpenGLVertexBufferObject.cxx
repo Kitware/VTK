@@ -344,6 +344,13 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
     {
       useSS = true;
     }
+    else if (this->CoordShiftAndScaleEnabled)
+    {
+      // make sure to reset if we go far away and come back.
+      this->CoordShiftAndScaleEnabled = false;
+      this->Shift.clear();
+      this->Scale.clear();
+    }
   }
   if (useSS ||
       this->GetCoordShiftAndScaleMethod() ==

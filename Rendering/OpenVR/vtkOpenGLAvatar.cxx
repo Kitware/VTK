@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkOpenGLAvatar.h"
 
+#include "vtkFlagpoleLabel.h"
 #include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
@@ -31,6 +32,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
+#include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkVectorOperators.h"
@@ -128,7 +130,7 @@ void getElbowPosition(double *outElbow, double Vup[3], double inShoulder[3],
   {
     vtkVector3d planeNorm = shoulderHand.Cross(vtkVector3d(Vup));
     vtkVector3d toElbow = shoulderHand.Cross(planeNorm).Normalized();
-    // heron's formula to find height, using 1/2 perimeter
+    // heron's formula to find area, using 1/2 perimeter
     double p = 0.5 * (forearmLength + upperLength + shLength);
     double area =
       sqrt(p * (p - forearmLength) * (p - upperLength) * (p - shLength));
@@ -168,7 +170,6 @@ vtkOpenGLAvatar::vtkOpenGLAvatar()
   reader->Update();
 
   this->HeadMapper->SetInputData(reader->GetOutput());
-  this->SetMapper(this->HeadMapper);
   this->HeadActor->SetMapper(this->HeadMapper);
 
   vtkNew<vtkXMLPolyDataReader> reader2;
@@ -220,105 +221,132 @@ vtkOpenGLAvatar::vtkOpenGLAvatar()
     this->BodyActor[i]->SetProperty(this->GetProperty());
   }
 
-  // this->LeftRay->SetShow(true);
-  // this->RightRay->SetShow(true);
-
+  // text box doesn't render unless set:
+  this->LabelActor->SetForceOpaque(true);
+  this->LabelActor->GetTextProperty()->SetFontSize ( 12 );
+  this->LabelActor->GetTextProperty()->SetColor ( 1.0, 1.0, .4 );
+  this->LabelActor->GetTextProperty()->SetJustificationToCentered();
 }
 
 vtkOpenGLAvatar::~vtkOpenGLAvatar() = default;
 
 // Actual Avatar render method.
-void vtkOpenGLAvatar::Render(vtkRenderer *ren, vtkMapper *mapper)
+int vtkOpenGLAvatar::RenderOpaqueGeometry(vtkViewport *vp)
 {
-  vtkOpenGLClearErrorMacro();
-
-  this->CalcBody();
-
-  this->HeadActor->SetScale(this->GetScale());
-  this->HeadActor->SetPosition(this->HeadPosition);
-  this->HeadActor->SetOrientation(this->HeadOrientation);
-  this->LeftHandActor->SetScale(this->GetScale());
-  this->LeftHandActor->SetPosition(this->LeftHandPosition);
-  this->LeftHandActor->SetOrientation(this->LeftHandOrientation);
-  this->RightHandActor->SetScale(this->GetScale());
-  this->RightHandActor->SetPosition(this->RightHandPosition);
-  this->RightHandActor->SetOrientation(this->RightHandOrientation);
-
-
-  // send a render to the mapper; update pipeline
-  if (this->HeadActor->GetVisibility())
+  vtkRenderer* ren = static_cast<vtkRenderer*>(vp);
+  if (this->GetIsOpaque())
   {
-    mapper->Render(ren, this->HeadActor);
-  }
-  if (this->LeftHandActor->GetVisibility())
-  {
-    this->LeftHandMapper->Render(ren, this->LeftHandActor);
-  }
-  if (this->RightHandActor->GetVisibility())
-  {
-    this->RightHandMapper->Render(ren, this->RightHandActor);
-  }
-  for (int i = 0; i < NUM_BODY; ++i) {
-    this->BodyActor[i]->SetScale(this->GetScale());
-    this->BodyActor[i]->SetPosition(this->BodyPosition[i]);
-    this->BodyActor[i]->SetOrientation(this->BodyOrientation[i]);
-    if (this->BodyActor[i]->GetVisibility())
+    vtkOpenGLClearErrorMacro();
+
+    this->CalcBody();
+
+    this->HeadActor->SetScale(this->GetScale());
+    this->HeadActor->SetPosition(this->HeadPosition);
+    this->HeadActor->SetOrientation(this->HeadOrientation);
+    this->LeftHandActor->SetScale(this->GetScale());
+    this->LeftHandActor->SetPosition(this->LeftHandPosition);
+    this->LeftHandActor->SetOrientation(this->LeftHandOrientation);
+    this->RightHandActor->SetScale(this->GetScale());
+    this->RightHandActor->SetPosition(this->RightHandPosition);
+    this->RightHandActor->SetOrientation(this->RightHandOrientation);
+
+    // send a render; update pipeline
+    if (this->HeadActor->GetVisibility())
     {
-      this->BodyMapper[i]->Render(ren, this->BodyActor[i]);
+      this->HeadActor->RenderOpaqueGeometry(ren);
     }
-  }
-  if (this->LeftRay->GetShow() || this->RightRay->GetShow())
-  {
-    auto renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-    vtkOpenVRCamera *cam =
-      static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
-    if (renWin && cam)
+    if (this->LeftHandActor->GetVisibility())
     {
-
-      vtkNew<vtkTransform> trans;
-      vtkNew<vtkMatrix4x4> mat;
-      vtkMatrix4x4 *wcdc; // we only need this one.
-      vtkMatrix4x4 *wcvc;
-      vtkMatrix3x3 *norms;
-      vtkMatrix4x4 *vcdc;
-      // VRRay needs the complete model -> device (screen) transform.
-      // Get world -> device from the camera.
-      cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
-      vtkNew<vtkMatrix4x4> controller2device;
-
-      if (this->LeftRay->GetShow())
+      this->LeftHandActor->RenderOpaqueGeometry(ren);
+    }
+    if (this->RightHandActor->GetVisibility())
+    {
+      this->RightHandActor->RenderOpaqueGeometry(ren);
+    }
+    for (int i = 0; i < NUM_BODY; ++i) {
+      this->BodyActor[i]->SetScale(this->GetScale());
+      this->BodyActor[i]->SetPosition(this->BodyPosition[i]);
+      this->BodyActor[i]->SetOrientation(this->BodyOrientation[i]);
+      if (this->BodyActor[i]->GetVisibility())
       {
-        trans->Translate(this->LeftHandPosition);
-        //RotateZ, RotateX, and finally RotateY
-        trans->RotateZ(this->LeftHandOrientation[2]);
-        trans->RotateX(this->LeftHandOrientation[0]);
-        trans->RotateY(this->LeftHandOrientation[1]);
-        // VRRay and avatar are off by 90.
-        trans->RotateY(-90);
-        trans->GetMatrix(mat);
-        // OpenGL expects transpose of VTK transforms.
-        mat->Transpose();
-        trans->SetMatrix(mat);
-        vtkMatrix4x4::Multiply4x4(trans->GetMatrix(), wcdc, controller2device);
-        this->LeftRay->Render(renWin, controller2device);
-      }
-      if (this->RightRay->GetShow())
-      {
-        trans->Identity();
-        trans->Translate(this->RightHandPosition);
-        trans->RotateZ(this->RightHandOrientation[2]);
-        trans->RotateX(this->RightHandOrientation[0]);
-        trans->RotateY(this->RightHandOrientation[1]);
-        trans->RotateY(-90);
-        trans->GetMatrix(mat);
-        mat->Transpose();
-        trans->SetMatrix(mat);
-        vtkMatrix4x4::Multiply4x4(trans->GetMatrix(), wcdc, controller2device);
-        this->RightRay->Render(renWin, controller2device);
+        this->BodyActor[i]->RenderOpaqueGeometry(ren);
       }
     }
+    if (this->LeftRay->GetShow() || this->RightRay->GetShow())
+    {
+      auto renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+      vtkOpenVRCamera *cam =
+        static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
+      if (renWin && cam)
+      {
+
+        vtkNew<vtkTransform> trans;
+        vtkNew<vtkMatrix4x4> mat;
+        vtkMatrix4x4 *wcdc; // we only need this one.
+        vtkMatrix4x4 *wcvc;
+        vtkMatrix3x3 *norms;
+        vtkMatrix4x4 *vcdc;
+        // VRRay needs the complete model -> device (screen) transform.
+        // Get world -> device from the camera.
+        cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
+        vtkNew<vtkMatrix4x4> controller2device;
+
+        if (this->LeftRay->GetShow())
+        {
+          trans->Translate(this->LeftHandPosition);
+          //RotateZ, RotateX, and finally RotateY
+          trans->RotateZ(this->LeftHandOrientation[2]);
+          trans->RotateX(this->LeftHandOrientation[0]);
+          trans->RotateY(this->LeftHandOrientation[1]);
+          // VRRay and avatar are off by 90.
+          trans->RotateY(-90);
+          trans->GetMatrix(mat);
+          // OpenGL expects transpose of VTK transforms.
+          mat->Transpose();
+          trans->SetMatrix(mat);
+          vtkMatrix4x4::Multiply4x4(trans->GetMatrix(), wcdc, controller2device);
+          this->LeftRay->Render(renWin, controller2device);
+        }
+        if (this->RightRay->GetShow())
+        {
+          trans->Identity();
+          trans->Translate(this->RightHandPosition);
+          trans->RotateZ(this->RightHandOrientation[2]);
+          trans->RotateX(this->RightHandOrientation[0]);
+          trans->RotateY(this->RightHandOrientation[1]);
+          trans->RotateY(-90);
+          trans->GetMatrix(mat);
+          mat->Transpose();
+          trans->SetMatrix(mat);
+          vtkMatrix4x4::Multiply4x4(trans->GetMatrix(), wcdc, controller2device);
+          this->RightRay->Render(renWin, controller2device);
+        }
+      }
+    }
+    if (this->LabelActor->GetInput())
+    {
+      vtkVector3d basePos = vtkVector3d(this->HeadPosition) + 0.5 * this->GetScale()[0] * vtkVector3d(this->UpVector);
+      vtkVector3d labelPos = vtkVector3d(this->HeadPosition) + 0.7 * this->GetScale()[0] * vtkVector3d(this->UpVector);
+      this->LabelActor->SetBasePosition(basePos[0], basePos[1], basePos[2]);
+      this->LabelActor->SetTopPosition(labelPos[0], labelPos[1], labelPos[2]);
+      this->LabelActor->RenderOpaqueGeometry(ren);
+    }
+
+    vtkOpenGLCheckErrorMacro("failed after Render");
+    return 1;
   }
-  vtkOpenGLCheckErrorMacro("failed after Render");
+  return 0;
+}
+
+int vtkOpenGLAvatar::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
+{
+  vtkRenderer* ren = static_cast<vtkRenderer*>(vp);
+  if (this->LabelActor->GetInput())
+  {
+    this->LabelActor->RenderTranslucentPolygonalGeometry(ren);
+    return 1;
+  }
+  return 0;
 }
 
 void vtkOpenGLAvatar::CalcBody()
@@ -486,4 +514,14 @@ void vtkOpenGLAvatar::SetRayLength(double length)
 {
   this->LeftRay->SetLength(length);
   this->RightRay->SetLength(length);
+}
+
+void vtkOpenGLAvatar::SetLabel(const char *label)
+{
+  this->LabelActor->SetInput(label);
+}
+
+vtkTextProperty* vtkOpenGLAvatar::GetLabelTextProperty()
+{
+  return this->LabelActor->GetTextProperty();
 }

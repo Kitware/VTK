@@ -276,6 +276,16 @@ vtkFlagpoleLabel::vtkFlagpoleLabel()
   vtkNew<vtkFloatArray> tc;
   tc->SetNumberOfComponents(2);
   tc->SetNumberOfTuples(4);
+  tc->SetTypedComponent(0, 0, 0.0f);
+  tc->SetTypedComponent(0, 1, 0.0f);
+  tc->SetTypedComponent(1, 0, 1.0f);
+  tc->SetTypedComponent(1, 1, 0.0f);
+  tc->SetTypedComponent(2, 0, 1.0f);
+  tc->SetTypedComponent(2, 1, 1.0f);
+  tc->SetTypedComponent(3, 0, 0.0f);
+  tc->SetTypedComponent(3, 1, 1.0f);
+  tc->Modified();
+
   this->Quad->GetPointData()->SetTCoords(tc);
 
   vtkNew<vtkCellArray> cellArray;
@@ -404,21 +414,6 @@ void vtkFlagpoleLabel::GenerateQuad(vtkRenderer *ren)
   int textSize[2] = { metrics.BoundingBox[1] - metrics.BoundingBox[0] + 1,
                       metrics.BoundingBox[3] - metrics.BoundingBox[2] + 1 };
 
-  vtkFloatArray *tc =
-      vtkFloatArray::FastDownCast(this->Quad->GetPointData()->GetTCoords());
-  assert(tc);
-  tc->SetNumberOfComponents(2);
-  tc->SetNumberOfTuples(4);
-  tc->SetTypedComponent(0, 0, 0.0f);
-  tc->SetTypedComponent(0, 1, 0.0f);
-  tc->SetTypedComponent(1, 0, 1.0f);
-  tc->SetTypedComponent(1, 1, 0.0f);
-  tc->SetTypedComponent(2, 0, 1.0f);
-  tc->SetTypedComponent(2, 1, 1.0f);
-  tc->SetTypedComponent(3, 0, 0.0f);
-  tc->SetTypedComponent(3, 1, 1.0f);
-  tc->Modified();
-
   // Now figure out the world coordinates for our quad (the hard part...):
   vtkDoubleArray *quadPoints =
       vtkDoubleArray::FastDownCast(this->Quad->GetPoints()->GetData());
@@ -459,7 +454,7 @@ void vtkFlagpoleLabel::GenerateQuad(vtkRenderer *ren)
   {
     pos[0] - this->TopPosition[0],
     pos[1] - this->TopPosition[1],
-    pos[2] - this->TopPosition[2]\
+    pos[2] - this->TopPosition[2]
   };
   vtkMath::Normalize(vpn);
   vtkMath::Cross(up, vpn, right);

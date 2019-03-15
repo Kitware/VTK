@@ -31,6 +31,8 @@ class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;
 class vtkOpenGLRenderer;
 class vtkOpenVRRay;
+class vtkFlagpoleLabel;
+class vtkTextProperty;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenGLAvatar : public vtkAvatar
 {
@@ -42,7 +44,9 @@ public:
   /**
    * Actual Avatar render method.
    */
-  void Render(vtkRenderer *ren, vtkMapper *mapper) override;
+  // void Render(vtkRenderer *ren, vtkMapper *mapper) override;
+  int RenderOpaqueGeometry(vtkViewport *vp) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *vp) override;
 
   double *GetBounds() VTK_SIZEHINT(6) override;
 
@@ -54,6 +58,9 @@ public:
   void SetLeftShowRay(bool v);
   void SetRightShowRay(bool v);
   void SetRayLength(double length);
+
+  void SetLabel(const char *label);
+  vtkTextProperty* GetLabelTextProperty();
 
 protected:
   vtkOpenGLAvatar();
@@ -74,6 +81,7 @@ protected:
   vtkNew<vtkOpenVRRay> LeftRay;
   vtkNew<vtkOpenVRRay> RightRay;
 
+  vtkNew<vtkFlagpoleLabel> LabelActor;
 
 private:
   vtkOpenGLAvatar(const vtkOpenGLAvatar&) = delete;
