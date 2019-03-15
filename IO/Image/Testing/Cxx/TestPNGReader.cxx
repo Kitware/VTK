@@ -1,0 +1,80 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestJPEGReader.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME Test of vtkPNGReader
+// .SECTION Description
+//
+
+#include "vtkPNGReader.h"
+
+#include "vtkImageData.h"
+#include "vtkImageViewer.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+
+int TestPNGReader(int argc, char* argv[])
+{
+
+  if (argc <= 1)
+  {
+    cout << "Usage: " << argv[0] << " <png file>" << endl;
+    return EXIT_FAILURE;
+  }
+
+  std::string filename = argv[1];
+
+  vtkNew<vtkPNGReader> PNGReader;
+
+  // Check the image can be read
+  if (!PNGReader->CanReadFile(filename.c_str()))
+  {
+    cerr << "CanReadFile failed for " << filename.c_str() << "\n";
+    return EXIT_FAILURE;
+  }
+
+  // Read the input image
+  PNGReader->SetFileName(filename.c_str());
+  PNGReader->Update();
+
+  // Read and display the image properties
+  const char* fileExtensions = PNGReader->GetFileExtensions();
+  cout << "File extensions: " << fileExtensions << endl;
+
+  const char* descriptiveName = PNGReader->GetDescriptiveName();
+  cout << "Descriptive name: " << descriptiveName << endl;
+
+  // Visualize
+  vtkNew<vtkImageViewer> imageViewer;
+  imageViewer->SetInputConnection(PNGReader->GetOutputPort());
+  imageViewer->SetColorWindow(256);
+  imageViewer->SetColorLevel(127.5);
+
+  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
+  imageViewer->SetupInteractor(renderWindowInteractor);
+
+  imageViewer->Render();
+
+  renderWindowInteractor->Start();
+
+  vtkRenderWindow *renWin = imageViewer->GetRenderWindow();
+  int retVal = vtkRegressionTestImage(renWin);
+  if(retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    renderWindowInteractor->Start();
+  }
+
+  return !retVal;
+}

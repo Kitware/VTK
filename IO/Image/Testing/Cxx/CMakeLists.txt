@@ -73,6 +73,14 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestWriteToMemoryBMP,TestWriteToMemory.cxx,NO_DATA NO_VALID NO_OUTPUT
     "test.bmp")
 
+vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestPNGReader.cxx,NO_OUTPUT
+    "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/vtk.png}")
+
+vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestPNGReaderReadFromMemory.cxx,NO_OUTPUT
+    "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/vtk.png}")
+
 if (VTK_USE_LARGE_DATA)
   vtk_add_test_cxx(vtkIOImageCxxTests large_data_tests
     TestMRCReader,TestMRCReader.cxx,NO_OUTPUT
