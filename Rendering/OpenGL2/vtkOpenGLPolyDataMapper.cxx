@@ -3166,9 +3166,11 @@ void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
     this->SetCompositeIdArrayName(m->GetCompositeIdArrayName());
     this->SetProcessIdArrayName(m->GetProcessIdArrayName());
     this->SetCellIdArrayName(m->GetCellIdArrayName());
+#ifndef VTK_LEGACY_REMOVE
     this->SetVertexShaderCode(m->GetVertexShaderCode());
     this->SetGeometryShaderCode(m->GetGeometryShaderCode());
     this->SetFragmentShaderCode(m->GetFragmentShaderCode());
+#endif
   }
 
   // Now do superclass

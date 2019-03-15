@@ -21,6 +21,10 @@
  *
  * @sa
  * vtkVolume vtkOpenGLUniform
+ *
+ * @par Thanks:
+ * Developed by Simon Drouin (sdrouin2@bwh.harvard.edu) at Brigham and Women's Hospital.
+ *
 */
 
 #ifndef vtkShaderProperty_h

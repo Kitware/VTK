@@ -22,6 +22,9 @@
  * The basic types of GLSL uniform variables supported by the class are the following: int, float,
  * vec2i, vec3, vec4, mat3, mat4, int[], float[], vec2i[], vec3[], vec4[], mat4[]. All other
  * types supported by Set* functions undergo the same type conversions implemented in vtkShaderProgram.
+ *
+ * @par Thanks:
+ * Developed by Simon Drouin (sdrouin2@bwh.harvard.edu) at Brigham and Women's Hospital.
 */
 
 #ifndef vtkOpenGLUniforms_h
