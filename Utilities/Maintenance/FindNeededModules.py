@@ -15,8 +15,11 @@ def get_program_parameters():
 Use modules.json and your source files to generate a
   find_package(VTK COMPONENTS ...) command listing all the vtk modules
   needed by the C++ source and header files in your code.
+  
+Paths to more than one modules.json file and/or more than one source path can be specified.
+Note than if there are spaces in the paths, enclose the path in quotes.
  
-You can choose any of these approaches along with the path to modules.json:
+You can choose any of these approaches along with the path(s) to modules.json:
 1) Specify a path to your source files and headers.
    In this case this path all subdirectories are also searched
    for files with the usual usual C++ extensions.
@@ -36,9 +39,9 @@ You will need to manually add any third-party modules
     '''
     parser = argparse.ArgumentParser(description=description, epilog=epilogue,
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-j', '--json', nargs='?', const=1, type=str, default="modules.json",
+    parser.add_argument('-j', '--json', nargs='+', default=["modules.json"],
                         help='The path to the VTK JSON file (modules.json).')
-    parser.add_argument('source', help='The path to the source files or to a file.')
+    parser.add_argument('-s', '--source', nargs='+', help='The path to the source files or to a file.')
     args = parser.parse_args()
     return args.json, args.source
 
@@ -92,8 +95,7 @@ def get_users_file_headers(path):
     if ext:
         if ext in c.valid_ext:
             if not os.path.isfile(path):
-                print('No such file:', path)
-                exit()
+                raise Exception('No such file: ' + path)
             with open(path) as data:
                 # Read the file looking for includes.
                 for line in data:
@@ -105,8 +107,7 @@ def get_users_file_headers(path):
                         if m:
                             headers[m.group(1)].add(os.path.split(path)[1])
         else:
-            print('Unrecognised extension:', path)
-            exit()
+            raise Exception('Unrecognised extension:' + path)
     else:
         for ext in c.valid_ext:
             fn = name + ext
@@ -126,7 +127,7 @@ def get_users_file_headers(path):
 
 def build_headers_modules(json_data):
     """
-    From the parsed JASON data file make a dictionary whose key is the
+    From the parsed JSON data file make a dictionary whose key is the
      header filename and value is the module.
     :param json_data: The parsed JSON file modules.json.
     :return:
@@ -155,41 +156,53 @@ def disp_components(modules):
 
 
 def main():
-    json_fn, src = get_program_parameters()
-    # Assume everything we need is in modules.json.
-    with open(json_fn) as data_file:
-        json_data = json.load(data_file)
-    headers_modules = build_headers_modules(json_data)
-
-    if os.path.isdir(src):
-        headers = get_users_headers(src)
-        if not bool(headers):
-            print('No files were found in the path:', src)
-            exit()
-    else:
-        headers = get_users_file_headers(src)
-        if not bool(headers):
-            print('File or path does not exist:', src)
-            exit()
+    json_paths, src_paths = get_program_parameters()
+    # json_paths always has a default value.
+    # However we require at least one value for src_paths.
+    assert src_paths is not None, 'Enter a source file or folder name.'
 
     modules = set()
     inc_no_mod = set()
-    for incl in headers:
-        if incl in headers_modules:
-            m = headers_modules[incl]
-            for v in m:
-                modules.add(v)
+    inc_no_mod_headers = collections.defaultdict(set)
+    for fn in src_paths:
+        if os.path.isdir(fn):
+            headers = get_users_headers(fn)
+            if not bool(headers):
+                print('No files were found in the path:', fn)
         else:
-            inc_no_mod.add(incl)
+            headers = get_users_file_headers(fn)
+            if not bool(headers):
+                print('File or path does not exist:', fn)
 
-    # These are added by default:
-    for m in json_data['modules']:
-        # If rendering is used we need OpenGL
-        if 'RenderingOpenGL' in m:
-            modules.add(m)
-        # We usually need to interact with the image.
-        if 'InteractionStyle' in m:
-            modules.add(m)
+        for jfn in json_paths:
+            # Assume everything we need is in modules.json.
+            with open(jfn) as data_file:
+                json_data = json.load(data_file)
+            headers_modules = build_headers_modules(json_data)
+
+            for incl in headers:
+                if incl in headers_modules:
+                    m = headers_modules[incl]
+                    for v in m:
+                        modules.add(v)
+                else:
+                    inc_no_mod.add(incl)
+                    inc_no_mod_headers[incl] = headers[incl]
+
+            if headers:
+                extra_modules = set()
+                for m in json_data['modules']:
+                    if 'RenderingOpenGL' in m:
+                        if json_data['modules'][m]['enabled']:
+                            for mm in modules:
+                                if mm in json_data['modules'][m]['depends']:
+                                    extra_modules.add(m)
+                    if 'InteractionStyle' in m:
+                        if json_data['modules'][m]['enabled']:
+                            for mm in modules:
+                                if mm in json_data['modules'][m]['depends']:
+                                    extra_modules.add(m)
+                modules |= extra_modules
 
     print(disp_components(modules))
 
@@ -203,7 +216,7 @@ def main():
         nohead += '\nHere are the vtk headers and corresponding files:'
         sinmd = sorted(inc_no_mod)
         for i in sinmd:
-            sh = sorted(list(headers[i]))
+            sh = sorted(list(inc_no_mod_headers[i]))
             nohead += '\n {:s} in:'.format(i)
             nohead += '\n   '
             nohead += '\n   '.join([', '.join(sh[j:j + 3]) for j in range(0, len(sh), 3)])
