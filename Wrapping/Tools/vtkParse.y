@@ -5225,12 +5225,6 @@ void vtkParse_IncludeMacros(const char *filename)
   vtkParse_AddStringToArray(&MacroIncludes, &NumberOfMacroIncludes, cp);
 }
 
-/** Dump predefined macros to the specified file. */
-void vtkParse_DumpMacros(FILE *ofile)
-{
-  fprintf(ofile, "HELLO!\n");
-}
-
 /** Dump macros to the specified file (stdout if NULL). */
 void vtkParse_DumpMacros(const char *filename)
 {
