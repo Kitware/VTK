@@ -2503,7 +2503,7 @@ function_nr:
     }
 
 function_trailer_clause:
-    func_cv_qualifier_seq opt_noexcept_specifier opt_ref_qualifier
+    func_cv_qualifier_seq opt_ref_qualifier opt_noexcept_specifier
     func_attribute_specifier_seq opt_trailing_return_type
     virt_specifier_seq opt_body_as_trailer
 
