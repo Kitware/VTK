@@ -80,7 +80,7 @@ int TestGPURayCastUserShader(int argc, char* argv[])
   vtkNew<vtkShaderProperty> shaderProperty;
 
   // Modify the shader to color based on the depth of the translucent voxel
-  shaderProperty->AddVertexShaderReplacement(
+  shaderProperty->AddFragmentShaderReplacement(
     "//VTK::Base::Dec",     // Source string to replace
     true,                   // before the standard replacements
     "//VTK::Base::Dec"      // We still want the default
