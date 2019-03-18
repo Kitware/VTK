@@ -14,6 +14,7 @@ set(classes
   vtkIntegrateAttributes
   vtkPCellDataToPointData
   vtkPExtractDataArraysOverTime
+  vtkPExtractExodusGlobalTemporalVariables
   vtkPExtractSelectedArraysOverTime
   vtkPeriodicFilter
   vtkPKdTree

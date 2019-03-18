@@ -46,6 +46,7 @@ class vtkExodusIICache;
 class vtkExodusIIReaderPrivate;
 class vtkFloatArray;
 class vtkGraph;
+class vtkInformationIntegerKey;
 class vtkIntArray;
 class vtkPoints;
 class vtkUnstructuredGrid;
@@ -789,6 +790,19 @@ public:
    * int the file for storing names of arrays, blocks, etc.
    */
   int GetMaxNameLength();
+  //@}
+
+  //@{
+  /**
+   * Exodus reader outputs global variables and global temporal variables,
+   * together with some other variables as FieldData. These keys help identify
+   * which arrays in the FieldData are GLOBAL and which ones are
+   * GLOBAL_TEMPORAL.
+   *
+   * @sa vtkExtractExodusGlobalTemporalVariables.
+   */
+  static vtkInformationIntegerKey* GLOBAL_VARIABLE();
+  static vtkInformationIntegerKey* GLOBAL_TEMPORAL_VARIABLE();
   //@}
 
 protected:
