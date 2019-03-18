@@ -39,6 +39,7 @@ vtkStandardNewMacro(vtkAppendDataSets);
 vtkAppendDataSets::vtkAppendDataSets()
   : MergePoints(false)
   , Tolerance(0.0)
+  , ToleranceIsAbsolute(true)
   , OutputPointsPrecision(DEFAULT_PRECISION)
 {
 }
@@ -140,7 +141,9 @@ int vtkAppendDataSets::RequestData(
     vtkNew<vtkAppendFilter> appender;
     appender->SetOutputPointsPrecision(this->GetOutputPointsPrecision());
     appender->SetMergePoints(this->GetMergePoints());
+    appender->SetToleranceIsAbsolute(this->GetToleranceIsAbsolute());
     appender->SetTolerance(this->GetTolerance());
+
     for (int cc = 0; cc < inputVector[0]->GetNumberOfInformationObjects(); cc++)
     {
       auto input = vtkDataSet::GetData(inputVector[0], cc);
@@ -167,8 +170,16 @@ int vtkAppendDataSets::RequestData(
       cleaner->ConvertLinesToPointsOff();
       cleaner->ConvertPolysToLinesOff();
       cleaner->ConvertStripsToPolysOff();
-      cleaner->SetAbsoluteTolerance(this->GetTolerance());
-      cleaner->ToleranceIsAbsoluteOn();
+      if (this->GetToleranceIsAbsolute())
+      {
+        cleaner->SetAbsoluteTolerance(this->GetTolerance());
+        cleaner->ToleranceIsAbsoluteOn();
+      }
+      else
+      {
+        cleaner->SetTolerance(this->GetTolerance());
+        cleaner->ToleranceIsAbsoluteOff();
+      }
       cleaner->Update();
       output->ShallowCopy(cleaner->GetOutput());
     }
