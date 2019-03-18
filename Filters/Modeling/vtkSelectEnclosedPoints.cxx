@@ -213,7 +213,6 @@ int vtkSelectEnclosedPoints::RequestData(
   }
   this->InsideOutsideArray = vtkUnsignedCharArray::New();
   vtkUnsignedCharArray *hits = this->InsideOutsideArray;
-  hits->SetName("SelectedPointsArray");
 
   // Loop over all input points determining inside/outside
   vtkIdType numPts = input->GetNumberOfPoints();

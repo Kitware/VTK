@@ -20,7 +20,7 @@
  * determine whether they are in an enclosed surface. The filter produces a
  * (0,1) mask (in the form of a vtkDataArray) that indicates whether points
  * are outside (mask value=0) or inside (mask value=1) a provided surface.
- * (The name of the output vtkDataArray is "SelectedPointsArray".)
+ * (The name of the output vtkDataArray is "SelectedPoints".)
  *
  * After running the filter, it is possible to query it as to whether a point
  * is inside/outside by invoking the IsInside(ptId) method.
