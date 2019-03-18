@@ -2503,7 +2503,7 @@ function_nr:
     }
 
 function_trailer_clause:
-    func_cv_qualifier_seq opt_noexcept_specifier opt_ref_qualifier
+    func_cv_qualifier_seq opt_ref_qualifier opt_noexcept_specifier
     func_attribute_specifier_seq opt_trailing_return_type
     virt_specifier_seq opt_body_as_trailer
 
@@ -5223,12 +5223,6 @@ void vtkParse_IncludeMacros(const char *filename)
   strcpy(cp, filename);
 
   vtkParse_AddStringToArray(&MacroIncludes, &NumberOfMacroIncludes, cp);
-}
-
-/** Dump predefined macros to the specified file. */
-void vtkParse_DumpMacros(FILE *ofile)
-{
-  fprintf(ofile, "HELLO!\n");
 }
 
 /** Dump macros to the specified file (stdout if NULL). */
