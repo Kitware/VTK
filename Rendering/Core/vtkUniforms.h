@@ -31,9 +31,9 @@
 #ifndef vtkUniforms_h
 #define vtkUniforms_h
 
-#include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
-#include <vector>
+#include "vtkObject.h"              // Base class
+#include <vector>                   // member function parameters
 
 class vtkMatrix3x3;
 class vtkMatrix4x4;

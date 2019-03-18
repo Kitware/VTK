@@ -33,7 +33,6 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkNew.h"
-#include <map>
 
 class vtkUniforms;
 

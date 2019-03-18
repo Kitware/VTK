@@ -30,12 +30,10 @@
 #ifndef vtkOpenGLShaderProperty_h
 #define vtkOpenGLShaderProperty_h
 
-#include "vtkShaderProperty.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkObject.h"
-#include "vtkNew.h"
-#include "vtkShader.h"                       // For methods
-#include <map>
+#include "vtkRenderingOpenGL2Module.h"  // For export macro
+#include "vtkShaderProperty.h"          // Base class
+#include "vtkShader.h"                  // For methods (shader types)
+#include <map>                          // used for ivar
 
 class vtkOpenGLUniforms;
 
