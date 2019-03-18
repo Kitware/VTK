@@ -431,6 +431,81 @@ int AppendDatasetsAndPrint(const std::vector<vtkPolyData*>& inputs)
   return AppendDatasetsAndCheckMergedArrayLengths(append);
 }
 
+bool TestToleranceModes()
+{
+  vtkNew<vtkPoints> points1;
+  points1->InsertNextPoint(0.0, 0.0, 0.0);
+  points1->InsertNextPoint(0.0, 1.0, 0.0);
+
+  vtkNew<vtkPoints> points2;
+  points2->InsertNextPoint(0.0, 1.0, 0.0);
+  points2->InsertNextPoint(0.0, 4.0, 0.0);
+
+  vtkIdType ptIds[] = {0, 1};
+
+  vtkNew<vtkPolyData> polydata1;
+  polydata1->Allocate(3, 10);
+  polydata1->SetPoints(points1);
+  polydata1->InsertNextCell(VTK_LINE, 2, ptIds);
+
+  vtkNew<vtkPolyData> polydata2;
+  polydata2->Allocate(3, 10);
+  polydata2->SetPoints(points2);
+  polydata2->InsertNextCell(VTK_LINE, 2, ptIds);
+
+  // Set the tolerance to one quarter of the length of the data set, which is 4.0.
+  // This equates to an absolute tolerance of 1.0, which should cause the first two
+  // points in the dataset to be merged.
+
+  std::cout << "Testing merging with relative tolerance." << std::endl;
+
+  double tolerance = 0.25;
+  vtkNew<vtkAppendFilter> append;
+  append->MergePointsOn();
+  append->SetTolerance(tolerance);
+  append->ToleranceIsAbsoluteOff();
+  append->AddInputData(polydata1);
+  append->AddInputData(polydata2);
+  append->Update();
+
+  auto output = append->GetOutput();
+  for (vtkIdType i = 0; i < output->GetNumberOfPoints(); ++i)
+  {
+    double point[3];
+    output->GetPoint(i, point);
+    std::cout << "Point " << i << ": " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
+  }
+
+  if (output->GetNumberOfPoints() != 2)
+  {
+    std::cerr << "Point merging with relative tolerance yielded "
+      << output->GetNumberOfPoints() << " points instead of 2.\n";
+    return false;
+  }
+
+  // Test out absolute tolerance
+  std::cout << "Testing merging with absolute tolerance." << std::endl;
+  append->ToleranceIsAbsoluteOn();
+  append->Update();
+
+  output = append->GetOutput();
+  for (vtkIdType i = 0; i < output->GetNumberOfPoints(); ++i)
+  {
+    double point[3];
+    output->GetPoint(i, point);
+    std::cout << "Point " << i << ": " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
+  }
+
+  if (output->GetNumberOfPoints() != 3)
+  {
+    std::cerr << "Point merging with absolute tolerance yielded "
+      << output->GetNumberOfPoints() << " points instead of 3.\n";
+    return false;
+  }
+
+  return true;
+}
+
 } // end anonymous namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -714,6 +789,14 @@ int TestAppendFilter( int, char* [])
   if (!AppendDatasetsAndPrint(inputs))
   {
     std::cerr << "vtkAppendFilter failed with deep copied datasets\n";
+    return EXIT_FAILURE;
+  }
+
+  std::cout << "===========================================================\n";
+  std::cout << "Testing tolerance modes.\n";
+  if (!TestToleranceModes())
+  {
+    std::cerr << "vtkAppendFilter failed testing tolerances.\n";
     return EXIT_FAILURE;
   }
 
