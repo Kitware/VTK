@@ -192,16 +192,11 @@ def main():
             if headers:
                 extra_modules = set()
                 for m in json_data['modules']:
-                    if 'RenderingOpenGL' in m:
-                        if json_data['modules'][m]['enabled']:
-                            for mm in modules:
-                                if mm in json_data['modules'][m]['depends']:
-                                    extra_modules.add(m)
-                    if 'InteractionStyle' in m:
-                        if json_data['modules'][m]['enabled']:
-                            for mm in modules:
-                                if mm in json_data['modules'][m]['depends']:
-                                    extra_modules.add(m)
+                    if 'RenderingOpenGL' in m or 'InteractionStyle' in m:
+                        implements = json_data['modules'][m]['implements']
+                        for mm in implements:
+                            if mm in modules:
+                                extra_modules.add(m)
                 modules |= extra_modules
 
     print(disp_components(modules))
