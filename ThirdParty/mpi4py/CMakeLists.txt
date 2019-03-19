@@ -16,7 +16,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkmpi4py/LICENSE.rst"
-    VERSION       "2.0.0"
+    VERSION       "3.0.1"
   EXTERNAL
     PACKAGE mpi4py
     TARGETS mpi4py::mpi4py)
