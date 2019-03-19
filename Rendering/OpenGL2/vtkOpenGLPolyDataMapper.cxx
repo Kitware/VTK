@@ -2274,9 +2274,7 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
     if (primType == PrimitiveTrisEdges ||
         primType == PrimitiveTriStripsEdges)
     {
-      this->GetCoincidentTopologyPolygonOffsetParameters(f,u);
-      f /= 2;
-      u /= 2;
+      this->GetCoincidentTopologyLineOffsetParameters(f,u);
     }
     factor = f;
     offset = u;
