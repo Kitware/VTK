@@ -526,7 +526,8 @@ struct CellIter
     }
     else // Else have to update the increment differently
     {
-      this->Incr = this->Locs[cellId+2] - this->Locs[cellId+1];
+      this->Incr = ( (cellId >= (this->NumCells-2)) ? 0 :
+                     (this->Locs[cellId+2] - this->Locs[cellId+1]) );
     }
 
     return incr;
