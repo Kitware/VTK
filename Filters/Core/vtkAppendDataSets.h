@@ -69,6 +69,16 @@ public:
 
   //@{
   /**
+   * Get/Set whether Tolerance is treated as an absolute or relative tolerance.
+   * The default is to treat it as an absolute tolerance.
+   */
+  vtkSetMacro(ToleranceIsAbsolute, bool);
+  vtkGetMacro(ToleranceIsAbsolute, bool);
+  vtkBooleanMacro(ToleranceIsAbsolute, bool);
+  //@}
+
+  //@{
+  /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::Precision enum for an explanation of the available
    * precision settings.
@@ -93,6 +103,9 @@ protected:
 
   // Tolerance used for point merging
   double Tolerance;
+
+  // If true, tolerance is multipled by the diagonal of the bounding box of the input.
+  bool ToleranceIsAbsolute;
 
   // Precision of output points.
   int OutputPointsPrecision;

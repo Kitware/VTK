@@ -40,6 +40,7 @@ vtkAppendFilter::vtkAppendFilter()
   this->MergePoints = 0;
   this->OutputPointsPrecision = DEFAULT_PRECISION;
   this->Tolerance = 0.0;
+  this->ToleranceIsAbsolute = true;
 }
 
 //----------------------------------------------------------------------------
@@ -248,7 +249,15 @@ int vtkAppendFilter::RequestData(
     outputBB.GetBounds(outputBounds);
 
     ptInserter = vtkSmartPointer<vtkIncrementalOctreePointLocator>::New();
-    ptInserter->SetTolerance(this->Tolerance);
+    if (this->ToleranceIsAbsolute)
+    {
+      ptInserter->SetTolerance(this->Tolerance);
+    }
+    else
+    {
+      ptInserter->SetTolerance(this->Tolerance * outputBB.GetDiagonalLength());
+    }
+
     ptInserter->InitPointInsertion(newPts, outputBounds);
   }
 

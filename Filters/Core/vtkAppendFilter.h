@@ -74,6 +74,16 @@ public:
   vtkGetMacro(Tolerance, double);
   //@}
 
+  //@{
+  /**
+   * Get/Set whether Tolerance is treated as an absolute or relative tolerance.
+   * The default is to treat it as an absolute tolerance.
+   */
+  vtkSetMacro(ToleranceIsAbsolute, bool);
+  vtkGetMacro(ToleranceIsAbsolute, bool);
+  vtkBooleanMacro(ToleranceIsAbsolute, bool);
+  //@}
+
   /**
    * Remove a dataset from the list of data to append.
    */
@@ -115,6 +125,9 @@ protected:
 
   int OutputPointsPrecision;
   double Tolerance;
+
+  // If true, tolerance is multipled by the diagonal of the bounding box of the input.
+  bool ToleranceIsAbsolute;
 
 private:
   vtkAppendFilter(const vtkAppendFilter&) = delete;
