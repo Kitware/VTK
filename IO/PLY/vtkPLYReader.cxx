@@ -16,21 +16,82 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
+#include "vtkDataArray.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIncrementalOctreePointLocator.h"
+#include "vtkMathUtilities.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPLY.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include <vtksys/SystemTools.hxx>
 
+#include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <vector>
 
 vtkStandardNewMacro(vtkPLYReader);
+
+
+namespace {
+  /**
+   * Create an extra point in 'data' with the same coordinates and data as
+   * the point at cellPointIndex inside cell. This is to avoid texture artifacts
+   * when you have one point with two different texture values (so the latter
+   * value overide the first. This results in a texture discontinuity which results
+   * in artifacts).
+   */
+  vtkIdType duplicateCellPoint(
+    vtkPolyData* data, vtkCell* cell, int cellPointIndex)
+  {
+    // get the old point id
+    vtkIdList* pointIds = cell->GetPointIds();
+    vtkIdType pointId = pointIds->GetId(cellPointIndex);
+
+    // duplicate that point and all associated data
+    vtkPoints* points = data->GetPoints();
+    double* point = data->GetPoint(pointId);
+    vtkIdType newPointId = points->InsertNextPoint(point);
+    for (int i = 0; i < data->GetPointData()->GetNumberOfArrays(); ++i)
+    {
+      vtkDataArray* a = data->GetPointData()->GetArray(i);
+      a->InsertTuple(newPointId, a->GetTuple(pointId));
+    }
+    // make cell use the new point
+    pointIds->SetId(cellPointIndex, newPointId);
+    return newPointId;
+  }
+
+  /**
+   * Set a newPointId at cellPointIndex inside cell.
+   */
+  void setCellPoint(vtkCell* cell, int cellPointIndex, vtkIdType newPointId)
+  {
+    // get the old point id
+    vtkIdList* pointIds = cell->GetPointIds();
+    // make cell use the new point
+    pointIds->SetId(cellPointIndex, newPointId);
+
+  }
+
+  /**
+   * Compare two points for equality
+   */
+  bool FuzzyEqual(double* f, double* s, double t)
+  {
+    return vtkMathUtilities::FuzzyCompare(f[0], s[0], t) &&
+      vtkMathUtilities::FuzzyCompare(f[1], s[1], t) &&
+      vtkMathUtilities::FuzzyCompare(f[2], s[2], t);
+  }
+}
 
 
 // Construct object with merging set to true.
@@ -270,12 +331,12 @@ int vtkPLYReader::RequestData(
     }
   }
 
-  bool TexCoordsPointsAvailableFace = false;
+  bool TexCoordsFaceAvailable = false;
   if ((elem = vtkPLY::find_element(ply, "face")) != nullptr && !TexCoordsPointsAvailable)
   {
     if (vtkPLY::find_property(elem, "texcoord", &index) != nullptr)
     {
-      TexCoordsPointsAvailableFace = true;
+      TexCoordsFaceAvailable = true;
       TexCoordsPoints = vtkSmartPointer<vtkFloatArray>::New();
       TexCoordsPoints->SetName("TCoords");
       TexCoordsPoints->SetNumberOfComponents(2);
@@ -362,6 +423,19 @@ int vtkPLYReader::RequestData(
 
     else if ( elemName && !strcmp ("face", elemName) )
     {
+      // texture coordinates
+      vtkNew<vtkPoints> texCoords;
+      // We store a list of pointIds (that have the same texture coordinates)
+      // at the texture index returned by texLocator
+      std::vector<std::vector<vtkIdType>> pointIds;
+      pointIds.resize(output->GetNumberOfPoints());
+      // Used to detect different texture values at a vertex.
+      vtkNew<vtkIncrementalOctreePointLocator> texLocator;
+      float tolerance = 0.000001;
+      texLocator->SetTolerance(tolerance);
+      double bounds[] = {0.0, 1.0, 0.0, 1.0, 0.0, 0.0};
+      texLocator->InitPointInsertion(texCoords, bounds);
+
       // Create a polygonal array
       numPolys = numElems;
       vtkSmartPointer<vtkCellArray> polys = vtkSmartPointer<vtkCellArray>::New();
@@ -389,15 +463,21 @@ int vtkPLYReader::RequestData(
         }
         RGBCells->SetNumberOfTuples(numPolys);
       }
-      if (TexCoordsPointsAvailableFace)
+      if (TexCoordsFaceAvailable)
       {
         vtkPLY::ply_get_property(ply, elemName, &faceProps[6]);
         TexCoordsPoints->SetNumberOfTuples(numPts);
+        // initialize texture coordinates with invalid value
+        for (int j = 0; j < numPts; ++j)
+        {
+          TexCoordsPoints->SetTuple2(j, -1, -1);
+        }
       }
 
       // grab all the face elements
       for (int j=0; j < numPolys; j++)
       {
+        vtkNew<vtkPolygon> cell;
         //grab and element from the file
         vtkPLY::ply_get_element (ply, (void *) &face);
         for (int k=0; k < face.nverts; k++)
@@ -406,7 +486,7 @@ int vtkPLYReader::RequestData(
         }
         free(face.verts); // allocated in vtkPLY::ascii/binary_get_element
 
-        polys->InsertNextCell(face.nverts,vtkVerts);
+        cell->Initialize(face.nverts, vtkVerts, output->GetPoints());
         if ( intensityAvailable )
         {
           intensity->SetValue(j,face.intensity);
@@ -427,21 +507,102 @@ int vtkPLYReader::RequestData(
             RGBCells->SetValue(3 * j + 2, face.blue);
           }
         }
-        if (TexCoordsPointsAvailableFace)
+        if (TexCoordsFaceAvailable)
         {
           //Test to know if there is a texcoord for every vertex
           if (face.nverts == (face.ntexcoord / 2))
           {
             for (int k = 0; k < face.nverts; k++)
             {
-              TexCoordsPoints->SetTuple2(vtkVerts[k], face.texcoord[k * 2], face.texcoord[(k * 2) + 1]);
+              // texture stored at vtkVerts[k] point
+              float currentTex[2];
+              TexCoordsPoints->GetTypedTuple(vtkVerts[k], currentTex);
+              // new texture stored at the current face
+              float newTex[] = {face.texcoord[k * 2],
+                              face.texcoord[k * 2 + 1]};
+              double newTex3[] = {newTex[0], newTex[1], 0};
+              if (currentTex[0] == -1.0)
+              {
+                // newly seen texture coordinates for vertex
+                TexCoordsPoints->SetTuple2(vtkVerts[k], newTex[0], newTex[1]);
+                 vtkIdType ti;
+                texLocator->InsertUniquePoint(newTex3, ti);
+                pointIds.resize(
+                  std::max(ti+1,
+                           static_cast<vtkIdType>(pointIds.size())));
+                pointIds[ti].push_back(vtkVerts[k]);
+              }
+              else
+              {
+                if (not vtkMathUtilities::FuzzyCompare(
+                      currentTex[0], newTex[0], tolerance) ||
+                    not vtkMathUtilities::FuzzyCompare(
+                      currentTex[1], newTex[1], tolerance))
+                {
+                  // different texture coordinate than stored at point vtkVerts[k]
+                  vtkIdType ti;
+                  int inserted = texLocator->InsertUniquePoint(newTex3, ti);
+                  if (inserted)
+                  {
+                    // newly seen texture coordinate for vertex which already has
+                    // some texture coordinates.
+                    vtkIdType dp = duplicateCellPoint(
+                      output, cell, k);
+                    TexCoordsPoints->SetTuple2(dp, newTex[0], newTex[1]);
+                    pointIds.resize(
+                      std::max(ti+1, static_cast<vtkIdType>(pointIds.size())));
+                    pointIds[ti].push_back(dp);
+                  }
+                  else
+                  {
+                    size_t index = 0;
+                    if (pointIds[ti].size() > 1)
+                    {
+                      double first[3];
+                      output->GetPoint(vtkVerts[k], first);
+                      for (;index < pointIds[ti].size(); ++index)
+                      {
+                        double second[3];
+                        output->GetPoint(pointIds[ti][index],second);
+                        if (FuzzyEqual(first, second, tolerance))
+                        {
+                          break;
+                        }
+                      }
+                      if (index == pointIds[ti].size())
+                      {
+                        // newly seen point for this texture coordinate
+                        vtkIdType dp = duplicateCellPoint(
+                          output, cell, k);
+                        TexCoordsPoints->SetTuple2(dp, newTex[0], newTex[1]);
+                        pointIds[ti].push_back(dp);
+                      }
+                    }
+
+                    // texture coordinate already seen before, use the vertex
+                    // associated with these texture coordinates
+                    vtkIdType vi = pointIds[ti][index];
+                    setCellPoint(cell, k, vi);
+                  }
+                }
+                // same texture coordinate, nothing to do.
+              }
             }
-            free(face.texcoord);
           }
+          else
+          {
+            vtkWarningMacro(<< "Number of texture coordinates "
+                            << face.ntexcoord
+                            << " different than number of points "
+                            << face.nverts);
+          }
+          free(face.texcoord);
         }
+        polys->InsertNextCell(cell);
       }
       output->SetPolys(polys);
-    }//if face
+    }
+
 
     free(elist[i]); //allocated by ply_open_for_reading
     elist[i] = nullptr;

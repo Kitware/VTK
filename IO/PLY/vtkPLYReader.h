@@ -25,9 +25,14 @@
  * element has the properties "intensity" and/or the triplet "red",
  * "green", "blue", and optionally "alpha"; these are read and added as scalars
  * to the output data.
+ * If the "face" element has the property "texcoord" a new TCoords
+ * point array is created and points are duplicated if they have 2 or
+ * more different texture coordinates. This creates a polygonal data
+ * that can be textured without artifacts. If unique points are
+ * required use a vtkCleanPolyData filter after this reader.
  *
  * @sa
- * vtkPLYWriter
+ * vtkPLYWriter, vtkCleanPolyData
 */
 
 #ifndef vtkPLYReader_h
