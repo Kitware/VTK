@@ -29,8 +29,8 @@ named as its first argument.
 vtk_module_python_default_destination(<var>)
 ```
 
-By default, the destination is `bin/Lib/site-packages` on Windows and
-`lib/python<VERSION>/site-packages` otherwise.
+By default, the destination is `${CMAKE_INSTALL_BINDIR}/Lib/site-packages` on
+Windows and `${CMAKE_INSTALL_LIBDIR}/python<VERSION>/site-packages` otherwise.
 #]==]
 function (vtk_module_python_default_destination var)
   if (WIN32 AND NOT CYGWIN)
