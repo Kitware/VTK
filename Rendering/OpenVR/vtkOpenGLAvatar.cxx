@@ -226,6 +226,8 @@ vtkOpenGLAvatar::vtkOpenGLAvatar()
   this->LabelActor->GetTextProperty()->SetFontSize ( 12 );
   this->LabelActor->GetTextProperty()->SetColor ( 1.0, 1.0, .4 );
   this->LabelActor->GetTextProperty()->SetJustificationToCentered();
+  this->LabelActor->GetTextProperty()->SetBackgroundColor(0.0,0.0,0.0);
+  this->LabelActor->GetTextProperty()->SetBackgroundOpacity(1.0);
 }
 
 vtkOpenGLAvatar::~vtkOpenGLAvatar() = default;
