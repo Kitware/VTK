@@ -31,8 +31,8 @@
 #ifndef vtkUniforms_h
 #define vtkUniforms_h
 
+#include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkObject.h"              // Base class
 #include <vector>                   // member function parameters
 
 class vtkMatrix3x3;
@@ -43,6 +43,7 @@ class VTKRENDERINGCORE_EXPORT  vtkUniforms : public vtkObject
 public:
   static vtkUniforms *New();
   vtkTypeMacro(vtkUniforms, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   virtual vtkMTimeType GetUniformListMTime() = 0;
 

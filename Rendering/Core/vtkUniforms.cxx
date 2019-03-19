@@ -5,6 +5,12 @@
 // Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkUniforms)
 
+//-----------------------------------------------------------------------------
+void vtkUniforms::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 std::string vtkUniforms::TupleTypeToString( TupleType tt )
 {
   std::string str;

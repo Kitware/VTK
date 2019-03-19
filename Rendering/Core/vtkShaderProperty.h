@@ -30,9 +30,9 @@
 #ifndef vtkShaderProperty_h
 #define vtkShaderProperty_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkNew.h"
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkNew.h"                 // For iVars
 
 class vtkUniforms;
 

@@ -30,9 +30,8 @@
 #ifndef vtkOpenGLUniforms_h
 #define vtkOpenGLUniforms_h
 
+#include "vtkUniforms.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkUniforms.h"               // Base class
-
 #include <string>                      // For member functions
 
 class vtkUniformInternals;
