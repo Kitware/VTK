@@ -460,7 +460,7 @@ void vtkFlagpoleLabel::GenerateQuad(vtkRenderer *ren)
   vtkMath::Cross(up, vpn, right);
   vtkMath::Normalize(right);
 
-  float loc[3];
+  double loc[3];
   loc[0] = this->TopPosition[0] - 0.5*width*right[0];
   loc[1] = this->TopPosition[1] - 0.5*width*right[1];
   loc[2] = this->TopPosition[2] - 0.5*width*right[2];
