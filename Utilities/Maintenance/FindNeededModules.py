@@ -141,16 +141,20 @@ def build_headers_modules(json_data):
     return res
 
 
-def disp_components(modules):
+def disp_components(modules, module_implements):
     """
     For the found modules display them in a form that the user can
      copy/paste into their CMakeLists.txt file.
-    :param modules: The modules
+    :param modules: The modules.
+    :param module_implements: Modules implementing other modules.
     :return:
     """
     res = 'find_package(VTK\n COMPONENTS\n'
     for m in sorted(modules):
         res += '    {:s}\n'.format(m.split('::')[1])
+    keys = sorted(module_implements)
+    for key in keys:
+        res += '    # {:s} implements # {:s}\n'.format(key.split('::')[1], module_implements[key])
     res += ')'
     return res
 
@@ -164,6 +168,7 @@ def main():
     modules = set()
     inc_no_mod = set()
     inc_no_mod_headers = collections.defaultdict(set)
+    mod_implements = dict()
     for fn in src_paths:
         if os.path.isdir(fn):
             headers = get_users_headers(fn)
@@ -199,7 +204,12 @@ def main():
                                 extra_modules.add(m)
                 modules |= extra_modules
 
-    print(disp_components(modules))
+                for m in modules:
+                    if json_data['modules'][m]['implementable'] and json_data['modules'][m]['implements']:
+                        s = ', '.join(json_data['modules'][m]['implements'])
+                        mod_implements[m] = s
+
+    print(disp_components(modules, mod_implements))
 
     if inc_no_mod:
         line = '*' * 64
