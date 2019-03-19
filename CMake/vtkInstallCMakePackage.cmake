@@ -84,6 +84,7 @@ set(vtk_cmake_module_files
   FindPostgreSQL.cmake
   FindTBB.cmake
   FindTHEORA.cmake
+  Findutf8cpp.cmake
 
   vtkCMakeBackports.cmake
   vtkDetectLibraryType.cmake
