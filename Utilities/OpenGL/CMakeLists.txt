@@ -25,9 +25,8 @@ endif ()
 
 if (VTK_OPENGL_HAS_OSMESA AND NOT VTK_CAN_DO_ONSCREEN)
   vtk_module_third_party_external(
-    PACKAGE       OSMesa
-    INCLUDE_DIRS  OSMESA_INCLUDE_DIR
-    LIBRARIES     OSMESA_LIBRARY)
+    PACKAGE OSMesa
+    TARGETS OSMesa::OSMesa)
 else ()
   cmake_policy(PUSH)
   if (POLICY CMP0072)
