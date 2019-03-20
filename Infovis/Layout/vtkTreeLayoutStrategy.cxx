@@ -22,7 +22,7 @@
 
 #include "vtkAbstractArray.h"
 #include "vtkAdjacentVertexIterator.h"
-#ifdef VTK_USE_BOOST
+#if VTK_MODULE_ENABLE_VTK_InfovisBoostGraphAlgorithms
 #include "vtkBoostBreadthFirstSearchTree.h"
 #endif
 #include "vtkDataArray.h"
@@ -67,7 +67,7 @@ void vtkTreeLayoutStrategy::Layout()
   vtkTree* tree = vtkTree::SafeDownCast(this->Graph);
   if (tree == nullptr)
   {
-#ifdef VTK_USE_BOOST
+#if VTK_MODULE_ENABLE_VTK_InfovisBoostGraphAlgorithms
     // Use the BFS search tree to perform the layout
     vtkBoostBreadthFirstSearchTree* bfs = vtkBoostBreadthFirstSearchTree::New();
     bfs->CreateGraphVertexIdArrayOn();
@@ -84,7 +84,7 @@ void vtkTreeLayoutStrategy::Layout()
       return;
     }
 #else
-    vtkErrorMacro("Layout only works on vtkTree unless VTK_USE_BOOST is on.");
+    vtkErrorMacro("Layout only works on vtkTree if VTK::InfovisBoostGraphAlgorithms is available.");
     return;
 #endif
   }
@@ -360,7 +360,7 @@ void vtkTreeLayoutStrategy::Layout()
   {
     this->Graph->SetPoints(newPoints);
   }
-#ifdef VTK_USE_BOOST
+#if VTK_MODULE_ENABLE_VTK_InfovisBoostGraphAlgorithms
   else
   {
     // Reorder the points based on the mapping back to graph vertex ids

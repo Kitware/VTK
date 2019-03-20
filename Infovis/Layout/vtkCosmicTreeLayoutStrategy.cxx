@@ -15,7 +15,7 @@
 
 #include <cmath>
 
-#ifdef VTK_USE_BOOST
+#if VTK_MODULE_ENABLE_VTK_InfovisBoostGraphAlgorithms
 # include "vtkBoostBreadthFirstSearchTree.h"
 #endif
 
@@ -281,7 +281,7 @@ void vtkCosmicTreeLayoutStrategy::Layout()
   bool input_is_tree = ( tree != nullptr );
   if ( ! input_is_tree )
   { // Extract a tree from the graph.
-#ifdef VTK_USE_BOOST
+#if VTK_MODULE_ENABLE_VTK_InfovisBoostGraphAlgorithms
     // Use the BFS search tree to perform the layout
     vtkBoostBreadthFirstSearchTree* bfs = vtkBoostBreadthFirstSearchTree::New();
     bfs->CreateGraphVertexIdArrayOn();
@@ -291,7 +291,7 @@ void vtkCosmicTreeLayoutStrategy::Layout()
     tree->ShallowCopy( bfs->GetOutput() );
     bfs->Delete();
 #else
-    vtkErrorMacro( "Layout only works on vtkTree unless VTK_USE_BOOST is on." );
+    vtkErrorMacro( "Layout only works on vtkTree if VTK::InfovisBoostGraphAlgorithms is available." );
 #endif
   }
 
@@ -386,7 +386,7 @@ void vtkCosmicTreeLayoutStrategy::Layout()
   {
     this->Graph->SetPoints( newPoints );
   }
-#ifdef VTK_USE_BOOST
+#if VTK_MODULE_ENABLE_VTK_InfovisBoostGraphAlgorithms
   else
   {
     // Reorder the points based on the mapping back to graph vertex ids
