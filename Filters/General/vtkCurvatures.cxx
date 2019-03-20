@@ -64,8 +64,6 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     meanCurvature->SetNumberOfTuples(numPts);
     // Get the array so we can write to it directly
     double *meanCurvatureData = meanCurvature->GetPointer(0);
-    //     data
-    int v, v_l, v_r, v_o,  f, F, n, nv;// n short for neighbor
 
     //     create-allocate
     double n_f[3]; // normal of facet (could be stored for later?)
@@ -84,10 +82,10 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
 
     mesh->BuildLinks();
     //data init
-    F = mesh->GetNumberOfCells();
+    const int F = mesh->GetNumberOfCells();
     // init, preallocate the mean curvature
     const std::unique_ptr<int[]> num_neighb(new int[numPts]);
-    for (v = 0; v < numPts; v++)
+    for (int v = 0; v < numPts; v++)
     {
       meanCurvatureData[v] = 0.0;
       num_neighb[v] = 0;
@@ -97,18 +95,20 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     vtkDebugMacro(<<"Main loop: loop over facets such that id > id of neighb");
     vtkDebugMacro(<<"so that every edge comes only once");
     //
-    for (f = 0; f < F; f++)
+    for (int f = 0; f < F; f++)
     {
       mesh->GetCellPoints(f,vertices);
-      nv = vertices->GetNumberOfIds();
+      const int nv = vertices->GetNumberOfIds();
 
-      for (v = 0; v < nv; v++)
+      for (int v = 0; v < nv; v++)
       {
         // get neighbour
-        v_l = vertices->GetId(v);
-        v_r = vertices->GetId((v+1) % nv);
-        v_o = vertices->GetId((v+2) % nv);
+        const int v_l = vertices->GetId(v);
+        const int v_r = vertices->GetId((v+1) % nv);
+        const int v_o = vertices->GetId((v+2) % nv);
         mesh->GetCellEdgeNeighbors(f,v_l,v_r,neighbours);
+
+        int n;// n short for neighbor
 
         // compute only if there is really ONE neighbour
         // AND meanCurvature has not been computed yet!
@@ -163,7 +163,7 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     }
 
     // put curvature in vtkArray
-    for (v = 0; v < numPts; v++)
+    for (int v = 0; v < numPts; v++)
     {
         if (num_neighb[v]>0)
         {
