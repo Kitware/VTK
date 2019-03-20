@@ -6,7 +6,7 @@ LICENSE: MPI for Python
 :Contact: dalcinl@gmail.com
 
 
-Copyright (c) 2017, Lisandro Dalcin.
+Copyright (c) 2019, Lisandro Dalcin.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

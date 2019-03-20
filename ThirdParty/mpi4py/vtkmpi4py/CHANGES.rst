@@ -6,6 +6,25 @@ CHANGES: MPI for Python
 :Contact: dalcinl@gmail.com
 
 
+Release 3.0.1 [2019-02-15]
+==========================
+
+* Bug fixes:
+
+  + Fix ``Comm.scatter()`` and other collectives corrupting input send
+    list. Add safety measures to prevent related issues in global
+    reduction operations.
+  + Fix error-checking code for counts in ``Op.Reduce_local()``.
+
+* Enhancements:
+
+  + Map size-specific Python/NumPy typecodes to MPI datatypes.
+  + Allow partial specification of target list/tuple arguments in the
+    various ``Win`` RMA methods.
+  + Workaround for removal of ``MPI_{LB|UB}`` in Open MPI 4.0.
+  + Support for Microsoft MPI v10.0.
+
+
 Release 3.0.0 [2017-11-08]
 ==========================
 

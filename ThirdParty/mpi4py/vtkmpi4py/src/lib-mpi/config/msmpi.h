@@ -92,4 +92,37 @@
 #define PyMPI_HAVE_MPI_Iexscan 1
 #endif
 
+#if MSMPI_VER >= 0x900
+#define PyMPI_HAVE_MPI_NO_OP 1
+#define PyMPI_HAVE_MPI_Win_allocate 1
+#define PyMPI_HAVE_MPI_Win_create_dynamic 1
+#define PyMPI_HAVE_MPI_Win_attach 1
+#define PyMPI_HAVE_MPI_Win_detach 1
+#define PyMPI_HAVE_MPI_Rget 1
+#define PyMPI_HAVE_MPI_Rput 1
+#define PyMPI_HAVE_MPI_Raccumulate 1
+#define PyMPI_HAVE_MPI_Win_flush 1
+#define PyMPI_HAVE_MPI_WIN_CREATE_FLAVOR 1
+#define PyMPI_HAVE_MPI_WIN_MODEL 1
+#define PyMPI_HAVE_MPI_WIN_FLAVOR_CREATE 1
+#define PyMPI_HAVE_MPI_WIN_FLAVOR_ALLOCATE 1
+#define PyMPI_HAVE_MPI_WIN_FLAVOR_DYNAMIC 1
+#define PyMPI_HAVE_MPI_WIN_FLAVOR_SHARED 1
+#define PyMPI_HAVE_MPI_WIN_SEPARATE 1
+#define PyMPI_HAVE_MPI_WIN_UNIFIED 1
+#endif
+
+#if MSMPI_VER >= 0x1000
+#define PyMPI_HAVE_MPI_Get_accumulate
+#define PyMPI_HAVE_MPI_Rget_accumulate
+#define PyMPI_HAVE_MPI_Fetch_and_op
+#define PyMPI_HAVE_MPI_Compare_and_swap
+#define PyMPI_HAVE_MPI_Win_lock_all
+#define PyMPI_HAVE_MPI_Win_unlock_all
+#define PyMPI_HAVE_MPI_Win_flush_all
+#define PyMPI_HAVE_MPI_Win_flush_local
+#define PyMPI_HAVE_MPI_Win_flush_local_all
+#define PyMPI_HAVE_MPI_Win_sync
+#endif
+
 #endif /* !PyMPI_CONFIG_MSMPI_H */
