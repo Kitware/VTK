@@ -38,7 +38,7 @@ vtkXMLPHyperTreeGridReader::vtkXMLPHyperTreeGridReader()
 {
   this->PieceReaders = nullptr;
   this->TotalNumberOfPoints = 0;
-  this->TreeStartPoint = 0;
+  this->PieceStartIndex = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -228,7 +228,7 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
 
   // For this piece save the initial offset for copying in scalar data from input
   // Can do this because order is maintained building of structure
-  int outputOffset = this->TreeStartPoint;
+  int currentOffset = this->PieceStartIndex;
 
   // Iterate over every hypertree in the input piece
   // Transfer to output hypertree grid
@@ -238,10 +238,13 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
     input->InitializeNonOrientedCursor(inCursor, inIndex, true);
     vtkIdType numberOfVertices = inCursor->GetTree()->GetNumberOfVertices();
 
+    // Get the global offset of this tree within the piece
+    int globalOffset = inCursor->GetTree()->GetGlobalIndexFromLocal(0);
+
     // Initialize new cursor at root of current output tree
     output->InitializeNonOrientedCursor(outCursor, inIndex, true);
-    outCursor->SetGlobalIndexStart(this->TreeStartPoint);
-    this->TreeStartPoint += numberOfVertices;
+    outCursor->SetGlobalIndexStart(this->PieceStartIndex + globalOffset);
+    currentOffset += numberOfVertices;
 
     // Process tree to recursively build
     this->RecursivelyProcessTree(inCursor, outCursor);
@@ -290,7 +293,7 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
     // Copy all scalar data from input piece to the correct offset in outputpiece
     // All hypertrees from this piece were built in order so copy is in order
     void* inPtr = inArray->GetVoidPointer(0);
-    void* outPtr = outArray->GetVoidPointer(outputOffset);
+    void* outPtr = outArray->GetVoidPointer(this->PieceStartIndex);
 
     // Copies the data from piece to parallel output
     switch (inArray->GetDataType())
@@ -302,6 +305,8 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
         return 0;
     }
   }
+
+  this->PieceStartIndex = currentOffset;
   return 1;
 }
 
@@ -319,9 +324,8 @@ int vtkXMLPHyperTreeGridReader::FillOutputPortInformation(int, vtkInformation* i
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPHyperTreeGridReader::RequestInformation(vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkXMLPHyperTreeGridReader::RequestInformation(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
@@ -573,8 +577,8 @@ int vtkXMLPHyperTreeGridReader::ReadPiece(vtkXMLDataElement* ePiece)
 }
 
 //-----------------------------------------------------------------------------
-void vtkXMLPHyperTreeGridReader::RecursivelyProcessTree(vtkHyperTreeGridNonOrientedCursor* inCursor,
-  vtkHyperTreeGridNonOrientedCursor* outCursor)
+void vtkXMLPHyperTreeGridReader::RecursivelyProcessTree(
+  vtkHyperTreeGridNonOrientedCursor* inCursor, vtkHyperTreeGridNonOrientedCursor* outCursor)
 {
   // Retrieve input grid
   vtkHyperTreeGrid* input = inCursor->GetGrid();

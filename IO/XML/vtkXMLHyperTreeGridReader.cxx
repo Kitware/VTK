@@ -464,32 +464,18 @@ void vtkXMLHyperTreeGridReader::ReadTrees(vtkXMLDataElement* elem)
         vtkAbstractArray* outArray = pointData->GetArray(ename);
 
         // Create the output PointData array when processing first tree
-        // Otherwise just read data into the global offset which is
-        // number of vertices in the tree * number of components in the data
         if (outArray == nullptr)
         {
           outArray = this->CreateArray(eNested);
-          int numberOfComponents = outArray->GetNumberOfComponents();
           outArray->SetNumberOfTuples(this->NumberOfPoints);
           pointData->AddArray(outArray);
-          this->ReadArrayValues(eNested,
-            0,
-            outArray,
-            globalOffset * numberOfComponents,
-            numberOfVertices * numberOfComponents,
-            POINT_DATA);
           outArray->Delete();
         }
-        else
-        {
-          int numberOfComponents = outArray->GetNumberOfComponents();
-          this->ReadArrayValues(eNested,
-            globalOffset * numberOfComponents,
-            outArray,
-            0,
-            numberOfVertices * numberOfComponents,
-            POINT_DATA);
-        }
+        // Read data into the global offset which is
+        // number of vertices in the tree * number of components in the data
+        int numberOfComponents = outArray->GetNumberOfComponents();
+        this->ReadArrayValues(eNested, globalOffset * numberOfComponents, outArray, 0,
+          numberOfVertices * numberOfComponents, POINT_DATA);
       }
     }
     desc_a->Delete();
@@ -502,11 +488,8 @@ void vtkXMLHyperTreeGridReader::ReadTrees(vtkXMLDataElement* elem)
 
 //----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridReader::SubdivideFromDescriptor(
-  vtkHyperTreeGridNonOrientedCursor* treeCursor,
-  unsigned int level,
-  int numChildren,
-  vtkBitArray* descriptor,
-  vtkIdTypeArray* posByLevel)
+  vtkHyperTreeGridNonOrientedCursor* treeCursor, unsigned int level, int numChildren,
+  vtkBitArray* descriptor, vtkIdTypeArray* posByLevel)
 {
   vtkIdType curOffset = posByLevel->GetValue(level);
   // Current offset within descriptor is advanced

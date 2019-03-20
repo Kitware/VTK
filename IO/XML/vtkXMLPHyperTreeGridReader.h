@@ -148,8 +148,8 @@ protected:
    */
   int ReadPieceData(int index);
   int ReadPieceData();
-  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedCursor* inCursor,
-    vtkHyperTreeGridNonOrientedCursor* outCursor);
+  void RecursivelyProcessTree(
+    vtkHyperTreeGridNonOrientedCursor* inCursor, vtkHyperTreeGridNonOrientedCursor* outCursor);
 
   /**
    * Create a reader according to the data to read
@@ -158,8 +158,7 @@ protected:
 
   int FillOutputPortInformation(int, vtkInformation*) override;
 
-  int RequestInformation(vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
   /**
@@ -180,7 +179,7 @@ protected:
   int EndPiece;
 
   vtkIdType TotalNumberOfPoints;
-  vtkIdType TreeStartPoint;
+  vtkIdType PieceStartIndex;
 
   vtkXMLHyperTreeGridReader** PieceReaders;
 
