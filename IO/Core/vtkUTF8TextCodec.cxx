@@ -124,7 +124,7 @@ vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
     throw(std::string("End of Input"));
   }
 
-  getSize = vtk_utf8::internal::sequence_length(c);
+  getSize = utf8::internal::sequence_length(c);
 
   if (0 == getSize)
     throw(std::string("Not enough space"));
@@ -138,7 +138,7 @@ vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
 
   istream::char_type* c1 = c;
 
-  const vtkTypeUInt32 code_point = vtk_utf8::next(c1, &c[getSize]);
+  const vtkTypeUInt32 code_point = utf8::next(c1, &c[getSize]);
 
   return code_point;
 }
