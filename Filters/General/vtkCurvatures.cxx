@@ -77,9 +77,6 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     double vn2[3];
     double e[3];   // edge (oriented)
 
-    double cs, sn;    // cs: cos; sn sin
-    double angle, length, Af, Hf;  // temporary store
-
     mesh->BuildLinks();
     //data init
     const int F = mesh->GetNumberOfCells();
@@ -115,6 +112,8 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
         // (ensured by n > f)
         if (neighbours->GetNumberOfIds() == 1 && (n = neighbours->GetId(0)) > f)
         {
+          double Hf;  // temporary store
+
           // find 3 corners of f: in order!
           mesh->GetPoint(v_l,ore);
           mesh->GetPoint(v_r,end);
@@ -124,8 +123,8 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
           // compute common edge
           e[0] = end[0]; e[1] = end[1]; e[2] = end[2];
           e[0] -= ore[0]; e[1] -= ore[1]; e[2] -= ore[2];
-          length = double(vtkMath::Normalize(e));
-          Af = double(vtkTriangle::TriangleArea(ore,end,oth));
+          const double length = vtkMath::Normalize(e);
+          double Af = vtkTriangle::TriangleArea(ore,end,oth);
           // find 3 corners of n: in order!
           mesh->GetCellPoints(n,vertices_n);
           mesh->GetPoint(vertices_n->GetId(0),vn0);
@@ -135,14 +134,14 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
           // compute normal of n
           vtkTriangle::ComputeNormal(vn0,vn1,vn2,n_n);
           // the cosine is n_f * n_n
-          cs = double(vtkMath::Dot(n_f,n_n));
+          const double cs = vtkMath::Dot(n_f,n_n);
           // the sin is (n_f x n_n) * e
           vtkMath::Cross(n_f,n_n,t);
-          sn = double(vtkMath::Dot(t,e));
+          const double sn = vtkMath::Dot(t,e);
           // signed angle in [-pi,pi]
           if (sn!=0.0 || cs!=0.0)
           {
-            angle = atan2(sn,cs);
+            const double angle = atan2(sn,cs);
             Hf    = length*angle;
           }
           else
@@ -167,7 +166,7 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     {
         if (num_neighb[v]>0)
         {
-          Hf = 0.5*meanCurvatureData[v]/num_neighb[v];
+          const double Hf = 0.5*meanCurvatureData[v]/num_neighb[v];
           if (this->InvertMeanCurvature)
           {
             meanCurvatureData[v] = -Hf;
