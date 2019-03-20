@@ -362,7 +362,7 @@ void vtkXMLPHyperTreeGridReader::SetupEmptyOutput()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPHyperTreeGridReader::SetupOutputInformation(vtkInformation* outInfo)
+void vtkXMLPHyperTreeGridReader::SetupOutputInformation(vtkInformation* vtkNotUsed(outInfo))
 {
   if (this->InformationError)
   {
@@ -582,9 +582,6 @@ void vtkXMLPHyperTreeGridReader::RecursivelyProcessTree(
 {
   // Retrieve input grid
   vtkHyperTreeGrid* input = inCursor->GetGrid();
-
-  // Retrieve output tree and set global index of output cursor
-  vtkHyperTree* outTree = outCursor->GetTree();
 
   // Descend further into input trees only if cursor is not at leaf
   if (!inCursor->IsLeaf())
