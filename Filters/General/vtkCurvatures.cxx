@@ -30,6 +30,8 @@
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
+#include <memory> // For unique_ptr
+
 vtkStandardNewMacro(vtkCurvatures);
 
 //-------------------------------------------------------//
@@ -84,7 +86,7 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     //data init
     F = mesh->GetNumberOfCells();
     // init, preallocate the mean curvature
-    int* num_neighb = new int[numPts];
+    const std::unique_ptr<int[]> num_neighb(new int[numPts]);
     for (v = 0; v < numPts; v++)
     {
       meanCurvatureData[v] = 0.0;
@@ -185,9 +187,6 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     mesh->GetPointData()->SetActiveScalars("Mean_Curvature");
 
     vtkDebugMacro("Set Values of Mean Curvature: Done");
-
-    // clean
-    delete [] num_neighb;
 };
 //--------------------------------------------
 #define CLAMP_MACRO(v)    ((v)<(-1) ? (-1) : (v) > (1) ? (1) : (v))
@@ -207,8 +206,8 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
     // other data
     vtkIdType Nv   = output->GetNumberOfPoints();
 
-    double* K = new double[Nv];
-    double* dA = new double[Nv];
+    const std::unique_ptr<double[]> K(new double[Nv]);
+    const std::unique_ptr<double[]> dA(new double[Nv]);
     double pi2 = 2.0*vtkMath::Pi();
     for (int k = 0; k < Nv; k++)
     {
@@ -284,10 +283,6 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
     output->GetPointData()->SetActiveScalars("Gauss_Curvature");
 
     vtkDebugMacro("Set Values of Gauss Curvature: Done");
-    /*******************************************************/
-    delete [] K;
-    delete [] dA;
-    /*******************************************************/
 };
 
 void vtkCurvatures::GetMaximumCurvature(vtkPolyData *input,vtkPolyData *output)
