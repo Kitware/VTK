@@ -192,19 +192,6 @@ void vtkXMLHyperTreeGridReader::SetupOutputData()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHyperTreeGridReader::ReadPiece(vtkXMLDataElement* ePiece, int piece)
-{
-  this->Piece = piece;
-  return this->ReadPiece(ePiece);
-}
-
-//----------------------------------------------------------------------------
-int vtkXMLHyperTreeGridReader::ReadPiece(vtkXMLDataElement* ePiece)
-{
-  return this->ReadPiece(ePiece, 0);
-}
-
-//----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridReader::ReadXMLData()
 {
   // Initializes the output structure

@@ -95,15 +95,6 @@ protected:
   // Pipeline execute data driver called by vtkXMLReader
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
-  // Setup the piece reader at the given index
-  int ReadPiece(vtkXMLDataElement* ePiece, int piece);
-
-  // Setup the current piece reader
-  int ReadPiece(vtkXMLDataElement* ePiece);
-
-  // Actually read the current piece data
-  int ReadPieceData(int);
-
   // Declare that this reader produces HyperTreeGrids
   int FillOutputPortInformation(int, vtkInformation*) override;
 
