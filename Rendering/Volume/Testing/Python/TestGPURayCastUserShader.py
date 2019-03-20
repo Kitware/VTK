@@ -65,8 +65,8 @@ mapper.SetInputConnection(reader.GetOutputPort())
 mapper.SetUseJittering(1)
 
 # Modify the shader to color based on the depth of the translucent voxel
-mapper.AddShaderReplacement(
-    vtk.vtkShader.Fragment,  # Replace in the fragment shader
+shaderProperty = vtk.vtkShaderProperty()
+shaderProperty.AddFragmentShaderReplacement(
     "//VTK::Base::Dec",      # Source string to replace
     True,                    # before the standard replacements
     "//VTK::Base::Dec"       # We still want the default
@@ -74,8 +74,7 @@ mapper.AddShaderReplacement(
     "\n vec3 l_opaqueFragPos;",
     False                    # only do it once i.e. only replace the first match
 )
-mapper.AddShaderReplacement(
-    vtk.vtkShader.Fragment,
+shaderProperty.AddFragmentShaderReplacement(
     "//VTK::Base::Init",
     True,
     "//VTK::Base::Init\n"
@@ -83,8 +82,7 @@ mapper.AddShaderReplacement(
     "\n l_opaqueFragPos = vec3(0.0);",
     False
 )
-mapper.AddShaderReplacement(
-    vtk.vtkShader.Fragment,
+shaderProperty.AddFragmentShaderReplacement(
     "//VTK::Base::Impl",
     True,
     "//VTK::Base::Impl"
@@ -95,8 +93,7 @@ mapper.AddShaderReplacement(
     "\n      }",
     False
 )
-mapper.AddShaderReplacement(
-    vtk.vtkShader.Fragment,
+shaderProperty.AddFragmentShaderReplacement(
     "//VTK::RenderToImage::Exit",
     True,
     "//VTK::RenderToImage::Exit"
@@ -118,6 +115,7 @@ mapper.AddShaderReplacement(
 )
 
 volume = vtk.vtkVolume()
+volume.SetShaderProperty(shaderProperty)
 volume.SetMapper(mapper)
 volume.SetProperty(volumeProperty)
 
