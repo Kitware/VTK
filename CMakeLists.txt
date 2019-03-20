@@ -31,6 +31,11 @@ if (WIN32)
   endif ()
 endif ()
 
+add_definitions(-DPNG_ARM_NEON_OPT=0)
+add_definitions(-DPNG_MIPS_MSA_OPT=0)
+add_definitions(-DPNG_POWERPC_VSX_OPT=0)
+add_definitions(-DPNG_INTEL_SSE_OPT=0)
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkpngConfig.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkpngConfig.h")
