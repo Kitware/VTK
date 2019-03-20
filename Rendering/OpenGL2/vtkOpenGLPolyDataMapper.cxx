@@ -1353,7 +1353,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
 
     vtkShaderProgram::Substitute(GSSource,
       "//VTK::Normal::Dec",
-      "in vec4 vertexVCVSOutput[];\n"
       "out vec3 tubeBasis1;\n"
       "out vec3 tubeBasis2;\n"
       );
