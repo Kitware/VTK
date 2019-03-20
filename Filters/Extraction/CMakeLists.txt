@@ -8,6 +8,7 @@ set(classes
   vtkExtractDataOverTime
   vtkExtractDataSets
   vtkExtractEdges
+  vtkExtractExodusGlobalTemporalVariables
   vtkExtractGeometry
   vtkExtractGrid
   vtkExtractLevel
@@ -21,7 +22,6 @@ set(classes
   vtkExtractSelectedRows
   vtkExtractSelectedThresholds
   vtkExtractSelection
-  vtkExtractTemporalFieldData
   vtkExtractTensorComponents
   vtkExtractTimeSteps
   vtkExtractUnstructuredGrid
@@ -33,6 +33,11 @@ set(classes
   vtkProbeSelectedLocations
   vtkSelector
   vtkValueSelector)
+
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND classes
+    vtkExtractTemporalFieldData)
+endif()
 
 vtk_module_add_module(VTK::FiltersExtraction
   CLASSES ${classes})

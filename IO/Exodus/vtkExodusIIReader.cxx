@@ -24,9 +24,11 @@
 #include "vtkCellType.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkExodusIIReaderParser.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
@@ -37,17 +39,16 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
 #include "vtkSortDataArray.h"
 #include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTypeInt64Array.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkXMLParser.h"
 #include "vtkStringArray.h"
+#include "vtkTypeInt64Array.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkVariantArray.h"
-#include "vtkSmartPointer.h"
-#include "vtkExodusIIReaderParser.h"
+#include "vtkXMLParser.h"
 
 #include <algorithm>
 #include <vector>
@@ -1748,6 +1749,9 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       arr->Delete();
       arr = nullptr;
     }
+    auto info = arr->GetInformation();
+    // add the `GLOBAL_VARIABLE` key so filters may use it.
+    info->Set(vtkExodusIIReader::GLOBAL_VARIABLE(), 1);
   }
   else if ( key.ObjectType == vtkExodusIIReader::NODAL )
   {
@@ -1878,6 +1882,9 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       arr->Delete();
       arr = nullptr;
     }
+    auto info = arr->GetInformation();
+    // add the `GLOBAL_TEMPORAL_VARIABLE` key so filters may use it.
+    info->Set(vtkExodusIIReader::GLOBAL_TEMPORAL_VARIABLE(), 1);
   }
   else if ( key.ObjectType == vtkExodusIIReader::NODAL_TEMPORAL )
   {
@@ -5263,7 +5270,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
-
+vtkInformationKeyMacro(vtkExodusIIReader, GLOBAL_VARIABLE, Integer);
+vtkInformationKeyMacro(vtkExodusIIReader, GLOBAL_TEMPORAL_VARIABLE, Integer);
 vtkExodusIIReader::vtkExodusIIReader()
 {
   this->FileName = nullptr;
