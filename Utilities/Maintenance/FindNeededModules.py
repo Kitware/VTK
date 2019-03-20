@@ -152,9 +152,13 @@ def disp_components(modules, module_implements):
     res = 'find_package(VTK\n COMPONENTS\n'
     for m in sorted(modules):
         res += '    {:s}\n'.format(m.split('::')[1])
-    keys = sorted(module_implements)
-    for key in keys:
-        res += '    # {:s} implements # {:s}\n'.format(key.split('::')[1], module_implements[key])
+    if module_implements:
+        keys = sorted(module_implements)
+        max_width = len(max(keys, key=len).split('::')[1])
+        res += '    # These modules are suggested since they implement an existing module.\n'
+        for key in keys:
+            res += '    # {:<{width}} # implements {:s}\n'.format(key.split('::')[1], ', '.join(module_implements[key]),
+                                                                  width=max_width)
     res += ')'
     return res
 
@@ -168,7 +172,7 @@ def main():
     modules = set()
     inc_no_mod = set()
     inc_no_mod_headers = collections.defaultdict(set)
-    mod_implements = dict()
+    mod_implements = collections.defaultdict(list)
     for fn in src_paths:
         if os.path.isdir(fn):
             headers = get_users_headers(fn)
@@ -195,19 +199,15 @@ def main():
                     inc_no_mod_headers[incl] = headers[incl]
 
             if headers:
-                extra_modules = set()
-                for m in json_data['modules']:
-                    if 'RenderingOpenGL' in m or 'InteractionStyle' in m:
-                        implements = json_data['modules'][m]['implements']
-                        for mm in implements:
-                            if mm in modules:
-                                extra_modules.add(m)
-                modules |= extra_modules
-
                 for m in modules:
-                    if json_data['modules'][m]['implementable'] and json_data['modules'][m]['implements']:
-                        s = ', '.join(json_data['modules'][m]['implements'])
-                        mod_implements[m] = s
+                    if not json_data['modules'][m]['implementable']:
+                        continue
+                    for i in json_data['modules']:
+                        if i in modules:
+                            continue
+                        if m in json_data['modules'][i]['implements']:
+                            # Suggest module i since it implements m
+                            mod_implements[i].append(m)
 
     print(disp_components(modules, mod_implements))
 
