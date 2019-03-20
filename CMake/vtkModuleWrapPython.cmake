@@ -16,7 +16,6 @@ Known limitations include:
     `VTK::WrapPython` executable.
   - Links directly to a Python library. See the `VTK::Python` module for more
     details.
-  - Visual Studio (and probably Xcode) currently does not work.
 #]==]
 
 #[==[.md
@@ -30,22 +29,12 @@ named as its first argument.
 vtk_module_python_default_destination(<var>)
 ```
 
-By default, the destination is `bin/Lib/site-packages` on Windows and
-`lib/python<VERSION>/site-packages` otherwise. In either case, if a
-multi-config generator is used (i.e., Visual Studio or Xcode), a
-`/$<CONFIGURATION>` subdirectory is placed under the first directory in the
-path.
+By default, the destination is `${CMAKE_INSTALL_BINDIR}/Lib/site-packages` on
+Windows and `${CMAKE_INSTALL_LIBDIR}/python<VERSION>/site-packages` otherwise.
 #]==]
 function (vtk_module_python_default_destination var)
-  set(_vtk_python_configuration_subdir)
-  get_property(_vtk_python_is_multi_config GLOBAL
-    PROPERTY GENERATOR_IS_MULTI_CONFIG)
-  if (_vtk_python_is_multi_config)
-    set(_vtk_python_configuration_subdir "/$<CONFIGURATION>")
-  endif ()
-
   if (WIN32 AND NOT CYGWIN)
-    set(destination "${CMAKE_INSTALL_BINDIR}${_vtk_python_configuration_subdir}/Lib/site-packages")
+    set(destination "${CMAKE_INSTALL_BINDIR}/Lib/site-packages")
   else ()
     if (PYTHON_VERSION_MAJOR AND PYTHON_VERSION_MINOR)
       set(_vtk_python_version_suffix "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
@@ -54,7 +43,7 @@ function (vtk_module_python_default_destination var)
         "The version of Python is unknown; not using a versioned directory "
         "for Python modules.")
     endif ()
-    set(destination "${CMAKE_INSTALL_LIBDIR}${_vtk_python_configuration_subdir}/python${_vtk_python_version_suffix}/site-packages")
+    set(destination "${CMAKE_INSTALL_LIBDIR}/python${_vtk_python_version_suffix}/site-packages")
   endif ()
 
   set("${var}" "${destination}" PARENT_SCOPE)
@@ -381,11 +370,26 @@ extern PyObject* PyInit_${name}();
     if (WIN32 AND NOT CYGWIN)
       set_property(TARGET "${name}"
         PROPERTY
+          DEBUG_POSTFIX "_d")
+      set_property(TARGET "${name}"
+        PROPERTY
           SUFFIX ".pyd")
     endif ()
     set_property(TARGET "${name}"
       PROPERTY
         LIBRARY_OUTPUT_DIRECTORY "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}")
+    get_property(_vtk_python_is_multi_config GLOBAL
+      PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    if (_vtk_python_is_multi_config)
+      # XXX(MultiNinja): This isn't going to work in general since MultiNinja
+      # will error about overlapping output paths.
+      foreach (_vtk_python_config IN LISTS CMAKE_CONFIGURATION_TYPES)
+        string(TOUPPER "${_vtk_python_config}" _vtk_python_config_upper)
+        set_property(TARGET "${name}"
+          PROPERTY
+            "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}")
+      endforeach ()
+    endif ()
     set_property(TARGET "${name}"
       PROPERTY
         PREFIX "")
