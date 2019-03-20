@@ -22,7 +22,7 @@
 #include <map>
 #include "vtkActor.h"
 
-struct vtkOBJImportedMaterial
+struct VTKIOIMPORT_EXPORT vtkOBJImportedMaterial
 {
   std::string name;
   std::string texture_filename;
@@ -43,11 +43,12 @@ struct vtkOBJImportedMaterial
 };
 
 
+VTKIOIMPORT_EXPORT
 void obj_set_material_defaults(vtkOBJImportedMaterial* mtl);
 
 struct vtkOBJImportedPolyDataWithMaterial;
 
-class vtkOBJPolyDataProcessor : public vtkPolyDataAlgorithm
+class VTKIOIMPORT_EXPORT vtkOBJPolyDataProcessor : public vtkPolyDataAlgorithm
 {
 public:
   static vtkOBJPolyDataProcessor *New();
@@ -157,6 +158,7 @@ private:
 
 class vtkRenderWindow;
 class vtkRenderer;
+VTKIOIMPORT_EXPORT
 void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
                                           vtkRenderer* renderer,
                                           vtkOBJPolyDataProcessor* reader );
