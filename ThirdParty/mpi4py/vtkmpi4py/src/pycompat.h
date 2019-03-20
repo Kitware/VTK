@@ -31,6 +31,37 @@ static Py_ssize_t PyByteArray_Size(PyObject* o)
 
 /* ------------------------------------------------------------------------- */
 
+/* Legacy Python 2 buffer interface */
+
+static int _Py2_IsBuffer(PyObject *obj)
+{
+#if PY_VERSION_HEX < 0x03000000
+  return PyObject_CheckReadBuffer(obj);
+#else
+  (void)obj;
+  return 0;
+#endif
+}
+
+static int _Py2_AsBuffer(PyObject *obj, int readonly,
+                         void **buf, Py_ssize_t *size)
+{
+#if defined(PYPY_VERSION) || PY_VERSION_HEX < 0x03000000
+  if (readonly)
+    return PyObject_AsReadBuffer(obj, (const void**)buf, size);
+  else
+    return PyObject_AsWriteBuffer(obj, buf, size);
+#else
+  (void)obj; (void)readonly;
+  (void)buf; (void)size;
+  PyErr_SetString(PyExc_SystemError,
+                  "Legacy buffer interface not available in Python 3");
+  return -1;
+#endif
+}
+
+/* ------------------------------------------------------------------------- */
+
 #ifdef PYPY_VERSION
 #if PY_VERSION_HEX < 0x03030000
 #ifdef PySlice_GetIndicesEx
