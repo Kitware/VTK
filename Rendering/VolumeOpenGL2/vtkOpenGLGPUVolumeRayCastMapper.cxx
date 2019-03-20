@@ -376,9 +376,8 @@ public:
 
   void FinishRendering(int numComponents);
 
-  inline bool ShaderRebuildNeeded(vtkCamera* cam, vtkMTimeType renderPassTime);
+  inline bool ShaderRebuildNeeded(vtkCamera* cam, vtkVolume* vol, vtkMTimeType renderPassTime);
   bool VolumePropertyChanged = true;
-  bool ShaderPropertyChanged = true;
 
   //@{
   /**
@@ -3082,7 +3081,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
   vtkVolume* vol)
 {
   this->VolumePropertyChanged = false;
-  this->ShaderPropertyChanged = vol->GetShaderProperty()->GetMTime();
   bool orderChanged = false;
   bool success = true;
   for (const auto& port : this->Parent->Ports)
@@ -3257,7 +3255,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
     vtkVolumeStateRAII glState(renWin->GetState(), this->Impl->PreserveGLState);
 
-    if (this->Impl->ShaderRebuildNeeded(cam, renderPassTime))
+    if (this->Impl->ShaderRebuildNeeded(cam, vol, renderPassTime))
     {
       this->Impl->LastProjectionParallel = cam->GetParallelProjection();
       this->BuildShader(ren);
@@ -3296,11 +3294,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
 //----------------------------------------------------------------------------
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ShaderRebuildNeeded(vtkCamera* cam,
-  vtkMTimeType renderPassTime)
+  vtkVolume* vol, vtkMTimeType renderPassTime)
 {
   return (this->NeedToInitializeResources ||
       this->VolumePropertyChanged ||
-      this->ShaderPropertyChanged ||
+      vol->GetShaderProperty()->GetShaderMTime() > this->ShaderBuildTime.GetMTime() ||
       this->Parent->GetMTime() > this->ShaderBuildTime.GetMTime() ||
       cam->GetParallelProjection() != this->LastProjectionParallel ||
       this->SelectionStateTime.GetMTime() > this->ShaderBuildTime.GetMTime() ||

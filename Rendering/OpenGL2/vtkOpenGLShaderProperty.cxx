@@ -65,12 +65,12 @@ void vtkOpenGLShaderProperty::AddGeometryShaderReplacement(
 
 int vtkOpenGLShaderProperty::GetNumberOfShaderReplacements()
 {
-  return UserShaderReplacements.size();
+  return static_cast<int>(UserShaderReplacements.size());
 }
 
 std::string vtkOpenGLShaderProperty::GetNthShaderReplacementTypeAsString( vtkIdType index )
 {
-  if( index >= this->UserShaderReplacements.size() )
+  if( index >= static_cast<vtkIdType>(this->UserShaderReplacements.size()) )
   {
     vtkErrorMacro( << "Trying to access out of bound shader replacement.");
     return std::string("");
@@ -91,7 +91,7 @@ void  vtkOpenGLShaderProperty::GetNthShaderReplacement(
     std::string & replacementValue,
     bool & replaceAll )
 {
-  if( index >= this->UserShaderReplacements.size() )
+  if( index >= static_cast<vtkIdType>(this->UserShaderReplacements.size()) )
   {
     vtkErrorMacro( << "Trying to access out of bound shader replacement.");
   }
