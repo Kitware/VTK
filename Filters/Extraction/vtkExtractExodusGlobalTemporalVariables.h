@@ -50,7 +50,7 @@ public:
 
 protected:
   vtkExtractExodusGlobalTemporalVariables();
-  ~vtkExtractExodusGlobalTemporalVariables();
+  ~vtkExtractExodusGlobalTemporalVariables() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
