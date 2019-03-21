@@ -25,3 +25,5 @@ PRIVATE_DEPENDS
   VTK::FiltersSources
   VTK::ImagingHybrid
   VTK::InfovisCore
+OPTIONAL_DEPENDS
+  VTK::InfovisBoostGraphAlgorithms
