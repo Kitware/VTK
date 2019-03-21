@@ -34,7 +34,7 @@
 #include "vtkSpanSpace.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkMultiPieceDataSet.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkSmartPointer.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
@@ -1897,9 +1897,9 @@ RequestDataObject(vtkInformation*,
   if (vtkCompositeDataSet::SafeDownCast(inputDO))
   {
     // For any composite dataset, we're create a vtkMultiBlockDataSet as output;
-    if (vtkMultiPieceDataSet::SafeDownCast(outputDO) == nullptr)
+    if (vtkMultiBlockDataSet::SafeDownCast(outputDO) == nullptr)
     {
-      outputDO = vtkMultiPieceDataSet::New();
+      outputDO = vtkMultiBlockDataSet::New();
       outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
       outputDO->Delete();
     }
@@ -1930,12 +1930,12 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
 
   vtkCompositeDataSet *inputCDS =
     vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkMultiPieceDataSet *outputMPDS =
-    vtkMultiPieceDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkMultiBlockDataSet *outputMBDS =
+    vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Make sure we have valid input and output of some form
   if ( (inputGrid == nullptr  || outputPolyData == nullptr) &&
-       (inputCDS == nullptr  || outputMPDS == nullptr) )
+       (inputCDS == nullptr  || outputMBDS == nullptr) )
   {
     return 0;
   }
@@ -1970,12 +1970,12 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
 
   // Otherwise it is an input composite data set and each unstructured grid
   // contained in it is processed, producing a vtkPolyData that is added to
-  // the output multi piece dataset.
+  // the output multiblock dataset.
   else
   {
-    int numPieces=0;
     vtkUnstructuredGrid *grid;
     vtkPolyData *polydata;
+    outputMBDS->CopyStructure(inputCDS);
     vtkSmartPointer<vtkCompositeDataIterator> inIter;
     inIter.TakeReference(inputCDS->NewIterator());
     for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
@@ -1992,7 +1992,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
         }
         polydata = vtkPolyData::New();
         this->ProcessPiece(grid, inScalars, polydata);
-        outputMPDS->SetPiece(numPieces++,polydata);
+        outputMBDS->SetDataSet(inIter, polydata);
         polydata->Delete();
       }
       else
@@ -2000,7 +2000,6 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
         vtkDebugMacro(<<"This filter only processes unstructured grids");
       }
     }
-    vtkDebugMacro(<<"Produced multipiece dataset with " << numPieces << "output pieces\n");
   }
 
   return 1;
