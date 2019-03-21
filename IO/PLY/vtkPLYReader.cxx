@@ -534,9 +534,9 @@ int vtkPLYReader::RequestData(
               }
               else
               {
-                if (not vtkMathUtilities::FuzzyCompare(
+                if (! vtkMathUtilities::FuzzyCompare(
                       currentTex[0], newTex[0], tolerance) ||
-                    not vtkMathUtilities::FuzzyCompare(
+                    ! vtkMathUtilities::FuzzyCompare(
                       currentTex[1], newTex[1], tolerance))
                 {
                   // different texture coordinate than stored at point vtkVerts[k]
@@ -555,21 +555,21 @@ int vtkPLYReader::RequestData(
                   }
                   else
                   {
-                    size_t index = 0;
+                    size_t sameTexIndex = 0;
                     if (pointIds[ti].size() > 1)
                     {
                       double first[3];
                       output->GetPoint(vtkVerts[k], first);
-                      for (;index < pointIds[ti].size(); ++index)
+                      for (;sameTexIndex < pointIds[ti].size(); ++sameTexIndex)
                       {
                         double second[3];
-                        output->GetPoint(pointIds[ti][index],second);
+                        output->GetPoint(pointIds[ti][sameTexIndex],second);
                         if (FuzzyEqual(first, second, tolerance))
                         {
                           break;
                         }
                       }
-                      if (index == pointIds[ti].size())
+                      if (sameTexIndex == pointIds[ti].size())
                       {
                         // newly seen point for this texture coordinate
                         vtkIdType dp = duplicateCellPoint(
@@ -581,7 +581,7 @@ int vtkPLYReader::RequestData(
 
                     // texture coordinate already seen before, use the vertex
                     // associated with these texture coordinates
-                    vtkIdType vi = pointIds[ti][index];
+                    vtkIdType vi = pointIds[ti][sameTexIndex];
                     setCellPoint(cell, k, vi);
                   }
                 }
