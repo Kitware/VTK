@@ -52,7 +52,7 @@ public:
   //@}
 protected:
   vtkPExtractExodusGlobalTemporalVariables();
-  ~vtkPExtractExodusGlobalTemporalVariables();
+  ~vtkPExtractExodusGlobalTemporalVariables() override;
 
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
