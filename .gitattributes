@@ -14,4 +14,6 @@ pre-commit       crlf=input
 *.txt            whitespace=tab-in-indent
 *.cmake          whitespace=tab-in-indent
 
+*.sha512         eol=lf
+
 *.md             whitespace=tab-in-indent conflict-marker-size=30
