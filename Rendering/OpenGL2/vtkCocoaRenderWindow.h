@@ -136,21 +136,20 @@ public:
 
   void SetNextWindowInfo(const char *) override
   {
-      vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
+    vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
   }
   void* GetGenericDrawable() override
   {
-      vtkWarningMacro("Method not implemented.");
-      return nullptr;
+    return nullptr;
   }
   void SetDisplayId(void*) override
   {
-      vtkWarningMacro("Method not implemented.");
+    // no-op
   }
   void *GetGenericDisplayId() override
   {
-      vtkWarningMacro("Method not implemented.");
-      return nullptr;
+    vtkWarningMacro("Method not implemented.");
+    return nullptr;
   }
 
   /**
@@ -169,7 +168,7 @@ public:
 
   void SetNextWindowId(void*) override
   {
-      vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
+    vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
   }
 
   /**
@@ -408,15 +407,15 @@ private:
   // 2) because of garbage collection (the GC scanner does not scan objects create by C++'s new)
   // Instead, use the CocoaManager dictionary to keep a collection
   // of what would otherwise be Objective-C instance variables.
-  void     *CocoaManager; // Really an NSMutableDictionary*
+  void *CocoaManager; // Really an NSMutableDictionary*
 
-  int      WindowCreated;
-  int      ViewCreated;
-  int      CursorHidden;
+  int WindowCreated;
+  int ViewCreated;
+  int CursorHidden;
 
-  int      ForceMakeCurrent;
+  int ForceMakeCurrent;
 
-  bool     WantsBestResolution;
+  bool WantsBestResolution;
 };
 
 #endif
