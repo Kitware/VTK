@@ -156,6 +156,7 @@ def disp_components(modules, module_implements):
         keys = sorted(module_implements)
         max_width = len(max(keys, key=len).split('::')[1])
         res += '    # These modules are suggested since they implement an existing module.\n'
+        res += '    # Uncomment those you need.\n'
         for key in keys:
             res += '    # {:<{width}} # implements {:s}\n'.format(key.split('::')[1], ', '.join(module_implements[key]),
                                                                   width=max_width)
