@@ -20,6 +20,7 @@ set(classes
   vtkXMLMultiGroupDataReader
   vtkXMLPDataObjectReader
   vtkXMLPDataReader
+  vtkXMLPHyperTreeGridReader
   vtkXMLPImageDataReader
   vtkXMLPPolyDataReader
   vtkXMLPRectilinearGridReader

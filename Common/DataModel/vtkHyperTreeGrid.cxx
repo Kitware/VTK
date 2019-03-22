@@ -805,7 +805,8 @@ vtkHyperTreeGrid::NewNonOrientedMooreSuperCursorLight( vtkIdType index,
 void vtkHyperTreeGrid::Initialize()
 {
   this->Superclass::Initialize();
-
+  // DataObject Initialize will not do PointData
+  this->PointData->Initialize();
   // Delete existing trees
   this->DeleteTrees();
 }
