@@ -369,7 +369,6 @@ double *vtkAssembly::GetBounds()
     vtkProp3D* prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
     if (prop3D->GetVisibility() && prop3D->GetUseBounds())
     {
-      propVisible = 1;
       prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
       const double* bounds = prop3D->GetBounds();
       prop3D->PokeMatrix(nullptr);
@@ -379,6 +378,8 @@ double *vtkAssembly::GetBounds()
       {
         continue;
       }
+      // Only set the prop as visibile if atleast one prop has a valid bounds
+      propVisible = 1;
 
       double bbox[24];
       // fill out vertices of a bounding box
