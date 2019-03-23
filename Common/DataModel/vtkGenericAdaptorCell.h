@@ -202,6 +202,7 @@ public:
    * Create an empty cell iterator. The user is responsible for deleting it.
    * \post result_exists: result!=0
    */
+  VTK_NEWINSTANCE
   virtual vtkGenericCellIterator *NewCellIterator()=0;
 
   /**
