@@ -46,6 +46,7 @@ class vtkPoints;
 class vtkTexture;
 class vtkTextureObject;
 class vtkTransform;
+class vtkOpenGLShaderProperty;
 
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
@@ -141,7 +142,7 @@ public:
   vtkGetStringMacro(CompositeIdArrayName);
   //@}
 
-
+#ifndef VTK_LEGACY_REMOVE
   //@{
   /**
    * This function enables you to apply your own substitutions
@@ -149,19 +150,21 @@ public:
    * is created by applying a bunch of string replacements to a
    * shader template. Using this function you can apply your
    * own string replacements to add features you desire.
+   *
+   * @deprecated Replaced By vtkShaderProperty::{Add,Clear,ClearAll}ShaderReplacements as of VTK 8.2.
    */
-  void AddShaderReplacement(
+  VTK_LEGACY(void AddShaderReplacement(
     vtkShader::Type shaderType, // vertex, fragment, etc
     const std::string& originalValue,
     bool replaceFirst,  // do this replacement before the default
     const std::string& replacementValue,
-    bool replaceAll);
-  void ClearShaderReplacement(
+    bool replaceAll);)
+  VTK_LEGACY(void ClearShaderReplacement(
     vtkShader::Type shaderType, // vertex, fragment, etc
     const std::string& originalValue,
-    bool replaceFirst);
-  void ClearAllShaderReplacements(vtkShader::Type shaderType);
-  void ClearAllShaderReplacements();
+    bool replaceFirst);)
+  VTK_LEGACY(void ClearAllShaderReplacements(vtkShader::Type shaderType);)
+  VTK_LEGACY(void ClearAllShaderReplacements();)
   //@}
 
   //@{
@@ -170,14 +173,17 @@ public:
    * instead of using the built in templates. Be aware, if
    * set, this template will be used for all cases,
    * primitive types, picking etc.
+   *
+   * @deprecated Replaced By vtkShaderProperty::Get*ShaderCode as of VTK 8.2.
    */
-  vtkSetStringMacro(VertexShaderCode);
-  vtkGetStringMacro(VertexShaderCode);
-  vtkSetStringMacro(FragmentShaderCode);
-  vtkGetStringMacro(FragmentShaderCode);
-  vtkSetStringMacro(GeometryShaderCode);
-  vtkGetStringMacro(GeometryShaderCode);
+  VTK_LEGACY(virtual void SetVertexShaderCode(const char* code);)
+  VTK_LEGACY(virtual char* GetVertexShaderCode();)
+  VTK_LEGACY(virtual void SetFragmentShaderCode(const char* code);)
+  VTK_LEGACY(virtual char* GetFragmentShaderCode();)
+  VTK_LEGACY(virtual void SetGeometryShaderCode(const char* code);)
+  VTK_LEGACY(virtual char* GetGeometryShaderCode();)
   //@}
+#endif
 
   /**
    * Make a shallow copy of this mapper.
@@ -319,6 +325,9 @@ protected:
   virtual void ReplaceShaderRenderPass(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act, bool prePass);
+  virtual void ReplaceShaderCustomUniforms(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkActor *act);
   virtual void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
@@ -350,6 +359,11 @@ protected:
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
   //@}
+
+  /**
+   * Set the value of user-defined uniform variables, called by UpdateShader
+   */
+  virtual void SetCustomUniforms( vtkOpenGLHelper & cellBO, vtkActor *actor);
 
   /**
    * Set the shader parameters related to the mapper/input data, called by UpdateShader
@@ -487,9 +501,6 @@ protected:
   char* ProcessIdArrayName;
   char* CompositeIdArrayName;
 
-  std::map<const vtkShader::ReplacementSpec, vtkShader::ReplacementValue>
-    UserShaderReplacements;
-
   class ExtraAttributeValue
   {
     public:
@@ -500,9 +511,12 @@ protected:
   };
   std::map<std::string,ExtraAttributeValue> ExtraAttributes;
 
-  char *VertexShaderCode;
-  char *FragmentShaderCode;
-  char *GeometryShaderCode;
+  // Store shader properties on this class by legacy shader replacement functions
+  // This should disapear when the functions are deprecated
+#ifndef VTK_LEGACY_REMOVE
+  vtkNew<vtkOpenGLShaderProperty> LegacyShaderProperty;
+#endif
+
   vtkOpenGLRenderTimer *TimerQuery;
 
   // are we currently drawing spheres/tubes
