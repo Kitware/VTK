@@ -50,7 +50,7 @@
  * @warning
  * When the input is of type vtkCompositeDataSet the filter will process the
  * unstructured grid(s) contained in the composite data set. As a result the
- * output of this filter is then a vtkMultiPieceDataSet containing multiple
+ * output of this filter is then a vtkMultiBlockDataSet containing multiple
  * vtkPolyData. When a vtkUnstructuredGrid is provided as input the
  * output is a single vtkPolyData.
  *
@@ -66,7 +66,7 @@
  * @warning
  * When a vtkCompositeDataSet is provided as input, and UseScalarTree is
  * enabled and a ScalarTree specified, then the specified scalar tree is
- * cloned to create new ones for each piece of the composite
+ * cloned to create new ones for each dataset in the composite
  * dataset. Otherwise (i.e., when vtkUnstructuredGrid input) the specified
  * scalar tree is directly used (no cloning required).
  *
