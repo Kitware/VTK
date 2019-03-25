@@ -228,119 +228,119 @@ int vtkPLYReader::RequestData(
     output->GetCellData()->SetActiveScalars("intensity");
   }
 
-  bool RGBCellsAvailable = false;
-  bool RGBCellsHaveAlpha = false;
-  vtkSmartPointer<vtkUnsignedCharArray> RGBCells = nullptr;
+  bool rgbCellsAvailable = false;
+  bool rgbCellsHaveAlpha = false;
+  vtkSmartPointer<vtkUnsignedCharArray> rgbCells = nullptr;
   if ( (elem = vtkPLY::find_element (ply, "face")) != nullptr &&
        vtkPLY::find_property (elem, "red", &index) != nullptr &&
        vtkPLY::find_property (elem, "green", &index) != nullptr &&
        vtkPLY::find_property (elem, "blue", &index) != nullptr )
   {
-    RGBCellsAvailable = true;
-    RGBCells = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    rgbCellsAvailable = true;
+    rgbCells = vtkSmartPointer<vtkUnsignedCharArray>::New();
     if (vtkPLY::find_property(elem, "alpha", &index) != nullptr)
     {
-      RGBCells->SetName("RGBA");
-      RGBCells->SetNumberOfComponents(4);
-      RGBCellsHaveAlpha = true;
+      rgbCells->SetName("RGBA");
+      rgbCells->SetNumberOfComponents(4);
+      rgbCellsHaveAlpha = true;
     }
     else
     {
-      RGBCells->SetName("RGB");
-      RGBCells->SetNumberOfComponents(3);
+      rgbCells->SetName("RGB");
+      rgbCells->SetNumberOfComponents(3);
     }
-    output->GetCellData()->AddArray(RGBCells);
+    output->GetCellData()->AddArray(rgbCells);
     output->GetCellData()->SetActiveScalars("RGB");
   }
 
-  bool RGBPointsAvailable = false;
-  bool RGBPointsHaveAlpha = false;
-  vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = nullptr;
+  bool rgbPointsAvailable = false;
+  bool rgbPointsHaveAlpha = false;
+  vtkSmartPointer<vtkUnsignedCharArray> rgbPoints = nullptr;
   if ((elem = vtkPLY::find_element(ply, "vertex")) != nullptr)
   {
     if (vtkPLY::find_property(elem, "red", &index) != nullptr &&
         vtkPLY::find_property(elem, "green", &index) != nullptr &&
         vtkPLY::find_property(elem, "blue", &index) != nullptr)
     {
-      RGBPointsAvailable = true;
+      rgbPointsAvailable = true;
     }
     else if (vtkPLY::find_property(elem, "diffuse_red", &index) != nullptr &&
              vtkPLY::find_property(elem, "diffuse_green", &index) != nullptr &&
              vtkPLY::find_property(elem, "diffuse_blue", &index) != nullptr)
     {
-      RGBPointsAvailable = true;
+      rgbPointsAvailable = true;
       vertProps[8].name = "diffuse_red";
       vertProps[9].name = "diffuse_green";
       vertProps[10].name = "diffuse_blue";
     }
-    if (RGBPointsAvailable)
+    if (rgbPointsAvailable)
     {
-      RGBPoints = vtkSmartPointer<vtkUnsignedCharArray>::New();
+      rgbPoints = vtkSmartPointer<vtkUnsignedCharArray>::New();
       if (vtkPLY::find_property(elem, "alpha", &index) != nullptr)
       {
-        RGBPoints->SetName("RGBA");
-        RGBPoints->SetNumberOfComponents(4);
-        RGBPointsHaveAlpha = true;
+        rgbPoints->SetName("RGBA");
+        rgbPoints->SetNumberOfComponents(4);
+        rgbPointsHaveAlpha = true;
       }
       else
       {
-        RGBPoints->SetName("RGB");
-        RGBPoints->SetNumberOfComponents(3);
+        rgbPoints->SetName("RGB");
+        rgbPoints->SetNumberOfComponents(3);
       }
-      output->GetPointData()->SetScalars(RGBPoints);
+      output->GetPointData()->SetScalars(rgbPoints);
     }
   }
 
-  bool NormalPointsAvailable=false;
-  vtkSmartPointer<vtkFloatArray> Normals = nullptr;
+  bool normalPointsAvailable=false;
+  vtkSmartPointer<vtkFloatArray> normals = nullptr;
   if ( (elem = vtkPLY::find_element (ply, "vertex")) != nullptr &&
        vtkPLY::find_property (elem, "nx", &index) != nullptr &&
        vtkPLY::find_property (elem, "ny", &index) != nullptr &&
        vtkPLY::find_property (elem, "nz", &index) != nullptr )
   {
-    Normals = vtkSmartPointer<vtkFloatArray>::New();
-    NormalPointsAvailable = true;
-    Normals->SetName("Normals");
-    Normals->SetNumberOfComponents(3);
-    output->GetPointData()->SetNormals(Normals);
+    normals = vtkSmartPointer<vtkFloatArray>::New();
+    normalPointsAvailable = true;
+    normals->SetName("Normals");
+    normals->SetNumberOfComponents(3);
+    output->GetPointData()->SetNormals(normals);
   }
 
-  bool TexCoordsPointsAvailable = false;
-  vtkSmartPointer<vtkFloatArray> TexCoordsPoints = nullptr;
+  bool texCoordsPointsAvailable = false;
+  vtkSmartPointer<vtkFloatArray> texCoordsPoints = nullptr;
   if ( (elem = vtkPLY::find_element(ply, "vertex")) != nullptr )
   {
     if ( vtkPLY::find_property(elem, "u", &index) != nullptr &&
          vtkPLY::find_property(elem, "v", &index) != nullptr )
     {
-      TexCoordsPointsAvailable = true;
+      texCoordsPointsAvailable = true;
     }
     else if ( vtkPLY::find_property(elem, "texture_u", &index) != nullptr &&
               vtkPLY::find_property(elem, "texture_v", &index) != nullptr )
     {
-      TexCoordsPointsAvailable = true;
+      texCoordsPointsAvailable = true;
       vertProps[3].name = "texture_u";
       vertProps[4].name = "texture_v";
     }
 
-    if ( TexCoordsPointsAvailable )
+    if ( texCoordsPointsAvailable )
     {
-      TexCoordsPoints = vtkSmartPointer<vtkFloatArray>::New();
-      TexCoordsPoints->SetName("TCoords");
-      TexCoordsPoints->SetNumberOfComponents(2);
-      output->GetPointData()->SetTCoords(TexCoordsPoints);
+      texCoordsPoints = vtkSmartPointer<vtkFloatArray>::New();
+      texCoordsPoints->SetName("TCoords");
+      texCoordsPoints->SetNumberOfComponents(2);
+      output->GetPointData()->SetTCoords(texCoordsPoints);
     }
   }
 
-  bool TexCoordsFaceAvailable = false;
-  if ((elem = vtkPLY::find_element(ply, "face")) != nullptr && !TexCoordsPointsAvailable)
+  bool texCoordsFaceAvailable = false;
+  if ((elem = vtkPLY::find_element(ply, "face")) != nullptr && !texCoordsPointsAvailable)
   {
     if (vtkPLY::find_property(elem, "texcoord", &index) != nullptr)
     {
-      TexCoordsFaceAvailable = true;
-      TexCoordsPoints = vtkSmartPointer<vtkFloatArray>::New();
-      TexCoordsPoints->SetName("TCoords");
-      TexCoordsPoints->SetNumberOfComponents(2);
-      output->GetPointData()->SetTCoords(TexCoordsPoints);
+      texCoordsFaceAvailable = true;
+      texCoordsPoints = vtkSmartPointer<vtkFloatArray>::New();
+      texCoordsPoints->SetName("TCoords");
+      texCoordsPoints->SetNumberOfComponents(2);
+      output->GetPointData()->SetTCoords(texCoordsPoints);
     }
   }
   // Okay, now we can grab the data
@@ -365,31 +365,31 @@ int vtkPLYReader::RequestData(
       vtkPLY::ply_get_property (ply, elemName, &vertProps[1]);
       vtkPLY::ply_get_property (ply, elemName, &vertProps[2]);
 
-      if ( TexCoordsPointsAvailable )
+      if ( texCoordsPointsAvailable )
       {
         vtkPLY::ply_get_property (ply, elemName, &vertProps[3]);
         vtkPLY::ply_get_property (ply, elemName, &vertProps[4]);
-        TexCoordsPoints->SetNumberOfTuples(numPts);
+        texCoordsPoints->SetNumberOfTuples(numPts);
       }
 
-      if ( NormalPointsAvailable )
+      if ( normalPointsAvailable )
       {
         vtkPLY::ply_get_property (ply, elemName, &vertProps[5]);
         vtkPLY::ply_get_property (ply, elemName, &vertProps[6]);
         vtkPLY::ply_get_property (ply, elemName, &vertProps[7]);
-        Normals->SetNumberOfTuples(numPts);
+        normals->SetNumberOfTuples(numPts);
       }
 
-      if ( RGBPointsAvailable )
+      if ( rgbPointsAvailable )
       {
         vtkPLY::ply_get_property (ply, elemName, &vertProps[8]);
         vtkPLY::ply_get_property (ply, elemName, &vertProps[9]);
         vtkPLY::ply_get_property (ply, elemName, &vertProps[10]);
-        if (RGBPointsHaveAlpha)
+        if (rgbPointsHaveAlpha)
         {
           vtkPLY::ply_get_property(ply, elemName, &vertProps[11]);
         }
-        RGBPoints->SetNumberOfTuples(numPts);
+        rgbPoints->SetNumberOfTuples(numPts);
       }
 
       plyVertex vertex;
@@ -397,23 +397,23 @@ int vtkPLYReader::RequestData(
       {
         vtkPLY::ply_get_element (ply, (void *) &vertex);
         pts->SetPoint (j, vertex.x);
-        if ( TexCoordsPointsAvailable )
+        if ( texCoordsPointsAvailable )
         {
-          TexCoordsPoints->SetTuple2(j, vertex.tex[0], vertex.tex[1]);
+          texCoordsPoints->SetTuple2(j, vertex.tex[0], vertex.tex[1]);
         }
-        if ( NormalPointsAvailable )
+        if ( normalPointsAvailable )
         {
-          Normals->SetTuple3(j, vertex.normal[0], vertex.normal[1], vertex.normal[2]);
+          normals->SetTuple3(j, vertex.normal[0], vertex.normal[1], vertex.normal[2]);
         }
-        if ( RGBPointsAvailable )
+        if ( rgbPointsAvailable )
         {
-          if (RGBPointsHaveAlpha)
+          if (rgbPointsHaveAlpha)
           {
-            RGBPoints->SetTuple4(j, vertex.red, vertex.green, vertex.blue, vertex.alpha);
+            rgbPoints->SetTuple4(j, vertex.red, vertex.green, vertex.blue, vertex.alpha);
           }
           else
           {
-            RGBPoints->SetTuple3(j, vertex.red, vertex.green, vertex.blue);
+            rgbPoints->SetTuple3(j, vertex.red, vertex.green, vertex.blue);
           }
         }
       }
@@ -451,26 +451,26 @@ int vtkPLYReader::RequestData(
         intensity->SetNumberOfComponents(1);
         intensity->SetNumberOfTuples(numPolys);
       }
-      if ( RGBCellsAvailable )
+      if ( rgbCellsAvailable )
       {
         vtkPLY::ply_get_property (ply, elemName, &faceProps[2]);
         vtkPLY::ply_get_property (ply, elemName, &faceProps[3]);
         vtkPLY::ply_get_property (ply, elemName, &faceProps[4]);
 
-        if (RGBCellsHaveAlpha)
+        if (rgbCellsHaveAlpha)
         {
           vtkPLY::ply_get_property(ply, elemName, &faceProps[5]);
         }
-        RGBCells->SetNumberOfTuples(numPolys);
+        rgbCells->SetNumberOfTuples(numPolys);
       }
-      if (TexCoordsFaceAvailable)
+      if (texCoordsFaceAvailable)
       {
         vtkPLY::ply_get_property(ply, elemName, &faceProps[6]);
-        TexCoordsPoints->SetNumberOfTuples(numPts);
+        texCoordsPoints->SetNumberOfTuples(numPts);
         // initialize texture coordinates with invalid value
         for (int j = 0; j < numPts; ++j)
         {
-          TexCoordsPoints->SetTuple2(j, -1, -1);
+          texCoordsPoints->SetTuple2(j, -1, -1);
         }
       }
 
@@ -491,23 +491,23 @@ int vtkPLYReader::RequestData(
         {
           intensity->SetValue(j,face.intensity);
         }
-        if ( RGBCellsAvailable )
+        if ( rgbCellsAvailable )
         {
-          if (RGBCellsHaveAlpha)
+          if (rgbCellsHaveAlpha)
           {
-            RGBCells->SetValue(4 * j, face.red);
-            RGBCells->SetValue(4 * j + 1, face.green);
-            RGBCells->SetValue(4 * j + 2, face.blue);
-            RGBCells->SetValue(4 * j + 3, face.alpha);
+            rgbCells->SetValue(4 * j, face.red);
+            rgbCells->SetValue(4 * j + 1, face.green);
+            rgbCells->SetValue(4 * j + 2, face.blue);
+            rgbCells->SetValue(4 * j + 3, face.alpha);
           }
           else
           {
-            RGBCells->SetValue(3 * j, face.red);
-            RGBCells->SetValue(3 * j + 1, face.green);
-            RGBCells->SetValue(3 * j + 2, face.blue);
+            rgbCells->SetValue(3 * j, face.red);
+            rgbCells->SetValue(3 * j + 1, face.green);
+            rgbCells->SetValue(3 * j + 2, face.blue);
           }
         }
-        if (TexCoordsFaceAvailable)
+        if (texCoordsFaceAvailable)
         {
           //Test to know if there is a texcoord for every vertex
           if (face.nverts == (face.ntexcoord / 2))
@@ -516,7 +516,7 @@ int vtkPLYReader::RequestData(
             {
               // texture stored at vtkVerts[k] point
               float currentTex[2];
-              TexCoordsPoints->GetTypedTuple(vtkVerts[k], currentTex);
+              texCoordsPoints->GetTypedTuple(vtkVerts[k], currentTex);
               // new texture stored at the current face
               float newTex[] = {face.texcoord[k * 2],
                               face.texcoord[k * 2 + 1]};
@@ -524,7 +524,7 @@ int vtkPLYReader::RequestData(
               if (currentTex[0] == -1.0)
               {
                 // newly seen texture coordinates for vertex
-                TexCoordsPoints->SetTuple2(vtkVerts[k], newTex[0], newTex[1]);
+                texCoordsPoints->SetTuple2(vtkVerts[k], newTex[0], newTex[1]);
                  vtkIdType ti;
                 texLocator->InsertUniquePoint(newTex3, ti);
                 pointIds.resize(
@@ -548,7 +548,7 @@ int vtkPLYReader::RequestData(
                     // some texture coordinates.
                     vtkIdType dp = duplicateCellPoint(
                       output, cell, k);
-                    TexCoordsPoints->SetTuple2(dp, newTex[0], newTex[1]);
+                    texCoordsPoints->SetTuple2(dp, newTex[0], newTex[1]);
                     pointIds.resize(
                       std::max(ti+1, static_cast<vtkIdType>(pointIds.size())));
                     pointIds[ti].push_back(dp);
@@ -574,7 +574,7 @@ int vtkPLYReader::RequestData(
                         // newly seen point for this texture coordinate
                         vtkIdType dp = duplicateCellPoint(
                           output, cell, k);
-                        TexCoordsPoints->SetTuple2(dp, newTex[0], newTex[1]);
+                        texCoordsPoints->SetTuple2(dp, newTex[0], newTex[1]);
                         pointIds[ti].push_back(dp);
                       }
                     }
