@@ -5,7 +5,7 @@ vtk_module_test_data(
   Data/squareTextured.ply
   Data/squareTexturedFaces.ply
   Data/vtk.png
-  Data/2vtk.png)
+  Data/two_vtk_logos_stacked.png)
 
 add_subdirectory(Cxx)
 
