@@ -44,7 +44,7 @@ BUILD SOLUTION
 ===============
 Use CMake to create a solution that visual studio can open.
 
-### Prpare folder structure
+### Prepare folder structure
 
 1. Create a folder for VTK.
 2. In this folder, create two subfolders; "src" and "build"
@@ -98,7 +98,7 @@ To be able to use VTK in other project it first needs to be installed.
 
 1. Start CMake-gui (again)
 2. As source-code dir enter the src folder (again).
-3. Hit [configure]
+3. Hit [Configure]
 4. Set the "CMKAE_INSTALL_PREFIX" directory.
 
 ![alt text](./Documentation/dev/images/cmake4.png)
