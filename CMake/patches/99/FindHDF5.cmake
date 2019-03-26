@@ -966,7 +966,7 @@ if (HDF5_FOUND)
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
         IMPORTED_LOCATION "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_INCLUDE_DIRS}"
-        INTERFACE_COMPILE_DEFINTIONS "${HDF5_${hdf5_lang}_DEFINITIONS}")
+        INTERFACE_COMPILE_DEFINITIONS "${HDF5_${hdf5_lang}_DEFINITIONS}")
       unset(_hdf5_location)
     endif ()
 
@@ -1001,7 +1001,7 @@ if (HDF5_FOUND)
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
         IMPORTED_LOCATION "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_HL_INCLUDE_DIRS}"
-        INTERFACE_COMPILE_DEFINTIONS "${HDF5_${hdf5_lang}_HL_DEFINITIONS}")
+        INTERFACE_COMPILE_DEFINITIONS "${HDF5_${hdf5_lang}_HL_DEFINITIONS}")
       unset(_hdf5_location)
     endif ()
   endforeach ()
