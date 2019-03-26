@@ -939,6 +939,11 @@ if (HDF5_FOUND)
     INTERFACE_COMPILE_DEFINITIONS "${HDF5_DEFINITIONS}")
 
   include(vtkDetectLibraryType)
+  if (WIN32)
+    set(_hdf5_location_property "IMPORTED_IMPLIB")
+  else ()
+    set(_hdf5_location_property "IMPORTED_LOCATION")
+  endif ()
   foreach (hdf5_lang IN LISTS HDF5_LANGUAGE_BINDINGS)
     if (hdf5_lang STREQUAL "C")
       set(hdf5_target_name "hdf5")
@@ -966,7 +971,7 @@ if (HDF5_FOUND)
       vtk_detect_library_type(_hdf5_libtype PATH "${_hdf5_location}")
       add_library("hdf5::${hdf5_target_name}" "${_hdf5_libtype}" IMPORTED)
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
-        IMPORTED_LOCATION "${_hdf5_location}"
+        "${_hdf5_location_property}" "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_INCLUDE_DIRS}"
         INTERFACE_COMPILE_DEFINITIONS "${HDF5_${hdf5_lang}_DEFINITIONS}")
       if (_hdf5_libtype STREQUAL "SHARED")
@@ -1012,7 +1017,7 @@ if (HDF5_FOUND)
       vtk_detect_library_type(_hdf5_libtype PATH "${_hdf5_location}")
       add_library("hdf5::${hdf5_target_name}" "${_hdf5_libtype}" IMPORTED)
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
-        IMPORTED_LOCATION "${_hdf5_location}"
+        "${_hdf5_location_property}" "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_HL_INCLUDE_DIRS}"
         INTERFACE_COMPILE_DEFINITIONS "${HDF5_${hdf5_lang}_HL_DEFINITIONS}")
       if (_hdf5_libtype STREQUAL "SHARED")
@@ -1029,6 +1034,7 @@ if (HDF5_FOUND)
     endif ()
   endforeach ()
   unset(hdf5_lang)
+  unset(_hdf5_location_property)
 
   if (HDF5_DIFF_EXECUTABLE)
     add_executable(hdf5::h5diff IMPORTED)
