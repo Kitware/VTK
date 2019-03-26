@@ -938,6 +938,7 @@ if (HDF5_FOUND)
     INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
     INTERFACE_COMPILE_DEFINITIONS "${HDF5_DEFINITIONS}")
 
+  include(vtkDetectLibraryType)
   foreach (hdf5_lang IN LISTS HDF5_LANGUAGE_BINDINGS)
     if (hdf5_lang STREQUAL "C")
       set(hdf5_target_name "hdf5")
@@ -950,7 +951,6 @@ if (HDF5_FOUND)
     endif ()
 
     if (NOT TARGET "hdf5::${hdf5_target_name}")
-      add_library("hdf5::${hdf5_target_name}" UNKNOWN IMPORTED)
       if (DEFINED "HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}")
         set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}}")
       elseif (DEFINED "HDF5_${hdf5_lang}_LIBRARY")
@@ -963,10 +963,22 @@ if (HDF5_FOUND)
           "HDF5 was found, but a different variable was set which contains "
           "its location.")
       endif ()
+      vtk_detect_library_type(_hdf5_libtype PATH "${_hdf5_location}")
+      add_library("hdf5::${hdf5_target_name}" "${_hdf5_libtype}" IMPORTED)
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
         IMPORTED_LOCATION "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_INCLUDE_DIRS}"
         INTERFACE_COMPILE_DEFINITIONS "${HDF5_${hdf5_lang}_DEFINITIONS}")
+      if (_hdf5_libtype STREQUAL "SHARED")
+        set_property(TARGET "hdf5::${hdf5_target_name}" APPEND
+          PROPERTY
+            INTERFACE_COMPILE_DEFINITIONS H5_BUILT_AS_DYNAMIC_LIB)
+      elseif (_hdf5_libtype STREQUAL "STATIC")
+        set_property(TARGET "hdf5::${hdf5_target_name}" APPEND
+          PROPERTY
+            INTERFACE_COMPILE_DEFINITIONS H5_BUILT_AS_STATIC_LIB)
+      endif ()
+      unset(_hdf5_libtype)
       unset(_hdf5_location)
     endif ()
 
@@ -985,7 +997,6 @@ if (HDF5_FOUND)
     endif ()
 
     if (NOT TARGET "hdf5::${hdf5_target_name}")
-      add_library("hdf5::${hdf5_target_name}" UNKNOWN IMPORTED)
       if (DEFINED "HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}")
         set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}}")
       elseif (DEFINED "HDF5_${hdf5_lang}_LIBRARY")
@@ -998,10 +1009,22 @@ if (HDF5_FOUND)
           "HDF5 was found, but a different variable was set which contains "
           "its location.")
       endif ()
+      vtk_detect_library_type(_hdf5_libtype PATH "${_hdf5_location}")
+      add_library("hdf5::${hdf5_target_name}" "${_hdf5_libtype}" IMPORTED)
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
         IMPORTED_LOCATION "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_HL_INCLUDE_DIRS}"
         INTERFACE_COMPILE_DEFINITIONS "${HDF5_${hdf5_lang}_HL_DEFINITIONS}")
+      if (_hdf5_libtype STREQUAL "SHARED")
+        set_property(TARGET "hdf5::${hdf5_target_name}" APPEND
+          PROPERTY
+            INTERFACE_COMPILE_DEFINITIONS H5_BUILT_AS_DYNAMIC_LIB)
+      elseif (_hdf5_libtype STREQUAL "STATIC")
+        set_property(TARGET "hdf5::${hdf5_target_name}" APPEND
+          PROPERTY
+            INTERFACE_COMPILE_DEFINITIONS H5_BUILT_AS_STATIC_LIB)
+      endif ()
+      unset(_hdf5_libtype)
       unset(_hdf5_location)
     endif ()
   endforeach ()
