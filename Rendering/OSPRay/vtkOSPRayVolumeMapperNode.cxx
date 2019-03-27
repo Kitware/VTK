@@ -48,6 +48,7 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
   this->Cache = new vtkOSPRayCache<vtkOSPRayCacheItemObject>;
   this->UseSharedBuffers = false;
   this->SharedData = nullptr;
+  this->Shade = false;
 }
 
 //----------------------------------------------------------------------------
@@ -283,9 +284,9 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         float gs = static_cast<float>(volProperty->GetSpecular(1)/16.);
         float bs = static_cast<float>(volProperty->GetSpecular(2)/16.);
         ospSet3f(this->OSPRayVolume, "specular", rs,gs,bs);
+        this->Shade = volProperty->GetShade();
+        ospSet1i(this->OSPRayVolume, "gradientShadingEnabled", this->Shade);
 
-        ospSet1i(this->OSPRayVolume, "gradientShadingEnabled",
-                 volProperty->GetShade());
         ospCommit(this->TransferFunction);
         ospCommit(this->OSPRayVolume);
       }
@@ -296,6 +297,13 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         || mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
     {
       this->UpdateTransferFunction(vol, sa->GetRange());
+      bool shade = volProperty->GetShade();
+      if (this->Shade != shade)
+      {
+        ospSet1i(this->OSPRayVolume, "gradientShadingEnabled", shade);
+        ospCommit(this->OSPRayVolume);
+        this->Shade = shade;
+      }
     }
 
     this->RenderTime = volNode->GetMTime();
