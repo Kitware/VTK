@@ -936,8 +936,14 @@ if (HDF5_FOUND)
   set_target_properties(HDF5::HDF5 PROPERTIES
     INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}"
     INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
-    INTERFACE_COMPILE_DEFINTIONS "${HDF5_DEFINITIONS}")
+    INTERFACE_COMPILE_DEFINITIONS "${HDF5_DEFINITIONS}")
 
+  include(vtkDetectLibraryType)
+  if (WIN32)
+    set(_hdf5_location_property "IMPORTED_IMPLIB")
+  else ()
+    set(_hdf5_location_property "IMPORTED_LOCATION")
+  endif ()
   foreach (hdf5_lang IN LISTS HDF5_LANGUAGE_BINDINGS)
     if (hdf5_lang STREQUAL "C")
       set(hdf5_target_name "hdf5")
@@ -950,23 +956,34 @@ if (HDF5_FOUND)
     endif ()
 
     if (NOT TARGET "hdf5::${hdf5_target_name}")
-      add_library("hdf5::${hdf5_target_name}" UNKNOWN IMPORTED)
       if (DEFINED "HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}")
         set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}}")
-      elseif (DEFINED "HDF5_${hdf5_lang}_LIBRARY")
-        set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY}")
       elseif (DEFINED "HDF5_${hdf5_target_name}_LIBRARY")
         set(_hdf5_location "${HDF5_${hdf5_target_name}_LIBRARY}")
+      elseif (DEFINED "HDF5_${hdf5_lang}_LIBRARY")
+        set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY}")
       else ()
         # Error if we still don't have the location.
         message(SEND_ERROR
           "HDF5 was found, but a different variable was set which contains "
           "its location.")
       endif ()
+      vtk_detect_library_type(_hdf5_libtype PATH "${_hdf5_location}")
+      add_library("hdf5::${hdf5_target_name}" "${_hdf5_libtype}" IMPORTED)
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
-        IMPORTED_LOCATION "${_hdf5_location}"
+        "${_hdf5_location_property}" "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_INCLUDE_DIRS}"
         INTERFACE_COMPILE_DEFINITIONS "${HDF5_${hdf5_lang}_DEFINITIONS}")
+      if (_hdf5_libtype STREQUAL "SHARED")
+        set_property(TARGET "hdf5::${hdf5_target_name}" APPEND
+          PROPERTY
+            INTERFACE_COMPILE_DEFINITIONS H5_BUILT_AS_DYNAMIC_LIB)
+      elseif (_hdf5_libtype STREQUAL "STATIC")
+        set_property(TARGET "hdf5::${hdf5_target_name}" APPEND
+          PROPERTY
+            INTERFACE_COMPILE_DEFINITIONS H5_BUILT_AS_STATIC_LIB)
+      endif ()
+      unset(_hdf5_libtype)
       unset(_hdf5_location)
     endif ()
 
@@ -985,27 +1002,39 @@ if (HDF5_FOUND)
     endif ()
 
     if (NOT TARGET "hdf5::${hdf5_target_name}")
-      add_library("hdf5::${hdf5_target_name}" UNKNOWN IMPORTED)
       if (DEFINED "HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}")
         set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY_${hdf5_target_name}}")
-      elseif (DEFINED "HDF5_${hdf5_lang}_LIBRARY")
-        set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY}")
       elseif (DEFINED "HDF5_${hdf5_target_name}_LIBRARY")
         set(_hdf5_location "${HDF5_${hdf5_target_name}_LIBRARY}")
+      elseif (DEFINED "HDF5_${hdf5_lang}_LIBRARY")
+        set(_hdf5_location "${HDF5_${hdf5_lang}_LIBRARY}")
       else ()
         # Error if we still don't have the location.
         message(SEND_ERROR
           "HDF5 was found, but a different variable was set which contains "
           "its location.")
       endif ()
+      vtk_detect_library_type(_hdf5_libtype PATH "${_hdf5_location}")
+      add_library("hdf5::${hdf5_target_name}" "${_hdf5_libtype}" IMPORTED)
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
-        IMPORTED_LOCATION "${_hdf5_location}"
+        "${_hdf5_location_property}" "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_HL_INCLUDE_DIRS}"
         INTERFACE_COMPILE_DEFINITIONS "${HDF5_${hdf5_lang}_HL_DEFINITIONS}")
+      if (_hdf5_libtype STREQUAL "SHARED")
+        set_property(TARGET "hdf5::${hdf5_target_name}" APPEND
+          PROPERTY
+            INTERFACE_COMPILE_DEFINITIONS H5_BUILT_AS_DYNAMIC_LIB)
+      elseif (_hdf5_libtype STREQUAL "STATIC")
+        set_property(TARGET "hdf5::${hdf5_target_name}" APPEND
+          PROPERTY
+            INTERFACE_COMPILE_DEFINITIONS H5_BUILT_AS_STATIC_LIB)
+      endif ()
+      unset(_hdf5_libtype)
       unset(_hdf5_location)
     endif ()
   endforeach ()
   unset(hdf5_lang)
+  unset(_hdf5_location_property)
 
   if (HDF5_DIFF_EXECUTABLE)
     add_executable(hdf5::h5diff IMPORTED)

@@ -14,11 +14,6 @@ vtk_module_third_party(
                 hdf5::hdf5_hl
     STANDARD_INCLUDE_DIRS)
 
-include(vtkDetectLibraryType)
-vtk_detect_library_shared(vtkhdf5 hdf5::hdf5)
-
-set(H5_BUILT_AS_DYNAMIC_LIB "${vtkhdf5_is_shared}")
-
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_hdf5.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_hdf5.h")
