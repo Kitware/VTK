@@ -13,6 +13,6 @@ vtk_module_add_module(VTK::Java
 vtk_module_include(VTK::Java SYSTEM
   PUBLIC
     ${JNI_INCLUDE_DIRS})
-  vtk_module_link(VTK::Java
+vtk_module_link(VTK::Java
   PUBLIC
     ${JNI_LIBRARIES})
