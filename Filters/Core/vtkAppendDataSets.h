@@ -17,12 +17,16 @@
  * @brief   Appends one or more datasets together into a single output vtkPointSet.
  *
  * vtkAppendDataSets is a filter that appends one of more datasets into a single output
- * point set. If all the inputs are vtkPolyData, then the output will be a vtkPolyData,
- * otherwise the output will be contained in a vtkUnstructuredGrid. All cells are extracted
- * and appended, but point and cell attributes (i.e., scalars, vectors, normals, field data, etc.)
- * are extracted and appended only if all datasets have the same point and/or cell attributes
- * available. (For example, if one dataset has scalars but another does not, scalars will
- * not be appended.)
+ * point set. The type of the output is set with the OutputDataSetType option. Only inputs
+ * that can be converted to the selected output dataset type are appended to the output.
+ * By default, the output is vtkUnstructuredGrid, and all input types can be appended to it.
+ * If the OutputDataSetType is set to produce vtkPolyData, then only datasets that can be
+ * converted to vtkPolyData (i.e., vtkPolyData) are appended to the output.
+ *
+ * All cells are extracted and appended, but point and cell attributes (i.e., scalars,
+ * vectors, normals, field data, etc.) are extracted and appended only if all datasets
+ * have the same point and/or cell attributes available. (For example, if one dataset
+ * has scalars but another does not, scalars will not be appended.)
  *
  * @sa
  * vtkAppendFilter vtkAppendPolyData
@@ -79,6 +83,20 @@ public:
 
   //@{
   /**
+   * Get/Set the output type produced by this filter. Only input datasets compatible with the
+   * output type will be merged in the output. For example, if the output type is vtkPolyData, then
+   * blocks of type vtkImageData, vtkStructuredGrid, etc. will not be merged - only vtkPolyData
+   * can be merged into a vtkPolyData. On the other hand, if the output type is
+   * vtkUnstructuredGrid, then blocks of almost any type will be merged in the output.
+   * Valid values are VTK_POLY_DATA and VTK_UNSTRUCTURED_GRID defined in vtkType.h.
+   * Defaults to VTK_UNSTRUCTURED_GRID.
+   */
+  vtkSetMacro(OutputDataSetType, int);
+  vtkGetMacro(OutputDataSetType, int);
+  //@}
+
+  //@{
+  /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::Precision enum for an explanation of the available
    * precision settings.
@@ -106,6 +124,9 @@ protected:
 
   // If true, tolerance is multipled by the diagonal of the bounding box of the input.
   bool ToleranceIsAbsolute;
+
+  // Output data set type.
+  int OutputDataSetType;
 
   // Precision of output points.
   int OutputPointsPrecision;
