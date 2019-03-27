@@ -15,6 +15,7 @@
 
 #include <vtkAppendDataSets.h>
 #include <vtkCellData.h>
+#include <vtkDataObjectTypes.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkDataSet.h>
 #include <vtkIdList.h>
@@ -422,6 +423,7 @@ int AppendDatasetsAndPrint(const std::vector<vtkDataSet*>& inputs, const char* e
   {
     append->AddInputData( inputs[inputIndex] );
   }
+  append->SetOutputDataSetType(vtkDataObjectTypes::GetTypeIdFromClassName(expectedDataSetType));
   append->Update();
   vtkDataSet* output = append->GetOutput();
   if (!output->IsA(expectedDataSetType))
