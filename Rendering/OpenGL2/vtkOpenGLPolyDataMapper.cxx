@@ -48,8 +48,6 @@
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
-#include "vtkOpenGLShaderProperty.h"
-#include "vtkOpenGLUniforms.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -104,6 +102,10 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->VBOs = vtkOpenGLVertexBufferObjectGroup::New();
 
   this->LastBoundBO = nullptr;
+
+  this->VertexShaderCode = nullptr;
+  this->FragmentShaderCode = nullptr;
+  this->GeometryShaderCode = nullptr;
 
   for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
   {
@@ -166,6 +168,9 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   this->VBOs->Delete();
   this->VBOs = nullptr;
 
+  this->SetVertexShaderCode(nullptr);
+  this->SetFragmentShaderCode(nullptr);
+  this->SetGeometryShaderCode(nullptr);
   delete TimerQuery;
 }
 
@@ -211,8 +216,6 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
   this->Modified();
 }
 
-#ifndef VTK_LEGACY_REMOVE
-
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::AddShaderReplacement(
     vtkShader::Type shaderType, // vertex, fragment, etc
@@ -221,8 +224,16 @@ void vtkOpenGLPolyDataMapper::AddShaderReplacement(
     const std::string& replacementValue,
     bool replaceAll)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::AddShaderReplacement, "VTK 8.2", vtkOpenGLShaderProperty::AddShaderReplacement);
-  this->LegacyShaderProperty->AddShaderReplacement(shaderType,originalValue,replaceFirst,replacementValue,replaceAll);
+  vtkShader::ReplacementSpec spec;
+  spec.ShaderType = shaderType;
+  spec.OriginalValue = originalValue;
+  spec.ReplaceFirst = replaceFirst;
+
+  vtkShader::ReplacementValue values;
+  values.Replacement = replacementValue;
+  values.ReplaceAll = replaceAll;
+
+  this->UserShaderReplacements[spec] = values;
   this->Modified();
 }
 
@@ -232,66 +243,66 @@ void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
     const std::string& originalValue,
     bool replaceFirst)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::ClearShaderReplacement, "VTK 8.2", vtkOpenGLShaderProperty::ClearShaderReplacement);
-  this->LegacyShaderProperty->ClearShaderReplacement(shaderType, originalValue, replaceFirst);
-  this->Modified();
+  vtkShader::ReplacementSpec spec;
+  spec.ShaderType = shaderType;
+  spec.OriginalValue = originalValue;
+  spec.ReplaceFirst = replaceFirst;
+
+  typedef std::map<const vtkShader::ReplacementSpec,
+    vtkShader::ReplacementValue>::iterator RIter;
+  RIter found = this->UserShaderReplacements.find(spec);
+  if (found != this->UserShaderReplacements.end())
+  {
+    this->UserShaderReplacements.erase(found);
+    this->Modified();
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements(
   vtkShader::Type shaderType)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::ClearAllShaderReplacements, "VTK 8.2", vtkOpenGLShaderProperty::ClearAllShaderReplacements);
-  this->LegacyShaderProperty->ClearAllShaderReplacements(shaderType);
-  this->Modified();
+  // First clear all shader code
+  if ((shaderType == vtkShader::Vertex) && this->VertexShaderCode)
+  {
+    this->SetVertexShaderCode(nullptr);
+  }
+  else if ((shaderType == vtkShader::Fragment) && this->FragmentShaderCode)
+  {
+    this->SetFragmentShaderCode(nullptr);
+  }
+  else if ((shaderType == vtkShader::Geometry) && this->GeometryShaderCode)
+  {
+    this->SetGeometryShaderCode(nullptr);
+  }
+
+  // Now clear custom tag replacements
+  std::map<const vtkShader::ReplacementSpec,
+           vtkShader::ReplacementValue>::iterator rIter;
+  for (rIter = this->UserShaderReplacements.begin();
+       rIter != this->UserShaderReplacements.end();)
+  {
+    if (rIter->first.ShaderType == shaderType)
+    {
+      this->UserShaderReplacements.erase(rIter++);
+      this->Modified();
+    }
+    else
+    {
+      ++rIter;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements()
 {
-  this->LegacyShaderProperty->ClearAllShaderReplacements();
+  this->SetVertexShaderCode(nullptr);
+  this->SetFragmentShaderCode(nullptr);
+  this->SetGeometryShaderCode(nullptr);
+  this->UserShaderReplacements.clear();
   this->Modified();
 }
-
-  void vtkOpenGLPolyDataMapper::SetVertexShaderCode(const char* code)
-  {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::SetVertexShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::SetVertexShaderCode);
-    this->LegacyShaderProperty->SetVertexShaderCode(code);
-    this->Modified();
-  }
-
-  char* vtkOpenGLPolyDataMapper::GetVertexShaderCode()
-  {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::GetVertexShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::GetVertexShaderCode);
-    return this->LegacyShaderProperty->GetVertexShaderCode();
-  }
-
-  void vtkOpenGLPolyDataMapper::SetFragmentShaderCode(const char* code)
-  {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::SetFragmentShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::SetFragmentShaderCode);
-    this->LegacyShaderProperty->SetFragmentShaderCode(code);
-    this->Modified();
-  }
-
-  char* vtkOpenGLPolyDataMapper::GetFragmentShaderCode()
-  {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::GetFragmentShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::GetFragmentShaderCode);
-    return this->LegacyShaderProperty->GetFragmentShaderCode();
-  }
-
-  void vtkOpenGLPolyDataMapper::SetGeometryShaderCode(const char* code)
-  {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::SetGeometryShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::SetGeometryShaderCode);
-    this->LegacyShaderProperty->SetGeometryShaderCode(code);
-    this->Modified();
-  }
-
-  char* vtkOpenGLPolyDataMapper::GetGeometryShaderCode()
-  {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::GetGeometryShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::GetGeometryShaderCode);
-    return this->LegacyShaderProperty->GetGeometryShaderCode();
-  }
-#endif
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::BuildShaders(
@@ -300,69 +311,40 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
 {
   this->GetShaderTemplate(shaders, ren, actor);
 
-  // user specified pre replacements
-  vtkOpenGLShaderProperty * sp = vtkOpenGLShaderProperty::SafeDownCast( actor->GetShaderProperty() );
-  vtkOpenGLShaderProperty::ReplacementMap repMap = sp->GetAllShaderReplacements();
-  for ( auto i : repMap )
-  {
-      if (i.first.ReplaceFirst)
-      {
-        std::string ssrc = shaders[i.first.ShaderType]->GetSource();
-        vtkShaderProgram::Substitute(ssrc,
-          i.first.OriginalValue,
-          i.second.Replacement,
-          i.second.ReplaceAll);
-        shaders[i.first.ShaderType]->SetSource(ssrc);
-      }
-  }
+  typedef std::map<const vtkShader::ReplacementSpec,
+    vtkShader::ReplacementValue>::const_iterator RIter;
 
-#ifndef VTK_LEGACY_REMOVE
-  vtkOpenGLShaderProperty::ReplacementMap repMapl = this->LegacyShaderProperty->GetAllShaderReplacements();
-  for ( auto i : repMapl )
+  // user specified pre replacements
+  for (RIter i = this->UserShaderReplacements.begin();
+    i != this->UserShaderReplacements.end(); ++i)
   {
-      if (i.first.ReplaceFirst)
-      {
-        std::string ssrc = shaders[i.first.ShaderType]->GetSource();
-        vtkShaderProgram::Substitute(ssrc,
-          i.first.OriginalValue,
-          i.second.Replacement,
-          i.second.ReplaceAll);
-        shaders[i.first.ShaderType]->SetSource(ssrc);
-      }
+    if (i->first.ReplaceFirst)
+    {
+      std::string ssrc = shaders[i->first.ShaderType]->GetSource();
+      vtkShaderProgram::Substitute(ssrc,
+        i->first.OriginalValue,
+        i->second.Replacement,
+        i->second.ReplaceAll);
+      shaders[i->first.ShaderType]->SetSource(ssrc);
+    }
   }
-#endif
 
   this->ReplaceShaderValues(shaders, ren, actor);
 
   // user specified post replacements
-  for ( auto i : repMap )
+  for (RIter i = this->UserShaderReplacements.begin();
+    i != this->UserShaderReplacements.end(); ++i)
   {
-    if (!i.first.ReplaceFirst)
+    if (!i->first.ReplaceFirst)
     {
-      std::string ssrc = shaders[i.first.ShaderType]->GetSource();
+      std::string ssrc = shaders[i->first.ShaderType]->GetSource();
       vtkShaderProgram::Substitute(ssrc,
-        i.first.OriginalValue,
-        i.second.Replacement,
-        i.second.ReplaceAll);
-      shaders[i.first.ShaderType]->SetSource(ssrc);
+        i->first.OriginalValue,
+        i->second.Replacement,
+        i->second.ReplaceAll);
+      shaders[i->first.ShaderType]->SetSource(ssrc);
     }
   }
-
-#ifndef VTK_LEGACY_REMOVE
-  for ( auto i : repMapl )
-  {
-    if (!i.first.ReplaceFirst)
-    {
-      std::string ssrc = shaders[i.first.ShaderType]->GetSource();
-      vtkShaderProgram::Substitute(ssrc,
-        i.first.OriginalValue,
-        i.second.Replacement,
-        i.second.ReplaceAll);
-      shaders[i.first.ShaderType]->SetSource(ssrc);
-    }
-  }
-#endif
-
 }
 
 //-----------------------------------------------------------------------------
@@ -525,47 +507,28 @@ void vtkOpenGLPolyDataMapper::GetShaderTemplate(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *actor)
 {
-  vtkShaderProperty * sp = actor->GetShaderProperty();
-  if( sp->HasVertexShaderCode() )
+  if (this->VertexShaderCode && strcmp(this->VertexShaderCode,"") != 0)
   {
-    shaders[vtkShader::Vertex]->SetSource(sp->GetVertexShaderCode());
+    shaders[vtkShader::Vertex]->SetSource(this->VertexShaderCode);
   }
-#ifndef VTK_LEGACY_REMOVE
-  else if( this->LegacyShaderProperty->HasVertexShaderCode() )
-  {
-    shaders[vtkShader::Vertex]->SetSource(this->LegacyShaderProperty->GetVertexShaderCode());
-  }
-#endif
   else
   {
     shaders[vtkShader::Vertex]->SetSource(vtkPolyDataVS);
   }
 
-  if( sp->HasFragmentShaderCode() )
+  if (this->FragmentShaderCode && strcmp(this->FragmentShaderCode,"") != 0)
   {
-    shaders[vtkShader::Fragment]->SetSource(sp->GetFragmentShaderCode());
+    shaders[vtkShader::Fragment]->SetSource(this->FragmentShaderCode);
   }
-#ifndef VTK_LEGACY_REMOVE
-  else if( this->LegacyShaderProperty->HasFragmentShaderCode() )
-  {
-    shaders[vtkShader::Fragment]->SetSource(this->LegacyShaderProperty->GetFragmentShaderCode());
-  }
-#endif
   else
   {
     shaders[vtkShader::Fragment]->SetSource(vtkPolyDataFS);
   }
 
-  if( sp->HasGeometryShaderCode() )
+  if (this->GeometryShaderCode && strcmp(this->GeometryShaderCode,"") != 0)
   {
-    shaders[vtkShader::Geometry]->SetSource(sp->GetGeometryShaderCode());
+    shaders[vtkShader::Geometry]->SetSource(this->GeometryShaderCode);
   }
-#ifndef VTK_LEGACY_REMOVE
-  else if( this->LegacyShaderProperty->HasGeometryShaderCode() )
-  {
-    shaders[vtkShader::Geometry]->SetSource(this->LegacyShaderProperty->GetGeometryShaderCode());
-  }
-#endif
   else
   {
     if (this->HaveWideLines(ren, actor))
@@ -620,32 +583,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderRenderPass(
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Geometry]->SetSource(GSSource);
   shaders[vtkShader::Fragment]->SetSource(FSSource);
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::ReplaceShaderCustomUniforms(
-  std::map<vtkShader::Type, vtkShader *> shaders,
-  vtkActor *actor)
-{
-  vtkShaderProperty * sp = actor->GetShaderProperty();
-
-  vtkShader* vertexShader = shaders[vtkShader::Vertex];
-  vtkOpenGLUniforms * vu = static_cast<vtkOpenGLUniforms*>(sp->GetVertexCustomUniforms());
-  vtkShaderProgram::Substitute(vertexShader,
-    "//VTK::CustomUniforms::Dec",
-    vu->GetDeclarations());
-
-  vtkShader* fragmentShader = shaders[vtkShader::Fragment];
-  vtkOpenGLUniforms * fu = static_cast<vtkOpenGLUniforms*>(sp->GetFragmentCustomUniforms());
-  vtkShaderProgram::Substitute(fragmentShader,
-    "//VTK::CustomUniforms::Dec",
-    fu->GetDeclarations());
-
-  vtkShader* geometryShader = shaders[vtkShader::Geometry];
-  vtkOpenGLUniforms * gu = static_cast<vtkOpenGLUniforms*>(sp->GetGeometryCustomUniforms());
-  vtkShaderProgram::Substitute(geometryShader,
-    "//VTK::CustomUniforms::Dec",
-    gu->GetDeclarations());
 }
 
 //------------------------------------------------------------------------------
@@ -1696,7 +1633,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   vtkRenderer *ren, vtkActor *actor)
 {
   this->ReplaceShaderRenderPass(shaders, ren, actor, true);
-  this->ReplaceShaderCustomUniforms(shaders,actor);
   this->ReplaceShaderColor(shaders, ren, actor);
   this->ReplaceShaderNormal(shaders, ren, actor);
   this->ReplaceShaderLight(shaders, ren, actor);
@@ -1894,7 +1830,6 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
 
   if (cellBO.Program)
   {
-    this->SetCustomUniforms( cellBO, actor);
     this->SetMapperShaderParameters(cellBO, ren, actor);
     this->SetPropertyShaderParameters(cellBO, ren, actor);
     this->SetCameraShaderParameters(cellBO, ren, actor);
@@ -1905,17 +1840,6 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
   }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
-}
-
-void vtkOpenGLPolyDataMapper::SetCustomUniforms( vtkOpenGLHelper & cellBO, vtkActor *actor)
-{
-  vtkShaderProperty * sp = actor->GetShaderProperty();
-  auto vu = static_cast<vtkOpenGLUniforms*>(sp->GetVertexCustomUniforms());
-  vu->SetUniforms( cellBO.Program );
-  auto fu = static_cast<vtkOpenGLUniforms*>(sp->GetFragmentCustomUniforms());
-  fu->SetUniforms( cellBO.Program );
-  auto gu = static_cast<vtkOpenGLUniforms*>(sp->GetGeometryCustomUniforms());
-  gu->SetUniforms( cellBO.Program );
 }
 
 void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
@@ -3166,11 +3090,9 @@ void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
     this->SetCompositeIdArrayName(m->GetCompositeIdArrayName());
     this->SetProcessIdArrayName(m->GetProcessIdArrayName());
     this->SetCellIdArrayName(m->GetCellIdArrayName());
-#ifndef VTK_LEGACY_REMOVE
     this->SetVertexShaderCode(m->GetVertexShaderCode());
     this->SetGeometryShaderCode(m->GetGeometryShaderCode());
     this->SetFragmentShaderCode(m->GetFragmentShaderCode());
-#endif
   }
 
   // Now do superclass

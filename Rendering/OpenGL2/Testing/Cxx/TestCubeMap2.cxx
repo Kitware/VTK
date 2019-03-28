@@ -29,7 +29,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkShaderProgram.h"
-#include "vtkShaderProperty.h"
 #include "vtkSkybox.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
@@ -114,15 +113,16 @@ int TestCubeMap2(int argc, char *argv[])
   actor->SetTexture(texture);
   actor->SetMapper(mapper);
 
-  vtkShaderProperty * sp = actor->GetShaderProperty();
-  sp->AddVertexShaderReplacement(
+  mapper->AddShaderReplacement(
+    vtkShader::Vertex,
     "//VTK::PositionVC::Dec", // replace
     true, // before the standard replacements
     "//VTK::PositionVC::Dec\n" // we still want the default
     "out vec3 TexCoords;\n",
     false // only do it once
     );
-  sp->AddVertexShaderReplacement(
+  mapper->AddShaderReplacement(
+    vtkShader::Vertex,
     "//VTK::PositionVC::Impl", // replace
     true, // before the standard replacements
     "//VTK::PositionVC::Impl\n" // we still want the default
@@ -130,14 +130,16 @@ int TestCubeMap2(int argc, char *argv[])
     "TexCoords.xyz = reflect(vertexMC.xyz - camPos, normalize(normalMC));\n",
     false // only do it once
     );
-  sp->AddFragmentShaderReplacement(
+  mapper->AddShaderReplacement(
+    vtkShader::Fragment,
     "//VTK::Light::Dec", // replace
     true, // before the standard replacements
     "//VTK::Light::Dec\n" // we still want the default
     "in vec3 TexCoords;\n",
     false // only do it once
     );
-  sp->AddFragmentShaderReplacement(
+  mapper->AddShaderReplacement(
+    vtkShader::Fragment,
     "//VTK::Light::Impl", // replace
     true, // before the standard replacements
     "  vec3 cubeColor = texture(actortexture, normalize(TexCoords)).xyz;\n"

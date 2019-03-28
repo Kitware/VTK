@@ -4,6 +4,7 @@ set(classes
   vtkOpenGLProjectedTetrahedraMapper
   vtkOpenGLRayCastImageDisplayHelper
   vtkOpenGLTransferFunction2D
+  vtkOpenGLUniforms
   vtkOpenGLVolumeGradientOpacityTable
   vtkOpenGLVolumeOpacityTable
   vtkOpenGLVolumeRGBTable

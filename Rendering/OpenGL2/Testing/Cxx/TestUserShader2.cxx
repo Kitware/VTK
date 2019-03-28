@@ -25,7 +25,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
-#include "vtkShaderProperty.h"
 #include "vtkTestUtilities.h"
 #include "vtkTimerLog.h"
 #include "vtkTriangleMeshPointNormals.h"
@@ -123,15 +122,13 @@ int TestUserShader2(int argc, char *argv[])
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
 
-  vtkShaderProperty * sp = actor->GetShaderProperty();
-
   // Clear all custom shader tag replacements
   // The following code is mainly for regression testing as we do not have any
   // custom shader replacements.
-  sp->ClearAllVertexShaderReplacements();
-  sp->ClearAllFragmentShaderReplacements();
-  sp->ClearAllGeometryShaderReplacements();
-  sp->ClearAllShaderReplacements();
+  mapper->ClearAllShaderReplacements(vtkShader::Vertex);
+  mapper->ClearAllShaderReplacements(vtkShader::Fragment);
+  mapper->ClearAllShaderReplacements(vtkShader::Geometry);
+  mapper->ClearAllShaderReplacements();
 
   // Use our own hardcoded shader code. Generally this is a bad idea in a
   // general purpose program as there are so many things VTK supports that
@@ -139,7 +136,7 @@ int TestUserShader2(int argc, char *argv[])
   // know what your data will be like it can be very useful. The mapper will set
   // a bunch of uniforms regardless of if you are using them. But feel free to
   // use them :-)
-  sp->SetVertexShaderCode(
+  mapper->SetVertexShaderCode(
     "//VTK::System::Dec\n"  // always start with this line
     "in vec4 vertexMC;\n"
     // use the default normal decl as the mapper
@@ -156,7 +153,7 @@ int TestUserShader2(int argc, char *argv[])
     "  gl_Position = tmpPos*vec4(0.2+0.8*abs(tmpPos.x),0.2+0.8*abs(tmpPos.y),1.0,1.0);\n"
     "}\n"
     );
-  sp->SetFragmentShaderCode(
+  mapper->SetFragmentShaderCode(
     "//VTK::System::Dec\n"  // always start with this line
     "//VTK::Output::Dec\n"  // always have this line in your FS
     "in vec3 normalVCVSOutput;\n"

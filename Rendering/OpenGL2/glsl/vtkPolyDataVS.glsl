@@ -17,8 +17,6 @@
 
 in vec4 vertexMC;
 
-//VTK::CustomUniforms::Dec
-
 // frag position in VC
 //VTK::PositionVC::Dec
 

@@ -62,8 +62,7 @@ actor.GetProperty().SetAmbient(0.5)
 actor.GetProperty().SetSpecularPower(20.0)
 actor.GetProperty().SetOpacity(1.0)
 
-sp = actor.GetShaderProperty()
-sp.SetVertexShaderCode(
+mapper.SetVertexShaderCode(
     "//VTK::System::Dec\n"
     "in vec4 vertexMC;\n"
     "//VTK::Normal::Dec\n"
@@ -74,7 +73,7 @@ sp.SetVertexShaderCode(
     "  gl_Position = tmpPos*vec4(0.2+0.8*abs(tmpPos.x),0.2+0.8*abs(tmpPos.y),1.0,1.0);\n"
     "}\n"
 )
-sp.SetFragmentShaderCode(
+mapper.SetFragmentShaderCode(
     "//VTK::System::Dec\n"
     "//VTK::Output::Dec\n"
     "in vec3 normalVCVSOutput;\n"

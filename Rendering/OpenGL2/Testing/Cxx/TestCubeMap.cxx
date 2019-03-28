@@ -28,7 +28,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkShaderProgram.h"
-#include "vtkShaderProperty.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
@@ -87,17 +86,17 @@ int TestCubeMap(int argc, char *argv[])
   actor->SetTexture(texture);
   actor->SetMapper(mapper);
 
-  vtkShaderProperty * sp = actor->GetShaderProperty();
-
    // Add new code in default VTK vertex shader
-  sp->AddVertexShaderReplacement(
+  mapper->AddShaderReplacement(
+    vtkShader::Vertex,
     "//VTK::PositionVC::Dec", // replace the normal block
     true, // before the standard replacements
     "//VTK::PositionVC::Dec\n" // we still want the default
     "out vec3 TexCoords;\n",
     false // only do it once
     );
-  sp->AddVertexShaderReplacement(
+  mapper->AddShaderReplacement(
+    vtkShader::Vertex,
     "//VTK::PositionVC::Impl", // replace the normal block
     true, // before the standard replacements
     "//VTK::PositionVC::Impl\n" // we still want the default
@@ -107,7 +106,7 @@ int TestCubeMap(int argc, char *argv[])
     );
 
   // Replace VTK fragment shader
-  sp->SetFragmentShaderCode(
+  mapper->SetFragmentShaderCode(
     "//VTK::System::Dec\n"  // always start with this line
     "//VTK::Output::Dec\n"  // always have this line in your FS
     "in vec3 TexCoords;\n"

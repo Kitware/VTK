@@ -59,7 +59,6 @@
 #include <vtkOpenGLRenderWindow.h>
 #include "vtkOpenGLResourceFreeCallback.h"
 #include <vtkOpenGLShaderCache.h>
-#include <vtkOpenGLShaderProperty.h>
 #include "vtkOpenGLState.h"
 #include <vtkOpenGLVertexArrayObject.h>
 #include "vtkOpenGLUniforms.h"
@@ -376,7 +375,7 @@ public:
 
   void FinishRendering(int numComponents);
 
-  inline bool ShaderRebuildNeeded(vtkCamera* cam, vtkVolume* vol, vtkMTimeType renderPassTime);
+  inline bool ShaderRebuildNeeded(vtkCamera* cam, vtkMTimeType renderPassTime);
   bool VolumePropertyChanged = true;
 
   //@{
@@ -469,6 +468,7 @@ public:
   vtkSmartPointer<vtkOpenGLVolumeRGBTable> Mask1RGBTable;
   vtkSmartPointer<vtkOpenGLVolumeRGBTable> Mask2RGBTable;
 
+  vtkTimeStamp ShaderReplacementTime;
   vtkTimeStamp ShaderBuildTime;
 
   vtkNew<vtkMatrix4x4> InverseProjectionMat;
@@ -2169,6 +2169,8 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
   this->Impl = new vtkInternal(this);
   this->ReductionFactor = 1.0;
   this->CurrentPass = RenderPass;
+  this->VertexShaderCode = nullptr;
+  this->FragmentShaderCode = nullptr;
 
   this->ResourceCallback =
     new vtkOpenGLResourceFreeCallback<vtkOpenGLGPUVolumeRayCastMapper>(
@@ -2192,6 +2194,8 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
   this->Impl = nullptr;
 
   this->AssembledInputs.clear();
+  this->SetVertexShaderCode(nullptr);
+  this->SetFragmentShaderCode(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -2292,16 +2296,108 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   this->Impl->ReleaseResourcesTime.Modified();
 }
 
+//-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::AddShaderReplacement(
+  vtkShader::Type shaderType, // vertex, fragment, etc
+  const std::string& originalValue,
+  bool replaceFirst, // do this replacement before the default
+  const std::string& replacementValue,
+  bool replaceAll)
+{
+  vtkShader::ReplacementSpec spec;
+  spec.ShaderType = shaderType;
+  spec.OriginalValue = originalValue;
+  spec.ReplaceFirst = replaceFirst;
+
+  vtkShader::ReplacementValue values;
+  values.Replacement = replacementValue;
+  values.ReplaceAll = replaceAll;
+
+  this->UserShaderReplacements[spec] = values;
+  this->Impl->ShaderReplacementTime.Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::ClearShaderReplacement(
+  vtkShader::Type shaderType, // vertex, fragment, etc
+  const std::string& originalValue,
+  bool replaceFirst)
+{
+  vtkShader::ReplacementSpec spec;
+  spec.ShaderType = shaderType;
+  spec.OriginalValue = originalValue;
+  spec.ReplaceFirst = replaceFirst;
+
+  typedef std::map<const vtkShader::ReplacementSpec,
+    vtkShader::ReplacementValue>::iterator RIter;
+  RIter found = this->UserShaderReplacements.find(spec);
+  if (found != this->UserShaderReplacements.end())
+  {
+    this->UserShaderReplacements.erase(found);
+    this->Impl->ShaderReplacementTime.Modified();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::ClearAllShaderReplacements(
+  vtkShader::Type shaderType)
+{
+  bool modified = false;
+  // First clear all shader code
+  if ((shaderType == vtkShader::Vertex) && this->VertexShaderCode)
+  {
+    this->SetVertexShaderCode(nullptr);
+    modified = true;
+  }
+  else if ((shaderType == vtkShader::Fragment) && this->FragmentShaderCode)
+  {
+    this->SetFragmentShaderCode(nullptr);
+    modified = true;
+  }
+
+  // Now clear custom tag replacements
+  std::map<const vtkShader::ReplacementSpec,
+           vtkShader::ReplacementValue>::iterator rIter;
+  for (rIter = this->UserShaderReplacements.begin();
+       rIter != this->UserShaderReplacements.end();)
+  {
+    if (rIter->first.ShaderType == shaderType)
+    {
+      this->UserShaderReplacements.erase(rIter++);
+      modified = true;
+    }
+    else
+    {
+      ++rIter;
+    }
+  }
+  if (modified)
+  {
+    this->Impl->ShaderReplacementTime.Modified();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::ClearAllShaderReplacements()
+{
+  this->SetVertexShaderCode(nullptr);
+  this->SetFragmentShaderCode(nullptr);
+  if (!this->UserShaderReplacements.empty())
+  {
+    this->UserShaderReplacements.clear();
+    this->Impl->ShaderReplacementTime.Modified();
+  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::GetShaderTemplate(
-  std::map<vtkShader::Type, vtkShader*>& shaders, vtkOpenGLShaderProperty * p)
+  std::map<vtkShader::Type, vtkShader*>& shaders)
 {
   if (shaders[vtkShader::Vertex])
   {
-    if( p->HasVertexShaderCode())
+    if (this->VertexShaderCode && strcmp(this->VertexShaderCode, "") != 0)
     {
-      shaders[vtkShader::Vertex]->SetSource(p->GetVertexShaderCode());
+      shaders[vtkShader::Vertex]->SetSource(this->VertexShaderCode);
     }
     else
     {
@@ -2311,9 +2407,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetShaderTemplate(
 
   if (shaders[vtkShader::Fragment])
   {
-    if(p->HasFragmentShaderCode())
+    if (this->FragmentShaderCode && strcmp(this->FragmentShaderCode, "") != 0)
     {
-      shaders[vtkShader::Fragment]->SetSource(p->GetFragmentShaderCode());
+      shaders[vtkShader::Fragment]->SetSource(this->FragmentShaderCode);
     }
     else
     {
@@ -2329,25 +2425,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetShaderTemplate(
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCustomUniforms(
-  std::map<vtkShader::Type, vtkShader*>& shaders, vtkOpenGLShaderProperty * p )
+  std::map<vtkShader::Type, vtkShader*>& shaders )
 {
     vtkShader* vertexShader = shaders[vtkShader::Vertex];
-    vtkOpenGLUniforms * vu = static_cast<vtkOpenGLUniforms*>(p->GetVertexCustomUniforms());
     vtkShaderProgram::Substitute(vertexShader,
       "//VTK::CustomUniforms::Dec",
-      vu->GetDeclarations());
+      this->VertexCustomUniforms->GetDeclarations());
 
     vtkShader* fragmentShader = shaders[vtkShader::Fragment];
-    vtkOpenGLUniforms * fu = static_cast<vtkOpenGLUniforms*>(p->GetFragmentCustomUniforms());
     vtkShaderProgram::Substitute(fragmentShader,
       "//VTK::CustomUniforms::Dec",
-      fu->GetDeclarations());
-
-    vtkShader* geometryShader = shaders[vtkShader::Geometry];
-    vtkOpenGLUniforms * gu = static_cast<vtkOpenGLUniforms*>(p->GetGeometryCustomUniforms());
-    vtkShaderProgram::Substitute(geometryShader,
-      "//VTK::CustomUniforms::Dec",
-      gu->GetDeclarations());
+      this->FragmentCustomUniforms->GetDeclarations());
 }
 
 //-----------------------------------------------------------------------------
@@ -2777,7 +2865,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderValues(
 {
   // Every volume should have a property (cannot be nullptr);
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
-  auto shaderProperty = vtkOpenGLShaderProperty::SafeDownCast(vol->GetShaderProperty());
 
   if (volumeProperty->GetShade())
   {
@@ -2820,7 +2907,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderValues(
 
   // Custom uniform variables replacements
   //---------------------------------------------------------------------------
-  this->ReplaceShaderCustomUniforms(shaders,shaderProperty);
+  this->ReplaceShaderCustomUniforms(shaders);
 
   // Base methods replacements
   //---------------------------------------------------------------------------
@@ -2886,40 +2973,44 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren)
   geometryShader->SetType(vtkShader::Geometry);
   shaders[vtkShader::Geometry] = geometryShader;
 
-  auto vol = this->Impl->GetActiveVolume();
+  this->GetShaderTemplate(shaders);
 
-  vtkOpenGLShaderProperty * sp = vtkOpenGLShaderProperty::SafeDownCast(vol->GetShaderProperty());
-  this->GetShaderTemplate(shaders, sp);
+  typedef std::map<const vtkShader::ReplacementSpec,
+    vtkShader::ReplacementValue>::const_iterator RIter;
 
   // user specified pre replacements
-  vtkOpenGLShaderProperty::ReplacementMap repMap = sp->GetAllShaderReplacements();
-  for ( auto i : repMap )
+  for (RIter i = this->UserShaderReplacements.begin();
+       i != this->UserShaderReplacements.end();
+       ++i)
   {
-      if (i.first.ReplaceFirst)
-      {
-        std::string ssrc = shaders[i.first.ShaderType]->GetSource();
-        vtkShaderProgram::Substitute(ssrc,
-          i.first.OriginalValue,
-          i.second.Replacement,
-          i.second.ReplaceAll);
-        shaders[i.first.ShaderType]->SetSource(ssrc);
-      }
+    if (i->first.ReplaceFirst)
+    {
+      std::string ssrc = shaders[i->first.ShaderType]->GetSource();
+      vtkShaderProgram::Substitute(ssrc,
+        i->first.OriginalValue,
+        i->second.Replacement,
+        i->second.ReplaceAll);
+      shaders[i->first.ShaderType]->SetSource(ssrc);
+    }
   }
 
+  auto vol = this->Impl->GetActiveVolume();
   auto numComp = this->AssembledInputs[0].Texture->GetLoadedScalars()->GetNumberOfComponents();
   this->ReplaceShaderValues(shaders, ren, vol, numComp);
 
   // user specified post replacements
-  for ( auto i : repMap )
+  for (RIter i = this->UserShaderReplacements.begin();
+       i != this->UserShaderReplacements.end();
+       ++i)
   {
-    if (!i.first.ReplaceFirst)
+    if (!i->first.ReplaceFirst)
     {
-      std::string ssrc = shaders[i.first.ShaderType]->GetSource();
+      std::string ssrc = shaders[i->first.ShaderType]->GetSource();
       vtkShaderProgram::Substitute(ssrc,
-        i.first.OriginalValue,
-        i.second.Replacement,
-        i.second.ReplaceAll);
-      shaders[i.first.ShaderType]->SetSource(ssrc);
+        i->first.OriginalValue,
+        i->second.Replacement,
+        i->second.ReplaceAll);
+      shaders[i->first.ShaderType]->SetSource(ssrc);
     }
   }
 
@@ -3255,7 +3346,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
     vtkVolumeStateRAII glState(renWin->GetState(), this->Impl->PreserveGLState);
 
-    if (this->Impl->ShaderRebuildNeeded(cam, vol, renderPassTime))
+    if (this->Impl->ShaderRebuildNeeded(cam, renderPassTime))
     {
       this->Impl->LastProjectionParallel = cam->GetParallelProjection();
       this->BuildShader(ren);
@@ -3268,18 +3359,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                         this->Impl->ShaderProgram);
     }
 
-    vtkOpenGLShaderProperty * shaderProperty = vtkOpenGLShaderProperty::SafeDownCast(vol->GetShaderProperty());
     if (this->RenderToImage)
     {
       this->Impl->SetupRenderToTexture(ren);
       this->Impl->SetRenderToImageParameters(this->Impl->ShaderProgram);
-      this->DoGPURender(ren, cam, this->Impl->ShaderProgram,shaderProperty);
+      this->DoGPURender(ren, cam, this->Impl->ShaderProgram);
       this->Impl->ExitRenderToTexture(ren);
     }
     else
     {
       this->Impl->BeginImageSample(ren);
-      this->DoGPURender(ren, cam, this->Impl->ShaderProgram,shaderProperty);
+      this->DoGPURender(ren, cam, this->Impl->ShaderProgram);
       this->Impl->EndImageSample(ren);
     }
 
@@ -3294,15 +3384,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
 //----------------------------------------------------------------------------
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ShaderRebuildNeeded(vtkCamera* cam,
-  vtkVolume* vol, vtkMTimeType renderPassTime)
+  vtkMTimeType renderPassTime)
 {
   return (this->NeedToInitializeResources ||
       this->VolumePropertyChanged ||
-      vol->GetShaderProperty()->GetShaderMTime() > this->ShaderBuildTime.GetMTime() ||
       this->Parent->GetMTime() > this->ShaderBuildTime.GetMTime() ||
+      this->Parent->GetFragmentCustomUniforms()->GetUniformListMTime() > this->ShaderBuildTime.GetMTime() ||
+      this->Parent->GetVertexCustomUniforms()->GetUniformListMTime() > this->ShaderBuildTime.GetMTime() ||
       cam->GetParallelProjection() != this->LastProjectionParallel ||
       this->SelectionStateTime.GetMTime() > this->ShaderBuildTime.GetMTime() ||
-      renderPassTime > this->ShaderBuildTime );
+      renderPassTime > this->ShaderBuildTime ||
+      this->ShaderReplacementTime > this->ShaderBuildTime);
 }
 
 //----------------------------------------------------------------------------
@@ -3313,7 +3405,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderWithDepthPass(
     auto& input = this->Parent->AssembledInputs[0];
     auto vol = input.Volume;
     auto volumeProperty = vol->GetProperty();
-    auto shaderProperty = vtkOpenGLShaderProperty::SafeDownCast(vol->GetShaderProperty());
 
     if (this->NeedToInitializeResources ||
         volumeProperty->GetMTime() > this->DepthPassSetupTime.GetMTime() ||
@@ -3321,7 +3412,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderWithDepthPass(
         cam->GetParallelProjection() != this->LastProjectionParallel ||
         this->SelectionStateTime.GetMTime() > this->ShaderBuildTime.GetMTime() ||
         renderPassTime > this->ShaderBuildTime ||
-        shaderProperty->GetShaderMTime() > this->ShaderBuildTime)
+      this->ShaderReplacementTime > this->ShaderBuildTime)
     {
       this->LastProjectionParallel =
         cam->GetParallelProjection();
@@ -3377,7 +3468,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderWithDepthPass(
     this->DPDepthBufferTextureObject->Activate();
     this->ShaderProgram->SetUniformi("in_depthPassSampler",
       this->DPDepthBufferTextureObject->GetTextureUnit());
-    this->Parent->DoGPURender(ren, cam, this->ShaderProgram,shaderProperty);
+    this->Parent->DoGPURender(ren, cam, this->ShaderProgram);
     this->DPDepthBufferTextureObject->Deactivate();
 
     if (this->IsPicking)
@@ -3780,8 +3871,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::FinishRendering(
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
                                                   vtkOpenGLCamera* cam,
-                                                  vtkShaderProgram* prog,
-                                                  vtkOpenGLShaderProperty* shaderProperty)
+                                                  vtkShaderProgram* prog)
 {
   if (!prog)
   {
@@ -3789,12 +3879,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   }
 
   // Upload the value of user-defined uniforms in the program
-  auto vu = static_cast<vtkOpenGLUniforms*>(shaderProperty->GetVertexCustomUniforms());
-  vu->SetUniforms( prog );
-  auto fu = static_cast<vtkOpenGLUniforms*>(shaderProperty->GetFragmentCustomUniforms());
-  fu->SetUniforms( prog );
-  auto gu = static_cast<vtkOpenGLUniforms*>(shaderProperty->GetGeometryCustomUniforms());
-  gu->SetUniforms( prog );
+  this->VertexCustomUniforms->SetUniforms( prog );
+  this->FragmentCustomUniforms->SetUniforms( prog );
 
   this->SetShaderParametersRenderPass();
   if (!this->Impl->MultiVolume)
