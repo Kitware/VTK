@@ -90,7 +90,12 @@ void vtkInteractorStyleRubberBandZoom::AdjustBox(int startPosition[2], int endPo
     endPosition[1] = startPosition[1] + dy;
   }
 
-  if (this->CenterAtStartPosition)
+  bool centerAtStartPosition = this->CenterAtStartPosition;
+  if (this->Interactor && (this->Interactor->GetControlKey() || this->Interactor->GetShiftKey()))
+  {
+    centerAtStartPosition = !centerAtStartPosition;
+  }
+  if (centerAtStartPosition)
   {
     vtkVector2i dia;
     dia = vtkVector2i(endPosition) - vtkVector2i(startPosition);
