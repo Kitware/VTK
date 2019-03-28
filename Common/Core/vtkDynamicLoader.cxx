@@ -32,6 +32,12 @@ vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname )
 }
 
 // ----------------------------------------------------------------------------
+vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname, int flags)
+{
+  return vtksys::DynamicLoader::OpenLibrary(libname, flags);
+}
+
+// ----------------------------------------------------------------------------
 int vtkDynamicLoader::CloseLibrary(vtkLibHandle lib)
 {
   return vtksys::DynamicLoader::CloseLibrary(lib);

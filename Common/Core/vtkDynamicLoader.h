@@ -44,6 +44,7 @@ public:
    * library.
    */
   static vtkLibHandle OpenLibrary(const char*);
+  static vtkLibHandle OpenLibrary(const char*, int);
 
   /**
    * Attempt to detach a dynamic library from the
