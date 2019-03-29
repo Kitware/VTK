@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestJPEGReader.cxx
+  Module:    TestPNGReaderReadFromMemory.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,18 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME Test of vtkPNGReader's reading from memory functionality
-// .SECTION Description
-//
-
-#include "vtkPNGReader.h"
 
 #include "vtkImageData.h"
 #include "vtkImageViewer.h"
+#include "vtkPNGReader.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <fstream>
 #include <vector>
@@ -46,21 +43,19 @@ int TestPNGReaderReadFromMemory(int argc, char* argv[])
     std::cerr << "Could not open file " << filename.c_str() << std::endl;
   }
   // Get file size
-  stream.seekg(0, ios::end);
-  unsigned int len = stream.tellg();
-  stream.seekg(0, ios::beg);
+  unsigned long len = vtksys::SystemTools::FileLength(filename);
 
   // Load the file into a buffer
   std::vector<char> buffer = std::vector<char>(std::istreambuf_iterator<char>(stream), {});
 
   // Initialize reader
-  vtkNew<vtkPNGReader> PNGReader;
-  PNGReader->SetMemoryBuffer(buffer.data());
-  PNGReader->SetMemoryBufferLength(len);
+  vtkNew<vtkPNGReader> pngReader;
+  pngReader->SetMemoryBuffer(buffer.data());
+  pngReader->SetMemoryBufferLength(len);
 
   // Visualize
   vtkNew<vtkImageViewer> imageViewer;
-  imageViewer->SetInputConnection(PNGReader->GetOutputPort());
+  imageViewer->SetInputConnection(pngReader->GetOutputPort());
   imageViewer->SetColorWindow(256);
   imageViewer->SetColorLevel(127.5);
 
