@@ -53,6 +53,11 @@ public:
    * When set to true (default, false), the position where the user starts the
    * interaction is treated as the center of the box rather that one of the
    * corners of the box.
+   *
+   * During interaction, modifier keys `Shift` or `Control` can be used to toggle
+   * this flag temporarily. In other words, if `Shift` or `Control` key is pressed,
+   * this class will act as if CenterAtStartPosition was opposite of what it is
+   * set to.
    */
   vtkSetMacro(CenterAtStartPosition, bool);
   vtkGetMacro(CenterAtStartPosition, bool);
