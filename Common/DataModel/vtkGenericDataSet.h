@@ -123,6 +123,7 @@ public:
    * \pre valid_dim_range: (dim>=-1) && (dim<=3)
    * \post result_exists: result!=0
    */
+  VTK_NEWINSTANCE
   virtual vtkGenericCellIterator *NewCellIterator(int dim=-1) = 0;
 
   /**
@@ -134,6 +135,7 @@ public:
    * \pre valid_dim_range: (dim>=-1) && (dim<=2)
    * \post result_exists: result!=0
    */
+  VTK_NEWINSTANCE
   virtual vtkGenericCellIterator *NewBoundaryIterator(int dim=-1,
                                                       int exteriorOnly=0) = 0;
 
@@ -143,6 +145,7 @@ public:
    * The user is responsible for deleting the iterator.
    * \post result_exists: result!=0
    */
+  VTK_NEWINSTANCE
   virtual vtkGenericPointIterator *NewPointIterator()=0;
 
   /**
