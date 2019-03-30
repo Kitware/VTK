@@ -7,6 +7,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestCompositePolyDataMapper2Spheres.cxx,NO_DATA
   TestCompositePolyDataMapper2Vertices.cxx,NO_DATA
   TestCubeMap.cxx
+  TestCubeMapRerender.cxx
   TestDepthOfFieldPass.cxx
   TestDepthPeelingPass.cxx
   TestDepthPeelingPassViewport.cxx

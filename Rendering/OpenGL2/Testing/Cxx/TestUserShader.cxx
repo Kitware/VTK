@@ -21,7 +21,6 @@
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkPolyDataNormals.h"
-#include "vtkShaderProperty.h"
 #include "vtkTriangleMeshPointNormals.h"
 
 #include "vtkRegressionTestImage.h"
@@ -75,41 +74,46 @@ int TestUserShader(int argc, char *argv[])
   // Then we modify the fragment shader to set the diffuse color
   // based on that normal. First lets modify the vertex
   // shader
-  vtkShaderProperty * sp = actor->GetShaderProperty();
-  sp->AddVertexShaderReplacement(
+  mapper->AddShaderReplacement(
+    vtkShader::Vertex,
     "//VTK::Normal::Dec", // replace the normal block
     true, // before the standard replacements
     "//VTK::Normal::Dec\n" // we still want the default
     "  out vec3 myNormalMCVSOutput;\n", //but we add this
     false // only do it once
     );
-  sp->AddVertexShaderReplacement(
+  mapper->AddShaderReplacement(
+    vtkShader::Vertex,
     "//VTK::Normal::Impl", // replace the normal block
     true, // before the standard replacements
     "//VTK::Normal::Impl\n" // we still want the default
     "  myNormalMCVSOutput = normalMC;\n", //but we add this
     false // only do it once
     );
-  sp->AddVertexShaderReplacement(
+  mapper->AddShaderReplacement(
+    vtkShader::Vertex,
     "//VTK::Color::Impl", // dummy replacement for testing clear method
     true,
     "VTK::Color::Impl\n",
     false
     );
-  sp->ClearVertexShaderReplacement(
+  mapper->ClearShaderReplacement(
+    vtkShader::Vertex,     // clear our dummy replacement
     "//VTK::Color::Impl",
     true
     );
 
   // now modify the fragment shader
-  sp->AddFragmentShaderReplacement(
+  mapper->AddShaderReplacement(
+    vtkShader::Fragment,  // in the fragment shader
     "//VTK::Normal::Dec", // replace the normal block
     true, // before the standard replacements
     "//VTK::Normal::Dec\n" // we still want the default
     "  in vec3 myNormalMCVSOutput;\n", //but we add this
     false // only do it once
     );
-  sp->AddFragmentShaderReplacement(
+  mapper->AddShaderReplacement(
+    vtkShader::Fragment,  // in the fragment shader
     "//VTK::Normal::Impl", // replace the normal block
     true, // before the standard replacements
     "//VTK::Normal::Impl\n" // we still want the default calc

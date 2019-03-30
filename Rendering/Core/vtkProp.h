@@ -42,7 +42,6 @@ class vtkWindow;
 class vtkInformation;
 class vtkInformationIntegerKey;
 class vtkInformationDoubleVectorKey;
-class vtkShaderProperty;
 
 class VTKRENDERINGCORE_EXPORT vtkProp : public vtkObject
 {
@@ -433,14 +432,6 @@ public:
   int IsConsumer(vtkObject *c);
   //@}
 
-  //@{
-  /**
-   * Set/Get the shader property.
-   */
-  virtual void SetShaderProperty(vtkShaderProperty *property);
-  virtual vtkShaderProperty *GetShaderProperty();
-  //@}
-
 protected:
   vtkProp();
   ~vtkProp() override;
@@ -464,9 +455,6 @@ protected:
   vtkAssemblyPaths *Paths;
 
   vtkInformation *PropertyKeys;
-
-  // User-defined shader replacement and uniform variables
-  vtkShaderProperty *ShaderProperty;
 
 private:
   vtkProp(const vtkProp&) = delete;
