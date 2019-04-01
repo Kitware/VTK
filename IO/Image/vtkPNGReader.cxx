@@ -85,7 +85,6 @@ namespace
     std::copy(begin, end, output);
     // Advance cursor
     input->position += length;
-    return;
   }
 };
 
@@ -132,13 +131,12 @@ public:
   // Returns true if the header is valid
   bool IsHeaderValid(unsigned char header[])
   {
-    int is_png = !png_sig_cmp(header, 0, 8);
+    bool is_png = !png_sig_cmp(header, 0, 8);
     if (!is_png)
     {
       vtkErrorWithObjectMacro(nullptr, << "Unknown file type! Not a PNG file!");
-      return false;
     }
-    return true;
+    return is_png;
   }
 
   // Returns true if the file's header is valid
@@ -168,29 +166,29 @@ public:
     return this->IsHeaderValid(header);
   }
 
-  void CreateLibPngStructs(png_structp& pngPtr, png_infop& infoPtr, png_infop& endInfo)
+  bool CreateLibPngStructs(png_structp& pngPtr, png_infop& infoPtr, png_infop& endInfo)
   {
     pngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp)nullptr, nullptr, nullptr);
     if (!pngPtr)
     {
       vtkErrorWithObjectMacro(nullptr, "Out of memory.");
-      return;
+      return false;
     }
     infoPtr = png_create_info_struct(pngPtr);
     if (!infoPtr)
     {
       png_destroy_read_struct(&pngPtr, (png_infopp)nullptr, (png_infopp)nullptr);
       vtkErrorWithObjectMacro(nullptr, "Out of memory.");
-      return;
+      return false;
     }
     endInfo = png_create_info_struct(pngPtr);
     if (!endInfo)
     {
       png_destroy_read_struct(&pngPtr, &infoPtr, (png_infopp)nullptr);
       vtkErrorWithObjectMacro(nullptr, "Unable to read PNG file!");
-      return;
+      return false;
     }
-    return;
+    return true;
   }
 
   void InitLibPngInput(vtkPNGReader* self, png_structp pngPtr, MemoryBufferStream* stream, FILE* fp)
@@ -212,7 +210,6 @@ public:
       png_init_io(pngPtr, fp);
       png_set_sig_bytes(pngPtr, 8);
     }
-    return;
   }
 
   void HandleLibPngError(png_structp pngPtr, png_infop infoPtr, FILE* fp)
@@ -224,7 +221,6 @@ public:
       {
         fclose(fp);
       }
-      return;
     }
   }
 };
@@ -286,8 +282,7 @@ void vtkPNGReader::ExecuteInformation()
   png_structp png_ptr = nullptr;
   png_infop info_ptr = nullptr;
   png_infop end_info = nullptr;
-  impl->CreateLibPngStructs(png_ptr, info_ptr, end_info);
-  if (!png_ptr || !info_ptr || !end_info)
+  if (!impl->CreateLibPngStructs(png_ptr, info_ptr, end_info))
   {
     if (fp)
     {
@@ -416,8 +411,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   png_structp png_ptr = nullptr;
   png_infop info_ptr = nullptr;
   png_infop end_info = nullptr;
-  impl->CreateLibPngStructs(png_ptr, info_ptr, end_info);
-  if (!png_ptr || !info_ptr || !end_info)
+  if (!impl->CreateLibPngStructs(png_ptr, info_ptr, end_info))
   {
     if (fp)
     {
