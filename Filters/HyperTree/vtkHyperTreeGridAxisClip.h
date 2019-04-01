@@ -129,6 +129,12 @@ public:
   /**
    * Helpers to set/get the 10 coefficients of the quadric function
    */
+  void SetQuadricCoefficients(double a, double b, double c, double d, double e,
+                              double f, double g, double h, double i, double j)
+  {
+    double array[10] = { a, b, c, d, e, f, g, h, i, j };
+    this->SetQuadricCoefficients(array);
+  }
   void SetQuadricCoefficients( double[10] );
   void GetQuadricCoefficients( double[10] );
   double* GetQuadricCoefficients();
