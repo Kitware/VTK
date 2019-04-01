@@ -95,6 +95,12 @@ vtkHyperTreeGridPlaneCutter::~vtkHyperTreeGridPlaneCutter()
     this->Cutter->Delete();
     this->Cutter = nullptr;
   }
+
+  if ( this->SelectedCells )
+  {
+    this->SelectedCells->Delete();
+    this->SelectedCells = nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -197,10 +203,14 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
   }
 
   // Retrieve input point data
-  this->InData  = input->GetPointData();
+  this->InData = input->GetPointData();
 
   // Retrieve material mask
-  this->InMask = input->HasMask() ? input->GetMask() : 0;
+  this->InMask = input->HasMask() ? input->GetMask() : nullptr;
+
+  // Reset PolyData
+  this->Points->SetNumberOfPoints(0);
+  this->Cells->SetNumberOfCells(0);
 
   // Compute cut on dual or primal input depending on specification
   if ( this->Dual )
@@ -210,11 +220,17 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
     this->OutData->CopyAllocate( this->InData );
 
     // Storage for leaf indices
-    this->Leaves = vtkIdList::New();
+    if (this->Leaves == nullptr)
+    {
+      this->Leaves = vtkIdList::New();
+    }
     this->Leaves->SetNumberOfIds( 8 );
 
     // Initialize storage for dual geometry
-    this->Centers = vtkPoints::New();
+    if (this->Centers == nullptr)
+    {
+      this->Centers = vtkPoints::New();
+    }
     this->Centers->SetNumberOfPoints( 8 );
 
     // Convert plane parameters into normal/origin specification
@@ -234,7 +250,10 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
     plane->SetNormal( this->Plane[0], this->Plane[1], this->Plane[2] );
 
     // Initialize plane cutter
-    this->Cutter = vtkCutter::New();
+    if (this->Cutter == nullptr)
+    {
+      this->Cutter = vtkCutter::New();
+    }
     this->Cutter->GenerateTrianglesOff();
     this->Cutter->SetCutFunction( plane );
 
@@ -242,7 +261,10 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
     plane->Delete();
 
     // Create storage to keep track of selected cells
-    this->SelectedCells = vtkBitArray::New();
+    if (this->SelectedCells == nullptr)
+    {
+      this->SelectedCells = vtkBitArray::New();
+    }
     vtkIdType numCells = input->GetNumberOfVertices();
     this->SelectedCells->SetNumberOfTuples( numCells );
     for ( vtkIdType i = 0; i < numCells; ++ i )
@@ -277,6 +299,7 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
 
     // Clean up
     this->SelectedCells->Delete();
+    this->SelectedCells = nullptr;
   } // if ( this->Dual )
   else
   {
@@ -309,8 +332,6 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
   cleaner->Update();
   output->ShallowCopy( cleaner->GetOutput() );
   output->Squeeze();
-
-  // Clean up
   cleaner->Delete();
   return 1;
 }
