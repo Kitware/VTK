@@ -28,7 +28,7 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
-#include "ospray/ospray.h" // for ospray handle types
+#include "RTWrapper/RTWrapper.h" // for handle types
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayTetrahedraMapperNode : public vtkVolumeMapperNode
 

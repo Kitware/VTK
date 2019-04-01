@@ -51,6 +51,15 @@ int TestOSPRayAmbient(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   vtkOSPRayRendererNode::SetSamplesPerPixel(16, renderer);
 
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
+
   vtkSmartPointer<vtkLight> l = vtkSmartPointer<vtkLight>::New();
   vtkOSPRayLightNode::SetIsAmbient(1, l);
   renderer->AddLight(l);

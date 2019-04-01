@@ -41,6 +41,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -274,6 +275,15 @@ int TestOSPRayRenderMesh(int argc, char* argv[])
   if (!useGL)
   {
     renderer->SetPass(ospray);
+
+    for (int i = 0; i < argc; ++i)
+    {
+      if (!strcmp(argv[i], "--OptiX"))
+      {
+        vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+        break;
+      }
+    }
   }
   //Now, vary most of the many parameters that rendering can vary by.
 

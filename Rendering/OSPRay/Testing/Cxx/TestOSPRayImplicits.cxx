@@ -35,6 +35,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -78,6 +79,15 @@ int TestOSPRayImplicits(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   if (!useGL)
   {
+    for (int i = 0; i < argc; ++i)
+    {
+      if (!strcmp(argv[i], "--OptiX"))
+      {
+        vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+        break;
+      }
+    }
+
     renderer->SetPass(ospray);
   }
 

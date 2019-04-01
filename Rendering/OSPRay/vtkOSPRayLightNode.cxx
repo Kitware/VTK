@@ -43,7 +43,14 @@ vtkOSPRayLightNode::vtkOSPRayLightNode()
 //----------------------------------------------------------------------------
 vtkOSPRayLightNode::~vtkOSPRayLightNode()
 {
-  ospRelease((OSPLight)this->OLight);
+  vtkOSPRayRendererNode *orn =
+    vtkOSPRayRendererNode::GetRendererNode(this);
+  if (orn)
+  {
+    RTW::Backend *backend = orn->GetBackend();
+    if (backend != nullptr)
+        ospRelease((OSPLight)this->OLight);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -111,20 +118,6 @@ double vtkOSPRayLightNode::GetRadius(vtkLight *light)
 }
 
 //----------------------------------------------------------------------------
-OSPLight vtkOSPRayLightNode::NewLight(const std::string& lightType)
-{
-  OSPLight result;
-  result = ospNewLight3(lightType.c_str());
-
-  if (!result)
-  {
-    vtkGenericWarningMacro("Failed to create OSPRay light: " << lightType);
-  }
-
-  return result;
-}
-
-//----------------------------------------------------------------------------
 void vtkOSPRayLightNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -135,12 +128,15 @@ void vtkOSPRayLightNode::Render(bool prepass)
 {
   if (prepass)
   {
-    ospRelease((OSPLight)this->OLight);
-    OSPLight ospLight;
-
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+
+    RTW::Backend *backend = orn->GetBackend();
+    if (backend == nullptr)
+        return;
+    ospRelease((OSPLight)this->OLight);
+    OSPLight ospLight;
 
     vtkLight *light = vtkLight::SafeDownCast(this->GetRenderable());
     int lt = light->GetLightType();
@@ -153,7 +149,7 @@ void vtkOSPRayLightNode::Render(bool prepass)
     }
     if (vtkOSPRayLightNode::GetIsAmbient(light))
     {
-      ospLight = NewLight("ambient");
+      ospLight = ospNewLight3("ambient");
       color[0] = static_cast<float>(light->GetDiffuseColor()[0]);
       color[1] = static_cast<float>(light->GetDiffuseColor()[1]);
       color[2] = static_cast<float>(light->GetDiffuseColor()[2]);
@@ -182,11 +178,11 @@ void vtkOSPRayLightNode::Render(bool prepass)
       float coneAngle = static_cast<float>(light->GetConeAngle());
       if (coneAngle <= 0.0)
       {
-        ospLight = NewLight("PointLight");
+        ospLight = ospNewLight3("PointLight");
       }
       else
       {
-        ospLight = NewLight("SpotLight");
+        ospLight = ospNewLight3("SpotLight");
         double fx, fy, fz;
         light->GetTransformedFocalPoint(fx, fy, fz);
         if (lt == VTK_LIGHT_TYPE_SCENE_LIGHT)
@@ -241,7 +237,7 @@ void vtkOSPRayLightNode::Render(bool prepass)
       direction[0] = fx - px;
       direction[1] = fy - py;
       direction[2] = fz - pz;
-      ospLight = NewLight("DirectionalLight");
+      ospLight = ospNewLight3("DirectionalLight");
       ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI = static_cast<float>
         (vtkOSPRayLightNode::LightScale*

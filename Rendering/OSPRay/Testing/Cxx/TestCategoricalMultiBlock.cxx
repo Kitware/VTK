@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
-int TestCategoricalMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestCategoricalMultiBlock(int argc, char* argv[])
 {
   // set up the environment
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -58,6 +58,15 @@ int TestCategoricalMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);
   vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
+
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   style->SetPipelineControlPoints(renderer, ospray, nullptr);

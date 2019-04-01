@@ -25,7 +25,7 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkLightNode.h"
 
-#include "ospray/ospray.h" // for ospray handle types
+#include "RTWrapper/RTWrapper.h" // for handle types
 
 #include <string> // for std::string
 
@@ -86,11 +86,6 @@ public:
   static void SetRadius(double, vtkLight *);
   static double GetRadius(vtkLight *);
   //@}
-
-  /**
-   * Select the version-appropriate signature for ospNewLight.
-   */
-  static OSPLight NewLight(const std::string& lightType);
 
 protected:
   vtkOSPRayLightNode();

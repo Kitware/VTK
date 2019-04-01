@@ -23,6 +23,7 @@
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkInformation.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -31,7 +32,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimeSourceExample.h"
 
-int TestOSPRayTime(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestOSPRayTime(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -44,6 +45,15 @@ int TestOSPRayTime(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);
+
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
 
   vtkSmartPointer<vtkTimeSourceExample> timeywimey = vtkSmartPointer<vtkTimeSourceExample>::New();
   timeywimey->GrowingOn();

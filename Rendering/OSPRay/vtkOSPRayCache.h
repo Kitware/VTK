@@ -33,7 +33,7 @@
 #include <map> // for stl
 #include <memory>
 
-#include "ospray/ospray.h" // for ospray handle types
+#include "RTWrapper/RTWrapper.h" // for handle types
 
 template <class T>
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayCache {
@@ -130,8 +130,7 @@ private:
 class vtkOSPRayCacheItemObject
 {
 public:
-  vtkOSPRayCacheItemObject() = default;
-  vtkOSPRayCacheItemObject(OSPObject obj)
+  vtkOSPRayCacheItemObject(RTW::Backend* backend, OSPObject obj) : backend(backend)
   {
     object = obj;
   }
@@ -141,6 +140,7 @@ public:
   }
   OSPObject object{nullptr};
   size_t size{0};
+  RTW::Backend* backend = nullptr;
 };
 
 #endif //vtkOSPRayCache_h

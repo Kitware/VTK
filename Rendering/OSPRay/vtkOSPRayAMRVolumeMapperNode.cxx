@@ -30,19 +30,9 @@
 #include "vtkVolumeNode.h"
 #include "vtkVolumeProperty.h"
 
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wshadow"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-#include "ospcommon/box.h"
-#include "ospcommon/vec.h"
-// Undo disabling of warning.
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
+#include "RTWrapper/RTWrapper.h"
 
-#include "ospray/ospray.h"
+#include <cassert>
 
 namespace ospray
 {
@@ -63,10 +53,10 @@ namespace amr
     // width of each cell in this level
     float cellWidth;
 
-    inline ospcommon::box3f worldBounds() const {
-      return ospcommon::box3f(ospcommon::vec3f(box.lower)*cellWidth,
-            ospcommon::vec3f(box.upper+ospcommon::vec3i(1))*cellWidth);
-    }
+    //inline ospcommon::box3f worldBounds() const {
+    //  return ospcommon::box3f(ospcommon::vec3f(box.lower)*cellWidth,
+    //        ospcommon::vec3f(box.upper+ospcommon::vec3i(1))*cellWidth);
+    //}
   };
 }
 }
@@ -118,15 +108,20 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
       return;
     }
 
+    vtkOSPRayRendererNode *orn =
+                    static_cast<vtkOSPRayRendererNode *>(
+                    this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
+    OSPRenderer oRenderer = orn->GetORenderer();
+    RTW::Backend *backend = orn->GetBackend();
+    if (backend == nullptr)
+        return;
+
     if (!this->TransferFunction)
     {
       this->TransferFunction = ospNewTransferFunction("piecewise_linear");
     }
 
-    vtkOSPRayRendererNode *orn =
-                    static_cast<vtkOSPRayRendererNode *>(
-                    this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-    vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
     this->Cache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
 
     OSPModel OSPRayModel = orn->GetOModel();
@@ -164,7 +159,7 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
         this->OSPRayVolume = ospNewVolume("amr_volume");
         if (this->Cache->HasRoom())
         {
-          auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(this->OSPRayVolume);
+          auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(backend, this->OSPRayVolume);
           this->Cache->Set(tstep, cacheEntry);
         }
         volDirty=true;
@@ -288,7 +283,7 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
       //
       // transfer function
       //
-      this->UpdateTransferFunction(vol);
+    this->UpdateTransferFunction(backend, vol);
       ospSet1i(this->OSPRayVolume, "gradientShadingEnabled",
         volProperty->GetShade());
       this->PropertyTime.Modified();

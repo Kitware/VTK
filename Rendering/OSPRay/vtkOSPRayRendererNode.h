@@ -26,7 +26,7 @@
 #include "vtkRendererNode.h"
 #include <vector> // for ivars
 
-#include "ospray/ospray.h" // for ospray handle types
+#include "RTWrapper/RTWrapper.h" // for handle types
 
 #ifdef VTKOSPRAY_ENABLE_DENOISER
 #include <OpenImageDenoise/oidn.hpp> // for denoiser structures
@@ -218,6 +218,12 @@ public:
   virtual float *GetZBuffer() {
     return this->ZBuffer; }
 
+  // Get the last renderer color buffer as an OpenGL texture.
+  virtual int GetColorBufferTextureGL() { return this->ColorBufferTex; }
+
+  // Get the last renderer depth buffer as an OpenGL texture.
+  virtual int GetDepthBufferTextureGL() { return this->DepthBufferTex; }
+
   // if you want to traverse your children in a specific order
   // or way override this method
   virtual void Traverse(int operation) override;
@@ -225,7 +231,9 @@ public:
   /**
    * Convenience method to get and downcast renderable.
    */
+  static vtkOSPRayRendererNode *GetRendererNode(vtkViewNode *);
   vtkRenderer *GetRenderer();
+  RTW::Backend *GetBackend();
 
   /**
    * Accumulation threshold when above which denoising kicks in.
@@ -263,6 +271,9 @@ protected:
   unsigned char *Buffer;
   float *ZBuffer;
 
+  int ColorBufferTex;
+  int DepthBufferTex;
+
   OSPModel OModel;
   OSPRenderer ORenderer;
   OSPFrameBuffer OFrameBuffer;
@@ -279,6 +290,7 @@ protected:
   vtkMTimeType AccumulateTime;
   vtkMatrix4x4 *AccumulateMatrix;
   vtkOSPRayRendererNodeInternals *Internal;
+  std::string PreviousType;
 
 #ifdef VTKOSPRAY_ENABLE_DENOISER
   oidn::DeviceRef DenoiserDevice;

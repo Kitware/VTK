@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestOSPRayRendererType.cxx
+  Module:    TestRendererType.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test verifies that we can switch between scivis and pathtracer modes
+// This test verifies that we can switch between a variety of raytraced
+// rendering modes.
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
@@ -37,7 +38,7 @@
 
 #include "vtkOSPRayTestInteractor.h"
 
-int TestOSPRayRendererType(int argc, char* argv[])
+int TestRendererType(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -69,19 +70,26 @@ int TestOSPRayRendererType(int argc, char* argv[])
   renderer->SetPass(ospray);
 
   for (int i = 1; i<9; i++)
-    {
-    if (i%2)
-      {
+  {
+    switch (i%3) {
+    case 0:
       cerr << "Render via scivis" << endl;
       vtkOSPRayRendererNode::SetRendererType("scivis", renderer);
-      }
-    else
-      {
-      cerr << "Render via pathtracer" << endl;
+      break;
+    case 1:
+      cerr << "Render via ospray pathtracer" << endl;
       vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
-      }
-    renWin->Render();
+      break;
+    case 2:
+      cerr << "Render via optix pathracer" << endl;
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
     }
+    for (int j = 0; j<10; j++)
+    {
+      renWin->Render();
+    }
+  }
 
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();

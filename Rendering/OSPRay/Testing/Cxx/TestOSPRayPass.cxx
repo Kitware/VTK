@@ -28,6 +28,7 @@
 #include "vtkCamera.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkPLYReader.h"
@@ -67,6 +68,15 @@ int TestOSPRayPass(int argc, char* argv[])
   renWin->Render();
 
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
+
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
 
   for (int i = 1; i<10; i++)
   {

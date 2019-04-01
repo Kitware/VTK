@@ -68,6 +68,15 @@ int TestOSPRayOrthographic(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);
 
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
+
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->SetParallelProjection(1);
   renWin->Render();

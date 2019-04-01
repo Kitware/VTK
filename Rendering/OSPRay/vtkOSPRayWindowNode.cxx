@@ -25,8 +25,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewNodeCollection.h"
 
-#include "ospray/ospray.h"
-#include <stdexcept>
+#include "RTWrapper/RTWrapper.h"
 
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayWindowNode);
@@ -34,7 +33,6 @@ vtkStandardNewMacro(vtkOSPRayWindowNode);
 //----------------------------------------------------------------------------
 vtkOSPRayWindowNode::vtkOSPRayWindowNode()
 {
-  vtkOSPRayPass::OSPInit();
   vtkOSPRayViewNodeFactory *fac = vtkOSPRayViewNodeFactory::New();
   this->SetMyFactory(fac);
   fac->Delete();
@@ -43,7 +41,6 @@ vtkOSPRayWindowNode::vtkOSPRayWindowNode()
 //----------------------------------------------------------------------------
 vtkOSPRayWindowNode::~vtkOSPRayWindowNode()
 {
-  vtkOSPRayPass::OSPShutdown();
 }
 
 //----------------------------------------------------------------------------

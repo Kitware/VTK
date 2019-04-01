@@ -31,7 +31,7 @@
 #include "vtkViewNodeCollection.h"
 #include "vtkVolumeProperty.h"
 
-#include "ospray/ospray.h"
+#include "RTWrapper/RTWrapper.h"
 
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayVolumeNode);

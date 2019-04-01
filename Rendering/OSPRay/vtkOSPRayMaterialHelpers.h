@@ -33,7 +33,7 @@
 
 #include <map>
 
-#include "ospray/ospray.h" // for ospray handle types
+#include "RTWrapper/RTWrapper.h" // for handle types
 
 class vtkImageData;
 class vtkOSPRayRendererNode;
@@ -44,7 +44,8 @@ namespace vtkOSPRayMaterialHelpers {
    * Helper function to make a 2d OSPRay Texture.
    * Was promoted from OSPRay because of deprecation there.
    */
-  OSPTexture NewTexture2D(const osp::vec2i &size,
+  OSPTexture NewTexture2D(RTW::Backend *backend,
+                           const osp::vec2i &size,
                            const OSPTextureFormat type,
                            void *data,
                            const uint32_t _flags,
@@ -53,7 +54,7 @@ namespace vtkOSPRayMaterialHelpers {
   /**
    * Manufacture an ospray texture from a 2d vtkImageData
    */
-  OSPTexture VTKToOSPTexture(vtkImageData *vColorTextureMap);
+  OSPTexture VTKToOSPTexture(RTW::Backend *backend, vtkImageData *vColorTextureMap);
 
   /**
    * Construct a set of ospray materials for all of the material names.

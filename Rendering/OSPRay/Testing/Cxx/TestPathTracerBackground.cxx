@@ -75,6 +75,14 @@ int TestPathTracerBackground(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);
   vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
 
   renderer->SetBackground(0.1,0.1,1.0);
   renWin->Render();

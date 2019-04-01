@@ -26,7 +26,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
-#include <vtkOSPRayPass.h>
+#include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, var) \
@@ -136,6 +137,15 @@ int TestOSPRayStereo(int argc, char *argv[])
   if (!useGL)
   {
     renderer->SetPass(osprayPass);
+
+    for (int i = 0; i < argc; ++i)
+    {
+      if (!strcmp(argv[i], "--OptiX"))
+      {
+        vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+        break;
+      }
+    }
   }
 
   VTK_CREATE(vtkRenderWindow, renwin);

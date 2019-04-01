@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkViewNodeCollection.h"
 
-#include "ospray/ospray.h"
+#include "RTWrapper/RTWrapper.h"
 
 vtkInformationKeyMacro(vtkOSPRayActorNode, LUMINOSITY, Double);
 vtkInformationKeyMacro(vtkOSPRayActorNode, ENABLE_SCALING, Integer);

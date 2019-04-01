@@ -226,10 +226,10 @@ void vtkOSPRayTestInteractor::OnKeyPress()
     if (type == std::string("scivis"))
     {
       vtkOSPRayRendererNode::SetRendererType("pathtracer", this->GLRenderer);
-    }
-    else
-    {
-      vtkOSPRayRendererNode::SetRendererType("scivis", this->GLRenderer);
+    } else if (type == std::string("pathtracer")) {
+       vtkOSPRayRendererNode::SetRendererType("optix pathtracer", this->GLRenderer);
+    } else if (type == std::string("optix pathtracer")) {
+       vtkOSPRayRendererNode::SetRendererType("scivis", this->GLRenderer);
     }
     this->GLRenderer->GetRenderWindow()->Render();
   }

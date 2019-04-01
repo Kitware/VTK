@@ -54,11 +54,21 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
 //----------------------------------------------------------------------------
 vtkOSPRayVolumeMapperNode::~vtkOSPRayVolumeMapperNode()
 {
-  ospRelease(this->TransferFunction);
-  ospRelease(this->SharedData);
-  if (this->Cache->GetSize() == 0)
+  vtkOSPRayRendererNode *orn =
+    static_cast<vtkOSPRayRendererNode *>(
+                                         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+  if (orn)
   {
-    ospRelease(this->OSPRayVolume);
+    RTW::Backend *backend = orn->GetBackend();
+    if (backend != nullptr)
+    {
+        ospRelease(this->TransferFunction);
+        ospRelease(this->SharedData);
+        if (this->Cache->GetSize() == 0)
+        {
+            ospRelease(this->OSPRayVolume);
+        }
+    }
   }
   delete this->Cache;
 }
@@ -91,6 +101,11 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
     vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
+    RTW::Backend *backend = orn->GetBackend();
+    if (backend == nullptr)
+    {
+        return;
+    }
     this->Cache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
 
     OSPModel OSPRayModel = orn->GetOModel();
@@ -203,7 +218,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         }
         if (this->Cache->HasRoom())
         {
-          auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(this->OSPRayVolume);
+          auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(backend, this->OSPRayVolume);
           this->Cache->Set(tstep, std::move(cacheEntry));
         }
         //
@@ -296,7 +311,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     if (volProperty->GetMTime() > this->PropertyTime
         || mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
     {
-      this->UpdateTransferFunction(vol, sa->GetRange());
+      this->UpdateTransferFunction(backend, vol, sa->GetRange());
       bool shade = volProperty->GetShade();
       if (this->Shade != shade)
       {
@@ -344,9 +359,12 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 }
 
 //------------------------------------------------------------------------------
-void vtkOSPRayVolumeMapperNode::UpdateTransferFunction(vtkVolume* vol,
+void vtkOSPRayVolumeMapperNode::UpdateTransferFunction(RTW::Backend *backend,
+                                                       vtkVolume* vol,
                                                        double *dataRange)
 {
+  if (backend == nullptr)
+    return;
   vtkVolumeProperty* volProperty = vol->GetProperty();
   vtkColorTransferFunction* colorTF =
     volProperty->GetRGBTransferFunction(0);

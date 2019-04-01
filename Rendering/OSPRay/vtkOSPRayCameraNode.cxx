@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkViewNodeCollection.h"
 
-#include "ospray/ospray.h"
+#include "RTWrapper/RTWrapper.h"
 
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayCameraNode);
@@ -52,8 +52,11 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
-
     vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
+    RTW::Backend *backend = orn->GetBackend();
+    if (backend == nullptr)
+        return;
+
     vtkRenderWindow *rwin = vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
     bool stereo = false;
     bool right = false;

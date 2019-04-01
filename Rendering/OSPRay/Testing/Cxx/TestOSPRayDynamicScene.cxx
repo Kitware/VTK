@@ -24,6 +24,7 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -33,7 +34,7 @@
 
 #include <map>
 
-int TestOSPRayDynamicScene(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestOSPRayDynamicScene(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -46,6 +47,15 @@ int TestOSPRayDynamicScene(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);
+
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
 
   #define GRIDDIM 3
   vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();

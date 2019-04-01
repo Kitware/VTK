@@ -44,8 +44,6 @@
 #include "vtkSuperquadricSource.h"
 #include "vtkTexture.h"
 
-#include <ospray/version.h>
-
 // !! NOTE this test will output different images based on the OSPRay version,
 // !! since the available materials changed with OSPRay v1.6.
 
@@ -69,6 +67,14 @@ int TestPathTracerMaterials(int argc, char* argv[])
   renderer->SetPass(ospray);
   //todo: let user switch between PT and SV renderer
   vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
 
   //use an environment map so that materials have something to reflect
   vtkSmartPointer<vtkTexture> textr = vtkSmartPointer<vtkTexture>::New();
@@ -660,94 +666,6 @@ int TestPathTracerMaterials(int argc, char* argv[])
   }
   */
 
-  // Plastic is deprecated in 1.6
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR < 6
-  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  //plastic
-  i++;
-  j=0;
-  {
-    style->AddName("default plastic");
-
-    ml->AddMaterial("Plastic 1", "Plastic");
-
-    actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
-    prop = actor->GetProperty();
-    prop->SetMaterialName("Plastic 1");
-    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(polysource->GetOutputPort());
-    actor->SetMapper(mapper);
-    renderer->AddActor(actor);
-  }
-
-  j=1;
-  {
-    style->AddName("colored plastic");
-
-    ml->AddMaterial("Plastic 2", "Plastic");
-    double pigmentColor[3] = { 1.0, 1.0, 0.0 };
-    ml->AddShaderVariable("Plastic 2", "pigmentColor", 3, pigmentColor);
-
-    actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
-    prop = actor->GetProperty();
-    prop->SetMaterialName("Plastic 2");
-    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(polysource->GetOutputPort());
-    actor->SetMapper(mapper);
-    renderer->AddActor(actor);
-  }
-
-  j++;
-  {
-    style->AddName("shiny plastic");
-
-    ml->AddMaterial("Plastic 3", "Plastic");
-    double pigmentColor[3] = { 1.0, 1.0, 0.0 };
-    ml->AddShaderVariable("Plastic 3", "pigmentColor", 3, pigmentColor);
-    double thickness[1] = { 0.0 };
-    ml->AddShaderVariable("Plastic 3", "thickness", 1, thickness);
-    double eta[1] = { 8.0 };
-    ml->AddShaderVariable("Plastic 3", "eta", 1, eta);
-    double roughness[1] = { 0.5 };
-    ml->AddShaderVariable("Plastic 3", "roughness", 1, roughness);
-
-    actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
-    prop = actor->GetProperty();
-    prop->SetMaterialName("Plastic 3");
-    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(polysource->GetOutputPort());
-    actor->SetMapper(mapper);
-    renderer->AddActor(actor);
-  }
-
-  j++;
-  {
-    style->AddName("rough plastic");
-
-    ml->AddMaterial("Plastic 4", "Plastic");
-    double pigmentColor[3] = { 1.0, 1.0, 0.0 };
-    ml->AddShaderVariable("Plastic 4", "pigmentColor", 3, pigmentColor);
-    double thickness[1] = { 0.0 };
-    ml->AddShaderVariable("Plastic 4", "thickness", 1, thickness);
-    double eta[1] = { 8.0 };
-    ml->AddShaderVariable("Plastic 4", "eta", 1, eta);
-    double roughness[1] = { 0.9 };
-    ml->AddShaderVariable("Plastic 4", "roughness", 1, roughness);
-
-    actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
-    prop = actor->GetProperty();
-    prop->SetMaterialName("Plastic 4");
-    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(polysource->GetOutputPort());
-    actor->SetMapper(mapper);
-    renderer->AddActor(actor);
-  }
-#endif // ospray < 1.6
-
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //thin glass
   i++;
@@ -826,69 +744,6 @@ int TestPathTracerMaterials(int argc, char* argv[])
     renderer->AddActor(actor);
   }
   */
-
-  // Velvet is deprecated in 1.6
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR < 6
-  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  //velvet
-  i++;
-  j=0;
-  {
-    style->AddName("default velvet");
-
-    ml->AddMaterial("Velvet 1", "Velvet");
-
-    actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
-    prop = actor->GetProperty();
-    prop->SetMaterialName("Velvet 1");
-    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(polysource->GetOutputPort());
-    actor->SetMapper(mapper);
-    renderer->AddActor(actor);
-  }
-
-  j++;
-  {
-    style->AddName("scattercolor velvet");
-
-    ml->AddMaterial("Velvet 2", "Velvet");
-    double horizonScatteringColor[3] = { 1.0, 0.0, 1.0 };
-    ml->AddShaderVariable("Velvet 2", "horizonScatteringColor", 3, horizonScatteringColor);
-
-    actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
-    prop = actor->GetProperty();
-    prop->SetMaterialName("Velvet 2");
-    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(polysource->GetOutputPort());
-    actor->SetMapper(mapper);
-    renderer->AddActor(actor);
-  }
-
-  j++;
-  { // It's a strange world...
-    style->AddName("blue velvet");
-
-    ml->AddMaterial("Velvet 3", "Velvet");
-    double horizonScatteringColor[3] = { 0.6, 0.6, 1.0 };
-    ml->AddShaderVariable("Velvet 3", "horizonScatteringColor", 3, horizonScatteringColor);
-    double reflectance[3] = { 0.3, 0.3, 0.6 };
-    ml->AddShaderVariable("Velvet 3", "reflectance", 3, reflectance);
-
-    actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
-    prop = actor->GetProperty();
-    prop->SetMaterialName("Velvet 3");
-    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(polysource->GetOutputPort());
-    actor->SetMapper(mapper);
-    renderer->AddActor(actor);
-  }
-#endif // ospray < 1.6
-
-  // CarPaint and Principled were added in 1.6:
-#if (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 6) || OSPRAY_VERSION_MAJOR > 1
 
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //CarPaint
@@ -998,8 +853,6 @@ int TestPathTracerMaterials(int argc, char* argv[])
     actor->SetMapper(mapper);
     renderer->AddActor(actor);
   }
-
-#endif // ospray >= 1.6
 
   //now finally draw
   renWin->Render(); //let vtk pick a decent camera

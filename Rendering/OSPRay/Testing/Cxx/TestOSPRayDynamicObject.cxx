@@ -26,6 +26,7 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -33,7 +34,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
-int TestOSPRayDynamicObject(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestOSPRayDynamicObject(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -50,6 +51,15 @@ int TestOSPRayDynamicObject(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   renderer->SetBackground(0.1,0.1,1.0);
   renWin->SetSize(400,400);
   renWin->Render();
+
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
 
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
 

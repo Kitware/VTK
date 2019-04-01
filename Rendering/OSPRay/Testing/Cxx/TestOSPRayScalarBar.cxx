@@ -27,6 +27,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkTextProperty.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkSphereSource.h"
 #include "vtkNew.h"
 #include "vtkScalarBarActor.h"
@@ -95,6 +96,15 @@ int TestOSPRayScalarBar( int argc, char *argv[] )
   renWin->SetMultiSamples( 0 );
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   ren1->SetPass(ospray);
+
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", ren1);
+      break;
+    }
+  }
 
   renWin->Render();
 

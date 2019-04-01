@@ -45,7 +45,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-int TestOSPRayCache(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestOSPRayCache(int argc, char* argv[])
 {
   auto iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   auto renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -56,6 +56,16 @@ int TestOSPRayCache(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   renWin->SetSize(400,400);
 
   auto ospray=vtkSmartPointer<vtkOSPRayPass>::New();
+
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
+
   renderer->SetPass(ospray);
 
   // a well behaved time varying data source

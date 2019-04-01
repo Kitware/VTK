@@ -196,6 +196,15 @@ int TestOSPRayLights(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);
 
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
+
   //increase image quality from default (otherwise subsampling artifacts)
   renWin->Render();
   renderer->UseShadowsOn();

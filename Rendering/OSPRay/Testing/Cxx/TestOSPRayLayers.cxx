@@ -22,6 +22,7 @@
 #include "vtkCamera.h"
 #include "vtkConeSource.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -29,7 +30,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
-int TestOSPRayLayers(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestOSPRayLayers(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -63,6 +64,16 @@ int TestOSPRayLayers(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
   vtkSmartPointer<vtkOSPRayPass> ospray2=vtkSmartPointer<vtkOSPRayPass>::New();
+
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer2);
+      break;
+    }
+  }
 
   renderer->SetPass(ospray);
   renderer2->SetPass(ospray2);

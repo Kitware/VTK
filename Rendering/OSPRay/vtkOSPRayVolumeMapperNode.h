@@ -26,7 +26,7 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
-#include "ospray/ospray.h" // for ospray handle types
+#include "RTWrapper/RTWrapper.h" // for handle types
 
 class vtkAbstractArray;
 class vtkDataSet;
@@ -60,7 +60,7 @@ protected:
   /**
    * updates internal OSPRay transfer function for volume
    */
-  void UpdateTransferFunction(vtkVolume* vol, double *dataRange=nullptr);
+  void UpdateTransferFunction(RTW::Backend *be, vtkVolume* vol, double *dataRange=nullptr);
 
   //TODO: SetAndGetters?
   int NumColors;

@@ -25,6 +25,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -63,6 +64,15 @@ int TestOSPRayMultiBlock(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
 
   renderer->SetPass(ospray);
+
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      break;
+    }
+  }
 
   renWin->Render();
 

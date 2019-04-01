@@ -29,6 +29,7 @@
 #include "vtkNew.h"
 #include "vtkElevationFilter.h"
 #include "vtkOSPRayWindowNode.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
@@ -55,6 +56,15 @@ int TestOSPRayWindow( int argc, char *argv[] )
   vtkSmartPointer<vtkRenderer> ren1 =
     vtkSmartPointer<vtkRenderer>::New();
   ren1->AddLight(light1);
+
+  for (int i = 0; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "--OptiX"))
+    {
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", ren1);
+      break;
+    }
+  }
 
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();

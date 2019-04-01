@@ -31,7 +31,7 @@
 
 #include <algorithm>
 
-#include "ospray/ospray.h"
+#include "RTWrapper/RTWrapper.h"
 
 #include <cassert>
 
@@ -49,10 +49,19 @@ vtkOSPRayTetrahedraMapperNode::vtkOSPRayTetrahedraMapperNode()
 
 vtkOSPRayTetrahedraMapperNode::~vtkOSPRayTetrahedraMapperNode()
 {
-  ospRelease(this->TransferFunction);
-  if (this->Cache->GetSize() == 0)
+  vtkOSPRayRendererNode *orn =
+    vtkOSPRayRendererNode::GetRendererNode(this);
+  if (orn)
   {
-    ospRelease(this->OSPRayVolume);
+    RTW::Backend *backend = orn->GetBackend();
+    if (backend != nullptr)
+    {
+      ospRelease(this->TransferFunction);
+      if (this->Cache->GetSize() == 0)
+      {
+        ospRelease(this->OSPRayVolume);
+      }
+    }
   }
   delete this->Cache;
 }
@@ -99,6 +108,9 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
 
     vtkOSPRayRendererNode *orn = static_cast<vtkOSPRayRendererNode *>(
       this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+    RTW::Backend *backend = orn->GetBackend();
+    if (backend == nullptr)
+        return;
     vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
     this->Cache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
 
@@ -152,7 +164,7 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
         this->OSPRayVolume = ospNewVolume("unstructured_volume");
         if (this->Cache->HasRoom())
         {
-          auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(this->OSPRayVolume);
+          auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(backend, this->OSPRayVolume);
           this->Cache->Set(tstep, cacheEntry);
         }
 
@@ -281,6 +293,7 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       OSPData colorData = ospNewData(this->NumColors,
         OSP_FLOAT3,
         &this->TFVals[0]);
+
       ospSetData(this->TransferFunction, "colors", colorData);
 
       OSPData tfAlphaData = ospNewData(NumColors, OSP_FLOAT, &TFOVals[0]);

@@ -24,6 +24,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkOSPRayTestInteractor.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
@@ -138,6 +139,15 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   if (!useGL)
   {
     ren->SetPass(ospray);
+
+    for (int i = 0; i < argc; ++i)
+    {
+      if (!strcmp(argv[i], "--OptiX"))
+      {
+        vtkOSPRayRendererNode::SetRendererType("optix pathtracer", ren);
+        break;
+      }
+    }
   }
   ren->ResetCamera();
 
