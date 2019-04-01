@@ -36,9 +36,12 @@ int TestPLYReaderTextureUV( int argc, char *argv[] )
     return EXIT_FAILURE;
   }
   std::string fn = "Data/";
-  fn += argv[1];
-  const char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, fn.c_str());
-  const char* fnameImg = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk.png");
+  std::string plyName = fn + argv[1];
+  std::string imageName = fn + argv[2];
+  const char* fname = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, plyName.c_str());
+  const char* fnameImg = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, imageName.c_str());
 
   // Test if the reader thinks it can open the file.
   if (0 == vtkPLYReader::CanReadFile(fname))
