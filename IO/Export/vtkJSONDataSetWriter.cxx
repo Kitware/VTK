@@ -44,6 +44,7 @@ vtkStandardNewMacro(vtkJSONDataSetWriter);
 vtkJSONDataSetWriter::vtkJSONDataSetWriter()
 {
   this->FileName = nullptr;
+  this->ValidStringCount = 1;
 }
 
 // ----------------------------------------------------------------------------
@@ -142,7 +143,7 @@ std::string vtkJSONDataSetWriter::WriteArray(
   std::stringstream ss;
   ss << "{\n"
      << INDENT << "  \"vtkClass\": \"" << className << "\",\n"
-     << INDENT << "  \"name\": \"" << (arrayName == nullptr ? array->GetName() : arrayName) << "\",\n"
+     << INDENT << "  \"name\": \"" << this->GetValidString(arrayName == nullptr ? array->GetName() : arrayName) << "\",\n"
      << INDENT << "  \"numberOfComponents\": " << array->GetNumberOfComponents() << ",\n"
      << INDENT << "  \"dataType\": \"" << vtkJSONDataSetWriter::GetShortType(array, needConvert) << "Array\",\n"
      << INDENT << "  \"ref\": {\n"
@@ -381,6 +382,20 @@ std::string vtkJSONDataSetWriter::GetUID(vtkDataArray* input, bool& needConversi
   std::stringstream ss;
   ss << vtkJSONDataSetWriter::GetShortType(input, needConversion) << "_" << input->GetNumberOfValues()
      << "-" << hash.c_str();
+
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
+
+std::string vtkJSONDataSetWriter::GetValidString(const char* name)
+{
+  if (name != nullptr && strlen(name))
+  {
+    return name;
+  }
+  std::stringstream ss;
+  ss << "invalid_" << this->ValidStringCount++;
 
   return ss.str();
 }
