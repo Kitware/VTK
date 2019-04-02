@@ -490,6 +490,4 @@ vtk_module_link(VTK::CommonCore
     $<$<PLATFORM_ID:Android>:log>)
 vtk_module_compile_features(VTK::CommonCore
   PUBLIC
-    cxx_std_11
-    cxx_nullptr
-    cxx_override)
+    cxx_std_11)
