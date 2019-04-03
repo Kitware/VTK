@@ -67,11 +67,24 @@ colorAlpha = vtk.vtkImageAppendComponents()
 colorAlpha.AddInputConnection(color.GetOutputPort())
 colorAlpha.AddInputConnection(alpha.GetOutputPort())
 
+# create pseudo alpha values for background
+bmask = vtk.vtkImageCanvasSource2D()
+bmask.SetScalarTypeToUnsignedChar()
+bmask.SetNumberOfScalarComponents(1)
+bmask.SetExtent(0, 127, 0, 127, 0, 0)
+bmask.SetDrawColor(255)
+bmask.DrawCircle(64, 64, 40)
+bmask.FillPixel(64, 64)
+
+backgroundAlpha = vtk.vtkImageAppendComponents()
+backgroundAlpha.AddInputConnection(backgroundColor.GetOutputPort())
+backgroundAlpha.AddInputConnection(bmask.GetOutputPort())
+
 foregrounds = ["luminance", "luminanceAlpha", "color", "colorAlpha"]
-backgrounds = ["backgroundColor", "backgroundLuminance"]
+backgrounds = ["backgroundAlpha", "backgroundColor", "backgroundLuminance"]
 
 deltaX = 1.0 / 4.0
-deltaY = 1.0 / 2.0
+deltaY = 1.0 / 3.0
 
 blend = dict()
 mapper = dict()
@@ -86,6 +99,12 @@ for row, bg in enumerate(backgrounds):
         if bg == "backgroundColor" or fg == "luminance" or fg == "luminanceAlpha":
             blend[bg][fg].AddInputConnection(eval(fg + '.GetOutputPort()'))
             blend[bg][fg].SetOpacity(1, 0.8)
+        if bg == "backgroundAlpha" and (fg == "color" or fg ==
+                "colorAlpha"):
+            blend[bg][fg].AddInputConnection(eval(fg + '.GetOutputPort()'))
+            blend[bg][fg].SetCompoundAlpha(True)
+            blend[bg][fg].SetOpacity(0, 0.5)
+            blend[bg][fg].SetOpacity(1, 0.5)
 
         mapper.update({bg:{fg:vtk.vtkImageMapper()}})
         mapper[bg][fg].SetInputConnection(blend[bg][fg].GetOutputPort())
@@ -106,5 +125,6 @@ for row, bg in enumerate(backgrounds):
 # render and interact with data
 
 iRen = vtk.vtkRenderWindowInteractor()
-iRen.SetRenderWindow(renWin);
+iRen.SetRenderWindow(renWin)
 renWin.Render()
+iRen.Start()
