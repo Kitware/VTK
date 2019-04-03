@@ -142,7 +142,7 @@ public:
   }
   void Allocate(int numElements, int numTimeSteps)
   {
-    assert(numElements > 0);
+    assert(numElements >= 0); //allow 0 for empty FieldData
     assert(numTimeSteps > 0);
     this->Internals.resize(numElements);
     for(int i=0; i<numElements; i++)
