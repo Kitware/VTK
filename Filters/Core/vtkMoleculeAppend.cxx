@@ -102,8 +102,8 @@ int vtkMoleculeAppend::RequestData(vtkInformation*,
 
     for (vtkIdType ai = 0; ai < inputNbAtomArrays; ai++)
     {
-      vtkDataArray* inArray = input->GetAtomData()->GetArray(ai);
-      if (!this->CheckArrays(inArray, outputAtomData->GetArray(inArray->GetName())))
+      vtkAbstractArray* inArray = input->GetAtomData()->GetAbstractArray(ai);
+      if (!this->CheckArrays(inArray, outputAtomData->GetAbstractArray(inArray->GetName())))
       {
         vtkErrorMacro(<< "Input " << idx << ": atoms arrays do not match with output");
         return 0;
@@ -112,8 +112,8 @@ int vtkMoleculeAppend::RequestData(vtkInformation*,
 
     for (vtkIdType ai = 0; ai < inputNbBondArrays; ai++)
     {
-      vtkDataArray* inArray = input->GetBondData()->GetArray(ai);
-      if (!this->CheckArrays(inArray, outputBondData->GetArray(inArray->GetName())))
+      vtkAbstractArray* inArray = input->GetBondData()->GetAbstractArray(ai);
+      if (!this->CheckArrays(inArray, outputBondData->GetAbstractArray(inArray->GetName())))
       {
         vtkErrorMacro(<< "Input " << idx << ": bonds arrays do not match with output");
         return 0;
@@ -174,20 +174,20 @@ int vtkMoleculeAppend::RequestData(vtkInformation*,
     // Reset arrays size (and allocation if needed)
     for (vtkIdType ai = 0; ai < input->GetAtomData()->GetNumberOfArrays(); ai++)
     {
-      vtkDataArray* inArray = input->GetAtomData()->GetArray(ai);
-      vtkDataArray* outArray = output->GetAtomData()->GetArray(inArray->GetName());
+      vtkAbstractArray* inArray = input->GetAtomData()->GetAbstractArray(ai);
+      vtkAbstractArray* outArray = output->GetAtomData()->GetAbstractArray(inArray->GetName());
       outArray->Resize(previousNbOfAtoms + nbOfAtoms);
     }
 
     for (vtkIdType ai = 0; ai < input->GetBondData()->GetNumberOfArrays(); ai++)
     {
       // skip bond orders array as it is auto-filled by AppendBond method
-      vtkDataArray* inArray = input->GetBondData()->GetArray(ai);
+      vtkAbstractArray* inArray = input->GetBondData()->GetAbstractArray(ai);
       if (!strcmp(inArray->GetName(), input->GetBondOrdersArrayName()))
       {
         continue;
       }
-      vtkDataArray* outArray = output->GetBondData()->GetArray(inArray->GetName());
+      vtkAbstractArray* outArray = output->GetBondData()->GetAbstractArray(inArray->GetName());
       outArray->Resize(previousNbOfBonds + nbOfBonds);
     }
 
@@ -197,32 +197,32 @@ int vtkMoleculeAppend::RequestData(vtkInformation*,
     {
       for (vtkIdType ai = 0; ai < input->GetAtomData()->GetNumberOfArrays(); ai++)
       {
-        vtkDataArray* inArray = input->GetAtomData()->GetArray(ai);
-        vtkDataArray* outArray = output->GetAtomData()->GetArray(inArray->GetName());
+        vtkAbstractArray* inArray = input->GetAtomData()->GetAbstractArray(ai);
+        vtkAbstractArray* outArray = output->GetAtomData()->GetAbstractArray(inArray->GetName());
         // Use Value of non-ghost atom.
         if (outputGhostAtoms && outputGhostAtoms->GetValue(atomIdMap[i]) == 0)
         {
           continue;
         }
-        outArray->InsertTuple(atomIdMap[i], inArray->GetTuple(i));
+        outArray->InsertTuple(atomIdMap[i], i, inArray);
       }
     }
     for (vtkIdType i = 0; i < input->GetNumberOfBonds(); i++)
     {
       vtkBond bond = input->GetBond(i);
       vtkIdType outputBondId =
-        output->GetBondId(atomIdMap[bond.GetBeginAtomId()], atomIdMap[bond.GetBeginAtomId()]);
+        output->GetBondId(atomIdMap[bond.GetBeginAtomId()], atomIdMap[bond.GetEndAtomId()]);
 
       for (vtkIdType ai = 0; ai < input->GetBondData()->GetNumberOfArrays(); ai++)
       {
         // skip bond orders array as it is auto-filled by AppendBond method
-        vtkDataArray* inArray = input->GetBondData()->GetArray(ai);
+        vtkAbstractArray* inArray = input->GetBondData()->GetAbstractArray(ai);
         if (!strcmp(inArray->GetName(), input->GetBondOrdersArrayName()))
         {
           continue;
         }
-        vtkDataArray* outArray = output->GetBondData()->GetArray(inArray->GetName());
-        outArray->InsertTuple(outputBondId, inArray->GetTuple(i));
+        vtkAbstractArray* outArray = output->GetBondData()->GetAbstractArray(inArray->GetName());
+        outArray->InsertTuple(outputBondId, i, inArray);
       }
     }
   }
@@ -253,7 +253,7 @@ int vtkMoleculeAppend::FillInputPortInformation(int i, vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-bool vtkMoleculeAppend::CheckArrays(vtkDataArray* array1, vtkDataArray* array2)
+bool vtkMoleculeAppend::CheckArrays(vtkAbstractArray* array1, vtkAbstractArray* array2)
 {
   if (strcmp(array1->GetName(), array2->GetName()))
   {

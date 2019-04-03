@@ -70,7 +70,7 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
   // Check arrays information : name, type and number of components.
-  bool CheckArrays(vtkDataArray* array1, vtkDataArray* array2);
+  bool CheckArrays(vtkAbstractArray* array1, vtkAbstractArray* array2);
 
   bool MergeCoincidentAtoms;
 
