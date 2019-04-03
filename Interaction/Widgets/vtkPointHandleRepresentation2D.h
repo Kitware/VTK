@@ -117,6 +117,14 @@ public:
    */
   void SetPointPlacer ( vtkPointPlacer * ) override;
 
+  /**
+   * Override to ensure that the internal actor's visibility is consistent with
+   * this representation's visibility. Inconsistency between the two would cause
+   * issues in picking logic which relies on individual view prop visibility to
+   * determine whether the prop is pickable.
+   */
+  void SetVisibility(vtkTypeBool visible) override;
+
 protected:
   vtkPointHandleRepresentation2D();
   ~vtkPointHandleRepresentation2D() override;

@@ -395,6 +395,14 @@ int vtkPointHandleRepresentation2D::RenderOverlay(vtkViewport *viewport)
 }
 
 //----------------------------------------------------------------------
+void vtkPointHandleRepresentation2D::SetVisibility(vtkTypeBool visible)
+{
+  this->Actor->SetVisibility(visible);
+  // Forward to superclass
+  this->Superclass::SetVisibility(visible);
+}
+
+//----------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
