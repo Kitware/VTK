@@ -74,6 +74,13 @@ public:
 
   //@{
   /**
+   * Return a Unique identifier for any invalid string
+   */
+  std::string GetValidString(const char*);
+  //@}
+
+  //@{
+  /**
    * Write the content of the vtkDataArray to disk based on the filePath
    * provided without any extra information. Just the raw data will be
    * written.
@@ -117,6 +124,7 @@ protected:
 
   char* FileName;
   bool ValidDataSet;
+  int ValidStringCount;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

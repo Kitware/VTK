@@ -35,7 +35,8 @@ def convertDirectoryToZipFile(directoryPath):
 
 def addDataToViewer(dataPath, srcHtmlPath):
     if os.path.isfile(dataPath) and os.path.exists(srcHtmlPath):
-        dstHtmlPath = '%s.html' % os.path.basename(dataPath)[:-6]
+        dstDir = os.path.dirname(dataPath)
+        dstHtmlPath = os.path.join(dstDir, '%s.html' % os.path.basename(dataPath)[:-6])
 
         # Extract data as base64
         with open(dataPath, 'rb') as data:
