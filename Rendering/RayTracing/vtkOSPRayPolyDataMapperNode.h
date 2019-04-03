@@ -24,12 +24,12 @@
 
 #include "vtkOSPRayCache.h" // For common cache infrastructure
 #include "vtkPolyDataMapperNode.h"
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 
 class vtkOSPRayActorNode;
 class vtkPolyData;
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayPolyDataMapperNode :
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayPolyDataMapperNode :
   public vtkPolyDataMapperNode
 {
 public:

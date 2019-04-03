@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOSPRayWindowNode.h
+  Module:    vtkOSPRayCameraNode.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,24 +13,24 @@
 
 =========================================================================*/
 /**
- * @class   vtkOSPRayWindowNode
- * @brief   links vtkRendererWindows to OSPRay
+ * @class   vtkOSPRayCameraNode
+ * @brief   links vtkCamera to OSPRay
  *
- * Translates vtkRenderWindow state into OSPRay rendering calls
+ * Translates vtkCamera state into OSPRay rendering calls
 */
 
-#ifndef vtkOSPRayWindowNode_h
-#define vtkOSPRayWindowNode_h
+#ifndef vtkOSPRayCameraNode_h
+#define vtkOSPRayCameraNode_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
-#include "vtkWindowNode.h"
+#include "vtkRenderingRayTracingModule.h" // For export macro
+#include "vtkCameraNode.h"
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayWindowNode :
-  public vtkWindowNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayCameraNode :
+  public vtkCameraNode
 {
 public:
-  static vtkOSPRayWindowNode* New();
-  vtkTypeMacro(vtkOSPRayWindowNode, vtkWindowNode);
+  static vtkOSPRayCameraNode* New();
+  vtkTypeMacro(vtkOSPRayCameraNode, vtkCameraNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -39,12 +39,12 @@ public:
   virtual void Render(bool prepass) override;
 
 protected:
-  vtkOSPRayWindowNode();
-  ~vtkOSPRayWindowNode();
+  vtkOSPRayCameraNode();
+  ~vtkOSPRayCameraNode();
 
 private:
-  vtkOSPRayWindowNode(const vtkOSPRayWindowNode&) = delete;
-  void operator=(const vtkOSPRayWindowNode&) = delete;
+  vtkOSPRayCameraNode(const vtkOSPRayCameraNode&) = delete;
+  void operator=(const vtkOSPRayCameraNode&) = delete;
 };
 
 #endif

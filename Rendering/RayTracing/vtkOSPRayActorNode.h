@@ -22,7 +22,7 @@
 #ifndef vtkOSPRayActorNode_h
 #define vtkOSPRayActorNode_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkActorNode.h"
 #include "vtkTimeStamp.h" //for mapper changed time
 #include "vtkWeakPointer.h" //also for mapper changed time
@@ -41,7 +41,7 @@ class vtkProperty;
 class vtkTimeStamp;
 
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayActorNode :
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayActorNode :
   public vtkActorNode
 {
 public:

@@ -25,12 +25,12 @@
 #define vtkOSPRayTetrahedraMapperNode_h
 
 #include "vtkOSPRayCache.h" // For common cache infrastructure
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayTetrahedraMapperNode : public vtkVolumeMapperNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayTetrahedraMapperNode : public vtkVolumeMapperNode
 
 {
 public:

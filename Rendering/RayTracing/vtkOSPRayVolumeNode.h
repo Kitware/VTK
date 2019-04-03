@@ -22,7 +22,7 @@
 #ifndef vtkOSPRayVolumeNode_h
 #define vtkOSPRayVolumeNode_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkVolumeNode.h"
 
 class vtkVolume;
@@ -34,7 +34,7 @@ class vtkInformationStringKey;
 class vtkPiecewiseFunction;
 class vtkPolyData;
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeNode :
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayVolumeNode :
   public vtkVolumeNode
 {
 public:

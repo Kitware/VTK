@@ -25,10 +25,10 @@
 #ifndef vtkOSPRayAMRVolumeMapperNode_h
 #define vtkOSPRayAMRVolumeMapperNode_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkOSPRayVolumeMapperNode.h"
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayAMRVolumeMapperNode :
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayAMRVolumeMapperNode :
   public vtkOSPRayVolumeMapperNode
 {
 public:

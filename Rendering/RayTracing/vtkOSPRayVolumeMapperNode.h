@@ -23,7 +23,7 @@
 #define vtkOSPRayVolumeMapperNode_h
 
 #include "vtkOSPRayCache.h" // For common cache infrastructure
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
 #include "RTWrapper/RTWrapper.h" // for handle types
@@ -32,7 +32,7 @@ class vtkAbstractArray;
 class vtkDataSet;
 class vtkVolume;
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeMapperNode :
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayVolumeMapperNode :
   public vtkVolumeMapperNode
 {
 public:

@@ -24,14 +24,14 @@
 #ifndef vtkOSPRayVolumeMapper_h
 #define vtkOSPRayVolumeMapper_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkOSPRayVolumeInterface.h"
 
 class vtkOSPRayPass;
 class vtkRenderer;
 class vtkWindow;
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeMapper
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayVolumeMapper
   : public vtkOSPRayVolumeInterface
 {
 public:

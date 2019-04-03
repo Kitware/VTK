@@ -28,7 +28,7 @@
 #ifndef vtkOSPRayCache_h
 #define vtkOSPRayCache_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkSystemIncludes.h" //dll warning suppression
 #include <map> // for stl
 #include <memory>
@@ -36,7 +36,7 @@
 #include "RTWrapper/RTWrapper.h" // for handle types
 
 template <class T>
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayCache {
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayCache {
 public:
   vtkOSPRayCache()
   {

@@ -22,7 +22,7 @@
 #ifndef vtkOSPRayRendererNode_h
 #define vtkOSPRayRendererNode_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkRendererNode.h"
 #include <vector> // for ivars
 
@@ -43,7 +43,7 @@ class vtkOSPRayMaterialLibrary;
 class vtkRenderer;
 
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayRendererNode :
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayRendererNode :
   public vtkRendererNode
 {
 public:

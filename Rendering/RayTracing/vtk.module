@@ -1,7 +1,7 @@
 NAME
-  VTK::RenderingOSPRay
+  VTK::RenderingRayTracing
 LIBRARY_NAME
-  vtkRenderingOSPRay
+  vtkRenderingRayTracing
 IMPLEMENTS
   VTK::RenderingVolume
 DEPENDS

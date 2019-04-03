@@ -22,7 +22,7 @@
 #ifndef vtkOSPRayLightNode_h
 #define vtkOSPRayLightNode_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkLightNode.h"
 
 #include "RTWrapper/RTWrapper.h" // for handle types
@@ -34,7 +34,7 @@ class vtkInformationIntegerKey;
 class vtkLight;
 class vtkOSPRayRendererNode;
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayLightNode :
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayLightNode :
   public vtkLightNode
 {
 public:

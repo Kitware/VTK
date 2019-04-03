@@ -37,7 +37,7 @@
 #ifndef vtkOSPRayPass_h
 #define vtkOSPRayPass_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkRenderPass.h"
 
 #include <string> // for std::string
@@ -51,7 +51,7 @@ class vtkRenderPassCollection;
 class vtkSequencePass;
 class vtkVolumetricPass;
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayPass : public vtkRenderPass
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayPass : public vtkRenderPass
 {
 public:
   static vtkOSPRayPass *New();

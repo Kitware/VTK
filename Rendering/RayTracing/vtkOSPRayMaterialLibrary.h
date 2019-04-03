@@ -25,7 +25,7 @@
 #ifndef vtkOSPRayMaterialLibrary_h
 #define vtkOSPRayMaterialLibrary_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkObject.h"
 
 #include <initializer_list> //for initializer_list!
@@ -35,7 +35,7 @@
 class vtkOSPRayMaterialLibraryInternals;
 class vtkTexture;
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayMaterialLibrary : public vtkObject
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayMaterialLibrary : public vtkObject
 {
 public:
   static vtkOSPRayMaterialLibrary *New();

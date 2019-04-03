@@ -24,10 +24,10 @@
 #ifndef vtkOSPRayViewNodeFactory_h
 #define vtkOSPRayViewNodeFactory_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkViewNodeFactory.h"
 
-class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayViewNodeFactory :
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayViewNodeFactory :
   public vtkViewNodeFactory
 {
 public:
