@@ -17,6 +17,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestCellCentersPointPlacer.cxx
   TestCenteredSliderWidget2D.cxx
   TestCheckerboardWidget.cxx
+  TestCoincidentHandleWidgets.cxx
   TestConstrainedHandleWidget.cxx
   TestContourWidget2.cxx
   TestDijkstraImageGeodesicPath.cxx
