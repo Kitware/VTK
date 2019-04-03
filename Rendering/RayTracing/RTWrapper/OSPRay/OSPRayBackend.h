@@ -4,9 +4,10 @@
 
 #include "../Backend.h"
 
-#include <stdlib.h>
+#include <cstring>
 #include <sstream>
 #include <stdexcept>
+#include <stdlib.h>
 #include <vector>
 
 namespace RTW
