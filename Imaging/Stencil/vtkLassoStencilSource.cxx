@@ -527,7 +527,7 @@ int vtkLassoStencilSource::RequestData(
 
   while (iter != maxiter && result != 0)
   {
-    this->SetProgress((slabExtent[2*zj] - zmin)*1.0/(zmax - zmin + 1));
+    this->UpdateProgress((slabExtent[2*zj] - zmin)*1.0/(zmax - zmin + 1));
 
     int i = iter->first;
     vtkPoints *points = iter->second;
@@ -558,7 +558,7 @@ int vtkLassoStencilSource::RequestData(
     ++iter;
   }
 
-  this->SetProgress((slabExtent[2*zj] - zmin)*1.0/(zmax - zmin + 1));
+  this->UpdateProgress((slabExtent[2*zj] - zmin)*1.0/(zmax - zmin + 1));
 
   // fill in the rest
   if (result && slabExtent[2*zj] <= zmax)
@@ -569,7 +569,7 @@ int vtkLassoStencilSource::RequestData(
       this->Points, data, &raster, slabExtent, origin, spacing,
       this->Shape, xj, yj, this->SplineX, this->SplineY);
 
-    this->SetProgress(1.0);
+    this->UpdateProgress(1.0);
   }
 
   return result;

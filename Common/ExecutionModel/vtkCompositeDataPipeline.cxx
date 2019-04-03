@@ -281,13 +281,26 @@ void vtkCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* iter,
                                            vtkInformation* request,
                                            std::vector<vtkSmartPointer<vtkCompositeDataSet>>& compositeOutputs)
 {
-  vtkInformation* inInfo  =inInfoVec[compositePort]->GetInformationObject(connection);
+  vtkInformation* inInfo = inInfoVec[compositePort]->GetInformationObject(connection);
 
+  vtkIdType num_blocks = 0;
+  // a quick iteration to get the total number of blocks to iterate over which
+  // is necessary to scale progress events.
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  {
+    ++num_blocks;
+  }
+
+  const double progress_scale = 1.0 / num_blocks;
+  vtkIdType block_index = 0;
+
+  auto algo = this->GetAlgorithm();
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), ++block_index)
   {
     vtkDataObject* dobj = iter->GetCurrentDataObject();
     if (dobj)
     {
+      algo->SetProgressShiftScale(progress_scale * block_index, progress_scale);
       // Note that since VisitOnlyLeaves is ON on the iterator,
       // this method is called only for leaves, hence, we are assured that
       // neither dobj nor outObj are vtkCompositeDataSet subclasses.
@@ -309,6 +322,8 @@ void vtkCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* iter,
       }
     }
   }
+
+  algo->SetProgressShiftScale(0.0, 1.0);
 }
 
 //----------------------------------------------------------------------------
