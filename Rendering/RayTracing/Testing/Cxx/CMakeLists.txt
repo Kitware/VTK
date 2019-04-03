@@ -1,5 +1,5 @@
 if (VTK_ENABLE_OSPRAY)
-  vtk_add_test_cxx(vtkRenderingOSPRayCxxTests tests
+  vtk_add_test_cxx(vtkRenderingRayTracingCxxTests tests
     # Surface rendering tests
     TestOSPRayAmbient.cxx
     TestOSPRayAMRVolumeRenderer.cxx
@@ -85,37 +85,37 @@ if (VTK_ENABLE_VISRTX)
     list(APPEND optix_test_sources ${tname}${testname_suffix},${tname}.cxx)
   endforeach ()
 
-  vtk_add_test_cxx(vtkRenderingOSPRayCxxTests tests_optix
+  vtk_add_test_cxx(vtkRenderingRayTracingCxxTests tests_optix
     "--OptiX"
     ${optix_test_sources})
 endif ()
 
 if (VTK_ENABLE_OSPRAY AND VTK_ENABLE_VISRTX)
   # Tests combining both OSPRay and OptiX backends
-  vtk_add_test_cxx(vtkRenderingOSPRayCxxTests tests_combined
+  vtk_add_test_cxx(vtkRenderingRayTracingCxxTests tests_combined
     TestRendererType.cxx
     TestMultipleBackends.cxx
     )
 endif ()
 
 set(all_tests ${tests} ${tests_optix} ${tests_combined})
-vtk_test_cxx_executable(vtkRenderingOSPRayCxxTests all_tests RENDERING_FACTORY
+vtk_test_cxx_executable(vtkRenderingRayTracingCxxTests all_tests RENDERING_FACTORY
   vtkOSPRayTestInteractor.cxx
   )
 
 
 # Do we have MPI and parallel support
 if (VTK_ENABLE_OSPRAY AND TARGET vtkRenderingParallel AND TARGET vtkParallelMPI)
-  set(vtkRenderingOSPRayCxx-MPI_NUMPROCS 2)
-  vtk_add_test_mpi(vtkRenderingOSPRayCxx-MPI tests
+  set(vtkRenderingRayTracingCxx-MPI_NUMPROCS 2)
+  vtk_add_test_mpi(vtkRenderingRayTracingCxx-MPI tests
     TESTING_DATA
     TestOSPRayComposite.cxx
     )
-  vtk_test_cxx_executable(vtkRenderingOSPRayCxx-MPI tests RENDERING_FACTORY
+  vtk_test_cxx_executable(vtkRenderingRayTracingCxx-MPI tests RENDERING_FACTORY
     vtkOSPRayTestInteractor.cxx
     )
 
-  target_link_libraries(vtkRenderingOSPRayCxx-MPI
+  target_link_libraries(vtkRenderingRayTracingCxx-MPI
     PRIVATE
       vtkRenderingParallel
       vtkParallelMPI)

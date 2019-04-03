@@ -46,7 +46,7 @@
 #include <vtkProperty.h>
 
 #include <vtkAutoInit.h>
-VTK_MODULE_INIT(vtkRenderingOSPRay);
+VTK_MODULE_INIT(vtkRenderingRayTracing);
 
 int TestSmartVolumeMapper(int argc, char *argv[])
 {
