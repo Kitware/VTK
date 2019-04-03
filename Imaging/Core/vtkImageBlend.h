@@ -54,6 +54,8 @@
  * The alpha value of the first input, if present, is NOT copied to the alpha
  * value of the output.  The output always has the same number of components
  * and the same extent as the first input.
+ * If CompoundAlpha is set, the alpha value of the output is also computed using
+ * the alpha weighted blend calculation.
  *
  * \code
  * output <- 0
