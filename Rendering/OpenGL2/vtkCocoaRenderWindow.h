@@ -136,19 +136,21 @@ public:
 
   void SetNextWindowInfo(const char *) override
   {
-    vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
+    vtkDebugMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
   }
   void* GetGenericDrawable() override
   {
+    vtkDebugMacro("Method not implemented.");
     return nullptr;
   }
   void SetDisplayId(void*) override
   {
     // no-op
+    vtkDebugMacro("Method not implemented.");
   }
   void *GetGenericDisplayId() override
   {
-    vtkWarningMacro("Method not implemented.");
+    vtkDebugMacro("Method not implemented.");
     return nullptr;
   }
 
@@ -168,7 +170,7 @@ public:
 
   void SetNextWindowId(void*) override
   {
-    vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
+    vtkDebugMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
   }
 
   /**
