@@ -151,9 +151,9 @@ struct vtkPUnstructuredGridGhostCellsGenerator::vtkInternals
   std::vector<int> Neighbors;
 
   //Timers for key components of the GCG Algorithm
-  vtkTimerLog *ExchangeBoundsAndDetermineNeighborsTimer;
-  vtkTimerLog *ComputeNeighborsTimer;
-  vtkTimerLog *ReceiveAndMergeTimer;
+  vtkSmartPointer<vtkTimerLog> ExchangeBoundsAndDetermineNeighborsTimer;
+  vtkSmartPointer<vtkTimerLog> ComputeNeighborsTimer;
+  vtkSmartPointer<vtkTimerLog> ReceiveAndMergeTimer;
 
 };
 
@@ -314,9 +314,9 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotU
     }
   }
 
-  this->Internals->ExchangeBoundsAndDetermineNeighborsTimer = vtkTimerLog::New();
-  this->Internals->ComputeNeighborsTimer = vtkTimerLog::New();
-  this->Internals->ReceiveAndMergeTimer = vtkTimerLog::New();
+  this->Internals->ExchangeBoundsAndDetermineNeighborsTimer = vtkSmartPointer<vtkTimerLog>::New();
+  this->Internals->ComputeNeighborsTimer = vtkSmartPointer<vtkTimerLog>::New();
+  this->Internals->ReceiveAndMergeTimer = vtkSmartPointer<vtkTimerLog>::New();
 
   int myRank = this->Internals->SubController->GetLocalProcessId();
   int numProcs = this->Internals->SubController->GetNumberOfProcesses();
