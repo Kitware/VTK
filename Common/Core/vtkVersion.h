@@ -34,6 +34,9 @@
 
 #define VTK_SOURCE_VERSION "vtk version " VTK_VERSION
 
+#define VTK_VERSION_CHECK(major, minor, build) (10000000000 * major + 100000000 * minor + build)
+#define VTK_VERSION_NUMBER VTK_VERSION_CHECK(VTK_MAJOR_VERSION, VTK_MINOR_VERSION, VTK_BUILD_VERSION)
+
 class VTKCOMMONCORE_EXPORT vtkVersion : public vtkObject
 {
 public:
