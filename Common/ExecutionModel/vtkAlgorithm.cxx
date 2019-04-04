@@ -19,6 +19,7 @@
 #include "vtkCollection.h"
 #include "vtkCollectionIterator.h"
 #include "vtkCommand.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
@@ -27,25 +28,26 @@
 #include "vtkGarbageCollector.h"
 #include "vtkGraph.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkInformation.h"
 #include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationExecutivePortVectorKey.h"
+#include "vtkInformation.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkProgressObserver.h"
 #include "vtkSmartPointer.h"
-#include "vtkCompositeDataPipeline.h"
 #include "vtkTable.h"
 #include "vtkTrivialProducer.h"
-#include "vtkNew.h"
 
 #include <set>
 #include <vector>
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkAlgorithm);
 
@@ -98,6 +100,8 @@ vtkAlgorithm::vtkAlgorithm()
   this->Information = vtkInformation::New();
   this->Information->Register(this);
   this->Information->Delete();
+  this->ProgressShift = 0.0;
+  this->ProgressScale = 1.0;
 }
 
 //----------------------------------------------------------------------------
@@ -142,11 +146,24 @@ void vtkAlgorithm::SetProgressObserver(vtkProgressObserver* po)
 }
 
 //----------------------------------------------------------------------------
+void vtkAlgorithm::SetProgressShiftScale(double shift, double scale)
+{
+  this->ProgressShift = shift;
+  this->ProgressScale = scale;
+}
+
+//----------------------------------------------------------------------------
 // Update the progress of the process object. If a ProgressMethod exists,
 // executes it. Then set the Progress ivar to amount. The parameter amount
 // should range between (0,1).
 void vtkAlgorithm::UpdateProgress(double amount)
 {
+  amount = this->GetProgressShift() + this->GetProgressScale() * amount;
+
+  // clamp to [0, 1].
+  amount = vtkMath::Min(amount, 1.0);
+  amount = vtkMath::Max(amount, 0.0);
+
   if (this->ProgressObserver)
   {
     this->ProgressObserver->UpdateProgress(amount);
@@ -157,7 +174,6 @@ void vtkAlgorithm::UpdateProgress(double amount)
     this->InvokeEvent(vtkCommand::ProgressEvent,static_cast<void *>(&amount));
   }
 }
-
 
 //----------------------------------------------------------------------------
 vtkInformation *vtkAlgorithm
@@ -1732,16 +1748,7 @@ void vtkAlgorithm::SetProgressText(const char* ptext)
     return;
   }
   delete[] this->ProgressText;
-  this->ProgressText = nullptr;
-
-  if (ptext)
-  {
-    size_t n = strlen(ptext) + 1;
-    char *cp1 =  new char[n];
-    const char *cp2 = ptext;
-    this->ProgressText = cp1;
-    do { *cp1++ = *cp2++; } while ( --n );
-  }
+  this->ProgressText = vtksys::SystemTools::DuplicateString(ptext);
 }
 
 // This is here to shut off warnings about deprecated functions
@@ -1877,3 +1884,12 @@ void vtkAlgorithm::AddInputDataObject(int port, vtkDataObject *input)
     tp->Delete();
   }
 }
+
+//----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
+void vtkAlgorithm::SetProgress(double val)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAlgorithm::SetProgress, "VTK 8.3", vtkAlgorithm::UpdateProgress);
+  this->UpdateProgress(val);
+}
+#endif
