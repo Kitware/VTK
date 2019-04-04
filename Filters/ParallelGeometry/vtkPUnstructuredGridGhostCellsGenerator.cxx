@@ -36,6 +36,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -148,6 +149,12 @@ struct vtkPUnstructuredGridGhostCellsGenerator::vtkInternals
   // is based on overlapping local bounding boxes so it is
   // not guaranteed that they really are sharing an interprocess boundary
   std::vector<int> Neighbors;
+
+  //Timers for key components of the GCG Algorithm
+  vtkTimerLog *ExchangeBoundsAndDetermineNeighborsTimer;
+  vtkTimerLog *ComputeNeighborsTimer;
+  vtkTimerLog *ReceiveAndMergeTimer;
+
 };
 
 namespace
@@ -307,6 +314,12 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotU
     }
   }
 
+  this->Internals->ExchangeBoundsAndDetermineNeighborsTimer = vtkTimerLog::New();
+  this->Internals->ComputeNeighborsTimer = vtkTimerLog::New();
+  this->Internals->ReceiveAndMergeTimer = vtkTimerLog::New();
+
+  int myRank = this->Internals->SubController->GetLocalProcessId();
+  int numProcs = this->Internals->SubController->GetNumberOfProcesses();
   // ensure that global cell ids array is there if specified.
   // only need global cell ids when more than one ghost layer is needed
   if (maxGhostLevel > 1)
@@ -370,10 +383,68 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotU
   output->ShallowCopy(this->Internals->CurrentGrid);
   output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), maxGhostLevel);
 
+
+  this->Controller->Barrier();
+  vtkDebugMacro("Produced " << maxGhostLevel << " ghost levels.");
+
+  double ExchangeBoundsAndDetermineNeighborsTime = this->Internals->ExchangeBoundsAndDetermineNeighborsTimer->GetElapsedTime();
+  double ComputeNeighborsTime = this->Internals->ComputeNeighborsTimer->GetElapsedTime();
+  double ReceiveAndMergeTime = this->Internals->ReceiveAndMergeTimer->GetElapsedTime();
+
+  double ExchangeBoundsAndDetermineNeighborsMax = 0.0;
+  double ExchangeBoundsAndDetermineNeighborsMin = 0.0;
+  double ExchangeBoundsAndDetermineNeighborsSum = 0.0;
+
+  this->Controller->Reduce(&ExchangeBoundsAndDetermineNeighborsTime,
+    &ExchangeBoundsAndDetermineNeighborsMax, 1, vtkCommunicator::MAX_OP, 0);
+  this->Controller->Reduce(&ExchangeBoundsAndDetermineNeighborsTime,
+    &ExchangeBoundsAndDetermineNeighborsMin, 1, vtkCommunicator::MIN_OP, 0);
+  this->Controller->Reduce(&ExchangeBoundsAndDetermineNeighborsTime,
+    &ExchangeBoundsAndDetermineNeighborsSum, 1, vtkCommunicator::SUM_OP, 0);
+
+  double ComputeNeighborsMax = 0.0;
+  double ComputeNeighborsMin = 0.0;
+  double ComputeNeighborsSum = 0.0;
+
+  this->Controller->Reduce(&ComputeNeighborsTime,
+    &ComputeNeighborsMax, 1, vtkCommunicator::MAX_OP, 0);
+  this->Controller->Reduce(&ComputeNeighborsTime,
+    &ComputeNeighborsMin, 1, vtkCommunicator::MIN_OP, 0);
+  this->Controller->Reduce(&ComputeNeighborsTime,
+    &ComputeNeighborsSum, 1, vtkCommunicator::SUM_OP, 0);
+
+  double ReceiveAndMergeMax = 0.0;
+  double ReceiveAndMergeMin = 0.0;
+  double ReceiveAndMergeSum = 0.0;
+
+  this->Controller->Reduce(&ReceiveAndMergeTime,
+    &ReceiveAndMergeMax, 1, vtkCommunicator::MAX_OP, 0);
+  this->Controller->Reduce(&ReceiveAndMergeTime,
+    &ReceiveAndMergeMin, 1, vtkCommunicator::MIN_OP, 0);
+  this->Controller->Reduce(&ReceiveAndMergeTime,
+    &ReceiveAndMergeSum, 1, vtkCommunicator::SUM_OP, 0);
+
+  if (myRank == 0){
+    cout << "Ghost Cell Generator timer name, min, max, avg" << endl;
+    cout << "ExchangeBoundsAndDetermineNeighbors Time: "
+         << ExchangeBoundsAndDetermineNeighborsMin << " "
+         << ExchangeBoundsAndDetermineNeighborsMax << " "
+         << ExchangeBoundsAndDetermineNeighborsSum / numProcs << endl;
+
+    cout << "ComputeActualNeighbors Time: "
+         << ComputeNeighborsMin << " "
+         << ComputeNeighborsMax << " "
+         << ComputeNeighborsSum / numProcs << endl;
+
+    cout << "ReceiveAndMerge Time: "
+         << ReceiveAndMergeMin << " "
+         << ReceiveAndMergeMax << " "
+         << ReceiveAndMergeSum / numProcs << endl;
+
+  }
+
   delete this->Internals;
   this->Internals = nullptr;
-
-  vtkDebugMacro("Produced " << maxGhostLevel << " ghost levels.");
   return 1;
 }
 
@@ -383,11 +454,17 @@ void vtkPUnstructuredGridGhostCellsGenerator::GetFirstGhostLayer(
   int maxGhostLevel, vtkUnstructuredGrid* output)
 {
   std::vector<double> allBounds;
+  this->Internals->ExchangeBoundsAndDetermineNeighborsTimer->StartTimer();
   this->ExchangeBoundsAndDetermineNeighbors(allBounds);
+  this->Internals->ExchangeBoundsAndDetermineNeighborsTimer->StopTimer();
+
   this->ExtractAndReduceSurfacePointsShareData(allBounds);
   allBounds.clear();
   this->UpdateProgress(1.0 / (3.0 * maxGhostLevel));
+
+  this->Internals->ComputeNeighborsTimer->StartTimer();
   this->ComputeSharedPoints();
+  this->Internals->ComputeNeighborsTimer->StopTimer();
 
   this->UpdateProgress(2.0 / (3.0 * maxGhostLevel));
 
@@ -399,7 +476,10 @@ void vtkPUnstructuredGridGhostCellsGenerator::GetFirstGhostLayer(
   inputCopy->ShallowCopy(this->Internals->Input);
   inputCopy->AllocatePointGhostArray();
   inputCopy->AllocateCellGhostArray();
+
+  this->Internals->ReceiveAndMergeTimer->StartTimer();
   this->ReceiveAndMergeGhostCells(1, maxGhostLevel, inputCopy.Get(), output);
+  this->Internals->ReceiveAndMergeTimer->StopTimer();
 
   this->UpdateProgress(1.0 / maxGhostLevel);
 }
@@ -409,6 +489,8 @@ void vtkPUnstructuredGridGhostCellsGenerator::GetFirstGhostLayer(
 void vtkPUnstructuredGridGhostCellsGenerator::ExchangeBoundsAndDetermineNeighbors(
   std::vector<double>& allBounds)
 {
+  //vtkVLogF(vtkLogger::VERBOSITY_INFO, "Exchange Bounds to Determine Neighbors");
+
   // increase bounds by a certain percentage to deal with precision stuff
   double epsilon = 0.01;
 

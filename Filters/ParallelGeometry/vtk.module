@@ -10,6 +10,7 @@ IMPLEMENTS
   VTK::FiltersCore
 DEPENDS
   VTK::CommonCore
+  VTK::CommonSystem
   VTK::CommonExecutionModel
   VTK::FiltersGeometry
   VTK::FiltersParallel
