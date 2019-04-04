@@ -49,7 +49,7 @@ void ConstructScene(vtkRenderer *renderer, int numPieces)
   for (int i = 0; i < numPieces; ++i)
   {
     vtkNew<vtkRandomHyperTreeGridSource> source;
-    source->SetGridSize(4, 4, 1);
+    source->SetDimensions(5, 5, 2);//GridCell 4, 4, 1
     source->SetSeed(3713971);
     source->SetSplitFraction(0.75);
 

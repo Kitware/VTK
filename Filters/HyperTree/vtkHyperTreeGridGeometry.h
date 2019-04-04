@@ -82,8 +82,7 @@ protected:
   void RecursivelyProcessTreeNot3D( vtkHyperTreeGridNonOrientedGeometryCursor* );
   void RecursivelyProcessTree3D(
     vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*,
-    unsigned char,
-    bool);
+    unsigned char);
 
   /**
    * Process 1D leaves and issue corresponding edges (lines)

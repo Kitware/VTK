@@ -65,7 +65,7 @@ public:
 
   /**
    * Initialize cursor at root of given tree index in grid.
-   * JB Le create ne s'applique que sur le HT central.
+   * JB Attention : le create ne s'applique que sur le HT central.
    */
   virtual void Initialize( vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false ) = 0;
 
@@ -148,12 +148,27 @@ public:
   double* GetSize();
 
   /**
+   * Set the blanking mask is empty or not
+   * \pre not_tree: tree
+   */
+  void SetMask( bool state ) ;
+  void SetMask( unsigned int icursor, bool state ) ;
+
+  /**
+   * Determine whether blanking mask is empty or not
+   */
+  bool IsMasked();
+  bool IsMasked( unsigned int icursor);
+
+  /**
    * JB Coordonnees de la boite englobante
+   * En light, information non disponible sur les voisins
    */
   void GetBounds( double bounds[6] );
 
   /**
    * JB Coordonnees du centre de la maille
+   * En light, information non disponible sur les voisins
    */
   void GetPoint( double point[3] );
 

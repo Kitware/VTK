@@ -117,7 +117,6 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
 {
   int sx = 10;
   int sy = 10;
-  int sz = 1;
   int depth = 2;
   int branch = 3;
 
@@ -126,14 +125,12 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridSource> htGrid;
   int maxLevel = depth;
   htGrid->SetMaximumLevel( maxLevel );
-  htGrid->SetGridSize( sx, sy, sz );
+  htGrid->SetDimensions( sx + 1, sy + 1, 1 ); //Dimension 2 in xy plane GridCell sx, sy, sz = 1
   htGrid->SetGridScale( 1., 1., 1. );
-  htGrid->SetDimension( 2 );
-  htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetBranchFactor( branch );
   htGrid->UseMaskOn();
   vtkNew<vtkIdTypeArray> zero;
-  for ( int i = 0; i < sx * sy * sz; i++ )
+  for ( int i = 0; i < sx * sy; i++ )
   {
     zero->InsertNextValue(i);
   }
@@ -142,13 +139,13 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   vtkNew<vtkBitArray> mat;
   timer->StartTimer();
   cout << "Generating descriptors..." << endl;
-  GenerateDescriptorAndMaterial( depth, sx, sy, sz, branch, desc, mat );
+  GenerateDescriptorAndMaterial( depth, sx, sy, 1, branch, desc, mat );
   timer->StopTimer();
   htGrid->SetDescriptorBits( desc );
   htGrid->SetMaskBits( mat );
   cout << " Done in " << timer->GetElapsedTime() << "s (" << desc->GetNumberOfTuples() << " nodes)" << endl;
 
-  cout << "Constructing HTG " << sx << "x" << sy << "x" << sz << "  branch: " << branch << "  depth: " << depth << "..." << endl;
+  cout << "Constructing HTG " << sx << "x" << sy << "x" << 1 << "  branch: " << branch << "  depth: " << depth << "..." << endl;
   timer->StartTimer();
   htGrid->Update();
   timer->StopTimer();

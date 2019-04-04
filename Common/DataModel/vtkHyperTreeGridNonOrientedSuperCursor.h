@@ -38,15 +38,16 @@
 #ifndef vtkHyperTreeGridNonOrientedSuperCursor_h
 #define vtkHyperTreeGridNonOrientedSuperCursor_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
-
 #include "vtkSmartPointer.h" // Used internally
+#include "vtkCommonDataModelModule.h" // For export macro
+
+#include "vtkHyperTreeGridGeometryLevelEntry.h" // Used Internally
+
 #include <vector> // For std::vector
 
 class vtkHyperTree;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridGeometryLevelEntry;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 class vtkHyperTreeGridOrientedGeometryCursor;
 
@@ -99,6 +100,7 @@ public:
    * Return the index of the current vertex in the tree.
    */
   vtkIdType GetVertexId();
+  vtkIdType GetVertexId( unsigned int icursor );
 
   /**
    * Return the global index (relative to the grid) of the
@@ -146,6 +148,19 @@ public:
   double* GetSize();
 
   /**
+   * Set the blanking mask is empty or not
+   * \pre not_tree: tree
+   */
+  void SetMask( bool state ) ;
+  void SetMask( unsigned int icursor, bool state ) ;
+
+  /**
+   * Determine whether blanking mask is empty or not
+   */
+  bool IsMasked();
+  bool IsMasked( unsigned int icursor );
+
+  /**
    * JB Coordonnees de la boite englobante
    */
   void GetBounds( double bounds[6] );
@@ -181,10 +196,12 @@ public:
 
   /**
    * Move the cursor to child `child' of the current vertex.
-   * \pre Non_leaf: !IsLeaf()
-   * \pre valid_child: ichild>=0 && ichild<this->GetNumberOfChildren()
+   * \pre not_tree: HasTree()
+   * \pre not_leaf: !IsLeaf()
+   * \pre valid_child: ichild>=0 && ichild<GetNumberOfChildren()
+   * \pre depth_limiter: GetLevel() <= GetDepthLimiter()
    */
-  void ToChild( unsigned char );
+  void ToChild( unsigned char ichild );
 
   /**
    * Move the cursor to the root vertex.

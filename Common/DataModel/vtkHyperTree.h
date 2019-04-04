@@ -181,9 +181,10 @@ public:
   void CopyStructure( vtkHyperTree* ht );
 
   /**
-   * JB Return a frozen instance (a priori compact but potentially not changeable).
+   * JB Return a freeze instance (a priori compact but potentially not changeable).
+   * Le mode pourra permettre de proposer plusieurs instances freeze possible.
    */
-  virtual vtkHyperTree* Freeze() = 0;
+  virtual vtkHyperTree* Freeze( const char* mode ) = 0;
 
   //@{
   /**
@@ -293,7 +294,7 @@ public:
    */
   virtual void FindChildParameters(
     unsigned char ichild,
-    vtkIdType& idx_parent,
+    vtkIdType& index_parent,
     bool &isLeaf ) = 0;
 
   /**
@@ -331,17 +332,17 @@ public:
   }
 
   /**
-   * JB Set the mapping between a local node identified by idx
+   * JB Set the mapping between a local node identified by index
    * and a global id qui permet de recuperer la valeur du node correspondant
    * car ce global id est l'indice dans ce tableau qui decrit une grandeur.
    */
-  virtual void SetGlobalIndexFromLocal( vtkIdType idx, vtkIdType global ) = 0;
+  virtual void SetGlobalIndexFromLocal( vtkIdType index, vtkIdType global ) = 0;
 
   /**
-   * JB Get the global id of a local node identified by idx.
+   * JB Get the global id of a local node identified by index.
    * Use the mapping function if available or the start global index.
    */
-  virtual vtkIdType GetGlobalIndexFromLocal( vtkIdType idx ) const = 0;
+  virtual vtkIdType GetGlobalIndexFromLocal( vtkIdType index ) const = 0;
 
   /**
    * JB Returne la valeur maximale atteinte par l'index global.
@@ -349,9 +350,9 @@ public:
   virtual vtkIdType GetGlobalNodeIndexMax() const = 0;
 
   /**
-   * JB Return if a local node identified by idx is leaf.
+   * JB Return if a local node identified by index is leaf.
    */
-  virtual bool IsLeaf( vtkIdType idx ) const = 0;
+  virtual bool IsLeaf( vtkIdType index ) const = 0;
 
   /**
    * Subdivide node pointed by cursor, only if its a leaf.
@@ -362,17 +363,17 @@ public:
   virtual void SubdivideLeaf( vtkIdType index, unsigned int level ) = 0;
 
   /**
-   * JB Return if a local node identified by idx is a terminal node,
+   * JB Return if a local node identified by index is a terminal node,
    * c'est-a-dire que this coarse node a toutes ses filles qui sont
    * des feuilles.
    */
-  virtual bool IsTerminalNode( vtkIdType idx ) const = 0;
+  virtual bool IsTerminalNode( vtkIdType index ) const = 0;
 
   /**
    * JB Return the local index node du premier noeud fille d'un
-   * parent node identified by idx_parent.
+   * parent node identified by index_parent.
    */
-  virtual vtkIdType GetElderChildIndex( unsigned int idx_parent ) const = 0;
+  virtual vtkIdType GetElderChildIndex( unsigned int index_parent ) const = 0;
 
   //@{
   /**

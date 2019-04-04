@@ -162,6 +162,17 @@ public:
   void GetPoint( double point[3] );
 
   /**
+   * Set the blanking mask is empty or not
+   * \pre not_tree: tree
+   */
+  void SetMask( bool state ) ;
+
+  /**
+   * Determine whether blanking mask is empty or not
+   */
+  bool IsMasked();
+
+  /**
    * Is the cursor pointing to a leaf?
    */
   bool IsLeaf();
@@ -183,10 +194,12 @@ public:
 
   /**
    * Move the cursor to child `child' of the current vertex.
-   * \pre Non_leaf: !IsLeaf()
-   * \pre valid_child: ichild>=0 && ichild<this->GetNumberOfChildren()
+   * \pre not_tree: HasTree()
+   * \pre not_leaf: !IsLeaf()
+   * \pre valid_child: ichild>=0 && ichild<GetNumberOfChildren()
+   * \pre depth_limiter: GetLevel() <= GetDepthLimiter()
    */
-  void ToChild( unsigned char );
+  void ToChild( unsigned char ichild );
 
   /**
    * Move the cursor to the root vertex.

@@ -20,6 +20,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkUniformHyperTreeGrid.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -101,7 +102,6 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
                    << input->GetDimension());
     return 0;
   }
-  output->SetDimension( 2 );
 
   // Retrieve normal axis and intercept of cut plane
   int axis = this->PlaneNormalAxis;
@@ -116,42 +116,21 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
 
   double inter = this->PlanePositionRealUse;
 
-  // Set output orientation
-  output->SetOrientation( axis );
-
   // Set output grid sizes; must be 1 in the direction of cut plane normal
   unsigned int size[3];
-  input->GetGridSize( size );
+  input->GetDimensions( size );
   size[axis] = 1;
-  output->SetGridSize( size );
+  output->SetDimensions( size );
 
-  // Duplicate coordinates along plane axes; set to zeros along normal
-  vtkNew<vtkDoubleArray> zeros;
-  zeros->SetNumberOfValues( 2 );
-  zeros->SetValue( 0, inter );
-  zeros->SetValue( 1, inter );
-  switch ( axis )
+  vtkUniformHyperTreeGrid* inputUHTG  = vtkUniformHyperTreeGrid::SafeDownCast(input);
+  vtkUniformHyperTreeGrid* outputUHTG = vtkUniformHyperTreeGrid::SafeDownCast(outputDO);
+  if (inputUHTG)
   {
-    case 0:
-      // Cut along yz-plane
-      output->SetXCoordinates( zeros );
-      output->SetYCoordinates( input->GetYCoordinates() );
-      output->SetZCoordinates( input->GetZCoordinates());
-      break;
-    case 1:
-      // Cut along xz-plane
-      output->SetXCoordinates( input->GetXCoordinates() );
-      output->SetYCoordinates( zeros );
-      output->SetZCoordinates( input->GetZCoordinates());
-      break;
-    case 2:
-      // Cut along xz-plane
-      output->SetXCoordinates( input->GetXCoordinates() );
-      output->SetYCoordinates( input->GetYCoordinates() );
-      output->SetZCoordinates( zeros );
-      break;
-    default:
-      return 0;
+    outputUHTG->CopyCoordinates(inputUHTG);
+    outputUHTG->SetFixedCoordinates(axis, inter);
+  } else {
+    output->CopyCoordinates(input);
+    output->SetFixedCoordinates(axis, inter);
   }
 
   // Other grid parameters are identical
@@ -229,15 +208,8 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
 
       // Cut tree recursively
       this->RecursivelyProcessTree( inCursor, outCursor );
-
-//JBDEL2       // Store current output index then increment it
-//JBDEL2       position->InsertNextValue( outIndex );
-//JBDEL2       ++ outIndex;
     } // if origin
   } // it
-
-//JBDEL2   // Set material mask index
-//JBDEL2  output->SetMaskIndex( position );
 
   // Squeeze and set output material mask if necessary
   if( this->OutMask )

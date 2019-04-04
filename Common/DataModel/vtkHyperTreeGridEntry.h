@@ -135,34 +135,69 @@ public:
 
   /**
    * Return the global index for the current cell (cf. vtkHyperTree).
+   * \pre not_tree: tree
    */
   vtkIdType GetGlobalNodeIndex( const vtkHyperTree* tree ) const;
 
   /**
    * Set the global index for the root cell of the HyperTree.
+   * \pre not_tree: tree
    */
   void SetGlobalIndexStart( vtkHyperTree* tree, vtkIdType index );
 
   /**
    * Set the global index for the current cell of the HyperTree.
+   * \pre not_tree: tree
    */
   void SetGlobalIndexFromLocal( vtkHyperTree* tree, vtkIdType index );
 
   /**
-   * Is the cursor pointing to a leaf?
+   * Set the blanking mask is empty or not
+   * \pre not_tree: tree
    */
-  bool IsLeaf( const vtkHyperTree* tree ) const;
+  void SetMask(
+    const vtkHyperTreeGrid* grid,
+    const vtkHyperTree* tree,
+    bool state );
+
+  /**
+   * Determine whether blanking mask is empty or not
+   * \pre not_tree: tree
+   */
+  bool IsMasked(
+    const vtkHyperTreeGrid* grid,
+    const vtkHyperTree* tree ) const;
+
+  /**
+   * Is the cursor pointing to a leaf?
+   * \pre not_tree: tree
+   * Return true if level == grid->GetDepthLimiter()
+   */
+  bool IsLeaf(
+      const vtkHyperTreeGrid* grid,
+      const vtkHyperTree* tree,
+      unsigned int level ) const;
 
   /**
    * Change the current cell's status: if leaf then becomes coarse and
    * all its children are created, cf. HyperTree.
+   * \pre not_tree: tree
+   * \pre depth_limiter: level == grid->GetDepthLimiter()
+   * \pre is_masked: IsMasked
    */
-  void SubdivideLeaf( vtkHyperTree* tree, unsigned int level );
+  void SubdivideLeaf(
+      const vtkHyperTreeGrid* grid,
+      vtkHyperTree* tree,
+      unsigned int level );
 
   /**
    * Is the cursor pointing to a coarse with all childrens being leaves?
+   * \pre not_tree: tree
    */
-  bool IsTerminalNode( const vtkHyperTree* tree ) const;
+  bool IsTerminalNode(
+    const vtkHyperTreeGrid* grid,
+    const vtkHyperTree* tree,
+    unsigned int level ) const;
 
   /**
    * Is the cursor at HyperTree root?
@@ -173,10 +208,18 @@ public:
 
   /**
    * Move the cursor to i-th child of the current cell.
+   * \pre not_tree: tree
    * \pre not_leaf: !IsLeaf()
    * \pre valid_child: ichild>=0 && ichild<this->GetNumberOfChildren()
+   * \pre depth_limiter: level == grid->GetDepthLimiter()
+   * \pre is_masked: !IsMasked()
    */
-  void ToChild( const vtkHyperTree* tree, unsigned char ichild );
+  void ToChild(
+    const vtkHyperTreeGrid* grid,
+    const vtkHyperTree* tree,
+    unsigned int level,
+    unsigned char ichild
+  );
 
 protected:
 

@@ -336,14 +336,11 @@ int vtkHyperTreeGridGeometry::ProcessTrees( vtkHyperTreeGrid* input,
   {
     if ( this->Locator )
     {
-      this->Locator->UnRegister( this );
+      this->Locator->Delete();
     }
     this->Locator = vtkMergePoints::New();
-    this->Locator->Register( this );
-    this->Locator->Delete();
     this->Locator->InitPointInsertion ( this->Points, input->GetBounds() );
   }
-
 
   // Iterate over all hyper trees
   vtkIdType index;
@@ -358,7 +355,7 @@ int vtkHyperTreeGridGeometry::ProcessTrees( vtkHyperTreeGrid* input,
       // In 3 dimensions, von Neumann neighborhood information is needed
       input->InitializeNonOrientedVonNeumannSuperCursorLight( cursor, index );
       // Build geometry recursively
-      this->RecursivelyProcessTree3D( cursor, FULL_WORK_FACES, false);
+      this->RecursivelyProcessTree3D( cursor, FULL_WORK_FACES);
     } // it
   } else {
     vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
@@ -371,7 +368,6 @@ int vtkHyperTreeGridGeometry::ProcessTrees( vtkHyperTreeGrid* input,
       this->RecursivelyProcessTreeNot3D( cursor );
     } // it
   } // else
-
 
   // Set output geometry and topology
   output->SetPoints( this->Points );
@@ -397,7 +393,7 @@ int vtkHyperTreeGridGeometry::ProcessTrees( vtkHyperTreeGrid* input,
 
   if ( this->Locator )
   {
-    this->Locator->UnRegister(this);
+    this->Locator->Delete();
     this->Locator = nullptr;
   }
 
@@ -408,6 +404,11 @@ int vtkHyperTreeGridGeometry::ProcessTrees( vtkHyperTreeGrid* input,
 void vtkHyperTreeGridGeometry::RecursivelyProcessTreeNot3D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor )
 {
+  if ( this->Mask ? this->Mask->GetValue( cursor->GetGlobalNodeIndex() ) : false )
+  {
+    return;
+  }
+
   // Create geometry output if cursor is at leaf
   if ( cursor->IsLeaf() )
   {
@@ -494,36 +495,20 @@ void vtkHyperTreeGridGeometry::ProcessLeaf2D( vtkHyperTreeGridNonOrientedGeometr
     this->FacesB->Reset();
   } // if ( this->HasInterface )
 
-  // In 2D all unmasked faces are generated
-  if ( ! this->Mask || ! this->Mask->GetValue( inId ) )
-  {
-    // Insert face into 2D geometry depending on orientation
-    // this->AddFace( inId, cursor->GetOrigin(), cursor->GetSize(), 0, this->Orientation );
-    this->AddFace2( inId, inId, cursor->GetOrigin(), cursor->GetSize(), 0, this->Orientation );
-  }
+  // Insert face into 2D geometry depending on orientation
+  // this->AddFace( inId, cursor->GetOrigin(), cursor->GetSize(), 0, this->Orientation );
+  this->AddFace2( inId, inId, cursor->GetOrigin(), cursor->GetSize(), 0, this->Orientation );
 }
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* cursor,
-  unsigned char crtWorkFaces,
-  bool isCentralChild
+  unsigned char crtWorkFaces
   )
 {
-  // cerr << "RecursivelyProcessTree3D" << std::endl;
-
   //FR Traitement specifique pour la maille fille centrale en raffinement 3
-  if ( isCentralChild )
-  {
-    //FR Si elle est masque ce sont ses soeurs qui feront de toute facon le fboulot
-    if ( this->Mask ? this->Mask->GetValue( cursor->GetGlobalNodeIndex() ) : 0 )
-    {
-      return;
-    }
-  }
-
   // Create geometry output if cursor is at leaf
-  if ( cursor->IsLeaf() )
+  if ( cursor->IsLeaf() || cursor->IsMasked() )
   {
     // Cursor is at leaf, process it depending on its dimension
     this->ProcessLeaf3D( cursor ); //JBVTK9 ProcessLeaf3D2 prends en compte les interfaces... :)?
@@ -534,6 +519,7 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
   bool pureMask = false;
   if ( this->Mask != 0 )
   {
+    // JB Question : que fait le PureMaterialMask quand un masque est mis sur un coarse et pas toutes les filles
     pureMask = this->PureMask->GetValue( cursor->GetGlobalNodeIndex() ) != 0 ;
   }
   if( ! pureMask )
@@ -589,7 +575,7 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
     for ( std::set<int>::iterator it = childList.begin(); it != childList.end(); ++ it )
     {
       cursor->ToChild( *it );
-      this->RecursivelyProcessTree3D( cursor, workFaces[ *it ], /*this->BranchFactor == 3 &&*/ *it == 13 );
+      this->RecursivelyProcessTree3D(cursor, workFaces[ *it ]);
       cursor->ToParent( );
     } // ichild
     return;
@@ -599,7 +585,7 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
   for ( unsigned int ichild = 0; ichild < numChildren; ++ ichild )
   {
     cursor->ToChild( ichild );
-    this->RecursivelyProcessTree3D( cursor, FULL_WORK_FACES, /*this->BranchFactor == 3 &&*/ ichild == 13);
+    this->RecursivelyProcessTree3D(cursor, FULL_WORK_FACES);
     cursor->ToParent( );
   } // ichild
 }
@@ -615,7 +601,6 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( vtkHyperTreeGridNonOrientedVonNeum
     return;
   }
   unsigned level = superCursor->GetLevel();
-  int masked = this->Mask ? this->Mask->GetValue( inId ) : 0;
 
   // Reset interface variables if needed
   if ( this->HasInterface )
@@ -630,34 +615,6 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( vtkHyperTreeGridNonOrientedVonNeum
     this->Intercepts->GetComponent( inId, 2 );
   } // if ( this->HasInterface )
 
-#ifdef TRACE
-#undefine TRACE
-#endif
-
-#ifdef TRACE
-  {
-    static unsigned int cpt = 0;
-    cerr << "cpt #" << cpt << std::endl;
-    ++cpt;
-    double *pt = superCursor->GetOrigin();
-    cerr << "Origin : " << " ";
-    for(unsigned int ipt = 0; ipt < 3; ++ ipt)
-    {
-      cerr << pt[ipt] << " ";
-    }
-    cerr << std::endl;
-  }
-  {
-    double *pt = superCursor->GetSize();
-    cerr << "Size : " << " ";
-    for(unsigned int ipt = 0; ipt < 3; ++ ipt)
-    {
-      cerr << pt[ipt] << " ";
-    }
-    cerr << std::endl;
-  }
-#endif
-
   // Iterate over all cursors of Von Neumann neighborhood around center
   unsigned int nc = superCursor->GetNumberOfCursors() - 1;
   for ( unsigned int c = 0 ; c < nc; ++ c )
@@ -668,11 +625,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( vtkHyperTreeGridNonOrientedVonNeum
     vtkIdType idN;
     unsigned int levelN;
     vtkHyperTree* treeN = superCursor->GetInformation( VonNeumannCursors3D[c], levelN, leafN, idN );
-    int maskedN = 1;
-    if ( treeN )
-    {
-      maskedN  = this->Mask ? this->Mask->GetValue( idN ) : 0;
-    }
+    int maskedN = superCursor->IsMasked( VonNeumannCursors3D[c] );
 
     // In 3D masked and unmasked cells are handled differently:
     // . If cell is unmasked, and face neighbor is a masked leaf, or no such neighbor
@@ -680,17 +633,17 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( vtkHyperTreeGridNonOrientedVonNeum
     // . If cell is masked, and face neighbor exists and is an unmasked leaf, then
     //   generate face, breaking ties at same level. This ensures that faces between
     //   unmasked and masked cells will be generated once and only once.
-    if ( ( ! masked && ( ! treeN || ( leafN && maskedN ) ) )
+    if ( ( ! superCursor->IsMasked() && ( ! treeN || maskedN ) )
          ||
-         ( masked && treeN && leafN && levelN < level && ! maskedN ) )
+         ( superCursor->IsMasked() && treeN && leafN && levelN < level && ! maskedN ) )
     {
       // Generate face with corresponding normal and offset
-      this->AddFace( masked ? idN : inId, superCursor->GetOrigin(), superCursor->GetSize(),
+      this->AddFace( superCursor->IsMasked() ? idN : inId, superCursor->GetOrigin(), superCursor->GetSize(),
                      VonNeumannOffsets3D[c], VonNeumannOrientations3D[c] );
     }
 /*
     // In 3D masked and unmasked cells are handled differently
-    if ( masked )
+    if ( superCursor->IsMasked() )
     {
       // If cell is masked, and face neighbor exists and is an unmasked leaf,
       // generate face, breaking ties at same level. This ensures that faces
@@ -701,7 +654,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( vtkHyperTreeGridNonOrientedVonNeum
         this->AddFace2( inId, ?, superCursor->GetOrigin(), superCursor->GetSize(),
                        VonNeumannOffsets3D[c], VonNeumannOrientations3D[c] );
       }
-    } // if ( masked )
+    } // if ( superCursor->IsMasked() )
     else
     {
       // If cell is unmasked, and face neighbor is a masked leaf, or no

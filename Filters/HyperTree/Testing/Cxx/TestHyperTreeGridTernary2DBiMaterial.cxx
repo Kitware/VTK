@@ -39,10 +39,8 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridSource> htGrid1;
   htGrid1->SetMaximumLevel( 3 );
   htGrid1->SetOrigin( 0., 0., 0. );
-  htGrid1->SetGridSize( 2, 1, 1 );
+  htGrid1->SetDimensions( 3, 2, 1 ); //Dimension 2 in xy plane GridCell 2, 1, 1
   htGrid1->SetGridScale( 1., 1., 1. );
-  htGrid1->SetDimension( 2 );
-  htGrid1->SetOrientation( 2 ); // in xy plane
   htGrid1->SetBranchFactor( 3 );
   htGrid1->UseMaskOn();
   htGrid1->SetDescriptor( ".R|.R..R..R.|......... ......... ........." );
@@ -50,10 +48,8 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridSource> htGrid2;
   htGrid2->SetMaximumLevel( 3 );
   htGrid2->SetOrigin( 1., 0., 0. );
-  htGrid2->SetGridSize( 2, 1, 1 );
+  htGrid2->SetDimensions( 3, 2, 1 ); //Dimension 2 in xy plane GridCell 3, 2, 1
   htGrid2->SetGridScale( 1., 1., 1. );
-  htGrid2->SetDimension( 2 );
-  htGrid2->SetOrientation( 2 ); // in xy plane
   htGrid2->SetBranchFactor( 3 );
   htGrid2->UseMaskOn();
   htGrid2->SetDescriptor( "R.|.R..R..R.|......... ......... ........." );

@@ -22,8 +22,7 @@
  *
  * @par Thanks:
  * This class was written by Philippe Pebay, NexGen Analytics 2017
- * JB modify for introd
-uce Scales by Jacques-Bernard Lekien, CEA 2018.
+ * JB modify for introduce Scales by Jacques-Bernard Lekien, CEA 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
@@ -31,15 +30,14 @@ uce Scales by Jacques-Bernard Lekien, CEA 2018.
 #ifndef vtkUniformHyperTreeGrid_h
 #define vtkUniformHyperTreeGrid_h
 
+#include "limits.h" // UINT_MAX
+
 #include <memory> // std::shared_ptr
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkHyperTreeGrid.h"
 
-
 class vtkDoubleArray;
-class vtkHyperTree;
-class vtkHyperTreeGrid;
 class vtkHyperTreeGridScales;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkUniformHyperTreeGrid : public vtkHyperTreeGrid
@@ -47,18 +45,18 @@ class VTKCOMMONDATAMODEL_EXPORT vtkUniformHyperTreeGrid : public vtkHyperTreeGri
 public:
   static vtkUniformHyperTreeGrid* New();
   vtkTypeMacro(vtkUniformHyperTreeGrid, vtkHyperTreeGrid);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override;
+  int GetDataObjectType() override { return VTK_UNIFORM_HYPER_TREE_GRID; }
 
   /**
    * Copy the internal geometric and topological structure of a
    * vtkUniformHyperTreeGrid object.
    */
-  void CopyStructure( vtkDataObject* ) override;
+  void CopyStructure(vtkDataObject*) override;
 
   //@{
   /**
@@ -72,15 +70,22 @@ public:
   /**
    * Set/Get scale of root cells along each direction
    */
-  void SetGridScale( double, double, double );
-  void SetGridScale( double* );
+  void SetGridScale(double, double, double);
+  void SetGridScale(double*);
   vtkGetVector3Macro(GridScale, double);
   //@}
 
   /**
    * Set all scales at once when root cells are d-cubes
    */
-  void SetGridScale( double );
+  void SetGridScale(double);
+
+  /**
+   * Return a pointer to the geometry bounding box in the form
+   * (xmin,xmax, ymin,ymax, zmin,zmax).
+   * THIS METHOD IS NOT THREAD SAFE.
+   */
+  double* GetBounds() VTK_SIZEHINT(6) override;
 
   //@{
   /**
@@ -88,7 +93,7 @@ public:
    * NB: Set method deactivated in the case of uniform grids.
    * Use SetSize() instead.
    */
-  void SetXCoordinates( vtkDataArray* XCoordinates ) override;
+  void SetXCoordinates(vtkDataArray* XCoordinates) override;
   vtkDataArray* GetXCoordinates() override;
   /* JB A faire pour les Get !
   const vtkDataArray* GetXCoordinates() const override {
@@ -103,7 +108,7 @@ public:
    * NB: Set method deactivated in the case of uniform grids.
    * Use SetSize() instead.
    */
-  void SetYCoordinates( vtkDataArray* YCoordinates ) override;
+  void SetYCoordinates(vtkDataArray* YCoordinates) override;
   vtkDataArray* GetYCoordinates() override;
   /* JB A faire pour les Get !
   const vtkDataArray* GetYCoordinates() const override {
@@ -118,8 +123,7 @@ public:
    * NB: Set method deactivated in the case of uniform grids.
    * Use SetSize() instead.
    */
-  void SetZCoordinates( vtkDataArray* ZCoordinates ) override;
-
+  void SetZCoordinates(vtkDataArray* ZCoordinates) override;
   vtkDataArray* GetZCoordinates() override;
   /* JB A faire pour les Get !
   const vtkDataArray* GetZCoordinates() const override {
@@ -129,28 +133,33 @@ public:
   // JB A faire pour les autre Get !
   //@}
 
+  //@{
   /**
-   * Convert the global index of a root to its Spacial coordinates origin and size.
+   * JB Augented services on Coordinates.
    */
-  void GetLevelZeroOriginAndSizeFromIndex( vtkIdType,
-                                           double*,
-                                           double* ) override;
+  void CopyCoordinates(const vtkHyperTreeGrid* output) override;
+  void SetFixedCoordinates(unsigned int axis, double value) override;
+  //@}
 
   /**
    * Convert the global index of a root to its Spacial coordinates origin and size.
    */
-  void GetLevelZeroOriginFromIndex( vtkIdType,
-                                    double* ) override;
+  void GetLevelZeroOriginAndSizeFromIndex(vtkIdType, double*, double*) override;
+
+  /**
+   * Convert the global index of a root to its Spacial coordinates origin and size.
+   */
+  void GetLevelZeroOriginFromIndex(vtkIdType, double*) override;
 
   /**
    * Create shallow copy of hyper tree grid.
    */
-  void ShallowCopy( vtkDataObject* ) override;
+  void ShallowCopy(vtkDataObject*) override;
 
   /**
    * Create deep copy of hyper tree grid.
    */
-  void DeepCopy( vtkDataObject* ) override;
+  void DeepCopy(vtkDataObject*) override;
 
   /**
    * Return the actual size of the data bytes
@@ -161,11 +170,11 @@ public:
    * Return tree located at given index of hyper tree grid
    * NB: This will construct a new HyperTree if grid slot is empty.
    */
-  vtkHyperTree* GetTree( vtkIdType, bool create = false ) override;
+  vtkHyperTree* GetTree(vtkIdType, bool create = false) override;
 
 protected:
   /**
-   * Constructor with default bounds (0,1, 0,1, 0,1).
+   * Constructor
    */
   vtkUniformHyperTreeGrid();
 
@@ -173,11 +182,6 @@ protected:
    * Destructor
    */
   ~vtkUniformHyperTreeGrid() override;
-
-  /**
-   * Computation of bounds
-   */
-  void ComputeBounds() override;
 
   /**
    * Grid Origin
@@ -197,6 +201,34 @@ protected:
   bool ComputedYCoordinates;
   bool ComputedZCoordinates;
   //@}
+
+  unsigned int FindDichotomicX(double value) const override
+  {
+    if (value < this->Origin[0] ||
+      value > this->Origin[0] + this->GridScale[0] * (this->GetDimensions()[0] - 1))
+    {
+      return UINT_MAX;
+    }
+    return round((value - this->Origin[0]) / this->GridScale[0]);
+  };
+  unsigned int FindDichotomicY(double value) const override
+  {
+    if (value < this->Origin[1] ||
+      value > this->Origin[1] + this->GridScale[1] * (this->GetDimensions()[1] - 1))
+    {
+      return UINT_MAX;
+    }
+    return round((value - this->Origin[1]) / this->GridScale[1]);
+  };
+  unsigned int FindDichotomicZ(double value) const override
+  {
+    if (value < this->Origin[2] ||
+      value > this->Origin[2] + this->GridScale[2] * (this->GetDimensions()[2] - 1))
+    {
+      return UINT_MAX;
+    }
+    return round((value - this->Origin[2]) / this->GridScale[2]);
+  };
 
   /**
    * JB Storage of pre-computed per-level cell scales

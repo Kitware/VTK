@@ -38,9 +38,8 @@ int TestHyperTreeGridBinary3DContour( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridSource> htGrid;
   int maxLevel = 5;
   htGrid->SetMaximumLevel( maxLevel );
-  htGrid->SetGridSize( 3, 3, 2 );
+  htGrid->SetDimensions( 4, 4, 3 ); //Dimension 3 GridCell 3, 3, 2
   htGrid->SetGridScale( 1.5, 1., .7 );
-  htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 2 );
   htGrid->SetDescriptor( "RRR .R. .RR ..R ..R .R.|R....... ........ ........ ...R.... .RRRR.R. RRRRR.RR ........ ........ ........|........ ........ ........ RR.RR.RR ........ RR...... ........ ........ ........ ........ ........ ........ ........ ..RRR...|........ ..R..... ........ ........ ........ ........ ........ ........ ........ ........ ........|........" );
 

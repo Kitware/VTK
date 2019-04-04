@@ -195,12 +195,12 @@ protected:
   /**
    * First axis parameter for adaptive view
    */
-  int Axis1;
+  unsigned int Axis1;
 
   /**
    * Second axis parameter for adaptive view
    */
-  int Axis2;
+  unsigned int Axis2;
 
   /**
    * Maximum depth parameter for adaptive view

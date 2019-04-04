@@ -130,15 +130,27 @@ void vtkHyperTreeGridOrientedCursor::SetGlobalIndexFromLocal( vtkIdType index )
 }
 
 //-----------------------------------------------------------------------------
+void vtkHyperTreeGridOrientedCursor::SetMask( bool state)
+{
+  this->Entry.SetMask( this->Grid, this->Tree, state );
+}
+
+//-----------------------------------------------------------------------------
+bool vtkHyperTreeGridOrientedCursor::IsMasked( )
+{
+  return this->Entry.IsMasked( this->Grid, this->Tree );
+}
+
+//-----------------------------------------------------------------------------
 bool vtkHyperTreeGridOrientedCursor::IsLeaf()
 {
-  return this->Entry.IsLeaf( this->Tree );
+  return this->Entry.IsLeaf( this->Grid, this->Tree, this->Level );
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridOrientedCursor::SubdivideLeaf()
 {
-  this->Entry.SubdivideLeaf( this->Tree, this->GetLevel() );
+  this->Entry.SubdivideLeaf( this->Grid, this->Tree, this->Level );
 }
 
 //-----------------------------------------------------------------------------
@@ -156,7 +168,7 @@ unsigned int vtkHyperTreeGridOrientedCursor::GetLevel()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridOrientedCursor::ToChild( unsigned char ichild )
 {
-  this->Entry.ToChild( this->Tree, ichild );
+  this->Entry.ToChild( this->Grid, this->Tree, this->Level, ichild );
   this->Level ++;
 }
 

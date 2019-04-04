@@ -21,14 +21,15 @@
 #include "vtkHyperTreeGridAxisCut.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
+#include "vtkHyperTreeGridOutlineFilter.h"
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
-#include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
 #include "vtkProperty.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -41,24 +42,16 @@ int TestHyperTreeGridTernary3DAxisCutMaterial( int argc, char* argv[] )
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   htGrid->SetMaximumLevel( 5 );
-  htGrid->SetGridSize( 3, 3, 2 );
+  htGrid->SetDimensions( 4, 4, 3 ); //GridCell 3, 3, 2
   htGrid->SetGridScale( 1.5, 1., .7 );
-  htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
   htGrid->UseMaskOn();
   htGrid->SetDescriptor( "RRR .R. .RR ..R ..R .R.|R.......................... ........................... ........................... .............R............. ....RR.RR........R......... .....RRRR.....R.RR......... ........................... ........................... ...........................|........................... ........................... ........................... ...RR.RR.......RR.......... ........................... RR......................... ........................... ........................... ........................... ........................... ........................... ........................... ........................... ............RRR............|........................... ........................... .......RR.................. ........................... ........................... ........................... ........................... ........................... ........................... ........................... ...........................|........................... ..........................." );
   htGrid->SetMask( "111 011 011 111 011 110|111111111111111111111111111 111111111111111111111111111 000000000100110111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 000110011100000100100010100|000001011011111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111001111111101111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111|000000000111100100111100100 000000000111001001111001001 000000111100100111111111111 000000111001001111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 111111111111111111111111111 110110110100111110111000000|111111111111111111111111111  11111111111111111111111111" );
 
-  // DualGrid
-  vtkNew<vtkHyperTreeGridToDualGrid> dualFilter;
-  dualFilter->SetInputConnection( htGrid->GetOutputPort() );
-
   // Outline
-  vtkNew<vtkOutlineFilter> outline;
-  outline->SetInputConnection( dualFilter->GetOutputPort() );
-  outline->Update();
-  double outBd[6];
-  outline->GetOutput()->GetBounds( outBd );
+  vtkNew<vtkHyperTreeGridOutlineFilter> outline;
+  outline->SetInputConnection( htGrid->GetOutputPort() );
 
   // Axis cuts
   vtkNew<vtkHyperTreeGridAxisCut> axisCut1;
@@ -156,6 +149,9 @@ int TestHyperTreeGridTernary3DAxisCutMaterial( int argc, char* argv[] )
   renWin->Render();
 
   // Compare bounds
+  outline->Update();
+  double outBd[6];
+  outline->GetPolyDataOutput()->GetBounds( outBd );
   bool differenceDetected = false;
   for (int i = 0; i < 6; i++)
   {

@@ -43,10 +43,8 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   htGrid->SetMaximumLevel( 6 );
-  htGrid->SetGridSize( 8, 12, 1 );
+  htGrid->SetDimensions( 9, 13, 1 ); //GridCell 8, 12, 1
   htGrid->SetGridScale( 1.5, 1., .7 );
-  htGrid->SetDimension( 2 );
-  htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetBranchFactor( 3 );
   htGrid->UseDescriptorOff();
   htGrid->UseMaskOff();

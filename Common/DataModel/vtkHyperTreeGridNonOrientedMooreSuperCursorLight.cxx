@@ -373,7 +373,7 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::Initialize( vtkHyperTreeG
   unsigned int i, j, k;
   grid->GetLevelZeroCoordinatesFromIndex( treeIndex, i, j, k );
   unsigned int n[3];
-  grid->GetGridSize( n );
+  grid->GetCellDims( n );
 
   // JB Initialisation des cursors
   switch ( grid->GetDimension() )
@@ -561,14 +561,13 @@ bool vtkHyperTreeGridNonOrientedMooreSuperCursorLight::GetCornerCursors( unsigne
   if( cursorIdx != this->IndiceCentralCursor )
   {
     vtkHyperTreeGridLevelEntry& cursor = this->Entries[ this->GetIndiceEntry( cursorIdx ) ];
-    if ( ! cursor.GetTree() || ! cursor.IsLeaf() )
+    if ( ! cursor.GetTree() || ! cursor.IsLeaf( this->Grid ) )
     {
       // If neighbor cell is out of bounds or has Non been
       // refined to a leaf, that leaf does Non own the corner
       owner = false;
     }
-    else if ( this->GetGrid()->HasMask()
-               && this->GetGrid()->GetMask()->GetTuple1( cursor.GetGlobalNodeIndex() ) )
+    else if ( cursor.IsMasked( this->Grid ) )
     {
       // If neighbor cell is masked, that leaf does Non own the corner
       owner = false;

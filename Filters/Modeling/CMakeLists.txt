@@ -12,6 +12,7 @@ set(classes
   vtkGeodesicPath
   vtkGraphGeodesicPath
   vtkHausdorffDistancePointSetFilter
+  vtkHyperTreeGridOutlineFilter
   vtkLinearExtrusionFilter
   vtkLinearSubdivisionFilter
   vtkLoopSubdivisionFilter

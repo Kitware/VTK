@@ -334,7 +334,7 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize( vtkHyperTreeG
   unsigned int i, j, k;
   grid->GetLevelZeroCoordinatesFromIndex( treeIndex, i, j, k );
   unsigned int n[3];
-  grid->GetGridSize( n );
+  grid->GetCellDims( n );
 
   // JB Initialisation des cursors
   switch ( grid->GetDimension() )

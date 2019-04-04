@@ -46,9 +46,9 @@ vtkRandomHyperTreeGridSource::vtkRandomHyperTreeGridSource()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 
-  this->GridSize[0] = 5;
-  this->GridSize[1] = 5;
-  this->GridSize[2] = 2;
+  this->Dimensions[0] = 5 + 1;
+  this->Dimensions[1] = 5 + 1;
+  this->Dimensions[2] = 2 + 1;
 
   for (size_t i = 0; i < 3; ++i)
   {
@@ -75,9 +75,9 @@ int vtkRandomHyperTreeGridSource::RequestInformation(
   }
 
   int wholeExtent[6] = {
-    0, static_cast<int>(this->GridSize[0]),
-    0, static_cast<int>(this->GridSize[1]),
-    0, static_cast<int>(this->GridSize[2]),
+    0, static_cast<int>(this->Dimensions[0] - 1),
+    0, static_cast<int>(this->Dimensions[1] - 1),
+    0, static_cast<int>(this->Dimensions[2] - 1),
   };
 
   vtkInformation *info = outInfo->GetInformationObject(0);
@@ -113,27 +113,26 @@ int vtkRandomHyperTreeGridSource::RequestData(vtkInformation *,
 
   vtkHyperTreeGrid *htg = vtkHyperTreeGrid::GetData(outInfo);
   htg->Initialize();
-  htg->SetGridSize(this->GridSize);
-  htg->SetDimension(3);
+  htg->SetDimensions(this->Dimensions);
   htg->SetBranchFactor(2);
 
   {
     vtkNew<vtkDoubleArray> coords;
-    fillArray(coords, this->GridSize[0] + 1,
+    fillArray(coords, this->Dimensions[0],
               this->OutputBounds[0], this->OutputBounds[1]);
     htg->SetXCoordinates(coords);
   }
 
   {
     vtkNew<vtkDoubleArray> coords;
-    fillArray(coords, this->GridSize[1] + 1,
+    fillArray(coords, this->Dimensions[1],
               this->OutputBounds[2], this->OutputBounds[3]);
     htg->SetYCoordinates(coords);
   }
 
   {
     vtkNew<vtkDoubleArray> coords;
-    fillArray(coords, this->GridSize[2] + 1,
+    fillArray(coords, this->Dimensions[2],
               this->OutputBounds[4], this->OutputBounds[5]);
     htg->SetZCoordinates(coords);
   }

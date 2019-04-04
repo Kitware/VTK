@@ -21,11 +21,11 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkPointData.h"
+#include "vtkUniformHyperTreeGrid.h"
+#include "vtkUnstructuredGrid.h"
 
 #include "vtkHyperTreeGridNonOrientedCursor.h"
-#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridDepthLimiter);
 
@@ -41,14 +41,17 @@ vtkHyperTreeGridDepthLimiter::vtkHyperTreeGridDepthLimiter()
   // Output indices begin at 0
   this->CurrentId = 0;
 
-  // JB Pour sortir un maillage de meme type que celui en entree
+  // By default, just create a new mask
+  this->JustCreateNewMask = true;
+
+  // JB Pour sortir un maillage de meme type que celui en entree, si create
   this->AppropriateOutput = true;
 }
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridDepthLimiter::~vtkHyperTreeGridDepthLimiter()
 {
-  if( this->OutMask )
+  if (this->OutMask)
   {
     this->OutMask->Delete();
     this->OutMask = nullptr;
@@ -56,9 +59,9 @@ vtkHyperTreeGridDepthLimiter::~vtkHyperTreeGridDepthLimiter()
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridDepthLimiter::PrintSelf( ostream& os, vtkIndent indent )
+void vtkHyperTreeGridDepthLimiter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Depth: " << this->Depth << endl;
   os << indent << "OutMask: " << this->OutMask << endl;
@@ -66,55 +69,55 @@ void vtkHyperTreeGridDepthLimiter::PrintSelf( ostream& os, vtkIndent indent )
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridDepthLimiter::FillOutputPortInformation( int, vtkInformation* info )
+int vtkHyperTreeGridDepthLimiter::FillOutputPortInformation(int, vtkInformation* info)
 {
-  info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid" );
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridDepthLimiter::ProcessTrees( vtkHyperTreeGrid* input,
-                                                vtkDataObject* outputDO )
+int vtkHyperTreeGridDepthLimiter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
   // Downcast output data object to hyper tree grid
-  vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast( outputDO );
-  if ( ! output )
+  vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(outputDO);
+  if (!output)
   {
-    vtkErrorMacro( "Incorrect type of output: "
-                   << outputDO->GetClassName() );
+    vtkErrorMacro("Incorrect type of output: " << outputDO->GetClassName());
     return 0;
   }
 
+  if (this->JustCreateNewMask)
+  {
+    output->ShallowCopy(input);
+    output->SetDepthLimiter(this->Depth);
+    return 1;
+  }
+
+  // Retrieve material mask
+  this->InMask = input->HasMask() ? input->GetMask() : nullptr;
+
   // Set grid parameters
-  output->SetGridSize( input->GetGridSize() );
-  output->SetTransposedRootIndexing( input->GetTransposedRootIndexing() );
-  output->SetBranchFactor( input->GetBranchFactor() );
-  output->SetDimension( input->GetDimension() );
-  output->SetOrientation( input->GetOrientation() );
-  output->SetXCoordinates( input->GetXCoordinates() );
-  output->SetYCoordinates( input->GetYCoordinates() );
-  output->SetZCoordinates( input->GetZCoordinates() );
-//JBDEL2  output->SetMaskIndex( input->GetMaskIndex() );
-  output->SetHasInterface( input->GetHasInterface() );
-  output->SetInterfaceNormalsName( input->GetInterfaceNormalsName() );
-  output->SetInterfaceInterceptsName( input->GetInterfaceInterceptsName() );
+  output->SetDimensions(input->GetDimensions());
+  output->SetTransposedRootIndexing(input->GetTransposedRootIndexing());
+  output->SetBranchFactor(input->GetBranchFactor());
+  output->CopyCoordinates(input);
+  output->SetHasInterface(input->GetHasInterface());
+  output->SetInterfaceNormalsName(input->GetInterfaceNormalsName());
+  output->SetInterfaceInterceptsName(input->GetInterfaceInterceptsName());
 
   // Initialize output point data
   this->InData = input->GetPointData();
   this->OutData = output->GetPointData();
-  this->OutData->CopyAllocate( this->InData );
+  this->OutData->CopyAllocate(this->InData);
 
   // Output indices begin at 0
   this->CurrentId = 0;
 
   // Create material mask bit array if one is present on input
-  if( input->HasMask() )
+  if (!this->OutMask && input->HasMask())
   {
     this->OutMask = vtkBitArray::New();
   }
-
-  // Retrieve material mask
-  this->InMask = this->OutMask ? input->GetMask() : 0;
 
   // Output indices begin at 0
   this->CurrentId = 0;
@@ -122,82 +125,82 @@ int vtkHyperTreeGridDepthLimiter::ProcessTrees( vtkHyperTreeGrid* input,
   // Iterate over all input and output hyper trees
   vtkIdType inIndex;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
-  input->InitializeTreeIterator( it );
+  input->InitializeTreeIterator(it);
   vtkNew<vtkHyperTreeGridNonOrientedCursor> inCursor;
   vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
-  while ( it.GetNextTree( inIndex ) )
+  while (it.GetNextTree(inIndex))
   {
     // Initialize new grid cursor at root of current input tree
-    input->InitializeNonOrientedCursor( inCursor, inIndex );
+    input->InitializeNonOrientedCursor(inCursor, inIndex);
 
     // Initialize new cursor at root of current output tree
-    output->InitializeNonOrientedCursor( outCursor, inIndex, true );
+    output->InitializeNonOrientedCursor(outCursor, inIndex, true);
 
     // Limit depth recursively
-    this->RecursivelyProcessTree( inCursor, outCursor );
+    this->RecursivelyProcessTree(inCursor, outCursor);
   } // it
 
   // Squeeze and set output material mask if necessary
-  if( this->OutMask )
+  if (this->OutMask)
   {
     this->OutMask->Squeeze();
-    output->SetMask( this->OutMask );
+    output->SetMask(this->OutMask);
   }
 
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridDepthLimiter::RecursivelyProcessTree( vtkHyperTreeGridNonOrientedCursor* inCursor,
-                                                           vtkHyperTreeGridNonOrientedCursor* outCursor )
+void vtkHyperTreeGridDepthLimiter::RecursivelyProcessTree(
+  vtkHyperTreeGridNonOrientedCursor* inCursor, vtkHyperTreeGridNonOrientedCursor* outCursor)
 {
   // Retrieve global index of input cursor
   vtkIdType inId = inCursor->GetGlobalNodeIndex();
 
   // Increase index count on output: postfix is intended
-  vtkIdType outId = this->CurrentId ++;
+  vtkIdType outId = this->CurrentId++;
 
   // Retrieve output tree and set global index of output cursor
   vtkHyperTree* outTree = outCursor->GetTree();
-  outTree->SetGlobalIndexFromLocal( outCursor->GetVertexId(), outId );
+  outTree->SetGlobalIndexFromLocal(outCursor->GetVertexId(), outId);
 
   // Update material mask if relevant
-  if( this->InMask )
+  if (this->InMask)
   {
     // Check whether non-leaf at maximum depth is reached
-    if ( inCursor->GetLevel() == this->Depth && ! inCursor->IsLeaf() )
+    if (inCursor->GetLevel() == this->Depth && !inCursor->IsLeaf())
     {
       // If yes, then it becomes an output leaf that must be visible
-      this->OutMask->InsertValue( outId, 0 );
+      this->OutMask->InsertValue(outId, false);
     }
     else
     {
       // Otherwise, use input mask value
-      this->OutMask->InsertValue( outId, this->InMask->GetValue( inId )  );
+      this->OutMask->InsertValue(outId, this->InMask->GetValue(inId));
     }
   } // if ( this->InMask )
 
   // Copy output cell data from that of input cell
-  this->OutData->CopyData( this->InData, inId, outId );
+  this->OutData->CopyData(this->InData, inId, outId);
 
   // Descend further into input trees only if cursor is not at leaf and depth not reached
-  if ( ! inCursor->IsLeaf() && inCursor->GetLevel() < this->Depth )
+  if (!inCursor->IsLeaf() && inCursor->GetLevel() < this->Depth)
   {
     // Cursor is not at leaf, subdivide output tree one level further
     outCursor->SubdivideLeaf();
 
     // If input cursor is neither at leaf nor at maximum depth, recurse to all children
     int numChildren = inCursor->GetNumberOfChildren();
-    for ( int child = 0; child < numChildren; ++ child )
+    for (int child = 0; child < numChildren; ++child)
     {
-      inCursor->ToChild( child );
+      inCursor->ToChild(child);
       // Descend into child in output grid as well
-      outCursor->ToChild( child );
+      outCursor->ToChild(child);
       // Recurse
-      this->RecursivelyProcessTree( inCursor, outCursor );
+      this->RecursivelyProcessTree(inCursor, outCursor);
       // Return to parent in output grid
       inCursor->ToParent();
       outCursor->ToParent();
     } // child
-  } // if ( ! inCursor->IsLeaf() && inCursor->GetCurrentDepth() < this->Depth )
+  }   // if ( ! inCursor->IsLeaf() && inCursor->GetCurrentDepth() < this->Depth )
 }

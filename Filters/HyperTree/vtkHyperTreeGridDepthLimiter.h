@@ -32,6 +32,8 @@
  * This class was written by Guenole Harel and Jacques-Bernard Lekien 2014
  * This class was modified by Philippe Pebay, 2016
  * This class was modified by Jacques-Bernard Lekien, 2018
+ * This class was optimized by Jacques-Bernard Lekien, 2019,
+ * by DepthLimiter directly manadged by HyperTreeGrid and (super)cursors.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
@@ -50,8 +52,16 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridDepthLimiter : public vtkHyperT
 {
 public:
   static vtkHyperTreeGridDepthLimiter* New();
-  vtkTypeMacro( vtkHyperTreeGridDepthLimiter, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) override;
+  vtkTypeMacro(vtkHyperTreeGridDepthLimiter, vtkHyperTreeGridAlgorithm);
+  void PrintSelf(ostream&, vtkIndent) override;
+
+  //@{
+  /**
+   * Set/Get True, create a new mask ; false, create a new HTG.
+   */
+  vtkSetMacro(JustCreateNewMask, bool);
+  vtkGetMacro(JustCreateNewMask, bool);
+  //@}
 
   //@{
   /**
@@ -68,18 +78,18 @@ protected:
   /**
    * For this algorithm the output is a vtkHyperTreeGrid instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
    * Main routine to extract hyper tree grid levels
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree( vtkHyperTreeGridNonOrientedCursor*,
-                               vtkHyperTreeGridNonOrientedCursor* );
+  void RecursivelyProcessTree(
+    vtkHyperTreeGridNonOrientedCursor*, vtkHyperTreeGridNonOrientedCursor*);
 
   /**
    * Maximum depth of hyper tree grid to be extracted
@@ -87,15 +97,24 @@ protected:
   unsigned int Depth;
 
   /**
-   * Output material mask constructed by this filter
+   * Input mask
    */
   vtkBitArray* InMask;
+
+  /**
+   * Output mask constructed by this filter
+   */
   vtkBitArray* OutMask;
 
   /**
    * Keep track of current index in output hyper tree grid
    */
   vtkIdType CurrentId;
+
+  /**
+   * With or without copy
+   */
+  bool JustCreateNewMask;
 
 private:
   vtkHyperTreeGridDepthLimiter(const vtkHyperTreeGridDepthLimiter&) = delete;

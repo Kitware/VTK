@@ -143,15 +143,27 @@ void vtkHyperTreeGridNonOrientedCursor::SetGlobalIndexFromLocal( vtkIdType index
 }
 
 //-----------------------------------------------------------------------------
+void vtkHyperTreeGridNonOrientedCursor::SetMask( bool state)
+{
+  this->Entries[ this->LastValidEntry ].SetMask( this->Grid, this->Tree, state );
+}
+
+//-----------------------------------------------------------------------------
+bool vtkHyperTreeGridNonOrientedCursor::IsMasked()
+{
+  return this->Entries[ this->LastValidEntry ].IsMasked( this->Grid, this->Tree );
+}
+
+//-----------------------------------------------------------------------------
 bool vtkHyperTreeGridNonOrientedCursor::IsLeaf()
 {
-  return this->Entries[ this->LastValidEntry ].IsLeaf( this->Tree );
+  return this->Entries[ this->LastValidEntry ].IsLeaf( this->Grid, this->Tree, this->Level );
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedCursor::SubdivideLeaf()
 {
-  this->Entries[ this->LastValidEntry ].SubdivideLeaf( this->Tree, this->GetLevel() );
+  this->Entries[ this->LastValidEntry ].SubdivideLeaf( this->Grid, this->Tree, this->Level );
 }
 
 //-----------------------------------------------------------------------------
@@ -179,7 +191,7 @@ void vtkHyperTreeGridNonOrientedCursor::ToChild( unsigned char ichild )
   //
   vtkHyperTreeGridEntry& entry = this->Entries[ this->LastValidEntry ];
   entry.Copy( &this->Entries[ oldLastValidEntry ] );
-  entry.ToChild( this->Tree, ichild );
+  entry.ToChild( this->Grid, this->Tree, this->Level, ichild );
   this->Level ++;
 }
 

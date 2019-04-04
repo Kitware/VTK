@@ -23,10 +23,11 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkQuadric.h"
+#include "vtkUniformHyperTreeGrid.h"
 
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
@@ -50,18 +51,15 @@ vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
 
   // Default clipping box is a unit cube centered at origin
   this->Bounds[0] = -.5;
-  this->Bounds[1] =  .5;
+  this->Bounds[1] = .5;
   this->Bounds[2] = -.5;
-  this->Bounds[3] =  .5;
+  this->Bounds[3] = .5;
   this->Bounds[4] = -.5;
-  this->Bounds[5] =  .5;
+  this->Bounds[5] = .5;
 
   // Default quadric is a sphere with radius 1 centered at origin
   this->Quadric = vtkQuadric::New();
-  this->Quadric->SetCoefficients( 1., 1., 1.,
-                                  0., 0., 0.,
-                                  0., 0., 0.,
-                                  -1. );
+  this->Quadric->SetCoefficients(1., 1., 1., 0., 0., 0., 0., 0., 0., -1.);
 
   // Defaut inside/out flag is false
   this->InsideOut = 0;
@@ -79,50 +77,48 @@ vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridAxisClip::~vtkHyperTreeGridAxisClip()
 {
-  if( this->OutMask )
+  if (this->OutMask)
   {
     this->OutMask->Delete();
     this->OutMask = nullptr;
   }
 
-  if ( this->Quadric )
+  if (this->Quadric)
   {
-    this->Quadric->UnRegister( this );
+    this->Quadric->Delete();
     this->Quadric = nullptr;
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisClip::PrintSelf( ostream& os, vtkIndent indent )
+void vtkHyperTreeGridAxisClip::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ClipType: " << this->ClipType << endl;
   os << indent << "PlaneNormalAxis: " << this->PlaneNormalAxis << endl;
   os << indent << "PlanePosition: " << this->PlanePosition << endl;
-  os << indent << "Bounds: "
-     <<  this->Bounds[0] << "-" <<  this->Bounds[1] << ", "
-     <<  this->Bounds[2] << "-" <<  this->Bounds[3] << ", "
-     <<  this->Bounds[4] << "-" <<  this->Bounds[5] << endl;
+  os << indent << "Bounds: " << this->Bounds[0] << "-" << this->Bounds[1] << ", " << this->Bounds[2]
+     << "-" << this->Bounds[3] << ", " << this->Bounds[4] << "-" << this->Bounds[5] << endl;
   os << indent << "InsideOut: " << this->InsideOut << endl;
   os << indent << "OutMask: " << this->OutMask << endl;
   os << indent << "CurrentId: " << this->CurrentId << endl;
 
-  if ( this->Quadric )
+  if (this->Quadric)
   {
-    this->Quadric->PrintSelf( os, indent.GetNextIndent() );
+    this->Quadric->PrintSelf(os, indent.GetNextIndent());
   }
 }
 
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridAxisClip::FillOutputPortInformation( int, vtkInformation *info )
+int vtkHyperTreeGridAxisClip::FillOutputPortInformation(int, vtkInformation* info)
 {
-  info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid" );
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisClip::GetMinimumBounds( double bMin[3] )
+void vtkHyperTreeGridAxisClip::GetMinimumBounds(double bMin[3])
 {
   bMin[0] = this->Bounds[0];
   bMin[1] = this->Bounds[2];
@@ -130,7 +126,7 @@ void vtkHyperTreeGridAxisClip::GetMinimumBounds( double bMin[3] )
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisClip::GetMaximumBounds( double bMax[3] )
+void vtkHyperTreeGridAxisClip::GetMaximumBounds(double bMax[3])
 {
   bMax[0] = this->Bounds[1];
   bMax[1] = this->Bounds[3];
@@ -138,20 +134,20 @@ void vtkHyperTreeGridAxisClip::GetMaximumBounds( double bMax[3] )
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisClip::SetQuadricCoefficients( double q[10] )
+void vtkHyperTreeGridAxisClip::SetQuadricCoefficients(double q[10])
 {
-  if ( ! this->Quadric )
+  if (!this->Quadric)
   {
     this->Quadric = vtkQuadric::New();
   }
-  this->Quadric->SetCoefficients( q );
+  this->Quadric->SetCoefficients(q);
   this->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisClip::GetQuadricCoefficients( double q[10] )
+void vtkHyperTreeGridAxisClip::GetQuadricCoefficients(double q[10])
 {
-  this->Quadric->GetCoefficients( q );
+  this->Quadric->GetCoefficients(q);
 }
 
 //-----------------------------------------------------------------------------
@@ -165,20 +161,20 @@ vtkMTimeType vtkHyperTreeGridAxisClip::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
 
-  if ( this->Quadric )
+  if (this->Quadric)
   {
     vtkMTimeType time = this->Quadric->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
 
   return mTime;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkHyperTreeGridAxisClip::IsClipped( vtkHyperTreeGridNonOrientedGeometryCursor* cursor )
+bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
   // Check clipping status depending on clip type
-  switch ( this->ClipType )
+  switch (this->ClipType)
   {
     case vtkHyperTreeGridAxisClip::PLANE:
     {
@@ -190,21 +186,21 @@ bool vtkHyperTreeGridAxisClip::IsClipped( vtkHyperTreeGridNonOrientedGeometryCur
       const double* origin = cursor->GetOrigin();
 
       // Decide whether cell is clipped out depending on inside/out flag
-      if ( ! this->InsideOut )
+      if (!this->InsideOut)
       {
         // Check whether cursor is above hyperplane
-        if ( origin[axis] > inter )
+        if (origin[axis] > inter)
         {
           return true;
         }
-      } // if ( ! this->InsideOut )
+      } // if (! this->InsideOut)
       else
       {
         // Retrieve geometric size of input cursor
         const double* size = cursor->GetSize();
 
         // Check whether cursor is below hyperplane
-        if ( origin[axis] + size[axis] < inter )
+        if (origin[axis] + size[axis] < inter)
         {
           return true;
         }
@@ -215,8 +211,8 @@ bool vtkHyperTreeGridAxisClip::IsClipped( vtkHyperTreeGridNonOrientedGeometryCur
     {
       // Retrieve bounds of box
       double bMin[3], bMax[3];
-      this->GetMinimumBounds( bMin );
-      this->GetMaximumBounds( bMax );
+      this->GetMinimumBounds(bMin);
+      this->GetMaximumBounds(bMax);
 
       // Retrieve geometric origin and size of input cursor
       const double* cMin = cursor->GetOrigin();
@@ -228,35 +224,35 @@ bool vtkHyperTreeGridAxisClip::IsClipped( vtkHyperTreeGridNonOrientedGeometryCur
       cMax[1] = cMin[1] + size[1];
       cMax[2] = cMin[2] + size[2];
 
-      for ( unsigned int d = 0; d < 3; ++ d )
+      for (unsigned int d = 0; d < 3; ++d)
       {
         // By default assume the cell will be clipped out
         bool clipped = true;
 
         // Do not clip cell yet if its lower bound is in prescribed bounds
-        if ( ( cMin[d] >= bMin[d] ) && ( cMin[d] <= bMax[d] ) )
+        if ((cMin[d] >= bMin[d]) && (cMin[d] <= bMax[d]))
         {
           clipped = false;
         }
         // Do not clip it either if it contains the prescribed lower bound
-        else if ( ( bMin[d] >= cMin[d] ) && ( bMin[d] <= cMax[d] ) )
+        else if ((bMin[d] >= cMin[d]) && (bMin[d] <= cMax[d]))
         {
           clipped = false;
         }
 
         // Do not clip cell yet if its upper bound is in prescribed bounds
-        if ( ( cMax[d] >= bMin[d] ) && ( cMax[d] <= bMax[d] ) )
+        if ((cMax[d] >= bMin[d]) && (cMax[d] <= bMax[d]))
         {
           clipped = false;
         }
         // Do not clip it either if it contains the prescribed upper bound
-        else if ( ( bMax[d] >= cMin[d] ) && ( bMax[d] <= cMax[d] ) )
+        else if ((bMax[d] >= cMin[d]) && (bMax[d] <= cMax[d]))
         {
           clipped = false;
         }
 
         // Being clipped in one dimension is sufficient to be clipped for good
-        if ( clipped )
+        if (clipped)
         {
           return true;
         }
@@ -271,11 +267,11 @@ bool vtkHyperTreeGridAxisClip::IsClipped( vtkHyperTreeGridNonOrientedGeometryCur
 
       // Iterate over all vertices
       double nVert = 1 << cursor->GetDimension();
-      for ( int v = 0; v < nVert; ++ v )
+      for (int v = 0; v < nVert; ++v)
       {
         // Transform flat index into triple
-        div_t d1 = div( v, 2 );
-        div_t d2 = div( d1.quot, 2 );
+        div_t d1 = div(v, 2);
+        div_t d2 = div(d1.quot, 2);
 
         // Compute vertex coordinates
         double pt[3];
@@ -284,8 +280,8 @@ bool vtkHyperTreeGridAxisClip::IsClipped( vtkHyperTreeGridNonOrientedGeometryCur
         pt[2] = origin[2] + d2.quot * size[2];
 
         // Evaluate quadric at current vertex
-        double qv = this->Quadric->EvaluateFunction( pt );
-        if ( qv < 0 )
+        double qv = this->Quadric->EvaluateFunction(pt);
+        if (qv < 0)
         {
           // Found negative value at this vertex, cell not clipped out
           return false;
@@ -295,21 +291,19 @@ bool vtkHyperTreeGridAxisClip::IsClipped( vtkHyperTreeGridNonOrientedGeometryCur
       // All quadric values are positive at cell vertices, it is clipped out
       return true;
     } // case QUADRIC
-  } //  switch ( this->ClipType )
+  }   //  switch (this->ClipType)
 
   return false;
 }
 
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
-                                            vtkDataObject* outputDO )
+int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
   // Downcast output data object to hyper tree grid
-  vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast( outputDO );
-  if ( ! output )
+  vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(outputDO);
+  if (!output)
   {
-    vtkErrorMacro( "Incorrect type of output: "
-                   << outputDO->GetClassName() );
+    vtkErrorMacro("Incorrect type of output: " << outputDO->GetClassName());
     return 0;
   }
 
@@ -317,35 +311,31 @@ int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
   unsigned int dimension = input->GetDimension();
 
   // This filter works only with 3D grids
-  if ( dimension == 2 &&
-       static_cast<unsigned int>(this->PlaneNormalAxis) == input->GetOrientation() )
+  if (dimension == 2 && static_cast<unsigned int>(this->PlaneNormalAxis) == input->GetOrientation())
   {
-    vtkErrorMacro (<< "In 2D axis clip direction cannot be normal to grid plane:"
-                   << input->GetOrientation( ));
+    vtkErrorMacro(<< "In 2D axis clip direction cannot be normal to grid plane:"
+                  << input->GetOrientation());
     return 0;
   }
-  else if ( dimension == 1 &&
-            static_cast<unsigned int>(this->PlaneNormalAxis) == input->GetOrientation() )
+  else if (dimension == 1 &&
+    static_cast<unsigned int>(this->PlaneNormalAxis) == input->GetOrientation())
   {
-    vtkErrorMacro (<< "In 1D axis clip direction cannot be that of grid axis:"
-                   << input->GetOrientation( ));
+    vtkErrorMacro(<< "In 1D axis clip direction cannot be that of grid axis:"
+                  << input->GetOrientation());
     return 0;
   }
 
   // Set identical grid parameters
-  output->SetDimension( dimension );
-  output->SetOrientation( input->GetOrientation() );
-  output->SetTransposedRootIndexing( input->GetTransposedRootIndexing() );
-  output->SetBranchFactor( input->GetBranchFactor() );
-//JBDEL2  output->SetMaskIndex( input->GetMaskIndex() );
-  output->SetHasInterface( input->GetHasInterface() );
-  output->SetInterfaceNormalsName( input->GetInterfaceNormalsName() );
-  output->SetInterfaceInterceptsName( input->GetInterfaceInterceptsName() );
+  output->SetTransposedRootIndexing(input->GetTransposedRootIndexing());
+  output->SetBranchFactor(input->GetBranchFactor());
+  output->SetHasInterface(input->GetHasInterface());
+  output->SetInterfaceNormalsName(input->GetInterfaceNormalsName());
+  output->SetInterfaceInterceptsName(input->GetInterfaceInterceptsName());
 
   // Initialize output point data
   this->InData = input->GetPointData();
   this->OutData = output->GetPointData();
-  this->OutData->CopyAllocate( this->InData );
+  this->OutData->CopyAllocate(this->InData);
 
   // Output indices begin at 0
   this->CurrentId = 0;
@@ -359,149 +349,177 @@ int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
   // Storage for global indices of clipped out root cells
   std::set<vtkIdType> clipped;
 
-//JBDEL2   // Storage for material mask indices computed together with output grid
-//JBDEL2   vtkNew<vtkIdTypeArray> position;
-
   // First pass across tree roots: compute extent of output grid indices
   unsigned int inSize[3];
-  input->GetGridSize( inSize );
+  input->GetCellDims(inSize);
+
   unsigned int minId[] = { 0, 0, 0 };
   unsigned int maxId[] = { 0, 0, 0 };
   unsigned int outSize[3];
   vtkIdType inIndex;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
-  input->InitializeTreeIterator( it );
+  input->InitializeTreeIterator(it);
   vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> inCursor;
-  while ( it.GetNextTree( inIndex ) )
+  while (it.GetNextTree(inIndex))
   {
     // Initialize new geometric cursor at root of current input tree
-    input->InitializeNonOrientedGeometryCursor( inCursor, inIndex );
+    input->InitializeNonOrientedGeometryCursor(inCursor, inIndex);
 
     // Check whether root cell is intersected by plane
-    if ( ! this->IsClipped( inCursor ) )
+    if (!this->IsClipped(inCursor))
     {
       // Root is intersected by plane, compute its Cartesian coordinates
-      input->GetLevelZeroCoordinatesFromIndex( inIndex, cart[0], cart[1], cart[2] );
+      input->GetLevelZeroCoordinatesFromIndex(inIndex, cart[0], cart[1], cart[2]);
 
       // Update per-coordinate grid extrema if needed
-      for ( unsigned int d = 0; d < 3; ++ d )
+      for (unsigned int d = 0; d < 3; ++d)
       {
-        if ( cart[d] < minId[d] )
+        if (cart[d] < minId[d])
         {
           minId[d] = cart[d];
         }
-        else if ( cart[d] > maxId[d] )
+        else if (cart[d] > maxId[d])
         {
           maxId[d] = cart[d];
         }
       } // d
-    } // if ( ! this->IsClipped( inCursor ) )
+    }   // if (! this->IsClipped(inCursor))
     else
     {
       // This tree root is clipped out, keep track of its global index
-      clipped.insert( inIndex );
+      clipped.insert(inIndex);
     } // else
-  } // it
+  }   // it
 
   // Set grid sizes
   outSize[0] = maxId[0] - minId[0] + 1;
   outSize[1] = maxId[1] - minId[1] + 1;
   outSize[2] = maxId[2] - minId[2] + 1;
-  output->SetGridSize( outSize );
 
-  // Compute or copy output coordinates depending on output grid sizes
-  vtkDataArray* inCoords[3];
-  inCoords[0] = input->GetXCoordinates();
-  inCoords[1] = input->GetYCoordinates();
-  inCoords[2] = input->GetZCoordinates();
-  vtkDataArray* outCoords[3];
-  outCoords[0] = output->GetXCoordinates();
-  outCoords[1] = output->GetYCoordinates();
-  outCoords[2] = output->GetZCoordinates();
-  for ( unsigned int d = 0; d < 3; ++ d )
+  // JB Le maillage de sortie garde les specificites (1D, 2D ou 3D
+  // suivant certaines directions) du maillage d'entree
+  unsigned int dimensions[3];
+  for (unsigned int idim = 0; idim < 3; ++idim)
   {
-    if ( inSize[d] != outSize[d] )
+    if (inSize[idim] == 1)
     {
-      // Coordinate extent along d-axis is clipped
-      outCoords[d]->SetNumberOfTuples( outSize[d] + 1 );
-      for ( unsigned int m = 0; m <= outSize[d]; ++ m )
-      {
-        unsigned int n = m + minId[d];
-        outCoords[d]->SetTuple1( m, inCoords[d]->GetTuple1( n ) );
-      }
-    } // if ( inSize[d] != outSize[d] )
+      dimensions[idim] = 1;
+    }
     else
     {
-      // Coordinate extent along d-axis is unchanged
-      outCoords[d]->ShallowCopy( inCoords[d] );
-    } // else
-  } // d
+      dimensions[idim] = inSize[idim] + 1;
+    }
+  }
+  output->SetDimensions(dimensions); // GridPoints
+
+  // Compute or copy output coordinates depending on output grid sizes
+  vtkUniformHyperTreeGrid* inputUHTG = vtkUniformHyperTreeGrid::SafeDownCast(input);
+  vtkUniformHyperTreeGrid* outputUHTG = vtkUniformHyperTreeGrid::SafeDownCast(outputDO);
+  if (inputUHTG)
+  {
+    assert(outputUHTG);
+    double origin[3];
+    inputUHTG->GetOrigin(origin);
+    double scale[3];
+    inputUHTG->GetGridScale(scale);
+    outputUHTG->GetGridScale(scale);
+    for (unsigned int d = 0; d < 3; ++d)
+    {
+      if (inSize[d] != outSize[d])
+      {
+        origin[d] += scale[d] * minId[d];
+      } // if (inSize[d] != outSize[d])
+    }   // d
+    outputUHTG->GetOrigin(origin);
+  }
+  else
+  {
+    vtkDataArray* inCoords[3];
+    inCoords[0] = input->GetXCoordinates();
+    inCoords[1] = input->GetYCoordinates();
+    inCoords[2] = input->GetZCoordinates();
+    vtkDataArray* outCoords[3];
+    outCoords[0] = output->GetXCoordinates();
+    outCoords[1] = output->GetYCoordinates();
+    outCoords[2] = output->GetZCoordinates();
+    for (unsigned int d = 0; d < 3; ++d)
+    {
+      if (inSize[d] != outSize[d])
+      {
+        // Coordinate extent along d-axis is clipped
+        outCoords[d]->SetNumberOfTuples(outSize[d] + 1);
+        for (unsigned int m = 0; m <= outSize[d]; ++m)
+        {
+          unsigned int n = m + minId[d];
+          outCoords[d]->SetTuple1(m, inCoords[d]->GetTuple1(n));
+        }
+      } // if (inSize[d] != outSize[d])
+      else
+      {
+        // Coordinate extent along d-axis is unchanged
+        outCoords[d]->ShallowCopy(inCoords[d]);
+      } // else
+    }   // d
+  }
 
   // Second pass across tree roots: now compute clipped grid recursively
   vtkIdType outIndex = 0;
-  input->InitializeTreeIterator( it );
+  input->InitializeTreeIterator(it);
   vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
-  while ( it.GetNextTree( inIndex ) )
+  while (it.GetNextTree(inIndex))
   {
     // Initialize new geometric cursor at root of current input tree
-    input->InitializeNonOrientedGeometryCursor( inCursor, inIndex );
+    input->InitializeNonOrientedGeometryCursor(inCursor, inIndex);
 
     // Descend only tree roots that have not already been determined to be clipped out
-    if( clipped.find( inIndex ) == clipped.end() )
+    if (clipped.find(inIndex) == clipped.end())
     {
       // Root is intersected by plane, descend into current child
-      input->GetLevelZeroCoordinatesFromIndex( inIndex, cart[0], cart[1], cart[2] );
+      input->GetLevelZeroCoordinatesFromIndex(inIndex, cart[0], cart[1], cart[2]);
 
       // Get root index into output hyper tree grid
-      output->GetIndexFromLevelZeroCoordinates( outIndex, cart[0], cart[1], cart[2] );
+      output->GetIndexFromLevelZeroCoordinates(
+        outIndex, cart[0] - minId[0], cart[1] - minId[1], cart[2] - minId[2]);
 
       // Initialize new cursor at root of current output tree
-      output->InitializeNonOrientedCursor( outCursor, outIndex, true );
+      output->InitializeNonOrientedCursor(outCursor, outIndex, true);
 
       // Clip tree recursively
-      this->RecursivelyProcessTree( inCursor, outCursor );
-
-//JBDEL2       // Store current output index then increment it
-//JBDEL2       position->InsertNextValue( outIndex );
-      ++ outIndex;
+      this->RecursivelyProcessTree(inCursor, outCursor);
     } // if origin
-  } // it
-
-  // Set material mask index
-//JBDEL2   output->SetMaskIndex( position );
+  }   // it
 
   // Squeeze and set output material mask if necessary
-  if( this->OutMask )
+  if (this->OutMask)
   {
     this->OutMask->Squeeze();
-    output->SetMask( this->OutMask );
+    output->SetMask(this->OutMask);
   }
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAxisClip::RecursivelyProcessTree( vtkHyperTreeGridNonOrientedGeometryCursor* inCursor,
-                                                       vtkHyperTreeGridNonOrientedCursor* outCursor )
+void vtkHyperTreeGridAxisClip::RecursivelyProcessTree(
+  vtkHyperTreeGridNonOrientedGeometryCursor* inCursor, vtkHyperTreeGridNonOrientedCursor* outCursor)
 {
   // Retrieve global index of input cursor
   vtkIdType inId = inCursor->GetGlobalNodeIndex();
 
   // Increase index count on output: postfix is intended
-  vtkIdType outId = this->CurrentId ++;
+  vtkIdType outId = this->CurrentId++;
 
   // Retrieve output tree and set global index of output cursor
-  vtkHyperTree* outTree = outCursor->GetTree();
-  outTree->SetGlobalIndexFromLocal( outCursor->GetVertexId(), outId );
-
-  // Flag to keep track of whether current input cell is clipped out
-  bool clipped = this->IsClipped( inCursor );
+  outCursor->SetGlobalIndexFromLocal(outId);
 
   // Copy output cell data from that of input cell
-  this->OutData->CopyData( this->InData, inId, outId );
+  this->OutData->CopyData(this->InData, inId, outId);
+
+  // Flag to keep track of whether current input cell is clipped out
+  bool clipped = this->IsClipped(inCursor);
 
   // Descend further into input trees only if cursor is neither a leaf nor clipped out
-  if ( ! inCursor->IsLeaf() && ! clipped )
+  if (!inCursor->IsLeaf() && !clipped)
   {
     // Cursor is not at leaf, subdivide output tree one level further
     outCursor->SubdivideLeaf();
@@ -511,24 +529,24 @@ void vtkHyperTreeGridAxisClip::RecursivelyProcessTree( vtkHyperTreeGridNonOrient
 
     // If cursor is not at leaf, recurse to all children
     int numChildren = inCursor->GetNumberOfChildren();
-    for ( int inChild = 0; inChild < numChildren; ++ inChild, ++outChild )
+    for (int inChild = 0; inChild < numChildren; ++inChild, ++outChild)
     {
-      inCursor->ToChild( inChild );
+      inCursor->ToChild(inChild);
       // Child is not clipped out, descend into current child
-      outCursor->ToChild( outChild );
+      outCursor->ToChild(outChild);
       // Recurse
-      this->RecursivelyProcessTree( inCursor, outCursor );
+      this->RecursivelyProcessTree(inCursor, outCursor);
       // Return to parent
       outCursor->ToParent();
       inCursor->ToParent();
     } // inChild
-  } // if ( ! cursor->IsLeaf() && ! clipped )
-  else if ( ! clipped && this->InMask && this->InMask->GetValue( inId ) )
+  }   // if (! cursor->IsLeaf() && ! clipped)
+  else if (!clipped && this->InMask && this->InMask->GetValue(inId))
   {
     // Handle case of not clipped but nonetheless masked leaf cells
     clipped = true;
   } // else
 
   // Mask output cell if necessary
-  this->OutMask->InsertTuple1 ( outId, clipped );
+  this->OutMask->InsertTuple1(outId, clipped);
 }
