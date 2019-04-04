@@ -780,6 +780,14 @@ void vtkPointHandleRepresentation3D::CreateDefaultProperties()
 }
 
 //----------------------------------------------------------------------
+void vtkPointHandleRepresentation3D::SetVisibility(vtkTypeBool visible)
+{
+  this->Actor->SetVisibility(visible);
+  // Forward to superclass
+  this->Superclass::SetVisibility(visible);
+}
+
+//----------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::BuildRepresentation()
 {
   // The net effect is to resize the handle
