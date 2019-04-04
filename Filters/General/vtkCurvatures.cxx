@@ -30,6 +30,8 @@
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
+#include <memory> // For unique_ptr
+
 vtkStandardNewMacro(vtkCurvatures);
 
 //-------------------------------------------------------//
@@ -62,8 +64,6 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     meanCurvature->SetNumberOfTuples(numPts);
     // Get the array so we can write to it directly
     double *meanCurvatureData = meanCurvature->GetPointer(0);
-    //     data
-    int v, v_l, v_r, v_o,  f, F, n, nv;// n short for neighbor
 
     //     create-allocate
     double n_f[3]; // normal of facet (could be stored for later?)
@@ -77,15 +77,12 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     double vn2[3];
     double e[3];   // edge (oriented)
 
-    double cs, sn;    // cs: cos; sn sin
-    double angle, length, Af, Hf;  // temporary store
-
     mesh->BuildLinks();
     //data init
-    F = mesh->GetNumberOfCells();
+    const int F = mesh->GetNumberOfCells();
     // init, preallocate the mean curvature
-    int* num_neighb = new int[numPts];
-    for (v = 0; v < numPts; v++)
+    const std::unique_ptr<int[]> num_neighb(new int[numPts]);
+    for (int v = 0; v < numPts; v++)
     {
       meanCurvatureData[v] = 0.0;
       num_neighb[v] = 0;
@@ -95,24 +92,28 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     vtkDebugMacro(<<"Main loop: loop over facets such that id > id of neighb");
     vtkDebugMacro(<<"so that every edge comes only once");
     //
-    for (f = 0; f < F; f++)
+    for (int f = 0; f < F; f++)
     {
       mesh->GetCellPoints(f,vertices);
-      nv = vertices->GetNumberOfIds();
+      const int nv = vertices->GetNumberOfIds();
 
-      for (v = 0; v < nv; v++)
+      for (int v = 0; v < nv; v++)
       {
         // get neighbour
-        v_l = vertices->GetId(v);
-        v_r = vertices->GetId((v+1) % nv);
-        v_o = vertices->GetId((v+2) % nv);
+        const int v_l = vertices->GetId(v);
+        const int v_r = vertices->GetId((v+1) % nv);
+        const int v_o = vertices->GetId((v+2) % nv);
         mesh->GetCellEdgeNeighbors(f,v_l,v_r,neighbours);
+
+        int n;// n short for neighbor
 
         // compute only if there is really ONE neighbour
         // AND meanCurvature has not been computed yet!
         // (ensured by n > f)
         if (neighbours->GetNumberOfIds() == 1 && (n = neighbours->GetId(0)) > f)
         {
+          double Hf;  // temporary store
+
           // find 3 corners of f: in order!
           mesh->GetPoint(v_l,ore);
           mesh->GetPoint(v_r,end);
@@ -122,8 +123,8 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
           // compute common edge
           e[0] = end[0]; e[1] = end[1]; e[2] = end[2];
           e[0] -= ore[0]; e[1] -= ore[1]; e[2] -= ore[2];
-          length = double(vtkMath::Normalize(e));
-          Af = double(vtkTriangle::TriangleArea(ore,end,oth));
+          const double length = vtkMath::Normalize(e);
+          double Af = vtkTriangle::TriangleArea(ore,end,oth);
           // find 3 corners of n: in order!
           mesh->GetCellPoints(n,vertices_n);
           mesh->GetPoint(vertices_n->GetId(0),vn0);
@@ -133,14 +134,14 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
           // compute normal of n
           vtkTriangle::ComputeNormal(vn0,vn1,vn2,n_n);
           // the cosine is n_f * n_n
-          cs = double(vtkMath::Dot(n_f,n_n));
+          const double cs = vtkMath::Dot(n_f,n_n);
           // the sin is (n_f x n_n) * e
           vtkMath::Cross(n_f,n_n,t);
-          sn = double(vtkMath::Dot(t,e));
+          const double sn = vtkMath::Dot(t,e);
           // signed angle in [-pi,pi]
           if (sn!=0.0 || cs!=0.0)
           {
-            angle = atan2(sn,cs);
+            const double angle = atan2(sn,cs);
             Hf    = length*angle;
           }
           else
@@ -161,11 +162,11 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     }
 
     // put curvature in vtkArray
-    for (v = 0; v < numPts; v++)
+    for (int v = 0; v < numPts; v++)
     {
         if (num_neighb[v]>0)
         {
-          Hf = 0.5*meanCurvatureData[v]/num_neighb[v];
+          const double Hf = 0.5*meanCurvatureData[v]/num_neighb[v];
           if (this->InvertMeanCurvature)
           {
             meanCurvatureData[v] = -Hf;
@@ -185,9 +186,6 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     mesh->GetPointData()->SetActiveScalars("Mean_Curvature");
 
     vtkDebugMacro("Set Values of Mean Curvature: Done");
-
-    // clean
-    delete [] num_neighb;
 };
 //--------------------------------------------
 #define CLAMP_MACRO(v)    ((v)<(-1) ? (-1) : (v) > (1) ? (1) : (v))
@@ -207,8 +205,8 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
     // other data
     vtkIdType Nv   = output->GetNumberOfPoints();
 
-    double* K = new double[Nv];
-    double* dA = new double[Nv];
+    const std::unique_ptr<double[]> K(new double[Nv]);
+    const std::unique_ptr<double[]> dA(new double[Nv]);
     double pi2 = 2.0*vtkMath::Pi();
     for (int k = 0; k < Nv; k++)
     {
@@ -284,10 +282,6 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
     output->GetPointData()->SetActiveScalars("Gauss_Curvature");
 
     vtkDebugMacro("Set Values of Gauss Curvature: Done");
-    /*******************************************************/
-    delete [] K;
-    delete [] dA;
-    /*******************************************************/
 };
 
 void vtkCurvatures::GetMaximumCurvature(vtkPolyData *input,vtkPolyData *output)
