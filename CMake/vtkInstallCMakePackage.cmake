@@ -24,6 +24,11 @@ _vtk_module_write_import_prefix("${vtk_cmake_build_dir}/vtk-prefix.cmake" "${vtk
 # TODO: Build up a list of prefix paths to add.
 set(vtk_prefix_paths)
 
+set(vtk_python_version "")
+if (VTK_WRAP_PYTHON)
+  set(vtk_python_version "${VTK_PYTHON_VERSION}")
+endif ()
+
 configure_file(
   "${vtk_cmake_dir}/vtk-config.cmake.in"
   "${vtk_cmake_build_dir}/vtk-config.cmake"

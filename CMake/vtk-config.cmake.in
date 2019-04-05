@@ -15,6 +15,8 @@ The following variables are provided by this module:
   * `VTK_HAS_VTKm`: If VTK provides VTK-m.
   * `VTK_OPENGL_HAS_EGL`: If VTK::opengl uses EGL. Only provided if the
     `VTK::opengl` target exists.
+  * `VTK_PYTHON_VERSION`: The major version of Python used by VTK. Empty if
+    Python support is not available.
   * `VTK_WRAP_PYTHON`: If VTK itself provides Python wrapping. If so, the
     Python parts of the module API are available.
   * `VTK_WRAP_JAVA`: If VTK itself provides Java wrapping. If so, the
@@ -27,6 +29,19 @@ The following variables are provided by this module:
     `MODULES` arguments in the API (e.g., `vtk_module_autoinit`). All modules
     are also targets and may be linked to using `target_link_libraries`.
 
+For more information about the Python in use by VTK, the `VTK_PYTHON_VERSION`
+variable may be used to query the `find_package(Python)` that VTK performs
+internally (note that the `Python` component must be found to guarantee that
+this happens). For example, the following information would be useful:
+
+  - the `Python${VTK_PYTHON_VERSION}_VERSION` variable; and
+  - the `Python${VTK_PYTHON_VERSION}::Python` target.
+
+See [FindPython2][] and [FindPython3][] documentation for all of the available
+data.
+
+[FindPython2]: https://cmake.org/cmake/help/v3.13/module/FindPython2.html
+[FindPython3]: https://cmake.org/cmake/help/v3.13/module/FindPython3.html
 [VTK module API]: TODO: Link to hosted documentation.
 #]==]
 
@@ -107,6 +122,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkObjectFactory.cmake")
 
 include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleJson.cmake")
 
+set("${CMAKE_FIND_PACKAGE_NAME}_PYTHON_VERSION" "@vtk_python_version@")
 set("${CMAKE_FIND_PACKAGE_NAME}_WRAP_PYTHON" "@VTK_WRAP_PYTHON@")
 if (${CMAKE_FIND_PACKAGE_NAME}_WRAP_PYTHON)
   include("${CMAKE_CURRENT_LIST_DIR}/vtkmodules-vtk-python-module-properties.cmake")
