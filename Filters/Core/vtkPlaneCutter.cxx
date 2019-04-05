@@ -57,7 +57,7 @@ vtkObjectFactoryNewMacro(vtkPlaneCutter);
 vtkCxxSetObjectMacro(vtkPlaneCutter, Plane, vtkPlane);
 
 //----------------------------------------------------------------------------
-namespace
+namespace //begin anonymous namespace
 {
 
 struct vtkLocalDataType
@@ -75,31 +75,92 @@ struct vtkLocalDataType
   }
 };
 
+// This handles points of any type. InOutArray is allocated here but should
+// be deleted by the invoking code. InOutArray is an unsigned char array to
+// simplify bit fiddling later on.
 struct InOutPlanePoints
 {
-  char* InOutArray;
+  vtkPoints *Points;
+  unsigned char* InOutArray;
+  double Origin[3];
+  double Normal[3];
 
-  InOutPlanePoints(vtkPoints* points, vtkPlane* plane)
+  InOutPlanePoints(vtkPoints *pts, vtkPlane* plane) : Points(pts)
   {
-    double p[3];
-    this->InOutArray = new char [points->GetNumberOfPoints()];
-    for (vtkIdType ptNum = 0; ptNum < points->GetNumberOfPoints(); ++ptNum)
+
+    this->InOutArray = new unsigned char [pts->GetNumberOfPoints()];
+    plane->GetOrigin(this->Origin);
+    plane->GetNormal(this->Normal);
+  }
+
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
+  {
+    double p[3], zero=double(0), eval;
+    double *n=this->Normal, *o=this->Origin;
+    unsigned char *ioa = this->InOutArray + ptId;
+    for ( ; ptId < endPtId; ++ptId )
     {
-      // Recover each point
-      points->GetPoint(ptNum, p);
+      // Access each point
+      this->Points->GetPoint(ptId, p);
 
-      // Evaluate position of the point with the plane
-      double eval = plane->EvaluateFunction(p);
+      // Evaluate position of the point with the plane. Invoke inline,
+      // non-virtual version of evaluate method.
+      eval = vtkPlane::Evaluate(n,o,p);
 
-      // Store if the point is actually on one side of the plane
-      // or on the other side of the plane, or actually on the plane
-      this->InOutArray[ptNum] = (double(0) < eval) - (eval < double(0));
+      // Point is either above(=2), below(=1), or on(=0) the plane.
+      *ioa++ = (eval > zero ? 2 : (eval < zero ? 1 : 0));
     }
   }
 
-  ~InOutPlanePoints()
+  static unsigned char* Execute(vtkPoints *pts, vtkPlane *plane)
   {
-    delete[] this->InOutArray;
+    vtkIdType numPts=pts->GetNumberOfPoints();
+    InOutPlanePoints iopp(pts,plane);
+    vtkSMPTools::For(0,numPts, iopp);
+    return iopp.InOutArray;
+  }
+};
+
+// Templated for explicit point representations of real type
+template <typename TP>
+struct InOutRealPlanePoints : public InOutPlanePoints
+{
+  TP *PointsPtr;
+
+  InOutRealPlanePoints(vtkPoints *pts, vtkPlane* plane) :
+    InOutPlanePoints(pts,plane)
+  {
+    this->PointsPtr = static_cast<TP*>(this->Points->GetVoidPointer(0));
+  }
+
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
+  {
+    double p[3], zero=double(0), eval;
+    double *n=this->Normal, *o=this->Origin;
+    TP *pts = this->PointsPtr + 3*ptId;
+    unsigned char *ioa = this->InOutArray + ptId;
+    for ( ; ptId < endPtId; ++ptId )
+    {
+      // Access each point
+      p[0] = static_cast<double>(*pts); ++pts;
+      p[1] = static_cast<double>(*pts); ++pts;
+      p[2] = static_cast<double>(*pts); ++pts;
+
+      // Evaluate position of the point with the plane. Invoke inline,
+      // non-virtual version of evaluate method.
+      eval = vtkPlane::Evaluate(n,o,p);
+
+      // Point is either above(=2), below(=1), or on(=0) the plane.
+      *ioa++ = (eval > zero ? 2 : (eval < zero ? 1 : 0));
+    }
+  }
+
+  static unsigned char* Execute(vtkPoints *pts, vtkPlane *plane)
+  {
+    vtkIdType numPts=pts->GetNumberOfPoints();
+    InOutRealPlanePoints<TP> iorpp(pts,plane);
+    vtkSMPTools::For(0,numPts, iorpp);
+    return static_cast<InOutPlanePoints&>(iorpp).InOutArray;
   }
 };
 
@@ -109,12 +170,13 @@ struct InOutPlanePoints
 struct CuttingFunctor
 {
   vtkDataSet* Input;
-  vtkPoints* InPoints;
+  vtkPoints* InPoints; //if explicit points, the points
+  int PointsType; //if explicit points, the type
   vtkDataObject* Output;
   vtkPlane* Plane;
   vtkSphereTree* SphereTree;
   const unsigned char* Selected;
-  InOutPlanePoints* InOutPoints;
+  unsigned char* InOutArray;
 
   vtkSMPThreadLocal<vtkDoubleArray*> CellScalars;
   vtkSMPThreadLocalObject<vtkGenericCell> Cell;
@@ -140,19 +202,16 @@ struct CuttingFunctor
     bool interpolate,
     bool generatePolygons = false)
     : Input(input)
+    , InPoints(nullptr)
     , Output(output)
     , Plane(plane)
     , SphereTree(tree)
-    , InOutPoints(nullptr)
+    , InOutArray(nullptr)
     , Origin(origin)
     , Normal(normal)
     , Interpolate(interpolate)
     , GeneratePolygons(generatePolygons)
   {
-    if (this->SphereTree)
-    {
-      this->Selected = this->SphereTree->SelectPlane(this->Origin, this->Normal, this->NumSelected);
-    }
   }
 
   virtual ~CuttingFunctor()
@@ -173,7 +232,69 @@ struct CuttingFunctor
       ++dataIter;
     }
 
-    delete this->InOutPoints;
+    if ( this->InPoints )
+    {
+      this->InPoints->Delete();
+    }
+    delete [] this->InOutArray;
+  }
+
+  void BuildAccelerationStructure()
+  {
+    // To speed computation, either a sphere tree or fast classification
+    // process is used.
+    if ( this->SphereTree )
+    {
+      this->Selected =
+        this->SphereTree->SelectPlane(this->Origin, this->Normal, this->NumSelected);
+    }
+    else
+    {
+      // Create a classification array which is used later to reduce the
+      // number of the more expensive "GetCell()" type operations.
+      if ( this->PointsType == VTK_FLOAT )
+      {
+        this->InOutArray =
+          InOutRealPlanePoints<float>::Execute(this->InPoints, this->Plane);
+      }
+      else if ( this->PointsType == VTK_DOUBLE )
+      {
+        this->InOutArray =
+          InOutRealPlanePoints<double>::Execute(this->InPoints, this->Plane);
+      }
+      else // not a real type
+      {
+        this->InOutArray =
+          InOutPlanePoints::Execute(this->InPoints, this->Plane);
+      }
+    }
+  }
+
+  void SetInPoints(vtkPoints *inPts)
+  {
+    this->InPoints = inPts;
+    inPts->Register(nullptr);
+    this->PointsType = this->InPoints->GetDataType();
+  }
+
+  bool IsCellSlicedByPlane(vtkIdType cellId)
+  {
+    vtkNew<vtkIdList> ptIds;
+    this->Input->GetCellPoints(cellId, ptIds);
+    vtkIdType npts = ptIds->GetNumberOfIds();
+    vtkIdType* pts =  ptIds->GetPointer(0);
+    return this->ArePointsAroundPlane(npts, pts);
+  }
+
+  // Check if a list of points intersects the plane
+  bool ArePointsAroundPlane(vtkIdType& npts, vtkIdType*& pts)
+  {
+    unsigned char onOneSideOfPlane = this->InOutArray[pts[0]];
+    for ( vtkIdType i=1; onOneSideOfPlane && i < npts; ++i )
+    {
+      onOneSideOfPlane &= this->InOutArray[pts[i]];
+    }
+    return (!onOneSideOfPlane);
   }
 
   void Initialize()
@@ -257,44 +378,6 @@ struct CuttingFunctor
       output->GetFieldData()->PassData(this->Input->GetFieldData());
       ++outIter;
     }
-  }
-
-  bool IsCellSlicedByPlane(vtkIdType cellId)
-  {
-    vtkNew<vtkIdList> ptIds;
-    this->Input->GetCellPoints(cellId, ptIds);
-    vtkIdType npts = ptIds->GetNumberOfIds();
-    vtkIdType* pts =  ptIds->GetPointer(0);
-    return this->ArePointsAroundPlane(npts, pts);
-  }
-
-  // Check if a list of points is on different side of the plane
-  bool ArePointsAroundPlane(vtkIdType& npts, vtkIdType*& pts)
-  {
-    char inOutPoints = 0;
-    for (vtkIdType ptNum = 0; ptNum < npts; ++ptNum)
-    {
-      // First point, check if it is on the plane
-      if (ptNum == 0)
-      {
-        inOutPoints = this->InOutPoints->InOutArray[pts[ptNum]];
-        if (inOutPoints == 0)
-        {
-          return true;
-        }
-      }
-      else
-      {
-        // Next point, check if it is on the same side of the plane
-        // than the first point
-        char& tmp = this->InOutPoints->InOutArray[pts[ptNum]];
-        if (tmp == 0 || tmp != inOutPoints)
-        {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 };
 
@@ -391,11 +474,7 @@ struct UnstructuredGridFunctor : public PointSetFunctor
     : PointSetFunctor(input, output, plane, tree, origin, normal, interpolate)
   {
     this->Grid = vtkUnstructuredGrid::SafeDownCast(input);
-    this->InPoints = this->Grid->GetPoints();
-    if(!this->SphereTree)
-    {
-      this->InOutPoints = new InOutPlanePoints(this->InPoints, this->Plane);
-    }
+    this->SetInPoints(this->Grid->GetPoints());
   }
 
   void Initialize() { PointSetFunctor::Initialize(); }
@@ -503,6 +582,18 @@ struct UnstructuredGridFunctor : public PointSetFunctor
     this->Grid->GetCellPoints(cellId, npts, pts);
     return this->ArePointsAroundPlane(npts, pts);
   }
+
+  static void Execute(vtkDataSet* input, vtkDataObject* output,
+                      vtkPlane* plane, vtkSphereTree* tree,
+                      double* origin, double* normal,
+                      bool interpolate)
+  {
+    vtkIdType numCells=input->GetNumberOfCells();
+    UnstructuredGridFunctor functor(input,output,plane,tree,origin,normal,
+                                    interpolate);
+    functor.BuildAccelerationStructure();
+    vtkSMPTools::For(0,numCells, functor);
+  }
 };
 
 // Process polydata
@@ -524,11 +615,7 @@ struct PolyDataFunctor : public PointSetFunctor
     {
       this->PolyData->BuildCells();
     }
-    this->InPoints = this->PolyData->GetPoints();
-    if(!this->SphereTree)
-    {
-      this->InOutPoints = new InOutPlanePoints(this->InPoints, this->Plane);
-    }
+    this->SetInPoints(this->PolyData->GetPoints());
   }
 
   void Initialize() { PointSetFunctor::Initialize(); }
@@ -635,6 +722,18 @@ struct PolyDataFunctor : public PointSetFunctor
     vtkIdType npts, *pts;
     this->PolyData->GetCellPoints(cellId, npts, pts);
     return this->ArePointsAroundPlane(npts, pts);
+  }
+
+  static void Execute(vtkDataSet* input, vtkDataObject* output,
+                      vtkPlane* plane, vtkSphereTree* tree,
+                      double* origin, double* normal,
+                      bool interpolate)
+  {
+    vtkIdType numCells=input->GetNumberOfCells();
+    PolyDataFunctor functor(input,output,plane,tree,origin,normal,
+                            interpolate);
+    functor.BuildAccelerationStructure();
+    vtkSMPTools::For(0,numCells, functor);
   }
 };
 
@@ -1353,8 +1452,6 @@ void CutStructuredGrid(T* pts,
 // Process structured grids
 struct StructuredFunctor : public CuttingFunctor
 {
-  int PointsType;
-
   StructuredFunctor(vtkDataSet* input,
     vtkDataObject* output,
     vtkPlane* plane,
@@ -1366,12 +1463,7 @@ struct StructuredFunctor : public CuttingFunctor
     : CuttingFunctor(input, output, plane, tree, origin, normal, interpolate, generatePolygons)
   {
     vtkStructuredGrid* sgrid = vtkStructuredGrid::SafeDownCast(input);
-    this->InPoints = sgrid->GetPoints();
-    this->PointsType = this->InPoints->GetDataType();
-    if(!this->SphereTree)
-    {
-      this->InOutPoints = new InOutPlanePoints(this->InPoints, this->Plane);
-    }
+    this->SetInPoints(sgrid->GetPoints());
   }
 
   void Initialize() { CuttingFunctor::Initialize(); }
@@ -1480,13 +1572,24 @@ struct StructuredFunctor : public CuttingFunctor
   }     // operator()
 
   void Reduce() { CuttingFunctor::Reduce(); }
+
+  static void Execute(vtkDataSet* input, vtkDataObject* output,
+                      vtkPlane* plane, vtkSphereTree* tree,
+                      double* origin, double* normal,
+                      bool interpolate, bool generatePolygons)
+  {
+    vtkIdType numCells=input->GetNumberOfCells();
+    StructuredFunctor functor(input,output,plane,tree,origin,normal,
+                              interpolate,generatePolygons);
+    functor.BuildAccelerationStructure();
+    vtkSMPTools::For(0,numCells, functor);
+  }
+
 };
 
 // Process rectilinear grids with the same algo as structured grid
 struct RectilinearFunctor : public CuttingFunctor
 {
-  int PointsType;
-
   RectilinearFunctor(vtkDataSet* input,
     vtkDataObject* output,
     vtkPlane* plane,
@@ -1498,16 +1601,10 @@ struct RectilinearFunctor : public CuttingFunctor
     : CuttingFunctor(input, output, plane, tree, origin, normal, interpolate, generatePolygons)
   {
     vtkRectilinearGrid* sgrid = vtkRectilinearGrid::SafeDownCast(input);
-    this->InPoints = vtkPoints::New();
-    sgrid->GetPoints(this->InPoints);
-    this->PointsType = this->InPoints->GetDataType();
-    if(!this->SphereTree)
-    {
-      this->InOutPoints = new InOutPlanePoints(this->InPoints, this->Plane);
-    }
+    vtkNew<vtkPoints> inPts;
+    sgrid->GetPoints(inPts); //copy points into provided points array
+    this->SetInPoints(inPts);
   }
-
-  ~RectilinearFunctor() override { this->InPoints->Delete(); }
 
   void Initialize() { CuttingFunctor::Initialize(); }
 
@@ -1615,6 +1712,19 @@ struct RectilinearFunctor : public CuttingFunctor
   }     // operator()
 
   void Reduce() { CuttingFunctor::Reduce(); }
+
+  static void Execute(vtkDataSet* input, vtkDataObject* output,
+                      vtkPlane* plane, vtkSphereTree* tree,
+                      double* origin, double* normal,
+                      bool interpolate, bool generatePolygons)
+  {
+    vtkIdType numCells=input->GetNumberOfCells();
+    RectilinearFunctor functor(input,output,plane,tree,origin,normal,
+                               interpolate,generatePolygons);
+    functor.BuildAccelerationStructure();
+    vtkSMPTools::For(0,numCells, functor);
+  }
+
 };
 
 } // anonymous namespace
@@ -1777,7 +1887,8 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
 
 //----------------------------------------------------------------------------
 // This method delegates to the appropriate algorithm
-int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* output)
+int vtkPlaneCutter::
+ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* output)
 {
   vtkPlane* plane = this->Plane;
   if (this->Plane == nullptr)
@@ -1858,20 +1969,18 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMu
     return 1;
   }
 
-  this->InitializeOutput(output);
-
-  if (tree)
+  // Prepare the output
+  if ( tree )
   {
-    // Okay we'll be using a sphere tree. The tree's mtime will handle
-    // changes to the input. Delegation occurs to the appropriate
-    // algorithm.
     tree->SetBuildHierarchy(this->BuildHierarchy);
     tree->Build(input);
   }
+  this->InitializeOutput(output);
 
+  // Threaded execute
   if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
   {
-    StructuredFunctor functor(input,
+    StructuredFunctor::Execute(input,
       output,
       plane,
       tree,
@@ -1879,12 +1988,11 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMu
       planeNormal,
       this->InterpolateAttributes,
       this->GeneratePolygons);
-    vtkSMPTools::For(0, numCells, functor);
   }
 
   else if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
   {
-    RectilinearFunctor functor(input,
+    RectilinearFunctor::Execute(input,
       output,
       plane,
       tree,
@@ -1892,31 +2000,28 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMu
       planeNormal,
       this->InterpolateAttributes,
       this->GeneratePolygons);
-    vtkSMPTools::For(0, numCells, functor);
   }
 
   else if (input->GetDataObjectType() == VTK_POLY_DATA)
   {
-    PolyDataFunctor functor(input,
+    PolyDataFunctor::Execute(input,
       output,
       plane,
       tree,
       planeOrigin,
       planeNormal,
       this->InterpolateAttributes);
-    vtkSMPTools::For(0, numCells, functor);
   }
 
   else if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
   {
-    UnstructuredGridFunctor functor(input,
+    UnstructuredGridFunctor::Execute(input,
       output,
       plane,
       tree,
       planeOrigin,
       planeNormal,
       this->InterpolateAttributes);
-    vtkSMPTools::For(0, numCells, functor);
   }
 
   else
@@ -1976,4 +2081,7 @@ void vtkPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Plane: " << this->Plane << "\n";
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Interpolate Attributes: " << (this->InterpolateAttributes ? "On\n" : "Off\n");
+  os << indent << "Generate Polygons: " << (this->GeneratePolygons ? "On\n" : "Off\n");
+  os << indent << "Build Tree: " << (this->BuildTree ? "On\n" : "Off\n");
+  os << indent << "Build Hierarchy: " << (this->BuildHierarchy ? "On\n" : "Off\n");
 }

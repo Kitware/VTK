@@ -25,21 +25,26 @@
  * This algorithm is fast because it is threaded, and may build (in a
  * preprocessing step) a spatial search structure that accelerates the plane
  * cuts. The search structure, which is typically a sphere tree, is used to
- * quickly cull candidate cells. Also unlike vtkCutter, the vtkPlane implicit
- * function (representing the plane) does not need to be evaluated with each
- * cut. (Note that other methods of acceleration are delegated to for image
- * data, see vtkFlyingEdgesPlaneCutter documentation.)
+ * quickly cull candidate cells.  (Note that certain types of input data are
+ * delegated to other, internal classes; for example image data is delegated
+ * to vtkFlyingEdgesPlaneCutter.)
  *
- * Because this filter builds an initial data structure during a
+ * Because this filter may build an initial data structure during a
  * preprocessing step, the first execution of the filter may take longer than
  * subsequent operations. Typically the first execution is still faster than
  * vtkCutter (especially with threading enabled), but for certain types of
  * data this may not be true. However if you are using the filter to cut a
  * dataset multiple times (as in an exploratory or interactive workflow) this
- * filter works well.
+ * filter typically works well.
  *
  * @warning
- * This filter outputs a vtkMultiPieceDataSet.
+ * This filter outputs a vtkMultiBlockeDataSet. Each piece in the multiblock
+ * output corresponds to the output from one thread.
+ *
+ * @warning
+ * This filter produces non-merged, potentially coincident points for all
+ * input dataset types except vtkImageData (which uses
+ * vtkFlyingEdgesPlaneCutter under the hood - which does merge points).
  *
  * @warning
  * This filter delegates to vtkFlyingEdgesPlaneCutter to process image
@@ -51,8 +56,8 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkCutter vtkFlyingEdgesPlaneCutter vtkPlane
-*/
+ * vtkFlyingEdgesPlaneCutter vtk3DLinearGridPlaneCutter vtkCutter vtkPlane
+ */
 
 #ifndef vtkPlaneCutter_h
 #define vtkPlaneCutter_h
