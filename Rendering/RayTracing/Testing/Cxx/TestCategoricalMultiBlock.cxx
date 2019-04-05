@@ -58,11 +58,14 @@ int TestCategoricalMultiBlock(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);
   vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
+
+  bool reduceNumMaterials = false;
   for (int i = 0; i < argc; ++i)
   {
     if (!strcmp(argv[i], "--OptiX"))
     {
       vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
+      reduceNumMaterials = true; // Reduce number of MDL material instantiations to make test run faster
       break;
     }
   }
@@ -79,8 +82,8 @@ int TestCategoricalMultiBlock(int argc, char* argv[])
   for (int i = 0; i < 12; i++)
   {
     vtkSmartPointer<vtkSphereSource> polysource = vtkSmartPointer<vtkSphereSource>::New();
-    polysource->SetPhiResolution(10);
-    polysource->SetThetaResolution(10);
+    polysource->SetPhiResolution(reduceNumMaterials ? 1 : 10);
+    polysource->SetThetaResolution(reduceNumMaterials ? 1 : 10);
     polysource->SetCenter(i%4, i/4, 0);
     polysource->Update();
 
