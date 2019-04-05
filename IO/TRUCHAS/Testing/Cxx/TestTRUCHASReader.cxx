@@ -49,6 +49,7 @@ int TestTRUCHASReader(int argc, char *argv[])
 
   vtkNew<vtkTRUCHASReader> reader;
   reader->SetFileName(fileName);
+  delete [] fileName;
   reader->UpdateInformation();
   int nb = reader->GetNumberOfBlockArrays();
   cerr << nb << " BLOCKS" << endl;

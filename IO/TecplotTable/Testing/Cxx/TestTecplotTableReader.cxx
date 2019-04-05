@@ -24,6 +24,7 @@ int TestTecplotTableReader(int argc, char *argv[])
     argc, argv, "Data/residuals.dat");
   vtkTecplotTableReader *reader = vtkTecplotTableReader::New();
   reader->SetFileName(filename);
+  delete [] filename;
   reader->OutputPedigreeIdsOn();
   reader->Update();
 

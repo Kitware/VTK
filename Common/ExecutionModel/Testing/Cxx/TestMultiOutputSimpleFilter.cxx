@@ -220,10 +220,15 @@ int TestComposite(std::string& inputDataFile, bool isAMR)
 
 int TestMultiOutputSimpleFilter(int argc, char* argv[])
 {
-  std::string inputAMR = vtkTestUtilities::ExpandDataFileName(
+  char const *tmp = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/AMR/HierarchicalBoxDataset.v1.1.vthb");
-  std::string inputMultiblock = vtkTestUtilities::ExpandDataFileName(
+  std::string inputAMR = tmp;
+  delete [] tmp;
+
+  tmp = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/many_blocks/many_blocks.vtm");
+  std::string inputMultiblock = tmp;
+  delete [] tmp;
 
   int retVal = TestComposite(inputAMR, true);
 
