@@ -665,6 +665,7 @@ void vtkReebGraph::Implementation::DeepCopy(Implementation *srcG)
   {
     MainArcTable.Size = srcG->MainArcTable.Size;
     MainArcTable.Number = srcG->MainArcTable.Number;
+    free (this->MainArcTable.Buffer);
     this->MainArcTable.Buffer = (vtkReebArc*)malloc(
       sizeof(vtkReebArc)*srcG->MainArcTable.Size);
 
@@ -676,6 +677,8 @@ void vtkReebGraph::Implementation::DeepCopy(Implementation *srcG)
   {
     MainNodeTable.Size = srcG->MainNodeTable.Size;
     MainNodeTable.Number = srcG->MainNodeTable.Number;
+    // free existing buffer
+    free (this->MainNodeTable.Buffer);
     this->MainNodeTable.Buffer = (vtkReebNode*)malloc(
       sizeof(vtkReebNode)*srcG->MainNodeTable.Size);
 
@@ -687,6 +690,7 @@ void vtkReebGraph::Implementation::DeepCopy(Implementation *srcG)
   {
     MainLabelTable.Size = srcG->MainLabelTable.Size;
     MainLabelTable.Number = srcG->MainLabelTable.Number;
+    free (this->MainLabelTable.Buffer);
 
     this->MainLabelTable.Buffer = (vtkReebLabel*)malloc(
       sizeof(vtkReebLabel)*srcG->MainLabelTable.Size);
