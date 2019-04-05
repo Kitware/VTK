@@ -425,7 +425,7 @@ OSPMaterial vtkOSPRayMaterialHelpers::NewMaterial(vtkOSPRayRendererNode *orn,
                                                      std::string ospMatName)
 {
   RTW::Backend *backend = orn->GetBackend();
-  OSPMaterial result;
+  OSPMaterial result = nullptr;
 
   if (backend == nullptr)
       return result;

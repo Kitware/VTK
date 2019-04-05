@@ -130,7 +130,7 @@ private:
 class vtkOSPRayCacheItemObject
 {
 public:
-  vtkOSPRayCacheItemObject(RTW::Backend* backend, OSPObject obj) : backend(backend)
+  vtkOSPRayCacheItemObject(RTW::Backend* be, OSPObject obj) : backend(be)
   {
     object = obj;
   }

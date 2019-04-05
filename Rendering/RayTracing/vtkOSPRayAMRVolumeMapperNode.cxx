@@ -112,7 +112,7 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
                     static_cast<vtkOSPRayRendererNode *>(
                     this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
     vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
-    OSPRenderer oRenderer = orn->GetORenderer();
+
     RTW::Backend *backend = orn->GetBackend();
     if (backend == nullptr)
         return;
