@@ -308,8 +308,6 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotU
     }
   }
 
-  int myRank = this->Internals->SubController->GetLocalProcessId();
-  int numProcs = this->Internals->SubController->GetNumberOfProcesses();
   // ensure that global cell ids array is there if specified.
   // only need global cell ids when more than one ghost layer is needed
   if (maxGhostLevel > 1)
