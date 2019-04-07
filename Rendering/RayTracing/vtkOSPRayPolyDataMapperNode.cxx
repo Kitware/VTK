@@ -37,22 +37,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
 
-//<<<<<<< HEAD
 #include "RTWrapper/RTWrapper.h"
-//=======
-//#include "ospray/ospray.h"
-//#if defined(__GNUC__)
-//#pragma GCC diagnostic push
-//#pragma GCC diagnostic ignored "-Wshadow"
-//#pragma GCC diagnostic ignored "-Wunused-parameter"
-//#endif
-//#include "ospcommon/AffineSpace.h"
-//// Undo disabling of warning.
-//#if defined(__GNUC__)
-//#pragma GCC diagnostic pop
-//#endif
-//#include "ospray/version.h"
-//>>>>>>> master
 
 #include <map>
 
