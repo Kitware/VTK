@@ -18,10 +18,7 @@ namespace RTW
         virtual RTWData NewData(size_t numItems, RTWDataType, const void *source, const uint32_t dataCreationFlags = 0) = 0;
         virtual RTWGeometry NewGeometry(const char *type) = 0;
         virtual RTWTexture NewTexture(const char* type) = 0;
-        virtual RTWLight NewLight(RTWRenderer, const char *type) = 0;
-        virtual RTWLight NewLight2(const char *renderer_type, const char *light_type) = 0;
         virtual RTWLight NewLight3(const char *light_type) = 0;
-        virtual RTWMaterial NewMaterial(RTWRenderer, const char *material_type) = 0;
         virtual RTWMaterial NewMaterial2(const char *renderer_type, const char *material_type) = 0;
         virtual RTWVolume NewVolume(const char *type) = 0;
         virtual RTWTransferFunction NewTransferFunction(const char *type) = 0;

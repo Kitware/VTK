@@ -98,24 +98,9 @@ namespace RTW
       return reinterpret_cast<RTWTexture>(ospNewTexture(type));
     }
 
-    RTWLight NewLight(RTWRenderer renderer, const char *type)
-    {
-      return reinterpret_cast<RTWLight>(ospNewLight(reinterpret_cast<OSPRenderer>(renderer), type));
-    }
-
-    RTWLight NewLight2(const char *renderer_type, const char *light_type)
-    {
-      return reinterpret_cast<RTWLight>(ospNewLight2(renderer_type, light_type));
-    }
-
     RTWLight NewLight3(const char *light_type)
     {
       return reinterpret_cast<RTWLight>(ospNewLight3(light_type));
-    }
-
-    RTWMaterial NewMaterial(RTWRenderer renderer, const char *material_type)
-    {
-      return reinterpret_cast<RTWMaterial>(ospNewMaterial(reinterpret_cast<OSPRenderer>(renderer), material_type));
     }
 
     RTWMaterial NewMaterial2(const char *renderer_type, const char *material_type)

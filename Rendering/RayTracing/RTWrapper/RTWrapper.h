@@ -94,10 +94,8 @@ std::set<RTWBackendType> rtwGetAvailableBackends();
 
 #define ospNewData backend->NewData
 #define ospNewCamera backend->NewCamera
-#define ospNewLight2 backend->NewLight2
 #define ospNewLight3 backend->NewLight3
 #define ospNewTexture backend->NewTexture
-#define ospNewMaterial backend->NewMaterial
 #define ospNewMaterial2 backend->NewMaterial2
 #define ospNewTransferFunction backend->NewTransferFunction
 #define ospNewVolume backend->NewVolume

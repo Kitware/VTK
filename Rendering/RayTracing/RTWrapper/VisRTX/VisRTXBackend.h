@@ -59,11 +59,6 @@ namespace RTW
         /*
          * Unsupported or redundant calls
          */
-        RTWLight NewLight2(const char *renderer_type, const char *light_type)
-        {
-            return this->NewLight(nullptr, light_type);
-        }
-
         RTWLight NewLight3(const char *light_type)
         {
           return this->NewLight(nullptr, light_type);
