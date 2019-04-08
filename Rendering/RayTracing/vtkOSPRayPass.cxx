@@ -63,6 +63,8 @@ public:
   GLuint fullscreenVAO = 0;
 };
 
+int vtkOSPRayPass::RTDeviceRefCount = 0;
+
 // ----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOSPRayPassInternals);
 
@@ -73,6 +75,8 @@ vtkStandardNewMacro(vtkOSPRayPass);
 vtkOSPRayPass::vtkOSPRayPass()
 {
   this->SceneGraph = nullptr;
+
+  vtkOSPRayPass::RTInit();
 
   vtkOSPRayViewNodeFactory *vnf = vtkOSPRayViewNodeFactory::New();
   this->Internal = vtkOSPRayPassInternals::New();
@@ -131,6 +135,27 @@ vtkOSPRayPass::~vtkOSPRayPass()
   {
     this->RenderPassCollection->Delete();
     this->RenderPassCollection = 0;
+  }
+  vtkOSPRayPass::RTShutdown();
+}
+
+// ----------------------------------------------------------------------------
+void vtkOSPRayPass::RTInit()
+{
+  if (RTDeviceRefCount == 0)
+  {
+    rtwInit(nullptr, nullptr);
+  }
+  RTDeviceRefCount++;
+}
+
+// ----------------------------------------------------------------------------
+void vtkOSPRayPass::RTShutdown()
+{
+  --RTDeviceRefCount;
+  if (RTDeviceRefCount == 0)
+  {
+    rtwShutdown();
   }
 }
 

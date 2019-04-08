@@ -26,17 +26,23 @@ namespace RTW
         // Load library first
         if (!VisRTX_LoadLibrary())
         {
-            //std::cerr << "Error: Failed to load VisRTX library" << std::endl;
+            std::cerr << "Error: Failed to load VisRTX library" << std::endl;
             return RTW_UNKNOWN_ERROR;
         }
 #endif
 
         VisRTX::Context* rtx = VisRTX_GetContext();
         if (!rtx)
+        {
+            std::cerr << "Error: no context" << std::endl;
             return RTW_UNKNOWN_ERROR;
+        }
 
         if (rtx->GetDeviceCount() <= 0)
+        {
+            std::cerr << "Error: unsupported device" << std::endl;
             return RTW_UNSUPPORTED_DEVICE;
+        }
 
         //uint32_t n = rtx->GetDeviceCount();
         //for (uint32_t i = 0; i < n; ++i)

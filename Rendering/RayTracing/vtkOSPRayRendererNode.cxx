@@ -1035,9 +1035,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       //        std::cerr << "Unknown backend type listed as available \n";
       //    }
       //}
-      this->Internal->Backend = rtwInit(&ac, av);
+      this->Internal->Backend = rtwSwitch(&ac, av);
       if (this->Internal->Backend == nullptr)
-          return;
+      {
+        return;
+      }
       backend = this->Internal->Backend;
 
       oRenderer = ospNewRenderer(type.c_str());

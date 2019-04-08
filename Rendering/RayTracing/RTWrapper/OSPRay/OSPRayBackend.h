@@ -54,47 +54,7 @@ namespace RTW
   public:
     RTWError Init(int *, const char **)
     {
-      RTWError ret = RTW_UNKNOWN_ERROR;
-      int ac = 1;
-      const char* envArgs = getenv("VTKOSPRAY_ARGS");
-      if (envArgs)
-      {
-        std::stringstream ss(envArgs);
-        std::string arg;
-        std::vector<std::string> args;
-        while (ss >> arg)
-        {
-          args.push_back(arg);
-        }
-        ac = static_cast<int>(args.size() + 1);
-        const char** av = new const char*[ac];
-        av[0] = "pvOSPRay";
-        for (int i = 1; i < ac; i++)
-        {
-          av[i] = args[i - 1].c_str();
-        }
-        try
-        {
-          ret = static_cast<RTWError>(ospInit(&ac, av));
-        }
-        catch (std::runtime_error &)
-        {
-          Shutdown();
-        }
-        delete[] av;
-      }
-      else
-      {
-        const char* av[] = { "pvOSPRay\0" };
-        try
-        {
-          ret = static_cast<RTWError>(ospInit(&ac, av));
-        }
-        catch (std::runtime_error &)
-        {
-          Shutdown();
-        }
-      }
+      RTWError ret = static_cast<RTWError>(ospInit(nullptr, nullptr));
       return ret;
     }
 

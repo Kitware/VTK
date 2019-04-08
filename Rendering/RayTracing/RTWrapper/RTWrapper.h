@@ -4,7 +4,9 @@
 #include "Types.h"
 #include <set>
 
-RTW::Backend *rtwInit(int *argc, const char **argv);
+void rtwInit(int *argc, const char **argv);
+RTW::Backend *rtwSwitch(int *argc, const char **argv);
+void rtwShutdown();
 
 std::set<RTWBackendType> rtwGetAvailableBackends();
 

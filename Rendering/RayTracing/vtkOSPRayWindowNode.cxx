@@ -33,6 +33,7 @@ vtkStandardNewMacro(vtkOSPRayWindowNode);
 //----------------------------------------------------------------------------
 vtkOSPRayWindowNode::vtkOSPRayWindowNode()
 {
+  vtkOSPRayPass::RTInit();
   vtkOSPRayViewNodeFactory *fac = vtkOSPRayViewNodeFactory::New();
   this->SetMyFactory(fac);
   fac->Delete();
@@ -41,6 +42,7 @@ vtkOSPRayWindowNode::vtkOSPRayWindowNode()
 //----------------------------------------------------------------------------
 vtkOSPRayWindowNode::~vtkOSPRayWindowNode()
 {
+  vtkOSPRayPass::RTShutdown();
 }
 
 //----------------------------------------------------------------------------
