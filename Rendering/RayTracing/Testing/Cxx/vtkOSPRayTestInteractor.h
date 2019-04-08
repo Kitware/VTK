@@ -24,6 +24,7 @@
 // I/i      => increase/decrease the global light intensity scale
 // D/d      => increase/decrease the number of ambient occlusion samples
 // t        => change renderer type: scivis, pathtracer
+// N        => toggle use of openimage denoiser, if applicable
 
 #ifndef vtkOSPRayTestInteractor_h
 #define vtkOSPRayTestInteractor_h

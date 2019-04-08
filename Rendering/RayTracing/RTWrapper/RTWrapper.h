@@ -55,10 +55,13 @@ std::set<RTWBackendType> rtwGetAvailableBackends();
 #define OSP_TEXTURE_RGB8 RTW_TEXTURE_RGB8
 #define OSP_TEXTURE_RGBA8 RTW_TEXTURE_RGBA8
 
+#define OSP_FB_RGBA32F RTW_FB_RGBA32F
 #define OSP_FB_RGBA8 RTW_FB_RGBA8
 #define OSP_FB_COLOR RTW_FB_COLOR
 #define OSP_FB_DEPTH RTW_FB_DEPTH
 #define OSP_FB_ACCUM RTW_FB_ACCUM
+#define OSP_FB_NORMAL RTW_FB_NORMAL
+#define OSP_FB_ALBEDO RTW_FB_ALBEDO
 
 #define ospSet1f backend->Set1f
 #define ospSetf backend->Setf

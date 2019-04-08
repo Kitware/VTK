@@ -1465,6 +1465,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 void vtkOSPRayRendererNode::Denoise()
 {
 #ifdef VTKOSPRAY_ENABLE_DENOISER
+  RTW::Backend* backend = this->Internal->Backend;
   this->DenoisedBuffer = this->ColorBuffer;
   if (this->DenoiserDirty)
   {

@@ -24,6 +24,9 @@ typedef enum : uint32_t
     RTW_FB_COLOR = (1 << 0),
     RTW_FB_DEPTH = (1 << 1),
     RTW_FB_ACCUM = (1 << 2),
+    RTW_FB_VARIANCE = (1 << 3),
+    RTW_FB_NORMAL = (1 << 4),
+    RTW_FB_ALBEDO = (1 << 5),
 } RTWFrameBufferChannel;
 
 typedef enum : uint32_t

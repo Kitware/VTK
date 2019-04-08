@@ -19,6 +19,8 @@ namespace RTW
     {
     case RTW_FB_RGBA8:
       return OSP_FB_RGBA8;
+    case RTW_FB_RGBA32F:
+      return OSP_FB_RGBA32F;
     default:
       return OSP_FB_NONE;
     }
