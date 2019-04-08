@@ -137,7 +137,20 @@ void vtkImageData::CopyInformationFromPipeline(vtkInformation* information)
   // Let the superclass copy whatever it wants.
   this->Superclass::CopyInformationFromPipeline(information);
 
-  this->CopyOriginAndSpacingFromPipeline(information);
+  // Copy origin and spacing from pipeline information to the internal
+  // copies.
+  if(information->Has(SPACING()))
+  {
+    this->SetSpacing(information->Get(SPACING()));
+  }
+  if(information->Has(ORIGIN()))
+  {
+    this->SetOrigin(information->Get(ORIGIN()));
+  }
+  if(information->Has(DIRECTION()))
+  {
+    this->SetDirection(information->Get(DIRECTION()));
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -146,9 +159,10 @@ void vtkImageData::CopyInformationToPipeline(vtkInformation* info)
   // Let the superclass copy information to the pipeline.
   this->Superclass::CopyInformationToPipeline(info);
 
-  // Copy the spacing, origin, and scalar info
+  // Copy the spacing, origin, direction, and scalar info
   info->Set(vtkDataObject::SPACING(), this->Spacing, 3);
   info->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
+  info->Set(vtkDataObject::DIRECTION(), this->Direction->GetData(), 9);
   vtkDataObject::SetPointDataActiveScalarInfo(
     info, this->GetScalarType(), this->GetNumberOfScalarComponents());
 }
@@ -1388,21 +1402,6 @@ void vtkImageData::ComputeIncrements(int numberOfComponents, vtkIdType inc[3])
   {
     inc[idx] = incr;
     incr *= (extent[idx*2+1] - extent[idx*2] + 1);
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::CopyOriginAndSpacingFromPipeline(vtkInformation* info)
-{
-  // Copy origin and spacing from pipeline information to the internal
-  // copies.
-  if(info->Has(SPACING()))
-  {
-    this->SetSpacing(info->Get(SPACING()));
-  }
-  if(info->Has(ORIGIN()))
-  {
-    this->SetOrigin(info->Get(ORIGIN()));
   }
 }
 

@@ -497,7 +497,6 @@ protected:
   // scalar field explicitly
   void ComputeIncrements(int numberOfComponents, vtkIdType inc[3]);
   void ComputeIncrements(vtkDataArray *scalars, vtkIdType inc[3]);
-  void CopyOriginAndSpacingFromPipeline(vtkInformation* info);
 
   // for the index to physical methods
   void ComputeTransforms();

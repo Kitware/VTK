@@ -387,6 +387,8 @@ public:
   // \ingroup InformationKeys
   static vtkInformationDoubleVectorKey* SPACING();
   // \ingroup InformationKeys
+  static vtkInformationDoubleVectorKey* DIRECTION();
+  // \ingroup InformationKeys
   static vtkInformationDoubleVectorKey* BOUNDING_BOX();
 
   // Key used to put SIL information in the output information by readers.
