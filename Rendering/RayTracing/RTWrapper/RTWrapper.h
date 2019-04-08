@@ -10,19 +10,6 @@ void rtwShutdown();
 
 std::set<RTWBackendType> rtwGetAvailableBackends();
 
-
-
-// TODO
-// - Fix code depending on OSPRay version
-// - Remove these defines
-// - Version-specific code should be hidden within backend
-#define OSPRAY_VERSION_MAJOR 1
-#define OSPRAY_VERSION_MINOR 6
-#define OSPRAY_VERSION_PATCH 1
-#define OSPRAY_VERSION_GITHASH "91f9ad96af0cf28c4de56813d9f6be24fea7e42b"
-#define OSPRAY_VERSION "1.6.1"
-
-
 // --- Define-based mapping from OSPRay to RTWrapper ----
 #define OSPObject RTWObject
 #define OSPRenderer RTWRenderer
