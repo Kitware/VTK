@@ -17,7 +17,12 @@ PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
   VTK::CommonTransforms
+  VTK::FiltersGeneral
+  VTK::FiltersHybrid
+  VTK::ImagingCore
   VTK::IOImage
+  VTK::RenderingCore
+  VTK::jsoncpp
   VTK::vtksys
   VTK::zlib
 TEST_DEPENDS

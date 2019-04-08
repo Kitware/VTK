@@ -15,8 +15,12 @@ PRIVATE_DEPENDS
   VTK::CommonTransforms
   VTK::FiltersCore
   VTK::FiltersSources
+  VTK::ImagingCore
+  VTK::IOGeometry
   VTK::IOImage
+  VTK::jsoncpp
 TEST_DEPENDS
+  VTK::IOGeometry
   VTK::IOImage
   VTK::IOXML
   VTK::ImagingCore

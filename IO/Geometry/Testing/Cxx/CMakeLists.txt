@@ -46,6 +46,34 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestAVSucdReaderBinary,TestAVSucdReader.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/cellsnd.bin.inp}
 )
 
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderGeometry,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/Triangle/Triangle.gltf,simpleTriangle.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderEmbeddedGeometry,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/Triangle/EmbeddedTriangle.gltf}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderGLBGeometry,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/Triangle/Triangle.glb}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderAnimation,TestGLTFReaderAnimation.cxx 200 DATA{../Data/glTF/BoxAnimated/BoxAnimated.gltf,BoxAnimated0.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderMorphing,TestGLTFReaderAnimation.cxx 200 DATA{../Data/glTF/AnimatedMorphCube/AnimatedMorphCube.gltf,AnimatedMorphCube.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderSkinning,TestGLTFReaderAnimation.cxx 200 DATA{../Data/glTF/SimpleSkin/SimpleSkin.gltf}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderMultipleAnimations,TestGLTFReaderAnimation.cxx 75 DATA{../Data/glTF/InterpolationTest/InterpolationTest.gltf,interpolation.bin,InterpolationTest_data.bin}
+)
+
 if(enable_large_data_tests)
   vtk_add_test_cxx(vtkIOGeometryCxxTests large_data_tests
     TestWindBladeReader.cxx

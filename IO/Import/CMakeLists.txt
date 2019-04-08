@@ -1,5 +1,6 @@
 set(classes
   vtk3DSImporter
+  vtkGLTFImporter
   vtkImporter
   vtkVRMLImporter
   vtkOBJImporter
