@@ -23,6 +23,8 @@
 #include "vtkLargeInteger.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkMatrix3x3.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"
 #include "vtkPointData.h"
@@ -53,6 +55,12 @@ vtkImageData::vtkImageData()
     this->Point[idx] = 0.0;
   }
 
+  this->Direction = vtkMatrix3x3::New();
+  this->IndexToPhysical = vtkMatrix4x4::New();
+  this->PhysicalToIndex = vtkMatrix4x4::New();
+  this->Direction->Identity();
+  this->ComputeTransforms();
+
   int extent[6] = {0, -1, 0, -1, 0, -1};
   memcpy(this->Extent, extent, 6*sizeof(int));
 
@@ -79,6 +87,18 @@ vtkImageData::~vtkImageData()
   {
     this->Voxel->Delete();
   }
+  if (this->Direction)
+  {
+    this->Direction->Delete();
+  }
+  if (this->IndexToPhysical)
+  {
+    this->IndexToPhysical->Delete();
+  }
+  if (this->PhysicalToIndex)
+  {
+    this->PhysicalToIndex->Delete();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -96,6 +116,8 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
     this->Spacing[i] = sPts->Spacing[i];
     this->Origin[i] = sPts->Origin[i];
   }
+  this->Direction->DeepCopy(sPts->GetDirection());
+  this->ComputeTransforms();
   this->SetExtent(sPts->GetExtent());
 }
 
@@ -1152,6 +1174,7 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   int idx;
+  const double* direction = this->GetDirection()->GetData();
   const int *dims = this->GetDimensions();
   const int* extent = this->Extent;
 
@@ -1161,6 +1184,12 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Origin: (" << this->Origin[0] << ", "
                               << this->Origin[1] << ", "
                               << this->Origin[2] << ")\n";
+  os << indent << "Direction: (" << direction[0];
+  for (idx = 1; idx < 9; ++idx)
+  {
+    os << ", " << direction[idx];
+  }
+  os << ")\n";
   os << indent << "Dimensions: (" << dims[0] << ", "
                                   << dims[1] << ", "
                                   << dims[2] << ")\n";
@@ -2145,6 +2174,8 @@ void vtkImageData::InternalImageDataCopy(vtkImageData *src)
     this->Origin[idx] = src->Origin[idx];
     this->Spacing[idx] = src->Spacing[idx];
   }
+  this->Direction->DeepCopy(src->Direction);
+  this->ComputeTransforms();
   this->SetExtent(src->GetExtent());
 }
 
@@ -2289,4 +2320,127 @@ vtkImageData* vtkImageData::GetData(vtkInformation* info)
 vtkImageData* vtkImageData::GetData(vtkInformationVector* v, int i)
 {
   return vtkImageData::GetData(v->GetInformationObject(i));
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::SetSpacing(double i, double j, double k)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Spacing to (" << i << "," << j << "," << k << ")");
+  if ((this->Spacing[0] != i)||(this->Spacing[1] != j)||(this->Spacing[2] != k)) \
+  {
+    this->Spacing[0] = i;
+    this->Spacing[1] = j;
+    this->Spacing[2] = k;
+    this->ComputeTransforms();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::SetSpacing(const double ijk[3])
+{
+  this->SetSpacing(ijk[0], ijk[1], ijk[2]);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::SetOrigin(double i, double j, double k)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Origin to (" << i << "," << j << "," << k << ")");
+  if ((this->Origin[0] != i)||(this->Origin[1] != j)||(this->Origin[2] != k)) \
+  {
+    this->Origin[0] = i;
+    this->Origin[1] = j;
+    this->Origin[2] = k;
+    this->ComputeTransforms();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::SetOrigin(const double ijk[3])
+{
+  this->SetOrigin(ijk[0], ijk[1], ijk[2]);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::SetDirection(vtkMatrix3x3 *m)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Direction to " << m);
+  if (this->Direction != m)
+  {
+    if (m == nullptr && this->Direction->IsIdentity())
+    {
+      // Nothing to do if input is null and direction
+      // is already set to the identity
+      return;
+    }
+
+    if (m == nullptr)
+    {
+      vtkWarningMacro("Direction matrix cannot be set to nullptr, setting to identity instead.");
+      this->Direction->Identity();
+    }
+    else
+    {
+      this->Direction = m; // TODO: deep copy instead?
+    }
+    this->ComputeTransforms();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::SetDirection(const double elements[9])
+{
+  double* data = this->Direction->GetData();
+
+  for (int i = 0; i < 9; ++i)
+  {
+    if (data[i] == elements[i])
+    {
+      continue;
+    }
+    this->Direction->DeepCopy(elements);
+    this->ComputeTransforms();
+    this->Modified();
+    break;
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::ComputeTransforms()
+{
+  vtkMatrix4x4 *m4 = vtkMatrix4x4::New();
+  if (this->Direction->IsIdentity())
+  {
+    m4->Zero();
+    m4->SetElement(0, 0, this->Spacing[0]);
+    m4->SetElement(1, 1, this->Spacing[1]);
+    m4->SetElement(2, 2, this->Spacing[2]);
+    m4->SetElement(3, 3, 1);
+  }
+  else
+  {
+    const double* m3 = this->Direction->GetData();
+    m4->SetElement(0, 0, m3[0] * this->Spacing[0]);
+    m4->SetElement(0, 1, m3[1] * this->Spacing[1]);
+    m4->SetElement(0, 2, m3[2] * this->Spacing[2]);
+    m4->SetElement(1, 0, m3[3] * this->Spacing[0]);
+    m4->SetElement(1, 1, m3[4] * this->Spacing[1]);
+    m4->SetElement(1, 2, m3[5] * this->Spacing[2]);
+    m4->SetElement(2, 0, m3[6] * this->Spacing[0]);
+    m4->SetElement(2, 1, m3[7] * this->Spacing[1]);
+    m4->SetElement(2, 2, m3[8] * this->Spacing[2]);
+    m4->SetElement(3, 0, 0);
+    m4->SetElement(3, 1, 0);
+    m4->SetElement(3, 2, 0);
+    m4->SetElement(3, 3, 1);
+  }
+  m4->SetElement(0, 3, this->Origin[0]);
+  m4->SetElement(1, 3, this->Origin[1]);
+  m4->SetElement(2, 3, this->Origin[2]);
+
+  this->IndexToPhysical->DeepCopy(m4);
+  vtkMatrix4x4::Invert(m4, this->PhysicalToIndex);
+  m4->Delete();
 }

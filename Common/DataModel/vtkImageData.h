@@ -32,6 +32,8 @@
 
 class vtkDataArray;
 class vtkLine;
+class vtkMatrix3x3;
+class vtkMatrix4x4;
 class vtkPixel;
 class vtkVertex;
 class vtkVoxel;
@@ -330,8 +332,9 @@ public:
    * Set the spacing (width,height,length) of the cubical cells that
    * compose the data set.
    */
-  vtkSetVector3Macro(Spacing,double);
   vtkGetVector3Macro(Spacing,double);
+  virtual void SetSpacing(double i, double j , double k);
+  virtual void SetSpacing(const double ijk[3]);
   //@}
 
   //@{
@@ -343,8 +346,35 @@ public:
    * box.
    * The origin plus spacing determine the position in space of the points.
    */
-  vtkSetVector3Macro(Origin,double);
   vtkGetVector3Macro(Origin,double);
+  virtual void SetOrigin(double i, double j , double k);
+  virtual void SetOrigin(const double ijk[3]);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the direction transform of the dataset. The direction is a 3 by 3
+   * matrix.
+   */
+  vtkGetMacro(Direction,vtkMatrix3x3*);
+  virtual void SetDirection(vtkMatrix3x3 *m);
+  virtual void SetDirection(const double elements[9]);
+  //@}
+
+  //@{
+  /**
+   * Get the transformation matrix from the index space to the physical space
+   * coordinate system of the dataset. The transform is a 4 by 4 matrix.
+   */
+  vtkGetMacro(IndexToPhysical,vtkMatrix4x4*);
+  //@}
+
+  //@{
+  /**
+   * Get the transformation matrix from the physical space to the index space
+   * coordinate system of the dataset. The transform is a 4 by 4 matrix.
+   */
+  vtkGetMacro(PhysicalToIndex,vtkMatrix4x4*);
   //@}
 
   static void SetScalarType(int, vtkInformation* meta_data);
@@ -445,8 +475,12 @@ protected:
   int Dimensions[3];
   vtkIdType Increments[3];
 
+  // Variables used to define dataset physical orientation
   double Origin[3];
   double Spacing[3];
+  vtkMatrix3x3 *Direction;
+  vtkMatrix4x4 *IndexToPhysical;
+  vtkMatrix4x4 *PhysicalToIndex;
 
   int Extent[6];
 
@@ -464,6 +498,9 @@ protected:
   void ComputeIncrements(int numberOfComponents, vtkIdType inc[3]);
   void ComputeIncrements(vtkDataArray *scalars, vtkIdType inc[3]);
   void CopyOriginAndSpacingFromPipeline(vtkInformation* info);
+
+  // for the index to physical methods
+  void ComputeTransforms();
 
   vtkTimeStamp ExtentComputeTime;
 
