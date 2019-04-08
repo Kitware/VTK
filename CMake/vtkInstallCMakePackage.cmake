@@ -84,7 +84,6 @@ set(vtk_cmake_module_files
   FindOpenMP.cmake
   FindOpenSlide.cmake
   FindOpenVR.cmake
-  FindOptiX.cmake
   FindOSMesa.cmake
   FindPostgreSQL.cmake
   FindTBB.cmake
