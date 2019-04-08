@@ -124,6 +124,9 @@ public:
    * \warning The Dimensions member variable is not updated during this call.
    */
   virtual void GetDimensions(int dims[3]);
+#if VTK_ID_TYPE_IMPL != VTK_INT
+  virtual void GetDimensions(vtkIdType dims[3]);
+#endif
 
   /**
    * Convenience function computes the structured coordinates for a point x[3].

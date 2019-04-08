@@ -208,9 +208,7 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
 
   // Use vtkIdType to avoid overflow on large images
   vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
+  this->GetDimensions(dims);
 
   vtkIdType d01 = dims[0]*dims[1];
 
@@ -437,9 +435,7 @@ void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
+  this->GetDimensions(dims);
   vtkIdType d01 = dims[0]*dims[1];
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
@@ -546,9 +542,7 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
+  this->GetDimensions(dims);
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
 
@@ -656,9 +650,7 @@ void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
+  this->GetDimensions(dims);
 
   x[0] = x[1] = x[2] = 0.0;
   if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
@@ -728,9 +720,7 @@ vtkIdType vtkImageData::FindPoint(double x[3])
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
+  this->GetDimensions(dims);
 
   //
   //  Compute the ijk location
@@ -1036,9 +1026,7 @@ void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
   const int *extent = this->Extent;
 
   vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
+  this->GetDimensions(dims);
 
   vtkIdType ijsize=dims[0]*dims[1];
 
@@ -1698,9 +1686,7 @@ void vtkImageData::AllocateScalars(int dataType, int numComponents)
   const int* extent = this->Extent;
   // Use vtkIdType to avoid overflow on large images
   vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
+  this->GetDimensions(dims);
   vtkIdType imageSize = dims[0]*dims[1]*dims[2];
 
   // if we currently have scalars then just adjust the size
@@ -2132,6 +2118,18 @@ void vtkImageData::GetDimensions(int *dOut)
   dOut[2] = extent[5] - extent[4] + 1;
 }
 
+#if VTK_ID_TYPE_IMPL != VTK_INT
+//----------------------------------------------------------------------------
+void vtkImageData::GetDimensions(vtkIdType dims[3])
+{
+  // Use vtkIdType to avoid overflow on large images
+  const int* extent = this->Extent;
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
+}
+#endif
+
 //----------------------------------------------------------------------------
 void vtkImageData::SetAxisUpdateExtent(int idx, int min, int max,
                                        const int* updateExtent,
@@ -2234,9 +2232,7 @@ vtkIdType vtkImageData::GetNumberOfCells()
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
+  this->GetDimensions(dims);
 
   for (i=0; i<3; i++)
   {
