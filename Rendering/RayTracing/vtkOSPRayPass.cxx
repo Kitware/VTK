@@ -144,7 +144,7 @@ void vtkOSPRayPass::RTInit()
 {
   if (RTDeviceRefCount == 0)
   {
-    rtwInit(nullptr, nullptr);
+    rtwInit();
   }
   RTDeviceRefCount++;
 }

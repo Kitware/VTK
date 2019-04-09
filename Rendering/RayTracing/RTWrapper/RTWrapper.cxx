@@ -26,13 +26,13 @@ RTW::VisRTXBackend* rtwVisRTXBackend = nullptr;
 RTW::OSPRayBackend* rtwOSPRayBackend = nullptr;
 #endif
 
-void rtwInit(int *argc, const char **argv)
+void rtwInit()
 {
 #ifdef VTK_ENABLE_VISRTX
   if (!rtwVisRTXBackend)
   {
     rtwVisRTXBackend = new RTW::VisRTXBackend();
-    if (rtwVisRTXBackend->Init(argc, argv) != RTW_NO_ERROR)
+    if (rtwVisRTXBackend->Init() != RTW_NO_ERROR)
     {
       std::cerr << "WARNING: Failed to initialize RTW VisRTX backend.\n";
       rtwVisRTXBackend->Shutdown();
@@ -45,7 +45,7 @@ void rtwInit(int *argc, const char **argv)
   if (!rtwOSPRayBackend)
   {
     rtwOSPRayBackend = new RTW::OSPRayBackend();
-    if (rtwOSPRayBackend->Init(argc, argv) != RTW_NO_ERROR)
+    if (rtwOSPRayBackend->Init() != RTW_NO_ERROR)
     {
       std::cerr << "WARNING: Failed to initialize RTW OSPRay backend.\n";
       rtwOSPRayBackend->Shutdown();
@@ -56,9 +56,9 @@ void rtwInit(int *argc, const char **argv)
 #endif
 }
 
-RTW::Backend *rtwSwitch(int *argc, const char **argv)
+RTW::Backend *rtwSwitch(const char *name)
 {
-    if (!strcmp(argv[0], "optix pathtracer"))
+    if (!strcmp(name, "optix pathtracer"))
     {
 #ifdef VTK_ENABLE_VISRTX
       return rtwVisRTXBackend;
@@ -91,7 +91,7 @@ void rtwShutdown()
 
 std::set<RTWBackendType> rtwGetAvailableBackends()
 {
-    rtwInit(nullptr, nullptr);
+    rtwInit();
     std::set<RTWBackendType> result;
 #ifdef VTK_ENABLE_VISRTX
     if (rtwVisRTXBackend)

@@ -20,7 +20,7 @@
 
 namespace RTW
 {
-    RTWError VisRTXBackend::Init(int *argc, const char **argv)
+    RTWError VisRTXBackend::Init()
     {
 #ifdef VISRTX_DYNLOAD
         // Load library first

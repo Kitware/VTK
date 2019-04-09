@@ -305,7 +305,7 @@ public:
   {
     vtkRenderer *ren = vtkRenderer::SafeDownCast
       (this->Owner->GetRenderable());
-    if (this->Owner->GetRendererType(ren) != "pathtracer" && this->Owner->GetRendererType(ren) != "optix pathtracer")
+    if (std::string(this->Owner->GetRendererType(ren)).find(std::string("pathtracer")) == std::string::npos)
     {
       return true;
     }
@@ -569,16 +569,20 @@ void vtkOSPRayRendererNode::SetRendererType(std::string name, vtkRenderer *rende
   vtkInformation *info = renderer->GetInformation();
 
 #ifdef VTK_ENABLE_OSPRAY
-  if ("scivis" == name || "pathtracer" == name)
+  if ("scivis" == name || "OSPRay raycaster" == name)
   {
-    info->Set(vtkOSPRayRendererNode::RENDERER_TYPE(), name);
+    info->Set(vtkOSPRayRendererNode::RENDERER_TYPE(), "scivis");
+  }
+  if ("pathtracer" == name || "OSPRay pathtracer" == name)
+  {
+    info->Set(vtkOSPRayRendererNode::RENDERER_TYPE(), "pathtracer");
   }
 #endif
 
 #ifdef VTK_ENABLE_VISRTX
-  if ("optix pathtracer" == name)
+  if ("optix pathtracer" == name || "OptiX pathtracer" == name)
   {
-    info->Set(vtkOSPRayRendererNode::RENDERER_TYPE(), name);
+    info->Set(vtkOSPRayRendererNode::RENDERER_TYPE(), "optix pathtracer");
   }
 #endif
 }
@@ -600,9 +604,9 @@ std::string vtkOSPRayRendererNode::GetRendererType(vtkRenderer *renderer)
     return (info->Get(vtkOSPRayRendererNode::RENDERER_TYPE()));
   }
 #ifdef VTK_ENABLE_OSPRAY
-    return std::string("scivis");
+  return std::string("scivis");
 #else
-    return std::string("optix pathtracer");
+  return std::string("optix pathtracer");
 #endif
 }
 
@@ -1017,8 +1021,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     if (!this->ORenderer || this->PreviousType != type)
     {
       this->Traverse(invalidate);
-      int ac = 1;
-      const char *av[1] = {type.c_str()};
       //std::cerr << "initializing backend...\n";
       //std::set<RTWBackendType> availableBackends = rtwGetAvailableBackends();
       //for (RTWBackendType backend : availableBackends)
@@ -1035,7 +1037,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       //        std::cerr << "Unknown backend type listed as available \n";
       //    }
       //}
-      this->Internal->Backend = rtwSwitch(&ac, av);
+      this->Internal->Backend = rtwSwitch(type.c_str());
       if (this->Internal->Backend == nullptr)
       {
         return;

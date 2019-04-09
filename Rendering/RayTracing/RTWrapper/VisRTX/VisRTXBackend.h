@@ -13,7 +13,7 @@ namespace RTW
         VisRTXBackend() = default;
         ~VisRTXBackend() = default;
 
-        RTWError Init(int *argc, const char **argv);
+        RTWError Init();
         void Shutdown();
 
         bool IsSupported(RTWFeature feature) const;
