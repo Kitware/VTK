@@ -32,16 +32,29 @@ namespace RTW
     {
     case RTW_TEXTURE_RGBA8:
       return OSP_TEXTURE_RGBA8;
+    case RTW_TEXTURE_SRGBA:
+      return OSP_TEXTURE_SRGBA;
     case RTW_TEXTURE_RGBA32F:
       return OSP_TEXTURE_RGBA32F;
     case RTW_TEXTURE_RGB8:
       return OSP_TEXTURE_RGB8;
+    case RTW_TEXTURE_SRGB:
+      return OSP_TEXTURE_SRGB;
     case RTW_TEXTURE_RGB32F:
       return OSP_TEXTURE_RGB32F;
     case RTW_TEXTURE_R8:
       return OSP_TEXTURE_R8;
     case RTW_TEXTURE_R32F:
       return OSP_TEXTURE_R32F;
+    case RTW_TEXTURE_L8:
+      return OSP_TEXTURE_L8;
+    case RTW_TEXTURE_RA8:
+      return OSP_TEXTURE_RA8;
+    case RTW_TEXTURE_LA8:
+      return OSP_TEXTURE_LA8;
+    case RTW_TEXTURE_FORMAT_INVALID:
+    default:
+      return OSP_TEXTURE_FORMAT_INVALID;
     }
   }
 
@@ -54,7 +67,7 @@ namespace RTW
   class OSPRayBackend : public Backend
   {
   public:
-    RTWError Init(int *, const char **)
+    RTWError Init()
     {
       RTWError ret = static_cast<RTWError>(ospInit(nullptr, nullptr));
       return ret;

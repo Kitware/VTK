@@ -10,7 +10,7 @@ namespace RTW
         virtual ~Backend() = default;
 
     public:
-        virtual RTWError Init(int *argc, const char **argv) = 0;
+        virtual RTWError Init() = 0;
         virtual void Shutdown() = 0;
 
         virtual bool IsSupported(RTWFeature feature) const = 0;
