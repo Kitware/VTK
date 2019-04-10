@@ -60,10 +60,7 @@ int TestPNGReader(int argc, char* argv[])
 
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
   imageViewer->SetupInteractor(renderWindowInteractor);
-
   imageViewer->Render();
-
-  renderWindowInteractor->Start();
 
   vtkRenderWindow* renWin = imageViewer->GetRenderWindow();
   int retVal = vtkRegressionTestImage(renWin);

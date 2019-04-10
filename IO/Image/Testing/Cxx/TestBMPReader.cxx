@@ -16,18 +16,15 @@
 // .SECTION Description
 //
 
-
-#include "vtkSmartPointer.h"
-
 #include "vtkBMPReader.h"
-
 #include "vtkImageData.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImageViewer.h"
 #include "vtkLookupTable.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindowInteractor.h"
-
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 
 int TestBMPReader(int argc, char *argv[])
 {
@@ -95,7 +92,17 @@ int TestBMPReader(int argc, char *argv[])
   imageViewer->SetInputConnection(map->GetOutputPort());
   imageViewer->SetColorWindow(256);
   imageViewer->SetColorLevel(127.5);
+
+  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
+  imageViewer->SetupInteractor(renderWindowInteractor);
   imageViewer->Render();
 
-  return EXIT_SUCCESS;
+  vtkRenderWindow* renWin = imageViewer->GetRenderWindow();
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    renderWindowInteractor->Start();
+  }
+
+  return !retVal;
 }
