@@ -617,54 +617,47 @@ void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
 //----------------------------------------------------------------------------
 vtkIdType vtkImageData::FindPoint(double x[3])
 {
-  static bool gaveWarning = false;
-  int loc[3];
-  const double *origin = this->Origin;
+  //
+  //  Ensure valid spacing
+  //
   const double *spacing = this->Spacing;
-  const int* extent = this->Extent;
-
   vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
+  this->GetDimensions(dims);
+  std::string ijkLabels[3] = {"I", "J", "K"};
+  for (int i=0; i<3; i++)
+  {
+    if (spacing[i] == 0.0 && dims[i] > 1) {
+      vtkWarningMacro("Spacing along the " << ijkLabels[i] << " axis is 0.");
+      return -1;
+    }
+  }
 
   //
   //  Compute the ijk location
   //
-  for (int i=0; i<3; i++)
+  const int* extent = this->Extent;
+  int loc[3];
+  double xyz[4], ijk[4];
+  xyz[0] = x[0]; xyz[1] = x[1]; xyz[2] = x[2]; xyz[3] = 1;
+  this->GetPhysicalToIndex()->MultiplyPoint(xyz, ijk);
+  loc[0] = vtkMath::Floor(ijk[0] + 0.5);
+  loc[1] = vtkMath::Floor(ijk[1] + 0.5);
+  loc[2] = vtkMath::Floor(ijk[2] + 0.5);
+  if (loc[0] < extent[0] || loc[0] > extent[1] ||
+      loc[1] < extent[2] || loc[1] > extent[3] ||
+      loc[2] < extent[4] || loc[2] > extent[5])
   {
-    if ( spacing[i] == 0.0 )
-    {
-      if ( gaveWarning == false )
-      {
-        vtkWarningMacro(
-          "Spacing in direction " << i
-          << " is 0. Unexpected results may be returned from vtkImageData::FindPoint()");
-        gaveWarning = true;
-      }
-      if ( x[i] != origin[i])
-      {
-        return -1;
-      }
-      loc[i] = extent[i*2];
-    }
-    else
-    {
-      double d = x[i] - origin[i];
-      loc[i] = vtkMath::Floor((d / spacing[i]) + 0.5);
-      if ( loc[i] < extent[i*2] || loc[i] > extent[i*2+1] )
-      {
-        return -1;
-      }
-      // since point id is relative to the first point actually stored
-      loc[i] -= extent[i*2];
-    }
+    return -1;
   }
+  // since point id is relative to the first point actually stored
+  loc[0] -= extent[0];
+  loc[1] -= extent[2];
+  loc[2] -= extent[4];
+
   //
   //  From this location get the point id
   //
   return loc[2]*dims[0]*dims[1] + loc[1]*dims[0] + loc[0];
-
 }
 
 //----------------------------------------------------------------------------
