@@ -102,6 +102,13 @@ int vtkRTAnalyticSource::RequestInformation(
 {
   // get the info objects
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  if (this->SubsampleRate == 0)
+  {
+    vtkErrorMacro("Invalid SubsampleRate: value must be > 0");
+    return 0;
+  }
+
   if (this->WholeExtent[0] > this->WholeExtent[1] ||
     this->WholeExtent[2] > this->WholeExtent[3] ||
     this->WholeExtent[4] > this->WholeExtent[5])
@@ -136,6 +143,12 @@ int vtkRTAnalyticSource::RequestInformation(
 void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(output),
                                                      vtkInformation *outInfo)
 {
+  if (this->SubsampleRate == 0)
+  {
+    vtkErrorMacro("Invalid SubsampleRate: value must be > 0");
+    return;
+  }
+
   float *outPtr;
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
