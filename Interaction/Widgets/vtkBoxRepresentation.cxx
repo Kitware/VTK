@@ -146,6 +146,8 @@ vtkBoxRepresentation::vtkBoxRepresentation()
   for (i=0; i<7; i++)
   {
     this->HandleGeometry[i] = vtkSphereSource::New();
+    this->HandleGeometry[i]->SetOutputPointsPrecision(
+      vtkAlgorithm::DOUBLE_PRECISION);
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
     this->HandleMapper[i] = vtkPolyDataMapper::New();

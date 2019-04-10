@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkConeSource.h"
 
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkInformation.h"
@@ -271,11 +272,23 @@ int vtkConeSource::RequestData(
       t->RotateWXYZ(180.0, (this->Direction[0]+vMag)/2.0,
                     this->Direction[1]/2.0, this->Direction[2]/2.0);
     }
-    float *ipts=
-      static_cast<vtkFloatArray *>(newPoints->GetData())->GetPointer(0);
-    for (i=0; i<numPts; i++, ipts+=3)
+    if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
     {
-      t->TransformPoint(ipts,ipts);
+      double *ipts=
+        static_cast<vtkDoubleArray *>(newPoints->GetData())->GetPointer(0);
+      for (i=0; i<numPts; i++, ipts+=3)
+      {
+        t->TransformPoint(ipts,ipts);
+      }
+    }
+    else
+    {
+      float *ipts=
+        static_cast<vtkFloatArray *>(newPoints->GetData())->GetPointer(0);
+      for (i=0; i<numPts; i++, ipts+=3)
+      {
+        t->TransformPoint(ipts,ipts);
+      }
     }
 
     t->Delete();
