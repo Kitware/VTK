@@ -81,6 +81,8 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->Box = vtkImageData::New();
   this->Box->SetDimensions(2,2,2);
   this->Outline = vtkOutlineFilter::New();
+  this->Outline->SetOutputPointsPrecision(
+    vtkAlgorithm::DOUBLE_PRECISION);
   this->Outline->SetInputData(this->Box);
   this->OutlineMapper = vtkPolyDataMapper::New();
   this->OutlineMapper->SetInputConnection(
@@ -93,9 +95,13 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->ConstrainToWidgetBounds = 1;
 
   this->Cutter = vtkCutter::New();
+  this->Cutter->SetOutputPointsPrecision(
+    vtkAlgorithm::DOUBLE_PRECISION);
   this->Cutter->SetInputData(this->Box);
   this->Cutter->SetCutFunction(this->Plane);
   this->PlaneSource = vtkPlaneSource::New();
+  this->PlaneSource->SetOutputPointsPrecision(
+    vtkAlgorithm::DOUBLE_PRECISION);
   this->CutMapper = vtkPolyDataMapper::New();
   this->CutMapper->SetInputConnection(
     this->Cutter->GetOutputPort());
@@ -105,9 +111,13 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->DrawOutline = 1;
 
   this->Edges = vtkFeatureEdges::New();
+  this->Edges->SetOutputPointsPrecision(
+    vtkAlgorithm::DOUBLE_PRECISION);
   this->Edges->SetInputConnection(
     this->Cutter->GetOutputPort());
   this->EdgesTuber = vtkTubeFilter::New();
+  this->EdgesTuber->SetOutputPointsPrecision(
+    vtkAlgorithm::DOUBLE_PRECISION);
   this->EdgesTuber->SetInputConnection(
     this->Edges->GetOutputPort());
   this->EdgesTuber->SetNumberOfSides(12);
@@ -121,6 +131,8 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   // Create the + plane normal
   this->LineSource = vtkLineSource::New();
   this->LineSource->SetResolution(1);
+  this->LineSource->SetOutputPointsPrecision(
+    vtkAlgorithm::DOUBLE_PRECISION);
   this->LineMapper = vtkPolyDataMapper::New();
   this->LineMapper->SetInputConnection(
     this->LineSource->GetOutputPort());
@@ -128,6 +140,8 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->LineActor->SetMapper(this->LineMapper);
 
   this->ConeSource = vtkConeSource::New();
+  this->ConeSource->SetOutputPointsPrecision(
+    vtkAlgorithm::DOUBLE_PRECISION);
   this->ConeSource->SetResolution(12);
   this->ConeSource->SetAngle(25.0);
   this->ConeMapper = vtkPolyDataMapper::New();
@@ -138,6 +152,8 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
 
   // Create the - plane normal
   this->LineSource2 = vtkLineSource::New();
+  this->LineSource2->SetOutputPointsPrecision(
+    vtkAlgorithm::DOUBLE_PRECISION);
   this->LineSource2->SetResolution(1);
   this->LineMapper2 = vtkPolyDataMapper::New();
   this->LineMapper2->SetInputConnection(
@@ -146,6 +162,8 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->LineActor2->SetMapper(this->LineMapper2);
 
   this->ConeSource2 = vtkConeSource::New();
+  this->ConeSource2->SetOutputPointsPrecision(
+    vtkAlgorithm::DOUBLE_PRECISION);
   this->ConeSource2->SetResolution(12);
   this->ConeSource2->SetAngle(25.0);
   this->ConeMapper2 = vtkPolyDataMapper::New();
@@ -156,6 +174,8 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
 
   // Create the origin handle
   this->Sphere = vtkSphereSource::New();
+  this->Sphere->SetOutputPointsPrecision(
+    vtkAlgorithm::DOUBLE_PRECISION);
   this->Sphere->SetThetaResolution(16);
   this->Sphere->SetPhiResolution(8);
   this->SphereMapper = vtkPolyDataMapper::New();
