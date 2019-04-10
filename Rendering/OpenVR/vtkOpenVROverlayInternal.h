@@ -12,6 +12,13 @@
 
 =========================================================================*/
 
+#ifndef vtkPVOpenVROverlayInternal_h
+#define vtkPVOpenVROverlayInternal_h
+
+#include "vtkInteractorStyle3D.h"
+#include "vtkOpenVRCamera.h"
+#include "vtkOpenVRRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkVectorOperators.h"
 
 class vtkOpenVRCameraPose
@@ -191,6 +198,8 @@ public:
   }
   vtkOpenVROverlaySpot& operator=(const vtkOpenVROverlaySpot&) = delete;
 };
+
+#endif // vtkPVOpenVROverlayInternal_h
 
 //****************************************************************************
 // VTK-HeaderTest-Exclude: vtkOpenVROverlayInternal.h

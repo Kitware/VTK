@@ -172,6 +172,14 @@ void vtkOpenVROverlay::ReadCameraPoses(vtkXMLDataElement *topel)
   }
 }
 
+void vtkOpenVROverlay::SetSavedCameraPose(int i, vtkOpenVRCameraPose *pose)
+{
+  if (pose)
+  {
+    this->SavedCameraPoses[i] = *pose;
+  }
+}
+
 void vtkOpenVROverlay::SaveCameraPose(int slot)
 {
   vtkOpenVRCameraPose *pose = &this->SavedCameraPoses[slot];

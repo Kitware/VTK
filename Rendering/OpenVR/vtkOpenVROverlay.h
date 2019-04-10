@@ -107,6 +107,7 @@ public:
   //@}
 
   vtkOpenVRCameraPose *GetSavedCameraPose(int i);
+  virtual void SetSavedCameraPose(int i, vtkOpenVRCameraPose *);
   virtual void WriteCameraPoses(ostream& os);
   virtual void WriteCameraPoses();
   virtual void ReadCameraPoses();
