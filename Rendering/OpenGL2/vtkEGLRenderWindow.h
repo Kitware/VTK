@@ -42,12 +42,12 @@ class VTKRENDERINGOPENGL2_EXPORT vtkEGLRenderWindow : public vtkOpenGLRenderWind
 public:
   static vtkEGLRenderWindow *New();
   vtkTypeMacro(vtkEGLRenderWindow, vtkOpenGLRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * End the rendering process and display the image.
    */
-  virtual void Frame(void);
+  virtual void Frame(void) override;
 
   // override as some EGL systems cannot show the window
   void SetShowWindow(bool) override;
@@ -70,17 +70,17 @@ public:
    * resources.  After having called this, it should be possible to destroy
    * a window that was used for a SetWindowId() call without any ill effects.
    */
-  virtual void Finalize(void);
+  virtual void Finalize(void) override;
 
   /**
    * Change the window to fill the entire screen.
    */
-  virtual void SetFullScreen(vtkTypeBool);
+  virtual void SetFullScreen(vtkTypeBool) override;
 
   /**
    * Resize the window.
    */
-  virtual void WindowRemap(void);
+  virtual void WindowRemap(void) override;
 
   /**
    * Set the preferred window size to full screen.
@@ -90,8 +90,8 @@ public:
   /**
    * Specify the size of the rendering window in pixels.
    */
-  virtual void SetSize(int,int);
-  virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);}
+  virtual void SetSize(int,int) override;
+  virtual void SetSize(int a[2]) override {this->SetSize(a[0], a[1]);}
 
   /**
    * Prescribe that the window be created in a stereo-capable mode. This
@@ -99,59 +99,59 @@ public:
    * overrides the superclass method since this class can actually check
    * whether the window has been realized yet.
    */
-  virtual void SetStereoCapableWindow(vtkTypeBool capable);
+  virtual void SetStereoCapableWindow(vtkTypeBool capable) override;
 
   /**
    * Make this window the current OpenGL context.
    */
-  void MakeCurrent();
+  void MakeCurrent() override;
 
   /**
    * Tells if this window is the current OpenGL context for the calling thread.
    */
-  virtual bool IsCurrent();
+  virtual bool IsCurrent() override;
 
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() { return 1;};
+  int IsDirect() override { return 1;};
 
   /**
    * Get the current size of the screen in pixels.
    */
-  virtual int     *GetScreenSize() VTK_SIZEHINT(2);
+  virtual int     *GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
    * Get the position in screen coordinates (pixels) of the window.
    */
-  virtual int     *GetPosition() VTK_SIZEHINT(2);
+  virtual int     *GetPosition() VTK_SIZEHINT(2) override;
 
   //@{
   /**
    * Dummy stubs for vtkWindow API.
    */
-  virtual void SetDisplayId(void *) {};
-  virtual void SetWindowId(void *window);
-  virtual void SetNextWindowId(void *) {}
-  virtual void SetParentId(void *)  {}
-  virtual void *GetGenericDisplayId();
-  virtual void *GetGenericWindowId() {return NULL;}
-  virtual void *GetGenericParentId() {return NULL;}
-  virtual void *GetGenericContext();
-  virtual void *GetGenericDrawable() {return NULL;}
-  virtual void SetWindowInfo(const char *);
-  virtual void SetNextWindowInfo(const char *) {}
-  virtual void SetParentInfo(const char *) {}
+  virtual void SetDisplayId(void *) override {};
+  virtual void SetWindowId(void *window) override;
+  virtual void SetNextWindowId(void *) override {}
+  virtual void SetParentId(void *) override  {}
+  virtual void *GetGenericDisplayId() override;
+  virtual void *GetGenericWindowId() override {return NULL;}
+  virtual void *GetGenericParentId() override {return NULL;}
+  virtual void *GetGenericContext() override;
+  virtual void *GetGenericDrawable() override {return NULL;}
+  virtual void SetWindowInfo(const char *) override;
+  virtual void SetNextWindowInfo(const char *) override {}
+  virtual void SetParentInfo(const char *) override {}
   //@}
 
-  void     SetWindowName(const char *);
+  void     SetWindowName(const char *) override;
 
   //@{
   /**
    * Move the window to a new position on the display.
    */
-  void     SetPosition(int,int);
-  void     SetPosition(int a[2]) {this->SetPosition(a[0], a[1]);};
+  void     SetPosition(int,int) override;
+  void     SetPosition(int a[2]) override {this->SetPosition(a[0], a[1]);};
   //@}
 
   //@{
@@ -159,15 +159,15 @@ public:
    * Hide or Show the mouse cursor, it is nice to be able to hide the
    * default cursor if you want VTK to display a 3D cursor instead.
    */
-  void HideCursor();
-  void ShowCursor();
+  void HideCursor() override;
+  void ShowCursor() override;
   //@}
 
   /**
    * This computes the size of the render window
    * before calling the supper classes render
    */
-  void Render();
+  void Render() override;
 
   /**
    * Check to see if a mouse button has been pressed.  All other events
@@ -175,7 +175,7 @@ public:
    * on any event which causes the DesiredUpdateRate to switch from
    * a high-quality rate to a more interactive rate.
    */
-  virtual int GetEventPending() { return 0;};
+  virtual int GetEventPending() override { return 0;};
 
   int GetOwnWindow() { return this->OwnWindow; };
 
@@ -187,7 +187,7 @@ public:
   /**
    * Returns the number of devices (graphics cards) on a system.
    */
-  int GetNumberOfDevices();
+  int GetNumberOfDevices() override;
   /**
    * Returns true if driver has an
    * EGL/OpenGL bug that makes vtkChartsCoreCxx-TestChartDoubleColors and other tests to fail
