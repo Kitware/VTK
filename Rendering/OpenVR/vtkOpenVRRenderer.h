@@ -72,6 +72,11 @@ public:
   //@}
 
   /**
+   * Create a new Camera suitable for use with this type of Renderer.
+   */
+  vtkCamera *MakeCamera() override;
+
+  /**
    * Concrete open gl render method.
    */
   void DeviceRender(void);

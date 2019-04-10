@@ -38,6 +38,7 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkOpenVRDefaultOverlay.h"
 #include "vtkOpenVRModel.h"
 #include "vtkOpenVRRenderer.h"
+#include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -164,6 +165,16 @@ void vtkOpenVRRenderWindow::SetHelperWindow(vtkOpenGLRenderWindow *win)
 
   this->Modified();
 }
+
+//----------------------------------------------------------------------------
+// Create an interactor that will work with this renderer.
+vtkRenderWindowInteractor *vtkOpenVRRenderWindow::MakeRenderWindowInteractor()
+{
+  this->Interactor = vtkOpenVRRenderWindowInteractor::New();
+  this->Interactor->SetRenderWindow(this);
+  return this->Interactor;
+}
+
 
 void vtkOpenVRRenderWindow::InitializeViewFromCamera(vtkCamera *srccam)
 {
@@ -492,6 +503,7 @@ void vtkOpenVRRenderWindow::Render()
       vr::k_unMaxTrackedDeviceCount, nullptr, 0 );
   }
 
+  this->GetState()->ResetGlViewportState();
   this->vtkRenderWindow::Render();
 }
 

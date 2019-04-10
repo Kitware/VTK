@@ -88,6 +88,14 @@ vtkOpenVRRenderer::~vtkOpenVRRenderer()
   this->FloorActor = 0;
 }
 
+//----------------------------------------------------------------------------
+vtkCamera* vtkOpenVRRenderer::MakeCamera()
+{
+  vtkCamera *cam = vtkOpenVRCamera::New();
+  this->InvokeEvent(vtkCommand::CreateCameraEvent, cam);
+  return cam;
+}
+
 // adjust the floor if we need to
 void vtkOpenVRRenderer::DeviceRender()
 {

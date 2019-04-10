@@ -85,6 +85,12 @@ public:
   vr::IVRSystem *GetHMD() { return this->HMD; };
 
   /**
+   * Create an interactor to control renderers in this window.
+   * Creates one specific to OpenVR
+   */
+  vtkRenderWindowInteractor *MakeRenderWindowInteractor() override;
+
+  /**
    * Draw the overlay
    */
   void RenderOverlay();
