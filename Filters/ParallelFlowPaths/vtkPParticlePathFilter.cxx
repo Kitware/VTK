@@ -20,8 +20,11 @@
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include <cassert>
 
 vtkStandardNewMacro(vtkPParticlePathFilter);
@@ -142,4 +145,17 @@ void vtkPParticlePathFilter::AppendToExtraPointDataArrays(
 void vtkPParticlePathFilter::Finalize()
 {
   this->It.Finalize();
+}
+
+int vtkPParticlePathFilter::RequestInformation(
+  vtkInformation *request, vtkInformationVector **inputVector, vtkInformationVector *outputVector)
+{
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // The output data of this filter has no time associated with it.  It is the
+  // result of computations that happen over all time.
+  outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+
+  return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
