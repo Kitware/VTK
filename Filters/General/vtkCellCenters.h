@@ -63,6 +63,17 @@ public:
   vtkBooleanMacro(VertexCells, bool);
   //@}
 
+  //@{
+  /**
+   * Enable/disable whether input cell data arrays should be passed through (or
+   * copied) as output point data arrays. Default is `true` i.e. the arrays will
+   * be propagated.
+   */
+  vtkSetMacro(CopyArrays, bool);
+  vtkGetMacro(CopyArrays, bool);
+  vtkBooleanMacro(CopyArrays, bool);
+  //@}
+
 protected:
   vtkCellCenters() = default;
   ~vtkCellCenters() override = default;
@@ -71,6 +82,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   bool VertexCells = false;
+  bool CopyArrays = true;
 
 private:
   vtkCellCenters(const vtkCellCenters&) = delete;
