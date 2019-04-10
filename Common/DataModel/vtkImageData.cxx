@@ -546,15 +546,10 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
 //----------------------------------------------------------------------------
 void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
 {
-  int i, loc[3];
-  const double *origin = this->Origin;
-  const double *spacing = this->Spacing;
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
+  this->GetDimensions(dims);
 
   x[0] = x[1] = x[2] = 0.0;
   if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
@@ -564,6 +559,7 @@ void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
   }
 
   // "loc" holds the point x,y,z indices
+  int loc[3];
   loc[0] = loc[1] = loc[2] = 0;
 
   switch (this->DataDescription)
@@ -608,10 +604,14 @@ void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
       break;
   }
 
-  for (i=0; i<3; i++)
-  {
-    x[i] = origin[i] + (loc[i]+extent[i*2]) * spacing[i];
-  }
+  double ijk[4], xyz[4];
+  ijk[0] = loc[0] + extent[0];
+  ijk[1] = loc[1] + extent[2];
+  ijk[2] = loc[2] + extent[4];
+  ijk[3] = 1;
+  this->GetIndexToPhysical()->MultiplyPoint(ijk, xyz);
+
+  x[0] = xyz[0]; x[1] = xyz[1]; x[2] = xyz[2];
 }
 
 //----------------------------------------------------------------------------
