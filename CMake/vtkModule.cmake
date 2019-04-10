@@ -1385,6 +1385,8 @@ mentioned in the previous section.
     headers which should be handled by language wrappers.
   * `hierarchy`: The path to the hierarchy file describing inheritance of the
     classes for use in language wrappers.
+  * `forward_link`: Usage requirements that must be forwarded even though the
+    module is linked to privately.
 
 In order to add new module properties to a module, the
 `_vtk_module_set_module_property` function should be used. This works for
@@ -2163,6 +2165,8 @@ function (vtk_module_build)
         PROPERTIES
           # Export whether the module needs autoinit logic handled.
           INTERFACE_vtk_module_needs_autoinit
+          # Forward private usage requirements with global effects.
+          INTERFACE_vtk_module_forward_link
         SPLIT_INSTALL_PROPERTIES
           # Set the properties which differ between build and install trees.
           ${_vtk_build_split_properties})
@@ -2992,12 +2996,26 @@ function (vtk_module_add_module name)
       PRIVATE
         ${_vtk_add_module_private_depends_link})
 
+    set(_vtk_add_module_private_depends_forward_link)
+    foreach (_vtk_add_module_private_depend IN LISTS _vtk_add_module_private_depends)
+      _vtk_module_get_module_property("${_vtk_add_module_private_depend}"
+        PROPERTY "forward_link"
+        VARIABLE  _vtk_add_module_forward_link)
+      list(APPEND _vtk_add_module_private_depends_forward_link
+        ${_vtk_add_module_forward_link})
+    endforeach ()
+
     get_property(_vtk_add_module_optional_depends GLOBAL
       PROPERTY  "_vtk_module_${_vtk_build_module}_optional_depends")
     foreach (_vtk_add_module_optional_depend IN LISTS _vtk_add_module_optional_depends)
       # XXX(namespaces): Use the target name of the module.
       if (TARGET "${_vtk_add_module_optional_depend}")
         set(_vtk_add_module_have_optional_depend 1)
+        _vtk_module_get_module_property("${_vtk_add_module_optional_depend}"
+          PROPERTY "forward_link"
+          VARIABLE  _vtk_add_module_forward_link)
+        list(APPEND _vtk_add_module_private_depends_forward_link
+          ${_vtk_add_module_forward_link})
         target_link_libraries("${_vtk_add_module_real_target}"
           PRIVATE
             "${_vtk_add_module_optional_depend}")
@@ -3009,6 +3027,16 @@ function (vtk_module_add_module name)
         PRIVATE
           "VTK_MODULE_ENABLE_${_vtk_add_module_optional_depend_safe}=${_vtk_add_module_have_optional_depend}")
     endforeach ()
+
+    if (_vtk_add_module_private_depends_forward_link)
+      list(REMOVE_DUPLICATES _vtk_add_module_private_depends_forward_link)
+      _vtk_module_set_module_property("${_vtk_build_module}" APPEND
+        PROPERTY  "forward_link"
+        VALUE     "${_vtk_add_module_private_depends_forward_link}")
+      target_link_libraries("${_vtk_add_module_real_target}"
+        PUBLIC
+          "${_vtk_add_module_private_depends_forward_link}")
+    endif ()
   endif ()
   _vtk_module_standard_includes(
     TARGET  "${_vtk_add_module_real_target}"
