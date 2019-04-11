@@ -133,6 +133,8 @@ template <typename FreeType> int ExerciseDelete(FreeType f)
 {
   int errors = 0;
 
+  std::cout << "Starting tests for free type: " << f.value << std::endl;
+
   std::vector<vtkAbstractArray *> arrays;
   arrays.push_back(vtkStringArray::New());
   arrays.push_back(vtkBitArray::New());
