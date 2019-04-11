@@ -625,6 +625,13 @@ void vtkFFMPEGWriterInternal::End()
     this->avOutputFormat = 0;
   }
 
+  if (this->avCodecContext)
+  {
+    avcodec_close(this->avCodecContext);
+    avcodec_free_context(&this->avCodecContext);
+    this->avCodecContext = nullptr;
+  }
+
   this->closedFile = 1;
 }
 
