@@ -24,6 +24,7 @@
 #include "UnstructuredGridConverter.h"
 
 #include "vtkmCellSetSingleType.h"
+#include "vtkmDataArray.h"
 
 // datasets we support
 #include "vtkCellArray.h"
@@ -70,6 +71,13 @@ vtkm::cont::CoordinateSystem deduce_container(vtkPoints *points)
     StorageType storage(typedIn2);
     vtkm::cont::ArrayHandle<Vec3, TagType> p(storage);
     return vtkm::cont::CoordinateSystem("coords", p);
+  }
+
+  vtkmDataArray<T> *typedIn3 =
+      vtkmDataArray<T>::SafeDownCast(points->GetData());
+  if (typedIn3)
+  {
+    return vtkm::cont::CoordinateSystem("coords", typedIn3->GetVtkmVariantArrayHandle());
   }
 
   typedef vtkm::Vec<T, 3> Vec3;

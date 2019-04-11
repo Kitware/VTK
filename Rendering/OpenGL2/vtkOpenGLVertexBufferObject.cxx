@@ -399,19 +399,27 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
 
     // Dispatch based on the array data type
     typedef vtkArrayDispatch::DispatchByValueType <vtkArrayDispatch::AllTypes> Dispatcher;
-    bool result = false;
+    bool result = true;
     switch (this->DataType)
     {
       case VTK_FLOAT:
       {
         vtkAppendVBOWorker<float> worker(this, 0, this->GetShift(), this->GetScale());
-        result = Dispatcher::Execute(array, worker);
+        //result = Dispatcher::Execute(array, worker);
+        if (!Dispatcher::Execute(array, worker))
+        {
+          worker(array);
+        }
         break;
       }
       case VTK_UNSIGNED_CHAR:
       {
         vtkAppendVBOWorker<unsigned char> worker(this, 0, this->GetShift(), this->GetScale());
-        result = Dispatcher::Execute(array, worker);
+        //result = Dispatcher::Execute(array, worker);
+        if (!Dispatcher::Execute(array, worker))
+        {
+          worker(array);
+        }
         break;
       }
     }
@@ -506,19 +514,25 @@ void vtkOpenGLVertexBufferObject::AppendDataArray(
 
   // Dispatch based on the array data type
   typedef vtkArrayDispatch::DispatchByValueType <vtkArrayDispatch::AllTypes> Dispatcher;
-  bool result = false;
+  bool result = true;
   switch (this->DataType)
   {
     case VTK_FLOAT:
     {
       vtkAppendVBOWorker<float> worker(this, offset, this->GetShift(), this->GetScale());
-      result = Dispatcher::Execute(array, worker);
+      if (!Dispatcher::Execute(array, worker))
+      {
+        worker(array);
+      }
       break;
     }
     case VTK_UNSIGNED_CHAR:
     {
       vtkAppendVBOWorker<unsigned char> worker(this, offset, this->GetShift(), this->GetScale());
-      result = Dispatcher::Execute(array, worker);
+      if (!Dispatcher::Execute(array, worker))
+      {
+        worker(array);
+      }
       break;
     }
   }
