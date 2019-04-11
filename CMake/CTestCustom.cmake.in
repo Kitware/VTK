@@ -1,9 +1,9 @@
 list(APPEND CTEST_CUSTOM_MEMCHECK_IGNORE
   # Issues in third party glut library
-  TestGLUTRenderWindow
-  TestVPICReader
-  TestSystemFontRendering
-  TestRasterReprojectionFilter
+  VTK::RenderingExternalCxx-TestGLUTRenderWindow
+  VTK::IOVPICCxx-TestVPICReader
+  VTK::RenderingFreeTypeFontConfigCxx-TestSystemFontRendering
+  VTK::GeovisGDALCxx-TestRasterReprojectionFilter
 )
 
 list(APPEND CTEST_CUSTOM_WARNING_MATCH
