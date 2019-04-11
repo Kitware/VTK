@@ -328,13 +328,13 @@ vtkIdType IntersectWithCell(unsigned nTest,
 
 #ifdef DEBUG_POINTS
     {
-    vtkSmartPointer<vtkLagrangeTetra> t = CreateTetra(10);
-    vtkNew<vtkPolyData> p;
-    p->SetPoints(points);
-    p->SetVerts(vertices);
+    vtkSmartPointer<vtkLagrangeTetra> tet = CreateTetra(10);
+    vtkNew<vtkPolyData> pts;
+    pts->SetPoints(points);
+    pts->SetVerts(vertices);
     vtkNew<vtkXMLPolyDataWriter> w;
     w->SetFileName("intersection.vtp");
-    w->SetInputData(p.GetPointer());
+    w->SetInputData(pts.GetPointer());
     w->Write();
     }
 #endif
