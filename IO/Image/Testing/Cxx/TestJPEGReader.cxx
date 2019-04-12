@@ -16,16 +16,13 @@
 // .SECTION Description
 //
 
-
-#include "vtkSmartPointer.h"
-
-#include "vtkJPEGReader.h"
-
 #include "vtkImageData.h"
 #include "vtkImageViewer.h"
-#include "vtkRenderer.h"
+#include "vtkJPEGReader.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindowInteractor.h"
-
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 
 int TestJPEGReader(int argc, char *argv[])
 {
@@ -66,7 +63,17 @@ int TestJPEGReader(int argc, char *argv[])
   imageViewer->SetInputConnection(JPEGReader->GetOutputPort());
   imageViewer->SetColorWindow(256);
   imageViewer->SetColorLevel(127.5);
+
+  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
+  imageViewer->SetupInteractor(renderWindowInteractor);
   imageViewer->Render();
 
-  return EXIT_SUCCESS;
+  vtkRenderWindow* renWin = imageViewer->GetRenderWindow();
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    renderWindowInteractor->Start();
+  }
+
+  return !retVal;
 }
