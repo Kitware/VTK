@@ -27,6 +27,8 @@ public:
 
   virtual void RegisterGraphicsResources(vtkOpenGLRenderWindow* rw) = 0;
 
+  bool IsWindowRegistered(vtkOpenGLRenderWindow* rw) { return (rw == this->VTKWindow); }
+
   bool IsReleasing() { return this->Releasing; }
 
 protected:
