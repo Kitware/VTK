@@ -340,6 +340,54 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
   return 1;
 }
 
+//---------------------------------------------------------------------------
+void vtkFFMPEGWriterInternal::End()
+{
+  if (this->yuvOutput)
+  {
+    av_free(this->yuvOutput->data[0]);
+    av_free(this->yuvOutput);
+    this->yuvOutput = nullptr;
+  }
+
+  if (this->rgbInput)
+  {
+    av_free(this->rgbInput->data[0]);
+    av_free(this->rgbInput);
+    this->rgbInput = nullptr;
+  }
+
+  if (this->avFormatContext)
+  {
+    if (this->openedFile)
+    {
+      av_write_trailer(this->avFormatContext);
+      avio_close(this->avFormatContext->pb);
+      this->openedFile = 0;
+    }
+
+    avformat_free_context(this->avFormatContext);
+    this->avFormatContext = 0;
+  }
+
+  if (this->avOutputFormat)
+  {
+    //Next line was done inside av_free(this->avFormatContext).
+    //av_free(this->avOutputFormat);
+
+    this->avOutputFormat = 0;
+  }
+
+  if (this->avCodecContext)
+  {
+    avcodec_close(this->avCodecContext);
+    avcodec_free_context(&this->avCodecContext);
+    this->avCodecContext = nullptr;
+  }
+
+  this->closedFile = 1;
+}
+
 // for old versions of ffmpeg use the old API, eventually remove this code
 // The new API was introduced around 2016
 #else
@@ -579,8 +627,6 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
   return 1;
 }
 
-#endif
-
 //---------------------------------------------------------------------------
 void vtkFFMPEGWriterInternal::End()
 {
@@ -625,15 +671,10 @@ void vtkFFMPEGWriterInternal::End()
     this->avOutputFormat = 0;
   }
 
-  if (this->avCodecContext)
-  {
-    avcodec_close(this->avCodecContext);
-    avcodec_free_context(&this->avCodecContext);
-    this->avCodecContext = nullptr;
-  }
-
   this->closedFile = 1;
 }
+
+#endif
 
 
 //---------------------------------------------------------------------------
