@@ -143,17 +143,29 @@ vtkPKdTree *vtkDistributedDataFilter::GetKdtree()
 //----------------------------------------------------------------------------
 void vtkDistributedDataFilter::SetBoundaryMode(int mode)
 {
+  int include_all, clip_cells;
   switch (mode)
   {
     case vtkDistributedDataFilter::ASSIGN_TO_ONE_REGION:
-      this->AssignBoundaryCellsToOneRegionOn();
+      include_all = 0;
+      clip_cells = 0;
       break;
     case vtkDistributedDataFilter::ASSIGN_TO_ALL_INTERSECTING_REGIONS:
-      this->AssignBoundaryCellsToAllIntersectingRegionsOn();
+      include_all = 1;
+      clip_cells = 0;
       break;
     case vtkDistributedDataFilter::SPLIT_BOUNDARY_CELLS:
-      this->DivideBoundaryCellsOn();
+    default:
+      include_all = 1;
+      clip_cells = 1;
       break;
+  }
+
+  if (this->IncludeAllIntersectingCells != include_all || this->ClipCells != clip_cells)
+  {
+    this->IncludeAllIntersectingCells = include_all;
+    this->ClipCells = clip_cells;
+    this->Modified();
   }
 }
 
@@ -262,72 +274,6 @@ int vtkDistributedDataFilter::RequestInformation(
                6);
 
   return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkDistributedDataFilter::DivideBoundaryCellsOn()
-{
-  this->SetDivideBoundaryCells(1);
-}
-
-//----------------------------------------------------------------------------
-void vtkDistributedDataFilter::DivideBoundaryCellsOff()
-{
-  this->SetDivideBoundaryCells(0);
-}
-
-//----------------------------------------------------------------------------
-void vtkDistributedDataFilter::SetDivideBoundaryCells(int val)
-{
-  if (val)
-  {
-    this->IncludeAllIntersectingCells = 1;
-    this->ClipCells = 1;
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkDistributedDataFilter::AssignBoundaryCellsToOneRegionOn()
-{
-  this->SetAssignBoundaryCellsToOneRegion(1);
-}
-
-//----------------------------------------------------------------------------
-void vtkDistributedDataFilter::AssignBoundaryCellsToOneRegionOff()
-{
-  this->SetAssignBoundaryCellsToOneRegion(0);
-}
-
-//----------------------------------------------------------------------------
-void vtkDistributedDataFilter::SetAssignBoundaryCellsToOneRegion(int val)
-{
-  if (val)
-  {
-    this->IncludeAllIntersectingCells = 0;
-    this->ClipCells = 0;
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkDistributedDataFilter::AssignBoundaryCellsToAllIntersectingRegionsOn()
-{
-  this->SetAssignBoundaryCellsToAllIntersectingRegions(1);
-}
-
-//----------------------------------------------------------------------------
-void vtkDistributedDataFilter::AssignBoundaryCellsToAllIntersectingRegionsOff()
-{
-  this->SetAssignBoundaryCellsToAllIntersectingRegions(0);
-}
-
-//----------------------------------------------------------------------------
-void vtkDistributedDataFilter::SetAssignBoundaryCellsToAllIntersectingRegions(int val)
-{
-  if (val)
-  {
-    this->IncludeAllIntersectingCells = 1;
-    this->ClipCells = 0;
-  }
 }
 
 //----------------------------------------------------------------------------
