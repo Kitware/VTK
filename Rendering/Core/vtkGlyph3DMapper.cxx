@@ -78,7 +78,7 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
 
   this->BlockAttributes = nullptr;
   this->Scaling = true;
-  this->ScaleMode = SCALE_BY_MAGNITUDE;
+  this->ScaleMode = NO_DATA_SCALING;
   this->ScaleFactor = 1.0;
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
