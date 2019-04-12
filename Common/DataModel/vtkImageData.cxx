@@ -687,7 +687,6 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
     // bounds to see if within tolerance of the bounds.
     const int* extent = this->Extent;
     const double* spacing = this->Spacing;
-    const double* bounds = this->Bounds;
 
     // Compute squared distance of point x from the boundary
     double dist2 = 0.0;
@@ -696,19 +695,17 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
     {
       int minIdx = extent[i*2];
       int maxIdx = extent[i*2+1];
-      int negSpacing = (spacing[i] < 0);
-      double minBound = bounds[i*2 + negSpacing];
-      double maxBound = bounds[i*2 + (1-negSpacing)];
 
       if ( idx[i] < minIdx )
       {
+        double dist = (idx[i] + pcoords[i] - minIdx) * spacing[i];
         idx[i] = minIdx;
         pcoords[i] = 0.0;
-        double dist = x[i] - minBound;
         dist2 += dist*dist;
       }
       else if ( idx[i] >= maxIdx )
       {
+        double dist = (idx[i] + pcoords[i] - maxIdx) * spacing[i];
         if (maxIdx == minIdx)
         {
           idx[i] = minIdx;
@@ -719,7 +716,6 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
           idx[i] = maxIdx-1;
           pcoords[i] = 1.0;
         }
-        double dist = x[i] - maxBound;
         dist2 += dist*dist;
       }
     }
@@ -1036,47 +1032,39 @@ void vtkImageData::SetDimensions(const int dim[3])
 // The voxel is specified by the array ijk[3], and the parametric coordinates
 // in the cell are specified with pcoords[3]. The function returns a 0 if the
 // point x is outside of the volume, and a 1 if inside the volume.
-int vtkImageData::ComputeStructuredCoordinates( const double x[3], int ijk[3], double pcoords[3],
-                                                const int* extent,
-                                                const double* spacing,
-                                                const double* origin,
-                                                const double* bounds)
+int vtkImageData::ComputeStructuredCoordinates(const double x[3],
+                                               int ijk[3],
+                                               double pcoords[3])
 {
-  // tolerance is needed for 2D data (this is squared tolerance)
+  // tolerance is needed for floating points error margin
+  // (this is squared tolerance)
   const double tol2 = 1e-12;
+
   //
   //  Compute the ijk location
   //
+  double xyz[4], doubleLoc[4];
+  xyz[0] = x[0]; xyz[1] = x[1]; xyz[2] = x[2]; xyz[3] = 1;
+  this->GetPhysicalToIndex()->MultiplyPoint(xyz, doubleLoc);
+
+  const int *extent = this->Extent;
   int isInBounds = 1;
   for (int i = 0; i < 3; i++)
   {
-    double d = x[i] - origin[i];
-    double doubleLoc = d / spacing[i];
     // Floor for negative indexes.
-    ijk[i] = vtkMath::Floor(doubleLoc);
-    pcoords[i] = doubleLoc - static_cast<double>(ijk[i]);
+    ijk[i] = vtkMath::Floor(doubleLoc[i]);  // integer
+    pcoords[i] = doubleLoc[i] - ijk[i];     // >= 0 and < 1
 
     int tmpInBounds = 0;
     int minExt = extent[i*2];
     int maxExt = extent[i*2 + 1];
 
-    // check if data is one pixel thick
-    if ( minExt == maxExt )
-    {
-      double dist = x[i] - bounds[2*i];
-      if (dist*dist <= spacing[i]*spacing[i]*tol2)
-      {
-        pcoords[i] = 0.0;
-        ijk[i] = minExt;
-        tmpInBounds = 1;
-      }
-    }
-
+    // check if data is one pixel thick as well as
     // low boundary check
-    else if ( ijk[i] < minExt)
+    if (minExt == maxExt || ijk[i] < minExt)
     {
-      if ( (spacing[i] >= 0 && x[i] >= bounds[i*2]) ||
-           (spacing[i] < 0 && x[i] <= bounds[i*2 + 1]) )
+      double dist = doubleLoc[i] - minExt;
+      if (dist * dist <= tol2)
       {
         pcoords[i] = 0.0;
         ijk[i] = minExt;
@@ -1085,10 +1073,10 @@ int vtkImageData::ComputeStructuredCoordinates( const double x[3], int ijk[3], d
     }
 
     // high boundary check
-    else if ( ijk[i] >= maxExt )
+    else if (ijk[i] >= maxExt)
     {
-      if ( (spacing[i] >= 0 && x[i] <= bounds[i*2 + 1]) ||
-           (spacing[i] < 0 && x[i] >= bounds[i*2]) )
+      double dist = doubleLoc[i] - maxExt;
+      if (dist * dist <= tol2)
       {
         // make sure index is within the allowed cell index range
         pcoords[i] = 1.0;
@@ -1108,13 +1096,6 @@ int vtkImageData::ComputeStructuredCoordinates( const double x[3], int ijk[3], d
   }
 
   return isInBounds;
-}
-
-//----------------------------------------------------------------------------
-int vtkImageData::ComputeStructuredCoordinates(const double x[3], int ijk[3],
-                                               double pcoords[3])
-{
-  return ComputeStructuredCoordinates(x,ijk,pcoords,this->Extent, this->Spacing, this->Origin, this->GetBounds());
 }
 
 //----------------------------------------------------------------------------

@@ -24,15 +24,17 @@
 #include "vtkDebugLeaks.h"
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
+#include "vtkMatrix4x4.h"
 
 inline int DoTest(
-  int extent[6], double origin[3], double spacing[3])
+  int extent[6], double origin[3], double spacing[3], double direction[9])
 {
   vtkSmartPointer<vtkImageData> image =
     vtkSmartPointer<vtkImageData>::New();
   image->SetExtent(extent);
   image->SetOrigin(origin);
   image->SetSpacing(spacing);
+  image->SetDirection(direction);
   image->AllocateScalars(VTK_DOUBLE, 1);
 
   double bounds[6];
@@ -41,21 +43,23 @@ inline int DoTest(
   int subId = 0;
   double pcoords[3];
   double weights[8];
-  double x[3];
+  double ijk[4], x[4];
   vtkIdType cellId;
 
   double tol = 1e-4;
 
   for (int i = 0; i < 3; i++)
   {
-    x[0] = 0.5*(bounds[0] + bounds[1]);
-    x[1] = 0.5*(bounds[2] + bounds[3]);
-    x[2] = 0.5*(bounds[4] + bounds[5]);
+    ijk[0] = 0.5*(extent[0] + extent[1]);
+    ijk[1] = 0.5*(extent[2] + extent[3]);
+    ijk[2] = 0.5*(extent[4] + extent[5]);
+    ijk[3] = 1;
     for (int j = 0; j < 2; j++)
     {
       // test point right on the boundary with zero tolerance
-      x[i] = bounds[2*i+j];
+      ijk[i] = extent[2*i+j];
 
+      image->GetIndexToPhysical()->MultiplyPoint(ijk, x);
       cellId = image->FindCell(
         x, nullptr, 0, 0.0, subId, pcoords, weights);
 
@@ -70,8 +74,9 @@ inline int DoTest(
 
       // test point just outside boundary with zero tolerance
       double offset = ((j == 0) ? (-tol*0.5) : (tol*0.5));
-      x[i] = bounds[2*i+j] + offset;
+      ijk[i] = extent[2*i+j] + offset;
 
+      image->GetIndexToPhysical()->MultiplyPoint(ijk, x);
       cellId = image->FindCell(
         x, nullptr, 0, 0.0, subId, pcoords, weights);
 
@@ -85,8 +90,9 @@ inline int DoTest(
       }
 
       // test point just outside boundary with nonzero tolerance
-      x[i] = bounds[2*i+j] + ((j == 0) ? (-tol*0.5) : (tol*0.5));
+      ijk[i] = extent[2*i+j] + ((j == 0) ? (-tol*0.5) : (tol*0.5));
 
+      image->GetIndexToPhysical()->MultiplyPoint(ijk, x);
       cellId = image->FindCell(
         x, nullptr, 0, tol*tol, subId, pcoords, weights);
 
@@ -100,7 +106,7 @@ inline int DoTest(
       }
 
       // check pcoords at boundaries
-      int isUpperBound = ((j == 1) ^ (spacing[i] < 0));
+      int isUpperBound = (j == 1);
       int isOnePixelThick = (extent[2*i] == extent[2*i+1]);
       if (isUpperBound && !isOnePixelThick)
       {
@@ -116,13 +122,14 @@ inline int DoTest(
         if (pcoords[i] != 0.0)
         {
           cerr << "at lower bounds and for 0,1,2D cells, pcoord should be 0, "
-               << "but is " << pcoords[i] << " " << extent[2*i] << ", " << extent[2*i+1] << ", " << j << "\n";
+               << "but is " << pcoords[i] << "\n";
           return 1;
         }
       }
 
       // validate the cellId
-      x[i] = bounds[2*i+j];
+      ijk[i] = extent[2*i+j];
+      image->GetIndexToPhysical()->MultiplyPoint(ijk, x);
       double pcoords2[3];
       int idx[3];
       if (image->ComputeStructuredCoordinates(x, idx, pcoords2) == 0)
@@ -143,8 +150,8 @@ inline int DoTest(
       }
 
       // validate the pcoords, allow a tolerance
-      double diff = (pcoords[i] - pcoords2[i]);
-      if (diff*diff > (1e-15)*(1e-15))
+      double dist = pcoords[i] - pcoords2[i];
+      if (dist * dist > 1e-29)
       {
         cerr << "pcoords[" << i << "] = " << pcoords[i] << ", should be "
              << pcoords2[i] << "\n";
@@ -168,10 +175,17 @@ int TestImageDataFindCell(int,char *[])
     { 1, 1, 1 }, { 1.0/7, 1, 1 }, { 1, -1, 1 }, { -1, 1, -1/13.0 } };
   static double origins[4][3] = {
     { 0, 0, 0 }, { 1.0/13, 0, 0 }, { 0, -1, 0 }, { -1, 0, -1/7.0 } };
+  static double directions[4][9] = {
+    {1, 0, 0, 0, 1, 0, 0, 0, 1},
+    {-1, 0, 0, 0, -1, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 1, 0, 1, 0},
+    {0, -1, 0, 1, 0, 0, 0, 0, 1}
+  };
 
   int extent[6];
   double *spacing;
   double *origin;
+  double *direction;
 
   int failed = 0;
 
@@ -181,19 +195,23 @@ int TestImageDataFindCell(int,char *[])
     {
       for (int k = 0; k < 4; k++)
       {
+        spacing = spacings[k];
         for (int l = 0; l < 4; l++)
         {
+          origin = origins[l];
           for (int ii = 0; ii < 3; ii++)
           {
             extent[2*ii] = starts[i][ii];
             extent[2*ii+1] = starts[i][ii] + dims[j][ii] - 1;
           }
-          spacing = spacings[k];
-          origin = origins[l];
 
-          if (DoTest(extent, origin, spacing))
+          for (int jj = 0; jj < 4; jj++)
           {
-            failed = 1;
+            direction = directions[jj];
+            if (DoTest(extent, origin, spacing, direction))
+            {
+              failed = 1;
+            }
           }
         }
       }
