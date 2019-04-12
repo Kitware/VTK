@@ -923,8 +923,6 @@ void vtkImageData::ComputeBounds()
   {
     return;
   }
-  const double *origin = this->Origin;
-  const double *spacing = this->Spacing;
   const int* extent = this->Extent;
 
   if ( extent[0] > extent[1] ||
@@ -935,17 +933,65 @@ void vtkImageData::ComputeBounds()
   }
   else
   {
-    int swapXBounds = (spacing[0] < 0);  // 1 if true, 0 if false
-    int swapYBounds = (spacing[1] < 0);  // 1 if true, 0 if false
-    int swapZBounds = (spacing[2] < 0);  // 1 if true, 0 if false
+    if (this->Direction->IsIdentity())
+    {
+      // Direction is identity: bounds are easy to compute
+      // with only origin and spacing
+      const double *origin = this->Origin;
+      const double *spacing = this->Spacing;
+      int swapXBounds = (spacing[0] < 0);  // 1 if true, 0 if false
+      int swapYBounds = (spacing[1] < 0);  // 1 if true, 0 if false
+      int swapZBounds = (spacing[2] < 0);  // 1 if true, 0 if false
 
-    this->Bounds[0] = origin[0] + (extent[0+swapXBounds] * spacing[0]);
-    this->Bounds[2] = origin[1] + (extent[2+swapYBounds] * spacing[1]);
-    this->Bounds[4] = origin[2] + (extent[4+swapZBounds] * spacing[2]);
+      this->Bounds[0] = origin[0] + (extent[0+swapXBounds] * spacing[0]);
+      this->Bounds[2] = origin[1] + (extent[2+swapYBounds] * spacing[1]);
+      this->Bounds[4] = origin[2] + (extent[4+swapZBounds] * spacing[2]);
 
-    this->Bounds[1] = origin[0] + (extent[1-swapXBounds] * spacing[0]);
-    this->Bounds[3] = origin[1] + (extent[3-swapYBounds] * spacing[1]);
-    this->Bounds[5] = origin[2] + (extent[5-swapZBounds] * spacing[2]);
+      this->Bounds[1] = origin[0] + (extent[1-swapXBounds] * spacing[0]);
+      this->Bounds[3] = origin[1] + (extent[3-swapYBounds] * spacing[1]);
+      this->Bounds[5] = origin[2] + (extent[5-swapZBounds] * spacing[2]);
+    }
+    else
+    {
+      // Direction isn't identity: use IndexToPhysical matrix
+      // to determine the position of the dataset corners
+      double iMin, iMax, jMin, jMax, kMin, kMax;
+      iMin = extent[0]; iMax = extent[1];
+      jMin = extent[2]; jMax = extent[3];
+      kMin = extent[4]; kMax = extent[5];
+      double ijkCorners[8][4] = {
+        {iMin, jMin, kMin, 1},
+        {iMax, jMin, kMin, 1},
+        {iMin, jMax, kMin, 1},
+        {iMax, jMax, kMin, 1},
+        {iMin, jMin, kMax, 1},
+        {iMax, jMin, kMax, 1},
+        {iMin, jMax, kMax, 1},
+        {iMax, jMax, kMax, 1}
+      };
+
+      double xyz[4];
+      double xMin, xMax, yMin, yMax, zMin, zMax;
+      xMin = yMin = zMin = VTK_DOUBLE_MAX;
+      xMax = yMax = zMax = VTK_DOUBLE_MIN;
+      vtkMatrix4x4 *m = this->GetIndexToPhysical();
+      for (double* ijkCorner : ijkCorners)
+      {
+        m->MultiplyPoint(ijkCorner, xyz);
+        if (xyz[0] < xMin) xMin = xyz[0];
+        if (xyz[0] > xMax) xMax = xyz[0];
+        if (xyz[1] < yMin) yMin = xyz[1];
+        if (xyz[1] > yMax) yMax = xyz[1];
+        if (xyz[2] < zMin) zMin = xyz[2];
+        if (xyz[2] > zMax) zMax = xyz[2];
+      }
+      this->Bounds[0] = xMin;
+      this->Bounds[1] = xMax;
+      this->Bounds[2] = yMin;
+      this->Bounds[3] = yMax;
+      this->Bounds[4] = zMin;
+      this->Bounds[5] = zMax;
+    }
   }
   this->ComputeTime.Modified();
 }
