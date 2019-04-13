@@ -315,14 +315,14 @@ int vtkConvertSelection::ConvertCompositeDataSet(
       static_cast<unsigned int>(
           inputNode->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX())) : 0;
 
-    bool has_hieararchical_key =
+    bool has_hierarchical_key =
       inputNode->GetProperties()->Has(vtkSelectionNode::HIERARCHICAL_INDEX()) != 0 &&
       inputNode->GetProperties()->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) != 0;
 
-    unsigned int hierarchical_level = has_hieararchical_key?
+    unsigned int hierarchical_level = has_hierarchical_key?
       static_cast<unsigned int>(
           inputNode->GetProperties()->Get(vtkSelectionNode::HIERARCHICAL_LEVEL())) : 0;
-    unsigned int hierarchical_index = has_hieararchical_key?
+    unsigned int hierarchical_index = has_hierarchical_key?
       static_cast<unsigned int>(
           inputNode->GetProperties()->Get(vtkSelectionNode::HIERARCHICAL_INDEX())) : 0;
 
@@ -334,7 +334,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
 
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
-      if (has_hieararchical_key && hbIter &&
+      if (has_hierarchical_key && hbIter &&
           (hbIter->GetCurrentLevel() != hierarchical_level ||
            hbIter->GetCurrentIndex() != hierarchical_index))
       {
@@ -360,7 +360,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
       for (unsigned int j = 0; j < outputNodes->GetNumberOfNodes(); ++j)
       {
         vtkSelectionNode* outputNode = outputNodes->GetNode(j);
-        if ((has_hieararchical_key || has_composite_key ||
+        if ((has_hierarchical_key || has_composite_key ||
             this->OutputType == vtkSelectionNode::INDICES ||
             this->OutputType == vtkSelectionNode::PEDIGREEIDS ||
             this->OutputType == vtkSelectionNode::FRUSTUM) &&
@@ -369,7 +369,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
           outputNode->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(),
               iter->GetCurrentFlatIndex());
 
-          if (has_hieararchical_key && hbIter)
+          if (has_hierarchical_key && hbIter)
           {
             outputNode->GetProperties()->Set(vtkSelectionNode::HIERARCHICAL_LEVEL(),
                 hierarchical_level);
