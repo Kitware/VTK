@@ -68,11 +68,13 @@ public:
    */
   void AddCellRange(vtkIdType from, vtkIdType to);
 
+  //@{
   /**
-   * Overloaded GetMTime() because of delegation to the internal
-   * vtIdLists.
+   * Another way to provide ids using a pointer to vtkIdType array.
    */
-  vtkMTimeType GetMTime() override;
+  void SetCellIds(const vtkIdType* ptr, vtkIdType numValues);
+  void AddCellIds(const vtkIdType* ptr, vtkIdType numValues);
+  //@}
 
 protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;

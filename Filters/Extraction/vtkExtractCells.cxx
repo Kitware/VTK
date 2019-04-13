@@ -202,11 +202,11 @@ void vtkExtractCells::SetCellList(vtkIdList* l)
 {
   delete this->CellList;
   this->CellList = new vtkExtractCellsSTLCloak;
-
   if (l != nullptr)
   {
     this->AddCellList(l);
   }
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -231,6 +231,33 @@ void vtkExtractCells::AddCellList(vtkIdList* l)
   std::copy(inputBegin, inputEnd, outputBegin);
 
   this->CellList->Modified();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkExtractCells::SetCellIds(const vtkIdType* ptr, vtkIdType numValues)
+{
+  delete this->CellList;
+  this->CellList = new vtkExtractCellsSTLCloak;
+  if (ptr != nullptr && numValues > 0)
+  {
+    this->AddCellIds(ptr, numValues);
+  }
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkExtractCells::AddCellIds(const vtkIdType* ptr, vtkIdType numValues)
+{
+  auto& cellIds = this->CellList->CellIds;
+  const auto oldsize = cellIds.size();
+  cellIds.resize(oldsize + numValues);
+
+  auto start = cellIds.begin();
+  std::advance(start, oldsize);
+  std::copy(ptr, ptr + numValues, start);
+  this->CellList->Modified();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -256,15 +283,7 @@ void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
   std::iota(outputBegin, outputEnd, from);
 
   this->CellList->Modified();
-}
-
-//----------------------------------------------------------------------------
-vtkMTimeType vtkExtractCells::GetMTime()
-{
-  vtkMTimeType mTime = this->Superclass::GetMTime();
-  mTime = std::max(mTime, this->CellList->ModifiedTime.GetMTime());
-  mTime = std::max(mTime, this->CellList->SortTime.GetMTime());
-  return mTime;
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
