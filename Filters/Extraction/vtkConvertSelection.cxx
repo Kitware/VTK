@@ -315,16 +315,24 @@ int vtkConvertSelection::ConvertCompositeDataSet(
       static_cast<unsigned int>(
           inputNode->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX())) : 0;
 
-    bool has_hieararchical_key =
+    bool has_hierarchical_key =
       inputNode->GetProperties()->Has(vtkSelectionNode::HIERARCHICAL_INDEX()) != 0 &&
       inputNode->GetProperties()->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) != 0;
 
-    unsigned int hierarchical_level = has_hieararchical_key?
+    unsigned int hierarchical_level = has_hierarchical_key?
       static_cast<unsigned int>(
           inputNode->GetProperties()->Get(vtkSelectionNode::HIERARCHICAL_LEVEL())) : 0;
-    unsigned int hierarchical_index = has_hieararchical_key?
+    unsigned int hierarchical_index = has_hierarchical_key?
       static_cast<unsigned int>(
           inputNode->GetProperties()->Get(vtkSelectionNode::HIERARCHICAL_INDEX())) : 0;
+
+    if ((!has_composite_key && !has_hierarchical_key) &&
+        inputNode->GetContentType() == vtkSelectionNode::QUERY &&
+        this->OutputType == vtkSelectionNode::INDICES)
+    {
+      this->ConvertFromQueryNodeCompositeDataSet(inputNode, data, output);
+      continue;
+    }
 
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(data->NewIterator());
@@ -334,7 +342,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
 
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
-      if (has_hieararchical_key && hbIter &&
+      if (has_hierarchical_key && hbIter &&
           (hbIter->GetCurrentLevel() != hierarchical_level ||
            hbIter->GetCurrentIndex() != hierarchical_index))
       {
@@ -360,7 +368,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
       for (unsigned int j = 0; j < outputNodes->GetNumberOfNodes(); ++j)
       {
         vtkSelectionNode* outputNode = outputNodes->GetNode(j);
-        if ((has_hieararchical_key || has_composite_key ||
+        if ((has_hierarchical_key || has_composite_key ||
             this->OutputType == vtkSelectionNode::INDICES ||
             this->OutputType == vtkSelectionNode::PEDIGREEIDS ||
             this->OutputType == vtkSelectionNode::FRUSTUM) &&
@@ -369,7 +377,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
           outputNode->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(),
               iter->GetCurrentFlatIndex());
 
-          if (has_hieararchical_key && hbIter)
+          if (has_hierarchical_key && hbIter)
           {
             outputNode->GetProperties()->Set(vtkSelectionNode::HIERARCHICAL_LEVEL(),
                 hierarchical_level);
@@ -381,6 +389,107 @@ int vtkConvertSelection::ConvertCompositeDataSet(
       } // for each output node
     } // for each block
   } // for each input selection node
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkConvertSelection::ConvertFromQueryNodeCompositeDataSet(
+    vtkSelectionNode* inputNode,
+    vtkCompositeDataSet* data,
+    vtkSelection* output)
+{
+  // QUERY selection types with composite data input need special handling.
+  // The query can apply to a composite dataset, so we extract the selection
+  // on the entire dataset here and convert it to an index selection.
+  vtkNew<vtkSelection> tempSelection;
+  tempSelection->AddNode(inputNode);
+  vtkExtractSelection* extract = this->SelectionExtractor;
+  extract->PreserveTopologyOn();
+  extract->SetInputData(0, data);
+  extract->SetInputData(1, tempSelection);
+  extract->Update();
+
+  vtkDataObject* extracted = extract->GetOutput();
+  vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(extracted);
+  if (cds)
+  {
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(cds->NewIterator());
+
+    vtkHierarchicalBoxDataIterator* hbIter =
+      vtkHierarchicalBoxDataIterator::SafeDownCast(iter);
+
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+      vtkDataSet* dataset = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      if (!dataset)
+      {
+        continue;
+      }
+
+      auto inputProperties = inputNode->GetProperties();
+      bool hasCompositeKey =
+        inputProperties->Has(vtkSelectionNode::COMPOSITE_INDEX()) != 0;
+      bool hasHierarchicalKey =
+        inputProperties->Has(vtkSelectionNode::HIERARCHICAL_INDEX()) != 0 &&
+        inputProperties->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) != 0;
+
+      // Create a selection node for the block
+      vtkNew<vtkSelectionNode> outputNode;
+      outputNode->SetFieldType(inputNode->GetFieldType());
+      outputNode->SetContentType(vtkSelectionNode::INDICES);
+      auto outputProperties = outputNode->GetProperties();
+      outputProperties->Set(vtkSelectionNode::INVERSE(), 0);
+
+      if (hasCompositeKey)
+      {
+        outputProperties->Set(vtkSelectionNode::COMPOSITE_INDEX(),
+          iter->GetCurrentFlatIndex());
+      }
+
+      if (hasHierarchicalKey && hbIter)
+      {
+        outputProperties->Set(vtkSelectionNode::HIERARCHICAL_LEVEL(),
+          hbIter->GetCurrentLevel());
+        outputProperties->Set(vtkSelectionNode::HIERARCHICAL_INDEX(),
+          hbIter->GetCurrentIndex());
+      }
+
+      // Create a list of ids to select
+      vtkSignedCharArray* insidedness = nullptr;
+
+      int type = inputNode->GetFieldType();
+      if (type == vtkSelectionNode::CELL)
+      {
+        insidedness = vtkArrayDownCast<vtkSignedCharArray>(
+          dataset->GetCellData()->GetAbstractArray("vtkInsidedness"));
+      }
+      else if (type == vtkSelectionNode::POINT)
+      {
+        insidedness = vtkArrayDownCast<vtkSignedCharArray>(
+          dataset->GetCellData()->GetAbstractArray("vtkInsidedness"));
+      }
+      else
+      {
+        vtkErrorMacro("Unknown field type");
+        return 0;
+      }
+
+      // Convert the insidedness array into an index input.
+      vtkNew<vtkIdTypeArray> idList;
+      for (vtkIdType i = 0; i < insidedness->GetNumberOfTuples(); i++)
+      {
+        if (insidedness->GetValue(i) == 1)
+        {
+          idList->InsertNextValue(i);
+        }
+      }
+
+      outputNode->SetSelectionList(idList);
+      output->Union(outputNode);
+    }
+  }
 
   return 1;
 }

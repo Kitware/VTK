@@ -225,6 +225,11 @@ protected:
     vtkCompositeDataSet* data,
     vtkSelection* output);
 
+  int ConvertFromQueryNodeCompositeDataSet(
+    vtkSelectionNode* input,
+    vtkCompositeDataSet* data,
+    vtkSelection* output);
+
   int ConvertToIndexSelection(
     vtkSelectionNode* input,
     vtkDataSet* data,
