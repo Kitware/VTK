@@ -412,13 +412,15 @@ int vtkPParticleTracerBase::RequestUpdateExtent(
   vtkInformation* request, vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
-  if (sourceInfo)
+  int numSources = inputVector[1]->GetNumberOfInformationObjects();
+  for (int i=0; i<numSources; i++)
   {
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                    0);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                    1);
+    vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(i);
+    if (sourceInfo)
+    {
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+    }
   }
 
   return Superclass::RequestUpdateExtent(request,inputVector,outputVector);
