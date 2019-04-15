@@ -132,9 +132,11 @@ public:
   /**
   * Get the VRModel corresponding to the tracked device
   */
-  vtkOpenVRModel *GetTrackedDeviceModel(vtkEventDataDevice idx);
+  vtkOpenVRModel *GetTrackedDeviceModel(vtkEventDataDevice idx) {
+    return this->GetTrackedDeviceModel(idx, 0); };
   vtkOpenVRModel *GetTrackedDeviceModel(vr::TrackedDeviceIndex_t idx) {
     return this->TrackedDeviceToRenderModel[idx]; };
+  vtkOpenVRModel* GetTrackedDeviceModel(vtkEventDataDevice idx, uint32_t index);
 
   /**
   * Get the openVR Render Models
@@ -145,12 +147,17 @@ public:
   /**
   * Get the index corresponding to the tracked device
   */
-  vr::TrackedDeviceIndex_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev);
+  vr::TrackedDeviceIndex_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev) {
+    return this->GetTrackedDeviceIndexForDevice(dev, 0); };
+  vr::TrackedDeviceIndex_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev, uint32_t index);
+  uint32_t GetNumberOfTrackedDevicesForDevice(vtkEventDataDevice dev);
 
   /**
   * Get the most recent pose corresponding to the tracked device
   */
-  void GetTrackedDevicePose(vtkEventDataDevice idx, vr::TrackedDevicePose_t **pose);
+  void GetTrackedDevicePose(vtkEventDataDevice idx, vr::TrackedDevicePose_t **pose) {
+    return this->GetTrackedDevicePose(idx, 0, pose); };
+  void GetTrackedDevicePose(vtkEventDataDevice idx, uint32_t index, vr::TrackedDevicePose_t **pose);
   vr::TrackedDevicePose_t &GetTrackedDevicePose(vr::TrackedDeviceIndex_t idx) {
     return this->TrackedDevicePose[idx]; };
 
