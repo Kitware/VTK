@@ -216,14 +216,6 @@ int vtkArrayCalculator::RequestData(
   vtkIdType i;
   int j;
 
-  vtkDataSetAttributes* inFD = nullptr;
-  vtkDataSetAttributes* outFD = nullptr;
-  vtkDataArray* currentArray;
-  vtkIdType numTuples = 0;
-  double scalarResult[1];
-  vtkDataArray* resultArray = nullptr;
-  vtkPoints* resultPoints = nullptr;
-
   this->FunctionParser->SetReplaceInvalidValues(this->ReplaceInvalidValues);
   this->FunctionParser->SetReplacementValue(this->ReplacementValue);
 
@@ -247,9 +239,9 @@ int vtkArrayCalculator::RequestData(
     }
   }
 
-  inFD = input->GetAttributes(attribute);
-  outFD = output->GetAttributes(attribute);
-  numTuples = input->GetNumberOfElements(attribute);
+  vtkDataSetAttributes* inFD = input->GetAttributes(attribute);
+  vtkDataSetAttributes* outFD = output->GetAttributes(attribute);
+  vtkIdType numTuples = input->GetNumberOfElements(attribute);
 
   if (numTuples < 1)
   {
@@ -257,10 +249,11 @@ int vtkArrayCalculator::RequestData(
     return 1;
   }
 
+  vtkDataArray* currentArray = nullptr;
+
   for (i = 0; i < this->NumberOfScalarArrays; i++)
   {
     currentArray = inFD->GetArray(this->ScalarArrayNames[i]);
-
     if (currentArray)
     {
       if (currentArray->GetNumberOfComponents() >
@@ -398,6 +391,8 @@ int vtkArrayCalculator::RequestData(
     return 1;
   }
 
+  vtkPoints* resultPoints = nullptr;
+  vtkDataArray* resultArray = nullptr;
   if(resultType == VECTOR_RESULT &&
      CoordinateResults != 0 && (psOutput || vtkGraph::SafeDownCast(output)))
   {
@@ -429,8 +424,8 @@ int vtkArrayCalculator::RequestData(
   {
     resultArray->SetNumberOfComponents(1);
     resultArray->SetNumberOfTuples(numTuples);
-    scalarResult[0] = this->FunctionParser->GetScalarResult();
-    resultArray->SetTuple(0, scalarResult);
+    double scalarResult = this->FunctionParser->GetScalarResult();
+    resultArray->SetTuple(0, &scalarResult);
   }
   else
   {
@@ -525,8 +520,8 @@ int vtkArrayCalculator::RequestData(
     }
     if (resultType == SCALAR_RESULT)
     {
-      scalarResult[0] = this->FunctionParser->GetScalarResult();
-      resultArray->SetTuple(i, scalarResult);
+      double scalarResult = this->FunctionParser->GetScalarResult();
+      resultArray->SetTuple(i, &scalarResult);
     }
     else
     {
