@@ -41,23 +41,6 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # Qt has some functions marked as `__forceinline` which MSVC refuses to inline.
   "[Qq]t.*warning C4714"
   "[Qq]t.*note: see declaration of"
-
-  # TestNew is written such that it will produce warnings
-  # as it checks for proper implementation of std::move semantics
-  "Common/Core/Testing/Cxx/TestNew\\.cxx"
-
-  # TestDataArrayTupleRange intentionally compares iterators from
-  # different containers
-  "Common/Core/Testing/Cxx/TestDataArrayTupleRange.*mismatchingContainerExpression"
-
-  # TestSmartPointer is written such that it will produce warnings
-  # as it checks for proper implementation of std::move semantics
-  "Common/Core/Testing/Cxx/TestSmartPointer\\.cxx"
-
-  # TestWeakPointer is written such that it will produce warnings
-  # as it checks for proper implementation of std::move semantics
-  "Common/Core/Testing/Cxx/TestWeakPointer\\.cxx"
-
   )
 
 set(cdash_show_third_party_warnings "@VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")
