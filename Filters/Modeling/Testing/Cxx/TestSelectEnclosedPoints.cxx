@@ -104,10 +104,11 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
 
   vtkPolyDataMapper *pointsMapper = vtkPolyDataMapper::New();
   pointsMapper->SetInputConnection(glypher->GetOutputPort());
+  pointsMapper->ScalarVisibilityOff();
 
   vtkActor *pointsActor = vtkActor::New();
   pointsActor->SetMapper(pointsMapper);
-  pointsActor->GetProperty()->SetColor(1,0,0);
+  pointsActor->GetProperty()->SetColor(0,0,1);
 
   // Add actors
 //  renderer->AddActor(actor);
