@@ -345,15 +345,13 @@ void vtkFFMPEGWriterInternal::End()
 {
   if (this->yuvOutput)
   {
-    av_free(this->yuvOutput->data[0]);
-    av_free(this->yuvOutput);
+    av_frame_free(&this->yuvOutput);
     this->yuvOutput = nullptr;
   }
 
   if (this->rgbInput)
   {
-    av_free(this->rgbInput->data[0]);
-    av_free(this->rgbInput);
+    av_frame_free(&this->rgbInput);
     this->rgbInput = nullptr;
   }
 
