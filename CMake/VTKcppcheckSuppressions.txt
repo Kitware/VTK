@@ -592,6 +592,19 @@ redundantAssignment:*/Testing/*
 // 13 warnings
 useInitializationList:*
 
+// intentional use of std::move for Testing
+knownConditionTrueFalse:Common/Core/Testing/Cxx/TestNew.cxx
+accessMoved:Common/Core/Testing/Cxx/TestNew.cxx
+accessMoved:Common/Core/Testing/Cxx/TestSmartPointer.cxx
+knownConditionTrueFalse:Common/Core/Testing/Cxx/TestWeakPointer.cxx
+accessMoved:Common/Core/Testing/Cxx/TestWeakPointer.cxx
+
+// simplified testing code
+knownConditionTrueFalse:Common/Core/Testing/Cxx/TestObserversPerformance.cxx
+
+// intentional comparison of diff containers
+mismatchingContainerExpression:Common/Core/Testing/Cxx/TestDataArrayTupleRange.cxx
+
 // lots of placeholder code for future tests
 knownConditionTrueFalse:Common/Core/Testing/Cxx/UnitTestMath.cxx
 
