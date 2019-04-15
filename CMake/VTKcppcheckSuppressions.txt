@@ -620,9 +620,29 @@ autovarInvalidDeallocation:Wrapping/Tools/vtkParseHierarchy.c
 // <https://trac.cppcheck.net/ticket/8925>
 syntaxError:Rendering/OpenGL2/vtkCocoaGLView.mm
 
-// Not technically a false positive, but there's no bug here and no clear way to rework the code in a good way
+// False positive: Assignment of function parameter has no effect outside the function. Did you forget dereferencing it?
+uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
+
+// Not technically false positives, but there's no bug here and no clear way to rework the code in a better way
+duplicateCondition:Wrapping/Tools/vtkParse.tab.c
 redundantAssignment:Wrapping/Tools/lex.yy.c
 redundantAssignment:Wrapping/Tools/vtkParsePreprocess.c
+syntaxError:CMake/patches/3.10/FindMPI/test_mpi.c
+constArgument:Wrapping/Tools/vtkParsePreprocess.c
+unreadVariable:Wrapping/Tools/lex.yy.c
+unreadVariable:Wrapping/Tools/vtkParse.tab.c
+unreadVariable:Wrapping/Tools/vtkParseExtras.c
+unreadVariable:Wrapping/Tools/vtkParseHierarchy.c
+unreadVariable:Wrapping/Tools/vtkParseJavaBeans.c
+unreadVariable:Wrapping/Tools/vtkParseMain.c
+unreadVariable:Wrapping/Tools/vtkParseMerge.c
+unreadVariable:Wrapping/Tools/vtkParsePreprocess.c
+unreadVariable:Wrapping/Tools/vtkParseString.c
+unreadVariable:Wrapping/Tools/vtkWrapHierarchy.c
+unreadVariable:Wrapping/Tools/vtkWrapJava.c
+unreadVariable:Wrapping/Tools/vtkWrapPythonMethodDef.c
+unreadVariable:Wrapping/Tools/vtkWrapText.c
+nullPointerRedundantCheck:Wrapping/Tools/lex.yy.c
 
 // 4 warnings, should fix!
 invalidPointerCast:Rendering/GL2PSOpenGL2/vtkOpenGLGL2PSHelperImpl.cxx

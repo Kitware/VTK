@@ -404,11 +404,8 @@ static void vtkWrapPython_ClassMethodDef(
             "  {\"AddObserver\",  Py%s_AddObserver, 1,\n"
             "   \"V.AddObserver(int, function) -> int\\nC++: unsigned long AddObserver(const char *event,\\n    vtkCommand *command, float priority=0.0f)\\n\\nAdd an event callback function(vtkObject, int) for an event type.\\nReturns a handle that can be used with RemoveEvent(int).\"},\n",
             classname);
-  }
 
-  /* vtkObject needs a special entry for InvokeEvent */
-  if (strcmp("vtkObject", data->Name) == 0)
-  {
+    /* vtkObject needs a special entry for InvokeEvent */
     fprintf(fp,
             "{\"InvokeEvent\", PyvtkObject_InvokeEvent, METH_VARARGS,\n"
               "   \"V.InvokeEvent(int, void) -> int\\nC++: int InvokeEvent(unsigned long event, void *callData)\\nV.InvokeEvent(string, void) -> int\\nC++: int InvokeEvent(const char *event, void *callData)\\nV.InvokeEvent(int) -> int\\nC++: int InvokeEvent(unsigned long event)\\nV.InvokeEvent(string) -> int\\nC++: int InvokeEvent(const char *event)\\n\\nThis method invokes an event and return whether the event was\\naborted or not. If the event was aborted, the return value is 1,\\notherwise it is 0.\"\n},\n");
@@ -753,13 +750,10 @@ static void vtkWrapPython_CustomMethods(
             "  return result;\n"
             "}\n"
             "\n");
-  }
 
-  /* the python vtkObject needs a special InvokeEvent to turn any
-     calldata into an appropriately unwrapped void pointer */
-  if (strcmp("vtkObject", data->Name) == 0 &&
-      do_constructors == 0)
-  {
+
+    /* the python vtkObject needs a special InvokeEvent to turn any
+       calldata into an appropriately unwrapped void pointer */
 
     /* different types of callback data */
 

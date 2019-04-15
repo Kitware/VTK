@@ -224,10 +224,10 @@ vtkMPICommunicatorOpaqueComm *vtkPPainterCommunicator::GetGlobalCommunicator()
     {
       vtkMultiProcessController *controller = vtkMultiProcessController::GetGlobalController();
 
-      vtkMPIController *mpiController;
+      vtkMPIController *mpiController = vtkMPIController::SafeDownCast(controller);
       vtkMPICommunicator *mpiCommunicator;
 
-      if ( (mpiController = vtkMPIController::SafeDownCast(controller))
+      if ( mpiController
         && (mpiCommunicator = vtkMPICommunicator::SafeDownCast(controller->GetCommunicator())) )
       {
         globalComm = new vtkMPICommunicatorOpaqueComm(*mpiCommunicator->GetMPIComm());

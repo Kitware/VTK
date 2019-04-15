@@ -100,8 +100,8 @@ int TestTextOpaquePass(int, char *[])
   configureTextArray(textMapper, "vtkTextMapper");
   configureTextArray(billboardActor, "vtkBillboardTextActor3D");
 
-  int width = 600;
-  int height = 600;
+  const int width = 600;
+  const int height = 600;
 
   // Disable everything but opaque and overlay:
   vtkNew<vtkRenderStepsPass> pass;
