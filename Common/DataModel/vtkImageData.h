@@ -504,6 +504,13 @@ protected:
   // for the index to physical methods
   void ComputeTransforms();
 
+  // Cell utilities
+  vtkCell* GetCellTemplateForDataDescription();
+  bool GetCellTemplateForDataDescription(vtkGenericCell* cell);
+  bool GetIJKMinForCellId(vtkIdType cellId, int ijkMin[3]);
+  bool GetIJKMaxForIJKMin(int ijkMin[3], int ijkMax[3]);
+  void AddPointsToCellTemplate(vtkCell* cell, int ijkMin[3], int ijkMax[3]);
+
   vtkTimeStamp ExtentComputeTime;
 
   void SetDataDescription(int desc);

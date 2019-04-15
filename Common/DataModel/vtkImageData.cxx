@@ -194,341 +194,295 @@ unsigned long vtkImageDataGetTypeSize(T*)
 }
 
 //----------------------------------------------------------------------------
-
-vtkCell *vtkImageData::GetCell(vtkIdType cellId)
+vtkCell *vtkImageData::GetCellTemplateForDataDescription()
 {
   vtkCell *cell = nullptr;
-  int loc[3];
-  vtkIdType idx, npts;
-  int iMin, iMax, jMin, jMax, kMin, kMax;
-  double x[3];
-  const double *origin = this->Origin;
-  const double *spacing = this->Spacing;
-  const int* extent = this->Extent;
-
-  // Use vtkIdType to avoid overflow on large images
-  vtkIdType dims[3];
-  this->GetDimensions(dims);
-
-  vtkIdType d01 = dims[0]*dims[1];
-
-  iMin = iMax = jMin = jMax = kMin = kMax = 0;
-
-  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
-  {
-    vtkErrorMacro("Requesting a cell from an empty image.");
-    return nullptr;
-  }
-
   switch (this->DataDescription)
   {
     case VTK_EMPTY:
-      //cell = this->EmptyCell;
-      return nullptr;
+      break;
 
-    case VTK_SINGLE_POINT: // cellId can only be = 0
+    case VTK_SINGLE_POINT:
       cell = this->Vertex;
       break;
 
     case VTK_X_LINE:
-      iMin = cellId;
-      iMax = cellId + 1;
-      cell = this->Line;
-      break;
-
     case VTK_Y_LINE:
-      jMin = cellId;
-      jMax = cellId + 1;
-      cell = this->Line;
-      break;
-
     case VTK_Z_LINE:
-      kMin = cellId;
-      kMax = cellId + 1;
       cell = this->Line;
       break;
 
     case VTK_XY_PLANE:
-      iMin = cellId % (dims[0]-1);
-      iMax = iMin + 1;
-      jMin = cellId / (dims[0]-1);
-      jMax = jMin + 1;
-      cell = this->Pixel;
-      break;
-
     case VTK_YZ_PLANE:
-      jMin = cellId % (dims[1]-1);
-      jMax = jMin + 1;
-      kMin = cellId / (dims[1]-1);
-      kMax = kMin + 1;
-      cell = this->Pixel;
-      break;
-
     case VTK_XZ_PLANE:
-      iMin = cellId % (dims[0]-1);
-      iMax = iMin + 1;
-      kMin = cellId / (dims[0]-1);
-      kMax = kMin + 1;
       cell = this->Pixel;
       break;
 
     case VTK_XYZ_GRID:
-      iMin = cellId % (dims[0] - 1);
-      iMax = iMin + 1;
-      jMin = (cellId / (dims[0] - 1)) % (dims[1] - 1);
-      jMax = jMin + 1;
-      kMin = cellId / ((dims[0] - 1) * (dims[1] - 1));
-      kMax = kMin + 1;
       cell = this->Voxel;
       break;
 
     default:
       vtkErrorMacro("Invalid DataDescription.");
-      return nullptr;
+      break;
   }
-
-  // Extract point coordinates and point ids
-  // Ids are relative to extent min.
-  npts = 0;
-  for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
-  {
-    x[2] = origin[2] + (loc[2]+extent[4]) * spacing[2];
-    for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
-    {
-      x[1] = origin[1] + (loc[1]+extent[2]) * spacing[1];
-      for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
-      {
-        x[0] = origin[0] + (loc[0]+extent[0]) * spacing[0];
-
-        idx = loc[0] + loc[1]*dims[0] + loc[2]*d01;
-        cell->PointIds->SetId(npts,idx);
-        cell->Points->SetPoint(npts++,x);
-      }
-    }
-  }
-
   return cell;
 }
 
-vtkCell *vtkImageData::GetCell(int iMin, int jMin, int kMin) {
-  vtkCell *cell = nullptr;
+//----------------------------------------------------------------------------
+bool vtkImageData::GetCellTemplateForDataDescription(vtkGenericCell* cell)
+{
+  switch (this->DataDescription)
+  {
+    case VTK_EMPTY:
+      cell->SetCellTypeToEmptyCell();
+      break;
+
+    case VTK_SINGLE_POINT:
+      cell->SetCellTypeToVertex();
+      break;
+
+    case VTK_X_LINE:
+    case VTK_Y_LINE:
+    case VTK_Z_LINE:
+      cell->SetCellTypeToLine();
+      break;
+
+    case VTK_XY_PLANE:
+    case VTK_YZ_PLANE:
+    case VTK_XZ_PLANE:
+      cell->SetCellTypeToPixel();
+      break;
+
+    case VTK_XYZ_GRID:
+      cell->SetCellTypeToVoxel();
+      break;
+
+    default:
+      vtkErrorMacro("Invalid DataDescription.");
+      return false;
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkImageData::GetIJKMinForCellId(vtkIdType cellId, int ijkMin[3])
+{
+  vtkIdType dims[3];
+  this->GetDimensions(dims);
+
+  ijkMin[0] = ijkMin[1] = ijkMin[2] = 0;
+
+  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
+  {
+    vtkErrorMacro("Requesting a cell from an empty image.");
+    return false;
+  }
+
+  switch (this->DataDescription)
+  {
+    case VTK_EMPTY:
+      return false;
+
+    case VTK_SINGLE_POINT:
+      // cellId can only be = 0
+      break;
+
+    case VTK_X_LINE:
+      ijkMin[0] = cellId;
+      break;
+
+    case VTK_Y_LINE:
+      ijkMin[1] = cellId;
+      break;
+
+    case VTK_Z_LINE:
+      ijkMin[2] = cellId;
+      break;
+
+    case VTK_XY_PLANE:
+      ijkMin[0] = cellId % (dims[0]-1);
+      ijkMin[1] = cellId / (dims[0]-1);
+      break;
+
+    case VTK_YZ_PLANE:
+      ijkMin[1] = cellId % (dims[1]-1);
+      ijkMin[2] = cellId / (dims[1]-1);
+      break;
+
+    case VTK_XZ_PLANE:
+      ijkMin[0] = cellId % (dims[0]-1);
+      ijkMin[2] = cellId / (dims[0]-1);
+      break;
+
+    case VTK_XYZ_GRID:
+      ijkMin[0] = cellId % (dims[0] - 1);
+      ijkMin[1] = (cellId / (dims[0] - 1)) % (dims[1] - 1);
+      ijkMin[2] = cellId / ((dims[0] - 1) * (dims[1] - 1));
+      break;
+
+    default:
+      vtkErrorMacro("Invalid DataDescription.");
+      return false;
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkImageData::GetIJKMaxForIJKMin(int ijkMin[3], int ijkMax[3])
+{
+  vtkIdType dims[3];
+  this->GetDimensions(dims);
+
+  ijkMax[0] = ijkMax[1] = ijkMax[2] = 0;
+
+  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
+  {
+    vtkErrorMacro("Requesting a cell from an empty image.");
+    return false;
+  }
+
+  switch (this->DataDescription)
+  {
+    case VTK_EMPTY:
+      return false;
+
+    case VTK_SINGLE_POINT:
+      // cellId can only be = 0
+      break;
+
+    case VTK_X_LINE:
+      ijkMax[0] = ijkMin[0] + 1;
+      break;
+
+    case VTK_Y_LINE:
+      ijkMax[1] = ijkMin[1] + 1;
+      break;
+
+    case VTK_Z_LINE:
+      ijkMax[2] = ijkMin[2] + 1;
+      break;
+
+    case VTK_XY_PLANE:
+      ijkMax[0] = ijkMin[0] + 1;
+      ijkMax[1] = ijkMin[1] + 1;
+      break;
+
+    case VTK_YZ_PLANE:
+      ijkMax[1] = ijkMin[1] + 1;
+      ijkMax[2] = ijkMin[2] + 1;
+      break;
+
+    case VTK_XZ_PLANE:
+      ijkMax[0] = ijkMin[0] + 1;
+      ijkMax[2] = ijkMin[2] + 1;
+      break;
+
+    case VTK_XYZ_GRID:
+      ijkMax[0] = ijkMin[0] + 1;
+      ijkMax[1] = ijkMin[1] + 1;
+      ijkMax[2] = ijkMin[2] + 1;
+      break;
+
+    default:
+      vtkErrorMacro("Invalid DataDescription.");
+      return false;
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::AddPointsToCellTemplate(vtkCell* cell, int ijkMin[3], int ijkMax[3])
+{
   int loc[3];
   vtkIdType idx, npts;
-  int iMax = 0, jMax = 0, kMax = 0;
-  double x[3];
-  const double *origin = this->Origin;
-  const double *spacing = this->Spacing;
+  double ijk[4], xyz[4];
   const int *extent = this->Extent;
 
-  // Use vtkIdType to avoid overflow on large images
-  vtkIdType cellDims[3];
-  cellDims[0] = extent[1] - extent[0];
-  cellDims[1] = extent[3] - extent[2];
-  cellDims[2] = extent[5] - extent[4];
-
   vtkIdType dims[3];
-  dims[0] = cellDims[0] + 1;
-  dims[1] = cellDims[1] + 1;
-  dims[2] = cellDims[2] + 1;
+  this->GetDimensions(dims);
   vtkIdType d01 = dims[0] * dims[1];
 
-  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0) {
-    vtkErrorMacro("Requesting a cell from an empty image.");
-    return nullptr;
-  }
-
-  switch (this->DataDescription) {
-  case VTK_EMPTY:
-    // cell = this->EmptyCell;
-    return nullptr;
-
-  case VTK_SINGLE_POINT: // cellId can only be = 0
-    cell = this->Vertex;
-    break;
-
-  case VTK_X_LINE:
-    iMax = iMin + 1;
-    jMax = jMin = 0;
-    kMax = kMin = 0;
-    cell = this->Line;
-    break;
-
-  case VTK_Y_LINE:
-    iMax = iMin = 0;
-    jMax = jMin + 1;
-    kMax = kMin = 0;
-    cell = this->Line;
-    break;
-
-  case VTK_Z_LINE:
-    iMax = iMin = 0;
-    jMax = jMin = 0;
-    kMax = kMin + 1;
-    cell = this->Line;
-    break;
-
-  case VTK_XY_PLANE:
-    iMax = iMin + 1;
-    jMax = jMin + 1;
-    kMax = kMin = 0;
-    cell = this->Pixel;
-    break;
-
-  case VTK_YZ_PLANE:
-    iMax = iMin = 0;
-    jMax = jMin + 1;
-    kMax = kMin + 1;
-    cell = this->Pixel;
-    break;
-
-  case VTK_XZ_PLANE:
-    iMax = iMin + 1;
-    jMax = jMin = 0;
-    kMax = kMin + 1;
-    cell = this->Pixel;
-    break;
-
-  case VTK_XYZ_GRID:
-    iMax = iMin + 1;
-    jMax = jMin + 1;
-    kMax = kMin + 1;
-    cell = this->Voxel;
-    break;
-
-  default:
-    vtkErrorMacro("Invalid DataDescription.");
-    return nullptr;
-  }
-
   // Extract point coordinates and point ids
-  // Ids are relative to extent min.
+  // Ids are relative to extent min.
   npts = 0;
-  for (loc[2] = kMin; loc[2] <= kMax; loc[2]++)
+  ijk[3] = 1; // To multiply with a 4x4 matrix
+  for (loc[2] = ijkMin[2]; loc[2] <= ijkMax[2]; loc[2]++)
   {
-    x[2] = origin[2] + (loc[2] + extent[4]) * spacing[2];
-    for (loc[1] = jMin; loc[1] <= jMax; loc[1]++)
+    ijk[2] = loc[2] + extent[4];
+    for (loc[1] = ijkMin[1]; loc[1] <= ijkMax[1]; loc[1]++)
     {
-      x[1] = origin[1] + (loc[1] + extent[2]) * spacing[1];
-      for (loc[0] = iMin; loc[0] <= iMax; loc[0]++)
+      ijk[1] = loc[1] + extent[2];
+      for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
       {
-        x[0] = origin[0] + (loc[0] + extent[0]) * spacing[0];
+        ijk[0] = loc[0] + extent[0];
+        this->GetIndexToPhysical()->MultiplyPoint(ijk, xyz);
 
         idx = loc[0] + loc[1] * dims[0] + loc[2] * d01;
         cell->PointIds->SetId(npts, idx);
-        cell->Points->SetPoint(npts++, x);
+        cell->Points->SetPoint(npts++, xyz);
       }
     }
   }
+}
 
+//----------------------------------------------------------------------------
+vtkCell *vtkImageData::GetCell(vtkIdType cellId)
+{
+  int ijkMin[3];
+  if (!this->GetIJKMinForCellId(cellId, ijkMin))
+  {
+    return nullptr;
+  }
+
+  return this->GetCell(ijkMin[0], ijkMin[1], ijkMin[2]);
+}
+
+//----------------------------------------------------------------------------
+vtkCell *vtkImageData::GetCell(int iMin, int jMin, int kMin)
+{
+  vtkCell *cell = this->GetCellTemplateForDataDescription();
+  if (cell == nullptr)
+  {
+    return nullptr;
+  }
+
+  int ijkMin[3] = {iMin, jMin, kMin};
+  int ijkMax[3];
+  if (!this->GetIJKMaxForIJKMin(ijkMin, ijkMax))
+  {
+    return nullptr;
+  }
+
+  this->AddPointsToCellTemplate(cell, ijkMin, ijkMax);
   return cell;
 }
 
 //----------------------------------------------------------------------------
 void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 {
-  vtkIdType npts, idx;
-  int loc[3];
-  int iMin, iMax, jMin, jMax, kMin, kMax;
-  const double *origin = this->Origin;
-  const double *spacing = this->Spacing;
-  double x[3];
-  const int* extent = this->Extent;
-
-  vtkIdType dims[3];
-  this->GetDimensions(dims);
-  vtkIdType d01 = dims[0]*dims[1];
-
-  iMin = iMax = jMin = jMax = kMin = kMax = 0;
-
-  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
+  if (!this->GetCellTemplateForDataDescription(cell))
   {
-    vtkErrorMacro("Requesting a cell from an empty image.");
     cell->SetCellTypeToEmptyCell();
     return;
   }
 
-  switch (this->DataDescription)
+  int ijkMin[3];
+  if (!this->GetIJKMinForCellId(cellId, ijkMin))
   {
-    case VTK_EMPTY:
-      cell->SetCellTypeToEmptyCell();
-      return;
-
-    case VTK_SINGLE_POINT: // cellId can only be = 0
-      cell->SetCellTypeToVertex();
-      break;
-
-    case VTK_X_LINE:
-      iMin = cellId;
-      iMax = cellId + 1;
-      cell->SetCellTypeToLine();
-      break;
-
-    case VTK_Y_LINE:
-      jMin = cellId;
-      jMax = cellId + 1;
-      cell->SetCellTypeToLine();
-      break;
-
-    case VTK_Z_LINE:
-      kMin = cellId;
-      kMax = cellId + 1;
-      cell->SetCellTypeToLine();
-      break;
-
-    case VTK_XY_PLANE:
-      iMin = cellId % (dims[0]-1);
-      iMax = iMin + 1;
-      jMin = cellId / (dims[0]-1);
-      jMax = jMin + 1;
-      cell->SetCellTypeToPixel();
-      break;
-
-    case VTK_YZ_PLANE:
-      jMin = cellId % (dims[1]-1);
-      jMax = jMin + 1;
-      kMin = cellId / (dims[1]-1);
-      kMax = kMin + 1;
-      cell->SetCellTypeToPixel();
-      break;
-
-    case VTK_XZ_PLANE:
-      iMin = cellId % (dims[0]-1);
-      iMax = iMin + 1;
-      kMin = cellId / (dims[0]-1);
-      kMax = kMin + 1;
-      cell->SetCellTypeToPixel();
-      break;
-
-    case VTK_XYZ_GRID:
-      iMin = cellId % (dims[0] - 1);
-      iMax = iMin + 1;
-      jMin = (cellId / (dims[0] - 1)) % (dims[1] - 1);
-      jMax = jMin + 1;
-      kMin = cellId / ((dims[0] - 1) * (dims[1] - 1));
-      kMax = kMin + 1;
-      cell->SetCellTypeToVoxel();
-      break;
+    cell->SetCellTypeToEmptyCell();
+    return;
   }
 
-  // Extract point coordinates and point ids
-  for (npts=0,loc[2]=kMin; loc[2]<=kMax; loc[2]++)
+  int ijkMax[3];
+  if (!this->GetIJKMaxForIJKMin(ijkMin, ijkMax))
   {
-    x[2] = origin[2] + (loc[2]+extent[4]) * spacing[2];
-    for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
-    {
-      x[1] = origin[1] + (loc[1]+extent[2]) * spacing[1];
-      for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
-      {
-        x[0] = origin[0] + (loc[0]+extent[0]) * spacing[0];
-
-        idx = loc[0] + loc[1]*dims[0] + loc[2]*d01;
-        cell->PointIds->SetId(npts,idx);
-        cell->Points->SetPoint(npts++,x);
-      }
-    }
+    cell->SetCellTypeToEmptyCell();
+    return;
   }
+
+  this->AddPointsToCellTemplate(cell, ijkMin, ijkMax);
 }
-
 
 //----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
@@ -542,7 +496,9 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
-  this->GetDimensions(dims);
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
 
@@ -650,7 +606,9 @@ void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
-  this->GetDimensions(dims);
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
 
   x[0] = x[1] = x[2] = 0.0;
   if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
@@ -720,7 +678,9 @@ vtkIdType vtkImageData::FindPoint(double x[3])
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
-  this->GetDimensions(dims);
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
 
   //
   //  Compute the ijk location
@@ -1026,7 +986,9 @@ void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
   const int *extent = this->Extent;
 
   vtkIdType dims[3];
-  this->GetDimensions(dims);
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
 
   vtkIdType ijsize=dims[0]*dims[1];
 
@@ -1686,7 +1648,9 @@ void vtkImageData::AllocateScalars(int dataType, int numComponents)
   const int* extent = this->Extent;
   // Use vtkIdType to avoid overflow on large images
   vtkIdType dims[3];
-  this->GetDimensions(dims);
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
   vtkIdType imageSize = dims[0]*dims[1]*dims[2];
 
   // if we currently have scalars then just adjust the size
@@ -2232,7 +2196,9 @@ vtkIdType vtkImageData::GetNumberOfCells()
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
-  this->GetDimensions(dims);
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
 
   for (i=0; i<3; i++)
   {
