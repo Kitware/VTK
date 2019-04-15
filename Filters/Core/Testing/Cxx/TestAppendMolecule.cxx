@@ -18,6 +18,7 @@
 #include "vtkMolecule.h"
 #include "vtkMoleculeAppend.h"
 #include "vtkNew.h"
+#include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedShortArray.h"
 
@@ -41,29 +42,41 @@ void InitSimpleMolecule(vtkMolecule* molecule)
   molecule->AppendBond(h1, h2, 1);
 }
 
-void AddAtomData(vtkMolecule* molecule, vtkIdType size)
+void AddAtomData(vtkMolecule* molecule)
 {
   vtkNew<vtkDoubleArray> data;
   data->SetName("Data");
   data->SetNumberOfComponents(1);
+  vtkIdType size = molecule->GetNumberOfAtoms();
   for (vtkIdType i = 0; i < size; i++)
   {
     data->InsertNextValue(NB_OF_MOL * 1.01);
   }
   molecule->GetAtomData()->AddArray(data);
+
+  vtkNew<vtkStringArray> stringData;
+  stringData->SetName("StringData");
+  size = molecule->GetNumberOfBonds();
+  for (vtkIdType i = 0; i < size; i++)
+  {
+    stringData->InsertNextValue("string");
+  }
+  molecule->GetBondData()->AddArray(stringData);
 }
 
 int CheckMolecule(vtkMolecule* molecule,
   int nbAtoms,
   int nbBonds,
-  int nbArrays,
+  int nbOfAtomArrays,
+  int nbOfBondArrays,
   vtkDoubleArray* values,
   int nbGhostAtoms,
   int nbGhostBonds)
 {
   CheckNumbers("atoms", molecule->GetNumberOfAtoms(), nbAtoms);
   CheckNumbers("bonds", molecule->GetNumberOfBonds(), nbBonds);
-  CheckNumbers("atom data arrays", molecule->GetAtomData()->GetNumberOfArrays(), nbArrays);
+  CheckNumbers("atom data arrays", molecule->GetAtomData()->GetNumberOfArrays(), nbOfAtomArrays);
+  CheckNumbers("bond data arrays", molecule->GetBondData()->GetNumberOfArrays(), nbOfBondArrays);
 
   vtkDataArray* resultData = molecule->GetAtomData()->GetArray("Data");
   if (!resultData)
@@ -148,13 +161,13 @@ int TestAppendMolecule(int, char* [])
   // INIT
   vtkNew<vtkMolecule> fullMolecule1;
   InitSimpleMolecule(fullMolecule1);
-  AddAtomData(fullMolecule1, 2);
+  AddAtomData(fullMolecule1);
   vtkNew<vtkMolecule> fullMolecule2;
   InitSimpleMolecule(fullMolecule2);
-  AddAtomData(fullMolecule2, 3);
+  AddAtomData(fullMolecule2);
   vtkNew<vtkMolecule> fullMolecule3;
   InitSimpleMolecule(fullMolecule3);
-  AddAtomData(fullMolecule3, 3);
+  AddAtomData(fullMolecule3);
 
   // duplicate first atom of molecule 2 to be ghost in molecule 3, and vice versa.
   vtkAtom firstAtom2 = fullMolecule2->GetAtom(0);
@@ -196,6 +209,7 @@ int TestAppendMolecule(int, char* [])
   int nbOfExpectedAtoms = fullMolecule1->GetNumberOfAtoms() + fullMolecule2->GetNumberOfAtoms();
   int nbOfExpectedBonds = fullMolecule1->GetNumberOfBonds() + fullMolecule2->GetNumberOfBonds();
   int nbOfExpectedArrays = fullMolecule1->GetAtomData()->GetNumberOfArrays();
+  int nbOfExpectedBondArrays = fullMolecule1->GetBondData()->GetNumberOfArrays();
   vtkNew<vtkDoubleArray> expectedResultValues;
   expectedResultValues->InsertNextValue(
     fullMolecule1->GetAtomData()->GetArray("Data")->GetTuple1(0));
@@ -212,6 +226,7 @@ int TestAppendMolecule(int, char* [])
     nbOfExpectedAtoms,
     nbOfExpectedBonds,
     nbOfExpectedArrays,
+    nbOfExpectedBondArrays,
     expectedResultValues,
     1,
     1);
@@ -234,6 +249,7 @@ int TestAppendMolecule(int, char* [])
   nbOfExpectedBonds = fullMolecule1->GetNumberOfBonds() + fullMolecule2->GetNumberOfBonds() +
     fullMolecule3->GetNumberOfBonds();
   nbOfExpectedArrays = fullMolecule1->GetAtomData()->GetNumberOfArrays();
+  nbOfExpectedBondArrays = fullMolecule1->GetBondData()->GetNumberOfArrays();
 
   // Result contains data of non ghost atom.
   expectedResultValues->InsertNextValue(
@@ -247,6 +263,7 @@ int TestAppendMolecule(int, char* [])
     nbOfExpectedAtoms,
     nbOfExpectedBonds,
     nbOfExpectedArrays,
+    nbOfExpectedBondArrays,
     expectedResultValues,
     2,
     2);
@@ -277,6 +294,7 @@ int TestAppendMolecule(int, char* [])
     nbOfExpectedAtoms,
     nbOfExpectedBonds,
     nbOfExpectedArrays,
+    nbOfExpectedBondArrays,
     expectedResultValues,
     0,
     0);
