@@ -2292,27 +2292,10 @@ void vtkImageData::SetOrigin(const double ijk[3])
 //----------------------------------------------------------------------------
 void vtkImageData::SetDirection(vtkMatrix3x3 *m)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Direction to " << m);
-  if (this->Direction != m)
-  {
-    if (m == nullptr && this->Direction->IsIdentity())
-    {
-      // Nothing to do if input is null and direction
-      // is already set to the identity
-      return;
-    }
-
-    if (m == nullptr)
-    {
-      vtkWarningMacro("Direction matrix cannot be set to nullptr, setting to identity instead.");
-      this->Direction->Identity();
-    }
-    else
-    {
-      this->Direction = m; // TODO: deep copy instead?
-    }
+  vtkMTimeType lastModified = this->GetMTime();
+  vtkSetObjectBodyMacro(Direction, vtkMatrix3x3, m);
+  if (lastModified < this->GetMTime()) {
     this->ComputeTransforms();
-    this->Modified();
   }
 }
 
