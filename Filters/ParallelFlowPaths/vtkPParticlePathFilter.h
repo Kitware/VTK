@@ -48,6 +48,14 @@ protected:
   virtual void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation &) override;
   void Finalize() override;
 
+  //
+  // Store any information we need in the output and fetch what we can
+  // from the input
+  //
+  int RequestInformation(vtkInformation* request,
+                         vtkInformationVector** inputVector,
+                         vtkInformationVector* outputVector) override;
+
   ParticlePathFilterInternal It;
   vtkDoubleArray* SimulationTime;
   vtkIntArray* SimulationTimeStep;

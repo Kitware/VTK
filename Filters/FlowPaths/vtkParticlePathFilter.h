@@ -78,6 +78,14 @@ protected:
 
   void Finalize() override;
 
+  //
+  // Store any information we need in the output and fetch what we can
+  // from the input
+  //
+  int RequestInformation(vtkInformation* request,
+                         vtkInformationVector** inputVector,
+                         vtkInformationVector* outputVector) override;
+
   ParticlePathFilterInternal It;
 
 private:

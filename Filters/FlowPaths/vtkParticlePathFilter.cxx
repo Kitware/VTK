@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vector>
 
@@ -207,4 +208,17 @@ void vtkParticlePathFilter::AppendToExtraPointDataArrays(
 void vtkParticlePathFilter::Finalize()
 {
   this->It.Finalize();
+}
+
+int vtkParticlePathFilter::RequestInformation(
+  vtkInformation *request, vtkInformationVector **inputVector, vtkInformationVector *outputVector)
+{
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // The output data of this filter has no time associated with it.  It is the
+  // result of computations that happen over all time.
+  outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+
+  return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
