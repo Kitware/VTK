@@ -921,10 +921,7 @@ void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
   const int *extent = this->Extent;
 
   vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
-
+  this->GetDimensions(dims);
   vtkIdType ijsize=dims[0]*dims[1];
 
   // Adjust i,j,k to the start of the extent
@@ -939,7 +936,7 @@ void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
     return;
   }
 
-  // x-direction
+  // i-axis
   if ( dims[0] == 1 )
   {
     g[0] = 0.0;
@@ -963,7 +960,7 @@ void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
     g[0] = 0.5 * (sm - sp) / ar[0];
   }
 
-  // y-direction
+  // j-axis
   if ( dims[1] == 1 )
   {
     g[1] = 0.0;
@@ -987,7 +984,7 @@ void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
     g[1] = 0.5 * (sm - sp) / ar[1];
   }
 
-  // z-direction
+  // k-axis
   if ( dims[2] == 1 )
   {
     g[2] = 0.0;
@@ -1010,6 +1007,12 @@ void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
     sm = s->GetComponent(i + j*dims[0] + (k-1)*ijsize,0);
     g[2] = 0.5 * (sm - sp) / ar[2];
   }
+
+  // Apply direction transform to get in xyz coordinate system
+  // Note: we already applied the spacing when handling the ijk
+  // axis above, and do not need to translate by the origin
+  // since this is a gradient computation
+  this->Direction->MultiplyPoint(g, g);
 }
 
 //----------------------------------------------------------------------------
