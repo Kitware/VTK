@@ -21,6 +21,8 @@ namespace RTW
         {
             VisRTX::Context* rtx = VisRTX_GetContext();
             this->renderer = rtx->CreateRenderer();
+
+            this->renderer->SetToneMapping(false);
         }
 
         ~Renderer()

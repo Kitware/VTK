@@ -32,6 +32,7 @@
 #define vtkOSPRayMaterialHelpers_h
 
 #include <map>
+#include <string>
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 
