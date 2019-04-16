@@ -3555,6 +3555,9 @@ macro (vtk_module_find_package)
   endif ()
 
   if (NOT _vtk_find_package_PRIVATE)
+    set_property(GLOBAL APPEND
+      PROPERTY
+        "_vtk_module_find_packages_${_vtk_build_PACKAGE}" "${_vtk_find_package_PACKAGE}")
     set(_vtk_find_package_base "_vtk_module_find_package_${_vtk_build_module}")
     set_property(GLOBAL APPEND
       PROPERTY
