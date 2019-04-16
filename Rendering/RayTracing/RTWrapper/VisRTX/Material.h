@@ -241,7 +241,7 @@ namespace RTW
                         for (unsigned iwl = 0u; iwl < spectrum_size; iwl++)
                         {
                             const float currentwl = wavelength_begin + (float)iwl * wavelength_spacing;
-                            for (; input[iinput].x < currentwl && iinput < n_input - 1; ++iinput)
+                            for (; iinput < n_input - 1 && input[iinput].x < currentwl; ++iinput)
                             {
                                 iprev = iinput;
                             }
