@@ -174,8 +174,16 @@ mark_as_advanced(
 if(Freetype_FOUND)
   if(NOT TARGET Freetype::Freetype)
     include(vtkDetectLibraryType)
+    if (FREETYPE_LIBRARY_RELEASE)
+      set(_freetype_library_path "${FREETYPE_LIBRARY_RELEASE}")
+    elseif (FREETYPE_LIBRARY_DEBUG)
+      set(_freetype_library_path "${FREETYPE_LIBRARY_DEBUG}")
+    else ()
+      set(_freetype_library_path "${FREETYPE_LIBRARY}")
+    endif ()
     vtk_detect_library_type(freetype_library_type
-      PATH "${FREETYPE_LIBRARY_RELEASE}")
+      PATH "${_freetype_library_path}")
+    unset(_freetype_library_path)
     add_library(Freetype::Freetype "${freetype_library_type}" IMPORTED)
     unset(freetype_library_type)
     set_target_properties(Freetype::Freetype PROPERTIES
