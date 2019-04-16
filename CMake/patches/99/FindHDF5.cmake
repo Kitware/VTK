@@ -933,10 +933,12 @@ endif()
 
 if (HDF5_FOUND)
   add_library(HDF5::HDF5 INTERFACE IMPORTED)
+  string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
   set_target_properties(HDF5::HDF5 PROPERTIES
     INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}"
     INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
-    INTERFACE_COMPILE_DEFINITIONS "${HDF5_DEFINITIONS}")
+    INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+  unset(_hdf5_definitions)
 
   include(vtkDetectLibraryType)
   if (WIN32)
@@ -970,10 +972,11 @@ if (HDF5_FOUND)
       endif ()
       vtk_detect_library_type(_hdf5_libtype PATH "${_hdf5_location}")
       add_library("hdf5::${hdf5_target_name}" "${_hdf5_libtype}" IMPORTED)
+      string(REPLACE "-D" "" _hdf5_definitions "${HDF5_${hdf5_lang}_DEFINITIONS}")
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
         "${_hdf5_location_property}" "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_INCLUDE_DIRS}"
-        INTERFACE_COMPILE_DEFINITIONS "${HDF5_${hdf5_lang}_DEFINITIONS}")
+        INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
       if (_hdf5_libtype STREQUAL "SHARED")
         set_property(TARGET "hdf5::${hdf5_target_name}" APPEND
           PROPERTY
@@ -983,6 +986,7 @@ if (HDF5_FOUND)
           PROPERTY
             INTERFACE_COMPILE_DEFINITIONS H5_BUILT_AS_STATIC_LIB)
       endif ()
+      unset(_hdf5_definitions)
       unset(_hdf5_libtype)
       unset(_hdf5_location)
     endif ()
@@ -1016,10 +1020,11 @@ if (HDF5_FOUND)
       endif ()
       vtk_detect_library_type(_hdf5_libtype PATH "${_hdf5_location}")
       add_library("hdf5::${hdf5_target_name}" "${_hdf5_libtype}" IMPORTED)
+      string(REPLACE "-D" "" _hdf5_definitions "${HDF5_${hdf5_lang}_HL_DEFINITIONS}")
       set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
         "${_hdf5_location_property}" "${_hdf5_location}"
         INTERFACE_INCLUDE_DIRECTORIES "${HDF5_${hdf5_lang}_HL_INCLUDE_DIRS}"
-        INTERFACE_COMPILE_DEFINITIONS "${HDF5_${hdf5_lang}_HL_DEFINITIONS}")
+        INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
       if (_hdf5_libtype STREQUAL "SHARED")
         set_property(TARGET "hdf5::${hdf5_target_name}" APPEND
           PROPERTY
@@ -1029,6 +1034,7 @@ if (HDF5_FOUND)
           PROPERTY
             INTERFACE_COMPILE_DEFINITIONS H5_BUILT_AS_STATIC_LIB)
       endif ()
+      unset(_hdf5_definitions)
       unset(_hdf5_libtype)
       unset(_hdf5_location)
     endif ()
