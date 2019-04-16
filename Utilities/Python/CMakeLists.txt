@@ -145,9 +145,13 @@ cmake_dependent_option(VTK_PYTHON_OPTIONAL_LINK
   "Whether to link libpython from libraries or not" ON
   # We shouldn't do it for static builds and we can't do it without
   # `target_link_options`.
-  # XXX(Linux): Currently, this causes missing symbols on Linux.
-  # XXX(Apple): Runtime failures currently. Needs investigation.
+  # XXX(Linux): Currently, this causes missing symbols on Linux in ParaView.
+  # More investigation is necessary.
   "FALSE;BUILD_SHARED_LIBS;COMMAND target_link_options" OFF)
+
+add_library(PythonUsed INTERFACE)
+add_library(VTK::PythonUsed ALIAS PythonUsed)
+_vtk_module_install(PythonUsed)
 
 if (VTK_PYTHON_OPTIONAL_LINK)
   include("${CMAKE_CURRENT_SOURCE_DIR}/vtkUndefinedSymbolsAllowed.cmake")
@@ -166,6 +170,13 @@ if (VTK_PYTHON_OPTIONAL_LINK)
   vtk_module_link_options(VTK::Python
     INTERFACE
       "$<$<OR:$<AND:$<NOT:${is_exe}>,${needs_flags}>,$<NOT:${direct_link}>>:${platform_flags}>")
+
+  target_link_libraries(PythonUsed
+    INTERFACE
+      "$<LINK_ONLY:$<$<OR:${is_exe},${direct_link}>:${vtk_python_target}>>")
+  _vtk_module_set_module_property(VTK::Python APPEND
+    PROPERTY  "forward_link"
+    VALUE     VTK::PythonUsed)
 else ()
   vtk_module_link(VTK::Python
     INTERFACE
