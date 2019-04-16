@@ -21,7 +21,6 @@ endif ()
 
 _vtk_module_write_import_prefix("${vtk_cmake_build_dir}/vtk-prefix.cmake" "${vtk_cmake_destination}")
 
-# TODO: Build up a list of prefix paths to add.
 set(vtk_prefix_paths)
 
 set(vtk_python_version "")
@@ -138,6 +137,12 @@ foreach (vtk_cmake_module_file IN LISTS vtk_cmake_module_files vtk_cmake_patch_f
   list(APPEND vtk_cmake_files_to_install
     "${vtk_cmake_module_file}")
 endforeach ()
+
+include(vtkInstallCMakePackageHelpers)
+if (NOT VTK_RELOCATABLE_INSTALL)
+  list(APPEND vtk_cmake_files_to_install
+    "${vtk_cmake_build_dir}/vtk-find-package-helpers.cmake")
+endif ()
 
 foreach (vtk_cmake_file IN LISTS vtk_cmake_files_to_install)
   get_filename_component(subdir "${vtk_cmake_file}" DIRECTORY)
