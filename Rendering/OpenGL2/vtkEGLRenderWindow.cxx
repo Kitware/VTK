@@ -98,6 +98,12 @@ public:
       this->eglQueryDevices = nullptr;
       this->eglGetPlatformDisplay = nullptr;
       const char* s = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
+      if (s == nullptr)
+      {
+        // eglQueryString returns a nullptr upon failure.
+        // Setting it to empty string to silently ignore failure.
+        s = "";
+      }
       std::string platformExtensions(s);
       if (platformExtensions.find("EGL_EXT_device_base") != std::string::npos &&
           platformExtensions.find("EGL_EXT_platform_device") != std::string::npos &&
