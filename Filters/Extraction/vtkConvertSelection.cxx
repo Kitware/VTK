@@ -468,13 +468,15 @@ int vtkConvertSelection::ConvertFromQueryNodeCompositeDataSet(
       else if (type == vtkSelectionNode::POINT)
       {
         insidedness = vtkArrayDownCast<vtkSignedCharArray>(
-          dataset->GetCellData()->GetAbstractArray("vtkInsidedness"));
+          dataset->GetPointData()->GetAbstractArray("vtkInsidedness"));
       }
       else
       {
         vtkErrorMacro("Unknown field type");
         return 0;
       }
+
+      assert(insidedness);
 
       // Convert the insidedness array into an index input.
       vtkNew<vtkIdTypeArray> idList;
