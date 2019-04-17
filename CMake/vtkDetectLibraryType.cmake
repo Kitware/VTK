@@ -17,6 +17,11 @@ function (vtk_detect_library_type output)
       "${vdlt_UNPARSED_ARGUMENTS}")
   endif ()
 
+  if (NOT vdlt_PATH)
+    message(FATAL_ERROR
+      "The `PATH` argument is empty.")
+  endif ()
+
   set(vdlt_type UNKNOWN)
   # Windows libraries all end with `.lib`. We need to detect the type based on
   # the contents of the library. However, MinGW does use different extensions.
