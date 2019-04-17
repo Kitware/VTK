@@ -345,7 +345,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees(vtkIndent indent)
   }
 
   // Allocate offsets managers for appended data
-  if (this->DataMode == Appended)
+  if (this->DataMode == Appended && this->NumberOfTrees > 0)
   {
     this->DescriptorOMG->Allocate(this->NumberOfTrees, this->NumberOfTimeSteps);
     this->MaskOMG->Allocate(this->NumberOfTrees, this->NumberOfTimeSteps);
