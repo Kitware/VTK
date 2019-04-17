@@ -129,7 +129,7 @@ for row, bg in enumerate(backgrounds):
 
 # render and interact with data
 
-iRen = vtk.vtkRenderWindowInteractor()
-iRen.SetRenderWindow(renWin)
+iren = vtk.vtkRenderWindowInteractor()
+iren.SetRenderWindow(renWin)
 renWin.Render()
-iRen.Start()
+iren.Start()
