@@ -388,7 +388,8 @@ int vtkPDistributedDataFilter::RequestDataInternal(vtkDataSet* input,
   //   spread the input data sets around (quickly) before formal
   //   redistribution.
 
-  vtkDataSet *splitInput = this->TestFixTooFewInputFiles(input);
+  int duplicateCells;
+  vtkDataSet *splitInput = this->TestFixTooFewInputFiles(input, duplicateCells);
 
   if (splitInput == nullptr)
   {
@@ -436,8 +437,8 @@ int vtkPDistributedDataFilter::RequestDataInternal(vtkDataSet* input,
   //
   // This call will delete splitInput if it's not this->GetInput().
 
-  vtkUnstructuredGrid *redistributedInput = this->RedistributeDataSet(splitInput,
-                                                                      input);
+  vtkUnstructuredGrid *redistributedInput = this->RedistributeDataSet(
+    splitInput, input, duplicateCells);
 
   if (redistributedInput == nullptr)
   {
@@ -527,7 +528,7 @@ int vtkPDistributedDataFilter::RequestDataInternal(vtkDataSet* input,
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGrid *vtkPDistributedDataFilter::RedistributeDataSet(
-  vtkDataSet *set, vtkDataSet *input)
+  vtkDataSet *set, vtkDataSet *input, int filterOutDuplicateCells)
 {
   TimeLog timer("RedistributeDataSet", this->Timing);
   (void)timer;
@@ -550,7 +551,7 @@ vtkUnstructuredGrid *vtkPDistributedDataFilter::RedistributeDataSet(
 
   // next call deletes inputPlus at the earliest opportunity
 
-  vtkUnstructuredGrid *finalGrid = this->MPIRedistribute(inputPlus, input);
+  vtkUnstructuredGrid *finalGrid = this->MPIRedistribute(inputPlus, input, filterOutDuplicateCells);
 
   return finalGrid;
 }
@@ -864,7 +865,7 @@ extern "C"
 }
 
 //----------------------------------------------------------------------------
-vtkDataSet *vtkPDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
+vtkDataSet *vtkPDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input, int& duplicateCells)
 {
   TimeLog timer("TestFixTooFewInputFiles", this->Timing);
   (void)timer;
@@ -919,6 +920,21 @@ vtkDataSet *vtkPDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input
     delete [] nodeType;
     inputSize->Delete();
     return input;
+  }
+
+  // if nb of cells is lower than nb of procs, some cells will be duplicated
+  duplicateCells = (numTotalCells < nprocs ? DuplicateCellsYes : DuplicateCellsNo);
+
+  // compute global cell ids to handle cells duplication
+  vtkDataSet *inputPlus = input;
+  bool deleteInputPlus = false;
+  if (duplicateCells == DuplicateCellsYes
+    && this->GetGlobalElementIdArray(input) == nullptr)
+  {
+    deleteInputPlus = true;
+    inputPlus = input->NewInstance();
+    inputPlus->ShallowCopy(input);
+    this->AssignGlobalElementIds(inputPlus);
   }
 
   vtkIdType cellsPerNode = numTotalCells / nprocs;
@@ -1125,11 +1141,16 @@ vtkDataSet *vtkPDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input
   if (sendCells)
   {
     newGrid = this->ExchangeMergeSubGrids(
-           sendCells, DeleteYes, input, DeleteNo,
+           sendCells, DeleteYes, inputPlus, DeleteNo,
            DuplicateCellsNo, GhostCellsNo, 0x0011);
 
     delete [] sendCells;
     delete [] nodeType;
+  }
+
+  if (deleteInputPlus)
+  {
+    inputPlus->Delete();
   }
 
   return newGrid;
@@ -2344,8 +2365,8 @@ vtkUnstructuredGrid *
 }
 
 //-------------------------------------------------------------------------
-vtkUnstructuredGrid *vtkPDistributedDataFilter::MPIRedistribute(vtkDataSet *in,
-                                                               vtkDataSet *input)
+vtkUnstructuredGrid *vtkPDistributedDataFilter::MPIRedistribute(
+  vtkDataSet *in, vtkDataSet *input, int filterOutDuplicateCells)
 {
   TimeLog timer("MPIRedistribute", this->Timing);
   (void)timer;
@@ -2395,7 +2416,7 @@ vtkUnstructuredGrid *vtkPDistributedDataFilter::MPIRedistribute(vtkDataSet *in,
 
   vtkUnstructuredGrid *myNewGrid =
     this->ExchangeMergeSubGrids(procCellLists, numLists, DeleteNo,
-       in, deleteDataSet, DuplicateCellsNo, GhostCellsNo, 0x0012);
+       in, deleteDataSet, filterOutDuplicateCells, GhostCellsNo, 0x0012);
 
   for (proc = 0; proc < nprocs; proc++)
   {
