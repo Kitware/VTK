@@ -43,34 +43,34 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-     * Construct object with no shader replacements
-     */
+   * Construct object with no shader replacements
+   */
   static vtkShaderProperty *New();
 
   /**
-     * Assign one property to another.
-     */
+   * Assign one property to another.
+   */
   void DeepCopy(vtkShaderProperty *p);
 
   /**
-     * @brief GetShaderMTime returns the last time a modification
-     * was made that affected the code of the shader (either code
-     * replacement was changed or one or more uniform variables were
-     * added or removed. This timestamp can be used by mappers to
-     * determine if the shader must be recompiled. Simply changing
-     * the value of an existing uniform variable doesn't affect this
-     * timestamp as it doesn't change the shader code.
-     * @return timestamp of the last modification
-     */
+   * @brief GetShaderMTime returns the last time a modification
+   * was made that affected the code of the shader (either code
+   * replacement was changed or one or more uniform variables were
+   * added or removed. This timestamp can be used by mappers to
+   * determine if the shader must be recompiled. Simply changing
+   * the value of an existing uniform variable doesn't affect this
+   * timestamp as it doesn't change the shader code.
+   * @return timestamp of the last modification
+   */
   vtkMTimeType GetShaderMTime();
 
   //@{
   /**
-     * Allow the program to set the shader codes used directly
-     * instead of using the built in templates. Be aware, if
-     * set, this template will be used for all cases,
-     * primitive types, picking etc.
-     */
+   * Allow the program to set the shader codes used directly
+   * instead of using the built in templates. Be aware, if
+   * set, this template will be used for all cases,
+   * primitive types, picking etc.
+   */
   bool HasVertexShaderCode();
   bool HasFragmentShaderCode();
   bool HasGeometryShaderCode();
@@ -84,9 +84,9 @@ public:
 
   //@{
   /**
-     * The Uniforms object allows to set custom uniform variables
-     * that are used in replacement shader code.
-     */
+   * The Uniforms object allows to set custom uniform variables
+   * that are used in replacement shader code.
+   */
   vtkGetObjectMacro(FragmentCustomUniforms,vtkUniforms);
   vtkGetObjectMacro(VertexCustomUniforms,vtkUniforms);
   vtkGetObjectMacro(GeometryCustomUniforms,vtkUniforms);
@@ -94,12 +94,12 @@ public:
 
   //@{
   /**
-     * This function enables you to apply your own substitutions
-     * to the shader creation process. The shader code in this class
-     * is created by applying a bunch of string replacements to a
-     * shader template. Using this function you can apply your
-     * own string replacements to add features you desire.
-     */
+   * This function enables you to apply your own substitutions
+   * to the shader creation process. The shader code in this class
+   * is created by applying a bunch of string replacements to a
+   * shader template. Using this function you can apply your
+   * own string replacements to add features you desire.
+   */
   virtual void AddVertexShaderReplacement(
       const std::string& originalValue,
       bool replaceFirst,  // do this replacement before the default

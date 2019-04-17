@@ -138,11 +138,8 @@ void vtkOpenGLShaderProperty::ClearAllShaderReplacements()
   this->SetVertexShaderCode(nullptr);
   this->SetFragmentShaderCode(nullptr);
   this->SetGeometryShaderCode(nullptr);
-  if (!this->UserShaderReplacements.empty())
-  {
-    this->UserShaderReplacements.clear();
-  }
-  Modified();
+  this->UserShaderReplacements.clear();
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -163,7 +160,7 @@ void vtkOpenGLShaderProperty::AddShaderReplacement(
   values.ReplaceAll = replaceAll;
 
   this->UserShaderReplacements[spec] = values;
-  Modified();
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -183,7 +180,7 @@ void vtkOpenGLShaderProperty::ClearShaderReplacement(
   if (found != this->UserShaderReplacements.end())
   {
     this->UserShaderReplacements.erase(found);
-    Modified();
+    this->Modified();
   }
 }
 
@@ -222,7 +219,7 @@ void vtkOpenGLShaderProperty::ClearAllShaderReplacements(
   }
   if (modified)
   {
-    Modified();
+    this->Modified();
   }
 }
 

@@ -35,8 +35,6 @@ public:
   virtual bool GetGenericValue( std::vector<int> & value ) = 0;
   virtual bool GetGenericValue( std::vector<float> & value ) = 0;
   virtual void PrintSelf( const char * name, ostream&, vtkIndent ) = 0;
-protected:
-
 };
 
 template< typename scalarType, vtkUniforms::TupleType tupleType, int nbComponents >
@@ -319,7 +317,7 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override
   {
-    for( auto & uni : Uniforms )
+    for( auto & uni : this->Uniforms )
     {
       uni.second->PrintSelf( uni.first.c_str(), os, indent );
     }
@@ -327,33 +325,33 @@ public:
 
   void RemoveUniform(const char *name)
   {
-    UniformMap::iterator it = Uniforms.find( name );
-    if( it != Uniforms.end() )
+    UniformMap::iterator it = this->Uniforms.find( name );
+    if( it != this->Uniforms.end() )
     {
       delete (*it).second;
-      Uniforms.erase( it );
+      this->Uniforms.erase( it );
     }
-    UniformListMTime.Modified();
-    Parent->Modified();
+    this->UniformListMTime.Modified();
+    this->Parent->Modified();
   }
 
   void RemoveAllUniforms()
   {
-    for( auto & uni : Uniforms )
+    for( auto & uni : this->Uniforms )
     {
       delete uni.second;
     }
-    Uniforms.clear();
-    UniformListMTime.Modified();
-    Parent->Modified();
+    this->Uniforms.clear();
+    this->UniformListMTime.Modified();
+    this->Parent->Modified();
   }
 
   template< class dataT, class uniformT >
   void SetUniformValue( const char *name, const dataT & value )
   {
-    UniformMap::iterator it = Uniforms.find( name );
+    UniformMap::iterator it = this->Uniforms.find( name );
     uniformT * uni = nullptr;
-    if( it != Uniforms.end() )
+    if( it != this->Uniforms.end() )
     {
       uni = dynamic_cast<uniformT*>(it->second);
       if(uni)
@@ -370,17 +368,17 @@ public:
     {
       uni = new uniformT;
       uni->SetValue(value);
-      Uniforms[std::string(name)] = uni;
-      UniformListMTime.Modified();
-      Parent->Modified();
+      this->Uniforms[std::string(name)] = uni;
+      this->UniformListMTime.Modified();
+      this->Parent->Modified();
     }
   }
 
   template< class dataT, class uniformT >
   const std::vector<dataT> * GetUniformValue(const char * name)
   {
-    UniformMap::iterator it = Uniforms.find(name);
-    if (it != Uniforms.end())
+    UniformMap::iterator it = this->Uniforms.find(name);
+    if (it != this->Uniforms.end())
     {
       uniformT * uni = dynamic_cast<uniformT*>(it->second);
       if (uni)
@@ -421,12 +419,11 @@ public:
   template< typename scalarT >
   bool GetGenericUniformValue( const char * name, std::vector<scalarT> & v )
   {
-    UniformMap::iterator it = Uniforms.find(name);
-    if (it != Uniforms.end())
+    UniformMap::iterator it = this->Uniforms.find(name);
+    if (it != this->Uniforms.end())
     {
       Uniform * uni = it->second;
-      uni->GetGenericValue( v );
-      return true;
+      return uni->GetGenericValue( v );
     }
     return false;
   }
@@ -434,7 +431,7 @@ public:
   std::string GetDeclarations()
   {
     std::string res;
-    for( auto & uni : Uniforms )
+    for( auto & uni : this->Uniforms )
     {
       res += uni.second->GetGlslDeclaration( uni.first.c_str() );
     }
@@ -444,12 +441,12 @@ public:
   bool SetUniforms( vtkShaderProgram * p )
   {
     bool res = true;
-    for( auto & uni : Uniforms )
+    for( auto & uni : this->Uniforms )
     {
       bool r = uni.second->SetUniform( uni.first.c_str(), p );
       if( !r )
       {
-        vtkErrorMacro( << "vtkOpenGLUniform: couldn't set custom uniform variable " << uni.first << endl );
+        vtkErrorMacro( << "vtkOpenGLUniforms: couldn't set custom uniform variable " << uni.first << endl );
       }
       res &= r;
     }
@@ -475,8 +472,8 @@ public:
 
   Uniform * GetUniform( const char *name )
   {
-    UniformMap::iterator it = Uniforms.find(name);
-    if (it != Uniforms.end())
+    UniformMap::iterator it = this->Uniforms.find(name);
+    if (it != this->Uniforms.end())
     {
       return it->second;
     }

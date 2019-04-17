@@ -44,13 +44,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-     * Construct object with no shader replacements
-     */
+   * Construct object with no shader replacements
+   */
   static vtkOpenGLShaderProperty *New();
 
   /**
-     * Assign one property to another.
-     */
+   * Assign one property to another.
+   */
   void DeepCopy(vtkOpenGLShaderProperty *p);
 
   virtual void AddVertexShaderReplacement(
@@ -94,12 +94,12 @@ public:
 
   //@{
   /**
-     * This function enables you to apply your own substitutions
-     * to the shader creation process. The shader code in this class
-     * is created by applying a bunch of string replacements to a
-     * shader template. Using this function you can apply your
-     * own string replacements to add features you desire.
-     */
+   * This function enables you to apply your own substitutions
+   * to the shader creation process. The shader code in this class
+   * is created by applying a bunch of string replacements to a
+   * shader template. Using this function you can apply your
+   * own string replacements to add features you desire.
+   */
   void AddShaderReplacement(
       vtkShader::Type shaderType, // vertex, fragment, etc
       const std::string& originalValue,
@@ -114,11 +114,11 @@ public:
   //@}
 
   /**
-     * @brief GetAllShaderReplacements returns all user-specified shader
-     * replacements. It is provided for iteration purpuses only (const)
-     * and is mainly used by mappers when building the shaders.
-     * @return const reference to internal map holding all replacements
-     */
+   * @brief GetAllShaderReplacements returns all user-specified shader
+   * replacements. It is provided for iteration purpuses only (const)
+   * and is mainly used by mappers when building the shaders.
+   * @return const reference to internal map holding all replacements
+   */
   typedef std::map<const vtkShader::ReplacementSpec, vtkShader::ReplacementValue> ReplacementMap;
   const ReplacementMap & GetAllShaderReplacements() { return this->UserShaderReplacements; }
 

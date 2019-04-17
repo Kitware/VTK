@@ -27,10 +27,9 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkShaderProperty.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
-#include "vtkTrivialProducer.h"
-#include "vtkShaderProperty.h"
 
 #include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
@@ -105,7 +104,7 @@ int TestCompositePolyDataMapper2CustomShader(int argc, char* argv[])
   sphereSource->Update();
   sphere = vtkPolyData::SafeDownCast(sphereSource->GetOutputDataObject(0));
 
-  vtkSmartPointer<vtkPolyData> sphere2 = vtkSmartPointer<vtkPolyData>::Take(sphere->NewInstance());
+  vtkNew<vtkPolyData> sphere2;
   sphere2->DeepCopy(sphere);
 
   // Generate scalars with indices for all points on the sphere
@@ -126,16 +125,13 @@ int TestCompositePolyDataMapper2CustomShader(int argc, char* argv[])
   mbds->SetBlock(0, sphere1);
   mbds->SetBlock(1, sphere2);
 
-  vtkNew<vtkTrivialProducer> source;
-  source->SetOutput(mbds);
-
   vtkNew<vtkLookupTable> lut;
   lut->SetValueRange(scalars->GetRange());
   lut->SetNanColor(1., 1., 0., 1.);
   lut->Build();
 
   vtkNew<vtkCompositePolyDataMapper2> mapper;
-  mapper->SetInputConnection(source->GetOutputPort());
+  mapper->SetInputDataObject( mbds );
   mapper->SetLookupTable(lut);
   mapper->SetScalarVisibility(1);
   mapper->SetScalarRange(scalars->GetRange());
