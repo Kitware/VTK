@@ -873,13 +873,16 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
           outPtr[0] = T(tmpPtr[0]*factor);
           outPtr[1] = T(tmpPtr[1]*factor);
           outPtr[2] = T(tmpPtr[2]*factor);
-          if (compoundAlpha)
+          if (outC > 3)
           {
-            outPtr[3] = T(tmpPtr[3]*factor);
-          }
-          else
-          {
-            outPtr[3] = T(tmpSumPtr[0] * (maxA - minA) + minA);
+            if (compoundAlpha)
+            {
+              outPtr[3] = T(tmpPtr[3]*factor);
+            }
+            else
+            {
+              outPtr[3] = T(tmpSumPtr[0] * (maxA - minA) + minA);
+            }
           }
           tmpPtr += 4;
           tmpSumPtr += 1;
@@ -896,13 +899,16 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
             factor = 1.0/tmpSumPtr[0];
           }
           outPtr[0] = T(tmpPtr[0]*factor);
-          if (compoundAlpha)
+          if (outC > 1)
           {
-            outPtr[1] = T(tmpPtr[1]*factor);
-          }
-          else
-          {
-            outPtr[1] = T(tmpSumPtr[0] * (maxA - minA) + minA);
+            if (compoundAlpha)
+            {
+              outPtr[1] = T(tmpPtr[1]*factor);
+            }
+            else
+            {
+              outPtr[1] = T(tmpSumPtr[0] * (maxA - minA) + minA);
+            }
           }
           tmpPtr += 2;
           tmpSumPtr += 1;
