@@ -554,8 +554,7 @@ function (vtk_module_wrap_python)
 
   set(_vtk_python_sorted_modules_filtered)
   foreach (_vtk_python_module IN LISTS _vtk_python_sorted_modules)
-    list(FIND _vtk_python_MODULES "${_vtk_python_module}" _vtk_python_idx)
-    if (NOT _vtk_python_idx EQUAL "-1")
+    if (_vtk_python_module IN_LIST _vtk_python_MODULES)
       list(APPEND _vtk_python_sorted_modules_filtered
         "${_vtk_python_module}")
     endif ()
