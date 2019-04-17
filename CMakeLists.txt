@@ -110,6 +110,16 @@ if (VTK_BUILD_TESTING)
 endif ()
 
 #-----------------------------------------------------------------------------
+# Add an option to enable/disable components that have CUDA.
+option(VTK_USE_CUDA "Support CUDA compilation" OFF)
+if(VTK_USE_CUDA)
+  # This needs to be a top level flag as enable_language needs
+  # to be called from CMake entry point for variables to have
+  # the correct scope.
+  enable_language(CUDA)
+endif()
+
+#-----------------------------------------------------------------------------
 # Add an option to enable/disable logging support.
 option(VTK_ENABLE_LOGGING "Enable logging support." ON)
 mark_as_advanced(VTK_ENABLE_LOGGING)
