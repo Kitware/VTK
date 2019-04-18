@@ -11,7 +11,7 @@ function (_vtk_package_append_variables)
   list(APPEND _vtk_find_package_variables \"${var}\")
 endif ()
 ")
-  endif ()
+  endforeach ()
 
   set(vtk_find_package_code
     "${vtk_find_package_code}${_vtk_package_variables}"
