@@ -14,7 +14,7 @@ target_link_libraries(TimingTests
 
 vtk_module_autoinit(
   TARGETS TimingTests
-  MODULES vtkUtilitiesBenchmarks)
+  MODULES VTK::UtilitiesBenchmarks)
 
 vtk_module_add_executable(GLBenchmarking
   NO_INSTALL
