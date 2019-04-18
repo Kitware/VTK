@@ -1382,6 +1382,11 @@ int vtkOBBTree::DisjointOBBNodes( vtkOBBNode *nodeA,
                                   vtkOBBNode *nodeB,
                                   vtkMatrix4x4 *XformBtoA )
 {
+  if (nodeA == nullptr || nodeB == nullptr)
+  {
+    return 5; // A and B are Disjoint.
+  }
+
   vtkOBBNode nodeBxformed, *pB, *pA;
   double centerA[3], centerB[3], AtoB[3], in[4], out[4];
   double rangeAmin, rangeAmax, rangeBmin, rangeBmax, dotA, dotB,
