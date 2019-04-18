@@ -1743,6 +1743,7 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
   cpyInput.TakeReference( theInput->NewInstance() );
   cpyInput->CopyStructure( theInput  );
   cpyInput->GetCellData()->PassData( theInput->GetCellData() );
+  cpyInput->GetFieldData()->PassData( theInput->GetFieldData() );
   cpyInput->GetPointData()
           ->InterpolateAllocate( theInput->GetPointData(), 0, 0, 1 );
 
@@ -1884,10 +1885,12 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
   }
 
   outputUG->Squeeze();
+  outputUG->GetFieldData()->PassData(cpyInput->GetFieldData());
 
   if (clippedOutputUG)
   {
     clippedOutputUG->Squeeze();
+    clippedOutputUG->GetFieldData()->PassData(cpyInput->GetFieldData());
   }
 
   if ( pScalars )
