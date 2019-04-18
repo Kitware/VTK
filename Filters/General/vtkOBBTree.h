@@ -114,7 +114,8 @@ public:
   /**
    * Return the first intersection of the specified line segment with
    * the OBB tree, as well as information about the cell which the
-   * line segment intersected.
+   * line segment intersected. A return value of 1 indicates an intersection
+   * and 0 indicates no intersection.
    */
   int IntersectWithLine(const double a0[3], const double a1[3], double tol,
                         double& t, double x[3], double pcoords[3],
