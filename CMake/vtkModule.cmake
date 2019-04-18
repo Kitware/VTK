@@ -910,18 +910,29 @@ function (_vtk_module_real_target var module)
       "Unparsed arguments for _vtk_module_real_target: ${ARGN}.")
   endif ()
 
-  get_property(_vtk_real_target_res GLOBAL
-    PROPERTY "_vtk_module_${module}_target_name")
-  # Querying during the build.
-  if (DEFINED _vtk_build_BUILD_WITH_KITS AND _vtk_build_BUILD_WITH_KITS)
-    get_property(_vtk_real_target_kit GLOBAL
-      PROPERTY "_vtk_module_${module}_kit")
-    if (_vtk_real_target_kit)
+  if (TARGET "${module}")
+    get_property(_vtk_real_target_imported
+      TARGET    "${module}"
+      PROPERTY  IMPORTED)
+    if (_vtk_real_target_imported)
+      set(_vtk_real_target_res "${module}")
+    endif ()
+  endif ()
+
+  if (NOT _vtk_real_target_res)
+    get_property(_vtk_real_target_res GLOBAL
+      PROPERTY "_vtk_module_${module}_target_name")
+    # Querying during the build.
+    if (DEFINED _vtk_build_BUILD_WITH_KITS AND _vtk_build_BUILD_WITH_KITS)
+      get_property(_vtk_real_target_kit GLOBAL
+        PROPERTY "_vtk_module_${module}_kit")
+      if (_vtk_real_target_kit)
+        set(_vtk_real_target_res "${_vtk_real_target_res}-objects")
+      endif ()
+    # A query for after the module is built.
+    elseif (TARGET "${_vtk_real_target_res}-objects")
       set(_vtk_real_target_res "${_vtk_real_target_res}-objects")
     endif ()
-  # A query for after the module is built.
-  elseif (TARGET "${_vtk_real_target_res}-objects")
-    set(_vtk_real_target_res "${_vtk_real_target_res}-objects")
   endif ()
 
   if (_vtk_real_target_res STREQUAL "")
