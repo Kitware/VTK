@@ -1624,7 +1624,6 @@ function (_vtk_module_export_properties)
 
     get_property(_vtk_export_properties_value GLOBAL
       PROPERTY  "_vtk_module_${_vtk_export_properties_MODULE}_${_vtk_export_properties_global}")
-    # XXX(namespaces): Use the target name of the module.
     set(_vtk_export_properties_set_property
       "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"INTERFACE_vtk_module_${_vtk_export_properties_global}\" \"${_vtk_export_properties_value}\")\n")
 
@@ -1649,7 +1648,6 @@ function (_vtk_module_export_properties)
     get_property(_vtk_export_properties_value
       TARGET    "${_vtk_export_properties_target_name}"
       PROPERTY  "${_vtk_export_properties_target}")
-    # XXX(namespaces): Use the target name of the module.
     set(_vtk_export_properties_set_property
       "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"${_vtk_export_properties_target}\" \"${_vtk_export_properties_value}\")\n")
 
@@ -1671,7 +1669,6 @@ function (_vtk_module_export_properties)
     get_property(_vtk_export_properties_value
       TARGET    "${_vtk_export_properties_target_name}"
       PROPERTY  "INTERFACE_vtk_module_${_vtk_export_properties_split}")
-    # XXX(namespaces): Use the target name of the module.
     set(_vtk_export_properties_set_property
       "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"INTERFACE_vtk_module_${_vtk_export_properties_split}\" \"${_vtk_export_properties_value}\")\n")
     file(APPEND "${_vtk_export_properties_BUILD_FILE}"
@@ -1680,7 +1677,6 @@ function (_vtk_module_export_properties)
     get_property(_vtk_export_properties_value
       TARGET    "${_vtk_export_properties_target_name}"
       PROPERTY  "INTERFACE_vtk_module_${_vtk_export_properties_split}_install")
-    # XXX(namespaces): Use the target name of the module.
     set(_vtk_export_properties_set_property
       "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"INTERFACE_vtk_module_${_vtk_export_properties_split}\" \"${_vtk_export_properties_value}\")\n")
     file(APPEND "${_vtk_export_properties_INSTALL_FILE}"
@@ -1957,7 +1953,6 @@ function (vtk_module_build)
       continue ()
     endif ()
 
-    # XXX(namespaces): Use the target name of the module.
     if (TARGET "${_vtk_build_module}")
       get_property(_vtk_build_is_imported
         TARGET    "${_vtk_build_module}"
@@ -2997,7 +2992,6 @@ function (vtk_module_add_module name)
     get_property(_vtk_add_module_optional_depends GLOBAL
       PROPERTY  "_vtk_module_${_vtk_build_module}_optional_depends")
     foreach (_vtk_add_module_optional_depend IN LISTS _vtk_add_module_optional_depends)
-      # XXX(namespaces): Use the target name of the module.
       if (TARGET "${_vtk_add_module_optional_depend}")
         set(_vtk_add_module_have_optional_depend 1)
         _vtk_module_get_module_property("${_vtk_add_module_optional_depend}"
