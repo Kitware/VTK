@@ -2408,7 +2408,7 @@ function (vtk_module_autoinit)
       ${_vtk_autoinit_implements})
     foreach (_vtk_autoinit_implement IN LISTS _vtk_autoinit_implements)
       # XXX(namespaces): Use the target name of the module.
-      if (TARGET "${_vtk_autoinit_implements}")
+      if (TARGET "${_vtk_autoinit_implement}")
         get_property(_vtk_autoinit_implementable
           TARGET    "${_vtk_autoinit_implement}"
           PROPERTY  "INTERFACE_vtk_module_implementable")
