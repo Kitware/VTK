@@ -2388,30 +2388,18 @@ function (vtk_module_autoinit)
     list(APPEND _vtk_autoinit_seen
       "${_vtk_autoinit_current_module}")
 
-    # XXX(namespaces): Use the target name of the module.
-    if (TARGET "${_vtk_autoinit_current_module}")
-      get_property(_vtk_autoinit_implements
-        TARGET    "${_vtk_autoinit_current_module}"
-        PROPERTY  "INTERFACE_vtk_module_implements")
-    else ()
-      get_property(_vtk_autoinit_implements
-        GLOBAL
-        PROPERTY  "_vtk_module_${_vtk_autoinit_current_module}_implements")
-    endif ()
+    _vtk_module_real_target(_vtk_autoinit_current_target "${_vtk_autoinit_current_module}")
+    get_property(_vtk_autoinit_implements
+      TARGET    "${_vtk_autoinit_current_target}"
+      PROPERTY  "INTERFACE_vtk_module_implements")
 
     list(APPEND _vtk_autoinit_needs_implements
       ${_vtk_autoinit_implements})
     foreach (_vtk_autoinit_implement IN LISTS _vtk_autoinit_implements)
-      # XXX(namespaces): Use the target name of the module.
-      if (TARGET "${_vtk_autoinit_implement}")
-        get_property(_vtk_autoinit_implementable
-          TARGET    "${_vtk_autoinit_implement}"
-          PROPERTY  "INTERFACE_vtk_module_implementable")
-      else ()
-        get_property(_vtk_autoinit_implementable
-          GLOBAL
-          PROPERTY  "_vtk_module_${_vtk_autoinit_implement}_implementable")
-      endif ()
+      _vtk_module_real_target(_vtk_autoinit_implements_target "${_vtk_autoinit_implement}")
+      get_property(_vtk_autoinit_implementable
+        TARGET    "${_vtk_autoinit_implements_target}"
+        PROPERTY  "INTERFACE_vtk_module_implementable")
 
       if (NOT _vtk_autoinit_implementable)
         message(FATAL_ERROR
