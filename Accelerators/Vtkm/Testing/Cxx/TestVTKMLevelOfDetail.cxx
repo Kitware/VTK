@@ -310,7 +310,7 @@ void RunBenchmark(int gridSize)
 #ifdef FORCE_VTKM_DEVICE
 
   vtkm::cont::RuntimeDeviceTracker tracker =
-      vtkm::cont::GetGlobalRuntimeDeviceTracker();
+      vtkm::cont::GetRuntimeDeviceTracker();
 
   // Run VTKm
   vtkSmartPointer<vtkPolyData> vtkmResultSerial;

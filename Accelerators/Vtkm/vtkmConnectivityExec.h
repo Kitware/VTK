@@ -23,6 +23,7 @@
 #ifndef VTK_WRAPPING_CXX
 
 #include "vtkmTags.h"
+#include "vtkmlib/Storage.h"
 
 #include <vtkm/CellShape.h>
 #include <vtkm/TopologyElementTag.h>

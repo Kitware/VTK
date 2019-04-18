@@ -209,6 +209,45 @@ namespace vtkm {
 namespace cont {
 
 //------------------------------------------------------------------------------
+vtkm::IdComponent vtkmCellSetExplicitAOS::GetNumberOfPointsInCell(vtkm::Id index) const
+{
+  return this->Connectivity.GetPortalConstControl().Get(
+           this->IndexOffsets.GetPortalConstControl().Get(index));
+}
+
+vtkm::UInt8 vtkmCellSetExplicitAOS::GetCellShape(vtkm::Id index) const
+{
+  return this->Shapes.GetPortalConstControl().Get(index);
+}
+
+void vtkmCellSetExplicitAOS::GetCellPointIds(vtkm::Id id, vtkm::Id *ptids) const
+{
+  auto connPortal = this->Connectivity.GetPortalConstControl();
+  auto start = this->IndexOffsets.GetPortalConstControl().Get(id);
+  auto count = connPortal.Get(start++);
+  for (vtkm::Id i = 0; i < count; ++i)
+  {
+    ptids[i] = connPortal.Get(i + start);
+  }
+}
+
+std::shared_ptr<CellSet> vtkmCellSetExplicitAOS::NewInstance() const
+{
+  return std::make_shared<vtkmCellSetExplicitAOS>();
+}
+
+void vtkmCellSetExplicitAOS::DeepCopy(const CellSet* src)
+{
+  const auto* other = dynamic_cast<const vtkmCellSetExplicitAOS*>(src);
+  if (!other)
+  {
+    throw vtkm::cont::ErrorBadType("Incorrect type passed to CellSetExplicit::DeepCopy");
+  }
+
+  this->Fill(other->NumberOfPoints, other->Shapes, other->Connectivity, other->IndexOffsets);
+}
+
+//------------------------------------------------------------------------------
 void vtkmCellSetExplicitAOS::Fill(
     vtkm::Id numberOfPoints,
     const vtkm::cont::ArrayHandle<vtkm::UInt8, tovtkm::vtkAOSArrayContainerTag>&

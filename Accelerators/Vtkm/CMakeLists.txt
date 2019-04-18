@@ -18,7 +18,11 @@ list(INSERT 0 CMAKE_MODULE_PATH
   "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
 
 set(sources)
-set(headers)
+
+set(headers
+  vtkmFilterPolicy.h
+  vtkmTags.h)
+
 set(private_headers
   vtkmlib/DataSetConverters.h
   vtkmlib/Portals.hxx
@@ -54,13 +58,13 @@ set(impl_classes
 set(private_impl_classes
   vtkmlib/ArrayConverters
   vtkmlib/CellSetConverters
-  vtkmlib/ImageDataConverter
-  vtkmlib/PolyDataConverter
-  vtkmlib/Storage
-  vtkmlib/UnstructuredGridConverter
   vtkmlib/DataSetConverters
+  vtkmlib/ImageDataConverter
   vtkmlib/ImplicitFunctionConverter
-  vtkmlib/Portals)
+  vtkmlib/PolyDataConverter
+  vtkmlib/Portals
+  vtkmlib/Storage
+  vtkmlib/UnstructuredGridConverter)
 
 foreach (class IN LISTS impl_classes)
   list(APPEND sources "${class}.cxx")
@@ -74,9 +78,6 @@ endforeach ()
 
 if (TARGET vtkm::cuda)
   set_source_files_properties(${sources} PROPERTIES LANGUAGE "CUDA")
-  #The vtkmlib/CellSetConverters need to be built always as CXX
-  #as the worklets used by them require access to vtk classes
-  set_source_files_properties(vtkmlib/CellSetConverters.cxx PROPERTIES LANGUAGE "CXX")
 endif ()
 
 set(VTKM_FILTER_INCLUDE_AOS ${VTK_DISPATCH_AOS_ARRAYS})
@@ -117,7 +118,10 @@ if (TARGET vtkm::cuda)
 
   get_property(arch_flags
     TARGET    vtkm::cuda
-    PROPERTY  VTKm_CUDA_Architecture_Flags)
+    PROPERTY  INTERFACE_CUDA_Architecture_Flags)
+  if(NOT arch_flags)
+    message(FATAL_ERROR "VTK-m CUDA Architecture flags can't be found. This means we can't safely compile CUDA code")
+  endif()
   string(APPEND CMAKE_CUDA_FLAGS " ${arch_flags}")
 
   # Temporarily suppress "has address taken but no possible call to it" warnings,
@@ -127,10 +131,20 @@ if (TARGET vtkm::cuda)
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
 endif ()
 
-vtk_module_add_module(VTK::AcceleratorsVTKm
-  SOURCES ${sources}
-  HEADERS ${headers}
-  PRIVATE_HEADERS ${private_headers})
+if(TARGET vtkm::cuda AND BUILD_SHARED_LIBS)
+  message("Cuda is enabled. Module VTK::AcceleratorsVTKm will be forced to build as static.")
+  vtk_module_add_module(VTK::AcceleratorsVTKm
+    FORCE_STATIC
+    SOURCES ${sources}
+    HEADERS ${headers}
+    PRIVATE_HEADERS ${private_headers})
+else()
+  vtk_module_add_module(VTK::AcceleratorsVTKm
+    SOURCES ${sources}
+    HEADERS ${headers}
+    PRIVATE_HEADERS ${private_headers})
+endif()
+
 vtk_module_set_property(VTK::AcceleratorsVTKm
   PROPERTY  JOB_POOL_COMPILE
   VALUE     vtkm_pool)
