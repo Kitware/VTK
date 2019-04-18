@@ -108,7 +108,17 @@ unset("${CMAKE_FIND_PACKAGE_NAME}_FOUND")
 include("${CMAKE_CURRENT_LIST_DIR}/vtkCMakeBackports.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-targets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-properties.cmake")
+
+set(_vtk_find_package_variables)
+include("${CMAKE_CURRENT_LIST_DIR}/vtk-find-package-helpers.cmake" OPTIONAL)
+
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-find-packages.cmake")
+
+foreach (_vtk_find_package_variable IN LISTS _vtk_find_package_variables)
+  unset("${_vtk_find_package_variable}")
+endforeach ()
+unset(_vtk_find_package_variable)
+unset(_vtk_find_package_variables)
 
 if (TARGET VTK::opengl)
   set(VTK_OPENGL_HAS_EGL "@VTK_OPENGL_HAS_EGL@")
