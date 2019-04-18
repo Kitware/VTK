@@ -456,14 +456,14 @@ public:
    * Compute the norm of 3-vector (float version).
    */
   static float Norm(const float v[3]) {
-    return static_cast<float> (sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] ) );
+    return std::sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] );
   }
 
   /**
    * Compute the norm of 3-vector (double version).
    */
   static double Norm(const double v[3]) {
-    return sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] );
+    return std::sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] );
   }
 
   /**
@@ -532,13 +532,13 @@ public:
 
   /**
    * Compute the amplitude of a Gaussian function with mean=0 and specified variance.
-   * That is, 1./(sqrt(2 Pi * variance)) * exp(-distanceFromMean^2/(2.*variance)).
+   * That is, 1./(std::sqrt(2 Pi * variance)) * exp(-distanceFromMean^2/(2.*variance)).
    */
   static double GaussianAmplitude(const double variance, const double distanceFromMean);
 
   /**
    * Compute the amplitude of a Gaussian function with specified mean and variance.
-   * That is, 1./(sqrt(2 Pi * variance)) * exp(-(position - mean)^2/(2.*variance)).
+   * That is, 1./(std::sqrt(2 Pi * variance)) * exp(-(position - mean)^2/(2.*variance)).
    */
   static double GaussianAmplitude(const double mean, const double variance, const double position);
 
@@ -603,7 +603,7 @@ public:
    * (float version).
    */
   static float Norm2D(const float x[2]) {
-    return static_cast<float> (sqrt( x[0] * x[0] + x[1] * x[1] ) );
+    return std::sqrt( x[0] * x[0] + x[1] * x[1] );
   }
 
   /**
@@ -611,7 +611,7 @@ public:
    * (double version).
    */
   static double Norm2D(const double x[2]) {
-    return sqrt( x[0] * x[0] + x[1] * x[1] );
+    return std::sqrt( x[0] * x[0] + x[1] * x[1] );
   }
 
   /**
