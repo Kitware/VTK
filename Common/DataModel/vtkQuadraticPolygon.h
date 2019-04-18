@@ -98,7 +98,7 @@ public:
                                   double bounds[6], double closest[3]);
   static int IntersectPolygonWithPolygon(int npts, double *pts, double bounds[6],
                                          int npts2, double *pts2,
-                                         double bounds2[3], double tol,
+                                         double bounds2[6], double tol,
                                          double x[3]);
   static int IntersectConvex2DCells(vtkCell *cell1, vtkCell *cell2,
                                     double tol, double p0[3], double p1[3]);
