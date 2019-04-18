@@ -384,16 +384,6 @@ double *vtkAxesActor::GetBounds()
       (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);
   }
 
-  double dbounds[6];
-  (vtkPolyDataMapper::SafeDownCast(this->YAxisShaft->GetMapper()))->
-    GetInput()->GetBounds( dbounds );
-
-  for ( i = 0; i < 3; ++i )
-  {
-    this->Bounds[2*i+1] =
-      (dbounds[2*i+1]>this->Bounds[2*i+1])?(dbounds[2*i+1]):(this->Bounds[2*i+1]);
-  }
-
   // We want this actor to rotate / re-center about the origin, so give it
   // the bounds it would have if the axes were symmetric.
   for ( i = 0; i < 3; ++i )
