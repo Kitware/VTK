@@ -122,11 +122,11 @@ int vtkSplitByCellScalarFilter::RequestData(
     }
     ds->GetCellData()->CopyGlobalIdsOn();
     ds->GetCellData()->CopyAllocate(inCD);
-    blocks[i] = ds;
-    output->SetBlock(i, ds);
+    blocks[it->second] = ds;
+    output->SetBlock(it->second, ds);
     std::stringstream ss;
     ss << inScalars->GetName() << "_" << it->first;
-    output->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), ss.str().c_str());
+    output->GetMetaData(it->second)->Set(vtkCompositeDataSet::NAME(), ss.str().c_str());
   }
 
   vtkSmartPointer<vtkIdList> newCellPts = vtkSmartPointer<vtkIdList>::New();

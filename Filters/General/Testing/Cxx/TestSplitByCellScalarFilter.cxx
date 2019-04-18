@@ -23,6 +23,7 @@
 #include "vtkSplitByCellScalarFilter.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkInformation.h"
 #include "vtkXMLImageDataReader.h"
 
 int TestSplitByCellScalarFilter(int argc, char* argv[])
@@ -61,6 +62,20 @@ int TestSplitByCellScalarFilter(int argc, char* argv[])
     std::cerr << "Output has " << output->GetNumberOfBlocks() <<
       " blocks instead of " << nbMaterials << std::endl;
     return EXIT_FAILURE;
+  }
+
+  for (unsigned int cc=0; cc < nbMaterials; ++cc)
+  {
+    auto name = output->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME());
+    auto oscalars = vtkDataSet::SafeDownCast(output->GetBlock(cc))->GetCellData()->GetScalars();
+    double r[2];
+    oscalars->GetRange(r);
+    auto blockname =  std::string("Material_") + std::to_string(static_cast<int>(r[0]));
+    if (name == nullptr || blockname != name)
+    {
+       cerr << "Mismatched block names" << endl;
+       return EXIT_FAILURE;
+    }
   }
 
   // Test with unstructured grid input and pass all points option turned on
