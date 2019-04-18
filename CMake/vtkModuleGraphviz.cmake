@@ -219,8 +219,7 @@ function (vtk_module_graphviz)
     get_property(_vtk_graphviz_kit_modules GLOBAL
       PROPERTY "_vtk_kit_${_vtk_graphviz_kit}_kit_modules")
     foreach (_vtk_graphviz_kit_module IN LISTS _vtk_graphviz_kit_modules)
-      list(FIND _vtk_graphviz_MODULES "${_vtk_graphviz_kit_module}" _vtk_graphviz_idx)
-      if (_vtk_graphviz_idx EQUAL -1)
+      if (NOT _vtk_graphviz_kit_module IN_LIST _vtk_graphviz_MODULES)
         continue ()
       endif ()
 
