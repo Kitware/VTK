@@ -29,6 +29,7 @@ set(classes
   vtkOpenGLCamera
   vtkOpenGLCellToVTKCellMap
   vtkOpenGLFXAAFilter
+  vtkOpenGLFXAAPass
   vtkOpenGLFramebufferObject
   vtkOpenGLGL2PSHelper
   vtkOpenGLGlyph3DHelper
