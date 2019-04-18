@@ -1399,7 +1399,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(
     return 0;
   }
 
-  if (this->UseTimeSets)
+  if (this->UseFileSets)
   {
     for (i = 0; i < timeStep - 1; i++)
     {
@@ -1958,7 +1958,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(
     return 0;
   }
 
-  if (this->UseTimeSets)
+  if (this->UseFileSets)
   {
     for (i = 0; i < timeStep - 1; i++)
     {
