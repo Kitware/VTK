@@ -135,6 +135,10 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
   if (!this->ExternalTextureObject)
   {
+    if (this->GetInputDataObject(0, 0) == nullptr)
+    {
+        return;
+    }
     vtkImageData *input = this->GetInput();
     int numIns = 1;
     vtkMTimeType inputTime = input->GetMTime();
@@ -396,7 +400,10 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 // ----------------------------------------------------------------------------
 void vtkOpenGLTexture::PostRender(vtkRenderer *ren)
 {
-  this->TextureObject->Deactivate();
+  if (this->TextureObject)
+  {
+    this->TextureObject->Deactivate();
+  }
 
   if (this->GetInput() && this->PremultipliedAlpha)
   {
@@ -544,7 +551,7 @@ void vtkOpenGLTexture::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------------
 int vtkOpenGLTexture::IsTranslucent()
 {
-  if (this->ExternalTextureObject)
+  if (this->ExternalTextureObject && this->TextureObject)
   {
     // If number of components are 1, 2, or 4 then mostly
     // we can assume that the data can be used as alpha values.
