@@ -16,6 +16,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestFramebufferPass.cxx
   TestFramebufferHDR.cxx
   TestFXAAFilter.cxx
+  TestFXAAPass.cxx
   TestGaussianBlurPass.cxx
   TestGlyph3DMapperEdges.cxx
   TestGlyph3DMapperCellPicking.cxx
