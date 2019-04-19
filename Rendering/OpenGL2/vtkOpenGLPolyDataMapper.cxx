@@ -2809,7 +2809,8 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
           this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
           !poly->GetPointData()->GetScalars() )
          && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA
-         && this->Colors)
+         && this->Colors
+         && this->Colors->GetNumberOfTuples() > 0)
     {
       this->HaveCellScalars = true;
       c = nullptr;
