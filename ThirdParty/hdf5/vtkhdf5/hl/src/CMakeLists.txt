@@ -74,7 +74,7 @@ endif ()
 
 set_target_properties(vtkhdf5_hl_src
   PROPERTIES
-    LIBRARY_OUTPUT_NAME "${_vtk_add_module_output_name}")
+    OUTPUT_NAME "${_vtk_add_module_output_name}")
 endif ()
 
 if (BUILD_SHARED_LIBS AND FALSE) # XXX(kitware): VTK handles shared/static flags.
