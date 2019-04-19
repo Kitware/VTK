@@ -614,7 +614,7 @@ endfunction ()
 A small wrapper around `vtk_add_test_python` which adds support for running
 MPI-aware tests written in Python.
 
-The `${_vtk_build_test}_NUMPROCS` variable may be used to use a non-default
+The `$<module library name>_NUMPROCS` variable may be used to use a non-default
 number of processors for a test.
 
 This forces running with the `pvtkpython` executable.
@@ -623,8 +623,11 @@ function (vtk_add_test_python_mpi)
   set(_vtk_test_python_suffix "-MPI")
 
   set(numprocs "${VTK_MPI_NUMPROCS}")
-  if (${_vtk_build_test}_NUMPROCS)
-    set(numprocs "${${_vtk_build_test}_NUMPROCS}")
+  _vtk_module_get_module_property("${_vtk_build_test}"
+    PROPERTY "library_name"
+    VARIABLE _vtk_test_python_library_name)
+  if (${_vtk_test_python_library_name}_NUMPROCS)
+    set(numprocs "${${_vtk_test_python_library_name}_NUMPROCS}")
   endif ()
 
   set(_vtk_test_python_pre_args
