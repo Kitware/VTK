@@ -435,7 +435,8 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
     return nullptr;
   }
 
-  return this->GetCell(ijkMin[0], ijkMin[1], ijkMin[2]);
+  // Need to use vtImageData:: to avoid calling child classes implementation
+  return this->vtkImageData::GetCell(ijkMin[0], ijkMin[1], ijkMin[2]);
 }
 
 //----------------------------------------------------------------------------

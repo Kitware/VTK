@@ -60,6 +60,10 @@ public:
   //@{
   /**
    * Standard vtkDataSet API methods. See vtkDataSet for more information.
+   * \warning If GetCell(int,int,int) gets overriden in a subclass, it is
+   * necessary to override GetCell(vtkIdType) in that class as well since
+   * vtkImageData::GetCell(vtkIdType) will always call
+   * vkImageData::GetCell(int,int,int)
    */
   vtkIdType GetNumberOfCells() override;
   vtkIdType GetNumberOfPoints() override;
