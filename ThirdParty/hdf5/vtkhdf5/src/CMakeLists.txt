@@ -966,7 +966,7 @@ endif ()
 
 set_target_properties(vtkhdf5_src
   PROPERTIES
-    LIBRARY_OUTPUT_NAME "${_vtk_add_module_output_name}")
+    OUTPUT_NAME "${_vtk_add_module_output_name}")
 endif ()
 
 set (install_targets ${HDF5_LIB_TARGET})
