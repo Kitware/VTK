@@ -263,7 +263,7 @@ inline void vtkMathPerpendiculars(const T1 v1[3], T2 v2[3], T3 v3[3],
   double v1sq = v1[0]*v1[0];
   double v2sq = v1[1]*v1[1];
   double v3sq = v1[2]*v1[2];
-  double r = sqrt(v1sq + v2sq + v3sq);
+  double r = std::sqrt(v1sq + v2sq + v3sq);
 
   // transpose the vector to avoid divide-by-zero error
   int dv1, dv2, dv3;
@@ -284,7 +284,7 @@ inline void vtkMathPerpendiculars(const T1 v1[3], T2 v2[3], T3 v3[3],
   double b = v1[dv2]/r;
   double c = v1[dv3]/r;
 
-  double tmp = sqrt(a*a+c*c);
+  double tmp = std::sqrt(a*a+c*c);
 
   if (theta != 0.0)
   {
@@ -689,13 +689,13 @@ vtkTypeBool vtkJacobiN(T **a, int n, T *w, T **v)
           else
           {
             theta = 0.5*h / (a[ip][iq]);
-            t = 1.0 / (fabs(theta)+sqrt(1.0+theta*theta));
+            t = 1.0 / (fabs(theta)+std::sqrt(1.0+theta*theta));
             if (theta < 0.0)
             {
               t = -t;
             }
           }
-          c = 1.0 / sqrt(1+t*t);
+          c = 1.0 / std::sqrt(1+t*t);
           s = t*c;
           tau = s/(1.0+c);
           h = t*a[ip][iq];
@@ -1881,7 +1881,7 @@ void vtkMath::MultiplyQuaternion( const double q1[4], const double q2[4], double
 
 void vtkMath::RotateVectorByNormalizedQuaternion(const float v[3], const float q[4], float r[3])
 {
-  float f = sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+  float f = std::sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
   float a[3];
   if (f != 0.0)
   {
@@ -1912,7 +1912,7 @@ void vtkMath::RotateVectorByNormalizedQuaternion(const float v[3], const float q
 
 void vtkMath::RotateVectorByNormalizedQuaternion(const double v[3], const double q[4], double r[3])
 {
-  double f = sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+  double f = std::sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
   double a[3];
   if (f != 0.0)
   {
@@ -2104,7 +2104,7 @@ float vtkMath::Norm(const float* x, int n)
     sum += x[i]*x[i];
   }
 
-  return sqrt(sum);
+  return std::sqrt(sum);
 }
 
 //----------------------------------------------------------------------------
@@ -2116,7 +2116,7 @@ double vtkMath::Norm(const double* x, int n)
     sum += x[i]*x[i];
   }
 
-  return sqrt(sum);
+  return std::sqrt(sum);
 }
 
 //----------------------------------------------------------------------------
@@ -3051,7 +3051,7 @@ double vtkMath::AngleBetweenVectors(const double v1[3], const double v2[3])
 //----------------------------------------------------------------------------
 double vtkMath::GaussianAmplitude(const double variance, const double distanceFromMean)
 {
-  return 1./(sqrt(2.*vtkMath::Pi() * variance)) * exp(-(pow(distanceFromMean,2))/(2.*variance));
+  return 1./(std::sqrt(2.*vtkMath::Pi() * variance)) * exp(-(pow(distanceFromMean,2))/(2.*variance));
 }
 
 //----------------------------------------------------------------------------
