@@ -3112,16 +3112,16 @@ function (vtk_module_add_module name)
   get_property(_vtk_add_module_implements GLOBAL
     PROPERTY  "_vtk_module_${_vtk_build_module}_implements")
   if (_vtk_add_module_implementable)
-    set_property(TARGET "${_vtk_add_module_target_name}"
+    set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_implementable" 1)
   endif ()
 
   if (_vtk_add_module_implementable OR _vtk_add_module_implements)
-    set_property(TARGET "${_vtk_add_module_target_name}"
+    set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_implements" "${_vtk_add_module_implements}")
-    set_property(TARGET "${_vtk_add_module_target_name}"
+    set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_needs_autoinit" 1)
 
