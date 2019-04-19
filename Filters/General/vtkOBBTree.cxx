@@ -26,6 +26,8 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkOBBTree);
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
@@ -896,43 +898,30 @@ int vtkOBBTree::IntersectWithLine(const double a0[3], const double a1[3], double
                                        int &subId, vtkIdType &cellId,
                                        vtkGenericCell *cell)
 {
-  vtkOBBNode **OBBstack, *node;
-  vtkIdList *cells;
-  int depth, ii, foundIntersection = 0, bestIntersection = 0;
-  double tBest = VTK_DOUBLE_MAX, xBest[3], pcoordsBest[3];
+  double tBest = VTK_DOUBLE_MAX, xBest[3] = {0., 0., 0,}, pcoordsBest[3] = {0., 0., 0.};
   int subIdBest = -1;
-  vtkIdType thisId, cellIdBest = -1;
+  vtkIdType cellIdBest = -1;
 
-  pcoordsBest[0] = 0.0;
-  pcoordsBest[1] = 0.0;
-  pcoordsBest[2] = 0.0;
-  xBest[0] = 0.0;
-  xBest[1] = 0.0;
-  xBest[2] = 0.0;
-
-  OBBstack = new vtkOBBNode *[this->GetLevel()+1];
+  std::vector<vtkOBBNode*> OBBstack(this->GetLevel()+1);
   OBBstack[0] = this->Tree;
-  depth = 1;
+  int depth = 1;
   while( depth > 0 )
   { // simulate recursion without the overhead or limitations
     depth--;
-    node = OBBstack[depth];
+    vtkOBBNode *node = OBBstack[depth];
     if ( this->LineIntersectsNode( node, a0, a1 ) )
     {
       if ( node->Kids == nullptr )
       { // then this is a leaf node...get Cells
-        cells = node->Cells;
-        for ( ii=0; ii<cells->GetNumberOfIds(); ii++ )
+        for ( int ii=0; ii<node->Cells->GetNumberOfIds(); ii++ )
         {
-          thisId = cells->GetId(ii);
+          vtkIdType thisId = node->Cells->GetId(ii);
           this->DataSet->GetCell( thisId, cell);
           if ( cell->IntersectWithLine( a0, a1, tol, t, x,
                                         pcoords, subId ) )
           { // line intersects cell, but is it the best one?
-            foundIntersection++;
             if ( t < tBest )
             { // Yes, it's the best.
-              bestIntersection = foundIntersection;
               tBest = t;
               xBest[0] = x[0]; xBest[1] = x[1]; xBest[2] = x[2];
               pcoordsBest[0] = pcoords[0]; pcoordsBest[1] = pcoords[1];
@@ -952,26 +941,22 @@ int vtkOBBTree::IntersectWithLine(const double a0[3], const double a1[3], double
     }
   } // end while
 
-  if ( foundIntersection != bestIntersection )
-  {
-    t = tBest;
-    x[0] = xBest[0]; x[1] = xBest[1]; x[2] = xBest[2];
-    pcoords[0] = pcoordsBest[0]; pcoords[1] = pcoordsBest[1];
-    pcoords[2] = pcoordsBest[2];
-    subId= subIdBest ;
-  }
-
-  delete [] OBBstack;
+  // even though we may not have intersected with the line we at least give
+  // the best intersection result. It's on the calling function to check
+  // the return value in order to interpret the results.
+  t = tBest;
+  x[0] = xBest[0]; x[1] = xBest[1]; x[2] = xBest[2];
+  pcoords[0] = pcoordsBest[0]; pcoords[1] = pcoordsBest[1];
+  pcoords[2] = pcoordsBest[2];
+  subId= subIdBest;
+  cellId = cellIdBest;
 
   if ( cellIdBest < 0 )
   {
+    // didn't find an intersection
     return 0;
   }
-  else
-  {
-    cellId = cellIdBest;
-    return 1;
-  }
+  return 1;
 }
 
 void vtkOBBNode::DebugPrintTree( int level, double *leaf_vol,
