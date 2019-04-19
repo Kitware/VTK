@@ -374,17 +374,13 @@ public:
     }
   }
 
-  template< class dataT, class uniformT >
-  const std::vector<dataT> * GetUniformValue(const char * name)
+  template< class uniformT >
+  uniformT * GetUniform(const char * name)
   {
     UniformMap::iterator it = this->Uniforms.find(name);
     if (it != this->Uniforms.end())
     {
-      uniformT * uni = dynamic_cast<uniformT*>(it->second);
-      if (uni)
-      {
-        return &(uni->GetValue());
-      }
+      return dynamic_cast<uniformT*>(it->second);
     }
     return nullptr;
   }
@@ -392,10 +388,10 @@ public:
   template< typename scalarT, typename uniformT >
   bool GetUniformValue (const char *name, scalarT * v)
   {
-    const std::vector<scalarT> * val = GetUniformValue<scalarT,uniformT>(name);
-    if( val )
+    uniformT * uni = GetUniform<uniformT>( name );
+    if( uni )
     {
-      std::copy(val->begin(), val->end(), v);
+      std::copy( uni->GetValue().begin(), uni->GetValue().end(), v );
       return true;
     }
     return false;
@@ -404,10 +400,10 @@ public:
   template< typename scalarT, typename uniformT >
   bool GetUniformValue (const char *name, std::vector<scalarT>& v)
   {
-    const std::vector<scalarT> * val = GetUniformValue<scalarT,uniformT>(name);
-    if( val )
+    uniformT * uni = GetUniform<uniformT>( name );
+    if( uni )
     {
-      v = *val;
+      v = uni->GetValue();
       return true;
     }
     return false;
@@ -912,32 +908,32 @@ bool vtkOpenGLUniforms::GetUniformMatrix4x4 (const char *name, float *v)
 
 bool vtkOpenGLUniforms::GetUniform1iv (const char *name, std::vector<int>& v)
 {
-  return this->Internals->GetUniformValue<int,UniformScalari>(name, v);
+  return this->Internals->GetUniformValue<int,Uniform1iv>(name, v);
 }
 
 bool vtkOpenGLUniforms::GetUniform1fv (const char *name, std::vector<float>& v)
 {
-  return this->Internals->GetUniformValue<float,UniformScalarf>(name, v);
+  return this->Internals->GetUniformValue<float,Uniform1fv>(name, v);
 }
 
 bool vtkOpenGLUniforms::GetUniform2fv (const char *name, std::vector<float>& v)
 {
-  return this->Internals->GetUniformValue<float,UniformVec2f>(name, v);
+  return this->Internals->GetUniformValue<float,Uniform2fv>(name, v);
 }
 
 bool vtkOpenGLUniforms::GetUniform3fv (const char *name, std::vector<float>& v)
 {
-  return this->Internals->GetUniformValue<float,UniformVec3f>(name, v);
+  return this->Internals->GetUniformValue<float,Uniform3fv>(name, v);
 }
 
 bool vtkOpenGLUniforms::GetUniform4fv (const char *name, std::vector<float>& v)
 {
-  return this->Internals->GetUniformValue<float,UniformVec4f>(name, v);
+  return this->Internals->GetUniformValue<float,Uniform4fv>(name, v);
 }
 
 bool vtkOpenGLUniforms::GetUniformMatrix4x4v (const char *name, std::vector<float>& v)
 {
-  return this->Internals->GetUniformValue<float,UniformMat4f>(name, v);
+  return this->Internals->GetUniformValue<float,UniformMat4fv>(name, v);
 }
 
 //---------------------------------------------------------------------------------------
@@ -946,12 +942,13 @@ bool vtkOpenGLUniforms::GetUniformMatrix4x4v (const char *name, std::vector<floa
 
 bool vtkOpenGLUniforms::GetUniform3f(const char *name, double v[3])
 {
-  const std::vector<float> * val = this->Internals->GetUniformValue<float,UniformVec3f>(name);
-  if( val )
+  std::vector<float> val;
+  bool res = this->Internals->GetUniformValue<float,UniformVec3f>( name, val );
+  if( res )
   {
-    v[0] = static_cast<double>( (*val)[0] );
-    v[1] = static_cast<double>( (*val)[1] );
-    v[2] = static_cast<double>( (*val)[2] );
+    v[0] = static_cast<double>( val[0] );
+    v[1] = static_cast<double>( val[1] );
+    v[2] = static_cast<double>( val[2] );
     return true;
   }
   return false;
@@ -959,12 +956,13 @@ bool vtkOpenGLUniforms::GetUniform3f(const char *name, double v[3])
 
 bool vtkOpenGLUniforms::GetUniform3uc (const char *name, unsigned char v[3])
 {
-  const std::vector<float> * val = this->Internals->GetUniformValue<float,UniformVec3f>(name);
-  if( val )
+  std::vector<float> val;
+  bool res = this->Internals->GetUniformValue<float,UniformVec3f>( name, val );
+  if( res )
   {
-    v[0] = static_cast<unsigned char>( std::round( (*val)[0] * 255.0f ) );
-    v[1] = static_cast<unsigned char>( std::round( (*val)[1] * 255.0f ) );
-    v[2] = static_cast<unsigned char>( std::round( (*val)[2] * 255.0f ) );
+    v[0] = static_cast<unsigned char>( std::round( val[0] * 255.0f ) );
+    v[1] = static_cast<unsigned char>( std::round( val[1] * 255.0f ) );
+    v[2] = static_cast<unsigned char>( std::round( val[2] * 255.0f ) );
     return true;
   }
   return false;
@@ -972,13 +970,14 @@ bool vtkOpenGLUniforms::GetUniform3uc (const char *name, unsigned char v[3])
 
 bool vtkOpenGLUniforms::GetUniform4uc (const char *name, unsigned char v[4])
 {
-  const std::vector<float> * val = this->Internals->GetUniformValue<float,UniformVec4f>(name);
-  if( val )
+  std::vector<float> val;
+  bool res = this->Internals->GetUniformValue<float,UniformVec4f>( name, val );
+  if( res )
   {
-    v[0] = static_cast<unsigned char>( std::round( (*val)[0] * 255.0f ) );
-    v[1] = static_cast<unsigned char>( std::round( (*val)[1] * 255.0f ) );
-    v[2] = static_cast<unsigned char>( std::round( (*val)[2] * 255.0f ) );
-    v[3] = static_cast<unsigned char>( std::round( (*val)[3] * 255.0f ) );
+    v[0] = static_cast<unsigned char>( std::round( val[0] * 255.0f ) );
+    v[1] = static_cast<unsigned char>( std::round( val[1] * 255.0f ) );
+    v[2] = static_cast<unsigned char>( std::round( val[2] * 255.0f ) );
+    v[3] = static_cast<unsigned char>( std::round( val[3] * 255.0f ) );
     return true;
   }
   return false;
@@ -986,14 +985,15 @@ bool vtkOpenGLUniforms::GetUniform4uc (const char *name, unsigned char v[4])
 
 bool vtkOpenGLUniforms::GetUniformMatrix (const char *name, vtkMatrix3x3 *v)
 {
-  const std::vector<float> * val = this->Internals->GetUniformValue<float,UniformMat3f>(name);
-  if( val )
+  std::vector<float> val;
+  bool res = this->Internals->GetUniformValue<float,UniformMat3f>( name, val );
+  if( res )
   {
     for( unsigned i = 0; i < 3; ++i )
     {
       for( unsigned j = 0; j < 3; ++j )
       {
-        v->SetElement( static_cast<int>(i), static_cast<int>(j), static_cast<double>((*val)[3*i+j]) );
+        v->SetElement( static_cast<int>(i), static_cast<int>(j), static_cast<double>(val[3*i+j]) );
       }
     }
     return true;
@@ -1003,14 +1003,15 @@ bool vtkOpenGLUniforms::GetUniformMatrix (const char *name, vtkMatrix3x3 *v)
 
 bool vtkOpenGLUniforms::GetUniformMatrix (const char *name, vtkMatrix4x4 *v)
 {
-  const std::vector<float> * val = this->Internals->GetUniformValue<float,UniformMat4f>(name);
-  if( val )
+  std::vector<float> val;
+  bool res = this->Internals->GetUniformValue<float,UniformMat4f>( name, val );
+  if( res )
   {
     for( unsigned i = 0; i < 4; ++i )
     {
       for( unsigned j = 0; j < 4; ++j )
       {
-        v->SetElement( static_cast<int>(i), static_cast<int>(j), static_cast<double>((*val)[4*i+j]) );
+        v->SetElement( static_cast<int>(i), static_cast<int>(j), static_cast<double>(val[4*i+j]) );
       }
     }
     return true;

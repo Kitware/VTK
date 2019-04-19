@@ -54,6 +54,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestValuePass.cxx
   TestValuePass2.cxx
   TestCubeMap2.cxx
+  UnitTestOpenGLUniforms.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   )
 
 vtk_test_cxx_executable(vtkRenderingOpenGL2CxxTests tests RENDERING_FACTORY)
