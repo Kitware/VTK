@@ -103,6 +103,7 @@ public:
   /**
    * Return an iterator that traverses the cells in this data set.
    */
+  VTK_NEWINSTANCE
   virtual vtkCellIterator* NewCellIterator();
 
   /**
