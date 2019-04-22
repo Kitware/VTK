@@ -758,6 +758,17 @@ void vtkArrayCalculator::AddScalarArrayName(const char* arrayName,
   }
 
   int i;
+  for (i = 0; i < this->NumberOfScalarArrays; i++)
+  {
+    if (strcmp(arrayName, this->ScalarVariableNames[i]) == 0 &&
+        strcmp(arrayName, this->ScalarArrayNames[i]) == 0 &&
+        this->SelectedScalarComponents[i] == component)
+    {
+      // Already have this variable/array/components so return.
+      return;
+    }
+  }
+
   char** arrayNames = new char *[this->NumberOfScalarArrays];
   char** varNames = new char *[this->NumberOfScalarArrays];
   int* tempComponents = new int[this->NumberOfScalarArrays];
@@ -822,6 +833,19 @@ void vtkArrayCalculator::AddVectorArrayName(const char* arrayName,
   }
 
   int i;
+  for (i = 0; i < this->NumberOfVectorArrays; i++)
+  {
+    if (strcmp(arrayName, this->VectorVariableNames[i]) == 0 &&
+        strcmp(arrayName, this->VectorArrayNames[i]) == 0 &&
+        this->SelectedVectorComponents[i][0] == component0 &&
+        this->SelectedVectorComponents[i][1] == component1 &&
+        this->SelectedVectorComponents[i][2] == component2)
+    {
+      // Already have this variable/array/components so return.
+      return;
+    }
+  }
+
   char** arrayNames = new char *[this->NumberOfVectorArrays];
   char** varNames = new char *[this->NumberOfVectorArrays];
   int** tempComponents = new int *[this->NumberOfVectorArrays];
@@ -894,12 +918,23 @@ void vtkArrayCalculator::AddScalarVariable(const char* variableName,
                                            const char* arrayName,
                                            int component)
 {
-  if (!arrayName)
+  if (!variableName || !arrayName)
   {
     return;
   }
 
   int i;
+  for (i = 0; i < this->NumberOfScalarArrays; i++)
+  {
+    if (strcmp(variableName, this->ScalarVariableNames[i]) == 0 &&
+        strcmp(arrayName, this->ScalarArrayNames[i]) == 0 &&
+        this->SelectedScalarComponents[i] == component)
+    {
+      // Already have this variable/array/components so return.
+      return;
+    }
+  }
+
   char** arrayNames = new char *[this->NumberOfScalarArrays];
   char** varNames = new char *[this->NumberOfScalarArrays];
   int* tempComponents = new int[this->NumberOfScalarArrays];
@@ -959,12 +994,25 @@ void vtkArrayCalculator::AddVectorVariable(const char* variableName,
                                            int component0, int component1,
                                            int component2)
 {
-  if (!arrayName)
+  if (!variableName || !arrayName)
   {
     return;
   }
 
   int i;
+  for (i = 0; i < this->NumberOfVectorArrays; i++)
+  {
+    if (strcmp(arrayName, this->VectorVariableNames[i]) == 0 &&
+        strcmp(arrayName, this->VectorArrayNames[i]) == 0 &&
+        this->SelectedVectorComponents[i][0] == component0 &&
+        this->SelectedVectorComponents[i][1] == component1 &&
+        this->SelectedVectorComponents[i][2] == component2)
+    {
+      // Already have this variable/array/components so return.
+      return;
+    }
+  }
+
   char** arrayNames = new char *[this->NumberOfVectorArrays];
   char** varNames = new char *[this->NumberOfVectorArrays];
   int** tempComponents = new int *[this->NumberOfVectorArrays];
