@@ -910,18 +910,29 @@ function (_vtk_module_real_target var module)
       "Unparsed arguments for _vtk_module_real_target: ${ARGN}.")
   endif ()
 
-  get_property(_vtk_real_target_res GLOBAL
-    PROPERTY "_vtk_module_${module}_target_name")
-  # Querying during the build.
-  if (DEFINED _vtk_build_BUILD_WITH_KITS AND _vtk_build_BUILD_WITH_KITS)
-    get_property(_vtk_real_target_kit GLOBAL
-      PROPERTY "_vtk_module_${module}_kit")
-    if (_vtk_real_target_kit)
+  if (TARGET "${module}")
+    get_property(_vtk_real_target_imported
+      TARGET    "${module}"
+      PROPERTY  IMPORTED)
+    if (_vtk_real_target_imported)
+      set(_vtk_real_target_res "${module}")
+    endif ()
+  endif ()
+
+  if (NOT _vtk_real_target_res)
+    get_property(_vtk_real_target_res GLOBAL
+      PROPERTY "_vtk_module_${module}_target_name")
+    # Querying during the build.
+    if (DEFINED _vtk_build_BUILD_WITH_KITS AND _vtk_build_BUILD_WITH_KITS)
+      get_property(_vtk_real_target_kit GLOBAL
+        PROPERTY "_vtk_module_${module}_kit")
+      if (_vtk_real_target_kit)
+        set(_vtk_real_target_res "${_vtk_real_target_res}-objects")
+      endif ()
+    # A query for after the module is built.
+    elseif (TARGET "${_vtk_real_target_res}-objects")
       set(_vtk_real_target_res "${_vtk_real_target_res}-objects")
     endif ()
-  # A query for after the module is built.
-  elseif (TARGET "${_vtk_real_target_res}-objects")
-    set(_vtk_real_target_res "${_vtk_real_target_res}-objects")
   endif ()
 
   if (_vtk_real_target_res STREQUAL "")
@@ -1624,7 +1635,6 @@ function (_vtk_module_export_properties)
 
     get_property(_vtk_export_properties_value GLOBAL
       PROPERTY  "_vtk_module_${_vtk_export_properties_MODULE}_${_vtk_export_properties_global}")
-    # XXX(namespaces): Use the target name of the module.
     set(_vtk_export_properties_set_property
       "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"INTERFACE_vtk_module_${_vtk_export_properties_global}\" \"${_vtk_export_properties_value}\")\n")
 
@@ -1649,7 +1659,6 @@ function (_vtk_module_export_properties)
     get_property(_vtk_export_properties_value
       TARGET    "${_vtk_export_properties_target_name}"
       PROPERTY  "${_vtk_export_properties_target}")
-    # XXX(namespaces): Use the target name of the module.
     set(_vtk_export_properties_set_property
       "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"${_vtk_export_properties_target}\" \"${_vtk_export_properties_value}\")\n")
 
@@ -1671,7 +1680,6 @@ function (_vtk_module_export_properties)
     get_property(_vtk_export_properties_value
       TARGET    "${_vtk_export_properties_target_name}"
       PROPERTY  "INTERFACE_vtk_module_${_vtk_export_properties_split}")
-    # XXX(namespaces): Use the target name of the module.
     set(_vtk_export_properties_set_property
       "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"INTERFACE_vtk_module_${_vtk_export_properties_split}\" \"${_vtk_export_properties_value}\")\n")
     file(APPEND "${_vtk_export_properties_BUILD_FILE}"
@@ -1680,7 +1688,6 @@ function (_vtk_module_export_properties)
     get_property(_vtk_export_properties_value
       TARGET    "${_vtk_export_properties_target_name}"
       PROPERTY  "INTERFACE_vtk_module_${_vtk_export_properties_split}_install")
-    # XXX(namespaces): Use the target name of the module.
     set(_vtk_export_properties_set_property
       "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"INTERFACE_vtk_module_${_vtk_export_properties_split}\" \"${_vtk_export_properties_value}\")\n")
     file(APPEND "${_vtk_export_properties_INSTALL_FILE}"
@@ -1957,7 +1964,6 @@ function (vtk_module_build)
       continue ()
     endif ()
 
-    # XXX(namespaces): Use the target name of the module.
     if (TARGET "${_vtk_build_module}")
       get_property(_vtk_build_is_imported
         TARGET    "${_vtk_build_module}"
@@ -2393,30 +2399,18 @@ function (vtk_module_autoinit)
     list(APPEND _vtk_autoinit_seen
       "${_vtk_autoinit_current_module}")
 
-    # XXX(namespaces): Use the target name of the module.
-    if (TARGET "${_vtk_autoinit_current_module}")
-      get_property(_vtk_autoinit_implements
-        TARGET    "${_vtk_autoinit_current_module}"
-        PROPERTY  "INTERFACE_vtk_module_implements")
-    else ()
-      get_property(_vtk_autoinit_implements
-        GLOBAL
-        PROPERTY  "_vtk_module_${_vtk_autoinit_current_module}_implements")
-    endif ()
+    _vtk_module_real_target(_vtk_autoinit_current_target "${_vtk_autoinit_current_module}")
+    get_property(_vtk_autoinit_implements
+      TARGET    "${_vtk_autoinit_current_target}"
+      PROPERTY  "INTERFACE_vtk_module_implements")
 
     list(APPEND _vtk_autoinit_needs_implements
       ${_vtk_autoinit_implements})
     foreach (_vtk_autoinit_implement IN LISTS _vtk_autoinit_implements)
-      # XXX(namespaces): Use the target name of the module.
-      if (TARGET "${_vtk_autoinit_implements}")
-        get_property(_vtk_autoinit_implementable
-          TARGET    "${_vtk_autoinit_implement}"
-          PROPERTY  "INTERFACE_vtk_module_implementable")
-      else ()
-        get_property(_vtk_autoinit_implementable
-          GLOBAL
-          PROPERTY  "_vtk_module_${_vtk_autoinit_implement}_implementable")
-      endif ()
+      _vtk_module_real_target(_vtk_autoinit_implements_target "${_vtk_autoinit_implement}")
+      get_property(_vtk_autoinit_implementable
+        TARGET    "${_vtk_autoinit_implements_target}"
+        PROPERTY  "INTERFACE_vtk_module_implementable")
 
       if (NOT _vtk_autoinit_implementable)
         message(FATAL_ERROR
@@ -2997,7 +2991,6 @@ function (vtk_module_add_module name)
     get_property(_vtk_add_module_optional_depends GLOBAL
       PROPERTY  "_vtk_module_${_vtk_build_module}_optional_depends")
     foreach (_vtk_add_module_optional_depend IN LISTS _vtk_add_module_optional_depends)
-      # XXX(namespaces): Use the target name of the module.
       if (TARGET "${_vtk_add_module_optional_depend}")
         set(_vtk_add_module_have_optional_depend 1)
         _vtk_module_get_module_property("${_vtk_add_module_optional_depend}"
@@ -3119,16 +3112,16 @@ function (vtk_module_add_module name)
   get_property(_vtk_add_module_implements GLOBAL
     PROPERTY  "_vtk_module_${_vtk_build_module}_implements")
   if (_vtk_add_module_implementable)
-    set_property(TARGET "${_vtk_add_module_target_name}"
+    set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_implementable" 1)
   endif ()
 
   if (_vtk_add_module_implementable OR _vtk_add_module_implements)
-    set_property(TARGET "${_vtk_add_module_target_name}"
+    set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_implements" "${_vtk_add_module_implements}")
-    set_property(TARGET "${_vtk_add_module_target_name}"
+    set_property(TARGET "${_vtk_add_module_real_target}"
       PROPERTY
         "INTERFACE_vtk_module_needs_autoinit" 1)
 
