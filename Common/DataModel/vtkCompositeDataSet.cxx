@@ -14,14 +14,15 @@
 =========================================================================*/
 #include "vtkCompositeDataSet.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
-#include "vtkBoundingBox.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 
 vtkInformationKeyMacro(vtkCompositeDataSet, NAME, String);
 vtkInformationKeyMacro(vtkCompositeDataSet, CURRENT_PROCESS_CAN_LOAD_BLOCK, Integer);
@@ -92,35 +93,28 @@ unsigned long vtkCompositeDataSet::GetActualMemorySize()
 //----------------------------------------------------------------------------
 vtkIdType vtkCompositeDataSet::GetNumberOfPoints()
 {
-  vtkIdType numPts = 0;
-  vtkCompositeDataIterator* iter = this->NewIterator();
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-  {
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (ds)
-    {
-      numPts += ds->GetNumberOfPoints();
-    }
-  }
-  iter->Delete();
-  return numPts;
+  return this->GetNumberOfElements(vtkDataSet::POINT);
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkCompositeDataSet::GetNumberOfCells()
 {
-  vtkIdType numCells = 0;
-  vtkCompositeDataIterator* iter = this->NewIterator();
+  return this->GetNumberOfElements(vtkDataSet::CELL);
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkCompositeDataSet::GetNumberOfElements(int type)
+{
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(this->NewIterator());
+  iter->SkipEmptyNodesOn();
+  vtkIdType numElements = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (ds)
-    {
-      numCells += ds->GetNumberOfCells();
-    }
+    numElements += iter->GetCurrentDataObject()->GetNumberOfElements(type);
   }
-  iter->Delete();
-  return numCells;
+
+  return numElements;
 }
 
 //----------------------------------------------------------------------------
