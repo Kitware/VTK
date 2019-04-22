@@ -35,6 +35,7 @@ vtkImageBlend::vtkImageBlend()
   this->BlendMode = VTK_IMAGE_BLEND_MODE_NORMAL;
   this->CompoundThreshold = 0.0;
   this->DataWasPassed = 0;
+  this->CompoundAlpha = 0;
 
   // we have the image inputs and the optional stencil input
   this->SetNumberOfInputPorts(2);
@@ -641,6 +642,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
                                   vtkImageData *inData,
                                   T *,
                                   vtkImageData *tmpData,
+                                  vtkImageData *weightSum,
                                   double opacity,
                                   double threshold)
 {
@@ -676,12 +678,15 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
   vtkImageStencilIterator<double> tmpIter(tmpData, stencil, extent);
   vtkImageIterator<T> inIter(inData, extent);
 
+  vtkImageStencilIterator<double> sumIter(weightSum, stencil, extent);
+
   T *inPtr = inIter.BeginSpan();
   T *inSpanEndPtr = inIter.EndSpan();
   while (!tmpIter.IsAtEnd())
   {
     double *tmpPtr = tmpIter.BeginSpan();
     double *tmpSpanEndPtr = tmpIter.EndSpan();
+    double *tmpSumPtr = sumIter.BeginSpan();
 
     if (tmpIter.IsInStencil())
     {
@@ -698,9 +703,11 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
               tmpPtr[0] += static_cast<double>(inPtr[0]) * r;
               tmpPtr[1] += static_cast<double>(inPtr[1]) * r;
               tmpPtr[2] += static_cast<double>(inPtr[2]) * r;
-              tmpPtr[3] += r;
+              tmpPtr[3] += static_cast<double>(inPtr[3]) * r;
+              tmpSumPtr[0] += r;
             }
             tmpPtr += 4;
+            tmpSumPtr += 1;
             inPtr += inC;
           }
         }
@@ -714,7 +721,9 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
             tmpPtr[1] += static_cast<double>(inPtr[1]) * r;
             tmpPtr[2] += static_cast<double>(inPtr[2]) * r;
             tmpPtr[3] += r;
+            tmpSumPtr[0] += r;
             tmpPtr += 4;
+            tmpSumPtr += 1;
             inPtr += inC;
           }
         }
@@ -730,9 +739,11 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
               tmpPtr[0] += static_cast<double>(*inPtr) * r;
               tmpPtr[1] += static_cast<double>(*inPtr) * r;
               tmpPtr[2] += static_cast<double>(*inPtr) * r;
-              tmpPtr[3] += r;
+              tmpPtr[3] += static_cast<double>(inPtr[1]) * r;
+              tmpSumPtr[0] += r;
             }
             tmpPtr += 4;
+            tmpSumPtr += 1;
             inPtr += 2;
           }
         }
@@ -746,7 +757,9 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
             tmpPtr[1] += static_cast<double>(*inPtr) * r;
             tmpPtr[2] += static_cast<double>(*inPtr) * r;
             tmpPtr[3] += r;
+            tmpSumPtr[0] += r;
             tmpPtr += 4;
+            tmpSumPtr += 1;
             inPtr++;
           }
         }
@@ -761,9 +774,11 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           if (r > threshold)
           {
             tmpPtr[0] += static_cast<double>(*inPtr) * r;
-            tmpPtr[1] += r;
+            tmpPtr[1] += static_cast<double>(inPtr[1]) * r;
+            tmpSumPtr[0] += r;
           }
           tmpPtr += 2;
+          tmpSumPtr += 1;
           inPtr += 2;
         }
       }
@@ -775,7 +790,9 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
         {
           tmpPtr[0] += static_cast<double>(*inPtr) * r;
           tmpPtr[1] += r;
+          tmpSumPtr[0] += r;
           tmpPtr += 2;
+          tmpSumPtr += 1;
           inPtr++;
         }
       }
@@ -790,6 +807,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
 
     // go to the next span
     tmpIter.NextSpan();
+    sumIter.NextSpan();
     if (inPtr == inSpanEndPtr)
     {
       inIter.NextSpan();
@@ -807,7 +825,9 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
                                           int extent[6],
                                           vtkImageData *outData,
                                           T *,
-                                          vtkImageData *tmpData)
+                                          vtkImageData *tmpData,
+                                          vtkImageData *tmpSumData,
+                                          vtkTypeBool compoundAlpha)
 {
   int outC = outData->GetNumberOfScalarComponents();
   int tmpC = tmpData->GetNumberOfScalarComponents();
@@ -816,9 +836,24 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
   vtkImageStencilData *stencil = self->GetStencil();
   vtkImageStencilIterator<T> outIter(outData, stencil, extent);
   vtkImageIterator<double> tmpIter(tmpData, extent);
+  vtkImageIterator<double> tmpSumIter(tmpSumData, extent);
+
+  double minA, maxA;
+  if (outData->GetScalarType() == VTK_DOUBLE ||
+      outData->GetScalarType() == VTK_FLOAT)
+  {
+    minA = 0.0;
+    maxA = 1.0;
+  }
+  else
+  {
+    minA = static_cast<double>(outData->GetScalarTypeMin());
+    maxA = static_cast<double>(outData->GetScalarTypeMax());
+  }
 
   double *tmpPtr = tmpIter.BeginSpan();
   double *tmpSpanEndPtr = tmpIter.EndSpan();
+  double *tmpSumPtr = tmpSumIter.BeginSpan();
   while (!outIter.IsAtEnd())
   {
     T *outPtr = outIter.BeginSpan();
@@ -831,14 +866,26 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
         while (outPtr != outSpanEndPtr)
         {
           double factor = 0.0;
-          if (tmpPtr[3] != 0)
+          if (tmpSumPtr[0] != 0)
           {
-            factor = 1.0/tmpPtr[3];
+            factor = 1.0/tmpSumPtr[0];
           }
           outPtr[0] = T(tmpPtr[0]*factor);
           outPtr[1] = T(tmpPtr[1]*factor);
           outPtr[2] = T(tmpPtr[2]*factor);
+          if (outC > 3)
+          {
+            if (compoundAlpha)
+            {
+              outPtr[3] = T(tmpPtr[3]*factor);
+            }
+            else
+            {
+              outPtr[3] = T(tmpSumPtr[0] * (maxA - minA) + minA);
+            }
+          }
           tmpPtr += 4;
+          tmpSumPtr += 1;
           outPtr += outC;
         }
       }
@@ -847,12 +894,24 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
         while (outPtr != outSpanEndPtr)
         {
           double factor = 0.0;
-          if (tmpPtr[1] != 0)
+          if (tmpSumPtr[0] != 0)
           {
-            factor = 1.0/tmpPtr[1];
+            factor = 1.0/tmpSumPtr[0];
           }
           outPtr[0] = T(tmpPtr[0]*factor);
+          if (outC > 1)
+          {
+            if (compoundAlpha)
+            {
+              outPtr[1] = T(tmpPtr[1]*factor);
+            }
+            else
+            {
+              outPtr[1] = T(tmpSumPtr[0] * (maxA - minA) + minA);
+            }
+          }
           tmpPtr += 2;
+          tmpSumPtr += 1;
           outPtr += outC;
         }
       }
@@ -871,6 +930,8 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
     {
       tmpIter.NextSpan();
       tmpPtr = tmpIter.BeginSpan();
+      tmpSumIter.NextSpan();
+      tmpSumPtr = tmpSumIter.BeginSpan();
       tmpSpanEndPtr = tmpIter.EndSpan();
     }
   }
@@ -897,6 +958,7 @@ void vtkImageBlend::ThreadedRequestData (
   double opacity;
 
   vtkImageData *tmpData = nullptr;
+  vtkImageData* alphaWeightSum = nullptr;
 
   // check
   if (inData[0][0]->GetNumberOfScalarComponents() > 4)
@@ -931,6 +993,21 @@ void vtkImageBlend::ThreadedRequestData (
              (outExt[5] - outExt[4] + 1) *
              tmpData->GetNumberOfScalarComponents() *
              tmpData->GetScalarSize());
+
+      alphaWeightSum = vtkImageData::New();
+      if (alphaWeightSum == nullptr)
+      {
+        vtkErrorMacro(<< "Execute: Unable to allocate memory");
+        return;
+      }
+      alphaWeightSum->SetExtent(outExt);
+      alphaWeightSum->AllocateScalars(VTK_DOUBLE, 1);
+      memset(static_cast<void *>(alphaWeightSum->GetScalarPointer()), 0,
+             (outExt[1] - outExt[0] + 1) *
+             (outExt[3] - outExt[2] + 1) *
+             (outExt[5] - outExt[4] + 1) *
+             1 *
+             alphaWeightSum->GetScalarSize());
       break;
 
     default:
@@ -1035,6 +1112,7 @@ void vtkImageBlend::ThreadedRequestData (
                                            inData[0][idx1],
                                            static_cast<VTK_TT *>(inPtr),
                                            tmpData,
+                                           alphaWeightSum,
                                            opacity,
                                            this->CompoundThreshold));
             default:
@@ -1064,12 +1142,15 @@ void vtkImageBlend::ThreadedRequestData (
                                                outExt,
                                                outData[0],
                                                static_cast<VTK_TT *>(outPtr),
-                                               tmpData));
+                                               tmpData,
+                                               alphaWeightSum,
+                                               this->CompoundAlpha));
         default:
           vtkErrorMacro(<< "Execute: Unknown ScalarType");
           return;
       }
       tmpData->Delete();
+      alphaWeightSum->Delete();
       break;
 
     default:
