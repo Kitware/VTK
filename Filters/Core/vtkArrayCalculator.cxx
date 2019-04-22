@@ -60,7 +60,7 @@ vtkArrayCalculator::vtkArrayCalculator()
   this->ResultTCoords = false;
   this->ReplaceInvalidValues = 0;
   this->ReplacementValue = 0.0;
-
+  this->IgnoreMissingArrays = false;
   this->ResultArrayType=VTK_DOUBLE;
 }
 
@@ -205,7 +205,6 @@ enum ResultType
   VECTOR_RESULT
 } resultType = SCALAR_RESULT;
 
-//----------------------------------------------------------------------------
 int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *output)
 {
   vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
@@ -226,6 +225,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *o
 
   vtkDataArray* currentArray = nullptr;
 
+  // Tell the parser about scalar arrays
   for (int i = 0; i < this->NumberOfScalarArrays; i++)
   {
     currentArray = inFD->GetArray(this->ScalarArrayNames[i]);
@@ -246,6 +246,14 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *o
         return 1;
       }
     }
+    else if (this->IgnoreMissingArrays)
+    {
+      // Add a dummy value with the variable name. We'll skip it if the variable is
+      // actually needed when collecting the arrays needed for evaluation later on.
+      this->FunctionParser->
+        SetScalarVariableValue(
+          this->ScalarVariableNames[i], 0.0);
+    }
     else if (inFD->GetAbstractArray(this->ScalarArrayNames[i]) == nullptr) // We ignore string array
     {
       vtkErrorMacro("Invalid array name: " << this->ScalarArrayNames[i]);
@@ -253,6 +261,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *o
     }
   }
 
+  // Tell the parser about vector arrays
   for (int i = 0; i < this->NumberOfVectorArrays; i++)
   {
     currentArray = inFD->GetArray(this->VectorArrayNames[i]);
@@ -279,13 +288,22 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *o
         return 1;
       }
     }
-    else
+    else if (this->IgnoreMissingArrays)
+    {
+      // Add a dummy value with the variable name. We'll skip it if the variable is
+      // actually needed when collecting the arrays needed for evaluation later on.
+      this->FunctionParser->
+        SetVectorVariableValue(
+          this->VectorVariableNames[i], 0.0, 0.0, 0.0);
+    }
+    else if (inFD->GetAbstractArray(this->VectorArrayNames[i]) == nullptr) // We ignore string array
     {
       vtkErrorMacro("Invalid array name: " << this->VectorArrayNames[i]);
       return 1;
     }
   }
 
+  // Tell the parser about the coordinate arrays
   if (attributeType == vtkDataObject::POINT || attributeType == vtkDataObject::VERTEX)
   {
     for (int i = 0; i < this->NumberOfCoordinateScalarArrays; i++)
@@ -422,10 +440,18 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *o
       this->ScalarVariableNames[cc]);
     if (idx >= 0)
     {
-      if (this->FunctionParser->GetScalarVariableNeeded(idx))
+      bool needed = this->FunctionParser->GetScalarVariableNeeded(idx);
+      auto array = inFD->GetArray(this->ScalarArrayNames[cc]);
+      if (needed && array)
       {
-        scalarArrays[cc] = inFD->GetArray(this->ScalarArrayNames[cc]);
+        scalarArrays[cc] = array;
         scalarArrayIndicies[cc] = idx;
+      }
+      else if (needed)
+      {
+        // Skip this dataset altogether. This is an array specifically requested to be available
+        // as a variable by the user of this class that does not exist on this dataset.
+        return 1;
       }
     }
   }
@@ -436,10 +462,18 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *o
       this->VectorVariableNames[cc]);
     if (idx >= 0)
     {
-      if (this->FunctionParser->GetVectorVariableNeeded(idx))
+      bool needed = this->FunctionParser->GetVectorVariableNeeded(idx);
+      auto array = inFD->GetArray(this->VectorArrayNames[cc]);
+      if (needed && array)
       {
-        vectorArrays[cc] = inFD->GetArray(this->VectorArrayNames[cc]);
+        vectorArrays[cc] = array;
         vectorArrayIndicies[cc] = idx;
+      }
+      else if (needed)
+      {
+        // Skip this dataset altogether. This is an array specifically requested to be available
+        // as a variable by the user of this class that does not exist on this dataset.
+        return 1;
       }
     }
   }
@@ -575,7 +609,6 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *o
   return 1;
 }
 
-//----------------------------------------------------------------------------
 int vtkArrayCalculator::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
