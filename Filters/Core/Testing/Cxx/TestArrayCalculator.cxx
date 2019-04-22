@@ -14,10 +14,8 @@
 =========================================================================*/
 
 #include <vtkArrayCalculator.h>
-#include <vtkCellArray.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
-#include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
@@ -68,6 +66,29 @@ int TestArrayCalculator(int argc, char *argv[])
 
   //verify the output is correct
   vtkPolyData *result = vtkPolyData::SafeDownCast( calc3->GetOutput() );
-  int retCode = result->GetPointData()->HasArray("Result");
-  return !retCode;
+  if (!result->GetPointData()->HasArray("Result"))
+  {
+    std::cerr << "Output from calc3 does not have an array named 'Result'" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Test IgnoreMissingArrays option
+  vtkNew<vtkArrayCalculator> calc4;
+  calc4->SetInputConnection(calc2->GetOutputPort());
+  calc4->SetAttributeTypeToPointData();
+  calc4->IgnoreMissingArraysOn();
+  calc4->AddScalarArrayName("NonExistant");
+  calc4->SetFunction("2*NonExistant");
+  calc4->SetResultArrayName("FromNonExistant");
+  calc4->Update();
+
+  // Output should have no array named "FromNonExistant"
+  result = vtkPolyData::SafeDownCast(calc4->GetOutput());
+  if (result->GetPointData()->HasArray("FromNonExistant"))
+  {
+    std::cerr << "Output from calc4 has an array named 'FromNonExistant'" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
 }
