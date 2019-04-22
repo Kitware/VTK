@@ -21,20 +21,20 @@
 #include "vtkFXAAOptions.h"
 #include "vtkHardwareSelector.h"
 #include "vtkImageData.h"
+#include "vtkLogger.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLRenderUtilities.h"
-#include "vtkParallelRenderManager.h"
-#include "vtkPNGWriter.h"
-#include "vtkRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLState.h"
 #include "vtkOpenGLError.h"
-
 #include "vtkOpenGLFXAAFilter.h"
+#include "vtkOpenGLRenderUtilities.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLState.h"
+#include "vtkPNGWriter.h"
+#include "vtkParallelRenderManager.h"
+#include "vtkRenderWindow.h"
 
 #include <cassert>
 
@@ -691,23 +691,21 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
     return false;
   }
 
-  double viewport[4];
-  ren->GetViewport(viewport);
-  const int* window_size = ren->GetVTKWindow()->GetActualSize();
+  int size[2], low_point[2];
+  ren->GetTiledSizeAndOrigin(&size[0], &size[1], &low_point[0], &low_point[1]);
+  vtkLogF(TRACE, "GetTiledSizeAndOrigin(w=%d, h=%d, x=%d, y=%d)", size[0], size[1], low_point[0],
+    low_point[1]);
+  if (size[0] <= 0 || size[1] <= 0)
+  {
+    vtkGenericWarningMacro("Viewport empty. Cannot push to screen.");
+    return false;
+  }
 
   vtkOpenGLState *ostate =
     static_cast<vtkOpenGLRenderWindow *>(ren->GetVTKWindow())->GetState();
   ostate->vtkglEnable(GL_SCISSOR_TEST);
-  ostate->vtkglViewport(
-    static_cast<GLint>(viewport[0]*window_size[0]),
-    static_cast<GLint>(viewport[1]*window_size[1]),
-    static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
-    static_cast<GLsizei>((viewport[3]-viewport[1])*window_size[1]));
-  ostate->vtkglScissor(
-    static_cast<GLint>(viewport[0]*window_size[0]),
-    static_cast<GLint>(viewport[1]*window_size[1]),
-    static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
-    static_cast<GLsizei>((viewport[3]-viewport[1])*window_size[1]));
+  ostate->vtkglViewport(low_point[0], low_point[1], size[0], size[1]);
+  ostate->vtkglScissor(low_point[0], low_point[1], size[0], size[1]);
   ren->Clear();
   return this->PushToFrameBuffer(ren);
 }
