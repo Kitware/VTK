@@ -310,7 +310,15 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
+  // Do the bulk of the work
+  int ProcessDataObject(vtkDataObject *input, vtkDataObject *output);
+
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+
+  /**
+   * Get the attribute type for the input.
+   */
+  int GetAttributeTypeFromInput(vtkDataObject* input);
 
   char  * Function;
   char  * ResultArrayName;

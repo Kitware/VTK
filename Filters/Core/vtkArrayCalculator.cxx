@@ -196,52 +196,25 @@ void vtkArrayCalculator::SetResultArrayName(const char* name)
   strcpy(this->ResultArrayName, name);
 }
 
-int vtkArrayCalculator::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+enum ResultType
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  SCALAR_RESULT,
+  VECTOR_RESULT
+} resultType = SCALAR_RESULT;
 
-  // get the input and output
-  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  enum ResultType
-  {
-    SCALAR_RESULT,
-    VECTOR_RESULT
-  } resultType = SCALAR_RESULT;
-  vtkIdType i;
-  int j;
-
-  this->FunctionParser->SetReplaceInvalidValues(this->ReplaceInvalidValues);
-  this->FunctionParser->SetReplacementValue(this->ReplacementValue);
-
+//----------------------------------------------------------------------------
+int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *output)
+{
+  vtkCompositeDataSet *cdInput = vtkCompositeDataSet::SafeDownCast(input);
   vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
   vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
   vtkPointSet* psOutput = vtkPointSet::SafeDownCast(output);
-  int attribute = this->AttributeType;
-  if (attribute == DEFAULT_ATTRIBUTE_TYPE)
-  {
-    if (dsInput)
-    {
-      attribute = vtkDataObject::POINT;
-    }
-    else if (graphInput)
-    {
-      attribute = vtkDataObject::VERTEX;
-    }
-    else
-    {
-      attribute = vtkDataObject::ROW;
-    }
-  }
 
-  vtkDataSetAttributes* inFD = input->GetAttributes(attribute);
-  vtkDataSetAttributes* outFD = output->GetAttributes(attribute);
-  vtkIdType numTuples = input->GetNumberOfElements(attribute);
+  int attributeType = this->GetAttributeTypeFromInput(input);
+
+  vtkDataSetAttributes* inFD = input->GetAttributes(attributeType);
+  vtkDataSetAttributes* outFD = output->GetAttributes(attributeType);
+  vtkIdType numTuples = input->GetNumberOfElements(attributeType);
 
   if (numTuples < 1)
   {
@@ -251,7 +224,7 @@ int vtkArrayCalculator::RequestData(
 
   vtkDataArray* currentArray = nullptr;
 
-  for (i = 0; i < this->NumberOfScalarArrays; i++)
+  for (int i = 0; i < this->NumberOfScalarArrays; i++)
   {
     currentArray = inFD->GetArray(this->ScalarArrayNames[i]);
     if (currentArray)
@@ -271,14 +244,14 @@ int vtkArrayCalculator::RequestData(
         return 1;
       }
     }
-    else if(inFD->GetAbstractArray(this->ScalarArrayNames[i]) == nullptr) // We ignore string array
+    else if (inFD->GetAbstractArray(this->ScalarArrayNames[i]) == nullptr) // We ignore string array
     {
       vtkErrorMacro("Invalid array name: " << this->ScalarArrayNames[i]);
       return 1;
     }
   }
 
-  for (i = 0; i < this->NumberOfVectorArrays; i++)
+  for (int i = 0; i < this->NumberOfVectorArrays; i++)
   {
     currentArray = inFD->GetArray(this->VectorArrayNames[i]);
     if (currentArray)
@@ -311,9 +284,9 @@ int vtkArrayCalculator::RequestData(
     }
   }
 
-  if(attribute == vtkDataObject::POINT || attribute == vtkDataObject::VERTEX)
+  if (attributeType == vtkDataObject::POINT || attributeType == vtkDataObject::VERTEX)
   {
-    for (i = 0; i < this->NumberOfCoordinateScalarArrays; i++)
+    for (int i = 0; i < this->NumberOfCoordinateScalarArrays; i++)
     {
       double* pt = nullptr;
       if (dsInput)
@@ -330,7 +303,7 @@ int vtkArrayCalculator::RequestData(
           pt[this->SelectedCoordinateScalarComponents[i]]);
     }
 
-    for (i = 0; i < this->NumberOfCoordinateVectorArrays; i++)
+    for (int i = 0; i < this->NumberOfCoordinateVectorArrays; i++)
     {
       double* pt = nullptr;
       if (dsInput)
@@ -350,7 +323,7 @@ int vtkArrayCalculator::RequestData(
     }
   }
 
-  if ( !this->Function || strlen(this->Function) == 0)
+  if (!this->Function || strlen(this->Function) == 0)
   {
     output->ShallowCopy(input);
     return 1;
@@ -371,43 +344,43 @@ int vtkArrayCalculator::RequestData(
     return 1;
   }
 
-  if(resultType == SCALAR_RESULT && this->ResultNormals)
+  if (resultType == SCALAR_RESULT && this->ResultNormals)
   {
     vtkWarningMacro("ResultNormals specified but output is scalar");
   }
 
   vtkMolecule* moleculeInput = vtkMolecule::SafeDownCast(input);
-  if (moleculeInput && attribute == vtkDataObject::VERTEX &&
+  if (moleculeInput && attributeType == vtkDataObject::VERTEX &&
     strcmp(this->ResultArrayName, moleculeInput->GetAtomicNumberArrayName()) == 0)
   {
     vtkErrorMacro("Cannot override atomic numbers array");
     return 1;
   }
 
-  if (moleculeInput && attribute == vtkDataObject::EDGE &&
+  if (moleculeInput && attributeType == vtkDataObject::EDGE &&
     strcmp(this->ResultArrayName, moleculeInput->GetBondOrdersArrayName()) == 0)
   {
     vtkErrorMacro("Cannot override bond orders array");
     return 1;
   }
 
-  vtkPoints* resultPoints = nullptr;
-  vtkDataArray* resultArray = nullptr;
-  if(resultType == VECTOR_RESULT &&
-     CoordinateResults != 0 && (psOutput || vtkGraph::SafeDownCast(output)))
+  vtkSmartPointer<vtkPoints> resultPoints;
+  vtkSmartPointer<vtkDataArray> resultArray;
+  if (resultType == VECTOR_RESULT &&
+      CoordinateResults != 0 && (psOutput || vtkGraph::SafeDownCast(output)))
   {
-    resultPoints = vtkPoints::New();
+    resultPoints = vtkSmartPointer<vtkPoints>::New();
     resultPoints->SetNumberOfPoints(numTuples);
     resultArray = resultPoints->GetData();
   }
-  else if(CoordinateResults != 0)
+  else if (CoordinateResults != 0)
   {
-    if(resultType != VECTOR_RESULT)
+    if (resultType != VECTOR_RESULT)
     {
       vtkErrorMacro("Coordinate output specified, "
                     "but there are no vector results");
     }
-    else if(!psOutput)
+    else if (!psOutput)
     {
       vtkErrorMacro("Coordinate output specified, "
                     "but output is not polydata or unstructured grid");
@@ -416,8 +389,8 @@ int vtkArrayCalculator::RequestData(
   }
   else
   {
-      resultArray=
-        vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(this->ResultArrayType));
+    resultArray.TakeReference(
+      vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(this->ResultArrayType)));
   }
 
   if (resultType == SCALAR_RESULT)
@@ -469,9 +442,9 @@ int vtkArrayCalculator::RequestData(
     }
   }
 
-  for (i = 1; i < numTuples; i++)
+  for (vtkIdType i = 1; i < numTuples; i++)
   {
-    for (j = 0; j < this->NumberOfScalarArrays; j++)
+    for (int j = 0; j < this->NumberOfScalarArrays; j++)
     {
       if ((currentArray = scalarArrays[j]))
       {
@@ -480,7 +453,7 @@ int vtkArrayCalculator::RequestData(
             currentArray->GetComponent(i, this->SelectedScalarComponents[j]));
       }
     }
-    for (j = 0; j < this->NumberOfVectorArrays; j++)
+    for (int j = 0; j < this->NumberOfVectorArrays; j++)
     {
       if ((currentArray = vectorArrays[j]))
       {
@@ -491,7 +464,7 @@ int vtkArrayCalculator::RequestData(
             currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));
       }
     }
-    if(attribute == vtkDataObject::POINT || attribute == vtkDataObject::VERTEX)
+    if (attributeType == vtkDataObject::POINT || attributeType == vtkDataObject::VERTEX)
     {
       double* pt = nullptr;
       if (dsInput)
@@ -502,13 +475,13 @@ int vtkArrayCalculator::RequestData(
       {
         pt = graphInput->GetPoint(i);
       }
-      for (j = 0; j < this->NumberOfCoordinateScalarArrays; j++)
+      for (int j = 0; j < this->NumberOfCoordinateScalarArrays; j++)
       {
         this->FunctionParser->
           SetScalarVariableValue(
             j+this->NumberOfScalarArrays, pt[this->SelectedCoordinateScalarComponents[j]]);
       }
-      for (j = 0; j < this->NumberOfCoordinateVectorArrays; j++)
+      for (int j = 0; j < this->NumberOfCoordinateVectorArrays; j++)
       {
         this->FunctionParser->
           SetVectorVariableValue(
@@ -530,28 +503,28 @@ int vtkArrayCalculator::RequestData(
   }
 
   output->ShallowCopy(input);
-  if(resultPoints)
+  if (resultPoints)
   {
-    if(psOutput)
+    if (psOutput)
     {
-      if(attribute == vtkDataObject::CELL)
+      if (attributeType == vtkDataObject::CELL)
       {
         vtkPolyData* pd = vtkPolyData::SafeDownCast(psOutput);
         vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(psOutput);
-        if(pd)
+        if (pd)
         {
           pd->Reset();
           pd->Allocate(numTuples);
-          for (i = 1; i < numTuples; i++)
+          for (vtkIdType i = 1; i < numTuples; i++)
           {
             pd->InsertNextCell(VTK_VERTEX, 1, &i);
           }
         }
-        else if(ug)
+        else if (ug)
         {
           ug->Reset();
           ug->Allocate(numTuples);
-          for (i = 1; i < numTuples; i++)
+          for (vtkIdType i = 1; i < numTuples; i++)
           {
             ug->InsertNextCell(VTK_VERTEX, 1, &i);
           }
@@ -562,11 +535,11 @@ int vtkArrayCalculator::RequestData(
     resultPoints->Delete();
   }
 
-  if(this->ResultTCoords || this->ResultNormals || ! this->CoordinateResults)
+  if (this->ResultTCoords || this->ResultNormals || ! this->CoordinateResults)
   {
     resultArray->SetName(this->ResultArrayName);
     outFD->AddArray(resultArray);
-    if(resultType == SCALAR_RESULT)
+    if (resultType == SCALAR_RESULT)
     {
       if (this->ResultTCoords)
       {
@@ -595,12 +568,56 @@ int vtkArrayCalculator::RequestData(
         outFD->SetActiveVectors(this->ResultArrayName);
       }
     }
-    if (! resultPoints)
+  }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkArrayCalculator::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and output
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+
+  this->FunctionParser->SetReplaceInvalidValues(this->ReplaceInvalidValues);
+  this->FunctionParser->SetReplacementValue(this->ReplacementValue);
+
+  int success = this->ProcessDataObject(input, output);
+
+  return success;
+}
+
+int vtkArrayCalculator::GetAttributeTypeFromInput(vtkDataObject* input)
+{
+  vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
+  vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
+
+  int attribute = this->AttributeType;
+  if (attribute == DEFAULT_ATTRIBUTE_TYPE)
+  {
+    if (dsInput)
     {
-      resultArray->Delete();
+      attribute = vtkDataObject::POINT;
+    }
+    else if (graphInput)
+    {
+      attribute = vtkDataObject::VERTEX;
+    }
+    else
+    {
+      attribute = vtkDataObject::ROW;
     }
   }
-  return 1;
+
+  return attribute;
 }
 
 #ifndef VTK_LEGACY_REMOVE
