@@ -8,6 +8,7 @@ set(classes
   vtkHyperTreeGridEvaluateCoarse
   vtkHyperTreeGridEvaluateCoarse
   vtkHyperTreeGridGeometry
+  vtkImageDataToHyperTreeGrid
   vtkHyperTreeGridPlaneCutter
   vtkHyperTreeGridThreshold
   vtkHyperTreeGridToDualGrid

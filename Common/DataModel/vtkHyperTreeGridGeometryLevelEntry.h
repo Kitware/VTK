@@ -149,40 +149,64 @@ public:
 
   /**
    * Return the index of the current vertex in the tree.
+   * \pre not_tree: tree
    */
   vtkIdType GetVertexId() const { return this->Index; };
 
   /**
    * Return the global index (relative to the grid) of the
    * current vertex in the tree.
+   * \pre not_tree: tree
    */
   vtkIdType GetGlobalNodeIndex() const;
 
   /**
    * Set the global index for the root cell of the HyperTree.
+   * \pre not_tree: tree
    */
   void SetGlobalIndexStart( vtkIdType index );
 
   /**
    * Set the global index for the current cell of the HyperTree.
+   * \pre not_tree: tree
    */
   void SetGlobalIndexFromLocal( vtkIdType index );
 
   /**
-   * Is the cursor pointing to a leaf?
+   * Set the blanking mask is empty or not
+   * \pre not_tree: tree
    */
-  bool IsLeaf() const;
+  void SetMask(
+    const vtkHyperTreeGrid* grid,
+    bool state );
+
+  /**
+   * Determine whether blanking mask is empty or not
+   * \pre not_tree: tree
+   */
+  bool IsMasked( const vtkHyperTreeGrid* grid ) const;
+
+  /**
+   * Is the cursor pointing to a leaf?
+   * \pre not_tree: tree
+   * Return true if level == grid->GetDepthLimiter()
+   */
+  bool IsLeaf( const vtkHyperTreeGrid* grid ) const;
 
   /**
    * Change the current cell's status: if leaf then becomes coarse and
    * all its children are created, cf. HyperTree.
+   * \pre not_tree: tree
+   * \pre depth_limiter: level == grid->GetDepthLimiter()
+   * \pre is_masked: IsMasked
    */
-  void SubdivideLeaf();
+  void SubdivideLeaf( const vtkHyperTreeGrid* grid );
 
   /**
    * Is the cursor pointing to a coarse with all childrens being leaves ?
+   * \pre not_tree: tree
    */
-  bool IsTerminalNode() const;
+  bool IsTerminalNode( const vtkHyperTreeGrid* grid ) const;
 
   /**
    * Is the cursor at tree root?
@@ -191,8 +215,11 @@ public:
 
   /**
    * Move the cursor to child `child' of the current vertex.
+   * \pre not_tree: tree
    * \pre not_leaf: !IsLeaf()
    * \pre valid_child: ichild>=0 && ichild<this->GetNumberOfChildren()
+   * \pre depth_limiter: level == grid->GetDepthLimiter()
+   * \pre is_masked: !IsMasked()
    */
   void ToChild(
     const vtkHyperTreeGrid* grid,

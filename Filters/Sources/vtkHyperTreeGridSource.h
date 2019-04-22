@@ -101,10 +101,11 @@ public:
 
   //@{
   /**
-   * Set/Get the number of root cells in each dimension of the grid
+   * Set/Get the number of root cells + 1 in each dimension of the grid
    */
-  vtkSetVector3Macro(GridSize, unsigned int);
-  vtkGetVector3Macro(GridSize, unsigned int);
+  void SetDimensions( const unsigned int *dims );
+  void SetDimensions( unsigned int, unsigned int, unsigned int );
+  vtkGetVector3Macro(Dimensions, unsigned int);
   //@}
 
   //@{
@@ -120,17 +121,8 @@ public:
 
   //@{
   /**
-   * Set/Get the dimensionality of the grid
-   */
-  vtkSetClampMacro(Dimension, unsigned int, 1, 3);
-  vtkGetMacro(Dimension, unsigned int);
-  //@}
-
-  //@{
-  /**
    * Set/Get the orientation of the grid (in 1D and 2D)
    */
-  virtual void SetOrientation(unsigned int);
   vtkGetMacro(Orientation, unsigned int);
   //@}
 
@@ -320,10 +312,12 @@ protected:
 
   double Origin[3];
   double GridScale[3];
-  unsigned int GridSize[3];
+  unsigned int Dimension;
+protected:
+  unsigned int Dimensions[3];
   bool TransposedRootIndexing;
   unsigned int MaximumLevel;
-  unsigned int Dimension;
+
   unsigned int Orientation;
   unsigned int BranchFactor;
   unsigned int BlockSize;

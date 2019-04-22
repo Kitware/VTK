@@ -204,8 +204,7 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
   int orientation;
   int branchFactor;
   int transposedRootIndexing;
-  int gridSize[3];
-  int gridExtent[6];
+  int dimensions[3];
 
   // Read the attributes of the hyper tree grid
   if (!ePrimary->GetScalarAttribute("Dimension", dimension))
@@ -224,20 +223,11 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
   {
     transposedRootIndexing = 0;
   }
-  if (ePrimary->GetVectorAttribute("GridSize", 3, gridSize) != 3)
+  if (ePrimary->GetVectorAttribute("Dimensions", 3, dimensions) != 3)
   {
-    gridSize[0] = 1;
-    gridSize[1] = 1;
-    gridSize[2] = 1;
-  }
-  if (ePrimary->GetVectorAttribute("GridExtent", 6, gridExtent) != 3)
-  {
-    gridExtent[0] = 0;
-    gridExtent[1] = 1;
-    gridExtent[2] = 0;
-    gridExtent[3] = 1;
-    gridExtent[4] = 0;
-    gridExtent[5] = 1;
+    dimensions[0] = 1;
+    dimensions[1] = 1;
+    dimensions[2] = 1;
   }
   if (!ePrimary->GetScalarAttribute("NumberOfVertices", this->NumberOfPoints))
   {
@@ -245,12 +235,9 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
   }
 
   // Define the hypertree grid
-  output->SetDimension(dimension);
-  output->SetOrientation(orientation);
   output->SetBranchFactor(branchFactor);
   output->SetTransposedRootIndexing((transposedRootIndexing != 0));
-  output->SetGridSize(
-    (unsigned int)gridSize[0], (unsigned int)gridSize[1], (unsigned int)gridSize[2]);
+  output->SetDimensions(dimensions);
 
   // Read geometry of hypertree grid expressed in coordinates
   vtkXMLDataElement* eNested = ePrimary->GetNestedElement(0);

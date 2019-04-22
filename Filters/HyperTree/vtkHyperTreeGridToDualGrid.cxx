@@ -149,9 +149,9 @@ int vtkHyperTreeGridToDualGrid::ProcessTrees( vtkHyperTreeGrid* input,
   // SEB: if ( dims[0] == input->GetXCoordinates()->GetNumberOfTuples()
   // SEB:      && dims[1] == input->GetYCoordinates()->GetNumberOfTuples()
   // SEB:      && dims[2] == input->GetZCoordinates()->GetNumberOfTuples() )
-  if ( static_cast<int>( input->GetGridSize()[0] ) + 1 == input->GetXCoordinates()->GetNumberOfTuples()
-       && static_cast<int>( input->GetGridSize()[1] ) + 1 == input->GetYCoordinates()->GetNumberOfTuples()
-       && static_cast<int>( input->GetGridSize()[2] ) + 1 == input->GetZCoordinates()->GetNumberOfTuples() )
+  if ( static_cast<int>( input->GetDimensions()[0] ) == input->GetXCoordinates()->GetNumberOfTuples()
+       && static_cast<int>( input->GetDimensions()[1] ) == input->GetYCoordinates()->GetNumberOfTuples()
+       && static_cast<int>( input->GetDimensions()[2] ) == input->GetZCoordinates()->GetNumberOfTuples() )
   {
     gridDepth = input->GetNumberOfLevels();
   }

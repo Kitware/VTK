@@ -61,27 +61,22 @@ int TestHyperTreeGridBinaryClipPlanes(int argc, char* argv[])
   vtkIdType res = 20;
   vtkNew<vtkHyperTreeGridSource> htg1;
   htg1->SetMaximumLevel( 0 );
-  htg1->SetGridSize( res, 1, 1 );
+  htg1->SetDimensions( res + 1, 1, 1 ); //Dimension 1 suivant x GridCell res, 1, 1
   htg1->SetGridScale( 2. / res, 0., 0. );
-  htg1->SetDimension( 1 );
-  htg1->SetOrientation( 0 );
   htg1->SetBranchFactor( 2 );
   htg1->UseDescriptorOff();
   htg1->SetQuadric( quadric );
   vtkNew<vtkHyperTreeGridSource> htg2;
   htg2->SetMaximumLevel( 0 );
-  htg2->SetGridSize( res, res, 1 );
+  htg2->SetDimensions( res + 1, res + 1, 1 ); //Dimension 2 suivant xy plane GridCell res, res, 1
   htg2->SetGridScale( 2. / res, 3. / res, 0. );
-  htg2->SetDimension( 2 );
-  htg2->SetOrientation( 2 );
   htg2->SetBranchFactor( 2 );
   htg2->UseDescriptorOff();
   htg2->SetQuadric( quadric );
   vtkNew<vtkHyperTreeGridSource> htg3;
   htg3->SetMaximumLevel( 0 );
-  htg3->SetGridSize( res, res, res );
+  htg3->SetDimensions( res + 1, res + 1, res + 1 ); //GridCell res, res, res
   htg3->SetGridScale( 2. / res, 3. / res, 4. / res );
-  htg3->SetDimension( 3 );
   htg3->SetBranchFactor( 2 );
   htg3->UseDescriptorOff();
   htg3->SetQuadric( quadric );

@@ -32,6 +32,7 @@
  * This class was modified by Guenole Harel and Jacques-Bernard Lekien, 2014
  * This class was rewritten by Philippe Pebay, 2016
  * This class was modified by Jacques-Bernard Lekien, 2018
+ * This class was corriged (used orientation) by Jacques-Bernard Lekien, 2018
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
@@ -96,9 +97,11 @@ protected:
   vtkCellArray* Cells;
 
   /**
-   * Storage for dimension of underlying tree
+   * Storage of underlying tree
    */
   unsigned int Dimension;
+  unsigned int Orientation;
+  const unsigned int* Axes;
 
 private:
   vtkHyperTreeGridToUnstructuredGrid(const vtkHyperTreeGridToUnstructuredGrid&) = delete;

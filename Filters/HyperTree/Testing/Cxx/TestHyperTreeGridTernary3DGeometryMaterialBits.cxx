@@ -40,9 +40,8 @@ int TestHyperTreeGridTernary3DGeometryMaterialBits( int argc, char* argv[] )
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
   htGrid->SetMaximumLevel( 6 );
-  htGrid->SetGridSize( 3, 3, 2 );
+  htGrid->SetDimensions( 4, 4, 3 );//GridCell 3, 3, 2
   htGrid->SetGridScale( 1.5, 1., .7 );
-  htGrid->SetDimension( 3 );
   htGrid->SetBranchFactor( 3 );
   htGrid->UseMaskOn();
   const std::string descriptor = "RRR _R. _RR ..R _.R .R_ |" // Level 0 refinement

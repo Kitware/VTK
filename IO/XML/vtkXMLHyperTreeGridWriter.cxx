@@ -196,8 +196,7 @@ void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes(ostream& os, vtkIn
   this->WriteScalarAttribute("Orientation", (int)input->GetOrientation());
   this->WriteScalarAttribute("BranchFactor", (int)input->GetBranchFactor());
   this->WriteScalarAttribute("TransposedRootIndexing", (bool)input->GetTransposedRootIndexing());
-  this->WriteVectorAttribute("GridSize", 3, (int*)input->GetGridSize());
-  this->WriteVectorAttribute("GridExtent", 6, extent);
+  this->WriteVectorAttribute("Dimensions", 3, (int*)input->GetDimensions());
   this->WriteScalarAttribute("NumberOfVertices", input->GetNumberOfVertices());
 }
 

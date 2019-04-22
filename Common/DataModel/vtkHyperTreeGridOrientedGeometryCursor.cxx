@@ -174,15 +174,27 @@ void vtkHyperTreeGridOrientedGeometryCursor::GetPoint( double point[3] )
 }
 
 //-----------------------------------------------------------------------------
+void vtkHyperTreeGridOrientedGeometryCursor::SetMask( bool state)
+{
+  this->Entry.SetMask( this->Grid, this->Tree, state );
+}
+
+//-----------------------------------------------------------------------------
+bool vtkHyperTreeGridOrientedGeometryCursor::IsMasked()
+{
+  return this->Entry.IsMasked( this->Grid, this->Tree );
+}
+
+//-----------------------------------------------------------------------------
 bool vtkHyperTreeGridOrientedGeometryCursor::IsLeaf()
 {
-  return this->Entry.IsLeaf( this->Tree );
+  return this->Entry.IsLeaf( this->Grid, this->Tree, this->Level );
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridOrientedGeometryCursor::SubdivideLeaf()
 {
-  this->Entry.SubdivideLeaf( this->Tree, this->GetLevel() );
+  this->Entry.SubdivideLeaf( this->Grid, this->Tree, this->Level );
 }
 
 //-----------------------------------------------------------------------------
@@ -200,7 +212,12 @@ unsigned int vtkHyperTreeGridOrientedGeometryCursor::GetLevel()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridOrientedGeometryCursor::ToChild( unsigned char ichild )
 {
-  this->Entry.ToChild( this->Grid, this->Tree, this->Scales->GetScale( this->Level + 1 ), ichild );
+  this->Entry.ToChild(
+    this->Grid,
+    this->Tree,
+    this->Level,
+    this->Scales->GetScale( this->Level + 1 ),
+    ichild );
   this->Level ++;
 }
 

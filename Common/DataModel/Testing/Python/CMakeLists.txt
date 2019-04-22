@@ -24,4 +24,15 @@ vtk_add_test_python(
   TestICPTransform.py,NO_RT
   TestMolecule.py,NO_VALID,NO_RT
   TestClipPolyhedra.py
+  TestHyperTreeGrid2DFull.py,NO_DATA,NO_VALID
+  TestHyperTreeGrid2DFullGI.py,NO_DATA,NO_VALID
+  TestHyperTreeGrid2DMask.py,NO_DATA,NO_VALID
+  TestHyperTreeGrid2DWithFilters.py,NO_DATA,NO_VALID
+  TestHyperTreeGrid3DFull.py,NO_DATA,NO_VALID
+  TestHyperTreeGrid3DMask.py,NO_DATA,NO_VALID
+  TestHyperTreeGrid3DWithFilters.py,NO_DATA,NO_VALID
+  TestHyperTreeGrid3DMandel.py,NO_DATA,NO_VALID
+  TestUniformHyperTreeGrid2DWithFilters.py,NO_DATA,NO_VALID
+  TestUniformHyperTreeGrid3DWithFilters.py,NO_DATA,NO_VALID
+  TestHyperTreeGrid3DCursorsMandel.py,NO_RT,NO_DATA,NO_VALID
   )

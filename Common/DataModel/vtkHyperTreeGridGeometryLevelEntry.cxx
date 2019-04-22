@@ -14,6 +14,8 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkHyperTreeGridGeometryLevelEntry.h"
 
+#include "vtkBitArray.h"
+
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
@@ -80,10 +82,40 @@ void vtkHyperTreeGridGeometryLevelEntry::SetGlobalIndexFromLocal( vtkIdType inde
 }
 
 //-----------------------------------------------------------------------------
-bool vtkHyperTreeGridGeometryLevelEntry::IsLeaf() const
+void vtkHyperTreeGridGeometryLevelEntry::SetMask(
+  const vtkHyperTreeGrid* grid,
+  bool value
+)
+{
+  assert("pre: not_tree" &&
+          this->Tree);
+  //JB Comment faire pour definir un accesseur a DepthLimiter qui est const
+  ((vtkHyperTreeGrid*)grid)->GetMask()->InsertTuple1( this->GetGlobalNodeIndex(), value );
+}
+
+//-----------------------------------------------------------------------------
+bool vtkHyperTreeGridGeometryLevelEntry::IsMasked(
+  const vtkHyperTreeGrid* grid ) const
+{
+  if (this->Tree && ((vtkHyperTreeGrid*)grid)->HasMask())
+  {
+    return ((vtkHyperTreeGrid*)grid)->GetMask()->GetValue( this->GetGlobalNodeIndex( ) ) != 0;
+  }
+  //JB Comment faire pour definir un accesseur a DepthLimiter qui est const
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkHyperTreeGridGeometryLevelEntry::IsLeaf(
+  const vtkHyperTreeGrid* grid ) const
 {
   assert( "pre: not_tree" &&
           this->Tree );
+  //JB Comment faire pour definir un accesseur a DepthLimiter qui est const
+  if ( this->Level == ((vtkHyperTreeGrid*)grid)->GetDepthLimiter() )
+  {
+    return true;
+  }
   if ( this->Index )
   {
     return this->Tree->IsLeaf( this->Index );
@@ -92,44 +124,54 @@ bool vtkHyperTreeGridGeometryLevelEntry::IsLeaf() const
 }
 
 //---------------------------------------------------------------------------
-void vtkHyperTreeGridGeometryLevelEntry::SubdivideLeaf()
+void vtkHyperTreeGridGeometryLevelEntry::SubdivideLeaf(
+  const vtkHyperTreeGrid* grid )
 {
   assert( "pre: not_tree" &&
           this->Tree );
-  if ( this->IsLeaf() )
+  //JB Comment faire pour definir un accesseur a DepthLimiter qui est const
+  assert( "pre: depth_limiter" &&
+          this->Level <= ((vtkHyperTreeGrid*)grid)->GetDepthLimiter() );
+  assert("pre: is_masked" &&
+          ! this->IsMasked( grid ));
+  if ( this->IsLeaf( grid ) )
   {
     this->Tree->SubdivideLeaf( this->Index, this->Level );
   }
 }
 
 //---------------------------------------------------------------------------
-bool vtkHyperTreeGridGeometryLevelEntry::IsTerminalNode() const
+bool vtkHyperTreeGridGeometryLevelEntry::IsTerminalNode(
+  const vtkHyperTreeGrid* grid ) const
 {
   assert( "pre: not_tree" &&
           this->Tree );
-  bool result = ! this->IsLeaf();
+  bool result = ! this->IsLeaf( grid );
   if ( result )
   {
     result = this->Tree->IsTerminalNode( this->Index );
   }
-  // A=>B: notA or B
   assert( "post: compatible" &&
-          ( ! result || ! this->IsLeaf() ) );
+          ( ! result || ! this->IsLeaf( grid ) ) );
   return result;
 }
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryLevelEntry::ToChild(
   const vtkHyperTreeGrid* grid,
-  unsigned char ichild
-)
+  unsigned char ichild)
 {
   assert( "pre: not_tree" &&
           this->Tree );
   assert( "pre: not_leaf" &&
-          ! this->IsLeaf( ) );
-  assert( "pre: valid_child" &&
+          ! this->IsLeaf( grid ) );
+  assert( "pre: not_valid_child" &&
           ichild < this->Tree->GetNumberOfChildren() );
+  //JB Comment faire pour definir un accesseur a DepthLimiter qui est const
+  assert( "pre: depth_limiter" &&
+          this->Level <= ((vtkHyperTreeGrid*)grid)->GetDepthLimiter() );
+  assert("pre: is_masked" &&
+          ! this->IsMasked( grid ));
 
   const double* sizeChild = this->Tree->GetScales()->GetScale( this->Level + 1 );
 
@@ -205,6 +247,8 @@ void vtkHyperTreeGridGeometryLevelEntry::ToChild(
 void vtkHyperTreeGridGeometryLevelEntry::GetBounds(
   double bounds[6]
 ) const {
+  assert( "pre: not_tree" &&
+          this->Tree );
   const double* sizeChild = this->Tree->GetScales()->GetScale( this->Level );
   // Compute bounds
   bounds[0] = this->Origin[0];
@@ -219,6 +263,8 @@ void vtkHyperTreeGridGeometryLevelEntry::GetBounds(
 void vtkHyperTreeGridGeometryLevelEntry::GetPoint(
   double point[3]
 ) const {
+  assert( "pre: not_tree" &&
+          this->Tree );
   const double* sizeChild = this->Tree->GetScales()->GetScale( this->Level );
   // Compute center point coordinates
   point[0] = this->Origin[0] + sizeChild[0] / 2.;
