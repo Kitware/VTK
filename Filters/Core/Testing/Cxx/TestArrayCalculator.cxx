@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestAppendPolyData.cxx
+  Module:    TestArrayCalculator.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -14,8 +14,8 @@
 =========================================================================*/
 
 #include <vtkArrayCalculator.h>
-#include <vtkCompositeDataPipeline.h>
 #include <vtkCellArray.h>
+#include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
@@ -23,26 +23,19 @@
 #include <vtkTestUtilities.h>
 #include <vtkXMLPolyDataReader.h>
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New ();
-
 int TestArrayCalculator(int argc, char *argv[])
 {
-  vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();
-  vtkAlgorithm::SetDefaultExecutivePrototype(prototype);
-  prototype->Delete();
-
   char* filename =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/disk_out_ref_surface.vtp");
 
-  VTK_CREATE(vtkXMLPolyDataReader,reader);
+  vtkNew<vtkXMLPolyDataReader> reader;
   reader->SetFileName(filename);
   delete[] filename;
   reader->Update();
 
   //first calculators job is to create a property whose name could clash
   //with a function
-  VTK_CREATE(vtkArrayCalculator, calc);
+  vtkNew<vtkArrayCalculator> calc;
   calc->SetInputConnection( reader->GetOutputPort() );
   calc->SetAttributeTypeToPointData();
   calc->AddScalarArrayName("Pres");
@@ -52,7 +45,7 @@ int TestArrayCalculator(int argc, char *argv[])
   calc->Update();
 
   //now generate a vector with the second calculator
-  VTK_CREATE(vtkArrayCalculator, calc2);
+  vtkNew<vtkArrayCalculator> calc2;
   calc2->SetInputConnection( calc->GetOutputPort() );
   calc2->SetAttributeTypeToPointData();
   calc2->AddScalarArrayName("Pres");
@@ -64,7 +57,7 @@ int TestArrayCalculator(int argc, char *argv[])
 
   //now make sure the calculator can use the vector
   //confirm that we don't use "Pres" array, but the "PresVector"
-  VTK_CREATE(vtkArrayCalculator, calc3);
+  vtkNew<vtkArrayCalculator> calc3;
   calc3->SetInputConnection( calc2->GetOutputPort() );
   calc3->SetAttributeTypeToPointData();
   calc3->AddScalarArrayName("Pres");
@@ -76,8 +69,5 @@ int TestArrayCalculator(int argc, char *argv[])
   //verify the output is correct
   vtkPolyData *result = vtkPolyData::SafeDownCast( calc3->GetOutput() );
   int retCode = result->GetPointData()->HasArray("Result");
-  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   return !retCode;
 }
-
-
