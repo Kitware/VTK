@@ -22,6 +22,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestHigherOrderCell.cxx
   TestImageDataFindCell.cxx
   TestImageDataInterpolation.cxx
+  TestImageDataOrientation.cxx
   TestImageIterator.cxx
   TestInterpolationDerivs.cxx
   TestInterpolationFunctions.cxx
@@ -76,6 +77,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   UnitTestTriangleIntersection.cxx
   )
 vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
+  TestImageDataOrientation2.cxx,NO_DATA
   TestLagrangeTriangle.cxx
   TestLagrangeTetra.cxx
   TestLagrangeWedge.cxx
