@@ -15,6 +15,8 @@
 #include "vtkArrayCalculator.h"
 
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
@@ -175,6 +177,7 @@ int vtkArrayCalculator::FillInputPortInformation(int vtkNotUsed(port), vtkInform
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 
@@ -205,7 +208,6 @@ enum ResultType
 //----------------------------------------------------------------------------
 int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *output)
 {
-  vtkCompositeDataSet *cdInput = vtkCompositeDataSet::SafeDownCast(input);
   vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
   vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
   vtkPointSet* psOutput = vtkPointSet::SafeDownCast(output);
@@ -590,9 +592,34 @@ int vtkArrayCalculator::RequestData(
   this->FunctionParser->SetReplaceInvalidValues(this->ReplaceInvalidValues);
   this->FunctionParser->SetReplacementValue(this->ReplacementValue);
 
-  int success = this->ProcessDataObject(input, output);
+  vtkCompositeDataSet* inputCD = vtkCompositeDataSet::GetData(inputVector[0], 0);
+  vtkCompositeDataSet* outputCD = vtkCompositeDataSet::SafeDownCast(output);
+  if (inputCD && outputCD)
+  {
+    int success = 1;
 
-  return success;
+    // Copy the output structure
+    outputCD->CopyStructure(inputCD);
+
+    vtkSmartPointer<vtkCompositeDataIterator> cdIter;
+    cdIter.TakeReference(inputCD->NewIterator());
+    cdIter->SkipEmptyNodesOn();
+    for (cdIter->InitTraversal(); !cdIter->IsDoneWithTraversal(); cdIter->GoToNextItem())
+    {
+      vtkDataObject* inputDataObject = cdIter->GetCurrentDataObject();
+      vtkDataObject* outputDataObject = inputDataObject->NewInstance();
+      outputDataObject->DeepCopy(inputDataObject);
+      outputCD->SetDataSet(cdIter, outputDataObject);
+      outputDataObject->FastDelete();
+
+      success *= this->ProcessDataObject(inputDataObject, outputDataObject);
+    }
+
+    return success;
+  }
+
+  // Not a composite data set.
+  return this->ProcessDataObject(input, output);
 }
 
 int vtkArrayCalculator::GetAttributeTypeFromInput(vtkDataObject* input)
