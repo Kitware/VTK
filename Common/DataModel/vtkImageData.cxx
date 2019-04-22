@@ -489,106 +489,52 @@ void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 // constructing a cell.
 void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
-  int loc[3], iMin, iMax, jMin, jMax, kMin, kMax;
-  double x[3];
-  const double *origin = this->Origin;
-  const double *spacing = this->Spacing;
-  const int* extent = this->Extent;
-
-  vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
-
-  iMin = iMax = jMin = jMax = kMin = kMax = 0;
-
-  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
+  int ijkMin[3];
+  if (!this->GetIJKMinForCellId(cellId, ijkMin))
   {
-    vtkErrorMacro("Requesting cell bounds from an empty image.");
     bounds[0] = bounds[1] = bounds[2] = bounds[3]
       = bounds[4] = bounds[5] = 0.0;
     return;
   }
 
-  switch (this->DataDescription)
+  int ijkMax[3];
+  if (!this->GetIJKMaxForIJKMin(ijkMin, ijkMax))
   {
-    case VTK_EMPTY:
-      return;
-
-    case VTK_SINGLE_POINT: // cellId can only be = 0
-      break;
-
-    case VTK_X_LINE:
-      iMin = cellId;
-      iMax = cellId + 1;
-      break;
-
-    case VTK_Y_LINE:
-      jMin = cellId;
-      jMax = cellId + 1;
-      break;
-
-    case VTK_Z_LINE:
-      kMin = cellId;
-      kMax = cellId + 1;
-      break;
-
-    case VTK_XY_PLANE:
-      iMin = cellId % (dims[0]-1);
-      iMax = iMin + 1;
-      jMin = cellId / (dims[0]-1);
-      jMax = jMin + 1;
-      break;
-
-    case VTK_YZ_PLANE:
-      jMin = cellId % (dims[1]-1);
-      jMax = jMin + 1;
-      kMin = cellId / (dims[1]-1);
-      kMax = kMin + 1;
-      break;
-
-    case VTK_XZ_PLANE:
-      iMin = cellId % (dims[0]-1);
-      iMax = iMin + 1;
-      kMin = cellId / (dims[0]-1);
-      kMax = kMin + 1;
-      break;
-
-    case VTK_XYZ_GRID:
-      iMin = cellId % (dims[0] - 1);
-      iMax = iMin + 1;
-      jMin = (cellId / (dims[0] - 1)) % (dims[1] - 1);
-      jMax = jMin + 1;
-      kMin = cellId / ((dims[0] - 1) * (dims[1] - 1));
-      kMax = kMin + 1;
-      break;
+    bounds[0] = bounds[1] = bounds[2] = bounds[3]
+    = bounds[4] = bounds[5] = 0.0;
+    return;
   }
 
+  int loc[3];
+  double ijk[4], xyz[4];
+  ijk[3] = 1;
+  const int* extent = this->Extent;
 
-  // carefully compute the bounds
-  if (kMax >= kMin && jMax >= jMin && iMax >= iMin)
+  // Compute the bounds
+  if (ijkMax[2] >= ijkMin[2] && ijkMax[1] >= ijkMin[1] && ijkMax[0] >= ijkMin[0])
   {
-    bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
-    bounds[1] = bounds[3] = bounds[5] =  VTK_DOUBLE_MIN;
+    bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
+    bounds[1] = bounds[3] = bounds[5] = VTK_DOUBLE_MIN;
 
-    // Extract point coordinates
-    for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
+    for (loc[2] = ijkMin[2]; loc[2] <= ijkMax[2]; loc[2]++)
     {
-      x[2] = origin[2] + (loc[2]+extent[4]) * spacing[2];
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
-    }
-    for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
-    {
-      x[1] = origin[1] + (loc[1]+extent[2]) * spacing[1];
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-    }
-    for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
-    {
-      x[0] = origin[0] + (loc[0]+extent[0]) * spacing[0];
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      ijk[2] = loc[2] + extent[4];
+      for (loc[1] = ijkMin[1]; loc[1] <= ijkMax[1]; loc[1]++)
+      {
+        ijk[1] = loc[1] + extent[2];
+        for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
+        {
+          ijk[0] = loc[0] + extent[0];
+          this->GetIndexToPhysical()->MultiplyPoint(ijk, xyz);
+
+          bounds[0] = (xyz[0] < bounds[0] ? xyz[0] : bounds[0]);
+          bounds[1] = (xyz[0] > bounds[1] ? xyz[0] : bounds[1]);
+          bounds[2] = (xyz[1] < bounds[2] ? xyz[1] : bounds[2]);
+          bounds[3] = (xyz[1] > bounds[3] ? xyz[1] : bounds[3]);
+          bounds[4] = (xyz[2] < bounds[4] ? xyz[2] : bounds[4]);
+          bounds[5] = (xyz[2] > bounds[5] ? xyz[2] : bounds[5]);
+        }
+      }
     }
   }
   else
