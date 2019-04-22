@@ -27,6 +27,7 @@ enum class vtkEventDataDevice {
   HeadMountedDisplay,
   RightController,
   LeftController,
+  GenericTracker,
   NumberOfDevices
 };
 
