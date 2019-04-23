@@ -98,7 +98,7 @@ vtkObjectBase::~vtkObjectBase()
 void vtkObjectBase::InitializeObjectBase()
 {
 #ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass(this->GetClassName());
+  vtkDebugLeaks::ConstructClass(this);
 #endif // VTK_DEBUG_LEAKS
 }
 
@@ -235,7 +235,7 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, vtkTypeBool check)
       delete [] this->WeakPointers;
     }
 #ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::DestructClass(this->GetClassName());
+    vtkDebugLeaks::DestructClass(this);
 #endif
     delete this;
   }
