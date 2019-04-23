@@ -32,7 +32,7 @@
 class vtkSubclassPlaybackRepresentation : public vtkPlaybackRepresentation
 {
 public:
-  static vtkSubclassPlaybackRepresentation *New() {return new vtkSubclassPlaybackRepresentation;}
+  static vtkSubclassPlaybackRepresentation *New();
   void Play() override {std::cout << "play\n";}
   void Stop() override {std::cout << "stop\n";}
   void ForwardOneFrame() override {std::cout << "forward one frame\n";}
@@ -41,6 +41,7 @@ public:
   void JumpToEnd() override {std::cout << "jump to end\n";}
 };
 
+vtkStandardNewMacro(vtkSubclassPlaybackRepresentation);
 
 int TestPlaybackWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {

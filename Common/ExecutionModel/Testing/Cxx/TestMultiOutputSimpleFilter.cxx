@@ -21,7 +21,7 @@ namespace
 class vtkTestAlgorithm : public vtkPassInputTypeAlgorithm
 {
 public:
-  static vtkTestAlgorithm* New() { return new vtkTestAlgorithm; }
+  static vtkTestAlgorithm* New();
   vtkTestAlgorithm(const vtkTestAlgorithm&) = delete;
   void operator=(const vtkTestAlgorithm&) = delete;
 
@@ -87,6 +87,8 @@ protected:
     return 1;
   }
 };
+
+vtkStandardNewMacro(vtkTestAlgorithm);
 
 void AddPerBlockFieldData(vtkCompositeDataSet* data)
 {
