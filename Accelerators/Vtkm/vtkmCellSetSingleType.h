@@ -137,7 +137,7 @@ public:
   void GetCellPointIds(vtkm::Id id, vtkm::Id *ptids) const override
   {
     vtkm::Id count = this->DetermineNumberOfPoints();
-    vtkm::Id start = id * (count + 1);
+    vtkm::Id start = (id * (count + 1)) + 1;
     auto portal = this->Connectivity.GetPortalConstControl();
     for (vtkm::Id i = 0; i < count; ++i)
     {
