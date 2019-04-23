@@ -494,7 +494,73 @@ int vtkAMRBox::ComputeStructuredCoordinates(const vtkAMRBox& box, const double d
   double bounds[6];
   vtkAMRBox::GetBounds(box,dataOrigin,h,bounds);
 
-  return vtkImageData::ComputeStructuredCoordinates(x,ijk,pcoords,extent, h, origin,bounds);
+  // tolerance is needed for 2D data (this is squared tolerance)
+  const double tol2 = 1e-12;
+
+  //
+  //  Compute the ijk location
+  //
+  int isInBounds = 1;
+  for (int i = 0; i < 3; i++)
+  {
+    double d = x[i] - origin[i];
+    double doubleLoc = d / h[i];
+    // Floor for negative indexes.
+    ijk[i] = vtkMath::Floor(doubleLoc);
+    pcoords[i] = doubleLoc - static_cast<double>(ijk[i]);
+
+    int tmpInBounds = 0;
+    int minExt = extent[i*2];
+    int maxExt = extent[i*2 + 1];
+
+    // check if data is one pixel thick
+    if (minExt == maxExt)
+    {
+      double dist = x[i] - bounds[2*i];
+      if (dist*dist <= h[i]*h[i]*tol2)
+      {
+        pcoords[i] = 0.0;
+        ijk[i] = minExt;
+        tmpInBounds = 1;
+      }
+    }
+
+    // low boundary check
+    else if (ijk[i] < minExt)
+    {
+      if ((h[i] >= 0 && x[i] >= bounds[i*2]) ||
+          (h[i] < 0 && x[i] <= bounds[i*2 + 1]))
+      {
+        pcoords[i] = 0.0;
+        ijk[i] = minExt;
+        tmpInBounds = 1;
+      }
+    }
+
+    // high boundary check
+    else if (ijk[i] >= maxExt)
+    {
+      if ((h[i] >= 0 && x[i] <= bounds[i*2 + 1]) ||
+          (h[i] < 0 && x[i] >= bounds[i*2]))
+      {
+        // make sure index is within the allowed cell index range
+        pcoords[i] = 1.0;
+        ijk[i] = maxExt - 1;
+        tmpInBounds = 1;
+      }
+    }
+
+    // else index is definitely within bounds
+    else
+    {
+      tmpInBounds = 1;
+    }
+
+    // clear isInBounds if out of bounds for this dimension
+    isInBounds = (isInBounds & tmpInBounds);
+  }
+
+  return isInBounds;
 }
 
 //------------------------------------------------------------------------------

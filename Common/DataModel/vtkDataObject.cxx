@@ -60,6 +60,7 @@ vtkInformationKeyRestrictedMacro(vtkDataObject, ALL_PIECES_EXTENT, IntegerVector
 vtkInformationKeyRestrictedMacro(vtkDataObject, DATA_EXTENT, IntegerPointer, 6);
 vtkInformationKeyRestrictedMacro(vtkDataObject, ORIGIN, DoubleVector, 3);
 vtkInformationKeyRestrictedMacro(vtkDataObject, SPACING, DoubleVector, 3);
+vtkInformationKeyRestrictedMacro(vtkDataObject, DIRECTION, DoubleVector, 9);
 vtkInformationKeyMacro(vtkDataObject, SIL, DataObject);
 vtkInformationKeyRestrictedMacro(vtkDataObject, BOUNDING_BOX, DoubleVector, 6);
 
