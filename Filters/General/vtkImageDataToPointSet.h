@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkRectilinearGridToTetrahedra.h
+  Module:    vtkImageDataToPointSet.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -60,8 +60,6 @@ protected:
 private:
   vtkImageDataToPointSet(const vtkImageDataToPointSet &) = delete;
   void operator=(const vtkImageDataToPointSet &) = delete;
-
-  int CopyStructure(vtkStructuredGrid *outData, vtkImageData *inData);
 };
 
 
