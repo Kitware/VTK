@@ -86,6 +86,20 @@ int vtkXMLImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     this->Spacing[2] = 1;
   }
 
+  // Get the image's direction.
+  if (ePrimary->GetVectorAttribute("Direction", 9, this->Direction) != 9)
+  {
+    this->Direction[0] = 1;
+    this->Direction[1] = 0;
+    this->Direction[2] = 0;
+    this->Direction[3] = 0;
+    this->Direction[4] = 1;
+    this->Direction[5] = 0;
+    this->Direction[6] = 0;
+    this->Direction[7] = 0;
+    this->Direction[8] = 1;
+  }
+
   return 1;
 }
 
@@ -98,6 +112,7 @@ void vtkXMLImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 
   outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
   outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
+  outInfo->Set(vtkDataObject::DIRECTION(), this->Direction, 9);
 }
 
 
@@ -114,6 +129,10 @@ void vtkXMLImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int p
   if (localInfo->Has(vtkDataObject::SPACING()))
   {
     outInfo->CopyEntry(localInfo, vtkDataObject::SPACING());
+  }
+  if (localInfo->Has(vtkDataObject::DIRECTION()))
+  {
+    outInfo->CopyEntry(localInfo, vtkDataObject::DIRECTION());
   }
 }
 
