@@ -164,7 +164,7 @@ public:
     if (this->CompactDatas->GlobalIndexTable_stl.size() != 0)
     {
       assert("pre: not_valid_index" && index >= 0 &&
-        index < this->CompactDatas->GlobalIndexTable_stl.size());
+        index < (vtkIdType)this->CompactDatas->GlobalIndexTable_stl.size());
       assert(
         "pre: not_positive_global_index" && this->CompactDatas->GlobalIndexTable_stl[index] >= 0);
       return this->CompactDatas->GlobalIndexTable_stl[index];
