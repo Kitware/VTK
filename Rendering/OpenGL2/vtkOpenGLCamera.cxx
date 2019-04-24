@@ -134,24 +134,9 @@ void vtkOpenGLCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
 
     this->WCVCMatrix->Transpose();
 
-    double aspect[2];
-    int  lowerLeft[2];
-    int usize, vsize;
-    ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
-
-    ren->ComputeAspect();
-    ren->GetAspect(aspect);
-    double aspect2[2];
-    ren->vtkViewport::ComputeAspect();
-    ren->vtkViewport::GetAspect(aspect2);
-    double aspectModification = aspect[0] * aspect2[1] / (aspect[1] * aspect2[0]);
-
-    if (usize && vsize)
-    {
-      this->VCDCMatrix->DeepCopy(this->GetProjectionTransformMatrix(
-                         aspectModification * usize / vsize, -1, 1));
-      this->VCDCMatrix->Transpose();
-    }
+    this->VCDCMatrix->DeepCopy(
+      this->GetProjectionTransformMatrix(ren->GetTiledAspectRatio(), -1, 1));
+    this->VCDCMatrix->Transpose();
 
     vtkMatrix4x4::Multiply4x4(this->WCVCMatrix, this->VCDCMatrix, this->WCDCMatrix);
 
