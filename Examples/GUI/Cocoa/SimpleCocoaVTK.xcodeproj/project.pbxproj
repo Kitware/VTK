@@ -12,9 +12,9 @@
 		1454C0F1094E266D00F594FE /* MyDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1454C0F0094E266D00F594FE /* MyDocument.mm */; };
 		1454C1D6094F306B00F594FE /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1454C1D5094F306B00F594FE /* OpenGL.framework */; };
 		1454C4360950A4A800F594FE /* BasicVTKView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1454C4350950A4A800F594FE /* BasicVTKView.mm */; };
+		148BD56B2270BFC3001DA6B6 /* libvtkloguru.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 148BD56A2270BFC3001DA6B6 /* libvtkloguru.a */; };
 		14A3028C119E0C3200D75B9A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 14A3028A119E0C3200D75B9A /* MainMenu.xib */; };
 		14A3028D119E0C3200D75B9A /* MyWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 14A3028B119E0C3200D75B9A /* MyWindow.xib */; };
-		14B86359113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */; };
 		14B863A5113C436100C9B42E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B863A4113C436100C9B42E /* IOKit.framework */; };
 		14D589961C69466D00C28521 /* libvtkglew.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D589951C69466D00C28521 /* libvtkglew.a */; };
 		14D951A31B701A690012248C /* libvtkCommonColor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D951A21B701A690012248C /* libvtkCommonColor.a */; };
@@ -35,9 +35,7 @@
 		14FC3EC816C5A1810092149A /* libvtkImagingMorphological.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FC3EC616C5A1810092149A /* libvtkImagingMorphological.a */; };
 		14FC3EC916C5A1810092149A /* libvtkImagingStencil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FC3EC716C5A1810092149A /* libvtkImagingStencil.a */; };
 		14FC3ECB16C5A1C20092149A /* libvtkRenderingFreeType.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FC3ECA16C5A1C20092149A /* libvtkRenderingFreeType.a */; };
-		14FC3ECD16C5A8A20092149A /* libvtklibxml2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FC3ECC16C5A8A20092149A /* libvtklibxml2.a */; };
 		14FC3ED116C5A8C00092149A /* libvtkjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FC3ECE16C5A8C00092149A /* libvtkjpeg.a */; };
-		14FC3ED216C5A8C00092149A /* libvtklibxml2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FC3ECF16C5A8C00092149A /* libvtklibxml2.a */; };
 		14FC3ED316C5A8C00092149A /* libvtkpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FC3ED016C5A8C00092149A /* libvtkpng.a */; };
 		14FC3ED616C5A9030092149A /* libvtkIOXML.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FC3ED416C5A9030092149A /* libvtkIOXML.a */; };
 		14FC3ED716C5A9030092149A /* libvtkIOXMLParser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FC3ED516C5A9030092149A /* libvtkIOXMLParser.a */; };
@@ -68,6 +66,7 @@
 		1454C1D5094F306B00F594FE /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		1454C4340950A4A800F594FE /* BasicVTKView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = BasicVTKView.h; sourceTree = SOURCE_ROOT; tabWidth = 2; usesTabs = 0; };
 		1454C4350950A4A800F594FE /* BasicVTKView.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.objcpp; path = BasicVTKView.mm; sourceTree = SOURCE_ROOT; tabWidth = 2; usesTabs = 0; };
+		148BD56A2270BFC3001DA6B6 /* libvtkloguru.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkloguru.a; sourceTree = "vtk-debug-lib"; };
 		14A3028A119E0C3200D75B9A /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		14A3028B119E0C3200D75B9A /* MyWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyWindow.xib; sourceTree = "<group>"; };
 		14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = text.xcconfig; path = SimpleCocoaVTK.xcconfig; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
@@ -91,7 +90,6 @@
 		14FC3EC616C5A1810092149A /* libvtkImagingMorphological.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkImagingMorphological.a; sourceTree = "vtk-debug-lib"; };
 		14FC3EC716C5A1810092149A /* libvtkImagingStencil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkImagingStencil.a; sourceTree = "vtk-debug-lib"; };
 		14FC3ECA16C5A1C20092149A /* libvtkRenderingFreeType.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkRenderingFreeType.a; sourceTree = "vtk-debug-lib"; };
-		14FC3ECC16C5A8A20092149A /* libvtklibxml2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtklibxml2.a; sourceTree = "vtk-debug-lib"; };
 		14FC3ECE16C5A8C00092149A /* libvtkjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkjpeg.a; sourceTree = "vtk-debug-lib"; };
 		14FC3ECF16C5A8C00092149A /* libvtklibxml2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtklibxml2.a; sourceTree = "vtk-debug-lib"; };
 		14FC3ED016C5A8C00092149A /* libvtkpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkpng.a; sourceTree = "vtk-debug-lib"; };
@@ -120,6 +118,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
+				148BD56B2270BFC3001DA6B6 /* libvtkloguru.a in Frameworks */,
 				1454C1D6094F306B00F594FE /* OpenGL.framework in Frameworks */,
 				14B863A5113C436100C9B42E /* IOKit.framework in Frameworks */,
 				14FC3EAD16C5A02D0092149A /* libvtkRenderingCore.a in Frameworks */,
@@ -140,9 +139,7 @@
 				14FC3EC816C5A1810092149A /* libvtkImagingMorphological.a in Frameworks */,
 				14FC3EC916C5A1810092149A /* libvtkImagingStencil.a in Frameworks */,
 				14FC3ECB16C5A1C20092149A /* libvtkRenderingFreeType.a in Frameworks */,
-				14FC3ECD16C5A8A20092149A /* libvtklibxml2.a in Frameworks */,
 				14FC3ED116C5A8C00092149A /* libvtkjpeg.a in Frameworks */,
-				14FC3ED216C5A8C00092149A /* libvtklibxml2.a in Frameworks */,
 				14FC3ED316C5A8C00092149A /* libvtkpng.a in Frameworks */,
 				14FC3ED616C5A9030092149A /* libvtkIOXML.a in Frameworks */,
 				14FC3ED716C5A9030092149A /* libvtkIOXMLParser.a in Frameworks */,
@@ -201,7 +198,7 @@
 				14FC3EE916C5A9830092149A /* libvtktiff.a */,
 				14FC3EE216C5A9470092149A /* libvtkexpat.a */,
 				142CC7EB17133D3600FE6428 /* libvtkfreetype.a */,
-				14FC3ECC16C5A8A20092149A /* libvtklibxml2.a */,
+				148BD56A2270BFC3001DA6B6 /* libvtkloguru.a */,
 				14FC3ECE16C5A8C00092149A /* libvtkjpeg.a */,
 				14FC3EED16C5A9A60092149A /* libvtkmetaio.a */,
 				14FC3ECF16C5A8C00092149A /* libvtklibxml2.a */,
@@ -302,6 +299,7 @@
 		2A37F4A9FDCFA73011CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastUpgradeCheck = 1010;
 			};
 			buildConfigurationList = C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "SimpleCocoaVTK" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -324,7 +322,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14B86359113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig in Resources */,
 				14A3028C119E0C3200D75B9A /* MainMenu.xib in Resources */,
 				14A3028D119E0C3200D75B9A /* MyWindow.xib in Resources */,
 			);
