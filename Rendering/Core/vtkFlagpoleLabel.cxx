@@ -240,10 +240,12 @@ vtkFlagpoleLabel::vtkFlagpoleLabel()
   this->BasePosition[0] = 0.0;
   this->BasePosition[1] = 0.0;
   this->BasePosition[2] = 0.0;
+  this->LineSource->SetPoint1(this->BasePosition);
 
   this->TopPosition[0] = 0.0;
   this->TopPosition[1] = 1.0;
   this->TopPosition[2] = 0.0;
+  this->LineSource->SetPoint2(this->TopPosition);
 
   this->FlagSize = 1.0;
 
