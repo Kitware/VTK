@@ -61,7 +61,7 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkXOpenGLRenderWindow.h"
 #endif
 #ifdef VTK_USE_COCOA
-#include "vtkCocoaOpenGLRenderWindow.h"
+#include "vtkCocoaRenderWindow.h"
 #endif
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
@@ -99,7 +99,7 @@ vtkOpenVRRenderWindow::vtkOpenVRRenderWindow()
   this->HelperWindow = vtkXOpenGLRenderWindow::New();
 #endif
 #ifdef VTK_USE_COCOA
-  this->HelperWindow = vtkCocoaOpenGLRenderWindow::New();
+  this->HelperWindow = vtkCocoaRenderWindow::New();
 #endif
 
   this->DashboardOverlay = vtkOpenVRDefaultOverlay::New();
