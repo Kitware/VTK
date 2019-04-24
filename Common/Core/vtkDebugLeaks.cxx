@@ -186,7 +186,7 @@ void vtkDebugLeaksTraceManager::PrintObjects(std::ostream &os)
   }
 }
 #else
-void vtkDebugLeaksTraceManager::PrintObjects(std::ostream &vtkNotUsed(os)
+void vtkDebugLeaksTraceManager::PrintObjects(std::ostream &vtkNotUsed(os))
 {
 
 }
