@@ -36,8 +36,7 @@ cmake_dependent_option(VTKOSPRAY_ENABLE_DENOISER
   "build OSPRay Renderer using OpenImageDenoise" OFF
   "VTK_ENABLE_OSPRAY" OFF)
 
-cmake_dependent_option(VTK_ENABLE_VISRTX "Enable VisRTX RayTracing backend" OFF
-                       "VTK_USE_CUDA" OFF)
+option(VTK_ENABLE_VISRTX "Enable VisRTX RayTracing backend" OFF)
 if(VTK_ENABLE_VISRTX)
   list(APPEND sources RTWrapper/VisRTX/VisRTXBackend.cxx)
 endif()
