@@ -18,7 +18,6 @@
 //  this software.
 //============================================================================
 
-#include "vtkmlib/Storage.h"
 #include "vtkmConnectivityExec.h"
 
 namespace vtkm {

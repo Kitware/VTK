@@ -26,6 +26,8 @@
 
 #include <vtkm/cont/serial/DeviceAdapterSerial.h>
 #include <vtkm/cont/tbb/DeviceAdapterTBB.h>
+#include <vtkm/cont/openmp/DeviceAdapterOpenMP.h>
+
 #include <vtkm/cont/TryExecute.h>
 #include <vtkm/worklet/DispatcherMapTopology.h>
 
@@ -117,6 +119,7 @@ vtkm::cont::DynamicCellSet ConvertSingleType(vtkCellArray* cells, int cellType,
     //divide the array by 4, gets the number of times we need to flip values
 
     using SMPTypes = vtkm::ListTagBase<vtkm::cont::DeviceAdapterTagTBB,
+                                       vtkm::cont::DeviceAdapterTagOpenMP,
                                        vtkm::cont::DeviceAdapterTagSerial>;
     // construct through vtkm so that the memory is properly
     // de-allocated when the DynamicCellSet is destroyed
@@ -207,169 +210,60 @@ vtkm::cont::DynamicCellSet Convert(vtkUnsignedCharArray* types,
 
 namespace fromvtkm {
 
-namespace {
-
-//------------------------------------------------------------------------------
-struct CellInfoCopyWorklet : public vtkm::worklet::WorkletMapPointToCell
-{
-  CellInfoCopyWorklet(vtkm::Id* size, vtkIdTypeArray* conn,
-                      vtkUnsignedCharArray* types, vtkIdTypeArray* locations)
-    : ConnIndex(size), ConnArray(conn), Locations(locations), Shapes(types)
-  {
-  }
-
-  typedef void ControlSignature(CellSetIn);
-  typedef void ExecutionSignature(WorkIndex, CellShape, PointCount,
-                                  PointIndices);
-  typedef _1 InputDomain;
-
-  template <typename CellShapeTag, typename IndicesVecType>
-  void operator()(vtkm::Id i, CellShapeTag shape,
-                  vtkm::Id numPointsPerCell,
-                  const IndicesVecType& indices) const
-  {
-    vtkm::Id index = *this->ConnIndex;
-
-    // save the shape tag
-    this->Shapes->SetValue(i, shape.Id);
-
-    // Visual Studio 2013 was giving warnings about shape not being used.
-    // Why?!? It was clearly referenced above. This should shut it up.
-    (void)shape;
-
-    // update the offset location
-    this->Locations->SetValue(i, index);
-
-    // update the connectivity
-    this->ConnArray->SetValue(index++, numPointsPerCell);
-    for (vtkIdType j = 0; j < numPointsPerCell; ++j)
-    {
-      this->ConnArray->SetValue(index++, indices[static_cast<vtkm::IdComponent>(j)]);
-    }
-
-    // only update member variable once per iteration to improve locality
-    *this->ConnIndex += 1 + numPointsPerCell;
-  }
-
-  vtkm::Id* ConnIndex;
-  vtkIdTypeArray* ConnArray;
-  vtkIdTypeArray* Locations;
-  vtkUnsignedCharArray* Shapes;
-};
-
-//------------------------------------------------------------------------------
-struct CellConnCopyWorklet : public vtkm::worklet::WorkletMapPointToCell
-{
-  CellConnCopyWorklet(vtkm::Id* size, vtkIdTypeArray* conn)
-    : ConnIndex(size), ConnArray(conn)
-  {
-  }
-
-  typedef void ControlSignature(CellSetIn);
-  typedef void ExecutionSignature(PointCount, PointIndices);
-  typedef _1 InputDomain;
-
-  template <typename IndicesVecType>
-  void operator()(vtkm::Id numPointsPerCell,
-                  const IndicesVecType& indices) const
-  {
-    vtkm::Id index = *this->ConnIndex;
-
-    // update the connectivity
-    this->ConnArray->SetValue(index++, numPointsPerCell);
-    for (vtkIdType j = 0; j < numPointsPerCell; ++j)
-    {
-      this->ConnArray->SetValue(
-        index++, static_cast<vtkm::Id>(indices[static_cast<vtkm::IdComponent>(j)]));
-    }
-    // only update member variable once per iteration to improve locality
-    *this->ConnIndex += 1 + numPointsPerCell;
-  }
-
-  vtkm::Id* ConnIndex;
-  vtkIdTypeArray* ConnArray;
-};
-
-//------------------------------------------------------------------------------
-struct CellSetConverter
-{
-  CellSetConverter(bool* didConversion, vtkCellArray* cells,
-                   vtkUnsignedCharArray* types, vtkIdTypeArray* locations)
-    : Cells(cells), Types(types), Locations(locations), Valid(didConversion)
-  {
-  }
-
-  ~CellSetConverter()
-  {
-    this->Cells = nullptr;
-    this->Valid = nullptr;
-  }
-
-  template <typename T> void operator()(const T& cells) const
-  {
-
-    if (this->Cells)
-    {
-      // small hack as we can't compute properly the number of cells
-      // instead we will pre-allocate and than shrink
-      const vtkm::Id numCells = cells.GetNumberOfCells();
-      const vtkm::Id size = numCells * 9; // largest cell type is hex
-      vtkm::Id correctSize = 0;
-      vtkIdTypeArray* connArray = vtkIdTypeArray::New();
-      connArray->SetNumberOfComponents(1);
-      connArray->SetNumberOfTuples(size);
-
-      // These have to be done with the serial back-end only as they
-      // aren't safe for parallelization. We only are using the dispatcher
-      // to provide a uniform api for accessing cells
-      if (this->Locations && this->Types)
-      {
-        this->Locations->SetNumberOfComponents(1);
-        this->Locations->SetNumberOfTuples(numCells);
-
-        this->Types->SetNumberOfComponents(1);
-        this->Types->SetNumberOfTuples(numCells);
-
-        CellInfoCopyWorklet worklet(&correctSize, connArray, this->Types,
-                                    this->Locations);
-        vtkm::worklet::DispatcherMapTopology<CellInfoCopyWorklet> dispatcher(worklet);
-        dispatcher.SetDevice(vtkm::cont::DeviceAdapterTagSerial{});
-        dispatcher.Invoke(cells);
-      }
-      else
-      {
-        CellConnCopyWorklet worklet(&correctSize, connArray);
-        vtkm::worklet::DispatcherMapTopology<CellConnCopyWorklet> dispatcher(worklet);
-        dispatcher.SetDevice(vtkm::cont::DeviceAdapterTagSerial{});
-        dispatcher.Invoke(cells);
-      }
-
-      connArray->Resize(correctSize);
-      this->Cells->SetCells(numCells, connArray);
-      connArray->FastDelete();
-      *this->Valid = true;
-      return;
-    }
-
-    *this->Valid = false;
-  }
-
-  vtkCellArray* Cells;
-  vtkUnsignedCharArray* Types;
-  vtkIdTypeArray* Locations;
-  bool* Valid;
-};
-
-} // namespace
-
 bool Convert(const vtkm::cont::DynamicCellSet& toConvert, vtkCellArray* cells,
              vtkUnsignedCharArray* types, vtkIdTypeArray* locations)
 {
-  vtkmOutputFilterPolicy policy;
-  bool didConversion = false;
-  CellSetConverter cConverter(&didConversion, cells, types, locations);
-  vtkm::cont::CastAndCall(vtkm::filter::ApplyPolicy(toConvert, policy),
-                          cConverter);
-  return didConversion;
+  const auto* cellset = toConvert.GetCellSetBase();
+
+  // small hack as we can't compute properly the number of cells
+  // instead we will pre-allocate and than shrink
+  const vtkm::Id numCells = cellset->GetNumberOfCells();
+  const vtkm::Id size = numCells * 9; // largest cell type is hex
+
+  vtkIdTypeArray* connArray = vtkIdTypeArray::New();
+  connArray->SetNumberOfComponents(1);
+  connArray->SetNumberOfTuples(size);
+
+  if (locations && types)
+  {
+    locations->SetNumberOfComponents(1);
+    locations->SetNumberOfTuples(numCells);
+
+    types->SetNumberOfComponents(1);
+    types->SetNumberOfTuples(numCells);
+  }
+
+  vtkm::Id correctSize = 0;
+  for (vtkm::Id i = 0; i < numCells; ++i)
+  {
+    const vtkm::Id numPointsPerCell = cellset->GetNumberOfPointsInCell(i);
+    vtkm::Id index = correctSize;
+
+    if (types)
+    {
+      types->SetValue(i, cellset->GetCellShape(i));
+    }
+    if (locations)
+    {
+      locations->SetValue(i, index);
+    }
+
+    // update the connectivity
+    connArray->SetValue(index++, numPointsPerCell);
+    vtkm::Id local[9]; // largest cell type is hex
+    cellset->GetCellPointIds(i, local);
+    for (vtkIdType j = 0; j < numPointsPerCell; ++j)
+    {
+      connArray->SetValue(index++, local[j]);
+    }
+
+    correctSize += 1 + numPointsPerCell;
+  }
+
+  connArray->Resize(correctSize);
+  cells->SetCells(numCells, connArray);
+  connArray->FastDelete();
+
+  return true;
 }
 }

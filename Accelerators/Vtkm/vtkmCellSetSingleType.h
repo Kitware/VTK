@@ -41,7 +41,7 @@
 namespace vtkm {
 namespace cont {
 
-class VTKACCELERATORSVTKM_EXPORT vtkmCellSetSingleType : public CellSet
+class vtkmCellSetSingleType : public CellSet
 {
   typedef tovtkm::vtkCellArrayContainerTag ConnectivityStorageTag;
 
@@ -122,6 +122,43 @@ public:
   vtkm::Id GetSchedulingRange(vtkm::TopologyElementTagPoint) const
   {
     return this->GetNumberOfPoints();
+  }
+
+  vtkm::IdComponent GetNumberOfPointsInCell(vtkm::Id) const override
+  {
+    return this->DetermineNumberOfPoints();
+  }
+
+  vtkm::UInt8 GetCellShape(vtkm::Id) const override
+  {
+    return static_cast<vtkm::UInt8>(this->CellTypeAsId);
+  }
+
+  void GetCellPointIds(vtkm::Id id, vtkm::Id *ptids) const override
+  {
+    vtkm::Id count = this->DetermineNumberOfPoints();
+    vtkm::Id start = (id * (count + 1)) + 1;
+    auto portal = this->Connectivity.GetPortalConstControl();
+    for (vtkm::Id i = 0; i < count; ++i)
+    {
+      ptids[i] = portal.Get(i + start);
+    }
+  }
+
+  std::shared_ptr<CellSet> NewInstance() const override
+  {
+    return std::make_shared<vtkmCellSetSingleType>();
+  }
+
+  void DeepCopy(const CellSet* src) override
+  {
+    const auto* other = dynamic_cast<const vtkmCellSetSingleType*>(src);
+    if (!other)
+    {
+      throw vtkm::cont::ErrorBadType("Incorrect type passed to CellSetExplicit::DeepCopy");
+    }
+
+    this->Fill(other->NumberOfPoints, other->Connectivity);
   }
 
   // This is the way you can fill the memory from another system without copying

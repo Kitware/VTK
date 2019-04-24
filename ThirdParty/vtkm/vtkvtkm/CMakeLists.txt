@@ -50,11 +50,10 @@ if (VTKm_ENABLE_CUDA AND CMAKE_VERSION VERSION_LESS 3.11)
   set(CMAKE_CUDA_STANDARD_REQUIRED True)
 endif ()
 
+set(BUILD_SHARED_LIBS OFF)
+
 add_subdirectory(vtk-m)
 
 vtk_module_add_module(VTK::vtkm
   HEADER_ONLY)
-target_link_libraries(vtkm
-  INTERFACE
-    vtkm
-    vtkm_cont)
+vtk_module_link(VTK::vtkm INTERFACE vtkm_cont vtkm_filter)

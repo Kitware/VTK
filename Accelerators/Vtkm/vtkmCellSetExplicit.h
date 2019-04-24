@@ -38,7 +38,7 @@
 namespace vtkm {
 namespace cont {
 
-class VTKACCELERATORSVTKM_EXPORT vtkmCellSetExplicitAOS : public CellSet
+class vtkmCellSetExplicitAOS : public CellSet
 {
 public:
   vtkmCellSetExplicitAOS(const std::string& name = std::string())
@@ -110,9 +110,14 @@ public:
     return this->GetNumberOfPoints();
   }
 
-  vtkm::IdComponent GetNumberOfPointsInCell(vtkm::Id index) const;
+  vtkm::IdComponent GetNumberOfPointsInCell(vtkm::Id index) const override;
 
-  vtkm::Id GetCellShape(vtkm::Id index) const;
+  vtkm::UInt8 GetCellShape(vtkm::Id index) const override;
+
+  void GetCellPointIds(vtkm::Id id, vtkm::Id *ptids) const override;
+
+  std::shared_ptr<CellSet> NewInstance() const override;
+  void DeepCopy(const CellSet* src) override;
 
   /// Assigns the array handles to the explicit connectivity. This is
   /// the way you can fill the memory from another system without copying

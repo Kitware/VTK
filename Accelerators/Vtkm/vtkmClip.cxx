@@ -104,9 +104,9 @@ int vtkmClip::RequestData(vtkInformation *,
                           vtkInformationVector **inInfoVec,
                           vtkInformationVector *outInfoVec)
 {
-  vtkm::cont::ScopedGlobalRuntimeDeviceTracker tracker;
+  vtkm::cont::ScopedRuntimeDeviceTracker tracker;
   (void)tracker;
-  vtkm::cont::GetGlobalRuntimeDeviceTracker().DisableDevice(
+  vtkm::cont::GetRuntimeDeviceTracker().DisableDevice(
         vtkm::cont::DeviceAdapterTagCuda{});
 
   vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
