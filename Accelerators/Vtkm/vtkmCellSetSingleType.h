@@ -41,7 +41,7 @@
 namespace vtkm {
 namespace cont {
 
-class VTKACCELERATORSVTKM_EXPORT vtkmCellSetSingleType : public CellSet
+class vtkmCellSetSingleType : public CellSet
 {
   typedef tovtkm::vtkCellArrayContainerTag ConnectivityStorageTag;
 

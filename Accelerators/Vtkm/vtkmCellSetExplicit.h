@@ -38,7 +38,7 @@
 namespace vtkm {
 namespace cont {
 
-class VTKACCELERATORSVTKM_EXPORT vtkmCellSetExplicitAOS : public CellSet
+class vtkmCellSetExplicitAOS : public CellSet
 {
 public:
   vtkmCellSetExplicitAOS(const std::string& name = std::string())
