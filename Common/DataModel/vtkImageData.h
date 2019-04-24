@@ -361,6 +361,9 @@ public:
   vtkGetObjectMacro(DirectionMatrix,vtkMatrix3x3);
   virtual void SetDirectionMatrix(vtkMatrix3x3 *m);
   virtual void SetDirectionMatrix(const double elements[9]);
+  virtual void SetDirectionMatrix(double e00, double e01, double e02,
+                                  double e10, double e11, double e12,
+                                  double e20, double e21, double e22);
   //@}
 
   //@{

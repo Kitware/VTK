@@ -2306,18 +2306,32 @@ void vtkImageData::SetDirectionMatrix(vtkMatrix3x3 *m)
 //----------------------------------------------------------------------------
 void vtkImageData::SetDirectionMatrix(const double elements[9])
 {
-  double* data = this->DirectionMatrix->GetData();
+  this->SetDirectionMatrix(elements[0], elements[1], elements[2],
+                           elements[3], elements[4], elements[5],
+                           elements[6], elements[7], elements[8]);
+}
 
-  for (int i = 0; i < 9; ++i)
-  {
-    if (data[i] == elements[i])
-    {
-      continue;
-    }
-    this->DirectionMatrix->DeepCopy(elements);
+//----------------------------------------------------------------------------
+void vtkImageData::SetDirectionMatrix(double e00, double e01, double e02,
+                                      double e10, double e11, double e12,
+                                      double e20, double e21, double e22)
+{
+  vtkMatrix3x3 *m3 = this->DirectionMatrix;
+  vtkMTimeType lastModified = m3->GetMTime();
+
+  m3->SetElement(0, 0, e00);
+  m3->SetElement(0, 1, e01);
+  m3->SetElement(0, 2, e02);
+  m3->SetElement(1, 0, e10);
+  m3->SetElement(1, 1, e11);
+  m3->SetElement(1, 2, e12);
+  m3->SetElement(2, 0, e20);
+  m3->SetElement(2, 1, e21);
+  m3->SetElement(2, 2, e22);
+
+  if (lastModified < m3->GetMTime()) {
     this->ComputeTransforms();
     this->Modified();
-    break;
   }
 }
 
