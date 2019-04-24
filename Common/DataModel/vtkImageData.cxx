@@ -55,10 +55,10 @@ vtkImageData::vtkImageData()
     this->Point[idx] = 0.0;
   }
 
-  this->Direction = vtkMatrix3x3::New();
-  this->IndexToPhysical = vtkMatrix4x4::New();
-  this->PhysicalToIndex = vtkMatrix4x4::New();
-  this->Direction->Identity();
+  this->DirectionMatrix = vtkMatrix3x3::New();
+  this->IndexToPhysicalMatrix = vtkMatrix4x4::New();
+  this->PhysicalToIndexMatrix = vtkMatrix4x4::New();
+  this->DirectionMatrix->Identity();
   this->ComputeTransforms();
 
   int extent[6] = {0, -1, 0, -1, 0, -1};
@@ -87,17 +87,17 @@ vtkImageData::~vtkImageData()
   {
     this->Voxel->Delete();
   }
-  if (this->Direction)
+  if (this->DirectionMatrix)
   {
-    this->Direction->Delete();
+    this->DirectionMatrix->Delete();
   }
-  if (this->IndexToPhysical)
+  if (this->IndexToPhysicalMatrix)
   {
-    this->IndexToPhysical->Delete();
+    this->IndexToPhysicalMatrix->Delete();
   }
-  if (this->PhysicalToIndex)
+  if (this->PhysicalToIndexMatrix)
   {
-    this->PhysicalToIndex->Delete();
+    this->PhysicalToIndexMatrix->Delete();
   }
 }
 
@@ -116,7 +116,7 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
     this->Spacing[i] = sPts->Spacing[i];
     this->Origin[i] = sPts->Origin[i];
   }
-  this->Direction->DeepCopy(sPts->GetDirection());
+  this->DirectionMatrix->DeepCopy(sPts->GetDirectionMatrix());
   this->ComputeTransforms();
   this->SetExtent(sPts->GetExtent());
 }
@@ -149,7 +149,7 @@ void vtkImageData::CopyInformationFromPipeline(vtkInformation* information)
   }
   if(information->Has(DIRECTION()))
   {
-    this->SetDirection(information->Get(DIRECTION()));
+    this->SetDirectionMatrix(information->Get(DIRECTION()));
   }
 }
 
@@ -162,7 +162,7 @@ void vtkImageData::CopyInformationToPipeline(vtkInformation* info)
   // Copy the spacing, origin, direction, and scalar info
   info->Set(vtkDataObject::SPACING(), this->Spacing, 3);
   info->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
-  info->Set(vtkDataObject::DIRECTION(), this->Direction->GetData(), 9);
+  info->Set(vtkDataObject::DIRECTION(), this->DirectionMatrix->GetData(), 9);
   vtkDataObject::SetPointDataActiveScalarInfo(
     info, this->GetScalarType(), this->GetNumberOfScalarComponents());
 }
@@ -416,7 +416,7 @@ void vtkImageData::AddPointsToCellTemplate(vtkCell* cell, int ijkMin[3], int ijk
       for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
       {
         ijk[0] = loc[0] + extent[0];
-        this->GetIndexToPhysical()->MultiplyPoint(ijk, xyz);
+        this->IndexToPhysicalMatrix->MultiplyPoint(ijk, xyz);
 
         idx = loc[0] + loc[1] * dims[0] + loc[2] * d01;
         cell->PointIds->SetId(npts, idx);
@@ -526,7 +526,7 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
         for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
         {
           ijk[0] = loc[0] + extent[0];
-          this->GetIndexToPhysical()->MultiplyPoint(ijk, xyz);
+          this->IndexToPhysicalMatrix->MultiplyPoint(ijk, xyz);
 
           bounds[0] = (xyz[0] < bounds[0] ? xyz[0] : bounds[0]);
           bounds[1] = (xyz[0] > bounds[1] ? xyz[0] : bounds[1]);
@@ -610,7 +610,7 @@ void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
   ijk[1] = loc[1] + extent[2];
   ijk[2] = loc[2] + extent[4];
   ijk[3] = 1;
-  this->GetIndexToPhysical()->MultiplyPoint(ijk, xyz);
+  this->IndexToPhysicalMatrix->MultiplyPoint(ijk, xyz);
 
   x[0] = xyz[0]; x[1] = xyz[1]; x[2] = xyz[2];
 }
@@ -640,7 +640,7 @@ vtkIdType vtkImageData::FindPoint(double x[3])
   int loc[3];
   double xyz[4], ijk[4];
   xyz[0] = x[0]; xyz[1] = x[1]; xyz[2] = x[2]; xyz[3] = 1;
-  this->GetPhysicalToIndex()->MultiplyPoint(xyz, ijk);
+  this->PhysicalToIndexMatrix->MultiplyPoint(xyz, ijk);
   loc[0] = vtkMath::Floor(ijk[0] + 0.5);
   loc[1] = vtkMath::Floor(ijk[1] + 0.5);
   loc[2] = vtkMath::Floor(ijk[2] + 0.5);
@@ -819,7 +819,7 @@ void vtkImageData::ComputeBounds()
   }
   else
   {
-    if (this->Direction->IsIdentity())
+    if (this->DirectionMatrix->IsIdentity())
     {
       // Direction is identity: bounds are easy to compute
       // with only origin and spacing
@@ -860,7 +860,7 @@ void vtkImageData::ComputeBounds()
       double xMin, xMax, yMin, yMax, zMin, zMax;
       xMin = yMin = zMin = VTK_DOUBLE_MAX;
       xMax = yMax = zMax = VTK_DOUBLE_MIN;
-      vtkMatrix4x4 *m = this->GetIndexToPhysical();
+      vtkMatrix4x4 *m = this->IndexToPhysicalMatrix;
       for (double* ijkCorner : ijkCorners)
       {
         m->MultiplyPoint(ijkCorner, xyz);
@@ -1013,7 +1013,7 @@ void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
   // Note: we already applied the spacing when handling the ijk
   // axis above, and do not need to translate by the origin
   // since this is a gradient computation
-  this->Direction->MultiplyPoint(g, g);
+  this->DirectionMatrix->MultiplyPoint(g, g);
 }
 
 //----------------------------------------------------------------------------
@@ -1049,7 +1049,7 @@ int vtkImageData::ComputeStructuredCoordinates(const double x[3],
   //
   double xyz[4], doubleLoc[4];
   xyz[0] = x[0]; xyz[1] = x[1]; xyz[2] = x[2]; xyz[3] = 1;
-  this->GetPhysicalToIndex()->MultiplyPoint(xyz, doubleLoc);
+  this->PhysicalToIndexMatrix->MultiplyPoint(xyz, doubleLoc);
 
   const int *extent = this->Extent;
   int isInBounds = 1;
@@ -1108,7 +1108,7 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   int idx;
-  const double* direction = this->GetDirection()->GetData();
+  const double* direction = this->GetDirectionMatrix()->GetData();
   const int *dims = this->GetDimensions();
   const int* extent = this->Extent;
 
@@ -2105,7 +2105,7 @@ void vtkImageData::InternalImageDataCopy(vtkImageData *src)
     this->Origin[idx] = src->Origin[idx];
     this->Spacing[idx] = src->Spacing[idx];
   }
-  this->Direction->DeepCopy(src->Direction);
+  this->DirectionMatrix->DeepCopy(src->DirectionMatrix);
   this->ComputeTransforms();
   this->SetExtent(src->GetExtent());
 }
@@ -2294,19 +2294,19 @@ void vtkImageData::SetOrigin(const double ijk[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::SetDirection(vtkMatrix3x3 *m)
+void vtkImageData::SetDirectionMatrix(vtkMatrix3x3 *m)
 {
   vtkMTimeType lastModified = this->GetMTime();
-  vtkSetObjectBodyMacro(Direction, vtkMatrix3x3, m);
+  vtkSetObjectBodyMacro(DirectionMatrix, vtkMatrix3x3, m);
   if (lastModified < this->GetMTime()) {
     this->ComputeTransforms();
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::SetDirection(const double elements[9])
+void vtkImageData::SetDirectionMatrix(const double elements[9])
 {
-  double* data = this->Direction->GetData();
+  double* data = this->DirectionMatrix->GetData();
 
   for (int i = 0; i < 9; ++i)
   {
@@ -2314,7 +2314,7 @@ void vtkImageData::SetDirection(const double elements[9])
     {
       continue;
     }
-    this->Direction->DeepCopy(elements);
+    this->DirectionMatrix->DeepCopy(elements);
     this->ComputeTransforms();
     this->Modified();
     break;
@@ -2325,7 +2325,7 @@ void vtkImageData::SetDirection(const double elements[9])
 void vtkImageData::ComputeTransforms()
 {
   vtkMatrix4x4 *m4 = vtkMatrix4x4::New();
-  if (this->Direction->IsIdentity())
+  if (this->DirectionMatrix->IsIdentity())
   {
     m4->Zero();
     m4->SetElement(0, 0, this->Spacing[0]);
@@ -2335,7 +2335,7 @@ void vtkImageData::ComputeTransforms()
   }
   else
   {
-    const double* m3 = this->Direction->GetData();
+    const double* m3 = this->DirectionMatrix->GetData();
     m4->SetElement(0, 0, m3[0] * this->Spacing[0]);
     m4->SetElement(0, 1, m3[1] * this->Spacing[1]);
     m4->SetElement(0, 2, m3[2] * this->Spacing[2]);
@@ -2354,7 +2354,7 @@ void vtkImageData::ComputeTransforms()
   m4->SetElement(1, 3, this->Origin[1]);
   m4->SetElement(2, 3, this->Origin[2]);
 
-  this->IndexToPhysical->DeepCopy(m4);
-  vtkMatrix4x4::Invert(m4, this->PhysicalToIndex);
+  this->IndexToPhysicalMatrix->DeepCopy(m4);
+  vtkMatrix4x4::Invert(m4, this->PhysicalToIndexMatrix);
   m4->Delete();
 }

@@ -34,7 +34,7 @@ inline int DoTest(
   image->SetExtent(extent);
   image->SetOrigin(origin);
   image->SetSpacing(spacing);
-  image->SetDirection(direction);
+  image->SetDirectionMatrix(direction);
   image->AllocateScalars(VTK_DOUBLE, 1);
 
   double bounds[6];
@@ -59,7 +59,7 @@ inline int DoTest(
       // test point right on the boundary with zero tolerance
       ijk[i] = extent[2*i+j];
 
-      image->GetIndexToPhysical()->MultiplyPoint(ijk, x);
+      image->GetIndexToPhysicalMatrix()->MultiplyPoint(ijk, x);
       cellId = image->FindCell(
         x, nullptr, 0, 0.0, subId, pcoords, weights);
 
@@ -76,7 +76,7 @@ inline int DoTest(
       double offset = ((j == 0) ? (-tol*0.5) : (tol*0.5));
       ijk[i] = extent[2*i+j] + offset;
 
-      image->GetIndexToPhysical()->MultiplyPoint(ijk, x);
+      image->GetIndexToPhysicalMatrix()->MultiplyPoint(ijk, x);
       cellId = image->FindCell(
         x, nullptr, 0, 0.0, subId, pcoords, weights);
 
@@ -92,7 +92,7 @@ inline int DoTest(
       // test point just outside boundary with nonzero tolerance
       ijk[i] = extent[2*i+j] + ((j == 0) ? (-tol*0.5) : (tol*0.5));
 
-      image->GetIndexToPhysical()->MultiplyPoint(ijk, x);
+      image->GetIndexToPhysicalMatrix()->MultiplyPoint(ijk, x);
       cellId = image->FindCell(
         x, nullptr, 0, tol*tol, subId, pcoords, weights);
 
@@ -129,7 +129,7 @@ inline int DoTest(
 
       // validate the cellId
       ijk[i] = extent[2*i+j];
-      image->GetIndexToPhysical()->MultiplyPoint(ijk, x);
+      image->GetIndexToPhysicalMatrix()->MultiplyPoint(ijk, x);
       double pcoords2[3];
       int idx[3];
       if (image->ComputeStructuredCoordinates(x, idx, pcoords2) == 0)

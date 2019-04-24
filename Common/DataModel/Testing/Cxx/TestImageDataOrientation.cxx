@@ -36,11 +36,11 @@ inline int DoOrientationTest(
   image->SetExtent(extent);
   image->SetOrigin(origin);
   image->SetSpacing(spacing);
-  image->SetDirection(direction);
+  image->SetDirectionMatrix(direction);
   image->AllocateScalars(VTK_DOUBLE, 1);
 
   // Check some values in index to physical matrix
-  vtkMatrix4x4 *m4 = image->GetIndexToPhysical();
+  vtkMatrix4x4 *m4 = image->GetIndexToPhysicalMatrix();
   if (m4->GetElement(0, 3) != origin[0] ||
       m4->GetElement(1, 3) != origin[1] ||
       m4->GetElement(2, 3) != origin[2] ||
@@ -89,7 +89,7 @@ inline int DoOrientationTest(
   }
 
   // Get inverse transform: Physical to Index
-  vtkMatrix4x4 *inverseM4 = image->GetPhysicalToIndex();
+  vtkMatrix4x4 *inverseM4 = image->GetPhysicalToIndexMatrix();
 
   // Go from physical coordinate to index coordinate and ensure
   // it matches with ijk

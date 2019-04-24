@@ -55,7 +55,7 @@ int TestImageDataOrientation2(int argc,char *argv[])
   image->SetExtent(0, 6, 0, 10, 0, 10);
   image->SetOrigin(-0.4, 0.2, -0.6);
   image->SetSpacing(0.4, -0.25, 0.25);
-  image->SetDirection(direction);
+  image->SetDirectionMatrix(direction);
   image->AllocateScalars(VTK_DOUBLE, 0);
 
   // Create a containing surface

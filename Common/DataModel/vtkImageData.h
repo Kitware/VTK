@@ -358,9 +358,9 @@ public:
    * Set/Get the direction transform of the dataset. The direction is a 3 by 3
    * matrix.
    */
-  vtkGetObjectMacro(Direction,vtkMatrix3x3);
-  virtual void SetDirection(vtkMatrix3x3 *m);
-  virtual void SetDirection(const double elements[9]);
+  vtkGetObjectMacro(DirectionMatrix,vtkMatrix3x3);
+  virtual void SetDirectionMatrix(vtkMatrix3x3 *m);
+  virtual void SetDirectionMatrix(const double elements[9]);
   //@}
 
   //@{
@@ -368,7 +368,7 @@ public:
    * Get the transformation matrix from the index space to the physical space
    * coordinate system of the dataset. The transform is a 4 by 4 matrix.
    */
-  vtkGetObjectMacro(IndexToPhysical,vtkMatrix4x4);
+  vtkGetObjectMacro(IndexToPhysicalMatrix,vtkMatrix4x4);
   //@}
 
   //@{
@@ -376,7 +376,7 @@ public:
    * Get the transformation matrix from the physical space to the index space
    * coordinate system of the dataset. The transform is a 4 by 4 matrix.
    */
-  vtkGetObjectMacro(PhysicalToIndex,vtkMatrix4x4);
+  vtkGetObjectMacro(PhysicalToIndexMatrix,vtkMatrix4x4);
   //@}
 
   static void SetScalarType(int, vtkInformation* meta_data);
@@ -480,9 +480,9 @@ protected:
   // Variables used to define dataset physical orientation
   double Origin[3];
   double Spacing[3];
-  vtkMatrix3x3 *Direction;
-  vtkMatrix4x4 *IndexToPhysical;
-  vtkMatrix4x4 *PhysicalToIndex;
+  vtkMatrix3x3 *DirectionMatrix;
+  vtkMatrix4x4 *IndexToPhysicalMatrix;
+  vtkMatrix4x4 *PhysicalToIndexMatrix;
 
   int Extent[6];
 
