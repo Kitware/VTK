@@ -18,8 +18,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
+#include <vtksys/SystemInformation.hxx>
+#include <vtksys/SystemTools.hxx>
+
+#include <map>
+#include <set>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 static const char *vtkDebugLeaksIgnoreClasses[] = {
   nullptr
@@ -108,40 +114,160 @@ void vtkDebugLeaksHashTable::PrintTable(std::string &os)
 }
 
 //----------------------------------------------------------------------------
+class vtkDebugLeaksTraceManager
+{
+public:
+  vtkDebugLeaksTraceManager()
+  {
+    const char* debugLeaksTraceClasses = vtksys::SystemTools::GetEnv("VTK_DEBUG_LEAKS_TRACE_CLASSES");
+    if (debugLeaksTraceClasses)
+    {
+      std::vector<std::string> classes;
+      vtksys::SystemTools::Split(debugLeaksTraceClasses, classes, ',');
+      this->ClassesToTrace.insert(classes.begin(), classes.end());
+    }
+  }
+  ~vtkDebugLeaksTraceManager() {}
+
+  void RegisterObject(vtkObjectBase* obj);
+  void UnRegisterObject(vtkObjectBase* obj);
+  void PrintObjects(std::ostream &os);
+
+private:
+  std::set<std::string> ClassesToTrace;
+  std::map<vtkObjectBase*, std::string> ObjectTraceMap;
+};
+
+//----------------------------------------------------------------------------
 #ifdef VTK_DEBUG_LEAKS
-void vtkDebugLeaks::ConstructClass(const char* name)
+void vtkDebugLeaksTraceManager::RegisterObject(vtkObjectBase* obj)
+{
+  // Get the current stack trace
+  if (this->ClassesToTrace.find(obj->GetClassName()) != this->ClassesToTrace.end())
+  {
+    const int firstFrame = 5; // skip debug leaks frames and start at the call to New()
+    const int wholePath = 1; // produce the whole path to the file if available
+    std::string trace = vtksys::SystemInformation::GetProgramStack(firstFrame, wholePath);
+    this->ObjectTraceMap[obj] = trace;
+  }
+}
+#else
+void vtkDebugLeaksTraceManager::RegisterObject(vtkObjectBase* obj)
+{
+
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifdef VTK_DEBUG_LEAKS
+void vtkDebugLeaksTraceManager::UnRegisterObject(vtkObjectBase* obj)
+{
+  this->ObjectTraceMap.erase(obj);
+}
+#else
+void vtkDebugLeaksTraceManager::UnRegisterObject(vtkObjectBase* obj)
+{
+
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifdef VTK_DEBUG_LEAKS
+void vtkDebugLeaksTraceManager::PrintObjects(std::ostream &os)
+{
+  // Iterate over any remaining object traces and print them
+  auto iter = this->ObjectTraceMap.begin();
+  while (iter != this->ObjectTraceMap.end())
+  {
+    os << "Remaining instance of object '" << iter->first->GetClassName();
+    os << "' was allocated at:\n";
+    os << iter->second << "\n";
+    ++iter;
+  }
+}
+#else
+void vtkDebugLeaksTraceManager::PrintObjects(std::ostream &vtkNotUsed(os)
+{
+
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifdef VTK_DEBUG_LEAKS
+void vtkDebugLeaks::ConstructClass(vtkObjectBase* object)
 {
   vtkDebugLeaks::CriticalSection->Lock();
-  vtkDebugLeaks::MemoryTable->IncrementCount(name);
+  vtkDebugLeaks::MemoryTable->IncrementCount(object->GetClassName());
+  vtkDebugLeaks::TraceManager->RegisterObject(object);
   vtkDebugLeaks::CriticalSection->Unlock();
 }
 #else
-void vtkDebugLeaks::ConstructClass(const char*)
+void vtkDebugLeaks::ConstructClass(vtkObjectBase* object)
 {
 }
 #endif
 
 //----------------------------------------------------------------------------
 #ifdef VTK_DEBUG_LEAKS
-void vtkDebugLeaks::DestructClass(const char* p)
+void vtkDebugLeaks::ConstructClass(const char* className)
 {
   vtkDebugLeaks::CriticalSection->Lock();
+  vtkDebugLeaks::MemoryTable->IncrementCount(className);
+  vtkDebugLeaks::CriticalSection->Unlock();
+}
+#else
+void vtkDebugLeaks::ConstructClass(const char* className)
+{
+
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifdef VTK_DEBUG_LEAKS
+void vtkDebugLeaks::DestructClass(vtkObjectBase* object)
+{
+  vtkDebugLeaks::CriticalSection->Lock();
+
+  // Ensure the trace manager has not yet been deleted.
+  if (vtkDebugLeaks::TraceManager)
+  {
+    vtkDebugLeaks::TraceManager->UnRegisterObject(object);
+  }
+
   // Due to globals being deleted, this table may already have
   // been deleted.
   if(vtkDebugLeaks::MemoryTable &&
-     !vtkDebugLeaks::MemoryTable->DecrementCount(p))
+     !vtkDebugLeaks::MemoryTable->DecrementCount(object->GetClassName()))
   {
-    vtkDebugLeaks::CriticalSection->Unlock();
-    vtkGenericWarningMacro("Deleting unknown object: " << p);
+    vtkGenericWarningMacro("Deleting unknown object: " << object->GetClassName());
   }
-  else
-  {
-    vtkDebugLeaks::CriticalSection->Unlock();
-  }
+  vtkDebugLeaks::CriticalSection->Unlock();
 }
 #else
-void vtkDebugLeaks::DestructClass(const char*)
+void vtkDebugLeaks::DestructClass(vtkObjectBase* object)
 {
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifdef VTK_DEBUG_LEAKS
+void vtkDebugLeaks::DestructClass(const char* className)
+{
+  vtkDebugLeaks::CriticalSection->Lock();
+
+  // Due to globals being deleted, this table may already have
+  // been deleted.
+  if(vtkDebugLeaks::MemoryTable &&
+     !vtkDebugLeaks::MemoryTable->DecrementCount(className))
+  {
+    vtkGenericWarningMacro("Deleting unknown object: " << className);
+  }
+  vtkDebugLeaks::CriticalSection->Unlock();
+}
+#else
+void vtkDebugLeaks::DestructClass(const char* className)
+{
+
 }
 #endif
 
@@ -191,6 +317,8 @@ int vtkDebugLeaks::PrintCurrentLeaks()
   vtkDebugLeaks::MemoryTable->PrintTable(leaks);
   cerr << msg;
   cerr << leaks << endl << std::flush;
+
+  vtkDebugLeaks::TraceManager->PrintObjects(std::cerr);
 
 #ifdef _WIN32
   if(getenv("DASHBOARD_TEST_FROM_CTEST") ||
@@ -275,6 +403,9 @@ void vtkDebugLeaks::ClassInitialize()
   // Create the hash table.
   vtkDebugLeaks::MemoryTable = new vtkDebugLeaksHashTable;
 
+  // Create the trace manager.
+  vtkDebugLeaks::TraceManager = new vtkDebugLeaksTraceManager;
+
   // Create the lock for the critical sections.
   vtkDebugLeaks::CriticalSection = new vtkSimpleCriticalSection;
 
@@ -300,6 +431,10 @@ void vtkDebugLeaks::ClassFinalize()
   delete vtkDebugLeaks::MemoryTable;
   vtkDebugLeaks::MemoryTable = nullptr;
 
+  // Destroy the trace manager.
+  delete vtkDebugLeaks::TraceManager;
+  vtkDebugLeaks::TraceManager = nullptr;
+
   // Destroy the lock for the critical sections.
   delete vtkDebugLeaks::CriticalSection;
   vtkDebugLeaks::CriticalSection = nullptr;
@@ -316,6 +451,8 @@ void vtkDebugLeaks::ClassFinalize()
 
 // Purposely not initialized.  ClassInitialize will handle it.
 vtkDebugLeaksHashTable* vtkDebugLeaks::MemoryTable;
+
+vtkDebugLeaksTraceManager* vtkDebugLeaks::TraceManager;
 
 // Purposely not initialized.  ClassInitialize will handle it.
 vtkSimpleCriticalSection* vtkDebugLeaks::CriticalSection;

@@ -56,6 +56,7 @@
 #include "vtkDebugLeaksManager.h" // Needed for proper singleton initialization
 
 class vtkDebugLeaksHashTable;
+class vtkDebugLeaksTraceManager;
 class vtkSimpleCriticalSection;
 class vtkDebugLeaksObserver;
 
@@ -66,14 +67,24 @@ public:
   vtkTypeMacro(vtkDebugLeaks,vtkObject);
 
   /**
-   * Call this when creating a class of a given name.
+   * Call this when creating a class.
    */
-  static void ConstructClass(const char* classname);
+  static void ConstructClass(vtkObjectBase* object);
 
   /**
-   * Call this when deleting a class of a given name.
+   * Call this when creating a vtkCommand or subclasses.
    */
-  static void DestructClass(const char* classname);
+  static void ConstructClass(const char* className);
+
+  /**
+   * Call this when deleting a class.
+   */
+  static void DestructClass(vtkObjectBase* object);
+
+  /**
+   * Call this when deleting vtkCommand or a subclass.
+   */
+  static void DestructClass(const char* className);
 
   /**
    * Print all the values in the table.  Returns non-zero if there
@@ -110,6 +121,7 @@ protected:
 
 private:
   static vtkDebugLeaksHashTable* MemoryTable;
+  static vtkDebugLeaksTraceManager* TraceManager;
   static vtkSimpleCriticalSection* CriticalSection;
   static vtkDebugLeaksObserver* Observer;
   static int ExitError;
