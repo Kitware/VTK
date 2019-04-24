@@ -105,6 +105,13 @@ public:
   vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
+  /**
+   * see vtkAlgorithm for details
+   */
+  int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*) override;
+
 protected:
   vtkAppendDataSets();
   ~vtkAppendDataSets() override;
@@ -113,6 +120,8 @@ protected:
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  virtual int RequestUpdateExtent(vtkInformation *,
+                          vtkInformationVector **, vtkInformationVector *);
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
   // If true we will attempt to merge points. Must also not have

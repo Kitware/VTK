@@ -53,6 +53,20 @@ vtkAppendDataSets::~vtkAppendDataSets()
 }
 
 //----------------------------------------------------------------------------
+int vtkAppendDataSets::ProcessRequest(vtkInformation* request,
+                                      vtkInformationVector** inputVector,
+                                      vtkInformationVector* outputVector)
+{
+  // Handle update requests
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  {
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
+  }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+//----------------------------------------------------------------------------
 int vtkAppendDataSets::RequestDataObject(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -179,6 +193,30 @@ int vtkAppendDataSets::RequestData(
   {
     vtkErrorMacro("Unsupported output type.");
     return 0;
+  }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkAppendDataSets::RequestUpdateExtent(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed(outputVector))
+{
+  int numInputConnections = this->GetNumberOfInputConnections(0);
+
+  // Let downstream request a subset of connection 0, for connections >= 1
+  // send their WHOLE_EXTENT as UPDATE_EXTENT.
+  for (int idx = 1; idx < numInputConnections; ++idx)
+  {
+    vtkInformation * inputInfo = inputVector[0]->GetInformationObject(idx);
+    if (inputInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+    {
+      int ext[6];
+      inputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
+      inputInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
+    }
   }
 
   return 1;
