@@ -298,6 +298,17 @@ public:
   vtkGetMacro(ReplacementValue,double);
   //@}
 
+  //@{
+  /**
+   * When this option is set, silently ignore datasets where the requested field
+   * data array is not present. When an input array is not present, the result array
+   * will not be generated nor added to the output.
+   */
+   //@}
+   vtkSetMacro(IgnoreMissingArrays, bool);
+   vtkGetMacro(IgnoreMissingArrays, bool);
+   vtkBooleanMacro(IgnoreMissingArrays, bool);
+
   /**
    * Returns the output of the filter downcast to a vtkDataSet or nullptr if the
    * cast fails.
@@ -310,7 +321,15 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
+  // Do the bulk of the work
+  int ProcessDataObject(vtkDataObject *input, vtkDataObject *output);
+
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+
+  /**
+   * Get the attribute type for the input.
+   */
+  int GetAttributeTypeFromInput(vtkDataObject* input);
 
   char  * Function;
   char  * ResultArrayName;
@@ -327,6 +346,7 @@ protected:
 
   vtkTypeBool     ReplaceInvalidValues;
   double  ReplacementValue;
+  bool IgnoreMissingArrays;
 
   vtkTypeBool     CoordinateResults;
   bool    ResultNormals;

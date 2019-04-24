@@ -15,6 +15,8 @@
 #include "vtkArrayCalculator.h"
 
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
@@ -58,7 +60,7 @@ vtkArrayCalculator::vtkArrayCalculator()
   this->ResultTCoords = false;
   this->ReplaceInvalidValues = 0;
   this->ReplacementValue = 0.0;
-
+  this->IgnoreMissingArrays = false;
   this->ResultArrayType=VTK_DOUBLE;
 }
 
@@ -175,6 +177,7 @@ int vtkArrayCalculator::FillInputPortInformation(int vtkNotUsed(port), vtkInform
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 
@@ -196,60 +199,23 @@ void vtkArrayCalculator::SetResultArrayName(const char* name)
   strcpy(this->ResultArrayName, name);
 }
 
-int vtkArrayCalculator::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+enum ResultType
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  SCALAR_RESULT,
+  VECTOR_RESULT
+} resultType = SCALAR_RESULT;
 
-  // get the input and output
-  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  enum ResultType
-  {
-    SCALAR_RESULT,
-    VECTOR_RESULT
-  } resultType = SCALAR_RESULT;
-  vtkIdType i;
-  int j;
-
-  vtkDataSetAttributes* inFD = nullptr;
-  vtkDataSetAttributes* outFD = nullptr;
-  vtkDataArray* currentArray;
-  vtkIdType numTuples = 0;
-  double scalarResult[1];
-  vtkDataArray* resultArray = nullptr;
-  vtkPoints* resultPoints = nullptr;
-
-  this->FunctionParser->SetReplaceInvalidValues(this->ReplaceInvalidValues);
-  this->FunctionParser->SetReplacementValue(this->ReplacementValue);
-
+int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *output)
+{
   vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
   vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
   vtkPointSet* psOutput = vtkPointSet::SafeDownCast(output);
-  int attribute = this->AttributeType;
-  if (attribute == DEFAULT_ATTRIBUTE_TYPE)
-  {
-    if (dsInput)
-    {
-      attribute = vtkDataObject::POINT;
-    }
-    else if (graphInput)
-    {
-      attribute = vtkDataObject::VERTEX;
-    }
-    else
-    {
-      attribute = vtkDataObject::ROW;
-    }
-  }
 
-  inFD = input->GetAttributes(attribute);
-  outFD = output->GetAttributes(attribute);
-  numTuples = input->GetNumberOfElements(attribute);
+  int attributeType = this->GetAttributeTypeFromInput(input);
+
+  vtkDataSetAttributes* inFD = input->GetAttributes(attributeType);
+  vtkDataSetAttributes* outFD = output->GetAttributes(attributeType);
+  vtkIdType numTuples = input->GetNumberOfElements(attributeType);
 
   if (numTuples < 1)
   {
@@ -257,10 +223,12 @@ int vtkArrayCalculator::RequestData(
     return 1;
   }
 
-  for (i = 0; i < this->NumberOfScalarArrays; i++)
+  vtkDataArray* currentArray = nullptr;
+
+  // Tell the parser about scalar arrays
+  for (int i = 0; i < this->NumberOfScalarArrays; i++)
   {
     currentArray = inFD->GetArray(this->ScalarArrayNames[i]);
-
     if (currentArray)
     {
       if (currentArray->GetNumberOfComponents() >
@@ -278,14 +246,23 @@ int vtkArrayCalculator::RequestData(
         return 1;
       }
     }
-    else if(inFD->GetAbstractArray(this->ScalarArrayNames[i]) == nullptr) // We ignore string array
+    else if (this->IgnoreMissingArrays)
+    {
+      // Add a dummy value with the variable name. We'll skip it if the variable is
+      // actually needed when collecting the arrays needed for evaluation later on.
+      this->FunctionParser->
+        SetScalarVariableValue(
+          this->ScalarVariableNames[i], 0.0);
+    }
+    else if (inFD->GetAbstractArray(this->ScalarArrayNames[i]) == nullptr) // We ignore string array
     {
       vtkErrorMacro("Invalid array name: " << this->ScalarArrayNames[i]);
       return 1;
     }
   }
 
-  for (i = 0; i < this->NumberOfVectorArrays; i++)
+  // Tell the parser about vector arrays
+  for (int i = 0; i < this->NumberOfVectorArrays; i++)
   {
     currentArray = inFD->GetArray(this->VectorArrayNames[i]);
     if (currentArray)
@@ -311,16 +288,25 @@ int vtkArrayCalculator::RequestData(
         return 1;
       }
     }
-    else
+    else if (this->IgnoreMissingArrays)
+    {
+      // Add a dummy value with the variable name. We'll skip it if the variable is
+      // actually needed when collecting the arrays needed for evaluation later on.
+      this->FunctionParser->
+        SetVectorVariableValue(
+          this->VectorVariableNames[i], 0.0, 0.0, 0.0);
+    }
+    else if (inFD->GetAbstractArray(this->VectorArrayNames[i]) == nullptr) // We ignore string array
     {
       vtkErrorMacro("Invalid array name: " << this->VectorArrayNames[i]);
       return 1;
     }
   }
 
-  if(attribute == vtkDataObject::POINT || attribute == vtkDataObject::VERTEX)
+  // Tell the parser about the coordinate arrays
+  if (attributeType == vtkDataObject::POINT || attributeType == vtkDataObject::VERTEX)
   {
-    for (i = 0; i < this->NumberOfCoordinateScalarArrays; i++)
+    for (int i = 0; i < this->NumberOfCoordinateScalarArrays; i++)
     {
       double* pt = nullptr;
       if (dsInput)
@@ -337,7 +323,7 @@ int vtkArrayCalculator::RequestData(
           pt[this->SelectedCoordinateScalarComponents[i]]);
     }
 
-    for (i = 0; i < this->NumberOfCoordinateVectorArrays; i++)
+    for (int i = 0; i < this->NumberOfCoordinateVectorArrays; i++)
     {
       double* pt = nullptr;
       if (dsInput)
@@ -357,7 +343,7 @@ int vtkArrayCalculator::RequestData(
     }
   }
 
-  if ( !this->Function || strlen(this->Function) == 0)
+  if (!this->Function || strlen(this->Function) == 0)
   {
     output->ShallowCopy(input);
     return 1;
@@ -378,41 +364,43 @@ int vtkArrayCalculator::RequestData(
     return 1;
   }
 
-  if(resultType == SCALAR_RESULT && this->ResultNormals)
+  if (resultType == SCALAR_RESULT && this->ResultNormals)
   {
     vtkWarningMacro("ResultNormals specified but output is scalar");
   }
 
   vtkMolecule* moleculeInput = vtkMolecule::SafeDownCast(input);
-  if (moleculeInput && attribute == vtkDataObject::VERTEX &&
+  if (moleculeInput && attributeType == vtkDataObject::VERTEX &&
     strcmp(this->ResultArrayName, moleculeInput->GetAtomicNumberArrayName()) == 0)
   {
     vtkErrorMacro("Cannot override atomic numbers array");
     return 1;
   }
 
-  if (moleculeInput && attribute == vtkDataObject::EDGE &&
+  if (moleculeInput && attributeType == vtkDataObject::EDGE &&
     strcmp(this->ResultArrayName, moleculeInput->GetBondOrdersArrayName()) == 0)
   {
     vtkErrorMacro("Cannot override bond orders array");
     return 1;
   }
 
-  if(resultType == VECTOR_RESULT &&
-     CoordinateResults != 0 && (psOutput || vtkGraph::SafeDownCast(output)))
+  vtkSmartPointer<vtkPoints> resultPoints;
+  vtkSmartPointer<vtkDataArray> resultArray;
+  if (resultType == VECTOR_RESULT &&
+      CoordinateResults != 0 && (psOutput || vtkGraph::SafeDownCast(output)))
   {
-    resultPoints = vtkPoints::New();
+    resultPoints = vtkSmartPointer<vtkPoints>::New();
     resultPoints->SetNumberOfPoints(numTuples);
     resultArray = resultPoints->GetData();
   }
-  else if(CoordinateResults != 0)
+  else if (CoordinateResults != 0)
   {
-    if(resultType != VECTOR_RESULT)
+    if (resultType != VECTOR_RESULT)
     {
       vtkErrorMacro("Coordinate output specified, "
                     "but there are no vector results");
     }
-    else if(!psOutput)
+    else if (!psOutput)
     {
       vtkErrorMacro("Coordinate output specified, "
                     "but output is not polydata or unstructured grid");
@@ -421,16 +409,16 @@ int vtkArrayCalculator::RequestData(
   }
   else
   {
-      resultArray=
-        vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(this->ResultArrayType));
+    resultArray.TakeReference(
+      vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(this->ResultArrayType)));
   }
 
   if (resultType == SCALAR_RESULT)
   {
     resultArray->SetNumberOfComponents(1);
     resultArray->SetNumberOfTuples(numTuples);
-    scalarResult[0] = this->FunctionParser->GetScalarResult();
-    resultArray->SetTuple(0, scalarResult);
+    double scalarResult = this->FunctionParser->GetScalarResult();
+    resultArray->SetTuple(0, &scalarResult);
   }
   else
   {
@@ -452,10 +440,18 @@ int vtkArrayCalculator::RequestData(
       this->ScalarVariableNames[cc]);
     if (idx >= 0)
     {
-      if (this->FunctionParser->GetScalarVariableNeeded(idx))
+      bool needed = this->FunctionParser->GetScalarVariableNeeded(idx);
+      auto array = inFD->GetArray(this->ScalarArrayNames[cc]);
+      if (needed && array)
       {
-        scalarArrays[cc] = inFD->GetArray(this->ScalarArrayNames[cc]);
+        scalarArrays[cc] = array;
         scalarArrayIndicies[cc] = idx;
+      }
+      else if (needed)
+      {
+        // Skip this dataset altogether. This is an array specifically requested to be available
+        // as a variable by the user of this class that does not exist on this dataset.
+        return 1;
       }
     }
   }
@@ -466,17 +462,25 @@ int vtkArrayCalculator::RequestData(
       this->VectorVariableNames[cc]);
     if (idx >= 0)
     {
-      if (this->FunctionParser->GetVectorVariableNeeded(idx))
+      bool needed = this->FunctionParser->GetVectorVariableNeeded(idx);
+      auto array = inFD->GetArray(this->VectorArrayNames[cc]);
+      if (needed && array)
       {
-        vectorArrays[cc] = inFD->GetArray(this->VectorArrayNames[cc]);
+        vectorArrays[cc] = array;
         vectorArrayIndicies[cc] = idx;
+      }
+      else if (needed)
+      {
+        // Skip this dataset altogether. This is an array specifically requested to be available
+        // as a variable by the user of this class that does not exist on this dataset.
+        return 1;
       }
     }
   }
 
-  for (i = 1; i < numTuples; i++)
+  for (vtkIdType i = 1; i < numTuples; i++)
   {
-    for (j = 0; j < this->NumberOfScalarArrays; j++)
+    for (int j = 0; j < this->NumberOfScalarArrays; j++)
     {
       if ((currentArray = scalarArrays[j]))
       {
@@ -485,7 +489,7 @@ int vtkArrayCalculator::RequestData(
             currentArray->GetComponent(i, this->SelectedScalarComponents[j]));
       }
     }
-    for (j = 0; j < this->NumberOfVectorArrays; j++)
+    for (int j = 0; j < this->NumberOfVectorArrays; j++)
     {
       if ((currentArray = vectorArrays[j]))
       {
@@ -496,7 +500,7 @@ int vtkArrayCalculator::RequestData(
             currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));
       }
     }
-    if(attribute == vtkDataObject::POINT || attribute == vtkDataObject::VERTEX)
+    if (attributeType == vtkDataObject::POINT || attributeType == vtkDataObject::VERTEX)
     {
       double* pt = nullptr;
       if (dsInput)
@@ -507,13 +511,13 @@ int vtkArrayCalculator::RequestData(
       {
         pt = graphInput->GetPoint(i);
       }
-      for (j = 0; j < this->NumberOfCoordinateScalarArrays; j++)
+      for (int j = 0; j < this->NumberOfCoordinateScalarArrays; j++)
       {
         this->FunctionParser->
           SetScalarVariableValue(
             j+this->NumberOfScalarArrays, pt[this->SelectedCoordinateScalarComponents[j]]);
       }
-      for (j = 0; j < this->NumberOfCoordinateVectorArrays; j++)
+      for (int j = 0; j < this->NumberOfCoordinateVectorArrays; j++)
       {
         this->FunctionParser->
           SetVectorVariableValue(
@@ -525,8 +529,8 @@ int vtkArrayCalculator::RequestData(
     }
     if (resultType == SCALAR_RESULT)
     {
-      scalarResult[0] = this->FunctionParser->GetScalarResult();
-      resultArray->SetTuple(i, scalarResult);
+      double scalarResult = this->FunctionParser->GetScalarResult();
+      resultArray->SetTuple(i, &scalarResult);
     }
     else
     {
@@ -535,28 +539,28 @@ int vtkArrayCalculator::RequestData(
   }
 
   output->ShallowCopy(input);
-  if(resultPoints)
+  if (resultPoints)
   {
-    if(psOutput)
+    if (psOutput)
     {
-      if(attribute == vtkDataObject::CELL)
+      if (attributeType == vtkDataObject::CELL)
       {
         vtkPolyData* pd = vtkPolyData::SafeDownCast(psOutput);
         vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(psOutput);
-        if(pd)
+        if (pd)
         {
           pd->Reset();
           pd->Allocate(numTuples);
-          for (i = 1; i < numTuples; i++)
+          for (vtkIdType i = 1; i < numTuples; i++)
           {
             pd->InsertNextCell(VTK_VERTEX, 1, &i);
           }
         }
-        else if(ug)
+        else if (ug)
         {
           ug->Reset();
           ug->Allocate(numTuples);
-          for (i = 1; i < numTuples; i++)
+          for (vtkIdType i = 1; i < numTuples; i++)
           {
             ug->InsertNextCell(VTK_VERTEX, 1, &i);
           }
@@ -567,11 +571,11 @@ int vtkArrayCalculator::RequestData(
     resultPoints->Delete();
   }
 
-  if(this->ResultTCoords || this->ResultNormals || ! this->CoordinateResults)
+  if (this->ResultTCoords || this->ResultNormals || ! this->CoordinateResults)
   {
     resultArray->SetName(this->ResultArrayName);
     outFD->AddArray(resultArray);
-    if(resultType == SCALAR_RESULT)
+    if (resultType == SCALAR_RESULT)
     {
       if (this->ResultTCoords)
       {
@@ -600,12 +604,80 @@ int vtkArrayCalculator::RequestData(
         outFD->SetActiveVectors(this->ResultArrayName);
       }
     }
-    if (! resultPoints)
+  }
+
+  return 1;
+}
+
+int vtkArrayCalculator::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and output
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+
+  this->FunctionParser->SetReplaceInvalidValues(this->ReplaceInvalidValues);
+  this->FunctionParser->SetReplacementValue(this->ReplacementValue);
+
+  vtkCompositeDataSet* inputCD = vtkCompositeDataSet::GetData(inputVector[0], 0);
+  vtkCompositeDataSet* outputCD = vtkCompositeDataSet::SafeDownCast(output);
+  if (inputCD && outputCD)
+  {
+    int success = 1;
+
+    // Copy the output structure
+    outputCD->CopyStructure(inputCD);
+
+    vtkSmartPointer<vtkCompositeDataIterator> cdIter;
+    cdIter.TakeReference(inputCD->NewIterator());
+    cdIter->SkipEmptyNodesOn();
+    for (cdIter->InitTraversal(); !cdIter->IsDoneWithTraversal(); cdIter->GoToNextItem())
     {
-      resultArray->Delete();
+      vtkDataObject* inputDataObject = cdIter->GetCurrentDataObject();
+      vtkDataObject* outputDataObject = inputDataObject->NewInstance();
+      outputDataObject->DeepCopy(inputDataObject);
+      outputCD->SetDataSet(cdIter, outputDataObject);
+      outputDataObject->FastDelete();
+
+      success *= this->ProcessDataObject(inputDataObject, outputDataObject);
+    }
+
+    return success;
+  }
+
+  // Not a composite data set.
+  return this->ProcessDataObject(input, output);
+}
+
+int vtkArrayCalculator::GetAttributeTypeFromInput(vtkDataObject* input)
+{
+  vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
+  vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
+
+  int attribute = this->AttributeType;
+  if (attribute == DEFAULT_ATTRIBUTE_TYPE)
+  {
+    if (dsInput)
+    {
+      attribute = vtkDataObject::POINT;
+    }
+    else if (graphInput)
+    {
+      attribute = vtkDataObject::VERTEX;
+    }
+    else
+    {
+      attribute = vtkDataObject::ROW;
     }
   }
-  return 1;
+
+  return attribute;
 }
 
 #ifndef VTK_LEGACY_REMOVE
@@ -686,6 +758,17 @@ void vtkArrayCalculator::AddScalarArrayName(const char* arrayName,
   }
 
   int i;
+  for (i = 0; i < this->NumberOfScalarArrays; i++)
+  {
+    if (strcmp(arrayName, this->ScalarVariableNames[i]) == 0 &&
+        strcmp(arrayName, this->ScalarArrayNames[i]) == 0 &&
+        this->SelectedScalarComponents[i] == component)
+    {
+      // Already have this variable/array/components so return.
+      return;
+    }
+  }
+
   char** arrayNames = new char *[this->NumberOfScalarArrays];
   char** varNames = new char *[this->NumberOfScalarArrays];
   int* tempComponents = new int[this->NumberOfScalarArrays];
@@ -750,6 +833,19 @@ void vtkArrayCalculator::AddVectorArrayName(const char* arrayName,
   }
 
   int i;
+  for (i = 0; i < this->NumberOfVectorArrays; i++)
+  {
+    if (strcmp(arrayName, this->VectorVariableNames[i]) == 0 &&
+        strcmp(arrayName, this->VectorArrayNames[i]) == 0 &&
+        this->SelectedVectorComponents[i][0] == component0 &&
+        this->SelectedVectorComponents[i][1] == component1 &&
+        this->SelectedVectorComponents[i][2] == component2)
+    {
+      // Already have this variable/array/components so return.
+      return;
+    }
+  }
+
   char** arrayNames = new char *[this->NumberOfVectorArrays];
   char** varNames = new char *[this->NumberOfVectorArrays];
   int** tempComponents = new int *[this->NumberOfVectorArrays];
@@ -822,12 +918,23 @@ void vtkArrayCalculator::AddScalarVariable(const char* variableName,
                                            const char* arrayName,
                                            int component)
 {
-  if (!arrayName)
+  if (!variableName || !arrayName)
   {
     return;
   }
 
   int i;
+  for (i = 0; i < this->NumberOfScalarArrays; i++)
+  {
+    if (strcmp(variableName, this->ScalarVariableNames[i]) == 0 &&
+        strcmp(arrayName, this->ScalarArrayNames[i]) == 0 &&
+        this->SelectedScalarComponents[i] == component)
+    {
+      // Already have this variable/array/components so return.
+      return;
+    }
+  }
+
   char** arrayNames = new char *[this->NumberOfScalarArrays];
   char** varNames = new char *[this->NumberOfScalarArrays];
   int* tempComponents = new int[this->NumberOfScalarArrays];
@@ -887,12 +994,25 @@ void vtkArrayCalculator::AddVectorVariable(const char* variableName,
                                            int component0, int component1,
                                            int component2)
 {
-  if (!arrayName)
+  if (!variableName || !arrayName)
   {
     return;
   }
 
   int i;
+  for (i = 0; i < this->NumberOfVectorArrays; i++)
+  {
+    if (strcmp(arrayName, this->VectorVariableNames[i]) == 0 &&
+        strcmp(arrayName, this->VectorArrayNames[i]) == 0 &&
+        this->SelectedVectorComponents[i][0] == component0 &&
+        this->SelectedVectorComponents[i][1] == component1 &&
+        this->SelectedVectorComponents[i][2] == component2)
+    {
+      // Already have this variable/array/components so return.
+      return;
+    }
+  }
+
   char** arrayNames = new char *[this->NumberOfVectorArrays];
   char** varNames = new char *[this->NumberOfVectorArrays];
   int** tempComponents = new int *[this->NumberOfVectorArrays];

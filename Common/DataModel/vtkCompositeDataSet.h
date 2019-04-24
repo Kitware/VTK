@@ -125,6 +125,11 @@ public:
   virtual vtkIdType GetNumberOfCells();
 
   /**
+   * Get the number of elements for a specific attribute type (POINT, CELL, etc.).
+   */
+  vtkIdType GetNumberOfElements(int type) override;
+
+  /**
    * Return the geometric bounding box in the form (xmin,xmax, ymin,ymax,
    * zmin,zmax).  Note that if the composite dataset contains abstract types
    * (i.e., non vtkDataSet types) such as tables these will be ignored by the
