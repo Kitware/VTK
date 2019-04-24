@@ -61,6 +61,7 @@ protected:
 
   double Origin[3];
   double Spacing[3];
+  double Direction[9];
   int PieceExtent[6];
 
   const char* GetDataSetName() override;

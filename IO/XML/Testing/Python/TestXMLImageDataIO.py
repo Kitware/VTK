@@ -20,9 +20,15 @@ imageReader.SetDataSpacing(3.2, 3.2, 1.5)
 imageReader.SetFilePrefix(VTK_DATA_ROOT + '/Data/headsq/quarter')
 imageReader.Update()
 
+# Add direction to the image here since it isn't
+# yet supported in vtkImageReader
+direction = [1, 0, 0, 0, -1, 0, 0, 0, -1]
+image = imageReader.GetOutput()
+image.SetDirection(direction)
+
 # extract to reduce extents of grid
 extract = vtk.vtkExtractVOI()
-extract.SetInputConnection(imageReader.GetOutputPort())
+extract.SetInputData(image)
 extract.SetVOI(0, 63, 0, 63, 0, 45)
 extract.Update()
 
@@ -30,12 +36,12 @@ extract.Update()
 idWriter = vtk.vtkXMLImageDataWriter()
 idWriter.SetFileName(file0)
 idWriter.SetDataModeToAscii()
-idWriter.SetInputConnection(extract.GetOutputPort())
+idWriter.SetInputData(extract.GetOutput())
 idWriter.Write()
 
 idWriter.SetFileName(file1)
 idWriter.SetDataModeToAppended()
-idWriter.SetInputConnection(imageReader.GetOutputPort())
+idWriter.SetInputData(image)
 idWriter.SetNumberOfPieces(2)
 idWriter.Write()
 
@@ -69,6 +75,17 @@ actor0.SetPosition(180, -60, 0)
 reader.SetFileName(file1)
 reader.WholeSlicesOn()
 reader.Update()
+
+readDirection = reader.GetOutput().GetDirection()
+assert readDirection.GetElement(0,0) == direction[0]
+assert readDirection.GetElement(0,1) == direction[1]
+assert readDirection.GetElement(0,2) == direction[2]
+assert readDirection.GetElement(1,0) == direction[3]
+assert readDirection.GetElement(1,1) == direction[4]
+assert readDirection.GetElement(1,2) == direction[5]
+assert readDirection.GetElement(2,0) == direction[6]
+assert readDirection.GetElement(2,1) == direction[7]
+assert readDirection.GetElement(2,2) == direction[8]
 
 id1 = vtk.vtkImageData()
 id1.DeepCopy(reader.GetOutput())
