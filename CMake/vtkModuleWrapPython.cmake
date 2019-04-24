@@ -368,9 +368,20 @@ extern PyObject* PyInit_${name}();
     add_library("${name}" MODULE
       ${_vtk_python_library_sources})
     if (WIN32 AND NOT CYGWIN)
-      set_property(TARGET "${name}"
-        PROPERTY
-          DEBUG_POSTFIX "_d")
+      # XXX(python-debug): This is disabled out because there's no reliable way
+      # to tell whether we're using a debug build of Python or not. Since using
+      # a debug Python build is so rare, just assume we're always using a
+      # non-debug build of Python itself.
+      #
+      # The proper fix is to dig around and ask the backing `PythonN::Python`
+      # target used by `VTK::Python` for its properties to find out, per
+      # configuration, whether it is a debug build. If it is, add the postfix
+      # (regardless of VTK's build type). Otherwise, no postfix.
+      if (FALSE)
+        set_property(TARGET "${name}"
+          PROPERTY
+            DEBUG_POSTFIX "_d")
+      endif ()
       set_property(TARGET "${name}"
         PROPERTY
           SUFFIX ".pyd")
