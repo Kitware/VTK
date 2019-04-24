@@ -270,22 +270,33 @@ mark_as_advanced(VTK_ENABLE_KITS)
 option(VTK_USE_EXTERNAL "Use external copies of third party libraries by default" OFF)
 mark_as_advanced(VTK_USE_EXTERNAL)
 
+option(VTK_VERSIONED_INSTALL "Install artifacts with versioned names." ON)
+mark_as_advanced(VTK_VERSIONED_INSTALL)
+set(vtk_version_suffix "")
+if (VTK_VERSIONED_INSTALL)
+  set(vtk_version_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+endif ()
+
 set(vtk_install_export VTK)
 set(vtk_cmake_destination
-  "${CMAKE_INSTALL_LIBDIR}/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+  "${CMAKE_INSTALL_LIBDIR}/cmake/vtk${vtk_version_suffix}")
 set(vtk_target_package)
 if (VTK_BUILD_COMPILE_TOOLS_ONLY)
   set(vtk_install_export VTKCompileTools)
   set(vtk_cmake_destination
-    "${CMAKE_INSTALL_LIBDIR}/cmake/vtkcompiletools-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+    "${CMAKE_INSTALL_LIBDIR}/cmake/vtkcompiletools${vtk_version_suffix}")
   set(vtk_target_package PACKAGE "${vtk_install_export}")
 endif ()
 
 set(VTK_CUSTOM_LIBRARY_SUFFIX "<DEFAULT>"
-  CACHE STRING "Custom library file name suffix (defaults to ${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})")
+  CACHE STRING "Custom library file name suffix (defaults to the version number)")
 mark_as_advanced(VTK_CUSTOM_LIBRARY_SUFFIX)
 if (VTK_CUSTOM_LIBRARY_SUFFIX STREQUAL "<DEFAULT>")
-  set(VTK_CUSTOM_LIBRARY_SUFFIX "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+  if (VTK_VERSIONED_INSTALL)
+    set(VTK_CUSTOM_LIBRARY_SUFFIX "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+  else ()
+    set(VTK_CUSTOM_LIBRARY_SUFFIX "")
+  endif ()
 endif ()
 
 vtk_module_build(
@@ -293,7 +304,7 @@ vtk_module_build(
   KITS                ${vtk_kits}
   INSTALL_EXPORT      "${vtk_install_export}"
   ${vtk_target_package}
-  HEADERS_DESTINATION "include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
+  HEADERS_DESTINATION "include/vtk${vtk_version_suffix}"
   CMAKE_DESTINATION   "${vtk_cmake_destination}"
   LIBRARY_NAME_SUFFIX "${VTK_CUSTOM_LIBRARY_SUFFIX}"
   VERSION             "${VTK_VERSION}"
