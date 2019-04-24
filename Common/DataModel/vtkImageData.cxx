@@ -394,9 +394,9 @@ bool vtkImageData::GetIJKMaxForIJKMin(int ijkMin[3], int ijkMax[3])
 //----------------------------------------------------------------------------
 void vtkImageData::AddPointsToCellTemplate(vtkCell* cell, int ijkMin[3], int ijkMax[3])
 {
-  int loc[3];
+  int loc[3], i, j, k;
   vtkIdType idx, npts;
-  double ijk[4], xyz[4];
+  double xyz[3];
   const int *extent = this->Extent;
 
   vtkIdType dims[3];
@@ -406,17 +406,16 @@ void vtkImageData::AddPointsToCellTemplate(vtkCell* cell, int ijkMin[3], int ijk
   // Extract point coordinates and point ids
   // Ids are relative to extent min.
   npts = 0;
-  ijk[3] = 1; // To multiply with a 4x4 matrix
   for (loc[2] = ijkMin[2]; loc[2] <= ijkMax[2]; loc[2]++)
   {
-    ijk[2] = loc[2] + extent[4];
+    k = loc[2] + extent[4];
     for (loc[1] = ijkMin[1]; loc[1] <= ijkMax[1]; loc[1]++)
     {
-      ijk[1] = loc[1] + extent[2];
+      j = loc[1] + extent[2];
       for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
       {
-        ijk[0] = loc[0] + extent[0];
-        this->IndexToPhysicalMatrix->MultiplyPoint(ijk, xyz);
+        i = loc[0] + extent[0];
+        this->TransformIndexToPhysicalPoint(i, j, k, xyz);
 
         idx = loc[0] + loc[1] * dims[0] + loc[2] * d01;
         cell->PointIds->SetId(npts, idx);
@@ -506,9 +505,8 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
     return;
   }
 
-  int loc[3];
-  double ijk[4], xyz[4];
-  ijk[3] = 1;
+  int loc[3], i, j, k;
+  double xyz[3];
   const int* extent = this->Extent;
 
   // Compute the bounds
@@ -519,14 +517,14 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
 
     for (loc[2] = ijkMin[2]; loc[2] <= ijkMax[2]; loc[2]++)
     {
-      ijk[2] = loc[2] + extent[4];
+      k = loc[2] + extent[4];
       for (loc[1] = ijkMin[1]; loc[1] <= ijkMax[1]; loc[1]++)
       {
-        ijk[1] = loc[1] + extent[2];
+        j = loc[1] + extent[2];
         for (loc[0] = ijkMin[0]; loc[0] <= ijkMax[0]; loc[0]++)
         {
-          ijk[0] = loc[0] + extent[0];
-          this->IndexToPhysicalMatrix->MultiplyPoint(ijk, xyz);
+          i = loc[0] + extent[0];
+          this->TransformIndexToPhysicalPoint(i, j, k, xyz);
 
           bounds[0] = (xyz[0] < bounds[0] ? xyz[0] : bounds[0]);
           bounds[1] = (xyz[0] > bounds[1] ? xyz[0] : bounds[1]);
@@ -605,14 +603,11 @@ void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
       break;
   }
 
-  double ijk[4], xyz[4];
-  ijk[0] = loc[0] + extent[0];
-  ijk[1] = loc[1] + extent[2];
-  ijk[2] = loc[2] + extent[4];
-  ijk[3] = 1;
-  this->IndexToPhysicalMatrix->MultiplyPoint(ijk, xyz);
-
-  x[0] = xyz[0]; x[1] = xyz[1]; x[2] = xyz[2];
+  int i, j, k;
+  i = loc[0] + extent[0];
+  j = loc[1] + extent[2];
+  k = loc[2] + extent[4];
+  this->TransformIndexToPhysicalPoint(i, j, k, x);
 }
 
 //----------------------------------------------------------------------------
@@ -638,9 +633,8 @@ vtkIdType vtkImageData::FindPoint(double x[3])
   //
   const int* extent = this->Extent;
   int loc[3];
-  double xyz[4], ijk[4];
-  xyz[0] = x[0]; xyz[1] = x[1]; xyz[2] = x[2]; xyz[3] = 1;
-  this->PhysicalToIndexMatrix->MultiplyPoint(xyz, ijk);
+  double ijk[3];
+  this->TransformPhysicalPointToContinuousIndex(x, ijk);
   loc[0] = vtkMath::Floor(ijk[0] + 0.5);
   loc[1] = vtkMath::Floor(ijk[1] + 0.5);
   loc[2] = vtkMath::Floor(ijk[2] + 0.5);
@@ -841,29 +835,28 @@ void vtkImageData::ComputeBounds()
     {
       // Direction isn't identity: use IndexToPhysical matrix
       // to determine the position of the dataset corners
-      double iMin, iMax, jMin, jMax, kMin, kMax;
+      int iMin, iMax, jMin, jMax, kMin, kMax;
       iMin = extent[0]; iMax = extent[1];
       jMin = extent[2]; jMax = extent[3];
       kMin = extent[4]; kMax = extent[5];
-      double ijkCorners[8][4] = {
-        {iMin, jMin, kMin, 1},
-        {iMax, jMin, kMin, 1},
-        {iMin, jMax, kMin, 1},
-        {iMax, jMax, kMin, 1},
-        {iMin, jMin, kMax, 1},
-        {iMax, jMin, kMax, 1},
-        {iMin, jMax, kMax, 1},
-        {iMax, jMax, kMax, 1}
+      int ijkCorners[8][3] = {
+        {iMin, jMin, kMin},
+        {iMax, jMin, kMin},
+        {iMin, jMax, kMin},
+        {iMax, jMax, kMin},
+        {iMin, jMin, kMax},
+        {iMax, jMin, kMax},
+        {iMin, jMax, kMax},
+        {iMax, jMax, kMax}
       };
 
-      double xyz[4];
+      double xyz[3];
       double xMin, xMax, yMin, yMax, zMin, zMax;
       xMin = yMin = zMin = VTK_DOUBLE_MAX;
       xMax = yMax = zMax = VTK_DOUBLE_MIN;
-      vtkMatrix4x4 *m = this->IndexToPhysicalMatrix;
-      for (double* ijkCorner : ijkCorners)
+      for (int* ijkCorner : ijkCorners)
       {
-        m->MultiplyPoint(ijkCorner, xyz);
+        this->TransformIndexToPhysicalPoint(ijkCorner, xyz);
         if (xyz[0] < xMin) xMin = xyz[0];
         if (xyz[0] > xMax) xMax = xyz[0];
         if (xyz[1] < yMin) yMin = xyz[1];
@@ -1047,9 +1040,8 @@ int vtkImageData::ComputeStructuredCoordinates(const double x[3],
   //
   //  Compute the ijk location
   //
-  double xyz[4], doubleLoc[4];
-  xyz[0] = x[0]; xyz[1] = x[1]; xyz[2] = x[2]; xyz[3] = 1;
-  this->PhysicalToIndexMatrix->MultiplyPoint(xyz, doubleLoc);
+  double doubleLoc[3];
+  this->TransformPhysicalPointToContinuousIndex(x, doubleLoc);
 
   const int *extent = this->Extent;
   int isInBounds = 1;
@@ -2333,6 +2325,80 @@ void vtkImageData::SetDirectionMatrix(double e00, double e01, double e02,
     this->ComputeTransforms();
     this->Modified();
   }
+}
+
+//----------------------------------------------------------------------------
+template <typename T1, typename T2>
+inline static void TransformCoordinates(T1 input0,
+                                        T1 input1,
+                                        T1 input2,
+                                        T2 output[3],
+                                        vtkMatrix4x4* m4)
+{
+  output[0] = m4->GetElement(0, 0) * input0 +
+  m4->GetElement(0, 1) * input1 +
+  m4->GetElement(0, 2) * input2 +
+  m4->GetElement(0, 3);
+  output[1] = m4->GetElement(1, 0) * input0 +
+  m4->GetElement(1, 1) * input1 +
+  m4->GetElement(1, 2) * input2 +
+  m4->GetElement(1, 3);
+  output[2] = m4->GetElement(2, 0) * input0 +
+  m4->GetElement(2, 1) * input1 +
+  m4->GetElement(2, 2) * input2 +
+  m4->GetElement(2, 3);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::TransformContinuousIndexToPhysicalPoint(double i,
+                                                           double j,
+                                                           double k,
+                                                           double xyz[3])
+{
+  TransformCoordinates<double, double>(i, j, k, xyz,
+                                       this->IndexToPhysicalMatrix);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::TransformContinuousIndexToPhysicalPoint(const double ijk[3],
+                                                           double xyz[3])
+{
+
+  TransformCoordinates<double, double>(ijk[0], ijk[1], ijk[2], xyz,
+                                       this->IndexToPhysicalMatrix);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::TransformIndexToPhysicalPoint(int i, int j, int k,
+                                                 double xyz[3])
+{
+  TransformCoordinates<int, double>(i, j, k, xyz,
+                                    this->IndexToPhysicalMatrix);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::TransformIndexToPhysicalPoint(const int ijk[3],
+                                                 double xyz[3])
+{
+  TransformCoordinates<int, double>(ijk[0], ijk[1], ijk[2], xyz,
+                                    this->IndexToPhysicalMatrix);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::TransformPhysicalPointToContinuousIndex(double x,
+                                                           double y,
+                                                           double z,
+                                                           double ijk[3])
+{
+  TransformCoordinates<double, double>(x, y, z, ijk,
+                                       this->PhysicalToIndexMatrix);
+}
+//----------------------------------------------------------------------------
+void vtkImageData::TransformPhysicalPointToContinuousIndex(const double xyz[3],
+                                                           double ijk[3])
+{
+  TransformCoordinates<double, double>(xyz[0], xyz[1],  xyz[2], ijk,
+                                       this->PhysicalToIndexMatrix);
 }
 
 //----------------------------------------------------------------------------

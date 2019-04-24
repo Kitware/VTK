@@ -376,10 +376,38 @@ public:
 
   //@{
   /**
+   * Convert coordinates from index space (ijk) to physical space (xyz)
+   */
+  virtual void TransformContinuousIndexToPhysicalPoint(double i,
+                                                       double j,
+                                                       double k,
+                                                       double xyz[3]);
+  virtual void TransformContinuousIndexToPhysicalPoint(const double ijk[3],
+                                                       double xyz[3]);
+  virtual void TransformIndexToPhysicalPoint(int i, int j, int k,
+                                             double xyz[3]);
+  virtual void TransformIndexToPhysicalPoint(const int ijk[3],
+                                             double xyz[3]);
+  //@}
+
+  //@{
+  /**
    * Get the transformation matrix from the physical space to the index space
    * coordinate system of the dataset. The transform is a 4 by 4 matrix.
    */
   vtkGetObjectMacro(PhysicalToIndexMatrix,vtkMatrix4x4);
+  //@}
+
+  //@{
+  /**
+   * Convert coordinates from physical space (xyz) to index space (ijk)
+   */
+  virtual void TransformPhysicalPointToContinuousIndex(double x,
+                                                       double y,
+                                                       double z,
+                                                       double ijk[3]);
+  virtual void TransformPhysicalPointToContinuousIndex(const double xyz[3],
+                                                       double ijk[3]);
   //@}
 
   static void SetScalarType(int, vtkInformation* meta_data);
