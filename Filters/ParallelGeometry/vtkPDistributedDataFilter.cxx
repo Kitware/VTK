@@ -4295,6 +4295,10 @@ vtkUnstructuredGrid *vtkPDistributedDataFilter::SetMergeGhostGrid(
 
   if (incomingGhostCells->GetNumberOfCells() < 1)
   {
+    if (incomingGhostCells != nullptr)
+    {
+      incomingGhostCells->Delete();
+    }
     return ghostCellGrid;
   }
 
