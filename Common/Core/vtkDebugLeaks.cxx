@@ -152,7 +152,7 @@ void vtkDebugLeaksTraceManager::RegisterObject(vtkObjectBase* obj)
   }
 }
 #else
-void vtkDebugLeaksTraceManager::RegisterObject(vtkObjectBase* obj)
+void vtkDebugLeaksTraceManager::RegisterObject(vtkObjectBase* vtkNotUsed(obj))
 {
 
 }
@@ -165,7 +165,7 @@ void vtkDebugLeaksTraceManager::UnRegisterObject(vtkObjectBase* obj)
   this->ObjectTraceMap.erase(obj);
 }
 #else
-void vtkDebugLeaksTraceManager::UnRegisterObject(vtkObjectBase* obj)
+void vtkDebugLeaksTraceManager::UnRegisterObject(vtkObjectBase* vtkNotUsed(obj))
 {
 
 }
@@ -202,7 +202,7 @@ void vtkDebugLeaks::ConstructClass(vtkObjectBase* object)
   vtkDebugLeaks::CriticalSection->Unlock();
 }
 #else
-void vtkDebugLeaks::ConstructClass(vtkObjectBase* object)
+void vtkDebugLeaks::ConstructClass(vtkObjectBase* vtkNotUsed(object))
 {
 }
 #endif
@@ -216,7 +216,7 @@ void vtkDebugLeaks::ConstructClass(const char* className)
   vtkDebugLeaks::CriticalSection->Unlock();
 }
 #else
-void vtkDebugLeaks::ConstructClass(const char* className)
+void vtkDebugLeaks::ConstructClass(const char* vtkNotUsed(className))
 {
 
 }
@@ -244,7 +244,7 @@ void vtkDebugLeaks::DestructClass(vtkObjectBase* object)
   vtkDebugLeaks::CriticalSection->Unlock();
 }
 #else
-void vtkDebugLeaks::DestructClass(vtkObjectBase* object)
+void vtkDebugLeaks::DestructClass(vtkObjectBase* vtkNotUsed(object))
 {
 }
 #endif
@@ -265,7 +265,7 @@ void vtkDebugLeaks::DestructClass(const char* className)
   vtkDebugLeaks::CriticalSection->Unlock();
 }
 #else
-void vtkDebugLeaks::DestructClass(const char* className)
+void vtkDebugLeaks::DestructClass(const char* vtkNotUsed(className))
 {
 
 }
