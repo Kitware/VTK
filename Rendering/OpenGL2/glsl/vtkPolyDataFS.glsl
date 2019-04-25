@@ -18,6 +18,8 @@
 
 uniform int PrimitiveIDOffset;
 
+//VTK::CustomUniforms::Dec
+
 // VC position of this fragment
 //VTK::PositionVC::Dec
 

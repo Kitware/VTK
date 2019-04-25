@@ -23,6 +23,7 @@
 #include "vtkOpenGLSphereMapper.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
+#include "vtkShaderProperty.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
@@ -87,10 +88,11 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   actor->GetProperty()->SetSpecular(0.4);
   actor->GetProperty()->SetSpecularPower(40);
 
+  vtkShaderProperty * sp = actor->GetShaderProperty();
+
   // we override the default shader very slightly so that
   // the ambient color component is scaled off the diffuse
-  molmapper->GetFastAtomMapper()->AddShaderReplacement(
-    vtkShader::Fragment,  // in the fragment shader
+  sp->AddFragmentShaderReplacement(
     "//VTK::Color::Impl",
     true, // before the standard replacements
     "//VTK::Color::Impl\n" // we still want the default
