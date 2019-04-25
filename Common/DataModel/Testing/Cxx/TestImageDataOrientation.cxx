@@ -36,11 +36,11 @@ inline int DoOrientationTest(
   image->SetExtent(extent);
   image->SetOrigin(origin);
   image->SetSpacing(spacing);
-  image->SetDirection(direction);
+  image->SetDirectionMatrix(direction);
   image->AllocateScalars(VTK_DOUBLE, 1);
 
   // Check some values in index to physical matrix
-  vtkMatrix4x4 *m4 = image->GetIndexToPhysical();
+  vtkMatrix4x4 *m4 = image->GetIndexToPhysicalMatrix();
   if (m4->GetElement(0, 3) != origin[0] ||
       m4->GetElement(1, 3) != origin[1] ||
       m4->GetElement(2, 3) != origin[2] ||
@@ -52,12 +52,12 @@ inline int DoOrientationTest(
   }
 
   // Go from min IJK to XYZ coordinates
-  double ijk[4], xyz[4];
-  ijk[0] = extent[0];
-  ijk[1] = extent[2];
-  ijk[2] = extent[4];
-  ijk[3] = 1;
-  m4->MultiplyPoint(ijk, xyz);
+  int i, j, k;
+  i = extent[0];
+  j = extent[2];
+  k = extent[4];
+  double xyz[3];
+  image->TransformIndexToPhysicalPoint(i, j, k, xyz);
 
   // Test FindCell and ensure it finds the first cell (since we used IJK min)
   double pcoords[3];
@@ -78,7 +78,7 @@ inline int DoOrientationTest(
 
   // Test GetCell and ensure it returns the same value as XYZ above
   vtkCell *cell = image->GetCell(cellId);
-  double pt[4];
+  double pt[3];
   cell->GetPoints()->GetPoint(0, pt);
   if (!vtkMathUtilities::FuzzyCompare(pt[0], xyz[0], tol) ||
       !vtkMathUtilities::FuzzyCompare(pt[1], xyz[1], tol) ||
@@ -87,18 +87,13 @@ inline int DoOrientationTest(
     vtkGenericWarningMacro("GetCell result for cell " << cellId << " does not match expected values.");
     return EXIT_FAILURE;
   }
-
-  // Get inverse transform: Physical to Index
-  vtkMatrix4x4 *inverseM4 = image->GetPhysicalToIndex();
-
   // Go from physical coordinate to index coordinate and ensure
   // it matches with ijk
-  double index[4];
-  pt[3] = 1;
-  inverseM4->MultiplyPoint(pt, index);
-  if (!vtkMathUtilities::FuzzyCompare(index[0], ijk[0], tol) ||
-      !vtkMathUtilities::FuzzyCompare(index[1], ijk[1], tol) ||
-      !vtkMathUtilities::FuzzyCompare(index[2], ijk[2], tol))
+  double index[3];
+  image->TransformPhysicalPointToContinuousIndex(pt, index);
+  if (!vtkMathUtilities::FuzzyCompare(index[0], (double)i, tol) ||
+      !vtkMathUtilities::FuzzyCompare(index[1], (double)j, tol) ||
+      !vtkMathUtilities::FuzzyCompare(index[2], (double)k, tol))
   {
     vtkGenericWarningMacro("Applying the PhysicalToIndex matrix does not return expected indices.");
     return EXIT_FAILURE;

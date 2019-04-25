@@ -358,9 +358,12 @@ public:
    * Set/Get the direction transform of the dataset. The direction is a 3 by 3
    * matrix.
    */
-  vtkGetObjectMacro(Direction,vtkMatrix3x3);
-  virtual void SetDirection(vtkMatrix3x3 *m);
-  virtual void SetDirection(const double elements[9]);
+  vtkGetObjectMacro(DirectionMatrix,vtkMatrix3x3);
+  virtual void SetDirectionMatrix(vtkMatrix3x3 *m);
+  virtual void SetDirectionMatrix(const double elements[9]);
+  virtual void SetDirectionMatrix(double e00, double e01, double e02,
+                                  double e10, double e11, double e12,
+                                  double e20, double e21, double e22);
   //@}
 
   //@{
@@ -368,7 +371,23 @@ public:
    * Get the transformation matrix from the index space to the physical space
    * coordinate system of the dataset. The transform is a 4 by 4 matrix.
    */
-  vtkGetObjectMacro(IndexToPhysical,vtkMatrix4x4);
+  vtkGetObjectMacro(IndexToPhysicalMatrix,vtkMatrix4x4);
+  //@}
+
+  //@{
+  /**
+   * Convert coordinates from index space (ijk) to physical space (xyz)
+   */
+  virtual void TransformContinuousIndexToPhysicalPoint(double i,
+                                                       double j,
+                                                       double k,
+                                                       double xyz[3]);
+  virtual void TransformContinuousIndexToPhysicalPoint(const double ijk[3],
+                                                       double xyz[3]);
+  virtual void TransformIndexToPhysicalPoint(int i, int j, int k,
+                                             double xyz[3]);
+  virtual void TransformIndexToPhysicalPoint(const int ijk[3],
+                                             double xyz[3]);
   //@}
 
   //@{
@@ -376,7 +395,19 @@ public:
    * Get the transformation matrix from the physical space to the index space
    * coordinate system of the dataset. The transform is a 4 by 4 matrix.
    */
-  vtkGetObjectMacro(PhysicalToIndex,vtkMatrix4x4);
+  vtkGetObjectMacro(PhysicalToIndexMatrix,vtkMatrix4x4);
+  //@}
+
+  //@{
+  /**
+   * Convert coordinates from physical space (xyz) to index space (ijk)
+   */
+  virtual void TransformPhysicalPointToContinuousIndex(double x,
+                                                       double y,
+                                                       double z,
+                                                       double ijk[3]);
+  virtual void TransformPhysicalPointToContinuousIndex(const double xyz[3],
+                                                       double ijk[3]);
   //@}
 
   static void SetScalarType(int, vtkInformation* meta_data);
@@ -480,9 +511,9 @@ protected:
   // Variables used to define dataset physical orientation
   double Origin[3];
   double Spacing[3];
-  vtkMatrix3x3 *Direction;
-  vtkMatrix4x4 *IndexToPhysical;
-  vtkMatrix4x4 *PhysicalToIndex;
+  vtkMatrix3x3 *DirectionMatrix;
+  vtkMatrix4x4 *IndexToPhysicalMatrix;
+  vtkMatrix4x4 *PhysicalToIndexMatrix;
 
   int Extent[6];
 
