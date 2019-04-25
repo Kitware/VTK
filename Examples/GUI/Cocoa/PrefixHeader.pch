@@ -1,9 +1,12 @@
 // This header is automatically #included in every source file in the Xcode project.
 
+// OpenGL is deprecated in macOS, but used extensively by VTK, so silence complier warnings.
+#define GL_SILENCE_DEPRECATION 1
+
 #ifdef __cplusplus
 
 // VTK factory methods now require "auto-initialization".
-// <http://www.vtk.org/Wiki/VTK/VTK_6_Migration/Factories_now_require_defines>
+// <https://www.vtk.org/Wiki/VTK/VTK_6_Migration/Factories_now_require_defines>
 // Match the definitions used to build VTK.
 // Required for proper object factory initialization.
 // It happens automatically when building with CMake,
