@@ -25,15 +25,16 @@ PRIVATE_DEPENDS
   VTK::RenderingCore
 TEST_DEPENDS
   VTK::FiltersFlowPaths
-  VTK::FiltersParallelGeometry
   VTK::FiltersParallelImaging
-  VTK::FiltersParallelMPI
   VTK::IOLegacy
   VTK::IOParallelExodus
   VTK::IOXML
   VTK::InteractionStyle
-  VTK::ParallelMPI
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::FiltersParallelGeometry
+  VTK::FiltersParallelMPI
+  VTK::ParallelMPI

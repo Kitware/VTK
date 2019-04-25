@@ -16,6 +16,7 @@ PRIVATE_DEPENDS
   VTK::ParallelCore
   VTK::vtksys
 TEST_DEPENDS
-  VTK::IOParallelXML
-  VTK::ParallelMPI
   VTK::TestingCore
+  VTK::ParallelCore
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI
