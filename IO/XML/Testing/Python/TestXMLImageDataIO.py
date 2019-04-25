@@ -24,7 +24,7 @@ imageReader.Update()
 # yet supported in vtkImageReader
 direction = [1, 0, 0, 0, -1, 0, 0, 0, -1]
 image = imageReader.GetOutput()
-image.SetDirection(direction)
+image.SetDirectionMatrix(direction)
 
 # extract to reduce extents of grid
 extract = vtk.vtkExtractVOI()
@@ -76,7 +76,7 @@ reader.SetFileName(file1)
 reader.WholeSlicesOn()
 reader.Update()
 
-readDirection = reader.GetOutput().GetDirection()
+readDirection = reader.GetOutput().GetDirectionMatrix()
 assert readDirection.GetElement(0,0) == direction[0]
 assert readDirection.GetElement(0,1) == direction[1]
 assert readDirection.GetElement(0,2) == direction[2]
