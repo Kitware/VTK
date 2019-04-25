@@ -63,7 +63,7 @@ void vtkXMLImageDataWriter::WritePrimaryElementAttributes(ostream &os, vtkIndent
   vtkImageData* input = this->GetInput();
   this->WriteVectorAttribute("Origin", 3, input->GetOrigin());
   this->WriteVectorAttribute("Spacing", 3, input->GetSpacing());
-  this->WriteVectorAttribute("Direction", 9, input->GetDirection()->GetData());
+  this->WriteVectorAttribute("Direction", 9, input->GetDirectionMatrix()->GetData());
 }
 
 //----------------------------------------------------------------------------
