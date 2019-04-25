@@ -451,7 +451,7 @@ public:
 
   int GetNumberOfUniforms()
   {
-    return static_cast<vtkIdType>(this->Uniforms.size());
+    return static_cast<int>(this->Uniforms.size());
   }
 
   const char* GetNthUniformName(vtkIdType uniformIndex)
