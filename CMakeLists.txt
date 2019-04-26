@@ -15,8 +15,8 @@ target_compile_definitions(glew
   PRIVATE
     GLEW_NO_GLU)
 
-# GLEW with OSMesa only works on Linux systems right now.
-if(VTK_OPENGL_HAS_OSMESA AND UNIX AND NOT APPLE)
+
+if(VTK_OPENGL_HAS_OSMESA AND UNIX)
   target_compile_definitions(glew
     PRIVATE
       GLEW_OSMESA)
