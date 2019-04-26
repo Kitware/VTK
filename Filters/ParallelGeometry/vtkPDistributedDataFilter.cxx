@@ -926,13 +926,11 @@ vtkDataSet *vtkPDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input
   duplicateCells = (numTotalCells < nprocs ? DuplicateCellsYes : DuplicateCellsNo);
 
   // compute global cell ids to handle cells duplication
-  vtkDataSet *inputPlus = input;
-  bool deleteInputPlus = false;
+  vtkSmartPointer<vtkDataSet> inputPlus = input;
   if (duplicateCells == DuplicateCellsYes
     && this->GetGlobalElementIdArray(input) == nullptr)
   {
-    deleteInputPlus = true;
-    inputPlus = input->NewInstance();
+    inputPlus = vtkSmartPointer<vtkDataSet>::NewInstance(input);
     inputPlus->ShallowCopy(input);
     this->AssignGlobalElementIds(inputPlus);
   }
@@ -1146,11 +1144,6 @@ vtkDataSet *vtkPDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input
 
     delete [] sendCells;
     delete [] nodeType;
-  }
-
-  if (deleteInputPlus)
-  {
-    inputPlus->Delete();
   }
 
   return newGrid;
