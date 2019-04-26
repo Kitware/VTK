@@ -83,6 +83,8 @@ public:
   void GetDataSpacing(double *ptr);
   double *GetDataOrigin() VTK_SIZEHINT(3);
   void GetDataOrigin(double *ptr);
+  double *GetDataDirection() VTK_SIZEHINT(9);
+  void GetDataDirection(double *ptr);
   //@}
 
   /**
@@ -141,13 +143,14 @@ public:
   //@{
   /**
    * These are function pointer types for the pipeline connection
-   * callbacks.  See furhter documentation in vtkImageImport.h.
+   * callbacks.  See further documentation in vtkImageImport.h.
    */
   typedef void (*UpdateInformationCallbackType)(void*);
   typedef int (*PipelineModifiedCallbackType)(void*);
   typedef int* (*WholeExtentCallbackType)(void*);
   typedef double* (*SpacingCallbackType)(void*);
   typedef double* (*OriginCallbackType)(void*);
+  typedef double* (*DirectionCallbackType)(void*);
   typedef const char* (*ScalarTypeCallbackType)(void*);
   typedef int (*NumberOfComponentsCallbackType)(void*);
   typedef void (*PropagateUpdateExtentCallbackType)(void*, int*);
@@ -165,6 +168,7 @@ public:
   WholeExtentCallbackType           GetWholeExtentCallback() const;
   SpacingCallbackType               GetSpacingCallback() const;
   OriginCallbackType                GetOriginCallback() const;
+  DirectionCallbackType             GetDirectionCallback() const;
   ScalarTypeCallbackType            GetScalarTypeCallback() const;
   NumberOfComponentsCallbackType    GetNumberOfComponentsCallback() const;
   PropagateUpdateExtentCallbackType GetPropagateUpdateExtentCallback() const;
@@ -188,6 +192,7 @@ protected:
   virtual int* WholeExtentCallback();
   virtual double* SpacingCallback();
   virtual double* OriginCallback();
+  virtual double* DirectionCallback();
   virtual const char* ScalarTypeCallback();
   virtual int NumberOfComponentsCallback();
   virtual void PropagateUpdateExtentCallback(int*);
@@ -209,6 +214,7 @@ private:
   static int* WholeExtentCallbackFunction(void*);
   static double* SpacingCallbackFunction(void*);
   static double* OriginCallbackFunction(void*);
+  static double* DirectionCallbackFunction(void*);
   static const char* ScalarTypeCallbackFunction(void*);
   static int NumberOfComponentsCallbackFunction(void*);
   static void PropagateUpdateExtentCallbackFunction(void*, int*);
