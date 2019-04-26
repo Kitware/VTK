@@ -1002,7 +1002,7 @@ void vtkArrayCalculator::AddVectorVariable(const char* variableName,
   int i;
   for (i = 0; i < this->NumberOfVectorArrays; i++)
   {
-    if (strcmp(arrayName, this->VectorVariableNames[i]) == 0 &&
+    if (strcmp(variableName, this->VectorVariableNames[i]) == 0 &&
         strcmp(arrayName, this->VectorArrayNames[i]) == 0 &&
         this->SelectedVectorComponents[i][0] == component0 &&
         this->SelectedVectorComponents[i][1] == component1 &&

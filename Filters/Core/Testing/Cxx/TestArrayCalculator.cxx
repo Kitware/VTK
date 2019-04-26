@@ -90,5 +90,36 @@ int TestArrayCalculator(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  // Ensure that multiple variable names can be defined for the same array
+  vtkNew<vtkArrayCalculator> calc5;
+  calc5->SetInputConnection(calc2->GetOutputPort());
+  calc5->SetAttributeTypeToPointData();
+  calc5->AddScalarVariable("Pres", "Pres");
+  calc5->AddScalarVariable("\"Pres\"", "Pres");
+  calc5->SetFunction("Pres + \"Pres\"");
+  calc5->SetResultArrayName("TwoPres");
+  calc5->Update();
+
+  result = vtkPolyData::SafeDownCast(calc5->GetOutput());
+  if (!result->GetPointData()->HasArray("TwoPres"))
+  {
+    std::cerr << "Output from calc5 has no array named 'TwoPres'" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  calc5->RemoveAllVariables();
+  calc5->AddVectorVariable("PresVector", "PresVector");
+  calc5->AddVectorVariable("\"PresVector\"", "PresVector");
+  calc5->SetFunction("PresVector + \"PresVector\"");
+  calc5->SetResultArrayName("TwoPresVector");
+  calc5->Update();
+
+  result = vtkPolyData::SafeDownCast(calc5->GetOutput());
+  if (!result->GetPointData()->HasArray("TwoPresVector"))
+  {
+    std::cerr << "Output from calc5 has no array named 'TwoPresVector'" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }
