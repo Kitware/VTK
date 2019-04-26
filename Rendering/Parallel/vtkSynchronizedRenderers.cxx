@@ -770,7 +770,8 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
     viewport_in_pixels[0], viewport_in_pixels[1],
     viewport_in_pixels[2], viewport_in_pixels[3],
     ren->GetRenderWindow()->GetDoubleBuffer()? 0 : 1,
-    this->GetRawPtr());
+    this->GetRawPtr(),
+    /*right=*/ ren->GetActiveCamera()->GetLeftEye()==0);
 
   // if selecting then pass the processed pixel buffer
   vtkHardwareSelector *sel = ren->GetSelector();
