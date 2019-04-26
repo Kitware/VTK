@@ -130,6 +130,16 @@ public:
 
   //@{
   /**
+   * Set/Get the direction of the data, i.e. the 3x3 matrix to rotate
+   * the coordinates from index space (ijk) to physical space (xyz).
+   * Default: Identity Matrix (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
+   */
+  vtkSetVector3Macro(DataDirection,double);
+  vtkGetVector3Macro(DataDirection,double);
+  //@}
+
+  //@{
+  /**
    * Get/Set the whole extent of the image.  This is the largest possible
    * extent.  Set the DataExtent to the extent of the image in the buffer
    * pointed to by the ImportVoidPointer.
@@ -173,6 +183,7 @@ public:
   typedef int* (*WholeExtentCallbackType)(void*);
   typedef double* (*SpacingCallbackType)(void*);
   typedef double* (*OriginCallbackType)(void*);
+  typedef double* (*DirectionCallbackType)(void*);
   typedef const char* (*ScalarTypeCallbackType)(void*);
   typedef int (*NumberOfComponentsCallbackType)(void*);
   typedef void (*PropagateUpdateExtentCallbackType)(void*, int*);
@@ -231,6 +242,16 @@ public:
    */
   vtkSetMacro(OriginCallback, OriginCallbackType);
   vtkGetMacro(OriginCallback, OriginCallbackType);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the callback for getting the direction of the input image
+   * from a third-party pipeline.  The callback should return a vector
+   * of nine double values describing the rotation from ijk to xyz.
+   */
+  vtkSetMacro(DirectionCallback, DirectionCallbackType);
+  vtkGetMacro(DirectionCallback, DirectionCallbackType);
   //@}
 
   //@{
@@ -336,6 +357,7 @@ protected:
   int DataExtent[6];
   double DataSpacing[3];
   double DataOrigin[3];
+  double DataDirection[9];
 
   char *ScalarArrayName;
   void* CallbackUserData;
@@ -345,6 +367,7 @@ protected:
   WholeExtentCallbackType           WholeExtentCallback;
   SpacingCallbackType               SpacingCallback;
   OriginCallbackType                OriginCallback;
+  DirectionCallbackType             DirectionCallback;
   ScalarTypeCallbackType            ScalarTypeCallback;
   NumberOfComponentsCallbackType    NumberOfComponentsCallback;
   PropagateUpdateExtentCallbackType PropagateUpdateExtentCallback;

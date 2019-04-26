@@ -62,6 +62,16 @@ vtkImageImport::vtkImageImport()
     this->DataSpacing[idx] = 1.0;
     this->DataOrigin[idx] = 0.0;
   }
+  this->DataDirection[0] =
+  this->DataDirection[4] =
+  this->DataDirection[8] = 1.0;
+  this->DataDirection[1] =
+  this->DataDirection[2] =
+  this->DataDirection[3] =
+  this->DataDirection[5] =
+  this->DataDirection[6] =
+  this->DataDirection[7] = 0.0;
+
   this->SaveUserArray = 0;
 
   this->CallbackUserData = nullptr;
@@ -71,6 +81,7 @@ vtkImageImport::vtkImageImport()
   this->WholeExtentCallback = nullptr;
   this->SpacingCallback = nullptr;
   this->OriginCallback = nullptr;
+  this->DirectionCallback = nullptr;
   this->ScalarTypeCallback = nullptr;
   this->NumberOfComponentsCallback = nullptr;
   this->PropagateUpdateExtentCallback = nullptr;
@@ -141,6 +152,13 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << ")\n";
 
+  os << indent << "DataDirection: (" << this->DataDirection[0];
+  for (idx = 1; idx < 9; ++idx)
+  {
+    os << ", " << this->DataDirection[idx];
+  }
+  os << ")\n";
+
   os << indent << "CallbackUserData: "
      << (this->CallbackUserData? "Set" : "Not Set") << "\n";
 
@@ -158,6 +176,9 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "OriginCallback: "
      << (this->OriginCallback? "Set" : "Not Set") << "\n";
+
+  os << indent << "DirectionCallback: "
+     << (this->DirectionCallback? "Set" : "Not Set") << "\n";
 
   os << indent << "ScalarTypeCallback: "
      << (this->ScalarTypeCallback? "Set" : "Not Set") << "\n";
@@ -249,6 +270,9 @@ int vtkImageImport::RequestInformation (
 
   // set the origin.
   outInfo->Set(vtkDataObject::ORIGIN(),this->DataOrigin,3);
+
+  // set the direction.
+  outInfo->Set(vtkDataObject::DIRECTION(),this->DataDirection,9);
 
   // set data type
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->DataScalarType,
@@ -382,6 +406,13 @@ void vtkImageImport::InvokeExecuteInformationCallbacks()
     tryCatchMacro(
       this->SetDataOrigin((this->OriginCallback)(this->CallbackUserData)),
       "Calling OriginCallback: ");
+  }
+  if (this->DirectionCallback)
+  {
+    tryCatchMacro(
+      this->SetDataDirection(
+        (this->DirectionCallback)(this->CallbackUserData)),
+      "Calling DirectionCallback: ");
   }
   if (this->NumberOfComponentsCallback)
   {
