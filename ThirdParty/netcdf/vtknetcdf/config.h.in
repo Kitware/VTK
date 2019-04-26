@@ -89,6 +89,9 @@
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H
 
+/* Define to 1 if you have the '_filelengthi64' function. */
+#cmakedefine HAVE_FILE_LENGTH_I64
+
 /* Define to 1 if you have the `fsync' function. */
 #cmakedefine HAVE_FSYNC
 

@@ -132,6 +132,7 @@ is_enabled(USE_CDF5 HAS_CDF5)
 set(USE_STDIO 0)
 
 include(CheckSymbolExists)
+check_symbol_exists("_filelengthi64" "io.h" HAVE_FILE_LENGTH_I64)
 check_symbol_exists("alloca" "alloca.h" HAVE_ALLOCA)
 check_symbol_exists("isfinite" "math.h" HAVE_DECL_ISFINITE)
 check_symbol_exists("isinf" "math.h" HAVE_DECL_ISINF)
