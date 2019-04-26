@@ -460,8 +460,6 @@ protected:
   vtkOpenGLShaderCache *ShaderCache;
   vtkOpenGLVertexBufferObjectCache *VBOCache;
 
-  vtkOpenGLState *State;
-
   // used in testing for opengl support
   // in the SupportsOpenGL() method
   bool OpenGLSupportTested;
@@ -556,6 +554,10 @@ protected:
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;
   void operator=(const vtkOpenGLRenderWindow&) = delete;
+
+  // Keeping `State` private so the only way to access it is through
+  // `this->GetState()`.
+  vtkOpenGLState *State;
 };
 
 #endif

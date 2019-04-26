@@ -1952,7 +1952,7 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
   // Let's determine if we're reading from an FBO.
   bool resolveMSAA = this->GetCurrentBufferNeedsResolving();
 
-  this->State->vtkglDisable( GL_SCISSOR_TEST );
+  this->GetState()->vtkglDisable( GL_SCISSOR_TEST );
 
   // Calling pack alignment ensures that we can grab the any size window
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
