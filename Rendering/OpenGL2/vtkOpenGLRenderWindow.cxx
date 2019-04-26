@@ -1275,6 +1275,12 @@ void vtkOpenGLRenderWindow::Start()
     this->FrontBuffer     = buffer;
     this->BackRightBuffer  = buffer;
     this->FrontRightBuffer = buffer;
+    if (this->OffScreenFramebuffer->GetNumberOfColorAttachments() == 2)
+    {
+      unsigned int buffer1 = static_cast<unsigned int>(GL_COLOR_ATTACHMENT1);
+      this->BackRightBuffer  = buffer1;
+      this->FrontRightBuffer = buffer1;
+    }
   }
   else if (!this->UseOffScreenBuffers && this->OffScreenFramebufferBound)
   {
@@ -2175,13 +2181,20 @@ int vtkOpenGLRenderWindow::CreateOffScreenFramebuffer(int width, int height)
 
   if (!this->OffScreenFramebuffer)
   {
+    int num_color_attachments = 1;
+    if (this->GetStereoCapableWindow() && this->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
+    {
+      // for active stereo, we simply create two color attachments, one for the
+      // left eye and one for the right.
+      ++num_color_attachments;
+    }
     this->OffScreenFramebuffer = vtkOpenGLFramebufferObject::New();
     this->OffScreenFramebuffer->SetContext(this);
     this->OffScreenFramebuffer->SaveCurrentBindingsAndBuffers();
     this->OffScreenFramebuffer->PopulateFramebuffer(
       width, height,
       true, // textures
-      1, VTK_UNSIGNED_CHAR, // 1 color buffer uchar
+      num_color_attachments, VTK_UNSIGNED_CHAR, // 1 (or 2) color buffer uchar
       true, 24, // depth buffer 24bit
       0, // no multisample
       this->StencilCapable != 0 ? true : false);
@@ -2191,10 +2204,6 @@ int vtkOpenGLRenderWindow::CreateOffScreenFramebuffer(int width, int height)
   {
     this->OffScreenFramebuffer->Resize(width, height);
   }
-
-  // if (isStereo)
-  // {
-  // }
 
   return 1;
 }
