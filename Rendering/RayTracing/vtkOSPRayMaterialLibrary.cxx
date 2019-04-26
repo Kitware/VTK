@@ -81,10 +81,25 @@ void vtkOSPRayMaterialLibrary::AddMaterial(const std::string& nickname, const st
 }
 
 // ----------------------------------------------------------------------------
+void vtkOSPRayMaterialLibrary::RemoveMaterial(const std::string& nickname)
+{
+  this->Internal->NickNames.erase(nickname);
+  this->Internal->ImplNames.erase(nickname);
+  this->Internal->VariablesFor.erase(nickname);
+  this->Internal->TexturesFor.erase(nickname);
+}
+
+// ----------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::AddTexture(const std::string& nickname, const std::string& texname, vtkTexture* tex)
 {
   NamedTextures &tsForNickname = this->Internal->TexturesFor[nickname];
   tsForNickname[texname] = tex;
+}
+
+// ----------------------------------------------------------------------------
+void vtkOSPRayMaterialLibrary::RemoveTexture(const std::string& nickname, const std::string& texname)
+{
+  this->Internal->TexturesFor[nickname].erase(texname);
 }
 
 // ----------------------------------------------------------------------------
@@ -95,6 +110,12 @@ void vtkOSPRayMaterialLibrary::AddShaderVariable(const std::string& nickname, co
 
   NamedVariables &vsForNickname = this->Internal->VariablesFor[nickname];
   vsForNickname[varname] = w;
+}
+
+// ----------------------------------------------------------------------------
+void vtkOSPRayMaterialLibrary::RemoveShaderVariable(const std::string& nickname, const std::string& varname)
+{
+  this->Internal->VariablesFor[nickname].erase(varname);
 }
 
 // ----------------------------------------------------------------------------

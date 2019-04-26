@@ -94,10 +94,23 @@ public:
   void AddMaterial(const std::string& nickname, const std::string& implname);
 
   /**
+    * Remove Material
+    * Removes a material nickname from the set of known materials.
+    * Do nothing if material does not exist.
+    **/
+  void RemoveMaterial(const std::string& nickname);
+
+  /**
     * Add Texture
     * Adds a new texture. Replaces any previous content.
     **/
   void AddTexture(const std::string& nickname, const std::string& texturename, vtkTexture* tex);
+
+  /**
+    * Remove Texture
+    * Removes a texture. Do nothing if texture does not exist.
+    **/
+  void RemoveTexture(const std::string& nickname, const std::string& texturename);
 
   /**
     * Add control variable
@@ -115,6 +128,14 @@ public:
                             static_cast<int>(data.size()), data.begin());
   }
   /**@}*/
+
+  /**
+    * Remove control variable
+    * Removes a new control variable.
+    * Do nothing if variable does not exist.
+    **/
+  void RemoveShaderVariable(const std::string& nickname,
+                            const std::string& variablename);
 
 
 protected:
