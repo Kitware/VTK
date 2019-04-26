@@ -161,9 +161,7 @@ int
 NCopen3(const char* path, int flags, int mode)
 {
     int fd = -1;
-    fflush(stderr);
     char* cvtname = NCpathcvt(path);
-    fflush(stderr);
     if(cvtname == NULL) return -1;
     fd = open(cvtname,flags,mode);
     free(cvtname);    

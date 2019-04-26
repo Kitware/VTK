@@ -1,10 +1,9 @@
 /** \file
-Attribute functions
+Copyright 2010 University Corporation for Atmospheric
+Research/Unidata. See \ref copyright file for more info.  
 
 These functions read and write attributes.
-
-Copyright 2010 University Corporation for Atmospheric
-Research/Unidata. See \ref copyright file for more info.  */
+*/
 
 #include "ncdispatch.h"
 
@@ -16,11 +15,11 @@ Attributes hold metadata about data and files.
 
 Attributes may be associated with a netCDF variable to specify such
 properties as units, special values, maximum and minimum valid values,
-scaling factors, and offsets. 
+scaling factors, and offsets.
 
 Attributes for a netCDF dataset are defined when the dataset is first
 created, while the netCDF dataset is in define mode. Additional
-attributes may be added later by reentering define mode. 
+attributes may be added later by reentering define mode.
 
 A netCDF attribute has a netCDF variable to which it is assigned, a
 name, a type, a length, and a sequence of one or more values. 
@@ -38,9 +37,10 @@ more space than the attribute as originally defined.
 
 It is also possible to have attributes that are not associated with
 any variable. These are called global attributes and are identified by
-using ::NC_GLOBAL as a variable pseudo-ID. Global attributes are usually
-related to the netCDF dataset as a whole and may be used for purposes
-such as providing a title or processing history for a netCDF dataset.
+using ::NC_GLOBAL as a variable pseudo-ID. Global attributes are
+usually related to the netCDF dataset as a whole and may be used for
+purposes such as providing a title or processing history for a netCDF
+dataset.
 
 Operations supported on attributes are:
 - Create an attribute, given its variable ID, name, data type, length,
@@ -102,6 +102,20 @@ dataset named foo.nc:
      status = nc_rename_att(ncid, rh_id, "units", "Units");
      if (status != NC_NOERR) handle_error(status);
 \endcode
+
+\returns NC_NOERR No error.
+\returns ::NC_EBADID Bad ncid.
+\returns ::NC_ENOTVAR Bad varid.
+\returns ::NC_EBADNAME Bad name.
+\returns ::NC_EMAXNAME New name too long.
+\returns ::NC_EINVAL Name or new name not provided.
+\returns ::NC_ENAMEINUSE Name already in use.
+\returns ::NC_EPERM File was opened read only.
+\returns ::NC_ENOTINDEFINE File is not in define mode.
+\returns ::NC_ENOTATT Attribute not found.
+\returns ::NC_EHDFERR Failure at HDF5 layer.
+\returns ::NC_ENOMEM Out of memory.
+\author Glenn Davis, Ed Hartnett, Dennis Heimbigner
  */
 int
 nc_rename_att(int ncid, int varid, const char *name, const char *newname)
@@ -153,6 +167,17 @@ Units for a variable rh in an existing netCDF dataset named foo.nc:
      status = nc_enddef(ncid);
      if (status != NC_NOERR) handle_error(status);
 \endcode
+
+\returns ::NC_NOERR No error.
+\returns ::NC_EBADID Bad ncid.
+\returns ::NC_ENOTVAR Bad varid.
+\returns ::NC_EBADNAME Bad name.
+\returns ::NC_EINVAL Name not provided.
+\returns ::NC_EPERM File was opened read only.
+\returns ::NC_ENOTINDEFINE File is not in define mode.
+\returns ::NC_ENOTATT Attribute not found.
+\returns ::NC_EATTMETA Failure at HDF5 layer.
+\author Glenn Davis, Ed Hartnett, Dennis Heimbigner
  */
 int
 nc_del_att(int ncid, int varid, const char *name)

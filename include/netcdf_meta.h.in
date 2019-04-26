@@ -52,6 +52,6 @@
 /or pnetcdf. */
 
 #define NC_HAS_CDF5      @NC_HAS_CDF5@  /*!< CDF5 support. */
-
+#define NC_HAS_ERANGE_FILL @NC_HAS_ERANGE_FILL@ /*!< ERANGE_FILL Support */
 
 #endif

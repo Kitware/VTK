@@ -1,17 +1,30 @@
-/* Copyright 2010 University Corporation for Atmospheric
-   Research/Unidata. See COPYRIGHT file for more info.
-
-   This file has the var and att copy functions.
-
-   "$Id: copy.c,v 1.1 2010/06/01 15:46:49 ed Exp $"
+/**
+ * @file
+ * Copyright 2010 University Corporation for Atmospheric
+ * Research/Unidata. See COPYRIGHT file for more info.
+ *
+ * This file has the var and att copy functions.
+ *
+ * @author Dennis Heimbigner
 */
-
 #include "ncdispatch.h"
 #include "nc_logging.h"
 
 #ifdef USE_NETCDF4
-/* Compare two netcdf types for equality. Must have the ncids as well,
-   to find user-defined types. */
+/**
+ * @internal Compare two netcdf types for equality. Must have the
+ * ncids as well, to find user-defined types. 
+ *
+ * @param ncid1 File ID.
+ * @param typeid1 Type ID.
+ * @param ncid2 File ID.
+ * @param typeid2 Type ID.
+ * @param equalp Pointer that gets 1 of the types are equal, 0
+ * otherwise.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Ed Hartnett
+*/
 static int
 NC_compare_nc_types(int ncid1, int typeid1, int ncid2, int typeid2,
 		    int *equalp)
@@ -137,8 +150,18 @@ NC_compare_nc_types(int ncid1, int typeid1, int ncid2, int typeid2,
    return ret;
 }
 
-/* Recursively hunt for a netCDF type id. (Code from nc4internal.c);
-   Return matching typeid or 0 if not found. */
+/**
+ * @internal Recursively hunt for a netCDF type id. (Code from
+ * nc4internal.c); Return matching typeid or 0 if not found. 
+ *
+ * @param ncid1 File ID.
+ * @param tid1 Type ID.
+ * @param ncid2 File ID.
+ * @param tid2 Pointer that gets type ID of equal type.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Ed Hartnett
+*/
 static int
 NC_rec_find_nc_type(int ncid1, nc_type tid1, int ncid2, nc_type* tid2)
 {
@@ -201,8 +224,18 @@ NC_rec_find_nc_type(int ncid1, nc_type tid1, int ncid2, nc_type* tid2)
    return NC_EBADTYPE; /* not found */
 }
 
-/* Given a type in one file, find its equal (if any) in another
- * file. It sounds so simple, but it's a real pain! */
+/**
+ * @internal Given a type in one file, find its equal (if any) in
+ * another file. It sounds so simple, but it's a real pain! 
+ *
+ * @param ncid1 File ID.
+ * @param xtype1 Type ID.
+ * @param ncid2 File ID.
+ * @param xtype2 Pointer that gets type ID of equal type.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Ed Hartnett
+*/
 static int
 NC_find_equal_type(int ncid1, nc_type xtype1, int ncid2, nc_type *xtype2)
 {
@@ -229,25 +262,33 @@ NC_find_equal_type(int ncid1, nc_type xtype1, int ncid2, nc_type *xtype2)
 
 #endif /* USE_NETCDF4 */
 
-/* This will copy a variable that is an array of primitive type and
-   its attributes from one file to another, assuming dimensions in the
-   output file are already defined and have same dimension IDs and
-   length.  However it doesn't work for copying netCDF-4 variables of
-   type string or a user-defined type.
-
-   This function works even if the files are different formats,
-   (for example, one netcdf classic, the other netcdf-4).
-
-   If you're copying into a classic-model file, from a netcdf-4 file,
-   you must be copying a variable of one of the six classic-model
-   types, and similarly for the attributes.
-
-   For large netCDF-3 files, this can be a very inefficient way to
-   copy data from one file to another, because adding a new variable
-   to the target file may require more space in the header and thus
-   result in moving data for other variables in the target file. This
-   is not a problem for netCDF-4 files, which support efficient
-   addition of variables without moving data for other variables.
+/**
+ * This will copy a variable that is an array of primitive type and
+ * its attributes from one file to another, assuming dimensions in the
+ * output file are already defined and have same dimension IDs and
+ * length.  However it doesn't work for copying netCDF-4 variables of
+ * type string or a user-defined type.
+ *
+ * This function works even if the files are different formats,
+ * (for example, one netcdf classic, the other netcdf-4).
+ *
+ * If you're copying into a classic-model file, from a netcdf-4 file,
+ * you must be copying a variable of one of the six classic-model
+ * types, and similarly for the attributes.
+ *
+ * For large netCDF-3 files, this can be a very inefficient way to
+ * copy data from one file to another, because adding a new variable
+ * to the target file may require more space in the header and thus
+ * result in moving data for other variables in the target file. This
+ * is not a problem for netCDF-4 files, which support efficient
+ * addition of variables without moving data for other variables.
+ *
+ * @param ncid_in File ID to copy from.
+ * @param varid_in Variable ID to copy.
+ * @param ncid_out File ID to copy to.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Glenn Davis, Ed Hartnett, Dennis Heimbigner
 */
 int
 nc_copy_var(int ncid_in, int varid_in, int ncid_out)
@@ -477,6 +518,19 @@ nc_copy_var(int ncid_in, int varid_in, int ncid_out)
    return retval;
 }
 
+/**
+ * Copy an attribute from one open file to another. This is called by
+ * nc_copy_att().
+ *
+ * @param ncid_in File ID to copy from.
+ * @param varid_in Variable ID to copy from.
+ * @param name Name of attribute to copy.
+ * @param ncid_out File ID to copy to.
+ * @param varid_out Variable ID to copy to.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Glenn Davis, Ed Hartnett, Dennis Heimbigner
+*/
 static int
 NC_copy_att(int ncid_in, int varid_in, const char *name,
 	    int ncid_out, int varid_out)
@@ -576,16 +630,26 @@ NC_copy_att(int ncid_in, int varid_in, const char *name,
    return res;
 }
 
-/* Copy an attribute from one open file to another.
-
-   Special programming challenge: this function must work even if one
-   of the other of the files is a netcdf version 1.0 file (i.e. not
-   HDF5). So only use top level netcdf api functions.
-
-   From the netcdf-3 docs: The output netCDF dataset should be in
-   define mode if the attribute to be copied does not already exist
-   for the target variable, or if it would cause an existing target
-   attribute to grow.
+/**
+ * Copy an attribute from one open file to another.
+ *
+ * Special programming challenge: this function must work even if one
+ * of the other of the files is a netcdf version 1.0 file (i.e. not
+ * HDF5). So only use top level netcdf api functions.
+ *
+ * From the netcdf-3 docs: The output netCDF dataset should be in
+ * define mode if the attribute to be copied does not already exist
+ * for the target variable, or if it would cause an existing target
+ * attribute to grow.
+ *
+ * @param ncid_in File ID to copy from.
+ * @param varid_in Variable ID to copy from.
+ * @param name Name of attribute to copy.
+ * @param ncid_out File ID to copy to.
+ * @param varid_out Variable ID to copy to.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Glenn Davis, Ed Hartnett, Dennis Heimbigner
 */
 int
 nc_copy_att(int ncid_in, int varid_in, const char *name,

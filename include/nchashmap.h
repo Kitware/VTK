@@ -4,58 +4,67 @@
  *   $Header$
  *********************************************************************/
 #ifndef NCHASHMAP_H
-#define NCHASHMAP_H 1
+#define NCHASHMAP_H
 
-#if defined(_CPLUSPLUS_) || defined(__CPLUSPLUS__)
-extern "C" {
-#endif
+/*
+Data is presumed to be an index into some other table
+   Assume it can be compared using simple ==
+The key is some hash of some null terminated string.
+*/
 
-#include "nclist.h"
+/*! Hashmap-related structs.
+  NOTES:
+  1. 'data' is the dimid or varid which is non-negative.
+  2. 'key' is a copy of the name (char*) of the corresponding object
+     (e.g. dim or var)
+  3. hashkey is a hash of key.
+*/
+typedef struct NC_hentry {
+    int flags;
+    void* data;
+    size_t hashkey; /* Hash id */
+    char* key; /* actual key; do not free */
+} NC_hentry;
 
-/* Define the type of the elements in the hashmap*/
-typedef unsigned long nchashid;
+/*
+The hashmap object must give us the hash table (table),
+the |table| size, and the # of defined entries in the table
+*/
+typedef struct NC_hashmap {
+  size_t size; /* allocated */
+  size_t count;
+  NC_hentry* table;
+} NC_hashmap;
 
-typedef struct NChashmap {
-  size_t alloc;
-  size_t size; /* # of pairs still in table*/
-  NClist** table;
-} NChashmap;
+/* defined in nc_hashmap.c */
 
-extern int nchashnull(void*);
+/** Creates a new hashmap near the given size. */
+extern NC_hashmap* NC_hashmapnew(size_t startsize);
 
-extern NChashmap* nchashnew(void);
-extern NChashmap* nchashnew0(size_t);
-extern int nchashfree(NChashmap*);
+/** Inserts a new element into the hashmap. */
+/* Note we pass the NC_hobjecty struct by value */
+extern int NC_hashmapadd(NC_hashmap*, void* data, const char* name);
 
-/* Insert a (ncnchashid,void*) pair into the table*/
-/* Fail if already there*/
-extern int nchashinsert(NChashmap*, nchashid nchash, void* value);
+/** Removes the storage for the element of the key.
+    Return 1 if found, 0 otherwise; returns the data in datap if !null
+*/
+extern int NC_hashmapremove(NC_hashmap*, const char* name, void** datap);
 
-/* Insert a (nchashid,void*) pair into the table*/
-/* Overwrite if already there*/
-extern int nchashreplace(NChashmap*, nchashid nchash, void* value);
+/** Returns the data for the key.
+    Return 1 if found, 0 otherwise; returns the data in datap if !null
+*/
+extern int NC_hashmapget(NC_hashmap*, const char*, void** datap);
 
-/* lookup a nchashid and return found/notfound*/
-extern int nchashlookup(NChashmap*, nchashid nchash, void** valuep);
+/** Change the data for the specified key
+    Return 1 if found, 0 otherwise
+*/
+extern int NC_hashmapsetdata(NC_hashmap*, const char*, void* newdata);
 
-/* lookup a nchashid and return 0 or the value*/
-extern void* nchashget(NChashmap*, nchashid nchash);
+/** Returns the number of saved elements. */
+extern size_t NC_hashmapcount(NC_hashmap*);
 
-/* remove a nchashid*/
-extern int nchashremove(NChashmap*, nchashid nchash);
-
-/* Return the ith pair; order is completely arbitrary*/
-/* Can be expensive*/
-extern int nchashith(NChashmap*, int i, nchashid*, void**);
-
-extern int nchashkeys(NChashmap* hm, nchashid** keylist);
-
-/* return the # of pairs in table*/
-#define nchashsize(hm) ((hm)?(hm)->size:0)
-
-#if defined(_CPLUSPLUS_) || defined(__CPLUSPLUS__)
-}
-#endif
+/** Reclaims the hashmap structure. */
+extern int NC_hashmapfree(NC_hashmap*);
 
 #endif /*NCHASHMAP_H*/
 

@@ -9,7 +9,9 @@
 #ifndef _DISPATCH_H
 #define _DISPATCH_H
 
+#if HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -29,7 +31,8 @@
 #define X_INT_MAX	2147483647
 
 /* Given a filename, check its magic number */
-#define MAGIC_NUMBER_LEN 4
+/* Change magic number size from 4 to 8 to be more precise for HDF5 */
+#define MAGIC_NUMBER_LEN 8
 #define MAGIC_HDF5_FILE 1
 #define MAGIC_HDF4_FILE 2
 #define MAGIC_CDF1_FILE 1 /* std classic format */
@@ -142,6 +145,12 @@ extern int NC4_initialize(void);
 extern int NC4_finalize(void);
 #endif
 
+#ifdef USE_HDF4
+extern NC_Dispatch* HDF4_dispatch_table;
+extern int HDF4_initialize(void);
+extern int HDF4_finalize(void);
+#endif
+
 /* Vectors of ones and zeros */
 extern size_t nc_sizevector0[NC_MAX_VAR_DIMS];
 extern size_t nc_sizevector1[NC_MAX_VAR_DIMS];
@@ -245,9 +254,11 @@ int (*inq_var_all)(int ncid, int varid, char *name, nc_type *xtypep,
                int *shufflep, int *deflatep, int *deflate_levelp,
                int *fletcher32p, int *contiguousp, size_t *chunksizesp,
                int *no_fill, void *fill_valuep, int *endiannessp,
-	       int *options_maskp, int *pixels_per_blockp);
+	       unsigned int* idp, size_t* nparamsp, unsigned int* params
+              );
 
 int (*var_par_access)(int, int, int);
+int (*def_var_fill)(int, int, int, const void*);
 
 /* Note the following may still be invoked by netcdf client code
    even when the file is a classic file; they will just return an error or
@@ -287,8 +298,8 @@ int (*def_opaque)(int, size_t, const char*, nc_type*);
 int (*def_var_deflate)(int, int, int, int, int);
 int (*def_var_fletcher32)(int, int, int);
 int (*def_var_chunking)(int, int, int, const size_t*);
-int (*def_var_fill)(int, int, int, const void*);
 int (*def_var_endian)(int, int, int);
+int (*def_var_filter)(int, int, unsigned int, size_t, const unsigned int*);
 int (*set_var_chunk_cache)(int, int, size_t, size_t, float);
 int (*get_var_chunk_cache)(int ncid, int varid, size_t *sizep, size_t *nelemsp, float *preemptionp);
 #endif /*USE_NETCDF4*/
@@ -397,8 +408,8 @@ NCDISPATCH_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
                int *shufflep, int *deflatep, int *deflate_levelp,
                int *fletcher32p, int *contiguousp, size_t *chunksizesp,
                int *no_fill, void *fill_valuep, int *endiannessp,
-	       int *options_maskp, int *pixels_per_blockp);
-
+	       unsigned int* idp, size_t* nparamsp, unsigned int* paramsp
+               );
 extern int
 NCDISPATCH_get_att(int ncid, int varid, const char* name, void* value, nc_type t);
 

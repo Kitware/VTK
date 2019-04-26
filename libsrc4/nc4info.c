@@ -1,8 +1,11 @@
-/*********************************************************************
-*    Copyright 2010, UCAR/Unidata
-*    See netcdf/COPYRIGHT file for copying and redistribution conditions.
-* ********************************************************************/
-
+/**
+ * @file
+ * @internal Add provenance info for netcdf-4 files.
+ *
+ * Copyright 2010, UCAR/Unidata See netcdf/COPYRIGHT file for copying
+ * and redistribution conditions.
+ * @author Dennis Heimbigner
+ */
 #include "config.h"
 #include <stdlib.h>
 #include <string.h>
@@ -13,16 +16,22 @@
 #include "netcdf.h"
 #include "nc4internal.h"
 
-#define IGNORE 0
+#define HDF5_MAX_NAME 1024 /**< HDF5 max name. */
 
-#define HDF5_MAX_NAME 1024
-
+/** @internal Check NetCDF return code. */
 #define NCHECK(expr) {if((expr)!=NC_NOERR) {goto done;}}
+
+/** @internal Check HDF5 return code. */
 #define HCHECK(expr) {if((expr)<0) {ncstat = NC_EHDFERR; goto done;}}
 
-/* Global */
-struct NCPROPINFO globalpropinfo;
+struct NCPROPINFO globalpropinfo; /**< Global property info. */
 
+/**
+ * @internal Initialize file info.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_fileinfo_init(void)
 {
@@ -44,6 +53,15 @@ done:
     return stat;
 }
 
+/**
+ * @internal Parse file properties.
+ *
+ * @param ncprops Property info.
+ * @param text Text properties.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Dennis Heimbigner
+ */
 static int
 NC4_properties_parse(struct NCPROPINFO* ncprops, const char* text)
 {
@@ -96,6 +114,14 @@ done:
     return ret;
 }
 
+/**
+ * @internal Get properties attribure.
+ *
+ * @param h5 Pointer to HDF5 file info struct.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Dennis Heimbigner
+ */
 static int
 NC4_get_propattr(NC_HDF5_FILE_INFO_T* h5)
 {
@@ -107,7 +133,6 @@ NC4_get_propattr(NC_HDF5_FILE_INFO_T* h5)
     hid_t aspace = -1;
     hid_t atype = -1;
     hid_t ntype = -1;
-    herr_t herr = 0;
     char* text = NULL;
 
     /* Get root group */
@@ -115,7 +140,6 @@ NC4_get_propattr(NC_HDF5_FILE_INFO_T* h5)
     /* Try to extract the NCPROPS attribute */
     if(H5Aexists(grp,NCPROPS) > 0) { /* Does exist */
         attid = H5Aopen_name(grp, NCPROPS);
-	herr = -1;
 	aspace = H5Aget_space(attid); /* dimensions of attribute data */
         atype = H5Aget_type(attid);
 	/* Verify that atype and size */
@@ -132,7 +156,6 @@ NC4_get_propattr(NC_HDF5_FILE_INFO_T* h5)
 	text[size] = '\0';
 	/* Try to parse text */
 	ncstat = NC4_properties_parse(&h5->fileinfo->propattr,text);
-	herr = 0;
     }
 done:
     if(attid >= 0) HCHECK((H5Aclose(attid)));
@@ -143,6 +166,14 @@ done:
     return ncstat;
 }
 
+/**
+ * @internal Write the properties attribute to file.
+ *
+ * @param h5 Pointer to HDF5 file info struct.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_put_propattr(NC_HDF5_FILE_INFO_T* h5)
 {
@@ -151,7 +182,6 @@ NC4_put_propattr(NC_HDF5_FILE_INFO_T* h5)
     hid_t attid = -1;
     hid_t aspace = -1;
     hid_t atype = -1;
-    herr_t herr = 0;
     char* text = NULL;
 
     /* Get root group */
@@ -162,7 +192,6 @@ NC4_put_propattr(NC_HDF5_FILE_INFO_T* h5)
       if(text == NULL || ncstat != NC_NOERR) {
         goto done;
       }
-      herr = -1;
       /* Create a datatype to refer to. */
       HCHECK((atype = H5Tcopy(H5T_C_S1)));
       HCHECK((H5Tset_cset(atype, H5T_CSET_ASCII)));
@@ -170,7 +199,6 @@ NC4_put_propattr(NC_HDF5_FILE_INFO_T* h5)
       HCHECK((aspace = H5Screate(H5S_SCALAR)));
       HCHECK((attid = H5Acreate(grp, NCPROPS, atype, aspace, H5P_DEFAULT)));
       HCHECK((H5Awrite(attid, atype, text)));
-      herr = 0;
     }
  done:
     if(text != NULL) {
@@ -184,6 +212,15 @@ NC4_put_propattr(NC_HDF5_FILE_INFO_T* h5)
     return ncstat;
 }
 
+/**
+ * @internal
+ *
+ * @param h5 Pointer to HDF5 file info struct.
+ * @param init Initialization.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_get_fileinfo(NC_HDF5_FILE_INFO_T* h5, struct NCPROPINFO* init)
 {
@@ -206,6 +243,15 @@ done:
     return ncstat;
 }
 
+/**
+ * @internal Build properties attribute.
+ *
+ * @param info Properties info.
+ * @param propdatap Pointer that gets properties data.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_buildpropinfo(struct NCPROPINFO* info,char** propdatap)
 {

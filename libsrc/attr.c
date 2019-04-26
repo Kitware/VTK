@@ -548,7 +548,15 @@ NC3_rename_att( int ncid, int varid, const char *name, const char *unewname)
 		free_NC_string(old);
 		return NC_NOERR;
 	}
-	/* else */
+	/* else not in define mode */
+
+	/* If new name is longer than old, then complain,
+           but otherwise, no change (test is same as set_NC_string)*/
+	if(old->nchars < strlen(newname)) {
+	    free(newname);
+	    return NC_ENOTINDEFINE;
+	}
+
 	status = set_NC_string(old, newname);
 	free(newname);
 	if( status != NC_NOERR)
@@ -1438,6 +1446,25 @@ NC3_put_att(
     if(nelems != 0 && value == NULL)
 	return NC_EINVAL; /* Null arg */
 
+    /* Temporarily removed to preserve extant
+       workflows (NCO based and others). See
+
+       https://github.com/Unidata/netcdf-c/issues/843
+
+       for more information. */
+
+//    if (varid != NC_GLOBAL && !strcmp(name, _FillValue)) {
+//        /* Fill value must be of the same data type */
+//        if (type != ncp->vars.value[varid]->type) return NC_EBADTYPE;
+//
+//        /* Fill value must have exactly one value */
+//        if (nelems != 1) return NC_EINVAL;
+//
+//        /* Only allow for variables defined in initial define mode */
+//        if (ncp->old != NULL && varid < ncp->old->vars.nelems)
+//            return NC_ELATEFILL; /* try put attribute for an old variable */
+//    }
+
     attrpp = NC_findattr(ncap, name);
 
     /* 4 cases: exists X indef */
@@ -1485,8 +1512,6 @@ NC3_put_att(
         old = *attrpp;
     } else {
         if(!NC_indef(ncp)) return NC_ENOTINDEFINE;
-
-        if(ncap->nelems >= NC_MAX_ATTRS) return NC_EMAXATTS;
     }
 
     status = NC_check_name(name);
@@ -1591,4 +1616,3 @@ NC3_get_att(
     status =  NC_EBADTYPE;
     return status;
 }
-
