@@ -54,6 +54,7 @@
 
 #include "vtkCommunicator.h" // Needed for direct access to communicator
 
+class vtkBoundingBox;
 class vtkCollection;
 class vtkDataObject;
 class vtkDataSet;
@@ -1419,7 +1420,15 @@ public:
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, operation);
   }
 
-// Internally implemented RMI to break the process loop.
+  //@{
+  /**
+   * Convenience methods to reduce bounds.
+   */
+  int Reduce(const vtkBoundingBox& sendBuffer, vtkBoundingBox& recvBuffer, int destProcessId);
+  int AllReduce(const vtkBoundingBox& sendBuffer, vtkBoundingBox& recvBuffer);
+  //@}
+
+  // Internally implemented RMI to break the process loop.
 
 protected:
   vtkMultiProcessController();

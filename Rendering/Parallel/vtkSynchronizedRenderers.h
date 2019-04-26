@@ -178,13 +178,17 @@ public:
     vtkUnsignedCharArray* GetRawPtr()
       { return this->Data; }
 
-    // Pushes the image to the viewport.
-    bool PushToViewport(vtkRenderer*);
+    /**
+     * Pushes the image to the viewport. The OpenGL viewport  and scissor region
+     * is setup using the viewport defined by the renderer.
+     */
+    bool PushToViewport(vtkRenderer* renderer);
 
-    // This is a raw version of PushToViewport() that assumes that the
-    // glViewport() has already been setup externally.
-    // the argument is optional for backwards compat with old OpenGL
-    bool PushToFrameBuffer(vtkRenderer *ren = nullptr);
+    /**
+     * This is a raw version of PushToViewport() that assumes that the
+     * glViewport() has already been setup externally.
+     */
+    bool PushToFrameBuffer(vtkRenderer* ren);
 
     // Captures the image from the viewport.
     // This doesn't trigger a render, just captures what's currently there in
