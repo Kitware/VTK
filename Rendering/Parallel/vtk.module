@@ -21,14 +21,17 @@ PRIVATE_DEPENDS
 TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersParallel
-  VTK::FiltersParallelMPI
   VTK::FiltersSources
+  VTK::ImagingCore
+  VTK::ImagingSources
   VTK::IOImage
   VTK::IOImport
   VTK::IOLegacy
-  VTK::ImagingSources
   VTK::InteractionStyle
-  VTK::ParallelMPI
+  VTK::ParallelCore
   VTK::RenderingOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::FiltersParallelMPI
+  VTK::ParallelMPI
