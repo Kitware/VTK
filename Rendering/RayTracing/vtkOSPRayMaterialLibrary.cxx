@@ -13,13 +13,14 @@
 
 =========================================================================*/
 
+#include "vtkOSPRayMaterialLibrary.h"
+
 #include "vtkActor.h"
 #include "vtkCommand.h"
 #include "vtkImageData.h"
 #include "vtkJPEGReader.h"
-#include "vtkPNGReader.h"
 #include "vtkObjectFactory.h"
-#include "vtkOSPRayMaterialLibrary.h"
+#include "vtkPNGReader.h"
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 #include "vtkXMLImageDataReader.h"
@@ -28,8 +29,8 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <fstream>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <sys/types.h>
 
@@ -39,17 +40,13 @@ typedef std::map<std::string, vtkSmartPointer<vtkTexture> > NamedTextures;
 class vtkOSPRayMaterialLibraryInternals
 {
 public:
-  vtkOSPRayMaterialLibraryInternals()
-  {
-  }
-  ~vtkOSPRayMaterialLibraryInternals()
-  {
-  }
+  vtkOSPRayMaterialLibraryInternals() {}
+  ~vtkOSPRayMaterialLibraryInternals() {}
 
   std::set<std::string> NickNames;
-  std::map<std::string, std::string > ImplNames;
-  std::map<std::string, NamedVariables > VariablesFor;
-  std::map<std::string, NamedTextures > TexturesFor;
+  std::map<std::string, std::string> ImplNames;
+  std::map<std::string, NamedVariables> VariablesFor;
+  std::map<std::string, NamedTextures> TexturesFor;
 };
 
 // ----------------------------------------------------------------------------
@@ -70,7 +67,7 @@ vtkOSPRayMaterialLibrary::~vtkOSPRayMaterialLibrary()
 // ----------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 // ----------------------------------------------------------------------------
@@ -81,39 +78,61 @@ void vtkOSPRayMaterialLibrary::AddMaterial(const std::string& nickname, const st
 }
 
 // ----------------------------------------------------------------------------
-void vtkOSPRayMaterialLibrary::AddTexture(const std::string& nickname, const std::string& texname, vtkTexture* tex)
+void vtkOSPRayMaterialLibrary::RemoveMaterial(const std::string& nickname)
 {
-  NamedTextures &tsForNickname = this->Internal->TexturesFor[nickname];
+  this->Internal->NickNames.erase(nickname);
+  this->Internal->ImplNames.erase(nickname);
+  this->Internal->VariablesFor.erase(nickname);
+  this->Internal->TexturesFor.erase(nickname);
+}
+
+// ----------------------------------------------------------------------------
+void vtkOSPRayMaterialLibrary::AddTexture(
+  const std::string& nickname, const std::string& texname, vtkTexture* tex)
+{
+  NamedTextures& tsForNickname = this->Internal->TexturesFor[nickname];
   tsForNickname[texname] = tex;
 }
 
 // ----------------------------------------------------------------------------
-void vtkOSPRayMaterialLibrary::AddShaderVariable(const std::string& nickname, const std::string& varname, int numVars, const double *x)
+void vtkOSPRayMaterialLibrary::RemoveTexture(
+  const std::string& nickname, const std::string& texname)
+{
+  this->Internal->TexturesFor[nickname].erase(texname);
+}
+
+// ----------------------------------------------------------------------------
+void vtkOSPRayMaterialLibrary::AddShaderVariable(
+  const std::string& nickname, const std::string& varname, int numVars, const double* x)
 {
   std::vector<double> w;
-  w.assign(x, x+numVars);
+  w.assign(x, x + numVars);
 
-  NamedVariables &vsForNickname = this->Internal->VariablesFor[nickname];
+  NamedVariables& vsForNickname = this->Internal->VariablesFor[nickname];
   vsForNickname[varname] = w;
 }
 
 // ----------------------------------------------------------------------------
-bool vtkOSPRayMaterialLibrary::ReadFile
- (const char *filename)
+void vtkOSPRayMaterialLibrary::RemoveShaderVariable(
+  const std::string& nickname, const std::string& varname)
+{
+  this->Internal->VariablesFor[nickname].erase(varname);
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOSPRayMaterialLibrary::ReadFile(const char* filename)
 {
   return this->InternalParse(filename, true);
 }
 
 // ----------------------------------------------------------------------------
-bool vtkOSPRayMaterialLibrary::ReadBuffer
-  (const char *filename)
+bool vtkOSPRayMaterialLibrary::ReadBuffer(const char* filename)
 {
   return this->InternalParse(filename, false);
 }
 
 // ----------------------------------------------------------------------------
-bool vtkOSPRayMaterialLibrary::InternalParse
-  (const char *filename, bool fromfile)
+bool vtkOSPRayMaterialLibrary::InternalParse(const char* filename, bool fromfile)
 {
   if (!filename)
   {
@@ -124,11 +143,13 @@ bool vtkOSPRayMaterialLibrary::InternalParse
     return false;
   }
 
-  std::istream *doc;
+  std::istream* doc;
   if (fromfile)
   {
     doc = new std::ifstream(filename, std::ifstream::binary);
-  } else {
+  }
+  else
+  {
     doc = new std::istringstream(filename);
   }
   bool retOK = false;
@@ -145,8 +166,8 @@ bool vtkOSPRayMaterialLibrary::InternalParse
 }
 
 // ----------------------------------------------------------------------------
-bool vtkOSPRayMaterialLibrary::InternalParseJSON
-  (const char *filename, bool fromfile, std::istream *doc)
+bool vtkOSPRayMaterialLibrary::InternalParseJSON(
+  const char* filename, bool fromfile, std::istream* doc)
 {
   Json::Value root;
   std::string errs;
@@ -177,7 +198,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON
   {
     vtkErrorMacro("Unsupported materials file. Version is not \"0.0\".");
     return false;
-   }
+  }
   if (!root.isMember("materials"))
   {
     vtkErrorMacro("Not a materials file. Must have \"materials\"={...} entry.");
@@ -186,13 +207,14 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON
 
   const Json::Value materials = root["materials"];
   std::vector<std::string> ikeys = materials.getMemberNames();
-  for (size_t i=0; i<ikeys.size(); ++i )
+  for (size_t i = 0; i < ikeys.size(); ++i)
   {
     const std::string& nickname = ikeys[i];
     const Json::Value nextmat = materials[nickname];
     if (!nextmat.isMember("type"))
     {
-      vtkErrorMacro("Invalid material " <<  nickname << " must have \"type\"=\"...\" entry, ignoring.");
+      vtkErrorMacro(
+        "Invalid material " << nickname << " must have \"type\"=\"...\" entry, ignoring.");
       continue;
     }
 
@@ -203,15 +225,12 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON
     this->Internal->ImplNames[nickname] = implname;
     if (nextmat.isMember("textures"))
     {
-      std::string parentDir
-        = vtksys::SystemTools::GetParentDirectory(filename);
+      std::string parentDir = vtksys::SystemTools::GetParentDirectory(filename);
       const Json::Value textures = nextmat["textures"];
-      std::vector<std::string> jkeys = textures.getMemberNames();
-      for (size_t j=0; j<jkeys.size(); ++j )
+      for (const std::string& tname : textures.getMemberNames())
       {
-        const std::string &tname = jkeys[j];
         const Json::Value nexttext = textures[tname];
-        const char *tfname = nexttext.asCString();
+        const char* tfname = nexttext.asCString();
         vtkSmartPointer<vtkTexture> textr = vtkSmartPointer<vtkTexture>::New();
         vtkSmartPointer<vtkJPEGReader> jpgReader = vtkSmartPointer<vtkJPEGReader>::New();
         vtkSmartPointer<vtkPNGReader> pngReader = vtkSmartPointer<vtkPNGReader>::New();
@@ -223,17 +242,21 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON
             cerr << "No such texture file " << tfullname << " skipping" << endl;
             continue;
           }
-          if (tfullname.substr( tfullname.length() - 3 ) == "png")
+          if (tfullname.substr(tfullname.length() - 3) == "png")
           {
             pngReader->SetFileName(tfullname.c_str());
             pngReader->Update();
             textr->SetInputConnection(pngReader->GetOutputPort(0));
-          } else {
+          }
+          else
+          {
             jpgReader->SetFileName(tfullname.c_str());
             jpgReader->Update();
             textr->SetInputConnection(jpgReader->GetOutputPort(0));
           }
-        } else {
+        }
+        else
+        {
           vtkSmartPointer<vtkXMLImageDataReader> reader =
             vtkSmartPointer<vtkXMLImageDataReader>::New();
           reader->ReadFromInputStringOn();
@@ -247,19 +270,16 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON
     if (nextmat.isMember("doubles"))
     {
       const Json::Value doubles = nextmat["doubles"];
-      std::vector<std::string> jkeys = doubles.getMemberNames();
-      for (size_t j=0; j<jkeys.size(); ++j )
+      for (const std::string& vname : doubles.getMemberNames())
       {
-        const std::string &vname = jkeys[j];
         const Json::Value nexttext = doubles[vname];
-        double *vals = new double[nexttext.size()];
-        for (size_t k=0; k < nexttext.size(); ++k)
+        std::vector<double> vals(nexttext.size());
+        for (size_t k = 0; k < nexttext.size(); ++k)
         {
           const Json::Value nv = nexttext[static_cast<int>(k)];
           vals[k] = nv.asDouble();
         }
-        this->AddShaderVariable(nickname, vname, nexttext.size(), vals);
-        delete[] vals;
+        this->AddShaderVariable(nickname, vname, nexttext.size(), vals.data());
       }
     }
   }
@@ -267,47 +287,44 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON
   return true;
 }
 
-namespace {
-  static std::string trim(std::string s)
+namespace
+{
+static std::string trim(std::string s)
+{
+  size_t start = 0;
+  while ((start < s.length()) && (isspace(s[start])))
   {
-    size_t start = 0;
-    while ((start < s.length()) && (isspace(s[start])))
-    {
-      start++;
-    }
-    size_t end = s.length();
-    while ((end > start) && (isspace(s[end-1])))
-    {
-      end--;
-    }
-    return s.substr(start, end-start);
+    start++;
   }
+  size_t end = s.length();
+  while ((end > start) && (isspace(s[end - 1])))
+  {
+    end--;
+  }
+  return s.substr(start, end - start);
+}
 }
 
 // ----------------------------------------------------------------------------
-bool vtkOSPRayMaterialLibrary::InternalParseMTL
-  (const char *filename, bool fromfile, std::istream *doc)
+bool vtkOSPRayMaterialLibrary::InternalParseMTL(
+  const char* filename, bool fromfile, std::istream* doc)
 {
   std::string str;
   std::string nickname = "";
   std::string implname = "OBJMaterial";
 
-  const std::vector<std::string> singles
-    {"d ", "Ks ", "alpha ", "roughness ", "eta ", "thickness "};
-  const std::vector<std::string> triples
-    {"Ka ", "color ", "Kd ", "Ks "};
-  const std::vector<std::string> textures
-    {"map_d ",
-     "map_Kd ", "map_kd ", "colorMap ",
-     "map_Ks ", "map_ks ",
-     "map_Ns ", "map_ns ", "map_Bump", "map_bump", "normalMap", "bumpMap"};
+  const std::vector<std::string> singles{ "d ", "Ks ", "alpha ", "roughness ", "eta ",
+    "thickness " };
+  const std::vector<std::string> triples{ "Ka ", "color ", "Kd ", "Ks " };
+  const std::vector<std::string> textures{ "map_d ", "map_Kd ", "map_kd ", "colorMap ", "map_Ks ",
+    "map_ks ", "map_Ns ", "map_ns ", "map_Bump", "map_bump", "normalMap", "bumpMap" };
 
-  while(getline(*doc, str))
+  while (getline(*doc, str))
   {
     std::string tstr = trim(str);
     std::string lkey;
 
-    //a new material
+    // a new material
     lkey = "newmtl ";
     if (tstr.compare(0, lkey.size(), lkey) == 0)
     {
@@ -316,12 +333,12 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
       this->Internal->ImplNames[nickname] = "OBJMaterial";
     }
 
-    //ospray type of the material, if not obj
+    // ospray type of the material, if not obj
     lkey = "type ";
     if (tstr.compare(0, lkey.size(), lkey) == 0)
     {
-      //this non standard entry is a quick way to break out of
-      //objmaterial and use one of the ospray specific materials
+      // this non standard entry is a quick way to break out of
+      // objmaterial and use one of the ospray specific materials
       implname = trim(tstr.substr(lkey.size()));
       if (implname == "matte")
       {
@@ -346,7 +363,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
       this->Internal->ImplNames[nickname] = implname;
     }
 
-    //grab all the single valued settings we see
+    // grab all the single valued settings we see
     std::vector<std::string>::const_iterator sit1 = singles.begin();
     while (sit1 != singles.end())
     {
@@ -362,17 +379,21 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
           dv = std::stod(v);
           OK = true;
         }
-        catch (const std::invalid_argument&) {}
-        catch (const std::out_of_range&) {}
+        catch (const std::invalid_argument&)
+        {
+        }
+        catch (const std::out_of_range&)
+        {
+        }
         if (OK)
         {
-          double vals[1] = {dv};
-          this->AddShaderVariable(nickname, key.substr(0,key.size()-1).c_str(), 1, vals);
+          double vals[1] = { dv };
+          this->AddShaderVariable(nickname, key.substr(0, key.size() - 1).c_str(), 1, vals);
         }
       }
     }
 
-    //grab all the triple valued settings we see
+    // grab all the triple valued settings we see
     std::vector<std::string>::const_iterator sit3 = triples.begin();
     while (sit3 != triples.end())
     {
@@ -383,9 +404,9 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
         std::string vs = tstr.substr(key.size());
         size_t loc1 = vs.find(" ");
         size_t loc2 = vs.find(" ", loc1);
-        std::string v1 = vs.substr(0,loc1);
-        std::string v2 = vs.substr(loc1+1,loc2);
-        std::string v3 = vs.substr(loc2+1);
+        std::string v1 = vs.substr(0, loc1);
+        std::string v2 = vs.substr(loc1 + 1, loc2);
+        std::string v3 = vs.substr(loc2 + 1);
         double d1 = 0;
         double d2 = 0;
         double d3 = 0;
@@ -397,17 +418,21 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
           d3 = std::stod(v1);
           OK = true;
         }
-        catch (const std::invalid_argument&) {}
-        catch (const std::out_of_range&) {}
+        catch (const std::invalid_argument&)
+        {
+        }
+        catch (const std::out_of_range&)
+        {
+        }
         if (OK)
         {
-          double vals[3] = {d1, d2, d3};
-          this->AddShaderVariable(nickname, key.substr(0,key.size()-1).c_str(), 3, vals);
+          double vals[3] = { d1, d2, d3 };
+          this->AddShaderVariable(nickname, key.substr(0, key.size() - 1).c_str(), 3, vals);
         }
       }
     }
 
-    //grab all the textures we see
+    // grab all the textures we see
     std::vector<std::string>::const_iterator tit = textures.begin();
     while (tit != textures.end())
     {
@@ -426,25 +451,28 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
         vtkSmartPointer<vtkPNGReader> pngReader = vtkSmartPointer<vtkPNGReader>::New();
         if (fromfile)
         {
-          std::string parentDir
-            = vtksys::SystemTools::GetParentDirectory(filename);
+          std::string parentDir = vtksys::SystemTools::GetParentDirectory(filename);
           std::string tfullname = parentDir + "/" + tfname;
           if (!vtksys::SystemTools::FileExists(tfullname.c_str(), true))
           {
             cerr << "No such texture file " << tfullname << " skipping" << endl;
             continue;
           }
-          if (tfullname.substr( tfullname.length() - 3 ) == "png")
+          if (tfullname.substr(tfullname.length() - 3) == "png")
           {
             pngReader->SetFileName(tfullname.c_str());
             pngReader->Update();
             textr->SetInputConnection(pngReader->GetOutputPort(0));
-          } else {
+          }
+          else
+          {
             jpgReader->SetFileName(tfullname.c_str());
             jpgReader->Update();
             textr->SetInputConnection(jpgReader->GetOutputPort(0));
           }
-        } else {
+        }
+        else
+        {
           vtkSmartPointer<vtkXMLImageDataReader> reader =
             vtkSmartPointer<vtkXMLImageDataReader>::New();
           reader->ReadFromInputStringOn();
@@ -453,7 +481,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
         }
         textr->Update();
 
-        this->AddTexture(nickname, key.substr(0,key.size()-1).c_str(), textr);
+        this->AddTexture(nickname, key.substr(0, key.size() - 1).c_str(), textr);
       }
     }
   }
@@ -462,15 +490,14 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
 }
 
 // ----------------------------------------------------------------------------
-const char * vtkOSPRayMaterialLibrary::WriteBuffer()
+const char* vtkOSPRayMaterialLibrary::WriteBuffer()
 {
   Json::Value root;
   root["family"] = "OSPRay";
   root["version"] = "0.0";
   Json::Value materials;
 
-  vtkSmartPointer<vtkXMLImageDataWriter> idwriter =
-    vtkSmartPointer<vtkXMLImageDataWriter>::New();
+  vtkSmartPointer<vtkXMLImageDataWriter> idwriter = vtkSmartPointer<vtkXMLImageDataWriter>::New();
   idwriter->WriteToOutputStringOn();
 
   std::set<std::string>::iterator it = this->Internal->NickNames.begin();
@@ -481,8 +508,7 @@ const char * vtkOSPRayMaterialLibrary::WriteBuffer()
     std::string implname = this->LookupImplName(nickname);
     jnickname["type"] = implname;
 
-    if (this->Internal->VariablesFor.find(nickname)
-        != this->Internal->VariablesFor.end())
+    if (this->Internal->VariablesFor.find(nickname) != this->Internal->VariablesFor.end())
     {
       Json::Value variables;
       NamedVariables::iterator vit = this->Internal->VariablesFor[nickname].begin();
@@ -502,8 +528,7 @@ const char * vtkOSPRayMaterialLibrary::WriteBuffer()
       jnickname["doubles"] = variables;
     }
 
-    if (this->Internal->TexturesFor.find(nickname)
-        != this->Internal->TexturesFor.end())
+    if (this->Internal->TexturesFor.find(nickname) != this->Internal->TexturesFor.end())
     {
       Json::Value textures;
       NamedTextures::iterator vit = this->Internal->TexturesFor[nickname].begin();
@@ -531,15 +556,14 @@ const char * vtkOSPRayMaterialLibrary::WriteBuffer()
   Json::StreamWriterBuilder builder;
   builder["commentStyle"] = "None";
   builder["indentation"] = "   ";
-  std::unique_ptr<Json::StreamWriter> writer(
-      builder.newStreamWriter());
+  std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
   std::ostringstream result;
   writer->write(root, &result);
   std::string rstring = result.str();
 
   if (rstring.size())
   {
-    char *buf = new char[rstring.size()+1];
+    char* buf = new char[rstring.size() + 1];
     memcpy(buf, rstring.c_str(), rstring.size());
     buf[rstring.size()] = 0;
     return buf;
@@ -566,7 +590,8 @@ std::string vtkOSPRayMaterialLibrary::LookupImplName(const std::string& nickname
 }
 
 //-----------------------------------------------------------------------------
-vtkTexture* vtkOSPRayMaterialLibrary::GetTexture(const std::string& nickname, const std::string& texturename)
+vtkTexture* vtkOSPRayMaterialLibrary::GetTexture(
+  const std::string& nickname, const std::string& texturename)
 {
   NamedTextures tsForNickname;
   if (this->Internal->TexturesFor.find(nickname) != this->Internal->TexturesFor.end())
@@ -578,7 +603,8 @@ vtkTexture* vtkOSPRayMaterialLibrary::GetTexture(const std::string& nickname, co
 }
 
 //-----------------------------------------------------------------------------
-std::vector<double> vtkOSPRayMaterialLibrary::GetDoubleShaderVariable(const std::string& nickname, const std::string& varname)
+std::vector<double> vtkOSPRayMaterialLibrary::GetDoubleShaderVariable(
+  const std::string& nickname, const std::string& varname)
 {
   if (this->Internal->VariablesFor.find(nickname) != this->Internal->VariablesFor.end())
   {
