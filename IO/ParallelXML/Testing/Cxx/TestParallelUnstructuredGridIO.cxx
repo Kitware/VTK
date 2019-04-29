@@ -195,7 +195,7 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   w->SetFileName(fn.c_str());
   w->SetDataModeToAscii();
   w->Update();
-
+  delete [] tempDir;
   ifstream f(fn.c_str());
   if (!f.good())
   {
