@@ -475,7 +475,7 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
   assert("pre: valid_extent_3" && extent[3] >= -1); // -1 is the unset extent
   assert("pre: valid_extent_4" && extent[4] == 0);
   assert("pre: valid_extent_5" && extent[5] >= -1); // -1 is the unset extent
-  int description = vtkStructuredData::SetExtent((int*)extent, this->Extent);
+  int description = vtkStructuredData::SetExtent(const_cast<int *>(extent), this->Extent);
   // why vtkStructuredData::SetExtent don't take const int* ?
 
   if (description < 0) // improperly specified

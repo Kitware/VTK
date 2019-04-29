@@ -302,7 +302,7 @@ vtkDataArray* vtkUniformHyperTreeGrid::GetZCoordinates()
 void vtkUniformHyperTreeGrid::CopyCoordinates(const vtkHyperTreeGrid* outputHTG)
 {
   vtkUniformHyperTreeGrid* output =
-    vtkUniformHyperTreeGrid::SafeDownCast((vtkHyperTreeGrid*)(outputHTG));
+    vtkUniformHyperTreeGrid::SafeDownCast(const_cast<vtkHyperTreeGrid*>(outputHTG));
   this->SetOrigin(output->GetOrigin());
   this->SetGridScale(output->GetGridScale());
 }
