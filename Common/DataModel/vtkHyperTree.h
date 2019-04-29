@@ -404,7 +404,12 @@ public:
   //@}
 
 protected:
-  vtkHyperTree() { }
+  vtkHyperTree()
+    : BranchFactor(2)
+    , Dimension(3)
+    , NumberOfChildren(8)
+  {
+  }
 
   virtual void InitializePrivate() = 0;
   virtual void PrintSelfPrivate( ostream& os, vtkIndent indent ) = 0;

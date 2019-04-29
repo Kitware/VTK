@@ -30,7 +30,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkOverlappingAMR.h"
 #include  "vtkNonOverlappingAMR.h"
 #include  "vtkHyperTreeGrid.h"
-#include  "vtkUniformHyperTreeGrid.h"
 #include  "vtkImageData.h"
 #include  "vtkMultiBlockDataSet.h"
 #include  "vtkMultiPieceDataSet.h"
@@ -288,10 +287,6 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkPartitionedDataSetCollection") == 0)
   {
     return vtkPartitionedDataSetCollection::New();
-  }
-  else if(strcmp(type, "vtkUniformHyperTreeGrid") == 0)
-  {
-    return vtkUniformHyperTreeGrid::New();
   }
   else if(strcmp(type, "vtkExplicitStructuredGrid") == 0)
   {

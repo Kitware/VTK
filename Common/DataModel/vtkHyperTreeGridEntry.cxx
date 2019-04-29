@@ -68,17 +68,15 @@ void vtkHyperTreeGridEntry::SetMask(
   const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, bool value)
 {
   assert("pre: not_tree" && tree);
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
-  ((vtkHyperTreeGrid*)grid)->GetMask()->InsertTuple1(this->GetGlobalNodeIndex(tree), value);
+  const_cast<vtkHyperTreeGrid *>(grid)->GetMask()->InsertTuple1(this->GetGlobalNodeIndex(tree), value);
 }
 
 //-----------------------------------------------------------------------------
 bool vtkHyperTreeGridEntry::IsMasked(const vtkHyperTreeGrid* grid, const vtkHyperTree* tree) const
 {
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
-  if (tree && ((vtkHyperTreeGrid*)grid)->HasMask())
+  if (tree && const_cast<vtkHyperTreeGrid *>(grid)->HasMask())
   {
-    return ((vtkHyperTreeGrid*)grid)->GetMask()->GetValue(this->GetGlobalNodeIndex(tree)) != 0;
+    return const_cast<vtkHyperTreeGrid *>(grid)->GetMask()->GetValue(this->GetGlobalNodeIndex(tree)) != 0;
   }
   return false;
 }
@@ -88,8 +86,7 @@ bool vtkHyperTreeGridEntry::IsLeaf(
   const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, unsigned int level) const
 {
   assert("pre: not_tree" && tree);
-  // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
-  if (level == ((vtkHyperTreeGrid*)grid)->GetDepthLimiter())
+  if (level == const_cast<vtkHyperTreeGrid *>(grid)->GetDepthLimiter())
   {
     return true;
   }
@@ -106,7 +103,7 @@ void vtkHyperTreeGridEntry::SubdivideLeaf(
 {
   assert("pre: not_tree" && tree);
   // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
-  assert("pre: depth_limiter" && level <= ((vtkHyperTreeGrid*)grid)->GetDepthLimiter());
+  assert("pre: depth_limiter" && level <= const_cast<vtkHyperTreeGrid *>(grid)->GetDepthLimiter());
   assert("pre: is_masked" && !this->IsMasked(grid, tree));
   if (this->IsLeaf(grid, tree, level))
   {
@@ -139,7 +136,7 @@ void vtkHyperTreeGridEntry::ToChild(
   assert("pre: not_leaf" && !this->IsLeaf(grid, tree, level));
   assert("pre: not_valid_child" && ichild < tree->GetNumberOfChildren());
   // JB Comment faire pour definir un accesseur a DepthLimiter qui est const
-  assert("pre: depth_limiter" && level <= ((vtkHyperTreeGrid*)grid)->GetDepthLimiter());
+  assert("pre: depth_limiter" && level <= const_cast<vtkHyperTreeGrid *>(grid)->GetDepthLimiter());
   assert("pre: is_masked" && !IsMasked(grid, tree));
   this->Index = tree->GetElderChildIndex(this->Index) + ichild;
 }
