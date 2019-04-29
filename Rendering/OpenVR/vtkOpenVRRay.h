@@ -45,16 +45,10 @@ public:
     vtkMatrix4x4 *poseMatrix);
 
   // show the model
-  void SetShow(bool v) {
-    this->Show = v;
-  };
-  bool GetShow() {
-    return this->Show;
-  };
+  vtkSetMacro(Show, bool);
+  vtkGetMacro(Show, bool);
 
-  void SetLength(float s) {
-    this->Length = s;
-  };
+  vtkSetMacro(Length, float);
 
   void ReleaseGraphicsResources(vtkRenderWindow *win);
 
