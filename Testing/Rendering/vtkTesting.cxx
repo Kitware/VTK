@@ -776,6 +776,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
       rtGamma->SetInputConnection(rtId->GetOutputPort());
       rtGamma->SetShift(0);
       rtGamma->SetScale(10);
+      rtGamma->ClampOverflowOn();
 
       vtkNew<vtkPNGWriter> rtPngw;
       rtPngw->SetFileName(diffFilename.c_str());
