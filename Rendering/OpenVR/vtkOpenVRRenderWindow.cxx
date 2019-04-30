@@ -346,7 +346,7 @@ vtkOpenGLState *vtkOpenVRRenderWindow::GetState()
   {
     return this->HelperWindow->GetState();
   }
-  return this->State;
+  return this->Superclass::GetState();
 }
 
 // ----------------------------------------------------------------------------
