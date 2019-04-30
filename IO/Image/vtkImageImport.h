@@ -134,8 +134,8 @@ public:
    * the coordinates from index space (ijk) to physical space (xyz).
    * Default: Identity Matrix (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
    */
-  vtkSetVector3Macro(DataDirection,double);
-  vtkGetVector3Macro(DataDirection,double);
+  vtkSetVectorMacro(DataDirection,double,9);
+  vtkGetVectorMacro(DataDirection,double,9);
   //@}
 
   //@{
