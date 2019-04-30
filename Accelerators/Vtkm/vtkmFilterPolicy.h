@@ -16,6 +16,8 @@
 
 #ifndef vtkmFilterPolicy_h
 #define vtkmFilterPolicy_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include "vtkmConfig.h" //required for general vtkm setup
 #include "vtkmTags.h"
@@ -131,5 +133,7 @@ public:
 
 };
 
+#endif
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkmFilterPolicy.h
