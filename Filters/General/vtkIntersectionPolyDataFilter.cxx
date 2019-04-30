@@ -1660,8 +1660,16 @@ int vtkIntersectionPolyDataFilter::Impl
         edge2[2] = 0.;
         vtkMath::Normalize(edge1);
         vtkMath::Normalize(edge2);
-        double angle =
-          vtkMath::DegreesFromRadians(acos(vtkMath::Dot(edge1, edge2)));
+        double dot = vtkMath::Dot(edge1, edge2);
+        if (dot > 1.0)
+        {
+          dot = 1.0;
+        }
+        else if (dot < -1.0)
+        {
+          dot = -1.0;
+        }
+        double angle = vtkMath::DegreesFromRadians(acos(dot));
         if (angle < minangle)
         {
           minangle = angle;
@@ -1726,8 +1734,17 @@ void vtkIntersectionPolyDataFilter::Impl
       edge2[2] = 0.;
       vtkMath::Normalize(edge1);
       vtkMath::Normalize(edge2);
+      double dot = vtkMath::Dot(edge1, edge2);
+      if (dot > 1.0)
+      {
+        dot = 1.0;
+      }
+      else if (dot < -1.0)
+      {
+        dot = -1.0;
+      }
       double angle =
-        vtkMath::DegreesFromRadians(acos(vtkMath::Dot(edge1, edge2)));
+        vtkMath::DegreesFromRadians(acos(dot));
 
       if (angle < minangle)
       {
@@ -1949,8 +1966,16 @@ int vtkIntersectionPolyDataFilter::Impl::GetTransform(
     // The general case
     vtkMath::Cross(normal, zaxis, rotationAxis);
     vtkMath::Normalize(rotationAxis);
-    rotationAngle =
-      vtkMath::DegreesFromRadians(acos(vtkMath::Dot(zaxis, normal)));
+    double dot = vtkMath::Dot(zaxis, normal);
+    if (dot > 1.0)
+    {
+      dot = 1.0;
+    }
+    else if (dot < -1.0)
+    {
+      dot = -1.0;
+    }
+    rotationAngle = vtkMath::DegreesFromRadians(acos(dot));
   }
 
   transform->PreMultiply();

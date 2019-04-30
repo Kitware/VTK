@@ -263,9 +263,9 @@ void vtkInteractiveArea::ComputeZoom(vtkVector2d const& origin, vtkVector2d& sca
 {
   for (int i = 0; i < 2; ++i)
   {
-    if (fabs(log10(origin[i] / scale[i])) > 2)
+    if (log10(fabs(origin[i]) / scale[i]) > 2)
     {
-      shift[i] = floor(log10(origin[i] / scale[i]) / 3.0) * 3.0;
+      shift[i] = floor(log10(fabs(origin[i]) / scale[i]) / 3.0) * 3.0;
       shift[i] = -origin[i];
     }
     if (fabs(log10(scale[i])) > 10)

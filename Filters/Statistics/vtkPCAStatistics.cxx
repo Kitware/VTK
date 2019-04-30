@@ -914,8 +914,11 @@ void vtkPCAStatistics::Test( vtkTable* inData,
     for ( int i = 0; i < p; ++ i )
     {
       tmp = wX[i] * wX[i];
+      if (tmp != 0.0)
+      {
       bS1 += sum3[i] * sum3[i] / ( tmp * wX[i] );
       bS2 += sum4[i] / tmp;
+      }
     }
     bS1 /= ( nRowData * nRowData * p );
     bS2 /= ( nRowData * p );

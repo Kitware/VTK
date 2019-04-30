@@ -464,8 +464,15 @@ void vtkChartBox::CalculatePlotTransform()
   vtkAxis* axis = this->Storage->YAxis;
   float yMin = axis->GetPoint1()[1];
   float yMax = axis->GetPoint2()[1];
-  float yScale = 1.0f / (yMax - yMin);
-
+  float yScale;
+  if (yMin != yMax)
+  {
+    yScale = 1.0f / (yMax - yMin);
+  }
+  else
+  {
+    yScale = 1.0f;
+  }
   this->Storage->Transform->Identity();
   this->Storage->Transform->Translate(0, axis->GetPoint1()[1]);
   // Get the scale for the plot area from the x and y axes

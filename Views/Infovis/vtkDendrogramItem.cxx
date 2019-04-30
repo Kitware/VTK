@@ -758,6 +758,11 @@ void vtkDendrogramItem::UpdateVisibleSceneExtent(vtkContext2D *painter)
 bool vtkDendrogramItem::LineIsVisible(double x0, double y0,
                                         double x1, double y1)
 {
+  // is the line degenerate, if so skip
+  if (x0 == x1 &&  y0 == y1)
+  {
+    return false;
+  }
   // use local variables to improve readability
   double xMinScene = this->SceneBottomLeft[0];
   double yMinScene = this->SceneBottomLeft[1];

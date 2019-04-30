@@ -23,10 +23,14 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkNew.h"
 #include "vtkMath.h"
-
+#include "vtkFloatingPointExceptions.h"
 //----------------------------------------------------------------------------
 int TestLinePlotDouble(int, char *[])
 {
+  // Thus test will cause floating point beacuse it uses inf and nan for some
+  // numbers
+  vtkFloatingPointExceptions::Disable();
+
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);

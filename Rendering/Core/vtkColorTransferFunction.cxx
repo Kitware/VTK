@@ -939,7 +939,10 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
       }
       else
       {
-        s = (x - x1) / (x2 - x1);
+        if (x2 != x1)
+        {
+          s = (x - x1) / (x2 - x1);
+        }
       }
 
       // Readjust based on the midpoint - linear adjustment

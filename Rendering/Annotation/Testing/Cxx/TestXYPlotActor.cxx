@@ -64,7 +64,7 @@ int TestXYPlotActor( int argc, char* argv[] )
   {
     points->InsertNextPoint( i, 0., 0. );
 
-    double val0 = sqrt( static_cast<double>( i ) );
+    double val0 = sqrt( static_cast<double>( i + 1) );
     data[0]->InsertNextValue( val0 );
     double val1 = val0 * sin( 10*log( val0 ) );
     data[1]->InsertNextValue( val1 );

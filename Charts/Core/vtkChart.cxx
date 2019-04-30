@@ -233,15 +233,34 @@ bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
 
   for (int i = 0; i < 2; ++i)
   {
-    if (fabs(log10(origin[i] / scale[i])) > 2)
+    double safeScale;
+    if (scale[i] != 0.0)
     {
-      shift[i] = floor(log10(origin[i] / scale[i]) / 3.0) * 3.0;
+      safeScale = fabs(scale[i]);
+    }
+    else
+    {
+      safeScale = 1.0;
+    }
+    double safeOrigin;
+    if (origin[i] != 0.0)
+    {
+      safeOrigin = fabs(origin[i]);
+    }
+    else
+    {
+      safeOrigin = 1.0;
+    }
+
+    if (fabs(log10(safeOrigin / safeScale)) > 2)
+    {
+      shift[i] = floor(log10(safeOrigin / safeScale) / 3.0) * 3.0;
       shift[i] = -origin[i];
     }
-    if (fabs(log10(scale[i])) > 10)
+    if (fabs(log10(safeScale)) > 10)
     {
       // We need to scale the transform to show all data, do this in blocks.
-      factor[i] = pow(10.0, floor(log10(scale[i]) / 10.0) * -10.0);
+      factor[i] = pow(10.0, floor(log10(safeScale) / 10.0) * -10.0);
       scale[i] = scale[i] * factor[i];
     }
   }
