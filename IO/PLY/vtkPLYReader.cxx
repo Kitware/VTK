@@ -479,9 +479,9 @@ int vtkPLYReader::RequestData(
       }
 
       // grab all the face elements
+      vtkNew<vtkPolygon> cell;
       for (int j=0; j < numPolys; j++)
       {
-        vtkNew<vtkPolygon> cell;
         //grab and element from the file
         vtkPLY::ply_get_element (ply, (void *) &face);
         for (int k=0; k < face.nverts; k++)
