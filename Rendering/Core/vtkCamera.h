@@ -34,6 +34,7 @@
 #include "vtkRect.h" // for ivar
 
 class vtkHomogeneousTransform;
+class vtkInformation;
 class vtkMatrix4x4;
 class vtkPerspectiveTransform;
 class vtkRenderer;
@@ -681,6 +682,14 @@ public:
   void GetScissorRect(vtkRecti& scissorRect);
   //@}
 
+  //@{
+  /**
+   * Set/Get the information object associated with this camera.
+   */
+  vtkGetObjectMacro(Information, vtkInformation);
+  virtual void SetInformation(vtkInformation*);
+  //@}
+
 protected:
   vtkCamera();
   ~vtkCamera() override;
@@ -795,6 +804,8 @@ protected:
 
   vtkRecti ScissorRect;
 
+  // Arbitrary extra information associated with this camera.
+  vtkInformation* Information;
 
 private:
   vtkCamera(const vtkCamera&) = delete;
