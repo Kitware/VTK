@@ -96,9 +96,6 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
   this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
 
-  // Retrieve material mask
-  this->Mask = input->HasMask() ? input->GetMask() : nullptr;
-
   // Iterate over all hyper trees
   vtkIdType index;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
