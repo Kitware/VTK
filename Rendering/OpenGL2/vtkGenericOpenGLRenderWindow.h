@@ -167,6 +167,11 @@ public:
   // specify if the window is mapped or not.
   vtkSetMacro(Mapped, vtkTypeBool);
 
+  /**
+   * Overridden to simply call `GetReadyForRendering`
+   */
+  bool IsDrawable() override { return this->ReadyForRendering; }
+
 protected:
   /**
    * Overridden to not attempt to read pixels if `this->ReadyForRendering` is
