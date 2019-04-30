@@ -24,21 +24,23 @@
  * @sa
  * vtkLagrangianParticleTracker vtkLagrangianBasicIntegrationModel
  * vtkLagrangianMatidaIntegrationModel
-*/
+ */
 
 #ifndef vtkLagrangianParticle_h
 #define vtkLagrangianParticle_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
-#include "vtkSystemIncludes.h" // For PrintSelf signature and vtkType
+#include "vtkSystemIncludes.h"         // For PrintSelf signature and vtkType
 
+#include <vector>
+
+class vtkAbstractCellLocator;
 class vtkDataSet;
 class vtkPointData;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianParticle
 {
 public:
-
   /**
    * An enum to inform about a reason for termination
    * PARTICLE_TERMINATION_NOT_TERMINATED = 0, means the particle have not yet been terminated
@@ -70,9 +72,11 @@ public:
    * An enum to inform about a surface interaction
    * SURFACE_INTERACTION_NO_INTERACTION = 0, no interaction have taken place
    * SURFACE_INTERACTION_TERMINATED = 1, a particle was terminated on interaction
-   * SURFACE_INTERACTION_BREAK = 2, a particle broke on interaction, hence terminating it and creating new particles from it
+   * SURFACE_INTERACTION_BREAK = 2, a particle broke on interaction, hence terminating it and
+   * creating new particles from it
    * SURFACE_INTERACTION_BOUNCE = 3, a particle bounced on interaction
-   * SURFACE_INTERACTION_PASS = 4, a particle passed through the surface, hence having no effect on the particle but actually recording it going through
+   * SURFACE_INTERACTION_PASS = 4, a particle passed through the surface, hence having
+   * no effect on the particle but actually recording it going through
    * SURFACE_INTERACTION_OTHER = 5, another type of undefined interaction happened.
    */
   typedef enum SurfaceInteraction
@@ -95,7 +99,7 @@ public:
    * particle data is a pointer to the pointData associated to all particles.
    */
   vtkLagrangianParticle(int numberOfVariables, vtkIdType seedId, vtkIdType particleId,
-    vtkIdType seedArrayTupleIndex, double integrationTime, vtkPointData* seedData);
+    vtkIdType seedArrayTupleIndex, double integrationTime, vtkPointData* seedData, int weightsSize);
 
   /**
    * Constructor wrapper to create a partially integrated particle in the domain.
@@ -103,7 +107,8 @@ public:
    */
   static vtkLagrangianParticle* NewInstance(int numberOfVariables, vtkIdType seedId,
     vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
-    vtkPointData* seedData, vtkIdType numberOfSteps, double previousIntegrationTime);
+    vtkPointData* seedData, int weightsSize, vtkIdType numberOfSteps,
+    double previousIntegrationTime);
 
   /**
    * method to create a particle from a parent particle.
@@ -121,17 +126,14 @@ public:
   /**
    * Destructor.
    */
-  virtual ~vtkLagrangianParticle();
+  virtual ~vtkLagrangianParticle() = default;
 
   //@{
   /**
    * Get a pointer to Particle variables at its previous position
    * See GetEquationVariables for content description
    */
-  inline double* GetPrevEquationVariables()
-  {
-    return this->PrevEquationVariables;
-  }
+  inline double* GetPrevEquationVariables() { return this->PrevEquationVariables.data(); }
   //@}
 
   //@{
@@ -147,10 +149,7 @@ public:
    * the number of user variables can be recovered by GetNumberOfUserVariables,
    * but it is always NumberOfVariables - 7.
    */
-  inline double* GetEquationVariables()
-  {
-    return this->EquationVariables;
-  }
+  inline double* GetEquationVariables() { return this->EquationVariables.data(); }
   //@}
 
   //@{
@@ -159,10 +158,7 @@ public:
    * To be used with vtkInitialValueProblemSolver::ComputeNextStep.
    * See GetEquationVariables for content description
    */
-  inline double* GetNextEquationVariables()
-  {
-    return this->NextEquationVariables;
-  }
+  inline double* GetNextEquationVariables() { return this->NextEquationVariables.data(); }
   //@}
 
   //@{
@@ -171,10 +167,7 @@ public:
    * Convenience method, giving the same
    * results as GetPrevEquationVariables().
    */
-  inline double* GetPrevPosition()
-  {
-    return this->PrevEquationVariables;
-  }
+  inline double* GetPrevPosition() { return this->PrevEquationVariables.data(); }
   //@}
 
   //@{
@@ -183,10 +176,7 @@ public:
    * Convenience method, giving the same
    * results as GetEquationVariables().
    */
-  inline double* GetPosition()
-  {
-    return this->EquationVariables;
-  }
+  inline double* GetPosition() { return this->EquationVariables.data(); }
   //@}
 
   //@{
@@ -195,10 +185,7 @@ public:
    * Convenience method, giving the same
    * results as GetNextEquationVariables();
    */
-  inline double* GetNextPosition()
-  {
-    return this->NextEquationVariables;
-  }
+  inline double* GetNextPosition() { return this->NextEquationVariables.data(); }
   //@}
 
   //@{
@@ -207,10 +194,7 @@ public:
    * Convenience method, giving the result:
    * GetPrevEquationVariables() + 3;
    */
-  inline double* GetPrevVelocity()
-  {
-    return this->PrevVelocity;
-  }
+  inline double* GetPrevVelocity() { return this->PrevVelocity; }
   //@}
 
   //@{
@@ -219,10 +203,7 @@ public:
    * Convenience method, giving the result:
    * GetEquationVariables() + 3;
    */
-  inline double* GetVelocity()
-  {
-    return this->Velocity;
-  }
+  inline double* GetVelocity() { return this->Velocity; }
   //@}
 
   //@{
@@ -231,10 +212,7 @@ public:
    * Convenience method, giving the result:
    * GetNextEquationVariables() + 3;
    */
-  inline double* GetNextVelocity()
-  {
-    return this->NextVelocity;
-  }
+  inline double* GetNextVelocity() { return this->NextVelocity; }
   //@}
 
   //@{
@@ -243,10 +221,7 @@ public:
    * Convenience method, giving the result:
    * GetPrevEquationVariables() + 6;
    */
-  inline double* GetPrevUserVariables()
-  {
-    return this->PrevUserVariables;
-  }
+  inline double* GetPrevUserVariables() { return this->PrevUserVariables; }
   //@}
 
   //@{
@@ -255,10 +230,7 @@ public:
    * Convenience method, giving the result:
    * GetEquationVariables() + 6;
    */
-  inline double* GetUserVariables()
-  {
-    return this->UserVariables;
-  }
+  inline double* GetUserVariables() { return this->UserVariables; }
   //@}
 
   //@{
@@ -267,10 +239,7 @@ public:
    * Convenience method, giving the result:
    * GetNextEquationVariables() + 6;
    */
-  inline double* GetNextUserVariables()
-  {
-    return this->NextUserVariables;
-  }
+  inline double* GetNextUserVariables() { return this->NextUserVariables; }
   //@}
 
   /**
@@ -324,6 +293,12 @@ public:
   virtual vtkPointData* GetSeedData();
 
   /**
+   * Get the last weights computed when locating the
+   * particle in the last traversed cell
+   */
+  double* GetLastWeights();
+
+  /**
    * Get the last traversed cell id
    */
   vtkIdType GetLastCellId();
@@ -332,6 +307,11 @@ public:
    * Get the dataset containing the last traversed cell
    */
   vtkDataSet* GetLastDataSet();
+
+  /**
+   * Get the locator used to find the last traversed cell
+   */
+  vtkAbstractCellLocator* GetLastLocator();
 
   /**
    * Get the last intersected surface cell id.
@@ -346,7 +326,7 @@ public:
   /**
    * Set the last dataset and last cell id
    */
-  void SetLastCell(vtkDataSet* dataset, vtkIdType cellId);
+  void SetLastCell(vtkAbstractCellLocator* locator, vtkDataSet* dataset, vtkIdType cellId);
 
   /**
    * Set the last surface dataset and last surface cell id
@@ -442,27 +422,25 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-
   /**
    * Constructor wrapper for internal convenience
    */
-  vtkLagrangianParticle* NewInstance(int numberOfVariables,
-    vtkIdType seedId, vtkIdType particleId, vtkIdType seedArrayTupleIndex,
-    double integrationTime, vtkPointData* seedData);
+  vtkLagrangianParticle* NewInstance(int numberOfVariables, vtkIdType seedId, vtkIdType particleId,
+    vtkIdType seedArrayTupleIndex, double integrationTime, vtkPointData* seedData, int weightsSize);
 
-  vtkLagrangianParticle(const vtkLagrangianParticle&); // Not implemented
-  vtkLagrangianParticle(); // Not implemented
-  void operator=(const vtkLagrangianParticle&); // Not implemented
+  vtkLagrangianParticle(const vtkLagrangianParticle&) = delete;
+  vtkLagrangianParticle() = delete;
+  void operator=(const vtkLagrangianParticle&) = delete;
 
-  double* PrevEquationVariables;
+  std::vector<double> PrevEquationVariables;
   double* PrevVelocity;
   double* PrevUserVariables;
 
-  double* EquationVariables;
+  std::vector<double> EquationVariables;
   double* Velocity;
   double* UserVariables;
 
-  double* NextEquationVariables;
+  std::vector<double> NextEquationVariables;
   double* NextVelocity;
   double* NextUserVariables;
 
@@ -472,8 +450,13 @@ protected:
   vtkIdType SeedArrayTupleIndex;
   vtkIdType NumberOfSteps;
   vtkPointData* SeedData;
+
+  vtkAbstractCellLocator* LastLocator;
   vtkDataSet* LastDataSet;
   vtkIdType LastCellId;
+  int WeightsSize;
+  std::vector<double> LastWeights;
+
   double StepTime;
   double IntegrationTime;
   double PrevIntegrationTime;
