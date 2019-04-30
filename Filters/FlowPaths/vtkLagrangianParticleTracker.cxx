@@ -1406,7 +1406,7 @@ double vtkLagrangianParticleTracker::ComputeCellLength(vtkLagrangianParticle* pa
   }
   else if ((this->CellLengthComputationMode == STEP_CUR_CELL_DIV_THEO ||
              this->CellLengthComputationMode == STEP_LAST_CELL_DIV_THEO) &&
-    vtkMath::Norm(vel) > 0.0 && cell->GetCellType() != VTK_VOXEL) //TODO ?
+    vtkMath::Norm(vel) > 0.0)
   {
     double velHat[3] = { vel[0], vel[1], vel[2] };
     vtkMath::Normalize(velHat);

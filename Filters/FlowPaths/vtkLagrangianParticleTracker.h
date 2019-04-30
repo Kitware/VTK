@@ -173,12 +173,10 @@ public:
    * and the edges of the last cell the particle was in.
    * - STEP_LAST_CELL_DIV_THEO :
    * Compute cell length using the particle velocity
-   * and the divergence theorem, not supported
-   * with vtkVoxel, fallback to STEP_LAST_CELL_LENGTH
+   * and the divergence theorem.
    * - STEP_CUR_CELL_DIV_THEO :
    * Compute cell length using the particle velocity
-   * and the divergence theorem, not supported
-   * with vtkVoxel, fallback to STEP_CUR_CELL_LENGTH
+   * and the divergence theorem.
    * Default is STEP_LAST_CELL_LENGTH.
    */
   vtkSetMacro(CellLengthComputationMode, int);
