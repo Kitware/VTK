@@ -60,7 +60,7 @@ void vtkRungeKutta4::Initialize()
 // (Addison Wesley)
 int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                                     double t, double& delT, double& delTActual,
-                                    double, double, double, double& error)
+                                    double, double, double, double& error, void* userData)
 {
 
   int i, numDerivs, numVals;
@@ -97,7 +97,7 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
       this->Derivs[i] = dxprev[i];
     }
   }
-  else if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs) )
+  else if (!this->FunctionSet->FunctionValues(this->Vals, this->Derivs))
   {
     memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
     return OUT_OF_DOMAIN;
