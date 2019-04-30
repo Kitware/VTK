@@ -239,7 +239,8 @@ int vtkRungeKutta45::ComputeAStep(
       this->NextDerivs[0][i] = dxprev[i];
     }
   }
-  else if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[0]))
+  else if ( !this->FunctionSet->FunctionValues(this->Vals,
+                           this->NextDerivs[0], userData))
   {
     for(i=0; i<numVals-1; i++)
     {
@@ -264,7 +265,8 @@ int vtkRungeKutta45::ComputeAStep(
     }
     this->Vals[numVals-1] = t + delT*A[i-1];
 
-    if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[i]))
+    if ( !this->FunctionSet->FunctionValues(this->Vals,
+                                            this->NextDerivs[i], userData))
     {
       for(int l = 0; l < numVals - 1; l++)
       {

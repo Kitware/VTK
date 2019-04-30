@@ -55,6 +55,7 @@ public:
   void SetLastCellId( vtkIdType c ) override
     { this->Superclass::SetLastCellId( c ); }
 
+  using Superclass::FunctionValues;
   /**
    * Evaluate the velocity field f at point p.
    * If it succeeds, then both the last data set (this->LastDataSet) and

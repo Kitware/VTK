@@ -74,6 +74,7 @@ public:
    */
   static vtkCachingInterpolatedVelocityField *New();
 
+  using Superclass::FunctionValues;
   //@{
   /**
    * Evaluate the velocity field, f={u,v,w}, at {x, y, z}.

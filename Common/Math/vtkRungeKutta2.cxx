@@ -61,7 +61,7 @@ int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext
       this->Derivs[i] = dxprev[i];
     }
   }
-  else if (!this->FunctionSet->FunctionValues(this->Vals, this->Derivs))
+  else if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs, userData) )
   {
     memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
     return OUT_OF_DOMAIN;
@@ -75,7 +75,7 @@ int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext
   this->Vals[numVals-1] = t + delT/2.0;
 
   // Obtain the derivatives at x_i + dt/2 * dx_i
-  if (!this->FunctionSet->FunctionValues(this->Vals, this->Derivs))
+  if (!this->FunctionSet->FunctionValues(this->Vals, this->Derivs, userData))
   {
     memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
     delTActual = delT/2.0; // we've only taken half of a time step

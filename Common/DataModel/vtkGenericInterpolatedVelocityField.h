@@ -63,6 +63,7 @@ public:
    */
   static vtkGenericInterpolatedVelocityField *New();
 
+  using Superclass::FunctionValues;
   /**
    * Evaluate the velocity field, f, at (x, y, z, t).
    * For now, t is ignored.

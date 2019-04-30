@@ -185,6 +185,7 @@ public:
     { this->Caching = from->Caching; }
 
 
+  using Superclass::FunctionValues;
   /**
    * Evaluate the velocity field f at point (x, y, z).
    */
