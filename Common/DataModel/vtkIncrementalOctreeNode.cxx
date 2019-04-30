@@ -742,11 +742,6 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary
       break;
   }
 
-  thisMin = nullptr;
-  thisMax = nullptr;
-  rootMin = nullptr;
-  rootMax = nullptr;
-
   return minDist;
 }
 
