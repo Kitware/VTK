@@ -43,6 +43,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkLogger.h"
 
 #include <set>
 #include <map>
@@ -1944,7 +1945,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
   int numContours = this->ContourValues->GetNumberOfContours();
   if ( numContours < 1 )
   {
-    vtkWarningMacro(<<"No contour values defined");
+    vtkLog(TRACE, "No contour values defined");
     return 1;
   }
 
@@ -1957,7 +1958,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
     inScalars = this->GetInputArrayToProcess(0, inputVector);
     if (!inScalars)
     {
-      vtkWarningMacro(<<"No scalars available");
+      vtkLog(TRACE, "No scalars available");
       return 1;
     }
     // Use provided scalar tree if not a composite data set input.
@@ -1987,7 +1988,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
         inScalars = this->GetInputArrayToProcess(0,grid,association);
         if (!inScalars)
         {
-          vtkWarningMacro(<<"No scalars available");
+          vtkLog(TRACE, "No scalars available");
           continue;
         }
         polydata = vtkPolyData::New();
