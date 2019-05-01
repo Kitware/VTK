@@ -113,7 +113,7 @@ class Uniformf : public UniformT<float,tupleType,nbComponents>
 public:
   int GetScalarType() override { return VTK_FLOAT; }
   bool GetGenericValue( std::vector<int> & ) override { return false; }
-  bool GetGenericValue( std::vector<float> & value ) override { value = this->values; return false; }
+  bool GetGenericValue( std::vector<float> & value ) override { value = this->values; return true; }
 };
 
 class UniformScalari : public Uniformi<vtkUniforms::TupleTypeScalar,1>
