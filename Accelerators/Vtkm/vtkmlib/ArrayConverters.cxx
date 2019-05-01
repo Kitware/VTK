@@ -384,13 +384,16 @@ public:
     array->SetNumberOfComponents(Traits::NUM_COMPONENTS);
 
     handle.SyncControlArray();
-    ValueType* stolenMemory = reinterpret_cast<ValueType*>(handle.GetStorage().StealArray());
-
-    //VTK-m allocations are all aligned
     const vtkm::Id size = handle.GetNumberOfValues() * Traits::NUM_COMPONENTS;
+
+    //stealing the array clears the delete function, so we need to get the function first.
+    //VTK-m allocations are aligned or done with cuda uvm memory so we need to propagate
+    //the proper free function to VTK
+    auto deleteFunction = handle.GetStorage().GetDeleteFunction();
+    ValueType* stolenMemory = reinterpret_cast<ValueType*>(handle.GetStorage().StealArray());
     array->SetVoidArray(
       stolenMemory, size, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
-    array->SetArrayFreeFunction(handle.GetStorage().GetDeleteFunction());
+    array->SetArrayFreeFunction(deleteFunction);
 
     this->Data = array;
   }

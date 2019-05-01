@@ -37,3 +37,9 @@ endif()
 vtk_test_cxx_executable(vtkAcceleratorsVTKmCxxTests tests
   RENDERING_FACTORY
   )
+
+if (TARGET vtkm::cuda)
+  # When cuda is enabled VTK::AcceleratorsVTKm is built statically but with fpic
+  # enabled so the tests are also built with fpic enabled
+  set_target_properties(vtkAcceleratorsVTKmCxxTests PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
