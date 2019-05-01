@@ -117,6 +117,20 @@ int TestUserShader(int argc, char *argv[])
     false // only do it once
     );
 
+  // Test enumerating shader replacements
+  int nbReplacements = sp->GetNumberOfShaderReplacements();
+  if( nbReplacements != 4 )
+  {
+    return EXIT_FAILURE;
+  }
+  if( sp->GetNthShaderReplacementTypeAsString(0) != std::string("Vertex") ||
+      sp->GetNthShaderReplacementTypeAsString(1) != std::string("Fragment") ||
+      sp->GetNthShaderReplacementTypeAsString(2) != std::string("Vertex") ||
+      sp->GetNthShaderReplacementTypeAsString(3) != std::string("Fragment") )
+  {
+    return EXIT_FAILURE;
+  }
+
   renderWindow->Render();
   renderer->GetActiveCamera()->SetPosition(-0.2,0.4,1);
   renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
