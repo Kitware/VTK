@@ -785,17 +785,15 @@ int vtkMultiProcessController::Reduce(
     sendBuffer.GetMaxPoint(send_max);
   }
   double recv_min[3], recv_max[3];
-  if (this->Reduce(send_min, recv_min, 3, vtkCommunicator::MIN_OP, destProcessId))
+  if (this->Reduce(send_min, recv_min, 3, vtkCommunicator::MIN_OP, destProcessId) &&
+      this->Reduce(send_max, recv_max, 3, vtkCommunicator::MAX_OP, destProcessId))
   {
-    if (this->Reduce(send_max, recv_max, 3, vtkCommunicator::MAX_OP, destProcessId))
+    if (this->GetLocalProcessId() == destProcessId)
     {
-      if (this->GetLocalProcessId() == destProcessId)
-      {
-        recvBuffer.SetMinPoint(recv_min);
-        recvBuffer.SetMaxPoint(recv_max);
-      }
-      return 1;
+      const double bds[6] = {recv_min[0], recv_max[0], recv_min[1], recv_max[1], recv_min[2], recv_max[2]};
+      recvBuffer.SetBounds(bds);
     }
+    return 1;
   }
   return 0;
 }
@@ -818,14 +816,12 @@ int vtkMultiProcessController::AllReduce(
     sendBuffer.GetMaxPoint(send_max);
   }
   double recv_min[3], recv_max[3];
-  if (this->AllReduce(send_min, recv_min, 3, vtkCommunicator::MIN_OP))
+  if (this->AllReduce(send_min, recv_min, 3, vtkCommunicator::MIN_OP) &&
+      this->AllReduce(send_max, recv_max, 3, vtkCommunicator::MAX_OP))
   {
-    if (this->AllReduce(send_max, recv_max, 3, vtkCommunicator::MAX_OP))
-    {
-      recvBuffer.SetMinPoint(recv_min);
-      recvBuffer.SetMaxPoint(recv_max);
-      return 1;
-    }
+    const double bds[6] = {recv_min[0], recv_max[0], recv_min[1], recv_max[1], recv_min[2], recv_max[2]};
+    recvBuffer.SetBounds(bds);
+    return 1;
   }
   return 0;
 }
