@@ -1,0 +1,19 @@
+NAME
+  VTK::IOADIOS2
+LIBRARY_NAME
+  vtkIOADIOS2
+IMPLEMENTABLE
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::ParallelCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::ParallelMPI
+  VTK::mpi
+  VTK::vtksys
+  VTK::pugixml
