@@ -14,39 +14,39 @@
 =========================================================================*/
 #include "vtkContour3DLinearGrid.h"
 
-#include "vtkUnstructuredGrid.h"
+#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkContourValues.h"
-#include "vtkTetra.h"
-#include "vtkHexahedron.h"
-#include "vtkWedge.h"
-#include "vtkPyramid.h"
-#include "vtkVoxel.h"
-#include "vtkTriangle.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkFloatArray.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkStaticEdgeLocatorTemplate.h"
-#include "vtkArrayListTemplate.h" // For processing attribute data
-#include "vtkStaticCellLinksTemplate.h"
-#include "vtkSpanSpace.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkSmartPointer.h"
+#include "vtkContourValues.h"
+#include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
+#include "vtkHexahedron.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkSMPTools.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkLogger.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkPyramid.h"
+#include "vtkSmartPointer.h"
+#include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkSpanSpace.h"
+#include "vtkStaticCellLinksTemplate.h"
+#include "vtkStaticEdgeLocatorTemplate.h"
+#include "vtkStaticPointLocator.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTetra.h"
+#include "vtkTriangle.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVoxel.h"
+#include "vtkWedge.h"
 
-#include <set>
 #include <map>
+#include <set>
 #include <utility> //make_pair
 
 vtkStandardNewMacro(vtkContour3DLinearGrid);
