@@ -168,6 +168,19 @@ public:
     return *this;
   }
 
+  /**
+   * Assign object to reference.  This adds a new reference to an old
+   * object.
+   */
+  template <typename U>
+  vtkSmartPointer& operator=(U *r)
+  {
+    vtkSmartPointer::CheckTypes<U>();
+
+    this->vtkSmartPointerBase::operator=(r);
+    return *this;
+  }
+
   //@{
   /**
    * Get the contained pointer.
