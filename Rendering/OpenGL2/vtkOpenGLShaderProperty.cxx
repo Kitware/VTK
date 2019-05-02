@@ -74,7 +74,15 @@ std::string vtkOpenGLShaderProperty::GetNthShaderReplacementTypeAsString( vtkIdT
   {
     return std::string("Vertex");
   }
-  return std::string("Fragment");
+  else if( it->first.ShaderType == vtkShader::Fragment )
+  {
+    return std::string("Fragment");
+  }
+  else if( it->first.ShaderType == vtkShader::Geometry )
+  {
+    return std::string("Geometry");
+  }
+  return std::string("Unknown");
 }
 
 void  vtkOpenGLShaderProperty::GetNthShaderReplacement(

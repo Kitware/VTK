@@ -33,6 +33,25 @@ int UnitTestOpenGLUniforms(int,char *[])
     return EXIT_FAILURE;
   }
 
+  // Test generic get functions
+  std::vector<int> vi;
+  if( !uni->GetUniform("i",vi) )
+  {
+    std::cerr << "<1>" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if( vi[0] != ini )
+  {
+    std::cerr << "<2>" << std::endl;
+    return EXIT_FAILURE;
+  }
+  std::vector<float> vf;
+  if( uni->GetUniform("i",vf) )
+  {
+    std::cerr << "<3>" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   // uniform f
   float inf = 1.0f;
   float outf = 0.0f;
@@ -40,6 +59,23 @@ int UnitTestOpenGLUniforms(int,char *[])
   uni->GetUniformf("f", outf );
   if( outf != inf )
   {
+    return EXIT_FAILURE;
+  }
+
+  // Test generic get functions
+  if( !uni->GetUniform("f",vf) )
+  {
+    std::cerr << "<4>" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if( vf.size() != 1 && vf[0] != inf )
+  {
+    std::cerr << "<5>" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if( uni->GetUniform("f",vi) )
+  {
+    std::cerr << "<6>" << std::endl;
     return EXIT_FAILURE;
   }
 
