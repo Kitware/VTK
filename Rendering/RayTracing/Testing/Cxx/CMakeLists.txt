@@ -4,6 +4,7 @@ if (VTK_ENABLE_OSPRAY)
     TestOSPRayAmbient.cxx
     TestOSPRayAMRVolumeRenderer.cxx
     TestOSPRayCompositePolyDataMapper2.cxx
+    TestOSPRayDepthOfField.cxx
     TestOSPRayDynamicObject.cxx
     TestOSPRayDynamicScene.cxx
     TestOSPRayImplicits.cxx
@@ -55,6 +56,7 @@ if (VTK_ENABLE_VISRTX)
   set(optix_tests
     TestOSPRayAmbient
     TestOSPRayCompositePolyDataMapper2
+    TestOSPRayDepthOfField
     TestOSPRayDynamicObject
     TestOSPRayDynamicScene
     TestOSPRayImplicits

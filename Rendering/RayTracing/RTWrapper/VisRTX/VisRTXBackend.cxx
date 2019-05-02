@@ -32,15 +32,10 @@ namespace RTW
 #endif
 
         VisRTX::Context* rtx = VisRTX_GetContext();
-        if (!rtx)
-        {
-            std::cerr << "Error: no context" << std::endl;
-            return RTW_UNKNOWN_ERROR;
-        }
 
-        if (rtx->GetDeviceCount() <= 0)
+        if (!rtx || rtx->GetDeviceCount() <= 0)
         {
-            std::cerr << "Error: unsupported device" << std::endl;
+            std::cerr << "Error: Unsupported device" << std::endl;
             return RTW_UNSUPPORTED_DEVICE;
         }
 

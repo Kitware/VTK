@@ -17,6 +17,8 @@
 #include "vtkCamera.h"
 #include "vtkWindow.h"
 #include "vtkCollectionIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkRenderer.h"
@@ -24,6 +26,8 @@
 #include "vtkViewNodeCollection.h"
 
 #include "RTWrapper/RTWrapper.h"
+
+vtkInformationKeyMacro(vtkOSPRayCameraNode, DEPTH_OF_FIELD, Integer);
 
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayCameraNode);
@@ -82,6 +86,7 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     double myScaledEyeSeparation = myEyeSeparation * myDistance;
     double shiftDistance = (myScaledEyeSeparation / 2);
     double * myFocalPoint = cam->GetFocalPoint();
+    double myFocalDisk = cam->GetFocalDisk();
     if (!cam->GetLeftEye())
     {
       right = true;
@@ -101,6 +106,17 @@ void vtkOSPRayCameraNode::Render(bool prepass)
       double fovy = cam->GetViewAngle() * ts[0];
       ospCamera = ospNewCamera("perspective");
       ospSetf(ospCamera, "fovy", fovy);
+
+      if (vtkOSPRayCameraNode::GetDepthOfField(cam))
+      {
+        ospSetf(ospCamera, "focusDistance", myDistance);
+        ospSetf(ospCamera, "apertureRadius", 0.5 * myFocalDisk);
+      }
+      else
+      {
+        ospSetf(ospCamera, "focusDistance", 0.0f);
+        ospSetf(ospCamera, "apertureRadius", 0.0f);
+      }
     }
 
     ospSetObject(orn->GetORenderer(), "camera", ospCamera);
@@ -146,4 +162,30 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     ospCommit(ospCamera);
     ospRelease(ospCamera);
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayCameraNode::SetDepthOfField(int value, vtkCamera* camera)
+{
+  if (!camera)
+  {
+    return;
+  }
+  vtkInformation* info = camera->GetInformation();
+  info->Set(vtkOSPRayCameraNode::DEPTH_OF_FIELD(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOSPRayCameraNode::GetDepthOfField(vtkCamera* camera)
+{
+  if (!camera)
+  {
+    return 0;
+  }
+  vtkInformation* info = camera->GetInformation();
+  if (info && info->Has(vtkOSPRayCameraNode::DEPTH_OF_FIELD()))
+  {
+    return (info->Get(vtkOSPRayCameraNode::DEPTH_OF_FIELD()));
+  }
+  return 0;
 }

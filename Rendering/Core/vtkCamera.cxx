@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkCamera.h"
 
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkTimeStamp.h"
 #include "vtkObjectFactory.h"
@@ -29,6 +30,7 @@
 // Needed when we don't use the vtkStandardNewMacro.
 vtkAbstractObjectFactoryNewMacro(vtkCamera)
 
+vtkCxxSetObjectMacro(vtkCamera, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkCamera, EyeTransformMatrix, vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkCamera, ModelTransformMatrix, vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkCamera, ExplicitProjectionTransformMatrix, vtkMatrix4x4)
@@ -143,6 +145,10 @@ vtkCamera::vtkCamera()
 
   this->FreezeFocalPoint = false;
   this->UseScissor = false;
+
+  this->Information = vtkInformation::New();
+  this->Information->Register(this);
+  this->Information->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -183,6 +189,8 @@ vtkCamera::~vtkCamera()
   {
     this->UserViewTransformCallbackCommand->Delete();
   }
+
+  this->SetInformation(nullptr);
 }
 
 //----------------------------------------------------------------------------
