@@ -1708,16 +1708,17 @@ void vtkCellValidator::PrintState(vtkCellValidator::State state, ostream& os,
     {
       os << indent << "  - Intersecting edges\n";
     }
-    if ((state & vtkCellValidator::State::NoncontiguousEdges) !=
+    if ((state & vtkCellValidator::State::NoncontiguousEdges) ==
         vtkCellValidator::State::NoncontiguousEdges)
     {
       os << indent << "  - Noncontiguous edges\n";
     }
-    if ((state & vtkCellValidator::State::Nonconvex) != vtkCellValidator::State::Nonconvex)
+    if ((state & vtkCellValidator::State::Nonconvex) ==
+        vtkCellValidator::State::Nonconvex)
     {
       os << indent << "  - Nonconvex\n";
     }
-    if ((state & vtkCellValidator::State::FacesAreOrientedIncorrectly) !=
+    if ((state & vtkCellValidator::State::FacesAreOrientedIncorrectly) ==
         vtkCellValidator::State::FacesAreOrientedIncorrectly)
     {
       os << indent << "  - Faces are oriented incorrectly\n";
