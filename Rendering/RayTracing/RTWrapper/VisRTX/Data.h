@@ -94,7 +94,7 @@ namespace RTW
                 delete[] this->data;
         }
 
-        void Commit()
+        void Commit() override
         {
             // Committing data marks it as dirty (useful for shared memory)
             this->dirty = true;

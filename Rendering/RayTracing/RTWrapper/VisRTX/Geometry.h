@@ -113,10 +113,10 @@ namespace RTW
 
                         for (uint32_t i = 0; i < numTriangles; ++i)
                         {
-                            int index = indices[i];
-                            if (index >= 0)
+                            int triIndex = indices[i];
+                            if (triIndex >= 0)
                             {
-                                Material* materialHandle = materials[index];
+                                Material* materialHandle = materials[triIndex];
                                 if (materialHandle)
                                     triangleMaterials[i] = materialHandle->material;
                             }
