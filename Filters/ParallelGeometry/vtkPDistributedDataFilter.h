@@ -159,7 +159,7 @@ private:
   /**
    * ?
    */
-  vtkUnstructuredGrid *RedistributeDataSet(vtkDataSet *set, vtkDataSet *input);
+  vtkUnstructuredGrid *RedistributeDataSet(vtkDataSet *set, vtkDataSet *input, int filterOutDuplicateCells);
 
   /**
    * ?
@@ -186,12 +186,12 @@ private:
    * spread the input data sets around (quickly) before formal
    * redistribution.
    */
-  vtkDataSet *TestFixTooFewInputFiles(vtkDataSet *input);
+  vtkDataSet *TestFixTooFewInputFiles(vtkDataSet *input, int& duplicateCells);
 
   /**
    * ?
    */
-  vtkUnstructuredGrid *MPIRedistribute(vtkDataSet *in, vtkDataSet *input);
+  vtkUnstructuredGrid *MPIRedistribute(vtkDataSet *in, vtkDataSet *input, int filterOutDuplicateCells);
 
   /**
    * ?

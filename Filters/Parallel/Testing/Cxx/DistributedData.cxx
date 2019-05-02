@@ -23,24 +23,25 @@
 // To run fast redistribution: SetUseMinimalMemoryOff() (Default)
 // To run memory conserving code instead: SetUseMinimalMemoryOn()
 
-#include "vtkObjectFactory.h"
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkCellTypeSource.h"
 #include "vtkCompositeRenderManager.h"
 #include "vtkDataSetReader.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDistributedDataFilter.h"
 #include "vtkDataSetSurfaceFilter.h"
-#include "vtkPieceScalars.h"
-#include "vtkPointData.h"
+#include "vtkDistributedDataFilter.h"
 #include "vtkFloatArray.h"
 #include "vtkMPIController.h"
+#include "vtkObjectFactory.h"
+#include "vtkPieceScalars.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkCamera.h"
+#include "vtkTestUtilities.h"
+#include "vtkUnstructuredGrid.h"
 /*
 ** This test only builds if MPI is in use
 */
@@ -312,6 +313,73 @@ void MyProcess::Execute()
   prm->Delete();
 }
 
+class MyProcess2 : public vtkProcess
+{
+public:
+  static MyProcess2 *New();
+
+  virtual void Execute();
+  void SetArgs(int anArgc, char *anArgv[]);
+
+protected:
+  MyProcess2();
+
+  int Argc;
+  char **Argv;
+};
+
+vtkStandardNewMacro(MyProcess2);
+
+MyProcess2::MyProcess2()
+{
+  this->Argc = 0;
+  this->Argv = nullptr;
+}
+
+void MyProcess2::SetArgs(int anArgc, char *anArgv[])
+{
+  this->Argc = anArgc;
+  this->Argv = anArgv;
+}
+
+void MyProcess2::Execute()
+{
+  int me = this->Controller->GetLocalProcessId();
+
+  // generate 1 cell in proc 0 and no cells on other procs
+  vtkUnstructuredGrid *input = nullptr;
+  if (me == 0)
+  {
+    vtkNew<vtkCellTypeSource> source;
+    source->SetCellType(VTK_HEXAHEDRON);
+    source->SetBlocksDimensions(1, 1, 1);
+    source->Update();
+
+    input = source->GetOutput();
+    input->Register(nullptr);
+  }
+  else
+  {
+    input = vtkUnstructuredGrid::New();
+  }
+
+  vtkNew<vtkDistributedDataFilter> dd;
+  dd->SetInputData(input);
+  dd->SetController(this->Controller);
+  dd->Update();
+
+  input->Delete();
+
+  // compute total number of cells
+  vtkIdType nbCellsTot = 0;
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(dd->GetOutput());
+  vtkIdType nbCells = output->GetNumberOfCells();
+  this->Controller->AllReduce(&nbCells, &nbCellsTot, 1, vtkCommunicator::SUM_OP);
+
+  // number of cells should be 1
+  this->ReturnValue = (nbCellsTot == 1);
+}
+
 }
 
 int DistributedData(int argc, char *argv[])
@@ -353,6 +421,16 @@ int DistributedData(int argc, char *argv[])
 
   retVal=p->GetReturnValue();
   p->Delete();
+
+  // test special case 'numCells < numProcs'
+  vtkNew<MyProcess2> p2;
+  p2->SetArgs(argc,argv);
+  contr->SetSingleProcessObject(p2.Get());
+  contr->SingleMethodExecute();
+  if (retVal == vtkTesting::PASSED)
+  {
+    retVal = p2->GetReturnValue();
+  }
 
   contr->Finalize();
   contr->Delete();
