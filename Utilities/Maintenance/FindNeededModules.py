@@ -158,7 +158,7 @@ def disp_components(modules, module_implements):
         res += '    # These modules are suggested since they implement an existing module.\n'
         res += '    # Uncomment those you need.\n'
         for key in keys:
-            res += '    # {:<{width}} # implements {:s}\n'.format(key.split('::')[1], ', '.join(module_implements[key]),
+            res += '    # {:<{width}} # implements {:s}\n'.format(key.split('::')[1], ', '.join(sorted(module_implements[key])),
                                                                   width=max_width)
     res += ')'
     return res
@@ -173,7 +173,7 @@ def main():
     modules = set()
     inc_no_mod = set()
     inc_no_mod_headers = collections.defaultdict(set)
-    mod_implements = collections.defaultdict(list)
+    mod_implements = collections.defaultdict(set)
     for fn in src_paths:
         if os.path.isdir(fn):
             headers = get_users_headers(fn)
@@ -208,7 +208,7 @@ def main():
                             continue
                         if m in json_data['modules'][i]['implements']:
                             # Suggest module i since it implements m
-                            mod_implements[i].append(m)
+                            mod_implements[i].add(m)
 
     print(disp_components(modules, mod_implements))
 
