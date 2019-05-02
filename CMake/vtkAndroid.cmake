@@ -122,6 +122,10 @@ set(android_cmake_flags
   -DVTK_MODULE_ENABLE_VTK_RenderingVolumeOpenGL2:STRING=YES
 )
 
+if (VTK_LEGACY_REMOVE)
+  list(APPEND android_cmake_flags -DVTK_LEGACY_REMOVE:BOOL=ON)
+endif()
+
 macro(crosscompile target api abi out_build_dir)
   set(_ANDROID_API "${api}")
   set(_ANDROID_ABI "${abi}")
