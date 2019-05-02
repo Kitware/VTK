@@ -50,6 +50,7 @@ int TestEDLPass(int argc, char *argv[])
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
+  delete [] fileName;
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
