@@ -23,6 +23,7 @@ set(classes
   vtkPlatonicSolidSource
   vtkPointSource
   vtkPolyLineSource
+  vtkPolyPointSource
   vtkProgrammableDataObjectSource
   vtkProgrammableSource
   vtkRandomHyperTreeGridSource
