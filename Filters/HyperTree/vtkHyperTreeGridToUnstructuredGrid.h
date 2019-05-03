@@ -82,11 +82,6 @@ protected:
   void AddCell( vtkIdType, double*, double* );
 
   /**
-   * Output material mask constructed by this filter
-   */
-  vtkBitArray* Mask;
-
-  /**
    * Storage for points of output unstructured mesh
    */
   vtkPoints* Points;

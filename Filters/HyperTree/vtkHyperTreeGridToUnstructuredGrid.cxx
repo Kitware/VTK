@@ -32,10 +32,10 @@ vtkStandardNewMacro(vtkHyperTreeGridToUnstructuredGrid);
 vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid()
 {
   // Create storage for corners of leaf cells
-  this->Points = vtkPoints::New();
+  this->Points = nullptr;
 
   // Create storage for untructured leaf cells
-  this->Cells = vtkCellArray::New();
+  this->Cells = nullptr;
 
   // Default dimension is 0
   this->Dimension = 0;
@@ -48,13 +48,13 @@ vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid()
 {
   if (this->Points)
   {
-    this->Points->Delete();
+    //this->Points->Delete();
     this->Points = nullptr;
   }
 
   if (this->Cells)
   {
-    this->Cells->Delete();
+    //this->Cells->Delete();
     this->Cells = nullptr;
   }
 }
@@ -63,28 +63,6 @@ vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid()
 void vtkHyperTreeGridToUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  if (this->Points)
-  {
-    os << indent << "Points:\n";
-    this->Points->PrintSelf(os, indent.GetNextIndent());
-  }
-  else
-  {
-    os << indent << "Points: ( none )\n";
-  }
-
-  if (this->Cells)
-  {
-    os << indent << "Cells:\n";
-    this->Cells->PrintSelf(os, indent.GetNextIndent());
-  }
-  else
-  {
-    os << indent << "Cells: ( none )\n";
-  }
-
-  os << indent << "Dimension : " << this->Dimension << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -107,6 +85,8 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
   }
 
   // Set instance variables needed for this conversion
+  this->Points = vtkPoints::New();
+  this->Cells = vtkCellArray::New();
   this->Dimension = input->GetDimension();
   this->Orientation = input->GetOrientation();
   this->Axes = input->GetAxes();
@@ -115,9 +95,6 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
   this->InData = input->GetPointData();
   this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
-
-  // Retrieve material mask
-  this->Mask = input->HasMask() ? input->GetMask() : nullptr;
 
   // Iterate over all hyper trees
   vtkIdType index;
@@ -152,6 +129,9 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
     default:
       break;
   } // switch ( this->Dimension )
+
+  this->Points->FastDelete();
+  this->Cells->FastDelete();
 
   return 1;
 }
