@@ -48,13 +48,13 @@ vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid()
 {
   if (this->Points)
   {
-    this->Points->Delete();
+    //this->Points->Delete();
     this->Points = nullptr;
   }
 
   if (this->Cells)
   {
-    this->Cells->Delete();
+    //this->Cells->Delete();
     this->Cells = nullptr;
   }
 }
