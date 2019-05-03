@@ -14,38 +14,39 @@
 =========================================================================*/
 #include "vtkContour3DLinearGrid.h"
 
-#include "vtkUnstructuredGrid.h"
+#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkContourValues.h"
-#include "vtkTetra.h"
-#include "vtkHexahedron.h"
-#include "vtkWedge.h"
-#include "vtkPyramid.h"
-#include "vtkVoxel.h"
-#include "vtkTriangle.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkFloatArray.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkStaticEdgeLocatorTemplate.h"
-#include "vtkArrayListTemplate.h" // For processing attribute data
-#include "vtkStaticCellLinksTemplate.h"
-#include "vtkSpanSpace.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkSmartPointer.h"
+#include "vtkContourValues.h"
+#include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
+#include "vtkHexahedron.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkSMPTools.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkPyramid.h"
+#include "vtkSmartPointer.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkSpanSpace.h"
+#include "vtkStaticCellLinksTemplate.h"
+#include "vtkStaticEdgeLocatorTemplate.h"
+#include "vtkStaticPointLocator.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTetra.h"
+#include "vtkTriangle.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVoxel.h"
+#include "vtkWedge.h"
 
-#include <set>
 #include <map>
+#include <set>
 #include <utility> //make_pair
 
 vtkStandardNewMacro(vtkContour3DLinearGrid);
@@ -1944,7 +1945,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
   int numContours = this->ContourValues->GetNumberOfContours();
   if ( numContours < 1 )
   {
-    vtkWarningMacro(<<"No contour values defined");
+    vtkLog(TRACE, "No contour values defined");
     return 1;
   }
 
@@ -1957,7 +1958,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
     inScalars = this->GetInputArrayToProcess(0, inputVector);
     if (!inScalars)
     {
-      vtkWarningMacro(<<"No scalars available");
+      vtkLog(TRACE, "No scalars available");
       return 1;
     }
     // Use provided scalar tree if not a composite data set input.
@@ -1987,7 +1988,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
         inScalars = this->GetInputArrayToProcess(0,grid,association);
         if (!inScalars)
         {
-          vtkWarningMacro(<<"No scalars available");
+          vtkLog(TRACE, "No scalars available");
           continue;
         }
         polydata = vtkPolyData::New();
