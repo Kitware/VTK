@@ -80,12 +80,14 @@ void rtwShutdown()
   {
     rtwVisRTXBackend->Shutdown();
   }
+  rtwVisRTXBackend=nullptr;
 #endif
 #ifdef VTK_ENABLE_OSPRAY
   if (rtwOSPRayBackend)
   {
     rtwOSPRayBackend->Shutdown();
   }
+  rtwOSPRayBackend=nullptr;
 #endif
 }
 
