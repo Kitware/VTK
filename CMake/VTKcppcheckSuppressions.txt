@@ -623,6 +623,11 @@ syntaxError:Rendering/OpenGL2/vtkCocoaGLView.mm
 // False positive: Assignment of function parameter has no effect outside the function. Did you forget dereferencing it?
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 
+// true useless assignments but kept for code clarity
+// and preventing bugs should the vars be used in future
+// changes
+uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
+
 // Not technically false positives, but there's no bug here and no clear way to rework the code in a better way
 duplicateCondition:Wrapping/Tools/vtkParse.tab.c
 redundantAssignment:Wrapping/Tools/lex.yy.c

@@ -254,7 +254,11 @@ bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
 
     if (fabs(log10(safeOrigin / safeScale)) > 2)
     {
-      shift[i] = floor(log10(safeOrigin / safeScale) / 3.0) * 3.0;
+      // the line below probably was meant to be something like
+      // scale[i] = pow(10.0, floor(log10(safeOrigin / safeScale) / 3.0) * 3.0);
+      // but instead was set to the following
+      // shift[i] = floor(log10(safeOrigin / safeScale) / 3.0) * 3.0;
+      // which makes no sense as the next line overwrites shift[i] ala
       shift[i] = -origin[i];
     }
     if (fabs(log10(safeScale)) > 10)
