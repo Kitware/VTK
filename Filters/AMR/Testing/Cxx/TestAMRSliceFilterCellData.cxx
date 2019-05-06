@@ -19,6 +19,7 @@
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkCompositePolyDataMapper2.h>
+#include <vtkDataObjectTreeIterator.h>
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkImageToAMR.h>
 #include <vtkLookupTable.h>
@@ -83,6 +84,30 @@ int TestAMRSliceFilterCellData(int argc, char *argv[])
     mapper->SetInterpolateScalarsBeforeMapping(1);
     mapper->SelectColorArray("RTData");
 
+    // only show the leaf nodes
+    vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
+      mapper->GetInputDataObject(0, 0));
+    if (input)
+    {
+      vtkSmartPointer<vtkDataObjectTreeIterator> iter =
+        vtkSmartPointer<vtkDataObjectTreeIterator>::New();
+      iter->SetDataSet(input);
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+          iter->GoToNextItem())
+      {
+        unsigned int flatIndex = iter->GetCurrentFlatIndex();
+        mapper->SetBlockVisibility(flatIndex, false);
+      }
+      iter->SkipEmptyNodesOn();
+      iter->VisitOnlyLeavesOn();
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+          iter->GoToNextItem())
+      {
+        unsigned int flatIndex = iter->GetCurrentFlatIndex();
+        mapper->SetBlockVisibility(flatIndex, true);
+      }
+    }
+
     vtkNew<vtkActor> actor;
     actor->SetMapper(mapper);
 
@@ -97,13 +122,12 @@ int TestAMRSliceFilterCellData(int argc, char *argv[])
     ren->GetActiveCamera()->SetFocalPoint(0, 0, 0);
     ren->ResetCamera();
     rwin->SetSize(300, 300);
-    iren->Initialize();
     rwin->Render();
 
     int retVal = vtkRegressionTestImage(rwin);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-        iren->Start();
+      iren->Start();
     }
 
     return !retVal;
