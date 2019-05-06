@@ -76,10 +76,14 @@ std::string value_to_string(const T& val)
 }
 
 //----------------------------------------------------------------------------
+const std::vector<std::string> vtkGLTFDocumentLoader::SupportedExtensions = {
+  "KHR_lights_punctual"
+};
+
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLTFDocumentLoader);
 
 /** Metadata loading **/
-
 //----------------------------------------------------------------------------
 bool vtkGLTFDocumentLoader::LoadModelMetaDataFromFile(std::string fileName)
 {
@@ -95,7 +99,7 @@ bool vtkGLTFDocumentLoader::LoadModelMetaDataFromFile(std::string fileName)
   }
   this->InternalModel->FileName = fileName;
 
-  if (!impl.LoadModelMetaDataFromFile(fileName))
+  if (!impl.LoadModelMetaDataFromFile(fileName, this->UsedExtensions))
   {
     return false;
   }
@@ -1208,6 +1212,18 @@ void vtkGLTFDocumentLoader::PrintSelf(ostream& os, vtkIndent indent)
 std::shared_ptr<vtkGLTFDocumentLoader::Model> vtkGLTFDocumentLoader::GetInternalModel()
 {
   return std::shared_ptr<Model>(this->InternalModel);
+}
+
+//----------------------------------------------------------------------------
+const std::vector<std::string>& vtkGLTFDocumentLoader::GetSupportedExtensions()
+{
+  return vtkGLTFDocumentLoader::SupportedExtensions;
+}
+
+//----------------------------------------------------------------------------
+const std::vector<std::string>& vtkGLTFDocumentLoader::GetUsedExtensions()
+{
+  return this->UsedExtensions;
 }
 
 /** types and enums **/
