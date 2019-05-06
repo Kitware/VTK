@@ -40,17 +40,17 @@ int TestPolyhedronConvexityMultipleCells(int, char *[])
   // using the basefaces defined above.
   // polyhedron cells use a special cell array format to describe their cells:
   // (#faces, #face0_points, id0_0, ..., id0_N, ..., #faceN_points, idN_0, ..., idN_N)
-  for(int i = 0; i < nCells; ++i)
+  for (int i = 0; i < nCells; ++i)
   {
     vtkNew<vtkIdList> faces;
     auto size = cells->GetValue(z);
     auto cell = cells->GetPointer(z + 1);
 
     faces->InsertNextId(static_cast<vtkIdType>(baseFaces.size()));
-    for(auto &baseFace : baseFaces)
+    for (auto &baseFace : baseFaces)
     {
       faces->InsertNextId(static_cast<vtkIdType>(baseFace.size()));
-      for(auto &f : baseFace)
+      for (auto &f : baseFace)
       {
         faces->InsertNextId(cell[f]);
       }
@@ -66,7 +66,7 @@ int TestPolyhedronConvexityMultipleCells(int, char *[])
   validator->Update();
 
   auto states = validator->GetOutput()->GetCellData()->GetArray("ValidityState");
-  for(const auto &state : vtk::DataArrayValueRange<1>(states))
+  for (const auto &state : vtk::DataArrayValueRange<1>(states))
   {
     if (state != vtkCellValidator::State::Valid)
     {
