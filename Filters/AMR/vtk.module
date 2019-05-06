@@ -24,6 +24,7 @@ TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::IOAMR
   VTK::ImagingCore
+  VTK::InteractionStyle
   VTK::TestingCore
   VTK::TestingRendering
   VTK::RenderingCore
