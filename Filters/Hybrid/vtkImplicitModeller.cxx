@@ -25,7 +25,6 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
-#include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"

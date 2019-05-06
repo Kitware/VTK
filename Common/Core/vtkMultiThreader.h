@@ -28,6 +28,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+#include <mutex> // For std::mutex
+
 #if defined(VTK_USE_PTHREADS)
 #include <pthread.h> // Needed for PTHREAD implementation of mutex
 #include <sys/types.h> // Needed for unix implementation of pthreads
@@ -72,8 +74,6 @@ typedef int vtkThreadProcessIDType;
 typedef int vtkMultiThreaderIDType;
 #endif
 
-class vtkMutexLock;
-
 class VTKCOMMONCORE_EXPORT vtkMultiThreader : public vtkObject
 {
 public:
@@ -100,7 +100,7 @@ public:
     int                 ThreadID;
     int                 NumberOfThreads;
     int                 *ActiveFlag;
-    vtkMutexLock        *ActiveFlagLock;
+    std::mutex          *ActiveFlagLock;
     void                *UserData;
   };
 
@@ -213,7 +213,7 @@ protected:
   // Storage of MutexFunctions and ints used to control spawned
   // threads and the spawned thread ids
   int                        SpawnedThreadActiveFlag[VTK_MAX_THREADS];
-  vtkMutexLock               *SpawnedThreadActiveFlagLock[VTK_MAX_THREADS];
+  std::mutex                 *SpawnedThreadActiveFlagLock[VTK_MAX_THREADS];
   vtkThreadProcessIDType     SpawnedThreadProcessID[VTK_MAX_THREADS];
   ThreadInfo                 SpawnedThreadInfoArray[VTK_MAX_THREADS];
 

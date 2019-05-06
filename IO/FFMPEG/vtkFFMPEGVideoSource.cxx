@@ -416,9 +416,8 @@ void *vtkFFMPEGVideoSource::Feed(vtkMultiThreader::ThreadInfo *data)
     // check to see if we are being told to quit every so often
     if (count == 10)
     {
-      data->ActiveFlagLock->Lock();
+      std::lock_guard<std::mutex>(*data->ActiveFlagLock);
       done = done || (*(data->ActiveFlag) == 0);
-      data->ActiveFlagLock->Unlock();
       count = 0;
     }
     count++;
@@ -559,9 +558,8 @@ void *vtkFFMPEGVideoSource::Drain(vtkMultiThreader::ThreadInfo *data)
     // check to see if we are being told to quit every so often
     if (count == 10)
     {
-      data->ActiveFlagLock->Lock();
+      std::lock_guard<std::mutex>(*data->ActiveFlagLock);
       done = done || (*(data->ActiveFlag) == 0);
-      data->ActiveFlagLock->Unlock();
       count = 0;
     }
     count++;
@@ -681,9 +679,8 @@ void *vtkFFMPEGVideoSource::DrainAudio(vtkMultiThreader::ThreadInfo *data)
     // check to see if we are being told to quit every so often
     if (count == 10)
     {
-      data->ActiveFlagLock->Lock();
+      std::lock_guard<std::mutex>(*data->ActiveFlagLock);
       done = done || (*(data->ActiveFlag) == 0);
-      data->ActiveFlagLock->Unlock();
       count = 0;
     }
     count++;

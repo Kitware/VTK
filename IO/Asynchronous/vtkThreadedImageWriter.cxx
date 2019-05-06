@@ -21,7 +21,6 @@
 #include "vtkImageData.h"
 #include "vtkJPEGWriter.h"
 #include "vtkMultiThreader.h"
-#include "vtkMutexLock.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPNGWriter.h"
