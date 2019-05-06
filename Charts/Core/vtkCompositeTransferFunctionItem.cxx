@@ -136,7 +136,7 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
   if (this->MaskAboveCurve || this->PolyLinePen->GetLineType() != vtkPen::SOLID_LINE)
   {
     this->Shape->SetNumberOfPoints(dimension);
-    const double step = (screenBounds[1] - screenBounds[0]) / dimension;
+    const double step = (dataBounds[1] - dataBounds[0]) / dimension;
 
     for (int i = 0; i < dimension; ++i)
     {
@@ -147,7 +147,7 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
       }
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
 
-      double xValue = screenBounds[0] + step * i;
+      double xValue = dataBounds[0] + step * i;
       double yValue = values[i];
       if (logY)
       {
