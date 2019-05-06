@@ -27,99 +27,12 @@ vtkStandardNewMacro(vtkPolyLineSource);
 //----------------------------------------------------------------------------
 vtkPolyLineSource::vtkPolyLineSource()
 {
-  this->Points = nullptr;
   this->Closed = 0;
-
-  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
 vtkPolyLineSource::~vtkPolyLineSource()
 {
-  if (this->Points)
-  {
-    this->Points->Delete();
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyLineSource::SetNumberOfPoints(vtkIdType numPoints)
-{
-  if (!this->Points)
-  {
-    vtkPoints* pts = vtkPoints::New(VTK_DOUBLE);
-    this->SetPoints(pts);
-    this->Points = pts;
-    pts->Delete();
-  }
-
-  if (numPoints != this->GetNumberOfPoints())
-  {
-    this->Points->SetNumberOfPoints(numPoints);
-    this->Modified();
-  }
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkPolyLineSource::GetNumberOfPoints()
-{
-  if (this->Points)
-  {
-    return this->Points->GetNumberOfPoints();
-  }
-
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyLineSource::Resize(vtkIdType numPoints)
-{
-  if (!this->Points)
-  {
-    this->SetNumberOfPoints(numPoints);
-  }
-
-  if (numPoints != this->GetNumberOfPoints())
-  {
-    this->Points->Resize(numPoints);
-    this->Modified();
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyLineSource::SetPoint(vtkIdType id, double x, double y, double z)
-{
-  if (!this->Points)
-  {
-    return;
-  }
-
-  if (id >= this->Points->GetNumberOfPoints())
-  {
-    vtkErrorMacro(<< "point id " << id << " is larger than the number of points");
-    return;
-  }
-
-  this->Points->SetPoint(id, x, y, z);
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyLineSource::SetPoints(vtkPoints* points)
-{
-  if ( points != this->Points )
-  {
-    if ( this->Points != nullptr )
-    {
-      this->Points->Delete();
-    }
-    this->Points = points;
-    if ( this->Points != nullptr )
-    {
-      this->Points->Register(this);
-    }
-    this->Modified();
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -161,6 +74,5 @@ void vtkPolyLineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Points: " << this->Points << "\n";
   os << indent << "Closed: " << this->Closed << "\n";
 }
