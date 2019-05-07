@@ -65,6 +65,7 @@ class vtkUnsignedCharArray;
 #define VTK_STEREO_CHECKERBOARD 8
 #define VTK_STEREO_SPLITVIEWPORT_HORIZONTAL 9
 #define VTK_STEREO_FAKE 10
+#define VTK_STEREO_EMULATE 11
 
 #define VTK_CURSOR_DEFAULT   0
 #define VTK_CURSOR_ARROW     1
@@ -298,7 +299,10 @@ public:
    * interleaving. Fake simply causes the window to render twice without
    * actually swapping the camera from left eye to right eye. This is useful in
    * certain applications that want to emulate the rendering passes without
-   * actually rendering in stereo mode.
+   * actually rendering in stereo mode. Emulate is similar to Fake, except that
+   * it does render left and right eye. There is no compositing of the resulting
+   * images from the two eyes at the end of each render in this mode, hence the
+   * result onscreen will be the right eye.
    */
   vtkGetMacro(StereoType,int);
   void SetStereoType(int);
@@ -322,9 +326,16 @@ public:
     {this->SetStereoType(VTK_STEREO_SPLITVIEWPORT_HORIZONTAL);}
   void SetStereoTypeToFake()
     {this->SetStereoType(VTK_STEREO_FAKE);}
+  void SetStereoTypeToEmulate() { this->SetStereoType(VTK_STEREO_EMULATE); }
   //@}
 
+  //@{
+  /**
+   * Returns the stereo type as a string.
+   */
   const char *GetStereoTypeAsString();
+  static const char* GetStereoTypeAsString(int type);
+  //@}
 
   /**
    * Update the system, if needed, due to stereo rendering. For some stereo
