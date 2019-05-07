@@ -31,6 +31,16 @@ if (TARGET vtkm::cuda)
   foreach(src IN LISTS tests)
     set_source_files_properties(${src}.cxx PROPERTIES LANGUAGE "CUDA")
   endforeach()
+
+  #the tests aren't scoped as a child directory of vtkAcceleratorsVTKm
+  #so we need to redo this logic
+  get_property(arch_flags
+    TARGET    vtkm::cuda
+    PROPERTY  INTERFACE_CUDA_Architecture_Flags)
+  if(NOT arch_flags)
+    message(FATAL_ERROR "VTK-m CUDA Architecture flags can't be found. This means we can't safely compile CUDA code")
+  endif()
+  string(APPEND CMAKE_CUDA_FLAGS " ${arch_flags}")
 endif()
 
 
