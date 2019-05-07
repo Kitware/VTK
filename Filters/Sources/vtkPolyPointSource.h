@@ -74,8 +74,6 @@ protected:
 
   vtkPoints* Points;
 
-  vtkTypeBool Closed;
-
 private:
   vtkPolyPointSource(const vtkPolyPointSource&) = delete;
   void operator=(const vtkPolyPointSource&) = delete;
