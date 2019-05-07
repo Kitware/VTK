@@ -613,3 +613,32 @@ std::vector<double> vtkOSPRayMaterialLibrary::GetDoubleShaderVariable(
   }
   return std::vector<double>();
 }
+
+//-----------------------------------------------------------------------------
+std::vector<std::string> vtkOSPRayMaterialLibrary::GetDoubleShaderVariableList(
+  const std::string& nickname)
+{
+  std::vector<std::string> variableNames;
+  if (this->Internal->VariablesFor.find(nickname) != this->Internal->VariablesFor.end())
+  {
+    for (auto& v : this->Internal->VariablesFor[nickname])
+    {
+      variableNames.push_back(v.first);
+    }
+  }
+  return variableNames;
+}
+
+//-----------------------------------------------------------------------------
+std::vector<std::string> vtkOSPRayMaterialLibrary::GetTextureList(const std::string& nickname)
+{
+  std::vector<std::string> texNames;
+  if (this->Internal->TexturesFor.find(nickname) != this->Internal->TexturesFor.end())
+  {
+    for (auto& v : this->Internal->TexturesFor[nickname])
+    {
+      texNames.push_back(v.first);
+    }
+  }
+  return texNames;
+}

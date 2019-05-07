@@ -77,13 +77,23 @@ public:
   std::string LookupImplName(const std::string& nickname);
 
   /**
-   * Returns a unform variable, the name format is nickname:varname.
+   * Returns list of variable names set for a specific material.
+   */
+  std::vector<std::string> GetDoubleShaderVariableList(const std::string& nickname);
+
+  /**
+   * Returns a uniform variable.
    */
   std::vector<double> GetDoubleShaderVariable(
     const std::string& nickname, const std::string& varname);
 
   /**
-   * Returns a texture, the name format is nickname:varname.
+   * Returns list of texture names set for a specific material.
+   */
+  std::vector<std::string> GetTextureList(const std::string& nickname);
+
+  /**
+   * Returns a texture.
    */
   vtkTexture* GetTexture(const std::string& nickname, const std::string& varname);
 
