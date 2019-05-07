@@ -50,7 +50,7 @@ endif ()
 
 vtk_module_find_package(
   PACKAGE     Qt5
-  VERSION     5.5.1
+  VERSION     5.9
   COMPONENTS  ${qt5_components}
   FORWARD_VERSION_REQ MINOR
   VERSION_VAR         Qt5_VERSION)
