@@ -129,6 +129,13 @@ if (VTK_DISPATCH_SOA_ARRAYS)
   set(vtkArrayDispatch_vtkSOADataArrayTemplate_types
     ${vtkArrayDispatch_all_types}
   )
+  if (VTK_BUILD_SCALED_SOA_ARRAYS)
+    list(APPEND vtkArrayDispatch_containers vtkScaledSOADataArrayTemplate)
+    set(vtkArrayDispatch_vtkScaledSOADataArrayTemplate_header vtkScaledSOADataArrayTemplate.h)
+    set(vtkArrayDispatch_vtkScaledSOADataArrayTemplate_types
+      ${vtkArrayDispatch_all_types}
+    )
+  endif()
 endif()
 
 if (VTK_DISPATCH_TYPED_ARRAYS)

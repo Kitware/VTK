@@ -37,6 +37,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAbstractArray.h"
+#include "vtkVTK_USE_SCALED_SOA_ARRAYS.h" // For #define of VTK_USE_SCALED_SOA_ARRAYS
 
 class vtkDoubleArray;
 class vtkIdList;

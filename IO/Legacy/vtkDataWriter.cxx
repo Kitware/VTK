@@ -46,6 +46,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+#include "vtkScaledSOADataArrayTemplate.h"
+#endif
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkSOADataArrayTemplate.h"
@@ -1029,11 +1032,25 @@ T* GetArrayRawPointer(vtkAbstractArray* array, T* ptr, int isAOSArray)
   {
     return ptr;
   }
-  T* data = new T[array->GetNumberOfComponents()*array->GetNumberOfTuples()];
-  vtkSOADataArrayTemplate<T>* typedArray =
-    vtkSOADataArrayTemplate<T>::SafeDownCast(array);
-  typedArray->ExportToVoidPointer(data);
-  return data;
+  if (vtkSOADataArrayTemplate<T>* typedArray =
+      vtkSOADataArrayTemplate<T>::SafeDownCast(array))
+  {
+    T* data = new T[array->GetNumberOfComponents()*array->GetNumberOfTuples()];
+    typedArray->ExportToVoidPointer(data);
+    return data;
+  }
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+  else if (vtkScaledSOADataArrayTemplate<T>* typedScaleArray =
+           vtkScaledSOADataArrayTemplate<T>::SafeDownCast(array))
+  {
+    T* data = new T[array->GetNumberOfComponents()*array->GetNumberOfTuples()];
+    typedScaleArray->ExportToVoidPointer(data);
+    return data;
+  }
+#endif
+  vtkGenericWarningMacro("Do not know how to handle array type " << array->GetClassName()
+                         << " in vtkDataWriter");
+  return nullptr;
 }
 
 } // end anonymous namespace

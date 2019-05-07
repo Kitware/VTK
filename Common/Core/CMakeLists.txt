@@ -61,6 +61,8 @@ mark_as_advanced(
   VTK_DISPATCH_TYPED_ARRAYS
   VTK_WARN_ON_DISPATCH_FAILURE)
 
+option(VTK_BUILD_SCALED_SOA_ARRAYS "Include struct-of-arrays with scaled vtkDataArray implementation." ON)
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateArrayDispatchArrayList.cmake")
 vtkArrayDispatch_default_array_setup()
 vtkArrayDispatch_generate_array_header(VTK_ARRAYDISPATCH_ARRAY_LIST)
@@ -244,6 +246,15 @@ set(sources
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
   )
 
+if (VTK_BUILD_SCALED_SOA_ARRAYS)
+  list (APPEND template_classes vtkScaledSOADataArrayTemplate)
+  list (APPEND sources  vtkScaledSOADataArrayTemplateInstantiate.cxx)
+  set(VTK_USE_SCALED_SOA_ARRAYS 1)
+endif ()
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
+
 set(headers
   vtkABI.h
   vtkArrayIteratorIncludes.h
@@ -295,7 +306,8 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h")
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
 
 set(templates
   vtkArrayIteratorTemplateImplicit.txx)
