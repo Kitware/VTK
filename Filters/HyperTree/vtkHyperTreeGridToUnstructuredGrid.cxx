@@ -29,19 +29,13 @@
 vtkStandardNewMacro(vtkHyperTreeGridToUnstructuredGrid);
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid()
-{
-  // Create storage for corners of leaf cells
-  this->Points = nullptr;
-
-  // Create storage for untructured leaf cells
-  this->Cells = nullptr;
-
-  // Default dimension is 0
-  this->Dimension = 0;
-  this->Orientation = 0;
-  this->Axes = nullptr;
-}
+vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid() :
+  Points(nullptr),
+  Cells(nullptr),
+  Dimension(0),
+  Orientation(0),
+  Axes(nullptr)
+{}
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid()
@@ -121,8 +115,8 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
       break;
   } // switch ( this->Dimension )
 
-  this->Points->FastDelete();
-  this->Cells->FastDelete();
+  this->Points = nullptr;
+  this->Cells = nullptr;
 
   return 1;
 }
