@@ -118,8 +118,8 @@ public:
   //
   // These methods are used by the mapper to determine the
   // additional transform (if any) to apply to the rendering transform.
-  vtkGetMacro(CoordShiftAndScaleEnabled, bool);
-  vtkGetMacro(CoordShiftAndScaleMethod, ShiftScaleMethod);
+  virtual bool GetCoordShiftAndScaleEnabled();
+  virtual ShiftScaleMethod GetCoordShiftAndScaleMethod();
   virtual void SetCoordShiftAndScaleMethod(ShiftScaleMethod meth);
   virtual void SetShift(const std::vector<double>& shift);
   virtual void SetShift(double x, double y, double z);
@@ -130,6 +130,19 @@ public:
 
   // update the shift scale if needed
   void UpdateShiftScale(vtkDataArray* da);
+
+  // Allow all vertex adjustments to be enabled/disabled
+  //
+  // When smaller objects are positioned on the side of a larger scene,
+  // we don't want an individual mapper to try and center all its vertices.
+  //
+  // Complex scenes need to center the whole scene, not an individual mapper,
+  // so allow applications to turn all these shifts off and manage the
+  // float imprecision on their own.
+  static void SetGlobalCoordShiftAndScaleEnabled(vtkTypeBool val);
+  static void GlobalCoordShiftAndScaleEnabledOn() { SetGlobalCoordShiftAndScaleEnabled(1); };
+  static void GlobalCoordShiftAndScaleEnabledOff() { SetGlobalCoordShiftAndScaleEnabled(0); };
+  static vtkTypeBool GetGlobalCoordShiftAndScaleEnabled();
 
   // Set/Get the DataType to use for the VBO
   // As a side effect sets the DataTypeSize
@@ -190,6 +203,9 @@ protected:
 private:
   vtkOpenGLVertexBufferObject(const vtkOpenGLVertexBufferObject&) = delete;
   void operator=(const vtkOpenGLVertexBufferObject&) = delete;
+
+  // Initialize static member that controls shifts and scales
+  static vtkTypeBool GlobalCoordShiftAndScaleEnabled;
 };
 
 #endif
