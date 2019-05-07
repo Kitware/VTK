@@ -46,17 +46,8 @@ vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid()
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid()
 {
-  if (this->Points)
-  {
-    //this->Points->Delete();
-    this->Points = nullptr;
-  }
-
-  if (this->Cells)
-  {
-    //this->Cells->Delete();
-    this->Cells = nullptr;
-  }
+  // The class members are only used during process and are destroyed once
+  // the process is finished to reduce stack size during recursive calls.
 }
 
 //----------------------------------------------------------------------------
