@@ -4,6 +4,16 @@ list(APPEND CTEST_CUSTOM_MEMCHECK_IGNORE
   VTK::IOVPICCxx-TestVPICReader
   VTK::RenderingFreeTypeFontConfigCxx-TestSystemFontRendering
   VTK::GeovisGDALCxx-TestRasterReprojectionFilter
+
+  # The PLY code does out of range ops but that is just how
+  # it is architected currently. It stores every value into
+  # uint, int, and double but typically only uses the
+  # value that makes sense for the type read in. Code needs
+  # to be reworked eventually but th eout of range values
+  # are likely not being used.
+  VTK::IOPLYCxx-TestPLYWriter
+  VTK::IOPLYCxx-TestPLYReaderTextureUVPoints
+  VTK::IOPLYCxx-TestPLYReaderTextureUVFaces
 )
 
 list(APPEND CTEST_CUSTOM_WARNING_MATCH

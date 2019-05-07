@@ -34,11 +34,10 @@ int TestCornerAnnotation( int argc, char * argv [] )
 {
   vtkSmartPointer<vtkImageMandelbrotSource> imageSource =
     vtkSmartPointer<vtkImageMandelbrotSource>::New();
-
   vtkSmartPointer<vtkImageShiftScale> imageCast =
     vtkSmartPointer<vtkImageShiftScale>::New();
   imageCast->SetInputConnection(imageSource->GetOutputPort());
-  imageCast->SetScale(10000);
+  imageCast->SetScale(100);
   imageCast->SetShift(0);
   imageCast->SetOutputScalarTypeToShort();
   imageCast->Update();
