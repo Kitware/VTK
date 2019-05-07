@@ -248,6 +248,13 @@ public:
   bool GetLargeIds()
   {return this->LargeIds;}
 
+  /**
+   * Returns true if the data object passed in is fully supported by this
+   * filter. For composite datasets, this means all dataset leaves are
+   * supported. The second array is the name of the array to process.
+   */
+  static bool CanProcessDataObject(vtkDataObject* object, const char* scalarArrayName);
+
 protected:
   vtkContour3DLinearGrid();
   ~vtkContour3DLinearGrid() override;

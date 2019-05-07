@@ -2023,6 +2023,117 @@ int vtkContour3DLinearGrid::GetOutputPointsPrecision() const
   return this->OutputPointsPrecision;
 }
 
+namespace
+{
+class LinearCellChecker
+{
+public:
+  LinearCellChecker(vtkDataSet* dataSet)
+    : DataSet(dataSet)
+    , SupportsDataSet(true)
+  {
+  }
+
+  vtkDataSet* DataSet;
+  bool SupportsDataSet;
+
+  // Thread-local storage
+  vtkSMPThreadLocal<int> LocalSupportsDataSet;
+
+  void Initialize() { this->LocalSupportsDataSet.Local() = 1; }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    if (!this->DataSet)
+    {
+      return;
+    }
+
+    for (vtkIdType idx = begin; idx < end; ++idx)
+    {
+      int cellType = this->DataSet->GetCellType(idx);
+      if (cellType != VTK_VOXEL && cellType != VTK_TETRA && cellType != VTK_HEXAHEDRON &&
+        cellType != VTK_WEDGE && cellType != VTK_PYRAMID)
+      {
+        this->LocalSupportsDataSet.Local() = 0;
+        break;
+      }
+    }
+  }
+
+  void Reduce()
+  {
+    this->SupportsDataSet = true;
+    for (vtkSMPThreadLocal<int>::iterator iter = this->LocalSupportsDataSet.begin();
+         iter != this->LocalSupportsDataSet.end(); ++iter)
+    {
+      if (*iter == 0)
+      {
+        this->SupportsDataSet = false;
+        break;
+      }
+    }
+  }
+};
+}
+
+//-----------------------------------------------------------------------------
+bool vtkContour3DLinearGrid::CanProcessDataObject(vtkDataObject* object,
+                                                  const char* scalarArrayName)
+{
+  auto ds = vtkDataSet::SafeDownCast(object);
+  auto cd = vtkCompositeDataSet::SafeDownCast(object);
+
+  if (ds)
+  {
+    if (!ds->IsA("vtkUnstructuredGrid"))
+    {
+      std::cout << "Not a vtkUnstructuredGrid" << std::endl;
+      return false;
+    }
+
+    vtkDataArray* array = ds->GetPointData()->GetArray(scalarArrayName);
+    if (!array)
+    {
+      std::cout << "null array" << std::endl;
+      return true;
+    }
+
+    int aType = array->GetDataType();
+    if (aType != VTK_UNSIGNED_INT && aType != VTK_INT && aType != VTK_FLOAT && aType != VTK_DOUBLE)
+    {
+      std::cout << "invalid array type" << std::endl;
+      return false;
+    }
+
+    LinearCellChecker cellChecker(ds);
+    vtkSMPTools::For(0, ds->GetNumberOfCells(), cellChecker);
+    bool okay = cellChecker.SupportsDataSet;
+    std::cout << "cell checker okay: " << okay << std::endl;
+    return okay;
+  }
+
+  if (cd)
+  {
+    bool supported = true;
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(cd->NewIterator());
+    iter->SkipEmptyNodesOn();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+      auto leafDS = iter->GetCurrentDataObject();
+      if (!CanProcessDataObject(leafDS, scalarArrayName))
+      {
+        supported = false;
+        break;
+      }
+    }
+    return supported;
+  }
+
+  return false; // not a dataset nor a composite dataset
+}
+
 //-----------------------------------------------------------------------------
 int vtkContour3DLinearGrid::FillInputPortInformation(int, vtkInformation *info)
 {
