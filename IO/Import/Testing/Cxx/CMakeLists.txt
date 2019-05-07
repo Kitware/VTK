@@ -62,5 +62,9 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestVRMLNormals.cxx
   )
 
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporter,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb}
+)
+
 vtk_test_cxx_executable(vtkIOImportCxxTests tests
   RENDERING_FACTORY)

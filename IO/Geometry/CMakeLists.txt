@@ -8,6 +8,8 @@ set(classes
   vtkFLUENTReader
   vtkGAMBITReader
   vtkGaussianCubeReader
+  vtkGLTFDocumentLoader
+  vtkGLTFReader
   vtkHoudiniPolyDataWriter
   vtkIVWriter
   vtkMCubesReader
@@ -27,5 +29,11 @@ set(classes
   vtkWindBladeReader
   vtkXYZMolReader)
 
+set(private_classes
+  vtkGLTFDocumentLoaderInternals
+  vtkGLTFUtils)
+
 vtk_module_add_module(VTK::IOGeometry
-  CLASSES ${classes})
+  CLASSES ${classes}
+  PRIVATE_CLASSES ${private_classes}
+  )
