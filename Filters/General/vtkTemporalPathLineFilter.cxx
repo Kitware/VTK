@@ -340,6 +340,12 @@ int vtkTemporalPathLineFilter::RequestData(
   }
   double CurrentTimeStep = timeStep;
 
+  if (this->MaskPoints < 1)
+  {
+    vtkWarningMacro("MaskPoints value should be >= 1. Using 1 instead.");
+    this->MaskPoints = 1;
+  }
+
   //
   // Ids
   //
