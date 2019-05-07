@@ -117,6 +117,8 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
 
   this->Points->FastDelete();
   this->Cells->FastDelete();
+  this->Points = nullptr;
+  this->Cells = nullptr;
 
   return 1;
 }
