@@ -972,7 +972,12 @@ void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
 // (symbol referenced which is defined in discarded section)
 const char *vtkRenderWindow::GetStereoTypeAsString()
 {
-  switch ( this->StereoType )
+  return vtkRenderWindow::GetStereoTypeAsString(this->StereoType);
+}
+
+const char* vtkRenderWindow::GetStereoTypeAsString(int type)
+{
+  switch (type)
   {
     case VTK_STEREO_CRYSTAL_EYES:
       return "CrystalEyes";
@@ -992,6 +997,8 @@ const char *vtkRenderWindow::GetStereoTypeAsString()
       return "SplitViewportHorizontal";
     case VTK_STEREO_FAKE:
       return "Fake";
+    case VTK_STEREO_EMULATE:
+      return "Emulate";
     default:
       return "";
   }
