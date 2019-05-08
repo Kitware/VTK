@@ -23,7 +23,13 @@
 vtkStandardNewMacro(vtkOpenGLCellToVTKCellMap);
 
 // ----------------------------------------------------------------------------
-vtkOpenGLCellToVTKCellMap::vtkOpenGLCellToVTKCellMap() = default;
+vtkOpenGLCellToVTKCellMap::vtkOpenGLCellToVTKCellMap()
+{
+  this->PrimitiveOffsets[0] = 0;
+  this->PrimitiveOffsets[1] = 0;
+  this->PrimitiveOffsets[2] = 0;
+  this->PrimitiveOffsets[3] = 0;
+}
 
 // ----------------------------------------------------------------------------
 vtkOpenGLCellToVTKCellMap::~vtkOpenGLCellToVTKCellMap() = default;
