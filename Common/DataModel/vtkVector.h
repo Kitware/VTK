@@ -88,6 +88,10 @@ public:
   double Normalize()
   {
     const double norm(this->Norm());
+    if (norm == 0.0)
+    {
+      return 0.0;
+    }
     const double inv(1.0 / norm);
     for (int i = 0; i < Size; ++i)
     {
