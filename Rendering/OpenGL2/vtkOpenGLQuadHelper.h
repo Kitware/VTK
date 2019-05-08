@@ -45,10 +45,13 @@
 
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkTimeStamp.h"
+#include <memory> // for std::unique_ptr
 
 class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexArrayObject;
 class vtkShaderProgram;
+class vtkGenericOpenGLResourceFreeCallback;
+class vtkWindow;
 
 // Helper class to render full screen quads
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLQuadHelper
@@ -72,9 +75,17 @@ public:
   // Draw the Quad, will bind the VAO for you
   void Render();
 
- private:
+  /**
+   * Release graphics resources. In general, there's no need to call this
+   * explicitly, since vtkOpenGLQuadHelper will invoke it appropriately when
+   * needed.
+   */
+  void ReleaseGraphicsResources(vtkWindow*);
+
+private:
   vtkOpenGLQuadHelper(const vtkOpenGLQuadHelper&) = delete;
   vtkOpenGLQuadHelper& operator=(const vtkOpenGLQuadHelper&) = delete;
+  std::unique_ptr<vtkGenericOpenGLResourceFreeCallback> ResourceCallback;
 };
 
 #endif // vtkOpenGLQuadHelper_h
