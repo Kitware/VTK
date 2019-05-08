@@ -47,8 +47,6 @@
 #include <string> // For std::string
 
 class vtkFXAAOptions;
-class vtkOpenGLBufferObject;
-class vtkOpenGLVertexArrayObject;
 class vtkOpenGLRenderer;
 class vtkOpenGLRenderTimer;
 class vtkShaderProgram;
