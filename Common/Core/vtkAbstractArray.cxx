@@ -703,25 +703,24 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
   int numberOfComponentsWithProminentValues = 0;
   int nc = this->NumberOfComponents;
   int blockSize = VTK_CACHE_LINE_SIZE / (this->GetDataTypeSize() * nc);
-  if (!blockSize) blockSize = 4;
+  if (!blockSize)
+  {
+    blockSize = 4;
+  }
   double logfac = 1.;
   vtkIdType nt = this->GetNumberOfTuples();
-  if (this->MaxId > 0)
+  vtkIdType numberOfSampleTuples = nt;
+  if (this->MaxId > 0 && minimumProminence > 0.0)
   {
     logfac = -log(uncertainty * minimumProminence) / minimumProminence;
     if (logfac < 0)
     {
       logfac = -logfac;
     }
-  }
-  vtkIdType numberOfSampleTuples;
-  if (vtkMath::IsInf(logfac))
-  {
-    numberOfSampleTuples = nt;
-  }
-  else
-  {
-    numberOfSampleTuples = static_cast<vtkIdType>(VTK_SAMPLE_FACTOR * logfac);
+    if (!vtkMath::IsInf(logfac))
+    {
+      numberOfSampleTuples = static_cast<vtkIdType>(VTK_SAMPLE_FACTOR * logfac);
+    }
   }
   /*
   // Theoretically, we should discard values or tuples that recur fewer
