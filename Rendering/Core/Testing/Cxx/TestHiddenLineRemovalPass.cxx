@@ -57,7 +57,7 @@ int TestHiddenLineRemovalPass(int argc, char* argv[])
   actor->GetProperty()->LightingOff();
 
   renWin->SetSize(500,500);
-  renderer->SetBackground(8., 7., 1.);
+  renderer->SetBackground(1.0, 1.0, 1.0);
   renderer->SetBackground2(.3, .1, .2);
   renderer->GradientBackgroundOn();
   renderer->GetActiveCamera()->ParallelProjectionOn();
