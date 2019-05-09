@@ -150,7 +150,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(
     // Read chunk data
     std::vector<char> JSONDataBuffer(JSONChunkInfo.second);
     fin.read(JSONDataBuffer.data(), JSONChunkInfo.second);
-    JSONstream << JSONDataBuffer.data();
+    JSONstream.write(JSONDataBuffer.data(), JSONChunkInfo.second);
   }
   else
   {

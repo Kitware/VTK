@@ -44,6 +44,7 @@
 #include <algorithm>
 #include <limits>
 #include <numeric>
+#include <sstream>
 
 // gltf uses hard coded numbers to represent data types
 // they match the definitions from gl.h but are redefined below to avoid including vtkOpenGL.h
@@ -60,6 +61,19 @@
 
 #define GL_NEAREST 0x2600
 #define GL_LINEAR 0x2601
+
+namespace
+{
+//----------------------------------------------------------------------------
+// Replacement for std::to_string as it is not supported by certain compilers
+template<typename T>
+std::string value_to_string(const T& val)
+{
+  std::ostringstream ss;
+  ss << val;
+  return ss.str();
+}
+}
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLTFDocumentLoader);
@@ -997,19 +1011,19 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
     std::string name = "";
     if (target.AttributeValues.count("POSITION"))
     {
-      name = "target" + std::to_string(targetId) + "_position";
+      name = "target" + value_to_string(targetId) + "_position";
       target.AttributeValues["POSITION"]->SetName(name.c_str());
       pointData->AddArray(target.AttributeValues["POSITION"]);
     }
     if (target.AttributeValues.count("NORMAL"))
     {
-      name = "target" + std::to_string(targetId) + "_normal";
+      name = "target" + value_to_string(targetId) + "_normal";
       target.AttributeValues["NORMAL"]->SetName(name.c_str());
       pointData->AddArray(target.AttributeValues["NORMAL"]);
     }
     if (target.AttributeValues.count("TANGENT"))
     {
-      name = "target" + std::to_string(targetId) + "_tangent";
+      name = "target" + value_to_string(targetId) + "_tangent";
       target.AttributeValues["TANGENT"]->SetName(name.c_str());
       pointData->AddArray(target.AttributeValues["TANGENT"]);
     }
@@ -1092,8 +1106,6 @@ void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(
 
 /** File operations **/
 //----------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------
 bool vtkGLTFDocumentLoader::LoadFileBuffer(
   const std::string& fileName, std::vector<char>& glbBuffer)
 {
@@ -1119,9 +1131,10 @@ bool vtkGLTFDocumentLoader::LoadFileBuffer(
 
   // Look for BIN chunk while updating fstream position
   fin.seekg(vtkGLTFUtils::GLBHeaderSize + vtkGLTFUtils::GLBChunkHeaderSize);
+  const std::string binaryHeader("BIN\0", 4);
   for (auto& chunk : chunkInfo)
   {
-    if (chunk.first == std::string("BIN\0", 4))
+    if (chunk.first == binaryHeader)
     {
       // Read chunk data into output vector
       std::vector<char> BINData(chunk.second);

@@ -30,8 +30,20 @@
 #include "vtkWeightedTransformFilter.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <sstream>
+
 namespace
 {
+//----------------------------------------------------------------------------
+// Replacement for std::to_string as it is not supported by certain compilers
+template<typename T>
+std::string value_to_string(const T& val)
+{
+  std::ostringstream ss;
+  ss << val;
+  return ss.str();
+}
+
 //----------------------------------------------------------------------------
 void AddIntegerToFieldData(
   std::string arrayName, int value, vtkSmartPointer<vtkFieldData> fieldData)
@@ -232,7 +244,7 @@ void AddJointMatricesToFieldData(const std::vector<vtkSmartPointer<vtkTransform>
 {
   for (unsigned int matId = 0; matId < jointMats.size(); matId++)
   {
-    AddTransformToFieldData(jointMats[matId], fieldData, "jointMatrix_" + std::to_string(matId));
+    AddTransformToFieldData(jointMats[matId], fieldData, "jointMatrix_" + value_to_string(matId));
   }
 }
 
@@ -534,7 +546,7 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
     {
       meshDataSet = vtkMultiBlockDataSet::SafeDownCast(nodeDataset->GetBlock(blockId));
     }
-    std::string meshDatasetName = "Mesh_" + std::to_string(node.Mesh);
+    std::string meshDatasetName = "Mesh_" + value_to_string(node.Mesh);
     if (!BuildMultiBlockDatasetFromMesh(m, node.Mesh, nodeDataset, meshDataSet, meshDatasetName,
           node.GlobalTransform, jointMats, applyDeformations, morphingWeights))
     {
@@ -548,7 +560,7 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
   {
     // look for existing dataset for this node
     vtkSmartPointer<vtkMultiBlockDataSet> childDataset;
-    std::string childDatasetName = "Node_" + std::to_string(child);
+    std::string childDatasetName = "Node_" + value_to_string(child);
     if (!createNewBlocks)
     {
       // find existing child dataset for this node
@@ -583,7 +595,7 @@ bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, unsigned i
   int blockId = 0;
   for (int node : scene.Nodes)
   {
-    std::string nodeDatasetName = "Node_" + std::to_string(node);
+    std::string nodeDatasetName = "Node_" + value_to_string(node);
 
     vtkSmartPointer<vtkMultiBlockDataSet> nodeDataset = nullptr;
     if (!createNewBlocks)
