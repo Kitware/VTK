@@ -80,7 +80,7 @@ public:
 
   protected:
 
-     vtkPTemporalStreamTracer();
+    VTK_LEGACY(vtkPTemporalStreamTracer());
     ~vtkPTemporalStreamTracer();
 
     //

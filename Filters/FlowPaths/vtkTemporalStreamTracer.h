@@ -244,7 +244,7 @@ public:
 
   protected:
 
-     vtkTemporalStreamTracer();
+    VTK_LEGACY(vtkTemporalStreamTracer());
     ~vtkTemporalStreamTracer() override;
 
     //
