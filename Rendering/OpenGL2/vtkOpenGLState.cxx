@@ -42,47 +42,6 @@
 #ifdef VTK_REPORT_OPENGL_ERRORS
 #include "vtksys/SystemInformation.hxx"
 
-// on msvc add in stack trace info as systeminformation
-// does not seem to include it.
-//
-#if defined(VTK_COMPILER_MSVC) && defined(WIN32)
-#define TRACE_MAX_STACK_FRAMES 1024
-#define TRACE_MAX_FUNCTION_NAME_LENGTH 1024
-#include "dbghelp.h"
-std::string getProgramStack()
-{
-  void *stack[TRACE_MAX_STACK_FRAMES];
-  HANDLE process = GetCurrentProcess();
-  SymInitialize(process, NULL, TRUE);
-  WORD numberOfFrames = CaptureStackBackTrace(0, TRACE_MAX_STACK_FRAMES, stack, NULL);
-  SYMBOL_INFO *symbol = (SYMBOL_INFO *)malloc(sizeof(SYMBOL_INFO)+(TRACE_MAX_FUNCTION_NAME_LENGTH - 1) * sizeof(TCHAR));
-  symbol->MaxNameLen = TRACE_MAX_FUNCTION_NAME_LENGTH;
-  symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-  DWORD displacement;
-  IMAGEHLP_LINE64 *line = (IMAGEHLP_LINE64 *)malloc(sizeof(IMAGEHLP_LINE64));
-  line->SizeOfStruct = sizeof(IMAGEHLP_LINE64);
-  std::ostringstream oss;
-  for (int i = 1; i < numberOfFrames - 2; i++)
-  {
-    DWORD64 address = (DWORD64)(stack[i]);
-    SymFromAddr(process, address, NULL, symbol);
-    if (SymGetLineFromAddr64(process, address, &displacement, line))
-    {
-      oss << " at " << symbol->Name << " in " <<  line->FileName << " line " << line->LineNumber << "\n";
-    }
-    else
-    {
-      oss << "\tSymGetLineFromAddr64 returned error code " << GetLastError() << "\n";
-      oss << "\tat " << symbol->Name << "\n";
-    }
-  }
-  return oss.str();
-}
-
-#else
-#define getProgramStack()  vtksys::SystemInformation::GetProgramStack(0, 0)
-#endif
-
 // this method checks all the cached state to make sure
 // nothing is out of sync. It can be slow.
 void vtkOpenGLState::CheckState()
@@ -232,7 +191,7 @@ void vtkOpenGLState::CheckState()
 
   if (error)
   {
-    std::string msg = getProgramStack();
+    std::string msg = vtksys::SystemInformation::GetProgramStack(0, 0);
     vtkGenericWarningMacro("at stack loc\n" << msg);
   }
 }
@@ -260,7 +219,7 @@ bool reportOpenGLErrors(std::string &result)
           errCode,
           errDesc);
 
-    oss << "\n with stack trace of\n" << getProgramStack();
+    oss << "\n with stack trace of\n" << vtksys::SystemInformation::GetProgramStack(0, 0);
     result = oss.str();
     return true;
   }

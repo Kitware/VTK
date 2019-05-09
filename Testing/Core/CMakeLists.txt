@@ -14,11 +14,6 @@ vtk_module_add_module(VTK::TestingCore
   TEMPLATES ${templates}
   HEADER_ONLY)
 
-if (WIN32 AND MSVC)
-  vtk_module_link(VTK::TestingCore INTERFACE dbghelp)
-endif()
-
-
 # Write out a summary of the configuration for use in the
 # `TestSystemInformation` test.
 set(system_info_file "${CMAKE_BINARY_DIR}/Testing/Temporary/ConfigSummary.txt")
