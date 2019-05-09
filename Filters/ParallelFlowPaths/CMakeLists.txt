@@ -4,17 +4,21 @@ set(classes
   vtkPParticleTracer
   vtkPParticleTracerBase
   vtkPStreaklineFilter
-  vtkPStreamTracer
-  vtkPTemporalStreamTracer)
+  vtkPStreamTracer)
 
 # Overrides for object factory.
 set(parallel_overrides
   LagrangianParticleTracker
   StreamTracer
-  TemporalStreamTracer
   ParticleTracer
   ParticlePathFilter
   StreaklineFilter)
+
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND classes vtkPTemporalStreamTracer)
+  list(APPEND parallel_overrides TemporalStreamTracer)
+endif()
+
 foreach (parallel_override IN LISTS parallel_overrides)
   vtk_object_factory_declare(
     BASE      vtk${parallel_override}

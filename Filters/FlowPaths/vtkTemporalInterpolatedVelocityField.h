@@ -18,7 +18,7 @@
  * interpolating between times during particle tracing
  *
  * vtkTemporalInterpolatedVelocityField is a general purpose
- * helper for the temporal particle tracing code (vtkTemporalStreamTracer)
+ * helper for the temporal particle tracing code (vtkParticleTracerBase)
  *
  * It maintains two copies of vtkCachingInterpolatedVelocityField internally
  * and uses them to obtain velocity values at time T0 and T1.
@@ -41,7 +41,8 @@
  *
  *
  * @sa
- * vtkCachingInterpolatedVelocityField vtkTemporalStreamTracer
+ * vtkCachingInterpolatedVelocityField vtkParticleTracerBase
+ * vtkParticleTracer vtkParticlePathFilter vtkStreaklineFilter
 */
 
 #ifndef vtkTemporalInterpolatedVelocityField_h

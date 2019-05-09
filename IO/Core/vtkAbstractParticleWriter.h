@@ -17,7 +17,7 @@
  * @brief   abstract class to write particle data to file
  *
  * vtkAbstractParticleWriter is an abstract class which is used by
- * vtkTemporalStreamTracer to write particles out during simulations.
+ * vtkParticleTracerBase to write particles out during simulations.
  * This class is abstract and provides a TimeStep and FileName.
  * Subclasses of this should provide the necessary IO.
  *
@@ -25,7 +25,7 @@
  * See vtkWriter
  *
  * @sa
- * vtkTemporalStreamTracer
+ * vtkParticleTracerBase
 */
 
 #ifndef vtkAbstractParticleWriter_h
