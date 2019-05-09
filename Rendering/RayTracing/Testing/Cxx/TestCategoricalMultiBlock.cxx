@@ -128,14 +128,14 @@ int TestCategoricalMultiBlock(int argc, char* argv[])
   vtkOSPRayRendererNode::SetMaterialLibrary(ml, renderer);
   //add materials to it
   ml->AddMaterial("Five", "Metal");
-  ml->AddMaterial("One", "Glass");
+  ml->AddMaterial("One", "ThinGlass");
   //some of material names use the same low level material implementation
-  ml->AddMaterial("Two", "Glass");
+  ml->AddMaterial("Two", "ThinGlass");
   //but each one  can be tuned
   double green[3] = {0.0,0.9,0.0};
   ml->AddShaderVariable("Two", "attenuationColor", 3, green);
   ml->AddShaderVariable("Two", "eta", {1.});
-  ml->AddMaterial("Three", "Glass");
+  ml->AddMaterial("Three", "ThinGlass");
   double blue[3] = {0.0,0.0,0.9};
   ml->AddShaderVariable("Three", "attenuationColor", 3, blue);
   ml->AddShaderVariable("Three", "eta", {1.65});

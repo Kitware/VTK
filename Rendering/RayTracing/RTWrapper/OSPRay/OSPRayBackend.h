@@ -210,7 +210,7 @@ namespace RTW
       ospSet2f(reinterpret_cast<OSPObject>(object), id, x, y);
     }
 
-    void Set2i(RTWObject object, const char *id, int x, int y)
+    void Set2i(RTWObject object, const char *id, int x, int y) override
     {
       ospSet2i(reinterpret_cast<OSPObject>(object), id, x, y);
     }
