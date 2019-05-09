@@ -1,0 +1,16 @@
+NAME
+  VTK::IOH5part
+LIBRARY_NAME
+  vtkIOH5part
+KIT
+  VTK::IO
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::h5part
+  VTK::hdf5
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::TestingRendering
