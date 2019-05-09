@@ -695,8 +695,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren)
 {
   bool result = true;
   auto maskInput = this->Parent->MaskInput;
-  if (maskInput &&
-    (maskInput->GetMTime() > this->MaskUpdateTime))
+  if (maskInput)
   {
     if (!this->CurrentMask)
     {
@@ -710,11 +709,15 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren)
     vtkDataArray* arr = this->Parent->GetScalars(maskInput,
       this->Parent->ScalarMode, this->Parent->ArrayAccessMode,
       this->Parent->ArrayId, this->Parent->ArrayName, isCellData);
+    if (maskInput->GetMTime() > this->MaskUpdateTime ||
+      this->CurrentMask->GetLoadedScalars() != arr ||
+      (arr && arr->GetMTime() > this->MaskUpdateTime))
+    {
+      result =
+        this->CurrentMask->LoadVolume(ren, maskInput, arr, isCellData, VTK_NEAREST_INTERPOLATION);
 
-    result = this->CurrentMask->LoadVolume(ren, maskInput, arr,
-      isCellData, VTK_NEAREST_INTERPOLATION);
-
-    this->MaskUpdateTime.Modified();
+      this->MaskUpdateTime.Modified();
+    }
   }
 
   return result;
@@ -3097,33 +3100,34 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
       property->GetMTime() > this->ShaderBuildTime.GetMTime();
 
     auto it = this->Parent->AssembledInputs.find(port);
-    if (this->NeedToInitializeResources ||
-        it == this->Parent->AssembledInputs.cend() ||
-        (input->GetMTime() > it->second.Texture->UploadTime))
+    if (it == this->Parent->AssembledInputs.cend())
     {
-      if (it == this->Parent->AssembledInputs.cend())
-      {
-        // Create new input structure
-        auto texture = vtkSmartPointer<vtkVolumeTexture>::New();
+      // Create new input structure
+      auto texture = vtkSmartPointer<vtkVolumeTexture>::New();
 
-        VolumeInput currentInput(texture, vol);
-        this->Parent->AssembledInputs[port] = std::move(currentInput);
-        orderChanged = true;
-      }
+      VolumeInput currentInput(texture, vol);
+      this->Parent->AssembledInputs[port] = std::move(currentInput);
+      orderChanged = true;
 
+      it = this->Parent->AssembledInputs.find(port);
+    }
+    assert(it != this->Parent->AssembledInputs.cend());
+
+    /// TODO Currently, only input arrays with the same name/id/mode can be
+    // (across input objects) can be rendered. This could be addressed by
+    // overriding the mapper's settings with array settings defined in the
+    // vtkMultiVolume instance.
+    vtkDataArray* scalars =
+      this->Parent->GetScalars(input, this->Parent->ScalarMode, this->Parent->ArrayAccessMode,
+        this->Parent->ArrayId, this->Parent->ArrayName, this->Parent->CellFlag);
+
+    if (this->NeedToInitializeResources || (input->GetMTime() > it->second.Texture->UploadTime) ||
+      (scalars != it->second.Texture->GetLoadedScalars()) ||
+      (scalars != nullptr && scalars->GetMTime() > it->second.Texture->UploadTime))
+    {
       auto& volInput = this->Parent->AssembledInputs[port];
       auto volumeTex = volInput.Texture.GetPointer();
-      volumeTex->SetPartitions(this->Partitions[0], this->Partitions[1],
-        this->Partitions[2]);
-
-      ///TODO Currently, only input arrays with the same name/id/mode can be
-      // (across input objects) can be rendered. This could be addressed by
-      // overriding the mapper's settings with array settings defined in the
-      // vtkMultiVolume instance.
-      vtkDataArray* scalars = this->Parent->GetScalars(input, this->Parent->ScalarMode,
-        this->Parent->ArrayAccessMode, this->Parent->ArrayId,
-        this->Parent->ArrayName, this->Parent->CellFlag);
-
+      volumeTex->SetPartitions(this->Partitions[0], this->Partitions[1], this->Partitions[2]);
       success &= volumeTex->LoadVolume(ren, input, scalars,
         this->Parent->CellFlag, property->GetInterpolationType());
       volInput.ComponentMode = this->GetComponentMode(property, scalars);
