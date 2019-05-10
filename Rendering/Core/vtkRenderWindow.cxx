@@ -17,18 +17,21 @@
 #include "vtkCamera.h"
 #include "vtkCollection.h"
 #include "vtkCommand.h"
+#include "vtkGraphicsFactory.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPropCollection.h"
+#include "vtkRenderTimerLog.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
-#include "vtkRenderTimerLog.h"
+#include "vtkStereoCompositor.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
-#include "vtkGraphicsFactory.h"
-#include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <cmath>
+#include <utility> // for std::swap
 
 //----------------------------------------------------------------------------
 // Use the vtkAbstractObjectFactoryNewMacro to allow the object factory overrides.
@@ -56,7 +59,8 @@ vtkRenderWindow::vtkRenderWindow()
   this->StencilCapable = 0;
   this->Interactor = nullptr;
   this->DesiredUpdateRate = 0.0001;
-  this->ResultFrame = nullptr;
+  this->StereoBuffer = vtkSmartPointer<vtkUnsignedCharArray>::New();
+  this->ResultFrame = vtkSmartPointer<vtkUnsignedCharArray>::New();
   this->SwapBuffers = 1;
   this->AbortRender = 0;
   this->InAbortCheck = 0;
@@ -87,9 +91,6 @@ vtkRenderWindow::~vtkRenderWindow()
 {
   this->SetInteractor(nullptr);
   this->SetSharedRenderWindow(nullptr);
-
-  delete [] this->ResultFrame;
-  this->ResultFrame = nullptr;
 
   if (this->Renderers)
   {
@@ -285,8 +286,8 @@ void vtkRenderWindow::Render()
   this->DoStereoRender();
   this->CopyResultFrame();
 
-  delete [] this->ResultFrame;
-  this->ResultFrame = nullptr;
+  // reset the buffer size without freeing any memory.
+  this->ResultFrame->Reset();
 
   // Stop the render timer before invoking the EndEvent.
   event.Stop();
@@ -487,7 +488,7 @@ void vtkRenderWindow::StereoMidpoint()
     // get the size
     size = this->GetSize();
     // get the data
-    this->StereoBuffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
+    this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->StereoBuffer);
   }
 }
 
@@ -496,388 +497,62 @@ void vtkRenderWindow::StereoMidpoint()
 // stereo rendering.
 void vtkRenderWindow::StereoRenderComplete()
 {
+  const int* size = this->GetSize();
   switch (this->StereoType)
   {
     case VTK_STEREO_RED_BLUE:
-    {
-      unsigned char *buff;
-      unsigned char *p1, *p2, *p3;
-      unsigned char* result;
-      int *size;
-      int x,y;
-      int res;
-
-      // get the size
-      size = this->GetSize();
-      // get the data
-      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
-      p1 = this->StereoBuffer;
-      p2 = buff;
-
-      // allocate the result
-      result = new unsigned char [size[0]*size[1]*3];
-      if (!result)
-      {
-        vtkErrorMacro(<<"Couldn't allocate memory for RED BLUE stereo.");
-        return;
-      }
-      p3 = result;
-
-      // now merge the two images
-      for (x = 0; x < size[0]; x++)
-      {
-        for (y = 0; y < size[1]; y++)
-        {
-          res = p1[0] + p1[1] + p1[2];
-          p3[0] = res/3;
-          res = p2[0] + p2[1] + p2[2];
-          p3[1] = 0;
-          p3[2] = res/3;
-
-          p1 += 3;
-          p2 += 3;
-          p3 += 3;
-        }
-      }
-      this->ResultFrame = result;
-      delete [] this->StereoBuffer;
-      this->StereoBuffer = nullptr;
-      delete [] buff;
-    }
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->StereoCompositor->RedBlue(this->StereoBuffer, this->ResultFrame);
+      std::swap(this->StereoBuffer, this->ResultFrame);
       break;
+
     case VTK_STEREO_ANAGLYPH:
-    {
-      unsigned char *buff;
-      unsigned char *p0, *p1, *p2;
-      unsigned char* result;
-      int *size;
-      int x,y;
-      int m0, m1, ave0, ave1;
-      int avecolor[256][3], satcolor[256];
-      float a;
-
-      // get the size
-      size = this->GetSize();
-      // get the data
-      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
-      p0 = this->StereoBuffer;
-      p1 = buff;
-
-      // allocate the result
-      result = new unsigned char [size[0]*size[1]*3];
-      if (!result)
-      {
-        vtkErrorMacro(<<"Couldn't allocate memory for ANAGLYPH stereo.");
-        return;
-      }
-      p2 = result;
-
-      // build some tables
-      a = this->AnaglyphColorSaturation;
-      m0 = this->AnaglyphColorMask[0];
-      m1 = this->AnaglyphColorMask[1];
-
-      for(x = 0; x < 256; x++)
-      {
-        avecolor[x][0] = int((1.0-a)*x*0.3086);
-        avecolor[x][1] = int((1.0-a)*x*0.6094);
-        avecolor[x][2] = int((1.0-a)*x*0.0820);
-
-        satcolor[x] = int(a*x);
-      }
-
-      // now merge the two images
-      for (x = 0; x < size[0]; x++)
-      {
-        for (y = 0; y < size[1]; y++)
-        {
-            ave0 = avecolor[p0[0]][0] + avecolor[p0[1]][1] + avecolor[p0[2]][2];
-            ave1 = avecolor[p1[0]][0] + avecolor[p1[1]][1] + avecolor[p1[2]][2];
-            if (m0 & 0x4)
-            {
-              p2[0] = satcolor[p0[0]] + ave0;
-            }
-            if (m0 & 0x2)
-            {
-              p2[1] = satcolor[p0[1]] + ave0;
-            }
-            if (m0 & 0x1)
-            {
-              p2[2] = satcolor[p0[2]] + ave0;
-            }
-            if (m1 & 0x4)
-            {
-              p2[0] = satcolor[p1[0]] + ave1;
-            }
-            if (m1 & 0x2)
-            {
-              p2[1] = satcolor[p1[1]] + ave1;
-            }
-            if (m1 & 0x1)
-            {
-              p2[2] = satcolor[p1[2]] + ave1;
-            }
-            p0 += 3;
-            p1 += 3;
-            p2 += 3;
-        }
-      }
-      this->ResultFrame = result;
-      delete [] this->StereoBuffer;
-      this->StereoBuffer = nullptr;
-      delete [] buff;
-    }
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->StereoCompositor->Anaglyph(this->StereoBuffer, this->ResultFrame,
+        this->AnaglyphColorSaturation, this->AnaglyphColorMask);
+      std::swap(this->StereoBuffer, this->ResultFrame);
       break;
+
     case VTK_STEREO_INTERLACED:
-    {
-      unsigned char *buff;
-      unsigned char *p1, *p2, *p3;
-      unsigned char* result;
-      int *size, line;
-      int x,y;
-
-      // get the size
-      size = this->GetSize();
-      // get the data
-      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
-      p1 = this->StereoBuffer;
-      p2 = buff;
-      line = size[0] * 3;
-
-      // allocate the result
-      result = new unsigned char [size[0]*size[1]*3];
-      if (!result)
-      {
-        vtkErrorMacro(<<"Couldn't allocate memory for interlaced stereo.");
-        return;
-      }
-
-      // now merge the two images
-      p3 = result;
-      for (y = 0; y < size[1]; y += 2)
-      {
-        for (x = 0; x < size[0]; x++)
-        {
-          *p3++ = *p1++;
-          *p3++ = *p1++;
-          *p3++ = *p1++;
-        }
-        // skip a line
-        p3 += line;
-        p1 += line;
-      }
-      // now the other eye
-      p3 = result + line;
-      p2 += line;
-      for (y = 1; y < size[1]; y += 2)
-      {
-        for (x = 0; x < size[0]; x++)
-        {
-          *p3++ = *p2++;
-          *p3++ = *p2++;
-          *p3++ = *p2++;
-        }
-        // skip a line
-        p3 += line;
-        p2 += line;
-      }
-
-      this->ResultFrame = result;
-      delete [] this->StereoBuffer;
-      this->StereoBuffer = nullptr;
-      delete [] buff;
-    }
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->StereoCompositor->Interlaced(this->StereoBuffer, this->ResultFrame, size);
+      std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
     case VTK_STEREO_DRESDEN:
-    {
-      unsigned char *buff;
-      unsigned char *p1, *p2, *p3;
-      unsigned char* result;
-      int *size;
-      int x,y;
-
-      // get the size
-      size = this->GetSize();
-      // get the data
-      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
-      p1 = this->StereoBuffer;
-      p2 = buff;
-
-      // allocate the result
-      result = new unsigned char [size[0]*size[1]*3];
-      if (!result)
-      {
-        vtkErrorMacro(
-          <<"Couldn't allocate memory for dresden display stereo.");
-        return;
-      }
-
-      // now merge the two images
-      p3 = result;
-
-      for (y = 0; y < size[1]; y++ )
-      {
-        for (x = 0; x < size[0]; x+=2)
-        {
-          *p3++ = *p1++;
-          *p3++ = *p1++;
-          *p3++ = *p1++;
-
-          p3+=3;
-          p1+=3;
-        }
-        if( size[0] % 2 == 1 )
-        {
-          p3 -= 3;
-          p1 -= 3;
-        }
-      }
-
-      // now the other eye
-      p3 = result + 3;
-      p2 += 3;
-
-      for (y = 0; y < size[1]; y++)
-      {
-        for (x = 1; x < size[0]; x+=2)
-        {
-          *p3++ = *p2++;
-          *p3++ = *p2++;
-          *p3++ = *p2++;
-
-          p3+=3;
-          p2+=3;
-        }
-        if( size[0] % 2 == 1 )
-        {
-          p3 += 3;
-          p2 += 3;
-        }
-      }
-
-      this->ResultFrame = result;
-      delete [] this->StereoBuffer;
-      this->StereoBuffer = nullptr;
-      delete [] buff;
-    }
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->StereoCompositor->Dresden(this->StereoBuffer, this->ResultFrame, size);
+      std::swap(this->StereoBuffer, this->ResultFrame);
       break;
 
-    case VTK_STEREO_CHECKERBOARD: {
-      unsigned char *left, *right;
-      unsigned char *sleft, *sright;
-      int *size;
+    case VTK_STEREO_CHECKERBOARD:
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->StereoCompositor->Checkerboard(this->StereoBuffer, this->ResultFrame, size);
+      std::swap(this->StereoBuffer, this->ResultFrame);
+      break;
 
-      // get the size
-      size = this->GetSize();
-      // get the data
-      sleft = this->StereoBuffer;
-      sright = this->GetPixelData(0, 0, size[0] - 1, size[1] - 1,
-                                  !this->DoubleBuffer);
-
-      // copy right pixels onto the left pixel buffer
-      for(int y = 0; y < size[1]; y = y + 1) {
-        // set up the pointers
-        // right starts on x = 1 on even scanlines
-        // right starts on x = 0 on odd scanlines
-        if (y % 2 == 0) {
-          left = sleft + y * 3 * size[0] + 3;
-          right = sright + y * 3 * size[0] + 3;
-        }
-        else {
-          left = sleft + y * 3 * size[0];
-          right = sright + y * 3 * size[0];
-        }
-
-        // skip every other pixel
-        for(int x = (y + 1) % 2; x < size[0]; x = x + 2) {
-          *left++ = *right++;
-          *left++ = *right++;
-          *left++ = *right++;
-
-          // skip pixel
-          left = left + 3;
-          right = right + 3;
-        }
-      }
-
-      // cleanup
-      this->ResultFrame = sleft;
-
-      this->StereoBuffer = nullptr;
-      delete [] sright;
-    }
-    break;
     case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-    {
-      unsigned char *left, *leftTemp, *right;
-      unsigned char *sleft, *sright;
-      int *size;
-
-      // get the size
-      size = this->GetSize();
-
-      // get the data
-      sleft = this->StereoBuffer;
-      sright = this->GetPixelData(0, 0, size[0] - 1, size[1] - 1,
-                                  !this->DoubleBuffer);
-
-      int midX = static_cast<int>(size[0] / 2.0);
-
-      // If the row size is even, reduce the row copy by
-      // one. Otherwise the pointer will overflow when we fill the
-      // right hand part of the stereo.
-      if (size[0] % 2 == 0)
-      {
-        midX--;
-      }
-
-      int offsetX = static_cast<int>(ceil(size[0] / 2.0));
-
-      // copy pixel data
-      for (int y = 0; y <= (size[1] - 1); ++y)
-      {
-          for (int x = 1; x <= midX; ++x)
-          {
-            left = sleft + (x * 3) + (y * size[0] * 3);
-            leftTemp = sleft + ((2 * x) * 3) + (y * size[0] * 3);
-            *left++ = *leftTemp++;
-            *left++ = *leftTemp++;
-            *left++ = *leftTemp++;
-          }
-      }
-
-      for (int y = 0; y <= (size[1] - 1); ++y)
-      {
-          for (int x = 0; x < midX; ++x)
-          {
-            left = sleft + ((x + offsetX) * 3) + (y * size[0] * 3);
-            right = sright + ((2 * x) * 3) + (y * size[0] * 3);
-            *left++ = *right++;
-            *left++ = *right++;
-            *left++ = *right++;
-          }
-      }
-
-      // cleanup
-      this->ResultFrame = sleft;
-
-      this->StereoBuffer = nullptr;
-      delete [] sright;
-    }
-    break;
+      this->GetPixelData(0, 0, size[0] - 1, size[1] - 1, !this->DoubleBuffer, this->ResultFrame);
+      this->StereoCompositor->SplitViewportHorizontal(this->StereoBuffer, this->ResultFrame, size);
+      std::swap(this->StereoBuffer, this->ResultFrame);
+      break;
   }
+
+  this->StereoBuffer->Reset();
 }
 
 //----------------------------------------------------------------------------
 void vtkRenderWindow::CopyResultFrame()
 {
-  if (this->ResultFrame)
+  if (this->ResultFrame->GetNumberOfTuples() > 0)
   {
     int *size;
 
     // get the size
     size = this->GetSize();
+
+    assert(this->ResultFrame->GetNumberOfTuples() == size[0] * size[1]);
+
     this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,!this->DoubleBuffer);
   }
 

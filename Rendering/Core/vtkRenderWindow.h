@@ -41,9 +41,10 @@
 #ifndef vtkRenderWindow_h
 #define vtkRenderWindow_h
 
+#include "vtkNew.h"                 // For vtkNew
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"        // For vtkSmartPointer
 #include "vtkWindow.h"
-#include "vtkNew.h" // For vtkNew
 
 class vtkFloatArray;
 class vtkProp;
@@ -52,6 +53,7 @@ class vtkRenderTimerLog;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
 class vtkRendererCollection;
+class vtkStereoCompositor;
 class vtkUnsignedCharArray;
 
 // lets define the different types of stereo
@@ -715,8 +717,8 @@ protected:
   vtkTypeBool StereoCapableWindow;
   vtkTypeBool AlphaBitPlanes;
   vtkRenderWindowInteractor *Interactor;
-  unsigned char* StereoBuffer; // used for red blue stereo
-  unsigned char *ResultFrame;
+  vtkSmartPointer<vtkUnsignedCharArray> StereoBuffer; // used for red blue stereo
+  vtkSmartPointer<vtkUnsignedCharArray> ResultFrame;
   vtkTypeBool   SwapBuffers;
   double DesiredUpdateRate;
   int   AbortRender;
@@ -744,6 +746,8 @@ protected:
 private:
   vtkRenderWindow(const vtkRenderWindow&) = delete;
   void operator=(const vtkRenderWindow&) = delete;
+
+  vtkNew<vtkStereoCompositor> StereoCompositor;
 };
 
 #endif
