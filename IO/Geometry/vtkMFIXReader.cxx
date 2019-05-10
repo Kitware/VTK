@@ -2240,6 +2240,14 @@ void vtkMFIXReader::GetNumberOfVariablesInSPXFiles()
 {
   int NumberOfVariablesInSPX = 0;
   int skip = 0;
+
+  // first initialize to zero as some entries may be
+  // skipped in the code further down
+  for(int i=0;i<=this->VariableNames->GetMaxId();i++)
+  {
+    this->VariableToSkipTable->InsertValue(i,0);
+  }
+
   for (int j=1; j<this->NumberOfSPXFilesUsed; j++)
   {
     for(int i=0;i<=this->VariableNames->GetMaxId();i++)

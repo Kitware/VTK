@@ -9,11 +9,20 @@ list(APPEND CTEST_CUSTOM_MEMCHECK_IGNORE
   # it is architected currently. It stores every value into
   # uint, int, and double but typically only uses the
   # value that makes sense for the type read in. Code needs
-  # to be reworked eventually but th eout of range values
+  # to be reworked eventually but the out of range values
   # are likely not being used.
   VTK::IOPLYCxx-TestPLYWriter
   VTK::IOPLYCxx-TestPLYReaderTextureUVPoints
   VTK::IOPLYCxx-TestPLYReaderTextureUVFaces
+
+  # TestLinePlotDouble intentionally uses very large doubles
+  # even though the implementation of the class is largely
+  # float. Fixing this requires reworking a few classes to
+  # use doubles everywhere (which they generally should)
+  # when that is done this can be removed.
+  # The key classes impacted are vtkPlotPoints and the
+  # Draw calls in Context2D
+  VTK::ChartsCoreCxx-TestLinePlotDouble
 )
 
 list(APPEND CTEST_CUSTOM_WARNING_MATCH
