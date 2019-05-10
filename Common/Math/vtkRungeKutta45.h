@@ -49,6 +49,7 @@ public:
    */
   static vtkRungeKutta45 *New();
 
+  using Superclass::ComputeNextStep;
   //@{
   /**
    * Given initial values, xprev , initial time, t and a requested time
@@ -74,36 +75,36 @@ public:
    */
   int ComputeNextStep(double* xprev, double* xnext,
                       double t, double& delT,
-                      double maxError, double& error) override
+                      double maxError, double& error, void* userData) override
   {
       double minStep = delT;
       double maxStep = delT;
       double delTActual;
       return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
-                                   minStep, maxStep, maxError, error);
+                                   minStep, maxStep, maxError, error, userData);
   }
   int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                       double t, double& delT,
-                      double maxError, double& error) override
+                      double maxError, double& error, void* userData) override
   {
       double minStep = delT;
       double maxStep = delT;
       double delTActual;
       return this->ComputeNextStep(xprev, dxprev, xnext, t, delT, delTActual,
-                                   minStep, maxStep, maxError, error);
+                                   minStep, maxStep, maxError, error, userData);
   }
   int ComputeNextStep(double* xprev, double* xnext,
                       double t, double& delT, double& delTActual,
                       double minStep, double maxStep,
-                      double maxError, double& error) override
+                      double maxError, double& error, void* userData) override
   {
       return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
-                                   minStep, maxStep, maxError, error);
+                                   minStep, maxStep, maxError, error, userData);
   }
   int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                       double t, double& delT, double& delTActual,
                       double minStep, double maxStep,
-                      double maxError, double& error) override;
+                      double maxError, double& error, void* userData) override;
   //@}
 
 protected:
@@ -121,7 +122,7 @@ protected:
   double* NextDerivs[6];
 
   int ComputeAStep(double* xprev, double* dxprev, double* xnext, double t,
-                   double& delT,  double& delTActual, double& error);
+                   double& delT,  double& delTActual, double& error, void* userData);
 
 private:
   vtkRungeKutta45(const vtkRungeKutta45&) = delete;

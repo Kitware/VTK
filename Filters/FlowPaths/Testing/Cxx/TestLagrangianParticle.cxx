@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkLagrangianParticle.h"
 
+#include "vtkCellLocator.h"
 #include "vtkDoubleArray.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
@@ -36,7 +37,7 @@ int TestLagrangianParticle(int, char*[])
   vtkIdType particleCounter = 0;
 
   vtkLagrangianParticle* part = new vtkLagrangianParticle(nvar, seedId,
-    particleCounter, seedId, 0, pd);
+    particleCounter, seedId, 0, pd, 8);
   particleCounter++;
   if (nvar != part->GetNumberOfVariables())
   {
@@ -272,12 +273,13 @@ int TestLagrangianParticle(int, char*[])
     return EXIT_FAILURE;
   }
 
+  vtkNew<vtkCellLocator> locator;
   vtkNew<vtkPolyData> poly;
   int cellId = 17;
-  part->SetLastCell(poly, cellId);
-  if (part->GetLastDataSet() != poly || part->GetLastCellId() != cellId)
+  part->SetLastCell(locator, poly, cellId);
+  if (part->GetLastLocator() != locator || part->GetLastDataSet() != poly || part->GetLastCellId() != cellId)
   {
-    std::cerr << "Incorrect LastCellId or LastDataSet" << std::endl;
+    std::cerr << "Incorrect LastCellId or LastDataSet or LastLocator" << std::endl;
     delete part;
     delete part2;
     delete part3;
@@ -378,10 +380,10 @@ int TestLagrangianParticle(int, char*[])
 
   particleCounter = 0;
   vtkLagrangianParticle* part4 = new vtkLagrangianParticle(nvar, seedId,
-    particleCounter, seedId, 0, pd);
+    particleCounter, seedId, 0, pd, 8);
   particleCounter++;
   vtkLagrangianParticle* part5 = vtkLagrangianParticle::NewInstance(nvar, seedId,
-    particleCounter, seedId, 0.17, pd, 17, 0.13);
+    particleCounter, seedId, 0.17, pd, 8, 17, 0.13);
   particleCounter++;
   if (part4->GetId() != 0)
   {

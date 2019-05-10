@@ -102,6 +102,7 @@ public:
    */
   void AddDataSet( vtkDataSet * dataset ) override;
 
+  using Superclass::FunctionValues;
   /**
    * Evaluate the velocity field f at point (x, y, z).
    */

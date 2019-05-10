@@ -27,76 +27,72 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyLine.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <vector>
 
-#define LAGRANGIAN_PARTICLE_TAG  621
+#define LAGRANGIAN_PARTICLE_TAG 621
 #define LAGRANGIAN_RANG_FLAG_TAG 622
 #define LAGRANGIAN_ARRAY_TAG 623
 
 namespace
 {
-  enum CommunicationFlag
-  {
-    VTK_PLAGRANGIAN_WORKING_FLAG = 0,
-    VTK_PLAGRANGIAN_EMPTY_FLAG = 1,
-    VTK_PLAGRANGIAN_FINISHED_FLAG = 2
-  };
+enum CommunicationFlag
+{
+  VTK_PLAGRANGIAN_WORKING_FLAG = 0,
+  VTK_PLAGRANGIAN_EMPTY_FLAG = 1,
+  VTK_PLAGRANGIAN_FINISHED_FLAG = 2
+};
 }
 
 // Class used to serialize and stream a particle
 class MessageStream
 {
 public:
-  MessageStream(int BufferSize):Size(BufferSize)
+  MessageStream(int BufferSize)
+    : Size(BufferSize)
   {
-    this->Data = new char[Size];
-    this->Head = Data;
+    this->Data.resize(Size);
+    this->Head = Data.data();
   }
 
-  ~MessageStream()
-  {
-    delete [] this->Data;
-  }
+  ~MessageStream() {}
 
   int GetSize() { return this->Size; }
 
   template<class T>
-    MessageStream& operator<<(T t)
+  MessageStream& operator<<(T t)
+  {
+    size_t size = sizeof(T);
+    char* value = reinterpret_cast<char*>(&t);
+    for (size_t i = 0; i < size; i++)
     {
-      size_t size = sizeof(T);
-      char* value = reinterpret_cast<char*>(&t);
-      for (size_t i = 0; i < size; i++)
-      {
-        *(this->Head++) = *(value++);
-      }
-      return (*this);
+      *this->Head++ = *value++;
     }
+    return *this;
+  }
 
   template<class T>
-    MessageStream& operator>>(T& t)
-    {
-      size_t size = sizeof(T);
-      t = *(reinterpret_cast<T*>(this->Head));
-      this->Head += size;
-      return (*this);
-    }
-
-  char * GetRawData() { return this->Data;}
-  int GetLength() { return this->Head - this->Data;}
-
-  void Reset()
+  MessageStream& operator>>(T& t)
   {
-    this->Head = this->Data;
+    size_t size = sizeof(T);
+    t = *reinterpret_cast<T*>(this->Head);
+    this->Head += size;
+    return *this;
   }
+
+  char* GetRawData() { return this->Data.data(); }
+  int GetLength() { return this->Head - this->Data.data(); }
+
+  void Reset() { this->Head = this->Data.data(); }
 
 private:
   MessageStream(const MessageStream&) = delete;
   void operator=(const MessageStream&) = delete;
 
-  char* Data;
+  std::vector<char> Data;
   char* Head;
   int Size;
 };
@@ -113,10 +109,11 @@ public:
     // Initialize Members
     this->Controller = controller;
     this->SeedData = seedData;
+    this->WeightsSize = model->GetWeightsSize();
 
     // Gather bounds and initialize requests
     std::vector<double> allBounds(6 * this->Controller->GetNumberOfProcesses(), 0);
-    double nodeBounds [6];
+    double nodeBounds[6];
     bounds->GetBounds(nodeBounds);
     this->Controller->AllGather(nodeBounds, &allBounds[0], 6);
     for (int i = 0; i < this->Controller->GetNumberOfProcesses(); i++)
@@ -128,8 +125,8 @@ public:
 
     // Compute StreamSize for one particle
     // This is strongly linked to Send and Receive code
-    this->StreamSize = sizeof(int) * 2 + sizeof(double) * 2 + 4 * sizeof(vtkIdType)
-      + 2 * sizeof(double) + 3 * sizeof(double) * model->GetNumberOfIndependentVariables();
+    this->StreamSize = sizeof(int) * 2 + sizeof(double) * 2 + 4 * sizeof(vtkIdType) +
+      2 * sizeof(double) + 3 * sizeof(double) * model->GetNumberOfIndependentVariables();
     for (int i = 0; i < seedData->GetNumberOfArrays(); i++)
     {
       vtkDataArray* array = seedData->GetArray(i);
@@ -199,13 +196,12 @@ public:
       {
         continue;
       }
-      if (particle->GetPManualShift() ||
-        this->Boxes[i].ContainsPoint(particle->GetPosition()))
+      if (particle->GetPManualShift() || this->Boxes[i].ContainsPoint(particle->GetPosition()))
       {
         this->CleanSendRequests();
         this->SendRequests.push_back(new vtkMPICommunicator::Request);
-        this->Controller->NoBlockSend(this->SendStream->GetRawData(),
-          this->StreamSize, i, LAGRANGIAN_PARTICLE_TAG, *this->SendRequests.back());
+        this->Controller->NoBlockSend(this->SendStream->GetRawData(), this->StreamSize, i,
+          LAGRANGIAN_PARTICLE_TAG, *this->SendRequests.back());
       }
     }
   }
@@ -214,12 +210,13 @@ public:
   bool ReceiveParticleIfAny(vtkLagrangianParticle*& particle)
   {
     int probe, source;
-    if (this->Controller->Iprobe(vtkMultiProcessController::ANY_SOURCE, LAGRANGIAN_PARTICLE_TAG,
-      &probe, &source) && probe)
+    if (this->Controller->Iprobe(
+          vtkMultiProcessController::ANY_SOURCE, LAGRANGIAN_PARTICLE_TAG, &probe, &source) &&
+      probe)
     {
       this->ReceiveStream->Reset();
-      this->Controller->Receive(this->ReceiveStream->GetRawData(),
-        this->StreamSize, vtkMultiProcessController::ANY_SOURCE, LAGRANGIAN_PARTICLE_TAG);
+      this->Controller->Receive(this->ReceiveStream->GetRawData(), this->StreamSize,
+        vtkMultiProcessController::ANY_SOURCE, LAGRANGIAN_PARTICLE_TAG);
       // Deserialize particle
       // This is strongly linked to Constructor and Send method
       int nVar, userFlag;
@@ -243,8 +240,8 @@ public:
       {
         seedTupleIndex = this->SeedData->GetArray(0)->GetNumberOfTuples();
       }
-      particle = vtkLagrangianParticle::NewInstance(nVar, seedId, particleId,
-        seedTupleIndex, iTime, this->SeedData, nSteps, prevITime);
+      particle = vtkLagrangianParticle::NewInstance(nVar, seedId, particleId, seedTupleIndex, iTime,
+        this->SeedData, this->WeightsSize, nSteps, prevITime);
       particle->SetParentId(parentId);
       particle->SetUserFlag(userFlag);
       particle->SetPInsertPreviousPosition(pInsertPrevious);
@@ -295,13 +292,13 @@ public:
 private:
   vtkMPIController* Controller;
   int StreamSize;
+  int WeightsSize;
   MessageStream* SendStream;
   MessageStream* ReceiveStream;
   vtkPointData* SeedData;
   ParticleStreamManager(const ParticleStreamManager&){};
   std::vector<vtkBoundingBox> Boxes;
   std::vector<vtkMPICommunicator::Request*> SendRequests;
-
 };
 
 // Class used by the master rank to receive and send flag
@@ -314,9 +311,9 @@ public:
     this->Controller = controller;
 
     this->NRank = this->Controller->GetNumberOfProcesses() - 1;
-    this->RankStates = new int[this->NRank];
+    this->RankStates.resize(this->NRank);
     this->SentFlag = nullptr;
-    this->SendRequests = new vtkMPICommunicator::Request*[this->NRank];
+    this->SendRequests.resize(this->NRank);
     for (int i = 0; i < this->NRank; i++)
     {
       this->RankStates[i] = VTK_PLAGRANGIAN_WORKING_FLAG;
@@ -330,8 +327,6 @@ public:
     {
       delete this->SendRequests[i];
     }
-    delete[] this->SendRequests;
-    delete[] this->RankStates;
     delete this->SentFlag;
   }
 
@@ -343,13 +338,14 @@ public:
     *this->SentFlag = flag;
     for (int i = 0; i < this->NRank; i++)
     {
-      if (this->SendRequests[i] != nullptr)
+      if (this->SendRequests[i])
       {
         this->SendRequests[i]->Wait();
         delete this->SendRequests[i];
       }
       this->SendRequests[i] = new vtkMPICommunicator::Request;
-      this->Controller->NoBlockSend(this->SentFlag, 1, i + 1, LAGRANGIAN_RANG_FLAG_TAG, *this->SendRequests[i]);
+      this->Controller->NoBlockSend(
+        this->SentFlag, 1, i + 1, LAGRANGIAN_RANG_FLAG_TAG, *this->SendRequests[i]);
     }
   }
 
@@ -358,12 +354,13 @@ public:
   int* UpdateAndGetFlags()
   {
     int probe, source;
-    while (this->Controller->Iprobe(vtkMultiProcessController::ANY_SOURCE, LAGRANGIAN_RANG_FLAG_TAG,
-      &probe, &source) && probe)
+    while (this->Controller->Iprobe(
+             vtkMultiProcessController::ANY_SOURCE, LAGRANGIAN_RANG_FLAG_TAG, &probe, &source) &&
+      probe)
     {
       this->Controller->Receive(&this->RankStates[source - 1], 1, source, LAGRANGIAN_RANG_FLAG_TAG);
     }
-    return this->RankStates;
+    return this->RankStates.data();
   }
 
   // Return true if all other ranks have the argument flag,
@@ -400,9 +397,8 @@ private:
   vtkMPIController* Controller;
   int NRank;
   int* SentFlag;
-  int** ReceivedFlags;
-  int* RankStates;
-  vtkMPICommunicator::Request** SendRequests;
+  std::vector<int> RankStates;
+  std::vector<vtkMPICommunicator::Request*> SendRequests;
 };
 
 // Class used by non master ranks to communicate with master rank
@@ -431,13 +427,14 @@ public:
     delete this->SentFlag;
     this->SentFlag = new int;
     *this->SentFlag = flag;
-    if (this->SendRequest != nullptr)
+    if (this->SendRequest)
     {
       this->SendRequest->Wait();
       delete this->SendRequest;
     }
     this->SendRequest = new vtkMPICommunicator::Request;
-    this->Controller->NoBlockSend(this->SentFlag, 1, 0, LAGRANGIAN_RANG_FLAG_TAG, *this->SendRequest);
+    this->Controller->NoBlockSend(
+      this->SentFlag, 1, 0, LAGRANGIAN_RANG_FLAG_TAG, *this->SendRequest);
   }
 
   // Receive flag from master if any and return it
@@ -462,14 +459,16 @@ vtkStandardNewMacro(vtkPLagrangianParticleTracker);
 
 //---------------------------------------------------------------------------
 vtkPLagrangianParticleTracker::vtkPLagrangianParticleTracker()
+  : Controller(vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController()))
+  , StreamManager(nullptr)
+  , MFlagManager(nullptr)
+  , RFlagManager(nullptr)
 {
-  this->Controller = vtkMPIController::SafeDownCast(
-    vtkMultiProcessController::GetGlobalController());
-  this->StreamManager = nullptr;
-  this->MFlagManager = nullptr;
-  this->RFlagManager = nullptr;
-  this->TmpSurfaceInput = vtkSmartPointer<vtkUnstructuredGrid>::New();
-  this->TmpSurfaceInputMB = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+  // To get a correct progress update
+  if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
+  {
+    this->IntegratedParticleCounterIncrement = this->Controller->GetNumberOfProcesses();
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -481,59 +480,44 @@ vtkPLagrangianParticleTracker::~vtkPLagrangianParticleTracker()
 }
 
 //---------------------------------------------------------------------------
-int vtkPLagrangianParticleTracker::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkPLagrangianParticleTracker::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  int piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  int numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  int ghostLevel =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
-  vtkInformation *info = inputVector[0]->GetInformationObject(0);
+  vtkInformation* info = inputVector[0]->GetInformationObject(0);
   if (info)
   {
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-              piece);
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-              numPieces);
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-              ghostLevel);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
   }
 
-  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
   if (sourceInfo)
   {
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                    piece);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                    numPieces);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                    ghostLevel);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
   }
 
-  vtkInformation *surfaceInfo = inputVector[2]->GetInformationObject(0);
+  vtkInformation* surfaceInfo = inputVector[2]->GetInformationObject(0);
   if (surfaceInfo)
   {
-    surfaceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                     piece);
-    surfaceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                     numPieces);
-    surfaceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                     ghostLevel);
+    surfaceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
+    surfaceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
+    surfaceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
   }
 
   return 1;
 }
 
 //---------------------------------------------------------------------------
-void vtkPLagrangianParticleTracker::GenerateParticles(
-  const vtkBoundingBox* bounds, vtkDataSet* seeds,
-  vtkDataArray* initialVelocities, vtkDataArray* initialIntegrationTimes,
+void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* bounds,
+  vtkDataSet* seeds, vtkDataArray* initialVelocities, vtkDataArray* initialIntegrationTimes,
   vtkPointData* seedData, int nVar, std::queue<vtkLagrangianParticle*>& particles)
 {
   // Generate particle
@@ -578,12 +562,12 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
       while (!probe)
       {
         // Wait for the arrays metadata to be sent
-        this->Controller->Iprobe(fullArrayRank, LAGRANGIAN_ARRAY_TAG, &probe, &source, &type, &size);
+        this->Controller->Iprobe(
+          fullArrayRank, LAGRANGIAN_ARRAY_TAG, &probe, &source, &type, &size);
       }
       MessageStream stream(size);
       // Receive arrays metadata
-      this->Controller->Receive(stream.GetRawData(),
-        size, source, LAGRANGIAN_ARRAY_TAG);
+      this->Controller->Receive(stream.GetRawData(), size, source, LAGRANGIAN_ARRAY_TAG);
       for (int i = 0; i < actualNArrays; i++)
       {
         // Create arrays according to metadata
@@ -631,13 +615,13 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
         for (int i = 0; i < nArrays; i++)
         {
           vtkDataArray* array = seedData->GetArray(i);
-          const char * name = array->GetName();
+          const char* name = array->GetName();
           streamSize += static_cast<int>(strlen(name)); // name
           int nComp = array->GetNumberOfComponents();
           for (int idComp = 0; idComp < nComp; idComp++)
           {
             streamSize += sizeof(int);
-            const char * compName = array->GetComponentName(idComp);
+            const char* compName = array->GetComponentName(idComp);
             if (compName)
             {
               streamSize += static_cast<int>(strlen(compName));
@@ -650,7 +634,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
           vtkDataArray* array = seedData->GetArray(i);
           stream << array->GetDataType();
           stream << array->GetNumberOfComponents();
-          const char * name = array->GetName();
+          const char* name = array->GetName();
           int nameLen = static_cast<int>(strlen(name));
           stream << nameLen;
           for (int l = 0; l < nameLen; l++)
@@ -659,9 +643,9 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
           }
           for (int idComp = 0; idComp < array->GetNumberOfComponents(); idComp++)
           {
-            const char * compName = array->GetComponentName(idComp);
+            const char* compName = array->GetComponentName(idComp);
             int compNameLen = 0;
-            if (compName != nullptr)
+            if (compName)
             {
               compNameLen = static_cast<int>(strlen(compName));
               stream << compNameLen;
@@ -696,12 +680,12 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
         while (!probe)
         {
           // Wait for array metadata
-          this->Controller->Iprobe(fullArrayRank, LAGRANGIAN_ARRAY_TAG, &probe, &source, &type, &size);
+          this->Controller->Iprobe(
+            fullArrayRank, LAGRANGIAN_ARRAY_TAG, &probe, &source, &type, &size);
         }
         MessageStream stream(size);
         // Receive array metadata
-        this->Controller->Receive(stream.GetRawData(),
-          size, source, LAGRANGIAN_ARRAY_TAG);
+        this->Controller->Receive(stream.GetRawData(), size, source, LAGRANGIAN_ARRAY_TAG);
         // Check data arrays
         for (int i = 0; i < nArrays; i++)
         {
@@ -716,9 +700,9 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
           if (nComponents != array->GetNumberOfComponents())
           {
             vtkErrorMacro("Incoherent number of components between nodes, "
-              "results may be invalid");
+                          "results may be invalid");
           }
-          const char * localName = array->GetName();
+          const char* localName = array->GetName();
           stream >> nameLen;
           std::vector<char> name(nameLen + 1, 0);
           for (int l = 0; l < nameLen; l++)
@@ -728,12 +712,12 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
           if (strcmp(&name[0], localName) != 0)
           {
             vtkErrorMacro("Incoherent array names between nodes, "
-              "results may be invalid");
+                          "results may be invalid");
           }
           for (int idComp = 0; idComp < nComponents; idComp++)
           {
             stream >> compNameLen;
-            const char * localCompName = array->GetComponentName(idComp);
+            const char* localCompName = array->GetComponentName(idComp);
             std::vector<char> compName(compNameLen + 1, 0);
             for (int compLength = 0; compLength < compNameLen; compLength++)
             {
@@ -742,7 +726,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
             if (localCompName && strcmp(&compName[0], localCompName) != 0)
             {
               vtkErrorMacro("Incoherent array component names between nodes, "
-                "results may be invalid");
+                            "results may be invalid");
             }
           }
         }
@@ -750,8 +734,8 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
     }
 
     // Create managers
-    this->StreamManager = new ParticleStreamManager(this->Controller, seedData,
-      this->IntegrationModel, bounds);
+    this->StreamManager =
+      new ParticleStreamManager(this->Controller, seedData, this->IntegrationModel, bounds);
     if (this->Controller->GetLocalProcessId() == 0)
     {
       this->MFlagManager = new MasterFlagManager(this->Controller);
@@ -761,20 +745,24 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
       this->RFlagManager = new RankFlagManager(this->Controller);
     }
 
+    // Create and set a dummy particle so FindInLocators can use caching.
+    vtkLagrangianParticle dummyParticle(
+      0, 0, 0, 0, 0, nullptr, this->IntegrationModel->GetWeightsSize());
+
     // Generate particle and distribute the ones not in domain to other nodes
     for (vtkIdType i = 0; i < seeds->GetNumberOfPoints(); i++)
     {
       double position[3];
       seeds->GetPoint(i, position);
-      double initialIntegrationTime = initialIntegrationTimes ?
-        initialIntegrationTimes->GetTuple1(i) : 0;
+      double initialIntegrationTime =
+        initialIntegrationTimes ? initialIntegrationTimes->GetTuple1(i) : 0;
       vtkIdType particleId = this->GetNewParticleId();
-      vtkLagrangianParticle* particle = new vtkLagrangianParticle(nVar, particleId,
-        particleId, i, initialIntegrationTime, seedData);
+      vtkLagrangianParticle* particle = new vtkLagrangianParticle(nVar, particleId, particleId, i,
+        initialIntegrationTime, seedData, this->IntegrationModel->GetWeightsSize());
       memcpy(particle->GetPosition(), position, 3 * sizeof(double));
       initialVelocities->GetTuple(i, particle->GetVelocity());
       this->IntegrationModel->InitializeParticle(particle);
-      if (this->IntegrationModel->FindInLocators(particle->GetPosition()))
+      if (this->IntegrationModel->FindInLocators(particle->GetPosition(), &dummyParticle))
       {
         particles.push(particle);
       }
@@ -788,8 +776,8 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
   }
   else
   {
-    this->Superclass::GenerateParticles(bounds, seeds, initialVelocities,
-      initialIntegrationTimes, seedData, nVar, particles);
+    this->Superclass::GenerateParticles(
+      bounds, seeds, initialVelocities, initialIntegrationTimes, seedData, nVar, particles);
   }
 }
 
@@ -829,56 +817,47 @@ void vtkPLagrangianParticleTracker::GetParticleFeed(
             while (!finished && !working)
             {
               // Wait for rank to answer finished or working
-              working = this->MFlagManager->LookForAnyFlag(
-                VTK_PLAGRANGIAN_WORKING_FLAG);
-              finished = this->MFlagManager->LookForSameFlags(
-                VTK_PLAGRANGIAN_FINISHED_FLAG);
+              working = this->MFlagManager->LookForAnyFlag(VTK_PLAGRANGIAN_WORKING_FLAG);
+              finished = this->MFlagManager->LookForSameFlags(VTK_PLAGRANGIAN_FINISHED_FLAG);
               if (working)
               {
                 // A rank received a particle in the meantime and is working,
                 // resume the wait
-                this->MFlagManager->SendFlag(
-                  VTK_PLAGRANGIAN_WORKING_FLAG);
+                this->MFlagManager->SendFlag(VTK_PLAGRANGIAN_WORKING_FLAG);
               }
               if (finished)
               {
                 // Nobody is working anymore, send finished flag and finish ourself
-                this->MFlagManager->SendFlag(
-                  VTK_PLAGRANGIAN_FINISHED_FLAG);
+                this->MFlagManager->SendFlag(VTK_PLAGRANGIAN_FINISHED_FLAG);
               }
             }
           }
         }
         // Receive Particles before looking at flags
         this->ReceiveParticles(particleQueue);
-      }
-      while (particleQueue.empty() && !finished);
+      } while (particleQueue.empty() && !finished);
     }
     else
     {
       // We are a rank with no more particle, send empty flag
-      this->RFlagManager->SendFlag(
-        VTK_PLAGRANGIAN_EMPTY_FLAG);
+      this->RFlagManager->SendFlag(VTK_PLAGRANGIAN_EMPTY_FLAG);
       bool finished = false;
       do
       {
         // Wait for master inform us everybody is empty
-        bool allEmpty = (this->RFlagManager->UpdateAndGetFlag() ==
-          VTK_PLAGRANGIAN_EMPTY_FLAG);
+        bool allEmpty = (this->RFlagManager->UpdateAndGetFlag() == VTK_PLAGRANGIAN_EMPTY_FLAG);
 
         // Char for new particles
         this->ReceiveParticles(particleQueue);
         if (!particleQueue.empty())
         {
           // Received a particle, keep on working
-          this->RFlagManager->SendFlag(
-            VTK_PLAGRANGIAN_WORKING_FLAG);
+          this->RFlagManager->SendFlag(VTK_PLAGRANGIAN_WORKING_FLAG);
         }
         else if (allEmpty)
         {
           // Nobody has a particle anymore, send finished flag
-          this->RFlagManager->SendFlag(
-            VTK_PLAGRANGIAN_FINISHED_FLAG);
+          this->RFlagManager->SendFlag(VTK_PLAGRANGIAN_FINISHED_FLAG);
           bool working = false;
           while (!finished && !working)
           {
@@ -897,37 +876,35 @@ void vtkPLagrangianParticleTracker::GetParticleFeed(
             }
           }
         }
-      }
-      while (particleQueue.empty()  && !finished);
+      } while (particleQueue.empty() && !finished);
     }
   }
 }
 
 //---------------------------------------------------------------------------
-int vtkPLagrangianParticleTracker::Integrate(vtkLagrangianParticle* particle,
-  std::queue<vtkLagrangianParticle*>& particleQueue,
-  vtkPolyData* particlePathsOutput, vtkIdList* particlePathPointId,
-  vtkDataObject* interactionOutput)
+int vtkPLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integrator,
+  vtkLagrangianParticle* particle, std::queue<vtkLagrangianParticle*>& particleQueue,
+  vtkPolyData* particlePathsOutput, vtkPolyLine* particlePath, vtkDataObject* interactionOutput)
 {
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
     if (particle->GetPInsertPreviousPosition())
     {
+      // Mutex Locked Area
+      std::lock_guard<std::mutex> guard(this->ParticlePathsOutputMutex);
+
       // This is a particle from another rank, store a duplicated previous point
-      this->InsertPathOutputPoint(particle, particlePathsOutput,
-        particlePathPointId, true);
+      this->InsertPathOutputPoint(particle, particlePathsOutput, particlePath->GetPointIds(), true);
       particle->SetPInsertPreviousPosition(false);
     }
   }
 
   int ret = this->vtkLagrangianParticleTracker::Integrate(
-    particle, particleQueue, particlePathsOutput, particlePathPointId,
-    interactionOutput);
+    integrator, particle, particleQueue, particlePathsOutput, particlePath, interactionOutput);
 
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
-    if (particle->GetTermination() ==
-      vtkLagrangianParticle::PARTICLE_TERMINATION_OUT_OF_DOMAIN)
+    if (particle->GetTermination() == vtkLagrangianParticle::PARTICLE_TERMINATION_OUT_OF_DOMAIN)
     {
       if (!particle->GetPManualShift())
       {
@@ -935,6 +912,7 @@ int vtkPLagrangianParticleTracker::Integrate(vtkLagrangianParticle* particle,
       }
 
       // Stream out of domain particles
+      std::lock_guard<std::mutex> guard(this->StreamManagerMutex);
       this->StreamManager->SendParticle(particle);
     }
   }
@@ -968,8 +946,7 @@ void vtkPLagrangianParticleTracker::ReceiveParticles(
 
 //---------------------------------------------------------------------------
 bool vtkPLagrangianParticleTracker::FinalizeOutputs(
-  vtkPolyData* particlePathsOutput,
-  vtkDataObject* interactionOutput)
+  vtkPolyData* particlePathsOutput, vtkDataObject* interactionOutput)
 {
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
@@ -979,16 +956,15 @@ bool vtkPLagrangianParticleTracker::FinalizeOutputs(
     vtkNew<vtkLongLongArray> allIdTermination;
     idTermination->Allocate(particlePathsOutput->GetNumberOfCells());
     idTermination->SetNumberOfComponents(2);
-    vtkIntArray* terminations = vtkIntArray::SafeDownCast(
-      particlePathsOutput->GetCellData()->GetArray("Termination"));
-    vtkLongLongArray* ids = vtkLongLongArray::SafeDownCast(
-      particlePathsOutput->GetCellData()->GetArray("Id"));
+    vtkIntArray* terminations =
+      vtkIntArray::SafeDownCast(particlePathsOutput->GetCellData()->GetArray("Termination"));
+    vtkLongLongArray* ids =
+      vtkLongLongArray::SafeDownCast(particlePathsOutput->GetCellData()->GetArray("Id"));
     for (int i = 0; i < particlePathsOutput->GetNumberOfCells(); i++)
     {
-      if (terminations->GetTuple1(i) !=
-        vtkLagrangianParticle::PARTICLE_TERMINATION_OUT_OF_DOMAIN)
+      if (terminations->GetValue(i) != vtkLagrangianParticle::PARTICLE_TERMINATION_OUT_OF_DOMAIN)
       {
-        idTermination->InsertNextTuple2(ids->GetTuple1(i), terminations->GetTuple1(i));
+        idTermination->InsertNextTuple2(ids->GetValue(i), terminations->GetValue(i));
       }
     }
     idTermination->Squeeze();
@@ -1002,7 +978,7 @@ bool vtkPLagrangianParticleTracker::FinalizeOutputs(
       vtkIdType id = allIdTermination->GetTuple2(i)[0];
       for (int j = 0; j < ids->GetNumberOfTuples(); j++)
       {
-        if (ids->GetTuple1(j) == id)
+        if (ids->GetValue(j) == id)
         {
           terminations->SetTuple1(j, allIdTermination->GetTuple2(i)[1]);
         }
@@ -1045,9 +1021,10 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
     // Update local cache and reduce cache status
     int localCacheUpdated = this->Superclass::UpdateSurfaceCacheIfNeeded(surfaces);
     int maxLocalCacheUpdated;
-    this->Controller->AllReduce(&localCacheUpdated, &maxLocalCacheUpdated, 1, vtkCommunicator::MAX_OP);
+    this->Controller->AllReduce(
+      &localCacheUpdated, &maxLocalCacheUpdated, 1, vtkCommunicator::MAX_OP);
 
-    if(!maxLocalCacheUpdated)
+    if (!maxLocalCacheUpdated)
     {
       // Cache is still valid, use already reduced surface
       if (vtkDataSet::SafeDownCast(surfaces))
@@ -1075,7 +1052,7 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
       {
         // Rank 0 append all dataset together
         vtkNew<vtkAppendFilter> append;
-        for (int i = 0; i <this->Controller->GetNumberOfProcesses(); i++)
+        for (int i = 0; i < this->Controller->GetNumberOfProcesses(); i++)
         {
           vtkDataSet* ds = vtkDataSet::SafeDownCast(allSurfaces[i]);
           if (ds)
@@ -1084,7 +1061,7 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
           }
         }
         append->Update();
-        this->TmpSurfaceInput = append->GetOutput();
+        this->TmpSurfaceInput->ShallowCopy(append->GetOutput());
       }
 
       // Broadcast resulting UnstructuredGrid
@@ -1098,7 +1075,7 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
       if (this->Controller->GetLocalProcessId() == 0)
       {
         // Rank 0 reconstruct Composite tree
-        vtkCompositeDataSet* mb  = vtkCompositeDataSet::SafeDownCast(surfaces);
+        vtkCompositeDataSet* mb = vtkCompositeDataSet::SafeDownCast(surfaces);
         this->TmpSurfaceInputMB->ShallowCopy(mb);
         vtkCompositeDataIterator* iter = mb->NewIterator();
         iter->SkipEmptyNodesOff();
@@ -1106,7 +1083,7 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
         {
           // Rank 0 append all dataset together
           vtkNew<vtkAppendFilter> append;
-          for (int i = 0; i <this->Controller->GetNumberOfProcesses(); i++)
+          for (int i = 0; i < this->Controller->GetNumberOfProcesses(); i++)
           {
             vtkCompositeDataSet* localMb = vtkCompositeDataSet::SafeDownCast(allSurfaces[i]);
             vtkDataSet* ds = vtkDataSet::SafeDownCast(localMb->GetDataSet(iter));

@@ -43,8 +43,11 @@ public:
    * x and f have to point to valid double arrays of appropriate
    * sizes obtained with GetNumberOfFunctions() and
    * GetNumberOfIndependentVariables.
+   * If you inherit this class, make sure to reimplement at least one of the two
+   * FunctionValues signatures.
    */
-  virtual int FunctionValues(double* x, double* f) = 0;
+  virtual int FunctionValues(double* x, double* f) { return this->FunctionValues(x, f, nullptr); }
+  virtual int FunctionValues(double* x, double* f, void* vtkNotUsed(userData)) { return this->FunctionValues(x, f); }
 
   /**
    * Return the number of functions. Note that this is constant for
