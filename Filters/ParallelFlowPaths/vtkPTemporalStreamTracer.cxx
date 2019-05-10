@@ -59,6 +59,9 @@ vtkPTemporalStreamTracer::vtkPTemporalStreamTracer()
 {
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
+  VTK_LEGACY_BODY(
+    vtkPTemporalStreamTracer::vtkPTemporalStreamTracer,
+    "VTK 8.90");
 }
 //---------------------------------------------------------------------------
 vtkPTemporalStreamTracer::~vtkPTemporalStreamTracer()

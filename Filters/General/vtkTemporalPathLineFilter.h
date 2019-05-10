@@ -22,16 +22,16 @@
  * The point number (index) is used as the 'key' if the points are randomly
  * changing their respective order in the points list, then you should specify
  * a scalar that represents the unique ID. This is intended to handle the output
- * of a filter such as the TemporalStreamTracer.
+ * of a filter such as the vtkParticleTracer.
  *
  * @sa
- * vtkTemporalStreamTracer
+ * vtkParticleTracer
  *
  * @par Thanks:
  * John Bidiscombe of
  * CSCS - Swiss National Supercomputing Centre
  * for creating and contributing this class.
-*/
+ */
 
 #ifndef vtkTemporalPathLineFilter_h
 #define vtkTemporalPathLineFilter_h

@@ -80,7 +80,8 @@
  *
  * @sa
  * vtkStreamTracer vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
- * vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkTemporalStreamTracer
+ * vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkParticleTracerBase
+ * vtkParticleTracer vtkParticlePathFilter vtkStreaklineFilter
  * vtkAbstractInterpolatedVelocityField vtkInterpolatedVelocityField
  * vtkCellLocatorInterpolatedVelocityField
  *

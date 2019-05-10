@@ -1333,8 +1333,6 @@
                   <class id="vtkDistributedStreamTracer" library="Parallel">
                   </class>
                </class>
-               <class id="vtkTemporalStreamTracer" library="Parallel">
-               </class>
             </class>
             <class id="vtkStripper" library="Graphics">
             </class>

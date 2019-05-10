@@ -144,6 +144,9 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
 
   this->SetIntegratorType(RUNGE_KUTTA4);
   this->RequestIndex = 0;
+  VTK_LEGACY_BODY(
+    vtkTemporalStreamTracer::vtkTemporalStreamTracer,
+    "VTK 8.90");
 }
 //---------------------------------------------------------------------------
 vtkTemporalStreamTracer::~vtkTemporalStreamTracer()

@@ -22,10 +22,19 @@
  * @sa
  * vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
  * vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
+ *
+ * This class is deprecated.
+ * Use instead one of the following classes: vtkParticleTracerBase
+ * vtkParticleTracer vtkParticlePathFilter vtkStreaklineFilter
+ * See https://blog.kitware.com/improvements-in-path-tracing-in-vtk/
 */
 
 #ifndef vtkPTemporalStreamTracer_h
 #define vtkPTemporalStreamTracer_h
+
+#include "vtkConfigure.h" // For legacy defines
+#include "vtkSetGet.h"    // For legacy macros
+#ifndef VTK_LEGACY_REMOVE
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h" // For protected ivars.
@@ -73,7 +82,7 @@ public:
 
   protected:
 
-     vtkPTemporalStreamTracer();
+    VTK_LEGACY(vtkPTemporalStreamTracer());
     ~vtkPTemporalStreamTracer();
 
     //
@@ -128,5 +137,7 @@ private:
   vtkPTemporalStreamTracer(const vtkPTemporalStreamTracer&) = delete;
   void operator=(const vtkPTemporalStreamTracer&) = delete;
 };
+
+#endif // VTK_LEGACY_REMOVE
 
 #endif
