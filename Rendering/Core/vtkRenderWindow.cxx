@@ -55,8 +55,6 @@ vtkRenderWindow::vtkRenderWindow()
   this->AlphaBitPlanes = 0;
   this->StencilCapable = 0;
   this->Interactor = nullptr;
-  this->AccumulationBuffer = nullptr;
-  this->AccumulationBufferSize = 0;
   this->DesiredUpdateRate = 0.0001;
   this->ResultFrame = nullptr;
   this->SwapBuffers = 1;
@@ -89,10 +87,6 @@ vtkRenderWindow::~vtkRenderWindow()
 {
   this->SetInteractor(nullptr);
   this->SetSharedRenderWindow(nullptr);
-
-  delete [] this->AccumulationBuffer;
-  this->AccumulationBuffer = nullptr;
-  this->AccumulationBufferSize = 0;
 
   delete [] this->ResultFrame;
   this->ResultFrame = nullptr;
@@ -448,7 +442,6 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Swap Buffers: " << (this->SwapBuffers ? "On\n":"Off\n");
   os << indent << "Stereo Type: " << this->GetStereoTypeAsString() << "\n";
   os << indent << "Number of Layers: " << this->NumberOfLayers << "\n";
-  os << indent << "AccumulationBuffer Size " << this->AccumulationBufferSize << "\n";
   os << indent << "AlphaBitPlanes: " << (this->AlphaBitPlanes ? "On" : "Off")
      << endl;
   os << indent << "UseSRGBColorSpace: " << (this->UseSRGBColorSpace ? "On" : "Off")

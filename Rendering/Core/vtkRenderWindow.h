@@ -716,8 +716,6 @@ protected:
   vtkTypeBool AlphaBitPlanes;
   vtkRenderWindowInteractor *Interactor;
   unsigned char* StereoBuffer; // used for red blue stereo
-  float *AccumulationBuffer;   // used for many techniques
-  unsigned int AccumulationBufferSize;
   unsigned char *ResultFrame;
   vtkTypeBool   SwapBuffers;
   double DesiredUpdateRate;
