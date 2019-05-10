@@ -1,0 +1,7 @@
+NAME
+  VTK::h5part
+LIBRARY_NAME
+  vtkh5part
+DEPENDS
+  VTK::hdf5
+THIRD_PARTY
