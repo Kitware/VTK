@@ -403,7 +403,6 @@ if(BUILD_TESTING AND VTK_WRAP_PYTHON)
   add_subdirectory(Utilities/vtkTclTest2Py)
 endif()
 
-# TODO: The VTKCompileTools package.
 # TODO: HeaderTest exclusions for memcheck.
 
 #-----------------------------------------------------------------------------
