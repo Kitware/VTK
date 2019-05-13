@@ -305,7 +305,7 @@ void vtkRenderWindow::DoStereoRender()
   this->Start();
   this->StereoUpdate();
 
-  if (this->StereoType != VTK_STEREO_RIGHT)
+  if (!this->StereoRender || (this->StereoType != VTK_STEREO_RIGHT))
   { // render the left eye
     vtkRenderer *aren;
     for (this->Renderers->InitTraversal(rsit);
