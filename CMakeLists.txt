@@ -304,7 +304,7 @@ vtk_module_build(
   KITS                ${vtk_kits}
   INSTALL_EXPORT      "${vtk_install_export}"
   ${vtk_target_package}
-  HEADERS_DESTINATION "include/vtk${vtk_version_suffix}"
+  HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/vtk${vtk_version_suffix}"
   CMAKE_DESTINATION   "${vtk_cmake_destination}"
   LIBRARY_NAME_SUFFIX "${VTK_CUSTOM_LIBRARY_SUFFIX}"
   VERSION             "${VTK_VERSION}"
