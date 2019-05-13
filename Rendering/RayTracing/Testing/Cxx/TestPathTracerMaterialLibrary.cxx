@@ -90,11 +90,6 @@ int TestPathTracerMaterialLibrary(int argc, char* argv[])
     cerr << "Problem, could not find expected material named mat2." << endl;
     return VTK_ERROR;
   }
-  if (lib->GetDoubleShaderVariable("mat2","Ka").size() != 3)
-  {
-    cerr << "Problem, expected mat2 to have a 3 component variable called Ka." << endl;
-    return VTK_ERROR;
-  }
   cout << "mat2 has an expected variable." << endl;
   if (lib->GetTexture("mat2","map_Kd") == nullptr)
   {

@@ -29,6 +29,7 @@
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
 #include <initializer_list> //for initializer_list!
+#include <map>              //for map!
 #include <set>              //for set!
 #include <vector>           //for vector!
 
@@ -77,13 +78,23 @@ public:
   std::string LookupImplName(const std::string& nickname);
 
   /**
-   * Returns a unform variable, the name format is nickname:varname.
+   * Returns list of variable names set for a specific material.
+   */
+  std::vector<std::string> GetDoubleShaderVariableList(const std::string& nickname);
+
+  /**
+   * Returns a uniform variable.
    */
   std::vector<double> GetDoubleShaderVariable(
     const std::string& nickname, const std::string& varname);
 
   /**
-   * Returns a texture, the name format is nickname:varname.
+   * Returns list of texture names set for a specific material.
+   */
+  std::vector<std::string> GetTextureList(const std::string& nickname);
+
+  /**
+   * Returns a texture.
    */
   vtkTexture* GetTexture(const std::string& nickname, const std::string& varname);
 
@@ -133,6 +144,27 @@ public:
    * Do nothing if variable does not exist.
    **/
   void RemoveShaderVariable(const std::string& nickname, const std::string& variablename);
+
+  /**
+   * Lists all different parameter types
+   */
+  enum class ParameterType : unsigned char
+  {
+    FLOAT,
+    NORMALIZED_FLOAT,
+    FLOAT_DATA,
+    VEC3,
+    COLOR_RGB,
+    BOOLEAN,
+    TEXTURE
+  };
+
+  using ParametersMap = std::map<std::string, ParameterType>;
+
+  /**
+   * Get the dictionary of all possible materials based on OSPRay documentation.
+   */
+  static const std::map<std::string, ParametersMap>& GetParametersDictionary();
 
 protected:
   vtkOSPRayMaterialLibrary();

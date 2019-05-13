@@ -20,6 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkJPEGReader.h"
 #include "vtkObjectFactory.h"
+#include "vtkOSPRayMaterialHelpers.h"
 #include "vtkPNGReader.h"
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
@@ -33,6 +34,73 @@
 #include <vector>
 
 #include <sys/types.h>
+
+namespace
+{
+  const std::map<std::string, std::map<std::string, std::string> > Aliases = {
+    {
+      "OBJMaterial", {
+        { "colorMap", "map_Kd" },
+        { "map_kd", "map_Kd" },
+        { "map_ks", "map_Ks" },
+        { "map_ns", "map_Ns" },
+        { "map_bump", "map_Bump" },
+        { "normalMap", "map_Bump" },
+        { "BumpMap", "map_Bump" },
+        { "color", "Kd" },
+        { "kd", "Kd" },
+        { "alpha", "d" },
+        { "ks", "Ks" },
+        { "ns", "Ns" },
+        { "tf", "Tf" }
+      }
+    },
+    {
+      "ThinGlass", {
+        { "color", "attenuationColor" },
+        { "transmission", "attenuationColor" }
+      }
+    },
+    {
+      "MetallicPaint", {
+        { "color", "baseColor" }
+      }
+    },
+    {
+      "Glass", {
+        { "etaInside", "eta" },
+        { "etaOutside", "eta" },
+        { "attenuationColorOutside", "attenuationColor" }
+      }
+    },
+    {
+      "Principled", {}
+    },
+    {
+      "CarPaint", {}
+    },
+    {
+      "Metal", {}
+    },
+    {
+      "Alloy", {}
+    }
+  };
+
+  std::string FindRealName(const std::string& materialType, const std::string& alias)
+  {
+    auto matAliasesIt = ::Aliases.find(materialType);
+    if (matAliasesIt != ::Aliases.end())
+    {
+      auto realNameIt = matAliasesIt->second.find(alias);
+      if (realNameIt != matAliasesIt->second.end())
+      {
+        return realNameIt->second;
+      }
+    }
+    return alias;
+  }
+}
 
 typedef std::map<std::string, std::vector<double> > NamedVariables;
 typedef std::map<std::string, vtkSmartPointer<vtkTexture> > NamedTextures;
@@ -68,13 +136,32 @@ vtkOSPRayMaterialLibrary::~vtkOSPRayMaterialLibrary()
 void vtkOSPRayMaterialLibrary::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Materials:\n";
+  for (auto mat : this->Internal->NickNames)
+  {
+    os << indent << "  - " << mat << "( " << this->Internal->ImplNames[mat] << " )" << endl;
+    for (auto v : this->Internal->VariablesFor[mat])
+    {
+      os << indent << "    - " << v.first << endl;
+    }
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::AddMaterial(const std::string& nickname, const std::string& implname)
 {
-  this->Internal->NickNames.insert(nickname);
-  this->Internal->ImplNames[nickname] = implname;
+  auto& dic = vtkOSPRayMaterialLibrary::GetParametersDictionary();
+
+  if (dic.find(implname) != dic.end())
+  {
+    this->Internal->NickNames.insert(nickname);
+    this->Internal->ImplNames[nickname] = implname;
+  }
+  else
+  {
+    vtkGenericWarningMacro("Unknown material type \"" << implname
+      << "\" for material named \"" << nickname << "\"");
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -90,15 +177,28 @@ void vtkOSPRayMaterialLibrary::RemoveMaterial(const std::string& nickname)
 void vtkOSPRayMaterialLibrary::AddTexture(
   const std::string& nickname, const std::string& texname, vtkTexture* tex)
 {
-  NamedTextures& tsForNickname = this->Internal->TexturesFor[nickname];
-  tsForNickname[texname] = tex;
+  std::string realname = ::FindRealName(this->Internal->ImplNames[nickname], texname);
+
+  auto& dic = vtkOSPRayMaterialLibrary::GetParametersDictionary();
+  auto& params = dic.at(this->Internal->ImplNames[nickname]);
+  if (params.find(realname) != params.end())
+  {
+    NamedTextures& tsForNickname = this->Internal->TexturesFor[nickname];
+    tsForNickname[realname] = tex;
+  }
+  else
+  {
+    vtkGenericWarningMacro("Unknown parameter \"" << texname
+      << "\" for type \"" << this->Internal->ImplNames[nickname] << "\"");
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::RemoveTexture(
   const std::string& nickname, const std::string& texname)
 {
-  this->Internal->TexturesFor[nickname].erase(texname);
+  std::string realname = ::FindRealName(this->Internal->ImplNames[nickname], texname);
+  this->Internal->TexturesFor[nickname].erase(realname);
 }
 
 // ----------------------------------------------------------------------------
@@ -108,15 +208,28 @@ void vtkOSPRayMaterialLibrary::AddShaderVariable(
   std::vector<double> w;
   w.assign(x, x + numVars);
 
-  NamedVariables& vsForNickname = this->Internal->VariablesFor[nickname];
-  vsForNickname[varname] = w;
+  std::string realname = ::FindRealName(this->Internal->ImplNames[nickname], varname);
+
+  auto& dic = vtkOSPRayMaterialLibrary::GetParametersDictionary();
+  auto& params = dic.at(this->Internal->ImplNames[nickname]);
+  if (params.find(realname) != params.end())
+  {
+    NamedVariables& vsForNickname = this->Internal->VariablesFor[nickname];
+    vsForNickname[realname] = std::move(w);
+  }
+  else
+  {
+    vtkGenericWarningMacro("Unknown parameter \"" << varname
+      << "\" for type \"" << this->Internal->ImplNames[nickname] << "\"");
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::RemoveShaderVariable(
   const std::string& nickname, const std::string& varname)
 {
-  this->Internal->VariablesFor[nickname].erase(varname);
+  std::string realname = ::FindRealName(this->Internal->ImplNames[nickname], varname);
+  this->Internal->VariablesFor[nickname].erase(realname);
 }
 
 // ----------------------------------------------------------------------------
@@ -351,10 +464,6 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
       if (implname == "metal")
       {
         implname = "Metal";
-      }
-      if (implname == "glass")
-      {
-        implname = "ThinGlass";
       }
       if (implname == "metallicPaint")
       {
@@ -597,7 +706,8 @@ vtkTexture* vtkOSPRayMaterialLibrary::GetTexture(
   if (this->Internal->TexturesFor.find(nickname) != this->Internal->TexturesFor.end())
   {
     tsForNickname = this->Internal->TexturesFor[nickname];
-    return tsForNickname[texturename];
+    std::string realname = ::FindRealName(this->Internal->ImplNames[nickname], texturename);
+    return tsForNickname[realname];
   }
   return nullptr;
 }
@@ -609,7 +719,206 @@ std::vector<double> vtkOSPRayMaterialLibrary::GetDoubleShaderVariable(
   if (this->Internal->VariablesFor.find(nickname) != this->Internal->VariablesFor.end())
   {
     NamedVariables vsForNickname = this->Internal->VariablesFor[nickname];
-    return vsForNickname[varname];
+    std::string realname = ::FindRealName(this->Internal->ImplNames[nickname], varname);
+    return vsForNickname[realname];
   }
   return std::vector<double>();
+}
+
+//-----------------------------------------------------------------------------
+std::vector<std::string> vtkOSPRayMaterialLibrary::GetDoubleShaderVariableList(
+  const std::string& nickname)
+{
+  std::vector<std::string> variableNames;
+  if (this->Internal->VariablesFor.find(nickname) != this->Internal->VariablesFor.end())
+  {
+    for (auto& v : this->Internal->VariablesFor[nickname])
+    {
+      variableNames.push_back(v.first);
+    }
+  }
+  return variableNames;
+}
+
+//-----------------------------------------------------------------------------
+std::vector<std::string> vtkOSPRayMaterialLibrary::GetTextureList(const std::string& nickname)
+{
+  std::vector<std::string> texNames;
+  if (this->Internal->TexturesFor.find(nickname) != this->Internal->TexturesFor.end())
+  {
+    for (auto& v : this->Internal->TexturesFor[nickname])
+    {
+      texNames.push_back(v.first);
+    }
+  }
+  return texNames;
+}
+
+//-----------------------------------------------------------------------------
+const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
+  vtkOSPRayMaterialLibrary::GetParametersDictionary()
+{
+  // This is the material dictionary from OSPRay 1.8
+  // If attribute name changes with new OSPRay version, keep old name aliases support in functions
+  // vtkOSPRayMaterialLibrary::AddShaderVariable and vtkOSPRayMaterialLibrary::AddTexture
+  static std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap> dic =
+  {
+    {
+      "OBJMaterial", {
+        { "Ka", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "Kd", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "Ks", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "Ns", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "d", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "Tf", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "map_Bump", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_Kd", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_Ks", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_Ns", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_d", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+      }
+    },
+    {
+      "Principled", {
+        { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "edgeColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "metallic", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "diffuse", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "specular", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "ior", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "transmission", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "transmissionColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "transmissionDepth", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "roughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "anisotropy", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "rotation", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "normal", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "baseNormal", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "thin", vtkOSPRayMaterialLibrary::ParameterType::BOOLEAN },
+        { "thickness", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "backlight", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coat", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "coatIor", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "coatThickness", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatRoughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "coatNormal", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "sheen", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "sheenColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "sheenTint", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "sheenRoughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "opacity", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "baseColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "edgeColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "metallicMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "diffuseMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "specularMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "iorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "transmissionMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "transmissionColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "transmissionDepthMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "roughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "anisotropyMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "rotationMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "normalMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "baseNormalMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "thinMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "thicknessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "backlightMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatIorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatThicknessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatRoughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatNormalMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "sheenMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "sheenColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "sheenTintMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "sheenRoughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "opacityMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+      }
+    },
+    {
+      "CarPaint", {
+        { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "roughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "normal", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "flakeDensity", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "flakeScale", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "flakeSpread", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "flakeJitter", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "flakeRoughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "coat", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "coatIor", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "coatThickness", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "coatRoughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "coatNormal", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "flipflopColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "flipflopFalloff", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "baseColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "roughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "normalMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flakeDensityMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flakeScaleMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flakeSpreadMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flakeJitterMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flakeRoughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatIorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatThicknessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatRoughnessMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "coatNormalMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flipflopColorMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "flipflopFalloffMap", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+      }
+    },
+    {
+      "Metal", {
+        { "ior", vtkOSPRayMaterialLibrary::ParameterType::FLOAT_DATA },
+        { "eta", vtkOSPRayMaterialLibrary::ParameterType::VEC3 },
+        { "k", vtkOSPRayMaterialLibrary::ParameterType::VEC3 },
+        { "roughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "map_roughness", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+      }
+    },
+    {
+      "Alloy", {
+        { "color", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "edgeColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "roughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "map_color", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_edgeColor", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+        { "map_roughness", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+      }
+    },
+    {
+      "Glass", {
+        { "eta", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "attenuationColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "attenuationDistance", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+      }
+    },
+    {
+      "ThinGlass", {
+        { "eta", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "attenuationColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "attenuationDistance", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "thickness", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_attenuationColor", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+      }
+    },
+    {
+      "MetallicPaint", {
+        { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "flakeAmount", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "flakeColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
+        { "flakeSpread", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
+        { "eta", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
+        { "map_baseColor", vtkOSPRayMaterialLibrary::ParameterType::TEXTURE },
+      }
+    },
+  };
+  return dic;
 }
