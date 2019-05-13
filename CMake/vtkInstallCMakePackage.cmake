@@ -123,6 +123,7 @@ set(vtk_cmake_patch_files
   patches/3.13/FindPython3.cmake
   patches/3.13/FindZLIB.cmake
   patches/99/FindGDAL.cmake
+  patches/99/FindHDF5.cmake
   patches/99/FindJPEG.cmake
   patches/99/FindOpenGL.cmake
   patches/99/FindSQLite3.cmake
