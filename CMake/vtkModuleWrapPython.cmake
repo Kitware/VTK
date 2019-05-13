@@ -446,6 +446,7 @@ vtk_module_wrap_python(
   [MODULE_DESTINATION <destination>]
   [STATIC_MODULE_DESTINATION <destination>]
   [CMAKE_DESTINATION <destination>]
+  [LIBRARY_DESTINATION <destination>]
 
   [PYTHON_PACKAGE <package>]
 
@@ -480,6 +481,8 @@ vtk_module_wrap_python(
     the install tree under this path.
   * `CMAKE_DESTINATION`: (Required if `INSTALL_HEADERS` is `ON`) Where to
     install Python-related module property CMake files.
+  * `LIBRARY_DESTINATION` (Recommended): If provided, dynamic loader
+    information will be added to modules for loading dependent libraries.
   * `PYTHON_PACKAGE`: (Recommended) All generated modules will be added to this
     Python package. The format is in Python syntax (e.g.,
     `package.subpackage`).
@@ -491,7 +494,7 @@ vtk_module_wrap_python(
 function (vtk_module_wrap_python)
   cmake_parse_arguments(_vtk_python
     ""
-    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION"
+    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION"
     "MODULES"
     ${ARGN})
 
@@ -560,6 +563,21 @@ function (vtk_module_wrap_python)
 
     file(WRITE "${_vtk_python_properties_build_file}")
     file(WRITE "${_vtk_python_properties_install_file}")
+  endif ()
+
+  if (DEFINED _vtk_python_LIBRARY_DESTINATION)
+    # Set up rpaths
+    set(CMAKE_BUILD_RPATH_USE_ORIGIN 1)
+    if (UNIX AND NOT APPLE)
+      file(RELATIVE_PATH _vtk_python_relpath
+        "/prefix/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
+        "/prefix/${_vtk_python_LIBRARY_DESTINATION}")
+      set(_vtk_python_origin_rpath
+        "$ORIGIN/${_vtk_python_relpath}")
+
+      list(APPEND CMAKE_INSTALL_RPATH
+        "${_vtk_python_origin_rpath}")
+    endif()
   endif ()
 
   set(_vtk_python_sorted_modules ${_vtk_python_MODULES})
