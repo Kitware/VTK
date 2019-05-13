@@ -364,10 +364,6 @@ elseif (VTK_USE_COCOA)
   vtk_module_link(VTK::RenderingOpenGL2 PUBLIC "-framework Cocoa")
 endif ()
 
-if (WIN32 AND MSVC)
-  vtk_module_link(VTK::RenderingOpenGL2 PRIVATE dbghelp)
-endif()
-
 if (ANDROID)
   vtk_module_link(VTK::RenderingOpenGL2
     PRIVATE
