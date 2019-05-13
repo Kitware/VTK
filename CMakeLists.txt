@@ -397,7 +397,7 @@ if(VTK_BUILD_DOCUMENTATION)
 endif()
 
 # If python wrapping and testing is enabled then add driver scripts to run
-# tests.  Note: Many pythong tests used to be automatically converted from TCL
+# tests.  Note: Many python tests used to be automatically converted from TCL
 # scripts. Hence the name vtkTclTest2Py
 if(BUILD_TESTING AND VTK_WRAP_PYTHON)
   add_subdirectory(Utilities/vtkTclTest2Py)
