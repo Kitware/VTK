@@ -241,6 +241,10 @@ if (VTK_BUILD_COMPILE_TOOLS_ONLY)
   set(vtk_kit_files)
 endif ()
 
+cmake_dependent_option(VTK_INSTALL_SDK "Install SDK components" ON
+  "NOT VTK_BUILD_COMPILE_TOOLS_ONLY" ON)
+mark_as_advanced(VTK_INSTALL_SDK)
+
 vtk_module_scan(
   MODULE_FILES        ${vtk_module_files}
   KIT_FILES           ${vtk_kit_files}
@@ -310,6 +314,7 @@ vtk_module_build(
   VERSION             "${VTK_VERSION}"
   SOVERSION           "1"
   TEST_DATA_TARGET    VTKData
+  INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
   BUILD_WITH_KITS     "${VTK_ENABLE_KITS}"
   USE_EXTERNAL        "${VTK_USE_EXTERNAL}"
   TEST_INPUT_DATA_DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
@@ -340,6 +345,7 @@ if (VTK_WRAP_PYTHON)
     PYTHON_PACKAGE  "vtkmodules"
     MODULE_DESTINATION  "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
     CMAKE_DESTINATION   "${vtk_cmake_destination}"
+    INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
     WRAPPED_MODULES vtk_python_wrapped_modules
     TARGET          VTK::vtkpythonmodules)
 
@@ -363,12 +369,14 @@ if(VTK_DATA_EXCLUDE_FROM_ALL)
   endif()
 endif()
 
-set(vtk_cmake_build_dir
-  "${CMAKE_CURRENT_BINARY_DIR}/${vtk_cmake_destination}")
-if (NOT VTK_BUILD_COMPILE_TOOLS_ONLY)
-  include(vtkInstallCMakePackage)
-else ()
-  include(vtkInstallCMakePackageCompileTools)
+if (VTK_INSTALL_SDK)
+  set(vtk_cmake_build_dir
+    "${CMAKE_CURRENT_BINARY_DIR}/${vtk_cmake_destination}")
+  if (NOT VTK_BUILD_COMPILE_TOOLS_ONLY)
+    include(vtkInstallCMakePackage)
+  else ()
+    include(vtkInstallCMakePackageCompileTools)
+  endif ()
 endif ()
 
 cmake_dependent_option(VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS
