@@ -20,6 +20,7 @@ vtk_add_test_python(
   TestContour3DLinearGrid.py
   TestContour3DLinearGrid2.py
   TestContour3DLinearGridCompositeInput.py
+  TestContour3DLinearGridInterpolateAttributes.py,NO_VALID
   TestContour3DLinearGridScalarTree.py
   TestDecimatePolylineMaximumError.py
   TestElevationFilter.py

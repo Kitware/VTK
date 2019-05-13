@@ -1372,8 +1372,8 @@ template <typename TIds>
 int ProcessMerged(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
                   int sType, void *s, double isoValue, vtkPoints *outPts,
                   vtkCellArray *newPolys, vtkTypeBool intAttr, vtkDataArray *inScalars,
-                  vtkPointData *inPD, vtkPointData *outPD, vtkScalarTree *st, vtkTypeBool seqProcessing,
-                  int &numThreads, vtkIdType totalPts, vtkIdType totalTris)
+                  vtkPointData *inPD, vtkPointData *outPD, ArrayList *arrays, vtkScalarTree *st,
+                  vtkTypeBool seqProcessing, int &numThreads, vtkIdType totalPts, vtkIdType totalTris)
 {
   // Extract edges that the contour intersects. Templated on type of scalars.
   // List below the explicit choice of scalars that can be processed.
@@ -1447,19 +1447,18 @@ int ProcessMerged(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
   // Now process point data attributes if requested
   if ( intAttr )
   {
-    ArrayList arrays;
     if ( totalPts <= 0 ) //first contour value generating output
     {
       outPD->InterpolateAllocate(inPD,numPts);
       outPD->RemoveArray(inScalars->GetName());
-      arrays.ExcludeArray(inScalars);
-      arrays.AddArrays(numPts,inPD,outPD);
+      arrays->ExcludeArray(inScalars);
+      arrays->AddArrays(numPts,inPD,outPD);
     }
     else
     {
-      arrays.Realloc(totalPts+numPts);
+      arrays->Realloc(totalPts+numPts);
     }
-    ProduceAttributes<TIds> interpolate(mergeEdges,offsets,&arrays,totalPts);
+    ProduceAttributes<TIds> interpolate(mergeEdges,offsets,arrays,totalPts);
     EXECUTE_SMPFOR(seqProcessing,numPts,interpolate);
   }
 
@@ -1795,6 +1794,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkDataArray *inScalars, vtkPolyData *o
   {
     vtkPointData *inPD = input->GetPointData();
     vtkPointData *outPD = output->GetPointData();
+    ArrayList arrays;
 
     // Determine the size/type of point and cell ids needed to index points
     // and cells. Using smaller ids results in a greatly reduced memory footprint
@@ -1810,8 +1810,9 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkDataArray *inScalars, vtkPolyData *o
       {
         if ( ! ProcessMerged<int>(numCells, inPts, cellIter, sType, sPtr, value,
                                   outPts, newPolys, this->InterpolateAttributes,
-                                  inScalars, inPD, outPD, stree, this->SequentialProcessing,
-                                  this->NumberOfThreadsUsed, totalPts, totalTris) )
+                                  inScalars, inPD, outPD, &arrays, stree,
+                                  this->SequentialProcessing, this->NumberOfThreadsUsed,
+                                  totalPts, totalTris) )
         {
           return;
         }
@@ -1820,8 +1821,9 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkDataArray *inScalars, vtkPolyData *o
       {
         if ( ! ProcessMerged<vtkIdType>(numCells, inPts, cellIter, sType, sPtr, value,
                                         outPts, newPolys, this->InterpolateAttributes,
-                                        inScalars, inPD, outPD, stree, this->SequentialProcessing,
-                                        this->NumberOfThreadsUsed, totalPts, totalTris) )
+                                        inScalars, inPD, outPD, &arrays, stree,
+                                        this->SequentialProcessing, this->NumberOfThreadsUsed,
+                                        totalPts, totalTris) )
         {
           return;
         }
