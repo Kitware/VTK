@@ -2,7 +2,8 @@ set(KISSFFT_SCALAR_TYPE "double")
 
 vtk_module_third_party_internal(
   LICENSE_FILES "vtkkissfft/COPYING"
-  VERSION       "master")
+  VERSION       "master"
+  STANDARD_INCLUDE_DIRS)
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_kissfft.h.in"
