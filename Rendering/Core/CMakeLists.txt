@@ -87,6 +87,7 @@ set(classes
   vtkShaderDeviceAdapter2
   vtkShaderProperty
   vtkSkybox
+  vtkStereoCompositor
   vtkTextActor
   vtkTextActor3D
   vtkTexture
