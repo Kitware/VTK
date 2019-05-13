@@ -212,7 +212,7 @@ function (_vtk_module_wrap_python_library name)
       PROPERTY  "INTERFACE_vtk_module_python_package"
       VALUE     "${_vtk_python_PYTHON_PACKAGE}")
 
-    if (DEFINED _vtk_python_CMAKE_DESTINATION)
+    if (_vtk_python_INSTALL_HEADERS)
       _vtk_module_export_properties(
         BUILD_FILE    "${_vtk_python_properties_build_file}"
         INSTALL_FILE  "${_vtk_python_properties_install_file}"
@@ -441,6 +441,7 @@ vtk_module_wrap_python(
   [WRAPPED_MODULES <varname>]
 
   [BUILD_STATIC <ON|OFF>]
+  [INSTALL_HEADERS <ON|OFF>]
 
   [MODULE_DESTINATION <destination>]
   [STATIC_MODULE_DESTINATION <destination>]
@@ -467,6 +468,8 @@ vtk_module_wrap_python(
     function `void <TARGET>_load()` which will add all Python modules created
     by this call to the imported module table. For shared Python module builds,
     the same function is provided, but it is a no-op.
+  * `INSTALL_HEADERS` (Defaults to `ON`): If unset, CMake properties will not
+    be installed.
   * `MODULE_DESTINATION`: Modules will be placed in this location in the
     build tree. The install tree should remove `$<CONFIGURATION>` bits, but it
     currently does not. See `vtk_module_python_default_destination` for the
@@ -475,8 +478,8 @@ vtk_module_wrap_python(
     default may change in the future since the best location for these files is
     not yet known. Static libraries containing Python code will be installed to
     the install tree under this path.
-  * `CMAKE_DESTINATION`: (Recommended) If not provided, Python-related module
-    properties will not be exported onto the VTK module targets.
+  * `CMAKE_DESTINATION`: (Required if `INSTALL_HEADERS` is `ON`) Where to
+    install Python-related module property CMake files.
   * `PYTHON_PACKAGE`: (Recommended) All generated modules will be added to this
     Python package. The format is in Python syntax (e.g.,
     `package.subpackage`).
@@ -488,7 +491,7 @@ vtk_module_wrap_python(
 function (vtk_module_wrap_python)
   cmake_parse_arguments(_vtk_python
     ""
-    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_EXPORT;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION"
+    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION"
     "MODULES"
     ${ARGN})
 
@@ -510,8 +513,12 @@ function (vtk_module_wrap_python)
     vtk_module_python_default_destination(_vtk_python_MODULE_DESTINATION)
   endif ()
 
-  if (NOT DEFINED _vtk_python_CMAKE_DESTINATION)
-    message(WARNING
+  if (NOT DEFINED _vtk_python_INSTALL_HEADERS)
+    set(_vtk_python_INSTALL_HEADERS ON)
+  endif ()
+
+  if (_vtk_python_INSTALL_HEADERS AND NOT DEFINED _vtk_python_CMAKE_DESTINATION)
+    message(FATAL_ERROR
       "No CMAKE_DESTINATION set; Python properties will not be installed.")
   endif ()
 
@@ -546,7 +553,7 @@ function (vtk_module_wrap_python)
   endif ()
   string(REPLACE "." "/" _vtk_python_package_path "${_vtk_python_PYTHON_PACKAGE}")
 
-  if (DEFINED _vtk_python_CMAKE_DESTINATION)
+  if (_vtk_python_INSTALL_HEADERS)
     set(_vtk_python_properties_filename "${_vtk_python_PYTHON_PACKAGE}-vtk-python-module-properties.cmake")
     set(_vtk_python_properties_install_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_properties_filename}.install")
     set(_vtk_python_properties_build_file "${CMAKE_BINARY_DIR}/${_vtk_python_CMAKE_DESTINATION}/${_vtk_python_properties_filename}")
@@ -592,7 +599,7 @@ function (vtk_module_wrap_python)
       "No modules given could be wrapped.")
   endif ()
 
-  if (DEFINED _vtk_python_CMAKE_DESTINATION)
+  if (_vtk_python_INSTALL_HEADERS)
     install(
       FILES       "${_vtk_python_properties_install_file}"
       DESTINATION "${_vtk_python_CMAKE_DESTINATION}"
