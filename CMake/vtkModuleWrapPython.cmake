@@ -198,21 +198,22 @@ function (_vtk_module_wrap_python_library name)
     list(APPEND _vtk_python_library_classes
       ${_vtk_python_classes})
 
+    # TODO: Make sure the module doesn't already have an associated Python
+    # package.
+    vtk_module_get_property("${_vtk_python_module}"
+      PROPERTY  "INTERFACE_vtk_module_python_package"
+      VARIABLE  _vtk_python_current_python_package)
+    if (DEFINED _vtk_python_current_python_package)
+      message(FATAL_ERROR
+        "It appears as though the ${_vtk_python_module} has already been "
+        "wrapped in Python in the ${_vtk_python_current_python_package} "
+        "package.")
+    endif ()
+    vtk_module_set_property("${_vtk_python_module}"
+      PROPERTY  "INTERFACE_vtk_module_python_package"
+      VALUE     "${_vtk_python_PYTHON_PACKAGE}")
+
     if (DEFINED _vtk_python_CMAKE_DESTINATION)
-      # TODO: Make sure the module doesn't already have an associated Python
-      # package.
-      vtk_module_get_property("${_vtk_python_module}"
-        PROPERTY  "INTERFACE_vtk_module_python_package"
-        VARIABLE  _vtk_python_current_python_package)
-      if (DEFINED _vtk_python_current_python_package)
-        message(FATAL_ERROR
-          "It appears as though the ${_vtk_python_module} has already been "
-          "wrapped in Python in the ${_vtk_python_current_python_package} "
-          "package.")
-      endif ()
-      vtk_module_set_property("${_vtk_python_module}"
-        PROPERTY  "INTERFACE_vtk_module_python_package"
-        VALUE     "${_vtk_python_PYTHON_PACKAGE}")
       _vtk_module_export_properties(
         BUILD_FILE    "${_vtk_python_properties_build_file}"
         INSTALL_FILE  "${_vtk_python_properties_install_file}"
