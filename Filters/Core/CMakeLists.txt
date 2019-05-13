@@ -1,5 +1,6 @@
 set(Module_SRCS
   vtkAppendArcLength.cxx
+  vtkAppendDataSets.cxx
   vtkAppendFilter.cxx
   vtkAppendPolyData.cxx
   vtkAppendSelection.cxx
