@@ -378,6 +378,13 @@ if (NOT ANDROID AND
     NOT APPLE_IOS AND
     NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten" AND
     NOT VTK_OPENGL_USE_GLES)
-  vtk_module_add_executable(vtkProbeOpenGLVersion vtkProbeOpenGLVersion.cxx)
+  set(probe_no_install)
+  if (NOT VTK_INSTALL_SDK)
+    set(probe_no_install
+      NO_INSTALL)
+  endif ()
+  vtk_module_add_executable(vtkProbeOpenGLVersion
+    ${probe_no_install}
+    vtkProbeOpenGLVersion.cxx)
   target_link_libraries(vtkProbeOpenGLVersion PRIVATE RenderingOpenGL2)
 endif ()
