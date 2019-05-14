@@ -3360,7 +3360,8 @@ changed according to the `LIBRARY_NAME_SUFFIX` option.
 ```
 vtk_module_add_executable(<name>
   [NO_INSTALL]
-  [BASENAME <basename>])
+  [BASENAME <basename>]
+  <source>...)
 ```
 
 If `NO_INSTALL` is specified, the executable will not be installed. If
