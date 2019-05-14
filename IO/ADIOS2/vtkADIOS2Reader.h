@@ -44,9 +44,11 @@ protected:
   vtkADIOS2Reader();
   ~vtkADIOS2Reader() = default;
 
-  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector* output);
-
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector* output);
+  int RequestInformation(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector);
+  int RequestUpdateExtent(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector);
 
 private:
   char* FileName;

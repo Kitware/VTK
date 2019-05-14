@@ -27,14 +27,16 @@
 class vtkADIOS2Reader::Impl
 {
 public:
+  double m_Time = 0.;
   size_t m_Step = 0;
+  std::unique_ptr<adios2vtk::ADIOS2Schema> m_Reader;
 
   Impl();
   ~Impl() = default;
 
   void Update(const std::string& streamName, const size_t step = 0,
     const std::string& schemaName = "vtk.xml");
-  void Fill(vtkMultiBlockDataSet* multiblock);
+  void Fill(vtkMultiBlockDataSet* multiblock, const size_t step = 0);
 
 private:
   std::string m_StreamName;
@@ -43,14 +45,13 @@ private:
   adios2::Engine m_Engine;
 
   std::string m_SchemaName;
-  std::unique_ptr<adios2vtk::ADIOS2Schema> m_Reader;
 
   static const std::set<std::string> m_SupportedTypes;
 
   void InitReader();
 
   // we can extend this to add more schemas
-  bool InitReaderVTKXML();
+  bool InitReaderXMLVTK();
 };
 
 vtkStandardNewMacro(vtkADIOS2Reader);
@@ -63,35 +64,52 @@ vtkADIOS2Reader::vtkADIOS2Reader()
   this->SetNumberOfOutputPorts(1);
 }
 
-int vtkADIOS2Reader::RequestInformation(
-  vtkInformation*, vtkInformationVector**, vtkInformationVector* output)
+int vtkADIOS2Reader::RequestInformation(vtkInformation* vtkNotUsed(inputVector),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   m_Impl->Update(FileName); // check if FileName changed
+
+  std::vector<double> vTimes;
+  vTimes.reserve(m_Impl->m_Reader->m_Times.size());
+  for (const auto& timePair : m_Impl->m_Reader->m_Times)
+  {
+    vTimes.push_back(timePair.first);
+  }
+
+  // set time info
+  std::cout << "Setting time info\n";
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  info->Set(
+    vtkStreamingDemandDrivenPipeline::TIME_STEPS(), vTimes.data(), static_cast<int>(vTimes.size()));
+
+  const std::vector<double> timeRange = { vTimes.front(), vTimes.back() };
+  info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange.data(),
+    static_cast<int>(timeRange.size()));
 
   return 1;
 }
 
-int vtkADIOS2Reader::RequestData(vtkInformation* vtkNotUsed(request),
+int vtkADIOS2Reader::RequestUpdateExtent(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
+{
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  const double newTime = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+
+  std::cout << "Requested New Time: " << newTime << " Old Step: " << m_Impl->m_Time << "\n";
+  m_Impl->m_Step = m_Impl->m_Reader->m_Times[newTime];
+  m_Impl->m_Time = newTime;
+  return 1;
+}
+
+int vtkADIOS2Reader::RequestData(vtkInformation* vtkNotUsed(inputVector),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
   vtkMultiBlockDataSet* multiBlock = vtkMultiBlockDataSet::SafeDownCast(output);
 
-  if (info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
-  {
-    std::cout << "Step was updated\n";
-  }
-
-  // Update step
-  double newStep;
-  info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &newStep, 1);
-
-  m_Impl->m_Step = static_cast<size_t>(newStep);
-  std::cout << "Requested Step: " << newStep << " " << m_Impl->m_Step << "\n";
-
-  m_Impl->Fill(multiBlock); // check if step changed
-
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), m_Impl->m_Time);
+  m_Impl->Fill(multiBlock, m_Impl->m_Step);
   return 1;
 }
 
@@ -132,9 +150,9 @@ void vtkADIOS2Reader::Impl::Update(
   }
 }
 
-void vtkADIOS2Reader::Impl::Fill(vtkMultiBlockDataSet* multiBlock)
+void vtkADIOS2Reader::Impl::Fill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 {
-  m_Reader->Fill(multiBlock, m_Step);
+  m_Reader->Fill(multiBlock, step);
 }
 
 const std::set<std::string> vtkADIOS2Reader::Impl::m_SupportedTypes = { "ImageData",
@@ -142,7 +160,7 @@ const std::set<std::string> vtkADIOS2Reader::Impl::m_SupportedTypes = { "ImageDa
 
 void vtkADIOS2Reader::Impl::InitReader()
 {
-  if (InitReaderVTKXML())
+  if (InitReaderXMLVTK())
   {
     return;
   }
@@ -151,7 +169,7 @@ void vtkADIOS2Reader::Impl::InitReader()
   // now we stick with VTK XML schemas
 }
 
-bool vtkADIOS2Reader::Impl::InitReaderVTKXML()
+bool vtkADIOS2Reader::Impl::InitReaderXMLVTK()
 {
   pugi::xml_document xmlDocument;
   std::string xmlContents;

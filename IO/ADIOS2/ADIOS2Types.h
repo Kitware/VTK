@@ -53,6 +53,16 @@ using Piece = std::map<DataSetType, DataSet>;
   MACRO(float)                                                                                     \
   MACRO(double)
 
+#define ADIOS2_VTK_TIME_TYPE(MACRO)                                                                \
+  MACRO(int)                                                                                       \
+  MACRO(unsigned int)                                                                              \
+  MACRO(long int)                                                                                  \
+  MACRO(unsigned long int)                                                                         \
+  MACRO(long long int)                                                                             \
+  MACRO(unsigned long long int)                                                                    \
+  MACRO(float)                                                                                     \
+  MACRO(double)
+
 } // end namespace types
 } // end namespace adios2vtk
 

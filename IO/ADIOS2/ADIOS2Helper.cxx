@@ -145,7 +145,8 @@ pugi::xml_attribute XMLAttribute(const std::string attributeName, const pugi::xm
   return attribute;
 }
 
-types::DataSet XMLInitDataSet(const pugi::xml_node& dataSetNode)
+types::DataSet XMLInitDataSet(
+  const pugi::xml_node& dataSetNode, const std::set<std::string>& specialNames)
 {
   types::DataSet dataSet;
 
@@ -161,7 +162,8 @@ types::DataSet XMLInitDataSet(const pugi::xml_node& dataSetNode)
       XMLAttribute("NumberOfComponents", dataArrayNode, true,
         "when parsing NumberOfComponents attribute in ADIOS2 VTK XML schema", false);
 
-    if (!xmlNumberOfComponents)
+    const std::string name(xmlName.value());
+    if (!xmlNumberOfComponents && specialNames.count(name) == 0)
     {
       continue;
     }
@@ -176,15 +178,22 @@ types::DataSet XMLInitDataSet(const pugi::xml_node& dataSetNode)
           " is not of plain data type in ADIOS2 VTK XML schema\n");
       }
 
-      dataArray.Vector.emplace(componentNode.value(), vtkSmartPointer<vtkDataArray>());
+      std::string variablePCData(componentNode.value());
+      variablePCData.erase(0, variablePCData.find_first_not_of(" \n\r\t"));
+      variablePCData.erase(variablePCData.find_last_not_of(" \n\r\t") + 1);
+
+      dataArray.Vector.emplace(variablePCData, vtkSmartPointer<vtkDataArray>());
     }
 
-    const size_t components = static_cast<size_t>(std::stoull(xmlNumberOfComponents.value()));
-    if (dataArray.Vector.size() != components)
+    if (xmlNumberOfComponents)
     {
-      throw std::runtime_error("ERROR: NumberOfComponents " + std::to_string(components) +
-        " and variable names found " + std::to_string(dataArray.Vector.size()) +
-        " inside DataArray node " + std::string(xmlName.name()) + " in ADIOS2 VTK XML schema");
+      const size_t components = static_cast<size_t>(std::stoull(xmlNumberOfComponents.value()));
+      if (dataArray.Vector.size() != components)
+      {
+        throw std::runtime_error("ERROR: NumberOfComponents " + std::to_string(components) +
+          " and variable names found " + std::to_string(dataArray.Vector.size()) +
+          " inside DataArray node " + std::string(xmlName.name()) + " in ADIOS2 VTK XML schema");
+      }
     }
   }
 

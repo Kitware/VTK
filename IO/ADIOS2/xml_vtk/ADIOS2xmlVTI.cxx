@@ -34,6 +34,7 @@ ADIOS2xmlVTI::ADIOS2xmlVTI(const std::string& schema, adios2::IO* io, adios2::En
   : ADIOS2xmlVTK("vti", schema, io, engine)
 {
   Init();
+  InitTimes();
 }
 
 ADIOS2xmlVTI::~ADIOS2xmlVTI() {}
@@ -62,6 +63,12 @@ void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
     types::DataSet& dataSet = m_Pieces[pieceID][types::DataSetType::CellData];
     for (auto& dataArrayPair : dataSet)
     {
+      const std::string& variableName = dataArrayPair.first;
+      if (m_TIMENames.count(variableName) == 1)
+      {
+        continue;
+      }
+
       types::DataArray& dataArray = dataArrayPair.second;
 
       if (dataArray.Vector.empty()) // is Scalar
@@ -70,6 +77,7 @@ void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
       }
       else
       {
+        // TODO treat as vector
         for (auto& vPair : dataArray.Vector)
         {
           m_ImageData->GetCellData()->AddArray(vPair.second.GetPointer());
@@ -84,6 +92,11 @@ void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
     types::DataSet& dataSet = m_Pieces[pieceID][types::DataSetType::PointData];
     for (auto& dataArrayPair : dataSet)
     {
+      const std::string& variableName = dataArrayPair.first;
+      if (m_TIMENames.count(variableName) == 1)
+      {
+        continue;
+      }
       types::DataArray& dataArray = dataArrayPair.second;
 
       if (dataArray.Vector.empty()) // is Scalar
@@ -92,6 +105,7 @@ void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
       }
       else
       {
+        // TODO treat as vector
         for (auto& vPair : dataArray.Vector)
         {
           m_ImageData->GetPointData()->AddArray(vPair.second.GetPointer());
@@ -101,6 +115,7 @@ void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
   }
 }
 
+// PRIVATE
 void ADIOS2xmlVTI::Init()
 {
   auto lf_InitPiece = [&](const pugi::xml_node& pieceNode) {
@@ -108,12 +123,12 @@ void ADIOS2xmlVTI::Init()
     const pugi::xml_node cellDataNode = helper::XMLNode(
       "CellData", pieceNode, true, "when reading CellData node in ImageData", false);
 
-    piece[types::DataSetType::CellData] = helper::XMLInitDataSet(cellDataNode);
+    piece[types::DataSetType::CellData] = helper::XMLInitDataSet(cellDataNode, m_TIMENames);
 
     const pugi::xml_node pointDataNode = adios2vtk::helper::XMLNode(
       "PointData", pieceNode, true, "when reading CellData node in ImageData", false);
 
-    piece[types::DataSetType::PointData] = helper::XMLInitDataSet(pointDataNode);
+    piece[types::DataSetType::PointData] = helper::XMLInitDataSet(pointDataNode, m_TIMENames);
 
     m_Pieces.push_back(piece);
   };

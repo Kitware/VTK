@@ -116,9 +116,11 @@ std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept;
 /**
  * Initialize DataSet structure from parsing a pugi::xml_node, loops through DataArray nodes
  * @param dataSetNode input
+ * @param specialNames input check for vector components even if NumberOfComponents wasn't declared
  * @return initialiazed DataSet
  */
-types::DataSet XMLInitDataSet(const pugi::xml_node& dataSetNode);
+types::DataSet XMLInitDataSet(
+  const pugi::xml_node& dataSetNode, const std::set<std::string>& specialNames);
 
 template<class T>
 vtkSmartPointer<vtkDataArray> NewDataArray();

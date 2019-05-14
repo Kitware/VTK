@@ -54,4 +54,39 @@ void ADIOS2Schema::GetDataArray(const std::string& variableName,
 #undef declare_type
 }
 
+void ADIOS2Schema::GetTimes(const std::string& variableName)
+{
+  if (m_Engine == nullptr)
+  {
+    throw std::runtime_error(
+      "ERROR: Engine is null when populating time variable " + variableName + " \n");
+  }
+
+  if (variableName.empty())
+  {
+    // TODO: implements steps function in Engine
+    //    while (m_Engine->BeginStep() != adios2::StepStatus::EndOfStream)
+    //    {
+    //      const size_t currentStep = m_Engine->CurrentStep();
+    //      const double currentStepDbl = static_cast<double>(currentStep);
+    //      m_Times[currentStepDbl] = currentStep;
+    //      m_Engine->EndStep();
+    //    }
+    return;
+  }
+
+  // if variable is found
+  const std::string type = m_IO->VariableType(variableName);
+
+  if (type.empty())
+  {
+    throw std::invalid_argument("ERROR: time variable " + variableName + " not present " +
+      " in Engine " + m_Engine->Name() + " when reading time data\n");
+  }
+#define declare_type(T)                                                                            \
+  else if (type == adios2::GetType<T>()) { GetTimesCommon<T>(variableName); }
+  ADIOS2_VTK_TIME_TYPE(declare_type)
+#undef declare_type
+}
+
 } // end namespace adios2vtk

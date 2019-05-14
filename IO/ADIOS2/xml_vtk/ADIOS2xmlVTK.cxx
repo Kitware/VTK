@@ -10,10 +10,15 @@
 
 #include "ADIOS2xmlVTK.h"
 
+#include <adios2.h>
+
 namespace adios2vtk
 {
 namespace xml
 {
+
+const std::set<std::string> ADIOS2xmlVTK::m_TIMENames = { "TIME", "CYCLE" };
+
 ADIOS2xmlVTK::ADIOS2xmlVTK(
   const std::string type, const std::string& schema, adios2::IO* io, adios2::Engine* engine)
   : ADIOS2Schema(type, schema, io, engine)
@@ -59,6 +64,31 @@ bool ADIOS2xmlVTK::ReadDataSets(
     }
   }
   return true;
+}
+
+void ADIOS2xmlVTK::InitTimes()
+{
+  for (types::Piece& piece : m_Pieces)
+  {
+    for (auto& itDataSet : piece)
+    {
+      for (auto& itDataArray : itDataSet.second)
+      {
+        const std::string& name = itDataArray.first;
+        if (name == "TIME" || name == "CYCLE")
+        {
+          if (itDataArray.second.Vector.empty())
+          {
+            throw std::runtime_error(
+              "ERROR: found time tag " + name + " but no variable associated with it\n");
+          }
+          const std::string& variableName = itDataArray.second.Vector.begin()->first;
+          GetTimes(variableName);
+          return;
+        }
+      }
+    }
+  }
 }
 
 } // end namespace xml

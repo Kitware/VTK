@@ -15,6 +15,7 @@
 #include "ADIOS2Types.h"
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -35,11 +36,15 @@ public:
 protected:
   std::vector<types::Piece> m_Pieces;
 
+  const static std::set<std::string> m_TIMENames;
+
   virtual void DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step) = 0;
   virtual void ReadPiece(const size_t step, const size_t pieceID) = 0;
 
   bool ReadDataSets(const types::DataSetType type, const size_t step, const size_t pieceID,
     const std::string& hint);
+
+  void InitTimes() final;
 };
 
 } // end namespace xml
