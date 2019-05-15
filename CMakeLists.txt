@@ -270,7 +270,9 @@ endif ()
 
 if ("VTK::Python" IN_LIST vtk_modules)
   include(vtkModuleWrapPython)
-  vtk_module_python_default_destination(VTK_PYTHON_SITE_PACKAGES_SUFFIX)
+  if (NOT DEFINED VTK_PYTHON_SITE_PACKAGES_SUFFIX)
+    vtk_module_python_default_destination(VTK_PYTHON_SITE_PACKAGES_SUFFIX)
+  endif ()
 endif ()
 
 option(VTK_ENABLE_KITS "Enable kits compilation" OFF)
