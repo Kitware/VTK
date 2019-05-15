@@ -94,6 +94,7 @@ set(python_files
   vtkmodules/util/vtkImageImportFromArray.py
   vtkmodules/util/vtkMethodParser.py
   vtkmodules/util/vtkVariant.py
+  vtkmodules/wx/__init__.py
   vtkmodules/wx/wxVTKRenderWindow.py
   vtkmodules/wx/wxVTKRenderWindowInteractor.py)
 
