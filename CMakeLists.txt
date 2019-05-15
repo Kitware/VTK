@@ -127,9 +127,9 @@ mark_as_advanced(VTK_ENABLE_LOGGING)
 include(vtkEncodeString)
 
 # Set up our directory structure for output libraries and binaries
-vtk_set_with_default(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
-vtk_set_with_default(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
-vtk_set_with_default(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 
 set(vtk_requested_modules)
 set(vtk_rejected_modules)
