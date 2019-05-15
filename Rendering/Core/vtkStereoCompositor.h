@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkStereoCompositor();
-  ~vtkStereoCompositor();
+  ~vtkStereoCompositor() override;
 
   bool Validate(
     vtkUnsignedCharArray* rgbLeft, vtkUnsignedCharArray* rgbRight, const int* size = nullptr);
