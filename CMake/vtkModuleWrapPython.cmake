@@ -198,8 +198,7 @@ function (_vtk_module_wrap_python_library name)
     list(APPEND _vtk_python_library_classes
       ${_vtk_python_classes})
 
-    # TODO: Make sure the module doesn't already have an associated Python
-    # package.
+    # Make sure the module doesn't already have an associated Python package.
     vtk_module_get_property("${_vtk_python_module}"
       PROPERTY  "INTERFACE_vtk_module_python_package"
       VARIABLE  _vtk_python_current_python_package)
