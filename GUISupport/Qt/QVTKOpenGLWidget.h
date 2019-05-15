@@ -112,6 +112,15 @@ public:
 
   //@{
   /**
+   * Set/Get unscaled DPI value. Defaults to 72, which is also the default value
+   * in vtkWindow.
+   */
+  void setUnscaledDPI(int dpi) { this->VTKOpenGLWindow->setUnscaledDPI(dpi); }
+  int unscaledDPI() const { return this->VTKOpenGLWindow->unscaledDPI(); }
+  //@}
+
+  //@{
+  /**
    * @copydoc QVTKOpenGLWindow::setDefaultCursor()
    */
   void setDefaultCursor(const QCursor& cursor) { this->VTKOpenGLWindow->setDefaultCursor(cursor); }
