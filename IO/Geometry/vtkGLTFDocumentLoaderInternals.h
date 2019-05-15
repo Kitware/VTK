@@ -27,6 +27,7 @@
 #include "vtk_jsoncpp_fwd.h"       // For Json forward declaration
 
 #include <string> // For string
+#include <vector> // For vector
 
 class vtkGLTFDocumentLoaderInternals
 {
@@ -35,9 +36,10 @@ public:
 
   /**
    * Reset internal Model struct, and serialize glTF metadata (all json information) into it.
+   * Fill usedExtensions vector with the list of used and supported extensions in the glTF file.
    * To load buffers, use LoadModelData
    */
-  bool LoadModelMetaDataFromFile(std::string& FileName);
+  bool LoadModelMetaDataFromFile(std::string& FileName, std::vector<std::string>& usedExtensions);
   vtkGLTFDocumentLoader* Self;
 
   /**
@@ -55,12 +57,24 @@ public:
 
 private:
   /**
+   * Load node-level extension metadata into the Node::Extensions struct.
+   */
+  bool LoadNodeExtensions(
+    const Json::Value& root, vtkGLTFDocumentLoader::Node::Extensions& nodeExtensions);
+
+  /**
+   * Load root-level extension metadata into the Extensions struct.
+   */
+  bool LoadExtensions(const Json::Value& root, vtkGLTFDocumentLoader::Extensions& extensions);
+
+  /**
    * Reads a Json value describing a glTF buffer object, then uses this information to load the
    * corresponding binary buffer into an std::vector<char> array.
    * Needs to know the .glTF file's location in order to interpret relative paths.
    */
   bool LoadBuffer(
     const Json::Value& root, std::vector<char>& buffer, const std::string& glTFFileName);
+
   /**
    * Load a glTF file and parse it into a Json value. File extension can be either .gltf
    * or .glb. In case of a binary glTF file, only the Json part will be read.
@@ -169,6 +183,26 @@ private:
    */
   vtkGLTFDocumentLoader::Material::AlphaModeType MaterialAlphaModeStringToEnum(
     std::string alphaModeString);
+
+  /**
+   * Load node-specific KHR_lights_punctual metadata into the Node::Extensions::KHRLightsPunctual
+   * struct (load light indices).
+   */
+  bool LoadKHRLightsPunctualNodeExtension(const Json::Value& root,
+    vtkGLTFDocumentLoader::Node::Extensions::KHRLightsPunctual& lightsExtension);
+
+  /**
+   * Load root-level KHR_lights_punctual metadata into the Extensions::KHRLightsPunctual struct
+   * (load all lights).
+   */
+  bool LoadKHRLightsPunctualExtension(
+    const Json::Value& root, vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual& lights);
+
+  /**
+   * Load a KHR_lights_punctual light object into the Extensions::KHRLightsPunctual::Light struct.
+   */
+  bool LoadKHRLightsPunctualExtensionLight(
+    const Json::Value& root, vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light& light);
 };
 
 #endif

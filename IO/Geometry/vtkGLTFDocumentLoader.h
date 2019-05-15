@@ -43,6 +43,7 @@
 
 #include <map>    // For std::map
 #include <memory> // For std::shared_ptr
+#include <string> // For std::string
 #include <vector> // For std::vector
 
 class vtkDataArray;
@@ -228,6 +229,18 @@ public:
     std::vector<float> Translation;
     std::vector<float> Scale;
     std::vector<float> Weights;
+
+    // Object-specific extension metadata
+    struct Extensions
+    {
+      // KHR_lights_punctual extension
+      struct KHRLightsPunctual
+      {
+        int Light = -1;
+      };
+      Node::Extensions::KHRLightsPunctual KHRLightsPunctualMetaData;
+    };
+    Node::Extensions ExtensionMetaData;
 
     std::string Name;
 
@@ -450,6 +463,42 @@ public:
   };
 
   /**
+   * This struct contains extension metadata.
+   * This is for extension properties in the root-level 'extensions' object.
+   * Object-specific extension metadata is added directly to the extended object (see Node for an
+   * example)
+   */
+  struct Extensions
+  {
+    // KHR_lights_punctual extension
+    struct KHRLightsPunctual
+    {
+      struct Light
+      {
+        enum class LightType : unsigned char
+        {
+          DIRECTIONAL,
+          POINT,
+          SPOT
+        };
+        LightType Type;
+
+        std::vector<double> Color;
+        double Intensity;
+        double Range;
+
+        // Type-specific parameters
+        double SpotInnerConeAngle;
+        double SpotOuterConeAngle;
+
+        std::string Name;
+      };
+      std::vector<Light> Lights;
+    };
+    KHRLightsPunctual KHRLightsPunctualMetaData;
+  };
+
+  /**
    * This struct contains all data from a gltf asset
    */
   struct Model
@@ -467,6 +516,8 @@ public:
     std::vector<Scene> Scenes;
     std::vector<Skin> Skins;
     std::vector<Texture> Textures;
+
+    Extensions ExtensionMetaData;
 
     std::string BufferMetaData;
     int DefaultScene;
@@ -510,6 +561,16 @@ public:
    * Returns the number of components for a given accessor type.
    */
   static unsigned int GetNumberOfComponentsForType(vtkGLTFDocumentLoader::AccessorType type);
+
+  /**
+   * Get the list of extensions that are supported by this loader
+   */
+  const std::vector<std::string>& GetSupportedExtensions();
+
+  /**
+   * Get the list of extensions that are used by the current model
+   */
+  const std::vector<std::string>& GetUsedExtensions();
 
 protected:
   vtkGLTFDocumentLoader() = default;
@@ -570,6 +631,9 @@ private:
   void BuildGlobalTransforms(unsigned int nodeIndex, vtkSmartPointer<vtkTransform> parentTransform);
 
   std::shared_ptr<Model> InternalModel;
+
+  static const std::vector<std::string> SupportedExtensions;
+  std::vector<std::string> UsedExtensions;
 };
 
 #endif

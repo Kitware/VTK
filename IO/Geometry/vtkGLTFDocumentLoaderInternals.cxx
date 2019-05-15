@@ -16,10 +16,12 @@
 #include "vtkGLTFDocumentLoaderInternals.h"
 
 #include "vtkGLTFUtils.h"
+#include "vtkMath.h"
 #include "vtkTransform.h"
 #include "vtk_jsoncpp.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <algorithm>
 #include <sstream>
 
 //----------------------------------------------------------------------------
@@ -773,7 +775,6 @@ bool vtkGLTFDocumentLoaderInternals::LoadMesh(
   {
     mesh.Weights.clear();
   }
-
   return true;
 }
 
@@ -891,6 +892,11 @@ bool vtkGLTFDocumentLoaderInternals::LoadNode(
   node.Name = "";
   vtkGLTFUtils::GetStringValue(root["name"], node.Name);
 
+  // Load extensions if necessary
+  if (!this->Self->GetUsedExtensions().empty() && root["extensions"].isObject())
+  {
+    this->LoadNodeExtensions(root["extensions"], node.ExtensionMetaData);
+  }
   return true;
 }
 
@@ -1208,8 +1214,11 @@ bool vtkGLTFDocumentLoaderInternals::LoadTextureInfo(
 }
 
 //----------------------------------------------------------------------------
-bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(std::string& fileName)
+bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(
+  std::string& fileName, std::vector<std::string>& extensionsUsedByLoader)
 {
+  extensionsUsedByLoader.clear();
+
   Json::Value root;
   if (!this->LoadFileMetaData(fileName, root))
   {
@@ -1233,30 +1242,48 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(std::string& file
   }
 
   // Check for extensions
-  std::string usedExtensionListAsString = "";
-  std::string requiredExtensionListAsString = "";
-  for (const auto& extensionUsed : root["extensionsUsed"])
+  const auto& supportedExtensions = this->Self->GetSupportedExtensions();
+  for (const auto& extensionRequiredByModel : root["extensionsRequired"])
   {
-    usedExtensionListAsString += extensionUsed.asString() + ", ";
+    if (!extensionRequiredByModel.isString())
+    {
+      vtkWarningWithObjectMacro(
+        this->Self, "Invalid extensions.extensionsRequired value. Ignoring this value.");
+      continue;
+    }
+    // This is only for warnings. extensionsRequired is a subset of extensionsUsed, which is what is
+    // used to fill extensionsUsedByLoader.
+    if (!std::any_of(supportedExtensions.begin(), supportedExtensions.end(),
+          [&extensionRequiredByModel](
+            const std::string& value) { return value == extensionRequiredByModel.asString(); }))
+    {
+      vtkWarningWithObjectMacro(this->Self,
+        "glTF extension " << extensionRequiredByModel.asString()
+                          << " is required in this model, but not supported by this loader. The "
+                             "extension will be ignored.");
+    }
   }
-  if (!usedExtensionListAsString.empty())
+  for (const auto& extensionUsedByModel : root["extensionsUsed"])
   {
-    vtkWarningWithObjectMacro(this->Self,
-      "glTF extensions " << usedExtensionListAsString.substr(
-                              0, usedExtensionListAsString.size() - 2)
-                         << " are not supported yet, and are currently ignored.");
-  }
-
-  for (const auto& extensionRequired : root["extensionsRequired"])
-  {
-    requiredExtensionListAsString += extensionRequired.asString() + ", ";
-  }
-  if (!requiredExtensionListAsString.empty())
-  {
-    vtkWarningWithObjectMacro(this->Self,
-      "Required glTF extensions " << requiredExtensionListAsString.substr(
-                                       0, requiredExtensionListAsString.size() - 2)
-                                  << " are not supported yet, and are currently ignored.");
+    if (!extensionUsedByModel.isString())
+    {
+      vtkWarningWithObjectMacro(
+        this->Self, "Invalid extensions.extensionsUsed value. Ignoring this value.");
+      continue;
+    }
+    if (std::any_of(supportedExtensions.begin(), supportedExtensions.end(),
+          [&extensionUsedByModel](
+            const std::string& value) { return value == extensionUsedByModel.asString(); }))
+    {
+      extensionsUsedByLoader.push_back(extensionUsedByModel.asString());
+    }
+    else
+    {
+      vtkWarningWithObjectMacro(this->Self,
+        "glTF extension " << extensionUsedByModel.asString()
+                          << " is used in this model, but not supported by this loader. The "
+                             "extension will be ignored.");
+    }
   }
 
   // Load Accessors
@@ -1403,12 +1430,180 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(std::string& file
     }
   }
 
+  // Load extensions
+  if (!this->Self->GetUsedExtensions().empty() && root["extensions"].isObject())
+  {
+    this->LoadExtensions(root["extensions"], this->Self->GetInternalModel()->ExtensionMetaData);
+  }
+
   // Save buffer metadata but don't load buffers
   if (!root["buffers"].empty() && root["buffers"].isArray())
   {
     this->Self->GetInternalModel()->BufferMetaData = root["buffers"].toStyledString();
   }
 
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualNodeExtension(const Json::Value& root,
+  vtkGLTFDocumentLoader::Node::Extensions::KHRLightsPunctual& lightsExtension)
+{
+  if (root.isNull() || !root.isObject())
+  {
+    vtkErrorWithObjectMacro(this->Self, "Invalid node.extensions.KHR_lights_punctual object");
+    return false;
+  }
+  if (!vtkGLTFUtils::GetIntValue(root["light"], lightsExtension.Light))
+  {
+    vtkErrorWithObjectMacro(this->Self, "Invalid node.extensions.KHR_lights_punctual.light value");
+    return false;
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtension(
+  const Json::Value& root, vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual& lightsExtension)
+{
+  lightsExtension.Lights.reserve(root["lights"].size());
+  for (const auto& glTFLight : root["lights"])
+  {
+    vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light light;
+    if (this->LoadKHRLightsPunctualExtensionLight(glTFLight, light))
+    {
+      lightsExtension.Lights.emplace_back(std::move(light));
+    }
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtensionLight(
+  const Json::Value& root, vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light& light)
+{
+  if (root.isNull() || !root.isObject())
+  {
+    vtkErrorWithObjectMacro(this->Self, "Invalid KHR_lights_punctual.lights object");
+    return false;
+  }
+
+  light.SpotInnerConeAngle = 0;
+  light.SpotOuterConeAngle = 0;
+
+  static const double DefaultSpotOuterConeAngle = vtkMath::Pi() / 4.0;
+  static const double DefaultSpotInnerConeAngle = 0;
+  static const double MaxSpotInnerConeAngle = vtkMath::Pi() / 2.0;
+
+  // Load name
+  light.Name = "";
+  vtkGLTFUtils::GetStringValue(root["name"], light.Name);
+
+  // Load type and type-specific values
+  std::string type;
+  if (!vtkGLTFUtils::GetStringValue(root["type"], type))
+  {
+    vtkErrorWithObjectMacro(this->Self, "Invalid KHR_lights_punctual.lights.type value.");
+    return false;
+  }
+  if (type == "directional")
+  {
+    light.Type =
+      vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::DIRECTIONAL;
+  }
+  else if (type == "point")
+  {
+    light.Type = vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::POINT;
+  }
+  else if (type == "spot")
+  {
+    light.Type = vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::SPOT;
+    // Load innerConeAngle and outerConeAngle
+    auto glTFSpot = root["spot"];
+    if (glTFSpot.isNull() || !glTFSpot.isObject())
+    {
+      vtkErrorWithObjectMacro(
+        this->Self, "Invalid KHR_lights_punctual.lights.spot object for spot type");
+      return false;
+    }
+    light.SpotOuterConeAngle = DefaultSpotOuterConeAngle;
+    if (vtkGLTFUtils::GetDoubleValue(glTFSpot["outerConeAngle"], light.SpotOuterConeAngle))
+    {
+      if (light.SpotOuterConeAngle <= 0 || light.SpotOuterConeAngle > MaxSpotInnerConeAngle)
+      {
+        vtkWarningWithObjectMacro(
+          this->Self, "Invalid KHR_lights_punctual.lights.spot.outerConeAngle value");
+        light.SpotOuterConeAngle = DefaultSpotOuterConeAngle;
+      }
+    }
+    light.SpotInnerConeAngle = DefaultSpotInnerConeAngle;
+    if (vtkGLTFUtils::GetDoubleValue(glTFSpot["innerConeAngle"], light.SpotInnerConeAngle))
+    {
+      if (light.SpotInnerConeAngle < 0 || light.SpotInnerConeAngle >= light.SpotOuterConeAngle)
+      {
+        vtkWarningWithObjectMacro(
+          this->Self, "Invalid KHR_lights_punctual.lights.spot.innerConeAngle value");
+        light.SpotInnerConeAngle = DefaultSpotInnerConeAngle;
+      }
+    }
+  }
+  else
+  {
+    vtkErrorWithObjectMacro(this->Self, "Invalid KHR_lights_punctual.lights.type value");
+    return false;
+  }
+
+  // Load color
+  if (!vtkGLTFUtils::GetDoubleArray(root["color"], light.Color) || light.Color.size() != 3)
+  {
+    light.Color = std::vector<double>(3, 1.0f);
+  }
+
+  // Load intensity
+  light.Intensity = 1.0f;
+  vtkGLTFUtils::GetDoubleValue(root["intensity"], light.Intensity);
+
+  // Load range
+  light.Range = 0;
+  if (vtkGLTFUtils::GetDoubleValue(root["range"], light.Range))
+  {
+    // Must be positive
+    if (light.Range < 0)
+    {
+      light.Range = 0;
+    }
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkGLTFDocumentLoaderInternals::LoadNodeExtensions(
+  const Json::Value& root, vtkGLTFDocumentLoader::Node::Extensions& nodeExtensions)
+{
+  for (const std::string& usedExtensionName : this->Self->GetUsedExtensions())
+  {
+    if (usedExtensionName == "KHR_lights_punctual" && root["KHR_lights_punctual"].isObject())
+    {
+      this->LoadKHRLightsPunctualNodeExtension(
+        root["KHR_lights_punctual"], nodeExtensions.KHRLightsPunctualMetaData);
+    }
+    // New node extensions should be loaded from here
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkGLTFDocumentLoaderInternals::LoadExtensions(
+  const Json::Value& root, vtkGLTFDocumentLoader::Extensions& extensions)
+{
+  for (const std::string& usedExtensionName : this->Self->GetUsedExtensions())
+  {
+    if (usedExtensionName == "KHR_lights_punctual" && root["KHR_lights_punctual"].isObject())
+    {
+      this->LoadKHRLightsPunctualExtension(
+        root["KHR_lights_punctual"], extensions.KHRLightsPunctualMetaData);
+    }
+  }
   return true;
 }
 

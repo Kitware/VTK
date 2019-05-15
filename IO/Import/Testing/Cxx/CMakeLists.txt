@@ -66,5 +66,9 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestGLTFImporter,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb}
 )
 
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterKHRLightsPunctual,TestGLTFImporter.cxx DATA{../Data/glTF/Lights/lights.gltf}
+)
+
 vtk_test_cxx_executable(vtkIOImportCxxTests tests
   RENDERING_FACTORY)

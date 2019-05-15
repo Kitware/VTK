@@ -31,12 +31,16 @@
 #include "vtkTransform.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <algorithm>
 #include <stack>
 
 vtkStandardNewMacro(vtkGLTFImporter);
 
 namespace
 {
+// Desired attenuation value when distanceToLight == lightRange
+static const float MIN_LIGHT_ATTENUATION = 0.01;
+
 /**
  * Builds a new vtkCamera object with properties from a glTF Camera struct
  */
@@ -48,7 +52,7 @@ vtkSmartPointer<vtkCamera> GLTFCameraToVTKCamera(const vtkGLTFDocumentLoader::Ca
   if (gltfCam.IsPerspective)
   {
     vtkCam->SetParallelProjection(false);
-    vtkCam->SetViewAngle(gltfCam.Yfov);
+    vtkCam->SetViewAngle(vtkMath::DegreesFromRadians(gltfCam.Yfov));
   }
   else
   {
@@ -342,6 +346,78 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
       // transforms), multiple vtkCameras are generated for the same glTF camera object, but with
       // different transforms.
       this->Cameras.push_back(vtkCam);
+    }
+
+    // Add node's children to stack
+    for (int childNodeId : node.Children)
+    {
+      nodeIdStack.push(childNodeId);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
+{
+  // Check that lights extension is enabled
+  const auto& extensions = this->Loader->GetUsedExtensions();
+  if (std::find(extensions.begin(), extensions.end(), "KHR_lights_punctual") == extensions.end())
+  {
+    return;
+  }
+
+  // List of nodes to import
+  std::stack<int> nodeIdStack;
+
+  const auto& model = this->Loader->GetInternalModel();
+  const auto& lights = model->ExtensionMetaData.KHRLightsPunctualMetaData.Lights;
+
+  // Add root nodes to the stack
+  for (int nodeId : model->Scenes[model->DefaultScene].Nodes)
+  {
+    nodeIdStack.push(nodeId);
+  }
+
+  // Iterate over tree
+  while (!nodeIdStack.empty())
+  {
+    // Get current node
+    int nodeId = nodeIdStack.top();
+    nodeIdStack.pop();
+
+    const vtkGLTFDocumentLoader::Node& node = model->Nodes[nodeId];
+    const auto lightId = node.ExtensionMetaData.KHRLightsPunctualMetaData.Light;
+    if (lightId >= 0 && lightId < static_cast<int>(lights.size()))
+    {
+      const auto& glTFLight = lights[lightId];
+      // Add light
+      vtkNew<vtkLight> light;
+      light->SetColor(glTFLight.Color.data());
+      light->SetTransformMatrix(node.GlobalTransform->GetMatrix());
+      // Handle range
+      if (glTFLight.Range > 0)
+      {
+        // Set quadratic values to get attenuation(range) ~= MIN_LIGHT_ATTENUATION
+        light->SetAttenuationValues(
+          1, 0, 1.0 / (glTFLight.Range * glTFLight.Range * MIN_LIGHT_ATTENUATION));
+      }
+      light->SetIntensity(glTFLight.Intensity);
+      switch (glTFLight.Type)
+      {
+        case vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::DIRECTIONAL:
+          light->SetPositional(false);
+          break;
+        case vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::POINT:
+          light->SetPositional(true);
+          // Set as point light
+          light->SetConeAngle(180);
+          break;
+        case vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::SPOT:
+          light->SetPositional(true);
+          light->SetConeAngle(vtkMath::DegreesFromRadians(glTFLight.SpotOuterConeAngle));
+          break;
+      }
+      renderer->AddLight(light);
     }
 
     // Add node's children to stack

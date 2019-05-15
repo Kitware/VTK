@@ -37,6 +37,12 @@
  * https://github.com/KhronosGroup/glTF/tree/master/specification/2.0
  *
  * Note: array sizes should not exceed INT_MAX
+ *
+ * Supported extensions:
+ * - KHR_lights_punctual :
+ *   The importer supports the KHR_lights_punctual extension except for this feature:
+ *   - VTK does not support changing the falloff of the cone with innerConeAngle and outerConeAngle.
+ *     The importer uses outerConeAngle and ignores innerConeAngle as specified for this situation.
  */
 
 #ifndef vtkGLTFImporter_h
@@ -88,6 +94,7 @@ protected:
   int ImportBegin() override;
   void ImportActors(vtkRenderer* renderer) override;
   void ImportCameras(vtkRenderer* renderer) override;
+  void ImportLights(vtkRenderer* renderer) override;
 
   char* FileName;
 
