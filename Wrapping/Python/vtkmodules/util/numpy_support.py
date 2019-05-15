@@ -27,7 +27,7 @@ Created by Prabhu Ramachandran in Feb. 2008.
 """
 
 from . import vtkConstants
-from ..vtkCommonCore import vtkDataArray, vtkIdTypeArray, vtkLongArray
+from vtkmodules.vtkCommonCore import vtkDataArray, vtkIdTypeArray, vtkLongArray
 import numpy
 
 # Useful constants for VTK arrays.
