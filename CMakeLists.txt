@@ -279,14 +279,16 @@ if (VTK_VERSIONED_INSTALL)
 endif ()
 
 set(vtk_install_export VTK)
-set(vtk_cmake_destination
-  "${CMAKE_INSTALL_LIBDIR}/cmake/vtk${vtk_version_suffix}")
-set(vtk_target_package)
-if (VTK_BUILD_COMPILE_TOOLS_ONLY)
-  set(vtk_install_export VTKCompileTools)
+if (NOT DEFINED vtk_cmake_destination)
   set(vtk_cmake_destination
-    "${CMAKE_INSTALL_LIBDIR}/cmake/vtkcompiletools${vtk_version_suffix}")
-  set(vtk_target_package PACKAGE "${vtk_install_export}")
+    "${CMAKE_INSTALL_LIBDIR}/cmake/vtk${vtk_version_suffix}")
+  set(vtk_target_package)
+  if (VTK_BUILD_COMPILE_TOOLS_ONLY)
+    set(vtk_install_export VTKCompileTools)
+    set(vtk_cmake_destination
+      "${CMAKE_INSTALL_LIBDIR}/cmake/vtkcompiletools${vtk_version_suffix}")
+    set(vtk_target_package PACKAGE "${vtk_install_export}")
+  endif ()
 endif ()
 
 set(VTK_CUSTOM_LIBRARY_SUFFIX "<DEFAULT>"
