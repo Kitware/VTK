@@ -10,13 +10,13 @@ DEPENDS
   VTK::CommonMisc
   VTK::RenderingCore
   VTK::vtksys
-  VTK::IOGeometry
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonTransforms
   VTK::FiltersCore
   VTK::FiltersSources
   VTK::ImagingCore
+  VTK::IOGeometry
   VTK::IOImage
   VTK::jsoncpp
 TEST_DEPENDS
