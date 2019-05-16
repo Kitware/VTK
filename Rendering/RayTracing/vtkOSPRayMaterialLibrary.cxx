@@ -202,6 +202,12 @@ void vtkOSPRayMaterialLibrary::RemoveTexture(
 }
 
 // ----------------------------------------------------------------------------
+void vtkOSPRayMaterialLibrary::RemoveAllTextures(const std::string& nickname)
+{
+  this->Internal->TexturesFor[nickname].clear();
+}
+
+// ----------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::AddShaderVariable(
   const std::string& nickname, const std::string& varname, int numVars, const double* x)
 {
@@ -230,6 +236,12 @@ void vtkOSPRayMaterialLibrary::RemoveShaderVariable(
 {
   std::string realname = ::FindRealName(this->Internal->ImplNames[nickname], varname);
   this->Internal->VariablesFor[nickname].erase(realname);
+}
+
+// ----------------------------------------------------------------------------
+void vtkOSPRayMaterialLibrary::RemoveAllShaderVariables(const std::string& nickname)
+{
+  this->Internal->VariablesFor[nickname].clear();
 }
 
 // ----------------------------------------------------------------------------

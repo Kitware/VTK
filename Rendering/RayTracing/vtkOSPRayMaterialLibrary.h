@@ -125,6 +125,11 @@ public:
   void RemoveTexture(const std::string& nickname, const std::string& texturename);
 
   /**
+   * Remove all textures of a specific material
+   **/
+  void RemoveAllTextures(const std::string& nickname);
+
+  /**
    * Add control variable
    * Adds a new control variable. Replaces any previous content.
    * @{
@@ -144,6 +149,11 @@ public:
    * Do nothing if variable does not exist.
    **/
   void RemoveShaderVariable(const std::string& nickname, const std::string& variablename);
+
+  /**
+   * Remove all control variables of a specific material
+   **/
+  void RemoveAllShaderVariables(const std::string& nickname);
 
   /**
    * Lists all different parameter types

@@ -90,6 +90,19 @@ int TestPathTracerMaterialLibrary(int argc, char* argv[])
     cerr << "Problem, could not find expected material named mat2." << endl;
     return VTK_ERROR;
   }
+  if (lib->GetDoubleShaderVariable("mat2","Kd").size() == 0)
+  {
+    cerr << "Problem, expected mat2 to have a variable called Kd." << endl;
+    return VTK_ERROR;
+  }
+
+  lib->RemoveAllShaderVariables("mat2");
+  if (lib->GetDoubleShaderVariable("mat2","Kd").size() > 0)
+  {
+    cerr << "Problem, expected mat2 to have Kd removed." << endl;
+    return VTK_ERROR;
+  }
+
   cout << "mat2 has an expected variable." << endl;
   if (lib->GetTexture("mat2","map_Kd") == nullptr)
   {
@@ -97,6 +110,13 @@ int TestPathTracerMaterialLibrary(int argc, char* argv[])
     return VTK_ERROR;
   }
   cout << "mat2 has a good texture too." << endl;
+
+  lib->RemoveAllTextures("mat2");
+  if (lib->GetTexture("mat2","map_Kd") != nullptr)
+  {
+    cerr << "Problem, expected mat2 to have map_Kd removed." << endl;
+    return VTK_ERROR;
+  }
 
   if (mats.find("mat3") == mats.end())
   {
