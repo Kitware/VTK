@@ -556,6 +556,12 @@ function (vtk_module_wrap_python)
   endif ()
   string(REPLACE "." "/" _vtk_python_package_path "${_vtk_python_PYTHON_PACKAGE}")
 
+  _vtk_module_check_destinations(_vtk_python_
+    MODULE_DESTINATION
+    STATIC_MODULE_DESTINATION
+    CMAKE_DESTINATION
+    LIBRARY_DESTINATION)
+
   if (_vtk_python_INSTALL_HEADERS)
     set(_vtk_python_properties_filename "${_vtk_python_PYTHON_PACKAGE}-vtk-python-module-properties.cmake")
     set(_vtk_python_properties_install_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_python_properties_filename}.install")
