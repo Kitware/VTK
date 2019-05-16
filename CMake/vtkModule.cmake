@@ -1585,6 +1585,13 @@ function (_vtk_module_get_module_property module)
 endfunction ()
 
 function (_vtk_module_write_import_prefix file destination)
+  if (IS_ABSOLUTE "${destination}")
+    message(FATAL_ERROR
+      "An import prefix cannot be determined from an absolute installation "
+      "destination. Use `CMAKE_INSTALL_PREFIX` to keep everything in a single "
+      "installation prefix.")
+  endif ()
+
   file(APPEND "${file}"
     "set(_vtk_module_import_prefix \"\${CMAKE_CURRENT_LIST_DIR}\")\n")
   while (destination)
