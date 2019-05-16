@@ -139,6 +139,10 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
   {
     // convert the input dataset to a vtkm::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    if(in.GetNumberOfCellSets() == 0 || in.GetNumberOfCoordinateSystems() == 0)
+    {
+      return 0;
+    }
 
     vtkmInputFilterPolicy policy;
     vtkm::filter::VertexClustering filter;
