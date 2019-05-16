@@ -126,6 +126,11 @@ mark_as_advanced(VTK_ENABLE_LOGGING)
 
 include(vtkEncodeString)
 
+# Set up our directory structure for output libraries and binaries
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+
 set(vtk_requested_modules)
 set(vtk_rejected_modules)
 if (VTK_WRAP_PYTHON)
@@ -241,6 +246,10 @@ if (VTK_BUILD_COMPILE_TOOLS_ONLY)
   set(vtk_kit_files)
 endif ()
 
+cmake_dependent_option(VTK_INSTALL_SDK "Install SDK components" ON
+  "NOT VTK_BUILD_COMPILE_TOOLS_ONLY" ON)
+mark_as_advanced(VTK_INSTALL_SDK)
+
 vtk_module_scan(
   MODULE_FILES        ${vtk_module_files}
   KIT_FILES           ${vtk_kit_files}
@@ -261,7 +270,9 @@ endif ()
 
 if ("VTK::Python" IN_LIST vtk_modules)
   include(vtkModuleWrapPython)
-  vtk_module_python_default_destination(VTK_PYTHON_SITE_PACKAGES_SUFFIX)
+  if (NOT DEFINED VTK_PYTHON_SITE_PACKAGES_SUFFIX)
+    vtk_module_python_default_destination(VTK_PYTHON_SITE_PACKAGES_SUFFIX)
+  endif ()
 endif ()
 
 option(VTK_ENABLE_KITS "Enable kits compilation" OFF)
@@ -304,12 +315,13 @@ vtk_module_build(
   KITS                ${vtk_kits}
   INSTALL_EXPORT      "${vtk_install_export}"
   ${vtk_target_package}
-  HEADERS_DESTINATION "include/vtk${vtk_version_suffix}"
+  HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/vtk${vtk_version_suffix}"
   CMAKE_DESTINATION   "${vtk_cmake_destination}"
   LIBRARY_NAME_SUFFIX "${VTK_CUSTOM_LIBRARY_SUFFIX}"
   VERSION             "${VTK_VERSION}"
   SOVERSION           "1"
   TEST_DATA_TARGET    VTKData
+  INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
   BUILD_WITH_KITS     "${VTK_ENABLE_KITS}"
   USE_EXTERNAL        "${VTK_USE_EXTERNAL}"
   TEST_INPUT_DATA_DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
@@ -338,8 +350,10 @@ if (VTK_WRAP_PYTHON)
     MODULES         ${vtk_modules}
     INSTALL_EXPORT  VTK
     PYTHON_PACKAGE  "vtkmodules"
+    LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     MODULE_DESTINATION  "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
     CMAKE_DESTINATION   "${vtk_cmake_destination}"
+    INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
     WRAPPED_MODULES vtk_python_wrapped_modules
     TARGET          VTK::vtkpythonmodules)
 
@@ -363,12 +377,14 @@ if(VTK_DATA_EXCLUDE_FROM_ALL)
   endif()
 endif()
 
-set(vtk_cmake_build_dir
-  "${CMAKE_CURRENT_BINARY_DIR}/${vtk_cmake_destination}")
-if (NOT VTK_BUILD_COMPILE_TOOLS_ONLY)
-  include(vtkInstallCMakePackage)
-else ()
-  include(vtkInstallCMakePackageCompileTools)
+if (VTK_INSTALL_SDK)
+  set(vtk_cmake_build_dir
+    "${CMAKE_CURRENT_BINARY_DIR}/${vtk_cmake_destination}")
+  if (NOT VTK_BUILD_COMPILE_TOOLS_ONLY)
+    include(vtkInstallCMakePackage)
+  else ()
+    include(vtkInstallCMakePackageCompileTools)
+  endif ()
 endif ()
 
 cmake_dependent_option(VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS
@@ -397,13 +413,12 @@ if(VTK_BUILD_DOCUMENTATION)
 endif()
 
 # If python wrapping and testing is enabled then add driver scripts to run
-# tests.  Note: Many pythong tests used to be automatically converted from TCL
+# tests.  Note: Many python tests used to be automatically converted from TCL
 # scripts. Hence the name vtkTclTest2Py
 if(BUILD_TESTING AND VTK_WRAP_PYTHON)
   add_subdirectory(Utilities/vtkTclTest2Py)
 endif()
 
-# TODO: The VTKCompileTools package.
 # TODO: HeaderTest exclusions for memcheck.
 
 #-----------------------------------------------------------------------------

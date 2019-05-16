@@ -19,17 +19,17 @@ Methods from vtkImageImport:
   SetDataOrigin()
 """
 
-from vtk import vtkImageImport
-from vtk import VTK_SIGNED_CHAR
-from vtk import VTK_UNSIGNED_CHAR
-from vtk import VTK_SHORT
-from vtk import VTK_UNSIGNED_SHORT
-from vtk import VTK_INT
-from vtk import VTK_UNSIGNED_INT
-from vtk import VTK_LONG
-from vtk import VTK_UNSIGNED_LONG
-from vtk import VTK_FLOAT
-from vtk import VTK_DOUBLE
+from vtkmodules.vtkIOImage import vtkImageImport
+from vtkmodules.vtkCommonCore import VTK_SIGNED_CHAR
+from vtkmodules.vtkCommonCore import VTK_UNSIGNED_CHAR
+from vtkmodules.vtkCommonCore import VTK_SHORT
+from vtkmodules.vtkCommonCore import VTK_UNSIGNED_SHORT
+from vtkmodules.vtkCommonCore import VTK_INT
+from vtkmodules.vtkCommonCore import VTK_UNSIGNED_INT
+from vtkmodules.vtkCommonCore import VTK_LONG
+from vtkmodules.vtkCommonCore import VTK_UNSIGNED_LONG
+from vtkmodules.vtkCommonCore import VTK_FLOAT
+from vtkmodules.vtkCommonCore import VTK_DOUBLE
 
 class vtkImageImportFromArray:
     def __init__(self):

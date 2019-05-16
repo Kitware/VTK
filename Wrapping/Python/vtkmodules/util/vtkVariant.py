@@ -2,7 +2,7 @@
 Utility functions to mimic the template support functions for vtkVariant
 """
 
-from .. import vtkCommonCore
+from vtkmodules import vtkCommonCore
 import sys
 
 _variant_type_map = {

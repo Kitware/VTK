@@ -49,8 +49,15 @@ vtk_module_include("${ns}::WrappingTools"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../Common/Core"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../Utilities/KWIML")
 
+set(vtk_wrapping_tools_no_install)
+if (NOT VTK_INSTALL_SDK)
+  set(vtk_wrapping_tools_no_install
+    NO_INSTALL)
+endif ()
+
 if (NOT TARGET "${ns}::WrapHierarchy")
   vtk_module_add_executable(WrapHierarchy
+    ${vtk_wrapping_tools_no_install}
     BASENAME vtkWrapHierarchy
     vtkWrapHierarchy.c)
   target_link_libraries(WrapHierarchy
@@ -62,6 +69,7 @@ endif ()
 
 if (NOT TARGET WrapPython)
   vtk_module_add_executable(WrapPython
+    ${vtk_wrapping_tools_no_install}
     BASENAME vtkWrapPython
     vtkWrapPython.c
     vtkWrapPythonClass.c
@@ -80,6 +88,7 @@ if (NOT TARGET WrapPython)
     WrapPython)
 
   vtk_module_add_executable(WrapPythonInit
+    ${vtk_wrapping_tools_no_install}
     BASENAME vtkWrapPythonInit
     vtkWrapPythonInit.c)
   add_executable("${ns}::WrapPythonInit" ALIAS
@@ -88,6 +97,7 @@ endif ()
 
 if (NOT TARGET WrapJava)
   vtk_module_add_executable(ParseJava
+    ${vtk_wrapping_tools_no_install}
     BASENAME vtkParseJava
     vtkParseJava.c)
   target_link_libraries(ParseJava
@@ -97,6 +107,7 @@ if (NOT TARGET WrapJava)
     ParseJava)
 
   vtk_module_add_executable(WrapJava
+    ${vtk_wrapping_tools_no_install}
     BASENAME vtkWrapJava
     vtkWrapJava.c)
   target_link_libraries(WrapJava
