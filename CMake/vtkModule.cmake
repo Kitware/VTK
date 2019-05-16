@@ -1584,7 +1584,25 @@ function (_vtk_module_get_module_property module)
   endif ()
 endfunction ()
 
+function (_vtk_module_check_destinations prefix)
+  foreach (suffix IN LISTS ARGN)
+    if (IS_ABSOLUTE "${${prefix}${suffix}}")
+      message(FATAL_ERROR
+        "The `${suffix}` must not be an absolute path. Use "
+        "`CMAKE_INSTALL_PREFIX` to keep everything in a single installation "
+        "prefix.")
+    endif ()
+  endforeach ()
+endfunction ()
+
 function (_vtk_module_write_import_prefix file destination)
+  if (IS_ABSOLUTE "${destination}")
+    message(FATAL_ERROR
+      "An import prefix cannot be determined from an absolute installation "
+      "destination. Use `CMAKE_INSTALL_PREFIX` to keep everything in a single "
+      "installation prefix.")
+  endif ()
+
   file(APPEND "${file}"
     "set(_vtk_module_import_prefix \"\${CMAKE_CURRENT_LIST_DIR}\")\n")
   while (destination)
@@ -1942,6 +1960,14 @@ function (vtk_module_build)
     message(FATAL_ERROR
       "No modules given to build.")
   endif ()
+
+  _vtk_module_check_destinations(_vtk_build_
+    ARCHIVE_DESTINATION
+    HEADERS_DESTINATION
+    RUNTIME_DESTINATION
+    CMAKE_DESTINATION
+    LICENSE_DESTINATION
+    HIERARCHY_DESTINATION)
 
   foreach (_vtk_build_module IN LISTS _vtk_build_MODULES)
     get_property("_vtk_build_${_vtk_build_module}_depends" GLOBAL
