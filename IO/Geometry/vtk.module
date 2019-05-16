@@ -8,12 +8,12 @@ KIT
 GROUPS
   StandAlone
 DEPENDS
+  VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::IOCore
   VTK::IOLegacy
 PRIVATE_DEPENDS
-  VTK::CommonCore
   VTK::CommonMisc
   VTK::CommonSystem
   VTK::CommonTransforms
