@@ -503,7 +503,7 @@ void vtkOpenVRRenderWindow::Render()
       vr::k_unMaxTrackedDeviceCount, nullptr, 0 );
   }
 
-  this->GetState()->ResetGlViewportState();
+  this->GetState()->ResetGLViewportState();
   this->vtkRenderWindow::Render();
 }
 
@@ -815,7 +815,7 @@ vr::TrackedDeviceIndex_t vtkOpenVRRenderWindow::GetTrackedDeviceIndexForDevice(v
   return vr::k_unTrackedDeviceIndexInvalid;
 }
 
-uint32_t vtkOpenVRRenderWindow::GetNumberOfTrackedDevicesForDevice(vtkEventDataDevice dev)
+uint32_t vtkOpenVRRenderWindow::GetNumberOfTrackedDevicesForDevice(vtkEventDataDevice)
 {
   vr::TrackedDeviceIndex_t devices[1];
   return this->HMD->GetSortedTrackedDeviceIndicesOfClass(vr::TrackedDeviceClass_GenericTracker, devices, 1);

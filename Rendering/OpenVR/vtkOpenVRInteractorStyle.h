@@ -123,6 +123,7 @@ public:
   void HidePickActor();
 
   void ToggleDrawControls();
+  void SetDrawControls(bool);
 
   void SetInteractor(vtkRenderWindowInteractor* iren) override;
 

@@ -180,7 +180,7 @@ public:
   /**
    * Deactivate and UnBind the texture
    */
-  void ReleaseGraphicsResources(vtkWindow *win);
+  virtual void ReleaseGraphicsResources(vtkWindow *win);
 
   /**
    * Tells if the texture object is bound to the active texture image unit.

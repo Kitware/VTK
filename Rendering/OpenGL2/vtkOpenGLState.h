@@ -96,16 +96,16 @@ public:
   //@{
   // Methods to reset the state to the current OpenGL context value.
   //
-  void ResetGlClearColorState();
-  void ResetGlClearDepthState();
-  void ResetGlDepthFuncState();
-  void ResetGlDepthMaskState();
-  void ResetGlColorMaskState();
-  void ResetGlViewportState();
-  void ResetGlScissorState();
-  void ResetGlBlendFuncState();
-  void ResetGlBlendEquationState();
-  void ResetGlCullFaceState();
+  void ResetGLClearColorState();
+  void ResetGLClearDepthState();
+  void ResetGLDepthFuncState();
+  void ResetGLDepthMaskState();
+  void ResetGLColorMaskState();
+  void ResetGLViewportState();
+  void ResetGLScissorState();
+  void ResetGLBlendFuncState();
+  void ResetGLBlendEquationState();
+  void ResetGLCullFaceState();
   //@}
 
   //@{
