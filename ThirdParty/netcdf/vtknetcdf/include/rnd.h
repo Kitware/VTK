@@ -1,9 +1,14 @@
-/*
- *	Copyright 1996, University Corporation for Atmospheric Research
- *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
+/* Copyright 1996-2018, University Corporation for Atmospheric
+ * Research See netcdf/COPYRIGHT file for copying and redistribution
+ * conditions.
+ *
+ * This header file contains some macros for rounding numbers.
+ *
+ * Glenn Davis, 1996
  */
-/* $Id: rnd.h,v 2.13 1996/12/11 05:46:54 davis Exp $ */
-#ifndef _RNDUP
+
+#ifndef _RND_H
+#define _RND_H
 
 /* useful for aligning memory */
 #define	_RNDUP(x, unit)  ((((x) + (unit) - 1) / (unit)) \
@@ -14,4 +19,4 @@
 #define	M_RNDUP(x) _RNDUP(x, M_RND_UNIT)
 #define	M_RNDDOWN(x)  __RNDDOWN(x, M_RND_UNIT)
 
-#endif
+#endif /* _RND_H */

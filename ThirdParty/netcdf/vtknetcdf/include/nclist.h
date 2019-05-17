@@ -13,25 +13,25 @@ extern "C" {
 extern int nclistnull(void*);
 
 typedef struct NClist {
-  unsigned long alloc;
-  unsigned long length;
+  size_t alloc;
+  size_t length;
   void** content;
 } NClist;
 
 extern NClist* nclistnew(void);
 extern int nclistfree(NClist*);
 extern int nclistfreeall(NClist*);
-extern int nclistsetalloc(NClist*,unsigned long);
-extern int nclistsetlength(NClist*,unsigned long);
+extern int nclistsetalloc(NClist*,size_t);
+extern int nclistsetlength(NClist*,size_t);
 
 /* Set the ith element */
-extern int nclistset(NClist*,unsigned long,void*);
+extern int nclistset(NClist*,size_t,void*);
 /* Get value at position i */
-extern void* nclistget(NClist*,unsigned long);/* Return the ith element of l */
+extern void* nclistget(NClist*,size_t);/* Return the ith element of l */
 /* Insert at position i; will push up elements i..|seq|. */
-extern int nclistinsert(NClist*,unsigned long,void*);
+extern int nclistinsert(NClist*,size_t,void*);
 /* Remove element at position i; will move higher elements down */
-extern void* nclistremove(NClist* l, unsigned long i);
+extern void* nclistremove(NClist* l, size_t i);
 
 /* Tail operations */
 extern int nclistpush(NClist*,void*); /* Add at Tail */

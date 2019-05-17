@@ -45,6 +45,17 @@
 #define CRAYFLOAT 1 /* CRAY Floating point */
 #endif
 
+#ifndef __cplusplus
+  #if __STDC_VERSION__ == 199901L /* C99 */
+  /* "inline" is a keyword */
+  #elif _MSC_VER >= 1500 /* MSVC 9 or newer */
+    #define inline __inline
+  #elif __GNUC__ >= 3 /* GCC 3 or newer */
+    #define inline __inline
+  #else /* Unknown or ancient */
+    #define inline
+  #endif
+#endif
 
 /*
  * External sizes of the primitive elements.
@@ -156,7 +167,9 @@
 
 /* End ncx_len */
 
+#ifndef HAVE_SCHAR
 typedef signed char schar;
+#endif
 
 /*
  * Primitive numeric conversion functions.

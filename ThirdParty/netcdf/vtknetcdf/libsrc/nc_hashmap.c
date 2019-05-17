@@ -373,3 +373,26 @@ void NC_hashmapDelete(NC_hashmap* hash)
     free(hash);
   }
 }
+
+void
+NC_hashmap_verify(NC_hashmap* hash, NC_dim** dims)
+{
+    unsigned long i;
+    if(hash->count == 0) {
+	fprintf(stderr,"<empty>\n");
+	goto done;
+    }
+    for(i=0;i<hash->size;i++) {
+	hEntry* e = &hash->table[i];
+	if(e->flags == ACTIVE) {
+           fprintf(stderr,"[%d] key=%lu data=%ld",(int)i,e->key,e->data-1);
+	    if(dims != NULL) {
+	        fprintf(stderr," name=%s",dims[e->data-1]->name->cp);
+	    }	
+	    fprintf(stderr,"\n");
+	}
+    }
+
+done:
+    fflush(stderr);
+}

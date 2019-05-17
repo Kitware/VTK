@@ -25,13 +25,19 @@ struct GETodometer {
 };
 
 
-/** \internal
-
+/**
+ * @internal Initialize odometer.
+ *
+ * @param odom Pointer to odometer.
+ * @param rank
+ * @param start Start indicies.
+ * @param edges Counts.
+ * @param stride Strides.
+ *
  */
 static void
-odom_init(struct GETodometer* odom,
-	    int rank,
-	    const size_t* start, const size_t* edges, const ptrdiff_t* stride)
+odom_init(struct GETodometer* odom, int rank, const size_t* start,
+          const size_t* edges, const ptrdiff_t* stride)
 {
     int i;
     memset(odom,0,sizeof(struct GETodometer));
@@ -46,8 +52,12 @@ odom_init(struct GETodometer* odom,
     }
 }
 
-/** \internal
-
+/**
+ * @internal Return true if there is more.
+ *
+ * @param odom Pointer to odometer.
+ *
+ * @return True if there is more, 0 otherwise.
  */
 static int
 odom_more(struct GETodometer* odom)
@@ -55,8 +65,12 @@ odom_more(struct GETodometer* odom)
     return (odom->index[0] < odom->stop[0]);
 }
 
-/** \internal
-
+/**
+ * @internal Move odometer.
+ *
+ * @param odom Pointer to odometer.
+ *
+ * @return 0 or 1
  */
 static int
 odom_next(struct GETodometer* odom)
@@ -102,8 +116,31 @@ NC_get_vara(int ncid, int varid,
    return stat;
 }
 
-/** \ingroup variables
+/** 
+Get data for a variable.
+
+\param ncid NetCDF or group ID.
+
+\param varid Variable ID
+
+\param value Pointer where the data will be copied. Memory must be
+allocated by the user before this function is called.
+
+\param memtype the NC type of the data after it is read into
+memory. Data are converted from the variable's type to the memtype as
+they are read.
+
+\returns ::NC_NOERR No error.
+\returns ::NC_ENOTVAR Variable not found.
+\returns ::NC_EINVALCOORDS Index exceeds dimension bound.
+\returns ::NC_EEDGE Start+count exceeds dimension bound.
+\returns ::NC_ERANGE One or more of the values are out of range.
+\returns ::NC_EINDEFINE Operation not allowed in define mode.
+\returns ::NC_EBADID Bad ncid.
+
+\ingroup variables
 \internal
+\author Dennis Heimbigner
  */
 static int
 NC_get_var(int ncid, int varid, void *value, nc_type memtype)
@@ -529,9 +566,38 @@ NCDEFAULT_get_varm(int ncid, int varid, const size_t *start,
    return status;
 }
 
-/** \ingroup variables
+/** 
+Called by externally visible nc_get_vars_xxx routines.
+
+\param ncid NetCDF or group ID.
+
+\param varid Variable ID
+
+\param start start indices.
+
+\param edges count indices.
+
+\param stride data strides.
+
+\param value Pointer where the data will be copied. Memory must be
+allocated by the user before this function is called.
+
+\param memtype the NC type of the data after it is read into
+memory. Data are converted from the variable's type to the memtype as
+they are read.
+
+\returns ::NC_NOERR No error.
+\returns ::NC_ENOTVAR Variable not found.
+\returns ::NC_EINVALCOORDS Index exceeds dimension bound.
+\returns ::NC_EEDGE Start+count exceeds dimension bound.
+\returns ::NC_ERANGE One or more of the values are out of range.
+\returns ::NC_EINDEFINE Operation not allowed in define mode.
+\returns ::NC_EBADID Bad ncid.
+
+\ingroup variables
 \internal
-Called by externally visible nc_get_vars_xxx routines */
+\author Dennis Heimbigner
+*/
 static int
 NC_get_vars(int ncid, int varid, const size_t *start,
 	    const size_t *edges, const ptrdiff_t *stride, void *value,
@@ -547,9 +613,41 @@ NC_get_vars(int ncid, int varid, const size_t *start,
    return ncp->dispatch->get_vars(ncid,varid,start,edges,stride,value,memtype);
 }
 
-/** \ingroup variables
+/** 
+Called by externally visible nc_get_varm_xxx routines. Note that the
+varm routines are deprecated. Use the vars routines instead for new
+code.
+
+\param ncid NetCDF or group ID.
+
+\param varid Variable ID
+
+\param start start indices.
+
+\param edges count indices.
+
+\param stride data strides.
+
+\param map mapping of dimensions.
+
+\param value Pointer where the data will be copied. Memory must be
+allocated by the user before this function is called.
+
+\param memtype the NC type of the data after it is read into
+memory. Data are converted from the variable's type to the memtype as
+they are read.
+
+\returns ::NC_NOERR No error.
+\returns ::NC_ENOTVAR Variable not found.
+\returns ::NC_EINVALCOORDS Index exceeds dimension bound.
+\returns ::NC_EEDGE Start+count exceeds dimension bound.
+\returns ::NC_ERANGE One or more of the values are out of range.
+\returns ::NC_EINDEFINE Operation not allowed in define mode.
+\returns ::NC_EBADID Bad ncid.
+
+\ingroup variables
 \internal
-Called by externally visible nc_get_varm_xxx routines
+\author Dennis Heimbigner
  */
 static int
 NC_get_varm(int ncid, int varid, const size_t *start,

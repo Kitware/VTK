@@ -57,6 +57,7 @@ NCDEFAULT_put_varm,
 NC4_inq_var_all,
 
 NC4_var_par_access,
+NC4_def_var_fill,
 
 #ifdef USE_NETCDF4
 NC4_show_metadata,
@@ -93,8 +94,8 @@ NC4_def_opaque,
 NC4_def_var_deflate,
 NC4_def_var_fletcher32,
 NC4_def_var_chunking,
-NC4_def_var_fill,
 NC4_def_var_endian,
+NC4_def_var_filter,
 NC4_set_var_chunk_cache,
 NC4_get_var_chunk_cache,
 #endif
@@ -103,6 +104,12 @@ NC4_get_var_chunk_cache,
 
 NC_Dispatch* NC4_dispatch_table = NULL; /* moved here from ddispatch.c */
 
+/**
+ * @internal Initialize netCDF-4.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_initialize(void)
 {
@@ -110,6 +117,12 @@ NC4_initialize(void)
     return NC_NOERR;
 }
 
+/**
+ * @internal Finalize netCDF-4.
+ *
+ * @return ::NC_NOERR No error.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_finalize(void)
 {

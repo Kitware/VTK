@@ -225,7 +225,7 @@ inline static void
 swapn2b(void *dst, const void *src, size_t nn)
 {
     /* it is OK if dst == src */
-    int i;
+    size_t i;
     uint16_t *op = (uint16_t*) dst;
     uint16_t *ip = (uint16_t*) src;
     for (i=0; i<nn; i++) {
@@ -314,7 +314,7 @@ swap4b(void *dst, const void *src)
 inline static void
 swapn4b(void *dst, const void *src, size_t nn)
 {
-    int i;
+    size_t i;
     uint32_t *op = (uint32_t*) dst;
     uint32_t *ip = (uint32_t*) src;
     for (i=0; i<nn; i++) {
@@ -385,10 +385,15 @@ swap8b(void *dst, const void *src)
     op = (uint32_t*)((char*)dst+4);
     *op = SWAP4(*op);
 #else
+    uint64_t tmp = *(uint64_t*)src;
+    tmp = SWAP8(tmp);
+    memcpy(dst, &tmp, 8);
+
+    /* Codes below will cause "break strict-aliasing rules" in gcc
     uint64_t *op = (uint64_t*)dst;
-    /* copy over, make the below swap in-place */
     *op = *(uint64_t*)src;
     *op = SWAP8(*op);
+    */
 #endif
 
 #if 0
@@ -422,7 +427,7 @@ inline static void
 swapn8b(void *dst, const void *src, size_t nn)
 {
 #ifdef FLOAT_WORDS_BIGENDIAN
-    int i;
+    size_t i;
     uint64_t *dst_p = (uint64_t*) dst;
     uint64_t *src_p = (uint64_t*) src;
     for (i=0; i<nn; i++) {
@@ -434,7 +439,7 @@ swapn8b(void *dst, const void *src, size_t nn)
         *op = SWAP4(*op);
     }
 #else
-    int i;
+    size_t i;
     uint64_t *op = (uint64_t*) dst;
     uint64_t *ip = (uint64_t*) src;
     for (i=0; i<nn; i++) {
@@ -5513,6 +5518,9 @@ ncx_get_size_t(const void **xpp,  size_t *ulp)
 int
 ncx_put_off_t(void **xpp, const off_t *lp, size_t sizeof_off_t)
 {
+	/* similar to put_ix_int() */
+	uchar *cp = (uchar *) *xpp;
+
 	/* No negative offsets stored in netcdf */
 	if (*lp < 0) {
 	  /* Assume this is an overflow of a 32-bit int... */
@@ -5520,9 +5528,6 @@ ncx_put_off_t(void **xpp, const off_t *lp, size_t sizeof_off_t)
 	}
 
 	assert(sizeof_off_t == 4 || sizeof_off_t == 8);
-
-	/* similar to put_ix_int() */
-	uchar *cp = (uchar *) *xpp;
 
 	if (sizeof_off_t == 4) {
 		*cp++ = (uchar) ((*lp)               >> 24);
