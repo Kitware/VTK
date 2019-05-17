@@ -74,7 +74,8 @@ public:
   //@{
   /**
    * Get/Set whether Tolerance is treated as an absolute or relative tolerance.
-   * The default is to treat it as an absolute tolerance.
+   * The default is to treat it as an absolute tolerance. When off, the
+   * tolerance is multiplied by the diagonal of the bounding box of the input.
    */
   vtkSetMacro(ToleranceIsAbsolute, bool);
   vtkGetMacro(ToleranceIsAbsolute, bool);
@@ -131,7 +132,8 @@ protected:
   // Tolerance used for point merging
   double Tolerance;
 
-  // If true, tolerance is multipled by the diagonal of the bounding box of the input.
+  // If true, tolerance is used as is. If false, tolerance is multipled by
+  // the diagonal of the bounding box of the input.
   bool ToleranceIsAbsolute;
 
   // Output data set type.
