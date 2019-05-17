@@ -250,12 +250,16 @@ void vtkSynchronizedRenderers::HandleEndRender()
     {
       this->CaptureRenderedImage();
     }
-
-    this->PushImageToScreen();
   }
 
-  // restore viewport
+  // restore viewport before `PushImageToScreen`, but after
+  // `CaptureRenderedImage`.
   this->Renderer->SetViewport(this->LastViewport);
+
+  if (this->WriteBackImages)
+  {
+    this->PushImageToScreen();
+  }
 
   // restore FXAA state.
   this->Renderer->SetUseFXAA(this->UseFXAA);
@@ -706,6 +710,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
   ostate->vtkglEnable(GL_SCISSOR_TEST);
   ostate->vtkglViewport(low_point[0], low_point[1], size[0], size[1]);
   ostate->vtkglScissor(low_point[0], low_point[1], size[0], size[1]);
+
   ren->Clear();
   return this->PushToFrameBuffer(ren);
 }
@@ -727,12 +732,18 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
   // framebuffers have their color premultiplied by alpha.
   vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
   ostate->vtkglEnable(GL_BLEND);
-  ostate->vtkglBlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
-    GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+  ostate->vtkglBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+    GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-  renWin->DrawPixels(this->GetWidth(), this->GetHeight(),
-    this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
-    this->GetRawPtr()->GetVoidPointer(0));
+  int size[2], low_point[2];
+  ren->GetTiledSizeAndOrigin(&size[0], &size[1], &low_point[0], &low_point[1]);
+
+  renWin->DrawPixels(
+      low_point[0], low_point[1], low_point[0] + size[0]-1, low_point[1] + size[1]-1,
+      0, 0, this->GetWidth()-1, this->GetHeight()-1,
+      this->GetWidth(), this->GetHeight(),
+      this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
+      this->GetRawPtr()->GetVoidPointer(0));
 
   vtkOpenGLStaticCheckErrorMacro("failed after PushToFrameBuffer");
   vtkOpenGLRenderUtilities::MarkDebugEvent("vtkRawImage::PushToViewport end");
