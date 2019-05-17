@@ -55,7 +55,7 @@ typedef enum {
 	NC_ATTRIBUTE =	12
 } NCtype;
 
-
+#ifndef NEWHASHMAP /* temporary hack until new hash is complete */
 /*! Hashmap-related structs.
   NOTE: 'data' is the dimid or varid which is non-negative.
   we store the dimid+1 so a valid entry will have
@@ -72,14 +72,14 @@ typedef struct s_hashmap {
   unsigned long size;
   unsigned long count;
 } NC_hashmap;
-
+#endif
 
 /*
  * NC dimension structure
  */
 typedef struct {
 	/* all xdr'd */
-	NC_string *name;
+	NC_string* name;
 	size_t size;
 } NC_dim;
 
@@ -124,19 +124,21 @@ elem_NC_dimarray(const NC_dimarray *ncap, size_t elem);
  */
 typedef struct {
 	size_t xsz;		/* amount of space at xvalue */
-	/* below gets xdr'd */
+ 	/* begin xdr */
 	NC_string *name;
 	nc_type type;		/* the discriminant */
 	size_t nelems;		/* length of the array */
 	void *xvalue;		/* the actual data, in external representation */
+ 	/* end xdr */
 } NC_attr;
 
 typedef struct NC_attrarray {
 	size_t nalloc;		/* number allocated >= nelems */
-	/* below gets xdr'd */
+ 	/* begin xdr */
 	/* NCtype type = NC_ATTRIBUTE */
 	size_t nelems;		/* length of the array */
 	NC_attr **value;
+ 	/* end xdr */
 } NC_attrarray;
 
 /* Begin defined in attr.c */
@@ -177,8 +179,8 @@ typedef struct NC_var {
 	size_t xsz;		/* xszof 1 element */
 	size_t *shape; /* compiled info: dim->size of each dim */
 	off_t *dsizes; /* compiled info: the right to left product of shape */
-	/* below gets xdr'd */
-	NC_string *name;
+	/* begin xdr */
+	NC_string* name;
 	/* next two: formerly NC_iarray *assoc */ /* user definition */
 	size_t ndims;	/* assoc->count */
 	int *dimids;	/* assoc->value */
@@ -186,20 +188,18 @@ typedef struct NC_var {
 	nc_type type;		/* the discriminant */
 	size_t len;		/* the total length originally allocated */
 	off_t begin;
+	/* end xdr */
+	int no_fill;		/* whether fill mode is ON or OFF */
 } NC_var;
 
 typedef struct NC_vararray {
 	size_t nalloc;		/* number allocated >= nelems */
-	/* below gets xdr'd */
+	/* begin xdr */
 	/* NCtype type = NC_VARIABLE */
 	size_t nelems;		/* length of the array */
-  NC_hashmap *hashmap;
-  NC_var **value;
+        NC_hashmap *hashmap;
+        NC_var **value;
 } NC_vararray;
-
-/* Begin defined in lookup3.c */
-
-/* End defined in lookup3.c */
 
 /* Begin defined in var.c */
 
@@ -265,7 +265,6 @@ extern unsigned long NC_hashmapCount(NC_hashmap*);
 extern void NC_hashmapDelete(NC_hashmap*);
 
 /* end defined in nc_hashmap.c */
-
 
 #define IS_RECVAR(vp) \
 	((vp)->shape != NULL ? (*(vp)->shape == NC_UNLIMITED) : 0 )
@@ -426,6 +425,9 @@ nc_put_rec(int ncid, size_t recnum, void *const *datap);
 
 extern int
 NC_check_vlens(NC3_INFO *ncp);
+
+extern int
+NC_check_voffs(NC3_INFO *ncp);
 
 /* Define accessors for the dispatchdata */
 #define NC3_DATA(nc) ((NC3_INFO*)(nc)->dispatchdata)

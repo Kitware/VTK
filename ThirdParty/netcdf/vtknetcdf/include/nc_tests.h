@@ -1,11 +1,12 @@
-/** \internal
-\file
-Common includes, defines, etc., for test code in the libsrc4 and
-nc_test4 directories.
-
-This is part of the netCDF package. Copyright 2005 University
-Corporation for Atmospheric Research/Unidata. See \ref copyright file
-for conditions of use.
+/* This is part of the netCDF package. Copyright 2005 University
+ * Corporation for Atmospheric Research/Unidata. See \ref copyright
+ * file for conditions of use. */
+/** @internal @file
+ *
+ * Common includes, defines, etc., for test code in the libsrc4 and
+ * nc_test4 directories.
+ *
+ * @author Ed Hartnett, Denis Heimbigner, Ward Fisher
 */
 
 #ifndef _NC_TESTS_H
@@ -22,8 +23,11 @@ for conditions of use.
 #include "netcdf.h"
 //#include "err_macros.h"
 
+/** NC_MAX_DIMS for tests.  Allows different NC_MAX_DIMS values
+ * without breaking this test with a heap or stack overflow. */
+#define NC_TESTS_MAX_DIMS 1024
 
-#define NC_TESTS_MAX_DIMS 1024 /**< NC_MAX_DIMS for tests.  Allows different NC_MAX_DIMS values without breaking this test with a heap or stack overflow. */
+#define MAX_NUM_FORMATS 5 /**< Max number of available binary formats. */
 
 /** Useful define for tests. */
 /** \{ */
@@ -35,6 +39,10 @@ for conditions of use.
 #define THIRTY_TWO_MEG (SIXTEEN_MEG * 2)
 #define SIXTY_FOUR_MEG (SIXTEEN_MEG * 4)
 #define ONE_TWENTY_EIGHT_MEG (SIXTEEN_MEG * 8)
+#define TEST_VAL_42 42
+#define BAD_NAME "dd//d/  "
+#define NUM_CLASSIC_TYPES 6
+#define NUM_NETCDF_TYPES 12
 /** \} */
 
 #ifdef USE_PNETCDF

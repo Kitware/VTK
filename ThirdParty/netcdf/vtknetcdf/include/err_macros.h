@@ -4,6 +4,8 @@
 
    Common includes, defines, etc., for test code in the libsrc4 and
    nc_test4 directories.
+
+   Ed Hartnett, Russ Rew, Dennis Heimbigner
 */
 
 #ifndef _ERR_MACROS_H
@@ -20,12 +22,6 @@
  * generally cosists of several sets of tests. */
 static int total_err = 0, err = 0;
 
-#if 0
-/* This is handy for print statements. */
-static char *format_name[] = {"", "classic", "64-bit offset", "netCDF-4", 
-			      "netCDF-4 classic model"};
-#endif
-
 /* This macro prints an error message with line number and name of
  * test program. */
 #define ERR do { \
@@ -33,18 +29,12 @@ fflush(stdout); /* Make sure our stdout is synced with stderr. */ \
 err++; \
 fprintf(stderr, "Sorry! Unexpected result, %s, line: %d\n", \
 	__FILE__, __LINE__);				    \
+fflush(stderr);                                             \
 return 2;                                                   \
 } while (0)
 
-/* This macro prints an error message with line number and name of
- * test program, and then exits the program. */
-
-#define ERR_RET do { \
-fflush(stdout); /* Make sure our stdout is synced with stderr. */ \
-fprintf(stderr, "Sorry! Unexpected result, %s, line: %d\n", \
-	__FILE__, __LINE__);				    \
-return 2;                                                   \
-} while (0)
+/* Duplicate with different name. */
+#define ERR_RET ERR
 
 #define ERR_GOTO do { \
 fflush(stdout); /* Make sure our stdout is synced with stderr. */ \
@@ -58,12 +48,11 @@ int ERR_report(int stat, const char* file, int line)
     fflush(stdout);
     fprintf(stderr, "Sorry! Unexpected result, %s, line: %d; status=%d\n",
 	file,line,stat);
-    fflush(stdout);
+    fflush(stderr);
     return 1;
 }
 
 #define ERRSTAT(stat) {err+=ERR_report(stat,__FILE__,__LINE__);}
-
 
 /* After a set of tests, report the number of errors, and increment
  * total_err. */
@@ -77,12 +66,6 @@ int ERR_report(int stat, const char* file, int line)
    else \
       printf("ok.\n"); \
 } while (0)
-
-/* If extra memory debugging is not in use (as it usually isn't),
- * define away the nc_exit function, which may be in some tests. */
-#ifndef EXTRA_MEM_DEBUG
-#define nc_exit()
-#endif
 
 /* This macro prints out our total number of errors, if any, and exits
  * with a 0 if there are not, or a 2 if there were errors. Make will

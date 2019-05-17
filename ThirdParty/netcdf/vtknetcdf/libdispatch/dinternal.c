@@ -20,7 +20,8 @@ NCDISPATCH_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
                int *shufflep, int *deflatep, int *deflate_levelp,
                int *fletcher32p, int *contiguousp, size_t *chunksizesp,
                int *no_fill, void *fill_valuep, int *endiannessp,
-	       int *options_maskp, int *pixels_per_blockp)
+	       unsigned int* idp, size_t* nparamsp, unsigned int* params
+               )
 {
    NC* ncp;
    int stat = NC_check_id(ncid,&ncp);
@@ -32,8 +33,7 @@ NCDISPATCH_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
       contiguousp, chunksizesp,
       no_fill, fill_valuep,
       endiannessp,
-      options_maskp, 
-      pixels_per_blockp);
+      idp, nparamsp, params);
 }
 
 int
