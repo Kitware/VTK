@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkProbeFilter.h"
 
+#include "vtkAbstractCellLocator.h"
 #include "vtkBoundingBox.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
@@ -30,7 +31,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocal.h"
-#include "vtkStaticCellLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
@@ -404,13 +404,12 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
 
   // vtkPointSet based datasets do not have an implicit structure to their
   // points. A cell locator performs better here than using the dataset's
-  // FindCell function.
+  // FindCell function. Using its own FindCell method by default.
   vtkSmartPointer<vtkAbstractCellLocator> cellLocator;
-  if (vtkPointSet::SafeDownCast(source) != nullptr)
+  if ( (vtkPointSet::SafeDownCast(source) != nullptr) &&
+    (this->CellLocatorPrototype != nullptr) )
   {
-    cellLocator.TakeReference(this->CellLocatorPrototype ?
-                              this->CellLocatorPrototype->NewInstance() :
-                              vtkStaticCellLocator::New());
+    cellLocator.TakeReference(this->CellLocatorPrototype->NewInstance());
     cellLocator->SetDataSet(source);
     cellLocator->Update();
   }
