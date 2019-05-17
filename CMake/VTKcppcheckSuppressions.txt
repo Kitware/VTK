@@ -34,6 +34,14 @@
 // If cppcheck itself crashes, well, that's its problem, ignore that.
 cppcheckError
 
+// Tests contain lots of hardcoded values, etc. They overwhelm reporting of issues
+// in the implementation files. So for now suppress the test's issues so we can focus
+// on implementation issues
+constArgument:*/Testing/Cxx/*
+duplicateCondition:*/Testing/Cxx/*
+knownConditionTrueFalse:*/Testing/Cxx/*
+unreadVariable:*/Testing/Cxx/*
+
 // When analyzing different define possibilities, it will sometimes hit a #error line
 preprocessorErrorDirective
 
