@@ -496,6 +496,46 @@ void vtkOpenVRInteractorStyle::ToggleDrawControls()
   }
 }
 
+void vtkOpenVRInteractorStyle::SetDrawControls(bool val)
+{
+  if (this->CurrentRenderer == nullptr)
+  {
+    return;
+  }
+
+  //Enable helpers
+  for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
+  {
+    //No helper for HMD
+    if (static_cast<vtkEventDataDevice>(d) ==
+      vtkEventDataDevice::HeadMountedDisplay)
+    {
+      continue;
+    }
+
+    for (int i = 0; i < vtkEventDataNumberOfInputs; i++)
+    {
+      if (this->ControlsHelpers[d][i])
+      {
+        if (this->ControlsHelpers[d][i]->GetRenderer() != this->CurrentRenderer)
+        {
+          vtkRenderer *ren = this->ControlsHelpers[d][i]->GetRenderer();
+          if (ren)
+          {
+            ren->RemoveViewProp(this->ControlsHelpers[d][i]);
+          }
+          this->ControlsHelpers[d][i]->SetRenderer(this->CurrentRenderer);
+          this->ControlsHelpers[d][i]->BuildRepresentation();
+          //this->ControlsHelpers[iDevice][iInput]->SetEnabled(false);
+          this->CurrentRenderer->AddViewProp(this->ControlsHelpers[d][i]);
+        }
+
+        this->ControlsHelpers[d][i]->SetEnabled(val);
+      }
+    }
+  }
+}
+
 //----------------------------------------------------------------------------
 // Interaction methods
 //----------------------------------------------------------------------------
