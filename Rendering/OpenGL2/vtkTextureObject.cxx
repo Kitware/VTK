@@ -196,6 +196,7 @@ vtkTextureObject::vtkTextureObject()
 {
   this->Context = nullptr;
   this->Handle = 0;
+  this->OwnHandle = false;
   this->NumberOfDimensions = 0;
   this->Target = 0;
   this->Components = 0;
@@ -309,6 +310,21 @@ void vtkTextureObject::DestroyTexture()
   this->ResetFormatAndType();
 }
 
+void vtkTextureObject::AssignToExistingTexture(
+  unsigned int handle,
+  unsigned int target)
+{
+  if (this->Handle == handle && this->Target == target)
+  {
+    return;
+  }
+
+  this->Handle = handle;
+  this->Target = target;
+  this->OwnHandle = false;
+  this->Modified();
+}
+
 //----------------------------------------------------------------------------
 void vtkTextureObject::CreateTexture()
 {
@@ -321,6 +337,7 @@ void vtkTextureObject::CreateTexture()
   {
     GLuint tex=0;
     glGenTextures(1, &tex);
+    this->OwnHandle = true;
     vtkOpenGLCheckErrorMacro("failed at glGenTextures");
     this->Handle=tex;
 
@@ -414,8 +431,12 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
       vtkOpenGLRenderWindow::SafeDownCast(win);
     // you can commewnt out the next line to look for textures left active
     rwin->DeactivateTexture(this);
-    GLuint tex = this->Handle;
-    glDeleteTextures(1, &tex);
+    if (this->OwnHandle)
+    {
+      GLuint tex = this->Handle;
+      glDeleteTextures(1, &tex);
+      this->OwnHandle = false;
+    }
     this->Handle = 0;
     this->NumberOfDimensions = 0;
     this->Target =0;

@@ -174,6 +174,9 @@ public:
   class VTKRENDERINGOPENGL2_EXPORT ScopedglBlendFuncSeparate
     : public ScopedValue<std::array<unsigned int, 4> > {
     public: ScopedglBlendFuncSeparate(vtkOpenGLState *state); };
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglDepthFunc
+    : public ScopedValue<unsigned int> {
+    public: ScopedglDepthFunc(vtkOpenGLState *state); };
 
   class ScopedglEnableDisable
   {

@@ -282,6 +282,13 @@ vtkOpenGLState::ScopedglColorMask::ScopedglColorMask(vtkOpenGLState *s)
   this->Method = &vtkOpenGLState::ColorMask;
 }
 
+vtkOpenGLState::ScopedglDepthFunc::ScopedglDepthFunc(vtkOpenGLState *s)
+{
+  this->State = s;
+  this->Value = this->State->CurrentState.DepthFunc;
+  this->Method = &vtkOpenGLState::vtkglDepthFunc;
+}
+
 vtkOpenGLState::ScopedglClearColor::ScopedglClearColor(vtkOpenGLState *s)
 {
   this->State = s;

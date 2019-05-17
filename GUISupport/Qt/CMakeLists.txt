@@ -8,6 +8,9 @@ set(classes
   QVTKOpenGLWindow
   QVTKRenderWindowAdapter
   vtkEventQtSlotConnect
+  vtkQWidgetRepresentation
+  vtkQWidgetTexture
+  vtkQWidgetWidget
   vtkQtAbstractModelAdapter
   vtkQtAnnotationLayersModelAdapter
   vtkQtConnection
