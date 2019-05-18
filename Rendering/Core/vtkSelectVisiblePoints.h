@@ -111,12 +111,25 @@ public:
 
   //@{
   /**
-   * Set/Get a tolerance to use to determine whether a point is visible. A
+   * Set/Get a tolerance in normalized display coordinate system
+   * to use to determine whether a point is visible. A
    * tolerance is usually required because the conversion from world space
    * to display space during rendering introduces numerical round-off.
    */
   vtkSetClampMacro(Tolerance, double,0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Tolerance, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get a tolerance in world coordinate system
+   * to use to determine whether a point is visible.
+   * This allows determining visibility of small spheroid objects
+   * (such as glyphs) with known size in world coordinates.
+   * By default it is set to 0.
+   */
+  vtkSetClampMacro(ToleranceWorld, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(ToleranceWorld, double);
   //@}
 
   /**
@@ -150,7 +163,9 @@ protected:
   int Selection[4];
   int InternalSelection[4];
   vtkTypeBool SelectInvisible;
+  double DirectionOfProjection[3];
   double Tolerance;
+  double ToleranceWorld;
 
 private:
   vtkSelectVisiblePoints(const vtkSelectVisiblePoints&) = delete;

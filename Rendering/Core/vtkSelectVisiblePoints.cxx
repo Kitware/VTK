@@ -40,7 +40,9 @@ vtkSelectVisiblePoints::vtkSelectVisiblePoints()
   this->InternalSelection[0] = this->InternalSelection[2] = 0;
   this->InternalSelection[1] = this->InternalSelection[3] = 1600;
   this->CompositePerspectiveTransform = vtkMatrix4x4::New();
+  this->DirectionOfProjection[0] = this->DirectionOfProjection[1] = this->DirectionOfProjection[2] = 0.0;
   this->Tolerance = 0.01;
+  this->ToleranceWorld = 0.0;
   this->SelectInvisible = 0;
 }
 
@@ -197,6 +199,12 @@ void vtkSelectVisiblePoints::PrintSelf(ostream& os, vtkIndent indent)
 
 float * vtkSelectVisiblePoints::Initialize(bool getZbuff)
 {
+  vtkCamera* cam = this->Renderer->GetActiveCamera();
+  if (!cam)
+  {
+    return nullptr;
+  }
+  cam->GetDirectionOfProjection(this->DirectionOfProjection);
 
   int *size = this->Renderer->GetRenderWindow()->GetSize();
 
@@ -246,6 +254,12 @@ bool vtkSelectVisiblePoints::IsPointOccluded(
   double view[4];
   double dx[3], z;
   double xx[4] = {x[0], x[1], x[2], 1.0};
+  if (this->ToleranceWorld > 0.0)
+  {
+    xx[0] -= this->DirectionOfProjection[0] * this->ToleranceWorld;
+    xx[1] -= this->DirectionOfProjection[1] * this->ToleranceWorld;
+    xx[2] -= this->DirectionOfProjection[2] * this->ToleranceWorld;
+  }
 
   this->CompositePerspectiveTransform->MultiplyPoint(xx, view);
   if (view[3] == 0.0)
@@ -275,7 +289,7 @@ bool vtkSelectVisiblePoints::IsPointOccluded(
         static_cast<int>(dx[1]));
     }
 
-    if( dx[2] < (z + this->Tolerance) )
+    if (dx[2] < (z + this->Tolerance))
     {
       return true;
     }

@@ -81,6 +81,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestPolygonSelection.cxx
   TestResetCameraVerticalAspectRatio.cxx
   TestResetCameraVerticalAspectRatioParallel.cxx
+  TestSelectVisiblePoints.cxx,NO_VALID
   TestSplitViewportStereoHorizontal.cxx
   TestTexturedBackground.cxx
   TestTextureSize.cxx,NO_VALID
