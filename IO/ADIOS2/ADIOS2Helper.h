@@ -25,6 +25,8 @@
 #include "vtkSmartPointer.h"
 #include <vtk_pugixml.h>
 
+#include <adios2.h>
+
 namespace adios2vtk
 {
 namespace helper
@@ -37,6 +39,9 @@ MPI_Comm MPIGetComm();
 
 /** Get current MPI rank */
 int MPIGetRank();
+
+/** Get current MPI size */
+int MPIGetSize();
 
 /**
  * Get safely a pugi::xml_document from XML as a string
@@ -124,6 +129,13 @@ types::DataSet XMLInitDataSet(
 
 template<class T>
 vtkSmartPointer<vtkDataArray> NewDataArray();
+
+/**
+ * Simple partition to load balance shape across viz processes
+ * @param shape input
+ * @return selection first=start second=count
+ */
+adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims& shape);
 
 } // end namespace helper
 } // end namespace adiosvtk

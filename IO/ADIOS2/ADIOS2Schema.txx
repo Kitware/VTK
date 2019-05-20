@@ -38,11 +38,35 @@ void ADIOS2Schema::GetDataArrayCommon(const std::string& variableName,
   }
 
   const adios2::Dims shape = variable.Shape(step);
-  // TODO: 1 block for now, MPI partition later
-  variable.SetSelection({ adios2::Dims(shape.size(), 0), shape });
+  if (shape.empty())
+  {
+    std::cout << "WARNING: variable " + variable.Name() + " does not exist in step " +
+        std::to_string(step) + "...skipping\n";
+    return;
+  }
+
+  // TODO: test partition for other dimensions
+  const adios2::Box<adios2::Dims> selection = helper::PartitionCart1D(shape);
+  const adios2::Dims& start = selection.first;
+  const adios2::Dims& count = selection.second;
+
+  std::cout << "  Start: ";
+  for (auto i = 0; i < 3; ++i)
+  {
+    std::cout << start[i] << " ";
+  }
+  std::cout << "\n";
+  std::cout << "  Count: ";
+  for (auto i = 0; i < 3; ++i)
+  {
+    std::cout << count[i] << " ";
+  }
+  std::cout << "\n";
+
+  variable.SetSelection({ start, count });
   variable.SetStepSelection({ step, 1 });
 
-  const size_t nElements = helper::TotalElements(shape);
+  const size_t nElements = helper::TotalElements(count);
 
   dataArray = helper::NewDataArray<T>();
   dataArray->Allocate(nElements);

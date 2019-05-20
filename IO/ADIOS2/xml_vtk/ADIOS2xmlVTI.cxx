@@ -16,6 +16,7 @@
 #include "vtkCellData.h"
 #include "vtkImageData.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 
@@ -45,7 +46,12 @@ void ADIOS2xmlVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
   ReadPiece(step, 0); // just read piece 0 for now
 
   // TODO MPI decomposition
-  multiBlock->SetBlock(0, m_ImageData);
+  const unsigned int rank = static_cast<unsigned int>(helper::MPIGetRank());
+
+  // TODO debugging
+  vtkNew<vtkMultiPieceDataSet> pieces;
+  pieces->SetPiece(rank, m_ImageData);
+  multiBlock->SetBlock(0, pieces);
 }
 
 void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
@@ -134,23 +140,23 @@ void ADIOS2xmlVTI::Init()
   };
 
   auto lf_InitExtent = [&](const pugi::xml_node& extentNode) {
-    const pugi::xml_attribute wholeExtent = adios2vtk::helper::XMLAttribute(
-      "WholeExtent", extentNode, true, "when reading WholeExtent in ImageData", true);
-
-    // TODO: allow varying mesh over time by assigning domain extent to variables
-    // Whole Extent
-    std::vector<int> wholeExtentV = adios2vtk::helper::StringToVector<int>(wholeExtent.value());
-    if (wholeExtentV.size() != 6)
+    // Spacing
+    const pugi::xml_attribute spacingXML = adios2vtk::helper::XMLAttribute(
+      "Spacing", extentNode, true, "when reading Spacing in ImageData", true);
+    const std::vector<double> spacingV =
+      adios2vtk::helper::StringToVector<double>(spacingXML.value());
+    if (spacingV.size() != 3)
     {
       throw std::runtime_error(
-        "ERROR: incorrect WholeExtent attribute in ImageData from" + m_Engine->Name());
+        "ERROR: incorrect Spacing attribute in ImageData from " + m_Engine->Name());
     }
-    m_ImageData->SetExtent(wholeExtentV.data());
+    m_ImageData->SetSpacing(spacingV.data());
 
     // Origin
-    const pugi::xml_attribute origin = adios2vtk::helper::XMLAttribute(
+    const pugi::xml_attribute originXML = adios2vtk::helper::XMLAttribute(
       "Origin", extentNode, true, "when reading Origin in ImageData", true);
-    const std::vector<double> originV = adios2vtk::helper::StringToVector<double>(origin.value());
+    const std::vector<double> originV =
+      adios2vtk::helper::StringToVector<double>(originXML.value());
     if (originV.size() != 3)
     {
       throw std::runtime_error(
@@ -158,16 +164,40 @@ void ADIOS2xmlVTI::Init()
     }
     m_ImageData->SetOrigin(originV.data());
 
-    // Spacing
-    const pugi::xml_attribute spacing = adios2vtk::helper::XMLAttribute(
-      "Spacing", extentNode, true, "when reading Spacing in ImageData", true);
-    const std::vector<double> spacingV = adios2vtk::helper::StringToVector<double>(spacing.value());
-    if (spacingV.size() != 3)
+    // TODO: allow varying mesh over time by assigning domain extent to variables
+
+    // Whole Extent is where piece partition is taken into account
+    const pugi::xml_attribute wholeExtentXML = adios2vtk::helper::XMLAttribute(
+      "WholeExtent", extentNode, true, "when reading WholeExtent in ImageData", true);
+
+    const std::vector<size_t> wholeExtentV =
+      adios2vtk::helper::StringToVector<size_t>(wholeExtentXML.value());
+    if (wholeExtentV.size() != 6)
     {
       throw std::runtime_error(
-        "ERROR: incorrect Spacing attribute in ImageData from " + m_Engine->Name());
+        "ERROR: incorrect WholeExtent attribute in ImageData from" + m_Engine->Name());
     }
-    m_ImageData->SetSpacing(spacingV.data());
+
+    adios2::Dims shape(3);
+    for (size_t i = 0; i < 3; ++i)
+    {
+      shape[2 - i] = wholeExtentV[2 * i + 1] - wholeExtentV[2 * i] - 1;
+      std::cout << "Shape " << i << " " << shape[i] << "\n";
+    }
+
+    const adios2::Box<adios2::Dims> selection = helper::PartitionCart1D(shape);
+    const adios2::Dims& start = selection.first;
+    const adios2::Dims& count = selection.second;
+
+    std::vector<int> extent(6);
+    for (size_t i = 0; i < 3; ++i)
+    {
+      extent[2 * i] = static_cast<int>(start[2 - i]);
+      extent[2 * i + 1] = static_cast<int>(start[2 - i] + count[2 - i]);
+
+      std::cout << "Extent " << i << " " << extent[2 * i] << " " << extent[2 * i + 1] << "\n";
+    }
+    m_ImageData->SetExtent(extent.data());
   };
 
   // BODY OF FUNCTION STARTS HERE

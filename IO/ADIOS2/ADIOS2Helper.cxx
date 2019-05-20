@@ -36,7 +36,7 @@ MPI_Comm MPIGetComm()
     }
   }
 
-  if (comm == nullptr)
+  if (comm == nullptr || comm == MPI_COMM_NULL)
   {
     throw std::runtime_error("ERROR: ADIOS2 requires MPI communicator for parallel reads\n");
   }
@@ -50,6 +50,14 @@ int MPIGetRank()
   int rank;
   MPI_Comm_rank(comm, &rank);
   return rank;
+}
+
+int MPIGetSize()
+{
+  MPI_Comm comm = MPIGetComm();
+  int size;
+  MPI_Comm_size(comm, &size);
+  return size;
 }
 
 pugi::xml_document XMLDocument(
@@ -225,6 +233,7 @@ std::string SetToCSV(const std::set<std::string>& input) noexcept
 }
 
 // allowed types
+template std::vector<size_t> StringToVector<size_t>(const std::string&);
 template std::vector<int> StringToVector<int>(const std::string&);
 template std::vector<double> StringToVector<double>(const std::string&);
 
@@ -236,6 +245,26 @@ std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept
 // allowed types
 template vtkSmartPointer<vtkDataArray> NewDataArray<float>();
 template vtkSmartPointer<vtkDataArray> NewDataArray<double>();
+
+adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims& shape)
+{
+  adios2::Box<adios2::Dims> selection({ adios2::Dims(shape.size(), 0), shape });
+
+  const size_t mpiRank = static_cast<size_t>(MPIGetRank());
+  const size_t mpiSize = static_cast<size_t>(MPIGetSize());
+
+  // fastest index, VTK is column-major
+  if (shape[2] >= mpiSize)
+  {
+    const size_t elements = shape[2] / mpiSize;
+    // start
+    selection.first[0] = mpiRank * elements;
+    // count
+    selection.second[0] = (mpiRank == mpiSize - 1) ? elements + shape[2] % mpiSize : elements;
+  }
+
+  return selection;
+}
 
 } // end helper namespace
 } // end adios2vtk namespace

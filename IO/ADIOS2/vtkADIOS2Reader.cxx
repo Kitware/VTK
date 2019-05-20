@@ -10,11 +10,13 @@
 #include "vtkADIOS2Reader.h"
 
 #include <iostream>
+#include <memory>
 
 #include "ADIOS2Helper.h"
 #include "ADIOS2Schema.h"
 #include "xml_vtk/ADIOS2xmlVTI.h"
 
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -40,7 +42,7 @@ public:
 
 private:
   std::string m_StreamName;
-  adios2::ADIOS m_ADIOS;
+  std::unique_ptr<adios2::ADIOS> m_ADIOS;
   adios2::IO m_IO;
   adios2::Engine m_Engine;
 
@@ -121,21 +123,24 @@ void vtkADIOS2Reader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // Impl Starts
-vtkADIOS2Reader::Impl::Impl()
-  : m_ADIOS(adios2vtk::helper::MPIGetComm())
-{
-}
+vtkADIOS2Reader::Impl::Impl() {}
 
 void vtkADIOS2Reader::Impl::Update(
   const std::string& streamName, const size_t step, const std::string& schemaName)
 {
+  if (!m_ADIOS)
+  {
+    std::cout << "Initializing ADIOS\n";
+    m_ADIOS.reset(new adios2::ADIOS(adios2vtk::helper::MPIGetComm()));
+  }
+
   if (!m_IO && !m_Engine)
   {
     m_StreamName = streamName;
     if (m_ADIOS)
     {
       std::cout << "Opening " << m_StreamName << "\n";
-      m_IO = m_ADIOS.DeclareIO(m_StreamName);
+      m_IO = m_ADIOS->DeclareIO(m_StreamName);
       std::cout << "DeclaredIO\n";
 
       m_Engine = m_IO.Open(m_StreamName, adios2::Mode::Read);
