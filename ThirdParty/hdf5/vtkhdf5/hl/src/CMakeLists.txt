@@ -50,7 +50,10 @@ add_library(vtkhdf5_hl_src ${HL_SOURCES} ${HL_HEADERS})
 target_include_directories(vtkhdf5_hl_src
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${HDF5_BINARY_DIR})
+    ${HDF5_BINARY_DIR}
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+    "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkhdf5/hl/src>")
 vtk_module_install_headers(
   FILES   ${HL_HEADERS}
   SUBDIR  "vtkhdf5/hl/src")
