@@ -379,7 +379,7 @@ if (NOT ANDROID AND
     NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten" AND
     NOT VTK_OPENGL_USE_GLES)
   set(probe_no_install)
-  if (NOT VTK_INSTALL_SDK)
+  if (NOT _vtk_build_INSTALL_HEADERS)
     set(probe_no_install
       NO_INSTALL)
   endif ()
