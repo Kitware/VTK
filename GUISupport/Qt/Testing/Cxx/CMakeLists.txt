@@ -7,6 +7,7 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
 
 vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   -w QVTKOpenGLWidget
+  TestQVTKOpenGLWidgetQWidgetWidget,TestQWidgetWidget.cxx,NO_VALID
   TestQVTKOpenGLWidgetPicking,TestQtPicking.cxx,NO_VALID
   TestQVTKOpenGLWidgetSwapWindows,TestQtSwapWindows.cxx,NO_VALID
   TestQVTKOpenGLWidget,TestQtWidget.cxx
@@ -16,6 +17,7 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
 
 vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   -w QVTKOpenGLNativeWidget
+  TestQVTKOpenGLNativeWidgetQWidgetWidget,TestQWidgetWidget.cxx,NO_VALID
   TestQVTKOpenGLNativeWidgetPicking,TestQtPicking.cxx,NO_VALID
   TestQVTKOpenGLNativeWidgetSwapWindows,TestQtSwapWindows.cxx,NO_VALID
   TestQVTKOpenGLNativeWidget,TestQtWidget.cxx
@@ -25,6 +27,7 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
 
 vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   -w QVTKOpenGLWindow
+  TestQVTKOpenGLWindowQWidgetWidget,TestQWidgetWidget.cxx,NO_VALID
   TestQVTKOpenGLWindowPicking,TestQtPicking.cxx,NO_VALID
   TestQVTKOpenGLWindow,TestQtWidget.cxx
   TestQVTKOpenGLWindowWithDisabledInteractor,TestQtWithDisabledInteractor.cxx

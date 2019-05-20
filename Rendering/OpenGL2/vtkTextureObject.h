@@ -170,7 +170,7 @@ public:
   /**
    * Activate and Bind the texture
    */
-  void Activate();
+  virtual void Activate();
 
   /**
    * Deactivate and UnBind the texture
@@ -748,6 +748,15 @@ public:
   vtkBooleanMacro(UseSRGBColorSpace, bool);
   //@}
 
+  /**
+   * Assign the TextureObject to a externally provided
+   * Handle and Target. This class will not delete the texture
+   * referenced by the handle upon releasing. That is up to
+   * whoever created it originally. Note that activating
+   * and binding will work. Properties such as wrap/interpolate
+   * will also work. But width/height/format etc are left unset.
+   */
+  void AssignToExistingTexture(unsigned int handle, unsigned int target);
 
 protected:
   vtkTextureObject();
@@ -780,6 +789,7 @@ protected:
 
   vtkWeakPointer<vtkOpenGLRenderWindow> Context;
   unsigned int Handle;
+  bool OwnHandle;
   bool RequireTextureInteger;
   bool SupportsTextureInteger;
   bool RequireTextureFloat;
