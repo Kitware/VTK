@@ -1,5 +1,6 @@
 find_path(utf8cpp_INCLUDE_DIR
   NAMES utf8.h
+  PATH_SUFFIXES utf8cpp
   DOC "utf8cpp include directory")
 mark_as_advanced(utf8cpp_INCLUDE_DIR)
 
