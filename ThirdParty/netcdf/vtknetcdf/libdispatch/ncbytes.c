@@ -46,7 +46,7 @@ ncbytessetalloc(NCbytes* bb, unsigned long sz)
 {
   char* newcontent;
   if(bb == NULL) return ncbytesfail();
-  if(sz == 0) {sz = (bb->alloc?2*bb->alloc:DEFAULTALLOC);}
+  if(sz <= 0) {sz = (bb->alloc?2*bb->alloc:DEFAULTALLOC);}
   if(bb->alloc >= sz) return TRUE;
   if(bb->nonextendible) return ncbytesfail();
   newcontent=(char*)calloc(sz,sizeof(char));
@@ -110,7 +110,9 @@ ncbytesappend(NCbytes* bb, char elem)
 {
   if(bb == NULL) return ncbytesfail();
   /* We need space for the char + null */
-  ncbytessetalloc(bb,bb->length+2);
+  while(bb->length+1 >= bb->alloc) {
+	if(!ncbytessetalloc(bb,0)) return ncbytesfail();
+  }
   bb->content[bb->length] = (char)(elem & 0xFF);
   bb->length++;
   bb->content[bb->length] = '\0';

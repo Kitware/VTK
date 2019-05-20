@@ -13,28 +13,10 @@ See \ref copyright file for copying and redistribution conditions.
 #include <stdarg.h>
 #include "netcdf.h"
 #include "math.h"
-
-/** \defgroup v2_api The Version 2 API
-
-NetCDF's modern history began with the introduction of the V2 netCDF
-API by Glenn Davis and Russ Rew in 1991. (The V1 API is lost to mists
-of time.)
-
-The V2 API is still fully supported, but should not be used for new
-development.
-
-All of the V2 functions have been reimplemented in terms of the V3 API
-code; see the documentation for the related V3 functions to get more
-documentation.
-
-The V2 API is tested in test directory nctest.
-*/
-
-/** The subroutines in error.c emit no messages unless NC_VERBOSE bit
+/* The subroutines in error.c emit no messages unless NC_VERBOSE bit
  * is on.  They call exit() when NC_FATAL bit is on. */
 int ncopts = (NC_FATAL | NC_VERBOSE) ;
-
-int ncerr = NC_NOERR ; /**< V2 API error code. */
+int ncerr = NC_NOERR ;
 
 #if SIZEOF_LONG == SIZEOF_SIZE_T
 /*
@@ -42,15 +24,13 @@ int ncerr = NC_NOERR ; /**< V2 API error code. */
  * to 'size_t' or 'ptrdiff_t'. Use dummy macros.
  */
 
-# define NDIMS_DECL  /**< NDIMS declaration */
-
-/** @internal Declaration. */
+# define NDIMS_DECL
 # define A_DECL(name, type, ndims, rhs) \
 	const type *const name = ((const type *)(rhs))
 
-# define A_FREE(name)  /**< Free a variable. */
+# define A_FREE(name)
 
-# define A_INIT(lhs, type, ndims, rhs)  /**< Init a variable */
+# define A_INIT(lhs, type, ndims, rhs)
 	
 #else 
 /*
@@ -118,19 +98,11 @@ static void* nvmalloc(off_t size) {
 
 #endif
 
-typedef signed char schar;  /**< Signed character type. */
+typedef signed char schar;
 
-/**
+/*
  * Computes number of record variables in an open netCDF file, and an array of
  * the record variable ids, if the array parameter is non-null.
- *
- * @param ncid File ID.
- * @param nrecvarsp Pointer that gets number of record variables.
- * @param recvarids Pointer that gets array of record variable IDs.
- *
- * @return ::NC_NOERR No error.
- * @return -1 on error.
- * @author Russ Rew
  */
 static int
 numrecvars(int ncid, int* nrecvarsp, int *recvarids)
@@ -174,15 +146,9 @@ numrecvars(int ncid, int* nrecvarsp, int *recvarids)
 }
 
 
-/**
+/*
  * Computes record size (in bytes) of the record variable with a specified
  * variable id.  Returns size as 0 if not a record variable.
- *
- * @param ncid File ID.
- * @param varid Variable ID.
- * @param recsizep Pointer that gets record size.
- *
- * @return size, or 0 if not a record variable
  */
 static int
 ncrecsize(int ncid, int varid, size_t *recsizep)
@@ -224,17 +190,9 @@ ncrecsize(int ncid, int varid, size_t *recsizep)
 }
 
 
-/**
+/*
  * Retrieves the dimension sizes of a variable with a specified variable id in
- * an open netCDF file.  
- *
- * @param ncid File ID.
- * @param varid Variable ID.
- * @param sizes Pointer that gets sizes.
- *
- * @return ::NC_NOERR No error.
- * @return -1 on error.
- * @author Russ Rew
+ * an open netCDF file.  Returns -1 on error.
  */
 static int
 dimsizes(int ncid, int varid, size_t *sizes)
@@ -262,29 +220,12 @@ dimsizes(int ncid, int varid, size_t *sizes)
     return NC_NOERR;
 }
 
-/** \ingroup v2_api
 
-Retrieves the number of record variables, the record variable ids, and the
-record size of each record variable.  If any pointer to info to be returned
-is null, the associated information is not returned.  Returns -1 on error.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 functions nc_inq_nvars(),
-nc_inq_unlimdim(), nc_inq_dim().
-
-\param ncid file ID
-\param nrecvarsp pointer that will get the number of record variables
-in the file.
-\param recvarids pointer to array that will get the variable IDs of
-all variables that use the record dimension.
-\param recsizes pointer to array that will dimension size of the
-record dimension for each variable.
-
-\returns ::NC_NOERR No error.
-\returns ::NC_EBADID Bad ncid.
-\returns ::NC_ENOTVAR Invalid variable ID.
-\returns ::NC_EINVAL Invalid input
-*/
+/*
+ * Retrieves the number of record variables, the record variable ids, and the
+ * record size of each record variable.  If any pointer to info to be returned
+ * is null, the associated information is not returned.  Returns -1 on error.
+ */
 int
 nc_inq_rec(
 	int ncid,
@@ -329,28 +270,16 @@ nc_inq_rec(
 		return status;
 	    recsizes[varid] = rsize;
 	}
-    return NC_NOERR;
+	return NC_NOERR;
 }
 
-/** \ingroup v2_api
 
-Write one record's worth of data, except don't write to variables for which
-the address of the data to be written is NULL.  Return -1 on error.  This is
-the same as the ncrecput() in the library, except that can handle errors
-better.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_put_vara().
-
-\param ncid file ID
-\param recnum the record number to write.
-\param datap pointer to one record's worth of data for all variables.
-
-\returns ::NC_NOERR No error.
-\returns ::NC_EBADID Bad ncid.
-\returns ::NC_ENOTVAR Invalid variable ID.
-\returns ::NC_EINVAL Invalid input
-*/
+/*
+ * Write one record's worth of data, except don't write to variables for which
+ * the address of the data to be written is NULL.  Return -1 on error.  This is
+ * the same as the ncrecput() in the library, except that can handle errors
+ * better.
+ */
 int
 nc_put_rec(
 	int ncid,
@@ -391,27 +320,12 @@ nc_put_rec(
 }
 
 
-/** \ingroup v2_api
-
-Read one record's worth of data, except don't read from variables for which
-the address of the data to be read is null.  Return -1 on error.  This is
-the same as the ncrecget() in the library, except that can handle errors
-better.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_get_vara().
-
-\param ncid file ID
-\param recnum the record number to read.
-\param datap pointer memory to hold one record's worth of data for all
-variables.
-
-\returns ::NC_NOERR No error.
-\returns ::NC_EBADID Bad ncid.
-\returns ::NC_ENOTVAR Invalid variable ID.
-\returns ::NC_EINVAL Invalid input
-
-*/
+/*
+ * Read one record's worth of data, except don't read from variables for which
+ * the address of the data to be read is null.  Return -1 on error.  This is
+ * the same as the ncrecget() in the library, except that can handle errors
+ * better.
+ */
 int
 nc_get_rec(
 	int ncid,
@@ -450,18 +364,8 @@ nc_get_rec(
     return 0;
 }
 
-/** \ingroup v2_api
-
-Show an error message and exit (based on ncopts).
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_strerror()
-
-\param routine_name
-\param err error code
-\param fmt pointer to a char array containing string format
-
-*/
+/*
+ */
 void
 nc_advise(const char *routine_name, int err, const char *fmt,...)
 {
@@ -495,18 +399,6 @@ nc_advise(const char *routine_name, int err, const char *fmt,...)
 
 /* End error handling */
 
-/** \ingroup v2_api
-
-Create a netCDF file.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_create().
-
-\param path path and filename of the file to be created.
-\param cmode see nc_create() for full discussion of the create mode.
-
-\returns the ncid of the created file.
-*/
 int
 nccreate(const char* path, int cmode)
 {
@@ -520,18 +412,7 @@ nccreate(const char* path, int cmode)
 	return ncid;
 }
 
-/** \ingroup v2_api
 
-Open a netCDF file.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_open().
-
-\param path path and filename of the file to be created.
-\param mode see nc_open() for full discussion of the open mode.
-
-\returns the ncid of the created file.
-*/
 int
 ncopen(const char *path, int mode)
 {
@@ -545,17 +426,7 @@ ncopen(const char *path, int mode)
 	return ncid;
 }
 
-/** \ingroup v2_api
 
-Put file in define mode.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_redef().
-
-\param ncid file ID
-
-\returns 0 for success, -1 for failure.
-*/
 int
 ncredef(int ncid)
 {
@@ -568,17 +439,7 @@ ncredef(int ncid)
 	return 0;
 }
 
-/** \ingroup v2_api
 
-End define mode for file.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_enddef().
-
-\param ncid file ID
-
-\returns 0 for success, -1 for failure.
-*/
 int
 ncendef(int ncid)
 {
@@ -591,17 +452,7 @@ ncendef(int ncid)
 	return 0;
 }
 
-/** \ingroup v2_api
 
-Close a file.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_close().
-
-\param ncid file ID
-
-\returns 0 for success, -1 for failure.
-*/
 int
 ncclose(int ncid)
 {
@@ -615,22 +466,7 @@ ncclose(int ncid)
 	return 0;
 }
 
-/** \ingroup v2_api
 
-Learn about a file.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_inq().
-
-\param ncid file ID
-\param ndims pointer that will get number of dimensions.
-\param nvars pointer that will get number of variables.
-\param natts pointer that will get number of global attributes.
-\param recdim pointer that will get dimension ID of record dimension,
-or -1 if there is no record dimension.
-
-\returns 0 for success, -1 for failure.
-*/
 int
 ncinquire(
     int		ncid,
@@ -662,17 +498,7 @@ ncinquire(
 	return ncid;
 }
 
-/** \ingroup v2_api
 
-Sync a file.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_sync().
-
-\param ncid file ID
-
-\returns 0 for success, -1 for failure.
-*/
 int
 ncsync(int ncid)
 {
@@ -686,16 +512,7 @@ ncsync(int ncid)
 	return 0;
 }
 
-/** \ingroup v2_api
 
-Abort defining a file.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_abort().
-
-\param ncid file ID
-\returns 0 for success, -1 for failure.
-*/
 int
 ncabort(int ncid)
 {
@@ -708,20 +525,7 @@ ncabort(int ncid)
 	return 0;
 }
 
-/** \ingroup v2_api
 
-Define a dimension.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_def_dim().
-
-\param ncid file ID
-\param name name of dimension.
-\param length length of the dimension, NC_UNLIMITED for a record
-dimension.
-
-\returns dimid or -1 for failure.
-*/
 int
 ncdimdef(
     int		ncid,
@@ -745,18 +549,7 @@ ncdimdef(
 	return dimid;
 }
 
-/** \ingroup v2_api
 
-Find dimension ID from name.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_inq_dimid().
-
-\param ncid file ID
-\param name name of dimension.
-
-\returns dimid or -1 for failure.
-*/
 int
 ncdimid(int ncid, const char*	name)
 {
@@ -770,20 +563,7 @@ ncdimid(int ncid, const char*	name)
 	return dimid;
 }
 
-/** \ingroup v2_api
 
-Learn about a dimension.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_inq_dim().
-
-\param ncid file ID
-\param dimid the dimension ID to learn about
-\param name pointer that will get name of dimension.
-\param length pointer that will get length of dimension.
-
-\returns dimid or -1 for failure.
-*/
 int
 ncdiminq(
     int		ncid,
@@ -808,19 +588,7 @@ ncdiminq(
 	return dimid;
 }
 
-/** \ingroup v2_api
 
-Rename a dimension.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_rename_dim().
-
-\param ncid file ID
-\param dimid the dimension ID.
-\param name the new name.
-
-\returns dimid or -1 for failure.
-*/
 int
 ncdimrename(
     int		ncid,
@@ -837,21 +605,7 @@ ncdimrename(
 	return dimid;
 }
 
-/** \ingroup v2_api
 
-Define a variable.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_def_var().
-
-\param ncid file ID
-\param name the name of the variable.
-\param datatype the data type of the variable.
-\param ndims the number of dimensions.
-\param dim array of dimension IDs.
-
-\returns varid or -1 for failure.
-*/
 int
 ncvardef(
     int		ncid,
@@ -871,18 +625,7 @@ ncvardef(
 	return varid;
 }
 
-/** \ingroup v2_api
 
-Learn a variable ID from the name.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_inq_varid().
-
-\param ncid file ID
-\param name the name of the variable.
-
-\returns varid or -1 for failure.
-*/
 int
 ncvarid(
     int		ncid,
@@ -899,23 +642,7 @@ ncvarid(
 	return varid;
 }
 
-/** \ingroup v2_api
 
-Learn about a variable.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_inq_var().
-
-\param ncid file ID
-\param varid the variable ID.
-\param name pointer to array of char that will get name of variable.
-\param datatype pointer that will get variable data type.
-\param ndims pointer that will get number of dimensions.
-\param dim pointer to array that will get dimension IDs.
-\param natts pointer that will get number of variable attributes.
-
-\returns varid or -1 for failure.
-*/
 int
 ncvarinq(
     int		ncid,
@@ -947,20 +674,7 @@ ncvarinq(
 	return varid;
 }
 
-/** \ingroup v2_api
 
-Write 1 data value.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_put_var1().
-
-\param ncid file ID
-\param varid the variable ID.
-\param index pointer to array of index values.
-\param value pointer to data.
-
-\returns 0 for success or -1 for failure.
-*/
 int
 ncvarput1(
     int		ncid,
@@ -984,20 +698,7 @@ ncvarput1(
 	return 0;
 }
 
-/** \ingroup v2_api
 
-Read 1 data value.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_get_var1().
-
-\param ncid file ID
-\param varid the variable ID.
-\param index pointer to array of index values.
-\param value pointer that will get data.
-
-\returns 0 for success or -1 for failure.
-*/
 int
 ncvarget1(
     int		ncid,
@@ -1021,21 +722,7 @@ ncvarget1(
 	return 0;
 }
 
-/** \ingroup v2_api
 
-Write some data.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_put_vara().
-
-\param ncid file ID
-\param varid the variable ID.
-\param start pointer to array of start values.
-\param count pointer to array of count values.
-\param value pointer to data.
-
-\returns 0 for success or -1 for failure.
-*/
 int
 ncvarput(
     int		ncid,
@@ -1063,21 +750,7 @@ ncvarput(
 	return 0;
 }
 
-/** \ingroup v2_api
 
-Read some data.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_get_vara().
-
-\param ncid file ID
-\param varid the variable ID.
-\param start pointer to array of start values.
-\param count pointer to array of count values.
-\param value pointer to data.
-
-\returns 0 for success or -1 for failure.
-*/
 int
 ncvarget(
     int		ncid,
@@ -1105,22 +778,7 @@ ncvarget(
 	return 0;
 }
 
-/** \ingroup v2_api
 
-Write strided data.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_put_vars().
-
-\param ncid file ID
-\param varid the variable ID.
-\param start pointer to array of start values.
-\param count pointer to array of count values.
-\param stride pointer to array of stride values.
-\param value pointer to data.
-
-\returns 0 for success or -1 for failure.
-*/
 int
 ncvarputs(
     int		ncid,
@@ -1158,22 +816,7 @@ ncvarputs(
 	}
 }
 
-/** \ingroup v2_api
 
-Read strided data.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_get_vars().
-
-\param ncid file ID
-\param varid the variable ID.
-\param start pointer to array of start values.
-\param count pointer to array of count values.
-\param stride pointer to array of stride values.
-\param value pointer to data.
-
-\returns 0 for success or -1 for failure.
-*/
 int
 ncvargets(
     int		ncid,
@@ -1210,23 +853,7 @@ ncvargets(
 	}
 }
 
-/** \ingroup v2_api
 
-Write mapped data.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_get_varm().
-
-\param ncid file ID
-\param varid the variable ID.
-\param start pointer to array of start values.
-\param count pointer to array of count values.
-\param stride pointer to array of stride values.
-\param map pointer to array of map values.
-\param value pointer to data.
-
-\returns 0 for success or -1 for failure.
-*/
 int
 ncvarputg(
     int		ncid,
@@ -1283,23 +910,7 @@ ncvarputg(
 	}
 }
 
-/** \ingroup v2_api
 
-Read mapped data.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_get_varm().
-
-\param ncid file ID
-\param varid the variable ID.
-\param start pointer to array of start values.
-\param count pointer to array of count values.
-\param stride pointer to array of stride values.
-\param map pointer to array of map values.
-\param value pointer to data.
-
-\returns 0 for success or -1 for failure.
-*/
 int
 ncvargetg(
     int		ncid,
@@ -1356,19 +967,7 @@ ncvargetg(
 	}
 }
 
-/** \ingroup v2_api
 
-Rename a variable.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_rename_var().
-
-\param ncid file ID
-\param varid the variable ID.
-\param name the new name.
-
-\returns varid or -1 for failure.
-*/
 int
 ncvarrename(
     int		ncid,
@@ -1385,22 +984,7 @@ ncvarrename(
 	return varid;
 }
 
-/** \ingroup v2_api
 
-Write an attribute.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_put_att_int(), etc.
-
-\param ncid file ID
-\param varid the variable ID or NC_GLOBAL.
-\param name the name of the attribute.
-\param datatype the type of the attribute.
-\param len the length of the attribute.
-\param value the attribute value.
-
-\returns dimid or -1 for failure.
-*/
 int
 ncattput(
     int		ncid,
@@ -1420,22 +1004,7 @@ ncattput(
 	return 0;
 }
 
-/** \ingroup v2_api
 
-Learn about an attribute.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_inq_att().
-
-\param ncid file ID
-\param varid the variable ID.
-\param name the name of the attribute.
-\param datatype pointer that will get data type.
-\param len pointer that will get length.
-
-\returns 1 for success or -1 for failure. (That's a delightful
-artifact of a by-gone era of C programming, isn't it?)
-*/
 int
 ncattinq(
     int		ncid,
@@ -1459,22 +1028,10 @@ ncattinq(
 		*len = (int) ll;
 
 	return 1;
+
 }
 
-/** \ingroup v2_api
 
-Read an attribute.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_get_att_int(), etc.
-
-\param ncid file ID.
-\param varid the variable ID or NC_GLOBAL.
-\param name the name of the attribute.
-\param value pointer that will get the attribute data.
-
-\returns 1 for success or -1 for failure.
-*/
 int
 ncattget(
     int		ncid,
@@ -1492,21 +1049,7 @@ ncattget(
 	return 1;
 }
 
-/** \ingroup v2_api
 
-Copy an attribute.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_get_att_int(), etc.
-
-\param ncid_in file ID to copy from.
-\param varid_in the variable ID or NC_GLOBAL to copy from.
-\param name the name of the attribute.
-\param ncid_out file ID to copy to.
-\param varid_out the variable ID or NC_GLOBAL to copy to.
-
-\returns 0 for success or -1 for failure.
-*/
 int
 ncattcopy(
     int		ncid_in,
@@ -1525,20 +1068,7 @@ ncattcopy(
 	return 0;
 }
 
-/** \ingroup v2_api
 
-Learn attribute name from its number.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_inq_attname().
-
-\param ncid file ID
-\param varid the variable ID.
-\param attnum the number of the attribute.
-\param name the name of the attribute.
-
-\returns attnum for success or -1 for failure.
-*/
 int
 ncattname(
     int		ncid,
@@ -1556,20 +1086,7 @@ ncattname(
 	return attnum;
 }
 
-/** \ingroup v2_api
 
-Rename an attribute.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_rename_att().
-
-\param ncid file ID
-\param varid the variable ID.
-\param name the attribute name.
-\param newname the new name.
-
-\returns 1 for success or -1 for failure.
-*/
 int
 ncattrename(
     int		ncid,
@@ -1587,19 +1104,7 @@ ncattrename(
 	return 1;
 }
 
-/** \ingroup v2_api
 
-Delete an attribute.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_delete_att().
-
-\param ncid file ID
-\param varid the variable ID.
-\param name the attribute name.
-
-\returns 1 for success or -1 for failure.
-*/
 int
 ncattdel(
     int		ncid,
@@ -1620,18 +1125,6 @@ ncattdel(
 
 #ifndef NO_NETCDF_2
 
-/** \ingroup v2_api
-
-Set the fill mode.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_set_fill().
-
-\param ncid file ID
-\param fillmode NC_FILL or NC_NOFILL.
-
-\returns oldmode for success or -1 for failure.
-*/
 int
 ncsetfill(
     int		ncid,
@@ -1648,20 +1141,7 @@ ncsetfill(
 	return oldmode;
 }
 
-/** \ingroup v2_api
 
-Learn record variables and the lengths of the record dimension.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 functions nc_inq_var()/nc_inq_dim().
-
-\param ncid file ID
-\param nrecvars pointer that will get number of record variables.
-\param recvarids pointer that will get array of record variable IDs.
-\param recsizes pointer that will get array of record dimension length.
-
-\returns oldmode for success or -1 for failure.
-*/
 int
 ncrecinq(
     int		ncid,
@@ -1703,22 +1183,7 @@ ncrecinq(
 	return (int) nrv;
 }
 
-/** \ingroup v2_api
 
-Read one record's worth of data, except don't read from variables for which
-the address of the data to be read is null.  Return -1 on error. This is
-the same as the nc_get_rec(), with poorer error handling.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_get_vara().
-
-\param ncid file ID
-\param recnum the record number to read.
-\param datap pointer memory to hold one record's worth of data for all
-variables.
-
-\returns 0 for success, -1 for error.
-*/
 int
 ncrecget(
     int		ncid,
@@ -1735,21 +1200,7 @@ ncrecget(
 	return 0;
 }
 
-/** \ingroup v2_api
 
-Write one record's worth of data, except don't write to variables for which
-the address of the data to be written is NULL.  Return -1 on error.  This is
-the same as the nc_put_rec(), but with poorer error handling.
-
-This is part of the legacy V2 API of netCDF. New code should be
-written with the V3 API. See V3 function nc_put_vara().
-
-\param ncid file ID
-\param recnum the record number to write.
-\param datap pointer to one record's worth of data for all variables.
-
-\returns 0 for success, -1 for error.
-*/
 int
 ncrecput(
     int		ncid,

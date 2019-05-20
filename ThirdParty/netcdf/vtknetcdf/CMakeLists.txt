@@ -1,6 +1,6 @@
 set(NC_VERSION_MAJOR 4)
-set(NC_VERSION_MINOR 6)
-set(NC_VERSION_PATCH 1)
+set(NC_VERSION_MINOR 5)
+set(NC_VERSION_PATCH 0)
 set(NC_VERSION_NOTE "")
 set(netCDF_VERSION ${NC_VERSION_MAJOR}.${NC_VERSION_MINOR}.${NC_VERSION_PATCH}${NC_VERSION_NOTE})
 set(VERSION ${netCDF_VERSION})
@@ -11,7 +11,6 @@ set(sources
   libdispatch/dattget.c
   libdispatch/dattinq.c
   libdispatch/dattput.c
-  libdispatch/dauth.c
   libdispatch/dcompound.c
   libdispatch/dcopy.c
   libdispatch/ddim.c
@@ -28,7 +27,6 @@ set(sources
   libdispatch/dstring.c
   libdispatch/dtype.c
   libdispatch/dutf8.c
-  libdispatch/dutil.c
   libdispatch/dvar.c
   libdispatch/dvarget.c
   libdispatch/dvarinq.c
@@ -138,14 +136,12 @@ check_symbol_exists("isfinite" "math.h" HAVE_DECL_ISFINITE)
 check_symbol_exists("isinf" "math.h" HAVE_DECL_ISINF)
 check_symbol_exists("isnan" "math.h" HAVE_DECL_ISNAN)
 check_symbol_exists("fsync" "unistd.h" HAVE_FSYNC)
-check_symbol_exists("mktemp" "stdlib.h" HAVE_MKTEMP)
 check_symbol_exists("getpagesize" "unistd.h" HAVE_GETPAGESIZE)
 check_symbol_exists("getrlimit" "sys/time.h;sys/resource.h" HAVE_GETRLIMIT)
 check_symbol_exists("memmove" "string.h" HAVE_MEMMOVE)
 check_symbol_exists("random" "stdlib.h" HAVE_RANDOM)
 check_symbol_exists("snprintf" "stdio.h" HAVE_SNPRINTF)
 check_symbol_exists("strdup" "string.h" HAVE_STRDUP)
-check_symbol_exists("strndup" "string.h" HAVE_STRNDUP)
 check_symbol_exists("strlcat" "string.h" HAVE_STRLCAT)
 check_symbol_exists("st_blocksize" "sys/stat.h" HAVE_STRUCT_STAT_ST_BLKSIZE)
 check_symbol_exists("sysconf" "unistd.h" HAVE_SYSCONF)
@@ -177,7 +173,6 @@ check_type_size("long long int" HAVE_LONG_LONG_INT)
 check_type_size("ssize_t" HAVE_SSIZE_T)
 check_type_size("uchar" HAVE_UCHAR)
 check_type_size("uint" HAVE_UINT)
-check_type_size("schar" HAVE_SCHAR)
 check_type_size("ushort" HAVE_USHORT)
 check_type_size("double" SIZEOF_DOUBLE)
 check_type_size("float" SIZEOF_FLOAT)
@@ -194,7 +189,6 @@ check_type_size("unsigned short int" SIZEOF_UNSIGNED_SHORT_INT)
 
 set(SIZEOF_UCHAR ${HAVE_UCHAR})
 set(SIZEOF_UINT ${HAVE_UINT})
-set(SIZEOF_SCHAR ${HAVE_SCHAR})
 set(SIZEOF_USHORT ${HAVE_USHORT})
 set(SIZEOF_VOIDP ${CMAKE_SIZEOF_VOID_P})
 
@@ -222,20 +216,25 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/include/netcdf_meta.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_netcdf_config.h")
 
-vtk_module_add_module(VTK::netcdf
-  SOURCES ${sources}
-  HEADERS ${headers}
-  HEADERS_SUBDIR "vtknetcdf/include")
-target_compile_definitions(netcdf
+vtk_add_library(vtknetcdf ${sources} ${headers})
+target_link_libraries(vtknetcdf PUBLIC ${vtkhdf5_LIBRARIES})
+
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES
+    ${headers}
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtknetcdf/include"
+    COMPONENT Development)
+endif()
+target_compile_definitions(vtknetcdf
   PRIVATE
     HAVE_CONFIG_H)
 if (WIN32 AND BUILD_SHARED_LIBS)
-  target_compile_definitions(netcdf
+  target_compile_definitions(vtknetcdf
     PRIVATE
       DLL_EXPORT
       DLL_NETCDF)
 endif ()
-target_include_directories(netcdf
+target_include_directories(vtknetcdf
   PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/libdispatch"
@@ -243,9 +242,16 @@ target_include_directories(netcdf
     "${CMAKE_CURRENT_SOURCE_DIR}/libsrc4"
     "${CMAKE_CURRENT_BINARY_DIR}/include")
 
+if (DEFINED VTK_CUSTOM_LIBRARY_SUFFIX)
+  set(_lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
+else ()
+  set(_lib_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+endif ()
+set_property(TARGET vtknetcdf PROPERTY OUTPUT_NAME vtkNetCDF${_lib_suffix})
+
 if (UNIX)
   # link against the math library.
-  target_link_libraries(netcdf
+  target_link_libraries(vtknetcdf
     PRIVATE
       m)
 endif ()
