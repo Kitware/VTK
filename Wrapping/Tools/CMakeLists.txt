@@ -50,7 +50,7 @@ vtk_module_include("${ns}::WrappingTools"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../Utilities/KWIML")
 
 set(vtk_wrapping_tools_no_install)
-if (NOT VTK_INSTALL_SDK)
+if (NOT _vtk_build_INSTALL_HEADERS)
   set(vtk_wrapping_tools_no_install
     NO_INSTALL)
 endif ()
