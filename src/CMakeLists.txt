@@ -941,7 +941,12 @@ add_library(vtkhdf5_src ${common_SRCS} ${gen_SRCS} ${H5_PUBLIC_HEADERS} ${H5_PRI
 target_include_directories(vtkhdf5_src
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${HDF5_BINARY_DIR})
+    ${HDF5_BINARY_DIR}
+  PUBLIC
+    "$<BUILD_INTERFACE:${HDF5_BINARY_DIR}>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+    "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkhdf5>"
+    "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkhdf5/src>")
 vtk_module_install_headers(
   FILES   ${H5_PUBLIC_HEADERS}
           ${H5_GENERATED_HEADERS}
