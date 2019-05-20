@@ -659,7 +659,6 @@ Cdh2e(CdTime *htime, double *etime)
 static int
 cdValidateTime(cdCalenType timetype, cdCompTime comptime)
 {
-	(void)timetype;
 	if(comptime.month<1 || comptime.month>12){
 		cdError("Error on time conversion: invalid month = %hd\n",comptime.month);
 		return 1;
