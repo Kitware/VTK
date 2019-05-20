@@ -150,11 +150,27 @@ check_symbol_exists("strlcat" "string.h" HAVE_STRLCAT)
 check_symbol_exists("st_blocksize" "sys/stat.h" HAVE_STRUCT_STAT_ST_BLKSIZE)
 check_symbol_exists("sysconf" "unistd.h" HAVE_SYSCONF)
 
+set(CMAKE_REQUIRED_INCLUDES_save "${CMAKE_REQUIRED_INCLUDES}")
+list(APPEND CMAKE_REQUIRED_INCLUDES
+  "${CMAKE_CURRENT_BINARY_DIR}/../../hdf5")
+if (VTK_MODULE_USE_EXTERNAL_hdf5)
+  # The symbol detections can still fail for an external HDF5 that isn't in a
+  # standard location. We need generate-time knowledge to get the real include
+  # directories. These checks should really be replaced at some point with some
+  # compile-time logic if at all possible (version checks, preprocessor
+  # detections, etc.).
+else ()
+  list(APPEND CMAKE_REQUIRED_INCLUDES
+    "${CMAKE_CURRENT_BINARY_DIR}/../../hdf5/vtkhdf5"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../hdf5"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../hdf5/vtkhdf5/src")
+endif ()
 set(HAVE_HDF5_H 1)
 check_symbol_exists("H5free_memory" "vtk_hdf5.h" HDF5_HAS_H5FREE)
 check_symbol_exists("H5Pset_all_coll_metadata_ops" "vtk_hdf5.h" H5PSET_ALL_COLL_METADATA_OPS)
 check_symbol_exists("H5Pset_libver_bounds" "vtk_hdf5.h" HDF5_HAS_LIBVER_BOUNDS)
 check_symbol_exists("HDF5_PARALLEL" "vtk_hdf5.h" HDF5_PARALLEL)
+set(CMAKE_REQUIRED_INCLUDES "${CMAKE_REQUIRED_INCLUDES_save}")
 
 include(CheckIncludeFiles)
 check_include_file("alloca.h" HAVE_ALLOCA_H)
