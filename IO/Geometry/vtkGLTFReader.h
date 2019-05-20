@@ -60,9 +60,11 @@
 #include <string> // For std::string
 #include <vector> // For std::vector
 
-class vtkGLTFDocumentLoader;
+class vtkDataArraySelection;
 class vtkFieldData;
+class vtkGLTFDocumentLoader;
 class vtkImageData;
+class vtkStringArray;
 
 class VTKIOGEOMETRY_EXPORT vtkGLTFReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -86,8 +88,8 @@ public:
     unsigned short WrapTValue;
   };
 
-  size_t GetNumberOfTextures();
-  GLTFTexture GetGLTFTexture(unsigned int textureIndex);
+  vtkIdType GetNumberOfTextures();
+  GLTFTexture GetGLTFTexture(vtkIdType textureIndex);
   //@}
 
   //@{
@@ -105,7 +107,7 @@ public:
    * If this flag is set to true, the reader will apply those skinning transforms to the model's
    * geometry.
    */
-  vtkSetMacro(ApplyDeformationsToGeometry, bool);
+  void SetApplyDeformationsToGeometry(bool flag);
   vtkGetMacro(ApplyDeformationsToGeometry, bool);
   vtkBooleanMacro(ApplyDeformationsToGeometry, bool);
   //@}
@@ -117,9 +119,9 @@ public:
    * timelines, etc), which is why no animation is enabled by default.
    * These accessors expose metadata information about a model's available animations.
    */
-  vtkGetMacro(NumberOfAnimations, size_t);
-  std::string GetAnimationName(unsigned int animationIndex);
-  float GetAnimationDuration(unsigned int animationIndex);
+  vtkGetMacro(NumberOfAnimations, vtkIdType);
+  std::string GetAnimationName(vtkIdType animationIndex);
+  float GetAnimationDuration(vtkIdType animationIndex);
   //@}
 
   //@{
@@ -128,9 +130,9 @@ public:
    * transformations, at the specified time step. Use UPDATE_TIME_STEP to select which frame should
    * be applied.
    */
-  void EnableAnimation(unsigned int animationIndex);
-  void DisableAnimation(unsigned int animationIndex);
-  bool IsAnimationEnabled(unsigned int animationIndex);
+  void EnableAnimation(vtkIdType animationIndex);
+  void DisableAnimation(vtkIdType animationIndex);
+  bool IsAnimationEnabled(vtkIdType animationIndex);
   //@}
 
   //@{
@@ -138,16 +140,17 @@ public:
    * glTF models can contain multiple scene descriptions.
    * These accessors expose metadata information about a model's available scenes.
    */
-  std::string GetSceneName(unsigned int sceneIndex);
-  vtkGetMacro(NumberOfScenes, size_t);
+  std::string GetSceneName(vtkIdType sceneIndex);
+  vtkGetMacro(NumberOfScenes, vtkIdType);
   //@}
 
   //@{
   /**
    * Get/Set the scene to be used by the reader
    */
-  vtkGetMacro(CurrentScene, unsigned int);
-  vtkSetMacro(CurrentScene, unsigned int);
+  vtkGetMacro(CurrentScene, vtkIdType);
+  vtkSetMacro(CurrentScene, vtkIdType);
+  void SetScene(const std::string& scene);
   //@}
 
   //@{
@@ -162,6 +165,18 @@ public:
   vtkGetMacro(FrameRate, unsigned int);
   vtkSetMacro(FrameRate, unsigned int);
   //@}
+
+  /**
+   * Get a list all scenes names as a vtkStringArray, with duplicate names numbered and empty names
+   * replaced by a generic name. All names are guaranteed to be unique, and their index in the array
+   * matches the glTF document's scene indices.
+   */
+  vtkStringArray* GetAllSceneNames();
+
+  /**
+   * Get the vtkDataArraySelection object to enable/disable animations.
+   */
+  vtkDataArraySelection* GetAnimationSelection();
 
 protected:
   vtkGLTFReader();
@@ -180,19 +195,34 @@ protected:
 
   char* FileName;
 
-  unsigned int CurrentScene;
+  vtkIdType CurrentScene;
   unsigned int FrameRate;
-  size_t NumberOfAnimations;
-  size_t NumberOfScenes;
-
-  std::vector<bool> AnimationEnabledStates;
+  vtkIdType NumberOfAnimations;
+  vtkIdType NumberOfScenes;
 
   bool IsModelLoaded;
   bool IsMetaDataLoaded;
   bool ApplyDeformationsToGeometry;
 
+  vtkSmartPointer<vtkStringArray> SceneNames;
+
+  vtkSmartPointer<vtkDataArraySelection> PreviousAnimationSelection;
+  vtkSmartPointer<vtkDataArraySelection> AnimationSelection;
+
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  /**
+   * Create the SceneNames array, generate unique identifiers for each scene based on their glTF
+   * name, then fill the SceneNames array with the generated identifiers.
+   */
+  void CreateSceneNamesArray();
+
+  /**
+   * Fill the AnimationSelection vtkDataArraySelection with animation names. Names are adapted from
+   * the glTF document to ensure that they are unique and non-empty.
+   */
+  void CreateAnimationSelection();
 
 private:
   vtkGLTFReader(const vtkGLTFReader&) = delete;

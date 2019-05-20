@@ -38,8 +38,17 @@ int TestGLTFReaderAnimation(int argc, char* argv[])
   vtkNew<vtkGLTFReader> reader;
   reader->SetFileName(argv[2]);
   reader->SetFrameRate(60);
-  reader->UpdateInformation();
+  reader->ApplyDeformationsToGeometryOn();
+
+  reader->UpdateInformation(); // Read model metadata to get the number of animations
+  for (vtkIdType i = 0; i < reader->GetNumberOfAnimations(); i++)
+  {
+    reader->EnableAnimation(i);
+  }
+
+  reader->UpdateInformation(); // Update number of time steps now that animations are enabled
   vtkInformation* readerInfo = reader->GetOutputInformation(0);
+
   int nbSteps = readerInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   if (nbSteps < step)
   {
@@ -47,12 +56,8 @@ int TestGLTFReaderAnimation(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  reader->ApplyDeformationsToGeometryOn();
-  for (unsigned int i = 0; i < reader->GetNumberOfAnimations(); i++)
-  {
-    reader->EnableAnimation(i);
-  }
-  readerInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), step);
+  double time = readerInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), step);
+  readerInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), time);
   reader->Update();
 
   vtkNew<vtkCompositePolyDataMapper> mapper;

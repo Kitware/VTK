@@ -531,6 +531,11 @@ public:
   bool ApplyAnimation(float t, int animationId, bool forceStep = false);
 
   /**
+   * Restore the transforms that were modified by an animation to their initial state
+   */
+  void ResetAnimation(int animationId);
+
+  /**
    * Load the binary part of a binary glTF (.glb) file. Returns false if no valid binary part was
    * found.
    */
