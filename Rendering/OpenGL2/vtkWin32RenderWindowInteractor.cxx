@@ -17,12 +17,17 @@
 #include <cstring>
 #include <cmath>
 
+#ifndef WINVER
+#define WINVER 0x0601  // for touch support, 0x0601 means target Windows 7 or later
+#endif
 
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0601  // for touch support, 0x0601 means target Windows 7 or later
 #endif
 
 #include "vtkWin32OpenGLRenderWindow.h"
+
+#include <winuser.h>  // for touch support
 
 // Mouse wheel support
 // In an ideal world we would just have to include <zmouse.h>, but it is not
