@@ -35,11 +35,6 @@ extern int NCP_initialize(void);
 extern int NCP_finalize(void);
 #endif
 
-#ifdef USE_HDF4
-extern int HDF4_initialize(void);
-extern int HDF4_finalize(void);
-#endif
-
 #ifdef _MSC_VER
 #include <io.h>
 #include <fcntl.h>
@@ -87,9 +82,6 @@ nc_initialize()
 #endif
 #ifdef USE_PNETCDF
     if((stat = NCP_initialize())) goto done;
-#endif
-#ifdef USE_HDF4
-    if((stat = HDF4_initialize())) goto done;
 #endif
 #ifdef USE_NETCDF4
     if((stat = NC4_initialize())) goto done;
