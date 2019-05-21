@@ -145,7 +145,7 @@ int vtkPolyPointSource::RequestData(
   PolyPoint->InsertNextCell(pointIds);
 
   output->SetPoints(this->Points);
-  output->SetLines(PolyPoint);
+  output->SetVerts(PolyPoint);
 
   return 1;
 }
