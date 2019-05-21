@@ -98,21 +98,21 @@ int TestOSPRayDepthOfField(int argc, char* argv[])
   vtkOSPRayCameraNode::SetDepthOfField(1, camera);
 
   // Increase focal disk
-  for (int i = 0; i < 100; ++i)
+  for (int i = 9; i < 100; i+=10)
   {
     camera->SetFocalDisk(i * 0.01f);
     renWin->Render();
   }
 
   // Decrease focal disk
-  for (int i = 0; i < 100; ++i)
+  for (int i = 9; i < 100; i+=10)
   {
     camera->SetFocalDisk(1.0f - 0.8f * (i * 0.01f));
     renWin->Render();
   }
 
   // Move focal point
-  for (int i = 0; i < 200; ++i)
+  for (int i = 9; i < 200; i+=10)
   {
     camera->SetFocalPoint(0.0, 0.0, sin(i * 0.03141592653) * 0.3);
     renWin->Render();
