@@ -601,7 +601,22 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
         RAW_TYPE TNoDataValue = 0;
         if (this->HasNoDataValue[bandIndex])
         {
-          TNoDataValue = static_cast<RAW_TYPE>(this->NoDataValue[bandIndex]);
+          // GDAL returns NoData as double, so it is possible that max float
+          // converted to double to be greater than max float, resulting in
+          // warnings for clang -fsanitize=undefined
+          double doubleNoData = this->NoDataValue[bandIndex];
+          if (doubleNoData > std::numeric_limits<RAW_TYPE>::max())
+          {
+            TNoDataValue = std::numeric_limits<RAW_TYPE>::max();
+          }
+          else if (doubleNoData < std::numeric_limits<RAW_TYPE>::lowest())
+          {
+            TNoDataValue = std::numeric_limits<RAW_TYPE>::lowest();
+          }
+          else
+          {
+            TNoDataValue = static_cast<RAW_TYPE>(doubleNoData);
+          }
         }
 
         targetIndex = i * groupIndex.size() +
