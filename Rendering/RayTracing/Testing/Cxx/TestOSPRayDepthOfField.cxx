@@ -94,8 +94,8 @@ int TestOSPRayDepthOfField(int argc, char* argv[])
   vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetPosition(-0.3f, 0.2f, 1.0f);
 
-  // Enable depth of field
-  vtkOSPRayCameraNode::SetDepthOfField(1, camera);
+  // Init focal distance
+  camera->SetFocalDistance(camera->GetDistance());
 
   // Increase focal disk
   for (int i = 9; i < 100; i+=10)
@@ -114,7 +114,7 @@ int TestOSPRayDepthOfField(int argc, char* argv[])
   // Move focal point
   for (int i = 9; i < 200; i+=10)
   {
-    camera->SetFocalPoint(0.0, 0.0, sin(i * 0.03141592653) * 0.3);
+    camera->SetFocalDistance(camera->GetDistance() + sin(i * 0.03141592653) * 0.3);
     renWin->Render();
   }
 
