@@ -146,7 +146,10 @@ protected:
   int LocatorMinX;
   int LocatorMinY;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) override;
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
   void March(vtkImageData *inData, int chunkMin, int chunkMax,

@@ -22,19 +22,17 @@ iren.SetRenderWindow(renWin)
 
 # create pipeline
 #
-v16 = vtk.vtkVolume16Reader()
-v16.SetDataDimensions(64, 64)
-v16.GetOutput().SetOrigin(0.0, 0.0, 0.0)
-v16.SetDataByteOrderToLittleEndian()
-v16.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
-v16.SetImageRange(1, 93)
-v16.SetDataSpacing(3.2, 3.2, 1.5)
-v16.Update()
+reader = vtk.vtkImageReader2()
+reader.SetDataScalarTypeToUnsignedShort()
+reader.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
+reader.SetDataExtent(0, 63, 0, 63, 1, 93)
+reader.SetDataSpacing(3.2, 3.2, 1.5)
+reader.SetDataOrigin(0.0, 0.0, 0.0)
 
 iso = vtk.vtkImageMarchingCubes()
-iso.SetInputConnection(v16.GetOutputPort())
+iso.SetInputConnection(reader.GetOutputPort())
 iso.SetValue(0, 1150)
-iso.SetInputMemoryLimit(1000)
+iso.SetInputMemoryLimit(100)
 
 isoMapper = vtk.vtkPolyDataMapper()
 isoMapper.SetInputConnection(iso.GetOutputPort())
@@ -45,7 +43,7 @@ isoActor.SetMapper(isoMapper)
 isoActor.GetProperty().SetColor(GetRGBColor('antique_white'))
 
 outline = vtk.vtkOutlineFilter()
-outline.SetInputConnection(v16.GetOutputPort())
+outline.SetInputConnection(reader.GetOutputPort())
 
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())

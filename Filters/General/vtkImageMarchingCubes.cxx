@@ -71,6 +71,21 @@ int vtkImageMarchingCubesGetTypeSize(T*)
 }
 
 //----------------------------------------------------------------------------
+int vtkImageMarchingCubes::RequestUpdateExtent(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed(outputVector))
+{
+  // start with an empty UPDATE_EXTENT to ensure proper streaming
+  // (the UPDATE_EXTENT will be set properly in RequestData()).
+  int extent[6] = { 0, -1, 0, -1, 0, -1 };
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+              extent, 6);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkImageMarchingCubes::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -123,6 +138,7 @@ int vtkImageMarchingCubes::RequestData(
       return 1;
   }
 
+  // Get the WHOLE_EXTENT and divide it into chunks
   int extent[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   // multiply by the area of each slice
