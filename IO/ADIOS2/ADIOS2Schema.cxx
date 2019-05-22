@@ -64,14 +64,14 @@ void ADIOS2Schema::GetTimes(const std::string& variableName)
 
   if (variableName.empty())
   {
-    // TODO: implements steps function in Engine
-    //    while (m_Engine->BeginStep() != adios2::StepStatus::EndOfStream)
-    //    {
-    //      const size_t currentStep = m_Engine->CurrentStep();
-    //      const double currentStepDbl = static_cast<double>(currentStep);
-    //      m_Times[currentStepDbl] = currentStep;
-    //      m_Engine->EndStep();
-    //    }
+    // set default steps as "timesteps"
+    // TODO from adios2 Engine::Steps()
+    const size_t steps = 1000;
+    for (size_t step = 0; step < steps; ++step)
+    {
+      const double timeDbl = static_cast<double>(step);
+      m_Times[timeDbl] = step;
+    }
     return;
   }
 

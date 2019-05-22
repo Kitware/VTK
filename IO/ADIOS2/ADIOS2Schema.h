@@ -53,7 +53,7 @@ protected:
   virtual void DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step) = 0;
   virtual void ReadPiece(const size_t step, const size_t pieceID) = 0;
 
-  void GetTimes(const std::string& variableName);
+  void GetTimes(const std::string& variableName = "");
   void GetDataArray(const std::string& variableName, vtkSmartPointer<vtkDataArray>& dataArray,
     const size_t step = 0, const std::string mode = "deferred");
 

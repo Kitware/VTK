@@ -68,6 +68,8 @@ bool ADIOS2xmlVTK::ReadDataSets(
 
 void ADIOS2xmlVTK::InitTimes()
 {
+  bool foundTime = false;
+
   for (types::Piece& piece : m_Pieces)
   {
     for (auto& itDataSet : piece)
@@ -84,10 +86,17 @@ void ADIOS2xmlVTK::InitTimes()
           }
           const std::string& variableName = itDataArray.second.Vector.begin()->first;
           GetTimes(variableName);
+          foundTime = true;
           return;
         }
       }
     }
+  }
+
+  // ADIOS2 will just use steps
+  if (!foundTime)
+  {
+    GetTimes();
   }
 }
 
