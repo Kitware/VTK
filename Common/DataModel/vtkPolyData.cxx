@@ -2134,8 +2134,7 @@ int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId,
             *lowerLinkPointList = vtkIdList::New(),
             *upperLinkPointList = vtkIdList::New(),
             *pointList = nullptr;
-  double pointFieldValue = scalarField->GetComponent(pointId, 0),
-         neighborFieldValue = 0;
+  double pointFieldValue = scalarField->GetComponent(pointId, 0);
 
   if(this->GetNumberOfPoints() != scalarField->GetSize())
     return vtkPolyData::ERR_INCORRECT_FIELD;
@@ -2164,7 +2163,7 @@ int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId,
       vtkIdType  currentPointId = pointList->GetId(j);
 
       /* quick check for extrema */
-      neighborFieldValue = scalarField->GetComponent(currentPointId, 0);
+      double neighborFieldValue = scalarField->GetComponent(currentPointId, 0);
       if((currentPointId != pointId)&&(neighborFieldValue == pointFieldValue))
       {
         /* simulation of simplicity (Edelsbrunner et al. ACM ToG 1990) */

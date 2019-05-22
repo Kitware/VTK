@@ -533,7 +533,6 @@ static int vtkGetHabichtSequence(
   t[1] = s[1] = SSS[offset];
 
   int j = 0;
-  int k = 0;
 
   int deg = d;
   int degree = d - 1;
@@ -541,7 +540,7 @@ static int vtkGetHabichtSequence(
   int ip1 = 0;
   while ( degree > 0  && j < d - 1 )
   {
-    k = deg - degree;
+    int k = deg - degree;
     if ( k == jp1 )
     {
       s[jp1] = t[jp1];

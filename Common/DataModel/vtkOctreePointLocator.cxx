@@ -480,7 +480,6 @@ vtkIdType vtkOctreePointLocator::FindClosestPoint(
   this->BuildLocator();
 
   int closeId=-1;
-  vtkIdType newCloseId=-1;
   double newDistance2 = 4 * this->MaxWidth * this->MaxWidth;
 
   int regionId = this->GetRegionContainingPoint(x, y, z);
@@ -532,7 +531,7 @@ vtkIdType vtkOctreePointLocator::FindClosestPoint(
     closePointId = static_cast<vtkIdType>(this->LocatorIds[closeId]);
 
     // Check to see if neighboring regions have a closer point
-    newCloseId =  this->FindClosestPointInSphere(x, y, z,
+    int newCloseId =  this->FindClosestPointInSphere(x, y, z,
                                                  sqrt(dist2),        // radius
                                                  regionId,     // skip this region
                                                  newDistance2);// distance to closest point
@@ -555,7 +554,7 @@ vtkIdType vtkOctreePointLocator::FindClosestPoint(
       if (dist2ToBoundary < dist2)
       {
         // The closest point may be in a neighboring region
-        newCloseId = this->FindClosestPointInSphere(x, y, z,
+        int newCloseId = this->FindClosestPointInSphere(x, y, z,
                                                     sqrt(dist2),        // radius
                                                     regionId,     // skip this region
                                                     newDistance2);
@@ -1166,10 +1165,9 @@ int vtkOctreePointLocator::FindRegion(vtkOctreePointLocatorNode *node, double x,
     return node->GetID();
   }
 
-  int regionId = -1;
   for(int i=0;i<8;i++)
   {
-    regionId =
+    int regionId =
       vtkOctreePointLocator::FindRegion(node->GetChild(i), x, y, z);
     if(regionId >=0 )
     {

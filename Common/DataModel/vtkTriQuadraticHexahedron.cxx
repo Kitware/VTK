@@ -136,7 +136,6 @@ int vtkTriQuadraticHexahedron::EvaluatePosition (const double *x,
   double params[3];
   double fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
-  double d = 0.0;
   double pt[3];
   double derivs[81];
   double hexweights[8];
@@ -187,7 +186,7 @@ int vtkTriQuadraticHexahedron::EvaluatePosition (const double *x,
     }
 
     //  compute determinants and generate improvements
-    d = vtkMath::Determinant3x3 (rcol, scol, tcol);
+    double d = vtkMath::Determinant3x3 (rcol, scol, tcol);
     if (fabs (d) < 1.e-20)
     {
       vtkDebugMacro (<<"Determinant incorrect, iteration " << iteration);
