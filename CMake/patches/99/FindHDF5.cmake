@@ -932,13 +932,15 @@ if( HDF5_FOUND AND NOT HDF5_DIR)
 endif()
 
 if (HDF5_FOUND)
-  add_library(HDF5::HDF5 INTERFACE IMPORTED)
-  string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
-  set_target_properties(HDF5::HDF5 PROPERTIES
-    INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}"
-    INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
-    INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
-  unset(_hdf5_definitions)
+  if (NOT TARGET HDF5::HDF5)
+    add_library(HDF5::HDF5 INTERFACE IMPORTED)
+    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
+    set_target_properties(HDF5::HDF5 PROPERTIES
+      INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}"
+      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
+      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+    unset(_hdf5_definitions)
+  endif ()
 
   include(vtkDetectLibraryType)
   if (WIN32)
@@ -1042,7 +1044,7 @@ if (HDF5_FOUND)
   unset(hdf5_lang)
   unset(_hdf5_location_property)
 
-  if (HDF5_DIFF_EXECUTABLE)
+  if (HDF5_DIFF_EXECUTABLE AND NOT TARGET hdf5::h5diff)
     add_executable(hdf5::h5diff IMPORTED)
     set_target_properties(hdf5::h5diff PROPERTIES
       IMPORTED_LOCATION "${HDF5_DIFF_EXECUTABLE}")
