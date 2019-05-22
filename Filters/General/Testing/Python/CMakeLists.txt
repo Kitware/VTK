@@ -14,6 +14,7 @@ vtk_add_test_python(
   TestDiscreteMarchingCubesAdjacentScalars.py
   TestFEDiscreteClipper2D.py
   TestGraphLayoutFilter.py
+  TestMarchingCubes.py
   TestMultiBlockFromTimeSeries.py
   TestPointConnectivityFilter.py
   TestRemoveGhostCells.py,NO_OUTPUT,NO_VALID
