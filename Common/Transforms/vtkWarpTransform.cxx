@@ -113,7 +113,6 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
   T inverse[3], lastInverse[3];
   T deltaP[3], deltaI[3];
 
-  double functionValue = 0;
   double functionDerivative = 0;
   double lastFunctionValue = VTK_DOUBLE_MAX;
 
@@ -150,7 +149,7 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
     deltaP[2] -= point[2];
 
     // get the current function value
-    functionValue = (deltaP[0]*deltaP[0] +
+    double functionValue = (deltaP[0]*deltaP[0] +
                      deltaP[1]*deltaP[1] +
                      deltaP[2]*deltaP[2]);
 
@@ -274,10 +273,3 @@ void vtkWarpTransform::Inverse()
   this->InverseFlag = !this->InverseFlag;
   this->Modified();
 }
-
-
-
-
-
-
-
