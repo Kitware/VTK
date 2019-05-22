@@ -29,9 +29,20 @@ list(APPEND CTEST_CUSTOM_WARNING_MATCH
   "{standard input}:[0-9][0-9]*: Warning: ")
 
 list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
+  # classes that have been marked deprecated
+  # and will be removed in the future
+  # To be remove din VTK 9.0
+  "vtkTemporalStreamTracer"
+
   # Java compilation warnings that don't matter.
   "^1 warning$"
   "bootstrap class path not set in conjunction with -source"
+
+  # OSX has deprecated openGL but we still use it
+  # and probably will not update the code but replace it
+  # with vulklan/moltenVK in the future
+  "Cocoa.*deprecated"
+  "NSOpenGL.*deprecated"
 
   # C4275 carries with it a note that we don't care about. std::exception is
   # the main culprit here.
