@@ -249,6 +249,15 @@ int vtkTubeFilter::RequestData(
     this->UpdateProgress((double)inCellId/numLines);
     abort = this->GetAbortExecute();
 
+    // Make a copy of point indices to avoid modfiying input polydata cells
+    // while removing degenerate lines.
+    if (npts < 2)
+    {
+      continue; //skip tubing this polyline
+    }
+    std::vector<vtkIdType> ptsCopy(pts, pts + npts);
+    pts = &(ptsCopy[0]);
+
     // remove degenerate lines to avoid warnings
     npts = static_cast<vtkIdType>(std::unique(pts, pts + npts, IdPointsEqual(inPts)) -
            pts);

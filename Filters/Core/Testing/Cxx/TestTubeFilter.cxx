@@ -40,14 +40,15 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
-  verts->InsertNextCell(4);
+  const int npts = 30;
+  verts->InsertNextCell(npts);
   vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
-  lines->InsertNextCell(4);
+  lines->InsertNextCell(npts);
 
   if (dataType == VTK_DOUBLE)
   {
     points->SetDataType(VTK_DOUBLE);
-    for (unsigned int i = 0; i < 4; ++i)
+    for (unsigned int i = 0; i < npts; ++i)
     {
       double point[3];
       for (unsigned int j = 0; j < 3; ++j)
@@ -63,7 +64,7 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
   else
   {
     points->SetDataType(VTK_FLOAT);
-    for (unsigned int i = 0; i < 4; ++i)
+    for (unsigned int i = 0; i < npts; ++i)
     {
       float point[3];
       for (unsigned int j = 0; j < 3; ++j)
@@ -77,6 +78,21 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
     }
   }
 
+  // Create a few duplicate point coordinates
+  double point[3];
+  // Same coordinates for point 0->4
+  points->GetPoint(0, point);
+  for (int i = 1; i < 5; i++)
+    {
+    points->SetPoint(i, point);
+    }
+  // Same coordinates for point 15->18
+  points->GetPoint(15, point);
+  for (int i = 16; i < 19; i++)
+    {
+    points->SetPoint(i, point);
+    }
+
   points->Squeeze();
   polyData->SetPoints(points);
   verts->Squeeze();
@@ -87,12 +103,13 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
 
 int TubeFilter(int dataType, int outputPointsPrecision)
 {
-  vtkSmartPointer<vtkPolyData> inputPolyData
-    = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkPolyData> inputPolyData;
   InitializePolyData(inputPolyData, dataType);
 
-  vtkSmartPointer<vtkTubeFilter> tubeFilter
-    = vtkSmartPointer<vtkTubeFilter>::New();
+  vtkNew<vtkPolyData> originalInputPolyData;
+  originalInputPolyData->DeepCopy(inputPolyData);
+
+  vtkNew<vtkTubeFilter> tubeFilter;
   tubeFilter->SetOutputPointsPrecision(outputPointsPrecision);
   tubeFilter->SetInputData(inputPolyData);
 
@@ -100,6 +117,44 @@ int TubeFilter(int dataType, int outputPointsPrecision)
 
   vtkSmartPointer<vtkPolyData> outputPolyData = tubeFilter->GetOutput();
   vtkSmartPointer<vtkPoints> points = outputPolyData->GetPoints();
+
+  // Verify that the filter did not change the original input polydata
+  vtkCellArray* originalLines = originalInputPolyData->GetLines();
+  vtkCellArray* lines = inputPolyData->GetLines();
+  if (originalLines->GetNumberOfCells() != lines->GetNumberOfCells())
+  {
+    std::cerr << "vtkTubeFilter corrupted input polydata number of lines: "
+      << originalLines->GetNumberOfCells() << " != " << lines->GetNumberOfCells() << std::endl;
+    return EXIT_FAILURE;
+  }
+  for (vtkIdType lineIndex = 0; lineIndex < originalLines->GetNumberOfCells(); lineIndex++)
+  {
+    vtkIdType originalNumberOfLinePoints = 0;
+    vtkIdType* originalLinePoints = nullptr;
+    originalLines->GetCell(lineIndex, originalNumberOfLinePoints, originalLinePoints);
+    vtkIdType numberOfLinePoints = 0;
+    vtkIdType* linePoints = nullptr;
+    lines->GetCell(lineIndex, numberOfLinePoints, linePoints);
+    if (originalNumberOfLinePoints != numberOfLinePoints)
+    {
+      std::cerr << "vtkTubeFilter corrupted input polydata number of lines: "
+        << originalNumberOfLinePoints << " != " << numberOfLinePoints << std::endl;
+      return EXIT_FAILURE;
+    }
+    for (vtkIdType pointIndex = 0; pointIndex < numberOfLinePoints; ++pointIndex)
+    {
+      if (originalLinePoints[pointIndex] != linePoints[pointIndex])
+      {
+        std::cerr << "vtkTubeFilter corrupted input polydata point indices:" << std::endl;
+        for (vtkIdType pointIndexLog = 0; pointIndexLog < numberOfLinePoints; ++pointIndexLog)
+        {
+          std::cerr << "  " << originalLinePoints[pointIndexLog] << " -> " << linePoints[pointIndexLog] << " "
+            << (originalLinePoints[pointIndexLog] == linePoints[pointIndexLog] ? "OK" : "ERROR") << std::endl;
+        }
+        return EXIT_FAILURE;
+      }
+    }
+  }
 
   return points->GetDataType();
 }
