@@ -38,6 +38,7 @@
 #include "vtkPointSource.h"
 #include "vtkProperty.h"
 #include "vtkRandomAttributeGenerator.h"
+#include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -79,6 +80,8 @@ int TestPointGaussianMapperOpacity(int argc, char *argv[])
   randomAttr->GeneratePointVectorsOn();
   randomAttr->GeneratePointArrayOn();
   randomAttr->Update();
+  vtkDataSet *output = static_cast<vtkDataSet*>(randomAttr->GetOutput());
+  output->GetPointData()->SetScalars(output->GetPointData()->GetArray("RandomPointArray"));
 
   mapper->SetInputConnection(randomAttr->GetOutputPort());
   mapper->SetColorModeToMapScalars();
@@ -86,7 +89,7 @@ int TestPointGaussianMapperOpacity(int argc, char *argv[])
   mapper->SelectColorArray("RandomPointVectors");
   mapper->SetInterpolateScalarsBeforeMapping(0);
   mapper->SetScaleArray("RandomPointScalars");
-  mapper->SetScaleArrayComponent(1);
+  mapper->SetScaleArrayComponent(1); //tests clamping to zero-th component
   mapper->SetOpacityArray("RandomPointArray");
   mapper->SetOpacityArrayComponent(0);
   mapper->EmissiveOff();
