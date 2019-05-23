@@ -18,8 +18,23 @@
 /* Use the libproj library configured for VTK.  */
 #cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtklibproj
 
+#define VTK_LibPROJ_MAJOR_VERSION @LibPROJ_MAJOR_VERSION@
+
+#if VTK_LibPROJ_MAJOR_VERSION < 5
+# define PROJ_VERSION_MAJOR @LibPROJ_MAJOR_VERSION@
+# define proj_list_operations pj_get_list_ref
+#endif
+
 #if VTK_MODULE_USE_EXTERNAL_vtklibproj
-# include <projects.h>
+# if VTK_LibPROJ_MAJOR_VERSION >= 5
+#  include <proj.h>
+# endif
+# if VTK_LibPROJ_MAJOR_VERSION < 6
+#  include <projects.h>
+# endif
+# if VTK_LibPROJ_MAJOR_VERSION >= 6
+#  define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H 1
+# endif
 # include <proj_api.h>
 # include <geodesic.h>
 #else

@@ -72,6 +72,9 @@ public:
   }
 
   std::map< std::string, std::string > OptionalParameters;
+#if PROJ_VERSION_MAJOR >= 5
+  PJ_PROJ_INFO ProjInfo;
+#endif
 };
 
 //-----------------------------------------------------------------------------
@@ -80,7 +83,7 @@ int vtkGeoProjection::GetNumberOfProjections()
   if ( vtkGeoProjectionNumProj < 0 )
   {
     vtkGeoProjectionNumProj = 0;
-    for ( const PJ_LIST* pj = pj_get_list_ref(); pj && pj->id; ++ pj )
+    for ( const PJ_LIST* pj = proj_list_operations(); pj && pj->id; ++ pj )
       ++ vtkGeoProjectionNumProj;
   }
   return vtkGeoProjectionNumProj;
@@ -91,7 +94,7 @@ const char* vtkGeoProjection::GetProjectionName( int projection )
   if ( projection < 0 || projection >= vtkGeoProjection::GetNumberOfProjections() )
     return nullptr;
 
-  return pj_get_list_ref()[projection].id;
+  return proj_list_operations()[projection].id;
 }
 //-----------------------------------------------------------------------------
 const char* vtkGeoProjection::GetProjectionDescription( int projection )
@@ -99,7 +102,7 @@ const char* vtkGeoProjection::GetProjectionDescription( int projection )
   if ( projection < 0 || projection >= vtkGeoProjection::GetNumberOfProjections() )
     return nullptr;
 
-  return pj_get_list_ref()[projection].descr[0];
+  return proj_list_operations()[projection].descr[0];
 }
 //-----------------------------------------------------------------------------
 vtkGeoProjection::vtkGeoProjection()
@@ -144,7 +147,7 @@ void vtkGeoProjection::PrintSelf( ostream& os, vtkIndent indent )
 int vtkGeoProjection::GetIndex()
 {
   int i = 0;
-  for ( const PJ_LIST* proj = pj_get_list_ref(); proj && proj->id; ++ proj, ++ i )
+  for ( const PJ_LIST* proj = proj_list_operations(); proj && proj->id; ++ proj, ++ i )
   {
     if ( ! strcmp( proj->id, this->Name ) )
     {
@@ -161,7 +164,11 @@ const char* vtkGeoProjection::GetDescription()
   {
     return nullptr;
   }
+#if PROJ_VERSION_MAJOR >= 5
+  return this->Internals->ProjInfo.description;
+#else
   return this->Projection->descr;
+#endif
 }
 //-----------------------------------------------------------------------------
 projPJ vtkGeoProjection::GetProjection()
@@ -232,6 +239,9 @@ int vtkGeoProjection::UpdateProjection()
   this->ProjectionMTime = this->GetMTime();
   if ( this->Projection )
   {
+#if PROJ_VERSION_MAJOR >= 5
+    this->Internals->ProjInfo = proj_pj_info(this->Projection);
+#endif
     return 0;
   }
   return 1;

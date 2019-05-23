@@ -6,7 +6,12 @@ vtk_module_third_party(
   EXTERNAL
     PACKAGE LibPROJ
     TARGETS LibPROJ::LibPROJ
+    USE_VARIABLES LibPROJ_MAJOR_VERSION
     STANDARD_INCLUDE_DIRS)
+
+if (NOT VTK_MODULE_USE_EXTERNAL_VTK_libproj)
+  set(LibPROJ_MAJOR_VERSION "4")
+endif ()
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_libproj.h.in"
