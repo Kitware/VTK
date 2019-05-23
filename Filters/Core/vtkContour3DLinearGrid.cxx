@@ -1394,7 +1394,6 @@ int ProcessMerged(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
   // Make sure data was produced
   if ( numTris <= 0 )
   {
-    outPts->SetNumberOfPoints(0);
     delete [] mergeEdges;
     return 1;
   }
