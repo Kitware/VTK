@@ -2111,7 +2111,6 @@ bool vtkContour3DLinearGrid::CanProcessDataObject(vtkDataObject* object,
     LinearCellChecker cellChecker(ds);
     vtkSMPTools::For(0, ds->GetNumberOfCells(), cellChecker);
     bool okay = cellChecker.SupportsDataSet;
-    std::cout << "cell checker okay: " << okay << std::endl;
     return okay;
   }
 
