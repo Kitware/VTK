@@ -340,7 +340,7 @@ protected:
 
   int BuildInternalFunctionStructure();
   void BuildInternalSubstringStructure(int beginIndex, int endIndex);
-  void AddInternalByte(unsigned char newByte);
+  void AddInternalByte(unsigned int newByte);
 
   int IsSubstringCompletelyEnclosed(int beginIndex, int endIndex);
   int FindEndOfMathFunction(int beginIndex);
@@ -381,7 +381,7 @@ protected:
   std::vector<bool> ScalarVariableNeeded;
   std::vector<bool> VectorVariableNeeded;
 
-  unsigned char *ByteCode;
+  std::vector<unsigned int> ByteCode;
   int ByteCodeSize;
   double *Immediates;
   int ImmediatesSize;

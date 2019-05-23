@@ -14,11 +14,13 @@
 =========================================================================*/
 
 #include <vtkArrayCalculator.h>
+#include <vtkImageData.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
+#include <vtkXMLImageDataReader.h>
 #include <vtkXMLPolyDataReader.h>
 
 int TestArrayCalculator(int argc, char *argv[])
@@ -121,5 +123,36 @@ int TestArrayCalculator(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  char* filename2 =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/wavelet300Arrays.vti");
+
+  vtkNew<vtkXMLImageDataReader> reader2;
+  reader2->SetFileName(filename2);
+  delete[] filename2;
+  reader2->Update();
+
+  //finally, check that a dataset with a lot of arrays is supported
+  vtkNew<vtkArrayCalculator> calc6;
+  calc6->SetInputConnection( reader2->GetOutputPort() );
+  calc6->SetAttributeTypeToPointData();
+  for (int i = 0; i < reader2->GetNumberOfPointArrays(); i++)
+  {
+    calc6->AddScalarArrayName(reader2->GetPointArrayName(i));
+  }
+  calc6->SetFunction("Result224");
+  calc6->SetResultArrayName("Result");
+  calc6->Update();
+
+  vtkImageData* resultImage = vtkImageData::SafeDownCast(calc6->GetOutput());
+  if (!resultImage->GetPointData()->HasArray("Result"))
+  {
+    std::cerr << "Output from calc6 has no array named 'Result'" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (resultImage->GetPointData()->GetArray("Result")->GetTuple1(0) != 224)
+  {
+    std::cerr << "Output from calc6 has an unexpected value" << std::endl;
+    return EXIT_FAILURE;
+  }
   return EXIT_SUCCESS;
 }

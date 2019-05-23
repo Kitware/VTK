@@ -28,7 +28,6 @@ vtkFunctionParser::vtkFunctionParser()
 {
   this->Function = nullptr;
   this->FunctionWithSpaces = nullptr;
-  this->ByteCode = nullptr;
   this->ByteCodeSize = 0;
   this->Immediates = nullptr;
   this->ImmediatesSize = 0;
@@ -57,9 +56,6 @@ vtkFunctionParser::~vtkFunctionParser()
 
   delete [] this->FunctionWithSpaces;
   this->FunctionWithSpaces = nullptr;
-
-  delete [] this->ByteCode;
-  this->ByteCode = nullptr;
 
   delete [] this->Immediates;
   this->Immediates = nullptr;
@@ -144,7 +140,7 @@ int vtkFunctionParser::Parse()
   for (i = 0; i < this->ByteCodeSize; i++)
   {
     if ((this->ByteCode[i] >= VTK_PARSER_BEGIN_VARIABLES +
-         this->GetNumberOfScalarVariables()) ||
+         static_cast<unsigned int>(this->GetNumberOfScalarVariables())) ||
         (this->ByteCode[i] == VTK_PARSER_IHAT) ||
         (this->ByteCode[i] == VTK_PARSER_JHAT) ||
         (this->ByteCode[i] == VTK_PARSER_KHAT))
@@ -401,7 +397,7 @@ int vtkFunctionParser::DisambiguateOperators()
         tempStackPtr--;
         break;
       default:
-        if ((this->ByteCode[i] - VTK_PARSER_BEGIN_VARIABLES) < this->GetNumberOfScalarVariables())
+        if ((this->ByteCode[i] - VTK_PARSER_BEGIN_VARIABLES) < static_cast<unsigned int>(this->GetNumberOfScalarVariables()))
         {
           tempStackPtr++;
           tempStack[tempStackPtr] = 0;
@@ -840,7 +836,7 @@ bool vtkFunctionParser::Evaluate()
       }
       default:
         if ((this->ByteCode[numBytesProcessed] -
-             VTK_PARSER_BEGIN_VARIABLES) < this->GetNumberOfScalarVariables())
+             VTK_PARSER_BEGIN_VARIABLES) < static_cast<unsigned int>(this->GetNumberOfScalarVariables()))
         {
           this->Stack[++stackPosition] =
             this->ScalarVariableValues[this->ByteCode[numBytesProcessed] -
@@ -1268,8 +1264,7 @@ void vtkFunctionParser::CopyParseError(int &position, char **error)
 //-----------------------------------------------------------------------------
 int vtkFunctionParser::BuildInternalFunctionStructure()
 {
-  delete [] this->ByteCode;
-  this->ByteCode = nullptr;
+  this->ByteCode.clear();
 
   delete [] this->Immediates;
   this->Immediates = nullptr;
@@ -1366,7 +1361,7 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
               this->BuildInternalSubstringStructure(beginIndex2+1, i-1);
               this->BuildInternalSubstringStructure(i+1, endIndex-1);
               this->AddInternalByte(
-                static_cast<unsigned char>(mathFunctionNum));
+                static_cast<unsigned int>(mathFunctionNum));
               this->StackPointer--;
               return;
             }
@@ -1405,7 +1400,7 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
                 // first arg
                 this->BuildInternalSubstringStructure(beginIndex2+1, i-1);
                 this->AddInternalByte(
-                  static_cast<unsigned char>(mathFunctionNum));
+                  static_cast<unsigned int>(mathFunctionNum));
                 this->StackPointer--;
                 return;
               }
@@ -1414,7 +1409,7 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
         } // VTK_PARSER_IF, ...
 
         this->BuildInternalSubstringStructure(beginIndex2+1, endIndex-1);
-        this->AddInternalByte(static_cast<unsigned char>(mathFunctionNum));
+        this->AddInternalByte(static_cast<unsigned int>(mathFunctionNum));
         return;
       } // if (this->IsSubstringCompletelyEnclosed ... )
     } // if (mathFunctionNum > 0)
@@ -1485,29 +1480,10 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
 }
 
 //-----------------------------------------------------------------------------
-void vtkFunctionParser::AddInternalByte(unsigned char newByte)
+void vtkFunctionParser::AddInternalByte(unsigned int newByte)
 {
-  int i;
-  unsigned char *tempByteCode = new unsigned char[this->ByteCodeSize];
-
-  for (i = 0; i < this->ByteCodeSize; i++)
-  { // Copy current byte code to a temporary array
-    tempByteCode[i] = this->ByteCode[i];
-  }
-  delete [] this->ByteCode;
-
-  // Allocate space for new byte.
-  this->ByteCode = new unsigned char[this->ByteCodeSize + 1];
-
-  // Copy contents of temporary array back to ByteCode.
-  for (i = 0; i < this->ByteCodeSize; i++)
-  {
-    this->ByteCode[i] = tempByteCode[i];
-  }
-
-  this->ByteCode[this->ByteCodeSize] = newByte;
+  this->ByteCode.push_back(newByte);
   this->ByteCodeSize++;
-  delete [] tempByteCode;
 }
 
 //-----------------------------------------------------------------------------
@@ -1846,7 +1822,6 @@ int vtkFunctionParser::FindEndOfMathConstant(int beginIndex)
 unsigned char vtkFunctionParser::GetElementaryOperatorNumber(char op)
 {
   static const char* const operators = "+-*/^";
-  int i;
 
   if (op == '<')
   {
@@ -1869,11 +1844,11 @@ unsigned char vtkFunctionParser::GetElementaryOperatorNumber(char op)
     return VTK_PARSER_OR;
   }
 
-  for(i = 0; i < 5; i++)
+  for(unsigned char i = 0; i < 5; i++)
   {
     if (operators[i] == op)
     {
-      return static_cast<unsigned char>(VTK_PARSER_ADD + i);
+      return (i + VTK_PARSER_ADD);
     }
   }
   if (op == '.')
@@ -2430,11 +2405,11 @@ void vtkFunctionParser::UpdateNeededVariables()
   this->VectorVariableNeeded.clear();
   this->VectorVariableNeeded.resize(this->VectorVariableNames.size(), false);
 
-  unsigned char numscalars = static_cast<unsigned char>(this->GetNumberOfScalarVariables());
+  unsigned int numscalars = static_cast<unsigned int>(this->GetNumberOfScalarVariables());
 
   for (int cc=0; cc < this->ByteCodeSize; ++cc)
   {
-    unsigned char code = this->ByteCode[cc];
+    unsigned int code = this->ByteCode[cc];
     if (code < VTK_PARSER_BEGIN_VARIABLES)
     {
       continue;
