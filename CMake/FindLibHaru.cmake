@@ -55,13 +55,15 @@ if (LibHaru_FOUND)
       set_property(TARGET LibHaru::LibHaru APPEND PROPERTY
         IMPORTED_CONFIGURATIONS RELEASE)
       set_target_properties(LibHaru::LibHaru PROPERTIES
-        IMPORTED_LOCATION_RELEASE "${LibHaru_LIBRARY_RELEASE}")
+        IMPORTED_LOCATION_RELEASE "${LibHaru_LIBRARY_RELEASE}"
+        IMPORTED_IMPLIB_RELEASE "${LibHaru_LIBRARY_RELEASE}")
     endif ()
     if (LibHaru_LIBRARY_DEBUG)
       set_property(TARGET LibHaru::LibHaru APPEND PROPERTY
         IMPORTED_CONFIGURATIONS DEBUG)
       set_target_properties(LibHaru::LibHaru PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${LibHaru_LIBRARY_DEBUG}")
+        IMPORTED_LOCATION_DEBUG "${LibHaru_LIBRARY_DEBUG}"
+        IMPORTED_IMPLIB_DEBUG "${LibHaru_LIBRARY_DEBUG}")
     endif ()
   endif ()
 endif ()

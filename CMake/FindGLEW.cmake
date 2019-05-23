@@ -22,6 +22,7 @@ if (GLEW_FOUND)
     unset(glew_library_type)
     set_target_properties(GLEW::GLEW PROPERTIES
       IMPORTED_LOCATION "${GLEW_LIBRARY}"
+      IMPORTED_IMPLIB "${GLEW_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${GLEW_INCLUDE_DIR}")
   endif ()
 endif ()
