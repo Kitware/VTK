@@ -88,16 +88,15 @@ if (NOT CMAKE_OSX_SYSROOT)
     )
   foreach(sdk_root ${possible_sdk_roots})
     foreach(sdk
-      iPhoneOS7.0.sdk
-      iPhoneOS7.1.sdk
-      iPhoneOS8.0.sdk
       iPhoneOS9.0.sdk
       iPhoneOS9.1.sdk
       iPhoneOS9.2.sdk
-      iPhoneOS9.3.sdk  # guess
-      iPhoneOS9.4.sdk  # guess
-      iPhoneOS10.0.sdk # guess
-      iPhoneOS10.1.sdk # guess
+      iPhoneOS9.3.sdk
+      iPhoneOS10.0.sdk
+      iPhoneOS10.1.sdk
+      iPhoneOS10.2.sdk
+      iPhoneOS10.3.sdk
+      iPhoneOS.sdk
       )
       if (EXISTS ${sdk_root}/${sdk} AND IS_DIRECTORY ${sdk_root}/${sdk})
         set(CMAKE_OSX_SYSROOT ${sdk_root}/${sdk})
