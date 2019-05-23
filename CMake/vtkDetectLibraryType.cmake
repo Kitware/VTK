@@ -64,6 +64,16 @@ function (vtk_detect_library_type output)
     elseif (vdlt_static_check STREQUAL CMAKE_STATIC_LIBRARY_SUFFIX)
       set(vdlt_type STATIC)
     endif ()
+
+    # when import suffix != static suffix, we can disambiguate static and import
+    if (WIN32 AND NOT CMAKE_IMPORT_LIBRARY_SUFFIX STREQUAL CMAKE_STATIC_LIBRARY_SUFFIX)
+      string(LENGTH "${CMAKE_IMPORT_LIBRARY_SUFFIX}" vdlt_import_suffix_len)
+      math(EXPR vdlt_import_idx "${vdlt_path_len} - ${vdlt_import_suffix_len}")
+      string(SUBSTRING "${vdlt_PATH}" "${vdlt_import_idx}" -1 vdlt_import_check)
+      if (vdlt_import_check STREQUAL CMAKE_IMPORT_LIBRARY_SUFFIX)
+        set(vdlt_type SHARED)
+      endif ()
+    endif ()
   endif ()
 
   set("${output}"
