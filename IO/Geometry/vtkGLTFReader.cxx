@@ -15,6 +15,8 @@
 
 #include "vtkGLTFReader.h"
 
+#include "vtkCommand.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
@@ -25,11 +27,13 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkWeightedTransformFilter.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <array>
 #include <sstream>
 
 namespace
@@ -42,6 +46,28 @@ std::string value_to_string(const T& val)
   std::ostringstream ss;
   ss << val;
   return ss.str();
+}
+
+//----------------------------------------------------------------------------
+std::string MakeUniqueNonEmptyName(
+  const std::string& name, std::map<std::string, unsigned int>& duplicateCounters)
+{
+  std::string newName = "Unnamed";
+  if (!name.empty())
+  {
+    newName = name;
+  }
+  if (duplicateCounters.count(newName) > 0)
+  {
+    duplicateCounters[newName]++;
+    newName += '_' + value_to_string(duplicateCounters[newName] - 1);
+    duplicateCounters[newName] = 1;
+  }
+  else
+  {
+    duplicateCounters[newName] = 1;
+  }
+  return newName;
 }
 
 //----------------------------------------------------------------------------
@@ -69,30 +95,25 @@ void AddFloatToFieldData(
 }
 
 //----------------------------------------------------------------------------
-void AddVec3fToFieldData(
-  std::string arrayName, std::vector<float>& multiplier, vtkSmartPointer<vtkFieldData> fieldData)
+void AddVecNfToFieldData(const std::string& arrayName, const std::vector<float>& multiplier,
+  vtkSmartPointer<vtkFieldData> fieldData)
 {
   vtkNew<vtkFloatArray> array;
   array->SetName(arrayName.c_str());
-  array->SetNumberOfComponents(3);
+  array->SetNumberOfComponents(static_cast<int>(multiplier.size()));
   array->SetNumberOfTuples(1);
   array->SetTypedTuple(0, multiplier.data());
   fieldData->AddArray(array);
 }
 
 //----------------------------------------------------------------------------
-void AddTextureInfoToFieldData(std::string prefix, int textureIndex, int textureCoordIndex,
-  std::vector<float> multiplier, vtkSmartPointer<vtkFieldData> fieldData)
+void AddTextureInfoToFieldData(const std::string& prefix, int textureIndex, int textureCoordIndex,
+  vtkSmartPointer<vtkFieldData> fieldData, std::vector<float> multiplier = std::vector<float>())
 {
   AddIntegerToFieldData(prefix + "TextureIndex", textureIndex, fieldData);
-  if (multiplier.size() == 3)
+  if (multiplier.size() == 3 || multiplier.size() == 4)
   {
-    AddVec3fToFieldData(prefix + "Multiplier", multiplier, fieldData);
-  }
-  else
-  {
-    std::vector<float> defaultMultiplier(3, 1.0f);
-    AddVec3fToFieldData(prefix + "Multiplier", defaultMultiplier, fieldData);
+    AddVecNfToFieldData(prefix + "Multiplier", multiplier, fieldData);
   }
   AddIntegerToFieldData(prefix + "TexCoordIndex", textureCoordIndex, fieldData);
 }
@@ -110,34 +131,39 @@ void AddMaterialToFieldData(int materialId, vtkSmartPointer<vtkFieldData> fieldD
     auto pbr = material.PbrMetallicRoughness;
     if (pbr.BaseColorTexture.Index >= 0 && pbr.BaseColorTexture.Index < nbTextures)
     {
-      AddTextureInfoToFieldData("BaseColor", pbr.BaseColorTexture.Index,
-        pbr.BaseColorTexture.TexCoord,
-        std::vector<float>{ pbr.BaseColorFactor.begin(), pbr.BaseColorFactor.end() }, fieldData);
+      AddTextureInfoToFieldData(
+        "BaseColor", pbr.BaseColorTexture.Index, pbr.BaseColorTexture.TexCoord, fieldData);
     }
+    std::vector<float> multiplier(4, 1.0);
+    if (pbr.BaseColorFactor.size() == 3 || pbr.BaseColorFactor.size() == 4)
+    {
+      multiplier = std::vector<float>{ pbr.BaseColorFactor.begin(), pbr.BaseColorFactor.end() };
+    }
+    AddVecNfToFieldData("BaseColorMultiplier", multiplier, fieldData);
     if (pbr.MetallicRoughnessTexture.Index >= 0 && pbr.MetallicRoughnessTexture.Index < nbTextures)
     {
       AddTextureInfoToFieldData("MetallicRoughness", pbr.MetallicRoughnessTexture.Index,
-        pbr.MetallicRoughnessTexture.TexCoord,
-        std::vector<float>{ 0, pbr.MetallicFactor, pbr.RoughnessFactor }, fieldData);
+        pbr.MetallicRoughnessTexture.TexCoord, fieldData);
     }
+    multiplier = std::vector<float>{ 0, pbr.MetallicFactor, pbr.RoughnessFactor };
+    AddVecNfToFieldData("MetallicRoughness", multiplier, fieldData);
     if (material.NormalTexture.Index >= 0 && material.NormalTexture.Index < nbTextures)
     {
       AddTextureInfoToFieldData("Normal", material.NormalTexture.Index,
-        material.NormalTexture.TexCoord, std::vector<float>(3, material.NormalTextureScale),
-        fieldData);
+        material.NormalTexture.TexCoord, fieldData,
+        std::vector<float>(3, material.NormalTextureScale));
     }
     if (material.OcclusionTexture.Index >= 0 && material.OcclusionTexture.Index < nbTextures)
     {
       AddTextureInfoToFieldData("Occlusion", material.OcclusionTexture.Index,
-        material.OcclusionTexture.TexCoord,
-        std::vector<float>(3, material.OcclusionTextureStrength), fieldData);
+        material.OcclusionTexture.TexCoord, fieldData,
+        std::vector<float>(3, material.OcclusionTextureStrength));
     }
     if (material.EmissiveTexture.Index >= 0 && material.EmissiveTexture.Index < nbTextures)
     {
       AddTextureInfoToFieldData("Emissive", material.EmissiveTexture.Index,
-        material.EmissiveTexture.TexCoord,
-        std::vector<float>{ material.EmissiveFactor.begin(), material.EmissiveFactor.end() },
-        fieldData);
+        material.EmissiveTexture.TexCoord, fieldData,
+        std::vector<float>{ material.EmissiveFactor.begin(), material.EmissiveFactor.end() });
     }
     // Add alpha cutoff value, alpha mode
     if (material.AlphaMode == vtkGLTFDocumentLoader::Material::AlphaModeType::MASK)
@@ -148,6 +174,14 @@ void AddMaterialToFieldData(int materialId, vtkSmartPointer<vtkFieldData> fieldD
     {
       AddIntegerToFieldData("ForceOpaque", 1, fieldData);
     }
+  }
+  else
+  {
+    // Append default material information
+    AddVecNfToFieldData("BaseColorMultiplier", std::vector<float>(4, 1.0f), fieldData);
+    AddVecNfToFieldData("MetallicRoughness", std::vector<float>(3, 1.0f), fieldData);
+    AddVecNfToFieldData("Emissive", std::vector<float>(3, 0.0f), fieldData);
+    AddIntegerToFieldData("ForceOpaque", 1, fieldData);
   }
 }
 
@@ -359,7 +393,6 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
     vtkErrorWithObjectMacro(nullptr, "Invalid mesh index " << meshId);
     return false;
   }
-
   bool createNewPolyData = false;
   // If meshDataSet is not defined, create it and append it to the parent dataset.
   if (!meshDataSet && !createNewPolyData)
@@ -579,10 +612,10 @@ bool BuildMultiBlockDataSetFromNode(vtkGLTFDocumentLoader::Model& m, unsigned in
 }
 
 //----------------------------------------------------------------------------
-bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, unsigned int sceneId,
+bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, vtkIdType sceneId,
   vtkSmartPointer<vtkMultiBlockDataSet> dataSet, bool applyDeformations)
 {
-  if (sceneId >= m.Scenes.size())
+  if (sceneId < 0 || sceneId >= static_cast<vtkIdType>(m.Scenes.size()))
   {
     vtkErrorWithObjectMacro(nullptr, "Invalid scene index " << sceneId);
     return false;
@@ -596,7 +629,6 @@ bool BuildMultiBlockDataSetFromScene(vtkGLTFDocumentLoader::Model& m, unsigned i
   for (int node : scene.Nodes)
   {
     std::string nodeDatasetName = "Node_" + value_to_string(node);
-
     vtkSmartPointer<vtkMultiBlockDataSet> nodeDataset = nullptr;
     if (!createNewBlocks)
     {
@@ -623,7 +655,7 @@ vtkGLTFReader::vtkGLTFReader()
 {
   this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
-  this->SetFrameRate(0);
+  this->SetFrameRate(60);
   this->IsModelLoaded = false;
   this->IsMetaDataLoaded = false;
 }
@@ -661,8 +693,7 @@ void vtkGLTFReader::StoreTextureData()
   int nbTextures = static_cast<int>(model->Textures.size());
   int nbSamplers = static_cast<int>(model->Samplers.size());
 
-  this->Textures.resize(this->Loader->GetInternalModel()->Textures.size());
-  int index = 0;
+  this->Textures.reserve(this->Loader->GetInternalModel()->Textures.size());
   for (auto loaderTexture : this->Loader->GetInternalModel()->Textures)
   {
     vtkGLTFReader::GLTFTexture readerTexture;
@@ -683,8 +714,7 @@ void vtkGLTFReader::StoreTextureData()
       readerTexture.WrapSValue = sampler.WrapS;
       readerTexture.WrapTValue = sampler.WrapT;
     }
-    this->Textures.emplace(this->Textures.begin() + index, std::move(readerTexture));
-    index++;
+    this->Textures.emplace_back(std::move(readerTexture));
   }
 }
 
@@ -722,6 +752,9 @@ int vtkGLTFReader::RequestInformation(
       vtkErrorMacro("Error loading model metadata from file " << this->FileName);
       return 0;
     }
+    this->CreateAnimationSelection();
+    this->CreateSceneNamesArray();
+    this->SetCurrentScene(this->Loader->GetInternalModel()->DefaultScene);
     this->IsMetaDataLoaded = true;
   }
 
@@ -732,38 +765,53 @@ int vtkGLTFReader::RequestInformation(
 
   // Find maximum animation duration (for TIME_RANGE())
   double maxDuration = 0.0;
-  for (auto& animation : model->Animations)
+  if (this->AnimationSelection != nullptr)
   {
-    if (animation.Duration > maxDuration)
+    for (vtkIdType i = 0; i < this->AnimationSelection->GetNumberOfArrays(); i++)
     {
-      maxDuration = animation.Duration;
+      // Only use enabled animations to track maximum duration values
+      if (this->AnimationSelection->ArrayIsEnabled(this->AnimationSelection->GetArrayName(i)))
+      {
+        float duration = model->Animations[i].Duration;
+        if (maxDuration < duration)
+        {
+          maxDuration = duration;
+        }
+      }
     }
   }
-  double timeRange[2] = { 0, maxDuration };
-  info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
 
   // Append TIME_STEPS
-  if (this->GetFrameRate() > 0)
+  if (this->GetFrameRate() > 0 && maxDuration > 0.0)
   {
-    int numberOfFrames = vtkMath::Ceil(this->GetFrameRate() * maxDuration);
+    int maxFrameIndex = vtkMath::Floor(this->GetFrameRate() * maxDuration);
     if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
     {
       info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     }
-    for (int i = 0; i < numberOfFrames; i++)
+    double period = 1.0 / this->GetFrameRate();
+    // Append sampled time steps
+    for (int i = 0; i <= maxFrameIndex; i++)
     {
-      info->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), i);
+      info->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), i * period);
     }
+    // Append the last step of the animation, if it doesn't match with the last sampled step
+    if (maxDuration != maxFrameIndex * period)
+    {
+      info->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), maxDuration);
+    }
+
+    // Add TIME_RANGE()
+    std::array<double, 2> timeRange = { { 0.0, maxDuration } };
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange.data(), 2);
   }
   else if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
     info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   }
 
-  this->NumberOfAnimations = model->Animations.size();
-  this->NumberOfScenes = model->Scenes.size();
-  this->AnimationEnabledStates.resize(this->NumberOfAnimations, false);
-  this->SetCurrentScene(model->DefaultScene);
+  this->NumberOfAnimations = static_cast<vtkIdType>(model->Animations.size());
+  this->NumberOfScenes = static_cast<vtkIdType>(model->Scenes.size());
   return 1;
 }
 
@@ -809,27 +857,36 @@ int vtkGLTFReader::RequestData(
       return 0;
     }
     this->StoreTextureData();
-    this->OutputDataSet = vtkSmartPointer<vtkMultiBlockDataSet>::New();
     this->IsModelLoaded = true;
+  }
+
+  if (this->OutputDataSet == nullptr)
+  {
+    this->OutputDataSet = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   }
 
   // Apply selected animations on specified time step to the model's transforms
   vtkInformation* info = outputVector->GetInformationObject(0);
+
   if (this->FrameRate > 0)
   {
-    double frame = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-    double time = frame / this->FrameRate;
-    for (unsigned int i = 0; i < this->NumberOfAnimations; i++)
+    double time = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+    for (vtkIdType i = 0; i < this->NumberOfAnimations; i++)
     {
-      if (this->AnimationEnabledStates[i])
+      if (this->AnimationSelection->GetArraySetting(i))
       {
         this->Loader->ApplyAnimation(time, i);
+      }
+      else if (this->PreviousAnimationSelection->GetArraySetting(i))
+      {
+        // Reset transforms and weights
+        this->Loader->ResetAnimation(i);
       }
     }
   }
 
-  unsigned int selectedScene = this->CurrentScene;
-  if (selectedScene >= model->Scenes.size())
+  vtkIdType selectedScene = this->CurrentScene;
+  if (selectedScene < 0 || selectedScene >= static_cast<vtkIdType>(model->Scenes.size()))
   {
     selectedScene = model->DefaultScene;
   }
@@ -841,107 +898,217 @@ int vtkGLTFReader::RequestData(
     return 0;
   }
 
+  // Save current animations
+  this->PreviousAnimationSelection->CopySelections(this->AnimationSelection);
+
   output->ShallowCopy(this->OutputDataSet);
   return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkGLTFReader::EnableAnimation(unsigned int id)
+void vtkGLTFReader::EnableAnimation(vtkIdType animationIndex)
 {
-  if (id >= this->AnimationEnabledStates.size())
+  if (this->AnimationSelection == nullptr)
+  {
+    vtkErrorMacro("Error accessing animations: model is not loaded yet");
+    return;
+  }
+  if (animationIndex < 0 || animationIndex >= this->AnimationSelection->GetNumberOfArrays())
   {
     vtkErrorMacro("Out of range animation index");
     return;
   }
-  this->AnimationEnabledStates[id] = true;
+  auto name = this->AnimationSelection->GetArrayName(animationIndex);
+  this->AnimationSelection->EnableArray(name);
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkGLTFReader::DisableAnimation(unsigned int id)
+void vtkGLTFReader::DisableAnimation(vtkIdType animationIndex)
 {
-  if (id >= this->AnimationEnabledStates.size())
+  if (this->AnimationSelection == nullptr)
+  {
+    vtkErrorMacro("Error accessing animations: model is not loaded yet");
+    return;
+  }
+  if (animationIndex < 0 || animationIndex >= this->AnimationSelection->GetNumberOfArrays())
   {
     vtkErrorMacro("Out of range animation index");
     return;
   }
-  this->AnimationEnabledStates[id] = false;
+  auto name = this->AnimationSelection->GetArrayName(animationIndex);
+  this->AnimationSelection->DisableArray(name);
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-bool vtkGLTFReader::IsAnimationEnabled(unsigned int id)
+bool vtkGLTFReader::IsAnimationEnabled(vtkIdType animationIndex)
 {
-  if (id >= this->AnimationEnabledStates.size())
+  if (this->AnimationSelection == nullptr)
+  {
+    vtkErrorMacro("Error accessing animations: model is not loaded yet");
+    return false;
+  }
+  if (animationIndex < 0 || animationIndex >= this->AnimationSelection->GetNumberOfArrays())
   {
     vtkErrorMacro("Out of range animation index");
     return false;
   }
-  return this->AnimationEnabledStates[id];
+  auto name = this->AnimationSelection->GetArrayName(animationIndex);
+  return this->AnimationSelection->ArrayIsEnabled(name) != 0;
 }
 
 //----------------------------------------------------------------------------
-std::string vtkGLTFReader::GetAnimationName(unsigned int id)
+std::string vtkGLTFReader::GetAnimationName(vtkIdType animationIndex)
 {
   if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
   {
     vtkErrorMacro("Error while accessing animations: model is not loaded");
     return "";
   }
-  if (id >= this->Loader->GetInternalModel()->Animations.size())
+  if (animationIndex < 0 ||
+    animationIndex >= static_cast<vtkIdType>(this->Loader->GetInternalModel()->Animations.size()))
   {
     vtkErrorMacro("Out of range animation index");
     return "";
   }
-  return this->Loader->GetInternalModel()->Animations[id].Name;
+  return this->Loader->GetInternalModel()->Animations[animationIndex].Name;
 }
 
 //----------------------------------------------------------------------------
-float vtkGLTFReader::GetAnimationDuration(unsigned int id)
+float vtkGLTFReader::GetAnimationDuration(vtkIdType animationIndex)
 {
   if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
   {
     vtkErrorMacro("Error while accessing animations: model is not loaded");
     return 0.0;
   }
-  if (id >= this->Loader->GetInternalModel()->Animations.size())
+  if (animationIndex < 0 ||
+    animationIndex >= static_cast<vtkIdType>(this->Loader->GetInternalModel()->Animations.size()))
   {
     vtkErrorMacro("Out of range animation index");
     return 0.0;
   }
-  return this->Loader->GetInternalModel()->Animations[id].Duration;
+  return this->Loader->GetInternalModel()->Animations[animationIndex].Duration;
 }
 
 //----------------------------------------------------------------------------
-std::string vtkGLTFReader::GetSceneName(unsigned int id)
+std::string vtkGLTFReader::GetSceneName(vtkIdType sceneIndex)
 {
   if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
   {
     vtkErrorMacro("Error while accessing scenes: model is not loaded");
     return "";
   }
-  if (id >= this->Loader->GetInternalModel()->Scenes.size())
+  if (sceneIndex < 0 ||
+    sceneIndex >= static_cast<vtkIdType>(this->Loader->GetInternalModel()->Scenes.size()))
   {
     vtkErrorMacro("Out of range scene index");
     return "";
   }
-  return this->Loader->GetInternalModel()->Scenes[id].Name;
+  return this->Loader->GetInternalModel()->Scenes[sceneIndex].Name;
 }
 
 //----------------------------------------------------------------------------
-size_t vtkGLTFReader::GetNumberOfTextures()
+vtkIdType vtkGLTFReader::GetNumberOfTextures()
 {
-  return this->Textures.size();
+  return static_cast<vtkIdType>(this->Textures.size());
 }
 
 //----------------------------------------------------------------------------
-vtkGLTFReader::GLTFTexture vtkGLTFReader::GetGLTFTexture(unsigned int textureIndex)
+vtkGLTFReader::GLTFTexture vtkGLTFReader::GetGLTFTexture(vtkIdType textureIndex)
 {
-
-  if (textureIndex >= this->Textures.size())
+  if (textureIndex < 0 || textureIndex >= static_cast<vtkIdType>(this->Textures.size()))
   {
     vtkErrorMacro("Out of range texture index");
     return vtkGLTFReader::GLTFTexture{ nullptr, 0, 0, 0, 0 };
   }
   return this->Textures[textureIndex];
+}
+
+//----------------------------------------------------------------------------
+void vtkGLTFReader::SetScene(const std::string& scene)
+{
+  if (this->SceneNames == nullptr)
+  {
+    this->CurrentScene = 0;
+    return;
+  }
+  for (vtkIdType i = 0; i < this->SceneNames->GetNumberOfValues(); i++)
+  {
+    if (scene == this->SceneNames->GetValue(i))
+    {
+      this->SetCurrentScene(i);
+      this->OutputDataSet = nullptr;
+      return;
+    }
+  }
+  vtkWarningMacro("Scene '" << scene << "' does not exist.");
+}
+
+//----------------------------------------------------------------------------
+void vtkGLTFReader::CreateSceneNamesArray()
+{
+  if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
+  {
+    vtkErrorMacro("Error while accessing scenes: model is not loaded");
+    return;
+  }
+  this->SceneNames = vtkSmartPointer<vtkStringArray>::New();
+  this->SceneNames->SetNumberOfComponents(1);
+
+  std::map<std::string, unsigned int> duplicateNameCounters;
+
+  for (const auto& scene : this->Loader->GetInternalModel()->Scenes)
+  {
+    this->SceneNames->InsertNextValue(MakeUniqueNonEmptyName(scene.Name, duplicateNameCounters));
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkStringArray* vtkGLTFReader::GetAllSceneNames()
+{
+  if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
+  {
+    vtkErrorMacro("Error while accessing scenes: model is not loaded");
+    return nullptr;
+  }
+  return this->SceneNames;
+}
+
+//----------------------------------------------------------------------------
+vtkDataArraySelection* vtkGLTFReader::GetAnimationSelection()
+{
+  return this->AnimationSelection;
+}
+
+//----------------------------------------------------------------------------
+void vtkGLTFReader::CreateAnimationSelection()
+{
+  if (this->Loader == nullptr || this->Loader->GetInternalModel() == nullptr)
+  {
+    vtkErrorMacro("Error while accessing animations: model is not loaded");
+    return;
+  }
+  this->AnimationSelection = vtkSmartPointer<vtkDataArraySelection>::New();
+  std::map<std::string, unsigned int> duplicateNameCounters;
+  for (const auto& animation : this->Loader->GetInternalModel()->Animations)
+  {
+    this->AnimationSelection->AddArray(
+      MakeUniqueNonEmptyName(animation.Name, duplicateNameCounters).c_str(), false);
+  }
+  this->PreviousAnimationSelection = vtkSmartPointer<vtkDataArraySelection>::New();
+  this->PreviousAnimationSelection->CopySelections(this->AnimationSelection);
+  this->AnimationSelection->AddObserver(vtkCommand::ModifiedEvent, this, &vtkGLTFReader::Modified);
+}
+
+//---------------------------------------------------------------------------
+void vtkGLTFReader::SetApplyDeformationsToGeometry(bool flag)
+{
+  if (this->ApplyDeformationsToGeometry != flag)
+  {
+    this->OutputDataSet = nullptr;
+    this->Modified();
+  }
+  this->ApplyDeformationsToGeometry = flag;
 }

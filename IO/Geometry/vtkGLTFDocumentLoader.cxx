@@ -904,6 +904,35 @@ bool vtkGLTFDocumentLoader::ApplyAnimation(float t, int animationId, bool forceS
 }
 
 //----------------------------------------------------------------------------
+void vtkGLTFDocumentLoader::ResetAnimation(int animationId)
+{
+  const Animation& animation = this->InternalModel->Animations[animationId];
+  for (const Animation::Channel& channel : animation.Channels)
+  {
+    Node& node = this->InternalModel->Nodes[channel.TargetNode];
+    switch (channel.TargetPath)
+    {
+      case Animation::Channel::PathType::ROTATION:
+        node.Rotation = node.InitialRotation;
+        break;
+      case Animation::Channel::PathType::TRANSLATION:
+        node.Translation = node.InitialTranslation;
+        break;
+      case Animation::Channel::PathType::SCALE:
+        node.Scale = node.InitialScale;
+        break;
+      case Animation::Channel::PathType::WEIGHTS:
+        node.Weights = node.InitialWeights;
+        break;
+      default:
+        vtkErrorMacro(
+          "Invalid animation.channel.target.path value for animation " << animation.Name);
+    }
+    node.UpdateTransform();
+  }
+}
+
+//----------------------------------------------------------------------------
 bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
 {
   // Positions
@@ -1171,9 +1200,12 @@ bool vtkGLTFDocumentLoader::BuildModelVTKGeometry()
     }
   }
   // Compute global transforms
-  for (unsigned int node : this->InternalModel->Scenes[this->InternalModel->DefaultScene].Nodes)
+  for (const auto& scene : this->InternalModel->Scenes)
   {
-    this->BuildGlobalTransforms(node, nullptr);
+    for (unsigned int node : scene.Nodes)
+    {
+      this->BuildGlobalTransforms(node, nullptr);
+    }
   }
 
   return true;
