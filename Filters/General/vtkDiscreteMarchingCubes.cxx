@@ -19,6 +19,7 @@
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkImageTransform.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -60,7 +61,6 @@ vtkDiscreteMarchingCubes::~vtkDiscreteMarchingCubes() = default;
 template <class T>
 void vtkDiscreteMarchingCubesComputeGradient(
   vtkDiscreteMarchingCubes *self,T *scalars, int dims[3],
-  double origin[3], double spacing[3],
   vtkIncrementalPointLocator *locator,
   vtkDataArray *newCellScalars,
   vtkDataArray *newPointScalars,
@@ -68,7 +68,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
   int numValues)
 {
   double s[8], value;
-  int i, j, k;
+  int i, j, k, pts[8][3], xp, yp, zp, *x1, *x2;
   vtkIdType sliceSize, rowSize;
   static const int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   vtkMarchingCubesTriangleCases *triCase, *triCases;
@@ -79,8 +79,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
   int extent[6];
   int ComputeScalars = newCellScalars != nullptr;
   int ComputeAdjacentScalars = newPointScalars != nullptr;
-  double t, *x1, *x2, x[3], min, max;
-  double pts[8][3], xp, yp, zp;
+  double t, x[3], min, max;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                               {4,5}, {5,6}, {7,6}, {4,7},
                               {0,4}, {1,5}, {3,7}, {2,6}};
@@ -122,13 +121,13 @@ void vtkDiscreteMarchingCubesComputeGradient(
       break;
     }
     kOffset = k*sliceSize;
-    pts[0][2] = origin[2] + (k+extent[4])*spacing[2];
-    zp = pts[0][2] + spacing[2];
+    pts[0][2] = k+extent[4];
+    zp = pts[0][2] + 1;
     for ( j=0; j < (dims[1]-1); j++)
     {
       jOffset = j*rowSize;
-      pts[0][1] = origin[1] + (j+extent[2])*spacing[1];
-      yp = pts[0][1] + spacing[1];
+      pts[0][1] = j+extent[2];
+      yp = pts[0][1] + 1;
       for ( i=0; i < (dims[0]-1); i++)
       {
         //get scalar values
@@ -151,8 +150,8 @@ void vtkDiscreteMarchingCubesComputeGradient(
         }
 
         //create voxel points
-        pts[0][0] = origin[0] + (i+extent[0])*spacing[0];
-        xp = pts[0][0] + spacing[0];
+        pts[0][0] = i+extent[0];
+        xp = pts[0][0] + 1;
 
         pts[1][0] = xp;
         pts[1][1] = pts[0][1];
@@ -277,7 +276,6 @@ int vtkDiscreteMarchingCubes::RequestData(
   vtkDataArray *inScalars;
   int dims[3], extent[6];
   vtkIdType estimatedSize;
-  double spacing[3], origin[3];
   double bounds[6];
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -306,8 +304,6 @@ int vtkDiscreteMarchingCubes::RequestData(
     return 1;
   }
   input->GetDimensions(dims);
-  input->GetOrigin(origin);
-  input->GetSpacing(spacing);
 
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
@@ -329,8 +325,8 @@ int vtkDiscreteMarchingCubes::RequestData(
   // compute bounds for merging points
   for ( int i=0; i<3; i++)
   {
-    bounds[2*i] = origin[i] + extent[2*i] * spacing[i];
-    bounds[2*i+1] = origin[i] + extent[2*i+1] * spacing[i];
+    bounds[2*i] = extent[2*i];
+    bounds[2*i+1] = extent[2*i+1];
   }
   if ( this->Locator == nullptr )
   {
@@ -369,7 +365,7 @@ int vtkDiscreteMarchingCubes::RequestData(
       vtkTemplateMacro(
         vtkDiscreteMarchingCubesComputeGradient(this,
                                                 static_cast<VTK_TT*>(scalars),
-                                                dims, origin, spacing,
+                                                dims,
                                                 this->Locator, newCellScalars,
                                                 newPointScalars,
                                                 newPolys, values, numContours)
@@ -391,8 +387,6 @@ int vtkDiscreteMarchingCubes::RequestData(
     vtkDiscreteMarchingCubesComputeGradient(this,
                                             scalars,
                                             dims,
-                                            origin,
-                                            spacing,
                                             this->Locator,
                                             newCellScalars,
                                             newPointScalars,
@@ -431,6 +425,8 @@ int vtkDiscreteMarchingCubes::RequestData(
   {
     this->Locator->Initialize(); //free storage
   }
+
+  vtkImageTransform::TransformPointSet(input, output);
 
   return 1;
 }
