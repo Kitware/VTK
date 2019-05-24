@@ -16,6 +16,7 @@
 
 #include "vtkImageData.h"
 #include "vtkCellArray.h"
+#include "vtkImageTransform.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -81,9 +82,7 @@ public:
   // Internal variables used by the various algorithm methods. Interfaces VTK
   // image data in a form more convenient to the algorithm.
   vtkIdType Dims[2];
-  double Origin[3];
-  double Spacing[3];
-  double Z;
+  int K;
   int Axis0;
   int Min0;
   int Max0;
@@ -102,14 +101,6 @@ public:
 
   // Instantiate and initialize key data members.
   vtkFlyingEdges2DAlgorithm();
-
-  // Adjust the origin to the lower-left corner of the volume (if necessary)
-  void AdjustOrigin(int updateExt[6])
-  {
-    this->Origin[0] = this->Origin[0] + this->Spacing[0]*updateExt[0];
-    this->Origin[1] = this->Origin[1] + this->Spacing[1]*updateExt[2];
-    this->Origin[2] = this->Origin[2] + this->Spacing[2]*updateExt[4];
-  }
 
   // The three passes of the algorithm.
   void ProcessXEdge(double value, T* inPtr, vtkIdType row); //PASS 1
@@ -165,24 +156,24 @@ public:
   }
 
   // Interpolate along a pixel axes edge.
-  void InterpolateAxesEdge(double value, T *s0, float x0[3], T* s1,
-                           float x1[3], vtkIdType vId)
+  void InterpolateAxesEdge(double value, T *s0, int ijk0[3], T* s1,
+                           int ijk1[3], vtkIdType vId)
   {
       double t = (value - *s0) / (*s1 - *s0);
       float *x = this->NewPoints + 3*vId;
-      x[0] = x0[0] + t*(x1[0]-x0[0]);
-      x[1] = x0[1] + t*(x1[1]-x0[1]);
-      x[2] = this->Z;
+      x[0] = ijk0[0] + t*(ijk1[0]-ijk0[0]) + this->Min0;
+      x[1] = ijk0[1] + t*(ijk1[1]-ijk0[1]) + this->Min1;
+      x[2] = this->K;
   }
 
   // Interpolate along an arbitrary edge, typically one that may be on the
   // volume boundary. This means careful computation of stuff requiring
   // neighborhood information (e.g., gradients).
-  void InterpolateEdge(double value, T *s, float x[3], unsigned char edgeNum,
+  void InterpolateEdge(double value, T *s, int ijk[3], unsigned char edgeNum,
                        unsigned char edgeUses[4], vtkIdType *eIds);
 
   // Produce the output points on the pixel axes for this pixel cell.
-  void GeneratePoints(double value, unsigned char loc, T *sPtr, float x[3],
+  void GeneratePoints(double value, unsigned char loc, T *sPtr, int ijk[3],
                       unsigned char *edgeUses, vtkIdType *eIds);
 
   // Helper function to set up the point ids on pixel edges.
@@ -321,7 +312,7 @@ vtkFlyingEdges2DAlgorithm():XCases(nullptr),EdgeMetaData(nullptr),Scalars(nullpt
 // Interpolate a new point along a boundary edge. Make sure to consider
 // proximity to boundary when computing gradients, etc.
 template <class T> void vtkFlyingEdges2DAlgorithm<T>::
-InterpolateEdge(double value, T *s, float x[3],unsigned char edgeNum,
+InterpolateEdge(double value, T *s, int ijk[3], unsigned char edgeNum,
                 unsigned char edgeUses[12], vtkIdType *eIds)
 {
   // if this edge is not used then get out
@@ -338,42 +329,42 @@ InterpolateEdge(double value, T *s, float x[3],unsigned char edgeNum,
 
   const unsigned char *offsets = this->VertOffsets[vertMap[0]];
   s0 = s + offsets[0]*this->Inc0 + offsets[1]*this->Inc1;
-  x0[0] = x[0] + offsets[0]*this->Spacing[this->Axis0];
-  x0[1] = x[1] + offsets[1]*this->Spacing[this->Axis1];
+  x0[0] = ijk[0] + offsets[0];
+  x0[1] = ijk[1] + offsets[1];
 
   offsets = this->VertOffsets[vertMap[1]];
   s1 = s + offsets[0]*this->Inc0 + offsets[1]*this->Inc1;
-  x1[0] = x[0] + offsets[0]*this->Spacing[this->Axis0];
-  x1[1] = x[1] + offsets[1]*this->Spacing[this->Axis1];
+  x1[0] = ijk[0] + offsets[0];
+  x1[1] = ijk[1] + offsets[1];
 
   // Okay interpolate
   double t = (value - *s0) / (*s1 - *s0);
   float *xPtr = this->NewPoints + 3*vId;
-  xPtr[0] = x0[0] + t*(x1[0]-x0[0]);
-  xPtr[1] = x0[1] + t*(x1[1]-x0[1]);
-  xPtr[2] = this->Z;
+  xPtr[0] = x0[0] + t*(x1[0]-x0[0]) + this->Min0;
+  xPtr[1] = x0[1] + t*(x1[1]-x0[1]) + this->Min1;
+  xPtr[2] = this->K;
 }
 
 //----------------------------------------------------------------------------
 // Generate the output points and optionally normals, gradients and
 // interpolate attributes.
 template <class T> void vtkFlyingEdges2DAlgorithm<T>::
-GeneratePoints(double value, unsigned char loc, T *sPtr, float x[3],
+GeneratePoints(double value, unsigned char loc, T *sPtr, int ijk[3],
                unsigned char *edgeUses, vtkIdType *eIds)
 {
   // Create a slightly faster path for pixel axes interior to the image.
-  float x1[3];
+  int ijk1[3];
   if ( edgeUses[0] ) //x axes edge
   {
-    x1[0] = x[0] + this->Spacing[this->Axis0];
-    x1[1] = x[1];
-    this->InterpolateAxesEdge(value, sPtr, x, sPtr+this->Inc0, x1, eIds[0]);
+    ijk1[0] = ijk[0] + 1;
+    ijk1[1] = ijk[1];
+    this->InterpolateAxesEdge(value, sPtr, ijk, sPtr+this->Inc0, ijk1, eIds[0]);
   }
   if ( edgeUses[2] ) //y axes edge
   {
-    x1[0] = x[0];
-    x1[1] = x[1] + this->Spacing[this->Axis1];
-    this->InterpolateAxesEdge(value, sPtr, x, sPtr+this->Inc1, x1, eIds[2]);
+    ijk1[0] = ijk[0];
+    ijk1[1] = ijk[1] + 1;
+    this->InterpolateAxesEdge(value, sPtr, ijk, sPtr+this->Inc1, ijk1, eIds[2]);
   }
 
   // Otherwise do more general gyrations. These are boundary situations where
@@ -383,16 +374,16 @@ GeneratePoints(double value, unsigned char loc, T *sPtr, float x[3],
   switch (loc)
   {
     case 2: //+x edge
-      this->InterpolateEdge(value, sPtr, x, 3, edgeUses, eIds);
+      this->InterpolateEdge(value, sPtr, ijk, 3, edgeUses, eIds);
       break;
 
     case 8: //+y
-      this->InterpolateEdge(value, sPtr, x, 1, edgeUses, eIds);
+      this->InterpolateEdge(value, sPtr, ijk, 1, edgeUses, eIds);
       break;
 
     case 10: //+x +y
-      this->InterpolateEdge(value, sPtr, x, 1, edgeUses, eIds);
-      this->InterpolateEdge(value, sPtr, x, 3, edgeUses, eIds);
+      this->InterpolateEdge(value, sPtr, ijk, 1, edgeUses, eIds);
+      this->InterpolateEdge(value, sPtr, ijk, 3, edgeUses, eIds);
       break;
 
     default: //interior, or -x,-y boundary
@@ -586,9 +577,9 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row)
   // that active pixel axes edges are interpolated to produce points and
   // possibly interpolate attribute data.
   T *sPtr;
-  float x[3];
-  x[1] = this->Origin[this->Axis1] + row*this->Spacing[this->Axis1];
-  x[2] = this->Z;
+  int ijk[3];
+  ijk[1] = row;
+  ijk[2] = this->K;
   for (i=xL; i < xR; ++i)
   {
     if ( (numLines=this->GetNumberOfPrimitives(eCase)) > 0 )
@@ -602,9 +593,9 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row)
       if ( this->CaseIncludesAxes(eCase) || loc != Interior )
       {
         sPtr = rowPtr + i*this->Inc0;
-        x[0] = this->Origin[this->Axis0] + i*this->Spacing[this->Axis0];
+        ijk[0] = i;
         edgeUses = this->GetEdgeUses(eCase);
-        this->GeneratePoints(value, loc, sPtr, x, edgeUses, eIds);
+        this->GeneratePoints(value, loc, sPtr, ijk, edgeUses, eIds);
       }
 
       this->AdvancePixelIds(eCase,eIds);
@@ -643,9 +634,6 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
   // Figure out which 2D plane the image lies in. Capture information for
   // subsequent processing.
   vtkFlyingEdges2DAlgorithm<T> algo;
-  input->GetOrigin(algo.Origin);
-  input->GetSpacing(algo.Spacing);
-  algo.AdjustOrigin(updateExt);
   if (updateExt[4] == updateExt[5])
   { // z collapsed
     algo.Axis0 = 0;
@@ -656,7 +644,7 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
     algo.Min1 = updateExt[2];
     algo.Max1 = updateExt[3];
     algo.Inc1 = incs[1];
-    algo.Z = algo.Origin[2] + (updateExt[4]*algo.Spacing[2]);
+    algo.K = updateExt[4];
     algo.Axis2 = 2;
   }
   else if (updateExt[2] == updateExt[3])
@@ -669,7 +657,7 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
     algo.Min1 = updateExt[4];
     algo.Max1 = updateExt[5];
     algo.Inc1 = incs[2];
-    algo.Z = algo.Origin[1] + (updateExt[2]*algo.Spacing[1]);
+    algo.K = updateExt[2];
     algo.Axis2 = 1;
   }
   else if (updateExt[0] == updateExt[1])
@@ -682,7 +670,7 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
     algo.Min1 = updateExt[4];
     algo.Max1 = updateExt[5];
     algo.Inc1 = incs[2];
-    algo.Z = algo.Origin[0] + (updateExt[0]*algo.Spacing[0]);
+    algo.K = updateExt[0];
     algo.Axis2 = 0;
   }
   else
@@ -900,6 +888,8 @@ int vtkFlyingEdges2D::RequestData( vtkInformation *vtkNotUsed(request),
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
   }
+
+  vtkImageTransform::TransformPointSet(input, output);
 
   return 1;
 }

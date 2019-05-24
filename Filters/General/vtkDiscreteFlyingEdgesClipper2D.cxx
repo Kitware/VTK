@@ -16,6 +16,7 @@
 
 #include "vtkImageData.h"
 #include "vtkCellArray.h"
+#include "vtkImageTransform.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -200,9 +201,7 @@ public:
   // Internal variables used by the various algorithm methods. Interfaces VTK
   // image data in a form more convenient to the algorithm.
   vtkIdType Dims[2];
-  double Origin[3];
-  double Spacing[3];
-  double Z;
+  int K;
   int Axis0;
   int Min0;
   int Max0;
@@ -222,14 +221,6 @@ public:
 
   // Instantiate and initialize key data members.
   vtkDiscreteClipperAlgorithm();
-
-  // Adjust the origin to the lower-left corner of the volume (if necessary)
-  void AdjustOrigin(int updateExt[6])
-  {
-    this->Origin[0] = this->Origin[0] + this->Spacing[0]*updateExt[0];
-    this->Origin[1] = this->Origin[1] + this->Spacing[1]*updateExt[2];
-    this->Origin[2] = this->Origin[2] + this->Spacing[2]*updateExt[4];;
-  }
 
   // The three threaded passes of the algorithm.
   void ClassifyXEdges(T* inPtr, vtkIdType row); //PASS 1
@@ -297,10 +288,10 @@ public:
   // Produce the output points on the dyad. Special cases exist on the
   // boundary. The eids[9] array is the point ids on the pixel associated with
   // the dyad.
-  void GenerateDyadPoints(float x[3], unsigned char vCase, vtkIdType *eIds);
-  void GenerateXDyadPoints(float x[3], unsigned char vCase, vtkIdType *eIds);
-  void GenerateYDyadPoints(float x[3], unsigned char vCase, vtkIdType *eIds);
-  void GenerateOriginDyadPoint(float x[3], unsigned char vCase, vtkIdType *eIds);
+  void GenerateDyadPoints(int ijk[3], unsigned char vCase, vtkIdType *eIds);
+  void GenerateXDyadPoints(int ijk[3], unsigned char vCase, vtkIdType *eIds);
+  void GenerateYDyadPoints(int ijk[3], unsigned char vCase, vtkIdType *eIds);
+  void GenerateOriginDyadPoint(int ijk[3], unsigned char vCase, vtkIdType *eIds);
 
   // Generate cell scalar vaues if requested
   void GenerateScalars(T *s, unsigned char dCase, vtkIdType &polyNum);
@@ -720,7 +711,7 @@ vtkDiscreteClipperAlgorithm():DyadCases(nullptr),EdgeMetaData(nullptr),Scalars(n
 //----------------------------------------------------------------------------
 // Generate the output points
 template <class T> void vtkDiscreteClipperAlgorithm<T>::
-GenerateDyadPoints(float x[3], unsigned char vertCase, vtkIdType *ids)
+GenerateDyadPoints(int ijk[3], unsigned char vertCase, vtkIdType *ids)
 {
   if ( vertCase == 0 )
   {
@@ -734,40 +725,40 @@ GenerateDyadPoints(float x[3], unsigned char vertCase, vtkIdType *ids)
   if ( (vertCase & vtkDiscreteClipperAlgorithm::Inside) ) //dyad origin
   {
     xo = this->NewPoints + 3*ids[0];
-    xo[0] = x[0];
-    xo[1] = x[1];
-    xo[2] = x[2];
+    xo[0] = ijk[0];
+    xo[1] = ijk[1];
+    xo[2] = ijk[2];
   }
 
   if ( (vertCase & vtkDiscreteClipperAlgorithm::XIntersection) ) //x axes edge
   {
     xo = this->NewPoints + 3*ids[4];
-    xo[0] = x[0] + 0.5*this->Spacing[this->Axis0];
-    xo[1] = x[1];
-    xo[2] = x[2];
+    xo[0] = ijk[0] + 0.5;
+    xo[1] = ijk[1];
+    xo[2] = ijk[2];
   }
 
   if ( (vertCase & vtkDiscreteClipperAlgorithm::YIntersection) ) //y axes edge
   {
     xo = this->NewPoints + 3*ids[6];
-    xo[0] = x[0];
-    xo[1] = x[1] + 0.5*this->Spacing[this->Axis1];
-    xo[2] = x[2];
+    xo[0] = ijk[0];
+    xo[1] = ijk[1] + 0.5;
+    xo[2] = ijk[2];
   }
 
   if ( (vertCase & vtkDiscreteClipperAlgorithm::InteriorPoint) ) //pixel center point
   {
     xo = this->NewPoints + 3*ids[8];
-    xo[0] = x[0] + 0.5*this->Spacing[this->Axis0];
-    xo[1] = x[1] + 0.5*this->Spacing[this->Axis1];;
-    xo[2] = x[2];
+    xo[0] = ijk[0] + 0.5;
+    xo[1] = ijk[1] + 0.5;
+    xo[2] = ijk[2];
   }
 }
 
 //----------------------------------------------------------------------------
 // Generate the output points along the upper edge of the image boundary.
 template <class T> void vtkDiscreteClipperAlgorithm<T>::
-GenerateXDyadPoints(float x[3], unsigned char vertCase, vtkIdType *ids)
+GenerateXDyadPoints(int ijk[3], unsigned char vertCase, vtkIdType *ids)
 {
   if ( vertCase == 0 )
   {
@@ -782,24 +773,24 @@ GenerateXDyadPoints(float x[3], unsigned char vertCase, vtkIdType *ids)
   if ( (vertCase & vtkDiscreteClipperAlgorithm::Inside) ) //dyad origin
   {
     xo = this->NewPoints + 3*ids[2];
-    xo[0] = x[0];
-    xo[1] = x[1] + this->Spacing[this->Axis1];
-    xo[2] = x[2];
+    xo[0] = ijk[0];
+    xo[1] = ijk[1] + 1;
+    xo[2] = ijk[2];
   }
 
   if ( (vertCase & vtkDiscreteClipperAlgorithm::XIntersection) ) //x axes edge
   {
     xo = this->NewPoints + 3*ids[5];
-    xo[0] = x[0] + 0.5*this->Spacing[this->Axis0];
-    xo[1] = x[1] + this->Spacing[this->Axis1];
-    xo[2] = x[2];
+    xo[0] = ijk[0] + 0.5;
+    xo[1] = ijk[1] + 1;
+    xo[2] = ijk[2];
   }
 }
 
 //----------------------------------------------------------------------------
 // Generate the output points along the right edge of the image boundary.
 template <class T> void vtkDiscreteClipperAlgorithm<T>::
-GenerateYDyadPoints(float x[3], unsigned char vertCase, vtkIdType *ids)
+GenerateYDyadPoints(int ijk[3], unsigned char vertCase, vtkIdType *ids)
 {
   if ( vertCase == 0 )
   {
@@ -814,17 +805,17 @@ GenerateYDyadPoints(float x[3], unsigned char vertCase, vtkIdType *ids)
   if ( (vertCase & vtkDiscreteClipperAlgorithm::Inside) ) //dyad origin
   {
     xo = this->NewPoints + 3*ids[1];
-    xo[0] = x[0]  + this->Spacing[this->Axis0];
-    xo[1] = x[1];
-    xo[2] = x[2];
+    xo[0] = ijk[0] + 1;
+    xo[1] = ijk[1];
+    xo[2] = ijk[2];
   }
 
   if ( (vertCase & vtkDiscreteClipperAlgorithm::YIntersection) ) //y axes edge
   {
     xo = this->NewPoints + 3*ids[7];
-    xo[0] = x[0] + this->Spacing[this->Axis0];
-    xo[1] = x[1] + 0.5*this->Spacing[this->Axis1];
-    xo[2] = x[2];
+    xo[0] = ijk[0] + 1;
+    xo[1] = ijk[1] + 0.5;
+    xo[2] = ijk[2];
   }
 }
 
@@ -833,15 +824,15 @@ GenerateYDyadPoints(float x[3], unsigned char vertCase, vtkIdType *ids)
 // invoked once per execution, and it is invoked by a pixel below and to the
 // left.
 template <class T> void vtkDiscreteClipperAlgorithm<T>::
-GenerateOriginDyadPoint(float x[3], unsigned char vertCase, vtkIdType *ids)
+GenerateOriginDyadPoint(int ijk[3], unsigned char vertCase, vtkIdType *ids)
 {
   // Generate points from the dyad at the upper right corner of the image.
   if ( (vertCase & vtkDiscreteClipperAlgorithm::Inside) ) //dyad origin
   {
     float *xo = this->NewPoints + 3*ids[3];
-    xo[0] = x[0]  + this->Spacing[this->Axis0];
-    xo[1] = x[1]  + this->Spacing[this->Axis1];
-    xo[2] = x[2];
+    xo[0] = ijk[0] + 1;
+    xo[1] = ijk[1] + 1;
+    xo[2] = ijk[2];
   }
 }
 
@@ -1078,9 +1069,9 @@ GenerateOutput(T* rowPtr, vtkIdType row)
 
   // Process the dyads as necessary to generate point intersections.
   dPtr0 = this->DyadCases + row*this->Dims[0] + xL;
-  float x[3];
-  x[1] = this->Origin[this->Axis1] + row*this->Spacing[this->Axis1];
-  x[2] = this->Z;
+  int ijk[3];
+  ijk[1] = row + this->Min1;
+  ijk[2] = this->K;
   unsigned char dCase = this->InitPixelIds(dPtr0,dPtr0x,dPtr1,dPtr1x,eMD0,eMD1,ids);
 
   // Run along pixels in x-row direction and generate output primitives and points.
@@ -1103,23 +1094,23 @@ GenerateOutput(T* rowPtr, vtkIdType row)
     if ( (numPolys=this->GetNumberOfPrimitives(dCase)) > 0 )
     {
       // Now produce point(s) along the dyad if needed. Watch the boundaries.
-      x[0] = this->Origin[this->Axis0] + i*this->Spacing[this->Axis0];
-      this->GenerateDyadPoints(x, *dPtr0, ids);
+      ijk[0] = i + this->Min0;
+      this->GenerateDyadPoints(ijk, *dPtr0, ids);
 
       // If end of row, generate partial dyad from right side of pixel
       if ( i == rightPixels )
       {
-        this->GenerateYDyadPoints(x, *dPtr0x, ids);
+        this->GenerateYDyadPoints(ijk, *dPtr0x, ids);
       }
 
       // If top of image, generate partial dyad from top of pixel
       if ( row == topPixels )
       {
-        this->GenerateXDyadPoints(x, *dPtr1, ids);
+        this->GenerateXDyadPoints(ijk, *dPtr1, ids);
         // If top right pixel, then the origin of the dyad may contribute a point
         if ( i == rightPixels )
         {
-          this->GenerateOriginDyadPoint(x, *dPtr1x, ids);
+          this->GenerateOriginDyadPoint(ijk, *dPtr1x, ids);
         }
       }
 
@@ -1162,9 +1153,6 @@ ContourImage(vtkDiscreteFlyingEdgesClipper2D *self, T *scalars, vtkPoints *newPt
   // Figure out which 2D plane the image lies in. Capture information for
   // subsequent processing.
   vtkDiscreteClipperAlgorithm<T> algo;
-  input->GetOrigin(algo.Origin);
-  input->GetSpacing(algo.Spacing);
-  algo.AdjustOrigin(updateExt);
   if (updateExt[4] == updateExt[5])
   { // z collapsed
     algo.Axis0 = 0;
@@ -1175,7 +1163,7 @@ ContourImage(vtkDiscreteFlyingEdgesClipper2D *self, T *scalars, vtkPoints *newPt
     algo.Min1 = updateExt[2];
     algo.Max1 = updateExt[3];
     algo.Inc1 = incs[1];
-    algo.Z = algo.Origin[2] + (updateExt[4]*algo.Spacing[2]);
+    algo.K = updateExt[4];
     algo.Axis2 = 2;
   }
   else if (updateExt[2] == updateExt[3])
@@ -1188,7 +1176,7 @@ ContourImage(vtkDiscreteFlyingEdgesClipper2D *self, T *scalars, vtkPoints *newPt
     algo.Min1 = updateExt[4];
     algo.Max1 = updateExt[5];
     algo.Inc1 = incs[2];
-    algo.Z = algo.Origin[1] + (updateExt[2]*algo.Spacing[1]);
+    algo.K = updateExt[2];
     algo.Axis2 = 1;
   }
   else if (updateExt[0] == updateExt[1])
@@ -1201,7 +1189,7 @@ ContourImage(vtkDiscreteFlyingEdgesClipper2D *self, T *scalars, vtkPoints *newPt
     algo.Min1 = updateExt[4];
     algo.Max1 = updateExt[5];
     algo.Inc1 = incs[2];
-    algo.Z = algo.Origin[0] + (updateExt[0]*algo.Spacing[0]);
+    algo.K = updateExt[0];
     algo.Axis2 = 0;
   }
   else
@@ -1438,6 +1426,8 @@ int vtkDiscreteFlyingEdgesClipper2D::RequestData( vtkInformation *vtkNotUsed(req
     output->GetCellData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
   }
+
+  vtkImageTransform::TransformPointSet(input, output);
 
   return 1;
 }
