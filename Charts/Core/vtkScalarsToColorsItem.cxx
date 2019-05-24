@@ -19,33 +19,34 @@
 #include "vtkContext2D.h"
 #include "vtkContextDevice2D.h"
 #include "vtkContextScene.h"
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
+#include "vtkPlotBar.h"
 #include "vtkPoints2D.h"
 #include "vtkScalarsToColorsItem.h"
 #include "vtkSmartPointer.h"
+#include "vtkTable.h"
 #include "vtkTransform2D.h"
 
 #include <cassert>
 
 //-----------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkScalarsToColorsItem, HistogramTable, vtkTable);
+
+//-----------------------------------------------------------------------------
 vtkScalarsToColorsItem::vtkScalarsToColorsItem()
 {
-  this->PolyLinePen = vtkPen::New();
   this->PolyLinePen->SetWidth(2.);
   this->PolyLinePen->SetColor(64, 64, 72); // Payne's grey, why not
   this->PolyLinePen->SetLineType(vtkPen::NO_PEN);
 
-  this->Texture = nullptr;
-  this->Interpolate = true;
-  this->Shape = vtkPoints2D::New();
   this->Shape->SetDataTypeToFloat();
   this->Shape->SetNumberOfPoints(0);
 
-  this->Callback = vtkCallbackCommand::New();
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(
     vtkScalarsToColorsItem::OnScalarsToColorsModified);
@@ -54,30 +55,28 @@ vtkScalarsToColorsItem::vtkScalarsToColorsItem()
 
   this->UserBounds[0] = this->UserBounds[2] = 0.0;
   this->UserBounds[1] = this->UserBounds[3] = -1.0;
+
+  this->PlotBar->GetPen()->SetLineType(vtkPen::NO_PEN);
+  this->PlotBar->SelectableOn();
+  this->PlotBar->SetInteractive(false);
+  this->PlotBar->ScalarVisibilityOn();
+  this->PlotBar->EnableOpacityMappingOff();
+  this->PlotBar->SetOffset(0);
+  this->AddItem(this->PlotBar);
 }
 
 //-----------------------------------------------------------------------------
 vtkScalarsToColorsItem::~vtkScalarsToColorsItem()
 {
-  if (this->PolyLinePen)
+  if (this->HistogramTable)
   {
-    this->PolyLinePen->Delete();
-    this->PolyLinePen = nullptr;
+    this->HistogramTable->Delete();
+    this->HistogramTable = nullptr;
   }
   if (this->Texture)
   {
     this->Texture->Delete();
     this->Texture = nullptr;
-  }
-  if (this->Shape)
-  {
-    this->Shape->Delete();
-    this->Shape = nullptr;
-  }
-  if (this->Callback)
-  {
-    this->Callback->Delete();
-    this->Callback = nullptr;
   }
 }
 
@@ -159,49 +158,57 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
   {
     this->ComputeTexture();
   }
-  if (this->Texture == nullptr)
-  {
-    return false;
-  }
-  vtkSmartPointer<vtkPen> transparentPen = vtkSmartPointer<vtkPen>::New();
-  transparentPen->SetLineType(vtkPen::NO_PEN);
-  painter->ApplyPen(transparentPen);
-  painter->GetBrush()->SetColorF(0., 0., 0., 1.);
-  painter->GetBrush()->SetColorF(1., 1., 1., 1.);
-  painter->GetBrush()->SetTexture(this->Texture);
-  painter->GetBrush()->SetTextureProperties(
-    (this->Interpolate ? vtkBrush::Nearest : vtkBrush::Linear) |
-    vtkBrush::Stretch);
+
   const int size = this->Shape->GetNumberOfPoints();
-  if (!this->MaskAboveCurve || size < 2)
+  if (this->ConfigurePlotBar())
   {
-    double dbounds[4];
-    this->GetBounds(dbounds);
-    painter->DrawQuad(dbounds[0], dbounds[2],
-                      dbounds[0], dbounds[3],
-                      dbounds[1], dbounds[3],
-                      dbounds[1], dbounds[2]);
+    // The superclass will take care of painting the plot bar which is a child item.
+    this->Superclass::Paint(painter);
   }
   else
   {
-    const vtkRectd& ss = this->ShiftScale;
-
-    vtkPoints2D* trapezoids = vtkPoints2D::New();
-    trapezoids->SetNumberOfPoints(2*size);
-    double point[2];
-    vtkIdType j = -1;
-    for (vtkIdType i = 0; i < size; ++i)
+    if (this->Texture == nullptr)
     {
-      this->Shape->GetPoint(i, point);
-
-      // shift/scale to scale from data space to rendering space.
-      point[0] = (point[0] + ss[0]) * ss[2];
-      point[1] = (point[1] + ss[1]) * ss[3];
-      trapezoids->SetPoint(++j, point[0], 0.);
-      trapezoids->SetPoint(++j, point);
+      return false;
     }
-    painter->DrawQuadStrip(trapezoids);
-    trapezoids->Delete();
+    vtkSmartPointer<vtkPen> transparentPen = vtkSmartPointer<vtkPen>::New();
+    transparentPen->SetLineType(vtkPen::NO_PEN);
+    painter->ApplyPen(transparentPen);
+    painter->GetBrush()->SetColorF(0., 0., 0., 1.);
+    painter->GetBrush()->SetColorF(1., 1., 1., 1.);
+    painter->GetBrush()->SetTexture(this->Texture);
+    painter->GetBrush()->SetTextureProperties(
+      (this->Interpolate ? vtkBrush::Nearest : vtkBrush::Linear) |
+      vtkBrush::Stretch);
+    if (!this->MaskAboveCurve || size < 2)
+    {
+      double dbounds[4];
+      this->GetBounds(dbounds);
+      painter->DrawQuad(dbounds[0], dbounds[2],
+                        dbounds[0], dbounds[3],
+                        dbounds[1], dbounds[3],
+                        dbounds[1], dbounds[2]);
+    }
+    else
+    {
+      const vtkRectd& ss = this->ShiftScale;
+
+      vtkNew<vtkPoints2D> trapezoids;
+      trapezoids->SetNumberOfPoints(2*size);
+      double point[2];
+      vtkIdType j = -1;
+      for (vtkIdType i = 0; i < size; ++i)
+      {
+        this->Shape->GetPoint(i, point);
+
+        // shift/scale to scale from data space to rendering space.
+        point[0] = (point[0] + ss[0]) * ss[2];
+        point[1] = (point[1] + ss[1]) * ss[3];
+        trapezoids->SetPoint(++j, point[0], 0.);
+        trapezoids->SetPoint(++j, point);
+      }
+      painter->DrawQuadStrip(trapezoids);
+    }
   }
 
   if (this->PolyLinePen->GetLineType() != vtkPen::NO_PEN
@@ -244,4 +251,39 @@ void vtkScalarsToColorsItem::ScalarsToColorsModified(vtkObject* vtkNotUsed(objec
                                                      void* vtkNotUsed(calldata))
 {
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkScalarsToColorsItem::ConfigurePlotBar()
+{
+  bool visible = this->HistogramTable && this->HistogramTable->GetNumberOfColumns() >= 2
+    && this->GetXAxis() && this->GetYAxis();
+  if (visible)
+  {
+    // Configure the plot bar
+    this->PlotBar->SetInputData(this->HistogramTable,
+      this->HistogramTable->GetColumnName(0), this->HistogramTable->GetColumnName(1));
+    this->PlotBar->SelectColorArray(this->HistogramTable->GetColumnName(0));
+    this->PlotBar->SetXAxis(this->GetXAxis());
+    this->PlotBar->SetYAxis(this->GetYAxis());
+
+    // Recover the range of the histogram
+    vtkDoubleArray* binExtent = vtkDoubleArray::SafeDownCast(this->HistogramTable->GetColumn(0));
+    if (binExtent)
+    {
+      // It is necessary to extract the actual range of computation of the histogram
+      // as it can be different to the range of the scalar to colors item.
+      int nBin =  this->HistogramTable->GetNumberOfRows();
+      double range = binExtent->GetValue(nBin - 1) - binExtent->GetValue(0);
+      double delta = range / (nBin - 1);
+      this->PlotBar->SetWidth((range + delta) / nBin);
+    }
+    else
+    {
+      vtkWarningMacro("Could not find the bin extent array, histogram width has not been set");
+    }
+  }
+  this->PlotBar->SetVisible(visible);
+  this->PlotBar->Update();
+  return visible;
 }

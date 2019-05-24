@@ -12,16 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkColorTransferFunctionItem.h"
 
 #include "vtkAxis.h"
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkContext2D.h"
 #include "vtkImageData.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkColorTransferFunctionItem.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
+#include "vtkPlotBar.h"
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
 
@@ -142,4 +143,16 @@ void vtkColorTransferFunctionItem::ComputeTexture()
     }
   }
   delete [] values;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkColorTransferFunctionItem::ConfigurePlotBar()
+{
+  bool ret = this->Superclass::ConfigurePlotBar();
+  if (ret)
+  {
+    this->PlotBar->SetLookupTable(this->ColorTransferFunction);
+    this->PlotBar->Update();
+  }
+  return ret;
 }

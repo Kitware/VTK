@@ -211,7 +211,7 @@ class vtkPlotBarSegment : public vtkObject {
           }
           else
           {
-            vtkErrorMacro(<< "Number of components not supported : "
+            vtkErrorMacro(<< "Number of components not supported: "
               << this->Colors->GetNumberOfComponents())
           }
         }

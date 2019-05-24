@@ -23,6 +23,7 @@
 #include "vtkCompositeTransferFunctionItem.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkLookupTableItem.h"
@@ -34,6 +35,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -43,17 +45,18 @@ int TestMultipleScalarsToColors(int , char * [])
 {
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->SetMultiSamples(0);
-  renwin->SetSize(800, 640);
+  renwin->SetSize(800, 900);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
 
-  //setup the 4charts view ports
-  double viewports[16] ={
+  //setup the 5 charts view ports
+  double viewports[20] ={
     0.0,0.0,0.3,0.5,
     0.3,0.0,1.0,0.5,
-    0.0,0.5,0.5,1.0,
-    0.5,0.5,1.0,1.0};
+    0.0,0.33,0.5,0.66,
+    0.5,0.33,1.0,0.66,
+    0.0,0.66,1.0,1.0};
 
   // Lookup Table
   vtkSmartPointer<vtkLookupTable> lookupTable =
@@ -72,7 +75,24 @@ int TestMultipleScalarsToColors(int , char * [])
     vtkSmartPointer<vtkPiecewiseFunction>::New();
   opacityFunction->AddPoint(0.,0.);
   opacityFunction->AddPoint(1.,1.);
-  for ( int i=0; i < 4; ++i)
+  // Histogram table
+  vtkNew<vtkTable> histoTable;
+  vtkNew<vtkDoubleArray> binArray;
+  binArray->SetName("bins");
+  histoTable->AddColumn(binArray);
+  vtkNew<vtkDoubleArray> valueArray;
+  valueArray->SetName("values");
+  histoTable->AddColumn(valueArray);
+
+  histoTable->SetNumberOfRows(3);
+  histoTable->SetValue(0, 0, 0.25);
+  histoTable->SetValue(0, 1, 0.2);
+  histoTable->SetValue(1, 0, 0.5);
+  histoTable->SetValue(1, 1, 0.5);
+  histoTable->SetValue(2, 0, 0.75);
+  histoTable->SetValue(2, 1, 0.8);
+
+  for (int i = 0; i < 5; ++i)
   {
     VTK_CREATE(vtkRenderer, ren);
     ren->SetBackground(1.0,1.0,1.0);
@@ -138,6 +158,17 @@ int TestMultipleScalarsToColors(int , char * [])
         controlPointsItem->SetPiecewiseFunction(opacityFunction);
         chart->AddPlot(controlPointsItem);
         chart->SetTitle("vtkPiecewiseFunction");
+        break;
+      }
+      case 4:
+      {
+        vtkNew<vtkCompositeTransferFunctionItem> item;
+        item->SetColorTransferFunction(colorTransferFunction);
+        item->SetOpacityFunction(opacityFunction);
+        item->SetHistogramTable(histoTable);
+        item->SetMaskAboveCurve(true);
+        chart->AddPlot(item);
+        chart->SetTitle("histogramTable");
         break;
       }
       default:
