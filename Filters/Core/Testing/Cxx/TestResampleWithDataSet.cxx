@@ -75,7 +75,9 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
   vtkNew<vtkRandomAttributeGenerator> randomAttrs;
   randomAttrs->SetInputConnection(transFilter->GetOutputPort());
   randomAttrs->GenerateAllPointDataOn();
+  randomAttrs->GeneratePointArrayOff();
   randomAttrs->GenerateAllCellDataOn();
+  randomAttrs->GenerateCellArrayOff();
   randomAttrs->GenerateFieldArrayOn();
   randomAttrs->SetNumberOfTuples(100);
 

@@ -35,6 +35,8 @@ ss.SetThetaResolution(32)
 tg = vtk.vtkTensorGlyph()
 tg.SetInputConnection(ag.GetOutputPort())
 tg.SetSourceConnection(ss.GetOutputPort())
+tg.SetInputArrayToProcess(1,0,0,0,"RandomPointArray")
+
 tg.SetScaleFactor(0.1)
 tg.SetMaxScaleFactor(10)
 tg.ClampScalingOn()

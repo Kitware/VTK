@@ -59,13 +59,14 @@ class vtkCompositeDataSet;
 class VTKFILTERSGENERAL_EXPORT vtkRandomAttributeGenerator : public vtkPassInputTypeAlgorithm
 {
 public:
+  //@{
   /**
-   * Create instance with minimum speed 0.0, maximum speed 1.0.
+   * Standard methods for construction, type info, and printing.
    */
   static vtkRandomAttributeGenerator *New();
-
   vtkTypeMacro(vtkRandomAttributeGenerator,vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   //@{
   /**
@@ -189,8 +190,11 @@ public:
 
   //@{
   /**
-   * Indicate that an arbitrary point array is to be generated. Note that the
-   * specified number of components is used to create the array.
+   * Indicate that an arbitrary point array is to be generated. The array is
+   * added to the points data but is not labeled as one of scalars, vectors,
+   * normals, tensors, or texture coordinates (i.e., AddArray() is
+   * used). Note that the specified number of components is used to create
+   * the array.
    */
   vtkSetMacro(GeneratePointArray,vtkTypeBool);
   vtkGetMacro(GeneratePointArray,vtkTypeBool);
@@ -250,8 +254,11 @@ public:
 
   //@{
   /**
-   * Indicate that an arbitrary cell array is to be generated. Note that the
-   * specified number of components is used to create the array.
+   * Indicate that an arbitrary cell array is to be generated. The array is
+   * added to the cell data but is not labeled as one of scalars, vectors,
+   * normals, tensors, or texture coordinates array (i.e., AddArray() is
+   * used). Note that the specified number of components is used to create
+   * the array.
    */
   vtkSetMacro(GenerateCellArray,vtkTypeBool);
   vtkGetMacro(GenerateCellArray,vtkTypeBool);

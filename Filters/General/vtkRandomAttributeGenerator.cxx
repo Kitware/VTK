@@ -467,14 +467,14 @@ int vtkRandomAttributeGenerator::RequestData(
   }
   if ( this->GeneratePointArray)
   {
-    vtkDataArray *ptScalars = this->GenerateData(this->DataType,numPts,
-                                                 this->NumberOfComponents,0,
-                                                 this->NumberOfComponents-1,
-                                                 this->MinimumComponentValue,
-                                                 this->MaximumComponentValue);
-    ptScalars->SetName("RandomPointArray");
-    output->GetPointData()->SetScalars(ptScalars);
-    ptScalars->Delete();
+    vtkDataArray *ptData = this->GenerateData(this->DataType,numPts,
+                                              this->NumberOfComponents,0,
+                                              this->NumberOfComponents-1,
+                                              this->MinimumComponentValue,
+                                              this->MaximumComponentValue);
+    ptData->SetName("RandomPointArray");
+    output->GetPointData()->AddArray(ptData);
+    ptData->Delete();
   }
 
 
@@ -488,79 +488,79 @@ int vtkRandomAttributeGenerator::RequestData(
   // Now the cell data
   if ( this->GenerateCellScalars)
   {
-    vtkDataArray *ptScalars = this->GenerateData(this->DataType,numCells,
-                                                 this->NumberOfComponents,0,
-                                                 this->NumberOfComponents-1,
-                                                 this->MinimumComponentValue,
-                                                 this->MaximumComponentValue);
-    ptScalars->SetName("RandomCellScalars");
-    output->GetCellData()->SetScalars(ptScalars);
-    ptScalars->Delete();
+    vtkDataArray *cellScalars = this->GenerateData(this->DataType,numCells,
+                                                   this->NumberOfComponents,0,
+                                                   this->NumberOfComponents-1,
+                                                   this->MinimumComponentValue,
+                                                   this->MaximumComponentValue);
+    cellScalars->SetName("RandomCellScalars");
+    output->GetCellData()->SetScalars(cellScalars);
+    cellScalars->Delete();
   }
   if ( this->GenerateCellVectors)
   {
-    vtkDataArray *ptVectors = this->GenerateData(this->DataType,numCells,3,0,2,
-                                                 this->MinimumComponentValue,
-                                                 this->MaximumComponentValue);
-    ptVectors->SetName("RandomCellVectors");
-    output->GetCellData()->SetVectors(ptVectors);
-    ptVectors->Delete();
+    vtkDataArray *cellVectors = this->GenerateData(this->DataType,numCells,3,0,2,
+                                                   this->MinimumComponentValue,
+                                                   this->MaximumComponentValue);
+    cellVectors->SetName("RandomCellVectors");
+    output->GetCellData()->SetVectors(cellVectors);
+    cellVectors->Delete();
   }
   if ( this->GenerateCellNormals)
   {
-    vtkDataArray *ptNormals = this->GenerateData(this->DataType,numCells,3,0,2,
-                                                 this->MinimumComponentValue,
-                                                 this->MaximumComponentValue);
+    vtkDataArray *cellNormals = this->GenerateData(this->DataType,numCells,3,0,2,
+                                                   this->MinimumComponentValue,
+                                                   this->MaximumComponentValue);
     double v[3];
     for ( vtkIdType id=0; id < numCells; id++ )
     {
-      ptNormals->GetTuple(id,v);
+      cellNormals->GetTuple(id,v);
       vtkMath::Normalize(v);
-      ptNormals->SetTuple(id,v);
+      cellNormals->SetTuple(id,v);
     }
-    output->GetCellData()->SetNormals(ptNormals);
-    ptNormals->Delete();
+    output->GetCellData()->SetNormals(cellNormals);
+    cellNormals->Delete();
   }
   if ( this->GenerateCellTensors)
   {
-    vtkDataArray *ptTensors = this->GenerateData(this->DataType,numCells,9,0,5,
-                                                 this->MinimumComponentValue,
-                                                 this->MaximumComponentValue);
-    ptTensors->SetName("RandomCellTensors");
+    vtkDataArray *cellTensors = this->GenerateData(this->DataType,numCells,9,0,5,
+                                                   this->MinimumComponentValue,
+                                                   this->MaximumComponentValue);
+    cellTensors->SetName("RandomCellTensors");
     double t[9];
     for ( vtkIdType id=0; id < numCells; id++ )
     {
-      ptTensors->GetTuple(id,t);
+      cellTensors->GetTuple(id,t);
       t[6] = t[1];//make sure the tensor is symmetric
       t[7] = t[2];
       t[8] = t[4];
-      ptTensors->SetTuple(id,t);
+      cellTensors->SetTuple(id,t);
     }
-    output->GetCellData()->SetTensors(ptTensors);
-    ptTensors->Delete();
+    output->GetCellData()->SetTensors(cellTensors);
+    cellTensors->Delete();
   }
   if ( this->GenerateCellTCoords)
   {
     int numComp = this->NumberOfComponents < 1 ? 1
       : (this->NumberOfComponents > 3 ? 3 : this->NumberOfComponents);
-    vtkDataArray *ptTCoords = this->GenerateData(this->DataType,numCells,
-                                                 numComp,0,
-                                                 this->NumberOfComponents-1,
-                                                 this->MinimumComponentValue,
-                                                 this->MaximumComponentValue);
-    output->GetCellData()->SetTCoords(ptTCoords);
-    ptTCoords->Delete();
+    vtkDataArray *cellTCoords = this->GenerateData(this->DataType,numCells,
+                                                   numComp,0,
+                                                   this->NumberOfComponents-1,
+                                                   this->MinimumComponentValue,
+                                                   this->MaximumComponentValue);
+    output->GetCellData()->SetTCoords(cellTCoords);
+    cellTCoords->Delete();
   }
   if ( this->GenerateCellArray)
   {
-    vtkDataArray *ptScalars = this->GenerateData(this->DataType,numCells,
+    vtkDataArray *cellArray = this->GenerateData(this->DataType,numCells,
                                                  this->NumberOfComponents,0,
                                                  this->NumberOfComponents-1,
                                                  this->MinimumComponentValue,
                                                  this->MaximumComponentValue);
-    ptScalars->SetName("RandomCellArray");
-    output->GetCellData()->SetScalars(ptScalars);
-    ptScalars->Delete();
+    cellArray->SetName("RandomCellArray");
+    output->GetCellData()->AddArray(cellArray);
+    cellArray->Delete();
   }
 
   // Finally any field data
