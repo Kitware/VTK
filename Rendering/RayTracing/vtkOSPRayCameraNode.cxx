@@ -27,8 +27,6 @@
 
 #include "RTWrapper/RTWrapper.h"
 
-vtkInformationKeyMacro(vtkOSPRayCameraNode, DEPTH_OF_FIELD, Integer);
-
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayCameraNode);
 
@@ -87,6 +85,7 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     double shiftDistance = (myScaledEyeSeparation / 2);
     double * myFocalPoint = cam->GetFocalPoint();
     double myFocalDisk = cam->GetFocalDisk();
+    double myFocalDistance = cam->GetFocalDistance();
     if (!cam->GetLeftEye())
     {
       right = true;
@@ -107,9 +106,9 @@ void vtkOSPRayCameraNode::Render(bool prepass)
       ospCamera = ospNewCamera("perspective");
       ospSetf(ospCamera, "fovy", fovy);
 
-      if (vtkOSPRayCameraNode::GetDepthOfField(cam))
+      if (myFocalDistance > 0.0)
       {
-        ospSetf(ospCamera, "focusDistance", myDistance);
+        ospSetf(ospCamera, "focusDistance", myFocalDistance);
         ospSetf(ospCamera, "apertureRadius", 0.5 * myFocalDisk);
       }
       else
@@ -162,30 +161,4 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     ospCommit(ospCamera);
     ospRelease(ospCamera);
   }
-}
-
-//----------------------------------------------------------------------------
-void vtkOSPRayCameraNode::SetDepthOfField(int value, vtkCamera* camera)
-{
-  if (!camera)
-  {
-    return;
-  }
-  vtkInformation* info = camera->GetInformation();
-  info->Set(vtkOSPRayCameraNode::DEPTH_OF_FIELD(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkOSPRayCameraNode::GetDepthOfField(vtkCamera* camera)
-{
-  if (!camera)
-  {
-    return 0;
-  }
-  vtkInformation* info = camera->GetInformation();
-  if (info && info->Has(vtkOSPRayCameraNode::DEPTH_OF_FIELD()))
-  {
-    return (info->Get(vtkOSPRayCameraNode::DEPTH_OF_FIELD()));
-  }
-  return 0;
 }

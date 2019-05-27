@@ -352,6 +352,19 @@ public:
 
   //@{
   /**
+   * Sets the distance at which rendering is in focus. This is currently
+   * only used by the ray tracing renderers. 0 (default) disables
+   * ray traced depth of field.
+   * Not to be confused with FocalPoint that is the camera target and
+   * is centered on screen. Using a separate focal distance property
+   * enables out-of-focus areas anywhere on screen.
+   */
+  vtkSetMacro(FocalDistance, double);
+  vtkGetMacro(FocalDistance, double);
+  //@}
+
+  //@{
+  /**
    * Set/Get use offaxis frustum.
    * OffAxis frustum is used for off-axis frustum calculations specifically
    * for stereo rendering.
@@ -791,6 +804,7 @@ protected:
   vtkTransform *ModelViewTransform;
 
   double FocalDisk;
+  double FocalDistance;
 
   vtkCameraCallbackCommand *UserViewTransformCallbackCommand;
   friend class vtkCameraCallbackCommand;

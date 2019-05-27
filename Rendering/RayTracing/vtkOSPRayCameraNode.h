@@ -41,19 +41,6 @@ public:
    */
   virtual void Render(bool prepass) override;
 
-  /**
-   * This stands in for the act of adding the vtkDepthOfFieldPass
-   * in the normal GL rendering pathway.
-   */
-  static vtkInformationIntegerKey* DEPTH_OF_FIELD();
-  //@{
-  /**
-   * Convenience method to set/get DEPTH_OF_FIELD on a vtkRenderer.
-   */
-  static void SetDepthOfField(int, vtkCamera* camera);
-  static int GetDepthOfField(vtkCamera* camera);
-  //@}
-
 protected:
   vtkOSPRayCameraNode();
   ~vtkOSPRayCameraNode();

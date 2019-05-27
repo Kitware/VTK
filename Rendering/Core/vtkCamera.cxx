@@ -126,6 +126,7 @@ vtkCamera::vtkCamera()
   this->ViewShear[2] = 1.0;
 
   this->FocalDisk = 1.0;
+  this->FocalDistance = 0.0;
 
   this->Transform = vtkPerspectiveTransform::New();
   this->ViewTransform = vtkTransform::New();
@@ -1667,6 +1668,7 @@ void vtkCamera::PartialCopy(vtkCamera *source)
   this->UseOffAxisProjection=source->UseOffAxisProjection;
 
   this->FocalDisk=source->FocalDisk;
+  this->FocalDistance=source->FocalDistance;
   this->EyeSeparation=source->EyeSeparation;
   this->WorldToScreenMatrixMTime=source->WorldToScreenMatrixMTime;
 
@@ -1686,6 +1688,7 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Distance: " << this->Distance << "\n";
   os << indent << "EyeAngle: " << this->EyeAngle << "\n";
   os << indent << "FocalDisk: " << this->FocalDisk << "\n";
+  os << indent << "FocalDistance: " << this->FocalDistance << "\n";
   os << indent << "FocalPoint: (" << this->FocalPoint[0] << ", "
      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
   os << indent << "ViewShear: (" << this->ViewShear[0]

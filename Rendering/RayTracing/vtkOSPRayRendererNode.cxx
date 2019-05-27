@@ -425,7 +425,7 @@ public:
   double LastViewPort[2];
   double LastParallelScale;
   double LastFocalDisk = -1.0;
-  int LastDepthOfField = -1;
+  double LastFocalDistance = -1.0;
 
   OSPLight BGLight;
   RTW::Backend *Backend;
@@ -1289,11 +1289,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
           canReuse = false;
         }
 
-        if (this->Internal->LastDepthOfField !=
-          vtkOSPRayCameraNode::GetDepthOfField(ren->GetActiveCamera()))
+        if (this->Internal->LastFocalDistance !=
+            ren->GetActiveCamera()->GetFocalDistance())
         {
-          this->Internal->LastDepthOfField = vtkOSPRayCameraNode::GetDepthOfField(ren->GetActiveCamera());
-          canReuse = false;
+            this->Internal->LastFocalDistance = ren->GetActiveCamera()->GetFocalDistance();
+            canReuse = false;
         }
       }
       if (!canReuse)
