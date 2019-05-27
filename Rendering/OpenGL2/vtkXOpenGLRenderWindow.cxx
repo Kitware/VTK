@@ -469,6 +469,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   int x, y, width, height, nItems;
   XWindowAttributes winattr;
   XSizeHints xsh;
+  XClassHint xch;
 
   xsh.flags = USSize;
   if ((this->Position[0] >= 0)&&(this->Position[1] >= 0))
@@ -540,6 +541,13 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
                     &attr);
     XStoreName(this->DisplayId, this->WindowId, this->WindowName);
     XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
+
+    char classStr[4] = "Vtk";
+    char nameStr[4] = "vtk";
+    xch.res_class = classStr;
+    xch.res_name = nameStr;
+    XSetClassHint(this->DisplayId, this->WindowId, &xch);
+
     this->OwnWindow = 1;
   }
   else
