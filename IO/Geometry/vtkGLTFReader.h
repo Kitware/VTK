@@ -193,16 +193,17 @@ protected:
    */
   void StoreTextureData();
 
-  char* FileName;
+  char* FileName = nullptr;
 
-  vtkIdType CurrentScene;
-  unsigned int FrameRate;
-  vtkIdType NumberOfAnimations;
-  vtkIdType NumberOfScenes;
+  vtkIdType CurrentScene = 0;
+  unsigned int FrameRate = 60;
+  vtkIdType NumberOfAnimations = 0;
+  vtkIdType NumberOfScenes = 0;
 
-  bool IsModelLoaded;
-  bool IsMetaDataLoaded;
-  bool ApplyDeformationsToGeometry;
+  bool IsModelLoaded = false;
+  bool IsMetaDataLoaded = false;
+
+  bool ApplyDeformationsToGeometry = true;
 
   vtkSmartPointer<vtkStringArray> SceneNames;
 

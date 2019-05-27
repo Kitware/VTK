@@ -194,12 +194,6 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
 };
 
 //----------------------------------------------------------------------------
-vtkGLTFImporter::vtkGLTFImporter()
-{
-  this->FileName = nullptr;
-}
-
-//----------------------------------------------------------------------------
 vtkGLTFImporter::~vtkGLTFImporter()
 {
   this->SetFileName(nullptr);

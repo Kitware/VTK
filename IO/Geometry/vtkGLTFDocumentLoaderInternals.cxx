@@ -25,12 +25,6 @@
 #include <sstream>
 
 //----------------------------------------------------------------------------
-vtkGLTFDocumentLoaderInternals::vtkGLTFDocumentLoaderInternals()
-{
-  this->Self = nullptr;
-}
-
-//----------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadBuffer(
   const Json::Value& root, std::vector<char>& buffer, const std::string& glTFFileName)
 {
