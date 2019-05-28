@@ -34,6 +34,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include <map> // used for ivar
+#include <string> // used for ivar
 
 // shading models
 #define VTK_FLAT    0
