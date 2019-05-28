@@ -59,7 +59,7 @@ extract_source () {
     CPPFLAGS="-I${BASH_SOURCE%/*}/../zlib/vtkzlib -I$PWD -DZ_PREFIX -DZ_HAVE_UNISTD_H" make -f scripts/pnglibconf.mak
     rm -rvf "vtkzlib"
     sed -i -e '/PNG_ZLIB_VERNUM/s/0x.*/0/' pnglibconf.h
-    rm -rvf scripts pngusr.dfa pnglibconf.dfn pnglibconf.pre
+    rm -rvf scripts pngusr.dfa pnglibconf.dfn pnglibconf.pre pnglibconf.out
     mv -v CMakeLists.vtk.txt CMakeLists.txt
     popd
 }
