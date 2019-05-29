@@ -1,6 +1,11 @@
 #ifndef vtk_png_mangle_h
 #define vtk_png_mangle_h
 
+#define PNG_ARM_NEON_OPT 0
+#define PNG_MIPS_MSA_OPT 0
+#define PNG_POWERPC_VSX_OPT 0
+#define PNG_INTEL_SSE_OPT 0
+
 #define png_access_version_number vtkpng_png_access_version_number
 #define png_app_error vtkpng_png_app_error
 #define png_app_warning vtkpng_png_app_warning
