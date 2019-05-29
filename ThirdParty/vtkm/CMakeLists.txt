@@ -37,11 +37,10 @@ if(VTK_CUSTOM_LIBRARY_SUFFIX)
   set(lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
 endif()
 
-if (WIN32)
-  # Force the dlls to be in the bin folder with VTK's so that running tests
-  # don't need to set path on Windows
-  set(VTKm_EXECUTABLE_OUTPUT_PATH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" CACHE PATH "Set to match VTK" FORCE)
-endif()
+# Force the dlls to be in the bin folder with VTK's so that running tests
+# don't need to set path on Windows
+set(VTKm_EXECUTABLE_OUTPUT_PATH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+set(VTKm_LIBRARY_OUTPUT_PATH "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 
 set(VTKm_INSTALL_LIB_DIR "${VTK_INSTALL_LIBRARY_DIR}")
 set(VTKm_INSTALL_INCLUDE_DIR "${VTK_INSTALL_INCLUDE_DIR}")
