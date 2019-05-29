@@ -74,6 +74,54 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestGLTFReaderMultipleAnimations,TestGLTFReaderAnimation.cxx 75 DATA{../Data/glTF/InterpolationTest/InterpolationTest.gltf,interpolation.bin,InterpolationTest_data.bin}
 )
 
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderGeneratePointIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_POINTS.gltf,Mesh_PrimitiveMode_00.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderReadPointIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_POINTS_2.gltf,Mesh_PrimitiveMode_07.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderGenerateLineIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_LINES.gltf,Mesh_PrimitiveMode_01.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderReadLineIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_LINES_2.gltf,Mesh_PrimitiveMode_08.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderGenerateLineLoopIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_LINE_LOOP.gltf,Mesh_PrimitiveMode_02.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderReadLineLoopIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_LINE_LOOP_2.gltf,Mesh_PrimitiveMode_09.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderGenerateLineStripIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_LINE_STRIP.gltf,Mesh_PrimitiveMode_03.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderReadLineStripIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_LINE_STRIP_2.gltf,Mesh_PrimitiveMode_10.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderGenerateTriangleFanIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_TRIANGLE_FAN.gltf,Mesh_PrimitiveMode_05.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderReadTriangleFanIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_TRIANGLE_FAN_2.gltf,Mesh_PrimitiveMode_12.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderGenerateTriangleStripIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_TRIANGLE_STRIP.gltf,Mesh_PrimitiveMode_04.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderReadTriangleStripIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_TRIANGLE_STRIP_2.gltf,Mesh_PrimitiveMode_11.bin}
+)
+
 if(enable_large_data_tests)
   vtk_add_test_cxx(vtkIOGeometryCxxTests large_data_tests
     TestWindBladeReader.cxx

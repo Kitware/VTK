@@ -653,11 +653,7 @@ vtkStandardNewMacro(vtkGLTFReader);
 //----------------------------------------------------------------------------
 vtkGLTFReader::vtkGLTFReader()
 {
-  this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
-  this->SetFrameRate(60);
-  this->IsModelLoaded = false;
-  this->IsMetaDataLoaded = false;
 }
 
 //----------------------------------------------------------------------------

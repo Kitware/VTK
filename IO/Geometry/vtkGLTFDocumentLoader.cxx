@@ -73,6 +73,82 @@ std::string value_to_string(const T& val)
   ss << val;
   return ss.str();
 }
+
+//----------------------------------------------------------------------------
+vtkIdType GetNumberOfCellsForPrimitive(int mode, int cellSize, int numberOfIndices)
+{
+  if (cellSize <= 0)
+  {
+    vtkWarningWithObjectMacro(nullptr, "Invalid cell size. Ignoring connectivity.");
+    return 0;
+  }
+  switch (mode)
+  {
+    case vtkGLTFDocumentLoaderInternals::GL_TRIANGLES:
+    case vtkGLTFDocumentLoaderInternals::GL_LINES:
+    case vtkGLTFDocumentLoaderInternals::GL_POINTS:
+      return numberOfIndices / cellSize;
+      break;
+    case vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_FAN:
+      return numberOfIndices - 2;
+      break;
+    case vtkGLTFDocumentLoaderInternals::GL_LINE_LOOP:
+      return numberOfIndices;
+      break;
+    case vtkGLTFDocumentLoaderInternals::GL_LINE_STRIP:
+    case vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_STRIP:
+      return 1; // Number of strips
+      break;
+    default:
+      vtkWarningWithObjectMacro(nullptr, "Invalid primitive draw mode. Ignoring connectivity.");
+      return 0;
+  }
+}
+
+//----------------------------------------------------------------------------
+void GenerateIndicesForPrimitive(vtkGLTFDocumentLoader::Primitive& primitive)
+{
+  primitive.Indices = vtkSmartPointer<vtkCellArray>::New();
+
+  vtkIdType nVert = primitive.Geometry->GetPoints()->GetNumberOfPoints();
+
+  // Handles cases where we need a single cell
+  if (primitive.Mode == vtkGLTFDocumentLoaderInternals::GL_LINE_STRIP ||
+    primitive.Mode == vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_STRIP ||
+    primitive.Mode == vtkGLTFDocumentLoaderInternals::GL_LINE_LOOP)
+  {
+    primitive.Indices->Allocate(1);
+    std::vector<vtkIdType> cell(nVert);
+    // Append all indices
+    std::iota(cell.begin(), cell.end(), 0);
+    if (primitive.Mode == vtkGLTFDocumentLoaderInternals::GL_LINE_LOOP)
+    {
+      cell.push_back(0);
+    }
+    primitive.Indices->InsertNextCell(cell.size(), cell.data());
+  }
+  else
+  {
+    vtkIdType nCells = GetNumberOfCellsForPrimitive(primitive.Mode, primitive.CellSize, nVert);
+    primitive.Indices->Allocate(nCells);
+    std::vector<vtkIdType> cell(primitive.CellSize, 0);
+    for (int cellId = 0; cellId < nCells; cellId++)
+    {
+      // Triangle fan (for each vertex N, create primitive {0, n-1, n})
+      if (primitive.Mode == vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_FAN)
+      {
+        cell[0] = 0;
+        cell[1] = cellId + 1;
+        cell[2] = cellId + 2;
+      }
+      else
+      {
+        std::iota(cell.begin(), cell.end(), primitive.CellSize * cellId);
+      }
+      primitive.Indices->InsertNextCell(primitive.CellSize, cell.data());
+    }
+  }
+}
 }
 
 //----------------------------------------------------------------------------
@@ -174,6 +250,7 @@ struct vtkGLTFDocumentLoader::BufferDataExtractionWorker
         }
       }
       // normalize the previous tuple
+
       if (this->NormalizeTuples)
       {
         std::vector<double> tuple(output->GetNumberOfComponents(), 0);
@@ -384,77 +461,105 @@ namespace
 {
 //----------------------------------------------------------------------------
 /**
- * Extracts a primitive's connectivity indices, and stores it into a vtkIdTypeArray.
+ * Extracts a primitive's connectivity indices, and stores the corresponding cells into a
+ * vtkCellArray.
  */
 template<typename Type>
 void ExtractAndCastCellBufferData(const std::vector<char>& inbuf,
-  vtkSmartPointer<vtkIdTypeArray> output, int byteOffset, int byteStride, int count,
+  vtkSmartPointer<vtkCellArray> output, int byteOffset, int byteStride, int count,
   int numberOfComponents, int mode = vtkGLTFDocumentLoaderInternals::GL_TRIANGLES)
 {
   if (output == nullptr)
   {
     return;
   }
+
   // Compute the step between each value
   size_t size = sizeof(Type);
   size_t step = byteStride == 0 ? size : byteStride;
 
-  output->Allocate(count * (numberOfComponents + 1));
-
-  // Append number of elements when necessary
+  // Compute cell size
+  vtkIdType cellSize = numberOfComponents;
   if (mode == vtkGLTFDocumentLoaderInternals::GL_LINE_STRIP ||
     mode == vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_STRIP)
   {
-    output->InsertNextValue(count);
+    cellSize = count;
   }
   else if (mode == vtkGLTFDocumentLoaderInternals::GL_LINE_LOOP)
   {
-    output->InsertNextValue(count + 1);
+    cellSize = count + 1;
   }
 
-  // Iterate across elements
-  int counter = 0;
-  vtkIdType firstValue = 0;
-  vtkIdType previousValue = 0;
+  // Preallocate cells
+  vtkIdType nCells = GetNumberOfCellsForPrimitive(mode, numberOfComponents, count);
+  output->Allocate(nCells);
 
-  for (auto it = inbuf.begin() + byteOffset; it != inbuf.begin() + byteOffset + count * step;
-       it += step)
+  std::vector<vtkIdType> currentCell(cellSize);
+
+  // Loop iterators
+  auto accessorBegin = inbuf.begin() + byteOffset;
+  auto accessorEnd = accessorBegin + count * step;
+
+  // Will be used to read each buffer value
+  Type val;
+
+  if (mode == vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_FAN)
   {
-    // Every new cell, add nbcells to the array when necessary
-    if ((mode == vtkGLTFDocumentLoaderInternals::GL_POINTS ||
-          mode == vtkGLTFDocumentLoaderInternals::GL_LINES ||
-          mode == vtkGLTFDocumentLoaderInternals::GL_TRIANGLES ||
-          mode == vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_FAN) &&
-      (counter % numberOfComponents) == 0)
+    // The first two iterations set currentCell[0] and currentCell[1], then for each iteration, we
+    // read the current index into currentCell[2], insert the new cell into the output array, then
+    // set currentCell[1] to currentCell[2]
+    size_t i = 0;
+    for (auto it = accessorBegin; it != accessorEnd; it += step)
     {
-      output->InsertNextValue(numberOfComponents);
+      // Read the current value
+      std::copy(it, it + size, reinterpret_cast<char*>(&val));
+      currentCell[i] = static_cast<vtkIdType>(val);
+
+      // First two iterations: set currentCell[0] then currentCell[1]
+      if (it <= accessorBegin + step)
+      {
+        i++;
+      }
+      // Following iterations: insert the new cell into the output array, then save the current
+      // index value into currentCell[1]
+      else
+      {
+        output->InsertNextCell(currentCell.size(), currentCell.data());
+        // Save the current third triangle index to be the second index of the next triangle cell
+        currentCell[1] = currentCell[2];
+      }
     }
-
-    if (mode == vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_FAN && counter > 2)
-    {
-      output->InsertNextValue(firstValue);
-      output->InsertNextValue(previousValue);
-    }
-
-    // Read value and insert into the array
-    Type val;
-    std::copy(it, it + size, reinterpret_cast<char*>(&val));
-    output->InsertNextValue(static_cast<vtkIdType>(val));
-
-    // Save first value for line loops and triangle fans
-    if (counter == 0)
-    {
-      firstValue = static_cast<vtkIdType>(val);
-    }
-    // Save current value for triangle fans
-    previousValue = static_cast<vtkIdType>(val);
-
-    counter++;
   }
-  // In case of a line loop, append first value at the end
-  if (mode == vtkGLTFDocumentLoaderInternals::GL_LINE_LOOP)
+  else
   {
-    output->InsertNextValue(static_cast<vtkIdType>(firstValue));
+    auto cellPosition = currentCell.begin();
+
+    // Iterate across the buffer's elements
+    for (auto it = accessorBegin; it != accessorEnd; it += step)
+    {
+      // Read the current index value from the buffer
+      std::copy(it, it + size, reinterpret_cast<char*>(&val));
+      // Append the current index value to the cell
+      *cellPosition = static_cast<vtkIdType>(val);
+      // Advance the iterator
+      cellPosition++;
+
+      // When we have read all of the current cell's components, insert it into the cell array
+      if (cellPosition == currentCell.end())
+      {
+        output->InsertNextCell(currentCell.size(), currentCell.data());
+        // Start creating the new cell
+        cellPosition = currentCell.begin();
+      }
+    }
+
+    // In case of a line loop, we need to append the first index value at the end of the cell, then
+    // insert the cell into the cell array
+    if (mode == vtkGLTFDocumentLoaderInternals::GL_LINE_LOOP)
+    {
+      currentCell.back() = currentCell[0];
+      output->InsertNextCell(cellSize, currentCell.data());
+    }
   }
 }
 }
@@ -477,7 +582,7 @@ bool vtkGLTFDocumentLoader::ExtractPrimitiveAccessorData(Primitive& primitive)
     }
     auto& buffer = this->InternalModel->Buffers[bufferView.Buffer];
 
-    primitive.Indices = vtkSmartPointer<vtkIdTypeArray>::New();
+    primitive.Indices = vtkSmartPointer<vtkCellArray>::New();
     unsigned int byteOffset = accessor.ByteOffset + bufferView.ByteOffset;
 
     switch (accessor.ComponentTypeValue)
@@ -945,40 +1050,27 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
   }
 
   // Connectivity
-  vtkNew<vtkCellArray> cells;
   if (primitive.Indices == nullptr)
   {
-    // Generate indices
-    primitive.Indices = vtkSmartPointer<vtkIdTypeArray>::New();
-    for (int cellId = 0; cellId < primitive.Geometry->GetPoints()->GetNumberOfPoints();
-         cellId += primitive.CellSize)
-    {
-      primitive.Indices->InsertNextValue(primitive.CellSize);
-      for (int pointId = 0; pointId < primitive.CellSize; pointId++)
-      {
-        primitive.Indices->InsertNextValue(pointId);
-      }
-    }
+    GenerateIndicesForPrimitive(primitive);
   }
-
-  cells->SetCells(primitive.Indices->GetNumberOfValues(), primitive.Indices);
   switch (primitive.Mode)
   {
     case vtkGLTFDocumentLoaderInternals::GL_TRIANGLES:
     case vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_FAN:
-      primitive.Geometry->SetPolys(cells);
+      primitive.Geometry->SetPolys(primitive.Indices);
       break;
     case vtkGLTFDocumentLoaderInternals::GL_LINES:
     case vtkGLTFDocumentLoaderInternals::GL_LINE_STRIP:
     case vtkGLTFDocumentLoaderInternals::GL_LINE_LOOP:
-      primitive.Geometry->SetLines(cells);
+      primitive.Geometry->SetLines(primitive.Indices);
       break;
     case vtkGLTFDocumentLoaderInternals::GL_POINTS:
-      primitive.Geometry->SetVerts(cells);
+      primitive.Geometry->SetVerts(primitive.Indices);
       break;
     case vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_STRIP:
-      primitive.Geometry->SetStrips(cells);
-      cells->SetNumberOfCells(1);
+      primitive.Geometry->SetStrips(primitive.Indices);
+      primitive.Indices->SetNumberOfCells(1);
       break;
     default:
       vtkWarningMacro("Invalid primitive draw mode. Ignoring connectivity.");

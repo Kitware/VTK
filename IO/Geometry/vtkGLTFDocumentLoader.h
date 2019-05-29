@@ -46,9 +46,9 @@
 #include <string> // For std::string
 #include <vector> // For std::vector
 
+class vtkCellArray;
 class vtkDataArray;
 class vtkFloatArray;
-class vtkIdTypeArray;
 class vtkImageData;
 class vtkTupleInterpolator;
 class vtkMatrix4x4;
@@ -187,7 +187,7 @@ public:
     // accessor indices from the .glTF file, the map's keys correspond to attribute names
     std::map<std::string, int> AttributeIndices;
     int IndicesId;
-    vtkSmartPointer<vtkIdTypeArray> Indices;
+    vtkSmartPointer<vtkCellArray> Indices;
 
     // attribute values from buffer data
     std::map<std::string, vtkSmartPointer<vtkDataArray> > AttributeValues;

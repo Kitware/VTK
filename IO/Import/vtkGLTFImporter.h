@@ -88,7 +88,7 @@ public:
   size_t GetNumberOfCameras();
 
 protected:
-  vtkGLTFImporter();
+  vtkGLTFImporter() = default;
   ~vtkGLTFImporter() override;
 
   int ImportBegin() override;
@@ -96,7 +96,7 @@ protected:
   void ImportCameras(vtkRenderer* renderer) override;
   void ImportLights(vtkRenderer* renderer) override;
 
-  char* FileName;
+  char* FileName = nullptr;
 
   std::vector<vtkSmartPointer<vtkCamera> > Cameras;
   std::map<int, vtkSmartPointer<vtkTexture> > Textures;

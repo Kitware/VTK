@@ -32,7 +32,7 @@
 class vtkGLTFDocumentLoaderInternals
 {
 public:
-  vtkGLTFDocumentLoaderInternals();
+  vtkGLTFDocumentLoaderInternals() = default;
 
   /**
    * Reset internal Model struct, and serialize glTF metadata (all json information) into it.
@@ -40,7 +40,7 @@ public:
    * To load buffers, use LoadModelData
    */
   bool LoadModelMetaDataFromFile(std::string& FileName, std::vector<std::string>& usedExtensions);
-  vtkGLTFDocumentLoader* Self;
+  vtkGLTFDocumentLoader* Self = nullptr;
 
   /**
    * Reads the model's buffer metadata, then uses it to load all buffers into the model.
