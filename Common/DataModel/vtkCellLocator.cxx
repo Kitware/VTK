@@ -185,6 +185,11 @@ int vtkCellLocator::IntersectWithLine(const double a0[3], const double a1[3], do
   double length, maxLength=0.0;
 
   this->BuildLocatorIfNeeded();
+  if (this->Tree == nullptr)
+  {
+    // empty tree, most likely there are no cells in the input data set
+    return 0;
+  }
 
   // convert the line into i,j,k coordinates
   tMax = 0.0;
@@ -414,6 +419,12 @@ void vtkCellLocator::FindClosestPoint(const double x[3], double closestPoint[3],
   //int minStat=0; //save this variable it is used for debugging
 
   this->BuildLocatorIfNeeded();
+  if (this->Tree == nullptr)
+  {
+    // empty tree, most likely there are no cells in the input data set
+    vtkErrorMacro("vtkCellLocator::FindClosestPoint failed: no cells in the input data set");
+    return;
+  }
 
   cachedPoint[0] = 0.0;
   cachedPoint[1] = 0.0;
@@ -689,6 +700,11 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
   int ii, radiusLevels[3], radiusLevel, prevMinLevel[3], prevMaxLevel[3];
 
   this->BuildLocatorIfNeeded();
+  if (this->Tree == nullptr)
+  {
+    // empty tree, most likely there are no cells in the input data set
+    return 0;
+  }
 
   cachedPoint[0] = 0.0;
   cachedPoint[1] = 0.0;
@@ -1679,6 +1695,11 @@ vtkIdType vtkCellLocator::FindCell(
   double cellBounds[6];
 
   this->BuildLocatorIfNeeded();
+  if (this->Tree == nullptr)
+  {
+    // empty tree, most likely there are no cells in the input data set
+    return -1;
+  }
 
   int leafStart = this->NumberOfOctants
     - this->NumberOfDivisions*this->NumberOfDivisions*this->NumberOfDivisions;
@@ -1747,6 +1768,11 @@ void vtkCellLocator::FindCellsWithinBounds(double *bbox, vtkIdList *cells)
   this->BuildLocatorIfNeeded();
 
   cells->Reset();
+  if (this->Tree == nullptr)
+  {
+    // empty tree, most likely there are no cells in the input data set
+    return;
+  }
 
   // Get the locator locations for the two extreme corners of the bounding box
   double p1[3], p2[3], *p[2];
@@ -1811,6 +1837,11 @@ void vtkCellLocator::FindCellsAlongLine(const double p1[3], const double p2[3], 
   this->BuildLocatorIfNeeded();
 
   cells->Reset();
+  if (this->Tree == nullptr)
+  {
+    // empty tree, most likely there are no cells in the input data set
+    return;
+  }
 
   double origin[3];
   double direction1[3];
