@@ -3931,7 +3931,7 @@ vtk_module_third_party_external(
   [INCLUDE_DIRS <path-or-variable>...]
   [LIBRARIES    <target-or-variable>...]
   [FORWARD_VERSION_REQ  <MAJOR|MINOR|PATCH|EXACT>]
-  [VERSION              <version>]
+  [VERSION_VAR          <version-spec>]
   [CONFIG_MODE]
   [STANDARD_INCLUDE_DIRS])
 ```
