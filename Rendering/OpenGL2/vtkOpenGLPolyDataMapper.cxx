@@ -221,7 +221,7 @@ void vtkOpenGLPolyDataMapper::AddShaderReplacement(
     const std::string& replacementValue,
     bool replaceAll)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::AddShaderReplacement, "VTK 8.2", vtkOpenGLShaderProperty::AddShaderReplacement);
+  VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::AddShaderReplacement, "VTK 9.0", vtkOpenGLShaderProperty::AddShaderReplacement);
   this->GetLegacyShaderProperty()->AddShaderReplacement(shaderType,originalValue,replaceFirst,replacementValue,replaceAll);
   this->Modified();
 }
@@ -232,7 +232,7 @@ void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
     const std::string& originalValue,
     bool replaceFirst)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::ClearShaderReplacement, "VTK 8.2", vtkOpenGLShaderProperty::ClearShaderReplacement);
+  VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::ClearShaderReplacement, "VTK 9.0", vtkOpenGLShaderProperty::ClearShaderReplacement);
   this->GetLegacyShaderProperty()->ClearShaderReplacement(shaderType, originalValue, replaceFirst);
   this->Modified();
 }
@@ -241,7 +241,7 @@ void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
 void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements(
   vtkShader::Type shaderType)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::ClearAllShaderReplacements, "VTK 8.2", vtkOpenGLShaderProperty::ClearAllShaderReplacements);
+  VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::ClearAllShaderReplacements, "VTK 9.0", vtkOpenGLShaderProperty::ClearAllShaderReplacements);
   this->GetLegacyShaderProperty()->ClearAllShaderReplacements(shaderType);
   this->Modified();
 }
@@ -255,40 +255,40 @@ void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements()
 
   void vtkOpenGLPolyDataMapper::SetVertexShaderCode(const char* code)
   {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::SetVertexShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::SetVertexShaderCode);
+    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::SetVertexShaderCode, "VTK 9.0", vtkOpenGLShaderProperty::SetVertexShaderCode);
     this->GetLegacyShaderProperty()->SetVertexShaderCode(code);
     this->Modified();
   }
 
   char* vtkOpenGLPolyDataMapper::GetVertexShaderCode()
   {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::GetVertexShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::GetVertexShaderCode);
+    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::GetVertexShaderCode, "VTK 9.0", vtkOpenGLShaderProperty::GetVertexShaderCode);
     return this->GetLegacyShaderProperty()->GetVertexShaderCode();
   }
 
   void vtkOpenGLPolyDataMapper::SetFragmentShaderCode(const char* code)
   {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::SetFragmentShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::SetFragmentShaderCode);
+    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::SetFragmentShaderCode, "VTK 9.0", vtkOpenGLShaderProperty::SetFragmentShaderCode);
     this->GetLegacyShaderProperty()->SetFragmentShaderCode(code);
     this->Modified();
   }
 
   char* vtkOpenGLPolyDataMapper::GetFragmentShaderCode()
   {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::GetFragmentShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::GetFragmentShaderCode);
+    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::GetFragmentShaderCode, "VTK 9.0", vtkOpenGLShaderProperty::GetFragmentShaderCode);
     return this->GetLegacyShaderProperty()->GetFragmentShaderCode();
   }
 
   void vtkOpenGLPolyDataMapper::SetGeometryShaderCode(const char* code)
   {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::SetGeometryShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::SetGeometryShaderCode);
+    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::SetGeometryShaderCode, "VTK 9.0", vtkOpenGLShaderProperty::SetGeometryShaderCode);
     this->GetLegacyShaderProperty()->SetGeometryShaderCode(code);
     this->Modified();
   }
 
   char* vtkOpenGLPolyDataMapper::GetGeometryShaderCode()
   {
-    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::GetGeometryShaderCode, "VTK 8.2", vtkOpenGLShaderProperty::GetGeometryShaderCode);
+    VTK_LEGACY_REPLACED_BODY(vtkOpenGLPolyDataMapper::GetGeometryShaderCode, "VTK 9.0", vtkOpenGLShaderProperty::GetGeometryShaderCode);
     return this->GetLegacyShaderProperty()->GetGeometryShaderCode();
   }
 

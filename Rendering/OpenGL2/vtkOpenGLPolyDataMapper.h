@@ -151,7 +151,7 @@ public:
    * shader template. Using this function you can apply your
    * own string replacements to add features you desire.
    *
-   * @deprecated Replaced By vtkShaderProperty::{Add,Clear,ClearAll}ShaderReplacements as of VTK 8.2.
+   * @deprecated Replaced By vtkShaderProperty::{Add,Clear,ClearAll}ShaderReplacements as of VTK 9.0.
    */
   VTK_LEGACY(void AddShaderReplacement(
     vtkShader::Type shaderType, // vertex, fragment, etc
@@ -174,7 +174,7 @@ public:
    * set, this template will be used for all cases,
    * primitive types, picking etc.
    *
-   * @deprecated Replaced By vtkShaderProperty::Get*ShaderCode as of VTK 8.2.
+   * @deprecated Replaced By vtkShaderProperty::Get*ShaderCode as of VTK 9.0.
    */
   VTK_LEGACY(virtual void SetVertexShaderCode(const char* code);)
   VTK_LEGACY(virtual char* GetVertexShaderCode();)
