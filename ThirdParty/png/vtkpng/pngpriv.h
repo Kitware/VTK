@@ -88,6 +88,11 @@
 #  endif
 #endif
 
+#define PNG_ARM_NEON_OPT 0
+#define PNG_MIPS_MSA_OPT 0
+#define PNG_POWERPC_VSX_OPT 0
+#define PNG_INTEL_SSE_OPT 0
+
 /* Compile time options.
  * =====================
  * In a multi-arch build the compiler may compile the code several times for the
