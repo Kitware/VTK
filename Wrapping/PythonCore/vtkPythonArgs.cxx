@@ -969,6 +969,31 @@ VTK_PYTHON_BUILD_TUPLE(std::string)
 VTK_PYTHON_BUILD_TUPLE(vtkUnicodeString)
 
 //--------------------------------------------------------------------
+
+PyObject *vtkPythonArgs::BuildEnumValue(int val, const char *enumname)
+{
+  PyTypeObject *pytype = vtkPythonUtil::FindEnum(enumname);
+  if (!pytype)
+  {
+    std::string errstring = "cannot build unknown enum ";
+    errstring += enumname;
+    PyErr_SetString(PyExc_TypeError, errstring.c_str());
+    return nullptr;
+  }
+
+#ifdef VTK_PY3K
+  PyObject *args = Py_BuildValue("(i)", val);
+  PyObject *obj = PyLong_Type.tp_new(pytype, args, nullptr);
+  Py_DECREF(args);
+  return obj;
+#else
+  PyIntObject *self = PyObject_New(PyIntObject, pytype);
+  self->ob_ival = val;
+  return (PyObject *)self;
+#endif
+}
+
+//--------------------------------------------------------------------
 // If "self" is a class, get real "self" from arg list
 PyObject *vtkPythonArgs::GetSelfFromFirstArg(
   PyObject *self, PyObject *args)
