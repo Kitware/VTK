@@ -115,6 +115,7 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_java_genex_
         "${_vtk_java_header}"
         "${_vtk_java_args_file}"
         "${_vtk_java_command_depend}"
+        "$<TARGET_FILE:${_vtk_java_wrap_target}>"
         ${_vtk_java_command_depends})
 
     set(_vtk_java_java_source_output
@@ -137,6 +138,7 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_java_genex_
         "${_vtk_java_header}"
         "${_vtk_java_args_file}"
         "${_vtk_java_command_depend}"
+        "$<TARGET_FILE:${_vtk_java_parse_target}>"
         ${_vtk_java_command_depends})
   endforeach ()
 
