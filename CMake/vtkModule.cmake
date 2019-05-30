@@ -3937,6 +3937,7 @@ vtk_module_third_party_external(
   [OPTIONAL_COMPONENTS  <component>...]
   [INCLUDE_DIRS <path-or-variable>...]
   [LIBRARIES    <target-or-variable>...]
+  [DEFINITIONS  <variable>...]
   [FORWARD_VERSION_REQ  <MAJOR|MINOR|PATCH|EXACT>]
   [VERSION_VAR          <version-spec>]
   [USE_VARIABLES        <variable>...]
@@ -3961,6 +3962,8 @@ Only the `PACKAGE` argument is required. The arguments are as follows:
   * `LIBRARIES`: The libraries to link from the package. If a variable name is
     given, it will be dereferenced, however a warning that imported targets are
     not being used will be emitted.
+  * `DEFINITIONS`: If specified, the given variables will be added to the
+    target compile definitions interface.
   * `CONFIG_MODE`: Force `CONFIG` mode.
   * `FORWARD_VERSION_REQ` and `VERSION_VAR`: See documentation for
     `vtk_module_find_package`.
@@ -3971,7 +3974,7 @@ function (vtk_module_third_party_external)
   cmake_parse_arguments(_vtk_third_party_external
     "STANDARD_INCLUDE_DIRS;CONFIG_MODE"
     "VERSION;PACKAGE;FORWARD_VERSION_REQ;VERSION_VAR"
-    "COMPONENTS;OPTIONAL_COMPONENTS;LIBRARIES;INCLUDE_DIRS;DEFINES;TARGETS;USE_VARIABLES"
+    "COMPONENTS;OPTIONAL_COMPONENTS;LIBRARIES;INCLUDE_DIRS;DEFINITIONS;TARGETS;USE_VARIABLES"
     ${ARGN})
 
   if (_vtk_third_party_external_UNPARSED_ARGUMENTS)
@@ -4093,7 +4096,7 @@ function (vtk_module_third_party_external)
         "Including this module may not work.")
     endif ()
 
-    foreach (_vtk_third_party_external_define IN LISTS _vtk_third_party_external_DEFINES)
+    foreach (_vtk_third_party_external_define IN LISTS _vtk_third_party_external_DEFINITIONS)
       if (DEFINED "${_vtk_third_party_external_define}")
         target_compile_definitions("${_vtk_third_party_external_target_name}"
           INTERFACE "${${_vtk_third_party_external_define}}")
