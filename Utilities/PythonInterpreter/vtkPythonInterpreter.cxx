@@ -401,6 +401,60 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   vtkPythonInterpreter::Initialize(1);
 
 #if PY_VERSION_HEX >= 0x03000000
+
+#if PY_VERSION_HEX >= 0x03070000 && PY_VERSION_HEX < 0x03080000
+  // Python 3.7.0 has a bug where Py_InitializeEx (called above) followed by
+  // Py_Main (at the end of this block) causes a crash. Gracefully exit with
+  // failure if we're using 3.7.0 and suggest getting the newest 3.7.x release.
+  // See <https://gitlab.kitware.com/vtk/vtk/issues/17434> for details.
+  {
+    bool is_ok = true;
+    vtkPythonScopeGilEnsurer gilEnsurer(false, true);
+    PyObject* sys = PyImport_ImportModule("sys");
+    if (sys)
+    {
+      // XXX: Check sys.implementation.name == 'cpython'?
+
+      PyObject* version_info = PyObject_GetAttrString(sys, "version_info");
+      if (version_info)
+      {
+        PyObject* major = PyObject_GetAttrString(version_info, "major");
+        PyObject* minor = PyObject_GetAttrString(version_info, "minor");
+        PyObject* micro = PyObject_GetAttrString(version_info, "micro");
+
+        auto py_number_cmp = [] (PyObject* obj, long expected) {
+          return obj && PyLong_Check(obj) && PyLong_AsLong(obj) == expected;
+        };
+
+        // Only 3.7.0 has this issue. Any failures to get the version
+        // information is OK; we'll just crash later anyways if the version is
+        // bad.
+        is_ok =
+          !py_number_cmp(major, 3) ||
+          !py_number_cmp(minor, 7) ||
+          !py_number_cmp(micro, 0);
+
+        Py_XDECREF(micro);
+        Py_XDECREF(minor);
+        Py_XDECREF(major);
+      }
+
+      Py_XDECREF(version_info);
+    }
+
+    Py_XDECREF(sys);
+
+    if (!is_ok)
+    {
+      std::cerr << "Python 3.7.0 has a known issue that causes a crash with a "
+        "specific API usage pattern. This has been fixed in 3.7.1 and all "
+        "newer 3.7.x Python releases. Exiting now to avoid the crash." <<
+        std::endl;
+      return 1;
+    }
+  }
+#endif
+
   // Need two copies of args, because programs might modify the first
   wchar_t** argvWide = new wchar_t*[argc];
   wchar_t** argvWide2 = new wchar_t*[argc];
