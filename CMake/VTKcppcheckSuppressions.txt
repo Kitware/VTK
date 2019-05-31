@@ -182,7 +182,7 @@ uninitMemberVar:Filters/MomentInvariants/vtkComputeMoments.cxx
 uninitMemberVar:Filters/MomentInvariants/vtkMomentInvariants.cxx
 uninitMemberVar:Filters/MomentInvariants/vtkReconstructFromMoments.cxx
 uninitMemberVar:Filters/MomentInvariants/vtkSimilarityBalls.cxx
-uninitMemberVar:Filters/OpenTurns/vtkOTFilter.cxx
+uninitMemberVar:Filters/OpenTURNS/vtkOTFilter.cxx
 uninitMemberVar:Filters/Parallel/vtkPKdTree.cxx
 uninitMemberVar:Filters/ParallelFlowPaths/Testing/Cxx/TestPParticleTracers.cxx
 uninitMemberVar:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamAMR.cxx

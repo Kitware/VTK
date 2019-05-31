@@ -18,14 +18,14 @@ vtk_object_factory_configure(
   HEADER_FILE vtk_object_factory_header
   EXPORT_MACRO "VTKFILTERSOPENTURNS_EXPORT")
 
-vtk_module_add_module(VTK::FiltersOpenTurns
+vtk_module_add_module(VTK::FiltersOpenTURNS
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source}
   PRIVATE_HEADERS ${vtk_object_factory_header})
 
-vtk_module_link(VTK::FiltersOpenTurns
+vtk_module_link(VTK::FiltersOpenTURNS
   PRIVATE
     ${OPENTURNS_LIBRARIES})
-vtk_module_include(VTK::FiltersOpenTurns
+vtk_module_include(VTK::FiltersOpenTURNS
   PRIVATE
     ${OPENTURNS_INCLUDE_DIRS})
