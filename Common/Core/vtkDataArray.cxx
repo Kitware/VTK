@@ -35,6 +35,9 @@
 #include "vtkLongArray.h"
 #include "vtkMath.h"
 #include "vtkSOADataArrayTemplate.h" // For fast paths
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+#include "vtkScaledSOADataArrayTemplate.h" // For fast paths
+#endif
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkTypeTraits.h"
@@ -81,6 +84,24 @@ struct DeepCopyWorker
     }
   }
 
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+  // ScaleSoA --> ScaleSoA same-type specialization:
+  template <typename ValueType>
+  void operator()(vtkScaledSOADataArrayTemplate<ValueType> *src,
+                  vtkScaledSOADataArrayTemplate<ValueType> *dst)
+  {
+    vtkIdType numTuples = src->GetNumberOfTuples();
+    for (int comp = 0; comp < src->GetNumberOfComponents(); ++comp)
+    {
+      ValueType *srcBegin = src->GetComponentArrayPointer(comp);
+      ValueType *srcEnd = srcBegin + numTuples;
+      ValueType *dstBegin = dst->GetComponentArrayPointer(comp);
+
+      std::copy(srcBegin, srcEnd, dstBegin);
+    }
+    dst->SetScale(src->GetScale());
+  }
+#endif
 // Undo warning suppression.
 #if defined(__clang__) && defined(__has_warning)
   #if __has_warning("-Wunused-template")

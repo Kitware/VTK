@@ -20,6 +20,9 @@
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
 #include "vtkSOADataArrayTemplate.h"
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+#include "vtkScaledSOADataArrayTemplate.h"
+#endif
 #include "vtkStringArray.h"
 
 #include <cstdint>
@@ -110,15 +113,24 @@ int assign_void_array(FreeType, vtkAbstractArray *array, void *ptr,
                        std::size_t size, bool vtkShouldFree)
 {
   int errors = 0;
-  vtkSOADataArrayTemplate<double> *is_soa =
-      vtkArrayDownCast<vtkSOADataArrayTemplate<double>>(array);
-  if (is_soa)
+  if (vtkSOADataArrayTemplate<double> *is_soa =
+      vtkArrayDownCast<vtkSOADataArrayTemplate<double>>(array))
   {
     is_soa->SetNumberOfComponents(1);
     is_soa->SetArray(0, reinterpret_cast<double *>(ptr),
                      static_cast<vtkIdType>(size), false, !vtkShouldFree,
                      FreeType::value);
   }
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+  else if (vtkScaledSOADataArrayTemplate<double> *is_scale_soa =
+      vtkArrayDownCast<vtkScaledSOADataArrayTemplate<double>>(array))
+  {
+    is_scale_soa->SetNumberOfComponents(1);
+    is_scale_soa->SetArray(0, reinterpret_cast<double *>(ptr),
+                           static_cast<vtkIdType>(size), false, !vtkShouldFree,
+                           FreeType::value);
+  }
+#endif
   else
   {
     const int save = vtkShouldFree ? 0 : 1;
@@ -141,7 +153,9 @@ template <typename FreeType> int ExerciseDelete(FreeType f)
   arrays.push_back(vtkFloatArray::New());
   arrays.push_back(vtkAOSDataArrayTemplate<double>::New());
   arrays.push_back(vtkSOADataArrayTemplate<double>::New());
-
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+  arrays.push_back(vtkScaledSOADataArrayTemplate<double>::New());
+#endif
   const std::size_t size = 5000;
   for (auto it = arrays.begin(); it != arrays.end(); ++it)
   {

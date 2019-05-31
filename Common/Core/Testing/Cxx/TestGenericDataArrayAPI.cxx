@@ -41,6 +41,9 @@
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkSOADataArrayTemplate.h"
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+#include "vtkScaledSOADataArrayTemplate.h"
+#endif
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -123,6 +126,24 @@ int TestGenericDataArrayAPI(int, char *[])
   errors += ExerciseGenericDataArray<unsigned long long, vtkSOADataArrayTemplate<unsigned long long> >();
   errors += ExerciseGenericDataArray<unsigned short,     vtkSOADataArrayTemplate<unsigned short> >();
   errors += ExerciseGenericDataArray<vtkIdType,          vtkSOADataArrayTemplate<vtkIdType> >();
+
+  // Explicit scale SoA arrays:
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+  errors += ExerciseGenericDataArray<char,               vtkScaledSOADataArrayTemplate<char> >();
+  errors += ExerciseGenericDataArray<double,             vtkScaledSOADataArrayTemplate<double> >();
+  errors += ExerciseGenericDataArray<float,              vtkScaledSOADataArrayTemplate<float> >();
+  errors += ExerciseGenericDataArray<int,                vtkScaledSOADataArrayTemplate<int> >();
+  errors += ExerciseGenericDataArray<long,               vtkScaledSOADataArrayTemplate<long> >();
+  errors += ExerciseGenericDataArray<long long,          vtkScaledSOADataArrayTemplate<long long> >();
+  errors += ExerciseGenericDataArray<short,              vtkScaledSOADataArrayTemplate<short> >();
+  errors += ExerciseGenericDataArray<signed char,        vtkScaledSOADataArrayTemplate<signed char> >();
+  errors += ExerciseGenericDataArray<unsigned char,      vtkScaledSOADataArrayTemplate<unsigned char> >();
+  errors += ExerciseGenericDataArray<unsigned int,       vtkScaledSOADataArrayTemplate<unsigned int> >();
+  errors += ExerciseGenericDataArray<unsigned long,      vtkScaledSOADataArrayTemplate<unsigned long> >();
+  errors += ExerciseGenericDataArray<unsigned long long, vtkScaledSOADataArrayTemplate<unsigned long long> >();
+  errors += ExerciseGenericDataArray<unsigned short,     vtkScaledSOADataArrayTemplate<unsigned short> >();
+  errors += ExerciseGenericDataArray<vtkIdType,          vtkScaledSOADataArrayTemplate<vtkIdType> >();
+#endif
 
   if (errors > 0)
   {

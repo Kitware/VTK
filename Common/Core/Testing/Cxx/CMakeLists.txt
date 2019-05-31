@@ -70,6 +70,19 @@ foreach(value_type ${value_types})
     vtkSOADataArrayTemplate.h
     "${value_type}"
     "vtkSOADataArrayTemplate<${value_type}>")
+
+  if(VTK_BUILD_SCALED_SOA_ARRAYS)
+    add_data_array_test(
+      "ScaleAoS_${pretty_value_type}"
+      vtkScaleAOSDataArrayTemplate.h
+      "${value_type}"
+      "vtkScaleAOSDataArrayTemplate<${value_type}>")
+    add_data_array_test(
+      "ScaleSoA_${pretty_value_type}"
+      vtkScaledSOADataArrayTemplate.h
+      "${value_type}"
+      "vtkScaledSOADataArrayTemplate<${value_type}>")
+  endif()
 endforeach()
 
 # Tell TestSystemInformation where to find the build trees.
@@ -77,6 +90,11 @@ set(TestSystemInformation_ARGS ${CMAKE_BINARY_DIR})
 
 # Tell TestXMLFileOutputWindow where to write test file
 set(TestXMLFileOutputWindow_ARGS ${CMAKE_BINARY_DIR}/Testing/Temporary/XMLFileOutputWindow.txt)
+
+if (VTK_BUILD_SCALED_SOA_ARRAYS)
+  set(scale_soa_test TestScaledSOADataArrayDispatchers.cxx TestScaledSOADataArrayTemplate.cxx)
+endif ()
+
 
 vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
@@ -145,6 +163,8 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   otherStringArray.cxx
 
   ${data_array_tests}
+
+  ${scale_soa_test}
   )
 
 vtk_test_cxx_executable(vtkCommonCoreCxxTests tests

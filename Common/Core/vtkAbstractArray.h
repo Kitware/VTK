@@ -643,6 +643,7 @@ public:
     SoADataArrayTemplate,
     TypedDataArray,
     MappedDataArray,
+    ScaleSoADataArrayTemplate,
 
     DataArrayTemplate = AoSDataArrayTemplate //! Legacy
   };
