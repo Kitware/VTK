@@ -3900,6 +3900,13 @@ function (vtk_module_third_party)
     # libraries (internal) and interface libraries (external).
     unset("${_vtk_build_module}_LIB_DEPENDS" CACHE)
     vtk_module_third_party_external(${_vtk_third_party_EXTERNAL})
+
+    # Bubble up variables again.
+    foreach (_vtk_third_party_variable IN LISTS _vtk_third_party_variables)
+      set("${_vtk_third_party_variable}"
+        "${${_vtk_third_party_variable}}"
+        PARENT_SCOPE)
+    endforeach ()
   else ()
     set(_vtk_third_party_has_external_support 1)
     vtk_module_third_party_internal(${_vtk_third_party_INTERNAL})
@@ -3931,8 +3938,10 @@ vtk_module_third_party_external(
   [OPTIONAL_COMPONENTS  <component>...]
   [INCLUDE_DIRS <path-or-variable>...]
   [LIBRARIES    <target-or-variable>...]
+  [DEFINITIONS  <variable>...]
   [FORWARD_VERSION_REQ  <MAJOR|MINOR|PATCH|EXACT>]
-  [VERSION              <version>]
+  [VERSION_VAR          <version-spec>]
+  [USE_VARIABLES        <variable>...]
   [CONFIG_MODE]
   [STANDARD_INCLUDE_DIRS])
 ```
@@ -3954,15 +3963,19 @@ Only the `PACKAGE` argument is required. The arguments are as follows:
   * `LIBRARIES`: The libraries to link from the package. If a variable name is
     given, it will be dereferenced, however a warning that imported targets are
     not being used will be emitted.
+  * `DEFINITIONS`: If specified, the given variables will be added to the
+    target compile definitions interface.
   * `CONFIG_MODE`: Force `CONFIG` mode.
   * `FORWARD_VERSION_REQ` and `VERSION_VAR`: See documentation for
     `vtk_module_find_package`.
+  * `USE_VARIABLES`: List of variables from the `find_package` to make
+    available to the caller.
 #]==]
 function (vtk_module_third_party_external)
   cmake_parse_arguments(_vtk_third_party_external
     "STANDARD_INCLUDE_DIRS;CONFIG_MODE"
     "VERSION;PACKAGE;FORWARD_VERSION_REQ;VERSION_VAR"
-    "COMPONENTS;OPTIONAL_COMPONENTS;LIBRARIES;INCLUDE_DIRS;DEFINES;TARGETS"
+    "COMPONENTS;OPTIONAL_COMPONENTS;LIBRARIES;INCLUDE_DIRS;DEFINITIONS;TARGETS;USE_VARIABLES"
     ${ARGN})
 
   if (_vtk_third_party_external_UNPARSED_ARGUMENTS)
@@ -4084,7 +4097,7 @@ function (vtk_module_third_party_external)
         "Including this module may not work.")
     endif ()
 
-    foreach (_vtk_third_party_external_define IN LISTS _vtk_third_party_external_DEFINES)
+    foreach (_vtk_third_party_external_define IN LISTS _vtk_third_party_external_DEFINITIONS)
       if (DEFINED "${_vtk_third_party_external_define}")
         target_compile_definitions("${_vtk_third_party_external_target_name}"
           INTERFACE "${${_vtk_third_party_external_define}}")
@@ -4109,6 +4122,28 @@ function (vtk_module_third_party_external)
         "which were not found and no `LIBRARIES` were found either. Linking to "
         "this this module may not work.")
     endif ()
+  endif ()
+
+  if (DEFINED _vtk_third_party_external_USE_VARIABLES)
+    # If we're called from `vtk_module_third_party`, the variables need bubbled
+    # up again.
+    if (DEFINED _vtk_third_party_EXTERNAL)
+      set(_vtk_third_party_variables
+        "${_vtk_third_party_external_USE_VARIABLES}"
+        PARENT_SCOPE)
+    endif ()
+
+    foreach (_vtk_third_party_external_variable IN LISTS _vtk_third_party_external_USE_VARIABLES)
+      if (NOT DEFINED "${_vtk_third_party_external_variable}")
+        message(FATAL_ERROR
+          "The variable `${_vtk_third_party_external_variable}` was expected "
+          "to have been available, but was not defined.")
+      endif ()
+
+      set("${_vtk_third_party_external_variable}"
+        "${${_vtk_third_party_external_variable}}"
+        PARENT_SCOPE)
+    endforeach ()
   endif ()
 
   _vtk_module_mark_third_party("${_vtk_third_party_external_target_name}")
