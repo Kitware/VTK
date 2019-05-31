@@ -389,11 +389,11 @@ public:
     //stealing the array clears the delete function, so we need to get the function first.
     //VTK-m allocations are aligned or done with cuda uvm memory so we need to propagate
     //the proper free function to VTK
-    auto deleteFunction = handle.GetStorage().GetDeleteFunction();
-    ValueType* stolenMemory = reinterpret_cast<ValueType*>(handle.GetStorage().StealArray());
+    auto stolenState = handle.GetStorage().StealArray();
+    auto stolenMemory = reinterpret_cast<ValueType*>(stolenState.first);
     array->SetVoidArray(
       stolenMemory, size, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
-    array->SetArrayFreeFunction(deleteFunction);
+    array->SetArrayFreeFunction(stolenState.second);
 
     this->Data = array;
   }

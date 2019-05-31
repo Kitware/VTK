@@ -60,10 +60,9 @@ int vtkmContour::RequestData(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector)
 {
-  vtkm::cont::ScopedRuntimeDeviceTracker tracker;
-  (void)tracker;
-  vtkm::cont::GetRuntimeDeviceTracker().DisableDevice(
-        vtkm::cont::DeviceAdapterTagCuda{});
+  vtkm::cont::ScopedRuntimeDeviceTracker tracker(vtkm::cont::DeviceAdapterTagCuda{},
+                                                 vtkm::cont::RuntimeDeviceTrackerMode::Disable);
+
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
