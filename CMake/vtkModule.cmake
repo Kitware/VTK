@@ -3076,7 +3076,7 @@ function (vtk_module_add_module name)
         ${_vtk_add_module_private_depends_link})
 
     set(_vtk_add_module_private_depends_forward_link)
-    foreach (_vtk_add_module_private_depend IN LISTS _vtk_add_module_private_depends)
+    foreach (_vtk_add_module_private_depend IN LISTS _vtk_add_module_depends_link _vtk_add_module_private_depends)
       _vtk_module_get_module_property("${_vtk_add_module_private_depend}"
         PROPERTY "forward_link"
         VARIABLE  _vtk_add_module_forward_link)
