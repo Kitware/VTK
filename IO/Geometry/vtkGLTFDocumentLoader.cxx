@@ -88,17 +88,13 @@ vtkIdType GetNumberOfCellsForPrimitive(int mode, int cellSize, int numberOfIndic
     case vtkGLTFDocumentLoaderInternals::GL_LINES:
     case vtkGLTFDocumentLoaderInternals::GL_POINTS:
       return numberOfIndices / cellSize;
-      break;
     case vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_FAN:
       return numberOfIndices - 2;
-      break;
     case vtkGLTFDocumentLoaderInternals::GL_LINE_LOOP:
       return numberOfIndices;
-      break;
     case vtkGLTFDocumentLoaderInternals::GL_LINE_STRIP:
     case vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_STRIP:
       return 1; // Number of strips
-      break;
     default:
       vtkWarningWithObjectMacro(nullptr, "Invalid primitive draw mode. Ignoring connectivity.");
       return 0;
@@ -125,7 +121,7 @@ void GenerateIndicesForPrimitive(vtkGLTFDocumentLoader::Primitive& primitive)
     {
       cell.push_back(0);
     }
-    primitive.Indices->InsertNextCell(cell.size(), cell.data());
+    primitive.Indices->InsertNextCell(static_cast<vtkIdType>(cell.size()), cell.data());
   }
   else
   {
@@ -524,7 +520,7 @@ void ExtractAndCastCellBufferData(const std::vector<char>& inbuf,
       // index value into currentCell[1]
       else
       {
-        output->InsertNextCell(currentCell.size(), currentCell.data());
+        output->InsertNextCell(static_cast<vtkIdType>(currentCell.size()), currentCell.data());
         // Save the current third triangle index to be the second index of the next triangle cell
         currentCell[1] = currentCell[2];
       }
@@ -547,7 +543,7 @@ void ExtractAndCastCellBufferData(const std::vector<char>& inbuf,
       // When we have read all of the current cell's components, insert it into the cell array
       if (cellPosition == currentCell.end())
       {
-        output->InsertNextCell(currentCell.size(), currentCell.data());
+        output->InsertNextCell(static_cast<vtkIdType>(currentCell.size()), currentCell.data());
         // Start creating the new cell
         cellPosition = currentCell.begin();
       }
