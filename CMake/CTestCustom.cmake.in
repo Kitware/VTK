@@ -84,7 +84,7 @@ if (NOT cdash_show_third_party_warnings)
 
     # Suppress Remote module source code from displaying warnings.
     # Suppress modules individually as just "Remote" is a common pattern
-    "[Rr]emote/[Mm]oment[Ii]nvariants"
+    "[Rr]emote.[Mm]oment[Ii]nvariants"
 
     # sometimes we use system third party headers with issues
     # in this case liblas
