@@ -145,9 +145,7 @@ cmake_dependent_option(VTK_PYTHON_OPTIONAL_LINK
   "Whether to link libpython from libraries or not" ON
   # We shouldn't do it for static builds and we can't do it without
   # `target_link_options`.
-  # XXX(Linux): Currently, this causes missing symbols on Linux in ParaView.
-  # More investigation is necessary.
-  "FALSE;BUILD_SHARED_LIBS;COMMAND target_link_options" OFF)
+  "BUILD_SHARED_LIBS;COMMAND target_link_options" OFF)
 
 add_library(PythonUsed INTERFACE)
 add_library(VTK::PythonUsed ALIAS PythonUsed)
