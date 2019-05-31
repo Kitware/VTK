@@ -3,7 +3,7 @@ find_path(LZ4_INCLUDE_DIR
   DOC "lz4 include directory")
 mark_as_advanced(LZ4_INCLUDE_DIR)
 find_library(LZ4_LIBRARY
-  NAMES lz4
+  NAMES lz4 liblz4
   DOC "lz4 library")
 mark_as_advanced(LZ4_LIBRARY)
 
