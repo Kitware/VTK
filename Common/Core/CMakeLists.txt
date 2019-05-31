@@ -61,7 +61,7 @@ mark_as_advanced(
   VTK_DISPATCH_TYPED_ARRAYS
   VTK_WARN_ON_DISPATCH_FAILURE)
 
-option(VTK_BUILD_SCALED_SOA_ARRAYS "Include struct-of-arrays with scaled vtkDataArray implementation." ON)
+option(VTK_BUILD_SCALED_SOA_ARRAYS "Include struct-of-arrays with scaled vtkDataArray implementation." OFF)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateArrayDispatchArrayList.cmake")
 vtkArrayDispatch_default_array_setup()
