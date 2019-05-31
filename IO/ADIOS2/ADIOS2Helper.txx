@@ -1,10 +1,22 @@
+/*=========================================================================
+
+ Program:   Visualization Toolkit
+ Module:    ADIOS2Helper.txx
+
+ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+ All rights reserved.
+ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+ This software is distributed WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the above copyright notice for more information.
+
+ =========================================================================*/
+
 /*
- * Distributed under the OSI-approved Apache License, Version 2.0.  See
- * accompanying file Copyright.txt for details.
+ * ADIOS2Helper.txx
  *
- * ADIOS2VTKHelper.txx
- *
- *  Created on: May 7, 2019
+ *  Created on: May 3, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 

@@ -1,10 +1,22 @@
+/*=========================================================================
+
+ Program:   Visualization Toolkit
+ Module:    ADIOS2xmlVTK.cxx
+
+ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+ All rights reserved.
+ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+ This software is distributed WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the above copyright notice for more information.
+
+ =========================================================================*/
+
 /*
- * Distributed under the OSI-approved Apache License, Version 2.0.  See
- * accompanying file Copyright.txt for details.
- *
  * ADIOS2xmlVTK.cxx
  *
- *  Created on: May 14, 2019
+ *  Created on: May 6, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
@@ -14,10 +26,18 @@
 
 namespace adios2vtk
 {
-namespace xml
+namespace schema
 {
 
 const std::set<std::string> ADIOS2xmlVTK::m_TIMENames = { "TIME", "CYCLE" };
+
+const std::map<types::DataSetType, std::string> ADIOS2xmlVTK::m_DataSetTypes = {
+  { types::DataSetType::CellData, "CellData" }, { types::DataSetType::PointData, "PointData" },
+  { types::DataSetType::Points, "Points" }, { types::DataSetType::Coordinates, "Coordinates" },
+  { types::DataSetType::Cells, "Cells" }, { types::DataSetType::Verts, "Verts" },
+  { types::DataSetType::Lines, "Lines" }, { types::DataSetType::Strips, "Strips" },
+  { types::DataSetType::Polys, "Polys" }
+};
 
 ADIOS2xmlVTK::ADIOS2xmlVTK(
   const std::string type, const std::string& schema, adios2::IO* io, adios2::Engine* engine)
@@ -46,22 +66,13 @@ bool ADIOS2xmlVTK::ReadDataSets(
   types::DataSet& dataSet = itDataSet->second;
   for (auto& dataArrayPair : dataSet)
   {
-    const std::string& name = dataArrayPair.first;
+    const std::string& variableName = dataArrayPair.first;
     types::DataArray& dataArray = dataArrayPair.second;
-
-    if (dataArray.Vector.empty()) // is Scalar
+    if (m_TIMENames.count(variableName) == 1)
     {
-      // deferred
-      GetDataArray(name, dataArray.Scalar, step);
+      continue;
     }
-    else
-    {
-      for (auto& vPair : dataArray.Vector)
-      {
-        // deferred
-        GetDataArray(vPair.first, vPair.second, step);
-      }
-    }
+    GetDataArray(variableName, dataArray, step);
   }
   return true;
 }
@@ -79,12 +90,13 @@ void ADIOS2xmlVTK::InitTimes()
         const std::string& name = itDataArray.first;
         if (name == "TIME" || name == "CYCLE")
         {
-          if (itDataArray.second.Vector.empty())
+          const std::vector<std::string>& vecComponents = itDataArray.second.m_VectorVariables;
+          if (vecComponents.empty())
           {
             throw std::runtime_error(
               "ERROR: found time tag " + name + " but no variable associated with it\n");
           }
-          const std::string& variableName = itDataArray.second.Vector.begin()->first;
+          const std::string& variableName = vecComponents.front();
           GetTimes(variableName);
           foundTime = true;
           return;
@@ -100,5 +112,10 @@ void ADIOS2xmlVTK::InitTimes()
   }
 }
 
-} // end namespace xml
+std::string ADIOS2xmlVTK::DataSetType(const types::DataSetType type) const noexcept
+{
+  return m_DataSetTypes.at(type);
+}
+
+} // end namespace schema
 } // end namespace adios2vtk

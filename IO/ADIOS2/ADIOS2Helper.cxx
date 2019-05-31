@@ -1,7 +1,19 @@
+/*=========================================================================
+
+ Program:   Visualization Toolkit
+ Module:    ADIOS2Helper.cxx
+
+ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+ All rights reserved.
+ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+ This software is distributed WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the above copyright notice for more information.
+
+ =========================================================================*/
+
 /*
- * Distributed under the OSI-approved Apache License, Version 2.0.  See
- * accompanying file Copyright.txt for details.
- *
  * ADIOS2Helper.cxx
  *
  *  Created on: May 3, 2019
@@ -190,16 +202,16 @@ types::DataSet XMLInitDataSet(
       variablePCData.erase(0, variablePCData.find_first_not_of(" \n\r\t"));
       variablePCData.erase(variablePCData.find_last_not_of(" \n\r\t") + 1);
 
-      dataArray.Vector.emplace(variablePCData, vtkSmartPointer<vtkDataArray>());
+      dataArray.m_VectorVariables.push_back(variablePCData);
     }
 
     if (xmlNumberOfComponents)
     {
       const size_t components = static_cast<size_t>(std::stoull(xmlNumberOfComponents.value()));
-      if (dataArray.Vector.size() != components)
+      if (dataArray.m_VectorVariables.size() != components)
       {
         throw std::runtime_error("ERROR: NumberOfComponents " + std::to_string(components) +
-          " and variable names found " + std::to_string(dataArray.Vector.size()) +
+          " and variable names found " + std::to_string(dataArray.m_VectorVariables.size()) +
           " inside DataArray node " + std::string(xmlName.name()) + " in ADIOS2 VTK XML schema");
       }
     }

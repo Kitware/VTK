@@ -1,8 +1,20 @@
+/*=========================================================================
+
+ Program:   Visualization Toolkit
+ Module:    ADIOS2Types.h
+
+ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+ All rights reserved.
+ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+ This software is distributed WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the above copyright notice for more information.
+
+ =========================================================================*/
+
 /*
- * Distributed under the OSI-approved Apache License, Version 2.0.  See
- * accompanying file Copyright.txt for details.
- *
- * ADIOS2Types.h
+ * ADIOS2Types.h : header-only type definitions needed by the VTK::IOADIOS2 module
  *
  *  Created on: May 14, 2019
  *      Author: William F Godoy godoywf@ornl.gov
@@ -14,20 +26,16 @@
 #include <map>
 #include <vector>
 
-#include "vtkDataArray.h"
-#include "vtkSmartPointer.h"
+#include "ADIOS2DataArray.h"
+
+#include <adios2.h>
 
 namespace adios2vtk
 {
 namespace types
 {
 
-struct DataArray
-{
-  std::map<std::string, vtkSmartPointer<vtkDataArray> > Vector;
-  vtkSmartPointer<vtkDataArray> Scalar;
-};
-
+/** key: variable name, value: DataArray */
 using DataSet = std::map<std::string, DataArray>;
 
 enum class DataSetType

@@ -1,8 +1,20 @@
+/*=========================================================================
+
+ Program:   Visualization Toolkit
+ Module:    ADIOS2Helper.h
+
+ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+ All rights reserved.
+ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+ This software is distributed WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the above copyright notice for more information.
+
+ =========================================================================*/
+
 /*
- * Distributed under the OSI-approved Apache License, Version 2.0.  See
- * accompanying file Copyright.txt for details.
- *
- * ADIOS2VTKHelper.h
+ * ADIOS2Helper.h : collection of helper function needed by VTK::IOADIOS2 module
  *
  *  Created on: May 3, 2019
  *      Author: William F Godoy godoywf@ornl.gov
@@ -32,15 +44,13 @@ namespace adios2vtk
 namespace helper
 {
 
-/**
- * Get current MPI global communicator from VTK
- */
+/** Get current MPI global communicator from VTK */
 MPI_Comm MPIGetComm();
 
-/** Get current MPI rank */
+/** Get current MPI rank from MPIGetComm */
 int MPIGetRank();
 
-/** Get current MPI size */
+/** Get current MPI size from MPIGetComm */
 int MPIGetSize();
 
 /**
@@ -85,6 +95,11 @@ pugi::xml_node XMLNode(const std::string nodeName, const pugi::xml_node& upperNo
   const bool debugMode, const std::string& hint, const bool isMandatory = true,
   const bool isUnique = false);
 
+/**
+ * Translate file contents to string
+ * @param fileName input
+ * @return file contents as a single string
+ */
 std::string FileToString(const std::string& fileName);
 
 /**
@@ -127,6 +142,10 @@ std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept;
 types::DataSet XMLInitDataSet(
   const pugi::xml_node& dataSetNode, const std::set<std::string>& specialNames);
 
+/**
+ * Return a derived class of vtkDataArray specialized for supported types
+ * @return specialized vtkDataArray
+ */
 template<class T>
 vtkSmartPointer<vtkDataArray> NewDataArray();
 
@@ -137,7 +156,20 @@ vtkSmartPointer<vtkDataArray> NewDataArray();
  */
 adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims& shape);
 
+/**
+ * Map's keys to a vector
+ * @param input map
+ * @return vector with keys only
+ */
+template<class T, class U>
+std::vector<T> MapKeysToVector(const std::map<T, U>& input);
+
+template<class T>
+void Print(const std::vector<T>& input, const std::string& name);
+
 } // end namespace helper
 } // end namespace adiosvtk
+
+#include "ADIOS2Helper.inl"
 
 #endif /* VTK_IO_ADIOS2_ADIOS2HELPER_H_ */

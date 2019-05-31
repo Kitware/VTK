@@ -3,23 +3,27 @@ vtk_module_find_package(
   )
 
 set(classes
-  vtkADIOS2Reader
+  vtkADIOS2ReaderMultiBlock
   )
 
 set(sources
-  vtkADIOS2Reader.cxx
+  vtkADIOS2ReaderMultiBlock.cxx
+  ADIOS2DataArray.cxx
   ADIOS2Helper.cxx ADIOS2Helper.txx
-  ADIOS2Schema.cxx ADIOS2Schema.txx
-  xml_vtk/ADIOS2xmlVTI.cxx
-  xml_vtk/ADIOS2xmlVTK.cxx
+  ADIOS2SchemaManager.cxx
+  schema/ADIOS2Schema.cxx schema/ADIOS2Schema.txx
+  schema/xml_vtk/ADIOS2xmlVTI.cxx schema/xml_vtk/ADIOS2xmlVTI.txx
+  schema/xml_vtk/ADIOS2xmlVTK.cxx
 )
 
 set(private_headers
-  ADIOS2Helper.h
-  ADIOS2Schema.h
+  ADIOS2DataArray.h
   ADIOS2Types.h
-  xml_vtk/ADIOS2xmlVTI.h
-  xml_vtk/ADIOS2xmlVTK.h
+  ADIOS2Helper.h
+  ADIOS2SchemaManager.h
+  schema/ADIOS2Schema.h
+  schema/xml_vtk/ADIOS2xmlVTI.h
+  schema/xml_vtk/ADIOS2xmlVTK.h
 )
 
 vtk_module_add_module(VTK::IOADIOS2

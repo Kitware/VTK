@@ -1,7 +1,19 @@
+/*=========================================================================
+
+ Program:   Visualization Toolkit
+ Module:    ADIOS2xmlVTI.cxx
+
+ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+ All rights reserved.
+ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+ This software is distributed WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the above copyright notice for more information.
+
+ =========================================================================*/
+
 /*
- * Distributed under the OSI-approved Apache License, Version 2.0.  See
- * accompanying file Copyright.txt for details.
- *
  * ADIOS2xmlVTI.cxx
  *
  *  Created on: May 1, 2019
@@ -9,26 +21,25 @@
  */
 
 #include "ADIOS2xmlVTI.h"
+#include "ADIOS2xmlVTI.txx"
 
-#include <iostream>
+#include <algorithm>
 #include <utility>
 
+#include "ADIOS2Helper.h"
+
 #include "vtkCellData.h"
-#include "vtkImageData.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
-#include "vtkNew.h"
 #include "vtkPointData.h"
 
 #include <vtk_pugixml.h>
-
-#include "ADIOS2Helper.h"
 
 #include <adios2.h>
 
 namespace adios2vtk
 {
-namespace xml
+namespace schema
 {
 
 ADIOS2xmlVTI::ADIOS2xmlVTI(const std::string& schema, adios2::IO* io, adios2::Engine* engine)
@@ -45,10 +56,8 @@ void ADIOS2xmlVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 {
   ReadPiece(step, 0); // just read piece 0 for now
 
-  // TODO MPI decomposition
   const unsigned int rank = static_cast<unsigned int>(helper::MPIGetRank());
 
-  // TODO debugging
   vtkNew<vtkMultiPieceDataSet> pieces;
   pieces->SetPiece(rank, m_ImageData);
   multiBlock->SetBlock(0, pieces);
@@ -76,19 +85,7 @@ void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
       }
 
       types::DataArray& dataArray = dataArrayPair.second;
-
-      if (dataArray.Vector.empty()) // is Scalar
-      {
-        m_ImageData->GetCellData()->AddArray(dataArray.Scalar.GetPointer());
-      }
-      else
-      {
-        // TODO treat as vector
-        for (auto& vPair : dataArray.Vector)
-        {
-          m_ImageData->GetCellData()->AddArray(vPair.second.GetPointer());
-        }
-      }
+      m_ImageData->GetCellData()->AddArray(dataArray.m_vtkDataArray.GetPointer());
     }
   }
 
@@ -104,19 +101,7 @@ void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
         continue;
       }
       types::DataArray& dataArray = dataArrayPair.second;
-
-      if (dataArray.Vector.empty()) // is Scalar
-      {
-        m_ImageData->GetPointData()->AddArray(dataArray.Scalar.GetPointer());
-      }
-      else
-      {
-        // TODO treat as vector
-        for (auto& vPair : dataArray.Vector)
-        {
-          m_ImageData->GetPointData()->AddArray(vPair.second.GetPointer());
-        }
-      }
+      m_ImageData->GetPointData()->AddArray(dataArray.m_vtkDataArray.GetPointer());
     }
   }
 }
@@ -124,19 +109,22 @@ void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
 // PRIVATE
 void ADIOS2xmlVTI::Init()
 {
-  auto lf_InitPiece = [&](const pugi::xml_node& pieceNode) {
-    types::Piece piece;
-    const pugi::xml_node cellDataNode = helper::XMLNode(
-      "CellData", pieceNode, true, "when reading CellData node in ImageData", false);
+  auto lf_InitPieceDataSetType = [&](types::Piece& piece, const types::DataSetType type,
+                                   const pugi::xml_node& pieceNode) {
+    const std::string nodeName = DataSetType(type);
+    const pugi::xml_node dataSetNode = helper::XMLNode(
+      nodeName, pieceNode, true, "when reading " + nodeName + " node in ImageData", false);
+    types::DataSet dataSet = helper::XMLInitDataSet(dataSetNode, m_TIMENames);
 
-    piece[types::DataSetType::CellData] = helper::XMLInitDataSet(cellDataNode, m_TIMENames);
-
-    const pugi::xml_node pointDataNode = adios2vtk::helper::XMLNode(
-      "PointData", pieceNode, true, "when reading CellData node in ImageData", false);
-
-    piece[types::DataSetType::PointData] = helper::XMLInitDataSet(pointDataNode, m_TIMENames);
-
-    m_Pieces.push_back(piece);
+    for (auto& dataArrayPair : dataSet)
+    {
+      types::DataArray& dataArray = dataArrayPair.second;
+      dataArray.m_Shape = GetShape(type);
+      const auto& selection = GetSelection(type);
+      dataArray.m_Start = selection.first;
+      dataArray.m_Count = selection.second;
+    }
+    piece[type] = dataSet;
   };
 
   auto lf_InitExtent = [&](const pugi::xml_node& extentNode) {
@@ -170,32 +158,24 @@ void ADIOS2xmlVTI::Init()
     const pugi::xml_attribute wholeExtentXML = adios2vtk::helper::XMLAttribute(
       "WholeExtent", extentNode, true, "when reading WholeExtent in ImageData", true);
 
-    const std::vector<size_t> wholeExtentV =
-      adios2vtk::helper::StringToVector<size_t>(wholeExtentXML.value());
-    if (wholeExtentV.size() != 6)
+    m_WholeExtent = adios2vtk::helper::StringToVector<size_t>(wholeExtentXML.value());
+    if (m_WholeExtent.size() != 6)
     {
       throw std::runtime_error(
-        "ERROR: incorrect WholeExtent attribute in ImageData from" + m_Engine->Name());
+        "ERROR: incorrect WholeExtent attribute, must have 6 elements, in ImageData from " +
+        m_Engine->Name());
     }
 
-    adios2::Dims shape(3);
-    for (size_t i = 0; i < 3; ++i)
-    {
-      shape[2 - i] = wholeExtentV[2 * i + 1] - wholeExtentV[2 * i] - 1;
-      std::cout << "Shape " << i << " " << shape[i] << "\n";
-    }
-
-    const adios2::Box<adios2::Dims> selection = helper::PartitionCart1D(shape);
-    const adios2::Dims& start = selection.first;
-    const adios2::Dims& count = selection.second;
+    // set extent
+    const adios2::Box<adios2::Dims> cellSelection = GetSelection(types::DataSetType::CellData);
+    const adios2::Dims& start = cellSelection.first;
+    const adios2::Dims& count = cellSelection.second;
 
     std::vector<int> extent(6);
     for (size_t i = 0; i < 3; ++i)
     {
       extent[2 * i] = static_cast<int>(start[2 - i]);
       extent[2 * i + 1] = static_cast<int>(start[2 - i] + count[2 - i]);
-
-      std::cout << "Extent " << i << " " << extent[2 * i] << " " << extent[2 * i + 1] << "\n";
     }
     m_ImageData->SetExtent(extent.data());
   };
@@ -214,9 +194,60 @@ void ADIOS2xmlVTI::Init()
 
   for (const pugi::xml_node& xmlPieceNode : xmlImageDataNode.children("Piece"))
   {
-    lf_InitPiece(xmlPieceNode);
+    types::Piece piece;
+    lf_InitPieceDataSetType(piece, types::DataSetType::CellData, xmlPieceNode);
+    lf_InitPieceDataSetType(piece, types::DataSetType::PointData, xmlPieceNode);
+    m_Pieces.push_back(piece);
   }
 }
 
-} // end namespace xml
+adios2::Dims ADIOS2xmlVTI::GetShape(const types::DataSetType type)
+{
+  if (type == types::DataSetType::CellData)
+  {
+    adios2::Dims shape(3);
+    for (size_t i = 0; i < 3; ++i)
+    {
+      shape[2 - i] = m_WholeExtent[2 * i + 1] - m_WholeExtent[2 * i] - 1;
+    }
+    return shape;
+  }
+  else if (type == types::DataSetType::PointData)
+  {
+    adios2::Dims shape(3);
+    for (size_t i = 0; i < 3; ++i)
+    {
+      shape[2 - i] = m_WholeExtent[2 * i + 1] - m_WholeExtent[2 * i];
+    }
+    return shape;
+  }
+
+  return adios2::Dims();
+}
+
+adios2::Box<adios2::Dims> ADIOS2xmlVTI::GetSelection(const types::DataSetType type)
+{
+  const adios2::Dims cellShape = GetShape(types::DataSetType::CellData);
+  adios2::Box<adios2::Dims> selection = helper::PartitionCart1D(cellShape);
+
+  // modify count if point data
+  if (type == types::DataSetType::PointData)
+  {
+    adios2::Dims& count = selection.second;
+    std::for_each(count.begin(), count.end(), [](size_t& dim) { dim += 1; });
+  }
+
+  return selection;
+}
+
+#define declare_type(T)                                                                            \
+  void ADIOS2xmlVTI::SetDimensions(                                                                \
+    adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step)            \
+  {                                                                                                \
+    SetDimensionsCommon(variable, dataArray, step);                                                \
+  }
+ADIOS2_VTK_ARRAY_TYPE(declare_type)
+#undef declare_type
+
+} // end namespace schema
 } // end namespace adios2vtk
