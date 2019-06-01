@@ -38,5 +38,15 @@ class TestEnum(Testing.vtkTest):
         # defined in vtkAbstractArray.h
         self.assertEqual(vtk.vtkAbstractArray.AbstractArray, 0)
 
+    def testEnumClass(self):
+        """Check that "enum class" members are wrapped.
+        """
+        # defined in vtkEventData.h
+        val = vtk.vtkEventDataAction.Unknown
+        self.assertEqual(val, -1)
+        obj = vtk.vtkEventDataForDevice()
+        self.assertEqual(obj.GetAction(), val)
+        self.assertEqual(type(obj.GetAction()), vtk.vtkEventDataAction)
+
 if __name__ == "__main__":
     Testing.main([(TestEnum, 'test')])

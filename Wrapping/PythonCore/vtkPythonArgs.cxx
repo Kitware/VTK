@@ -981,16 +981,7 @@ PyObject *vtkPythonArgs::BuildEnumValue(int val, const char *enumname)
     return nullptr;
   }
 
-#ifdef VTK_PY3K
-  PyObject *args = Py_BuildValue("(i)", val);
-  PyObject *obj = PyLong_Type.tp_new(pytype, args, nullptr);
-  Py_DECREF(args);
-  return obj;
-#else
-  PyIntObject *self = PyObject_New(PyIntObject, pytype);
-  self->ob_ival = val;
-  return (PyObject *)self;
-#endif
+  return PyVTKEnum_New(pytype, val);
 }
 
 //--------------------------------------------------------------------
