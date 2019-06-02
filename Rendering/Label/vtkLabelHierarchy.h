@@ -67,6 +67,7 @@
 class vtkAbstractArray;
 class vtkCamera;
 class vtkCoincidentPoints;
+class vtkCoordinate;
 class vtkDataArray;
 class vtkIntArray;
 class vtkLabelHierarchyIterator;
@@ -246,6 +247,15 @@ public:
    * without overlap.
    */
   vtkGetObjectMacro(CoincidentPoints,vtkCoincidentPoints);
+  //@}
+
+  //@{
+  /**
+   * Compute frustum for quickly excluding labels from rendering
+   * that are outside the visible region.
+   * This is a shared utility function.
+   */
+  static void GetAnchorFrustumPlanes(double frustumPlanes[24], vtkRenderer* ren, vtkCoordinate* anchorTransform);
   //@}
 
 protected:

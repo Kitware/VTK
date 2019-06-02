@@ -553,9 +553,11 @@ int vtkLabelPlacer::RequestData(
   double x[3];
   double sz[4];
   int* dispx;
+
+  // Compute frustum for excluding labels that are outside the visible region.
   double frustumPlanes[24];
-  double aspect = this->Renderer->GetTiledAspectRatio();
-  cam->GetFrustumPlanes( aspect, frustumPlanes );
+  vtkLabelHierarchy::GetAnchorFrustumPlanes(frustumPlanes, this->Renderer, this->AnchorTransform);
+
   unsigned long allowableLabelArea = static_cast<unsigned long>
     ( ( ( kdbounds[1] - kdbounds[0] ) * ( kdbounds[3] - kdbounds[2] ) ) * this->MaximumLabelFraction );
   (void)allowableLabelArea;
@@ -604,31 +606,35 @@ int vtkLabelPlacer::RequestData(
     }
 
     inIter->GetPoint( x );
-    // Cull points behind the camera. Cannot rely on hither-yon planes because the camera
-    // position gets changed during vtkInteractorStyle::Dolly() and RequestData() called from
-    // within ResetCameraClippingRange() before the frustum planes are updated.
-    // Cull points outside hither-yon planes (other planes get tested below)
-    double* eye = cam->GetPosition();
-    double* dir = cam->GetViewPlaneNormal();
-    if ( ( x[0] - eye[0] ) * dir[0] + ( x[1] - eye[1] ) * dir[1] + ( x[2] - eye[2] ) * dir[2] > 0 )
-    {
-      continue;
-    }
 
-    // Ignore labels pointing the wrong direction (HACK)
-    if ( this->PositionsAsNormals )
+    if (this->AnchorTransform->GetCoordinateSystem() == VTK_WORLD)
     {
-      if ( camVec[0] * x[0] + camVec[1] * x[1] + camVec[2] * x[2] < 0. )
+      // Cull points behind the camera. Cannot rely on hither-yon planes because the camera
+      // position gets changed during vtkInteractorStyle::Dolly() and RequestData() called from
+      // within ResetCameraClippingRange() before the frustum planes are updated.
+      // Cull points outside hither-yon planes (other planes get tested below)
+      double* eye = cam->GetPosition();
+      double* dir = cam->GetViewPlaneNormal();
+      if ((x[0] - eye[0]) * dir[0] + (x[1] - eye[1]) * dir[1] + (x[2] - eye[2]) * dir[2] > 0)
       {
         continue;
       }
-    }
 
-    // Test for occlusion using the z-buffer
-    if (this->UseDepthBuffer && !this->VisiblePoints->IsPointOccluded(x, zPtr))
-    {
-      occluded++;
-      continue;
+      // Ignore labels pointing the wrong direction (HACK)
+      if (this->PositionsAsNormals)
+      {
+        if (camVec[0] * x[0] + camVec[1] * x[1] + camVec[2] * x[2] < 0.)
+        {
+          continue;
+        }
+      }
+
+      // Test for occlusion using the z-buffer
+      if (this->UseDepthBuffer && !this->VisiblePoints->IsPointOccluded(x, zPtr))
+      {
+        occluded++;
+        continue;
+      }
     }
 
     this->AnchorTransform->SetValue( x );
