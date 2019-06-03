@@ -83,7 +83,7 @@ This will take some time. You may want to spend this time usefull by reading [cm
 ### Build
 
 Use Visual Studio to build the .dll files.
-The last step of CMAke will lauch Visual Studio and will open the generated solution.
+The last step of CMAke will launch Visual Studio and will open the generated solution.
 
 1. Set the configuration to "Release"
 2. Build the "ALL_BUILD" project.

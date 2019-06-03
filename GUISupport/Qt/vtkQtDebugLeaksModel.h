@@ -19,7 +19,7 @@
  *
  * This class is used internally by the vtkQtDebugLeaksView.  It installs an
  * observer on the vtkDebugLeaks singleton and uses the observer to maintain
- * a model of all vtkObjectBase dervied objects that are alive in memory.
+ * a model of all vtkObjectBase derived objects that are alive in memory.
 */
 
 #ifndef vtkQtDebugLeaksModel_h

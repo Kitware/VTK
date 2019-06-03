@@ -106,8 +106,8 @@ public:
   public:
     /**
      * Subclasses must overload this method, which performs the actual
-     * operations.  The methods should first do a reintepret cast of the arrays
-     * to the type suggestsed by \c datatype (which will be one of the VTK type
+     * operations.  The methods should first do a reinterpret cast of the arrays
+     * to the type suggested by \c datatype (which will be one of the VTK type
      * identifiers like VTK_INT, etc.).  Both arrays are considered top be
      * length entries.  The method should perform the operation A*B (where * is
      * a placeholder for whatever operation is actually performed) and store the

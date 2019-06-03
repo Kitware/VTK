@@ -37,7 +37,7 @@
  * This class simplifies this process. The following describes how to use
  * vtkPermuteOptions to run a test using all combinations of vtkXMLWriter's
  * byte order and compressor settings (just sticking to two options for
- * simplicty -- the class has no limit on number of options or number of
+ * simplicity -- the class has no limit on number of options or number of
  * values for those options).
  *
  * First, the vtkPermuteOptions object must be instantiated, using the

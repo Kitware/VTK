@@ -20,7 +20,7 @@
 ## validity based on VTK coding standard. It checks for proper super
 ## classes, number and style of include files, type macro, private
 ## copy constructor and assignment operator, broken constructors, and
-## exsistence of PrintSelf method. This script should be run as a part
+## existence of PrintSelf method. This script should be run as a part
 ## of the dashboard checking of the Visualization Toolkit and related
 ## projects.
 
