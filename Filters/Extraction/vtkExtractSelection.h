@@ -118,7 +118,7 @@ protected:
 
   /**
    * Given a vtkDataSet and an array of which cells to extract, this populates
-   * the given vtkUnstruturedGrid with the selected cells.
+   * the given vtkUnstructuredGrid with the selected cells.
    */
   void ExtractSelectedCells(vtkDataSet* input,
                             vtkUnstructuredGrid* output,

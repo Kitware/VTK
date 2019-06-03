@@ -55,7 +55,7 @@ vtkDataSetGradient::vtkDataSetGradient()
 }
 
 /*!
-  The destrcutor
+  The destructor
   \sa vtkDataSetGradient()
 */
 vtkDataSetGradient::~vtkDataSetGradient()

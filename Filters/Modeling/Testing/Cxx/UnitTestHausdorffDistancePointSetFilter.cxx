@@ -44,7 +44,7 @@ int UnitTestHausdorffDistancePointSetFilter(int, char *[])
     {
       auto hausdorffDistance =
         vtkSmartPointer<vtkHausdorffDistancePointSetFilter>::New();
-      // Generate random radii for the two shperes
+      // Generate random radii for the two spheres
       hausdorffDistance->SetTargetDistanceMethod(j);
       rng->Next();
       sphereA->SetRadius(rng->GetRangeValue(1.0, 1000.0));

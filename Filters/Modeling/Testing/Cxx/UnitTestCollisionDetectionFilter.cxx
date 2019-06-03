@@ -59,7 +59,7 @@ int UnitTestCollisionDetectionFilter (int, char*[])
 #endif
   executiveObserver->CheckErrorMessage("Input for connection index 0 on input port index 0 for algorithm vtkCollisionDetectionFilter");
 
-  executiveObserver->Clear();// create two shperes
+  executiveObserver->Clear();// create two spheres
   vtkSmartPointer<vtkSphereSource> sphere1 =
     vtkSmartPointer<vtkSphereSource>::New();
   sphere1->SetRadius(5.0);

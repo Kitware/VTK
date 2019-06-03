@@ -635,7 +635,7 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGr
     vtkIdType idS = cursorS->GetGlobalNodeIndex();
     if (! mask->GetValue( idS ) )
     {
-      // Dual point must be adusted
+      // Dual point must be adjusted
       this->PointShifted[idS] = true;
       this->PointShifts[axisSN][idS] = cursorS->GetTree()->GetScale( axisSN )
         * this->ReductionFactors[cursorS->GetLevel()];
@@ -648,7 +648,7 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGr
     vtkIdType idW = cursorW->GetGlobalNodeIndex();
     if ( ! mask->GetValue( idW ) )
     {
-      // Dual point must be adusted
+      // Dual point must be adjusted
       this->PointShifted[idW] = true;
       this->PointShifts[axisWE][idW] = cursorW->GetTree()->GetScale( axisWE )
         * this->ReductionFactors[cursorW->GetLevel()];
@@ -661,7 +661,7 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGr
     vtkIdType idE = cursorE->GetGlobalNodeIndex();
     if ( ! mask->GetValue( idE ) )
     {
-      // Dual point must be adusted
+      // Dual point must be adjusted
       this->PointShifted[idE] = true;
       this->PointShifts[axisWE][idE] = - cursorE->GetTree()->GetScale( axisWE )
         * this->ReductionFactors[cursorE->GetLevel()];
@@ -674,7 +674,7 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGr
     vtkIdType idN = cursorN->GetGlobalNodeIndex();
     if ( ! mask->GetValue( idN ) )
     {
-      // Dual point must be adusted
+      // Dual point must be adjusted
       this->PointShifted[idN] = true;
       this->PointShifts[axisSN][idN] = - cursorN->GetTree()->GetScale( axisSN )
         * this->ReductionFactors[cursorN->GetLevel()];
@@ -687,7 +687,7 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGr
     vtkIdType idSE = cursorSE->GetGlobalNodeIndex();
     if ( ! mask->GetValue( idSE ) && ! this->PointShifted[idSE] )
     {
-      // Dual point must be adusted
+      // Dual point must be adjusted
       double shift[3];
       cursorSE->GetTree()->GetScale( shift );
       double factor = this->ReductionFactors[cursorSE->GetLevel()];
@@ -702,7 +702,7 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGr
     vtkIdType idSW = cursorSW->GetGlobalNodeIndex();
     if ( ! mask->GetValue( idSW ) && ! this->PointShifted[idSW] )
     {
-      // Dual point must be adusted
+      // Dual point must be adjusted
       double shift[3];
       cursorSW->GetTree()->GetScale( shift );
       double factor = this->ReductionFactors[cursorSW->GetLevel()];
@@ -717,7 +717,7 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGr
     vtkIdType idNW = cursorNW->GetGlobalNodeIndex();
     if( ! mask->GetValue( idNW ) && ! this->PointShifted[idNW] )
     {
-      // Dual point must be adusted
+      // Dual point must be adjusted
       double shift[3];
       cursorNW->GetTree()->GetScale( shift );
       double factor = this->ReductionFactors[cursorNW->GetLevel()];
@@ -732,7 +732,7 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGr
     vtkIdType idNE = cursorNE->GetGlobalNodeIndex();
     if( ! mask->GetValue( idNE ) && ! this->PointShifted[idNE] )
     {
-      // Dual point must be adusted
+      // Dual point must be adjusted
       double shift[3];
       cursorNE->GetTree()->GetScale( shift );
       double factor = this->ReductionFactors[cursorNE->GetLevel()];
@@ -804,7 +804,7 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf3D( vtkHyperTreeGr
             vtkIdType idE = cursorE->GetGlobalNodeIndex();
             if ( ! mask->GetValue( idE ) && ! this->PointShifted[idE] )
             {
-              // Dual point must be adusted
+              // Dual point must be adjusted
               this->PointShifted[idE] = true;
               double shift[3];
               cursorE->GetTree()->GetScale( shift );
@@ -833,7 +833,7 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf3D( vtkHyperTreeGr
           vtkIdType idC = cursorC->GetGlobalNodeIndex();
           if ( ! mask->GetValue( idC ) && ! this->PointShifted[idC] )
           {
-            // Dual point must be adusted
+            // Dual point must be adjusted
             this->PointShifted[idC] = true;
             double shift[3];
             cursorC->GetTree()->GetScale( shift );

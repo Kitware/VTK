@@ -47,7 +47,7 @@
 //----------------------------------------------------------------------------
 
 // created by Shaun David Ramsey and Kristin Potter copyright (c) 2003
-// email ramsey()cs.utah.edu with any quesitons
+// email ramsey()cs.utah.edu with any questions
 /*=========================================================================
   This copyright notice is available at:
 http://www.opensource.org/licenses/mit-license.php

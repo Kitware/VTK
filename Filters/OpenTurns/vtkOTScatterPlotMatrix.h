@@ -47,7 +47,7 @@ public:
   static vtkOTScatterPlotMatrix* New();
 
   /**
-   * Set the visibility of density map for the specifid plotType, false by default
+   * Set the visibility of density map for the specific plotType, false by default
    */
   void SetDensityMapVisibility(int plotType, bool visible);
 

@@ -1020,7 +1020,7 @@ int vtkExtractCTHPart::IsGhostFace(int axis0,
 
 //----------------------------------------------------------------------------
 // Description:
-// Merly the same implementation than in vtkDataSetSurfaceFilter, without
+// Merely the same implementation than in vtkDataSetSurfaceFilter, without
 // dealing with the whole extents.
 void vtkExtractCTHPart::ExecuteFaceQuads(vtkDataSet *input,
                                          vtkPolyData *output,

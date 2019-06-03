@@ -706,7 +706,7 @@ int vtkTemporalFractal::LineTest2(float x0, float y0, float z0,
   float x, y, z;
   float k;
 
-  // Special case ane point is inside box.
+  // Special case and point is inside box.
   if (x0>bds[0] && x0<bds[1] && y0>bds[2] && y0<bds[3] && z0>bds[4]
       && z0<bds[5])
   {

@@ -108,7 +108,7 @@ int TestDeformPointSet( int argc, char *argv[] )
     meshActor->GetProperty()->SetRepresentationToWireframe();
     meshActor->GetProperty()->SetColor(0,0,0);
 
-  // Okay now let's do the intitial weight generation
+  // Okay now let's do the initial weight generation
   vtkNew<vtkDeformPointSet> deform;
     deform->SetInputConnection(ele->GetOutputPort());
     deform->SetControlMeshData(pd);

@@ -138,7 +138,7 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
     iter->GoToNextItem();
   }
 
-  // Reduce period number in case of parrallelism, and update empty multipieces
+  // Reduce period number in case of parallelism, and update empty multipieces
   if (this->ReducePeriodNumbers)
   {
     int* reducedPeriodNumbers = new int[this->PeriodNumbers.size()];

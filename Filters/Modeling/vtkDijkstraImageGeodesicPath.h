@@ -35,7 +35,7 @@
  * vtkImageData->vtkImageGradientMagnitude->vtkImageShiftScale
  * wherein the gradient magnitude image is inverted so that strong edges
  * have low cost value.  Costs in moving from a vertex v to a vertex u
- * are calculated using a weighted additive sheme:
+ * are calculated using a weighted additive scheme:
  * cost = Iw*f(I) + Ew*f(u,v) + Cw*f(t,u,v)
  * where Iw is the weight associated with f(I): the normalized image cost,
  * Ew is the weight associated with f(u,v): the normalized distance between
