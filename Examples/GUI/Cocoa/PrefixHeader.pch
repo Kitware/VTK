@@ -1,6 +1,6 @@
 // This header is automatically #included in every source file in the Xcode project.
 
-// OpenGL is deprecated in macOS, but used extensively by VTK, so silence complier warnings.
+// OpenGL is deprecated in macOS, but used extensively by VTK, so silence compiler warnings.
 #define GL_SILENCE_DEPRECATION 1
 
 #ifdef __cplusplus
