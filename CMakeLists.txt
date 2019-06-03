@@ -210,6 +210,7 @@ if (VTK_FORBID_DOWNLOADS)
 endif ()
 
 include(vtkModule)
+include(vtkModuleDebugging)
 set(vtk_source_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Accelerators"
   "${CMAKE_CURRENT_SOURCE_DIR}/Charts"
