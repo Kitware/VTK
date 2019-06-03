@@ -413,7 +413,7 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
       {
         vtkDebugMacro( << "Processing widget interaction for Select mode" );
 
-        // If we are doing axis constrained motion, igonore the placer.
+        // If we are doing axis constrained motion, ignore the placer.
         // Can't have both the placer and an axis constraint dictating
         // handle placement.
         if (this->ConstraintAxis >= 0 || this->Constrained || !this->PointPlacer)
@@ -467,7 +467,7 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
       {
         vtkDebugMacro( << "Processing widget interaction for translate" );
 
-        // If we are doing axis constrained motion, igonore the placer.
+        // If we are doing axis constrained motion, ignore the placer.
         // Can't have both the placer and the axis constraint dictating
         // handle placement.
         if (this->ConstraintAxis >= 0 || this->Constrained || !this->PointPlacer)
