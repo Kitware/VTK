@@ -65,7 +65,7 @@ void vtkJSONSceneExporter::WriteDataObject(ostream& os, vtkDataObject* dataObjec
     return;
   }
 
-  // Hanlde Dataset
+  // Handle Dataset
   if (dataObject->IsA("vtkDataSet"))
   {
     std::string renderingSetup = this->ExtractRenderingSetup(actor);

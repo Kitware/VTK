@@ -624,7 +624,7 @@ void vtkGLTFExporter::WriteToStream(ostream &output)
 
   std::vector<unsigned int> topNodes;
 
-  // supprt sharing texture maps
+  // support sharing texture maps
   std::map<vtkUnsignedCharArray *, unsigned int> textureMap;
 
   for (auto ren : vtk::Range(this->RenderWindow->GetRenderers()))

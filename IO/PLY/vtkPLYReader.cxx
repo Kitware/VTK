@@ -46,7 +46,7 @@ namespace {
    * Create an extra point in 'data' with the same coordinates and data as
    * the point at cellPointIndex inside cell. This is to avoid texture artifacts
    * when you have one point with two different texture values (so the latter
-   * value overide the first. This results in a texture discontinuity which results
+   * value override the first. This results in a texture discontinuity which results
    * in artifacts).
    */
   vtkIdType duplicateCellPoint(

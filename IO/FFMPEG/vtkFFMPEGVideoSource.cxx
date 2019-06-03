@@ -423,7 +423,7 @@ void *vtkFFMPEGVideoSource::Feed(vtkMultiThreader::ThreadInfo *data)
     count++;
   }
 
-  // flush remaning data
+  // flush remaining data
   this->FeedMutex->Lock();
   avcodec_send_packet(this->Internal->VideoDecodeContext, nullptr);
   this->FeedCondition->Signal();

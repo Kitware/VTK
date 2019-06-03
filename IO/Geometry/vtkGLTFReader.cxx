@@ -422,7 +422,7 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
     {
       meshPolyData = vtkSmartPointer<vtkPolyData>::New();
       meshPolyData->ShallowCopy(primitive.Geometry);
-      // Add material infomation to fieldData
+      // Add material information to fieldData
       AddMaterialToFieldData(primitive.Material, meshPolyData->GetFieldData(), m);
 
       vtkNew<vtkTransformPolyDataFilter> filter;
@@ -472,7 +472,7 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
       {
         meshPolyData = vtkSmartPointer<vtkPolyData>::New();
         meshPolyData->ShallowCopy(primitive.Geometry);
-        // Add material infomation to fieldData
+        // Add material information to fieldData
         AddMaterialToFieldData(primitive.Material, meshPolyData->GetFieldData(), m);
         meshDataSet->SetBlock(meshDataSet->GetNumberOfBlocks(), meshPolyData);
       }

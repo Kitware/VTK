@@ -391,7 +391,7 @@ public:
   };
 
   /**
-   * This struct descibes a glTF animation object.
+   * This struct describes a glTF animation object.
    * Animations contain multiple channel and sampler objects.
    * Channels define the target node and value to be animated.
    * Samplers define keyframes and how to interpolate in between them.
@@ -443,7 +443,7 @@ public:
   };
 
   /**
-   * This struct descibes a glTF camera object.
+   * This struct describes a glTF camera object.
    * glTF can define both perpective or orthographic cameras.
    * Some of the struct's members will be unused depending on the camera type.
    */

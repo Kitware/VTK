@@ -474,7 +474,7 @@ unsigned long vtkImageWriterGetSize(T*)
 
 //----------------------------------------------------------------------------
 // Writes a region in a file.  Subclasses can override this method
-// to produce a header. This method only hanldes 3d data (plus components).
+// to produce a header. This method only handles 3d data (plus components).
 void vtkImageWriter::WriteFile(ostream *file, vtkImageData *data,
                                int extent[6], int wExtent[6])
 {

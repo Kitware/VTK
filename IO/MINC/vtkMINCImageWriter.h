@@ -88,7 +88,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Get the entension for this file format.
+   * Get the extension for this file format.
    */
   virtual const char* GetFileExtensions() {
     return ".mnc"; }

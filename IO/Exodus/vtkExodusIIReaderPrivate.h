@@ -542,7 +542,7 @@ protected:
   /** Fill the output grid's point coordinates array.
     * Returns 1 on success, 0 on failure.
     * Failure occurs when the Exodus library is unable to read the point
-    * coordindates array. This can be caused when there is not enough memory
+    * coordinates array. This can be caused when there is not enough memory
     * or there is a file I/O problem.
     */
   int AssembleOutputPoints( vtkIdType timeStep,
