@@ -87,7 +87,7 @@ void vtkImageRFFTExecute(vtkImageRFFT *self,
   startProgress = self->GetIteration()/
     static_cast<double>(self->GetNumberOfIterations());
 
-  // Reorder axes (The outs here are just placeholdes
+  // Reorder axes (The outs here are just placeholders)
   self->PermuteExtent(inExt, inMin0, inMax0, outMin1,outMax1,outMin2,outMax2);
   self->PermuteExtent(outExt, outMin0,outMax0,outMin1,outMax1,outMin2,outMax2);
   self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);

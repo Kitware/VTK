@@ -244,7 +244,7 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
                       if ((n[0] == 0 || n[4] == 0 || n[2] > 1 || n[6] > 1) &&
                           (n[2] == 0 || n[6] == 0 || n[0] > 1 || n[4] > 1))
                       {
-                        // check to stop pruning (sort of a hack huristic)
+                        // check to stop pruning (sort of a hack heuristic)
                         if (prune > 1 || (countFaces > 2) ||
                             ((countFaces == 2) && (countCorners > 1)))
                         {

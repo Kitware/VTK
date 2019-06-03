@@ -272,7 +272,7 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
 //----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
-// It hanldes image boundaries, so the image does not shrink.
+// It handles image boundaries, so the image does not shrink.
 void vtkImageDilateErode3D::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,

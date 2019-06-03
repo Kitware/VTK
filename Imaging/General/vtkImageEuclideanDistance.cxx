@@ -196,7 +196,7 @@ static void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *sel
   double m;
   double spacing;
 
-  // Reorder axes (The outs here are just placeholdes
+  // Reorder axes (The outs here are just placeholders)
   self->PermuteExtent(outExt, outMin0,outMax0,outMin1,outMax1,outMin2,outMax2);
   self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
 
@@ -382,7 +382,7 @@ static void vtkImageEuclideanDistanceExecuteSaitoCached(
 
   double spacing;
 
-  // Reorder axes (The outs here are just placeholdes
+  // Reorder axes (The outs here are just placeholders)
   self->PermuteExtent(outExt, outMin0,outMax0,outMin1,outMax1,outMin2,outMax2);
   self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
 

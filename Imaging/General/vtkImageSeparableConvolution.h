@@ -22,7 +22,7 @@
  * centered at (int)((kernelsize - 1) / 2.0 ).  If a kernel is nullptr,
  * that dimension is skipped.  This filter is designed to efficiently
  * convolve separable filters that can be decomposed into 1 or more 1D
- * convolutions.  It also handles arbitrarly large kernel sizes, and
+ * convolutions.  It also handles arbitrarily large kernel sizes, and
  * uses edge replication to handle boundaries.
 */
 

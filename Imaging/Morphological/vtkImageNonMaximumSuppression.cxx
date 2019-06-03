@@ -95,7 +95,7 @@ int vtkImageNonMaximumSuppression::RequestUpdateExtent (
     inExt[idx*2+1] += 1;
     if (this->HandleBoundaries)
     {
-      // we must clip extent with whole extent if we hanlde boundaries.
+      // we must clip extent with whole extent if we handle boundaries.
       if (inExt[idx*2] < wholeExtent[idx*2])
       {
         inExt[idx*2] = wholeExtent[idx*2];
