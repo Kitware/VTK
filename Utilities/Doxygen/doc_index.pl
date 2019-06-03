@@ -225,7 +225,7 @@ my $nb_removed = 0;
 foreach my $word (@words) {
     my ($len, $lcw, $ucw) = (length($word), lc($word), uc($word));
     if ($len <= 2 ||                         # too small
-        ($len == 3 && $ucw ne $word) ||      # small and not an accronym
+        ($len == 3 && $ucw ne $word) ||      # small and not an acronym
         (ucfirst($word) ne ucfirst($lcw) && $ucw ne $word) || # mixed case
         $word =~ m/^vtk/ ||                  # VTK function/class
         exists $stop_words{lc($word)}) {     # found in stop-words

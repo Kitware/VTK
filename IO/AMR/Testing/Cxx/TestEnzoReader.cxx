@@ -57,7 +57,7 @@ int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
   return maxLevel+1;
 }
 
-int ComputeNumberOfVisibileCells(vtkOverlappingAMR* amr)
+int ComputeNumberOfVisibleCells(vtkOverlappingAMR* amr)
 {
   int numVisibleCells(0);
   vtkCompositeDataIterator* iter = amr->NewIterator();
@@ -111,7 +111,7 @@ int TestEnzoReader( int argc, char *argv[] )
           static_cast<int>(amr->GetNumberOfDataSets(level)),
           NumBlocksPerLevel[level]
           );
-      rc+= EnzoReaderTest::CheckValue("Number of Visible cells ",ComputeNumberOfVisibileCells(amr), numVisibleCells[level]);
+      rc+= EnzoReaderTest::CheckValue("Number of Visible cells ",ComputeNumberOfVisibleCells(amr), numVisibleCells[level]);
     }
     else
     {

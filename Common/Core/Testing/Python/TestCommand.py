@@ -107,7 +107,7 @@ class TestCommand(Testing.vtkTest):
         # referent to check if "o" is deleted
         referent = vtk.vtkObject()
         o.referent = referent
-        # make sure gc removes referer "o" from referent
+        # make sure gc removes referrer "o" from referent
         s1 = repr(gc.get_referrers(referent))
         del o
         del cb

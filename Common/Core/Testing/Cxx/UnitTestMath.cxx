@@ -2757,7 +2757,7 @@ int TestSolveLeastSquares()
 int TestSolveHomogeneousLeastSquares()
 {
   int status = 0;
-  std::cout << "SolveHomogenousLeastSquares..";
+  std::cout << "SolveHomogeneousLeastSquares..";
 
   double **m = new double *[2];
   double **x = new double *[3];

@@ -73,7 +73,7 @@ rtMin = algs.min(rtData)
 rtMax = algs.max(rtData)
 clipScalar = 0.5 * (rtMin + rtMax)
 
-print("Testing non-homogenous unstructured grid...")
+print("Testing non-homogeneous unstructured grid...")
 clip = vtk.vtkClipDataSet()
 clip.SetInputData(imgData)
 clip.SetValue(clipScalar)
