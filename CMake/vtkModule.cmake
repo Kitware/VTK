@@ -16,6 +16,36 @@ APIs. They may start with `_vtk_module`, but they are intended for use in cases
 of language wrappers or dealing with trickier third party packages.
 #]==]
 
+#[==[.md INTERNAL
+## Debugging
+
+The `_vtk_module_debug` function is provided to assist in debugging. It is
+controlled by the `_vtk_module_log` variable which contains a list of "domains"
+to debug.
+
+```
+_vtk_module_debug(<domain> <format>)
+```
+
+If the `domain` is enabled for debugging, the `format` argument is configured
+and printed. It should contain `@` variable expansions to replace rather than
+it being done outside. This helps to avoid the cost of generating large strings
+when debugging is disabled.
+#]==]
+
+function (_vtk_module_debug domain format)
+  if (NOT _vtk_module_log STREQUAL "ALL" AND
+      NOT domain IN_LIST _vtk_module_log)
+    return ()
+  endif ()
+
+  string(CONFIGURE "${format}" _vtk_module_debug_msg)
+  if (_vtk_module_debug_msg)
+    message(STATUS
+      "VTK module debug ${domain}: ${_vtk_module_debug_msg}")
+  endif ()
+endfunction ()
+
 # TODO: Support finding `vtk.module` and `vtk.kit` contents in the
 # `CMakeLists.txt` files for the module via a comment header.
 
@@ -473,6 +503,7 @@ function (vtk_module_scan)
     # Use argument splitting.
     string(REGEX REPLACE "( |\n)+" ";" _vtk_scan_kit_args "${_vtk_scan_kit_args}")
     _vtk_module_parse_kit_args(_vtk_scan_kit_name ${_vtk_scan_kit_args})
+    _vtk_module_debug(kit "@_vtk_scan_kit_name@ declared by @_vtk_scan_kit_file@")
 
     list(APPEND _vtk_scan_all_kits
       "${_vtk_scan_kit_name}")
@@ -505,6 +536,7 @@ function (vtk_module_scan)
     # Use argument splitting.
     string(REGEX REPLACE "( |\n)+" ";" _vtk_scan_module_args "${_vtk_scan_module_args}")
     _vtk_module_parse_module_args(_vtk_scan_module_name ${_vtk_scan_module_args})
+    _vtk_module_debug(module "@_vtk_scan_module_name@ declared by @_vtk_scan_module_file@")
 
     # Determine whether we should provide a user-visible option for this
     # module.
@@ -545,6 +577,7 @@ function (vtk_module_scan)
 
       if (NOT VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe} STREQUAL "DEFAULT")
         set("_vtk_scan_enable_${_vtk_scan_module_name}" "${VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}}")
+        _vtk_module_debug(enable "@_vtk_scan_module_name@ is `${_vtk_scan_enable_${_vtk_scan_module_name}}` by cache value")
       endif ()
 
       # Check the state of any groups the module belongs to.
@@ -582,6 +615,7 @@ function (vtk_module_scan)
 
         if (NOT _vtk_scan_group_enable STREQUAL "DEFAULT")
           set("_vtk_scan_enable_${_vtk_scan_module_name}" "${_vtk_scan_group_enable}")
+          _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using group `@_vtk_scan_group@` setting: @_vtk_scan_group_enable@")
         endif ()
       endforeach ()
 
@@ -599,6 +633,7 @@ function (vtk_module_scan)
             PROPERTY
               TYPE INTERNAL)
         endif ()
+        _vtk_module_debug(module "@_vtk_scan_module_name@ hidden by its `CONDITION`")
         continue ()
       endif ()
     endif ()
@@ -610,6 +645,7 @@ function (vtk_module_scan)
       else ()
         set("_vtk_scan_enable_${_vtk_scan_module_name}" "DONT_WANT")
       endif ()
+      _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using `WANT_BY_DEFAULT`: ${_vtk_scan_enable_${_vtk_scan_module_name}}")
     endif ()
 
     list(APPEND _vtk_scan_all_modules
@@ -636,6 +672,8 @@ function (vtk_module_scan)
           "The ${_vtk_scan_module_name} belongs to the "
           "${${_vtk_scan_module_name}_KIT} kit, but it has not been scanned.")
       endif ()
+
+      _vtk_module_debug(kit "@_vtk_scan_module_name@ belongs to the ${${_vtk_scan_module_name}_KIT} kit")
     endif ()
 
     # Set properties for building.
@@ -697,15 +735,18 @@ function (vtk_module_scan)
   # as arguments.
   foreach (_vtk_scan_request_module IN LISTS _vtk_scan_REQUEST_MODULES)
     set("_vtk_scan_provide_${_vtk_scan_request_module}" ON)
+    _vtk_module_debug(provide "@_vtk_scan_request_module@ is provided via `REQUEST_MODULES`")
   endforeach ()
   foreach (_vtk_scan_reject_module IN LISTS _vtk_scan_REJECT_MODULES)
     set("_vtk_scan_provide_${_vtk_scan_reject_module}" OFF)
+    _vtk_module_debug(provide "@_vtk_scan_reject_module@ is not provided via `REJECT_MODULES`")
   endforeach ()
 
   # Traverse the graph classifying the quad-state for enabling modules into a
   # boolean stored in the `_vtk_scan_provide_` variables.
   foreach (_vtk_scan_module IN LISTS _vtk_scan_all_modules)
     if (NOT _vtk_scan_module IN_LIST _vtk_scan_current_modules)
+      _vtk_module_debug(provide "@_vtk_scan_module@ is ignored because it is not in the current scan set")
       continue ()
     endif ()
 
@@ -715,6 +756,7 @@ function (vtk_module_scan)
       # Mark enabled modules as to-be-provided. Any errors with requiring a
       # disabled module will be dealt with later.
       set("_vtk_scan_provide_${_vtk_scan_module}" ON)
+      _vtk_module_debug(provide "@_vtk_scan_module@ is provided due to `YES` setting")
     elseif (_vtk_scan_enable_${_vtk_scan_module} STREQUAL "WANT")
       # Check to see if we can provide this module by checking of any of its
       # dependencies have been disabled.
@@ -725,9 +767,11 @@ function (vtk_module_scan)
       endif ()
 
       set("_vtk_scan_provide_${_vtk_scan_module}" ON)
+      _vtk_module_debug(provide "@_vtk_scan_module@ is provided due to `WANT` setting")
       foreach (_vtk_scan_module_depend IN LISTS "${_vtk_scan_module}_DEPENDS" "${_vtk_scan_module}_PRIVATE_DEPENDS" _vtk_scan_test_depends)
         if (DEFINED "_vtk_scan_provide_${_vtk_scan_module_depend}" AND NOT _vtk_scan_provide_${_vtk_scan_module_depend})
           set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
+          _vtk_module_debug(provide "@_vtk_scan_module@ is not provided due to not provided dependency @_vtk_scan_module_depend@")
           break ()
         endif ()
       endforeach ()
@@ -736,18 +780,24 @@ function (vtk_module_scan)
       foreach (_vtk_scan_module_depend IN LISTS "${_vtk_scan_module}_DEPENDS" "${_vtk_scan_module}_PRIVATE_DEPENDS" _vtk_scan_test_depends)
         if (DEFINED "_vtk_scan_provide_${_vtk_scan_module_depend}" AND NOT _vtk_scan_provide_${_vtk_scan_module_depend})
           set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
+          _vtk_module_debug(provide "@_vtk_scan_module@ is not provided due to not provided dependency @_vtk_scan_module_depend@")
           break ()
         endif ()
       endforeach ()
     elseif (_vtk_scan_enable_${_vtk_scan_module} STREQUAL "NO")
       # Disable the module.
       set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
+      _vtk_module_debug(provide "@_vtk_scan_module@ is not provided due to `NO` setting")
     endif ()
 
     # Collect disabled modules into a list.
     if (DEFINED "_vtk_scan_provide_${_vtk_scan_module}" AND NOT _vtk_scan_provide_${_vtk_scan_module})
       list(APPEND _vtk_scan_disabled_modules
         "${_vtk_scan_module}")
+    endif ()
+
+    if (NOT DEFINED "_vtk_scan_provide_${_vtk_scan_module}")
+      _vtk_module_debug(provide "@_vtk_scan_module@ is indeterminite (${_vtk_scan_enable_${_vtk_scan_module}})")
     endif ()
   endforeach ()
 
@@ -776,7 +826,7 @@ function (vtk_module_scan)
           set_property(GLOBAL APPEND
             PROPERTY
               "_vtk_module_test_modules" "${_vtk_scan_module}")
-          set(_vtk_scan_test_wants "_vtk_scan_wants_marker;${${_vtk_scan_module}_TEST_DEPENDS}")
+          set(_vtk_scan_test_wants _vtk_scan_wants_marker ${${_vtk_scan_module}_TEST_DEPENDS})
         elseif (_vtk_scan_ENABLE_TESTS STREQUAL "DEFAULT")
           set_property(GLOBAL APPEND
             PROPERTY
@@ -807,12 +857,23 @@ function (vtk_module_scan)
           endif ()
         endif ()
 
+        if (DEFINED "_vtk_scan_provide_${_vtk_scan_module_depend}")
+          if (NOT _vtk_scan_provide_${_vtk_scan_module_depend})
+            message(FATAL_ERROR
+              "The `${_vtk_scan_module_depend} should be provided, but is disabled.")
+          endif ()
+          continue ()
+        endif ()
         set("_vtk_scan_provide_${_vtk_scan_module_depend}" ON)
 
         if (NOT _vtk_scan_module_depend IN_LIST _vtk_scan_current_modules)
+          if (NOT TARGET "${_vtk_scan_module_depend}")
+            _vtk_module_debug(provide "@_vtk_scan_module_depend@ is external and required due to dependency from @_vtk_scan_module@")
+          endif ()
           list(APPEND _vtk_scan_required_modules
             "${_vtk_scan_module_depend}")
         else ()
+          _vtk_module_debug(provide "@_vtk_scan_module_depend@ is provided due to dependency from @_vtk_scan_module@")
           list(APPEND _vtk_scan_provided_modules
             "${_vtk_scan_module_depend}")
         endif ()
@@ -2019,11 +2080,19 @@ function (vtk_module_build)
         "The requested ${_vtk_build_module} module is not a VTK module.")
     endif ()
 
+    _vtk_module_debug(building "@_vtk_build_module@ is being built")
+
     get_filename_component(_vtk_build_module_dir "${_vtk_build_module_file}" DIRECTORY)
     file(RELATIVE_PATH _vtk_build_module_subdir "${CMAKE_SOURCE_DIR}" "${_vtk_build_module_dir}")
     add_subdirectory(
       "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}"
       "${CMAKE_BINARY_DIR}/${_vtk_build_module_subdir}")
+
+    if (NOT TARGET "${_vtk_build_module}")
+      message(FATAL_ERROR
+        "The ${_vtk_build_module} is being built, but a matching target was "
+        "not created.")
+    endif ()
   endforeach ()
 
   if (_vtk_build_BUILD_WITH_KITS)
@@ -2238,7 +2307,7 @@ function (vtk_module_build)
     foreach (_vtk_build_test_depend IN LISTS _vtk_build_test_depends)
       if (NOT TARGET "${_vtk_build_test_depend}")
         set(_vtk_build_test_has_depends FALSE)
-        break ()
+        _vtk_module_debug(testing "@_vtk_build_test@ testing disabled due to missing @_vtk_build_test_depend@")
       endif ()
     endforeach ()
     if (NOT _vtk_build_test_has_depends)
