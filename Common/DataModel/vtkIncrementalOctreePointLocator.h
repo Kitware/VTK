@@ -273,7 +273,7 @@ public:
   vtkIdType IsInsertedPoint( double x, double y, double z ) override;
 
   /**
-   * Insert a point to the octree unless there has been a duplciate point.
+   * Insert a point to the octree unless there has been a duplicate point.
    * Whether the point is actually inserted (return 1) or not (return 0 upon a
    * rejection by an existing duplicate), the index of the point (either new
    * or the duplicate) is returned via pntId. Note that InitPointInsertion()

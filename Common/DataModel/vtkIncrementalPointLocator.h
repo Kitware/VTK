@@ -107,7 +107,7 @@ public:
   virtual vtkIdType IsInsertedPoint( const double x[3] ) = 0;
 
   /**
-   * Insert a point unless there has been a duplciate in the search structure.
+   * Insert a point unless there has been a duplicate in the search structure.
    * This method is not thread safe.
    */
   virtual int InsertUniquePoint( const double x[3], vtkIdType & ptId ) = 0;

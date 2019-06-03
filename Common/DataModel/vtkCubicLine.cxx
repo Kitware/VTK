@@ -478,7 +478,7 @@ double vtkCubicLine::GetParametricDistance(const double pcoords[3])
     return pc - 1.0;
   }
 
-  return pc;    // the parametric coordintate lies between -1.0 and 1.0.
+  return pc;    // the parametric coordinate lies between -1.0 and 1.0.
 }
 
 

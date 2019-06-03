@@ -1734,7 +1734,7 @@ int _CheckPeriod_dc(check32_t *ck, _org_state *st,
             x[i+n] = x[i+m] ^ ( (y>>1) ^ mat[y&LSB] );
         }
 
-        /* pick up odd subscritpt elements */
+        /* pick up odd subscript elements */
         for (i=2; i<=p; ++i)
             x[i] = x[(i<<1)-1];
 

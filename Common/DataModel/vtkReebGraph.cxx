@@ -2939,7 +2939,7 @@ int vtkReebGraph::Implementation::AddMeshTriangle(vtkIdType vertex0Id, double f0
     vtkReebGraphSwapVars(int,vertex0,vertex1);
     vtkReebGraphSwapVars(int,N0,N1);
     // there is a useless assignment to f0 below
-    // keeping for clarity and consistancy
+    // keeping for clarity and consistency
     vtkReebGraphSwapVars(double,f0,f1);
   }
   if (f2 < f1 || (f2==f1 && vertex2 < vertex1))
@@ -2947,7 +2947,7 @@ int vtkReebGraph::Implementation::AddMeshTriangle(vtkIdType vertex0Id, double f0
     vtkReebGraphSwapVars(int,vertex1,vertex2);
     vtkReebGraphSwapVars(int,N1,N2);
     // there is a useless assignment below
-    // keeping for clarity and consistancy
+    // keeping for clarity and consistency
     vtkReebGraphSwapVars(double,f1,f2);
   }
 
