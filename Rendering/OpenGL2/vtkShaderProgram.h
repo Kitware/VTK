@@ -295,7 +295,7 @@ public:
   /**
    * Set/Get times that can be used to track when a set of
    * uniforms was last updated. This can be used to reduce
-   * redundent SetUniformCalls
+   * redundant SetUniformCalls
    */
   enum UniformGroups {
     CameraGroup,

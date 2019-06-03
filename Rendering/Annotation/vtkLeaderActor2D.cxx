@@ -424,7 +424,7 @@ int vtkLeaderActor2D::SetFontSize(vtkViewport *viewport, vtkTextMapper *textMapp
 int vtkLeaderActor2D::ClipLeader(double center[3], int box[2], double p1[3],
                                  double ray[3], double c1[3], double c2[3])
 {
-  // Separately compute the parametric coordintes due to x-line and y-line
+  // Separately compute the parametric coordinates due to x-line and y-line
   // intersections. Take the coordinate closest to the center of the line.
   double tx, ty, t;
   double x = center[0] + box[0];

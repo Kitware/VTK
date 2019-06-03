@@ -52,7 +52,7 @@ void main(void)
 
   // compute the convolution but don't use convovled values if
   // any masked fragments on the stencil. Fragments outside
-  // the valid domain are masked during initializaiton, and
+  // the valid domain are masked during initialization, and
   // texture wrap parameters are clamp to border with border
   // color that contains masked flag
   float conv = 0.0;

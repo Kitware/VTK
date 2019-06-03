@@ -47,7 +47,7 @@ public:
    * Initialize the object based on the following description of the
    * blocks projected onto the render window. wholeExt describes the
    * window size, originalExts describe each block's extent in window
-   * coords. stepSize is the window coordiniate integration step size.
+   * coords. stepSize is the window coordinate integration step size.
    * when inplace is true compositing happens on the original extent.
    */
   void Initialize(
@@ -196,7 +196,7 @@ public:
 
   /**
    * Make a decomposition disjoint with respect to itself. Extents are
-   * removed from the input array and disjoint extents are appened onto
+   * removed from the input array and disjoint extents are appended onto
    * the output array. This is a local operation.
    */
   static

@@ -570,7 +570,7 @@ public:
    * Compute the aspect ratio of this renderer for the current tile. When
    * tiled displays are used the aspect ratio of the renderer for a given
    * tile may be different that the aspect ratio of the renderer when rendered
-   * in it entirity
+   * in it entirety
    */
   double GetTiledAspectRatio();
 

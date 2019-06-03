@@ -72,7 +72,7 @@ vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
   // VTK_MATPLOTLIB_DEBUG is defined in the process environment.
   bool debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != nullptr);
 
-  // Initialize the python interpretor if needed
+  // Initialize the python interpreter if needed
   vtkMplStartUpDebugMacro("Initializing Python, if not already.");
   vtkPythonInterpreter::Initialize();
   vtkMplStartUpDebugMacro("Attempting to import matplotlib.");

@@ -46,7 +46,7 @@
  * to Gx1 and kernel (-1 0 1)^T is applied to Gx2. It gives the values for
  * Gx and Gy. Those values are then used to compute the magnitude of the
  * gradient which is stored in the render target.
- * The gradient computation happens per component (R,G,B). A is arbitrarly set
+ * The gradient computation happens per component (R,G,B). A is arbitrarily set
  * to 1 (full opacity).
  *
  * @par Implementation:
