@@ -169,7 +169,7 @@ void vtkPlanes::SetFrustumPlanes(double planes[24])
 
   // okay, need to allocate stuff
   this->Modified();
-  vtkPoints *pts = vtkPoints::New();
+  vtkPoints *pts = vtkPoints::New(VTK_DOUBLE);
   vtkDoubleArray *normals = vtkDoubleArray::New();
 
   pts->SetNumberOfPoints(6);
