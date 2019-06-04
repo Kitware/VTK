@@ -399,8 +399,30 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
 
   char* maskArray = this->MaskPoints->GetPointer(0);
 
-  tol2 = this->ComputeTolerance ? VTK_DOUBLE_MAX :
-         (this->Tolerance * this->Tolerance);
+  if (this->ComputeTolerance)
+  {
+    // to compute a reasonable starting tolerance we use
+    // a fraction of the largest cell length we come across
+    // out of the first few cells. Tolerance is meant
+    // to be an epsilon for cases such as probing 2D
+    // cells where the XYZ may be a tad off the surface
+    // but "close enough"
+    double sLength2 = 0;
+    for (vtkIdType i = 0; i < 20 && i < source->GetNumberOfCells(); i++)
+    {
+      double cLength2 = source->GetCell(i)->GetLength2();
+      if (sLength2 < cLength2)
+      {
+        sLength2 = cLength2;
+      }
+    }
+    // use 1% of the diagonal (1% has to be squared)
+    tol2 = sLength2 * CELL_TOLERANCE_FACTOR_SQR;
+  }
+  else
+  {
+    tol2 = (this->Tolerance * this->Tolerance);
+  }
 
   // vtkPointSet based datasets do not have an implicit structure to their
   // points. A cell locator performs better here than using the dataset's

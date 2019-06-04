@@ -312,7 +312,7 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
   this->GetPoint(ptId, ptCoord);
   VTK_CREATE(vtkIdList, coincidentPtIds);
   coincidentPtIds->Allocate(8, 100);
-  this->Locator->FindPointsWithinRadius(tol2, ptCoord, coincidentPtIds);
+  this->Locator->FindPointsWithinRadius(sqrt(tol2), ptCoord, coincidentPtIds);
   coincidentPtIds->DeleteId(ptId);      // Already searched this one.
   for (vtkIdType i = 0; i < coincidentPtIds->GetNumberOfIds(); i++)
   {
