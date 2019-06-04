@@ -91,6 +91,7 @@ set(classes
   vtkHyperTreeGridOrientedGeometryCursor
   vtkImageData
   vtkImageIterator
+  vtkImageTransform
   vtkImplicitBoolean
   vtkImplicitDataSet
   vtkImplicitFunction

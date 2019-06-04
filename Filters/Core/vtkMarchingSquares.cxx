@@ -18,6 +18,7 @@
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkImageTransform.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -101,14 +102,14 @@ vtkMTimeType vtkMarchingSquares::GetMTime()
 //
 template <class T>
 void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3],
-                     int start[2], int end[2], int offset[3], double ar[3],
-                     double origin[3], double *values, int numValues,
+                     int start[2], int end[2], int offset[3],
+                     double *values, int numValues,
                      vtkIncrementalPointLocator *p, vtkCellArray *lines)
 {
-  int i, j;
+  int i, j, pts[4][3], xp, yp, *x1, *x2;
   vtkIdType ptIds[2];
-  double t, *x1, *x2, x[3], xp, yp;
-  double pts[4][3], min, max;
+  double t, x[3];
+  double min, max;
   int contNum, jOffset, idx, ii, jj, index, *vert;
   static const int CASE_MASK[4] = {1,2,8,4};
   vtkMarchingSquaresLineCases *lineCase, *lineCases;
@@ -137,15 +138,15 @@ void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3
   }
 
   //assign coordinate value to non-varying coordinate direction
-  x[dir[2]] = origin[dir[2]] + roi[dir[2]*2]*ar[dir[2]];
+  x[dir[2]] = roi[dir[2]*2];
 
   // Traverse all pixel cells, generating line segments using marching squares.
   for ( j=roi[start[1]]; j < roi[end[1]]; j++ )
   {
 
     jOffset = j * offset[1];
-    pts[0][dir[1]] = origin[dir[1]] + j*ar[dir[1]];
-    yp = origin[dir[1]] + (j+1)*ar[dir[1]];
+    pts[0][dir[1]] = j;
+    yp = j+1;
 
     for ( i=roi[start[0]]; i < roi[end[0]]; i++)
     {
@@ -163,8 +164,8 @@ void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3
       }
 
       //create pixel points
-      pts[0][dir[0]] = origin[dir[0]] + i*ar[dir[0]];
-      xp = origin[dir[0]] + (i+1)*ar[dir[0]];
+      pts[0][dir[0]] = i;
+      xp = i+1;
 
       pts[1][dir[0]] = xp;
       pts[1][dir[1]] = pts[0][dir[1]];
@@ -250,7 +251,6 @@ int vtkMarchingSquares::RequestData(
   vtkDataArray *newScalars = nullptr;
   int i, dims[3], roi[6], dataSize, dim, plane=0;
   int *ext;
-  double origin[3], ar[3];
   int start[2], end[2], offset[3], dir[3], estimatedSize;
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
@@ -276,8 +276,6 @@ int vtkMarchingSquares::RequestData(
 //
   input->GetDimensions(dims);
   ext = input->GetExtent();
-  input->GetOrigin(origin);
-  input->GetSpacing(ar);
   dataSize = dims[0] * dims[1] * dims[2];
 
   if ( input->GetDataDimension() != 2 )
@@ -391,7 +389,7 @@ int vtkMarchingSquares::RequestData(
     {
       vtkTemplateMacro(
         vtkContourImage(static_cast<VTK_TT*>(scalars),newScalars,
-                        roi,dir,start,end,offset,ar,origin,
+                        roi,dir,start,end,offset,
                         values,numContours,this->Locator,newLines)
         );
     }//switch
@@ -406,7 +404,7 @@ int vtkMarchingSquares::RequestData(
     newScalars = vtkFloatArray::New();
     newScalars->Allocate(5000,25000);
     double *scalars = image->GetPointer(0);
-    vtkContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
+    vtkContourImage(scalars,newScalars,roi,dir,start,end,offset,
                     values,numContours,this->Locator,newLines);
     image->Delete();
   }
@@ -430,6 +428,8 @@ int vtkMarchingSquares::RequestData(
 
   this->Locator->Initialize();
   output->Squeeze();
+
+  vtkImageTransform::TransformPointSet(input, output);
 
   return 1;
 }

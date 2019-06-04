@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import vtk
+from math import cos, sin, pi
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -22,12 +23,19 @@ iren.SetRenderWindow(renWin)
 
 # create pipeline
 #
+angle = pi/2
+orientation = [
+  -1, 0, 0,
+  0, cos(angle), -sin(angle),
+  0, -sin(angle), -cos(angle)
+]
 reader = vtk.vtkImageReader2()
 reader.SetDataScalarTypeToUnsignedShort()
 reader.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
 reader.SetDataExtent(0, 63, 0, 63, 1, 93)
 reader.SetDataSpacing(3.2, 3.2, 1.5)
 reader.SetDataOrigin(0.0, 0.0, 0.0)
+reader.GetOutput().SetDirectionMatrix(orientation)
 
 iso = vtk.vtkImageMarchingCubes()
 iso.SetInputConnection(reader.GetOutputPort())
@@ -59,13 +67,7 @@ ren1.AddActor(isoActor)
 ren1.SetBackground(0.2, 0.3, 0.4)
 
 renWin.SetSize(200, 200)
-
 ren1.ResetCamera()
-ren1.GetActiveCamera().Elevation(90)
-ren1.GetActiveCamera().SetViewUp(0, 0, -1)
-ren1.GetActiveCamera().Azimuth(180)
-ren1.ResetCameraClippingRange()
-
 renWin.Render()
 
 # render the image

@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkFloatArray.h"
+#include "vtkImageTransform.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkMarchingCubesTriangleCases.h"
 #include "vtkSMPTools.h"
@@ -101,8 +102,6 @@ public:
   // image data in a form more convenient to the algorithm.
   T        *Scalars;
   vtkIdType Dims[3];
-  double    Origin[3];
-  double    Spacing[3];
   vtkIdType NumberOfEdges;
   vtkIdType SliceOffset;
   int Min0;
@@ -127,14 +126,6 @@ public:
 
   // Setup algorithm
   vtkFlyingEdges3DAlgorithm();
-
-  // Adjust the origin to the lower-left corner of the volume (if necessary)
-  void AdjustOrigin()
-  {
-    this->Origin[0] = this->Origin[0] + this->Spacing[0]*this->Min0;
-    this->Origin[1] = this->Origin[1] + this->Spacing[1]*this->Min1;
-    this->Origin[2] = this->Origin[2] + this->Spacing[2]*this->Min2;
-  }
 
   // The three main passes of the algorithm.
   void ProcessXEdge(double value, T const * const inPtr, vtkIdType row, vtkIdType slice); //PASS 1
@@ -193,9 +184,9 @@ public:
   {
     if ( loc == Interior )
     {
-      g[0] = 0.5*( (*s0_start - *s0_end) / this->Spacing[0] );
-      g[1] = 0.5*( (*s1_start - *s1_end) / this->Spacing[1] );
-      g[2] = 0.5*( (*s2_start - *s2_end) / this->Spacing[2] );
+      g[0] = 0.5*(*s0_start - *s0_end);
+      g[1] = 0.5*(*s1_start - *s1_end);
+      g[2] = 0.5*(*s2_start - *s2_end);
     }
     else
     {
@@ -210,19 +201,17 @@ public:
 
   // Interpolate along a voxel axes edge.
   void InterpolateAxesEdge(double t, unsigned char loc,
-                           float x0[3],
                            T const * const s,
                            const int incs[3],
-                           float x1[3],
                            vtkIdType vId,
                            vtkIdType ijk0[3],
                            vtkIdType ijk1[3],
                            float g0[3])
   {
     float *x = this->NewPoints + 3*vId;
-    x[0] = x0[0] + t*(x1[0]-x0[0]);
-    x[1] = x0[1] + t*(x1[1]-x0[1]);
-    x[2] = x0[2] + t*(x1[2]-x0[2]);
+    x[0] = ijk0[0] + t*(ijk1[0]-ijk0[0]) + this->Min0;
+    x[1] = ijk0[1] + t*(ijk1[1]-ijk0[1]) + this->Min1;
+    x[2] = ijk0[2] + t*(ijk1[2]-ijk0[2]) + this->Min2;
 
     if ( this->NeedGradients )
     {
@@ -274,7 +263,6 @@ public:
   // neighborhood information (e.g., gradients).
   void InterpolateEdge(double value, vtkIdType ijk[3],
                        T const * const s, const int incs[3],
-                       float x[3],
                        unsigned char edgeNum,
                        unsigned char const* const edgeUses,
                        vtkIdType *eIds);
@@ -282,7 +270,7 @@ public:
   // Produce the output points on the voxel axes for this voxel cell.
   void GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3],
                       T const * const sPtr, const int incs[3],
-                      float x[3], unsigned char const * const edgeUses,
+                      unsigned char const * const edgeUses,
                       vtkIdType *eIds);
 
   // Helper function to set up the point ids on voxel edges.
@@ -582,41 +570,41 @@ ComputeBoundaryGradient(vtkIdType ijk[3],
 
   if ( ijk[0] == 0 )
   {
-    g[0] = (*s0_start - *s) / this->Spacing[0];
+    g[0] = *s0_start - *s;
   }
   else if ( ijk[0] >= (this->Dims[0]-1) )
   {
-    g[0] = (*s - *s0_end) / this->Spacing[0];
+    g[0] = *s - *s0_end;
   }
   else
   {
-    g[0] = 0.5 * ( (*s0_start - *s0_end) / this->Spacing[0] );
+    g[0] = 0.5 * (*s0_start - *s0_end);
   }
 
   if ( ijk[1] == 0 )
   {
-    g[1] = (*s1_start - *s) / this->Spacing[1];
+    g[1] = *s1_start - *s;
   }
   else if ( ijk[1] >= (this->Dims[1]-1) )
   {
-    g[1] = (*s - *s1_end) / this->Spacing[1];
+    g[1] = *s - *s1_end;
   }
   else
   {
-    g[1] = 0.5 * ( (*s1_start - *s1_end) / this->Spacing[1] );
+    g[1] = 0.5 * (*s1_start - *s1_end);
   }
 
   if ( ijk[2] == 0 )
   {
-    g[2] = (*s2_start - *s) / this->Spacing[2];
+    g[2] = *s2_start - *s;
   }
   else if ( ijk[2] >= (this->Dims[2]-1) )
   {
-    g[2] = (*s - *s2_end) / this->Spacing[2];
+    g[2] = *s - *s2_end;
   }
   else
   {
-    g[2] = 0.5 * ( (*s2_start - *s2_end) / this->Spacing[2] );
+    g[2] = 0.5 * (*s2_start - *s2_end);
   }
 }
 
@@ -627,7 +615,6 @@ template <class T> void vtkFlyingEdges3DAlgorithm<T>::
 InterpolateEdge(double value, vtkIdType ijk[3],
                 T const * const s,
                 const int incs[3],
-                float x[3],
                 unsigned char edgeNum,
                 unsigned char const * const edgeUses,
                 vtkIdType *eIds)
@@ -641,36 +628,30 @@ InterpolateEdge(double value, vtkIdType ijk[3],
   // build the edge information
   const unsigned char *vertMap = this->VertMap[edgeNum];
 
-  float x0[3], x1[3];
   vtkIdType ijk0[3], ijk1[3], vId=eIds[edgeNum];
-  int i;
 
   const unsigned char *offsets = this->VertOffsets[vertMap[0]];
   T const * const s0 = s + offsets[0]*incs[0] +
                            offsets[1]*incs[1] +
                            offsets[2]*incs[2];
-  for (i=0; i<3; ++i)
-  {
-    ijk0[i] = ijk[i] + offsets[i];
-    x0[i] = x[i] + offsets[i]*this->Spacing[i];
-  }
+  ijk0[0] = ijk[0] + offsets[0];
+  ijk0[1] = ijk[1] + offsets[1];
+  ijk0[2] = ijk[2] + offsets[2];
 
   offsets = this->VertOffsets[vertMap[1]];
   T const * const s1 = s + offsets[0]*incs[0] +
                            offsets[1]*incs[1] +
                            offsets[2]*incs[2];
-  for (i=0; i<3; ++i)
-  {
-    ijk1[i] = ijk[i] + offsets[i];
-    x1[i] = x[i] + offsets[i]*this->Spacing[i];
-  }
+  ijk1[0] = ijk[0] + offsets[0];
+  ijk1[1] = ijk[1] + offsets[1];
+  ijk1[2] = ijk[2] + offsets[2];
 
   // Okay interpolate
   double t = (value - *s0) / (*s1 - *s0);
   float *xPtr = this->NewPoints + 3*vId;
-  xPtr[0] = x0[0] + t*(x1[0]-x0[0]);
-  xPtr[1] = x0[1] + t*(x1[1]-x0[1]);
-  xPtr[2] = x0[2] + t*(x1[2]-x0[2]);
+  xPtr[0] = ijk0[0] + t*(ijk1[0]-ijk0[0]) + this->Min0;
+  xPtr[1] = ijk0[1] + t*(ijk1[1]-ijk0[1]) + this->Min1;
+  xPtr[2] = ijk0[2] + t*(ijk1[2]-ijk0[2]) + this->Min2;
 
   if ( this->NeedGradients )
   {
@@ -722,7 +703,6 @@ InterpolateEdge(double value, vtkIdType ijk[3],
 template <class T> void vtkFlyingEdges3DAlgorithm<T>::
 GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3],
                T const * const sPtr, const int incs[3],
-               float x[3],
                unsigned char const * const edgeUses,
                vtkIdType *eIds)
 {
@@ -742,15 +722,14 @@ GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3],
   {
     if(edgeUses[i*4])
     {
-      //edgesUses[0] == x axes edge
-      //edgesUses[4] == y axes edge
-      //edgesUses[8] == z axes edge
-      float x1[3] = {x[0], x[1], x[2] }; x1[i] += this->Spacing[i];
+      //edgesUses[0] == i axes edge
+      //edgesUses[4] == j axes edge
+      //edgesUses[8] == k axes edge
       vtkIdType ijk1[3] = { ijk[0], ijk[1], ijk[2] }; ++ijk1[i];
 
       T const * const sPtr2 = (sPtr+incs[i]);
       double t = (value - *sPtr) / (*sPtr2 - *sPtr);
-      this->InterpolateAxesEdge(t, loc, x, sPtr2, incs, x1, eIds[i*4], ijk, ijk1, g0);
+      this->InterpolateAxesEdge(t, loc, sPtr2, incs, eIds[i*4], ijk, ijk1, g0);
     }
   }
 
@@ -765,48 +744,48 @@ GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3],
   switch (loc)
   {
     case 2: case 6: case 18: case 22: //+x
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 5, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 9, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 5, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 9, edgeUses, eIds);
       break;
     case 8: case 9: case 24: case 25: //+y
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 1, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 10, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 1, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 10, edgeUses, eIds);
       break;
     case 32: case 33: case 36: case 37: //+z
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 2, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 6, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 2, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 6, edgeUses, eIds);
       break;
     case 10: case 26: //+x +y
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 1, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 5, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 9, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 10, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 11, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 1, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 5, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 9, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 10, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 11, edgeUses, eIds);
       break;
     case 34: case 38: //+x +z
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 2, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 5, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 9, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 6, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 7, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 2, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 5, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 9, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 6, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 7, edgeUses, eIds);
       break;
     case 40: case 41: //+y +z
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 1, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 2, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 3, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 6, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 10, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 1, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 2, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 3, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 6, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 10, edgeUses, eIds);
       break;
     case 42: //+x +y +z happens no more than once per volume
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 1, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 2, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 3, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 5, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 9, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 10, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 11, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 6, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 7, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 1, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 2, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 3, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 5, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 9, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 10, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 11, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 6, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 7, edgeUses, eIds);
       break;
     default: //interior, or -x,-y,-z boundaries
       return;
@@ -1053,21 +1032,12 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
           (slice >= (this->Dims[2]-2) ? MaxBoundary : Interior));
   yzLoc = (yLoc << 2) | (zLoc << 4);
 
-  // Run along voxels in x-row direction and generate output primitives. Note
-  // that active voxel axes edges are interpolated to produce points and
-  // possibly interpolate attribute data.
-  float x[3];
-  x[0] = this->Origin[0] + xL*this->Spacing[0];
-  x[1] = this->Origin[1] + row*this->Spacing[1];
-  x[2] = this->Origin[2] + slice*this->Spacing[2];
-
   //compute the ijk for this section
   vtkIdType ijk[3] = { xL, row, slice};
 
   //load the inc0/inc1/inc2 into local memory
   const int incs[3] = { this->Inc0, this->Inc1, this->Inc2 };
   const T* sPtr = rowPtr + xL*incs[0];
-  const double xSpace = this->Spacing[0];
   const vtkIdType dim0Wall = this->Dims[0]-2;
   const vtkIdType endVoxel = xR-1;
 
@@ -1088,7 +1058,7 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
         unsigned char const * const edgeUses = this->GetEdgeUses(eCase);
         this->GeneratePoints(value, loc, ijk,
                              sPtr, incs,
-                             x, edgeUses, eIds);
+                             edgeUses, eIds);
       }
       this->AdvanceVoxelIds(eCase,eIds);
     }
@@ -1101,7 +1071,6 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
 
       ++ijk[0];
       sPtr += incs[0];
-      x[0] += xSpace;
     }//if not at end of voxel row
   } //for all non-trimmed cells along this x-edge
 }
@@ -1128,8 +1097,6 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, vtkDataArray *inScalars,
   // subsequent processing.
   vtkFlyingEdges3DAlgorithm<T> algo;
   algo.Scalars = scalars;
-  input->GetOrigin(algo.Origin);
-  input->GetSpacing(algo.Spacing);
   algo.Min0 = extent[0];
   algo.Max0 = extent[1];
   algo.Inc0 = incs[0];
@@ -1139,7 +1106,6 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, vtkDataArray *inScalars,
   algo.Min2 = extent[4];
   algo.Max2 = extent[5];
   algo.Inc2 = incs[2];
-  algo.AdjustOrigin();
 
   // Now allocate working arrays. The XCases array tracks x-edge cases.
   algo.Dims[0] = algo.Max0 - algo.Min0 + 1;
@@ -1469,6 +1435,9 @@ int vtkFlyingEdges3D::RequestData(
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::VECTORS);
     newGradients->Delete();
   }
+
+  // Transform output if image orientation is not axis aligned
+  vtkImageTransform::TransformPointSet(input,output);
 
   return 1;
 }
