@@ -19,7 +19,7 @@
 #include "vtkDataArray.h"
 #include "vtkPointData.h"
 #include "vtkGenericCell.h"
-#include "vtkCellLocator.h"
+#include "vtkAbstractCellLocator.h"
 #include "vtkSmartPointer.h"
 #include "vtkObjectFactory.h"
 #include "vtkModifiedBSPTree.h"

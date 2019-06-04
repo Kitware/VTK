@@ -15,7 +15,6 @@
 #include "vtkDijkstraImageContourLineInterpolator.h"
 
 #include "vtkCellArray.h"
-#include "vtkCellLocator.h"
 #include "vtkContourRepresentation.h"
 #include "vtkDijkstraImageGeodesicPath.h"
 #include "vtkImageActor.h"

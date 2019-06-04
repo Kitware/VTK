@@ -30,7 +30,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkCellLocator.h"
 #include "vtkModifiedBSPTree.h"
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkAbstractInterpolatedVelocityField.h"
