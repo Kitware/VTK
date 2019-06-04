@@ -22,7 +22,6 @@
 #include "vtkCellArray.h"
 #include "vtkCell.h"
 #include "vtkMath.h"
-#include "vtkCellLocator.h"
 #include "vtkPolygonalSurfacePointPlacer.h"
 #include "vtkIdList.h"
 #include "vtkDijkstraGraphGeodesicPath.h"

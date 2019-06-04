@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCellLocator.h
+  Module:    vtkAxisExtended.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
