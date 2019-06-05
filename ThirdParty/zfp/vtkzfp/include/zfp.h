@@ -1,7 +1,7 @@
 /*
-** Copyright (c) 2014-2018, Lawrence Livermore National Security, LLC.
+** Copyright (c) 2014-2019, Lawrence Livermore National Security, LLC.
 ** Produced at the Lawrence Livermore National Laboratory.
-** Authors: Peter Lindstrom, Markus Salasoo, Matt Larsen.
+** Authors: Peter Lindstrom, Markus Salasoo, Matt Larsen, Stephen Herbein.
 ** LLNL-CODE-663824.
 ** All rights reserved.
 **
@@ -76,7 +76,7 @@
 /* library version information */
 #define ZFP_VERSION_MAJOR 0 /* library major version number */
 #define ZFP_VERSION_MINOR 5 /* library minor version number */
-#define ZFP_VERSION_PATCH 4 /* library patch version number */
+#define ZFP_VERSION_PATCH 5 /* library patch version number */
 #define ZFP_VERSION_RELEASE ZFP_VERSION_PATCH
 
 /* codec version number (see also zfp_codec_version) */
@@ -96,7 +96,7 @@
 
 /* default compression parameters */
 #define ZFP_MIN_BITS     1 /* minimum number of bits per block */
-#define ZFP_MAX_BITS 16651 /* maximum number of bits per block */
+#define ZFP_MAX_BITS 16657 /* maximum number of bits per block */
 #define ZFP_MAX_PREC    64 /* maximum precision supported */
 #define ZFP_MIN_EXP  -1074 /* minimum floating-point base-2 exponent */
 
@@ -105,6 +105,9 @@
 #define ZFP_HEADER_META   0x2u /* embed 52-bit field metadata */
 #define ZFP_HEADER_MODE   0x4u /* embed 12- or 64-bit compression mode */
 #define ZFP_HEADER_FULL   0x7u /* embed all of the above */
+
+/* field metadata indeterminate state and error code */
+#define ZFP_META_NULL (UINT64C(-1))
 
 /* number of bits per header entry */
 #define ZFP_MAGIC_BITS       32 /* number of magic word bits */
@@ -155,7 +158,8 @@ typedef enum {
   zfp_mode_expert          = 1, /* expert mode (4 params set manually) */
   zfp_mode_fixed_rate      = 2, /* fixed rate mode */
   zfp_mode_fixed_precision = 3, /* fixed precision mode */
-  zfp_mode_fixed_accuracy  = 4  /* fixed accuracy mode */
+  zfp_mode_fixed_accuracy  = 4, /* fixed accuracy mode */
+  zfp_mode_reversible      = 5  /* reversible (lossless) mode */
 } zfp_mode;
 
 /* scalar type */
@@ -215,15 +219,15 @@ zfp_stream_bit_stream(
 );
 
 /* returns enum of compression mode */
-zfp_mode                     /* enum for compression mode */
+zfp_mode                   /* enum for compression mode */
 zfp_stream_compression_mode(
-  const zfp_stream* zfp      /* compressed stream */
+  const zfp_stream* stream /* compressed stream */
 );
 
 /* get all compression parameters in a compact representation */
 uint64                     /* 12- or 64-bit encoding of parameters */
 zfp_stream_mode(
-  const zfp_stream* zfp    /* compressed stream */
+  const zfp_stream* stream /* compressed stream */
 );
 
 /* get all compression parameters (pointers may be NULL) */
@@ -251,11 +255,23 @@ zfp_stream_maximum_size(
 
 /* high-level API: initialization of compressed stream parameters ---------- */
 
+/* rewind bit stream to beginning for compression or decompression */
+void
+zfp_stream_rewind(
+  zfp_stream* stream /* compressed bit stream */
+);
+
 /* associate bit stream with compressed stream */
 void
 zfp_stream_set_bit_stream(
   zfp_stream* stream, /* compressed stream */
   bitstream* bs       /* bit stream to read from and write to */
+);
+
+/* enable reversible (lossless) compression */
+void
+zfp_stream_set_reversible(
+  zfp_stream* stream /* compressed stream */
 );
 
 /* set size in compressed bits/scalar (fixed-rate mode) */
@@ -264,7 +280,7 @@ zfp_stream_set_rate(
   zfp_stream* stream, /* compressed stream */
   double rate,        /* desired rate in compressed bits/scalar */
   zfp_type type,      /* scalar type to compress */
-  uint dims,          /* array dimensionality (1, 2, or 3) */
+  uint dims,          /* array dimensionality (1, 2, 3, or 4) */
   int wra             /* nonzero if write random access is needed */
 );
 
@@ -282,15 +298,14 @@ zfp_stream_set_accuracy(
   double tolerance    /* desired error tolerance */
 );
 
-/* set all compression parameters from compact representation */
-/* compression params are only set on stream upon success */
-zfp_mode              /* non (zfp_mode_null) upon success */
+/* set parameters from compact encoding; leaves stream intact on failure */
+zfp_mode              /* compression mode or zfp_mode_null upon failure */
 zfp_stream_set_mode(
   zfp_stream* stream, /* compressed stream */
   uint64 mode         /* 12- or 64-bit encoding of parameters */
 );
 
-/* set all compression parameters (expert mode) */
+/* set all parameters (expert mode); leaves stream intact on failure */
 int                   /* nonzero upon success */
 zfp_stream_set_params(
   zfp_stream* stream, /* compressed stream */
@@ -571,12 +586,6 @@ zfp_stream_flush(
 /* align bit stream on next word boundary (decoding analogy to flush) */
 size_t
 zfp_stream_align(
-  zfp_stream* stream /* compressed bit stream */
-);
-
-/* rewind bit stream to beginning for compression or decompression */
-void
-zfp_stream_rewind(
   zfp_stream* stream /* compressed bit stream */
 );
 

@@ -14,24 +14,6 @@ _t2(decompress, Scalar, 1)(zfp_stream* stream, zfp_field* field)
     _t2(zfp_decode_partial_block_strided, Scalar, 1)(stream, data, nx - x, 1);
 }
 
-#if 0
-/* decompress 1d strided array */
-static void
-_t2(decompress_strided, Scalar, 1)(zfp_stream* stream, zfp_field* field)
-{
-  Scalar* data = (Scalar*)field->data;
-  uint nx = field->nx;
-  uint mx = nx & ~3u;
-  int sx = field->sx ? field->sx : 1;
-  uint x;
-
-  /* decompress array one block of 4 values at a time */
-  for (x = 0; x < mx; x += 4, data += 4 * sx)
-    _t2(zfp_decode_block_strided, Scalar, 1)(stream, data, sx);
-  if (x < nx)
-    _t2(zfp_decode_partial_block_strided, Scalar, 1)(stream, data, nx - x, sx);
-}
-#else
 /* decompress 1d strided array */
 static void
 _t2(decompress_strided, Scalar, 1)(zfp_stream* stream, zfp_field* field)
@@ -50,7 +32,6 @@ _t2(decompress_strided, Scalar, 1)(zfp_stream* stream, zfp_field* field)
       _t2(zfp_decode_block_strided, Scalar, 1)(stream, p, sx);
   }
 }
-#endif
 
 /* decompress 2d strided array */
 static void
@@ -60,7 +41,7 @@ _t2(decompress_strided, Scalar, 2)(zfp_stream* stream, zfp_field* field)
   uint nx = field->nx;
   uint ny = field->ny;
   int sx = field->sx ? field->sx : 1;
-  int sy = field->sy ? field->sy : nx;
+  int sy = field->sy ? field->sy : (int)nx;
   uint x, y;
 
   /* decompress array one block of 4x4 values at a time */
@@ -83,8 +64,8 @@ _t2(decompress_strided, Scalar, 3)(zfp_stream* stream, zfp_field* field)
   uint ny = field->ny;
   uint nz = field->nz;
   int sx = field->sx ? field->sx : 1;
-  int sy = field->sy ? field->sy : nx;
-  int sz = field->sz ? field->sz : nx * ny;
+  int sy = field->sy ? field->sy : (int)nx;
+  int sz = field->sz ? field->sz : (int)(nx * ny);
   uint x, y, z;
 
   /* decompress array one block of 4x4x4 values at a time */
@@ -109,9 +90,9 @@ _t2(decompress_strided, Scalar, 4)(zfp_stream* stream, zfp_field* field)
   uint nz = field->nz;
   uint nw = field->nw;
   int sx = field->sx ? field->sx : 1;
-  int sy = field->sy ? field->sy : nx;
-  int sz = field->sz ? field->sz : (ptrdiff_t)nx * ny;
-  int sw = field->sw ? field->sw : (ptrdiff_t)nx * ny * nz;
+  int sy = field->sy ? field->sy : (int)nx;
+  int sz = field->sz ? field->sz : (int)(nx * ny);
+  int sw = field->sw ? field->sw : (int)(nx * ny * nz);
   uint x, y, z, w;
 
   /* decompress array one block of 4x4x4x4 values at a time */

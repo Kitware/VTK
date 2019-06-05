@@ -15,6 +15,8 @@ _t2(compress_omp, Scalar, 1)(zfp_stream* stream, const zfp_field* field)
 
   /* allocate per-thread streams */
   bitstream** bs = compress_init_par(stream, field, chunks, blocks);
+  if (!bs)
+    return;
 
   /* compress chunks of blocks in parallel */
   int chunk;
@@ -61,6 +63,8 @@ _t2(compress_strided_omp, Scalar, 1)(zfp_stream* stream, const zfp_field* field)
 
   /* allocate per-thread streams */
   bitstream** bs = compress_init_par(stream, field, chunks, blocks);
+  if (!bs)
+    return;
 
   /* compress chunks of blocks in parallel */
   int chunk;
@@ -100,7 +104,7 @@ _t2(compress_strided_omp, Scalar, 2)(zfp_stream* stream, const zfp_field* field)
   uint nx = field->nx;
   uint ny = field->ny;
   int sx = field->sx ? field->sx : 1;
-  int sy = field->sy ? field->sy : nx;
+  int sy = field->sy ? field->sy : (int)nx;
 
   /* number of omp threads, blocks, and chunks */
   uint threads = thread_count_omp(stream);
@@ -111,6 +115,8 @@ _t2(compress_strided_omp, Scalar, 2)(zfp_stream* stream, const zfp_field* field)
 
   /* allocate per-thread streams */
   bitstream** bs = compress_init_par(stream, field, chunks, blocks);
+  if (!bs)
+    return;
 
   /* compress chunks of blocks in parallel */
   int chunk;
@@ -154,8 +160,8 @@ _t2(compress_strided_omp, Scalar, 3)(zfp_stream* stream, const zfp_field* field)
   uint ny = field->ny;
   uint nz = field->nz;
   int sx = field->sx ? field->sx : 1;
-  int sy = field->sy ? field->sy : nx;
-  int sz = field->sz ? field->sz : (ptrdiff_t)nx * ny;
+  int sy = field->sy ? field->sy : (int)nx;
+  int sz = field->sz ? field->sz : (int)(nx * ny);
 
   /* number of omp threads, blocks, and chunks */
   uint threads = thread_count_omp(stream);
@@ -167,6 +173,8 @@ _t2(compress_strided_omp, Scalar, 3)(zfp_stream* stream, const zfp_field* field)
 
   /* allocate per-thread streams */
   bitstream** bs = compress_init_par(stream, field, chunks, blocks);
+  if (!bs)
+    return;
 
   /* compress chunks of blocks in parallel */
   int chunk;
@@ -212,9 +220,9 @@ _t2(compress_strided_omp, Scalar, 4)(zfp_stream* stream, const zfp_field* field)
   uint nz = field->nz;
   uint nw = field->nw;
   int sx = field->sx ? field->sx : 1;
-  int sy = field->sy ? field->sy : nx;
-  int sz = field->sz ? field->sz : (ptrdiff_t)nx * ny;
-  int sw = field->sw ? field->sw : (ptrdiff_t)nx * ny * nz;
+  int sy = field->sy ? field->sy : (int)nx;
+  int sz = field->sz ? field->sz : (int)(nx * ny);
+  int sw = field->sw ? field->sw : (int)(nx * ny * nz);
 
   /* number of omp threads, blocks, and chunks */
   uint threads = thread_count_omp(stream);
@@ -227,6 +235,8 @@ _t2(compress_strided_omp, Scalar, 4)(zfp_stream* stream, const zfp_field* field)
 
   /* allocate per-thread streams */
   bitstream** bs = compress_init_par(stream, field, chunks, blocks);
+  if (!bs)
+    return;
 
   /* compress chunks of blocks in parallel */
   int chunk;

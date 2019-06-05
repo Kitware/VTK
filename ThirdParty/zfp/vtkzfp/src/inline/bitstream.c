@@ -107,6 +107,9 @@ The following assumptions and restrictions apply:
   #define inline_
 #endif
 
+/* satisfy compiler when args unused */
+#define unused_(x) ((void)(x))
+
 /* bit stream word/buffer type; granularity of stream I/O operations */
 #ifdef BIT_STREAM_WORD_TYPE
   /* may be 8-, 16-, 32-, or 64-bit unsigned integer type */
@@ -187,7 +190,7 @@ stream_stride_block(const bitstream* s)
 #ifdef BIT_STREAM_STRIDED
   return s->mask + 1;
 #else
-  (void)s;
+  unused_(s);
   return 1;
 #endif
 }
@@ -199,7 +202,7 @@ stream_stride_delta(const bitstream* s)
 #ifdef BIT_STREAM_STRIDED
   return s->delta / (s->mask + 1);
 #else
-  (void)s;
+  unused_(s);
   return 0;
 #endif
 }
@@ -450,3 +453,5 @@ stream_clone(const bitstream* s)
     *c = *s;
   return c;
 }
+
+#undef unused_

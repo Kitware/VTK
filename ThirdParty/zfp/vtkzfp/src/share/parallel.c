@@ -38,7 +38,7 @@ compress_init_par(zfp_stream* stream, const zfp_field* field, uint chunks, uint 
       f.nw = 4 * (blocks + chunks - 1) / chunks;
       break;
     default:
-      return 0;
+      return NULL;
   }
   size = zfp_stream_maximum_size(stream, &f);
 
@@ -49,10 +49,24 @@ compress_init_par(zfp_stream* stream, const zfp_field* field, uint chunks, uint 
 
   /* set up buffer for each thread to compress to */
   bs = (bitstream**)malloc(chunks * sizeof(bitstream*));
+  if (!bs)
+    return NULL;
   for (i = 0; i < chunks; i++) {
     uint block = chunk_offset(blocks, chunks, i);
     void* buffer = copy ? malloc(size) : (uchar*)stream_data(stream->stream) + stream_size(stream->stream) + block * stream->maxbits / CHAR_BIT;
+    if (!buffer)
+      break;
     bs[i] = stream_open(buffer, size);
+  }
+
+  /* handle memory allocation failure */
+  if (copy && i < chunks) {
+    while (i--) {
+      free(stream_data(bs[i]));
+      stream_close(bs[i]);
+    }
+    free(bs);
+    bs = NULL;
   }
 
   return bs;
