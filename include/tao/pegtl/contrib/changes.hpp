@@ -1,13 +1,13 @@
-// Copyright (c) 2015-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2015-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_CONTRIB_CHANGES_HPP
 #define TAO_PEGTL_CONTRIB_CHANGES_HPP
 
+#include <type_traits>
+
 #include "../config.hpp"
 #include "../normal.hpp"
-
-#include "../internal/conditional.hpp"
 
 namespace tao
 {
@@ -23,24 +23,26 @@ namespace tao
             }
          };
 
-         template< apply_mode A, typename State >
-         using state_disable_helper = typename conditional< A == apply_mode::ACTION >::template type< State, dummy_disabled_state >;
+         template< apply_mode A, typename NewState >
+         using state_disable_helper = typename std::conditional< A == apply_mode::action, NewState, dummy_disabled_state >::type;
 
       }  // namespace internal
 
-      template< typename Rule, typename State, template< typename... > class Base = normal >
+      template< typename Rule, typename NewState, template< typename... > class Base = normal >
       struct change_state
          : public Base< Rule >
       {
          template< apply_mode A,
                    rewind_mode M,
-                   template< typename... > class Action,
-                   template< typename... > class Control,
+                   template< typename... >
+                   class Action,
+                   template< typename... >
+                   class Control,
                    typename Input,
                    typename... States >
          static bool match( Input& in, States&&... st )
          {
-            internal::state_disable_helper< A, State > s;
+            internal::state_disable_helper< A, NewState > s;
 
             if( Base< Rule >::template match< A, M, Action, Control >( in, s ) ) {
                s.success( st... );
@@ -50,32 +52,34 @@ namespace tao
          }
       };
 
-      template< typename Rule, template< typename... > class Action, template< typename... > class Base = normal >
+      template< typename Rule, template< typename... > class NewAction, template< typename... > class Base = normal >
       struct change_action
          : public Base< Rule >
       {
          template< apply_mode A,
                    rewind_mode M,
-                   template< typename... > class,
-                   template< typename... > class Control,
+                   template< typename... >
+                   class Action,
+                   template< typename... >
+                   class Control,
                    typename Input,
                    typename... States >
          static bool match( Input& in, States&&... st )
          {
-            return Base< Rule >::template match< A, M, Action, Control >( in, st... );
+            return Base< Rule >::template match< A, M, NewAction, Control >( in, st... );
          }
       };
 
-      template< template< typename... > class Action, template< typename... > class Base >
+      template< template< typename... > class NewAction, template< typename... > class Base >
       struct change_both_helper
       {
          template< typename T >
-         using change_action = change_action< T, Action, Base >;
+         using change_action = change_action< T, NewAction, Base >;
       };
 
-      template< typename Rule, typename State, template< typename... > class Action, template< typename... > class Base = normal >
+      template< typename Rule, typename NewState, template< typename... > class NewAction, template< typename... > class Base = normal >
       struct change_state_and_action
-         : public change_state< Rule, State, change_both_helper< Action, Base >::template change_action >
+         : public change_state< Rule, NewState, change_both_helper< NewAction, Base >::template change_action >
       {
       };
 

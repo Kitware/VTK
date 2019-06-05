@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_RULES_HPP
@@ -37,7 +37,7 @@ namespace tao
       template< typename Rule, typename Sep > struct list_must< Rule, Sep, void > : internal::list_must< Rule, Sep > {};
       template< typename Rule, typename Sep, typename Pad = void > struct list_tail : internal::list_tail_pad< Rule, Sep, Pad > {};
       template< typename Rule, typename Sep > struct list_tail< Rule, Sep, void > : internal::list_tail< Rule, Sep > {};
-      template< typename M, typename S > struct minus : internal::minus< M, S > {};
+      template< typename M, typename S > struct minus : internal::rematch< M, internal::not_at< S, internal::eof > > {};
       template< typename... Rules > struct must : internal::must< Rules... > {};
       template< typename... Rules > struct not_at : internal::not_at< Rules... > {};
       template< typename... Rules > struct opt : internal::opt< Rules... > {};
@@ -46,6 +46,7 @@ namespace tao
       template< typename Rule, typename Pad > struct pad_opt : internal::pad_opt< Rule, Pad > {};
       template< typename Rule, typename... Rules > struct plus : internal::plus< Rule, Rules... > {};
       template< typename Exception > struct raise : internal::raise< Exception > {};
+      template< typename Head, typename... Rules > struct rematch : internal::rematch< Head, Rules... > {};
       template< unsigned Num, typename... Rules > struct rep : internal::rep< Num, Rules... > {};
       template< unsigned Max, typename... Rules > struct rep_max : internal::rep_min_max< 0, Max, Rules... > {};
       template< unsigned Min, typename Rule, typename... Rules > struct rep_min : internal::rep_min< Min, Rule, Rules... > {};

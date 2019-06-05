@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_MARKER_HPP
@@ -41,10 +41,10 @@ namespace tao
          };
 
          template< typename Iterator >
-         class marker< Iterator, rewind_mode::REQUIRED >
+         class marker< Iterator, rewind_mode::required >
          {
          public:
-            static constexpr rewind_mode next_rewind_mode = rewind_mode::ACTIVE;
+            static constexpr rewind_mode next_rewind_mode = rewind_mode::active;
 
             explicit marker( Iterator& i ) noexcept
                : m_saved( i ),

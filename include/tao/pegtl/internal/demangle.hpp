@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_DEMANGLE_HPP
@@ -10,13 +10,16 @@
 #include "../config.hpp"
 
 #if defined( __GLIBCXX__ )
-#include "demangle_cxxabi.hpp"
+#define TAO_PEGTL_USE_CXXABI_DEMANGLE
 #elif defined( __has_include )
 #if __has_include( <cxxabi.h> )
-#include "demangle_cxxabi.hpp"
-#else
-#include "demangle_nop.hpp"
+#define TAO_PEGTL_USE_CXXABI_DEMANGLE
 #endif
+#endif
+
+#if defined( TAO_PEGTL_USE_CXXABI_DEMANGLE )
+#include "demangle_cxxabi.hpp"
+#undef TAO_PEGTL_USE_CXXABI_DEMANGLE
 #else
 #include "demangle_nop.hpp"
 #endif

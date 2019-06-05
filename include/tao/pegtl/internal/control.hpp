@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_CONTROL_HPP
@@ -24,12 +24,14 @@ namespace tao
          template< template< typename... > class Control, typename... Rules >
          struct control
          {
-            using analyze_t = analysis::generic< analysis::rule_type::SEQ, Rules... >;
+            using analyze_t = analysis::generic< analysis::rule_type::seq, Rules... >;
 
             template< apply_mode A,
                       rewind_mode M,
-                      template< typename... > class Action,
-                      template< typename... > class,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class,
                       typename Input,
                       typename... States >
             static bool match( Input& in, States&&... st )

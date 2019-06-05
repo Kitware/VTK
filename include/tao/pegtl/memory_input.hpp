@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_MEMORY_INPUT_HPP
@@ -20,7 +20,7 @@
 
 #include "internal/action_input.hpp"
 #include "internal/at.hpp"
-#include "internal/bump_impl.hpp"
+#include "internal/bump.hpp"
 #include "internal/eolf.hpp"
 #include "internal/iterator.hpp"
 #include "internal/marker.hpp"
@@ -36,7 +36,7 @@ namespace tao
          class memory_input_base;
 
          template< typename Eol, typename Source >
-         class memory_input_base< tracking_mode::IMMEDIATE, Eol, Source >
+         class memory_input_base< tracking_mode::eager, Eol, Source >
          {
          public:
             using iterator_t = internal::iterator;
@@ -125,6 +125,15 @@ namespace tao
                m_current.byte_in_line = in_byte_in_line;
             }
 
+            template< rewind_mode M >
+            void restart( const internal::marker< iterator_t, M >& m )
+            {
+               m_current.data = m.iterator().data;
+               m_current.byte = m.iterator().byte;
+               m_current.line = m.iterator().line;
+               m_current.byte_in_line = m.iterator().byte_in_line;
+            }
+
          protected:
             const char* const m_begin;
             iterator_t m_current;
@@ -133,7 +142,7 @@ namespace tao
          };
 
          template< typename Eol, typename Source >
-         class memory_input_base< tracking_mode::LAZY, Eol, Source >
+         class memory_input_base< tracking_mode::lazy, Eol, Source >
          {
          public:
             using iterator_t = const char*;
@@ -211,6 +220,12 @@ namespace tao
                m_current = m_begin.data;
             }
 
+            template< rewind_mode M >
+            void restart( const internal::marker< iterator_t, M >& m )
+            {
+               m_current = m.iterator();
+            }
+
          protected:
             const internal::iterator m_begin;
             iterator_t m_current;
@@ -220,7 +235,7 @@ namespace tao
 
       }  // namespace internal
 
-      template< tracking_mode P = tracking_mode::IMMEDIATE, typename Eol = eol::lf_crlf, typename Source = std::string >
+      template< tracking_mode P = tracking_mode::eager, typename Eol = eol::lf_crlf, typename Source = std::string >
       class memory_input
          : public internal::memory_input_base< P, Eol, Source >
       {
@@ -291,6 +306,12 @@ namespace tao
             return this->current()[ offset ];
          }
 
+         std::uint8_t peek_uint8( const std::size_t offset = 0 ) const noexcept
+         {
+            return static_cast< std::uint8_t >( peek_char( offset ) );
+         }
+
+         // Compatibility, remove with 3.0.0
          std::uint8_t peek_byte( const std::size_t offset = 0 ) const noexcept
          {
             return static_cast< std::uint8_t >( peek_char( offset ) );
@@ -339,19 +360,17 @@ namespace tao
 
          const char* end_of_line( const TAO_PEGTL_NAMESPACE::position& p ) const noexcept
          {
-            using input_t = memory_input< tracking_mode::LAZY, Eol, const char* >;
+            using input_t = memory_input< tracking_mode::lazy, Eol, const char* >;
             input_t in( at( p ), this->end(), "" );
             using grammar = internal::until< internal::at< internal::eolf > >;
-            normal< grammar >::match< apply_mode::NOTHING, rewind_mode::DONTCARE, nothing, normal >( in );
+            normal< grammar >::match< apply_mode::nothing, rewind_mode::dontcare, nothing, normal >( in );
             return in.current();
          }
 
-         std::string line_as_string( const TAO_PEGTL_NAMESPACE::position& p ) const
+         std::string line_at( const TAO_PEGTL_NAMESPACE::position& p ) const
          {
             return std::string( begin_of_line( p ), end_of_line( p ) );
          }
-
-         void* internal_state = nullptr;
       };
 
 #ifdef __cpp_deduction_guides

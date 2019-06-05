@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2018-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_CONTRIB_ICU_INTERNAL_HPP
@@ -22,15 +22,18 @@ namespace tao
             template< typename Peek, UProperty P, bool V = true >
             struct binary_property
             {
-               using analyze_t = analysis::generic< analysis::rule_type::ANY >;
+               using analyze_t = analysis::generic< analysis::rule_type::any >;
 
                template< typename Input >
-               static bool match( Input& in ) noexcept( noexcept( Peek::peek( in ) ) )
+               static bool match( Input& in ) noexcept( noexcept( in.size( Peek::max_input_size ) ) )
                {
-                  if( const auto r = Peek::peek( in ) ) {
-                     if( u_hasBinaryProperty( r.data, P ) == V ) {
-                        in.bump( r.size );
-                        return true;
+                  const std::size_t s = in.size( Peek::max_input_size );
+                  if( s >= Peek::min_input_size ) {
+                     if( const auto r = Peek::peek( in, s ) ) {
+                        if( u_hasBinaryProperty( r.data, P ) == V ) {
+                           in.bump( r.size );
+                           return true;
+                        }
                      }
                   }
                   return false;
@@ -40,15 +43,18 @@ namespace tao
             template< typename Peek, UProperty P, int V >
             struct property_value
             {
-               using analyze_t = analysis::generic< analysis::rule_type::ANY >;
+               using analyze_t = analysis::generic< analysis::rule_type::any >;
 
                template< typename Input >
-               static bool match( Input& in ) noexcept( noexcept( Peek::peek( in ) ) )
+               static bool match( Input& in ) noexcept( noexcept( in.size( Peek::max_input_size ) ) )
                {
-                  if( const auto r = Peek::peek( in ) ) {
-                     if( u_getIntPropertyValue( r.data, P ) == V ) {
-                        in.bump( r.size );
-                        return true;
+                  const std::size_t s = in.size( Peek::max_input_size );
+                  if( s >= Peek::min_input_size ) {
+                     if( const auto r = Peek::peek( in, s ) ) {
+                        if( u_getIntPropertyValue( r.data, P ) == V ) {
+                           in.bump( r.size );
+                           return true;
+                        }
                      }
                   }
                   return false;
