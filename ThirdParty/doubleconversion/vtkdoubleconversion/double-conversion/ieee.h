@@ -28,7 +28,7 @@
 #ifndef DOUBLE_CONVERSION_DOUBLE_H_
 #define DOUBLE_CONVERSION_DOUBLE_H_
 
-#include <double-conversion/diy-fp.h>
+#include "diy-fp.h"
 
 namespace double_conversion {
 
@@ -47,6 +47,8 @@ class Double {
   static const uint64_t kHiddenBit = UINT64_2PART_C(0x00100000, 00000000);
   static const int kPhysicalSignificandSize = 52;  // Excludes the hidden bit.
   static const int kSignificandSize = 53;
+  static const int kExponentBias = 0x3FF + kPhysicalSignificandSize;
+  static const int kMaxExponent = 0x7FF - kExponentBias;
 
   Double() : d64_(0) {}
   explicit Double(double d) : d64_(double_to_uint64(d)) {}
@@ -222,9 +224,7 @@ class Double {
   }
 
  private:
-  static const int kExponentBias = 0x3FF + kPhysicalSignificandSize;
   static const int kDenormalExponent = -kExponentBias + 1;
-  static const int kMaxExponent = 0x7FF - kExponentBias;
   static const uint64_t kInfinity = UINT64_2PART_C(0x7FF00000, 00000000);
   static const uint64_t kNaN = UINT64_2PART_C(0x7FF80000, 00000000);
 

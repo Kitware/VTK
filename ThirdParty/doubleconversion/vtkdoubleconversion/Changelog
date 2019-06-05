@@ -1,3 +1,43 @@
+2019-05-25:
+  Fix `0x` for string->double conversion when Hex Floats are allowed.
+  Avoid integer overflow when exponents for hex floats were too big.
+  Update version number.
+
+2019-04-22:
+  Fixed warning in gcc4.9. Thanks to Scott McCaskill
+    (https://github.com/usefulcat) for the patch.
+
+2019-04-16:
+  Merged changes to install libraries in the correct place when
+  using 64-bit libraries.
+  Contributed by Jason Zaman <jasonzaman@gmail.com> and (independently)
+    Dan Church (https://github.com/h3xx)
+
+2019-03-11:
+  Use relative includes in the library. This shouldn't have any visible effect
+  for consumers of the library.
+
+  Update version number.
+
+2019-03-06:
+  Fix typo in test.
+  Update version number.
+
+2019-03-03:
+  Fix separator characters when they they don't fit into 8 bits.
+  Update version number.
+
+2019-02-16:
+  Check correctly for _MSC_VER.
+  Patch by Ben Boeckel
+
+2019-01-17:
+  Allow the library to be compiled for Emscripten.
+  Patch by Tim Paine.
+
+2018-09-15:
+  Update version numbers. This also updates the shared-library version number.
+
 2018-09-09:
   Fix bug where large hex literals would lose their minus sign.
   Added support for separator characters (which adds a new optional
