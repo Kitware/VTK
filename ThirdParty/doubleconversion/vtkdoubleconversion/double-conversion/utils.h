@@ -61,6 +61,13 @@ inline void abort_noreturn() { abort(); }
 #endif
 #endif
 
+#ifndef DOUBLE_CONVERSION_UNUSED
+#ifdef __GNUC__
+#define DOUBLE_CONVERSION_UNUSED __attribute__((unused))
+#else
+#define DOUBLE_CONVERSION_UNUSED
+#endif
+#endif
 
 // Double operations detection based on target architecture.
 // Linux uses a 80bit wide floating point stack on x86. This induces double
@@ -96,10 +103,11 @@ int main(int argc, char** argv) {
     defined(_POWER) || defined(_ARCH_PPC) || defined(_ARCH_PPC64) || \
     defined(__sparc__) || defined(__sparc) || defined(__s390__) || \
     defined(__SH4__) || defined(__alpha__) || \
-    defined(_MIPS_ARCH_MIPS32R2) || \
+    defined(_MIPS_ARCH_MIPS32R2) || defined(__ARMEB__) ||\
     defined(__AARCH64EL__) || defined(__aarch64__) || defined(__AARCH64EB__) || \
     defined(__riscv) || \
-    defined(__or1k__)
+    defined(__or1k__) || defined(__arc__) || \
+    defined(__EMSCRIPTEN__)
 #define DOUBLE_CONVERSION_CORRECT_DOUBLE_OPERATIONS 1
 #elif defined(__mc68000__) || \
     defined(__pnacl__) || defined(__native_client__)
@@ -345,6 +353,7 @@ inline Dest VTKDOUBLECONVERSION_EXPORT BitCast(const Source& source) {
   static_assert(sizeof(Dest) == sizeof(Source),
                 "source and destination size mismatch");
 #else
+  DOUBLE_CONVERSION_UNUSED
   typedef char VerifySizesAreEqual[sizeof(Dest) == sizeof(Source) ? 1 : -1];
 #endif
 
