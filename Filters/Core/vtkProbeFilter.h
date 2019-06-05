@@ -165,7 +165,7 @@ public:
   /**
    * Set whether to use the Tolerance field or precompute the tolerance.
    * When on, the tolerance will be computed and the field
-   * value is ignored. Off by default.
+   * value is ignored. On by default.
    */
   vtkSetMacro(ComputeTolerance, bool);
   vtkBooleanMacro(ComputeTolerance, bool);
