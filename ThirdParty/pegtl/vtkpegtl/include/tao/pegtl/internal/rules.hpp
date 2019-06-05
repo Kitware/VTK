@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_RULES_HPP
@@ -31,7 +31,6 @@
 #include "list_must.hpp"
 #include "list_tail.hpp"
 #include "list_tail_pad.hpp"
-#include "minus.hpp"
 #include "must.hpp"
 #include "not_at.hpp"
 #include "one.hpp"
@@ -42,6 +41,7 @@
 #include "raise.hpp"
 #include "range.hpp"
 #include "ranges.hpp"
+#include "rematch.hpp"
 #include "rep.hpp"
 #include "rep_min.hpp"
 #include "rep_min_max.hpp"
@@ -54,10 +54,8 @@
 #include "star_must.hpp"
 #include "state.hpp"
 #include "string.hpp"
-#include "three.hpp"
 #include "trivial.hpp"
 #include "try_catch_type.hpp"
-#include "two.hpp"
 #include "until.hpp"
 
 #endif

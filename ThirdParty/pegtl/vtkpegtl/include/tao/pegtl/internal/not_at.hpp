@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_NOT_AT_HPP
@@ -33,18 +33,20 @@ namespace tao
          template< typename... Rules >
          struct not_at
          {
-            using analyze_t = analysis::generic< analysis::rule_type::OPT, Rules... >;
+            using analyze_t = analysis::generic< analysis::rule_type::opt, Rules... >;
 
             template< apply_mode,
                       rewind_mode,
-                      template< typename... > class Action,
-                      template< typename... > class Control,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
                       typename Input,
                       typename... States >
             static bool match( Input& in, States&&... st )
             {
-               const auto m = in.template mark< rewind_mode::REQUIRED >();
-               return !rule_conjunction< Rules... >::template match< apply_mode::NOTHING, rewind_mode::ACTIVE, Action, Control >( in, st... );
+               const auto m = in.template mark< rewind_mode::required >();
+               return !rule_conjunction< Rules... >::template match< apply_mode::nothing, rewind_mode::active, Action, Control >( in, st... );
             }
          };
 

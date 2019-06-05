@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_REP_OPT_HPP
@@ -24,17 +24,19 @@ namespace tao
          template< unsigned Max, typename... Rules >
          struct rep_opt
          {
-            using analyze_t = analysis::generic< analysis::rule_type::OPT, Rules... >;
+            using analyze_t = analysis::generic< analysis::rule_type::opt, Rules... >;
 
             template< apply_mode A,
                       rewind_mode,
-                      template< typename... > class Action,
-                      template< typename... > class Control,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
                       typename Input,
                       typename... States >
             static bool match( Input& in, States&&... st )
             {
-               for( unsigned i = 0; ( i != Max ) && duseltronik< seq< Rules... >, A, rewind_mode::REQUIRED, Action, Control >::match( in, st... ); ++i ) {
+               for( unsigned i = 0; ( i != Max ) && duseltronik< seq< Rules... >, A, rewind_mode::required, Action, Control >::match( in, st... ); ++i ) {
                }
                return true;
             }

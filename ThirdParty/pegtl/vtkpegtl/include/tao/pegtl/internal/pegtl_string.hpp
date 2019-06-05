@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2015-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_PEGTL_STRING_HPP
@@ -95,7 +95,7 @@ namespace tao
 #define TAO_PEGTL_KEYWORD( x ) \
    TAO_PEGTL_INTERNAL_STRING( tao::TAO_PEGTL_NAMESPACE::ascii::keyword, x )
 
-// Compatibility, remove with 3.0
+// Compatibility, remove with 3.0.0
 #define TAOCPP_PEGTL_STRING( x ) TAO_PEGTL_STRING( x )
 #define TAOCPP_PEGTL_ISTRING( x ) TAO_PEGTL_ISTRING( x )
 #define TAOCPP_PEGTL_KEYWORD( x ) TAO_PEGTL_KEYWORD( x )

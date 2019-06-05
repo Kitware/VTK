@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2017-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_BOF_HPP
@@ -18,7 +18,7 @@ namespace tao
       {
          struct bof
          {
-            using analyze_t = analysis::generic< analysis::rule_type::OPT >;
+            using analyze_t = analysis::generic< analysis::rule_type::opt >;
 
             template< typename Input >
             static bool match( Input& in ) noexcept

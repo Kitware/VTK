@@ -1,10 +1,10 @@
-// Copyright (c) 2017-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2017-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_CONFIG_HPP
 #define TAO_PEGTL_CONFIG_HPP
 
-// Compatibility, remove with 3.0
+// Compatibility, remove with 3.0.0
 #ifdef TAOCPP_PEGTL_NAMESPACE
 #define TAO_PEGTL_NAMESPACE TAOCPP_PEGTL_NAMESPACE
 #endif

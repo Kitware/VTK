@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_ANALYSIS_COUNTED_HPP
@@ -16,7 +16,7 @@ namespace tao
       {
          template< rule_type Type, unsigned Count, typename... Rules >
          struct counted
-            : generic< ( Count != 0 ) ? Type : rule_type::OPT, Rules... >
+            : generic< ( Count != 0 ) ? Type : rule_type::opt, Rules... >
          {
          };
 

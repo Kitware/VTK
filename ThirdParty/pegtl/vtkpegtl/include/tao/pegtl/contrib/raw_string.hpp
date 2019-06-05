@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_CONTRIB_RAW_STRING_HPP
@@ -32,14 +32,17 @@ namespace tao
          template< char Open, char Marker >
          struct raw_string_open
          {
-            using analyze_t = analysis::generic< analysis::rule_type::ANY >;
+            using analyze_t = analysis::generic< analysis::rule_type::any >;
 
             template< apply_mode A,
                       rewind_mode,
-                      template< typename... > class Action,
-                      template< typename... > class Control,
-                      typename Input >
-            static bool match( Input& in, std::size_t& marker_size ) noexcept( noexcept( in.size( 0 ) ) )
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
+                      typename Input,
+                      typename... States >
+            static bool match( Input& in, std::size_t& marker_size, States&&... /*unused*/ ) noexcept( noexcept( in.size( 0 ) ) )
             {
                if( in.empty() || ( in.peek_char( 0 ) != Open ) ) {
                   return false;
@@ -69,14 +72,17 @@ namespace tao
          template< char Marker, char Close >
          struct at_raw_string_close
          {
-            using analyze_t = analysis::generic< analysis::rule_type::OPT >;
+            using analyze_t = analysis::generic< analysis::rule_type::opt >;
 
             template< apply_mode A,
                       rewind_mode,
-                      template< typename... > class Action,
-                      template< typename... > class Control,
-                      typename Input >
-            static bool match( Input& in, const std::size_t& marker_size ) noexcept( noexcept( in.size( 0 ) ) )
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
+                      typename Input,
+                      typename... States >
+            static bool match( Input& in, const std::size_t& marker_size, States&&... /*unused*/ ) noexcept( noexcept( in.size( 0 ) ) )
             {
                if( in.size( marker_size ) < marker_size ) {
                   return false;
@@ -107,19 +113,21 @@ namespace tao
          template< typename Cond >
          struct raw_string_until< Cond >
          {
-            using analyze_t = analysis::generic< analysis::rule_type::SEQ, star< not_at< Cond >, not_at< eof >, bytes< 1 > >, Cond >;
+            using analyze_t = analysis::generic< analysis::rule_type::seq, star< not_at< Cond >, not_at< eof >, bytes< 1 > >, Cond >;
 
             template< apply_mode A,
                       rewind_mode M,
-                      template< typename... > class Action,
-                      template< typename... > class Control,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
                       typename Input,
                       typename... States >
-            static bool match( Input& in, const std::size_t& marker_size, States&&... /*unused*/ )
+            static bool match( Input& in, const std::size_t& marker_size, States&&... st )
             {
                auto m = in.template mark< M >();
 
-               while( !Control< Cond >::template match< A, rewind_mode::REQUIRED, Action, Control >( in, marker_size ) ) {
+               while( !Control< Cond >::template match< A, rewind_mode::required, Action, Control >( in, marker_size, st... ) ) {
                   if( in.empty() ) {
                      return false;
                   }
@@ -132,12 +140,14 @@ namespace tao
          template< typename Cond, typename... Rules >
          struct raw_string_until
          {
-            using analyze_t = analysis::generic< analysis::rule_type::SEQ, star< not_at< Cond >, not_at< eof >, Rules... >, Cond >;
+            using analyze_t = analysis::generic< analysis::rule_type::seq, star< not_at< Cond >, not_at< eof >, Rules... >, Cond >;
 
             template< apply_mode A,
                       rewind_mode M,
-                      template< typename... > class Action,
-                      template< typename... > class Control,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
                       typename Input,
                       typename... States >
             static bool match( Input& in, const std::size_t& marker_size, States&&... st )
@@ -145,7 +155,7 @@ namespace tao
                auto m = in.template mark< M >();
                using m_t = decltype( m );
 
-               while( !Control< Cond >::template match< A, rewind_mode::REQUIRED, Action, Control >( in, marker_size ) ) {
+               while( !Control< Cond >::template match< A, rewind_mode::required, Action, Control >( in, marker_size, st... ) ) {
                   if( in.empty() || ( !rule_conjunction< Rules... >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) ) ) {
                      return false;
                   }
@@ -200,14 +210,16 @@ namespace tao
 
          template< apply_mode A,
                    rewind_mode M,
-                   template< typename... > class Action,
-                   template< typename... > class Control,
+                   template< typename... >
+                   class Action,
+                   template< typename... >
+                   class Control,
                    typename Input,
                    typename... States >
          static bool match( Input& in, States&&... st )
          {
             std::size_t marker_size;
-            if( internal::raw_string_open< Open, Marker >::template match< A, M, Action, Control >( in, marker_size ) ) {
+            if( internal::raw_string_open< Open, Marker >::template match< A, M, Action, Control >( in, marker_size, st... ) ) {
                internal::must< content >::template match< A, M, Action, Control >( in, marker_size, st... );
                in.bump_in_this_line( marker_size );
                return true;

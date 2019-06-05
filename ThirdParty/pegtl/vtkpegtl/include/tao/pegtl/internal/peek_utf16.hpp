@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_PEEK_UTF16_HPP
@@ -28,13 +28,12 @@ namespace tao
             static_assert( sizeof( short_t ) == 2, "expected size 2 for 16bit value" );
             static_assert( sizeof( char16_t ) == 2, "expected size 2 for 16bit value" );
 
+            static constexpr std::size_t min_input_size = 2;
+            static constexpr std::size_t max_input_size = 4;
+
             template< typename Input >
-            static pair_t peek( Input& in ) noexcept( noexcept( in.size( 4 ) ) )
+            static pair_t peek( const Input& in, const std::size_t s ) noexcept
             {
-               const std::size_t s = in.size( 4 );
-               if( s < 2 ) {
-                  return { 0, 0 };
-               }
                const char32_t t = R::read( in.current() );
                if( ( t < 0xd800 ) || ( t > 0xdfff ) ) {
                   return { t, 2 };
