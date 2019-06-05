@@ -4,7 +4,9 @@
 #define Int int32          /* corresponding signed integer type */
 #define UInt uint32        /* corresponding unsigned integer type */
 #define EBITS 8            /* number of exponent bits */
+#define PBITS 5            /* number of bits needed to encode precision */
 #define NBMASK 0xaaaaaaaau /* negabinary mask */
+#define TCMASK 0x7fffffffu /* two's complement mask */
 
 #if __STDC_VERSION__ >= 199901L
   #define FABS(x)     fabsf(x)
