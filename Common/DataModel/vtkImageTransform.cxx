@@ -207,10 +207,6 @@ namespace { //anonymous
 //============================================================================
 //----------------------------------------------------------------------------
 // Here is the VTK class proper.
-vtkImageTransform::vtkImageTransform()
-{
-}
-
 //----------------------------------------------------------------------------
 void vtkImageTransform::TransformPointSet(vtkImageData *im, vtkPointSet *ps)
 {
