@@ -79,8 +79,8 @@ int TWebPDatasetWriter(const uint8_t* data, size_t data_size,
   
   if ( (tif->tif_rawcc + (tmsize_t)data_size) > tif->tif_rawdatasize ) {
     TIFFErrorExt(tif->tif_clientdata, module,
-                 "Buffer too small by %lu bytes.",
-                 tif->tif_rawcc + data_size - tif->tif_rawdatasize);
+                 "Buffer too small by " TIFF_SIZE_FORMAT " bytes.",
+                 (size_t) (tif->tif_rawcc + data_size - tif->tif_rawdatasize));
     return 0;
   } else {
     _TIFFmemcpy(tif->tif_rawcp, data, data_size);
@@ -158,7 +158,8 @@ TWebPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
     /* Returns the RGB/A image decoded so far */
     buf = WebPIDecGetRGB(sp->psDecoder, &current_y, NULL, NULL, &stride);
     
-    if ((buf != NULL) && (current_y > sp->last_y)) {
+    if ((buf != NULL) &&
+        (occ <= stride * (current_y - sp->last_y))) {
       memcpy(op,   
          buf + (sp->last_y * stride),
          occ);
@@ -593,6 +594,7 @@ TWebPVGetField(TIFF* tif, uint32 tag, va_list ap)
     break;
   case TIFFTAG_WEBP_LOSSLESS:
     *va_arg(ap, int*) = sp->lossless;
+    break;
   default:
     return (*sp->vgetparent)(tif, tag, ap);
   }
