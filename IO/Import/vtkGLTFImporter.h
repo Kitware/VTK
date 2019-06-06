@@ -17,8 +17,8 @@
  * @class   vtkGLTFImporter
  * @brief   Import a GLTF file.
  *
- *
- * vtkGLTFImporter is an importer for glTF files.
+ * vtkGLTFImporter is a concrete subclass of vtkImporter that reads glTF 2.0
+ * files.
  *
  * The GL Transmission Format (glTF) is an API-neutral runtime asset delivery format.
  * A glTF asset is represented by:
@@ -28,8 +28,9 @@
  * - Image files (.jpg, .png) for textures
  *
  * This importer supports materials to the extent supported by vtk (ie: no metallic/roughness
- * textures, normal maps, emmissive maps and alpha masking).
+ * textures, normal maps, emissive maps and alpha masking).
  * This importer does not support animations, morphing and skinnng.
+ * If you would like to use animations, morphing or skinning, please try using vtkGLTFReader.
  *
  * This importer only supports assets that use the 2.x version of the glTF specification.
  *
@@ -43,6 +44,10 @@
  *   The importer supports the KHR_lights_punctual extension except for this feature:
  *   - VTK does not support changing the falloff of the cone with innerConeAngle and outerConeAngle.
  *     The importer uses outerConeAngle and ignores innerConeAngle as specified for this situation.
+ *
+ * @sa
+ * vtkImporter
+ * vtkGLTFReader
  */
 
 #ifndef vtkGLTFImporter_h

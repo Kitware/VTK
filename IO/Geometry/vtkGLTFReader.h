@@ -17,7 +17,7 @@
  * @class   vtkGLTFReader
  * @brief   Read a GLTF file.
  *
- * vtkGLTFReader is a source object that reads a glTF file.
+ * vtkGLTFReader is a concrete subclass of vtkMultiBlockDataSetAlgorithm that reads glTF 2.0 files.
  *
  * The GL Transmission Format (glTF) is an API-neutral runtime asset delivery format.
  * A glTF asset is represented by:
@@ -41,6 +41,8 @@
  *
  * Materials are currently not supported in this reader. If you would like to display materials,
  * please try using vtkGLTFImporter.
+ * You could also use vtkGLTFReader::GetGLTFTexture, to access the image data that was loaded from
+ * the glTF 2.0 document.
  *
  * This reader only supports assets that use the 2.x version of the glTF specification.
  *
@@ -48,6 +50,10 @@
  * https://github.com/KhronosGroup/glTF/tree/master/specification/2.0
  *
  * Note: array sizes should not exceed INT_MAX
+ *
+ * @sa
+ * vtkMultiBlockDataSetAlgorithm
+ * vtkGLTFImporter
  */
 
 #ifndef vtkGLTFReader_h
