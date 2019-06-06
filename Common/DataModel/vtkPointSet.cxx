@@ -128,6 +128,24 @@ vtkMTimeType vtkPointSet::GetMTime()
 }
 
 //----------------------------------------------------------------------------
+void vtkPointSet::BuildLocator()
+{
+  if ( !this->Locator )
+  {
+    this->Locator = vtkPointLocator::New();
+    this->Locator->Register(this);
+    this->Locator->Delete();
+    this->Locator->SetDataSet(this);
+  }
+  else if ( this->Points->GetMTime() > this->Locator->GetMTime() )
+  {
+    this->Locator->SetDataSet(this);
+  }
+
+  this->Locator->BuildLocator();
+}
+
+//----------------------------------------------------------------------------
 vtkIdType vtkPointSet::FindPoint(double x[3])
 {
   if ( !this->Points )
