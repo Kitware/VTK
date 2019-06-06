@@ -18,7 +18,7 @@
  * @brief   Import a GLTF file.
  *
  *
- * vtkGLTFReader is an importer for glTF files.
+ * vtkGLTFImporter is an importer for glTF files.
  *
  * The GL Transmission Format (glTF) is an API-neutral runtime asset delivery format.
  * A glTF asset is represented by:
