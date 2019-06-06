@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_BYTES_HPP
@@ -19,7 +19,7 @@ namespace tao
          template< unsigned Num >
          struct bytes
          {
-            using analyze_t = analysis::counted< analysis::rule_type::ANY, Num >;
+            using analyze_t = analysis::counted< analysis::rule_type::any, Num >;
 
             template< typename Input >
             static bool match( Input& in ) noexcept( noexcept( in.size( 0 ) ) )

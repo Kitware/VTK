@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_REP_HPP
@@ -39,12 +39,14 @@ namespace tao
          template< unsigned Num, typename... Rules >
          struct rep
          {
-            using analyze_t = analysis::counted< analysis::rule_type::SEQ, Num, Rules... >;
+            using analyze_t = analysis::counted< analysis::rule_type::seq, Num, Rules... >;
 
             template< apply_mode A,
                       rewind_mode M,
-                      template< typename... > class Action,
-                      template< typename... > class Control,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
                       typename Input,
                       typename... States >
             static bool match( Input& in, States&&... st )

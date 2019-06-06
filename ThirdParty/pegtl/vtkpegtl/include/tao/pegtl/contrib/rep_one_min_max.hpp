@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2017-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_CONTRIB_REP_ONE_MIN_MAX_HPP
@@ -22,7 +22,7 @@ namespace tao
          template< unsigned Min, unsigned Max, char C >
          struct rep_one_min_max
          {
-            using analyze_t = analysis::counted< analysis::rule_type::ANY, Min >;
+            using analyze_t = analysis::counted< analysis::rule_type::any, Min >;
 
             static_assert( Min <= Max, "invalid rep_one_min_max rule (maximum number of repetitions smaller than minimum)" );
 
@@ -38,7 +38,7 @@ namespace tao
                   ++i;
                }
                if( ( Min <= i ) && ( i <= Max ) ) {
-                  bump_help< result_on_found::SUCCESS, Input, char, C >( in, i );
+                  bump_help< result_on_found::success, Input, char, C >( in, i );
                   return true;
                }
                return false;
@@ -56,10 +56,6 @@ namespace tao
       {
          template< unsigned Min, unsigned Max, char C >
          struct rep_one_min_max : internal::rep_one_min_max< Min, Max, C >
-         {
-         };
-
-         struct ellipsis : internal::rep_one_min_max< 3, 3, '.' >
          {
          };
 

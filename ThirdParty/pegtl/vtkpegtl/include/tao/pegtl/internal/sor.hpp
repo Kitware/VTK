@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_SOR_HPP
@@ -39,22 +39,24 @@ namespace tao
          template< std::size_t... Indices, typename... Rules >
          struct sor< index_sequence< Indices... >, Rules... >
          {
-            using analyze_t = analysis::generic< analysis::rule_type::SOR, Rules... >;
+            using analyze_t = analysis::generic< analysis::rule_type::sor, Rules... >;
 
             template< apply_mode A,
                       rewind_mode M,
-                      template< typename... > class Action,
-                      template< typename... > class Control,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
                       typename Input,
                       typename... States >
             static bool match( Input& in, States&&... st )
             {
 #ifdef __cpp_fold_expressions
-               return ( Control< Rules >::template match < A, ( Indices == ( sizeof...( Rules ) - 1 ) ) ? M : rewind_mode::REQUIRED, Action, Control > ( in, st... ) || ... );
+               return ( Control< Rules >::template match < A, ( Indices == ( sizeof...( Rules ) - 1 ) ) ? M : rewind_mode::required, Action, Control > ( in, st... ) || ... );
 #else
                bool result = false;
                using swallow = bool[];
-               (void)swallow{ result = result || Control< Rules >::template match < A, ( Indices == ( sizeof...( Rules ) - 1 ) ) ? M : rewind_mode::REQUIRED, Action, Control > ( in, st... )... };
+               (void)swallow{ result = result || Control< Rules >::template match < A, ( Indices == ( sizeof...( Rules ) - 1 ) ) ? M : rewind_mode::required, Action, Control > ( in, st... )... };
                return result;
 #endif
             }

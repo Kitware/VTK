@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2018-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_CONTRIB_INTEGER_HPP
@@ -40,7 +40,7 @@ namespace tao
             template< typename I, typename Input >
             I convert_positive( const Input& in, std::size_t index )
             {
-               static constexpr I limit = std::numeric_limits< I >::max();
+               static constexpr I limit = ( std::numeric_limits< I >::max )();
                return actual_convert< I, limit >( in, index );
             }
 
@@ -48,7 +48,7 @@ namespace tao
             I convert_negative( const Input& in, std::size_t index )
             {
                using U = typename std::make_unsigned< I >::type;
-               static constexpr U limit = static_cast< U >( std::numeric_limits< I >::max() ) + 1;
+               static constexpr U limit = static_cast< U >( ( std::numeric_limits< I >::max )() ) + 1;
                return static_cast< I >( ~actual_convert< U, limit >( in, index ) ) + 1;
             }
 
@@ -63,8 +63,8 @@ namespace tao
          {
             // Assumes that 'in' contains a non-empty sequence of ASCII digits.
 
-            template< typename Input, typename State >
-            static void apply( const Input& in, State& st )
+            template< typename Input, typename State, typename... States >
+            static void apply( const Input& in, State& st, States&&... /*unused*/ )
             {
                using T = typename std::decay< decltype( st.converted ) >::type;
                static_assert( std::is_integral< T >::value, "need integral type" );
@@ -83,8 +83,8 @@ namespace tao
             // Assumes that 'in' contains a non-empty sequence of ASCII digits,
             // with optional leading sign; with sign, in.size() must be >= 2.
 
-            template< typename Input, typename State >
-            static void apply( const Input& in, State& st )
+            template< typename Input, typename State, typename... States >
+            static void apply( const Input& in, State& st, States&&... /*unused*/ )
             {
                using T = typename std::decay< decltype( st.converted ) >::type;
                static_assert( std::is_integral< T >::value, "need integral type" );

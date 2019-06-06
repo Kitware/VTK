@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_MUST_HPP
@@ -27,12 +27,14 @@ namespace tao
          template< typename... Rules >
          struct must
          {
-            using analyze_t = analysis::generic< analysis::rule_type::SEQ, Rules... >;
+            using analyze_t = analysis::generic< analysis::rule_type::seq, Rules... >;
 
             template< apply_mode A,
                       rewind_mode M,
-                      template< typename... > class Action,
-                      template< typename... > class Control,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
                       typename Input,
                       typename... States >
             static bool match( Input& in, States&&... st )
@@ -52,14 +54,16 @@ namespace tao
 
             template< apply_mode A,
                       rewind_mode,
-                      template< typename... > class Action,
-                      template< typename... > class Control,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
                       typename Input,
                       typename... States >
             static bool match( Input& in, States&&... st )
             {
-               if( !Control< Rule >::template match< A, rewind_mode::DONTCARE, Action, Control >( in, st... ) ) {
-                  raise< Rule >::template match< A, rewind_mode::DONTCARE, Action, Control >( in, st... );
+               if( !Control< Rule >::template match< A, rewind_mode::dontcare, Action, Control >( in, st... ) ) {
+                  raise< Rule >::template match< A, rewind_mode::dontcare, Action, Control >( in, st... );
                }
                return true;
             }

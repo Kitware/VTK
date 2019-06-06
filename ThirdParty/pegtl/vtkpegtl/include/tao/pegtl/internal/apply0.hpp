@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2017-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_APPLY0_HPP
@@ -23,7 +23,7 @@ namespace tao
          struct apply0_impl;
 
          template<>
-         struct apply0_impl< apply_mode::ACTION >
+         struct apply0_impl< apply_mode::action >
          {
             template< typename... States >
             static bool match( States&&... /*unused*/ ) noexcept
@@ -33,7 +33,7 @@ namespace tao
          };
 
          template< typename... Actions >
-         struct apply0_impl< apply_mode::ACTION, Actions... >
+         struct apply0_impl< apply_mode::action, Actions... >
          {
             template< typename... States >
             static bool match( States&&... st )
@@ -50,7 +50,7 @@ namespace tao
          };
 
          template< typename... Actions >
-         struct apply0_impl< apply_mode::NOTHING, Actions... >
+         struct apply0_impl< apply_mode::nothing, Actions... >
          {
             template< typename... States >
             static bool match( States&&... /*unused*/ ) noexcept
@@ -62,12 +62,14 @@ namespace tao
          template< typename... Actions >
          struct apply0
          {
-            using analyze_t = analysis::counted< analysis::rule_type::ANY, 0 >;
+            using analyze_t = analysis::counted< analysis::rule_type::any, 0 >;
 
             template< apply_mode A,
                       rewind_mode M,
-                      template< typename... > class Action,
-                      template< typename... > class Control,
+                      template< typename... >
+                      class Action,
+                      template< typename... >
+                      class Control,
                       typename Input,
                       typename... States >
             static bool match( Input& /*unused*/, States&&... st )
