@@ -13,11 +13,9 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:             H5Clog.c
- *                      May 30 2016
- *                      Quincey Koziol
+ * Created:     H5Clog.c
  *
- * Purpose:             Functions for generic cache logging in JSON format
+ * Purpose:     Functions for metadata cache logging
  *
  *-------------------------------------------------------------------------
  */
@@ -30,14 +28,12 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"          /* Generic Functions                    */
-#ifdef H5_HAVE_PARALLEL
-#define H5AC_FRIEND		/*suppress error about including H5ACpkg	  */
-#include "H5ACpkg.h"            /* Metadata cache                       */
-#endif /* H5_HAVE_PARALLEL */
-#include "H5Cpkg.h"            /* Metadata cache                       */
-#include "H5Eprivate.h"         /* Error handling                       */
-#include "H5MMprivate.h"	/* Memory management			*/
+#include "H5private.h"          /* Generic Functions                        */
+#define H5AC_FRIEND     /* Suppress error about including H5ACpkg */
+#include "H5ACpkg.h"            /* Metadata cache                           */
+#include "H5Cpkg.h"             /* Cache                                    */
+#include "H5Clog.h"             /* Cache logging                            */
+#include "H5Eprivate.h"         /* Error handling                           */
 
 
 /****************/
@@ -77,133 +73,109 @@
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5C_set_up_logging
+ * Function:    H5C_log_set_up
  *
  * Purpose:     Setup for metadata cache logging.
  *
- *              Metadata logging is enabled and disabled at two levels. This
- *              function and the associated tear_down function open and close
- *              the log file. the start_ and stop_logging functions are then
- *              used to switch logging on/off. Optionally, logging can begin
- *              as soon as the log file is opened (set via the start_immediately
- *              parameter to this function).
+ * Return:      SUCCEED/FAIL
  *
- *              The log functionality is split between the H5C and H5AC
- *              packages. Log state and direct log manipulation resides in
- *              H5C. Log messages are generated in H5AC and sent to
- *              the H5C_write_log_message function.
- *
- * Return:      Non-negative on success/Negative on failure
- *
- * Programmer:	Dana Robinson
- *              Sunday, March 16, 2014
+ * Programmer:  Dana Robinson
+ *              Fall 2018
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_set_up_logging(H5C_t *cache_ptr, const char log_location[],
-    hbool_t start_immediately)
+H5C_log_set_up(H5C_t *cache, const char log_location[], H5C_log_style_t style, hbool_t start_immediately)
 {
-#ifdef H5_HAVE_PARALLEL
-    H5AC_aux_t *aux_ptr = NULL;
-#endif /*H5_HAVE_PARALLEL*/
-    char *file_name = NULL;
-    size_t n_chars;
-    herr_t ret_value = SUCCEED;      /* Return value */
+    int mpi_rank = -1;              /* -1 indicates serial (no MPI rank) */
+    herr_t ret_value = SUCCEED;     /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity checks */
-    if(NULL == cache_ptr)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache_ptr == NULL")
-    if(H5C__H5C_T_MAGIC != cache_ptr->magic)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache magic value incorrect")
-    if(cache_ptr->logging_enabled)
-        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "logging already set up")
-    if(NULL == log_location)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL log location not allowed")
+    HDassert(cache);
+    HDassert(log_location);
 
-    /* Possibly fix up the log file name.
-     * The extra 39 characters are for adding the rank to the file name
-     * under parallel HDF5. 39 characters allows > 2^127 processes which
-     * should be enough for anybody.
-     *
-     * allocation size = <path length> + dot + <rank # length> + \0
+    /* Check logging flags */
+    if(cache->log_info->enabled)
+        HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "logging already set up")
+
+    /* Get the rank when MPI is in use. Logging clients will usually
+     * use that to create per-process logs.
      */
-    n_chars = HDstrlen(log_location) + 1 + 39 + 1;
-    if(NULL == (file_name = (char *)H5MM_calloc(n_chars * sizeof(char))))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, FAIL, "can't allocate memory for mdc log file name manipulation")
-
 #ifdef H5_HAVE_PARALLEL
-    /* Add the rank to the log file name when MPI is in use */
-    aux_ptr = (H5AC_aux_t *)(cache_ptr->aux_ptr);
+    if(NULL != cache->aux_ptr)
+        mpi_rank = ((H5AC_aux_t *)(cache->aux_ptr))->mpi_rank;
+#endif /*H5_HAVE_PARALLEL*/
 
-    if(NULL == aux_ptr)
-        HDsnprintf(file_name, n_chars, "%s", log_location);
-    else {
-        if(aux_ptr->magic != H5AC__H5AC_AUX_T_MAGIC)
-            HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "bad aux_ptr->magic")
-        HDsnprintf(file_name, n_chars, "%s.%d", log_location, aux_ptr->mpi_rank);
-    } /* end else */
-#else /* H5_HAVE_PARALLEL */
-    HDsnprintf(file_name, n_chars, "%s", log_location);
-#endif /* H5_HAVE_PARALLEL */
-
-    /* Open log file */
-    if(NULL == (cache_ptr->log_file_ptr = HDfopen(file_name, "w")))
-        HGOTO_ERROR(H5E_FILE, H5E_CANTOPENFILE, FAIL, "can't create mdc log file")
+    /* Set up logging */
+    if(H5C_LOG_STYLE_JSON == style) {
+        if(H5C_log_json_set_up(cache->log_info, log_location, mpi_rank) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "unable to set up json logging")
+    }
+    else if(H5C_LOG_STYLE_TRACE == style) {
+        if(H5C_log_trace_set_up(cache->log_info, log_location, mpi_rank) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "unable to set up trace logging")
+    }
+    else
+        HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "unknown logging style")
 
     /* Set logging flags */
-    cache_ptr->logging_enabled = TRUE;
-    cache_ptr->currently_logging = start_immediately;
+    cache->log_info->enabled = TRUE;
+
+    /* Start logging if requested */
+    if(start_immediately)
+        if(H5C_start_logging(cache) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "unable to start logging")
 
  done:
-    if(file_name)
-        file_name = (char *)H5MM_xfree(file_name);
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5C_set_up_logging() */
+} /* H5C_log_set_up() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5C_tear_down_logging
+ * Function:    H5C_log_tear_down
  *
  * Purpose:     Tear-down for metadata cache logging.
  *
- * Return:      Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:	Dana Robinson
- *              Sunday, March 16, 2014
+ * Programmer:  Dana Robinson
+ *              Fall 2018
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_tear_down_logging(H5C_t *cache_ptr)
+H5C_log_tear_down(H5C_t *cache)
 {
     herr_t ret_value = SUCCEED;      /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity checks */
-    if(NULL == cache_ptr)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache_ptr == NULL")
-    if(H5C__H5C_T_MAGIC != cache_ptr->magic)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache magic value incorrect")
-    if(FALSE == cache_ptr->logging_enabled)
-        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "logging not enabled")
+    HDassert(cache);
+
+    /* Check logging flags */
+    if(FALSE == cache->log_info->enabled)
+        HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "logging not enabled")
+
+    /* Stop logging if that's going on */
+    if(cache->log_info->logging)
+        if(H5C_stop_logging(cache) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "unable to stop logging")
+
+    /* Tear down logging */
+    if(cache->log_info->cls->tear_down_logging)
+        if(cache->log_info->cls->tear_down_logging(cache->log_info) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific tear down call failed")
 
     /* Unset logging flags */
-    cache_ptr->logging_enabled = FALSE;
-    cache_ptr->currently_logging = FALSE;
-
-    /* Close log file */
-    if(EOF == HDfclose(cache_ptr->log_file_ptr))
-        HGOTO_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, FAIL, "problem closing mdc log file")
-    cache_ptr->log_file_ptr = NULL;
+    cache->log_info->enabled = FALSE;
 
  done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5C_tear_down_logging() */
+} /* H5C_log_tear_down() */
 
 
 /*-------------------------------------------------------------------------
@@ -211,37 +183,39 @@ H5C_tear_down_logging(H5C_t *cache_ptr)
  *
  * Purpose:     Start logging metadata cache operations.
  *
- *              TODO: Add a function that dumps the current state of the
- *                    metadata cache.
+ * Return:      SUCCEED/FAIL
  *
- * Return:      Non-negative on success/Negative on failure
- *
- * Programmer:	Dana Robinson
- *              Sunday, March 16, 2014
+ * Programmer:  Dana Robinson
+ *              Fall 2018
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_start_logging(H5C_t *cache_ptr)
+H5C_start_logging(H5C_t *cache)
 {
     herr_t ret_value = SUCCEED;      /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity checks */
-    if(NULL == cache_ptr)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache_ptr == NULL")
-    if(H5C__H5C_T_MAGIC != cache_ptr->magic)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache magic value incorrect")
-    if(FALSE == cache_ptr->logging_enabled)
-        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "logging not enabled")
-    if(cache_ptr->currently_logging)
-        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "logging already in progress")
+    HDassert(cache);
+
+    /* Check logging flags */
+    if(FALSE == cache->log_info->enabled)
+        HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "logging not enabled")
+
+    /* Start logging */
+    if(cache->log_info->cls->start_logging)
+        if(cache->log_info->cls->start_logging(cache->log_info) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific start call failed")
 
     /* Set logging flags */
-    cache_ptr->currently_logging = TRUE;
+    cache->log_info->logging = TRUE;
 
-    /* TODO - Dump cache state */
+    /* Write a log message */
+    if(cache->log_info->cls->write_start_log_msg)
+        if(cache->log_info->cls->write_start_log_msg(cache->log_info->udata) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific write start call failed")
 
  done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -253,32 +227,41 @@ H5C_start_logging(H5C_t *cache_ptr)
  *
  * Purpose:     Stop logging metadata cache operations.
  *
- * Return:      Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:	Dana Robinson
- *              Sunday, March 16, 2014
+ * Programmer:  Dana Robinson
+ *              Fall 2018
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_stop_logging(H5C_t *cache_ptr)
+H5C_stop_logging(H5C_t *cache)
 {
     herr_t ret_value = SUCCEED;      /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity checks */
-    if(NULL == cache_ptr)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache_ptr == NULL")
-    if(H5C__H5C_T_MAGIC != cache_ptr->magic)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache magic value incorrect")
-    if(FALSE == cache_ptr->logging_enabled)
-        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "logging not enabled")
-    if(FALSE == cache_ptr->currently_logging)
-        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "logging not in progress")
+    HDassert(cache);
+
+    /* Check logging flags */
+    if(FALSE == cache->log_info->enabled)
+        HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "logging not enabled")
+    if(FALSE == cache->log_info->logging)
+        HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "logging not in progress")
+
+    /* Write a log message */
+    if(cache->log_info->cls->write_stop_log_msg)
+        if(cache->log_info->cls->write_stop_log_msg(cache->log_info->udata) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific write stop call failed")
+
+    /* Stop logging */
+    if(cache->log_info->cls->stop_logging)
+        if(cache->log_info->cls->stop_logging(cache->log_info) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific stop call failed")
 
     /* Set logging flags */
-    cache_ptr->currently_logging = FALSE;
+    cache->log_info->logging = FALSE;
 
  done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -289,80 +272,705 @@ H5C_stop_logging(H5C_t *cache_ptr)
  * Function:    H5C_get_logging_status
  *
  * Purpose:     Determines if the cache is actively logging (via the OUT
- *              parameter).
+ *              parameters).
  *
- * Return:      Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:	Dana Robinson
- *              Sunday, March 16, 2014
+ * Programmer:  Dana Robinson
+ *              Fall 2018
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_get_logging_status(const H5C_t *cache_ptr, /*OUT*/ hbool_t *is_enabled,
+H5C_get_logging_status(const H5C_t *cache, /*OUT*/ hbool_t *is_enabled,
                        /*OUT*/ hbool_t *is_currently_logging)
 {
-    herr_t ret_value = SUCCEED;      /* Return value */
+    FUNC_ENTER_NOAPI_NOERR
+
+    /* Sanity checks */
+    HDassert(cache);
+    HDassert(is_enabled);
+    HDassert(is_currently_logging);
+
+    /* Get logging flags */
+    *is_enabled = cache->log_info->enabled;
+    *is_currently_logging = cache->log_info->logging;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* H5C_get_logging_status() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_create_cache_msg
+ *
+ * Purpose:     Write a log message for cache creation.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_create_cache_msg(H5C_t *cache, herr_t fxn_ret_value) 
+{
+    herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity checks */
-    if(NULL == cache_ptr)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache_ptr == NULL")
-    if(H5C__H5C_T_MAGIC != cache_ptr->magic)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache magic value incorrect")
-    if(NULL == is_enabled)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache magic value incorrect")
-    if(NULL == is_currently_logging)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache magic value incorrect")
+    HDassert(cache);
 
-    *is_enabled = cache_ptr->logging_enabled;
-    *is_currently_logging = cache_ptr->currently_logging;
+    /* Write a log message */
+    if(cache->log_info->cls->write_create_cache_log_msg)
+        if(cache->log_info->cls->write_create_cache_log_msg(cache->log_info->udata, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific write create cache call failed")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5C_get_logging_status() */
+} /* H5C_log_write_create_cache_msg() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_destroy_cache_msg
+ *
+ * Purpose:     Write a log message for cache destruction.
+ *
+ * NOTE:        This can't print out the H5AC call return value, since we
+ *              won't know that until the cache is destroyed and at that
+ *              point we no longer have pointers to the logging information.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_destroy_cache_msg(H5C_t *cache) 
+{
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    if(cache->log_info->cls->write_destroy_cache_log_msg)
+        if(cache->log_info->cls->write_destroy_cache_log_msg(cache->log_info->udata) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific write destroy cache call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_destroy_cache_msg() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5C_write_log_message
+ * Function:    H5C_log_write_evict_cache_msg
  *
- * Purpose:     Write a message to the log file and flush the file. 
- *              The message string is neither modified nor freed.
+ * Purpose:     Write a log message for eviction of cache entries.
  *
- * Return:      Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:	Dana Robinson
- *              Sunday, March 16, 2014
+ * Programmer:  Dana Robinson
+ *              Fall 2018
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_write_log_message(const H5C_t *cache_ptr, const char message[])
+H5C_log_write_evict_cache_msg(H5C_t *cache, herr_t fxn_ret_value)
 {
-    size_t n_chars;
-    herr_t ret_value = SUCCEED;      /* Return value */
+    herr_t ret_value = SUCCEED;
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity checks */
-    if(NULL == cache_ptr)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache_ptr == NULL")
-    if(H5C__H5C_T_MAGIC != cache_ptr->magic)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "cache magic value incorrect")
-    if(FALSE == cache_ptr->currently_logging)
-        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "not currently logging")
-    if(NULL == message)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL log message not allowed")
+    HDassert(cache);
 
-    /* Write the log message and flush */
-    n_chars = HDstrlen(message);
-    if((int)n_chars != HDfprintf(cache_ptr->log_file_ptr, message))
-        HGOTO_ERROR(H5E_FILE, H5E_WRITEERROR, FAIL, "error writing log message")
-    if(EOF == HDfflush(cache_ptr->log_file_ptr))
-        HGOTO_ERROR(H5E_FILE, H5E_WRITEERROR, FAIL, "error flushing log message")
+    /* Write a log message */
+    if(cache->log_info->cls->write_evict_cache_log_msg)
+        if(cache->log_info->cls->write_evict_cache_log_msg(cache->log_info->udata, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific write evict cache call failed")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5C_write_log_message() */
+} /* H5C_log_write_evict_cache_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_expunge_entry_msg
+ *
+ * Purpose:     Write a log message for expunge of cache entries.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_expunge_entry_msg(H5C_t *cache, haddr_t address,
+    int type_id, herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    if(cache->log_info->cls->write_expunge_entry_log_msg)
+        if(cache->log_info->cls->write_expunge_entry_log_msg(cache->log_info->udata, address, type_id, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific write expunge entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_expunge_entry_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_flush_cache_msg
+ *
+ * Purpose:     Write a log message for cache flushes.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_flush_cache_msg(H5C_t *cache, herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    if(cache->log_info->cls->write_flush_cache_log_msg)
+        if(cache->log_info->cls->write_flush_cache_log_msg(cache->log_info->udata, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific flush cache call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_flush_cache_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_insert_entry_msg
+ *
+ * Purpose:     Write a log message for insertion of cache entries.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_insert_entry_msg(H5C_t *cache, haddr_t address,
+    int type_id, unsigned flags, size_t size, herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    if(cache->log_info->cls->write_insert_entry_log_msg)
+        if(cache->log_info->cls->write_insert_entry_log_msg(cache->log_info->udata, address, type_id, flags, size, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific insert entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_insert_entry_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_mark_entry_dirty_msg
+ *
+ * Purpose:     Write a log message for marking cache entries as dirty.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_mark_entry_dirty_msg(H5C_t *cache, const H5C_cache_entry_t *entry,
+    herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(entry);
+    if(cache->log_info->cls->write_mark_entry_dirty_log_msg)
+        if(cache->log_info->cls->write_mark_entry_dirty_log_msg(cache->log_info->udata, entry, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific mark dirty entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_mark_entry_dirty_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_mark_entry_clean_msg
+ *
+ * Purpose:     Write a log message for marking cache entries as clean.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_mark_entry_clean_msg(H5C_t *cache, const H5C_cache_entry_t *entry,
+    herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(entry);
+    if(cache->log_info->cls->write_mark_entry_clean_log_msg)
+        if(cache->log_info->cls->write_mark_entry_clean_log_msg(cache->log_info->udata, entry, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific mark clean entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_mark_entry_clean_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_mark_unserialized_entry_msg
+ *
+ * Purpose:     Write a log message for marking cache entries as unserialized.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_mark_unserialized_entry_msg(H5C_t *cache,
+    const H5C_cache_entry_t *entry, herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(entry);
+    if(cache->log_info->cls->write_mark_unserialized_entry_log_msg)
+        if(cache->log_info->cls->write_mark_unserialized_entry_log_msg(cache->log_info->udata, entry, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific mark unserialized entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_mark_unserialized_entry_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_mark_serialized_entry_msg
+ *
+ * Purpose:     Write a log message for marking cache entries as serialize.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_mark_serialized_entry_msg(H5C_t *cache, const H5C_cache_entry_t *entry,
+    herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(entry);
+    if(cache->log_info->cls->write_mark_serialized_entry_log_msg)
+        if(cache->log_info->cls->write_mark_serialized_entry_log_msg(cache->log_info->udata, entry, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific mark serialized entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_mark_serialized_entry_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_move_entry_msg
+ *
+ * Purpose:     Write a log message for moving a cache entry.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_move_entry_msg(H5C_t *cache, haddr_t old_addr, haddr_t new_addr,
+    int type_id, herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    if(cache->log_info->cls->write_move_entry_log_msg)
+        if(cache->log_info->cls->write_move_entry_log_msg(cache->log_info->udata, old_addr, new_addr, type_id, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific move entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_move_entry_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_pin_entry_msg
+ *
+ * Purpose:     Write a log message for pinning a cache entry.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_pin_entry_msg(H5C_t *cache, const H5C_cache_entry_t *entry,
+    herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(entry);
+    if(cache->log_info->cls->write_pin_entry_log_msg)
+        if(cache->log_info->cls->write_pin_entry_log_msg(cache->log_info->udata, entry, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific pin entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_pin_entry_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_create_fd_msg
+ *
+ * Purpose:     Write a log message for creating a flush dependency between
+ *              two cache entries.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_create_fd_msg(H5C_t *cache, const H5C_cache_entry_t *parent,
+    const H5C_cache_entry_t *child, herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(parent);
+    HDassert(child);
+    if(cache->log_info->cls->write_create_fd_log_msg)
+        if(cache->log_info->cls->write_create_fd_log_msg(cache->log_info->udata, parent, child, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific create fd call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_create_fd_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_protect_entry_msg
+ *
+ * Purpose:     Write a log message for protecting a cache entry.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_protect_entry_msg(H5C_t *cache, const H5C_cache_entry_t *entry,
+    int type_id, unsigned flags, herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(entry);
+    if(cache->log_info->cls->write_protect_entry_log_msg)
+        if(cache->log_info->cls->write_protect_entry_log_msg(cache->log_info->udata, entry, type_id, flags, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific protect entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_protect_entry_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_resize_entry_msg
+ *
+ * Purpose:     Write a log message for resizing a cache entry.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_resize_entry_msg(H5C_t *cache, const H5C_cache_entry_t *entry,
+    size_t new_size, herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(entry);
+    if(cache->log_info->cls->write_resize_entry_log_msg)
+        if(cache->log_info->cls->write_resize_entry_log_msg(cache->log_info->udata, entry, new_size, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific resize entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_resize_entry_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_unpin_entry_msg
+ *
+ * Purpose:     Write a log message for unpinning a cache entry.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_unpin_entry_msg(H5C_t *cache, const H5C_cache_entry_t *entry,
+    herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(entry);
+    if(cache->log_info->cls->write_unpin_entry_log_msg)
+        if(cache->log_info->cls->write_unpin_entry_log_msg(cache->log_info->udata, entry, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific unpin entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_unpin_entry_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_destroy_fd_msg
+ *
+ * Purpose:     Write a log message for destroying a flush dependency
+ *              between two cache entries.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_destroy_fd_msg(H5C_t *cache, const H5C_cache_entry_t *parent,
+    const H5C_cache_entry_t *child, herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(parent);
+    HDassert(child);
+    if(cache->log_info->cls->write_destroy_fd_log_msg)
+        if(cache->log_info->cls->write_destroy_fd_log_msg(cache->log_info->udata, parent, child, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific destroy fd call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_destroy_fd_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_unprotect_entry_msg
+ *
+ * Purpose:     Write a log message for unprotecting a cache entry.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_unprotect_entry_msg(H5C_t *cache, haddr_t address,
+    int type_id, unsigned flags, herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    if(cache->log_info->cls->write_unprotect_entry_log_msg)
+        if(cache->log_info->cls->write_unprotect_entry_log_msg(cache->log_info->udata, address, type_id, flags, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific unprotect entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_unprotect_entry_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_set_cache_config_msg
+ *
+ * Purpose:     Write a log message for setting the cache configuration.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_set_cache_config_msg(H5C_t *cache, const H5AC_cache_config_t *config,
+    herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(config);
+    if(cache->log_info->cls->write_set_cache_config_log_msg)
+        if(cache->log_info->cls->write_set_cache_config_log_msg(cache->log_info->udata, config, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific set cache config call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_set_cache_config_msg() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C_log_write_remove_entry_msg
+ *
+ * Purpose:     Write a log message for removing a cache entry.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Dana Robinson
+ *              Fall 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_log_write_remove_entry_msg(H5C_t *cache, const H5C_cache_entry_t *entry,
+    herr_t fxn_ret_value)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(cache);
+
+    /* Write a log message */
+    HDassert(entry);
+    if(cache->log_info->cls->write_remove_entry_log_msg)
+        if(cache->log_info->cls->write_remove_entry_log_msg(cache->log_info->udata, entry, fxn_ret_value) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_LOGGING, FAIL, "log-specific remove entry call failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_log_write_remove_entry_msg() */
 

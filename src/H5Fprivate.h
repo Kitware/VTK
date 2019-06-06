@@ -331,6 +331,8 @@ typedef struct H5F_t H5F_t;
 #define H5F_POINT_OF_NO_RETURN(F) ((F)->shared->fs.point_of_no_return)
 #define H5F_FIRST_ALLOC_DEALLOC(F) ((F)->shared->first_alloc_dealloc)
 #define H5F_EOA_PRE_FSM_FSALLOC(F) ((F)->shared->eoa_pre_fsm_fsalloc)
+#define H5F_GET_MIN_DSET_OHDR(F) ((F)->shared->crt_dset_min_ohdr_flag)
+#define H5F_SET_MIN_DSET_OHDR(F, V) ((F)->shared->crt_dset_min_ohdr_flag = (V))
 #else /* H5F_MODULE */
 #define H5F_LOW_BOUND(F)        (H5F_get_low_bound(F))
 #define H5F_HIGH_BOUND(F)       (H5F_get_high_bound(F))
@@ -388,6 +390,8 @@ typedef struct H5F_t H5F_t;
 #define H5F_POINT_OF_NO_RETURN(F) (H5F_get_point_of_no_return(F))
 #define H5F_FIRST_ALLOC_DEALLOC(F) (H5F_get_first_alloc_dealloc(F))
 #define H5F_EOA_PRE_FSM_FSALLOC(F) (H5F_get_eoa_pre_fsm_fsalloc(F))
+#define H5F_GET_MIN_DSET_OHDR(F) (H5F_get_min_dset_ohdr(F))
+#define H5F_SET_MIN_DSET_OHDR(F, V) (H5F_set_min_dset_ohdr((F), (V)))
 #endif /* H5F_MODULE */
 
 
@@ -482,7 +486,7 @@ typedef struct H5F_t H5F_t;
 #define H5F_ACS_CLOSE_DEGREE_NAME               "close_degree"  /* File close degree */
 #define H5F_ACS_FAMILY_OFFSET_NAME              "family_offset" /* Offset position in file for family file driver */
 #define H5F_ACS_FAMILY_NEWSIZE_NAME             "family_newsize" /* New member size of family driver.  (private property only used by h5repart) */
-#define H5F_ACS_FAMILY_TO_SEC2_NAME             "family_to_sec2" /* Whether to convert family to sec2 driver.  (private property only used by h5repart) */
+#define H5F_ACS_FAMILY_TO_SINGLE_NAME           "family_to_single" /* Whether to convert family to a single-file driver.  (private property only used by h5repart) */
 #define H5F_ACS_MULTI_TYPE_NAME                 "multi_type"    /* Data type in multi file driver */
 #define H5F_ACS_LIBVER_LOW_BOUND_NAME           "libver_low_bound"     /* 'low' bound of library format versions */
 #define H5F_ACS_LIBVER_HIGH_BOUND_NAME          "libver_high_bound"    /* 'high' bound of library format versions */
@@ -741,6 +745,8 @@ H5_DLL hsize_t H5F_get_pgend_meta_thres(const H5F_t *f);
 H5_DLL hbool_t H5F_get_point_of_no_return(const H5F_t *f);
 H5_DLL hbool_t H5F_get_first_alloc_dealloc(const H5F_t *f);
 H5_DLL haddr_t H5F_get_eoa_pre_fsm_fsalloc(const H5F_t *f);
+H5_DLL hbool_t H5F_get_min_dset_ohdr(const H5F_t *f);
+H5_DLL herr_t H5F_set_min_dset_ohdr(H5F_t *f, hbool_t minimize);
 
 /* Functions than retrieve values set/cached from the superblock/FCPL */
 H5_DLL haddr_t H5F_get_base_addr(const H5F_t *f);

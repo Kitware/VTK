@@ -138,7 +138,7 @@ H5_init_library(void)
         if (mpi_initialized && !mpi_finalized) {
             int key_val;
 
-            if(MPI_SUCCESS != (mpi_code = MPI_Comm_create_keyval(MPI_NULL_COPY_FN, 
+            if(MPI_SUCCESS != (mpi_code = MPI_Comm_create_keyval(MPI_COMM_NULL_COPY_FN,
                                                                  (MPI_Comm_delete_attr_function *)H5_mpi_delete_cb, 
                                                                  &key_val, NULL)))
                 HMPI_GOTO_ERROR(FAIL, "MPI_Comm_create_keyval failed", mpi_code)

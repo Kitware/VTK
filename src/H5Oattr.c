@@ -177,6 +177,11 @@ H5O_attr_decode(H5F_t *f, H5O_t *open_oh, unsigned H5_ATTR_UNUSED mesg_flags,
     /* Decode and store the name */
     if(NULL == (attr->shared->name = H5MM_strdup((const char *)p)))
 	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+
+    /* Make an attempt to detect corrupted name or name length - HDFFV-10588 */
+    if(name_len != (HDstrlen(attr->shared->name) + 1))
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTDECODE, NULL, "attribute name has different length than stored length")
+
     if(attr->shared->version < H5O_ATTR_VERSION_2)
         p += H5O_ALIGN_OLD(name_len);    /* advance the memory pointer */
     else

@@ -1548,7 +1548,7 @@ done:
  *
  * Purpose:	Given source and destination buffers in memory (SRC & DST)
  *              copy sequences of from the source buffer into the destination
- *              buffer.  Each set of sequnces has an array of lengths, an
+ *              buffer.  Each set of sequences has an array of lengths, an
  *              array of offsets, the maximum number of sequences and the
  *              current sequence to start at in the sequence.
  *

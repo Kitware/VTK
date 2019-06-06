@@ -66,7 +66,7 @@ hbool_t H5_PKG_INIT_VAR = FALSE;
 /*******************/
 
 /* Bitmask that controls whether classes of plugins
- * (e.g.: filters, VOL drivers) can be loaded.
+ * (e.g.: filters) can be loaded.
  */
 static unsigned int     H5PL_plugin_control_mask_g = H5PL_ALL_PLUGIN;
 

@@ -220,8 +220,8 @@ H5Dcreate_anon(hid_t loc_id, hid_t type_id, hid_t space_id, hid_t dcpl_id,
         HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, H5I_INVALID_HID, "can't set access property list info")
 
     /* build and open the new dataset */
-    if(NULL == (dset = H5D__create_anon(loc.oloc->file, type_id, space, dcpl_id, dapl_id)))
-	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to create dataset")
+    if(NULL == (dset = H5D__create(loc.oloc->file, type_id, space, dcpl_id, dapl_id)))
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to create dataset")
 
     /* Register the new dataset to get an ID for it */
     if((ret_value = H5I_register(H5I_DATASET, dset, TRUE)) < 0)
@@ -481,8 +481,8 @@ H5Dget_create_plist(hid_t dset_id)
     if(NULL == (dataset = (H5D_t *)H5I_object_verify(dset_id, H5I_DATASET)))
 	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a dataset")
 
-    if((ret_value = H5D__get_create_plist(dataset)) < 0)
-	HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, H5I_INVALID_HID, "Can't get creation plist")
+    if((ret_value = H5D_get_create_plist(dataset)) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, H5I_INVALID_HID, "Can't get creation plist")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1130,3 +1130,153 @@ done:
     FUNC_LEAVE_API(ret_value);
 } /* H5Dget_chunk_storage_size() */
 
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Dget_num_chunks
+ *
+ * Purpose:     Retrieves the number of chunks that have nonempty intersection
+ *              with a specified selection.
+ *
+ * Note:        Currently, this function only gets the number of all written
+ *              chunks, regardless the dataspace.
+ *
+ * Parameters:
+ *              hid_t dset_id;      IN: Chunked dataset ID
+ *              hid_t fspace_id;    IN: File dataspace ID
+ *              hsize_t *nchunks;   OUT:: Number of non-empty chunks
+ *
+ * Return:      Non-negative on success, negative on failure
+ *
+ * Programmer:  Binh-Minh Ribler
+ *              August 2018 (HDFFV-10615)
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Dget_num_chunks(hid_t dset_id, hid_t fspace_id, hsize_t *nchunks)
+{
+    H5D_t       *dset = NULL;
+    const H5S_t *space;              /* Dataspace for dataset */
+    herr_t      ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE3("e", "ii*h", dset_id, fspace_id, nchunks);
+
+    /* Check arguments */
+    if(NULL == (dset = (H5D_t *)H5I_object_verify(dset_id, H5I_DATASET)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
+    if(NULL == (space = (const H5S_t *)H5I_object_verify(fspace_id, H5I_DATASPACE)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataspace ID")
+    if(NULL == nchunks)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid argument (null)")
+
+    if(H5D_CHUNKED != dset->shared->layout.type)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a chunked dataset")
+
+    /* Get the number of written chunks */
+    if(H5D__get_num_chunks(dset, space, nchunks) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "error getting number of chunks")
+
+done:
+    FUNC_LEAVE_API(ret_value);
+} /* H5Dget_num_chunks() */
+ 
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Dget_chunk_info
+ *
+ * Purpose:     Retrieves information about a chunk specified by its index.
+ *
+ * Parameters:
+ *              hid_t dset_id;          IN: Chunked dataset ID
+ *              hid_t fspace_id;        IN: File dataspace ID
+ *              hsize_t chk_idx;        IN: Index of allocated/written chunk
+ *              hsize_t *offset         OUT: Offset coordinates of the chunk
+ *              unsigned *filter_mask   OUT: Filter mask
+ *              haddr_t *addr           OUT: Address of the chunk
+ *              hsize_t *size           OUT: Size of the chunk
+ *
+ * Return:      Non-negative on success, negative on failure
+ *
+ * Programmer:  Binh-Minh Ribler
+ *              August 2018 (HDFFV-10615)
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Dget_chunk_info(hid_t dset_id, hid_t fspace_id, hsize_t chk_idx, hsize_t *offset, unsigned *filter_mask, haddr_t *addr, hsize_t *size)
+{
+    H5D_t       *dset = NULL;
+    const H5S_t *space;              /* Dataspace for dataset */
+    herr_t      ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE7("e", "iih*h*Iu*a*h", dset_id, fspace_id, chk_idx, offset, filter_mask,
+             addr, size);
+
+    /* Check arguments */
+    if(NULL == (dset = (H5D_t *)H5I_object_verify(dset_id, H5I_DATASET)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset ID")
+    if(NULL == (space = (const H5S_t *)H5I_object_verify(fspace_id, H5I_DATASPACE)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataspace ID")
+    if(NULL == offset && NULL == filter_mask && NULL == addr && NULL == size)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid arguments, must have at least one non-null output argument")
+
+    if(H5D_CHUNKED != dset->shared->layout.type)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a chunked dataset")
+
+    /* Call private function to get the chunk info given the chunk's index */
+    if(H5D__get_chunk_info(dset, space, chk_idx, offset, filter_mask, addr, size) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get chunk info")
+
+done:
+    FUNC_LEAVE_API(ret_value);
+} /* H5Dget_chunk_info() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Dget_chunk_info_by_coord
+ *
+ * Purpose:     Retrieves information about a chunk specified by its offset
+ *              coordinates.
+ *
+ * Parameters:
+ *              hid_t dset_id           IN: Chunked dataset ID
+ *              hsize_t *offset         IN: Offset coordinates of the chunk
+ *              unsigned *filter_mask   OUT: Filter mask
+ *              haddr_t *addr           OUT: Address of the chunk
+ *              hsize_t *size           OUT: Size of the chunk
+ *
+ * Return:      Non-negative on success, negative on failure
+ *
+ * Programmer:  Binh-Minh Ribler
+ *              August 2018 (HDFFV-10615)
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Dget_chunk_info_by_coord(hid_t dset_id, const hsize_t *offset, unsigned *filter_mask, haddr_t *addr, hsize_t *size)
+{
+    H5D_t      *dset = NULL;
+    herr_t      ret_value = SUCCEED;            /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE5("e", "i*h*Iu*a*h", dset_id, offset, filter_mask, addr, size);
+
+    /* Check arguments */
+    if(NULL == (dset = (H5D_t *)H5I_object_verify(dset_id, H5I_DATASET)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
+    if(NULL == offset)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid argument (null)")
+    if(NULL == filter_mask && NULL == addr && NULL == size)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid arguments, must have at least one non-null output argument")
+
+    if(H5D_CHUNKED != dset->shared->layout.type)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a chunked dataset")
+
+    /* Internal function to get the chunk info */
+    if (H5D__get_chunk_info_by_coord(dset, offset, filter_mask, addr, size) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_READERROR, FAIL, "can't get chunk info")
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* end H5Dget_chunk_info_by_coord() */

@@ -100,11 +100,11 @@ H5Tget_order(hid_t type_id)
 
     /* Check args */
     if(NULL == (dt = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
-	HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, H5T_ORDER_ERROR, "not a datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, H5T_ORDER_ERROR, "not a datatype")
 
     /* Get order */
     if(H5T_ORDER_ERROR == (ret_value = H5T_get_order(dt)))
-	HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, H5T_ORDER_ERROR, "cant't get order for specified datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, H5T_ORDER_ERROR, "can't get order for specified datatype")
 
 done:
     FUNC_LEAVE_API(ret_value)

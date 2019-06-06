@@ -233,7 +233,7 @@ H5_DLL herr_t H5Fflush(hid_t object_id, H5F_scope_t scope);
 H5_DLL herr_t H5Fclose(hid_t file_id);
 H5_DLL hid_t  H5Fget_create_plist(hid_t file_id);
 H5_DLL hid_t  H5Fget_access_plist(hid_t file_id);
-H5_DLL herr_t H5Fget_intent(hid_t file_id, unsigned * intent);
+H5_DLL herr_t H5Fget_intent(hid_t file_id, unsigned *intent);
 H5_DLL ssize_t H5Fget_obj_count(hid_t file_id, unsigned types);
 H5_DLL ssize_t H5Fget_obj_ids(hid_t file_id, unsigned types, size_t max_objs, hid_t *obj_id_list);
 H5_DLL herr_t H5Fget_vfd_handle(hid_t file_id, hid_t fapl, void **file_handle);
@@ -273,6 +273,8 @@ H5_DLL herr_t H5Freset_page_buffering_stats(hid_t file_id);
 H5_DLL herr_t H5Fget_page_buffering_stats(hid_t file_id, unsigned accesses[2],
     unsigned hits[2], unsigned misses[2], unsigned evictions[2], unsigned bypasses[2]);
 H5_DLL herr_t H5Fget_mdc_image_info(hid_t file_id, haddr_t *image_addr, hsize_t *image_size);
+H5_DLL herr_t H5Fget_dset_no_attrs_hint(hid_t file_id, hbool_t *minimize);
+H5_DLL herr_t H5Fset_dset_no_attrs_hint(hid_t file_id, hbool_t minimize);
 
 #ifdef H5_HAVE_PARALLEL
 H5_DLL herr_t H5Fset_mpi_atomicity(hid_t file_id, hbool_t flag);

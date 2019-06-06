@@ -26,28 +26,22 @@
  */
 
 #include "H5Imodule.h"          /* This source code file is part of the H5I module */
+#define H5T_FRIEND              /* Suppress error about including H5Tpkg */
 
 
 #include "H5private.h"          /* Generic Functions                        */
 #include "H5ACprivate.h"        /* Metadata cache                           */
 #include "H5CXprivate.h"        /* API Contexts                             */
+#include "H5Dprivate.h"         /* Datasets                                 */
 #include "H5Eprivate.h"		    /* Error handling                           */
 #include "H5FLprivate.h"	    /* Free Lists                               */
+#include "H5Gprivate.h"         /* Groups                                   */
 #include "H5Ipkg.h"             /* IDs                                      */
 #include "H5MMprivate.h"        /* Memory management                        */
 #include "H5Oprivate.h"         /* Object headers                           */
 #include "H5SLprivate.h"        /* Skip Lists                               */
+#include "H5Tpkg.h"             /* Datatypes                                */
 
-/* Define this to compile in support for dumping ID information */
-/* #define H5I_DEBUG_OUTPUT */
-#ifndef H5I_DEBUG_OUTPUT
-#include "H5Gprivate.h"         /* Groups                                   */
-#else /* H5I_DEBUG_OUTPUT */
-#define H5G_FRIEND              /* Suppress error about including H5Gpkg    */
-#include "H5Gpkg.h"             /* Groups                                   */
-#include "H5Dprivate.h"         /* Datasets                                 */
-#include "H5Tprivate.h"         /* Datatypes                                */
-#endif /* H5I_DEBUG_OUTPUT */
 
 /* Local Macros */
 
@@ -128,11 +122,8 @@ static int H5I__inc_type_ref(H5I_type_t type);
 static int H5I__get_type_ref(H5I_type_t type);
 static int H5I__search_cb(void *obj, hid_t id, void *_udata);
 static H5I_id_info_t *H5I__find_id(hid_t id);
-static ssize_t H5I__get_name(const H5G_loc_t *loc, char *name, size_t size);
-#ifdef H5I_DEBUG_OUTPUT
 static int H5I__debug_cb(void *_item, void *_key, void *_udata);
-static herr_t H5I__debug(H5I_type_t type);
-#endif /* H5I_DEBUG_OUTPUT */
+static int H5I__id_dump_cb(void *_item, void *_key, void *_udata);
 
 
 /*-------------------------------------------------------------------------
@@ -2021,48 +2012,13 @@ H5Iget_name(hid_t id, char *name/*out*/, size_t size)
     if(H5G_loc(id, &loc) < 0)
         HGOTO_ERROR(H5E_ATOM, H5E_CANTGET, (-1), "can't retrieve object location")
 
-    /* Call internal routine to retrieve object's name */
-    if((ret_value = H5I__get_name(&loc, name, size)) < 0)
+    /* Retrieve object's name */
+    if((ret_value = H5G_get_name(&loc, name, size, NULL)) < 0)
         HGOTO_ERROR(H5E_ATOM, H5E_CANTGET, (-1), "can't retrieve object name")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Iget_name() */
-
-
-/*-------------------------------------------------------------------------
- * Function:    H5I__get_name
- *
- * Purpose:     Internal routine to retrieve the name for an object
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:      Success:    The length of the name
- *              Failure:    -1
- *
- * Programmer:  Quincey Koziol
- *              January 9, 2018
- *
- *-------------------------------------------------------------------------
- */
-static ssize_t
-H5I__get_name(const H5G_loc_t *loc, char *name, size_t size)
-{
-    ssize_t ret_value = -1;     /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Check arguments */
-    HDassert(loc);
-
-    /* Retrieve object's name */
-    if((ret_value = H5G_get_name(loc, name, size, NULL)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTGET, (-1), "can't retrieve object name")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5I__get_name() */
 
 
 /*-------------------------------------------------------------------------
@@ -2145,10 +2101,9 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5I_get_file_id() */
 
-#ifdef H5I_DEBUG_OUTPUT
 
 /*-------------------------------------------------------------------------
- * Function:    H5I__debug_cb
+ * Function:    H5I__id_dump_cb
  *
  * Purpose:     Dump the contents of an ID to stderr for debugging.
  *
@@ -2157,7 +2112,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static int
-H5I__debug_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
+H5I__id_dump_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
 {
     H5I_id_info_t  *item    = (H5I_id_info_t *)_item;       /* Pointer to the ID node */
     H5I_type_t      type    = *(H5I_type_t *)_udata;        /* User data */
@@ -2170,7 +2125,7 @@ H5I__debug_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
     HDfprintf(stderr, "		 obj   = 0x%08lx\n", (unsigned long)(item->obj_ptr));
 
     /* Get the group location, so we get get the name */
-    switch (type) {
+    switch(type) {
         case H5I_GROUP:
         {
             path = H5G_nameof((H5G_t*)item->obj_ptr);
@@ -2201,9 +2156,9 @@ H5I__debug_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
         case H5I_NTYPES:
         default:
             break;   /* Other types of IDs are not stored in files */
-    }
+    } /* end switch */
 
-    if (path) {
+    if(path) {
         if (path->user_path_r)
             HDfprintf(stderr, "                user_path = %s\n", H5RS_get_str(path->user_path_r));
         if (path->full_path_r)
@@ -2211,11 +2166,11 @@ H5I__debug_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
     }
 
     FUNC_LEAVE_NOAPI(H5_ITER_CONT)
-} /* end H5I__debug_cb() */
+} /* end H5I__id_dump_cb() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5I__debug
+ * Function:    H5I_dump_ids_for_type
  *
  * Purpose:     Dump the contents of a type to stderr for debugging.
  *
@@ -2223,27 +2178,33 @@ H5I__debug_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
  *
  *-------------------------------------------------------------------------
  */
-static herr_t
-H5I__debug(H5I_type_t type)
+herr_t
+H5I_dump_ids_for_type(H5I_type_t type)
 {
-    H5I_id_type_t *type_ptr;
+    H5I_id_type_t  *type_ptr = NULL;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_NOAPI_NOERR
 
     HDfprintf(stderr, "Dumping ID type %d\n", (int)type);
     type_ptr = H5I_id_type_list_g[type];
 
-    /* Header */
-    HDfprintf(stderr, "	 init_count = %u\n", type_ptr->init_count);
-    HDfprintf(stderr, "	 reserved   = %u\n", type_ptr->cls->reserved);
-    HDfprintf(stderr, "	 id_count   = %llu\n", (unsigned long long)type_ptr->id_count);
-    HDfprintf(stderr, "	 nextid	    = %llu\n", (unsigned long long)type_ptr->nextid);
+    if(type_ptr) {
 
-    /* List */
-    HDfprintf(stderr, "	 List:\n");
-    H5SL_iterate(type_ptr->ids, H5I__debug_cb, &type);
+        /* Header */
+        HDfprintf(stderr, "	 init_count = %u\n", type_ptr->init_count);
+        HDfprintf(stderr, "	 reserved   = %u\n", type_ptr->cls->reserved);
+        HDfprintf(stderr, "	 id_count   = %llu\n", (unsigned long long)type_ptr->id_count);
+        HDfprintf(stderr, "	 nextid	    = %llu\n", (unsigned long long)type_ptr->nextid);
+
+        /* List */
+        if(type_ptr->id_count > 0) {
+            HDfprintf(stderr, "	 List:\n");
+            H5SL_iterate(type_ptr->ids, H5I__id_dump_cb, &type);
+        }
+    }
+    else
+        HDfprintf(stderr, "Global type info/tracking pointer for that type is NULL\n");
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5I__debug() */
-#endif /* H5I_DEBUG_OUTPUT */
+} /* end H5I_dump_ids_for_type() */
 

@@ -49,7 +49,6 @@ static herr_t H5O__flush(hid_t obj_id);
 static herr_t H5O__oh_tag(const H5O_loc_t *oloc, haddr_t *tag);
 static herr_t H5O__refresh_metadata_close(hid_t oid, H5O_loc_t oloc,
 	H5G_loc_t *obj_loc);
-static herr_t H5O__refresh(hid_t obj_id);
 
 
 /*************/
@@ -133,9 +132,6 @@ done:
  *
  * Purpose:     Internal routine to flush an object
  *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
@@ -152,7 +148,7 @@ H5O__flush(hid_t obj_id)
     const H5O_obj_class_t  *obj_class;	/* Class of object */
     herr_t ret_value = SUCCEED;	/* Return value */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* Check args */
     if(NULL == (oloc = H5O_get_loc(obj_id)))
@@ -175,7 +171,7 @@ H5O__flush(hid_t obj_id)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTFLUSH, FAIL, "unable to flush object and object flush callback")
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__flush() */
 
 
@@ -235,17 +231,22 @@ done:
 herr_t
 H5Orefresh(hid_t oid)
 {
-    herr_t ret_value = SUCCEED;		/* Return value */
+    H5O_loc_t *oloc;            /* object location */
+    herr_t ret_value = SUCCEED; /* return value */
     
     FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", oid);
+
+    /* Check args */
+    if(NULL == (oloc = H5O_get_loc(oid)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an object")
 
     /* Set up collective metadata if appropriate */
     if(H5CX_set_loc(oid) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Call internal routine */
-    if(H5O__refresh(oid) < 0)
+    if(H5O_refresh_metadata(oid, *oloc) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTLOAD, FAIL, "unable to refresh object")
 
 done:
@@ -459,41 +460,4 @@ H5O_refresh_metadata_reopen(hid_t oid, H5G_loc_t *obj_loc, hbool_t start_swmr)
 done:
     FUNC_LEAVE_NOAPI(ret_value);
 } /* end H5O_refresh_metadata_reopen() */
-
-
-/*-------------------------------------------------------------------------
- * Function:    H5O__refresh
- *
- * Purpose:     Internal routine to refresh an object
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
- *
- * Programmer:	Quincey Koziol
- *		December 29, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5O__refresh(hid_t obj_id)
-{
-    H5O_loc_t *oloc;            /* Object location */
-    herr_t ret_value = SUCCEED;	/* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Check args */
-    if(NULL == (oloc = H5O_get_loc(obj_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an object")
-
-    /* Private function */
-    if(H5O_refresh_metadata(obj_id, *oloc) < 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTLOAD, FAIL, "unable to refresh object")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5O__refresh() */
 

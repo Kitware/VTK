@@ -72,7 +72,7 @@
 /*******************/
 
 
-/* Future function prototypes to be deprecated in next major version
+/* Compatibility function prototypes to replace non-versioned function for use by macro in next version
  * see HDFFV-10552
 #ifndef H5_NO_DEPRECATED_SYMBOLS
  */
@@ -103,8 +103,8 @@ H5Oget_info1(hid_t loc_id, H5O_info_t *oinfo)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no info struct")
 
     /* Retrieve the object's information */
-    if(H5O__get_info_by_name(&loc, ".", oinfo/*out*/, H5O_INFO_ALL) < 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't get info for object")
+    if(H5G_loc_info(&loc, ".", oinfo/*out*/, H5O_INFO_ALL) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't retrieve object info")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -143,7 +143,7 @@ H5Oget_info_by_name1(hid_t loc_id, const char *name, H5O_info_t *oinfo, hid_t la
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Retrieve the object's information */
-    if(H5O__get_info_by_name(&loc, name, oinfo/*out*/, H5O_INFO_ALL) < 0)
+    if(H5G_loc_info(&loc, name, oinfo/*out*/, H5O_INFO_ALL) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't get info for object: '%s'", name)
 
 done:
@@ -331,7 +331,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Ovisit_by_name1() */
 
-/* Future function prototypes to be deprecated in next major version
+/* Compatibility function prototypes to replace non-versioned function for use by macro in next version
  * see HDFFV-10552
 #endif (* H5_NO_DEPRECATED_SYMBOLS *)
  */

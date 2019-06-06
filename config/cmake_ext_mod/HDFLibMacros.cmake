@@ -30,6 +30,7 @@ macro (EXTERNAL_JPEG_LIBRARY compress_type jpeg_pic)
             -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH=${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
             -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH=${CMAKE_PDB_OUTPUT_DIRECTORY}
             -DCMAKE_ANSI_CFLAGS:STRING=${jpeg_pic}
+            -DCMAKE_TOOLCHAIN_FILE:STRING=${CMAKE_TOOLCHAIN_FILE}
     )
   elseif (${compress_type} MATCHES "GIT")
     EXTERNALPROJECT_ADD (JPEG
@@ -47,6 +48,7 @@ macro (EXTERNAL_JPEG_LIBRARY compress_type jpeg_pic)
             -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH=${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
             -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH=${CMAKE_PDB_OUTPUT_DIRECTORY}
             -DCMAKE_ANSI_CFLAGS:STRING=${jpeg_pic}
+            -DCMAKE_TOOLCHAIN_FILE:STRING=${CMAKE_TOOLCHAIN_FILE}
     )
   elseif (${compress_type} MATCHES "TGZ")
     EXTERNALPROJECT_ADD (JPEG
@@ -64,6 +66,7 @@ macro (EXTERNAL_JPEG_LIBRARY compress_type jpeg_pic)
             -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH=${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
             -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH=${CMAKE_PDB_OUTPUT_DIRECTORY}
             -DCMAKE_ANSI_CFLAGS:STRING=${jpeg_pic}
+            -DCMAKE_TOOLCHAIN_FILE:STRING=${CMAKE_TOOLCHAIN_FILE}
     )
   endif ()
   externalproject_get_property (JPEG BINARY_DIR SOURCE_DIR)
@@ -72,14 +75,14 @@ macro (EXTERNAL_JPEG_LIBRARY compress_type jpeg_pic)
 # Create imported target jpeg-static
   add_library(jpeg-static STATIC IMPORTED)
   HDF_IMPORT_SET_LIB_OPTIONS (jpeg-static "jpeg" STATIC "")
-  add_dependencies (JPEG jpeg-static)
+  add_dependencies (jpeg-static JPEG)
   set (JPEG_STATIC_LIBRARY "jpeg-static")
   set (JPEG_LIBRARIES ${JPEG_STATIC_LIBRARY})
   if (BUILD_SHARED_LIBS)
     # Create imported target jpeg-shared
     add_library(jpeg-shared SHARED IMPORTED)
     HDF_IMPORT_SET_LIB_OPTIONS (jpeg-shared "jpeg" SHARED "")
-    add_dependencies (JPEG jpeg-shared)
+    add_dependencies (jpeg-shared JPEG)
     set (JPEG_SHARED_LIBRARY "jpeg-shared")
     set (JPEG_LIBRARIES ${JPEG_LIBRARIES} ${JPEG_SHARED_LIBRARY})
   endif ()
@@ -121,6 +124,7 @@ macro (EXTERNAL_SZIP_LIBRARY compress_type encoding)
             -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH=${CMAKE_PDB_OUTPUT_DIRECTORY}
             -DCMAKE_ANSI_CFLAGS:STRING=${CMAKE_ANSI_CFLAGS}
             -DSZIP_ENABLE_ENCODING:BOOL=${encoding}
+            -DCMAKE_TOOLCHAIN_FILE:STRING=${CMAKE_TOOLCHAIN_FILE}
     )
   elseif (${compress_type} MATCHES "GIT")
     EXTERNALPROJECT_ADD (SZIP
@@ -139,6 +143,7 @@ macro (EXTERNAL_SZIP_LIBRARY compress_type encoding)
             -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH=${CMAKE_PDB_OUTPUT_DIRECTORY}
             -DCMAKE_ANSI_CFLAGS:STRING=${CMAKE_ANSI_CFLAGS}
             -DSZIP_ENABLE_ENCODING:BOOL=${encoding}
+            -DCMAKE_TOOLCHAIN_FILE:STRING=${CMAKE_TOOLCHAIN_FILE}
     )
   elseif (${compress_type} MATCHES "TGZ")
     EXTERNALPROJECT_ADD (SZIP
@@ -157,6 +162,7 @@ macro (EXTERNAL_SZIP_LIBRARY compress_type encoding)
             -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH=${CMAKE_PDB_OUTPUT_DIRECTORY}
             -DCMAKE_ANSI_CFLAGS:STRING=${CMAKE_ANSI_CFLAGS}
             -DSZIP_ENABLE_ENCODING:BOOL=${encoding}
+            -DCMAKE_TOOLCHAIN_FILE:STRING=${CMAKE_TOOLCHAIN_FILE}
     )
   endif ()
   externalproject_get_property (SZIP BINARY_DIR SOURCE_DIR)
@@ -165,14 +171,14 @@ macro (EXTERNAL_SZIP_LIBRARY compress_type encoding)
 # Create imported target szip-static
   add_library(szip-static STATIC IMPORTED)
   HDF_IMPORT_SET_LIB_OPTIONS (szip-static "szip" STATIC "")
-  add_dependencies (SZIP szip-static)
+  add_dependencies (szip-static SZIP)
   set (SZIP_STATIC_LIBRARY "szip-static")
   set (SZIP_LIBRARIES ${SZIP_STATIC_LIBRARY})
   if (BUILD_SHARED_LIBS)
     # Create imported target szip-shared
     add_library(szip-shared SHARED IMPORTED)
     HDF_IMPORT_SET_LIB_OPTIONS (szip-shared "szip" SHARED "")
-    add_dependencies (SZIP szip-shared)
+    add_dependencies (szip-shared SZIP)
     set (SZIP_SHARED_LIBRARY "szip-shared")
     set (SZIP_LIBRARIES ${SZIP_LIBRARIES} ${SZIP_SHARED_LIBRARY})
   endif ()
@@ -213,6 +219,7 @@ macro (EXTERNAL_ZLIB_LIBRARY compress_type)
             -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH=${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
             -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH=${CMAKE_PDB_OUTPUT_DIRECTORY}
             -DCMAKE_ANSI_CFLAGS:STRING=${CMAKE_ANSI_CFLAGS}
+            -DCMAKE_TOOLCHAIN_FILE:STRING=${CMAKE_TOOLCHAIN_FILE}
     )
   elseif (${compress_type} MATCHES "GIT")
     EXTERNALPROJECT_ADD (ZLIB
@@ -230,6 +237,7 @@ macro (EXTERNAL_ZLIB_LIBRARY compress_type)
             -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH=${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
             -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH=${CMAKE_PDB_OUTPUT_DIRECTORY}
             -DCMAKE_ANSI_CFLAGS:STRING=${CMAKE_ANSI_CFLAGS}
+            -DCMAKE_TOOLCHAIN_FILE:STRING=${CMAKE_TOOLCHAIN_FILE}
     )
   elseif (${compress_type} MATCHES "TGZ")
     EXTERNALPROJECT_ADD (ZLIB
@@ -247,6 +255,7 @@ macro (EXTERNAL_ZLIB_LIBRARY compress_type)
             -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH=${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
             -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH=${CMAKE_PDB_OUTPUT_DIRECTORY}
             -DCMAKE_ANSI_CFLAGS:STRING=${CMAKE_ANSI_CFLAGS}
+            -DCMAKE_TOOLCHAIN_FILE:STRING=${CMAKE_TOOLCHAIN_FILE}
     )
   endif ()
   externalproject_get_property (ZLIB BINARY_DIR SOURCE_DIR)
@@ -260,14 +269,14 @@ macro (EXTERNAL_ZLIB_LIBRARY compress_type)
 # Create imported target zlib-static
   add_library(zlib-static STATIC IMPORTED)
   HDF_IMPORT_SET_LIB_OPTIONS (zlib-static ${ZLIB_LIB_NAME} STATIC "")
-  add_dependencies (ZLIB zlib-static)
+  add_dependencies (zlib-static ZLIB)
   set (ZLIB_STATIC_LIBRARY "zlib-static")
   set (ZLIB_LIBRARIES ${ZLIB_STATIC_LIBRARY})
   if (BUILD_SHARED_LIBS)
     # Create imported target zlib-shared
     add_library(zlib-shared SHARED IMPORTED)
     HDF_IMPORT_SET_LIB_OPTIONS (zlib-shared ${ZLIB_LIB_NAME} SHARED "")
-    add_dependencies (ZLIB zlib-shared)
+    add_dependencies (zlib-shared ZLIB)
     set (ZLIB_SHARED_LIBRARY "zlib-shared")
     set (ZLIB_LIBRARIES ${ZLIB_LIBRARIES} ${ZLIB_SHARED_LIBRARY})
   endif ()

@@ -3296,7 +3296,7 @@ H5MF_settle_meta_data_fsm(H5F_t *f, hbool_t *fsm_settled)
 
         /* ******************* PROBLEM: ********************
          *
-         * If the file has an alignement other than 1, and if
+         * If the file has an alignment other than 1, and if
          * the EOA is not a multiple of this alignment, allocating space
          * for the section via the VFD info has the potential of generating
          * a fragment that will be added to the free space manager.  This

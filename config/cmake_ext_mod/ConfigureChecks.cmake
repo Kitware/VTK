@@ -70,7 +70,7 @@ if (WIN32)
     set (CMAKE_REQUIRED_FLAGS "-DWIN32_LEAN_AND_MEAN=1 -DNOGDI=1")
   endif ()
   set (${HDF_PREFIX}_HAVE_WIN32_API 1)
-  set (CMAKE_REQUIRED_LIBRARIES "ws2_32.lib;wsock32.lib")
+  set (HDF5_REQUIRED_LIBRARIES "ws2_32.lib;wsock32.lib")
   if (NOT UNIX AND NOT MINGW)
     set (WINDOWS 1)
     set (CMAKE_REQUIRED_FLAGS "/DWIN32_LEAN_AND_MEAN=1 /DNOGDI=1")
@@ -107,73 +107,9 @@ endif ()
 # END of WINDOWS Hard code Values
 # ----------------------------------------------------------------------
 
-if (CYGWIN)
-  set (${HDF_PREFIX}_HAVE_LSEEK64 0)
-endif ()
-
-# For other tests to use the same libraries
-set (CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${LINK_LIBS})
-
-set (USE_INCLUDES "")
-if (WINDOWS)
-  set (USE_INCLUDES ${USE_INCLUDES} "windows.h")
-endif ()
-
 if (NOT WINDOWS)
   TEST_BIG_ENDIAN (${HDF_PREFIX}_WORDS_BIGENDIAN)
 endif ()
-
-# For other specific tests, use this MACRO.
-macro (HDF_FUNCTION_TEST OTHER_TEST)
-  if (NOT DEFINED ${HDF_PREFIX}_${OTHER_TEST})
-    set (MACRO_CHECK_FUNCTION_DEFINITIONS "-D${OTHER_TEST} ${CMAKE_REQUIRED_FLAGS}")
-    set (OTHER_TEST_ADD_LIBRARIES)
-    if (CMAKE_REQUIRED_LIBRARIES)
-      set (OTHER_TEST_ADD_LIBRARIES "-DLINK_LIBRARIES:STRING=${CMAKE_REQUIRED_LIBRARIES}")
-    endif ()
-
-    foreach (def
-        HAVE_SYS_TIME_H
-        HAVE_UNISTD_H
-        HAVE_SYS_TYPES_H
-    )
-      if ("${${HDF_PREFIX}_${def}}")
-        set (MACRO_CHECK_FUNCTION_DEFINITIONS "${MACRO_CHECK_FUNCTION_DEFINITIONS} -D${def}")
-      endif ()
-    endforeach ()
-
-    if (LARGEFILE)
-      set (MACRO_CHECK_FUNCTION_DEFINITIONS
-          "${MACRO_CHECK_FUNCTION_DEFINITIONS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE"
-      )
-    endif ()
-
-    #message (STATUS "Performing ${OTHER_TEST}")
-    TRY_COMPILE (${OTHER_TEST}
-        ${CMAKE_BINARY_DIR}
-        ${HDF_RESOURCES_EXT_DIR}/HDFTests.c
-        CMAKE_FLAGS -DCOMPILE_DEFINITIONS:STRING=${MACRO_CHECK_FUNCTION_DEFINITIONS}
-        "${OTHER_TEST_ADD_LIBRARIES}"
-        OUTPUT_VARIABLE OUTPUT
-    )
-    if (${OTHER_TEST})
-      set (${HDF_PREFIX}_${OTHER_TEST} 1 CACHE INTERNAL "Other test ${FUNCTION}")
-      message (STATUS "Performing Other Test ${OTHER_TEST} - Success")
-    else ()
-      message (STATUS "Performing Other Test ${OTHER_TEST} - Failed")
-      set (${HDF_PREFIX}_${OTHER_TEST} "" CACHE INTERNAL "Other test ${FUNCTION}")
-      file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-          "Performing Other Test ${OTHER_TEST} failed with the following output:\n"
-          "${OUTPUT}\n"
-      )
-    endif ()
-  endif ()
-endmacro ()
-
-#-----------------------------------------------------------------------------
-# Check for these functions before the time headers are checked
-#-----------------------------------------------------------------------------
-HDF_FUNCTION_TEST (STDC_HEADERS)
 
 #-----------------------------------------------------------------------------
 # Check IF header file exists and add it to the list.
@@ -213,6 +149,77 @@ endif ()
 CHECK_INCLUDE_FILE_CONCAT ("pthread.h"       ${HDF_PREFIX}_HAVE_PTHREAD_H)
 CHECK_INCLUDE_FILE_CONCAT ("dlfcn.h"         ${HDF_PREFIX}_HAVE_DLFCN_H)
 CHECK_INCLUDE_FILE_CONCAT ("inttypes.h"      ${HDF_PREFIX}_HAVE_INTTYPES_H)
+# _Bool type support
+CHECK_INCLUDE_FILE_CONCAT (stdbool.h    ${HDF_PREFIX}_HAVE_STDBOOL_H)
+
+## Check for non-standard extenstion quadmath.h
+
+CHECK_INCLUDE_FILES(quadmath.h C_HAVE_QUADMATH)
+if (${C_HAVE_QUADMATH})
+  set(${HDF_PREFIX}_HAVE_QUADMATH_H 1)
+else ()
+  set(${HDF_PREFIX}_HAVE_QUADMATH_H 0)
+endif ()
+
+if (CYGWIN)
+  set (${HDF_PREFIX}_HAVE_LSEEK64 0)
+endif ()
+
+# For other tests to use the same libraries
+set (HDF5_REQUIRED_LIBRARIES ${HDF5_REQUIRED_LIBRARIES} ${LINK_LIBS})
+
+set (USE_INCLUDES "")
+if (WINDOWS)
+  set (USE_INCLUDES ${USE_INCLUDES} "windows.h")
+endif ()
+
+# For other specific tests, use this MACRO.
+macro (HDF_FUNCTION_TEST OTHER_TEST)
+  if (NOT DEFINED ${HDF_PREFIX}_${OTHER_TEST})
+    set (MACRO_CHECK_FUNCTION_DEFINITIONS "-D${OTHER_TEST} ${CMAKE_REQUIRED_FLAGS}")
+
+    foreach (def
+        HAVE_SYS_TIME_H
+        HAVE_UNISTD_H
+        HAVE_SYS_TYPES_H
+    )
+      if ("${${HDF_PREFIX}_${def}}")
+        set (MACRO_CHECK_FUNCTION_DEFINITIONS "${MACRO_CHECK_FUNCTION_DEFINITIONS} -D${def}")
+      endif ()
+    endforeach ()
+
+    if (LARGEFILE)
+      set (MACRO_CHECK_FUNCTION_DEFINITIONS
+          "${MACRO_CHECK_FUNCTION_DEFINITIONS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE"
+      )
+    endif ()
+
+    #message (STATUS "Performing ${OTHER_TEST}")
+    TRY_COMPILE (${OTHER_TEST}
+        ${CMAKE_BINARY_DIR}
+        ${HDF_RESOURCES_EXT_DIR}/HDFTests.c
+        COMPILE_DEFINITIONS "${MACRO_CHECK_FUNCTION_DEFINITIONS}"
+        LINK_LIBRARIES "${HDF5_REQUIRED_LIBRARIES}"
+        OUTPUT_VARIABLE OUTPUT
+    )
+    if (${OTHER_TEST})
+      set (${HDF_PREFIX}_${OTHER_TEST} 1 CACHE INTERNAL "Other test ${FUNCTION}")
+      message (STATUS "Performing Other Test ${OTHER_TEST} - Success")
+    else ()
+      message (STATUS "Performing Other Test ${OTHER_TEST} - Failed")
+      set (${HDF_PREFIX}_${OTHER_TEST} "" CACHE INTERNAL "Other test ${FUNCTION}")
+      file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+          "Performing Other Test ${OTHER_TEST} failed with the following output:\n"
+          "${OUTPUT}\n"
+      )
+    endif ()
+  endif ()
+endmacro ()
+
+#-----------------------------------------------------------------------------
+# Check for these functions before the time headers are checked
+#-----------------------------------------------------------------------------
+HDF_FUNCTION_TEST (STDC_HEADERS)
 
 #-----------------------------------------------------------------------------
 #  Check for large file support
@@ -233,10 +240,12 @@ if (NOT WINDOWS)
   # functionality so clock_gettime and CLOCK_MONOTONIC are defined
   # correctly. This was later updated to 200112L so that
   # posix_memalign() is visible for the direct VFD code on Linux
-  # systems.
+  # systems. Even later, this was changed to 200809L to support
+  # pread/pwrite in VFDs.
+  #
   # POSIX feature information can be found in the gcc manual at:
   # http://www.gnu.org/s/libc/manual/html_node/Feature-Test-Macros.html
-  set (HDF_EXTRA_C_FLAGS -D_POSIX_C_SOURCE=200112L)
+  set (HDF_EXTRA_C_FLAGS -D_POSIX_C_SOURCE=200809L)
 
   # Need to add this so that O_DIRECT is visible for the direct
   # VFD on Linux systems.
@@ -252,8 +261,7 @@ if (NOT WINDOWS)
     TRY_RUN (TEST_LFS_WORKS_RUN   TEST_LFS_WORKS_COMPILE
         ${CMAKE_BINARY_DIR}
         ${HDF_RESOURCES_EXT_DIR}/HDFTests.c
-        CMAKE_FLAGS -DCOMPILE_DEFINITIONS:STRING=-DTEST_LFS_WORKS
-        OUTPUT_VARIABLE OUTPUT
+        COMPILE_DEFINITIONS "-DTEST_LFS_WORKS"
     )
 
     # The LARGEFILE definitions were from the transition period
@@ -270,14 +278,14 @@ if (NOT WINDOWS)
         set (TEST_LFS_WORKS "" CACHE INTERNAL ${msg})
         message (STATUS "${msg}... no")
         file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-              "Test TEST_LFS_WORKS Run failed with the following output and exit code:\n ${OUTPUT}\n"
+              "Test TEST_LFS_WORKS Run failed with the following exit code:\n ${TEST_LFS_WORKS_RUN}\n"
         )
       endif ()
     else ()
       set (TEST_LFS_WORKS "" CACHE INTERNAL ${msg})
       message (STATUS "${msg}... no")
       file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-          "Test TEST_LFS_WORKS Compile failed with the following output:\n ${OUTPUT}\n"
+          "Test TEST_LFS_WORKS Compile failed\n"
       )
     endif ()
   endif ()
@@ -377,13 +385,13 @@ HDF_CHECK_TYPE_SIZE (off64_t        ${HDF_PREFIX}_SIZEOF_OFF64_T)
 if (NOT ${HDF_PREFIX}_SIZEOF_OFF64_T)
   set (${HDF_PREFIX}_SIZEOF_OFF64_T 0)
 endif ()
+HDF_CHECK_TYPE_SIZE (time_t          ${HDF_PREFIX}_SIZEOF_TIME_T)
 
 #-----------------------------------------------------------------------------
 # Extra C99 types
 #-----------------------------------------------------------------------------
 
 # _Bool type support
-CHECK_INCLUDE_FILE_CONCAT (stdbool.h    ${HDF_PREFIX}_HAVE_STDBOOL_H)
 if (HAVE_STDBOOL_H)
   set (CMAKE_EXTRA_INCLUDE_FILES stdbool.h)
   HDF_CHECK_TYPE_SIZE (bool         ${HDF_PREFIX}_SIZEOF_BOOL)
@@ -459,6 +467,8 @@ CHECK_FUNCTION_EXISTS (frexpl            ${HDF_PREFIX}_HAVE_FREXPL)
 CHECK_FUNCTION_EXISTS (gethostname       ${HDF_PREFIX}_HAVE_GETHOSTNAME)
 CHECK_FUNCTION_EXISTS (getrusage         ${HDF_PREFIX}_HAVE_GETRUSAGE)
 
+CHECK_FUNCTION_EXISTS (pread             ${HDF_PREFIX}_HAVE_PREAD)
+CHECK_FUNCTION_EXISTS (pwrite            ${HDF_PREFIX}_HAVE_PWRITE)
 CHECK_FUNCTION_EXISTS (rand_r            ${HDF_PREFIX}_HAVE_RAND_R)
 CHECK_FUNCTION_EXISTS (random            ${HDF_PREFIX}_HAVE_RANDOM)
 CHECK_FUNCTION_EXISTS (setsysinfo        ${HDF_PREFIX}_HAVE_SETSYSINFO)
@@ -522,30 +532,21 @@ if (WINDOWS)
           "${CURRENT_TEST_DEFINITIONS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE"
       )
     endif ()
-    set (MACRO_CHECK_FUNCTION_DEFINITIONS
-      "-DHAVE_IOEO ${CMAKE_REQUIRED_FLAGS}")
-    if (CMAKE_REQUIRED_LIBRARIES)
-      set (CHECK_C_SOURCE_COMPILES_ADD_LIBRARIES
-        "-DLINK_LIBRARIES:STRING=${CMAKE_REQUIRED_LIBRARIES}")
-    else ()
-      set (CHECK_C_SOURCE_COMPILES_ADD_LIBRARIES)
-    endif ()
+    set (MACRO_CHECK_FUNCTION_DEFINITIONS "-DHAVE_IOEO ${CMAKE_REQUIRED_FLAGS}")
     if (CMAKE_REQUIRED_INCLUDES)
-      set (CHECK_C_SOURCE_COMPILES_ADD_INCLUDES
-        "-DINCLUDE_DIRECTORIES:STRING=${CMAKE_REQUIRED_INCLUDES}")
+      set (CHECK_C_SOURCE_COMPILES_ADD_INCLUDES "-DINCLUDE_DIRECTORIES:STRING=${CMAKE_REQUIRED_INCLUDES}")
     else ()
       set (CHECK_C_SOURCE_COMPILES_ADD_INCLUDES)
     endif ()
 
     TRY_RUN(HAVE_IOEO_EXITCODE HAVE_IOEO_COMPILED
-      ${CMAKE_BINARY_DIR}
-      ${HDF_RESOURCES_EXT_DIR}/HDFTests.c
-      COMPILE_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS}
-      CMAKE_FLAGS -DCOMPILE_DEFINITIONS:STRING=${MACRO_CHECK_FUNCTION_DEFINITIONS}
-      -DCMAKE_SKIP_RPATH:BOOL=${CMAKE_SKIP_RPATH}
-      "${CHECK_C_SOURCE_COMPILES_ADD_LIBRARIES}"
-      "${CHECK_C_SOURCE_COMPILES_ADD_INCLUDES}"
-      COMPILE_OUTPUT_VARIABLE OUTPUT)
+        ${CMAKE_BINARY_DIR}
+        ${HDF_RESOURCES_EXT_DIR}/HDFTests.c
+        COMPILE_DEFINITIONS "${CMAKE_REQUIRED_DEFINITIONS} ${MACRO_CHECK_FUNCTION_DEFINITIONS}"
+        LINK_LIBRARIES "${HDF5_REQUIRED_LIBRARIES}"
+        CMAKE_FLAGS "${CHECK_C_SOURCE_COMPILES_ADD_INCLUDES} -DCMAKE_SKIP_RPATH:BOOL=${CMAKE_SKIP_RPATH}"
+        COMPILE_OUTPUT_VARIABLE OUTPUT
+    )
     # if it did not compile make the return value fail code of 1
     if (NOT HAVE_IOEO_COMPILED)
       set (HAVE_IOEO_EXITCODE 1)
@@ -596,8 +597,8 @@ if (NOT ${HDF_PREFIX}_PRINTF_LL_WIDTH OR ${HDF_PREFIX}_PRINTF_LL_WIDTH MATCHES "
   TRY_RUN (${HDF_PREFIX}_PRINTF_LL_TEST_RUN   ${HDF_PREFIX}_PRINTF_LL_TEST_COMPILE
       ${CMAKE_BINARY_DIR}
       ${HDF_RESOURCES_EXT_DIR}/HDFTests.c
-      CMAKE_FLAGS -DCOMPILE_DEFINITIONS:STRING=${CURRENT_TEST_DEFINITIONS}
-      OUTPUT_VARIABLE OUTPUT
+      COMPILE_DEFINITIONS "${CURRENT_TEST_DEFINITIONS}"
+      RUN_OUTPUT_VARIABLE OUTPUT
   )
   if (${HDF_PREFIX}_PRINTF_LL_TEST_COMPILE)
     if (${HDF_PREFIX}_PRINTF_LL_TEST_RUN MATCHES 0)
@@ -609,7 +610,7 @@ if (NOT ${HDF_PREFIX}_PRINTF_LL_WIDTH OR ${HDF_PREFIX}_PRINTF_LL_WIDTH MATCHES "
     endif ()
   else ()
     file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
-        "Test ${HDF_PREFIX}_PRINTF_LL_WIDTH failed with the following output:\n ${OUTPUT}\n"
+        "Test ${HDF_PREFIX}_PRINTF_LL_WIDTH failed\n"
     )
   endif ()
 

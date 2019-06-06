@@ -45,6 +45,7 @@
 #define H5D_CRT_FILL_VALUE_NAME    "fill_value"          /* Fill value */
 #define H5D_CRT_ALLOC_TIME_STATE_NAME "alloc_time_state" /* Space allocation time state */
 #define H5D_CRT_EXT_FILE_LIST_NAME "efl"                 /* External file list */
+#define H5D_CRT_MIN_DSET_HDR_SIZE_NAME "dset_oh_minimize" /* Minimize dataset object header */
 
 /* ========  Dataset access property names ======== */
 #define H5D_ACS_DATA_CACHE_NUM_SLOTS_NAME   "rdcc_nslots"    /* Size of raw data chunk cache(slots) */
@@ -94,7 +95,13 @@
 /* Definitions for all collective chunk instrumentation properties */
 #define H5D_XFER_COLL_CHUNK_SIZE        sizeof(unsigned)
 #define H5D_XFER_COLL_CHUNK_DEF         1
-#define H5D_XFER_COLL_CHUNK_FIX         0
+
+/* General collective I/O instrumentation properties */
+#define H5D_XFER_COLL_RANK0_BCAST_NAME  "coll_rank0_bcast"
+
+/* Definitions for general collective I/O instrumentation properties */
+#define H5D_XFER_COLL_RANK0_BCAST_SIZE  sizeof(hbool_t)
+#define H5D_XFER_COLL_RANK0_BCAST_DEF   FALSE
 #endif /* H5_HAVE_INSTRUMENTED_LIBRARY */
 
 /* Default temporary buffer size */

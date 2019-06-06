@@ -119,6 +119,11 @@
 #define H5D_CRT_EXT_FILE_LIST_COPY H5P__dcrt_ext_file_list_copy
 #define H5D_CRT_EXT_FILE_LIST_CMP  H5P__dcrt_ext_file_list_cmp
 #define H5D_CRT_EXT_FILE_LIST_CLOSE H5P__dcrt_ext_file_list_close
+/* Definitions for dataset object header minimization */
+#define H5D_CRT_MIN_DSET_HDR_SIZE_SIZE sizeof(hbool_t)
+#define H5D_CRT_MIN_DSET_HDR_SIZE_DEF  FALSE
+#define H5D_CRT_MIN_DSET_HDR_SIZE_ENC  H5P__encode_hbool_t
+#define H5D_CRT_MIN_DSET_HDR_SIZE_DEC  H5P__decode_hbool_t
 
 
 /******************/
@@ -211,6 +216,7 @@ static const H5O_layout_t H5D_def_layout_g = H5D_CRT_LAYOUT_DEF;        /* Defau
 static const H5O_fill_t H5D_def_fill_g = H5D_CRT_FILL_VALUE_DEF;        /* Default fill value */
 static const unsigned H5D_def_alloc_time_state_g = H5D_CRT_ALLOC_TIME_STATE_DEF;  /* Default allocation time state */
 static const H5O_efl_t H5D_def_efl_g = H5D_CRT_EXT_FILE_LIST_DEF;                 /* Default external file list */
+static const unsigned H5O_ohdr_min_g = H5D_CRT_MIN_DSET_HDR_SIZE_DEF; /* Default object header minimization */
 
 /* Defaults for each type of layout */
 #ifdef H5_HAVE_C99_DESIGNATED_INITIALIZER
@@ -268,6 +274,12 @@ H5P__dcrt_reg_prop(H5P_genclass_t *pclass)
     if(H5P_register_real(pclass, H5D_CRT_EXT_FILE_LIST_NAME, H5D_CRT_EXT_FILE_LIST_SIZE, &H5D_def_efl_g, 
             NULL, H5D_CRT_EXT_FILE_LIST_SET, H5D_CRT_EXT_FILE_LIST_GET, H5D_CRT_EXT_FILE_LIST_ENC, H5D_CRT_EXT_FILE_LIST_DEC,
             H5D_CRT_EXT_FILE_LIST_DEL, H5D_CRT_EXT_FILE_LIST_COPY, H5D_CRT_EXT_FILE_LIST_CMP, H5D_CRT_EXT_FILE_LIST_CLOSE) < 0)
+       HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+
+    /* Register the object header minimization property */
+    if(H5P_register_real(pclass, H5D_CRT_MIN_DSET_HDR_SIZE_NAME, H5D_CRT_MIN_DSET_HDR_SIZE_SIZE, &H5O_ohdr_min_g,
+            NULL, NULL, NULL, H5D_CRT_MIN_DSET_HDR_SIZE_ENC, H5D_CRT_MIN_DSET_HDR_SIZE_DEC,
+            NULL, NULL, NULL, NULL) < 0)
        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
 done:
@@ -3753,4 +3765,96 @@ H5Pget_fill_time(hid_t plist_id, H5D_fill_time_t *fill_time/*out*/)
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_fill_time() */
+
+
+/*-----------------------------------------------------------------------------
+ * Function: H5Pget_dset_no_attrs_hint
+ *
+ * Purpose:
+ *
+ *     Access the flag for whether or not datasets created by the given dcpl
+ *     will be created with a "minimized" object header.
+ *
+ * Return:
+ *
+ *     Failure: Negative value (FAIL)
+ *     Success: Non-negative value (SUCCEED)
+ *
+ * Programmer: Jacob Smith
+ *             2018 August 14
+ *
+ * Modifications: None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+herr_t
+H5Pget_dset_no_attrs_hint(hid_t dcpl_id, hbool_t *minimize)
+{
+    hbool_t         setting   = FALSE;
+    H5P_genplist_t *plist     = NULL;
+    herr_t          ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE2("e", "i*b", dcpl_id, minimize);
+
+    if(NULL == minimize)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "receiving pointer cannot be NULL")
+
+    plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE);
+    if(NULL == plist)
+        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+
+    if(H5P_peek(plist, H5D_CRT_MIN_DSET_HDR_SIZE_NAME, &setting) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get dset oh minimize flag value")
+
+    *minimize = setting;
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5Pget_dset_no_attrs_hint() */
+
+
+/*-----------------------------------------------------------------------------
+ * Function: H5Pset_dset_no_attrs_hint
+ *
+ * Purpose:
+ *
+ *     Set the dcpl to minimize (or explicitly to not minimized) dataset object
+ *     headers upon creation.
+ *
+ * Return:
+ *
+ *     Failure: Negative value (FAIL)
+ *     Success: Non-negative value (SUCCEED)
+ *
+ * Programmer: Jacob Smith
+ *             2018 August 14
+ *
+ * Modifications: None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+herr_t
+H5Pset_dset_no_attrs_hint(hid_t dcpl_id, hbool_t minimize)
+{
+    H5P_genplist_t *plist     = NULL;
+    hbool_t         prev_set  = FALSE;
+    herr_t          ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE2("e", "ib", dcpl_id, minimize);
+
+    plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE);
+    if(NULL == plist)
+        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+
+    if(H5P_peek(plist, H5D_CRT_MIN_DSET_HDR_SIZE_NAME, &prev_set) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get extant dset oh minimize flag value")
+
+    if(H5P_poke(plist, H5D_CRT_MIN_DSET_HDR_SIZE_NAME, &minimize) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't get dset oh minimize flag value")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5Pset_dset_no_attrs_hint() */
 
