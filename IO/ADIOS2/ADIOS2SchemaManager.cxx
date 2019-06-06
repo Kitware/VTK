@@ -37,17 +37,17 @@ void ADIOS2SchemaManager::Update(
   const std::string& streamName, const size_t step, const std::string& schemaName)
 {
   // can't do it in the constructor as it need MPI initialized
-  if (!m_ADIOS)
+  if (!this->ADIOS)
   {
-    m_ADIOS.reset(new adios2::ADIOS(helper::MPIGetComm()));
+    this->ADIOS.reset(new adios2::ADIOS(helper::MPIGetComm()));
   }
 
-  if (!m_IO && !m_Engine)
+  if (!this->IO && !this->Engine)
   {
-    m_StreamName = streamName;
-    m_SchemaName = schemaName;
-    m_IO = m_ADIOS->DeclareIO(m_StreamName);
-    m_Engine = m_IO.Open(m_StreamName, adios2::Mode::Read);
+    this->StreamName = streamName;
+    this->SchemaName = schemaName;
+    this->IO = this->ADIOS->DeclareIO(this->StreamName);
+    this->Engine = this->IO.Open(this->StreamName, adios2::Mode::Read);
     InitReader();
   }
   else
@@ -58,11 +58,11 @@ void ADIOS2SchemaManager::Update(
 
 void ADIOS2SchemaManager::Fill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 {
-  m_Reader->Fill(multiBlock, step);
+  this->Reader->Fill(multiBlock, step);
 }
 
 // PRIVATE
-const std::set<std::string> ADIOS2SchemaManager::m_SupportedTypes = { "ImageData" };
+const std::set<std::string> ADIOS2SchemaManager::SupportedTypes = { "ImageData" };
 // TODO: , "StructuredGrid", "UnstructuredGrid" };
 
 void ADIOS2SchemaManager::InitReader()
@@ -78,22 +78,20 @@ void ADIOS2SchemaManager::InitReader()
 
 bool ADIOS2SchemaManager::InitReaderXMLVTK()
 {
-
   pugi::xml_document xmlDocument;
   std::string xmlContents;
 
   bool isSchemaFile = false;
 
-  // auto lf_GetXMLDoc = [&]() {
   // check if it's file, not optimizing with MPI_Bcast
   std::string xmlFileName;
-  if (vtksys::SystemTools::FileIsDirectory(m_Engine.Name()))
+  if (vtksys::SystemTools::FileIsDirectory(this->Engine.Name()))
   {
-    xmlFileName = m_Engine.Name() + "/" + m_SchemaName;
+    xmlFileName = this->Engine.Name() + "/" + this->SchemaName;
   }
-  else if (vtksys::SystemTools::FileIsDirectory(m_Engine.Name() + ".dir"))
+  else if (vtksys::SystemTools::FileIsDirectory(this->Engine.Name() + ".dir"))
   {
-    xmlFileName = m_Engine.Name() + ".dir/" + m_SchemaName;
+    xmlFileName = this->Engine.Name() + ".dir/" + this->SchemaName;
   }
 
   if (!xmlFileName.empty())
@@ -101,8 +99,8 @@ bool ADIOS2SchemaManager::InitReaderXMLVTK()
     if (vtksys::SystemTools::FileExists(xmlFileName))
     {
       xmlContents = adios2vtk::helper::FileToString(xmlFileName);
-      xmlDocument =
-        adios2vtk::helper::XMLDocument(xmlContents, true, "when reading " + m_SchemaName + " file");
+      xmlDocument = adios2vtk::helper::XMLDocument(
+        xmlContents, true, "when reading " + this->SchemaName + " file");
       isSchemaFile = true;
     }
   }
@@ -110,45 +108,46 @@ bool ADIOS2SchemaManager::InitReaderXMLVTK()
   if (!isSchemaFile)
   {
     const adios2::Attribute<std::string> vtkXMLAttribute =
-      m_IO.InquireAttribute<std::string>(m_SchemaName);
-    const std::vector<std::string> vtkAttributes = vtkXMLAttribute.Data();
-    if (vtkAttributes.empty())
+      this->IO.InquireAttribute<std::string>(this->SchemaName);
+
+    if (!vtkXMLAttribute)
     {
-      throw std::runtime_error("ERROR: neither " + m_SchemaName +
-        " file or bp attribute was found in " + m_Engine.Name() + "\n");
+      throw std::runtime_error("ERROR: neither " + this->SchemaName +
+        " file or bp attribute was found in " + this->Engine.Name() + "\n");
     }
+
+    const std::vector<std::string> vtkAttributes = vtkXMLAttribute.Data();
 
     xmlContents = vtkAttributes.front();
     xmlDocument = adios2vtk::helper::XMLDocument(
-      xmlContents, true, "when reading " + m_SchemaName + " attribute");
+      xmlContents, true, "when reading " + this->SchemaName + " attribute");
   }
 
-  // auto lf_InitReader = [&]() {
   constexpr bool isDebug = true;
   constexpr bool isMandatory = true;
   constexpr bool isUnique = true;
 
   const pugi::xml_node vtkXMLFileNode = adios2vtk::helper::XMLNode("VTKFile", xmlDocument, isDebug,
-    "when reading VTKFile node in " + m_Engine.Name(), isMandatory, isUnique);
+    "when reading VTKFile node in " + this->Engine.Name(), isMandatory, isUnique);
 
   const pugi::xml_attribute typeXML = adios2vtk::helper::XMLAttribute("type", vtkXMLFileNode, true,
-    "when reading type xml attribute in vtk.xml " + m_Engine.Name(), isMandatory);
+    "when reading type xml attribute in vtk.xml " + this->Engine.Name(), isMandatory);
 
   const std::string type = std::string(typeXML.value());
 
-  if (m_SupportedTypes.count(type) == 0)
+  if (this->SupportedTypes.count(type) == 0)
   {
-    throw std::runtime_error(
-      "ERROR: ADIOS2Reader only supports types= " + adios2vtk::helper::SetToCSV(m_SupportedTypes) +
-      " when reading type xml attribute in " + m_SchemaName + " from " + m_Engine.Name() + "\n");
+    throw std::runtime_error("ERROR: ADIOS2Reader only supports types= " +
+      adios2vtk::helper::SetToCSV(this->SupportedTypes) + " when reading type xml attribute in " +
+      this->SchemaName + " from " + this->Engine.Name() + "\n");
   }
 
   if (type == "ImageData")
   {
-    m_Reader.reset(new adios2vtk::schema::ADIOS2xmlVTI(xmlContents, &m_IO, &m_Engine));
+    this->Reader.reset(new adios2vtk::schema::ADIOS2xmlVTI(xmlContents, this->IO, this->Engine));
   }
 
-  const bool success = m_Reader ? true : false;
+  const bool success = this->Reader ? true : false;
   return success;
 }
 

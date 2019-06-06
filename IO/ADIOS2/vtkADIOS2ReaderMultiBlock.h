@@ -22,19 +22,13 @@
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTKADIOS2READERMULTIBLOCK_H_
-#define VTKADIOS2READERMULTIBLOCK_H_
+#ifndef vtkADIOS2ReaderMultiBlock_h
+#define vtkADIOS2ReaderMultiBlock_h
 
 #include <memory> //std::unique_ptr
 
-#include "vtkIndent.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkIOADIOS2Module.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
-
-// For export macro
-#include "vtkIOADIOS2Module.h"
 
 // forward declaring to keep it private
 namespace adios2vtk
@@ -42,12 +36,16 @@ namespace adios2vtk
 class ADIOS2SchemaManager;
 }
 
+class vtkIndent;
+class vtkInformation;
+class vtkInformationvector;
+
 class VTKIOADIOS2_EXPORT vtkADIOS2ReaderMultiBlock : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkADIOS2ReaderMultiBlock* New();
   vtkTypeMacro(vtkADIOS2ReaderMultiBlock, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent index);
+  void PrintSelf(ostream& os, vtkIndent index) override;
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
@@ -55,6 +53,9 @@ public:
 protected:
   vtkADIOS2ReaderMultiBlock();
   ~vtkADIOS2ReaderMultiBlock() = default;
+
+  vtkADIOS2ReaderMultiBlock(const vtkADIOS2ReaderMultiBlock&) = delete;
+  void operator=(const vtkADIOS2ReaderMultiBlock&) = delete;
 
   int RequestInformation(
     vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector);
@@ -64,7 +65,7 @@ protected:
 
 private:
   char* FileName;
-  std::unique_ptr<adios2vtk::ADIOS2SchemaManager> m_SchemaManager;
+  std::unique_ptr<adios2vtk::ADIOS2SchemaManager> SchemaManager;
 };
 
 #endif

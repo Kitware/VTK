@@ -27,6 +27,8 @@
 
 #include <iostream>
 
+#include "ADIOS2Helper.h"
+
 namespace adios2vtk
 {
 namespace schema
@@ -38,15 +40,13 @@ void ADIOS2xmlVTI::SetDimensionsCommon(
   const adios2::Dims shape = variable.Shape(step);
   if (shape.size() == 3) // 3D to 3D
   {
-    variable.SetSelection({ dataArray.m_Start, dataArray.m_Count });
+    variable.SetSelection({ dataArray.Start, dataArray.Count });
   }
-  else if (shape.size() == 2) // 2D into 3D
+  else if (shape.size() == 1)
   {
-    // TODO
-  }
-  else if (shape.size() == 1) // linearized 1D into 3D mapped
-  {
-    // TODO
+    const size_t start1D = helper::LinearizePoint(dataArray.Shape, dataArray.Start);
+    const size_t count1D = helper::TotalElements(dataArray.Count);
+    variable.SetSelection({ { start1D }, { count1D } });
   }
 }
 

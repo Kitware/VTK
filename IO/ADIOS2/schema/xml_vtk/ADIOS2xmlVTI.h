@@ -40,14 +40,14 @@ namespace schema
 class ADIOS2xmlVTI : public ADIOS2xmlVTK
 {
 public:
-  ADIOS2xmlVTI(const std::string& schema, adios2::IO* io, adios2::Engine* engine);
+  ADIOS2xmlVTI(const std::string& schema, adios2::IO& io, adios2::Engine& engine);
   ~ADIOS2xmlVTI();
 
 private:
   /** Could be extended in a container, this is a per-rank ImageData */
-  vtkNew<vtkImageData> m_ImageData;
-  /** Store the Whole Extent in physical dimensions */
-  adios2::Dims m_WholeExtent;
+  vtkNew<vtkImageData> ImageData;
+  /** Store the Whole Extent in physical dimensions, row-major */
+  adios2::Dims WholeExtent;
 
   adios2::Dims GetShape(const types::DataSetType type);
   adios2::Box<adios2::Dims> GetSelection(const types::DataSetType type);

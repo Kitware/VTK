@@ -43,16 +43,16 @@ class ADIOS2xmlVTK : public ADIOS2Schema
 {
 public:
   ADIOS2xmlVTK(
-    const std::string type, const std::string& schema, adios2::IO* io, adios2::Engine* engine);
+    const std::string type, const std::string& schema, adios2::IO& io, adios2::Engine& engine);
 
   // can't use = default, due to forward class not defined
   virtual ~ADIOS2xmlVTK();
 
 protected:
-  std::vector<types::Piece> m_Pieces;
+  std::vector<types::Piece> Pieces;
 
-  const static std::set<std::string> m_TIMENames;
-  const static std::map<types::DataSetType, std::string> m_DataSetTypes;
+  const static std::set<std::string> TIMENames;
+  const static std::map<types::DataSetType, std::string> DataSetTypes;
 
   virtual void DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step) = 0;
   virtual void ReadPiece(const size_t step, const size_t pieceID) = 0;

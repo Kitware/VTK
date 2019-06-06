@@ -34,56 +34,42 @@ namespace adios2vtk
 
 template<class T>
 void ADIOS2Schema::GetDataArrayCommon(adios2::Variable<T> variable, types::DataArray& dataArray,
-  const size_t step, const std::string mode)
+  const size_t step, const std::string /*mode*/)
 {
-  if (!variable)
+  // TODO support variable.ShapeID() != adios2::ShapeID::LocalArray
+  if (variable.ShapeID() != adios2::ShapeID::GlobalArray)
   {
-    throw std::runtime_error(
-      "ERROR: variable " + variable.Name() + " not found in " + m_Engine->Name() + "\n");
-  }
-
-  if (variable.ShapeID() != adios2::ShapeID::GlobalArray &&
-    variable.ShapeID() != adios2::ShapeID::LocalArray)
-  {
-    return;
+    throw std::invalid_argument("ERROR: ADIOS2VTK only supporting Global Arrays\n");
   }
 
   SetDimensions(variable, dataArray, step);
 
   variable.SetStepSelection({ step, 1 });
-  const size_t nElements = helper::TotalElements(dataArray.m_Count);
+  const size_t nElements = helper::TotalElements(dataArray.Count);
 
-  dataArray.m_vtkDataArray = helper::NewDataArray<T>();
-  dataArray.m_vtkDataArray->Allocate(nElements);
-  dataArray.m_vtkDataArray->SetNumberOfValues(nElements);
-  dataArray.m_vtkDataArray->SetNumberOfTuples(nElements);
-  dataArray.m_vtkDataArray->SetNumberOfComponents(1);
-  dataArray.m_vtkDataArray->SetName(variable.Name().c_str());
-  T* ptr = reinterpret_cast<T*>(dataArray.m_vtkDataArray->GetVoidPointer(0));
-
-  if (mode == "deferred")
-  {
-    m_Engine->Get(variable, ptr);
-  }
-  else if (mode == "sync")
-  {
-    m_Engine->Get(variable, ptr, adios2::Mode::Sync);
-  }
+  dataArray.Data = helper::NewDataArray<T>();
+  dataArray.Data->Allocate(nElements);
+  dataArray.Data->SetNumberOfValues(nElements);
+  dataArray.Data->SetNumberOfTuples(nElements);
+  dataArray.Data->SetNumberOfComponents(1);
+  dataArray.Data->SetName(variable.Name().c_str());
+  T* ptr = reinterpret_cast<T*>(dataArray.Data->GetVoidPointer(0));
+  this->Engine.Get(variable, ptr);
 }
 
 template<class T>
 void ADIOS2Schema::GetTimesCommon(const std::string& variableName)
 {
-  adios2::Variable<T> varTime = m_IO->InquireVariable<T>(variableName);
+  adios2::Variable<T> varTime = this->IO.InquireVariable<T>(variableName);
   varTime.SetStepSelection({ 0, varTime.Steps() });
   std::vector<T> timeValues;
-  m_Engine->Get(varTime, timeValues, adios2::Mode::Sync);
+  this->Engine.Get(varTime, timeValues, adios2::Mode::Sync);
 
   size_t currentStep = 0;
   for (const T timeValue : timeValues)
   {
     const double timeDbl = static_cast<double>(timeValue);
-    m_Times[timeDbl] = currentStep;
+    this->Times[timeDbl] = currentStep;
     ++currentStep;
   }
 }

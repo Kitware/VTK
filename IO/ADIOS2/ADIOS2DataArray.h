@@ -36,11 +36,11 @@ namespace types
 class DataArray
 {
 public:
-  std::vector<std::string> m_VectorVariables;
-  vtkSmartPointer<vtkDataArray> m_vtkDataArray;
-  adios2::Dims m_Shape;
-  adios2::Dims m_Start;
-  adios2::Dims m_Count;
+  std::vector<std::string> VectorVariables;
+  vtkSmartPointer<vtkDataArray> Data;
+  adios2::Dims Shape;
+  adios2::Dims Start;
+  adios2::Dims Count;
 
   DataArray() = default;
   ~DataArray() = default;

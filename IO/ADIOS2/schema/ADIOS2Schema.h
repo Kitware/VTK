@@ -43,10 +43,10 @@ class ADIOS2Schema
 {
 public:
   /** carries schema type from derived class */
-  const std::string m_Type;
+  const std::string Type;
 
   /** schema contents as a single string */
-  std::string m_Schema;
+  std::string Schema;
 
   /**
    * Stored times and corresponding steps
@@ -55,7 +55,7 @@ public:
    * 	value: adios2 step
    * </pre>
    */
-  std::map<double, size_t> m_Times;
+  std::map<double, size_t> Times;
 
   /**
    * Generic base constructor
@@ -65,7 +65,7 @@ public:
    * @param engine manages stream input
    */
   ADIOS2Schema(
-    const std::string type, const std::string& schema, adios2::IO* io, adios2::Engine* engine);
+    const std::string type, const std::string& schema, adios2::IO& io, adios2::Engine& engine);
 
   // can't use = default, due to forward class not defined
   virtual ~ADIOS2Schema();
@@ -78,8 +78,8 @@ public:
   void Fill(vtkMultiBlockDataSet* multiBlock, const size_t step = 0);
 
 protected:
-  adios2::IO* m_IO = nullptr;
-  adios2::Engine* m_Engine = nullptr;
+  adios2::IO& IO;
+  adios2::Engine& Engine;
 
   virtual void Init() = 0;
   virtual void InitTimes() = 0;

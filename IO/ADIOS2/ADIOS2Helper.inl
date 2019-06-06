@@ -23,6 +23,7 @@
 #ifndef VTK_IO_ADIOS2_ADIOS2HELPER_INL_
 #define VTK_IO_ADIOS2_ADIOS2HELPER_INL_
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
@@ -32,7 +33,7 @@ namespace helper
 {
 
 template<class T, class U>
-std::vector<T> MapKeysToVector(const std::map<T, U>& input)
+std::vector<T> MapKeysToVector(const std::map<T, U>& input) noexcept
 {
   std::vector<T> keys;
   keys.reserve(input.size());

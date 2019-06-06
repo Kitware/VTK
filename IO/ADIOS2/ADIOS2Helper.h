@@ -58,12 +58,11 @@ int MPIGetSize();
  * @param input entire XML contents as a string or file, depending on bool isFile
  * @param debugMode true: safe mode throws exceptions
  * @param hint add extra information on exceptions
- * @param isFile false: input is string, true: input is fileName
  * @return xml as pugi object
  * @throws std::invalid_argument
  */
-pugi::xml_document XMLDocument(const std::string& input, const bool debugMode,
-  const std::string& hint, const bool isFile = false);
+pugi::xml_document XMLDocument(
+  const std::string& input, const bool debugMode, const std::string& hint);
 
 /**
  * Get safely a pugi::xml_document from a pugmi::xml_document
@@ -162,10 +161,12 @@ adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims& shape);
  * @return vector with keys only
  */
 template<class T, class U>
-std::vector<T> MapKeysToVector(const std::map<T, U>& input);
+std::vector<T> MapKeysToVector(const std::map<T, U>& input) noexcept;
 
 template<class T>
 void Print(const std::vector<T>& input, const std::string& name);
+
+size_t LinearizePoint(const adios2::Dims& shape, const adios2::Dims& point) noexcept;
 
 } // end namespace helper
 } // end namespace adiosvtk

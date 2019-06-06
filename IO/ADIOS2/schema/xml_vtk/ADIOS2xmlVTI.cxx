@@ -42,7 +42,7 @@ namespace adios2vtk
 namespace schema
 {
 
-ADIOS2xmlVTI::ADIOS2xmlVTI(const std::string& schema, adios2::IO* io, adios2::Engine* engine)
+ADIOS2xmlVTI::ADIOS2xmlVTI(const std::string& schema, adios2::IO& io, adios2::Engine& engine)
   : ADIOS2xmlVTK("vti", schema, io, engine)
 {
   Init();
@@ -59,7 +59,7 @@ void ADIOS2xmlVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
   const unsigned int rank = static_cast<unsigned int>(helper::MPIGetRank());
 
   vtkNew<vtkMultiPieceDataSet> pieces;
-  pieces->SetPiece(rank, m_ImageData);
+  pieces->SetPiece(rank, this->ImageData);
   multiBlock->SetBlock(0, pieces);
 }
 
@@ -70,38 +70,38 @@ void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
   const bool hasPointData =
     ReadDataSets(types::DataSetType::PointData, step, pieceID, " in ImageData VTK XML Schema\n");
 
-  m_Engine->PerformGets();
+  this->Engine.PerformGets();
 
   // CellData
   if (hasCellData)
   {
-    types::DataSet& dataSet = m_Pieces[pieceID][types::DataSetType::CellData];
+    types::DataSet& dataSet = this->Pieces[pieceID][types::DataSetType::CellData];
     for (auto& dataArrayPair : dataSet)
     {
       const std::string& variableName = dataArrayPair.first;
-      if (m_TIMENames.count(variableName) == 1)
+      if (this->TIMENames.count(variableName) == 1)
       {
         continue;
       }
 
       types::DataArray& dataArray = dataArrayPair.second;
-      m_ImageData->GetCellData()->AddArray(dataArray.m_vtkDataArray.GetPointer());
+      this->ImageData->GetCellData()->AddArray(dataArray.Data.GetPointer());
     }
   }
 
   // Point Data
   if (hasPointData)
   {
-    types::DataSet& dataSet = m_Pieces[pieceID][types::DataSetType::PointData];
+    types::DataSet& dataSet = this->Pieces[pieceID][types::DataSetType::PointData];
     for (auto& dataArrayPair : dataSet)
     {
       const std::string& variableName = dataArrayPair.first;
-      if (m_TIMENames.count(variableName) == 1)
+      if (this->TIMENames.count(variableName) == 1)
       {
         continue;
       }
       types::DataArray& dataArray = dataArrayPair.second;
-      m_ImageData->GetPointData()->AddArray(dataArray.m_vtkDataArray.GetPointer());
+      this->ImageData->GetPointData()->AddArray(dataArray.Data.GetPointer());
     }
   }
 }
@@ -114,15 +114,15 @@ void ADIOS2xmlVTI::Init()
     const std::string nodeName = DataSetType(type);
     const pugi::xml_node dataSetNode = helper::XMLNode(
       nodeName, pieceNode, true, "when reading " + nodeName + " node in ImageData", false);
-    types::DataSet dataSet = helper::XMLInitDataSet(dataSetNode, m_TIMENames);
+    types::DataSet dataSet = helper::XMLInitDataSet(dataSetNode, this->TIMENames);
 
     for (auto& dataArrayPair : dataSet)
     {
       types::DataArray& dataArray = dataArrayPair.second;
-      dataArray.m_Shape = GetShape(type);
-      const auto& selection = GetSelection(type);
-      dataArray.m_Start = selection.first;
-      dataArray.m_Count = selection.second;
+      dataArray.Shape = GetShape(type);
+      const adios2::Box<adios2::Dims> selection = GetSelection(type);
+      dataArray.Start = selection.first;
+      dataArray.Count = selection.second;
     }
     piece[type] = dataSet;
   };
@@ -136,9 +136,9 @@ void ADIOS2xmlVTI::Init()
     if (spacingV.size() != 3)
     {
       throw std::runtime_error(
-        "ERROR: incorrect Spacing attribute in ImageData from " + m_Engine->Name());
+        "ERROR: incorrect Spacing attribute in ImageData from " + this->Engine.Name());
     }
-    m_ImageData->SetSpacing(spacingV.data());
+    this->ImageData->SetSpacing(spacingV.data());
 
     // Origin
     const pugi::xml_attribute originXML = adios2vtk::helper::XMLAttribute(
@@ -148,9 +148,9 @@ void ADIOS2xmlVTI::Init()
     if (originV.size() != 3)
     {
       throw std::runtime_error(
-        "ERROR: incorrect Origin attribute in ImageData from " + m_Engine->Name());
+        "ERROR: incorrect Origin attribute in ImageData from " + this->Engine.Name());
     }
-    m_ImageData->SetOrigin(originV.data());
+    this->ImageData->SetOrigin(originV.data());
 
     // TODO: allow varying mesh over time by assigning domain extent to variables
 
@@ -158,15 +158,15 @@ void ADIOS2xmlVTI::Init()
     const pugi::xml_attribute wholeExtentXML = adios2vtk::helper::XMLAttribute(
       "WholeExtent", extentNode, true, "when reading WholeExtent in ImageData", true);
 
-    m_WholeExtent = adios2vtk::helper::StringToVector<size_t>(wholeExtentXML.value());
-    if (m_WholeExtent.size() != 6)
+    this->WholeExtent = adios2vtk::helper::StringToVector<size_t>(wholeExtentXML.value());
+    if (this->WholeExtent.size() != 6)
     {
       throw std::runtime_error(
         "ERROR: incorrect WholeExtent attribute, must have 6 elements, in ImageData from " +
-        m_Engine->Name());
+        this->Engine.Name());
     }
 
-    // set extent
+    // set extent transforming to VTK's Column Major representation
     const adios2::Box<adios2::Dims> cellSelection = GetSelection(types::DataSetType::CellData);
     const adios2::Dims& start = cellSelection.first;
     const adios2::Dims& count = cellSelection.second;
@@ -177,12 +177,12 @@ void ADIOS2xmlVTI::Init()
       extent[2 * i] = static_cast<int>(start[2 - i]);
       extent[2 * i + 1] = static_cast<int>(start[2 - i] + count[2 - i]);
     }
-    m_ImageData->SetExtent(extent.data());
+    this->ImageData->SetExtent(extent.data());
   };
 
   // BODY OF FUNCTION STARTS HERE
   const pugi::xml_document xmlDocument =
-    adios2vtk::helper::XMLDocument(m_Schema, true, "when reading xml vti schema");
+    adios2vtk::helper::XMLDocument(this->Schema, true, "when reading xml vti schema");
 
   const pugi::xml_node xmlVTKFileNode = adios2vtk::helper::XMLNode(
     "VTKFile", xmlDocument, true, "when reading VTKFile type=ImageData node", true, true);
@@ -192,51 +192,48 @@ void ADIOS2xmlVTI::Init()
 
   lf_InitExtent(xmlImageDataNode);
 
+  size_t pieces = 0;
   for (const pugi::xml_node& xmlPieceNode : xmlImageDataNode.children("Piece"))
   {
     types::Piece piece;
     lf_InitPieceDataSetType(piece, types::DataSetType::CellData, xmlPieceNode);
     lf_InitPieceDataSetType(piece, types::DataSetType::PointData, xmlPieceNode);
-    m_Pieces.push_back(piece);
+    this->Pieces.push_back(piece);
+    ++pieces;
+  }
+  if (pieces == 0)
+  {
+    throw std::invalid_argument(
+      "ERROR: could not find Piece XML-node when reading ImageData XML-node "
+      "in ADIOS2 VTK XML Schema source\n");
   }
 }
 
 adios2::Dims ADIOS2xmlVTI::GetShape(const types::DataSetType type)
 {
+  adios2::Dims shape(3);
   if (type == types::DataSetType::CellData)
   {
-    adios2::Dims shape(3);
     for (size_t i = 0; i < 3; ++i)
     {
-      shape[2 - i] = m_WholeExtent[2 * i + 1] - m_WholeExtent[2 * i] - 1;
+      shape[i] = this->WholeExtent[2 * i + 1] - this->WholeExtent[2 * i] - 1;
     }
-    return shape;
   }
   else if (type == types::DataSetType::PointData)
   {
-    adios2::Dims shape(3);
     for (size_t i = 0; i < 3; ++i)
     {
-      shape[2 - i] = m_WholeExtent[2 * i + 1] - m_WholeExtent[2 * i];
+      shape[i] = this->WholeExtent[2 * i + 1] - this->WholeExtent[2 * i];
     }
-    return shape;
   }
 
-  return adios2::Dims();
+  return shape;
 }
 
 adios2::Box<adios2::Dims> ADIOS2xmlVTI::GetSelection(const types::DataSetType type)
 {
-  const adios2::Dims cellShape = GetShape(types::DataSetType::CellData);
-  adios2::Box<adios2::Dims> selection = helper::PartitionCart1D(cellShape);
-
-  // modify count if point data
-  if (type == types::DataSetType::PointData)
-  {
-    adios2::Dims& count = selection.second;
-    std::for_each(count.begin(), count.end(), [](size_t& dim) { dim += 1; });
-  }
-
+  const adios2::Dims shape = GetShape(type);
+  const adios2::Box<adios2::Dims> selection = helper::PartitionCart1D(shape);
   return selection;
 }
 

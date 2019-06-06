@@ -26,6 +26,9 @@
 #include "ADIOS2Helper.h"
 #include "ADIOS2SchemaManager.h"
 
+#include "vtkIndent.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -34,7 +37,7 @@ vtkStandardNewMacro(vtkADIOS2ReaderMultiBlock);
 
 vtkADIOS2ReaderMultiBlock::vtkADIOS2ReaderMultiBlock()
   : FileName(nullptr)
-  , m_SchemaManager(new adios2vtk::ADIOS2SchemaManager)
+  , SchemaManager(new adios2vtk::ADIOS2SchemaManager)
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -43,11 +46,11 @@ vtkADIOS2ReaderMultiBlock::vtkADIOS2ReaderMultiBlock()
 int vtkADIOS2ReaderMultiBlock::RequestInformation(vtkInformation* vtkNotUsed(inputVector),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  m_SchemaManager->Update(FileName); // check if FileName changed
+  this->SchemaManager->Update(FileName); // check if FileName changed
 
   // set time info
   const std::vector<double> vTimes =
-    adios2vtk::helper::MapKeysToVector(m_SchemaManager->m_Reader->m_Times);
+    adios2vtk::helper::MapKeysToVector(this->SchemaManager->Reader->Times);
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   info->Set(
@@ -65,8 +68,8 @@ int vtkADIOS2ReaderMultiBlock::RequestUpdateExtent(
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
   const double newTime = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-  m_SchemaManager->m_Step = m_SchemaManager->m_Reader->m_Times[newTime];
-  m_SchemaManager->m_Time = newTime;
+  this->SchemaManager->Step = this->SchemaManager->Reader->Times[newTime];
+  this->SchemaManager->Time = newTime;
   return 1;
 }
 
@@ -77,14 +80,13 @@ int vtkADIOS2ReaderMultiBlock::RequestData(vtkInformation* vtkNotUsed(inputVecto
   vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
   vtkMultiBlockDataSet* multiBlock = vtkMultiBlockDataSet::SafeDownCast(output);
 
-  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), m_SchemaManager->m_Time);
-  m_SchemaManager->Fill(multiBlock, m_SchemaManager->m_Step);
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->SchemaManager->Time);
+  this->SchemaManager->Fill(multiBlock, this->SchemaManager->Step);
   return 1;
 }
 
 void vtkADIOS2ReaderMultiBlock::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
   os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }

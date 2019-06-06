@@ -29,7 +29,7 @@ namespace types
 
 bool DataArray::IsScalar() const noexcept
 {
-  if (m_VectorVariables.empty())
+  if (this->VectorVariables.empty())
   {
     return true;
   }

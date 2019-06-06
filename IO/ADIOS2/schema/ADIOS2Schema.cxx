@@ -29,11 +29,11 @@ namespace adios2vtk
 {
 
 ADIOS2Schema::ADIOS2Schema(
-  const std::string type, const std::string& schema, adios2::IO* io, adios2::Engine* engine)
-  : m_Type(type)
-  , m_Schema(schema)
-  , m_IO(io)
-  , m_Engine(engine)
+  const std::string type, const std::string& schema, adios2::IO& io, adios2::Engine& engine)
+  : Type(type)
+  , Schema(schema)
+  , IO(io)
+  , Engine(engine)
 {
 }
 
@@ -47,17 +47,15 @@ void ADIOS2Schema::Fill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 void ADIOS2Schema::GetDataArray(const std::string& variableName, types::DataArray& dataArray,
   const size_t step, const std::string mode)
 {
-  const std::string type = m_IO->VariableType(variableName);
+  const std::string type = this->IO.VariableType(variableName);
 
   if (type.empty())
   {
-    std::cout << "WARNING: variable " + variableName + " does not exist in step " +
-        std::to_string(step) + "...skipping\n";
   }
 #define declare_type(T)                                                                            \
   else if (type == adios2::GetType<T>())                                                           \
   {                                                                                                \
-    adios2::Variable<T> variable = m_IO->InquireVariable<T>(variableName);                         \
+    adios2::Variable<T> variable = this->IO.InquireVariable<T>(variableName);                      \
     GetDataArrayCommon<T>(variable, dataArray, step, mode);                                        \
   }
   ADIOS2_VTK_ARRAY_TYPE(declare_type)
@@ -66,31 +64,25 @@ void ADIOS2Schema::GetDataArray(const std::string& variableName, types::DataArra
 
 void ADIOS2Schema::GetTimes(const std::string& variableName)
 {
-  if (m_Engine == nullptr)
-  {
-    throw std::runtime_error(
-      "ERROR: Engine is null when populating time variable " + variableName + " \n");
-  }
-
   if (variableName.empty())
   {
     // set default steps as "timesteps"
-    const size_t steps = m_Engine->Steps();
+    const size_t steps = this->Engine.Steps();
     for (size_t step = 0; step < steps; ++step)
     {
       const double timeDbl = static_cast<double>(step);
-      m_Times[timeDbl] = step;
+      this->Times[timeDbl] = step;
     }
     return;
   }
 
   // if variable is found
-  const std::string type = m_IO->VariableType(variableName);
+  const std::string type = this->IO.VariableType(variableName);
 
   if (type.empty())
   {
     throw std::invalid_argument("ERROR: time variable " + variableName + " not present " +
-      " in Engine " + m_Engine->Name() + " when reading time data\n");
+      " in Engine " + this->Engine.Name() + " when reading time data\n");
   }
 #define declare_type(T)                                                                            \
   else if (type == adios2::GetType<T>()) { GetTimesCommon<T>(variableName); }

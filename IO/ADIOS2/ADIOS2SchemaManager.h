@@ -41,12 +41,12 @@ class ADIOS2SchemaManager
 {
 public:
   /** current time*/
-  double m_Time = 0.;
+  double Time = 0.;
   /** current adios2 step */
-  size_t m_Step = 0;
+  size_t Step = 0;
 
   /** managed polymorphic reader, could be extended in a container */
-  std::unique_ptr<ADIOS2Schema> m_Reader;
+  std::unique_ptr<ADIOS2Schema> Reader;
 
   ADIOS2SchemaManager() = default;
   ~ADIOS2SchemaManager() = default;
@@ -69,21 +69,21 @@ public:
 
 private:
   /** Current stream name */
-  std::string m_StreamName;
+  std::string StreamName;
 
   /** Single ADIOS object alive during the entire run */
-  std::unique_ptr<adios2::ADIOS> m_ADIOS;
+  std::unique_ptr<adios2::ADIOS> ADIOS;
 
   /** Current ADIOS2 IO used for getting variables */
-  adios2::IO m_IO;
+  adios2::IO IO;
 
   /** Current ADIOS2 Engine doing the heavy work */
-  adios2::Engine m_Engine;
+  adios2::Engine Engine;
 
   /** carries the schema information */
-  std::string m_SchemaName;
+  std::string SchemaName;
 
-  static const std::set<std::string> m_SupportedTypes;
+  static const std::set<std::string> SupportedTypes;
 
   /** we can extend this to add more schemas */
   void InitReader();

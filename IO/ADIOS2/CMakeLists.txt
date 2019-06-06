@@ -36,3 +36,11 @@ vtk_module_link(VTK::IOADIOS2
   PRIVATE
     adios2::adios2
 )
+
+# Use this module to get coverage using
+# VTK/Utilities/Maintenance/computeCodeCoverageLocallyForOneTest.sh ./IO -R ADIOS2
+#if(CMAKE_COMPILER_IS_GNUCXX)
+#  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+#  include(CodeCoverage)
+#  APPEND_COVERAGE_COMPILER_FLAGS()
+#endif()

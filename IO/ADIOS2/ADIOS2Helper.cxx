@@ -73,13 +73,12 @@ int MPIGetSize()
 }
 
 pugi::xml_document XMLDocument(
-  const std::string& input, const bool debugMode, const std::string& hint, const bool isFile)
+  const std::string& input, const bool debugMode, const std::string& hint)
 {
   pugi::xml_document document;
 
-  pugi::xml_parse_result result = isFile
-    ? document.load_file(input.c_str())
-    : document.load_buffer(const_cast<char*>(input.data()), input.size());
+  pugi::xml_parse_result result =
+    document.load_buffer(const_cast<char*>(input.data()), input.size());
 
   if (debugMode)
   {
@@ -202,18 +201,24 @@ types::DataSet XMLInitDataSet(
       variablePCData.erase(0, variablePCData.find_first_not_of(" \n\r\t"));
       variablePCData.erase(variablePCData.find_last_not_of(" \n\r\t") + 1);
 
-      dataArray.m_VectorVariables.push_back(variablePCData);
+      dataArray.VectorVariables.push_back(variablePCData);
     }
 
     if (xmlNumberOfComponents)
     {
       const size_t components = static_cast<size_t>(std::stoull(xmlNumberOfComponents.value()));
-      if (dataArray.m_VectorVariables.size() != components)
+      if (dataArray.VectorVariables.size() != components)
       {
         throw std::runtime_error("ERROR: NumberOfComponents " + std::to_string(components) +
-          " and variable names found " + std::to_string(dataArray.m_VectorVariables.size()) +
+          " and variable names found " + std::to_string(dataArray.VectorVariables.size()) +
           " inside DataArray node " + std::string(xmlName.name()) + " in ADIOS2 VTK XML schema");
       }
+    }
+
+    if (dataArray.IsScalar())
+    {
+      throw std::invalid_argument(
+        "ERROR: data array " + name + " expected to be vector, in ADIOS2 VTK XML schema\n");
     }
   }
 
@@ -265,17 +270,29 @@ adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims& shape)
   const size_t mpiRank = static_cast<size_t>(MPIGetRank());
   const size_t mpiSize = static_cast<size_t>(MPIGetSize());
 
-  // fastest index, VTK is column-major
-  if (shape[2] >= mpiSize)
+  // slowest index
+  if (shape[0] >= mpiSize)
   {
-    const size_t elements = shape[2] / mpiSize;
+    const size_t elements = shape[0] / mpiSize;
     // start
     selection.first[0] = mpiRank * elements;
     // count
-    selection.second[0] = (mpiRank == mpiSize - 1) ? elements + shape[2] % mpiSize : elements;
+    selection.second[0] = (mpiRank == mpiSize - 1) ? elements + shape[0] % mpiSize : elements;
   }
 
   return selection;
+}
+
+size_t LinearizePoint(const adios2::Dims& shape, const adios2::Dims& point) noexcept
+{
+  const size_t i = point[0];
+  const size_t j = point[1];
+  const size_t k = point[2];
+
+  const size_t Ny = shape[1];
+  const size_t Nz = shape[2];
+
+  return i * Ny * Nz + j * Nz + k;
 }
 
 } // end helper namespace
