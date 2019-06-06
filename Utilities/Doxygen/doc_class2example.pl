@@ -506,7 +506,7 @@ my (@summary, @credits, @legend);
 
 push @summary,
   "  - " . scalar @words . " class(es) in " .
-  scalar @parsable . " file(s) from directories matching \@c " . $args{"dirmatch"} . " on " . localtime();
+  scalar @parsable . " file(s) from directories matching \@c " . $args{"dirmatch"} . " on " . gmtime($ENV{SOURCE_DATE_EPOCH}||time);
 
 push @summary,
   "  - " . scalar @parsers . " parser(s) : [" . join(", ", @parsers) . "]";

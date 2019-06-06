@@ -441,7 +441,7 @@ my (@summary, @credits);
 
 push @summary,
   "  - $nb_files file(s) indexed by " . scalar @words . " word(s) on " .
-  localtime(),
+  gmtime($ENV{SOURCE_DATE_EPOCH}||time),
   "  - max limit is " . $args{"limit"} . " xref(s) per word";
 
 push @credits,
