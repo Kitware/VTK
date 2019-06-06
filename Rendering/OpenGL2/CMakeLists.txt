@@ -74,6 +74,9 @@ set(classes
   vtkPanoramicProjectionPass
   vtkPixelBufferObject
   vtkPointFillPass
+  vtkPBRIrradianceTexture
+  vtkPBRLUTTexture
+  vtkPBRPrefilterTexture
   vtkRenderPassCollection
   vtkRenderStepsPass
   vtkRenderbuffer

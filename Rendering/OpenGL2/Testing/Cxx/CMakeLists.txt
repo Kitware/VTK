@@ -26,8 +26,11 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestLightingMapLuminancePass.cxx
   TestLightingMapNormalsPass.cxx
   TestMultiTexturing.cxx
+  TestNormalMapping.cxx
   TestOffscreenRenderingResize.cxx
   TestOrderIndependentTranslucentPass.cxx
+  TestPBRMapping.cxx
+  TestPBRMaterials.cxx
   TestPanoramicProjectionPass.cxx,NO_DATA
   TestPointFillPass.cxx
   TestPointGaussianSelection.cxx,NO_DATA

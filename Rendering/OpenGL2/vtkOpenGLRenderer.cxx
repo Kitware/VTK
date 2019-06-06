@@ -32,6 +32,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
 #include "vtkOrderIndependentTranslucentPass.h"
+#include "vtkPBRIrradianceTexture.h"
+#include "vtkPBRLUTTexture.h"
+#include "vtkPBRPrefilterTexture.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -77,6 +80,10 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
 
   this->LightingCount = -1;
   this->LightingComplexity = -1;
+
+  this->EnvMapLookupTable = nullptr;
+  this->EnvMapIrradiance = nullptr;
+  this->EnvMapPrefiltered = nullptr;
 }
 
 // Ask lights to load themselves into graphics pipeline.
@@ -209,6 +216,13 @@ void vtkOpenGLRenderer::DeviceRender()
 {
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
+  if (this->UseImageBasedLighting && this->EnvironmentCubeMap)
+  {
+    this->GetEnvMapLookupTable()->Load(this);
+    this->GetEnvMapIrradiance()->Load(this);
+    this->GetEnvMapPrefiltered()->Load(this);
+  }
+
   if(this->Pass!=nullptr)
   {
     vtkRenderState s(this);
@@ -231,6 +245,13 @@ void vtkOpenGLRenderer::DeviceRender()
     this->UpdateGeometry();
 
     vtkOpenGLCheckErrorMacro("failed after DeviceRender");
+  }
+
+  if (this->UseImageBasedLighting && this->EnvironmentCubeMap)
+  {
+    this->GetEnvMapLookupTable()->PostRender(this);
+    this->GetEnvMapIrradiance()->PostRender(this);
+    this->GetEnvMapPrefiltered()->PostRender(this);
   }
 
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
@@ -720,6 +741,24 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
     this->TranslucentPass->Delete();
     this->TranslucentPass = nullptr;
   }
+
+  if (this->EnvMapLookupTable)
+  {
+    this->EnvMapLookupTable->Delete();
+    this->EnvMapLookupTable = nullptr;
+  }
+
+  if (this->EnvMapIrradiance)
+  {
+    this->EnvMapIrradiance->Delete();
+    this->EnvMapIrradiance = nullptr;
+  }
+
+  if (this->EnvMapPrefiltered)
+  {
+    this->EnvMapPrefiltered->Delete();
+    this->EnvMapPrefiltered = nullptr;
+  }
 }
 
 bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
@@ -979,4 +1018,54 @@ void vtkOpenGLRenderer::UpdateLightingUniforms(vtkShaderProgram *program)
 void vtkOpenGLRenderer::SetUserLightTransform(vtkTransform* transform)
 {
   this->UserLightTransform = transform;
+}
+
+void vtkOpenGLRenderer::SetEnvironmentCubeMap(vtkTexture* cubemap)
+{
+  this->Superclass::SetEnvironmentCubeMap(cubemap);
+
+  vtkOpenGLTexture* oglCubemap = vtkOpenGLTexture::SafeDownCast(cubemap);
+
+  if (oglCubemap)
+  {
+    if (oglCubemap->GetCubeMap())
+    {
+      this->GetEnvMapIrradiance()->SetInputCubeMap(oglCubemap);
+      this->GetEnvMapPrefiltered()->SetInputCubeMap(oglCubemap);
+    }
+    else
+    {
+      vtkErrorMacro("The environment texture is not a cube map");
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+vtkPBRLUTTexture* vtkOpenGLRenderer::GetEnvMapLookupTable()
+{
+  if (!this->EnvMapLookupTable)
+  {
+    this->EnvMapLookupTable = vtkPBRLUTTexture::New();
+  }
+  return this->EnvMapLookupTable;
+}
+
+// ----------------------------------------------------------------------------
+vtkPBRIrradianceTexture* vtkOpenGLRenderer::GetEnvMapIrradiance()
+{
+  if (!this->EnvMapIrradiance)
+  {
+    this->EnvMapIrradiance = vtkPBRIrradianceTexture::New();
+  }
+  return this->EnvMapIrradiance;
+}
+
+// ----------------------------------------------------------------------------
+vtkPBRPrefilterTexture* vtkOpenGLRenderer::GetEnvMapPrefiltered()
+{
+  if (!this->EnvMapPrefiltered)
+  {
+    this->EnvMapPrefiltered = vtkPBRPrefilterTexture::New();
+  }
+  return this->EnvMapPrefiltered;
 }

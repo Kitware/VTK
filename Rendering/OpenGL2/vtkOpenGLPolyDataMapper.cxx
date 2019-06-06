@@ -50,6 +50,9 @@
 #include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkOpenGLShaderProperty.h"
 #include "vtkOpenGLUniforms.h"
+#include "vtkPBRIrradianceTexture.h"
+#include "vtkPBRLUTTexture.h"
+#include "vtkPBRPrefilterTexture.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -763,6 +766,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   vtkRenderer *ren, vtkActor *actor)
 {
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+  std::ostringstream toString;
 
   // check for normal rendering
   vtkInformation *info = actor->GetPropertyKeys();
@@ -787,14 +791,163 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       );
   }
 
+  int lastLightComplexity = this->LastLightComplexity[this->LastBoundBO];
+  int lastLightCount = this->LastLightCount[this->LastBoundBO];
+
+  if (actor->GetProperty()->GetInterpolation() == VTK_PBR && lastLightComplexity > 0)
+  {
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Dec",
+      "//VTK::Light::Dec\n"
+      "uniform mat3 normalMatrix;\n" // move to normal code
+      "const float PI = 3.14159265359;\n"
+      "uniform float metallicUniform;\n"
+      "uniform float roughnessUniform;\n"
+      "uniform vec3 emissiveFactorUniform;\n"
+      "uniform float aoStrengthUniform;\n\n"
+      "float D_GGX(float NdH, float roughness)\n"
+      "{\n"
+      "  float a = roughness * roughness;\n"
+      "  float a2 = a * a;\n"
+      "  float d = (NdH * a2 - NdH) * NdH + 1.0;\n"
+      "  return a2 / (PI * d * d);\n"
+      "}\n"
+      "float G_Smith(float NdV, float NdL, float roughness)\n"
+      "{\n"
+      "  float k = 0.5 * (roughness + 1.0);\n" // avoid hotness
+      "  float k2 = 0.5 * k * k;\n"
+      "  float ggxV = NdV / (NdV * (1.0 - k2) + k2);\n"
+      "  float ggxL = NdL / (NdL * (1.0 - k2) + k2);\n"
+      "  return ggxL * ggxV;\n"
+      "}\n"
+      "vec3 F_Schlick(float HdV, vec3 F0)\n"
+      "{\n"
+      "  return F0 + (1.0 - F0) * pow(2.0, (-5.55473 * HdV - 6.98316) * HdV);\n"
+      "}\n"
+      "vec3 F_SchlickRoughness(float HdV, vec3 F0, float roughness)\n"
+      "{\n"
+      "  return F0 + (1.0 - F0) * (max(vec3(1.0 - roughness), F0) - F0) * pow(2.0, (-5.55473 * HdV - 6.98316) * HdV);\n"
+      "}\n"
+      "vec3 DiffuseLambert(vec3 albedo)\n"
+      "{\n"
+      "  return albedo / PI;\n"
+      "}\n",
+      false);
+
+    // disable default behavior with textures
+    vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl","");
+
+    // get color and material from textures
+    std::vector<texinfo> textures = this->GetTextures(actor);
+    bool albedo = false;
+    bool material = false;
+    bool emissive = false;
+    bool ibl = false;
+    toString.clear();
+    for (auto& t : textures)
+    {
+      if (t.second == "albedoTex")
+      {
+        albedo = true;
+        toString << "vec4 albedoSample = texture(albedoTex, tcoordVCVSOutput);\n"
+          "  vec3 albedo = albedoSample.rgb * diffuseColor;\n"
+          "  opacity = albedoSample.a;\n";
+      }
+      else if (t.second == "materialTex")
+      {
+        // we are using GLTF specification here with a combined texture holding values for AO,
+        // roughness and metallic on R,G,B channels respectively
+        material = true;
+        toString << "  vec4 material = texture(materialTex, tcoordVCVSOutput);\n"
+          "  float roughness = material.g * roughnessUniform;\n"
+          "  float metallic = material.b * metallicUniform;\n"
+          "  float ao = material.r;\n";
+      }
+      else if (t.second == "emissiveTex")
+      {
+        emissive = true;
+        toString << "  vec3 emissiveColor = texture(emissiveTex, tcoordVCVSOutput).rgb;\n"
+          "  emissiveColor = emissiveColor * emissiveFactorUniform;\n";
+      }
+    }
+
+    // IBL
+    if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentCubeMap())
+    {
+      vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
+      if (oglRen)
+      {
+        ibl = true;
+        toString << "  const float prefilterMaxLevel = float("
+          << (oglRen->GetEnvMapPrefiltered()->GetPrefilterLevels() - 1) << ");\n";
+      }
+    }
+
+    if (!albedo)
+    {
+      toString << "vec3 albedo = diffuseColor;\n";
+    }
+    if (!material)
+    {
+      toString << "  float roughness = roughnessUniform;\n";
+      toString << "  float metallic = metallicUniform;\n";
+      toString << "  float ao = 1.0;\n";
+    }
+    if (!emissive)
+    {
+      toString << "  vec3 emissiveColor = vec3(0.0);\n";
+    }
+
+    toString << "  vec3 N = normalVCVSOutput;\n"
+      "  vec3 V = normalize(-vertexVC.xyz);\n"
+      "  float NdV = clamp(dot(N, V), 1e-5, 1.0);\n";
+
+    if (ibl)
+    {
+      toString << "  vec3 irradiance = texture(irradianceTex, inverse(normalMatrix)*N).rgb;\n";
+      toString << "  vec3 worldReflect = normalize(inverse(normalMatrix)*reflect(-V, N));\n"
+        "  vec3 prefilteredColor = textureLod(prefilterTex, worldReflect,"
+        " roughness * prefilterMaxLevel).rgb;\n";
+      toString << "  vec2 brdf = texture(brdfTex, vec2(NdV, roughness)).rg;\n";
+    }
+    else
+    {
+      toString << "  vec3 irradiance = vec3(0.03);\n";
+      toString << "  vec3 prefilteredColor = vec3(0.03);\n";
+      toString << "  vec2 brdf = vec2(0.0, 0.0);\n";
+    }
+
+    toString << "  vec3 Lo = vec3(0.0);\n"
+      "  albedo = pow(albedo, vec3(2.2));\n";
+
+    if (lastLightComplexity != 0)
+    {
+      toString << "  vec3 F0 = mix(vec3(0.04), albedo, metallic);\n"
+        "  vec3 L, H, radiance, F, specular, diffuse;\n"
+        "  float NdL, NdH, HdV, distanceVC, attenuation, D, G;\n\n";
+    }
+
+    toString << "//VTK::Light::Impl\n";
+
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl",
+      toString.str(), false);
+    toString.clear();
+    toString.str("");
+
+    if (ibl)
+    {
+      // add uniforms
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
+        "//VTK::Light::Dec\n"
+        "uniform sampler2D brdfTex;\n"
+        "uniform samplerCube irradianceTex;\n"
+        "uniform samplerCube prefilterTex;\n");
+    }
+  }
+
   // get Standard Lighting Decls
   vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
     static_cast<vtkOpenGLRenderer *>(ren)->GetLightingUniforms());
 
-  int lastLightComplexity = this->LastLightComplexity[this->LastBoundBO];
-  int lastLightCount = this->LastLightCount[this->LastBoundBO];
-
-  std::ostringstream toString;
   switch (lastLightComplexity)
   {
     case 0: // no lighting or RENDER_VALUES
@@ -806,13 +959,29 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       break;
 
     case 1:  // headlight
-      toString <<
-        "  float df = max(0.0,normalVCVSOutput.z);\n"
-        "  float sf = pow(df, specularPower);\n"
-        "  vec3 diffuse = df * diffuseColor * lightColor0;\n"
-        "  vec3 specular = sf * specularColor * lightColor0;\n"
-        "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);\n"
-        "  //VTK::Light::Impl\n";
+      if (actor->GetProperty()->GetInterpolation() == VTK_PBR)
+      {
+        // L = V = H for headlights
+        toString << "  NdV = clamp(dot(N, V), 1e-5, 1.0);\n"
+          "  D = D_GGX(NdV, roughness);\n"
+          "  G = G_Smith(NdV, NdV, roughness);\n"
+          "  F = F_Schlick(1.0, F0);\n"
+          "  specular = D * G * F / (4.0 * NdV * NdV);\n"
+          "  diffuse = (1.0 - F) * DiffuseLambert(albedo);\n"
+          "  Lo += (diffuse + specular) * lightColor0 * NdV;\n\n"
+          "//VTK::Light::Impl\n";
+      }
+      else
+      {
+        toString <<
+          "  float df = max(0.0,normalVCVSOutput.z);\n"
+          "  float sf = pow(df, specularPower);\n"
+          "  vec3 diffuse = df * diffuseColor * lightColor0;\n"
+          "  vec3 specular = sf * specularColor * lightColor0;\n"
+          "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);\n"
+          "  //VTK::Light::Impl\n";
+      }
+
       vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl",
         toString.str(), false);
       break;
@@ -820,27 +989,51 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     case 2: // light kit
       toString.clear();
       toString.str("");
-      toString <<
-        "  vec3 diffuse = vec3(0,0,0);\n"
-        "  vec3 specular = vec3(0,0,0);\n"
-        "  float df;\n"
-        "  float sf;\n";
-      for (int i = 0; i < lastLightCount; ++i)
+
+      if (actor->GetProperty()->GetInterpolation() == VTK_PBR)
+      {
+        for (int i = 0; i < lastLightCount; ++i)
+        {
+          toString << "  L = normalize(-lightDirectionVC" << i << ");\n"
+            "  H = normalize(V + L);\n"
+            "  NdL = clamp(dot(N, L), 1e-5, 1.0);\n"
+            "  NdH = clamp(dot(N, H), 1e-5, 1.0);\n"
+            "  HdV = clamp(dot(H, V), 1e-5, 1.0);\n"
+            "  radiance = lightColor" << i << ";\n"
+            "  D = D_GGX(NdH, roughness);\n"
+            "  G = G_Smith(NdV, NdL, roughness);\n"
+            "  F = F_Schlick(HdV, F0);\n"
+            "  specular = D * G * F / (4.0 * NdV * NdL);\n"
+            "  diffuse = (1.0 - F) * DiffuseLambert(albedo);\n"
+            "  Lo += (diffuse + specular) * radiance * NdL;\n";
+        }
+        toString << "//VTK::Light::Impl\n";
+      }
+      else
       {
         toString <<
-          "    df = max(0.0, dot(normalVCVSOutput, -lightDirectionVC" << i << "));\n"
-          // if you change the next line also change vtkShadowMapPass
-          "  diffuse += (df * lightColor" << i << ");\n" <<
-          "  sf = sign(df)*pow(max(0.0, dot( reflect(lightDirectionVC" <<i <<
-          ", normalVCVSOutput), normalize(-vertexVC.xyz))), specularPower);\n"
-          // if you change the next line also change vtkShadowMapPass
-          "  specular += (sf * lightColor" << i << ");\n";
+          "  vec3 diffuse = vec3(0,0,0);\n"
+          "  vec3 specular = vec3(0,0,0);\n"
+          "  float df;\n"
+          "  float sf;\n";
+        for (int i = 0; i < lastLightCount; ++i)
+        {
+          toString <<
+            "    df = max(0.0, dot(normalVCVSOutput, -lightDirectionVC" << i << "));\n"
+            // if you change the next line also change vtkShadowMapPass
+            "  diffuse += (df * lightColor" << i << ");\n" <<
+            "  sf = sign(df)*pow(max(0.0, dot( reflect(lightDirectionVC" <<i <<
+            ", normalVCVSOutput), normalize(-vertexVC.xyz))), specularPower);\n"
+            // if you change the next line also change vtkShadowMapPass
+            "  specular += (sf * lightColor" << i << ");\n";
+        }
+        toString <<
+          "  diffuse = diffuse * diffuseColor;\n"
+          "  specular = specular * specularColor;\n"
+          "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);"
+          "  //VTK::Light::Impl";
       }
-      toString <<
-        "  diffuse = diffuse * diffuseColor;\n"
-        "  specular = specular * specularColor;\n"
-        "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);"
-        "  //VTK::Light::Impl";
+
       vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
         toString.str(), false);
       break;
@@ -848,53 +1041,94 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     case 3: // positional
       toString.clear();
       toString.str("");
-      toString <<
-        "  vec3 diffuse = vec3(0,0,0);\n"
-        "  vec3 specular = vec3(0,0,0);\n"
-        "  vec3 vertLightDirectionVC;\n"
-        "  float attenuation;\n"
-        "  float df;\n"
-        "  float sf;\n"
-        ;
-      for (int i = 0; i < lastLightCount; ++i)
+
+      if (actor->GetProperty()->GetInterpolation() == VTK_PBR)
+      {
+        for (int i = 0; i < lastLightCount; ++i)
+        {
+          toString << "  L = normalize(lightPositionVC" << i << " - vertexVC.xyz);\n"
+            "  H = normalize(V + L);\n"
+            "  NdL = clamp(dot(N, L), 1e-5, 1.0);\n"
+            "  NdH = clamp(dot(N, H), 1e-5, 1.0);\n"
+            "  HdV = clamp(dot(H, V), 1e-5, 1.0);\n"
+            "  distanceVC = length(lightPositionVC" << i << " - vertexVC.xyz);\n"
+            "  attenuation = 1.0 / (lightAttenuation" << i << ".x\n"
+            "         + lightAttenuation" << i << ".y * distanceVC\n"
+            "         + lightAttenuation" << i << ".z * distanceVC * distanceVC);\n"
+            "  radiance = lightColor" << i << " * attenuation;\n"
+            "  D = D_GGX(NdH, roughness);\n"
+            "  G = G_Smith(NdV, NdL, roughness);\n"
+            "  F = F_Schlick(HdV, F0);\n"
+            "  specular = D * G * F / (4.0 * NdV * NdL);\n"
+            "  diffuse = (1.0 - F) * DiffuseLambert(albedo);\n"
+            "  Lo += (diffuse + specular) * radiance * NdL;\n\n";
+        }
+        toString << "//VTK::Light::Impl\n";
+      }
+      else
       {
         toString <<
-          "    attenuation = 1.0;\n"
-          "    if (lightPositional" << i << " == 0) {\n"
-          "      vertLightDirectionVC = lightDirectionVC" << i << "; }\n"
-          "    else {\n"
-          "      vertLightDirectionVC = vertexVC.xyz - lightPositionVC" << i << ";\n"
-          "      float distanceVC = length(vertLightDirectionVC);\n"
-          "      vertLightDirectionVC = normalize(vertLightDirectionVC);\n"
-          "      attenuation = 1.0 /\n"
-          "        (lightAttenuation" << i << ".x\n"
-          "         + lightAttenuation" << i << ".y * distanceVC\n"
-          "         + lightAttenuation" << i << ".z * distanceVC * distanceVC);\n"
-          "      // per OpenGL standard cone angle is 90 or less for a spot light\n"
-          "      if (lightConeAngle" << i << " <= 90.0) {\n"
-          "        float coneDot = dot(vertLightDirectionVC, lightDirectionVC" << i << ");\n"
-          "        // if inside the cone\n"
-          "        if (coneDot >= cos(radians(lightConeAngle" << i << "))) {\n"
-          "          attenuation = attenuation * pow(coneDot, lightExponent" << i << "); }\n"
-          "        else {\n"
-          "          attenuation = 0.0; }\n"
-          "        }\n"
-          "      }\n" <<
-          "    df = max(0.0,attenuation*dot(normalVCVSOutput, -vertLightDirectionVC));\n"
-          // if you change the next line also change vtkShadowMapPass
-          "    diffuse += (df * lightColor" << i << ");\n"
-          "    sf = sign(df)*attenuation*pow( max(0.0, dot( reflect(vertLightDirectionVC, normalVCVSOutput), normalize(-vertexVC.xyz))), specularPower);\n"
-          // if you change the next line also change vtkShadowMapPass
-          "      specular += (sf * lightColor" << i << ");\n";
+          "  vec3 diffuse = vec3(0,0,0);\n"
+          "  vec3 specular = vec3(0,0,0);\n"
+          "  vec3 vertLightDirectionVC;\n"
+          "  float attenuation;\n"
+          "  float df;\n"
+          "  float sf;\n"
+          ;
+        for (int i = 0; i < lastLightCount; ++i)
+        {
+          toString <<
+            "    attenuation = 1.0;\n"
+            "    if (lightPositional" << i << " == 0) {\n"
+            "      vertLightDirectionVC = lightDirectionVC" << i << "; }\n"
+            "    else {\n"
+            "      vertLightDirectionVC = vertexVC.xyz - lightPositionVC" << i << ";\n"
+            "      float distanceVC = length(vertLightDirectionVC);\n"
+            "      vertLightDirectionVC = normalize(vertLightDirectionVC);\n"
+            "      attenuation = 1.0 /\n"
+            "        (lightAttenuation" << i << ".x\n"
+            "         + lightAttenuation" << i << ".y * distanceVC\n"
+            "         + lightAttenuation" << i << ".z * distanceVC * distanceVC);\n"
+            "      // per OpenGL standard cone angle is 90 or less for a spot light\n"
+            "      if (lightConeAngle" << i << " <= 90.0) {\n"
+            "        float coneDot = dot(vertLightDirectionVC, lightDirectionVC" << i << ");\n"
+            "        // if inside the cone\n"
+            "        if (coneDot >= cos(radians(lightConeAngle" << i << "))) {\n"
+            "          attenuation = attenuation * pow(coneDot, lightExponent" << i << "); }\n"
+            "        else {\n"
+            "          attenuation = 0.0; }\n"
+            "        }\n"
+            "      }\n" <<
+            "    df = max(0.0,attenuation*dot(normalVCVSOutput, -vertLightDirectionVC));\n"
+            // if you change the next line also change vtkShadowMapPass
+            "    diffuse += (df * lightColor" << i << ");\n"
+            "    sf = sign(df)*attenuation*pow( max(0.0, dot( reflect(vertLightDirectionVC, normalVCVSOutput), normalize(-vertexVC.xyz))), specularPower);\n"
+            // if you change the next line also change vtkShadowMapPass
+            "      specular += (sf * lightColor" << i << ");\n";
+        }
+        toString <<
+          "  diffuse = diffuse * diffuseColor;\n"
+          "  specular = specular * specularColor;\n"
+          "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);"
+          "  //VTK::Light::Impl";
       }
-      toString <<
-        "  diffuse = diffuse * diffuseColor;\n"
-        "  specular = specular * specularColor;\n"
-        "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);"
-        "  //VTK::Light::Impl";
       vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
         toString.str(), false);
       break;
+  }
+
+  if (actor->GetProperty()->GetInterpolation() == VTK_PBR && lastLightComplexity > 0)
+  {
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl",
+      "  vec3 kS = F_SchlickRoughness(max(NdV, 0.0), F0, roughness);\n"
+      "  vec3 kD = 1.0 - kS;\n"
+      "  vec3 ambient = (kD * irradiance * albedo + prefilteredColor * (kS * brdf.r + brdf.g));\n"
+      "  vec3 color = ambient + Lo;\n"
+      "  color = mix(color, color * ao, aoStrengthUniform);\n" // ambient occlusion
+      "  color += emissiveColor;\n" // emissive
+      "  color = pow(color, vec3(1.0/2.2));\n"
+      "  gl_FragData[0] = vec4(color, opacity);\n"
+      "  //VTK::Light::Impl", false);
   }
 
   // If rendering luminance values, write those values to the fragment
@@ -1011,6 +1245,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
       vsimpl = vsimpl + it + "VCVSOutput = " + it + ";\n";
     }
   }
+
   vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Impl", vsimpl);
 
   // now create the rest of the vertex and geometry shader code
@@ -1037,10 +1272,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     gsimpl = gsimpl + it + "VCGSOutput = " + it + "VCVSOutput[i];\n";
     fsdec = fsdec + "in " + tCoordType + " " + it + "VCVSOutput;\n";
   }
+
   vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Dec", vsdec);
   vtkShaderProgram::Substitute(GSSource, "//VTK::TCoord::Dec", gsdec);
   vtkShaderProgram::Substitute(GSSource, "//VTK::TCoord::Impl", gsimpl);
   vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Dec", fsdec);
+
+  int nbTex2d = 0;
 
   // OK now handle the fragment shader implementation
   // everything else has been done.
@@ -1048,6 +1286,23 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   for (size_t i = 0; i < textures.size(); ++i)
   {
     vtkTexture *texture = textures[i].first;
+
+    // ignore cubemaps
+    if (texture->GetCubeMap())
+    {
+      continue;
+    }
+
+    // ignore special textures
+    if (textures[i].second == "normalTex" ||
+      textures[i].second == "materialTex" ||
+      textures[i].second == "brdfTex")
+    {
+      continue;
+    }
+
+    nbTex2d++;
+
     std::stringstream ss;
 
     // do we have special tcoords for this texture?
@@ -1131,7 +1386,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
 
   // do texture mapping except for scalar coloring case which is
   // handled in the scalar coloring code
-  if (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates)
+  if (nbTex2d > 0 && (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates))
   {
     vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl",
       tCoordImpFS + "gl_FragData[0] = gl_FragData[0] * tcolor;");
@@ -1414,6 +1669,42 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
     // if we have point normals provided
     if (this->VBOs->GetNumberOfComponents("normalMC") == 3)
     {
+      // normal mapping
+      std::vector<texinfo> textures = this->GetTextures(actor);
+      bool normalTex = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex) {
+        return tex.second == "normalTex";
+      }) != textures.end();
+      if (normalTex && this->VBOs->GetNumberOfComponents("tangentMC") == 3)
+      {
+        vtkShaderProgram::Substitute(VSSource,
+          "//VTK::Normal::Dec",
+          "//VTK::Normal::Dec\n"
+          "in vec3 tangentMC;\n"
+          "out vec3 tangentVCVSOutput;\n");
+
+        vtkShaderProgram::Substitute(VSSource,
+          "//VTK::Normal::Impl",
+          "//VTK::Normal::Impl\n"
+          "  tangentVCVSOutput = normalMatrix * tangentMC;\n"
+          //"  tangentVC = \n"
+          );
+
+        vtkShaderProgram::Substitute(FSSource,
+          "//VTK::Normal::Dec",
+          "//VTK::Normal::Dec\n"
+          "uniform float normalScaleUniform;\n"
+          "in vec3 tangentVCVSOutput;");
+
+        vtkShaderProgram::Substitute(FSSource,
+          "//VTK::Normal::Impl",
+          "//VTK::Normal::Impl\n"
+          "  vec3 normalTS = texture(normalTex, tcoordVCVSOutput).xyz * 2.0 - 1.0;\n"
+          "  normalTS = normalize(normalTS * vec3(normalScaleUniform, normalScaleUniform, 1.0));\n"
+          "  vec3 tangentVC = normalize(tangentVCVSOutput - dot(tangentVCVSOutput, normalVCVSOutput) * normalVCVSOutput);\n"
+          "  vec3 bitangentVC = cross(normalVCVSOutput, tangentVC);\n"
+          "  mat3 tbn = mat3(tangentVC, bitangentVC, normalVCVSOutput);\n"
+          "  normalVCVSOutput = normalize(tbn * normalTS);\n");
+      }
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::Normal::Dec",
         "in vec3 normalMC;\n"
@@ -1907,6 +2198,18 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     cellBO.AttributeUpdateTime.Modified();
   }
 
+  // Add IBL textures
+  if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentCubeMap())
+  {
+    vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
+    if (oglRen)
+    {
+      cellBO.Program->SetUniformi("brdfTex", oglRen->GetEnvMapLookupTable()->GetTextureUnit());
+      cellBO.Program->SetUniformi("irradianceTex", oglRen->GetEnvMapIrradiance()->GetTextureUnit());
+      cellBO.Program->SetUniformi("prefilterTex", oglRen->GetEnvMapPrefiltered()->GetTextureUnit());
+    }
+  }
+
   if (this->HaveTextures(actor))
   {
     std::vector<texinfo> textures = this->GetTextures(actor);
@@ -2222,6 +2525,20 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
   program->SetUniformf("diffuseIntensity", dIntensity);
   program->SetUniform3f("ambientColorUniform", aColor);
   program->SetUniform3f("diffuseColorUniform", dColor);
+
+  if (this->VBOs->GetNumberOfComponents("tangentMC") == 3)
+  {
+    program->SetUniformf("normalScaleUniform", static_cast<float>(ppty->GetNormalScale()));
+  }
+
+  if (actor->GetProperty()->GetInterpolation() == VTK_PBR &&
+    this->LastLightComplexity[this->LastBoundBO] > 0)
+  {
+    program->SetUniformf("metallicUniform", static_cast<float>(ppty->GetMetallic()));
+    program->SetUniformf("roughnessUniform", static_cast<float>(ppty->GetRoughness()));
+    program->SetUniformf("aoStrengthUniform", static_cast<float>(ppty->GetOcclusionStrength()));
+    program->SetUniform3f("emissiveFactorUniform", ppty->GetEmissiveFactor());
+  }
 
   // handle specular
   if (this->LastLightComplexity[&cellBO])
@@ -2944,6 +3261,15 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   this->VBOs->CacheDataArray("normalMC", n, cache, VTK_FLOAT);
   this->VBOs->CacheDataArray("scalarColor", c, cache, VTK_UNSIGNED_CHAR);
   this->VBOs->CacheDataArray("tcoord", tcoords, cache, VTK_FLOAT);
+
+  // Look for tangents attribute
+  vtkFloatArray* tangents =
+    vtkFloatArray::SafeDownCast(poly->GetPointData()->GetTangents());
+  if (tangents)
+  {
+    this->VBOs->CacheDataArray("tangentMC", tangents, ren, VTK_FLOAT);
+  }
+
   this->VBOs->BuildAllVBOs(cache);
 
   // get it again as it may have been freed

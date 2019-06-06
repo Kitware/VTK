@@ -63,6 +63,7 @@ set(classes
   vtkPointDataToCellData
   vtkPolyDataConnectivityFilter
   vtkPolyDataNormals
+  vtkPolyDataTangents
   vtkProbeFilter
   vtkQuadricClustering
   vtkQuadricDecimation

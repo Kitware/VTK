@@ -745,6 +745,26 @@ public:
   virtual void SetInformation(vtkInformation*);
   //@}
 
+  //@{
+  /**
+   * If this flag is true and the rendering engine supports it, image based
+   * lighting is enabled and surface rendering displays environment reflections.
+   * The input cube map have to be set with SetEnvironmentCubeMap.
+   * If not cubemap is specified, this feature is disable.
+   */
+  vtkSetMacro(UseImageBasedLighting, bool)
+  vtkGetMacro(UseImageBasedLighting, bool)
+  vtkBooleanMacro(UseImageBasedLighting, bool)
+  //@}
+
+  //@{
+  /**
+   * Set/Get the environment cubemap used for image based lighting.
+   */
+  vtkGetObjectMacro(EnvironmentCubeMap, vtkTexture);
+  virtual void SetEnvironmentCubeMap(vtkTexture*);
+  //@}
+
 protected:
   vtkRenderer();
   ~vtkRenderer() override;
@@ -975,6 +995,9 @@ protected:
 
   // Arbitrary extra information associated with this renderer
   vtkInformation* Information;
+
+  bool UseImageBasedLighting;
+  vtkTexture* EnvironmentCubeMap;
 
 private:
   vtkRenderer(const vtkRenderer&) = delete;
