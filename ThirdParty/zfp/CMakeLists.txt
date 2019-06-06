@@ -1,6 +1,6 @@
 vtk_module_third_party_internal(
   LICENSE_FILES "vtkzfp/LICENSE"
-  VERSION       "0.5.4"
+  VERSION       "0.5.5"
   STANDARD_INCLUDE_DIRS)
 
 configure_file(

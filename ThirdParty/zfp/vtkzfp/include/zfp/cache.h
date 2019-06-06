@@ -8,6 +8,8 @@
   #include <iostream>
 #endif
 
+namespace zfp {
+
 // direct-mapped or two-way skew-associative write-back cache
 template <class Line>
 class Cache {
@@ -104,8 +106,8 @@ public:
   // destructor
   ~Cache()
   {
-    deallocate(tag);
-    deallocate(line);
+    zfp::deallocate_aligned(tag);
+    zfp::deallocate_aligned(line);
 #ifdef ZFP_WITH_CACHE_PROFILE
     std::cerr << "cache R1=" << hit[0][0] << " R2=" << hit[1][0] << " RM=" << miss[0] << " RB=" << back[0]
               <<      " W1=" << hit[0][1] << " W2=" << hit[1][1] << " WM=" << miss[1] << " WB=" << back[1] << std::endl;
@@ -127,8 +129,8 @@ public:
   void resize(uint minsize)
   {
     for (mask = minsize ? minsize - 1 : 1; mask & (mask + 1); mask |= mask + 1);
-    reallocate(tag, ((size_t)mask + 1) * sizeof(Tag), 0x100);
-    reallocate(line, ((size_t)mask + 1) * sizeof(Line), 0x100);
+    zfp::reallocate_aligned(tag, ((size_t)mask + 1) * sizeof(Tag), 0x100);
+    zfp::reallocate_aligned(line, ((size_t)mask + 1) * sizeof(Line), 0x100);
     clear();
   }
 
@@ -209,8 +211,8 @@ protected:
   void deep_copy(const Cache& c)
   {
     mask = c.mask;
-    clone(tag, c.tag, mask + 1, 0x100u);
-    clone(line, c.line, mask + 1, 0x100u);
+    zfp::clone_aligned(tag, c.tag, mask + 1, 0x100u);
+    zfp::clone_aligned(line, c.line, mask + 1, 0x100u);
 #ifdef ZFP_WITH_CACHE_PROFILE
     hit[0][0] = c.hit[0][0];
     hit[0][1] = c.hit[0][1];
@@ -253,5 +255,7 @@ protected:
   uint64 back[2];   // number of write-backs due to read/writes
 #endif
 };
+
+}
 
 #endif

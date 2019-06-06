@@ -10,3 +10,5 @@
 #include "template/encode.c"
 #include "template/encodei.c"
 #include "template/encode3.c"
+#include "template/revencode.c"
+#include "template/revencode3.c"
