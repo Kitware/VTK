@@ -3154,6 +3154,9 @@ function (vtk_module_add_module name)
 
   get_property(_vtk_add_module_exclude_wrap GLOBAL
     PROPERTY  "_vtk_module_${_vtk_build_module}_exclude_wrap")
+  set_property(TARGET "${_vtk_add_module_real_target}"
+    PROPERTY
+      "INTERFACE_vtk_module_exclude_wrap" "${_vtk_add_module_exclude_wrap}")
   if (NOT _vtk_add_module_exclude_wrap)
     _vtk_module_write_wrap_hierarchy()
   endif ()
