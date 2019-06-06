@@ -249,7 +249,7 @@ foreach my $source (@files) {
 
     my $preamble = "    \@par      " . $args{"label"} . ":\n";
     my $doc = $preamble .
-      "              " . join(" ", keys %{$class2matches{$class}}) . "\n";
+      "              " . join(" ", sort keys %{$class2matches{$class}}) . "\n";
 
     if ($block !~ s/($preamble.+?)(\s*\@par|\z)/$doc$2/gms) {
         $block .= "\n$doc";

@@ -462,7 +462,7 @@ my $nb_removed = 0;
 
 foreach my $signature (sort { (scalar keys %{$log_revision_by_signature_file{$b}}) <=> (scalar keys %{$log_revision_by_signature_file{$a}}) }
                        keys %log_revision_by_signature_file) {
-    my @files = keys %{$log_revision_by_signature_file{$signature}};
+    my @files = sort keys %{$log_revision_by_signature_file{$signature}};
 
     if (scalar @files > $args{"massive"}) {
         print " >> Removed: (" . scalar @files . ")\n     " .
@@ -521,7 +521,7 @@ $intermediate_time = time();
 
 # Browse each file, each revision and use contribution
 
-foreach my $file_name (keys %files_visited) {
+foreach my $file_name (sort keys %files_visited) {
 
     # Check if file is part of a class group
 
@@ -533,7 +533,7 @@ foreach my $file_name (keys %files_visited) {
         $classes{$class_name}{'creators'}{$log_by_file_revision{$file_name}{'1.1'}{'author'}} = 1;
     }
 
-    foreach my $revision (keys %{$log_by_file_revision{$file_name}}) {
+    foreach my $revision (sort keys %{$log_by_file_revision{$file_name}}) {
 
         my $author = $log_by_file_revision{$file_name}{$revision}{'author'};
 
@@ -603,7 +603,7 @@ while (@classes_names) {
     # Find the class header name
 
     my $source_header_name = undef;
-    foreach my $file_name (keys %{$classes{$class_name}{'files'}}) {
+    foreach my $file_name (sort keys %{$classes{$class_name}{'files'}}) {
         if ($file_name =~ m/\.h$/) {
             $source_header_name = $file_name;
             last;
@@ -682,7 +682,7 @@ while (@classes_names) {
 
     if (exists $args{"cvsweb"}) {
         $doc .= "\n    \@par      CVS logs (CVSweb):\n";
-        foreach my $file (keys %{$classes{$class_name}{'files'}}) {
+        foreach my $file (sort keys %{$classes{$class_name}{'files'}}) {
             my $shortname = get_short_relative_name($file, $args{"relativeto"});
             my ($base, $dir, $ext) = fileparse($shortname, '\..*');
             $doc .= '                - @htmlonly<A href="' . $args{"cvsweb"}
@@ -769,10 +769,10 @@ my %contribution_by_author;
 
 my %contribution_by_date;
 
-foreach my $contributor (keys %contribution_by_author_file) {
+foreach my $contributor (sort keys %contribution_by_author_file) {
 
     foreach my $file_name
-      (keys %{$contribution_by_author_file{$contributor}}) {
+      (sort keys %{$contribution_by_author_file{$contributor}}) {
         $contribution_by_author{$contributor} +=
           $contribution_by_author_file{$contributor}{$file_name};
     }
