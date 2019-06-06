@@ -42,7 +42,8 @@ set(classes
   vtkTreeDifferenceFilter
   vtkTreeFieldAggregator
   vtkTreeLevelsFilter
-  vtkVertexDegree)
+  vtkVertexDegree
+  vtkWordCloud)
 
 vtk_module_add_module(VTK::InfovisCore
   CLASSES ${classes})

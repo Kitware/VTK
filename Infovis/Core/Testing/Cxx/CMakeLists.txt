@@ -28,4 +28,27 @@ vtk_add_test_cxx(vtkInfovisCoreCxxTests tests
   TestTreeDifferenceFilter.cxx,NO_VALID
   )
 
-vtk_test_cxx_executable(vtkInfovisCoreCxxTests tests)
+# add to the list but don't define a test
+list(APPEND tests UnitTestWordCloud.cxx)
+list(APPEND tests TestWordCloud.cxx)
+
+ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
+  NAME VTK::InfovisCoreCxxTests-UnitTestWordCloud
+  COMMAND vtkInfovisCoreCxxTests UnitTestWordCloud
+  DATA{../../../../Testing/Data/Gettysburg.txt} DATA{../../../../Testing/Data/Canterbury.ttf} DATA{../../../../Testing/Data/hearts.png} DATA{../../../../Testing/Data/hearts8bit.png}  DATA{../../../../Testing/Data/NLTKStopList.txt})
+
+ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
+  NAME VTK::InfovisCoreCxxTests-TestWordCloud
+  COMMAND vtkInfovisCoreCxxTests TestWordCloud
+  DATA{../../../../Testing/Data/Gettysburg.txt} DATA{../../../../Testing/Data/Canterbury.ttf}
+  -V DATA{../Data/Baseline/TestWordCloud.png,:}
+  -T "${VTK_TEST_OUTPUT_DIR}"
+)
+
+set(all_tests
+  ${tests}
+  ${data_tests}
+  ${output_tests}
+  ${custom_tests}
+  )
+vtk_test_cxx_executable(vtkInfovisCoreCxxTests all_tests RENDERING_FACTORY)
