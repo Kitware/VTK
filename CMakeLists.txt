@@ -56,6 +56,15 @@ target_include_directories(freetype
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_BINARY_DIR}/include")
 
+if (WIN32)
+  target_compile_definitions(
+    freetype PRIVATE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS)
+  if (BUILD_SHARED_LIBS)
+    target_compile_definitions(
+      freetype PRIVATE DLL_EXPORT)
+  endif ()
+endif ()
+
 # If we want freetype's Mac font support we need to link against
 # a couple of Mac OS X frameworks.
 if (APPLE AND VTKFREETYPE_MAC_FONT_SUPPORT)
