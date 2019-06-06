@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkpng/LICENSE"
-    VERSION       "1.6.35"
+    VERSION       "1.6.37"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE PNG
