@@ -54,7 +54,9 @@ set_target_properties(vtkmpi4py.MPI
 if (WIN32)
   set_target_properties(vtkmpi4py.MPI
     PROPERTIES
-      DEBUG_POSTFIX "_d"
+      # XXX(python-debug): VTK doesn't expect a debug Python for Debug builds
+      # anymore. See vtkModuleWrapPython what actually decides this.
+      #DEBUG_POSTFIX "_d"
       SUFFIX        ".pyd")
 endif ()
 
@@ -70,6 +72,13 @@ target_link_libraries(vtkmpi4py.MPI
   PRIVATE
     VTK::mpi
     VTK::Python)
+
+install(
+  TARGETS vtkmpi4py.MPI
+  ARCHIVE DESTINATION "${mpi4py_install_dir}/mpi4py"
+  LIBRARY DESTINATION "${mpi4py_install_dir}/mpi4py"
+  RUNTIME DESTINATION "${mpi4py_install_dir}/mpi4py"
+  COMPONENT   "python")
 
 vtk_module_install_headers(
   DIRECTORIES "mpi4py/include/mpi4py/"
