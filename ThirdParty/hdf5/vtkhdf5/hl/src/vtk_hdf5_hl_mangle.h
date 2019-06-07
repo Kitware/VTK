@@ -6,6 +6,7 @@
 #define csindex vtkhdf5_hl_csindex
 #define first_quote vtkhdf5_hl_first_quote
 #define H5DOappend vtkhdf5_hl_H5DOappend
+#define H5DOread_chunk vtkhdf5_hl_H5DOread_chunk
 #define H5DOwrite_chunk vtkhdf5_hl_H5DOwrite_chunk
 #define H5DSattach_scale vtkhdf5_hl_H5DSattach_scale
 #define H5DSdetach_scale vtkhdf5_hl_H5DSdetach_scale

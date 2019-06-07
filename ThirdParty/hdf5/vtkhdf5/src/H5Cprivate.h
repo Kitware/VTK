@@ -2219,6 +2219,12 @@ typedef struct H5C_cache_image_ctl_t {
     unsigned				flags;
 } H5C_cache_image_ctl_t;
 
+/* The cache logging output style */
+typedef enum H5C_log_style_t {
+    H5C_LOG_STYLE_JSON,
+    H5C_LOG_STYLE_TRACE
+} H5C_log_style_t;
+
 /***************************************/
 /* Library-private Function Prototypes */
 /***************************************/
@@ -2227,13 +2233,6 @@ H5_DLL H5C_t *H5C_create(size_t max_cache_size, size_t min_clean_size,
     int max_type_id, const H5C_class_t * const *class_table_ptr,
     H5C_write_permitted_func_t check_write_permitted, hbool_t write_permitted,
     H5C_log_flush_func_t log_flush, void *aux_ptr);
-H5_DLL herr_t H5C_set_up_logging(H5C_t *cache_ptr, const char log_location[], hbool_t start_immediately);
-H5_DLL herr_t H5C_tear_down_logging(H5C_t *cache_ptr);
-H5_DLL herr_t H5C_start_logging(H5C_t *cache_ptr);
-H5_DLL herr_t H5C_stop_logging(H5C_t *cache_ptr);
-H5_DLL herr_t H5C_get_logging_status(const H5C_t *cache_ptr, /*OUT*/ hbool_t *is_enabled,
-    /*OUT*/ hbool_t *is_currently_logging);
-H5_DLL herr_t H5C_write_log_message(const H5C_t *cache_ptr, const char message[]);
 H5_DLL void H5C_def_auto_resize_rpt_fcn(H5C_t *cache_ptr, int32_t version,
     double hit_rate, enum H5C_resize_status status,
     size_t old_max_cache_size, size_t new_max_cache_size,
@@ -2267,8 +2266,6 @@ H5_DLL herr_t H5C_get_entry_status(const H5F_t *f, haddr_t addr,
     hbool_t *image_up_to_date_ptr);
 H5_DLL herr_t H5C_get_evictions_enabled(const H5C_t *cache_ptr, hbool_t *evictions_enabled_ptr);
 H5_DLL void * H5C_get_aux_ptr(const H5C_t *cache_ptr);
-H5_DLL FILE *H5C_get_trace_file_ptr(const H5C_t *cache_ptr);
-H5_DLL FILE *H5C_get_trace_file_ptr_from_entry(const H5C_cache_entry_t *entry_ptr);
 H5_DLL herr_t H5C_image_stats(H5C_t * cache_ptr, hbool_t print_header);
 H5_DLL herr_t H5C_insert_entry(H5F_t *f, const H5C_class_t *type, haddr_t addr,
     void *thing, unsigned int flags);
@@ -2292,7 +2289,6 @@ H5_DLL herr_t H5C_set_cache_image_config(const H5F_t *f, H5C_t *cache_ptr,
     H5C_cache_image_ctl_t *config_ptr);
 H5_DLL herr_t H5C_set_evictions_enabled(H5C_t *cache_ptr, hbool_t evictions_enabled);
 H5_DLL herr_t H5C_set_prefix(H5C_t *cache_ptr, char *prefix);
-H5_DLL herr_t H5C_set_trace_file_ptr(H5C_t *cache_ptr, FILE *trace_file_ptr);
 H5_DLL herr_t H5C_stats(H5C_t *cache_ptr, const char *cache_name,
     hbool_t display_detailed_stats);
 H5_DLL void H5C_stats__reset(H5C_t *cache_ptr);
@@ -2305,6 +2301,7 @@ H5_DLL herr_t H5C_validate_resize_config(H5C_auto_size_ctl_t *config_ptr,
     unsigned int tests);
 H5_DLL herr_t H5C_ignore_tags(H5C_t *cache_ptr);
 H5_DLL hbool_t H5C_get_ignore_tags(const H5C_t *cache_ptr);
+H5_DLL uint32_t H5C_get_num_objs_corked(const H5C_t *cache_ptr);
 H5_DLL herr_t H5C_retag_entries(H5C_t * cache_ptr, haddr_t src_tag, haddr_t dest_tag);
 H5_DLL herr_t H5C_cork(H5C_t *cache_ptr, haddr_t obj_addr, unsigned action, hbool_t *corked);
 H5_DLL herr_t H5C_get_entry_ring(const H5F_t *f, haddr_t addr, H5C_ring_t *ring);
@@ -2315,6 +2312,11 @@ H5_DLL herr_t H5C_cache_image_status(H5F_t * f, hbool_t *load_ci_ptr,
     hbool_t *write_ci_ptr);
 H5_DLL hbool_t H5C_cache_image_pending(const H5C_t *cache_ptr);
 H5_DLL herr_t H5C_get_mdc_image_info(H5C_t *cache_ptr, haddr_t *image_addr, hsize_t *image_len);
+
+/* Logging functions */
+H5_DLL herr_t H5C_start_logging(H5C_t *cache);
+H5_DLL herr_t H5C_stop_logging(H5C_t *cache);
+H5_DLL herr_t H5C_get_logging_status(const H5C_t *cache, /*OUT*/ hbool_t *is_enabled, /*OUT*/ hbool_t *is_currently_logging);
 
 #ifdef H5_HAVE_PARALLEL
 H5_DLL herr_t H5C_apply_candidate_list(H5F_t *f, H5C_t *cache_ptr,

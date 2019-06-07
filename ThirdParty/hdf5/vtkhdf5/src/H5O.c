@@ -73,11 +73,11 @@
 /* Local Variables */
 /*******************/
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oopen
+ * Function:    H5Oopen
  *
- * Purpose:	Opens an object within an HDF5 file.
+ * Purpose:    Opens an object within an HDF5 file.
  *
  *              This function opens an object in the same way that H5Gopen2,
  *              H5Topen2, and H5Dopen2 do. However, H5Oopen doesn't require
@@ -88,18 +88,18 @@
  *              The opened object should be closed again with H5Oclose
  *              or H5Gclose, H5Tclose, or H5Dclose.
  *
- * Return:	Success:	An open object identifier
- *		Failure:	Negative
+ * Return:    Success:    An open object identifier
+ *        Failure:    Negative
  *
- * Programmer:	James Laird
- *		July 14 2006
+ * Programmer:    James Laird
+ *        July 14 2006
  *
  *-------------------------------------------------------------------------
  */
 hid_t
 H5Oopen(hid_t loc_id, const char *name, hid_t lapl_id)
 {
-    H5G_loc_t	loc;                    /* Location of group */
+    H5G_loc_t    loc;                    /* Location of group */
     hid_t       ret_value = FAIL;
 
     FUNC_ENTER_API(FAIL)
@@ -116,18 +116,18 @@ H5Oopen(hid_t loc_id, const char *name, hid_t lapl_id)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, H5I_INVALID_HID, "can't set access property list info")
 
     /* Open the object */
-    if((ret_value = H5O__open_name(&loc, name)) < 0)
+    if((ret_value = H5O_open_name(&loc, name, TRUE)) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTOPENOBJ, FAIL, "unable to open object")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oopen() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oopen_by_idx
+ * Function:    H5Oopen_by_idx
  *
- * Purpose:	Opens an object within an HDF5 file, according to the offset
+ * Purpose:    Opens an object within an HDF5 file, according to the offset
  *              within an index.
  *
  *              This function opens an object in the same way that H5Gopen,
@@ -139,11 +139,11 @@ done:
  *              The opened object should be closed again with H5Oclose
  *              or H5Gclose, H5Tclose, or H5Dclose.
  *
- * Return:	Success:	An open object identifier
- *		Failure:	Negative
+ * Return:    Success:    An open object identifier
+ *        Failure:    Negative
  *
- * Programmer:	Quincey Koziol
- *		November 20 2006
+ * Programmer:    Quincey Koziol
+ *        November 20 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -151,7 +151,7 @@ hid_t
 H5Oopen_by_idx(hid_t loc_id, const char *group_name, H5_index_t idx_type,
     H5_iter_order_t order, hsize_t n, hid_t lapl_id)
 {
-    H5G_loc_t	loc;                    /* Location of group */
+    H5G_loc_t    loc;                    /* Location of group */
     hid_t       ret_value = FAIL;
 
     FUNC_ENTER_API(FAIL)
@@ -179,11 +179,11 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oopen_by_idx() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oopen_by_addr
+ * Function:    H5Oopen_by_addr
  *
- * Purpose:	Warning! This function is EXTREMELY DANGEROUS!
+ * Purpose:    Warning! This function is EXTREMELY DANGEROUS!
  *              Improper use can lead to FILE CORRUPTION, INACCESSIBLE DATA,
  *              and other VERY BAD THINGS!
  *
@@ -207,19 +207,19 @@ done:
  *              HDF5 file, and HDF5's file drivers will transparently
  *              map this to an address on disk for the filesystem.
  *
- * Return:	Success:	An open object identifier
- *		Failure:	Negative
+ * Return:    Success:    An open object identifier
+ *        Failure:    Negative
  *
- * Programmer:	James Laird
- *		July 14 2006
+ * Programmer:    James Laird
+ *        July 14 2006
  *
  *-------------------------------------------------------------------------
  */
 hid_t
 H5Oopen_by_addr(hid_t loc_id, haddr_t addr)
 {
-    H5G_loc_t	loc;                    /* Location within file */
-    hid_t       ret_value = H5I_INVALID_HID;	/* Return value */
+    H5G_loc_t    loc;                    /* Location within file */
+    hid_t       ret_value = H5I_INVALID_HID;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE2("i", "ia", loc_id, addr);
@@ -238,24 +238,24 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oopen_by_addr() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Olink
+ * Function:    H5Olink
  *
- * Purpose:	Creates a hard link from NEW_NAME to the object specified
- *		by OBJ_ID using properties defined in the Link Creation
+ * Purpose:    Creates a hard link from NEW_NAME to the object specified
+ *        by OBJ_ID using properties defined in the Link Creation
  *              Property List LCPL.
  *
- *		This function should be used to link objects that have just
+ *        This function should be used to link objects that have just
  *              been created.
  *
- *		NEW_NAME is interpreted relative to
- *		NEW_LOC_ID, which is either a file ID or a
- *		group ID.
+ *        NEW_NAME is interpreted relative to
+ *        NEW_LOC_ID, which is either a file ID or a
+ *        group ID.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	James Laird
+ * Programmer:    James Laird
  *              Tuesday, December 13, 2005
  *
  *-------------------------------------------------------------------------
@@ -264,8 +264,8 @@ herr_t
 H5Olink(hid_t obj_id, hid_t new_loc_id, const char *new_name, hid_t lcpl_id,
     hid_t lapl_id)
 {
-    H5G_loc_t	new_loc;		/* Location of group to link from */
-    H5G_loc_t	obj_loc;		/* Location of object to link to */
+    H5G_loc_t    new_loc;        /* Location of group to link from */
+    H5G_loc_t    obj_loc;        /* Location of object to link to */
     herr_t      ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -292,19 +292,19 @@ H5Olink(hid_t obj_id, hid_t new_loc_id, const char *new_name, hid_t lcpl_id,
     if(H5CX_set_apl(&lapl_id, H5P_CLS_LACC, obj_id, TRUE) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
 
-    /* Create a link to the object */
-    if(H5O__create_link(&new_loc, new_name, &obj_loc, lcpl_id) < 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, FAIL, "unable to create link")
+    /* Link to the object */
+    if(H5L_link(&new_loc, new_name, &obj_loc, lcpl_id) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTCREATE, FAIL, "unable to create link")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Olink() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oincr_refcount
+ * Function:    H5Oincr_refcount
  *
- * Purpose:	Warning! This function is EXTREMELY DANGEROUS!
+ * Purpose:    Warning! This function is EXTREMELY DANGEROUS!
  *              Improper use can lead to FILE CORRUPTION, INACCESSIBLE DATA,
  *              and other VERY BAD THINGS!
  *
@@ -313,19 +313,19 @@ done:
  *              that references an object by address is created. When the
  *              link is deleted, H5Odecr_refcount should be used.
  *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *        Failure:    Negative
  *
- * Programmer:	James Laird
- *		July 14 2006
+ * Programmer:    James Laird
+ *        July 14 2006
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Oincr_refcount(hid_t object_id)
 {
-    H5O_loc_t  *oloc;			/* Object location */
-    herr_t      ret_value = SUCCEED;	/* Return value */
+    H5O_loc_t  *oloc;            /* Object location */
+    herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", object_id);
@@ -339,18 +339,18 @@ H5Oincr_refcount(hid_t object_id)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Change the object's refcount */
-    if(H5O__link(oloc, 1) < 0)
+    if(H5O_link(oloc, 1) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_LINKCOUNT, FAIL, "modifying object link count failed")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5O_incr_refcount() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Odecr_refcount
+ * Function:    H5Odecr_refcount
  *
- * Purpose:	Warning! This function is EXTREMELY DANGEROUS!
+ * Purpose:    Warning! This function is EXTREMELY DANGEROUS!
  *              Improper use can lead to FILE CORRUPTION, INACCESSIBLE DATA,
  *              and other VERY BAD THINGS!
  *
@@ -359,19 +359,19 @@ done:
  *              that reference an object by address are deleted, and only
  *              after H5Oincr_refcount has already been used.
  *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *        Failure:    Negative
  *
- * Programmer:	James Laird
- *		July 14 2006
+ * Programmer:    James Laird
+ *        July 14 2006
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Odecr_refcount(hid_t object_id)
 {
-    H5O_loc_t  *oloc;			/* Object location */
-    herr_t      ret_value = SUCCEED;	/* Return value */
+    H5O_loc_t  *oloc;            /* Object location */
+    herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", object_id);
@@ -385,31 +385,31 @@ H5Odecr_refcount(hid_t object_id)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Change the object's refcount */
-    if(H5O__link(oloc, -1) < 0)
+    if(H5O_link(oloc, -1) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_LINKCOUNT, FAIL, "modifying object link count failed")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Odecr_refcount() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oexists_by_name
+ * Function:    H5Oexists_by_name
  *
- * Purpose:	Determine if a linked-to object exists
+ * Purpose:    Determine if a linked-to object exists
  *
- * Return:	Success:	TRUE/FALSE
- * 		Failure:	Negative
+ * Return:    Success:    TRUE/FALSE
+ *         Failure:    Negative
  *
- * Programmer:	Quincey Koziol
- *		February  2 2010
+ * Programmer:    Quincey Koziol
+ *        February  2 2010
  *
  *-------------------------------------------------------------------------
  */
 htri_t
 H5Oexists_by_name(hid_t loc_id, const char *name, hid_t lapl_id)
 {
-    H5G_loc_t	loc;                    /* Location info */
+    H5G_loc_t    loc;                    /* Location info */
     htri_t      ret_value = FAIL;       /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -426,14 +426,14 @@ H5Oexists_by_name(hid_t loc_id, const char *name, hid_t lapl_id)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Check if the object exists */
-    if((ret_value = H5O__exists_by_name(&loc, name)) < 0)
+    if((ret_value = H5G_loc_exists(&loc, name)) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to determine if '%s' exists", name)
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oexists_by_name() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Oget_info2
  *
@@ -467,14 +467,14 @@ H5Oget_info2(hid_t loc_id, H5O_info_t *oinfo, unsigned fields)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid fields")
 
     /* Retrieve the object's information */
-    if(H5O__get_info_by_name(&loc, ".", oinfo/*out*/, fields) < 0)
+    if(H5G_loc_info(&loc, ".", oinfo/*out*/, fields) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't get info for object")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oget_info2() */
 
-
+
  /*-------------------------------------------------------------------------
   * Function:   H5Oget_info_by_name2
   *
@@ -494,7 +494,7 @@ herr_t
 H5Oget_info_by_name2(hid_t loc_id, const char *name, H5O_info_t *oinfo,
     unsigned fields, hid_t lapl_id)
 {
-    H5G_loc_t	loc;                    /* Location of group */
+    H5G_loc_t    loc;                    /* Location of group */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -515,14 +515,14 @@ H5Oget_info_by_name2(hid_t loc_id, const char *name, H5O_info_t *oinfo,
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Retrieve the object's information */
-    if(H5O__get_info_by_name(&loc, name, oinfo/*out*/, fields) < 0)
+    if(H5G_loc_info(&loc, name, oinfo/*out*/, fields) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't get info for object: '%s'", name)
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oget_info_by_name2() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Oget_info_by_idx2
  *
@@ -531,10 +531,10 @@ done:
  *
  *              NOTE: Add a parameter "fields" to indicate selection of object info.
  *
- * Return:      Success:	Non-negative
- *              Failure:	Negative
+ * Return:      Success:    Non-negative
+ *              Failure:    Negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              November 26 2006
  *
  *-------------------------------------------------------------------------
@@ -543,7 +543,7 @@ herr_t
 H5Oget_info_by_idx2(hid_t loc_id, const char *group_name, H5_index_t idx_type,
     H5_iter_order_t order, hsize_t n, H5O_info_t *oinfo, unsigned fields, hid_t lapl_id)
 {
-    H5G_loc_t	loc;                    /* Location of group */
+    H5G_loc_t    loc;                    /* Location of group */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -576,28 +576,28 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oget_info_by_idx2() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oset_comment
+ * Function:    H5Oset_comment
  *
  * Purpose:     Gives the specified object a comment.  The COMMENT string
- *		should be a null terminated string.  An object can have only
- *		one comment at a time.  Passing NULL for the COMMENT argument
- *		will remove the comment property from the object.
+ *        should be a null terminated string.  An object can have only
+ *        one comment at a time.  Passing NULL for the COMMENT argument
+ *        will remove the comment property from the object.
  *
- * Note:	Deprecated in favor of using attributes on objects
+ * Note:    Deprecated in favor of using attributes on objects
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		August 30 2007
+ * Programmer:    Quincey Koziol
+ *        August 30 2007
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Oset_comment(hid_t obj_id, const char *comment)
 {
-    H5G_loc_t	loc;                    /* Location of group */
+    H5G_loc_t    loc;                    /* Location of group */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -612,28 +612,28 @@ H5Oset_comment(hid_t obj_id, const char *comment)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set collective metadata read info")
 
     /* (Re)set the object's comment */
-    if(H5O__set_comment_by_name(&loc, ".", comment) < 0)
+    if(H5G_loc_set_comment(&loc, ".", comment) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set comment for object")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oset_comment() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oset_comment_by_name
+ * Function:    H5Oset_comment_by_name
  *
  * Purpose:     Gives the specified object a comment.  The COMMENT string
- *		should be a null terminated string.  An object can have only
- *		one comment at a time.  Passing NULL for the COMMENT argument
- *		will remove the comment property from the object.
+ *        should be a null terminated string.  An object can have only
+ *        one comment at a time.  Passing NULL for the COMMENT argument
+ *        will remove the comment property from the object.
  *
- * Note:	Deprecated in favor of using attributes on objects
+ * Note:    Deprecated in favor of using attributes on objects
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		August 30 2007
+ * Programmer:    Quincey Koziol
+ *        August 30 2007
  *
  *-------------------------------------------------------------------------
  */
@@ -641,7 +641,7 @@ herr_t
 H5Oset_comment_by_name(hid_t loc_id, const char *name, const char *comment,
     hid_t lapl_id)
 {
-    H5G_loc_t	loc;                    /* Location of group */
+    H5G_loc_t    loc;                    /* Location of group */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -658,34 +658,34 @@ H5Oset_comment_by_name(hid_t loc_id, const char *name, const char *comment,
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* (Re)set the object's comment */
-    if(H5O__set_comment_by_name(&loc, name, comment) < 0)
+    if(H5G_loc_set_comment(&loc, name, comment) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set comment for object: '%s'", name)
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oset_comment_by_name() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oget_comment
+ * Function:    H5Oget_comment
  *
- * Purpose:	Retrieve comment for an object.
+ * Purpose:    Retrieve comment for an object.
  *
- * Return:	Success:	Number of bytes in the comment excluding the
- *				null terminator.  Zero if the object has no
- *				comment.
+ * Return:    Success:    Number of bytes in the comment excluding the
+ *                null terminator.  Zero if the object has no
+ *                comment.
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Quincey Koziol
- *		August 30 2007
+ * Programmer:    Quincey Koziol
+ *        August 30 2007
  *
  *-------------------------------------------------------------------------
  */
 ssize_t
 H5Oget_comment(hid_t obj_id, char *comment, size_t bufsize)
 {
-    H5G_loc_t	loc;                    /* Location of group */
+    H5G_loc_t    loc;                    /* Location of group */
     ssize_t     ret_value;              /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -696,27 +696,27 @@ H5Oget_comment(hid_t obj_id, char *comment, size_t bufsize)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
 
     /* Retrieve the object's comment */
-    if((ret_value = H5O__get_comment_by_name(&loc, ".", comment/*out*/, bufsize)) < 0)
+    if((ret_value = H5G_loc_get_comment(&loc, ".", comment/*out*/, bufsize)) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't get comment for object")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oget_comment() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oget_comment_by_name
+ * Function:    H5Oget_comment_by_name
  *
- * Purpose:	Retrieve comment for an object.
+ * Purpose:    Retrieve comment for an object.
  *
- * Return:	Success:	Number of bytes in the comment excluding the
- *				null terminator.  Zero if the object has no
- *				comment.
+ * Return:    Success:    Number of bytes in the comment excluding the
+ *                null terminator.  Zero if the object has no
+ *                comment.
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Quincey Koziol
- *		August 30 2007
+ * Programmer:    Quincey Koziol
+ *        August 30 2007
  *
  *-------------------------------------------------------------------------
  */
@@ -724,7 +724,7 @@ ssize_t
 H5Oget_comment_by_name(hid_t loc_id, const char *name, char *comment, size_t bufsize,
     hid_t lapl_id)
 {
-    H5G_loc_t	loc;                    /* Location of group */
+    H5G_loc_t    loc;                    /* Location of group */
     ssize_t     ret_value;              /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -741,18 +741,18 @@ H5Oget_comment_by_name(hid_t loc_id, const char *name, char *comment, size_t buf
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Retrieve the object's comment */
-    if((ret_value = H5O__get_comment_by_name(&loc, name, comment/*out*/, bufsize)) < 0)
+    if((ret_value = H5G_loc_get_comment(&loc, name, comment/*out*/, bufsize)) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't get comment for object: '%s'", name)
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oget_comment_by_name() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Ovisit2
+ * Function:    H5Ovisit2
  *
- * Purpose:	    Recursively visit an object and all the objects reachable
+ * Purpose:        Recursively visit an object and all the objects reachable
  *              from it.  If the starting object is a group, all the objects
  *              linked to from that group will be visited.  Links within
  *              each group are visited according to the order within the
@@ -772,14 +772,14 @@ done:
  *              object info to be retrieved to the callback "op".
  *
  * Return:      Success:    The return value of the first operator that
- *				returns non-zero, or zero if all members were
- *				processed with no operator returning non-zero.
+ *                returns non-zero, or zero if all members were
+ *                processed with no operator returning non-zero.
  *
  *              Failure:    Negative if something goes wrong within the
- *				library, or the negative value returned by one
- *				of the operators.
+ *                library, or the negative value returned by one
+ *                of the operators.
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              November 25 2007
  *
  *-------------------------------------------------------------------------
@@ -811,9 +811,9 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Ovisit2() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Ovisit_by_name2
+ * Function:    H5Ovisit_by_name2
  *
  * Purpose:     Recursively visit an object and all the objects reachable
  *              from it.  If the starting object is a group, all the objects
@@ -835,14 +835,14 @@ done:
  *              object info to be retrieved to the callback "op".
  *
  * Return:      Success:    The return value of the first operator that
- *				returns non-zero, or zero if all members were
- *				processed with no operator returning non-zero.
+ *                returns non-zero, or zero if all members were
+ *                processed with no operator returning non-zero.
  *
- *	            Failure:    Negative if something goes wrong within the
- *				library, or the negative value returned by one
- *				of the operators.
+ *                Failure:    Negative if something goes wrong within the
+ *                library, or the negative value returned by one
+ *                of the operators.
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              November 24 2007
  *
  *-------------------------------------------------------------------------
@@ -881,22 +881,22 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Ovisit_by_name2() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oclose
+ * Function:    H5Oclose
  *
- * Purpose:	Close an open file object.
+ * Purpose:    Close an open file object.
  *
  *              This is the companion to H5Oopen. It is used to close any
  *              open object in an HDF5 file (but not IDs are that not file
  *              objects, such as property lists and dataspaces). It has
  *              the same effect as calling H5Gclose, H5Dclose, or H5Tclose.
  *
- * Return:	Success:	Non-negative
- *          Failure:	Negative
+ * Return:    Success:    Non-negative
+ *          Failure:    Negative
  *
- * Programmer:	James Laird
- *		July 14 2006
+ * Programmer:    James Laird
+ *        July 14 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -941,26 +941,26 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Oclose() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Odisable_mdc_flushes
+ * Function:    H5Odisable_mdc_flushes
  *
- * Purpose:	To "cork" an object:
- *		--keep dirty entries associated with the object in the metadata cache
+ * Purpose:    To "cork" an object:
+ *        --keep dirty entries associated with the object in the metadata cache
  *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *        Failure:    Negative
  *
- * Programmer:	Vailin Choi
- *		January 2014
+ * Programmer:    Vailin Choi
+ *        January 2014
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Odisable_mdc_flushes(hid_t object_id)
 {
-    H5O_loc_t  *oloc;			/* Object location */
-    herr_t      ret_value = SUCCEED;	/* Return value */
+    H5O_loc_t  *oloc;            /* Object location */
+    herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", object_id);
@@ -976,27 +976,27 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Odisable_mdc_flushes() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oenable_mdc_flushes
+ * Function:    H5Oenable_mdc_flushes
  *
- * Purpose:	To "uncork" an object
- *		--release keeping dirty entries associated with the object 
- *		  in the metadata cache
+ * Purpose:    To "uncork" an object
+ *        --release keeping dirty entries associated with the object
+ *          in the metadata cache
  *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *        Failure:    Negative
  *
- * Programmer:	Vailin Choi
- *		January 2014
+ * Programmer:    Vailin Choi
+ *        January 2014
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Oenable_mdc_flushes(hid_t object_id)
 {
-    H5O_loc_t  *oloc;			/* Object location */
-    herr_t      ret_value = SUCCEED;	/* Return value */
+    H5O_loc_t  *oloc;            /* Object location */
+    herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", object_id);
@@ -1013,28 +1013,28 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Oenable_mdc_flushes() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Oare_mdc_flushes_disabled
+ * Function:    H5Oare_mdc_flushes_disabled
  *
- * Purpose:	Retrieve the object's "cork" status in the parameter "are_disabled":
- *		  TRUE if mdc flushes for the object is disabled
- *		  FALSE if mdc flushes for the object is not disabled
- *		Return error if the parameter "are_disabled" is not supplied
+ * Purpose:    Retrieve the object's "cork" status in the parameter "are_disabled":
+ *          TRUE if mdc flushes for the object is disabled
+ *          FALSE if mdc flushes for the object is not disabled
+ *        Return error if the parameter "are_disabled" is not supplied
  *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *        Failure:    Negative
  *
- * Programmer:	Vailin Choi
- *		January 2014
+ * Programmer:    Vailin Choi
+ *        January 2014
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Oare_mdc_flushes_disabled(hid_t object_id, hbool_t *are_disabled)
 {
-    H5O_loc_t  *oloc;			/* Object location */
-    herr_t      ret_value = SUCCEED;	/* Return value */
+    H5O_loc_t  *oloc;            /* Object location */
+    herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "i*b", object_id, are_disabled);
@@ -1054,4 +1054,268 @@ H5Oare_mdc_flushes_disabled(hid_t object_id, hbool_t *are_disabled)
 done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Oare_mdc_flushes_disabled() */
+
+/* Future function prototypes to be deprecated in next major version
+ * see HDFFV-10552
+#ifndef H5_NO_DEPRECATED_SYMBOLS
+ */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Oget_info
+ *
+ * Purpose:     Retrieve information about an object.
+ *
+ * Return:      Success:    Non-negative
+ *              Failure:    Negative
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Oget_info(hid_t loc_id, H5O_info_t *oinfo)
+{
+    H5G_loc_t   loc;                    /* Location of group */
+    herr_t      ret_value = SUCCEED;    /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE2("e", "i*x", loc_id, oinfo);
+
+    /* Check args */
+    if(H5G_loc(loc_id, &loc) < 0)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+    if(!oinfo)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no info struct")
+
+    /* Retrieve the object's information */
+    if(H5G_loc_info(&loc, ".", oinfo/*out*/, H5O_INFO_ALL) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't retrieve object info")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* end H5Oget_info() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Oget_info_by_name
+ *
+ * Purpose:     Retrieve information about an object.
+ *
+ * Return:      Success:    Non-negative
+ *              Failure:    Negative
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Oget_info_by_name(hid_t loc_id, const char *name, H5O_info_t *oinfo, hid_t lapl_id)
+{
+    H5G_loc_t   loc;                    /* Location of group */
+    herr_t      ret_value = SUCCEED;    /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE4("e", "i*s*xi", loc_id, name, oinfo, lapl_id);
+
+    /* Check args */
+    if(H5G_loc(loc_id, &loc) < 0)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+    if(!name || !*name)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name")
+    if(!oinfo)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no info struct")
+
+     /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&lapl_id, H5P_CLS_LACC, loc_id, FALSE) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
+
+    /* Retrieve the object's information */
+    if(H5G_loc_info(&loc, name, oinfo/*out*/, H5O_INFO_ALL) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't get info for object: '%s'", name)
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* end H5Oget_info_by_name() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Oget_info_by_idx
+ *
+ * Purpose:     Retrieve information about an object, according to the order
+ *              of an index.
+ *
+ * Return:      Success:    Non-negative
+ *              Failure:    Negative
+ *
+ * Programmer:  Quincey Koziol
+ *              November 26 2006
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Oget_info_by_idx(hid_t loc_id, const char *group_name, H5_index_t idx_type,
+    H5_iter_order_t order, hsize_t n, H5O_info_t *oinfo, hid_t lapl_id)
+{
+    H5G_loc_t   loc;                    /* Location of group */
+    H5G_loc_t   obj_loc;                /* Location used to open group */
+    H5G_name_t  obj_path;               /* Opened object group hier. path */
+    H5O_loc_t   obj_oloc;               /* Opened object object location */
+    hbool_t     loc_found = FALSE;      /* Entry at 'name' found */
+    herr_t      ret_value = SUCCEED;    /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE7("e", "i*sIiIoh*xi", loc_id, group_name, idx_type, order, n, oinfo,
+             lapl_id);
+
+    /* Check args */
+    if(H5G_loc(loc_id, &loc) < 0)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+    if(!group_name || !*group_name)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified")
+    if(idx_type <= H5_INDEX_UNKNOWN || idx_type >= H5_INDEX_N)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid index type specified")
+    if(order <= H5_ITER_UNKNOWN || order >= H5_ITER_N)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid iteration order specified")
+    if(!oinfo)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no info struct")
+
+    /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&lapl_id, H5P_CLS_LACC, loc_id, FALSE) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
+
+    /* Retrieve the object's information */
+    if(H5O__get_info_by_idx(&loc, group_name, idx_type, order, n, oinfo, H5O_INFO_ALL) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't get info for object")
+
+done:
+    /* Release the object location */
+    if(loc_found && H5G_loc_free(&obj_loc) < 0)
+        HDONE_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "can't free location")
+
+    FUNC_LEAVE_API(ret_value)
+} /* end H5Oget_info_by_idx() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Ovisit
+ *
+ * Purpose:     Recursively visit an object and all the objects reachable
+ *              from it.  If the starting object is a group, all the objects
+ *              linked to from that group will be visited.  Links within
+ *              each group are visited according to the order within the
+ *              specified index (unless the specified index does not exist for
+ *              a particular group, then the "name" index is used).
+ *
+ *              NOTE: Soft links and user-defined links are ignored during
+ *              this operation.
+ *
+ *              NOTE: Each _object_ reachable from the initial group will only
+ *              be visited once.  If multiple hard links point to the same
+ *              object, the first link to the object's path (according to the
+ *              iteration index and iteration order given) will be used to in
+ *              the callback about the object.
+ *
+ * Return:      Success:    The return value of the first operator that
+ *                returns non-zero, or zero if all members were
+ *                processed with no operator returning non-zero.
+ *
+ *              Failure:    Negative if something goes wrong within the
+ *                library, or the negative value returned by one
+ *                of the operators.
+ *
+ * Programmer:    Quincey Koziol
+ *              November 25 2007
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Ovisit(hid_t obj_id, H5_index_t idx_type, H5_iter_order_t order,
+    H5O_iterate_t op, void *op_data)
+{
+    herr_t      ret_value;              /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE5("e", "iIiIox*x", obj_id, idx_type, order, op, op_data);
+
+    /* Check args */
+    if(idx_type <= H5_INDEX_UNKNOWN || idx_type >= H5_INDEX_N)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid index type specified")
+    if(order <= H5_ITER_UNKNOWN || order >= H5_ITER_N)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid iteration order specified")
+    if(!op)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no callback operator specified")
+
+    /* Call internal object visitation routine */
+    if((ret_value = H5O__visit(obj_id, ".", idx_type, order, op, op_data, H5O_INFO_ALL)) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_BADITER, FAIL, "object visitation failed")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* end H5Ovisit() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Ovisit_by_name
+ *
+ * Purpose:     Recursively visit an object and all the objects reachable
+ *              from it.  If the starting object is a group, all the objects
+ *              linked to from that group will be visited.  Links within
+ *              each group are visited according to the order within the
+ *              specified index (unless the specified index does not exist for
+ *              a particular group, then the "name" index is used).
+ *
+ *              NOTE: Soft links and user-defined links are ignored during
+ *              this operation.
+ *
+ *              NOTE: Each _object_ reachable from the initial group will only
+ *              be visited once.  If multiple hard links point to the same
+ *              object, the first link to the object's path (according to the
+ *              iteration index and iteration order given) will be used to in
+ *              the callback about the object.
+ *
+ * Return:      Success:    The return value of the first operator that
+ *                returns non-zero, or zero if all members were
+ *                processed with no operator returning non-zero.
+ *
+ *              Failure:    Negative if something goes wrong within the
+ *                library, or the negative value returned by one
+ *                of the operators.
+ *
+ * Programmer:    Quincey Koziol
+ *              November 24 2007
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Ovisit_by_name(hid_t loc_id, const char *obj_name, H5_index_t idx_type,
+    H5_iter_order_t order, H5O_iterate_t op, void *op_data, hid_t lapl_id)
+{
+    herr_t      ret_value;              /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE7("e", "i*sIiIox*xi", loc_id, obj_name, idx_type, order, op, op_data,
+             lapl_id);
+
+    /* Check args */
+    if(!obj_name || !*obj_name)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name")
+    if(idx_type <= H5_INDEX_UNKNOWN || idx_type >= H5_INDEX_N)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid index type specified")
+    if(order <= H5_ITER_UNKNOWN || order >= H5_ITER_N)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid iteration order specified")
+    if(!op)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no callback operator specified")
+
+    /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&lapl_id, H5P_CLS_LACC, loc_id, FALSE) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
+
+    /* Call internal object visitation routine */
+    if((ret_value = H5O__visit(loc_id, obj_name, idx_type, order, op, op_data, H5O_INFO_ALL)) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_BADITER, FAIL, "object visitation failed")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* end H5Ovisit_by_name() */
+
+/* Future function prototypes to be deprecated in next major version
+ * see HDFFV-10552
+#endif (* H5_NO_DEPRECATED_SYMBOLS *)
+ */
 

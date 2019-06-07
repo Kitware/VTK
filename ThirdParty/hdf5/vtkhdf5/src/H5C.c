@@ -282,13 +282,8 @@ H5C_create(size_t		      max_cache_size,
 
     cache_ptr->flush_in_progress		= FALSE;
 
-    cache_ptr->logging_enabled                  = FALSE;
-
-    cache_ptr->currently_logging                = FALSE;
-
-    cache_ptr->log_file_ptr			= NULL;
-
-    cache_ptr->trace_file_ptr			= NULL;
+    if(NULL == (cache_ptr->log_info = (H5C_log_info_t *)H5MM_calloc(sizeof(H5C_log_info_t))))
+        HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, NULL, "memory allocation failed")
 
     cache_ptr->aux_ptr				= aux_ptr;
 
@@ -332,6 +327,7 @@ H5C_create(size_t		      max_cache_size,
 
     /* Tagging Field Initializations */
     cache_ptr->ignore_tags                      = FALSE;
+    cache_ptr->num_objs_corked                  = 0;
 
     cache_ptr->slist_changed			= FALSE;
     cache_ptr->slist_len			= 0;
@@ -492,6 +488,9 @@ done:
 
             if(cache_ptr->tag_list != NULL)
                 H5SL_close(cache_ptr->tag_list);
+
+            if(cache_ptr->log_info != NULL)
+                H5MM_xfree(cache_ptr->log_info);
 
             cache_ptr->magic = 0;
             cache_ptr = H5FL_FREE(H5C_t, cache_ptr);
@@ -864,6 +863,9 @@ H5C_dest(H5F_t * f)
         H5SL_destroy(cache_ptr->tag_list, H5C_free_tag_list_cb, NULL);
         cache_ptr->tag_list = NULL;
     } /* end if */
+
+    if(cache_ptr->log_info != NULL)
+        H5MM_xfree(cache_ptr->log_info);
 
 #ifndef NDEBUG
 #if H5C_DO_SANITY_CHECKS
@@ -1481,31 +1483,17 @@ H5C_insert_entry(H5F_t *             f,
     H5C__UPDATE_STATS_FOR_INSERTION(cache_ptr, entry_ptr)
 
 #ifdef H5_HAVE_PARALLEL
-    if(H5F_HAS_FEATURE(f, H5FD_FEAT_HAS_MPI)) {
-        coll_access = (H5P_USER_TRUE == f->coll_md_read ? TRUE : FALSE);
-
-        /* If not explicitly disabled, get the cmdr setting from the API context */
-        if(!coll_access && H5P_FORCE_FALSE != f->coll_md_read)
-            coll_access = H5CX_get_coll_metadata_read();
-    } /* end if */
+    if(H5F_HAS_FEATURE(f, H5FD_FEAT_HAS_MPI))
+        coll_access = H5CX_get_coll_metadata_read();
 
     entry_ptr->coll_access = coll_access;
     if(coll_access) {
         H5C__INSERT_IN_COLL_LIST(cache_ptr, entry_ptr, FAIL)
 
         /* Make sure the size of the collective entries in the cache remain in check */
-        if(H5P_USER_TRUE == f->coll_md_read) {
-            if(cache_ptr->max_cache_size * 80 < cache_ptr->coll_list_size * 100) {
-                if(H5C_clear_coll_entries(cache_ptr, TRUE) < 0)
-                    HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "can't clear collective metadata entries")
-            } /* end if */
-        } /* end if */
-        else {
-            if(cache_ptr->max_cache_size * 40 < cache_ptr->coll_list_size * 100) {
-                if(H5C_clear_coll_entries(cache_ptr, TRUE) < 0)
-                    HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "can't clear collective metadata entries")
-            } /* end if */
-        } /* end else */
+        if(cache_ptr->max_cache_size * 80 < cache_ptr->coll_list_size * 100)
+            if(H5C_clear_coll_entries(cache_ptr, TRUE) < 0)
+                HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "can't clear collective metadata entries")
     } /* end if */
 #endif
 
@@ -2241,13 +2229,8 @@ H5C_protect(H5F_t *		f,
     ring = H5CX_get_ring();
 
 #ifdef H5_HAVE_PARALLEL
-    if(H5F_HAS_FEATURE(f, H5FD_FEAT_HAS_MPI)) {
-        coll_access = (H5P_USER_TRUE == f->coll_md_read ? TRUE : FALSE);
-
-        /* If not explicitly disabled, get the cmdr setting from the API context */
-        if(!coll_access && H5P_FORCE_FALSE != f->coll_md_read)
-            coll_access = H5CX_get_coll_metadata_read();
-    } /* end if */
+    if(H5F_HAS_FEATURE(f, H5FD_FEAT_HAS_MPI))
+        coll_access = H5CX_get_coll_metadata_read();
 #endif /* H5_HAVE_PARALLEL */
 
     /* first check to see if the target is in cache */
@@ -2284,7 +2267,7 @@ H5C_protect(H5F_t *		f,
            the entry in their cache still have to participate in the
            bcast. */
 #ifdef H5_HAVE_PARALLEL
-        if(H5F_HAS_FEATURE(f, H5FD_FEAT_HAS_MPI) && coll_access) {
+        if(coll_access) {
             if(!(entry_ptr->is_dirty) && !(entry_ptr->coll_access)) {
                 MPI_Comm  comm;           /* File MPI Communicator */
                 int       mpi_code;       /* MPI error code */
@@ -2599,21 +2582,11 @@ H5C_protect(H5F_t *		f,
     } /* end if */
 
 #ifdef H5_HAVE_PARALLEL
-    if(H5F_HAS_FEATURE(f, H5FD_FEAT_HAS_MPI)) {
-        /* Make sure the size of the collective entries in the cache remain in check */
-        if(coll_access) {
-            if(H5P_USER_TRUE == f->coll_md_read) {
-                if(cache_ptr->max_cache_size * 80 < cache_ptr->coll_list_size * 100)
-                    if(H5C_clear_coll_entries(cache_ptr, TRUE) < 0)
-                        HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, NULL, "can't clear collective metadata entries")
-            } /* end if */
-            else {
-                if(cache_ptr->max_cache_size * 40 < cache_ptr->coll_list_size * 100)
-                    if(H5C_clear_coll_entries(cache_ptr, TRUE) < 0)
-                        HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, NULL, "can't clear collective metadata entries")
-            } /* end else */
-        } /* end if */
-    } /* end if */
+    /* Make sure the size of the collective entries in the cache remain in check */
+    if(coll_access)
+        if(cache_ptr->max_cache_size * 80 < cache_ptr->coll_list_size * 100)
+            if(H5C_clear_coll_entries(cache_ptr, TRUE) < 0)
+                HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, NULL, "can't clear collective metadata entries")
 #endif /* H5_HAVE_PARALLEL */
 
 done:
@@ -7731,6 +7704,8 @@ H5C_cork(H5C_t *cache_ptr, haddr_t obj_addr, unsigned action, hbool_t *corked)
 
             /* Set the corked status for the entire object */
             tag_info->corked = TRUE;
+            cache_ptr->num_objs_corked++;
+
         } /* end if */
         else {
             /* Sanity check */
@@ -7742,6 +7717,7 @@ H5C_cork(H5C_t *cache_ptr, haddr_t obj_addr, unsigned action, hbool_t *corked)
 
             /* Set the corked status for the entire object */
             tag_info->corked = FALSE;
+            cache_ptr->num_objs_corked--;
 
             /* Remove the tag info from the tag list, if there's no more entries with this tag */
             if(0 == tag_info->entry_cnt) {

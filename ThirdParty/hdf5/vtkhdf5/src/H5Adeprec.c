@@ -340,7 +340,7 @@ H5Aget_num_attrs(hid_t loc_id)
     } /*lint !e788 All appropriate cases are covered */
 
     /* Look up the # of attributes for the object */
-    if((ret_value = H5A__get_num_attrs(loc)) < 0)
+    if((ret_value = H5O__attr_count(loc)) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTCOUNT, FAIL, "can't get attribute count for object")
 
 done:

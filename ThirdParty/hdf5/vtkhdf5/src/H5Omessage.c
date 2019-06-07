@@ -1598,16 +1598,23 @@ H5O_msg_is_shared(unsigned type_id, const void *mesg)
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check args */
-    HDassert(type_id < NELMTS(H5O_msg_class_g));
-    type = H5O_msg_class_g[type_id];    /* map the type ID to the actual type object */
-    HDassert(type);
-    HDassert(mesg);
-
-    /* If messages in a class aren't sharable, then obviously this message isn't shared! :-) */
-    if(type->share_flags & H5O_SHARE_IS_SHARABLE)
-        ret_value = H5O_IS_STORED_SHARED(((const H5O_shared_t *)mesg)->type);
-    else
+#ifdef H5O_ENABLE_BOGUS
+    if(type_id >= NELMTS(H5O_msg_class_g))
         ret_value = FALSE;
+    else
+#endif /* H5O_ENABLE_BOGUS */
+    {
+        HDassert(type_id < NELMTS(H5O_msg_class_g));
+        type = H5O_msg_class_g[type_id];    /* map the type ID to the actual type object */
+        HDassert(type);
+        HDassert(mesg);
+
+        /* If messages in a class aren't sharable, then obviously this message isn't shared! :-) */
+        if(type->share_flags & H5O_SHARE_IS_SHARABLE)
+            ret_value = H5O_IS_STORED_SHARED(((const H5O_shared_t *)mesg)->type);
+        else
+            ret_value = FALSE;
+    } /* end block/else */
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O_msg_is_shared() */

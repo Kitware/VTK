@@ -102,16 +102,10 @@ static herr_t H5L__link_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
 static herr_t H5L__create_real(const H5G_loc_t *link_loc, const char *link_name,
     H5G_name_t *obj_path, H5F_t *obj_file, H5O_link_t *lnk, H5O_obj_create_t *ocrt_info,
     hid_t lcpl_id);
-static herr_t H5L__create_hard(H5G_loc_t *cur_loc, const char *cur_name,
-    const H5G_loc_t *link_loc, const char *link_name, hid_t lcpl_id);
-static herr_t H5L__create_soft(const char *target_path, const H5G_loc_t *link_loc,
-    const char *link_name, hid_t lcpl_id);
 static herr_t H5L__get_val_real(const H5O_link_t *lnk, void *buf, size_t size);
 static herr_t H5L__get_val_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
     const H5O_link_t *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/);
-static herr_t H5L__get_val(const H5G_loc_t *loc, const char *name,
-    void *buf/*out*/, size_t size);
 static herr_t H5L__get_val_by_idx_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
     const H5O_link_t *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/);
@@ -121,7 +115,6 @@ static herr_t H5L__get_val_by_idx(const H5G_loc_t *loc, const char *name,
 static herr_t H5L__delete_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
     const H5O_link_t *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/);
-static herr_t H5L__delete(const H5G_loc_t *loc, const char *name);
 static herr_t H5L__delete_by_idx_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
     const H5O_link_t *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/);
@@ -133,8 +126,6 @@ static herr_t H5L__move_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
 static herr_t H5L__move_dest_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
     const H5O_link_t *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/);
-static herr_t H5L__move(const H5G_loc_t *src_loc, const char *src_name,
-    H5G_loc_t *dst_loc, const char *dst_name, hbool_t copy_flag, hid_t lcpl_id);
 static herr_t H5L__exists_final_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
     const H5O_link_t *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/);
@@ -145,8 +136,6 @@ static htri_t H5L__exists(const H5G_loc_t *loc, const char *name);
 static herr_t H5L__get_info_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
     const H5O_link_t *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/);
-static herr_t H5L__get_info(const H5G_loc_t *loc, const char *name,
-    H5L_info_t *linfo/*out*/);
 static herr_t H5L__get_info_by_idx_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
     const H5O_link_t *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/);
@@ -162,10 +151,6 @@ static ssize_t H5L__get_name_by_idx(const H5G_loc_t *loc, const char *group_name
 static herr_t H5L__iterate(hid_t grp_id, const char *group_name,
     H5_index_t idx_type, H5_iter_order_t order, hsize_t *idx_p,
     H5L_iterate_t op, void *op_data);
-static herr_t H5L__visit(hid_t grp_id, const char *group_name,
-    H5_index_t idx_type, H5_iter_order_t order, H5L_iterate_t op,
-    void *op_data);
-
 
 /*********************/
 /* Package Variables */
@@ -338,8 +323,8 @@ H5Lmove(hid_t src_loc_id, const char *src_name, hid_t dst_loc_id,
         dst_loc_p = src_loc_p;
 
     /* Move the link */
-    if(H5L__move(src_loc_p, src_name, dst_loc_p, dst_name, FALSE, lcpl_id) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTMOVE, FAIL, "unable to move link")
+    if(H5L_move(src_loc_p, src_name, dst_loc_p, dst_name, FALSE, lcpl_id) < 0)
+        HGOTO_ERROR(H5E_LINK, H5E_CANTMOVE, FAIL, "unable to move link")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -400,8 +385,8 @@ H5Lcopy(hid_t src_loc_id, const char *src_name, hid_t dst_loc_id,
         dst_loc_p = src_loc_p;
 
     /* Copy the link */
-    if(H5L__move(src_loc_p, src_name, dst_loc_p, dst_name, TRUE, lcpl_id) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTMOVE, FAIL, "unable to move link")
+    if(H5L_move(src_loc_p, src_name, dst_loc_p, dst_name, TRUE, lcpl_id) < 0)
+        HGOTO_ERROR(H5E_LINK, H5E_CANTMOVE, FAIL, "unable to move link")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -451,8 +436,8 @@ H5Lcreate_soft(const char *link_target, hid_t link_loc_id,
         HGOTO_ERROR(H5E_LINK, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Create the link */
-    if(H5L__create_soft(link_target, &link_loc, link_name, lcpl_id) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTCREATE, FAIL, "unable to create link")
+    if(H5L_create_soft(link_target, &link_loc, link_name, lcpl_id) < 0)
+        HGOTO_ERROR(H5E_LINK, H5E_CANTCREATE, FAIL, "unable to create link")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -516,8 +501,8 @@ H5Lcreate_hard(hid_t cur_loc_id, const char *cur_name,
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "source and destination should be in the same file.")
 
     /* Create the link */
-    if(H5L__create_hard(cur_loc_p, cur_name, new_loc_p, new_name, lcpl_id) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTCREATE, FAIL, "unable to create link")
+    if(H5L_create_hard(cur_loc_p, cur_name, new_loc_p, new_name, lcpl_id) < 0)
+        HGOTO_ERROR(H5E_LINK, H5E_CANTCREATE, FAIL, "unable to create link")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -617,8 +602,8 @@ H5Ldelete(hid_t loc_id, const char *name, hid_t lapl_id)
         HGOTO_ERROR(H5E_LINK, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Unlink */
-    if(H5L__delete(&loc, name) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTDELETE, FAIL, "unable to delete link")
+    if(H5L_delete(&loc, name) < 0)
+        HGOTO_ERROR(H5E_LINK, H5E_CANTDELETE, FAIL, "unable to delete link")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -670,7 +655,7 @@ H5Ldelete_by_idx(hid_t loc_id, const char *group_name, H5_index_t idx_type,
 
     /* Delete the link */
     if(H5L__delete_by_idx(&loc, group_name, idx_type, order, n) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTDELETE, FAIL, "unable to delete link")
+        HGOTO_ERROR(H5E_LINK, H5E_CANTDELETE, FAIL, "unable to delete link")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -717,8 +702,8 @@ H5Lget_val(hid_t loc_id, const char *name, void *buf/*out*/, size_t size,
         HGOTO_ERROR(H5E_LINK, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Get the link value */
-    if(H5L__get_val(&loc, name, buf, size) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link value for '%s'", name)
+    if(H5L_get_val(&loc, name, buf, size) < 0)
+        HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link value for '%s'", name)
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -854,8 +839,8 @@ H5Lget_info(hid_t loc_id, const char *name, H5L_info_t *linfo /*out*/,
         HGOTO_ERROR(H5E_LINK, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Get the link information */
-    if(H5L__get_info(&loc, name, linfo) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link info")
+    if(H5L_get_info(&loc, name, linfo) < 0)
+        HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link info")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -904,7 +889,7 @@ H5Lget_info_by_idx(hid_t loc_id, const char *group_name,
 
     /* Get the link information */
     if(H5L__get_info_by_idx(&loc, group_name, idx_type, order, n, linfo) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link info")
+        HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link info")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1087,7 +1072,7 @@ H5Lget_name_by_idx(hid_t loc_id, const char *group_name,
 
     /* Get the link information */
     if((ret_value = H5L__get_name_by_idx(&loc, group_name, idx_type, order, n, name, size)) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link name")
+        HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link name")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1135,7 +1120,7 @@ H5Literate(hid_t grp_id, H5_index_t idx_type, H5_iter_order_t order,
 
     /* Iterate over the links */
     if((ret_value = H5L__iterate(grp_id, ".", idx_type, order, idx_p, op, op_data)) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_BADITER, FAIL, "link iteration failed")
+        HGOTO_ERROR(H5E_LINK, H5E_BADITER, FAIL, "link iteration failed")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1191,7 +1176,7 @@ H5Literate_by_name(hid_t loc_id, const char *group_name,
 
     /* Iterate over the links */
     if((ret_value = H5L__iterate(loc_id, group_name, idx_type, order, idx_p, op, op_data)) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_BADITER, FAIL, "link iteration failed")
+        HGOTO_ERROR(H5E_LINK, H5E_BADITER, FAIL, "link iteration failed")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1248,8 +1233,8 @@ H5Lvisit(hid_t grp_id, H5_index_t idx_type, H5_iter_order_t order,
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no callback operator specified")
 
     /* Call internal routine */
-    if((ret_value = H5L__visit(grp_id, ".", idx_type, order, op, op_data)) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_BADITER, FAIL, "link visitation failed")
+    if((ret_value = H5G_visit(grp_id, ".", idx_type, order, op, op_data)) < 0)
+        HGOTO_ERROR(H5E_LINK, H5E_BADITER, FAIL, "link visitation failed")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1309,8 +1294,8 @@ H5Lvisit_by_name(hid_t loc_id, const char *group_name, H5_index_t idx_type,
         HGOTO_ERROR(H5E_LINK, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Call internal routine */
-    if((ret_value = H5L__visit(loc_id, group_name, idx_type, order, op, op_data)) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_BADITER, FAIL, "link visitation failed")
+    if((ret_value = H5G_visit(loc_id, group_name, idx_type, order, op, op_data)) < 0)
+        HGOTO_ERROR(H5E_LINK, H5E_BADITER, FAIL, "link visitation failed")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1895,45 +1880,6 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5L__create_hard
- *
- * Purpose:     Internal routine to create a hard link
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
- *
- * Programmer:	Quincey Koziol
- *		December 25, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5L__create_hard(H5G_loc_t *cur_loc, const char *cur_name,
-    const H5G_loc_t *link_loc, const char *link_name, hid_t lcpl_id)
-{
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Check arguments */
-    HDassert(cur_loc);
-    HDassert(cur_name);
-    HDassert(link_loc);
-    HDassert(link_name);
-
-    /* Create the link */
-    if(H5L_create_hard(cur_loc, cur_name, link_loc, link_name, lcpl_id) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTCREATE, FAIL, "unable to create link")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5L__create_hard() */
-
-
-/*-------------------------------------------------------------------------
  * Function:	H5L_create_soft
  *
  * Purpose:	Creates a soft link from LINK_NAME to TARGET_PATH.
@@ -1982,44 +1928,6 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5L__create_soft
- *
- * Purpose:     Internal routine to create a soft link
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
- *
- * Programmer:	Quincey Koziol
- *		December 25, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5L__create_soft(const char *target_path, const H5G_loc_t *link_loc,
-    const char *link_name, hid_t lcpl_id)
-{
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Check arguments */
-    HDassert(target_path);
-    HDassert(link_loc);
-    HDassert(link_name);
-
-    /* Create the link */
-    if(H5L_create_soft(target_path, link_loc, link_name, lcpl_id) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTCREATE, FAIL, "unable to create link")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5L__create_soft() */
-
-
-/*-------------------------------------------------------------------------
  * Function:	H5L__create_ud
  *
  * Purpose:	Creates a user-defined link. See H5Lcreate_ud for
@@ -2039,7 +1947,7 @@ H5L__create_ud(const H5G_loc_t *link_loc, const char *link_name,
     H5O_link_t lnk;                     /* Link to insert */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_PACKAGE_VOL
+    FUNC_ENTER_PACKAGE
 
     /* Check args */
     HDassert(type >= H5L_TYPE_UD_MIN && type <= H5L_TYPE_MAX);
@@ -2073,7 +1981,7 @@ done:
     /* Free the link's udata buffer if it's been allocated */
     H5MM_xfree(lnk.u.ud.udata);
 
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5L__create_ud() */
 
 
@@ -2216,42 +2124,6 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5L__get_val
- *
- * Purpose:     Internal routine to query a link value
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
- *
- * Programmer:	Quincey Koziol
- *		December 27, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5L__get_val(const H5G_loc_t *loc, const char *name, void *buf/*out*/, size_t size)
-{
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Check arguments */
-    HDassert(loc);
-    HDassert(name && *name);
-
-    /* Get the link value */
-    if(H5L_get_val(loc, name, buf, size) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link value for '%s'", name)
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5L__get_val() */
-
-
-/*-------------------------------------------------------------------------
  * Function:	H5L__get_val_by_idx_cb
  *
  * Purpose:	Callback for retrieving a link's value according to an
@@ -2308,9 +2180,6 @@ done:
  * Purpose:     Internal routine to query a link value according to the
  *		index within a group
  *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
@@ -2326,7 +2195,7 @@ H5L__get_val_by_idx(const H5G_loc_t *loc, const char *name, H5_index_t idx_type,
     H5L_trav_gvbi_t udata;              /* User data for callback */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* Check arguments */
     HDassert(loc);
@@ -2344,7 +2213,7 @@ H5L__get_val_by_idx(const H5G_loc_t *loc, const char *name, H5_index_t idx_type,
         HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "can't get link info for index: %llu", (unsigned long long)n)
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5L__get_val_by_idx() */
 
 
@@ -2439,42 +2308,6 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5L__delete
- *
- * Purpose:     Internal routine to delete a link
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
- *
- * Programmer:	Quincey Koziol
- *		December 27, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5L__delete(const H5G_loc_t *loc, const char *name)
-{
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Check arguments */
-    HDassert(loc);
-    HDassert(name && *name);
-
-    /* Delete the link */
-    if(H5L_delete(loc, name) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTDELETE, FAIL, "unable to delete link: %s", name)
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5L__delete() */
-
-
-/*-------------------------------------------------------------------------
  * Function:	H5L__delete_by_idx_cb
  *
  * Purpose:	Callback for removing a link according to an index's order.
@@ -2519,9 +2352,6 @@ done:
  * Purpose:     Internal routine to delete a link according to its index
  * 		within a group.
  *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
@@ -2537,7 +2367,7 @@ H5L__delete_by_idx(const H5G_loc_t *loc, const char *name, H5_index_t idx_type,
     H5L_trav_rmbi_t udata;              /* User data for callback */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* Check arguments */
     HDassert(loc);
@@ -2553,8 +2383,8 @@ H5L__delete_by_idx(const H5G_loc_t *loc, const char *name, H5_index_t idx_type,
         HGOTO_ERROR(H5E_LINK, H5E_CANTDELETE, FAIL, "link doesn't exist")
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5L__delete() */
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5L__delete_by_idx() */
 
 
 /*-------------------------------------------------------------------------
@@ -2864,45 +2694,6 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5L__move
- *
- * Purpose:     Internal routine to move / copy a link
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
- *
- * Programmer:	Quincey Koziol
- *		December 25, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5L__move(const H5G_loc_t *src_loc, const char *src_name, H5G_loc_t *dst_loc,
-    const char *dst_name, hbool_t copy_flag, hid_t lcpl_id)
-{
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Check arguments */
-    HDassert(src_loc);
-    HDassert(src_name);
-    HDassert(dst_loc);
-    HDassert(dst_name);
-
-    /* Move the link */
-    if(H5L_move(src_loc, src_name, dst_loc, dst_name, copy_flag, lcpl_id) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTMOVE, FAIL, "unable to move link")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5L__move() */
-
-
-/*-------------------------------------------------------------------------
  * Function:	H5L__exists_final_cb
  *
  * Purpose:	Callback for checking whether a link exists, as the final
@@ -3083,7 +2874,7 @@ H5L__exists(const H5G_loc_t *loc, const char *name)
     H5L_trav_le_t udata;        /* User data for traversal */
     htri_t ret_value = FAIL;    /* Return value */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* A path of "/" will always exist in a file */
     if(0 == HDstrcmp(name, "/"))
@@ -3098,7 +2889,7 @@ H5L__exists(const H5G_loc_t *loc, const char *name)
     ret_value = (htri_t)udata.exists;
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* H5L__exists() */
 
 
@@ -3173,42 +2964,6 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5L__get_info
- *
- * Purpose:     Internal routine to retrieve link info
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
- *
- * Programmer:	Quincey Koziol
- *		December 27, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5L__get_info(const H5G_loc_t *loc, const char *name, H5L_info_t *linfo/*out*/)
-{
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Check arguments */
-    HDassert(loc);
-    HDassert(name && *name);
-
-    /* Get the link information */
-    if(H5L_get_info(loc, name, linfo) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link info for: '%s'", name)
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5L__get_info() */
-
-
-/*-------------------------------------------------------------------------
  * Function:	H5L__get_info_by_idx_cb
  *
  * Purpose:	Callback for retrieving a link's metadata according to an
@@ -3265,9 +3020,6 @@ done:
  * Purpose:     Internal routine to retrieve link info according to an
  *              index's order.
  *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
@@ -3283,7 +3035,7 @@ H5L__get_info_by_idx(const H5G_loc_t *loc, const char *name, H5_index_t idx_type
     H5L_trav_gibi_t udata;              /* User data for callback */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* Check arguments */
     HDassert(loc);
@@ -3298,10 +3050,10 @@ H5L__get_info_by_idx(const H5G_loc_t *loc, const char *name, H5_index_t idx_type
 
     /* Traverse the group hierarchy to locate the object to get info about */
     if(H5G_traverse(loc, name, H5G_TARGET_SLINK | H5G_TARGET_UDLINK, H5L__get_info_by_idx_cb, &udata) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link info")
+        HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get link info")
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5L__get_info_by_idx() */
 
 
@@ -3351,9 +3103,6 @@ done:
  * Purpose:     Internal routine to retrieve link name according to an
  *              index's order.
  *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
@@ -3370,7 +3119,7 @@ H5L__get_name_by_idx(const H5G_loc_t *loc, const char *group_name,
     H5L_trav_gnbi_t udata;      /* User data for callback */
     ssize_t ret_value = FAIL;   /* Return value */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* Check arguments */
     HDassert(loc);
@@ -3392,7 +3141,7 @@ H5L__get_name_by_idx(const H5G_loc_t *loc, const char *group_name,
     ret_value = udata.name_len;
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5L__get_name_by_idx() */
 
 
@@ -3400,9 +3149,6 @@ done:
  * Function:    H5L__iterate
  *
  * Purpose:     Internal routine to iterate over links
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
  *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
@@ -3421,7 +3167,7 @@ H5L__iterate(hid_t grp_id, const char *group_name, H5_index_t idx_type,
     hsize_t	        idx;            /* Internal location to hold index  */
     herr_t              ret_value = FAIL; /* Return value                     */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* Check arguments */
     HDassert(group_name);
@@ -3444,45 +3190,8 @@ H5L__iterate(hid_t grp_id, const char *group_name, H5_index_t idx_type,
         *idx_p = last_lnk;
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5L__iterate() */
-
-
-/*-------------------------------------------------------------------------
- * Function:    H5L__visit
- *
- * Purpose:     Internal routine to visit links
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
- *
- * Programmer:	Quincey Koziol
- *		December 28, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5L__visit(hid_t grp_id, const char *group_name, H5_index_t idx_type,
-    H5_iter_order_t order, H5L_iterate_t op, void *op_data)
-{
-    herr_t ret_value = FAIL;    /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Check arguments */
-    HDassert(group_name);
-    HDassert(op);
-
-    /* Call internal group visitation routine */
-    if((ret_value = H5G_visit(grp_id, group_name, idx_type, order, op, op_data)) < 0)
-	HGOTO_ERROR(H5E_LINK, H5E_BADITER, FAIL, "link visitation failed")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5L__visit() */
 
 
 /*-------------------------------------------------------------------------

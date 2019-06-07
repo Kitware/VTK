@@ -1,5 +1,5 @@
 /*
- *	Copyright 1996, University Corporation for Atmospheric Research
+ *	Copyright 2018, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 
@@ -15,7 +15,6 @@
 #include <unistd.h>
 #endif
 
-#include "nc.h"
 #include "ncdispatch.h"
 
 int ncdebug = 0;
@@ -45,6 +44,8 @@ free_NC(NC *ncp)
 	return;
     if(ncp->path)
 	free(ncp->path);
+    if(ncp->model)
+	free(ncp->model);
     /* We assume caller has already cleaned up ncp->dispatchdata */
 #if _CRAYMPP && defined(LOCKNUMREC)
     shfree(ncp);
@@ -54,14 +55,16 @@ free_NC(NC *ncp)
 }
 
 int
-new_NC(NC_Dispatch* dispatcher, const char* path, int mode, int model, NC** ncpp)
+new_NC(NC_Dispatch* dispatcher, const char* path, int mode, NCmodel* model, NC** ncpp)
 {
     NC *ncp = (NC*)calloc(1,sizeof(NC));
     if(ncp == NULL) return NC_ENOMEM;
     ncp->dispatch = dispatcher;
     ncp->path = nulldup(path);
     ncp->mode = mode;
-    ncp->model = model;
+    if((ncp->model = malloc(sizeof(NCmodel)))==NULL)
+	return NC_ENOMEM;
+    *ncp->model = *model; /* Make a copy */
     if(ncp->path == NULL) { /* fail */
         free_NC(ncp);
 	return NC_ENOMEM;
@@ -87,16 +90,22 @@ nc_set_default_format(int format, int *old_formatp)
       *old_formatp = default_create_format;
 
     /* Make sure only valid format is set. */
-#ifdef USE_NETCDF4
+#ifndef ENABLE_CDF5
+    if (format == NC_FORMAT_CDF5)
+        return NC_ENOTBUILT;
+#endif
+#ifdef USE_HDF5
     if (format != NC_FORMAT_CLASSIC && format != NC_FORMAT_64BIT_OFFSET &&
         format != NC_FORMAT_NETCDF4 && format != NC_FORMAT_NETCDF4_CLASSIC &&
 	format != NC_FORMAT_CDF5)
-      return NC_EINVAL;
- #else
+        return NC_EINVAL;
+#else
+    if (format == NC_FORMAT_NETCDF4 || format == NC_FORMAT_NETCDF4_CLASSIC)
+        return NC_ENOTBUILT;
     if (format != NC_FORMAT_CLASSIC && format != NC_FORMAT_64BIT_OFFSET &&
         format != NC_FORMAT_CDF5)
-       return NC_EINVAL;
- #endif
+        return NC_EINVAL;
+#endif
     default_create_format = format;
     return NC_NOERR;
 }

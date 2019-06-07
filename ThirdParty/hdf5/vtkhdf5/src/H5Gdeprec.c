@@ -76,24 +76,11 @@ static herr_t H5G__link(hid_t cur_loc_id, const char *cur_name, H5G_link_t type,
     hid_t new_loc_id, const char *new_name, hid_t lcpl_id);
 static herr_t H5G__move(hid_t src_loc_id, const char *src_name,
     hid_t dst_loc_id, const char *dst_name, hid_t lcpl_id);
-static herr_t H5G__unlink(H5G_loc_t *loc, const char *name);
-static herr_t H5G__get_linkval(const H5G_loc_t *loc, const char *name, size_t size,
-    char *buf/*out*/);
-static herr_t H5G__set_comment(const H5G_loc_t *loc, const char *name,
-    const char *comment);
-static int H5G__get_comment(const H5G_loc_t *loc, const char *name, char *buf,
-    size_t bufsize);
-static herr_t H5G__iterate(hid_t loc_id, const char *name, H5_index_t idx_type,
-    H5_iter_order_t order, hsize_t idx, hsize_t *last_lnk,
-    const H5G_link_iterate_t *lnk_op, void *op_data);
-static herr_t H5G__get_num_objs(const H5O_loc_t *oloc, H5G_info_t *grp_info);
 static herr_t H5G__get_objinfo_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
     const H5O_link_t *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/);
 static herr_t H5G__get_objinfo(const H5G_loc_t *loc, const char *name,
     hbool_t follow_link, H5G_stat_t *statbuf/*out*/);
-static ssize_t H5G__get_objname_by_idx(const H5O_loc_t *oloc, H5_index_t idx_type,
-    H5_iter_order_t order, hsize_t idx, char *name, size_t size);
 static H5G_obj_t H5G__obj_get_type_by_idx(H5O_loc_t *oloc, hsize_t idx);
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 
@@ -197,9 +184,9 @@ H5Gcreate1(hid_t loc_id, const char *name, size_t size_hint)
 
     /* Check arguments */
     if(H5G_loc(loc_id, &loc) < 0)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
     if(!name || !*name)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name given")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name given")
 
     /* Check if we need to create a non-standard GCPL */
     if(size_hint > 0) {
@@ -238,7 +225,7 @@ H5Gcreate1(hid_t loc_id, const char *name, size_t size_hint)
     if(NULL == (grp = H5G__create_named(&loc, name, H5P_LINK_CREATE_DEFAULT, tmp_gcpl)))
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create group")
     if((ret_value = H5I_register(H5I_GROUP, grp, TRUE)) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTREGISTER, FAIL, "unable to register group")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTREGISTER, FAIL, "unable to register group")
 
 done:
     if(tmp_gcpl > 0 && tmp_gcpl != H5P_GROUP_CREATE_DEFAULT)
@@ -321,9 +308,9 @@ H5Glink(hid_t cur_loc_id, H5G_link_t type, const char *cur_name, const char *new
 
     /* Check arguments */
     if(!cur_name || !*cur_name)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no current name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no current name specified")
     if(!new_name || !*new_name)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no new name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no new name specified")
 
     /* Set up collective metadata if appropriate */
     if(H5CX_set_loc(cur_loc_id) < 0)
@@ -357,9 +344,9 @@ H5Glink2(hid_t cur_loc_id, const char *cur_name, H5G_link_t type,
 
     /* Check arguments */
     if(!cur_name || !*cur_name)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no current name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no current name specified")
     if(!new_name || !*new_name)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no new name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no new name specified")
 
     /* Set up collective metadata if appropriate */
     if(H5CX_set_loc(cur_loc_id) < 0)
@@ -393,7 +380,7 @@ H5G__link(hid_t cur_loc_id, const char *cur_name, H5G_link_t type,
     H5G_loc_t	new_loc;                /* Information about new link's group */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* Create the appropriate kind of link */
     if(type == H5L_TYPE_HARD) {
@@ -441,7 +428,7 @@ H5G__link(hid_t cur_loc_id, const char *cur_name, H5G_link_t type,
         HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "Not a valid link type")
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G__link() */
 
 
@@ -531,7 +518,7 @@ H5G__move(hid_t src_loc_id, const char *src_name, hid_t dst_loc_id,
     H5G_loc_t	dst_loc, *dst_loc_p;    /* Group info for destination location */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* Check arguments */
     if(src_loc_id != H5L_SAME_LOC && H5G_loc(src_loc_id, &src_loc) < 0)
@@ -553,10 +540,10 @@ H5G__move(hid_t src_loc_id, const char *src_name, hid_t dst_loc_id,
 
     /* Move the link */
     if(H5L_move(src_loc_p, src_name, dst_loc_p, dst_name, FALSE, lcpl_id) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTMOVE, FAIL, "unable to move link")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTMOVE, FAIL, "unable to move link")
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G__move() */
 
 
@@ -578,52 +565,21 @@ H5Gunlink(hid_t loc_id, const char *name)
 
     /* Check arguments */
     if(H5G_loc(loc_id, &loc) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a location")
+        HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a location")
     if(!name || !*name)
-	HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "no name")
+        HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "no name")
 
     /* Set up collective metadata if appropriate */
     if(H5CX_set_loc(loc_id) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
 
-    /* Call internal routine */
-    if(H5G__unlink(&loc, name) < 0)
+    /* Call H5L routine... */
+    if(H5L_delete(&loc, name) < 0)
       HGOTO_ERROR(H5E_SYM, H5E_CANTDELETE, FAIL, "couldn't delete link")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gunlink() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5G__unlink
- *
- * Purpose:	Internal version of H5Gunlink.
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Non-negative on success / Negative on failure
- *
- * Programmer:	Quincey Koziol
- *              Saturday, December 23, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5G__unlink(H5G_loc_t *loc, const char *name)
-{
-    herr_t      ret_value = SUCCEED;    /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Call H5L routine... */
-    if(H5L_delete(loc, name) < 0)
-      HGOTO_ERROR(H5E_SYM, H5E_CANTDELETE, FAIL, "couldn't delete link")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5G__unlink() */
 
 
 /*-------------------------------------------------------------------------
@@ -645,53 +601,21 @@ H5Gget_linkval(hid_t loc_id, const char *name, size_t size, char *buf/*out*/)
 
     /* Check arguments */
     if(H5G_loc(loc_id, &loc))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
     if(!name || !*name)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified")
 
     /* Set up collective metadata if appropriate */
     if(H5CX_set_loc(loc_id) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
 
-    /* Call internal routine */
-    if(H5G__get_linkval(&loc, name, size, buf) < 0)
-      HGOTO_ERROR(H5E_SYM, H5E_CANTDELETE, FAIL, "couldn't delete link")
+    /* Call the link routine which provides this capability */
+    if(H5L_get_val(&loc, name, buf, size) < 0)
+      HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "couldn't get link info")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gget_linkval() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5G__get_linkval
- *
- * Purpose:	Internal version of H5Gget_linkval.
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Non-negative on success / Negative on failure
- *
- * Programmer:	Quincey Koziol
- *              Saturday, December 23, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5G__get_linkval(const H5G_loc_t *loc, const char *name, size_t size,
-    char *buf/*out*/)
-{
-    herr_t      ret_value = SUCCEED;    /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Call the link routine which provides this capability */
-    if(H5L_get_val(loc, name, buf, size) < 0)
-      HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "couldn't get link info")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5G__get_linkval() */
 
 
 /*-------------------------------------------------------------------------
@@ -721,52 +645,21 @@ H5Gset_comment(hid_t loc_id, const char *name, const char *comment)
     H5TRACE3("e", "i*s*s", loc_id, name, comment);
 
     if(H5G_loc(loc_id, &loc) < 0)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
     if(!name || !*name)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified")
 
     /* Set up collective metadata if appropriate */
     if(H5CX_set_loc(loc_id) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
 
-    /* Call internal routine */
-    if(H5G__set_comment(&loc, name, comment) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "unable to set comment value")
+    /* Call the common routine which provides this capability */
+    if(H5G_loc_set_comment(&loc, name, comment) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "unable to set comment value")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gset_comment() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5G__set_comment
- *
- * Purpose:	Internal version of H5Gset_comment.
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Non-negative on success / Negative on failure
- *
- * Programmer:	Quincey Koziol
- *              Saturday, December 23, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5G__set_comment(const H5G_loc_t *loc, const char *name, const char *comment)
-{
-    herr_t      ret_value = SUCCEED;    /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Call the common routine which provides this capability */
-    if(H5G_loc_set_comment(loc, name, comment) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "unable to set comment value")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5G__set_comment() */
 
 
 /*-------------------------------------------------------------------------
@@ -802,55 +695,23 @@ H5Gget_comment(hid_t loc_id, const char *name, size_t bufsize, char *buf)
     H5TRACE4("Is", "i*sz*s", loc_id, name, bufsize, buf);
 
     if(H5G_loc(loc_id, &loc) < 0)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
     if(!name || !*name)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified")
     if(bufsize > 0 && !buf)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no buffer specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no buffer specified")
 
     /* Set up collective metadata if appropriate */
     if(H5CX_set_loc(loc_id) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
 
-    /* Call internal routine */
-    if((ret_value = H5G__get_comment(&loc, name, buf, bufsize)) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get comment value")
+    /* Call the common routine which provides this capability */
+    if((ret_value = (int)H5G_loc_get_comment(&loc, name, buf, bufsize)) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get comment value")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gget_comment() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5G__get_comment
- *
- * Purpose:	Internal version of H5Gget_comment.
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Non-negative on success / Negative on failure
- *
- * Programmer:	Quincey Koziol
- *              Saturday, December 23, 2017
- *
- *-------------------------------------------------------------------------
- */
-static int
-H5G__get_comment(const H5G_loc_t *loc, const char *name, char *buf,
-    size_t bufsize)
-{
-    int ret_value = FAIL;       /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Call the common routine which provides this capability */
-    if((ret_value = (int)H5G_loc_get_comment(loc, name, buf, bufsize)) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get comment value")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5G__get_comment() */
 
 
 /*-------------------------------------------------------------------------
@@ -905,8 +766,8 @@ H5Giterate(hid_t loc_id, const char *name, int *idx_p, H5G_iterate_t op,
     lnk_op.op_type = H5G_LINK_OP_OLD;
     lnk_op.op_func.op_old = op;
 
-    /* Call private function. */
-    if((ret_value = H5G__iterate(loc_id, name, H5_INDEX_NAME, H5_ITER_INC, idx, &last_obj, &lnk_op, op_data)) < 0)
+    /* Call the common routine which provides this capability */
+    if((ret_value = H5G_iterate(loc_id, name, H5_INDEX_NAME, H5_ITER_INC, idx, &last_obj, &lnk_op, op_data)) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "group iteration failed")
 
     /* Set the index we stopped at */
@@ -916,39 +777,6 @@ H5Giterate(hid_t loc_id, const char *name, int *idx_p, H5G_iterate_t op,
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Giterate() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5G__iterate
- *
- * Purpose:	Internal version of H5Giterate.
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Non-negative on success / Negative on failure
- *
- * Programmer:	Quincey Koziol
- *              Saturday, December 23, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5G__iterate(hid_t loc_id, const char *name, H5_index_t idx_type,
-    H5_iter_order_t order, hsize_t idx, hsize_t *last_lnk,
-    const H5G_link_iterate_t *lnk_op, void *op_data)
-{
-    herr_t ret_value = FAIL;            /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Call the common routine which provides this capability */
-    if((ret_value = H5G_iterate(loc_id, name, idx_type, order, idx, last_lnk, lnk_op, op_data)) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "group iteration failed")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5G__iterate() */
 
 
 /*-------------------------------------------------------------------------
@@ -970,22 +798,27 @@ done:
 herr_t
 H5Gget_num_objs(hid_t loc_id, hsize_t *num_objs)
 {
-    H5G_loc_t	loc;            /* Location of object */
-    H5G_info_t  grp_info;       /* Group information */
-    herr_t	ret_value = SUCCEED;
+    H5G_loc_t       loc;            /* Location of object */
+    H5G_info_t      grp_info;       /* Group information */
+    H5O_type_t      obj_type;       /* Type of object at location */
+    herr_t          ret_value = SUCCEED;
 
     FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "i*h", loc_id, num_objs);
 
     /* Check args */
     if(H5G_loc(loc_id, &loc) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a location ID")
+        HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a location ID")
+    if(H5O_obj_type(loc.oloc, &obj_type) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get object type")
+    if(obj_type != H5O_TYPE_GROUP)
+        HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a group")
     if(!num_objs)
-	HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "bad pointer to # of objects")
+        HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "bad pointer to # of objects")
 
-    /* Call the internal routine */
-    if(H5G__get_num_objs(loc.oloc, &grp_info) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTCOUNT, FAIL, "can't determine")
+    /* Retrieve information about the group */
+    if(H5G__obj_info(loc.oloc, &grp_info) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTCOUNT, FAIL, "can't determine # of objects")
 
     /* Set the number of objects [sic: links] in the group */
     *num_objs = grp_info.nlinks;
@@ -993,44 +826,6 @@ H5Gget_num_objs(hid_t loc_id, hsize_t *num_objs)
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gget_num_objs() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5G__get_num_objs
- *
- * Purpose:	Internal version of H5Gget_num_objs.
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Non-negative on success / Negative on failure
- *
- * Programmer:	Quincey Koziol
- *              Saturday, December 23, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5G__get_num_objs(const H5O_loc_t *oloc, H5G_info_t *grp_info)
-{
-    H5O_type_t obj_type;                /* Type of object at location */
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Check args */
-    if(H5O_obj_type(oloc, &obj_type) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get object type")
-    if(obj_type != H5O_TYPE_GROUP)
-        HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a group")
-
-    /* Retrieve information about the group */
-    if(H5G__obj_info(oloc, grp_info) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTCOUNT, FAIL, "can't determine # of objects")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5G__get_num_objs() */
 
 
 /*-------------------------------------------------------------------------
@@ -1062,13 +857,13 @@ H5Gget_objinfo(hid_t loc_id, const char *name, hbool_t follow_link,
 
     /* Check arguments */
     if(H5G_loc(loc_id, &loc) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a location")
+        HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a location")
     if(!name || !*name)
-	HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "no name specified")
+        HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "no name specified")
 
     /* Get info */
     if(H5G__get_objinfo(&loc, name, follow_link, statbuf) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "cannot stat object")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "cannot stat object")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1177,7 +972,7 @@ H5G__get_objinfo(const H5G_loc_t *loc, const char *name, hbool_t follow_link,
     H5G_trav_goi_t udata;           /* User data for callback */
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* Sanity checks */
     HDassert(loc);
@@ -1220,7 +1015,7 @@ H5G__get_objinfo(const H5G_loc_t *loc, const char *name, hbool_t follow_link,
     } /* end if */
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G__get_objinfo() */
 
 
@@ -1250,62 +1045,28 @@ done:
 ssize_t
 H5Gget_objname_by_idx(hid_t loc_id, hsize_t idx, char *name, size_t size)
 {
-    H5G_loc_t	loc;            /* Object location */
-    ssize_t	ret_value;
+    H5G_loc_t           loc;            /* Object location */
+    H5O_type_t          obj_type;       /* Type of object at location */
+    ssize_t             ret_value;
 
     FUNC_ENTER_API(FAIL)
     H5TRACE4("Zs", "ih*sz", loc_id, idx, name, size);
 
     /* Check args */
     if(H5G_loc(loc_id, &loc) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a location ID")
-
-    /* Call internal function */
-    if((ret_value = H5G__get_objname_by_idx(loc.oloc, H5_INDEX_NAME, H5_ITER_INC, idx, name, size)) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "can't get object name")
-
-done:
-    FUNC_LEAVE_API(ret_value)
-} /* end H5Gget_objname_by_idx() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5G__get_objname_by_idx
- *
- * Purpose:	Internal version of H5Gget_objname_by_idx.
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:	Non-negative on success / Negative on failure
- *
- * Programmer:	Quincey Koziol
- *              Saturday, December 23, 2017
- *
- *-------------------------------------------------------------------------
- */
-static ssize_t
-H5G__get_objname_by_idx(const H5O_loc_t *oloc, H5_index_t idx_type,
-    H5_iter_order_t order, hsize_t idx, char *name, size_t size)
-{
-    H5O_type_t obj_type;        /* Type of object at location */
-    ssize_t ret_value = FAIL;   /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Check args */
-    if(H5O_obj_type(oloc, &obj_type) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a location ID")
+    if(H5O_obj_type(loc.oloc, &obj_type) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get object type")
     if(obj_type != H5O_TYPE_GROUP)
         HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a group")
 
     /* Call common routine */
-    if((ret_value = H5G_obj_get_name_by_idx(oloc, idx_type, order, idx, name, size)) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get object name")
+    if((ret_value = H5G_obj_get_name_by_idx(loc.oloc, H5_INDEX_NAME, H5_ITER_INC, idx, name, size)) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get object name")
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* end H5G__get_objname_by_idx() */
+    FUNC_LEAVE_API(ret_value)
+} /* end H5Gget_objname_by_idx() */
 
 
 /*-------------------------------------------------------------------------
@@ -1334,11 +1095,11 @@ H5Gget_objtype_by_idx(hid_t loc_id, hsize_t idx)
 
     /* Check args */
     if(H5G_loc(loc_id, &loc) < 0)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5G_UNKNOWN, "not a location ID")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5G_UNKNOWN, "not a location ID")
 
     /* Call internal function*/
     if(H5G_UNKNOWN == (ret_value = H5G__obj_get_type_by_idx(loc.oloc, idx)))
-	HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, H5G_UNKNOWN, "can't get object type")
+        HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, H5G_UNKNOWN, "can't get object type")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1368,7 +1129,7 @@ H5G__obj_get_type_by_idx(H5O_loc_t *oloc, hsize_t idx)
     H5O_type_t obj_type;        /* Type of object at location */
     H5G_obj_t ret_value = H5G_UNKNOWN;  /* Return value */
 
-    FUNC_ENTER_STATIC_VOL_TAG(oloc->addr)
+    FUNC_ENTER_STATIC_TAG(oloc->addr)
 
     /* Sanity check */
     HDassert(oloc);
@@ -1401,7 +1162,7 @@ H5G__obj_get_type_by_idx(H5O_loc_t *oloc, hsize_t idx)
     } /* end else */
 
 done:
-    FUNC_LEAVE_NOAPI_VOL_TAG(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5G__obj_get_type_by_idx() */
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 

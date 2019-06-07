@@ -1132,7 +1132,7 @@ H5Arename(hid_t loc_id, const char *old_name, const char *new_name)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTSET, FAIL, "can't set collective metadata read")
 
         /* Call private attribute rename routine */
-        if(H5A__rename(&loc, old_name, new_name) < 0)
+        if(H5O__attr_rename(loc.oloc, old_name, new_name) < 0)
             HGOTO_ERROR(H5E_ATTR, H5E_CANTRENAME, FAIL, "can't rename attribute")
     } /* end if */
 
@@ -1378,7 +1378,7 @@ H5Adelete(hid_t loc_id, const char *name)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTSET, FAIL, "can't set collective metadata read")
 
     /* Delete the attribute from the location */
-    if(H5A__delete(&loc, name) < 0)
+    if(H5O__attr_remove(loc.oloc, name) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTDELETE, FAIL, "unable to delete attribute")
 
 done:
@@ -1562,7 +1562,7 @@ H5Aexists(hid_t obj_id, const char *attr_name)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no attribute name")
 
     /* Check if the attribute exists */
-    if((ret_value = H5A__exists(&loc, attr_name)) < 0)
+    if((ret_value = H5O__attr_exists(loc.oloc, attr_name)) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTGET, FAIL, "unable to determine if attribute exists")
 
 done:

@@ -1,5 +1,5 @@
 /*********************************************************************
-  *   Copyright 1993, UCAR/Unidata
+  *   Copyright 2018, UCAR/Unidata
   *   See netcdf/COPYRIGHT file for copying and redistribution conditions.
   *********************************************************************/
 
@@ -17,8 +17,8 @@ affect the operation of the system.
 */
 
 typedef unsigned int NCFLAGS;
-#  define SETFLAG(controls,flag) ((controls.flags) |= (flag))
-#  define CLRFLAG(controls,flag) ((controls.flags) &= ~(flag))
+#  define SETFLAG(controls,flag) (((controls).flags) |= (flag))
+#  define CLRFLAG(controls,flag) (((controls).flags) &= ~(flag))
 #  define FLAGSET(controls,flag) (((controls.flags) & (flag)) != 0)
 
 /* Defined flags */
@@ -34,6 +34,8 @@ typedef unsigned int NCFLAGS;
 #define NCF_PREFETCH        (0x0200) /* Cache prefetch enabled/disabled */
 #define NCF_PREFETCH_EAGER  (0x0400) /* Do eager prefetch; 0=>lazy */
 #define NCF_PREFETCH_ALL    (0x0800) /* Prefetch all variables */
+/* Allow _FillValue/Variable type mismatch */
+#define NCF_FILLMISMATCH    (0x1000)
 /*COLUMBIA_HACK*/
 #define NCF_COLUMBIA        (0x80000000) /* Hack for columbia server */
 

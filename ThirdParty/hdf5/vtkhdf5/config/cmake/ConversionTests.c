@@ -9,7 +9,7 @@
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-+
+
 #if defined(__has_attribute)
 #if __has_attribute(no_sanitize)
 #define HDF_NO_UBSAN __attribute__((no_sanitize("undefined")))
@@ -287,3 +287,27 @@ main ()
 
 #endif
 
+#ifdef H5_DISABLE_SOME_LDOUBLE_CONV_TEST
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int HDF_NO_UBSAN main(void)
+{
+    FILE *fp;
+    char cpu[64];
+
+    fp = popen("uname -m", "r");
+
+    fgets(cpu, sizeof(cpu)-1, fp);
+
+    pclose(fp);
+
+    if(strncmp(cpu, "ppc64le", 7) == 0)
+        return 0;
+
+    return 1;
+}
+
+#endif

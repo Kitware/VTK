@@ -1,5 +1,5 @@
 /*
- *	Copyright 1996, University Corporation for Atmospheric Research
+ *	Copyright 2018, University Corporation for Atmospheric Research
  *	See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 /* $Id: posixio.c,v 1.89 2010/05/22 21:59:08 dmh Exp $ */
@@ -39,10 +39,6 @@
 
 #ifndef NC_NOERR
 #define NC_NOERR 0
-#endif
-
-#ifndef HAVE_SSIZE_T
-typedef int ssize_t;
 #endif
 
 #ifndef SEEK_SET
@@ -189,10 +185,10 @@ blksize(int fd)
 	}
 	/* else, silent in the face of error */
 #else
-	(void)fd;
+	NC_UNUSED(fd);
 #endif
 #else
-	(void)fd;
+	NC_UNUSED(fd);
 #endif
 	return (size_t) 2 * pagesize();
 }
@@ -453,7 +449,7 @@ px_rel(ncio_px *const pxp, off_t offset, int rflags)
 		 && offset < pxp->bf_offset + (off_t) pxp->bf_extent);
 	assert(pIf(fIsSet(rflags, RGN_MODIFIED),
 		fIsSet(pxp->bf_rflags, RGN_WRITE)));
-	(void)offset;
+	NC_UNUSED(offset);
 
 	if(fIsSet(rflags, RGN_MODIFIED))
 	{
@@ -519,7 +515,7 @@ ncio_px_rel(ncio *const nciop, off_t offset, int rflags)
    * The blkextent can't be more than twice the pxp->blksz. That's
    because the pxp->blksize is the sizehint, and in ncio_px_init2 the
    buffer (pointed to by pxp->bf-base) is allocated with 2 *
-   *sizehintp. This is checked (unneccesarily) more than once in
+   *sizehintp. This is checked (unnecessarily) more than once in
    asserts.
 
    * If this is called on a newly opened file, pxp->bf_offset will be
@@ -806,7 +802,7 @@ px_double_buffer(ncio *const nciop, off_t to, off_t from,
 	int status = NC_NOERR;
 	void *src;
 	void *dest;
-	(void)rflags;
+	NC_UNUSED(rflags);
 
 #if INSTRUMENT
 fprintf(stderr, "\tdouble_buffr %ld %ld %ld\n",
@@ -1162,7 +1158,7 @@ ncio_spx_rel(ncio *const nciop, off_t offset, int rflags)
 	assert(offset < pxp->bf_offset + X_ALIGN);
 	assert(pxp->bf_cnt % X_ALIGN == 0 );
 #endif
-	(void)offset;
+	NC_UNUSED(offset);
 
 	if(fIsSet(rflags, RGN_MODIFIED))
 	{
@@ -1411,7 +1407,7 @@ ncio_spx_move(ncio *const nciop, off_t to, off_t from,
 static int
 ncio_spx_sync(ncio *const nciop)
 {
-	(void)nciop;
+	NC_UNUSED(nciop);
 	/* NOOP */
 	return NC_NOERR;
 }
@@ -1604,7 +1600,7 @@ posixio_create(const char *path, int ioflags,
 	int oflags = (O_RDWR|O_CREAT);
 	int fd;
 	int status;
-	(void)parameters;
+	NC_UNUSED(parameters);
 
 	if(initialsz < (size_t)igeto + igetsz)
 		initialsz = (size_t)igeto + igetsz;
@@ -1735,7 +1731,7 @@ unwind_new:
    nciopp - pointer to pointer that will get address of newly created
    and inited ncio struct.
 
-   igetvpp - handle to pass back pointer to data from inital page
+   igetvpp - handle to pass back pointer to data from initial page
    read, if this were ever used, which it isn't.
 */
 int
@@ -1749,7 +1745,7 @@ posixio_open(const char *path,
 	int oflags = fIsSet(ioflags, NC_WRITE) ? O_RDWR : O_RDONLY;
 	int fd = -1;
 	int status = 0;
-	(void)parameters;
+	NC_UNUSED(parameters);
 
 	if(path == NULL || *path == 0)
 		return EINVAL;

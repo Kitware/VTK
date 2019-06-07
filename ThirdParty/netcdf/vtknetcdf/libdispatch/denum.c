@@ -1,7 +1,7 @@
 /*! \file
   Functions for Enum Types
 
-  Copyright 2011 University Corporation for Atmospheric
+  Copyright 2018 University Corporation for Atmospheric
   Research/Unidata. See \ref copyright file for more info. */
 
 #include "ncdispatch.h"

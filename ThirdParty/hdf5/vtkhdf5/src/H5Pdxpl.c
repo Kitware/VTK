@@ -2016,6 +2016,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_mpio_actual_io_mode() */
 
+
 /*-------------------------------------------------------------------------
  * Function:	H5Pget_mpio_no_collective_cause
  *
@@ -2052,8 +2053,6 @@ H5Pget_mpio_no_collective_cause(hid_t plist_id, uint32_t *local_no_collective_ca
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_mpio_no_collective_cause() */
-
-
 #endif /* H5_HAVE_PARALLEL */
 
 

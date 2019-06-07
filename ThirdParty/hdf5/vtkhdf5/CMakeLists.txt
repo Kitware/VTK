@@ -48,6 +48,9 @@ endif ()
 #   dependencies of the HDF5 libs may be 'incomplete', add additional
 #   dependencies to this variable so that external projects pick them up
 #
+#option (HDF5_EXTERNAL_LIB_PREFIX "Use prefix for custom library naming." "")
+set (HDF5_EXTERNAL_LIB_PREFIX "" CACHE STRING "Use prefix for custom library naming.")
+mark_as_advanced (HDF5_EXTERNAL_LIB_PREFIX)
 # HDF5_EXTERNAL_LIB_PREFIX :
 #   If the parent project needs to install hdf libraries, but avoid
 #   name conflicts with system versions, then a prefix may be added
@@ -514,6 +517,15 @@ if (HDF5_MEMORY_ALLOC_SANITY_CHECK)
 endif ()
 
 #-----------------------------------------------------------------------------
+# Option to enable/disable using pread/pwrite for VFDs
+#-----------------------------------------------------------------------------
+option (HDF5_ENABLE_PREADWRITE "Use pread/pwrite in sec2/log/core VFDs in place of read/write (when available)" ON)
+mark_as_advanced (HDF5_ENABLE_PREADWRITE)
+if (HDF5_ENABLE_PREADWRITE AND H5_HAVE_PREAD AND H5_HAVE_PWRITE)
+  set (H5_HAVE_PREADWRITE 1)
+endif ()
+
+#-----------------------------------------------------------------------------
 # Option to use deprecated public API symbols
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_DEPRECATED_SYMBOLS "Enable deprecated public API symbols" ON)
@@ -601,11 +613,11 @@ else ()
 endif ()
 
 include (${HDF_RESOURCES_DIR}/HDFCompilerFlags.cmake)
+set (CMAKE_MODULE_PATH ${HDF_RESOURCES_DIR} ${HDF_RESOURCES_EXT_DIR} ${CMAKE_MODULE_PATH})
 
 #-----------------------------------------------------------------------------
 # Option to Enable MPI Parallel
 #-----------------------------------------------------------------------------
-set (CMAKE_MODULE_PATH ${HDF_RESOURCES_DIR} ${HDF_RESOURCES_EXT_DIR} ${CMAKE_MODULE_PATH})
 if (FALSE) # XXX(kitware): Hardcode settings.
 option (HDF5_ENABLE_PARALLEL "Enable parallel build (requires MPI)" OFF)
 if (HDF5_ENABLE_PARALLEL)
@@ -642,7 +654,7 @@ if (HDF5_ENABLE_PARALLEL)
       set (LARGE_PARALLEL_IO OFF)
     endif ()
   else ()
-    message (STATUS "Parallel libraries not found")
+    message (FATAL_ERROR "Parallel libraries not found")
   endif ()
 endif ()
 
@@ -808,6 +820,11 @@ if (BUILD_TESTING)
       "Timeout in seconds for each test (default 1200=20minutes)"
   )
 
+  # Generate a list of timeouts based on DART_TESTING_TIMEOUT
+  math (EXPR CTEST_SHORT_TIMEOUT "${DART_TESTING_TIMEOUT} / 2")
+  math (EXPR CTEST_LONG_TIMEOUT "${DART_TESTING_TIMEOUT} * 2")
+  math (EXPR CTEST_VERY_LONG_TIMEOUT "${DART_TESTING_TIMEOUT} * 3")
+
   option (HDF5_TEST_VFD "Execute tests with different VFDs" OFF)
   mark_as_advanced (HDF5_TEST_VFD)
   if (HDF5_TEST_VFD)
@@ -892,9 +909,6 @@ set (H5_FC_FUNC_ "H5_FC_FUNC_(name,NAME) name ## _")
 if (EXISTS "${HDF5_SOURCE_DIR}/fortran" AND IS_DIRECTORY "${HDF5_SOURCE_DIR}/fortran" AND FALSE)
   option (HDF5_BUILD_FORTRAN "Build FORTRAN support" OFF)
   if (HDF5_BUILD_FORTRAN)
-
-    option (HDF5_ENABLE_F2003 "Enable FORTRAN 2003 Standard" ON)
-
     include (${HDF_RESOURCES_EXT_DIR}/HDFUseFortran.cmake)
 
     message (STATUS "Fortran compiler ID is ${CMAKE_Fortran_COMPILER_ID}")
@@ -907,10 +921,8 @@ if (EXISTS "${HDF5_SOURCE_DIR}/fortran" AND IS_DIRECTORY "${HDF5_SOURCE_DIR}/for
     include (${HDF_RESOURCES_DIR}/HDF5UseFortran.cmake)
     set (LINK_Fortran_LIBS ${LINK_LIBS})
 
-    if (HDF5_ENABLE_F2003)
-      if (NOT FORTRAN_HAVE_ISO_C_BINDING)
-        set (HDF5_ENABLE_F2003 OFF)
-      endif ()
+    if (NOT H5_FORTRAN_HAVE_ISO_C_BINDING)
+      message (FATAL_ERROR " **** Fortran compiler lacks required Fortran 2003 features; unsupported Fortran 2003 compiler, disable HDF5_BUILD_FORTRAN **** ")
     endif ()
 
     # Parallel IO usage requires MPI to be Linked and Included
@@ -996,6 +1008,12 @@ endif ()
 # Generate the H5pubconf.h file containing user settings needed by compilation
 #-----------------------------------------------------------------------------
 configure_file (${HDF_RESOURCES_DIR}/H5pubconf.h.in ${HDF5_BINARY_DIR}/H5pubconf.h @ONLY)
+
+#-----------------------------------------------------------------------------
+# Options for use by cross compiling and toolchains
+#-----------------------------------------------------------------------------
+option (HDF5_USE_PREGEN "Use pre-generated Files" OFF)
+option (HDF5_BATCH_H5DETECT "Use a batch command for running h5detect" OFF)
 
 include (CMakeInstallation.cmake)
 vtk_module_install_headers(

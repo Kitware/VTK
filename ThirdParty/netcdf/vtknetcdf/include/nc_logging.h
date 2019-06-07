@@ -1,12 +1,13 @@
-/* Copyright 2010, University Corporation for Atmospheric Research. See
-   COPYRIGHT file for copying and redistribution conditions.
-
-   This file is part of netcdf-4, a netCDF-like interface for HDF5, or
-   a HDF5 backend for netCDF, depending on your point of view.
-
-   This file contains macros and prototyes relating to logging.
-
-   $Id: nc_logging.h,v 1.1 2010/06/01 15:34:49 ed Exp $
+/* Copyright 2018, University Corporation for Atmospheric Research. See
+   COPYRIGHT file for copying and redistribution conditions. */
+/** 
+ * @file @internal This file is part of netcdf-4, a netCDF-like
+ * interface for HDF5, or a HDF5 backend for netCDF, depending on your
+ * point of view.
+ *
+ * This file contains macros and prototyes relating to logging.
+ *
+ * @author Ed Hartnett
 */
 
 #ifndef _NCLOGGING_
@@ -41,7 +42,6 @@ void nc_log_hdf5(void);
 #else /* LOGGING */
 
 /* These definitions will be used unless LOGGING is defined. */
-
 #define LOG(e)
 
 #define BAIL2(e) \
@@ -51,7 +51,12 @@ void nc_log_hdf5(void);
 
 #define BAIL_QUIET BAIL
 
+#ifdef USE_NETCDF_4
+#ifndef ENABLE_SET_LOG_LEVEL
+/* Define away any calls to nc_set_log_level(), if its not enabled. */
 #define nc_set_log_level(e)
+#endif /* ENABLE_SET_LOG_LEVEL */
+#endif
 
 #endif /* LOGGING */
 

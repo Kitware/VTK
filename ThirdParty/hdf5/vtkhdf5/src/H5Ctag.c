@@ -175,6 +175,32 @@ H5C_get_ignore_tags(const H5C_t *cache_ptr)
 
 /*-------------------------------------------------------------------------
  *
+ * Function:    H5C_get_num_objs_corked
+ *
+ * Purpose:     Retrieve the 'num_objs_corked' field for the cache
+ *
+ * Return:      'num_objs_corked' value (can't fail)
+ *
+ * Programmer:  Vailin Choi; Feb 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+uint32_t
+H5C_get_num_objs_corked(const H5C_t *cache_ptr)
+{
+    FUNC_ENTER_NOAPI_NOERR
+
+    /* Sanity checks */
+    HDassert(cache_ptr);
+    HDassert(cache_ptr->magic == H5C__H5C_T_MAGIC);
+
+    /* Return value for num_objs_corked */
+    FUNC_LEAVE_NOAPI(cache_ptr->num_objs_corked)
+} /* H5C_get_num_objs_corked */
+
+
+/*-------------------------------------------------------------------------
+ *
  * Function:    H5C__tag_entry
  *
  * Purpose:     Tags an entry with the provided tag (contained in the API context).

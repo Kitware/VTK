@@ -476,42 +476,6 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5C_set_trace_file_ptr
- *
- * Purpose:     Set the trace_file_ptr field for the cache.
- *
- *              This field must either be NULL (which turns of trace
- *              file logging), or be a pointer to an open file to which
- *              trace file data is to be written.
- *
- * Return:      Non-negative on success/Negative on failure
- *
- * Programmer:  John Mainzer
- *              1/20/06
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5C_set_trace_file_ptr(H5C_t * cache_ptr, FILE * trace_file_ptr)
-{
-    herr_t		ret_value = SUCCEED;   /* Return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
-
-    /* This would normally be an assert, but we need to use an HGOTO_ERROR
-     * call to shut up the compiler.
-     */
-    if((NULL == cache_ptr) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
-        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "Bad cache_ptr")
-
-    cache_ptr->trace_file_ptr = trace_file_ptr;
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* H5C_set_trace_file_ptr() */
-
-
-/*-------------------------------------------------------------------------
  * Function:    H5C_stats
  *
  * Purpose:     Prints statistics about the cache.

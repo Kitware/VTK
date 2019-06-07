@@ -1,5 +1,5 @@
 /*
- *	Copyright 2017, University Corporation for Atmospheric Research
+ *	Copyright 2018, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 
@@ -126,47 +126,51 @@ int nc_utf8_to_utf16(const unsigned char* s8, unsigned short** utf16p, size_t* l
     len8 = strlen((char*)s8);
     utf16 = (unsigned short*)malloc(sizeof(unsigned short)*(len8+1));
     if(utf16 == NULL) {
-	ncstat = NC_ENOMEM;
-	goto done;
+      ncstat = NC_ENOMEM;
+      goto done;
     }
     str = (const nc_utf8proc_uint8_t*)s8;
     /* Walk the string and convert each codepoint */
     p16 = utf16;
     len16 = 0;
     while(*str) {
-        count = nc_utf8proc_iterate(str,nchars,&codepoint);
-	if(count < 0) {
+      count = nc_utf8proc_iterate(str,nchars,&codepoint);
+      if(count < 0) {
 	    switch (count) {
 	    case UTF8PROC_ERROR_NOMEM:
 	    case UTF8PROC_ERROR_OVERFLOW:
-		ncstat = NC_ENOMEM;
-		break;
+          ncstat = NC_ENOMEM;
+          break;
 	    case UTF8PROC_ERROR_INVALIDOPTS:
-		ncstat = NC_EINVAL;
-		break;
+          ncstat = NC_EINVAL;
+          break;
 	    case UTF8PROC_ERROR_INVALIDUTF8:
 	    case UTF8PROC_ERROR_NOTASSIGNED:
 	    default:
-		ncstat = NC_EBADNAME;
-		break;
+          ncstat = NC_EBADNAME;
+          break;
 	    }
 	    goto done;
-	} else { /* move to next char */
+      } else { /* move to next char */
 	    /* Complain if top 16 bits not zero */
-	    if((codepoint & 0x0000FFFF) != 0) {
-		ncstat = NC_EBADNAME;
-		goto done;
+	    if((codepoint & 0xFFFF0000) != 0) {
+	          ncstat = NC_EBADNAME;
+	          goto done;
 	    }
 	    /* Truncate codepoint to 16 bits and store */
 	    *p16++ = (unsigned short)(codepoint & 0x0000FFFF);
 	    str += count;
 	    len16++;
-	}
+      }
     }
     *p16++ = (unsigned short)0;
-    if(utf16p) *utf16p = utf16;
+    if(utf16p)
+      *utf16p = utf16;
+    else
+      free(utf16);
+
     if(len16p) *len16p = len16;
-done:
+ done:
     if(ncstat) free(utf16);
     return ncstat;
 }

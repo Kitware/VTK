@@ -62,8 +62,8 @@
  * Purpose:     Control the loading of dynamic plugin types.
  *
  *              The plugin_control_mask parameter is a bitfield that controls
- *              whether certain classes of plugins (e.g.: filters,
- *              VOL drivers) will be loaded by the library.
+ *              whether certain classes of plugins (e.g.: filters)
+ *              will be loaded by the library.
  *
  *              plugin bit = 0, will prevent the use of that dynamic plugin type.
  *              plugin bit = 1, will allow the use of that dynamic plugin type.
@@ -101,8 +101,7 @@ done:
  * Function:    H5PLget_loading_state
  *
  * Purpose:     Get the bitmask that controls whether certain classes
- *              of plugins (e.g.: filters, VOL drivers) will be loaded
- *              by the library.
+ *              of plugins (e.g.: filters) will be loaded by the library.
  *
  *              Zero if all plugin types are disabled
  *              Negative if all plugin types are enabled

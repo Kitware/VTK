@@ -35,12 +35,6 @@
 #include "H5Pprivate.h"		/* Property lists			*/
 #include "H5SLprivate.h"        /* Skip lists 				*/
 
-#ifdef H5_METADATA_TRACE_FILE
-#define H5AC__TRACE_FILE_ENABLED	1
-#else /* H5_METADATA_TRACE_FILE */
-#define H5AC__TRACE_FILE_ENABLED	0
-#endif /* H5_METADATA_TRACE_FILE */
-
 /* Global metadata tag values */
 #define H5AC__INVALID_TAG      (haddr_t)0
 #define H5AC__IGNORE_TAG       (haddr_t)1

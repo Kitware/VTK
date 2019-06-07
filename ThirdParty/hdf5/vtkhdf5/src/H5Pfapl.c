@@ -131,10 +131,11 @@
  * property only used by h5repart */
 #define H5F_ACS_FAMILY_NEWSIZE_SIZE             sizeof(hsize_t)
 #define H5F_ACS_FAMILY_NEWSIZE_DEF              0
-/* Definition for whether to convert family to sec2 driver. It's private
- * property only used by h5repart */
-#define H5F_ACS_FAMILY_TO_SEC2_SIZE             sizeof(hbool_t)
-#define H5F_ACS_FAMILY_TO_SEC2_DEF              FALSE
+/* Definition for whether to convert family to a single-file driver.
+ * It's a private property only used by h5repart.
+ */
+#define H5F_ACS_FAMILY_TO_SINGLE_SIZE           sizeof(hbool_t)
+#define H5F_ACS_FAMILY_TO_SINGLE_DEF            FALSE
 /* Definition for data type in multi file driver */
 #define H5F_ACS_MULTI_TYPE_SIZE                 sizeof(H5FD_mem_t)
 #define H5F_ACS_MULTI_TYPE_DEF                  H5FD_MEM_DEFAULT
@@ -368,7 +369,7 @@ static const unsigned H5F_def_gc_ref_g = H5F_ACS_GARBG_COLCT_REF_DEF;           
 static const H5F_close_degree_t H5F_def_close_degree_g = H5F_CLOSE_DEGREE_DEF;     /* Default file close degree */
 static const hsize_t H5F_def_family_offset_g = H5F_ACS_FAMILY_OFFSET_DEF;          /* Default offset for family VFD */
 static const hsize_t H5F_def_family_newsize_g = H5F_ACS_FAMILY_NEWSIZE_DEF;        /* Default size of new files for family VFD */
-static const hbool_t H5F_def_family_to_sec2_g = H5F_ACS_FAMILY_TO_SEC2_DEF;        /* Default ?? for family VFD */
+static const hbool_t H5F_def_family_to_single_g = H5F_ACS_FAMILY_TO_SINGLE_DEF;    /* Default ?? for family VFD */
 static const H5FD_mem_t H5F_def_mem_type_g = H5F_ACS_MULTI_TYPE_DEF;               /* Default file space type for multi VFD */
 
 static const H5F_libver_t H5F_def_libver_low_bound_g = H5F_ACS_LIBVER_LOW_BOUND_DEF;    /* Default setting for "low" bound of format version */
@@ -503,9 +504,9 @@ H5P__facc_reg_prop(H5P_genclass_t *pclass)
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
-    /* Register the private property of whether convert family to sec2 driver. It's used by h5repart only. */
+    /* Register the private property of whether convert family to a single-file driver. It's used by h5repart only. */
     /* (Note: this property should not have an encode/decode callback -QAK) */
-    if(H5P_register_real(pclass, H5F_ACS_FAMILY_TO_SEC2_NAME, H5F_ACS_FAMILY_TO_SEC2_SIZE, &H5F_def_family_to_sec2_g,
+    if(H5P_register_real(pclass, H5F_ACS_FAMILY_TO_SINGLE_NAME, H5F_ACS_FAMILY_TO_SINGLE_SIZE, &H5F_def_family_to_single_g,
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 

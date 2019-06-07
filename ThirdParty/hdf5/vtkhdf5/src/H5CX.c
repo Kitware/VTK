@@ -198,6 +198,7 @@ typedef struct H5CX_t {
     MPI_Datatype btype;         /* MPI datatype for buffer, when using collective I/O */
     MPI_Datatype ftype;         /* MPI datatype for file, when using collective I/O */
     hbool_t mpi_file_flushing;  /* Whether an MPI-opened file is being flushed */
+    hbool_t rank0_bcast;        /* Whether a dataset meets read-with-rank0-and-bcast requirements */
 #endif /* H5_HAVE_PARALLEL */
 
     /* Cached DXPL properties */
@@ -261,6 +262,8 @@ typedef struct H5CX_t {
     hbool_t mpio_coll_chunk_multi_ratio_coll_set; /* Whether instrumented "collective chunk multi ratio coll" value is set */
     int mpio_coll_chunk_multi_ratio_ind;  /* Instrumented "collective chunk multi ratio ind" value (H5D_XFER_COLL_CHUNK_MULTI_RATIO_IND_NAME) */
     hbool_t mpio_coll_chunk_multi_ratio_ind_set; /* Whether instrumented "collective chunk multi ratio ind" value is set */
+    hbool_t mpio_coll_rank0_bcast;  /* Instrumented "collective chunk multi ratio ind" value (H5D_XFER_COLL_CHUNK_MULTI_RATIO_IND_NAME) */
+    hbool_t mpio_coll_rank0_bcast_set; /* Whether instrumented "collective chunk multi ratio ind" value is set */
 #endif /* H5_HAVE_INSTRUMENTED_LIBRARY */
 #endif /* H5_HAVE_PARALLEL */
 
@@ -804,8 +807,8 @@ H5CX_set_apl(hid_t *acspl_id, const H5P_libclass_t *libclass,
 
 #ifdef H5_HAVE_PARALLEL
         /* If this routine is not guaranteed to be collective (i.e. it doesn't
-         * modify the structural metadata in a file), check if we should use
-         * a collective metadata read.
+         * modify the structural metadata in a file), check if the application
+         * specified a collective metadata read for just this operation.
          */
         if(!is_collective) {
             H5P_genplist_t *plist;                  /* Property list pointer */
@@ -1106,6 +1109,32 @@ H5CX_get_mpi_file_flushing(void)
 
     FUNC_LEAVE_NOAPI((*head)->ctx.mpi_file_flushing)
 } /* end H5CX_get_mpi_file_flushing() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5CX_get_mpio_rank0_bcast 
+ *
+ * Purpose:     Retrieves if the dataset meets read-with-rank0-and-bcast requirements for the current API call context.
+ *
+ * Return:      Non-negative on success / Negative on failure
+ *
+ * Programmer:  M. Breitenfeld
+ *              December 31, 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+hbool_t
+H5CX_get_mpio_rank0_bcast(void)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    /* Sanity check */
+    HDassert(head && *head);
+
+    FUNC_LEAVE_NOAPI((*head)->ctx.rank0_bcast)
+} /* end H5CX_get_mpio_rank0_bcast() */
 #endif /* H5_HAVE_PARALLEL */
 
 
@@ -2037,6 +2066,34 @@ H5CX_set_mpi_file_flushing(hbool_t flushing)
 
     FUNC_LEAVE_NOAPI_VOID
 } /* end H5CX_set_mpi_file_flushing() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5CX_set_mpio_rank0_bcast
+ *
+ * Purpose:     Sets the "dataset meets read-with-rank0-and-bcast requirements" flag for the current API call context.
+ *
+ * Return:      <none>
+ *
+ * Programmer:  M. Breitenfeld
+ *              December 31, 2018
+ *
+ *-------------------------------------------------------------------------
+ */
+void
+H5CX_set_mpio_rank0_bcast(hbool_t rank0_bcast)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    /* Sanity checks */
+    HDassert(head && *head);
+
+    (*head)->ctx.rank0_bcast = rank0_bcast;
+
+    FUNC_LEAVE_NOAPI_VOID
+} /* end H5CX_set_mpio_rank0_bcast() */
 #endif /* H5_HAVE_PARALLEL */
 
 
@@ -2448,6 +2505,40 @@ H5CX_test_set_mpio_coll_chunk_multi_ratio_ind(int mpio_coll_chunk_multi_ratio_in
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_test_set_mpio_coll_chunk_multi_ratio_ind() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5CX_test_set_mpio_coll_rank0_bcast
+ *
+ * Purpose:     Sets the instrumented "read-with-rank0-bcast" flag for the current API call context.
+ *
+ * Note:        Only sets value if property set in DXPL
+ *
+ * Return:      Non-negative on success / Negative on failure
+ *
+ * Programmer:  Quincey Koziol
+ *              January 2, 2019
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5CX_test_set_mpio_coll_rank0_bcast(hbool_t mpio_coll_rank0_bcast)
+{
+    H5CX_node_t **head = H5CX_get_my_context();  /* Get the pointer to the head of the API context, for this thread */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI_NOINIT
+
+    /* Sanity checks */
+    HDassert(head && *head);
+    HDassert(!((*head)->ctx.dxpl_id == H5P_DEFAULT || 
+            (*head)->ctx.dxpl_id == H5P_DATASET_XFER_DEFAULT));
+
+    H5CX_TEST_SET_PROP(H5D_XFER_COLL_RANK0_BCAST_NAME, mpio_coll_rank0_bcast)
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5CX_test_set_mpio_coll_rank0_bcast() */
 #endif /* H5_HAVE_INSTRUMENTED_LIBRARY */
 #endif /* H5_HAVE_PARALLEL */
 
@@ -2488,6 +2579,7 @@ H5CX__pop_common(void)
     H5CX_SET_PROP(H5D_XFER_COLL_CHUNK_LINK_NUM_FALSE_NAME, mpio_coll_chunk_link_num_false)
     H5CX_SET_PROP(H5D_XFER_COLL_CHUNK_MULTI_RATIO_COLL_NAME, mpio_coll_chunk_multi_ratio_coll)
     H5CX_SET_PROP(H5D_XFER_COLL_CHUNK_MULTI_RATIO_IND_NAME, mpio_coll_chunk_multi_ratio_ind)
+    H5CX_SET_PROP(H5D_XFER_COLL_RANK0_BCAST_NAME, mpio_coll_rank0_bcast)
 #endif /* H5_HAVE_INSTRUMENTED_LIBRARY */
 #endif /* H5_HAVE_PARALLEL */
 

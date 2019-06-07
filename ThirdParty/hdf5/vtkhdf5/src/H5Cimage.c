@@ -1065,9 +1065,9 @@ H5C__read_cache_image(H5F_t *f, H5C_t *cache_ptr)
         H5C__UPDATE_STATS_FOR_CACHE_IMAGE_READ(cache_ptr)
 
 #ifdef H5_HAVE_PARALLEL
-	if ( aux_ptr ) {
+        if ( aux_ptr ) {
 
-	    /* Broadcast cache image */
+	        /* Broadcast cache image */
             if ( MPI_SUCCESS != 
                  (mpi_result = MPI_Bcast(cache_ptr->image_buffer, 
                                          (int)cache_ptr->image_len, MPI_BYTE, 

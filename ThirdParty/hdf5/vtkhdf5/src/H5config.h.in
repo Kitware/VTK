@@ -15,6 +15,10 @@
 /* Define if dev_t is a scalar */
 #undef DEV_T_IS_SCALAR
 
+/* Define if your system is IBM ppc64le and cannot convert some long double
+   values correctly. */
+#undef DISABLE_SOME_LDOUBLE_CONV
+
 /* Define to dummy `main' function (if any) required to link to the Fortran
    libraries. */
 #undef FC_DUMMY_MAIN
@@ -220,6 +224,9 @@
 /* Define if we have parallel support */
 #undef HAVE_PARALLEL
 
+/* Define if both pread and pwrite exist. */
+#undef HAVE_PREADWRITE
+
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H
 
@@ -398,9 +405,6 @@
 /* Define to enable internal memory allocation sanity checking. */
 #undef MEMORY_ALLOC_SANITY_CHECK
 
-/* Define if the metadata trace file code is to be compiled in */
-#undef METADATA_TRACE_FILE
-
 /* Define if we can violate pointer alignment restrictions */
 #undef NO_ALIGNMENT_RESTRICTIONS
 
@@ -511,6 +515,9 @@
 
 /* The size of `ssize_t', as computed by sizeof. */
 #undef SIZEOF_SSIZE_T
+
+/* The size of `time_t', as computed by sizeof. */
+#undef SIZEOF_TIME_T
 
 /* The size of `uint16_t', as computed by sizeof. */
 #undef SIZEOF_UINT16_T

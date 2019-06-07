@@ -3,7 +3,7 @@ Functions to write attributes.
 
 These functions read and write attributes.
 
-Copyright 2010 University Corporation for Atmospheric
+Copyright 2018 University Corporation for Atmospheric
 Research/Unidata. See \ref copyright file for more info.  */
 
 #include "ncdispatch.h"
@@ -61,9 +61,10 @@ nc_put_att_string(int ncid, int varid, const char *name,
 \ingroup attributes
 Write a text attribute.
 
-Add or change a text attribute. If this attribute is new,
-or if the space required to store the attribute is greater than
-before, the netCDF dataset must be in define mode.
+Add or change a text attribute. If this attribute is new, or if the
+space required to store the attribute is greater than before, the
+netCDF dataset must be in define mode for classic formats (or
+netCDF-4/HDF5 with NC_CLASSIC_MODEL).
 
 Although it's possible to create attributes of all types, text and
 double attributes are adequate for most purposes.
@@ -153,7 +154,8 @@ Write an attribute.
 The function nc_put_att_ type adds or changes a variable attribute or
 global attribute of an open netCDF dataset. If this attribute is new,
 or if the space required to store the attribute is greater than
-before, the netCDF dataset must be in define mode.
+before, the netCDF dataset must be in define mode for classic formats
+(or netCDF-4/HDF5 with NC_CLASSIC_MODEL).
 
 With netCDF-4 files, nc_put_att will notice if you are writing a
 _FillValue attribute, and will tell the HDF5 layer to use the

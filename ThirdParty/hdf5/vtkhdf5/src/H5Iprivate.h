@@ -82,5 +82,8 @@ H5_DLL int H5I_dec_app_ref(hid_t id);
 H5_DLL int H5I_dec_app_ref_always_close(hid_t id);
 H5_DLL int H5I_dec_type_ref(H5I_type_t type);
 
+/* Debugging functions */
+H5_DLL herr_t H5I_dump_ids_for_type(H5I_type_t type);
+
 #endif /* _H5Iprivate_H */
 

@@ -1,5 +1,5 @@
 /*
- *	Copyright 1996, University Corporation for Atmospheric Research
+ *	Copyright 2018, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 #ifndef _NC_H_
@@ -7,6 +7,9 @@
 
 #include "config.h"
 #include "netcdf.h"
+
+/* Forward */
+struct NCmodel;
 
    /* There's an external ncid (ext_ncid) and an internal ncid
     * (int_ncid). The ext_ncid is the ncid returned to the user. If
@@ -27,7 +30,7 @@ typedef struct NC {
 	void* dispatchdata; /*per-'file' data; points to e.g. NC3_INFO data*/
 	char* path;
 	int   mode; /* as provided to nc_open/nc_create */
-        int   model; /* as determined by libdispatch/dfile.c */
+        struct NCmodel*  model; /* as determined by libdispatch/dfile.c */
 #ifdef USE_REFCOUNT
 	int   refcount; /* To enable multiple name-based opens */
 #endif
@@ -40,7 +43,6 @@ typedef struct {
 	/* all xdr'd */
 	size_t nchars;
 	char *cp;
-
 } NC_string;
 
 /* Define functions that are used across multiple dispatchers */
@@ -69,8 +71,6 @@ extern int nc__pseudofd(void);
 /* This function gets a current default create flag */
 extern int nc_get_default_format(void);
 
-extern int NC_check_file_type(const char *path, int flags, void *parameters, int* model, int* version);
-
 extern int add_to_NCList(NC*);
 extern void del_from_NCList(NC*);/* does not free object */
 extern NC* find_in_NCList(int ext_ncid);
@@ -81,7 +81,7 @@ extern int iterate_NCList(int i,NC**); /* Walk from 0 ...; ERANGE return => stop
 
 /* Defined in nc.c */
 extern void free_NC(NC*);
-extern int new_NC(struct NC_Dispatch*, const char*, int, int, NC**);
+extern int new_NC(struct NC_Dispatch*, const char*, int, struct NCmodel*, NC**);
 
 /* Defined in nc.c */
 extern int ncdebug;

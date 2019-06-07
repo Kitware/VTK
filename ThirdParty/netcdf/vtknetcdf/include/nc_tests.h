@@ -1,4 +1,4 @@
-/* This is part of the netCDF package. Copyright 2005 University
+/* This is part of the netCDF package. Copyright 2018 University
  * Corporation for Atmospheric Research/Unidata. See \ref copyright
  * file for conditions of use. */
 /** @internal @file
@@ -7,7 +7,7 @@
  * nc_test4 directories.
  *
  * @author Ed Hartnett, Denis Heimbigner, Ward Fisher
-*/
+ */
 
 #ifndef _NC_TESTS_H
 #define _NC_TESTS_H
@@ -17,11 +17,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "nc_logging.h"
 #ifdef USE_PARALLEL
 #include "netcdf_par.h"
 #endif
 #include "netcdf.h"
-//#include "err_macros.h"
 
 /** NC_MAX_DIMS for tests.  Allows different NC_MAX_DIMS values
  * without breaking this test with a heap or stack overflow. */

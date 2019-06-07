@@ -1,5 +1,5 @@
 /*********************************************************************
-   Copyright 2010, UCAR/Unidata See netcdf/COPYRIGHT file for
+   Copyright 2018, UCAR/Unidata See netcdf/COPYRIGHT file for
    copying and redistribution conditions.
 
    $Id: nc3dispatch.c,v 2.8 2010/05/26 11:11:26 ed Exp $

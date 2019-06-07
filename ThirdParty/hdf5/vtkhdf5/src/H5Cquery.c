@@ -351,64 +351,6 @@ H5C_get_aux_ptr(const H5C_t *cache_ptr)
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5C_get_trace_file_ptr
- *
- * Purpose:     Get the trace_file_ptr field from the cache.
- *
- *              This field will either be NULL (which indicates that trace
- *              file logging is turned off), or contain a pointer to the
- *              open file to which trace file data is to be written.
- *
- * Return:      Non-NULL trace file pointer (can't fail)
- *
- * Programmer:  John Mainzer
- *              1/20/06
- *
- *-------------------------------------------------------------------------
- */
-FILE *
-H5C_get_trace_file_ptr(const H5C_t *cache_ptr)
-{
-    FUNC_ENTER_NOAPI_NOERR
-
-    /* Check arguments */
-    HDassert(cache_ptr);
-    HDassert(cache_ptr->magic == H5C__H5C_T_MAGIC);
-
-    FUNC_LEAVE_NOAPI(cache_ptr->trace_file_ptr)
-} /* H5C_get_trace_file_ptr() */
-
-
-/*-------------------------------------------------------------------------
- * Function:    H5C_get_trace_file_ptr_from_entry
- *
- * Purpose:     Get the trace_file_ptr field from the cache, via an entry.
- *
- *              This field will either be NULL (which indicates that trace
- *              file logging is turned off), or contain a pointer to the
- *              open file to which trace file data is to be written.
- *
- * Return:      Non-NULL trace file pointer (can't fail)
- *
- * Programmer:  Quincey Koziol
- *              6/9/08
- *
- *-------------------------------------------------------------------------
- */
-FILE *
-H5C_get_trace_file_ptr_from_entry(const H5C_cache_entry_t *entry_ptr)
-{
-    FUNC_ENTER_NOAPI_NOERR
-
-    /* Sanity checks */
-    HDassert(entry_ptr);
-    HDassert(entry_ptr->cache_ptr);
-
-    FUNC_LEAVE_NOAPI(H5C_get_trace_file_ptr(entry_ptr->cache_ptr))
-} /* H5C_get_trace_file_ptr_from_entry() */
-
-
-/*-------------------------------------------------------------------------
  * Function:    H5C_get_entry_ring
  *
  * Purpose:     Given a file address, retrieve the ring for an entry at that

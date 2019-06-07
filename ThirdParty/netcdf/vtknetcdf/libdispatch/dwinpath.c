@@ -1,5 +1,5 @@
 /*
- * Copyright 1996, University Corporation for Atmospheric Research
+ * Copyright 2018, University Corporation for Atmospheric Research
  * See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 
@@ -8,8 +8,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
 #endif
 #ifdef _MSC_VER
 #include <io.h>
@@ -17,6 +21,8 @@
 
 #include "ncexternl.h"
 #include "ncwinpath.h"
+
+extern char *realpath(const char *path, char *resolved_path);
 
 #undef PATHFORMAT
 
@@ -30,17 +36,21 @@ Rules:
 2. a leading '/cygdrive/X' will be converted to
    a drive letter X if X is alpha-char.
 3. a leading D:/... is treated as a windows drive letter
-4. If #1, #2, or #3 is encounterd, then forward slashes
+4. a relative path will be converted to an absolute path.
+5. If any of the above is encountered, then forward slashes
    will be converted to backslashes.
-5. All other cases are passed thru unchanged
+All other cases are passed thru unchanged
 */
 
-/* Define legal windows drive letters */
-static char* windrive = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-static size_t cdlen = 10; /* strlen("/cygdrive/") */
+/* Define legal windows drive letters */
+static const char* windrive = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+static const size_t cdlen = 10; /* strlen("/cygdrive/") */
 
 static int pathdebug = -1;
+
+static char* makeabsolute(const char* relpath);
 
 EXTERNL
 char* /* caller frees */
@@ -105,7 +115,13 @@ NCpathcvt(const char* path)
 	goto slashtrans;
     }
 
-    /* 4. Other: just pass thru */
+    /* 4. Look for relative path */
+    if(pathlen > 1 && path[0] == '.') {
+	outpath = makeabsolute(path);
+	goto slashtrans;
+    }
+
+    /* Other: just pass thru */
     outpath = strdup(path);
     goto done;
 
@@ -136,6 +152,20 @@ done:
         fflush(stderr);
     }
     return outpath;
+}
+
+static char*
+makeabsolute(const char* relpath)
+{
+    char* path = NULL;
+#ifdef _WIN32
+    path = _fullpath(NULL,relpath,8192);
+#else
+    path = realpath(relpath, NULL);
+#endif
+    if(path == NULL)
+	path = strdup(relpath);
+    return path;    
 }
 
 #ifdef WINPATH
@@ -173,6 +203,39 @@ int
 NCopen2(const char *path, int flags)
 {
     return NCopen3(path,flags,0);
+}
+
+/*
+Provide wrappers for other file system functions
+*/
+
+/* Return access applied to path+mode */
+EXTERNL
+int
+NCaccess(const char* path, int mode)
+{
+    int status = 0;
+    char* cvtname = NCpathcvt(path);
+    if(cvtname == NULL) return -1;
+#ifdef _MSC_VER
+    status = _access(cvtname,mode);
+#else
+    status = access(cvtname,mode);
+#endif
+    free(cvtname);    
+    return status;
+}
+
+EXTERNL
+int
+NCremove(const char* path)
+{
+    int status = 0;
+    char* cvtname = NCpathcvt(path);
+    if(cvtname == NULL) return ENOENT;
+    status = remove(cvtname);
+    free(cvtname);    
+    return status;
 }
 
 #endif /*WINPATH*/

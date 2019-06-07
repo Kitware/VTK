@@ -1,4 +1,4 @@
-/* Copyright 2009, UCAR/Unidata and OPeNDAP, Inc.
+/* Copyright 2018, UCAR/Unidata and OPeNDAP, Inc.
    See the COPYRIGHT file for more information. */
 #include <stdlib.h>
 #include <stdio.h>
@@ -53,12 +53,16 @@ Free a list and its contents
 int
 nclistfreeall(NClist* l)
 {
-  size_t i;
+  size_t i,len;
+  void** content = NULL;
   if(l == NULL) return TRUE;
-  for(i=0;i<l->length;i++) {
-      void* value = l->content[i];
+  len = l->length;
+  content = nclistextract(l);
+  for(i=0;i<len;i++) {
+      void* value = content[i];
       if(value != NULL) free(value);
   }
+  if(content != NULL) free(content);
   return nclistfree(l);
 }
 
@@ -109,7 +113,7 @@ nclistset(NClist* l, size_t index, void* elem)
   if(l == NULL) return FALSE;
   if(!nclistsetalloc(l,index+1)) return FALSE;
   if(index >= l->length) {
-      if(!nclistsetlength(l,index+1)) return FALSE;	
+      if(!nclistsetlength(l,index+1)) return FALSE;
   }
   l->content[index] = elem;
   return TRUE;
@@ -143,7 +147,7 @@ void*
 nclistpop(NClist* l)
 {
   if(l == NULL || l->length == 0) return NULL;
-  l->length--;  
+  l->length--;
   return l->content[l->length];
 }
 
@@ -164,7 +168,7 @@ nclistremove(NClist* l, size_t i)
   elem = l->content[i];
   for(i+=1;i<len;i++) l->content[i-1] = l->content[i];
   l->length--;
-  return elem;  
+  return elem;
 }
 
 /* Duplicate and return the content (null terminate) */
@@ -208,7 +212,7 @@ nclistelemremove(NClist* l, void* elem)
 }
 
 
-/* Extends nclist to include a unique operator 
+/* Extends nclist to include a unique operator
    which remove duplicate values; NULL values removed
    return value is always 1.
 */
@@ -225,7 +229,7 @@ nclistunique(NClist* l)
         for(j=i+1;j<len;j++) {
 	    if(content[i] == content[j]) {
 		/* compress out jth element */
-                for(k=j+1;k<len;k++) content[k-1] = content[k];	
+                for(k=j+1;k<len;k++) content[k-1] = content[k];
 		len--;
 	    }
 	}

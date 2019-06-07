@@ -27,7 +27,6 @@
 #ifndef _H5Bprivate_H
 #define _H5Bprivate_H
 
-#include "H5Bpublic.h"		/*API prototypes			     */
 
 /* Private headers needed by this file */
 #include "H5private.h"		/* Generic Functions			*/

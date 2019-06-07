@@ -59,8 +59,6 @@
 static herr_t H5T__commit_anon(H5F_t *file, H5T_t *type, hid_t tcpl_id);
 static hid_t H5T__get_create_plist(const H5T_t *type);
 static H5T_t *H5T__open_oid(const H5G_loc_t *loc);
-static herr_t H5T__flush(H5T_t *dt, hid_t type_id);
-static herr_t H5T__refresh(H5T_t *dt, hid_t type_id);
 
 
 /*********************/
@@ -165,7 +163,7 @@ H5T__commit_named(const H5G_loc_t *loc, const char *name, H5T_t *dt,
     H5T_state_t old_state;              /* The state of the datatype before H5T__commit. */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_PACKAGE_VOL
+    FUNC_ENTER_PACKAGE
 
     /* Sanity checks */
     HDassert(loc);
@@ -219,7 +217,7 @@ done:
 	} /* end if */
     } /* end if */
 
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__commit_named() */
 
 
@@ -296,7 +294,7 @@ H5T__commit_anon(H5F_t *file, H5T_t *type, hid_t tcpl_id)
     H5O_loc_t *oloc;                    /* Object location for datatype */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* Sanity checks */
     HDassert(file);
@@ -318,7 +316,7 @@ H5T__commit_anon(H5F_t *file, H5T_t *type, hid_t tcpl_id)
        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTDEC, FAIL, "unable to decrement refcount on newly created object")
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* H5T__commit_anon() */
 
 
@@ -667,8 +665,8 @@ H5Tflush(hid_t type_id)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Flush metadata for named datatype */
-    if(H5T__flush(dt, type_id) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTFLUSH, FAIL, "unable to flush datatype")
+    if(H5O_flush_common(&dt->oloc, type_id) < 0)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTFLUSH, FAIL, "unable to flush datatype and object flush callback")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -707,7 +705,7 @@ H5Trefresh(hid_t type_id)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't set access property list info")
 
     /* Call private function to refresh datatype object */
-    if((H5T__refresh(dt, type_id)) < 0)
+    if((H5O_refresh_metadata(type_id, dt->oloc)) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTLOAD, FAIL, "unable to refresh datatype")
 
 done:
@@ -742,7 +740,7 @@ H5T__get_create_plist(const H5T_t *type)
     hid_t		new_tcpl_id = FAIL;     /* New datatype creation property list */
     hid_t		ret_value = FAIL;       /* Return value */
 
-    FUNC_ENTER_STATIC_VOL
+    FUNC_ENTER_STATIC
 
     /* Sanity check */
     HDassert(type);
@@ -770,7 +768,7 @@ done:
             if(H5I_dec_app_ref(new_tcpl_id) < 0)
                 HDONE_ERROR(H5E_DATATYPE, H5E_CANTDEC, FAIL, "unable to close temporary object")
 
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__get_create_plist() */
 
 
@@ -798,7 +796,7 @@ H5T__open_name(const H5G_loc_t *loc, const char *name)
     hbool_t      obj_found = FALSE;     /* Object at 'name' found */
     H5T_t        *ret_value = NULL;     /* Return value */
 
-    FUNC_ENTER_PACKAGE_VOL
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(loc);
@@ -836,7 +834,7 @@ done:
             if(H5G_loc_free(&type_loc) < 0)
                 HDONE_ERROR(H5E_DATATYPE, H5E_CANTRELEASE, NULL, "can't free location")
 
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__open_name() */
 
 
@@ -1039,74 +1037,4 @@ H5T_update_shared(H5T_t *dt)
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* H5T_update_shared() */
-
-
-/*-------------------------------------------------------------------------
- * Function:    H5T__flush
- *
- * Purpose:     Internal routine to flushes a named datatype to disk.
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:      Success:    Non-negative
- *              Failure:    Negative
- *
- * Programmer:  Quincey Koziol
- *              December 18, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5T__flush(H5T_t *dt, hid_t type_id)
-{
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Sanity check */
-    HDassert(dt);
-
-    /* To flush metadata and invoke flush callback if there is */
-    if(H5O_flush_common(&dt->oloc, type_id) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTFLUSH, FAIL, "unable to flush datatype and object flush callback")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* H5T__flush */
-
-
-/*-------------------------------------------------------------------------
- * Function:    H5T__refresh
- *
- * Purpose:     Internal routine to refresh a named datatype.
- *
- * Note:        This routine is needed so that there's a non-API routine
- *              that can set up VOL / SWMR info (which need a DXPL).
- *
- * Return:      Success:    Non-negative
- *              Failure:    Negative
- *
- * Programmer:  Quincey Koziol
- *              December 18, 2017
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5T__refresh(H5T_t *dt, hid_t type_id)
-{
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_STATIC_VOL
-
-    /* Sanity check */
-    HDassert(dt);
-
-    /* Call private function to refresh datatype object */
-    if((H5O_refresh_metadata(type_id, dt->oloc)) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTLOAD, FAIL, "unable to refresh datatype")
-
-done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
-} /* H5T__refresh */
 

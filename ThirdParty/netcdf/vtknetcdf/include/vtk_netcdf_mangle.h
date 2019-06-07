@@ -1027,5 +1027,23 @@
 #define reportopenobjects vtknetcdf_reportopenobjects
 #define set_NC_string vtknetcdf_set_NC_string
 #define write_numrecs vtknetcdf_write_numrecs
+#define ncindexadd vtknetcdf_ncindexadd
+#define ncindexcount vtknetcdf_ncindexcount
+#define ncindexdup vtknetcdf_ncindexdup
+#define ncindexfind vtknetcdf_ncindexfind
+#define ncindexfree vtknetcdf_ncindexfree
+#define ncindexidel vtknetcdf_ncindexidel
+#define ncindexith vtknetcdf_ncindexith
+#define ncindexlookup vtknetcdf_ncindexlookup
+#define ncindexnew vtknetcdf_ncindexnew
+#define ncindexrebuild vtknetcdf_ncindexrebuild
+#define ncindexset vtknetcdf_ncindexset
+#define ncindexverify vtknetcdf_ncindexverify
+#define NC_infermodel vtknetcdf_NC_infermodel
+#define nc__testurl vtknetcdf_nc__testurl
+#define printindex vtknetcdf_printindex
+#define printindexlist vtknetcdf_printindexlist
+#define printindexmap vtknetcdf_printindexmap
+#define NC_crc32 vtknetcdf_NC_crc32
 
 #endif

@@ -242,7 +242,7 @@ H5D__none_idx_iterate(const H5D_chk_idx_info_t *idx_info,
     unsigned u;		/* Local index variable */
     int curr_dim;       /* Current rank */
     hsize_t idx;    	/* Array index of chunk */
-    int ret_value = -1; /* Return value */
+    int ret_value = H5_ITER_CONT; /* Return value */
 
     FUNC_ENTER_STATIC_NOERR
 
@@ -266,7 +266,7 @@ H5D__none_idx_iterate(const H5D_chk_idx_info_t *idx_info,
     HDassert(ndims > 0);
 
     /* Iterate over all the chunks in the dataset's dataspace */
-    for(u = 0; u < idx_info->layout->nchunks; u++) {
+    for(u = 0; u < idx_info->layout->nchunks && ret_value == H5_ITER_CONT; u++) {
 	/* Calculate the index of this chunk */
 	idx = H5VM_array_offset_pre(ndims, idx_info->layout->max_down_chunks, chunk_rec.scaled);
 

@@ -1,6 +1,6 @@
 /*
-Copyright (c) 1998-2017 University Corporation for Atmospheric Research/Unidata
-See LICENSE.txt for license information.
+Copyright (c) 1998-2018 University Corporation for Atmospheric Research/Unidata
+See COPYRIGHT for license information.
 */
 
 
@@ -30,7 +30,7 @@ See LICENSE.txt for license information.
 
 /* Define the curl flag defaults in envv style */
 static const char* AUTHDEFAULTS[] = {
-"HTTP.TIMEOUT","10", /*seconds */
+"HTTP.TIMEOUT","1800", /*seconds */ /* Long but not infinite */
 NULL
 };
 
@@ -91,8 +91,9 @@ NC_authsetup(NCauth* auth, NCURI* uri)
     char* uri_hostport = NULL;
 
     if(uri != NULL)
-	uri_hostport = NC_combinehostport(uri);    
-
+      uri_hostport = NC_combinehostport(uri);
+    else
+      return NC_EDAP; /* Generic EDAP error. */
     setdefaults(auth);
 
     /* Note, we still must do this function even if
@@ -136,32 +137,34 @@ NC_authsetup(NCauth* auth, NCURI* uri)
 			NC_rclookup("HTTP.SSL.VERIFYPEER",uri_hostport));
     setauthfield(auth,"HTTP.NETRC",
 			NC_rclookup("HTTP.NETRC",uri_hostport));
+
     { /* Handle various cases for user + password */
-	/* First, see if the user+pwd was in the original url */
-	char* user = NULL;
-	char* pwd = NULL;
-	if(uri->user != NULL && uri->password != NULL) {
+      /* First, see if the user+pwd was in the original url */
+      char* user = NULL;
+      char* pwd = NULL;
+      if(uri->user != NULL && uri->password != NULL) {
 	    user = uri->user;
 	    pwd = uri->password;
-	} else {
+      } else {
    	    user = NC_rclookup("HTTP.CREDENTIALS.USER",uri_hostport);
 	    pwd = NC_rclookup("HTTP.CREDENTIALS.PASSWORD",uri_hostport);
-	}
-	if(user != NULL && pwd != NULL) {
-            user = strdup(user); /* so we can consistently reclaim */
-            pwd = strdup(pwd);
-	} else {
+      }
+      if(user != NULL && pwd != NULL) {
+        user = strdup(user); /* so we can consistently reclaim */
+        pwd = strdup(pwd);
+      } else {
 	    /* Could not get user and pwd, so try USERPASSWORD */
 	    const char* userpwd = NC_rclookup("HTTP.CREDENTIALS.USERPASSWORD",uri_hostport);
 	    if(userpwd != NULL) {
-		ret = NC_parsecredentials(userpwd,&user,&pwd);
-		if(ret) return ret;
+          ret = NC_parsecredentials(userpwd,&user,&pwd);
+          if(ret) {nullfree(uri_hostport); return ret;}
 	    }
-        }
-        setauthfield(auth,"HTTP.USERNAME",user);
-        setauthfield(auth,"HTTP.PASSWORD",pwd);
-	nullfree(user);
-	nullfree(pwd);
+      }
+      setauthfield(auth,"HTTP.CREDENTIALS.USERNAME",user);
+      setauthfield(auth,"HTTP.CREDENTIALS.PASSWORD",pwd);
+      nullfree(user);
+      nullfree(pwd);
+      nullfree(uri_hostport);
     }
     return (ret);
 }
@@ -347,25 +350,27 @@ and do %xx unescaping
 int
 NC_parsecredentials(const char* userpwd, char** userp, char** pwdp)
 {
-    char* user = NULL;
-    char* pwd = NULL;
+  char* user = NULL;
+  char* pwd = NULL;
 
-    if(userpwd == NULL)
+  if(userpwd == NULL)
 	return NC_EINVAL;
-    user = strdup(userpwd);
-    if(user == NULL)
+  user = strdup(userpwd);
+  if(user == NULL)
 	return NC_ENOMEM;
-    pwd = strchr(user,':');
-    if(pwd == NULL)
-	return NC_EINVAL;
-    *pwd = '\0';
-    pwd++;
-    if(userp)
-	*userp = ncuridecode(user);
-    if(pwdp)
-	*pwdp = ncuridecode(pwd);
+  pwd = strchr(user,':');
+  if(pwd == NULL) {
     free(user);
-    return NC_NOERR;
+	return NC_EINVAL;
+  }
+  *pwd = '\0';
+  pwd++;
+  if(userp)
+	*userp = ncuridecode(user);
+  if(pwdp)
+	*pwdp = ncuridecode(pwd);
+  free(user);
+  return NC_NOERR;
 }
 
 static void
@@ -380,4 +385,3 @@ setdefaults(NCauth* auth)
 	}
     }
 }
-

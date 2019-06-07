@@ -31,6 +31,9 @@
 /* default chunk size in bytes */
 #cmakedefine DEFAULT_CHUNK_SIZE @DEFAULT_CHUNK_SIZE@
 
+/* if true, support byte-range read of remote datasets. */
+#cmakedefine ENABLE_BYTERANGE
+
 /* if true, enable CDF5 Support */
 #cmakedefine ENABLE_CDF5
 
@@ -40,11 +43,11 @@
 /* if true, build DAP4 Client */
 #cmakedefine ENABLE_DAP4
 
-/* if true, enable DAP group names */
-#cmakedefine ENABLE_DAP_GROUPS
-
 /* if true, do remote tests */
 #cmakedefine ENABLE_DAP_REMOTE_TESTS
+
+/* If true, define nc_set_log_level. */
+#cmakedefine ENABLE_SET_LOG_LEVEL
 
 /* if true, use _FillValue for NC_ERANGE data elements */
 #cmakedefine ERANGE_FILL
@@ -61,6 +64,12 @@
 
 /* Is CURLINFO_RESPONSE_CODE defined */
 #cmakedefine HAVE_CURLINFO_RESPONSE_CODE
+
+/* Is CURLOPT_BUFFERSIZE defined */
+#cmakedefine HAVE_CURLOPT_BUFFERSIZE
+
+/* Is CURLOPT_TCP_KEEPALIVE defined */
+#cmakedefine HAVE_CURLOPT_KEEPALIVE
 
 /* Is CURLOPT_KEYPASSWD defined */
 #cmakedefine HAVE_CURLOPT_KEYPASSWD
@@ -110,14 +119,14 @@
 /* Define to 1 if you have the `gettimeofday' function. */
 #cmakedefine HAVE_GETTIMEOFDAY
 
+/* Define to 1 if you have the `H5allocate_memory' function. */
+#cmakedefine HAVE_H5ALLOCATE_MEMORY
+
 /* Define to 1 if you have the `H5free_memory' function. */
 #undef HAVE_H5FREE_MEMORY
 
 /* Define to 1 if you have the `H5Pget_fapl_mpio' function. */
 #undef HAVE_H5PGET_FAPL_MPIO
-
-/* Define to 1 if you have the `H5Pget_fapl_mpiposix' function. */
-#undef HAVE_H5PGET_FAPL_MPIPOSIX
 
 /* Define to 1 if you have the `H5Pset_all_coll_metadata_ops' function. */
 #undef HAVE_H5PSET_ALL_COLL_METADATA_OPS
@@ -127,6 +136,9 @@
 
 /* Define to 1 if you have the `H5Pset_libver_bounds' function. */
 #undef HAVE_H5PSET_LIBVER_BOUNDS
+
+/* Define to 1 if you have the `H5resize_memory' function. */
+#undef HAVE_H5RESIZE_MEMORY
 
 /* Define to 1 if you have the `H5Z_SZIP' function. */
 #undef HAVE_H5Z_SZIP
@@ -185,8 +197,14 @@
 /* Define to 1 if you have the `mktemp' function. */
 #undef HAVE_MKTEMP
 
+/* Define to 1 if you have the `mmap' function. */
+#cmakedefine HAVE_MMAP
+
 /* Define to 1 if you have the `MPI_Comm_f2c' function. */
 #cmakedefine HAVE_MPI_COMM_F2C
+
+/* Define to 1 if you have the `MPI_Info_f2c' function. */
+#cmakedefine HAVE_MPI_INFO_F2C
 
 /* Define to 1 if you have the `mremap' function. */
 #cmakedefine HAVE_MREMAP
@@ -230,6 +248,9 @@
 /* Define to 1 if you have the `strlcat' function. */
 #cmakedefine HAVE_STRLCAT
 
+/* Define to 1 if you have the `strndup' function. */
+#cmakedefine HAVE_STRNDUP
+
 /* Define to 1 if you have the `strtoll' function. */
 #cmakedefine HAVE_STRTOLL
 
@@ -270,6 +291,9 @@
 /* Define to 1 if the system has the type `uint64'. */
 #undef HAVE_UINT64
 
+/* Define to 1 if the system has the type `uintptr_t'. */
+#cmakedefine HAVE_UINTPTR_T
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H
 
@@ -278,6 +302,9 @@
 
 /* Define to 1 if the system has the type `ushort'. */
 #cmakedefine HAVE_USHORT
+
+/* if true, H5allocate_memory() will be used. */
+#cmakedefine HDF5_HAS_ALLOCATE_MEMORY
 
 /* if true, use collective metadata ops in parallel netCDF-4 */
 #cmakedefine HDF5_HAS_COLL_METADATA_OPS
@@ -288,6 +315,9 @@
 
 /* if true, netcdf4 file properties will be set using H5Pset_libver_bounds */
 #cmakedefine HDF5_HAS_LIBVER_BOUNDS
+
+/* if true, H5resize_memory() will be used. */
+#cmakedefine HDF5_HAS_resize_MEMORY
 
 /* if true, hdf5 has parallelism enabled */
 #cmakedefine HDF5_PARALLEL
@@ -309,6 +339,9 @@
 
 /* min blocksize for posixio. */
 #cmakedefine NCIO_MINBLOCKSIZE @NCIO_MINBLOCKSIZE@
+
+/* Extra pairs for _NCProperties */
+#cmakedefine NCPROPERTIES_EXTRA
 
 /* no IEEE float on this platform */
 #cmakedefine NO_IEEE_FLOAT
@@ -408,14 +441,20 @@
 /* Place to put very large netCDF test files. */
 #cmakedefine TEMP_LARGE
 
-/* if true, enable CDF5 Support */
-#cmakedefine USE_CDF5
+/* dispatch table for user-defined format 0. */
+#cmakedefine UDF0_DISPATCH
+
+/* function to get dispatch table for user-defined format 0. */
+#cmakedefine UDF0_DISPATCH_FUNC
+
+/* dispatch table for user-defined format 1. */
+#cmakedefine UDF1_DISPATCH
+
+/* function to get dispatch table for user-defined format 1. */
+#cmakedefine UDF1_DISPATCH_FUNC
 
 /* if true, build DAP Client */
 #cmakedefine USE_DAP
-
-/* if true, include NC_DISKLESS code */
-#cmakedefine USE_DISKLESS
 
 /* set this to use extreme numbers in tests */
 #cmakedefine USE_EXTREME_NUMBERS
@@ -433,6 +472,9 @@
    it. */
 #cmakedefine USE_HDF4_FILE_TESTS
 
+/* if true, use HDF5 */
+#cmakedefine USE_HDF5
+
 /* if true, use mmap for in-memory files */
 #cmakedefine USE_MMAP
 
@@ -442,19 +484,13 @@
 /* build the netCDF version 2 API */
 #cmakedefine USE_NETCDF_2
 
-/* if true, pnetcdf or parallel netcdf-4 is in use */
+/* if true, PnetCDF or parallel netcdf-4 is in use */
 #cmakedefine USE_PARALLEL
 
 /* if true, parallel netcdf-4 is in use */
 #cmakedefine USE_PARALLEL4
 
-/* if true, compile in parallel netCDF-4 based on MPI/IO */
-#cmakedefine USE_PARALLEL_MPIO
-
-/* if true, compile in parallel netCDF-4 based on MPI/POSIX */
-#cmakedefine USE_PARALLEL_POSIX
-
-/* if true, parallel netCDF is used */
+/* if true, PnetCDF is used */
 #cmakedefine USE_PNETCDF
 
 /* if true, use stdio instead of posixio */
@@ -465,6 +501,12 @@
 
 /* if true, compile in szip compression in netCDF-4 variables */
 #cmakedefine USE_SZIP
+
+/* if true, use user-defined format 0 in utilities */
+#cmakedefine USE_UDF0
+
+/* if true, use user-defined format 1 in utilities */
+#cmakedefine USE_UDF1
 
 /* Version number of package */
 #cmakedefine VERSION
@@ -491,6 +533,24 @@
 
 /* Define for large files, on AIX-style hosts. */
 #cmakedefine _LARGE_FILES
+
+/* Define to 1 if type `char' is unsigned and you are not using gcc.  */
+#ifndef __CHAR_UNSIGNED__
+# undef __CHAR_UNSIGNED__
+#endif
+
+/* Define to empty if `const' does not conform to ANSI C. */
+#cmakedefine const
+
+/* Define to `long int' if <sys/types.h> does not define. */
+#cmakedefine off_t
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#cmakedefine size_t
+
+/* Define to the type of an unsigned integer type wide enough to hold a
+   pointer, if such a type exists, and if the system does not define it. */
+#cmakedefine uintptr_t
 
 /* Define strcasecmp, snprintf on Win32 systems. */
 #ifdef _WIN32

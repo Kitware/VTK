@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtknetcdf/COPYRIGHT"
-    VERSION       "4.6.1"
+    VERSION       "4.7.0"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE NetCDF

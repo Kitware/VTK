@@ -73,6 +73,7 @@ H5_DLL H5AC_ring_t H5CX_get_ring(void);
 H5_DLL hbool_t H5CX_get_coll_metadata_read(void);
 H5_DLL herr_t H5CX_get_mpi_coll_datatypes(MPI_Datatype *btype, MPI_Datatype *ftype);
 H5_DLL hbool_t H5CX_get_mpi_file_flushing(void);
+H5_DLL hbool_t H5CX_get_mpio_rank0_bcast(void);
 #endif /* H5_HAVE_PARALLEL */
 
 /* "Getter" routines for DXPL properties cached in API context */
@@ -108,6 +109,7 @@ H5_DLL void H5CX_set_coll_metadata_read(hbool_t cmdr);
 H5_DLL herr_t H5CX_set_mpi_coll_datatypes(MPI_Datatype btype, MPI_Datatype ftype);
 H5_DLL herr_t H5CX_set_mpio_coll_opt(H5FD_mpio_collective_opt_t mpio_coll_opt);
 H5_DLL void H5CX_set_mpi_file_flushing(hbool_t flushing);
+H5_DLL void H5CX_set_mpio_rank0_bcast(hbool_t rank0_bcast);
 #endif /* H5_HAVE_PARALLEL */
 
 /* "Setter" routines for DXPL properties cached in API context */
@@ -133,6 +135,7 @@ H5_DLL herr_t H5CX_test_set_mpio_coll_chunk_link_num_true(int mpio_coll_chunk_li
 H5_DLL herr_t H5CX_test_set_mpio_coll_chunk_link_num_false(int mpio_coll_chunk_link_num_false);
 H5_DLL herr_t H5CX_test_set_mpio_coll_chunk_multi_ratio_coll(int mpio_coll_chunk_multi_ratio_coll);
 H5_DLL herr_t H5CX_test_set_mpio_coll_chunk_multi_ratio_ind(int mpio_coll_chunk_multi_ratio_ind);
+H5_DLL herr_t H5CX_test_set_mpio_coll_rank0_bcast(hbool_t rank0_bcast);
 #endif /* H5_HAVE_INSTRUMENTED_LIBRARY */
 #endif /* H5_HAVE_PARALLEL */
 

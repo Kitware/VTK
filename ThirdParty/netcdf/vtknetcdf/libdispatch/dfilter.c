@@ -1,5 +1,5 @@
 /*
- * Copyright 1996, University Corporation for Atmospheric Research
+ * Copyright 2018, University Corporation for Atmospheric Research
  * See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 
@@ -12,6 +12,7 @@
 #endif
 
 #include "netcdf.h"
+#include "netcdf_filter.h"
 
 /*
 Common utilities related to filters.
@@ -47,7 +48,7 @@ NC_parsefilterspec(const char* spec, unsigned int* idp, size_t* nparamsp, unsign
     size_t len;
     int i;
     unsigned int* ulist = NULL;
-    unsigned char mem[8]; /* to convert to network byte order */
+    unsigned char mem[8];
 
     if(spec == NULL || strlen(spec) == 0) goto fail;
     sdata = strdup(spec);
@@ -135,14 +136,13 @@ NC_parsefilterspec(const char* spec, unsigned int* idp, size_t* nparamsp, unsign
 	    ulist[nparams++] = *(unsigned int*)&valf;
 	    break;
 
+	/* The following are 8-byte values, so we must swap pieces if this
+           is a little endian machine */	
 	case 'd':
 	    sstat = sscanf(p,"%lf",&vald);
 	    if(sstat != 1) goto fail;
-	    /* convert to network byte order */
 	    memcpy(mem,&vald,sizeof(mem));
-#ifdef WORDS_BIGENDIAN
-	    NC_byteswap8(mem);  /* convert big endian to little endian */
-#endif
+	    NC_filterfix8(mem,0);
 	    vector = (unsigned int*)mem;
 	    ulist[nparams++] = vector[0];
 	    ulist[nparams++] = vector[1];
@@ -153,12 +153,9 @@ NC_parsefilterspec(const char* spec, unsigned int* idp, size_t* nparamsp, unsign
 	    else
                 sstat = sscanf(p,"%lld",(long long*)&val64u);
 	    if(sstat != 1) goto fail;
-	    /* convert to network byte order */
 	    memcpy(mem,&val64u,sizeof(mem));
-#ifdef WORDS_BIGENDIAN	    
-	    NC_byteswap8(mem);  /* convert big endian to little endian */
-#endif
-	    vector = (unsigned int*)mem;
+	    NC_filterfix8(mem,0);
+	    vector = (unsigned int*)&mem;
 	    ulist[nparams++] = vector[0];
 	    ulist[nparams++] = vector[1];
 	    break;
@@ -216,9 +213,8 @@ gettype(const int q0, const int q1, int* isunsignedp)
 
 #ifdef WORDS_BIGENDIAN
 /* Byte swap an 8-byte integer in place */
-EXTERNL
-void
-NC_byteswap8(unsigned char* mem)
+static void
+byteswap8(unsigned char* mem)
 {
     unsigned char c;
     c = mem[0];
@@ -234,4 +230,35 @@ NC_byteswap8(unsigned char* mem)
     mem[3] = mem[4];
     mem[4] = c;
 }
+
+/* Byte swap an 8-byte integer in place */
+static void
+byteswap4(unsigned char* mem)
+{
+    unsigned char c;
+    c = mem[0];
+    mem[0] = mem[3];
+    mem[3] = c;
+    c = mem[1];
+    mem[1] = mem[2];
+    mem[2] = c;
+}
 #endif
+
+EXTERNL void
+NC_filterfix8(unsigned char* mem, int decode)
+{
+#ifdef WORDS_BIGENDIAN
+    if(decode) { /* Apply inverse of the encode case */
+	byteswap4(mem); /* step 1: byte-swap each piece */
+	byteswap4(mem+4);
+	byteswap8(mem); /* step 2: convert to little endian format */
+    } else { /* encode */
+	byteswap8(mem); /* step 1: convert to little endian format */
+	byteswap4(mem); /* step 2: byte-swap each piece */
+	byteswap4(mem+4);
+    }
+#else /* Little endian */
+    /* No action is necessary */
+#endif	    
+}

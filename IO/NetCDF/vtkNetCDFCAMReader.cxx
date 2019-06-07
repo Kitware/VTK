@@ -84,7 +84,7 @@ public:
 
   bool open(const char* file, int *ncfile)
   {
-    int mode = NC_NOWRITE | NC_64BIT_OFFSET | NC_NETCDF4 | NC_CLASSIC_MODEL;
+    int mode = NC_NOWRITE | NC_NETCDF4 | NC_CLASSIC_MODEL;
     int ncid;
     if (nc_err(nc_open(file, mode, &ncid)))
     {

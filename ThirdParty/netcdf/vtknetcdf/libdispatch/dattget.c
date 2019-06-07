@@ -3,7 +3,7 @@ Attribute functions
 
 These functions read and write attributes.
 
-Copyright 2010 University Corporation for Atmospheric
+Copyright 2018 University Corporation for Atmospheric
 Research/Unidata. See \ref copyright file for more info.  */
 
 #include "ncdispatch.h"
@@ -48,7 +48,7 @@ case where memory must be explicitly released.
 \returns ::NC_ENOTATT Can't find attribute.
 \returns ::NC_ECHAR Can't convert to or from NC_CHAR.
 \returns ::NC_ENOMEM Out of memory.
-\returns ::NC_ERANGE Data convertion went out of range.
+\returns ::NC_ERANGE Data conversion went out of range.
 
 <h1>Example</h1>
 
@@ -107,7 +107,7 @@ function works with any type of data, including user defined types.
 
 \note The netCDF library reads all attributes into memory when the
 file is opened with nc_open(). Getting an attribute copies the value
-from the in-memory store, and does not incure any file I/O penalties.
+from the in-memory store, and does not incur any file I/O penalties.
 
 \param ncid NetCDF or group ID, from a previous call to nc_open(),
 nc_create(), nc_def_grp(), or associated inquiry functions such as
@@ -132,7 +132,7 @@ the attribute.
 \returns ::NC_ENOTATT Can't find attribute.
 \returns ::NC_ECHAR Can't convert to or from NC_CHAR.
 \returns ::NC_ENOMEM Out of memory.
-\returns ::NC_ERANGE Data convertion went out of range.
+\returns ::NC_ERANGE Data conversion went out of range.
 
 <h1>Example</h1>
 
@@ -353,7 +353,7 @@ the attribute.
 \returns ::NC_ENOTATT Can't find attribute.
 \returns ::NC_ECHAR Can't convert to or from NC_CHAR.
 \returns ::NC_ENOMEM Out of memory.
-\returns ::NC_ERANGE Data convertion went out of range.
+\returns ::NC_ERANGE Data conversion went out of range.
 
 \section nc_get_att_string_example Example
 

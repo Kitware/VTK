@@ -1,5 +1,5 @@
 /*
- *	Copyright 1996, University Corporation for Atmospheric Research
+ *	Copyright 2018, University Corporation for Atmospheric Research
  *	See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 /* $Id: ncio.h,v 1.27 2006/01/03 04:56:28 russ Exp $ */
@@ -10,6 +10,11 @@
 #include <stddef.h>	/* size_t */
 #include <sys/types.h>	/* off_t */
 #include "netcdf.h"
+
+/* Define an internal use only mode flag to signal use of byte ranges.
+   This is temporary until we can re-organize the ncio open/create API.
+*/
+#define NC_HTTP 0x80000000
 
 typedef struct ncio ncio;	/* forward reference */
 
