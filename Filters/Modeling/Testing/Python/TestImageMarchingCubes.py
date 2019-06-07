@@ -24,7 +24,7 @@ iren.SetRenderWindow(renWin)
 # create pipeline
 #
 angle = pi/2
-orientation = [
+direction = [
   -1, 0, 0,
   0, cos(angle), -sin(angle),
   0, -sin(angle), -cos(angle)
@@ -35,7 +35,7 @@ reader.SetFilePrefix(VTK_DATA_ROOT + "/Data/headsq/quarter")
 reader.SetDataExtent(0, 63, 0, 63, 1, 93)
 reader.SetDataSpacing(3.2, 3.2, 1.5)
 reader.SetDataOrigin(0.0, 0.0, 0.0)
-reader.GetOutput().SetDirectionMatrix(orientation)
+reader.SetDataDirection(direction)
 
 iso = vtk.vtkImageMarchingCubes()
 iso.SetInputConnection(reader.GetOutputPort())
