@@ -1,7 +1,7 @@
 /** \file 
 The V2 API Functions.
 
-Copyright 1996, University Corporation for Atmospheric Research
+Copyright 2018, University Corporation for Atmospheric Research
 See \ref copyright file for copying and redistribution conditions.
  */
 
@@ -12,7 +12,7 @@ See \ref copyright file for copying and redistribution conditions.
 #include <stdio.h>
 #include <stdarg.h>
 #include "netcdf.h"
-#include "math.h"
+#include <math.h>
 
 /** \defgroup v2_api The Version 2 API
 

@@ -1,7 +1,7 @@
 /*! \file
   Functions for Compound Types
 
-  Copyright 2011 University Corporation for Atmospheric
+  Copyright 2018 University Corporation for Atmospheric
   Research/Unidata. See \ref copyright file for more info. */
 
 #include "ncdispatch.h"
@@ -21,9 +21,9 @@ nc_insert_compound(). Call nc_insert_compound() once for each field
 you wish to insert into the compound type.
 
 \param ncid \ref ncid
-\param size The size, in bytes, of the compound type. 
+\param size The size, in bytes, of the compound type.
 \param name \ref object_name of the created type.
-\param typeidp The type ID of the new type is copied here. 
+\param typeidp The type ID of the new type is copied here.
 
 \returns ::NC_NOERR No error.
 \returns ::NC_EBADID Bad \ref ncid.
@@ -35,7 +35,7 @@ you wish to insert into the compound type.
 \returns ::NC_ENOTNC4 This file was created with the strict netcdf-3 flag, therefore netcdf-4 operations are not allowed. (see nc_open).
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
 \returns ::NC_EPERM Attempt to write to a read-only file.
-\returns ::NC_ENOTINDEFINE Not in define mode. 
+\returns ::NC_ENOTINDEFINE Not in define mode.
 
 \section nc_def_compound_example Example
 
@@ -46,7 +46,7 @@ int i1;
 int i2;
 };
 struct s1 data[DIM_LEN], data_in[DIM_LEN];
- 
+
 if (nc_create(FILE_NAME, NC_NETCDF4, &ncid)) ERR;
 if (nc_def_compound(ncid, sizeof(struct s1), SVC_REC, &typeid)) ERR;
 if (nc_insert_compound(ncid, typeid, BATTLES_WITH_KLINGONS,
@@ -60,7 +60,7 @@ if (nc_close(ncid)) ERR;
 \endcode
 */
 int
-nc_def_compound(int ncid, size_t size, const char *name, 
+nc_def_compound(int ncid, size_t size, const char *name,
 		nc_type *typeidp)
 {
    NC* ncp;
@@ -82,7 +82,7 @@ nc_def_compound(), or nc_inq_var().
 \param offset Offset in byte from the beginning of the compound type
 for this field.
 
-\param field_typeid The type of the field to be inserted. 
+\param field_typeid The type of the field to be inserted.
 
 \returns ::NC_NOERR No error.
 \returns ::NC_EBADID Bad \ref ncid.
@@ -93,10 +93,10 @@ for this field.
 \returns ::NC_ENOTNC4 Not an netCDF-4 file, or classic model enabled.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
 \returns ::NC_EPERM Attempt to write to a read-only file.
-\returns ::NC_ENOTINDEFINE Not in define mode. 
+\returns ::NC_ENOTINDEFINE Not in define mode.
 */
 int
-nc_insert_compound(int ncid, nc_type xtype, const char *name, 
+nc_insert_compound(int ncid, nc_type xtype, const char *name,
 		   size_t offset, nc_type field_typeid)
 {
    NC *ncp;
@@ -119,7 +119,7 @@ nc_def_compound(), or nc_inq_var().
 \param offset Offset in byte from the beginning of the compound type
 for this field.
 
-\param field_typeid The type of the field to be inserted. 
+\param field_typeid The type of the field to be inserted.
 
  \param ndims Number of dimensions in array.
 
@@ -135,11 +135,11 @@ for this field.
 \returns ::NC_ENOTNC4 Not an netCDF-4 file, or classic model enabled.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
 \returns ::NC_EPERM Attempt to write to a read-only file.
-\returns ::NC_ENOTINDEFINE Not in define mode. 
+\returns ::NC_ENOTINDEFINE Not in define mode.
 */
 int
-nc_insert_array_compound(int ncid, nc_type xtype, const char *name, 
-			 size_t offset, nc_type field_typeid, 
+nc_insert_array_compound(int ncid, nc_type xtype, const char *name,
+			 size_t offset, nc_type field_typeid,
 			 int ndims, const int *dim_sizes)
 {
    NC* ncp;
@@ -172,7 +172,7 @@ placed here. \ref ignored_if_null.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
  */
 int
-nc_inq_compound(int ncid, nc_type xtype, char *name, 
+nc_inq_compound(int ncid, nc_type xtype, char *name,
 		size_t *sizep, size_t *nfieldsp)
 {
    int class = 0;
@@ -206,7 +206,7 @@ nc_inq_compound_name(int ncid, nc_type xtype, char *name)
 }
 
 /**  \ingroup user_types
-Learn the size of a compound type. 
+Learn the size of a compound type.
 
 \param ncid \ref ncid
 
@@ -229,7 +229,7 @@ nc_inq_compound_size(int ncid, nc_type xtype, size_t *sizep)
 }
 
 /**  \ingroup user_types
-Learn the number of fields in a compound type. 
+Learn the number of fields in a compound type.
 
 \param ncid \ref ncid
 
@@ -252,7 +252,7 @@ nc_inq_compound_nfields(int ncid, nc_type xtype, size_t *nfieldsp)
 }
 
 /**  \ingroup user_types
-Get information about one of the fields of a compound type. 
+Get information about one of the fields of a compound type.
 
 \param ncid \ref ncid
 
@@ -284,9 +284,9 @@ field. \ref ignored_if_null.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
  */
 int
-nc_inq_compound_field(int ncid, nc_type xtype, int fieldid, 
-		      char *name, size_t *offsetp, 
-		      nc_type *field_typeidp, int *ndimsp, 
+nc_inq_compound_field(int ncid, nc_type xtype, int fieldid,
+		      char *name, size_t *offsetp,
+		      nc_type *field_typeidp, int *ndimsp,
 		      int *dim_sizesp)
 {
    NC* ncp;
@@ -298,7 +298,7 @@ nc_inq_compound_field(int ncid, nc_type xtype, int fieldid,
 }
 
 /**  \ingroup user_types
-Get information about one of the fields of a compound type. 
+Get information about one of the fields of a compound type.
 
 \param ncid \ref ncid
 
@@ -318,7 +318,7 @@ ignored_if_null.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
  */
 int
-nc_inq_compound_fieldname(int ncid, nc_type xtype, int fieldid, 
+nc_inq_compound_fieldname(int ncid, nc_type xtype, int fieldid,
 			  char *name)
 {
    NC* ncp;
@@ -330,7 +330,7 @@ nc_inq_compound_fieldname(int ncid, nc_type xtype, int fieldid,
 }
 
 /**  \ingroup user_types
-Get information about one of the fields of a compound type. 
+Get information about one of the fields of a compound type.
 
 \param ncid \ref ncid
 
@@ -350,7 +350,7 @@ ignored_if_null.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
  */
 int
-nc_inq_compound_fieldoffset(int ncid, nc_type xtype, int fieldid, 
+nc_inq_compound_fieldoffset(int ncid, nc_type xtype, int fieldid,
 			    size_t *offsetp)
 {
    NC* ncp;
@@ -360,7 +360,7 @@ nc_inq_compound_fieldoffset(int ncid, nc_type xtype, int fieldid,
 }
 
 /**  \ingroup user_types
-Get information about one of the fields of a compound type. 
+Get information about one of the fields of a compound type.
 
 \param ncid \ref ncid
 
@@ -380,7 +380,7 @@ field. \ref ignored_if_null.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
  */
 int
-nc_inq_compound_fieldtype(int ncid, nc_type xtype, int fieldid, 
+nc_inq_compound_fieldtype(int ncid, nc_type xtype, int fieldid,
 			  nc_type *field_typeidp)
 {
    NC* ncp;
@@ -390,7 +390,7 @@ nc_inq_compound_fieldtype(int ncid, nc_type xtype, int fieldid,
 }
 
 /**  \ingroup user_types
-Get information about one of the fields of a compound type. 
+Get information about one of the fields of a compound type.
 
 \param ncid \ref ncid
 
@@ -410,7 +410,7 @@ field. \ref ignored_if_null.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
  */
 int
-nc_inq_compound_fieldndims(int ncid, nc_type xtype, int fieldid, 
+nc_inq_compound_fieldndims(int ncid, nc_type xtype, int fieldid,
 			   int *ndimsp)
 {
    NC* ncp;
@@ -420,7 +420,7 @@ nc_inq_compound_fieldndims(int ncid, nc_type xtype, int fieldid,
 }
 
 /**  \ingroup user_types
-Get information about one of the fields of a compound type. 
+Get information about one of the fields of a compound type.
 
 \param ncid \ref ncid
 
@@ -440,7 +440,7 @@ field. \ref ignored_if_null.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
  */
 int
-nc_inq_compound_fielddim_sizes(int ncid, nc_type xtype, int fieldid, 
+nc_inq_compound_fielddim_sizes(int ncid, nc_type xtype, int fieldid,
 			       int *dim_sizesp)
 {
    NC *ncp;
@@ -472,7 +472,7 @@ field. \ref ignored_if_null.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
  */
 int
-nc_inq_compound_fieldindex(int ncid, nc_type xtype, const char *name, 
+nc_inq_compound_fieldindex(int ncid, nc_type xtype, const char *name,
 			   int *fieldidp)
 {
    NC* ncp;
@@ -481,9 +481,3 @@ nc_inq_compound_fieldindex(int ncid, nc_type xtype, const char *name,
    return ncp->dispatch->inq_compound_fieldindex(ncid,xtype,name,fieldidp);
 }
 /*! \} */  /* End of named group ...*/
-
-
-
-
-
-

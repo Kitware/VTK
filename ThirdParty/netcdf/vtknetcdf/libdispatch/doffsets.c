@@ -1,5 +1,5 @@
 /*********************************************************************
- *   Copyright 1993, UCAR/Unidata
+ *   Copyright 2018, UCAR/Unidata
  *   See netcdf/COPYRIGHT file for copying and redistribution conditions.
  *   $Header: /upc/share/CVS/netcdf-3/ncgen/offsets.c,v 1.1 2009/09/25 18:22:40 dmh Exp $
  *********************************************************************/
@@ -29,6 +29,7 @@ Author: D. Heimbigner 10/7/2008
 #include        <stdio.h>
 #include        <string.h>
 #include        <assert.h>
+#include        "nclog.h"
 
 #ifdef OFFSETTEST
 
@@ -87,7 +88,7 @@ all compilers seem to mimic the gcc rules.
 
 #define COMP_ALIGNMENT(DST,TYPE)  {\
     struct {char f1; TYPE x;} tmp; \
-    DST.typename = #TYPE ;        \
+    DST.type_name = #TYPE ;        \
     DST.alignment = (size_t)((char*)(&(tmp.x)) - (char*)(&tmp));}
 
 #if 0
@@ -102,49 +103,51 @@ char* ctypenames[NCTYPES] = {
 };
 #endif
 
-static Typealignvec vec[NCTYPES];
-static Typealignset set;
-static int computed = 0;
+static NCtypealignvec vec[NC_NCTYPES];
+static NCtypealignset set;
+int NC_alignments_computed = 0;
 
-/*Forward*/
-static void compute_alignments(void);
-
-unsigned int
-nctypealignment(nc_type nctype)
+/* Argument is a netcdf type class, except compound|ENUM  */
+size_t
+NC_class_alignment(int ncclass)
 {
-    Alignment* align = NULL;
+    NCalignment* align = NULL;
     int index = 0;
-    if(!computed) {
-	compute_alignments();
-	computed = 1;
+    if(!NC_alignments_computed) {
+	NC_compute_alignments();
+	NC_alignments_computed = 1;
     }
-    switch (nctype) {
-      case NC_BYTE: index = UCHARINDEX; break;
-      case NC_CHAR: index = CHARINDEX; break;
-      case NC_SHORT: index = SHORTINDEX; break;
-      case NC_INT: index = INTINDEX; break;
-      case NC_FLOAT: index = FLOATINDEX; break;
-      case NC_DOUBLE: index = DOUBLEINDEX; break;
-      case NC_UBYTE: index = UCHARINDEX; break;
-      case NC_USHORT: index = USHORTINDEX; break;
-      case NC_UINT: index = UINTINDEX; break;
-      case NC_INT64: index = LONGLONGINDEX; break;
-      case NC_UINT64: index = ULONGLONGINDEX; break;
-      case NC_STRING: index = PTRINDEX; break;
-      case NC_VLEN: index = NCVLENINDEX; break;
-      case NC_OPAQUE: index = UCHARINDEX; break;
+    switch (ncclass) {
+      case NC_BYTE: index = NC_UCHARINDEX; break;
+      case NC_CHAR: index = NC_CHARINDEX; break;
+      case NC_SHORT: index = NC_SHORTINDEX; break;
+      case NC_INT: index = NC_INTINDEX; break;
+      case NC_FLOAT: index = NC_FLOATINDEX; break;
+      case NC_DOUBLE: index = NC_DOUBLEINDEX; break;
+      case NC_UBYTE: index = NC_UCHARINDEX; break;
+      case NC_USHORT: index = NC_USHORTINDEX; break;
+      case NC_UINT: index = NC_UINTINDEX; break;
+      case NC_INT64: index = NC_LONGLONGINDEX; break;
+      case NC_UINT64: index = NC_ULONGLONGINDEX; break;
+      case NC_STRING: index = NC_PTRINDEX; break;
+      /* Here class matters */
+      case NC_VLEN: index = NC_NCVLENINDEX; break;
+      case NC_OPAQUE: index = NC_UCHARINDEX; break;
+      case NC_ENUM: /* fall thru */
+      case NC_COMPOUND: /* fall thru */
       default:
-	fprintf(stderr,"nctypealignment: bad type code: %d",nctype);
-	exit(1);
+	nclog(NCLOGERR,"nc_class_alignment: class code %d cannot be aligned",ncclass);
+	return 0;
     }
     align = &vec[index];
     return align->alignment;
 }
 
 
-static void
-compute_alignments(void)
+void
+NC_compute_alignments(void)
 {
+    if(NC_alignments_computed) return;
     /* Compute the alignments for all the common C data types*/
     /* First for the struct*/
     /* initialize*/
@@ -165,18 +168,19 @@ compute_alignments(void)
     COMP_ALIGNMENT(set.ncvlenalign,nc_vlen_t);
 
     /* Then the vector*/
-    COMP_ALIGNMENT(vec[CHARINDEX],char);
-    COMP_ALIGNMENT(vec[UCHARINDEX],unsigned char); 
-    COMP_ALIGNMENT(vec[SHORTINDEX],short);
-    COMP_ALIGNMENT(vec[USHORTINDEX],unsigned short);
-    COMP_ALIGNMENT(vec[INTINDEX],int);
-    COMP_ALIGNMENT(vec[UINTINDEX],unsigned int);
-    COMP_ALIGNMENT(vec[LONGLONGINDEX],long long);
-    COMP_ALIGNMENT(vec[ULONGLONGINDEX],unsigned long long);
-    COMP_ALIGNMENT(vec[FLOATINDEX],float);
-    COMP_ALIGNMENT(vec[DOUBLEINDEX],double);
-    COMP_ALIGNMENT(vec[PTRINDEX],void*);
-    COMP_ALIGNMENT(vec[NCVLENINDEX],nc_vlen_t);
+    COMP_ALIGNMENT(vec[NC_CHARINDEX],char);
+    COMP_ALIGNMENT(vec[NC_UCHARINDEX],unsigned char); 
+    COMP_ALIGNMENT(vec[NC_SHORTINDEX],short);
+    COMP_ALIGNMENT(vec[NC_USHORTINDEX],unsigned short);
+    COMP_ALIGNMENT(vec[NC_INTINDEX],int);
+    COMP_ALIGNMENT(vec[NC_UINTINDEX],unsigned int);
+    COMP_ALIGNMENT(vec[NC_LONGLONGINDEX],long long);
+    COMP_ALIGNMENT(vec[NC_ULONGLONGINDEX],unsigned long long);
+    COMP_ALIGNMENT(vec[NC_FLOATINDEX],float);
+    COMP_ALIGNMENT(vec[NC_DOUBLEINDEX],double);
+    COMP_ALIGNMENT(vec[NC_PTRINDEX],void*);
+    COMP_ALIGNMENT(vec[NC_NCVLENINDEX],nc_vlen_t);
+    NC_alignments_computed = 1;
 }
 
 #ifdef OFFSETTEST
@@ -186,7 +190,7 @@ compute_alignments(void)
 */
 #define COMP_ALIGNMENT1(DST,TYPE1,TYPE)  {\
     struct {TYPE1 f1; TYPE x;} tmp; \
-    DST.typename = #TYPE ;        \
+    DST.type_name = #TYPE ;        \
     DST.alignment = (size_t)((char*)(&(tmp.x)) - (char*)(&tmp));}
 
 /* Compute the alignment of TYPE when it is preceded
@@ -194,7 +198,7 @@ compute_alignments(void)
 */
 #define COMP_ALIGNMENT2(DST,TYPE1,TYPE2,TYPE)  {\
     struct {TYPE1 f1, TYPE2 f2; TYPE x;} tmp;   \
-    DST.typename = #TYPE ;                      \
+    DST.type_name = #TYPE ;                      \
     DST.alignment = (size_t)((char*)(&(tmp.x)) - (char*)(&tmp));}
 
 /* Compute the alignment of TYPE when it is preceded
@@ -219,17 +223,17 @@ padname(char* name)
 }
 
 static void
-verify(Typealignvec* vec)
+verify(NCtypealignvec* vec)
 {
     int i,j;
-    Typealignvec* vec16;
-    Typealignvec* vec32;
+    NCtypealignvec* vec16;
+    NCtypealignvec* vec32;
     int* sizes8;
     int* sizes16;
     int* sizes32;
 
-    vec16 = (Typealignvec*)emalloc(sizeof(Typealignvec)*NCTYPES);
-    vec32 = (Typealignvec*)emalloc(sizeof(Typealignvec)*NCTYPES);
+    vec16 = (NCtypealignvec*)emalloc(sizeof(NCtypealignvec)*NCTYPES);
+    vec32 = (NCtypealignvec*)emalloc(sizeof(NCtypealignvec)*NCTYPES);
     sizes8 = (int*)emalloc(sizeof(int)*NCTYPES);
     sizes16 = (int*)emalloc(sizeof(int)*NCTYPES);
     sizes32 = (int*)emalloc(sizeof(int)*NCTYPES);
@@ -301,15 +305,15 @@ verify(Typealignvec* vec)
 
     for(i=0;i<NCTYPES;i++) {
 	printf("%s: size=%2d  alignment=%2d\n",
-		padname(vec[i].typename),sizes8[i],vec[i].alignment);
+		padname(vec[i].type_name),sizes8[i],vec[i].alignment);
     }
     for(i=0;i<NCTYPES;i++) {
 	printf("short vs %s: size=%2d  alignment=%2d\n",
-		padname(vec[i].typename),sizes16[i],vec16[i].alignment);
+		padname(vec[i].type_name),sizes16[i],vec16[i].alignment);
     }
     for(i=0;i<NCTYPES;i++) {
 	printf("int vs %s: size=%2d  alignment=%2d\n",
-		padname(vec[i].typename),sizes32[i],vec32[i].alignment);
+		padname(vec[i].type_name),sizes32[i],vec32[i].alignment);
     }
 
 }
@@ -336,7 +340,7 @@ main(int argc, char** argv)
 
 /*
     for(i=0;i<NCTYPES;i++) {
-	printf("%s:\talignment=%d\n",vec[i].typename,vec[i].alignment);
+	printf("%s:\talignment=%d\n",vec[i].type_name,vec[i].alignment);
     }
 */
     exit(0);

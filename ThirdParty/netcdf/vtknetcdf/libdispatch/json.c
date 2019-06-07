@@ -1,11 +1,11 @@
-/* Copyright 2016, UCAR/Unidata.
-   See the LICENSE file for more information.
+/* Copyright 2018, UCAR/Unidata.
+   See the COPYRIGHT file for more information.
 */
 
 #ifndef NCJSON_INC
 #define NCJSON_INC 1
 
-#define NCJ_DICT     1 
+#define NCJ_DICT     1
 #define NCJ_LIST     2
 #define NCJ_WORD     3
 #define NCJ_NUMBER   4
@@ -77,7 +77,7 @@ done:
 static int
 NCJyytext(NCJparser* parser, char* start, ptrdiff_t pdlen)
 {
-    size_t len = (size_t)pdlen;    
+    size_t len = (size_t)pdlen;
     if(parser->yytext == NULL)
 	parser->yytext = (char*)malloc(len+1);
     else
@@ -133,13 +133,13 @@ NCJlex(NCJparser* parser)
 	for(;;) {
 	    c = *parser->pos++;
 	    if(c == NCJ_QUOTE || c == NCJ_NUL) break;
-	    last++;	    
+	    last++;
 	}
 	if(c == NCJ_NUL) {
 	    parser->errno = NCJ_ESTRING;
 	    token = NCJ_ERR;
 	    goto done;
-	}	    
+	}
 	if(!NCJyytext(parser,start,(next - start))) goto done;
 	token = NCJ_STRING;
     } else { /* single char token */
@@ -147,7 +147,7 @@ NCJlex(NCJparser* parser)
     }
 done:
     if(parser->errno) token = NCJ_ERR;
-    return token;    
+    return token;
 }
 
 /* Simple recursive descent */
@@ -174,7 +174,7 @@ NCJparseR(NCJparser* parser, NCjson** listp)
     default:
 	parser->errno = NCJ_EBADTOKEN;
     }
-    return NULL;	
+    return NULL;
 }
 
 static NCjson*

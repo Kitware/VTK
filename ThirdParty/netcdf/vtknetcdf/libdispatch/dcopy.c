@@ -1,6 +1,6 @@
 /**
  * @file
- * Copyright 2010 University Corporation for Atmospheric
+ * Copyright 2018 University Corporation for Atmospheric
  * Research/Unidata. See COPYRIGHT file for more info.
  *
  * This file has the var and att copy functions.
@@ -13,7 +13,7 @@
 #ifdef USE_NETCDF4
 /**
  * @internal Compare two netcdf types for equality. Must have the
- * ncids as well, to find user-defined types. 
+ * ncids as well, to find user-defined types.
  *
  * @param ncid1 File ID.
  * @param typeid1 Type ID.
@@ -152,7 +152,7 @@ NC_compare_nc_types(int ncid1, int typeid1, int ncid2, int typeid2,
 
 /**
  * @internal Recursively hunt for a netCDF type id. (Code from
- * nc4internal.c); Return matching typeid or 0 if not found. 
+ * nc4internal.c); Return matching typeid or 0 if not found.
  *
  * @param ncid1 File ID.
  * @param tid1 Type ID.
@@ -226,7 +226,7 @@ NC_rec_find_nc_type(int ncid1, nc_type tid1, int ncid2, nc_type* tid2)
 
 /**
  * @internal Given a type in one file, find its equal (if any) in
- * another file. It sounds so simple, but it's a real pain! 
+ * another file. It sounds so simple, but it's a real pain!
  *
  * @param ncid1 File ID.
  * @param xtype1 Type ID.

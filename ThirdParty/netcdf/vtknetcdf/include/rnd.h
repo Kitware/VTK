@@ -1,4 +1,4 @@
-/* Copyright 1996-2018, University Corporation for Atmospheric
+/* Copyright 2018-2018, University Corporation for Atmospheric
  * Research See netcdf/COPYRIGHT file for copying and redistribution
  * conditions.
  *

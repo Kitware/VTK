@@ -1,10 +1,10 @@
 /*********************************************************************
- *   Copyright 2008, University Corporation for Atmospheric Research
+ *   Copyright 2018, University Corporation for Atmospheric Research
  *   See netcdf/COPYRIGHT file for copying and redistribution conditions.
  *   $Id: nctime.c,v 1.9 2010/05/05 22:15:39 dmh Exp $
  *********************************************************************/
 
-/* 
+/*
  * This code was extracted with permission from the CDMS time
  * conversion and arithmetic routines developed by Bob Drach, Lawrence
  * Livermore National Laboratory as part of the cdtime library.  Russ
@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+#include "config.h"
 #include "nctime.h"
 
 static int cuErrOpts;			     /* Error options */
@@ -58,7 +59,7 @@ static void
 cdError(char *fmt, ...)
 {
 	va_list args;
-	
+
 	cuErrorOccurred = 1;
 	if(cuErrOpts & CU_VERBOSE){
 		va_start(args,fmt);
@@ -84,11 +85,11 @@ static int days_sum[12] = {0,31,59,90,120,151,181,212,243,273,304,334};
  *		date->year   (long)  (year since 0 BC)
  *              date->timeType (CdTimetype) (time type)
  *              date->baseYear   base year for relative times
- *	Output: 
- *		date->month  (short)  (month in year) 
+ *	Output:
+ *		date->month  (short)  (month in year)
  *		date->day    (short)  (day in month)
  *
- * 
+ *
  * Derived from NRL NEONS V3.6.
  */
 
@@ -131,14 +132,14 @@ CdMonthDay(int *doy, CdTime *date)
 }
 
 /* Compute day-of-year from year, month and day
- * 
+ *
  *	Input:
  *		date->year  (long)  (year since 0 BC)
  *		date->month (short)  (month in year)
  *		date->day   (short)  (day in month)
  *              date->baseYear   base year for relative times
  *	Output: doy         (int)  (day-of-year)
- * 
+ *
  * Derived from NRL NEONS V3.6
  */
 
@@ -152,7 +153,7 @@ CdDayOfYear(CdTime *date, int *doy)
    	month	= date->month;
 	if (month < 1 || month > 12) {
 		cdError( "Day-of-year error; month: %d\n", month);
-		month = 1;	
+		month = 1;
 	}
 
 	if(!(date->timeType & CdChronCal))   /* Ignore year for Clim calendar */
@@ -173,14 +174,14 @@ CdDayOfYear(CdTime *date, int *doy)
 
 /* Convert epochal time (hours since 00 jan 1, 1970)
  *   to human time (structured)
- * 
- * Input: 
+ *
+ * Input:
  *   etime = epochal time representation
  *   timeType = time type (e.g., CdChron, CdClim, etc.) as defined in cdms.h
  *   baseYear = base real, used for relative time types only
- * 
+ *
  * Output: htime = human (structured) time representation
- * 
+ *
  * Derived from NRL Neons V3.6
  */
 void
@@ -309,7 +310,7 @@ cdParseRelunits(cdCalenType timetype, char* relunits, cdUnitTime* unit, cdCompTi
 	char charunits[CD_MAX_RELUNITS];
 	char basetime_1[CD_MAX_CHARTIME];
 	char basetime_2[CD_MAX_CHARTIME];
-	char basetime[CD_MAX_CHARTIME];
+	char basetime[2 * CD_MAX_CHARTIME + 1];
 	int nconv1, nconv2, nconv;
 
 					     /* Parse the relunits */
@@ -404,7 +405,7 @@ cdDiffGregorian(cdCompTime ca, cdCompTime cb){
 
 /* Return -1, 0, 1 as ca is less than, equal to, */
 /* or greater than cb, respectively. */
-static int 
+static int
 cdCompCompare(cdCompTime ca, cdCompTime cb){
 
 	int test;
@@ -469,7 +470,7 @@ CdDivDelTime(double begEtm, double endEtm, CdDeltaTime delTime, CdTimeType timeT
 	long delMonths, range;
 	CdTime bhtime, ehtime;
 	int hoursInYear;
-	
+
 	extern void Cde2h(double etime, CdTimeType timeType, long baseYear, CdTime *htime);
 
 	switch(delTime.units){
@@ -610,11 +611,11 @@ cdToOldTimetype(cdCalenType newtype, CdTimeType* oldtype)
 }
 
 /* Convert human time to epochal time (hours since 00 jan 1, 1970)
- * 
+ *
  * Input: htime = human time representation
- * 
+ *
  * Output: etime = epochal time representation
- * 
+ *
  * Derived from NRL Neons V3.6
  */
 void
@@ -628,7 +629,7 @@ Cdh2e(CdTime *htime, double *etime)
 	int     daysInYear;		     /* days in non-leap year */
 
 	CdDayOfYear(htime,&doy);
-	
+
 	day_cnt	= 0;
 
 	baseYear = ((htime->timeType) & CdBase1970) ? 1970 : htime->baseYear;
@@ -641,7 +642,7 @@ Cdh2e(CdTime *htime, double *etime)
 	    daysInLeapYear = ((htime->timeType) & Cd365) ? 366 : 360;
 	    daysInYear = ((htime->timeType) & Cd365) ? 365 : 360;
 	}
-	
+
 	if (year > baseYear) {
 		for (ytemp = year - 1; ytemp >= baseYear; ytemp--) {
 			day_cnt += ISLEAP(ytemp,htime->timeType) ? daysInLeapYear : daysInYear;
@@ -650,7 +651,7 @@ Cdh2e(CdTime *htime, double *etime)
 		for (ytemp = year; ytemp < baseYear; ytemp++) {
 			day_cnt -= ISLEAP(ytemp,htime->timeType) ? daysInLeapYear : daysInYear;
 		}
-	}	
+	}
 	*etime	= (double) (day_cnt + doy - 1) * 24. + htime->hour;
         return;
 }
@@ -659,7 +660,7 @@ Cdh2e(CdTime *htime, double *etime)
 static int
 cdValidateTime(cdCalenType timetype, cdCompTime comptime)
 {
-	(void)timetype;
+	NC_UNUSED(timetype);
 	if(comptime.month<1 || comptime.month>12){
 		cdError("Error on time conversion: invalid month = %hd\n",comptime.month);
 		return 1;
@@ -688,7 +689,7 @@ cdChar2Comp(cdCalenType timetype, char* chartime, cdCompTime* comptime)
 	comptime->month = CD_NULL_MONTH;
 	comptime->day = CD_NULL_DAY;
 	comptime->hour = CD_NULL_HOUR;
-	
+
 	if(timetype & cdStandardCal){
 		nconv = sscanf(chartime,"%ld-%hd-%hd %d:%d:%lf",&year,&month,&day,&ihr,&imin,&sec);
 		if(nconv==EOF || nconv==0){
@@ -788,7 +789,7 @@ cdComp2Rel(cdCalenType timetype, cdCompTime comptime, char* relunits, double* re
 	cdUnitTime unit;
 	double base_etm, etm, delta;
 	long ndel, hoursInYear;
-	
+
 					     /* Parse the relunits */
 	if(cdParseRelunits(timetype, relunits, &unit, &base_comptime))
 		return;
@@ -808,7 +809,7 @@ cdComp2Rel(cdCalenType timetype, cdCompTime comptime, char* relunits, double* re
 		default: break;
 		}
 	}
-	
+
 					     /* Convert basetime to epochal */
 	humantime.year = base_comptime.year;
 	humantime.month = base_comptime.month;
@@ -1072,7 +1073,7 @@ cdRel2Comp(cdCalenType timetype, char* relunits, double reltime, cdCompTime* com
 					     /* Convert back to human, then comptime. */
 	else if(baseunits == cdHour){
 		Cde2h(base_etm+delta, old_timetype, 1970, &humantime);
-		
+
 	}
 	comptime->year = humantime.year;
 	comptime->month = humantime.month;
@@ -1092,7 +1093,7 @@ cdComp2Iso(cdCalenType timetype, int separator, cdCompTime comptime, char* time)
 
 	if(cdValidateTime(timetype,comptime))
 		return;
-	
+
 	ihr = (int)comptime.hour;
 	dtmp = 60.0 * (comptime.hour - (double)ihr);
 	imin = (int)dtmp;

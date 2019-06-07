@@ -1,14 +1,15 @@
+/* Copyright 2018 University Corporation for Atmospheric
+   Research/Unidata. See COPYRIGHT file for more info. */
 /*! \file
 Functions for inquiring about variables.
 
-Copyright 2010 University Corporation for Atmospheric
-Research/Unidata. See COPYRIGHT file for more info.
 */
 
+#include "config.h"
 #include "ncdispatch.h"
-#ifdef USE_NETCDF4
+#ifdef USE_HDF5
 #include <vtk_hdf5.h>
-#endif
+#endif /* USE_HDF5 */
 
 #ifndef H5Z_FILTER_SZIP
 /** ID of HDF SZIP filter. */
@@ -38,6 +39,7 @@ ignored_if_null.
 
 \returns ::NC_NOERR No error.
 \returns ::NC_EBADID Bad ncid.
+\returns ::NC_ENOTVAR Invalid variable ID.
 
 \section nc_inq_varid_example4 Example
 
@@ -181,7 +183,7 @@ nc_inq_vartype(int ncid, int varid, nc_type *typep)
 		     NULL, NULL);
 }
 
-/** 
+/**
 Learn how many dimensions are associated with a variable.
 \ingroup variables
 
@@ -204,7 +206,7 @@ nc_inq_varndims(int ncid, int varid, int *ndimsp)
    return nc_inq_var(ncid, varid, NULL, NULL, ndimsp, NULL, NULL);
 }
 
-/** 
+/**
 Learn the dimension IDs associated with a variable.
 \ingroup variables
 
@@ -228,7 +230,7 @@ nc_inq_vardimid(int ncid, int varid, int *dimidsp)
 		     dimidsp, NULL);
 }
 
-/** 
+/**
 Learn how many attributes are associated with a variable.
 \ingroup variables
 
@@ -274,7 +276,7 @@ function will write a 1 if the deflate filter is turned on for this
 variable, and a 0 otherwise. \ref ignored_if_null.
 
 \param deflate_levelp If the deflate filter is in use for this
-variable, the deflate_level will be writen here. \ref ignored_if_null.
+variable, the deflate_level will be written here. \ref ignored_if_null.
 
 \returns ::NC_NOERR No error.
 \returns ::NC_ENOTNC4 Not a netCDF-4 file.
@@ -605,7 +607,7 @@ nc_inq_unlimdims(int ncid, int *nunlimdimsp, int *unlimdimidsp)
 #endif
 }
 
-/** 
+/**
 Find the filter (if any) associated with a variable.
 
 This is a wrapper for nc_inq_var_all().
@@ -692,13 +694,13 @@ nc_inq_var_szip(int ncid, int varid, int *options_maskp, int *pixels_per_blockp)
    NC* ncp;
    unsigned int id;
    size_t nparams;
-   unsigned int params[2];
+   unsigned int params[4];
 
    int stat = NC_check_id(ncid,&ncp);
    if(stat != NC_NOERR) return stat;
    TRACE(nc_inq_var_szip);
 
-   /* Verify id and nparams */
+   /* Verify id and  nparams */
    stat = ncp->dispatch->inq_var_all(
       ncid, varid,
       NULL, /*name*/
@@ -720,7 +722,8 @@ nc_inq_var_szip(int ncid, int varid, int *options_maskp, int *pixels_per_blockp)
       NULL
       );
    if(stat != NC_NOERR) return stat;
-   if(id != H5Z_FILTER_SZIP || nparams != 2)
+   /* Warning: the szip filter internally expands the set of parameters */
+   if(id != H5Z_FILTER_SZIP || nparams != 4)
 	return NC_EFILTER; /* not szip or bad # params */
    /* Get params */
    stat = ncp->dispatch->inq_var_all(
@@ -744,7 +747,8 @@ nc_inq_var_szip(int ncid, int varid, int *options_maskp, int *pixels_per_blockp)
       params
       );
    if(stat != NC_NOERR) return stat;
-   /* Param[0] should be options_mask, Param[1] should be pixels_per_block */
+   /* Param[0] should be options_mask with possibly some other flags set,
+      Param[1] should be pixels_per_block */
    if(options_maskp) *options_maskp = (int)params[0];
    if(pixels_per_blockp) *pixels_per_blockp = (int)params[1];
    return NC_NOERR;

@@ -7,6 +7,7 @@ set(VERSION ${netCDF_VERSION})
 set(NC_VERSION ${netCDF_VERSION})
 
 set(sources
+  libdispatch/crc32.c
   libdispatch/datt.c
   libdispatch/dattget.c
   libdispatch/dattinq.c
@@ -20,6 +21,7 @@ set(sources
   libdispatch/derror.c
   libdispatch/dfile.c
   libdispatch/dgroup.c
+  libdispatch/dinfermodel.c
   libdispatch/dinternal.c
   libdispatch/doffsets.c
   libdispatch/dopaque.c
@@ -36,7 +38,6 @@ set(sources
   libdispatch/dvlen.c
   libdispatch/dwinpath.c
   libdispatch/nc.c
-  libdispatch/ncaux.c
   libdispatch/ncbytes.c
   libdispatch/nchashmap.c
   libdispatch/nclist.c
@@ -54,7 +55,6 @@ set(sources
   libsrc/memio.c
   libsrc/nc3dispatch.c
   libsrc/nc3internal.c
-  libsrc/nc_hashmap.c
   libsrc/ncio.c
   libsrc/ncx.c
   libsrc/posixio.c
@@ -66,15 +66,13 @@ set(sources
   libsrc4/nc4attr.c
   libsrc4/nc4dim.c
   libsrc4/nc4dispatch.c
-  libsrc4/nc4file.c
   libsrc4/nc4grp.c
-  libsrc4/nc4hdf.c
-  libsrc4/nc4info.c
   libsrc4/nc4internal.c
   libsrc4/nc4printer.c
   libsrc4/nc4type.c
   libsrc4/nc4var.c
-  libsrc4/ncfunc.c)
+  libsrc4/ncfunc.c
+  libsrc4/ncindex.c)
 
 set(CHUNK_CACHE_NELEMS 1009)
 set(CHUNK_CACHE_PREEMPTION 0.75)
@@ -179,6 +177,7 @@ check_include_file("inttypes.h" HAVE_INTTYPES_H)
 check_include_file("malloc.h" HAVE_MALLOC_H)
 check_include_file("stdarg.h" HAVE_STDARG_H)
 check_include_file("stdint.h" HAVE_STDINT_H)
+check_include_file("stdio.h" HAVE_STDIO_H)
 check_include_file("stdlib.h" HAVE_STDLIB_H)
 check_include_file("string.h" HAVE_STRING_H)
 check_include_file("sys/param.h" HAVE_SYS_PARAM_H)

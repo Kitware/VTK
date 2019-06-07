@@ -1,43 +1,41 @@
 /*
- *	Copyright 1996, University Corporation for Atmospheric Research
+ *	Copyright 2018, University Corporation for Atmospheric Research
  *	See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-#if defined (_WIN32) || defined (_WIN64)
-#include <windows.h>
-#include <winbase.h>
-#include <io.h>
-#define lseek64 lseek
-#endif
 
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif
-
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
 #include <string.h>
-#ifdef _MSC_VER /* Microsoft Compilers */
-#include <io.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
+#ifdef _WIN32
+#include <windows.h>
+#include <winbase.h>
+#include <io.h>
+#endif
 
 #include "ncdispatch.h"
 #include "nc3internal.h"
+#include "netcdf_mem.h"
+#include "ncwinpath.h"
 
 #undef DEBUG
 
-#ifdef DEBUG
-#include <stdio.h>
-#endif
-
 #ifndef HAVE_SSIZE_T
 typedef int ssize_t;
+#endif
+
+#ifdef DEBUG
+#include <stdio.h>
 #endif
 
 #ifndef SEEK_SET
@@ -77,15 +75,36 @@ typedef int ssize_t;
 #undef X_ALIGN
 #endif
 
+#define REALLOCBUG
+#ifdef REALLOCBUG
+/* There is some kind of realloc bug that I cannot solve yet */
+#define reallocx(m,new,old) realloc(m,new)
+#else
+static void*
+reallocx(void* mem, size_t newsize, size_t oldsize)
+{
+    void* m = malloc(newsize);
+    if(m != NULL) {
+        memcpy(m,mem,oldsize);
+	free(mem);
+    }
+    return m;
+}
+#endif
+
 /* Private data for memio */
 
 typedef struct NCMEMIO {
-    int locked; /* => we cannot realloc */
-    int persist; /* => save to a file; triggered by NC_WRITE */
+    int locked; /* => we cannot realloc or free*/
+    int modified; /* => we realloc'd memory at least once */
+    int persist; /* => save to a file; triggered by NC_PERSIST*/
     char* memory;
-    off_t alloc;
-    off_t size;
-    off_t pos;
+    size_t alloc;
+    size_t size;
+    size_t pos;
+    /* Convenience flags */
+    int diskless;
+    int inmemory; /* assert(inmemory iff !diskless */
 } NCMEMIO;
 
 /* Forward */
@@ -96,25 +115,33 @@ static int memio_sync(ncio *const nciop);
 static int memio_filesize(ncio* nciop, off_t* filesizep);
 static int memio_pad_length(ncio* nciop, off_t length);
 static int memio_close(ncio* nciop, int);
+static int readfile(const char* path, NC_memio*);
+static int writefile(const char* path, NCMEMIO*);
+static int fileiswriteable(const char* path);
+static int fileexists(const char* path);
 
 /* Mnemonic */
 #define DOOPEN 1
 
-static long pagesize = 0;
+static size_t pagesize = 0;
 
 /*! Create a new ncio struct to hold info about the file. */
-static int memio_new(const char* path, int ioflags, off_t initialsize, void* memory, ncio** nciopp, NCMEMIO** memiop)
+static int
+memio_new(const char* path, int ioflags, off_t initialsize, ncio** nciopp, NCMEMIO** memiop)
 {
     int status = NC_NOERR;
     ncio* nciop = NULL;
     NCMEMIO* memio = NULL;
-    off_t minsize = initialsize;
-    int inmemory = (fIsSet(ioflags,NC_INMEMORY));
+    size_t minsize = (size_t)initialsize;
+
+    /* Unlike netcdf-4, INMEMORY and DISKLESS share code */
+    if(fIsSet(ioflags,NC_DISKLESS))
+	fSet(ioflags,NC_INMEMORY);    
 
     /* use asserts because this is an internal function */
+    assert(fIsSet(ioflags,NC_INMEMORY));
     assert(memiop != NULL && nciopp != NULL);
-    assert(path != NULL || (memory != NULL && initialsize > 0));
-    assert(!inmemory || (memory != NULL && initialsize > 0));
+    assert(path != NULL);
 
     if(pagesize == 0) {
 #if defined (_WIN32) || defined(_WIN64)
@@ -122,20 +149,18 @@ static int memio_new(const char* path, int ioflags, off_t initialsize, void* mem
       GetSystemInfo (&info);
       pagesize = info.dwPageSize;
 #elif defined HAVE_SYSCONF
-        pagesize = sysconf(_SC_PAGE_SIZE);
+      long pgval = -1;
+      pgval = sysconf(_SC_PAGE_SIZE);
+      if(pgval < 0) {
+          status = NC_EIO;
+          goto fail;
+      }
+      pagesize = (size_t)pgval;
 #elif defined HAVE_GETPAGESIZE
-        pagesize = getpagesize();
+      pagesize = (size_t)getpagesize();
 #else
-        pagesize = 4096; /* good guess */
+      pagesize = 4096; /* good guess */
 #endif
-    }
-
-    /* We need to catch errors.
-       sysconf, at least, can return a negative value
-       when there is an error. */
-    if(pagesize < 0) {
-      status = NC_EIO;
-      goto fail;
     }
 
     errno = 0;
@@ -165,24 +190,24 @@ static int memio_new(const char* path, int ioflags, off_t initialsize, void* mem
 
     *((char**)&nciop->path) = strdup(path);
     if(nciop->path == NULL) {status = NC_ENOMEM; goto fail;}
-    memio->alloc = initialsize;
-    memio->pos = 0;
-    memio->size = minsize;
-    memio->memory = NULL;
-    memio->persist = fIsSet(ioflags,NC_WRITE);
+
     if(memiop && memio) *memiop = memio; else free(memio);
     if(nciopp && nciop) *nciopp = nciop;
     else {
         if(nciop->path != NULL) free((char*)nciop->path);
         free(nciop);
     }
-    if(inmemory) {
-      memio->memory = memory;
-    } else {
-        /* malloc memory */
-        memio->memory = (char*)malloc(memio->alloc);
-        if(memio->memory == NULL) {status = NC_ENOMEM; goto fail;}
-    }
+    memio->alloc = (size_t)initialsize;
+    memio->pos = 0;
+    memio->size = minsize;
+    memio->memory = NULL; /* filled in by caller */
+
+    if(fIsSet(ioflags,NC_DISKLESS))
+	memio->diskless = 1;
+    if(fIsSet(ioflags,NC_INMEMORY))
+	memio->inmemory = 1;
+    if(fIsSet(ioflags,NC_PERSIST))
+	memio->persist = 1;
 
 done:
     return status;
@@ -214,41 +239,31 @@ int
 memio_create(const char* path, int ioflags,
     size_t initialsz,
     off_t igeto, size_t igetsz, size_t* sizehintp,
-    void* parameters,
+    void* parameters /*ignored*/,
     ncio* *nciopp, void** const mempp)
 {
     ncio* nciop;
     int fd;
     int status;
     NCMEMIO* memio = NULL;
-    int persist = (ioflags & NC_WRITE?1:0);
-    int oflags;
 
     if(path == NULL ||* path == 0)
         return NC_EINVAL;
-
-    status = memio_new(path, ioflags, initialsz, NULL, &nciop, &memio);
+    
+    status = memio_new(path, ioflags, initialsz, &nciop, &memio);
     if(status != NC_NOERR)
         return status;
 
-    if(persist) {
-        /* Open the file just tomake sure we can write it if needed */
-        oflags = (persist ? O_RDWR : O_RDONLY);
-#ifdef O_BINARY
-        fSet(oflags, O_BINARY);
-#endif
-    	oflags |= (O_CREAT|O_TRUNC);
-        if(fIsSet(ioflags,NC_NOCLOBBER))
-	    oflags |= O_EXCL;
-#ifdef vms
-        fd = open(path, oflags, 0, "ctx=stm");
-#else
-        fd  = open(path, oflags, OPENMODE);
-#endif
-        if(fd < 0) {status = errno; goto unwind_open;}
+    if(memio->persist) {
+	/* Verify the file is writeable or does not exist*/
+	if(fileexists(path) && !fileiswriteable(path))
+	    {status = EPERM; goto unwind_open;}	
+    }
 
-        (void)close(fd); /* will reopen at nc_close */
-    } /*!persist*/
+    /* Allocate the memory for this file */
+    memio->memory = (char*)malloc((size_t)memio->alloc);
+    if(memio->memory == NULL) {status = NC_ENOMEM; goto unwind_open;}
+    memio->locked = 0;
 
 #ifdef DEBUG
 fprintf(stderr,"memio_create: initial memory: %lu/%lu\n",(unsigned long)memio->memory,(unsigned long)memio->alloc);
@@ -257,7 +272,7 @@ fprintf(stderr,"memio_create: initial memory: %lu/%lu\n",(unsigned long)memio->m
     fd = nc__pseudofd();
     *((int* )&nciop->fd) = fd;
 
-    fSet(nciop->ioflags, NC_WRITE);
+    fSet(nciop->ioflags, NC_WRITE); /* Always writeable */
 
     if(igetsz != 0)
     {
@@ -270,7 +285,7 @@ fprintf(stderr,"memio_create: initial memory: %lu/%lu\n",(unsigned long)memio->m
     }
 
     /* Pick a default sizehint */
-    if(sizehintp) *sizehintp = pagesize;
+    if(sizehintp) *sizehintp = (size_t)pagesize;
 
     *nciopp = nciop;
     return NC_NOERR;
@@ -280,8 +295,7 @@ unwind_open:
     return status;
 }
 
-/* This function opens the data file.
-
+/* This function opens the data file or inmemory data
    path - path of data file.
    ioflags - flags passed into nc_open.
    igeto - looks like this function can do an initial page get, and
@@ -305,85 +319,81 @@ memio_open(const char* path,
     ncio* nciop = NULL;
     int fd = -1;
     int status = NC_NOERR;
-    int persist = (fIsSet(ioflags,NC_WRITE)?1:0);
-    int inmemory = (fIsSet(ioflags,NC_INMEMORY));
-    int oflags = 0;
-    NCMEMIO* memio = NULL;
     size_t sizehint = 0;
-    off_t filesize = 0;
-    off_t red = 0;
-    char* pos = NULL;
-    NC_MEM_INFO* meminfo = (NC_MEM_INFO*)parameters;
+    NC_memio meminfo; /* use struct to avoid worrying about free'ing it */
+    NCMEMIO* memio = NULL;
+    size_t initialsize;
+    /* Should be the case that diskless => inmemory but not converse */
+    int diskless = (fIsSet(ioflags,NC_DISKLESS));
+    int inmemory = fIsSet(ioflags,NC_INMEMORY);
+    int locked = 0;
+
+    assert(inmemory ? !diskless : 1);
 
     if(path == NULL || strlen(path) == 0)
         return NC_EINVAL;
 
     assert(sizehintp != NULL);
+
     sizehint = *sizehintp;
 
-    if(inmemory) {
-	filesize = meminfo->size;
-    } else {
-        /* Open the file,and make sure we can write it if needed */
-        oflags = (persist ? O_RDWR : O_RDONLY);
-#ifdef O_BINARY
-        fSet(oflags, O_BINARY);
-#endif
-        oflags |= O_EXCL;
-#ifdef vms
-        fd = open(path, oflags, 0, "ctx=stm");
-#else
-        fd  = open(path, oflags, OPENMODE);
-#endif
-#ifdef DEBUG
-        if(fd < 0) {
-            fprintf(stderr,"open failed: file=%s err=",path);
-            perror("");
-	}
-#endif
-        if(fd < 0) {status = errno; goto unwind_open;}
+    memset(&meminfo,0,sizeof(meminfo));
 
-        /* get current filesize  = max(|file|,initialize)*/
-        filesize = lseek(fd,0,SEEK_END);
-        if(filesize < 0) {status = errno; goto unwind_open;}
-        /* move pointer back to beginning of file */
-        (void)lseek(fd,0,SEEK_SET);
-        if(filesize < (off_t)sizehint)
-            filesize = (off_t)sizehint;
+    if(inmemory) { /* parameters provide the memory chunk */
+	NC_memio* memparams = (NC_memio*)parameters;
+        meminfo = *memparams;
+        locked = fIsSet(meminfo.flags,NC_MEMIO_LOCKED);
+	/* As a safeguard, if !locked and NC_WRITE is set,
+           then we must take control of the incoming memory */
+        if(!locked && fIsSet(ioflags,NC_WRITE)) {
+	    memparams->memory = NULL;	    
+	}	
+    } else { /* read the file into a chunk of memory*/
+	assert(diskless);
+	status = readfile(path,&meminfo);
+	if(status != NC_NOERR)
+	    {goto unwind_open;}
     }
 
-    if(inmemory)
-        status = memio_new(path, ioflags, filesize, meminfo->memory, &nciop, &memio);
-    else
-        status = memio_new(path, ioflags, filesize, NULL, &nciop, &memio);
-    if(status != NC_NOERR) {
-	if(fd >= 0)
-	    close(fd);
-      return status;
+    /* Fix up initial size */
+    initialsize = meminfo.size;
+
+    /* create the NCMEMIO structure */
+    status = memio_new(path, ioflags, initialsize, &nciop, &memio);
+    if(status != NC_NOERR)
+	{goto unwind_open;}
+    memio->locked = locked;
+
+    /* Initialize the memio memory */
+    memio->memory = meminfo.memory;
+
+    /* memio_new may have modified the allocated size, in which case,
+       reallocate the memory unless the memory is locked. */    
+    if(memio->alloc > meminfo.size) {
+	if(memio->locked)
+	    memio->alloc = meminfo.size; /* force it back to what it was */
+	else {
+	   void* oldmem = memio->memory;
+	   memio->memory = reallocx(oldmem,memio->alloc,meminfo.size);
+	   if(memio->memory == NULL)
+	       {status = NC_ENOMEM; goto unwind_open;}
+	}
     }
 
 #ifdef DEBUG
 fprintf(stderr,"memio_open: initial memory: %lu/%lu\n",(unsigned long)memio->memory,(unsigned long)memio->alloc);
 #endif
 
-    if(!inmemory) {
-        /* Read the file into the memio memory */
-        /* We need to do multiple reads because there is no
-           guarantee that the amount read will be the full amount */
-        red = memio->size;
-        pos = memio->memory;
-        while(red > 0) {
-            ssize_t count = read(fd, pos, red);
-            if(count < 0) {status = errno; goto unwind_open;}
-            if(count == 0) {status = NC_ENOTNC; goto unwind_open;}
-            red -= count;
-            pos += count;
-        }
-        (void)close(fd);
+    if(memio->persist) {
+	/* Verify the file is writeable and exists */
+	if(!fileexists(path))
+	    {status = ENOENT; goto unwind_open;}	
+	if(!fileiswriteable(path))
+	    {status = EACCES; goto unwind_open;}	
     }
 
     /* Use half the filesize as the blocksize ; why? */
-    sizehint = filesize/2;
+    sizehint = (size_t)(memio->alloc/2);
 
     /* sizehint must be multiple of 8 */
     sizehint = (sizehint / 8) * 8;
@@ -437,28 +447,36 @@ static int
 memio_pad_length(ncio* nciop, off_t length)
 {
     NCMEMIO* memio;
+    size_t len = (size_t)length;
     if(nciop == NULL || nciop->pvt == NULL) return NC_EINVAL;
     memio = (NCMEMIO*)nciop->pvt;
 
-    if(!fIsSet(nciop->ioflags, NC_WRITE))
+    if(!fIsSet(nciop->ioflags,NC_WRITE))
         return EPERM; /* attempt to write readonly file*/
+    if(memio->locked)
+	return NC_EINMEMORY;
 
-    if(memio->locked > 0)
-	return NC_EDISKLESS;
-
-    if(length > memio->alloc) {
+    if(len > memio->alloc) {
         /* Realloc the allocated memory to a multiple of the pagesize*/
-	off_t newsize = length;
+	size_t newsize = (size_t)len;
 	void* newmem = NULL;
 	/* Round to a multiple of pagesize */
 	if((newsize % pagesize) != 0)
 	    newsize += (pagesize - (newsize % pagesize));
 
-        newmem = (char*)realloc(memio->memory,newsize);
+        newmem = (char*)reallocx(memio->memory,newsize,memio->alloc);
         if(newmem == NULL) return NC_ENOMEM;
-
+	/* If not copy is set, then fail if the newmem address is different
+           from old address */
+	if(newmem != memio->memory) {
+	    memio->modified++;
+	    if(memio->locked) {
+		free(newmem);
+		return NC_EINMEMORY;
+	    }
+        }
 	/* zero out the extra memory */
-        memset((void*)((char*)newmem+memio->alloc),0,(newsize - memio->alloc));
+        memset((void*)((char*)newmem+memio->alloc),0,(size_t)(newsize - memio->alloc));
 
 #ifdef DEBUG
 fprintf(stderr,"realloc: %lu/%lu -> %lu/%lu\n",
@@ -467,14 +485,16 @@ fprintf(stderr,"realloc: %lu/%lu -> %lu/%lu\n",
 #endif
 	memio->memory = newmem;
 	memio->alloc = newsize;
+	memio->modified = 1;
     }
-    memio->size = length;
+    memio->size = len;
     return NC_NOERR;
 }
 
 /*! Write out any dirty buffers to disk.
 
-  Write out any dirty buffers to disk and ensure that next read will get data from disk. Sync any changes, then close the open file associated with the ncio struct, and free its memory.
+  Write out any dirty buffers to disk and ensure that next read will get data from disk.
+  Sync any changes, then close the open file associated with the ncio struct, and free its memory.
 
   @param[in] nciop pointer to ncio to close.
   @param[in] doUnlink if true, unlink file
@@ -486,46 +506,23 @@ memio_close(ncio* nciop, int doUnlink)
 {
     int status = NC_NOERR;
     NCMEMIO* memio ;
-    int fd = -1;
-    int inmemory = 0;
 
     if(nciop == NULL || nciop->pvt == NULL) return NC_NOERR;
 
-    inmemory = (fIsSet(nciop->ioflags,NC_INMEMORY));
     memio = (NCMEMIO*)nciop->pvt;
     assert(memio != NULL);
 
     /* See if the user wants the contents persisted to a file */
-    if(!inmemory && memio->persist) {
-        /* Try to open the file for writing */
-	int oflags = O_WRONLY|O_CREAT|O_TRUNC;
-#ifdef O_BINARY
-        fSet(oflags, O_BINARY);
-#endif
-	fd = open(nciop->path, oflags, OPENMODE);
-	if(fd >= 0) {
-	    /* We need to do multiple writes because there is no
-               guarantee that the amount written will be the full amount */
-	    off_t written = memio->size;
-	    char* pos = memio->memory;
-	    while(written > 0) {
-	        ssize_t count = write(fd, pos, written);
-	        if(count < 0)
-	            {status = errno; goto done;}
-	        if(count == 0)
-	            {status = NC_ENOTNC; goto done;}
-		written -= count;
-		pos += count;
-	    }
-	} else
-	    status = errno;
-     }
+    if(memio->persist && memio->memory != NULL) {
+	status = writefile(nciop->path,memio);		
+    }
 
-done:
-    if(!inmemory && memio->memory != NULL)
+    /* We only free the memio memory if file is not locked or has been modified */
+    if(memio->memory != NULL && (!memio->locked || memio->modified)) {
 	free(memio->memory);
+	memio->memory = NULL;
+    }
     /* do cleanup  */
-    if(fd >= 0) (void)close(fd);
     if(memio != NULL) free(memio);
     if(nciop->path != NULL) free((char*)nciop->path);
     free(nciop);
@@ -533,9 +530,10 @@ done:
 }
 
 static int
-guarantee(ncio* nciop, off_t endpoint)
+guarantee(ncio* nciop, off_t endpoint0)
 {
     NCMEMIO* memio = (NCMEMIO*)nciop->pvt;
+    size_t endpoint = (size_t)endpoint0;
     if(endpoint > memio->alloc) {
 	/* extend the allocated memory and size */
 	int status = memio_pad_length(nciop,endpoint);
@@ -557,7 +555,7 @@ memio_get(ncio* const nciop, off_t offset, size_t extent, int rflags, void** con
     NCMEMIO* memio;
     if(nciop == NULL || nciop->pvt == NULL) return NC_EINVAL;
     memio = (NCMEMIO*)nciop->pvt;
-    status = guarantee(nciop, offset+extent);
+    status = guarantee(nciop, offset+(off_t)extent);
     memio->locked++;
     if(status != NC_NOERR) return status;
     if(vpp) *vpp = memio->memory+offset;
@@ -577,11 +575,11 @@ memio_move(ncio* const nciop, off_t to, off_t from, size_t nbytes, int ignored)
     memio = (NCMEMIO*)nciop->pvt;
     if(from < to) {
        /* extend if "to" is not currently allocated */
-       status = guarantee(nciop,to+nbytes);
+       status = guarantee(nciop,to+(off_t)nbytes);
        if(status != NC_NOERR) return status;
     }
     /* check for overlap */
-    if((to + nbytes) > from || (from + nbytes) > to) {
+    if((to + (off_t)nbytes) > from || (from + (off_t)nbytes) > to) {
 	/* Ranges overlap */
 #ifdef HAVE_MEMMOVE
         memmove((void*)(memio->memory+to),(void*)(memio->memory+from),nbytes);
@@ -636,4 +634,150 @@ static int
 memio_sync(ncio* const nciop)
 {
     return NC_NOERR; /* do nothing */
+}
+
+/* "Hidden" Internal function to extract the 
+   the size and/or contents of the memory.
+*/
+int
+memio_extract(ncio* const nciop, size_t* sizep, void** memoryp)
+{
+    int status = NC_NOERR;
+    NCMEMIO* memio = NULL;
+
+    if(nciop == NULL || nciop->pvt == NULL) return NC_NOERR;
+    memio = (NCMEMIO*)nciop->pvt;
+    assert(memio != NULL);
+    if(sizep) *sizep = memio->size;
+
+    if(memoryp && memio->memory != NULL) {
+	*memoryp = memio->memory;
+	memio->memory = NULL; /* make sure it does not get free'd */
+    }
+    return status;
+}
+
+/* Return 1 if file exists, 0 otherwise */
+static int
+fileexists(const char* path)
+{
+    int ok;
+    /* See if the file exists at all */
+    ok = NCaccess(path,ACCESS_MODE_EXISTS);
+    if(ok < 0) /* file does not exist */
+      return 0;
+    return 1;
+}
+
+/* Return 1 if file is writeable, return 0 otherwise;
+   assumes fileexists has been checked already */
+static int
+fileiswriteable(const char* path)
+{
+    int ok;
+    /* if W is ok */
+    ok = NCaccess(path,ACCESS_MODE_W);
+    if(ok < 0)
+	return 0;
+    return 1;
+}
+
+#if 0 /* not used */
+/* Return 1 if file is READABLE, return 0 otherwise;
+   assumes fileexists has been checked already */
+static int
+fileisreadable(const char* path)
+{
+    int ok;
+    /* if RW is ok */
+    ok = NCaccess(path,ACCESS_MODE_R);
+    if(ok < 0)
+	return 0;
+    return 1;
+}
+#endif
+
+/* Read contents of a disk file into a memory chunk */
+static int
+readfile(const char* path, NC_memio* memio)
+{
+    int status = NC_NOERR;
+    FILE* f = NULL;
+    size_t filesize = 0;
+    size_t count = 0;
+    char* memory = NULL;
+    char* p = NULL;
+
+    /* Open the file for reading */
+#ifdef _MSC_VER
+    f = NCfopen(path,"rb");
+#else
+    f = NCfopen(path,"r");
+#endif
+    if(f == NULL)
+	{status = errno; goto done;}
+    /* get current filesize */
+    if(fseek(f,0,SEEK_END) < 0)
+	{status = errno; goto done;}
+    filesize = (size_t)ftell(f);
+    /* allocate memory */
+    memory = malloc((size_t)filesize);
+    if(memory == NULL)
+	{status = NC_ENOMEM; goto done;}
+    /* move pointer back to beginning of file */
+    rewind(f);
+    count = filesize;
+    p = memory;
+    while(count > 0) {
+        size_t actual;
+        actual = fread(p,1,count,f);
+	if(actual == 0 || ferror(f))
+	    {status = NC_EIO; goto done;}	 
+	count -= actual;
+	p += actual;
+    }
+    if(memio) {
+	memio->size = (size_t)filesize;
+	memio->memory = memory;
+	memory = NULL;
+    }
+
+done:
+    if(memory != NULL)
+	free(memory);
+    if(f != NULL) fclose(f);
+    return status;    
+}
+
+/* write contents of a memory chunk back into a disk file */
+static int
+writefile(const char* path, NCMEMIO* memio)
+{
+    int status = NC_NOERR;
+    FILE* f = NULL;
+    size_t count = 0;
+    char* p = NULL;
+
+    /* Open/create the file for writing*/
+#ifdef _MSC_VER
+    f = NCfopen(path,"wb");
+#else
+    f = NCfopen(path,"w");
+#endif
+    if(f == NULL)
+        {status = errno; goto done;}
+    rewind(f);
+    count = memio->size;
+    p = memio->memory;
+    while(count > 0) {
+        size_t actual;
+        actual = fwrite(p,1,count,f);
+	if(actual == 0 || ferror(f))
+	    {status = NC_EIO; goto done;}	 
+	count -= actual;
+	p += actual;
+    }
+done:
+    if(f != NULL) fclose(f);
+    return status;    
 }

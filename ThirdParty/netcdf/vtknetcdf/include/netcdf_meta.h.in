@@ -9,12 +9,14 @@
  * include this file unless you want to probe the capabilities
  * of libnetcdf. This should ideally only happen when configuring
  * a project which depends on libnetcdf.  At configure time,
- * the dependant project can set its own macros which can be used
+ * the dependent project can set its own macros which can be used
  * in conditionals.
  *
  * Copyright 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
- * 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014
+ * 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
+ * 2015, 2016, 2017, 2018
  * University Corporation for Atmospheric Research/Unidata.
+ *
  * See \ref copyright file for more info.
  */
 
@@ -39,19 +41,21 @@
 
 #define NC_HAS_NC2       @NC_HAS_NC2@ /*!< API version 2 support. */
 #define NC_HAS_NC4       @NC_HAS_NC4@ /*!< API version 4 support. */
-#define NC_HAS_HDF4      @NC_HAS_HDF4@ /*!< hdf4 support. */
-#define NC_HAS_HDF5      @NC_HAS_HDF5@ /*!< hdf5 support. */
-#define NC_HAS_SZIP      @NC_HAS_SZIP@ /*!< szip support (hdf5 only) */
+#define NC_HAS_HDF4      @NC_HAS_HDF4@ /*!< HDF4 support. */
+#define NC_HAS_HDF5      @NC_HAS_HDF5@ /*!< HDF5 support. */
+#define NC_HAS_SZIP      @NC_HAS_SZIP@ /*!< szip support (HDF5 only) */
 #define NC_HAS_DAP2      @NC_HAS_DAP2@ /*!< DAP2 support. */
 #define NC_HAS_DAP4      @NC_HAS_DAP4@ /*!< DAP4 support. */
+#define NC_HAS_BYTERANGE @HAS_BYTERANGE@
 #define NC_HAS_DISKLESS  @NC_HAS_DISKLESS@ /*!< diskless support. */
 #define NC_HAS_MMAP      @NC_HAS_MMAP@ /*!< mmap support. */
 #define NC_HAS_JNA       @NC_HAS_JNA@ /*!< jna support. */
-#define NC_HAS_PNETCDF   @NC_HAS_PNETCDF@ /*!< pnetcdf support. */
-#define NC_HAS_PARALLEL  @NC_HAS_PARALLEL@ /*!< parallel IO support via hdf5 and
-/or pnetcdf. */
+#define NC_HAS_PNETCDF   @NC_HAS_PNETCDF@ /*!< PnetCDF support. */
+#define NC_HAS_PARALLEL4 @NC_HAS_PARALLEL4@ /*!< parallel IO support via HDF5 */
+#define NC_HAS_PARALLEL  @NC_HAS_PARALLEL@ /*!< parallel IO support via HDF5 and/or PnetCDF. */
 
 #define NC_HAS_CDF5      @NC_HAS_CDF5@  /*!< CDF5 support. */
 #define NC_HAS_ERANGE_FILL @NC_HAS_ERANGE_FILL@ /*!< ERANGE_FILL Support */
+#define NC_RELAX_COORD_BOUND @NC_RELAX_COORD_BOUND@ /*!< RELAX_COORD_BOUND */
 
 #endif
