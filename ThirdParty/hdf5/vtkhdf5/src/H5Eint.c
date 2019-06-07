@@ -418,13 +418,13 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5E_print
  *
- * Purpose:	Private function to print the error stack in some default
+ * Purpose:     Private function to print the error stack in some default
  *              way.  This is just a convenience function for H5Ewalk() and
  *              H5Ewalk2() with a function that prints error messages.
- *              Users are encouraged to write there own more specific error
+ *              Users are encouraged to write their own more specific error
  *              handlers.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:	Robb Matzke
  *              Friday, February 27, 1998
@@ -509,9 +509,8 @@ herr_t
 H5E_walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op,
     void *client_data)
 {
-    int		i;              /* Local index variable */
-    herr_t	status;         /* Status from callback function */
-    herr_t ret_value = SUCCEED;   /* Return value */
+    int	   i;                          /* Local index variable */
+    herr_t ret_value = H5_ITER_CONT;   /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -529,9 +528,8 @@ H5E_walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op
         if(op->u.func1) {
             H5E_error1_t old_err;
 
-            status = SUCCEED;
             if(H5E_WALK_UPWARD == direction) {
-                for(i = 0; i < (int)estack->nused && status >= 0; i++) {
+                for(i = 0; i < (int)estack->nused && ret_value == H5_ITER_CONT; i++) {
                     /* Point to each error record on the stack and pass it to callback function.*/
                     old_err.maj_num = estack->slot[i].maj_num;
                     old_err.min_num = estack->slot[i].min_num;
@@ -540,12 +538,12 @@ H5E_walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op
                     old_err.desc = estack->slot[i].desc;
                     old_err.line = estack->slot[i].line;
 
-                    status = (op->u.func1)(i, &old_err, client_data);
+                    ret_value = (op->u.func1)(i, &old_err, client_data);
                 } /* end for */
             } /* end if */
             else {
                 H5_CHECK_OVERFLOW(estack->nused - 1, size_t, int);
-                for(i = (int)(estack->nused - 1); i >= 0 && status >= 0; i--) {
+                for(i = (int)(estack->nused - 1); i >= 0 && ret_value == H5_ITER_CONT; i--) {
                     /* Point to each error record on the stack and pass it to callback function.*/
                     old_err.maj_num = estack->slot[i].maj_num;
                     old_err.min_num = estack->slot[i].min_num;
@@ -554,12 +552,12 @@ H5E_walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op
                     old_err.desc = estack->slot[i].desc;
                     old_err.line = estack->slot[i].line;
 
-                    status = (op->u.func1)((int)(estack->nused - (size_t)(i + 1)), &old_err, client_data);
+                    ret_value = (op->u.func1)((int)(estack->nused - (size_t)(i + 1)), &old_err, client_data);
                 } /* end for */
             } /* end else */
 
-            if(status < 0)
-                HGOTO_ERROR(H5E_ERROR, H5E_CANTLIST, FAIL, "can't walk error stack")
+            if(ret_value < 0)
+                HERROR(H5E_ERROR, H5E_CANTLIST, "can't walk error stack");
         } /* end if */
 #else /* H5_NO_DEPRECATED_SYMBOLS */
         HDassert(0 && "version 1 error stack walk without deprecated symbols!");
@@ -568,19 +566,18 @@ H5E_walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op
     else {
         HDassert(op->vers == 2);
         if(op->u.func2) {
-            status = SUCCEED;
             if(H5E_WALK_UPWARD == direction) {
-                for(i = 0; i < (int)estack->nused && status >= 0; i++)
-                    status = (op->u.func2)((unsigned)i, estack->slot + i, client_data);
+                for(i = 0; i < (int)estack->nused && ret_value == H5_ITER_CONT; i++)
+                    ret_value = (op->u.func2)((unsigned)i, estack->slot + i, client_data);
             } /* end if */
             else {
                 H5_CHECK_OVERFLOW(estack->nused - 1, size_t, int);
-                for(i = (int)(estack->nused - 1); i >= 0 && status >= 0; i--)
-                    status = (op->u.func2)((unsigned)(estack->nused - (size_t)(i + 1)), estack->slot + i, client_data);
+                for(i = (int)(estack->nused - 1); i >= 0 && ret_value == H5_ITER_CONT; i--)
+                    ret_value = (op->u.func2)((unsigned)(estack->nused - (size_t)(i + 1)), estack->slot + i, client_data);
             } /* end else */
 
-            if(status < 0)
-                HGOTO_ERROR(H5E_ERROR, H5E_CANTLIST, FAIL, "can't walk error stack")
+            if(ret_value < 0)
+                HERROR(H5E_ERROR, H5E_CANTLIST, "can't walk error stack");
         } /* end if */
     } /* end else */
 

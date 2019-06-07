@@ -302,20 +302,51 @@ static herr_t
 H5A__dense_fnd_cb(const H5A_t *attr, hbool_t *took_ownership, void *_user_attr)
 {
     H5A_t const **user_attr = (H5A_t const **)_user_attr; /* User data from v2 B-tree attribute lookup */
+    herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_STATIC
 
     /*
      * Check arguments.
      */
     HDassert(attr);
     HDassert(user_attr);
+    HDassert(took_ownership);
+    /*
+     *  If there is an attribute already stored in "user_attr", 
+     *  we need to free the dynamially allocated spaces for the 
+     *  attribute, otherwise we got infinite loop closing library due to 
+     *  outstanding allocation. (HDFFV-10659)
+     *
+     *  This callback is used by H5A__dense_remove() to close/free the
+     *  attribute stored in "user_attr" (via H5O__msg_free_real()) after
+     *  the attribute node is deleted from the name index v2 B-tree.
+     *  The issue is: 
+     *      When deleting the attribute node from the B-tree, 
+     *      if the attribute is found in the intermediate B-tree nodes, 
+     *      which may be merged/redistributed, we need to free the dynamically
+     *      allocated spaces for the intermediate decoded attribute.
+     */
+    if(*user_attr != NULL) {
+        H5A_t *old_attr = *user_attr;
+        if(old_attr->shared) {
+            /* Free any dynamically allocated items */
+            if(H5A__free(old_attr) < 0)
+                HGOTO_ERROR(H5E_ATTR, H5E_CANTRELEASE, FAIL, "can't release attribute info")
+
+            /* Destroy shared attribute struct */
+            old_attr->shared = H5FL_FREE(H5A_shared_t, old_attr->shared);
+        } /* end if */
+
+        old_attr = H5FL_FREE(H5A_t, old_attr);
+     } /* end if */
 
     /* Take over attribute ownership */
     *user_attr = attr;
     *took_ownership = TRUE;
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5A__dense_fnd_cb() */
 
 

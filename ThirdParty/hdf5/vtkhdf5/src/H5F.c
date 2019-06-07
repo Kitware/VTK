@@ -440,7 +440,7 @@ H5Fcreate(const char *filename, unsigned flags, hid_t fcpl_id, hid_t fapl_id)
     flags |= H5F_ACC_RDWR | H5F_ACC_CREAT;
 
     /* Create a new file or truncate an existing file. */
-    if (NULL == (new_file = H5F__create(filename, flags, fcpl_id, fapl_id)))
+    if(NULL == (new_file = H5F_open(filename, flags, fcpl_id, fapl_id)))
         HGOTO_ERROR(H5E_FILE, H5E_CANTOPENFILE, H5I_INVALID_HID, "unable to create file")
 
     /* Get an atom for the file */
@@ -505,7 +505,7 @@ H5Fopen(const char *filename, unsigned flags, hid_t fapl_id)
         HGOTO_ERROR(H5E_FILE, H5E_CANTSET, H5I_INVALID_HID, "can't set access property list info")
 
     /* Open the file */
-    if(NULL == (new_file = H5F__open(filename, flags, H5P_FILE_CREATE_DEFAULT, fapl_id)))
+    if(NULL == (new_file = H5F_open(filename, flags, H5P_FILE_CREATE_DEFAULT, fapl_id)))
         HGOTO_ERROR(H5E_FILE, H5E_CANTOPENFILE, H5I_INVALID_HID, "unable to open file")
 
     /* Get an atom for the file */
@@ -621,15 +621,22 @@ H5Fflush(hid_t object_id, H5F_scope_t scope)
      * to be flushed.
      */
     if(H5F_ACC_RDWR & H5F_INTENT(f)) {
-	hid_t fapl_id = H5P_DEFAULT;    /* FAPL to use */
+        hid_t fapl_id = H5P_DEFAULT;    /* FAPL to use */
 
         /* Verify access property list and set up collective metadata if appropriate */
         if(H5CX_set_apl(&fapl_id, H5P_CLS_FACC, object_id, TRUE) < 0)
             HGOTO_ERROR(H5E_FILE, H5E_CANTSET, FAIL, "can't set access property list info")
 
-        /* Flush the file */
-        if(H5F__flush(f, scope) < 0)
-            HGOTO_ERROR(H5E_FILE, H5E_CANTFLUSH, FAIL, "unable to flush file's cached information")
+        /* Flush other files, depending on scope */
+        if(H5F_SCOPE_GLOBAL == scope) {
+            /* Call the flush routine for mounted file hierarchies */
+            if(H5F_flush_mounts(f) < 0)
+                HGOTO_ERROR(H5E_FILE, H5E_CANTFLUSH, FAIL, "unable to flush mounted file hierarchy")
+        } /* end if */
+        else
+            /* Call the flush routine, for this file */
+            if(H5F__flush(f) < 0)
+                HGOTO_ERROR(H5E_FILE, H5E_CANTFLUSH, FAIL, "unable to flush file's cached information")
     } /* end if */
 
 done:
@@ -796,9 +803,9 @@ H5Fget_freespace(hid_t file_id)
     if(NULL == (file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "not a file ID")
 
-    /* Get the free space in the file */
-    if(H5F__get_freespace(file, &tot_space) < 0)
-        HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "unable to check free space for file")
+    /* Go get the actual amount of free space in the file */
+    if(H5MF_get_freespace(file, &tot_space, NULL) < 0)
+        HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "unable to get free space for file")
 
     ret_value = (hssize_t)tot_space;
 
@@ -1272,7 +1279,7 @@ H5Fget_free_sections(hid_t file_id, H5F_mem_t type, size_t nsects,
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "nsects must be > 0")
 
     /* Get the free-space section information in the file */
-    if((ret_value = H5F__get_free_sections(file, type, nsects, sect_info)) < 0)
+    if((ret_value = H5MF_get_free_sections(file, type, nsects, sect_info)) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "unable to check free space for file")
 
 done:
@@ -1374,7 +1381,7 @@ H5Fstart_mdc_logging(hid_t file_id)
 
     /* Call mdc logging function */
     if(H5C_start_logging(file->shared->cache) < 0)
-        HGOTO_ERROR(H5E_FILE, H5E_LOGFAIL, FAIL, "unable to start mdc logging")
+        HGOTO_ERROR(H5E_FILE, H5E_LOGGING, FAIL, "unable to start mdc logging")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1406,7 +1413,7 @@ H5Fstop_mdc_logging(hid_t file_id)
 
     /* Call mdc logging function */
     if(H5C_stop_logging(file->shared->cache) < 0)
-        HGOTO_ERROR(H5E_FILE, H5E_LOGFAIL, FAIL, "unable to stop mdc logging")
+        HGOTO_ERROR(H5E_FILE, H5E_LOGGING, FAIL, "unable to stop mdc logging")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1437,9 +1444,9 @@ H5Fget_mdc_logging_status(hid_t file_id, hbool_t *is_enabled,
     if(NULL == (file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "hid_t identifier is not a file ID")
 
-    /* Call mdc logging function */
+    /* Call MDC logging function */
     if(H5C_get_logging_status(file->shared->cache, is_enabled, is_currently_logging) < 0)
-        HGOTO_ERROR(H5E_FILE, H5E_LOGFAIL, FAIL, "unable to get logging status")
+        HGOTO_ERROR(H5E_FILE, H5E_LOGGING, FAIL, "unable to get logging status")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1712,3 +1719,87 @@ H5Fincrement_filesize(hid_t file_id, hsize_t increment)
 done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Fincrement_filesize() */
+
+
+/*-------------------------------------------------------------------------
+ * Function: H5Fget_dset_no_attrs_hint
+ *
+ * Purpose:
+ *
+ *     Get the file-level setting to create minimized dataset object headers.
+ *     Result is stored at pointer `minimize`.
+ *
+ * Return:
+ *
+ *     Success: SUCCEED (0) (non-negative value)
+ *     Failure: FAIL (-1) (negative value)
+ *
+ * Programmer:
+ *
+ *     Jacob Smith
+ *     15 August 2018
+ *
+ * Changes: None.
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Fget_dset_no_attrs_hint(hid_t file_id, hbool_t *minimize)
+{
+    H5F_t  *file      = NULL;    /* File object for file ID */
+    herr_t          ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE2("e", "i*b", file_id, minimize);
+
+    if(NULL == minimize)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "out pointer 'minimize' cannot be NULL")
+
+    file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE);
+    if(NULL == file)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid file identifier")
+
+    *minimize = H5F_GET_MIN_DSET_OHDR(file);
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5Fget_dset_no_attrs_hint */
+
+
+/*-------------------------------------------------------------------------
+ * Function: H5Fset_dset_no_attrs_hint
+ *
+ * Purpose:
+ *
+ *     Set the file-level setting to create minimized dataset object headers.
+ *
+ * Return:
+ *
+ *     Success: SUCCEED (0) (non-negative value)
+ *     Failure: FAIL (-1) (negative value)
+ *
+ * Programmer:
+ *
+ *     Jacob Smith
+ *     15 August 2018
+ *
+ * Changes: None.
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Fset_dset_no_attrs_hint(hid_t file_id, hbool_t minimize)
+{
+    H5F_t  *file      = NULL;    /* File object for file ID */
+    herr_t  ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE2("e", "ib", file_id, minimize);
+
+    file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE);
+    if(NULL == file)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid file identifier")
+
+    H5F_SET_MIN_DSET_OHDR(file, minimize);
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5Fset_dset_no_attrs_hint */

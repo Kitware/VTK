@@ -685,20 +685,26 @@ END_FUNC(PRIV)  /* end H5FA_delete() */
  * Note:        This is not very efficient, we should be iterating directly
  *              over the fixed array's direct block [pages].
  *
- * Return:      SUCCEED/FAIL
+ * Return:      H5_ITER_CONT/H5_ITER_ERROR
  *
  * Programmer:  Vailin Choi
  *              Thursday, April 30, 2009
  *
+ * Modification:
+ *              Prototype changed (HDFFV-10661)
+ *              - herr_t to int
+ *              - SUCCEED/FAIL to H5_ITER_CONT/H5_ITER_ERROR
+ *              December 24, 2018 -BMR
  *-------------------------------------------------------------------------
  */
 BEGIN_FUNC(PRIV, ERR,
-herr_t, SUCCEED, FAIL,
+int, H5_ITER_CONT, H5_ITER_ERROR,
 H5FA_iterate(H5FA_t *fa, H5FA_operator_t op, void *udata))
 
     /* Local variables */
     uint8_t     *elmt = NULL;
     hsize_t     u;
+    int         cb_ret = H5_ITER_CONT;     /* Return value from callback */
 
     /*
      * Check arguments.
@@ -712,9 +718,7 @@ H5FA_iterate(H5FA_t *fa, H5FA_operator_t op, void *udata))
         H5E_THROW(H5E_CANTALLOC, "memory allocation failed for fixed array element")
 
     /* Iterate over all elements in array */
-    for(u = 0; u < fa->hdr->stats.nelmts; u++) {
-        int cb_ret;     /* Return value from callback */
-
+    for(u = 0; u < fa->hdr->stats.nelmts && cb_ret == H5_ITER_CONT; u++) {
         /* Get array element */
         if(H5FA_get(fa, u, elmt) < 0)
             H5E_THROW(H5E_CANTGET, "unable to delete fixed array")

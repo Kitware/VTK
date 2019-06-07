@@ -1480,7 +1480,7 @@ done:
  *
  * Purpose:	Prints the error stack in some default way.  This is just a
  *		convenience function for H5Ewalk() with a function that
- *		prints error messages.  Users are encouraged to write there
+ *		prints error messages.  Users are encouraged to write their
  *		own more specific error handlers.
  *
  * Return:	Non-negative on success/Negative on failure
@@ -1562,8 +1562,8 @@ H5Ewalk2(hid_t err_stack, H5E_direction_t direction, H5E_walk2_t stack_func, voi
     /* Walk the error stack */
     op.vers = 2;
     op.u.func2 = stack_func;
-    if(H5E_walk(estack, direction, &op, client_data) < 0)
-        HGOTO_ERROR(H5E_ERROR, H5E_CANTLIST, FAIL, "can't walk error stack")
+    if((ret_value = H5E_walk(estack, direction, &op, client_data)) < 0)
+        HERROR(H5E_ERROR, H5E_CANTLIST, "can't walk error stack");
 
 done:
     FUNC_LEAVE_API(ret_value)

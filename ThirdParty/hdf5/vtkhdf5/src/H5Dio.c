@@ -449,7 +449,7 @@ H5D__read(H5D_t *dataset, hid_t mem_type_id, const H5S_t *mem_space,
     char        fake_char;              /* Temporary variable for NULL buffer pointers */
     herr_t	ret_value = SUCCEED;	/* Return value	*/
 
-    FUNC_ENTER_PACKAGE_VOL_TAG(dataset->oloc.addr)
+    FUNC_ENTER_PACKAGE_TAG(dataset->oloc.addr)
 
     /* check args */
     HDassert(dataset && dataset->oloc.file);
@@ -616,7 +616,7 @@ done:
         if(H5S_close(projected_mem_space) < 0)
             HDONE_ERROR(H5E_DATASET, H5E_CANTCLOSEOBJ, FAIL, "unable to shut down projected memory dataspace")
 
-    FUNC_LEAVE_NOAPI_VOL_TAG(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5D__read() */
 
 
@@ -685,22 +685,12 @@ H5D__write(H5D_t *dataset, hid_t mem_type_id, const H5S_t *mem_space,
 
     /* Various MPI based checks */
 #ifdef H5_HAVE_PARALLEL
-    if H5F_HAS_FEATURE(dataset->oloc.file, H5FD_FEAT_HAS_MPI) {
-        /* If MPI based VFD is used, no VL datatype support yet. */
+    if(H5F_HAS_FEATURE(dataset->oloc.file, H5FD_FEAT_HAS_MPI)) {
+        /* If MPI based VFD is used, no VL or region reference datatype support yet. */
         /* This is because they use the global heap in the file and we don't */
         /* support parallel access of that yet */
-        if(H5T_detect_class(type_info.mem_type, H5T_VLEN, FALSE) > 0)
-            HGOTO_ERROR(H5E_DATASET, H5E_UNSUPPORTED, FAIL, "Parallel IO does not support writing VL datatypes yet")
-
-        /* If MPI based VFD is used, no VL datatype support yet. */
-        /* This is because they use the global heap in the file and we don't */
-        /* support parallel access of that yet */
-        /* We should really use H5T_detect_class() here, but it will be difficult
-         * to detect the type of the reference if it is nested... -QAK
-         */
-        if(H5T_get_class(type_info.mem_type, TRUE) == H5T_REFERENCE &&
-                H5T_get_ref_type(type_info.mem_type) == H5R_DATASET_REGION)
-            HGOTO_ERROR(H5E_DATASET, H5E_UNSUPPORTED, FAIL, "Parallel IO does not support writing region reference datatypes yet")
+        if(H5T_is_vl_storage(type_info.mem_type) > 0)
+            HGOTO_ERROR(H5E_DATASET, H5E_UNSUPPORTED, FAIL, "Parallel IO does not support writing VL or region reference datatypes yet")
     } /* end if */
     else {
         H5FD_mpio_xfer_t io_xfer_mode;      /* MPI I/O transfer mode */
@@ -1070,16 +1060,13 @@ H5D__typeinfo_init(const H5D_t *dset, hid_t mem_type_id, hbool_t do_write,
         if(type_info->request_nelmts == 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "temporary buffer max size is too small")
 
-        /*
-         * Get a temporary buffer for type conversion unless the app has already
+        /* Get a temporary buffer for type conversion unless the app has already
          * supplied one through the xfer properties. Instead of allocating a
-         * buffer which is the exact size, we allocate the target size.  The
-         * malloc() is usually less resource-intensive if we allocate/free the
-         * same size over and over.
+         * buffer which is the exact size, we allocate the target size.
          */
         if(NULL == (type_info->tconv_buf = (uint8_t *)tconv_buf)) {
             /* Allocate temporary buffer */
-            if(NULL == (type_info->tconv_buf = H5FL_BLK_MALLOC(type_conv, target_size)))
+            if(NULL == (type_info->tconv_buf = H5FL_BLK_CALLOC(type_conv, target_size)))
                 HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for type conversion")
             type_info->tconv_buf_allocated = TRUE;
         } /* end if */
@@ -1182,15 +1169,19 @@ H5D__ioinfo_adjust(H5D_io_info_t *io_info, const H5D_t *dset,
                 hbool_t                         local_error_message_previously_written = FALSE;
                 hbool_t                         global_error_message_previously_written = FALSE;
                 size_t                          index;
-                char                            local_no_collective_cause_string[256] = "";
-                char                            global_no_collective_cause_string[256] = "";
+                size_t                          cause_strings_len;
+                char                            local_no_collective_cause_string[512] = "";
+                char                            global_no_collective_cause_string[512] = "";
                 const char                     *cause_strings[] = { "independent I/O was requested",
                                                                     "datatype conversions were required",
                                                                     "data transforms needed to be applied",
                                                                     "optimized MPI types flag wasn't set",
                                                                     "one of the dataspaces was neither simple nor scalar",
                                                                     "dataset was not contiguous or chunked",
-                                                                    "parallel writes to filtered datasets are disabled" };
+                                                                    "parallel writes to filtered datasets are disabled",
+                                                                    "an error occurred while checking if collective I/O was possible" };
+
+                cause_strings_len = sizeof(cause_strings) / sizeof(cause_strings[0]);
 
                 if(H5CX_get_mpio_local_no_coll_cause(&local_no_collective_cause) < 0)
                     HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "unable to get local no collective cause value")
@@ -1199,7 +1190,7 @@ H5D__ioinfo_adjust(H5D_io_info_t *io_info, const H5D_t *dset,
 
                 /* Append each of the "reason for breaking collective I/O" error messages to the
                  * local and global no collective cause strings */
-                for (cause = 1, index = 0; cause < H5D_MPIO_NO_COLLECTIVE_MAX_CAUSE; cause <<= 1, index++) {
+                for (cause = 1, index = 0; (cause < H5D_MPIO_NO_COLLECTIVE_MAX_CAUSE) && (index < cause_strings_len); cause <<= 1, index++) {
                     size_t cause_strlen = HDstrlen(cause_strings[index]);
 
                     if (cause & local_no_collective_cause) {

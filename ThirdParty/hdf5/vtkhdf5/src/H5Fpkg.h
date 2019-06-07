@@ -29,12 +29,10 @@
 /* Get package's private header */
 #include "H5Fprivate.h"
 
-/* Other public headers needed by this file */
-#include "H5Bpublic.h"          /* B-tree header, for H5B_NUM_BTREE_ID      */
-
 /* Other private headers needed by this file */
 #include "H5private.h"		    /* Generic Functions                        */
 #include "H5ACprivate.h"        /* Metadata cache                           */
+#include "H5Bprivate.h"         /* B-trees                                  */
 #include "H5FLprivate.h"        /* Free Lists                               */
 #include "H5FOprivate.h"        /* File objects                             */
 #include "H5FSprivate.h"        /* File free space                          */
@@ -353,6 +351,7 @@ struct H5F_file_t {
 
     /* Object flush info */
     H5F_object_flush_t 	object_flush;	    /* Information for object flush callback */
+    hbool_t crt_dset_min_ohdr_flag; /* flag to create minimized dataset object headers */
 };
 
 /*
@@ -396,16 +395,11 @@ H5FL_EXTERN(H5F_file_t);
 /* General routines */
 H5_DLL H5F_t *H5F__new(H5F_file_t *shared, unsigned flags, hid_t fcpl_id, hid_t fapl_id, H5FD_t *lf);
 H5_DLL herr_t H5F__dest(H5F_t *f, hbool_t flush);
-H5_DLL H5F_t *H5F__create(const char *filename, unsigned flags, hid_t fcpl_id, hid_t fapl_id);
-H5_DLL H5F_t *H5F__open(const char *filename, unsigned flags, hid_t fcpl_id, hid_t fapl_id);
-H5_DLL herr_t H5F__flush(H5F_t *f, H5F_scope_t scope);
-H5_DLL herr_t H5F__flush_real(H5F_t *f);
+H5_DLL herr_t H5F__flush(H5F_t *f);
 H5_DLL htri_t H5F__is_hdf5(const char *name);
 H5_DLL herr_t H5F_get_objects(const H5F_t *f, unsigned types, size_t max_index, hid_t *obj_id_list, hbool_t app_ref, size_t *obj_id_count_ptr);
-H5_DLL herr_t H5F__get_freespace(H5F_t *f, hsize_t *tot_space);
 H5_DLL ssize_t H5F__get_file_image(H5F_t *f, void *buf_ptr, size_t buf_len);
 H5_DLL herr_t H5F__get_info(H5F_t *f, H5F_info2_t *finfo);
-H5_DLL ssize_t H5F__get_free_sections(H5F_t *f, H5FD_mem_t type, size_t nsects, H5F_sect_info_t *sect_info);
 H5_DLL herr_t H5F__get_metadata_read_retry_info(H5F_t *file, H5F_retry_info_t *info);
 H5_DLL herr_t H5F__format_convert(H5F_t *f);
 H5_DLL herr_t H5F__start_swmr_write(H5F_t *f);

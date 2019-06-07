@@ -138,7 +138,7 @@ install (
 endif ()
 
 #-----------------------------------------------------------------------------
-# Configure the HDF518_Examples.cmake file and the examples
+# Configure the HDF5_Examples.cmake file and the examples
 #-----------------------------------------------------------------------------
 if (FALSE) # XXX(kitware): Hardcode settings.
 option (HDF5_PACK_EXAMPLES  "Package the HDF5 Library Examples Compressed File" OFF)
@@ -225,6 +225,7 @@ if (NOT HDF5_EXTERNALLY_CONFIGURED)
     if (HDF5_PACK_INSTALL_DOCS)
       set (release_files
           ${release_files}
+          ${HDF5_SOURCE_DIR}/release_docs/INSTALL_Warnings.txt
           ${HDF5_SOURCE_DIR}/release_docs/INSTALL_CMake.txt
           ${HDF5_SOURCE_DIR}/release_docs/HISTORY-1_8.txt
           ${HDF5_SOURCE_DIR}/release_docs/INSTALL

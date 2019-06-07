@@ -79,7 +79,6 @@ Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
                      API Tracing: @HDF5_ENABLE_TRACE@
             Using memory checker: @HDF5_ENABLE_USING_MEMCHECKER@
  Memory allocation sanity checks: @HDF5_MEMORY_ALLOC_SANITY_CHECK@
-             Metadata trace file: @METADATATRACEFILE@
           Function Stack Tracing: @HDF5_ENABLE_CODESTACK@
        Strict File Format Checks: @HDF5_STRICT_FORMAT_CHECKS@
     Optimization Instrumentation: @HDF5_Enable_Instrument@

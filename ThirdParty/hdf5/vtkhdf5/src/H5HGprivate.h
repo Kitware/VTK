@@ -18,9 +18,6 @@
 #ifndef _H5HGprivate_H
 #define _H5HGprivate_H
 
-/* Include package's public header */
-#include "H5HGpublic.h"
-
 /* Private headers needed by this file. */
 #include "H5Fprivate.h"		/* File access				*/
 

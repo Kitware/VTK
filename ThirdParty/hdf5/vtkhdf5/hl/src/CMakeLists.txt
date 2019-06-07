@@ -23,7 +23,6 @@ set (HL_HEADERS
     ${HDF5_HL_SRC_SOURCE_DIR}/H5DOpublic.h
     ${HDF5_HL_SRC_SOURCE_DIR}/H5DSpublic.h
     ${HDF5_HL_SRC_SOURCE_DIR}/H5IMpublic.h
-    ${HDF5_HL_SRC_SOURCE_DIR}/H5LTparse.h
     ${HDF5_HL_SRC_SOURCE_DIR}/H5LTpublic.h
     ${HDF5_HL_SRC_SOURCE_DIR}/H5PTpublic.h
     ${HDF5_HL_SRC_SOURCE_DIR}/H5TBpublic.h
@@ -32,8 +31,12 @@ set (HL_HEADERS
     ${HDF5_HL_SRC_SOURCE_DIR}/vtk_hdf5_hl_mangle.h
 )
 
+set (HL_PRIVATE_HEADERS
+    ${HDF5_HL_SRC_SOURCE_DIR}/H5LTparse.h
+)
+
 if (FALSE) # XXX(kitware): Use VTK's module system.
-add_library (${HDF5_HL_LIB_TARGET} STATIC ${HL_SOURCES} ${HL_HEADERS})
+add_library (${HDF5_HL_LIB_TARGET} STATIC ${HL_SOURCES} ${HL_HEADERS} ${HL_PRIVATE_HEADERS})
 target_include_directories(${HDF5_HL_LIB_TARGET}
     PRIVATE "${HDF5_SRC_DIR};${HDF5_BINARY_DIR};$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_INCLUDE_DIRS}>"
     INTERFACE "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>"
@@ -46,7 +49,7 @@ set_global_variable (HDF5_LIBRARIES_TO_EXPORT "${HDF5_LIBRARIES_TO_EXPORT};${HDF
 set (install_targets ${HDF5_HL_LIB_TARGET})
 
 else ()
-add_library(vtkhdf5_hl_src ${HL_SOURCES} ${HL_HEADERS})
+  add_library(vtkhdf5_hl_src ${HL_SOURCES} ${HL_HEADERS} ${HL_PRIVATE_HEADERS})
 target_include_directories(vtkhdf5_hl_src
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -81,7 +84,7 @@ set_target_properties(vtkhdf5_hl_src
 endif ()
 
 if (BUILD_SHARED_LIBS AND FALSE) # XXX(kitware): VTK handles shared/static flags.
-  add_library (${HDF5_HL_LIBSH_TARGET} SHARED ${HL_SOURCES} ${HL_HEADERS})
+  add_library (${HDF5_HL_LIBSH_TARGET} SHARED ${HL_SOURCES} ${HL_HEADERS} ${HL_PRIVATE_HEADERS})
   target_include_directories(${HDF5_HL_LIBSH_TARGET}
       PRIVATE "${HDF5_SRC_DIR};${HDF5_BINARY_DIR};$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_INCLUDE_DIRS}>"
       INTERFACE "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>"

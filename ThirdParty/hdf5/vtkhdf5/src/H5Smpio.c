@@ -879,7 +879,14 @@ H5S_mpio_hyper_type(const H5S_t *space, size_t elmt_size,
                     HMPI_GOTO_ERROR(FAIL, "MPI_Type_contiguous failed", mpi_code)
             }
 
-            MPI_Type_extent (inner_type, &inner_extent);
+            /* As of version 4.0, OpenMPI now turns off MPI-1 API calls by default,
+             * so we're using the MPI-2 version even though we don't need the lb
+             * value.
+             */
+            {
+                MPI_Aint unused_lb_arg;
+                MPI_Type_get_extent(inner_type, &unused_lb_arg, &inner_extent);
+            }
             stride_in_bytes = inner_extent * (MPI_Aint)d[i].strid;
 
             /* If the element count is larger than what a 32 bit integer can hold,
@@ -1500,7 +1507,14 @@ static herr_t H5S_mpio_create_large_type (hsize_t num_elements,
             }
         }
 
-        MPI_Type_extent (old_type, &old_extent);
+        /* As of version 4.0, OpenMPI now turns off MPI-1 API calls by default,
+         * so we're using the MPI-2 version even though we don't need the lb
+         * value.
+         */
+        {
+            MPI_Aint unused_lb_arg;
+            MPI_Type_get_extent(old_type, &unused_lb_arg, &old_extent);
+        }
 
         /* Set up the arguments for MPI_Type_struct constructor */
         type[0] = outer_type;

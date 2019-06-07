@@ -29,7 +29,7 @@
 #define H5O_NMESGS	8 		/*initial number of messages	     */
 #define H5O_NCHUNKS	2		/*initial number of chunks	     */
 #define H5O_MIN_SIZE	22		/* Min. obj header data size (must be big enough for a message prefix and a continuation message) */
-#define H5O_MSG_TYPES   27              /* # of types of messages            */
+#define H5O_MSG_TYPES   26              /* # of types of messages            */
 #define H5O_MAX_CRT_ORDER_IDX 65535     /* Max. creation order index value   */
 
 /* Versions of object header structure */
@@ -555,25 +555,14 @@ H5_DLLVAR const H5O_obj_class_t H5O_OBJ_DATASET[1];
 H5_DLLVAR const H5O_obj_class_t H5O_OBJ_DATATYPE[1];
 
 /* Package-local function prototypes */
-H5_DLL hid_t H5O__open_name(const H5G_loc_t *loc, const char *name);
 H5_DLL hid_t H5O__open_by_idx(const H5G_loc_t *loc, const char *name,
     H5_index_t idx_type, H5_iter_order_t order, hsize_t n);
 H5_DLL hid_t H5O__open_by_addr(const H5G_loc_t *loc, haddr_t addr);
 H5_DLL hid_t H5O__open_by_loc(const H5G_loc_t *obj_loc, hbool_t app_ref);
-H5_DLL herr_t H5O__create_link(const H5G_loc_t *new_loc, const char *new_name,
-    H5G_loc_t *obj_loc, hid_t lcpl_id);
 H5_DLL const H5O_obj_class_t *H5O__obj_class(const H5O_loc_t *loc);
 H5_DLL int H5O__link_oh(H5F_t *f, int adjust, H5O_t *oh, hbool_t *deleted);
-H5_DLL herr_t H5O__link(const H5O_loc_t *loc, int adjust);
-H5_DLL htri_t H5O__exists_by_name(const H5G_loc_t *loc, const char *name);
-H5_DLL herr_t H5O__get_info_by_name(const H5G_loc_t *loc, const char *name,
-    H5O_info_t *oinfo, unsigned fields);
 H5_DLL herr_t H5O__get_info_by_idx(const H5G_loc_t *loc, const char *group_name,
     H5_index_t idx_type, H5_iter_order_t order, hsize_t n, H5O_info_t *oinfo, unsigned fields);
-H5_DLL herr_t H5O__set_comment_by_name(const H5G_loc_t *loc, const char *name,
-    const char *comment);
-H5_DLL ssize_t H5O__get_comment_by_name(const H5G_loc_t *loc, const char *name,
-    char *comment, size_t bufsize);
 H5_DLL herr_t H5O__visit(hid_t loc_id, const char *obj_name, H5_index_t idx_type,
     H5_iter_order_t order, H5O_iterate_t op, void *op_data, unsigned fields);
 H5_DLL herr_t H5O__inc_rc(H5O_t *oh);

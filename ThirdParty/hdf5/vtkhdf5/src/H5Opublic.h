@@ -198,6 +198,20 @@ H5_DLL herr_t H5Oenable_mdc_flushes(hid_t object_id);
 H5_DLL herr_t H5Oare_mdc_flushes_disabled(hid_t object_id, hbool_t *are_disabled);
 
 /* Future function prototypes to be deprecated in next version */
+H5_DLL herr_t H5Oget_info(hid_t loc_id, H5O_info_t *oinfo);
+H5_DLL herr_t H5Oget_info_by_name(hid_t loc_id, const char *name, H5O_info_t *oinfo,
+    hid_t lapl_id);
+H5_DLL herr_t H5Oget_info_by_idx(hid_t loc_id, const char *group_name,
+    H5_index_t idx_type, H5_iter_order_t order, hsize_t n, H5O_info_t *oinfo,
+    hid_t lapl_id);
+
+H5_DLL herr_t H5Ovisit(hid_t obj_id, H5_index_t idx_type, H5_iter_order_t order,
+    H5O_iterate_t op, void *op_data);
+H5_DLL herr_t H5Ovisit_by_name(hid_t loc_id, const char *obj_name,
+    H5_index_t idx_type, H5_iter_order_t order, H5O_iterate_t op,
+    void *op_data, hid_t lapl_id);
+
+/* Compatibility function prototypes to replace non-versioned function for use by macro in next version */
 H5_DLL herr_t H5Oget_info1(hid_t loc_id, H5O_info_t *oinfo);
 H5_DLL herr_t H5Oget_info_by_name1(hid_t loc_id, const char *name, H5O_info_t *oinfo,
     hid_t lapl_id);

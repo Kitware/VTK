@@ -387,9 +387,9 @@ H5Z__unregister(H5Z_filter_t filter_id)
     H5Z_object_t object;                /* Object to pass to callbacks */
     herr_t       ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_PACKAGE_VOL
+    FUNC_ENTER_PACKAGE
 
-    HDassert(filter_id>=0 && filter_id<=H5Z_FILTER_MAX);
+    HDassert(filter_id >= 0 && filter_id <= H5Z_FILTER_MAX);
 
     /* Is the filter already registered? */
     for (filter_index = 0; filter_index < H5Z_table_used_g; filter_index++)
@@ -434,7 +434,7 @@ H5Z__unregister(H5Z_filter_t filter_id)
     H5Z_table_used_g--;
 
 done:
-    FUNC_LEAVE_NOAPI_VOL(ret_value)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5Z__unregister() */
 
 
@@ -603,7 +603,7 @@ H5Z__flush_file_cb(void *obj_ptr, hid_t H5_ATTR_UNUSED obj_id, void *key)
             /* Sanity check for collectively calling H5Zunregister, if requested */
             /* (Sanity check assumes that a barrier on one file's comm
              *  is sufficient (i.e. that there aren't different comms for
-             *  different files).  -QAK, 2018/02/14
+             *  different files).  -QAK, 2018/02/14)
              */
             if(H5_coll_api_sanity_check_g && !object->sanity_checked) {
                 MPI_Comm mpi_comm;      /* File's communicator */

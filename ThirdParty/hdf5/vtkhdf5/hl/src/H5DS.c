@@ -241,7 +241,7 @@ herr_t H5DSattach_scale(hid_t did,
     if (has_dimlist == 0)
     {
 
-      dims[0] = (hsize_t)rank;
+        dims[0] = (hsize_t)rank;
 
         /* space for the attribute */
         if((sid = H5Screate_simple(1, dims, NULL)) < 0)
@@ -556,9 +556,9 @@ out:
 *
 * Date: December 20, 2004
 *
-* Comments: 
+* Comments:
 *
-* Modifications: Function didn't delete DIMENSION_LIST attribute, when 
+* Modifications: Function didn't delete DIMENSION_LIST attribute, when
 *                all dimension scales were detached from a dataset; added.
 *                                                           2010/05/13 EIP
 *
@@ -706,24 +706,24 @@ herr_t H5DSdetach_scale(hid_t did,
             /* same object, reset */
             if(dsid_oi.fileno == tmp_oi.fileno && dsid_oi.addr == tmp_oi.addr)
             {
-                /* If there are more than one reference in the VL element 
+                /* If there are more than one reference in the VL element
                    and the reference we found is not the last one,
                    copy the last one to replace the found one since the order
-                   of the references doesn't matter according to the spec; 
-                   reduce the size of the VL element by 1; 
-                   if the length of the element becomes 0, free the pointer 
+                   of the references doesn't matter according to the spec;
+                   reduce the size of the VL element by 1;
+                   if the length of the element becomes 0, free the pointer
                    and reset to NULL */
 
                 size_t len = buf[idx].len;
 
-                if(j < len - 1) 
-                    ((hobj_ref_t *)buf[idx].p)[j] = ((hobj_ref_t *)buf[idx].p)[len-1]; 
+                if(j < len - 1)
+                    ((hobj_ref_t *)buf[idx].p)[j] = ((hobj_ref_t *)buf[idx].p)[len-1];
                 len = --buf[idx].len;
                 if(len == 0) {
-                    HDfree(buf[idx].p); 
+                    HDfree(buf[idx].p);
                     buf[idx].p = NULL;
                 }
-                /* Since a reference to a dim. scale can be inserted only once, 
+                /* Since a reference to a dim. scale can be inserted only once,
                    we do not need to continue the search if it is found */
                 found_ds = 1;
                 break;
@@ -736,16 +736,16 @@ herr_t H5DSdetach_scale(hid_t did,
         goto out;
 
     /* Write the attribute, but check first, if we have any scales left,
-       because if not, we should delete the attribute according to the spec */ 
+       because if not, we should delete the attribute according to the spec */
     for(i = 0; i < rank; i++) {
         if(buf[i].len > 0)  {
             have_ds = 1;
-            break; 
+            break;
         }
     }
-    if(have_ds) {        
+    if(have_ds) {
         if(H5Awrite(aid, tid, buf) < 0)
-            goto out; 
+            goto out;
     }
     else {
         if(H5Adelete(did, DIMENSION_LIST) < 0)
@@ -1123,7 +1123,7 @@ htri_t H5DSis_attached(hid_t did,
         if (dsbuf == NULL)
             goto out;
 
-        if (H5Aread(aid,ntid,dsbuf) < 0) 
+        if (H5Aread(aid,ntid,dsbuf) < 0)
             goto out;
 
         /*-------------------------------------------------------------------------
@@ -1445,7 +1445,7 @@ herr_t H5DSset_label(hid_t did, unsigned int idx, const char *label)
     if (H5I_DATASET != it)
         return FAIL;
 
-    if (label == NULL) 
+    if (label == NULL)
         return FAIL;
 
      /* get dataset space */
@@ -1502,7 +1502,7 @@ herr_t H5DSset_label(hid_t did, unsigned int idx, const char *label)
             goto out;
 
         for (i = 0; i < (unsigned int) rank; i++)
-	  u.const_buf[i] = NULL;
+            u.const_buf[i] = NULL;
 
         /* store the label information in the required index */
         u.const_buf[idx] = label;
@@ -1532,7 +1532,7 @@ herr_t H5DSset_label(hid_t did, unsigned int idx, const char *label)
 
     else
     {
-             
+
         if ((aid = H5Aopen(did, DIMENSION_LABELS, H5P_DEFAULT)) < 0)
             goto out;
 
@@ -1541,7 +1541,7 @@ herr_t H5DSset_label(hid_t did, unsigned int idx, const char *label)
 
         /* allocate and initialize */
         u.buf = (char **) HDmalloc((size_t) rank * sizeof(char *));
-	
+
         if (u.buf == NULL)
             goto out;
 
@@ -1626,7 +1626,7 @@ out:
 * Comments:
 *
 * Modifications:
-*     JIRA HDFFV-7673: Added a check to see if the label name exists, 
+*     JIRA HDFFV-7673: Added a check to see if the label name exists,
 *     if not then returns zero. July 30, 2011. MSB
 *
 *-------------------------------------------------------------------------
@@ -1714,26 +1714,26 @@ ssize_t H5DSget_label(hid_t did, unsigned int idx, char *label, size_t size)
     if (buf[idx] != NULL)
     {
         /* get the real string length */
-        nbytes = strlen(buf[idx]);
+        nbytes = HDstrlen(buf[idx]);
 
-	/* compute the string length which will fit into the user's buffer */
-	copy_len = MIN(size-1, nbytes);
+        /* compute the string length which will fit into the user's buffer */
+        copy_len = MIN(size-1, nbytes);
 
-	/* copy all/some of the name */
-	if (label)
-	  {
-	    memcpy(label, buf[idx], copy_len);
-	    
-	    /* terminate the string */
-	    label[copy_len] = '\0';
-	  }
+        /* copy all/some of the name */
+        if (label)
+        {
+            HDmemcpy(label, buf[idx], copy_len);
+
+            /* terminate the string */
+            label[copy_len] = '\0';
+        }
 
     }
     /* free all the ptr's from the H5Aread() */
     for (i = 0; i < rank; i++)
     {
         if (buf[i])
-	  HDfree(buf[i]);
+            HDfree(buf[i]);
     }
 
     /* close */
@@ -1867,7 +1867,7 @@ ssize_t H5DSget_scale_name(hid_t did,
 
     /* copy all/some of the name */
     if (name) {
-        memcpy(name, buf, copy_len);
+        HDmemcpy(name, buf, copy_len);
 
         /* terminate the string */
         name[copy_len]='\0';
@@ -1951,33 +1951,33 @@ htri_t H5DSis_scale(hid_t did)
         if((tid = H5Aget_type(aid)) < 0)
             goto out;
 
-	/* check to make sure attribute is a string */
-	if(H5T_STRING != H5Tget_class(tid))
-	    goto out;
+        /* check to make sure attribute is a string */
+        if(H5T_STRING != H5Tget_class(tid))
+            goto out;
 
-	/* check to make sure string is null-terminated */
-	if(H5T_STR_NULLTERM != H5Tget_strpad(tid))
-	    goto out;
+        /* check to make sure string is null-terminated */
+        if(H5T_STR_NULLTERM != H5Tget_strpad(tid))
+            goto out;
 
-	/* allocate buffer large enough to hold string */
-	if((storage_size = H5Aget_storage_size(aid)) == 0)
-	    goto out;
+        /* allocate buffer large enough to hold string */
+        if((storage_size = H5Aget_storage_size(aid)) == 0)
+            goto out;
 
-	buf = (char*)HDmalloc( (size_t)storage_size * sizeof(char) + 1);
-	if(buf == NULL)
-	    goto out;
+        buf = (char*)HDmalloc( (size_t)storage_size * sizeof(char) + 1);
+        if(buf == NULL)
+            goto out;
 
-	/* Read the attribute */
+        /* Read the attribute */
         if(H5Aread(aid, tid, buf) < 0)
-	    goto out;
+            goto out;
 
-	/* compare strings */
+        /* compare strings */
         if(HDstrncmp(buf, DIMENSION_SCALE_CLASS, MIN(HDstrlen(DIMENSION_SCALE_CLASS),HDstrlen(buf)))==0)
             is_ds = 1;
         else
             is_ds = 0;
 
-	HDfree(buf);
+        HDfree(buf);
 
         if(H5Tclose(tid) < 0)
             goto out;
@@ -2236,8 +2236,8 @@ out:
 static
 hid_t H5DS_get_REFLIST_type(void)
 {
-    hid_t ntid_t = -1; 
-    
+    hid_t ntid_t = -1;
+
     /* Build native type that corresponds to compound datatype
        used to store ds_list_t structure in the REFERENCE_LIST
        attribute */
@@ -2257,5 +2257,5 @@ out:
         H5Tclose(ntid_t);
     } H5E_END_TRY;
     return FAIL;
-}    
+}
 

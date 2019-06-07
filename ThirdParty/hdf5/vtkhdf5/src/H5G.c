@@ -400,10 +400,10 @@ H5Gcreate_anon(hid_t loc_id, hid_t gcpl_id, hid_t gapl_id)
     HDmemset(&gcrt_info.cache, 0, sizeof(gcrt_info.cache));
 
     /* Create the new group & get its ID */
-    if(NULL == (grp = H5G__create_anon(loc.oloc->file, &gcrt_info)))
-        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, H5I_INVALID_HID, "unable to create group")
+    if(NULL == (grp = H5G__create(loc.oloc->file, &gcrt_info)))
+        HGOTO_ERROR(H5E_SYM, H5E_CANTCREATE, H5I_INVALID_HID, "unable to create group")
     if((ret_value = H5I_register(H5I_GROUP, grp, TRUE)) < 0)
-	HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register group")
+        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register group")
 
 done:
     /* Release the group's object header, if it was created */
@@ -509,10 +509,11 @@ H5Gget_create_plist(hid_t group_id)
 
     /* Check args */
     if(NULL == (group = (H5G_t *)H5I_object_verify(group_id, H5I_GROUP)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a group")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a group")
 
-    if((ret_value = H5G__get_create_plist(group)) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTGET, H5I_INVALID_HID, "can't get group's creation property list")
+    /* Retrieve the GCPL */
+    if((ret_value = H5G_get_create_plist(group)) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, H5I_INVALID_HID, "can't get group's creation property list")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -554,7 +555,7 @@ H5Gget_info(hid_t grp_id, H5G_info_t *grp_info)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
 
     /* Retrieve the group's information */
-    if(H5G__get_info(&loc, grp_info/*out*/) < 0)
+    if(H5G__obj_info(loc.oloc, grp_info) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve group info")
 
 done:
@@ -722,9 +723,9 @@ H5Gflush(hid_t group_id)
     if(H5CX_set_loc(group_id) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
 
-    /* Flush group's metadata to file */
-    if(H5G__flush(grp, group_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTFLUSH, FAIL, "unable to flush group")
+    /* Flush metadata to file */
+    if(H5O_flush_common(&grp->oloc, group_id) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTFLUSH, FAIL, "unable to flush group and object flush callback")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -761,7 +762,7 @@ H5Grefresh(hid_t group_id)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
 
     /* Call private function to refresh group object */
-    if((H5G__refresh(grp, group_id)) < 0)
+    if((H5O_refresh_metadata(group_id, grp->oloc)) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTLOAD, FAIL, "unable to refresh group")
 
 done:

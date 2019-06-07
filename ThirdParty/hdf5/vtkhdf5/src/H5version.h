@@ -209,26 +209,6 @@
   #define H5Gopen_vers 2
 #endif /* !defined(H5Gopen_vers) */
 
-#if !defined(H5Oget_info_vers)
-  #define H5Oget_info_vers 1
-#endif /* !defined(H5Oget_info_vers) */
-
-#if !defined(H5Oget_info_by_idx_vers)
-  #define H5Oget_info_by_idx_vers 1
-#endif /* !defined(H5Oget_info_by_idx_vers) */
-
-#if !defined(H5Oget_info_by_name_vers)
-  #define H5Oget_info_by_name_vers 1
-#endif /* !defined(H5Oget_info_by_name_vers) */
-
-#if !defined(H5Ovisit_vers)
-  #define H5Ovisit_vers 1
-#endif /* !defined(H5Ovisit_vers) */
-
-#if !defined(H5Ovisit_by_name_vers)
-  #define H5Ovisit_by_name_vers 1
-#endif /* !defined(H5Ovisit_by_name_vers) */
-
 #if !defined(H5Pget_filter_vers)
   #define H5Pget_filter_vers 2
 #endif /* !defined(H5Pget_filter_vers) */
@@ -340,26 +320,6 @@
 #if !defined(H5Gopen_vers)
   #define H5Gopen_vers 2
 #endif /* !defined(H5Gopen_vers) */
-
-#if !defined(H5Oget_info_vers)
-  #define H5Oget_info_vers 1
-#endif /* !defined(H5Oget_info_vers) */
-
-#if !defined(H5Oget_info_by_idx_vers)
-  #define H5Oget_info_by_idx_vers 1
-#endif /* !defined(H5Oget_info_by_idx_vers) */
-
-#if !defined(H5Oget_info_by_name_vers)
-  #define H5Oget_info_by_name_vers 1
-#endif /* !defined(H5Oget_info_by_name_vers) */
-
-#if !defined(H5Ovisit_vers)
-  #define H5Ovisit_vers 1
-#endif /* !defined(H5Ovisit_vers) */
-
-#if !defined(H5Ovisit_by_name_vers)
-  #define H5Ovisit_by_name_vers 1
-#endif /* !defined(H5Ovisit_by_name_vers) */
 
 #if !defined(H5Pget_filter_vers)
   #define H5Pget_filter_vers 2
@@ -576,61 +536,6 @@
 #else /* H5Gopen_vers */
   #error "H5Gopen_vers set to invalid value"
 #endif /* H5Gopen_vers */
-
-#if !defined(H5Oget_info_vers) || H5Oget_info_vers == 2
-  #ifndef H5Oget_info_vers
-    #define H5Oget_info_vers 2
-  #endif /* H5Oget_info_vers */
-  #define H5Oget_info H5Oget_info2
-#elif H5Oget_info_vers == 1
-  #define H5Oget_info H5Oget_info1
-#else /* H5Oget_info_vers */
-  #error "H5Oget_info_vers set to invalid value"
-#endif /* H5Oget_info_vers */
-
-#if !defined(H5Oget_info_by_idx_vers) || H5Oget_info_by_idx_vers == 2
-  #ifndef H5Oget_info_by_idx_vers
-    #define H5Oget_info_by_idx_vers 2
-  #endif /* H5Oget_info_by_idx_vers */
-  #define H5Oget_info_by_idx H5Oget_info_by_idx2
-#elif H5Oget_info_by_idx_vers == 1
-  #define H5Oget_info_by_idx H5Oget_info_by_idx1
-#else /* H5Oget_info_by_idx_vers */
-  #error "H5Oget_info_by_idx_vers set to invalid value"
-#endif /* H5Oget_info_by_idx_vers */
-
-#if !defined(H5Oget_info_by_name_vers) || H5Oget_info_by_name_vers == 2
-  #ifndef H5Oget_info_by_name_vers
-    #define H5Oget_info_by_name_vers 2
-  #endif /* H5Oget_info_by_name_vers */
-  #define H5Oget_info_by_name H5Oget_info_by_name2
-#elif H5Oget_info_by_name_vers == 1
-  #define H5Oget_info_by_name H5Oget_info_by_name1
-#else /* H5Oget_info_by_name_vers */
-  #error "H5Oget_info_by_name_vers set to invalid value"
-#endif /* H5Oget_info_by_name_vers */
-
-#if !defined(H5Ovisit_vers) || H5Ovisit_vers == 2
-  #ifndef H5Ovisit_vers
-    #define H5Ovisit_vers 2
-  #endif /* H5Ovisit_vers */
-  #define H5Ovisit H5Ovisit2
-#elif H5Ovisit_vers == 1
-  #define H5Ovisit H5Ovisit1
-#else /* H5Ovisit_vers */
-  #error "H5Ovisit_vers set to invalid value"
-#endif /* H5Ovisit_vers */
-
-#if !defined(H5Ovisit_by_name_vers) || H5Ovisit_by_name_vers == 2
-  #ifndef H5Ovisit_by_name_vers
-    #define H5Ovisit_by_name_vers 2
-  #endif /* H5Ovisit_by_name_vers */
-  #define H5Ovisit_by_name H5Ovisit_by_name2
-#elif H5Ovisit_by_name_vers == 1
-  #define H5Ovisit_by_name H5Ovisit_by_name1
-#else /* H5Ovisit_by_name_vers */
-  #error "H5Ovisit_by_name_vers set to invalid value"
-#endif /* H5Ovisit_by_name_vers */
 
 #if !defined(H5Pget_filter_vers) || H5Pget_filter_vers == 2
   #ifndef H5Pget_filter_vers

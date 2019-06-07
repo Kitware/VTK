@@ -25,9 +25,6 @@
 #ifndef _H5FSprivate_H
 #define _H5FSprivate_H
 
-/* Include package's public header */
-#include "H5FSpublic.h"
-
 /* Private headers needed by this file */
 #include "H5Fprivate.h"		/* File access				*/
 #include "H5FLprivate.h"	/* Free Lists                           */

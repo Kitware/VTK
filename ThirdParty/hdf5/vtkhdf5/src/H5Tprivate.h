@@ -138,6 +138,7 @@ H5_DLL herr_t H5T_set_version(H5F_t *f, H5T_t *dt);
 H5_DLL herr_t H5T_patch_file(H5T_t *dt, H5F_t *f);
 H5_DLL herr_t H5T_patch_vlen_file(H5T_t *dt, H5F_t *f);
 H5_DLL htri_t H5T_is_variable_str(const H5T_t *dt);
+H5_DLL htri_t H5T_is_vl_storage(const H5T_t *dt);
 
 /* Reference specific functions */
 H5_DLL H5R_type_t H5T_get_ref_type(const H5T_t *dt);

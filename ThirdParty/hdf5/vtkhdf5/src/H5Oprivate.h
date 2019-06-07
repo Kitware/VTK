@@ -120,8 +120,14 @@ typedef struct H5O_mesg_t H5O_mesg_t;
 /* If the module using this macro is allowed access to the private variables, access them directly */
 #ifdef H5O_MODULE
 #define H5O_OH_GET_ADDR(O)    ((O)->chunk[0].addr)
+#define H5O_OH_GET_VERSION ((O)->version)
+#define H5O_OH_GET_FLAGS(O)   ((O)->flags)
+#define H5O_OH_GET_MTIME(O)   ((O)->mtime)
 #else /* H5O_MODULE */
 #define H5O_OH_GET_ADDR(O)    (H5O_get_oh_addr(O))
+#define H5O_OH_GET_VERSION(O) (H5O_get_oh_version(O))
+#define H5O_OH_GET_FLAGS(O)   (H5O_get_oh_flags(O))
+#define H5O_OH_GET_MTIME(O)   (H5O_get_oh_mtime(O))
 #endif /* H5O_MODULE */
 
 /* Set the fields in a shared message structure */
@@ -220,11 +226,11 @@ typedef struct H5O_copy_t {
  * Note: Must increment H5O_MSG_TYPES in H5Opkg.h and update H5O_msg_class_g
  *      in H5O.c when creating a new message type.  Also bump the value of
  *      H5O_BOGUS_INVALID_ID, below, to be one greater than the value of
- *      H5O_UNKNOWN_ID.
+ *      H5O_UNKNOWN_ID, and re-run gen_bogus.c.
  *
  * (this should never exist in a file)
  */
-#define H5O_BOGUS_INVALID_ID	0x001A  /* "Bogus invalid" Message.  */
+#define H5O_BOGUS_INVALID_ID	0x001a  /* "Bogus invalid" Message.  */
 
 /* Shared object message types.
  * Shared objects can be committed, in which case the shared message contains
@@ -644,6 +650,7 @@ typedef struct H5O_layout_t {
  */
 #define H5O_BOGUS_VALUE         0xdeadbeef
 typedef struct H5O_bogus_t {
+    H5O_shared_t        sh_loc;         /* Shared message info (must be first) */
     unsigned u;                         /* Hold the bogus info */
 } H5O_bogus_t;
 #endif /* H5O_ENABLE_BOGUS */
@@ -865,6 +872,9 @@ struct H5P_genplist_t;
 H5_DLL herr_t H5O_init(void);
 H5_DLL herr_t H5O_create(H5F_t *f, size_t size_hint, size_t initial_rc,
     hid_t ocpl_id, H5O_loc_t *loc/*out*/);
+H5_DLL H5O_t *H5O__create_ohdr(H5F_t *f, hid_t ocpl_id);
+H5_DLL herr_t H5O__apply_ohdr(H5F_t *f, H5O_t *oh, hid_t ocpl_id,
+    size_t size_hint, size_t initial_rc, H5O_loc_t *loc_out);
 H5_DLL herr_t H5O_open(H5O_loc_t *loc);
 H5_DLL herr_t H5O_close(H5O_loc_t *loc, hbool_t *file_closed/*out*/);
 H5_DLL int H5O_link(const H5O_loc_t *loc, int adjust);
@@ -888,6 +898,9 @@ H5_DLL hid_t H5O_open_name(const H5G_loc_t *loc, const char *name, hbool_t app_r
 H5_DLL herr_t H5O_get_nlinks(const H5O_loc_t *loc, hsize_t *nlinks);
 H5_DLL void *H5O_obj_create(H5F_t *f, H5O_type_t obj_type, void *crt_info, H5G_loc_t *obj_loc);
 H5_DLL haddr_t H5O_get_oh_addr(const H5O_t *oh);
+H5_DLL uint8_t H5O_get_oh_flags(const H5O_t *oh);
+H5_DLL time_t H5O_get_oh_mtime(const H5O_t *oh);
+H5_DLL uint8_t H5O_get_oh_version(const H5O_t *oh);
 H5_DLL herr_t H5O_get_rc_and_type(const H5O_loc_t *oloc, unsigned *rc, H5O_type_t *otype);
 H5_DLL H5AC_proxy_entry_t *H5O_get_proxy(const H5O_t *oh);
 

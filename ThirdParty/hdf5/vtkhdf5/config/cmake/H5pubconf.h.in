@@ -231,6 +231,9 @@
 /* Define if we have parallel support */
 #cmakedefine H5_HAVE_PARALLEL @H5_HAVE_PARALLEL@
 
+/* Define if both pread and pwrite exist. */
+#cmakedefine H5_HAVE_PREADWRITE @H5_HAVE_PREADWRITE@
+
 /* Define to 1 if you have the <pthread.h> header file. */
 #cmakedefine H5_HAVE_PTHREAD_H @H5_HAVE_PTHREAD_H@
 
@@ -394,14 +397,14 @@
    with special algorithm. */
 #cmakedefine H5_LONG_TO_LDOUBLE_SPECIAL @H5_LONG_TO_LDOUBLE_SPECIAL@
 
+/* Define if your system is power6 and cannot convert some long double values. */
+#cmakedefine H5_DISABLE_SOME_LDOUBLE_CONV @H5_DISABLE_SOME_LDOUBLE_CONV@
+
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #cmakedefine H5_LT_OBJDIR @H5_LT_OBJDIR@
 
 /* Define to enable internal memory allocation sanity checking. */
 /* #cmakedefine H5_MEMORY_ALLOC_SANITY_CHECK @H5_MEMORY_ALLOC_SANITY_CHECK@ ** Define in CMakeLists.txt */
-
-/* Define if the metadata trace file code is to be compiled in */
-#cmakedefine H5_METADATA_TRACE_FILE @H5_METADATA_TRACE_FILE@
 
 /* Define if we can violate pointer alignment restrictions */
 #cmakedefine H5_NO_ALIGNMENT_RESTRICTIONS @H5_NO_ALIGNMENT_RESTRICTIONS@
@@ -535,6 +538,9 @@
 
 /* The size of `short', as computed by sizeof. */
 #cmakedefine H5_SIZEOF_SHORT @H5_SIZEOF_SHORT@
+
+/* The size of `time_t', as computed by sizeof. */
+#cmakedefine H5_SIZEOF_TIME_T @H5_SIZEOF_TIME_T@
 
 /* The size of `uint16_t', as computed by sizeof. */
 #cmakedefine H5_SIZEOF_UINT16_T @H5_SIZEOF_UINT16_T@
