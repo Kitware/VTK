@@ -1,5 +1,5 @@
 /*
- *	Copyright 2012, University Corporation for Atmospheric Research
+ *	Copyright 2018, University Corporation for Atmospheric Research
  *	See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 
@@ -52,9 +52,7 @@ ncstdio_uid(ncstdio* ncstdiop,int*);
 extern int ncFile_create(const char *path, int ioflags, ncstdio** filepp);
 extern int ncFile_open(const char *path, int ioflags, ncstdio** filepp);
 
-#ifdef USE_DISKLESS
 extern int ncMemory_create(const char *path, int ioflags, ncstdio** filepp);
 extern int ncMemory_open(const char *path, int ioflags, ncstdio** filepp);
-#endif
 
 #endif /* _NCSTDIO_H_* /

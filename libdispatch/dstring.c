@@ -1,5 +1,5 @@
 /*
- *	Copyright 1996, University Corporation for Atmospheric Research
+ *	Copyright 2018, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 /* $Id: string.c,v 1.76 2010/05/26 21:43:33 dmh Exp $ */
@@ -10,7 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
-#include "nc.h"
+#include "ncdispatch.h"
 #include "rnd.h"
 #include "ncutf8.h"
 
@@ -319,7 +319,7 @@ strdup(const char* s)
  */
 
 #ifndef HAVE_STRLCAT
-#ifndef _MSC_VER /* We will use strcat_s */
+#ifndef _WIN32 /* We will use strcat_s */
 /*
  * Appends src to string dst of size dsize (unlike strncat, dsize is the
  * full size of dst, not space left).  At most dsize-1 characters
@@ -327,7 +327,7 @@ strdup(const char* s)
  * Returns strlen(src) + MIN(dsize, strlen(initial dst)).
  * If retval >= dsize, truncation occurred.
  */
-size_t
+EXTERNL size_t
 strlcat(char* dst, const char* src, size_t dsize)
 {
 	const char *odst = dst;
@@ -354,5 +354,5 @@ strlcat(char* dst, const char* src, size_t dsize)
 
 	return(dlen + (src - osrc));	/* count does not include NUL */
 }
-#endif /*!_MSC_VER*/
+#endif /*!_WIN32*/
 #endif /*!HAVE_STRLCAT*/

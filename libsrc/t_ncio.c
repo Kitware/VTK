@@ -1,5 +1,5 @@
 /*
- *   Copyright 1995, University Corporation for Atmospheric Research
+ *   Copyright 2018, University Corporation for Atmospheric Research
  *   See top level COPYRIGHT file for copying and redistribution conditions.
  */
 /* $Id: t_ncio.c,v 1.10 2010/05/26 11:11:26 ed Exp $ */

@@ -1,5 +1,5 @@
 /*
- *	Copyright 1996, Unuiversity Corporation for Atmospheric Research
+ *	Copyright 2018, Unuiversity Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 
@@ -19,6 +19,7 @@
 #endif
 
 #include "nc3internal.h"
+#include "netcdf_mem.h"
 #include "rnd.h"
 #include "ncx.h"
 
@@ -34,6 +35,9 @@
 #define NC_NUMRECS_EXTENT3 4
 /* For cdf5 */
 #define NC_NUMRECS_EXTENT5 8
+
+/* Internal function; breaks ncio abstraction */
+extern int memio_extract(ncio* const nciop, size_t* sizep, void** memoryp);
 
 static void
 free_NC3INFO(NC3_INFO *nc3)
@@ -95,7 +99,7 @@ err:
 int
 nc3_cktype(int mode, nc_type type)
 {
-#ifdef USE_CDF5
+#ifdef ENABLE_CDF5
     if (mode & NC_CDF5) { /* CDF-5 format */
         if (type >= NC_BYTE && type < NC_STRING) return NC_NOERR;
     } else
@@ -158,6 +162,7 @@ NC_begins(NC3_INFO* ncp,
 	size_t ii, j;
 	int sizeof_off_t;
 	off_t index = 0;
+	off_t old_ncp_begin_var;
 	NC_var **vpp;
 	NC_var *last = NULL;
 	NC_var *first_var = NULL;       /* first "non-record" var */
@@ -178,6 +183,8 @@ NC_begins(NC3_INFO* ncp,
 
 	if(ncp->vars.nelems == 0)
 		return NC_NOERR;
+
+        old_ncp_begin_var = ncp->begin_var;
 
 	/* only (re)calculate begin_var if there is not sufficient space in header
 	   or start of non-record variables is not aligned as requested by valign */
@@ -217,6 +224,7 @@ fprintf(stderr, "    VAR %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index);
 #endif
                 if( sizeof_off_t == 4 && (index > X_OFF_MAX || index < 0) )
 		{
+                    ncp->begin_var = old_ncp_begin_var;
 		    return NC_EVARSIZE;
                 }
 		(*vpp)->begin = index;
@@ -287,6 +295,7 @@ fprintf(stderr, "    REC %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index);
 #endif
                 if( sizeof_off_t == 4 && (index > X_OFF_MAX || index < 0) )
 		{
+                    ncp->begin_var = old_ncp_begin_var;
 		    return NC_EVARSIZE;
                 }
 		(*vpp)->begin = index;
@@ -309,6 +318,7 @@ fprintf(stderr, "    REC %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index);
 #if SIZEOF_OFF_T == SIZEOF_SIZE_T && SIZEOF_SIZE_T == 4
 		if( ncp->recsize > X_UINT_MAX - (*vpp)->len )
 		{
+                    ncp->begin_var = old_ncp_begin_var;
 		    return NC_EVARSIZE;
 		}
 #endif
@@ -573,7 +583,7 @@ fill_added(NC3_INFO *gnu, NC3_INFO *old)
 	{
 		const NC_var *const gnu_varp = *(gnu_varpp + varid);
 
-		if (gnu_varp->no_fill) continue; 
+		if (gnu_varp->no_fill) continue;
 
 		if(IS_RECVAR(gnu_varp))
 		{
@@ -702,7 +712,7 @@ NC_check_vlens(NC3_INFO *ncp)
     /* maximum permitted variable size (or size of one record's worth
        of a record variable) in bytes.  This is different for format 1
        and format 2. */
-    size_t vlen_max;
+    long long vlen_max;
     size_t ii;
     size_t large_vars_count;
     size_t rec_vars_count;
@@ -1027,13 +1037,11 @@ int NC3_new_nc(NC3_INFO** ncpp)
 
 /* WARNING: SIGNATURE CHANGE */
 int
-NC3_create(const char *path, int ioflags,
-		size_t initialsz, int basepe,
-		size_t *chunksizehintp,
-		int use_parallel, void* parameters,
-                NC_Dispatch* dispatch, NC* nc)
+NC3_create(const char *path, int ioflags, size_t initialsz, int basepe,
+           size_t *chunksizehintp, void *parameters,
+           NC_Dispatch *dispatch, NC *nc)
 {
-	int status;
+	int status = NC_NOERR;
 	void *xp = NULL;
 	int sizeof_off_t = 0;
 	NC3_INFO* nc3 = NULL;
@@ -1060,12 +1068,6 @@ NC3_create(const char *path, int ioflags,
 #endif
 
 	assert(nc3->flags == 0);
-
-	/* Apply default create format. */
-	if (nc_get_default_format() == NC_FORMAT_64BIT_OFFSET)
-	  ioflags |= NC_64BIT_OFFSET;
-	else if (nc_get_default_format() == NC_FORMAT_CDF5)
-	  ioflags |= NC_64BIT_DATA;
 
 	/* Now we can set min size */
 	if (fIsSet(ioflags, NC_64BIT_DATA))
@@ -1156,7 +1158,7 @@ nc_set_default_format(int format, int *old_formatp)
       return NC_EINVAL;
 #else
     if (format != NC_FORMAT_CLASSIC && format != NC_FORMAT_64BIT_OFFSET
-#ifdef USE_CDF5
+#ifdef ENABLE_CDF5
         && format != NC_FORMAT_CDF5
 #endif
         )
@@ -1168,10 +1170,8 @@ nc_set_default_format(int format, int *old_formatp)
 #endif
 
 int
-NC3_open(const char * path, int ioflags,
-               int basepe, size_t *chunksizehintp,
-	       int use_parallel,void* parameters,
-               NC_Dispatch* dispatch, NC* nc)
+NC3_open(const char *path, int ioflags, int basepe, size_t *chunksizehintp,
+         void *parameters, NC_Dispatch *dispatch, NC *nc)
 {
 	int status;
 	NC3_INFO* nc3 = NULL;
@@ -1192,11 +1192,22 @@ NC3_open(const char * path, int ioflags,
 	 * !_CRAYMPP, only pe 0 is valid
 	 */
 	if(basepe != 0) {
-        if(nc3) free(nc3);
-        status = NC_EINVAL;
-	goto unwind_alloc;
+      if(nc3) {
+        free(nc3);
+        nc3 = NULL;
+      }
+      status = NC_EINVAL;
+      goto unwind_alloc;
     }
 #endif
+
+#ifdef ENABLE_BYTERANGE
+    /* If the model specified the use of byte-ranges, then signal by
+       a temporary hack using one of the flags in the ioflags.
+    */
+    if(nc->model->iosp == NC_IOSP_HTTP)
+        ioflags |= NC_HTTP;
+#endif /*ENABLE_BYTERANGE*/
 
         status = ncio_open(path, ioflags, 0, 0, &nc3->chunk, parameters,
 			       &nc3->nciop, NULL);
@@ -1311,7 +1322,7 @@ NC3_abort(int ncid)
 }
 
 int
-NC3_close(int ncid)
+NC3_close(int ncid, void* params)
 {
 	int status = NC_NOERR;
 	NC *nc;
@@ -1358,6 +1369,12 @@ NC3_close(int ncid)
 		    return status;
 	    }
 	}
+
+	if(params != NULL && (nc->mode & NC_INMEMORY) != 0) {
+	    NC_memio* memio = (NC_memio*)params;
+            /* Extract the final memory size &/or contents */
+            status = memio_extract(nc3->nciop,&memio->size,&memio->memory);
+        }
 
 	(void) ncio_close(nc3->nciop, 0);
 	nc3->nciop = NULL;
@@ -1678,7 +1695,7 @@ NC3_inq_format(int ncid, int *formatp)
       return NC_NOERR;
 
    /* only need to check for netCDF-3 variants, since this is never called for netCDF-4 files */
-#ifdef USE_CDF5
+#ifdef ENABLE_CDF5
    if (fIsSet(nc3->flags, NC_64BIT_DATA))
       *formatp = NC_FORMAT_CDF5;
    else
@@ -1726,7 +1743,7 @@ NC3_inq_format_extended(int ncid, int *formatp, int *modep)
  * Determine name and size of netCDF type. This netCDF-4 function
  * proved so popular that a netCDF-classic version is provided. You're
  * welcome.
- * 
+ *
  * \param ncid The ID of an open file.
  * \param typeid The ID of a netCDF type.
  * \param name Pointer that will get the name of the type. Maximum
@@ -1765,19 +1782,14 @@ int
 nc_delete_mp(const char * path, int basepe)
 {
 	NC *nc;
-	NC3_INFO* nc3;
 	int status;
 	int ncid;
-	size_t chunk = 512;
 
 	status = nc_open(path,NC_NOWRITE,&ncid);
         if(status) return status;
 
 	status = NC_check_id(ncid,&nc);
         if(status) return status;
-	nc3 = NC3_DATA(nc);
-
-	nc3->chunk = chunk;
 
 #if defined(LOCKNUMREC) /* && _CRAYMPP */
 	if (status = NC_init_pe(nc3, basepe)) {

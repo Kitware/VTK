@@ -1,5 +1,5 @@
 /*
- *	Copyright 1996, University Corporation for Atmospheric Research
+ *	Copyright 2018, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 /* $Id: var.c,v 1.144 2010/05/30 00:50:35 russ Exp $ */
@@ -230,7 +230,7 @@ free_NC_vararrayV(NC_vararray *ncap)
 	if(ncap->nalloc == 0)
 		return;
 
-	NC_hashmapDelete(ncap->hashmap);
+	NC_hashmapfree(ncap->hashmap);
 	ncap->hashmap = NULL;
 
 	assert(ncap->value != NULL);
@@ -310,7 +310,7 @@ incr_NC_vararray(NC_vararray *ncap, NC_var *newelemp)
 		ncap->value = vp;
 		ncap->nalloc = NC_ARRAY_GROWBY;
 
-		ncap->hashmap = NC_hashmapCreate(0);
+		ncap->hashmap = NC_hashmapnew(0);
 	}
 	else if(ncap->nelems +1 > ncap->nalloc)
 	{
@@ -324,7 +324,7 @@ incr_NC_vararray(NC_vararray *ncap, NC_var *newelemp)
 
 	if(newelemp != NULL)
 	{
-		NC_hashmapAddVar(ncap, (long)ncap->nelems, newelemp->name->cp);
+		NC_hashmapadd(ncap->hashmap, (uintptr_t)ncap->nelems, newelemp->name->cp, strlen(newelemp->name->cp));
 		ncap->value[ncap->nelems] = newelemp;
 		ncap->nelems++;
 	}
@@ -353,35 +353,33 @@ elem_NC_vararray(const NC_vararray *ncap, size_t elem)
  * Step thru NC_VARIABLE array, seeking match on name.
  * Return varid or -1 on not found.
  * *varpp is set to the appropriate NC_var.
- * Formerly (sort of)
-NC_hvarid
+ * Formerly (sort of) NC_hvarid
  */
 int
 NC_findvar(const NC_vararray *ncap, const char *uname, NC_var **varpp)
 {
-	int hash_var_id;
-	char *name;
-	int stat;
+	int hash_var_id = -1;
+	uintptr_t data;
+	char *name = NULL;
 
 	assert(ncap != NULL);
 
 	if(ncap->nelems == 0)
-		return -1;
-
+	    goto done;
 
 	/* normalized version of uname */
-        stat = nc_utf8_normalize((const unsigned char *)uname,(unsigned char **)&name);
-        if(stat != NC_NOERR)
-	    return stat;
+        if(nc_utf8_normalize((const unsigned char *)uname,(unsigned char **)&name))
+	    goto done;
 
-	hash_var_id = (int)NC_hashmapGetVar(ncap, name);
-	free(name);
-	if (hash_var_id >= 0) {
-	  if (varpp != NULL)
-	    *varpp = ncap->value[hash_var_id];
-	  return(hash_var_id); /* Normal return */
-	}
-	return(-1); /* not found */
+	if(NC_hashmapget(ncap->hashmap, name, strlen(name), &data) == 0)
+	    goto done;
+
+	hash_var_id = (int)data;
+        if (varpp != NULL)
+	  *varpp = ncap->value[hash_var_id];
+done:
+	if(name != NULL) free(name);
+	return(hash_var_id); /* Normal return */
 }
 
 /*
@@ -486,9 +484,6 @@ NC_var_shape(NC_var *varp, const NC_dimarray *dims)
 
 out :
 
-    /* No variable size can be > X_INT64_MAX - 3 */
-    if (0 == NC_check_vlen(varp, X_INT64_MAX-3)) return NC_EVARSIZE;
-
     /*
      * For CDF-1 and CDF-2 formats, the total number of array elements
      * cannot exceed 2^32, unless this variable is the last fixed-size
@@ -515,16 +510,15 @@ out :
  * systems with LFS it should be 2^32 - 4.
  */
 int
-NC_check_vlen(NC_var *varp, size_t vlen_max) {
-    size_t prod=varp->xsz;	/* product of xsz and dimensions so far */
-
+NC_check_vlen(NC_var *varp, long long vlen_max) {
     size_t ii;
+    long long prod=varp->xsz;	/* product of xsz and dimensions so far */
 
     assert(varp != NULL);
     for(ii = IS_RECVAR(varp) ? 1 : 0; ii < varp->ndims; ii++) {
       if(!varp->shape)
         return 0; /* Shape is undefined/NULL. */
-      if (varp->shape[ii] > vlen_max / prod) {
+      if ((long long)varp->shape[ii] > vlen_max / prod) {
         return 0;		/* size in bytes won't fit in a 32-bit int */
       }
       prod *= varp->shape[ii];
@@ -734,73 +728,72 @@ NC3_inq_var(int ncid,
 int
 NC3_rename_var(int ncid, int varid, const char *unewname)
 {
-	int status;
+	int status = NC_NOERR;
 	NC *nc;
 	NC3_INFO* ncp;
+	uintptr_t intdata;
 	NC_var *varp;
 	NC_string *old, *newStr;
 	int other;
-	char *newname;		/* normalized */
+	char *newname = NULL;	/* normalized */
 
 	status = NC_check_id(ncid, &nc);
 	if(status != NC_NOERR)
-		return status;
+	    goto done;
 	ncp = NC3_DATA(nc);
 
 	if(NC_readonly(ncp))
-	{
-		return NC_EPERM;
-	}
+	    {status = NC_EPERM; goto done;}
 
 	status = NC_check_name(unewname);
 	if(status != NC_NOERR)
-		return status;
+	    goto done;
 
 	/* check for name in use */
 	other = NC_findvar(&ncp->vars, unewname, &varp);
 	if(other != -1)
-	{
-		return NC_ENAMEINUSE;
-	}
+	    {status = NC_ENAMEINUSE; goto done;}
 
 	status = NC_lookupvar(ncp, varid, &varp);
 	if(status != NC_NOERR)
-	{
-		/* invalid varid */
-		return status;
-	}
-
+	    goto done; /* invalid varid */
 
 	old = varp->name;
         status = nc_utf8_normalize((const unsigned char *)unewname,(unsigned char **)&newname);
         if(status != NC_NOERR)
-	    return status;
+	    goto done;
 	if(NC_indef(ncp))
 	{
 		/* Remove old name from hashmap; add new... */
-		NC_hashmapRemoveVar(&ncp->vars, old->cp);
-
+	        /* WARNING: strlen(NC_string.cp) may be less than NC_string.nchars */
+		NC_hashmapremove(ncp->vars.hashmap,old->cp,strlen(old->cp),NULL);
 		newStr = new_NC_string(strlen(newname),newname);
-		free(newname);
 		if(newStr == NULL)
-			return(-1);
+		    {status = NC_ENOMEM; goto done;}
 		varp->name = newStr;
-		NC_hashmapAddVar(&ncp->vars, varid, newStr->cp);
+		intdata = (uintptr_t)varid;
+		NC_hashmapadd(ncp->vars.hashmap, intdata, varp->name->cp, strlen(varp->name->cp));
 		free_NC_string(old);
-
-		return NC_NOERR;
+		goto done;
 	}
 
 	/* else, not in define mode */
+	/* If new name is longer than old, then complain,
+           but otherwise, no change (test is same as set_NC_string)*/
+	if(varp->name->nchars < strlen(newname))
+	    {status = NC_ENOTINDEFINE; goto done;}
+
+	/* WARNING: strlen(NC_string.cp) may be less than NC_string.nchars */
 	/* Remove old name from hashmap; add new... */
-	NC_hashmapRemoveVar(&ncp->vars, old->cp);
+        NC_hashmapremove(ncp->vars.hashmap,old->cp,strlen(old->cp),NULL);
 
+	/* WARNING: strlen(NC_string.cp) may be less than NC_string.nchars */
 	status = set_NC_string(varp->name, newname);
-	free(newname);
 	if(status != NC_NOERR)
-		return status;
+		goto done;
 
-	NC_hashmapAddVar(&ncp->vars, varid, varp->name->cp);
+	intdata = (uintptr_t)varid;
+	NC_hashmapadd(ncp->vars.hashmap, intdata, varp->name->cp, strlen(varp->name->cp));
 
 	set_NC_hdirty(ncp);
 
@@ -808,10 +801,11 @@ NC3_rename_var(int ncid, int varid, const char *unewname)
 	{
 		status = NC_sync(ncp);
 		if(status != NC_NOERR)
-			return status;
+			goto done;
 	}
-
-	return NC_NOERR;
+done:
+	if(newname) free(newname);
+	return status;
 }
 
 int

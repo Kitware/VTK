@@ -1,7 +1,7 @@
 /*! \internal
 Public functions from dispatch table.
 
-Copyright 2010 University Corporation for Atmospheric
+Copyright 2018 University Corporation for Atmospheric
 Research/Unidata. See COPYRIGHT file for more info.
 */
 

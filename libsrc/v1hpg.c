@@ -1,5 +1,5 @@
 /*
- *	Copyright 1996, University Corporation for Atmospheric Research
+ *	Copyright 2018, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 
@@ -536,12 +536,12 @@ v1h_get_NC_dimarray(v1hs *gsp, NC_dimarray *ncap)
 	if(type != NC_DIMENSION)
 		return EINVAL;
 
-	ncap->value = (NC_dim **) malloc(ncap->nelems * sizeof(NC_dim *));
+	ncap->value = (NC_dim **) calloc(1,ncap->nelems * sizeof(NC_dim *));
 	if(ncap->value == NULL)
 		return NC_ENOMEM;
 	ncap->nalloc = ncap->nelems;
 
-	ncap->hashmap = NC_hashmapCreate(ncap->nelems);
+	ncap->hashmap = NC_hashmapnew(ncap->nelems);
 
 	{
 		NC_dim **dpp = ncap->value;
@@ -557,7 +557,7 @@ v1h_get_NC_dimarray(v1hs *gsp, NC_dimarray *ncap)
 			}
 			{
 			  int dimid = (size_t)(dpp - ncap->value);
-			  NC_hashmapAddDim(ncap, dimid, (*dpp)->name->cp);
+			  NC_hashmapadd(ncap->hashmap, (uintptr_t)dimid, (*dpp)->name->cp,strlen((*dpp)->name->cp));
 			}
 		}
 	}
@@ -1050,7 +1050,9 @@ v1h_get_NC_var(v1hs *gsp, NC_var **varpp)
     if(status != NC_NOERR)
 		 goto unwind_alloc;
 
-	status = v1h_get_size_t(gsp, &varp->len);
+    size_t tmp;
+    status = v1h_get_size_t(gsp, &tmp);
+    varp->len = tmp;
     if(status != NC_NOERR)
 		 goto unwind_alloc;
 
@@ -1176,12 +1178,12 @@ v1h_get_NC_vararray(v1hs *gsp, NC_vararray *ncap)
 	if(type != NC_VARIABLE)
 		return EINVAL;
 
-	ncap->value = (NC_var **) malloc(ncap->nelems * sizeof(NC_var *));
+	ncap->value = (NC_var **) calloc(1,ncap->nelems * sizeof(NC_var *));
 	if(ncap->value == NULL)
 		return NC_ENOMEM;
 	ncap->nalloc = ncap->nelems;
 
-	ncap->hashmap = NC_hashmapCreate(ncap->nelems);
+	ncap->hashmap = NC_hashmapnew(ncap->nelems);
 	{
 		NC_var **vpp = ncap->value;
 		NC_var *const *const end = &vpp[ncap->nelems];
@@ -1196,7 +1198,7 @@ v1h_get_NC_vararray(v1hs *gsp, NC_vararray *ncap)
 			}
 			{
 			  int varid = (size_t)(vpp - ncap->value);
-			  NC_hashmapAddVar(ncap, varid, (*vpp)->name->cp);
+			  NC_hashmapadd(ncap->hashmap, (uintptr_t)varid, (*vpp)->name->cp,strlen((*vpp)->name->cp));
 			}
 		}
 	}

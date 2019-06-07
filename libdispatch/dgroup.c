@@ -1,7 +1,7 @@
 /*! \file
 Functions for netCDF-4 features.
 
-Copyright 2010 University Corporation for Atmospheric
+Copyright 2018 University Corporation for Atmospheric
 Research/Unidata. See \ref copyright file for more info. */
 
 #include "ncdispatch.h"

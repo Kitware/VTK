@@ -2,8 +2,9 @@
 
 Main header file for the C API.
 
-Copyright 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014
+Copyright 2018, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
+2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
+2015, 2016, 2017, 2018
 University Corporation for Atmospheric Research/Unidata.
 
 See \ref copyright file for more info.
@@ -68,7 +69,7 @@ extern "C" {
 #define NC_FILL_BYTE    ((signed char)-127)
 #define NC_FILL_CHAR    ((char)0)
 #define NC_FILL_SHORT   ((short)-32767)
-#define NC_FILL_INT     (-2147483647L)
+#define NC_FILL_INT     (-2147483647)
 #define NC_FILL_FLOAT   (9.9692099683868690e+36f) /* near 15 * 2^119 */
 #define NC_FILL_DOUBLE  (9.9692099683868690e+36)
 #define NC_FILL_UBYTE   (255)
@@ -118,21 +119,23 @@ extern "C" {
 /* Define the ioflags bits for nc_create and nc_open.
    currently unused:
         0x0002
-        0x0040
-        0x0080
    and the whole upper 16 bits
 */
 
 #define NC_NOWRITE       0x0000 /**< Set read-only access for nc_open(). */
 #define NC_WRITE         0x0001 /**< Set read-write access for nc_open(). */
+
 #define NC_CLOBBER       0x0000 /**< Destroy existing file. Mode flag for nc_create(). */
 #define NC_NOCLOBBER     0x0004 /**< Don't destroy existing file. Mode flag for nc_create(). */
 
 #define NC_DISKLESS      0x0008  /**< Use diskless file. Mode flag for nc_open() or nc_create(). */
-#define NC_MMAP          0x0010  /**< Use diskless file with mmap. Mode flag for nc_open() or nc_create(). */
+#define NC_MMAP          0x0010  /**< \deprecated Use diskless file with mmap. Mode flag for nc_open() or nc_create()*/
 
 #define NC_64BIT_DATA    0x0020  /**< CDF-5 format: classic model but 64 bit dimensions and sizes */
 #define NC_CDF5          NC_64BIT_DATA  /**< Alias NC_CDF5 to NC_64BIT_DATA */
+
+#define NC_UDF0          0x0040  /**< User-defined format 0. */
+#define NC_UDF1          0x0080  /**< User-defined format 1. */
 
 #define NC_CLASSIC_MODEL 0x0100 /**< Enforce classic model on netCDF-4. Mode flag for nc_create(). */
 #define NC_64BIT_OFFSET  0x0200  /**< Use large (64-bit) file offsets. Mode flag for nc_create(). */
@@ -149,16 +152,17 @@ Use this in mode flags for both nc_create() and nc_open(). */
 
 #define NC_NETCDF4       0x1000  /**< Use netCDF-4/HDF5 format. Mode flag for nc_create(). */
 
-/** Turn on MPI I/O.
-Use this in mode flags for both nc_create() and nc_open(). */
-#define NC_MPIIO         0x2000
-/** Turn on MPI POSIX I/O.
-Use this in mode flags for both nc_create() and nc_open(). */
-#define NC_MPIPOSIX      0x4000 /**< \deprecated As of libhdf5 1.8.13. */
+/** The following 3 flags are deprecated as of 4.6.2. Parallel I/O is now
+ * initiated by calling nc_create_par and nc_open_par, no longer by flags.
+ */
+#define NC_MPIIO         0x2000 /**< \deprecated */
+#define NC_MPIPOSIX      NC_MPIIO /**< \deprecated */
+#define NC_PNETCDF       (NC_MPIIO) /**< \deprecated */
 
-#define NC_INMEMORY      0x8000  /**< Read from memory. Mode flag for nc_open() or nc_create(). */
+#define NC_PERSIST       0x4000  /**< Save diskless contents to disk. Mode flag for nc_open() or nc_create() */
+#define NC_INMEMORY      0x8000  /**< Read from memory. Mode flag for nc_open() or nc_create() */
 
-#define NC_PNETCDF       (NC_MPIIO) /**< Use parallel-netcdf library; alias for NC_MPIIO. */
+#define NC_MAX_MAGIC_NUMBER_LEN 8 /**< Max len of user-defined format magic number. */
 
 /** Format specifier for nc_set_default_format() and returned
  *  by nc_inq_format. This returns the format as provided by
@@ -168,8 +172,8 @@ Use this in mode flags for both nc_create() and nc_open(). */
  */
 /**@{*/
 #define NC_FORMAT_CLASSIC         (1)
-/* After adding CDF5 support, this flag
-   is somewhat confusing. So, it is renamed.
+/* After adding CDF5 support, the NC_FORMAT_64BIT
+   flag is somewhat confusing. So, it is renamed.
    Note that the name in the contributed code
    NC_FORMAT_64BIT was renamed to NC_FORMAT_CDF2
 */
@@ -181,6 +185,9 @@ Use this in mode flags for both nc_create() and nc_open(). */
 
 /* Alias */
 #define NC_FORMAT_CDF5    NC_FORMAT_64BIT_DATA
+
+/* Define a mask covering format flags only */
+#define NC_FORMAT_ALL (NC_64BIT_OFFSET|NC_64BIT_DATA|NC_CLASSIC_MODEL|NC_NETCDF4|NC_UDF0|NC_UDF1)
 
 /**@}*/
 
@@ -209,6 +216,9 @@ Use this in mode flags for both nc_create() and nc_open(). */
 #define NC_FORMATX_PNETCDF   (4)
 #define NC_FORMATX_DAP2      (5)
 #define NC_FORMATX_DAP4      (6)
+#define NC_FORMATX_UDF0      (8)
+#define NC_FORMATX_UDF1      (9)
+#define NC_FORMATX_ZARR      (10)
 #define NC_FORMATX_UNDEFINED (0)
 
   /* To avoid breaking compatibility (such as in the python library),
@@ -421,6 +431,7 @@ by the desired type. */
 #define NC_ENOTFOUND     (-90)      /**< No such file */
 #define NC_ECANTREMOVE   (-91)      /**< Can't remove file */
 #define NC_EINTERNAL     (-92)      /**< NetCDF Library Internal Error */
+#define NC_EPNETCDF      (-93)      /**< Error at PnetCDF layer */
 
 /* The following was added in support of netcdf-4. Make all netcdf-4
    error codes < -100 so that errors can be added to netcdf-3 if
@@ -461,7 +472,8 @@ by the desired type. */
 #define NC_EFILTER       (-132)    /**< Filter operation failed. */
 #define NC_ERCFILE       (-133)    /**< RC file failure */
 #define NC_ENULLPAD      (-134)    /**< Header Bytes not Null-Byte padded */
-#define NC4_LAST_ERROR   (-135)    /**< @internal All netCDF errors > this. */
+#define NC_EINMEMORY     (-135)    /**< In-memory file error */
+#define NC4_LAST_ERROR   (-136)    /**< @internal All netCDF errors > this. */
 
 /** @internal This is used in netCDF-4 files for dimensions without
  * coordinate vars. */
@@ -504,6 +516,14 @@ nc_inq_libvers(void);
 
 EXTERNL const char *
 nc_strerror(int ncerr);
+
+/* Set up user-defined format. */
+typedef struct NC_Dispatch NC_Dispatch;
+EXTERNL int
+nc_def_user_format(int mode_flag, NC_Dispatch *dispatch_table, char *magic_number);
+
+EXTERNL int
+nc_inq_user_format(int mode_flag, NC_Dispatch **dispatch_table, char *magic_number);
 
 EXTERNL int
 nc__create(const char *path, int cmode, size_t initialsz,
@@ -882,8 +902,8 @@ nc_inq_var_filter(int ncid, int varid, unsigned int* idp, size_t* nparams, unsig
 EXTERNL int
 nc_set_fill(int ncid, int fillmode, int *old_modep);
 
-/* Set the default nc_create format to NC_FORMAT_CLASSIC,
- * NC_FORMAT_64BIT, NC_FORMAT_NETCDF4, etc */
+/* Set the default nc_create format to NC_FORMAT_CLASSIC, NC_FORMAT_64BIT,
+ * NC_FORMAT_CDF5, NC_FORMAT_NETCDF4, or NC_FORMAT_NETCDF4_CLASSIC */
 EXTERNL int
 nc_set_default_format(int format, int *old_formatp);
 
@@ -1727,8 +1747,6 @@ EXTERNL int
 nc_get_var_ubyte(int ncid, int varid, unsigned char *ip);
 /* End Deprecated */
 
-#ifdef LOGGING
-
 /* Set the log level. 0 shows only errors, 1 only major messages,
  * etc., to 5, which shows way too much information. */
 EXTERNL int
@@ -1737,12 +1755,6 @@ nc_set_log_level(int new_level);
 /* Use this to turn off logging by calling
    nc_log_level(NC_TURN_OFF_LOGGING) */
 #define NC_TURN_OFF_LOGGING (-1)
-
-#else /* not LOGGING */
-
-#define nc_set_log_level(e) /**< Get rid of these calls. */
-
-#endif /* LOGGING */
 
 /* Show the netCDF library's in-memory metadata for a file. */
 EXTERNL int
@@ -1792,11 +1804,6 @@ EXTERNL int
 nctypelen(nc_type datatype);
 
 /* Begin v2.4 backward compatibility */
-/*
- * defining NO_NETCDF_2 to the preprocessor
- * turns off backward compatibility declarations.
- */
-#ifndef NO_NETCDF_2
 
 /** Backward compatible alias. */
 /**@{*/
@@ -1959,19 +1966,27 @@ ncrecget(int ncid, long recnum, void **datap);
 EXTERNL int
 ncrecput(int ncid, long recnum, void *const *datap);
 
-EXTERNL int
-nc_finalize();
+/* This function may be called to force the library to
+   initialize itself. It is not required, however.
+*/
+EXTERNL int nc_initialize(void);
 
-/* End v2.4 backward compatibility */
-#endif /*!NO_NETCDF_2*/
+/* This function may be called to force the library to
+   cleanup global memory so that memory checkers will not
+   report errors. It is not required, however.
+*/
+EXTERNL int nc_finalize(void);
 
 #if defined(__cplusplus)
 }
 #endif
 
 /* Define two hard-coded functionality-related
-   macros, but this is not going to be
-   standard practice. */
+   (as requested by community developers) macros.
+   This is not going to be standard practice.
+   Don't remove without an in-place replacement of some sort,
+   the are now (for better or worse) used by downstream
+   software external to Unidata. */
 #ifndef NC_HAVE_RENAME_GRP
 #define NC_HAVE_RENAME_GRP /*!< rename_grp() support. */
 #endif

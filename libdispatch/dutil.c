@@ -1,5 +1,5 @@
 /*********************************************************************
- *   Copyright 2016, UCAR/Unidata
+ *   Copyright 2018, UCAR/Unidata
  *   See netcdf/COPYRIGHT file for copying and redistribution conditions.
  *********************************************************************/
 
@@ -24,6 +24,8 @@
 #include "ncbytes.h"
 #include "nclog.h"
 #include "ncwinpath.h"
+
+extern int mkstemp(char *template);
 
 #define NC_MAX_PATH 4096
 
@@ -161,32 +163,6 @@ NC_entityescape(const char* s)
     return escaped;
 }
 
-int
-NC_readfile(const char* filename, NCbytes* content)
-{
-    int ret = NC_NOERR;
-    FILE* stream = NULL;
-    char part[1024];
-
-#ifdef _MSC_VER
-    stream = NCfopen(filename,"r");
-#else
-    stream = NCfopen(filename,"rb");
-#endif
-    if(stream == NULL) {ret=errno; goto done;}
-    for(;;) {
-	size_t count = fread(part, 1, sizeof(part), stream);
-	if(count <= 0) break;
-	ncbytesappendn(content,part,count);
-	if(ferror(stream)) {ret = NC_EIO; goto done;}
-	if(feof(stream)) break;
-    }
-    ncbytesnull(content);
-done:
-    if(stream) fclose(stream);
-    return ret;
-}
-
 /**
 Wrap mktmp and return the generated path,
 or null if failed.
@@ -250,5 +226,58 @@ NC_mktmp(const char* base)
     } else
 	close(fd);
     return strdup(tmp);
+}
+
+int
+NC_readfile(const char* filename, NCbytes* content)
+{
+    int ret = NC_NOERR;
+    FILE* stream = NULL;
+    char part[1024];
+
+#ifdef _WIN32
+    stream = NCfopen(filename,"rb");
+#else
+    stream = NCfopen(filename,"r");
+#endif
+    if(stream == NULL) {ret=errno; goto done;}
+    for(;;) {
+	size_t count = fread(part, 1, sizeof(part), stream);
+	if(count <= 0) break;
+	ncbytesappendn(content,part,count);
+	if(ferror(stream)) {ret = NC_EIO; goto done;}
+	if(feof(stream)) break;
+    }
+    ncbytesnull(content);
+done:
+    if(stream) fclose(stream);
+    return ret;
+}
+
+int
+NC_writefile(const char* filename, size_t size, void* content)
+{
+    int ret = NC_NOERR;
+    FILE* stream = NULL;
+    void* p;
+    size_t remain;
+
+#ifdef _WIN32
+    stream = NCfopen(filename,"wb");
+#else
+    stream = NCfopen(filename,"w");
+#endif
+    if(stream == NULL) {ret=errno; goto done;}
+    p = content;
+    remain = size;
+    while(remain > 0) {
+	size_t written = fwrite(p, 1, remain, stream);
+	if(ferror(stream)) {ret = NC_EIO; goto done;}
+	if(feof(stream)) break;
+	remain -= written;
+    }
+done:
+    if(stream) fclose(stream);
+    return ret;
 }
 

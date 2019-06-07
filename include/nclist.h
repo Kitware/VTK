@@ -1,4 +1,4 @@
-/* Copyright 2009, UCAR/Unidata and OPeNDAP, Inc.
+/* Copyright 2018, UCAR/Unidata and OPeNDAP, Inc.
    See the COPYRIGHT file for more information. */
 #ifndef NCLIST_H
 #define NCLIST_H 1
@@ -24,7 +24,7 @@ extern int nclistfreeall(NClist*);
 extern int nclistsetalloc(NClist*,size_t);
 extern int nclistsetlength(NClist*,size_t);
 
-/* Set the ith element */
+/* Set the ith element; will overwrite previous contents; expand if needed */
 extern int nclistset(NClist*,size_t,void*);
 /* Get value at position i */
 extern void* nclistget(NClist*,size_t);/* Return the ith element of l */

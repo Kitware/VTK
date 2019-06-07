@@ -1,12 +1,12 @@
 /*********************************************************************
- *   Copyright 2016, UCAR/Unidata
+ *   Copyright 2018, UCAR/Unidata
  *   See netcdf/COPYRIGHT file for copying and redistribution conditions.
  *********************************************************************/
 
 /**
-This provides a simple netcdf-4 metadata -> xml printer.
-Primarily for use in debugging, but could be adapted to
-create other tools.
+   This provides a simple netcdf-4 metadata -> xml printer.
+   Primarily for use in debugging, but could be adapted to
+   create other tools.
 */
 
 #include "config.h"
@@ -17,20 +17,20 @@ create other tools.
 #include "ncbytes.h"
 #include "nclist.h"
 
-#undef DEBUG 
+#undef DEBUG
 
 #define BUFSIZE 4096
 
 #define NC_MAX_IDS 8192
 
 typedef enum NCSORT {
-GROUP,
-VAR,
-FIELD,
-DIM,
-ATTR,
-ATOMTYPE,
-USERTYPE,
+    GROUP,
+    VAR,
+    FIELD,
+    DIM,
+    ATTR,
+    ATOMTYPE,
+    USERTYPE,
 } NCSORT;
 
 typedef struct NCID NCID;
@@ -57,10 +57,10 @@ struct NCID {
     struct {int isroot;} group; /*sort == GROUP*/
 };
 
-#define MAKEID(Node,Sort,Parent,Id) \
-NCID* Node = (NCID*)calloc(1,sizeof(NCID)); \
-Node->sort = Sort; Node->parent = Parent; Node->id = Id; \
-track(out,Node);
+#define MAKEID(Node,Sort,Parent,Id)                             \
+    NCID* Node = (NCID*)calloc(1,sizeof(NCID));                 \
+    Node->sort = Sort; Node->parent = Parent; Node->id = Id;    \
+    track(out,Node);
 
 union NUMVALUE {
     unsigned char i8[8];
@@ -130,7 +130,7 @@ NC4print(NCbytes* buf, int ncid)
     out->dims = nclistnew();
 
     MAKEID(root,GROUP,NULL,ncid);
-	root->group.isroot = 1;
+    root->group.isroot = 1;
 
     buildAtomicTypes(out,root);
 
@@ -148,20 +148,20 @@ freeNC4Printer(NC4printer* out)
 {
     int i;
 
-    if(out == NULL) return;    
+    if(out == NULL) return;
 
 #ifdef DEBUG
-fprintf(stderr,"free: |allnodes=%ld\n",nclistlength(out->allnodes));
-fflush(stderr);
+    fprintf(stderr,"free: |allnodes=%ld\n",nclistlength(out->allnodes));
+    fflush(stderr);
 #endif
 
     for(i=0;i<nclistlength(out->allnodes);i++) {
-	NCID* node = (NCID*)nclistget(out->allnodes,i);
+        NCID* node = (NCID*)nclistget(out->allnodes,i);
 #ifdef DEBUG
-fprintf(stderr,"free: node=%lx\n",(unsigned long)node);
-fflush(stderr);
+        fprintf(stderr,"free: node=%lx\n",(unsigned long)node);
+        fflush(stderr);
 #endif
-	if(node != NULL) free(node);
+        if(node != NULL) free(node);
     }
 
     ncbytesfree(out->tmp1);
@@ -206,81 +206,81 @@ printNode(NC4printer* out, NCID* node, int depth)
 
     switch (node->sort) {
     case GROUP:
-	/* Get group name */    
-	if((ret=nc_inq_grpname(node->id,name))) FAIL;
-	SETNAME(node,name);
-	/* get group counts */
-	if((ret=nc_inq(node->id,&ndims,&nvars,&natts,&nunlim))) FAIL;
+        /* Get group name */
+        if((ret=nc_inq_grpname(node->id,name))) FAIL;
+        SETNAME(node,name);
+        /* get group counts */
+        if((ret=nc_inq(node->id,&ndims,&nvars,&natts,&nunlim))) FAIL;
         if((ret=nc_inq_typeids(node->id,&ntypes,NULL))) FAIL;
         if((ret=nc_inq_grps(node->id,&ngroups,NULL))) FAIL;
-	if(ndims >= NC_MAX_IDS) FAIL;
-	if(nvars >= NC_MAX_IDS) FAIL;
-	if(nunlim >= NC_MAX_IDS) FAIL;
-	if(ntypes >= NC_MAX_IDS) FAIL;
-	if(ngroups >= NC_MAX_IDS) FAIL;
+        if(ndims >= NC_MAX_IDS) FAIL;
+        if(nvars >= NC_MAX_IDS) FAIL;
+        if(nunlim >= NC_MAX_IDS) FAIL;
+        if(ntypes >= NC_MAX_IDS) FAIL;
+        if(ngroups >= NC_MAX_IDS) FAIL;
 
         INDENT(depth);
         CAT("<Group");
-	printXMLAttributeName(out,"name",name);
+        printXMLAttributeName(out,"name",name);
         CAT(">\n");
         depth++;
 
-	{
-	   /* Print: dims, types, vars(+attr), group-attr, subgroups */
-           if((ret=nc_inq_dimids(node->id,&n,ids, 0))) FAIL;
+        {
+            /* Print: dims, types, vars(+attr), group-attr, subgroups */
+            if((ret=nc_inq_dimids(node->id,&n,ids, 0))) FAIL;
             for(i=0;i<ndims;i++) {
-	        MAKEID(eid,DIM,node,ids[i]);
+                MAKEID(eid,DIM,node,ids[i]);
                 printNode(out,eid,depth);
                 CAT("\n");
-		record(out,eid);
-	    }
+                record(out,eid);
+            }
         }
-	{
-	    if((ret=nc_inq_typeids(node->id,&n,ids))) FAIL;
+        {
+            if((ret=nc_inq_typeids(node->id,&n,ids))) FAIL;
             for(i=0;i<ntypes;i++) {
-		nc_type kind;
-		if((ret=nc_inq_user_type(node->id, ids[i], name, &size, &base, NULL, &kind))) FAIL;
-		MAKEID(eid,USERTYPE,node,ids[i]);
-			SETNAME(eid,name);
-			eid->size = size;
-			eid->usertype.kind = kind;
-			if(base > 0) eid->base = findType(out,base);
-		record(out,eid);
-		printNode(out,eid,depth);
-	        CAT("\n");
-	    }
+                nc_type kind;
+                if((ret=nc_inq_user_type(node->id, ids[i], name, &size, &base, NULL, &kind))) FAIL;
+                MAKEID(eid,USERTYPE,node,ids[i]);
+                SETNAME(eid,name);
+                eid->size = size;
+                eid->usertype.kind = kind;
+                if(base > 0) eid->base = findType(out,base);
+                record(out,eid);
+                printNode(out,eid,depth);
+                CAT("\n");
+            }
         }
-	{
-	    if((ret=nc_inq_varids(node->id,&n,ids))) FAIL;
+        {
+            if((ret=nc_inq_varids(node->id,&n,ids))) FAIL;
             for(i=0;i<nvars;i++) {
-		nc_type base;
-		if((ret=nc_inq_var(node->id, ids[i], name, &base, &ndims, NULL, NULL))) FAIL;
-		MAKEID(vid,VAR,node,ids[i]);
-			SETNAME(vid,name);
-			vid->base = findType(out,base);
-			vid->var.rank = ndims;
-		printNode(out,vid,depth);
-	        CAT("\n");
-	    }
+                nc_type base;
+                if((ret=nc_inq_var(node->id, ids[i], name, &base, &ndims, NULL, NULL))) FAIL;
+                MAKEID(vid,VAR,node,ids[i]);
+                SETNAME(vid,name);
+                vid->base = findType(out,base);
+                vid->var.rank = ndims;
+                printNode(out,vid,depth);
+                CAT("\n");
+            }
         }
-	{
+        {
             for(i=0;i<natts;i++) {
-		if((ret=nc_inq_attname(node->id,NC_GLOBAL,i,name))) FAIL;
-		MAKEID(id,ATTR,node,NC_GLOBAL);
-			SETNAME(id,name);
-		printAttribute(out,id,depth);
-	        CAT("\n");
-	    }
+                if((ret=nc_inq_attname(node->id,NC_GLOBAL,i,name))) FAIL;
+                MAKEID(id,ATTR,node,NC_GLOBAL);
+                SETNAME(id,name);
+                printAttribute(out,id,depth);
+                CAT("\n");
+            }
         }
 
-	{
-	    if((ret=nc_inq_grps(node->id,&n,ids))) FAIL;
+        {
+            if((ret=nc_inq_grps(node->id,&n,ids))) FAIL;
             for(i=0;i<ngroups;i++) {
-		MAKEID(id,GROUP,node,ids[i]);
-		printNode(out,id,depth);
-	        CAT("\n");
-		record(out,id);
-	    }
+                MAKEID(id,GROUP,node,ids[i]);
+                printNode(out,id,depth);
+                CAT("\n");
+                record(out,id);
+            }
         }
         depth--;
         INDENT(depth); CAT("</Group>");
@@ -288,8 +288,8 @@ printNode(NC4printer* out, NCID* node, int depth)
 
     case DIM:
         if((ret=nc_inq_dim(GROUPOF(node),node->id,name,&len))) FAIL;
-		SETNAME(node,name);
-		node->size = len;
+        SETNAME(node,name);
+        node->size = len;
         INDENT(depth);
         CAT("<Dimension");
         printXMLAttributeName(out, "name", name);
@@ -298,28 +298,28 @@ printNode(NC4printer* out, NCID* node, int depth)
         break;
 
     case USERTYPE:
-	switch (node->usertype.kind) {
-	case NC_OPAQUE:
-	    INDENT(depth); CAT("<Opaque");
+        switch (node->usertype.kind) {
+        case NC_OPAQUE:
+            INDENT(depth); CAT("<Opaque");
             printXMLAttributeName(out, "name", node->name);
             printXMLAttributeSize(out, "size", node->size);
             CAT("/>");
-	    break;	    	
-	case NC_ENUM:
+            break;
+        case NC_ENUM:
             if((ret=nc_inq_enum(GROUPOF(node),node->id,NULL,NULL,NULL,&count))) FAIL;
-	    INDENT(depth); CAT("<Enumeration");
+            INDENT(depth); CAT("<Enumeration");
             printXMLAttributeName(out, "name", node->name);
             CAT(">\n");
             depth++;
             for(i=0;i<count;i++) {
-	        long long value;
-	        if((ret=nc_inq_enum_member(GROUPOF(node),node->id,i,name,&numvalue))) FAIL;
-	        value = getNumericValue(numvalue,node->base->id);
+                long long value;
+                if((ret=nc_inq_enum_member(GROUPOF(node),node->id,i,name,&numvalue))) FAIL;
+                value = getNumericValue(numvalue,node->base->id);
                 INDENT(depth);
                 CAT("<EnumConst");
                 printXMLAttributeName(out, "name", name);
                 printXMLAttributeInt(out, "value", value);
-	        CAT("/>\n");
+                CAT("/>\n");
             }
             depth--;
             INDENT(depth); CAT("</Enumeration>");
@@ -334,53 +334,53 @@ printNode(NC4printer* out, NCID* node, int depth)
             for(i=0;i<count;i++) {
                 if((ret=nc_inq_compound_field(GROUPOF(node),node->id,i,name,NULL,&base,NULL,NULL))) FAIL;
                 MAKEID(id,FIELD,node->parent,node->id);
-                    SETNAME(id,name);
-                    id->base = findType(out,base);
-                    id->field.fid = i;
+                SETNAME(id,name);
+                id->base = findType(out,base);
+                id->field.fid = i;
                 printNode(out,id,depth);
                 CAT("\n");
             }
             depth--;
             INDENT(depth); CAT("</Compound>");
             break;
-	case NC_VLEN:
-	    abort();
-	    break;
-	default:
-	    abort();
-	    break;
-	}
-	break;
+        case NC_VLEN:
+            abort();
+            break;
+        default:
+            abort();
+            break;
+        }
+        break;
 
     case VAR:
         if((ret=nc_inq_var(GROUPOF(node), node->id, name, &base, &ndims, ids, &natts))) FAIL;
-		node->base = findType(out,base);
-		SETNAME(node,name);
-		node->var.rank = ndims;
+        node->base = findType(out,base);
+        SETNAME(node,name);
+        node->var.rank = ndims;
         INDENT(depth); CAT("<Var");
         printXMLAttributeName(out, "name", node->name);
         makeFQN(node->base,out->tmp2);
         printXMLAttributeName(out, "type", ncbytescontents(out->tmp2));
-	if(node->var.rank > 0)
+        if(node->var.rank > 0)
             printXMLAttributeInt(out, "rank", node->var.rank);
         if(ndims > 0 || natts > 0) {
             CAT(">\n");
             depth++;
             for(i=0;i<ndims;i++) {
-		NCID* dim = findDim(out,ids[i]);
+                NCID* dim = findDim(out,ids[i]);
                 printDimref(out,dim,depth);
-		CAT("\n");
-	    }
+                CAT("\n");
+            }
             for(i=0;i<natts;i++) {
                 if((ret=nc_inq_attname(GROUPOF(node),node->id,i,name))) FAIL;
-		if((ret=nc_inq_att(GROUPOF(node),node->id,name,&base,&count))) FAIL;
+                if((ret=nc_inq_att(GROUPOF(node),node->id,name,&base,&count))) FAIL;
                 MAKEID(id,ATTR,node,node->id);
-                        SETNAME(id,name);
-			id->base = findType(out,base);
-			id->size = count;
-                printAttribute(out,id,depth); 
-		CAT("\n");
-	    }
+                SETNAME(id,name);
+                id->base = findType(out,base);
+                id->size = count;
+                printAttribute(out,id,depth);
+                CAT("\n");
+            }
             depth--;
             INDENT(depth); CAT("</Var>");
         } else
@@ -389,7 +389,7 @@ printNode(NC4printer* out, NCID* node, int depth)
 
     case ATOMTYPE:
     default:
-	abort();
+        abort();
         ret = NC_EINVAL;
         break;
     }
@@ -451,8 +451,8 @@ printAttribute(NC4printer* out, NCID* attr, int depth)
     if((ret=readAttributeValues(attr,&values))) FAIL;
     depth++;
     for(i=0;i<attr->size;i++) {
-	void* value = computeOffset(attr->base,values,i);
-	if((ret=printValue(out,attr->base,value,depth))) FAIL;
+        void* value = computeOffset(attr->base,values,i);
+        if((ret=printValue(out,attr->base,value,depth))) FAIL;
     }
     depth--;
     INDENT(depth);
@@ -484,7 +484,7 @@ printValue(NC4printer* out, NCID* basetype, void* value, int depth)
 {
     int ret;
     if(basetype->id > NC_MAX_ATOMIC_TYPE && basetype->usertype.kind == NC_ENUM) {
-	basetype = basetype->base;
+        basetype = basetype->base;
     }
     if((ret=getPrintValue(out->tmp2,basetype,value))) FAIL;
     INDENT(depth);
@@ -554,12 +554,12 @@ getPrintValue(NCbytes* out, NCID* basetype, void* value)
         break;
     case NC_STRING: {
         char* s = *(char**)value;
-	printString(out,s,0);
-        } break;
+        printString(out,s,0);
+    } break;
     case NC_OPAQUE: {
         unsigned char* s = *(unsigned char**)value;
-	printOpaque(out,s,basetype->size,1);
-        } break;
+        printOpaque(out,s,basetype->size,1);
+    } break;
     case NC_ENUM:
         /* use true basetype */
         ret = getPrintValue(out,basetype->base,value);
@@ -614,7 +614,7 @@ findType(NC4printer* out, nc_type t)
 {
     int len = nclistlength(out->types);
     if(t >= len)
-	abort();
+        abort();
     return (NCID*)nclistget(out->types,t);
 }
 
@@ -636,7 +636,7 @@ makeFQN(NCID* id, NCbytes* path)
         fqnWalk(g,path);
     ncbytesappend(path,'/');
     if(id->sort != GROUP)
-        ncbytescat(path,id->name);   
+        ncbytescat(path,id->name);
     ncbytesnull(path);
 }
 
@@ -646,7 +646,7 @@ fqnWalk(NCID* grp, NCbytes* path)
     if(grp->id != 0) {
         NCID* parent = grp->parent;
         fqnWalk(parent,path);
-        ncbytesappend(path,'/');        
+        ncbytesappend(path,'/');
         ncbytescat(path,parent->name);
     }
 }
@@ -656,18 +656,18 @@ record(NC4printer* out, NCID* node)
 {
     switch (node->sort) {
     case DIM:
-	if(nclistlength(out->dims) <= node->id) {
+        if(nclistlength(out->dims) <= node->id) {
             nclistsetalloc(out->dims,node->id+1);
-	    nclistsetlength(out->dims,node->id+1);
-	}
+            nclistsetlength(out->dims,node->id+1);
+        }
         nclistset(out->dims,node->id,node);
         break;
     case ATOMTYPE:
     case USERTYPE:
-	if(nclistlength(out->types) <= node->id) {
+        if(nclistlength(out->types) <= node->id) {
             nclistsetalloc(out->types,node->id+1);
-	    nclistsetlength(out->types,node->id+1);
-	}
+            nclistsetlength(out->types,node->id+1);
+        }
         nclistset(out->types,node->id,node);
         break;
     default: break;
@@ -678,7 +678,7 @@ static void
 track(NC4printer* out, NCID* node)
 {
     if(out == NULL || node == NULL || out->allnodes == NULL)
-	abort();
+        abort();
 #ifdef DEBUG
     fprintf(stderr,"track: node=%lx\n",(unsigned long)node);
 #endif
@@ -695,16 +695,16 @@ entityEscape(NCbytes* escaped, const char* s)
     const char* p;
     ncbytesclear(escaped);
     for(p=s;*p;p++) {
-	int c = *p;
-	switch (c) {
-	case '&':  ncbytescat(escaped,"&amp;"); break;
-	case '<':  ncbytescat(escaped,"&lt;"); break;
-	case '>':  ncbytescat(escaped,"&gt;"); break;
-	case '"':  ncbytescat(escaped,"&quot;"); break;
-	case '\'': ncbytescat(escaped,"&apos;"); break;
+        int c = *p;
+        switch (c) {
+        case '&':  ncbytescat(escaped,"&amp;"); break;
+        case '<':  ncbytescat(escaped,"&lt;"); break;
+        case '>':  ncbytescat(escaped,"&gt;"); break;
+        case '"':  ncbytescat(escaped,"&quot;"); break;
+        case '\'': ncbytescat(escaped,"&apos;"); break;
         default:   ncbytesappend(escaped,(c)); break;
         }
-	ncbytesnull(escaped);
+        ncbytesnull(escaped);
     }
 }
 
@@ -716,12 +716,12 @@ buildAtomicTypes(NC4printer* out, NCID* root)
     char name[NC_MAX_NAME+1];
     size_t size;
     for(tid=NC_NAT+1;tid<=NC_MAX_ATOMIC_TYPE;tid++) {
-	if((ret=nc_inq_type(root->id,tid,NULL,&size))) FAIL;
+        if((ret=nc_inq_type(root->id,tid,NULL,&size))) FAIL;
         getAtomicTypeName(tid,name);
         MAKEID(type,ATOMTYPE,root,tid);
-	    SETNAME(type,name);
-	    type->size = size;
-	    type->usertype.kind = tid;
+        SETNAME(type,name);
+        type->size = size;
+        type->usertype.kind = tid;
         record(out, type);
     }
     return ret;
@@ -734,11 +734,11 @@ printString(NCbytes* out, const char* s, int quotes)
     if(quotes) ncbytesappend(out,'"');
     if(s == NULL) s = "";
     for(p=s;*p;p++) {
-	int c = *p;
-	if(c == '\\') ncbytescat(out,"\\\\");
+        int c = *p;
+        if(c == '\\') ncbytescat(out,"\\\\");
         else if(c == '"') ncbytescat(out,"\\\"");
         else ncbytesappend(out,c);
-    }               
+    }
     if(quotes) ncbytesappend(out,'"');
     ncbytesnull(out);
 }
@@ -783,4 +783,3 @@ readAttributeValues(NCID* attr, void** valuesp)
     if(valuesp) *valuesp = values;
     return ret;
 }
-
