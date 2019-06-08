@@ -63,7 +63,7 @@ static const char* vtkCellTypesStrings[] = {
   "UnknownClass",
   "UnknownClass",
   "vtkConvexPointSet",
-  "UnknownClass",
+  "vtkPolyhedron",
   "UnknownClass",
   "UnknownClass",
   "UnknownClass",
