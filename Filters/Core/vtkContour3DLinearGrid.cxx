@@ -2025,8 +2025,8 @@ int vtkContour3DLinearGrid::GetOutputPointsPrecision() const
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContour3DLinearGrid::CanProcessDataObject(vtkDataObject* object,
-                                                  const char* scalarArrayName)
+bool vtkContour3DLinearGrid::CanFullyProcessDataObject(vtkDataObject* object,
+                                                       const char* scalarArrayName)
 {
   auto ug = vtkUnstructuredGrid::SafeDownCast(object);
   auto cd = vtkCompositeDataSet::SafeDownCast(object);
@@ -2074,7 +2074,7 @@ bool vtkContour3DLinearGrid::CanProcessDataObject(vtkDataObject* object,
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
       auto leafDS = iter->GetCurrentDataObject();
-      if (!CanProcessDataObject(leafDS, scalarArrayName))
+      if (!CanFullyProcessDataObject(leafDS, scalarArrayName))
       {
         supported = false;
         break;

@@ -5,13 +5,13 @@ import vtk
 linearCells = vtk.vtkCellTypeSource()
 linearCells.SetCellType(vtk.VTK_HEXAHEDRON)
 linearCells.Update()
-assert(vtk.vtkContour3DLinearGrid.CanProcessDataObject(linearCells.GetOutput(), 'DistanceToCenter'))
+assert(vtk.vtkContour3DLinearGrid.CanFullyProcessDataObject(linearCells.GetOutput(), 'DistanceToCenter'))
 
 # Test filter input validity check on datasets with linear and nonlinear cells
 quadraticCells = vtk.vtkCellTypeSource()
 quadraticCells.SetCellType(vtk.VTK_QUADRATIC_HEXAHEDRON)
 quadraticCells.Update()
-assert(not vtk.vtkContour3DLinearGrid.CanProcessDataObject(quadraticCells.GetOutput(), 'DistanceToCenter'))
+assert(not vtk.vtkContour3DLinearGrid.CanFullyProcessDataObject(quadraticCells.GetOutput(), 'DistanceToCenter'))
 
 # Test vtkContour3DLinearGrid on mixed cell types as well as on wedges and
 # pyramids.
