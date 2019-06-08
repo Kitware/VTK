@@ -116,11 +116,51 @@ public:
   vtkCellIterator* NewCellIterator() override;
   //@}
 
+  /**
+   * Get the type of the cell with the given cellId.
+   */
   int GetCellType(vtkIdType cellId) override;
+
+  /**
+   * Get a list of types of cells in a dataset. The list consists of an array
+   * of types (not necessarily in any order), with a single entry per type.
+   * For example a dataset with 5 triangles, 3 lines, and 100 hexahedra would
+   * result in a list of three entries, corresponding to the types VTK_TRIANGLE,
+   * VTK_LINE, and VTK_HEXAHEDRON. This override implements an optimization that
+   * recomputes cell types only when the types of cells may have changed.
+   *
+   * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+   * THE DATASET IS NOT MODIFIED
+   */
+  void GetCellTypes(vtkCellTypes* types) override;
+
+  /**
+  * Get the array of all cell types in the grid. Each single-component
+  * tuple in the array at an index that corresponds to the type of the cell
+  * with the same index. To get an array of only the distinct cell types in
+  * the dataset, use GetCellTypes().
+  */
   vtkUnsignedCharArray* GetCellTypesArray() { return this->Types; }
+
+  /**
+   * Get the array of all the starting indices of cell definitions
+   * in the cell array.
+   */
   vtkIdTypeArray* GetCellLocationsArray() { return this->Locations; }
+
+  /**
+   * Squeeze all arrays in the grid to conserve memory.
+   */
   void Squeeze() override;
+
+  /**
+   * Reset the grid to an empty state and free any memory.
+   */
   void Initialize() override;
+
+  /**
+   * Get the size, in number of points, of the largest cell.
+   */
   int GetMaxCellSize() override;
   void BuildLinks();
   vtkCellLinks *GetCellLinks() {return this->Links;};
@@ -222,7 +262,7 @@ public:
   void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array) override;
 
   /**
-   * Traverse cells and determine if cells are all of the same type.
+   * Returns whether cells are all of the same type.
    */
   int IsHomogeneous() override;
 
@@ -385,6 +425,13 @@ protected:
   vtkCellLinks *Links;
   vtkUnsignedCharArray *Types;
   vtkIdTypeArray *Locations;
+
+  // Set of all cell types present in the grid. All entries are unique.
+  vtkCellTypes *DistinctCellTypes;
+
+  // The DistinctCellTypes is cached, so we keep track of the last time it was
+  // updated so we can compare it to the modified time of the Types array.
+  vtkMTimeType DistinctCellTypesUpdateMTime;
 
   // Special support for polyhedra/cells with explicit face representations.
   // The Faces class represents polygonal faces using a modified vtkCellArray
