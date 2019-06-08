@@ -2089,21 +2089,21 @@ bool vtkContour3DLinearGrid::CanProcessDataObject(vtkDataObject* object,
   {
     if (!ds->IsA("vtkUnstructuredGrid"))
     {
-      std::cout << "Not a vtkUnstructuredGrid" << std::endl;
+      vtkLog(INFO, "Not a vtkUnstructuredGrid");
       return false;
     }
 
     vtkDataArray* array = ds->GetPointData()->GetArray(scalarArrayName);
     if (!array)
     {
-      std::cout << "null array" << std::endl;
+      vtkLog(INFO, "Scalar array is null");
       return true;
     }
 
     int aType = array->GetDataType();
     if (aType != VTK_UNSIGNED_INT && aType != VTK_INT && aType != VTK_FLOAT && aType != VTK_DOUBLE)
     {
-      std::cout << "invalid array type" << std::endl;
+      vtkLog(INFO, "Invalid scalar array type");
       return false;
     }
 
