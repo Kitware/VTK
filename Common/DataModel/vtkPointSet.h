@@ -86,6 +86,12 @@ public:
   vtkCellIterator* NewCellIterator() override;
 
   /**
+   * Build the internal point locator. In a multi-threaded environment,
+   * call this method in a single thread before using FindCell or FindPoint.
+   */
+  void BuildLocator();
+
+  /**
    * Get MTime which also considers its vtkPoints MTime.
    */
   vtkMTimeType GetMTime() override;
