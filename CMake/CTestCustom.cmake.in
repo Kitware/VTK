@@ -61,7 +61,8 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "note: expanded from (here|macro)"
 
   # This is secondary output from MSVC, not indicate the warning per se.
-  "note: see (previous )?declaration of"
+  "note: see declaration of"
+  "note: see previous definition of"
 
   # function cast in vtkLogger/loguru
   "vtkLogger.cxx.*: warning: cast between incompatible function types"
