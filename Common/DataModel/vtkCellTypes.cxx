@@ -319,8 +319,8 @@ void vtkCellTypes::DeepCopy(vtkCellTypes *src)
       this->LocationArray->Register(this);
       this->LocationArray->Delete();
   }
-
-  this->Allocate(src->Size, src->Extend);
+  this->Size = src->Size;
+  this->Extend = src->Extend;
   this->MaxId = src->MaxId;
 }
 
