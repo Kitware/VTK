@@ -32,7 +32,7 @@ enum class vtkEventDataDevice {
 };
 
 const int vtkEventDataNumberOfDevices =
-  static_cast<int>(vtkEventDataDevice::NumberOfDevices);
+  (static_cast<int>(vtkEventDataDevice::NumberOfDevices));
 
 // enumeration of possible device inputs
 enum class vtkEventDataDeviceInput {
@@ -46,7 +46,7 @@ enum class vtkEventDataDeviceInput {
 };
 
 const int vtkEventDataNumberOfInputs =
-  static_cast<int>(vtkEventDataDeviceInput::NumberOfInputs);
+  (static_cast<int>(vtkEventDataDeviceInput::NumberOfInputs));
 
 // enumeration of actions that can happen
 enum class vtkEventDataAction {
@@ -149,7 +149,7 @@ public:
     v[1] = this->WorldPosition[1];
     v[2] = this->WorldPosition[2];
   }
-  const double *GetWorldPosition() const {
+  const double *GetWorldPosition() const VTK_SIZEHINT(3) {
     return this->WorldPosition;
   }
   void SetWorldPosition(const double p[3])
@@ -164,7 +164,7 @@ public:
     v[1] = this->WorldDirection[1];
     v[2] = this->WorldDirection[2];
   }
-  const double *GetWorldDirection() const {
+  const double *GetWorldDirection() const VTK_SIZEHINT(3) {
     return this->WorldDirection;
   }
   void SetWorldDirection(const double p[3])
@@ -180,7 +180,7 @@ public:
     v[2] = this->WorldOrientation[2];
     v[3] = this->WorldOrientation[3];
   }
-  const double *GetWorldOrientation() const {
+  const double *GetWorldOrientation() const VTK_SIZEHINT(4) {
     return this->WorldOrientation;
   }
   void SetWorldOrientation(const double p[4])
@@ -195,7 +195,7 @@ public:
     v[0] = this->TrackPadPosition[0];
     v[1] = this->TrackPadPosition[1];
   }
-  const double *GetTrackPadPosition() const {
+  const double *GetTrackPadPosition() const VTK_SIZEHINT(2) {
     return this->TrackPadPosition;
   }
   void SetTrackPadPosition(const double p[2])

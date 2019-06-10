@@ -785,14 +785,15 @@ void vtkParseMerge_MergeHelper(
 
   if (cinfo)
   {
+    /* create a duplicate to avoid modifying the original */
+    new_cinfo = (ClassInfo *)malloc(sizeof(ClassInfo));
+    vtkParse_CopyClass(new_cinfo, cinfo);
     if (template_args)
     {
-      new_cinfo = (ClassInfo *)malloc(sizeof(ClassInfo));
-      vtkParse_CopyClass(new_cinfo, cinfo);
       vtkParse_InstantiateClassTemplate(
         new_cinfo, finfo->Strings, template_arg_count, template_args);
-      cinfo = new_cinfo;
     }
+    cinfo = new_cinfo;
 
     recurse = 0;
     if (info)
@@ -822,6 +823,7 @@ void vtkParseMerge_MergeHelper(
                                   nhintfiles, hintfiles, info, merge);
       }
     }
+    vtkParse_FreeClass(cinfo);
   }
 
   if (template_arg_count > 0)

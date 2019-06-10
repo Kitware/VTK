@@ -273,6 +273,7 @@ set(headers
   vtkDataArrayValueRange_AOS.h
   vtkDataArrayValueRange_Generic.h
   vtkDataArrayTemplate.h
+  vtkEventData.h
   vtkGenericDataArrayLookupHelper.h
   vtkIOStream.h
   vtkIOStreamFwd.h

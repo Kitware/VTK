@@ -643,6 +643,28 @@ void vtkWrapPython_ReturnValue(
             "      result = Py%s_%s_FromEnum(tempr);\n",
             pythonname, val->Class);
   }
+  else if (val->IsEnum)
+  {
+    const char *cp = val->Class;
+    size_t l;
+    /* search for scope operator */
+    for (l = 0; cp[l] != '\0'; l++)
+    {
+      if (cp[l] == ':') { break; }
+    }
+    if (cp[l] == ':' && cp[l+1] == ':')
+    {
+      fprintf(fp,
+              "      result = %sBuildEnumValue(tempr, \"%*.*s.%s\");\n",
+              prefix, (int)l, (int)l, cp, &cp[l+2]);
+    }
+    else
+    {
+      fprintf(fp,
+              "      result = %sBuildEnumValue(tempr, \"%s\");\n",
+              prefix, cp);
+    }
+  }
   else if (vtkWrap_IsPythonObject(val))
   {
     fprintf(fp,

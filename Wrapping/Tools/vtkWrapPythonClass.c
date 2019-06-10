@@ -405,6 +405,7 @@ static void vtkWrapPython_GenerateObjectNew(
   const char *name;
   int is_external;
   int has_constants = 0;
+  int has_enums = 0;
   int i;
 
   if (class_has_new)
@@ -494,16 +495,32 @@ static void vtkWrapPython_GenerateObjectNew(
     }
   }
 
-  if (has_constants)
+  /* check if any enums need to be added to the class dict */
+  for (i = 0; i < data->NumberOfEnums; i++)
+  {
+    if (data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
+    {
+      has_enums = 1;
+      break;
+    }
+  }
+
+  if (has_constants || has_enums)
   {
     fprintf(fp,
             "  PyObject *d = pytype->tp_dict;\n"
             "  PyObject *o;\n"
             "\n");
+  }
 
+  if (has_enums)
+  {
     /* add any enum types defined in the class to its dict */
     vtkWrapPython_AddPublicEnumTypes(fp, "  ", "d", "o", data);
+  }
 
+  if (has_constants)
+  {
     /* add any constants defined in the class to its dict */
     vtkWrapPython_AddPublicConstants(fp, "  ", "d", "o", data);
   }
