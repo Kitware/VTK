@@ -162,6 +162,7 @@ if (VTK_PYTHON_OPTIONAL_LINK)
   set(is_exe "$<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>")
   set(needs_flags "$<NOT:$<BOOL:${vtk_undefined_symbols_allowed}>>")
   set(direct_link "$<BOOL:$<TARGET_PROPERTY:INTERFACE_vtk_python_direct_link>>")
+  set(should_use "$<OR:${is_exe},${direct_link}>")
   set(platform_flags
     # Apple flags.
     "$<$<STREQUAL:$<PLATFORM_ID>,Darwin>:-undefined;dynamic_lookup>"
@@ -178,14 +179,14 @@ if (VTK_PYTHON_OPTIONAL_LINK)
       "${vtk_python_includes}")
   vtk_module_link(VTK::Python
     INTERFACE
-      "$<LINK_ONLY:$<$<OR:${is_exe},${direct_link}>:${vtk_python_target}>>")
+      "$<LINK_ONLY:$<${should_use}:${vtk_python_target}>>")
   vtk_module_link_options(VTK::Python
     INTERFACE
       "$<$<OR:$<AND:$<NOT:${is_exe}>,${needs_flags}>,$<NOT:${direct_link}>>:${platform_flags}>")
 
   target_link_libraries(PythonUsed
     INTERFACE
-      "$<LINK_ONLY:$<$<OR:${is_exe},${direct_link}>:${vtk_python_target}>>")
+      "$<LINK_ONLY:$<${should_use}:${vtk_python_target}>>")
   _vtk_module_set_module_property(VTK::Python APPEND
     PROPERTY  "forward_link"
     VALUE     VTK::PythonUsed)
