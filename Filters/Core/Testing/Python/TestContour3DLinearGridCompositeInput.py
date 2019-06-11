@@ -66,6 +66,10 @@ stree.ComputeResolutionOn()
 stree.SetScalarRange(0.25,0.75)
 stree.SetComputeScalarRange(computeScalarRange)
 
+# Since there is a vtkPolyData added to the composite input, this dataset
+# cannot be fully processed by vtkContour3DLinearGrid
+assert(not vtk.vtkContour3DLinearGrid.CanFullyProcessDataObject(composite, "scalars"))
+
 # Now contour the cells, using scalar tree
 contour = vtk.vtkContour3DLinearGrid()
 contour.SetInputData(composite)

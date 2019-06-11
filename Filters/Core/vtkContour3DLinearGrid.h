@@ -250,10 +250,11 @@ public:
 
   /**
    * Returns true if the data object passed in is fully supported by this
-   * filter. For composite datasets, this means all dataset leaves are
-   * supported. The second array is the name of the array to process.
+   * filter, i.e., all cell types are linear. For composite datasets, this
+   * means all dataset leaves have only linear cell types that can be processed
+   * by this filter. The second array is the name of the array to process.
    */
-  static bool CanProcessDataObject(vtkDataObject* object, const char* scalarArrayName);
+  static bool CanFullyProcessDataObject(vtkDataObject* object, const char* scalarArrayName);
 
 protected:
   vtkContour3DLinearGrid();

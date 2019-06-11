@@ -34,6 +34,9 @@ clip.SetValue(-10.0)
 clip.GenerateClippedOutputOff()
 clip.Update()
 
+# Test that filter can handle the dataset and contour array
+assert(vtk.vtkContour3DLinearGrid.CanFullyProcessDataObject(clip.GetOutput(), "scalars"))
+
 # Now contour the cells
 contour = vtk.vtkContour3DLinearGrid()
 contour.SetInputConnection(clip.GetOutputPort())

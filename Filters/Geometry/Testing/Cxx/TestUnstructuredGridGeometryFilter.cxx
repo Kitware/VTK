@@ -43,6 +43,7 @@
 
 #include "vtkActor.h"
 #include "vtkCellData.h"
+#include "vtkCellType.h"
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -3624,6 +3625,16 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   points->Delete();
   scalars->Delete();
   cellIds->Delete();
+
+  vtkNew<vtkCellTypes> uniqueCells;
+  grid->GetCellTypes(uniqueCells);
+  for (vtkIdType j = 0; j < uniqueCells->GetNumberOfTypes(); ++j)
+  {
+    unsigned char cellType = uniqueCells->GetCellType(j);
+    std::cout << vtkCellTypes::GetClassNameFromTypeId(cellType) << ": "
+      << static_cast<int>(cellType) << std::endl;
+  }
+
 #endif
 
   // Create the filter
