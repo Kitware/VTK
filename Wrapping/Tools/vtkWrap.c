@@ -1109,7 +1109,8 @@ void vtkWrap_DeclareVariable(
     /* add a default value */
     else if (val->Value)
     {
-      fprintf(fp, " = %s", val->Value);
+      fprintf(fp, " = ");
+      vtkWrap_QualifyExpression(fp, data, val->Value);
     }
     else if (aType == VTK_PARSE_CHAR_PTR ||
              aType == VTK_PARSE_VOID_PTR ||
@@ -1177,6 +1178,80 @@ void vtkWrap_DeclareVariableSize(
             "  const size_t %s%s = %s;\n",
             name, idx, val->Dimensions[0]);
   }
+}
+
+void vtkWrap_QualifyExpression(
+  FILE *fp, ClassInfo *data, const char *text)
+{
+  StringTokenizer t;
+  int qualified = 0;
+  int matched;
+  int j;
+
+  /* tokenize the text according to C/C++ rules */
+  vtkParse_InitTokenizer(&t, text, WS_DEFAULT);
+  do
+  {
+    /* check whether we have found an unqualified identifier */
+    matched = 0;
+    if (t.tok == TOK_ID && !qualified)
+    {
+      /* check for class members */
+      for (j = 0; j < data->NumberOfItems; j++)
+      {
+        ItemInfo *item = &data->Items[j];
+        const char *name = NULL;
+
+        if (item->Type == VTK_CONSTANT_INFO)
+        {
+          /* enum values and other constants */
+          name = data->Constants[item->Index]->Name;
+        }
+        else if (item->Type == VTK_CLASS_INFO ||
+                 item->Type == VTK_STRUCT_INFO ||
+                 item->Type == VTK_UNION_INFO)
+        {
+          /* embedded classes */
+          name = data->Classes[item->Index]->Name;
+        }
+        else if (item->Type == VTK_ENUM_INFO)
+        {
+          /* enum type */
+          name = data->Enums[item->Index]->Name;
+        }
+        else if (item->Type == VTK_TYPEDEF_INFO)
+        {
+          /* typedef'd type */
+          name = data->Typedefs[item->Index]->Name;
+        }
+
+        if (name && strlen(name) == t.len &&
+            strncmp(name, t.text, t.len) == 0)
+        {
+          fprintf(fp, "%s::%s", data->Name, name);
+          matched = 1;
+          break;
+        }
+      }
+    }
+
+    if (!matched)
+    {
+      fprintf(fp, "%*.*s", (int)t.len, (int)t.len, t.text);
+    }
+
+    /* if next character is whitespace, add a space */
+    if (vtkParse_CharType(t.text[t.len], CPRE_WHITE))
+    {
+      fprintf(fp, " ");
+    }
+
+    /* check whether the next identifier is qualified */
+    qualified = (t.tok == TOK_SCOPE ||
+                 t.tok == TOK_ARROW ||
+                 t.tok == '.');
+  }
+  while (vtkParse_NextToken(&t));
 }
 
 char *vtkWrap_SafeSuperclassName(const char *name)

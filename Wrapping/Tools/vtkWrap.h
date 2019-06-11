@@ -272,6 +272,13 @@ void vtkWrap_DeclareVariableSize(
   FILE *fp, ValueInfo *v, const char *name, int idx);
 
 /**
+ * Qualify all the unqualified identifiers in the given expression
+ * and print the result to the file.
+ */
+void vtkWrap_QualifyExpression(
+  FILE *fp, ClassInfo *data, const char *text);
+
+/**
  * Makes a superclass name into a valid identifier. Returns NULL if the given
  * name is valid as-is.
  */
