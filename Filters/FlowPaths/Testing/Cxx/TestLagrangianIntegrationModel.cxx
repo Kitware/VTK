@@ -16,7 +16,7 @@
 
 #include "vtkActor.h"
 #include "vtkCellData.h"
-#include "vtkCellLocator.h"
+#include "vtkStaticCellLocator.h"
 #include "vtkDataSetMapper.h"
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkDataSetSurfaceFilter.h"
@@ -140,7 +140,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
   odeWavelet->SetInputArrayToProcess(7, 1, 0,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
-  vtkNew<vtkCellLocator> locator;
+  vtkNew<vtkStaticCellLocator> locator;
   odeWavelet->SetLocator(locator);
   odeWavelet->AddDataSet(wavelet->GetOutput());
 

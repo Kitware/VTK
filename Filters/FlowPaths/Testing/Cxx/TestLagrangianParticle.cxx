@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkLagrangianParticle.h"
 
-#include "vtkCellLocator.h"
+#include "vtkStaticCellLocator.h"
 #include "vtkDoubleArray.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
@@ -273,7 +273,7 @@ int TestLagrangianParticle(int, char*[])
     return EXIT_FAILURE;
   }
 
-  vtkNew<vtkCellLocator> locator;
+  vtkNew<vtkStaticCellLocator> locator;
   vtkNew<vtkPolyData> poly;
   int cellId = 17;
   part->SetLastCell(locator, poly, cellId);

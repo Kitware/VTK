@@ -15,7 +15,7 @@
 #include "vtkLagrangianBasicIntegrationModel.h"
 
 #include "vtkCellData.h"
-#include "vtkCellLocator.h"
+#include "vtkStaticCellLocator.h"
 #include "vtkDataArray.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDataSet.h"
@@ -520,8 +520,8 @@ vtkLagrangianBasicIntegrationModel::vtkLagrangianBasicIntegrationModel()
   this->Surfaces = new vtkSurfaceType;
   this->SurfaceLocators = new vtkLocatorsType;
 
-  // Using a vtkCellLocator by default
-  vtkNew<vtkCellLocator> locator;
+  // Using a vtkStaticCellLocator by default
+  vtkNew<vtkStaticCellLocator> locator;
   this->SetLocator(locator);
   this->LocatorsBuilt = false;
 }
@@ -614,7 +614,7 @@ void vtkLagrangianBasicIntegrationModel::AddDataSet(
   {
     if (surface)
     {
-      locator.TakeReference(vtkCellLocator::New());
+      locator.TakeReference(vtkStaticCellLocator::New());
     }
     else
     {
