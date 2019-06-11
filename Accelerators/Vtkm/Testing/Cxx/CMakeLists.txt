@@ -1,5 +1,5 @@
 
-vtk_add_test_cxx(vtkAcceleratorsVTKmCxxTests tests
+vtk_add_test_cxx(vtkAcceleratorsVTKmCxxTests1 tests1
   TestVTKMCleanGrid.cxx
   TestVTKMCoordinateSystemTransform.cxx,NO_VALID
   TestVTKMClip.cxx
@@ -24,11 +24,22 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmCxxTests tests
   TestVTKMWarpVector.cxx
   )
 
+# We are splitting the tests into two executables to workaround an issue in
+# cuda. With all the tests in the same executable several tests are failing
+# in cuda. We have not identified the root cause of the problem yet.
+vtk_add_test_cxx(vtkAcceleratorsVTKmCxxTests2 tests2
+  TestVTKMDataArray.cxx,NO_VALID
+  TestVTKMDataSet.cxx,NO_VALID
+  )
+
 if (TARGET vtkm::cuda)
   #the enable_language call is scoped! so we have to re-enable
   #cuda in the test directory
   enable_language(CUDA)
-  foreach(src IN LISTS tests)
+  foreach(src IN LISTS tests1)
+    set_source_files_properties(${src}.cxx PROPERTIES LANGUAGE "CUDA")
+  endforeach()
+  foreach(src IN LISTS tests2)
     set_source_files_properties(${src}.cxx PROPERTIES LANGUAGE "CUDA")
   endforeach()
 
@@ -44,12 +55,17 @@ if (TARGET vtkm::cuda)
 endif()
 
 
-vtk_test_cxx_executable(vtkAcceleratorsVTKmCxxTests tests
+vtk_test_cxx_executable(vtkAcceleratorsVTKmCxxTests1 tests1
+  RENDERING_FACTORY
+  )
+
+vtk_test_cxx_executable(vtkAcceleratorsVTKmCxxTests2 tests2
   RENDERING_FACTORY
   )
 
 if (TARGET vtkm::cuda)
   # When cuda is enabled VTK::AcceleratorsVTKm is built statically but with fpic
   # enabled so the tests are also built with fpic enabled
-  set_target_properties(vtkAcceleratorsVTKmCxxTests PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(vtkAcceleratorsVTKmCxxTests1 PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(vtkAcceleratorsVTKmCxxTests2 PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()

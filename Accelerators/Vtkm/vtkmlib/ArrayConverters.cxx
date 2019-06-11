@@ -16,9 +16,11 @@
 #include "ArrayConverters.h"
 
 #include "Storage.h"
+#include "vtkmDataArray.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/cont/ArrayHandle.h>
+#include <vtkm/cont/ArrayHandleVirtual.h>
 #include <vtkm/cont/CoordinateSystem.hxx>
 #include <vtkm/cont/DataSet.h>
 
@@ -206,6 +208,26 @@ vtkm::cont::Field Convert(DataArrayType* input, int association)
   return vtkm::cont::Field();
 }
 
+template <typename T>
+vtkm::cont::Field Convert(vtkmDataArray<T>* input, int association)
+{
+  // we need to switch on if we are a cell or point field first!
+  // The problem is that the constructor signature for fields differ based
+  // on if they are a cell or point field.
+  if (association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    return vtkm::cont::Field(input->GetName(), vtkm::cont::Field::Association::POINTS,
+                             input->GetVtkmVariantArrayHandle());
+  }
+  else if (association == vtkDataObject::FIELD_ASSOCIATION_CELLS)
+  {
+    return vtkm::cont::Field(input->GetName(), vtkm::cont::Field::Association::CELL_SET, "cells",
+                             input->GetVtkmVariantArrayHandle());
+  }
+
+  return vtkm::cont::Field();
+}
+
 // determine the type and call the proper Convert routine
 vtkm::cont::Field Convert(vtkDataArray* input, int association)
 {
@@ -224,14 +246,17 @@ vtkm::cont::Field Convert(vtkDataArray* input, int association)
   switch (input->GetDataType())
   {
     vtkTemplateMacro(
-        vtkAOSDataArrayTemplate<VTK_TT>* typedIn =
+        vtkAOSDataArrayTemplate<VTK_TT>* typedIn1 =
             vtkAOSDataArrayTemplate<VTK_TT>::FastDownCast(input);
-        if (typedIn) { field = Convert(typedIn, association); } else {
+        if (typedIn1) { field = Convert(typedIn1, association); }
+        else {
           vtkSOADataArrayTemplate<VTK_TT>* typedIn2 =
               vtkSOADataArrayTemplate<VTK_TT>::FastDownCast(input);
-          if (typedIn2)
-          {
-            field = Convert(typedIn2, association);
+          if (typedIn2) { field = Convert(typedIn2, association); }
+          else {
+            vtkmDataArray<VTK_TT>* typedIn3 =
+                vtkmDataArray<VTK_TT>::SafeDownCast(input);
+            if (typedIn3) { field = Convert(typedIn3, association); }
           }
         });
     // end vtkTemplateMacro
@@ -245,93 +270,8 @@ namespace fromvtkm {
 
 namespace {
 
-template <typename T> struct CopyArrayContents {};
-
-template <> struct CopyArrayContents<tovtkm::vtkPortalOfVecOfVecValues>
-{
-  template <typename PortalType, typename U>
-  void operator()(const PortalType& portal, U* array, vtkIdType numValues) const
-  {
-    using Traits = tovtkm::vtkPortalTraits<typename PortalType::ValueType>;
-
-    // slow path for NxM component arrays
-    vtkIdType index = 0;
-    for (vtkIdType i = 0; i < numValues; ++i)
-    {
-      auto v = portal.Get(i);
-      for (vtkm::IdComponent j = 0; j < Traits::NUM_COMPONENTS_OUTER; ++j)
-      {
-        auto c = v[i];
-        for (vtkm::IdComponent k = 0; k < Traits::NUM_COMPONENTS_INNER; ++k, ++index)
-          {
-          array->SetValue(index, c[k]);
-          }
-      }
-    }
-  }
-};
-
-template <> struct CopyArrayContents<tovtkm::vtkPortalOfVecOfValues>
-{
-  template <typename PortalType, typename U>
-  void operator()(const PortalType& portal, U* array, vtkIdType numValues) const
-  {
-    using Traits = tovtkm::vtkPortalTraits<typename PortalType::ValueType>;
-
-    // slow path for N component arrays
-    vtkIdType index = 0;
-    for (vtkIdType i = 0; i < numValues; ++i)
-    {
-      auto v = portal.Get(i);
-      for (vtkm::IdComponent j = 0; j < Traits::NUM_COMPONENTS; ++j, ++index)
-      {
-        array->SetValue(index, v[j]);
-      }
-    }
-  }
-};
-
-template <> struct CopyArrayContents<tovtkm::vtkPortalOfScalarValues>
-{
-  template <typename PortalType, typename U>
-  void operator()(const PortalType& portal, U* array, vtkIdType numValues) const
-  {
-    // fast path for single component arrays, can't steal the memory
-    // since the storage types isn't one we know
-    for (vtkIdType i = 0; i < numValues; ++i)
-    {
-      array->SetValue(i, portal.Get(i));
-    }
-  }
-};
-
 struct ArrayConverter
 {
-private:
-  template <typename T, typename S>
-  void CopyEachValue(vtkm::cont::ArrayHandle<T, S> &handle) const
-  {
-    // we need to make a copy
-    using Traits = tovtkm::vtkPortalTraits<T>;
-    using ValueType = typename Traits::ComponentType;
-    using VTKArrayType = vtkAOSDataArrayTemplate<ValueType>;
-
-    const vtkIdType numValues = handle.GetNumberOfValues();
-    const vtkIdType numComps = Traits::NUM_COMPONENTS;
-    VTKArrayType *array = VTKArrayType::New();
-    array->SetNumberOfComponents(numComps);
-    array->SetNumberOfTuples(numValues);
-
-    // copy directly into the vtkarray
-    auto portal = handle.GetPortalConstControl();
-
-    // Need to do a compile time switch for copying a single component
-    // array versus a multiple component array
-    CopyArrayContents<typename Traits::TagType> copier;
-    copier(portal, array, numValues);
-    this->Data = array;
-  }
-
 public:
   mutable vtkDataArray* Data;
 
@@ -343,7 +283,7 @@ public:
   template <typename T, typename S>
   void operator()(vtkm::cont::ArrayHandle<T, S> handle) const
   {
-    this->CopyEachValue(handle);
+    this->Data = make_vtkmDataArray(handle);
   }
 
   template <typename T>
@@ -366,7 +306,7 @@ public:
     }
     else
     {
-      this->CopyEachValue( handle );
+      this->Data = make_vtkmDataArray(handle);
     }
   }
 

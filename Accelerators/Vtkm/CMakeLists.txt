@@ -27,7 +27,8 @@ set(private_headers
   vtkmlib/DataSetConverters.h
   vtkmlib/Portals.hxx
   vtkmlib/PortalTraits.h
-  vtkmlib/Storage.hxx)
+  vtkmlib/Storage.hxx
+  vtkmDataArray.hxx)
 
 set(impl_classes
   vtkmAverageToCells
@@ -39,6 +40,8 @@ set(impl_classes
   vtkmConnectivityExec
   vtkmContour
   vtkmCoordinateSystemTransform
+  vtkmDataArray
+  vtkmDataSet
   vtkmExternalFaces
   vtkmExtractVOI
   vtkmGradient
