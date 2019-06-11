@@ -23,6 +23,12 @@
  * of what colors are returned. In essence a color scheme is set and then
  * the number of colors and individual color values may be requested.
  *
+ * For a web page of the default palettes, see:
+ * <a href="http://htmlpreview.github.io/?https://github.com/lorensen/VTKExamples/blob/master/src/Python/Visualization/VTKColorSeriesPatches.html">VTKColorSeriesPatches</a>.
+ * Use
+ * <a href="https://lorensen.github.io/VTKExamples/site/Python/Visualization/ColorSeriesPatches/">ColorSeriesPatches</a>
+ * to generate this table.
+ *
  * It is also possible to add schemes beyond the default palettes.
  * Whenever \a SetColorScheme is called with a string for which no palette
  * already exists, a new, empty palette is created.
