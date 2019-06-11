@@ -203,8 +203,6 @@ void output_function(void);
 void reject_function(void);
 void set_return(FunctionInfo *func, unsigned int type,
                 const char *typeclass, int count);
-void add_parameter(FunctionInfo *func, unsigned int type,
-                   const char *classname, int count);
 void add_template_parameter(unsigned int datatype,
                             unsigned int extra, const char *funcSig);
 void add_using(const char *name, int is_namespace);
@@ -215,7 +213,6 @@ void end_enum(void);
 unsigned int guess_constant_type(const char *value);
 void add_constant(const char *name, const char *value,
                   unsigned int type, const char *typeclass, int global);
-const char *add_const_scope(const char *name);
 void prepend_scope(char *cp, const char *arg);
 unsigned int guess_id_type(const char *cp);
 unsigned int add_indirection(unsigned int tval, unsigned int ptr);
@@ -3436,28 +3433,7 @@ common_bracket_item_no_scope_operator:
   | keyword { postSig($<str>1); postSig(" "); }
   | literal { postSig($<str>1); postSig(" "); }
   | primitive_type
-  | type_name
-    {
-      int c1 = 0;
-      size_t l;
-      const char *cp;
-      chopSig();
-      cp = getSig();
-      l = getSigLength();
-      if (l != 0) { c1 = cp[l-1]; }
-      while (vtkParse_CharType(c1, CPRE_XID) && l != 0)
-      {
-        --l;
-        c1 = cp[l-1];
-      }
-      if (l < 2 || cp[l-1] != ':' || cp[l-2] != ':')
-      {
-        cp = add_const_scope(&cp[l]);
-        resetSig(l);
-        postSig(cp);
-      }
-      postSig(" ");
-    }
+  | type_name { chopSig(); postSig(" "); }
 
 any_bracket_contents:
   | any_bracket_contents any_bracket_item
@@ -4126,75 +4102,6 @@ void add_constant(const char *name, const char *value,
   }
 }
 
-/* if the name is a const in this namespace, then scope it */
-const char *add_const_scope(const char *name)
-{
-  static char text[256];
-  NamespaceInfo *scope = currentNamespace;
-  TemplateInfo *tparams;
-  const char *classname;
-  int i, j;
-  int addscope = 0;
-
-  strcpy(text, name);
-
-  if (currentClass)
-  {
-    for (j = 0; j < currentClass->NumberOfConstants; j++)
-    {
-      if (strcmp(currentClass->Constants[j]->Name, text) == 0)
-      {
-        classname = currentClass->Name;
-        tparams = currentClass->Template;
-        if (tparams)
-        {
-          classname = vtkstrcat(classname, "<");
-          for (i = 0; i < tparams->NumberOfParameters; i++)
-          {
-            if (i != 0)
-            {
-              classname = vtkstrcat(classname, ",");
-            }
-            classname = vtkstrcat(classname, tparams->Parameters[i]->Name);
-          }
-          classname = vtkstrcat(classname, ">");
-        }
-        prepend_scope(text, classname);
-        addscope = 1;
-        break;
-      }
-    }
-  }
-  i = namespaceDepth;
-  while (scope && scope->Name)
-  {
-    if (addscope)
-    {
-      prepend_scope(text, scope->Name);
-    }
-    else
-    {
-      for (j = 0; j < scope->NumberOfConstants; j++)
-      {
-        if (strcmp(scope->Constants[j]->Name, text) == 0)
-        {
-          prepend_scope(text, scope->Name);
-          addscope = 1;
-          break;
-        }
-      }
-    }
-
-    scope = 0;
-    if (i > 0)
-    {
-      scope = namespaceStack[--i];
-    }
-  }
-
-  return text;
-}
-
 /* guess the type from the ID */
 unsigned int guess_id_type(const char *cp)
 {
@@ -4245,30 +4152,6 @@ void add_template_parameter(
   handle_complex_type(param, datatype, extra, funcSig);
   param->Name = getVarName();
   vtkParse_AddParameterToTemplate(currentTemplate, param);
-}
-
-/* add a parameter to a function */
-void add_parameter(FunctionInfo *func, unsigned int type,
-                   const char *typeclass, int count)
-{
-  char text[64];
-  ValueInfo *param = (ValueInfo *)malloc(sizeof(ValueInfo));
-  vtkParse_InitValue(param);
-
-  param->Type = type;
-  param->Class = type_class(type, typeclass);
-
-  if (count)
-  {
-    param->Count = count;
-    sprintf(text, "%i", count);
-    vtkParse_AddStringToArray(&param->Dimensions, &param->NumberOfDimensions,
-                              vtkstrdup(text));
-  }
-
-  add_legacy_parameter(func, param);
-
-  vtkParse_AddParameterToFunction(func, param);
 }
 
 /* set the return type for the current function */
