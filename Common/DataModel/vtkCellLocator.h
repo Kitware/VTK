@@ -31,8 +31,12 @@
  * for the operations described here. vtkCellLocator has been designed
  * for subclassing; so these locators can be derived if necessary.
  *
+ * @warning
+ * Most of the methods of this class are not thread-safe. For a thread-safe,
+ * more efficient generic implementation, please use vtkStaticCellLocator
+ *
  * @sa
- * vtkLocator vtkPointLocator vtkOBBTree
+ * vtkLocator vtkPointLocator vtkOBBTree vtkStaticCellLocator
 */
 
 #ifndef vtkCellLocator_h
@@ -73,7 +77,8 @@ public:
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line. The cell is returned as a cell id and as a generic
    * cell.  For other IntersectWithLine signatures, see
-   * vtkAbstractCellLocator.  Note this is currently not thread-safe.
+   * vtkAbstractCellLocator.
+   * THIS METHOD IS NOT THREAD SAFE.
    */
   int IntersectWithLine(const double a0[3], const double a1[3], double tol,
                         double& t, double x[3], double pcoords[3],
@@ -90,6 +95,7 @@ public:
    * deallocation can be done only once outside the for loop.  If a cell is
    * found, "cell" contains the points and ptIds for the cell "cellId" upon
    * exit.
+   * THIS METHOD IS NOT THREAD SAFE.
    */
   void FindClosestPoint(
     const double x[3], double closestPoint[3],
@@ -112,6 +118,7 @@ public:
    * inside returns the return value of the EvaluatePosition call to the
    * closest cell; inside(=1) or outside(=0). For other
    * FindClosestPointWithinRadius signatures, see vtkAbstractCellLocator.
+   * THIS METHOD IS NOT THREAD SAFE.
    */
   vtkIdType FindClosestPointWithinRadius(
     double x[3], double radius, double closestPoint[3],
@@ -151,6 +158,7 @@ public:
    * that an empty cell list is returned. The user must provide the vtkIdList
    * to populate. This method returns data only after the locator has been
    * built.
+   * THIS METHOD IS NOT THREAD SAFE.
    */
   void FindCellsAlongLine(const double p1[3], const double p2[3],
                           double tolerance, vtkIdList *cells) override;
