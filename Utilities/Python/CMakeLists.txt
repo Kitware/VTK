@@ -165,7 +165,7 @@ if (VTK_PYTHON_OPTIONAL_LINK)
   set(should_use "$<OR:${is_exe},${direct_link}>")
   set(platform_flags
     # Apple flags.
-    "$<$<STREQUAL:$<PLATFORM_ID>,Darwin>:-undefined;dynamic_lookup>"
+    "$<$<PLATFORM_ID:Darwin>:-undefined;dynamic_lookup>"
     # Linux flags.
     # The linker is allowed to skip libraries not used by the end result. This
     # can exclude the `libpython` DT_NEEDED entry at the final executable if it
