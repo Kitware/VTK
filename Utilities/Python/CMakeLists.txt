@@ -174,19 +174,31 @@ if (VTK_PYTHON_OPTIONAL_LINK)
     # Due to the above making the symbols actually available, we can ignore
     # unresolved symbols in the shared libraries that are being linked to.
     "$<$<AND:${is_exe},$<PLATFORM_ID:Linux>>:LINKER:--unresolved-symbols=ignore-in-shared-libs>")
+
+  # Compilation should work with this target, so add the include interface.
   vtk_module_include(VTK::Python SYSTEM
     INTERFACE
       "${vtk_python_includes}")
+  # Only when the actual Python target should be used should it be linked.
   vtk_module_link(VTK::Python
     INTERFACE
       "$<LINK_ONLY:$<${should_use}:${vtk_python_target}>>")
+  # Libraries need the platform flags if they are necessary and direct linking
+  # is not being performed.
   vtk_module_link_options(VTK::Python
     INTERFACE
-      "$<$<OR:$<AND:$<NOT:${is_exe}>,${needs_flags}>,$<NOT:${direct_link}>>:${platform_flags}>")
+      "$<$<AND:${needs_flags},$<NOT:${direct_link}>>:${platform_flags}>")
 
+  # This target is intended for use by the end-result executable with a
+  # `VTK::Python` link in its total library closure. This exposes the
+  # `VTK::Python` link at the executable level with the required platform
+  # flags.
   target_link_libraries(PythonUsed
     INTERFACE
-      "$<LINK_ONLY:$<${should_use}:${vtk_python_target}>>")
+      "$<LINK_ONLY:$<${is_exe}:${vtk_python_target}>>")
+  target_link_options(PythonUsed
+    INTERFACE
+      "$<$<AND:${is_exe},${needs_flags}>:${platform_flags}>")
   _vtk_module_set_module_property(VTK::Python APPEND
     PROPERTY  "forward_link"
     VALUE     VTK::PythonUsed)
