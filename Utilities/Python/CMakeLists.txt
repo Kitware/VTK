@@ -152,13 +152,27 @@ add_library(VTK::PythonUsed ALIAS PythonUsed)
 _vtk_module_install(PythonUsed)
 
 if (VTK_PYTHON_OPTIONAL_LINK)
+  # It has been observed that Ubuntu's GCC toolchain defaults require flags,
+  # but are not detected here due to the confluence of the flags (basically,
+  # the errors only show up in an executable that links to Python-using code,
+  # but does not use Python itself either). Since this is not detected, setting
+  # `vtk_undefined_symbols_allowed=OFF` manually may be required when using
+  # Ubuntu toolchains.
   include("${CMAKE_CURRENT_SOURCE_DIR}/vtkUndefinedSymbolsAllowed.cmake")
   set(is_exe "$<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>")
   set(needs_flags "$<NOT:$<BOOL:${vtk_undefined_symbols_allowed}>>")
   set(direct_link "$<BOOL:$<TARGET_PROPERTY:INTERFACE_vtk_python_direct_link>>")
   set(platform_flags
     # Apple flags.
-    "$<$<STREQUAL:$<PLATFORM_ID>,Darwin>:-undefined;dynamic_lookup>")
+    "$<$<STREQUAL:$<PLATFORM_ID>,Darwin>:-undefined;dynamic_lookup>"
+    # Linux flags.
+    # The linker is allowed to skip libraries not used by the end result. This
+    # can exclude the `libpython` DT_NEEDED entry at the final executable if it
+    # itself does not actually use any libpython symbols.
+    "$<$<AND:${is_exe},$<PLATFORM_ID:Linux>>:LINKER:--no-as-needed>"
+    # Due to the above making the symbols actually available, we can ignore
+    # unresolved symbols in the shared libraries that are being linked to.
+    "$<$<AND:${is_exe},$<PLATFORM_ID:Linux>>:LINKER:--unresolved-symbols=ignore-in-shared-libs>")
   vtk_module_include(VTK::Python SYSTEM
     INTERFACE
       "${vtk_python_includes}")
