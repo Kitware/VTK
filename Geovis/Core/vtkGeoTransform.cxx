@@ -167,9 +167,17 @@ void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int 
     double* coord = x;
     for ( vtkIdType i = 0; i < numPts; ++ i )
     {
+#if PROJ_VERSION_MAJOR >= 5
+      xy.x = coord[0]; xy.y = coord[1];
+#else
       xy.u = coord[0]; xy.v = coord[1];
+#endif
       lp = pj_inv( xy, src );
+#if PROJ_VERSION_MAJOR >= 5
+      coord[0] = lp.lam; coord[1] = lp.phi;
+#else
       coord[0] = lp.u; coord[1] = lp.v;
+#endif
       coord += stride;
     }
   }
@@ -191,9 +199,17 @@ void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int 
     double* coord = x;
     for ( vtkIdType i = 0; i < numPts; ++ i )
     {
+#if PROJ_VERSION_MAJOR >= 5
+      lp.lam = coord[0]; lp.phi = coord[1];
+#else
       lp.u = coord[0]; lp.v = coord[1];
+#endif
       xy = pj_fwd( lp, dst );
+#if PROJ_VERSION_MAJOR >= 5
+      coord[0] = xy.x; coord[1] = xy.y;
+#else
       coord[0] = xy.u; coord[1] = xy.v;
+#endif
       coord += stride;
     }
   }
