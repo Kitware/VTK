@@ -11,6 +11,7 @@ vtk_add_test_cxx(vtkRenderingImageCxxTests tests
   TestImageSliceMapperOrient2D.cxx
   TestImageResliceMapperOffAxis.cxx
   TestImageSliceMapperOrient3D.cxx
+  TestImageSliceMapperOriented3D.cxx
   TestImageResliceMapperOrient3D.cxx
   TestImageStack.cxx
   TestImageResliceMapperSlab.cxx

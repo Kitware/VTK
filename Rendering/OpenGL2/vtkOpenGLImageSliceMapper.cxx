@@ -127,17 +127,6 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
 
   this->LastOrientation = -1;
   this->LastSliceNumber = VTK_INT_MAX;
-
-  this->LoadCount = 0;
-
-  this->UseClampToEdge = false;
-
-  // Use GL_ARB_fragment_program, which is an extension to OpenGL 1.3
-  // that is compatible with very old drivers and hardware, and is still
-  // fully supported on modern hardware.  The only caveat is that it is
-  // automatically disabled if any modern shaders (e.g. depth peeling)
-  // are simultaneously loaded, so it will not interfere with them.
-  this->UseFragmentProgram = false;
 }
 
 //----------------------------------------------------------------------------
@@ -238,10 +227,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   if (renWin != this->RenderWindow ||
       renWin->GetContextCreationTime() > loadTime)
   {
-    // force two initial loads for each new context
     this->RenderWindow = renWin;
-    this->LoadCount = 0;
-    this->CheckOpenGLCapabilities(renWin);
     reuseTexture = false;
   }
 
@@ -250,15 +236,6 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   // get information about the image
   int xdim, ydim; // orientation of texture wrt input image
   vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
-
-  // check whether to use a shader for bicubic interpolation
-  //bool checkerboard = (property && property->GetCheckerboard());
-  //bool cubicInterpolation = (property &&
-  //  property->GetInterpolationType() == VTK_CUBIC_INTERPOLATION);
-  //bool useFragmentProgram = false;
-    // (this->UseFragmentProgram &&
-    //  (!this->ExactPixelMatch || !this->SliceFacesCamera) &&
-    //  (cubicInterpolation || checkerboard));
 
   // verify that the orientation and slice has not changed
   bool orientationChanged = (this->Orientation != this->LastOrientation);
@@ -290,10 +267,8 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
       propertyMTime > loadTime ||
       input->GetMTime() > loadTime ||
       orientationChanged || sliceChanged ||
-      this->LoadCount < 2 || recursive)
+      recursive)
   {
-    this->LoadCount++;
-
     // get the data to load as a texture
     int xsize;
     int ysize;
@@ -333,14 +308,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
       this->PolyDataActor->GetTexture()->InterpolateOn();
     }
 
-    if (this->UseClampToEdge)
-    {
-      this->PolyDataActor->GetTexture()->EdgeClampOn();
-    }
-    else
-    {
-      this->PolyDataActor->GetTexture()->EdgeClampOff();
-    }
+    this->PolyDataActor->GetTexture()->EdgeClampOn();
 
     // modify the load time to the current time
     this->LoadTime.Modified();
@@ -615,31 +583,6 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLImageSliceMapper::BindFragmentProgram(
-  vtkRenderer *vtkNotUsed(ren), vtkImageProperty *vtkNotUsed(property))
-{
-  vtkOpenGLClearErrorMacro();
-
-  // TODO: change all this
-
-
-  vtkOpenGLCheckErrorMacro("failed after BindFragmentProgram");
-}
-
-//----------------------------------------------------------------------------
-vtkStdString vtkOpenGLImageSliceMapper::BuildFragmentProgram(
-  vtkImageProperty *vtkNotUsed(property))
-{
-
-  // TODO change all this
-  vtkStdString prog =
-    "!!ARBfp1.0\n"
-    "\n";
-
-  return prog;
-}
-
-//----------------------------------------------------------------------------
 void vtkOpenGLImageSliceMapper::ComputeTextureSize(
   const int extent[6], int &xdim, int &ydim,
   int imageSize[2], int textureSize[2])
@@ -685,15 +628,6 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 
   vtkOpenGLRenderWindow *renWin =
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-
-  if (renWin && (renWin != this->RenderWindow ||
-      renWin->GetContextCreationTime() > this->LoadTime.GetMTime()))
-  {
-    this->CheckOpenGLCapabilities(renWin);
-  }
-
-  // time the render
-  this->Timer->StartTimer();
 
   // update the input information
   vtkImageData *input = this->GetInput();
@@ -787,21 +721,9 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     ostate->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   }
 
-  this->Timer->StopTimer();
-  this->TimeToDraw = this->Timer->GetElapsedTime();
-  if (this->TimeToDraw == 0)
-  {
-    this->TimeToDraw = 0.0001;
-  }
+  this->TimeToDraw = 0.0001;
 
   vtkOpenGLCheckErrorMacro("failed after Render");
-}
-
-//----------------------------------------------------------------------------
-void vtkOpenGLImageSliceMapper::CheckOpenGLCapabilities(vtkOpenGLRenderWindow*)
-{
-  this->UseClampToEdge = true;
-  this->UseFragmentProgram = false;
 }
 
 //----------------------------------------------------------------------------

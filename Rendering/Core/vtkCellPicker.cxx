@@ -1313,10 +1313,7 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
 {
   // Get the image information
   vtkImageData *data = imageMapper->GetInput();
-  double spacing[3], origin[3];
   int extent[6];
-  data->GetSpacing(spacing);
-  data->GetOrigin(origin);
   data->GetExtent(extent);
 
   // Get the plane equation for the slice
@@ -1334,47 +1331,18 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
     normal[3] = -normal[3];
   }
 
-  // And finally convert normal to structured coords
+  // And convert plane eqn to structured coords
   double xnormal[4];
-  xnormal[0] = normal[0]*spacing[0];
-  xnormal[1] = normal[1]*spacing[1];
-  xnormal[2] = normal[2]*spacing[2];
-  xnormal[3] = normal[3] + vtkMath::Dot(origin, normal);
-  double l = vtkMath::Norm(xnormal);
-  xnormal[0] /= l;
-  xnormal[1] /= l;
-  xnormal[2] /= l;
-  xnormal[3] /= l;
+  data->TransformPhyscialPlaneToContinuousIndex(normal, xnormal);
 
   // Also convert ray to structured coords
   double x1[3], x2[3];
-  for (int i = 0; i < 3; i++)
-  {
-    x1[i] = (p1[i] - origin[i])/spacing[i];
-    x2[i] = (p2[i] - origin[i])/spacing[i];
-  }
+  data->TransformPhysicalPointToContinuousIndex(p1, x1);
+  data->TransformPhysicalPointToContinuousIndex(p2, x2);
 
   // Get the bounds to discover any cropping that has been applied
   double bounds[6];
-  imageMapper->GetBounds(bounds);
-
-  // Convert bounds to structured coords
-  for (int k = 0; k < 3; k++)
-  {
-    bounds[2*k] = (bounds[2*k] - origin[k])/spacing[k];
-    bounds[2*k+1] = (bounds[2*k+1] - origin[k])/spacing[k];
-    // It should be a multiple of 0.5, so round to closest multiple of 0.5
-    // (this reduces the impact of roundoff error from the above computation)
-    bounds[2*k] = 0.5*vtkMath::Round(2.0*(bounds[2*k]));
-    bounds[2*k+1] = 0.5*vtkMath::Round(2.0*(bounds[2*k+1]));
-    // Reverse if spacing is negative
-    if (spacing[k] < 0)
-    {
-      double bt = bounds[2*k];
-      bounds[2*k] = bounds[2*k+1];
-      bounds[2*k+1] = bt;
-    }
-  }
+  imageMapper->GetIndexBounds(bounds);
 
   // Clip the ray with the extent
   int planeId, plane2Id;
@@ -1442,9 +1410,7 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
     // Compute all the pick values
     this->SetImageDataPickInfo(x, extent);
 
-    this->MapperPosition[0] = origin[0] + x[0]*spacing[0];
-    this->MapperPosition[1] = origin[1] + x[1]*spacing[1];
-    this->MapperPosition[2] = origin[2] + x[2]*spacing[2];
+    data->TransformContinuousIndexToPhysicalPoint(x, this->MapperPosition);
 
     // Set the normal in mapper coordinates
     this->MapperNormal[0] = normal[0];

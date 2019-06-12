@@ -2335,18 +2335,39 @@ inline static void TransformCoordinates(T1 input0,
                                         T2 output[3],
                                         vtkMatrix4x4* m4)
 {
-  output[0] = m4->GetElement(0, 0) * input0 +
-  m4->GetElement(0, 1) * input1 +
-  m4->GetElement(0, 2) * input2 +
-  m4->GetElement(0, 3);
-  output[1] = m4->GetElement(1, 0) * input0 +
-  m4->GetElement(1, 1) * input1 +
-  m4->GetElement(1, 2) * input2 +
-  m4->GetElement(1, 3);
-  output[2] = m4->GetElement(2, 0) * input0 +
-  m4->GetElement(2, 1) * input1 +
-  m4->GetElement(2, 2) * input2 +
-  m4->GetElement(2, 3);
+  double *mdata = m4->GetData();
+  output[0] = mdata[0] * input0 +
+  mdata[1] * input1 +
+  mdata[2] * input2 +
+  mdata[3];
+  output[1] = mdata[4] * input0 +
+  mdata[5] * input1 +
+  mdata[6] * input2 +
+  mdata[7];
+  output[2] = mdata[8] * input0 +
+  mdata[9] * input1 +
+  mdata[10] * input2 +
+  mdata[11];
+}
+
+// must pass the inverse matrix
+template <typename T1, typename T2>
+inline static void TransformNormal(T1 input0,
+                                   T1 input1,
+                                   T1 input2,
+                                   T2 output[3],
+                                   vtkMatrix4x4* m4)
+{
+  double *mdata = m4->GetData();
+  output[0] = mdata[0] * input0 +
+  mdata[4] * input1 +
+  mdata[8] * input2;
+  output[1] = mdata[1] * input0 +
+  mdata[5] * input1 +
+  mdata[9] * input2;
+  output[2] = mdata[2] * input0 +
+  mdata[6] * input1 +
+  mdata[10] * input2;
 }
 
 //----------------------------------------------------------------------------
@@ -2399,6 +2420,33 @@ void vtkImageData::TransformPhysicalPointToContinuousIndex(const double xyz[3],
 {
   TransformCoordinates<double, double>(xyz[0], xyz[1],  xyz[2], ijk,
                                        this->PhysicalToIndexMatrix);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::TransformPhysicalNormalToContinuousIndex(const double xyz[3],
+                                                            double ijk[3])
+{
+  TransformNormal<double, double>(xyz[0], xyz[1],  xyz[2], ijk,
+                                  this->IndexToPhysicalMatrix);
+}
+
+void vtkImageData::TransformPhyscialPlaneToContinuousIndex(
+  double const normal[4],
+  double xnormal[4])
+{
+  // transform the normal, note the inverse matrix is passed in
+  TransformNormal<double, double>(normal[0], normal[1],  normal[2], xnormal,
+                                  this->IndexToPhysicalMatrix);
+  vtkMath::Normalize(xnormal);
+
+  // transform the point
+  double newPt[3];
+  TransformCoordinates<double, double>(
+    -normal[3]*normal[0], -normal[3]*normal[1],  -normal[3]*normal[2],
+    newPt, this->PhysicalToIndexMatrix);
+
+  // recompute plane eqn
+  xnormal[3] = -xnormal[0]*newPt[0] - xnormal[1]*newPt[1] - xnormal[2]*newPt[2];
 }
 
 //----------------------------------------------------------------------------

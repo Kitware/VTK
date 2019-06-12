@@ -64,10 +64,15 @@ public:
   //@{
   /**
    * Set the orientation of the slices to display.  The default
-   * orientation is 2, which is Z.
+   * orientation is 2, which is K. Not the orientaiton here
+   * is in index space. Not physical or world.
    */
   vtkSetClampMacro(Orientation, int, 0, 2);
   vtkGetMacro(Orientation, int);
+  void SetOrientationToI() { this->SetOrientation(0); }
+  void SetOrientationToJ() { this->SetOrientation(1); }
+  void SetOrientationToK() { this->SetOrientation(2); }
+  // old methods
   void SetOrientationToX() { this->SetOrientation(0); }
   void SetOrientationToY() { this->SetOrientation(1); }
   void SetOrientationToZ() { this->SetOrientation(2); }
@@ -119,13 +124,16 @@ public:
     this->vtkAbstractMapper3D::GetBounds(bounds); };
   //@}
 
+  // return the bounds in index space
+  void GetIndexBounds(double extent[6]) override;
+
   /**
    * Get the plane as a homogeneous 4-vector that gives the plane
    * equation coefficients.  It is computed from the Orientation
    * and SliceNumber, the propMatrix is unused and can be zero.
    */
   void GetSlicePlaneInDataCoords(vtkMatrix4x4 *propMatrix,
-                                         double plane[4]) override;
+                                        double plane[4]) override;
 
   /**
    * Handle requests from the pipeline executive.
@@ -178,12 +186,12 @@ protected:
    * that indicates one of the six major directions.  The integers
    * 0,1,2 are x,y,z and 3,4,5 are -x,-y,-z.
    */
-  int GetOrientationFromCamera(vtkMatrix4x4 *propMatrix, vtkCamera *camera);
+  int GetOrientationFromCamera(double const *propMatrix, vtkCamera *camera);
 
   /**
    * Get the current slice as the one closest to the focal point.
    */
-  int GetSliceFromCamera(vtkMatrix4x4 *propMatrix, vtkCamera *camera);
+  int GetSliceFromCamera(double const *propMatrix, vtkCamera *camera);
 
   /**
    * Get the dimension indices according to the orientation.

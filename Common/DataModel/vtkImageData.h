@@ -410,6 +410,20 @@ public:
                                                        double ijk[3]);
   //@}
 
+  //@{
+  /**
+   * Convert normal from physical space (xyz) to index space (ijk)
+   */
+  virtual void TransformPhysicalNormalToContinuousIndex(const double xyz[3],
+                                                       double ijk[3]);
+  //@}
+
+  /**
+   * Convert a plane form physcial to continuous index
+   */
+  virtual void TransformPhyscialPlaneToContinuousIndex(double const pplane[4],
+    double iplane[4]);
+
   static void SetScalarType(int, vtkInformation* meta_data);
   static int GetScalarType(vtkInformation* meta_data);
   static bool HasScalarType(vtkInformation* meta_data);

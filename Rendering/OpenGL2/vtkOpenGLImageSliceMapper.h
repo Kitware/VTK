@@ -88,16 +88,6 @@ protected:
     vtkActor *actor, vtkPoints *points, const int extent[6], vtkRenderer *ren);
 
   /**
-   * Bind the fragment program, and generate it first if necessary.
-   */
-  void BindFragmentProgram(vtkRenderer *ren, vtkImageProperty *property);
-
-  /**
-   * Build the fragment program to use with the texture.
-   */
-  vtkStdString BuildFragmentProgram(vtkImageProperty *property);
-
-  /**
    * Given an extent that describes a slice (it must have unit thickness
    * in one of the three directions), return the dimension indices that
    * correspond to the texture "x" and "y", provide the x, y image size,
@@ -114,11 +104,6 @@ protected:
    */
   bool TextureSizeOK(const int size[2], vtkRenderer *ren);
 
-  /**
-   * Check various OpenGL capabilities
-   */
-  void CheckOpenGLCapabilities(vtkOpenGLRenderWindow *renWin);
-
   vtkRenderWindow *RenderWindow; // RenderWindow used for previous render
   int TextureSize[2];
   int TextureBytesPerPixel;
@@ -130,10 +115,6 @@ protected:
   vtkActor *BackgroundPolyDataActor;
 
   vtkTimeStamp LoadTime;
-  int LoadCount;
-
-  bool UseClampToEdge;
-  bool UseFragmentProgram;
 
 private:
   vtkOpenGLImageSliceMapper(const vtkOpenGLImageSliceMapper&) = delete;
