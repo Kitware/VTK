@@ -181,6 +181,14 @@ public:
 
   //@{
   /**
+   * Set/Get the direction of the data (9 elements: 3x3 matrix).
+   */
+  vtkSetVectorMacro(DataDirection,double, 9);
+  vtkGetVectorMacro(DataDirection,double, 9);
+  //@}
+
+  //@{
+  /**
    * Get the size of the header computed by this object.
    */
   unsigned long GetHeaderSize();
@@ -328,6 +336,7 @@ protected:
 
   double DataSpacing[3];
   double DataOrigin[3];
+  double DataDirection[9];
 
   int FileNameSliceOffset;
   int FileNameSliceSpacing;

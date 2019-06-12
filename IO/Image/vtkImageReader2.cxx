@@ -52,6 +52,13 @@ vtkImageReader2::vtkImageReader2()
 
   this->DataSpacing[0] = this->DataSpacing[1] = this->DataSpacing[2] = 1.0;
 
+  this->DataDirection[0] =
+  this->DataDirection[4] =
+  this->DataDirection[8] = 1.0;
+  this->DataDirection[1] = this->DataDirection[2] =
+  this->DataDirection[3] = this->DataDirection[5] =
+  this->DataDirection[6] = this->DataDirection[7] = 0.0;
+
   this->DataExtent[0] = this->DataExtent[2] = this->DataExtent[4] = 0;
   this->DataExtent[1] = this->DataExtent[3] = this->DataExtent[5] = 0;
 
@@ -441,6 +448,13 @@ void vtkImageReader2::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << ")\n";
 
+  os << indent << "DataDirection: (" << this->DataDirection[0];
+  for (idx = 1; idx < 9; ++idx)
+  {
+    os << ", " << this->DataDirection[idx];
+  }
+  os << ")\n";
+
   os << indent << "DataOrigin: (" << this->DataOrigin[0];
   for (idx = 1; idx < 3; ++idx)
   {
@@ -499,6 +513,7 @@ int vtkImageReader2::RequestInformation (
                this->DataExtent, 6);
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(),  this->DataOrigin, 3);
+  outInfo->Set(vtkDataObject::DIRECTION(), this->DataDirection, 9);
 
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->DataScalarType,
     this->NumberOfScalarComponents);
