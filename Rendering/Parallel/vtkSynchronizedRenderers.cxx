@@ -732,8 +732,9 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
   // framebuffers have their color premultiplied by alpha.
   vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
   ostate->vtkglEnable(GL_BLEND);
-  ostate->vtkglBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-    GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  ostate->vtkglBlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
+    GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+
 
   int size[2], low_point[2];
   ren->GetTiledSizeAndOrigin(&size[0], &size[1], &low_point[0], &low_point[1]);
