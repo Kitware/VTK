@@ -47,7 +47,8 @@ const char vtkDataSetAttributes
   "Tensors",
   "GlobalIds",
   "PedigreeIds",
-  "EdgeFlag"
+  "EdgeFlag",
+  "Tangents"
 };
 
 const char vtkDataSetAttributes
@@ -59,7 +60,8 @@ const char vtkDataSetAttributes
   "vtkDataSetAttributes::TENSORS",
   "vtkDataSetAttributes::GLOBALIDS",
   "vtkDataSetAttributes::PEDIGREEIDS",
-  "vtkDataSetAttributes::EDGEFLAG"
+  "vtkDataSetAttributes::EDGEFLAG",
+  "vtkDataSetAttributes::TANGENTS"
 };
 
 //--------------------------------------------------------------------------
@@ -110,6 +112,7 @@ void vtkDataSetAttributes::CopyAllOn(int ctype)
   this->SetCopyTensors(1, ctype);
   this->SetCopyGlobalIds(1, ctype);
   this->SetCopyPedigreeIds(1, ctype);
+  this->SetCopyTangents(1, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -124,6 +127,7 @@ void vtkDataSetAttributes::CopyAllOff(int ctype)
   this->SetCopyTensors(0, ctype);
   this->SetCopyGlobalIds(0, ctype);
   this->SetCopyPedigreeIds(0, ctype);
+  this->SetCopyTangents(0, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -1093,6 +1097,24 @@ vtkDataArray* vtkDataSetAttributes::GetNormals()
 }
 
 //--------------------------------------------------------------------------
+int vtkDataSetAttributes::SetTangents(vtkDataArray* da)
+{
+  return this->SetAttribute(da, TANGENTS);
+}
+
+//--------------------------------------------------------------------------
+int vtkDataSetAttributes::SetActiveTangents(const char* name)
+{
+  return this->SetActiveAttribute(name, TANGENTS);
+}
+
+//--------------------------------------------------------------------------
+vtkDataArray* vtkDataSetAttributes::GetTangents()
+{
+  return this->GetAttribute(TANGENTS);
+}
+
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetTCoords(vtkDataArray* da)
 {
   return this->SetAttribute(da, TCOORDS);
@@ -1194,6 +1216,16 @@ vtkDataArray* vtkDataSetAttributes::GetNormals(const char* name)
 }
 
 //--------------------------------------------------------------------------
+vtkDataArray* vtkDataSetAttributes::GetTangents(const char* name)
+{
+  if (name == nullptr || name[0] == '\0')
+  {
+    return this->GetTangents();
+  }
+  return this->GetArray(name);
+}
+
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetTCoords(const char* name)
 {
   if (name == nullptr || name[0] == '\0')
@@ -1281,7 +1313,8 @@ const int vtkDataSetAttributes
   9,
   1,
   1,
-  1};
+  1,
+  3};
 
 //--------------------------------------------------------------------------
 // Scalars set to NOLIMIT
@@ -1291,6 +1324,7 @@ const int vtkDataSetAttributes
   EXACT,
   EXACT,
   MAX,
+  EXACT,
   EXACT,
   EXACT,
   EXACT,
@@ -1569,10 +1603,23 @@ void vtkDataSetAttributes::SetCopyNormals(vtkTypeBool i, int ctype)
 {
   this->SetCopyAttribute(NORMALS, i, ctype);
 }
+
 //--------------------------------------------------------------------------
 vtkTypeBool vtkDataSetAttributes::GetCopyNormals(int ctype)
 {
   return this->GetCopyAttribute(NORMALS, ctype);
+}
+
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::SetCopyTangents(vtkTypeBool i, int ctype)
+{
+  this->SetCopyAttribute(TANGENTS, i, ctype);
+}
+
+//--------------------------------------------------------------------------
+vtkTypeBool vtkDataSetAttributes::GetCopyTangents(int ctype)
+{
+  return this->GetCopyAttribute(TANGENTS, ctype);
 }
 
 //--------------------------------------------------------------------------

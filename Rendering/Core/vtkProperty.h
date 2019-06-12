@@ -40,6 +40,7 @@
 #define VTK_FLAT    0
 #define VTK_GOURAUD 1
 #define VTK_PHONG   2
+#define VTK_PBR     3
 
 // representation models
 #define VTK_POINTS    0
@@ -139,7 +140,7 @@ public:
   /**
    * Set the shading interpolation method for an object.
    */
-  vtkSetClampMacro(Interpolation, int, VTK_FLAT, VTK_PHONG);
+  vtkSetClampMacro(Interpolation, int, VTK_FLAT, VTK_PBR);
   vtkGetMacro(Interpolation,int);
   void SetInterpolationToFlat()
     { this->SetInterpolation(VTK_FLAT); }
@@ -147,6 +148,8 @@ public:
     { this->SetInterpolation(VTK_GOURAUD); }
   void SetInterpolationToPhong()
     { this->SetInterpolation(VTK_PHONG); }
+  void SetInterpolationToPBR()
+    { this->SetInterpolation(VTK_PBR); }
   const char *GetInterpolationAsString();
   //@}
 
@@ -176,6 +179,61 @@ public:
   double *GetColor() VTK_SIZEHINT(3);
   void GetColor(double rgb[3]);
   void GetColor(double &r, double &g, double &b);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the metallic coefficient.
+   * Usually this value is either 0 or 1 for real material but any value in between is valid.
+   * This parameter is only used by PBR Interpolation.
+   * Default value is 0.0
+   */
+  vtkSetClampMacro(Metallic, double, 0.0, 1.0);
+  vtkGetMacro(Metallic, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the roughness coefficient.
+   * This value have to be between 0 (glossy) and 1 (rough).
+   * A glossy material have reflections and a high specular part.
+   * This parameter is only used by PBR Interpolation.
+   * Default value is 0.5
+   */
+  vtkSetClampMacro(Roughness, double, 0.0, 1.0);
+  vtkGetMacro(Roughness, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the normal scale coefficient.
+   * This value affects the strength of the normal deviation from the texture.
+   * Default value is 1.0
+   */
+  vtkSetMacro(NormalScale, double);
+  vtkGetMacro(NormalScale, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the occlusion strength coefficient.
+   * This value affects the strength of the occlusion if a material texture is present.
+   * This parameter is only used by PBR Interpolation.
+   * Default value is 1.0
+   */
+  vtkSetClampMacro(OcclusionStrength, double, 0.0, 1.0);
+  vtkGetMacro(OcclusionStrength, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the emissive factor.
+   * This value is multiplied with the emissive color when an emissive texture is present.
+   * This parameter is only used by PBR Interpolation.
+   * Default value is [1.0, 1.0, 1.0]
+   */
+  vtkSetVector3Macro(EmissiveFactor, double);
+  vtkGetVector3Macro(EmissiveFactor, double);
   //@}
 
   //@{
@@ -233,6 +291,7 @@ public:
   //@{
   /**
    * Set/Get the diffuse surface color.
+   * For PBR Interpolation, DiffuseColor is used as the base color
    */
   vtkSetVector3Macro(DiffuseColor, double);
   vtkGetVector3Macro(DiffuseColor, double);
@@ -432,10 +491,48 @@ public:
    * must be assigned unique names. Note that for texture blending the
    * textures will be rendering is alphabetical order and after any texture
    * defined in the actor.
+   * There exists 4 special textures with reserved names: "albedoTex", "materialTex", "normalTex"
+   * and "emissiveTex". While these textures can be added with the regular SetTexture method, it is
+   * prefered to use to method SetBaseColorTexture, SetORMTexture, SetNormalTexture and
+   * SetEmissiveTexture respectively.
    */
   void SetTexture(const char* name, vtkTexture* texture);
   vtkTexture* GetTexture(const char* name);
   //@}
+
+  /**
+   * Set the base color texture. Also called albedo, this texture is only used while rendering
+   * with PBR interpolation. This is the color of the object.
+   * @sa SetInterpolationToPBR
+   */
+  void SetBaseColorTexture(vtkTexture* texture) { this->SetTexture("albedoTex", texture); }
+
+  /**
+   * Set the ORM texture. This texture contains three RGB independent components corresponding to
+   * the Occlusion value, Roughness value and Metallic value respectively.
+   * Each texture value is scaled by the Occlusion strength, roughness coefficient and metallic
+   * coefficient.
+   * This is only used by the PBR shading model.
+   * @sa SetInterpolationToPBR SetOcclusionStrength SetMetallic SetRoughness
+   */
+  void SetORMTexture(vtkTexture* texture) { this->SetTexture("materialTex", texture); }
+
+  /**
+   * Set the normal texture. This texture is required for normal mapping. It is valid for both PBR
+   * and Phong interpolation.
+   * The normal mapping is enabled if this texture is present and both normals and tangents are
+   * presents in the vtkPolyData.
+   * @sa vtkPolyDataTangents SetNormalScale
+   */
+  void SetNormalTexture(vtkTexture* texture) { this->SetTexture("normalTex", texture); }
+
+  /**
+   * Set the emissive texture. When present, this RGB texture provides location and color to the
+   * shader where the vtkPolyData should emit light. Emited light is scaled by EmissiveFactor.
+   * This is only supported by PBR interpolation model.
+   * @sa SetInterpolationToPBR SetEmissiveFactor
+   */
+  void SetEmissiveTexture(vtkTexture* texture) { this->SetTexture("emissiveTex", texture); }
 
   /**
    * Remove a texture from the collection.
@@ -493,6 +590,11 @@ protected:
   double VertexColor[3];
   double Ambient;
   double Diffuse;
+  double Metallic;
+  double Roughness;
+  double NormalScale;
+  double OcclusionStrength;
+  double EmissiveFactor[3];
   double Specular;
   double SpecularPower;
   double Opacity;
@@ -539,9 +641,13 @@ inline const char *vtkProperty::GetInterpolationAsString(void)
   {
     return "Gouraud";
   }
-  else
+  else if (this->Interpolation == VTK_PHONG)
   {
     return "Phong";
+  }
+  else // if (this->Interpolation == VTK_PBR)
+  {
+    return "Physically based rendering";
   }
 }
 //@}

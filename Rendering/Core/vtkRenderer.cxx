@@ -52,6 +52,7 @@ vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, RightBackgroundTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkRenderer, FXAAOptions, vtkFXAAOptions);
+vtkCxxSetObjectMacro(vtkRenderer, EnvironmentCubeMap, vtkTexture);
 
 //----------------------------------------------------------------------------
 // Return NULL if no override is supplied.
@@ -147,6 +148,9 @@ vtkRenderer::vtkRenderer()
   this->Information = vtkInformation::New();
   this->Information->Register(this);
   this->Information->Delete();
+
+  this->UseImageBasedLighting = false;
+  this->EnvironmentCubeMap = nullptr;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -198,6 +202,11 @@ vtkRenderer::~vtkRenderer()
   }
 
   this->SetInformation(nullptr);
+
+  if (this->EnvironmentCubeMap != nullptr)
+  {
+    this->EnvironmentCubeMap->Delete();
+  }
 }
 
 void vtkRenderer::SetLeftBackgroundTexture(vtkTexture* texture)

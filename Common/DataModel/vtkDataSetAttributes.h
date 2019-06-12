@@ -101,6 +101,7 @@ public:
     GLOBALIDS=5,
     PEDIGREEIDS=6,
     EDGEFLAG=7,
+    TANGENTS=8,
     NUM_ATTRIBUTES
   };
 
@@ -167,6 +168,15 @@ public:
 
   //@{
   /**
+   * Set/get the tangent data.
+   */
+  int SetTangents(vtkDataArray* da);
+  int SetActiveTangents(const char* name);
+  vtkDataArray* GetTangents();
+  //@}
+
+  //@{
+  /**
    * Set/Get the texture coordinate data.
    */
   int SetTCoords(vtkDataArray* da);
@@ -210,6 +220,7 @@ public:
   vtkDataArray* GetScalars(const char* name);
   vtkDataArray* GetVectors(const char* name);
   vtkDataArray* GetNormals(const char* name);
+  vtkDataArray* GetTangents(const char* name);
   vtkDataArray* GetTCoords(const char* name);
   vtkDataArray* GetTensors(const char* name);
   vtkDataArray* GetGlobalIds(const char* name);
@@ -227,6 +238,7 @@ public:
    * vtkDataSetAttributes::GLOBALIDS = 5
    * vtkDataSetAttributes::PEDIGREEIDS = 6
    * vtkDataSetAttributes::EDGEFLAG = 7
+   * vtkDataSetAttributes::TANGENTS = 8
    * Returns the index of the array if successful, -1 if the array
    * is not in the list of arrays.
    */
@@ -363,6 +375,11 @@ public:
   void SetCopyNormals(vtkTypeBool i, int ctype=ALLCOPY);
   vtkTypeBool GetCopyNormals(int ctype=ALLCOPY);
   vtkBooleanMacro(CopyNormals, vtkTypeBool);
+
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
+  void SetCopyTangents(vtkTypeBool i, int ctype=ALLCOPY);
+  vtkTypeBool GetCopyTangents(int ctype=ALLCOPY);
+  vtkBooleanMacro(CopyTangents, vtkTypeBool);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   void SetCopyTCoords(vtkTypeBool i, int ctype=ALLCOPY);

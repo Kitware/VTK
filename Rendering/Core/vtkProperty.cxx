@@ -64,6 +64,14 @@ vtkProperty::vtkProperty()
   this->VertexColor[1] = 1.0;
   this->VertexColor[2] = 0.5;
 
+  this->EmissiveFactor[0] = 1.0;
+  this->EmissiveFactor[1] = 1.0;
+  this->EmissiveFactor[2] = 1.0;
+
+  this->NormalScale = 1.0;
+  this->OcclusionStrength = 1.0;
+  this->Metallic = 0.0;
+  this->Roughness = 0.5;
   this->Ambient = 0.0;
   this->Diffuse = 1.0;
   this->Specular = 0.0;
