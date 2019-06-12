@@ -1,8 +1,13 @@
 # Detect if we've run with these flags before or not.
 string(MD5 flags_hash "${CMAKE_SHARED_LINKER_FLAGS}")
 if (NOT undefined_symbol_flag_hash STREQUAL flags_hash)
-  # New (or untested) flags; clear the old result.
-  unset(vtk_undefined_symbols_allowed CACHE)
+  # If we have a try_compile result, but no validation hash,
+  # `-Dvtk_undefined_symbols_allowed` was passed on the command line; trust it.
+  # Further changes to CMAKE_SHARED_LINKER_FLAGS will cause a recheck however.
+  if (DEFINED undefined_symbol_flag_hash)
+    # New (or untested) flags; clear the old result.
+    unset(vtk_undefined_symbols_allowed CACHE)
+  endif ()
   # Store that we've tested this hash.
   set(undefined_symbol_flag_hash "${flags_hash}"
     CACHE INTERNAL "undefined symbol detection hash")
