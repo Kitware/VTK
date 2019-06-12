@@ -80,6 +80,11 @@ vtkCxxSetObjectMacro(vtkSynchronizedRenderers, CaptureDelegate,
   vtkSynchronizedRenderers);
 //----------------------------------------------------------------------------
 vtkSynchronizedRenderers::vtkSynchronizedRenderers()
+  : LastBackground{ 0, 0, 0 }
+  , LastBackgroundAlpha(0)
+  , LastTexturedBackground(false)
+  , LastGradientBackground(false)
+  , FixBackground(false)
 {
   this->Observer = vtkSynchronizedRenderers::vtkObserver::New();
   this->Observer->Target = this;
@@ -170,6 +175,19 @@ void vtkSynchronizedRenderers::HandleStartRender()
   this->UseFXAA = this->Renderer->GetUseFXAA();
   this->Renderer->SetUseFXAA(false);
 
+  if (this->FixBackground)
+  {
+    this->Renderer->GetBackground(this->LastBackground);
+    this->LastBackgroundAlpha = this->Renderer->GetBackgroundAlpha();
+    this->LastTexturedBackground = this->Renderer->GetTexturedBackground();
+    this->LastGradientBackground = this->Renderer->GetGradientBackground();
+
+    this->Renderer->SetBackground(0, 0, 0);
+    this->Renderer->SetBackgroundAlpha(0);
+    this->Renderer->SetTexturedBackground(false);
+    this->Renderer->SetGradientBackground(false);
+  }
+
   if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
   {
     this->MasterStartRender();
@@ -246,10 +264,19 @@ void vtkSynchronizedRenderers::HandleEndRender()
 
   if (this->WriteBackImages)
   {
-    if (this->ImageReductionFactor > 1 && this->ParallelRendering)
+    if (this->ImageReductionFactor > 1 || this->FixBackground)
     {
       this->CaptureRenderedImage();
     }
+  }
+
+  if (this->FixBackground)
+  {
+    // restore background values.
+    this->Renderer->SetBackground(this->LastBackground);
+    this->Renderer->SetBackgroundAlpha(this->LastBackgroundAlpha);
+    this->Renderer->SetTexturedBackground(this->LastTexturedBackground);
+    this->Renderer->SetGradientBackground(this->LastGradientBackground);
   }
 
   // restore viewport before `PushImageToScreen`, but after
@@ -408,6 +435,7 @@ void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ImageReductionFactor: "
     << this->ImageReductionFactor << endl;
   os << indent << "WriteBackImages: " << this->WriteBackImages << endl;
+  os << indent << "FixBackground: " << this->FixBackground << endl;
   os << indent << "RootProcessId: " << this->RootProcessId << endl;
   os << indent << "ParallelRendering: " << this->ParallelRendering << endl;
   os << indent << "AutomaticEventHandling: "

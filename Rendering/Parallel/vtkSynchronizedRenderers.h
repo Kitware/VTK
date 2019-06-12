@@ -139,6 +139,23 @@ public:
   vtkBooleanMacro(AutomaticEventHandling, bool);
   //@}
 
+  //@{
+  /**
+   * When doing rendering between multiple processes, it is often easier to have
+   * all ranks do the rendering on a black background. This helps avoid issues
+   * where the background gets over blended as the images are composted
+   * together. If  set to true (default is false), before the rendering begins,
+   * vtkSynchronizedRenderers will change the renderer's background color and
+   * other flags to make it render on a black background and then restore then
+   * on end render. If WriteBackImages is true, then the background will indeed
+   * be restored before the write-back happens, thus ensuring the result
+   * displayed to the user is on correct background.
+   */
+  vtkSetMacro(FixBackground, bool);
+  vtkGetMacro(FixBackground, bool);
+  vtkBooleanMacro(FixBackground, bool);
+  //@}
+
   enum
   {
     SYNC_RENDERER_TAG = 15101,
@@ -287,6 +304,12 @@ private:
   vtkOpenGLFXAAFilter* FXAAFilter;
 
   double LastViewport[4];
+
+  double LastBackground[3];
+  double LastBackgroundAlpha;
+  bool LastTexturedBackground;
+  bool LastGradientBackground;
+  bool FixBackground;
 };
 
 #endif
