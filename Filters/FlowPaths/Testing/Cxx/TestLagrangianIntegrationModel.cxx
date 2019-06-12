@@ -172,10 +172,10 @@ int TestLagrangianIntegrationModel(int, char*[])
   }
   odeWavelet->SetUseInitialIntegrationTime(false);
 
-  vtkLagrangianParticle part(nvar, seedIdx, seedIdx, 0, 0, pd, odeWavelet->GetWeightsSize());
+  vtkLagrangianParticle part(nvar, seedIdx, seedIdx, 0, 0, pd, odeWavelet->GetWeightsSize(), 3);
 
-  odeWavelet->InitializeVariablesParticleData(pd);
-  odeWavelet->InsertVariablesParticleData(&part, pd, 0);
+  odeWavelet->InitializeParticleData(pd);
+  odeWavelet->InsertParticleData(&part, pd, 0);
   odeWavelet->InitializeParticle(&part);
   if (odeWavelet->CheckFreeFlightTermination(&part))
   {
@@ -245,7 +245,7 @@ int TestLagrangianIntegrationModel(int, char*[])
   double* tmpPt = nullptr;
   double tmpVald = 0;
   int tmpVali = 0;
-  if (odeWavelet->ManualIntegration(tmpPt, tmpPt, 0, tmpVald, tmpVald, 0, 0, 0, tmpVald, tmpVali))
+  if (odeWavelet->ManualIntegration(tmpPt, tmpPt, 0, tmpVald, tmpVald, 0, 0, 0, 1, tmpVald, tmpVali))
   {
     std::cerr << "ManualIntegration should do nothing and return false with matida model" << std::endl;
   }

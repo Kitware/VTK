@@ -99,7 +99,8 @@ public:
    * particle data is a pointer to the pointData associated to all particles.
    */
   vtkLagrangianParticle(int numberOfVariables, vtkIdType seedId, vtkIdType particleId,
-    vtkIdType seedArrayTupleIndex, double integrationTime, vtkPointData* seedData, int weightsSize);
+    vtkIdType seedArrayTupleIndex, double integrationTime, vtkPointData* seedData,
+    int weightsSize, int numberOfTrackedUserData);
 
   /**
    * Constructor wrapper to create a partially integrated particle in the domain.
@@ -107,7 +108,7 @@ public:
    */
   static vtkLagrangianParticle* NewInstance(int numberOfVariables, vtkIdType seedId,
     vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
-    vtkPointData* seedData, int weightsSize, vtkIdType numberOfSteps,
+    vtkPointData* seedData, int weightsSize, int numberOfTrackedUserData, vtkIdType numberOfSteps,
     double previousIntegrationTime);
 
   /**
@@ -240,6 +241,47 @@ public:
    * GetNextEquationVariables() + 6;
    */
   inline double* GetNextUserVariables() { return this->NextUserVariables; }
+  //@}
+
+  //@{
+  /**
+   * Get a reference to PrevTrackedUserData
+   * See GetTrackedUserData for an explanation on how to use it.
+   */
+  inline std::vector<double>& GetPrevTrackedUserData() { return this->PrevTrackedUserData; }
+  //@}
+
+  //@{
+  /**
+   * Get a reference to TrackedUserData.
+   * The tracked user data is a vector of double associated with each position of the particle,
+   * but it is not integrated contrary to the UserVariables and EquationVariables.
+   * It is, however, automatically tracked from one position to the next, copied when creating
+   * new particles with NewInstance and CloneParticle and transferred from one node to the next
+   * when particles move from one domain to the another in parallel.
+   * If you are using these, you are supposed to compute and set the next tracked user data
+   * your implementation of FunctionValues in your model.
+   */
+  inline std::vector<double>& GetTrackedUserData() { return this->TrackedUserData; }
+  //@}
+
+  //@{
+  /**
+   * Get a reference to NextTrackedUserData
+   * See GetTrackedUserData for an explanation on how to use it.
+   */
+  inline std::vector<double>& GetNextTrackedUserData() { return this->NextTrackedUserData; }
+  //@}
+
+  //@{
+  /**
+   * Get/Set a pointer to TemporaryUserData
+   * This data is not tracked and not transferred nor copied
+   * This can be used to store any kind of data, structure, class instance that you may need.
+   * Be cautious if the pointer is shared as particle integration can be multithreaded.
+   */
+  inline void* GetTemporaryUserData() { return this->TemporaryUserData; }
+  inline void SetTemporaryUserData(void * tempUserData) { this->TemporaryUserData = tempUserData; }
   //@}
 
   /**
@@ -426,7 +468,8 @@ protected:
    * Constructor wrapper for internal convenience
    */
   vtkLagrangianParticle* NewInstance(int numberOfVariables, vtkIdType seedId, vtkIdType particleId,
-    vtkIdType seedArrayTupleIndex, double integrationTime, vtkPointData* seedData, int weightsSize);
+    vtkIdType seedArrayTupleIndex, double integrationTime, vtkPointData* seedData, int weightsSize,
+    int numberOfTrackedUserData);
 
   vtkLagrangianParticle(const vtkLagrangianParticle&) = delete;
   vtkLagrangianParticle() = delete;
@@ -443,6 +486,12 @@ protected:
   std::vector<double> NextEquationVariables;
   double* NextVelocity;
   double* NextUserVariables;
+
+  std::vector<double> PrevTrackedUserData;
+  std::vector<double> TrackedUserData;
+  std::vector<double> NextTrackedUserData;
+
+  void* TemporaryUserData = nullptr;
 
   vtkIdType Id;
   vtkIdType ParentId;

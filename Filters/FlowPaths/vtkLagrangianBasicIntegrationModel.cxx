@@ -25,6 +25,7 @@
 #include "vtkIntArray.h"
 #include "vtkLagrangianParticle.h"
 #include "vtkLagrangianParticleTracker.h"
+#include "vtkLongLongArray.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
@@ -1584,7 +1585,8 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayTypes()
 bool vtkLagrangianBasicIntegrationModel::ManualIntegration(double* vtkNotUsed(xcur),
   double* vtkNotUsed(xnext), double vtkNotUsed(t), double& vtkNotUsed(delT),
   double& vtkNotUsed(delTActual), double vtkNotUsed(minStep), double vtkNotUsed(maxStep),
-  double vtkNotUsed(maxError), double& vtkNotUsed(error), int& vtkNotUsed(integrationResult))
+  double vtkNotUsed(maxError), double vtkNotUsed(cellLength),
+  double& vtkNotUsed(error), int& vtkNotUsed(integrationResult))
 {
   return false;
 }
@@ -1596,4 +1598,134 @@ void vtkLagrangianBasicIntegrationModel::ComputeSurfaceDefaultValues(
   double defVal =
     (strcmp(arrayName, "SurfaceType") == 0) ? static_cast<double>(SURFACE_TYPE_TERM) : 0.0;
   std::fill(defaultValues, defaultValues + nComponents, defVal);
+}
+
+//---------------------------------------------------------------------------
+void vtkLagrangianBasicIntegrationModel::InitializeParticleData(vtkFieldData* particleData, int maxTuple)
+{
+  vtkNew<vtkIntArray> particleStepNumArray;
+  particleStepNumArray->SetName("StepNumber");
+  particleStepNumArray->SetNumberOfComponents(1);
+  particleStepNumArray->Allocate(maxTuple);
+  particleData->AddArray(particleStepNumArray);
+
+  vtkNew<vtkDoubleArray> particleVelArray;
+  particleVelArray->SetName("ParticleVelocity");
+  particleVelArray->SetNumberOfComponents(3);
+  particleVelArray->Allocate(maxTuple * 3);
+  particleData->AddArray(particleVelArray);
+
+  vtkNew<vtkDoubleArray> particleIntegrationTimeArray;
+  particleIntegrationTimeArray->SetName("IntegrationTime");
+  particleIntegrationTimeArray->SetNumberOfComponents(1);
+  particleIntegrationTimeArray->Allocate(maxTuple);
+  particleData->AddArray(particleIntegrationTimeArray);
+}
+
+//---------------------------------------------------------------------------
+void vtkLagrangianBasicIntegrationModel::InitializePathData(vtkFieldData* data)
+{
+  vtkNew<vtkLongLongArray> particleIdArray;
+  particleIdArray->SetName("Id");
+  particleIdArray->SetNumberOfComponents(1);
+  data->AddArray(particleIdArray);
+
+  vtkNew<vtkLongLongArray> particleParentIdArray;
+  particleParentIdArray->SetName("ParentId");
+  particleParentIdArray->SetNumberOfComponents(1);
+  data->AddArray(particleParentIdArray);
+
+  vtkNew<vtkLongLongArray> particleSeedIdArray;
+  particleSeedIdArray->SetName("SeedId");
+  particleSeedIdArray->SetNumberOfComponents(1);
+  data->AddArray(particleSeedIdArray);
+
+  vtkNew<vtkIntArray> particleTerminationArray;
+  particleTerminationArray->SetName("Termination");
+  particleTerminationArray->SetNumberOfComponents(1);
+  data->AddArray(particleTerminationArray);
+}
+
+//---------------------------------------------------------------------------
+void vtkLagrangianBasicIntegrationModel::InitializeInteractionData(vtkFieldData* data)
+{
+  vtkNew<vtkIntArray> interactionArray;
+  interactionArray->SetName("Interaction");
+  interactionArray->SetNumberOfComponents(1);
+  data->AddArray(interactionArray);
+}
+
+//---------------------------------------------------------------------------
+void vtkLagrangianBasicIntegrationModel::InsertSeedData(
+  vtkLagrangianParticle* particle, vtkFieldData* data)
+{
+  // Check for max number of tuples in arrays
+  vtkIdType maxTuples = 0;
+  for (int i = 0; i < data->GetNumberOfArrays(); i++)
+  {
+    maxTuples = std::max(data->GetArray(i)->GetNumberOfTuples(), maxTuples);
+  }
+
+  // Copy seed data in not yet written array only
+  // ie not yet at maxTuple
+  vtkPointData* seedData = particle->GetSeedData();
+  for (int i = 0; i < seedData->GetNumberOfArrays(); i++)
+  {
+    const char* name = seedData->GetArrayName(i);
+    vtkDataArray* arr = data->GetArray(name);
+    if (arr->GetNumberOfTuples() < maxTuples)
+    {
+      arr->InsertNextTuple(seedData->GetArray(i)->GetTuple(particle->GetSeedArrayTupleIndex()));
+    }
+  }
+}
+
+//---------------------------------------------------------------------------
+void vtkLagrangianBasicIntegrationModel::InsertPathData(
+  vtkLagrangianParticle* particle, vtkFieldData* data)
+{
+  vtkLongLongArray::SafeDownCast(data->GetArray("Id"))->InsertNextValue(particle->GetId());
+  vtkLongLongArray::SafeDownCast(data->GetArray("ParentId"))
+    ->InsertNextValue(particle->GetParentId());
+  vtkLongLongArray::SafeDownCast(data->GetArray("SeedId"))->InsertNextValue(particle->GetSeedId());
+  vtkIntArray::SafeDownCast(data->GetArray("Termination"))
+    ->InsertNextValue(particle->GetTermination());
+}
+
+//---------------------------------------------------------------------------
+void vtkLagrangianBasicIntegrationModel::InsertInteractionData(
+  vtkLagrangianParticle* particle, vtkFieldData* data)
+{
+  vtkIntArray::SafeDownCast(data->GetArray("Interaction"))
+    ->InsertNextValue(particle->GetInteraction());
+}
+
+//---------------------------------------------------------------------------
+void vtkLagrangianBasicIntegrationModel::InsertParticleData(
+  vtkLagrangianParticle* particle, vtkFieldData* data, int stepEnum)
+{
+  switch (stepEnum)
+  {
+    case vtkLagrangianBasicIntegrationModel::VARIABLE_STEP_PREV:
+      vtkIntArray::SafeDownCast(data->GetArray("StepNumber"))
+        ->InsertNextValue(particle->GetNumberOfSteps() - 1);
+      data->GetArray("ParticleVelocity")->InsertNextTuple(particle->GetPrevVelocity());
+      data->GetArray("IntegrationTime")->InsertNextTuple1(particle->GetPrevIntegrationTime());
+      break;
+    case vtkLagrangianBasicIntegrationModel::VARIABLE_STEP_CURRENT:
+      vtkIntArray::SafeDownCast(data->GetArray("StepNumber"))
+        ->InsertNextValue(particle->GetNumberOfSteps());
+      data->GetArray("ParticleVelocity")->InsertNextTuple(particle->GetVelocity());
+      data->GetArray("IntegrationTime")->InsertNextTuple1(particle->GetIntegrationTime());
+      break;
+    case vtkLagrangianBasicIntegrationModel::VARIABLE_STEP_NEXT:
+      vtkIntArray::SafeDownCast(data->GetArray("StepNumber"))
+        ->InsertNextValue(particle->GetNumberOfSteps() + 1);
+      data->GetArray("ParticleVelocity")->InsertNextTuple(particle->GetNextVelocity());
+      data->GetArray("IntegrationTime")
+        ->InsertNextTuple1(particle->GetIntegrationTime() + particle->GetStepTimeRef());
+      break;
+    default:
+      break;
+  }
 }

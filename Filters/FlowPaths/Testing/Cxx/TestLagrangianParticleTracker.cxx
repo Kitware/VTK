@@ -191,6 +191,7 @@ int TestLagrangianParticleTracker(int, char*[])
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
   integrationModel->SetInputArrayToProcess(7, 1, 0,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
+  integrationModel->SetNumberOfTrackedUserData(13);
 
   // Put in tracker
   vtkNew<vtkLagrangianParticleTracker> tracker;
@@ -226,9 +227,9 @@ int TestLagrangianParticleTracker(int, char*[])
   tracker->SetCellLengthComputationMode(
     vtkLagrangianParticleTracker::STEP_CUR_CELL_VEL_DIR);
   tracker->AdaptiveStepReintegrationOn();
-  tracker->UseParticlePathsRenderingThresholdOn();
-  tracker->SetParticlePathsRenderingPointsThreshold(100);
+  tracker->GenerateParticlePathsOutputOff();
   tracker->Update();
+  tracker->GenerateParticlePathsOutputOn();
   tracker->SetInputConnection(ugFlow->GetOutputPort());
   tracker->SetMaximumNumberOfSteps(30);
   tracker->SetCellLengthComputationMode(
@@ -245,7 +246,6 @@ int TestLagrangianParticleTracker(int, char*[])
   tracker->SetCellLengthComputationMode(
     vtkLagrangianParticleTracker::STEP_LAST_CELL_VEL_DIR);
   tracker->AdaptiveStepReintegrationOff();
-  tracker->UseParticlePathsRenderingThresholdOff();
   tracker->Update();
   if (tracker->GetStepFactor() != 0.1)
   {
@@ -282,14 +282,9 @@ int TestLagrangianParticleTracker(int, char*[])
     std::cerr << "Incorrect AdaptiveStepReintegration" << std::endl;
     return EXIT_FAILURE;
   }
-  if (tracker->GetUseParticlePathsRenderingThreshold())
+  if (!tracker->GetGenerateParticlePathsOutput())
   {
-    std::cerr << "Incorrect UseParticlePathsRenderingThreshold" << std::endl;
-    return EXIT_FAILURE;
-  }
-  if (tracker->GetParticlePathsRenderingPointsThreshold() != 100)
-  {
-    std::cerr << "Incorrect ParticlePathsRenderingThreshold" << std::endl;
+    std::cerr << "Incorrect GenerateParticlePathsOutput" << std::endl;
     return EXIT_FAILURE;
   }
   tracker->Print(cout);
