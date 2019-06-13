@@ -171,7 +171,7 @@ sub unique {
     foreach my $item (@$ref) {
         $uniques{$item}++;
     }
-    return keys %uniques;
+    return sort keys %uniques;
 }
 
 sub parse {

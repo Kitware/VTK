@@ -213,7 +213,7 @@ foreach my $source (@files) {
     }
 }
 
-my @words = keys %index;
+my @words = sort keys %index;
 print " => ", scalar @words, " word(s) grabbed in $nb_files file(s) in ", time() - $intermediate_time, " s.\n";
 
 # -------------------------------------------------------------------------
@@ -243,7 +243,7 @@ print "Grouping...\n";
 
 sub transfer_keys {
     my ($rfrom, $rto) = @_;
-    foreach my $key (keys %$rfrom) {
+    foreach my $key (sort keys %$rfrom) {
         $rto->{$key} += $rfrom->{$key};
     }
 }
@@ -350,7 +350,7 @@ foreach my $word (@words) {
     # with these extensions that were not found and build a list of similar
     # "words" by concatenating both.
 
-    my @verbs = keys %verbs;
+    my @verbs = sort keys %verbs;
     if (@verbs) {
         my %try = ("" => 1,
                    "e" => 1,
@@ -397,7 +397,7 @@ print " => $nb_grouped word(s) grouped.\n";
 
 print "Normalizing...\n";
 
-@words = keys %index;
+@words = sort keys %index;
 foreach my $word (@words) {
     my $lcw = lc $word;
 
@@ -413,7 +413,7 @@ foreach my $word (@words) {
     # Normalize group to lowercase
 
     if (exists $group{$word}) {
-        foreach my $gword (keys %{$group{$word}}) {
+        foreach my $gword (sort keys %{$group{$word}}) {
             my $lcgw = lc $gword;
             if ($gword ne uc($gword) && $gword ne $lcgw) {
                 $group{$word}{$lcgw} = $group{$word}{$gword};
