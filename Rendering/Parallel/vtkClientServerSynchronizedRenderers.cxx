@@ -36,8 +36,7 @@ void vtkClientServerSynchronizedRenderers::MasterEndRender()
   // receive image from slave.
   assert(this->ParallelController->IsA("vtkSocketController"));
 
-  vtkRawImage& rawImage = (this->ImageReductionFactor == 1)?
-    this->FullImage : this->ReducedImage;
+  vtkRawImage& rawImage = this->Image;
 
   int header[4];
   this->ParallelController->Receive(header, 4, 1, 0x023430);

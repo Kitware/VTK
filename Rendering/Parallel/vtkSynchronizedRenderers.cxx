@@ -167,8 +167,7 @@ void vtkSynchronizedRenderers::HandleStartRender()
     return;
   }
 
-  this->ReducedImage.MarkInValid();
-  this->FullImage.MarkInValid();
+  this->Image.MarkInValid();
 
   // disable FXAA when parallel rendering. We'll do the FXAA pass after the
   // compositing stage. This avoid any seam artifacts from creeping in.
@@ -264,7 +263,7 @@ void vtkSynchronizedRenderers::HandleEndRender()
 
   if (this->WriteBackImages)
   {
-    if (this->ImageReductionFactor > 1 || this->FixBackground)
+    if (this->GetImageReductionFactor() > 1 || this->FixBackground)
     {
       this->CaptureRenderedImage();
     }
@@ -307,10 +306,7 @@ void vtkSynchronizedRenderers::SlaveEndRender()
 vtkSynchronizedRenderers::vtkRawImage&
 vtkSynchronizedRenderers::CaptureRenderedImage()
 {
-  vtkRawImage& rawImage =
-    (this->ImageReductionFactor == 1)?
-    this->FullImage : this->ReducedImage;
-
+  vtkRawImage& rawImage = this->Image;
   if (!rawImage.IsValid())
   {
     if (this->CaptureDelegate)
@@ -329,10 +325,7 @@ vtkSynchronizedRenderers::CaptureRenderedImage()
 //----------------------------------------------------------------------------
 void vtkSynchronizedRenderers::PushImageToScreen()
 {
-  vtkRawImage& rawImage =
-    (this->ImageReductionFactor == 1)?
-    this->FullImage : this->ReducedImage;
-
+  vtkRawImage& rawImage = this->Image;
   if (!rawImage.IsValid())
   {
     return;

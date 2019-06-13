@@ -268,23 +268,19 @@ protected:
 
   /**
    * Can be used in HandleEndRender(), MasterEndRender() or SlaveEndRender()
-   * calls to capture the rendered image. If this->ImageReductionFactor, then
-   * the image will be capture in this->ReducedImage, otherwise it will be
-   * captured in this->FullImage (this->ReducedImage will be pointing to the
-   * same image).
+   * calls to capture the rendered image. The captured image is stored in
+   * `this->Image`.
    */
   virtual vtkRawImage& CaptureRenderedImage();
 
   /**
    * Can be used in HandleEndRender(), MasterEndRender() or SlaveEndRender()
-   * calls to paste back the image from either this->ReducedImage or
-   * this->FullImage info the viewport.
+   * calls to paste back the image from this->Image to the viewport.
    */
   virtual void PushImageToScreen();
 
   vtkSynchronizedRenderers* CaptureDelegate;
-  vtkRawImage ReducedImage;
-  vtkRawImage FullImage;
+  vtkRawImage Image;
 
   bool ParallelRendering;
   int ImageReductionFactor;
