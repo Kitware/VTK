@@ -1,7 +1,7 @@
 #--////////////////////////////////////////////////////////////////////////////
-#--  Copyright (c) 2010, Michael A. Jackson. BlueQuartz Software
+#--  Copyright (c) 2010-2019, Michael A. Jackson. BlueQuartz Software
 #--  All rights reserved.
-#--  BSD License: http://www.opensource.org/licenses/bsd-license.html
+#--  BSD License: https://www.opensource.org/licenses/bsd-license.html
 #--////////////////////////////////////////////////////////////////////////////
 cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
 
@@ -25,6 +25,8 @@ endif()
 set (SimpleCocoaVTK_SRCS
   ${SimpleCocoaVTK_SOURCE_DIR}/main.mm
   ${SimpleCocoaVTK_SOURCE_DIR}/BasicVTKView.mm
+  ${SimpleCocoaVTK_SOURCE_DIR}/CustomLayer.mm
+  ${SimpleCocoaVTK_SOURCE_DIR}/CustomView.mm
   ${SimpleCocoaVTK_SOURCE_DIR}/MyDocument.mm
   ${SimpleCocoaVTK_SOURCE_DIR}/MyWindowController.mm
 )
@@ -32,6 +34,8 @@ set (SimpleCocoaVTK_SRCS
 # Build all Objective-C as ARC.
 set_source_files_properties(main.mm
                             BasicVTKView.mm
+                            CustomLayer.mm
+                            CustomView.mm
                             MyDocument.mm
                             MyWindowController.mm
                             PROPERTIES COMPILE_FLAGS "-fobjc-arc")
@@ -39,6 +43,8 @@ set_source_files_properties(main.mm
 # The Headers
 set (SimpleCocoaVTK_HDRS
   ${SimpleCocoaVTK_SOURCE_DIR}/BasicVTKView.h
+  ${SimpleCocoaVTK_SOURCE_DIR}/CustomLayer.h
+  ${SimpleCocoaVTK_SOURCE_DIR}/CustomView.h
   ${SimpleCocoaVTK_SOURCE_DIR}/MyDocument.h
   ${SimpleCocoaVTK_SOURCE_DIR}/MyWindowController.h
 )

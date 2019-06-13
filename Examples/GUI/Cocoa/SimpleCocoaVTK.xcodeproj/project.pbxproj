@@ -16,6 +16,9 @@
 		14A3028C119E0C3200D75B9A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 14A3028A119E0C3200D75B9A /* MainMenu.xib */; };
 		14A3028D119E0C3200D75B9A /* MyWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 14A3028B119E0C3200D75B9A /* MyWindow.xib */; };
 		14B863A5113C436100C9B42E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B863A4113C436100C9B42E /* IOKit.framework */; };
+		14C19A3F22B180AF005A503C /* CustomLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 14C19A3E22B180AF005A503C /* CustomLayer.mm */; };
+		14C19A4122B182F8005A503C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14C19A4022B182F8005A503C /* QuartzCore.framework */; };
+		14C19A4422B183D9005A503C /* CustomView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 14C19A4322B183D8005A503C /* CustomView.mm */; };
 		14D589961C69466D00C28521 /* libvtkglew.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D589951C69466D00C28521 /* libvtkglew.a */; };
 		14D951A31B701A690012248C /* libvtkCommonColor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D951A21B701A690012248C /* libvtkCommonColor.a */; };
 		14D951A51B701C9A0012248C /* libvtkzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D951A41B701C9A0012248C /* libvtkzlib.a */; };
@@ -71,6 +74,11 @@
 		14A3028B119E0C3200D75B9A /* MyWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyWindow.xib; sourceTree = "<group>"; };
 		14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = text.xcconfig; path = SimpleCocoaVTK.xcconfig; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		14B863A4113C436100C9B42E /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
+		14C19A3D22B180AF005A503C /* CustomLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = CustomLayer.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+		14C19A3E22B180AF005A503C /* CustomLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.objcpp; path = CustomLayer.mm; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+		14C19A4022B182F8005A503C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
+		14C19A4222B183D8005A503C /* CustomView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = CustomView.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+		14C19A4322B183D8005A503C /* CustomView.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.objcpp; path = CustomView.mm; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		14D589951C69466D00C28521 /* libvtkglew.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkglew.a; sourceTree = "vtk-debug-lib"; };
 		14D951A21B701A690012248C /* libvtkCommonColor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkCommonColor.a; sourceTree = "vtk-debug-lib"; };
 		14D951A41B701C9A0012248C /* libvtkzlib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkzlib.a; sourceTree = "vtk-debug-lib"; };
@@ -121,6 +129,7 @@
 				148BD56B2270BFC3001DA6B6 /* libvtkloguru.a in Frameworks */,
 				1454C1D6094F306B00F594FE /* OpenGL.framework in Frameworks */,
 				14B863A5113C436100C9B42E /* IOKit.framework in Frameworks */,
+				14C19A4122B182F8005A503C /* QuartzCore.framework in Frameworks */,
 				14FC3EAD16C5A02D0092149A /* libvtkRenderingCore.a in Frameworks */,
 				14FC3EAF16C5A0460092149A /* libvtkRenderingOpenGL2.a in Frameworks */,
 				14FC3EB616C5A0E30092149A /* libvtkCommonCore.a in Frameworks */,
@@ -235,6 +244,10 @@
 			children = (
 				1454C4340950A4A800F594FE /* BasicVTKView.h */,
 				1454C4350950A4A800F594FE /* BasicVTKView.mm */,
+				14C19A3D22B180AF005A503C /* CustomLayer.h */,
+				14C19A3E22B180AF005A503C /* CustomLayer.mm */,
+				14C19A4222B183D8005A503C /* CustomView.h */,
+				14C19A4322B183D8005A503C /* CustomView.mm */,
 				1454C0EF094E266D00F594FE /* MyDocument.h */,
 				1454C0F0094E266D00F594FE /* MyDocument.mm */,
 				143859071D6CED4100E728A0 /* MyWindowController.h */,
@@ -265,6 +278,7 @@
 		2A37F4C3FDCFA73011CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				14C19A4022B182F8005A503C /* QuartzCore.framework */,
 				14B863A4113C436100C9B42E /* IOKit.framework */,
 				1454C1D5094F306B00F594FE /* OpenGL.framework */,
 				1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */,
@@ -335,9 +349,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D15AC320486D014006FF6A4 /* main.mm in Sources */,
+				14C19A4422B183D9005A503C /* CustomView.mm in Sources */,
 				1454C0F1094E266D00F594FE /* MyDocument.mm in Sources */,
 				1454C4360950A4A800F594FE /* BasicVTKView.mm in Sources */,
 				143859091D6CED4100E728A0 /* MyWindowController.mm in Sources */,
+				14C19A3F22B180AF005A503C /* CustomLayer.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
