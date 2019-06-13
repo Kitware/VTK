@@ -698,10 +698,15 @@ bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
   if (!root["normalTexture"].isNull())
   {
     this->LoadTextureInfo(root["normalTexture"], material.NormalTexture);
+    material.NormalTextureScale = 1.0;
+    vtkGLTFUtils::GetDoubleValue(root["normalTexture"]["scale"], material.NormalTextureScale);
   }
   if (!root["occlusionTexture"].isNull())
   {
     this->LoadTextureInfo(root["occlusionTexture"], material.OcclusionTexture);
+    material.OcclusionTextureStrength = 1.0;
+    vtkGLTFUtils::GetDoubleValue(
+      root["occlusionTexture"]["strength"], material.OcclusionTextureStrength);
   }
   if (!root["emissiveTexture"].isNull())
   {
@@ -903,6 +908,15 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
   {
     vtkErrorWithObjectMacro(this->Self, "Invalid sampler object");
     return false;
+  }
+
+  if (root.size() == 0)
+  {
+    sampler.MagFilter = Sampler::FilterType::LINEAR_MIPMAP_LINEAR;
+    sampler.MinFilter = Sampler::FilterType::LINEAR_MIPMAP_LINEAR;
+    sampler.WrapT = Sampler::WrapType::REPEAT;
+    sampler.WrapS = Sampler::WrapType::REPEAT;
+    return true;
   }
 
   int tempIntValue = 0;

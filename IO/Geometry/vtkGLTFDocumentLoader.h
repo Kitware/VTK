@@ -312,9 +312,9 @@ public:
     PbrMetallicRoughness PbrMetallicRoughness;
 
     TextureInfo NormalTexture;
-    float NormalTextureScale;
+    double NormalTextureScale;
     TextureInfo OcclusionTexture;
-    float OcclusionTextureStrength;
+    double OcclusionTextureStrength;
     TextureInfo EmissiveTexture;
     std::vector<double> EmissiveFactor;
 
