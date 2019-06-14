@@ -22,7 +22,7 @@
 #ifndef vtkOTKernelSmoothing_h
 #define vtkOTKernelSmoothing_h
 
-#include "vtkFiltersOpenTurnsModule.h" // For export macro
+#include "vtkFiltersOpenTURNSModule.h" // For export macro
 #include "vtkOTFilter.h"
 
 namespace OT

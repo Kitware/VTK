@@ -26,7 +26,7 @@
 #ifndef vtkOTFilter_h
 #define vtkOTFilter_h
 
-#include "vtkFiltersOpenTurnsModule.h" // For export macro
+#include "vtkFiltersOpenTURNSModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
 namespace OT

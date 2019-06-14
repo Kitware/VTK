@@ -26,7 +26,7 @@
 #define vtkOTDensityMap_h
 
 #include "vtkContourValues.h"          // For Contour Values
-#include "vtkFiltersOpenTurnsModule.h" // For export macro
+#include "vtkFiltersOpenTURNSModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkSmartPointer.h" // For Smart Pointer
 

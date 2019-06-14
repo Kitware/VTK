@@ -28,7 +28,7 @@
 #ifndef vtkOTScatterPlotMatrix_h
 #define vtkOTScatterPlotMatrix_h
 
-#include "vtkFiltersOpenTurnsModule.h" // For export macro
+#include "vtkFiltersOpenTURNSModule.h" // For export macro
 #include "vtkScatterPlotMatrix.h"
 #include "vtkSmartPointer.h" // For SmartPointer
 
@@ -76,7 +76,7 @@ protected:
 
   /**
    * Add a density map as a supplementary plot,
-   * with provided row and column, computed with OpenTurns
+   * with provided row and column, computed with OpenTURNS
    * if DensityMapVisibility is true and we are not animating
    */
   virtual void AddSupplementaryPlot(vtkChart* chart,

@@ -1,7 +1,7 @@
 NAME
-  VTK::FiltersOpenTurns
+  VTK::FiltersOpenTURNS
 LIBRARY_NAME
-  vtkFiltersOpenTurns
+  vtkFiltersOpenTURNS
 IMPLEMENTS
   VTK::ChartsCore
 DEPENDS
