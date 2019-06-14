@@ -80,6 +80,11 @@ vtkCxxSetObjectMacro(vtkSynchronizedRenderers, CaptureDelegate,
   vtkSynchronizedRenderers);
 //----------------------------------------------------------------------------
 vtkSynchronizedRenderers::vtkSynchronizedRenderers()
+  : LastBackground{ 0, 0, 0 }
+  , LastBackgroundAlpha(0)
+  , LastTexturedBackground(false)
+  , LastGradientBackground(false)
+  , FixBackground(false)
 {
   this->Observer = vtkSynchronizedRenderers::vtkObserver::New();
   this->Observer->Target = this;
@@ -162,13 +167,25 @@ void vtkSynchronizedRenderers::HandleStartRender()
     return;
   }
 
-  this->ReducedImage.MarkInValid();
-  this->FullImage.MarkInValid();
+  this->Image.MarkInValid();
 
   // disable FXAA when parallel rendering. We'll do the FXAA pass after the
   // compositing stage. This avoid any seam artifacts from creeping in.
   this->UseFXAA = this->Renderer->GetUseFXAA();
   this->Renderer->SetUseFXAA(false);
+
+  if (this->FixBackground)
+  {
+    this->Renderer->GetBackground(this->LastBackground);
+    this->LastBackgroundAlpha = this->Renderer->GetBackgroundAlpha();
+    this->LastTexturedBackground = this->Renderer->GetTexturedBackground();
+    this->LastGradientBackground = this->Renderer->GetGradientBackground();
+
+    this->Renderer->SetBackground(0, 0, 0);
+    this->Renderer->SetBackgroundAlpha(0);
+    this->Renderer->SetTexturedBackground(false);
+    this->Renderer->SetGradientBackground(false);
+  }
 
   if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
   {
@@ -246,10 +263,19 @@ void vtkSynchronizedRenderers::HandleEndRender()
 
   if (this->WriteBackImages)
   {
-    if (this->ImageReductionFactor > 1 && this->ParallelRendering)
+    if (this->GetImageReductionFactor() > 1 || this->FixBackground)
     {
       this->CaptureRenderedImage();
     }
+  }
+
+  if (this->FixBackground)
+  {
+    // restore background values.
+    this->Renderer->SetBackground(this->LastBackground);
+    this->Renderer->SetBackgroundAlpha(this->LastBackgroundAlpha);
+    this->Renderer->SetTexturedBackground(this->LastTexturedBackground);
+    this->Renderer->SetGradientBackground(this->LastGradientBackground);
   }
 
   // restore viewport before `PushImageToScreen`, but after
@@ -280,10 +306,7 @@ void vtkSynchronizedRenderers::SlaveEndRender()
 vtkSynchronizedRenderers::vtkRawImage&
 vtkSynchronizedRenderers::CaptureRenderedImage()
 {
-  vtkRawImage& rawImage =
-    (this->ImageReductionFactor == 1)?
-    this->FullImage : this->ReducedImage;
-
+  vtkRawImage& rawImage = this->Image;
   if (!rawImage.IsValid())
   {
     if (this->CaptureDelegate)
@@ -302,10 +325,7 @@ vtkSynchronizedRenderers::CaptureRenderedImage()
 //----------------------------------------------------------------------------
 void vtkSynchronizedRenderers::PushImageToScreen()
 {
-  vtkRawImage& rawImage =
-    (this->ImageReductionFactor == 1)?
-    this->FullImage : this->ReducedImage;
-
+  vtkRawImage& rawImage = this->Image;
   if (!rawImage.IsValid())
   {
     return;
@@ -408,6 +428,7 @@ void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ImageReductionFactor: "
     << this->ImageReductionFactor << endl;
   os << indent << "WriteBackImages: " << this->WriteBackImages << endl;
+  os << indent << "FixBackground: " << this->FixBackground << endl;
   os << indent << "RootProcessId: " << this->RootProcessId << endl;
   os << indent << "ParallelRendering: " << this->ParallelRendering << endl;
   os << indent << "AutomaticEventHandling: "
@@ -732,8 +753,9 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
   // framebuffers have their color premultiplied by alpha.
   vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
   ostate->vtkglEnable(GL_BLEND);
-  ostate->vtkglBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-    GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  ostate->vtkglBlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
+    GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+
 
   int size[2], low_point[2];
   ren->GetTiledSizeAndOrigin(&size[0], &size[1], &low_point[0], &low_point[1]);

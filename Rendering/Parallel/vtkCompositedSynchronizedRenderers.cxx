@@ -40,9 +40,7 @@ vtkCompositedSynchronizedRenderers::~vtkCompositedSynchronizedRenderers()
 //----------------------------------------------------------------------------
 void vtkCompositedSynchronizedRenderers::MasterEndRender()
 {
-  vtkRawImage& rawImage = (this->ImageReductionFactor == 1)?
-    this->FullImage : this->ReducedImage;
-  rawImage = this->CaptureRenderedImage();
+  vtkRawImage& rawImage = this->CaptureRenderedImage();
   vtkFloatArray* depth_buffer = vtkFloatArray::New();
   this->CaptureRenderedDepthBuffer(depth_buffer);
 
