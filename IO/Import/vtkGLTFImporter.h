@@ -27,10 +27,15 @@
  * - Binary files (.bin) containing geometry and animation data, and other buffer-based data
  * - Image files (.jpg, .png) for textures
  *
- * This importer supports materials to the extent supported by vtk (ie: no metallic/roughness
- * textures, normal maps, emissive maps and alpha masking).
- * This importer does not support animations, morphing and skinnng.
- * If you would like to use animations, morphing or skinning, please try using vtkGLTFReader.
+ * This importer supports all physically-based rendering material features, with the exception of
+ * alpha masking and mirrored texture wrapping, which are not supported.
+ *
+ *
+ * This importer does not support materials that use multiple
+ * sets of texture coordinates. Only the first set will be used in this case.
+ *
+ * This importer does not support animations, morphing and skinning. If you would like to use
+ * animations, morphing or skinning, please consider using vtkGLTFReader.
  *
  * This importer only supports assets that use the 2.x version of the glTF specification.
  *

@@ -19,11 +19,15 @@
 #include "vtkCamera.h"
 #include "vtkFloatArray.h"
 #include "vtkGLTFDocumentLoader.h"
+#include "vtkImageAppendComponents.h"
 #include "vtkImageData.h"
+#include "vtkImageExtractComponents.h"
+#include "vtkImageResize.h"
 #include "vtkLight.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolyDataTangents.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
@@ -32,6 +36,7 @@
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
+#include <array>
 #include <stack>
 
 vtkStandardNewMacro(vtkGLTFImporter);
@@ -62,136 +67,230 @@ vtkSmartPointer<vtkCamera> GLTFCameraToVTKCamera(const vtkGLTFDocumentLoader::Ca
   return vtkCam;
 }
 
+/**
+ * Create a vtkTexture object with a glTF texture as model. Sampling options are approximated.
+ */
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkTexture> CreateVTKTextureFromGLTFTexture(
+  std::shared_ptr<vtkGLTFDocumentLoader::Model> model, int textureIndex,
+  std::map<int, vtkSmartPointer<vtkTexture> >& existingTextures)
+{
+
+  if (existingTextures.count(textureIndex))
+  {
+    return existingTextures[textureIndex];
+  }
+
+  const vtkGLTFDocumentLoader::Texture& glTFTex = model->Textures[textureIndex];
+  if (glTFTex.Source < 0 || glTFTex.Source >= static_cast<int>(model->Images.size()))
+  {
+    vtkErrorWithObjectMacro(nullptr, "Image not found");
+    return nullptr;
+  }
+
+  const vtkGLTFDocumentLoader::Image& image = model->Images[glTFTex.Source];
+
+  vtkNew<vtkTexture> texture;
+  texture->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_MODULATE);
+  // Approximate filtering settings
+  int nbSamplers = static_cast<int>(model->Samplers.size());
+  if (glTFTex.Sampler >= 0 && glTFTex.Sampler < nbSamplers)
+  {
+    const vtkGLTFDocumentLoader::Sampler& sampler = model->Samplers[glTFTex.Sampler];
+    if ((sampler.MinFilter == vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST ||
+          sampler.MinFilter == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR) &&
+      (sampler.MagFilter == vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST ||
+        sampler.MagFilter == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR))
+    {
+      texture->MipmapOn();
+    }
+    else
+    {
+      texture->MipmapOff();
+    }
+
+    if (sampler.WrapS == vtkGLTFDocumentLoader::Sampler::WrapType::CLAMP_TO_EDGE ||
+      sampler.WrapT == vtkGLTFDocumentLoader::Sampler::WrapType::CLAMP_TO_EDGE)
+    {
+      texture->RepeatOff();
+      texture->EdgeClampOn();
+    }
+    else if (sampler.WrapS == vtkGLTFDocumentLoader::Sampler::WrapType::REPEAT ||
+      sampler.WrapT == vtkGLTFDocumentLoader::Sampler::WrapType::REPEAT)
+    {
+      texture->RepeatOn();
+      texture->EdgeClampOff();
+    }
+    else
+    {
+      vtkWarningWithObjectMacro(nullptr, "Mirrored texture wrapping is not supported!");
+    }
+
+    if (sampler.MinFilter == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR ||
+      sampler.MinFilter == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_NEAREST ||
+      sampler.MinFilter == vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST_MIPMAP_LINEAR ||
+      sampler.MinFilter == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_LINEAR ||
+      sampler.MagFilter == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR ||
+      sampler.MagFilter == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_NEAREST ||
+      sampler.MagFilter == vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST_MIPMAP_LINEAR ||
+      sampler.MagFilter == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR_MIPMAP_LINEAR)
+    {
+      texture->InterpolateOn();
+    }
+  }
+  else
+  {
+    texture->MipmapOn();
+    texture->InterpolateOn();
+    texture->EdgeClampOn();
+  }
+
+  vtkNew<vtkImageData> imageData;
+  imageData->ShallowCopy(image.ImageData);
+
+  texture->SetInputData(imageData);
+  existingTextures[textureIndex] = texture;
+  return texture;
+}
+
+//----------------------------------------------------------------------------
+bool MaterialHasMultipleUVs(const vtkGLTFDocumentLoader::Material& material)
+{
+  int firstUV = material.PbrMetallicRoughness.BaseColorTexture.TexCoord;
+  return material.EmissiveTexture.TexCoord != firstUV ||
+    material.NormalTexture.TexCoord != firstUV || material.OcclusionTexture.TexCoord != firstUV ||
+    material.PbrMetallicRoughness.MetallicRoughnessTexture.TexCoord != firstUV;
+}
+
+//----------------------------------------------------------------------------
+bool PrimitiveNeedsTangents(const std::shared_ptr<vtkGLTFDocumentLoader::Model> model,
+  const vtkGLTFDocumentLoader::Primitive& primitive)
+{
+  // If no material is present, we don't need to generate tangents
+  if (primitive.Material < 0 && primitive.Material >= static_cast<int>(model->Materials.size()))
+  {
+    return false;
+  }
+  vtkGLTFDocumentLoader::Material& material = model->Materials[primitive.Material];
+  // If a normal map is present, we do need tangents
+  int normalMapIndex = material.NormalTexture.Index;
+  return normalMapIndex >= 0 && normalMapIndex < static_cast<int>(model->Textures.size());
+}
+
+//----------------------------------------------------------------------------
 void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> model,
   vtkGLTFDocumentLoader::Primitive& primitive, vtkSmartPointer<vtkActor> actor,
   std::map<int, vtkSmartPointer<vtkTexture> >& existingTextures)
 {
   vtkGLTFDocumentLoader::Material& material = model->Materials[primitive.Material];
 
+  bool hasMultipleUVs = MaterialHasMultipleUVs(material);
+  if (hasMultipleUVs)
+  {
+    vtkWarningWithObjectMacro(
+      nullptr, "Using multiple texture coordinates for the same model is not supported.");
+  }
+  auto property = actor->GetProperty();
+  property->SetInterpolationToPBR();
   if (!material.PbrMetallicRoughness.BaseColorFactor.empty())
   {
     // Apply base material color
     actor->GetProperty()->SetColor(material.PbrMetallicRoughness.BaseColorFactor.data());
+    actor->GetProperty()->SetMetallic(material.PbrMetallicRoughness.MetallicFactor);
+    actor->GetProperty()->SetRoughness(material.PbrMetallicRoughness.RoughnessFactor);
+    actor->GetProperty()->SetEmissiveFactor(material.EmissiveFactor.data());
+  }
+
+  if (!material.DoubleSided)
+  {
+    actor->GetProperty()->BackfaceCullingOn();
   }
 
   int texIndex = material.PbrMetallicRoughness.BaseColorTexture.Index;
   if (texIndex >= 0 && texIndex < static_cast<int>(model->Textures.size()))
   {
-    const vtkGLTFDocumentLoader::Texture& texture = model->Textures[texIndex];
+    // set albedo texture
+    vtkSmartPointer<vtkTexture> baseColorTex;
+    baseColorTex = CreateVTKTextureFromGLTFTexture(model, texIndex, existingTextures);
+    property->SetBaseColorTexture(baseColorTex);
 
-    // Apply texture
-    if (texture.Source >= 0)
+    // merge ambient occlusion and metallic/roughness, then set material texture
+    int pbrTexIndex = material.PbrMetallicRoughness.MetallicRoughnessTexture.Index;
+    if (pbrTexIndex >= 0 && pbrTexIndex < static_cast<int>(model->Textures.size()))
     {
-      vtkSmartPointer<vtkTexture> vtkTex;
-      if (existingTextures.count(primitive.Material))
+      const vtkGLTFDocumentLoader::Texture& pbrTexture = model->Textures[pbrTexIndex];
+      if (pbrTexture.Source >= 0)
       {
-        vtkTex = existingTextures[primitive.Material];
+        const vtkGLTFDocumentLoader::Image& pbrImage = model->Images[pbrTexture.Source];
+        // While glTF 2.0 uses two different textures for Ambient Occlusion and Metallic/Roughness
+        // values, VTK only uses one, so we merge both textures into one.
+        // If an Ambient Occlusion texture is present, we merge its first channel into the
+        // metallic/roughness texture (AO is r, Roughness g and Metallic b) If no Ambient
+        // Occlusion texture is present, we need to fill the metallic/roughness texture's first
+        // channel with 255
+        int aoTexIndex = material.OcclusionTexture.Index;
+        if (!hasMultipleUVs && aoTexIndex >= 0 &&
+          aoTexIndex < static_cast<int>(model->Textures.size()))
+        {
+          actor->GetProperty()->SetOcclusionStrength(material.OcclusionTextureStrength);
+          const vtkGLTFDocumentLoader::Texture& aoTexture = model->Textures[aoTexIndex];
+          const vtkGLTFDocumentLoader::Image& aoImage = model->Images[aoTexture.Source];
+          vtkNew<vtkImageExtractComponents> redAO;
+          // If sizes are different, resize the AO texture to the R/M texture's size
+          std::array<vtkIdType, 3> aoSize = { { 0 } };
+          std::array<vtkIdType, 3> pbrSize = { { 0 } };
+          aoImage.ImageData->GetDimensions(aoSize.data());
+          pbrImage.ImageData->GetDimensions(pbrSize.data());
+          // compare dimensions
+          if (aoSize != pbrSize)
+          {
+            vtkNew<vtkImageResize> resize;
+            resize->SetInputData(aoImage.ImageData);
+            resize->SetOutputDimensions(pbrSize[0], pbrSize[1], pbrSize[2]);
+            resize->Update();
+            redAO->SetInputConnection(resize->GetOutputPort(0));
+          }
+          else
+          {
+            redAO->SetInputData(aoImage.ImageData);
+          }
+          redAO->SetComponents(0);
+          vtkNew<vtkImageExtractComponents> gbPbr;
+          gbPbr->SetInputData(pbrImage.ImageData);
+          gbPbr->SetComponents(1, 2);
+          vtkNew<vtkImageAppendComponents> append;
+          append->AddInputConnection(redAO->GetOutputPort());
+          append->AddInputConnection(gbPbr->GetOutputPort());
+          append->SetOutput(pbrImage.ImageData);
+          append->Update();
+        }
+        else
+        {
+          pbrImage.ImageData->GetPointData()->GetScalars()->FillComponent(0, 255);
+        }
+        auto materialTex = CreateVTKTextureFromGLTFTexture(model, pbrTexIndex, existingTextures);
+        property->SetORMTexture(materialTex);
       }
-      else
-      {
-        const vtkGLTFDocumentLoader::Image& image = model->Images[texture.Source];
-        vtkNew<vtkImageData> imageData;
-        imageData->ShallowCopy(image.ImageData);
-        // Create texture object
-        vtkTex = vtkSmartPointer<vtkTexture>::New();
+    }
 
-        if (!material.DoubleSided)
-        {
-          actor->GetProperty()->BackfaceCullingOn();
-        }
-
-        switch (material.AlphaMode)
-        {
-          case vtkGLTFDocumentLoader::Material::AlphaModeType::OPAQUE:
-            actor->ForceOpaqueOn();
-            break;
-          case vtkGLTFDocumentLoader::Material::AlphaModeType::MASK:
-            vtkWarningWithObjectMacro(nullptr, "Alpha masking is not supported");
-            break;
-          case vtkGLTFDocumentLoader::Material::AlphaModeType::BLEND:
-            // default behavior
-            break;
-        }
-        vtkTex->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_MODULATE);
-
-        int nbSamplers = static_cast<int>(model->Samplers.size());
-        // Approximate filtering settings
-        if (texture.Sampler >= 0 && texture.Sampler < nbSamplers)
-        {
-          const vtkGLTFDocumentLoader::Sampler& sampler = model->Samplers[texture.Sampler];
-          if (sampler.MinFilter != vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST &&
-            sampler.MinFilter != vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR &&
-            sampler.MagFilter != vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST &&
-            sampler.MagFilter != vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR)
-          {
-            vtkTex->SetMipmap(true);
-          }
-          else
-          {
-            vtkTex->SetMipmap(false);
-          }
-
-          if (sampler.WrapS == vtkGLTFDocumentLoader::Sampler::WrapType::CLAMP_TO_EDGE ||
-            sampler.WrapT == vtkGLTFDocumentLoader::Sampler::WrapType::CLAMP_TO_EDGE)
-          {
-            vtkTex->SetRepeat(false);
-            vtkTex->SetEdgeClamp(true);
-          }
-          else if (sampler.WrapS == vtkGLTFDocumentLoader::Sampler::WrapType::REPEAT ||
-            sampler.WrapT == vtkGLTFDocumentLoader::Sampler::WrapType::REPEAT)
-          {
-            vtkTex->SetRepeat(true);
-            vtkTex->SetEdgeClamp(false);
-          }
-          else
-          {
-            vtkWarningWithObjectMacro(nullptr, "Mirrored texture wrapping is not supported!");
-          }
-          if (sampler.MinFilter == vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR)
-          {
-            vtkTex->SetInterpolate(true);
-          }
-        }
-
-        // Multiply vertex color by base color factor, as per the specification
-        const std::vector<double>& baseColorFactor = material.PbrMetallicRoughness.BaseColorFactor;
-        if (!baseColorFactor.empty())
-        {
-          auto scalars = primitive.Geometry->GetPointData()->GetScalars();
-          if (scalars)
-          {
-            std::vector<double> tuple(scalars->GetNumberOfComponents(), 0);
-            for (int i = 0; i < scalars->GetNumberOfTuples(); i++)
-            {
-              scalars->GetTuple(i, tuple.data());
-              for (int component = 0; component < scalars->GetNumberOfComponents(); component++)
-              {
-                tuple[component] *= baseColorFactor[component];
-              }
-              scalars->SetTuple(i, tuple.data());
-            }
-          }
-          else
-          {
-            vtkNew<vtkFloatArray> baseColorFactorScalars;
-            baseColorFactorScalars->SetNumberOfComponents(static_cast<int>(baseColorFactor.size()));
-            baseColorFactorScalars->SetNumberOfTuples(primitive.Geometry->GetNumberOfPoints());
-            for (int component = 0; component < baseColorFactorScalars->GetNumberOfComponents();
-                 component++)
-            {
-              baseColorFactorScalars->FillComponent(component, baseColorFactor[component]);
-            }
-            primitive.Geometry->GetPointData()->SetScalars(baseColorFactorScalars);
-          }
-        }
-        vtkTex->SetInputData(imageData);
-        existingTextures[primitive.Material] = vtkTex;
-      }
-      actor->SetTexture(vtkTex);
+    // Set emissive texture
+    int emissiveTexIndex = material.EmissiveTexture.Index;
+    if (emissiveTexIndex >= 0 && emissiveTexIndex < static_cast<int>(model->Textures.size()))
+    {
+      auto emissiveTex = CreateVTKTextureFromGLTFTexture(model, emissiveTexIndex, existingTextures);
+      property->SetEmissiveTexture(emissiveTex);
+    }
+    // Set normal map
+    int normalMapIndex = material.NormalTexture.Index;
+    if (normalMapIndex >= 0 && normalMapIndex < static_cast<int>(model->Textures.size()))
+    {
+      actor->GetProperty()->SetNormalScale(material.NormalTextureScale);
+      auto normalTex = CreateVTKTextureFromGLTFTexture(model, normalMapIndex, existingTextures);
+      property->SetNormalTexture(normalTex);
     }
   }
-}
 };
+}
 
 //----------------------------------------------------------------------------
 vtkGLTFImporter::~vtkGLTFImporter()
@@ -274,11 +373,26 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
       auto mesh = model->Meshes[node.Mesh];
       for (auto primitive : mesh.Primitives)
       {
+        auto pointData = primitive.Geometry->GetPointData();
+
         vtkNew<vtkActor> actor;
         vtkNew<vtkPolyDataMapper> mapper;
         mapper->SetColorModeToDirectScalars();
         mapper->SetInterpolateScalarsBeforeMapping(true);
-        mapper->SetInputData(primitive.Geometry);
+
+        if (pointData->GetTangents() == nullptr && PrimitiveNeedsTangents(model, primitive))
+        {
+          // Generate tangents
+          vtkNew<vtkPolyDataTangents> tangents;
+          tangents->SetInputData(primitive.Geometry);
+          tangents->Update();
+          mapper->SetInputConnection(tangents->GetOutputPort(0));
+        }
+        else
+        {
+          mapper->SetInputData(primitive.Geometry);
+        }
+
         actor->SetMapper(mapper);
         actor->SetUserTransform(node.GlobalTransform);
 

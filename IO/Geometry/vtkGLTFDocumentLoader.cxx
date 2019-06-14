@@ -1081,8 +1081,9 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
   }
   if (primitive.AttributeValues.count("TANGENT"))
   {
-    primitive.AttributeValues["TANGENT"]->SetName("tangents");
-    pointData->AddArray(primitive.AttributeValues["TANGENT"]);
+    primitive.AttributeValues["TANGENT"]->SetName("Tangents");
+    primitive.AttributeValues["TANGENT"]->SetNumberOfComponents(3);
+    pointData->SetTangents(primitive.AttributeValues["TANGENT"]);
     primitive.AttributeValues.erase("TANGENT");
   }
   if (primitive.AttributeValues.count("COLOR_0"))
