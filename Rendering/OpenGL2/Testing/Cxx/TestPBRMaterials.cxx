@@ -61,6 +61,7 @@ int TestPBRMaterials(int argc, char* argv[])
 
   vtkNew<vtkOpenGLTexture> textureCubemap;
   textureCubemap->CubeMapOn();
+  textureCubemap->UseSRGBColorSpaceOn();
 
   std::string pathSkybox[6] = { "Data/skybox/posx.jpg", "Data/skybox/negx.jpg",
     "Data/skybox/posy.jpg", "Data/skybox/negy.jpg", "Data/skybox/posz.jpg",

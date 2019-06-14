@@ -1293,9 +1293,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     }
 
     // ignore special textures
-    if (textures[i].second == "normalTex" ||
+    if (textures[i].second == "albedoTex" ||
+      textures[i].second == "normalTex" ||
       textures[i].second == "materialTex" ||
-      textures[i].second == "brdfTex")
+      textures[i].second == "brdfTex" ||
+      textures[i].second == "emissiveTex")
     {
       continue;
     }
@@ -1684,9 +1686,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
         vtkShaderProgram::Substitute(VSSource,
           "//VTK::Normal::Impl",
           "//VTK::Normal::Impl\n"
-          "  tangentVCVSOutput = normalMatrix * tangentMC;\n"
-          //"  tangentVC = \n"
-          );
+          "  tangentVCVSOutput = normalMatrix * tangentMC;\n");
 
         vtkShaderProgram::Substitute(FSSource,
           "//VTK::Normal::Dec",
@@ -3276,7 +3276,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     vtkFloatArray::SafeDownCast(poly->GetPointData()->GetTangents());
   if (tangents)
   {
-    this->VBOs->CacheDataArray("tangentMC", tangents, ren, VTK_FLOAT);
+    this->VBOs->CacheDataArray("tangentMC", tangents, cache, VTK_FLOAT);
   }
 
   this->VBOs->BuildAllVBOs(cache);

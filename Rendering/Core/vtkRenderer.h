@@ -760,6 +760,9 @@ public:
   //@{
   /**
    * Set/Get the environment cubemap used for image based lighting.
+   * Warning, this cubemap must be expressed in linear color space.
+   * Enable sRGB color space if needed.
+   * @sa vtkTexture::UseSRGBColorSpaceOn
    */
   vtkGetObjectMacro(EnvironmentCubeMap, vtkTexture);
   virtual void SetEnvironmentCubeMap(vtkTexture*);

@@ -24,7 +24,6 @@
 #include "vtkGenericDataArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
-#include "vtkImageFlip.h"
 #include "vtkImageReader2.h"
 #include "vtkImageReader2Factory.h"
 #include "vtkInformation.h"
@@ -875,15 +874,8 @@ bool vtkGLTFDocumentLoader::LoadImageData()
       vtkErrorMacro("Invalid image object");
       return false;
     }
-    reader->SetOutput(image.ImageData);
     reader->Update();
-
-    // FLip texture along Y axis to adapt to vtk's coordinate system
-    vtkNew<vtkImageFlip> imageFlip;
-    imageFlip->SetInputConnection(reader->GetOutputPort());
-    imageFlip->SetFilteredAxis(1);
-    imageFlip->Update();
-    image.ImageData = imageFlip->GetOutput();
+    image.ImageData = reader->GetOutput();
   }
   return true;
 }
