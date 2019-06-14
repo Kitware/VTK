@@ -229,7 +229,7 @@ int vtkWarpVector::RequestData(
 
   // call templated function.
   // We use two dispatches since we need to dispatch 3 arrays and two share a
-  // value type. Implementating a second type-restricted dispatch reduces
+  // value type. Implementing a second type-restricted dispatch reduces
   // the amount of generated templated code.
   WarpVectorDispatch1Vector worker(this, input->GetPoints()->GetData(),
                                    output->GetPoints()->GetData());

@@ -1110,7 +1110,7 @@ void vtkRenderer::ResetCamera(double bounds[6])
   }
   else
   {
-    vtkErrorMacro(<< "Trying to reset non-existant camera");
+    vtkErrorMacro(<< "Trying to reset non-existent camera");
     return;
   }
 
@@ -1230,7 +1230,7 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
   this->GetActiveCameraAndResetIfCreated();
   if ( this->ActiveCamera == nullptr )
   {
-    vtkErrorMacro(<< "Trying to reset clipping range of non-existant camera");
+    vtkErrorMacro(<< "Trying to reset clipping range of non-existent camera");
     return;
   }
 

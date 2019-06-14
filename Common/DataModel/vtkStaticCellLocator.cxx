@@ -808,7 +808,7 @@ struct CellPlaneCandidates
   // Operate on slabs (e.g., z-slab) of bins. The algorithm works by checking
   // whether the current bin is intersected by the plane; if it is, then the
   // cell bounding box is evaluated as well. Note a potential data race
-  // situation exists since a cell may be markes simultaneously (using the
+  // situation exists since a cell may be marked simultaneously (using the
   // same value). Since the same value will always be written this has never
   // been found to be an issue, although it is a potential problem.
   void  operator()(vtkIdType k, vtkIdType kEnd)
@@ -876,7 +876,7 @@ FindCellsAlongPlane(const double o[3], const double n[3], double vtkNotUsed(tol)
   }
 
   // Okay now evaluate which bins intersect the plane, and then the cells in
-  // the bins. We do this in parrallel and mark the cells. Later the marked
+  // the bins. We do this in parallel and mark the cells. Later the marked
   // cells will be added (in serial) to the output list. cellHasBeenVisited
   // has three states: 0(not visited), 1(visited but not intersecting),
   // 2(visited and potential intersection candidate).

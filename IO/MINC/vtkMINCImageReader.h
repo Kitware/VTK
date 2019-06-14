@@ -96,7 +96,7 @@ public:
   void SetFileName(const char *name) override;
 
   /**
-   * Get the entension for this file format.
+   * Get the extension for this file format.
    */
   const char* GetFileExtensions() override {
     return ".mnc"; }

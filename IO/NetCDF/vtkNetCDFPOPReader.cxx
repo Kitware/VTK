@@ -193,7 +193,7 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
     vtkInformationVector* outputVector  )
 {
   this->UpdateProgress(0);
-  // the default implimentation is to do what the old pipeline did find what
+  // the default implementation is to do what the old pipeline did find what
   // output is requesting the data, and pass that into ExecuteData
   // which output port did the request come from
   int outputPort = request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());

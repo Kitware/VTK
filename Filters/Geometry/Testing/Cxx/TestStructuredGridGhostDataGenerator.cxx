@@ -306,7 +306,7 @@ vtkMultiBlockDataSet* GetDataSet(
   wholeGrid->SetSpacing( gridSpacing );
   wholeGrid->SetDimensions( dims );
 
-  // STEP 2: Conver to structured grid
+  // STEP 2: Convert to structured grid
   vtkImageToStructuredGrid *img2sgrid = vtkImageToStructuredGrid::New();
   assert("pre:" && (img2sgrid != nullptr));
   img2sgrid->SetInputData( wholeGrid );

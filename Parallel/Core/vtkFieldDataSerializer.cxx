@@ -387,7 +387,7 @@ void vtkFieldDataSerializer::SerializeDataArray(
        break;
      default:
        assert("ERROR: cannot serialize data of given type" && false);
-       cerr << "Canot serialize data of type="
+       cerr << "Cannot serialize data of type="
             << dataArray->GetDataType() << endl;
 
   }
@@ -487,7 +487,7 @@ void vtkFieldDataSerializer::DeserializeDataArray(
       break;
     default:
       assert("ERROR: cannot serialize data of given type" && false);
-      cerr << "Canot serialize data of type="
+      cerr << "Cannot serialize data of type="
            << dataArray->GetDataType() << endl;
   }
 }

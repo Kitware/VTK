@@ -512,7 +512,7 @@ protected:
   std::map<std::string,ExtraAttributeValue> ExtraAttributes;
 
   // Store shader properties on this class by legacy shader replacement functions
-  // This should disapear when the functions are deprecated
+  // This should disappear when the functions are deprecated
 #ifndef VTK_LEGACY_REMOVE
   vtkOpenGLShaderProperty * GetLegacyShaderProperty();
   vtkSmartPointer<vtkOpenGLShaderProperty> LegacyShaderProperty;

@@ -53,7 +53,7 @@ int vtkImageAlgorithm::RequestData(
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector* outputVector)
 {
-  // the default implimentation is to do what the old pipeline did find what
+  // the default implementation is to do what the old pipeline did find what
   // output is requesting the data, and pass that into ExecuteData
 
   // which output port did the request come from

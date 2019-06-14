@@ -223,7 +223,7 @@ vtkYoungsMaterialInterface::vtkYoungsMaterialInterface()
 }
 
 /*!
-  The destrcutor
+  The destructor
   \sa vtkYoungsMaterialInterface()
 */
 vtkYoungsMaterialInterface::~vtkYoungsMaterialInterface()

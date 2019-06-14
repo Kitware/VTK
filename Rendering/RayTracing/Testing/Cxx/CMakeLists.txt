@@ -46,7 +46,7 @@ if (VTK_ENABLE_OSPRAY)
     TestPathTracerMaterialLibrary.cxx,NO_VALID
     TestPathTracerMaterials.cxx
     TestPathTracerShadows.cxx
-    # Miscelaneous tests
+    # Miscellaneous tests
     TestOSPRayCache.cxx
   )
 endif()

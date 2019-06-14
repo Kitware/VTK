@@ -17,7 +17,7 @@
  * @brief   Interpolates supplied nodes with line segments
  *
  * The line interpolator interpolates supplied nodes (see InterpolateLine)
- * with line segments. The finess of the curve may be controlled using
+ * with line segments. The fineness of the curve may be controlled using
  * SetMaximumCurveError and SetMaximumNumberOfLineSegments.
  *
  * @sa

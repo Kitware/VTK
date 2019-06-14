@@ -75,7 +75,7 @@ vtkLogoRepresentation::vtkLogoRepresentation()
   this->ImageProperty->SetOpacity(0.25);
   this->TextureActor->SetProperty(this->ImageProperty);
 
-  // Set up parameters from thw superclass
+  // Set up parameters from the superclass
   double size[2];
   this->GetSize(size);
   this->Position2Coordinate->SetValue(0.04*size[0], 0.04*size[1]);

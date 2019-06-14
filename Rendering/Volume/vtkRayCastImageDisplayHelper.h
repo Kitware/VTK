@@ -80,7 +80,7 @@ public:
   //@}
 
   /**
-   * Derived class should implemen this if needed
+   * Derived class should implement this if needed
    */
   virtual void ReleaseGraphicsResources(vtkWindow *) { }
 

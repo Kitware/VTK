@@ -143,7 +143,7 @@ int vtkBiQuadraticQuad::EvaluatePosition (const double x[3],
     }
     else
     {
-      // Compute weigths only
+      // Compute weights only
       this->InterpolationFunctionsPrivate(pcoords,weights);
     }
   }

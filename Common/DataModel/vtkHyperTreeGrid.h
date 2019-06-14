@@ -227,7 +227,7 @@ public:
   /**
    * Get the number or trees available along the 3 axis.
    * For 2D or 1D the empty dimension will be equal to 1.
-   * The empty dimension beeing any axis that contain a
+   * The empty dimension being any axis that contain a
    * single value for their point coordinate.
    *
    * SetDimensions() must be called in order to have a valid

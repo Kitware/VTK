@@ -87,7 +87,7 @@
  *  vtkVLogF(vtkLogger::VERBOSITY_INFO, "I'm hungry for some %.3f!", 3.14159);
  *  vtkVLogF(vtkLogger::VERBOSITY_0, "same deal");
  *
- *  // to add a indentifier for a vtkObjectBase or subclass
+ *  // to add an identifier for a vtkObjectBase or subclass
  *  vtkLogF(INFO, "The object is %s", vtkLogIdentifier(vtkobject));
  *
  *  // add a line conditionally to log if the condition succeeds:
@@ -291,7 +291,7 @@ public:
    */
   struct Message
   {
-    // You would generally print a Message by just concating the buffers without spacing.
+    // You would generally print a Message by just concatenating the buffers without spacing.
     // Optionally, ignore preamble and indentation.
     Verbosity verbosity;     // Already part of preamble
     const char* filename;    // Already part of preamble

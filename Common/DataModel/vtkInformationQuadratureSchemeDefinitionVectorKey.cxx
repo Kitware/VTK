@@ -299,7 +299,7 @@ int vtkInformationQuadratureSchemeDefinitionVectorKey::SaveState(
   if( base==nullptr ||
       (dictSize=static_cast<int>(base->GetVector().size()))==0)
   {
-    vtkGenericWarningMacro("Attempting to save an empty or non-existant key/value.");
+    vtkGenericWarningMacro("Attempting to save an empty or non-existent key/value.");
     return 0;
   }
 

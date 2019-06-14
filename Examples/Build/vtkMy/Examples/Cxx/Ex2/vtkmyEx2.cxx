@@ -76,7 +76,7 @@ int main()
   renWin->SetSize(300, 300);
 
   //
-  // Now we loop over 360 degreeees and render the cone each time
+  // Now we loop over 360 degrees and render the cone each time
   //
   int i;
   for (i = 0; i < 360; ++i)

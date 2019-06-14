@@ -382,7 +382,7 @@ double *vtkAssembly::GetBounds()
       {
         continue;
       }
-      // Only set the prop as visibile if atleast one prop has a valid bounds
+      // Only set the prop as visible if at least one prop has a valid bounds
       propVisible = 1;
 
       double bbox[24];

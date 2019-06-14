@@ -24,7 +24,7 @@
  * and to save and restore OpenGL state that you change. The former
  * makes your code work, the latter hels prevent your code from
  * breaking something else. The problem is that the former results
- * in tons of redundent OpenGL calls and the later is done by querying
+ * in tons of redundant OpenGL calls and the later is done by querying
  * the OpenGL state which can cause a pipeline sync/stall which is
  * very slow.
  *

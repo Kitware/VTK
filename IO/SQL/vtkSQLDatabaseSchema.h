@@ -253,7 +253,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
   int GetTableHandleFromName( const char* tblName );
 
   /**
-   * Given a table hanlde, get its name.
+   * Given a table handle, get its name.
    */
   const char* GetTableNameFromHandle( int tblHandle );
 

@@ -2225,7 +2225,7 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
       if ( rowBoundsFlag )
       {
         // Create the row bounds array. This will store the start / stop pixel
-        // for each row. This helps eleminate work in areas outside the bounding
+        // for each row. This helps eliminate work in areas outside the bounding
         // hexahedron since a bounding box is not very tight. We keep the old ones
         // too to help with only clearing where required
         this->RowBounds = new int [2*imageMemorySize[1]];

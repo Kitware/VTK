@@ -3125,7 +3125,7 @@ static int cgmLine(cgmImagePtr im, int x1, int y1, int x2, int y2)
 /* Graphic Primitive: Polyline; Elem Class 4; Elem ID 1
  * Actually generate the line, if you are writing a program to use this
  * library, use this function, not cgmImageLine or cgmImageDashedLine,
- * those are just in for compatiblilty with gd
+ * those are just in for compatibility with gd
  *
  * This function will draw a line using the current line type, width, and color
  */
@@ -3254,7 +3254,7 @@ static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2)
 /* Graphic Primitive: rectangle; Elem Class 4; Elem ID 11
  * Actually generate the rectangle, if you are writing a program to use this
  * library, use this function, not cgmImageRectangle,
- * those are just in for compatiblilty with gd
+ * those are just in for compatibility with gd
  *
  * This function will draw a Rectangle using the current
  * edge type, width, color, and visibility, and the current
@@ -3401,7 +3401,7 @@ static int cgmCircle(cgmImagePtr im, int cx, int cy, int r)
 
 static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey)
 {
-/* Graphic Primitive: Cicular Arc 3 Point; Elem Class 4; Elem ID 13
+/* Graphic Primitive: Circular Arc 3 Point; Elem Class 4; Elem ID 13
  *
  * This function will draw a Circular Arc using the current
  * Line type, width, and color,
@@ -3488,7 +3488,7 @@ static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey
 
 static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey, int cl)
 {
-/* Graphic Primitive: Cicular Arc 3 Point Close; Elem Class 4; Elem ID 14
+/* Graphic Primitive: Circular Arc 3 Point Close; Elem Class 4; Elem ID 14
  *
  * This function will draw a Circle using the current
  * edge type, width, color, and visibility, and the current

@@ -27,7 +27,7 @@
 //----------------------------------------------------------------------------
 int TestLinePlotDouble(int, char *[])
 {
-  // Thus test will cause floating point beacuse it uses inf and nan for some
+  // Thus test will cause floating point because it uses inf and nan for some
   // numbers
   vtkFloatingPointExceptions::Disable();
 

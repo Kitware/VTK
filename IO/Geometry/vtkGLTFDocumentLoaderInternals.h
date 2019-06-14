@@ -121,7 +121,7 @@ private:
   bool LoadPrimitive(const Json::Value& root, vtkGLTFDocumentLoader::Primitive& primitive);
 
   /**
-   * Populate a Mesh struture with data from a Json variable describing the object.
+   * Populate a Mesh structure with data from a Json variable describing the object.
    */
   bool LoadMesh(const Json::Value& root, vtkGLTFDocumentLoader::Mesh& mesh);
 

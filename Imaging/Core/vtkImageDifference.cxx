@@ -196,7 +196,7 @@ int vtkImageDifference::RequestUpdateExtent(
     uExt[idx*2] -= 2;
     uExt[idx*2+1] += 2;
 
-    // we must clip extent with whole extent is we hanlde boundaries.
+    // we must clip extent with whole extent is we handle boundaries.
     if (uExt[idx*2] < wholeExtent[idx*2])
     {
       uExt[idx*2] = wholeExtent[idx*2];
@@ -220,7 +220,7 @@ int vtkImageDifference::RequestUpdateExtent(
     uExt[idx*2] -= 2;
     uExt[idx*2+1] += 2;
 
-    // we must clip extent with whole extent is we hanlde boundaries.
+    // we must clip extent with whole extent is we handle boundaries.
     if (uExt[idx*2] < wholeExtent[idx*2])
     {
       uExt[idx*2] = wholeExtent[idx*2];

@@ -107,7 +107,7 @@ namespace {
 
  // The number of times we output a progress message.
  int const quantum = 20;
- // The ratio of high ASCII characters to low ASCII characeters.
+ // The ratio of high ASCII characters to low ASCII characters.
  double hiToLowASCII = 0.1;
 
 }

@@ -3436,7 +3436,7 @@ int vtkLSDynaReader::RequestData(
 
   if ( p->Dict["NMSPH"] )
   {
-    // Do something with smooth partical hydrodynamics element data
+    // Do something with smooth particle hydrodynamics element data
   }
   this->UpdateProgress( 0.15 );
 

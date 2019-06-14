@@ -30,7 +30,7 @@
  * and an interpolation kernel (a subclass of vtkSPHKernel). In addition, the
  * name of the source's density and mass arrays can optionally be provided;
  * however if not provided then the local volume is computed from the
- * kernel's spatial step. Finally, a cutoff distance array can optionall be
+ * kernel's spatial step. Finally, a cutoff distance array can optionally be
  * provided when the local neighborhood around each point varies. The cutoff
  * distance defines a local neighborhood in which the points in that
  * neighborhood are used to interpolate values. If not provided, then the

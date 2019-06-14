@@ -109,7 +109,7 @@ int vtkImageGradientMagnitude::RequestUpdateExtent (
     inUExt[idx*2+1] += 1;
     if (this->HandleBoundaries)
     {
-      // we must clip extent with whole extent is we hanlde boundaries.
+      // we must clip extent with whole extent is we handle boundaries.
       if (inUExt[idx*2] < wholeExtent[idx*2])
       {
         inUExt[idx*2] = wholeExtent[idx*2];

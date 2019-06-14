@@ -53,7 +53,7 @@
 #include <string>
 #include <vector>
 
-// uncomment the folowing line to add in state debugging information
+// uncomment the following line to add in state debugging information
 //#define USE_STATE_DEBUGGING 1
 #ifdef USE_STATE_DEBUGGING
 

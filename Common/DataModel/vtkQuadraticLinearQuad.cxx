@@ -154,7 +154,7 @@ int vtkQuadraticLinearQuad::EvaluatePosition (const double x[3],
     }
     else
     {
-      // Compute weigths only
+      // Compute weights only
       this->InterpolationFunctions(pcoords,weights);
     }
   }

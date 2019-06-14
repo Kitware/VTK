@@ -1076,7 +1076,7 @@ void vtkExplicitStructuredGrid::CheckConnectedFaces(int& nFoundFaces, int foundF
   switch (nFoundFaces)
   {
     case 1:
-      // Only one face have been found, we will probably draw incorect interior faces
+      // Only one face have been found, we will probably draw incorrect interior faces
       for (int axis = 0; axis < 3; axis++)
       {
         int foundFace = foundFaces[axis];

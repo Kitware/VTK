@@ -2039,7 +2039,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
       vtkErrorMacro(
         << comm->GetRank()
         << " : Invalid intensity range " << grayMin << ", " << grayMax
-        << "for contrast ehancement");
+        << "for contrast enhancement");
       grayMin = 0.0;
       grayMax = 1.0;
     }

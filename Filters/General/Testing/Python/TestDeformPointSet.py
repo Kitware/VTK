@@ -79,7 +79,7 @@ meshActor.SetMapper(meshMapper)
 meshActor.GetProperty().SetRepresentationToWireframe()
 meshActor.GetProperty().SetColor(0, 0, 0)
 
-# Okay now let's do the intitial weight generation
+# Okay now let's do the initial weight generation
 deform = vtk.vtkDeformPointSet()
 deform.SetInputConnection(ele.GetOutputPort())
 deform.SetControlMeshData(pd)

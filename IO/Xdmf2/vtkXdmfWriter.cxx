@@ -702,7 +702,7 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdTy
     vtkXdmfWriterInternal::MapOfCellTypes cellTypes;
     vtkXdmfWriterInternal::DetermineCellTypes(vtkPointSet::SafeDownCast(ds), cellTypes);
 
-    //TODO: When is it beneficial to take advantage of a homogenous topology?
+    //TODO: When is it beneficial to take advantage of a homogeneous topology?
     //If no compelling reason not to used MIXED, then this should go away.
     //This special case code requires an in memory copy just to get rid of
     //each cell's preceding number of points int.
@@ -805,7 +805,7 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdTy
         }//pd has 4 arrays, so it is rarely homogeoneous
       }
       cellPoints->Delete();
-    } //homogenous
+    } //homogeneous
     else
     {
       //cerr << "Nonhomogeneous topology" << endl;

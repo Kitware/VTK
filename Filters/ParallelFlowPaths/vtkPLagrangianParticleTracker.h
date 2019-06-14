@@ -24,7 +24,7 @@
  * Then each rank begin integrating.
  * When a particle goes out of domain, the particle will be sent to other ranks
  * the same way.
- * When a rank runs out of particle, it waits for other potentiel particles
+ * When a rank runs out of particle, it waits for other potential particles
  * from other ranks.
  * When all ranks run out of particles, integration is over.
  * The master rank takes care of communications between rank regarding integration termination

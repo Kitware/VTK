@@ -259,7 +259,7 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
 }
 
 // Unfortunately, a Plot3D file written in C is trickier
-// to check becaues it has no byte count markers. We need
+// to check because it has no byte count markers. We need
 // to do a bit more brute force checks based on reading
 // data and estimating file size.
 int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, size_t fileSize)

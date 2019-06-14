@@ -617,7 +617,7 @@ float vtkTextActor::GetFontScale(vtkViewport *viewport)
   int viewportWidth
     = (viewportSize[0] > viewportSize[1]) ? viewportSize[0] : viewportSize[1];
 
-  // Scale based on the assumtion of a 6 inch wide image at 72 DPI.
+  // Scale based on the assumption of a 6 inch wide image at 72 DPI.
   return static_cast<double>(viewportWidth)/(6*72);
 }
 

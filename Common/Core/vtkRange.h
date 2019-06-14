@@ -49,7 +49,7 @@ namespace vtk
  *     - Ex. vtk::Range(compDS, vtk::CompositeDataSetOptions::SkipEmptyNodes);
  *   - Reverse iteration is not supported. Use vtkCompositeDataIterator directly
  *     instead for this.
- *   - Dereferencing the iterator yeilds a vtk::CompositeDataSetNodeReference
+ *   - Dereferencing the iterator yields a vtk::CompositeDataSetNodeReference
  *     that provides additional API to get the node's flat index, data object,
  *     and metadata. See that class's documentation for more information.
  *
@@ -60,7 +60,7 @@ namespace vtk
  *                                vtk::DataObjectTreeOptions::SkipEmptyNodes);
  *   - Reverse iteration is not supported. Use vtkDataObjectTreeIterator
  *     directly instead for this.
- *   - Dereferencing the iterator yeilds a vtk::CompositeDataSetNodeReference
+ *   - Dereferencing the iterator yields a vtk::CompositeDataSetNodeReference
  *     that provides additional API to get the node's flat index, data object,
  *     and metadata. See that class's documentation for more information.
  *

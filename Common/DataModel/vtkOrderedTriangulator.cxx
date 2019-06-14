@@ -360,7 +360,7 @@ void vtkOrderedTriangulator::Initialize()
   radius2 /= 2.0;
   this->Mesh->Tolerance2 = length*length*1.0e-10;
 
-  // Define the points (-x,+x,-y,+y,-z,+z). Theses added points are
+  // Define the points (-x,+x,-y,+y,-z,+z). These added points are
   // used to create a bounding octahedron.
   this->Mesh->Points[numPts].P[0] = center[0] - length;
   this->Mesh->Points[numPts].P[1] = center[1];

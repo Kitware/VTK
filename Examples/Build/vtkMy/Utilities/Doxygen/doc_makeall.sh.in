@@ -188,7 +188,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
 fi
 
 # ----------------------------------------------------------------------------
-# Retrieve the (gziped) VTK 4 tag file and decompress it
+# Retrieve the (gzipped) VTK 4 tag file and decompress it
 
 if test "x$DOWNLOAD_VTK_TAGFILE" == "xON" ; then
     if test "x$VTK_TAGFILE" != "x" ; then

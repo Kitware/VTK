@@ -34,7 +34,7 @@
  * A new instance should be created by each thread.
  *
  * @warning
- * Datasets are added in lists. The list for T1 must be idential to that for T0
+ * Datasets are added in lists. The list for T1 must be identical to that for T0
  * in structure/topology and dataset order, and any datasets marked as static,
  * must remain so for all T - changing a dataset from static to dynamic
  * between time steps will result in undefined behaviour (=crash probably)

@@ -106,10 +106,10 @@ if (NOT cdash_show_third_party_warnings)
     "note: 'sbrk' has been explicitly marked deprecated here"
 
     # libproj source code includes the line
-    # return 0;       /* supresses a warning */
+    # return 0;       /* suppresses a warning */
     # which is listed as context for another warning
     # and causes a match due to the work warning in it
-    "return 0;       /\\* supresses a warning \\*/"
+    "return 0;       /\\* suppresses a warning \\*/"
 
     # boost graph lib causes a warning on gcc with code that
     # boost uses internally. An example for you template fans is

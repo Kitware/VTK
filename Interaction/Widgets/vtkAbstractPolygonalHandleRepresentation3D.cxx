@@ -321,7 +321,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::WidgetInteraction(double eventP
 
       if (    this->InteractionState == vtkHandleRepresentation::Selecting )
       {
-        // If we are doing axis constrained motion, igonore the placer.
+        // If we are doing axis constrained motion, ignore the placer.
         // Can't have both the placer and an axis constraint dictating
         // handle placement.
         if (this->ConstraintAxis >= 0 || this->Constrained || !this->PointPlacer)
@@ -370,7 +370,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::WidgetInteraction(double eventP
       }
       else
       {
-        // If we are doing axis constrained motion, igonore the placer.
+        // If we are doing axis constrained motion, ignore the placer.
         // Can't have both the placer and the axis constraint dictating
         // handle placement.
         if (this->ConstraintAxis >= 0 || this->Constrained || !this->PointPlacer)

@@ -641,7 +641,7 @@ void vtkSincInterpWeights(T *kernel, F *fX, F fx, int m)
 // will always sum to unity.  This renormalization is needed to ensure that
 // the interpolation will not have a DC offset.  For the rationale, see e.g.
 //  NA Thacker, A Jackson, D Moriarty, E Vokurka, "Improved quality of
-//  re-sliced MR images usng re-normalized sinc interpolation," Journal of
+//  re-sliced MR images using re-normalized sinc interpolation," Journal of
 //  Magnetic Resonance Imaging 10:582-588, 1999.
 // Parameters:
 //  kernel = table containing half of a symmetric kernel

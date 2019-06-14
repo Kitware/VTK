@@ -311,7 +311,7 @@ int TestVectors()
     axb[0] = result[0];
     axb[1] = result[1];
     axb[2] = result[2];
-    // repeat to cover a 0 return from Evaulate()
+    // repeat to cover a 0 return from Evaluate()
     parser->IsVectorResult();
     parser->IsVectorResult();
 

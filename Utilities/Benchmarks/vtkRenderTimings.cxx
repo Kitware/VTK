@@ -149,7 +149,7 @@ void vtkRTTestSequence::Run()
   int argc;
   char **argv;
   this->RenderTimings->GetArguments().GetUnusedArguments(&argc, &argv);
-  // while we have enough time remaning to do a 50% longer run
+  // while we have enough time remaining to do a 50% longer run
   double stepLimit = this->RenderTimings->GetSequenceStepTimeLimit();
   while (remainingTime > 1.5 * lastRunTime &&
       (sequenceEnd == 0 || this->SequenceCount <= sequenceEnd) &&

@@ -64,7 +64,7 @@
  * It is really important to note that a null object is different from one
  * to an other !!
  * This has been done to allow adding multiple times the same picker to the manager
- * by not passing the referenced object to not force the supression of all pickers
+ * by not passing the referenced object to not force the suppression of all pickers
 */
 
 #ifndef vtkPickingManager_h

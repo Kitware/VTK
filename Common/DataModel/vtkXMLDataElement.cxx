@@ -360,7 +360,7 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
     this->PrintWithEscapedData(os, this->CharacterData);
     os << endl;
   }
-  // Treat as space/line delimitted fields limiting
+  // Treat as space/line delimited fields limiting
   // the number of field per line.
   else
   {

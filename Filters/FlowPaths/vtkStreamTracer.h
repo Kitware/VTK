@@ -374,7 +374,7 @@ public:
                                                 int integrationDirection);
   /**
    * Adds a custom termination callback.
-   * calback is a function provided by the user that says if the streamline
+   * callback is a function provided by the user that says if the streamline
    *         should be terminated.
    * clientdata user specific data passed to the callback
    * reasonForTermination this value will be set in the ReasonForTermination cell

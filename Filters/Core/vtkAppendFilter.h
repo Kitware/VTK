@@ -127,7 +127,7 @@ protected:
   int OutputPointsPrecision;
   double Tolerance;
 
-  // If true, tolerance is used as is. If false, tolerance is multipled by
+  // If true, tolerance is used as is. If false, tolerance is multiplied by
   // the diagonal of the bounding box of the input.
   bool ToleranceIsAbsolute;
 

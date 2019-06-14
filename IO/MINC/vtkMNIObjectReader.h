@@ -92,7 +92,7 @@ public:
   //@}
 
   /**
-   * Get the entension for this file format.
+   * Get the extension for this file format.
    */
   virtual const char* GetFileExtensions() {
     return ".obj"; }

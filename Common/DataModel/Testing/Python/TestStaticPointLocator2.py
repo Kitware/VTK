@@ -25,7 +25,7 @@ else:
 
 maxNumBuckets = 2500
 
-# Create an initial set of points and associated datatset
+# Create an initial set of points and associated dataset
 points = vtk.vtkPoints()
 points.SetDataTypeToDouble()
 points.SetNumberOfPoints(numPts)

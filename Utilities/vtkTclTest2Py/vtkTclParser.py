@@ -51,7 +51,7 @@ class vtkTclParser:
         pass
 
     def success(self):
-        """Indicates if the most recent feed was translated in its entirity"""
+        """Indicates if the most recent feed was translated in its entirety"""
         if len(self._instring.strip()) == 0:
             return True
         return False

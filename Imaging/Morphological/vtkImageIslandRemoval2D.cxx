@@ -59,8 +59,8 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // The templated execute function handles all the data types.
-// Codes:  0 => unvisited. 1 => visted don't know.
-//         2 => visted keep.  3 => visited replace.
+// Codes:  0 => unvisited. 1 => visited don't know.
+//         2 => visited keep.  3 => visited replace.
 // Please excuse the length of this function.  The easiest way to choose
 // neighborhoods is to check neighbors one by one directly.  Also, I did
 // not want to break the templated function into pieces.
@@ -391,7 +391,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                 ++nextPixel;
                 ++nextPixelIdx;
 
-                // Have we visted enogh pixels to determine this is a keeper?
+                // Have we visited enough pixels to determine this is a keeper?
                 if (keepValue == 1 && numPixels >= area)
                 {
                   keepValue = 2;
