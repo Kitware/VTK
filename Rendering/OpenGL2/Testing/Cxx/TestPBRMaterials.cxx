@@ -69,7 +69,9 @@ int TestPBRMaterials(int argc, char* argv[])
   for (int i = 0; i < 6; i++)
   {
     vtkNew<vtkJPEGReader> jpg;
-    jpg->SetFileName(vtkTestUtilities::ExpandDataFileName(argc, argv, pathSkybox[i].c_str()));
+    char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, pathSkybox[i].c_str());
+    jpg->SetFileName(fname);
+    delete[] fname;
     vtkNew<vtkImageFlip> flip;
     flip->SetInputConnection(jpg->GetOutputPort());
     flip->SetFilteredAxis(1); // flip y axis

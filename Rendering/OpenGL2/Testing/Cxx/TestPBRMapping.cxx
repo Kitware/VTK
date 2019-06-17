@@ -79,7 +79,9 @@ int TestPBRMapping(int argc, char* argv[])
   for (int i = 0; i < 6; i++)
   {
     vtkNew<vtkJPEGReader> jpg;
-    jpg->SetFileName(vtkTestUtilities::ExpandDataFileName(argc, argv, pathSkybox[i].c_str()));
+    char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, pathSkybox[i].c_str());
+    jpg->SetFileName(fname);
+    delete[] fname;
     vtkNew<vtkImageFlip> flip;
     flip->SetInputConnection(jpg->GetOutputPort());
     flip->SetFilteredAxis(1); // flip y axis
@@ -101,24 +103,27 @@ int TestPBRMapping(int argc, char* argv[])
   mapper->SetInputConnection(tangents->GetOutputPort());
 
   vtkNew<vtkPNGReader> materialReader;
-  materialReader->SetFileName(
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk_Material.png"));
+  char* matname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk_Material.png");
+  materialReader->SetFileName(matname);
+  delete[] matname;
 
   vtkNew<vtkTexture> material;
   material->InterpolateOn();
   material->SetInputConnection(materialReader->GetOutputPort());
 
   vtkNew<vtkPNGReader> albedoReader;
-  albedoReader->SetFileName(
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk_Base_Color.png"));
+  char* colname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk_Base_Color.png");
+  albedoReader->SetFileName(colname);
+  delete[] colname;
 
   vtkNew<vtkTexture> albedo;
   albedo->InterpolateOn();
   albedo->SetInputConnection(albedoReader->GetOutputPort());
 
   vtkNew<vtkPNGReader> normalReader;
-  normalReader->SetFileName(
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk_Normal.png"));
+  char* normname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk_Normal.png");
+  normalReader->SetFileName(normname);
+  delete[] normname;
 
   vtkNew<vtkTexture> normal;
   normal->InterpolateOn();

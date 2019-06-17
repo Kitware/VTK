@@ -62,7 +62,9 @@ int TestNormalMapping(int argc, char* argv[])
   tangents->SetInputConnection(triangulation->GetOutputPort());
 
   vtkNew<vtkPNGReader> png;
-  png->SetFileName(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/normalMapping.png"));
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/normalMapping.png");
+  png->SetFileName(fname);
+  delete[] fname;
 
   vtkNew<vtkTexture> texture;
   texture->SetInputConnection(png->GetOutputPort());

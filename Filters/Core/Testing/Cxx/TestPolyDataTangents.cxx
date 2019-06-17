@@ -43,7 +43,9 @@
 int TestPolyDataTangents(int argc, char* argv[])
 {
   vtkNew<vtkXMLPolyDataReader> reader;
-  reader->SetFileName(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp"));
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");
+  reader->SetFileName(fname);
+  delete[] fname;
 
   vtkNew<vtkPolyDataNormals> normals;
   normals->SetInputConnection(reader->GetOutputPort());
@@ -72,7 +74,9 @@ int TestPolyDataTangents(int argc, char* argv[])
   tgtsMapper->SetScaleFactor(0.5);
 
   vtkNew<vtkJPEGReader> image;
-  image->SetFileName(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tex_debug.jpg"));
+  char* texname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tex_debug.jpg");
+  image->SetFileName(texname);
+  delete[] texname;
 
   vtkNew<vtkTexture> texture;
   texture->SetInputConnection(image->GetOutputPort());
