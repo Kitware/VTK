@@ -92,8 +92,6 @@ protected:
   bool FinalizeOutputs(
     vtkPolyData* particlePathsOutput, vtkDataObject* interractionOutput) override;
 
-  bool CheckParticlePathsRenderingThreshold(vtkPolyData* particlePathsOutput) override;
-
   bool UpdateSurfaceCacheIfNeeded(vtkDataObject*& surfaces) override;
 
   /**

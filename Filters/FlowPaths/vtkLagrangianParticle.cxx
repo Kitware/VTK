@@ -26,7 +26,7 @@ std::mutex seedDataMutex;
 //---------------------------------------------------------------------------
 vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType seedId,
   vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
-  vtkPointData* seedData, int weightsSize)
+  vtkPointData* seedData, int weightsSize, int numberOfTrackedUserData)
   : Id(particleId)
   , ParentId(-1)
   , SeedId(seedId)
@@ -66,24 +66,30 @@ vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables, vtkIdType se
   // Initialize surface cell cache
   this->LastSurfaceCellId = -1;
   this->LastSurfaceDataSet = nullptr;
+
+  // Initialize tracked user data
+  this->PrevTrackedUserData.resize(numberOfTrackedUserData, 0);
+  this->TrackedUserData.resize(numberOfTrackedUserData, 0);
+  this->NextTrackedUserData.resize(numberOfTrackedUserData, 0);
 }
 
 //---------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables, vtkIdType seedId,
   vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
-  vtkPointData* seedData, int weightsSize)
+  vtkPointData* seedData, int weightsSize, int numberOfTrackedUserData)
 {
   return new vtkLagrangianParticle(numberOfVariables, seedId, particleId, seedArrayTupleIndex,
-    integrationTime, seedData, weightsSize);
+    integrationTime, seedData, weightsSize, numberOfTrackedUserData);
 }
 
 //---------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables, vtkIdType seedId,
   vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
-  vtkPointData* seedData, int weightsSize, vtkIdType numberOfSteps, double previousIntegrationTime)
+  vtkPointData* seedData, int weightsSize, int numberOfTrackedUserData,
+  vtkIdType numberOfSteps, double previousIntegrationTime)
 {
   vtkLagrangianParticle* particle = new vtkLagrangianParticle(numberOfVariables, seedId, particleId,
-    seedArrayTupleIndex, integrationTime, seedData, weightsSize);
+    seedArrayTupleIndex, integrationTime, seedData, weightsSize, numberOfTrackedUserData);
   particle->NumberOfSteps = numberOfSteps;
   particle->PrevIntegrationTime = previousIntegrationTime;
   return particle;
@@ -108,7 +114,8 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
   // Create particle and copy members
   vtkLagrangianParticle* particle =
     this->NewInstance(this->GetNumberOfVariables(), this->GetSeedId(), particleId,
-      seedArrayTupleIndex, this->IntegrationTime + this->StepTime, seedData, this->WeightsSize);
+      seedArrayTupleIndex, this->IntegrationTime + this->StepTime, seedData, this->WeightsSize,
+      static_cast<int>(this->TrackedUserData.size()));
   particle->ParentId = this->GetId();
   particle->NumberOfSteps = this->GetNumberOfSteps() + 1;
 
@@ -116,6 +123,12 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
   std::copy(this->EquationVariables.begin(), this->EquationVariables.end(), particle->PrevEquationVariables.begin());
   std::copy(this->NextEquationVariables.begin(), this->NextEquationVariables.end(), particle->EquationVariables.begin());
   std::fill(particle->NextEquationVariables.begin(), particle->NextEquationVariables.end(), 0);
+
+  // Copy UserData
+  std::copy(this->TrackedUserData.begin(), this->TrackedUserData.end(), particle->PrevTrackedUserData.begin());
+  std::copy(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(), particle->TrackedUserData.begin());
+  std::fill(particle->NextTrackedUserData.begin(), particle->NextTrackedUserData.end(), 0);
+
   return particle;
 }
 
@@ -124,7 +137,7 @@ vtkLagrangianParticle* vtkLagrangianParticle::CloneParticle()
 {
   vtkLagrangianParticle* clone = this->NewInstance(this->GetNumberOfVariables(), this->GetSeedId(),
     this->GetId(), this->GetSeedArrayTupleIndex(), this->IntegrationTime, this->GetSeedData(),
-    this->WeightsSize);
+    this->WeightsSize, static_cast<int>(this->TrackedUserData.size()));
   clone->Id = this->Id;
   clone->ParentId = this->ParentId;
   clone->NumberOfSteps = this->NumberOfSteps;
@@ -132,6 +145,9 @@ vtkLagrangianParticle* vtkLagrangianParticle::CloneParticle()
   std::copy(this->PrevEquationVariables.begin(), this->PrevEquationVariables.end(), clone->PrevEquationVariables.begin());
   std::copy(this->EquationVariables.begin(), this->EquationVariables.end(), clone->EquationVariables.begin());
   std::copy(this->NextEquationVariables.begin(), this->NextEquationVariables.end(), clone->NextEquationVariables.begin());
+  std::copy(this->PrevTrackedUserData.begin(), this->PrevTrackedUserData.end(), clone->PrevTrackedUserData.begin());
+  std::copy(this->TrackedUserData.begin(), this->TrackedUserData.end(), clone->TrackedUserData.begin());
+  std::copy(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(), clone->NextTrackedUserData.begin());
   clone->StepTime = this->StepTime;
   return clone;
 }
@@ -342,6 +358,9 @@ void vtkLagrangianParticle::MoveToNextPosition()
   std::copy(this->EquationVariables.begin(), this->EquationVariables.end(), this->PrevEquationVariables.begin());
   std::copy(this->NextEquationVariables.begin(), this->NextEquationVariables.end(), this->EquationVariables.begin());
   std::fill(this->NextEquationVariables.begin(), this->NextEquationVariables.end(), 0);
+  std::copy(this->TrackedUserData.begin(), this->TrackedUserData.end(), this->PrevTrackedUserData.begin());
+  std::copy(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(), this->TrackedUserData.begin());
+  std::fill(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(), 0);
 
   this->NumberOfSteps++;
   this->PrevIntegrationTime = this->IntegrationTime;
@@ -368,23 +387,44 @@ void vtkLagrangianParticle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Interaction: " << this->Interaction << std::endl;
 
   os << indent << "PrevEquationVariables:";
-  for (int i = 0; i < this->NumberOfVariables; i++)
+  for (auto var : this->PrevEquationVariables)
   {
-    os << indent << " " << this->PrevEquationVariables[i];
+    os << indent << " " << var;
   }
   os << std::endl;
 
   os << indent << "EquationVariables:";
-  for (int i = 0; i < this->NumberOfVariables; i++)
+  for (auto var : this->EquationVariables)
   {
-    os << indent << " " << this->EquationVariables[i];
+    os << indent << " " << var;
   }
   os << std::endl;
 
   os << indent << "NextEquationVariables:";
-  for (int i = 0; i < this->NumberOfVariables; i++)
+  for (auto var : this->NextEquationVariables)
   {
-    os << indent << " " << this->NextEquationVariables[i];
+    os << indent << " " << var;
+  }
+  os << std::endl;
+
+  os << indent << "PrevTrackedUserData:";
+  for (auto var : this->PrevTrackedUserData)
+  {
+    os << indent << " " << var;
+  }
+  os << std::endl;
+
+  os << indent << "TrackedUserData:";
+  for (auto var : this->TrackedUserData)
+  {
+    os << indent << " " << var;
+  }
+  os << std::endl;
+
+  os << indent << "NextTrackedUserData:";
+  for (auto var : this->NextTrackedUserData)
+  {
+    os << indent << " " << var;
   }
   os << std::endl;
 }

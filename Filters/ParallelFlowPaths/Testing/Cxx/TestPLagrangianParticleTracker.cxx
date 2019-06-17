@@ -165,6 +165,7 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDiameter");
   integrationModel->SetInputArrayToProcess(7, 1, 0,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "ParticleDensity");
+  integrationModel->SetNumberOfTrackedUserData(17);
 
   // Put in tracker
   vtkNew<vtkLagrangianParticleTracker> tracker;

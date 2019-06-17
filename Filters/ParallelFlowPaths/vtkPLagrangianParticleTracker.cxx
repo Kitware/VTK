@@ -125,8 +125,8 @@ public:
 
     // Compute StreamSize for one particle
     // This is strongly linked to Send and Receive code
-    this->StreamSize = sizeof(int) * 2 + sizeof(double) * 2 + 4 * sizeof(vtkIdType) +
-      2 * sizeof(double) + 3 * sizeof(double) * model->GetNumberOfIndependentVariables();
+    this->StreamSize = sizeof(int) * 2 + sizeof(double) * 2 + 4 * sizeof(vtkIdType) + sizeof(int) +
+      2 * sizeof(double) + 3 * sizeof(double) * (model->GetNumberOfIndependentVariables() + model->GetNumberOfTrackedUserData());
     for (int i = 0; i < seedData->GetNumberOfArrays(); i++)
     {
       vtkDataArray* array = seedData->GetArray(i);
@@ -162,6 +162,7 @@ public:
     *this->SendStream << particle->GetId();
     *this->SendStream << particle->GetParentId();
     *this->SendStream << particle->GetNumberOfVariables();
+    *this->SendStream << static_cast<int>(particle->GetTrackedUserData().size());
     *this->SendStream << particle->GetNumberOfSteps();
     *this->SendStream << particle->GetIntegrationTime();
     *this->SendStream << particle->GetPrevIntegrationTime();
@@ -177,6 +178,19 @@ public:
       *this->SendStream << prev[i];
       *this->SendStream << curr[i];
       *this->SendStream << next[i];
+    }
+
+    for (auto data : particle->GetPrevTrackedUserData())
+    {
+      *this->SendStream << data;
+    }
+    for (auto data : particle->GetTrackedUserData())
+    {
+      *this->SendStream << data;
+    }
+    for (auto data : particle->GetNextTrackedUserData())
+    {
+      *this->SendStream << data;
     }
 
     for (int i = 0; i < particle->GetSeedData()->GetNumberOfArrays(); i++)
@@ -219,7 +233,7 @@ public:
         vtkMultiProcessController::ANY_SOURCE, LAGRANGIAN_PARTICLE_TAG);
       // Deserialize particle
       // This is strongly linked to Constructor and Send method
-      int nVar, userFlag;
+      int nVar, userFlag, nTrackedUserData;
       vtkIdType seedId, particleId, parentId, nSteps;
       double iTime, prevITime;
       bool pInsertPrevious, pManualShift;
@@ -227,6 +241,7 @@ public:
       *this->ReceiveStream >> particleId;
       *this->ReceiveStream >> parentId;
       *this->ReceiveStream >> nVar;
+      *this->ReceiveStream >> nTrackedUserData;
       *this->ReceiveStream >> nSteps;
       *this->ReceiveStream >> iTime;
       *this->ReceiveStream >> prevITime;
@@ -241,7 +256,7 @@ public:
         seedTupleIndex = this->SeedData->GetArray(0)->GetNumberOfTuples();
       }
       particle = vtkLagrangianParticle::NewInstance(nVar, seedId, particleId, seedTupleIndex, iTime,
-        this->SeedData, this->WeightsSize, nSteps, prevITime);
+        this->SeedData, this->WeightsSize, nTrackedUserData, nSteps, prevITime);
       particle->SetParentId(parentId);
       particle->SetUserFlag(userFlag);
       particle->SetPInsertPreviousPosition(pInsertPrevious);
@@ -254,6 +269,22 @@ public:
         *this->ReceiveStream >> prev[i];
         *this->ReceiveStream >> curr[i];
         *this->ReceiveStream >> next[i];
+      }
+
+      std::vector<double>& prevTracked = particle->GetPrevTrackedUserData();
+      for (auto &var : prevTracked)
+      {
+        *this->ReceiveStream >> var;
+      }
+      std::vector<double>& tracked = particle->GetTrackedUserData();
+      for (auto &var : tracked)
+      {
+        *this->ReceiveStream >> var;
+      }
+      std::vector<double>& nextTracked = particle->GetNextTrackedUserData();
+      for (auto &var : nextTracked)
+      {
+        *this->ReceiveStream >> var;
       }
 
       for (int i = 0; i < particle->GetSeedData()->GetNumberOfArrays(); i++)
@@ -747,7 +778,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
 
     // Create and set a dummy particle so FindInLocators can use caching.
     vtkLagrangianParticle dummyParticle(
-      0, 0, 0, 0, 0, nullptr, this->IntegrationModel->GetWeightsSize());
+      0, 0, 0, 0, 0, nullptr, this->IntegrationModel->GetWeightsSize(), 0);
 
     // Generate particle and distribute the ones not in domain to other nodes
     for (vtkIdType i = 0; i < seeds->GetNumberOfPoints(); i++)
@@ -758,7 +789,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
         initialIntegrationTimes ? initialIntegrationTimes->GetTuple1(i) : 0;
       vtkIdType particleId = this->GetNewParticleId();
       vtkLagrangianParticle* particle = new vtkLagrangianParticle(nVar, particleId, particleId, i,
-        initialIntegrationTime, seedData, this->IntegrationModel->GetWeightsSize());
+        initialIntegrationTime, seedData, this->IntegrationModel->GetWeightsSize(), this->IntegrationModel->GetNumberOfTrackedUserData());
       memcpy(particle->GetPosition(), position, 3 * sizeof(double));
       initialVelocities->GetTuple(i, particle->GetVelocity());
       this->IntegrationModel->InitializeParticle(particle);
@@ -888,7 +919,7 @@ int vtkPLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integ
 {
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
-    if (particle->GetPInsertPreviousPosition())
+    if (particlePathsOutput && particle->GetPInsertPreviousPosition())
     {
       // Mutex Locked Area
       std::lock_guard<std::mutex> guard(this->ParticlePathsOutputMutex);
@@ -948,7 +979,7 @@ void vtkPLagrangianParticleTracker::ReceiveParticles(
 bool vtkPLagrangianParticleTracker::FinalizeOutputs(
   vtkPolyData* particlePathsOutput, vtkDataObject* interactionOutput)
 {
-  if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
+  if (particlePathsOutput && this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
 
     // Construct array with all non outofdomains ids and terminations
@@ -986,31 +1017,6 @@ bool vtkPLagrangianParticleTracker::FinalizeOutputs(
     }
   }
   return this->Superclass::FinalizeOutputs(particlePathsOutput, interactionOutput);
-}
-
-//---------------------------------------------------------------------------
-bool vtkPLagrangianParticleTracker::CheckParticlePathsRenderingThreshold(
-  vtkPolyData* particlePathsOutput)
-{
-  if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
-  {
-    if (this->UseParticlePathsRenderingThreshold)
-    {
-      // Reduce the totalNumberOfPoints to check if we need to display the particle paths.
-      vtkIdType localNPoints = particlePathsOutput->GetNumberOfPoints();
-      vtkIdType totalNPoints;
-      this->Controller->AllReduce(&localNPoints, &totalNPoints, 1, vtkCommunicator::SUM_OP);
-      return totalNPoints > this->ParticlePathsRenderingPointsThreshold;
-    }
-    else
-    {
-      return false;
-    }
-  }
-  else
-  {
-    return this->Superclass::CheckParticlePathsRenderingThreshold(particlePathsOutput);
-  }
 }
 
 //---------------------------------------------------------------------------

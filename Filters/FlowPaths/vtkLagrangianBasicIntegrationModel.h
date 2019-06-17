@@ -40,8 +40,11 @@
  * Inherited classes could reimplement IntersectWithLine to use a specific algorithm
  * to intersect particles and surface cells.
  *
- * Inherited class could reimplement CheckFreeFlightTermination to set
+ * Inherited classes could reimplement CheckFreeFlightTermination to set
  * the way particles terminate in free flight.
+ *
+ * Inherited classes could reimplement Initialize*Data and Insert*Data in order
+ * to customize the output of the tracker
  *
  * @sa
  * vtkLagrangianParticleTracker vtkLagrangianParticle
@@ -217,39 +220,6 @@ public:
   //@}
 
   /**
-   * Empty method to be reimplemented if necessary
-   * in inherited classes.
-   * Allows a intehrited class to create
-   * Specific array in the output point data
-   * for storing variables.
-   */
-  virtual void InitializeVariablesParticleData(
-    vtkPointData* vtkNotUsed(particleData), int vtkNotUsed(maxTuples) = 0) {}
-
-  /**
-   * Empty method to be reimplemented if necessary in inherited classes.
-   * Allows a inherited class to create specific array in the output point data
-   * for filling point data with variables.
-   */
-  virtual void InsertVariablesParticleData(vtkLagrangianParticle* vtkNotUsed(particle),
-    vtkPointData* vtkNotUsed(particleData), int vtkNotUsed(stepEnum)) {}
-
-  /**
-   * Empty method to be reimplemented if necessary in inherited classes.
-   * Allows an inherited class to create specific array in the outputs
-   * field data associated with each particle path.
-   */
-  virtual void InitializeModelPathData(vtkFieldData* vtkNotUsed(data)) {}
-
-  /**
-   * Empty method to be reimplemented if necessary in inherited classes.
-   * Allows a inherited class to insert data in initialized
-   * array in the outputs field data associated with each particle path.
-   */
-  virtual void InsertModelPathData(
-    vtkLagrangianParticle* vtkNotUsed(particle), vtkFieldData* vtkNotUsed(data)) {}
-
-  /**
    * Initialize a particle by setting user variables and perform any user
    * model specific operation. empty in basic implementation.
    */
@@ -370,8 +340,8 @@ public:
    * This method is thread-safe, its reimplementation should still be thread-safe.
    */
   virtual bool ManualIntegration(double* xcur, double* xnext, double t, double& delT,
-    double& delTActual, double minStep, double maxStep, double maxError, double& error,
-    int& integrationResult);
+    double& delTActual, double minStep, double maxStep, double maxError, double cellLength,
+    double& error, int& integrationResult);
 
   /**
    * Method called by parallel algorithm
@@ -401,6 +371,66 @@ public:
    * from the provided seed point data
    */
   virtual vtkAbstractArray* GetSeedArray(int idx, vtkPointData* pointData);
+
+  /**
+   * Set/Get the number of tracked user data attached to the particles.
+   * Tracked user data are data that are related to each particle position
+   * but are not integrated like the user variables.
+   * They are not saved in the particle path.
+   * Default is 0.
+   */
+  vtkSetMacro(NumberOfTrackedUserData, int);
+  vtkGetMacro(NumberOfTrackedUserData, int);
+
+  /**
+   * Method used by the LPT to initialize data insertion in the provided
+   * vtkFieldData. It initializes Id, ParentID, SeedID and Termination.
+   * Reimplement as needed in acccordance with InsertPathData.
+   */
+  virtual void InitializePathData(vtkFieldData* data);
+
+  /**
+   * Method used by the LPT to initialize data insertion in the provided
+   * vtkFieldData. It initializes Interaction.
+   * Reimplement as needed in acccordance with InsertInteractionData.
+   */
+  virtual void InitializeInteractionData(vtkFieldData* data);
+
+  /**
+   * Method used by the LPT to initialize data insertion in the provided
+   * vtkFieldData. It initializes StepNumber, ParticleVelocity, IntegrationTime.
+   * Reimplement as needed in acccordance with InsertParticleData.
+   */
+  virtual void InitializeParticleData(vtkFieldData* particleData, int maxTuples = 0);
+
+  /**
+   * Method used by the LPT to insert data from the partice into
+   * the provided vtkFieldData. It inserts Id, ParentID, SeedID and Termination.
+   * Reimplement as needed in acccordance with InitializePathData.
+   */
+  virtual void InsertPathData(vtkLagrangianParticle* particle, vtkFieldData* data);
+
+  /**
+   * Method used by the LPT to insert data from the partice into
+   * the provided vtkFieldData. It inserts Interaction.
+   * Reimplement as needed in acccordance with InitializeInteractionData.
+   */
+  virtual void InsertInteractionData(vtkLagrangianParticle* particle, vtkFieldData* data);
+
+  /**
+   * Method used by the LPT to insert data from the partice into
+   * the provided vtkFieldData. It inserts StepNumber, ParticleVelocity, IntegrationTime.
+   * stepEnum enables to select which data to insert, Prev, Current or Next.
+   * Reimplement as needed in acccordance with InitializeParticleData.
+   */
+  virtual void InsertParticleData(vtkLagrangianParticle* particle, vtkFieldData* data, int stepEnum);
+
+  /**
+   * Method used by the LPT to insert data from the partice into
+   * the provided vtkFieldData. It insert alls array available in the SeedData.
+   * Reimplement as needed.
+   */
+  virtual void InsertSeedData(vtkLagrangianParticle* particle, vtkFieldData* data);
 
 protected:
   vtkLagrangianBasicIntegrationModel();
@@ -520,7 +550,7 @@ protected:
   virtual int GetFlowOrSurfaceDataFieldAssociation(int idx);
 
   /**
-   * Methods used by ParaView surface helper to get default
+   * Method used by ParaView surface helper to get default
    * values for each leaf of each dataset of surface
    * nComponents could be retrieved with arrayName but is
    * given for simplication purposes.
@@ -557,6 +587,7 @@ protected:
   double Tolerance;
   bool NonPlanarQuadSupport;
   bool UseInitialIntegrationTime;
+  int NumberOfTrackedUserData = 0;
 
   vtkNew<vtkStringArray> SeedArrayNames;
   vtkNew<vtkIntArray> SeedArrayComps;

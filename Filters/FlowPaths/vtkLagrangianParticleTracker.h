@@ -238,25 +238,12 @@ public:
 
   //@{
   /**
-   * Set/Get the Optional Paths Rendering feature,
-   * it allows to not show the particle paths
-   * if there is too many points.
-   * Default is false.
+   * Set/Get the generation of the particle path output,
+   * Default is true.
    */
-  vtkSetMacro(UseParticlePathsRenderingThreshold, bool);
-  vtkGetMacro(UseParticlePathsRenderingThreshold, bool);
-  vtkBooleanMacro(UseParticlePathsRenderingThreshold, bool);
-  //@}
-
-  //@{
-  /**
-   * Set/Get the Optional Paths Rendering threshold,
-   * ie the maximum number of points to show in the particle
-   * path if the option is activated.
-   * Default is 100
-   */
-  vtkSetMacro(ParticlePathsRenderingPointsThreshold, int);
-  vtkGetMacro(ParticlePathsRenderingPointsThreshold, int);
+  vtkSetMacro(GenerateParticlePathsOutput, bool);
+  vtkGetMacro(GenerateParticlePathsOutput, bool);
+  vtkBooleanMacro(GenerateParticlePathsOutput, bool);
   //@}
 
   //@{
@@ -349,10 +336,6 @@ protected:
   virtual bool InitializeInteractionOutput(vtkInformationVector* outputVector,
     vtkPointData* seedData, vtkDataObject* surfaces, vtkDataObject*& interractionOutput);
 
-  virtual void InitializeParticleData(vtkFieldData* particleData, int maxTuples = 0);
-  virtual void InitializePathData(vtkFieldData* data);
-  virtual void InitializeInteractionData(vtkFieldData* data);
-
   virtual bool FinalizeOutputs(vtkPolyData* particlePathsOutput, vtkDataObject* interractionOutput);
 
   static void InsertPolyVertexCell(vtkPolyData* polydata);
@@ -373,21 +356,14 @@ protected:
   void InsertInteractionOutputPoint(vtkLagrangianParticle* particle,
     unsigned int interactedSurfaceFlatIndex, vtkDataObject* interactionOutput);
 
-  void InsertSeedData(vtkLagrangianParticle* particle, vtkFieldData* data);
-  void InsertPathData(vtkLagrangianParticle* particle, vtkFieldData* data);
-  void InsertInteractionData(vtkLagrangianParticle* particle, vtkFieldData* data);
-  void InsertParticleData(vtkLagrangianParticle* particle, vtkFieldData* data, int stepEnum);
-
   double ComputeCellLength(vtkLagrangianParticle* particle);
 
   /**
    * This method is thread safe
    */
   bool ComputeNextStep(vtkInitialValueProblemSolver* integrator, double* xprev, double* xnext,
-    double t, double& delT, double& delTActual, double minStep, double maxStep, int& integrationRes,
-    vtkLagrangianParticle* particle);
-
-  virtual bool CheckParticlePathsRenderingThreshold(vtkPolyData* particlePathsOutput);
+    double t, double& delT, double& delTActual, double minStep, double maxStep, double cellLength,
+    int& integrationRes, vtkLagrangianParticle* particle);
 
   vtkLagrangianBasicIntegrationModel* IntegrationModel;
   vtkInitialValueProblemSolver* Integrator;
@@ -399,9 +375,8 @@ protected:
   int MaximumNumberOfSteps;
   double MaximumIntegrationTime;
   bool AdaptiveStepReintegration;
-  bool UseParticlePathsRenderingThreshold;
+  bool GenerateParticlePathsOutput = true;
   bool GeneratePolyVertexInteractionOutput;
-  int ParticlePathsRenderingPointsThreshold;
   std::atomic<vtkIdType> ParticleCounter;
   std::atomic<vtkIdType> IntegratedParticleCounter;
   vtkIdType IntegratedParticleCounterIncrement;

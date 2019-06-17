@@ -37,7 +37,7 @@ int TestLagrangianParticle(int, char*[])
   vtkIdType particleCounter = 0;
 
   vtkLagrangianParticle* part = new vtkLagrangianParticle(nvar, seedId,
-    particleCounter, seedId, 0, pd, 8);
+    particleCounter, seedId, 0, pd, 8, 3);
   particleCounter++;
   if (nvar != part->GetNumberOfVariables())
   {
@@ -380,10 +380,10 @@ int TestLagrangianParticle(int, char*[])
 
   particleCounter = 0;
   vtkLagrangianParticle* part4 = new vtkLagrangianParticle(nvar, seedId,
-    particleCounter, seedId, 0, pd, 8);
+    particleCounter, seedId, 0, pd, 8, 17);
   particleCounter++;
   vtkLagrangianParticle* part5 = vtkLagrangianParticle::NewInstance(nvar, seedId,
-    particleCounter, seedId, 0.17, pd, 8, 17, 0.13);
+    particleCounter, seedId, 0.17, pd, 8, 7, 17, 0.13);
   particleCounter++;
   if (part4->GetId() != 0)
   {
