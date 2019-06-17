@@ -130,7 +130,7 @@ int TestFramebufferPass(int argc, char *argv[])
   cerr << "first render time: " << firstRender << endl;
 
   timer->StartTimer();
-  int numRenders = 5;
+  int numRenders = 2;
   for (int i = 0; i < numRenders; ++i)
   {
     renderer->GetActiveCamera()->Azimuth(80.0/numRenders);
