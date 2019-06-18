@@ -245,6 +245,19 @@ void vtkProperty::GetColor(double &r, double &g, double &b)
 //----------------------------------------------------------------------------
 void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 {
+  if ((strcmp(name, "albedoTex") == 0 || strcmp(name, "emissiveTex") == 0) &&
+    !tex->GetUseSRGBColorSpace())
+  {
+    vtkErrorMacro("The " << name << " texture is not in sRGB color space.");
+    return;
+  }
+  if ((strcmp(name, "materialTex") == 0 || strcmp(name, "normalTex") == 0) &&
+    tex->GetUseSRGBColorSpace())
+  {
+    vtkErrorMacro("The " << name << " texture is not in linear color space.");
+    return;
+  }
+
   auto iter =
     this->Textures.find(std::string(name));
   if (iter != this->Textures.end())

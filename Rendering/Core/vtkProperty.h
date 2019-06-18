@@ -503,7 +503,8 @@ public:
   /**
    * Set the base color texture. Also called albedo, this texture is only used while rendering
    * with PBR interpolation. This is the color of the object.
-   * @sa SetInterpolationToPBR
+   * This texture must be in sRGB color space.
+   * @sa SetInterpolationToPBR vtkTexture::UseSRGBColorSpaceOn
    */
   void SetBaseColorTexture(vtkTexture* texture) { this->SetTexture("albedoTex", texture); }
 
@@ -512,6 +513,7 @@ public:
    * the Occlusion value, Roughness value and Metallic value respectively.
    * Each texture value is scaled by the Occlusion strength, roughness coefficient and metallic
    * coefficient.
+   * This texture must be in linear color space.
    * This is only used by the PBR shading model.
    * @sa SetInterpolationToPBR SetOcclusionStrength SetMetallic SetRoughness
    */
@@ -522,6 +524,7 @@ public:
    * and Phong interpolation.
    * The normal mapping is enabled if this texture is present and both normals and tangents are
    * presents in the vtkPolyData.
+   * This texture must be in linear color space.
    * @sa vtkPolyDataTangents SetNormalScale
    */
   void SetNormalTexture(vtkTexture* texture) { this->SetTexture("normalTex", texture); }
@@ -530,7 +533,8 @@ public:
    * Set the emissive texture. When present, this RGB texture provides location and color to the
    * shader where the vtkPolyData should emit light. Emited light is scaled by EmissiveFactor.
    * This is only supported by PBR interpolation model.
-   * @sa SetInterpolationToPBR SetEmissiveFactor
+   * This texture must be in sRGB color space.
+   * @sa SetInterpolationToPBR SetEmissiveFactor vtkTexture::UseSRGBColorSpaceOn
    */
   void SetEmissiveTexture(vtkTexture* texture) { this->SetTexture("emissiveTex", texture); }
 

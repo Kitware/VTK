@@ -212,6 +212,7 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     // set albedo texture
     vtkSmartPointer<vtkTexture> baseColorTex;
     baseColorTex = CreateVTKTextureFromGLTFTexture(model, texIndex, existingTextures);
+    baseColorTex->UseSRGBColorSpaceOn();
     property->SetBaseColorTexture(baseColorTex);
 
     // merge ambient occlusion and metallic/roughness, then set material texture
@@ -278,6 +279,7 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     if (emissiveTexIndex >= 0 && emissiveTexIndex < static_cast<int>(model->Textures.size()))
     {
       auto emissiveTex = CreateVTKTextureFromGLTFTexture(model, emissiveTexIndex, existingTextures);
+      emissiveTex->UseSRGBColorSpaceOn();
       property->SetEmissiveTexture(emissiveTex);
     }
     // Set normal map

@@ -190,6 +190,7 @@ struct vtkGLTFDocumentLoader::BufferDataExtractionWorker
   int NumberOfComponents;
   bool Normalized = false;
   bool NormalizeTuples = false;
+  bool LoadTangents = false;
 
   /**
    * Extracts data from a binary buffer into a typed vtk array.
@@ -205,6 +206,12 @@ struct vtkGLTFDocumentLoader::BufferDataExtractionWorker
     }
 
     VTK_ASSUME(output->GetNumberOfComponents() == this->NumberOfComponents);
+
+    if (this->LoadTangents)
+    {
+      output->SetNumberOfComponents(3);
+    }
+
     size_t size = sizeof(Type);
 
     // If a special stride value is not specified, the step size is equal to the size of an
@@ -222,6 +229,10 @@ struct vtkGLTFDocumentLoader::BufferDataExtractionWorker
       // iterate across element components
       for (auto elemIt = it; elemIt != it + this->NumberOfComponents * size; elemIt += size)
       {
+        if (this->LoadTangents && (elemIt - it) == 3 * static_cast<int>(size))
+        {
+          break;
+        }
         Type val;
         std::copy(elemIt, elemIt + size, reinterpret_cast<char*>(&val));
         if (this->Normalized)
@@ -279,6 +290,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
   AccessorType ExpectedType;
   bool NormalizeTuples = false;
   bool Result = false;
+  bool LoadTangents = false;
 
   /**
    * Maps ComponentType value to actual component type, then calls
@@ -356,6 +368,8 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
     worker.Normalized = accessor.Normalized;
     worker.NormalizeTuples = this->NormalizeTuples;
     worker.NumberOfComponents = accessor.NumberOfComponents;
+    worker.LoadTangents = this->LoadTangents;
+
     // Start worker execution
     vtkArrayDispatch::DispatchByValueType<vtkArrayDispatchType>::Execute(output, worker);
   }
@@ -642,6 +656,9 @@ bool vtkGLTFDocumentLoader::ExtractPrimitiveAttributes(Primitive& primitive)
     {
       worker.NormalizeTuples = true;
     }
+
+    worker.LoadTangents = attributePair.first == "TANGENT";
+
     // Read data
     worker.Setup(attributePair.second, accessor.Type);
     vtkArrayDispatch::DispatchByArray<AttributeArrayTypes>::Execute(
@@ -1082,7 +1099,6 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
   if (primitive.AttributeValues.count("TANGENT"))
   {
     primitive.AttributeValues["TANGENT"]->SetName("Tangents");
-    primitive.AttributeValues["TANGENT"]->SetNumberOfComponents(3);
     pointData->SetTangents(primitive.AttributeValues["TANGENT"]);
     primitive.AttributeValues.erase("TANGENT");
   }
