@@ -8,7 +8,7 @@ readonly name="netcdf"
 readonly ownership="netcdf Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/netcdf.git"
-readonly tag="for/vtk-20190607.1-4.7.0"
+readonly tag="for/vtk-20190618-4.7.0"
 readonly paths="
 include/*.h
 include/netcdf_meta.h.in
@@ -18,6 +18,7 @@ liblib/nc_initialize.c
 libsrc/*.h
 libsrc/*.c
 libsrc4/*.c
+libhdf5/*.c
 
 .gitattributes
 CMakeLists.vtk.txt
