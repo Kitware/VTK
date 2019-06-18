@@ -49,8 +49,12 @@ endif ()
 #   dependencies to this variable so that external projects pick them up
 #
 #option (HDF5_EXTERNAL_LIB_PREFIX "Use prefix for custom library naming." "")
+if (FALSE) # XXX(kitware): Hardcode settings.
 set (HDF5_EXTERNAL_LIB_PREFIX "" CACHE STRING "Use prefix for custom library naming.")
 mark_as_advanced (HDF5_EXTERNAL_LIB_PREFIX)
+else ()
+set(HDF5_EXTERNAL_LIB_PREFIX "")
+endif ()
 # HDF5_EXTERNAL_LIB_PREFIX :
 #   If the parent project needs to install hdf libraries, but avoid
 #   name conflicts with system versions, then a prefix may be added
