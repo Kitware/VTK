@@ -360,6 +360,7 @@ macro (HDF_DIR_PATHS package_prefix)
     endif ()
   endif ()
 
+  if (FALSE) # XXX(kitware): VTK handles library naming.
   set (CMAKE_SKIP_BUILD_RPATH  FALSE)
   set (CMAKE_INSTALL_RPATH_USE_LINK_PATH  FALSE)
   set (CMAKE_BUILD_WITH_INSTALL_RPATH ON)
@@ -373,6 +374,7 @@ macro (HDF_DIR_PATHS package_prefix)
     )
   else ()
     set (CMAKE_INSTALL_RPATH "\$ORIGIN/../${${package_prefix}_INSTALL_LIB_DIR}:\$ORIGIN/")
+  endif ()
   endif ()
 
   if (DEFINED ADDITIONAL_CMAKE_PREFIX_PATH AND EXISTS "${ADDITIONAL_CMAKE_PREFIX_PATH}")
