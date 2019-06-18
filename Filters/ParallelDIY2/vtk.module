@@ -2,10 +2,6 @@ NAME
   VTK::FiltersParallelDIY2
 LIBRARY_NAME
   vtkFiltersParallelDIY2
-CONDITION
-  NOT WIN32
-KIT
-  VTK::Parallel
 GROUPS
   MPI
 IMPLEMENTS
@@ -14,14 +10,16 @@ IMPLEMENTS
 DEPENDS
   VTK::FiltersCore
   VTK::FiltersParallel
+OPTIONAL_DEPENDS
+  VTK::ParallelMPI
 PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
-  VTK::IOXML
-  VTK::ImagingCore
-  VTK::ParallelMPI
   VTK::diy2
+  VTK::ImagingCore
+  VTK::IOXML
+  VTK::ParallelCore
 TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersParallelMPI

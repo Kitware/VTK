@@ -25,14 +25,22 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMPI.h"
-#include "vtkMPIController.h"
-#include "vtkMPICommunicator.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkMultiProcessController.h"
+#include "vtkCommunicator.h"
+
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+# include "vtkMPI.h"
+# include "vtkMPIController.h"
+# include "vtkMPICommunicator.h"
+# undef DIY_NO_MPI
+#else
+# define DIY_NO_MPI
+#endif
 
 #include "vtk_diy2.h"   // must include this before any diy header
 #include VTK_DIY2(diy/assigner.hpp)
@@ -473,11 +481,15 @@ void Redistribute(void* blockp, const diy::ReduceProxy& srp,
 
 
 //----------------------------------------------------------------------------
-inline diy::mpi::communicator GetDiyCommunicator(vtkMPIController *controller)
+inline diy::mpi::communicator GetDiyCommunicator(vtkMultiProcessController* controller)
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkMPICommunicator *vtkcomm = vtkMPICommunicator::SafeDownCast(
     controller->GetCommunicator());
   return diy::mpi::communicator(*vtkcomm->GetMPIComm()->GetHandle());
+#else
+  return diy::mpi::communicator();
+#endif
 }
 
 } // anonymous namespace
@@ -511,8 +523,7 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
                                      vtkInformationVector **inputVector,
                                      vtkInformationVector *outputVector)
 {
-  vtkMPIController *mpiCont = vtkMPIController::SafeDownCast(this->Controller);
-  if (!mpiCont || mpiCont->GetNumberOfProcesses() == 1)
+  if (!this->Controller || this->Controller->GetNumberOfProcesses() == 1)
   {
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }
@@ -527,7 +538,7 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
 
-  diy::mpi::communicator comm = GetDiyCommunicator(mpiCont);
+  diy::mpi::communicator comm = GetDiyCommunicator(this->Controller);
 
   double localBounds[6];
   ComputeDataBounds(input, localBounds);
