@@ -182,7 +182,7 @@ inline void SerializeFieldData(vtkFieldData *field, vtkIdType tuple,
   for (int i = 0; i < numFields; ++i)
   {
     vtkDataArray *da = field->GetArray(i);
-    std::size_t numComponents = static_cast<std::size_t>(da->GetNumberOfComponents());
+    int numComponents = da->GetNumberOfComponents();
     SerializeWorklet worklet(tuple, numComponents, bb);
     if (!vtkArrayDispatch::Dispatch::Execute(da, worklet))
     {
@@ -224,7 +224,7 @@ inline void DeserializeFieldData(diy::MemoryBuffer &bb, vtkFieldData *field,
   for (int i = 0; i < numFields; ++i)
   {
     vtkDataArray *da = field->GetArray(i);
-    std::size_t numComponents = static_cast<std::size_t>(da->GetNumberOfComponents());
+    int numComponents = da->GetNumberOfComponents();
     DeserializeWorklet worklet(tuple, numComponents, bb);
     if (!vtkArrayDispatch::Dispatch::Execute(da, worklet))
     {

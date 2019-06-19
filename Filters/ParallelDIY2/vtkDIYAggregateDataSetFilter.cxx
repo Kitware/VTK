@@ -399,7 +399,7 @@ int vtkDIYAggregateDataSetFilter::MoveData(int inputExtent[6], int wholeExtent[6
     counter++;
   }
 
-  controller->WaitAll(sizeReceiveRequests.size(), sizeReceiveRequests.data());
+  controller->WaitAll(static_cast<int>(sizeReceiveRequests.size()), sizeReceiveRequests.data());
   std::vector<vtkMPICommunicator::Request> dataReceiveRequests(
     processesIReceiveFrom->GetNumberOfIds());
   std::vector<unsigned char*> dataArrays;
@@ -432,7 +432,7 @@ int vtkDIYAggregateDataSetFilter::MoveData(int inputExtent[6], int wholeExtent[6
     controller->NoBlockSend(sendData[counter].data(), size, it.first, 9319, dataSendRequests[counter]);
     counter++;
   }
-  controller->WaitAll(dataReceiveRequests.size(), dataReceiveRequests.data());
+  controller->WaitAll(static_cast<int>(dataReceiveRequests.size()), dataReceiveRequests.data());
 
   receivedDataSets.resize(processesIReceiveFrom->GetNumberOfIds());
   for (vtkIdType i = 0; i < processesIReceiveFrom->GetNumberOfIds(); i++)
@@ -449,8 +449,8 @@ int vtkDIYAggregateDataSetFilter::MoveData(int inputExtent[6], int wholeExtent[6
   }
 
   // wait on messages to make sure that we don't interfere with any future use of this filter
-  controller->WaitAll(sizeSendRequests.size(), sizeSendRequests.data());
-  controller->WaitAll(dataSendRequests.size(), dataSendRequests.data());
+  controller->WaitAll(static_cast<int>(sizeSendRequests.size()), sizeSendRequests.data());
+  controller->WaitAll(static_cast<int>(dataSendRequests.size()), dataSendRequests.data());
 
   return 1;
 }

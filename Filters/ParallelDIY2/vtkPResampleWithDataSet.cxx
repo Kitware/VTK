@@ -241,7 +241,7 @@ public:
 
         Node n;
         n.BinId = bin[0] + this->NumBins[0]*bin[1] + this->NumBins[0]*this->NumBins[1]*bin[2];
-        n.Pt.BlockId = i;
+        n.Pt.BlockId = static_cast<int>(i);
         n.Pt.PointId = j;
         std::copy(pos, pos + 3, n.Pt.Position);
         this->Nodes.push_back(n);
@@ -384,7 +384,7 @@ public:
 
         Point pt;
         pt.PointId = j;
-        pt.BlockId = i;
+        pt.BlockId = static_cast<int>(i);
         std::copy(pos, pos + 3, pt.Position);
         this->Nodes.push_back(pt);
 
@@ -416,8 +416,8 @@ public:
       tag |= (this->Bounds[2*i + 1] <= bounds[2*i + 1]) ? (1<<(2*i + 1)) : 0;
     }
 
-    vtkIdType numPoints = this->Nodes.size();
-    vtkIdType splitSize = this->Splits.size();
+    vtkIdType numPoints = static_cast<vtkIdType>(this->Nodes.size());
+    vtkIdType splitSize = static_cast<vtkIdType>(this->Splits.size());
     this->RecursiveSearch(bounds, &this->Nodes[0], &this->Nodes[numPoints],
                           &this->Splits[0], &this->Splits[splitSize], 0, tag,
                           points);
@@ -618,7 +618,7 @@ void FindNeighbors(diy::mpi::communicator comm,
         if (ds)
         {
           const double *ibounds = ds->GetBounds();
-          if ((intersects = vtkBoundingBox(sbounds).Intersects(ibounds)) == true)
+          if ((intersects = (vtkBoundingBox(sbounds).Intersects(ibounds) == 1)) == true)
           {
             break;
           }
@@ -1006,7 +1006,7 @@ private:
 void ReceiveResampledPoints(DiyBlock *block, const diy::Master::ProxyWithLink &cp,
                             const char *maskArrayName)
 {
-  int numBlocks = block->InputBlocks.size();
+  int numBlocks = static_cast<int>(block->InputBlocks.size());
   std::vector<std::map<std::string, int> > arrayReceiveCounts(numBlocks);
 
   diy::Master::IncomingQueues &in = *cp.incoming();
