@@ -117,6 +117,22 @@ public:
   //@}
 
   /**
+   * Return the closest point and the cell which is closest to the point x.
+   * The closest point is somewhere on a cell, it need not be one of the
+   * vertices of the cell.  This version takes in a vtkGenericCell
+   * to avoid allocating and deallocating the cell.  This is much faster than
+   * the version which does not take a *cell, especially when this function is
+   * called many times in a row such as by a for loop, where the allocation and
+   * deallocation can be done only once outside the for loop.  If a cell is
+   * found, "cell" contains the points and ptIds for the cell "cellId" upon
+   * exit.
+   */
+  void FindClosestPoint(
+    const double x[3], double closestPoint[3],
+    vtkGenericCell *cell, vtkIdType &cellId,
+    int &subId, double& dist2) override;
+
+  /**
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line. The cell is returned as a cell id and as a generic cell.
    */
