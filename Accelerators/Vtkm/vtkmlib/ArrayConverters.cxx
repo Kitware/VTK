@@ -13,14 +13,13 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
-#include "ArrayConverters.h"
+#include "ArrayConverters.hxx"
 
 #include "Storage.h"
 #include "vtkmDataArray.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/ArrayHandleVirtual.h>
 #include <vtkm/cont/CoordinateSystem.hxx>
 #include <vtkm/cont/DataSet.h>
 
@@ -30,7 +29,6 @@
 #include "vtkDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkTypedDataArray.h"
 
 namespace tovtkm {
 
@@ -70,142 +68,6 @@ void ProcessFields(vtkDataSet *input, vtkm::cont::DataSet &dataset,
       dataset.AddField(cfield);
     }
   }
-}
-
-template <typename DataArrayType>
-vtkm::cont::Field ConvertPointField(DataArrayType* input)
-{
-  typedef typename DataArrayType::ValueType ValueType;
-  typedef
-      typename tovtkm::ArrayContainerTagType<DataArrayType>::TagType TagType;
-  // We know the ValueType now, so all that is left is to deduce
-  // the number of components
-  int numComps = input->GetNumberOfComponents();
-  std::string name(input->GetName());
-  switch (numComps)
-  {
-  case 1:
-  {
-    typedef ValueType VType;
-    typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
-    StorageType storage(input);
-    vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::VariantArrayHandle vhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, vhandle);
-  }
-  case 2:
-  {
-    typedef vtkm::Vec<ValueType, 2> VType;
-    typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
-    StorageType storage(input);
-    vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::VariantArrayHandle vhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, vhandle);
-  }
-  case 3:
-  {
-    typedef vtkm::Vec<ValueType, 3> VType;
-    typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
-    StorageType storage(input);
-    vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::VariantArrayHandle vhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, vhandle);
-  }
-  case 4:
-  {
-    typedef vtkm::Vec<ValueType, 4> VType;
-    typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
-    StorageType storage(input);
-    vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::VariantArrayHandle vhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, vhandle);
-  }
-  default:
-    break;
-  }
-  return vtkm::cont::Field();
-}
-
-template <typename DataArrayType>
-vtkm::cont::Field ConvertCellField(DataArrayType* input)
-{
-  typedef typename DataArrayType::ValueType ValueType;
-  typedef
-      typename tovtkm::ArrayContainerTagType<DataArrayType>::TagType TagType;
-  // We know the ValueType now, so all that is left is to deduce
-  // the number of components
-  int numComps = input->GetNumberOfComponents();
-  std::string name(input->GetName());
-
-  // todo: FIX-ME
-  // currently you can't get the name of a dynamic cell set so we just use
-  // the default name
-  // cellset.CastAndCall();
-  std::string cname("cells");
-  switch (numComps)
-  {
-  case 1:
-  {
-    typedef ValueType VType;
-    typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
-    StorageType storage(input);
-    vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::VariantArrayHandle vhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
-                             vhandle);
-  }
-  case 2:
-  {
-    typedef vtkm::Vec<ValueType, 2> VType;
-    typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
-    StorageType storage(input);
-    vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::VariantArrayHandle vhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
-                             vhandle);
-  }
-  case 3:
-  {
-    typedef vtkm::Vec<ValueType, 3> VType;
-    typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
-    StorageType storage(input);
-    vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::VariantArrayHandle vhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
-                             vhandle);
-  }
-  case 4:
-  {
-    typedef vtkm::Vec<ValueType, 4> VType;
-    typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
-    StorageType storage(input);
-    vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::VariantArrayHandle vhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
-                             vhandle);
-  }
-  default:
-    break;
-  }
-  return vtkm::cont::Field();
-}
-
-template <typename DataArrayType>
-vtkm::cont::Field Convert(DataArrayType* input, int association)
-{
-  // we need to switch on if we are a cell or point field first!
-  // The problem is that the constructor signature for fields differ based
-  // on if they are a cell or point field.
-  if (association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-  {
-    return ConvertPointField(input);
-  }
-  else if (association == vtkDataObject::FIELD_ASSOCIATION_CELLS)
-  {
-    return ConvertCellField(input);
-  }
-
-  return vtkm::cont::Field();
 }
 
 template <typename T>

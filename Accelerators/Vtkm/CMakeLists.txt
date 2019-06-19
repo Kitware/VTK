@@ -17,13 +17,17 @@
 list(INSERT 0 CMAKE_MODULE_PATH
   "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
 
-set(sources)
+set(sources
+  vtkmlib/ArrayConvertersReal.cxx
+  vtkmlib/ArrayConvertersSigned.cxx
+  vtkmlib/ArrayConvertersUnsigned.cxx)
 
 set(headers
   vtkmFilterPolicy.h
   vtkmTags.h)
 
 set(private_headers
+  vtkmlib/ArrayConverters.hxx
   vtkmlib/DataSetConverters.h
   vtkmlib/Portals.hxx
   vtkmlib/PortalTraits.h
