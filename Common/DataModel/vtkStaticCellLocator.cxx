@@ -31,6 +31,8 @@
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 
+#include <queue>
+
 vtkStandardNewMacro(vtkStaticCellLocator);
 
 //----------------------------------------------------------------------------
@@ -142,12 +144,25 @@ struct vtkCellBinner
     ijk[2] = (ijk[2] < 0 ? 0 : (ijk[2] >= zD ? zD-1 : ijk[2]));
   }
 
+  void GetBinIndices(vtkIdType binId, int ijk[3]) const
+  {
+    ijk[0] = binId % xD;
+    vtkIdType tmp = binId / xD;
+    ijk[1] = tmp % yD;
+    ijk[2] = tmp / yD;
+  }
+
   // Given a point x, determine which bin it is in. Note that points
   // are clamped to lie inside of the locator.
   vtkIdType GetBinIndex(const double *x) const
   {
     int ijk[3];
     this->GetBinIndices(x, ijk);
+    return ijk[0] + ijk[1]*xD + ijk[2]*xyD;
+  }
+
+  vtkIdType GetBinIndex(int ijk[3]) const
+  {
     return ijk[0] + ijk[1]*xD + ijk[2]*xyD;
   }
 
@@ -269,6 +284,10 @@ struct vtkCellProcessor
                                 double& t, double x[3], double pcoords[3],
                                 int &subId, vtkIdType &cellId,
                                 vtkGenericCell *cell) = 0;
+  virtual void FindClosestPoint(const double x[3], double closestPoint[3],
+                                vtkGenericCell *cell, vtkIdType &cellId,
+                                int &subId, double& dist2) = 0;
+
   // Convenience for computing
   virtual int IsEmpty(vtkIdType binId) = 0;
 };
@@ -350,6 +369,9 @@ struct CellProcessor : public vtkCellProcessor
                                 double& t, double x[3], double pcoords[3],
                                 int &subId, vtkIdType &cellId,
                                 vtkGenericCell *cell) override;
+  void FindClosestPoint(const double x[3], double closestPoint[3],
+                                vtkGenericCell *cell, vtkIdType &cellId,
+                                int &subId, double& dist2) override;
   int IsEmpty(vtkIdType binId) override
   {
     return ( this->GetNumberOfIds(static_cast<T>(binId)) > 0 ? 0 : 1 );
@@ -900,6 +922,210 @@ FindCellsAlongPlane(const double o[3], const double n[3], double vtkNotUsed(tol)
   delete [] cellHasBeenVisited;
 }
 
+//
+//----------------------------------------------------------------------------
+// Calculate the distance between the point x and the specified bounds
+//
+// WARNING!!!!! Be very careful altering this routine.  Simple changes to this
+// routine can make it 25% slower!!!!
+// Return closest point (if any) AND the cell on which this closest point lies
+double Distance2ToBounds(const double x[3], double bounds[6])
+{
+  double distance;
+  double deltas[3];
+
+  // Are we within the bounds?
+  if (x[0] >= bounds[0] && x[0] <= bounds[1]
+    && x[1] >= bounds[2] && x[1] <= bounds[3]
+    && x[2] >= bounds[4] && x[2] <= bounds[5])
+  {
+    return 0.0;
+  }
+
+  deltas[0] = deltas[1] = deltas[2] = 0.0;
+
+  // dx
+  //
+  if (x[0] < bounds[0])
+  {
+    deltas[0] = bounds[0] - x[0];
+  }
+  else if (x[0] > bounds[1])
+  {
+    deltas[0] = x[0] - bounds[1];
+  }
+
+  // dy
+  //
+  if (x[1] < bounds[2])
+  {
+    deltas[1] = bounds[2] - x[1];
+  }
+  else if (x[1] > bounds[3])
+  {
+    deltas[1] = x[1] - bounds[3];
+  }
+
+  // dz
+  //
+  if (x[2] < bounds[4])
+  {
+    deltas[2] = bounds[4] - x[2];
+  }
+  else if (x[2] > bounds[5])
+  {
+    deltas[2] = x[2] - bounds[5];
+  }
+
+  distance = vtkMath::Dot(deltas, deltas);
+  return distance;
+}
+
+//-----------------------------------------------------------------------------
+// Return closest point (if any) AND the cell on which this closest point lies
+template <typename T> void CellProcessor<T>::
+FindClosestPoint(const double x[3], double closestPoint[3],
+                    vtkGenericCell *cell, vtkIdType &closestCellId,
+                    int &closestSubId, double& minDist2)
+{
+  std::vector<bool> binHasBeenQueued(this->NumBins, false);
+  std::vector<bool> cellHasBeenVisited(this->NumCells, false);
+  std::vector<double> weights(6);
+  double pcoords[3], point[3], bds[6];
+  double distance2ToCellBounds, dist2;
+  int subId;
+  int ijk[3];
+
+  using node = std::pair<double, vtkIdType>;
+  std::priority_queue< node, std::vector<node>, std::greater<node> > queue;
+
+  // first get ijk containing point
+  vtkIdType binId = this->Binner->GetBinIndex(x);
+  queue.push( std::make_pair(0.0, binId) );
+  binHasBeenQueued[binId] = true;
+
+  // distance to closest point
+  minDist2 = VTK_DOUBLE_MAX;
+
+  while (!queue.empty())
+  {
+    binId = queue.top().second;
+    double binDist2 = queue.top().first;
+    queue.pop();
+
+    // stop if bounding box is further away than current closest point
+    if (binDist2 > minDist2)
+    {
+      break;
+    }
+
+    // compute distance to cells in bin, if any
+    T numIds = this->GetNumberOfIds(binId);
+    if (numIds >= 1)
+    {
+      const CellFragments<T> *cellIds = this->GetIds(binId);
+      double *bounds;
+      vtkIdType cellId;
+
+      for (int j=0; j < numIds; j++)
+      {
+        cellId = cellIds[j].CellId;
+
+        // skip if cell was already visited
+        if (cellHasBeenVisited[cellId])
+        {
+          continue;
+        }
+        cellHasBeenVisited[cellId] = true;
+
+        // compute distance to cell bounding box
+        if (this->CellBounds)
+        {
+          bounds = this->CellBounds + 6*cellId;
+        }
+        else
+        {
+          this->DataSet->GetCellBounds(cellId,bds);
+          bounds = bds;
+        }
+        distance2ToCellBounds = Distance2ToBounds(x, bounds);
+
+        // compute distance to cell only if distance to bounding box smaller than minDist2
+        if (distance2ToCellBounds < minDist2)
+        {
+          this->DataSet->GetCell(cellId, cell);
+
+          // make sure we have enough storage space for the weights
+          vtkIdType nPoints = cell->GetPointIds()->GetNumberOfIds();
+          if (nPoints > weights.size())
+          {
+            weights.resize(2*nPoints);
+          }
+
+          // evaluate the position to find the closest point
+          // stat==(-1) is numerical error; stat==0 means outside;
+          // stat=1 means inside. However, for real world performance,
+          // we sometime select stat==0 cells if the distance is close
+          // enough
+          int stat = cell->EvaluatePosition(x, point, subId, pcoords, dist2, weights.data());
+
+          if (stat != -1 && dist2 < minDist2)
+          {
+            minDist2 = dist2;
+            closestCellId = cellId;
+            closestSubId = subId;
+            closestPoint[0] = point[0];
+            closestPoint[1] = point[1];
+            closestPoint[2] = point[2];
+          }
+        }
+      }
+    }
+
+    // queue neighbors, if they are not already processed
+    this->Binner->GetBinIndices(binId, ijk);
+    int ijkLo[3] = {
+      std::max(ijk[0]-1, 0),
+      std::max(ijk[1]-1, 0),
+      std::max(ijk[2]-1, 0)};
+    int ijkHi[3] = {
+      std::min(ijk[0]+1, this->Binner->Divisions[0]-1),
+      std::min(ijk[1]+1, this->Binner->Divisions[1]-1),
+      std::min(ijk[2]+1, this->Binner->Divisions[2]-1)};
+
+    for (ijk[0]=ijkLo[0]; ijk[0]<=ijkHi[0]; ++ijk[0])
+    {
+      for (ijk[1]=ijkLo[1]; ijk[1]<=ijkHi[1]; ++ijk[1])
+      {
+        for (ijk[2]=ijkLo[2]; ijk[2]<=ijkHi[2]; ++ijk[2])
+        {
+          binId = this->Binner->GetBinIndex(ijk);
+          if (!binHasBeenQueued[binId])
+          {
+            binHasBeenQueued[binId] = true;
+
+            // get bin bounding box
+            bds[0] = this->Binner->Bounds[0] + ijk[0]*this->Binner->hX;
+            bds[2] = this->Binner->Bounds[2] + ijk[1]*this->Binner->hY;
+            bds[4] = this->Binner->Bounds[3] + ijk[2]*this->Binner->hZ;
+            bds[1] = bds[0] + this->Binner->hX;
+            bds[3] = bds[2] + this->Binner->hY;
+            bds[5] = bds[4] + this->Binner->hZ;
+
+            // compute distance to box
+            distance2ToCellBounds = Distance2ToBounds(x, bds);
+
+            // add to queue
+            queue.push( std::make_pair(distance2ToCellBounds, binId) );
+          }
+        }
+      }
+    }
+  }
+
+  // any post-processing? don't think so.
+}
+
 //-----------------------------------------------------------------------------
 // This code traverses the cell locator by following the intersection ray. As
 // each bin is intersected, the cells contained in the bin are
@@ -1140,6 +1366,19 @@ FindCell(double pos[3], double, vtkGenericCell *cell,
   return this->Processor->FindCell(pos,cell,pcoords,weights);
 }
 
+//----------------------------------------------------------------------------
+void vtkStaticCellLocator::
+FindClosestPoint(const double x[3], double closestPoint[3],
+         vtkGenericCell *cell, vtkIdType &cellId,
+         int &subId, double& dist2)
+{
+  this->BuildLocator();
+  if ( ! this->Processor )
+  {
+    return;
+  }
+  this->Processor->FindClosestPoint(x,closestPoint,cell,cellId,subId,dist2);
+}
 
 //-----------------------------------------------------------------------------
 void vtkStaticCellLocator::
