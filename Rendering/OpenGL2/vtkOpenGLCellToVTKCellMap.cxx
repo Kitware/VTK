@@ -86,18 +86,14 @@ void vtkOpenGLCellToVTKCellMap::BuildPrimitiveOffsetsIfNeeded(
   // otherwise compute some conservative values
   // verts
   this->PrimitiveOffsets[0] = this->StartOffset;
-  this->CellMapSizes[0] =
-    prims[0]->GetNumberOfConnectivityEntries() -
-    prims[0]->GetNumberOfCells();
+  this->CellMapSizes[0] = prims[0]->GetNumberOfConnectivityIds();
 
   // point rep is easy for all prims
   if (representation == VTK_POINTS)
   {
     for (int j = 1; j < 4; j++)
     {
-      this->CellMapSizes[j] =
-        prims[j]->GetNumberOfConnectivityEntries() -
-        prims[j]->GetNumberOfCells();
+      this->CellMapSizes[j] = prims[j]->GetNumberOfConnectivityIds();
       this->PrimitiveOffsets[j] = this->PrimitiveOffsets[j-1] + this->CellMapSizes[j-1];
     }
     return;
@@ -105,22 +101,18 @@ void vtkOpenGLCellToVTKCellMap::BuildPrimitiveOffsetsIfNeeded(
 
   // lines
   this->CellMapSizes[1] =
-    prims[1]->GetNumberOfConnectivityEntries() -
-    2*prims[1]->GetNumberOfCells();
+      prims[1]->GetNumberOfConnectivityIds() - prims[1]->GetNumberOfCells();
   this->PrimitiveOffsets[1] = this->PrimitiveOffsets[0] + this->CellMapSizes[0];
 
   if (representation == VTK_WIREFRAME)
   {
     // polys
-    this->CellMapSizes[2] =
-      prims[2]->GetNumberOfConnectivityEntries() -
-      prims[2]->GetNumberOfCells();
+    this->CellMapSizes[2] = prims[2]->GetNumberOfConnectivityIds();
     this->PrimitiveOffsets[2] = this->PrimitiveOffsets[1] + this->CellMapSizes[1];
 
     // strips
     this->CellMapSizes[3] =
-      2*prims[3]->GetNumberOfConnectivityEntries() -
-      5*prims[3]->GetNumberOfCells();
+      2*prims[3]->GetNumberOfConnectivityIds() - 3*prims[3]->GetNumberOfCells();
     this->PrimitiveOffsets[3] = this->PrimitiveOffsets[2] + this->CellMapSizes[2];
 
     return;
@@ -130,14 +122,12 @@ void vtkOpenGLCellToVTKCellMap::BuildPrimitiveOffsetsIfNeeded(
 
   // polys
   this->CellMapSizes[2] =
-    prims[2]->GetNumberOfConnectivityEntries() -
-    3*prims[2]->GetNumberOfCells();
+    prims[2]->GetNumberOfConnectivityIds() - 2*prims[2]->GetNumberOfCells();
   this->PrimitiveOffsets[2] = this->PrimitiveOffsets[1] + this->CellMapSizes[1];
 
   // strips
   this->CellMapSizes[3] =
-    prims[3]->GetNumberOfConnectivityEntries() -
-    3*prims[3]->GetNumberOfCells();
+    prims[3]->GetNumberOfConnectivityIds() - 2*prims[3]->GetNumberOfCells();
   this->PrimitiveOffsets[3] = this->PrimitiveOffsets[2] + this->CellMapSizes[2];
 }
 
@@ -160,7 +150,7 @@ void vtkOpenGLCellToVTKCellMap::BuildCellSupportArrays(
                    prims[1]->GetNumberOfCells() +
                    prims[2]->GetNumberOfCells() +
                    prims[3]->GetNumberOfCells();
-  vtkIdType* indices(nullptr);
+  const vtkIdType* indices(nullptr);
   vtkIdType npts(0);
 
   // make sure we have at least minSize

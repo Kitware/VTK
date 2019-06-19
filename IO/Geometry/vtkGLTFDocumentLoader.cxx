@@ -112,7 +112,7 @@ void GenerateIndicesForPrimitive(vtkGLTFDocumentLoader::Primitive& primitive)
     primitive.Mode == vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_STRIP ||
     primitive.Mode == vtkGLTFDocumentLoaderInternals::GL_LINE_LOOP)
   {
-    primitive.Indices->Allocate(1);
+    primitive.Indices->AllocateEstimate(1, 1);
     std::vector<vtkIdType> cell(nVert);
     // Append all indices
     std::iota(cell.begin(), cell.end(), 0);
@@ -125,7 +125,7 @@ void GenerateIndicesForPrimitive(vtkGLTFDocumentLoader::Primitive& primitive)
   else
   {
     vtkIdType nCells = GetNumberOfCellsForPrimitive(primitive.Mode, primitive.CellSize, nVert);
-    primitive.Indices->Allocate(nCells);
+    primitive.Indices->AllocateEstimate(nCells, 1);
     std::vector<vtkIdType> cell(primitive.CellSize, 0);
     for (int cellId = 0; cellId < nCells; cellId++)
     {
@@ -503,7 +503,7 @@ void ExtractAndCastCellBufferData(const std::vector<char>& inbuf,
 
   // Preallocate cells
   vtkIdType nCells = GetNumberOfCellsForPrimitive(mode, numberOfComponents, count);
-  output->Allocate(nCells);
+  output->AllocateEstimate(nCells, 1);
 
   std::vector<vtkIdType> currentCell(cellSize);
 
@@ -1062,7 +1062,6 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
       break;
     case vtkGLTFDocumentLoaderInternals::GL_TRIANGLE_STRIP:
       primitive.Geometry->SetStrips(primitive.Indices);
-      primitive.Indices->SetNumberOfCells(1);
       break;
     default:
       vtkWarningMacro("Invalid primitive draw mode. Ignoring connectivity.");

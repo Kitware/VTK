@@ -425,23 +425,23 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
       normal[2] = 0.0;
     }
 
-    vtkIdType polyIndex = 0;
-    vtkIdType stripIndex = 0;
+    vtkIdType polyCellId = 0;
+    vtkIdType stripCellId = 0;
     for (vtkIdType i = 0; i < numCells; i++)
     {
-      vtkIdType *pointIds;
+      const vtkIdType *pointIds;
       vtkIdType numIds;
       vtkIdType numFaces = 1;
 
       if (i < numPolys)
       {
-        polyArray->GetCell(polyIndex, numIds, pointIds);
-        polyIndex += 1 + numIds;
+        polyArray->GetCellAtId(polyCellId, numIds, pointIds);
+        ++polyCellId;
       }
       else
       {
-        stripArray->GetCell(stripIndex, numIds, pointIds);
-        stripIndex += 1 + numIds;
+        stripArray->GetCellAtId(stripCellId, numIds, pointIds);
+        ++stripCellId;
         numFaces = numIds - 2;
         numIds = 3;
       }
@@ -689,20 +689,17 @@ int vtkMNIObjectWriter::WriteCells(vtkPolyData *data, int cellType)
   if (cellArray)
   {
     vtkIdType numCells = cellArray->GetNumberOfCells();
-    vtkIdType numCellIndices = (cellArray->GetNumberOfConnectivityEntries()
-                                - numCells);
+    vtkIdType numCellIndices = cellArray->GetNumberOfConnectivityIds();
 
     endIndices->Allocate(numCells);
     cellIndices->Allocate(numCellIndices);
 
-    vtkIdType cellIndex = 0;
     vtkIdType endIndex = 0;
     for (vtkIdType i = 0; i < numCells; i++)
     {
-      vtkIdType *pointIds;
+      const vtkIdType *pointIds;
       vtkIdType numIds;
-      cellArray->GetCell(cellIndex, numIds, pointIds);
-      cellIndex += 1 + numIds;
+      cellArray->GetCellAtId(i, numIds, pointIds);
 
       endIndex += numIds;
       endIndices->InsertNextValue(endIndex);
@@ -719,7 +716,6 @@ int vtkMNIObjectWriter::WriteCells(vtkPolyData *data, int cellType)
     cellArray = data->GetStrips();
     vtkIdType numCells = cellArray->GetNumberOfCells();
 
-    vtkIdType cellIndex = 0;
     vtkIdType endIndex = 0;
     if (endIndices->GetMaxId() >= 0)
     {
@@ -727,10 +723,9 @@ int vtkMNIObjectWriter::WriteCells(vtkPolyData *data, int cellType)
     }
     for (vtkIdType i = 0; i < numCells; i++)
     {
-      vtkIdType *pointIds;
+      const vtkIdType *pointIds;
       vtkIdType numIds;
-      cellArray->GetCell(cellIndex, numIds, pointIds);
-      cellIndex += 1 + numIds;
+      cellArray->GetCellAtId(i, numIds, pointIds);
 
       int inc1 = 2;
       int inc2 = 1;
@@ -822,8 +817,8 @@ int vtkMNIObjectWriter::WritePolygonObject(vtkPolyData *output)
   vtkIdType numStrips = output->GetNumberOfStrips();
   if (numStrips > 0)
   {
-    numPolys += (output->GetStrips()->GetNumberOfConnectivityEntries()
-                 - 3*numStrips);
+    numPolys += (output->GetStrips()->GetNumberOfConnectivityIds()
+                 - 2*numStrips);
   }
   if (this->WriteIdValue(numPolys) == 0)
   {

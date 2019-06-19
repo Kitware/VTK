@@ -94,7 +94,7 @@ int vtkPSphereSource::RequestData(
   newNormals->Allocate(3*numPts);
 
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numPolys, 3));
+  newPolys->AllocateEstimate(numPolys, 3);
   //
   // Create sphere
   //

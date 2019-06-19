@@ -207,7 +207,7 @@ int vtkMCubesReader::RequestData(
   newPts = vtkPoints::New();
   newPts->Allocate(numPts/3,numPts/3);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numTris,3));
+  newPolys->AllocateEstimate(numTris, 3);
 
   if ( this->Normals )
   {

@@ -240,7 +240,7 @@ int vtkSuperquadricSource::RequestData(
   newTCoords->SetName("TextureCoords");
 
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numStrips,ptsPerStrip));
+  newPolys->AllocateEstimate(numStrips, ptsPerStrip);
 
   // generate!
   for(iq = 0; iq < phiSegs; iq++)

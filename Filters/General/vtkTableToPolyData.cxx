@@ -163,7 +163,7 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   {
     ptIds[cc] = cc;
   }
-  output->Allocate(1);
+  output->AllocateEstimate(1, 1);
   output->InsertNextCell(VTK_POLY_VERTEX, numPts, ptIds);
   delete [] ptIds;
 

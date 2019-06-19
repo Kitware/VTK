@@ -120,7 +120,11 @@ int vtkSelectPolyData::RequestData(
   vtkPoints *inPts;
   int numNei;
   vtkIdType id, currentId = 0, nextId, pt1, pt2, numCells, neiId;
-  vtkIdType *cells, *pts, npts, numMeshLoopPts, prevId;
+  vtkIdType *cells;
+  const vtkIdType *pts;
+  vtkIdType npts;
+  vtkIdType numMeshLoopPts;
+  vtkIdType prevId;
   vtkIdType ncells;
   int mark, s1, s2, val;
 
@@ -281,7 +285,7 @@ int vtkSelectPolyData::RequestData(
   // mainly for debugging
   numMeshLoopPts = edgeIds->GetNumberOfIds();
   vtkCellArray *selectionEdges=vtkCellArray::New();
-  selectionEdges->Allocate(selectionEdges->EstimateSize(1,numMeshLoopPts),100);
+  selectionEdges->AllocateEstimate(1, numMeshLoopPts);
   selectionEdges->InsertNextCell(numMeshLoopPts);
   for (i=0; i<numMeshLoopPts; i++)
   {
@@ -455,7 +459,7 @@ int vtkSelectPolyData::RequestData(
   if ( ! this->GenerateSelectionScalars )
   {//spit out all the negative cells
     vtkCellArray *newPolys=vtkCellArray::New();
-    newPolys->Allocate(numCells/2, numCells/2);
+    newPolys->AllocateEstimate(numCells/2, numCells/2);
     for (i=0; i< numCells; i++)
     {
       if ( (cellMarks->GetValue(i) < 0) ||
@@ -473,7 +477,7 @@ int vtkSelectPolyData::RequestData(
     if ( this->GenerateUnselectedOutput )
     {
       vtkCellArray *unPolys=vtkCellArray::New();
-      unPolys->Allocate(numCells/2, numCells/2);
+      unPolys->AllocateEstimate(numCells/2, numCells/2);
       for (i=0; i< numCells; i++)
       {
         if ( (cellMarks->GetValue(i) >= 0) || this->InsideOut )
@@ -595,7 +599,9 @@ void vtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
 {
   vtkIdType ncells;
   int i, j;
-  vtkIdType *cells, *pts, npts;
+  vtkIdType *cells;
+  const vtkIdType *pts;
+  vtkIdType npts;
 
   nei->Reset();
   this->Mesh->GetPointCells(ptId, ncells, cells);

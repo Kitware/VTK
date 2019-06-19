@@ -11,6 +11,8 @@
 
 #include "vtkCellData.h"
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
+#include "vtkCellTypes.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
@@ -24,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridGeometryFilter.h"
 
@@ -197,16 +200,15 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
   vtkCellArray *newLines;
   vtkCellArray *newPolys;
   vtkPoints *newPts;
-  vtkIdType *ids;
+  const vtkIdType *ids;
   int progressCount;
-  vtkIdType cellId;
   int i, j;
-  vtkIdType *cellPointer;
   int cellType;
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType numCells=input->GetNumberOfCells();
   vtkGenericCell *cell;
-  int numFacePts, numCellPts;
+  int numFacePts;
+  vtkIdType numCellPts;
   vtkIdType inPtId, outPtId;
   vtkPointData *inputPD = input->GetPointData();
   vtkCellData *inputCD = input->GetCellData();
@@ -248,7 +250,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
   newPts->SetDataType(input->GetPoints()->GetData()->GetDataType());
   newPts->Allocate(numPts);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(4*numCells,numCells/2);
+  newPolys->AllocateEstimate(numCells, 3);
   newVerts = vtkCellArray::New();
   newLines = vtkCellArray::New();
 
@@ -278,15 +280,16 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
   }
 
   // First insert all points.  Points have to come first in poly data.
-  cellPointer = input->GetCells()->GetPointer();
-  for(cellId=0; cellId < numCells; cellId++)
+  auto cellIter = vtkSmartPointer<vtkCellArrayIterator>::Take(
+        input->GetCells()->NewIterator());
+  for (cellIter->GoToFirstCell();
+       !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell())
   {
-    // Direct access to cells.
+    const vtkIdType cellId = cellIter->GetCurrentCellId();
+    cellIter->GetCurrentCell(numCellPts, ids);
+
     cellType = cellTypes[cellId];
-    numCellPts = cellPointer[0];
-    ids = cellPointer+1;
-    // Move to the next cell.
-    cellPointer += (1 + *cellPointer);
 
     // A couple of common cases to see if things go faster.
     if (cellType == VTK_VERTEX || cellType == VTK_POLY_VERTEX)
@@ -312,9 +315,12 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
   // First insert all points lines in output and 3D geometry in hash.
   // Save 2D geometry for second pass.
   // initialize the pointer to the cells for fast traversal.
-  cellPointer = input->GetCells()->GetPointer();
-  for(cellId=0; cellId < numCells && !abort; cellId++)
+  for (cellIter->GoToFirstCell();
+       !cellIter->IsDoneWithTraversal() && !abort;
+       cellIter->GoToNextCell())
   {
+    const vtkIdType cellId = cellIter->GetCurrentCellId();
+
     //Progress and abort method support
     if ( progressCount >= progressInterval )
     {
@@ -325,12 +331,8 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
     }
     progressCount++;
 
-    // Direct access to cells.
+    cellIter->GetCurrentCell(numCellPts, ids);
     cellType = cellTypes[cellId];
-    numCellPts = cellPointer[0];
-    ids = cellPointer+1;
-    // Move to the next cell.
-    cellPointer += (1 + *cellPointer);
 
     // A couple of common cases to see if things go faster.
     if (cellType == VTK_VERTEX || cellType == VTK_POLY_VERTEX)
@@ -530,15 +532,13 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
   // Now insert 2DCells.  Because of poly datas (cell data) ordering,
   // the 2D cells have to come after points and lines.
   // initialize the pointer to the cells for fast traversal.
-  cellPointer = input->GetCells()->GetPointer();
-  for(cellId=0; cellId < numCells && !abort && flag2D; cellId++)
+  for (cellIter->GoToFirstCell();
+       !cellIter->IsDoneWithTraversal() && !abort && flag2D;
+       cellIter->GoToNextCell())
   {
-    // Direct access to cells.
+    const vtkIdType cellId = cellIter->GetCurrentCellId();
+    cellIter->GetCurrentCell(numCellPts, ids);
     cellType = input->GetCellType(cellId);
-    numCellPts = cellPointer[0];
-    ids = cellPointer+1;
-    // Move to the next cell.
-    cellPointer += (1 + *cellPointer);
 
     // If we have a quadratic face and our subdivision level is zero, just treat
     // it as a linear cell.  This should work so long as the first points of the

@@ -113,7 +113,7 @@ void vtkSTLWriter::WriteAsciiSTL(
   FILE *fp;
   double n[3], v1[3], v2[3], v3[3];
   vtkIdType npts = 0;
-  vtkIdType *indx = nullptr;
+  const vtkIdType *indx = nullptr;
 
   if ((fp = vtksys::SystemTools::Fopen(this->FileName, "w")) == nullptr)
   {
@@ -140,7 +140,7 @@ void vtkSTLWriter::WriteAsciiSTL(
     vtkSmartPointer<vtkCellArray>::New();
   if (strips->GetNumberOfCells() > 0)
   {
-    vtkIdType *ptIds = nullptr;
+    const vtkIdType *ptIds = nullptr;
     for (strips->InitTraversal(); strips->GetNextCell(npts,ptIds);)
     {
       vtkTriangleStrip::DecomposeStrip(npts,ptIds,polyStrips);
@@ -260,7 +260,7 @@ void vtkSTLWriter::WriteBinarySTL(
   FILE *fp;
   double dn[3], v1[3], v2[3], v3[3];
   vtkIdType npts = 0;
-  vtkIdType *indx = nullptr;
+  const vtkIdType *indx = nullptr;
   unsigned long ulint;
   unsigned short ibuff2=0;
 
@@ -328,7 +328,7 @@ void vtkSTLWriter::WriteBinarySTL(
     vtkSmartPointer<vtkCellArray>::New();
   if (strips->GetNumberOfCells() > 0)
   {
-    vtkIdType *ptIds = nullptr;
+    const vtkIdType *ptIds = nullptr;
     for (strips->InitTraversal(); strips->GetNextCell(npts,ptIds);)
     {
       vtkTriangleStrip::DecomposeStrip(npts,ptIds,polyStrips);

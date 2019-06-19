@@ -14,8 +14,10 @@
 =========================================================================*/
 #include "vtkAdaptiveSubdivisionFilter.h"
 
+#include "vtkCellArrayIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkSmartPointer.h"
 #include "vtkTriangle.h"
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
@@ -165,10 +167,7 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
   vtkPointData *inPointData = input->GetPointData();
   vtkCellData *inCellData = input->GetCellData();
 
-  // This is a quick check that all cells are a triangle. It is not foolproof
-  // however.... it may be necessary to tighten this up at some point.
-  vtkIdType connLen = inTris->GetNumberOfConnectivityEntries();
-  if ( (connLen / 4) != numTris )
+  if (inTris->IsHomogeneous() != 3)
   {
     vtkDebugMacro(<<"Filter operates only on triangles!");
     return 1;
@@ -223,9 +222,9 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
   // into the locator. Since the algorithm treats edges on triangles in an
   // identical way, the end result is that triangle neighbors remain
   // compatible (due to conincident point merging).
-  vtkIdType *currTris = inTris->GetPointer();
+  auto cellIter = vtk::TakeSmartPointer(inTris->NewIterator());
   vtkCellArray *swapTris, *newTris = vtkCellArray::New();
-  newTris->Allocate(inTris->EstimateSize(2*numTris,3), numTris);
+  newTris->AllocateEstimate(2*numTris, 3);
   vtkCellData *swapCellData, *newCellData = vtkCellData::New();
   newCellData->CopyAllocate(inCellData);
 
@@ -234,7 +233,9 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
   double maxLen2=this->MaximumEdgeLength*this->MaximumEdgeLength;
   double maxArea=this->MaximumTriangleArea;
   double x[6][3]; //three vertices plus potential mid-edge points
-  vtkIdType *tri, triId, newId;
+  const vtkIdType *tri;
+  vtkIdType triId;
+  vtkIdType newId;
   vtkIdType passNum;
   vtkIdType totalTriangles=0;
   bool changesMade;
@@ -244,9 +245,16 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
         ++passNum )
   {
     changesMade = false;
-    for (triId=0; triId < numTris; ++triId)
+    for (cellIter->GoToFirstCell();
+         !cellIter->IsDoneWithTraversal();
+         cellIter->GoToNextCell())
     {
-      tri = currTris + 4*triId + 1; //get point ids defining triangle
+      triId = cellIter->GetCurrentCellId();
+      {
+        vtkIdType unused;
+        cellIter->GetCurrentCell(unused, tri);
+      }
+
       newPts->GetPoint(tri[0],x[0]);
       newPts->GetPoint(tri[1],x[1]);
       newPts->GetPoint(tri[2],x[2]);
@@ -335,12 +343,11 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
     swapTris = newTris;
     newTris = inTris;
     inTris = swapTris;
-    currTris = inTris->GetPointer();
+    cellIter = vtk::TakeSmartPointer(inTris->NewIterator());
 
     numTris = inTris->GetNumberOfCells();
     newTris->Reset();
-    newTris->Allocate(inTris->EstimateSize(2*newTris->GetNumberOfCells(),3),
-                     newTris->GetNumberOfCells());
+    newTris->AllocateEstimate(2 * numTris, 3);
 
     // Prepare for new cell data
     swapCellData = newCellData;

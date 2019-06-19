@@ -1234,7 +1234,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
   yCoords = new float [this->NumberOfMeasuredPoints];
   zCoords = new float [this->NumberOfMeasuredPoints];
   points->Allocate(this->NumberOfMeasuredPoints);
-  pd->Allocate(this->NumberOfMeasuredPoints);
+  pd->AllocateEstimate(this->NumberOfMeasuredPoints, 1);
 
   // Extract the array of point indices. Note EnSight Manual v8.2 (pp. 559,
   // http://www-vis.lbl.gov/NERSC/Software/ensight/docs82/UserManual.pdf)

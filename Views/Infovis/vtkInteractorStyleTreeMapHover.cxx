@@ -24,6 +24,7 @@
 #include "vtkBalloonRepresentation.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCellArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"

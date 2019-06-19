@@ -388,7 +388,7 @@ void PolyDataConvertSelections(int & errors, int size)
   g->GetCellData()->AddArray(stringVertArr);
 
   VTK_CREATE(vtkCellArray, newLines);
-  newLines->Allocate(newLines->EstimateSize(size, 2));
+  newLines->AllocateEstimate(size, 2);
   vtkIdType cellPts[2];
   for (int i = 0; i < size; i++)
   {

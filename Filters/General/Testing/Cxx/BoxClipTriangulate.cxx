@@ -134,7 +134,8 @@ static void CheckWinding(vtkBoxClipDataSet* alg)
   vtkCellArray *cells = data->GetCells();
   cells->InitTraversal();
 
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType *pts;
   while (cells->GetNextCell(npts, pts))
   {
     if (npts != 4)
@@ -250,7 +251,8 @@ static void Check2DPrimitive(int type, vtkIdType numcells,
   // Check to make sure all the normals point in the z direction.
   vtkCellArray *outCells = output->GetCells();
   outCells->InitTraversal();
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType *pts;
   while (outCells->GetNextCell(npts, pts))
   {
     if (npts != 3)

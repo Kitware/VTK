@@ -1068,13 +1068,13 @@ void vtkOctreePointLocator::GenerateRepresentation(int level,
     }
   }
 
-  int npoints = 8 * static_cast<int>(nodesAtLevel.size());
-  int npolys  = 6 * static_cast<int>(nodesAtLevel.size());
+  const vtkIdType npoints = 8 * static_cast<vtkIdType>(nodesAtLevel.size());
+  const vtkIdType npolys  = 6 * static_cast<vtkIdType>(nodesAtLevel.size());
 
   vtkPoints* pts = vtkPoints::New();
   pts->Allocate(npoints);
   vtkCellArray* polys = vtkCellArray::New();
-  polys->Allocate(npolys);
+  polys->AllocateEstimate(npolys, 4);
 
   for(std::list<vtkOctreePointLocatorNode*>::iterator it=nodesAtLevel.begin();
       it!=nodesAtLevel.end();++it)

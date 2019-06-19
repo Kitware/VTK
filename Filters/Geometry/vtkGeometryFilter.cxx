@@ -15,6 +15,7 @@
 #include "vtkGeometryFilter.h"
 
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
 #include "vtkHexagonalPrism.h"
@@ -272,7 +273,7 @@ int vtkGeometryFilter::RequestData(
   }
 
   newPts->Allocate(numPts,numPts/2);
-  output->Allocate(4*numCells,numCells/2);
+  output->AllocateEstimate(numCells, 3);
   outputPD->CopyGlobalIdsOn();
   outputPD->CopyAllocate(pd,numPts,numPts/2);
   outputPD->CopyGlobalIdsOn();
@@ -476,7 +477,7 @@ void vtkGeometryFilter::PolyDataExecute(vtkDataSet *dataSetInput,
   int i;
   int allVisible;
   vtkIdType npts;
-  vtkIdType *pts;
+  const vtkIdType *pts;
   vtkPoints *p = input->GetPoints();
   vtkIdType numCells=input->GetNumberOfCells();
   vtkPointData *pd = input->GetPointData();
@@ -529,7 +530,7 @@ void vtkGeometryFilter::PolyDataExecute(vtkDataSet *dataSetInput,
 
   // Allocate
   //
-  output->Allocate(numCells);
+  output->AllocateEstimate(numCells, 1);
   outputCD->CopyAllocate(cd,numCells,numCells/2);
   input->BuildCells(); //needed for GetCellPoints()
 
@@ -607,10 +608,11 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   {
     return;
   }
+  auto cellIter = vtk::TakeSmartPointer(connectivity->NewIterator());
   vtkIdType cellId;
   int allVisible;
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkPoints *p = input->GetPoints();
   vtkIdType numCells=input->GetNumberOfCells();
   vtkPointData *pd = input->GetPointData();
@@ -677,21 +679,23 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   outputCD->CopyAllocate(cd,numCells,numCells/2);
 
   verts = vtkCellArray::New();
-  verts->Allocate(numCells/4+1,numCells);
+  verts->AllocateEstimate(numCells/4, 1);
   lines = vtkCellArray::New();
-  lines->Allocate(numCells/4+1,numCells);
+  lines->AllocateEstimate(numCells/4, 1);
   polys = vtkCellArray::New();
-  polys->Allocate(numCells/4+1,numCells);
+  polys->AllocateEstimate(numCells/4, 1);
   strips = vtkCellArray::New();
-  strips->Allocate(numCells/4+1,numCells);
+  strips->AllocateEstimate(numCells/4, 1);
 
   // Loop over the cells determining what's visible
   if (!allVisible)
   {
-    for (cellId=0, connectivity->InitTraversal();
-         connectivity->GetNextCell(npts,pts);
-         cellId++)
+    for (cellIter->GoToFirstCell();
+         !cellIter->IsDoneWithTraversal();
+         cellIter->GoToNextCell())
     {
+      cellId = cellIter->GetCurrentCellId();
+      cellIter->GetCurrentCell(npts, pts);
       cellVis[cellId] = 1;
       if ( this->CellClipping && (cellId < this->CellMinimum ||
                                   cellId > this->CellMaximum) )
@@ -739,10 +743,12 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   // Loop over all cells now that visibility is known
   // (Have to compute visibility first for 3D cell boundaries)
   int progressInterval = numCells/20 + 1;
-  for (cellId=0, connectivity->InitTraversal();
-       connectivity->GetNextCell(npts,pts);
-       cellId++)
+  for (cellIter->GoToFirstCell();
+       !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell())
   {
+    cellId = cellIter->GetCurrentCellId();
+    cellIter->GetCurrentCell(npts, pts);
     //Progress and abort method support
     if ( !(cellId % progressInterval) )
     {
@@ -1212,7 +1218,7 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
   outputCD->CopyAllocate(cd,numCells,numCells/2);
 
   cells = vtkCellArray::New();
-  cells->Allocate(numCells,numCells/2);
+  cells->AllocateEstimate(numCells, 1);
 
   // Traverse cells to extract geometry
   //

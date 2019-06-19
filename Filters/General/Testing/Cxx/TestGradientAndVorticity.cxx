@@ -62,11 +62,11 @@ namespace
            << Tolerance << std::endl;
       return false;
     }
-    if(fabs(v1/v2) < Tolerance)
+    if(fabs(1. - v1/v2) < Tolerance)
     {
       return true;
     }
-    std::cout << fabs(v1/v2) << " (fabs(v1/v2)) should be less than "
+    std::cout << fabs(1. - v1/v2) << " (fabs(1 - v1/v2)) should be less than "
          << Tolerance << std::endl;
     return false;
   }

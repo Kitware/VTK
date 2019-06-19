@@ -86,7 +86,6 @@ int vtkGenericDataSetTessellator::RequestData(
   vtkCellData *outputCD = output->GetCellData();
   vtkGenericAdaptorCell *cell;
   vtkIdType numInserted=0, numNew, i;
-  vtkIdType npts, *pts;
   int abortExecute=0;
 
   // Copy original points and point data
@@ -96,10 +95,8 @@ int vtkGenericDataSetTessellator::RequestData(
   // loop over region
   vtkUnsignedCharArray *types = vtkUnsignedCharArray::New();
   types->Allocate(numCells);
-  vtkIdTypeArray *locs = vtkIdTypeArray::New();
-  locs->Allocate(numCells);
   vtkCellArray *conn = vtkCellArray::New();
-  conn->Allocate(numCells);
+  conn->AllocateEstimate(numCells, 1);
 
 
   // prepare the output attributes
@@ -197,12 +194,6 @@ int vtkGenericDataSetTessellator::RequestData(
         cellIdArray->InsertNextValue(cellId);
       }
     }
-
-    for (i=0; i < numNew; i++)
-    {
-      locs->InsertNextValue(conn->GetTraversalLocation());
-      conn->GetNextCell(npts,pts); //side effect updates traversal location
-    } //insert each new cell
   } //for all cells
   cellIt->Delete();
 
@@ -214,7 +205,7 @@ int vtkGenericDataSetTessellator::RequestData(
   }
 
   output->SetPoints(newPts);
-  output->SetCells(types, locs, conn);
+  output->SetCells(types, conn);
 
   if (!this->Merging && this->Locator)
   {
@@ -226,7 +217,6 @@ int vtkGenericDataSetTessellator::RequestData(
 
   newPts->Delete();
   types->Delete();
-  locs->Delete();
   conn->Delete();
 
   output->Squeeze();

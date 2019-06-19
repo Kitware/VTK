@@ -492,7 +492,11 @@ int vtkFitToHeightMapFilter::RequestData(
 void vtkFitToHeightMapFilter::
 AdjustPoints(vtkPolyData *output, vtkIdType numCells, vtkPoints *newPts)
 {
-  vtkIdType cellId, npts, *ptIds, pId, i;
+  vtkIdType cellId;
+  vtkIdType npts;
+  const vtkIdType *ptIds;
+  vtkIdType pId;
+  vtkIdType i;
   double sum, min, max, p0[3], z;
   vtkIdType numHits;
 
@@ -573,7 +577,11 @@ void vtkFitToHeightMapFilter::
 AdjustCells(vtkPolyData *output, vtkIdType numCells,
             double *cellHts, vtkPoints *inPts, vtkPoints *newPts)
 {
-  vtkIdType cellId, npts, *ptIds, pId, i;
+  vtkIdType cellId;
+  vtkIdType npts;
+  const vtkIdType *ptIds;
+  vtkIdType pId;
+  vtkIdType i;
   double z, p0[3];
 
   for ( cellId=0; cellId < numCells; ++cellId )

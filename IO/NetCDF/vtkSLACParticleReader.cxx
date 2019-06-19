@@ -329,7 +329,7 @@ int vtkSLACParticleReader::RequestData(vtkInformation *vtkNotUsed(request),
   output->GetPointData()->AddArray(emissionType);
 
   VTK_CREATE(vtkCellArray, verts);
-  verts->Allocate(verts->EstimateSize(numParticles, 1));
+  verts->AllocateEstimate(numParticles, 1);
   for (vtkIdType i = 0; i < numParticles; i++)
   {
     verts->InsertNextCell(1, &i);

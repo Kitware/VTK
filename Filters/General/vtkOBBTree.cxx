@@ -271,7 +271,7 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, double corner[3], double max[3],
   vtkIdType numCells, i, j, cellId, ptId, pId, qId, rId;
   int k, type;
   vtkIdType numPts = 0;
-  vtkIdType *ptIds = nullptr;
+  const vtkIdType *ptIds = nullptr;
   double p[3], q[3], r[3], mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
   double *a[3], a0[3], a1[3], a2[3];
   double tMin[3], tMax[3], closest[3], t;
@@ -599,7 +599,7 @@ int vtkOBBTree::InsideOrOutside(const double point[3])
   for (vtkIdType i = 0; i < numCells; i++)
   {
     vtkIdType numPts;
-    vtkIdType *ptIds;
+    const vtkIdType *ptIds;
     int cellType = this->DataSet->GetCellType(i);
     ((vtkPolyData *)this->DataSet)->GetCellPoints(i, numPts, ptIds);
 
@@ -724,7 +724,7 @@ int vtkOBBTree::IntersectWithLine(const double p1[3], const double p2[3],
           cellId = cells->GetId(i);
           int cellType = this->DataSet->GetCellType(cellId);
           vtkIdType numPts;
-          vtkIdType *ptIds;
+          const vtkIdType *ptIds;
           ((vtkPolyData *)this->DataSet)->GetCellPoints(cellId, numPts, ptIds);
 
           // break the cell into triangles
@@ -1283,7 +1283,7 @@ void vtkOBBTree::GenerateRepresentation(int level, vtkPolyData *pd)
   pts = vtkPoints::New();
   pts->Allocate(5000);
   polys = vtkCellArray::New();
-  polys->Allocate(10000);
+  polys->AllocateEstimate(5000, 1);
   this->GeneratePolygons(this->Tree,0,level,pts,polys);
 
   pd->SetPoints(pts);

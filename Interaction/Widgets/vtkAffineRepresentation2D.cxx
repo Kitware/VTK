@@ -81,7 +81,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
   this->BoxPoints = vtkPoints::New();
   this->BoxPoints->SetNumberOfPoints(4);
   this->BoxCellArray = vtkCellArray::New();
-  this->BoxCellArray->EstimateSize(1,4);
+  this->BoxCellArray->AllocateEstimate(1, 4);
   this->BoxCellArray->InsertNextCell(5);
   this->BoxCellArray->InsertCellPoint(0);
   this->BoxCellArray->InsertCellPoint(1);
@@ -100,7 +100,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
   this->HBoxPoints = vtkPoints::New();
   this->HBoxPoints->SetNumberOfPoints(4);
   this->HBoxCellArray = vtkCellArray::New();
-  this->HBoxCellArray->EstimateSize(1,4);
+  this->HBoxCellArray->AllocateEstimate(1, 4);
   this->HBoxCellArray->InsertNextCell(5);
   this->HBoxCellArray->InsertCellPoint(0);
   this->HBoxCellArray->InsertCellPoint(1);
@@ -121,7 +121,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
   this->CirclePoints = vtkPoints::New();
   this->CirclePoints->SetNumberOfPoints(VTK_CIRCLE_RESOLUTION);
   this->CircleCellArray = vtkCellArray::New();
-  this->CircleCellArray->EstimateSize(1,VTK_CIRCLE_RESOLUTION+1);
+  this->CircleCellArray->AllocateEstimate(1,VTK_CIRCLE_RESOLUTION+1);
   this->Circle = vtkPolyData::New();
   this->Circle->SetPoints(this->CirclePoints);
   this->Circle->SetLines(this->CircleCellArray);
@@ -133,7 +133,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
 
   this->HCirclePoints = vtkPoints::New();
   this->HCircleCellArray = vtkCellArray::New();
-  this->HCircleCellArray->EstimateSize(1,VTK_CIRCLE_RESOLUTION+1);
+  this->HCircleCellArray->AllocateEstimate(1,VTK_CIRCLE_RESOLUTION+1);
   this->HCircle = vtkPolyData::New();
   this->HCircle->SetPoints(this->HCirclePoints);
   this->HCircle->SetLines(this->HCircleCellArray);

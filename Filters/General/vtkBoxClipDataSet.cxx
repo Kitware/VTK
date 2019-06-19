@@ -182,7 +182,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
 
   vtkIdType      i;
   vtkIdType      npts;
-  vtkIdType     *pts;
+  const vtkIdType     *pts;
   vtkIdType      estimatedSize;
   vtkIdType      newCellId;
   vtkIdType      numPts = input->GetNumberOfPoints();
@@ -193,7 +193,6 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
   vtkCellData   *outCD[2];
   vtkPoints     *newPoints;
   vtkPoints     *cellPts;
-  vtkIdTypeArray   *locs[2];
   vtkDebugMacro( << "Clip by Box\n" );
   vtkUnsignedCharArray *types[2];
 
@@ -234,23 +233,19 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
   }
   vtkCellArray *conn[2];
   conn[0] = vtkCellArray::New();
-  conn[0]->Allocate(estimatedSize,estimatedSize/2);
+  conn[0]->AllocateEstimate(estimatedSize, 1);
   conn[0]->InitTraversal();
   types[0] = vtkUnsignedCharArray::New();
   types[0]->Allocate(estimatedSize,estimatedSize/2);
-  locs[0] = vtkIdTypeArray::New();
-  locs[0]->Allocate(estimatedSize,estimatedSize/2);
 
   if ( this->GenerateClippedOutput )
   {
     numOutputs = 2;
     conn[1] = vtkCellArray::New();
-    conn[1]->Allocate(estimatedSize,estimatedSize/2);
+    conn[1]->AllocateEstimate(estimatedSize, 1);
     conn[1]->InitTraversal();
     types[1] = vtkUnsignedCharArray::New();
     types[1]->Allocate(estimatedSize,estimatedSize/2);
-    locs[1] = vtkIdTypeArray::New();
-    locs[1]->Allocate(estimatedSize,estimatedSize/2);
   }
 
   newPoints = vtkPoints::New();
@@ -476,7 +471,6 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
     {
       for (j=0; j < numNew[i]; j++)
       {
-        locs[i]->InsertNextValue(conn[i]->GetTraversalLocation());
         conn[i]->GetNextCell(npts,pts);
 
         //For each new cell added, got to set the type of the cell
@@ -509,19 +503,17 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
   cell->Delete();
 
   output->SetPoints(newPoints);
-  output->SetCells(types[0], locs[0], conn[0]);
+  output->SetCells(types[0], conn[0]);
 
   conn[0]->Delete();
   types[0]->Delete();
-  locs[0]->Delete();
 
   if ( this->GenerateClippedOutput )
   {
     clippedOutput->SetPoints(newPoints);
-    clippedOutput->SetCells(types[1], locs[1], conn[1]);
+    clippedOutput->SetCells(types[1], conn[1]);
     conn[1]->Delete();
     types[1]->Delete();
-    locs[1]->Delete();
   }
   newPoints->Delete();
   this->Locator->Initialize();//release any extra memory
@@ -1866,7 +1858,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[4];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     tab_id[6];
@@ -2338,7 +2330,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[4];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     tab_id[6];
@@ -2804,7 +2796,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[4];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     ptIdout[4];
@@ -3351,7 +3343,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
   vtkIdType     npts = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[4];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     ptIdout[4];
@@ -3901,7 +3893,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[3];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     tab_id[3];
@@ -4244,7 +4236,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[3];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     ptIdout[4];
@@ -4657,7 +4649,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[3];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     tab_id[3];
@@ -5004,7 +4996,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[3];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     ptIdout[3];
@@ -5417,7 +5409,7 @@ void vtkBoxClipDataSet::ClipBox1D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[2];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType     ptId;
   vtkIdType     tab_id[2];
   vtkIdType     ptsline = 2;
@@ -5637,7 +5629,7 @@ void vtkBoxClipDataSet::ClipBoxInOut1D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[2];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType     ptId;
   vtkIdType     tab_id[2];
   vtkIdType     ptsline = 2;
@@ -5876,7 +5868,7 @@ void vtkBoxClipDataSet::ClipHexahedron1D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[2];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType     ptId;
   vtkIdType     tab_id[2];
   vtkIdType     ptsline = 2;
@@ -6076,7 +6068,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid[2];
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType     ptId;
   vtkIdType     tab_id[2];
   vtkIdType     ptsline = 2;
@@ -6294,7 +6286,7 @@ void vtkBoxClipDataSet::ClipBox0D(vtkGenericCell *cell,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid;
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType     ptId;
   vtkIdType     ptsvert = 1;
 
@@ -6356,7 +6348,7 @@ void vtkBoxClipDataSet::ClipBoxInOut0D(vtkGenericCell *cell,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid;
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType     ptId;
   vtkIdType     ptsvert = 1;
 
@@ -6427,7 +6419,7 @@ void vtkBoxClipDataSet::ClipHexahedron0D(vtkGenericCell *cell,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid;
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType     ptId;
   vtkIdType     ptsvert = 1;
 
@@ -6498,7 +6490,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut0D(vtkGenericCell *cell,
   vtkIdType     npts       = cellPts->GetNumberOfPoints();
   std::vector<vtkIdType> cellptId(npts);
   vtkIdType     iid;
-  vtkIdType    *v_id = nullptr;
+  const vtkIdType    *v_id = nullptr;
   vtkIdType     ptId;
   vtkIdType     ptsvert = 1;
 

@@ -21,6 +21,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkIntArray.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
 

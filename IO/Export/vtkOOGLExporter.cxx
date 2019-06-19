@@ -31,6 +31,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 #include "vtkTexture.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkMatrix4x4.h"
 
 vtkStandardNewMacro(vtkOOGLExporter);
@@ -263,7 +264,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   double *tempd = defcolor;
   vtkCellArray *cells;
   vtkIdType npts = 0;
-  vtkIdType *indx = nullptr;
+  const vtkIdType *indx = nullptr;
   double tempf2=0;
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;

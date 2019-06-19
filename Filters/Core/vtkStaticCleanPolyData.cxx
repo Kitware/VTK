@@ -201,7 +201,7 @@ int vtkStaticCleanPolyData::RequestData(
   vtkIdType i;
   vtkIdType ptId;
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
 
   vtkCellArray *inVerts  = input->GetVerts(),  *newVerts  = nullptr;
   vtkCellArray *inLines  = input->GetLines(),  *newLines  = nullptr;
@@ -297,7 +297,7 @@ int vtkStaticCleanPolyData::RequestData(
   if ( !this->GetAbortExecute() && inVerts->GetNumberOfCells() > 0 )
   {
     newVerts = vtkCellArray::New();
-    newVerts->Allocate(inVerts->GetSize());
+    newVerts->AllocateEstimate(inVerts->GetNumberOfCells(), 1);
 
     vtkDebugMacro(<<"Starting Verts "<<inCellID);
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts);
@@ -327,7 +327,7 @@ int vtkStaticCleanPolyData::RequestData(
   if ( !this->GetAbortExecute() && inLines->GetNumberOfCells() > 0 )
   {
     newLines = vtkCellArray::New();
-    newLines->Allocate(inLines->GetSize());
+    newLines->AllocateEstimate(inLines->GetNumberOfCells(), 2);
     outLineData = vtkCellData::New();
     outLineData->CopyAllocate(inCD);
     //
@@ -355,7 +355,7 @@ int vtkStaticCleanPolyData::RequestData(
         if (!newVerts)
         {
           newVerts = vtkCellArray::New();
-          newVerts->Allocate(5);
+          newVerts->AllocateEstimate(5, 1);
         }
         newId = newVerts->InsertNextCell(numCellPts,updatedPts);
         outCD->CopyData(inCD, inCellID, newId);
@@ -378,7 +378,7 @@ int vtkStaticCleanPolyData::RequestData(
   if ( !this->GetAbortExecute() && inPolys->GetNumberOfCells() > 0 )
   {
     newPolys = vtkCellArray::New();
-    newPolys->Allocate(inPolys->GetSize());
+    newPolys->AllocateCopy(inPolys);
     outPolyData = vtkCellData::New();
     outPolyData->CopyAllocate(inCD);
 
@@ -410,7 +410,7 @@ int vtkStaticCleanPolyData::RequestData(
         if (!newLines)
         {
           newLines = vtkCellArray::New();
-          newLines->Allocate(5);
+          newLines->AllocateEstimate(5, 2);
           outLineData = vtkCellData::New();
           outLineData->CopyAllocate(inCD);
         }
@@ -427,7 +427,7 @@ int vtkStaticCleanPolyData::RequestData(
         if (!newVerts)
         {
           newVerts = vtkCellArray::New();
-          newVerts->Allocate(5);
+          newVerts->AllocateEstimate(5, 1);
         }
         newId = newVerts->InsertNextCell(numCellPts,updatedPts);
         outCD->CopyData(inCD, inCellID, newId);
@@ -448,7 +448,7 @@ int vtkStaticCleanPolyData::RequestData(
   if ( !this->GetAbortExecute() && inStrips->GetNumberOfCells() > 0 )
   {
     newStrips = vtkCellArray::New();
-    newStrips->Allocate(inStrips->GetSize());
+    newStrips->AllocateCopy(inStrips);
     outStrpData = vtkCellData::New();
     outStrpData->CopyAllocate(inCD);
 
@@ -475,7 +475,7 @@ int vtkStaticCleanPolyData::RequestData(
         if (!newPolys)
         {
           newPolys = vtkCellArray::New();
-          newPolys->Allocate(5);
+          newPolys->AllocateEstimate(5, 3);
           outPolyData = vtkCellData::New();
           outPolyData->CopyAllocate(inCD);
         }
@@ -492,7 +492,7 @@ int vtkStaticCleanPolyData::RequestData(
         if (!newLines)
         {
           newLines = vtkCellArray::New();
-          newLines->Allocate(5);
+          newLines->AllocateEstimate(5, 2);
           outLineData = vtkCellData::New();
           outLineData->CopyAllocate(inCD);
         }
@@ -509,7 +509,7 @@ int vtkStaticCleanPolyData::RequestData(
         if (!newVerts)
         {
           newVerts = vtkCellArray::New();
-          newVerts->Allocate(5);
+          newVerts->AllocateEstimate(5, 1);
         }
         newId = newVerts->InsertNextCell(numCellPts,updatedPts);
         outCD->CopyData(inCD, inCellID, newId);

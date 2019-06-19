@@ -122,7 +122,8 @@ static void CheckWinding(vtkUnstructuredGrid *data)
   vtkCellArray *cells = data->GetCells();
   cells->InitTraversal();
 
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType *pts;
   while (cells->GetNextCell(npts, pts))
   {
     if (npts != 4)

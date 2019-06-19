@@ -19,6 +19,7 @@
 #include "vtkSTLWriter.h"
 #include "vtkTestUtilities.h"
 #include "vtkTestErrorObserver.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkPlaneSource.h"
 #include "vtkSphereSource.h"

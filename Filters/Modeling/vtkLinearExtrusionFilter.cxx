@@ -97,7 +97,7 @@ int vtkLinearExtrusionFilter::RequestData(
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   vtkIdType inCellId, outCellId;
   int numEdges, dim;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   vtkIdType ptId, ncells, p1, p2;
   vtkIdType i, j;
@@ -177,14 +177,14 @@ int vtkLinearExtrusionFilter::RequestData(
   if ( (ncells=inVerts->GetNumberOfCells()) > 0 )
   {
     newLines = vtkCellArray::New();
-    newLines->Allocate(newLines->EstimateSize(ncells,2));
+    newLines->AllocateEstimate(ncells, 2);
   }
   // arbitrary initial allocation size
   ncells = inLines->GetNumberOfCells() + inPolys->GetNumberOfCells()/10 +
            inStrips->GetNumberOfCells()/10;
   ncells = (ncells < 100 ? 100 : ncells);
   newStrips = vtkCellArray::New();
-  newStrips->Allocate(newStrips->EstimateSize(ncells,4));
+  newStrips->AllocateEstimate(ncells, 4);
 
   vtkIdType progressInterval=numPts/10+1;
   int abort=0;
@@ -230,7 +230,7 @@ int vtkLinearExtrusionFilter::RequestData(
     if ( inPolys->GetNumberOfCells() > 0 )
     {
       newPolys = vtkCellArray::New();
-      newPolys->Allocate(inPolys->GetSize());
+      newPolys->AllocateCopy(inPolys);
       for ( inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
       {
         newPolys->InsertNextCell(npts,pts);

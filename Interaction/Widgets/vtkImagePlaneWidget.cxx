@@ -2722,7 +2722,7 @@ void vtkImagePlaneWidget::GeneratePlaneOutline()
   }
 
   vtkCellArray *cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(4,2));
+  cells->AllocateEstimate(4, 2);
   vtkIdType pts[2];
   pts[0] = 3; pts[1] = 2;       // top edge
   cells->InsertNextCell(2,pts);
@@ -2786,7 +2786,7 @@ void vtkImagePlaneWidget::GenerateMargins()
   }
 
   vtkCellArray *cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(4,2));
+  cells->AllocateEstimate(4, 2);
   vtkIdType pts[2];
   pts[0] = 0; pts[1] = 1;       // top margin
   cells->InsertNextCell(2,pts);
@@ -2825,7 +2825,7 @@ void vtkImagePlaneWidget::GenerateCursor()
   }
 
   vtkCellArray *cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(2,2));
+  cells->AllocateEstimate(2, 2);
   vtkIdType pts[2];
   pts[0] = 0; pts[1] = 1;       // horizontal segment
   cells->InsertNextCell(2,pts);

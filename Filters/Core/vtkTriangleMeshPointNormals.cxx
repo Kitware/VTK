@@ -15,6 +15,7 @@
 #include "vtkTriangleMeshPointNormals.h"
 
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
@@ -33,21 +34,28 @@ const char* computeNormalsDirection(vtkPolyData* mesh, float *n)
 {
   ptDataType *points = reinterpret_cast<ptDataType*>
     (mesh->GetPoints()->GetData()->GetVoidPointer(0));
-  vtkIdType *cells = reinterpret_cast<vtkIdType*>
-    (mesh->GetPolys()->GetData()->GetVoidPointer(0));
   vtkIdType v0Offset, v1Offset, v2Offset;
   ptDataType *p0, *p1, *p2;
   float a[3], b[3], tn[3];
-  for (vtkIdType i = 0; i < mesh->GetNumberOfPolys(); ++i)
+
+  auto cellIter =
+      vtkSmartPointer<vtkCellArrayIterator>::Take(mesh->GetPolys()->NewIterator());
+  for (cellIter->GoToFirstCell();
+       !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell())
   {
+    vtkIdType cellSize;
+    const vtkIdType *cell;
+    cellIter->GetCurrentCell(cellSize, cell);
+
     // First value in cellArray indicates number of points in cell.
     // We need 3 to compute normals.
-    if (*cells == 3)
+    if (cellSize == 3)
     {
       // vertex offsets
-      v0Offset = 3 * cells[1];
-      v1Offset = 3 * cells[2];
-      v2Offset = 3 * cells[3];
+      v0Offset = 3 * cell[0];
+      v1Offset = 3 * cell[1];
+      v2Offset = 3 * cell[2];
       // pointer to each vertex
       p0 = points + v0Offset;
       p1 = points + v1Offset;
@@ -74,11 +82,9 @@ const char* computeNormalsDirection(vtkPolyData* mesh, float *n)
       *(n + v2Offset) += tn[0];
       *(n + v2Offset + 1) += tn[1];
       *(n + v2Offset + 2) += tn[2];
-      // move to next cells
-      cells += (*cells + 1); // current cell nbr of pts + 1
     }
     // If degenerate cell
-    else if (*cells < 3)
+    else if (cellSize < 3)
     {
       return "Some cells are degenerate (less than 3 points). "
              "Use vtkCleanPolyData beforehand to correct this.";

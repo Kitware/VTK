@@ -65,7 +65,7 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
 
   // The slider
   this->SliderCells = vtkCellArray::New();
-  this->SliderCells->Allocate(this->SliderCells->EstimateSize(1,4));
+  this->SliderCells->AllocateEstimate(1, 4);
   this->SliderCells->InsertNextCell(4);
   this->SliderCells->InsertCellPoint(8);
   this->SliderCells->InsertCellPoint(9);
@@ -92,7 +92,7 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
 
   // The tube (the slider moves along the tube)
   this->TubeCells = vtkCellArray::New();
-  this->TubeCells->Allocate(this->TubeCells->EstimateSize(1,4));
+  this->TubeCells->AllocateEstimate(1, 4);
   this->TubeCells->InsertNextCell(4);
   this->TubeCells->InsertCellPoint(4);
   this->TubeCells->InsertCellPoint(5);
@@ -122,7 +122,7 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
 
   // The two caps
   this->CapCells = vtkCellArray::New();
-  this->CapCells->Allocate(this->CapCells->EstimateSize(2,4));
+  this->CapCells->AllocateEstimate(2, 4);
   this->CapCells->InsertNextCell(4);
   this->CapCells->InsertCellPoint(0);
   this->CapCells->InsertCellPoint(1);

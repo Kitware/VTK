@@ -255,7 +255,7 @@ int BoxClipPolyData(int, char *[])
   triangleNormals->SetNumberOfTuples(numTriangles);
 
   VTK_CREATE(vtkCellArray, triangleCells);
-  triangleCells->Allocate(numTriangles*4);
+  triangleCells->AllocateEstimate(numTriangles, 3);
 
   for (i = 0; i < numTriangles; i++)
   {
@@ -297,7 +297,7 @@ int BoxClipPolyData(int, char *[])
   verts->SetPoints(vertsPoints);
 
   VTK_CREATE(vtkCellArray, vertsCells);
-  vertsCells->Allocate(2*vertsPoints->GetNumberOfPoints());
+  vertsCells->AllocateEstimate(vertsPoints->GetNumberOfPoints(), 1);
   for (i = 0; i < vertsPoints->GetNumberOfPoints(); i++)
   {
     vertsCells->InsertNextCell(1, &i);

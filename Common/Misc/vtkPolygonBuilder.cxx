@@ -17,7 +17,7 @@
 
 vtkPolygonBuilder::vtkPolygonBuilder() = default;
 
-void vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
+void vtkPolygonBuilder::InsertTriangle(const vtkIdType* abc)
 {
   // basic sanity check (see TestPolygonBuilder3)
   if (!abc)

@@ -25,6 +25,7 @@
 #include "vtkCoordinate.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLabelHierarchy.h"
@@ -485,7 +486,7 @@ int vtkLabelPlacer::RequestData(
     ouData0->SetPoints( opts0 );
     opts0->FastDelete();
   }
-  ouData0->Allocate();
+  ouData0->AllocateExact(1024, 1024);
 
   vtkPoints* opts1 = ouData1->GetPoints();
   if ( ! opts1 )
@@ -494,7 +495,7 @@ int vtkLabelPlacer::RequestData(
     ouData1->SetPoints( opts1 );
     opts1->FastDelete();
   }
-  ouData1->Allocate();
+  ouData1->AllocateExact(1024, 1024);
 
   vtkPoints* opts2 = ouData2->GetPoints();
   if ( ! opts2 )
@@ -503,7 +504,7 @@ int vtkLabelPlacer::RequestData(
     ouData2->SetPoints( opts2 );
     opts2->FastDelete();
   }
-  ouData2->Allocate();
+  ouData2->AllocateExact(1024, 1024);
 
   vtkPoints* opts3 = ouData3->GetPoints();
   vtkCellArray* ocells3 = ouData3->GetLines();
@@ -519,7 +520,7 @@ int vtkLabelPlacer::RequestData(
     ouData3->SetLines( ocells3 );
     ocells3->FastDelete();
   }
-  ouData3->Allocate();
+  ouData3->AllocateExact(1024, 1024);
 
   int tvpsz[4]; // tiled viewport size (and origin)
   // kd-tree bounds on screenspace (as floats... eventually we

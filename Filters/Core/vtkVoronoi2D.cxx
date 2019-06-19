@@ -19,6 +19,7 @@
 #include "vtkAbstractTransform.h"
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -164,7 +165,7 @@ struct VTile
   // Initialize with a convex polygon. The points are in counterclockwise order
   // (normal in the z-direction).
   void Initialize(vtkIdType ptId, const double x[2], vtkPoints *pts,
-                  vtkIdType nPts, vtkIdType *p)
+                  vtkIdType nPts, const vtkIdType *p)
   {
     // The generating tile point
     this->PointId = ptId;
@@ -745,10 +746,8 @@ struct VoronoiTiles
     double z = this->Points[2];
     this->NewPoints->SetNumberOfPoints(totalPoints);
     double *pts = static_cast<double*>(this->NewPoints->GetVoidPointer(0));
-    std::vector<vtkIdType>::iterator cItr, cEnd;
     std::vector<TileVertex>::iterator tvItr, tvEnd;
-    vtkIdType *tiles = this->Tiles->WritePointer(totalTiles,connSize);
-    vtkIdType *tPtr = tiles;
+    this->Tiles->AllocateExact(totalTiles, connSize - totalTiles);
     std::vector<vtkIdType>::iterator sItr, sEnd;
     vtkIdType *scalars = nullptr;
     if ( this->Scalars )
@@ -770,18 +769,10 @@ struct VoronoiTiles
       }
 
       // Cells
-      vtkIdType i, nPts;
-      offset = (*ldItr).Offset;
-      cEnd = (*ldItr).LocalTiles.end();
-      for ( cItr = (*ldItr).LocalTiles.begin(); cItr != cEnd;  )
-      {
-        nPts = *cItr;
-        *tPtr++ = *cItr++;
-        for (i=0; i < nPts; ++i)
-        {
-          *tPtr++ = *cItr++ + offset;
-        }
-      }
+      this->Tiles->AppendLegacyFormat(
+            (*ldItr).LocalTiles.data(),
+            static_cast<vtkIdType>((*ldItr).LocalTiles.size()),
+            (*ldItr).Offset);
 
       // Scalars if requested
       if ( scalars != nullptr )
@@ -982,7 +973,8 @@ int vtkVoronoi2D::RequestData(
     // Populate a Voronoi tile with the output tile (PointOfIntersect). This
     // assumes a single convex polygon has been output.
     double bds[6], tileX[3], x[3], center[3], factor=3.5;
-    vtkIdType npts, *p;
+    vtkIdType npts;
+    const vtkIdType *p;
     output->GetBounds(bds);
     output->GetCenter(center);
     tiles->InitTraversal(); tiles->GetNextCell(npts,p);

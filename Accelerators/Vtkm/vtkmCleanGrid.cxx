@@ -25,14 +25,12 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
-#include "vtkmlib/Storage.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/CleanGrid.h>
+#include <vtkm/filter/CleanGrid.hxx>
 
 
 vtkStandardNewMacro(vtkmCleanGrid)

@@ -134,7 +134,7 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
   newTCoords->Allocate(2 * numPts);
   newTCoords->SetName("Texture Coordinates");
   vtkNew<vtkCellArray> newLines;
-  newLines->Allocate(newLines->EstimateSize(numLines, 2));
+  newLines->AllocateEstimate(numLines, 2);
 
   // Should we skip adding the last point in the loop? Yes if the segment angle is a full
   // 360 degrees and we want to close the loop because the last point will be coincident

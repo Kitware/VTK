@@ -33,6 +33,8 @@
 #include "vtkSimpleReader.h"
 #include "vtkStdString.h" // For API using strings
 
+#include <vtkSmartPointer.h> // for smart pointer
+
 #include <locale> // For locale settings
 
 #define VTK_ASCII 1
@@ -40,6 +42,7 @@
 
 class vtkAbstractArray;
 class vtkCharArray;
+class vtkCellArray;
 class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkFieldData;
@@ -362,14 +365,22 @@ public:
   int ReadRowData(vtkTable *t, vtkIdType numEdges);
 
   /**
-   * Read a bunch of "cells". Return 0 if error.
+   * Read cells in a vtkCellArray, and update the smartpointer reference passed
+   * in. If no cells are present in the file, cellArray will be set to nullptr.
+   * Returns 0 if error.
    */
-  int ReadCells(vtkIdType size, int *data);
+  int ReadCells(vtkSmartPointer<vtkCellArray> &cellArray);
+
+  /**
+   * Read a bunch of "cells". Return 0 if error.
+   * @note Legacy implementation for file versions < 5.0.
+   */
+  int ReadCellsLegacy(vtkIdType size, int *data);
 
   /**
    * Read a piece of the cells (for streaming compliance)
    */
-  int ReadCells(vtkIdType size, int *data, int skip1, int read2, int skip3);
+  int ReadCellsLegacy(vtkIdType size, int *data, int skip1, int read2, int skip3);
 
   /**
    * Read the coordinates for a rectilinear grid. The axes parameter specifies

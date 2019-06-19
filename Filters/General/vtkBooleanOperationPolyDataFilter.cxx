@@ -154,7 +154,7 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
 
   this->SortPolyData(pd0, interList, unionList);
 
-  outputSurface->Allocate(pd0);
+  outputSurface->AllocateCopy(pd0);
   outputSurface->GetPointData()->CopyAllocate(pointFields);
   outputSurface->GetCellData()->CopyAllocate(cellFields);
 

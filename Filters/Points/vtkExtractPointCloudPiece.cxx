@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkExtractPointCloudPiece.h"
 
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"

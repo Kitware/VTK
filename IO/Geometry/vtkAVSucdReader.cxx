@@ -554,7 +554,7 @@ void vtkAVSucdReader::ReadGeometry(vtkUnstructuredGrid *output,
     this->ReadXYZCoords(coords, nodeMap);
 
     vtkCellArray *cells = vtkCellArray::New();
-    cells->SetCells(this->NumberOfCells, listcells);
+    cells->ImportLegacyFormat(listcells);
     listcells->Delete();
 
     output->SetCells(types, cells);

@@ -567,7 +567,9 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
       }
     }
       vtkCellArray *cells = vtkCellArray::New();
-      cells->SetCells(this->NumberOfVertices, ca);
+      cells->AllocateExact(this->NumberOfVertices,
+                           ca->GetNumberOfValues() - this->NumberOfVertices);
+      cells->ImportLegacyFormat(ca);
       output->SetCells(VTK_VERTEX, cells);
       cells->Delete();
   }
@@ -649,7 +651,9 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
     if (retVal)
     {
       vtkCellArray *cells = vtkCellArray::New();
-      cells->SetCells(this->NumberOfEdges, ca);
+      cells->AllocateExact(this->NumberOfEdges,
+                           ca->GetNumberOfValues() - this->NumberOfEdges);
+      cells->ImportLegacyFormat(ca);
       output->SetCells(VTK_LINE, cells);
       cells->Delete();
     }

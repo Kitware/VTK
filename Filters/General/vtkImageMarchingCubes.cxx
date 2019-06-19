@@ -174,7 +174,7 @@ int vtkImageMarchingCubes::RequestData(
   this->Points = vtkPoints::New();
   this->Points->Allocate(estimatedSize,estimatedSize/2);
   this->Triangles = vtkCellArray::New();
-  this->Triangles->Allocate(estimatedSize,estimatedSize/2);
+  this->Triangles->AllocateEstimate(estimatedSize, 1);
   if (this->ComputeScalars)
   {
     this->Scalars = vtkFloatArray::New();

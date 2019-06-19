@@ -73,10 +73,13 @@ public:
 
     if (pd->GetPoints()->GetNumberOfPoints() >= 2)
     {
+      vtkIdType npts;
+      const vtkIdType *ptIds;
+      pd->GetLines()->GetCellAtId(0, npts, ptIds);
 
       vtkPolyLine *polyline = vtkPolyLine::New();
-      polyline->Initialize( pd->GetNumberOfPoints(),
-                            pd->GetLines()->GetPointer()+1,
+      polyline->Initialize( static_cast<int>(npts),
+                            ptIds,
                             pd->GetPoints() );
 
       this->PolyPlane->SetPolyLine( polyline );

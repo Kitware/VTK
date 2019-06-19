@@ -374,7 +374,7 @@ void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
                                        int geometryFlag,
                                        vtkPolyData *input, vtkPolyData *output)
 {
-  vtkIdType *ptIds = nullptr;
+  const vtkIdType *ptIds = nullptr;
   vtkIdType numPts = 0;
   double pts0[3], pts1[3], pts2[3];
   vtkIdType binIds[3];
@@ -415,7 +415,7 @@ void vtkQuadricClustering::AddStrips(vtkCellArray *strips, vtkPoints *points,
                                      int geometryFlag,
                                      vtkPolyData *input, vtkPolyData *output)
 {
-  vtkIdType *ptIds = nullptr;
+  const vtkIdType *ptIds = nullptr;
   vtkIdType numPts = 0;
   double pts[3][3];
   vtkIdType binIds[3];
@@ -606,7 +606,7 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
                                     vtkPolyData *input, vtkPolyData *output)
 {
   vtkIdType numCells;
-  vtkIdType *ptIds = nullptr;
+  const vtkIdType *ptIds = nullptr;
   vtkIdType numPts = 0;
   double pt0[3], pt1[3];
   vtkIdType binIds[2];
@@ -750,7 +750,7 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
                                        vtkPolyData *output)
 {
   vtkIdType numCells;
-  vtkIdType *ptIds = nullptr;
+  const vtkIdType *ptIds = nullptr;
   vtkIdType numPts = 0;
   double pt[3];
   vtkIdType binId;
@@ -1344,7 +1344,7 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input,
   vtkIdType  tmpLength = 0;
   vtkIdType  tmpIdx;
   double pt[3];
-  vtkIdType *ptIds = nullptr;
+  const vtkIdType *ptIds = nullptr;
   vtkIdType numPts = 0;
   vtkIdType outPtId;
   vtkIdType binId, cellId, outCellId;
@@ -1442,7 +1442,7 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
                                              double vtkNotUsed(angle))
 {
   vtkIdType pointIds[2];
-  vtkIdType *cellPts = nullptr;
+  const vtkIdType *cellPts = nullptr;
   vtkIdType numCellPts;
   vtkIdList *pointIdList = vtkIdList::New();
   vtkIdType numPts = edgePts->GetNumberOfPoints();
@@ -1452,7 +1452,7 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
   double featurePoint[3];
   double featureEdges[2][3];
   double point1[3], point2[3];
-  vtkIdType *cellPointIds;
+  const vtkIdType *cellPointIds;
   double radAngle = vtkMath::RadiansFromDegrees( this->FeaturePointsAngle );
 
   this->FeaturePoints->Allocate(numPts);
@@ -1494,7 +1494,7 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
     {
       for (int j = 0; j < 2; j++)
       {
-        edges->GetCell(3*pointTable[i][j+2], numCellPts, cellPointIds);
+        edges->GetCellAtId(pointTable[i][j+2], numCellPts, cellPointIds);
         if (cellPointIds[0] == pointTable[i][0])
         {
           edgePts->GetPoint(cellPointIds[0], point1);

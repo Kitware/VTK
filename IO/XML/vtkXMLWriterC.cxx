@@ -665,7 +665,8 @@ vtkXMLWriterC_NewCellArray(const char* method, vtkIdType ncells,
       );
     return nullptr;
   }
-  cellArray->SetCells(ncells, array);
+  cellArray->AllocateExact(ncells, array->GetNumberOfValues() - ncells);
+  cellArray->ImportLegacyFormat(array);
   return cellArray;
 }
 

@@ -290,7 +290,6 @@ protected:
   int             PolyDataConstructed;
   vtkPolyData    *PolyData;
   vtkCellArray   *Polys;
-  vtkIdTypeArray *PolyConnectivity;
   void            ConstructPolyData();
   int             LocatorConstructed;
   vtkCellLocator *CellLocator;

@@ -26,6 +26,8 @@
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
 class vtkCellArray;
+class vtkCellArrayIterator;
+class vtkIdTypeArray;
 class vtkUnsignedCharArray;
 class vtkUnstructuredGrid;
 class vtkPoints;
@@ -55,23 +57,11 @@ protected:
   friend class vtkUnstructuredGrid;
   void SetUnstructuredGrid(vtkUnstructuredGrid *ug);
 
-  unsigned char *CellTypeBegin;
-  unsigned char *CellTypePtr;
-  unsigned char *CellTypeEnd;
-
-  vtkIdType *ConnectivityBegin;
-  vtkIdType *ConnectivityPtr;
-  vtkIdType *FacesBegin;
-  vtkIdType *FacesLocsBegin;
-  vtkIdType *FacesLocsPtr;
-
-  // Cache misses make updating ConnectivityPtr in IncrementToNextCell too
-  // expensive, so we wait to walk through the array until the point ids are
-  // needed. This variable keeps track of how far we need to increment.
-  vtkIdType SkippedCells;
-  void CatchUpSkippedCells();
-
-  vtkSmartPointer<vtkPoints> UnstructuredGridPoints;
+  vtkSmartPointer<vtkCellArrayIterator> Cells;
+  vtkSmartPointer<vtkUnsignedCharArray> Types;
+  vtkSmartPointer<vtkIdTypeArray> FaceConn;
+  vtkSmartPointer<vtkIdTypeArray> FaceLocs;
+  vtkSmartPointer<vtkPoints> Coords;
 
 private:
   vtkUnstructuredGridCellIterator(const vtkUnstructuredGridCellIterator &) = delete;

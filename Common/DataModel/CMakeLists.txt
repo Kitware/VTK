@@ -24,6 +24,7 @@ set(classes
   vtkCell
   vtkCell3D
   vtkCellArray
+  vtkCellArrayIterator
   vtkCellData
   vtkCellIterator
   vtkCellLinks
@@ -246,6 +247,7 @@ set(headers
   vtkDoubleDispatcher.h
   vtkHyperTreeGridTools.h
   vtkIntersectionCounter.h
+  vtkPolyDataInternals.h
   vtkRect.h
   vtkVector.h
   vtkVectorOperators.h)

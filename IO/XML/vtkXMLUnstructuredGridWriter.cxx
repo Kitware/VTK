@@ -165,6 +165,7 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPiece(int index,
 
   if (vtkUnstructuredGrid *grid = vtkUnstructuredGrid::SafeDownCast(input))
   {
+    this->ConvertCells(grid->GetCells());
     this->WriteCellsAppended("Cells", grid->GetCellTypesArray(),
                              grid->GetFaces(),
                              grid->GetFaceLocations(),
@@ -261,8 +262,7 @@ void vtkXMLUnstructuredGridWriter::CalculateSuperclassFraction(float* fractions)
     }
     else
     {
-      connectSize = (grid->GetCells()->GetData()->GetNumberOfTuples() -
-                     grid->GetNumberOfCells());
+      connectSize = grid->GetCells()->GetNumberOfConnectivityIds();
     }
   }
   else

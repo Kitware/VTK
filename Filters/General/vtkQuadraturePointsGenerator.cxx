@@ -287,7 +287,8 @@ int vtkQuadraturePointsGenerator::Generate(
     verts += 2;
   }
   vtkCellArray *cells = vtkCellArray::New();
-  cells->SetCells(static_cast<vtkIdType> (nVerts), va);
+  cells->AllocateExact(nVerts, va->GetNumberOfValues() - nVerts);
+  cells->ImportLegacyFormat(va);
   pdOut->SetVerts(cells);
   cells->Delete();
   va->Delete();

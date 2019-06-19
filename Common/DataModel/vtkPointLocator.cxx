@@ -1502,7 +1502,7 @@ void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level),
   pts = vtkPoints::New();
   pts->Allocate(5000);
   polys = vtkCellArray::New();
-  polys->Allocate(10000);
+  polys->AllocateEstimate(2048, 3);
 
   // loop over all buckets, creating appropriate faces
   sliceSize = this->Divisions[0] * this->Divisions[1];

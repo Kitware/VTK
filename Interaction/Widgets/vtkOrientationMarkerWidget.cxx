@@ -81,7 +81,7 @@ vtkOrientationMarkerWidget::vtkOrientationMarkerWidget()
   this->Interactive = 1;
 
   this->Outline = vtkPolyData::New();
-  this->Outline->Allocate();
+  this->Outline->AllocateExact(128, 128);
   vtkPoints *points = vtkPoints::New();
   vtkIdType ptIds[5];
   ptIds[4] = ptIds[0] = points->InsertNextPoint( 1, 1, 0 );

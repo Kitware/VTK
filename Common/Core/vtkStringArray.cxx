@@ -455,15 +455,6 @@ vtkTypeBool vtkStringArray::Resize(vtkIdType sz)
   return 1;
 }
 
-
-//-----------------------------------------------------------------------------
-void vtkStringArray::SetNumberOfValues(vtkIdType number)
-{
-  this->Allocate(number);
-  this->MaxId = number - 1;
-  this->DataChanged();
-}
-
 //-----------------------------------------------------------------------------
 vtkStdString * vtkStringArray::WritePointer(vtkIdType id,
                                      vtkIdType number)

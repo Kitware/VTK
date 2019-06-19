@@ -20,10 +20,8 @@
 #include "CellSetConverters.h"
 #include "PolyDataConverter.h"
 #include "ImageDataConverter.h"
-#include "Storage.h"
 #include "UnstructuredGridConverter.h"
 
-#include "vtkmCellSetSingleType.h"
 #include "vtkmDataArray.h"
 
 // datasets we support

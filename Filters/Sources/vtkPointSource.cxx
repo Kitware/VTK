@@ -90,7 +90,7 @@ int vtkPointSource::RequestData(
 
   newPoints->Allocate(this->NumberOfPoints);
   newVerts = vtkCellArray::New();
-  newVerts->Allocate(newVerts->EstimateSize(1,this->NumberOfPoints));
+  newVerts->AllocateEstimate(1, this->NumberOfPoints);
 
   newVerts->InsertNextCell(this->NumberOfPoints);
 

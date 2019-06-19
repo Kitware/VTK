@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRenderer.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkIncrementalPointLocator.h"
 #include "vtkMergePoints.h"
@@ -426,7 +427,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
   std::cerr << "                                #Cells             "
             << this->Cells->GetNumberOfCells() << std::endl;
   std::cerr << "                                #Type&Connectivity "
-            << this->Cells->GetNumberOfConnectivityEntries() << std::endl;
+            << this->Cells->GetNumberOfConnectivityIds() << std::endl;
   std::cerr << "                          Cells #NbRejectByBB      " << this->NbRejectByBB
             << std::endl;
   std::cerr << "                                #NbRejectByCircle  " << this->NbRejectByCircle
@@ -437,7 +438,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
   std::cerr << "                                #Cells             "
             << this->Cells->GetNumberOfCells() << std::endl;
   std::cerr << "                                #Type&Connectivity "
-            << this->Cells->GetNumberOfConnectivityEntries() << std::endl;
+            << this->Cells->GetNumberOfConnectivityIds() << std::endl;
 
   this->Points->Delete();
   this->Points = nullptr;

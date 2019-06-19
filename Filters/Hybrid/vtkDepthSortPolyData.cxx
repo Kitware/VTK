@@ -66,7 +66,7 @@ struct lessf
 };
 
 template <typename T>
-T getCellBoundsCenter(vtkIdType *pids, vtkIdType nPids, const T *px)
+T getCellBoundsCenter(const vtkIdType *pids, vtkIdType nPids, const T *px)
 {
   T mn = nPids ? px[3*pids[0]] : T();
   T mx = mn;
@@ -108,7 +108,7 @@ void getCellCenterDepth(vtkPolyData *pds, vtkDataArray *gpts,
   for (vtkIdType cid = 0; cid < nCells; ++cid)
   {
     // get the cell point ids using the fast api
-    vtkIdType *pids = nullptr;
+    const vtkIdType *pids = nullptr;
     vtkIdType nPids = 0;
     pds->GetCellPoints(cid, nPids, pids);
 
@@ -160,7 +160,7 @@ void getCellPoint0Depth(vtkPolyData *pds, vtkDataArray *gpts,
   T *cx = new T[nCells];
   T *cy = new T[nCells];
   T *cz = new T[nCells];
-  vtkIdType *pids = nullptr;
+  const vtkIdType *pids = nullptr;
   vtkIdType nPids = 0;
   for (vtkIdType cid = 0; cid < nCells; ++cid)
   {
@@ -375,88 +375,77 @@ int vtkDepthSortPolyData::RequestData(
   output->GetPointData()->PassData(input->GetPointData());
 
   // allocate the cells for the output
-  vtkIdType *pOutputVerts = nullptr;
+  vtkCellArray *outputVerts = nullptr;
   if (nVerts)
   {
-    vtkCellArray *outputVertCells = vtkCellArray::New();
-    outputVertCells->SetNumberOfCells(nVerts);
-    output->SetVerts(outputVertCells);
-    outputVertCells->Delete();
-    vtkIdTypeArray *outputVerts = outputVertCells->GetData();
-    outputVerts->SetNumberOfTuples(
-          input->GetVerts()->GetNumberOfConnectivityEntries());
-    pOutputVerts = outputVerts->GetPointer(0);
+    vtkCellArray *inVerts = input->GetVerts();
+    outputVerts = vtkCellArray::New();
+    outputVerts->AllocateExact(inVerts->GetNumberOfCells(),
+                               inVerts->GetNumberOfConnectivityIds());
+    output->SetVerts(outputVerts);
+    outputVerts->Delete();
   }
 
-  vtkIdType *pOutputLines = nullptr;
+  vtkCellArray *outputLines = nullptr;
   if (nLines)
   {
-    vtkCellArray *outputLineCells = vtkCellArray::New();
-    outputLineCells->SetNumberOfCells(nLines);
-    output->SetLines(outputLineCells);
-    outputLineCells->Delete();
-    vtkIdTypeArray *outputLines = outputLineCells->GetData();
-    outputLines->SetNumberOfTuples(
-          input->GetLines()->GetNumberOfConnectivityEntries());
-    pOutputLines = outputLines->GetPointer(0);
+    vtkCellArray *inLines = input->GetLines();
+    outputLines = vtkCellArray::New();
+    outputLines->AllocateExact(inLines->GetNumberOfCells(),
+                               inLines->GetNumberOfConnectivityIds());
+    output->SetLines(outputLines);
+    outputLines->Delete();
   }
 
-  vtkIdType *pOutputPolys = nullptr;
+  vtkCellArray *outputPolys = nullptr;
   if (nPolys)
   {
-    vtkCellArray *outputPolyCells = vtkCellArray::New();
-    outputPolyCells->SetNumberOfCells(nPolys);
-    output->SetPolys(outputPolyCells);
-    outputPolyCells->Delete();
-    vtkIdTypeArray *outputPolys = outputPolyCells->GetData();
-    outputPolys->SetNumberOfTuples(
-          input->GetPolys()->GetNumberOfConnectivityEntries());
-    pOutputPolys = outputPolys->GetPointer(0);
+    vtkCellArray *inPolys = input->GetPolys();
+    outputPolys = vtkCellArray::New();
+    outputPolys->AllocateExact(inPolys->GetNumberOfCells(),
+                               inPolys->GetNumberOfConnectivityIds());
+    output->SetPolys(outputPolys);
+    outputPolys->Delete();
   }
 
-  vtkIdType *pOutputStrips = nullptr;
+  vtkCellArray *outputStrips = nullptr;
   if (nStrips)
   {
-    vtkCellArray *outputStripCells = vtkCellArray::New();
-    outputStripCells->SetNumberOfCells(nStrips);
-    output->SetStrips(outputStripCells);
-    outputStripCells->Delete();
-    vtkIdTypeArray *outputStrips = outputStripCells->GetData();
-    outputStrips->SetNumberOfTuples(
-          input->GetStrips()->GetNumberOfConnectivityEntries());
-    pOutputStrips = outputStrips->GetPointer(0);
+    vtkCellArray *inStrips = input->GetStrips();
+    outputStrips = vtkCellArray::New();
+    outputStrips->AllocateExact(inStrips->GetNumberOfCells(),
+                                inStrips->GetNumberOfConnectivityIds());
+    output->SetStrips(outputStrips);
+    outputStrips->Delete();
   }
 
   for (vtkIdType i = 0; i < nCells; ++i)
   {
     // get the cell points using the fast api
-    vtkIdType *pids = nullptr;
     vtkIdType cid = order[i];
-    unsigned char ctype = tmpInput->GetCell(cid, pids);
-    vtkIdType nids = pids[0] + 1;
+    vtkIdType nids;
+    const vtkIdType *pids;
+    tmpInput->GetCellPoints(cid, nids, pids);
+    int ctype = tmpInput->GetCellType(cid);
 
     // build the cell
     switch (ctype)
     {
-      case VTK_VERTEX: case VTK_POLY_VERTEX:
-        memcpy(pOutputVerts, pids, nids*sizeof(vtkIdType));
-        pOutputVerts += nids;
-        break;
+    case VTK_VERTEX: case VTK_POLY_VERTEX:
+      outputVerts->InsertNextCell(nids, pids);
+      break;
 
-      case VTK_LINE: case VTK_POLY_LINE:
-        memcpy(pOutputLines, pids, nids*sizeof(vtkIdType));
-        pOutputLines += nids;
-        break;
+    case VTK_LINE: case VTK_POLY_LINE:
+      outputLines->InsertNextCell(nids, pids);
+      break;
 
-      case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
-        memcpy(pOutputPolys, pids, nids*sizeof(vtkIdType));
-        pOutputPolys += nids;
-        break;
+    case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
+      outputPolys->InsertNextCell(nids, pids);
+      break;
 
-      case VTK_TRIANGLE_STRIP:
-        memcpy(pOutputStrips, pids, nids*sizeof(vtkIdType));
-        pOutputStrips += nids;
-        break;
+    case VTK_TRIANGLE_STRIP:
+      outputStrips->InsertNextCell(nids, pids);
+      break;
     }
     // copy over data
     outCD->CopyData(inCD, cid, i);

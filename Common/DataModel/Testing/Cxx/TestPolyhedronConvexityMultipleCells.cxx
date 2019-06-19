@@ -33,7 +33,8 @@ int TestPolyhedronConvexityMultipleCells(int, char *[])
                                                          {{2, 3, 7, 6}} }};
 
   vtkIdType nCells = output->GetNumberOfCells();
-  auto cells = output->GetCells()->GetData();
+  vtkNew<vtkIdTypeArray> cells;
+  output->GetCells()->ExportLegacyFormat(cells);
   int z = 0;
 
   // this loop converts each hexahedron cell into an equivalent polyhedron cell

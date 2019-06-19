@@ -15,6 +15,7 @@
 #include "vtkConvexPointSet.h"
 
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -36,7 +37,7 @@ vtkConvexPointSet::vtkConvexPointSet()
   this->TetraScalars = vtkDoubleArray::New();
   this->TetraScalars->SetNumberOfTuples(4);
   this->BoundaryTris = vtkCellArray::New();
-  this->BoundaryTris->Allocate(100);
+  this->BoundaryTris->AllocateEstimate(128, 3);
   this->Triangle = vtkTriangle::New();
   this->Triangulator = vtkOrderedTriangulator::New();
   this->Triangulator->PreSortedOff();
@@ -84,14 +85,16 @@ vtkCell *vtkConvexPointSet::GetFace(int faceId)
   int numCells = this->BoundaryTris->GetNumberOfCells();
   if ( faceId < 0 || faceId >=numCells ) {return nullptr;}
 
-  vtkIdType *cells = this->BoundaryTris->GetPointer();
+  vtkIdType numPts;
+  const vtkIdType *cptr;
+  this->BoundaryTris->GetCellAtId(faceId, numPts, cptr);
+  assert(numPts == 3);
 
   // Each triangle has three points plus number of points
-  vtkIdType *cptr = cells + 4*faceId;
   for (int i=0; i<3; i++)
   {
-    this->Triangle->PointIds->SetId(i,this->PointIds->GetId(cptr[i+1]));
-    this->Triangle->Points->SetPoint(i,this->Points->GetPoint(cptr[i+1]));
+    this->Triangle->PointIds->SetId(i,this->PointIds->GetId(cptr[i]));
+    this->Triangle->Points->SetPoint(i,this->Points->GetPoint(cptr[i]));
   }
 
   return this->Triangle;

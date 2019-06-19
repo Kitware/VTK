@@ -67,7 +67,6 @@ vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
     vtkm::cont::DynamicCellSet cells =
         Convert(input->GetCellTypesArray(),
                 input->GetCells(),
-                input->GetCellLocationsArray(),
                 numPoints);
     dataset.SetCellSet(cells);
   }
@@ -98,19 +97,18 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output,
   // vtkm to vtk
   vtkNew<vtkCellArray> cells;
   vtkNew<vtkUnsignedCharArray> types;
-  vtkNew<vtkIdTypeArray> locations;
   vtkm::cont::DynamicCellSet outCells = voutput.GetCellSet();
 
-  const bool cellsConverted = fromvtkm::Convert(
-      outCells, cells.GetPointer(), types.GetPointer(), locations.GetPointer());
+  const bool cellsConverted = fromvtkm::Convert(outCells,
+                                                cells.GetPointer(),
+                                                types.GetPointer());
 
   if (!cellsConverted)
   {
     return false;
   }
 
-  output->SetCells(types.GetPointer(), locations.GetPointer(),
-                   cells.GetPointer());
+  output->SetCells(types.GetPointer(), cells.GetPointer());
 
   // now have to set this info back to the unstructured grid
 

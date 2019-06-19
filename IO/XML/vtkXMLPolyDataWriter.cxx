@@ -17,6 +17,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkErrorCode.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkObjectFactory.h"
@@ -228,6 +229,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
     return;
   }
 
+  this->ConvertCells(this->GetInput()->GetVerts());
   this->WriteCellsAppended("Verts", nullptr, indent,
     &this->VertsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -235,6 +237,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
     return;
   }
 
+  this->ConvertCells(this->GetInput()->GetLines());
   this->WriteCellsAppended("Lines", nullptr, indent ,
     &this->LinesOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -242,6 +245,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
     return;
   }
 
+  this->ConvertCells(this->GetInput()->GetStrips());
   this->WriteCellsAppended("Strips", nullptr, indent,
     &this->StripsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -249,6 +253,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
     return;
   }
 
+  this->ConvertCells(this->GetInput()->GetPolys());
   this->WriteCellsAppended("Polys", nullptr, indent,
     &this->PolysOM->GetPiece(index));
 }
@@ -378,14 +383,10 @@ void vtkXMLPolyDataWriter::CalculateSuperclassFraction(float* fractions)
   vtkIdType pointsSize = this->GetNumberOfInputPoints();
 
   // This class will write cell specifications.
-  vtkIdType connectSizeV = (input->GetVerts()->GetData()->GetNumberOfTuples() -
-                            input->GetVerts()->GetNumberOfCells());
-  vtkIdType connectSizeL = (input->GetLines()->GetData()->GetNumberOfTuples() -
-                            input->GetLines()->GetNumberOfCells());
-  vtkIdType connectSizeS = (input->GetStrips()->GetData()->GetNumberOfTuples() -
-                            input->GetStrips()->GetNumberOfCells());
-  vtkIdType connectSizeP = (input->GetPolys()->GetData()->GetNumberOfTuples() -
-                            input->GetPolys()->GetNumberOfCells());
+  vtkIdType connectSizeV = input->GetVerts()->GetNumberOfConnectivityIds();
+  vtkIdType connectSizeL = input->GetLines()->GetNumberOfConnectivityIds();
+  vtkIdType connectSizeS = input->GetStrips()->GetNumberOfConnectivityIds();
+  vtkIdType connectSizeP = input->GetPolys()->GetNumberOfConnectivityIds();
   vtkIdType offsetSizeV = input->GetVerts()->GetNumberOfCells();
   vtkIdType offsetSizeL = input->GetLines()->GetNumberOfCells();
   vtkIdType offsetSizeS = input->GetStrips()->GetNumberOfCells();

@@ -20,24 +20,14 @@
 #ifndef VTK_WRAPPING_CXX
 
 #include "vtkmConfig.h" //required for general vtkm setup
-#include "vtkmTags.h"
 
+#include <vtkm/cont/ArrayHandleCast.h>
 #include <vtkm/cont/ArrayHandlePermutation.h>
 #include <vtkm/cont/CellSetExplicit.h>
 #include <vtkm/cont/CellSetPermutation.h>
 #include <vtkm/cont/CellSetSingleType.h>
 #include <vtkm/cont/CellSetStructured.h>
 #include <vtkm/filter/PolicyDefault.h>
-
-// Forward declaration of types.
-namespace vtkm
-{
-namespace cont
-{
-class vtkmCellSetExplicitAOS;
-class vtkmCellSetSingleType;
-}
-}
 
 namespace tovtkm
 {
@@ -99,18 +89,58 @@ struct CellListStructuredOutVTK
 {
 };
 
+// vtkCellArray may use either 32 or 64 bit arrays to hold connectivity/offset
+// data, so we may be using ArrayHandleCast to convert to vtkm::Ids.
+#ifdef VTKM_USE_64BIT_IDS
+using Int32AOSHandle = vtkm::cont::ArrayHandle<vtkTypeInt32>;
+using Int32AsIdAOSHandle = vtkm::cont::ArrayHandleCast<vtkm::Id, Int32AOSHandle>;
+using Int32AsIdAOSStorage = typename Int32AsIdAOSHandle::StorageTag;
+
+using CellSetExplicit32Bit = vtkm::cont::CellSetExplicit<vtkm::cont::StorageTagBasic,
+                                                         Int32AsIdAOSStorage,
+                                                         Int32AsIdAOSStorage>;
+using CellSetExplicit64Bit = vtkm::cont::CellSetExplicit<vtkm::cont::StorageTagBasic,
+                                                         vtkm::cont::StorageTagBasic,
+                                                         vtkm::cont::StorageTagBasic>;
+using CellSetSingleType32Bit = vtkm::cont::CellSetSingleType<Int32AsIdAOSStorage>;
+using CellSetSingleType64Bit = vtkm::cont::CellSetSingleType<vtkm::cont::StorageTagBasic>;
+#else // VTKM_USE_64BIT_IDS
+using Int64AOSHandle = vtkm::cont::ArrayHandle<vtkTypeInt64, vtkm::cont::StorageTagBasic>;
+using Int64AsIdAOSHandle = vtkm::cont::ArrayHandleCast<vtkm::Id, Int64AOSHandle>;
+using Int64AsIdAOSStorage = typename Int64AsIdAOSHandle::StorageTag;
+
+using CellSetExplicit32Bit = vtkm::cont::CellSetExplicit<vtkm::cont::StorageTagBasic,
+                                                         vtkm::cont::StorageTagBasic,
+                                                         vtkm::cont::StorageTagBasic>;
+using CellSetExplicit64Bit = vtkm::cont::CellSetExplicit<vtkm::cont::StorageTagBasic,
+                                                         Int64AsIdAOSStorage,
+                                                         Int64AsIdAOSStorage>;
+using CellSetSingleType32Bit = vtkm::cont::CellSetSingleType<vtkm::cont::StorageTagBasic>;
+using CellSetSingleType64Bit = vtkm::cont::CellSetSingleType<Int64AsIdAOSStorage>;
+#endif // VTKM_USE_64BIT_IDS
+
 //------------------------------------------------------------------------------
 struct CellListUnstructuredInVTK
-    : vtkm::ListTagBase<vtkm::cont::vtkmCellSetExplicitAOS,
-                        vtkm::cont::vtkmCellSetSingleType>
+    : vtkm::ListTagBase<CellSetExplicit32Bit,
+                        CellSetExplicit64Bit,
+                        CellSetSingleType32Bit,
+                        CellSetSingleType64Bit>
 {
 };
 struct CellListUnstructuredOutVTK
     : vtkm::ListTagBase<
-          vtkm::cont::CellSetExplicit<>, vtkm::cont::CellSetSingleType<>,
-          vtkm::cont::vtkmCellSetExplicitAOS, vtkm::cont::vtkmCellSetSingleType,
-          vtkm::cont::CellSetPermutation<vtkm::cont::vtkmCellSetExplicitAOS>,
-          vtkm::cont::CellSetPermutation<vtkm::cont::vtkmCellSetSingleType>>
+          vtkm::cont::CellSetExplicit<>,
+          vtkm::cont::CellSetSingleType<>,
+          CellSetExplicit32Bit,
+          CellSetExplicit64Bit,
+          CellSetSingleType32Bit,
+          CellSetSingleType64Bit,
+          vtkm::cont::CellSetPermutation<CellSetExplicit32Bit>,
+          vtkm::cont::CellSetPermutation<CellSetExplicit64Bit>,
+          vtkm::cont::CellSetPermutation<CellSetSingleType32Bit>,
+          vtkm::cont::CellSetPermutation<CellSetSingleType64Bit>,
+          vtkm::cont::CellSetPermutation<vtkm::cont::CellSetExplicit<>>,
+          vtkm::cont::CellSetPermutation<vtkm::cont::CellSetSingleType<>>>
 {
 };
 

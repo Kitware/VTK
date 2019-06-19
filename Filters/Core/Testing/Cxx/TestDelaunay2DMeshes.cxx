@@ -46,7 +46,10 @@ bool CompareMeshes(vtkPolyData* p1, vtkPolyData* p2)
   vtkCellArray* polys2 = p2->GetPolys();
   polys1->InitTraversal();
   polys2->InitTraversal();
-  vtkIdType npts1, npts2, *pts1, *pts2;
+  vtkIdType npts1;
+  vtkIdType npts2;
+  const vtkIdType *pts1;
+  const vtkIdType *pts2;
   while (polys1->GetNextCell(npts1, pts1) && polys2->GetNextCell(npts2, pts2))
   {
     if (npts1 != npts2)

@@ -89,7 +89,11 @@ namespace {
     double t = 0.0;
     bool terminated=false;
     vtkIdType ncells;
-    vtkIdType npts, *pts, *cells, nei, lastCell=lineId;
+    vtkIdType npts;
+    const vtkIdType *pts;
+    vtkIdType *cells;
+    vtkIdType nei;
+    vtkIdType lastCell=lineId;
     polyData->GetCellPoints(lineId,npts,pts);
 
     // Recall that we are working with 2-pt lines
@@ -287,9 +291,11 @@ int vtkContourLoopExtraction::RequestData(
 
   // Create a clean polydata containing only line segments and without other
   // topological types. This simplifies the filter.
-  vtkIdType npts, *pts, lineId;
+  vtkIdType npts;
+  const vtkIdType *pts;
+  vtkIdType lineId;
   vtkCellArray *newLines = vtkCellArray::New();
-  newLines->Allocate(numLines,2);
+  newLines->AllocateEstimate(numLines, 2);
   for ( lineId=0, lines->InitTraversal(); lines->GetNextCell(npts,pts); ++lineId)
   {
     for ( int i=0; i < (npts-1); ++i)

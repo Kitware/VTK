@@ -66,7 +66,7 @@ int vtkAxes::RequestData(
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(numLines,2));
+  newLines->AllocateEstimate(numLines, 2);
   newScalars = vtkFloatArray::New();
   newScalars->Allocate(numPts);
   newScalars->SetName("Axes");

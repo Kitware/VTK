@@ -16,8 +16,10 @@
 
 #include "vtkBitArray.h"
 #include "vtkByteSwap.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
@@ -58,6 +60,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <algorithm>
 #include <cctype>
 #include <sstream>
 
@@ -3149,9 +3152,90 @@ int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
   return 1;
 }
 
+int vtkDataReader::ReadCells(vtkSmartPointer<vtkCellArray> &cellArray)
+{
+  vtkIdType offsetsSize;
+  vtkIdType connSize;
+  char buffer[256];
+
+  if (!(this->Read(&offsetsSize) &&
+        this->Read(&connSize)))
+  {
+    vtkErrorMacro("Error while reading cell array header.");
+    this->CloseVTKFile();
+    return 0;
+  }
+
+  if (offsetsSize < 1)
+  {
+    cellArray = vtkSmartPointer<vtkCellArray>::New();
+    return 1;
+  }
+
+  if (!this->ReadString(buffer) || // "offsets"
+      (strcmp(this->LowerCase(buffer, 256), "offsets") != 0) ||
+      !this->ReadString(buffer)) // datatype
+  {
+    vtkErrorMacro("Error reading cell array offset header.");
+    this->CloseVTKFile();
+    return 0;
+  }
+
+  this->LowerCase(buffer, 256);
+
+  auto offsets = vtk::TakeSmartPointer(this->ReadArray(buffer, offsetsSize, 1));
+  if (!offsets)
+  {
+    vtkErrorMacro("Error reading cell array offset data.");
+    this->CloseVTKFile();
+    return 0;
+  }
+
+  if (!this->ReadString(buffer) || // "connectivity"
+      (strcmp(this->LowerCase(buffer, 256), "connectivity") != 0) ||
+      !this->ReadString(buffer)) // datatype
+  {
+    vtkErrorMacro("Error reading cell array connectivity header.");
+    this->CloseVTKFile();
+    return 0;
+  }
+
+  this->LowerCase(buffer, 256);
+
+  auto conn = vtk::TakeSmartPointer(this->ReadArray(buffer, connSize, 1));
+  if (!conn)
+  {
+    vtkErrorMacro("Error reading cell array connectivity data.");
+    this->CloseVTKFile();
+    return 0;
+  }
+
+  // Check that they are the indicated types and add them to the cell array:
+
+  auto *offDA = vtkArrayDownCast<vtkDataArray>(offsets.Get());
+  auto *connDA = vtkArrayDownCast<vtkDataArray>(conn.Get());
+  if (!offDA || !connDA)
+  {
+    vtkErrorMacro("Offsets and connectivity arrays must subclass vtkDataArray.");
+    this->CloseVTKFile();
+    return 0;
+  }
+
+  cellArray = vtkSmartPointer<vtkCellArray>::New();
+  bool succ = cellArray->SetData(offDA, connDA);
+
+  if (!succ)
+  { // SetData logs error for us
+    cellArray = nullptr;
+    this->CloseVTKFile();
+    return 0;
+  }
+
+  return 1;
+}
 
 // Read lookup table. Return 0 if error.
-int vtkDataReader::ReadCells(vtkIdType size, int *data)
+int vtkDataReader::ReadCellsLegacy(vtkIdType size, int *data)
 {
   char line[256];
   int i;
@@ -3190,8 +3274,8 @@ int vtkDataReader::ReadCells(vtkIdType size, int *data)
   return 1;
 }
 
-int vtkDataReader::ReadCells(vtkIdType size, int *data,
-                             int skip1, int read2, int skip3)
+int vtkDataReader::ReadCellsLegacy(vtkIdType size, int *data,
+                                   int skip1, int read2, int skip3)
 {
   char line[256];
   int i, numCellPts, junk, *tmp, *pTmp;

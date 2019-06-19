@@ -17,9 +17,12 @@
 #include "vtk3DLinearGridInternal.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
+#include "vtkCellTypes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
 #include "vtkHexahedron.h"
@@ -40,9 +43,13 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
+
+#include <algorithm>
+#include <numeric>
 
 vtkStandardNewMacro(vtk3DLinearGridPlaneCutter);
 vtkCxxSetObjectMacro(vtk3DLinearGridPlaneCutter,Plane,vtkPlane);
@@ -221,7 +228,7 @@ struct ExtractEdgesBase
 
     // Allocate space for VTK triangle output.
     this->NumTris = numTris;
-    this->Tris->WritePointer(this->NumTris,4*this->NumTris);
+    this->Tris->ResizeExact(this->NumTris, 3*this->NumTris);
 
     // Copy local edges to global edge array. Add in the originating edge id
     // used later when merging.
@@ -308,7 +315,7 @@ struct ExtractEdges : public ExtractEdgesBase<IDType,TIP>
           }//for all edges in this case
         }//if contour passes through this cell
       }//if plane intersects
-      c += cellIter->Next(cellId); //move to the next cell
+      c = cellIter->Next(); //move to the next cell
     }//for all cells in this batch
   }
 
@@ -365,21 +372,39 @@ struct ProducePoints
 // non-merged edges. Every three edges represents one triangle.
 struct ProduceTriangles
 {
-  vtkIdType *Tris;
+  vtkCellArray *Tris;
 
-  ProduceTriangles(vtkIdType *tris) : Tris(tris) {}
+  ProduceTriangles(vtkCellArray *tris) : Tris(tris) {}
+
+  struct Impl
+  {
+    template <typename CellStateT>
+    void operator()(CellStateT &state,
+                    vtkIdType triId,
+                    vtkIdType endTriId)
+    {
+      using ValueType = typename CellStateT::ValueType;
+      auto *offsets = state.GetOffsets();
+      auto *conn = state.GetConnectivity();
+
+      auto offsetRange = vtk::DataArrayValueRange<1>(offsets,
+                                                     triId,
+                                                     endTriId + 1);
+      ValueType offset = 3 * (triId - 1); // Incremented before first use
+      std::generate(offsetRange.begin(), offsetRange.end(),
+                    [&]() -> ValueType { return offset += 3; });
+
+      auto connRange = vtk::DataArrayValueRange<1>(conn,
+                                                   3 * triId,
+                                                   3 * endTriId);
+      vtkIdType ptId = 3 * triId;
+      std::iota(connRange.begin(), connRange.end(), ptId);
+    }
+  };
 
   void operator()(vtkIdType triId, vtkIdType endTriId)
   {
-    vtkIdType *tris = this->Tris + 4*triId;
-    vtkIdType ptId = 3*triId;
-    for ( ; triId < endTriId; ++triId )
-    {
-      *tris++ = 3;
-      *tris++ = ptId++;
-      *tris++ = ptId++;
-      *tris++ = ptId++;
-    }
+    this->Tris->Visit(Impl{}, triId, endTriId);
   }
 };
 
@@ -422,11 +447,11 @@ struct ProduceMergedTriangles
   const MergeTupleType *MergeArray;
   const IDType *Offsets;
   vtkIdType NumTris;
-  vtkIdType *Tris;
+  vtkCellArray *Tris;
   int NumThreadsUsed; //placeholder
 
   ProduceMergedTriangles(const MergeTupleType *merge, const IDType *offsets,
-                         vtkIdType numTris, vtkIdType *tris) :
+                         vtkIdType numTris, vtkCellArray *tris) :
     MergeArray(merge), Offsets(offsets), NumTris(numTris), Tris(tris),
     NumThreadsUsed(1)
   {
@@ -437,36 +462,60 @@ struct ProduceMergedTriangles
     ;//without this method Reduce() is not called
   }
 
+  struct Impl
+  {
+    template <typename CellStateT>
+    void operator()(CellStateT &state,
+                    vtkIdType ptId,
+                    const vtkIdType endPtId,
+                    const IDType *offsets,
+                    const MergeTupleType *mergeArray)
+    {
+      using ValueType = typename CellStateT::ValueType;
+      auto *conn = state.GetConnectivity();
+
+      for (; ptId < endPtId; ++ptId)
+      {
+        const IDType numPtsInGroup = offsets[ptId + 1] - offsets[ptId];
+        for (IDType i = 0; i < numPtsInGroup; ++i)
+        {
+          const IDType connIdx = mergeArray[offsets[ptId] + i].EId;
+          conn->SetValue(connIdx, static_cast<ValueType>(ptId));
+        }//for this group of coincident edges
+      }//for all merged points
+    }
+  };
+
   // Loop over all merged points and update the ids of the triangle
   // connectivity.  Offsets point to the beginning of a group of equal edges:
   // all edges in the group are updated to the current merged point id.
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const MergeTupleType *mergeArray = this->MergeArray;
-    const IDType *offsets = this->Offsets;
-    IDType i, numPtsInGroup, eid, triId;
-
-    for ( ; ptId < endPtId; ++ptId )
-    {
-      numPtsInGroup = offsets[ptId+1] - offsets[ptId];
-      for ( i=0; i<numPtsInGroup; ++i )
-      {
-        eid = mergeArray[offsets[ptId]+i].EId;
-        triId = eid / 3;
-        *(this->Tris + 4*triId + eid-(3*triId) + 1) = ptId;
-      }//for this group of coincident edges
-    }//for all merged points
+    this->Tris->Visit(Impl{}, ptId, endPtId, this->Offsets, this->MergeArray);
   }
+
+  struct ReduceImpl
+  {
+    template <typename CellStateT>
+    void operator()(CellStateT &state,
+                    const vtkIdType numTris)
+    {
+      using ValueType = typename CellStateT::ValueType;
+
+      auto offsets = vtk::DataArrayValueRange<1>(state.GetOffsets(),
+                                                 0,
+                                                 numTris + 1);
+      ValueType offset = -3; // +=3 on first access
+      std::generate(offsets.begin(), offsets.end(),
+                    [&]() -> ValueType { return offset += 3; });
+    }
+  };
 
   // Update the triangle connectivity (numPts for each triangle. This could
   // be done in parallel but it's probably not faster.
   void Reduce()
   {
-    vtkIdType *tris = this->Tris;
-    for ( IDType triId=0; triId < this->NumTris; ++triId, tris+=4 )
-    {
-      *tris = 3;
-    }
+    this->Tris->Visit(ReduceImpl{}, this->NumTris);
   }
 };
 
@@ -552,7 +601,7 @@ int ProcessEdges(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
                  int &numThreads)
 {
   // Extract edges that the plane intersects.
-  vtkIdType numTris=0, *tris=nullptr;
+  vtkIdType numTris=0;
   MergeTuple<TIds,float> *mergeEdges=nullptr; //may need reference counting
 
   // Extract edges
@@ -564,7 +613,6 @@ int ProcessEdges(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
                                           newPolys);
     EXECUTE_REDUCED_SMPFOR(seqProcessing,numCells,extractEdges,numThreads);
     numTris = extractEdges.NumTris;
-    tris = newPolys->GetPointer();
     mergeEdges = extractEdges.Edges;
   }
   else //if (ptsType == VTK_DOUBLE)
@@ -573,7 +621,6 @@ int ProcessEdges(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
                                            newPolys);
     EXECUTE_REDUCED_SMPFOR(seqProcessing,numCells,extractEdges,numThreads);
     numTris = extractEdges.NumTris;
-    tris = newPolys->GetPointer();
     mergeEdges = extractEdges.Edges;
   }
   int nt = numThreads;
@@ -634,7 +681,7 @@ int ProcessEdges(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
     }
 
     // Produce non-merged triangles from edges
-    ProduceTriangles produceTris(tris);
+    ProduceTriangles produceTris(newPolys);
     EXECUTE_SMPFOR(seqProcessing,numTris,produceTris);
 
     // Interpolate attributes if requested
@@ -657,7 +704,10 @@ int ProcessEdges(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
     const TIds *offsets = loc.MergeEdges(3*numTris,mergeEdges,numPts);
 
     // Generate triangles from merged edges.
-    ProduceMergedTriangles<TIds> produceTris(mergeEdges,offsets,numTris,tris);
+    ProduceMergedTriangles<TIds> produceTris(mergeEdges,
+                                             offsets,
+                                             numTris,
+                                             newPolys);
     EXECUTE_REDUCED_SMPFOR(seqProcessing,numPts,produceTris,numThreads);
     numThreads = nt;
 
@@ -848,10 +898,8 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkPlane *plane, vtkPolyData *output)
   vtkCellArray *newPolys = vtkCellArray::New();
 
   // Set up the cells for processing. A specialized iterator is used to traverse the cells.
-  vtkIdType *conn = cells->GetPointer();
   unsigned char *cellTypes = static_cast<unsigned char*>(input->GetCellTypesArray()->GetVoidPointer(0));
-  vtkIdType *locs = static_cast<vtkIdType*>(input->GetCellLocationsArray()->GetVoidPointer(0));
-  CellIter *cellIter = new CellIter(numCells,cellTypes,conn,locs);
+  CellIter *cellIter = new CellIter(numCells, cellTypes, cells);
 
   // Compute plane-cut scalars
   unsigned char *inout=nullptr;

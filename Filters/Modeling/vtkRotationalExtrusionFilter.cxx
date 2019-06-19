@@ -61,7 +61,7 @@ int vtkRotationalExtrusionFilter::RequestData(
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   int numEdges;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   vtkIdType cellId, ptId, ncells;
   double x[3], newX[3], radius, angleIncr, radIncr, transIncr;
@@ -117,14 +117,14 @@ int vtkRotationalExtrusionFilter::RequestData(
   if ( (ncells=inVerts->GetNumberOfCells()) > 0 )
   {
     newLines = vtkCellArray::New();
-    newLines->Allocate(newLines->EstimateSize(ncells,this->Resolution+1));
+    newLines->AllocateEstimate(ncells, this->Resolution+1);
   }
   // arbitrary initial allocation size
   ncells = inLines->GetNumberOfCells() + inPolys->GetNumberOfCells()/10 +
            inStrips->GetNumberOfCells()/10;
   ncells = (ncells < 100 ? 100 : ncells);
   newStrips = vtkCellArray::New();
-  newStrips->Allocate(newStrips->EstimateSize(ncells,2*(this->Resolution+1)));
+  newStrips->AllocateEstimate(ncells, 2*(this->Resolution+1));
   outCD->CopyNormalsOff();
   outCD->CopyAllocate(cd,ncells);
 
@@ -235,7 +235,7 @@ int vtkRotationalExtrusionFilter::RequestData(
     if ( inPolys->GetNumberOfCells() > 0 )
     {
       newPolys = vtkCellArray::New();
-      newPolys->Allocate(inPolys->GetSize());
+      newPolys->AllocateCopy(inPolys);
 
       for ( cellId=0; cellId < numCells && !abort; cellId++ )
       {

@@ -23,13 +23,11 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/ImageDataConverter.h"
-#include "vtkmlib/Storage.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include "vtkm/filter/ExtractStructured.h"
+#include "vtkm/filter/ExtractStructured.hxx"
 
 
 namespace {

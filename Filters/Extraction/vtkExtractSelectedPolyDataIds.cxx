@@ -103,7 +103,7 @@ int vtkExtractSelectedPolyDataIds::RequestData(
     return 1;
   }
 
-  output->Allocate(numCells);
+  output->AllocateEstimate(numCells, 1);
   output->SetPoints(input->GetPoints());
   outputPD->PassData(pd);
   outputCD->CopyAllocate(cd);

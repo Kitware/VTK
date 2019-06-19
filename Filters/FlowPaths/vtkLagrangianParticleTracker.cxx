@@ -627,7 +627,7 @@ void vtkLagrangianParticleTracker::InsertPolyVertexCell(vtkPolyData* polydata)
   if (nPoint > 0)
   {
     vtkNew<vtkCellArray> polyVertex;
-    polyVertex->Allocate(polyVertex->EstimateSize(1, nPoint));
+    polyVertex->AllocateEstimate(1, nPoint);
     polyVertex->InsertNextCell(nPoint);
     for (vtkIdType i = 0; i < nPoint; i++)
     {
@@ -645,7 +645,7 @@ void vtkLagrangianParticleTracker::InsertVertexCells(vtkPolyData* polydata)
   if (nPoint > 0)
   {
     vtkNew<vtkCellArray> polyVertex;
-    polyVertex->Allocate(polyVertex->EstimateSize(1, nPoint));
+    polyVertex->AllocateEstimate(1, nPoint);
     for (vtkIdType i = 0; i < nPoint; i++)
     {
       polyVertex->InsertNextCell(1);

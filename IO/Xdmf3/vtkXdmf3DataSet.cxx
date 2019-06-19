@@ -1550,9 +1550,7 @@ void vtkXdmf3DataSet::CopyShape(
     int *cell_types = new int[numCells];
 
     vtkCellArray* vCells = vtkCellArray::New();
-    // Get the pointer
-    vtkIdType* cells_ptr = vCells->WritePointer(
-      numCells, numCells * (1 + numPointsPerCell));
+    vCells->AllocateEstimate(numCells, numPointsPerCell);
 
     // xmfConnections: N p1 p2 ... pN
     // i.e. Triangles : 3 0 1 2    3 3 4 5   3 6 7 8
@@ -1560,10 +1558,10 @@ void vtkXdmf3DataSet::CopyShape(
     for(vtkIdType cc = 0 ; cc < static_cast<vtkIdType>(numCells); cc++ )
     {
       cell_types[cc] = vCellType;
-      *cells_ptr++ = numPointsPerCell;
+      vCells->InsertNextCell(static_cast<int>(numPointsPerCell));
       for (vtkIdType i = 0 ; i < static_cast<vtkIdType>(numPointsPerCell); i++ )
       {
-        *cells_ptr++ = xTopology->getValue<vtkIdType>(index++);
+        vCells->InsertCellPoint(xTopology->getValue<vtkIdType>(index++));
       }
     }
     dataSet->SetCells(cell_types, vCells);
@@ -1581,14 +1579,11 @@ void vtkXdmf3DataSet::CopyShape(
 
     /* Create Cell Array */
     vtkCellArray* vCells = vtkCellArray::New();
-
-    /* Get the pointer. Make it Big enough ... too big for now */
-    vtkIdType* cells_ptr = vCells->WritePointer(numCells, conn_length);
+    vCells->AllocateExact(numCells, conn_length);
 
     /* xmfConnections : N p1 p2 ... pN */
     /* i.e. Triangles : 3 0 1 2    3 3 4 5   3 6 7 8 */
     vtkIdType index = 0;
-    int sub = 0;
     for(vtkIdType cc = 0 ; cc < numCells; cc++ )
     {
       shared_ptr<const XdmfTopologyType> nextCellType =
@@ -1616,14 +1611,13 @@ void vtkXdmf3DataSet::CopyShape(
           // cell type does not have a fixed number of points in which case the
           // next entry in xmfConnections tells us the number of points.
           numPointsPerCell = xTopology->getValue<unsigned int>(index++);
-          sub++; // used to shrink the cells array at the end.
         }
 
         cell_types[cc] = vtk_cell_typeI;
-        *cells_ptr++ = numPointsPerCell;
+        vCells->InsertNextCell(static_cast<int>(numPointsPerCell));
         for(vtkIdType i = 0 ; i < static_cast<vtkIdType>(numPointsPerCell); i++ )
         {
-          *cells_ptr++ = xTopology->getValue<vtkIdType>(index++);
+          vCells->InsertCellPoint(xTopology->getValue<vtkIdType>(index++));
         }
       }
       else
@@ -1649,17 +1643,17 @@ void vtkXdmf3DataSet::CopyShape(
         //                          nFace1Pts, id1_0, id1_1, ...,
         //                          ...]
         cell_types[cc] = vtk_cell_typeI;
-        *cells_ptr++ = numPointsPerCell + numFacesPerCell + 1;
-        *cells_ptr++ = numFacesPerCell;
+        vCells->InsertNextCell(static_cast<int>(numPointsPerCell +
+                                                numFacesPerCell + 1));
+        vCells->InsertCellPoint(static_cast<vtkIdType>(numFacesPerCell));
         for(vtkIdType i = 0 ;
             i < static_cast<vtkIdType>(numPointsPerCell + numFacesPerCell); i++ )
         {
-          *cells_ptr++ = xTopology->getValue<vtkIdType>(index++);
+          vCells->InsertCellPoint(xTopology->getValue<vtkIdType>(index++));
         }
       }
     }
-    // Resize the Array to the Proper Size
-    vCells->GetData()->Resize(index-sub);
+
     dataSet->SetCells(cell_types, vCells);
     vCells->Delete();
     delete [] cell_types;

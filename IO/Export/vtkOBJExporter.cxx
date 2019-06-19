@@ -184,7 +184,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor,
   vtkCellArray *cells;
   vtkNew<vtkTransform> trans;
   vtkIdType npts = 0;
-  vtkIdType *indx = nullptr;
+  const vtkIdType *indx = nullptr;
 
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == nullptr)

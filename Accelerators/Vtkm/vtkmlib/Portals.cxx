@@ -16,7 +16,6 @@
 
 #define vtkmlib_Portals_cxx
 #include "Portals.h"
-#include "vtkmTags.h"
 
 #include <vtkm/cont/internal/ArrayPortalFromIterators.h>
 

@@ -537,11 +537,11 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   }
   newPoints->Allocate(estimatedSize,estimatedSize/2);
   newVerts = vtkCellArray::New();
-  newVerts->Allocate(estimatedSize,estimatedSize/2);
+  newVerts->AllocateEstimate(estimatedSize, 1);
   newLines = vtkCellArray::New();
-  newLines->Allocate(estimatedSize,estimatedSize/2);
+  newLines->AllocateEstimate(estimatedSize, 2);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(estimatedSize,estimatedSize/2);
+  newPolys->AllocateEstimate(estimatedSize, 4);
   cutScalars = vtkDoubleArray::New();
   cutScalars->SetNumberOfTuples(numPts);
 
@@ -793,11 +793,11 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   }
   newPoints->Allocate(estimatedSize,estimatedSize/2);
   newVerts = vtkCellArray::New();
-  newVerts->Allocate(estimatedSize,estimatedSize/2);
+  newVerts->AllocateEstimate(estimatedSize, 1);
   newLines = vtkCellArray::New();
-  newLines->Allocate(estimatedSize,estimatedSize/2);
+  newLines->AllocateEstimate(estimatedSize, 2);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(estimatedSize,estimatedSize/2);
+  newPolys->AllocateEstimate(estimatedSize, 4);
   cutScalars = vtkDoubleArray::New();
   cutScalars->SetNumberOfTuples(numPts);
 

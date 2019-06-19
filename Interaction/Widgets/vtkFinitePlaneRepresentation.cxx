@@ -160,7 +160,7 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
 
   // Construct plane geometry
   vtkNew<vtkCellArray> cell;
-  cell->Allocate(5);
+  cell->AllocateEstimate(1, 4);
   vtkIdType pts[4] = { 0, 1, 2, 3 };
   cell->InsertNextCell(4, pts);
   this->PlanePolyData->SetPolys(cell);

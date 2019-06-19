@@ -82,7 +82,7 @@ int vtkImageDataToExplicitStructuredGrid::RequestData(vtkInformation*,
 
   // Build hexahedrons cells from input voxels
   vtkNew<vtkCellArray> cells;
-  cells->Allocate(nbCells * 9);
+  cells->AllocateEstimate(nbCells, 8);
   vtkNew<vtkIdList> ptIds;
   for (vtkIdType i = 0; i < nbCells; i++)
   {

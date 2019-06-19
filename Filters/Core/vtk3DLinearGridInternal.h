@@ -38,10 +38,13 @@
 #define vtk3DLinearGridInternal_h
 
 // Include appropriate cell types
+#include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkTetra.h"
 #include "vtkHexahedron.h"
 #include "vtkWedge.h"
 #include "vtkPyramid.h"
+#include "vtkSmartPointer.h"
 #include "vtkVoxel.h"
 #include <cmath>
 
@@ -353,13 +356,12 @@ namespace { //anonymous namespace
     // The iteration state.
     unsigned char NumVerts;
     const unsigned short *Cases;
-    vtkIdType Incr;
 
     // References to unstructured grid for cell traversal.
     vtkIdType NumCells;
     const unsigned char *Types;
-    const vtkIdType *Conn;
-    const vtkIdType *Locs;
+    vtkSmartPointer<vtkCellArray> CellArray;
+    vtkSmartPointer<vtkCellArrayIterator> ConnIter;
 
     // All possible cell types. The iterator switches between them when
     // processing. All unsupported cells are of type EmptyCell.
@@ -370,14 +372,15 @@ namespace { //anonymous namespace
     VoxelCell *Voxel;
     EmptyCell *Empty;
 
-    CellIter() : Copy(true), Cell(nullptr), NumVerts(0), Cases(nullptr), Incr(0),
-                 NumCells(0), Types(nullptr), Conn(nullptr), Locs(nullptr), Tetra(nullptr),
+    CellIter() : Copy(true), Cell(nullptr), NumVerts(0), Cases(nullptr),
+                 NumCells(0), Types(nullptr), Tetra(nullptr),
                  Hexahedron(nullptr), Pyramid(nullptr), Wedge(nullptr), Voxel(nullptr), Empty(nullptr)
     {}
 
-    CellIter(vtkIdType numCells, unsigned char *types, vtkIdType *conn, vtkIdType *locs) :
-      Copy(false), Cell(nullptr), NumVerts(0), Cases(nullptr), Incr(0),
-      NumCells(numCells), Types(types), Conn(conn), Locs(locs)
+    CellIter(vtkIdType numCells, unsigned char *types, vtkCellArray *cellArray) :
+      Copy(false), Cell(nullptr), NumVerts(0), Cases(nullptr),
+      NumCells(numCells), Types(types), CellArray(cellArray),
+      ConnIter(vtk::TakeSmartPointer(cellArray->NewIterator()))
     {
       this->Tetra = new TetraCell;
       this->Hexahedron = new HexahedronCell;
@@ -410,12 +413,23 @@ namespace { //anonymous namespace
 
       this->NumVerts = cellIter.NumVerts;
       this->Cases = cellIter.Cases;
-      this->Incr = cellIter.Incr;
 
       this->NumCells = cellIter.NumCells;
       this->Types = cellIter.Types;
-      this->Conn = cellIter.Conn;
-      this->Locs = cellIter.Locs;
+      this->CellArray = cellIter.CellArray;
+
+      // This class is passed around by pointer and only copied deliberately
+      // to create thread-local copies. Since we don't want to share state,
+      // create a new iterator here:
+      if (cellIter.ConnIter)
+      {
+        this->ConnIter = vtk::TakeSmartPointer(this->CellArray->NewIterator());
+        this->ConnIter->GoToCell(cellIter.ConnIter->GetCurrentCellId());
+      }
+      else
+      {
+        this->ConnIter = nullptr;
+      }
 
       this->Tetra = cellIter.Tetra;
       this->Hexahedron = cellIter.Hexahedron;
@@ -437,55 +451,46 @@ namespace { //anonymous namespace
 
     // Methods for caching traversal. Initialize() sets up the traversal
     // process; Next() advances to the next cell. Note that the public data
-    // members representing the iteration state (NumVerts, Cases, Incr) are
+    // members representing the iteration state (NumVerts, Cases, ConnIter) are
     // modified by these methods, and then subsequently read during iteration.
     const vtkIdType* Initialize(vtkIdType cellId)
     {
       this->Cell = this->GetCell(this->Types[cellId]);
       this->NumVerts = this->Cell->NumVerts;
       this->Cases = this->Cell->Cases;
+      this->ConnIter->GoToCell(cellId);
 
-      if ( this->Cell->CellType != VTK_EMPTY_CELL )
-      {
-        this->Incr = this->NumVerts + 1;
-      }
-      else // Else have to update the increment differently
-      {
-        this->Incr = (cellId >= (this->NumCells-1) ? 0 :
-                      this->Locs[cellId+1] - this->Locs[cellId]);
-      }
-
-      return (this->Conn + this->Locs[cellId] + 1);
+      vtkIdType dummy;
+      const vtkIdType *conn;
+      this->ConnIter->GetCurrentCell(dummy, conn);
+      return conn;
     }
 
-    vtkIdType Next(vtkIdType cellId)
+    const vtkIdType* Next()
     {
-      // Guard against end of array condition; only update information if the
-      // cell type changes. Note however that empty cells may have to be
-      // treated specially.
-      if ( cellId >= (this->NumCells-1) ||
-           (this->Cell->CellType != VTK_EMPTY_CELL &&
-            this->Cell->CellType == this->Types[cellId+1]) )
+      this->ConnIter->GoToNextCell();
+
+      if (this->ConnIter->IsDoneWithTraversal())
       {
-        return this->Incr;
+        return nullptr;
       }
 
-      // Need to look up new information as cell type has changed.
-      vtkIdType incr = this->Incr;
-      this->Cell = this->GetCell(this->Types[cellId+1]);
-      this->NumVerts = this->Cell->NumVerts;
-      this->Cases = this->Cell->Cases;
+      const vtkIdType currentCellId = this->ConnIter->GetCurrentCellId();
 
-      if ( this->Cell->CellType != VTK_EMPTY_CELL )
+      // Only update information if the cell type changes. Note however that
+      // empty cells may have to be treated specially.
+      if (this->Cell->CellType == VTK_EMPTY_CELL ||
+          this->Cell->CellType != this->Types[currentCellId])
       {
-        this->Incr = this->NumVerts + 1;
-      }
-      else // Else have to update the increment differently
-      {
-        this->Incr = this->Locs[cellId+2] - this->Locs[cellId+1];
+        this->Cell = this->GetCell(this->Types[currentCellId]);
+        this->NumVerts = this->Cell->NumVerts;
+        this->Cases = this->Cell->Cases;
       }
 
-      return incr;
+      vtkIdType dummy;
+      const vtkIdType* conn;
+      this->ConnIter->GetCurrentCell(dummy, conn);
+      return conn;
     }
 
     // Method for random access of cell, no caching
@@ -500,7 +505,12 @@ namespace { //anonymous namespace
       this->Cell = this->GetCell(this->Types[cellId]);
       this->NumVerts = this->Cell->NumVerts;
       this->Cases = this->Cell->Cases;
-      return (this->Conn + this->Locs[cellId] + 1);
+      this->ConnIter->GoToCell(cellId);
+
+      vtkIdType dummy;
+      const vtkIdType *conn;
+      this->ConnIter->GetCurrentCell(dummy, conn);
+      return conn;
     }
 
     // Switch to the appropriate cell type.

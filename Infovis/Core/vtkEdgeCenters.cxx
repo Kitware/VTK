@@ -145,7 +145,7 @@ int vtkEdgeCenters::RequestData(
     vtkIdType pts[1];
     vtkCellData *outCD = output->GetCellData();
     vtkCellArray *verts = vtkCellArray::New();
-    verts->Allocate(verts->EstimateSize(numEdges, 2), 1);
+    verts->AllocateEstimate(numEdges, 2);
 
     processed = 0;
     edges = vtkEdgeListIterator::New();

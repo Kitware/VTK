@@ -51,20 +51,30 @@ public:
   {
     vtkPolyData* Input;
     vtkSMPMergePoints* Locator;
-    vtkIdList* VertOffsets;
-    vtkIdList* LineOffsets;
-    vtkIdList* PolyOffsets;
+    vtkIdList* VertCellOffsets;
+    vtkIdList* VertConnOffsets;
+    vtkIdList* LineCellOffsets;
+    vtkIdList* LineConnOffsets;
+    vtkIdList* PolyCellOffsets;
+    vtkIdList* PolyConnOffsets;
   //@}
 
     InputData(vtkPolyData* input,
               vtkSMPMergePoints* locator,
-              vtkIdList* vertOffsets,
-              vtkIdList* lineOffsets,
-              vtkIdList* polyOffsets) : Input(input),
-                                        Locator(locator),
-                                        VertOffsets(vertOffsets),
-                                        LineOffsets(lineOffsets),
-                                        PolyOffsets(polyOffsets)
+              vtkIdList* vertCellOffsets,
+              vtkIdList* vertConnOffsets,
+              vtkIdList* lineCellOffsets,
+              vtkIdList* lineConnOffsets,
+              vtkIdList* polyCellOffsets,
+              vtkIdList* polyConnOffsets)
+      : Input(input),
+        Locator(locator),
+        VertCellOffsets(vertCellOffsets),
+        VertConnOffsets(vertConnOffsets),
+        LineCellOffsets(lineCellOffsets),
+        LineConnOffsets(lineConnOffsets),
+        PolyCellOffsets(polyCellOffsets),
+        PolyConnOffsets(polyConnOffsets)
     {
     }
   };

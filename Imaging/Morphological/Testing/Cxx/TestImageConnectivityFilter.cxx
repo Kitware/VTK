@@ -34,6 +34,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVersion.h"
 
 #include "vtkTestUtilities.h"

@@ -131,7 +131,7 @@ int vtkPlaneSource::RequestData(
   newTCoords->Allocate(2*numPts);
 
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
+  newPolys->AllocateEstimate(numPolys, 4);
 
   // Generate points and point data
   //

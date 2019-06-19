@@ -564,7 +564,7 @@ void vtkCCSMakePolysFromLines(
   std::vector<size_t> &incompletePolys)
 {
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
 
   // Bitfield for marking lines as used
   vtkCCSBitArray usedLines;
@@ -711,8 +711,8 @@ void vtkCCSMakePolysFromLines(
           {
             // reverse the ids in the added line
             vtkCCSPoly::iterator pit = poly.end();
-            vtkIdType *ptsIt = pts + completePoly;
-            vtkIdType *ptsEnd = pts + npts-1;
+            const vtkIdType *ptsIt = pts + completePoly;
+            const vtkIdType *ptsEnd = pts + npts-1;
             if (endIdx == 1)
             {
               pit = poly.begin() + npts-1 - completePoly;

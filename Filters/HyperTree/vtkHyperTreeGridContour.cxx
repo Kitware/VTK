@@ -307,15 +307,15 @@ int vtkHyperTreeGridContour::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Create storage for output vertices
   vtkCellArray* newVerts = vtkCellArray::New();
-  newVerts->Allocate( estimatedSize, estimatedSize );
+  newVerts->AllocateExact( estimatedSize, estimatedSize );
 
   // Create storage for output lines
   vtkCellArray* newLines = vtkCellArray::New();
-  newLines->Allocate( estimatedSize, estimatedSize );
+  newLines->AllocateExact( estimatedSize, estimatedSize );
 
   // Create storage for output polygons
   vtkCellArray* newPolys = vtkCellArray::New();
-  newPolys->Allocate( estimatedSize, estimatedSize );
+  newPolys->AllocateExact( estimatedSize, estimatedSize );
 
   // Create storage for output scalar values
   this->CellScalars = this->InScalars->NewInstance();

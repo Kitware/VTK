@@ -34,6 +34,7 @@
 #include <vtkTriangleStrip.h>
 
 #include <vtkCharArray.h>
+#include <vtkIdTypeArray.h>
 #include <vtkIntArray.h>
 #include <vtkDataArray.h>
 #include <vtkDoubleArray.h>
@@ -43,6 +44,7 @@
 #include <vtkSignedCharArray.h>
 #include <vtkShortArray.h>
 #include <vtkStringArray.h>
+#include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedIntArray.h>
 #include <vtkUnsignedLongArray.h>
 #include <vtkUnsignedLongLongArray.h>

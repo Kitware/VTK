@@ -63,8 +63,8 @@ int vtkRuledSurfaceFilter::RequestData(
   vtkPoints *inPts, *newPts = nullptr;
   vtkIdType i, numPts, numLines;
   vtkCellArray *inLines, *newPolys, *newStrips;
-  vtkIdType *pts = nullptr;
-  vtkIdType *pts2 = nullptr;
+  const vtkIdType *pts = nullptr;
+  const vtkIdType *pts2 = nullptr;
   vtkIdType npts = 0;
   vtkIdType npts2 = 0;
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
@@ -106,8 +106,8 @@ int vtkRuledSurfaceFilter::RequestData(
     }
     newPts->Delete();
     newStrips = vtkCellArray::New();
-    newStrips->Allocate(
-      2*(this->Resolution[1]+1)*this->Resolution[0]*(numLines-1));
+    newStrips->AllocateEstimate(
+      2*(this->Resolution[1]+1)*this->Resolution[0]*(numLines-1), 1);
     output->SetStrips(newStrips);
     newStrips->Delete();
   }
@@ -116,7 +116,7 @@ int vtkRuledSurfaceFilter::RequestData(
     output->SetPoints(inPts);
     output->GetPointData()->PassData(input->GetPointData());
     newPolys = vtkCellArray::New();
-    newPolys->Allocate(2*numPts);
+    newPolys->AllocateEstimate(2*numPts, 1);
     output->SetPolys(newPolys);
     newPolys->Delete();
   }
@@ -173,8 +173,8 @@ int vtkRuledSurfaceFilter::RequestData(
 
 void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPolyData *input,
                                       vtkPoints *inPts, vtkPoints *newPts,
-                                      int npts, vtkIdType *pts,
-                                      int npts2, vtkIdType *pts2)
+                                      int npts, const vtkIdType *pts,
+                                      int npts2, const vtkIdType *pts2)
 {
   vtkIdType offset, id;
   int i, j;
@@ -386,8 +386,8 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPolyData *input,
 }
 
 void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
-                                       int npts, vtkIdType *pts,
-                                       int npts2, vtkIdType *pts2)
+                                       int npts, const vtkIdType *pts,
+                                       int npts2, const vtkIdType *pts2)
 {
   int loc, loc2, next2;
   vtkCellArray *newPolys=output->GetPolys();

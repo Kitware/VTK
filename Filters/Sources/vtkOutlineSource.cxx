@@ -120,12 +120,12 @@ int vtkOutlineSource::RequestData(
 
   newPts->Allocate(8);
   newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(12,2));
+  newLines->AllocateEstimate(12, 2);
 
   if (this->GenerateFaces)
   {
     newPolys = vtkCellArray::New();
-    newPolys->Allocate(newPolys->EstimateSize(6,4));
+    newPolys->AllocateEstimate(6, 4);
   }
 
   if (this->BoxType==VTK_BOX_TYPE_AXIS_ALIGNED)

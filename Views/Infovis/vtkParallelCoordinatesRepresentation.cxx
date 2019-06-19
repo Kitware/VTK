@@ -42,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDoubleArray.h"
 #include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkFieldData.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkInformationInformationVectorKey.h"
@@ -367,7 +368,7 @@ void vtkParallelCoordinatesRepresentation::UpdateHoverHighlight(vtkView* view,
     vtkCellArray* lines = this->PlotData->GetLines();
 
     int lineNum = 0;
-    vtkIdType* pts = nullptr;
+    const vtkIdType* pts = nullptr;
     vtkIdType  npts = 0;
     double p[3] = {static_cast<double>(x),static_cast<double>(y),0.0};
     p[0] /= size[0];
@@ -933,11 +934,11 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   {
     vtkCellArray* lines = polyData->GetLines();
     if (!lines ||
-        lines->GetSize() != lines->EstimateSize( numLines,numPointsPerLine ) ||
+        lines->GetNumberOfConnectivityIds() != (numLines * numPointsPerLine) ||
         lines->GetNumberOfCells() != numLines)
     {
       lines = vtkCellArray::New();
-      lines->Allocate(lines->EstimateSize( numLines, numPointsPerLine));
+      lines->AllocateEstimate(numLines, numPointsPerLine);
       polyData->SetLines(lines);
       lines->Delete();
 
@@ -967,11 +968,11 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   {
     vtkCellArray* strips = polyData->GetStrips();
     if (!strips ||
-        strips->GetSize() != strips->EstimateSize( numStrips,numPointsPerStrip ) ||
+        strips->GetNumberOfConnectivityIds() != (numStrips * numPointsPerStrip) ||
         strips->GetNumberOfCells() != numStrips)
     {
       strips = vtkCellArray::New();
-      strips->Allocate(strips->EstimateSize( numStrips, numPointsPerStrip));
+      strips->AllocateEstimate(numStrips, numPointsPerStrip);
       polyData->SetStrips(strips);
       strips->Delete();
 
@@ -1001,11 +1002,11 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   {
     vtkCellArray* quads = polyData->GetPolys();
     if (!quads ||
-        quads->GetSize() != quads->EstimateSize( numQuads,4 ) ||
+        quads->GetNumberOfConnectivityIds() != (numQuads * 4) ||
         quads->GetNumberOfCells() != numQuads)
     {
       quads = vtkCellArray::New();
-      quads->Allocate(quads->EstimateSize( numQuads, 4));
+      quads->AllocateEstimate(numQuads, 4);
       polyData->SetPolys(quads);
       quads->Delete();
 

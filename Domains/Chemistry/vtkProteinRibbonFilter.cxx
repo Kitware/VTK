@@ -20,6 +20,7 @@
 #include "vtkTubeFilter.h"
 #include "vtkDoubleArray.h"
 #include "vtkSplineFilter.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkStringArray.h"
 #include "vtkCellArray.h"
@@ -32,6 +33,8 @@
 #include "vtkPeriodicTable.h"
 #include "vtkMolecule.h"
 #include "vtkVectorOperators.h"
+#include "vtkUnsignedCharArray.h"
+
 #include <map>
 
 vtkStandardNewMacro(vtkProteinRibbonFilter)
@@ -144,7 +147,7 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
 
   vtkNew<vtkPoints> strandPoints;
   vtkNew<vtkPolyData> strand;
-  strand->Allocate();
+  strand->AllocateExact(1024, 1024);
   strand->SetPoints(strandPoints);
 
   vtkNew<vtkUnsignedCharArray> pointsColors;
@@ -306,7 +309,8 @@ void vtkProteinRibbonFilter::CreateAtomAsSphere(vtkPolyData* poly,
   vtkIdType pointOffset = points->GetNumberOfPoints();
   // Total number of new points
   vtkIdType numPoints = spherePoints->GetNumberOfPoints();
-  vtkIdType numCellPoints,  *cellPoints;
+  vtkIdType numCellPoints;
+  const vtkIdType *cellPoints;
   // Add new points
   for (vtkIdType i = 0; i < numPoints; ++i)
   {

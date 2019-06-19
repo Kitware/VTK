@@ -23,6 +23,7 @@
 #include "vtkTextProperty.h"
 #include "vtkRect.h"
 #include "vtkStdString.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkObjectFactory.h"
 #include <cassert>

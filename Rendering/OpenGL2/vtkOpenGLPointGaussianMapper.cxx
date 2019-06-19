@@ -44,6 +44,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkPointGaussianVS.h"
 #include "vtkPointGaussianGS.h"
@@ -404,7 +405,7 @@ void vtkOpenGLPointGaussianMapperHelperColors(
   // iterate over cells or not
   if (verts->GetNumberOfCells())
   {
-    vtkIdType* indices(nullptr);
+    const vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     for (verts->InitTraversal(); verts->GetNextCell(npts, indices); )
     {
@@ -472,7 +473,7 @@ void vtkOpenGLPointGaussianMapperHelperSizes(
   // iterate over cells or not
   if (verts->GetNumberOfCells())
   {
-    vtkIdType* indices(nullptr);
+    const vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     for (verts->InitTraversal(); verts->GetNextCell(npts, indices); )
     {
@@ -516,7 +517,7 @@ void vtkOpenGLPointGaussianMapperHelperPoints(
   float *vPtr = static_cast<float *>(vcoords->GetVoidPointer(0));
   PointDataType *pointPtr;
 
-  vtkIdType* indices(nullptr);
+  const vtkIdType* indices(nullptr);
   vtkIdType npts(0);
   for (verts->InitTraversal(); verts->GetNextCell(npts, indices); )
   {
@@ -596,8 +597,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   int splatCount = poly->GetPoints()->GetNumberOfPoints();
   if (poly->GetVerts()->GetNumberOfCells())
   {
-    splatCount = poly->GetVerts()->GetNumberOfConnectivityEntries() -
-      poly->GetVerts()->GetNumberOfCells();
+    splatCount = poly->GetVerts()->GetNumberOfConnectivityIds();
   }
 
   // need to build points?

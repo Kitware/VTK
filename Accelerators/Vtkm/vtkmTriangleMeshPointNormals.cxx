@@ -24,10 +24,7 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
-#include "vtkmlib/Storage.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include "vtkm/filter/SurfaceNormals.h"
@@ -38,7 +35,8 @@ namespace {
 struct InputFilterPolicy : public vtkmInputFilterPolicy
 {
   using UnstructuredCellSetList =
-    vtkm::ListTagBase<vtkm::cont::vtkmCellSetSingleType>;
+    vtkm::ListTagBase<tovtkm::CellSetSingleType32Bit,
+                      tovtkm::CellSetSingleType64Bit>;
 };
 
 }
@@ -75,7 +73,7 @@ int vtkmTriangleMeshPointNormals::RequestData(
   if (input->GetVerts()->GetNumberOfCells() != 0 ||
       input->GetLines()->GetNumberOfCells() != 0 ||
       input->GetStrips()->GetNumberOfCells() != 0 ||
-      (input->GetPolys()->GetNumberOfConnectivityEntries() % 4) != 0)
+      (input->GetPolys()->GetNumberOfConnectivityIds() % 3) != 0)
   {
     vtkErrorMacro(<< "This filter only works with polydata containing just triangles.");
     return 0;

@@ -25,6 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkTransform.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <vtksys/SystemTools.hxx>
 

@@ -358,10 +358,10 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
   {
     numTris = (points->GetNumberOfPoints() - 2);
   }
-  if (tris->GetNumberOfConnectivityEntries() != 4*numTris)
+  if (tris->GetNumberOfConnectivityIds() != 3*numTris)
   {
     tris->Initialize();
-    tris->Allocate(numTris*4);
+    tris->AllocateEstimate(numTris, 3);
     // this wacky code below works for 2 and 4 triangles at least
     for (vtkIdType i = 0; i < numTris; i++)
     {

@@ -64,9 +64,9 @@ int vtkStripper::RequestData(
   vtkPolyData *mesh;
   char *visited;
   vtkIdType numStripPts = 0;
-  vtkIdType *stripPts = nullptr;
-  vtkIdType *linePts = nullptr;
-  vtkIdType *triPts;
+  const vtkIdType *stripPts = nullptr;
+  const vtkIdType *linePts = nullptr;
+  const vtkIdType *triPts;
   vtkIdType numTriPts;
   vtkPointData *pd=input->GetPointData();
   vtkCellData* cd = input->GetCellData();
@@ -161,7 +161,7 @@ int vtkStripper::RequestData(
   if ( inStrips->GetNumberOfCells() > 0 || inPolys->GetNumberOfCells() > 0 )
   {
     newStrips = vtkCellArray::New();
-    newStrips->Allocate(newStrips->EstimateSize(numCells,6));
+    newStrips->AllocateEstimate(numCells, 6);
     cellId = inNumVerts + inNumLines + inNumPolys;
     for(inStrips->InitTraversal();
         inStrips->GetNextCell(numStripPts,stripPts); )
@@ -186,14 +186,14 @@ int vtkStripper::RequestData(
     }
     // These are for passing through non-triangle polygons
     newPolys = vtkCellArray::New();
-    newPolys->Allocate(newStrips->EstimateSize(numCells/2,4));
+    newPolys->AllocateEstimate(numCells/2, 4);
   }
 
   // pre-load existing poly-lines
   if ( inLines->GetNumberOfCells() > 0 )
   {
     newLines = vtkCellArray::New();
-    newLines->Allocate(newLines->EstimateSize(numCells,6));
+    newLines->AllocateEstimate(numCells, 6);
     cellId = inNumVerts;
     for (inLines->InitTraversal(); inLines->GetNextCell(numLinePts,linePts); cellId++)
     {
@@ -524,13 +524,15 @@ int vtkStripper::RequestData(
       while (!done)
       {
         int out_n = 0;
-        vtkIdType* out_p =
-            new vtkIdType[newLines->GetNumberOfConnectivityEntries()];
+        const size_t out_p_size =
+            static_cast<size_t>(newLines->GetNumberOfCells() +
+                                newLines->GetNumberOfConnectivityIds());
+        vtkIdType* out_p = new vtkIdType[out_p_size];
 
         newLines->InitTraversal();
         int id = -1;
         vtkIdType n;
-        vtkIdType* p;
+        const vtkIdType* p;
 
         // Find a line from the original set that has not yet been used
         do

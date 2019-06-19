@@ -218,7 +218,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(numPolys+numEdges);
+  newPolys->AllocateEstimate(numPolys+numEdges, 1);
   //
   // Read data
   //

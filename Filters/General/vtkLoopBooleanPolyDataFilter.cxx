@@ -198,7 +198,7 @@ int vtkLoopBooleanPolyDataFilter::Impl::FindRegion(int inputIndex,
     {
       vtkIdType cellId = this->CheckCells->GetId(c);
       //Get the three points of the cell
-      vtkIdType *pts = nullptr;
+      const vtkIdType *pts = nullptr;
       vtkIdType npts = 0;
       this->Mesh[inputIndex]->GetCellPoints(cellId, npts, pts);
       if (this->Checked[inputIndex][cellId] == 0)
@@ -296,7 +296,7 @@ int vtkLoopBooleanPolyDataFilter::Impl::FindRegionTipToe(
       neighborIds->Reset();
       vtkIdType cellId = this->CheckCellsCareful->GetId(c);
       //Get the three points of the cell
-      vtkIdType *pts = nullptr;
+      const vtkIdType *pts = nullptr;
       vtkIdType npts = 0;
       this->Mesh[inputIndex]->GetCellPoints(cellId, npts, pts);
       //Update this cell to have been checked carefully and assign it
@@ -564,7 +564,7 @@ int vtkLoopBooleanPolyDataFilter::Impl::GetCellOrientation(
 {
   vtkDebugWithObjectMacro(this->ParentFilter,<<"CellId: "<<cellId);
   vtkIdType npts;
-  vtkIdType *pts;
+  const vtkIdType *pts;
   pd->BuildLinks();
   pd->GetCellPoints(cellId,npts,pts);
   //pt0Id and pt1Id are from intersectionLines PolyData and I am trying
@@ -1485,7 +1485,8 @@ void vtkLoopBooleanPolyDataFilter::Impl::ThresholdRegions(vtkPolyData **surfaces
     for (int j=0; j<numCells; j++)
     {
       int value = this->BooleanArray[i]->GetValue(j);
-      vtkIdType npts, *pts;
+      vtkIdType npts;
+      const vtkIdType *pts;
       this->Mesh[i]->GetCellPoints(j, npts, pts);
       if (value < 0)
       {

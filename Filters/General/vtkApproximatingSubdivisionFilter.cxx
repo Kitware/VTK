@@ -101,7 +101,7 @@ int vtkApproximatingSubdivisionFilter::RequestData(
 
     // Create triangles
     outputPolys = vtkCellArray::New();
-    outputPolys->Allocate(outputPolys->EstimateSize(4*numCells,3));
+    outputPolys->AllocateEstimate(4*numCells, 3);
 
     // Create an array to hold new location indices
     edgeData = vtkIntArray::New();
@@ -213,7 +213,7 @@ void vtkApproximatingSubdivisionFilter::GenerateSubdivisionCells (
   vtkIdType numCells = inputDS->GetNumberOfCells();
   vtkIdType cellId, newId, id;
   vtkIdType npts;
-  vtkIdType *pts;
+  const vtkIdType *pts;
   double edgePts[3];
   vtkIdType newCellPts[3];
   vtkCellData *inputCD = inputDS->GetCellData();

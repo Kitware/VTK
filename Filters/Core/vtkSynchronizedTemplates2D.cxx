@@ -459,7 +459,7 @@ int vtkSynchronizedTemplates2D::RequestData(
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
   newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(estimatedSize,2));
+  newLines->AllocateEstimate(estimatedSize, 2);
 
   //
   // Check data type and execute appropriate function

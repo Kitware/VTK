@@ -162,7 +162,8 @@ void VTXvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
     vtkIdType size = connectivity.Data->GetSize();
     vtkNew<vtkCellArray> cellArray;
 
-    cellArray->SetCells(size, iconnectivity);
+    cellArray->AllocateExact(size, iconnectivity->GetNumberOfValues() - size);
+    cellArray->ImportLegacyFormat(iconnectivity);
 
     types::DataArray& types = dataSet.at("types");
 

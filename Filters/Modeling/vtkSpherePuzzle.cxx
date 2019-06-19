@@ -26,6 +26,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <cmath>
 

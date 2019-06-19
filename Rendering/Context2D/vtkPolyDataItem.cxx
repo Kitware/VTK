@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataItem.h"
+#include "vtkUnsignedCharArray.h"
 
 
 vtkStandardNewMacro(vtkPolyDataItem);

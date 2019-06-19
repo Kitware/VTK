@@ -130,11 +130,11 @@ int TubeFilter(int dataType, int outputPointsPrecision)
   for (vtkIdType lineIndex = 0; lineIndex < originalLines->GetNumberOfCells(); lineIndex++)
   {
     vtkIdType originalNumberOfLinePoints = 0;
-    vtkIdType* originalLinePoints = nullptr;
-    originalLines->GetCell(lineIndex, originalNumberOfLinePoints, originalLinePoints);
+    const vtkIdType* originalLinePoints = nullptr;
+    originalLines->GetCellAtId(lineIndex, originalNumberOfLinePoints, originalLinePoints);
     vtkIdType numberOfLinePoints = 0;
-    vtkIdType* linePoints = nullptr;
-    lines->GetCell(lineIndex, numberOfLinePoints, linePoints);
+    const vtkIdType* linePoints = nullptr;
+    lines->GetCellAtId(lineIndex, numberOfLinePoints, linePoints);
     if (originalNumberOfLinePoints != numberOfLinePoints)
     {
       std::cerr << "vtkTubeFilter corrupted input polydata number of lines: "

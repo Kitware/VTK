@@ -114,13 +114,13 @@ int vtkCursor2D::RequestData(
   if ( this->Point )
   {
     newVerts = vtkCellArray::New();
-    newVerts->Allocate(2);
+    newVerts->AllocateEstimate(2, 1);
   }
 
   if ( this->Axes || this->Outline )
   {
     newLines = vtkCellArray::New();
-    newLines->Allocate(((this->Axes != 0) ? 12 : 0) + ((this->Outline != 0) ? 6 : 0));
+    newLines->AllocateEstimate(18, 1);
   }
 
   // Now create the representation. First the point (if requested).

@@ -86,7 +86,7 @@ protected:
   vtkPolyData *FixTextureCoordinates(vtkPolyData *);
 
   // recursive method that handles one triangle
-  void ProcessTriangle(vtkIdType *pts, vtkPolyData *out);
+  void ProcessTriangle(const vtkIdType *pts, vtkPolyData *out);
 
 private:
   vtkSingleVTPExporter(const vtkSingleVTPExporter&) = delete;

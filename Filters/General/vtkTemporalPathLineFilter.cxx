@@ -546,12 +546,11 @@ int vtkTemporalPathLineFilter::RequestData(
   size_t size = this->Internals->Trails.size();
   this->LineCoordinates->Allocate(
     static_cast<vtkIdType>(size*this->MaxTrackLength));
-  this->Vertices->Allocate(
-    static_cast<vtkIdType>(size));
+  this->Vertices->AllocateEstimate(static_cast<vtkIdType>(size), 1);
   this->VertexCoordinates->Allocate(
     static_cast<vtkIdType>(size));
-  this->PolyLines->Allocate(
-    static_cast<vtkIdType>(2*size*this->MaxTrackLength));
+  this->PolyLines->AllocateEstimate(
+        static_cast<vtkIdType>(2*size*this->MaxTrackLength), 1);
   this->TrailId->Allocate(
     static_cast<vtkIdType>(size*this->MaxTrackLength));
   this->TrailId->SetName("TrailId");

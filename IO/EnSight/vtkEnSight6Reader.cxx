@@ -445,7 +445,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName,
 
   vtkPolyData *pd = vtkPolyData::SafeDownCast(
     this->GetDataSetFromBlock(output, this->NumberOfGeometryParts) );
-  pd->Allocate(this->NumberOfMeasuredPoints);
+  pd->AllocateEstimate(this->NumberOfMeasuredPoints, 1);
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(this->NumberOfMeasuredPoints);

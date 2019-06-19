@@ -35,6 +35,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
 

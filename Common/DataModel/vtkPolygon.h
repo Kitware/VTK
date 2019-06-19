@@ -101,7 +101,7 @@ public:
    * Computes the unit normal to the polygon. If pts=nullptr, point indexing is
    * assumed to be {0, 1, ..., numPts-1}.
    */
-  static void ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
+  static void ComputeNormal(vtkPoints *p, int numPts, const vtkIdType *pts,
                             double n[3]);
   static void ComputeNormal(vtkPoints *p, double n[3]);
   static void ComputeNormal(vtkIdTypeArray *ids, vtkPoints *pts, double n[3]);
@@ -150,7 +150,7 @@ public:
    * If you already have a vtkPolygon instantiated, a convenience function,
    * ComputeArea() is provided.
    */
-  static double ComputeArea(vtkPoints *p, vtkIdType numPts, vtkIdType *pts,
+  static double ComputeArea(vtkPoints *p, vtkIdType numPts, const vtkIdType *pts,
                             double normal[3]);
 
   /**

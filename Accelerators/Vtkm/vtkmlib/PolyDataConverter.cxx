@@ -66,14 +66,8 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
   if (onlyPolys)
   {
     vtkCellArray* cells = input->GetPolys();
-    const int maxCellSize = cells->GetMaxCellSize();
-    const vtkIdType numCells = cells->GetNumberOfCells();
-    // deduce if we only have triangles or quads. We use maxCellSize+1 so
-    // that we handle the length entry in the cell array for each cell
-    cells->Squeeze();
-    const bool allSameType =
-        ((numCells * (maxCellSize + 1)) == cells->GetSize());
-    if (allSameType && maxCellSize == 3)
+    const vtkIdType homoSize = cells->IsHomogeneous();
+    if (homoSize == 3)
     {
       // We are all triangles
       vtkm::cont::DynamicCellSet dcells =
@@ -81,42 +75,60 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
       dataset.SetCellSet(dcells);
       filled = true;
     }
-    else if (allSameType && maxCellSize == 4)
+    else if (homoSize == 4)
     {
       // We are all quads
       vtkm::cont::DynamicCellSet dcells = ConvertSingleType(cells, VTK_QUAD, numPoints);
       dataset.SetCellSet(dcells);
       filled = true;
     }
-
-    // we have mixture of polygins/quads/triangles, we don't support that
-    // currently
+    else
+    {
+      // we have mixture of polygins/quads/triangles, we don't support that
+      // currently
+      vtkErrorWithObjectMacro(input, "VTK-m currently only handles vtkPolyData "
+                                     "with only triangles or only quads.");
+    }
   }
   else if (onlyLines)
   {
     vtkCellArray* cells = input->GetLines();
-    const int maxCellSize = cells->GetMaxCellSize();
-    if (maxCellSize == 2)
+    const vtkIdType homoSize = cells->IsHomogeneous();
+    if (homoSize == 2)
     {
       // We are all lines
       vtkm::cont::DynamicCellSet dcells = ConvertSingleType(cells, VTK_LINE, numPoints);
       dataset.SetCellSet(dcells);
       filled = true;
     }
-    // we have a mixture of lines and poly lines, we don't support that
-    // currently
+    else
+    {
+      vtkErrorWithObjectMacro(input, "VTK-m does not currently support "
+                                     "PolyLine cells.");
+    }
   }
   else if (onlyVerts)
   {
     vtkCellArray* cells = input->GetVerts();
-    const int maxCellSize = cells->GetMaxCellSize();
-    if (maxCellSize == 1)
+    const vtkIdType homoSize = cells->IsHomogeneous();
+    if (homoSize == 1)
     {
       // We are all single vertex
       vtkm::cont::DynamicCellSet dcells = ConvertSingleType(cells, VTK_VERTEX, numPoints);
       dataset.SetCellSet(dcells);
       filled = true;
     }
+    else
+    {
+      vtkErrorWithObjectMacro(input, "VTK-m does not currently support "
+                                     "PolyVertex cells.")
+    }
+  }
+  else
+  {
+    vtkErrorWithObjectMacro(input, "VTK-m does not currently support mixed "
+                                   "cell types or triangle strips in "
+                                   "vtkPolyData.")
   }
 
   if (!filled)

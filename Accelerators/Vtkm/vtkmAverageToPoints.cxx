@@ -22,15 +22,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-#include "vtkmlib/Storage.h"
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/ArrayConverters.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/PointAverage.h>
+#include <vtkm/filter/PointAverage.hxx>
 
 vtkStandardNewMacro(vtkmAverageToPoints)
 

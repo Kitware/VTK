@@ -1462,7 +1462,9 @@ int vtkYoungsMaterialInterface::RequestData(
         for(vtkIdType i = 0;i<Mats[m].cellArrayCount;i++) cellArrayDataPtr[i] = Mats[m].cells[i];
 
         vtkCellArray* cellArray = vtkCellArray::New();
-        cellArray->SetCells( Mats[m].cellCount , cellArrayData );
+        cellArray->AllocateExact(Mats[m].cellCount,
+                                 Mats[m].cellArrayCount - Mats[m].cellCount);
+        cellArray->ImportLegacyFormat(cellArrayData);
         cellArrayData->Delete();
 
         // set cell types
@@ -1471,21 +1473,10 @@ int vtkYoungsMaterialInterface::RequestData(
         unsigned char* cellTypesPtr = cellTypes->WritePointer(0,Mats[m].cellCount);
         for(vtkIdType i = 0;i<Mats[m].cellCount;i++) cellTypesPtr[i] = Mats[m].cellTypes[i];
 
-        // set cell locations
-        vtkIdTypeArray* cellLocations = vtkIdTypeArray::New();
-        cellLocations->SetNumberOfValues( Mats[m].cellCount );
-        vtkIdType counter = 0;
-        for(vtkIdType i = 0;i<Mats[m].cellCount;i++)
-        {
-          cellLocations->SetValue(i,counter);
-          counter += Mats[m].cells[counter] + 1;
-        }
-
         // attach conectivity arrays to data set
-        ugOutput->SetCells( cellTypes, cellLocations, cellArray );
+        ugOutput->SetCells( cellTypes, cellArray );
         cellArray->Delete();
         cellTypes->Delete();
-        cellLocations->Delete();
 
         // attach point arrays
         for(int i = 0;i<nPointData-1;i++)

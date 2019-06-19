@@ -28,6 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextProperty.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <sstream>
 

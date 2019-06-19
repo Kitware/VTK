@@ -27,15 +27,13 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
-#include "vtkmlib/Storage.h"
 #include "vtkmlib/CellSetConverters.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/ExternalFaces.h>
+#include <vtkm/filter/ExternalFaces.hxx>
 
 vtkStandardNewMacro(vtkmExternalFaces)
 

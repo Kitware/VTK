@@ -92,13 +92,17 @@ int TestPolyhedron0( int argc, char* argv[] )
   ugrid0->SetPoints(poly->GetPoints());
   ugrid0->GetPointData()->DeepCopy(poly->GetPointData());
 
+  vtkNew<vtkIdTypeArray> legacyFaces;
+  faces->ExportLegacyFormat(legacyFaces);
+
   ugrid0->InsertNextCell(VTK_POLYHEDRON, 8, pointIds,
-    6, faces->GetPointer());
+    6, legacyFaces->GetPointer(0));
 
   vtkPolyhedron *polyhedron = static_cast<vtkPolyhedron*>(ugrid0->GetCell(0));
 
   vtkCellArray * cell = ugrid0->GetCells();
-  vtkIdTypeArray * pids = cell->GetData();
+  vtkNew<vtkIdTypeArray> pids;
+  cell->ExportLegacyFormat(pids);
   std::cout << "num of cells: " << cell->GetNumberOfCells() << std::endl;
   std::cout << "num of tuples: " << pids->GetNumberOfTuples() << std::endl;
   for (int i = 0; i < pids->GetNumberOfTuples(); i++)

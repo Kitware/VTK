@@ -241,7 +241,7 @@ protected:
    * \pre faceIds_size: sizeof(faceIds)==4
    */
   void InitTetraTile(vtkTetraTile &root,
-                     vtkIdType *localIds,
+                     const vtkIdType *localIds,
                      vtkIdType *ids,
                      int *edgeIds,
                      int *faceIds);

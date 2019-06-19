@@ -155,30 +155,30 @@ int vtkExtractPolyDataGeometry::RequestData(
   //
   int numIn;
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   if ( input->GetNumberOfVerts() )
   {
     inVerts = input->GetVerts();
     newVerts = vtkCellArray::New();
-    newVerts->Allocate(inVerts->GetSize());
+    newVerts->AllocateCopy(inVerts);
   }
   if ( input->GetNumberOfLines() )
   {
     inLines = input->GetLines();
     newLines = vtkCellArray::New();
-    newLines->Allocate(inLines->GetSize());
+    newLines->AllocateCopy(inLines);
   }
   if ( input->GetNumberOfPolys() )
   {
     inPolys = input->GetPolys();
     newPolys = vtkCellArray::New();
-    newPolys->Allocate(inPolys->GetSize());
+    newPolys->AllocateCopy(inPolys);
   }
   if ( input->GetNumberOfStrips() )
   {
     inStrips = input->GetStrips();
     newStrips = vtkCellArray::New();
-    newStrips->Allocate(inStrips->GetSize());
+    newStrips->AllocateCopy(inStrips);
   }
 
   // verts

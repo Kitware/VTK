@@ -189,7 +189,7 @@ int vtkThresholdPoints::RequestData(
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd);
   verts = vtkCellArray::New();
-  verts->Allocate(verts->EstimateSize(numPts,1));
+  verts->AllocateEstimate(numPts, 1);
 
   // Check that the scalars of each point satisfy the threshold criterion
   int abort=0;

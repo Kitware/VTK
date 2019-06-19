@@ -81,14 +81,14 @@ int vtkRemoveDuplicatePolys::RequestData(
 
   // Now copy the polys.
   vtkIdList *polyPoints = vtkIdList::New();
-  const int numberOfPolys = input->GetNumberOfPolys();
+  const vtkIdType numberOfPolys = input->GetNumberOfPolys();
   vtkIdType progressStep = numberOfPolys / 100;
   if (progressStep == 0)
   {
     progressStep = 1;
   }
 
-  output->Allocate(numberOfPolys);
+  output->AllocateCopy(input);
   int ndup = 0;
 
   output->GetPointData()->PassData(input->GetPointData());

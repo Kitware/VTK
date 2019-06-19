@@ -1893,7 +1893,7 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
     lines = vtkCellArray::New();
     pts = vtkPoints::New();
 
-    lines->Allocate( 10,10 );
+    lines->AllocateEstimate( 10,10 );
     pts->Allocate( 10,10 );
     this->PlotData[i]->SetPoints( pts );
     this->PlotData[i]->SetVerts( lines );
@@ -2548,7 +2548,7 @@ void vtkXYPlotActor::ClipPlotData( int *pos, int *pos2, vtkPolyData *pd )
   vtkIdType numPts=pd->GetNumberOfPoints();
   vtkIdType npts = 0;
   vtkIdType newPts[2];
-  vtkIdType *pts=nullptr;
+  const vtkIdType *pts=nullptr;
   vtkIdType i, id;
   int j;
   double x1[3], x2[3], px[3], n[3], xint[3], t;
@@ -2560,9 +2560,9 @@ void vtkXYPlotActor::ClipPlotData( int *pos, int *pos2, vtkPolyData *pd )
   newPoints = vtkPoints::New();
   newPoints->Allocate( numPts );
   newVerts = vtkCellArray::New();
-  newVerts->Allocate( lines->GetSize() );
+  newVerts->AllocateCopy(lines);
   newLines = vtkCellArray::New();
-  newLines->Allocate( 2*lines->GetSize() );
+  newLines->AllocateCopy(lines);
   int *pointMap = new int [numPts];
   for ( i=0; i<numPts; i++)
   {

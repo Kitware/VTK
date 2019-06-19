@@ -653,7 +653,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   // Each cell will have 1000 points.  Leave a little extra space just in case.
   // We break up the cell this way so that the render will check for aborts
   // at a reasonable rate.
-  verts->Allocate((int)((double)length * 1.002));
+  verts->AllocateEstimate(static_cast<vtkIdType>(length * 1.002), 1);
   // Keep adding cells until we run out of points.
   ptIdx = 0;
   int cnt = 1;
@@ -836,7 +836,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   // Each cell will have 1000 points.  Leave a little extra space just in case.
   // We break up the cell this way so that the render will check for aborts
   // at a reasonable rate.
-  verts->Allocate((int)((float)length * 1.002));
+  verts->AllocateEstimate(static_cast<vtkIdType>(length * 1.002), 1);
   // Keep adding cells until we run out of points.
   ptIdx = 0;
   int cnt = 1;

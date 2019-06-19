@@ -83,6 +83,26 @@ public:
 
   //@{
   /**
+   * If LegacyTopology and Topology are both true, print out the legacy topology
+   * arrays. Default is true.
+   */
+  vtkSetMacro(LegacyTopology,vtkTypeBool);
+  vtkGetMacro(LegacyTopology,vtkTypeBool);
+  vtkBooleanMacro(LegacyTopology,vtkTypeBool);
+  //@}
+
+  //@{
+  /**
+   * If ModernTopology and Topology are both true, print out the modern topology
+   * arrays. Default is true.
+   */
+  vtkSetMacro(ModernTopology,vtkTypeBool);
+  vtkGetMacro(ModernTopology,vtkTypeBool);
+  vtkBooleanMacro(ModernTopology,vtkTypeBool);
+  //@}
+
+  //@{
+  /**
    * Turn on/off the conversion of dataset field data to a data object.
    */
   vtkSetMacro(FieldData,vtkTypeBool);
@@ -121,6 +141,8 @@ protected:
 
   vtkTypeBool Geometry;
   vtkTypeBool Topology;
+  vtkTypeBool LegacyTopology;
+  vtkTypeBool ModernTopology;
   vtkTypeBool PointData;
   vtkTypeBool CellData;
   vtkTypeBool FieldData;

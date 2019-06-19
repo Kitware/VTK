@@ -1916,17 +1916,6 @@ int vtkExodusIIWriter::WriteBlockInformation()
   for (size_t i = 0; i < this->FlattenedInput.size (); i ++)
   {
     vtkCellArray *ca = this->FlattenedInput[i]->GetCells();
-    vtkIdType *ptIds = nullptr;
-    if (ca)
-    {
-      ptIds = ca->GetPointer ();
-    }
-    vtkIdTypeArray *loca = this->FlattenedInput[i]->GetCellLocationsArray();
-    vtkIdType *loc = nullptr;
-    if (loca)
-    {
-      loc = loca->GetPointer(0);
-    }
 
     int ncells = this->FlattenedInput[i]->GetNumberOfCells();
     for (int j = 0; j < ncells; j++)
@@ -1947,25 +1936,26 @@ int vtkExodusIIWriter::WriteBlockInformation()
       }
 
       // the block connectivity array
-      vtkIdType ptListIdx = loc[j];
-      vtkIdType npts = ptIds[ptListIdx++];
+      vtkIdType npts;
+      const vtkIdType *ptIds;
+      ca->GetCellAtId(j, npts, ptIds);
 
       switch (this->FlattenedInput[i]->GetCellType (j))
       {
         case VTK_VOXEL: // reorder to exodus HEX type
-          connectivity[blockOutIndex][offset + 0] = pointOffset + (int) ptIds[ptListIdx++] + 1;
-          connectivity[blockOutIndex][offset + 1] = pointOffset + (int) ptIds[ptListIdx++] + 1;
-          connectivity[blockOutIndex][offset + 3] = pointOffset + (int) ptIds[ptListIdx++] + 1;
-          connectivity[blockOutIndex][offset + 2] = pointOffset + (int) ptIds[ptListIdx++] + 1;
-          connectivity[blockOutIndex][offset + 4] = pointOffset + (int) ptIds[ptListIdx++] + 1;
-          connectivity[blockOutIndex][offset + 5] = pointOffset + (int) ptIds[ptListIdx++] + 1;
-          connectivity[blockOutIndex][offset + 7] = pointOffset + (int) ptIds[ptListIdx++] + 1;
-          connectivity[blockOutIndex][offset + 6] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 0] = pointOffset + (int) ptIds[0] + 1;
+          connectivity[blockOutIndex][offset + 1] = pointOffset + (int) ptIds[1] + 1;
+          connectivity[blockOutIndex][offset + 3] = pointOffset + (int) ptIds[2] + 1;
+          connectivity[blockOutIndex][offset + 2] = pointOffset + (int) ptIds[3] + 1;
+          connectivity[blockOutIndex][offset + 4] = pointOffset + (int) ptIds[4] + 1;
+          connectivity[blockOutIndex][offset + 5] = pointOffset + (int) ptIds[5] + 1;
+          connectivity[blockOutIndex][offset + 7] = pointOffset + (int) ptIds[6] + 1;
+          connectivity[blockOutIndex][offset + 6] = pointOffset + (int) ptIds[7] + 1;
           break;
         default:
           for (vtkIdType p=0; p<npts; p++)
           {
-            int ExodusPointId = pointOffset + (int) ptIds[ptListIdx++] + 1;
+            int ExodusPointId = pointOffset + (int) ptIds[p] + 1;
             connectivity[blockOutIndex][offset + p] = ExodusPointId;
           }
       }

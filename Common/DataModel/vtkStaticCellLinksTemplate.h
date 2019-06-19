@@ -97,7 +97,7 @@ public:
   void SerialBuildLinks(const vtkIdType numPts, const vtkIdType numCells,
                         vtkCellArray *cellArray);
   void ThreadedBuildLinks(const vtkIdType numPts, const vtkIdType numCells,
-                          vtkCellArray *cellArray, vtkIdType *locs);
+                          vtkCellArray *cellArray);
 
   //@{
   /**

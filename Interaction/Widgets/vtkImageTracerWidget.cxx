@@ -95,7 +95,7 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->LinePoints = vtkPoints::New();
   this->LinePoints->Allocate(1001);
   this->LineCells = vtkCellArray::New();
-  this->LineCells->Allocate(this->LineCells->EstimateSize(1000,2));
+  this->LineCells->AllocateEstimate(1000, 2);
   this->LineActor = vtkActor::New();
   vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
   this->LineData = vtkPolyData::New();

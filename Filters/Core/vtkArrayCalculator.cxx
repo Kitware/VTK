@@ -550,7 +550,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *o
         if (pd)
         {
           pd->Reset();
-          pd->Allocate(numTuples);
+          pd->AllocateEstimate(numTuples, 1, 0, 0, 0, 0, 0, 0);
           for (vtkIdType i = 1; i < numTuples; i++)
           {
             pd->InsertNextCell(VTK_VERTEX, 1, &i);

@@ -33,6 +33,8 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkSmartPointer.h"
+#include "vtkNew.h"
+#include "vtkIdTypeArray.h"
 
 int TestMeanValueCoordinatesInterpolation1( int argc, char *argv[] )
 {
@@ -132,11 +134,12 @@ int TestMeanValueCoordinatesInterpolation1( int argc, char *argv[] )
 
   // merge the first two cell, this will make vtkProbePolyhedron select the
   // more general MVC algorithm.
-  vtkIdType * p = polys->GetPointer();
+  vtkNew<vtkIdTypeArray> legacyArray;
+  polys->ExportLegacyFormat(legacyArray);
+  vtkIdType * p = legacyArray->GetPointer(0);
   vtkIdType pids[4] = {p[1], p[2], p[6], p[3]};
 
   vtkSmartPointer<vtkCellArray> newPolys = vtkSmartPointer<vtkCellArray>::New();
-  newPolys->SetNumberOfCells(polys->GetNumberOfCells()-1);
   newPolys->Initialize();
   for (int i = 2; i < polys->GetNumberOfCells(); i++)
   {

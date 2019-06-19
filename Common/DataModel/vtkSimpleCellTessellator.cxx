@@ -1983,7 +1983,7 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
     this->Triangulator->AddTetras(0,this->Connectivity); // 1
     this->Connectivity->InitTraversal();
     vtkIdType npts=0;
-    vtkIdType *pts=nullptr;
+    const vtkIdType *pts=nullptr;
     vtkIdType ids[4];
 
     int numEdges=cell->GetNumberOfBoundaries(1);
@@ -2143,7 +2143,7 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
 
 //-----------------------------------------------------------------------------
 void vtkSimpleCellTessellator::InitTetraTile(vtkTetraTile &root,
-                                             vtkIdType *localIds,
+                                             const vtkIdType *localIds,
                                              vtkIdType *ids,
                                              int *edgeIds,
                                              int *faceIds)

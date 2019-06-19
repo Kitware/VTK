@@ -6852,7 +6852,7 @@ int vtkEarthSource::RequestData(
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(3*maxPts);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(maxPolys,4000/this->OnRatio));
+  newPolys->AllocateEstimate(maxPolys, 4000/this->OnRatio);
 
   //
   // Create points

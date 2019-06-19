@@ -17,6 +17,7 @@
 
 #include "vtkCharArray.h"
 #include "vtkDataArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkMPIController.h"
 #include "vtkMPIUtilities.h"

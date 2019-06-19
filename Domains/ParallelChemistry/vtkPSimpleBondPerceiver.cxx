@@ -26,6 +26,7 @@
 #include "vtkPeriodicTable.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkPSimpleBondPerceiver);
 

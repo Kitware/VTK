@@ -84,7 +84,7 @@ int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(vtkInformation*,
   kArray->Allocate(nbCells);
 
   vtkNew<vtkCellArray> cells;
-  cells->Allocate(nbCells);
+  cells->AllocateEstimate(nbCells, 8);
   int i, j, k;
   for (vtkIdType cellId = 0; cellId < nbCells; cellId++)
   {

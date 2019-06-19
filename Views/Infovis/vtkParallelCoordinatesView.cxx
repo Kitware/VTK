@@ -22,9 +22,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkAlgorithmOutput.h"
 #include "vtkBalloonRepresentation.h"
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCommand.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineSource.h"
 #include "vtkParallelCoordinatesRepresentation.h"
@@ -355,7 +357,7 @@ void vtkParallelCoordinatesView::SetMaximumNumberOfBrushPoints(int num)
       pts->InsertPoint ( i,-1,-1,0 );
 
     vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
-    lines->Allocate ( lines->EstimateSize ( 4,this->MaximumNumberOfBrushPoints ) );
+    lines->AllocateEstimate(4, this->MaximumNumberOfBrushPoints);
 
     // first line is for a manually drawn curve, for selecting lines
     // second line is for the spline used for angular brushing
@@ -380,14 +382,22 @@ void vtkParallelCoordinatesView::ClearBrushPoints()
   for ( vtkIdType i=0; i<npts; i++ )
     this->BrushData->GetPoints()->SetPoint ( i,-1,-1,0 );
 
-  vtkIdType *pts;
-  int cellNum=0;
   // clear them for all of the lines
-  for (this->BrushData->GetLines()->InitTraversal();
-       this->BrushData->GetLines()->GetNextCell(npts,pts); cellNum++)
+  vtkNew<vtkIdList> cell;
+  auto cellIter = vtk::TakeSmartPointer(this->BrushData->GetLines()->NewIterator());
+  for (cellIter->GoToFirstCell();
+       !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell())
   {
-    for ( int j=0; j<npts; j++ )
-      pts[j] = cellNum*this->MaximumNumberOfBrushPoints;
+    const vtkIdType cellNum = cellIter->GetCurrentCellId();
+    cellIter->GetCurrentCell(cell);
+
+    for (vtkIdType j = 0; j < cell->GetNumberOfIds(); j++)
+    {
+      cell->SetId(j, cellNum*this->MaximumNumberOfBrushPoints);
+    }
+
+    cellIter->ReplaceCurrentCell(cell);
   }
 
   this->BrushData->Modified();
@@ -402,11 +412,15 @@ int vtkParallelCoordinatesView::AddLassoBrushPoint ( double *p )
   vtkIdType ptid = this->NumberOfBrushPoints;
   this->BrushData->GetPoints()->SetPoint ( ptid,p[0],p[1],0 );
 
-  vtkIdType npts; vtkIdType *ptids;
-  this->BrushData->GetLines()->GetCell ( 0,npts,ptids );
+  const vtkIdType npts = this->BrushData->GetLines()->GetCellSize(0);
+  std::vector<vtkIdType> ptids(static_cast<vtkIdType>(npts));
 
   for ( vtkIdType i=ptid; i<npts; i++ )
-    ptids[i] = ptid;
+  {
+    ptids[static_cast<size_t>(i)] = ptid;
+  }
+
+  this->BrushData->GetLines()->ReplaceCellAtId(0, npts, ptids.data());
 
   this->NumberOfBrushPoints++;
   this->BrushData->Modified();
@@ -527,21 +541,23 @@ int vtkParallelCoordinatesView::SetBrushLine(int line, double *p1, double *p2)
     }
   }
 
-  vtkIdType npts=0;
-  vtkIdType *ptids=nullptr;
+  vtkNew<vtkIdList> cell;
+  this->BrushData->GetLines()->GetCellAtId(line, cell);
 
-  this->GetBrushLine(line,npts,ptids);
+  for (vtkIdType j = 0; j < cell->GetNumberOfIds(); j++)
+  {
+    cell->SetId(j, pointOffset+j);
+  }
 
-  for ( int j=0; j<npts; j++ )
-    ptids[j] = pointOffset+j;
-
+  this->BrushData->GetLines()->ReplaceCellAtId(line, cell);
   this->BrushData->Modified();
+
   delete [] xs;
   return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkParallelCoordinatesView::GetBrushLine(int line, vtkIdType &npts, vtkIdType* &ptids)
+void vtkParallelCoordinatesView::GetBrushLine(int line, vtkIdType &npts, vtkIdType const *&ptids)
 {
   int cellNum=0;
   for (this->BrushData->GetLines()->InitTraversal();
@@ -684,9 +700,9 @@ void vtkParallelCoordinatesView::SelectData(unsigned long eventId)
     }
     else if (eventId == vtkCommand::EndInteractionEvent)
     {
-      vtkIdType *ptids;
+      const vtkIdType *ptids;
       vtkIdType npts;
-      this->BrushData->GetLines()->GetCell(0,npts,ptids);
+      this->BrushData->GetLines()->GetCellAtId(0,npts,ptids);
 
       vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
       for (int i=0; i<npts; i++)
@@ -730,7 +746,7 @@ void vtkParallelCoordinatesView::SelectData(unsigned long eventId)
     }
     else if (eventId == vtkCommand::EndInteractionEvent)
     {
-      vtkIdType* ptids = nullptr;
+      const vtkIdType* ptids = nullptr;
       vtkIdType npts = 0;
       this->GetBrushLine(1,npts,ptids);
 
@@ -786,7 +802,7 @@ void vtkParallelCoordinatesView::SelectData(unsigned long eventId)
       // the first line is finished, so do the selection
       else
       {
-        vtkIdType* ptids = nullptr;
+        const vtkIdType* ptids = nullptr;
         vtkIdType npts = 0;
 
         double p1[3] = {0,0,0};

@@ -249,7 +249,10 @@ void vtkExplicitStructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList* cellIds
 //----------------------------------------------------------------------------
 vtkIdType* vtkExplicitStructuredGrid::GetCellPoints(vtkIdType cellId)
 {
-  return this->Cells->GetData()->GetPointer(cellId * 9) + 1;
+  vtkIdType unused;
+  const vtkIdType *result;
+  this->Cells->GetCellAtId(cellId, unused, result);
+  return const_cast<vtkIdType*>(result);
 }
 
 //----------------------------------------------------------------------------
@@ -495,7 +498,7 @@ void vtkExplicitStructuredGrid::SetExtent(int x0, int x1, int y0, int y1, int z0
   // Initialize the cell array
   if (expectedCells > 0)
   {
-    cells->Allocate(expectedCells * 9);
+    cells->AllocateEstimate(expectedCells, 8);
     vtkIdType ids[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
     for (vtkIdType i = 0; i < expectedCells; i++)
     {
@@ -828,7 +831,7 @@ void vtkExplicitStructuredGrid::Crop(
     outCD->CopyAllocate(inCD, outSize, outSize);
 
     vtkNew<vtkCellArray> cells;
-    cells->Allocate(outSize * 9);
+    cells->AllocateEstimate(outSize, 8);
 
     // CellArray which links the new cells ids with the old ones
     vtkNew<vtkIdTypeArray> originalCellIds;
@@ -1224,7 +1227,7 @@ void vtkExplicitStructuredGrid::ReorderCellsPoints(const int* ptsMap, const int 
           std::swap(ptsTmp, ptsTmp2);
         }
       }
-      cells->ReplaceCell(cellId * 9, 8, ptsTmp);
+      cells->ReplaceCellAtId(cellId, 8, ptsTmp);
       this->GetCellPoints(cellId, npts, pts);
     }
   }

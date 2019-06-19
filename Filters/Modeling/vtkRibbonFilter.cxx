@@ -90,7 +90,8 @@ int vtkRibbonFilter::RequestData(
   vtkIdType i;
   double range[2];
   vtkCellArray *newStrips;
-  vtkIdType npts=0, *pts=nullptr;
+  vtkIdType npts=0;
+  const vtkIdType *pts=nullptr;
   vtkIdType offset=0;
   vtkFloatArray *newTCoords=nullptr;
   int abort=0;
@@ -116,7 +117,7 @@ int vtkRibbonFilter::RequestData(
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(3*numNewPts);
   newStrips = vtkCellArray::New();
-  newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
+  newStrips->AllocateEstimate(1, numNewPts);
   vtkCellArray *singlePolyline = vtkCellArray::New();
 
   // Point data: copy scalars, vectors, tcoords. Normals may be computed here.
@@ -263,7 +264,7 @@ int vtkRibbonFilter::RequestData(
 }
 
 int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
-                                  vtkIdType npts, vtkIdType *pts,
+                                  vtkIdType npts, const vtkIdType *pts,
                                   vtkPoints *inPts, vtkPoints *newPts,
                                   vtkPointData *pd, vtkPointData *outPD,
                                   vtkFloatArray *newNormals,
@@ -399,7 +400,7 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
 }
 
 void vtkRibbonFilter::GenerateStrip(vtkIdType offset, vtkIdType npts,
-                                    vtkIdType* vtkNotUsed(pts),
+                                    const vtkIdType *vtkNotUsed(pts),
                                     vtkIdType inCellId,
                                     vtkCellData *cd, vtkCellData *outCD,
                                     vtkCellArray *newStrips)
@@ -417,7 +418,7 @@ void vtkRibbonFilter::GenerateStrip(vtkIdType offset, vtkIdType npts,
 }
 
 void vtkRibbonFilter::GenerateTextureCoords(vtkIdType offset,
-                                            vtkIdType npts, vtkIdType *pts,
+                                            vtkIdType npts, const vtkIdType *pts,
                                             vtkPoints *inPts,
                                             vtkDataArray *inScalars,
                                             vtkFloatArray *newTCoords)

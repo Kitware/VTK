@@ -94,13 +94,6 @@ public:
   int GetDataTypeSize() override;
 
   /**
-   * Specify the number of values for this object to hold. Does an
-   * allocation as well as setting the MaxId ivar. Used in conjunction with
-   * SetValue() method for fast insertion.
-   */
-  void SetNumberOfValues(vtkIdType num) override;
-
-  /**
    * Set the tuple value at the ith location in the array.
    */
   virtual void SetTypedTuple(vtkIdType i, const ValueType *t) = 0;

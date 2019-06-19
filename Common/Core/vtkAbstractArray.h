@@ -159,11 +159,12 @@ public:
   virtual void SetNumberOfTuples(vtkIdType numTuples) = 0;
 
   /**
-   * Specify the number of values (tuples * components) for this object to hold.
-   * Does an allocation as well as setting the MaxId ivar. Used in conjunction
-   * with SetValue() method for fast insertion.
+   * Specify the number of values (tuples * components) for this object to
+   * hold. Does an allocation as well as setting the MaxId ivar. Used in
+   * conjunction with SetValue() method for fast insertion. Preserves existing
+   * data and returns true if allocation succeeds, or false otherwise.
    */
-  virtual void SetNumberOfValues(vtkIdType numValues);
+  virtual bool SetNumberOfValues(vtkIdType numValues);
 
   /**
    * Get the number of complete tuples (a component group) in the array.
@@ -318,13 +319,13 @@ public:
   /**
    * Return the size of the data.
    */
-  vtkIdType GetSize()
+  vtkIdType GetSize() const
   {return this->Size;}
 
   /**
    * What is the maximum id currently in the array.
    */
-  vtkIdType GetMaxId()
+  vtkIdType GetMaxId() const
     {return this->MaxId;}
 
   enum DeleteMethod

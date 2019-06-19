@@ -55,6 +55,7 @@
 #include "vtkAppendFilter.h"
 #include "vtkStructuredGrid.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkGenericCell.h"
 
@@ -1501,12 +1502,7 @@ void vtkTableBasedClipperVolumeFromVolume::
   cellTypes->SetNumberOfValues( ncells );
   unsigned char * ct = cellTypes->GetPointer( 0 );
 
-  vtkIdTypeArray * cellLocations = vtkIdTypeArray::New();
-  cellLocations->SetNumberOfValues( ncells );
-  vtkIdType * cl = cellLocations->GetPointer( 0 );
-
   vtkIdType ids[1024]; // 8 (for hex) should be max, but...
-  vtkIdType current_index = 0;
   for ( i = 0; i < nshapes; i ++ )
   {
     const vtkIdType * list;
@@ -1540,26 +1536,24 @@ void vtkTableBasedClipperVolumeFromVolume::
         }
         list += shapesize + 1;
         *nl ++ = shapesize;
-        *cl ++ = current_index;
         *ct ++ = static_cast<unsigned char>(vtk_type);
         for ( l = 0; l < shapesize; l ++ )
         {
           *nl ++ = ids[l];
         }
 
-        current_index += shapesize + 1;
         cellId ++;
       }
     }
   }
 
   vtkCellArray * cells = vtkCellArray::New();
-  cells->SetCells( ncells, nlist );
+  cells->AllocateExact(ncells, nlist->GetNumberOfValues() - ncells);
+  cells->ImportLegacyFormat(nlist);
   nlist->Delete();
 
-  output->SetCells( cellTypes, cellLocations, cells );
+  output->SetCells( cellTypes, cells );
   cellTypes->Delete();
-  cellLocations->Delete();
   cells->Delete();
 
   delete [] ptLookup;
@@ -2006,7 +2000,7 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
   {
     int         cellType = polyData->GetCellType( i );
     bool        bCanClip = false;
-    vtkIdType * pntIndxs = nullptr;
+    const vtkIdType * pntIndxs = nullptr;
     polyData->GetCellPoints( i, numbPnts, pntIndxs );
 
     switch ( cellType )
@@ -3014,7 +3008,7 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
   for ( i = 0; i < numCells; i ++ )
   {
     int         cellType = unstruct->GetCellType( i );
-    vtkIdType * pntIndxs = nullptr;
+    const vtkIdType * pntIndxs = nullptr;
     unstruct->GetCellPoints( i, numbPnts, pntIndxs );
 
     bool     bCanClip = false;
@@ -3311,7 +3305,8 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
           specials->GetCellData()
                   ->CopyAllocate( unstruct->GetCellData(), numCells );
       }
-      vtkIdType nfaces, *facePtIds;
+      vtkIdType nfaces;
+      const vtkIdType *facePtIds;
       unstruct->GetFaceStream(i, nfaces, facePtIds);
       specials->InsertNextCell(cellType, nfaces, facePtIds);
       specials->GetCellData()

@@ -389,7 +389,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
   {
     vtkDebugMacro("creating new measured geometry output");
     vtkPolyData* pd = vtkPolyData::New();
-    pd->Allocate(this->NumberOfMeasuredPoints);
+    pd->AllocateEstimate(this->NumberOfMeasuredPoints, 1);
     this->AddToBlock(output, this->NumberOfGeometryParts, pd);
     ds = pd;
     pd->Delete();

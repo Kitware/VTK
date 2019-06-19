@@ -39,6 +39,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTriangleFilter.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkXMLPolyDataWriter.h"
 
 vtkStandardNewMacro(vtkSingleVTPExporter);
@@ -175,7 +176,7 @@ void vtkSingleVTPExporter::WriteData()
 // process an input triangle and generate one or more output triangles
 // based on texture coordinates.
 void vtkSingleVTPExporter::ProcessTriangle(
-  vtkIdType *pts,
+  const vtkIdType *pts,
   vtkPolyData *opd)
 {
   vtkCellArray *newPolys = opd->GetPolys();
@@ -312,10 +313,10 @@ vtkPolyData *vtkSingleVTPExporter::FixTextureCoordinates(vtkPolyData *ipd)
   if (ipd->GetPolys()->GetNumberOfCells() > 0 )
   {
     vtkCellArray *cells = ipd->GetPolys();
-    vtkIdType *pts = nullptr;
+    const vtkIdType *pts = nullptr;
     vtkIdType npts;
     newPolys = vtkCellArray::New();
-    newPolys->EstimateSize(cells->GetNumberOfCells(),3);
+    newPolys->AllocateEstimate(cells->GetNumberOfCells(), 3);
     opd->SetPolys(newPolys);
     vtkIdList *ptIds = vtkIdList::New();
     ptIds->Allocate(VTK_CELL_SIZE);
@@ -575,7 +576,7 @@ void vtkSingleVTPExporter::WriteVTP(
 
     // copy the cells over
     vtkIdType npts;
-    vtkIdType *cpts;
+    const vtkIdType *cpts;
     vtkCellArray *ica;
 
     ica = ipd->GetVerts();

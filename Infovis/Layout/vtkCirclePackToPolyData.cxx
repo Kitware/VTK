@@ -134,7 +134,7 @@ void vtkCirclePackToPolyData::CreateCircle(const double& x,
   vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
 
   points->SetNumberOfPoints( resolution );
-  cells->Allocate( 1, resolution );
+  cells->AllocateEstimate( 1, resolution );
   cells->InsertNextCell( resolution );
 
   for( int i = 0 ; i < resolution; ++i )

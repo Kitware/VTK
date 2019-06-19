@@ -1492,13 +1492,7 @@ void vtkTecplotReader::GetUnstructuredGridCells( int numberCells,
   cellTypeList->SetNumberOfValues( numberCells );
   unsigned char *        cellTypesPtr = cellTypeList->GetPointer( 0 );
 
-  // location of each cell in support of fast random (non-sequential) access
-  vtkIdTypeArray * cellLocArray = vtkIdTypeArray::New();
-  cellLocArray->SetNumberOfValues( numberCells );
-  vtkIdType *      cellLocatPtr = cellLocArray->GetPointer( 0 );
-
   // fill the three arrays
-  int locateOffset = 0;
   for ( int c = 0; c < numberCells; c ++ )
   {
     *cellTypesPtr ++ = theCellType;
@@ -1512,29 +1506,23 @@ void vtkTecplotReader::GetUnstructuredGridCells( int numberCells,
                            : atoi( this->Internal->GetNextToken().c_str() ) - 1
                          );
     }
-
-    *cellLocatPtr ++ = locateOffset;
-    locateOffset    += numCellPnts + 1;
   }
   cellInforPtr = nullptr;
   cellTypesPtr = nullptr;
-  cellLocatPtr = nullptr;
 
   // create a cell array object to accept the cell info
   vtkCellArray * theCellArray = vtkCellArray::New();
-  theCellArray->SetCells( numberCells, cellInfoList );
+  theCellArray->ImportLegacyFormat(cellInfoList);
   cellInfoList->Delete();
   cellInfoList = nullptr;
 
   // create a vtkUnstructuredGrid object and attach the 3 arrays (types, locations,
   // and cells) to it for export.
-  unstrctGrid->SetCells( cellTypeList, cellLocArray, theCellArray );
+  unstrctGrid->SetCells( cellTypeList, theCellArray );
   theCellArray->Delete();
   cellTypeList->Delete();
-  cellLocArray->Delete();
   theCellArray = nullptr;
   cellTypeList = nullptr;
-  cellLocArray = nullptr;
 }
 
 // ----------------------------------------------------------------------------

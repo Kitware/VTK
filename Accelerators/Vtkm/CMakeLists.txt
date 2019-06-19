@@ -23,25 +23,20 @@ set(sources
   vtkmlib/ArrayConvertersUnsigned.cxx)
 
 set(headers
-  vtkmFilterPolicy.h
-  vtkmTags.h)
+  vtkmFilterPolicy.h)
 
 set(private_headers
   vtkmlib/ArrayConverters.hxx
   vtkmlib/DataSetConverters.h
   vtkmlib/Portals.hxx
   vtkmlib/PortalTraits.h
-  vtkmlib/Storage.hxx
   vtkmDataArray.hxx)
 
 set(impl_classes
   vtkmAverageToCells
   vtkmAverageToPoints
-  vtkmCellSetExplicit
-  vtkmCellSetSingleType
   vtkmCleanGrid
   vtkmClip
-  vtkmConnectivityExec
   vtkmContour
   vtkmCoordinateSystemTransform
   vtkmDataArray
@@ -71,7 +66,6 @@ set(private_impl_classes
   vtkmlib/ImplicitFunctionConverter
   vtkmlib/PolyDataConverter
   vtkmlib/Portals
-  vtkmlib/Storage
   vtkmlib/UnstructuredGridConverter)
 
 foreach (class IN LISTS impl_classes)
@@ -152,7 +146,8 @@ vtk_module_set_property(VTK::AcceleratorsVTKm
   VALUE     vtkm_pool)
 vtk_module_link(VTK::AcceleratorsVTKm
   PRIVATE
-    vtkm_worklet)
+    vtkm_worklet
+    vtkm_filter)
 
 if (TARGET vtkm::cuda)
   vtk_module_set_property(VTK::AcceleratorsVTKm

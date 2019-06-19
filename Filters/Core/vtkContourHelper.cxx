@@ -47,7 +47,7 @@ vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator *locator,
   this->TriOutCd = vtkCellData::New();
   if(this->GenerateTriangles)
   {
-    this->Tris->Allocate(estimatedSize,estimatedSize/2);
+    this->Tris->AllocateEstimate(estimatedSize, 3);
     this->TriOutCd->Initialize();
   }
   this->PolyCollection = vtkIdListCollection::New();
@@ -82,7 +82,7 @@ void vtkContourHelper::Contour(vtkCell* cell, double value, vtkDataArray *cellSc
     this->PolyBuilder.Reset();
 
     vtkIdType cellSize;
-    vtkIdType* cellVerts;
+    const vtkIdType* cellVerts;
     while(this->Tris->GetNextCell(cellSize,cellVerts))
     {
       if(cellSize==3)

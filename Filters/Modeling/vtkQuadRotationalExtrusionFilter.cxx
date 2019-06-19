@@ -240,7 +240,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       vtkPoints *inPts;
       vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
       int numEdges;
-      vtkIdType *pts = nullptr;
+      const vtkIdType *pts = nullptr;
       vtkIdType ptId, ncells;
       vtkPoints *newPts;
       vtkCellArray *newLines=nullptr, *newPolys, *newStrips=nullptr;
@@ -280,14 +280,14 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       if ( ( ncells=inVerts->GetNumberOfCells() ) > 0 )
       {
         newLines = vtkCellArray::New();
-        newLines->Allocate( newLines->EstimateSize( ncells,this->Resolution+1 ) );
+        newLines->AllocateEstimate(ncells, this->Resolution+1);
       }
       // arbitrary initial allocation size
       ncells = inLines->GetNumberOfCells() + inPolys->GetNumberOfCells()/10 +
         inStrips->GetNumberOfCells()/10;
       ncells = ( ncells < 100 ? 100 : ncells );
       newPolys = vtkCellArray::New();
-      newPolys->Allocate( newPolys->EstimateSize( ncells,2*( this->Resolution+1 ) ));
+      newPolys->AllocateEstimate(ncells, 2*( this->Resolution+1 ));
       outCD->CopyNormalsOff();
       outCD->CopyAllocate( cd,ncells );
 
@@ -373,7 +373,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
         if ( inStrips->GetNumberOfCells() > 0 )
         {
           newStrips = vtkCellArray::New();
-          newStrips->Allocate( inStrips->GetSize() );
+          newStrips->AllocateCopy(inStrips);
 
           for ( vtkIdType cellId = 0; cellId < numCells && !abort; ++ cellId )
           {

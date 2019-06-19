@@ -22,6 +22,8 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkPolyDataReader);
 
 //----------------------------------------------------------------------------
@@ -54,10 +56,44 @@ int vtkPolyDataReader::ReadMeshSimple(
 {
   vtkIdType numPts=0;
   char line[256];
-  vtkIdType npts, size = 0, ncells, i;
+  vtkIdType npts, size = 0, ncells;
   vtkPolyData *output = vtkPolyData::SafeDownCast(doOutput);
-  int *tempArray;
-  vtkIdType *idArray;
+
+  // Helper function to handle legacy cell data fallback:
+  auto readCellArray = [&](vtkSmartPointer<vtkCellArray> &cellArray) -> bool
+  {
+    if (this->FileMajorVersion >= 5)
+    { // Cells are written as offsets + connectivity arrays:
+      return this->ReadCells(cellArray) != 0;
+    }
+    else
+    { // Import cells from legacy format:
+      if (!(this->Read(&ncells) && this->Read(&size)))
+      {
+        return false;
+      }
+
+      std::size_t connSize = static_cast<std::size_t>(size);
+      std::vector<int> tempArray(connSize);
+      std::vector<vtkIdType> idArray(connSize);
+
+      if (!this->ReadCellsLegacy(size, tempArray.data()))
+      {
+        this->CloseVTKFile();
+        return 1;
+      }
+
+      // Convert to id type
+      for (std::size_t connIdx = 0; connIdx < connSize; connIdx++)
+      {
+        idArray[connIdx] = static_cast<vtkIdType>(tempArray[connIdx]);
+      }
+
+      cellArray = vtkSmartPointer<vtkCellArray>::New();
+      cellArray->ImportLegacyFormat(idArray.data(), size);
+      return true;
+    } // end legacy cell read
+  };
 
   vtkDebugMacro(<<"Reading vtk polygonal data...");
 
@@ -120,101 +156,56 @@ int vtkPolyDataReader::ReadMeshSimple(
 
         this->ReadPointCoordinates(output, numPts);
       }
-
       else if ( ! strncmp(line,"vertices",8) )
       {
-        vtkCellArray *verts = vtkCellArray::New();
-        if (!(this->Read(&ncells) && this->Read(&size)))
+        vtkSmartPointer<vtkCellArray> cells;
+        if (!readCellArray(cells))
         {
-          vtkErrorMacro(<<"Cannot read vertices!");
-          this->CloseVTKFile ();
+          vtkErrorMacro("Error reading vertices.");
+          this->CloseVTKFile();
           return 1;
         }
-
-        tempArray = new int[size];
-        idArray = verts->WritePointer(ncells, size);
-        this->ReadCells(size, tempArray);
-//        this->ReadCells(size, verts->WritePointer(ncells,size));
-        for (i = 0; i < size; i++)
-        {
-          idArray[i] = tempArray[i];
-        }
-        output->SetVerts(verts);
-        verts->Delete();
-        delete [] tempArray;
-        vtkDebugMacro(<<"Read " << ncells << " vertices");
+        output->SetVerts(cells);
+        vtkDebugMacro("Read " << cells->GetNumberOfCells() << " vertices");
       }
 
       else if ( ! strncmp(line,"lines",5) )
       {
-        vtkCellArray *lines = vtkCellArray::New();
-        if (!(this->Read(&ncells) && this->Read(&size)))
+        vtkSmartPointer<vtkCellArray> cells;
+        if (!readCellArray(cells))
         {
-          vtkErrorMacro(<<"Cannot read lines!");
-          this->CloseVTKFile ();
+          vtkErrorMacro("Error reading lines.");
+          this->CloseVTKFile();
           return 1;
         }
-        tempArray = new int[size];
-        idArray = lines->WritePointer(ncells, size);
-        this->ReadCells(size, tempArray);
-//        this->ReadCells(size, lines->WritePointer(ncells,size));
-        for (i = 0; i < size; i++)
-        {
-          idArray[i] = tempArray[i];
-        }
-
-        output->SetLines(lines);
-        lines->Delete();
-        delete [] tempArray;
-        vtkDebugMacro(<<"Read " << ncells << " lines");
+        output->SetLines(cells);
+        vtkDebugMacro("Read " << cells->GetNumberOfCells() << " lines");
       }
 
       else if ( ! strncmp(line,"polygons",8) )
       {
-        vtkCellArray *polys = vtkCellArray::New();
-        if (!(this->Read(&ncells) && this->Read(&size)))
+        vtkSmartPointer<vtkCellArray> cells;
+        if (!readCellArray(cells))
         {
-          vtkErrorMacro(<<"Cannot read polygons!");
-          this->CloseVTKFile ();
+          vtkErrorMacro("Error reading polygons.");
+          this->CloseVTKFile();
           return 1;
         }
-
-        tempArray = new int[size];
-        idArray = polys->WritePointer(ncells, size);
-        this->ReadCells(size, tempArray);
-//        this->ReadCells(size, polys->WritePointer(ncells,size));
-        for (i = 0; i < size; i++)
-        {
-          idArray[i] = tempArray[i];
-        }
-        output->SetPolys(polys);
-        polys->Delete();
-        delete [] tempArray;
-        vtkDebugMacro(<<"Read " << ncells << " polygons");
+        output->SetPolys(cells);
+        vtkDebugMacro("Read " << cells->GetNumberOfCells() << " polygons");
       }
 
       else if ( ! strncmp(line,"triangle_strips",15) )
       {
-        vtkCellArray *tris = vtkCellArray::New();
-        if (!(this->Read(&ncells) && this->Read(&size)))
+        vtkSmartPointer<vtkCellArray> cells;
+        if (!readCellArray(cells))
         {
-          vtkErrorMacro(<<"Cannot read triangle strips!");
-          this->CloseVTKFile ();
+          vtkErrorMacro("Error reading triangle_strips.");
+          this->CloseVTKFile();
           return 1;
         }
-
-        tempArray = new int[size];
-        idArray = tris->WritePointer(ncells, size);
-        this->ReadCells(size, tempArray);
-//        this->ReadCells(size, tris->WritePointer(ncells,size));
-        for (i = 0; i < size; i++)
-        {
-          idArray[i] = tempArray[i];
-        }
-        output->SetStrips(tris);
-        tris->Delete();
-        delete [] tempArray;
-        vtkDebugMacro(<<"Read " << ncells << " triangle strips");
+        output->SetStrips(cells);
+        vtkDebugMacro("Read " << cells->GetNumberOfCells() << " triangle strips");
       }
 
       else if ( ! strncmp(line, "cell_data", 9) )

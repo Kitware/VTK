@@ -39,6 +39,7 @@
 #include "vtkTextActor.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 

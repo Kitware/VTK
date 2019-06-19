@@ -1421,7 +1421,7 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
   pts = vtkPoints::New();
   pts->Allocate(5000);
   polys = vtkCellArray::New();
-  polys->Allocate(10000);
+  polys->AllocateEstimate(4096, 3);
 
   // Compute idx into tree at appropriate level; determine if
   // faces of octants are visible.

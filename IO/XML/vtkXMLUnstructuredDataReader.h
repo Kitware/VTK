@@ -75,6 +75,9 @@ protected:
   vtkPointSet* GetOutputAsPointSet();
   vtkXMLDataElement* FindDataArrayWithName(vtkXMLDataElement* eParent,
                                            const char* name);
+
+  // note that these decref the input array and return an array with a
+  // new reference:
   vtkIdTypeArray* ConvertToIdTypeArray(vtkDataArray* a);
   vtkUnsignedCharArray* ConvertToUnsignedCharArray(vtkDataArray* a);
 

@@ -706,8 +706,7 @@ int vtkHyperStreamline::BuildTube(vtkDataSet *input, vtkPolyData *output)
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(7500);
   newStrips = vtkCellArray::New();
-  newStrips->Allocate(newStrips->EstimateSize(3*this->NumberOfStreamers,
-                                              VTK_CELL_SIZE));
+  newStrips->AllocateEstimate(3*this->NumberOfStreamers, VTK_CELL_SIZE);
   //
   // Loop over all hyperstreamlines generating points
   //

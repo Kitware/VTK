@@ -17,14 +17,17 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellTypes.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDoubleArray.h"
 #include "vtkExtractSelectedIds.h"
 #include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMergePoints.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -35,13 +38,17 @@
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXdmfDataArray.h"
 #include "vtkXdmfReader.h"
 #include "vtkXdmfReaderInternal.h"
 
-#include <deque>
+#include <algorithm>
 #include <cassert>
+#include <deque>
+#include <type_traits>
+#include <vector>
 
 #include "vtk_libxml2.h"
 #include VTKLIBXML2_HEADER(tree.h)
@@ -575,52 +582,64 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
     xmfConnectivity->GetValues(0, xmfConnections, conn_length);
 
     vtkIdType numCells = xmfTopology->GetShapeDesc()->GetNumberOfElements();
-    int *cell_types = new int[numCells];
 
-    /* Create Cell Array */
-    vtkCellArray* cells = vtkCellArray::New();
+    vtkNew<vtkIdTypeArray> conn;
+    vtkNew<vtkIdTypeArray> offsets;
 
-    /* Get the pointer */
-    vtkIdType* cells_ptr = cells->WritePointer(
-      numCells, numCells * (1 + numPointsPerCell));
+    offsets->SetNumberOfTuples(numCells + 1);
 
-    /* xmfConnections: N p1 p2 ... pN */
-    /* i.e. Triangles : 3 0 1 2    3 3 4 5   3 6 7 8 */
-    vtkIdType index = 0;
-    for(vtkIdType cc = 0 ; cc < numCells; cc++ )
-    {
-      cell_types[cc] = vtk_cell_type;
-      *cells_ptr++ = numPointsPerCell;
-      for (vtkIdType i = 0 ; i < numPointsPerCell; i++ )
+    { // Fill offsets: {0, 1 * cellSize, 2 * cellSize, ..., numCells * cellSize}
+      vtkIdType offset = -numPointsPerCell;
+      auto generator = [&]() -> vtkIdType
       {
-        *cells_ptr++ = xmfConnections[index++];
-      }
+        return offset += numPointsPerCell;
+      };
+      auto range = vtk::DataArrayValueRange<1>(offsets);
+      std::generate(range.begin(), range.end(), generator);
     }
-    ugData->SetCells(cell_types, cells);
-    cells->Delete();
+
+    conn->SetNumberOfTuples(numPointsPerCell * numCells);
+
+    // Fill connections (just copy xmfConnections)
+    { // Need to convert explicitly to silence warnings:
+      auto range = vtk::DataArrayValueRange<1>(conn);
+      std::transform(xmfConnections,
+                     xmfConnections + (numPointsPerCell * numCells),
+                     range.begin(),
+                     [](XdmfInt64 val) -> vtkIdType
+      {
+        return static_cast<vtkIdType>(val);
+      });
+    }
+
+    // Construct and set the cell array
+    vtkNew<vtkCellArray> cells;
+    cells->SetData(offsets, conn);
+    ugData->SetCells(vtk_cell_type, cells);
+
     delete [] xmfConnections;
-    delete [] cell_types;
   }
   else
   {
     // We have cells with mixed types.
     XdmfInt64 conn_length = xmfGrid->GetTopology()->GetConnectivity()->GetNumberOfElements();
-    XdmfInt64* xmfConnections = new XdmfInt64[conn_length];
-    xmfConnectivity->GetValues(0, xmfConnections, conn_length);
+    std::vector<XdmfInt64> xmfConnections(static_cast<size_t>(conn_length));
+    xmfConnectivity->GetValues(0, xmfConnections.data(), conn_length);
 
     vtkIdType numCells = xmfTopology->GetShapeDesc()->GetNumberOfElements();
-    int *cell_types = new int[numCells];
+    vtkNew<vtkUnsignedCharArray> cell_types;
+    cell_types->SetNumberOfTuples(numCells);
 
-    /* Create Cell Array */
-    vtkCellArray* cells = vtkCellArray::New();
+    vtkNew<vtkIdTypeArray> offsets;
+    offsets->SetNumberOfTuples(numCells + 1);
 
-    /* Get the pointer. Make it Big enough ... too big for now */
-    vtkIdType* cells_ptr = cells->WritePointer(numCells, conn_length);
+    vtkNew<vtkIdTypeArray> conn;
+    // This may be an overestimate; will correct after filling.
+    conn->SetNumberOfTuples(static_cast<vtkIdType>(conn_length));
 
-    /* xmfConnections : N p1 p2 ... pN */
-    /* i.e. Triangles : 3 0 1 2    3 3 4 5   3 6 7 8 */
+    vtkIdType offset = 0;
     vtkIdType index = 0;
-    int sub = 0;
+    vtkIdType connIndex = 0;
     for(vtkIdType cc = 0 ; cc < numCells; cc++ )
     {
       int vtk_cell_typeI = this->GetVTKCellType(xmfConnections[index++]);
@@ -629,9 +648,6 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
       if (numPointsPerCell==-1)
       {
         // encountered an unknown cell.
-        cells->Delete();
-        delete [] cell_types;
-        delete [] xmfConnections;
         return nullptr;
       }
 
@@ -640,22 +656,26 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
         // cell type does not have a fixed number of points in which case the
         // next entry in xmfConnections tells us the number of points.
         numPointsPerCell = xmfConnections[index++];
-        sub++; // used to shrink the cells array at the end.
       }
 
-      cell_types[cc] = vtk_cell_typeI;
-      *cells_ptr++ = numPointsPerCell;
-      for(vtkIdType i = 0 ; i < numPointsPerCell; i++ )
+      cell_types->SetValue(cc, static_cast<unsigned char>(vtk_cell_typeI));
+      offsets->SetValue(cc, offset);
+      offset += numPointsPerCell;
+
+      for (vtkIdType i = 0 ; i < numPointsPerCell; i++ )
       {
-        *cells_ptr++ = xmfConnections[index++];
+        conn->SetValue(connIndex++, xmfConnections[index++]);
       }
     }
+    offsets->SetValue(numCells, offset); // final offset value
+
     // Resize the Array to the Proper Size
-    cells->GetData()->Resize(index-sub);
+    conn->Resize(connIndex);
+
+    // Create and set the cell array:
+    vtkNew<vtkCellArray> cells;
+    cells->SetData(offsets, conn);
     ugData->SetCells(cell_types, cells);
-    cells->Delete();
-    delete [] cell_types;
-    delete [] xmfConnections;
   }
 
   // Read the geometry.

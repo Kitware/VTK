@@ -76,7 +76,7 @@ int vtkRegularPolygonSource::RequestData(
   if ( this->GeneratePolyline )
   {
     newLine = vtkCellArray::New();
-    newLine->Allocate(newLine->EstimateSize(1,numPts));
+    newLine->AllocateEstimate(1, numPts);
     newLine->InsertNextCell(numPts+1);
     for (i=0; i<numPts; i++)
     {
@@ -90,7 +90,7 @@ int vtkRegularPolygonSource::RequestData(
   if ( this->GeneratePolygon )
   {
     newPoly = vtkCellArray::New();
-    newPoly->Allocate(newPoly->EstimateSize(1,numPts));
+    newPoly->AllocateEstimate(1, numPts);
     newPoly->InsertNextCell(numPts);
     for (i=0; i<numPts; i++)
     {

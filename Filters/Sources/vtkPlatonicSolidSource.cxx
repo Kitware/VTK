@@ -176,7 +176,7 @@ int vtkPlatonicSolidSource::RequestData(
 
   pts->SetNumberOfPoints(numPts);
   vtkCellArray *polys = vtkCellArray::New();
-  polys->Allocate(polys->EstimateSize(numCells,cellSize));
+  polys->AllocateEstimate(numCells, cellSize);
   vtkIntArray *colors = vtkIntArray::New();
   colors->SetNumberOfComponents(1);
   colors->SetNumberOfTuples(numCells);

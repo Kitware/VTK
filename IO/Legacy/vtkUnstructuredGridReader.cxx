@@ -23,6 +23,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkUnstructuredGridReader);
 
 #ifdef read
@@ -64,8 +66,6 @@ int vtkUnstructuredGridReader::ReadMeshSimple(
   vtkCellArray *cells=nullptr;
   int *types=nullptr;
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(doOutput);
-  int *tempArray;
-  vtkIdType *idArray;
 
   vtkDebugMacro(<<"Reading vtk unstructured grid...");
 
@@ -134,42 +134,58 @@ int vtkUnstructuredGridReader::ReadMeshSimple(
 
       else if ( !strncmp(line,"cells",5))
       {
-        piece = 0;
-        numPieces = 1;
-        if (!(this->Read(&ncells) && this->Read(&size)))
+        if (this->FileMajorVersion >= 5)
         {
-          vtkErrorMacro(<<"Cannot read cells!");
-          this->CloseVTKFile ();
-          return 1;
+          // Just read all of the cells. The legacy path goes through the
+          // streaming API, but hardcodes piece / numpieces to 0/1...
+          vtkSmartPointer<vtkCellArray> tmpCells;
+          if (!this->ReadCells(tmpCells))
+          {
+            this->CloseVTKFile();
+            return 1;
+          }
+
+          cells = tmpCells;
+          cells->Register(nullptr);
+        }
+        else // maj vers >= 5
+        { // we still want to support the pre-5.x cell format:
+          piece = 0;
+          numPieces = 1;
+          if (!(this->Read(&ncells) && this->Read(&size)))
+          {
+            vtkErrorMacro(<<"Cannot read cells!");
+            this->CloseVTKFile ();
+            return 1;
+          }
+
+          // the number of ints to read before we get to the piece.
+          skip1 = piece * ncells / numPieces;
+          // the number of ints to read as part of piece.
+          read2 = ((piece+1) * ncells / numPieces) - skip1;
+          // the number of ints after the piece
+          skip3 = ncells - skip1 - read2;
+
+          const std::size_t connSize = static_cast<std::size_t>(size);
+          std::vector<int> tempArray(connSize);
+          std::vector<vtkIdType> idArray(static_cast<std::size_t>(size));
+
+          if (!this->ReadCellsLegacy(size, tempArray.data(), skip1, read2, skip3))
+          {
+            this->CloseVTKFile();
+            return 1;
+          }
+
+          for (std::size_t connIdx = 0; connIdx < connSize; connIdx++)
+          {
+            idArray[connIdx] = static_cast<vtkIdType>(tempArray[connIdx]);
+          }
+
+          cells = vtkCellArray::New();
+          cells->ImportLegacyFormat(idArray.data(), size);
         }
 
-        // the number of ints to read before we get to the piece.
-        skip1 = piece * ncells / numPieces;
-        // the number of ints to read as part of piece.
-        read2 = ((piece+1) * ncells / numPieces) - skip1;
-        // the number of ints after the piece
-        skip3 = ncells - skip1 - read2;
-
-        cells = vtkCellArray::New();
-
-        tempArray = new int[size];
-        idArray = cells->WritePointer(ncells, size);
-
-//        if (!this->ReadCells(size, cells->WritePointer(read2,size),
-//                                     skip1, read2, skip3) )
-        if (!this->ReadCells(size, tempArray, skip1, read2, skip3) )
-        {
-          this->CloseVTKFile ();
-          delete [] tempArray;
-          return 1;
-        }
-
-        for (i = 0; i < size; i++)
-        {
-          idArray[i] = tempArray[i];
-        }
-        delete [] tempArray;
-
+        // Update the dataset
         if (cells && types)
         {
           output->SetCells(types, cells);

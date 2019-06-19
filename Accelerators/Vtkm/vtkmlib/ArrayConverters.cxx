@@ -15,9 +15,10 @@
 //=============================================================================
 #include "ArrayConverters.hxx"
 
-#include "Storage.h"
 #include "vtkmDataArray.h"
 #include "vtkmFilterPolicy.h"
+
+#include "vtkmlib/PortalTraits.h"
 
 #include <vtkm/cont/ArrayHandle.h>
 #include <vtkm/cont/CoordinateSystem.hxx>

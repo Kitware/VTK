@@ -231,13 +231,11 @@ int vtkGenericCutter::RequestData(
   vtkPoints *newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
   vtkCellArray *newVerts = vtkCellArray::New();
-  newVerts->Allocate(estimatedSize,estimatedSize);
+  newVerts->AllocateExact(estimatedSize,estimatedSize);
   vtkCellArray *newLines = vtkCellArray::New();
-  newLines->Allocate(estimatedSize,estimatedSize);
+  newLines->AllocateExact(estimatedSize,estimatedSize);
   vtkCellArray *newPolys = vtkCellArray::New();
-  newPolys->Allocate(estimatedSize,estimatedSize);
-
-  output->Allocate(numCells);
+  newPolys->AllocateExact(estimatedSize,estimatedSize);
 
   // locator used to merge potentially duplicate points
   if(this->Locator==nullptr)

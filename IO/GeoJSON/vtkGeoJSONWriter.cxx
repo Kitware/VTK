@@ -299,8 +299,7 @@ public:
    this->WriterHelper->append("\"geometries\":\n");
    this->WriterHelper->append("[\n");
 
-   vtkIdType cellLoc = 0;
-   vtkIdType *cellPts = nullptr;
+   const vtkIdType *cellPts = nullptr;
    vtkIdType cellSize = 0;
    vtkIdType numlines, numpolys;
    numlines = input->GetLines()->GetNumberOfCells();
@@ -322,8 +321,7 @@ public:
        this->WriterHelper->append("[\n");
        for (; inCell < ca->GetNumberOfCells() && ptCnt < VTK_GJWRITER_MAXPOINTS; inCell++)
        {
-         ca->GetCell(cellLoc, cellSize, cellPts);
-         cellLoc += cellSize+1;
+         ca->GetCellAtId(inCell, cellSize, cellPts);
          ptCnt += cellSize;
          vtkIdType inPt;
          for (inPt = 0; inPt < cellSize; inPt++)
@@ -389,8 +387,7 @@ public:
        for (; inCell < ca->GetNumberOfCells() && ptCnt < VTK_GJWRITER_MAXPOINTS; inCell++)
        {
          this->WriterHelper->append("[ "); //one cell
-         ca->GetCell(cellLoc, cellSize, cellPts);
-         cellLoc += cellSize+1;
+         ca->GetCellAtId(inCell, cellSize, cellPts);
          ptCnt += cellSize;
          vtkIdType inPt;
          for (inPt = 0; inPt < cellSize; inPt++)
@@ -458,8 +455,7 @@ public:
        for (; inCell < ca->GetNumberOfCells() && ptCnt < VTK_GJWRITER_MAXPOINTS; inCell++)
        {
          this->WriterHelper->append("[[ "); //one cell
-         ca->GetCell(cellLoc, cellSize, cellPts);
-         cellLoc += cellSize+1;
+         ca->GetCellAtId(inCell, cellSize, cellPts);
          ptCnt += cellSize;
          vtkIdType inPt;
          for (inPt = 0; inPt < cellSize; inPt++)

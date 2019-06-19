@@ -245,9 +245,9 @@ public:
   /**
    * Perform a fast, safe cast from a vtkAbstractArray to a
    * vtkAOSDataArrayTemplate.
-   * This method checks if source->GetArrayType() returns DataArray
-   * or a more derived type, and performs a static_cast to return
-   * source as a vtkDataArray pointer. Otherwise, nullptr is returned.
+   * This method checks if source->GetArrayType() returns AOSDataArrayTemplate
+   * or a more derived type, checks the data types, and performs a static_cast
+   * to return source as a vtkDataArray pointer. Otherwise, nullptr is returned.
    */
   static vtkAOSDataArrayTemplate<ValueType>*
   FastDownCast(vtkAbstractArray *source)
@@ -329,7 +329,7 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate)
     VTK_EXPECTS(0 <= id && id < GetNumberOfValues()); \
   void SetValue(vtkIdType id, T value) \
     VTK_EXPECTS(0 <= id && id < GetNumberOfValues()); \
-  void SetNumberOfValues(vtkIdType number) override;\
+  bool SetNumberOfValues(vtkIdType number) override;\
   void InsertValue(vtkIdType id, T f) \
     VTK_EXPECTS(0 <= id); \
   vtkIdType InsertNextValue(T f); \

@@ -100,12 +100,8 @@ void vtkXMLPUnstructuredGridReader::SetupOutputData()
   cellTypes->SetNumberOfTuples(this->GetNumberOfCells());
   vtkCellArray* outCells = vtkCellArray::New();
 
-  vtkIdTypeArray* locations = vtkIdTypeArray::New();
-  locations->SetNumberOfTuples(this->GetNumberOfCells());
+  output->SetCells(cellTypes, outCells);
 
-  output->SetCells(cellTypes, locations, outCells);
-
-  locations->Delete();
   outCells->Delete();
   cellTypes->Delete();
 }
@@ -133,28 +129,9 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
   vtkUnstructuredGrid* output =
     vtkUnstructuredGrid::SafeDownCast(this->GetCurrentOutput());
 
-  // Save the start location where the new cell connectivity will be
-  // appended.
-  vtkIdType startLoc = 0;
-  if (output->GetCells()->GetData())
-  {
-    startLoc = output->GetCells()->GetData()->GetNumberOfTuples();
-  }
-
   // Copy the Cells.
   this->CopyCellArray(
     this->TotalNumberOfCells, input->GetCells(), output->GetCells());
-
-  // Copy the cell locations with offset adjustment.
-  vtkIdTypeArray* inLocations = input->GetCellLocationsArray();
-  vtkIdTypeArray* outLocations = output->GetCellLocationsArray();
-  vtkIdType* inLocs = inLocations->GetPointer(0);
-  vtkIdType* outLocs = outLocations->GetPointer(this->StartCell);
-  vtkIdType numCells = inLocations->GetNumberOfTuples();
-  for (vtkIdType i = 0;i < numCells; ++i)
-  {
-    outLocs[i] = inLocs[i] + startLoc;
-  }
 
   // Copy Faces and FaceLocations with offset adjustment if they exist
   if(vtkIdTypeArray* inputFaces = input->GetFaces())
@@ -167,7 +144,8 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
       outputFaces = output->GetFaces();
     }
     vtkIdTypeArray* outputFaceLocations = output->GetFaceLocations();
-    for (vtkIdType i = 0;i < numCells; ++i)
+    const vtkIdType numFaceLocs = inputFaceLocations->GetNumberOfValues();
+    for (vtkIdType i = 0; i < numFaceLocs; ++i)
     {
       outputFaceLocations->InsertNextValue(outputFaces->GetMaxId() + 1);
       vtkIdType location = inputFaceLocations->GetValue(i);

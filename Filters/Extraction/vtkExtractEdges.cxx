@@ -94,7 +94,7 @@ int vtkExtractEdges::RequestData(
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   newLines = vtkCellArray::New();
-  newLines->EstimateSize(numPts*4,2);
+  newLines->AllocateEstimate(numPts*4, 2);
 
   pd = input->GetPointData();
   outPD = output->GetPointData();

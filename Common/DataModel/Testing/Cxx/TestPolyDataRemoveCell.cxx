@@ -40,7 +40,7 @@ int TestPolyDataRemoveCell(int , char *[])
     points->InsertPoint(i, loc);
   }
   vtkSmartPointer<vtkPolyData> poly = vtkSmartPointer<vtkPolyData>::New();
-  poly->Allocate(numCells, numCells);
+  poly->AllocateExact(numCells, numCells);
   poly->SetPoints(points);
   points->Delete();
 
@@ -86,7 +86,8 @@ int TestPolyDataRemoveCell(int , char *[])
   cellPoints->SetNumberOfTuples(numCells);
   for(i=0;i<numCells;i++)
   {
-    vtkIdType npts, *pts;
+    vtkIdType npts;
+    const vtkIdType *pts;
     poly->GetCellPoints(i, npts, pts);
     vtkIdType data[4] = {npts, pts[0], 0, 0};
     for(vtkIdType j=1;j<npts;j++)
@@ -130,7 +131,8 @@ int TestPolyDataRemoveCell(int , char *[])
   // check the cell's points
   for(i=0;i<poly->GetNumberOfCells();i++)
   {
-    vtkIdType npts, *pts;
+    vtkIdType npts;
+    const vtkIdType *pts;
     poly->GetCellPoints(i, npts, pts);
     vtkIdType data[4];
     cellPoints->GetTypedTuple(i, data);

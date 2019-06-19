@@ -41,7 +41,7 @@ public:
   //  - Number of subdivisions
   vtkDensifyPolyDataInternals( double    * verts,
                                     vtkIdType   numVerts,
-                                    vtkIdType * vertIds,
+                                    const vtkIdType * vertIds,
                                     vtkIdType  & numPoints,
                                     unsigned int nSubdivisions)
   {
@@ -71,7 +71,7 @@ public:
     //  parentPtIds: PointIds of the parent polygon (if one exists), ie the
     //               polygon this is intended to represent a subdivision of.
     //
-    Polygon( double *p, vtkIdType nPts, vtkIdType *ptIds,
+    Polygon( double *p, vtkIdType nPts, const vtkIdType *ptIds,
              vtkIdType nParentPoints = 0, vtkIdType *parentPtIds = nullptr)
     {
       this->Verts   = new double[3*nPts];
@@ -377,7 +377,8 @@ int vtkDensifyPolyData::RequestData(
     return 0;
   }
 
-  vtkIdType npts = 0, *ptIds = nullptr;
+  vtkIdType npts = 0;
+  const vtkIdType *ptIds = nullptr;
 
   input->BuildLinks();
 
@@ -391,7 +392,7 @@ int vtkDensifyPolyData::RequestData(
   outputPoints->DeepCopy( inputPoints );
 
   // Will be at least that big.. in reality much larger..
-  outputPolys->Allocate( outputPolys->EstimateSize( inputNumCells, 3 ) );
+  outputPolys->AllocateEstimate(inputNumCells, 3);
 
   // Copy pointdata structure from input. There will be at least as many
   // points as in the input.

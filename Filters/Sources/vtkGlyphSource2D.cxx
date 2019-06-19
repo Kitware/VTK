@@ -77,11 +77,11 @@ int vtkGlyphSource2D::RequestData(
 
   pts->Allocate(6,6);
   vtkCellArray *verts = vtkCellArray::New();
-  verts->Allocate(verts->EstimateSize(1,1),1);
+  verts->AllocateEstimate(1, 1);
   vtkCellArray *lines = vtkCellArray::New();
-  lines->Allocate(lines->EstimateSize(4,2),2);
+  lines->AllocateEstimate(4, 2);
   vtkCellArray *polys = vtkCellArray::New();
-  polys->Allocate(polys->EstimateSize(1,4),4);
+  polys->AllocateEstimate(1, 4);
   vtkUnsignedCharArray *colors = vtkUnsignedCharArray::New();
   colors->SetNumberOfComponents(3);
   colors->Allocate(2,2);

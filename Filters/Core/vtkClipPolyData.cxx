@@ -205,11 +205,11 @@ int vtkClipPolyData::RequestData(
 
   newPoints->Allocate(numPts,numPts/2);
   newVerts = vtkCellArray::New();
-  newVerts->Allocate(estimatedSize,estimatedSize/2);
+  newVerts->AllocateEstimate(estimatedSize, 1);
   newLines = vtkCellArray::New();
-  newLines->Allocate(estimatedSize,estimatedSize/2);
+  newLines->AllocateEstimate(estimatedSize, 2);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(estimatedSize,estimatedSize/2);
+  newPolys->AllocateEstimate(estimatedSize, 4);
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == nullptr )
@@ -236,11 +236,11 @@ int vtkClipPolyData::RequestData(
     outClippedCD = this->GetClippedOutput()->GetCellData();
     outClippedCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
     clippedVerts = vtkCellArray::New();
-    clippedVerts->Allocate(estimatedSize,estimatedSize/2);
+    clippedVerts->AllocateEstimate(estimatedSize, 1);
     clippedLines = vtkCellArray::New();
-    clippedLines->Allocate(estimatedSize,estimatedSize/2);
+    clippedLines->AllocateEstimate(estimatedSize, 2);
     clippedPolys = vtkCellArray::New();
-    clippedPolys->Allocate(estimatedSize,estimatedSize/2);
+    clippedPolys->AllocateEstimate(estimatedSize, 4);
   }
 
   cellScalars = vtkFloatArray::New();

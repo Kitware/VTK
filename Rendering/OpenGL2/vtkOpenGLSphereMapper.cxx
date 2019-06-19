@@ -31,6 +31,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkPointGaussianVS.h"
 #include "vtkSphereMapperGS.h"

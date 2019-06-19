@@ -193,13 +193,6 @@ public:
   void SetNumberOfTuples(vtkIdType number) override
     { this->SetNumberOfValues(this->NumberOfComponents* number); }
 
-  /**
-   * Specify the number of values for this object to hold. Does an
-   * allocation as well as setting the MaxId ivar. Used in conjunction with
-   * SetValue() method for fast insertion.
-   */
-  void SetNumberOfValues(vtkIdType number) override;
-
   vtkIdType GetNumberOfValues() { return this->MaxId + 1; }
 
   int GetNumberOfElementComponents() { return 0; }

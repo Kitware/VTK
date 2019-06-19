@@ -115,7 +115,7 @@ int vtkBoundedPointSource::RequestData(
   if ( this->ProduceCellOutput )
   {
     vtkCellArray *newVerts = vtkCellArray::New();
-    newVerts->Allocate(newVerts->EstimateSize(1,this->NumberOfPoints));
+    newVerts->AllocateEstimate(1, this->NumberOfPoints);
     newVerts->InsertNextCell(this->NumberOfPoints);
     for (ptId=0; ptId<this->NumberOfPoints; ptId++)
     {

@@ -353,7 +353,9 @@ namespace {
       double *sphere = this->Spheres + 4*cellId;
       vtkUnstructuredGrid *grid = static_cast<vtkUnstructuredGrid*>(this->DataSet);
       double cellPts[120], *p, r;
-      vtkIdType ptNum, *cellIds, numCellPts;
+      vtkIdType ptNum;
+      const vtkIdType *cellIds;
+      vtkIdType numCellPts;
       double& radius = this->Radius.Local();
       vtkIdType& count = this->Count.Local();
       double& xmin = this->XMin.Local();

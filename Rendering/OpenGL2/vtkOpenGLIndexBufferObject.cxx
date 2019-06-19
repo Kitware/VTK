@@ -17,6 +17,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkDataArrayAccessor.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
@@ -51,20 +52,26 @@ struct AppendTrianglesWorker
   template <typename ValueType>
   void operator()(vtkAOSDataArrayTemplate<ValueType> *src)
   {
-    vtkIdType *idPtr = cells->GetPointer();
-    vtkIdType *idEnd = idPtr + cells->GetNumberOfConnectivityEntries();
-
     ValueType *points = src->Begin();
-    while (idPtr < idEnd)
+
+    auto cellIter = vtk::TakeSmartPointer(cells->NewIterator());
+
+    for (cellIter->GoToFirstCell();
+         !cellIter->IsDoneWithTraversal();
+         cellIter->GoToNextCell())
     {
-      if (*idPtr >= 3)
+      vtkIdType cellSize;
+      const vtkIdType *cell;
+      cellIter->GetCurrentCell(cellSize, cell);
+
+      if (cellSize >= 3)
       {
-        vtkIdType id1 = *(idPtr+1);
+        vtkIdType id1 = cell[0];
         ValueType* p1 = points + id1*3;
-        for (int i = 2; i < *idPtr; i++)
+        for (int i = 1; i < cellSize - 1; i++)
         {
-          vtkIdType id2 = *(idPtr+i);
-          vtkIdType id3 = *(idPtr+i+1);
+          vtkIdType id2 = cell[i];
+          vtkIdType id3 = cell[i + 1];
           ValueType* p2 = points + id2*3;
           ValueType* p3 = points + id3*3;
           if ((p1[0] != p2[0] || p1[1] != p2[1] || p1[2] != p2[2]) &&
@@ -77,7 +84,6 @@ struct AppendTrianglesWorker
           }
         }
       }
-    idPtr += (*idPtr + 1);
     }
   }
 
@@ -94,18 +100,23 @@ struct AppendTrianglesWorker
     // vtkGenericDataArray APIs, depending on the template parameters:
     vtkDataArrayAccessor<PointArray> pt(points);
 
-    vtkIdType *idPtr = cells->GetPointer();
-    vtkIdType *idEnd = idPtr + cells->GetNumberOfConnectivityEntries();
+    auto cellIter = vtk::TakeSmartPointer(cells->NewIterator());
 
-    while (idPtr < idEnd)
+    for (cellIter->GoToFirstCell();
+         !cellIter->IsDoneWithTraversal();
+         cellIter->GoToNextCell())
     {
-      if (*idPtr >= 3)
+      vtkIdType cellSize;
+      const vtkIdType *cell;
+      cellIter->GetCurrentCell(cellSize, cell);
+
+      if (cellSize >= 3)
       {
-        vtkIdType id1 = *(idPtr+1);
-        for (int i = 2; i < *idPtr; i++)
+        vtkIdType id1 = cell[0];
+        for (int i = 1; i < cellSize - 1; i++)
         {
-          vtkIdType id2 = *(idPtr+i);
-          vtkIdType id3 = *(idPtr+i+1);
+          vtkIdType id2 = cell[i];
+          vtkIdType id3 = cell[i + 1];
           if (
             (pt.Get(id1, 0) != pt.Get(id2, 0) ||
               pt.Get(id1, 1) != pt.Get(id2, 1) ||
@@ -123,7 +134,6 @@ struct AppendTrianglesWorker
           }
         }
       }
-    idPtr += (*idPtr + 1);
     }
   }
 };
@@ -138,12 +148,11 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
   vtkPoints *points,
   vtkIdType vOffset)
 {
-  if (cells->GetNumberOfConnectivityEntries() >
-      cells->GetNumberOfCells()*3)
+  if (cells->GetNumberOfConnectivityIds() > cells->GetNumberOfCells()*3)
   {
     size_t targetSize = indexArray.size() +
-      (cells->GetNumberOfConnectivityEntries() -
-       cells->GetNumberOfCells()*3)*3;
+      (cells->GetNumberOfConnectivityIds() -
+       cells->GetNumberOfCells()*2)*3;
     if (targetSize > indexArray.capacity())
     {
       if (targetSize < indexArray.capacity()*1.5)
@@ -199,11 +208,9 @@ void vtkOpenGLIndexBufferObject::AppendPointIndexBuffer(
   vtkCellArray *cells,
   vtkIdType vOffset)
 {
-  vtkIdType* indices(nullptr);
+  const vtkIdType* indices(nullptr);
   vtkIdType npts(0);
-  size_t targetSize = indexArray.size() +
-    cells->GetNumberOfConnectivityEntries() -
-    cells->GetNumberOfCells();
+  size_t targetSize = indexArray.size() + cells->GetNumberOfConnectivityIds();
   if (targetSize > indexArray.capacity())
   {
     if (targetSize < indexArray.capacity()*1.5)
@@ -212,6 +219,7 @@ void vtkOpenGLIndexBufferObject::AppendPointIndexBuffer(
     }
     indexArray.reserve(targetSize);
   }
+
 
   for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
   {
@@ -247,11 +255,9 @@ void vtkOpenGLIndexBufferObject::AppendTriangleLineIndexBuffer(
   vtkCellArray *cells,
   vtkIdType vOffset)
 {
-  vtkIdType* indices(nullptr);
+  const vtkIdType* indices(nullptr);
   vtkIdType npts(0);
-  size_t targetSize = indexArray.size() + 2*(
-    cells->GetNumberOfConnectivityEntries() -
-    cells->GetNumberOfCells());
+  size_t targetSize = indexArray.size() + 2*cells->GetNumberOfConnectivityIds();
   if (targetSize > indexArray.capacity())
   {
     if (targetSize < indexArray.capacity()*1.5)
@@ -299,16 +305,16 @@ void vtkOpenGLIndexBufferObject::AppendLineIndexBuffer(
   vtkCellArray *cells,
   vtkIdType vOffset)
 {
-  vtkIdType* indices(nullptr);
+  const vtkIdType* indices(nullptr);
   vtkIdType npts(0);
 
   // possibly adjust size
-  if (cells->GetNumberOfConnectivityEntries() >
+  if (cells->GetNumberOfConnectivityIds() >
       2*cells->GetNumberOfCells())
   {
     size_t targetSize = indexArray.size() + 2*(
-      cells->GetNumberOfConnectivityEntries()
-      - 2*cells->GetNumberOfCells());
+      cells->GetNumberOfConnectivityIds()
+      - cells->GetNumberOfCells());
     if (targetSize > indexArray.capacity())
     {
       if (targetSize < indexArray.capacity()*1.5)
@@ -367,11 +373,11 @@ void vtkOpenGLIndexBufferObject::AppendStripIndexBuffer(
   vtkCellArray *cells,
   vtkIdType vOffset, bool wireframeTriStrips)
 {
-  vtkIdType      *pts = nullptr;
+  const vtkIdType      *pts = nullptr;
   vtkIdType      npts = 0;
 
-  size_t triCount = cells->GetNumberOfConnectivityEntries()
-    - 3*cells->GetNumberOfCells();
+  size_t triCount = cells->GetNumberOfConnectivityIds()
+    - 2*cells->GetNumberOfCells();
   size_t targetSize = wireframeTriStrips ? 2*(triCount*2+1)
    : triCount*3;
   indexArray.reserve(targetSize);
@@ -412,18 +418,18 @@ void vtkOpenGLIndexBufferObject::AppendEdgeFlagIndexBuffer(
   vtkIdType vOffset,
   vtkDataArray *ef)
 {
-  vtkIdType* pts(nullptr);
+  const vtkIdType* pts(nullptr);
   vtkIdType npts(0);
 
   unsigned char *ucef = vtkArrayDownCast<vtkUnsignedCharArray>(ef)->GetPointer(0);
 
   // possibly adjust size
-  if (cells->GetNumberOfConnectivityEntries() >
+  if (cells->GetNumberOfConnectivityIds() >
       2*cells->GetNumberOfCells())
   {
     size_t targetSize = indexArray.size() + 2*(
-      cells->GetNumberOfConnectivityEntries()
-      - 2*cells->GetNumberOfCells());
+      cells->GetNumberOfConnectivityIds()
+      - cells->GetNumberOfCells());
     if (targetSize > indexArray.capacity())
     {
       if (targetSize < indexArray.capacity()*1.5)
@@ -471,7 +477,7 @@ void vtkOpenGLIndexBufferObject::AppendVertexIndexBuffer(
   vtkCellArray **cells,
   vtkIdType vOffset)
 {
-  vtkIdType* indices(nullptr);
+  const vtkIdType* indices(nullptr);
   vtkIdType npts(0);
 
   // we use a set to make them unique

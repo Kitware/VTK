@@ -20,6 +20,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkPolyData.h"
 #include "vtkStringArray.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <vtksys/SystemTools.hxx>
 

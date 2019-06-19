@@ -74,7 +74,7 @@ int vtkOutlineCornerSource::RequestData(
 
   newPts->Allocate(32);
   newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(24,2));
+  newLines->AllocateEstimate(24, 2);
 
   double x[3];
   vtkIdType pts[2];

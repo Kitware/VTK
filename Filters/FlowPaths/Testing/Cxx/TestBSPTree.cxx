@@ -115,10 +115,9 @@ int TestBSPTree(int argc, char* argv[])
     vtkSmartPointer<vtkPolyData> intersections = vtkSmartPointer<vtkPolyData>::New();
     vtkSmartPointer<vtkCellArray>     vertices = vtkSmartPointer<vtkCellArray>::New();
     vtkIdType n = verts->GetNumberOfPoints();
-    vtkIdType *cells = vertices->WritePointer(0, n*2);
-    for (int i=0; i<n; i++) {
-      cells[i*2]   = 1;
-      cells[i*2+1] = i;
+    for (vtkIdType i=0; i<n; i++)
+    {
+      vertices->InsertNextCell(1, &i);
     }
     intersections->SetPoints(verts);
     intersections->SetVerts(vertices);

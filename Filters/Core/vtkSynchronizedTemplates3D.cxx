@@ -103,7 +103,7 @@ static void vtkSynchronizedTemplates3DInitializeOutput(
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
+  newPolys->AllocateEstimate(estimatedSize, 3);
 
   o->GetPointData()->CopyAllOn();
   // It is more efficient to just create the scalar array

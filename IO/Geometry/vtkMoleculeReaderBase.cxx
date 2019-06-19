@@ -18,6 +18,7 @@
 #include "vtkCellType.h"
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -357,7 +358,7 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp, vtkPolyData *output)
   output->SetPoints(this->Points);
 
   newBonds = vtkCellArray::New();
-  newBonds->Allocate(500);
+  newBonds->AllocateEstimate(512, 1);
 
   this->MakeBonds(this->Points, this->AtomType, newBonds);
 

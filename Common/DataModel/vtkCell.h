@@ -63,7 +63,7 @@ public:
    * Initialize cell from outside with point ids and point
    * coordinates specified.
    */
-  void Initialize(int npts, vtkIdType *pts, vtkPoints *p);
+  void Initialize(int npts, const vtkIdType *pts, vtkPoints *p);
 
   /**
    * Initialize the cell with point coordinates specified. Note that this

@@ -92,7 +92,7 @@ int vtkCubeSource::RequestData(
   newTCoords->SetName("TCoords");
 
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
+  newPolys->AllocateEstimate(numPolys, 4);
 
   //
   // Generate points and normals

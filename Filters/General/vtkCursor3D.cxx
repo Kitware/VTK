@@ -155,7 +155,7 @@ int vtkCursor3D::RequestData(
     newPts->SetDataTypeToDouble();
     newPts->Allocate(numPts);
     newLines = vtkCellArray::New();
-    newLines->Allocate(newLines->EstimateSize(numLines,2));
+    newLines->AllocateEstimate(numLines, 2);
   }
   else
   {

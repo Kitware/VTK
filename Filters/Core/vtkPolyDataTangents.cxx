@@ -51,8 +51,8 @@ struct TangentComputation
       if (cellId >= this->Offset)
       {
         vtkIdType npts;
-        vtkIdType* pts;
-        this->Triangles->GetCell(4 * cellId, npts, pts);
+        const vtkIdType* pts;
+        this->Triangles->GetCellAtId(cellId, npts, pts);
 
         // compute edges
         double v1[3], v2[3], v3[3];
@@ -130,7 +130,7 @@ int vtkPolyDataTangents::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkIdType numPolys = input->GetNumberOfPolys();
 
-  if (4 * numPolys != inPolys->GetNumberOfConnectivityEntries() || input->GetNumberOfStrips() > 0)
+  if (3 * numPolys != inPolys->GetNumberOfConnectivityIds() || input->GetNumberOfStrips() > 0)
   {
     vtkErrorMacro("This filter only supports triangles, triangulate first.");
     return 0;
@@ -168,7 +168,7 @@ int vtkPolyDataTangents::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkIdType cellId = 0;
     vtkIdType npts;
-    vtkIdType* pts;
+    const vtkIdType* pts;
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts); ++cellId)
     {
       for (vtkIdType i = 0; i < npts; ++i)

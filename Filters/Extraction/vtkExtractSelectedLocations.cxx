@@ -151,7 +151,7 @@ template <class T>
 void vtkExtractSelectedLocationsCopyCells(vtkDataSet* input, T* output, signed char* inArray, vtkIdType* pointMap)
 {
   vtkIdType numCells = input->GetNumberOfCells();
-  output->Allocate(numCells / 4);
+  output->AllocateEstimate(numCells / 4, 1);
 
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();

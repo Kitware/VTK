@@ -305,7 +305,8 @@ int vtkAppendFilter::RequestData(
       newPtIds->Reset ();
       if (ug && dataSet->GetCellType(cellId) == VTK_POLYHEDRON )
       {
-        vtkIdType nfaces, *facePtIds;
+        vtkIdType nfaces;
+        const vtkIdType *facePtIds;
         ug->GetFaceStream(cellId,nfaces,facePtIds);
         for(vtkIdType id=0; id < nfaces; ++id)
         {

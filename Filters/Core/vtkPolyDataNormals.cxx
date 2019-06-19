@@ -18,8 +18,10 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -49,6 +51,8 @@ vtkPolyDataNormals::vtkPolyDataNormals()
   this->Wave = nullptr;
   this->Wave2 = nullptr;
   this->CellIds = nullptr;
+  this->CellPoints = nullptr;
+  this->NeighborPoints = nullptr;
   this->Map = nullptr;
   this->OldMesh = nullptr;
   this->NewMesh = nullptr;
@@ -77,7 +81,7 @@ int vtkPolyDataNormals::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType numNewPts;
   double flipDirection=1.0;
   vtkIdType numVerts, numLines, numPolys, numStrips;
@@ -154,7 +158,7 @@ int vtkPolyDataNormals::RequestData(
     else
     {
       polys = vtkCellArray::New();
-      polys->Allocate(polys->EstimateSize(numStrips,5));
+      polys->AllocateEstimate(numStrips, 5);
     }
     vtkIdType inCellIdx = numPolys;
     vtkIdType outCellIdx = numPolys;
@@ -198,6 +202,10 @@ int vtkPolyDataNormals::RequestData(
     memset(this->Visited, VTK_CELL_NOT_VISITED, numPolys*sizeof(int));
     this->CellIds = vtkIdList::New();
     this->CellIds->Allocate(VTK_CELL_SIZE);
+    this->CellPoints = vtkIdList::New();
+    this->CellPoints->Allocate(VTK_CELL_SIZE);
+    this->NeighborPoints = vtkIdList::New();
+    this->NeighborPoints->Allocate(VTK_CELL_SIZE);
   }
   else
   {
@@ -226,7 +234,7 @@ int vtkPolyDataNormals::RequestData(
     vtkIdType leftmostCellID=-1, currentPointID, currentCellID;
     vtkIdType *leftmostCells;
     vtkIdType nleftmostCells;
-    vtkIdType *cellPts;
+    const vtkIdType *cellPts;
     vtkIdType nCellPts;
     int cIdx;
     double bestNormalAbsXComponent;
@@ -450,6 +458,11 @@ int vtkPolyDataNormals::RequestData(
   {
     delete [] this->Visited;
     this->CellIds->Delete();
+    this->CellIds = nullptr;
+    this->CellPoints->Delete();
+    this->CellPoints = nullptr;
+    this->NeighborPoints->Delete();
+    this->NeighborPoints = nullptr;
   }
 
   this->UpdateProgress(0.80);
@@ -547,7 +560,10 @@ void vtkPolyDataNormals::TraverseAndOrder ()
   vtkIdType i, k;
   int j, l, j1;
   vtkIdType numIds, cellId;
-  vtkIdType *pts, *neiPts, npts, numNeiPts;
+  const vtkIdType *pts;
+  const vtkIdType *neiPts;
+  vtkIdType npts;
+  vtkIdType numNeiPts;
   vtkIdType neighbor;
   vtkIdList *tmpWave;
 
@@ -558,7 +574,12 @@ void vtkPolyDataNormals::TraverseAndOrder ()
     {
       cellId = this->Wave->GetId(i);
 
-      this->NewMesh->GetCellPoints(cellId, npts, pts);
+      // Store the results here in a vtkIdList, since passing npts/pts directly
+      // would result in the data getting invalidated by the later call to
+      // NewMesh->GetCellPoints.
+      this->NewMesh->GetCellPoints(cellId, this->CellPoints);
+      npts = this->CellPoints->GetNumberOfIds();
+      pts = this->CellPoints->GetPointer(0);
 
       for (j = 0, j1 = 1; j < npts; ++j, (j1 = (++j1 < npts) ? j1 : 0)) //for each edge neighbor
       {
@@ -575,7 +596,10 @@ void vtkPolyDataNormals::TraverseAndOrder ()
             if (this->Visited[this->CellIds->GetId(k)]==VTK_CELL_NOT_VISITED)
             {
               neighbor = this->CellIds->GetId(k);
-              this->NewMesh->GetCellPoints(neighbor,numNeiPts,neiPts);
+              this->NewMesh->GetCellPoints(neighbor, this->NeighborPoints);
+              numNeiPts = this->NeighborPoints->GetNumberOfIds();
+              neiPts = this->NeighborPoints->GetPointer(0);
+
               for (l=0; l < numNeiPts; l++)
               {
                 if (neiPts[l] == pts[j1])
@@ -640,7 +664,7 @@ void vtkPolyDataNormals::MarkAndSplit (vtkIdType ptId)
   // Loop over all cells and mark the region that each is in.
   //
   vtkIdType numPts;
-  vtkIdType *pts;
+  const vtkIdType *pts;
   int numRegions = 0;
   vtkIdType spot, neiPt[2], nei, cellId, neiCellId;
   double thisNormal[3], neiNormal[3];
@@ -750,18 +774,8 @@ void vtkPolyDataNormals::MarkAndSplit (vtkIdType ptId)
     if (this->Visited[cells[j]] > 0 ) //replace point if splitting needed
     {
       replacementPoint = lastId + this->Visited[cells[j]] - 1;
-
       this->Map->InsertId(replacementPoint, ptId);
-
-      this->NewMesh->GetCellPoints(cells[j],numPts,pts);
-      for (i=0; i < numPts; i++)
-      {
-        if ( pts[i] == ptId )
-        {
-          pts[i] = replacementPoint; // this is very nasty! direct write!
-          break;
-        }
-      }//replace ptId with split point
+      this->NewMesh->ReplaceCellPoint(cells[j], ptId, replacementPoint);
     }//if not in first regions and requiring splitting
   }//for all cells connected to ptId
 }

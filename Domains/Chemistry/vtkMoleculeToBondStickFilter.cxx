@@ -63,8 +63,8 @@ int vtkMoleculeToBondStickFilter::RequestData(
   // Preallocate memory
   points->Allocate(3 * numBonds * cylSource->GetOutput()->GetPoints()->
                    GetNumberOfPoints());
-  polys->Allocate(3 * numBonds * cylSource->GetOutput()->GetPolys()->
-                  GetNumberOfCells());
+  polys->AllocateEstimate(numBonds * cylSource->GetOutput()->GetPolys()->GetNumberOfCells(),
+                          3);
   bondOrders->Allocate(3 * numBonds * cylSource->GetOutput()->GetPoints()->
                    GetNumberOfPoints());
 
@@ -73,7 +73,8 @@ int vtkMoleculeToBondStickFilter::RequestData(
   xform->PostMultiply();
 
   // Declare some variables for later
-  vtkIdType numCellPoints, *cellPoints;
+  vtkIdType numCellPoints;
+  const vtkIdType *cellPoints;
   unsigned short bondOrder;
   double bondLength;
   double radius;

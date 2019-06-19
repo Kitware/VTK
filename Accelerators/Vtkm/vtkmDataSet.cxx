@@ -29,6 +29,7 @@
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkNew.h"
+#include "vtkPoints.h"
 
 #include <vtkm/cont/CellLocatorGeneral.h>
 #include <vtkm/cont/DataSet.h>
@@ -36,9 +37,6 @@
 #include <vtkm/cont/PointLocator.h>
 #include <vtkm/cont/PointLocatorUniformGrid.h>
 #include <vtkm/worklet/ScatterPermutation.h>
-
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 
 #include <mutex>
 

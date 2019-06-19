@@ -95,7 +95,7 @@ protected:
 
   //Split cells into polygons created by intersection lines
   vtkCellArray* SplitCell(vtkPolyData *input, vtkIdType cellId,
-                          vtkIdType *cellPts,
+                          const vtkIdType *cellPts,
                           IntersectionMapType *map,
                           vtkPolyData *interLines, int inputIndex,
                           int numCurrCells);
@@ -104,7 +104,7 @@ protected:
   int AddToPointEdgeMap(int index, vtkIdType ptId, double x[3],
                         vtkPolyData *mesh, vtkIdType cellId,
                         vtkIdType edgeId, vtkIdType lineId,
-                        vtkIdType triPts[3]);
+                        const vtkIdType triPts[3]);
 
   //Function to add information about the new cell data
   void AddToNewCellMap(int inputIndex, int interPtCount, int interPts[3],
@@ -258,7 +258,8 @@ int vtkIntersectionPolyDataFilter::Impl
     //Make sure the cell is a triangle
     if (type0 == VTK_TRIANGLE)
     {
-      vtkIdType npts0, *triPtIds0;
+      vtkIdType npts0;
+      const vtkIdType *triPtIds0;
       mesh0->GetCellPoints(cellId0, npts0, triPtIds0);
       double triPts0[3][3];
       for (vtkIdType id = 0; id < npts0; id++)
@@ -279,7 +280,8 @@ int vtkIntersectionPolyDataFilter::Impl
             // See if the two cells actually intersect. If they do,
             // add an entry into the intersection maps and add an
             // intersection line.
-            vtkIdType npts1, *triPtIds1;
+            vtkIdType npts1;
+            const vtkIdType *triPtIds1;
             mesh1->GetCellPoints(cellId1, npts1, triPtIds1);
 
             double triPts1[3][3];
@@ -565,13 +567,13 @@ int vtkIntersectionPolyDataFilter::Impl
     vtkSmartPointer< vtkCellArray > newPolys =
       vtkSmartPointer< vtkCellArray >::New();
 
-    newPolys->EstimateSize(cells->GetNumberOfCells(), 3);
+    newPolys->AllocateEstimate(cells->GetNumberOfCells(), 3);
     output->SetPolys(newPolys);
 
     vtkSmartPointer< vtkIdList > edgeNeighbors =
       vtkSmartPointer< vtkIdList >::New();
     vtkIdType nptsX = 0;
-    vtkIdType *pts = nullptr;
+    const vtkIdType *pts = nullptr;
     vtkSmartPointer< vtkIdList > cellsToCheck =
       vtkSmartPointer< vtkIdList >::New();
     for (cells->InitTraversal(); cells->GetNextCell(nptsX, pts); cellIdX++)
@@ -641,7 +643,9 @@ int vtkIntersectionPolyDataFilter::Impl
         vtkTriangle::ComputeNormal(pt0, pt1, pt2, normal);
         vtkMath::Normalize(normal);
 
-        vtkIdType npts, *ptIds, subCellId;
+        vtkIdType npts;
+        const vtkIdType *ptIds;
+        vtkIdType subCellId;
         splitCells->InitTraversal();
         for (subCellId = 0; splitCells->GetNextCell(npts, ptIds); subCellId++)
         {
@@ -678,7 +682,7 @@ int vtkIntersectionPolyDataFilter::Impl
 }
 
 vtkCellArray* vtkIntersectionPolyDataFilter::Impl
-::SplitCell(vtkPolyData *input, vtkIdType cellId, vtkIdType *cellPts,
+::SplitCell(vtkPolyData *input, vtkIdType cellId, const vtkIdType *cellPts,
             IntersectionMapType *map,
             vtkPolyData *interLines, int inputIndex,
             int numCurrCells)
@@ -738,8 +742,9 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
   while (iterLower != iterUpper)
   {
     vtkIdType lineId = iterLower->second;
-    vtkIdType nLinePts, *linePtIds;
-    interLines->GetLines()->GetCell(3*lineId, nLinePts, linePtIds);
+    vtkIdType nLinePts;
+    const vtkIdType *linePtIds;
+    interLines->GetLines()->GetCellAtId(lineId, nLinePts, linePtIds);
 
     interceptlines->InsertNextCell(2);
     lines->InsertNextCell(2);
@@ -835,8 +840,9 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
       while (iterLower != iterUpper)
       {
         vtkIdType lineId = iterLower->second;
-        vtkIdType nLinePts, *linePtIds;
-        interLines->GetLines()->GetCell(3*lineId, nLinePts, linePtIds);
+        vtkIdType nLinePts;
+        const vtkIdType *linePtIds;
+        interLines->GetLines()->GetCellAtId(lineId, nLinePts, linePtIds);
         for (vtkIdType k = 0; k < nLinePts; k++)
         {
           if (linePtIds[k] >= interLines->GetNumberOfPoints())
@@ -1188,7 +1194,8 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
       }
 
       // Renumber the point IDs.
-      vtkIdType npts, *ptIds;
+      vtkIdType npts;
+      const vtkIdType *ptIds;
       interLines->BuildLinks();
       for (polys->InitTraversal(); polys->GetNextCell(npts, ptIds);)
       {
@@ -1253,7 +1260,8 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
     vtkCellArray *polys = del2D->GetOutput()->GetPolys();
 
     // Renumber the point IDs.
-    vtkIdType npts, *ptIds;
+    vtkIdType npts;
+    const vtkIdType *ptIds;
     for (polys->InitTraversal(); polys->GetNextCell(npts, ptIds);)
     {
       if (ptIds[0] >= points->GetNumberOfPoints() ||
@@ -1301,7 +1309,7 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
 int vtkIntersectionPolyDataFilter::Impl
 ::AddToPointEdgeMap(int index, vtkIdType ptId, double x[3], vtkPolyData *mesh,
                     vtkIdType cellId, vtkIdType edgeId, vtkIdType lineId,
-                    vtkIdType triPtIds[3])
+                    const vtkIdType triPtIds[3])
 {
   int value = -1;
   vtkIdType edgePtId0 = triPtIds[edgeId];
@@ -2274,7 +2282,7 @@ void vtkIntersectionPolyDataFilter::CleanAndCheckSurface(vtkPolyData *pd,
   //indicates a bad cell with possible intersecting facets!
   for (int i = 0; i < pd->GetNumberOfCells(); i++)
   {
-    vtkIdType *pts = nullptr;
+    const vtkIdType *pts = nullptr;
     vtkIdType npts = 0;
     pd->GetCellPoints(i, npts, pts);
     int badcell = 0;
@@ -2338,9 +2346,10 @@ void vtkIntersectionPolyDataFilter::CleanAndCheckInput(vtkPolyData *pd,
   normaler->ComputeCellNormalsOn();
   normaler->Update();
 
-  vtkIdType *cellPts, npts;
+  const vtkIdType *cellPts;
+  vtkIdType npts;
   double pt0[3], pt1[3], pt2[3];
-  normaler->GetOutput()->GetPolys()->GetCell(0, npts, cellPts);
+  normaler->GetOutput()->GetPolys()->GetCellAtId(0, npts, cellPts);
   normaler->GetOutput()->GetPoints()->GetPoint(cellPts[0], pt0);
   normaler->GetOutput()->GetPoints()->GetPoint(cellPts[1], pt1);
   normaler->GetOutput()->GetPoints()->GetPoint(cellPts[2], pt2);

@@ -529,7 +529,7 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
   if(!this->UseSourceTableTree && this->GetSource(0)==nullptr)
   {
     vtkPolyData *defaultSource = vtkPolyData::New();
-    defaultSource->Allocate();
+    defaultSource->AllocateEstimate(0, 0, 1, 2, 0, 0, 0, 0);
     vtkPoints *defaultPoints = vtkPoints::New();
     defaultPoints->Allocate(6);
     defaultPoints->InsertNextPoint(0, 0, 0);

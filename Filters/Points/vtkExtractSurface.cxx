@@ -17,6 +17,7 @@
 #include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkCellArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
@@ -122,11 +123,11 @@ public:
   int Inc2;
 
   // Output data. Threads write to partitioned memory.
-  vtkIdType *NewTris;
-  float     *NewPoints;
-  float     *NewGradients;
-  float     *NewNormals;
-  bool       NeedGradients;
+  vtkCellArray *NewTris;
+  float        *NewPoints;
+  float        *NewGradients;
+  float        *NewNormals;
+  bool          NeedGradients;
 
   // Setup algorithm
   vtkExtractSurfaceAlgorithm();
@@ -203,19 +204,41 @@ public:
                            vtkIdType *eMD[4]);
 
   // Produce the output triangles for this voxel cell.
+  struct GenerateTrisImpl
+  {
+    template <typename CellStateT>
+    void operator()(CellStateT &state,
+                    const unsigned char *edges,
+                    int numTris,
+                    vtkIdType *eIds,
+                    vtkIdType &triId)
+    {
+      using ValueType = typename CellStateT::ValueType;
+      auto *offsets = state.GetOffsets();
+      auto *conn = state.GetConnectivity();
+
+      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      auto offsetIter = offsetRange.begin() + triId;
+      auto connRange = vtk::DataArrayValueRange<1>(conn);
+      auto connIter = connRange.begin() + (triId * 3);
+
+      while (numTris-- > 0)
+      {
+        *offsetIter++ = static_cast<ValueType>(3 * triId++);
+        *connIter++ = eIds[*edges++];
+        *connIter++ = eIds[*edges++];
+        *connIter++ = eIds[*edges++];
+      }
+
+      // Write the last offset:
+      *offsetIter = static_cast<ValueType>(3 * triId);
+    }
+  };
   void GenerateTris(unsigned char eCase, unsigned char numTris, vtkIdType *eIds,
                     vtkIdType &triId)
   {
-    vtkIdType *tri;
     const unsigned char *edges = this->EdgeCases[eCase] + 1;
-    for (int i=0; i < numTris; ++i, edges+=3)
-    {
-      tri = this->NewTris + 4*triId++;
-      tri[0] = 3;
-      tri[1] = eIds[edges[0]];
-      tri[2] = eIds[edges[1]];
-      tri[3] = eIds[edges[2]];
-    }
+    this->NewTris->Visit(GenerateTrisImpl{}, edges, numTris, eIds, triId);
   }
 
   // Compute gradient on interior point.
@@ -1238,8 +1261,8 @@ Contour(vtkExtractSurface *self, vtkImageData *input, int extent[6],
     {
       newPts->GetData()->WriteVoidPointer(0,3*totalPts);
       algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
-      newTris->WritePointer(numOutTris,4*numOutTris);
-      algo.NewTris = static_cast<vtkIdType*>(newTris->GetPointer());
+      newTris->ResizeExact(numOutTris, 3 * numOutTris);
+      algo.NewTris = newTris;
 
       if (newGradients)
       {

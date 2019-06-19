@@ -62,7 +62,7 @@ int Interpolate(
     vtkIdType nNodes=def->GetNumberOfNodes();
     int nQPts=def->GetNumberOfQuadraturePoints();
     // Grab the cell's node ids.
-    vtkIdType *cellNodeIds=nullptr;
+    const vtkIdType *cellNodeIds=nullptr;
     usg->GetCellPoints(cellId,nNodes,cellNodeIds);
     // Walk quadrature points.
     for (int qPtId=0; qPtId<nQPts; ++qPtId)

@@ -28,6 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
 #include <cctype>
@@ -118,7 +119,7 @@ int vtkSTLReader::RequestData(
   if (this->GetSTLFileType(this->FileName) == VTK_ASCII)
   {
     newPts->Allocate(5000);
-    newPolys->Allocate(10000);
+    newPolys->AllocateEstimate(10000, 1);
     if (this->ScalarTags)
     {
       newScalars = vtkFloatArray::New();
@@ -176,11 +177,11 @@ int vtkSTLReader::RequestData(
     mergedPts = vtkPoints::New();
     mergedPts->Allocate(newPts->GetNumberOfPoints() /2);
     mergedPolys = vtkCellArray::New();
-    mergedPolys->Allocate(newPolys->GetSize());
+    mergedPolys->AllocateCopy(newPolys);
     if (newScalars)
     {
       mergedScalars = vtkFloatArray::New();
-      mergedScalars->Allocate(newPolys->GetSize());
+      mergedScalars->Allocate(newPolys->GetNumberOfCells());
     }
 
     vtkSmartPointer<vtkIncrementalPointLocator> locator = this->Locator;
@@ -191,7 +192,7 @@ int vtkSTLReader::RequestData(
     locator->InitPointInsertion(mergedPts, newPts->GetBounds());
 
     int nextCell = 0;
-    vtkIdType *pts = nullptr;
+    const vtkIdType *pts = nullptr;
     vtkIdType npts;
     for (newPolys->InitTraversal(); newPolys->GetNextCell(npts, pts);)
     {
@@ -308,7 +309,7 @@ bool vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 
   // now we can allocate the memory we need for this STL file
   newPts->Allocate(numTris * 3);
-  newPolys->Allocate(numTris);
+  newPolys->AllocateEstimate(numTris, 3);
 
   facet_t facet;
   for (int i = 0; fread(&facet, 48, 1, fp) > 0; i++)
