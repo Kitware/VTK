@@ -55,9 +55,6 @@ int TestMultipleScalarsToColors(int , char * [])
     0.0,0.5,0.5,1.0,
     0.5,0.5,1.0,1.0};
 
-  // Save one of the context actors
-  vtkContextActor *actor = nullptr;
-
   // Lookup Table
   vtkSmartPointer<vtkLookupTable> lookupTable =
     vtkSmartPointer<vtkLookupTable>::New();
@@ -90,7 +87,6 @@ int TestMultipleScalarsToColors(int , char * [])
     chartActor->SetScene(chartScene);
 
     //both needed
-    actor = chartActor;
     ren->AddActor(chartActor);
     chartScene->SetRenderer(ren);
 
@@ -149,16 +145,9 @@ int TestMultipleScalarsToColors(int , char * [])
     }
   }
 
-  // Needed to ensure there has been a render. This test supports as low as
-  // OpenGL 1.2, but further granularity must be added to the device to detect
-  // down to there. For now disable is < OpenGL 2, should fix Mesa segfaults.
   renwin->Render();
-
-  if (actor->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
-  {
-    iren->Initialize();
-    iren->Start();
-  }
+  iren->Initialize();
+  iren->Start();
 
   return EXIT_SUCCESS;
 }
