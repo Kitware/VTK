@@ -725,7 +725,7 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
 
   // init
   dist2 = -1.0;
-  int closestCell = -1;
+  vtkIdType closestCell = -1;
   double radius2 = radius*radius;
   double minDist2 = 1.1*radius2;   // something slightly bigger....
   double refinedRadius;
@@ -1730,7 +1730,7 @@ vtkIdType vtkCellLocator::FindCell(
     for (int j=0; j < cellIds->GetNumberOfIds(); j++)
     {
       // get the cell
-      int cellId = cellIds->GetId(j);
+      vtkIdType cellId = cellIds->GetId(j);
       // check whether we could be close enough to the cell by
       // testing the cell bounds
       if (this->CacheCellBounds)

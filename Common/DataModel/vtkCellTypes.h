@@ -54,7 +54,7 @@ public:
   /**
    * Allocate memory for this array. Delete old storage only if necessary.
    */
-  int Allocate(int sz=512, int ext=1000);
+  int Allocate(vtkIdType sz=512, vtkIdType ext=1000);
 
   /**
    * Add a cell at specified id.
