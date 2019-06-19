@@ -29,7 +29,7 @@ int TestPolyDataLargeIds(int , char *[])
   auto verts = vtkSmartPointer<vtkCellArray>::New();
   auto polydata = vtkSmartPointer<vtkPolyData>::New();
 
-  points->SetDataTypeToFloat();
+  points->SetDataTypeToUnsignedChar();
   points->SetNumberOfPoints(large_number);
   verts->Allocate(2 * large_number);
   for (vtkIdType i=0; i<large_number; ++i)
