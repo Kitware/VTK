@@ -916,8 +916,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       toString << "  vec2 brdf = vec2(0.0, 0.0);\n";
     }
 
-    toString << "  vec3 Lo = vec3(0.0);\n"
-      "  albedo = pow(albedo, vec3(2.2));\n";
+    toString << "  vec3 Lo = vec3(0.0);\n";
 
     if (lastLightComplexity != 0)
     {
