@@ -234,7 +234,7 @@ struct vtkCellProcessor
   vtkIdType *Counts;
   vtkIdType NumFragments;
   vtkIdType NumCells;
-  int NumBins;
+  vtkIdType NumBins;
   int BatchSize;
   int NumBatches;
   vtkIdType xD, xyD;

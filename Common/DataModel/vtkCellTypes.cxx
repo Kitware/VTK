@@ -164,7 +164,7 @@ vtkCellTypes::~vtkCellTypes()
 
 //----------------------------------------------------------------------------
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkCellTypes::Allocate(int sz, int ext)
+int vtkCellTypes::Allocate(vtkIdType sz, vtkIdType ext)
 {
 
   this->Size = ( sz > 0 ? sz : 1);

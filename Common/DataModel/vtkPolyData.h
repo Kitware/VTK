@@ -717,7 +717,7 @@ inline unsigned char vtkPolyData::GetCellPoints(
       pts = nullptr;
       return 0;
   }
-  int loc = this->Cells->GetCellLocation(cellId);
+  vtkIdType loc = this->Cells->GetCellLocation(cellId);
   cells->GetCell(loc, npts, pts);
   return type;
 }
@@ -750,7 +750,7 @@ inline unsigned char vtkPolyData::GetCell(
       cell = nullptr;
       return 0;
   }
-  int loc = this->Cells->GetCellLocation(cellId);
+  vtkIdType loc = this->Cells->GetCellLocation(cellId);
   cell = cells->GetData()->GetPointer(loc);
   return type;
 }

@@ -178,8 +178,8 @@ vtkIdType vtkPointLocator::FindClosestPoint(const double x[3])
   double minDist2;
   double dist2 = VTK_DOUBLE_MAX;
   double pt[3];
-  int closest, level;
-  vtkIdType ptId, cno, nids;
+  int level;
+  vtkIdType ptId, closest, cno, nids;
   vtkIdList *ptIds;
   int ijk[3], *nei;
   vtkNeighborPoints buckets;
@@ -1046,7 +1046,7 @@ void vtkPointLocator::GetOverlappingBuckets(vtkNeighborPoints* buckets,
                                             int prevMaxLevel[3])
 {
   int i, j, k, nei[3], minLevel[3], maxLevel[3];
-  int kFactor, jFactor;
+  vtkIdType kFactor, jFactor;
   int jkSkipFlag, kSkipFlag;
   double xMin[3], xMax[3];
 

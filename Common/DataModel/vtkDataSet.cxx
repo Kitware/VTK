@@ -407,10 +407,10 @@ void vtkDataSet::InternalDataSetCopy(vtkDataSet *src)
 //----------------------------------------------------------------------------
 int vtkDataSet::CheckAttributes()
 {
-  int numPts, numCells;
+  vtkIdType numPts, numCells;
   int numArrays, idx;
   vtkAbstractArray *array;
-  int numTuples;
+  vtkIdType numTuples;
   const char* name;
 
   numArrays = this->GetPointData()->GetNumberOfArrays();
