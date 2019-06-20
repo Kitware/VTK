@@ -627,9 +627,6 @@ vtkIdType* vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet* set)
   if (this->PointMergeTolerance == 0.0)
   {
     // testing shows vtkMergePoints is fastest when tolerance is 0
-    vtkNew<vtkMergePoints> locator;
-    vtkNew<vtkPoints> ptarray;
-
     double bounds[6];
     set->GetBounds(bounds);
 
@@ -658,24 +655,20 @@ vtkIdType* vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet* set)
       bounds[5] = ((tmpBounds[5] > bounds[5]) ? tmpBounds[5] : bounds[5]);
     }
 
-    locator->InitPointInsertion(ptarray, bounds);
+    if (!this->Locator)
+    {
+      this->Locator = vtkSmartPointer<vtkMergePoints>::New();
+      vtkNew<vtkPoints> ptarray;
+      this->Locator->InitPointInsertion(ptarray, bounds);
+    }
 
     vtkIdType newId;
     double x[3];
 
-    for (vtkIdType ptId = 0; ptId < npoints0; ptId++)
-    {
-      // We already know there are no duplicates in this array.
-      // Just add them to the locator's point array.
-
-      points0->GetPoint(ptId, x);
-      locator->InsertUniquePoint(x, newId);
-    }
     for (vtkIdType ptId = 0; ptId < npoints1; ptId++)
     {
       points1->GetPoint(ptId, x);
-      locator->InsertUniquePoint(x, newId);
-
+      this->Locator->InsertUniquePoint(x, newId);
       idMap[ptId] = newId;
     }
   }
@@ -777,6 +770,12 @@ vtkIdType* vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet* set)
 }
 
 //-------------------------------------------------------------------------
+void vtkMergeCells::InvalidateCachedLocator()
+{
+  this->Locator = nullptr;
+}
+
+//-------------------------------------------------------------------------
 // Help with the complex business of efficient access to the node ID arrays.
 // The array was given to us by the user, and we don't know the data type or
 // size.
@@ -866,4 +865,14 @@ void vtkMergeCells::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CellList: " << this->CellList << endl;
   os << indent << "UseGlobalIds: " << this->UseGlobalIds << endl;
   os << indent << "UseGlobalCellIds: " << this->UseGlobalCellIds << endl;
+  os << indent << "Locator:";
+  if (this->Locator)
+  {
+    os << "\n";
+    this->Locator->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << "(None)" << endl;
+  }
 }
