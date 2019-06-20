@@ -74,6 +74,8 @@ public:
   vtkGetVectorMacro(Divisions,int,3);
   //@}
 
+  using vtkAbstractCellLocator::FindClosestPoint;
+
   /**
    * Test a point to find if it is inside a cell. Returns the cellId if inside
    * or -1 if not.

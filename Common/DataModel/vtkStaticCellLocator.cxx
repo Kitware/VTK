@@ -88,7 +88,7 @@ struct vtkCellBinner
   double binTol;
 
   // Construction
-  vtkCellBinner(vtkStaticCellLocator *loc, vtkIdType numCells, int numBins)
+  vtkCellBinner(vtkStaticCellLocator *loc, vtkIdType numCells, vtkIdType numBins)
   {
     this->Locator = loc;
     this->NumCells = numCells;
@@ -1056,7 +1056,7 @@ FindClosestPoint(const double x[3], double closestPoint[3],
           this->DataSet->GetCell(cellId, cell);
 
           // make sure we have enough storage space for the weights
-          vtkIdType nPoints = cell->GetPointIds()->GetNumberOfIds();
+          unsigned nPoints = static_cast<unsigned>(cell->GetPointIds()->GetNumberOfIds());
           if (nPoints > weights.size())
           {
             weights.resize(2*nPoints);
@@ -1550,8 +1550,8 @@ GenerateRepresentation(int vtkNotUsed(level), vtkPolyData *pd)
   pd->SetPolys(polys);
 
   int *dims = this->Divisions;
-  int i, j, k, idx;
-  vtkIdType kOffset, jOffset, kSlice=dims[0]*dims[1], pIds[8];
+  int i, j, k;
+  vtkIdType idx, kOffset, jOffset, kSlice=dims[0]*dims[1], pIds[8];
   double *s = this->H;
   double x[3], xT[3], origin[3];
   origin[0] = this->Bounds[0];
