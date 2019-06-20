@@ -14,6 +14,12 @@
 =========================================================================*/
 #include "vtkWordCloud.h"
 
+// Older versions of GCC do not implement regex. The first working
+// version was 4.9. See https://tinyurl.com/yy7lvhp3 for more details
+#if defined(__GNUC__) && (__GNUC__ >= 5)
+#define HAS_STD_REGEX
+#endif
+
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -37,7 +43,11 @@
 #include "vtkImageAppendComponents.h"
 
 #include "vtksys/SystemTools.hxx"
-
+#ifdef HAS_STD_REGEX
+#include <regex>
+#else
+#include <vtksys/RegularExpression.hxx>
+#endif
 // stl
 #include <algorithm>
 #include <fstream>
@@ -46,7 +56,6 @@
 #include <iterator>
 #include <map>
 #include <random>
-#include <regex>
 #include <set>
 #include <sstream>
 #include <string>
@@ -90,6 +99,8 @@ void ReplaceMaskColorWithBackgroundColor(vtkImageData*, vtkWordCloud* );
 void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer &StopList);
 void CreateStopListFromFile(std::string,
                             vtkWordCloud::StopWordsContainer &);
+void ExtractWordsFromString(std::string &str,
+                            std::vector<std::string> &words);
 void ShowColorSeriesNames(ostream& os);
 }
 
@@ -448,10 +459,8 @@ std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequen
   std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 
   // Extract words
-  std::regex wordRegex("(\\w+)");
-  auto wordsBegin =
-    std::sregex_iterator(s.begin(), s.end(), wordRegex);
-  auto wordsEnd = std::sregex_iterator();
+  std::vector<std::string> extractedWords;
+  ::ExtractWordsFromString(s, extractedWords);
 
   // Store the words in a map that will contain frequencies
   std::map<std::string, int> wordContainer;
@@ -463,27 +472,25 @@ std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequen
   }
   const int N = 1;
 
-  for (std::sregex_iterator i = wordsBegin; i != wordsEnd; ++i)
+  for (auto w : extractedWords)
   {
-    std::string matchStr = (*i).str();
-
     // Replace words with another
     for (auto p : wordCloud->GetReplacementPairs())
     {
       std::string from = std::get<0>(p);
       std::string to = std::get<1>(p);
       size_t pos = 0;
-      pos = matchStr.find(from, pos);
-      if (matchStr.length() == from.length() && pos == 0)
+      pos = w.find(from, pos);
+      if (w.length() == from.length() && pos == 0)
       {
-        matchStr.replace(pos, to.length(), to);
+        w.replace(pos, to.length(), to);
         stopList.insert(from);
       }
     }
 
     // Skip the word if it is in the stop list or contains a digit
-    auto it = stopList.find(matchStr);
-    const auto digit = (*i).str().find_first_of("0123456789");
+    auto it = stopList.find(w);
+    const auto digit = w.find_first_of("0123456789");
     if (it != stopList.end() || digit != std::string::npos)
     {
       wordCloud->GetStoppedWords().push_back(*it);
@@ -491,12 +498,12 @@ std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequen
     }
 
     // Only include words that have more than N characters
-    if (matchStr.size() > N)
+    if (w.size() > N)
     {
       // Raise the case of the first letter in the word
-      std::transform(matchStr.begin(), matchStr.begin() + 1,
-                     matchStr.begin(), ::toupper);
-      wordContainer[matchStr]++;
+      std::transform(w.begin(), w.begin() + 1,
+                     w.begin(), ::toupper);
+      wordContainer[w]++;
     }
   }
 
@@ -523,7 +530,6 @@ void AddReplacementPairsToStopList(
   vtkWordCloud * wordCloud,
   vtkWordCloud::StopWordsContainer & stopList)
 {
-  std::regex wordRegex("(\\w+)");
   for (auto p : wordCloud->GetReplacementPairs())
   {
     std::string from = std::get<0>(p);
@@ -533,15 +539,15 @@ void AddReplacementPairsToStopList(
     // The replacement may contain multiple strings and may have upper
     // case letters
     std::transform(to.begin(), to.end(), to.begin(), ::tolower);
+    // The to stirng may have more thn one word
+    std::vector<std::string> words;
+    ::ExtractWordsFromString(to, words);
 
     // Add each replacement to the stop list
-    auto wordsBegin =
-      std::sregex_iterator(to.begin(), to.end(), wordRegex);
-    auto wordsEnd = std::sregex_iterator();
-    for (std::sregex_iterator i = wordsBegin; i != wordsEnd; ++i)
+    for (auto w : words)
     {
-      std::cout << "Replacement: " << (*i).str() << std::endl;
-      stopList.insert((*i).str());
+      std::cout << "Replacement: " << w << std::endl;
+      stopList.insert(w);
     }
   }
 }
@@ -817,15 +823,38 @@ void CreateStopListFromFile(std::string fileName, vtkWordCloud::StopWordsContain
   t.close();
 
   // Extract words
+  std::vector<std::string> words;
+  ::ExtractWordsFromString(s, words);
+  for (auto w : words)
+  {
+    stopList.insert(w);
+  }
+}
+
+void ExtractWordsFromString(std::string &str,
+                            std::vector<std::string> &words)
+{
+#ifdef HAS_STD_REGEX
   std::regex wordRegex("(\\w+)");
   auto wordsBegin =
-    std::sregex_iterator(s.begin(), s.end(), wordRegex);
+    std::sregex_iterator(str.begin(), str.end(), wordRegex);
   auto wordsEnd = std::sregex_iterator();
-  for (std::sregex_iterator i = wordsBegin; i != wordsEnd; ++i)
+  for (auto i = wordsBegin; i != wordsEnd; ++i)
   {
-    std::string matchStr = (*i).str();
-    stopList.insert(matchStr);
+    words.push_back((*i).str());
   }
+  return;
+#else
+  vtksys::RegularExpression re("([0-9A-Za-z]+)");
+  auto beginStr = str.begin();
+  size_t next = 0;
+  while (re.find(str.substr(next)))
+    {
+    words.push_back(str.substr(next + re.start(), re.end() - re.start()));
+    next +=  re.end();
+    }
+  return;
+#endif
 }
 
 void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer &stopList)
