@@ -53,10 +53,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, etc
-#include "vtk_netcdf.h"       // for nc_inq_varid, NC_NOERR
-#include <stddef.h>       // for size_t
-#include <stdio.h>
-#include <string.h> // for NULL
 
 /*!
  * writes the entity names to the database
@@ -99,7 +95,7 @@ int ex_put_names(int exoid, ex_entity_type obj_type, char *names[])
   /*  ======== ERROR (Invalid type) ========= */
   default:
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid type specified in file id %d", exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -109,7 +105,7 @@ int ex_put_names(int exoid, ex_entity_type obj_type, char *names[])
   if ((status = nc_inq_varid(exoid, vname, &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate %s names in file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 

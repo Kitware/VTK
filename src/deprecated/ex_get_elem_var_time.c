@@ -53,7 +53,6 @@
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_get_var_time, etc
-#include <stdint.h>   // for int64_t
 
 /*!
 \deprecated Use ex_get_var_time()(exoid, EX_ELEM_BLOCK, elem_var_index,

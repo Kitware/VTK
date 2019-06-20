@@ -54,7 +54,6 @@
 /*****************************************************************************/
 /*****************************************************************************/
 #include "exodusII.h"
-#include <stdint.h> // for int64_t
 
 /*
  * writes the distribution factors for a single side set

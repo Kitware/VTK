@@ -51,7 +51,6 @@
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_put_partial_attr, etc
-#include <stdint.h>   // for int64_t
 
 /*!
  * \deprecated use ex_put_partial_attr()(exoid, blk_type, blk_id, start_entity, num_entity, attrib)

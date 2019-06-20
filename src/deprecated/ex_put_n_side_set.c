@@ -55,7 +55,6 @@
 /*****************************************************************************/
 /*****************************************************************************/
 #include "exodusII.h" // for ex_put_partial_set, etc
-#include <stdint.h>   // for int64_t
 
 /*!
  * \deprecated use ex_put_partial_set()(exoid, EX_SIDE_SET, side_set_id, start_side_num, num_sides,

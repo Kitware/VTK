@@ -51,9 +51,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for ex_get_dimension, EX_NOERR, etc
-#include "vtk_netcdf.h"       // for nc_inq_varid, NC_NOERR
-#include <stddef.h>       // for size_t
-#include <stdio.h>
 
 /*
  * reads the entity names from the database
@@ -129,7 +126,7 @@ int ex_get_names(int exoid, ex_entity_type obj_type, char **names)
   /* invalid variable type */
   default:
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid type specified in file id %d", exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 

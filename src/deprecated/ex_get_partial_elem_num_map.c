@@ -40,19 +40,18 @@
  *
  * entry conditions -
  *   input parameters:
- *	int	exoid			exodus file id
- *	int	start_ent		starting location for read
- *	int	num_ents		number of elemental points
+ *      int     exoid                   exodus file id
+ *      int     start_ent               starting location for read
+ *      int     num_ents                number of elemental points
  *
  * exit conditions -
- *	int*	elem_map		element number map array
+ *      int*    elem_map                element number map array
  *
  * revision history -
  *
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_get_partial_id_map, etc
-#include <stdint.h>   // for int64_t
 
 /*
  *  reads the element numbering map from the database; allows element numbers

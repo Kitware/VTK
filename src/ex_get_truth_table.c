@@ -50,10 +50,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for ex_get_dimension, EX_FATAL, etc
-#include "vtk_netcdf.h"       // for nc_inq_varid, NC_NOERR, etc
-#include <stddef.h>       // for size_t
-#include <stdio.h>
-#include <stdlib.h> // for NULL
 
 /*!
  * \ingroup ResultsData
@@ -143,7 +139,7 @@ int ex_get_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
   default:
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid variable type %d specified in file id %d",
              obj_type, exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
@@ -160,7 +156,7 @@ int ex_get_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
   if (num_entity != (size_t)num_blk) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: # of %s doesn't match those defined in file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -168,7 +164,7 @@ int ex_get_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: # of %s variables doesn't match those defined in file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -196,7 +192,7 @@ int ex_get_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
     if (status != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get %s truth table from file id %d",
                ex_name_of_object(obj_type), exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }

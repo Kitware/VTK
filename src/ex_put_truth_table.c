@@ -53,10 +53,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for ex_get_dimension, EX_FATAL, etc
-#include "vtk_netcdf.h"       // for nc_inq_varid, NC_NOERR, etc
-#include <stddef.h>       // for size_t
-#include <stdio.h>
-#include <stdlib.h> // for free, NULL, malloc
 
 /*!
 \ingroup ResultsData
@@ -198,14 +194,14 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
   else { /* invalid variable type */
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid variable type %d specified in file id %d",
              obj_type, exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
   if ((int)num_entity != num_blk) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: # of %s doesn't match those defined in file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -213,7 +209,7 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: # of %s variables doesn't match those defined in file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -222,7 +218,7 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate memory for %s status array for file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, EX_MEMFAIL);
+    ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -237,7 +233,7 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
       free(stat_vals);
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get %s status array from file id %d",
                ex_name_of_object(obj_type), exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }
@@ -252,7 +248,7 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
   if ((status = nc_redef(exoid)) != NC_NOERR) {
     free(stat_vals);
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file id %d into define mode", exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -260,7 +256,7 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
   if ((status = nc_inq_dimid(exoid, DIM_TIME, &timedim)) != NC_NOERR) {
     free(stat_vals);
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate time variable in file id %d", exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     goto error_ret; /* exit define mode and return */
   }
 
@@ -290,7 +286,7 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
                      "ERROR: failed to locate number of entities in "
                      "%d'th %s in file id %d",
                      i + 1, ex_name_of_object(obj_type), exoid);
-            ex_err(__func__, errmsg, status);
+            ex_err_fn(exoid, __func__, errmsg, status);
             goto error_ret; /* exit define mode and return */
           }
 
@@ -308,7 +304,7 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
               snprintf(errmsg, MAX_ERR_LENGTH,
                        "ERROR: failed to define variable for %d'th %s in file id %d", i + 1,
                        ex_name_of_object(obj_type), exoid);
-              ex_err(__func__, errmsg, status);
+              ex_err_fn(exoid, __func__, errmsg, status);
               goto error_ret; /* exit define mode and return */
             }
             ex_compress_variable(exoid, varid, 2);
@@ -332,14 +328,12 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to define %s variable truth table in file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     goto error_ret; /* exit define mode and return */
   }
 
   /* leave define mode  */
-  if ((status = nc_enddef(exoid)) != NC_NOERR) {
-    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to complete definitions in file id %d", exoid);
-    ex_err(__func__, errmsg, status);
+  if ((status = ex_leavedef(exoid, __func__)) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -349,7 +343,7 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to store variable truth table in file id %d",
              exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -357,10 +351,6 @@ int ex_put_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_
 
 /* Fatal error: exit definition mode and return */
 error_ret:
-  if ((status = nc_enddef(exoid)) != NC_NOERR) /* exit define mode */
-  {
-    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to complete definition for file id %d", exoid);
-    ex_err(__func__, errmsg, status);
-  }
+  ex_leavedef(exoid, __func__);
   EX_FUNC_LEAVE(EX_FATAL);
 }

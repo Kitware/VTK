@@ -40,14 +40,14 @@
  *
  * entry conditions -
  *   input parameters:
- *	int	exoid			exodus file id
- *	int	time_step		whole time step number
- *	int	nodeal_var_index	index of desired nodal variable
- *       int     start_node		starting location for read
- *	int	num_nodes		number of nodal points
+ *      int     exoid                   exodus file id
+ *      int     time_step               whole time step number
+ *      int     nodeal_var_index        index of desired nodal variable
+ *       int     start_node             starting location for read
+ *      int     num_nodes               number of nodal points
  *
  * exit conditions -
- *	float*	var_vals		array of nodal variable values
+ *      float*  var_vals                array of nodal variable values
  *
  * revision history -
  *
@@ -56,7 +56,6 @@
  *****************************************************************************/
 
 #include <exodusII.h> // for ex_get_partial_var, etc
-#include <stdint.h>   // for int64_t
 
 /*!
 \ingroup ResultsData

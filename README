@@ -3,7 +3,7 @@ CONTACT:
 
 Greg Sjaardema,
 Sandia National Laboratories,
-gdsjaar@sandia.gov
+gdsjaar@sandia.gov, gsjaardema@gmail.com
 
 ========================================================================
 LICENSE:
@@ -12,12 +12,12 @@ The Exodus library is licensed under the terms of the BSD License.
 Legal stuff (copyright, licensing restrictions, etc.) can be found in
 the file COPYRIGHT which contains:
 
-1. The Sandia Corporation Copyright Notice.
+1. The NTESS Copyright Notice.
 2. The BSD License.
 
 We appreciate feedback from users of this package.  Please send
 comments, suggestions, and bug reports to Greg Sjaardema
-<gdsjaar@sandia.gov>.
+<gdsjaar@sandia.gov>, <gsjaardema@gmail.com>
 
 Please identify the version of the package.
 

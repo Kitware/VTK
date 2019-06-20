@@ -34,7 +34,6 @@
  */
 #include "exodusII.h" // for EX_NOERR, etc
 #include "exodusII_int.h"
-#include <stddef.h> // for size_t
 
 /*!
  * Reads the parameters describing element/face/edge blocks

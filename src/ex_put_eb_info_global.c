@@ -49,9 +49,6 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-#include <stdio.h>
-
-#include <vtk_netcdf.h>
 
 #include <exodusII.h>
 #include <exodusII_int.h>
@@ -68,7 +65,7 @@ int ex_put_eb_info_global(int exoid, void_int *el_blk_ids, void_int *el_blk_cnts
   if ((status = nc_inq_varid(exoid, VAR_ELBLK_IDS_GLOBAL, &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
              VAR_ELBLK_IDS_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -83,7 +80,7 @@ int ex_put_eb_info_global(int exoid, void_int *el_blk_ids, void_int *el_blk_cnts
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to output variable \"%s\" in file ID %d",
              VAR_ELBLK_IDS_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -92,7 +89,7 @@ int ex_put_eb_info_global(int exoid, void_int *el_blk_ids, void_int *el_blk_cnts
   if ((status = nc_inq_varid(exoid, VAR_ELBLK_CNT_GLOBAL, &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
              VAR_ELBLK_CNT_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -107,7 +104,7 @@ int ex_put_eb_info_global(int exoid, void_int *el_blk_ids, void_int *el_blk_cnts
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to output variable \"%s\" in file ID %d",
              VAR_ELBLK_CNT_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
