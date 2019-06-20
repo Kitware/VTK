@@ -35,8 +35,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_WARN, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, nc_inq_varid
-#include <stdio.h>
 
 /*!
 \ingroup ResultsData
@@ -116,7 +114,7 @@ int ex_get_variable_names(int exoid, ex_entity_type obj_type, int num_vars, char
   default:
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: invalid variable type %d requested from file id %d",
              obj_type, exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
@@ -124,7 +122,7 @@ int ex_get_variable_names(int exoid, ex_entity_type obj_type, int num_vars, char
   if ((status = nc_inq_varid(exoid, vvarname, &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no %s variables names stored in file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_WARN);
   }
 

@@ -34,7 +34,6 @@
  */
 
 #include "exodusII.h" // for ex_get_partial_set, etc
-#include <stdint.h>   // for int64_t
 
 /*!
  * \deprecated Use ex_get_partial_side_set()(exoid, EX_SIDE_SET, side_set_id, start_side_num,

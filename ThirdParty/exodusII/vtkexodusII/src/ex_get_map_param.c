@@ -50,9 +50,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, DIM_NUM_EM, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, nc_inq_dimid, etc
-#include <stddef.h>       // for size_t
-#include <stdio.h>
 
 /*
  * reads the number of node and element maps
@@ -76,7 +73,7 @@ int ex_get_map_param(int exoid, int *num_node_maps, int *num_elem_maps)
     if ((status = nc_inq_dimlen(exoid, dimid, &lnum_node_maps)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of node maps in file id %d",
                exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
     *num_node_maps = lnum_node_maps;
@@ -90,7 +87,7 @@ int ex_get_map_param(int exoid, int *num_node_maps, int *num_elem_maps)
     if ((status = nc_inq_dimlen(exoid, dimid, &lnum_elem_maps)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of element maps in file id %d",
                exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
     *num_elem_maps = lnum_elem_maps;

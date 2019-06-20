@@ -35,10 +35,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, EX_FILE_ID_MASK, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, etc
-#include <stdio.h>
-#include <stdlib.h> // for NULL
-#include <string.h> // for strchr
 
 /**
  * Given an exoid and group name (NULL gets root group), return id of that
@@ -66,7 +62,7 @@ int ex_get_group_id(int parent_id, const char *group_name, int *group_id)
                "ERROR: Failed to locate group with name %s as child "
                "group in file id %d",
                group_name, parent_id);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(parent_id, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }
@@ -77,20 +73,20 @@ int ex_get_group_id(int parent_id, const char *group_name, int *group_id)
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: Failed to locate group with full path name %s in file id %d", group_name,
                parent_id);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(parent_id, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }
   EX_FUNC_LEAVE(EX_NOERR);
 #else
-  (void)parent_id;
-  (void)group_name;
-  (void)group_id;
+  EX_UNUSED(parent_id);
+  EX_UNUSED(group_name);
+  EX_UNUSED(group_id);
   EX_FUNC_ENTER();
   snprintf(errmsg, MAX_ERR_LENGTH,
            "ERROR: Group capabilities are not available in this netcdf "
            "version--not netcdf4");
-  ex_err(__func__, errmsg, NC_ENOTNC4);
+  ex_err_fn(parent_id, __func__, errmsg, NC_ENOTNC4);
   EX_FUNC_LEAVE(EX_FATAL);
 #endif
 }

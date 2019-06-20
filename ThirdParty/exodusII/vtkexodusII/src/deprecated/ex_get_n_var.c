@@ -34,7 +34,6 @@
  */
 
 #include "exodusII.h" // for ex_get_partial_var, etc
-#include <stdint.h>   // for int64_t
 
 /*
  * reads the values of a single element variable for one element block at

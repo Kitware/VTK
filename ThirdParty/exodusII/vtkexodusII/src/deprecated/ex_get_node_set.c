@@ -50,7 +50,6 @@
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_get_set, ex_entity_id, etc
-#include <stdlib.h>   // for NULL
 
 /*!
  * reads the node list for a single node set

@@ -60,9 +60,6 @@
 
 #include <exodusII.h>     // for ex_err, etc
 #include <exodusII_int.h> // for ex_leavedef, EX_FATAL, etc
-#include <vtk_netcdf.h>       // for nc_def_var, NC_NOERR, etc
-#include <stdio.h>
-#include <sys/types.h> // for int64_t
 
 int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int64_t num_elem_blks_g,
                        int64_t num_node_sets_g, int64_t num_side_sets_g)
@@ -86,7 +83,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
   /* Put NetCDF file into define mode */
   if ((status = nc_redef(exoid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file ID %d into define mode", exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -99,7 +96,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
   if ((status = nc_def_dim(exoid, DIM_NUM_NODES_GLOBAL, num_nodes_g, &dimid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to dimension \"%s\" in file ID %d",
              DIM_NUM_NODES_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     /* Leave define mode before returning */
     ex_leavedef(exoid, __func__);
 
@@ -110,7 +107,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
   if ((status = nc_def_dim(exoid, DIM_NUM_ELEMS_GLOBAL, num_elems_g, &dimid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to dimension \"%s\" in file ID %d",
              DIM_NUM_ELEMS_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     /* Leave define mode before returning */
     ex_leavedef(exoid, __func__);
 
@@ -125,7 +122,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
   if ((status = nc_def_dim(exoid, DIM_NUM_ELBLK_GLOBAL, num_elem_blks_g, &dimid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to dimension \"%s\" in file ID %d",
              DIM_NUM_ELBLK_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     /* Leave define mode before returning */
     ex_leavedef(exoid, __func__);
 
@@ -137,7 +134,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to put variable definition for \"%s\" into file ID %d",
              VAR_ELBLK_IDS_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     /* Leave define mode before returning */
     ex_leavedef(exoid, __func__);
 
@@ -149,7 +146,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to put variable definition for \"%s\" into file ID %d",
              VAR_ELBLK_CNT_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     /* Leave define mode before returning */
     ex_leavedef(exoid, __func__);
 
@@ -165,7 +162,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
     if ((status = nc_def_dim(exoid, DIM_NUM_NS_GLOBAL, num_node_sets_g, &dimid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to dimension \"%s\" in file ID %d",
                DIM_NUM_NS_GLOBAL, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -177,7 +174,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to put variable definition for \"%s\" into file ID %d",
                VAR_NS_IDS_GLOBAL, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
 
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
@@ -191,7 +188,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to put variable definition for \"%s\" into file ID %d",
                VAR_NS_NODE_CNT_GLOBAL, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -207,7 +204,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to put variable definition for \"%s\" into file ID %d",
                VAR_NS_DF_CNT_GLOBAL, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -225,7 +222,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
     if ((status = nc_def_dim(exoid, DIM_NUM_SS_GLOBAL, num_side_sets_g, &dimid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to dimension \"%s\" in file id %d",
                DIM_NUM_SS_GLOBAL, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -237,7 +234,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to put variable definition for \"%s\" into file id %d",
                VAR_SS_IDS_GLOBAL, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
 
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
@@ -254,7 +251,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to put variable definition for \"%s\" into file id %d",
                VAR_SS_SIDE_CNT_GLOBAL, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
 
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
@@ -271,7 +268,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to put variable definition for \"%s\" into file id %d",
                VAR_SS_DF_CNT_GLOBAL, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
 
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);

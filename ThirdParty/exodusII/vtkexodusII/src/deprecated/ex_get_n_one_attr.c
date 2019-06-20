@@ -34,7 +34,6 @@
  */
 
 #include "exodusII.h" // for ex_get_partial_one_attr, etc
-#include <stdint.h>   // for int64_t
 
 /*!
  * \deprecated Use ex_get_partial_one_attr()(exoid, obj_type, obj_id, start_num, num_ent,

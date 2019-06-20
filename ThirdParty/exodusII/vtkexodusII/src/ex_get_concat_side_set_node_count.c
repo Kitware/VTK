@@ -50,14 +50,6 @@
 
 #include "exodusII.h"     // for ex_err, EX_MSG, etc
 #include "exodusII_int.h" // for elem_blk_parm, EX_FATAL, etc
-#include <assert.h>       // for assert
-#include <ctype.h>        // for toupper
-#include <inttypes.h>     // for PRId64
-#include <stddef.h>       // for size_t
-#include <stdio.h>
-#include <stdlib.h>    // for malloc, NULL, free
-#include <string.h>    // for strncmp, strlen
-#include <sys/types.h> // for int64_t
 
 /*! \endcond */
 
@@ -90,13 +82,13 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
   if (num_side_sets < 0) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of side sets in file id %d",
              exoid);
-    ex_err(__func__, errmsg, EX_LASTERR);
+    ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
   if (num_side_sets == 0) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no side sets defined in file id %d", exoid);
-    ex_err(__func__, errmsg, EX_WARN);
+    ex_err_fn(exoid, __func__, errmsg, EX_WARN);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
@@ -104,7 +96,7 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
   if (num_elem_blks < 0) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of element blocks in file id %d",
              exoid);
-    ex_err(__func__, errmsg, EX_LASTERR);
+    ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -112,7 +104,7 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
   if (tot_num_elem < 0) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get total number of elements in file id %d",
              exoid);
-    ex_err(__func__, errmsg, EX_LASTERR);
+    ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -121,7 +113,7 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
   ndim = ex_inquire_int(exoid, EX_INQ_DIM);
   if (ndim < 0) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get dimensionality in file id %d", exoid);
-    ex_err(__func__, errmsg, EX_LASTERR);
+    ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -139,13 +131,13 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
   if (!(elem_blk_ids = malloc(num_elem_blks * ids_size))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate space for element block ids for file id %d", exoid);
-    ex_err(__func__, errmsg, EX_MEMFAIL);
+    ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
     goto error_ret;
   }
 
   if (ex_get_ids(exoid, EX_ELEM_BLOCK, elem_blk_ids) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get element block ids in file id %d", exoid);
-    ex_err(__func__, errmsg, EX_MSG);
+    ex_err_fn(exoid, __func__, errmsg, EX_MSG);
     goto error_ret;
   }
 
@@ -155,7 +147,7 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
              "ERROR: failed to allocate space for element block params "
              "for file id %d",
              exoid);
-    ex_err(__func__, errmsg, EX_MEMFAIL);
+    ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
     goto error_ret;
   }
 
@@ -184,13 +176,13 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
   if (!(side_set_ids = malloc(num_side_sets * ids_size))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate space for side set ids for file id %d", exoid);
-    ex_err(__func__, errmsg, EX_MEMFAIL);
+    ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
     goto error_ret;
   }
 
   if (ex_get_ids(exoid, EX_SIDE_SET, side_set_ids) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get side set ids in file id %d", exoid);
-    ex_err(__func__, errmsg, EX_MSG);
+    ex_err_fn(exoid, __func__, errmsg, EX_MSG);
     goto error_ret;
   }
 
@@ -219,7 +211,7 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to get number of elements in side set  %" PRId64 " in file id %d",
                side_set_id, exoid);
-      ex_err(__func__, errmsg, EX_LASTERR);
+      ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
       goto error_ret;
     }
 
@@ -233,7 +225,7 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
                "ERROR: failed to allocate space for side set element "
                "list for file id %d",
                exoid);
-      ex_err(__func__, errmsg, EX_MEMFAIL);
+      ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
       goto error_ret;
     }
 
@@ -243,7 +235,7 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
                "ERROR: failed to allocate space for side set side list "
                "for file id %d",
                exoid);
-      ex_err(__func__, errmsg, EX_MEMFAIL);
+      ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
       goto error_ret;
     }
 
@@ -251,7 +243,7 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
         EX_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get side set  %" PRId64 " in file id %d",
                side_set_id, exoid);
-      ex_err(__func__, errmsg, EX_LASTERR);
+      ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
       goto error_ret;
     }
 
@@ -261,7 +253,7 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
                "ERROR: failed to allocate space for side set elem sort "
                "array for file id %d",
                exoid);
-      ex_err(__func__, errmsg, EX_MEMFAIL);
+      ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
       goto error_ret;
     }
 
@@ -319,7 +311,7 @@ int ex_get_concat_side_set_node_count(int exoid, int *side_set_node_cnt_list)
                  "ERROR: Invalid element number  %" PRId64 " found in side set  %" PRId64
                  " in file %d",
                  elem, side_set_id, exoid);
-        ex_err(__func__, errmsg, EX_BADPARAM);
+        ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
         goto error_ret;
       }
     }

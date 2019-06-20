@@ -51,10 +51,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, ex_get_dimension, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, nc_inq_varid, etc
-#include <inttypes.h>     // for PRId64
-#include <stddef.h>       // for size_t, ptrdiff_t
-#include <stdio.h>
 
 /*!
  * writes the specified attribute for a block
@@ -91,12 +87,12 @@ int ex_put_one_attr(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, int
           snprintf(errmsg, MAX_ERR_LENGTH,
                    "Warning: no attributes allowed for NULL %s %" PRId64 " in file id %d",
                    ex_name_of_object(obj_type), obj_id, exoid);
-          ex_err(__func__, errmsg, EX_NULLENTITY);
+          ex_err_fn(exoid, __func__, errmsg, EX_NULLENTITY);
           EX_FUNC_LEAVE(EX_WARN); /* no attributes for this element block */
         }
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: no %s id %" PRId64 " in id array in file id %d",
                  ex_name_of_object(obj_type), obj_id, exoid);
-        ex_err(__func__, errmsg, status);
+        ex_err_fn(exoid, __func__, errmsg, status);
         EX_FUNC_LEAVE(EX_FATAL);
       }
     }
@@ -152,7 +148,7 @@ int ex_put_one_attr(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, int
     snprintf(errmsg, MAX_ERR_LENGTH,
              "Internal ERROR: unrecognized object type in switch: %d in file id %d", obj_type,
              exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL); /* number of attributes not defined */
   }
 
@@ -171,7 +167,7 @@ int ex_put_one_attr(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, int
              "ERROR: Invalid attribute index specified: %d.  Valid "
              "range is 1 to %d for %s %" PRId64 " in file id %d",
              attrib_index, (int)num_attr, ex_name_of_object(obj_type), obj_id, exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -179,7 +175,7 @@ int ex_put_one_attr(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, int
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to locate attribute variable for %s %" PRId64 " in file id %d",
              ex_name_of_object(obj_type), obj_id, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -205,7 +201,7 @@ int ex_put_one_attr(int exoid, ex_entity_type obj_type, ex_entity_id obj_id, int
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to put attribute %d for %s %" PRId64 " in file id %d", attrib_index,
              ex_name_of_object(obj_type), obj_id, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
   EX_FUNC_LEAVE(EX_NOERR);

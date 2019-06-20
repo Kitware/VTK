@@ -61,11 +61,6 @@
 /*****************************************************************************/
 #include <exodusII.h>     // for ex_err, etc
 #include <exodusII_int.h> // for EX_FATAL, ex_leavedef, etc
-#include <vtk_netcdf.h>       // for NC_NOERR, nc_def_var, etc
-#include <stddef.h>       // for size_t
-#include <stdio.h>
-#include <stdlib.h>    // for free, malloc
-#include <sys/types.h> // for int64_t
 
 int ex_put_cmap_params_cc(int exoid, void_int *node_cmap_ids, void_int *node_cmap_node_cnts,
                           void_int *node_proc_ptrs, void_int *elem_cmap_ids,
@@ -112,7 +107,7 @@ int ex_put_cmap_params_cc(int exoid, void_int *node_cmap_ids, void_int *node_cma
   if ((status = nc_inq_dimid(exoid, DIM_NUM_PROCS_F, &n_dimid[0])) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get dimension ID for \"%s\" in file ID %d",
              DIM_NUM_PROCS_F, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -120,7 +115,7 @@ int ex_put_cmap_params_cc(int exoid, void_int *node_cmap_ids, void_int *node_cma
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to find length of dimension \"%s\" in file ID %d", DIM_NUM_PROCS_F,
              exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -139,7 +134,7 @@ int ex_put_cmap_params_cc(int exoid, void_int *node_cmap_ids, void_int *node_cma
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find length of dimension \"%s\" in \
 file ID %d",
                DIM_NUM_N_CMAPS, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }
@@ -149,7 +144,7 @@ file ID %d",
     if ((status = nc_inq_varid(exoid, VAR_N_COMM_INFO_IDX, &n_varid_idx)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
                VAR_N_COMM_INFO_IDX, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -163,7 +158,7 @@ file ID %d",
     if (!n_var_idx) {
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: insufficient memory to read index variable from file ID %d", exoid);
-      ex_err(__func__, errmsg, EX_MSG);
+      ex_err_fn(exoid, __func__, errmsg, EX_MSG);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -181,7 +176,7 @@ file ID %d",
     if (status != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get variable \"%s\" from file ID %d",
                VAR_N_COMM_INFO_IDX, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   } /* "if (num_n_comm_maps > 0)" */
@@ -195,7 +190,7 @@ file ID %d",
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find length of dimension \"%s\" in \
 file ID %d",
                DIM_NUM_E_CMAPS, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }
@@ -205,7 +200,7 @@ file ID %d",
     if ((status = nc_inq_varid(exoid, VAR_E_COMM_INFO_IDX, &e_varid_idx)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
                VAR_E_COMM_INFO_IDX, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -219,7 +214,7 @@ file ID %d",
     if (!e_var_idx) {
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: insufficient memory to read index variable from file ID %d", exoid);
-      ex_err(__func__, errmsg, EX_MEMFAIL);
+      ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -235,7 +230,7 @@ file ID %d",
     if (status != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get variable \"%s\" from file ID %d",
                VAR_E_COMM_INFO_IDX, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   } /* "if (num_e_comm_maps >0)" */
@@ -243,7 +238,7 @@ file ID %d",
   /* Put NetCDF file into define mode */
   if ((status = nc_redef(exoid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file ID %d into define mode", exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -257,7 +252,7 @@ file ID %d",
         NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to add variable \"%s\" in file ID %d",
                VAR_N_COMM_DATA_IDX, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -287,7 +282,7 @@ file ID %d",
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to add dimension for \"%s\" of size %" ST_ZU " in file ID %d",
                DIM_NCNT_CMAP, ncnt_cmap, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -298,7 +293,7 @@ file ID %d",
     if ((status = nc_def_var(exoid, VAR_N_COMM_NIDS, bulk_type, 1, n_dimid, &varid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to add variable \"%s\" in file ID %d",
                VAR_N_COMM_NIDS, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -309,7 +304,7 @@ file ID %d",
     if ((status = nc_def_var(exoid, VAR_N_COMM_PROC, NC_INT, 1, n_dimid, &varid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to add variable \"%s\" in file ID %d",
                VAR_N_COMM_PROC, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -329,7 +324,7 @@ file ID %d",
         NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to add variable \"%s\" in file ID %d",
                VAR_E_COMM_DATA_IDX, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -359,7 +354,7 @@ file ID %d",
     if ((status = nc_def_dim(exoid, DIM_ECNT_CMAP, ecnt_cmap, &e_dimid[0])) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to add dimension for \"%s\" in file ID %d",
                DIM_ECNT_CMAP, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -370,7 +365,7 @@ file ID %d",
     if ((status = nc_def_var(exoid, VAR_E_COMM_EIDS, bulk_type, 1, e_dimid, &varid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to add variable \"%s\" in file ID %d",
                VAR_E_COMM_EIDS, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -381,7 +376,7 @@ file ID %d",
     if ((status = nc_def_var(exoid, VAR_E_COMM_PROC, NC_INT, 1, e_dimid, &varid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to add variable \"%s\" in file ID %d",
                VAR_E_COMM_PROC, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -392,7 +387,7 @@ file ID %d",
     if ((status = nc_def_var(exoid, VAR_E_COMM_SIDS, bulk_type, 1, e_dimid, &varid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to add variable \"%s\" in file ID %d",
                VAR_E_COMM_SIDS, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
@@ -413,7 +408,7 @@ file ID %d",
     if ((status = nc_inq_varid(exoid, VAR_N_COMM_STAT, &n_varid[0])) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
                VAR_N_COMM_STAT, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -421,7 +416,7 @@ file ID %d",
     if ((status = nc_inq_varid(exoid, VAR_N_COMM_IDS, &n_varid[1])) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
                VAR_N_COMM_IDS, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -467,7 +462,7 @@ file ID %d",
 
         if ((status = nc_put_var1_int(exoid, n_varid[0], start, &nmstat)) != NC_NOERR) {
           snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unable to output variable in file ID %d", exoid);
-          ex_err(__func__, errmsg, status);
+          ex_err_fn(exoid, __func__, errmsg, status);
           EX_FUNC_LEAVE(EX_FATAL);
         }
 
@@ -480,7 +475,7 @@ file ID %d",
         if (status != NC_NOERR) {
           snprintf(errmsg, MAX_ERR_LENGTH,
                    "ERROR: failed to output int elem map index in file ID %d", exoid);
-          ex_err(__func__, errmsg, status);
+          ex_err_fn(exoid, __func__, errmsg, status);
           EX_FUNC_LEAVE(EX_FATAL);
         }
       } /* End "for(icm=0; icm < num_icm; icm++)" */
@@ -504,7 +499,7 @@ file ID %d",
         }
         if (status != NC_NOERR) {
           snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to output variable in file ID %d", exoid);
-          ex_err(__func__, errmsg, status);
+          ex_err_fn(exoid, __func__, errmsg, status);
 
           EX_FUNC_LEAVE(EX_FATAL);
         }
@@ -525,7 +520,7 @@ file ID %d",
     if ((status = nc_inq_varid(exoid, VAR_E_COMM_STAT, &e_varid[0])) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
                VAR_E_COMM_STAT, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -533,7 +528,7 @@ file ID %d",
     if ((status = nc_inq_varid(exoid, VAR_E_COMM_IDS, &e_varid[1])) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
                VAR_E_COMM_IDS, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -579,7 +574,7 @@ file ID %d",
 
         if ((status = nc_put_var1_int(exoid, e_varid[0], start, &nmstat)) != NC_NOERR) {
           snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unable to output variable in file ID %d", exoid);
-          ex_err(__func__, errmsg, status);
+          ex_err_fn(exoid, __func__, errmsg, status);
           EX_FUNC_LEAVE(EX_FATAL);
         }
 
@@ -592,7 +587,7 @@ file ID %d",
         if (status != NC_NOERR) {
           snprintf(errmsg, MAX_ERR_LENGTH,
                    "ERROR: failed to output int elem map index in file ID %d", exoid);
-          ex_err(__func__, errmsg, status);
+          ex_err_fn(exoid, __func__, errmsg, status);
           EX_FUNC_LEAVE(EX_FATAL);
         }
       } /* End "for(icm=0; icm < num_icm; icm++)" */
@@ -616,7 +611,7 @@ file ID %d",
         }
         if (status != NC_NOERR) {
           snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to output variable in file ID %d", exoid);
-          ex_err(__func__, errmsg, status);
+          ex_err_fn(exoid, __func__, errmsg, status);
           EX_FUNC_LEAVE(EX_FATAL);
         }
       }

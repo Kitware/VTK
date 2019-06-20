@@ -40,9 +40,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, ex_id_lkup, etc
-#include "vtk_netcdf.h"       // for nc_inq_varid, NC_NOERR, etc
-#include <inttypes.h>     // for PRId64
-#include <stdio.h>
 
 /*!
  * reads in the number of entities (nodes/faces) per polyhedra
@@ -72,14 +69,14 @@ int ex_get_entity_count_per_polyhedra(int exoid, ex_entity_type blk_type, ex_ent
                  "Warning: entity_counts array not allowed for NULL %s block %" PRId64
                  " in file id %d",
                  ex_name_of_object(blk_type), blk_id, exoid);
-        ex_err(__func__, errmsg, EX_NULLENTITY);
+        ex_err_fn(exoid, __func__, errmsg, EX_NULLENTITY);
         EX_FUNC_LEAVE(EX_WARN);
       }
 
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to locate %s block id %" PRId64 " in id array in file id %d",
                ex_name_of_object(blk_type), blk_id, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }
@@ -92,14 +89,14 @@ int ex_get_entity_count_per_polyhedra(int exoid, ex_entity_type blk_type, ex_ent
     snprintf(errmsg, MAX_ERR_LENGTH,
              "Internal ERROR: unrecognized block type in switch: %d in file id %d", blk_type,
              exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to locate entity_counts array for %s block %" PRId64 " in file id %d",
              ex_name_of_object(blk_type), blk_id, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -108,7 +105,7 @@ int ex_get_entity_count_per_polyhedra(int exoid, ex_entity_type blk_type, ex_ent
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to read node counts array for %s block %" PRId64 " in file id %d",
              ex_name_of_object(blk_type), blk_id, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
   EX_FUNC_LEAVE(EX_NOERR);

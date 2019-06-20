@@ -43,11 +43,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for ex_get_dimension, EX_FATAL, etc
-#include "vtk_netcdf.h"       // for nc_inq_varid, NC_NOERR, etc
-#include <inttypes.h>     // for PRId64
-#include <stddef.h>       // for size_t
-#include <stdio.h>
-#include <stdlib.h> // for NULL
 
 /*!
  * reads the EXODUS specified variable truth vector from the database
@@ -133,7 +128,7 @@ int ex_get_object_truth_vector(int exoid, ex_entity_type obj_type, ex_entity_id 
   default:
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid variable type %d specified in file id %d",
              obj_type, exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
@@ -150,7 +145,7 @@ int ex_get_object_truth_vector(int exoid, ex_entity_type obj_type, ex_entity_id 
         snprintf(errmsg, MAX_ERR_LENGTH,
                  "ERROR: failed to locate %s id %" PRId64 " in id variable in file id %d",
                  ex_name_of_object(obj_type), entity_id, exoid);
-        ex_err(__func__, errmsg, status);
+        ex_err_fn(exoid, __func__, errmsg, status);
         EX_FUNC_LEAVE(EX_FATAL);
       }
     }
@@ -165,7 +160,7 @@ int ex_get_object_truth_vector(int exoid, ex_entity_type obj_type, ex_entity_id 
   if ((int)num_var_db != num_var) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: # of variables doesn't match those defined in file id %d", exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -198,7 +193,7 @@ int ex_get_object_truth_vector(int exoid, ex_entity_type obj_type, ex_entity_id 
 
     if (status != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get truth vector from file id %d", exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }

@@ -28,22 +28,18 @@
  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
  * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE2 USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
 #include "exodusII.h" // for exoptval, MAX_ERR_LENGTH, etc
 #include "exodusII_int.h"
-#include "vtk_netcdf.h" // for NC_EAXISTYPE, NC_EBADDIM, etc
-#include <stdio.h>  // for fprintf, stderr, fflush
-#include <stdlib.h> // for exit
-#include <string.h> // for strcpy
 
 /*!
-\fn{void ex_err(const char *module_name, const char *message, int err_num)}
+\fn{void ex_err_fn(exoid, const char *module_name, const char *message, int err_num)}
 
-The function ex_err() logs an error to stderr. It is intended
+The function ex_err_fn(exoid, ) logs an error to stderr. It is intended
 to provide explanatory messages for error codes returned from other
 exodus routines.
 
@@ -92,7 +88,7 @@ if (exoid = ex_open ("test.exo", EX_READ, &CPU_word_size,
                      &IO_word_size, &version)) {
    errval = 999;
    snprintf(errmsg, MAX_ERR_LENGTH,"ERROR: cannot open file test.exo");
-   ex_err(__func__, errmsg, errval);
+   ex_err_fn(exoid, __func__, errmsg, errval);
 }
 ~~~
 
@@ -106,8 +102,8 @@ EX_errval_t *ex_errval = NULL;
 #else
 int exerrval = 0; /* clear initial global error code value */
 
-static char last_pname[MAX_ERR_LENGTH];
-static char last_errmsg[MAX_ERR_LENGTH];
+static char last_pname[MAX_ERR_LENGTH + 1];
+static char last_errmsg[MAX_ERR_LENGTH + 1];
 static int  last_err_num;
 
 #define EX_PNAME last_pname
@@ -133,17 +129,18 @@ void ex_err(const char *module_name, const char *message, int err_num)
 
   /* save the error message for replays */
   if (message != NULL) {
-    strncpy(EX_ERRMSG, message, MAX_ERR_LENGTH);
-    EX_ERRMSG[MAX_ERR_LENGTH - 1] = '\0';
+    ex_copy_string(EX_ERRMSG, message, MAX_ERR_LENGTH + 1);
   }
   if (module_name != NULL) {
-    strncpy(EX_PNAME, module_name, MAX_ERR_LENGTH);
-    EX_PNAME[MAX_ERR_LENGTH - 1] = '\0';
+    ex_copy_string(EX_PNAME, module_name, MAX_ERR_LENGTH + 1);
   }
 
   if (err_num == EX_PRTLASTMSG) {
     fprintf(stderr, "\n[%s] %s\n", EX_PNAME, EX_ERRMSG);
     fprintf(stderr, "    exerrval = %d\n", EX_ERR_NUM);
+    if (EX_ERR_NUM < 0) {
+      fprintf(stderr, "\t%s\n", ex_strerror(EX_ERR_NUM));
+    }
     EX_FUNC_VOID();
   }
 
@@ -177,14 +174,101 @@ void ex_err(const char *module_name, const char *message, int err_num)
   EX_FUNC_VOID();
 }
 
+void ex_err_fn(int exoid, const char *module_name, const char *message, int err_num)
+{
+  EX_FUNC_ENTER_INT();
+  if (err_num == 0) { /* zero is no error, ignore and return */
+    exerrval = err_num;
+    EX_FUNC_VOID();
+  }
+
+  /* save the error message for replays */
+  if (message != NULL) {
+    ex_copy_string(EX_ERRMSG, message, MAX_ERR_LENGTH + 1);
+  }
+  if (module_name != NULL) {
+    ex_copy_string(EX_PNAME, module_name, MAX_ERR_LENGTH + 1);
+  }
+
+  if (err_num == EX_PRTLASTMSG) {
+    fprintf(stderr, "\n[%s] %s\n", EX_PNAME, EX_ERRMSG);
+
+    struct ex_file_item *file = ex_find_file_item(exoid);
+    if (file) {
+      size_t pathlen = 0;
+      nc_inq_path(exoid, &pathlen, NULL);
+      char *path = NULL;
+      if (pathlen > 0) {
+        path = malloc(pathlen + 1);
+        if (path != NULL) {
+          nc_inq_path(exoid, NULL, path);
+          fprintf(stderr, "    in file '%s'", path);
+          free(path);
+        }
+      }
+    }
+
+    fprintf(stderr, "    exerrval = %d\n", EX_ERR_NUM);
+
+    if (EX_ERR_NUM < 0) {
+      fprintf(stderr, "\t%s\n", ex_strerror(EX_ERR_NUM));
+    }
+    EX_FUNC_VOID();
+  }
+
+  if (err_num == EX_LASTERR) {
+    err_num = EX_ERR_NUM;
+  }
+  else {
+    exerrval   = err_num;
+    EX_ERR_NUM = err_num;
+  }
+
+  if (err_num == EX_NULLENTITY) {
+    if (exoptval & EX_NULLVERBOSE) {
+      fprintf(stderr, "\nExodus Library Warning: [%s]\n\t%s\n", module_name, message);
+    }
+  }
+
+  else if (exoptval & EX_VERBOSE) { /* check see if we really want to hear this */
+    char *               path = NULL;
+    struct ex_file_item *file = ex_find_file_item(exoid);
+    if (file) {
+      size_t pathlen = 0;
+      nc_inq_path(exoid, &pathlen, NULL);
+      if (pathlen > 0) {
+        path = malloc(pathlen + 1);
+        nc_inq_path(exoid, NULL, path);
+      }
+    }
+    if (path) {
+      fprintf(stderr, "\nExodus Library Warning/Error: [%s] in file '%s'\n\t%s\n", module_name,
+              path, message);
+      free(path);
+    }
+    else {
+      fprintf(stderr, "\nExodus Library Warning/Error: [%s]\n\t%s\n", module_name, message);
+    }
+    if (err_num < 0) {
+      fprintf(stderr, "\t%s\n", ex_strerror(err_num));
+    }
+  }
+  fflush(stderr);
+
+  /* with netCDF 3.4, (fatal) system error codes are > 0;
+     so all EXODUS fatal error codes are > 0    */
+  if ((err_num > 0) && (exoptval & EX_ABORT)) {
+    exit(err_num);
+  }
+  EX_FUNC_VOID();
+}
+
 void ex_set_err(const char *module_name, const char *message, int err_num)
 {
   EX_FUNC_ENTER_INT();
   /* save the error message for replays */
-  strncpy(EX_ERRMSG, message, MAX_ERR_LENGTH);
-  strncpy(EX_PNAME, module_name, MAX_ERR_LENGTH);
-  EX_ERRMSG[MAX_ERR_LENGTH - 1] = '\0';
-  EX_PNAME[MAX_ERR_LENGTH - 1]  = '\0';
+  ex_copy_string(EX_ERRMSG, message, MAX_ERR_LENGTH + 1);
+  ex_copy_string(EX_PNAME, module_name, MAX_ERR_LENGTH + 1);
   if (err_num != EX_LASTERR) {
     /* Use last set error number, but add new function and message */
     EX_ERR_NUM = err_num;

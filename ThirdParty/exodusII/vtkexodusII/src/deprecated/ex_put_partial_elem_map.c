@@ -52,7 +52,6 @@
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_put_partial_num_map, etc
-#include <stdint.h>   // for int64_t
 
 /*!
  * writes an element map; this is a vector of integers of length number

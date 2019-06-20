@@ -54,11 +54,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, EX_NOERR, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, nc_inq_dimid, etc
-#include <inttypes.h>     // for PRId64
-#include <stddef.h>       // for size_t
-#include <stdio.h>
-#include <sys/types.h> // for int64_t
 
 /*
  * reads the number of entries and the number of distribution factors which
@@ -99,7 +94,7 @@ int ex_get_set_param(int exoid, ex_entity_type set_type, ex_entity_id set_id,
   if ((status = nc_inq_dimid(exoid, ex_dim_num_objects(set_type), &dimid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no %ss stored in file id %d",
              ex_name_of_object(set_type), exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
@@ -115,7 +110,7 @@ int ex_get_set_param(int exoid, ex_entity_type set_type, ex_entity_id set_id,
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to locate %s id %" PRId64 " in id array in file id %d",
                ex_name_of_object(set_type), set_id, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
   }
@@ -175,7 +170,7 @@ int ex_get_set_param(int exoid, ex_entity_type set_type, ex_entity_id set_id,
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to locate the dist factors for %s %" PRId64 " in file id %d",
                ex_name_of_object(set_type), set_id, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
     if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
@@ -198,7 +193,7 @@ int ex_get_set_param(int exoid, ex_entity_type set_type, ex_entity_id set_id,
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to locate number of dist factors in %s %" PRId64 " in file id %d",
                ex_name_of_object(set_type), set_id, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -206,7 +201,7 @@ int ex_get_set_param(int exoid, ex_entity_type set_type, ex_entity_id set_id,
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to get number of dist factors in %s %" PRId64 " in file id %d",
                ex_name_of_object(set_type), set_id, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
     if (ex_int64_status(exoid) & EX_BULK_INT64_API) {

@@ -40,10 +40,10 @@
  *
  * entry conditions -
  *   input parameters:
- *	int	exoid			nemesis file id
+ *      int     exoid                   nemesis file id
  *
  * exit conditions -
- *	int*	node_map		node numbering map array
+ *      int*    node_map                node numbering map array
  *
  * revision history -
  *
@@ -51,10 +51,9 @@
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_get_partial_id_map, etc
-#include <stdint.h>   // for int64_t
 
 /*!
- *  \deprecated Use ex_get_partial_num_map()(exoid, EX_NODE_MAP, start_ent, num_ents, node_map)
+ *  \deprecated Use ex_get_partial_id_map()(exoid, EX_NODE_MAP, start_ent, num_ents, node_map)
  * instead
  */
 

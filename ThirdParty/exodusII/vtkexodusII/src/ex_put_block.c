@@ -55,8 +55,7 @@
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_block, MAX_STR_LENGTH, etc
-#include <stdint.h>   // for int64_t
-#include <string.h>   // for strncpy
+#include "exodusII_int.h"
 
 /*!
  * writes the parameters used to describe an element/face/edge block
@@ -80,7 +79,7 @@ int ex_put_block(int exoid, ex_entity_type blk_type, ex_entity_id blk_id, const 
   ex_block block;
   block.type = blk_type;
   block.id   = blk_id;
-  strncpy(block.topology, entry_descrip, MAX_STR_LENGTH + 1);
+  ex_copy_string(block.topology, entry_descrip, MAX_STR_LENGTH + 1);
   block.topology[MAX_STR_LENGTH] = '\0';
   block.num_entry                = num_entries_this_blk;
   block.num_nodes_per_entry      = num_nodes_per_entry;

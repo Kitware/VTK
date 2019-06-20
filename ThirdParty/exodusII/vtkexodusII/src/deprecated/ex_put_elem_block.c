@@ -51,7 +51,6 @@
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_put_block, ex_entity_id, etc
-#include <stdint.h>   // for int64_t
 
 /*!
 \deprecated Use ex_put_block()(exoid, EX_ELEM_BLOCK, elem_blk_id, elem_type,

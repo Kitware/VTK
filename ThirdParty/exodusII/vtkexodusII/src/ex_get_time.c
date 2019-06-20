@@ -35,9 +35,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, ex_comp_ws, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, etc
-#include <stddef.h>       // for size_t
-#include <stdio.h>
 
 /*!
 
@@ -90,6 +87,31 @@ int ex_get_time(int exoid, int time_step, void *time_value)
   EX_FUNC_ENTER();
   ex_check_valid_file_id(exoid, __func__);
 
+  int num_time_steps = ex_inquire_int(exoid, EX_INQ_TIME);
+
+  if (num_time_steps == 0) {
+    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: there are no time_steps on the file id %d", exoid);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
+
+  if (time_step <= 0) {
+    snprintf(errmsg, MAX_ERR_LENGTH,
+             "ERROR: time_step must be greater than 0.  Entered value is %d in file id %d",
+             time_step, exoid);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
+
+  if (time_step > num_time_steps) {
+    snprintf(errmsg, MAX_ERR_LENGTH,
+             "ERROR: beginning time_step is out-of-range. Value = %d, "
+             "valid range is 1 to %d in file id %d",
+             time_step, num_time_steps, exoid);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
+
   file  = ex_find_file_item(exoid);
   varid = file->time_varid;
   if (varid < 0) {
@@ -97,7 +119,7 @@ int ex_get_time(int exoid, int time_step, void *time_value)
     if ((status = nc_inq_varid(exoid, VAR_WHOLE_TIME, &varid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate time variable in file id %d",
                exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
     file->time_varid = varid;
@@ -115,7 +137,7 @@ int ex_get_time(int exoid, int time_step, void *time_value)
 
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get time value in file id %d", exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
   EX_FUNC_LEAVE(EX_NOERR);
