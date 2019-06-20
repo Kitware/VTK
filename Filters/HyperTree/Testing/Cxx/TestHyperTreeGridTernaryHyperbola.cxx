@@ -93,6 +93,8 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   vtkNew<vtkPolyDataMapper> mapper3;
   mapper3->SetInputConnection( contour->GetOutputPort() );
   mapper3->ScalarVisibilityOff();
+  mapper3->SetRelativeCoincidentTopologyLineOffsetParameters(
+    0.0, -8.0);
 
   // Actors
   vtkNew<vtkActor> actor1;

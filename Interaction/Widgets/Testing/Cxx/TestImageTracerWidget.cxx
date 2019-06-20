@@ -348,8 +348,12 @@ int TestImageTracerWidget( int argc, char *argv[] )
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
-  // Increase polygon offsets to support some OpenGL drivers
+  // tracer widget needs the line to be at the correct z, so we
+  // shift the polys back instead of the default moving lines
+  // forward.
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
+  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(0,2);
+  vtkMapper::SetResolveCoincidentTopologyLineOffsetParameters(0,0);
 
 // Start by loading some data.
 //
