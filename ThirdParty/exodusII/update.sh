@@ -8,7 +8,7 @@ readonly name="exodusII"
 readonly ownership="Seacas Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/seacas.git"
-readonly tag="for/vtk-20190128-7.15f-master"
+readonly tag="for/vtk-20190620-7.21f-master"
 readonly paths="
 packages/seacas/libraries/exodus/CMakeLists.vtk.txt
 packages/seacas/libraries/exodus/cmake/exodus_config.h.in
