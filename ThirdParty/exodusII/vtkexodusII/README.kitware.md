@@ -7,6 +7,6 @@ symbols to avoid conflicts with other copies of the library within a single
 process.
 
   * Add attributes to pass commit checks within VTK.
-  * Use VTK's netcdf library.
   * CMake code to integrate with VTK's module system.
   * Mangle all exported symbols to have a `vtkexodusII_` prefix.
+  * Use VTK's netcdf library

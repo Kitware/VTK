@@ -54,9 +54,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, ATT_PROP_NAME, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, nc_get_att_text, etc
-#include <stdio.h>
-#include <string.h> // for memset, strcmp
 
 /*!
 
@@ -147,14 +144,14 @@ int ex_get_prop_array(int exoid, ex_entity_type obj_type, const char *prop_name,
     default:
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: object type %d not supported; file id %d", obj_type,
                exoid);
-      ex_err(__func__, errmsg, EX_BADPARAM);
+      ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
     if ((status = nc_inq_varid(exoid, name, &propid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate property array %s in file id %d",
                name, exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -162,7 +159,7 @@ int ex_get_prop_array(int exoid, ex_entity_type obj_type, const char *prop_name,
     memset(tmpstr, 0, MAX_STR_LENGTH + 1);
     if ((status = nc_get_att_text(exoid, propid, ATT_PROP_NAME, tmpstr)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get property name in file id %d", exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -177,7 +174,7 @@ int ex_get_prop_array(int exoid, ex_entity_type obj_type, const char *prop_name,
     snprintf(errmsg, MAX_ERR_LENGTH,
              "Warning: object type %d, property %s not defined in file id %d", obj_type, prop_name,
              exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
@@ -193,7 +190,7 @@ int ex_get_prop_array(int exoid, ex_entity_type obj_type, const char *prop_name,
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to read values in %s property array in file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 

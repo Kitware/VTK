@@ -34,7 +34,6 @@
  */
 
 #include "exodusII.h" // for ex_set_specs, void_int, etc
-#include <stddef.h>   // for NULL
 
 /*!
 \deprecated Use ex_get_concat_sets()(exoid, EX_NODE_SET, set_specs) instead

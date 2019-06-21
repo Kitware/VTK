@@ -57,10 +57,10 @@
 #endif
 #endif
 #endif
+#endif
 
 #if defined(PARALLEL_AWARE_EXODUS)
 #include "netcdf_par.h"
-#endif
 #endif
 
 #include <stddef.h>
@@ -72,8 +72,8 @@
 #endif
 
 /* EXODUS version number */
-#define EX_API_VERS 7.15f
-#define EX_API_VERS_NODOT 715
+#define EX_API_VERS 7.21f
+#define EX_API_VERS_NODOT 721
 #define EX_VERS EX_API_VERS
 #define NEMESIS_API_VERSION EX_API_VERS
 #define NEMESIS_API_VERSION_NODOT EX_API_VERS_NODOT
@@ -236,9 +236,9 @@ sufficient.
 enum ex_option_type {
   EX_OPT_MAX_NAME_LENGTH =
       1, /**< Maximum length of names that will be returned/passed via api call. */
-  EX_OPT_COMPRESSION_TYPE,    /**<  Not currently used; default is gzip	*/
+  EX_OPT_COMPRESSION_TYPE,    /**<  Not currently used; default is gzip */
   EX_OPT_COMPRESSION_LEVEL,   /**<  In the range [0..9]. A value of 0 indicates no compression */
-  EX_OPT_COMPRESSION_SHUFFLE, /**<  1 if enabled, 0 if disabled	*/
+  EX_OPT_COMPRESSION_SHUFFLE, /**<  1 if enabled, 0 if disabled */
   EX_OPT_INTEGER_SIZE_API, /**<  4 or 8 indicating byte size of integers used in api functions. */
   EX_OPT_INTEGER_SIZE_DB /**<  Query only, returns 4 or 8 indicating byte size of integers stored on
                             the database. */
@@ -621,8 +621,9 @@ EXODUS_EXPORT int ex_get_num_props(int exoid, ex_entity_type obj_type);
 EXODUS_EXPORT int ex_large_model(int exoid);
 EXODUS_EXPORT size_t ex_header_size(int exoid);
 
-EXODUS_EXPORT void        ex_err(const char *module_name, const char *message, int err_num);
-EXODUS_EXPORT void        ex_set_err(const char *module_name, const char *message, int err_num);
+EXODUS_EXPORT void ex_err(const char *module_name, const char *message, int err_num);
+EXODUS_EXPORT void ex_err_fn(int exoid, const char *module_name, const char *message, int err_num);
+EXODUS_EXPORT void ex_set_err(const char *module_name, const char *message, int err_num);
 EXODUS_EXPORT const char *ex_strerror(int err_num);
 EXODUS_EXPORT void        ex_get_err(const char **msg, const char **func, int *err_num);
 EXODUS_EXPORT int         ex_opts(int options);
@@ -632,10 +633,8 @@ EXODUS_EXPORT int64_t ex_inquire_int(int exoid, int req_info);
 EXODUS_EXPORT int     ex_int64_status(int exoid);
 EXODUS_EXPORT int     ex_set_int64_status(int exoid, int mode);
 
-/** Note that the max name length setting is global at this time; not specific
- * to a particular database; however, the exoid option is passed to give
- * flexibility in the future to implement this on a database-by-database basis.
- */
+EXODUS_EXPORT void ex_print_config(void);
+
 EXODUS_EXPORT int ex_set_max_name_length(int exoid, int length);
 
 EXODUS_EXPORT int ex_set_option(int exoid, ex_option_type option, int option_value);
@@ -1002,11 +1001,11 @@ EXODUS_EXPORT int ex_put_cmap_params_cc(int       exoid,               /* NetCDF
                                         void_int *node_cmap_ids,       /* Node map IDs */
                                         void_int *node_cmap_node_cnts, /* Nodes in nodal comm */
                                         void_int *node_proc_ptrs,      /* Pointer into array for */
-                                                                       /* node maps		  */
+                                                                       /* node maps               */
                                         void_int *elem_cmap_ids,       /* Elem map IDs */
                                         void_int *elem_cmap_elem_cnts, /* Elems in elemental comm */
                                         void_int *elem_proc_ptrs       /* Pointer into array for */
-                                                                       /* elem maps		  */
+                                                                       /* elem maps               */
 );
 
 EXODUS_EXPORT int ex_get_node_cmap(int          exoid,    /* NetCDF/Exodus file ID */
@@ -1038,6 +1037,9 @@ EXODUS_EXPORT int ex_put_elem_cmap(int          exoid,    /* NetCDF/Exodus file 
                                    void_int *   proc_ids, /* Vector of processor IDs */
                                    int          processor /* This processor ID */
 );
+
+/* Utility function to replace strncpy, strcpy -- guarantee null termination */
+char *ex_copy_string(char *dest, char const *source, size_t elements);
 
 /* Deprecated Code Handling Options:
  * 1. Ignore -- treat deprecated functions as normal non-deprecated functions (default)
@@ -1639,6 +1641,7 @@ EXODUS_EXPORT int exerrval; /**< shared error return value                */
 
 EXODUS_EXPORT char *ex_name_of_object(ex_entity_type obj_type);
 EXODUS_EXPORT ex_entity_type ex_var_type_to_ex_entity_type(char var_type);
+EXODUS_EXPORT int            ex_set_parallel(int exoid, int is_parallel);
 
 /* Should be internal use only, but was in external include file for
    nemesis and some codes are using the function

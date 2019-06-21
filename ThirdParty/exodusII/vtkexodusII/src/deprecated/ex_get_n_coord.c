@@ -54,7 +54,6 @@
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_get_partial_coord
-#include <stdint.h>   // for int64_t
 
 /*!
  *       \deprecated Use ex_get_partial_coord()(exoid, start_node_num, num_nodes, x_coor, y_coor,

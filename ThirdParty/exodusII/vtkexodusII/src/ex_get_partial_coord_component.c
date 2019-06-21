@@ -35,11 +35,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, ex_comp_ws, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, etc
-#include <inttypes.h>     // for PRId64
-#include <stddef.h>       // for size_t
-#include <stdio.h>
-#include <sys/types.h> // for int64_t
 
 /*!
  * reads the coordinates of some of the nodes in the model for the specified component
@@ -82,7 +77,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
 
   if ((status = nc_inq_dimlen(exoid, numnoddim, &num_nod)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of nodes in file id %d", exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -92,7 +87,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
              "ERROR: start index (%" PRId64 ") + node count (%" PRId64
              ") is larger than total number of nodes (%" ST_ZU ") in file id %d",
              start_node_num, num_nodes, num_nod, exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -105,7 +100,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: Component (%d) is larger than number of dimensions (%" ST_ZU ") in file id %d",
              component, num_dim, exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
   --component;
@@ -115,7 +110,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
     if ((status = nc_inq_varid(exoid, VAR_COORD, &coordid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate nodal coordinates in file id %d",
                exoid);
-      ex_err(__func__, errmsg, status);
+      ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
 
@@ -139,7 +134,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
       if (status != NC_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get %c coord array in file id %d",
                  which[component], exoid);
-        ex_err(__func__, errmsg, status);
+        ex_err_fn(exoid, __func__, errmsg, status);
         EX_FUNC_LEAVE(EX_FATAL);
       }
     }
@@ -158,7 +153,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
         snprintf(errmsg, MAX_ERR_LENGTH,
                  "ERROR: failed to locate %c nodal coordinates in file id %d", which[component],
                  exoid);
-        ex_err(__func__, errmsg, status);
+        ex_err_fn(exoid, __func__, errmsg, status);
         EX_FUNC_LEAVE(EX_FATAL);
       }
 
@@ -172,7 +167,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
       if (status != NC_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get %c coord array in file id %d",
                  which[component], exoid);
-        ex_err(__func__, errmsg, status);
+        ex_err_fn(exoid, __func__, errmsg, status);
         EX_FUNC_LEAVE(EX_FATAL);
       }
     }

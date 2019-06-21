@@ -55,7 +55,6 @@
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_put_var, ex_entity_id, etc
-#include <stdint.h>   // for int64_t
 
 /*!
  * writes the values of a single nodeset variable for one nodeset at

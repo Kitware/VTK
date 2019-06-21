@@ -36,7 +36,7 @@
 
 /**
 \deprecated Use ex_get_block()(exoid, EX_ELEM_BLOCK, elem_blk_id, elem_type,
-num_elem_this_blk, num_nodes_per_elem, num_attr) instead
+num_elem_this_blk, num_nodes_per_elem, NULL, NULL, num_attr) instead
 
 The function ex_get_elem_block() reads the parameters used to describe
 an element block. IDs of all element blocks stored can be determined

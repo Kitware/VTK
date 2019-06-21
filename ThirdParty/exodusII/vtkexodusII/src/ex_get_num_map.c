@@ -52,9 +52,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, EX_NOERR, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, nc_inq_dimid, etc
-#include <inttypes.h>     // for PRId64
-#include <stdio.h>
 
 /*
  * reads the map with specified ID
@@ -89,7 +86,7 @@ int ex_get_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, void
     break;
   default:
     snprintf(errmsg, MAX_ERR_LENGTH, "Bad map type (%d) specified", map_type);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -102,7 +99,7 @@ int ex_get_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, void
   if ((status = nc_inq_dimid(exoid, dim_num_maps, &dimid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no %ss defined in file id %d",
              ex_name_of_object(map_type), exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
@@ -112,7 +109,7 @@ int ex_get_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, void
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to locate %s id %" PRId64 " in id variable in file id %d",
              ex_name_of_object(map_type), map_id, exoid);
-    ex_err(__func__, errmsg, EX_LASTERR);
+    ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -120,7 +117,7 @@ int ex_get_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, void
   if ((status = nc_inq_varid(exoid, ex_name_of_map(map_type, id_ndx), &var_id)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate %s %" PRId64 " in file id %d",
              ex_name_of_object(map_type), map_id, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -135,7 +132,7 @@ int ex_get_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_id, void
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get %s in file id %d",
              ex_name_of_object(map_type), exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 

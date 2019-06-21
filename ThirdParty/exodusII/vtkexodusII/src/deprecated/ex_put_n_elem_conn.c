@@ -54,8 +54,6 @@
 /*****************************************************************************/
 /*****************************************************************************/
 #include "exodusII.h" // for ex_put_partial_conn, etc
-#include <stddef.h>   // for NULL
-#include <stdint.h>   // for int64_t
 
 /*!
  * \deprecated Use ex_put_partial_conn()(exoid, EX_ELEM_BLOCK, elem_blk_id, start_elem_num,

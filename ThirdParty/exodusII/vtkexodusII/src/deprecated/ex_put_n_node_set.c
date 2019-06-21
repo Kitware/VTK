@@ -54,8 +54,6 @@
 /*****************************************************************************/
 
 #include "exodusII.h" // for ex_put_partial_set, etc
-#include <stddef.h>   // for NULL
-#include <stdint.h>   // for int64_t
 
 /*
  * \deprecated Use ex_put_partial_set()(exoid, EX_NODE_SET, node_set_id, start_node_num, num_nodes,

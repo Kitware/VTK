@@ -53,8 +53,6 @@
  *****************************************************************************/
 
 #include "exodusII.h" // for ex_set, ex_put_sets, etc
-#include <stddef.h>   // for NULL
-#include <stdint.h>   // for int64_t
 
 /*!
  * writes the set id and the number of entries which describe a single set

@@ -52,8 +52,6 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-#include <vtk_netcdf.h>
-#include <stdio.h>
 
 #include <exodusII.h>
 #include <exodusII_int.h>
@@ -72,7 +70,7 @@ int ex_put_ns_param_global(int exoid, void_int *global_ids, void_int *node_cnts,
   if ((status = nc_inq_varid(exoid, VAR_NS_IDS_GLOBAL, &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
              VAR_NS_IDS_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -87,7 +85,7 @@ int ex_put_ns_param_global(int exoid, void_int *global_ids, void_int *node_cnts,
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to output variable \"%s\" to file ID %d",
              VAR_NS_IDS_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -96,7 +94,7 @@ int ex_put_ns_param_global(int exoid, void_int *global_ids, void_int *node_cnts,
   if ((status = nc_inq_varid(exoid, VAR_NS_NODE_CNT_GLOBAL, &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
              VAR_NS_NODE_CNT_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -111,7 +109,7 @@ int ex_put_ns_param_global(int exoid, void_int *global_ids, void_int *node_cnts,
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put variable \"%s\" in file ID %d",
              VAR_NS_NODE_CNT_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -120,7 +118,7 @@ int ex_put_ns_param_global(int exoid, void_int *global_ids, void_int *node_cnts,
   if ((status = nc_inq_varid(exoid, VAR_NS_DF_CNT_GLOBAL, &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
              VAR_NS_DF_CNT_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -135,7 +133,7 @@ int ex_put_ns_param_global(int exoid, void_int *global_ids, void_int *node_cnts,
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to output variable \"%s\" in file ID %d",
              VAR_NS_DF_CNT_GLOBAL, exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
 
     EX_FUNC_LEAVE(EX_FATAL);
   }

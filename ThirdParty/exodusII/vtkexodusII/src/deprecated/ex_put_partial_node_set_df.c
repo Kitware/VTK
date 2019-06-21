@@ -54,7 +54,6 @@
 /*****************************************************************************/
 /*****************************************************************************/
 #include "exodusII.h"
-#include <stdint.h> // for int64_t
 
 /*!
  * \deprecated Use ex_put_partial_set_dist_fact()(exoid, EX_NODE_SET, node_set_id, start_num,

@@ -56,7 +56,6 @@
 /*****************************************************************************/
 /*****************************************************************************/
 #include "exodusII.h" // for ex_put_partial_var, etc
-#include <stdint.h>   // for int64_t
 
 /*
  * writes the values of a single nodal variable for a single time step to

@@ -39,9 +39,6 @@
 
 #include "exodusII_int.h"
 
-#include <stdio.h>
-#include <string.h>
-
 /* NOTE: All code in this file is based on the thread-safe code from the
  * hdf5 library.
  */

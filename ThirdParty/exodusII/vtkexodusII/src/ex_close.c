@@ -49,8 +49,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for ex_get_counter_list, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, nc_close, etc
-#include <stdio.h>
 
 /*!
 
@@ -98,19 +96,19 @@ int ex_close(int exoid)
    */
   if ((status = nc_inq_grp_parent(exoid, &parent_id)) != NC_ENOGRP) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: file id %d does not refer to root group.", exoid);
-    ex_err(__func__, errmsg, EX_NOTROOTID);
+    ex_err_fn(exoid, __func__, errmsg, EX_NOTROOTID);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 #endif
 
   if ((status1 = nc_sync(exoid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to update file id %d", exoid);
-    ex_err(__func__, errmsg, status1);
+    ex_err_fn(exoid, __func__, errmsg, status1);
   }
 
   if ((status2 = nc_close(exoid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to close file id %d", exoid);
-    ex_err(__func__, errmsg, status2);
+    ex_err_fn(exoid, __func__, errmsg, status2);
   }
 
   /* Even if we have failures above due to nc_sync() or nc_close(), we still need to clean up our

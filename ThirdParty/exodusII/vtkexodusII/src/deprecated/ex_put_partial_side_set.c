@@ -55,7 +55,6 @@
 /*****************************************************************************/
 /*****************************************************************************/
 #include "exodusII.h" // for ex_put_partial_set, etc
-#include <stdint.h>   // for int64_t
 
 /*
  * writes the side set element list and side set side list for a single side set

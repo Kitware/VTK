@@ -38,8 +38,6 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, nc_get_var_int, etc
-#include <stdio.h>
 
 /*
  *  reads the element block ids from the database
@@ -70,7 +68,7 @@ int ex_get_ids(int exoid, ex_entity_type obj_type, void_int *ids)
   case EX_ELEM_MAP: varidobj = VAR_EM_PROP(1); break;
   default: /* invalid variable type */
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Invalid type specified in file id %d", exoid);
-    ex_err(__func__, errmsg, EX_BADPARAM);
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -78,7 +76,7 @@ int ex_get_ids(int exoid, ex_entity_type obj_type, void_int *ids)
   if ((status = nc_inq_dimid(exoid, ex_dim_num_objects(obj_type), &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no %s defined in file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_WARN);
   }
 
@@ -86,7 +84,7 @@ int ex_get_ids(int exoid, ex_entity_type obj_type, void_int *ids)
   if ((status = nc_inq_varid(exoid, varidobj, &varid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate %s ids variable in file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -101,7 +99,7 @@ int ex_get_ids(int exoid, ex_entity_type obj_type, void_int *ids)
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to return %s ids in file id %d",
              ex_name_of_object(obj_type), exoid);
-    ex_err(__func__, errmsg, status);
+    ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
   EX_FUNC_LEAVE(EX_NOERR);

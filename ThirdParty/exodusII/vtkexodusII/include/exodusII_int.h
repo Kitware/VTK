@@ -60,6 +60,10 @@
 #include <inttypes.h>
 #endif
 
+#include <assert.h>
+#include <ctype.h>
+#include <string.h>
+
 #ifndef __APPLE__
 #if defined __STDC__ || defined __cplusplus
 #include <stdlib.h>
@@ -82,6 +86,8 @@
 #define __func__ __FUNCTION__
 #define snprintf _snprintf
 #endif
+
+#define snprintf_nowarn(...) (snprintf(__VA_ARGS__) < 0 ? abort() : (void)0)
 
 #ifdef __cplusplus
 extern "C" {
@@ -212,6 +218,12 @@ EXODUS_EXPORT int indent;
 #define EX_FUNC_VOID() return
 #endif
 #endif
+
+#define EX_UNUSED(A)                                                                               \
+  do {                                                                                             \
+    (void)(A);                                                                                     \
+  } while (0)
+
 /*
  * This file contains defined constants that are used internally in the
  * EXODUS API.
@@ -846,6 +858,10 @@ void ex_update_max_name_length(int exoid, int length);
 int  ex_leavedef(int         exoid,    /* NemesisI file ID         */
                  const char *call_rout /* Name of calling function */
  );
+
+int ex_int_handle_mode(unsigned int my_mode, int is_parallel, int run_version);
+int ex_int_populate_header(int exoid, const char *path, int my_mode, int is_parallel, int *comp_ws,
+                           int *io_ws);
 
 int ex_int_get_block_param(int exoid, ex_entity_id id, int ndim,
                            struct elem_blk_parm *elem_blk_parm);

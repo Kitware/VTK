@@ -35,13 +35,6 @@
 
 #include "exodusII.h"     // for EX_FATAL, exerrval, ex_err, etc
 #include "exodusII_int.h" // for ex_get_counter_list, etc
-#include "vtk_netcdf.h"       // for NC_NOERR, nc_inq_varid, etc
-#include <assert.h>       // for assert
-#include <stddef.h>       // for size_t
-#include <stdint.h>       // for int64_t
-#include <stdio.h>        // for fprintf, stderr, snprintf
-#include <stdlib.h>       // for free, calloc, malloc
-#include <string.h>       // for strcmp, strncmp, NULL
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -170,9 +163,9 @@ int ex_copy(int in_exoid, int out_exoid)
    * Currently they should both match or there will be an error.
    */
   if (ex_int64_status(in_exoid) != ex_int64_status(out_exoid)) {
-    snprintf(errmsg, MAX_ERR_LENGTH,
-             "ERROR: integer sizes do not match for input and output databases.");
-    ex_err(__func__, errmsg, EX_WRONGFILETYPE);
+    snprintf_nowarn(errmsg, MAX_ERR_LENGTH,
+                    "ERROR: integer sizes do not match for input and output databases.");
+    ex_err_fn(in_exoid, __func__, errmsg, EX_WRONGFILETYPE);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -189,10 +182,7 @@ int ex_copy(int in_exoid, int out_exoid)
   EXCHECK(cpy_variables(in_exoid, out_exoid, in_large, mesh_only));
 
   /* take the output file out of define mode */
-  if ((status = nc_enddef(out_exoid)) != NC_NOERR) {
-    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to complete definition in file id %d",
-             out_exoid);
-    ex_err(__func__, errmsg, status);
+  if ((status = ex_leavedef(out_exoid, __func__)) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -229,9 +219,9 @@ int ex_copy_transient(int in_exoid, int out_exoid)
    * Currently they should both match or there will be an error.
    */
   if (ex_int64_status(in_exoid) != ex_int64_status(out_exoid)) {
-    snprintf(errmsg, MAX_ERR_LENGTH,
-             "ERROR: integer sizes do not match for input and output databases.");
-    ex_err(__func__, errmsg, EX_WRONGFILETYPE);
+    snprintf_nowarn(errmsg, MAX_ERR_LENGTH,
+                    "ERROR: integer sizes do not match for input and output databases.");
+    ex_err_fn(in_exoid, __func__, errmsg, EX_WRONGFILETYPE);
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -248,10 +238,7 @@ int ex_copy_transient(int in_exoid, int out_exoid)
   EXCHECK(cpy_variables(in_exoid, out_exoid, in_large, mesh_only));
 
   /* take the output file out of define mode */
-  if ((status = nc_enddef(out_exoid)) != NC_NOERR) {
-    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to complete definition in file id %d",
-             out_exoid);
-    ex_err(__func__, errmsg, status);
+  if ((status = ex_leavedef(out_exoid, __func__)) != NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
@@ -400,9 +387,9 @@ int cpy_dimension(int in_exoid, int out_exoid, int mesh_only)
           status = nc_def_dim(out_exoid, dim_nm, NC_UNLIMITED, &dim_out_id);
         }
         if (status != NC_NOERR) {
-          snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define %s dimension in file id %d",
-                   dim_nm, out_exoid);
-          ex_err(__func__, errmsg, status);
+          snprintf_nowarn(errmsg, MAX_ERR_LENGTH,
+                          "ERROR: failed to define %s dimension in file id %d", dim_nm, out_exoid);
+          ex_err_fn(out_exoid, __func__, errmsg, status);
           EX_FUNC_LEAVE(EX_FATAL);
         }
       }
@@ -425,9 +412,9 @@ int cpy_dimension(int in_exoid, int out_exoid, int mesh_only)
       /* Not found; set to default value of 32+1. */
 
       if ((status = nc_def_dim(out_exoid, DIM_STR_NAME, 33, &dim_out_id)) != NC_NOERR) {
-        snprintf(errmsg, MAX_ERR_LENGTH,
-                 "ERROR: failed to define string name dimension in file id %d", out_exoid);
-        ex_err(__func__, errmsg, status);
+        snprintf_nowarn(errmsg, MAX_ERR_LENGTH,
+                        "ERROR: failed to define string name dimension in file id %d", out_exoid);
+        ex_err_fn(out_exoid, __func__, errmsg, status);
         EX_FUNC_LEAVE(EX_FATAL);
       }
     }
