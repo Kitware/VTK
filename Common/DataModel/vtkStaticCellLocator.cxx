@@ -32,6 +32,7 @@
 #include "vtkSMPThreadLocalObject.h"
 
 #include <queue>
+#include <functional>
 
 vtkStandardNewMacro(vtkStaticCellLocator);
 
