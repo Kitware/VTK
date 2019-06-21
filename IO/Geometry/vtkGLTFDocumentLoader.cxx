@@ -1090,6 +1090,13 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
   }
 
   // Other attributes
+
+  // Set array names
+  for(auto it : primitive.AttributeValues)
+  {
+    it.second->SetName(it.first.c_str());
+  }
+
   auto pointData = primitive.Geometry->GetPointData();
   if (primitive.AttributeValues.count("NORMAL"))
   {
@@ -1098,7 +1105,6 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
   }
   if (primitive.AttributeValues.count("TANGENT"))
   {
-    primitive.AttributeValues["TANGENT"]->SetName("Tangents");
     pointData->SetTangents(primitive.AttributeValues["TANGENT"]);
     primitive.AttributeValues.erase("TANGENT");
   }
@@ -1122,13 +1128,11 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
   // only those are loaded for now.
   if (primitive.AttributeValues.count("JOINTS_0"))
   {
-    primitive.AttributeValues["JOINTS_0"]->SetName("joints_0");
     pointData->AddArray(primitive.AttributeValues["JOINTS_0"]);
     primitive.AttributeValues.erase("JOINTS_0");
   }
   if (primitive.AttributeValues.count("WEIGHTS_0"))
   {
-    primitive.AttributeValues["WEIGHTS_0"]->SetName("weights_0");
     pointData->AddArray(primitive.AttributeValues["WEIGHTS_0"]);
     primitive.AttributeValues.erase("WEIGHTS_0");
   }

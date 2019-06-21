@@ -245,8 +245,8 @@ void SetupWeightedTransformFilterForGLTFSkinning(vtkSmartPointer<vtkWeightedTran
   }
 
   // Add joint index and weight array information
-  filter->SetTransformIndexArray("joints_0");
-  filter->SetWeightArray("weights_0");
+  filter->SetTransformIndexArray("JOINTS_0");
+  filter->SetWeightArray("WEIGHTS_0");
 }
 
 //----------------------------------------------------------------------------
