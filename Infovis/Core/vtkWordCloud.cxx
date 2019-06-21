@@ -846,7 +846,6 @@ void ExtractWordsFromString(std::string &str,
   return;
 #else
   vtksys::RegularExpression re("([0-9A-Za-z]+)");
-  auto beginStr = str.begin();
   size_t next = 0;
   while (re.find(str.substr(next)))
     {
