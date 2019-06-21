@@ -608,15 +608,20 @@ void vtkDataObjectTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Children: " << this->GetNumberOfChildren() << endl;
   for (unsigned int cc=0; cc < this->GetNumberOfChildren(); cc++)
   {
+    const char* name = (this->HasChildMetaData(cc) && this->GetChildMetaData(cc)->Has(NAME())) ?
+      this->GetChildMetaData(cc)->Get(NAME()) : nullptr;
+
     vtkDataObject* child = this->GetChild(cc);
     if (child)
     {
       os << indent << "Child " << cc << ": " << child->GetClassName() << endl;
+      os << indent << "Name: " << (name ? name : "(nullptr)") << endl;
       child->PrintSelf(os, indent.GetNextIndent());
     }
     else
     {
       os << indent << "Child " << cc << ": nullptr" << endl;
+      os << indent << "Name: " << (name ? name : "(nullptr)") << endl;
     }
   }
 }
