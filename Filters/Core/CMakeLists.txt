@@ -1,4 +1,5 @@
 set(classes
+  vtk3DLinearGridPlaneCutter
   vtkAppendArcLength
   vtkAppendCompositeDataLeaves
   vtkAppendDataSets
