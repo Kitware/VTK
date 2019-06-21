@@ -3711,6 +3711,7 @@ void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
     << this->GetModeShapesRange()[0] << ", " << this->GetModeShapesRange()[1] << "]\n";
   os << indent << "IgnoreFileTime: " << this->GetIgnoreFileTime() << "\n";
   os << indent << "SILUpdateStamp: " << this->SILUpdateStamp << "\n";
+  os << indent << "UseLegacyBlockNames: " << this->UseLegacyBlockNames << "\n";
   if ( this->Metadata )
   {
     os << indent << "Metadata:\n";
@@ -4168,13 +4169,24 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         blockEntryFileOffset += binfo.Size;
         if (binfo.Name.length() == 0)
         {
-          snprintf( tmpName, sizeof(tmpName),
+          if (this->Parent->GetUseLegacyBlockNames())
+          {
+            snprintf(tmpName, sizeof(tmpName),
 #ifdef VTK_USE_64BIT_IDS
               "Unnamed block ID: %lld Type: %s",
 #else
               "Unnamed block ID: %d Type: %s",
 #endif
               ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "nullptr");
+          }
+          else
+          {
+#ifdef VTK_USE_64BIT_IDS
+            snprintf(tmpName, sizeof(tmpName), "Unnamed block ID: %lld", ids[obj]);
+#else
+            snprintf(tmpName, sizeof(tmpName), "Unnamed block ID: %d", ids[obj]);
+#endif
+          }
           binfo.Name = tmpName;
         }
         binfo.OriginalName = binfo.Name;
@@ -5287,7 +5299,7 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->DisplayType = 0;
   this->DisplayType = 0;
   this->SILUpdateStamp = -1;
-
+  this->UseLegacyBlockNames = false;
   this->SetNumberOfInputPorts( 0 );
 }
 
@@ -5834,12 +5846,16 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, const char* objectName )
     vtkDebugMacro( "No objects of that type (" << objectType << ") to find index for given name " << objectName << "." );
     return -1;
   }
+
   vtkStdString objectRealName(objectName);
-  size_t i = objectRealName.find(" Size: ");
-  if(i!= vtkStdString::npos)
+
+  // handle legacy block names.
+  vtksys::RegularExpression regex("^(Unnamed block ID: [0-9]+)( Type: [0-9a-zA-Z]+)?( Size: [0-9]+)?$");
+  if (regex.find(objectRealName))
   {
-    objectRealName.erase(i);
+    objectRealName = regex.match(1);
   }
+
   for ( int obj = 0; obj < nObj; ++obj )
   {
     const char* storedObjName = this->GetObjectName( objectType, obj );

@@ -72,5 +72,26 @@ int TestExodusIgnoreFileTime(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  // extend test to test for `UseLegacyBlockNames`
+  if (reader->GetNumberOfElementBlockArrays() == 0 ||
+      strcmp(reader->GetElementBlockArrayName(0), "Unnamed block ID: 1") != 0)
+  {
+    cerr << "Error! Invalid block names!" << endl;
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkExodusIIReader> reader2;
+  reader2->SetFileName(reader->GetFileName());
+  reader2->SetUseLegacyBlockNames(true);
+  reader2->UpdateInformation();
+  if (reader2->GetNumberOfElementBlockArrays() == 0 ||
+      strcmp(reader2->GetElementBlockArrayName(0), "Unnamed block ID: 1 Type: HEX") != 0)
+  {
+    cerr << "Error! Invalid block names. "
+      "Expected 'Unnamed block ID: 1 Type: HEX', got '"
+      << reader2->GetElementBlockArrayName(0) << "'" << endl;
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }
