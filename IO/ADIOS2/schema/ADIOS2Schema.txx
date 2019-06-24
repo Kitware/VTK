@@ -33,28 +33,116 @@ namespace adios2vtk
 {
 
 template<class T>
-void ADIOS2Schema::GetDataArrayCommon(adios2::Variable<T> variable, types::DataArray& dataArray,
-  const size_t step, const std::string /*mode*/)
+void ADIOS2Schema::GetDataArrayCommon(
+  adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
 {
-  // TODO support variable.ShapeID() != adios2::ShapeID::LocalArray
-  if (variable.ShapeID() != adios2::ShapeID::GlobalArray)
+  if (dataArray.Persist)
   {
-    throw std::invalid_argument("ERROR: ADIOS2VTK only supporting Global Arrays\n");
+    const auto blocksInfo = this->Engine.BlocksInfo(variable, step);
+    if (blocksInfo.empty())
+    {
+      return;
+    }
+  }
+  else
+  {
+    variable.SetStepSelection({ step, 1 });
   }
 
+  if (variable.ShapeID() == adios2::ShapeID::GlobalArray)
+  {
+    // determine the selection per rank
+    GetDataArrayGlobal(variable, dataArray, step);
+  }
+  else if (variable.ShapeID() == adios2::ShapeID::LocalArray)
+  {
+    // determine the blocks per rank
+    GetDataArrayLocal(variable, dataArray, step);
+  }
+  else if (variable.ShapeID() == adios2::ShapeID::GlobalValue)
+  {
+    GetDataValueGlobal(variable, dataArray, step);
+  }
+}
+
+template<class T>
+void ADIOS2Schema::GetDataArrayGlobal(
+  adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
+{
   SetDimensions(variable, dataArray, step);
-
-  variable.SetStepSelection({ step, 1 });
-  const size_t nElements = helper::TotalElements(dataArray.Count);
-
-  dataArray.Data = helper::NewDataArray<T>();
-  dataArray.Data->Allocate(nElements);
-  dataArray.Data->SetNumberOfValues(nElements);
-  dataArray.Data->SetNumberOfTuples(nElements);
-  dataArray.Data->SetNumberOfComponents(1);
-  dataArray.Data->SetName(variable.Name().c_str());
+  const size_t elements = helper::TotalElements(dataArray.Count);
+  // TODO: enable vectors
+  InitDataArray<T>(variable.Name(), elements, 1, dataArray);
   T* ptr = reinterpret_cast<T*>(dataArray.Data->GetVoidPointer(0));
   this->Engine.Get(variable, ptr);
+}
+
+template<class T>
+void ADIOS2Schema::GetDataArrayLocal(
+  adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
+{
+  // set partition: blocks per MPI visualization process
+  SetBlocks(variable, dataArray, step);
+  size_t elements = 0;
+  for (const auto& blockPair : dataArray.BlockCounts)
+  {
+    elements += helper::TotalElements(blockPair.second);
+  }
+
+  // set number of components
+  size_t components = 1;
+  if (dataArray.HasTuples)
+  {
+    components = variable.Count().back();
+  }
+  else
+  {
+    // linearized vector
+    if (variable.Count().size() == 2)
+    {
+      components = variable.Count().back();
+    }
+  }
+
+  InitDataArray<T>(variable.Name(), elements, components, dataArray);
+
+  // read blocks in current rank
+  size_t offset = 0;
+  for (const auto& blockPair : dataArray.BlockCounts)
+  {
+    variable.SetBlockSelection(blockPair.first);
+    T* ptr = reinterpret_cast<T*>(dataArray.Data->GetVoidPointer(offset));
+    this->Engine.Get(variable, ptr);
+    offset += helper::TotalElements(blockPair.second);
+  }
+}
+
+template<class T>
+void ADIOS2Schema::GetDataValueGlobal(
+  adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
+{
+  InitDataArray<T>(variable.Name(), 1, 1, dataArray);
+  T* ptr = reinterpret_cast<T*>(dataArray.Data->GetVoidPointer(0));
+  this->Engine.Get(variable, ptr);
+}
+
+template<class T>
+void ADIOS2Schema::InitDataArray(const std::string& name, const size_t elements,
+  const size_t components, types::DataArray& dataArray)
+{
+  if (dataArray.IsIdType)
+  {
+    dataArray.Data = helper::NewDataArrayIdType();
+  }
+  else
+  {
+    dataArray.Data = helper::NewDataArray<T>();
+  }
+
+  dataArray.Data->Allocate(elements);
+  dataArray.Data->SetNumberOfComponents(components);
+  dataArray.Data->SetNumberOfTuples(elements / components);
+  dataArray.Data->SetName(name.c_str());
 }
 
 template<class T>

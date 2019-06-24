@@ -52,16 +52,11 @@ protected:
   std::vector<types::Piece> Pieces;
 
   const static std::set<std::string> TIMENames;
+  const static std::set<std::string> SpecialNames;
   const static std::map<types::DataSetType, std::string> DataSetTypes;
 
   virtual void DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step) = 0;
   virtual void ReadPiece(const size_t step, const size_t pieceID) = 0;
-
-#define declare_type(T)                                                                            \
-  virtual void SetDimensions(                                                                      \
-    adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step) = 0;
-  ADIOS2_VTK_ARRAY_TYPE(declare_type)
-#undef declare_type
 
   bool ReadDataSets(const types::DataSetType type, const size_t step, const size_t pieceID,
     const std::string& hint);

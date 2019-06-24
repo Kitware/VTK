@@ -176,13 +176,36 @@ types::DataSet XMLInitDataSet(
     auto result = dataSet.emplace(xmlName.value(), types::DataArray());
     types::DataArray& dataArray = result.first->second;
 
+    // handle special names
+    const std::string name(xmlName.value());
+    auto itSpecialName = specialNames.find(name);
+    const bool isSpecialName = (itSpecialName != specialNames.end()) ? true : false;
+    if (isSpecialName)
+    {
+      const std::string specialName = *itSpecialName;
+      if (specialName == "connectivity")
+      {
+        dataArray.IsIdType = true;
+        dataArray.Persist = true;
+      }
+      else if (specialName == "vertices")
+      {
+        dataArray.HasTuples = true;
+        dataArray.Persist = true;
+      }
+      else if (specialName == "types")
+      {
+        dataArray.Persist = true;
+      }
+    }
+
     // not mandatory
     const pugi::xml_attribute xmlNumberOfComponents =
       XMLAttribute("NumberOfComponents", dataArrayNode, true,
         "when parsing NumberOfComponents attribute in ADIOS2 VTK XML schema", false);
 
-    const std::string name(xmlName.value());
-    if (!xmlNumberOfComponents && specialNames.count(name) == 0)
+    // TODO enable vector support
+    if (!xmlNumberOfComponents && !isSpecialName)
     {
       continue;
     }
@@ -196,7 +219,7 @@ types::DataSet XMLInitDataSet(
           std::string(componentNode.name()) + " in node " + std::string(dataArrayNode.value()) +
           " is not of plain data type in ADIOS2 VTK XML schema\n");
       }
-
+      // TRIM
       std::string variablePCData(componentNode.value());
       variablePCData.erase(0, variablePCData.find_first_not_of(" \n\r\t"));
       variablePCData.erase(variablePCData.find_last_not_of(" \n\r\t") + 1);
@@ -215,10 +238,10 @@ types::DataSet XMLInitDataSet(
       }
     }
 
-    if (dataArray.IsScalar())
+    if (dataArray.IsScalar() && (name == "TIME" || name == "CYCLE"))
     {
-      throw std::invalid_argument(
-        "ERROR: data array " + name + " expected to be vector, in ADIOS2 VTK XML schema\n");
+      throw std::invalid_argument("ERROR: data array " + name +
+        " expected to have a least one component, in ADIOS2 VTK XML schema\n");
     }
   }
 
@@ -293,6 +316,11 @@ size_t LinearizePoint(const adios2::Dims& shape, const adios2::Dims& point) noex
   const size_t Nz = shape[2];
 
   return i * Ny * Nz + j * Nz + k;
+}
+
+vtkSmartPointer<vtkIdTypeArray> NewDataArrayIdType()
+{
+  return vtkSmartPointer<vtkIdTypeArray>::New();
 }
 
 } // end helper namespace

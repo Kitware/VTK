@@ -88,23 +88,42 @@ protected:
   virtual void ReadPiece(const size_t step, const size_t pieceID) = 0;
 
   void GetTimes(const std::string& variableName = "");
-  void GetDataArray(const std::string& variableName, types::DataArray& dataArray,
-    const size_t step = 0, const std::string mode = "deferred");
+  void GetDataArray(
+    const std::string& variableName, types::DataArray& dataArray, const size_t step = 0);
 
-protected:
 #define declare_type(T)                                                                            \
   virtual void SetDimensions(                                                                      \
-    adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step) = 0;
+    adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step);           \
+                                                                                                   \
+  virtual void SetBlocks(                                                                          \
+    adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
+
   ADIOS2_VTK_ARRAY_TYPE(declare_type)
 #undef declare_type
 
 private:
   template<class T>
+  void GetDataArrayCommon(
+    adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
+
+  template<class T>
+  void GetDataArrayGlobal(
+    adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
+
+  template<class T>
+  void GetDataArrayLocal(
+    adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
+
+  template<class T>
+  void GetDataValueGlobal(
+    adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
+
+  template<class T>
   void GetTimesCommon(const std::string& variableName);
 
   template<class T>
-  void GetDataArrayCommon(adios2::Variable<T> variable, types::DataArray& dataArray,
-    const size_t step, const std::string mode);
+  void InitDataArray(const std::string& name, const size_t elements, const size_t components,
+    types::DataArray& dataArray);
 };
 
 } // end namespace adios2vtk

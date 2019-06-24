@@ -23,11 +23,13 @@
 #include "ADIOS2Schema.h"
 #include "ADIOS2Schema.txx"
 
+#include <stdexcept>
+
 #include "ADIOS2Types.h"
 
 namespace adios2vtk
 {
-
+// PUBLIC
 ADIOS2Schema::ADIOS2Schema(
   const std::string type, const std::string& schema, adios2::IO& io, adios2::Engine& engine)
   : Type(type)
@@ -44,24 +46,7 @@ void ADIOS2Schema::Fill(vtkMultiBlockDataSet* multiBlock, const size_t step)
   DoFill(multiBlock, step);
 }
 
-void ADIOS2Schema::GetDataArray(const std::string& variableName, types::DataArray& dataArray,
-  const size_t step, const std::string mode)
-{
-  const std::string type = this->IO.VariableType(variableName);
-
-  if (type.empty())
-  {
-  }
-#define declare_type(T)                                                                            \
-  else if (type == adios2::GetType<T>())                                                           \
-  {                                                                                                \
-    adios2::Variable<T> variable = this->IO.InquireVariable<T>(variableName);                      \
-    GetDataArrayCommon<T>(variable, dataArray, step, mode);                                        \
-  }
-  ADIOS2_VTK_ARRAY_TYPE(declare_type)
-#undef declare_type
-}
-
+// PROTECTED
 void ADIOS2Schema::GetTimes(const std::string& variableName)
 {
   if (variableName.empty())
@@ -86,8 +71,42 @@ void ADIOS2Schema::GetTimes(const std::string& variableName)
   }
 #define declare_type(T)                                                                            \
   else if (type == adios2::GetType<T>()) { GetTimesCommon<T>(variableName); }
-  ADIOS2_VTK_TIME_TYPE(declare_type)
+  ADIOS2_VTK_ARRAY_TYPE(declare_type)
 #undef declare_type
 }
+
+void ADIOS2Schema::GetDataArray(
+  const std::string& variableName, types::DataArray& dataArray, const size_t step)
+{
+  const std::string type = this->IO.VariableType(variableName);
+
+  if (type.empty())
+  {
+  }
+#define declare_type(T)                                                                            \
+  else if (type == adios2::GetType<T>())                                                           \
+  {                                                                                                \
+    adios2::Variable<T> variable = this->IO.InquireVariable<T>(variableName);                      \
+    GetDataArrayCommon<T>(variable, dataArray, step);                                              \
+  }
+  ADIOS2_VTK_ARRAY_TYPE(declare_type)
+#undef declare_type
+}
+
+#define declare_type(T)                                                                            \
+  void ADIOS2Schema::SetDimensions(                                                                \
+    adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step)            \
+  {                                                                                                \
+    throw std::invalid_argument("ERROR: global array not supported for this schema\n");            \
+  }                                                                                                \
+                                                                                                   \
+  void ADIOS2Schema::SetBlocks(                                                                    \
+    adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)                  \
+  {                                                                                                \
+    throw std::invalid_argument("ERROR: local array not supported for this schema\n");             \
+  }
+
+ADIOS2_VTK_ARRAY_TYPE(declare_type)
+#undef declare_type
 
 } // end namespace adios2vtk

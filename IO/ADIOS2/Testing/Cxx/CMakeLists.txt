@@ -5,6 +5,8 @@ vtk_add_test_cxx(vtkIOADIOS2ReaderCxxTests tests
   UnitTestIOADIOS2.cxx
   TestIOADIOS2VTI3D.cxx
   TestIOADIOS2VTI3DRendering.cxx
+  TestIOADIOS2VTU3D.cxx
+  TestIOADIOS2VTU3DRendering.cxx
 )
 
 vtk_test_cxx_executable(vtkIOADIOS2ReaderCxxTests tests)

@@ -425,7 +425,11 @@ void WriteBPFileWrongDataType(const std::string& fileName)
 
 int UnitTestIOADIOS2(int argc, char* argv[])
 {
-  auto lf_IsCaught = [&](const std::string& fileName, const bool print = false) -> bool {
+  auto lf_GetFileName = [](const size_t id) -> std::string {
+    return "dummy_" + std::to_string(id) + ".bp";
+  };
+
+  auto lf_Test = [&](const std::string& fileName, const size_t id, const bool print = false) {
     bool isCaught = false;
     try
     {
@@ -441,130 +445,43 @@ int UnitTestIOADIOS2(int argc, char* argv[])
         std::cout << e.what() << "\n";
       }
     }
-    return isCaught;
+    if (!isCaught)
+    {
+      throw std::logic_error(
+        "ERROR: ADIOS2 VTK Reader unit test " + std::to_string(id) + " failed\n");
+    }
   };
 
   vtkNew<vtkMPIController> mpiController;
   mpiController->Initialize(&argc, &argv, 0);
   vtkMultiProcessController::SetGlobalController(mpiController);
 
-  // first test: no schema
-  const std::string fileName1 = "dummy1.bp";
-  WriteBPFileNoSchema(fileName1);
-  if (!lf_IsCaught(fileName1))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 1 failed\n");
-  }
+  size_t testID = 0;
+  std::string fileName;
 
-  // second test; unsupported types
-  const std::string fileName2 = "dummy2.bp";
-  WriteBPFileUnsupportedExtent(fileName2);
-  if (!lf_IsCaught(fileName2))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 2 failed\n");
-  }
+#define ADIOS2VTK_UNIT_TEST(function)                                                              \
+  ++testID;                                                                                        \
+  fileName = lf_GetFileName(testID);                                                               \
+  function(fileName);                                                                              \
+  lf_Test(fileName, testID);
 
-  // second test; unsupported types
-  const std::string fileName3 = "dummy3.bp";
-  WriteBPFileUnsupportedVTKType(fileName3);
-  if (!lf_IsCaught(fileName3))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 3 failed\n");
-  }
+  ADIOS2VTK_UNIT_TEST(WriteBPFileNoSchema)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedExtent)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedVTKType)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileNoVTKFileNode)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileNoTime)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileTwoNodes)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongWholeExtent)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongOrigin)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileMandatoryNode)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileTwoImageNodes)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongNumberOfComponents)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongTime)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongNodePC1)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileWrongNodePC2)
+  ADIOS2VTK_UNIT_TEST(WriteBPFileNoPiece)
 
-  // second test; unsupported types
-  const std::string fileName4 = "dummy4.bp";
-  WriteBPFileNoVTKFileNode(fileName4);
-  if (!lf_IsCaught(fileName4))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 4 failed\n");
-  }
-
-  const std::string fileName5 = "dummy5.bp";
-  WriteBPFileNoTime(fileName5);
-  if (!lf_IsCaught(fileName5))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 5 failed\n");
-  }
-
-  const std::string fileName6 = "dummy6.bp";
-  WriteBPFileTwoNodes(fileName6);
-  if (!lf_IsCaught(fileName6))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 6 failed\n");
-  }
-
-  const std::string fileName7 = "dummy7.bp";
-  WriteBPFileWrongWholeExtent(fileName7);
-  if (!lf_IsCaught(fileName7))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 7 failed\n");
-  }
-
-  const std::string fileName8 = "dummy8.bp";
-  WriteBPFileWrongOrigin(fileName8);
-  if (!lf_IsCaught(fileName8))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 8 failed\n");
-  }
-
-  const std::string fileName9 = "dummy9.bp";
-  WriteBPFileWrongShape(fileName9);
-  if (!lf_IsCaught(fileName9))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 9 failed\n");
-  }
-
-  const std::string fileName10 = "dummy10.bp";
-  WriteBPFileMandatoryNode(fileName10);
-  if (!lf_IsCaught(fileName10))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 10 failed\n");
-  }
-
-  const std::string fileName11 = "dummy11.bp";
-  WriteBPFileTwoImageNodes(fileName11);
-  if (!lf_IsCaught(fileName11))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 11 failed\n");
-  }
-
-  const std::string fileName12 = "dummy12.bp";
-  WriteBPFileWrongNumberOfComponents(fileName12);
-  if (!lf_IsCaught(fileName12))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 12 failed\n");
-  }
-
-  const std::string fileName13 = "dummy13.bp";
-  WriteBPFileWrongTime(fileName13);
-  if (!lf_IsCaught(fileName13))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 13 failed\n");
-  }
-
-  const std::string fileName14 = "dummy14.bp";
-  WriteBPFileWrongNodePC1(fileName14);
-  if (!lf_IsCaught(fileName14))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 14 failed\n");
-  }
-
-  const std::string fileName15 = "dummy15.bp";
-  WriteBPFileWrongNodePC2(fileName15);
-  if (!lf_IsCaught(fileName15))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 15 failed\n");
-  }
-
-  const std::string fileName16 = "dummy16.bp";
-  WriteBPFileNoPiece(fileName16);
-  if (!lf_IsCaught(fileName16))
-  {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 16 failed\n");
-  }
-
-  // test 17
+  ++testID;
   bool failed = true;
   try
   {
@@ -578,8 +495,10 @@ int UnitTestIOADIOS2(int argc, char* argv[])
   }
   if (failed)
   {
-    throw std::logic_error("ERROR: ADIOS2 VTK Reader unit test 17 failed\n");
+    throw std::logic_error(
+      "ERROR: ADIOS2 VTK Reader unit test " + std::to_string(testID) + " failed\n");
   }
 
+  mpiController->Finalize();
   return 0;
 }

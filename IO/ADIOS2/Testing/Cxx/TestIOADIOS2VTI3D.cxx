@@ -137,6 +137,7 @@ class TesterVTI3D : public vtkAlgorithm
 {
 public:
   static TesterVTI3D* New();
+  vtkTypeMacro(TesterVTI3D, vtkAlgorithm);
   TesterVTI3D()
   {
     this->SetNumberOfInputPorts(1);
@@ -173,7 +174,7 @@ public:
       ++this->CurrentStep;
       return 1;
     }
-    return 1;
+    return this->Superclass::ProcessRequest(request, input, output);
   }
 
 protected:

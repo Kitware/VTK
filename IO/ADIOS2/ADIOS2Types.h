@@ -54,20 +54,10 @@ enum class DataSetType
 using Piece = std::map<DataSetType, DataSet>;
 
 #define ADIOS2_VTK_ARRAY_TYPE(MACRO)                                                               \
-  MACRO(int)                                                                                       \
-  MACRO(unsigned int)                                                                              \
-  MACRO(long int)                                                                                  \
-  MACRO(unsigned long int)                                                                         \
-  MACRO(float)                                                                                     \
-  MACRO(double)
-
-#define ADIOS2_VTK_TIME_TYPE(MACRO)                                                                \
-  MACRO(int)                                                                                       \
-  MACRO(unsigned int)                                                                              \
-  MACRO(long int)                                                                                  \
-  MACRO(unsigned long int)                                                                         \
-  MACRO(long long int)                                                                             \
-  MACRO(unsigned long long int)                                                                    \
+  MACRO(int32_t)                                                                                   \
+  MACRO(uint32_t)                                                                                  \
+  MACRO(int64_t)                                                                                   \
+  MACRO(uint64_t)                                                                                  \
   MACRO(float)                                                                                     \
   MACRO(double)
 

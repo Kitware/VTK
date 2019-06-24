@@ -13,6 +13,7 @@ set(sources
   ADIOS2SchemaManager.cxx
   schema/ADIOS2Schema.cxx schema/ADIOS2Schema.txx
   schema/xml_vtk/ADIOS2xmlVTI.cxx schema/xml_vtk/ADIOS2xmlVTI.txx
+  schema/xml_vtk/ADIOS2xmlVTU.cxx schema/xml_vtk/ADIOS2xmlVTU.txx
   schema/xml_vtk/ADIOS2xmlVTK.cxx
 )
 
@@ -23,6 +24,7 @@ set(private_headers
   ADIOS2SchemaManager.h
   schema/ADIOS2Schema.h
   schema/xml_vtk/ADIOS2xmlVTI.h
+  schema/xml_vtk/ADIOS2xmlVTU.h
   schema/xml_vtk/ADIOS2xmlVTK.h
 )
 

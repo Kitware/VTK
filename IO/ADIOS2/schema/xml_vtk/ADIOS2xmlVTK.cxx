@@ -28,8 +28,9 @@ namespace adios2vtk
 {
 namespace schema
 {
-
 const std::set<std::string> ADIOS2xmlVTK::TIMENames = { "TIME", "CYCLE" };
+const std::set<std::string> ADIOS2xmlVTK::SpecialNames = { "TIME", "CYCLE", "connectivity", "types",
+  "vertices" };
 
 const std::map<types::DataSetType, std::string> ADIOS2xmlVTK::DataSetTypes = {
   { types::DataSetType::CellData, "CellData" }, { types::DataSetType::PointData, "PointData" },

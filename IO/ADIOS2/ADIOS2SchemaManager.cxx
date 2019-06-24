@@ -25,6 +25,7 @@
 #include "ADIOS2Helper.h"
 
 #include "schema/xml_vtk/ADIOS2xmlVTI.h"
+#include "schema/xml_vtk/ADIOS2xmlVTU.h"
 
 #include <vtk_pugixml.h>
 #include <vtksys/SystemTools.hxx>
@@ -62,8 +63,9 @@ void ADIOS2SchemaManager::Fill(vtkMultiBlockDataSet* multiBlock, const size_t st
 }
 
 // PRIVATE
-const std::set<std::string> ADIOS2SchemaManager::SupportedTypes = { "ImageData" };
-// TODO: , "StructuredGrid", "UnstructuredGrid" };
+const std::set<std::string> ADIOS2SchemaManager::SupportedTypes = { "ImageData",
+  "UnstructuredGrid" };
+// TODO: , "StructuredGrid", "PolyData" };
 
 void ADIOS2SchemaManager::InitReader()
 {
@@ -145,6 +147,10 @@ bool ADIOS2SchemaManager::InitReaderXMLVTK()
   if (type == "ImageData")
   {
     this->Reader.reset(new adios2vtk::schema::ADIOS2xmlVTI(xmlContents, this->IO, this->Engine));
+  }
+  else if (type == "UnstructuredGrid")
+  {
+    this->Reader.reset(new adios2vtk::schema::ADIOS2xmlVTU(xmlContents, this->IO, this->Engine));
   }
 
   const bool success = this->Reader ? true : false;
