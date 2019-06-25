@@ -1667,7 +1667,7 @@ GenerateRepresentation(int vtkNotUsed(level), vtkPolyData *pd)
 // 5 points per bucket.
 vtkStaticPointLocator::vtkStaticPointLocator()
 {
-  this->NumberOfPointsPerBucket = 5;
+  this->NumberOfPointsPerBucket = 1;
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
   this->Buckets = nullptr;

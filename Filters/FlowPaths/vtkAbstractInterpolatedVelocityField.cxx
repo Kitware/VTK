@@ -98,7 +98,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
     vectors = nullptr;
     return 0;
   }
-  if(!this->VectorsSelection) //if a selection is not speicifed,
+  if(!this->VectorsSelection) //if a selection is not specified,
   {
     //use the first one in the point set (this is a behavior for backward compatibility)
     vectors =  dataset->GetPointData()->GetVectors(nullptr);

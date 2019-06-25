@@ -62,9 +62,9 @@ void vtkCellArray::Initialize()
 int vtkCellArray::GetMaxCellSize()
 {
   int npts=0, maxSize=0;
-  vtkIdType i;
+  vtkIdType i, count=this->Ia->GetMaxId();
 
-  for (i=0; i<this->Ia->GetMaxId(); i+=(npts+1))
+  for (i=0; i<count; i+=(npts+1))
   {
     if ( (npts=this->Ia->GetValue(i)) > maxSize )
     {

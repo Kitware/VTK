@@ -789,7 +789,6 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
 
   for(int currentLine = 0; currentLine < numLines; currentLine++)
   {
-
     double progress = static_cast<double>(currentLine)/numLines;
     this->UpdateProgress(progress);
 

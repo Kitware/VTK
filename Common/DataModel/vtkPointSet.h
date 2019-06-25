@@ -176,7 +176,4 @@ inline vtkIdType vtkPointSet::GetNumberOfPoints()
   }
 }
 
-
 #endif
-
-
