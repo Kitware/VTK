@@ -389,5 +389,10 @@ if (NOT ANDROID AND
   vtk_module_add_executable(vtkProbeOpenGLVersion
     ${probe_no_install}
     vtkProbeOpenGLVersion.cxx)
-  target_link_libraries(vtkProbeOpenGLVersion PRIVATE RenderingOpenGL2)
+  target_link_libraries(vtkProbeOpenGLVersion
+    PRIVATE
+      VTK::RenderingOpenGL2)
+  vtk_module_autoinit(
+    TARGETS vtkProbeOpenGLVersion
+    MODULES VTK::RenderingOpenGL2)
 endif ()
