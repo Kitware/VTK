@@ -35,6 +35,7 @@ if (LZMA_FOUND)
     unset(lzma_library_type)
     set_target_properties(LZMA::LZMA PROPERTIES
       IMPORTED_LOCATION "${LZMA_LIBRARY}"
+      IMPORTED_IMPLIB "${LZMA_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${LZMA_INCLUDE_DIR}")
   endif ()
 endif ()

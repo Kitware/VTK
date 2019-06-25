@@ -38,6 +38,7 @@ if (JsonCpp_FOUND)
     unset(jsoncpp_library_type)
     set_target_properties(JsonCpp::JsonCpp PROPERTIES
       IMPORTED_LOCATION "${JsonCpp_LIBRARY}"
+      IMPORTED_IMPLIB "${JsonCpp_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${JsonCpp_INCLUDE_DIR}")
   endif ()
 endif ()
