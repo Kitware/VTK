@@ -46,7 +46,7 @@ int TestCubeAxes2DMode( int argc, char * argv [] )
   vtkSmartPointer<vtkPolyDataMapper> planeMapper
     = vtkSmartPointer<vtkPolyDataMapper>::New();
   planeMapper->SetInputConnection( plane->GetOutputPort() );
-  planeMapper->SetResolveCoincidentTopologyToPolygonOffset();
+  vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
 
   // Create plane actor
   vtkSmartPointer<vtkActor> planeActor
@@ -58,7 +58,8 @@ int TestCubeAxes2DMode( int argc, char * argv [] )
   vtkSmartPointer<vtkPolyDataMapper> edgeMapper
     = vtkSmartPointer<vtkPolyDataMapper>::New();
   edgeMapper->SetInputConnection( plane->GetOutputPort() );
-  edgeMapper->SetResolveCoincidentTopologyToPolygonOffset();
+  // move the lines behind the axes a tad
+  edgeMapper->SetRelativeCoincidentTopologyLineOffsetParameters(0,2);
 
   // Create edge actor
   vtkSmartPointer<vtkActor> edgeActor

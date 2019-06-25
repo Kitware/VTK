@@ -1902,6 +1902,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   float factor = 0.0;
   float offset = 0.0;
   this->GetCoincidentParameters(ren, actor,factor,offset);
+  vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
 
   // if we need an offset handle it here
   // The value of .000016 is suitable for depth buffers
@@ -1912,28 +1913,29 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   {
     std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
-    if (factor != 0.0)
+    if (cam->GetParallelProjection())
     {
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Coincident::Dec",
-        "uniform float cfactor;\n"
-        "uniform float coffset;");
+        "uniform float cCValue;");
       vtkShaderProgram::Substitute(FSSource,
-        "//VTK::UniformFlow::Impl",
-        "float cscale = length(vec2(dFdx(gl_FragCoord.z),dFdy(gl_FragCoord.z)));\n"
-        "  //VTK::UniformFlow::Impl\n" // for other replacements
+        "//VTK::Depth::Impl",
+        "gl_FragDepth = gl_FragCoord.z + cCValue;\n"
         );
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
-        "gl_FragDepth = gl_FragCoord.z + cfactor*cscale + 0.000016*coffset;\n");
     }
     else
     {
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Coincident::Dec",
-        "uniform float coffset;");
+        "uniform float cCValue;\n"
+        "uniform float cSValue;\n"
+        "uniform float cDValue;");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Depth::Impl",
-        "gl_FragDepth = gl_FragCoord.z + 0.000016*coffset;\n"
+        "float Zdc = gl_FragCoord.z*2.0 - 1.0;\n"
+        "  float Z2 = -1.0*cDValue/(Zdc + cCValue) + cSValue;\n"
+        "  float Zdc2 = -1.0*cCValue - cDValue/Z2;\n"
+        "  gl_FragDepth = Zdc2*0.5 + 0.5;\n"
         );
     }
     shaders[vtkShader::Fragment]->SetSource(FSSource);
@@ -2059,6 +2061,8 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   // Have the renderpasses changed?
   vtkMTimeType renderPassMTime = this->GetRenderPassStageMTime(actor);
 
+  vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
+
   // shape of input data changed?
   float factor, offset;
   this->GetCoincidentParameters(ren, actor, factor, offset);
@@ -2066,7 +2070,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     = (this->CurrentInput->GetPointData()->GetNormals() ? 0x01 : 0)
     + (this->HaveCellScalars ? 0x02 : 0)
     + (this->HaveCellNormals ? 0x04 : 0)
-    + ((factor != 0.0) ? 0x08 : 0)
+    + ((cam->GetParallelProjection() != 0.0) ? 0x08 : 0)
     + ((offset != 0.0) ? 0x10 : 0)
     + (this->VBOs->GetNumberOfComponents("scalarColor") ? 0x20 : 0)
     + ((this->VBOs->GetNumberOfComponents("tcoord") % 4) << 6);
@@ -2334,19 +2338,6 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       lineWidth[1] = 2.0*actor->GetProperty()->GetLineWidth()/vp[3];
       cellBO.Program->SetUniform2f("lineWidthNVC",lineWidth);
   }
-
-  // handle coincident
-  if (cellBO.Program->IsUniformUsed("coffset"))
-  {
-    float factor, offset;
-    this->GetCoincidentParameters(ren, actor,factor,offset);
-    cellBO.Program->SetUniformf("coffset",offset);
-    // cfactor isn't always used when coffset is.
-    if (cellBO.Program->IsUniformUsed("cfactor"))
-    {
-      cellBO.Program->SetUniformf("cfactor", factor);
-    }
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -2403,6 +2394,25 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
       program->SetUniformf("ZCalcR",
         actor->GetProperty()->GetLineWidth()/
           (ren->GetSize()[0] * vcdc->GetElement(0,0)));
+    }
+  }
+
+  // handle coincident
+  if (cellBO.Program->IsUniformUsed("cCValue"))
+  {
+    float diag = actor->GetLength();
+    float factor, offset;
+    this->GetCoincidentParameters(ren, actor,factor,offset);
+    if (cam->GetParallelProjection())
+    {
+      // one unit of offset is based on 1/1000 of bounding length
+      cellBO.Program->SetUniformf("cCValue",-2.0*0.001*diag*offset*vcdc->GetElement(2,2));
+    }
+    else
+    {
+      cellBO.Program->SetUniformf("cCValue",vcdc->GetElement(2,2));
+      cellBO.Program->SetUniformf("cDValue",vcdc->GetElement(3,2));
+      cellBO.Program->SetUniformf("cSValue",-0.001*diag*offset);
     }
   }
 
