@@ -71,6 +71,8 @@
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 #include "vtkBiQuadraticTriangle.h"
 
+#include "vtkSMPTools.h"
+
 #include <set>
 
 vtkStandardNewMacro(vtkUnstructuredGrid);
@@ -977,10 +979,61 @@ void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 
 }
 
+// Define threaded functor supporting GetMaxCellSize()
+namespace {
+  struct MaxCellSize
+  {
+    const vtkIdType *Conn;
+    const vtkIdType *Locs;
+    int MaxSize; //Reduced maximum size (over all threads)
+    vtkSMPThreadLocal<int> LocalMaxSize; //for this thread
+    MaxCellSize(const vtkIdType *conn, const vtkIdType *locs) :
+      Conn(conn), Locs(locs), MaxSize(0) {}
+    void Initialize()
+    {
+      int& localMaxSize = this->LocalMaxSize.Local();
+      localMaxSize = 0;
+    }
+    void operator()(vtkIdType cellId, vtkIdType endCellId)
+    {
+      const vtkIdType *conn = this->Conn;
+      const vtkIdType *locs = this->Locs;
+      int size;
+      int& localMaxSize = this->LocalMaxSize.Local();
+      for ( ; cellId < endCellId; ++cellId )
+      {
+        size = static_cast<int>(*(conn + locs[cellId]));
+        localMaxSize = (size > localMaxSize ? size : localMaxSize);
+      }
+    }
+    void Reduce()
+    {
+      auto mEnd=this->LocalMaxSize.end();
+      auto mIter=this->LocalMaxSize.begin();
+      for ( ; mIter != mEnd; ++mIter )
+      {
+        this->MaxSize = ( *mIter > this->MaxSize ? *mIter : this->MaxSize );
+      }
+    }
+  };
+}//anonymous namespace
+
 //----------------------------------------------------------------------------
+// Return the number of points from the cell defined by the maximum number of
+// points/
 int vtkUnstructuredGrid::GetMaxCellSize()
 {
-  if (this->Connectivity)
+  // Try threaded fast path first, it should always be called except in
+  // exceptional situations.
+  if (this->Connectivity && this->Locations)
+  {
+    MaxCellSize maxSize(this->Connectivity->GetPointer(),
+                        static_cast<vtkIdType*>(this->Locations->GetVoidPointer(0)));
+    vtkIdType numCells = this->Connectivity->GetNumberOfCells();
+    vtkSMPTools::For(0,numCells, 10000, maxSize);
+    return maxSize.MaxSize;
+  }
+  else if (this->Connectivity)
   {
     return this->Connectivity->GetMaxCellSize();
   }
