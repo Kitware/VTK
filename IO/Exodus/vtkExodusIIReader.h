@@ -805,6 +805,18 @@ public:
   static vtkInformationIntegerKey* GLOBAL_TEMPORAL_VARIABLE();
   //@}
 
+  //@{
+  /**
+   * In previous versions, the reader added the type of elements in the block to
+   * the block name when no name was provided for the block. This has issues
+   * with consistency when naming blocks across ranks for partitioned files
+   * (see paraview/paraview#19110), hence we no longer do that. For legacy
+   * pipelines, one can enable the old behavior by setting this flag to true.
+   */
+  vtkSetMacro(UseLegacyBlockNames, bool);
+  vtkGetMacro(UseLegacyBlockNames, bool);
+  vtkBooleanMacro(UseLegacyBlockNames, bool);
+  //@}
 protected:
   vtkExodusIIReader();
   ~vtkExodusIIReader() override;
@@ -863,6 +875,8 @@ private:
 
   void AddDisplacements(vtkUnstructuredGrid* output);
   int ModeShapesRange[2];
+
+  bool UseLegacyBlockNames;
 };
 
 #endif
