@@ -56,8 +56,6 @@ bool vtkSelector::ComputeSelectedElements(vtkDataObject* input, vtkDataObject* o
         this->Node->GetFieldType());
     vtkIdType numElements = input->GetNumberOfElements(association);
     auto insidednessArray = this->CreateInsidednessArray(numElements);
-    insidednessArray->SetName(this->InsidednessArrayName.c_str());
-
     bool computed = this->ComputeSelectedElementsForBlock(input, insidednessArray,
       VTK_UNSIGNED_INT_MAX, VTK_UNSIGNED_INT_MAX, VTK_UNSIGNED_INT_MAX);
     if (!computed)
@@ -75,11 +73,11 @@ bool vtkSelector::ComputeSelectedElements(vtkDataObject* input, vtkDataObject* o
       // insidednessArray going in is associated with points. Returned, it is
       // associated with cells.
       insidednessArray = this->ComputeCellsContainingSelectedPoints(input, insidednessArray);
-      insidednessArray->SetName(this->InsidednessArrayName.c_str());
       association = vtkDataObject::CELL;
     }
 
-    if (auto dsa = output->GetAttributes(association))
+    auto dsa = output->GetAttributes(association);
+    if (dsa && insidednessArray)
     {
       dsa->AddArray(insidednessArray);
     }
@@ -108,7 +106,6 @@ bool vtkSelector::ComputeSelectedElementsForCompositeDataSet(
         this->Node->GetFieldType());
     vtkIdType numElements = inputBlock->GetNumberOfElements(association);
     auto insidednessArray = this->CreateInsidednessArray(numElements);
-    insidednessArray->SetName(this->InsidednessArrayName.c_str());
 
     unsigned int compositeIndex = inIter->GetCurrentFlatIndex();
     unsigned int amrLevel = inIterAMR ? inIterAMR->GetCurrentLevel() : VTK_UNSIGNED_INT_MAX;
@@ -129,11 +126,10 @@ bool vtkSelector::ComputeSelectedElementsForCompositeDataSet(
       // insidednessArray going in is associated with points. Returned, it is
       // associated with cells.
       insidednessArray = this->ComputeCellsContainingSelectedPoints(inputBlock, insidednessArray);
-      insidednessArray->SetName(this->InsidednessArrayName.c_str());
       association = vtkDataObject::CELL;
     }
     auto fieldData = outputBlock->GetAttributes(association);
-    if (fieldData)
+    if (fieldData && insidednessArray)
     {
       fieldData->AddArray(insidednessArray);
     }
@@ -171,7 +167,7 @@ bool vtkSelector::SkipBlock(unsigned int compositeIndex, unsigned int amrLevel, 
 vtkSmartPointer<vtkSignedCharArray> vtkSelector::CreateInsidednessArray(vtkIdType numElems)
 {
   auto darray = vtkSmartPointer<vtkSignedCharArray>::New();
-  darray->SetName("vtkInsidedness");
+  darray->SetName(this->InsidednessArrayName.c_str());
   darray->SetNumberOfComponents(1);
   darray->SetNumberOfTuples(numElems);
   return darray;
