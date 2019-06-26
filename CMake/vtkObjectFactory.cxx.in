@@ -40,7 +40,7 @@ void @_vtk_object_factory_library_name@ObjectFactory::PrintSelf(ostream &os, vtk
 }
 
 // Registration of object factories.
-static unsigned int @_vtk_object_factory_library_name@Count;
+static unsigned int @_vtk_object_factory_library_name@Count = 0;
 
 @_vtk_object_factory_configure_EXPORT_MACRO@ void @_vtk_object_factory_library_name@_AutoInit_Construct()
 {
