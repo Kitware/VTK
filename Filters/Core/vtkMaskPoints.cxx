@@ -23,29 +23,19 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+
 #include <cstdlib>
 
-vtkStandardNewMacro(vtkMaskPoints);
-
-//----------------------------------------------------------------------------
-vtkMaskPoints::vtkMaskPoints()
+namespace
 {
-  this->OnRatio = 2;
-  this->Offset = 0;
-  this->RandomMode = 0;
-  this->MaximumNumberOfPoints = VTK_ID_MAX;
-  this->GenerateVertices = 0;
-  this->SingleVertexPerCell = 0;
-  this->RandomModeType = 0;
-  this->ProportionalMaximumNumberOfPoints = 0;
-  this->OutputPointsPrecision = DEFAULT_PRECISION;
-}
 
+//-----------------------------------------------------------------------------
 inline double d_rand()
 {
   return rand() / (double)((unsigned long)RAND_MAX + 1);
 }
 
+//-----------------------------------------------------------------------------
 inline void SwapPoint(vtkPoints* points,
                       vtkPointData* data,
                       vtkPointData* temp,
@@ -66,6 +56,7 @@ inline void SwapPoint(vtkPoints* points,
   data->CopyData(temp, 0, b);
 }
 
+//-----------------------------------------------------------------------------
 // AKA select, quickselect, nth_element:
 // this is average case linear, worse case quadratic implementation
 // (i.e., just like quicksort) -- there is the median of 5 or
@@ -124,6 +115,7 @@ static void QuickSelect(vtkPoints* points,
   }
 }
 
+//-----------------------------------------------------------------------------
 // divide the data into sampling strata and randomly sample it
 // (one sample per stratum)
 static void SortAndSample(vtkPoints* points, vtkPointData* data,
@@ -210,7 +202,26 @@ static void SortAndSample(vtkPoints* points, vtkPointData* data,
   }
 }
 
+}
 
+//-----------------------------------------------------------------------------
+vtkStandardNewMacro(vtkMaskPoints);
+
+//-----------------------------------------------------------------------------
+vtkMaskPoints::vtkMaskPoints()
+{
+  this->OnRatio = 2;
+  this->Offset = 0;
+  this->RandomMode = 0;
+  this->MaximumNumberOfPoints = VTK_ID_MAX;
+  this->GenerateVertices = 0;
+  this->SingleVertexPerCell = 0;
+  this->RandomModeType = 0;
+  this->ProportionalMaximumNumberOfPoints = 0;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
+}
+
+//-----------------------------------------------------------------------------
 unsigned long vtkMaskPoints::GetLocalSampleSize(vtkIdType numPts, int np)
 {
   // send number of points to process 0
@@ -315,12 +326,6 @@ int vtkMaskPoints::RequestData(
   vtkPointData *outputPD = output->GetPointData();
   vtkIdType numPts = input->GetNumberOfPoints();
 
-  if(numPts < 1)
-  {
-    vtkDebugMacro(<<"No points to mask");
-    return 1;
-  }
-
   int abort = 0;
 
   // figure out how many sample points per process
@@ -333,8 +338,6 @@ int vtkMaskPoints::RequestData(
                   this->InternalGetNumberOfProcesses());
   }
 
-  vtkDebugMacro(<<"Masking points");
-
   // make sure new points aren't too big
   numNewPts = numPts / this->OnRatio;
   numNewPts = numNewPts > numPts ? numPts : numNewPts;
@@ -343,10 +346,18 @@ int vtkMaskPoints::RequestData(
     numNewPts = localMaxPts;
   }
 
-  if (numNewPts == 0)
+  bool hasPoints = numPts > 0 && numNewPts > 0;
+  // Split the controller between ranks that have some points and the others
+  this->InternalSplitController(hasPoints ? 1 : 0, this->InternalGetLocalProcessId());
+
+  if (!hasPoints)
   {
+    // Ranks that don't have any points can leave now
+    this->InternalResetController();
     return 1;
   }
+
+  vtkDebugMacro(<< "Masking points");
 
   // Allocate space
   newPts = vtkPoints::New();
@@ -548,10 +559,6 @@ int vtkMaskPoints::RequestData(
       tempData->Delete();
       dataCopy->Delete();
       pointCopy->Delete();
-
-      // PARALLEL CODE
-      // need this barrier or the communicator fails for some reason
-      this->InternalBarrier();
     }
   }
   else // striding mode
@@ -612,6 +619,8 @@ int vtkMaskPoints::RequestData(
   output->Squeeze();
 
   vtkDebugMacro(<<"Masked " << numPts << " original points to " << id+1 << " points");
+
+  this->InternalResetController();
 
   return 1;
 }
