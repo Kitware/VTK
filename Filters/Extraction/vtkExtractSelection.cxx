@@ -270,7 +270,9 @@ int vtkExtractSelection::RequestData(
       auto blockInput = inIter->GetCurrentDataObject();
       if (blockInput)
       {
-        outputCD->SetDataSet(inIter, blockInput->NewInstance());
+        auto clone = blockInput->NewInstance();
+        outputCD->SetDataSet(inIter, clone);
+        clone->FastDelete();
       }
     }
 
@@ -317,7 +319,6 @@ int vtkExtractSelection::RequestData(
       // Evaluate the map of insidedness arrays
       auto blockInsidedness = selection->Evaluate(arrayMap);
       auto resultDO = this->ExtractElements(inputBlock, assoc, blockInsidedness);
-      outputCD->GetDataSet(inIter)->Delete();
       if (resultDO && resultDO->GetNumberOfElements(assoc) > 0)
       {
         outputCD->SetDataSet(inIter, resultDO);
