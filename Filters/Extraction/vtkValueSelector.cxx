@@ -601,9 +601,8 @@ void vtkValueSelector::Finalize()
 }
 
 //----------------------------------------------------------------------------
-bool vtkValueSelector::ComputeSelectedElementsForBlock(vtkDataObject* input,
-    vtkSignedCharArray* insidednessArray, unsigned int vtkNotUsed(compositeIndex),
-    unsigned int vtkNotUsed(amrLevel), unsigned int vtkNotUsed(amrIndex))
+bool vtkValueSelector::ComputeSelectedElements(
+  vtkDataObject* input, vtkSignedCharArray* insidednessArray)
 {
   assert(input != nullptr && insidednessArray != nullptr);
   return this->Internals ? this->Internals->Execute(input, insidednessArray) : false;

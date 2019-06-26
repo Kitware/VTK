@@ -111,24 +111,40 @@ void vtkBlockSelector::Initialize(vtkSelectionNode* node)
 }
 
 //----------------------------------------------------------------------------
-bool vtkBlockSelector::ComputeSelectedElementsForBlock(vtkDataObject* vtkNotUsed(input),
-    vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
-    unsigned int amrLevel, unsigned int amrIndex)
+bool vtkBlockSelector::ComputeSelectedElements(
+  vtkDataObject* vtkNotUsed(input), vtkSignedCharArray* insidednessArray)
 {
+  insidednessArray->FillValue(1);
+  return true;
+}
 
-  bool is_selected =
-    (this->Internals->CompositeIds.find(compositeIndex) != this->Internals->CompositeIds.end()) ||
-    (this->Internals->AMRIds.find(std::pair<unsigned int, unsigned int>(amrLevel, amrIndex)) != this->Internals->AMRIds.end());
-  if (this->SkipBlock(compositeIndex, amrLevel, amrIndex) || !is_selected)
+//----------------------------------------------------------------------------
+vtkSelector::SelectionMode vtkBlockSelector::GetAMRBlockSelection(
+  unsigned int level, unsigned int index)
+{
+  auto& internals = (*this->Internals);
+  if (internals.AMRIds.find(std::make_pair(level, index)) != internals.AMRIds.end())
   {
-    insidednessArray->FillValue(0);
+    return INCLUDE;
   }
   else
   {
-    insidednessArray->FillValue(1);
+    return INHERIT;
   }
+}
 
-  return true;
+//----------------------------------------------------------------------------
+vtkSelector::SelectionMode vtkBlockSelector::GetBlockSelection(unsigned int compositeIndex)
+{
+  auto& internals = (*this->Internals);
+  if (internals.CompositeIds.find(compositeIndex) != internals.CompositeIds.end())
+  {
+    return INCLUDE;
+  }
+  else
+  {
+    return compositeIndex == 0 ? EXCLUDE : INHERIT;
+  }
 }
 
 //----------------------------------------------------------------------------

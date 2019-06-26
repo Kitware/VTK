@@ -595,9 +595,8 @@ void vtkFrustumSelector::Initialize(vtkSelectionNode* node)
 }
 
 //--------------------------------------------------------------------------
-bool vtkFrustumSelector::ComputeSelectedElementsForBlock(vtkDataObject* input,
-  vtkSignedCharArray* insidednessArray, unsigned int vtkNotUsed(compositeIndex),
-  unsigned int vtkNotUsed(amrLevel), unsigned int vtkNotUsed(amrIndex))
+bool vtkFrustumSelector::ComputeSelectedElements(
+  vtkDataObject* input, vtkSignedCharArray* insidednessArray)
 {
   vtkDataSet* inputDS = vtkDataSet::SafeDownCast(input);
   // frustum selection only supports datasets

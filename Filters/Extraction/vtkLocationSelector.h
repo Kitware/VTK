@@ -41,9 +41,7 @@ protected:
   vtkLocationSelector();
   ~vtkLocationSelector() override;
 
-  bool ComputeSelectedElementsForBlock(vtkDataObject* input,
-    vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
-    unsigned int amrLevel, unsigned int amrIndex) override;
+  bool ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* insidednessArray) override;
 
 private:
   vtkLocationSelector(const vtkLocationSelector&) = delete;

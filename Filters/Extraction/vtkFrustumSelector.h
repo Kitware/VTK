@@ -61,9 +61,7 @@ protected:
 
   vtkSmartPointer<vtkPlanes> Frustum;
 
-  bool ComputeSelectedElementsForBlock(vtkDataObject* input,
-    vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
-    unsigned int amrLevel, unsigned int amrIndex) override;
+  bool ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* insidednessArray) override;
 
   /**
    * Given eight vertices, creates a frustum.

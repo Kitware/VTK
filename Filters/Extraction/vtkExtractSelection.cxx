@@ -282,7 +282,7 @@ int vtkExtractSelection::RequestData(
     {
       auto name = nodeIter->first;
       auto selector = nodeIter->second;
-      selector->ComputeSelectedElements(inputCD, outputCD);
+      selector->Execute(inputCD, outputCD);
     }
 
     // Now iterate again over the composite dataset and evaluate the expression to
@@ -337,7 +337,7 @@ int vtkExtractSelection::RequestData(
     {
       auto name = nodeIter->first;
       auto selector = nodeIter->second;
-      selector->ComputeSelectedElements(input, output);
+      selector->Execute(input, output);
 
       // Set up a map from selection node name to insidedness array.
       auto *attributes = output->GetAttributes(assoc);

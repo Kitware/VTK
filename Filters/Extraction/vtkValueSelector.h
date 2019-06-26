@@ -58,9 +58,7 @@ protected:
   vtkValueSelector();
   ~vtkValueSelector() override;
 
-  bool ComputeSelectedElementsForBlock(vtkDataObject* input,
-    vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
-    unsigned int amrLevel, unsigned int amrIndex) override;
+  bool ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* insidednessArray) override;
 
 private:
   vtkValueSelector(const vtkValueSelector&) = delete;
