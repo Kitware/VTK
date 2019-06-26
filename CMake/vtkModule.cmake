@@ -2208,7 +2208,7 @@ function (vtk_module_build)
       if (_vtk_build_TARGET_NAMESPACE STREQUAL "<AUTO>")
         set(_vtk_build_TARGET_NAMESPACE "${_vtk_build_namespace}")
       endif ()
-      if (NOT _vtk_build_namespace STREQUAL "${_vtk_build_TARGET_NAMESPACE}")
+      if (NOT _vtk_build_namespace STREQUAL _vtk_build_TARGET_NAMESPACE)
         message(FATAL_ERROR
           "The `TARGET_NAMESPACE` (${_vtk_build_TARGET_NAMESPACE}) is not the "
           "same as the ${_vtk_build_module} module namespace "
