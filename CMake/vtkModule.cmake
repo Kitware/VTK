@@ -2271,7 +2271,7 @@ function (vtk_module_build)
     endforeach ()
 
     set(_vtk_build_namespace)
-    if (DEFINED _vtk_build_TARGET_NAMESPACE)
+    if (_vtk_build_TARGET_NAMESPACE)
       set(_vtk_build_namespace
         NAMESPACE "${_vtk_build_TARGET_NAMESPACE}::")
     endif ()
