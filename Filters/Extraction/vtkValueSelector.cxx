@@ -500,11 +500,11 @@ vtkValueSelector::~vtkValueSelector()
 }
 
 //----------------------------------------------------------------------------
-void vtkValueSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
+void vtkValueSelector::Initialize(vtkSelectionNode* node)
 {
   assert(node);
 
-  this->Superclass::Initialize(node, insidednessArrayName);
+  this->Superclass::Initialize(node);
 
   this->Internals.reset();
 

@@ -46,10 +46,8 @@ class VTKFILTERSEXTRACTION_EXPORT vtkSelector : public vtkObject
    * implicit function to represent the frustum).
    *
    * @param node The selection node that determines the behavior of this operator.
-   * @param insidednessArrayName The name of the insidedness array to add to the output
-   *        from this operator.
    */
-  virtual void Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName);
+  virtual void Initialize(vtkSelectionNode* node);
 
   /**
    * Does any cleanup of objects created in Initialize
@@ -66,6 +64,14 @@ class VTKFILTERSEXTRACTION_EXPORT vtkSelector : public vtkObject
    */
   virtual bool ComputeSelectedElements(vtkDataObject* input, vtkDataObject* output);
 
+  //@{
+  /**
+   * Get/Set the name of the array to use for the insidedness array to add to
+   * the output in `ComputeSelectedElements` call.
+   */
+  vtkSetMacro(InsidednessArrayName, std::string);
+  vtkGetMacro(InsidednessArrayName, std::string);
+  //@}
 protected:
   vtkSelector();
   virtual ~vtkSelector() override;

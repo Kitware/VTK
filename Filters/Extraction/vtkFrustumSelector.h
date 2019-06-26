@@ -40,7 +40,7 @@ public:
   vtkTypeMacro(vtkFrustumSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName) override;
+  void Initialize(vtkSelectionNode* node) override;
 
   /**
    * Return the MTime taking into account changes to the Frustum

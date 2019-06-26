@@ -26,6 +26,7 @@
 
 //----------------------------------------------------------------------------
 vtkSelector::vtkSelector()
+  : InsidednessArrayName()
 {
 }
 
@@ -35,10 +36,9 @@ vtkSelector::~vtkSelector()
 }
 
 //----------------------------------------------------------------------------
-void vtkSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
+void vtkSelector::Initialize(vtkSelectionNode* node)
 {
   this->Node = node;
-  this->InsidednessArrayName = insidednessArrayName;
 }
 
 //--------------------------------------------------------------------------

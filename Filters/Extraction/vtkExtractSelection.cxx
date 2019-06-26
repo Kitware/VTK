@@ -244,7 +244,8 @@ int vtkExtractSelection::RequestData(
     if (auto anOperator = this->NewSelectionOperator(
           static_cast<vtkSelectionNode::SelectionContent>(node->GetContentType())))
     {
-      anOperator->Initialize(node, name.c_str());
+      anOperator->SetInsidednessArrayName(name.c_str());
+      anOperator->Initialize(node);
       selectors[name] = anOperator;
     }
     else

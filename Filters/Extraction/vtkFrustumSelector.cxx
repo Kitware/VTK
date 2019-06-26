@@ -577,9 +577,9 @@ void vtkFrustumSelector::CreateFrustum(double verts[32])
 }
 
 //--------------------------------------------------------------------------
-void vtkFrustumSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
+void vtkFrustumSelector::Initialize(vtkSelectionNode* node)
 {
-  this->Superclass::Initialize(node, insidednessArrayName);
+  this->Superclass::Initialize(node);
 
   // sanity checks
   if (node && node->GetContentType() == vtkSelectionNode::FRUSTUM)

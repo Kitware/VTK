@@ -86,9 +86,9 @@ vtkBlockSelector::~vtkBlockSelector()
 }
 
 //----------------------------------------------------------------------------
-void vtkBlockSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
+void vtkBlockSelector::Initialize(vtkSelectionNode* node)
 {
-  this->Superclass::Initialize(node, insidednessArrayName);
+  this->Superclass::Initialize(node);
 
   assert(this->Node->GetContentType() == vtkSelectionNode::BLOCKS);
   vtkDataArray* selectionList = vtkDataArray::SafeDownCast(this->Node->GetSelectionList());

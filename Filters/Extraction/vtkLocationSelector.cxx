@@ -158,9 +158,9 @@ vtkLocationSelector::~vtkLocationSelector()
 }
 
 //----------------------------------------------------------------------------
-void vtkLocationSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
+void vtkLocationSelector::Initialize(vtkSelectionNode* node)
 {
-  this->Superclass::Initialize(node, insidednessArrayName);
+  this->Superclass::Initialize(node);
 
   this->Internals.reset();
 
