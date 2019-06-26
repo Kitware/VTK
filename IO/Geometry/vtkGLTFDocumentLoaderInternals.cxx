@@ -960,32 +960,42 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
     }
   }
 
-  sampler.WrapS = Sampler::WrapType::REPEAT;
-  vtkGLTFUtils::GetIntValue(root["wrapS"], tempIntValue);
-  switch (static_cast<Sampler::WrapType>(tempIntValue))
+  if (!vtkGLTFUtils::GetIntValue(root["wrapS"], tempIntValue))
   {
-    case Sampler::WrapType::REPEAT:
-    case Sampler::WrapType::MIRRORED_REPEAT:
-    case Sampler::WrapType::CLAMP_TO_EDGE:
-      sampler.WrapS = static_cast<Sampler::WrapType>(tempIntValue);
-      break;
-    default:
-      sampler.WrapS = Sampler::WrapType::REPEAT;
-      vtkWarningWithObjectMacro(this->Self, "Invalid sampler.minFilter value.");
+    sampler.WrapS = Sampler::WrapType::REPEAT;
+  }
+  else
+  {
+    switch (static_cast<Sampler::WrapType>(tempIntValue))
+    {
+      case Sampler::WrapType::REPEAT:
+      case Sampler::WrapType::MIRRORED_REPEAT:
+      case Sampler::WrapType::CLAMP_TO_EDGE:
+        sampler.WrapS = static_cast<Sampler::WrapType>(tempIntValue);
+        break;
+      default:
+        sampler.WrapS = Sampler::WrapType::REPEAT;
+        vtkWarningWithObjectMacro(this->Self, "Invalid sampler.wrapS value.");
+    }
   }
 
-  sampler.WrapT = Sampler::WrapType::REPEAT;
-  vtkGLTFUtils::GetIntValue(root["wrapT"], tempIntValue);
-  switch (static_cast<Sampler::WrapType>(tempIntValue))
+  if (!vtkGLTFUtils::GetIntValue(root["wrapT"], tempIntValue))
   {
-    case Sampler::WrapType::REPEAT:
-    case Sampler::WrapType::MIRRORED_REPEAT:
-    case Sampler::WrapType::CLAMP_TO_EDGE:
-      sampler.WrapT = static_cast<Sampler::WrapType>(tempIntValue);
-      break;
-    default:
-      sampler.WrapT = Sampler::WrapType::REPEAT;
-      vtkWarningWithObjectMacro(this->Self, "Invalid sampler.minFilter value.");
+    sampler.WrapT = Sampler::WrapType::REPEAT;
+  }
+  else
+  {
+    switch (static_cast<Sampler::WrapType>(tempIntValue))
+    {
+      case Sampler::WrapType::REPEAT:
+      case Sampler::WrapType::MIRRORED_REPEAT:
+      case Sampler::WrapType::CLAMP_TO_EDGE:
+        sampler.WrapT = static_cast<Sampler::WrapType>(tempIntValue);
+        break;
+      default:
+        sampler.WrapT = Sampler::WrapType::REPEAT;
+        vtkWarningWithObjectMacro(this->Self, "Invalid sampler.wrapT value.");
+    }
   }
 
   sampler.Name = "";
