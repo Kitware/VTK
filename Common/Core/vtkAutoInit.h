@@ -22,14 +22,13 @@
 
 #define VTK_AUTOINIT(M) VTK_AUTOINIT0(M,M##_AUTOINIT)
 #define VTK_AUTOINIT0(M,T) VTK_AUTOINIT1(M,T)
-#define VTK_AUTOINIT1(M,T)                                              \
-  /* Declare every <mod>_AutoInit_(Construct|Destruct) function.  */    \
-  VTK_AUTOINIT_DECLARE_##T                                              \
-  static struct M##_AutoInit {                                          \
-    /* Call every <mod>_AutoInit_Construct during initialization.  */   \
-    M##_AutoInit()  { VTK_AUTOINIT_CONSTRUCT_##T }                      \
-    /* Call every <mod>_AutoInit_Destruct during finalization.  */      \
-    ~M##_AutoInit() { VTK_AUTOINIT_DESTRUCT_##T  }                      \
+#define VTK_AUTOINIT1(M, T)                                                    \
+  /* Declare every <mod>_AutoInit_Construct function.  */           \
+  VTK_AUTOINIT_DECLARE_##T static struct M##_AutoInit {                        \
+    /* Call every <mod>_AutoInit_Construct during initialization.  */          \
+    M##_AutoInit() {                                                           \
+      VTK_AUTOINIT_CONSTRUCT_##T                                               \
+    }                                                                          \
   } M##_AutoInit_Instance;
 
 #define VTK_AUTOINIT_DECLARE_0()
@@ -43,8 +42,7 @@
 #define VTK_AUTOINIT_DECLARE_8(t1,t2,t3,t4,t5,t6,t7,t8) VTK_AUTOINIT_DECLARE_7(t1,t2,t3,t4,t5,t6,t7) VTK_AUTOINIT_DECLARE(t8)
 #define VTK_AUTOINIT_DECLARE_9(t1,t2,t3,t4,t5,t6,t7,t8,t9) VTK_AUTOINIT_DECLARE_8(t1,t2,t3,t4,t5,t6,t7,t8) VTK_AUTOINIT_DECLARE(t9)
 #define VTK_AUTOINIT_DECLARE(M) \
-  void M##_AutoInit_Construct(); \
-  void M##_AutoInit_Destruct();
+  void M##_AutoInit_Construct();
 
 #define VTK_AUTOINIT_CONSTRUCT_0()
 #define VTK_AUTOINIT_CONSTRUCT_1(t1) VTK_AUTOINIT_CONSTRUCT_0() VTK_AUTOINIT_CONSTRUCT(t1)
@@ -59,22 +57,9 @@
 #define VTK_AUTOINIT_CONSTRUCT(M) \
   M##_AutoInit_Construct();
 
-#define VTK_AUTOINIT_DESTRUCT_0()
-#define VTK_AUTOINIT_DESTRUCT_1(t1) VTK_AUTOINIT_DESTRUCT_0() VTK_AUTOINIT_DESTRUCT(t1)
-#define VTK_AUTOINIT_DESTRUCT_2(t1,t2) VTK_AUTOINIT_DESTRUCT_1(t1) VTK_AUTOINIT_DESTRUCT(t2)
-#define VTK_AUTOINIT_DESTRUCT_3(t1,t2,t3) VTK_AUTOINIT_DESTRUCT_2(t1,t2) VTK_AUTOINIT_DESTRUCT(t3)
-#define VTK_AUTOINIT_DESTRUCT_4(t1,t2,t3,t4) VTK_AUTOINIT_DESTRUCT_3(t1,t2,t3) VTK_AUTOINIT_DESTRUCT(t4)
-#define VTK_AUTOINIT_DESTRUCT_5(t1,t2,t3,t4,t5) VTK_AUTOINIT_DESTRUCT_4(t1,t2,t3,t4) VTK_AUTOINIT_DESTRUCT(t5)
-#define VTK_AUTOINIT_DESTRUCT_6(t1,t2,t3,t4,t5,t6) VTK_AUTOINIT_DESTRUCT_5(t1,t2,t3,t4,t5) VTK_AUTOINIT_DESTRUCT(t6)
-#define VTK_AUTOINIT_DESTRUCT_7(t1,t2,t3,t4,t5,t6,t7) VTK_AUTOINIT_DESTRUCT_6(t1,t2,t3,t4,t5,t6) VTK_AUTOINIT_DESTRUCT(t7)
-#define VTK_AUTOINIT_DESTRUCT_8(t1,t2,t3,t4,t5,t6,t7,t8) VTK_AUTOINIT_DESTRUCT_7(t1,t2,t3,t4,t5,t6,t7) VTK_AUTOINIT_DESTRUCT(t8)
-#define VTK_AUTOINIT_DESTRUCT_9(t1,t2,t3,t4,t5,t6,t7,t8,t9) VTK_AUTOINIT_DESTRUCT_8(t1,t2,t3,t4,t5,t6,t7,t8) VTK_AUTOINIT_DESTRUCT(t9)
-#define VTK_AUTOINIT_DESTRUCT(M) \
-  M##_AutoInit_Destruct();
-
 // Description:
 // Initialize the named module, ensuring its object factory is correctly
-// registered and unregistered. This call must be made in global scope in the
+// registered. This call must be made in global scope in the
 // translation unit of your executable (which can include a shared library, but
 // will not work as expected in a static library).
 //
@@ -90,8 +75,6 @@
   static struct M##_ModuleInit {                                           \
     /* Call <mod>_AutoInit_Construct during initialization.  */            \
     M##_ModuleInit()  { VTK_AUTOINIT_CONSTRUCT(M) }                      \
-    /* Call <mod>_AutoInit_Destruct during finalization.  */               \
-    ~M##_ModuleInit() { VTK_AUTOINIT_DESTRUCT(M)  }                      \
   } M##_ModuleInit_Instance;
 
 
