@@ -51,7 +51,6 @@ class vtkActor;
 class vtkInformation;
 class vtkRenderer;
 class vtkShaderProgram;
-class vtkShaderDeviceAdapter2;
 class vtkTexture;
 class vtkWindow;
 class vtkXMLDataElement;
@@ -420,12 +419,6 @@ public:
   vtkGetMacro(Shading, vtkTypeBool);
   vtkBooleanMacro(Shading, vtkTypeBool);
   //@}
-
-  /**
-   * Get the vtkShaderDeviceAdapter2 if set, returns null otherwise.
-   */
-  virtual vtkShaderDeviceAdapter2* GetShaderDeviceAdapter2()
-    { return nullptr; }
 
   //@{
   /**
