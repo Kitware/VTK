@@ -524,7 +524,9 @@ function (vtk_module_wrap_python)
 
   if (_vtk_python_INSTALL_HEADERS AND NOT DEFINED _vtk_python_CMAKE_DESTINATION)
     message(FATAL_ERROR
-      "No CMAKE_DESTINATION set; Python properties will not be installed.")
+      "No CMAKE_DESTINATION set, but headers from the Python wrapping were "
+      "requested for install and the CMake files are required to work with "
+      "them.")
   endif ()
 
   if (NOT DEFINED _vtk_python_BUILD_STATIC)
