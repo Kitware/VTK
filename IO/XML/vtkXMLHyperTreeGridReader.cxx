@@ -459,6 +459,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees(vtkXMLDataElement* elem)
       }
     }
     desc_a->Delete();
+    mask_a->Delete();
   }
   if (hasMaskData)
   {

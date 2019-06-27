@@ -164,6 +164,7 @@ int vtkXMLHyperTreeGridWriter::WriteData()
       }
       treeIndx++;
       globalOffset+=numberOfVertices;
+      inCursor->Delete();
     }
 
     this->EndAppendedData();
@@ -271,6 +272,14 @@ vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter()
   delete this->DescriptorOMG;
   delete this->MaskOMG;
   delete this->PointDataOMG;
+  for (auto i = this->Descriptors.begin(); i != this->Descriptors.end(); i++)
+  {
+    (*i)->Delete();
+  }
+  for (auto i = this->Masks.begin(); i != this->Masks.end(); i++)
+  {
+    (*i)->Delete();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -493,6 +502,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees(vtkIndent indent)
         this->WriteArrayInline(
           b, infoIndent.GetNextIndent(), a->GetName(), numberOfVertices * numberOfComponents);
       }
+      b->Delete();
     }
     treeIndx++;
 
@@ -576,4 +586,5 @@ void vtkXMLHyperTreeGridWriter::WritePointDataAppendedArrayDataHelper(vtkAbstrac
     this->ForwardAppendedDataDouble(
       offsets.GetRangeMaxPosition(this->CurrentTimeIndex), range[1], "RangeMax");
   }
+  b->Delete();
 }
