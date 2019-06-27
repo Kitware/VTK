@@ -42,6 +42,7 @@ function (vtk_module_python_default_destination var)
       message(WARNING
         "The version of Python is unknown; not using a versioned directory "
         "for Python modules.")
+      set(_vtk_python_version_suffix)
     endif ()
     set(destination "${CMAKE_INSTALL_LIBDIR}/python${_vtk_python_version_suffix}/site-packages")
   endif ()
