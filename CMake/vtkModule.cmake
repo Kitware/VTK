@@ -493,6 +493,9 @@ function (vtk_module_scan)
   set(_vtk_scan_all_kits)
 
   foreach (_vtk_scan_kit_file IN LISTS _vtk_scan_KIT_FILES)
+    if (NOT IS_ABSOLUTE "${_vtk_scan_kit_file}")
+      set(_vtk_scan_kit_file "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_scan_kit_file}")
+    endif ()
     set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" APPEND
       PROPERTY
         CMAKE_CONFIGURE_DEPENDS "${_vtk_scan_kit_file}")
@@ -526,6 +529,9 @@ function (vtk_module_scan)
 
   # Read all of the module files passed in.
   foreach (_vtk_scan_module_file IN LISTS _vtk_scan_MODULE_FILES)
+    if (NOT IS_ABSOLUTE "${_vtk_scan_module_file}")
+      set(_vtk_scan_module_file "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_scan_module_file}")
+    endif ()
     set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" APPEND
       PROPERTY
         CMAKE_CONFIGURE_DEPENDS "${_vtk_scan_module_file}")
@@ -2202,7 +2208,7 @@ function (vtk_module_build)
       if (_vtk_build_TARGET_NAMESPACE STREQUAL "<AUTO>")
         set(_vtk_build_TARGET_NAMESPACE "${_vtk_build_namespace}")
       endif ()
-      if (NOT _vtk_build_namespace STREQUAL "${_vtk_build_TARGET_NAMESPACE}")
+      if (NOT _vtk_build_namespace STREQUAL _vtk_build_TARGET_NAMESPACE)
         message(FATAL_ERROR
           "The `TARGET_NAMESPACE` (${_vtk_build_TARGET_NAMESPACE}) is not the "
           "same as the ${_vtk_build_module} module namespace "
@@ -2265,7 +2271,7 @@ function (vtk_module_build)
     endforeach ()
 
     set(_vtk_build_namespace)
-    if (DEFINED _vtk_build_TARGET_NAMESPACE)
+    if (_vtk_build_TARGET_NAMESPACE)
       set(_vtk_build_namespace
         NAMESPACE "${_vtk_build_TARGET_NAMESPACE}::")
     endif ()
