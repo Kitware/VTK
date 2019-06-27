@@ -4116,14 +4116,58 @@ function (vtk_module_third_party_external)
 
   get_property(_vtk_third_party_external_target_name GLOBAL
     PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
-  add_library("${_vtk_third_party_external_target_name}" INTERFACE)
+
+  # Check if an imported target of the same name already exists.
+  set(_vtk_third_party_external_real_target_name
+    "${_vtk_third_party_external_target_name}")
+  set(_vtk_third_party_external_using_mangled_name OFF)
+  if (TARGET "${_vtk_third_party_external_target_name}")
+    # Ensure that the target collision comes from an imported target.
+    get_property(_vtk_third_party_external_is_imported
+      TARGET    "${_vtk_third_party_external_target_name}"
+      PROPERTY  IMPORTED)
+    if (NOT _vtk_third_party_external_is_imported)
+      message(FATAL_ERROR
+        "It appears as though there is a conflicting target named "
+        "`${_vtk_third_party_external_target_name}` expected to be used by "
+        "the `${_vtk_build_module}` module already added to the build. This "
+        "conflicts with the target name expected to be used by an external "
+        "third party dependency.")
+    endif ()
+
+    # If it does, we need to have a module name that is not the same as this
+    # one. Error out if this is detected.
+    if (_vtk_build_module STREQUAL _vtk_third_party_external_target_name)
+      message(FATAL_ERROR
+        "An imported target has the same name used by the module system for "
+        "the facade of the external dependency for `${_vtk_build_module}`. "
+        "This module must be either renamed or placed into a namespace.")
+    endif ()
+
+    # Mangle the internal name. The alias is the expected use case anyways and
+    # since this is an INTERFACE target, there's nothing to break with respect
+    # to `make $target` anyways.
+    string(APPEND _vtk_third_party_external_real_target_name
+      "_vtk_module_mangle")
+    set_property(GLOBAL APPEND_STRING
+      PROPERTY "_vtk_module_${_vtk_build_module}_target_name"
+      "_vtk_module_mangle")
+    set(_vtk_third_party_external_using_mangled_name ON)
+  endif ()
+
+  add_library("${_vtk_third_party_external_real_target_name}" INTERFACE)
+  if (_vtk_third_party_external_using_mangled_name)
+    set_property(TARGET "${_vtk_third_party_external_real_target_name}"
+      PROPERTY
+        EXPORT_NAME "${_vtk_third_party_external_target_name}")
+  endif ()
   if (NOT _vtk_build_module STREQUAL _vtk_third_party_external_target_name)
     add_library("${_vtk_build_module}" ALIAS
-      "${_vtk_third_party_external_target_name}")
+      "${_vtk_third_party_external_real_target_name}")
   endif ()
 
   if (_vtk_third_party_external_STANDARD_INCLUDE_DIRS)
-    _vtk_module_standard_includes(TARGET "${_vtk_third_party_external_target_name}"
+    _vtk_module_standard_includes(TARGET "${_vtk_third_party_external_real_target_name}"
       SYSTEM INTERFACE)
   endif ()
 
@@ -4141,7 +4185,7 @@ function (vtk_module_third_party_external)
     endforeach ()
 
     if (_vtk_third_party_external_all_targets_okay)
-      target_link_libraries("${_vtk_third_party_external_target_name}"
+      target_link_libraries("${_vtk_third_party_external_real_target_name}"
         INTERFACE
           ${_vtk_third_party_external_TARGETS})
       set(_vtk_third_party_external_used_targets TRUE)
@@ -4162,7 +4206,7 @@ function (vtk_module_third_party_external)
         if (${_vtk_third_party_external_include_dir})
           set(_vtk_third_party_external_have_includes TRUE)
         endif ()
-        target_include_directories("${_vtk_third_party_external_target_name}" SYSTEM
+        target_include_directories("${_vtk_third_party_external_real_target_name}" SYSTEM
           INTERFACE "${${_vtk_third_party_external_include_dir}}")
       endif ()
     endforeach ()
@@ -4177,7 +4221,7 @@ function (vtk_module_third_party_external)
 
     foreach (_vtk_third_party_external_define IN LISTS _vtk_third_party_external_DEFINITIONS)
       if (DEFINED "${_vtk_third_party_external_define}")
-        target_compile_definitions("${_vtk_third_party_external_target_name}"
+        target_compile_definitions("${_vtk_third_party_external_real_target_name}"
           INTERFACE "${${_vtk_third_party_external_define}}")
       endif ()
     endforeach ()
@@ -4188,7 +4232,7 @@ function (vtk_module_third_party_external)
         if (${_vtk_third_party_external_library})
           set(_vtk_third_party_external_have_libraries TRUE)
         endif ()
-        target_link_libraries("${_vtk_third_party_external_target_name}"
+        target_link_libraries("${_vtk_third_party_external_real_target_name}"
           INTERFACE "${${_vtk_third_party_external_library}}")
       endif ()
     endforeach ()
@@ -4224,8 +4268,8 @@ function (vtk_module_third_party_external)
     endforeach ()
   endif ()
 
-  _vtk_module_mark_third_party("${_vtk_third_party_external_target_name}")
-  _vtk_module_install("${_vtk_third_party_external_target_name}")
+  _vtk_module_mark_third_party("${_vtk_third_party_external_real_target_name}")
+  _vtk_module_install("${_vtk_third_party_external_real_target_name}")
 endfunction ()
 
 #[==[.md
