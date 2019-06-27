@@ -388,6 +388,12 @@ public:
                                              double xyz[3]);
   virtual void TransformIndexToPhysicalPoint(const int ijk[3],
                                              double xyz[3]);
+  static void TransformContinuousIndexToPhysicalPoint(
+    double i, double j, double k,
+    double const origin[3],
+    double const spacing[3],
+    double const direction[9],
+    double xyz[3]);
   //@}
 
   //@{
@@ -410,6 +416,12 @@ public:
                                                        double ijk[3]);
   //@}
 
+  static void ComputeIndexToPhysicalMatrix(
+    double const origin[3],
+    double const spacing[3],
+    double const direction[9],
+    double result[16]);
+
   //@{
   /**
    * Convert normal from physical space (xyz) to index space (ijk)
@@ -419,9 +431,9 @@ public:
   //@}
 
   /**
-   * Convert a plane form physcial to continuous index
+   * Convert a plane form physical to continuous index
    */
-  virtual void TransformPhyscialPlaneToContinuousIndex(double const pplane[4],
+  virtual void TransformPhysicalPlaneToContinuousIndex(double const pplane[4],
     double iplane[4]);
 
   static void SetScalarType(int, vtkInformation* meta_data);

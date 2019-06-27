@@ -408,13 +408,10 @@ double *vtkImageSliceMapper::GetBounds()
       {
         double ival = extent[i];
         double point[3];
-        for (int c = 0; c < 3; ++c)
-        {
-          point[c] = ival*spacing[0]*direction[c*3]
-            + jval*spacing[1]*direction[c*3 + 1]
-            + kval*spacing[2] *direction[c*3 + 2]
-            + origin[c];
-        }
+        vtkImageData::TransformContinuousIndexToPhysicalPoint(
+            ival, jval, kval,
+            origin, spacing, direction,
+            point);
         if (i+j+k == 0)
         {
           this->Bounds[0] = point[0];

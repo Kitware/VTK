@@ -999,21 +999,22 @@ void vtkImageMapper3D::MakeTextureGeometry(
   }
 
   // compute the world coordinates of the quad
-  auto comp = [spacing, direction, origin](double *point, double ival, double jval, double kval)
-  {
-    for (int c = 0; c < 3; ++c)
-    {
-      point[c] = ival * spacing[0] * direction[c*3]
-            + jval * spacing[1] * direction[c*3 + 1]
-            + kval * spacing[2] * direction[c*3 + 2]
-            + origin[c];
-    }
-  };
-
-  comp(coords, dext[0], dext[2], dext[4]);
-  comp(coords + 3, dext[1], dext[2 + (xdim == 1)], dext[4]);
-  comp(coords + 6, dext[1], dext[3], dext[5]);
-  comp(coords + 9, dext[0], dext[2 + (ydim == 1)], dext[5]);
+  vtkImageData::TransformContinuousIndexToPhysicalPoint(
+      dext[0], dext[2], dext[4],
+      origin, spacing, direction,
+      coords);
+  vtkImageData::TransformContinuousIndexToPhysicalPoint(
+      dext[1], dext[2 + (xdim == 1)], dext[4],
+      origin, spacing, direction,
+      coords + 3);
+  vtkImageData::TransformContinuousIndexToPhysicalPoint(
+      dext[1], dext[3], dext[5],
+      origin, spacing, direction,
+      coords + 6);
+  vtkImageData::TransformContinuousIndexToPhysicalPoint(
+      dext[0], dext[2 + (ydim == 1)], dext[5],
+      origin, spacing, direction,
+      coords + 9);
 
   if (tcoords)
   {

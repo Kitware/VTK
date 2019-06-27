@@ -1333,7 +1333,7 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
 
   // And convert plane eqn to structured coords
   double xnormal[4];
-  data->TransformPhyscialPlaneToContinuousIndex(normal, xnormal);
+  data->TransformPhysicalPlaneToContinuousIndex(normal, xnormal);
 
   // Also convert ray to structured coords
   double x1[3], x2[3];

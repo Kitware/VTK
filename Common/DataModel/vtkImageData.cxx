@@ -2370,6 +2370,24 @@ inline static void TransformNormal(T1 input0,
   mdata[10] * input2;
 }
 
+// useful for when the ImageData is not available but the information
+// spacing, origin, direction are
+void vtkImageData::TransformContinuousIndexToPhysicalPoint(
+    double i, double j, double k,
+    double const origin[3],
+    double const spacing[3],
+    double const direction[9],
+    double xyz[3])
+{
+  for (int c = 0; c < 3; ++c)
+  {
+    xyz[c] = i*spacing[0]*direction[c*3]
+      + j*spacing[1]*direction[c*3 + 1]
+      + k*spacing[2] *direction[c*3 + 2]
+      + origin[c];
+  }
+}
+
 //----------------------------------------------------------------------------
 void vtkImageData::TransformContinuousIndexToPhysicalPoint(double i,
                                                            double j,
@@ -2430,7 +2448,7 @@ void vtkImageData::TransformPhysicalNormalToContinuousIndex(const double xyz[3],
                                   this->IndexToPhysicalMatrix);
 }
 
-void vtkImageData::TransformPhyscialPlaneToContinuousIndex(
+void vtkImageData::TransformPhysicalPlaneToContinuousIndex(
   double const normal[4],
   double xnormal[4])
 {
@@ -2485,4 +2503,27 @@ void vtkImageData::ComputeTransforms()
   this->IndexToPhysicalMatrix->DeepCopy(m4);
   vtkMatrix4x4::Invert(m4, this->PhysicalToIndexMatrix);
   m4->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::ComputeIndexToPhysicalMatrix(
+  double const origin[3],
+  double const spacing[3],
+  double const direction[9],
+  double result[16])
+{
+  for (int i = 0; i < 3; ++i)
+  {
+    result[i*4] = direction[i*3] * spacing[0];
+    result[i*4 + 1] = direction[i*3 + 1] * spacing[1];
+    result[i*4 + 2] = direction[i*3 + 2] * spacing[2];
+  }
+
+  result[3]  = origin[0];
+  result[7]  = origin[1];
+  result[11] = origin[2];
+  result[12] = 0;
+  result[13] = 0;
+  result[14] = 0;
+  result[15] = 1;
 }
