@@ -73,6 +73,14 @@ bool vtkShader::Compile()
   }
 
   GLuint handle = glCreateShader(type);
+
+  // Handle shader creation failures.
+  if (handle == 0)
+  {
+    this->Error = "Could not create shader object.";
+    return false;
+  }
+
   const GLchar *source = static_cast<const GLchar *>(this->Source.c_str());
   glShaderSource(handle, 1, &source, nullptr);
   glCompileShader(handle);
