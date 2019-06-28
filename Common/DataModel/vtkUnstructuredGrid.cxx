@@ -1563,7 +1563,7 @@ void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes* types)
       this->DistinctCellTypes->Register(this);
       this->DistinctCellTypes->Delete();
     }
-    this->DistinctCellTypes->Allocate(static_cast<vtkIdType>(cellTypesWorker.DistinctCellTypes.size()));
+    this->DistinctCellTypes->Allocate(static_cast<int>(cellTypesWorker.DistinctCellTypes.size()));
 
     for (auto cellType : cellTypesWorker.DistinctCellTypes)
     {
