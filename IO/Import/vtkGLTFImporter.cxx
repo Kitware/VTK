@@ -157,9 +157,11 @@ vtkSmartPointer<vtkTexture> CreateVTKTextureFromGLTFTexture(
 bool MaterialHasMultipleUVs(const vtkGLTFDocumentLoader::Material& material)
 {
   int firstUV = material.PbrMetallicRoughness.BaseColorTexture.TexCoord;
-  return material.EmissiveTexture.TexCoord != firstUV ||
-    material.NormalTexture.TexCoord != firstUV || material.OcclusionTexture.TexCoord != firstUV ||
-    material.PbrMetallicRoughness.MetallicRoughnessTexture.TexCoord != firstUV;
+  return (material.EmissiveTexture.Index >= 0 && material.EmissiveTexture.TexCoord != firstUV) ||
+    (material.NormalTexture.Index >= 0 && material.NormalTexture.TexCoord != firstUV) ||
+    (material.OcclusionTexture.Index >= 0 && material.OcclusionTexture.TexCoord != firstUV) ||
+    (material.PbrMetallicRoughness.MetallicRoughnessTexture.Index >= 0 &&
+      material.PbrMetallicRoughness.MetallicRoughnessTexture.TexCoord != firstUV);
 }
 
 //----------------------------------------------------------------------------
