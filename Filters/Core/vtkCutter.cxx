@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkCutter.h"
 
+#include "vtk3DLinearGridPlaneCutter.h"
 #include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
 #include "vtkCellArray.h"
@@ -23,6 +24,7 @@
 #include "vtkDataArrayAccessor.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkEventForwarderCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkGridSynchronizedTemplates3D.h"
@@ -389,6 +391,44 @@ int vtkCutter::RequestData(
   else if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID_BASE ||
            input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
   {
+    // See if the input can be fully processed by the fast vtk3DLinearGridPlaneCutter.
+    // This algorithm can provide a substantial speed improvement over the more general
+    // algorithm for vtkUnstructuredGrids.
+    if (this->GetCutFunction() && this->GetCutFunction()->IsA("vtkPlane") &&
+      this->GetNumberOfContours() == 1 &&
+      this->GetGenerateCutScalars() == 0 &&
+      (input->GetCellData() && input->GetCellData()->GetNumberOfArrays() == 0) &&
+      vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(input))
+    {
+      vtkNew<vtk3DLinearGridPlaneCutter> linear3DCutter;
+
+      // Create a copy of vtkPlane and nudge it by the single contour
+      vtkPlane* plane = vtkPlane::SafeDownCast(this->GetCutFunction());
+      vtkNew<vtkPlane> newPlane;
+      newPlane->SetNormal(plane->GetNormal());
+      newPlane->SetOrigin(plane->GetOrigin());
+
+      // Evaluate the distance the origin is from the original plane. This accomodates
+      // subclasses of vtkPlane that may have an additional offset parameter not
+      // accessible through the vtkPlane interface. Use this distance to adjust the origin
+      // in newPlane.
+      double d = plane->EvaluateFunction(plane->GetOrigin());
+
+      // In addition. We'll need to shift by the contour value.
+      newPlane->Push(-d + this->GetValue(0));
+
+      linear3DCutter->SetPlane(newPlane);
+      linear3DCutter->SetOutputPointsPrecision(this->GetOutputPointsPrecision());
+      linear3DCutter->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
+      vtkNew<vtkEventForwarderCommand> progressForwarder;
+      progressForwarder->SetTarget(this);
+      linear3DCutter->AddObserver(vtkCommand::ProgressEvent, progressForwarder);
+
+      int retval = linear3DCutter->ProcessRequest(request, inputVector, outputVector);
+
+      return retval;
+    }
+
     vtkDebugMacro(<< "Executing Unstructured Grid Cutter");
     this->UnstructuredGridCutter(input, output);
   }

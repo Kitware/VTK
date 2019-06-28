@@ -184,6 +184,14 @@ public:
   bool GetLargeIds()
   {return this->LargeIds;}
 
+  /**
+   * Returns true if the data object passed in is fully supported by this
+   * filter, i.e., all cell types are linear. For composite datasets, this
+   * means all dataset leaves have only linear cell types that can be processed
+   * by this filter.
+   */
+  static bool CanFullyProcessDataObject(vtkDataObject* object);
+
 protected:
   vtk3DLinearGridPlaneCutter();
   ~vtk3DLinearGridPlaneCutter() override;
