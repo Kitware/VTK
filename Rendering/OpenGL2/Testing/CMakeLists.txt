@@ -1,5 +1,6 @@
 vtk_module_test_data(
   Data/GIS/raster.tif
+  Data/autoshop.jpg
   Data/bunny.ply
   Data/clouds.jpeg
   Data/dragon.ply

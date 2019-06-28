@@ -745,25 +745,30 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
     }
   }
 
+  vtkFloatArray* tangents = vtkFloatArray::SafeDownCast(poly->GetPointData()->GetTangents());
+
   // Build the VBO
   vtkIdType offsetPos = 0;
   vtkIdType offsetNorm = 0;
   vtkIdType offsetColor = 0;
   vtkIdType offsetTex = 0;
+  vtkIdType offsetTangents = 0;
   vtkIdType totalOffset = 0;
   vtkIdType dummy = 0;
   bool exists =
     this->VBOs->ArrayExists("vertexMC", poly->GetPoints()->GetData(), offsetPos, totalOffset) &&
     this->VBOs->ArrayExists("normalMC", n, offsetNorm, dummy) &&
     this->VBOs->ArrayExists("scalarColor", c, offsetColor,dummy) &&
-    this->VBOs->ArrayExists("tcoord", tcoords, offsetTex, dummy);
+    this->VBOs->ArrayExists("tcoord", tcoords, offsetTex, dummy) &&
+    this->VBOs->ArrayExists("tangentMC", tangents, offsetTangents, dummy);
 
   // if all used arrays have the same offset and have already been added,
   // we can reuse them and save memory
   if (exists &&
     (offsetNorm == 0 || offsetPos == offsetNorm) &&
     (offsetColor == 0 || offsetPos == offsetColor) &&
-    (offsetTex == 0 || offsetPos == offsetTex))
+    (offsetTex == 0 || offsetPos == offsetTex) &&
+    (offsetTangents == 0 || offsetPos == offsetTangents))
   {
     voffset = offsetPos;
   }
@@ -773,6 +778,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
     this->VBOs->AppendDataArray("normalMC", n, VTK_FLOAT);
     this->VBOs->AppendDataArray("scalarColor", c, VTK_UNSIGNED_CHAR);
     this->VBOs->AppendDataArray("tcoord", tcoords, VTK_FLOAT);
+    this->VBOs->AppendDataArray("tangentMC", tangents, VTK_FLOAT);
 
     voffset = totalOffset;
   }

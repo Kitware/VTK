@@ -15,6 +15,7 @@ PRIVATE_DEPENDS
   VTK::IOImage
   VTK::IOLegacy
   VTK::IOXML
+  VTK::ImagingCore
   VTK::RenderingVolumeAMR
   VTK::jsoncpp
   VTK::vtksys

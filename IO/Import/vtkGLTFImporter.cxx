@@ -23,6 +23,7 @@
 #include "vtkImageData.h"
 #include "vtkImageExtractComponents.h"
 #include "vtkImageResize.h"
+#include "vtkInformation.h"
 #include "vtkLight.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -202,6 +203,15 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     actor->GetProperty()->SetRoughness(material.PbrMetallicRoughness.RoughnessFactor);
     actor->GetProperty()->SetEmissiveFactor(material.EmissiveFactor.data());
   }
+
+  // flip texture coordinates
+  if (actor->GetPropertyKeys() == nullptr)
+  {
+    vtkNew<vtkInformation> info;
+    actor->SetPropertyKeys(info);
+  }
+  double mat[] = { 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+  actor->GetPropertyKeys()->Set(vtkProp::GeneralTextureTransform(), mat, 16);
 
   if (!material.DoubleSided)
   {

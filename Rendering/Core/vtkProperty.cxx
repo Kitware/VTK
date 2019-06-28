@@ -245,6 +245,12 @@ void vtkProperty::GetColor(double &r, double &g, double &b)
 //----------------------------------------------------------------------------
 void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 {
+  if (tex == nullptr)
+  {
+    this->RemoveTexture(name);
+    return;
+  }
+
   if ((strcmp(name, "albedoTex") == 0 || strcmp(name, "emissiveTex") == 0) &&
     !tex->GetUseSRGBColorSpace())
   {
@@ -258,8 +264,7 @@ void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
     return;
   }
 
-  auto iter =
-    this->Textures.find(std::string(name));
+  auto iter = this->Textures.find(std::string(name));
   if (iter != this->Textures.end())
   {
     // same value?
@@ -274,6 +279,7 @@ void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 
   tex->Register(this);
   this->Textures[name] = tex;
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -304,6 +310,7 @@ void vtkProperty::RemoveTexture(const char* name)
   {
     iter->second->UnRegister(this);
     this->Textures.erase(iter);
+    this->Modified();
   }
 }
 
@@ -316,6 +323,7 @@ void vtkProperty::RemoveAllTextures()
     iter->second->UnRegister(this);
     this->Textures.erase(iter);
   }
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
