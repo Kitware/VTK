@@ -42,6 +42,7 @@ function (vtk_module_python_default_destination var)
       message(WARNING
         "The version of Python is unknown; not using a versioned directory "
         "for Python modules.")
+      set(_vtk_python_version_suffix)
     endif ()
     set(destination "${CMAKE_INSTALL_LIBDIR}/python${_vtk_python_version_suffix}/site-packages")
   endif ()
@@ -524,7 +525,9 @@ function (vtk_module_wrap_python)
 
   if (_vtk_python_INSTALL_HEADERS AND NOT DEFINED _vtk_python_CMAKE_DESTINATION)
     message(FATAL_ERROR
-      "No CMAKE_DESTINATION set; Python properties will not be installed.")
+      "No CMAKE_DESTINATION set, but headers from the Python wrapping were "
+      "requested for install and the CMake files are required to work with "
+      "them.")
   endif ()
 
   if (NOT DEFINED _vtk_python_BUILD_STATIC)
