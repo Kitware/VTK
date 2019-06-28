@@ -28,13 +28,23 @@ extract.SetInputConnection(sample.GetOutputPort())
 extract.AddCellRange(0,sample.GetOutput().GetNumberOfCells())
 extract.Update()
 
+grid = vtk.vtkUnstructuredGrid()
+grid.DeepCopy(extract.GetOutput())
+
+# Add an array of all zeros
+zeros = vtk.vtkFloatArray()
+zeros.SetNumberOfTuples(grid.GetNumberOfPoints())
+zeros.Fill(0.0)
+zeros.SetName("zeros")
+grid.GetPointData().AddArray(zeros)
+
 # Now contour the cells, using scalar tree or not
 stree = vtk.vtkSpanSpace()
-stree.SetDataSet(extract.GetOutput())
+stree.SetDataSet(grid)
 stree.SetNumberOfCellsPerBucket(1)
 
 contour = vtk.vtkContour3DLinearGrid()
-contour.SetInputConnection(extract.GetOutputPort())
+contour.SetInputData(grid)
 contour.SetValue(0, 0.5)
 contour.SetValue(1, 0.75)
 contour.SetMergePoints(mergePoints)
@@ -44,7 +54,7 @@ contour.SetComputeNormals(computeNormals);
 contour.UseScalarTreeOff()
 
 contourST = vtk.vtkContour3DLinearGrid()
-contourST.SetInputConnection(extract.GetOutputPort())
+contourST.SetInputData(grid)
 contourST.SetValue(0, 0.5)
 contourST.SetValue(1, 0.75)
 contourST.SetMergePoints(mergePoints)
@@ -53,6 +63,19 @@ contourST.SetInterpolateAttributes(interpolateAttr);
 contourST.SetComputeNormals(computeNormals);
 contourST.UseScalarTreeOn()
 contourST.SetScalarTree(stree)
+
+# Make sure we handle arrays with zero range
+contourSTZero = vtk.vtkContour3DLinearGrid()
+contourSTZero.SetInputData(grid)
+contourSTZero.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "zero")
+contourSTZero.SetValue(0, 0.5)
+contourSTZero.SetMergePoints(mergePoints)
+contourSTZero.SetInterpolateAttributes(interpolateAttr);
+contourSTZero.SetComputeNormals(computeNormals);
+contourSTZero.UseScalarTreeOn()
+contourSTZero.Update()
+
+assert(contourSTZero.GetOutput().GetNumberOfCells() == 0)
 
 contMapper = vtk.vtkPolyDataMapper()
 contMapper.SetInputConnection(contour.GetOutputPort())
