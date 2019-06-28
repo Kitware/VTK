@@ -1722,10 +1722,16 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkDataArray *inScalars, vtkPolyData *o
     outPts->SetDataType(VTK_DOUBLE);
   }
 
+  // Compute the scalar array range difference between min and max is 0.0, do not use
+  // a scalar tree (no contour will be generated anyway).
+  double scalarRange[2];
+  inScalars->GetRange(scalarRange);
+  double rangeDiff = scalarRange[1] - scalarRange[0];
+
   // If a scalar tree is requested, retrieve previous or if not found,
   // create a default or clone the factory.
   vtkScalarTree *stree=nullptr;
-  if ( this->UseScalarTree )
+  if ( this->UseScalarTree && rangeDiff > 0.0 )
   {
     vtkScalarTreeMap::iterator mapIter = this->ScalarTreeMap->find(input);
     if ( mapIter == this->ScalarTreeMap->end() )
@@ -1962,8 +1968,14 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
       vtkLog(TRACE, "No scalars available");
       return 1;
     }
-    // Use provided scalar tree if not a composite data set input.
-    if ( this->UseScalarTree && this->ScalarTree )
+
+    double scalarRange[2];
+    inScalars->GetRange(scalarRange);
+    double rangeDiff = scalarRange[1] - scalarRange[0];
+
+    // Use provided scalar tree if not a composite data set input and scalar array range
+    // difference between min and max is non-zero.
+    if ( this->UseScalarTree && this->ScalarTree && rangeDiff > 0.0 )
     {
       this->ScalarTreeMap->insert(std::make_pair(inputGrid,this->ScalarTree));
     }
