@@ -1,3 +1,30 @@
+#[==[
+Provides the following variables:
+
+  * `NetCDF_FOUND`: Whether NetCDF was found or not.
+  * `NetCDF_INCLUDE_DIRS`: Include directories necessary to use NetCDF.
+  * `NetCDF_LIBRARIES`: Libraries necessary to use NetCDF.
+  * `NetCDF_VERSION`: The version of NetCDF found.
+  * `NetCDF::NetCDF`: A target to use with `target_link_libraries`.
+#]==]
+
+# Try to find a CMake-built NetCDF.
+find_package(netCDF CONFIG QUIET)
+if (netCDF_FOUND)
+  # Forward the variables in a consistent way.
+  set(NetCDF_FOUND "${netCDF_FOUND}")
+  set(NetCDF_INCLUDE_DIRS "${netCDF_INCLUDE_DIR}")
+  set(NetCDF_LIBRARIES "${netCDF_LIBRARIES}")
+  set(NetCDF_VERSION "${NetCDFVersion}")
+  if (NOT TARGET NetCDF::NetCDF)
+    add_library(NetCDF::NetCDF INTERFACE IMPORTED)
+    set_target_properties(NetCDF::NetCDF PROPERTIES
+      INTERFACE_LINK_LIBRARIES "${NetCDF_LIBRARIES}")
+  endif ()
+  # Skip the rest of the logic in this file.
+  return ()
+endif ()
+
 find_path(NetCDF_INCLUDE_DIR
   NAMES netcdf.h
   DOC "netcdf include directories")
