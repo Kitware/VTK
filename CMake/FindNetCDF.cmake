@@ -25,6 +25,25 @@ if (netCDF_FOUND)
   return ()
 endif ()
 
+find_package(PkgConfig QUIET)
+if (PkgConfig_FOUND)
+  pkg_check_modules(_NetCDF QUIET netcdf IMPORTED_TARGET)
+  if (_NetCDF_FOUND)
+    # Forward the variables in a consistent way.
+    set(NetCDF_FOUND "${_NetCDF_FOUND}")
+    set(NetCDF_INCLUDE_DIRS "${_NetCDF_INCLUDE_DIRS}")
+    set(NetCDF_LIBRARIES "${_NetCDF_LIBRARIES}")
+    set(NetCDF_VERSION "${_NetCDF_VERSION}")
+    if (NOT TARGET NetCDF::NetCDF)
+      add_library(NetCDF::NetCDF INTERFACE IMPORTED)
+      set_target_properties(NetCDF::NetCDF PROPERTIES
+        INTERFACE_LINK_LIBRARIES "PkgConfig::_NetCDF")
+    endif ()
+    # Skip the rest of the logic in this file.
+    return ()
+  endif ()
+endif ()
+
 find_path(NetCDF_INCLUDE_DIR
   NAMES netcdf.h
   DOC "netcdf include directories")
