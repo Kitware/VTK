@@ -31,6 +31,7 @@
 
 class OffsetsManagerGroup;
 class OffsetsManagerArray;
+class vtkHyperTree;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
 
@@ -87,9 +88,10 @@ protected:
   // Helper to simplify writing appended array data
   void WriteAppendedArrayDataHelper(vtkAbstractArray* array, OffsetsManager& offsets);
   void WritePointDataAppendedArrayDataHelper(vtkAbstractArray* array,
-    vtkIdType treeOffset,
     vtkIdType treeCount,
-    OffsetsManager& offsets);
+    OffsetsManager& offsets,
+    vtkHyperTree *tree
+  );
 
   OffsetsManagerGroup* CoordsOMG;
   OffsetsManagerGroup* DescriptorOMG;

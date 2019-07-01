@@ -436,23 +436,30 @@ void vtkXMLHyperTreeGridReader::ReadTrees(vtkXMLDataElement* elem)
         vtkXMLDataElement* eNested = ePointData->GetNestedElement(j);
         const char* ename = eNested->GetAttribute("Name");
         vtkAbstractArray* outArray = pointData->GetArray(ename);
+        int numberOfComponents = 1;
+        const char* eNC = eNested->GetAttribute("NumberOfComponents");
+        if (eNC)
+        {
+          numberOfComponents = atoi(eNC);
+        }
 
         // Create the output PointData array when processing first tree
         if (outArray == nullptr)
         {
           outArray = this->CreateArray(eNested);
+          outArray->SetNumberOfComponents(numberOfComponents);
           outArray->SetNumberOfTuples(this->NumberOfPoints);
           pointData->AddArray(outArray);
           outArray->Delete();
         }
         // Read data into the global offset which is
         // number of vertices in the tree * number of components in the data
-        int numberOfComponents = outArray->GetNumberOfComponents();
         this->ReadArrayValues(eNested, globalOffset * numberOfComponents, outArray, 0,
           numberOfVertices * numberOfComponents, POINT_DATA);
       }
     }
     desc_a->Delete();
+    mask_a->Delete();
   }
   if (hasMaskData)
   {

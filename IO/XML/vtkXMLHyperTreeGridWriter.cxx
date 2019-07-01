@@ -140,12 +140,12 @@ int vtkXMLHyperTreeGridWriter::WriteData()
     input->InitializeTreeIterator(it);
     vtkIdType inIndex;
     int treeIndx = 0;
+    vtkIdType globalOffset = 0;
     while (it.GetNextTree(inIndex))
     {
       vtkHyperTreeGridNonOrientedCursor* inCursor = input->NewNonOrientedCursor(inIndex);
       vtkHyperTree* tree = inCursor->GetTree();
       vtkIdType numberOfVertices = tree->GetNumberOfVertices();
-      vtkIdType globalOffset = tree->GetGlobalIndexFromLocal(0);
       ;
 
       // Tree Descriptor
@@ -160,9 +160,11 @@ int vtkXMLHyperTreeGridWriter::WriteData()
         vtkAbstractArray* a = pd->GetAbstractArray(i);
         int pdIndx = treeIndx * numberOfPointDataArrays + i;
         this->WritePointDataAppendedArrayDataHelper(
-          a, globalOffset, numberOfVertices, this->PointDataOMG->GetElement(pdIndx));
+          a, numberOfVertices, this->PointDataOMG->GetElement(pdIndx), tree);
       }
       treeIndx++;
+      globalOffset+=numberOfVertices;
+      inCursor->Delete();
     }
 
     this->EndAppendedData();
@@ -270,6 +272,14 @@ vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter()
   delete this->DescriptorOMG;
   delete this->MaskOMG;
   delete this->PointDataOMG;
+  for (auto i = this->Descriptors.begin(); i != this->Descriptors.end(); i++)
+  {
+    (*i)->Delete();
+  }
+  for (auto i = this->Masks.begin(); i != this->Masks.end(); i++)
+  {
+    (*i)->Delete();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -359,13 +369,12 @@ int vtkXMLHyperTreeGridWriter::WriteTrees(vtkIndent indent)
   // Collect description by processing depth first and writing breadth first
   input->InitializeTreeIterator(it);
   int treeIndx = 0;
+  vtkIdType globalOffset = 0;
   while (it.GetNextTree(inIndex))
   {
     // Initialize new grid cursor at root of current input tree
     vtkHyperTreeGridNonOrientedCursor* inCursor = input->NewNonOrientedCursor(inIndex);
     vtkHyperTree* tree = inCursor->GetTree();
-    vtkIdType globalOffset = tree->GetGlobalIndexFromLocal(0);
-    ;
     vtkIdType numberOfVertices = tree->GetNumberOfVertices();
 
     os << treeIndent << "<Tree";
@@ -468,28 +477,15 @@ int vtkXMLHyperTreeGridWriter::WriteTrees(vtkIndent indent)
       vtkAbstractArray* a = pd->GetAbstractArray(i);
       vtkAbstractArray* b = a->NewInstance();
       int numberOfComponents = a->GetNumberOfComponents();
-
-      // BitArray processed
-      vtkBitArray* aBit = vtkArrayDownCast<vtkBitArray>(a);
-      if (aBit)
+      b->SetNumberOfTuples(numberOfVertices);
+      b->SetNumberOfComponents(numberOfComponents);
+      for (int e = 0; e < numberOfComponents*numberOfVertices; e++)
       {
-        vtkBitArray* bBit = vtkArrayDownCast<vtkBitArray>(b);
-        bBit->SetNumberOfTuples(numberOfVertices / bBit->GetNumberOfComponents());
-
-        // Assuming count is a number of values, not a number of tuples:
-        for (vtkIdType j = globalOffset; j < globalOffset + numberOfVertices; ++j)
-        {
-          bBit->SetValue(j, aBit->GetValue(j + globalOffset));
-        }
-      }
-      // DataArray processed
-      else
-      {
-        // Purpose setting b array is to use the globalOffset into PointData
-        void* data = a->GetVoidPointer(globalOffset * numberOfComponents);
-        b->SetNumberOfTuples(numberOfVertices);
-        b->SetNumberOfComponents(numberOfComponents);
-        b->SetVoidArray(data, numberOfVertices * numberOfComponents, 0);
+        // note - we unravel the array contents which may be interleaved in input array.
+        // The reader expect that each grid's data will be contiguous and uses "GlobalOffset"
+        // to assemble a big array on the other side.
+        // The in memory order of elements then isn't necessarily the same but HTG handles that.
+        b->SetVariantValue(e, a->GetVariantValue(tree->GetGlobalIndexFromLocal(e)));
       }
 
       // Write the data or XML description for appended data
@@ -506,12 +502,14 @@ int vtkXMLHyperTreeGridWriter::WriteTrees(vtkIndent indent)
         this->WriteArrayInline(
           b, infoIndent.GetNextIndent(), a->GetName(), numberOfVertices * numberOfComponents);
       }
+      b->Delete();
     }
     treeIndx++;
 
     // Increment to next tree with PointData
     os << infoIndent << "</PointData>\n";
     os << treeIndent << "</Tree>\n";
+    globalOffset += numberOfVertices;
   }
   os << indent << "</Trees>\n";
 
@@ -562,34 +560,18 @@ void vtkXMLHyperTreeGridWriter::WriteAppendedArrayDataHelper(vtkAbstractArray* a
 
 //----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridWriter::WritePointDataAppendedArrayDataHelper(vtkAbstractArray* a,
-  vtkIdType globalOffset,
   vtkIdType numberOfVertices,
-  OffsetsManager& offsets)
+  OffsetsManager& offsets,
+  vtkHyperTree *tree)
 {
   vtkAbstractArray* b = a->NewInstance();
   int numberOfComponents = a->GetNumberOfComponents();
 
-  // BitArray processed
-  vtkBitArray* aBit = vtkArrayDownCast<vtkBitArray>(a);
-  if (aBit)
+  b->SetNumberOfComponents(numberOfComponents);
+  b->SetNumberOfTuples(numberOfVertices);
+  for (int e = 0; e < numberOfComponents*numberOfVertices; e++)
   {
-    vtkBitArray* bBit = vtkArrayDownCast<vtkBitArray>(b);
-    bBit->SetNumberOfTuples(numberOfVertices / bBit->GetNumberOfComponents());
-
-    // Assuming count is a number of values, not a number of tuples:
-    for (vtkIdType j = globalOffset; j < globalOffset + numberOfVertices; ++j)
-    {
-      bBit->SetValue(j, aBit->GetValue(j + globalOffset));
-    }
-  }
-  // DataArray processed
-  else
-  {
-    // Purpose setting b array is to use the offset into PointData
-    void* data = a->GetVoidPointer(globalOffset * numberOfComponents);
-    b->SetNumberOfTuples(numberOfVertices);
-    b->SetNumberOfComponents(numberOfComponents);
-    b->SetVoidArray(data, numberOfVertices * numberOfComponents, 0);
+    b->SetVariantValue(e, a->GetVariantValue(tree->GetGlobalIndexFromLocal(e)));
   }
 
   this->WriteArrayAppendedData(
@@ -604,4 +586,5 @@ void vtkXMLHyperTreeGridWriter::WritePointDataAppendedArrayDataHelper(vtkAbstrac
     this->ForwardAppendedDataDouble(
       offsets.GetRangeMaxPosition(this->CurrentTimeIndex), range[1], "RangeMax");
   }
+  b->Delete();
 }
