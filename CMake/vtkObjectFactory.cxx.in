@@ -57,12 +57,3 @@ static unsigned int @_vtk_object_factory_library_name@Count;
     }
   }
 }
-
-@_vtk_object_factory_configure_EXPORT_MACRO@ void @_vtk_object_factory_library_name@_AutoInit_Destruct()
-{
-  if(--@_vtk_object_factory_library_name@Count == 0)
-  {
-    // Do not call vtkObjectFactory::UnRegisterFactory because
-    // vtkObjectFactory.cxx statically unregisters all factories.
-  }
-}
