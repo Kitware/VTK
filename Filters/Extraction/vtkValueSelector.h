@@ -51,16 +51,14 @@ public:
   vtkTypeMacro(vtkValueSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName) override;
+  void Initialize(vtkSelectionNode* node) override;
   void Finalize() override;
 
 protected:
   vtkValueSelector();
   ~vtkValueSelector() override;
 
-  bool ComputeSelectedElementsForBlock(vtkDataObject* input,
-    vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
-    unsigned int amrLevel, unsigned int amrIndex) override;
+  bool ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* insidednessArray) override;
 
 private:
   vtkValueSelector(const vtkValueSelector&) = delete;

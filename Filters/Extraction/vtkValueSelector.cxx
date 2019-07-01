@@ -500,11 +500,11 @@ vtkValueSelector::~vtkValueSelector()
 }
 
 //----------------------------------------------------------------------------
-void vtkValueSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
+void vtkValueSelector::Initialize(vtkSelectionNode* node)
 {
   assert(node);
 
-  this->Superclass::Initialize(node, insidednessArrayName);
+  this->Superclass::Initialize(node);
 
   this->Internals.reset();
 
@@ -601,9 +601,8 @@ void vtkValueSelector::Finalize()
 }
 
 //----------------------------------------------------------------------------
-bool vtkValueSelector::ComputeSelectedElementsForBlock(vtkDataObject* input,
-    vtkSignedCharArray* insidednessArray, unsigned int vtkNotUsed(compositeIndex),
-    unsigned int vtkNotUsed(amrLevel), unsigned int vtkNotUsed(amrIndex))
+bool vtkValueSelector::ComputeSelectedElements(
+  vtkDataObject* input, vtkSignedCharArray* insidednessArray)
 {
   assert(input != nullptr && insidednessArray != nullptr);
   return this->Internals ? this->Internals->Execute(input, insidednessArray) : false;

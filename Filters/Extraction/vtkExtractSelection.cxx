@@ -244,7 +244,8 @@ int vtkExtractSelection::RequestData(
     if (auto anOperator = this->NewSelectionOperator(
           static_cast<vtkSelectionNode::SelectionContent>(node->GetContentType())))
     {
-      anOperator->Initialize(node, name.c_str());
+      anOperator->SetInsidednessArrayName(name.c_str());
+      anOperator->Initialize(node);
       selectors[name] = anOperator;
     }
     else
@@ -270,7 +271,9 @@ int vtkExtractSelection::RequestData(
       auto blockInput = inIter->GetCurrentDataObject();
       if (blockInput)
       {
-        outputCD->SetDataSet(inIter, blockInput->NewInstance());
+        auto clone = blockInput->NewInstance();
+        outputCD->SetDataSet(inIter, clone);
+        clone->FastDelete();
       }
     }
 
@@ -279,7 +282,7 @@ int vtkExtractSelection::RequestData(
     {
       auto name = nodeIter->first;
       auto selector = nodeIter->second;
-      selector->ComputeSelectedElements(inputCD, outputCD);
+      selector->Execute(inputCD, outputCD);
     }
 
     // Now iterate again over the composite dataset and evaluate the expression to
@@ -317,7 +320,6 @@ int vtkExtractSelection::RequestData(
       // Evaluate the map of insidedness arrays
       auto blockInsidedness = selection->Evaluate(arrayMap);
       auto resultDO = this->ExtractElements(inputBlock, assoc, blockInsidedness);
-      outputCD->GetDataSet(inIter)->Delete();
       if (resultDO && resultDO->GetNumberOfElements(assoc) > 0)
       {
         outputCD->SetDataSet(inIter, resultDO);
@@ -335,7 +337,7 @@ int vtkExtractSelection::RequestData(
     {
       auto name = nodeIter->first;
       auto selector = nodeIter->second;
-      selector->ComputeSelectedElements(input, output);
+      selector->Execute(input, output);
 
       // Set up a map from selection node name to insidedness array.
       auto *attributes = output->GetAttributes(assoc);

@@ -40,7 +40,7 @@ public:
   vtkTypeMacro(vtkFrustumSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName) override;
+  void Initialize(vtkSelectionNode* node) override;
 
   /**
    * Return the MTime taking into account changes to the Frustum
@@ -61,9 +61,7 @@ protected:
 
   vtkSmartPointer<vtkPlanes> Frustum;
 
-  bool ComputeSelectedElementsForBlock(vtkDataObject* input,
-    vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
-    unsigned int amrLevel, unsigned int amrIndex) override;
+  bool ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* insidednessArray) override;
 
   /**
    * Given eight vertices, creates a frustum.

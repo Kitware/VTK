@@ -577,9 +577,9 @@ void vtkFrustumSelector::CreateFrustum(double verts[32])
 }
 
 //--------------------------------------------------------------------------
-void vtkFrustumSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
+void vtkFrustumSelector::Initialize(vtkSelectionNode* node)
 {
-  this->Superclass::Initialize(node, insidednessArrayName);
+  this->Superclass::Initialize(node);
 
   // sanity checks
   if (node && node->GetContentType() == vtkSelectionNode::FRUSTUM)
@@ -595,9 +595,8 @@ void vtkFrustumSelector::Initialize(vtkSelectionNode* node, const std::string& i
 }
 
 //--------------------------------------------------------------------------
-bool vtkFrustumSelector::ComputeSelectedElementsForBlock(vtkDataObject* input,
-  vtkSignedCharArray* insidednessArray, unsigned int vtkNotUsed(compositeIndex),
-  unsigned int vtkNotUsed(amrLevel), unsigned int vtkNotUsed(amrIndex))
+bool vtkFrustumSelector::ComputeSelectedElements(
+  vtkDataObject* input, vtkSignedCharArray* insidednessArray)
 {
   vtkDataSet* inputDS = vtkDataSet::SafeDownCast(input);
   // frustum selection only supports datasets

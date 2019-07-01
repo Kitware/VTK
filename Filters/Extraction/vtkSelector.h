@@ -16,7 +16,8 @@
  * @class   vtkSelector.h
  * @brief   Computes the portion of a dataset which is inside a selection
  *
- * This is an abstract superclass for types of selection operations.
+ * This is an abstract superclass for types of selection operations. Subclasses
+ * generally only need to override `ComputeSelectedElements`.
  */
 
 #ifndef vtkSelector_h
@@ -31,6 +32,8 @@ class vtkDataObject;
 class vtkSelectionNode;
 class vtkSignedCharArray;
 class vtkTable;
+class vtkDataObjectTree;
+class vtkUniformGridAMR;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkSelector : public vtkObject
 {
@@ -46,10 +49,8 @@ class VTKFILTERSEXTRACTION_EXPORT vtkSelector : public vtkObject
    * implicit function to represent the frustum).
    *
    * @param node The selection node that determines the behavior of this operator.
-   * @param insidednessArrayName The name of the insidedness array to add to the output
-   *        from this operator.
    */
-  virtual void Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName);
+  virtual void Initialize(vtkSelectionNode* node);
 
   /**
    * Does any cleanup of objects created in Initialize
@@ -63,9 +64,18 @@ class VTKFILTERSEXTRACTION_EXPORT vtkSelector : public vtkObject
    * by the vtkSelection that owns the vtkSelectionNode set in Initialize(). The insidedness
    * array is named with the value of InsidednessArrayName. If input is a vtkCompositeDataSet,
    * the insidedness array is added to each block.
+   *
    */
-  virtual bool ComputeSelectedElements(vtkDataObject* input, vtkDataObject* output);
+  virtual void Execute(vtkDataObject* input, vtkDataObject* output);
 
+  //@{
+  /**
+   * Get/Set the name of the array to use for the insidedness array to add to
+   * the output in `Execute` call.
+   */
+  vtkSetMacro(InsidednessArrayName, std::string);
+  vtkGetMacro(InsidednessArrayName, std::string);
+  //@}
 protected:
   vtkSelector();
   virtual ~vtkSelector() override;
@@ -81,45 +91,49 @@ protected:
    * This method computes whether or not each element in the dataset is inside the selection
    * and populates the given array with 0 (outside the selection) or 1 (inside the selection).
    *
-   * The vtkDataObject passed in should be a non-composite data object.
+   * The vtkDataObject passed in will never be a `vtkCompositeDataSet` subclass.
    *
    * What type of elements are operated over is determined by the vtkSelectionNode's
    * field association. The insidednessArray passed in should have the correct number of elements
-   * for that field type or it will be resized. The last three parameters give the
-   * data object's composite index, AMR level or AMR index.
+   * for that field type or it will be resized.
    *
    * Returns true for successful completion. The operator should only return false
-   * when it cannot operate on the inputs.
-   *
+   * when it cannot operate on the inputs. In which case, it is assumed that the
+   * insidednessArray may have been left untouched by this method and the calling code
+   * will fill it with 0.
    */
-  virtual bool ComputeSelectedElementsForBlock(vtkDataObject* input,
-    vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
-    unsigned int amrLevel, unsigned int amrIndex) = 0;
+  virtual bool ComputeSelectedElements(
+    vtkDataObject* input, vtkSignedCharArray* insidednessArray) = 0;
+
+  enum SelectionMode
+  {
+    INCLUDE,
+    EXCLUDE,
+    INHERIT
+  };
 
   /**
-   * Computes whether each element in the dataset is inside the selection and populates the
-   * given array with 0 (outside the selection) or 1 (inside the selection).
-   *
-   * This methods operates on an input vtkCompositeDataSet. It stores results in arrays
-   * associated with the element data in a copy of the input data object.
-   *
-   * What type of elements are operated over is determined by the vtkSelectionNode's
-   * field association.
-   *
-   * Returns true after successful completion. The operator should only return false
-   * when it cannot operate on the inputs. Selectors that do not apply to
-   * vtkCompositeDataSets should do nothing and return true.
+   * Returns whether the AMR block is to be processed. Return `INCLUDE` to
+   * indicate it must be processed or `EXCLUDE` to indicate it must not be
+   * processed. If the selector cannot make an exact determination for the given
+   * level, index it should return `INHERIT`. If the selection did not specify
+   * which AMR block to extract, then too return `INHERIT`.
    */
-  virtual bool ComputeSelectedElementsForCompositeDataSet(
-    vtkCompositeDataSet* input, vtkCompositeDataSet* output);
+  virtual SelectionMode GetAMRBlockSelection(unsigned int level, unsigned int index);
 
   /**
-   * Subclasses can call this to check if the block should be skipped.
+   * Returns whether the block is to be processed. Return `INCLUDE` to
+   * indicate it must be processed or `EXCLUDE` to indicate it must not be
+   * processed. If the selector cannot make an exact determination for the given
+   * level and index, it should return `INHERIT`. Note, returning `INCLUDE` or
+   * `EXCLUDE` has impact on all nodes in the subtree unless any of the node
+   * explicitly overrides the block selection mode.
    */
-  bool SkipBlock(unsigned int compositeIndex, unsigned int amrLevel, unsigned int amrIndex);
+  virtual SelectionMode GetBlockSelection(unsigned int compositeIndex);
 
   /**
-   * Creates an array suitable for storing insideness.
+   * Creates an array suitable for storing insideness. The array is named using
+   * this->InsidednessArrayName and is sized to exactly `numElems` values.
    */
   vtkSmartPointer<vtkSignedCharArray> CreateInsidednessArray(vtkIdType numElems);
 
@@ -132,6 +146,11 @@ protected:
 private:
   vtkSelector(const vtkSelector&) = delete;
   void operator=(const vtkSelector&) = delete;
+
+  void ProcessBlock(vtkDataObject* inputBlock, vtkDataObject* outputBlock, bool forceFalse);
+  void ProcessAMR(vtkUniformGridAMR* input, vtkCompositeDataSet* output);
+  void ProcessDataObjectTree(vtkDataObjectTree* input, vtkDataObjectTree* output,
+    SelectionMode inheritedSelectionMode, unsigned int compositeIndex = 0);
 };
 
 #endif
