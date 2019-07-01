@@ -377,6 +377,15 @@ bool vtkShadowMapPass::PostReplaceShaderValues(
     vtkShaderProgram::Substitute(fragmentShader,
       toString3.str(), toString4.str(),
       false);
+
+    // for PBR
+    std::ostringstream toString5;
+    std::ostringstream toString6;
+    toString5 << "radiance = lightColor" << i << ";";
+    toString6 << "radiance = factor" << i << ".r * lightColor" << i << ";";
+    vtkShaderProgram::Substitute(fragmentShader,
+      toString5.str(), toString6.str(),
+      false);
   }
   return true;
 }
@@ -469,7 +478,7 @@ void vtkShadowMapPass::BuildShaderCode()
     }
     else
     {
-      toString << "1.0;\n";
+      toString << "vec2(1.0);\n";
     }
   }
 
