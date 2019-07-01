@@ -448,8 +448,6 @@ bool vtkPParticleTracerBase::UpdateParticleListFromOtherProcesses()
   for(size_t i=0;i<received.size();i++)
   {
     RemoteParticleInfo& info(received[i]);
-    info.Current.UniqueParticleId++;
-    info.Previous.UniqueParticleId++;
     info.Current.PointId = -1;
     info.Current.CachedDataSetId[0] = info.Current.CachedDataSetId[1] = -1;
     info.Current.CachedCellId[0] = info.Current.CachedCellId[1] = -1;
