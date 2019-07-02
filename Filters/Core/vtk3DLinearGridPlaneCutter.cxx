@@ -1530,6 +1530,52 @@ int vtk3DLinearGridPlaneCutter::GetOutputPointsPrecision() const
 }
 
 //-----------------------------------------------------------------------------
+bool vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(vtkDataObject* object)
+{
+  auto ug = vtkUnstructuredGrid::SafeDownCast(object);
+  auto cd = vtkCompositeDataSet::SafeDownCast(object);
+
+  if (ug)
+  {
+    // Get list of cell types in the unstructured grid
+    vtkNew<vtkCellTypes> cellTypes;
+    ug->GetCellTypes(cellTypes);
+    for (vtkIdType i = 0; i < cellTypes->GetNumberOfTypes(); ++i)
+    {
+      unsigned char cellType = cellTypes->GetCellType(i);
+      if (cellType != VTK_VOXEL && cellType != VTK_TETRA && cellType != VTK_HEXAHEDRON &&
+          cellType != VTK_WEDGE && cellType != VTK_PYRAMID)
+      {
+        // Unsupported cell type, can't process data
+        return false;
+      }
+    }
+
+    // All cell types are supported, can process data.
+    return true;
+  }
+  else if (cd)
+  {
+    bool supported = true;
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(cd->NewIterator());
+    iter->SkipEmptyNodesOn();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+      auto leafDS = iter->GetCurrentDataObject();
+      if (!CanFullyProcessDataObject(leafDS))
+      {
+        supported = false;
+        break;
+      }
+    }
+    return supported;
+  }
+
+  return false; // not a vtkUnstructuredGrid nor a composite dataset
+}
+
+//-----------------------------------------------------------------------------
 int vtk3DLinearGridPlaneCutter::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
