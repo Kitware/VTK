@@ -82,6 +82,7 @@ set(classes
   vtkRenderStepsPass
   vtkRenderbuffer
   vtkSSAAPass
+  vtkSSAOPass
   vtkSequencePass
   vtkShader
   vtkShaderProgram

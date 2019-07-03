@@ -42,6 +42,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestRenderToImage.cxx
   TestSRGB.cxx
   TestSSAAPass.cxx
+  TestSSAOPass.cxx
   TestSetZBuffer.cxx
   TestShadowMapBakerPass.cxx
   TestShadowMapPass.cxx
