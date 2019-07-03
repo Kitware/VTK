@@ -8,6 +8,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   ArrayNormalizeMatrixVectors.cxx,NO_VALID
   CellTreeLocator.cxx,NO_VALID
   TestPassArrays.cxx,NO_VALID
+  TestPassSelectedArrays.cxx,NO_VALID
   TestPassThrough.cxx,NO_VALID
   TestTessellator.cxx,NO_VALID
   expCos.cxx

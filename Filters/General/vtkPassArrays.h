@@ -58,7 +58,15 @@
  * The point data would still contain the single array, but the cell data
  * would be cleared since you did not specify any arrays to pass. Field data would
  * still be untouched.
-*/
+ *
+ * @section Note
+ *
+ * vtkPassArrays has been replaced by `vtkPassSelectedArrays`. It is recommended
+ * that newer code uses `vtkPassSelectedArrays` instead of this filter.
+ * `vtkPassSelectedArrays` uses `vtkDataArraySelection` to select arrays and
+ * hence provides a more typical API. `vtkPassArrays` may be deprecated in
+ * future releases.
+ */
 
 #ifndef vtkPassArrays_h
 #define vtkPassArrays_h
