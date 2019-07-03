@@ -302,6 +302,20 @@ VTK_WEAK_POINTER_DEFINE_OPERATOR(>=)
 
 #undef VTK_WEAK_POINTER_DEFINE_OPERATOR
 
+
+namespace vtk
+{
+
+/// Construct a vtkWeakPointer<T> containing @a obj. @a obj's reference count
+/// is not changed.
+template <typename T>
+vtkWeakPointer<T> TakeWeakPointer(T *obj)
+{
+  return vtkWeakPointer<T>(obj);
+}
+
+} // end namespace vtk
+
 /**
  * Streaming operator to print smart pointer like regular pointers.
  */

@@ -37,7 +37,7 @@ int TestSmartPointer(int,char *[])
     "da1 == 0", "da1 != 0", "da1 < 0", "da1 <= 0", "da1 > 0", "da1 >= 0",
     nullptr };
 
-  vtkSmartPointer<vtkIntArray>  da2(ia);
+  auto da2 = vtk::MakeSmartPointer(ia); // da2 is a vtkSmartPointer<vtkIntArray>
   vtkSmartPointer<vtkDataArray> da1(da2);
   da1 = ia;
   da1 = da2;
@@ -83,8 +83,7 @@ int TestSmartPointer(int,char *[])
   }
   da1 = vtkSmartPointer<vtkDataArray>::NewInstance(ia);
   da1.TakeReference(vtkIntArray::New());
-  vtkSmartPointer<vtkIntArray> da4 =
-    vtkSmartPointer<vtkIntArray>::Take(vtkIntArray::New());
+  auto da4 = vtk::TakeSmartPointer(vtkIntArray::New());
   (void)da4;
   ia->Delete();
 
