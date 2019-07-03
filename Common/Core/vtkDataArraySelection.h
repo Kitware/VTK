@@ -117,10 +117,7 @@ public:
   /**
    * Get whether the array is enabled/disable using its name.
    */
-  int GetArraySetting(const char* name) const
-  {
-    return this->GetArraySetting(this->GetArrayIndex(name));
-  }
+  int GetArraySetting(const char* name) const { return this->ArrayIsEnabled(name); }
 
   /**
    * Set array setting given the name. If the array doesn't exist, it will be
@@ -202,12 +199,23 @@ public:
    */
   void Union(vtkDataArraySelection* other);
 
+  //@{
+  /**
+   * Get/Set enabled state for any unknown arrays. Default is 0 i.e. not
+   * enabled. When set to 1, `ArrayIsEnabled` will return 1 for any
+   * array not explicitly specified.
+   */
+  vtkSetMacro(UnknownArraySetting, int);
+  vtkGetMacro(UnknownArraySetting, int);
+  //@}
 protected:
   vtkDataArraySelection();
   ~vtkDataArraySelection() override;
 
   // Internal implementation details.
   vtkDataArraySelectionInternals* Internal;
+
+  int UnknownArraySetting;
 
 private:
   vtkDataArraySelection(const vtkDataArraySelection&) = delete;

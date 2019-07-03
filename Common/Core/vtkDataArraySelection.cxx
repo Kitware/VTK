@@ -45,6 +45,7 @@ public:
 vtkDataArraySelection::vtkDataArraySelection()
 {
   this->Internal = new vtkDataArraySelectionInternals;
+  this->UnknownArraySetting = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -57,6 +58,7 @@ vtkDataArraySelection::~vtkDataArraySelection()
 void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "UnknownArraySetting: " << this->UnknownArraySetting << endl;
   os << indent << "Number of Arrays: " << this->GetNumberOfArrays() << "\n";
   vtkIndent nindent = indent.GetNextIndent();
   int cc;
@@ -113,8 +115,8 @@ int vtkDataArraySelection::ArrayIsEnabled(const char* name) const
     return iter->second ? 1 : 0;
   }
 
-  // The array does not have an entry.  Assume it is disabled.
-  return 0;
+  // The array does not have an entry.  Return `UnknownArraySetting`.
+  return this->UnknownArraySetting;
 }
 
 //----------------------------------------------------------------------------
@@ -232,6 +234,7 @@ int vtkDataArraySelection::GetArraySetting(int index) const
   {
     return this->Internal->Arrays[index].second ? 1 : 0;
   }
+
   return 0;
 }
 
