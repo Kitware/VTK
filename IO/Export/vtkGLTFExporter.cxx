@@ -721,9 +721,12 @@ void vtkGLTFExporter::WriteToStream(ostream &output)
   root["buffers"] = buffers;
   root["bufferViews"] = bufferViews;
   root["accessors"] = accessors;
-  root["images"] = images;
-  root["textures"] = textures;
-  root["samplers"] = samplers;
+  if (images.size() > 0)
+    root["images"] = images;
+  if (textures.size() > 0)
+    root["textures"] = textures;
+  if (samplers.size() > 0)
+    root["samplers"] = samplers;
   root["materials"] = materials;
 
   Json::Value ascene;
