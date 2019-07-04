@@ -68,6 +68,21 @@ public:
   vtkDataObject *GetLoops();
   //@}
 
+  //@{
+  /**
+   * Specify a spatial locator for merging points. By default, an
+   * instance of vtkMergePoints is used.
+   */
+  void SetLocator(vtkIncrementalPointLocator *locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
+  //@}
+
+  /**
+   * Create default locator. Used to create one when none is specified. The
+   * locator is used to merge coincident points.
+   */
+  void CreateDefaultLocator();
+
 protected:
   vtkCookieCutter();
   ~vtkCookieCutter() override;
@@ -77,6 +92,8 @@ protected:
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *) override;
   int FillInputPortInformation(int, vtkInformation *) override;
+
+  vtkIncrementalPointLocator *Locator;
 
 private:
   vtkCookieCutter(const vtkCookieCutter&) = delete;
