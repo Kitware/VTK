@@ -411,6 +411,9 @@ void WriteMesh(
   }
 
   Json::Value amesh;
+  char meshNameBuffer [32];
+  sprintf(meshNameBuffer, "mesh%d", meshes.size());
+  amesh["name"] = meshNameBuffer;
   amesh["primitives"] = prims;
   meshes.append(amesh);
 
@@ -428,9 +431,7 @@ void WriteMesh(
     }
   }
   child["mesh"] = meshes.size() - 1;
-  char buffer [32];
-  sprintf(buffer, "mesh%d", meshes.size() - 1);
-  child["name"] = buffer;
+  child["name"] = meshNameBuffer;
   nodes.append(child);
 }
 
