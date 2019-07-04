@@ -45,6 +45,7 @@ public:
 vtkDataArraySelection::vtkDataArraySelection()
 {
   this->Internal = new vtkDataArraySelectionInternals;
+  this->UnknownArraySetting = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -57,6 +58,7 @@ vtkDataArraySelection::~vtkDataArraySelection()
 void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "UnknownArraySetting: " << this->UnknownArraySetting << endl;
   os << indent << "Number of Arrays: " << this->GetNumberOfArrays() << "\n";
   vtkIndent nindent = indent.GetNextIndent();
   int cc;
@@ -105,7 +107,7 @@ void vtkDataArraySelection::SetArraySetting(const char* name, int setting)
 }
 
 //----------------------------------------------------------------------------
-int vtkDataArraySelection::ArrayIsEnabled(const char* name)
+int vtkDataArraySelection::ArrayIsEnabled(const char* name) const
 {
   auto iter = this->Internal->Find(name);
   if (iter != this->Internal->Arrays.end())
@@ -113,12 +115,12 @@ int vtkDataArraySelection::ArrayIsEnabled(const char* name)
     return iter->second ? 1 : 0;
   }
 
-  // The array does not have an entry.  Assume it is disabled.
-  return 0;
+  // The array does not have an entry.  Return `UnknownArraySetting`.
+  return this->UnknownArraySetting;
 }
 
 //----------------------------------------------------------------------------
-int vtkDataArraySelection::ArrayExists(const char* name)
+int vtkDataArraySelection::ArrayExists(const char* name) const
 {
   // Check if there is a specific entry for this array.
   return this->Internal->Find(name) != this->Internal->Arrays.end() ? 1 : 0;
@@ -165,13 +167,13 @@ void vtkDataArraySelection::DisableAllArrays()
 }
 
 //----------------------------------------------------------------------------
-int vtkDataArraySelection::GetNumberOfArrays()
+int vtkDataArraySelection::GetNumberOfArrays() const
 {
   return static_cast<int>(this->Internal->Arrays.size());
 }
 
 //----------------------------------------------------------------------------
-int vtkDataArraySelection::GetNumberOfArraysEnabled()
+int vtkDataArraySelection::GetNumberOfArraysEnabled() const
 {
   int numArrays = 0;
   for (const auto& apair : this->Internal->Arrays)
@@ -183,7 +185,7 @@ int vtkDataArraySelection::GetNumberOfArraysEnabled()
 }
 
 //----------------------------------------------------------------------------
-const char* vtkDataArraySelection::GetArrayName(int index)
+const char* vtkDataArraySelection::GetArrayName(int index) const
 {
   try
   {
@@ -196,7 +198,7 @@ const char* vtkDataArraySelection::GetArrayName(int index)
 }
 
 //----------------------------------------------------------------------------
-int vtkDataArraySelection::GetArrayIndex(const char* name)
+int vtkDataArraySelection::GetArrayIndex(const char* name) const
 {
   auto iter = this->Internal->Find(name);
   if (iter != this->Internal->Arrays.end())
@@ -208,7 +210,7 @@ int vtkDataArraySelection::GetArrayIndex(const char* name)
 }
 
 //----------------------------------------------------------------------------
-int vtkDataArraySelection::GetEnabledArrayIndex(const char* name)
+int vtkDataArraySelection::GetEnabledArrayIndex(const char* name) const
 {
   int index = 0;
   for (const auto& apair : this->Internal->Arrays)
@@ -226,12 +228,13 @@ int vtkDataArraySelection::GetEnabledArrayIndex(const char* name)
 }
 
 //----------------------------------------------------------------------------
-int vtkDataArraySelection::GetArraySetting(int index)
+int vtkDataArraySelection::GetArraySetting(int index) const
 {
   if (index >= 0 && index < this->GetNumberOfArrays())
   {
     return this->Internal->Arrays[index].second ? 1 : 0;
   }
+
   return 0;
 }
 

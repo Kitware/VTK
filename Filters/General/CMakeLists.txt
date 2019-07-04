@@ -68,6 +68,7 @@ set(classes
   vtkOBBTree
   vtkOverlappingAMRLevelIdScalars
   vtkPassArrays
+  vtkPassSelectedArrays
   vtkPassThrough
   vtkPointConnectivityFilter
   vtkPolyDataStreamer
