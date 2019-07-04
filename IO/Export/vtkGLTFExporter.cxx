@@ -142,7 +142,10 @@ void WriteBufferAndView(vtkDataArray *inda, const char *fileName, bool inlineDat
 
     std::string fullPath =
       vtksys::SystemTools::GetFilenamePath(fileName);
-    fullPath += "/";
+    if (fullPath.size() > 0)
+    {
+      fullPath += "/";
+    }
     fullPath += result;
 
     // now write the data
