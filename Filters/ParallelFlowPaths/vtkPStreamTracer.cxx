@@ -45,9 +45,11 @@
 #include "vtkTimerLog.h"
 #include "vtkUniformGrid.h"
 
-#include <list>
-#include <vector>
+#include <algorithm>
 #include <cassert>
+#include <list>
+#include <numeric>
+#include <vector>
 
 #ifndef NDEBUG
 // #define DEBUGTRACE
@@ -1066,17 +1068,11 @@ namespace
     {
       AssertGe(MaxId,0);
       int numSeeds  = static_cast<int>(seeds.size());
-      this->HasData.clear();
+      this->HasData.resize(this->NumProcs);
+      std::fill(this->HasData.begin(), this->HasData.end(), 0);
       {
-        for(int i=0; i<NumProcs;i++)
-          this->HasData.push_back(0);
-
-        std::vector<int> hasDataIn(NumProcs);
-        for(int i=0; i<NumProcs;i++)
-        {
-          hasDataIn[i] = i==Rank? hasData: 0;
-        }
-        this->Controller->AllReduce(&hasDataIn[0],&this->HasData[0],NumProcs,vtkCommunicator::MAX_OP);
+        const int self_hasdata = hasData ? 1 : 0;
+        this->Controller->AllGather(&self_hasdata, &this->HasData[0], 1);
       }
 
       for(int i=0; i<NumProcs;i++)
@@ -1088,11 +1084,7 @@ namespace
         }
       }
 
-      std::vector<int> processMap0(MaxId+1);
-      for(int i=0; i<MaxId+1; i++)
-      {
-        processMap0[i] = -1;
-      }
+      std::vector<int> processMap0(MaxId+1, -1);
       for (int i = 0; i < numSeeds; i ++ )
       {
         int rank  = seeds[i]->GetRank();
@@ -1107,14 +1099,9 @@ namespace
       std::vector<int> processMap(MaxId+1);
       this->Controller->AllReduce(&processMap0[0], &processMap[0],MaxId+1,vtkCommunicator::MAX_OP);
 
-      int totalNumTasks(0);
-      for (int id = 0; id <=MaxId; id++)
-      {
-        if(processMap[id]>=0)
-        {
-          totalNumTasks++;
-        }
-      }
+      int totalNumTasks = std::accumulate(processMap.begin(), processMap.end(), 0,
+          [](int accumlatedSum, int b) { return accumlatedSum + (b >=0 ? 1 : 0); });
+
       this->TotalNumTasks = Rank==this->Leader? totalNumTasks: INT_MAX; //only the master process knows how many are left
 
       for (int i = 0; i < numSeeds; i++ )
