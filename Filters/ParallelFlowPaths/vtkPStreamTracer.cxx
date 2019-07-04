@@ -14,35 +14,36 @@
 =========================================================================*/
 #include "vtkPStreamTracer.h"
 
+#include "vtkAMRInterpolatedVelocityField.h"
+#include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkAppendPolyData.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkAbstractInterpolatedVelocityField.h"
+#include "vtkMPIController.h"
+#include "vtkMath.h"
 #include "vtkMultiProcessController.h"
+#include "vtkMultiProcessStream.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
+#include "vtkParallelAMRUtilities.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkRungeKutta2.h"
-#include "vtkOverlappingAMR.h"
-#include "vtkAMRInterpolatedVelocityField.h"
-#include "vtkUniformGrid.h"
-#include "vtkParallelAMRUtilities.h"
-#include "vtkMath.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkNew.h"
-#include "vtkMultiProcessStream.h"
-#include "vtkCellArray.h"
-#include "vtkMPIController.h"
-#include "vtkCharArray.h"
-#include "vtkDoubleArray.h"
+#include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
+#include "vtkUniformGrid.h"
 
 #include <list>
 #include <vector>
@@ -570,7 +571,8 @@ public:
     return true;
   }
 
-  void ComputeSeeds(vtkDataSet* source,PStreamTracerPointArray& out, int& maxId)
+  vtkSmartPointer<vtkIdList> ComputeSeeds(
+    vtkDataSet* source, PStreamTracerPointArray& out, int& maxId)
   {
     vtkDataArray* seeds;
     vtkIdList* seedIds;
@@ -595,17 +597,13 @@ public:
     {
       seeds->Delete();
     }
-    if(seedIds)
-    {
-      seedIds->Delete();
-    }
     if(integrationDirections)
     {
       integrationDirections->Delete();
     }
 
     maxId = numSeeds-1;
-
+    return vtkSmartPointer<vtkIdList>::Take(seedIds);
   }
 
   virtual void Initialize(vtkPStreamTracer* tracer)
@@ -1582,7 +1580,7 @@ int vtkPStreamTracer::RequestData(
 
 
   int maxId;
-  this->Utils->ComputeSeeds(source,seedPoints,maxId);
+  auto originalSeedIds = this->Utils->ComputeSeeds(source, seedPoints, maxId);
   taskManager.Initialize(this->EmptyData==0,seedPoints,maxId);
 
   Task* task(0);
@@ -1672,8 +1670,25 @@ int vtkPStreamTracer::RequestData(
     output->GetCellData()->PassData(appoutput->GetCellData());
   }
 
-
   this->InputData->UnRegister(this);
+
+  // Fix seed ids. The seed ids that the parallel algorithm uses are not really
+  // seed ids but seed indices. We need to restore original seed ids so that
+  // a full streamline gets the same seed id for forward and backward
+  // directions.
+  if (auto seedIds = vtkIntArray::SafeDownCast(output->GetCellData()->GetArray("SeedIds")))
+  {
+    vtkSMPTools::For(0, seedIds->GetNumberOfTuples(),
+      [&originalSeedIds, &seedIds](vtkIdType start, vtkIdType end)
+      {
+        for (vtkIdType cc = start; cc < end; ++cc)
+        {
+          const auto seedIdx = seedIds->GetTypedComponent(cc, 0);
+          assert(seedIdx < originalSeedIds->GetNumberOfIds());
+          seedIds->SetTypedComponent(cc, 0, originalSeedIds->GetId(seedIdx));
+        }
+      });
+  }
 
 #ifdef DEBUGTRACE
   int maxSeeds(maxId+1);
