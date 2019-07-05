@@ -721,7 +721,7 @@ namespace {
     vtkPoints *pts = pd->GetPoints();
     vtkIdType pid, *cells, numPts=pts->GetNumberOfPoints();
     int numBoundary=0, numNonManifold=0;
-    unsigned short ncells;
+    vtkIdType ncells;
     for (pid=0; pid < numPts; ++pid)
     {
       pd->GetPointCells(pid, ncells, cells);
@@ -970,7 +970,7 @@ namespace {
 
     // Build loops (i.e., output polygons)
     vtkIdType numInsertedPts, *cells, thisCell, nextId, startId;
-    unsigned short ncells;
+    vtkIdType ncells;
     vtkIdType thisNPts, *thisPts;
     std::vector<char> visited(numPts,0);
     // Each unvisited, connected point generates a loop

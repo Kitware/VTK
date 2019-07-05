@@ -20,6 +20,7 @@ vtkStandardNewMacro(vtkStaticCellLinks);
 //----------------------------------------------------------------------------
 vtkStaticCellLinks::vtkStaticCellLinks()
 {
+  this->Type = vtkAbstractCellLinks::STATIC_CELL_LINKS_IDTYPE;
   this->Impl = new vtkStaticCellLinksTemplate<vtkIdType>;
 }
 
@@ -33,4 +34,5 @@ vtkStaticCellLinks::~vtkStaticCellLinks()
 void vtkStaticCellLinks::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Implementation: " << this->Impl << "\n";
 }

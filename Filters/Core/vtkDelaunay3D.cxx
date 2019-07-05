@@ -209,7 +209,7 @@ vtkIdType vtkDelaunay3D::FindEnclosingFaces(double x[3],
   }
 
   closestPoint = locator->FindClosestInsertedPoint(x);
-  vtkCellLinks *links = Mesh->GetCellLinks();
+  vtkCellLinks *links = static_cast<vtkCellLinks*>(Mesh->GetCellLinks());
   int numCells = links->GetNcells(closestPoint);
   vtkIdType *cells = links->GetCells(closestPoint);
   if ( numCells <= 0 ) //shouldn't happen
@@ -773,6 +773,7 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(double center[3],
   vtkIdType tetraId;
   vtkIdType pts[4];
   vtkUnstructuredGrid *Mesh=vtkUnstructuredGrid::New();
+  Mesh->EditableOn();
 
   this->NumberOfDuplicatePoints = 0;
   this->NumberOfDegeneracies = 0;
@@ -1077,7 +1078,7 @@ static int GetTetraFaceNeighbor(vtkUnstructuredGrid *Mesh, vtkIdType tetraId,
                                 vtkIdType& nei)
 {
   // gather necessary information
-  vtkCellLinks *links = Mesh->GetCellLinks();
+  vtkCellLinks *links = static_cast<vtkCellLinks*>(Mesh->GetCellLinks());
   int numCells = links->GetNcells(p1);
   vtkIdType *cells = links->GetCells(p1);
   int i;

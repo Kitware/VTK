@@ -88,7 +88,7 @@ namespace {
     vtkIdType last=start, numInserted=0;
     double t = 0.0;
     bool terminated=false;
-    unsigned short ncells;
+    vtkIdType ncells;
     vtkIdType npts, *pts, *cells, nei, lastCell=lineId;
     polyData->GetCellPoints(lineId,npts,pts);
 

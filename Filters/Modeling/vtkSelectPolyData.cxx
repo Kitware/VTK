@@ -121,7 +121,7 @@ int vtkSelectPolyData::RequestData(
   int numNei;
   vtkIdType id, currentId = 0, nextId, pt1, pt2, numCells, neiId;
   vtkIdType *cells, *pts, npts, numMeshLoopPts, prevId;
-  unsigned short int ncells;
+  vtkIdType ncells;
   int mark, s1, s2, val;
 
   // Initialize and check data
@@ -593,7 +593,7 @@ int vtkSelectPolyData::RequestData(
 //----------------------------------------------------------------------------
 void vtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
 {
-  unsigned short ncells;
+  vtkIdType ncells;
   int i, j;
   vtkIdType *cells, *pts, npts;
 
@@ -656,4 +656,3 @@ void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Loop not defined\n";
   }
 }
-

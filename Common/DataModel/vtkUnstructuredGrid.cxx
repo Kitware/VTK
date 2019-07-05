@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkStaticCellLinks.h"
 #include "vtkCellLinks.h"
 #include "vtkCellTypes.h"
 #include "vtkConvexPointSet.h"
@@ -23,7 +24,6 @@
 #include "vtkEmptyCell.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLagrangeCurve.h"
@@ -72,6 +72,7 @@
 #include "vtkBiQuadraticTriangle.h"
 
 #include "vtkSMPTools.h"
+#include "vtkTimerLog.h"
 
 #include <set>
 
@@ -128,9 +129,9 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 
   this->Connectivity = nullptr;
-  this->Links = nullptr;
   this->Types = nullptr;
   this->Locations = nullptr;
+  this->Links = nullptr;
 
   this->DistinctCellTypes = nullptr;
   this->DistinctCellTypesUpdateMTime = 0;
@@ -1464,11 +1465,45 @@ void vtkUnstructuredGrid::BuildLinks()
     this->Links->UnRegister(this);
   }
 
-  this->Links = vtkCellLinks::New();
-  this->Links->Allocate(this->GetNumberOfPoints());
+  // Create appropriate locator. Currently it's either a vtkCellLocator (when
+  // the dataset is editable) or vtkStaticCellLocator (when the dataset is
+  // not editable).
+  vtkIdType numPts = this->GetNumberOfPoints();
+  if ( ! this->Editable )
+  {
+    this->Links = vtkStaticCellLinks::New();
+  }
+  else
+  {
+    this->Links = vtkCellLinks::New();
+    static_cast<vtkCellLinks*>(this->Links)->Allocate(numPts);
+  }
+
+  this->Links->BuildLinks(this);
   this->Links->Register(this);
-  this->Links->BuildLinks(this, this->Connectivity);
   this->Links->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::
+GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdType* &cells)
+{
+  if ( ! this->Editable )
+  {
+    vtkStaticCellLinks *links =
+      static_cast<vtkStaticCellLinks*>(this->Links);
+
+    ncells = links->GetNcells(ptId);
+    cells = links->GetCells(ptId);
+  }
+  else
+  {
+    vtkCellLinks *links =
+      static_cast<vtkCellLinks*>(this->Links);
+
+    ncells = links->GetNcells(ptId);
+    cells = links->GetCells(ptId);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1485,19 +1520,6 @@ void vtkUnstructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
     ptIds->SetId(i,pts[i]);
   }
 
-}
-
-//----------------------------------------------------------------------------
-// Return a pointer to a list of point ids defining cell. (More efficient than alternative
-// method.)
-void vtkUnstructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdType& npts,
-                                        vtkIdType* &pts)
-{
-  vtkIdType loc;
-
-  loc = this->Locations->GetValue(cellId);
-
-  this->Connectivity->GetCell(loc,npts,pts);
 }
 
 namespace
@@ -1630,27 +1652,38 @@ void vtkUnstructuredGrid::GetFaceStream(vtkIdType cellId, vtkIdType& nfaces,
   ptIds = facePtr+1;
 }
 
+
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
 {
-  vtkIdType *cells;
-  int numCells;
-  int i;
-
   if ( ! this->Links )
   {
     this->BuildLinks();
   }
   cellIds->Reset();
 
-  numCells = this->Links->GetNcells(ptId);
-  cells = this->Links->GetCells(ptId);
+  vtkIdType numCells, *cells;
+  if ( ! this->Editable )
+  {
+    vtkStaticCellLinks *links =
+      static_cast<vtkStaticCellLinks*>(this->Links);
+    numCells = links->GetNcells(ptId);
+    cells = links->GetCells(ptId);
+  }
+  else
+  {
+    vtkCellLinks *links =
+      static_cast<vtkCellLinks*>(this->Links);
+    numCells = links->GetNcells(ptId);
+    cells = links->GetCells(ptId);
+  }
 
   cellIds->SetNumberOfIds(numCells);
-  for (i=0; i < numCells; i++)
+  for (auto i=0; i < numCells; i++)
   {
     cellIds->SetId(i,cells[i]);
   }
+
 }
 
 //----------------------------------------------------------------------------
@@ -1729,29 +1762,32 @@ void vtkUnstructuredGrid::Squeeze()
 // Remove a reference to a cell in a particular point's link list. You may
 // also consider using RemoveCellReference() to remove the references from
 // all the cell's points to the cell. This operator does not reallocate
-// memory; use the operator ResizeCellList() to do this if necessary.
+// memory; use the operator ResizeCellList() to do this if necessary. Note that
+// dataset should be set to "Editable".
 void vtkUnstructuredGrid::RemoveReferenceToCell(vtkIdType ptId,
                                                 vtkIdType cellId)
 {
-  this->Links->RemoveCellReference(cellId, ptId);
+  static_cast<vtkCellLinks*>(this->Links)->RemoveCellReference(cellId, ptId);
 }
 
 //----------------------------------------------------------------------------
 // Add a reference to a cell in a particular point's link list. (You may also
 // consider using AddCellReference() to add the references from all the
 // cell's points to the cell.) This operator does not realloc memory; use the
-// operator ResizeCellList() to do this if necessary.
+// operator ResizeCellList() to do this if necessary. Note that dataset
+// should be set to "Editable".
 void vtkUnstructuredGrid::AddReferenceToCell(vtkIdType ptId, vtkIdType cellId)
 {
-  this->Links->AddCellReference(cellId, ptId);
+  static_cast<vtkCellLinks*>(this->Links)->AddCellReference(cellId, ptId);
 }
 
 //----------------------------------------------------------------------------
 // Resize the list of cells using a particular point. (This operator assumes
-// that BuildLinks() has been called.)
+// that BuildLinks() has been called.) Note that dataset should be set to
+// "Editable".
 void vtkUnstructuredGrid::ResizeCellList(vtkIdType ptId, int size)
 {
-  this->Links->ResizeCellList(ptId,size);
+  static_cast<vtkCellLinks*>(this->Links)->ResizeCellList(ptId,size);
 }
 
 //----------------------------------------------------------------------------
@@ -1760,7 +1796,7 @@ void vtkUnstructuredGrid::ResizeCellList(vtkIdType ptId, int size)
 // built (i.e., BuildLinks() has not been executed). Use the operator
 // ReplaceLinkedCell() to replace a cell when cell structure has been built.
 void vtkUnstructuredGrid::InternalReplaceCell(vtkIdType cellId, int npts,
-                                      const vtkIdType pts[])
+                                              const vtkIdType pts[])
 {
   vtkIdType loc;
 
@@ -1771,7 +1807,8 @@ void vtkUnstructuredGrid::InternalReplaceCell(vtkIdType cellId, int npts,
 //----------------------------------------------------------------------------
 // Add a new cell to the cell data structure (after cell links have been
 // built). This method adds the cell and then updates the links from the points
-// to the cells. (Memory is allocated as necessary.)
+// to the cells. (Memory is allocated as necessary.) Note that the dataset must
+// be in "Editable" mode.
 vtkIdType vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts,
                                                     const vtkIdType pts[])
 {
@@ -1779,10 +1816,11 @@ vtkIdType vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts,
 
   id = this->InsertNextCell(type,npts,pts);
 
+  vtkCellLinks *clinks = static_cast<vtkCellLinks*>(this->Links);
   for (i=0; i<npts; i++)
   {
-    this->Links->ResizeCellList(pts[i],1);
-    this->Links->AddCellReference(id,pts[i]);
+    clinks->ResizeCellList(pts[i],1);
+    clinks->AddCellReference(id,pts[i]);
   }
 
   return id;
@@ -2031,50 +2069,80 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Ghost Level: " << this->GetGhostLevel() << endl;
 }
 
+
 //----------------------------------------------------------------------------
-// Determine neighbors as follows. Find the (shortest) list of cells that
-// uses one of the points in ptIds. For each cell, in the list, see whether
-// it contains the other points in the ptIds list. If so, it's a neighbor.
-//
+// Return the cells that use the ptIds provided. This is a set (intersection)
+// operation - it can have significant performance impacts on certain filters
+// like vtkGeometryFilter. It would be nice to make this faster.
 void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                            vtkIdList *cellIds)
 {
+  // Ensure links are built.
   if ( ! this->Links )
   {
     this->BuildLinks();
   }
-
   cellIds->Reset();
 
+  // Ensure that a proper neighborhood request is made.
   vtkIdType numPts = ptIds->GetNumberOfIds();
   if (numPts <= 0)
   {
-    vtkErrorMacro("input point ids empty.");
     return;
   }
 
-  //Find the point used by the fewest number of cells
-  vtkIdType *pts = ptIds->GetPointer(0);
+  vtkIdType numCells, ptId, *pts = ptIds->GetPointer(0);
   int minNumCells = VTK_INT_MAX;
   vtkIdType *minCells = nullptr;
   vtkIdType minPtId = 0;
-  for (vtkIdType i=0; i<numPts; i++)
+
+  // Find the point used by the fewest number of cells as a starting set.
+  // Note the explicit cast to locator type. Several experiments were
+  // undertaken using virtual methods, switch statements, etc. but there were
+  // significant performance impacts. This includes using different
+  // instantiations of vtkStaticCellLinksTemplate<> of various types (to
+  // reduce memory footprint) - the lesson learned is that the code here is
+  // very sensitive to compiler optimizations so if you make changes, make
+  // sure to test the impacts on performance.
+  if ( ! this->Editable )
   {
-    vtkIdType ptId = pts[i];
-    int numCells = this->Links->GetNcells(ptId);
-    vtkIdType *cells = this->Links->GetCells(ptId);
-    if ( numCells < minNumCells )
+    vtkStaticCellLinks *links =
+      static_cast<vtkStaticCellLinks*>(this->Links);
+
+    for (auto i=0; i<numPts; ++i)
     {
-      minNumCells = numCells;
-      minCells = cells;
-      minPtId = ptId;
+      ptId = pts[i];
+      numCells = links->GetNcells(ptId);
+      if ( numCells < minNumCells )
+      {
+        minNumCells = numCells;
+        minPtId = ptId;
+      }
     }
+    minCells = links->GetCells(minPtId);
+  }
+  else
+  {
+    vtkCellLinks *links =
+      static_cast<vtkCellLinks*>(this->Links);
+
+    for (auto i=0; i<numPts; ++i)
+    {
+      ptId = pts[i];
+      numCells = links->GetNcells(ptId);
+      if ( numCells < minNumCells )
+      {
+        minNumCells = numCells;
+        minPtId = ptId;
+      }
+    }
+    minCells = links->GetCells(minPtId);
   }
 
-  //Now for each cell, see if it contains all the points
-  //in the ptIds list.
+  // Now for each cell, see if it contains all the points
+  // in the ptIds list. If so, add the cellId to the neighbor list.
   bool match;
-  for (int i=0; i<minNumCells; i++)
+  for (auto i=0; i<minNumCells; ++i)
   {
     if ( minCells[i] != cellId ) //don't include current cell
     {
@@ -2082,12 +2150,12 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       vtkIdType npts;
       this->GetCellPoints(minCells[i],npts,cellPts);
       match=true;
-      for (vtkIdType j=0; j<numPts && match; j++) //for all pts in input cell
+      for (auto j=0; j<numPts && match; ++j) //for all pts in input cell
       {
         if ( pts[j] != minPtId ) //of course minPtId is contained by cell
         {
           match=false;
-          for (vtkIdType k=0; k<npts; k++) //for all points in candidate cell
+          for (auto k=0; k<npts; ++k) //for all points in candidate cell
           {
             if ( pts[j] == cellPts[k] )
             {

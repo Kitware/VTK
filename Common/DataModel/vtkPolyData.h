@@ -53,7 +53,11 @@
  * (vtkDecimatePro expects triangles or triangle strips; vtkTubeFilter
  * expects lines). Read the documentation for each filter carefully to
  * understand how each part of vtkPolyData is processed.
-*/
+ *
+ * @warning
+ * Some of the methods specified here function properly only when the dataset
+ * has been specified as "Editable". They are documented as such.
+ */
 
 #ifndef vtkPolyData_h
 #define vtkPolyData_h
@@ -75,6 +79,7 @@ class vtkPolygon;
 class vtkTriangleStrip;
 class vtkEmptyCell;
 struct vtkPolyDataDummyContainter;
+class vtkIncrementalPointLocator;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyData : public vtkPointSet
 {
@@ -112,10 +117,11 @@ public:
    * Copy cells listed in idList from pd, including points, point data,
    * and cell data.  This method assumes that point and cell data have
    * been allocated.  If you pass in a point locator, then the points
-   * won't be duplicated in the output.
+   * won't be duplicated in the output. This requires the use of an
+   * incremental point locator.
    */
   void CopyCells(vtkPolyData *pd, vtkIdList *idList,
-                 vtkPointLocator *locator = nullptr);
+                 vtkIncrementalPointLocator *locator = nullptr);
 
   /**
    * Copy a cells point ids into list provided. (Less efficient.)
@@ -282,9 +288,10 @@ public:
   void DeleteLinks();
 
   /**
-   * Special (efficient) operations on poly data. Use carefully.
+   * Special (efficient) operations on poly data. Use carefully (i.e., make
+   * sure that BuildLinks() has been called).
    */
-  void GetPointCells(vtkIdType ptId, unsigned short& ncells,
+  void GetPointCells(vtkIdType ptId, vtkIdType& ncells,
                      vtkIdType* &cells) VTK_SIZEHINT(cells, ncells);
 
   /**
@@ -337,24 +344,28 @@ public:
    * Replace the points defining cell "cellId" with a new set of points. This
    * operator is (typically) used when links from points to cells have not been
    * built (i.e., BuildLinks() has not been executed). Use the operator
-   * ReplaceLinkedCell() to replace a cell when cell structure has been built.
+   * ReplaceLinkedCell() to replace a cell when cell structure has been built. Use this
+   * method only when the dataset is set as Editable.
    */
   void ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
 
   /**
-   * Replace a point in the cell connectivity list with a different point.
+   * Replace a point in the cell connectivity list with a different point. Use this
+   * method only when the dataset is set as Editable.
    */
   void ReplaceCellPoint(vtkIdType cellId, vtkIdType oldPtId,
                         vtkIdType newPtId);
 
   /**
-   * Reverse the order of point ids defining the cell.
+   * Reverse the order of point ids defining the cell. Use this
+   * method only when the dataset is set as Editable.
    */
   void ReverseCell(vtkIdType cellId);
 
   //@{
   /**
-   * Mark a point/cell as deleted from this vtkPolyData.
+   * Mark a point/cell as deleted from this vtkPolyData. Use this
+   * method only when the dataset is set as Editable.
    */
   void DeletePoint(vtkIdType ptId);
   void DeleteCell(vtkIdType cellId);
@@ -362,10 +373,11 @@ public:
 
   /**
    * The cells marked by calls to DeleteCell are stored in the Cell Array
-   * VTK_EMPTY_CELL, but they still exist in the cell arrays.
-   * Calling RemoveDeletedCells will traverse the cell arrays and remove/compact
-   * the cell arrays as well as any cell data thus truly removing the cells
-   * from the polydata object.
+   * VTK_EMPTY_CELL, but they still exist in the cell arrays.  Calling
+   * RemoveDeletedCells will traverse the cell arrays and remove/compact the
+   * cell arrays as well as any cell data thus truly removing the cells from
+   * the polydata object. Use this method only when the dataset is set as
+   * Editable.
    */
   void RemoveDeletedCells();
 
@@ -375,7 +387,8 @@ public:
    * built). This method adds the point and then allocates memory for the
    * links to the cells.  (To use this method, make sure points are available
    * and BuildLinks() has been invoked.) Of the two methods below, one inserts
-   * a point coordinate and the other just makes room for cell links.
+   * a point coordinate and the other just makes room for cell links. Use this
+   * method only when the dataset is set as Editable.
    */
   vtkIdType InsertNextLinkedPoint(int numLinks);
   vtkIdType InsertNextLinkedPoint(double x[3], int numLinks);
@@ -384,25 +397,28 @@ public:
   /**
    * Add a new cell to the cell data structure (after cell pointers have been
    * built). This method adds the cell and then updates the links from the
-   * points to the cells. (Memory is allocated as necessary.)
+   * points to the cells. (Memory is allocated as necessary.) Use this method
+   * only when the dataset is set as Editable.
    */
   vtkIdType InsertNextLinkedCell(int type, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
 
   /**
-   * Replace one cell with another in cell structure. This operator updates the
-   * connectivity list and the point's link list. It does not delete references
-   * to the old cell in the point's link list. Use the operator
-   * RemoveCellReference() to delete all references from points to (old) cell.
-   * You may also want to consider using the operator ResizeCellList() if the
-   * link list is changing size.
+   * Replace one cell with another in cell structure. This operator updates
+   * the connectivity list and the point's link list. It does not delete
+   * references to the old cell in the point's link list. Use the operator
+   * RemoveCellReference() to delete all references from points to (old)
+   * cell.  You may also want to consider using the operator ResizeCellList()
+   * if the link list is changing size. Use this method only when the dataset
+   * is set as Editable.
    */
   void ReplaceLinkedCell(vtkIdType cellId, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
 
   /**
-   * Remove all references to cell in cell structure. This means the links from
-   * the cell's points to the cell are deleted. Memory is not reclaimed. Use the
-   * method ResizeCellList() to resize the link list from a point to its using
-   * cells. (This operator assumes BuildLinks() has been called.)
+   * Remove all references to cell in cell structure. This means the links
+   * from the cell's points to the cell are deleted. Memory is not
+   * reclaimed. Use the method ResizeCellList() to resize the link list from
+   * a point to its using cells. (This operator assumes BuildLinks() has been
+   * called.) Use this method only when the dataset is set as Editable.
    */
   void RemoveCellReference(vtkIdType cellId);
 
@@ -410,7 +426,8 @@ public:
    * Add references to cell in cell structure. This means the links from
    * the cell's points to the cell are modified. Memory is not extended. Use the
    * method ResizeCellList() to resize the link list from a point to its using
-   * cells. (This operator assumes BuildLinks() has been called.)
+   * cells. (This operator assumes BuildLinks() has been called.) Use this
+   * method only when the dataset is set as Editable.
    */
   void AddCellReference(vtkIdType cellId);
 
@@ -418,7 +435,8 @@ public:
    * Remove a reference to a cell in a particular point's link list. You may
    * also consider using RemoveCellReference() to remove the references from
    * all the cell's points to the cell. This operator does not reallocate
-   * memory; use the operator ResizeCellList() to do this if necessary.
+   * memory; use the operator ResizeCellList() to do this if necessary. Use
+   * this method only when the dataset is set as Editable.
    */
   void RemoveReferenceToCell(vtkIdType ptId, vtkIdType cellId);
 
@@ -426,13 +444,15 @@ public:
    * Add a reference to a cell in a particular point's link list. (You may also
    * consider using AddCellReference() to add the references from all the
    * cell's points to the cell.) This operator does not realloc memory; use the
-   * operator ResizeCellList() to do this if necessary.
+   * operator ResizeCellList() to do this if necessary. Use this
+   * method only when the dataset is set as Editable.
    */
   void AddReferenceToCell(vtkIdType ptId, vtkIdType cellId);
 
   /**
-   * Resize the list of cells using a particular point. (This operator assumes
-   * that BuildLinks() has been called.)
+   * Resize the list of cells using a particular point. (This operator
+   * assumes that BuildLinks() has been called.) Use this method only when
+   * the dataset is set as Editable.
    */
   void ResizeCellList(vtkIdType ptId, int size);
 
@@ -562,8 +582,8 @@ protected:
 
   // supporting structures for more complex topological operations
   // built only when necessary
-  vtkCellTypes *Cells;
-  vtkCellLinks *Links;
+  vtkCellTypes *Cells; //enables random access to cells
+  vtkCellLinks *Links; //topological links from points to cells using each point
 
 private:
   // Hide these from the user and the compiler.
@@ -581,7 +601,7 @@ private:
   void operator=(const vtkPolyData&) = delete;
 };
 
-inline void vtkPolyData::GetPointCells(vtkIdType ptId, unsigned short& ncells,
+inline void vtkPolyData::GetPointCells(vtkIdType ptId, vtkIdType& ncells,
                                        vtkIdType* &cells)
 {
   ncells = this->Links->GetNcells(ptId);
@@ -590,7 +610,7 @@ inline void vtkPolyData::GetPointCells(vtkIdType ptId, unsigned short& ncells,
 
 inline int vtkPolyData::IsTriangle(int v1, int v2, int v3)
 {
-  unsigned short int n1;
+  vtkIdType n1;
   int i, j, tVerts[3];
   vtkIdType *cells, *tVerts2, n2;
 

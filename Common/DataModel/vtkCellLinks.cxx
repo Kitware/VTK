@@ -25,6 +25,7 @@ vtkStandardNewMacro(vtkCellLinks);
 //----------------------------------------------------------------------------
 vtkCellLinks::~vtkCellLinks()
 {
+  this->Type = vtkAbstractCellLinks::CELL_LINKS;
   this->Initialize();
 }
 
@@ -204,48 +205,6 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
 }
 
 //----------------------------------------------------------------------------
-// Build the link list array.
-void vtkCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
-{
-  vtkIdType numPts = data->GetNumberOfPoints();
-  vtkIdType j, cellId;
-  vtkIdType *linkLoc;
-  vtkIdType npts=0;
-  vtkIdType *pts=nullptr;
-  vtkIdType loc = Connectivity->GetTraversalLocation();
-
-  // traverse data to determine number of uses of each point
-  for (Connectivity->InitTraversal();
-       Connectivity->GetNextCell(npts,pts);)
-  {
-    for (j=0; j < npts; j++)
-    {
-      this->IncrementLinkCount(pts[j]);
-    }
-  }
-
-  // now allocate storage for the links
-  this->AllocateLinks(numPts);
-  this->MaxId = numPts - 1;
-
-  // fill out lists with references to cells
-  linkLoc = new vtkIdType[numPts];
-  memset(linkLoc, 0, numPts*sizeof(vtkIdType));
-
-  cellId = 0;
-  for (Connectivity->InitTraversal();
-       Connectivity->GetNextCell(npts,pts); cellId++)
-  {
-    for (j=0; j < npts; j++)
-    {
-      this->InsertCellReference(pts[j], (linkLoc[pts[j]])++, cellId);
-    }
-  }
-  delete [] linkLoc;
-  Connectivity->SetTraversalLocation(loc);
-}
-
-//----------------------------------------------------------------------------
 // Insert a new point into the cell-links data structure. The size parameter
 // is the initial size of the list.
 vtkIdType vtkCellLinks::InsertNextPoint(int numLinks)
@@ -276,11 +235,12 @@ unsigned long vtkCellLinks::GetActualMemorySize()
 }
 
 //----------------------------------------------------------------------------
-void vtkCellLinks::DeepCopy(vtkCellLinks *src)
+void vtkCellLinks::DeepCopy(vtkAbstractCellLinks *src)
 {
-  this->Allocate(src->Size, src->Extend);
-  memcpy(this->Array, src->Array, this->Size * sizeof(vtkCellLinks::Link));
-  this->MaxId = src->MaxId;
+  vtkCellLinks *clinks = static_cast<vtkCellLinks*>(src);
+  this->Allocate(clinks->Size, clinks->Extend);
+  memcpy(this->Array, clinks->Array, this->Size * sizeof(vtkCellLinks::Link));
+  this->MaxId = clinks->MaxId;
 }
 
 //----------------------------------------------------------------------------

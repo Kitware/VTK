@@ -18,31 +18,35 @@
 #include "vtkCellArray.h"
 
 //----------------------------------------------------------------------------
-vtkAbstractCellLinks::vtkAbstractCellLinks() = default;
+vtkAbstractCellLinks::vtkAbstractCellLinks()
+{
+  this->SequentialProcessing = false;
+  this->Type = vtkAbstractCellLinks::LINKS_NOT_DEFINED;
+}
 
 //----------------------------------------------------------------------------
 vtkAbstractCellLinks::~vtkAbstractCellLinks() = default;
 
 //----------------------------------------------------------------------------
 int vtkAbstractCellLinks::
-GetIdType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray *ca)
+ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray *ca)
 {
   vtkIdType numEntries = ca->GetNumberOfConnectivityEntries();
   vtkIdType max = maxPtId;
   max = (maxCellId > max ? maxCellId : max);
   max = (numEntries > max ? numEntries : max);
 
-  if ( max >= VTK_INT_MAX )
+  if ( max >= VTK_UNSIGNED_INT_MAX )
   {
-    return VTK_ID_TYPE;
+    return vtkAbstractCellLinks::STATIC_CELL_LINKS_IDTYPE;
   }
-  else if ( max >= VTK_SHORT_MAX )
+  else if ( max >= VTK_UNSIGNED_SHORT_MAX )
   {
-    return VTK_INT;
+    return vtkAbstractCellLinks::STATIC_CELL_LINKS_UINT;
   }
   else
   {
-    return VTK_SHORT;
+    return vtkAbstractCellLinks::STATIC_CELL_LINKS_USHORT;
   }
 }
 
@@ -50,4 +54,8 @@ GetIdType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray *ca)
 void vtkAbstractCellLinks::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Sequential Processing: "
+     << (this->SequentialProcessing ? "true\n" : "false\n");
+  os << indent << "Type: " << this->Type << "\n";
 }

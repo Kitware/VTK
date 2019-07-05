@@ -89,7 +89,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkIdType *cells, *pts, npts, id, n;
-  unsigned short ncells;
+  vtkIdType ncells;
   vtkIdType maxCellsInRegion;
   vtkIdType largestRegionId = 0;
   vtkPointData *pd=input->GetPointData(), *outputPD=output->GetPointData();
@@ -454,7 +454,7 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark ()
   vtkIdType cellId, ptId, numIds, i;
   int j, k;
   vtkIdType *pts, *cells, npts;
-  unsigned short ncells;
+  vtkIdType ncells;
   const vtkIdType numCells = this->Mesh->GetNumberOfCells();
 
   while ( (numIds=static_cast<vtkIdType>(this->Wave.size())) > 0 )

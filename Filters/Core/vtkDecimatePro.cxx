@@ -137,7 +137,7 @@ int vtkDecimatePro::RequestData(
   double error, previousError=0.0, reduction;
   int type;
   vtkIdType *pts, npts, totalEliminated, numRecycles, numPops;
-  unsigned short int ncells;
+  vtkIdType ncells;
   vtkIdType pt1, pt2, cellId, fedges[2];
   vtkIdType *cells;
   vtkIdList *CollapseTris;
@@ -476,7 +476,7 @@ void vtkDecimatePro::SplitMesh()
   vtkIdType ptId, fedges[2];
   int type;
   vtkIdType *cells;
-  unsigned short int ncells;
+  vtkIdType ncells;
 
   this->CosAngle = cos( vtkMath::RadiansFromDegrees(  this->SplitAngle) );
   for ( ptId=0; ptId < this->Mesh->GetNumberOfPoints(); ptId++ )
@@ -500,7 +500,7 @@ void vtkDecimatePro::SplitMesh()
 // Evaluate the local topology/geometry of a vertex. This is a two-pass
 // process: first topology is examined, and then the geometry.
 //
-int vtkDecimatePro::EvaluateVertex(vtkIdType ptId, unsigned short int numTris,
+int vtkDecimatePro::EvaluateVertex(vtkIdType ptId, vtkIdType numTris,
                                    vtkIdType *tris, vtkIdType fedges[2])
 {
   vtkIdType numNei, numFEdges;
@@ -857,7 +857,7 @@ int vtkDecimatePro::EvaluateVertex(vtkIdType ptId, unsigned short int numTris,
 // Split the vertex by modifying topological connections.
 //
 void vtkDecimatePro::SplitVertex(vtkIdType ptId, int type,
-                                 unsigned short int numTris, vtkIdType *tris,
+                                 vtkIdType numTris, vtkIdType *tris,
                                  int insert)
 {
   vtkIdType id, fedge1, fedge2, i, j;
@@ -1596,7 +1596,7 @@ void vtkDecimatePro::Insert(vtkIdType ptId, double error)
   int type, simpleType;
   vtkIdType *cells;
   vtkIdType fedges[2];
-  unsigned short int ncells;
+  vtkIdType ncells;
 
   // on value of error, we need to compute it or just insert the point
   if ( error < -this->Tolerance )
