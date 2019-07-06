@@ -145,6 +145,13 @@ void vtkWrapPython_DeclareVariables(
               "  %s *save%d = (size%d == 0 ? nullptr : temp%d + size%d);\n",
               vtkWrap_GetTypeName(arg), i, i, i, i);
         }
+        else if (vtkWrap_IsConst(arg) &&
+                 vtkWrap_IsRef(arg))
+        {
+          fprintf(fp,
+              "  const %s *temp%dc = temp%d;\n",
+              vtkWrap_GetTypeName(arg), i, i);
+        }
       }
       else if (vtkWrap_IsArray(arg) && arg->Value)
       {
@@ -995,6 +1002,11 @@ static void vtkWrapPython_GenerateMethodCall(
       {
         fprintf(fp, "*temp%i", i);
       }
+      else if (vtkWrap_IsConst(arg) && vtkWrap_IsRef(arg) &&
+               (arg->CountHint || vtkWrap_IsPODPointer(arg)))
+      {
+        fprintf(fp, "temp%ic", i);
+      }
       else
       {
         fprintf(fp, "temp%i", i);
@@ -1091,8 +1103,8 @@ static void vtkWrapPython_WriteBackToArgs(
           vtkWrap_IsPODPointer(arg))
       {
         fprintf(fp,
-              "      ap.SetArgValue(%d, temp%d, ",
-              i, i);
+              "      ap.SetArgValue(%d, temp%d%s, ",
+              i, i, (vtkWrap_IsConst(arg) ? "c" : ""));
         if (arg->CountHint)
         {
           vtkWrapPython_SubstituteCode(fp, data, currentFunction,
