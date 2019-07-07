@@ -257,14 +257,26 @@ int vtkWrap_IsNArray(ValueInfo *val)
 
 int vtkWrap_IsNonConstRef(ValueInfo *val)
 {
-  return ((val->Type & VTK_PARSE_REF) != 0 &&
-          (val->Type & VTK_PARSE_CONST) == 0);
+  int isconst = ((val->Type & VTK_PARSE_CONST) != 0);
+  unsigned int ptrBits = val->Type & VTK_PARSE_POINTER_MASK;
+
+  /* If this is a reference to a pointer, we need to check whether
+   * the pointer is const, for example "int *const &arg".  The "const"
+   * we need to check is the one that is adjacent to the "&". */
+  while (ptrBits != 0)
+  {
+    isconst =
+      ((ptrBits & VTK_PARSE_POINTER_LOWMASK) == VTK_PARSE_CONST_POINTER);
+    ptrBits >>= 2;
+  }
+
+  return ((val->Type & VTK_PARSE_REF) != 0 && !isconst);
 }
 
 int vtkWrap_IsConstRef(ValueInfo *val)
 {
   return ((val->Type & VTK_PARSE_REF) != 0 &&
-          (val->Type & VTK_PARSE_CONST) != 0);
+          !vtkWrap_IsNonConstRef(val));
 }
 
 int vtkWrap_IsRef(ValueInfo *val)
