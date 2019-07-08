@@ -1,3 +1,17 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkCellDistanceSelector.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 #include "vtkCellDistanceSelector.h"
 
 #include "vtkCell.h"
@@ -144,14 +158,12 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
         vtkStructuredGrid* sg_input = vtkStructuredGrid::SafeDownCast( input );
         vtkPolyData* pd_input = vtkPolyData::SafeDownCast( input);
 
-        vtkCellLinks * links = nullptr;
         if ( ug_input )
         {
           if ( ! ug_input->GetCellLinks() )
           {
             ug_input->BuildLinks();
           }
-          links = ug_input->GetCellLinks();
         }
 
         std::vector<int> flags( numCells, 0 );
@@ -196,8 +208,8 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
               for ( int k = 0; k < n; ++ k )
               {
                 vtkIdType pid = points[k];
-                int np = links->GetNcells( pid );
-                vtkIdType* cells = links->GetCells( pid );
+                vtkIdType np, *cells;
+                ug_input->GetPointCells(pid, np, cells);
                 for ( int j = 0; j < np; ++ j )
                 {
                   vtkIdType cid = cells[j];
@@ -230,7 +242,7 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
               for ( int k = 0; k < n; ++ k )
               {
                 vtkIdType pid = points[k];
-                short unsigned int np;
+                vtkIdType np;
                 vtkIdType* cells;
                 pd_input->GetPointCells(pid, np, cells);
                 for ( int j = 0; j < np; j++)

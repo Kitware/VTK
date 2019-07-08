@@ -629,7 +629,7 @@ void vtkCCSMakePolysFromLines(
       for (int endIdx = 0; endIdx < 2; endIdx++)
       {
         std::vector<vtkIdType> matches;
-        unsigned short ncells;
+        vtkIdType ncells;
         vtkIdType *cells;
         data->GetPointCells(endPts[endIdx], ncells, cells);
 

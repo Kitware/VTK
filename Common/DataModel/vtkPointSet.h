@@ -22,9 +22,21 @@
  * to specify point position, while vtkStructuredGrid generates point
  * positions implicitly.
  *
+ * Note: The vtkPolyData and vtkUnstructuredGrid datasets (derived classes of
+ * vtkPointSet) are often used in geometric computation (e.g.,
+ * vtkDeluanay2D). In most cases the underlying geometry and/or topology is
+ * not modified; however in some few cases the underlying geometry/topology
+ * may be incrementally modified. This has implications on the use of
+ * supporting classes like locators and cell links topological
+ * structures. Consequently, there is a flag, Editable, that controls whether
+ * the dataset can be incrementally edited. By default, and for performance
+ * reasons, vtkPointSet derived classes are created as non-editable. The few
+ * methods that require editing capabilities are documented in derived
+ * classes.
+ *
  * @sa
  * vtkPolyData vtkStructuredGrid vtkUnstructuredGrid
-*/
+ */
 
 #ifndef vtkPointSet_h
 #define vtkPointSet_h
@@ -34,13 +46,32 @@
 
 #include "vtkPoints.h" // Needed for inline methods
 
-class vtkPointLocator;
+class vtkAbstractPointLocator;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPointSet : public vtkDataSet
 {
 public:
+  //@{
+  /**
+   * Standard methdos for type information and printing.
+   */
   vtkTypeMacro(vtkPointSet,vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  //@{
+  /**
+   * Specify whether this dataset is editable after creation. Meaning, once
+   * the points and cells are defined, can the dataset be incrementally
+   * modified. By default, this dataset is non-editable (i.e., "static")
+   * after construction. The reason for this is performance: cell links and
+   * locators can be built (and destroyed) much faster is it is known that
+   * the data is static (see vtkStaticCellLinks, vtkStaticPointLocator,
+   * vtkStaticCellLocator).
+   */
+  vtkSetMacro(Editable,vtkTypeBool);
+  vtkGetMacro(Editable,vtkTypeBool);
+  vtkBooleanMacro(Editable,vtkTypeBool);
+  //@}
 
   /**
    * Reset to an empty state and free any memory.
@@ -152,8 +183,9 @@ protected:
   vtkPointSet();
   ~vtkPointSet() override;
 
+  vtkTypeBool Editable;
   vtkPoints *Points;
-  vtkPointLocator *Locator;
+  vtkAbstractPointLocator *Locator;
 
   void ReportReferences(vtkGarbageCollector*) override;
 private:

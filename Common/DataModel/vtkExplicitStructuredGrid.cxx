@@ -17,6 +17,7 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkStaticCellLinks.h"
 #include "vtkCellLinks.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEmptyCell.h"
@@ -222,21 +223,55 @@ void vtkExplicitStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6]
 }
 
 //----------------------------------------------------------------------------
-void vtkExplicitStructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
+// Templated function for returning the list of cells using a point
+namespace {
+
+  template <class TIds, class TLinks>
+  void GetPointCellsT(TLinks *links, vtkIdType ptId, vtkIdList *cellIds)
+  {
+    vtkIdType numCells = links->GetNcells(ptId);
+    TIds *cells = links->GetCells(ptId);
+
+    cellIds->SetNumberOfIds(numCells);
+    for (auto i=0; i < numCells; i++)
+    {
+      cellIds->SetId(i,static_cast<vtkIdType>(cells[i]));
+    }
+  }
+} //anonymous namespace
+
+//----------------------------------------------------------------------------
+void vtkExplicitStructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
 {
-  if (!this->Links)
+  if ( ! this->Links )
   {
     this->BuildLinks();
   }
   cellIds->Reset();
 
-  int numCells = this->Links->GetNcells(ptId);
-  vtkIdType* cells = this->Links->GetCells(ptId);
+  // Use the correct cell links. Use an explicit cast for performance reasons
+  // (virtuals, and templated functions were tested to be slow -- if you make
+  // changes, please make sure to measure performance impacts).
+  vtkIdType numCells, *cells;
+  if ( ! this->Editable )
+  {
+    vtkStaticCellLinks *links =
+      static_cast<vtkStaticCellLinks*>(this->Links);
+    numCells = links->GetNcells(ptId);
+    cells = links->GetCells(ptId);
+  }
+  else
+  {
+    vtkCellLinks *links =
+      static_cast<vtkCellLinks*>(this->Links);
+    numCells = links->GetNcells(ptId);
+    cells = links->GetCells(ptId);
+  }
 
   cellIds->SetNumberOfIds(numCells);
-  for (int i = 0; i < numCells; i++)
+  for (auto i=0; i < numCells; i++)
   {
-    cellIds->SetId(i, cells[i]);
+    cellIds->SetId(i,cells[i]);
   }
 }
 
@@ -326,8 +361,10 @@ void vtkExplicitStructuredGrid::GetCellNeighbors(vtkIdType cellId,
   for (int i = 0; i < numPts; i++)
   {
     vtkIdType ptId = pts[i];
-    vtkIdType numCells = this->Links->GetNcells(ptId);
-    vtkIdType* cells = this->Links->GetCells(ptId);
+    vtkIdType numCells = 0;
+    vtkIdType *cells = nullptr;
+    //    vtkIdType numCells = this->Links->GetNcells(ptId);
+    //vtkIdType* cells = this->Links->GetCells(ptId);
     if (numCells < minNumCells)
     {
       minNumCells = numCells;
@@ -513,9 +550,18 @@ void vtkExplicitStructuredGrid::BuildLinks()
     this->Links->Delete();
   }
 
-  this->Links = vtkCellLinks::New();
-  this->Links->Allocate(this->GetNumberOfPoints());
-  this->Links->BuildLinks(this, this->Cells);
+  // Different types of links depending on whether the data can be edited after
+  // initial creation.
+  if ( this->Editable )
+  {
+    this->Links = vtkCellLinks::New();
+    static_cast<vtkCellLinks*>(this->Links)->Allocate(this->GetNumberOfPoints());
+  }
+  else
+  {
+    this->Links = vtkStaticCellLinks::New();
+  }
+  this->Links->BuildLinks(this);
 }
 
 //----------------------------------------------------------------------------

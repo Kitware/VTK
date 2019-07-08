@@ -271,7 +271,7 @@ void vtkButterflySubdivisionFilter::GenerateBoundaryStencil(
 {
   vtkSmartPointer<vtkIdList> cellIds = vtkSmartPointer<vtkIdList>::New();
   vtkIdType *cells;
-  unsigned short ncells;
+  vtkIdType ncells;
   vtkIdType *pts;
   vtkIdType npts;
   int i, j;

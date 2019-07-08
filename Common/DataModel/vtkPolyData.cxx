@@ -417,7 +417,7 @@ void vtkPolyData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 
 //----------------------------------------------------------------------------
 void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
-                            vtkPointLocator *locator)
+                            vtkIncrementalPointLocator *locator)
 {
   vtkIdType cellId, ptId, newId, newCellId, locatorPtId;
   vtkIdType numPts, numCellPts, i;
@@ -1693,7 +1693,7 @@ void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
 
 int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
 {
-  unsigned short int ncells;
+  vtkIdType ncells;
   vtkIdType cellType;
   vtkIdType npts;
   vtkIdType i, j;

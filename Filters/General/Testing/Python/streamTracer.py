@@ -62,4 +62,5 @@ cam.SetClippingRange(1.12294,16.6226)
 renWin.SetSize(300,200)
 iren.Initialize()
 # interact with data
+iren.Start()
 # --- end of script --

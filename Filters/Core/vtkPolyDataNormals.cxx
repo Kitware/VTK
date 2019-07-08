@@ -225,7 +225,7 @@ int vtkPolyDataNormals::RequestData(
     int foundLeftmostCell;
     vtkIdType leftmostCellID=-1, currentPointID, currentCellID;
     vtkIdType *leftmostCells;
-    unsigned short nleftmostCells;
+    vtkIdType nleftmostCells;
     vtkIdType *cellPts;
     vtkIdType nCellPts;
     int cIdx;
@@ -616,7 +616,7 @@ void vtkPolyDataNormals::MarkAndSplit (vtkIdType ptId)
   int i,j;
 
   // Get the cells using this point and make sure that we have to do something
-  unsigned short ncells;
+  vtkIdType ncells;
   vtkIdType *cells;
   this->OldMesh->GetPointCells(ptId,ncells,cells);
   if ( ncells <= 1 )
@@ -785,4 +785,3 @@ void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Precision of the output points: "
      << this->OutputPointsPrecision << "\n";
 }
-

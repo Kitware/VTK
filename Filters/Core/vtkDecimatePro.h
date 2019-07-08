@@ -313,14 +313,14 @@ protected:
   vtkPriorityQueue *EdgeLengths;
 
   void SplitMesh();
-  int EvaluateVertex(vtkIdType ptId, unsigned short int numTris,
+  int EvaluateVertex(vtkIdType ptId, vtkIdType numTris,
                      vtkIdType *tris, vtkIdType fedges[2]);
   vtkIdType FindSplit(int type, vtkIdType fedges[2], vtkIdType& pt1,
                       vtkIdType& pt2, vtkIdList *CollapseTris);
   int IsValidSplit(int index);
   void SplitLoop(vtkIdType fedges[2], vtkIdType& n1, vtkIdType *l1,
                  vtkIdType& n2, vtkIdType *l2);
-  void SplitVertex(vtkIdType ptId,int type, unsigned short int numTris,
+  void SplitVertex(vtkIdType ptId,int type, vtkIdType numTris,
                    vtkIdType *tris, int insert);
   int CollapseEdge(int type, vtkIdType ptId, vtkIdType collapseId,
                    vtkIdType pt1, vtkIdType pt2, vtkIdList *CollapseTris);
@@ -426,5 +426,3 @@ private:
 };
 
 #endif
-
-

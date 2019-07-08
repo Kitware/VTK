@@ -184,11 +184,11 @@ int vtkGreedyTerrainDecimation::SatisfiesErrorMeasure(double error)
 //Update all triangles connected to this mesh point
 void vtkGreedyTerrainDecimation::UpdateTriangles(vtkIdType ptId)
 {
-  unsigned short ncells;
+  vtkIdType ncells;
   vtkIdType *cells, npts, *pts;
 
   this->Mesh->GetPointCells(ptId,ncells,cells);
-  for (unsigned short i=0; i<ncells; i++)
+  for (vtkIdType i=0; i<ncells; i++)
   {
     this->Mesh->GetCellPoints(cells[i], npts, pts);
     this->UpdateTriangle(cells[i], (*this->PointInfo)[pts[0]],

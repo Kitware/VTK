@@ -7361,16 +7361,11 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray *pData,
   mesh->GetPointCells(0, pointCells);
   pointCells->Delete();
 
-  // since vtkPolyData and vtkUnstructuredGrid do not share common
-  // overloaded GetCellLink() or GetPointCells() functions we have to
-  // do a tedious task
+  // Set up to grab point cells
   vtkUnstructuredGrid *ug = vtkUnstructuredGrid::SafeDownCast(mesh);
   vtkPolyData *pd = vtkPolyData::SafeDownCast(mesh);
-  vtkCellLinks *cl = nullptr;
-  if (ug)
-  {
-    cl = ug->GetCellLinks();
-  }
+  vtkIdType nCells;
+  vtkIdType *cells;
 
   const int nComponents = iData->GetNumberOfComponents();
 
@@ -7382,18 +7377,15 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray *pData,
     {
       vtkTypeInt64 pI = pointList
           ? GetLabelValue(pointList, pointI, use64BitLabels) : pointI;
-      unsigned short nCells;
-      vtkIdType *cells;
-      if (cl)
+      if ( ug )
       {
-        const vtkCellLinks::Link &l = cl->GetLink(pI);
-        nCells = l.ncells;
-        cells = l.cells;
+        ug->GetPointCells(pI, nCells, cells);
       }
       else
       {
         pd->GetPointCells(pI, nCells, cells);
       }
+
       // use double intermediate variable for precision
       double interpolatedValue = 0.0;
       for (int cellI = 0; cellI < nCells; cellI++)
@@ -7413,18 +7405,15 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray *pData,
     {
       vtkTypeInt64 pI = pointList
           ? GetLabelValue(pointList, pointI, use64BitLabels) : pointI;
-      unsigned short nCells;
-      vtkIdType *cells;
-      if (cl)
+      if ( ug )
       {
-        const vtkCellLinks::Link &l = cl->GetLink(pI);
-        nCells = l.ncells;
-        cells = l.cells;
+        ug->GetPointCells(pI, nCells, cells);
       }
       else
       {
         pd->GetPointCells(pI, nCells, cells);
       }
+
       // use double intermediate variables for precision
       const double weight = (nCells ? 1.0 / static_cast<double>(nCells) : 0.0);
       double summedValue0 = 0.0, summedValue1 = 0.0, summedValue2 = 0.0;
@@ -7451,18 +7440,15 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray *pData,
     {
       vtkTypeInt64 pI = pointList
           ? GetLabelValue(pointList, pointI, use64BitLabels) : pointI;
-      unsigned short nCells;
-      vtkIdType *cells;
-      if (cl)
+      if ( ug )
       {
-        const vtkCellLinks::Link &l = cl->GetLink(pI);
-        nCells = l.ncells;
-        cells = l.cells;
+        ug->GetPointCells(pI, nCells, cells);
       }
       else
       {
         pd->GetPointCells(pI, nCells, cells);
       }
+
       // use double intermediate variables for precision
       const double weight = (nCells ? 1.0 / static_cast<double>(nCells) : 0.0);
       float *interpolatedValue = &pDataPtr[nComponents * pI];

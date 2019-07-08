@@ -1173,7 +1173,7 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
   int i, j, k, *polyId, *polyId2, edgeId;
   vtkIdType *cells, *pts, *cells2, npts, cellId;
   int numPolyPts, p1, p2;
-  unsigned short ncells, ncells2;
+  vtkIdType ncells, ncells2;
   unsigned char *polyVisited, *ptr;
   vtkCellArray *newPolys;
 
@@ -1273,7 +1273,7 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
   int i, iterNum;
   int connId;
   double x[3], xconn[3], xave[3], factor;
-  unsigned short int ncells;
+  vtkIdType ncells;
   vtkIdType *cells, *pts, npts;
 
 
@@ -1342,7 +1342,7 @@ void vtkImageToPolyDataFilter::DecimateEdges(vtkPolyData *edges,
   vtkIdType numPts=points->GetNumberOfPoints(), ptId, prevId, nextId;
   vtkIdType npts;
   double x[3], xPrev[3], xNext[3];
-  unsigned short int ncells;
+  vtkIdType ncells;
   vtkIdType *cells, *pts;
 
   // Loop over all points, finding those that are connected to just two
