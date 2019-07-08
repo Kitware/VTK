@@ -275,8 +275,9 @@ function (_vtk_module_wrap_python_library name)
         "${_vtk_python_depend_module_package}.${_vtk_python_depend_library_name}Python")
     endforeach ()
 
+
     string(APPEND _vtk_python_module_contents
-      "from .${name} import *\n")
+        "from ${_vtk_python_import_prefix}${name} import *\n")
 
     file(GENERATE
       OUTPUT  "${_vtk_python_module_file}"
@@ -313,6 +314,9 @@ function (_vtk_module_wrap_python_library name)
     set(_vtk_python_wrap_target "VTKCompileTools::WrapPythonInit")
   endif ()
 
+  if(_vtk_python_BUILD_STATIC)
+    set(additonal_options "${_vtk_python_import_prefix}")
+  endif()
   add_custom_command(
     OUTPUT  "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
@@ -320,6 +324,7 @@ function (_vtk_module_wrap_python_library name)
             "${_vtk_python_init_data_file}"
             "${_vtk_python_init_output}"
             "${_vtk_python_init_impl_output}"
+            "${additonal_options}"
     COMMENT "Generating the Python module initialization sources for ${name}"
     DEPENDS
       "${_vtk_python_init_data_file}"
@@ -561,6 +566,19 @@ function (vtk_module_wrap_python)
   endif ()
   string(REPLACE "." "/" _vtk_python_package_path "${_vtk_python_PYTHON_PACKAGE}")
 
+
+  if(_vtk_python_BUILD_STATIC)
+    # When doing static builds we want the statically initialized built-ins to be
+    # used. It is unclear in the Python-C API how to construct `namespace.module`
+    # so instead at the C++ level we import "namespace_module" during startup
+    # and than the python modules moving those imports into the correct python
+    # module.
+    string(REPLACE "." "_" _vtk_python_import_prefix "${_vtk_python_PYTHON_PACKAGE}_")
+  else()
+    # We are building dynamic libraries therefore the prefix is simply '.'
+    set(_vtk_python_import_prefix ".")
+  endif()
+
   _vtk_module_check_destinations(_vtk_python_
     MODULE_DESTINATION
     STATIC_MODULE_DESTINATION
@@ -666,9 +684,9 @@ function (vtk_module_wrap_python)
 
     string(APPEND _vtk_python_all_modules_include_content
 "#if PY_VERSION_HEX < 0x03000000
-#define PY_IMPORT(module) PyImport_AppendInittab(\"${_vtk_python_PYTHON_PACKAGE}.\" #module, init ## module)
+#define PY_IMPORT(module) PyImport_AppendInittab(\"${_vtk_python_import_prefix}\" #module, init ## module)
 #else
-#define PY_IMPORT(module) PyImport_AppendInittab(\"${_vtk_python_PYTHON_PACKAGE}.\" #module, PyInit_ ## module)
+#define PY_IMPORT(module) PyImport_AppendInittab(\"${_vtk_python_import_prefix}\" #module, PyInit_ ## module)
 #endif
 
 static void ${_vtk_python_TARGET_NAME}_load() {\n")
