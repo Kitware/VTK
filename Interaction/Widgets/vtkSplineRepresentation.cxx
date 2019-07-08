@@ -275,12 +275,18 @@ double vtkSplineRepresentation::GetSummedLength()
 }
 
 //----------------------------------------------------------------------------
-void vtkSplineRepresentation::InsertHandleOnLine(double* pos)
+int vtkSplineRepresentation::InsertHandleOnLine(double* pos)
 {
-  if (this->NumberOfHandles < 2) { return; }
+  if (this->NumberOfHandles < 2)
+  {
+    return -1;
+  }
 
   vtkIdType id = this->LinePicker->GetCellId();
-  if (id == -1){ return; }
+  if (id == -1)
+  {
+    return -1;
+  }
 
   vtkIdType subid = this->LinePicker->GetSubId();
 
@@ -296,6 +302,7 @@ void vtkSplineRepresentation::InsertHandleOnLine(double* pos)
     newpoints->SetPoint(count++,this->HandleGeometry[i]->GetCenter());
   }
 
+  const int insert_index = count;
   newpoints->SetPoint(count++,pos);
 
   for ( int i = istop; i < this->NumberOfHandles; ++i )
@@ -305,6 +312,8 @@ void vtkSplineRepresentation::InsertHandleOnLine(double* pos)
 
   this->InitializeHandles(newpoints);
   newpoints->Delete();
+
+  return insert_index;
 }
 
 //----------------------------------------------------------------------------

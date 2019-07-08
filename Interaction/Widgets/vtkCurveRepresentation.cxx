@@ -938,7 +938,7 @@ void vtkCurveRepresentation::EndWidgetInteraction(double[2])
     break;
 
   case vtkCurveRepresentation::Inserting:
-    this->InsertHandleOnLine(this->LastPickPosition);
+    this->SetCurrentHandleIndex(this->InsertHandleOnLine(this->LastPickPosition));
     break;
 
   case vtkCurveRepresentation::Erasing:

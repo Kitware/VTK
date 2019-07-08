@@ -273,7 +273,12 @@ protected:
   int  HighlightHandle(vtkProp *prop); //returns handle index or -1 on fail
   int GetHandleIndex(vtkProp* prop);   // returns handle index or -1 on fail
   virtual void SizeHandles();
-  virtual void InsertHandleOnLine(double* pos) = 0;
+
+  /**
+   * Returns the position of insertion or -1 on fail.
+   */
+  virtual int InsertHandleOnLine(double* pos) = 0;
+
   virtual void PushHandle(double* pos);
   void EraseHandle(const int&);
 

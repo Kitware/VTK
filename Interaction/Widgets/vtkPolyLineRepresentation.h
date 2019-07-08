@@ -90,7 +90,7 @@ protected:
   vtkPolyLineSource *PolyLineSource;
 
   // Specialized method to insert a handle on the poly line.
-  void InsertHandleOnLine(double* pos) override;
+  int InsertHandleOnLine(double* pos) override;
 
 private:
   vtkPolyLineRepresentation(const vtkPolyLineRepresentation&) = delete;

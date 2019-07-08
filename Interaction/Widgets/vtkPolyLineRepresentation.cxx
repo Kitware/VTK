@@ -222,15 +222,19 @@ double vtkPolyLineRepresentation::GetSummedLength()
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
+int vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
 {
-  if (this->NumberOfHandles < 2) { return; }
+  if (this->NumberOfHandles < 2)
+  {
+    return -1;
+  }
 
   vtkIdType id = this->LinePicker->GetCellId();
 
   vtkPoints* newpoints = vtkPoints::New(VTK_DOUBLE);
   newpoints->SetNumberOfPoints(this->NumberOfHandles+1);
 
+  int insert_index = -1;
   if (id == -1)
   {
     // not on a line, add to the end
@@ -239,6 +243,7 @@ void vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
       newpoints->SetPoint(i, this->HandleGeometry[i]->GetCenter());
     }
     newpoints->SetPoint(this->NumberOfHandles, pos);
+    insert_index = this->NumberOfHandles;
   }
   else
   {
@@ -252,6 +257,7 @@ void vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
       newpoints->SetPoint(count++, this->HandleGeometry[i]->GetCenter());
     }
 
+    insert_index = count;
     newpoints->SetPoint(count++, pos);
 
     for (int i = istop; i < this->NumberOfHandles; ++i)
@@ -262,6 +268,8 @@ void vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
 
   this->InitializeHandles(newpoints);
   newpoints->Delete();
+
+  return insert_index;
 }
 
 //----------------------------------------------------------------------------
