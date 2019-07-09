@@ -45,11 +45,3 @@ VTKIOMYSQL_EXPORT void vtkIOMySQL_AutoInit_Construct()
     vtkSQLDatabase::RegisterCreateFromURLCallback(MySQLCreateFunction);
   }
 }
-
-VTKIOMYSQL_EXPORT void vtkIOMySQL_AutoInit_Destruct()
-{
-  if (--vtkIOMySQLCount == 0)
-  {
-    vtkSQLDatabase::UnRegisterCreateFromURLCallback(MySQLCreateFunction);
-  }
-}

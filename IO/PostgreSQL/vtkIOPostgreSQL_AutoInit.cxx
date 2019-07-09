@@ -51,11 +51,3 @@ VTKIOPOSTGRESQL_EXPORT void vtkIOPostgreSQL_AutoInit_Construct()
     vtkSQLDatabase::RegisterCreateFromURLCallback(PostgreSQLCreateFunction);
   }
 }
-
-VTKIOPOSTGRESQL_EXPORT void vtkIOPostgreSQL_AutoInit_Destruct()
-{
-  if (--vtkIOPostgreSQLCount == 0)
-  {
-    vtkSQLDatabase::UnRegisterCreateFromURLCallback(PostgreSQLCreateFunction);
-  }
-}
