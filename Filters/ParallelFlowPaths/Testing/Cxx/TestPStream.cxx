@@ -14,26 +14,27 @@
 =========================================================================*/
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkCellData.h"
 #include "vtkCompositeRenderManager.h"
 #include "vtkDebugLeaks.h"
+#include "vtkGeometryFilter.h"
 #include "vtkLineSource.h"
 #include "vtkLookupTable.h"
 #include "vtkMPIController.h"
-#include "vtkObjectFactory.h"
-#include "vtkPStreamTracer.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
-#include "vtkGeometryFilter.h"
+#include "vtkObjectFactory.h"
+#include "vtkPStreamTracer.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridOutlineFilter.h"
+#include "vtkTestUtilities.h"
 #include "vtkTrivialProducer.h"
 
 struct PStreamArgs_tmp
@@ -131,7 +132,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   Stream0->SetIntegrationStepUnit(2);
   Stream0->SetMaximumPropagation(5);
   Stream0->SetInitialIntegrationStep(0.5);
-  Stream0->SetIntegrationDirection(2);
+  Stream0->SetIntegrationDirectionToBoth();
   Stream0->SetIntegratorType(0);
   Stream0->SetMaximumNumberOfSteps(2000);
   Stream0->SetTerminalSpeed(1e-12);
@@ -199,6 +200,28 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   {
     compManager->StartInteractor();
   }
+
+  // ensure that the stream tracer doesn't use different ids for backwards and
+  // forward streamlines. we can check that by ensure that the seed ids is less
+  // than the original seed points (i.e. < 20).
+  if (auto seedIds =
+        vtkIntArray::SafeDownCast(Stream0->GetOutput()->GetCellData()->GetArray("SeedIds")))
+  {
+    const auto numPts = LineSourceWidget0->GetOutput()->GetNumberOfPoints();
+    for (vtkIdType cc = 0; cc < seedIds->GetNumberOfTuples(); ++cc)
+    {
+      auto id = seedIds->GetTypedComponent(cc, 0);
+      if (id >= numPts)
+      {
+        cerr << "ERROR: invalid seed id received: " << id << endl;
+      }
+    }
+  }
+  else
+  {
+    cerr << "ERROR: missing 'SeedIds' array!" << endl;
+  }
+
   renWin->Delete();
   ren->Delete();
   iren->Delete();
