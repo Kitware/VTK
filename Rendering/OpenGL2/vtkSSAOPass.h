@@ -57,10 +57,22 @@ public:
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
   /**
-   * Replace shader values
+   * Pre replace shader values
    */
   bool PreReplaceShaderValues(std::string& vertexShader, std::string& geometryShader,
     std::string& fragmentShader, vtkAbstractMapper* mapper, vtkProp* prop) override;
+
+  /**
+   * Post replace shader values
+   */
+  bool PostReplaceShaderValues(std::string& vertexShader, std::string& geometryShader,
+    std::string& fragmentShader, vtkAbstractMapper* mapper, vtkProp* prop) override;
+
+  /**
+   * Set shader parameters. Set the draw buffers depending on the mapper.
+   */
+  bool SetShaderParameters(vtkShaderProgram* program, vtkAbstractMapper* mapper, vtkProp* prop,
+    vtkOpenGLVertexArrayObject* VAO = nullptr) override;
 
   //@{
   /**

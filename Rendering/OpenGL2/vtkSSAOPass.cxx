@@ -20,6 +20,7 @@
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -175,6 +176,22 @@ void vtkSSAOPass::ComputeKernel()
     this->Kernel[3 * i + 1] = sample[1];
     this->Kernel[3 * i + 2] = sample[2];
   }
+}
+
+// ----------------------------------------------------------------------------
+bool vtkSSAOPass::SetShaderParameters(vtkShaderProgram* vtkNotUsed(program), vtkAbstractMapper* mapper,
+  vtkProp* vtkNotUsed(prop), vtkOpenGLVertexArrayObject* vtkNotUsed(VAO))
+{
+  if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr)
+  {
+    this->FrameBufferObject->ActivateDrawBuffers(3);
+  }
+  else
+  {
+    this->FrameBufferObject->ActivateDrawBuffers(1);
+  }
+
+  return true;
 }
 
 // ----------------------------------------------------------------------------
@@ -434,15 +451,46 @@ void vtkSSAOPass::Render(const vtkRenderState* s)
 
 // ----------------------------------------------------------------------------
 bool vtkSSAOPass::PreReplaceShaderValues(std::string& vtkNotUsed(vertexShader),
-  std::string& vtkNotUsed(geometryShader), std::string& fragmentShader,
-  vtkAbstractMapper* vtkNotUsed(mapper), vtkProp* vtkNotUsed(prop))
+  std::string& vtkNotUsed(geometryShader), std::string& fragmentShader, vtkAbstractMapper* mapper,
+  vtkProp* vtkNotUsed(prop))
 {
-  vtkShaderProgram::Substitute(fragmentShader, "//VTK::Light::Impl",
-    "//VTK::Light::Impl\n"
-    "  gl_FragData[1] = vertexVC;\n"
-    "  gl_FragData[2] = vec4(normalVCVSOutput, 1.0);\n"
-    "\n",
-    false);
+  if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr)
+  {
+    // apply SSAO after lighting
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::Light::Impl",
+      "//VTK::Light::Impl\n"
+      "  //VTK::SSAO::Impl\n",
+      false);
+  }
+
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkSSAOPass::PostReplaceShaderValues(std::string& vtkNotUsed(vertexShader),
+  std::string& vtkNotUsed(geometryShader), std::string& fragmentShader, vtkAbstractMapper* mapper,
+  vtkProp* vtkNotUsed(prop))
+{
+  if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr)
+  {
+    if (fragmentShader.find("vertexVC") != std::string::npos &&
+      fragmentShader.find("normalVCVSOutput") != std::string::npos)
+    {
+      vtkShaderProgram::Substitute(fragmentShader, "  //VTK::SSAO::Impl",
+        "  gl_FragData[1] = vec4(vertexVC.xyz, 1.0);\n"
+        "  gl_FragData[2] = vec4(normalVCVSOutput, 1.0);\n"
+        "\n",
+        false);
+    }
+    else
+    {
+      vtkShaderProgram::Substitute(fragmentShader, "  //VTK::SSAO::Impl",
+        "  gl_FragData[1] = vec4(0.0, 0.0, 0.0, 0.0);\n"
+        "  gl_FragData[2] = vec4(0.0, 0.0, 0.0, 0.0);\n"
+        "\n",
+        false);
+    }
+  }
 
   return true;
 }
