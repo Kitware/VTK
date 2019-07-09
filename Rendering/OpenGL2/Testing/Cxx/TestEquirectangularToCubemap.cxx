@@ -36,7 +36,9 @@ int TestEquirectangularToCubemap(int argc, char* argv[])
   renWin->AddRenderer(renderer);
 
   vtkNew<vtkJPEGReader> reader;
-  reader->SetFileName(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/autoshop.jpg"));
+  char * fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/autoshop.jpg");
+  reader->SetFileName(fileName);
+  delete[] fileName;
 
   vtkNew<vtkTexture> texture;
   texture->SetInputConnection(reader->GetOutputPort());
