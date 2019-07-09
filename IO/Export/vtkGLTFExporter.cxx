@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkGLTFExporter.h"
 
+#include <stdio.h>
 #include <memory>
 #include <sstream>
 
@@ -141,7 +142,10 @@ void WriteBufferAndView(vtkDataArray *inda, const char *fileName, bool inlineDat
 
     std::string fullPath =
       vtksys::SystemTools::GetFilenamePath(fileName);
-    fullPath += "/";
+    if (fullPath.size() > 0)
+    {
+      fullPath += "/";
+    }
     fullPath += result;
 
     // now write the data
@@ -410,6 +414,9 @@ void WriteMesh(
   }
 
   Json::Value amesh;
+  char meshNameBuffer [32];
+  sprintf(meshNameBuffer, "mesh%d", meshes.size());
+  amesh["name"] = meshNameBuffer;
   amesh["primitives"] = prims;
   meshes.append(amesh);
 
@@ -427,6 +434,7 @@ void WriteMesh(
     }
   }
   child["mesh"] = meshes.size() - 1;
+  child["name"] = meshNameBuffer;
   nodes.append(child);
 }
 
@@ -652,6 +660,10 @@ void vtkGLTFExporter::WriteToStream(ostream &output)
     }
     anode["name"] = "Camera Node";
 
+    // setup renderer group node
+    Json::Value rendererNode;
+    rendererNode["name"] = "Renderer Node";
+
     vtkPropCollection *pc;
     vtkProp *aProp;
     pc = ren->GetViewProps();
@@ -684,7 +696,7 @@ void vtkGLTFExporter::WriteToStream(ostream &output)
               WriteMesh(accessors, buffers, bufferViews,
                 meshes, nodes,
                 pd, aPart, this->FileName, this->InlineData);
-              anode["children"].append(nodes.size() - 1);
+              rendererNode["children"].append(nodes.size() - 1);
               unsigned int oldTextureCount = textures.size();
               WriteTexture(buffers, bufferViews,
                 textures, samplers, images,
@@ -698,14 +710,16 @@ void vtkGLTFExporter::WriteToStream(ostream &output)
         }
       }
     }
-
     // only write the camera if we had visible nodes
     if (foundVisibleProp)
     {
       WriteCamera(cameras, ren);
-      topNodes.push_back(nodes.size());
       nodes.append(anode);
+      rendererNode["children"].append(nodes.size() - 1);
     }
+
+    nodes.append(rendererNode);
+    topNodes.push_back(nodes.size() - 1);
   }
 
   Json::Value root;
@@ -721,9 +735,12 @@ void vtkGLTFExporter::WriteToStream(ostream &output)
   root["buffers"] = buffers;
   root["bufferViews"] = bufferViews;
   root["accessors"] = accessors;
-  root["images"] = images;
-  root["textures"] = textures;
-  root["samplers"] = samplers;
+  if (images.size() > 0)
+    root["images"] = images;
+  if (textures.size() > 0)
+    root["textures"] = textures;
+  if (samplers.size() > 0)
+    root["samplers"] = samplers;
   root["materials"] = materials;
 
   Json::Value ascene;
