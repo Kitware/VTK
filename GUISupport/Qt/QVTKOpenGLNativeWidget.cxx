@@ -64,6 +64,13 @@ QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget(
   this->connect(this, SIGNAL(resized()), SLOT(updateSize()));
 
   this->setRenderWindow(renderWin);
+
+  // enable qt gesture events
+  this->grabGesture(Qt::PinchGesture);
+  this->grabGesture(Qt::PanGesture);
+  this->grabGesture(Qt::TapGesture);
+  this->grabGesture(Qt::TapAndHoldGesture);
+  this->grabGesture(Qt::SwipeGesture);
 }
 
 //-----------------------------------------------------------------------------

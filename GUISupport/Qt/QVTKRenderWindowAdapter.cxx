@@ -97,6 +97,7 @@ public:
     : ParentWidget(qobject_cast<QWidget*>(widgetOrWindow))
     , ParentWindow(qobject_cast<QWindow*>(widgetOrWindow))
     , Self(self)
+    , InteractorAdapter(widgetOrWindow)
     , RenderWindow(renWin)
     , Context(cntxt)
     , Surface(nullptr)

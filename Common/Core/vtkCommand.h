@@ -338,6 +338,9 @@
     _vtk_add_event(UncheckedPropertyModifiedEvent)\
     _vtk_add_event(UpdateShaderEvent)\
     _vtk_add_event(MessageEvent)\
+    _vtk_add_event(StartSwipeEvent)\
+    _vtk_add_event(SwipeEvent)\
+    _vtk_add_event(EndSwipeEvent)\
     _vtk_add_event(StartPinchEvent)\
     _vtk_add_event(PinchEvent)\
     _vtk_add_event(EndPinchEvent)\
@@ -349,7 +352,6 @@
     _vtk_add_event(EndPanEvent)\
     _vtk_add_event(TapEvent)\
     _vtk_add_event(LongTapEvent)\
-    _vtk_add_event(SwipeEvent)\
     _vtk_add_event(FourthButtonPressEvent)\
     _vtk_add_event(FourthButtonReleaseEvent)\
     _vtk_add_event(FifthButtonPressEvent)\

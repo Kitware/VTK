@@ -43,9 +43,16 @@ public:
   /**
    * Event bindings for gestures
    */
+  void OnStartRotate() override;
   void OnRotate() override;
+  void OnEndRotate() override;
+  void OnStartPinch() override;
   void OnPinch() override;
+  void OnEndPinch() override;
+  void OnStartPan() override;
   void OnPan() override;
+  void OnEndPan() override;
+
   //@}
 
 protected:
