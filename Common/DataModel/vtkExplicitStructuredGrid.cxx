@@ -223,24 +223,6 @@ void vtkExplicitStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6]
 }
 
 //----------------------------------------------------------------------------
-// Templated function for returning the list of cells using a point
-namespace {
-
-  template <class TIds, class TLinks>
-  void GetPointCellsT(TLinks *links, vtkIdType ptId, vtkIdList *cellIds)
-  {
-    vtkIdType numCells = links->GetNcells(ptId);
-    TIds *cells = links->GetCells(ptId);
-
-    cellIds->SetNumberOfIds(numCells);
-    for (auto i=0; i < numCells; i++)
-    {
-      cellIds->SetId(i,static_cast<vtkIdType>(cells[i]));
-    }
-  }
-} //anonymous namespace
-
-//----------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
 {
   if ( ! this->Links )

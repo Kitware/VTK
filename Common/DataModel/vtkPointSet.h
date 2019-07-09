@@ -68,9 +68,9 @@ public:
    * the data is static (see vtkStaticCellLinks, vtkStaticPointLocator,
    * vtkStaticCellLocator).
    */
-  vtkSetMacro(Editable,vtkTypeBool);
-  vtkGetMacro(Editable,vtkTypeBool);
-  vtkBooleanMacro(Editable,vtkTypeBool);
+  vtkSetMacro(Editable,bool);
+  vtkGetMacro(Editable,bool);
+  vtkBooleanMacro(Editable,bool);
   //@}
 
   /**
@@ -183,7 +183,7 @@ protected:
   vtkPointSet();
   ~vtkPointSet() override;
 
-  vtkTypeBool Editable;
+  bool Editable;
   vtkPoints *Points;
   vtkAbstractPointLocator *Locator;
 
