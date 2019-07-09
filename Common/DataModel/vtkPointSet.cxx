@@ -170,22 +170,7 @@ vtkIdType vtkPointSet::FindPoint(double x[3])
 
   if ( !this->Locator )
   {
-    if ( this->Editable )
-    {
-      this->Locator = vtkPointLocator::New();
-    }
-    else
-    {
-      this->Locator = vtkStaticPointLocator::New();
-    }
-    this->Locator->Register(this);
-    this->Locator->Delete();
-    this->Locator->SetDataSet(this);
-  }
-
-  if ( this->Points->GetMTime() > this->Locator->GetMTime() )
-  {
-    this->Locator->SetDataSet(this);
+    this->BuildLocator();
   }
 
   return this->Locator->FindClosestPoint(x);

@@ -32,7 +32,7 @@ int vtkAbstractCellLinks::
 ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray *ca)
 {
   vtkIdType numEntries = ca->GetNumberOfConnectivityEntries();
-  vtkIdType max = maxPtId;
+  unsigned int max = maxPtId;
   max = (maxCellId > max ? maxCellId : max);
   max = (numEntries > max ? numEntries : max);
 
