@@ -45,11 +45,3 @@ VTKIOODBC_EXPORT void vtkIOODBC_AutoInit_Construct()
     vtkSQLDatabase::RegisterCreateFromURLCallback(ODBCCreateFunction);
   }
 }
-
-VTKIOODBC_EXPORT void vtkIOODBC_AutoInit_Destruct()
-{
-  if (--vtkIOODBCCount == 0)
-  {
-    vtkSQLDatabase::UnRegisterCreateFromURLCallback(ODBCCreateFunction);
-  }
-}
