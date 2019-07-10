@@ -15,6 +15,7 @@ if (VTK_BINARY_DIR)
                 "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
                 "-DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}"
                 "-DVTK_DIR=${vtk_cmake_build_dir}"
+                "-DQt5_DIR=${Qt5_DIR}"
               --test-command
                 "${CMAKE_CTEST_COMMAND}"
                   -C $<CONFIGURATION>)
@@ -48,6 +49,7 @@ else ()
   add_example(GUI/Qt/GraphicsView)
   add_example(GUI/Qt/ImageViewer)
   add_example(GUI/Qt/SimpleView)
+  add_example(GUI/Qt/TouchGestureViewer)
   add_example(IO/Cxx)
   add_example(ImageProcessing/Cxx)
   add_example(Infovis/Cxx)
