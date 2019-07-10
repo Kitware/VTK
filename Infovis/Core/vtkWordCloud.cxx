@@ -345,6 +345,7 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
       else
       {
         std::string skippedWord;
+        skippedWord.resize((element.first).size());
         std::transform((element.first).begin(),
                        (element.first).end(),
                        skippedWord.begin(),
@@ -539,14 +540,13 @@ void AddReplacementPairsToStopList(
     // The replacement may contain multiple strings and may have upper
     // case letters
     std::transform(to.begin(), to.end(), to.begin(), ::tolower);
-    // The to stirng may have more thn one word
+    // The to string may have more thn one word
     std::vector<std::string> words;
     ::ExtractWordsFromString(to, words);
 
     // Add each replacement to the stop list
     for (auto w : words)
     {
-      std::cout << "Replacement: " << w << std::endl;
       stopList.insert(w);
     }
   }
@@ -1523,3 +1523,5 @@ void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer &stopList)
   stopList.insert("zero");
 }
 }
+
+//  LocalWords:  FontFileName

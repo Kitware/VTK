@@ -83,7 +83,7 @@ int UnitTestWordCloud(int argc, char *argv[])
     status1++;
   }
 
-  size_t skippedExpected = 1;
+  size_t skippedExpected = 42;
   if (skippedExpected != wordCloud->GetSkippedWords().size())
   {
     std::cout << "\n  Default regression failed. Expected # of skipped words " << skippedExpected
@@ -203,70 +203,70 @@ int UnitTestWordCloud(int argc, char *argv[])
 
     wc->SetFileName(argv[1]);
 #if defined(__GNUC__) && (__GNUC__ == 8 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ == 1)
-    status4 += TestOneByOne(wc, "Defaults", 23, 1, 65);
+    status4 += TestOneByOne(wc, "Defaults", 23, 42, 65);
 #else
-    status4 += TestOneByOne(wc, "Defaults", 31, 1, 65);
+    status4 += TestOneByOne(wc, "Defaults", 31, 42, 65);
 #endif
     wc->SetFontFileName(argv[2]);
-    status4 += TestOneByOne(wc, "FontFileName", 40, 1, 65);
+    status4 += TestOneByOne(wc, "FontFileName", 40, 33, 65);
 
     wc->SetGap(4);
-    status4 += TestOneByOne(wc, "Gap", 28, 1, 65);
+    status4 += TestOneByOne(wc, "Gap", 28, 45, 65);
 
     wc->SetFontMultiplier(8);
-    status4 += TestOneByOne(wc, "FontMultiplier", 20, 1, 65);
+    status4 += TestOneByOne(wc, "FontMultiplier", 20, 53, 65);
 
     wc->SetMinFrequency(2);
-    status4 += TestOneByOne(wc, "MinFrequency", 10, 1, 65);
+    status4 += TestOneByOne(wc, "MinFrequency", 10, 63, 65);
 
     wc->SetMaxFontSize(100);
-    status4 += TestOneByOne(wc, "MaxFontSize", 10, 1, 65);
+    status4 += TestOneByOne(wc, "MaxFontSize", 10, 63, 65);
 
     wc->AddStopWord("nation");
     wc->AddStopWord("dedicated");
-    status4 += TestOneByOne(wc, "StopWords", 11, 1, 67);
+    status4 += TestOneByOne(wc, "StopWords", 11, 60, 67);
 
     vtkWordCloud::OrientationDistributionContainer oDist;
     oDist[0] = -90.0;
     oDist[1] =  90.0;
-    status4 += TestOneByOne(wc, "OrientationDistribution", 11, 1, 67);
+    status4 += TestOneByOne(wc, "OrientationDistribution", 11, 60, 67);
 
     wc->AddOrientation(90.0);
     wc->AddOrientation(0.0);
-    status4 += TestOneByOne(wc, "Orientations", 11, 1, 67);
+    status4 += TestOneByOne(wc, "Orientations", 11, 60, 67);
 
     wc->SetTitle("Gettysburg");
-    status4 += TestOneByOne(wc, "Title", 11, 1, 67);
+    status4 += TestOneByOne(wc, "Title", 11, 61, 67);
 
     wc->SetDPI(100);
-    status4 += TestOneByOne(wc, "DPI", 11, 1, 67);
+    status4 += TestOneByOne(wc, "DPI", 11, 61, 67);
 
     wc->SetMaskColorName("white");
     wc->SetFontMultiplier(2);
     wc->SetMaxFontSize(10);
     wc->SetMaskFileName(argv[3]);
-    status4 += TestOneByOne(wc, "MaskFileName", 12, 1, 67);
+    status4 += TestOneByOne(wc, "MaskFileName", 12, 60, 67);
 
     wc->SetMaskFileName(argv[4]);
     wc->SetBWMask(1);
-    status4 += TestOneByOne(wc, "MaskFileName(8bit)", 12, 1, 67);
+    status4 += TestOneByOne(wc, "MaskFileName(8bit)", 12, 60, 67);
 
     wc->SetColorSchemeName("Brewer Qualitative Pastel2");
-    status4 += TestOneByOne(wc, "ColorSchemeName", 12, 1, 67);
+    status4 += TestOneByOne(wc, "ColorSchemeName", 12, 60, 67);
 
     auto repPair = std::make_tuple("consecrate", "consecrated");
     wc->AddReplacementPair(repPair);
-    status4 += TestOneByOne(wc, "ReplacementPairs", 12, 1, 68);
+    status4 += TestOneByOne(wc, " ReplacementPairs", 12, 58, 68);
 
     wc->SetWordColorName("Peacock");
-    status4 += TestOneByOne(wc, "WordColorName", 12, 1, 68);
+    status4 += TestOneByOne(wc, "WordColorName", 12, 58, 68);
 
     vtkWordCloud::ColorDistributionContainer colorDist = {{0.0, 1.0}};
     wc->SetColorDistribution(colorDist);
-    status4 += TestOneByOne(wc, "ColorDistribution", 12, 1, 68);
+    status4 += TestOneByOne(wc, "ColorDistribution", 12, 58, 68);
 
     wc->SetStopListFileName(argv[5]);
-    status4 += TestOneByOne(wc, "StopListFileName", 18, 1, 47);
+    status4 += TestOneByOne(wc, "StopListFileName", 18, 73, 47);
   }
   if (status4)
   {
