@@ -64,7 +64,8 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
 
   this->InputCubeMap->Render(ren);
 
-  if (this->GetMTime() > this->LoadTime.GetMTime())
+  if (this->GetMTime() > this->LoadTime.GetMTime() ||
+    this->InputCubeMap->GetMTime() > this->LoadTime.GetMTime())
   {
     if (this->TextureObject == nullptr)
     {
@@ -87,13 +88,13 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
     vtkOpenGLState* state = renWin->GetState();
     vtkOpenGLState::ScopedglViewport svp(state);
     vtkOpenGLState::ScopedglEnableDisable sdepth(state, GL_DEPTH_TEST);
-    vtkOpenGLState::ScopedglEnableDisable sblend(state, GL_DEPTH_TEST);
+    vtkOpenGLState::ScopedglEnableDisable sblend(state, GL_BLEND);
     vtkOpenGLState::ScopedglEnableDisable sscissor(state, GL_SCISSOR_TEST);
 
     vtkNew<vtkOpenGLFramebufferObject> fbo;
     fbo->SetContext(renWin);
-    fbo->Bind();
     fbo->SaveCurrentBindingsAndBuffers();
+    fbo->Bind();
 
     for (int i = 0; i < 6; i++)
     {

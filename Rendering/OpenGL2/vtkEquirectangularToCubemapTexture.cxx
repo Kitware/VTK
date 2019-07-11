@@ -60,10 +60,10 @@ void vtkEquirectangularToCubemapTexture::Load(vtkRenderer* ren)
     vtkErrorMacro("No input texture specified.");
   }
 
-  this->InputTexture->Render(ren);
   this->CubeMapOn();
 
-  if (this->GetMTime() > this->LoadTime.GetMTime())
+  if (this->GetMTime() > this->LoadTime.GetMTime() ||
+    this->InputTexture->GetMTime() > this->LoadTime.GetMTime())
   {
     if (this->TextureObject == nullptr)
     {
@@ -86,8 +86,10 @@ void vtkEquirectangularToCubemapTexture::Load(vtkRenderer* ren)
     vtkOpenGLState* state = renWin->GetState();
     vtkOpenGLState::ScopedglViewport svp(state);
     vtkOpenGLState::ScopedglEnableDisable sdepth(state, GL_DEPTH_TEST);
-    vtkOpenGLState::ScopedglEnableDisable sblend(state, GL_DEPTH_TEST);
+    vtkOpenGLState::ScopedglEnableDisable sblend(state, GL_BLEND);
     vtkOpenGLState::ScopedglEnableDisable sscissor(state, GL_SCISSOR_TEST);
+
+    this->TextureObject->Activate();
 
     vtkNew<vtkOpenGLFramebufferObject> fbo;
     fbo->SetContext(renWin);
@@ -137,11 +139,13 @@ void vtkEquirectangularToCubemapTexture::Load(vtkRenderer* ren)
     }
     else
     {
+      this->InputTexture->Render(ren);
       this->InputTexture->GetTextureObject()->Activate();
-      quadHelper.Program->SetUniformi("cubeMap", this->InputTexture->GetTextureUnit());
+      quadHelper.Program->SetUniformi("equiTex", this->InputTexture->GetTextureUnit());
       quadHelper.Render();
       this->InputTexture->GetTextureObject()->Deactivate();
     }
+    this->TextureObject->Deactivate();
     fbo->RestorePreviousBindingsAndBuffers();
     this->LoadTime.Modified();
   }

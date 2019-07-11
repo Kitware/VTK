@@ -67,13 +67,13 @@ void vtkPBRLUTTexture::Load(vtkRenderer* ren)
     vtkOpenGLState* state = renWin->GetState();
     vtkOpenGLState::ScopedglViewport svp(state);
     vtkOpenGLState::ScopedglEnableDisable sdepth(state, GL_DEPTH_TEST);
-    vtkOpenGLState::ScopedglEnableDisable sblend(state, GL_DEPTH_TEST);
+    vtkOpenGLState::ScopedglEnableDisable sblend(state, GL_BLEND);
     vtkOpenGLState::ScopedglEnableDisable sscissor(state, GL_SCISSOR_TEST);
 
     vtkNew<vtkOpenGLFramebufferObject> fbo;
     fbo->SetContext(renWin);
-    fbo->Bind();
     fbo->SaveCurrentBindingsAndBuffers();
+    fbo->Bind();
 
     fbo->AddColorAttachment(0, this->TextureObject);
     fbo->ActivateDrawBuffers(1);
