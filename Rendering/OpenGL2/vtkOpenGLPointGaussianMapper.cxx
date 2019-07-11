@@ -1012,13 +1012,14 @@ void vtkOpenGLPointGaussianMapper::ReleaseGraphicsResources(vtkWindow* win)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkOpenGLPointGaussianMapper::GetIsOpaque()
+bool vtkOpenGLPointGaussianMapper::HasTranslucentPolygonalGeometry()
 {
+  // emissive always needs to be opaque
   if (this->Emissive)
   {
-    return true;
+    return false;
   }
-  return this->Superclass::GetIsOpaque();
+  return this->Superclass::HasTranslucentPolygonalGeometry();
 }
 
 //-------------------------------------------------------------------------

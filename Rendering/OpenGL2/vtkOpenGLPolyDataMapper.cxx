@@ -3420,48 +3420,6 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
   }
 }
 
-//-----------------------------------------------------------------------------
-bool vtkOpenGLPolyDataMapper::GetIsOpaque()
-{
-  if (this->ScalarVisibility &&
-      (this->ColorMode == VTK_COLOR_MODE_DEFAULT ||
-       this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS))
-  {
-    vtkPolyData* input =
-      vtkPolyData::SafeDownCast(this->GetInputDataObject(0, 0));
-    if (input)
-    {
-      int cellFlag;
-      vtkDataArray* scalars = this->GetScalars(input,
-        this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
-        this->ArrayName, cellFlag);
-      if (scalars &&
-          (scalars->IsA("vtkUnsignedCharArray") ||
-           this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS) &&
-        (scalars->GetNumberOfComponents() ==  4 /*(RGBA)*/ ||
-         scalars->GetNumberOfComponents() == 2 /*(LuminanceAlpha)*/))
-      {
-        int opacityIndex = scalars->GetNumberOfComponents() - 1;
-        unsigned char opacity = 0;
-        switch (scalars->GetDataType())
-        {
-          vtkTemplateMacro(
-            vtkScalarsToColors::ColorToUChar(
-              static_cast<VTK_TT>(scalars->GetRange(opacityIndex)[0]),
-              &opacity));
-        }
-        if (opacity < 255)
-        {
-          // If the opacity is 255, despite the fact that the user specified
-          // RGBA, we know that the Alpha is 100% opaque. So treat as opaque.
-          return false;
-        }
-      }
-    }
-  }
-  return this->Superclass::GetIsOpaque();
-}
-
 //----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
 {

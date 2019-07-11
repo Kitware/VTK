@@ -70,10 +70,13 @@ public:
   int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
   //@}
 
+  //@{
   /**
-   * Does this prop have some translucent polygonal geometry?
+   * Does this prop have some opaque/translucent polygonal geometry?
    */
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasOpaqueGeometry() override;
+  //@}
 
   /**
    * This causes the actor to be rendered. It in turn will render the actor's
@@ -208,6 +211,12 @@ public:
     vtkHardwareSelector *sel,
     std::vector<unsigned int> &pixeloffsets) override;
 
+  //@{
+  // Get if we are in the translucent polygonal geometry pass
+  bool IsRenderingTranslucentPolygonalGeometry() override {
+    return this->InTranslucentPass; };
+  //@}
+
 protected:
   vtkActor();
   ~vtkActor() override;
@@ -216,6 +225,7 @@ protected:
   int GetIsOpaque();
   bool ForceOpaque;
   bool ForceTranslucent;
+  bool InTranslucentPass;
 
   vtkProperty *Property;
   vtkProperty *BackfaceProperty;

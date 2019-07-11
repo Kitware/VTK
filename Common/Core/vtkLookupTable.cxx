@@ -119,6 +119,21 @@ int vtkLookupTable::IsOpaque()
   return this->OpaqueFlag;
 }
 
+int vtkLookupTable::IsOpaque(vtkAbstractArray *scalars,
+                             int colorMode, int component)
+{
+  // use superclass logic?
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
+  if ((colorMode == VTK_COLOR_MODE_DEFAULT &&
+       vtkArrayDownCast<vtkUnsignedCharArray>(dataArray) != nullptr) ||
+      (colorMode == VTK_COLOR_MODE_DIRECT_SCALARS && dataArray))
+  {
+   return this->Superclass::IsOpaque(scalars, colorMode, component);
+  }
+  // otherwise look at our table
+  return this->IsOpaque();
+}
+
 //----------------------------------------------------------------------------
 void vtkLookupTable::SetTableRange(const double r[2])
 {

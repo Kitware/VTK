@@ -64,6 +64,16 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow *) override;
 
+  //@{
+  /**
+   * Some introspection on the type of data the mapper will render
+   * used by props to determine if they should invoke the mapper
+   * on a specific rendering pass.
+   */
+  bool HasOpaqueGeometry() override;
+  bool HasTranslucentPolygonalGeometry() override;
+  //@}
+
 protected:
   vtkCompositePolyDataMapper();
   ~vtkCompositePolyDataMapper() override;

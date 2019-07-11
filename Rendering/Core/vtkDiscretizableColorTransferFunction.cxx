@@ -173,6 +173,21 @@ int vtkDiscretizableColorTransferFunction::IsOpaque()
   return !this->EnableOpacityMapping;
 }
 
+int vtkDiscretizableColorTransferFunction::IsOpaque(vtkAbstractArray *scalars,
+                             int colorMode, int component)
+{
+  // use superclass logic?
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
+  if ((colorMode == VTK_COLOR_MODE_DEFAULT &&
+       vtkArrayDownCast<vtkUnsignedCharArray>(dataArray) != nullptr) ||
+      (colorMode == VTK_COLOR_MODE_DIRECT_SCALARS && dataArray))
+  {
+   return this->Superclass::IsOpaque(scalars, colorMode, component);
+  }
+  // otherwise look at our basic approach
+  return this->IsOpaque();
+}
+
 //-----------------------------------------------------------------------------
 void vtkDiscretizableColorTransferFunction::Build()
 {

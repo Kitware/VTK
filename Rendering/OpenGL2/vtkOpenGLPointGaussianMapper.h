@@ -43,9 +43,9 @@ public:
   void ReleaseGraphicsResources(vtkWindow *) override;
 
   /**
-   * Is this mapper opqaue? currently always false.
+   * Based on emissive setting
    */
-  bool GetIsOpaque() override;
+  bool HasTranslucentPolygonalGeometry() override;
 
   /**
    * This calls RenderPiece (in a for loop if streaming is necessary).

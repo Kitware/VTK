@@ -6,6 +6,7 @@ public:
   vtkPolyData *Data;
   unsigned int FlatIndex;
   double Opacity;
+  bool IsOpaque;
   bool Visibility;
   bool Pickability;
   bool OverridesColor;

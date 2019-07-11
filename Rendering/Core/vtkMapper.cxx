@@ -717,17 +717,35 @@ const char *vtkMapper::GetScalarModeAsString()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkMapper::GetIsOpaque()
+bool vtkMapper::HasOpaqueGeometry()
 {
+  // by default we only return true for Opaque or Translucent
+  // not both.
+  return !this->HasTranslucentPolygonalGeometry();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkMapper::HasTranslucentPolygonalGeometry()
+{
+  // scalar visibility?
+  int cellFlag = 0; // not used
+  vtkAbstractArray* abstractArray = vtkAbstractMapper::
+    GetAbstractScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
+                       this->ArrayId, this->ArrayName, cellFlag);
+  if ( !this->ScalarVisibility || abstractArray==nullptr)
+  { // No scalar colors.
+    return false;
+  }
+
   vtkScalarsToColors* lut = this->GetLookupTable();
   if (lut)
   {
     // Ensure that the lookup table is built
     lut->Build();
-    return (lut->IsOpaque() == 1);
+    return (lut->IsOpaque(abstractArray, this->ColorMode, this->ArrayComponent) == 0);
   }
 
-  return true;
+  return false;
 }
 
 // anonymous namespace

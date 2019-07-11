@@ -81,6 +81,48 @@ int vtkScalarsToColors::IsOpaque()
 }
 
 //----------------------------------------------------------------------------
+// Description:
+// Return true if all of the values defining the mapping have an opacity
+// equal to 1. Default implementation return true.
+int vtkScalarsToColors::IsOpaque(vtkAbstractArray *scalars,
+                                 int colorMode, int /*component*/)
+{
+  if (!scalars)
+  {
+    return this->IsOpaque();
+  }
+
+  int numberOfComponents = scalars->GetNumberOfComponents();
+
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
+
+  // map scalars through lookup table only if needed
+  if ((colorMode == VTK_COLOR_MODE_DEFAULT &&
+       vtkArrayDownCast<vtkUnsignedCharArray>(dataArray) != nullptr) ||
+      (colorMode == VTK_COLOR_MODE_DIRECT_SCALARS && dataArray))
+  {
+    // we will be using the scalars directly, so look at the number of
+    // components and the range
+    if (numberOfComponents == 3 || numberOfComponents == 1)
+    {
+      return (this->Alpha >=  1.0 ? 1 : 0);
+    }
+    // otherwise look at the range of the alpha channel
+    unsigned char opacity = 0;
+    switch (scalars->GetDataType())
+    {
+      vtkTemplateMacro(
+        vtkScalarsToColors::ColorToUChar(
+          static_cast<VTK_TT>(dataArray->GetRange(numberOfComponents - 1)[0]),
+            &opacity));
+    }
+    return ((opacity == 255) ? 1 : 0);
+  }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 void vtkScalarsToColors::SetVectorModeToComponent()
 {
   this->SetVectorMode(vtkScalarsToColors::COMPONENT);

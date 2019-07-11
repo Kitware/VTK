@@ -45,17 +45,15 @@ public:
   vtkTypeMacro(vtkCompositePolyDataMapper2, vtkOpenGLPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  //@{
   /**
-   * Returns if the mapper does not expect to have translucent geometry. This
-   * may happen when using ScalarMode is set to not map scalars i.e. render the
-   * scalar array directly as colors and the scalar array has opacity i.e. alpha
-   * component. Note that even if this method returns true, an actor may treat
-   * the geometry as translucent since a constant translucency is set on the
-   * property, for example.
-   * Overridden to use the actual data and ScalarMode to determine if we have
-   * opaque geometry.
+   * Some introspection on the type of data the mapper will render
+   * used by props to determine if they should invoke the mapper
+   * on a specific rendering pass.
    */
-  bool GetIsOpaque() override;
+  bool HasOpaqueGeometry() override;
+  bool HasTranslucentPolygonalGeometry() override;
+  //@}
 
   //@{
   /**
@@ -236,8 +234,6 @@ protected:
   std::vector<vtkPolyData*> RenderedList;
 
 private:
-  vtkMTimeType LastOpaqueCheckTime;
-  bool LastOpaqueCheckValue;
   double ColorResult[3];
 
   vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&) = delete;
