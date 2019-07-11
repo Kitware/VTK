@@ -65,7 +65,8 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
 
   this->InputCubeMap->Render(ren);
 
-  if (this->GetMTime() > this->LoadTime.GetMTime())
+  if (this->GetMTime() > this->LoadTime.GetMTime() ||
+    this->InputCubeMap->GetMTime() > this->LoadTime.GetMTime())
   {
     if (this->TextureObject == nullptr)
     {
@@ -90,20 +91,8 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
     vtkOpenGLState* state = renWin->GetState();
     vtkOpenGLState::ScopedglViewport svp(state);
     vtkOpenGLState::ScopedglEnableDisable sdepth(state, GL_DEPTH_TEST);
-    vtkOpenGLState::ScopedglEnableDisable sblend(state, GL_DEPTH_TEST);
+    vtkOpenGLState::ScopedglEnableDisable sblend(state, GL_BLEND);
     vtkOpenGLState::ScopedglEnableDisable sscissor(state, GL_SCISSOR_TEST);
-
-    vtkNew<vtkOpenGLFramebufferObject> fbo;
-    fbo->SetContext(renWin);
-    fbo->Bind();
-    fbo->SaveCurrentBindingsAndBuffers();
-
-    for (int i = 0; i < 6; i++)
-    {
-      fbo->AddColorAttachment(i, this->TextureObject, 0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
-    }
-    fbo->ActivateDrawBuffers(6);
-    fbo->Start(this->PrefilterSize, this->PrefilterSize);
 
     std::string FSSource = vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
 
@@ -220,9 +209,13 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
       this->InputCubeMap->GetTextureObject()->Activate();
       quadHelper.Program->SetUniformi("cubeMap", this->InputCubeMap->GetTextureUnit());
 
+      vtkNew<vtkOpenGLFramebufferObject> fbo;
+      fbo->SetContext(renWin);
+      fbo->SaveCurrentBindingsAndBuffers();
+      fbo->Bind();
+
       for (unsigned int mip = 0; mip < this->PrefilterLevels; mip++)
       {
-        fbo->SaveCurrentBindingsAndBuffers();
         fbo->RemoveColorAttachments(6);
         for (int i = 0; i < 6; i++)
         {
@@ -237,12 +230,12 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
         quadHelper.Program->SetUniformf("roughness", roughness);
 
         quadHelper.Render();
-        fbo->RestorePreviousBindingsAndBuffers();
       }
+
+      fbo->RestorePreviousBindingsAndBuffers();
 
       this->InputCubeMap->GetTextureObject()->Deactivate();
     }
-    fbo->RestorePreviousBindingsAndBuffers();
     this->LoadTime.Modified();
   }
 
