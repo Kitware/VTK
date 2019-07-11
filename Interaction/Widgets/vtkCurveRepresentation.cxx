@@ -35,6 +35,9 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
+#include <algorithm>
+#include <iterator>
+
 //----------------------------------------------------------------------------
 vtkCurveRepresentation::vtkCurveRepresentation()
 {
@@ -304,26 +307,45 @@ void vtkCurveRepresentation::ProjectPointsToOrthoPlane()
 }
 
 //----------------------------------------------------------------------------
+int vtkCurveRepresentation::GetHandleIndex(vtkProp* prop)
+{
+  auto iter =
+    std::find(this->Handle, this->Handle + this->NumberOfHandles, static_cast<vtkActor*>(prop));
+  return (iter != this->Handle + NumberOfHandles)
+    ? static_cast<int>(std::distance(this->Handle, iter))
+    : -1;
+}
+
+//----------------------------------------------------------------------------
+void vtkCurveRepresentation::SetCurrentHandleIndex(int index)
+{
+  if (index < -1 || index >= this->NumberOfHandles)
+  {
+    index = -1;
+  }
+
+  if (index != this->CurrentHandleIndex)
+  {
+    this->CurrentHandleIndex = index;
+    this->HighlightHandle(index == -1 ? nullptr : this->Handle[index]);
+  }
+}
+
+//----------------------------------------------------------------------------
 int vtkCurveRepresentation::HighlightHandle(vtkProp *prop)
 {
   // First unhighlight anything picked
-  if ( this->CurrentHandle )
+  if (this->CurrentHandle)
   {
     this->CurrentHandle->SetProperty(this->HandleProperty);
   }
 
   this->CurrentHandle = static_cast<vtkActor *>(prop);
 
-  if ( this->CurrentHandle )
+  if (this->CurrentHandle)
   {
-    for ( int i = 0; i < this->NumberOfHandles; ++i ) // find handle
-    {
-      if ( this->CurrentHandle == this->Handle[i] )
-      {
-        this->CurrentHandle->SetProperty(this->SelectedHandleProperty);
-        return i;
-      }
-    }
+    this->CurrentHandle->SetProperty(this->SelectedHandleProperty);
+    return this->GetHandleIndex(prop);
   }
   return -1;
 }
@@ -771,14 +793,13 @@ int vtkCurveRepresentation::ComputeInteractionState(int X, int Y,
   {
     this->ValidPick = 1;
     this->InteractionState = vtkCurveRepresentation::OnHandle;
-    this->CurrentHandleIndex =
-      this->HighlightHandle(path->GetFirstNode()->GetViewProp());
+    this->SetCurrentHandleIndex(this->GetHandleIndex(path->GetFirstNode()->GetViewProp()));
     handlePicked = 1;
     this->FirstSelected = (this->CurrentHandleIndex == 0);
   }
   else
   {
-    this->CurrentHandleIndex = this->HighlightHandle(nullptr);
+    this->SetCurrentHandleIndex(-1);
   }
 
   if (!handlePicked)
@@ -917,14 +938,14 @@ void vtkCurveRepresentation::EndWidgetInteraction(double[2])
     break;
 
   case vtkCurveRepresentation::Inserting:
-    this->InsertHandleOnLine(this->LastPickPosition);
+    this->SetCurrentHandleIndex(this->InsertHandleOnLine(this->LastPickPosition));
     break;
 
   case vtkCurveRepresentation::Erasing:
     if (this->CurrentHandleIndex)
     {
       int index = this->CurrentHandleIndex;
-      this->CurrentHandleIndex = this->HighlightHandle(nullptr);
+      this->SetCurrentHandleIndex(-1);
       this->EraseHandle(index);
     }
   }

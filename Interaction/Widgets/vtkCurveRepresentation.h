@@ -232,6 +232,15 @@ public:
   */
   void RegisterPickers() override;
 
+  //@{
+  /**
+   * Get/Set the current handle index. Setting the current handle index will
+   * also result in the handle being highlighted. Set to `-1` to remove the
+   * highlight.
+   */
+  void SetCurrentHandleIndex(int index);
+  vtkGetMacro(CurrentHandleIndex, int);
+  //@}
 protected:
   vtkCurveRepresentation();
   ~vtkCurveRepresentation() override;
@@ -262,8 +271,14 @@ protected:
   vtkSphereSource   **HandleGeometry;
   void Initialize();
   int  HighlightHandle(vtkProp *prop); //returns handle index or -1 on fail
+  int GetHandleIndex(vtkProp* prop);   // returns handle index or -1 on fail
   virtual void SizeHandles();
-  virtual void InsertHandleOnLine(double* pos) = 0;
+
+  /**
+   * Returns the position of insertion or -1 on fail.
+   */
+  virtual int InsertHandleOnLine(double* pos) = 0;
+
   virtual void PushHandle(double* pos);
   void EraseHandle(const int&);
 
