@@ -32,22 +32,19 @@ int vtkAbstractCellLinks::
 ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray *ca)
 {
   vtkIdType numEntries = ca->GetNumberOfConnectivityEntries();
-  unsigned int max = maxPtId;
+  vtkIdType max = maxPtId;
   max = (maxCellId > max ? maxCellId : max);
   max = (numEntries > max ? numEntries : max);
 
-  if ( max >= VTK_UNSIGNED_INT_MAX )
-  {
-    return vtkAbstractCellLinks::STATIC_CELL_LINKS_IDTYPE;
-  }
-  else if ( max >= VTK_UNSIGNED_SHORT_MAX )
-  {
-    return vtkAbstractCellLinks::STATIC_CELL_LINKS_UINT;
-  }
-  else
+  if ( max < VTK_UNSIGNED_SHORT_MAX )
   {
     return vtkAbstractCellLinks::STATIC_CELL_LINKS_USHORT;
   }
+  else if ( max < VTK_UNSIGNED_INT_MAX )
+  {
+    return vtkAbstractCellLinks::STATIC_CELL_LINKS_UINT;
+  }
+  return vtkAbstractCellLinks::STATIC_CELL_LINKS_IDTYPE;
 }
 
 //----------------------------------------------------------------------------
