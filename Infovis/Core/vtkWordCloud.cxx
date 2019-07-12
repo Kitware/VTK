@@ -595,7 +595,10 @@ bool AddWordToFinal(vtkWordCloud *wordCloud,
                 << validNames.str();
         errorMessage = message.str();
       }
-    textProperty->SetColor(color.GetRed() * 255.0, color.GetGreen() * 255.0 , color.GetBlue() * 255.0);
+    textProperty->SetColor(
+      static_cast<double>(color.GetRed()) / 255.0,
+      static_cast<double>(color.GetGreen()) /  255.0,
+      static_cast<double>(color.GetBlue()) /  255.0);
   }
   else
   {
