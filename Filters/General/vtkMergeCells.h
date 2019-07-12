@@ -48,12 +48,14 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkDataSetAttributes.h" // Needed for FieldList
+#include "vtkSmartPointer.h" //fot vtkSmartPointer
 
-class vtkDataSet;
-class vtkUnstructuredGrid;
-class vtkPointData;
 class vtkCellData;
+class vtkDataSet;
 class vtkMergeCellsSTLCloak;
+class vtkMergePoints;
+class vtkPointData;
+class vtkUnstructuredGrid;
 
 class VTKFILTERSGENERAL_EXPORT vtkMergeCells : public vtkObject
 {
@@ -137,6 +139,11 @@ public:
   vtkBooleanMacro(MergeDuplicatePoints, bool);
   //@}
 
+  /**
+   * Clear the Locator and set it to nullptr.
+   */
+  void InvalidateCachedLocator();
+
   //@{
   /**
    * We need to know the number of different data sets that will
@@ -209,6 +216,8 @@ protected:
   vtkUnstructuredGrid *UnstructuredGrid;
 
   int NextGrid;
+
+  vtkSmartPointer<vtkMergePoints> Locator;
 
 private:
   vtkMergeCells(const vtkMergeCells&) = delete;

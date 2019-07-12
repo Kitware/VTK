@@ -30,7 +30,6 @@
 #include "vtkMPIController.h"
 #include "vtkMath.h"
 #include "vtkMergeCells.h"
-#include "vtkMergePoints.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
