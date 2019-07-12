@@ -90,11 +90,15 @@ public:
   vtkTypeMacro(vtkLookupTable,vtkScalarsToColors);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  //@{
   /**
    * Return true if all of the values defining the mapping have an opacity
    * equal to 1.
    */
   int IsOpaque() override;
+  int IsOpaque(vtkAbstractArray *scalars,
+                int colorMode, int component) override;
+  //@}
 
   /**
    * Allocate a color table of specified size.

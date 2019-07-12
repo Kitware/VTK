@@ -54,6 +54,7 @@ vtkActor::vtkActor()
 
   this->ForceOpaque = false;
   this->ForceTranslucent = false;
+  this->InTranslucentPass = false;
 
   // The mapper bounds are cache to know when the bounds must be recomputed
   // from the mapper bounds.
@@ -106,15 +107,12 @@ void vtkActor::GetActors(vtkPropCollection *ac)
   ac->AddItem(this);
 }
 
-//----------------------------------------------------------------------------
-// should be called from the render methods only
-int vtkActor::GetIsOpaque()
+vtkTypeBool vtkActor::HasOpaqueGeometry()
 {
   if (this->ForceOpaque)
   {
     return 1;
   }
-
   if (this->ForceTranslucent)
   {
     return 0;
@@ -134,9 +132,52 @@ int vtkActor::GetIsOpaque()
 
   // are we using an opaque scalar array, if any?
   is_opaque = is_opaque &&
-    (this->Mapper == nullptr || this->Mapper->GetIsOpaque());
+    (this->Mapper == nullptr || this->Mapper->HasOpaqueGeometry());
 
   return is_opaque? 1 : 0;
+}
+
+vtkTypeBool vtkActor::HasTranslucentPolygonalGeometry()
+{
+  if (this->ForceOpaque)
+  {
+    return 0;
+  }
+  if (this->ForceTranslucent)
+  {
+    return 1;
+  }
+
+  // make sure we have a property
+  if(!this->Property)
+  {
+    // force creation of a property
+    this->GetProperty();
+  }
+
+  if (this->Property->GetOpacity() < 1.0)
+  {
+    return 1;
+  }
+
+  if (this->Texture != nullptr && this->Texture->IsTranslucent())
+  {
+    return 1;
+  }
+
+  if (this->Mapper != nullptr && this->Mapper->HasTranslucentPolygonalGeometry())
+  {
+    return 1;
+  }
+
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+// should be called from the render methods only
+int vtkActor::GetIsOpaque()
+{
+  return this->HasOpaqueGeometry();
 }
 
 //----------------------------------------------------------------------------
@@ -161,9 +202,8 @@ int vtkActor::RenderOpaqueGeometry(vtkViewport *vp)
     this->GetProperty();
   }
 
-  // is this actor opaque
-  // Do this check only when not in selection mode
-  if (this->GetIsOpaque() ||
+  // Should we render during the opaque pass?
+  if (this->HasOpaqueGeometry() ||
     (ren->GetSelector() && this->Property->GetOpacity() > 0.0))
   {
     this->Property->Render(this, ren);
@@ -221,6 +261,8 @@ int vtkActor::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
     return 0;
   }
 
+  this->InTranslucentPass = true;
+
   // make sure we have a property
   if (!this->Property)
   {
@@ -228,8 +270,8 @@ int vtkActor::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
     this->GetProperty();
   }
 
-  // is this actor opaque ?
-  if (!this->GetIsOpaque())
+  // Should we render during the translucent pass?
+  if (this->HasTranslucentPolygonalGeometry() && !ren->GetSelector())
   {
     this->Property->Render(this, ren);
 
@@ -273,27 +315,8 @@ int vtkActor::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
     renderedSomething = 1;
   }
 
+  this->InTranslucentPass = false;
   return renderedSomething;
-}
-
-//-----------------------------------------------------------------------------
-// Description:
-// Does this prop have some translucent polygonal geometry?
-vtkTypeBool vtkActor::HasTranslucentPolygonalGeometry()
-{
-  if ( ! this->Mapper )
-  {
-    return 0;
-  }
-  // make sure we have a property
-  if (!this->Property)
-  {
-    // force creation of a property
-    this->GetProperty();
-  }
-
-  // is this actor opaque ?
-  return !this->GetIsOpaque();
 }
 
 //----------------------------------------------------------------------------

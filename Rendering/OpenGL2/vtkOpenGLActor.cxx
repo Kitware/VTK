@@ -61,7 +61,7 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   vtkOpenGLState::ScopedglDepthMask dmsaver(ostate);
 
   // get opacity
-  bool opaque = (this->GetIsOpaque() != 0);
+  bool opaque = !this->IsRenderingTranslucentPolygonalGeometry();
   if (opaque)
   {
     ostate->vtkglDepthMask(GL_TRUE);

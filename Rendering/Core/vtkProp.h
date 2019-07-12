@@ -293,6 +293,20 @@ public:
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
+   * Does this prop have some opaque geometry?
+   * This method is called during the rendering process to know if there is
+   * some opaque geometry. A simple prop that has some
+   * opaque geometry will return true. A composite prop (like
+   * vtkAssembly) that has at least one sub-prop that has some opaque
+   * polygonal geometry will return true.
+   * Default implementation return true.
+   */
+  virtual vtkTypeBool HasOpaqueGeometry()
+    { return 1; }
+
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
@@ -439,6 +453,11 @@ public:
    */
   virtual void SetShaderProperty(vtkShaderProperty *property);
   virtual vtkShaderProperty *GetShaderProperty();
+  //@}
+
+  //@{
+  // Get if we are in the translucent polygonal geometry pass
+  virtual bool IsRenderingTranslucentPolygonalGeometry() { return false; };
   //@}
 
 protected:

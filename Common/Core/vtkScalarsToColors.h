@@ -64,11 +64,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkScalarsToColors *New();
 
+  //@{
   /**
    * Return true if all of the values defining the mapping have an opacity
-   * equal to 1. Default implementation returns true.
+   * equal to 1. Default implementation returns true. The more complex
+   * signature will yield more accurate results.
    */
   virtual int IsOpaque();
+  virtual int IsOpaque(vtkAbstractArray *scalars,
+                       int colorMode, int component);
+  //@}
 
   /**
    * Perform any processing required (if any) before processing

@@ -61,10 +61,14 @@ public:
   vtkTypeMacro(vtkDiscretizableColorTransferFunction, vtkColorTransferFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  //@{
   /**
    * Returns the negation of \a EnableOpacityMapping.
    */
   int IsOpaque() override;
+  int IsOpaque(vtkAbstractArray *scalars,
+                int colorMode, int component) override;
+  //@}
 
   /**
    * Add colors to use when \a IndexedLookup is true.

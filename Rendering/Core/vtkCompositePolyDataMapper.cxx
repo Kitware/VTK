@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkCompositePolyDataMapper.h"
 
+#include "vtkActor.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
@@ -162,6 +163,13 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer *ren, vtkActor *a)
   //Call Render() on each of the PolyDataMappers
   for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
   {
+    // skip if we have a mismatch in opaque and translucent
+    if (a->IsRenderingTranslucentPolygonalGeometry() ==
+        this->Internal->Mappers[i]->HasOpaqueGeometry())
+    {
+      continue;
+    }
+
     if ( this->ClippingPlanes !=
          this->Internal->Mappers[i]->GetClippingPlanes() )
     {
@@ -314,4 +322,46 @@ vtkPolyDataMapper *vtkCompositePolyDataMapper::MakeAMapper()
   // Copy our vtkMapper properties to the delegate
   m->vtkMapper::ShallowCopy( this );
   return m;
+}
+
+//-----------------------------------------------------------------------------
+// look at children
+bool vtkCompositePolyDataMapper::HasOpaqueGeometry()
+{
+  //If the PolyDataMappers are not up-to-date then rebuild them
+  vtkCompositeDataPipeline * executive =
+    vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
+
+  if(executive->GetPipelineMTime() > this->InternalMappersBuildTime.GetMTime())
+  {
+    this->BuildPolyDataMapper();
+  }
+
+  bool hasOpaque = false;
+  for(unsigned int i=0; !hasOpaque && i < this->Internal->Mappers.size(); i++)
+  {
+    hasOpaque = hasOpaque || this->Internal->Mappers[i]->HasOpaqueGeometry();
+  }
+  return hasOpaque;
+}
+
+//-----------------------------------------------------------------------------
+// look at children
+bool vtkCompositePolyDataMapper::HasTranslucentPolygonalGeometry()
+{
+  //If the PolyDataMappers are not up-to-date then rebuild them
+  vtkCompositeDataPipeline * executive =
+    vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
+
+  if(executive->GetPipelineMTime() > this->InternalMappersBuildTime.GetMTime())
+  {
+    this->BuildPolyDataMapper();
+  }
+
+  bool hasTrans = false;
+  for(unsigned int i=0; !hasTrans && i < this->Internal->Mappers.size(); i++)
+  {
+    hasTrans = hasTrans || this->Internal->Mappers[i]->HasTranslucentPolygonalGeometry();
+  }
+  return hasTrans;
 }
