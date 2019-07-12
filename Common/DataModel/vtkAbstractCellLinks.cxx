@@ -40,10 +40,13 @@ ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray *ca)
   {
     return vtkAbstractCellLinks::STATIC_CELL_LINKS_USHORT;
   }
-  else if ( max < VTK_UNSIGNED_INT_MAX )
+  // for 64bit IDS we might be able to use a unsigned int instead
+#if defined(VTK_USE_64BIT_IDS) && VTK_SIZEOF_INT == 4
+  else if ( max < static_cast<vtkIdType>(VTK_UNSIGNED_INT_MAX) )
   {
     return vtkAbstractCellLinks::STATIC_CELL_LINKS_UINT;
   }
+#endif
   return vtkAbstractCellLinks::STATIC_CELL_LINKS_IDTYPE;
 }
 
