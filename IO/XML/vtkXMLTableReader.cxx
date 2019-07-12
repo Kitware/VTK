@@ -33,9 +33,6 @@ vtkXMLTableReader::vtkXMLTableReader()
   this->RowElements = nullptr;
   this->NumberOfRows = nullptr;
   this->TotalNumberOfRows = 0;
-
-  this->RowDataTimeStep = nullptr;
-  this->RowDataOffset = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -45,9 +42,6 @@ vtkXMLTableReader::~vtkXMLTableReader()
   {
     this->DestroyPieces();
   }
-
-  delete[] this->RowDataTimeStep;
-  delete[] this->RowDataOffset;
 }
 
 //----------------------------------------------------------------------------
@@ -364,14 +358,19 @@ void vtkXMLTableReader::SetupOutputData()
   // from one piece because all pieces have the same set of arrays.
   vtkXMLDataElement* eRowData = this->RowDataElements[0];
   this->NumberOfColumns = 0;
+  this->RowDataTimeStep.clear();
+  this->RowDataOffset.clear();
   if (eRowData)
   {
     for (int i = 0; i < eRowData->GetNumberOfNestedElements(); i++)
     {
       vtkXMLDataElement* eNested = eRowData->GetNestedElement(i);
-      if (this->ColumnIsEnabled(eNested) && !rowData->HasArray(eNested->GetAttribute("Name")))
+      const char* ename = eNested->GetAttribute("Name");
+      if (this->ColumnIsEnabled(eNested) && !rowData->HasArray(ename))
       {
         this->NumberOfColumns++;
+        this->RowDataTimeStep[ename] = -1;
+        this->RowDataOffset[ename] = -1;
         vtkAbstractArray* array = this->CreateArray(eNested);
         if (array)
         {
@@ -389,29 +388,8 @@ void vtkXMLTableReader::SetupOutputData()
     }
   }
 
-  if (this->NumberOfColumns != this->ColumnArraySelection->GetNumberOfArraysEnabled())
-  {
-    vtkErrorMacro("Number of arrays has changed.");
-    return;
-  }
-
   // Setup attribute indices for the row data and cell data.
   this->ReadAttributeIndices(eRowData, rowData);
-
-  // Since NumberOfColumns is valid lets allocate RowDataTimeStep & DataOffset
-  if (this->NumberOfColumns)
-  {
-    delete[] this->RowDataTimeStep;
-    delete[] this->RowDataOffset;
-
-    this->RowDataTimeStep = new int[this->NumberOfColumns];
-    this->RowDataOffset = new vtkTypeInt64[this->NumberOfColumns];
-    for (int i = 0; i < this->NumberOfColumns; i++)
-    {
-      this->RowDataTimeStep[i] = -1;
-      this->RowDataOffset[i] = -1;
-    }
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -550,7 +528,6 @@ int vtkXMLTableReader::RowDataNeedToReadTimeStep(vtkXMLDataElement* eNested)
 {
   // First thing need to find the id of this dataarray from its name:
   const char* name = eNested->GetAttribute("Name");
-  int idx = this->ColumnArraySelection->GetEnabledArrayIndex(name);
 
   // Easy case no timestep:
   int numTimeSteps =
@@ -563,7 +540,7 @@ int vtkXMLTableReader::RowDataNeedToReadTimeStep(vtkXMLDataElement* eNested)
   }
   if (!numTimeSteps && !this->NumberOfTimeSteps)
   {
-    assert(this->RowDataTimeStep[idx] == -1); // No timestep in this file
+    assert(this->RowDataTimeStep.at(name) == -1); // No timestep in this file
     return 1;
   }
   // else TimeStep was specified but no TimeValues associated were found
@@ -582,11 +559,11 @@ int vtkXMLTableReader::RowDataNeedToReadTimeStep(vtkXMLDataElement* eNested)
   vtkTypeInt64 offset;
   if (eNested->GetScalarAttribute("offset", offset))
   {
-    if (this->RowDataOffset[idx] != offset)
+    if (this->RowDataOffset.at(name) != offset)
     {
       // save the pointsOffset
-      assert(this->RowDataTimeStep[idx] == -1); // cannot have mixture of binary and appended
-      this->RowDataOffset[idx] = offset;
+      assert(this->RowDataTimeStep.at(name) == -1); // cannot have mixture of binary and appended
+      this->RowDataOffset.at(name) = offset;
       return 1;
     }
   }
@@ -594,20 +571,20 @@ int vtkXMLTableReader::RowDataNeedToReadTimeStep(vtkXMLDataElement* eNested)
   {
     // No offset is specified this is a binary file
     // First thing to check if numTimeSteps == 0:
-    if (!numTimeSteps && this->NumberOfTimeSteps && this->RowDataTimeStep[idx] == -1)
+    if (!numTimeSteps && this->NumberOfTimeSteps && this->RowDataTimeStep.at(name) == -1)
     {
       // Update last PointsTimeStep read
-      this->RowDataTimeStep[idx] = this->CurrentTimeStep;
+      this->RowDataTimeStep.at(name) = this->CurrentTimeStep;
       return 1;
     }
     int isLastTimeInArray =
-      vtkXMLReader::IsTimeStepInArray(this->RowDataTimeStep[idx], this->TimeSteps, numTimeSteps);
+      vtkXMLReader::IsTimeStepInArray(this->RowDataTimeStep.at(name), this->TimeSteps, numTimeSteps);
     // If no time is specified or if time is specified and match then read
     if (isCurrentTimeInArray && !isLastTimeInArray)
     {
       // CurrentTimeStep is in TimeSteps but Last is not := need to read
       // Update last PointsTimeStep read
-      this->RowDataTimeStep[idx] = this->CurrentTimeStep;
+      this->RowDataTimeStep.at(name) = this->CurrentTimeStep;
       return 1;
     }
   }
