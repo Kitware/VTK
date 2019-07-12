@@ -43,6 +43,24 @@ namespace tovtkm
 {
 
 //------------------------------------------------------------------------------
+// All scalar types in vtkType.h
+struct VTKScalarTypes
+  : vtkm::ListTagBase<char,
+                      signed char,
+                      unsigned char,
+                      short,
+                      unsigned short,
+                      int,
+                      unsigned int,
+                      long,
+                      unsigned long,
+                      long long,
+                      unsigned long long,
+                      float,
+                      double>
+{
+};
+
 struct SpecialGradientOutTypes
     : vtkm::ListTagBase<
                         vtkm::Vec< vtkm::Vec<vtkm::Float32,3>, 3>,
@@ -54,7 +72,7 @@ struct SpecialGradientOutTypes
 struct FieldTypeInVTK
     : vtkm::ListTagJoin<
         vtkm::TypeListTagVecCommon,
-        vtkm::TypeListTagScalarAll>
+        VTKScalarTypes>
 {
 };
 
@@ -64,7 +82,7 @@ struct FieldTypeOutVTK
           vtkm::TypeListTagVecCommon,
           SpecialGradientOutTypes
           >,
-        vtkm::TypeListTagScalarAll
+        VTKScalarTypes
       >
 {
 };
