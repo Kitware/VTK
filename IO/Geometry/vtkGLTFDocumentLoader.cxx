@@ -866,6 +866,11 @@ bool vtkGLTFDocumentLoader::LoadImageData()
         std::string imageFilePath(
           vtkGLTFUtils::GetResourceFullPath(image.Uri, this->InternalModel->FileName));
         reader.TakeReference(factory->CreateImageReader2(imageFilePath.c_str()));
+        if (reader == nullptr)
+        {
+          vtkErrorMacro("Invalid format for image " << image.Uri);
+          return false;
+        }
         reader->SetFileName(imageFilePath.c_str());
       }
     }
@@ -953,10 +958,15 @@ bool vtkGLTFDocumentLoader::LoadModelData(const std::vector<char>& glbBuffer)
     }
   }
   // Read additionnal buffer data
-  this->LoadAnimationData();
-  this->LoadImageData();
-  this->LoadSkinMatrixData();
-  return true;
+  if (!this->LoadAnimationData())
+  {
+    return false;
+  }
+  if (!this->LoadImageData())
+  {
+    return false;
+  }
+  return this->LoadSkinMatrixData();
 }
 
 /** vtk object building and animation operations **/
