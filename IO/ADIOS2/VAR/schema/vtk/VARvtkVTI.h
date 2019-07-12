@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    ADIOS2xmlVTI.h
+ Module:    VARvtkVTI.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,34 +14,34 @@
  =========================================================================*/
 
 /*
- * ADIOS2xmlVTI.h : class that supports ImageData schema in VTK XML format .vti
+ * VARvtkVTI.h : class that supports ImageData schema in VTK XML format .vti
  *                  extends abstract ADIOS2xmlVTK
  *
  *  Created on: May 1, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_SCHEMA_XML_VTK_ADIOS2xmlVTI_H_
-#define VTK_IO_ADIOS2_SCHEMA_XML_VTK_ADIOS2xmlVTI_H_
-
-#include "ADIOS2xmlVTK.h"
+#ifndef VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkVTI_h
+#define VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkVTI_h
 
 #include <map>
 #include <string>
 #include <vector>
 
+#include "VAR/schema/vtk/VARvtkBase.h"
+
 #include "vtkImageData.h"
 #include "vtkNew.h"
 
-namespace adios2vtk
+namespace var
 {
 namespace schema
 {
-class ADIOS2xmlVTI : public ADIOS2xmlVTK
+class VARvtkVTI : public VARvtkBase
 {
 public:
-  ADIOS2xmlVTI(const std::string& schema, adios2::IO& io, adios2::Engine& engine);
-  ~ADIOS2xmlVTI();
+  VARvtkVTI(const std::string& schema, adios2::IO& io, adios2::Engine& engine);
+  ~VARvtkVTI();
 
 private:
   /** Could be extended in a container, this is a per-rank ImageData */
@@ -60,7 +60,7 @@ private:
 #define declare_type(T)                                                                            \
   void SetDimensions(                                                                              \
     adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step) final;
-  ADIOS2_VTK_ARRAY_TYPE(declare_type)
+  VTK_IO_ADIOS2_VAR_ARRAY_TYPE(declare_type)
 #undef declare_type
 
   template<class T>
@@ -69,6 +69,6 @@ private:
 };
 
 } // end namespace schema
-} // end namespace adios2vtk
+} // end namespace var
 
-#endif
+#endif /* VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkVTI_h */

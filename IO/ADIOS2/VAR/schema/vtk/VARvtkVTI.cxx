@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    ADIOS2xmlVTI.cxx
+ Module:    VARvtkVTI.cxx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,19 +14,17 @@
  =========================================================================*/
 
 /*
- * ADIOS2xmlVTI.cxx
+ * VARvtkVTI.cxx
  *
  *  Created on: May 1, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "ADIOS2xmlVTI.h"
-#include "ADIOS2xmlVTI.txx"
+#include "VARvtkVTI.h"
+#include "VARvtkVTI.txx"
 
 #include <algorithm>
 #include <utility>
-
-#include "ADIOS2Helper.h"
 
 #include "vtkCellData.h"
 #include "vtkMultiBlockDataSet.h"
@@ -35,24 +33,26 @@
 
 #include <vtk_pugixml.h>
 
+#include "VAR/common/VARHelper.h"
+
 #include <adios2.h>
 
-namespace adios2vtk
+namespace var
 {
 namespace schema
 {
 
-ADIOS2xmlVTI::ADIOS2xmlVTI(const std::string& schema, adios2::IO& io, adios2::Engine& engine)
-  : ADIOS2xmlVTK("vti", schema, io, engine)
+VARvtkVTI::VARvtkVTI(const std::string& schema, adios2::IO& io, adios2::Engine& engine)
+  : VARvtkBase("vti", schema, io, engine)
 {
   Init();
   InitTimes();
 }
 
-ADIOS2xmlVTI::~ADIOS2xmlVTI() {}
+VARvtkVTI::~VARvtkVTI() {}
 
 // PRIVATE
-void ADIOS2xmlVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
+void VARvtkVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 {
   ReadPiece(step, 0); // just read piece 0 for now
 
@@ -63,7 +63,7 @@ void ADIOS2xmlVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
   multiBlock->SetBlock(0, pieces);
 }
 
-void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
+void VARvtkVTI::ReadPiece(const size_t step, const size_t pieceID)
 {
   const bool hasCellData =
     ReadDataSets(types::DataSetType::CellData, step, pieceID, " in ImageData VTK XML Schema\n");
@@ -107,7 +107,7 @@ void ADIOS2xmlVTI::ReadPiece(const size_t step, const size_t pieceID)
 }
 
 // PRIVATE
-void ADIOS2xmlVTI::Init()
+void VARvtkVTI::Init()
 {
   auto lf_InitPieceDataSetType = [&](types::Piece& piece, const types::DataSetType type,
                                    const pugi::xml_node& pieceNode) {
@@ -120,7 +120,8 @@ void ADIOS2xmlVTI::Init()
     {
       types::DataArray& dataArray = dataArrayPair.second;
       dataArray.Shape = GetShape(type);
-      const adios2::Box<adios2::Dims> selection = GetSelection(type);
+
+      adios2::Box<adios2::Dims> selection = GetSelection(type);
       dataArray.Start = selection.first;
       dataArray.Count = selection.second;
     }
@@ -129,10 +130,9 @@ void ADIOS2xmlVTI::Init()
 
   auto lf_InitExtent = [&](const pugi::xml_node& extentNode) {
     // Spacing
-    const pugi::xml_attribute spacingXML = adios2vtk::helper::XMLAttribute(
+    const pugi::xml_attribute spacingXML = var::helper::XMLAttribute(
       "Spacing", extentNode, true, "when reading Spacing in ImageData", true);
-    const std::vector<double> spacingV =
-      adios2vtk::helper::StringToVector<double>(spacingXML.value());
+    const std::vector<double> spacingV = var::helper::StringToVector<double>(spacingXML.value());
     if (spacingV.size() != 3)
     {
       throw std::runtime_error(
@@ -141,10 +141,9 @@ void ADIOS2xmlVTI::Init()
     this->ImageData->SetSpacing(spacingV.data());
 
     // Origin
-    const pugi::xml_attribute originXML = adios2vtk::helper::XMLAttribute(
+    const pugi::xml_attribute originXML = var::helper::XMLAttribute(
       "Origin", extentNode, true, "when reading Origin in ImageData", true);
-    const std::vector<double> originV =
-      adios2vtk::helper::StringToVector<double>(originXML.value());
+    const std::vector<double> originV = var::helper::StringToVector<double>(originXML.value());
     if (originV.size() != 3)
     {
       throw std::runtime_error(
@@ -152,26 +151,29 @@ void ADIOS2xmlVTI::Init()
     }
     this->ImageData->SetOrigin(originV.data());
 
-    // TODO: allow varying mesh over time by assigning domain extent to variables
+    // TODO: allow varying mesh over time by assigning domain extent to
+    // variables
 
     // Whole Extent is where piece partition is taken into account
-    const pugi::xml_attribute wholeExtentXML = adios2vtk::helper::XMLAttribute(
+    const pugi::xml_attribute wholeExtentXML = var::helper::XMLAttribute(
       "WholeExtent", extentNode, true, "when reading WholeExtent in ImageData", true);
 
-    this->WholeExtent = adios2vtk::helper::StringToVector<size_t>(wholeExtentXML.value());
+    this->WholeExtent = var::helper::StringToVector<size_t>(wholeExtentXML.value());
     if (this->WholeExtent.size() != 6)
     {
-      throw std::runtime_error(
-        "ERROR: incorrect WholeExtent attribute, must have 6 elements, in ImageData from " +
+      throw std::runtime_error("ERROR: incorrect WholeExtent attribute, must have 6 elements, "
+                               "in ImageData from " +
         this->Engine.Name());
     }
 
-    // set extent transforming to VTK's Column Major representation
+    // partition is cell data based
     const adios2::Box<adios2::Dims> cellSelection = GetSelection(types::DataSetType::CellData);
     const adios2::Dims& start = cellSelection.first;
     const adios2::Dims& count = cellSelection.second;
 
     std::vector<int> extent(6);
+    // set extent transforming to VTK's Column Major representation
+    // extent indices are point-based
     for (size_t i = 0; i < 3; ++i)
     {
       extent[2 * i] = static_cast<int>(start[2 - i]);
@@ -182,12 +184,12 @@ void ADIOS2xmlVTI::Init()
 
   // BODY OF FUNCTION STARTS HERE
   const pugi::xml_document xmlDocument =
-    adios2vtk::helper::XMLDocument(this->Schema, true, "when reading xml vti schema");
+    var::helper::XMLDocument(this->Schema, true, "when reading xml vti schema");
 
-  const pugi::xml_node xmlVTKFileNode = adios2vtk::helper::XMLNode(
+  const pugi::xml_node xmlVTKFileNode = var::helper::XMLNode(
     "VTKFile", xmlDocument, true, "when reading VTKFile type=ImageData node", true, true);
 
-  const pugi::xml_node xmlImageDataNode = adios2vtk::helper::XMLNode(
+  const pugi::xml_node xmlImageDataNode = var::helper::XMLNode(
     "ImageData", xmlVTKFileNode, true, "when reading ImageData node", true, true);
 
   lf_InitExtent(xmlImageDataNode);
@@ -203,48 +205,59 @@ void ADIOS2xmlVTI::Init()
   }
   if (pieces == 0)
   {
-    throw std::invalid_argument(
-      "ERROR: could not find Piece XML-node when reading ImageData XML-node "
-      "in ADIOS2 VTK XML Schema source\n");
+    throw std::invalid_argument("ERROR: could not find Piece XML-node when "
+                                "reading ImageData XML-node "
+                                "in ADIOS2 VTK XML Schema source\n");
   }
 }
 
-adios2::Dims ADIOS2xmlVTI::GetShape(const types::DataSetType type)
+adios2::Dims VARvtkVTI::GetShape(const types::DataSetType type)
 {
   adios2::Dims shape(3);
+  size_t add = 0;
   if (type == types::DataSetType::CellData)
   {
-    for (size_t i = 0; i < 3; ++i)
-    {
-      shape[i] = this->WholeExtent[2 * i + 1] - this->WholeExtent[2 * i] - 1;
-    }
+    add = 0;
   }
   else if (type == types::DataSetType::PointData)
   {
-    for (size_t i = 0; i < 3; ++i)
-    {
-      shape[i] = this->WholeExtent[2 * i + 1] - this->WholeExtent[2 * i];
-    }
+    add = 1;
+  }
+
+  for (size_t i = 0; i < 3; ++i)
+  {
+    shape[i] = this->WholeExtent[2 * i + 1] - this->WholeExtent[2 * i] + add;
   }
 
   return shape;
 }
 
-adios2::Box<adios2::Dims> ADIOS2xmlVTI::GetSelection(const types::DataSetType type)
+adios2::Box<adios2::Dims> VARvtkVTI::GetSelection(const types::DataSetType type)
 {
-  const adios2::Dims shape = GetShape(type);
-  const adios2::Box<adios2::Dims> selection = helper::PartitionCart1D(shape);
+  // partition is always cell data based
+  const adios2::Dims shape = GetShape(types::DataSetType::CellData);
+  adios2::Box<adios2::Dims> selection = helper::PartitionCart1D(shape);
+
+  // slowest
+  if (type == types::DataSetType::PointData)
+  {
+    for (auto& dim : selection.second)
+    {
+      ++dim;
+    }
+  }
+
   return selection;
 }
 
 #define declare_type(T)                                                                            \
-  void ADIOS2xmlVTI::SetDimensions(                                                                \
+  void VARvtkVTI::SetDimensions(                                                                   \
     adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step)            \
   {                                                                                                \
     SetDimensionsCommon(variable, dataArray, step);                                                \
   }
-ADIOS2_VTK_ARRAY_TYPE(declare_type)
+VTK_IO_ADIOS2_VAR_ARRAY_TYPE(declare_type)
 #undef declare_type
 
 } // end namespace schema
-} // end namespace adios2vtk
+} // end namespace var

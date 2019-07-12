@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    ADIOS2xmlVTK.h
+ Module:    VARvtkBase.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,7 +14,7 @@
  =========================================================================*/
 
 /*
- * ADIOS2xmlVTK.h : abstract class for schemas of type
+ * VARvtkBase.h : abstract class for schemas of type
  *                  [VTK XML file formats schemas]
  *                  (https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf)
  *                  Provide common functionality.
@@ -23,30 +23,30 @@
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_SCHEMA_XML_VTK_ADIOS2XMLVTK_H_
-#define VTK_IO_ADIOS2_SCHEMA_XML_VTK_ADIOS2XMLVTK_H_
+#ifndef VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkBase_h
+#define VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkBase_h
 
-#include "ADIOS2Types.h"
-#include "schema/ADIOS2Schema.h"
+#include "VAR/common/VARTypes.h"
+#include "VAR/schema/VARSchema.h"
 
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
 
-namespace adios2vtk
+namespace var
 {
 namespace schema
 {
 
-class ADIOS2xmlVTK : public ADIOS2Schema
+class VARvtkBase : public VARSchema
 {
 public:
-  ADIOS2xmlVTK(
+  VARvtkBase(
     const std::string type, const std::string& schema, adios2::IO& io, adios2::Engine& engine);
 
   // can't use = default, due to forward class not defined
-  virtual ~ADIOS2xmlVTK();
+  virtual ~VARvtkBase();
 
 protected:
   std::vector<types::Piece> Pieces;
@@ -68,6 +68,6 @@ protected:
 };
 
 } // end namespace schema
-} // end namespace adios2vtk
+} // end namespace var
 
-#endif
+#endif /* VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkBase_h */

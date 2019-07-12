@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    ADIOS2DataArray.cxx
+ Module:    VARDataArray.cxx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,15 +14,15 @@
  =========================================================================*/
 
 /*
- * ADIOS2DataArray.cxx
+ * VARDataArray.cxx
  *
  *  Created on: Jun 4, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "ADIOS2DataArray.h"
+#include "VARDataArray.h"
 
-namespace adios2vtk
+namespace var
 {
 namespace types
 {
@@ -37,4 +37,4 @@ bool DataArray::IsScalar() const noexcept
 }
 
 } // end namespace types
-} // end namespace adios2vtk
+} // end namespace var

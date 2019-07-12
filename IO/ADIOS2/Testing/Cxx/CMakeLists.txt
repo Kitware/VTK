@@ -1,15 +1,15 @@
 find_package(ADIOS2)
 
-vtk_add_test_cxx(vtkIOADIOS2ReaderCxxTests tests
+vtk_add_test_cxx(vtkIOADIOS2VARCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
-  UnitTestIOADIOS2.cxx
-  TestIOADIOS2VTI3D.cxx
-  TestIOADIOS2VTI3DRendering.cxx
-  TestIOADIOS2VTU3D.cxx
-  TestIOADIOS2VTU3DRendering.cxx
+  UnitTestIOADIOS2VAR.cxx
+  TestIOADIOS2VAR_VTI3D.cxx
+  TestIOADIOS2VAR_VTI3DRendering.cxx
+  TestIOADIOS2VAR_VTU3D.cxx
+  TestIOADIOS2VAR_VTU3DRendering.cxx
 )
 
-vtk_test_cxx_executable(vtkIOADIOS2ReaderCxxTests tests)
-target_link_libraries(vtkIOADIOS2ReaderCxxTests
+vtk_test_cxx_executable(vtkIOADIOS2VARCxxTests tests)
+target_link_libraries(vtkIOADIOS2VARCxxTests
   PUBLIC
     adios2::adios2 )

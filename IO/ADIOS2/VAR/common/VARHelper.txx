@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    ADIOS2Helper.txx
+ Module:    VARHelper.txx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,16 +14,16 @@
  =========================================================================*/
 
 /*
- * ADIOS2Helper.txx
+ * VARHelper.txx
  *
  *  Created on: May 3, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_ADIOS2HELPER_TCC_
-#define VTK_IO_ADIOS2_ADIOS2HELPER_TCC_
+#ifndef VTK_IO_ADIOS2_COMMON_VARHelper_txx
+#define VTK_IO_ADIOS2_COMMON_VARHelper_txx
 
-#include "ADIOS2Helper.h"
+#include "VARHelper.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -32,63 +32,63 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 
-namespace adios2vtk
+namespace var
 {
 namespace helper
 {
 
-template<class T>
-std::vector<T> StringToVector(const std::string& input) noexcept
+template <class T>
+std::vector<T> StringToVector(const std::string &input) noexcept
 {
-  std::vector<T> output;
-  std::istringstream inputSS(input);
+    std::vector<T> output;
+    std::istringstream inputSS(input);
 
-  T record;
-  while (inputSS >> record)
-  {
-    output.push_back(record);
-  }
-  return output;
+    T record;
+    while (inputSS >> record)
+    {
+        output.push_back(record);
+    }
+    return output;
 }
 
 // TODO: extend other types
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<unsigned int>()
 {
-  return vtkSmartPointer<vtkUnsignedIntArray>::New();
+    return vtkSmartPointer<vtkUnsignedIntArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<int>()
 {
-  return vtkSmartPointer<vtkIntArray>::New();
+    return vtkSmartPointer<vtkIntArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<long int>()
 {
-  return vtkSmartPointer<vtkLongArray>::New();
+    return vtkSmartPointer<vtkLongArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long int>()
 {
-  return vtkSmartPointer<vtkUnsignedLongArray>::New();
+    return vtkSmartPointer<vtkUnsignedLongArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<float>()
 {
-  return vtkSmartPointer<vtkFloatArray>::New();
+    return vtkSmartPointer<vtkFloatArray>::New();
 }
 
-template<>
+template <>
 vtkSmartPointer<vtkDataArray> NewDataArray<double>()
 {
-  return vtkSmartPointer<vtkDoubleArray>::New();
+    return vtkSmartPointer<vtkDoubleArray>::New();
 }
 
 } // end namespace helper
-} // end namespace adios2vtk
+} // end namespace var
 
-#endif
+#endif /* VTK_IO_ADIOS2_VAR_COMMON_VARHelper_txx */

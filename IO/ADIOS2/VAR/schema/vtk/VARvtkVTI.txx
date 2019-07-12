@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    ADIOS2xmlVTI.txx
+ Module:    VARvtkVTI.txx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,27 +14,26 @@
  =========================================================================*/
 
 /*
- * ADIOS2xmlVTI.txx
+ * VARvtkVTI.txx
  *
  *  Created on: June 3, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_SCHEMA_XML_VTK_ADIOS2XMLVTI_TXX_
-#define VTK_IO_ADIOS2_SCHEMA_XML_VTK_ADIOS2XMLVTI_TXX_
+#ifndef VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkVTI_txx
+#define VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkVTI_txx
 
-#include "ADIOS2xmlVTI.h"
+#include "VARvtkVTI.h"
 
-#include <iostream>
+#include "VAR/common/VARHelper.h"
 
-#include "ADIOS2Helper.h"
-
-namespace adios2vtk
+namespace var
 {
 namespace schema
 {
+
 template<class T>
-void ADIOS2xmlVTI::SetDimensionsCommon(
+void VARvtkVTI::SetDimensionsCommon(
   adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step)
 {
   const adios2::Dims shape = variable.Shape(step);
@@ -51,6 +50,6 @@ void ADIOS2xmlVTI::SetDimensionsCommon(
 }
 
 } // end namespace schema
-} // end namespace adios2vtk
+} // end namespace var
 
-#endif /* VTK_IO_ADIOS2_SCHEMA_XML_VTK_ADIOS2XMLVTI_TXX_ */
+#endif /* VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkVTI_txx */

@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    ADIOS2xmlVTU.cxx
+ Module:    VARvtkVTU.cxx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,16 +14,17 @@
  =========================================================================*/
 
 /*
- * ADIOS2xmlVTU.cxx
+ * VARvtkVTU.cxx
  *
  *  Created on: June 24, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "ADIOS2xmlVTU.h"
-#include "ADIOS2xmlVTU.txx"
+#include "VARvtkVTU.h"
+#include "VARvtkVTU.txx"
 
 #include "vtkCellArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkMultiPieceDataSet.h"
@@ -33,26 +34,24 @@
 #include "vtkType.h"
 #include "vtkUnsignedIntArray.h"
 
-#include "vtkDoubleArray.h"
+#include "VAR/common/VARHelper.h"
 
-#include "ADIOS2Helper.h"
-
-namespace adios2vtk
+namespace var
 {
 namespace schema
 {
 
-ADIOS2xmlVTU::ADIOS2xmlVTU(const std::string& schema, adios2::IO& io, adios2::Engine& engine)
-  : ADIOS2xmlVTK("VTU", schema, io, engine)
+VARvtkVTU::VARvtkVTU(const std::string& schema, adios2::IO& io, adios2::Engine& engine)
+  : VARvtkBase("vtu", schema, io, engine)
 {
   Init();
   InitTimes();
 }
 
-ADIOS2xmlVTU::~ADIOS2xmlVTU() {}
+VARvtkVTU::~VARvtkVTU() {}
 
 // PRIVATE
-void ADIOS2xmlVTU::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
+void VARvtkVTU::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 {
   ReadPiece(step, 0); // just read piece 0 for now
 
@@ -63,7 +62,7 @@ void ADIOS2xmlVTU::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
   multiBlock->SetBlock(0, pieces);
 }
 
-void ADIOS2xmlVTU::ReadPiece(const size_t step, const size_t pieceID)
+void VARvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
 {
   const bool hasCells =
     ReadDataSets(types::DataSetType::Cells, step, pieceID, " in UnstructuredGrid VTK XML Schema\n");
@@ -182,15 +181,15 @@ void ADIOS2xmlVTU::ReadPiece(const size_t step, const size_t pieceID)
       }
       else
       {
-        throw std::invalid_argument(
-          "ERROR: types data array must be an int32_t or uint32_t type\n");
+        throw std::invalid_argument("ERROR: types data array must be "
+                                    "an int32_t or uint32_t type\n");
       }
       this->UnstructuredGrid->SetCells(type, cellArray);
     }
   }
 }
 
-void ADIOS2xmlVTU::Init()
+void VARvtkVTU::Init()
 {
   auto lf_InitPieceDataSetType = [&](types::Piece& piece, const types::DataSetType type,
                                    const pugi::xml_node& pieceNode) {
@@ -203,12 +202,12 @@ void ADIOS2xmlVTU::Init()
 
   // BODY OF FUNCTION STARTS HERE
   const pugi::xml_document xmlDocument =
-    adios2vtk::helper::XMLDocument(this->Schema, true, "when reading xml vtu schema");
+    var::helper::XMLDocument(this->Schema, true, "when reading xml vtu schema");
 
-  const pugi::xml_node xmlVTKFileNode = adios2vtk::helper::XMLNode(
+  const pugi::xml_node xmlVTKFileNode = var::helper::XMLNode(
     "VTKFile", xmlDocument, true, "when reading VTKFile type=UnstructuredGrid node", true, true);
 
-  const pugi::xml_node xmlUnstructuredGridNode = adios2vtk::helper::XMLNode(
+  const pugi::xml_node xmlUnstructuredGridNode = var::helper::XMLNode(
     "UnstructuredGrid", xmlVTKFileNode, true, "when reading UnstructuredGrid node", true, true);
 
   size_t pieces = 0;
@@ -224,20 +223,20 @@ void ADIOS2xmlVTU::Init()
   }
   if (pieces == 0)
   {
-    throw std::invalid_argument(
-      "ERROR: could not find Piece XML-node when reading UnstructuredGrid XML-node "
-      "in ADIOS2 VTU XML Schema source\n");
+    throw std::invalid_argument("ERROR: could not find Piece XML-node when "
+                                "reading UnstructuredGrid XML-node "
+                                "in ADIOS2 VTU XML Schema source\n");
   }
 }
 
 #define declare_type(T)                                                                            \
-  void ADIOS2xmlVTU::SetBlocks(                                                                    \
+  void VARvtkVTU::SetBlocks(                                                                       \
     adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)                  \
   {                                                                                                \
     SetBlocksCommon(variable, dataArray, step);                                                    \
   }
-ADIOS2_VTK_ARRAY_TYPE(declare_type)
+VTK_IO_ADIOS2_VAR_ARRAY_TYPE(declare_type)
 #undef declare_type
 
 } // end namespace schema
-} // end namespace adios2vtk
+} // end namespace var

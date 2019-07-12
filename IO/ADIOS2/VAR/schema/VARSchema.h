@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    ADIOS2Schema.h
+ Module:    VARSchema.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,18 +14,15 @@
  =========================================================================*/
 
 /*
- * ADIOS2Schema.h : abstract class from which all supported adios2 schemas
+ * VARSchema.h : abstract class from which all supported adios2 schemas
  *                  derive from. Provide common functionality.
  *
  *  Created on: May 6, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_SCHEMA_ADIOS2SCHEMA_H_
-#define VTK_IO_ADIOS2_SCHEMA_ADIOS2SCHEMA_H_
-
-#include "ADIOS2DataArray.h"
-#include "ADIOS2Types.h"
+#ifndef VTK_IO_ADIOS2_VAR_SCHEMA_VARSchema_h
+#define VTK_IO_ADIOS2_VAR_SCHEMA_VARSchema_h
 
 #include <map>
 #include <string>
@@ -34,12 +31,15 @@
 
 #include <adios2.h>
 
-namespace adios2vtk
+#include "VAR/common/VARDataArray.h"
+#include "VAR/common/VARTypes.h"
+
+namespace var
 {
 /**
  * Abstract common class to supported ADIOS2 schemas
  */
-class ADIOS2Schema
+class VARSchema
 {
 public:
   /** carries schema type from derived class */
@@ -64,11 +64,11 @@ public:
    * @param io manages IO input containing variable information
    * @param engine manages stream input
    */
-  ADIOS2Schema(
+  VARSchema(
     const std::string type, const std::string& schema, adios2::IO& io, adios2::Engine& engine);
 
   // can't use = default, due to forward class not defined
-  virtual ~ADIOS2Schema();
+  virtual ~VARSchema();
 
   /**
    * Fills multiblock data from request steps
@@ -98,7 +98,7 @@ protected:
   virtual void SetBlocks(                                                                          \
     adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
 
-  ADIOS2_VTK_ARRAY_TYPE(declare_type)
+  VTK_IO_ADIOS2_VAR_ARRAY_TYPE(declare_type)
 #undef declare_type
 
 private:
@@ -126,6 +126,6 @@ private:
     types::DataArray& dataArray);
 };
 
-} // end namespace adios2vtk
+} // end namespace var
 
-#endif /* VTK_IO_ADIOS2_ADIOS2SCHEMA_H_ */
+#endif /* VTK_IO_ADIOS2_VAR_SCHEMA_VARSchema_h */

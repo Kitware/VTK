@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    ADIOS2Schema.txx
+ Module:    VARSchema.txx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,26 +14,26 @@
  =========================================================================*/
 
 /*
- * ADIOS2Schema.txx
+ * VARSchema.txx
  *
  *  Created on: May 6, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_SCHEMA_ADIOS2SCHEMA_TCC_
-#define VTK_IO_ADIOS2_SCHEMA_ADIOS2SCHEMA_TCC_
+#ifndef VTK_IO_ADIOS2_SCHEMA_VARSchema_tcc
+#define VTK_IO_ADIOS2_SCHEMA_VARSchema_tcc
 
-#include "ADIOS2Schema.h"
+#include "VARSchema.h"
 
 #include <stdexcept>
 
-#include "ADIOS2Helper.h"
+#include "VAR/common/VARHelper.h"
 
-namespace adios2vtk
+namespace var
 {
 
 template<class T>
-void ADIOS2Schema::GetDataArrayCommon(
+void VARSchema::GetDataArrayCommon(
   adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
 {
   if (dataArray.Persist)
@@ -66,7 +66,7 @@ void ADIOS2Schema::GetDataArrayCommon(
 }
 
 template<class T>
-void ADIOS2Schema::GetDataArrayGlobal(
+void VARSchema::GetDataArrayGlobal(
   adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
 {
   SetDimensions(variable, dataArray, step);
@@ -78,7 +78,7 @@ void ADIOS2Schema::GetDataArrayGlobal(
 }
 
 template<class T>
-void ADIOS2Schema::GetDataArrayLocal(
+void VARSchema::GetDataArrayLocal(
   adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
 {
   // set partition: blocks per MPI visualization process
@@ -118,7 +118,7 @@ void ADIOS2Schema::GetDataArrayLocal(
 }
 
 template<class T>
-void ADIOS2Schema::GetDataValueGlobal(
+void VARSchema::GetDataValueGlobal(
   adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
 {
   InitDataArray<T>(variable.Name(), 1, 1, dataArray);
@@ -127,7 +127,7 @@ void ADIOS2Schema::GetDataValueGlobal(
 }
 
 template<class T>
-void ADIOS2Schema::InitDataArray(const std::string& name, const size_t elements,
+void VARSchema::InitDataArray(const std::string& name, const size_t elements,
   const size_t components, types::DataArray& dataArray)
 {
   if (dataArray.IsIdType)
@@ -146,7 +146,7 @@ void ADIOS2Schema::InitDataArray(const std::string& name, const size_t elements,
 }
 
 template<class T>
-void ADIOS2Schema::GetTimesCommon(const std::string& variableName)
+void VARSchema::GetTimesCommon(const std::string& variableName)
 {
   adios2::Variable<T> varTime = this->IO.InquireVariable<T>(variableName);
   varTime.SetStepSelection({ 0, varTime.Steps() });
@@ -162,6 +162,6 @@ void ADIOS2Schema::GetTimesCommon(const std::string& variableName)
   }
 }
 
-} // end namespace adios2vtk
+} // end namespace var
 
-#endif
+#endif /* VTK_IO_ADIOS2_SCHEMA_VARSchema_tcc */

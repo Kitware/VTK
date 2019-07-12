@@ -1,31 +1,36 @@
 vtk_module_find_package(
   PACKAGE ADIOS2
-  )
+)
 
 set(classes
-  vtkADIOS2ReaderMultiBlock
-  )
+  vtkVARMultiBlock
+)
 
 set(sources
-  vtkADIOS2ReaderMultiBlock.cxx
-  ADIOS2DataArray.cxx
-  ADIOS2Helper.cxx ADIOS2Helper.txx
-  ADIOS2SchemaManager.cxx
-  schema/ADIOS2Schema.cxx schema/ADIOS2Schema.txx
-  schema/xml_vtk/ADIOS2xmlVTI.cxx schema/xml_vtk/ADIOS2xmlVTI.txx
-  schema/xml_vtk/ADIOS2xmlVTU.cxx schema/xml_vtk/ADIOS2xmlVTU.txx
-  schema/xml_vtk/ADIOS2xmlVTK.cxx
+  vtkVARMultiBlock.cxx
+
+  VAR/common/VARDataArray.cxx
+  VAR/common/VARHelper.cxx VAR/common/VARHelper.txx
+
+  VAR/VARSchemaManager.cxx
+
+  VAR/schema/VARSchema.cxx VAR/schema/VARSchema.txx
+  VAR/schema/vtk/VARvtkBase.cxx
+  VAR/schema/vtk/VARvtkVTI.cxx VAR/schema/vtk/VARvtkVTI.txx
+  VAR/schema/vtk/VARvtkVTU.cxx VAR/schema/vtk/VARvtkVTU.txx
 )
 
 set(private_headers
-  ADIOS2DataArray.h
-  ADIOS2Types.h
-  ADIOS2Helper.h
-  ADIOS2SchemaManager.h
-  schema/ADIOS2Schema.h
-  schema/xml_vtk/ADIOS2xmlVTI.h
-  schema/xml_vtk/ADIOS2xmlVTU.h
-  schema/xml_vtk/ADIOS2xmlVTK.h
+  VAR/common/VARTypes.h
+  VAR/common/VARDataArray.h
+  VAR/common/VARHelper.h
+
+  VAR/VARSchemaManager.h
+
+  VAR/schema/VARSchema.h
+  VAR/schema/vtk/VARvtkBase.h
+  VAR/schema/vtk/VARvtkVTI.h
+  VAR/schema/vtk/VARvtkVTU.h
 )
 
 vtk_module_add_module(VTK::IOADIOS2
@@ -38,11 +43,3 @@ vtk_module_link(VTK::IOADIOS2
   PRIVATE
     adios2::adios2
 )
-
-# Use this module to get coverage using
-# VTK/Utilities/Maintenance/computeCodeCoverageLocallyForOneTest.sh ./IO -R ADIOS2
-#if(CMAKE_COMPILER_IS_GNUCXX)
-#  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-#  include(CodeCoverage)
-#  APPEND_COVERAGE_COMPILER_FLAGS()
-#endif()
