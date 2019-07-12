@@ -232,7 +232,7 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     if (pbrTexIndex >= 0 && pbrTexIndex < static_cast<int>(model->Textures.size()))
     {
       const vtkGLTFDocumentLoader::Texture& pbrTexture = model->Textures[pbrTexIndex];
-      if (pbrTexture.Source >= 0)
+      if (pbrTexture.Source >= 0 && pbrTexture.Source < static_cast<int>(model->Images.size()))
       {
         const vtkGLTFDocumentLoader::Image& pbrImage = model->Images[pbrTexture.Source];
         // While glTF 2.0 uses two different textures for Ambient Occlusion and Metallic/Roughness
