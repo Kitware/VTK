@@ -17,6 +17,7 @@
 #include "vtkActor.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellPicker.h"
+#include "vtkConeSource.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -24,6 +25,8 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyLineSource.h"
 #include "vtkSphereSource.h"
+#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPolyLineRepresentation);
@@ -51,7 +54,7 @@ vtkPolyLineRepresentation::vtkPolyLineRepresentation()
     double y = (1.0 - u)*y0 + u*y1;
     double z = (1.0 - u)*z0 + u*z1;
     points->SetPoint(i, x, y, z);
-    this->HandleGeometry[i]->SetCenter(x,y,z);
+    this->HandleGeometry[i]->SetCenter(x, y, z);
   }
 
   this->PolyLineSource = vtkPolyLineSource::New();
@@ -105,6 +108,16 @@ void vtkPolyLineRepresentation::BuildRepresentation()
   this->PolyLineSource->Modified();
   points->Modified();
 
+  // Update end arrow direction
+  if (this->DirectionalLine && this->NumberOfHandles >= 2)
+  {
+    vtkVector3d pt1, pt2;
+    this->HandleGeometry[this->NumberOfHandles - 1]->GetCenter(pt1.GetData());
+    this->HandleGeometry[this->NumberOfHandles - 2]->GetCenter(pt2.GetData());
+    pt1 = pt1 - pt2;
+    this->HandleGeometry[this->NumberOfHandles - 1]->SetDirection(pt1.GetData());
+  }
+
   double bounds[6];
   bbox.GetBounds(bounds);
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
@@ -146,16 +159,13 @@ void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
 
   // Create the handles
   this->Handle         = new vtkActor* [this->NumberOfHandles];
-  this->HandleGeometry = new vtkSphereSource* [this->NumberOfHandles];
+  this->HandleGeometry = new HandleSource*[this->NumberOfHandles];
 
   for ( int i = 0; i < this->NumberOfHandles; ++i )
   {
-    this->HandleGeometry[i] = vtkSphereSource::New();
-    this->HandleGeometry[i]->SetThetaResolution(16);
-    this->HandleGeometry[i]->SetPhiResolution(8);
+    this->HandleGeometry[i] = HandleSource::New();
     vtkPolyDataMapper* handleMapper = vtkPolyDataMapper::New();
-    handleMapper->SetInputConnection(
-      this->HandleGeometry[i]->GetOutputPort());
+    handleMapper->SetInputConnection(this->HandleGeometry[i]->GetOutputPort());
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(handleMapper);
     handleMapper->Delete();
@@ -165,6 +175,11 @@ void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
     this->HandleGeometry[i]->SetCenter(pt);
     this->HandleGeometry[i]->SetRadius(radius);
     this->HandlePicker->AddPickList(this->Handle[i]);
+  }
+
+  if (this->DirectionalLine && this->NumberOfHandles >= 2)
+  {
+    this->HandleGeometry[this->NumberOfHandles - 1]->SetUseSphere(false);
   }
 
   if (this->CurrentHandleIndex >= 0 &&
