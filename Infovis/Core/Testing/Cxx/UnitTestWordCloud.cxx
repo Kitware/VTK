@@ -31,9 +31,37 @@
 
 namespace
 {
-int TestOneByOne(vtkSmartPointer<vtkWordCloud> &,
-                 std::string,
-                 size_t, size_t, size_t);
+int TestOneByOne(vtkSmartPointer<vtkWordCloud> &wc,
+                 std::string name,
+                 size_t keptExpected,
+                 size_t skippedExpected,
+                 size_t stoppedExpected,
+                 int alternateOffset = 0)
+{
+  int status = 0;
+  wc->Update();
+  if (keptExpected != wc->GetKeptWords().size() &&
+      keptExpected + alternateOffset != wc->GetKeptWords().size())
+  {
+    std::cout << "\n  Regression failed for " << name << ". Expected # of kept words " << keptExpected
+              << " but got " << wc->GetKeptWords().size();
+    status++;
+  }
+  if (skippedExpected != wc->GetSkippedWords().size() &&
+      skippedExpected - alternateOffset != wc->GetSkippedWords().size())
+  {
+    std::cout << "\n  Regression failed for " << name << ". Expected # of skipped words " << skippedExpected
+              << " but got " << wc->GetSkippedWords().size();
+    status++;
+  }
+  if (stoppedExpected != wc->GetStoppedWords().size())
+  {
+    std::cout << "\n  Regression failed for " << name << ". Expected # of stopped words " << stoppedExpected
+              << " but got " << wc->GetStoppedWords().size() << std::endl;
+    status++;
+  }
+  return status;
+}
 }
 
 int UnitTestWordCloud(int argc, char *argv[])
@@ -69,22 +97,24 @@ int UnitTestWordCloud(int argc, char *argv[])
   wordCloud->Update();
 
   // Test Regressions for default settings
+  // There are some numerical issues with some compilers that can
+  // cause alternate results to be produced
   auto status1 = 0;
   std::cout << "Testing regressions of default word cloud...";
-#if defined(__GNUC__) && (__GNUC__ == 8 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ == 1)
-  size_t keptExpected = 23;
-#else
   size_t keptExpected = 31;
-#endif
-  if (keptExpected != wordCloud->GetKeptWords().size())
+  size_t alternateKeptExpected = 23;
+  if (keptExpected != wordCloud->GetKeptWords().size() &&
+      alternateKeptExpected != wordCloud->GetKeptWords().size())
   {
-    std::cout << "\n  Default regression failed. Expected # of kept words " << keptExpected
-              << " but got " << wordCloud->GetKeptWords().size();
+    std::cout << "\n  Default regression failed. Received unexpected # of kept words "
+      << wordCloud->GetKeptWords().size();
     status1++;
   }
 
   size_t skippedExpected = 42;
-  if (skippedExpected != wordCloud->GetSkippedWords().size())
+  size_t alternateSkippedExpected = 50;
+  if (skippedExpected != wordCloud->GetSkippedWords().size() &&
+      alternateSkippedExpected != wordCloud->GetSkippedWords().size())
   {
     std::cout << "\n  Default regression failed. Expected # of skipped words " << skippedExpected
               << " but got " << wordCloud->GetSkippedWords().size();
@@ -202,11 +232,8 @@ int UnitTestWordCloud(int argc, char *argv[])
     auto wc = vtkSmartPointer<vtkWordCloud>::New();
 
     wc->SetFileName(argv[1]);
-#if defined(__GNUC__) && (__GNUC__ == 8 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ == 1)
-    status4 += TestOneByOne(wc, "Defaults", 23, 42, 65);
-#else
-    status4 += TestOneByOne(wc, "Defaults", 31, 42, 65);
-#endif
+    status4 += TestOneByOne(wc, "Defaults", 31, 42, 65, -8);
+
     wc->SetFontFileName(argv[2]);
     status4 += TestOneByOne(wc, "FontFileName", 40, 33, 65);
 
@@ -372,36 +399,4 @@ int UnitTestWordCloud(int argc, char *argv[])
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
-}
-
-namespace
-{
-int TestOneByOne(vtkSmartPointer<vtkWordCloud> &wc,
-                 std::string name,
-                 size_t keptExpected,
-                 size_t skippedExpected,
-                 size_t stoppedExpected)
-{
-  int status = 0;
-  wc->Update();
-  if (keptExpected != wc->GetKeptWords().size())
-  {
-    std::cout << "\n  Regression failed for " << name << ". Expected # of kept words " << keptExpected
-              << " but got " << wc->GetKeptWords().size();
-    status++;
-  }
-  if (skippedExpected != wc->GetSkippedWords().size())
-  {
-    std::cout << "\n  Regression failed for " << name << ". Expected # of skipped words " << skippedExpected
-              << " but got " << wc->GetSkippedWords().size();
-    status++;
-  }
-  if (stoppedExpected != wc->GetStoppedWords().size())
-  {
-    std::cout << "\n  Regression failed for " << name << ". Expected # of stopped words " << stoppedExpected
-              << " but got " << wc->GetStoppedWords().size() << std::endl;
-    status++;
-  }
-  return status;
-}
 }
