@@ -188,21 +188,35 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
     auto cid1 = dsVtk->FindCell(x, nullptr, -1, 1e-6, subId, pcoords1, weights1);
     auto cid2 = dsVtkm->FindCell(x, nullptr, -1, 1e-6, subId, pcoords2, weights2);
 
-    TEST_VERIFY(cid1 == cid2, "`FindCell` cell-ids don't match");
-    if (cid1 == -1)
+    // vtkDataSet and vtkmDataSet may find different cells if the point is too close to
+    // the boundary of those cells
+    if (cid1 != cid2)
+    {
+      // check if the point is inside or close to the vtkmDataSet found cell
+      vtkCell* cell = dsVtk->GetCell(cid2);
+      double dist2 = 0, pcoords[3], weights[8];
+      if (cell->EvaluatePosition(x, nullptr, subId, pcoords, dist2, weights) == 0) // outside?
+      {
+        TEST_VERIFY(IsEqualFloat(cell->GetParametricDistance(pcoords), 0.0, 1e-3),
+                    "`FindCell` incorrect result by vtkmDataSet");
+      }
+    }
+    else if (cid1 == -1)
     {
       continue;
     }
-
-    TEST_VERIFY(IsEqualFloat(pcoords1[0], pcoords2[0]) &&
-                IsEqualFloat(pcoords1[1], pcoords2[1]) &&
-                IsEqualFloat(pcoords1[2], pcoords2[2]),
-                             "`FindCell` pcoords don't match");
-    int count = dsVtk->GetCell(cid1)->GetNumberOfPoints();
-    for (int j = 0; j < count; ++j)
+    else
     {
-      TEST_VERIFY(IsEqualFloat(weights1[j], weights2[j]),
-                  "`FindCell` weights don't match");
+      TEST_VERIFY(IsEqualFloat(pcoords1[0], pcoords2[0]) &&
+                  IsEqualFloat(pcoords1[1], pcoords2[1]) &&
+                  IsEqualFloat(pcoords1[2], pcoords2[2]),
+                              "`FindCell` pcoords don't match");
+      int count = dsVtk->GetCell(cid1)->GetNumberOfPoints();
+      for (int j = 0; j < count; ++j)
+      {
+        TEST_VERIFY(IsEqualFloat(weights1[j], weights2[j]),
+                    "`FindCell` weights don't match");
+      }
     }
   }
 
