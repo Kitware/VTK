@@ -31,6 +31,7 @@ set(classes
   vtkOpenGLCellToVTKCellMap
   vtkOpenGLFXAAFilter
   vtkOpenGLFXAAPass
+  vtkOpenGLFluidMapper
   vtkOpenGLFramebufferObject
   vtkOpenGLGL2PSHelper
   vtkOpenGLGlyph3DHelper
@@ -131,6 +132,10 @@ set(shader_files
   glsl/vtkEDLComposeFS.glsl
   glsl/vtkEDLShadeFS.glsl
   glsl/vtkFXAAFilterFS.glsl
+  glsl/vtkFluidMapperFS.glsl
+  glsl/vtkFluidMapperFinalFS.glsl
+  glsl/vtkFluidMapperGS.glsl
+  glsl/vtkFluidMapperVS.glsl
   glsl/vtkGaussianBlurPassFS.glsl
   glsl/vtkGaussianBlurPassVS.glsl
   glsl/vtkGlyph3DVS.glsl
