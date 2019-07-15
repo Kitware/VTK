@@ -1087,6 +1087,16 @@ private:
   ValueType *const EndTuple;
 };
 
+// Unimplemented, only used inside decltype in SelectTupleRange:
+template <typename ArrayType,
+          ComponentIdType TupleSize,
+          // Convenience:
+          typename ValueType = typename ArrayType::ValueType,
+          typename AOSArrayType = vtkAOSDataArrayTemplate<ValueType>,
+          // SFINAE to select AOS arrays:
+          typename = typename std::enable_if<IsAOSDataArray<ArrayType>::value>::type>
+TupleRange<AOSArrayType, TupleSize> DeclareTupleRangeSpecialization(ArrayType*);
+
 } // end namespace detail
 } // end namespace vtk
 

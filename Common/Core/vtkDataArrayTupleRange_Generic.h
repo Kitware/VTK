@@ -1873,6 +1873,11 @@ private:
   TupleIdType EndTuple;
 };
 
+// Unimplemented, only used inside decltype in SelectTupleRange:
+template <typename ArrayType,
+          ComponentIdType TupleSize>
+TupleRange<ArrayType, TupleSize> DeclareTupleRangeSpecialization(vtkDataArray*);
+
 } // end namespace detail
 } // end namespace vtk
 

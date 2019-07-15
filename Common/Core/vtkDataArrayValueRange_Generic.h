@@ -964,6 +964,11 @@ private:
   IdStorageType EndValue;
 };
 
+// Unimplemented, only used inside decltype in SelectValueRange:
+template <typename ArrayType,
+          ComponentIdType TupleSize>
+ValueRange<ArrayType, TupleSize> DeclareValueRangeSpecialization(vtkDataArray*);
+
 } // end namespace detail
 } // end namespace vtk
 

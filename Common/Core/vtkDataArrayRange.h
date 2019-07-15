@@ -47,6 +47,62 @@ VTK_ITER_OPTIMIZE_START
 namespace vtk
 {
 
+namespace detail
+{
+
+// These classes are used to detect when specializations exist for a given
+// array type. They are necessary because given:
+//
+// template <typename ArrayType> class SomeTemplateClass;
+// template <typename T> class SomeTemplateClass<vtkAOSDataArrayTemplate<T>>;
+//
+// SomeTemplateClass<vtkFloatArray> will pick the generic version, as ArrayType
+// is a better match than vtkAOSDataArrayTemplate<T>. This class works around
+// that by using Declare[Tuple|Value]RangeSpecialization functions that map an
+// input ArrayTypePtr and tuple size to a specific version of the appropriate
+// Range.
+template <typename ArrayTypePtr,
+          ComponentIdType TupleSize>
+struct SelectTupleRange
+{
+private:
+  // Allow this to work with vtkNew, vtkSmartPointer, etc.
+  using ArrayType = typename detail::StripPointers<ArrayTypePtr>::type;
+
+  static_assert(detail::IsValidTupleSize<TupleSize>::value,
+                "Invalid tuple size.");
+  static_assert(detail::IsVtkDataArray<ArrayType>::value,
+                "Invalid array type.");
+
+public:
+  using type =
+      typename std::decay<decltype(
+          vtk::detail::DeclareTupleRangeSpecialization<ArrayType, TupleSize>(
+              std::declval<ArrayType*>()))>::type;
+};
+
+template <typename ArrayTypePtr,
+          ComponentIdType TupleSize>
+struct SelectValueRange
+{
+private:
+  // Allow this to work with vtkNew, vtkSmartPointer, etc.
+  using ArrayType = typename detail::StripPointers<ArrayTypePtr>::type;
+
+  static_assert(detail::IsValidTupleSize<TupleSize>::value,
+                "Invalid tuple size.");
+  static_assert(detail::IsVtkDataArray<ArrayType>::value,
+                "Invalid array type.");
+
+public:
+  using type =
+      typename std::remove_reference<decltype(
+          vtk::detail::DeclareValueRangeSpecialization<ArrayType, TupleSize>(
+              std::declval<ArrayType*>()))>::type;
+};
+
+} // end namespace detail
+
 /**
  * @brief Generate an stl and for-range compatible range of tuple iterators
  * from a vtkDataArray.
@@ -110,27 +166,22 @@ namespace vtk
  * using them will not compile with VTK_DEBUG_RANGE_ITERATORS defined.
  */
 template <ComponentIdType TupleSize = detail::DynamicTupleSize,
-          typename ArrayType = vtkDataArray*>
+          typename ArrayTypePtr = vtkDataArray*>
 VTK_ITER_INLINE
-auto DataArrayTupleRange(const ArrayType& array,
+auto DataArrayTupleRange(const ArrayTypePtr& array,
                          TupleIdType start = -1,
                          TupleIdType end = -1)
-    -> detail::TupleRange<typename detail::StripPointers<ArrayType>::type, TupleSize>
+    -> typename detail::SelectTupleRange<ArrayTypePtr, TupleSize>::type
 {
-  // Allow this to work with vtkNew, vtkSmartPointer, etc.
-  using RealArrayType = typename detail::StripPointers<ArrayType>::type;
-
-  static_assert(detail::IsValidTupleSize<TupleSize>::value,
-                "Invalid tuple size.");
-  static_assert(detail::IsVtkDataArray<RealArrayType>::value,
-                "Invalid array type.");
+  // Lookup specializations:
+  using RangeType =
+      typename detail::SelectTupleRange<ArrayTypePtr, TupleSize>::type;
 
   assert(array);
 
-  return detail::TupleRange<RealArrayType, TupleSize>(
-        array,
-        start < 0 ? 0 : start,
-        end < 0 ? array->GetNumberOfTuples() : end);
+  return RangeType(array,
+                   start < 0 ? 0 : start,
+                   end < 0 ? array->GetNumberOfTuples() : end);
 }
 
 /**
@@ -196,27 +247,21 @@ auto DataArrayTupleRange(const ArrayType& array,
  * using them will not compile with VTK_DEBUG_RANGE_ITERATORS defined.
  */
 template <ComponentIdType TupleSize = detail::DynamicTupleSize,
-          typename ArrayType = vtkDataArray*>
+          typename ArrayTypePtr = vtkDataArray*>
 VTK_ITER_INLINE
-auto DataArrayValueRange(const ArrayType& array,
+auto DataArrayValueRange(const ArrayTypePtr& array,
                          ValueIdType start = -1,
                          ValueIdType end = -1)
--> detail::ValueRange<typename detail::StripPointers<ArrayType>::type, TupleSize>
+    -> typename detail::SelectValueRange<ArrayTypePtr, TupleSize>::type
 {
-  // Allow this to work with vtkNew, vtkSmartPointer, etc.
-  using RealArrayType = typename detail::StripPointers<ArrayType>::type;
-
-  static_assert(detail::IsValidTupleSize<TupleSize>::value,
-                "Invalid tuple size.");
-  static_assert(detail::IsVtkDataArray<RealArrayType>::value,
-                "Invalid array type.");
+  using RangeType =
+      typename detail::SelectValueRange<ArrayTypePtr, TupleSize>::type;
 
   assert(array);
 
-  return detail::ValueRange<RealArrayType, TupleSize>(
-        array,
-        start < 0 ? 0 : start,
-        end < 0 ? array->GetNumberOfValues() : end);
+  return RangeType(array,
+                   start < 0 ? 0 : start,
+                   end < 0 ? array->GetNumberOfValues() : end);
 }
 
 } // end namespace vtk

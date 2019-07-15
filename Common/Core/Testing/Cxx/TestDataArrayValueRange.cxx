@@ -43,6 +43,12 @@ std::size_t NumErrors = 0;
                 "Type mismatch: '" #t1 "' not same as '" #t2 "' in " \
                 LOCATION())
 
+#define CHECK_IS_BASE_TYPE_OF(t1, t2) \
+  static_assert(std::is_base_of<typename std::decay<t1>::type, \
+                                typename std::decay<t2>::type>{}, \
+                "Type mismatch: '" #t1 "' not same as '" #t2 "' in " \
+                LOCATION())
+
 // Various properties required by random access iterators:
 #define CHECK_ITER_TYPE(type) \
   static_assert(std::is_default_constructible<Iter>::value, \
@@ -260,7 +266,7 @@ struct UnitTestValueRangeAPI
     using MutableRange = typename std::remove_const<Range>::type;
     (void)range; // MSVC thinks this is unused when it appears in decltype.
 
-    CHECK_TYPEDEF(typename Range::ArrayType, RangeArrayType);
+    CHECK_IS_BASE_TYPE_OF(typename Range::ArrayType, RangeArrayType);
     CHECK_TYPEDEF(typename Range::ValueType,
                   vtk::GetAPIType<RangeArrayType>);
     CHECK_TYPEDEF(typename Range::ComponentType,
@@ -781,6 +787,8 @@ struct UnitTestEdgeCases
 
   void operator()()
   {
+    TestSpecializations();
+
     std::cerr << "SOA<float> <--> AOS<float>\n";
     DispatchValueCompat<vtkSOADataArrayTemplate<float>,
                         vtkAOSDataArrayTemplate<float>>();
@@ -831,6 +839,36 @@ struct UnitTestEdgeCases
                         vtkScaledSOADataArrayTemplate<int>>();
 #endif
   }
+
+  static void TestSpecializations()
+  {
+    // Specializations are disabled when iterator debugging is enabled:
+#ifndef VTK_DEBUG_RANGE_ITERATORS
+    // These should use the objects in vtkDataArrayTupleRange_AOS.h, which
+    // end up using ValueType* pointers for component iterators.
+    TestAOSSpecialization<vtkAOSDataArrayTemplate<float>>();
+    TestAOSSpecialization<vtkFloatArray>();
+#endif
+  }
+
+#ifndef VTK_DEBUG_RANGE_ITERATORS
+  template <typename ArrayType>
+  static void TestAOSSpecialization()
+  {
+    using ValueType = vtk::GetAPIType<ArrayType>;
+    using RangeType = decltype(vtk::DataArrayValueRange(
+                                   std::declval<ArrayType*>()));
+    using ValueIterType = decltype(std::declval<RangeType>().begin());
+
+    // Sanity Check:
+    static_assert(vtk::IsAOSDataArray<ArrayType>::value, "Not AOS type?");
+
+    // Ensure that iterator type is just a pointer:
+    static_assert(std::is_same<ValueType*,
+                               typename std::decay<ValueIterType>::type>::value,
+                  "AOS specialization not used!");
+  }
+#endif
 
   template <typename ArrayType>
   static void PrepArray(ArrayType *array)
