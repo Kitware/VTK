@@ -57,6 +57,9 @@
 
 VTK_ITER_OPTIMIZE_START
 
+// For IsAOSDataArray:
+template <typename ValueType> class vtkAOSDataArrayTemplate;
+
 namespace vtk
 {
 
@@ -136,6 +139,7 @@ private:
 public:
   // Need to construct from array for specialization.
   using Superclass::Superclass;
+  VTK_ITER_INLINE GenericTupleSize() = default;
   VTK_ITER_INLINE GenericTupleSize(vtkDataArray *) {}
 };
 
@@ -145,7 +149,7 @@ struct GenericTupleSize<DynamicTupleSize>
 {
   using value_type = ComponentIdType;
 
-  GenericTupleSize() = default;
+  VTK_ITER_INLINE GenericTupleSize() noexcept : value(0) {}
   VTK_ITER_INLINE explicit GenericTupleSize(vtkDataArray *array)
     : value(array->GetNumberOfComponents())
   {
@@ -164,6 +168,27 @@ struct GenericTupleSize<DynamicTupleSize>
 template <typename ArrayType,
           typename = detail::EnableIfVtkDataArray<ArrayType>>
 using GetAPIType = typename vtkDataArrayAccessor<ArrayType>::APIType;
+
+//------------------------------------------------------------------------------
+namespace detail
+{
+
+template <typename ArrayType>
+struct IsAOSDataArrayImpl
+{
+  using APIType = GetAPIType<ArrayType>;
+  static constexpr bool value =
+      std::is_base_of<vtkAOSDataArrayTemplate<APIType>, ArrayType>::value;
+
+};
+
+} // end namespace detail
+
+//------------------------------------------------------------------------------
+// True if ArrayType inherits some specialization of vtkAOSDataArrayTemplate
+template <typename ArrayType>
+using IsAOSDataArray =
+std::integral_constant<bool, detail::IsAOSDataArrayImpl<ArrayType>::value>;
 
 } // end namespace vtk
 

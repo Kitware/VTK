@@ -67,6 +67,9 @@ public:
   using const_iterator = const ValueType*;
 
   VTK_ITER_INLINE
+  ConstTupleReference() noexcept : Tuple{nullptr} {}
+
+  VTK_ITER_INLINE
   ConstTupleReference(const ValueType *tuple, NumCompsType numComps) noexcept
     : Tuple(tuple)
     , NumComps(numComps)
@@ -260,6 +263,9 @@ public:
   using value_type = APIType;
   using iterator = ValueType*;
   using const_iterator = const ValueType*;
+
+  VTK_ITER_INLINE
+  TupleReference() noexcept : Tuple{nullptr} {}
 
   VTK_ITER_INLINE
   TupleReference(ValueType *tuple, NumCompsType numComps) noexcept
@@ -626,6 +632,9 @@ public:
   using reference = typename Superclass::reference;
 
   VTK_ITER_INLINE
+  ConstTupleIterator() noexcept = default;
+
+  VTK_ITER_INLINE
   ConstTupleIterator(const ValueType* tuple, NumCompsType numComps) noexcept
     : Ref(tuple, numComps)
   {
@@ -799,6 +808,9 @@ public:
   using difference_type = typename Superclass::difference_type;
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
+
+  VTK_ITER_INLINE
+  TupleIterator() noexcept = default;
 
   VTK_ITER_INLINE
   TupleIterator(ValueType* tuple, NumCompsType numComps) noexcept
@@ -1074,6 +1086,16 @@ private:
   ValueType *const BeginTuple;
   ValueType *const EndTuple;
 };
+
+// Unimplemented, only used inside decltype in SelectTupleRange:
+template <typename ArrayType,
+          ComponentIdType TupleSize,
+          // Convenience:
+          typename ValueType = typename ArrayType::ValueType,
+          typename AOSArrayType = vtkAOSDataArrayTemplate<ValueType>,
+          // SFINAE to select AOS arrays:
+          typename = typename std::enable_if<IsAOSDataArray<ArrayType>::value>::type>
+TupleRange<AOSArrayType, TupleSize> DeclareTupleRangeSpecialization(ArrayType*);
 
 } // end namespace detail
 } // end namespace vtk

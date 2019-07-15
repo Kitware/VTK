@@ -45,6 +45,23 @@ std::size_t NumErrors = 0;
                 "Type mismatch: '" #t1 "' not same as '" #t2 "' in " \
                 LOCATION())
 
+#define CHECK_IS_BASE_TYPE_OF(t1, t2) \
+  static_assert(std::is_base_of<typename std::decay<t1>::type, \
+                                typename std::decay<t2>::type>{}, \
+                "Type mismatch: '" #t1 "' not same as '" #t2 "' in " \
+                LOCATION())
+
+// Various properties required by random access iterators:
+#define CHECK_ITER_TYPE(type) \
+  static_assert(std::is_default_constructible<Iter>::value, \
+                "Iterator types must be default constructable at " LOCATION()); \
+  static_assert(std::is_copy_constructible<Iter>::value, \
+                "Iterator types must be copy constructible at " LOCATION()); \
+  static_assert(std::is_copy_assignable<Iter>::value, \
+                "Iterator types must be copy assignable at " LOCATION()); \
+  static_assert(std::is_destructible<Iter>::value, \
+                "Iterator types must be destructable at " LOCATION());
+
 #define LOG_ERROR(message) \
   ++NumErrors; \
   std::cerr << NumErrors << ": " << message << "\n"
@@ -267,7 +284,7 @@ struct UnitTestTupleRangeAPI
     using MutableRange = typename std::remove_const<Range>::type;
     (void)range; // MSVC thinks this is unused when it appears in decltype.
 
-    CHECK_TYPEDEF(typename Range::ArrayType, RangeArrayType);
+    CHECK_IS_BASE_TYPE_OF(typename Range::ArrayType, RangeArrayType);
     CHECK_TYPEDEF(typename Range::ComponentType,
                   vtk::GetAPIType<RangeArrayType>);
     CHECK_TYPEDEF(typename Range::size_type, vtk::TupleIdType);
@@ -382,6 +399,9 @@ struct UnitTestTupleIteratorAPI
                   decltype(std::declval<Iter>().operator->()));
     CHECK_TYPEDEF(typename Iter::difference_type,
                   decltype(std::declval<Iter>() - std::declval<Iter>()));
+
+    // Check requirements of random-access iterators:
+    CHECK_ITER_TYPE(Iter);
   }
 
   template <typename Range>
@@ -1380,14 +1400,25 @@ struct UnitTestComponentIteratorAPI
   void DispatchRangeTests(Range range)
   {
     {
+      TestTypes(range);
       TestComponentIterator(range);
       TestConstComponentIterator(range);
     }
 
     {
       const Range& crange = range;
+      TestTypes(crange);
       TestConstComponentIterator(crange);
     }
+  }
+
+  template <typename Range>
+  void TestTypes(Range& range)
+  {
+    using Iter = decltype(this->GetTestingIterRange(range)->begin());
+    (void)range;
+
+    CHECK_ITER_TYPE(Iter);
   }
 
   template <typename Range>
@@ -1835,6 +1866,8 @@ struct UnitTestEdgeCases
 
   void operator()()
   {
+    TestSpecializations();
+
     std::cerr << "SOA<float> <--> AOS<float>\n";
     DispatchTupleCompat<vtkSOADataArrayTemplate<float>,
                         vtkAOSDataArrayTemplate<float>>();
@@ -1885,6 +1918,32 @@ struct UnitTestEdgeCases
                         vtkScaledSOADataArrayTemplate<int>>();
 #endif
   }
+
+  static void TestSpecializations()
+  {
+    // Specializations are disabled when iterator debugging is enabled:
+#ifndef VTK_DEBUG_RANGE_ITERATORS
+    // These should use the objects in vtkDataArrayTupleRange_AOS.h, which
+    // end up using ValueType* pointers for component iterators.
+    TestAOSSpecialization<vtkAOSDataArrayTemplate<float>>();
+    TestAOSSpecialization<vtkFloatArray>();
+#endif
+  }
+
+#ifndef VTK_DEBUG_RANGE_ITERATORS
+  template <typename ArrayType>
+  static void TestAOSSpecialization()
+  {
+    using ValueType = vtk::GetAPIType<ArrayType>;
+    using RangeType = decltype(vtk::DataArrayTupleRange(
+                                   std::declval<ArrayType*>()));
+    using CompIterType = decltype(std::declval<RangeType>().begin()->begin());
+
+    static_assert(std::is_same<ValueType*,
+                               typename std::decay<CompIterType>::type>::value,
+                  "AOS specialization not used!");
+  }
+#endif
 
   template <typename ArrayType>
   static void PrepArray(ArrayType *array)
