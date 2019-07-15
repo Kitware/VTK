@@ -940,7 +940,34 @@ void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 }
 
 //----------------------------------------------------------------------------
-// Fast implementation of GetCellBounds().  Bounds are calculated without
+// Support GetCellBounds()
+namespace { //anonymous
+  template <typename T>
+  void ComputeCellBounds(const T *p, vtkIdType numPts, const vtkIdType *pts,
+                         double bounds[6])
+  {
+    const T *x = p + 3*pts[0];
+    bounds[0] = x[0];
+    bounds[2] = x[1];
+    bounds[4] = x[2];
+    bounds[1] = x[0];
+    bounds[3] = x[1];
+    bounds[5] = x[2];
+    for (auto i=1; i < numPts; i++)
+    {
+      x = p + 3*pts[i];
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+    }
+  }
+}//anonymous
+
+//----------------------------------------------------------------------------
+// Faster implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
 void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
@@ -955,29 +982,42 @@ void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
   // carefully compute the bounds
   if (numPts)
   {
-    this->Points->GetPoint( pts[0], x );
-    bounds[0] = x[0];
-    bounds[2] = x[1];
-    bounds[4] = x[2];
-    bounds[1] = x[0];
-    bounds[3] = x[1];
-    bounds[5] = x[2];
-    for (i=1; i < numPts; i++)
+    // Slightly faster paths for real types - not sure it's worth it
+    if ( this->Points->GetDataType() == VTK_FLOAT )
     {
-      this->Points->GetPoint( pts[i], x );
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      ComputeCellBounds(static_cast<float*>(this->Points->GetVoidPointer(0)),
+                                            numPts,pts,bounds);
+    }
+    else if ( this->Points->GetDataType() == VTK_DOUBLE )
+    {
+      ComputeCellBounds(static_cast<double*>(this->Points->GetVoidPointer(0)),
+                                             numPts,pts,bounds);
+    }
+    else
+    {
+      this->Points->GetPoint( pts[0], x );
+      bounds[0] = x[0];
+      bounds[2] = x[1];
+      bounds[4] = x[2];
+      bounds[1] = x[0];
+      bounds[3] = x[1];
+      bounds[5] = x[2];
+      for (i=1; i < numPts; i++)
+      {
+        this->Points->GetPoint( pts[i], x );
+        bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+        bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+        bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+        bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+        bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+        bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      }
     }
   }
   else
   {
     vtkMath::UninitializeBounds(bounds);
   }
-
 }
 
 // Define threaded functor supporting GetMaxCellSize()

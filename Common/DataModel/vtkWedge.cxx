@@ -78,13 +78,16 @@ int vtkWedge::EvaluatePosition(const double x[3], double closestPoint[3],
   double  params[3] = {0.5, 0.5, 0.5};
   double derivs[18];
 
+  // Efficient point access
+  const double *pts = static_cast<double*>(this->Points->GetVoidPointer(0));
+  const double *pt0, *pt1, *pt;
+
   // compute a bound on the volume to get a scale for an acceptable determinant
   double longestEdge = 0;
   for (int i=0; i<9; i++)
   {
-    double pt0[3], pt1[3];
-    this->Points->GetPoint(edges[i][0], pt0);
-    this->Points->GetPoint(edges[i][1], pt1);
+    pt0 = pts + 3*edges[i][0];
+    pt1 = pts + 3*edges[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
     if (longestEdge < d2)
     {
@@ -111,8 +114,7 @@ int vtkWedge::EvaluatePosition(const double x[3], double closestPoint[3],
     double fcol[3] = {0, 0, 0}, rcol[3] = {0, 0, 0}, scol[3] = {0, 0, 0}, tcol[3] = {0, 0, 0};
     for (int i=0; i<6; i++)
     {
-      double pt[3];
-      this->Points->GetPoint(i, pt);
+      pt = pts + 3*i;
       for (int j=0; j<3; j++)
       {
         fcol[j] += pt[j] * weights[i];

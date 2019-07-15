@@ -134,13 +134,14 @@ void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), const double pcoords[3],
                                 double x[3], double *weights)
 {
   double u4;
-  double pt1[3], pt2[3], pt3[3], pt4[3];
   int i;
 
-  this->Points->GetPoint(1, pt1);
-  this->Points->GetPoint(2, pt2);
-  this->Points->GetPoint(3, pt3);
-  this->Points->GetPoint(0, pt4);
+  // Efficient point access
+  const double *pts = static_cast<double*>(this->Points->GetVoidPointer(0));
+  const double *pt1=pts+3;
+  const double *pt2=pts+6;
+  const double *pt3=pts+9;
+  const double *pt4=pts;
 
   u4 = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
 

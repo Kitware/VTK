@@ -116,22 +116,25 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3],
                                  double& dist2, double weights[])
 {
   subId = 0;
+
+  // Efficient point access
+  const double *pts = static_cast<double*>(this->Points->GetVoidPointer(0));
+  const double *pt0, *pt1, *pt, *tmp;
+
   // There are problems searching for the apex point so we check if
   // we are there first before doing the full parametric inversion.
-  vtkPoints* points = this->GetPoints();
-  double apexPoint[3];
-  points->GetPoint(4, apexPoint);
+  const double *apexPoint = pts + 12;
   dist2 = vtkMath::Distance2BetweenPoints(apexPoint, x);
   double baseMidpoint[3];
-  points->GetPoint(0, baseMidpoint);
+  baseMidpoint[0] = pts[0];
+  baseMidpoint[1] = pts[1];
+  baseMidpoint[2] = pts[2];
   for (int i=1; i<4; i++)
   {
-    double tmp[3];
-    points->GetPoint(i, tmp);
-    for (int j=0; j<3; j++)
-    {
-      baseMidpoint[j] += tmp[j];
-    }
+    tmp = pts + 3*i;
+    baseMidpoint[0] += tmp[0];
+    baseMidpoint[1] += tmp[1];
+    baseMidpoint[2] += tmp[2];
   }
   for (int i=0; i<3; i++)
   {
@@ -161,9 +164,8 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3],
   double longestEdge = 0;
   for (int i=0; i<8; i++)
   {
-    double pt0[3], pt1[3];
-    points->GetPoint(edges[i][0], pt0);
-    points->GetPoint(edges[i][1], pt1);
+    pt0 = pts + 3*edges[i][0];
+    pt1 = pts + 3*edges[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
     if (longestEdge < d2)
     {
@@ -190,8 +192,7 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3],
     double fcol[3] = {0, 0, 0}, rcol[3] = {0, 0, 0}, scol[3] = {0, 0, 0}, tcol[3] = {0, 0, 0};
     for (int i=0; i<5; i++)
     {
-      double pt[3];
-      this->Points->GetPoint(i, pt);
+      pt = pts + 3*i;
       for (int j=0; j<3; j++)
       {
         fcol[j] += pt[j] * weights[i];
