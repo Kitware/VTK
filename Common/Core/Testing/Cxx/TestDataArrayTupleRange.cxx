@@ -45,6 +45,17 @@ std::size_t NumErrors = 0;
                 "Type mismatch: '" #t1 "' not same as '" #t2 "' in " \
                 LOCATION())
 
+// Various properties required by random access iterators:
+#define CHECK_ITER_TYPE(type) \
+  static_assert(std::is_default_constructible<Iter>::value, \
+                "Iterator types must be default constructable at " LOCATION()); \
+  static_assert(std::is_copy_constructible<Iter>::value, \
+                "Iterator types must be copy constructible at " LOCATION()); \
+  static_assert(std::is_copy_assignable<Iter>::value, \
+                "Iterator types must be copy assignable at " LOCATION()); \
+  static_assert(std::is_destructible<Iter>::value, \
+                "Iterator types must be destructable at " LOCATION());
+
 #define LOG_ERROR(message) \
   ++NumErrors; \
   std::cerr << NumErrors << ": " << message << "\n"
@@ -382,6 +393,9 @@ struct UnitTestTupleIteratorAPI
                   decltype(std::declval<Iter>().operator->()));
     CHECK_TYPEDEF(typename Iter::difference_type,
                   decltype(std::declval<Iter>() - std::declval<Iter>()));
+
+    // Check requirements of random-access iterators:
+    CHECK_ITER_TYPE(Iter);
   }
 
   template <typename Range>
@@ -1380,14 +1394,25 @@ struct UnitTestComponentIteratorAPI
   void DispatchRangeTests(Range range)
   {
     {
+      TestTypes(range);
       TestComponentIterator(range);
       TestConstComponentIterator(range);
     }
 
     {
       const Range& crange = range;
+      TestTypes(crange);
       TestConstComponentIterator(crange);
     }
+  }
+
+  template <typename Range>
+  void TestTypes(Range& range)
+  {
+    using Iter = decltype(this->GetTestingIterRange(range)->begin());
+    (void)range;
+
+    CHECK_ITER_TYPE(Iter);
   }
 
   template <typename Range>

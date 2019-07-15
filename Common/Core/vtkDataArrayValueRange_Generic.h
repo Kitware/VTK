@@ -58,6 +58,14 @@ struct IdStorage
   using NumCompsType = GenericTupleSize<TupleSize>;
 
   VTK_ITER_INLINE
+  IdStorage()
+    : ValueId(0)
+    , TupleId(0)
+    , ComponentId(0)
+  {
+  }
+
+  VTK_ITER_INLINE
   IdStorage(ValueIdType valueId, NumCompsType numComps) noexcept
     : ValueId(valueId)
     , TupleId(static_cast<TupleIdType>(valueId) /
@@ -250,6 +258,13 @@ public:
   using value_type = APIType;
 
   VTK_ITER_INLINE
+  ValueReference() noexcept
+    : Data{nullptr, IdStorageType{}}
+    , IsValue(false)
+  {
+  }
+
+  VTK_ITER_INLINE
   ValueReference(ArrayType* array,
                  IdStorageType id) noexcept
     : Data{array, id}
@@ -435,6 +450,13 @@ public:
   using reference = typename Superclass::reference;
 
   VTK_ITER_INLINE
+  ConstValueIterator() noexcept
+    : Array(nullptr)
+    , Id()
+  {
+  }
+
+  VTK_ITER_INLINE
   ConstValueIterator(ArrayType* array, IdStorageType id) noexcept
     : Array(array)
     , Id(id)
@@ -610,6 +632,9 @@ public:
   using difference_type = typename Superclass::difference_type;
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
+
+  VTK_ITER_INLINE
+  ValueIterator() noexcept = default;
 
   VTK_ITER_INLINE
   ValueIterator(ArrayType* array, IdStorageType id) noexcept

@@ -136,6 +136,7 @@ private:
 public:
   // Need to construct from array for specialization.
   using Superclass::Superclass;
+  VTK_ITER_INLINE GenericTupleSize() = default;
   VTK_ITER_INLINE GenericTupleSize(vtkDataArray *) {}
 };
 
@@ -145,7 +146,7 @@ struct GenericTupleSize<DynamicTupleSize>
 {
   using value_type = ComponentIdType;
 
-  GenericTupleSize() = default;
+  VTK_ITER_INLINE GenericTupleSize() noexcept : value(0) {}
   VTK_ITER_INLINE explicit GenericTupleSize(vtkDataArray *array)
     : value(array->GetNumberOfComponents())
   {

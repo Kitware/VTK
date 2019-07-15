@@ -65,6 +65,13 @@ private:
 public:
 
   VTK_ITER_INLINE
+  ComponentReference() noexcept
+    : Data{nullptr, {}, 0, 0}
+    , IsValue(false)
+  {
+  }
+
+  VTK_ITER_INLINE
   ComponentReference(ArrayType* array,
                      NumCompsType numComps,
                      TupleIdType tuple,
@@ -262,6 +269,14 @@ public:
   using difference_type = typename Superclass::difference_type;
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
+
+  VTK_ITER_INLINE
+      ConstComponentIterator() noexcept
+    : Array{nullptr}
+    , TupleId{0}
+    , ComponentId{0}
+  {
+  }
 
   VTK_ITER_INLINE
   ConstComponentIterator(ArrayType* array,
@@ -481,6 +496,9 @@ public:
   using difference_type = typename Superclass::difference_type;
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
+
+  VTK_ITER_INLINE
+  ComponentIterator() noexcept = default;
 
   VTK_ITER_INLINE
   ComponentIterator(ArrayType* array,
@@ -774,6 +792,9 @@ public:
   using const_iterator = ConstComponentIterator<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
+  ConstTupleReference() noexcept : Array(nullptr), TupleId(0) {}
+
+  VTK_ITER_INLINE
   ConstTupleReference(ArrayType* array,
                       NumCompsType numComps,
                       TupleIdType tupleId) noexcept
@@ -974,6 +995,9 @@ public:
   using value_type = APIType;
   using iterator = ComponentIterator<ArrayType, TupleSize>;
   using const_iterator = ConstComponentIterator<ArrayType, TupleSize>;
+
+  VTK_ITER_INLINE
+  TupleReference() noexcept : Array(nullptr), TupleId(0) {}
 
   VTK_ITER_INLINE
   TupleReference(ArrayType* array,
@@ -1347,6 +1371,9 @@ public:
   using reference = typename Superclass::reference;
 
   VTK_ITER_INLINE
+  ConstTupleIterator() noexcept = default;
+
+  VTK_ITER_INLINE
   ConstTupleIterator(ArrayType* array,
                      NumCompsType numComps,
                      TupleIdType tupleId) noexcept
@@ -1557,6 +1584,9 @@ public:
   using difference_type = typename Superclass::difference_type;
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
+
+  VTK_ITER_INLINE
+  TupleIterator() noexcept = default;
 
   VTK_ITER_INLINE
   TupleIterator(ArrayType* array,
