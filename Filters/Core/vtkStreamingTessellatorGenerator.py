@@ -1,3 +1,4 @@
+# coding=utf-8
 #!/usr/bin/python
 #
 # Copyright 2003 Sandia Corporation.
