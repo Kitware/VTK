@@ -872,6 +872,19 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   {
     this->LevelMasks.push_back(mask.str());
   }
+
+  // Check the size of LevelDescriptors, add dummy string to the end accordingly
+  if (static_cast<unsigned int>(this->LevelDescriptors.size()) < this->MaximumLevel)
+  {
+    const auto& second_to_last_level = this->LevelDescriptors.back();
+    nRefined = std::count(second_to_last_level.begin(), second_to_last_level.end(), 'R');
+    nNextLevel = nRefined * this->BlockSize;
+    if (nRefined > 0)
+    {
+      this->LevelDescriptors.emplace_back(std::string('.', nNextLevel));
+    }
+  }
+
   unsigned int nLevels =
     static_cast<unsigned int>(this->LevelDescriptors.size());
 
@@ -909,7 +922,7 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(
   vtkPointData* outData = output->GetPointData();
 
   // Calculate pointer into level descriptor string
-  int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx;
+  unsigned int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx;
 
   // Calculate the node global index
   vtkIdType id = this->LevelBitsIndexCnt[level];
@@ -930,8 +943,9 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(
   cursor->SetGlobalIndexFromLocal(id);
 
   // Subdivide further or stop recursion with terminal leaf
-  if (level + 1 < this->MaximumLevel
-       && this->LevelDescriptors.at(level).at(pointer) == 'R')
+  if (level + 1 < this->MaximumLevel &&
+    static_cast<unsigned int>(this->LevelDescriptors.size()) > level &&
+    this->LevelDescriptors.at(level).at(pointer) == 'R')
   {
     // Before subdividing, one should in order:
     // 1) set global index from local
