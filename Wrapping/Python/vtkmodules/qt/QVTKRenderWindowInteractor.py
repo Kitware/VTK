@@ -1,3 +1,4 @@
+# coding=utf-8
 """
 A simple VTK widget for PyQt or PySide.
 See http://www.trolltech.com for Qt documentation,
