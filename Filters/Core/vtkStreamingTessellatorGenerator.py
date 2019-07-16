@@ -1,5 +1,5 @@
-# coding=utf-8
 #!/usr/bin/python
+# coding=utf-8
 #
 # Copyright 2003 Sandia Corporation.
 # Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
