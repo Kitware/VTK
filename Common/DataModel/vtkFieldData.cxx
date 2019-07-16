@@ -40,6 +40,7 @@ vtkFieldData::BasicIterator::BasicIterator(const int* list,
   }
   else
   {
+    this->List = nullptr;
     this->ListSize = 0;
   }
   this->Position = 0;
