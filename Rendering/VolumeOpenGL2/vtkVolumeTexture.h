@@ -117,7 +117,6 @@ public:
     vtkNew<vtkMatrix4x4> TextureToDataset;
     vtkNew<vtkMatrix4x4> TextureToDatasetInv;
 
-    double CellScale[3];
     float CellStep[3];
     double DatasetStepSize[3];
 
@@ -126,6 +125,8 @@ public:
      * are not equivalent to vtkImageData::GetBounds().
      */
     double LoadedBounds[6];
+    double LoadedBoundsAA[6];
+    double VolumeGeometry[24];
     int Extents[6];
   };
 
@@ -135,7 +136,7 @@ public:
   /**
    *  Set a number of blocks per axis.
    */
-  void SetPartitions(int const x, int const y, int const z);
+  void SetPartitions(int const i, int const j, int const k);
   const Size3& GetPartitions();
 
   /**
@@ -235,8 +236,9 @@ private:
   void ClearBlocks();
 
   /**
-   * Computes looaded bounds in data-coordinates.
+   * Computes loaded bounds in data-coordinates.
    */
+  // can be combined into one call
   void ComputeBounds(VolumeBlock* block);
   void UpdateTextureToDataMatrix(VolumeBlock* block);
 

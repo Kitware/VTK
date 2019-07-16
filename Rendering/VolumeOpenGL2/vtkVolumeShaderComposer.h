@@ -2129,8 +2129,8 @@ namespace vtkvolume
                                         vtkVolume* vtkNotUsed(vol))
   {
     return std::string("\
-      \n    if(any(greaterThan(g_dataPos, in_texMax[0])) ||\
-      \n      any(lessThan(g_dataPos, in_texMin[0])))\
+      \n    if(any(greaterThan(max(g_dirStep, vec3(0.0))*(g_dataPos - in_texMax[0]),vec3(0.0))) ||\
+      \n      any(greaterThan(min(g_dirStep, vec3(0.0))*(g_dataPos - in_texMin[0]),vec3(0.0))))\
       \n      {\
       \n      break;\
       \n      }\

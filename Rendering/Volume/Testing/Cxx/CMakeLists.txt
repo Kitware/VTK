@@ -44,6 +44,7 @@ set (VolumeCxxTests
   TestGPURayCastMultiVolumeOverlapping.cxx
   TestGPURayCastMultiVolumeTransfer2D.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
+  TestGPURayCastOrientedVolume.cxx
   TestGPURayCastPerspectiveParallel.cxx
   TestGPURayCastPositionalLights.cxx
   TestGPURayCastReleaseResources.cxx
