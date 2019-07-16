@@ -27,6 +27,8 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLReader.h"
 
+#include <map> // needed for std::map
+
 class vtkCellArray;
 class vtkIdTypeArray;
 class vtkUnsignedCharArray;
@@ -194,10 +196,10 @@ protected:
   */
   int NumberOfColumns;
 
-  int* RowDataTimeStep;
-  vtkTypeInt64* RowDataOffset;
-
 private:
+  std::map<std::string, int> RowDataTimeStep;
+  std::map<std::string, vtkTypeInt64> RowDataOffset;
+
   vtkXMLTableReader(const vtkXMLTableReader&) = delete;
   void operator=(const vtkXMLTableReader&) = delete;
 };
