@@ -31,7 +31,7 @@ namespace {
 bool TestCopy(vtkCompositeDataSet *src)
 {
   // Clone dataset:
-  auto dst = vtkSmartPointer<vtkCompositeDataSet>::Take(src->NewInstance());
+  auto dst = vtk::TakeSmartPointer(src->NewInstance());
 
   // Create tree structure:
   dst->CopyStructure(src);
@@ -58,10 +58,9 @@ bool TestCopy(vtkCompositeDataSet *src)
 bool TestConfig(vtkCompositeDataSet *cds,
                 vtk::CompositeDataSetOptions opts)
 {
-  using SmartIterator = vtkSmartPointer<vtkCompositeDataIterator>;
   using Opts = vtk::CompositeDataSetOptions;
 
-  auto refIter = SmartIterator::Take(cds->NewIterator());
+  auto refIter = vtk::TakeSmartPointer(cds->NewIterator());
   refIter->SetSkipEmptyNodes((opts & Opts::SkipEmptyNodes) != Opts::None);
   refIter->InitTraversal();
 

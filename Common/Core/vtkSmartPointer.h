@@ -342,6 +342,27 @@ VTK_SMART_POINTER_DEFINE_OPERATOR(>=)
 
 #undef VTK_SMART_POINTER_DEFINE_OPERATOR
 
+namespace vtk
+{
+
+/// Construct a vtkSmartPointer<T> containing @a obj. A new reference is added
+/// to @a obj.
+template <typename T>
+vtkSmartPointer<T> MakeSmartPointer(T *obj)
+{
+  return vtkSmartPointer<T>{obj};
+}
+
+/// Construct a vtkSmartPointer<T> containing @a obj. @a obj's reference count
+/// is not changed.
+template <typename T>
+vtkSmartPointer<T> TakeSmartPointer(T *obj)
+{
+  return vtkSmartPointer<T>::Take(obj);
+}
+
+} // end namespace vtk
+
 /**
  * Streaming operator to print smart pointer like regular pointers.
  */
@@ -350,6 +371,8 @@ inline ostream& operator << (ostream& os, const vtkSmartPointer<T>& p)
 {
   return os << static_cast<const vtkSmartPointerBase&>(p);
 }
+
+
 
 #endif
 // VTK-HeaderTest-Exclude: vtkSmartPointer.h

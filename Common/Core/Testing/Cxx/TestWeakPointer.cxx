@@ -34,7 +34,7 @@ int TestWeakPointer(int,char *[])
     "da1 == 0", "da1 != 0", "da1 < 0", "da1 <= 0", "da1 > 0", "da1 >= 0",
     nullptr };
 
-  vtkWeakPointer<vtkIntArray>  da2(ia);
+  auto da2 = vtk::TakeWeakPointer(ia); // da2 is vtkWeakPointer<vtkIntArray>
   vtkWeakPointer<vtkDataArray> da1(da2);
   da1 = ia;
   da1 = da2;
