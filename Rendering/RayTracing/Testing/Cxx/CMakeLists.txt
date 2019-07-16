@@ -48,6 +48,7 @@ if (VTK_ENABLE_OSPRAY)
     TestPathTracerShadows.cxx
     # Miscellaneous tests
     TestOSPRayCache.cxx
+    TestOSPRayTiling.cxx
   )
 endif()
 
@@ -79,6 +80,7 @@ if (VTK_ENABLE_VISRTX)
     TestPathTracerMaterials
     TestPathTracerShadows
     TestOSPRayCache
+    TestOSPRayTiling
     )
 
   set(testname_suffix "OptiX")

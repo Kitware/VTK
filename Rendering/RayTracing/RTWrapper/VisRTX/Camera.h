@@ -44,6 +44,9 @@ namespace RTW
             if (this->Get3f({ "up" }, &up))
                 this->camera->SetUp(up);
 
+            VisRTX::Vec2f imageBegin, imageEnd;
+            if (this->Get2f({ "imageStart" }, &imageBegin) && this->Get2f({ "imageEnd" }, &imageEnd))
+                this->camera->SetImageRegion(imageBegin, imageEnd);
 
             if (this->camera->GetType() == VisRTX::CameraType::PERSPECTIVE)
             {
