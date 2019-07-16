@@ -1550,39 +1550,89 @@ vtkMTimeType vtkImageResliceMapper::GetMTime()
 }
 
 //----------------------------------------------------------------------------
+void vtkImageResliceMapper::GetIndexBounds(double extent[6])
+{
+  if (!this->GetInput())
+  {
+    return;
+  }
+
+  this->UpdateInformation();
+
+  extent[0] = this->DataWholeExtent[0];
+  extent[1] = this->DataWholeExtent[1];
+  extent[2] = this->DataWholeExtent[2];
+  extent[3] = this->DataWholeExtent[3];
+  extent[4] = this->DataWholeExtent[4];
+  extent[5] = this->DataWholeExtent[5];
+
+  // expand by half a pixel if border is on
+  double border = 0.5*(this->Border != 0);
+
+  extent[0] -= border;
+  extent[1] += border;
+  extent[2] -= border;
+  extent[3] += border;
+  extent[4] -= border;
+  extent[5] += border;
+}
+
+//----------------------------------------------------------------------------
 double *vtkImageResliceMapper::GetBounds()
 {
-  // Modify to give just the slice bounds
   if (!this->GetInput())
   {
     vtkMath::UninitializeBounds(this->Bounds);
     return this->Bounds;
   }
-  else
+
+  double extent[6];
+  this->GetIndexBounds(extent);
+
+  double *spacing = this->DataSpacing;
+  double *origin = this->DataOrigin;
+  double *direction = this->DataDirection;
+
+  // compute bounds
+  for (int k = 0; k < 2; ++k)
   {
-    this->UpdateInformation();
-    double *spacing = this->DataSpacing;
-    double *origin = this->DataOrigin;
-    int *extent = this->DataWholeExtent;
-
-    // expand by half a pixel if border is on
-    double border = 0.5*(this->Border != 0);
-
-    // swap the extent if the spacing is negative
-    int swapX = (spacing[0] < 0);
-    int swapY = (spacing[1] < 0);
-    int swapZ = (spacing[2] < 0);
-
-    this->Bounds[0+swapX] = origin[0] + (extent[0] - border) * spacing[0];
-    this->Bounds[2+swapY] = origin[1] + (extent[2] - border) * spacing[1];
-    this->Bounds[4+swapZ] = origin[2] + (extent[4] - border) * spacing[2];
-
-    this->Bounds[1-swapX] = origin[0] + (extent[1] + border) * spacing[0];
-    this->Bounds[3-swapY] = origin[1] + (extent[3] + border) * spacing[1];
-    this->Bounds[5-swapZ] = origin[2] + (extent[5] + border) * spacing[2];
-
-    return this->Bounds;
+    double kval = extent[k + 4];
+    for (int j = 0; j < 2; ++j)
+    {
+      double jval = extent[j + 2];
+      for (int i = 0; i < 2; ++i)
+      {
+        double ival = extent[i];
+        double point[3];
+        for (int c = 0; c < 3; ++c)
+        {
+          point[c] = ival*spacing[0]*direction[c*3]
+            + jval*spacing[1]*direction[c*3 + 1]
+            + kval*spacing[2] *direction[c*3 + 2]
+            + origin[c];
+        }
+        if (i+j+k == 0)
+        {
+          this->Bounds[0] = point[0];
+          this->Bounds[1] = point[0];
+          this->Bounds[2] = point[1];
+          this->Bounds[3] = point[1];
+          this->Bounds[4] = point[2];
+          this->Bounds[5] = point[2];
+        }
+        else
+        {
+          for (int c = 0; c < 3; ++c)
+          {
+            this->Bounds[c*2] = point[c] < this->Bounds[c*2] ? point[c] : this->Bounds[c*2];
+            this->Bounds[c*2 + 1] = point[c] > this->Bounds[c*2 + 1] ? point[c] : this->Bounds[c*2 + 1];
+          }
+        }
+      }
+    }
   }
+
+  return this->Bounds;
 }
 
 //----------------------------------------------------------------------------

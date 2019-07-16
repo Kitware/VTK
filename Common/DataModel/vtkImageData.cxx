@@ -2335,18 +2335,57 @@ inline static void TransformCoordinates(T1 input0,
                                         T2 output[3],
                                         vtkMatrix4x4* m4)
 {
-  output[0] = m4->GetElement(0, 0) * input0 +
-  m4->GetElement(0, 1) * input1 +
-  m4->GetElement(0, 2) * input2 +
-  m4->GetElement(0, 3);
-  output[1] = m4->GetElement(1, 0) * input0 +
-  m4->GetElement(1, 1) * input1 +
-  m4->GetElement(1, 2) * input2 +
-  m4->GetElement(1, 3);
-  output[2] = m4->GetElement(2, 0) * input0 +
-  m4->GetElement(2, 1) * input1 +
-  m4->GetElement(2, 2) * input2 +
-  m4->GetElement(2, 3);
+  double *mdata = m4->GetData();
+  output[0] = mdata[0] * input0 +
+  mdata[1] * input1 +
+  mdata[2] * input2 +
+  mdata[3];
+  output[1] = mdata[4] * input0 +
+  mdata[5] * input1 +
+  mdata[6] * input2 +
+  mdata[7];
+  output[2] = mdata[8] * input0 +
+  mdata[9] * input1 +
+  mdata[10] * input2 +
+  mdata[11];
+}
+
+// must pass the inverse matrix
+template <typename T1, typename T2>
+inline static void TransformNormal(T1 input0,
+                                   T1 input1,
+                                   T1 input2,
+                                   T2 output[3],
+                                   vtkMatrix4x4* m4)
+{
+  double *mdata = m4->GetData();
+  output[0] = mdata[0] * input0 +
+  mdata[4] * input1 +
+  mdata[8] * input2;
+  output[1] = mdata[1] * input0 +
+  mdata[5] * input1 +
+  mdata[9] * input2;
+  output[2] = mdata[2] * input0 +
+  mdata[6] * input1 +
+  mdata[10] * input2;
+}
+
+// useful for when the ImageData is not available but the information
+// spacing, origin, direction are
+void vtkImageData::TransformContinuousIndexToPhysicalPoint(
+    double i, double j, double k,
+    double const origin[3],
+    double const spacing[3],
+    double const direction[9],
+    double xyz[3])
+{
+  for (int c = 0; c < 3; ++c)
+  {
+    xyz[c] = i*spacing[0]*direction[c*3]
+      + j*spacing[1]*direction[c*3 + 1]
+      + k*spacing[2] *direction[c*3 + 2]
+      + origin[c];
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2402,6 +2441,33 @@ void vtkImageData::TransformPhysicalPointToContinuousIndex(const double xyz[3],
 }
 
 //----------------------------------------------------------------------------
+void vtkImageData::TransformPhysicalNormalToContinuousIndex(const double xyz[3],
+                                                            double ijk[3])
+{
+  TransformNormal<double, double>(xyz[0], xyz[1],  xyz[2], ijk,
+                                  this->IndexToPhysicalMatrix);
+}
+
+void vtkImageData::TransformPhysicalPlaneToContinuousIndex(
+  double const normal[4],
+  double xnormal[4])
+{
+  // transform the normal, note the inverse matrix is passed in
+  TransformNormal<double, double>(normal[0], normal[1],  normal[2], xnormal,
+                                  this->IndexToPhysicalMatrix);
+  vtkMath::Normalize(xnormal);
+
+  // transform the point
+  double newPt[3];
+  TransformCoordinates<double, double>(
+    -normal[3]*normal[0], -normal[3]*normal[1],  -normal[3]*normal[2],
+    newPt, this->PhysicalToIndexMatrix);
+
+  // recompute plane eqn
+  xnormal[3] = -xnormal[0]*newPt[0] - xnormal[1]*newPt[1] - xnormal[2]*newPt[2];
+}
+
+//----------------------------------------------------------------------------
 void vtkImageData::ComputeTransforms()
 {
   vtkMatrix4x4 *m4 = vtkMatrix4x4::New();
@@ -2437,4 +2503,27 @@ void vtkImageData::ComputeTransforms()
   this->IndexToPhysicalMatrix->DeepCopy(m4);
   vtkMatrix4x4::Invert(m4, this->PhysicalToIndexMatrix);
   m4->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::ComputeIndexToPhysicalMatrix(
+  double const origin[3],
+  double const spacing[3],
+  double const direction[9],
+  double result[16])
+{
+  for (int i = 0; i < 3; ++i)
+  {
+    result[i*4] = direction[i*3] * spacing[0];
+    result[i*4 + 1] = direction[i*3 + 1] * spacing[1];
+    result[i*4 + 2] = direction[i*3 + 2] * spacing[2];
+  }
+
+  result[3]  = origin[0];
+  result[7]  = origin[1];
+  result[11] = origin[2];
+  result[12] = 0;
+  result[13] = 0;
+  result[14] = 0;
+  result[15] = 1;
 }

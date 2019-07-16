@@ -14,18 +14,19 @@
 =========================================================================*/
 #include "vtkImageSliceMapper.h"
 
-#include "vtkPoints.h"
-#include "vtkMath.h"
-#include "vtkMatrix4x4.h"
-#include "vtkPlane.h"
-#include "vtkImageData.h"
-#include "vtkImageSlice.h"
-#include "vtkImageProperty.h"
 #include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
+#include "vtkImageData.h"
+#include "vtkImageProperty.h"
+#include "vtkImageSlice.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkMatrix3x3.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPoints.h"
+#include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkCxxSetObjectMacro(vtkImageSliceMapper, Points, vtkPoints);
@@ -91,15 +92,9 @@ int vtkImageSliceMapper::ProcessRequest(
   {
     int wholeExtent[6];
     int *extent = this->DataWholeExtent;
-    double *spacing = this->DataSpacing;
-    double *origin = this->DataOrigin;
 
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
-    inInfo->Get(vtkDataObject::SPACING(), spacing);
-    inInfo->Get(vtkDataObject::ORIGIN(), origin);
-
-    vtkMatrix4x4 *matrix = this->GetDataToWorldMatrix();
 
     for (int k = 0; k < 6; k++)
     {
@@ -121,23 +116,55 @@ int vtkImageSliceMapper::ProcessRequest(
       }
     }
 
+    double *spacing = this->DataSpacing;
+    double *origin = this->DataOrigin;
+    double *dir = this->DataDirection;
+
+    inInfo->Get(vtkDataObject::SPACING(), spacing);
+    inInfo->Get(vtkDataObject::ORIGIN(), origin);
+
+    vtkMatrix4x4 *matrix = this->GetDataToWorldMatrix();
+    if (inInfo->Has(vtkDataObject::DIRECTION()))
+    {
+      inInfo->Get(vtkDataObject::DIRECTION(), dir);
+    }
+    else
+    {
+      vtkMatrix3x3::Identity(dir);
+    }
+    // prepend indextophysical matrix
+    double i2p[16];
+    for (int i = 0; i < 3; ++i)
+    {
+      i2p[i*4] = dir[i*3]*spacing[0];
+      i2p[i*4 + 1] = dir[i*3 + 1]*spacing[1];
+      i2p[i*4 + 2] = dir[i*3 + 2]*spacing[2];
+      i2p[i*4 + 3] = origin[i];
+      i2p[12 + i] = 0.0;
+    }
+    i2p[15] = 1.0;
+    if (matrix)
+    {
+      vtkMatrix4x4::Multiply4x4(matrix->GetData(), i2p, i2p);
+    }
+
     if (this->SliceFacesCamera || this->SliceAtFocalPoint)
     {
       vtkRenderer *ren = this->GetCurrentRenderer();
 
-      if (matrix && ren)
+      if (ren)
       {
         vtkCamera *camera = ren->GetActiveCamera();
 
         if (this->SliceFacesCamera)
         {
-          this->Orientation = this->GetOrientationFromCamera(matrix, camera);
+          this->Orientation = this->GetOrientationFromCamera(i2p, camera);
           this->Orientation = this->Orientation % 3;
         }
 
         if (this->SliceAtFocalPoint)
         {
-          this->SliceNumber = this->GetSliceFromCamera(matrix, camera);
+          this->SliceNumber = this->GetSliceFromCamera(i2p, camera);
         }
       }
     }
@@ -173,9 +200,9 @@ int vtkImageSliceMapper::ProcessRequest(
 
     // Create point and normal of plane
     double point[4];
-    point[0] = 0.5*(extent[0] + extent[1])*spacing[0] + origin[0];
-    point[1] = 0.5*(extent[2] + extent[3])*spacing[1] + origin[1];
-    point[2] = 0.5*(extent[4] + extent[5])*spacing[2] + origin[2];
+    point[0] = 0.5*(extent[0] + extent[1]);
+    point[1] = 0.5*(extent[2] + extent[3]);
+    point[2] = 0.5*(extent[4] + extent[5]);
     point[3] = 1.0;
 
     double normal[4];
@@ -185,20 +212,15 @@ int vtkImageSliceMapper::ProcessRequest(
     normal[3] = -point[orientation];
     normal[orientation] = 1.0;
 
-    if (matrix)
-    {
-      // Convert point and normal to world coords
-      double mat[16];
-      vtkMatrix4x4::DeepCopy(mat, matrix);
-      vtkMatrix4x4::MultiplyPoint(mat, point, point);
-      point[0] /= point[3];
-      point[1] /= point[3];
-      point[2] /= point[3];
-      vtkMatrix4x4::Invert(mat, mat);
-      vtkMatrix4x4::Transpose(mat, mat);
-      vtkMatrix4x4::MultiplyPoint(mat, normal, normal);
-      vtkMath::Normalize(normal);
-    }
+    // Convert point and normal to world coords
+    vtkMatrix4x4::MultiplyPoint(i2p, point, point);
+    point[0] /= point[3];
+    point[1] /= point[3];
+    point[2] /= point[3];
+    vtkMatrix4x4::Invert(i2p, i2p);
+    vtkMatrix4x4::Transpose(i2p, i2p);
+    vtkMatrix4x4::MultiplyPoint(i2p, normal, normal);
+    vtkMath::Normalize(normal);
 
     this->SlicePlane->SetOrigin(point);
     this->SlicePlane->SetNormal(normal);
@@ -324,17 +346,15 @@ int vtkImageSliceMapper::GetSliceNumberMaxValue()
 }
 
 //----------------------------------------------------------------------------
-double *vtkImageSliceMapper::GetBounds()
+void vtkImageSliceMapper::GetIndexBounds(double extent[6])
 {
   if (!this->GetInput())
   {
-    vtkMath::UninitializeBounds(this->Bounds);
-    return this->Bounds;
+    return;
   }
 
   this->UpdateInformation();
 
-  int extent[6];
   extent[0] = this->DisplayExtent[0];
   extent[1] = this->DisplayExtent[1];
   extent[2] = this->DisplayExtent[2];
@@ -346,66 +366,110 @@ double *vtkImageSliceMapper::GetBounds()
   extent[2*orientation] = this->SliceNumberMinValue;
   extent[2*orientation + 1] = this->SliceNumberMaxValue;
 
-  double *spacing = this->DataSpacing;
-  double *origin = this->DataOrigin;
-
   // expand by half a pixel if border is on, except in slice direction
   double border = 0.5*(this->Border != 0);
-  double borderX = border*(orientation != 0);
-  double borderY = border*(orientation != 1);
-  double borderZ = border*(orientation != 2);
+  double borders[3];
+  borders[0] = border*(orientation != 0);
+  borders[1] = border*(orientation != 1);
+  borders[2] = border*(orientation != 2);
 
-  // swap the extent if the spacing is negative
-  int swapX = (spacing[0] < 0);
-  int swapY = (spacing[1] < 0);
-  int swapZ = (spacing[2] < 0);
+  extent[0] -= borders[0];
+  extent[1] += borders[0];
+  extent[2] -= borders[1];
+  extent[3] += borders[1];
+  extent[4] -= borders[2];
+  extent[5] += borders[2];
+}
 
-  this->Bounds[0+swapX] = origin[0] + (extent[0] - borderX) * spacing[0];
-  this->Bounds[2+swapY] = origin[1] + (extent[2] - borderY) * spacing[1];
-  this->Bounds[4+swapZ] = origin[2] + (extent[4] - borderZ) * spacing[2];
+//----------------------------------------------------------------------------
+double *vtkImageSliceMapper::GetBounds()
+{
+  if (!this->GetInput())
+  {
+    vtkMath::UninitializeBounds(this->Bounds);
+    return this->Bounds;
+  }
 
-  this->Bounds[1-swapX] = origin[0] + (extent[1] + borderX) * spacing[0];
-  this->Bounds[3-swapY] = origin[1] + (extent[3] + borderY) * spacing[1];
-  this->Bounds[5-swapZ] = origin[2] + (extent[5] + borderZ) * spacing[2];
+  double extent[6];
+  this->GetIndexBounds(extent);
+
+  double *spacing = this->DataSpacing;
+  double *origin = this->DataOrigin;
+  double *direction = this->DataDirection;
+
+  // compute bounds
+  for (int k = 0; k < 2; ++k)
+  {
+    double kval = extent[k + 4];
+    for (int j = 0; j < 2; ++j)
+    {
+      double jval = extent[j + 2];
+      for (int i = 0; i < 2; ++i)
+      {
+        double ival = extent[i];
+        double point[3];
+        vtkImageData::TransformContinuousIndexToPhysicalPoint(
+            ival, jval, kval,
+            origin, spacing, direction,
+            point);
+        if (i+j+k == 0)
+        {
+          this->Bounds[0] = point[0];
+          this->Bounds[1] = point[0];
+          this->Bounds[2] = point[1];
+          this->Bounds[3] = point[1];
+          this->Bounds[4] = point[2];
+          this->Bounds[5] = point[2];
+        }
+        else
+        {
+          for (int c = 0; c < 3; ++c)
+          {
+            this->Bounds[c*2] = point[c] < this->Bounds[c*2] ? point[c] : this->Bounds[c*2];
+            this->Bounds[c*2 + 1] = point[c] > this->Bounds[c*2 + 1] ? point[c] : this->Bounds[c*2 + 1];
+          }
+        }
+      }
+    }
+  }
 
   return this->Bounds;
 }
 
 //----------------------------------------------------------------------------
 int vtkImageSliceMapper::GetOrientationFromCamera(
-  vtkMatrix4x4 *propMatrix, vtkCamera *camera)
+  double const *propMatrix, vtkCamera *camera)
 {
-  int orientation = 2;
   double normal[4] = { 0, 0, -1, 0 };
-  double maxval = 0;
-  double mat[16];
-
   camera->GetDirectionOfProjection(normal);
-  vtkMatrix4x4::Transpose(*propMatrix->Element, mat);
-  vtkMatrix4x4::MultiplyPoint(mat, normal, normal);
 
-  for (int i = 2; i >= 0; --i)
+  double mat[16];
+  vtkMatrix4x4::Invert(propMatrix, mat);
+  vtkMatrix4x4::Transpose(mat, mat);
+
+  int maxIdx = 0;
+  double maxDot = 0.0;
+  for (int c = 0; c < 3; ++c)
   {
-    int j = 0;
-    double a = normal[i];
-    if (a < 0)
+    double vec[3];
+    vec[0] = mat[c];
+    vec[1] = mat[c + 4];
+    vec[2] = mat[c + 8];
+    vtkMath::Normalize(vec);
+    double dot = vtkMath::Dot(vec,normal);
+    if (fabs(dot) > fabs(maxDot))
     {
-      a = -a;
-      j = 3;
-    }
-    if (a > maxval)
-    {
-      orientation = i + j;
-      maxval = a;
+      maxIdx = c;
+      maxDot = dot;
     }
   }
 
-  return orientation;
+  return maxIdx + (maxDot < 0.0 ? 3 : 0);
 }
 
 //----------------------------------------------------------------------------
 int vtkImageSliceMapper::GetSliceFromCamera(
-  vtkMatrix4x4 *propMatrix, vtkCamera *camera)
+  double const *propMatrix, vtkCamera *camera)
 {
   int orientation = this->Orientation;
 
@@ -414,13 +478,9 @@ int vtkImageSliceMapper::GetSliceFromCamera(
 
   // convert world coords to data coords
   double mat[16];
-  vtkMatrix4x4::Invert(*propMatrix->Element, mat);
+  vtkMatrix4x4::Invert(propMatrix, mat);
   vtkMatrix4x4::MultiplyPoint(mat, p, p);
   double slicepos = p[orientation]/p[3];
-
-  // adjust for origin/spacing
-  slicepos -= this->DataOrigin[orientation];
-  slicepos /= this->DataSpacing[orientation];
 
   // round to get integer, add a tolerance to prefer rounding up
   return vtkMath::Floor(slicepos + (0.5 + 7.62939453125e-06));
@@ -433,12 +493,19 @@ void vtkImageSliceMapper::GetSlicePlaneInDataCoords(
   int orientation = this->Orientation % 3;
   int slice = this->SliceNumber;
 
-  normal[0] = 0.0;
-  normal[1] = 0.0;
-  normal[2] = 0.0;
-  normal[3] = -(slice*this->DataSpacing[orientation] +
-                this->DataOrigin[orientation]);
-  normal[orientation] = 1.0;
+  normal[0] = this->DataDirection[orientation];
+  normal[1] = this->DataDirection[3 + orientation];
+  normal[2] = this->DataDirection[6 + orientation];
+  double scale = vtkMath::Normalize(normal);
+
+  // in this context data coordinates is physical coordinates
+  // in that spacing and origin and direction are still applied
+  // so it is basically index -> data (aka physical) -> world
+  normal[3] = -(slice*this->DataSpacing[orientation]
+    + this->DataOrigin[0]*normal[0]
+    + this->DataOrigin[1]*normal[1]
+    + this->DataOrigin[2]*normal[2]
+    )/scale;
 }
 
 //----------------------------------------------------------------------------

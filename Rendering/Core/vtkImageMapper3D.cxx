@@ -14,23 +14,24 @@
 =========================================================================*/
 #include "vtkImageMapper3D.h"
 
-#include "vtkRenderer.h"
-#include "vtkImageSlice.h"
-#include "vtkImageData.h"
-#include "vtkImageProperty.h"
-#include "vtkScalarsToColors.h"
-#include "vtkDataArray.h"
-#include "vtkMultiThreader.h"
-#include "vtkMath.h"
-#include "vtkMatrix4x4.h"
-#include "vtkPlane.h"
 #include "vtkAbstractTransform.h"
+#include "vtkDataArray.h"
 #include "vtkExecutive.h"
 #include "vtkGarbageCollector.h"
+#include "vtkGraphicsFactory.h"
+#include "vtkImageData.h"
+#include "vtkImageProperty.h"
+#include "vtkImageSlice.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkMatrix3x3.h"
+#include "vtkMatrix4x4.h"
+#include "vtkMultiThreader.h"
+#include "vtkPlane.h"
+#include "vtkRenderer.h"
+#include "vtkScalarsToColors.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkGraphicsFactory.h"
 #include "vtkTemplateAliasMacro.h"
 
 //----------------------------------------------------------------------------
@@ -66,6 +67,8 @@ vtkImageMapper3D::vtkImageMapper3D()
   this->DataSpacing[0] = 1.0;
   this->DataSpacing[1] = 1.0;
   this->DataSpacing[2] = 1.0;
+
+  vtkMatrix3x3::Identity(this->DataDirection);
 
   this->DataWholeExtent[0] = 0;
   this->DataWholeExtent[1] = 0;
@@ -137,6 +140,14 @@ int vtkImageMapper3D::ProcessRequest(
                 this->DataWholeExtent);
     inInfo->Get(vtkDataObject::SPACING(), this->DataSpacing);
     inInfo->Get(vtkDataObject::ORIGIN(), this->DataOrigin);
+    if (inInfo->Has(vtkDataObject::DIRECTION()))
+    {
+      inInfo->Get(vtkDataObject::DIRECTION(), this->DataDirection);
+    }
+    else
+    {
+      vtkMatrix3x3::Identity(this->DataDirection);
+    }
 
     return 1;
   }
@@ -967,42 +978,48 @@ void vtkImageMapper3D::MakeTextureGeometry(
   // get spacing/origin for the quad coordinates
   double *spacing = this->DataSpacing;
   double *origin = this->DataOrigin;
-  int border = this->Border;
-
-  // compute the world coordinates of the quad
-  coords[0] = extent[0]*spacing[0] + origin[0];
-  coords[1] = extent[2]*spacing[1] + origin[1];
-  coords[2] = extent[4]*spacing[2] + origin[2];
-
-  coords[3] = extent[1]*spacing[0] + origin[0];
-  coords[4] = extent[2 + (xdim == 1)]*spacing[1] + origin[1];
-  coords[5] = extent[4]*spacing[2] + origin[2];
-
-  coords[6] = extent[1]*spacing[0] + origin[0];
-  coords[7] = extent[3]*spacing[1] + origin[1];
-  coords[8] = extent[5]*spacing[2] + origin[2];
-
-  coords[9] = extent[0]*spacing[0] + origin[0];
-  coords[10] = extent[2 + (ydim == 1)]*spacing[1] + origin[1];
-  coords[11] = extent[5]*spacing[2] + origin[2];
+  double *direction = this->DataDirection;
 
   // stretch the geometry one half-pixel
-  if (border)
+  double dext[6]
   {
-    coords[xdim] -= 0.5*spacing[xdim];
-    coords[ydim] -= 0.5*spacing[ydim];
-    coords[3 + xdim] += 0.5*spacing[xdim];
-    coords[3 + ydim] -= 0.5*spacing[ydim];
-    coords[6 + xdim] += 0.5*spacing[xdim];
-    coords[6 + ydim] += 0.5*spacing[ydim];
-    coords[9 + xdim] -= 0.5*spacing[xdim];
-    coords[9 + ydim] += 0.5*spacing[ydim];
+    static_cast<double>(extent[0]),
+    static_cast<double>(extent[1]),
+    static_cast<double>(extent[2]),
+    static_cast<double>(extent[3]),
+    static_cast<double>(extent[4]),
+    static_cast<double>(extent[5])
+  };
+  if (this->Border)
+  {
+    dext[xdim*2] -= 0.5;
+    dext[xdim*2 + 1] += 0.5;
+    dext[ydim*2] -= 0.5;
+    dext[ydim*2 + 1] += 0.5;
   }
+
+  // compute the world coordinates of the quad
+  vtkImageData::TransformContinuousIndexToPhysicalPoint(
+      dext[0], dext[2], dext[4],
+      origin, spacing, direction,
+      coords);
+  vtkImageData::TransformContinuousIndexToPhysicalPoint(
+      dext[1], dext[2 + (xdim == 1)], dext[4],
+      origin, spacing, direction,
+      coords + 3);
+  vtkImageData::TransformContinuousIndexToPhysicalPoint(
+      dext[1], dext[3], dext[5],
+      origin, spacing, direction,
+      coords + 6);
+  vtkImageData::TransformContinuousIndexToPhysicalPoint(
+      dext[0], dext[2 + (ydim == 1)], dext[5],
+      origin, spacing, direction,
+      coords + 9);
 
   if (tcoords)
   {
     // compute the tcoords
-    double textureBorder = 0.5*(border == 0);
+    double textureBorder = 0.5*(this->Border == 0);
 
     tcoords[0] = textureBorder/textureSize[0];
     tcoords[1] = textureBorder/textureSize[1];
