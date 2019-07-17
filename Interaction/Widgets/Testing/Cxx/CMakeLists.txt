@@ -36,6 +36,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestImplicitPlaneWidget2LockNormalToCamera.cxx
   TestImplicitPlaneWidget2b.cxx
   TestImplicitPlaneWidget3.cxx
+  TestLightWidget.cxx
   TestLogoWidget.cxx
   TestLogoWidgetAlphaBlending.cxx
   TestLogoWidgetDepthPeeling.cxx
