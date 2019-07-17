@@ -299,6 +299,7 @@ public:
    * vtkPixelBufferObject once it done with it.
    */
   vtkPixelBufferObject* Download();
+  vtkPixelBufferObject* Download(unsigned int target, unsigned int level);
 
   /**
    * Create a 2D depth texture using a PBO.
