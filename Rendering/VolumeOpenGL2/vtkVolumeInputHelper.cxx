@@ -1,43 +1,48 @@
 #include <sstream>
 
+#include "vtkColorTransferFunction.h"
+#include "vtkDataArray.h"
+#include "vtkImageData.h"
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
-#include "vtkVolumeInputHelper.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLTransferFunction2D.h"
 #include "vtkOpenGLVolumeGradientOpacityTable.h"
 #include "vtkOpenGLVolumeOpacityTable.h"
 #include "vtkOpenGLVolumeRGBTable.h"
+#include "vtkOpenGLVolumeTransferFunction2D.h"
+#include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
 #include "vtkVolume.h"
+#include "vtkVolumeInputHelper.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeTexture.h"
 
-
-
-vtkVolumeInputHelper::vtkVolumeInputHelper(vtkSmartPointer<vtkVolumeTexture> tex,
+vtkVolumeInputHelper::vtkVolumeInputHelper(
+  vtkSmartPointer<vtkVolumeTexture> tex,
   vtkVolume* vol)
-: Texture(tex)
-, Volume(vol)
-{
-};
+  : Texture(tex)
+  , Volume(vol){};
 
-void vtkVolumeInputHelper::RefreshTransferFunction(vtkRenderer* ren, const int uniformIndex,
-  const int blendMode, const float samplingDist)
+void vtkVolumeInputHelper::RefreshTransferFunction(vtkRenderer* ren,
+                                                   const int uniformIndex,
+                                                   const int blendMode,
+                                                   const float samplingDist)
 {
   if (this->InitializeTransfer ||
-    this->Volume->GetProperty()->GetMTime() > this->LutInit.GetMTime())
+      this->Volume->GetProperty()->GetMTime() > this->LutInit.GetMTime())
   {
     this->InitializeTransferFunction(ren, uniformIndex);
   }
   this->UpdateTransferFunctions(ren, blendMode, samplingDist);
 }
 
-void vtkVolumeInputHelper::InitializeTransferFunction(vtkRenderer* ren, const int index)
+void vtkVolumeInputHelper::InitializeTransferFunction(vtkRenderer* ren,
+                                                      const int index)
 {
   const int transferMode =
     this->Volume->GetProperty()->GetTransferFunctionMode();
-  switch(transferMode)
+  switch (transferMode)
   {
     case vtkVolumeProperty::TF_2D:
       this->CreateTransferFunction2D(ren, index);
@@ -50,39 +55,40 @@ void vtkVolumeInputHelper::InitializeTransferFunction(vtkRenderer* ren, const in
   this->InitializeTransfer = false;
 }
 
-void vtkVolumeInputHelper::UpdateTransferFunctions(vtkRenderer* ren, const int blendMode,
-  const float samplingDist)
+void vtkVolumeInputHelper::UpdateTransferFunctions(vtkRenderer* ren,
+                                                   const int blendMode,
+                                                   const float samplingDist)
 {
   auto vol = this->Volume;
   const int transferMode = vol->GetProperty()->GetTransferFunctionMode();
   const int numComp =
     this->Texture->GetLoadedScalars()->GetNumberOfComponents();
-  switch(transferMode)
+  switch (transferMode)
   {
     case vtkVolumeProperty::TF_1D:
-      switch(this->ComponentMode)
+      switch (this->ComponentMode)
       {
         case vtkVolumeInputHelper::INDEPENDENT:
           for (int i = 0; i < numComp; ++i)
           {
-            this->UpdateOpacityTransferFunction(ren, vol, i,
-              blendMode, samplingDist);
-            this->UpdateGradientOpacityTransferFunction(ren, vol, i,
-              samplingDist);
+            this->UpdateOpacityTransferFunction(
+              ren, vol, i, blendMode, samplingDist);
+            this->UpdateGradientOpacityTransferFunction(
+              ren, vol, i, samplingDist);
             this->UpdateColorTransferFunction(ren, vol, i);
           }
           break;
         default: // RGBA or LA
-          this->UpdateOpacityTransferFunction(ren, vol, numComp - 1,
-            blendMode, samplingDist);
-          this->UpdateGradientOpacityTransferFunction(ren, vol, numComp - 1,
-            samplingDist);
+          this->UpdateOpacityTransferFunction(
+            ren, vol, numComp - 1, blendMode, samplingDist);
+          this->UpdateGradientOpacityTransferFunction(
+            ren, vol, numComp - 1, samplingDist);
           this->UpdateColorTransferFunction(ren, vol, 0);
       }
       break;
 
     case vtkVolumeProperty::TF_2D:
-      switch(this->ComponentMode)
+      switch (this->ComponentMode)
       {
         case vtkVolumeInputHelper::INDEPENDENT:
           for (int i = 0; i < numComp; ++i)
@@ -97,14 +103,18 @@ void vtkVolumeInputHelper::UpdateTransferFunctions(vtkRenderer* ren, const int b
   }
 }
 
-int vtkVolumeInputHelper::UpdateOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
-  unsigned int component, const int blendMode, const float samplingDist)
+int vtkVolumeInputHelper::UpdateOpacityTransferFunction(
+  vtkRenderer* ren,
+  vtkVolume* vol,
+  unsigned int component,
+  const int blendMode,
+  const float samplingDist)
 {
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
   // Use the first LUT when using dependent components
-  unsigned int lookupTableIndex = volumeProperty->GetIndependentComponents() ?
-                                  component : 0;
+  unsigned int lookupTableIndex =
+    volumeProperty->GetIndependentComponents() ? component : 0;
   vtkPiecewiseFunction* scalarOpacity =
     volumeProperty->GetScalarOpacity(lookupTableIndex);
 
@@ -123,7 +133,6 @@ int vtkVolumeInputHelper::UpdateOpacityTransferFunction(vtkRenderer* ren, vtkVol
     scalarOpacity->GetRange(componentRange);
   }
 
-
   if (scalarOpacity->GetSize() < 1)
   {
     scalarOpacity->AddPoint(componentRange[0], 0.0);
@@ -131,26 +140,29 @@ int vtkVolumeInputHelper::UpdateOpacityTransferFunction(vtkRenderer* ren, vtkVol
   }
 
   int filterVal =
-    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
-      vtkTextureObject::Linear : vtkTextureObject::Nearest;
+    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION
+    ? vtkTextureObject::Linear
+    : vtkTextureObject::Nearest;
 
-  this->OpacityTables->GetTable(lookupTableIndex)->Update(
-    scalarOpacity, blendMode,
-    samplingDist,
-    componentRange,
-    volumeProperty->GetScalarOpacityUnitDistance(component),
+  this->OpacityTables->GetTable(lookupTableIndex)
+    ->Update(scalarOpacity,
+             componentRange,
+             blendMode,
+             samplingDist,
+             volumeProperty->GetScalarOpacityUnitDistance(component),
 #ifndef GL_ES_VERSION_3_0
-    filterVal,
+             filterVal,
 #else
-    vtkTextureObject::Nearest,
+             vtkTextureObject::Nearest,
 #endif
-    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+             vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
   return 0;
 }
 
-int vtkVolumeInputHelper::UpdateColorTransferFunction(vtkRenderer* ren, vtkVolume* vol,
-  unsigned int component)
+int vtkVolumeInputHelper::UpdateColorTransferFunction(vtkRenderer* ren,
+                                                      vtkVolume* vol,
+                                                      unsigned int component)
 {
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
@@ -182,12 +194,16 @@ int vtkVolumeInputHelper::UpdateColorTransferFunction(vtkRenderer* ren, vtkVolum
   }
 
   int filterVal =
-    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
-      vtkTextureObject::Linear : vtkTextureObject::Nearest;
+    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION
+    ? vtkTextureObject::Linear
+    : vtkTextureObject::Nearest;
 
   this->RGBTables->GetTable(component)->Update(
     volumeProperty->GetRGBTransferFunction(component),
     componentRange,
+    0,
+    0,
+    0,
 #ifndef GL_ES_VERSION_3_0
     filterVal,
 #else
@@ -198,14 +214,17 @@ int vtkVolumeInputHelper::UpdateColorTransferFunction(vtkRenderer* ren, vtkVolum
   return 0;
 }
 
-int vtkVolumeInputHelper::UpdateGradientOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
-  unsigned int component, const float samplingDist)
+int vtkVolumeInputHelper::UpdateGradientOpacityTransferFunction(
+  vtkRenderer* ren,
+  vtkVolume* vol,
+  unsigned int component,
+  const float samplingDist)
 {
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
   // Use the first LUT when using dependent components
-  unsigned int lookupTableIndex = volumeProperty->GetIndependentComponents() ?
-                                  component : 0;
+  unsigned int lookupTableIndex =
+    volumeProperty->GetIndependentComponents() ? component : 0;
 
   if (!volumeProperty->HasGradientOpacity(lookupTableIndex) ||
       !this->GradientOpacityTables)
@@ -238,66 +257,76 @@ int vtkVolumeInputHelper::UpdateGradientOpacityTransferFunction(vtkRenderer* ren
   }
 
   int filterVal =
-    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
-      vtkTextureObject::Linear : vtkTextureObject::Nearest;
+    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION
+    ? vtkTextureObject::Linear
+    : vtkTextureObject::Nearest;
 
-  this->GradientOpacityTables->GetTable(lookupTableIndex)->Update(
-    gradientOpacity,
-    samplingDist,
-    componentRange,
-    volumeProperty->GetScalarOpacityUnitDistance(component),
+  this->GradientOpacityTables->GetTable(lookupTableIndex)
+    ->Update(gradientOpacity,
+             componentRange,
+             0,
+             samplingDist,
+             volumeProperty->GetScalarOpacityUnitDistance(component),
 #ifndef GL_ES_VERSION_3_0
-    filterVal,
+             filterVal,
 #else
-    vtkTextureObject::Nearest,
+             vtkTextureObject::Nearest,
 #endif
-    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+             vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
   return 0;
 }
 
 void vtkVolumeInputHelper::UpdateTransferFunction2D(vtkRenderer* ren,
-  unsigned int component)
+                                                    unsigned int component)
 {
   // Use the first LUT when using dependent components
   vtkVolumeProperty* prop = this->Volume->GetProperty();
-  unsigned int const lutIndex = prop->GetIndependentComponents() ?
-    component : 0;
+  unsigned int const lutIndex =
+    prop->GetIndependentComponents() ? component : 0;
 
   vtkImageData* transfer2D = prop->GetTransferFunction2D(lutIndex);
 #ifndef GL_ES_VERSION_3_0
-  int const interp = prop->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
-    vtkTextureObject::Linear : vtkTextureObject::Nearest;
+  int const interp = prop->GetInterpolationType() == VTK_LINEAR_INTERPOLATION
+    ? vtkTextureObject::Linear
+    : vtkTextureObject::Nearest;
 #else
   int const interp = vtkTextureObject::Nearest;
 #endif
 
-  this->TransferFunctions2D->GetTable(lutIndex)->Update(transfer2D, interp,
-      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+  double scalarRange[2] = { 0, 1 };
+  this->TransferFunctions2D->GetTable(lutIndex)->Update(
+    transfer2D,
+    scalarRange,
+    0,
+    0,
+    0,
+    interp,
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 }
 
-void vtkVolumeInputHelper::ActivateTransferFunction(vtkShaderProgram* prog, const int blendMode)
+void vtkVolumeInputHelper::ActivateTransferFunction(vtkShaderProgram* prog,
+                                                    const int blendMode)
 {
   int const transferMode =
     this->Volume->GetProperty()->GetTransferFunctionMode();
-  int const numActiveLuts = this->ComponentMode == INDEPENDENT ?
-    Texture->GetLoadedScalars()->GetNumberOfComponents() : 1;
+  int const numActiveLuts = this->ComponentMode == INDEPENDENT
+    ? Texture->GetLoadedScalars()->GetNumberOfComponents()
+    : 1;
   switch (transferMode)
   {
     case vtkVolumeProperty::TF_1D:
       for (int i = 0; i < numActiveLuts; ++i)
       {
         this->OpacityTables->GetTable(i)->Activate();
-        prog->SetUniformi(
-          this->OpacityTablesMap[i].c_str(),
-          this->OpacityTables->GetTable(i)->GetTextureUnit());
+        prog->SetUniformi(this->OpacityTablesMap[i].c_str(),
+                          this->OpacityTables->GetTable(i)->GetTextureUnit());
 
         if (blendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
         {
           this->RGBTables->GetTable(i)->Activate();
-          prog->SetUniformi(
-            this->RGBTablesMap[i].c_str(),
-            this->RGBTables->GetTable(i)->GetTextureUnit());
+          prog->SetUniformi(this->RGBTablesMap[i].c_str(),
+                            this->RGBTables->GetTable(i)->GetTextureUnit());
         }
 
         if (this->GradientOpacityTables)
@@ -312,11 +341,11 @@ void vtkVolumeInputHelper::ActivateTransferFunction(vtkShaderProgram* prog, cons
     case vtkVolumeProperty::TF_2D:
       for (int i = 0; i < numActiveLuts; ++i)
       {
-        vtkOpenGLTransferFunction2D* table =
-        this->TransferFunctions2D->GetTable(i);
+        vtkOpenGLVolumeTransferFunction2D* table =
+          this->TransferFunctions2D->GetTable(i);
         table->Activate();
         prog->SetUniformi(this->TransferFunctions2DMap[i].c_str(),
-          table->GetTextureUnit());
+                          table->GetTextureUnit());
       }
       break;
   }
@@ -326,9 +355,10 @@ void vtkVolumeInputHelper::DeactivateTransferFunction(const int blendMode)
 {
   int const transferMode =
     this->Volume->GetProperty()->GetTransferFunctionMode();
-  int const numActiveLuts = this->ComponentMode == INDEPENDENT ?
-    Texture->GetLoadedScalars()->GetNumberOfComponents() : 1;
-  switch(transferMode)
+  int const numActiveLuts = this->ComponentMode == INDEPENDENT
+    ? Texture->GetLoadedScalars()->GetNumberOfComponents()
+    : 1;
+  switch (transferMode)
   {
     case vtkVolumeProperty::TF_1D:
       for (int i = 0; i < numActiveLuts; ++i)
@@ -353,21 +383,25 @@ void vtkVolumeInputHelper::DeactivateTransferFunction(const int blendMode)
   }
 }
 
-void vtkVolumeInputHelper::CreateTransferFunction1D(vtkRenderer* ren, const int index)
+void vtkVolumeInputHelper::CreateTransferFunction1D(vtkRenderer* ren,
+                                                    const int index)
 {
   this->ReleaseGraphicsTransfer1D(ren->GetRenderWindow());
 
-  int const numActiveLuts = this->ComponentMode == INDEPENDENT ?
-    Texture->GetLoadedScalars()->GetNumberOfComponents() : 1;
+  int const numActiveLuts = this->ComponentMode == INDEPENDENT
+    ? Texture->GetLoadedScalars()->GetNumberOfComponents()
+    : 1;
 
   // Create RGB and opacity (scalar and gradient) lookup tables. Up to four
   // components are supported in single-input independentComponents mode.
-  this->RGBTables = vtkSmartPointer<vtkOpenGLVolumeRGBTables>::New();
-    this->RGBTables->Create(numActiveLuts);
-  this->OpacityTables = vtkSmartPointer<vtkOpenGLVolumeOpacityTables>::New();
-    this->OpacityTables->Create(numActiveLuts);
-  this->GradientOpacityTables =
-    vtkSmartPointer<vtkOpenGLVolumeGradientOpacityTables>::New();
+  this->RGBTables = vtkSmartPointer<
+    vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeRGBTable>>::New();
+  this->RGBTables->Create(numActiveLuts);
+  this->OpacityTables = vtkSmartPointer<
+    vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeOpacityTable>>::New();
+  this->OpacityTables->Create(numActiveLuts);
+  this->GradientOpacityTables = vtkSmartPointer<
+    vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeGradientOpacityTable>>::New();
   this->GradientOpacityTables->Create(numActiveLuts);
 
   this->OpacityTablesMap.clear();
@@ -401,15 +435,16 @@ void vtkVolumeInputHelper::CreateTransferFunction1D(vtkRenderer* ren, const int 
 }
 
 void vtkVolumeInputHelper::CreateTransferFunction2D(vtkRenderer* ren,
-  const int index)
+                                                    const int index)
 {
   this->ReleaseGraphicsTransfer2D(ren->GetRenderWindow());
 
-  unsigned int const num = this->ComponentMode == INDEPENDENT ?
-     Texture->GetLoadedScalars()->GetNumberOfComponents() : 1;
+  unsigned int const num = this->ComponentMode == INDEPENDENT
+    ? Texture->GetLoadedScalars()->GetNumberOfComponents()
+    : 1;
 
-  this->TransferFunctions2D =
-    vtkSmartPointer<vtkOpenGLTransferFunctions2D>::New();
+  this->TransferFunctions2D = vtkSmartPointer<
+    vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeTransferFunction2D>>::New();
   this->TransferFunctions2D->Create(num);
 
   std::ostringstream idx;

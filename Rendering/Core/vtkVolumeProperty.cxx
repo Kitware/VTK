@@ -23,47 +23,48 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 
-
 vtkStandardNewMacro(vtkVolumeProperty);
 
+//-----------------------------------------------------------------------------
 // Construct a new vtkVolumeProperty with default values
 vtkVolumeProperty::vtkVolumeProperty()
 {
   this->IndependentComponents = 1;
 
-  this->InterpolationType               = VTK_NEAREST_INTERPOLATION;
+  this->InterpolationType = VTK_NEAREST_INTERPOLATION;
 
   this->UseClippedVoxelIntensity = 0;
   this->ClippedVoxelIntensity = VTK_FLOAT_MIN;
 
-  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
+  for (int i = 0; i < VTK_MAX_VRCOMP; i++)
   {
-    this->ColorChannels[i]                   = 1;
+    this->ColorChannels[i] = 1;
 
-    this->GrayTransferFunction[i]            = nullptr;
-    this->RGBTransferFunction[i]             = nullptr;
-    this->ScalarOpacity[i]                   = nullptr;
-    this->ScalarOpacityUnitDistance[i]       = 1.0;
-    this->GradientOpacity[i]                 = nullptr;
-    this->TransferFunction2D[i]              = nullptr;
-    this->DefaultGradientOpacity[i]          = nullptr;
-    this->DisableGradientOpacity[i]          = 0;
-    this->TransferFunctionMode               = vtkVolumeProperty::TF_1D;
+    this->GrayTransferFunction[i] = nullptr;
+    this->RGBTransferFunction[i] = nullptr;
+    this->ScalarOpacity[i] = nullptr;
+    this->ScalarOpacityUnitDistance[i] = 1.0;
+    this->GradientOpacity[i] = nullptr;
+    this->TransferFunction2D[i] = nullptr;
+    this->DefaultGradientOpacity[i] = nullptr;
+    this->DisableGradientOpacity[i] = 0;
+    this->TransferFunctionMode = vtkVolumeProperty::TF_1D;
 
-    this->ComponentWeight[i]                 = 1.0;
+    this->ComponentWeight[i] = 1.0;
 
-    this->Shade[i]                           = 0;
-    this->Ambient[i]                         = 0.1;
-    this->Diffuse[i]                         = 0.7;
-    this->Specular[i]                        = 0.2;
-    this->SpecularPower[i]                   = 10.0;
+    this->Shade[i] = 0;
+    this->Ambient[i] = 0.1;
+    this->Diffuse[i] = 0.7;
+    this->Specular[i] = 0.2;
+    this->SpecularPower[i] = 10.0;
   }
 }
 
+//-----------------------------------------------------------------------------
 // Destruct a vtkVolumeProperty
 vtkVolumeProperty::~vtkVolumeProperty()
 {
-  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
+  for (int i = 0; i < VTK_MAX_VRCOMP; i++)
   {
     if (this->GrayTransferFunction[i] != nullptr)
     {
@@ -95,9 +96,26 @@ vtkVolumeProperty::~vtkVolumeProperty()
       this->DefaultGradientOpacity[i]->UnRegister(this);
     }
   }
+  for (auto it = this->LabelColor.begin(); it != this->LabelColor.end(); ++it)
+  {
+    (*it).second->UnRegister(this);
+  }
+  for (auto it = this->LabelScalarOpacity.begin();
+       it != this->LabelScalarOpacity.end();
+       ++it)
+  {
+    (*it).second->UnRegister(this);
+  }
+  for (auto it = this->LabelGradientOpacity.begin();
+       it != this->LabelGradientOpacity.end();
+       ++it)
+  {
+    (*it).second->UnRegister(this);
+  }
 }
 
-void vtkVolumeProperty::DeepCopy(vtkVolumeProperty *p)
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::DeepCopy(vtkVolumeProperty* p)
 {
   if (!p)
   {
@@ -122,14 +140,12 @@ void vtkVolumeProperty::DeepCopy(vtkVolumeProperty *p)
     if (p->GetColorChannels(i) > 1)
     {
       this->SetColor(i, this->GetRGBTransferFunction(i));
-      this->GetRGBTransferFunction(i)->DeepCopy(
-        p->GetRGBTransferFunction(i));
+      this->GetRGBTransferFunction(i)->DeepCopy(p->GetRGBTransferFunction(i));
     }
     else
     {
       this->SetColor(i, this->GetGrayTransferFunction(i));
-      this->GetGrayTransferFunction(i)->DeepCopy(
-        p->GetGrayTransferFunction(i));
+      this->GetGrayTransferFunction(i)->DeepCopy(p->GetGrayTransferFunction(i));
     }
 
     this->GetScalarOpacity(i)->DeepCopy(p->GetScalarOpacity(i));
@@ -150,11 +166,12 @@ void vtkVolumeProperty::DeepCopy(vtkVolumeProperty *p)
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------
 void vtkVolumeProperty::UpdateMTimes()
 {
   this->Modified();
 
-  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
+  for (int i = 0; i < VTK_MAX_VRCOMP; i++)
   {
     this->GrayTransferFunctionMTime[i].Modified();
     this->RGBTransferFunctionMTime[i].Modified();
@@ -162,14 +179,18 @@ void vtkVolumeProperty::UpdateMTimes()
     this->GradientOpacityMTime[i].Modified();
     this->TransferFunction2DMTime[i].Modified();
   }
+  this->LabelColorMTime.Modified();
+  this->LabelScalarOpacityMTime.Modified();
+  this->LabelGradientOpacityMTime.Modified();
 }
 
+//-----------------------------------------------------------------------------
 vtkMTimeType vtkVolumeProperty::GetMTime()
 {
-  vtkMTimeType mTime=this->vtkObject::GetMTime();
+  vtkMTimeType mTime = this->vtkObject::GetMTime();
   vtkMTimeType time;
 
-  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
+  for (int i = 0; i < VTK_MAX_VRCOMP; i++)
   {
     // Color MTimes
     if (this->ColorChannels[i] == 1)
@@ -241,12 +262,22 @@ vtkMTimeType vtkVolumeProperty::GetMTime()
   time = this->IsoSurfaceValues->GetMTime();
   mTime = vtkMath::Max(mTime, time);
 
+  time = this->LabelColorMTime;
+  mTime = vtkMath::Max(mTime, time);
+
+  time = this->LabelScalarOpacityMTime;
+  mTime = vtkMath::Max(mTime, time);
+
+  time = this->LabelGradientOpacityMTime;
+  mTime = vtkMath::Max(mTime, time);
+
   return mTime;
 }
 
-int vtkVolumeProperty::GetColorChannels( int index )
+//-----------------------------------------------------------------------------
+int vtkVolumeProperty::GetColorChannels(int index)
 {
-  if ( index < 0 || index > 3 )
+  if (index < 0 || index > 3)
   {
     vtkErrorMacro("Bad index - must be between 0 and 3");
     return 0;
@@ -255,17 +286,17 @@ int vtkVolumeProperty::GetColorChannels( int index )
   return this->ColorChannels[index];
 }
 
-
+//-----------------------------------------------------------------------------
 // Set the color of a volume to a gray transfer function
-void vtkVolumeProperty::SetColor( int index, vtkPiecewiseFunction *function )
+void vtkVolumeProperty::SetColor(int index, vtkPiecewiseFunction* function)
 {
-  if (this->GrayTransferFunction[index] != function )
+  if (this->GrayTransferFunction[index] != function)
   {
     if (this->GrayTransferFunction[index] != nullptr)
     {
       this->GrayTransferFunction[index]->UnRegister(this);
     }
-    this->GrayTransferFunction[index]  = function;
+    this->GrayTransferFunction[index] = function;
     if (this->GrayTransferFunction[index] != nullptr)
     {
       this->GrayTransferFunction[index]->Register(this);
@@ -283,16 +314,17 @@ void vtkVolumeProperty::SetColor( int index, vtkPiecewiseFunction *function )
   }
 }
 
+//-----------------------------------------------------------------------------
 // Get the currently set gray transfer function. Create one if none set.
-vtkPiecewiseFunction *vtkVolumeProperty::GetGrayTransferFunction( int index )
+vtkPiecewiseFunction* vtkVolumeProperty::GetGrayTransferFunction(int index)
 {
-  if (this->GrayTransferFunction[index] == nullptr )
+  if (this->GrayTransferFunction[index] == nullptr)
   {
     this->GrayTransferFunction[index] = vtkPiecewiseFunction::New();
     this->GrayTransferFunction[index]->Register(this);
     this->GrayTransferFunction[index]->Delete();
-    this->GrayTransferFunction[index]->AddPoint(    0, 0.0 );
-    this->GrayTransferFunction[index]->AddPoint( 1024, 1.0 );
+    this->GrayTransferFunction[index]->AddPoint(0, 0.0);
+    this->GrayTransferFunction[index]->AddPoint(1024, 1.0);
     if (this->ColorChannels[index] != 1)
     {
       this->ColorChannels[index] = 1;
@@ -303,16 +335,17 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetGrayTransferFunction( int index )
   return this->GrayTransferFunction[index];
 }
 
+//-----------------------------------------------------------------------------
 // Set the color of a volume to an RGB transfer function
-void vtkVolumeProperty::SetColor( int index, vtkColorTransferFunction *function )
+void vtkVolumeProperty::SetColor(int index, vtkColorTransferFunction* function)
 {
-  if (this->RGBTransferFunction[index] != function )
+  if (this->RGBTransferFunction[index] != function)
   {
     if (this->RGBTransferFunction[index] != nullptr)
     {
       this->RGBTransferFunction[index]->UnRegister(this);
     }
-    this->RGBTransferFunction[index]   = function;
+    this->RGBTransferFunction[index] = function;
     if (this->RGBTransferFunction[index] != nullptr)
     {
       this->RGBTransferFunction[index]->Register(this);
@@ -329,16 +362,17 @@ void vtkVolumeProperty::SetColor( int index, vtkColorTransferFunction *function 
   }
 }
 
+//-----------------------------------------------------------------------------
 // Get the currently set RGB transfer function. Create one if none set.
-vtkColorTransferFunction *vtkVolumeProperty::GetRGBTransferFunction( int index )
+vtkColorTransferFunction* vtkVolumeProperty::GetRGBTransferFunction(int index)
 {
-  if (this->RGBTransferFunction[index] == nullptr )
+  if (this->RGBTransferFunction[index] == nullptr)
   {
     this->RGBTransferFunction[index] = vtkColorTransferFunction::New();
     this->RGBTransferFunction[index]->Register(this);
     this->RGBTransferFunction[index]->Delete();
-    this->RGBTransferFunction[index]->AddRGBPoint(      0, 0.0, 0.0, 0.0 );
-    this->RGBTransferFunction[index]->AddRGBPoint(   1024, 1.0, 1.0, 1.0 );
+    this->RGBTransferFunction[index]->AddRGBPoint(0, 0.0, 0.0, 0.0);
+    this->RGBTransferFunction[index]->AddRGBPoint(1024, 1.0, 1.0, 1.0);
     if (this->ColorChannels[index] != 3)
     {
       this->ColorChannels[index] = 3;
@@ -349,10 +383,12 @@ vtkColorTransferFunction *vtkVolumeProperty::GetRGBTransferFunction( int index )
   return this->RGBTransferFunction[index];
 }
 
+//-----------------------------------------------------------------------------
 // Set the scalar opacity of a volume to a transfer function
-void vtkVolumeProperty::SetScalarOpacity( int index, vtkPiecewiseFunction *function )
+void vtkVolumeProperty::SetScalarOpacity(int index,
+                                         vtkPiecewiseFunction* function)
 {
-  if ( this->ScalarOpacity[index] != function )
+  if (this->ScalarOpacity[index] != function)
   {
     if (this->ScalarOpacity[index] != nullptr)
     {
@@ -370,58 +406,62 @@ void vtkVolumeProperty::SetScalarOpacity( int index, vtkPiecewiseFunction *funct
   }
 }
 
+//-----------------------------------------------------------------------------
 // Get the scalar opacity transfer function. Create one if none set.
-vtkPiecewiseFunction *vtkVolumeProperty::GetScalarOpacity( int index )
+vtkPiecewiseFunction* vtkVolumeProperty::GetScalarOpacity(int index)
 {
-  if( this->ScalarOpacity[index] == nullptr )
+  if (this->ScalarOpacity[index] == nullptr)
   {
     this->ScalarOpacity[index] = vtkPiecewiseFunction::New();
     this->ScalarOpacity[index]->Register(this);
     this->ScalarOpacity[index]->Delete();
-    this->ScalarOpacity[index]->AddPoint(    0, 1.0 );
-    this->ScalarOpacity[index]->AddPoint( 1024, 1.0 );
+    this->ScalarOpacity[index]->AddPoint(0, 1.0);
+    this->ScalarOpacity[index]->AddPoint(1024, 1.0);
   }
 
   return this->ScalarOpacity[index];
 }
 
-void vtkVolumeProperty::SetScalarOpacityUnitDistance( int index, double distance )
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetScalarOpacityUnitDistance(int index, double distance)
 {
-  if ( index < 0 || index > 3 )
+  if (index < 0 || index > 3)
   {
     vtkErrorMacro("Bad index - must be between 0 and 3");
     return;
   }
 
-  if ( this->ScalarOpacityUnitDistance[index] != distance )
+  if (this->ScalarOpacityUnitDistance[index] != distance)
   {
     this->ScalarOpacityUnitDistance[index] = distance;
     this->Modified();
   }
 }
 
-double vtkVolumeProperty::GetScalarOpacityUnitDistance( int index )
+//-----------------------------------------------------------------------------
+double vtkVolumeProperty::GetScalarOpacityUnitDistance(int index)
 {
-  if ( index < 0 || index > 3 )
+  if (index < 0 || index > 3)
   {
     vtkErrorMacro("Bad index - must be between 0 and 3");
     return 0;
   }
 
-  return  this->ScalarOpacityUnitDistance[index];
+  return this->ScalarOpacityUnitDistance[index];
 }
 
-
+//-----------------------------------------------------------------------------
 // Set the gradient opacity transfer function
-void vtkVolumeProperty::SetGradientOpacity( int index, vtkPiecewiseFunction *function )
+void vtkVolumeProperty::SetGradientOpacity(int index,
+                                           vtkPiecewiseFunction* function)
 {
-  if ( this->GradientOpacity[index] != function )
+  if (this->GradientOpacity[index] != function)
   {
     if (this->GradientOpacity[index] != nullptr)
     {
       this->GradientOpacity[index]->UnRegister(this);
     }
-    this->GradientOpacity[index]       = function;
+    this->GradientOpacity[index] = function;
     if (this->GradientOpacity[index] != nullptr)
     {
       this->GradientOpacity[index]->Register(this);
@@ -433,9 +473,10 @@ void vtkVolumeProperty::SetGradientOpacity( int index, vtkPiecewiseFunction *fun
   }
 }
 
-void vtkVolumeProperty::CreateDefaultGradientOpacity( int index )
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::CreateDefaultGradientOpacity(int index)
 {
-  if ( this->DefaultGradientOpacity[index] == nullptr )
+  if (this->DefaultGradientOpacity[index] == nullptr)
   {
     this->DefaultGradientOpacity[index] = vtkPiecewiseFunction::New();
     this->DefaultGradientOpacity[index]->Register(this);
@@ -443,15 +484,16 @@ void vtkVolumeProperty::CreateDefaultGradientOpacity( int index )
   }
 
   this->DefaultGradientOpacity[index]->RemoveAllPoints();
-  this->DefaultGradientOpacity[index]->AddPoint(   0, 1.0 );
-  this->DefaultGradientOpacity[index]->AddPoint( 255, 1.0 );
+  this->DefaultGradientOpacity[index]->AddPoint(0, 1.0);
+  this->DefaultGradientOpacity[index]->AddPoint(255, 1.0);
 }
 
-vtkPiecewiseFunction *vtkVolumeProperty::GetGradientOpacity( int index )
+//-----------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkVolumeProperty::GetGradientOpacity(int index)
 {
   if (this->DisableGradientOpacity[index])
   {
-    if ( this->DefaultGradientOpacity[index] == nullptr )
+    if (this->DefaultGradientOpacity[index] == nullptr)
     {
       this->CreateDefaultGradientOpacity(index);
     }
@@ -461,6 +503,7 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetGradientOpacity( int index )
   return this->GetStoredGradientOpacity(index);
 }
 
+//-----------------------------------------------------------------------------
 void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
 {
   if (this->TransferFunction2D[index] != function)
@@ -468,15 +511,17 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
     vtkDataArray* dataArr = function->GetPointData()->GetScalars();
     const int* dims = function->GetDimensions();
     if (!dataArr || dataArr->GetNumberOfComponents() != 4 ||
-      dataArr->GetDataType() != VTK_FLOAT || dims[0] == 0)
+        dataArr->GetDataType() != VTK_FLOAT || dims[0] == 0)
     {
       if (dataArr)
       {
         const int type = dataArr->GetDataType();
         const int comp = dataArr->GetNumberOfComponents();
-        vtkErrorMacro(<< "Invalid type (" << type << ") or number of components ("
-          << comp << ") or dimensions (" << dims[0] << ", " << dims[1] << ")."
-          " Expected VTK_FLOAT, 4 Components, dimensions > 0!");
+        vtkErrorMacro(<< "Invalid type (" << type
+                      << ") or number of components (" << comp
+                      << ") or dimensions (" << dims[0] << ", " << dims[1]
+                      << ")."
+                         " Expected VTK_FLOAT, 4 Components, dimensions > 0!");
         return;
       }
 
@@ -501,27 +546,30 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
   }
 }
 
+//-----------------------------------------------------------------------------
 vtkImageData* vtkVolumeProperty::GetTransferFunction2D(int index)
 {
   return this->TransferFunction2D[index];
 }
 
+//-----------------------------------------------------------------------------
 // Get the gradient opacity transfer function. Create one if none set.
-vtkPiecewiseFunction *vtkVolumeProperty::GetStoredGradientOpacity( int index )
+vtkPiecewiseFunction* vtkVolumeProperty::GetStoredGradientOpacity(int index)
 {
-  if ( this->GradientOpacity[index] == nullptr )
+  if (this->GradientOpacity[index] == nullptr)
   {
     this->GradientOpacity[index] = vtkPiecewiseFunction::New();
     this->GradientOpacity[index]->Register(this);
     this->GradientOpacity[index]->Delete();
-    this->GradientOpacity[index]->AddPoint(   0, 1.0 );
-    this->GradientOpacity[index]->AddPoint( 255, 1.0 );
+    this->GradientOpacity[index]->AddPoint(0, 1.0);
+    this->GradientOpacity[index]->AddPoint(255, 1.0);
   }
 
   return this->GradientOpacity[index];
 }
 
-void vtkVolumeProperty::SetDisableGradientOpacity( int index, int value )
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetDisableGradientOpacity(int index, int value)
 {
   if (this->DisableGradientOpacity[index] == value)
   {
@@ -547,7 +595,8 @@ void vtkVolumeProperty::SetDisableGradientOpacity( int index, int value )
   this->Modified();
 }
 
-int vtkVolumeProperty::GetDisableGradientOpacity( int index )
+//-----------------------------------------------------------------------------
+int vtkVolumeProperty::GetDisableGradientOpacity(int index)
 {
   return this->DisableGradientOpacity[index];
 }
@@ -568,6 +617,7 @@ void vtkVolumeProperty::SetComponentWeight(int index, double value)
   }
 }
 
+//-----------------------------------------------------------------------------
 double vtkVolumeProperty::GetComponentWeight(int index)
 {
   if (index < 0 || index >= VTK_MAX_VRCOMP)
@@ -579,172 +629,379 @@ double vtkVolumeProperty::GetComponentWeight(int index)
   return this->ComponentWeight[index];
 }
 
-void vtkVolumeProperty::SetShade( int index, int value )
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetShade(int index, int value)
 {
-  if ( value != 0 && value != 1 )
+  if (value != 0 && value != 1)
   {
     vtkErrorMacro("SetShade accepts values 0 or 1");
     return;
   }
 
-  if ( this->Shade[index] != value )
+  if (this->Shade[index] != value)
   {
     this->Shade[index] = value;
     this->Modified();
   }
 }
 
-void vtkVolumeProperty::ShadeOn( int index )
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::ShadeOn(int index)
 {
-  this->SetShade( index, 1 );
+  this->SetShade(index, 1);
 }
 
-
-void vtkVolumeProperty::ShadeOff( int index )
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::ShadeOff(int index)
 {
-  this->SetShade( index, 0 );
+  this->SetShade(index, 0);
 }
 
-
-int vtkVolumeProperty::GetShade( int index )
+//-----------------------------------------------------------------------------
+int vtkVolumeProperty::GetShade(int index)
 {
   return this->Shade[index];
 }
 
-void vtkVolumeProperty::SetAmbient( int index, double value )
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetAmbient(int index, double value)
 {
-  if ( this->Ambient[index] != value )
+  if (this->Ambient[index] != value)
   {
     this->Ambient[index] = value;
     this->Modified();
   }
 }
 
-double vtkVolumeProperty::GetAmbient( int index )
+//-----------------------------------------------------------------------------
+double vtkVolumeProperty::GetAmbient(int index)
 {
   return this->Ambient[index];
 }
 
-void vtkVolumeProperty::SetDiffuse( int index, double value )
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetDiffuse(int index, double value)
 {
-  if ( this->Diffuse[index] != value )
+  if (this->Diffuse[index] != value)
   {
     this->Diffuse[index] = value;
     this->Modified();
   }
 }
 
-double vtkVolumeProperty::GetDiffuse( int index )
+//-----------------------------------------------------------------------------
+double vtkVolumeProperty::GetDiffuse(int index)
 {
   return this->Diffuse[index];
 }
 
-void vtkVolumeProperty::SetSpecular( int index, double value )
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetSpecular(int index, double value)
 {
-  if ( this->Specular[index] != value )
+  if (this->Specular[index] != value)
   {
     this->Specular[index] = value;
     this->Modified();
   }
 }
 
-double vtkVolumeProperty::GetSpecular( int index )
+//-----------------------------------------------------------------------------
+double vtkVolumeProperty::GetSpecular(int index)
 {
   return this->Specular[index];
 }
 
-void vtkVolumeProperty::SetSpecularPower( int index, double value )
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetSpecularPower(int index, double value)
 {
-  if ( this->SpecularPower[index] != value )
+  if (this->SpecularPower[index] != value)
   {
     this->SpecularPower[index] = value;
     this->Modified();
   }
 }
 
-double vtkVolumeProperty::GetSpecularPower( int index )
+//-----------------------------------------------------------------------------
+double vtkVolumeProperty::GetSpecularPower(int index)
 {
   return this->SpecularPower[index];
 }
 
-vtkTimeStamp vtkVolumeProperty::GetScalarOpacityMTime( int index )
+//-----------------------------------------------------------------------------
+vtkTimeStamp vtkVolumeProperty::GetScalarOpacityMTime(int index)
 {
   return this->ScalarOpacityMTime[index];
 }
 
-vtkTimeStamp vtkVolumeProperty::GetGradientOpacityMTime( int index )
+//-----------------------------------------------------------------------------
+vtkTimeStamp vtkVolumeProperty::GetGradientOpacityMTime(int index)
 {
   return this->GradientOpacityMTime[index];
 }
 
-vtkTimeStamp vtkVolumeProperty::GetRGBTransferFunctionMTime( int index )
+//-----------------------------------------------------------------------------
+vtkTimeStamp vtkVolumeProperty::GetRGBTransferFunctionMTime(int index)
 {
   return this->RGBTransferFunctionMTime[index];
 }
 
+//-----------------------------------------------------------------------------
 vtkTimeStamp vtkVolumeProperty::GetTransferFunction2DMTime(int index)
 {
   return this->TransferFunction2DMTime[index];
 }
 
-vtkTimeStamp vtkVolumeProperty::GetGrayTransferFunctionMTime( int index )
+//-----------------------------------------------------------------------------
+vtkTimeStamp vtkVolumeProperty::GetGrayTransferFunctionMTime(int index)
 {
   return this->GrayTransferFunctionMTime[index];
 }
 
+//-----------------------------------------------------------------------------
+vtkContourValues* vtkVolumeProperty::GetIsoSurfaceValues()
+{
+  return this->IsoSurfaceValues;
+}
+
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetLabelColor(int label,
+                                      vtkColorTransferFunction* color)
+{
+  if (label == 0)
+  {
+    vtkWarningMacro(<< "Ignoring attempt to set label map for label \"0\"");
+    return;
+  }
+  if (this->LabelColor.count(label))
+  {
+    if (this->LabelColor[label] == color)
+    {
+      return;
+    }
+    if (this->LabelColor[label] != nullptr)
+    {
+      this->LabelColor[label]->UnRegister(this);
+    }
+  }
+  this->LabelColor[label] = color;
+  if (this->LabelColor[label] != nullptr)
+  {
+    this->LabelColor[label]->Register(this);
+    this->LabelMapLabels.insert(label);
+  }
+  this->LabelColorMTime.Modified();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkColorTransferFunction* vtkVolumeProperty::GetLabelColor(int label)
+{
+  if (this->LabelColor.count(label) == 0)
+  {
+    return nullptr;
+  }
+  return this->LabelColor[label];
+}
+
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetLabelScalarOpacity(int label,
+                                              vtkPiecewiseFunction* function)
+{
+  if (label == 0)
+  {
+    vtkWarningMacro(<< "Ignoring attempt to set label map for label \"0\"");
+    return;
+  }
+  if (this->LabelScalarOpacity.count(label))
+  {
+    if (this->LabelScalarOpacity[label] == function)
+    {
+      return;
+    }
+    if (this->LabelScalarOpacity[label] != nullptr)
+    {
+      this->LabelScalarOpacity[label]->UnRegister(this);
+    }
+  }
+  this->LabelScalarOpacity[label] = function;
+  if (this->LabelScalarOpacity[label] != nullptr)
+  {
+    this->LabelScalarOpacity[label]->Register(this);
+    this->LabelMapLabels.insert(label);
+  }
+  this->LabelScalarOpacityMTime.Modified();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkVolumeProperty::GetLabelScalarOpacity(int label)
+{
+  if (this->LabelScalarOpacity.count(label) == 0)
+  {
+    return nullptr;
+  }
+  return this->LabelScalarOpacity[label];
+}
+
+//-----------------------------------------------------------------------------
+void vtkVolumeProperty::SetLabelGradientOpacity(int label,
+                                                vtkPiecewiseFunction* function)
+{
+  if (label == 0)
+  {
+    vtkWarningMacro(<< "Ignoring attempt to set label map for label \"0\"");
+    return;
+  }
+  if (this->LabelGradientOpacity.count(label))
+  {
+    if (this->LabelGradientOpacity[label] == function)
+    {
+      return;
+    }
+    if (this->LabelGradientOpacity[label] != nullptr)
+    {
+      this->LabelGradientOpacity[label]->UnRegister(this);
+    }
+  }
+  this->LabelGradientOpacity[label] = function;
+  if (this->LabelGradientOpacity[label] != nullptr)
+  {
+    this->LabelGradientOpacity[label]->Register(this);
+    this->LabelMapLabels.insert(label);
+  }
+  this->LabelGradientOpacityMTime.Modified();
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkVolumeProperty::GetLabelGradientOpacity(int label)
+{
+  if (this->LabelGradientOpacity.count(label) == 0)
+  {
+    return nullptr;
+  }
+  return this->LabelGradientOpacity[label];
+}
+
+//-----------------------------------------------------------------------------
+std::size_t vtkVolumeProperty::GetNumberOfLabels()
+{
+  return this->GetLabelMapLabels().size();
+}
+
+//-----------------------------------------------------------------------------
+std::set<int> vtkVolumeProperty::GetLabelMapLabels()
+{
+  // Erase labels that were added re-assigned to null pointers
+  for (auto it = this->LabelMapLabels.begin();
+       it != this->LabelMapLabels.end();)
+  {
+    if (!this->GetLabelColor(*it) && !this->GetLabelScalarOpacity(*it) &&
+        !this->GetLabelGradientOpacity(*it))
+    {
+      it = this->LabelMapLabels.erase(it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
+  return this->LabelMapLabels;
+}
+
+//-----------------------------------------------------------------------------
 // Print the state of the volume property.
 void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Independent Components: " <<
-    (this->IndependentComponents ? "On\n" : "Off\n");
+  os << indent << "Independent Components: "
+     << (this->IndependentComponents ? "On\n" : "Off\n");
 
-  os << indent << "Interpolation Type: "
-     << this->GetInterpolationTypeAsString() << "\n";
+  os << indent << "Interpolation Type: " << this->GetInterpolationTypeAsString()
+     << "\n";
 
-  os << indent << "Use Clipped Voxel Intensity: " <<
-    (this->UseClippedVoxelIntensity ? "On\n" : "Off\n");
-  os << indent << "Clipped Voxel Intensity: "
-     << this->GetClippedVoxelIntensity() << "\n";
+  os << indent << "Use Clipped Voxel Intensity: "
+     << (this->UseClippedVoxelIntensity ? "On\n" : "Off\n");
+  os << indent
+     << "Clipped Voxel Intensity: " << this->GetClippedVoxelIntensity() << "\n";
 
-  for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
+  for (int i = 0; i < VTK_MAX_VRCOMP; i++)
   {
     os << indent << "Properties for material " << i << endl;
 
     os << indent << "Color Channels: " << this->ColorChannels[i] << "\n";
 
-    if( this->ColorChannels[i] == 1 )
+    if (this->ColorChannels[i] == 1)
     {
-      os << indent << "Gray Color Transfer Function: "
-         << this->GrayTransferFunction[i] << "\n";
+      os << indent
+         << "Gray Color Transfer Function: " << this->GrayTransferFunction[i]
+         << "\n";
     }
-    else if( this->ColorChannels[i] == 3 )
+    else if (this->ColorChannels[i] == 3)
     {
-      os << indent << "RGB Color Transfer Function: "
-         << this->RGBTransferFunction[i] << "\n";
+      os << indent
+         << "RGB Color Transfer Function: " << this->RGBTransferFunction[i]
+         << "\n";
     }
 
-    os << indent << "Scalar Opacity Transfer Function: "
-       << this->ScalarOpacity[i] << "\n";
+    os << indent
+       << "Scalar Opacity Transfer Function: " << this->ScalarOpacity[i]
+       << "\n";
 
-    os << indent << "Gradient Opacity Transfer Function: "
-       << this->GradientOpacity[i] << "\n";
+    os << indent
+       << "Gradient Opacity Transfer Function: " << this->GradientOpacity[i]
+       << "\n";
 
     os << indent << "DisableGradientOpacity: "
        << (this->DisableGradientOpacity[i] ? "On" : "Off") << "\n";
 
-    os << indent << "2D Transfer Function: "
-       << this->TransferFunction2D[i] << "\n";
+    os << indent << "2D Transfer Function: " << this->TransferFunction2D[i]
+       << "\n";
 
-    os << indent << "ComponentWeight: "
-       << this->ComponentWeight[i] << "\n";
+    os << indent << "ComponentWeight: " << this->ComponentWeight[i] << "\n";
 
     os << indent << "Shade: " << this->Shade[i] << "\n";
     os << indent << indent << "Ambient: " << this->Ambient[i] << "\n";
     os << indent << indent << "Diffuse: " << this->Diffuse[i] << "\n";
     os << indent << indent << "Specular: " << this->Specular[i] << "\n";
-    os << indent << indent << "SpecularPower: " << this->SpecularPower[i] << "\n";
+    os << indent << indent << "SpecularPower: " << this->SpecularPower[i]
+       << "\n";
+  }
+
+  if (!this->LabelColor.empty())
+  {
+    os << indent << "Label Color Transfer Functions:"
+       << "\n";
+    for (auto it = this->LabelColor.begin(); it != LabelColor.end(); ++it)
+    {
+      os << indent.GetNextIndent() << "Label: " << it->first << " "
+         << it->second;
+    }
+  }
+  if (!this->LabelScalarOpacity.empty())
+  {
+    os << indent << "Label Scalar Opacity Transfer Functions:"
+       << "\n";
+    for (auto it = this->LabelScalarOpacity.begin();
+         it != LabelScalarOpacity.end();
+         ++it)
+    {
+      os << indent.GetNextIndent() << "Label: " << it->first << " "
+         << it->second;
+    }
+  }
+  if (!this->LabelGradientOpacity.empty())
+  {
+    os << indent << "Label Gradient Opacity Transfer Functions:"
+       << "\n";
+    for (auto it = this->LabelGradientOpacity.begin();
+         it != LabelGradientOpacity.end();
+         ++it)
+    {
+      os << indent.GetNextIndent() << "Label: " << it->first << " "
+         << it->second;
+    }
   }
 
   // These variables should not be printed to the user:
@@ -752,10 +1009,7 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
   // this->GrayTransferFunctionMTime
   // this->RGBTransferFunctionMTime
   // this->ScalarOpacityMTime
-}
-
-//------------------------------------------------------------------------------
-vtkContourValues* vtkVolumeProperty::GetIsoSurfaceValues()
-{
-  return this->IsoSurfaceValues;
+  // this->LabelColorMTime
+  // this->LabelScalarOpacityMTime
+  // this->LabelGradientOpacityMTime
 }

@@ -133,7 +133,8 @@ int TestGPURayCastCompositeMaskBlend(int argc, char *argv[])
 
   // Add color transfer functions for the masks
   vtkColorTransferFunction *mask1colorFun=vtkColorTransferFunction::New();
-  property->SetColor(1,mask1colorFun);
+  property->SetLabelColor(1,mask1colorFun);
+  property->SetLabelScalarOpacity(1,opacityFun);
   mask1colorFun->Delete();
 
   // yellow.
@@ -142,7 +143,8 @@ int TestGPURayCastCompositeMaskBlend(int argc, char *argv[])
 
 
   vtkColorTransferFunction *mask2colorFun=vtkColorTransferFunction::New();
-  property->SetColor(2,mask2colorFun);
+  property->SetLabelColor(2,mask2colorFun);
+  property->SetLabelScalarOpacity(2,opacityFun);
   mask2colorFun->Delete();
 
   // red
