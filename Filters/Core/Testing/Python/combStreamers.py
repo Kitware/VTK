@@ -74,4 +74,5 @@ renWin.Render()
 # prevent the tk window from showing up then start the event loop
 # for testing
 threshold = 15
+iren.Start()
 # --- end of script --

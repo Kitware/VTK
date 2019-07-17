@@ -524,15 +524,7 @@ FindCell(const double pos[3], vtkGenericCell *cell, double pcoords[3], double* w
     for (int j=0; j < numIds; j++)
     {
       cellId = cellIds[j].CellId;
-      if (this->CellBounds)
-      {
-        bounds = this->CellBounds + 6*cellId;
-      }
-      else
-      {
-        this->DataSet->GetCellBounds(cellId,bds);
-        bounds = bds;
-      }
+      bounds = this->CellBounds + 6*cellId;
 
       if ( vtkMath::PointIsWithinBounds(pos, bounds, delta) )
       {
@@ -1040,15 +1032,7 @@ FindClosestPoint(const double x[3], double closestPoint[3],
         cellHasBeenVisited[cellId] = true;
 
         // compute distance to cell bounding box
-        if (this->CellBounds)
-        {
-          bounds = this->CellBounds + 6*cellId;
-        }
-        else
-        {
-          this->DataSet->GetCellBounds(cellId,bds);
-          bounds = bds;
-        }
+        bounds = this->CellBounds + 6*cellId;
         distance2ToCellBounds = Distance2ToBounds(x, bounds);
 
         // compute distance to cell only if distance to bounding box smaller than minDist2
