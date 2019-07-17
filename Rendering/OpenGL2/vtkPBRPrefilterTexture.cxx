@@ -100,6 +100,10 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
       "uniform samplerCube cubeMap;\n"
       "uniform float roughness;\n"
       "const float PI = 3.14159265359;\n"
+      "vec3 ColorSpaceConvert(vec3 col)\n"
+      "{\n"
+      "  //VTK::COLORSPACE::Decl\n"
+      "}\n"
       "float RadicalInverse_VdC(uint bits)\n"
       "{\n"
       "  bits = (bits << 16u) | (bits >> 16u);\n"
@@ -129,6 +133,15 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
       "  vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;\n"
       "  return normalize(sampleVec);\n"
       "}\n");
+
+    if (this->ConvertToLinear)
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::COLORSPACE::Decl", "return pow(col, vec3(2.2));");
+    }
+    else
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::COLORSPACE::Decl", "return col;");
+    }
 
     std::stringstream fsImpl;
     fsImpl
@@ -175,12 +188,12 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
          "    float d_ny = max(dot(n_ny, l_ny), 0.0);\n"
          "    float d_pz = max(dot(n_pz, l_pz), 0.0);\n"
          "    float d_nz = max(dot(n_nz, l_nz), 0.0);\n"
-         "    p_px += texture(cubeMap, l_px).rgb * d_px;\n"
-         "    p_nx += texture(cubeMap, l_nx).rgb * d_nx;\n"
-         "    p_py += texture(cubeMap, l_py).rgb * d_py;\n"
-         "    p_ny += texture(cubeMap, l_ny).rgb * d_ny;\n"
-         "    p_pz += texture(cubeMap, l_pz).rgb * d_pz;\n"
-         "    p_nz += texture(cubeMap, l_nz).rgb * d_nz;\n"
+         "    p_px += ColorSpaceConvert(texture(cubeMap, l_px).rgb) * d_px;\n"
+         "    p_nx += ColorSpaceConvert(texture(cubeMap, l_nx).rgb) * d_nx;\n"
+         "    p_py += ColorSpaceConvert(texture(cubeMap, l_py).rgb) * d_py;\n"
+         "    p_ny += ColorSpaceConvert(texture(cubeMap, l_ny).rgb) * d_ny;\n"
+         "    p_pz += ColorSpaceConvert(texture(cubeMap, l_pz).rgb) * d_pz;\n"
+         "    p_nz += ColorSpaceConvert(texture(cubeMap, l_nz).rgb) * d_nz;\n"
          "    w_px += d_px;\n"
          "    w_nx += d_nx;\n"
          "    w_py += d_py;\n"

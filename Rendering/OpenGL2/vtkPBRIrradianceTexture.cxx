@@ -108,7 +108,19 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl",
       "uniform samplerCube cubeMap;\n"
       "const float PI = 3.14159265359;\n"
-      "//VTK::FSQ::Decl");
+      "vec3 ColorSpaceConvert(vec3 col)\n"
+      "{\n"
+      "  //VTK::COLORSPACE::Decl\n"
+      "}\n");
+
+    if (this->ConvertToLinear)
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::COLORSPACE::Decl", "return pow(col, vec3(2.2));");
+    }
+    else
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::COLORSPACE::Decl", "return col;");
+    }
 
     std::stringstream fsImpl;
     fsImpl
@@ -149,12 +161,12 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
          "    {\n"
          "      vec3 sample = vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));\n"
          "      float factor = cos(theta) * sin(theta);\n"
-         "      i_px += texture(cubeMap, m_px * sample).rgb * factor;\n"
-         "      i_nx += texture(cubeMap, m_nx * sample).rgb * factor;\n"
-         "      i_py += texture(cubeMap, m_py * sample).rgb * factor;\n"
-         "      i_ny += texture(cubeMap, m_ny * sample).rgb * factor;\n"
-         "      i_pz += texture(cubeMap, m_pz * sample).rgb * factor;\n"
-         "      i_nz += texture(cubeMap, m_nz * sample).rgb * factor;\n"
+         "      i_px += ColorSpaceConvert(texture(cubeMap, m_px * sample).rgb) * factor;\n"
+         "      i_nx += ColorSpaceConvert(texture(cubeMap, m_nx * sample).rgb) * factor;\n"
+         "      i_py += ColorSpaceConvert(texture(cubeMap, m_py * sample).rgb) * factor;\n"
+         "      i_ny += ColorSpaceConvert(texture(cubeMap, m_ny * sample).rgb) * factor;\n"
+         "      i_pz += ColorSpaceConvert(texture(cubeMap, m_pz * sample).rgb) * factor;\n"
+         "      i_nz += ColorSpaceConvert(texture(cubeMap, m_nz * sample).rgb) * factor;\n"
          "      nSamples = nSamples + 1.0;\n"
          "    }\n"
          "  }\n"

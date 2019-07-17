@@ -59,7 +59,7 @@ public:
   //@{
   /**
    * Set/Get size of texture.
-   * Default is 512.
+   * Default is 256.
    */
   vtkGetMacro(IrradianceSize, unsigned int);
   vtkSetMacro(IrradianceSize, unsigned int);
@@ -69,11 +69,22 @@ public:
   /**
    * Set/Get the size of steps in radians used to sample hemisphere.
    * Default is (pi/64).
-   * In some OpenGL drivers (OSMesa, old OSX), the default value might be too high leading to
+   * In some OpenGL drivers (OSMesa, old OSX), the default value might be too low leading to
    * artifacts.
    */
   vtkGetMacro(IrradianceStep, float);
   vtkSetMacro(IrradianceStep, float);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the conversion to linear color space.
+   * If the input cubemap is in sRGB color space and the conversion is not done by OpenGL
+   * directly with the texture format, the conversion can be done in the shader with this flag.
+   */
+  vtkGetMacro(ConvertToLinear, bool);
+  vtkSetMacro(ConvertToLinear, bool);
+  vtkBooleanMacro(ConvertToLinear, bool);
   //@}
 
 protected:
@@ -81,8 +92,9 @@ protected:
   ~vtkPBRIrradianceTexture() override;
 
   float IrradianceStep = 0.04908738521; // pi / 64
-  unsigned int IrradianceSize = 512;
+  unsigned int IrradianceSize = 256;
   vtkOpenGLTexture* InputCubeMap = nullptr;
+  bool ConvertToLinear = false;
 
 private:
   vtkPBRIrradianceTexture(const vtkPBRIrradianceTexture&) = delete;

@@ -52,7 +52,6 @@ vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, RightBackgroundTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkRenderer, FXAAOptions, vtkFXAAOptions);
-vtkCxxSetObjectMacro(vtkRenderer, EnvironmentCubeMap, vtkTexture);
 
 //----------------------------------------------------------------------------
 // Return NULL if no override is supplied.
@@ -1866,6 +1865,13 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
   return this->PickedProp; //returns an assembly path
 }
 
+//----------------------------------------------------------------------------
+void vtkRenderer::SetEnvironmentCubeMap(vtkTexture* cubemap, bool vtkNotUsed(isSRGB))
+{
+  vtkSetObjectBodyMacro(EnvironmentCubeMap, vtkTexture, cubemap);
+}
+
+//----------------------------------------------------------------------------
 void vtkRenderer::ExpandBounds(double bounds[6], vtkMatrix4x4 *matrix)
 {
   if(!bounds)

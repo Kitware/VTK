@@ -149,7 +149,7 @@ public:
   /**
    * Overriden in order to connect the cubemap to the environment map textures.
    */
-  void SetEnvironmentCubeMap(vtkTexture*) override;
+  void SetEnvironmentCubeMap(vtkTexture* cubemap, bool isSRGB = false) override;
 
 protected:
   vtkOpenGLRenderer();

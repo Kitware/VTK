@@ -127,6 +127,11 @@ int vtkOpenGLRenderer::UpdateLights ()
     }
   }
 
+  if (this->GetUseImageBasedLighting() && this->GetEnvironmentCubeMap() && lightingComplexity == 0)
+  {
+    lightingComplexity = 1;
+  }
+
   // create alight if needed
   if( !lightingCount )
   {
@@ -1020,7 +1025,7 @@ void vtkOpenGLRenderer::SetUserLightTransform(vtkTransform* transform)
   this->UserLightTransform = transform;
 }
 
-void vtkOpenGLRenderer::SetEnvironmentCubeMap(vtkTexture* cubemap)
+void vtkOpenGLRenderer::SetEnvironmentCubeMap(vtkTexture* cubemap, bool isSRGB)
 {
   this->Superclass::SetEnvironmentCubeMap(cubemap);
 
@@ -1032,6 +1037,9 @@ void vtkOpenGLRenderer::SetEnvironmentCubeMap(vtkTexture* cubemap)
     {
       this->GetEnvMapIrradiance()->SetInputCubeMap(oglCubemap);
       this->GetEnvMapPrefiltered()->SetInputCubeMap(oglCubemap);
+
+      this->GetEnvMapIrradiance()->SetConvertToLinear(isSRGB);
+      this->GetEnvMapPrefiltered()->SetConvertToLinear(isSRGB);
     }
     else
     {
