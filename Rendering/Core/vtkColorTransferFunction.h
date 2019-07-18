@@ -40,6 +40,7 @@
 #include "vtkScalarsToColors.h"
 
 class vtkColorTransferFunctionInternals;
+class vtkDoubleArray;
 
 #define VTK_CTF_RGB 0
 #define VTK_CTF_HSV 1
@@ -78,6 +79,8 @@ public:
    */
   int AddRGBPoint(double x, double r, double g, double b);
   int AddRGBPoint(double x, double r, double g, double b, double midpoint, double sharpness);
+  int AddRGBPoints(vtkDoubleArray* x, vtkDoubleArray* rgbColors);
+  int AddRGBPoints(vtkDoubleArray* x, vtkDoubleArray* rgbColors, double midpoint, double sharpness);
   int AddHSVPoint(double x, double h, double s, double v);
   int AddHSVPoint(double x, double h, double s, double v, double midpoint, double sharpness);
   int RemovePoint(double x);
