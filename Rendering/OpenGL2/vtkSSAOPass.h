@@ -127,6 +127,7 @@ protected:
   vtkTextureObject* PositionTexture = nullptr;
   vtkTextureObject* NormalTexture = nullptr;
   vtkTextureObject* SSAOTexture = nullptr;
+  vtkTextureObject* DepthTexture = nullptr;
 
   vtkOpenGLFramebufferObject* FrameBufferObject = nullptr;
 

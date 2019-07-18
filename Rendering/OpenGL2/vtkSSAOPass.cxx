@@ -86,6 +86,15 @@ void vtkSSAOPass::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "(none)" << endl;
   }
+  os << indent << "DepthTexture:";
+  if (this->DepthTexture != nullptr)
+  {
+    this->DepthTexture->PrintSelf(os, indent);
+  }
+  else
+  {
+    os << "(none)" << endl;
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -138,6 +147,15 @@ void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int
     this->SSAOTexture->SetMinificationFilter(vtkTextureObject::Linear);
     this->SSAOTexture->SetMagnificationFilter(vtkTextureObject::Linear);
     this->SSAOTexture->Allocate2D(w, h, 1, VTK_UNSIGNED_CHAR);
+  }
+
+  if (this->DepthTexture == nullptr)
+  {
+    this->DepthTexture = vtkTextureObject::New();
+    this->DepthTexture->SetContext(renWin);
+    this->DepthTexture->SetMinificationFilter(vtkTextureObject::Linear);
+    this->DepthTexture->SetMagnificationFilter(vtkTextureObject::Linear);
+    this->DepthTexture->AllocateDepth(w, h, vtkTextureObject::Float32);
   }
 
   if (this->FrameBufferObject == nullptr)
@@ -206,7 +224,7 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
   this->FrameBufferObject->AddColorAttachment(1, this->PositionTexture);
   this->FrameBufferObject->AddColorAttachment(2, this->NormalTexture);
   this->FrameBufferObject->ActivateDrawBuffers(3);
-  this->FrameBufferObject->AddDepthAttachment();
+  this->FrameBufferObject->AddDepthAttachment(this->DepthTexture);
   this->FrameBufferObject->StartNonOrtho(w, h);
 
   this->DelegatePass->Render(s);
@@ -237,6 +255,7 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
     ssDecl << "uniform sampler2D texPosition;\n"
               "uniform sampler2D texNormal;\n"
               "uniform sampler2D texNoise;\n"
+              "uniform sampler2D texDepth;\n"
               "uniform vec3 samples["
            << this->KernelSize
            << "];\n"
@@ -246,42 +265,48 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl", ssDecl.str());
 
     std::stringstream ssImpl;
-    ssImpl
-      << "\n"
-         "  vec4 fragPos = texture(texPosition, texCoord);\n"
-         "  float occlusion = 0.0;\n"
-         "  if (fragPos.w > 0.0)\n"
-         "  {\n"
-         "    vec3 normal = texture(texNormal, texCoord).rgb;\n"
-         "    vec2 tilingShift = size / textureSize(texNoise, 0);\n"
-         "    float randomAngle = 6.283185 * texture(texNoise, texCoord * tilingShift).r;\n"
-         "    vec3 randomVec = vec3(cos(randomAngle), sin(randomAngle), 0.0);\n"
-         "    vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));\n"
-         "    vec3 bitangent = cross(normal, tangent);\n"
-         "    mat3 TBN = mat3(tangent, bitangent, normal);\n"
-         "    const float radius = "
-      << this->Radius
-      << ";\n"
-         "    const float bias = "
-      << this->Bias
-      << ";\n"
-         "    const int kernelSize = "
-      << this->KernelSize
-      << ";\n"
-         "    for (int i = 0; i < kernelSize; i++)\n"
-         "    {\n"
-         "      vec3 sampleVC = TBN * samples[i];\n"
-         "      sampleVC = fragPos.xyz + sampleVC * radius;\n"
-         "      vec4 sampleDC = matProjection * vec4(sampleVC, 1.0);\n"
-         "      sampleDC.xyz /= sampleDC.w;\n"
-         "      sampleDC.xyz = sampleDC.xyz * 0.5 + 0.5;\n"
-         "      float sampleDepth = texture(texPosition, sampleDC.xy).z;\n"
-         "      float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));\n"
-         "      occlusion += (sampleDepth >= sampleVC.z + bias ? 1.0 : 0.0) * rangeCheck;\n"
-         "    }\n"
-         "    occlusion = occlusion / kernelSize;\n"
-         "  }\n"
-         "  gl_FragData[0] = vec4(vec3(1.0 - occlusion), 1.0);\n";
+    ssImpl << "\n"
+              "  vec4 fragPosVC = texture(texPosition, texCoord);\n"
+              "  float occlusion = 0.0;\n"
+              "  if (fragPosVC.w > 0.0)\n"
+              "  {\n"
+              "    vec4 fragPosDC = matProjection * vec4(fragPosVC.xyz, 1.0);\n"
+              "    fragPosDC.xyz /= fragPosDC.w;\n"
+              "    fragPosDC.xyz = fragPosDC.xyz * 0.5 + 0.5;\n"
+              "    float depth = texture(texDepth, texCoord).r;\n"
+              "    if (fragPosDC.z - depth < 0.0)\n"
+              "    {\n"
+              "      vec3 normal = texture(texNormal, texCoord).rgb;\n"
+              "      vec2 tilingShift = size / textureSize(texNoise, 0);\n"
+              "      float randomAngle = 6.283185 * texture(texNoise, texCoord * tilingShift).r;\n"
+              "      vec3 randomVec = vec3(cos(randomAngle), sin(randomAngle), 0.0);\n"
+              "      vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));\n"
+              "      vec3 bitangent = cross(normal, tangent);\n"
+              "      mat3 TBN = mat3(tangent, bitangent, normal);\n"
+              "      const float radius = "
+           << this->Radius
+           << ";\n"
+              "      const float bias = "
+           << this->Bias
+           << ";\n"
+              "      const int kernelSize = "
+           << this->KernelSize
+           << ";\n"
+              "      for (int i = 0; i < kernelSize; i++)\n"
+              "      {\n"
+              "        vec3 sampleVC = TBN * samples[i];\n"
+              "        sampleVC = fragPosVC.xyz + sampleVC * radius;\n"
+              "        vec4 sampleDC = matProjection * vec4(sampleVC, 1.0);\n"
+              "        sampleDC.xyz /= sampleDC.w;\n"
+              "        sampleDC.xyz = sampleDC.xyz * 0.5 + 0.5;\n"
+              "        float sampleDepth = texture(texPosition, sampleDC.xy).z;\n"
+              "        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPosVC.z - sampleDepth));\n"
+              "        occlusion += (sampleDepth >= sampleVC.z + bias ? 1.0 : 0.0) * rangeCheck;\n"
+              "      }\n"
+              "      occlusion = occlusion / kernelSize;\n"
+              "    }\n"
+              "  }\n"
+              "  gl_FragData[0] = vec4(vec3(1.0 - occlusion), 1.0);\n";
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl", ssImpl.str());
 
@@ -303,11 +328,13 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
 
   this->PositionTexture->Activate();
   this->NormalTexture->Activate();
+  this->DepthTexture->Activate();
   this->SSAOQuadHelper->Program->SetUniformi(
     "texPosition", this->PositionTexture->GetTextureUnit());
   this->SSAOQuadHelper->Program->SetUniformi("texNormal", this->NormalTexture->GetTextureUnit());
   this->SSAOQuadHelper->Program->SetUniform3fv("samples", this->KernelSize, this->Kernel.data());
   this->SSAOQuadHelper->Program->SetUniformi("texNoise", renWin->GetNoiseTextureUnit());
+  this->SSAOQuadHelper->Program->SetUniformi("texDepth", this->DepthTexture->GetTextureUnit());
   this->SSAOQuadHelper->Program->SetUniformMatrix("matProjection", projection);
 
   int size[2] = { w, h };
@@ -325,6 +352,7 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
   this->FrameBufferObject->UnBind();
   this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
 
+  this->DepthTexture->Deactivate();
   this->PositionTexture->Deactivate();
   this->NormalTexture->Deactivate();
 }
@@ -332,6 +360,8 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
 // ----------------------------------------------------------------------------
 void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
 {
+  vtkOpenGLState* ostate = renWin->GetState();
+
   if (this->CombineQuadHelper && this->CombineQuadHelper->ShaderChangeValue < this->GetMTime())
   {
     delete this->CombineQuadHelper;
@@ -345,12 +375,13 @@ void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
     std::stringstream ssDecl;
     ssDecl << "uniform sampler2D texColor;\n"
               "uniform sampler2D texSSAO;\n"
+              "uniform sampler2D texDepth;\n"
               "//VTK::FSQ::Decl";
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl", ssDecl.str());
 
     std::stringstream ssImpl;
-    ssImpl << "  vec3 col = texture(texColor, texCoord).rgb;\n";
+    ssImpl << "  vec4 col = texture(texColor, texCoord);\n";
 
     if (this->Blur)
     {
@@ -369,7 +400,8 @@ void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
     {
       ssImpl << "  float ao = texture(texSSAO, texCoord).r;\n";
     }
-    ssImpl << "  gl_FragData[0] = vec4(col * ao, 1.0);\n";
+    ssImpl << "  gl_FragData[0] = vec4(col.rgb * ao, col.a);\n"
+              "  gl_FragDepth = texture(texDepth, texCoord).r;\n";
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl", ssImpl.str());
 
@@ -391,11 +423,17 @@ void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
 
   this->ColorTexture->Activate();
   this->SSAOTexture->Activate();
+  this->DepthTexture->Activate();
   this->CombineQuadHelper->Program->SetUniformi("texColor", this->ColorTexture->GetTextureUnit());
   this->CombineQuadHelper->Program->SetUniformi("texSSAO", this->SSAOTexture->GetTextureUnit());
+  this->CombineQuadHelper->Program->SetUniformi("texDepth", this->DepthTexture->GetTextureUnit());
+
+  ostate->vtkglEnable(GL_DEPTH_TEST);
+  ostate->vtkglClear(GL_DEPTH_BUFFER_BIT);
 
   this->CombineQuadHelper->Render();
 
+  this->DepthTexture->Deactivate();
   this->ColorTexture->Deactivate();
   this->SSAOTexture->Deactivate();
 }
@@ -430,6 +468,7 @@ void vtkSSAOPass::Render(const vtkRenderState* s)
   this->PositionTexture->Resize(w, h);
   this->NormalTexture->Resize(w, h);
   this->SSAOTexture->Resize(w, h);
+  this->DepthTexture->Resize(w, h);
 
   ostate->vtkglViewport(x, y, w, h);
   ostate->vtkglScissor(x, y, w, h);
@@ -534,5 +573,10 @@ void vtkSSAOPass::ReleaseGraphicsResources(vtkWindow* w)
   {
     this->SSAOTexture->Delete();
     this->SSAOTexture = nullptr;
+  }
+  if (this->DepthTexture)
+  {
+    this->DepthTexture->Delete();
+    this->DepthTexture = nullptr;
   }
 }
