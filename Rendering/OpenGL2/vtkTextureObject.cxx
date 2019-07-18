@@ -1328,7 +1328,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 }
 
 //----------------------------------------------------------------------------
-vtkPixelBufferObject* vtkTextureObject::Download()
+vtkPixelBufferObject* vtkTextureObject::Download(unsigned int target, unsigned int level)
 {
   assert(this->Context);
   assert(this->Handle);
@@ -1358,7 +1358,7 @@ vtkPixelBufferObject* vtkTextureObject::Download()
   this->Bind();
 
 #ifndef GL_ES_VERSION_3_0
-  glGetTexImage(this->Target, 0, this->Format, this->Type, BUFFER_OFFSET(0));
+  glGetTexImage(target, level, this->Format, this->Type, BUFFER_OFFSET(0));
 #else
   // you can do something with glReadPixels and binding a texture as a FBO
   // I believe for ES 2.0
@@ -1371,6 +1371,12 @@ vtkPixelBufferObject* vtkTextureObject::Download()
   pbo->SetComponents(this->Components);
 
   return pbo;
+}
+
+//----------------------------------------------------------------------------
+vtkPixelBufferObject* vtkTextureObject::Download()
+{
+  return this->Download(this->Target, 0);
 }
 
 //----------------------------------------------------------------------------
