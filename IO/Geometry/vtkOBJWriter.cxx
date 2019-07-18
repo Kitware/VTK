@@ -23,6 +23,8 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkTriangleStrip.h"
+#include "vtkNumberToString.h"
+
 #include "vtksys/SystemTools.hxx"
 
 namespace
@@ -74,13 +76,15 @@ void WriteLines(std::ofstream& f, vtkCellArray* lines)
 //----------------------------------------------------------------------------
 void WritePoints(std::ofstream& f, vtkPoints* pts, vtkDataArray* normals, vtkDataArray* tcoords)
 {
+  vtkNumberToString convert;
   vtkIdType nbPts = pts->GetNumberOfPoints();
+
   // Positions
   for (vtkIdType i = 0; i < nbPts; i++)
   {
     double p[3];
     pts->GetPoint(i, p);
-    f << "v " << p[0] << " " << p[1] << " " << p[2] << "\n";
+    f << "v " << convert(p[0]) << " " << convert(p[1]) << " " << convert(p[2]) << "\n";
   }
 
   // Normals
@@ -90,7 +94,7 @@ void WritePoints(std::ofstream& f, vtkPoints* pts, vtkDataArray* normals, vtkDat
     {
       double p[3];
       normals->GetTuple(i, p);
-      f << "vn " << p[0] << " " << p[1] << " " << p[2] << "\n";
+      f << "vn " << convert(p[0]) << " " << convert(p[1]) << " " << convert(p[2]) << "\n";
     }
   }
 
@@ -101,7 +105,7 @@ void WritePoints(std::ofstream& f, vtkPoints* pts, vtkDataArray* normals, vtkDat
     {
       double p[2];
       tcoords->GetTuple(i, p);
-      f << "vt " << p[0] << " " << p[1] << "\n";
+      f << "vt " << convert(p[0]) << " " << convert(p[1]) << "\n";
     }
   }
 }
