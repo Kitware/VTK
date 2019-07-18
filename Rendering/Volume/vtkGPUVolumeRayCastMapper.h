@@ -421,6 +421,14 @@ public:
 
   double* GetBoundsFromPort(const int port) VTK_SIZEHINT(6);
 
+  //@{
+  /**
+   * Set/Get the transfer 2D Y axis array
+   */
+  vtkSetStringMacro(Transfer2DYAxisArray);
+  vtkGetStringMacro(Transfer2DYAxisArray);
+  //@}
+
 protected:
   vtkGPUVolumeRayCastMapper();
   ~vtkGPUVolumeRayCastMapper() override;
@@ -588,6 +596,13 @@ protected:
    * Render() call.
    */
   DataMap LastInputs;
+
+  /**
+   * Define the array used for the Y axis of transfer 2D.
+   * This is used when the transfer function  mode is set to 2D. If unset, the
+   * default is to use the gradient of the scalar.
+   */
+  char* Transfer2DYAxisArray;
 
 private:
   vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&) = delete;
