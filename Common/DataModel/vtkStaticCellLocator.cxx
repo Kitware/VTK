@@ -517,7 +517,7 @@ FindCell(const double pos[3], vtkGenericCell *cell, double pcoords[3], double* w
   else
   {
     const CellFragments<T> *cellIds = this->GetIds(binId);
-    double dist2, *bounds, bds[6], delta[3] = {0.0, 0.0, 0.0};
+    double dist2, *bounds, delta[3] = {0.0, 0.0, 0.0};
     int subId;
     vtkIdType cellId;
 
