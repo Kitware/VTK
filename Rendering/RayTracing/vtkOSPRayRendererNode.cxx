@@ -317,7 +317,7 @@ public:
       int isize = 1;
       int jsize = 1;
       vtkTexture *text = ren->GetBackgroundTexture();
-      if (ren->GetTexturedBackground() && text)
+      if (text && (ren->GetTexturedBackground() || ren->GetUseImageBasedLighting()))
       {
         vtkImageData *vColorTextureMap = text->GetInput();
         //todo, fallback to gradient when either of above return nullptr

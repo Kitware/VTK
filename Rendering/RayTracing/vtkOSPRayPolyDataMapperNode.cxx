@@ -481,6 +481,7 @@ namespace vtkosp {
                                 vtkImageData *vMaterialTextureMap,
                                 int numTextureCoordinates,
                                 float *textureCoordinates,
+                                const osp::vec4f& textureTransform,
                                 int numCellMaterials,
                                 OSPData CellMaterials,
                                 int numPointColors,
@@ -569,10 +570,14 @@ namespace vtkosp {
         if (interpolationType == VTK_PBR)
         {
           ospSetObject(actorMaterial, "normalMap", t2d);
+          ospSet4f(actorMaterial, "normalMap.transform",
+            textureTransform.x, textureTransform.y, textureTransform.z, textureTransform.w);
         }
         else
         {
           ospSetObject(actorMaterial, "map_Bump", t2d);
+          ospSet4f(actorMaterial, "map_Bump.transform",
+            textureTransform.x, textureTransform.y, textureTransform.z, textureTransform.w);
         }
         ospRelease(t2d);
         ospCommit(actorMaterial);
@@ -595,10 +600,14 @@ namespace vtkosp {
 
         OSPTexture t2dR = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vRoughnessTextureMap);
         ospSetObject(actorMaterial, "roughnessMap", t2dR);
+        ospSet4f(actorMaterial, "roughnessMap.transform",
+            textureTransform.x, textureTransform.y, textureTransform.z, textureTransform.w);
         ospRelease(t2dR);
 
         OSPTexture t2dM = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vMetallicTextureMap);
         ospSetObject(actorMaterial, "metallicMap", t2dM);
+        ospSet4f(actorMaterial, "metallicMap.transform",
+            textureTransform.x, textureTransform.y, textureTransform.z, textureTransform.w);
         ospRelease(t2dM);
 
         ospCommit(actorMaterial);
@@ -611,10 +620,14 @@ namespace vtkosp {
         if (interpolationType == VTK_PBR)
         {
           ospSetObject(actorMaterial, "baseColorMap", ((OSPTexture)(t2d)));
+          ospSet4f(actorMaterial, "baseColorMap.transform",
+            textureTransform.x, textureTransform.y, textureTransform.z, textureTransform.w);
         }
         else
         {
           ospSetObject(actorMaterial, "map_Kd", ((OSPTexture)(t2d)));
+          ospSet4f(actorMaterial, "map_Kd.transform",
+            textureTransform.x, textureTransform.y, textureTransform.z, textureTransform.w);
         }
         ospRelease(t2d);
         ospCommit(actorMaterial);
@@ -824,6 +837,18 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
   OSPRenderer oRenderer = static_cast<OSPRenderer>(renderer);
   vtkActor *act = vtkActor::SafeDownCast(aNode->GetRenderable());
   vtkProperty *property = act->GetProperty();
+
+  //get texture transform
+  osp::vec4f texTransform{1.f, 0.f, 0.f, 1.f};
+  vtkInformation* info = act->GetPropertyKeys();
+  if (info && info->Has(vtkProp::GeneralTextureTransform()))
+  {
+    double* mat = info->Get(vtkProp::GeneralTextureTransform());
+    texTransform.x = mat[0];
+    texTransform.y = mat[1];
+    texTransform.z = mat[4];
+    texTransform.w = mat[5];
+  }
 
   //make geometry
   std::vector<double> _vertices;
@@ -1229,6 +1254,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                           vNormalTextureMap,
                                           vMaterialTextureMap,
                                           numTextureCoordinates, textureCoordinates,
+                                          texTransform,
                                           numCellMaterials, cellMaterials,
                                           numPointColors, pointColors,
                                           numPointValueTextureCoords, pointValueTextureCoords,
@@ -1345,6 +1371,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                           vNormalTextureMap,
                                           vMaterialTextureMap,
                                           numTextureCoordinates, textureCoordinates,
+                                          texTransform,
                                           numCellMaterials, cellMaterials,
                                           numPointColors, pointColors,
                                           numPointValueTextureCoords, pointValueTextureCoords,
