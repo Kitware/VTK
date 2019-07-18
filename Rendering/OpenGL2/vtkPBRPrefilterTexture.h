@@ -89,6 +89,17 @@ public:
   vtkSetMacro(PrefilterLevels, unsigned int);
   //@}
 
+  //@{
+  /**
+   * Set/Get the conversion to linear color space.
+   * If the input cubemap is in sRGB color space and the conversion is not done by OpenGL
+   * directly with the texture format, the conversion can be done in the shader with this flag.
+   */
+  vtkGetMacro(ConvertToLinear, bool);
+  vtkSetMacro(ConvertToLinear, bool);
+  vtkBooleanMacro(ConvertToLinear, bool);
+  //@}
+
 protected:
   vtkPBRPrefilterTexture() = default;
   ~vtkPBRPrefilterTexture() override;
@@ -97,6 +108,7 @@ protected:
   unsigned int PrefilterLevels = 5;
   unsigned int PrefilterSamples = 1024;
   vtkOpenGLTexture* InputCubeMap = nullptr;
+  bool ConvertToLinear = false;
 
 private:
   vtkPBRPrefilterTexture(const vtkPBRPrefilterTexture&) = delete;

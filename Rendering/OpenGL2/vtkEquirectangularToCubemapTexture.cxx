@@ -65,14 +65,19 @@ void vtkEquirectangularToCubemapTexture::Load(vtkRenderer* ren)
   if (this->GetMTime() > this->LoadTime.GetMTime() ||
     this->InputTexture->GetMTime() > this->LoadTime.GetMTime())
   {
+    this->InputTexture->Render(ren);
+
     if (this->TextureObject == nullptr)
     {
       this->TextureObject = vtkTextureObject::New();
     }
     this->TextureObject->SetContext(renWin);
-    this->TextureObject->SetFormat(GL_RGB);
-    this->TextureObject->SetInternalFormat(GL_RGB16F);
-    this->TextureObject->SetDataType(GL_FLOAT);
+    this->TextureObject->SetFormat(
+      this->InputTexture->GetTextureObject()->GetFormat(VTK_FLOAT, 3, true));
+    this->TextureObject->SetInternalFormat(
+      this->InputTexture->GetTextureObject()->GetInternalFormat(VTK_FLOAT, 3, true));
+    this->TextureObject->SetDataType(
+      this->InputTexture->GetTextureObject()->GetDataType(VTK_FLOAT));
     this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
     this->TextureObject->SetWrapR(vtkTextureObject::ClampToEdge);
@@ -117,16 +122,15 @@ void vtkEquirectangularToCubemapTexture::Load(vtkRenderer* ren)
       "//VTK::FSQ::Decl");
 
     std::stringstream fsImpl;
-    fsImpl
-      << "  \n"
-         "  float x = 2.0 * texCoord.x - 1.0;\n"
-         "  float y = 1.0 - 2.0 * texCoord.y;\n"
-         "  gl_FragData[0] = texture(equiTex, toSpherical(vec3(1, y, -x)));\n"
-         "  gl_FragData[1] = texture(equiTex, toSpherical(vec3(-1, y, x)));\n"
-         "  gl_FragData[2] = texture(equiTex, toSpherical(vec3(x, 1, -y)));\n"
-         "  gl_FragData[3] = texture(equiTex, toSpherical(vec3(x, -1, y)));\n"
-         "  gl_FragData[4] = texture(equiTex, toSpherical(vec3(x, y, 1)));\n"
-         "  gl_FragData[5] = texture(equiTex, toSpherical(vec3(-x, y, -1)));\n";
+    fsImpl << "  \n"
+              "  float x = 2.0 * texCoord.x - 1.0;\n"
+              "  float y = 1.0 - 2.0 * texCoord.y;\n"
+              "  gl_FragData[0] = texture(equiTex, toSpherical(vec3(1, y, -x)));\n"
+              "  gl_FragData[1] = texture(equiTex, toSpherical(vec3(-1, y, x)));\n"
+              "  gl_FragData[2] = texture(equiTex, toSpherical(vec3(x, 1, -y)));\n"
+              "  gl_FragData[3] = texture(equiTex, toSpherical(vec3(x, -1, y)));\n"
+              "  gl_FragData[4] = texture(equiTex, toSpherical(vec3(x, y, 1)));\n"
+              "  gl_FragData[5] = texture(equiTex, toSpherical(vec3(-x, y, -1)));\n";
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl", fsImpl.str());
 
@@ -139,7 +143,6 @@ void vtkEquirectangularToCubemapTexture::Load(vtkRenderer* ren)
     }
     else
     {
-      this->InputTexture->Render(ren);
       this->InputTexture->GetTextureObject()->Activate();
       quadHelper.Program->SetUniformi("equiTex", this->InputTexture->GetTextureUnit());
       quadHelper.Render();

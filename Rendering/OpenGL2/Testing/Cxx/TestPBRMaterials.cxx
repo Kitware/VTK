@@ -61,7 +61,6 @@ int TestPBRMaterials(int argc, char* argv[])
 
   vtkNew<vtkOpenGLTexture> textureCubemap;
   textureCubemap->CubeMapOn();
-  textureCubemap->UseSRGBColorSpaceOn();
 
   std::string pathSkybox[6] = { "Data/skybox/posx.jpg", "Data/skybox/negx.jpg",
     "Data/skybox/posy.jpg", "Data/skybox/negy.jpg", "Data/skybox/posz.jpg",
@@ -79,7 +78,7 @@ int TestPBRMaterials(int argc, char* argv[])
     textureCubemap->SetInputConnection(i, flip->GetOutputPort());
   }
 
-  renderer->SetEnvironmentCubeMap(textureCubemap);
+  renderer->SetEnvironmentCubeMap(textureCubemap, true);
   renderer->UseImageBasedLightingOn();
 
   vtkNew<vtkSphereSource> sphere;
@@ -154,7 +153,7 @@ int TestPBRMaterials(int argc, char* argv[])
     renderer->AddActor(actorSphere);
   }
 
-  skybox->SetTexture(irradiance);
+  skybox->SetTexture(textureCubemap);
   renderer->AddActor(skybox);
 
   renWin->Render();
