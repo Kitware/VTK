@@ -36,7 +36,6 @@
 #include "vtkPolyData.h"
 #include "vtkQuaternion.h"
 #include "vtkTransform.h"
-#include "vtkTupleInterpolator.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtksys/SystemTools.hxx"
 
@@ -653,23 +652,24 @@ bool vtkGLTFDocumentLoader::ExtractPrimitiveAttributes(Primitive& primitive)
     {
       primitive.AttributeValues[attributePair.first] = vtkSmartPointer<vtkFloatArray>::New();
     }
-    if (attributePair.first == "WEIGHTS_0")
-    {
-      worker.NormalizeTuples = true;
-    }
 
+    worker.NormalizeTuples = attributePair.first == "WEIGHTS_0";
     worker.LoadTangents = attributePair.first == "TANGENT";
 
     // Read data
     worker.Setup(attributePair.second, accessor.Type);
     vtkArrayDispatch::DispatchByArray<AttributeArrayTypes>::Execute(
       primitive.AttributeValues[attributePair.first], worker);
+
     if (!worker.Result)
     {
       vtkErrorMacro("Error loading mesh.primitive attribute '" << attributePair.first << "'");
       return false;
     }
   }
+
+  worker.NormalizeTuples = false;
+  worker.LoadTangents = false;
 
   // Load morph targets
   for (auto& target : primitive.Targets)
@@ -741,59 +741,29 @@ bool vtkGLTFDocumentLoader::LoadAnimationData()
         return false;
       }
 
-      // Create the interpolator if necessary
-      if (sampler.Interpolation != Animation::Sampler::InterpolationMode::STEP)
+      // Get actual tuple size when loading morphing weights
+      unsigned int numberOfComponents = sampler.OutputData->GetNumberOfComponents();
+      // If we're loading T/R/S, tuple size is already set (to 3 or 4) in outputdata.
+      if (numberOfComponents == this->GetNumberOfComponentsForType(AccessorType::SCALAR))
       {
-        sampler.Interpolator = vtkSmartPointer<vtkTupleInterpolator>::New();
-        // Set the interpolation mode
-        if (sampler.Interpolation == Animation::Sampler::InterpolationMode::LINEAR)
-        {
-          sampler.Interpolator->SetInterpolationTypeToLinear();
-        }
-        else
-        {
-          sampler.Interpolator->SetInterpolationTypeToSpline();
-        }
-        // Add tuples to the interpolator
-        unsigned int numberOfComponents = sampler.OutputData->GetNumberOfComponents();
         unsigned int nInput = sampler.InputData->GetNumberOfValues();
         unsigned int nOutput = sampler.OutputData->GetNumberOfValues();
-        if (numberOfComponents == this->GetNumberOfComponentsForType(AccessorType::SCALAR))
-        {
-          // If we're loading weights, we can deduce the tuple size by comparing output size to
-          // input size. If we're loading T/R/S, tuple size is already set (to 3) in outputdata
-          if (nInput == 0 || nOutput % nInput != 0)
-          {
-            // Output size has to be a multiple of the Input size, or we're missing data
-            vtkErrorMacro("Invalid animation.sampler data. The number of outputs should be a "
-                          "multiple of the number of inputs");
-            return false;
-          }
-          numberOfComponents = nOutput / nInput;
-        }
-        sampler.Interpolator->SetNumberOfComponents(numberOfComponents);
-        sampler.OutputData->SetNumberOfComponents(numberOfComponents);
-        // Put data into the interpolator
+
         if (sampler.Interpolation == Animation::Sampler::InterpolationMode::CUBICSPLINE)
         {
-          // Discard derivatives, as we can't input them into the interpolator
-          int j = 1;
-          for (int i = 0; i < sampler.InputData->GetNumberOfValues(); i++)
-          {
-            sampler.Interpolator->AddTuple(
-              sampler.InputData->GetValue(i), sampler.OutputData->GetTuple(j));
-            j += 3;
-          }
+          nOutput /= 3;
         }
-        else
+
+        if (nInput == 0 || nOutput % nInput != 0)
         {
-          for (int i = 0; i < sampler.InputData->GetNumberOfValues(); i++)
-          {
-            sampler.Interpolator->AddTuple(
-              sampler.InputData->GetValue(i), sampler.OutputData->GetTuple(i));
-          }
+          // Output size has to be a multiple of the Input size, or we're missing data
+          vtkErrorMacro("Invalid animation.sampler data. The number of outputs should be a "
+                        "multiple of the number of inputs");
+          return false;
         }
+        numberOfComponents = nOutput / nInput;
       }
+      sampler.OutputData->SetNumberOfComponents(numberOfComponents);
     }
     animation.Duration = maxDuration;
   }
@@ -1019,7 +989,8 @@ bool vtkGLTFDocumentLoader::ApplyAnimation(float t, int animationId, bool forceS
     }
     target->clear();
     target->reserve(numberOfComponents);
-    sampler.GetInterpolatedData(t, numberOfComponents, target, forceStep);
+    sampler.GetInterpolatedData(t, numberOfComponents, target, forceStep,
+      channel.TargetPath == Animation::Channel::PathType::ROTATION);
     node.UpdateTransform();
   }
   return true;
@@ -1096,7 +1067,7 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
   // Other attributes
 
   // Set array names
-  for(auto it : primitive.AttributeValues)
+  for (auto it : primitive.AttributeValues)
   {
     it.second->SetName(it.first.c_str());
   }
@@ -1225,17 +1196,128 @@ void vtkGLTFDocumentLoader::Node::UpdateTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(
-  float t, size_t numberOfComponents, std::vector<float>* output, bool forceStep) const
+void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(float t,
+  size_t numberOfComponents, std::vector<float>* output, bool forceStep, bool isRotation) const
 {
-  output->clear();
+  // linear or spline interpolation
   if (this->Interpolation != Animation::Sampler::InterpolationMode::STEP && !forceStep)
   {
-    // linear or spline interpolation
-    std::vector<double> tuple(numberOfComponents);
-    this->Interpolator->InterpolateTuple(t, tuple.data());
-    output->insert(
-      output->end(), std::make_move_iterator(tuple.begin()), std::make_move_iterator(tuple.end()));
+    vtkIdType numberOfKeyFrames = this->InputData->GetNumberOfTuples();
+
+    // Find the previous and following keyframes
+    vtkIdType nextKeyFrameId =
+      std::lower_bound(this->InputData->Begin(), this->InputData->End(), t) -
+      this->InputData->Begin();
+    vtkIdType prevKeyFrameId = 0;
+
+    // If we didn't find the next keyframe, that means t is over the animation's duration.
+    if (nextKeyFrameId == numberOfKeyFrames)
+    {
+      nextKeyFrameId = numberOfKeyFrames - 1;
+      prevKeyFrameId = nextKeyFrameId;
+    }
+    // Animation hasn't started yet.
+    else if (nextKeyFrameId == 0)
+    {
+      prevKeyFrameId = 0;
+    }
+    else
+    {
+      prevKeyFrameId = nextKeyFrameId - 1;
+    }
+
+    // Get time values
+
+    // Normalize t. Set to zero when at the first keyframe, and set to one when at the last keyframe
+    float tNorm = 0;
+    float tDelta = 0;
+    if (prevKeyFrameId == 0 && nextKeyFrameId == 0)
+    {
+      tNorm = 0;
+    }
+    else if (prevKeyFrameId == numberOfKeyFrames - 1 && nextKeyFrameId == numberOfKeyFrames - 1)
+    {
+      tNorm = 1;
+    }
+    else
+    {
+      const float prevTime = this->InputData->GetValue(prevKeyFrameId);
+      const float nextTime = this->InputData->GetValue(nextKeyFrameId);
+      tDelta = nextTime - prevTime;
+      tNorm = (t - prevTime) / tDelta;
+    }
+
+    if (this->Interpolation == Animation::Sampler::InterpolationMode::LINEAR)
+    {
+      std::vector<float> prevTuple(numberOfComponents);
+      std::vector<float> nextTuple(numberOfComponents);
+      this->OutputData->GetTypedTuple(prevKeyFrameId, prevTuple.data());
+      this->OutputData->GetTypedTuple(nextKeyFrameId, nextTuple.data());
+
+      // If interpolating rotations, we need to use SLERP,
+      if (isRotation)
+      {
+        std::rotate(std::begin(prevTuple), std::begin(prevTuple) + 3, std::end(prevTuple));
+        std::rotate(std::begin(nextTuple), std::begin(nextTuple) + 3, std::end(nextTuple));
+
+        vtkQuaternion<float> prevQuaternion(prevTuple.data());
+        vtkQuaternion<float> nextQuaternion(nextTuple.data());
+
+        auto interpolatedQuat = prevQuaternion.Slerp(tNorm, nextQuaternion);
+        interpolatedQuat.Normalize();
+
+        output->insert(output->end(), interpolatedQuat.GetData(), interpolatedQuat.GetData() + 4);
+        std::rotate(output->begin(), output->begin() + 1, output->end());
+      }
+      else
+      {
+        // Linear interpolation between the previous and following tuples
+        for (size_t i = 0; i < numberOfComponents; i++)
+        {
+          output->push_back((1 - tNorm) * prevTuple[i] + tNorm * nextTuple[i]);
+        }
+      }
+    }
+    // Cubic spline interpolation
+    // This implementation follows the glTF specification:
+    // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-spline-interpolation
+    else
+    {
+      std::vector<float> v0(numberOfComponents);
+      std::vector<float> v1(numberOfComponents);
+      std::vector<float> a(numberOfComponents);
+      std::vector<float> b(numberOfComponents);
+
+      // Three tuples per frame: in-tangent, point, out-tangent
+      this->OutputData->GetTypedTuple(3 * prevKeyFrameId + 1, v0.data());
+      this->OutputData->GetTypedTuple(3 * nextKeyFrameId + 1, v1.data());
+      this->OutputData->GetTypedTuple(3 * nextKeyFrameId, a.data());
+      this->OutputData->GetTypedTuple(3 * prevKeyFrameId + 2, b.data());
+
+      const float tSquare = tNorm * tNorm;
+      const float tCube = tSquare * tNorm;
+
+      const float c0 = 2 * tCube - 3 * tSquare + 1;
+      const float c1 = tDelta * (tCube - 2 * tSquare + tNorm);
+      const float c2 = -2 * tCube + 3 * tSquare;
+      const float c3 = tDelta * (tCube - tSquare);
+
+      for (size_t i = 0; i < numberOfComponents; i++)
+      {
+        output->push_back(c0 * v0[i] + c1 * b[i] + c2 * v1[i] + c3 * a[i]);
+      }
+
+      // Normalize the resulting quaternion
+      if (isRotation)
+      {
+        std::rotate(output->begin(), output->begin() + 3, output->end());
+        vtkQuaternion<float> quaternion(output->data());
+        quaternion.Normalize();
+        float* data = quaternion.GetData();
+        std::copy(data, data + 4, output->begin());
+        std::rotate(output->begin(), output->begin() + 1, output->end());
+      }
+    }
   }
   else
   {
@@ -1243,6 +1325,11 @@ void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(
     // get frame index
     size_t lower = std::lower_bound(this->InputData->Begin(), this->InputData->End(), t) -
       this->InputData->Begin();
+    if (lower > 0)
+    {
+      lower--;
+    }
+
     for (size_t i = lower * numberOfComponents; i < numberOfComponents * (lower + 1); i++)
     {
       output->push_back(this->OutputData->GetValue(static_cast<vtkIdType>(i)));

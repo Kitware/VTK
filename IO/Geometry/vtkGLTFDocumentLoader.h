@@ -50,7 +50,6 @@ class vtkCellArray;
 class vtkDataArray;
 class vtkFloatArray;
 class vtkImageData;
-class vtkTupleInterpolator;
 class vtkMatrix4x4;
 class vtkPoints;
 class vtkPolyData;
@@ -413,13 +412,12 @@ public:
 
       vtkSmartPointer<vtkFloatArray> InputData;
       vtkSmartPointer<vtkFloatArray> OutputData;
-      vtkSmartPointer<vtkTupleInterpolator> Interpolator;
 
       /**
        * Get the interpolated animation output at time t
        */
       void GetInterpolatedData(float t, size_t numberOfComponents, std::vector<float>* output,
-        bool forceStep = false) const;
+        bool forceStep = false, bool isRotation = false) const;
     };
 
     struct Channel
