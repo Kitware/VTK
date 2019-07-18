@@ -371,3 +371,22 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
     }
   }
 }
+
+// ----------------------------------------------------------------------------
+bool vtkOSPRayPass::IsBackendAvailable(const char *choice)
+{
+  std::set<RTWBackendType> bends = rtwGetAvailableBackends();
+  if (!strcmp(choice, "OSPRay raycaster"))
+  {
+    return (bends.find(RTW_BACKEND_OSPRAY) != bends.end());
+  }
+  if (!strcmp(choice, "OSPRay pathtracer"))
+  {
+    return (bends.find(RTW_BACKEND_OSPRAY) != bends.end());
+  }
+  if (!strcmp(choice, "OptiX pathtracer"))
+  {
+    return (bends.find(RTW_BACKEND_VISRTX) != bends.end());
+  }
+  return false;
+}
