@@ -85,6 +85,12 @@ public:
   static void RTInit();
   static void RTShutdown();
 
+  /**
+   * A run time query to see if a particular backend is available.
+   * Eg. "OSPRay raycaster", "OSPRay pathtracer" or "OptiX pathtracer".
+   */
+  static bool IsBackendAvailable(const char *name);
+
  protected:
   /**
    * Default constructor.
