@@ -168,6 +168,8 @@ bool vtkGLTFDocumentLoader::LoadModelMetaDataFromFile(std::string fileName)
     vtkErrorMacro("Could not allocate InternalModel");
     return false;
   }
+
+  fileName = vtksys::SystemTools::CollapseFullPath(fileName);
   this->InternalModel->FileName = fileName;
 
   if (!impl.LoadModelMetaDataFromFile(fileName, this->UsedExtensions))
