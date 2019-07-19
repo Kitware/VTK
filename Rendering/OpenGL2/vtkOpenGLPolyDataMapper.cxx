@@ -2822,6 +2822,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     pointPicking = true;
   }
 
+#ifndef GL_ES_VERSION_3_0
   // when using IBL, we need seamless cubemaps to avoid artifacts
   if (ren->GetUseImageBasedLighting() && ren->GetEnvironmentCubeMap())
   {
@@ -2829,6 +2830,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     vtkOpenGLState* ostate = renWin->GetState();
     ostate->vtkglEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
   }
+#endif
 
   bool draw_surface_with_edges =
     (actor->GetProperty()->GetEdgeVisibility() && representation == VTK_SURFACE) && !selector;
