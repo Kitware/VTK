@@ -778,7 +778,7 @@ bool vtkDualDepthPeelingPass::SetTranslucentShaderParameters(
             "lastDepthPeel",
             this->Textures[this->DepthSource]->GetTextureUnit());
       program->SetUniformi(
-            "frontDepthPeel",
+            "lastFrontPeel",
             this->Textures[this->FrontSource]->GetTextureUnit());
       break;
 
