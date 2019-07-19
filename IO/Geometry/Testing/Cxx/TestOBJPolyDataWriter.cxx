@@ -31,6 +31,8 @@
 #include <vtkTexture.h>
 #include <vtkTexturedSphereSource.h>
 
+#include <vtkNumberToString.h>
+
 #include <string>
 
 int TestOBJPolyDataWriter(int argc, char* argv[])
@@ -86,6 +88,10 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
   }
 
   // check values
+  vtkNumberToString convert;
+  int numberOfDifferentPoints = 0;
+  int numberOfDifferentNormals = 0;
+  int numberOfDifferentTCoords = 0;
   for (vtkIdType i = 0; i < polyInput->GetNumberOfPoints(); i++)
   {
     double pi[3], po[3];
@@ -93,36 +99,42 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
     // check positions
     positionsInput->GetTuple(i, pi);
     positionsOutput->GetTuple(i, po);
-    if (vtkMath::Distance2BetweenPoints(pi, po) > 1e-4)
+    if (vtkMath::Distance2BetweenPoints(pi, po) > 0.0)
     {
-      cerr << "One point is different.\n";
-      cerr << "Input: " << pi[0] << " " << pi[1] << " " << pi[2] << "\n";
-      cerr << "Output: " << po[0] << " " << po[1] << " " << po[2] << "\n";
-      return EXIT_FAILURE;
+      cerr << "Point is different.\n";
+      cerr << "  Input:  " << convert(pi[0]) << " " << convert(pi[1]) << " " << convert(pi[2]) << "\n";
+      cerr << "  Output: " << convert(po[0]) << " " << convert(po[1]) << " " << convert(po[2]) << "\n";
+      numberOfDifferentPoints++;
     }
 
     // check normals
     normalsInput->GetTuple(i, pi);
     normalsOutput->GetTuple(i, po);
-    if (vtkMath::AngleBetweenVectors(pi, po) > 1e-6)
+    if (vtkMath::AngleBetweenVectors(pi, po) > 0)
     {
-      cerr << "One normal is different:\n";
-      cerr << "Input: " << pi[0] << " " << pi[1] << " " << pi[2] << "\n";
-      cerr << "Output: " << po[0] << " " << po[1] << " " << po[2] << "\n";
-      return EXIT_FAILURE;
+      cerr << "Normal is different:\n";
+      cerr << "  Input:  " << convert(pi[0]) << " " << convert(pi[1]) << " " << convert(pi[2]) << "\n";
+      cerr << "  Output: " << convert(po[0]) << " " << convert(po[1]) << " " << convert(po[2]) << "\n";
+      numberOfDifferentNormals++;
     }
 
     // check texture coords
     tcoordsInput->GetTuple(i, pi);
     tcoordsOutput->GetTuple(i, po);
     pi[2] = po[2] = 0.0;
-    if (vtkMath::Distance2BetweenPoints(pi, po) > 1e-4)
+    if (vtkMath::Distance2BetweenPoints(pi, po) > 0.0)
     {
-      cerr << "One texture coord is different:\n";
-      cerr << "Input: " << pi[0] << " " << pi[1] << "\n";
-      cerr << "Output: " << po[0] << " " << po[1] << "\n";
-      return EXIT_FAILURE;
+      cerr << "Texture coord is different:\n";
+      cerr << "Input:  " << convert(pi[0]) << " " << convert(pi[1]) << "\n";
+      cerr << "Output: " << convert(po[0]) << " " << convert(po[1]) << "\n";
+      numberOfDifferentTCoords++;
     }
+  }
+  if (numberOfDifferentPoints != 0 ||
+      numberOfDifferentNormals != 0 ||
+      numberOfDifferentTCoords != 0)
+  {
+    return EXIT_FAILURE;
   }
 
   vtkNew<vtkPolyDataMapper> mapper;
