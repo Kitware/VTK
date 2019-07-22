@@ -115,14 +115,19 @@ void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int
 
   if (this->PositionTexture == nullptr)
   {
+    // This texture needs mipmapping levels in order to improve
+    // texture sampling performances
+    // see "Scalable ambient obscurance"
     this->PositionTexture = vtkTextureObject::New();
     this->PositionTexture->SetContext(renWin);
-    this->PositionTexture->SetFormat(GL_RGBA);
-    this->PositionTexture->SetInternalFormat(GL_RGBA16F);
+    this->PositionTexture->SetFormat(GL_RGB);
+    this->PositionTexture->SetInternalFormat(GL_RGB16F);
     this->PositionTexture->SetDataType(GL_FLOAT);
-    this->PositionTexture->SetMinificationFilter(vtkTextureObject::Linear);
-    this->PositionTexture->SetMagnificationFilter(vtkTextureObject::Linear);
-    this->PositionTexture->Allocate2D(w, h, 4, VTK_FLOAT);
+    this->PositionTexture->SetWrapS(vtkTextureObject::ClampToEdge);
+    this->PositionTexture->SetWrapT(vtkTextureObject::ClampToEdge);
+    this->PositionTexture->SetMinificationFilter(vtkTextureObject::NearestMipmapNearest);
+    this->PositionTexture->SetMaxLevel(10);
+    this->PositionTexture->Allocate2D(w, h, 3, VTK_FLOAT);
   }
 
   if (this->NormalTexture == nullptr)
@@ -132,8 +137,8 @@ void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int
     this->NormalTexture->SetFormat(GL_RGB);
     this->NormalTexture->SetInternalFormat(GL_RGB16F);
     this->NormalTexture->SetDataType(GL_FLOAT);
-    this->NormalTexture->SetMinificationFilter(vtkTextureObject::Linear);
-    this->NormalTexture->SetMagnificationFilter(vtkTextureObject::Linear);
+    this->NormalTexture->SetWrapS(vtkTextureObject::ClampToEdge);
+    this->NormalTexture->SetWrapT(vtkTextureObject::ClampToEdge);
     this->NormalTexture->Allocate2D(w, h, 3, VTK_FLOAT);
   }
 
@@ -144,8 +149,6 @@ void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int
     this->SSAOTexture->SetFormat(GL_RED);
     this->SSAOTexture->SetInternalFormat(GL_R8);
     this->SSAOTexture->SetDataType(GL_UNSIGNED_BYTE);
-    this->SSAOTexture->SetMinificationFilter(vtkTextureObject::Linear);
-    this->SSAOTexture->SetMagnificationFilter(vtkTextureObject::Linear);
     this->SSAOTexture->Allocate2D(w, h, 1, VTK_UNSIGNED_CHAR);
   }
 
@@ -153,8 +156,6 @@ void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int
   {
     this->DepthTexture = vtkTextureObject::New();
     this->DepthTexture->SetContext(renWin);
-    this->DepthTexture->SetMinificationFilter(vtkTextureObject::Linear);
-    this->DepthTexture->SetMagnificationFilter(vtkTextureObject::Linear);
     this->DepthTexture->AllocateDepth(w, h, vtkTextureObject::Float32);
   }
 
@@ -256,6 +257,8 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
               "uniform sampler2D texNormal;\n"
               "uniform sampler2D texNoise;\n"
               "uniform sampler2D texDepth;\n"
+              "uniform float kernelRadius;\n"
+              "uniform float kernelBias;\n"
               "uniform vec3 samples["
            << this->KernelSize
            << "];\n"
@@ -266,15 +269,15 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
 
     std::stringstream ssImpl;
     ssImpl << "\n"
-              "  vec4 fragPosVC = texture(texPosition, texCoord);\n"
               "  float occlusion = 0.0;\n"
-              "  if (fragPosVC.w > 0.0)\n"
+              "  float depth = texture(texDepth, texCoord).r;\n"
+              "  if (depth < 1.0)\n"
               "  {\n"
-              "    vec4 fragPosDC = matProjection * vec4(fragPosVC.xyz, 1.0);\n"
+              "    vec3 fragPosVC = texture(texPosition, texCoord).xyz;\n"
+              "    vec4 fragPosDC = matProjection * vec4(fragPosVC, 1.0);\n"
               "    fragPosDC.xyz /= fragPosDC.w;\n"
               "    fragPosDC.xyz = fragPosDC.xyz * 0.5 + 0.5;\n"
-              "    float depth = texture(texDepth, texCoord).r;\n"
-              "    if (fragPosDC.z - depth < 0.0)\n"
+              "    if (fragPosDC.z - depth < 0.0001)\n"
               "    {\n"
               "      vec3 normal = texture(texNormal, texCoord).rgb;\n"
               "      vec2 tilingShift = size / textureSize(texNoise, 0);\n"
@@ -283,27 +286,21 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
               "      vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));\n"
               "      vec3 bitangent = cross(normal, tangent);\n"
               "      mat3 TBN = mat3(tangent, bitangent, normal);\n"
-              "      const float radius = "
-           << this->Radius
-           << ";\n"
-              "      const float bias = "
-           << this->Bias
-           << ";\n"
               "      const int kernelSize = "
            << this->KernelSize
            << ";\n"
               "      for (int i = 0; i < kernelSize; i++)\n"
               "      {\n"
               "        vec3 sampleVC = TBN * samples[i];\n"
-              "        sampleVC = fragPosVC.xyz + sampleVC * radius;\n"
+              "        sampleVC = fragPosVC + sampleVC * kernelRadius;\n"
               "        vec4 sampleDC = matProjection * vec4(sampleVC, 1.0);\n"
               "        sampleDC.xyz /= sampleDC.w;\n"
-              "        sampleDC.xyz = sampleDC.xyz * 0.5 + 0.5;\n"
-              "        float sampleDepth = texture(texPosition, sampleDC.xy).z;\n"
-              "        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPosVC.z - sampleDepth));\n"
-              "        occlusion += (sampleDepth >= sampleVC.z + bias ? 1.0 : 0.0) * rangeCheck;\n"
+              "        sampleDC.xyz = sampleDC.xyz * 0.5 + 0.5;\n" // to clip space
+              "        float sampleDepth = textureLod(texPosition, sampleDC.xy, 40.0 * distance(fragPosDC.xy, sampleDC.xy)).z;\n"
+              "        float rangeCheck = smoothstep(0.0, 1.0, kernelRadius / abs(fragPosVC.z - sampleDepth));\n"
+              "        occlusion += (sampleDepth >= sampleVC.z + kernelBias ? 1.0 : 0.0) * rangeCheck;\n"
               "      }\n"
-              "      occlusion = occlusion / kernelSize;\n"
+              "      occlusion = occlusion / float(kernelSize);\n"
               "    }\n"
               "  }\n"
               "  gl_FragData[0] = vec4(vec3(1.0 - occlusion), 1.0);\n";
@@ -335,6 +332,8 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
   this->SSAOQuadHelper->Program->SetUniform3fv("samples", this->KernelSize, this->Kernel.data());
   this->SSAOQuadHelper->Program->SetUniformi("texNoise", renWin->GetNoiseTextureUnit());
   this->SSAOQuadHelper->Program->SetUniformi("texDepth", this->DepthTexture->GetTextureUnit());
+  this->SSAOQuadHelper->Program->SetUniformf("kernelRadius", this->Radius);
+  this->SSAOQuadHelper->Program->SetUniformf("kernelBias", this->Bias);
   this->SSAOQuadHelper->Program->SetUniformMatrix("matProjection", projection);
 
   int size[2] = { w, h };
@@ -477,6 +476,10 @@ void vtkSSAOPass::Render(const vtkRenderState* s)
 
   ostate->vtkglDisable(GL_BLEND);
   ostate->vtkglDisable(GL_DEPTH_TEST);
+
+  // generate mipmap levels
+  this->PositionTexture->Bind();
+  glGenerateMipmap(GL_TEXTURE_2D);
 
   vtkOpenGLCamera* cam = (vtkOpenGLCamera*)(r->GetActiveCamera());
   vtkMatrix4x4* projection = cam->GetProjectionTransformMatrix(r->GetTiledAspectRatio(), -1, 1);
