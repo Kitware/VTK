@@ -176,6 +176,7 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
   static void SelectAction3D(vtkAbstractWidget*);
   static void MoveAction3D(vtkAbstractWidget*);
+  static void ProcessKeyEvents(vtkObject *, unsigned long, void *, void *);
 
   // helper methods for cursor management
   void SetCursor(int state) override;
@@ -183,6 +184,9 @@ protected:
   int WidgetState;
   vtkTypeBool EnableAxisConstraint;
   vtkTypeBool EnableTranslation;
+
+  char ActiveKeyCode;
+  vtkCallbackCommand *KeyEventCallbackCommand;
 
   // Allow resizing of handles.
   vtkTypeBool AllowHandleResize;

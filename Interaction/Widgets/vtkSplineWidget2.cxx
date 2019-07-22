@@ -55,10 +55,59 @@ vtkSplineWidget2::vtkSplineWidget2()
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
                                           vtkWidgetEvent::Move,
                                           this, vtkSplineWidget2::MoveAction);
+
+  this->KeyEventCallbackCommand = vtkCallbackCommand::New();
+  this->KeyEventCallbackCommand->SetClientData(this);
+  this->KeyEventCallbackCommand->SetCallback(vtkSplineWidget2::ProcessKeyEvents);
 }
 
 //----------------------------------------------------------------------------
-vtkSplineWidget2::~vtkSplineWidget2() = default;
+vtkSplineWidget2::~vtkSplineWidget2()
+{
+  this->KeyEventCallbackCommand->Delete();
+}
+
+void vtkSplineWidget2::SetEnabled(int enabling)
+{
+  int enabled = this->Enabled;
+
+  // We do this step first because it sets the CurrentRenderer
+  this->Superclass::SetEnabled(enabling);
+
+  // We defer enabling the handles until the selection process begins
+  if ( enabling && !enabled )
+  {
+    if (this->Parent)
+    {
+      this->Parent->AddObserver(vtkCommand::KeyPressEvent,
+                                this->KeyEventCallbackCommand,
+                                this->Priority);
+      this->Parent->AddObserver(vtkCommand::KeyReleaseEvent,
+                                this->KeyEventCallbackCommand,
+                                this->Priority);
+    }
+    else
+    {
+      this->Interactor->AddObserver(vtkCommand::KeyPressEvent,
+                                    this->KeyEventCallbackCommand,
+                                    this->Priority);
+      this->Interactor->AddObserver(vtkCommand::KeyReleaseEvent,
+                                    this->KeyEventCallbackCommand,
+                                    this->Priority);
+    }
+  }
+  else if ( !enabling && enabled )
+  {
+    if (this->Parent)
+    {
+      this->Parent->RemoveObserver(this->KeyEventCallbackCommand);
+    }
+    else
+    {
+      this->Interactor->RemoveObserver(this->KeyEventCallbackCommand);
+    }
+  }
+}
 
 //----------------------------------------------------------------------
 void vtkSplineWidget2::SelectAction(vtkAbstractWidget *w)
@@ -239,6 +288,56 @@ void vtkSplineWidget2::CreateDefaultRepresentation()
     this->WidgetRep = vtkSplineRepresentation::New();
   }
 }
+
+//----------------------------------------------------------------------------
+void vtkSplineWidget2::ProcessKeyEvents(vtkObject* , unsigned long event,
+                                      void* clientdata, void* )
+{
+  vtkSplineWidget2 *self = static_cast<vtkSplineWidget2*>(clientdata);
+  vtkRenderWindowInteractor *iren = self->GetInteractor();
+  vtkSplineRepresentation *rep = vtkSplineRepresentation::SafeDownCast(self->WidgetRep);
+  switch (event)
+  {
+    case vtkCommand::KeyPressEvent:
+      switch (iren->GetKeyCode())
+      {
+        case 'x':
+        case 'X':
+          rep->SetXTranslationRestrictionFlagOn();
+          break;
+        case 'y':
+        case 'Y':
+          rep->SetYTranslationRestrictionFlagOn();
+          break;
+        case 'z':
+        case 'Z':
+          rep->SetZTranslationRestrictionFlagOn();
+          break;
+        default:
+          break;
+      }
+      break;
+    case vtkCommand::KeyReleaseEvent:
+      switch (iren->GetKeyCode())
+      {
+        case 'x':
+        case 'X':
+        case 'y':
+        case 'Y':
+        case 'z':
+        case 'Z':
+          rep->SetTranslationRestrictionFlagOff();
+          break;
+        detault:
+          break;
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+
 
 //----------------------------------------------------------------------------
 void vtkSplineWidget2::PrintSelf(ostream& os, vtkIndent indent)

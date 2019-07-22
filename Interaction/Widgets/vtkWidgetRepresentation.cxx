@@ -47,6 +47,9 @@ vtkWidgetRepresentation::vtkWidgetRepresentation()
   this->NeedToRender = 0;
 
   this->PickingManaged = true;
+
+  // No translation restriction
+  this->TranslationRestrictionFlag = TranslationRestriction::NONE;
 }
 
 //----------------------------------------------------------------------
@@ -273,7 +276,7 @@ double vtkWidgetRepresentation::SizeHandlesRelativeToViewport(double factor,
     return (sqrt(radius) * factor * this->HandleSize);
   }
 }
-
+/*
 void vtkWidgetRepresentation::UpdatePropPose(
   vtkProp3D *prop3D,
   const double *pos1, const double *orient1,
@@ -350,7 +353,7 @@ void vtkWidgetRepresentation::UpdatePropPose(
     prop3D->SetPosition(newTransform->GetPosition());
     prop3D->SetOrientation(newTransform->GetOrientation());
   }
-}
+}*/
 
 //----------------------------------------------------------------------
 void vtkWidgetRepresentation::PrintSelf(ostream& os, vtkIndent indent)

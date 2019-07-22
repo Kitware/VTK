@@ -76,7 +76,6 @@ vtkLineWidget2::vtkLineWidget2()
                                           vtkWidgetEvent::Move,
                                           this, vtkLineWidget2::MoveAction);
 
-  this->ActiveKeyCode = 0;
   this->KeyEventCallbackCommand = vtkCallbackCommand::New();
   this->KeyEventCallbackCommand->SetClientData(this);
   this->KeyEventCallbackCommand->SetCallback(vtkLineWidget2::ProcessKeyEvents);
@@ -365,41 +364,55 @@ void vtkLineWidget2::ProcessKeyEvents(vtkObject* , unsigned long event,
 {
   vtkLineWidget2 *self = static_cast<vtkLineWidget2*>(clientdata);
   vtkRenderWindowInteractor *iren = self->GetInteractor();
+  vtkLineRepresentation *rep = vtkLineRepresentation::SafeDownCast(self->WidgetRep);
   switch (event)
   {
     case vtkCommand::KeyPressEvent:
-      if (self->ActiveKeyCode == 0)
+      switch (iren->GetKeyCode())
       {
-        self->ActiveKeyCode = iren->GetKeyCode();
+        case 'x':
+        case 'X':
+          rep->GetPoint1Representation()->SetXTranslationRestrictionFlagOn();
+          rep->GetPoint2Representation()->SetXTranslationRestrictionFlagOn();
+          rep->GetLineHandleRepresentation()->SetXTranslationRestrictionFlagOn();
+          rep->SetXTranslationRestrictionFlagOn();
+          break;
+        case 'y':
+        case 'Y':
+          rep->GetPoint1Representation()->SetYTranslationRestrictionFlagOn();
+          rep->GetPoint2Representation()->SetYTranslationRestrictionFlagOn();
+          rep->GetLineHandleRepresentation()->SetYTranslationRestrictionFlagOn();
+          rep->SetYTranslationRestrictionFlagOn();
+          break;
+        case 'z':
+        case 'Z':
+          rep->GetPoint1Representation()->SetZTranslationRestrictionFlagOn();
+          rep->GetPoint2Representation()->SetZTranslationRestrictionFlagOn();
+          rep->GetLineHandleRepresentation()->SetZTranslationRestrictionFlagOn();
+          rep->SetZTranslationRestrictionFlagOn();
+          break;
+        default:
+          break;
       }
       break;
     case vtkCommand::KeyReleaseEvent:
-      if (self->ActiveKeyCode == iren->GetKeyCode())
+      switch (iren->GetKeyCode())
       {
-        self->ActiveKeyCode = 0;
+        case 'x':
+        case 'X':
+        case 'y':
+        case 'Y':
+        case 'z':
+        case 'Z':
+          rep->GetPoint1Representation()->SetTranslationRestrictionFlagOff();
+          rep->GetPoint2Representation()->SetTranslationRestrictionFlagOff();
+          rep->GetLineHandleRepresentation()->SetTranslationRestrictionFlagOff();
+          break;
+        detault:
+          break;
       }
       break;
     default:
-      break;
-  }
-
-  vtkLineRepresentation *rep = vtkLineRepresentation::SafeDownCast(self->WidgetRep);
-  switch (self->ActiveKeyCode)
-  {
-    case 'x':
-    case 'X':
-      rep->SetRestrictFlag(vtkLineRepresentation::RestrictToX);
-      break;
-    case 'y':
-    case 'Y':
-      rep->SetRestrictFlag(vtkLineRepresentation::RestrictToY);
-      break;
-    case 'z':
-    case 'Z':
-      rep->SetRestrictFlag(vtkLineRepresentation::RestrictToZ);
-      break;
-    default:
-      rep->SetRestrictFlag(vtkLineRepresentation::RestrictNone);
       break;
   }
 }

@@ -607,10 +607,19 @@ void vtkPointHandleRepresentation3D
     this->Cursor3D->GetFocalPoint(focus);
 
     // Move the center of the handle along the motion vector
-    focus[0] += (p2[0] - p1[0]);
-    focus[1] += (p2[1] - p1[1]);
-    focus[2] += (p2[2] - p1[2]);
-    focus[3] = 1.0;
+    if (this->TranslationRestrictionFlag == TranslationRestriction::NONE)
+    {
+      focus[0] += (p2[0] - p1[0]);
+      focus[1] += (p2[1] - p1[1]);
+      focus[2] += (p2[2] - p1[2]);
+      focus[3] = 1.0;
+    }
+    // Translation restriction handling
+    else
+    {
+      focus[this->TranslationRestrictionFlag] +=
+          p2[this->TranslationRestrictionFlag] - p1[this->TranslationRestrictionFlag];
+    }
 
     // Get the display position that this center would fall on.
     this->Renderer->SetWorldPoint( focus );
@@ -628,23 +637,22 @@ void vtkPointHandleRepresentation3D
 //----------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::MoveFocus(double *p1, double *p2)
 {
-  //Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
-
   double focus[3];
   this->Cursor3D->GetFocalPoint(focus);
-  if ( this->ConstraintAxis >= 0 )
+
+  // Move the center of the handle along the motion vector
+  if (this->TranslationRestrictionFlag == TranslationRestriction::NONE)
   {
-    focus[this->ConstraintAxis] += v[this->ConstraintAxis];
+    focus[0] += (p2[0] - p1[0]);
+    focus[1] += (p2[1] - p1[1]);
+    focus[2] += (p2[2] - p1[2]);
+    focus[3] = 1.0;
   }
+  // Translation restriction handling
   else
   {
-    focus[0] += v[0];
-    focus[1] += v[1];
-    focus[2] += v[2];
+    focus[this->TranslationRestrictionFlag] +=
+        p2[this->TranslationRestrictionFlag] - p1[this->TranslationRestrictionFlag];
   }
 
   this->SetWorldPosition(focus);

@@ -399,11 +399,22 @@ void vtkCurveRepresentation::MovePoint(double *p1, double *p2)
     vtkGenericWarningMacro(<<"Poly line handle index out of range.");
     return;
   }
+
   // Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
+  double v[3] = {0,0,0};
+  // Move the center of the handle along the motion vector
+  if (this->TranslationRestrictionFlag == TranslationRestriction::NONE)
+  {
+    v[0] = p2[0] - p1[0];
+    v[1] = p2[1] - p1[1];
+    v[2] = p2[2] - p1[2];
+  }
+  // Translation restriction handling
+  else
+  {
+    v[this->TranslationRestrictionFlag] =
+        p2[this->TranslationRestrictionFlag] - p1[this->TranslationRestrictionFlag];
+  }
 
   double* ctr = this->HandleGeometry[this->CurrentHandleIndex]->GetCenter();
 
@@ -419,10 +430,20 @@ void vtkCurveRepresentation::MovePoint(double *p1, double *p2)
 void vtkCurveRepresentation::Translate(double *p1, double *p2)
 {
   // Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
+  double v[3] = {0,0,0};
+  // Move the center of the handle along the motion vector
+  if (this->TranslationRestrictionFlag == TranslationRestriction::NONE)
+  {
+    v[0] = p2[0] - p1[0];
+    v[1] = p2[1] - p1[1];
+    v[2] = p2[2] - p1[2];
+  }
+  // Translation restriction handling
+  else
+  {
+    v[this->TranslationRestrictionFlag] =
+        p2[this->TranslationRestrictionFlag] - p1[this->TranslationRestrictionFlag];
+  }
 
   double newCtr[3];
   for ( int i = 0; i < this->NumberOfHandles; ++i )

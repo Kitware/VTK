@@ -129,7 +129,7 @@ void vtkPolyLineWidget::SelectAction(vtkAbstractWidget *w)
 //----------------------------------------------------------------------
 void vtkPolyLineWidget::TranslateAction(vtkAbstractWidget *w)
 {
-  // Not sure this should be any different that SelectAction
+  // Not sure this should be any different than SelectAction
   vtkPolyLineWidget::SelectAction(w);
 }
 

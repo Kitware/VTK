@@ -130,7 +130,6 @@ public:
   vtkBooleanMacro(TranslationMode,vtkTypeBool);
   //@}
 
-  //@{
   /**
    * Convenience methods to turn outline and shadows on and off.
    */
@@ -253,7 +252,6 @@ protected:
   vtkActor          *Actor;
   vtkPolyDataMapper *Mapper;
   vtkCursor3D       *Cursor3D;
-
 
   // Do the picking
   vtkCellPicker *CursorPicker;

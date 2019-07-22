@@ -144,8 +144,6 @@ vtkLineRepresentation::vtkLineRepresentation()
   this->RepresentationState = vtkLineRepresentation::Outside;
   this->AnnotationTextScaleInitialized = false;
 
-  this->RestrictFlag = RestrictNone;
-
   // Initial creation of the widget, serves to initialize it.
   // Call PlaceWidget() LAST in the constructor, as this method depends on ivar
   // values.
@@ -408,7 +406,7 @@ void vtkLineRepresentation::StartWidgetInteraction(double e[2])
 void vtkLineRepresentation::WidgetInteraction(double e[2])
 {
   // Process the motion
-  if ( this->InteractionState == vtkLineRepresentation::OnP1 )
+/*  if ( this->InteractionState == vtkLineRepresentation::OnP1 )
   {
     if (this->RestrictFlag)
     {
@@ -433,8 +431,8 @@ void vtkLineRepresentation::WidgetInteraction(double e[2])
       }
       this->Point2Representation->SetWorldPosition(x);
     }
-  }
-  else if ( this->InteractionState == vtkLineRepresentation::OnLine )
+  }*/
+  if ( this->InteractionState == vtkLineRepresentation::OnLine )
   {
     double x[3], p1[3], p2[3], delta[3];
 
@@ -445,14 +443,6 @@ void vtkLineRepresentation::WidgetInteraction(double e[2])
     delta[0] = x[0] - this->StartLineHandle[0];
     delta[1] = x[1] - this->StartLineHandle[1];
     delta[2] = x[2] - this->StartLineHandle[2];
-
-    for (int i=0; i<3; i++)
-    {
-      double d = (!this->RestrictFlag || (this->RestrictFlag == (i + 1))) ?
-                 delta[i] : 0.0;
-      p1[i] = this->StartP1[i] + d;
-      p2[i] = this->StartP2[i] + d;
-    }
 
     this->Point1Representation->SetWorldPosition(p1);
     this->Point2Representation->SetWorldPosition(p2);
@@ -1101,25 +1091,6 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Representation State: " << this->RepresentationState << "\n";
   os << indent << "Directional Line: " << this->DirectionalLine << "\n";
-  os << indent << "Restring flag: ";
-  switch (this->RestrictFlag)
-  {
-    case RestrictNone:
-      os << "RestrictNone";
-      break;
-    case RestrictToX:
-      os << "RestrictToX";
-      break;
-    case RestrictToY:
-      os << "RestrictToY";
-      break;
-    case RestrictToZ:
-      os << "RestrictToZ";
-      break;
-    default:
-      os << "unexpected value: " << this->RestrictFlag;
-      break;
-  }
   os << "\n";
 
   os << indent << "DistanceAnnotationVisibility: ";
