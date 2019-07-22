@@ -638,14 +638,6 @@ void vtkPythonInterpreter::SetupPythonPrefix()
     return;
   }
 
-  if (Py_GetPythonHome() != nullptr)
-  {
-    // if PYTHONHOME is set, we do nothing. Don't override an already
-    // overridden environment.
-    VTKPY_DEBUG_MESSAGE("`PYTHONHOME` already set. Leaving unchanged.");
-    return;
-  }
-
   std::string pythonlib = vtkGetLibraryPathForSymbol(Py_SetProgramName);
   if (pythonlib.empty())
   {
@@ -653,24 +645,6 @@ void vtkPythonInterpreter::SetupPythonPrefix()
                         "Set `PYTHONHOME` if Python standard library fails to load.");
     return;
   }
-
-#if PY_VERSION_HEX >= 0x03000000
-  auto oldprogramname = vtk_Py_EncodeLocale(Py_GetProgramName(), nullptr);
-#else
-  auto oldprogramname = Py_GetProgramName();
-#endif
-  if (oldprogramname != nullptr && strcmp(oldprogramname, "python") != 0 && strcmp(oldprogramname, "python3") != 0)
-  {
-    VTKPY_DEBUG_MESSAGE("program-name has been changed. Leaving unchanged.");
-#if PY_VERSION_HEX >= 0x03000000
-    PyMem_Free(oldprogramname);
-#endif
-    return;
-  }
-
-#if PY_VERSION_HEX >= 0x03000000
-  PyMem_Free(oldprogramname);
-#endif
 
   const std::string newprogramname =
     systools::GetFilenamePath(pythonlib) + VTK_PATH_SEPARATOR "vtkpython";
