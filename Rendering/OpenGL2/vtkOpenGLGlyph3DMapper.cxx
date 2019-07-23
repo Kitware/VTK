@@ -689,7 +689,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
       {
         double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
           indexArray->GetNumberOfComponents());
-        index = static_cast<int>((value-this->Range[0])*numEntries/den);
+        index = static_cast<int>(value);
         index = vtkMath::ClampValue(index, 0, numEntries-1);
       }
       numPointsPerSource[index]++;
@@ -752,7 +752,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
     {
       double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
         indexArray->GetNumberOfComponents());
-      index = static_cast<int>((value-this->Range[0])*numEntries/den);
+      index = static_cast<int>(value);
       index = vtkMath::ClampValue(index, 0, numEntries-1);
     }
 
