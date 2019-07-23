@@ -14,3 +14,6 @@ include(GenerateExportHeader)
 generate_export_header(loguru
   EXPORT_MACRO_NAME LOGURU_EXPORT
   EXPORT_FILE_NAME vtkloguru_export.h)
+
+vtk_module_find_package(PACKAGE Threads)
+vtk_module_link(VTK::loguru PRIVATE Threads::Threads ${CMAKE_DL_LIBS})
