@@ -64,7 +64,7 @@ public:
   //@{
   /**
    * Set/get the short name describing the projection you wish to use.
-   * This defaults to "rpoly" for no reason other than I like it.
+   * This defaults to "latlong".
    * To get a list of valid values, use the GetNumberOfProjections() and
    * GetProjectionName(int) static methods.
    */

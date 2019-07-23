@@ -77,6 +77,20 @@ public:
 
   //@{
   /**
+   * Computes Universal Transverse Mercator (UTM) zone given the
+   * latitude and logitude of the point.
+   * It correctly computes the zones in the two exception areas.
+   * It returns an integer between 1 and 60 for valid lat lon, or 0 otherwise.
+   */
+  static int ComputeUTMZone(double lat, double lon);
+  static int ComputeUTMZone(double* latlon)
+  {
+    return ComputeUTMZone(latlon[0], latlon[1]);
+  }
+  //@}
+
+  //@{
+  /**
    * This will transform a point and, at the same time, calculate a
    * 3x3 Jacobian matrix that provides the partial derivatives of the
    * transformation at that point.  This method does not call Update.
