@@ -13,6 +13,7 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::FiltersExtraction
   VTK::InteractionStyle
+  VTK::opengl
 TEST_DEPENDS
   VTK::FiltersSources
   VTK::TestingCore
