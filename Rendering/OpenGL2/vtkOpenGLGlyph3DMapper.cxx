@@ -685,13 +685,10 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
       }
 
       // Compute index into table of glyphs
-      if (indexArray)
-      {
-        double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
-          indexArray->GetNumberOfComponents());
-        index = static_cast<int>(value);
-        index = vtkMath::ClampValue(index, 0, numEntries-1);
-      }
+      double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
+        indexArray->GetNumberOfComponents());
+      index = static_cast<int>(value);
+      index = vtkMath::ClampValue(index, 0, numEntries-1);
       numPointsPerSource[index]++;
     }
   }
