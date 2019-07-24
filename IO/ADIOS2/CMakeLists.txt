@@ -2,6 +2,10 @@ vtk_module_find_package(
   PACKAGE ADIOS2
 )
 
+if(NOT ADIOS2_HAVE_MPI)
+  message(FATAL_ERROR "The VTK::IOADIOS2 module requires ADIOS2 with MPI support")
+endif()
+
 set(classes
   vtkVARMultiBlock
 )
