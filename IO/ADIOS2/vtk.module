@@ -1,0 +1,28 @@
+NAME
+  VTK::IOADIOS2
+LIBRARY_NAME
+  vtkIOADIOS2
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::ParallelCore
+  VTK::ParallelMPI
+  VTK::vtksys
+  VTK::pugixml
+TEST_DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::ParallelCore
+  VTK::ParallelMPI
+  VTK::TestingCore
+  VTK::FiltersSources
+  VTK::InteractionImage
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
