@@ -170,7 +170,7 @@ bool PrimitiveNeedsTangents(const std::shared_ptr<vtkGLTFDocumentLoader::Model> 
   const vtkGLTFDocumentLoader::Primitive& primitive)
 {
   // If no material is present, we don't need to generate tangents
-  if (primitive.Material < 0 && primitive.Material >= static_cast<int>(model->Materials.size()))
+  if (primitive.Material < 0 || primitive.Material >= static_cast<int>(model->Materials.size()))
   {
     return false;
   }
