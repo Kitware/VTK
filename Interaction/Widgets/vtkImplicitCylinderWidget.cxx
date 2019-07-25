@@ -73,10 +73,17 @@ vtkImplicitCylinderWidget::vtkImplicitCylinderWidget()
                                           vtkEvent::AnyModifier, 29, 1, "Left",
                                           vtkWidgetEvent::Down,
                                           this, vtkImplicitCylinderWidget::MoveCylinderAction);
+
+  this->KeyEventCallbackCommand = vtkCallbackCommand::New();
+  this->KeyEventCallbackCommand->SetClientData(this);
+  this->KeyEventCallbackCommand->SetCallback(vtkImplicitCylinderWidget::ProcessKeyEvents);
 }
 
 //----------------------------------------------------------------------------
-vtkImplicitCylinderWidget::~vtkImplicitCylinderWidget() = default;
+vtkImplicitCylinderWidget::~vtkImplicitCylinderWidget()
+{
+  this->KeyEventCallbackCommand->Delete();
+}
 
 //----------------------------------------------------------------------
 void vtkImplicitCylinderWidget::SelectAction(vtkAbstractWidget *w)
@@ -305,12 +312,39 @@ void vtkImplicitCylinderWidget::MoveCylinderAction(vtkAbstractWidget *w)
 //----------------------------------------------------------------------
 void vtkImplicitCylinderWidget::SetEnabled(int enabling)
 {
-  if(this->Enabled == enabling)
-  {
-    return;
-  }
+  int enabled = this->Enabled;
+  // We do this step first because it sets the CurrentRenderer
+  this->Superclass::SetEnabled(enabling);
 
-  Superclass::SetEnabled(enabling);
+  // We defer enabling the handles until the selection process begins
+  if (enabling && !enabled)
+  {
+    if (this->Parent)
+    {
+      this->Parent->AddObserver(
+        vtkCommand::KeyPressEvent, this->KeyEventCallbackCommand, this->Priority);
+      this->Parent->AddObserver(
+        vtkCommand::KeyReleaseEvent, this->KeyEventCallbackCommand, this->Priority);
+    }
+    else
+    {
+      this->Interactor->AddObserver(
+        vtkCommand::KeyPressEvent, this->KeyEventCallbackCommand, this->Priority);
+      this->Interactor->AddObserver(
+        vtkCommand::KeyReleaseEvent, this->KeyEventCallbackCommand, this->Priority);
+    }
+  }
+  else if (!enabling && enabled)
+  {
+    if (this->Parent)
+    {
+      this->Parent->RemoveObserver(this->KeyEventCallbackCommand);
+    }
+    else
+    {
+      this->Interactor->RemoveObserver(this->KeyEventCallbackCommand);
+    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -352,6 +386,55 @@ int vtkImplicitCylinderWidget::UpdateCursorShape( int state )
   }
 
   return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImplicitCylinderWidget::ProcessKeyEvents(
+  vtkObject*, unsigned long event, void* clientdata, void*)
+{
+  vtkImplicitCylinderWidget* self = static_cast<vtkImplicitCylinderWidget*>(clientdata);
+  vtkRenderWindowInteractor* iren = self->GetInteractor();
+  vtkImplicitCylinderRepresentation* rep =
+    vtkImplicitCylinderRepresentation::SafeDownCast(self->WidgetRep);
+  switch (event)
+  {
+    case vtkCommand::KeyPressEvent:
+      switch (iren->GetKeyCode())
+      {
+        case 'x':
+        case 'X':
+          rep->SetXTranslationAxisOn();
+          break;
+        case 'y':
+        case 'Y':
+          rep->SetYTranslationAxisOn();
+          break;
+        case 'z':
+        case 'Z':
+          rep->SetZTranslationAxisOn();
+          break;
+        default:
+          break;
+      }
+      break;
+    case vtkCommand::KeyReleaseEvent:
+      switch (iren->GetKeyCode())
+      {
+        case 'x':
+        case 'X':
+        case 'y':
+        case 'Y':
+        case 'z':
+        case 'Z':
+          rep->SetTranslationAxisOff();
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
+  }
 }
 
 //----------------------------------------------------------------------------

@@ -44,6 +44,7 @@
 #include "vtkVectorOperators.h"
 #include "vtkWindow.h"
 
+#include <assert.h>
 
 vtkStandardNewMacro(vtkBoxRepresentation);
 
@@ -195,6 +196,7 @@ vtkBoxRepresentation::vtkBoxRepresentation()
   this->PlaneNormals->SetNumberOfTuples(6);
   this->Matrix = vtkMatrix4x4::New();
 
+  this->TranslationAxis = Axis::NONE;
 }
 
 //----------------------------------------------------------------------------
@@ -490,9 +492,8 @@ void vtkBoxRepresentation::EndComplexInteraction(
 }
 
 //----------------------------------------------------------------------------
-void vtkBoxRepresentation::MoveFace(double *p1, double *p2, double *dir,
-                                    double *x1, double *x2, double *x3, double *x4,
-                                    double *x5)
+void vtkBoxRepresentation::MoveFace(const double* p1, const double* p2, const double* dir,
+  double* x1, double* x2, double* x3, double* x4, double* x5)
 {
   int i;
   double v[3], v2[3];
@@ -560,7 +561,7 @@ void vtkBoxRepresentation::GetDirection(const double Nx[3],const double Ny[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkBoxRepresentation::MovePlusXFace(double *p1, double *p2)
+void vtkBoxRepresentation::MovePlusXFace(const double* p1, const double* p2)
 {
   double *pts =
     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
@@ -579,7 +580,7 @@ void vtkBoxRepresentation::MovePlusXFace(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------------
-void vtkBoxRepresentation::MoveMinusXFace(double *p1, double *p2)
+void vtkBoxRepresentation::MoveMinusXFace(const double* p1, const double* p2)
 {
   double *pts =
     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
@@ -599,7 +600,7 @@ void vtkBoxRepresentation::MoveMinusXFace(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------------
-void vtkBoxRepresentation::MovePlusYFace(double *p1, double *p2)
+void vtkBoxRepresentation::MovePlusYFace(const double* p1, const double* p2)
 {
   double *pts =
      static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
@@ -619,7 +620,7 @@ void vtkBoxRepresentation::MovePlusYFace(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------------
-void vtkBoxRepresentation::MoveMinusYFace(double *p1, double *p2)
+void vtkBoxRepresentation::MoveMinusYFace(const double* p1, const double* p2)
 {
   double *pts =
     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
@@ -639,7 +640,7 @@ void vtkBoxRepresentation::MoveMinusYFace(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------------
-void vtkBoxRepresentation::MovePlusZFace(double *p1, double *p2)
+void vtkBoxRepresentation::MovePlusZFace(const double* p1, const double* p2)
 {
   double *pts =
     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
@@ -659,7 +660,7 @@ void vtkBoxRepresentation::MovePlusZFace(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------------
-void vtkBoxRepresentation::MoveMinusZFace(double *p1, double *p2)
+void vtkBoxRepresentation::MoveMinusZFace(const double* p1, const double* p2)
 {
   double *pts =
     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
@@ -680,15 +681,24 @@ void vtkBoxRepresentation::MoveMinusZFace(double *p1, double *p2)
 
 //----------------------------------------------------------------------------
 // Loop through all points and translate them
-void vtkBoxRepresentation::Translate(double *p1, double *p2)
+void vtkBoxRepresentation::Translate(const double* p1, const double* p2)
 {
   double *pts =
     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
-  double v[3];
+  double v[3] = { 0, 0, 0 };
 
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
+  if (!this->IsTranslationConstrained())
+  {
+    v[0] = p2[0] - p1[0];
+    v[1] = p2[1] - p1[1];
+    v[2] = p2[2] - p1[2];
+  }
+  else
+  {
+    assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
+      "this->TranslationAxis out of bounds");
+    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
+  }
 
   // Move the corners
   for (int i=0; i<8; i++)
@@ -701,10 +711,8 @@ void vtkBoxRepresentation::Translate(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------------
-void vtkBoxRepresentation::Scale(double *vtkNotUsed(p1),
-                                 double *vtkNotUsed(p2),
-                                 int vtkNotUsed(X),
-                                 int Y)
+void vtkBoxRepresentation::Scale(
+  const double* vtkNotUsed(p1), const double* vtkNotUsed(p2), int vtkNotUsed(X), int Y)
 {
   double *pts =
       static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
@@ -784,11 +792,8 @@ void vtkBoxRepresentation::GetPlanes(vtkPlanes *planes)
 }
 
 //----------------------------------------------------------------------------
-void vtkBoxRepresentation::Rotate(int X,
-                                  int Y,
-                                  double *p1,
-                                  double *p2,
-                                  double *vpn)
+void vtkBoxRepresentation::Rotate(
+  int X, int Y, const double* p1, const double* p2, const double* vpn)
 {
   double *pts =
     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
@@ -862,9 +867,7 @@ namespace {
 }
 
 void vtkBoxRepresentation::UpdatePose(
-  double *pos1, double *orient1,
-  double *pos2, double *orient2
-  )
+  const double* pos1, const double* orient1, const double* pos2, const double* orient2)
 {
 
   bool newSnap[3];

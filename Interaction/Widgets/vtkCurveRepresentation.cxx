@@ -39,6 +39,7 @@
 #include "vtkTransform.h"
 
 #include <algorithm>
+#include <assert.h>
 #include <iterator>
 
 //----------------------------------------------------------------------------
@@ -128,6 +129,8 @@ vtkCurveRepresentation::vtkCurveRepresentation()
   this->Centroid[0] = 0.0;
   this->Centroid[1] = 0.0;
   this->Centroid[2] = 0.0;
+
+  this->TranslationAxis = Axis::NONE;
 }
 
 //----------------------------------------------------------------------------
@@ -403,7 +406,7 @@ void vtkCurveRepresentation::MovePoint(double *p1, double *p2)
   // Get the motion vector
   double v[3] = {0,0,0};
   // Move the center of the handle along the motion vector
-  if (this->TranslationRestrictionFlag == TranslationRestriction::NONE)
+  if (this->TranslationAxis == Axis::NONE)
   {
     v[0] = p2[0] - p1[0];
     v[1] = p2[1] - p1[1];
@@ -412,8 +415,7 @@ void vtkCurveRepresentation::MovePoint(double *p1, double *p2)
   // Translation restriction handling
   else
   {
-    v[this->TranslationRestrictionFlag] =
-        p2[this->TranslationRestrictionFlag] - p1[this->TranslationRestrictionFlag];
+    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
   }
 
   double* ctr = this->HandleGeometry[this->CurrentHandleIndex]->GetCenter();
@@ -432,7 +434,7 @@ void vtkCurveRepresentation::Translate(double *p1, double *p2)
   // Get the motion vector
   double v[3] = {0,0,0};
   // Move the center of the handle along the motion vector
-  if (this->TranslationRestrictionFlag == TranslationRestriction::NONE)
+  if (this->TranslationAxis == Axis::NONE)
   {
     v[0] = p2[0] - p1[0];
     v[1] = p2[1] - p1[1];
@@ -441,8 +443,10 @@ void vtkCurveRepresentation::Translate(double *p1, double *p2)
   // Translation restriction handling
   else
   {
-    v[this->TranslationRestrictionFlag] =
-        p2[this->TranslationRestrictionFlag] - p1[this->TranslationRestrictionFlag];
+    // this->TranslationAxis in [0,2]
+    assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
+      "this->TranslationAxis shoud be in [0,2]");
+    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
   }
 
   double newCtr[3];

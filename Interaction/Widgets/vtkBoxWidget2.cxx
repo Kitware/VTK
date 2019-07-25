@@ -114,10 +114,56 @@ vtkBoxWidget2::vtkBoxWidget2()
       ed.Get(), vtkWidgetEvent::Move3D,
       this, vtkBoxWidget2::MoveAction3D);
   }
+
+  this->KeyEventCallbackCommand = vtkCallbackCommand::New();
+  this->KeyEventCallbackCommand->SetClientData(this);
+  this->KeyEventCallbackCommand->SetCallback(vtkBoxWidget2::ProcessKeyEvents);
 }
 
 //----------------------------------------------------------------------------
-vtkBoxWidget2::~vtkBoxWidget2() = default;
+vtkBoxWidget2::~vtkBoxWidget2()
+{
+  this->KeyEventCallbackCommand->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkBoxWidget2::SetEnabled(int enabling)
+{
+  int enabled = this->Enabled;
+
+  // We do this step first because it sets the CurrentRenderer
+  this->Superclass::SetEnabled(enabling);
+
+  // We defer enabling the handles until the selection process begins
+  if (enabling && !enabled)
+  {
+    if (this->Parent)
+    {
+      this->Parent->AddObserver(
+        vtkCommand::KeyPressEvent, this->KeyEventCallbackCommand, this->Priority);
+      this->Parent->AddObserver(
+        vtkCommand::KeyReleaseEvent, this->KeyEventCallbackCommand, this->Priority);
+    }
+    else
+    {
+      this->Interactor->AddObserver(
+        vtkCommand::KeyPressEvent, this->KeyEventCallbackCommand, this->Priority);
+      this->Interactor->AddObserver(
+        vtkCommand::KeyReleaseEvent, this->KeyEventCallbackCommand, this->Priority);
+    }
+  }
+  else if (!enabling && enabled)
+  {
+    if (this->Parent)
+    {
+      this->Parent->RemoveObserver(this->KeyEventCallbackCommand);
+    }
+    else
+    {
+      this->Interactor->RemoveObserver(this->KeyEventCallbackCommand);
+    }
+  }
+}
 
 //----------------------------------------------------------------------
 void vtkBoxWidget2::SelectAction(vtkAbstractWidget *w)
@@ -470,6 +516,53 @@ void vtkBoxWidget2::CreateDefaultRepresentation()
   if ( ! this->WidgetRep )
   {
     this->WidgetRep = vtkBoxRepresentation::New();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkBoxWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
+{
+  vtkBoxWidget2* self = static_cast<vtkBoxWidget2*>(clientdata);
+  vtkRenderWindowInteractor* iren = self->GetInteractor();
+  vtkBoxRepresentation* rep = vtkBoxRepresentation::SafeDownCast(self->WidgetRep);
+  switch (event)
+  {
+    case vtkCommand::KeyPressEvent:
+      switch (iren->GetKeyCode())
+      {
+        case 'x':
+        case 'X':
+          rep->SetXTranslationAxisOn();
+          break;
+        case 'y':
+        case 'Y':
+          rep->SetYTranslationAxisOn();
+          break;
+        case 'z':
+        case 'Z':
+          rep->SetZTranslationAxisOn();
+          break;
+        default:
+          break;
+      }
+      break;
+    case vtkCommand::KeyReleaseEvent:
+      switch (iren->GetKeyCode())
+      {
+        case 'x':
+        case 'X':
+        case 'y':
+        case 'Y':
+        case 'z':
+        case 'Z':
+          rep->SetTranslationAxisOff();
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
   }
 }
 

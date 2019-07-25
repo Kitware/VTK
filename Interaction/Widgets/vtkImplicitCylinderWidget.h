@@ -154,6 +154,9 @@ protected:
    */
   int UpdateCursorShape( int interactionState );
 
+  vtkCallbackCommand* KeyEventCallbackCommand;
+  static void ProcessKeyEvents(vtkObject*, unsigned long, void*, void*);
+
 private:
   vtkImplicitCylinderWidget(const vtkImplicitCylinderWidget&) = delete;
   void operator=(const vtkImplicitCylinderWidget&) = delete;

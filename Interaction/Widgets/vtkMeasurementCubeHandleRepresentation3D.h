@@ -246,9 +246,8 @@ protected:
   char                       * LengthUnit;
 
   // Methods to manipulate the cursor
-  virtual void Translate(double *p1, double *p2);
-  virtual void Scale(double *p1, double *p2, double eventPos[2]);
-  virtual void MoveFocus(double *p1, double *p2);
+  virtual void Scale(const double* p1, const double* p2, const double eventPos[2]);
+  virtual void MoveFocus(const double* p1, const double* p2);
 
   void CreateDefaultProperties();
 
@@ -270,8 +269,8 @@ protected:
   * as the event position, ie the location of the mouse cursor. If its OFF,
   * incremental offsets as described above are used to compute it.
    */
-  void MoveFocusRequest( double *p1, double *p2,
-                         double eventPos[2], double requestedDisplayPos[3] );
+  void MoveFocusRequest(
+    const double* p1, const double* p2, const double eventPos[2], double requestedDisplayPos[3]);
 
   /**
    * The handle may be scaled uniformly in all three dimensions using this

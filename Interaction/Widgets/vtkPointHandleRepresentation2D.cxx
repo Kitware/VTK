@@ -37,7 +37,6 @@ vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D,Property,vtkProperty2D);
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D,SelectedProperty,vtkProperty2D);
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D,PointPlacer,vtkPointPlacer);
 
-
 //----------------------------------------------------------------------
 vtkPointHandleRepresentation2D::vtkPointHandleRepresentation2D()
 {
@@ -88,7 +87,6 @@ vtkPointHandleRepresentation2D::vtkPointHandleRepresentation2D()
 
   // The size of the hot spot
   this->WaitingForMotion = 0;
-  this->ConstraintAxis = -1;
 }
 
 //----------------------------------------------------------------------
@@ -188,28 +186,6 @@ ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
   return this->InteractionState;
 }
 
-//-------------------------------------------------------------------------
-int vtkPointHandleRepresentation2D::DetermineConstraintAxis(int constraint,
-                                                            double eventPos[2])
-{
-  // Look for trivial cases: either not constrained or already constrained
-  if ( ! this->Constrained )
-  {
-    return -1;
-  }
-  else if ( constraint >= 0 && constraint < 3 )
-  {
-    return constraint;
-  }
-
-  // Okay, figure out constraint based on mouse motion
-  double dpos[2];
-  dpos[0] = fabs(eventPos[0] - this->StartEventPosition[0]);
-  dpos[1] = fabs(eventPos[1] - this->StartEventPosition[1]);
-
-  return (dpos[0]>dpos[1] ? 0 : 1);
-}
-
 //----------------------------------------------------------------------
 // Record the current event position, and the rectilinear wipe position.
 void vtkPointHandleRepresentation2D::StartWidgetInteraction(double startEventPos[2])
@@ -221,9 +197,8 @@ void vtkPointHandleRepresentation2D::StartWidgetInteraction(double startEventPos
   this->LastEventPosition[0] = startEventPos[0];
   this->LastEventPosition[1] = startEventPos[1];
 
-  this->ConstraintAxis = -1;
   this->WaitCount = 0;
-  if ( this->Constrained )
+  if (this->IsTranslationConstrained())
   {
     this->WaitingForMotion = 1;
   }
@@ -248,9 +223,6 @@ void vtkPointHandleRepresentation2D::WidgetInteraction(double eventPos[2])
   {
     if ( !this->WaitingForMotion || this->WaitCount++ > 1 )
     {
-
-      this->ConstraintAxis =
-        this->DetermineConstraintAxis(this->ConstraintAxis,eventPos);
       this->Translate(eventPos);
     }
   }
@@ -269,27 +241,24 @@ void vtkPointHandleRepresentation2D::WidgetInteraction(double eventPos[2])
 
 //----------------------------------------------------------------------
 // Translate everything
-void vtkPointHandleRepresentation2D::Translate(double eventPos[2])
+void vtkPointHandleRepresentation2D::Translate(const double* eventPos)
 {
-  double pos[3], dpos[2];
+  double pos[3];
   this->FocalPoint->GetPoint(0,pos);
-  dpos[0] = eventPos[0] - pos[0];
-  dpos[1] = eventPos[1] - pos[1];
-
-  if ( this->ConstraintAxis >= 0 )
+  if (this->IsTranslationConstrained())
   {
-    pos[this->ConstraintAxis] += dpos[this->ConstraintAxis];
+    pos[this->TranslationAxis] += eventPos[this->TranslationAxis] - pos[this->TranslationAxis];
   }
   else
   {
-    pos[0] += dpos[0];
-    pos[1] += dpos[1];
+    pos[0] += eventPos[0] - pos[0];
+    pos[1] += eventPos[1] - pos[1];
   }
   this->SetDisplayPosition(pos);
 }
 
 //----------------------------------------------------------------------
-void vtkPointHandleRepresentation2D::Scale(double eventPos[2])
+void vtkPointHandleRepresentation2D::Scale(const double eventPos[2])
 {
   // Get the current scale factor
   double sf = this->Glypher->GetScaleFactor();
@@ -434,5 +403,4 @@ void vtkPointHandleRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Cursor Shape: (none)\n";
   }
-
 }

@@ -68,6 +68,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
+  using vtkHandleRepresentation::Translate;
+
   //@{
   /**
    * Specify the cursor shape. Keep in mind that the shape will be
@@ -244,9 +246,8 @@ protected:
   double LastEventPosition[2];
 
   // Methods to manipulate the cursor
-  void Translate(double eventPos[2]);
-  void Scale(double eventPos[2]);
-
+  void Translate(const double* eventPos) override;
+  void Scale(const double* eventPos);
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
@@ -264,10 +265,8 @@ protected:
   vtkPlaneCollection *BoundingPlanes;
 
   // Internal method for computing 3D location from 2D screen position
-  int GetIntersectionPosition( double eventPos[2],
-                               double worldPos[3],
-                               double tolerance = 0.0,
-                               vtkRenderer *renderer=nullptr);
+  int GetIntersectionPosition(const double eventPos[2], double worldPos[3], double tolerance = 0.0,
+    vtkRenderer* renderer = nullptr);
 
   // Internal method for getting the project normal as a vector
   void GetProjectionNormal( double normal[3] );

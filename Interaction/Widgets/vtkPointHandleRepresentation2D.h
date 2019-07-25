@@ -56,6 +56,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
+  using vtkHandleRepresentation::Translate;
+
   //@{
   /**
    * Specify the cursor shape with an instance of vtkPolyData. Note that
@@ -143,9 +145,8 @@ protected:
   double LastEventPosition[2];
 
   // Methods to manipulate the cursor
-  int  ConstraintAxis;
-  void Translate(double eventPos[2]);
-  void Scale(double eventPos[2]);
+  virtual void Translate(const double* eventPos) override;
+  void Scale(const double eventPos[2]);
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
@@ -154,7 +155,6 @@ protected:
   void           CreateDefaultProperties();
 
   // The size of the hot spot.
-  int    DetermineConstraintAxis(int constraint, double eventPos[2]);
   int    WaitingForMotion;
   int    WaitCount;
 

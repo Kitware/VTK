@@ -90,10 +90,17 @@ vtkHandleWidget::vtkHandleWidget()
   this->EnableAxisConstraint = 1;
   this->EnableTranslation = 1;
   this->AllowHandleResize    = 1;
+
+  this->KeyEventCallbackCommand = vtkCallbackCommand::New();
+  this->KeyEventCallbackCommand->SetClientData(this);
+  this->KeyEventCallbackCommand->SetCallback(vtkHandleWidget::ProcessKeyEvents);
 }
 
 //----------------------------------------------------------------------------------
-vtkHandleWidget::~vtkHandleWidget() = default;
+vtkHandleWidget::~vtkHandleWidget()
+{
+  this->KeyEventCallbackCommand->Delete();
+}
 
 //----------------------------------------------------------------------
 void vtkHandleWidget::CreateDefaultRepresentation()
@@ -374,6 +381,7 @@ void vtkHandleWidget::PrintSelf(ostream& os, vtkIndent indent)
 //-------------------------------------------------------------------------
 void vtkHandleWidget::SetEnabled(int enabling)
 {
+  int enabled = this->Enabled;
   if (this->Enabled == enabling)
   {
     return;
@@ -418,5 +426,87 @@ void vtkHandleWidget::SetEnabled(int enabling)
       this->WidgetState = vtkHandleWidget::Inactive;
       this->InvokeEvent(vtkCommand::DisableEvent, nullptr);
     }
+  }
+
+  // We defer enabling the handles until the selection process begins
+  if ( enabling && !enabled )
+  {
+    if (this->Parent)
+    {
+      this->Parent->AddObserver(vtkCommand::KeyPressEvent,
+                                this->KeyEventCallbackCommand,
+                                this->Priority);
+      this->Parent->AddObserver(vtkCommand::KeyReleaseEvent,
+                                this->KeyEventCallbackCommand,
+                                this->Priority);
+    }
+    else
+    {
+      this->Interactor->AddObserver(vtkCommand::KeyPressEvent,
+                                    this->KeyEventCallbackCommand,
+                                    this->Priority);
+      this->Interactor->AddObserver(vtkCommand::KeyReleaseEvent,
+                                    this->KeyEventCallbackCommand,
+                                    this->Priority);
+    }
+  }
+  else if ( !enabling && enabled )
+  {
+    if (this->Parent)
+    {
+      this->Parent->RemoveObserver(this->KeyEventCallbackCommand);
+    }
+    else
+    {
+      this->Interactor->RemoveObserver(this->KeyEventCallbackCommand);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkHandleWidget::ProcessKeyEvents(vtkObject* , unsigned long event,
+                                      void* clientdata, void* )
+{
+  vtkHandleWidget *self = static_cast<vtkHandleWidget*>(clientdata);
+  vtkRenderWindowInteractor *iren = self->GetInteractor();
+  vtkHandleRepresentation *rep = vtkHandleRepresentation::SafeDownCast(self->WidgetRep);
+  switch (event)
+  {
+    case vtkCommand::KeyPressEvent:
+      switch (iren->GetKeyCode())
+      {
+        case 'x':
+        case 'X':
+          rep->SetXTranslationAxisOn();
+          break;
+        case 'y':
+        case 'Y':
+          rep->SetYTranslationAxisOn();
+          break;
+        case 'z':
+        case 'Z':
+          rep->SetZTranslationAxisOn();
+          break;
+        default:
+          break;
+      }
+      break;
+    case vtkCommand::KeyReleaseEvent:
+      switch (iren->GetKeyCode())
+      {
+        case 'x':
+        case 'X':
+        case 'y':
+        case 'Y':
+        case 'z':
+        case 'Z':
+          rep->SetTranslationAxisOff();
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
   }
 }

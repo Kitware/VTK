@@ -372,24 +372,21 @@ void vtkLineWidget2::ProcessKeyEvents(vtkObject* , unsigned long event,
       {
         case 'x':
         case 'X':
-          rep->GetPoint1Representation()->SetXTranslationRestrictionFlagOn();
-          rep->GetPoint2Representation()->SetXTranslationRestrictionFlagOn();
-          rep->GetLineHandleRepresentation()->SetXTranslationRestrictionFlagOn();
-          rep->SetXTranslationRestrictionFlagOn();
+          rep->GetPoint1Representation()->SetXTranslationAxisOn();
+          rep->GetPoint2Representation()->SetXTranslationAxisOn();
+          rep->GetLineHandleRepresentation()->SetXTranslationAxisOn();
           break;
         case 'y':
         case 'Y':
-          rep->GetPoint1Representation()->SetYTranslationRestrictionFlagOn();
-          rep->GetPoint2Representation()->SetYTranslationRestrictionFlagOn();
-          rep->GetLineHandleRepresentation()->SetYTranslationRestrictionFlagOn();
-          rep->SetYTranslationRestrictionFlagOn();
+          rep->GetPoint1Representation()->SetYTranslationAxisOn();
+          rep->GetPoint2Representation()->SetYTranslationAxisOn();
+          rep->GetLineHandleRepresentation()->SetYTranslationAxisOn();
           break;
         case 'z':
         case 'Z':
-          rep->GetPoint1Representation()->SetZTranslationRestrictionFlagOn();
-          rep->GetPoint2Representation()->SetZTranslationRestrictionFlagOn();
-          rep->GetLineHandleRepresentation()->SetZTranslationRestrictionFlagOn();
-          rep->SetZTranslationRestrictionFlagOn();
+          rep->GetPoint1Representation()->SetZTranslationAxisOn();
+          rep->GetPoint2Representation()->SetZTranslationAxisOn();
+          rep->GetLineHandleRepresentation()->SetZTranslationAxisOn();
           break;
         default:
           break;
@@ -404,11 +401,11 @@ void vtkLineWidget2::ProcessKeyEvents(vtkObject* , unsigned long event,
         case 'Y':
         case 'z':
         case 'Z':
-          rep->GetPoint1Representation()->SetTranslationRestrictionFlagOff();
-          rep->GetPoint2Representation()->SetTranslationRestrictionFlagOff();
-          rep->GetLineHandleRepresentation()->SetTranslationRestrictionFlagOff();
+          rep->GetPoint1Representation()->SetTranslationAxisOff();
+          rep->GetPoint2Representation()->SetTranslationAxisOff();
+          rep->GetLineHandleRepresentation()->SetTranslationAxisOff();
           break;
-        detault:
+        default:
           break;
       }
       break;

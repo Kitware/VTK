@@ -55,6 +55,8 @@ vtkSplineWidget2::vtkSplineWidget2()
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
                                           vtkWidgetEvent::Move,
                                           this, vtkSplineWidget2::MoveAction);
+  this->CallbackMapper->SetCallbackMethod(
+    vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkSplineWidget2::MoveAction);
 
   this->KeyEventCallbackCommand = vtkCallbackCommand::New();
   this->KeyEventCallbackCommand->SetClientData(this);
@@ -67,6 +69,7 @@ vtkSplineWidget2::~vtkSplineWidget2()
   this->KeyEventCallbackCommand->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkSplineWidget2::SetEnabled(int enabling)
 {
   int enabled = this->Enabled;
@@ -303,15 +306,15 @@ void vtkSplineWidget2::ProcessKeyEvents(vtkObject* , unsigned long event,
       {
         case 'x':
         case 'X':
-          rep->SetXTranslationRestrictionFlagOn();
+          rep->SetXTranslationAxisOn();
           break;
         case 'y':
         case 'Y':
-          rep->SetYTranslationRestrictionFlagOn();
+          rep->SetYTranslationAxisOn();
           break;
         case 'z':
         case 'Z':
-          rep->SetZTranslationRestrictionFlagOn();
+          rep->SetZTranslationAxisOn();
           break;
         default:
           break;
@@ -326,9 +329,9 @@ void vtkSplineWidget2::ProcessKeyEvents(vtkObject* , unsigned long event,
         case 'Y':
         case 'z':
         case 'Z':
-          rep->SetTranslationRestrictionFlagOff();
+          rep->SetTranslationAxisOff();
           break;
-        detault:
+        default:
           break;
       }
       break;

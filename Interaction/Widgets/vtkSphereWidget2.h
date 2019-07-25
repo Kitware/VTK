@@ -137,6 +137,12 @@ public:
    */
   void CreateDefaultRepresentation() override;
 
+  /**
+   * Override superclasses' SetEnabled() method because the line
+   * widget must enable its internal handle widgets.
+   */
+  void SetEnabled(int enabling) override;
+
 protected:
   vtkSphereWidget2();
   ~vtkSphereWidget2() override;
@@ -155,6 +161,9 @@ protected:
   // Control whether scaling and translation are supported
   vtkTypeBool TranslationEnabled;
   vtkTypeBool ScalingEnabled;
+
+  vtkCallbackCommand* KeyEventCallbackCommand;
+  static void ProcessKeyEvents(vtkObject*, unsigned long, void*, void*);
 
 private:
   vtkSphereWidget2(const vtkSphereWidget2&) = delete;

@@ -453,13 +453,14 @@ void vtkConstrainedPointHandleRepresentation::WidgetInteraction(double eventPos[
 
 //----------------------------------------------------------------------
 // Translate everything
-void vtkConstrainedPointHandleRepresentation::Translate(double eventPos[2])
+void vtkConstrainedPointHandleRepresentation::Translate(const double* eventPos)
 {
-  double worldPos[3];
+  double worldPos[3], prevWorldPos[3];
 
   if ( this->GetIntersectionPosition(eventPos, worldPos) )
   {
-    this->SetPosition(worldPos);
+    this->GetWorldPosition(prevWorldPos);
+    Superclass::Translate(prevWorldPos, worldPos);
   }
   else
   {
@@ -469,9 +470,8 @@ void vtkConstrainedPointHandleRepresentation::Translate(double eventPos[2])
 }
 
 //----------------------------------------------------------------------
-int vtkConstrainedPointHandleRepresentation::
-GetIntersectionPosition(double eventPos[2],double worldPos[3],double tolerance,
-                        vtkRenderer * renderer)
+int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(
+  const double eventPos[2], double worldPos[3], double tolerance, vtkRenderer* renderer)
 {
   double nearWorldPoint[4];
   double farWorldPoint[4];
@@ -587,7 +587,7 @@ void vtkConstrainedPointHandleRepresentation::GetProjectionOrigin( double origin
 }
 
 //----------------------------------------------------------------------
-void vtkConstrainedPointHandleRepresentation::Scale(double eventPos[2])
+void vtkConstrainedPointHandleRepresentation::Scale(const double* eventPos)
 {
   // Get the current scale factor
   double sf = this->Glypher->GetScaleFactor();

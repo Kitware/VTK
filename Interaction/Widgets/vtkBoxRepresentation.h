@@ -275,6 +275,32 @@ public:
   */
   void RegisterPickers() override;
 
+  //@{
+  /**
+   * Gets/Sets the constraint axis for translations. Returns Axis::NONE
+   * if none.
+   **/
+  vtkGetMacro(TranslationAxis, int);
+  vtkSetClampMacro(TranslationAxis, int, -1, 2);
+  //@}
+
+  //@{
+  /**
+   * Toggles constraint translation axis on/off.
+   */
+  void SetXTranslationAxisOn() { this->TranslationAxis = Axis::XAxis; }
+  void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
+  void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
+  void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
+  //@}
+
+  //@{
+  /**
+   * Returns true if ContrainedAxis
+   **/
+  bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
+  //@}
+
 protected:
   vtkBoxRepresentation();
   ~vtkBoxRepresentation() override;
@@ -288,6 +314,9 @@ protected:
   bool SnapToAxes;
 
   bool TwoPlaneMode;
+
+  // Constraint axis translation
+  int TranslationAxis;
 
   // the hexahedron (6 faces)
   vtkActor          *HexActor;
@@ -347,16 +376,16 @@ protected:
   void GenerateOutline();
 
   // Helper methods
-  virtual void Translate(double *p1, double *p2);
-  virtual void Scale(double *p1, double *p2, int X, int Y);
-  virtual void Rotate(int X, int Y, double *p1, double *p2, double *vpn);
-  void MovePlusXFace(double *p1, double *p2);
-  void MoveMinusXFace(double *p1, double *p2);
-  void MovePlusYFace(double *p1, double *p2);
-  void MoveMinusYFace(double *p1, double *p2);
-  void MovePlusZFace(double *p1, double *p2);
-  void MoveMinusZFace(double *p1, double *p2);
-  void UpdatePose(double *p1, double *d1, double *p2, double *d2);
+  virtual void Translate(const double* p1, const double* p2);
+  virtual void Scale(const double* p1, const double* p2, int X, int Y);
+  virtual void Rotate(int X, int Y, const double* p1, const double* p2, const double* vpn);
+  void MovePlusXFace(const double* p1, const double* p2);
+  void MoveMinusXFace(const double* p1, const double* p2);
+  void MovePlusYFace(const double* p1, const double* p2);
+  void MoveMinusYFace(const double* p1, const double* p2);
+  void MovePlusZFace(const double* p1, const double* p2);
+  void MoveMinusZFace(const double* p1, const double* p2);
+  void UpdatePose(const double* p1, const double* d1, const double* p2, const double* d2);
 
   // Internal ivars for performance
   vtkPoints      *PlanePoints;
@@ -368,9 +397,8 @@ protected:
 
   //"dir" is the direction in which the face can be moved i.e. the axis passing
   //through the center
-  void MoveFace(double *p1, double *p2, double *dir,
-                double *x1, double *x2, double *x3, double *x4,
-                double *x5);
+  void MoveFace(const double* p1, const double* p2, const double* dir, double* x1, double* x2,
+    double* x3, double* x4, double* x5);
   //Helper method to obtain the direction in which the face is to be moved.
   //Handles special cases where some of the scale factors are 0.
   void GetDirection(const double Nx[3],const double Ny[3],

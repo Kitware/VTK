@@ -382,9 +382,8 @@ void vtkMeasurementCubeHandleRepresentation3D::WidgetInteraction(
 }
 
 //----------------------------------------------------------------------
-void vtkMeasurementCubeHandleRepresentation3D
-::MoveFocusRequest(double *p1, double *p2,
-                   double currPos[2], double center[3])
+void vtkMeasurementCubeHandleRepresentation3D ::MoveFocusRequest(
+  const double* p1, const double* p2, const double currPos[2], double center[3])
 {
   if (this->SmoothMotion)
   {
@@ -411,7 +410,7 @@ void vtkMeasurementCubeHandleRepresentation3D
 }
 
 //----------------------------------------------------------------------
-void vtkMeasurementCubeHandleRepresentation3D::MoveFocus(double *p1, double *p2)
+void vtkMeasurementCubeHandleRepresentation3D::MoveFocus(const double* p1, const double* p2)
 {
   //Get the motion vector
   double v[3];
@@ -429,30 +428,8 @@ void vtkMeasurementCubeHandleRepresentation3D::MoveFocus(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------
-// Translate everything
-void vtkMeasurementCubeHandleRepresentation3D::Translate(double *p1, double *p2)
-{
-  //Get the motion vector
-  double v[3], pos[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
-
-  this->GetWorldPosition( pos );
-  double newFocus[3];
-  int i;
-
-  for (i=0; i<3; i++)
-  {
-    newFocus[i] = pos[i] + v[i];
-  }
-
-  this->SetWorldPosition(newFocus);
-}
-
-//----------------------------------------------------------------------
-void vtkMeasurementCubeHandleRepresentation3D
-::Scale(double *, double *, double eventPos[2])
+void vtkMeasurementCubeHandleRepresentation3D ::Scale(
+  const double*, const double*, const double eventPos[2])
 {
   double sf = 1.0 + (eventPos[1] - this->LastEventPosition[1])
                    / this->Renderer->GetSize()[1];

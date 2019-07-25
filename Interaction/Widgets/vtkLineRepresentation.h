@@ -300,6 +300,14 @@ public:
   vtkGetObjectMacro(TextActor, vtkFollower);
   //@}
 
+  enum { RestrictNone = 0, RestrictToX, RestrictToY, RestrictToZ };
+
+  /**
+   * Set if translations should be restricted to one of the axes (disabled if
+   * RestrictNone is specified).
+   */
+  VTK_LEGACY(void SetRestrictFlag(int restrict_flag));
+
 
 protected:
   vtkLineRepresentation();

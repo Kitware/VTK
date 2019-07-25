@@ -197,31 +197,6 @@ public:
 
   //@{
   /**
-    * Translation restriction states
-    */
-  enum TranslationRestriction { NONE = -1, X = 0, Y = 1, Z = 2 };
-  //@}
-
-  //@{
-  /**
-   * Getter and Setter for the translation restrictions along axis x, y or z.
-   */
-  vtkGetMacro(TranslationRestrictionFlag, int);
-  vtkSetMacro(TranslationRestrictionFlag, int);
-  void SetXTranslationRestrictionFlagOn()
-    {this->TranslationRestrictionFlag = TranslationRestriction::X;}
-  void SetYTranslationRestrictionFlagOn()
-    {this->TranslationRestrictionFlag = TranslationRestriction::Y;}
-  void SetZTranslationRestrictionFlagOn()
-    {this->TranslationRestrictionFlag = TranslationRestriction::Z;}
-  void SetTranslationRestrictionFlagOff()
-    {this->TranslationRestrictionFlag = TranslationRestriction::NONE;}
-  //@}
-
-
-
-  //@{
-  /**
    * Some subclasses use this data member to keep track of whether to render
    * or not (i.e., to minimize the total number of renders).
    */
@@ -261,6 +236,13 @@ public:
   */
   virtual void UnRegisterPickers();
 
+  //@{
+  /**
+   * Axis labels
+   */
+  enum Axis{NONE = -1, XAxis = 0, YAxis = 1, ZAxis = 2};
+  //@}
+
 protected:
   vtkWidgetRepresentation();
   ~vtkWidgetRepresentation() override;
@@ -281,9 +263,6 @@ protected:
   void   AdjustBounds(double bounds[6], double newBounds[6], double center[3]);
   double InitialBounds[6]; //initial bounds on place widget (valid after PlaceWidget)
   double InitialLength; //initial length on place widget
-
-  // Translation restriction flag
-  int TranslationRestrictionFlag;
 
   // Sizing handles is tricky because the procedure requires information
   // relative to the last pick, as well as a live renderer to perform
@@ -328,9 +307,9 @@ protected:
 
   // update the pose of a prop based on two sets of
   // position, orientation vectors
-//  void UpdatePropPose(vtkProp3D *prop,
- //   const double *pos1, const double *orient1,
-  //  const double *pos2, const double *orient2);
+  void UpdatePropPose(vtkProp3D *prop,
+    const double *pos1, const double *orient1,
+    const double *pos2, const double *orient2);
   vtkNew<vtkTransform> TempTransform;
   vtkNew<vtkMatrix4x4> TempMatrix;
 

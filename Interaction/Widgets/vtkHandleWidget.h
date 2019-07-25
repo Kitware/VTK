@@ -185,14 +185,13 @@ protected:
   vtkTypeBool EnableAxisConstraint;
   vtkTypeBool EnableTranslation;
 
-  char ActiveKeyCode;
-  vtkCallbackCommand *KeyEventCallbackCommand;
-
   // Allow resizing of handles.
   vtkTypeBool AllowHandleResize;
 
   // Keep representation visible when disabled
   vtkTypeBool ShowInactive;
+
+  vtkCallbackCommand *KeyEventCallbackCommand;
 
 private:
   vtkHandleWidget(const vtkHandleWidget&) = delete;

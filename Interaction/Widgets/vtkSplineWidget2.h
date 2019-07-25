@@ -49,7 +49,6 @@ public:
       reinterpret_cast<vtkWidgetRepresentation*>(r));
   }
 
-
   /**
    * Override superclasses' SetEnabled() method because the line
    * widget must enable its internal handle widgets.
