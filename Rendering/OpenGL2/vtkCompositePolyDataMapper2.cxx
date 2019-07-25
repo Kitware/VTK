@@ -1561,15 +1561,11 @@ void vtkCompositePolyDataMapper2::Render(
     return;
   }
 
-  // only rebuild on opaque pass
-  if (!actor->IsRenderingTranslucentPolygonalGeometry())
+  if (!this->Static)
   {
-    if (!this->Static)
-    {
-      this->InvokeEvent(vtkCommand::StartEvent,nullptr);
-      this->GetInputAlgorithm()->Update();
-      this->InvokeEvent(vtkCommand::EndEvent,nullptr);
-    }
+    this->InvokeEvent(vtkCommand::StartEvent,nullptr);
+    this->GetInputAlgorithm()->Update();
+    this->InvokeEvent(vtkCommand::EndEvent,nullptr);
   }
 
   if (this->GetInputDataObject(0, 0) == nullptr)
@@ -1578,178 +1574,174 @@ void vtkCompositePolyDataMapper2::Render(
     return;
   }
 
-  // only rebuild on opaque pass
-  if (!actor->IsRenderingTranslucentPolygonalGeometry())
+  // the first step is to gather up the polydata based on their
+  // signatures (aka have normals, have scalars etc)
+  if (this->HelperMTime < this->GetInputDataObject(0, 0)->GetMTime() ||
+      this->HelperMTime < this->GetMTime())
   {
-    // the first step is to gather up the polydata based on their
-    // signatures (aka have normals, have scalars etc)
-    if (this->HelperMTime < this->GetInputDataObject(0, 0)->GetMTime() ||
-        this->HelperMTime < this->GetMTime())
+    // clear old helpers
+    for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
     {
-      // clear old helpers
-      for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
-      {
-        hiter->second->ClearMark();
-      }
-      this->HelperDataMap.clear();
+      hiter->second->ClearMark();
+    }
+    this->HelperDataMap.clear();
 
-      vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
-        this->GetInputDataObject(0, 0));
+    vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
+      this->GetInputDataObject(0, 0));
 
-      if (input)
+    if (input)
+    {
+      vtkSmartPointer<vtkDataObjectTreeIterator> iter =
+        vtkSmartPointer<vtkDataObjectTreeIterator>::New();
+      iter->SetDataSet(input);
+      iter->SkipEmptyNodesOn();
+      iter->VisitOnlyLeavesOn();
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+          iter->GoToNextItem())
       {
-        vtkSmartPointer<vtkDataObjectTreeIterator> iter =
-          vtkSmartPointer<vtkDataObjectTreeIterator>::New();
-        iter->SetDataSet(input);
-        iter->SkipEmptyNodesOn();
-        iter->VisitOnlyLeavesOn();
-        for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-            iter->GoToNextItem())
+        unsigned int flatIndex = iter->GetCurrentFlatIndex();
+        vtkDataObject *dso = iter->GetCurrentDataObject();
+        vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
+
+        if (!pd || !pd->GetPoints())
         {
-          unsigned int flatIndex = iter->GetCurrentFlatIndex();
-          vtkDataObject *dso = iter->GetCurrentDataObject();
-          vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
-
-          if (!pd || !pd->GetPoints())
-          {
-            continue;
-          }
-          int cellFlag = 0;
-          bool hasScalars = this->ScalarVisibility &&
-            (vtkAbstractMapper::GetAbstractScalars(
-              pd, this->ScalarMode, this->ArrayAccessMode,
-              this->ArrayId, this->ArrayName,
-              cellFlag) != nullptr);
-
-          bool hasNormals =
-            (pd->GetPointData()->GetNormals() || pd->GetCellData()->GetNormals());
-
-          bool hasTCoords = (pd->GetPointData()->GetTCoords() != nullptr);
-
-          std::ostringstream toString;
-          toString.str("");
-          toString.clear();
-          toString <<
-            'A' << (hasScalars ? 1 : 0) <<
-            'B' << (hasNormals ? 1 : 0) <<
-            'C' << (hasTCoords ? 1 : 0);
-
-          vtkCompositeMapperHelper2 *helper = nullptr;
-          helpIter found = this->Helpers.find(toString.str());
-          if (found == this->Helpers.end())
-          {
-            helper = this->CreateHelper();
-            helper->SetParent(this);
-            this->Helpers.insert(std::make_pair(toString.str(), helper));
-          }
-          else
-          {
-            helper = found->second;
-          }
-          this->CopyMapperValuesToHelper(helper);
-          helper->SetMarked(true);
-          this->HelperDataMap[pd] =
-            helper->AddData(pd, flatIndex);
+          continue;
         }
-      }
-      else
-      {
-        vtkPolyData *pd = vtkPolyData::SafeDownCast(
-          this->GetInputDataObject(0, 0));
-        if (pd && pd->GetPoints())
+        int cellFlag = 0;
+        bool hasScalars = this->ScalarVisibility &&
+          (vtkAbstractMapper::GetAbstractScalars(
+            pd, this->ScalarMode, this->ArrayAccessMode,
+            this->ArrayId, this->ArrayName,
+            cellFlag) != nullptr);
+
+        bool hasNormals =
+          (pd->GetPointData()->GetNormals() || pd->GetCellData()->GetNormals());
+
+        bool hasTCoords = (pd->GetPointData()->GetTCoords() != nullptr);
+
+        std::ostringstream toString;
+        toString.str("");
+        toString.clear();
+        toString <<
+          'A' << (hasScalars ? 1 : 0) <<
+          'B' << (hasNormals ? 1 : 0) <<
+          'C' << (hasTCoords ? 1 : 0);
+
+        vtkCompositeMapperHelper2 *helper = nullptr;
+        helpIter found = this->Helpers.find(toString.str());
+        if (found == this->Helpers.end())
         {
-          int cellFlag = 0;
-          bool hasScalars = this->ScalarVisibility &&
-            (vtkAbstractMapper::GetAbstractScalars(
-              pd, this->ScalarMode, this->ArrayAccessMode,
-              this->ArrayId, this->ArrayName,
-              cellFlag) != nullptr);
-
-          bool hasNormals =
-            (pd->GetPointData()->GetNormals() || pd->GetCellData()->GetNormals());
-
-          bool hasTCoords = (pd->GetPointData()->GetTCoords() != nullptr);
-
-          std::ostringstream toString;
-          toString.str("");
-          toString.clear();
-          toString <<
-            'A' << (hasScalars ? 1 : 0) <<
-            'B' << (hasNormals ? 1 : 0) <<
-            'C' << (hasTCoords ? 1 : 0);
-
-          vtkCompositeMapperHelper2 *helper = nullptr;
-          helpIter found = this->Helpers.find(toString.str());
-          if (found == this->Helpers.end())
-          {
-            helper = this->CreateHelper();
-            helper->SetParent(this);
-            this->Helpers.insert(std::make_pair(toString.str(), helper));
-          }
-          else
-          {
-            helper = found->second;
-          }
-          this->CopyMapperValuesToHelper(helper);
-          helper->SetMarked(true);
-          this->HelperDataMap[pd] =
-            helper->AddData(pd, 0);
-        }
-      }
-
-      // delete unused old helpers/data
-      for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); )
-      {
-        hiter->second->RemoveUnused();
-        if (!hiter->second->GetMarked())
-        {
-          hiter->second->ReleaseGraphicsResources(ren->GetVTKWindow());
-          hiter->second->Delete();
-          this->Helpers.erase(hiter++);
+          helper = this->CreateHelper();
+          helper->SetParent(this);
+          this->Helpers.insert(std::make_pair(toString.str(), helper));
         }
         else
         {
-          ++hiter;
+          helper = found->second;
         }
+        this->CopyMapperValuesToHelper(helper);
+        helper->SetMarked(true);
+        this->HelperDataMap[pd] =
+          helper->AddData(pd, flatIndex);
       }
-      this->HelperMTime.Modified();
     }
-
-    // rebuild the render values if needed
-    if (this->RenderValuesBuildTime < this->GetMTime() ||
-        this->RenderValuesBuildTime < actor->GetProperty()->GetMTime() ||
-        this->RenderValuesBuildTime < this->VBOBuildTime ||
-        this->RenderValuesBuildTime < this->HelperMTime)
+    else
     {
-      vtkProperty* prop = actor->GetProperty();
-      vtkScalarsToColors* lut = this->GetLookupTable();
-      if (lut)
+      vtkPolyData *pd = vtkPolyData::SafeDownCast(
+        this->GetInputDataObject(0, 0));
+      if (pd && pd->GetPoints())
       {
-        // Ensure that the lookup table is built
-        lut->Build();
+        int cellFlag = 0;
+        bool hasScalars = this->ScalarVisibility &&
+          (vtkAbstractMapper::GetAbstractScalars(
+            pd, this->ScalarMode, this->ArrayAccessMode,
+            this->ArrayId, this->ArrayName,
+            cellFlag) != nullptr);
+
+        bool hasNormals =
+          (pd->GetPointData()->GetNormals() || pd->GetCellData()->GetNormals());
+
+        bool hasTCoords = (pd->GetPointData()->GetTCoords() != nullptr);
+
+        std::ostringstream toString;
+        toString.str("");
+        toString.clear();
+        toString <<
+          'A' << (hasScalars ? 1 : 0) <<
+          'B' << (hasNormals ? 1 : 0) <<
+          'C' << (hasTCoords ? 1 : 0);
+
+        vtkCompositeMapperHelper2 *helper = nullptr;
+        helpIter found = this->Helpers.find(toString.str());
+        if (found == this->Helpers.end())
+        {
+          helper = this->CreateHelper();
+          helper->SetParent(this);
+          this->Helpers.insert(std::make_pair(toString.str(), helper));
+        }
+        else
+        {
+          helper = found->second;
+        }
+        this->CopyMapperValuesToHelper(helper);
+        helper->SetMarked(true);
+        this->HelperDataMap[pd] =
+          helper->AddData(pd, 0);
       }
-
-      // Push base-values on the state stack.
-      this->BlockState.Visibility.push(true);
-      this->BlockState.Pickability.push(true);
-      this->BlockState.Opacity.push(prop->GetOpacity());
-      this->BlockState.AmbientColor.push(vtkColor3d(prop->GetAmbientColor()));
-      this->BlockState.DiffuseColor.push(vtkColor3d(prop->GetDiffuseColor()));
-      this->BlockState.SpecularColor.push(vtkColor3d(prop->GetSpecularColor()));
-
-      unsigned int flat_index = 0;
-      this->BuildRenderValues(ren, actor,
-        this->GetInputDataObject(0, 0), flat_index);
-
-      this->BlockState.Visibility.pop();
-      this->BlockState.Pickability.pop();
-      this->BlockState.Opacity.pop();
-      this->BlockState.AmbientColor.pop();
-      this->BlockState.DiffuseColor.pop();
-      this->BlockState.SpecularColor.pop();
-
-      this->RenderValuesBuildTime.Modified();
     }
+
+    // delete unused old helpers/data
+    for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); )
+    {
+      hiter->second->RemoveUnused();
+      if (!hiter->second->GetMarked())
+      {
+        hiter->second->ReleaseGraphicsResources(ren->GetVTKWindow());
+        hiter->second->Delete();
+        this->Helpers.erase(hiter++);
+      }
+      else
+      {
+        ++hiter;
+      }
+    }
+    this->HelperMTime.Modified();
+  }
+
+  // rebuild the render values if needed
+  if (this->RenderValuesBuildTime < this->GetMTime() ||
+      this->RenderValuesBuildTime < actor->GetProperty()->GetMTime() ||
+      this->RenderValuesBuildTime < this->VBOBuildTime ||
+      this->RenderValuesBuildTime < this->HelperMTime)
+  {
+    vtkProperty* prop = actor->GetProperty();
+    vtkScalarsToColors* lut = this->GetLookupTable();
+    if (lut)
+    {
+      // Ensure that the lookup table is built
+      lut->Build();
+    }
+
+    // Push base-values on the state stack.
+    this->BlockState.Visibility.push(true);
+    this->BlockState.Pickability.push(true);
+    this->BlockState.Opacity.push(prop->GetOpacity());
+    this->BlockState.AmbientColor.push(vtkColor3d(prop->GetAmbientColor()));
+    this->BlockState.DiffuseColor.push(vtkColor3d(prop->GetDiffuseColor()));
+    this->BlockState.SpecularColor.push(vtkColor3d(prop->GetSpecularColor()));
+
+    unsigned int flat_index = 0;
+    this->BuildRenderValues(ren, actor,
+      this->GetInputDataObject(0, 0), flat_index);
+
+    this->BlockState.Visibility.pop();
+    this->BlockState.Pickability.pop();
+    this->BlockState.Opacity.pop();
+    this->BlockState.AmbientColor.pop();
+    this->BlockState.DiffuseColor.pop();
+    this->BlockState.SpecularColor.pop();
+
+    this->RenderValuesBuildTime.Modified();
   }
 
   this->InitializeHelpersBeforeRendering(ren, actor);
