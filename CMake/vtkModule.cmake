@@ -977,6 +977,7 @@ function (_vtk_module_real_target var module)
       "Unparsed arguments for _vtk_module_real_target: ${ARGN}.")
   endif ()
 
+  set(_vtk_real_target_res "")
   if (TARGET "${module}")
     get_property(_vtk_real_target_imported
       TARGET    "${module}"
@@ -1002,9 +1003,20 @@ function (_vtk_module_real_target var module)
     endif ()
   endif ()
 
-  if (_vtk_real_target_res STREQUAL "")
+  if (NOT _vtk_real_target_res)
+    set(_vtk_real_target_msg "")
+    if (NOT TARGET "${module}")
+      if (DEFINED _vtk_build_module)
+        set(_vtk_real_target_msg
+          " Is a module dependency missing?")
+      else ()
+        set(_vtk_real_target_msg
+          " Is a `find_package` missing a required component?")
+      endif ()
+    endif ()
     message(FATAL_ERROR
-      "Failed to determine the real target for the ${module} module.")
+      "Failed to determine the real target for the `${module}` "
+      "module.${_vtk_real_target_msg}")
   endif ()
 
   set("${var}"
