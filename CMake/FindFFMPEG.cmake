@@ -86,11 +86,13 @@ function (_ffmpeg_find component headername)
       endif ()
     endforeach ()
     if (_deps_found)
-      add_library("FFMPEG::${component}" UNKNOWN IMPORTED)
-      set_target_properties("FFMPEG::${component}" PROPERTIES
-        IMPORTED_LOCATION "${FFMPEG_${component}_LIBRARY}"
-        INTERFACE_INCLUDE_DIRECTORIES "${FFMPEG_${component}_INCLUDE_DIR}"
-        IMPORTED_LINK_INTERFACE_LIBRARIES "${_deps_link}")
+      if (NOT TARGET "FFMPEG::${component}")
+        add_library("FFMPEG::${component}" UNKNOWN IMPORTED)
+        set_target_properties("FFMPEG::${component}" PROPERTIES
+          IMPORTED_LOCATION "${FFMPEG_${component}_LIBRARY}"
+          INTERFACE_INCLUDE_DIRECTORIES "${FFMPEG_${component}_INCLUDE_DIR}"
+          IMPORTED_LINK_INTERFACE_LIBRARIES "${_deps_link}")
+      endif ()
       set("FFMPEG_${component}_FOUND" 1
         PARENT_SCOPE)
 
