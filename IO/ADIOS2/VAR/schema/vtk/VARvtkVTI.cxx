@@ -65,10 +65,8 @@ void VARvtkVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 
 void VARvtkVTI::ReadPiece(const size_t step, const size_t pieceID)
 {
-  const bool hasCellData =
-    ReadDataSets(types::DataSetType::CellData, step, pieceID, " in ImageData VTK XML Schema\n");
-  const bool hasPointData =
-    ReadDataSets(types::DataSetType::PointData, step, pieceID, " in ImageData VTK XML Schema\n");
+  const bool hasCellData = ReadDataSets(types::DataSetType::CellData, step, pieceID);
+  const bool hasPointData = ReadDataSets(types::DataSetType::PointData, step, pieceID);
 
   this->Engine.PerformGets();
 

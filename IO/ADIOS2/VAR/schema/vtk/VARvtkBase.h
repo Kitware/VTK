@@ -58,8 +58,7 @@ protected:
   virtual void DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step) = 0;
   virtual void ReadPiece(const size_t step, const size_t pieceID) = 0;
 
-  bool ReadDataSets(const types::DataSetType type, const size_t step, const size_t pieceID,
-    const std::string& hint);
+  bool ReadDataSets(const types::DataSetType type, const size_t step, const size_t pieceID);
 
   virtual void Init() = 0;
   void InitTimes() final;

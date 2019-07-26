@@ -58,42 +58,32 @@ namespace
 {
 MPI_Comm MPIGetComm()
 {
-    MPI_Comm comm = MPI_COMM_NULL;
-    vtkMultiProcessController *controller =
-        vtkMultiProcessController::GetGlobalController();
-    vtkMPICommunicator *vtkComm =
-        vtkMPICommunicator::SafeDownCast(controller->GetCommunicator());
-    if (vtkComm)
+  MPI_Comm comm = MPI_COMM_NULL;
+  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
+  vtkMPICommunicator* vtkComm = vtkMPICommunicator::SafeDownCast(controller->GetCommunicator());
+  if (vtkComm)
+  {
+    if (vtkComm->GetMPIComm())
     {
-        if (vtkComm->GetMPIComm())
-        {
-            comm = *(vtkComm->GetMPIComm()->GetHandle());
-        }
+      comm = *(vtkComm->GetMPIComm()->GetHandle());
     }
+  }
 
-    return comm;
+  return comm;
 }
 
 int MPIGetRank()
 {
-    MPI_Comm comm = MPIGetComm();
-    int rank;
-    MPI_Comm_rank(comm, &rank);
-    return rank;
+  MPI_Comm comm = MPIGetComm();
+  int rank;
+  MPI_Comm_rank(comm, &rank);
+  return rank;
 }
 
-int MPIGetSize()
-{
-    MPI_Comm comm = MPIGetComm();
-    int size;
-    MPI_Comm_size(comm, &size);
-    return size;
-}
-
-void WriteBP(const std::string &fileName)
+void WriteBP(const std::string& fileName)
 {
 
-    // clang-format off
+  // clang-format off
   const std::vector<std::uint64_t> connectivity = { 8, 0, 12, 32, 15, 20, 33, 43, 36, 8, 1, 24, 38, 13,
     21, 39, 44, 34, 8, 12, 1, 13, 32, 33, 21, 34, 43, 8, 32, 13, 4, 14, 43, 34, 22, 35, 8, 15, 32,
     14, 3, 36, 43, 35, 23, 8, 20, 33, 43, 36, 6, 16, 37, 19, 8, 33, 21, 34, 43, 16, 7, 17, 37, 8,
@@ -116,16 +106,16 @@ void WriteBP(const std::string &fileName)
     4.5472, 0.5, 0.915457, 5.38782, 0.5, -0.255387, 5.5, 6.97152e-13, 0.251323, 6, 0.5, 0.118984,
     5.5, 1, 0.251323, 5.61218, 0.5, 0.744613, 4.5, 0.5, 0.421259, 5.5, 0.5, 0.247968 };
 
-    // clang-format on
+  // clang-format on
 
-    std::vector<double> sol(45);
-    std::iota(sol.begin(), sol.end(), 1.);
+  std::vector<double> sol(45);
+  std::iota(sol.begin(), sol.end(), 1.);
 
-    adios2::fstream fs(fileName, adios2::fstream::out, MPI_COMM_SELF);
-    fs.write("types", 11);
-    fs.write("connectivity", connectivity.data(), {}, {}, {16, 9});
-    fs.write("vertices", vertices.data(), {}, {}, {45, 3});
-    fs.write("sol", sol.data(), {}, {}, {45});
+  adios2::fstream fs(fileName, adios2::fstream::out, MPI_COMM_SELF);
+  fs.write("types", 11);
+  fs.write("connectivity", connectivity.data(), {}, {}, { 16, 9 });
+  fs.write("vertices", vertices.data(), {}, {}, { 45, 3 });
+  fs.write("sol", sol.data(), {}, {}, { 45 });
 
     const std::string vtuXML = R"(
   <VTKFile type="UnstructuredGrid">
@@ -151,68 +141,59 @@ void WriteBP(const std::string &fileName)
 
 } // end empty namespace
 
-int TestIOADIOS2VAR_VTU3DRendering(int argc, char *argv[])
+int TestIOADIOS2VAR_VTU3DRendering(int argc, char* argv[])
 {
-    vtkNew<vtkMPIController> mpiController;
-    mpiController->Initialize(&argc, &argv, 0);
-    vtkMultiProcessController::SetGlobalController(mpiController);
-    const int rank = MPIGetRank();
-    const int size = MPIGetSize();
+  vtkNew<vtkMPIController> mpiController;
+  mpiController->Initialize(&argc, &argv, 0);
+  vtkMultiProcessController::SetGlobalController(mpiController);
+  const int rank = MPIGetRank();
 
-    const std::string fileName = "testVTU.bp";
-    if (rank == 0)
-    {
-        WriteBP(fileName);
-    }
+  const std::string fileName = "testVTU.bp";
+  if (rank == 0)
+  {
+    WriteBP(fileName);
+  }
 
-    vtkNew<vtkVARMultiBlock> adios2Reader;
-    adios2Reader->SetFileName(fileName.c_str());
-    adios2Reader->UpdateInformation();
-    adios2Reader->Update();
+  vtkNew<vtkVARMultiBlock> adios2Reader;
+  adios2Reader->SetFileName(fileName.c_str());
+  adios2Reader->UpdateInformation();
+  adios2Reader->Update();
 
-    vtkMultiBlockDataSet *multiBlock = adios2Reader->GetOutput();
-    vtkMultiPieceDataSet *mp =
-        vtkMultiPieceDataSet::SafeDownCast(multiBlock->GetBlock(0));
-    vtkUnstructuredGrid *unstructuredGrid =
-        vtkUnstructuredGrid::SafeDownCast(mp->GetPiece(0));
+  vtkMultiBlockDataSet* multiBlock = adios2Reader->GetOutput();
+  vtkMultiPieceDataSet* mp = vtkMultiPieceDataSet::SafeDownCast(multiBlock->GetBlock(0));
+  vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(mp->GetPiece(0));
 
-    double *data = reinterpret_cast<double *>(
-        unstructuredGrid->GetPointData()->GetArray("sol")->GetVoidPointer(0));
+  // set color table
+  vtkSmartPointer<vtkLookupTable> lookupTable = vtkSmartPointer<vtkLookupTable>::New();
+  lookupTable->SetNumberOfTableValues(10);
+  lookupTable->SetRange(0.0, 1.0);
+  lookupTable->Build();
 
-    // set color table
-    vtkSmartPointer<vtkLookupTable> lookupTable =
-        vtkSmartPointer<vtkLookupTable>::New();
-    lookupTable->SetNumberOfTableValues(10);
-    lookupTable->SetRange(0.0, 1.0);
-    lookupTable->Build();
+  // render unstructured grid
+  vtkSmartPointer<vtkDataSetMapper> mapper = vtkSmartPointer<vtkDataSetMapper>::New();
+  mapper->SetInputData(unstructuredGrid);
+  mapper->SetLookupTable(lookupTable);
+  mapper->SelectColorArray("sol");
+  mapper->SetScalarModeToUseCellFieldData();
 
-    // render unstructured grid
-    vtkSmartPointer<vtkDataSetMapper> mapper =
-        vtkSmartPointer<vtkDataSetMapper>::New();
-    mapper->SetInputData(unstructuredGrid);
-    mapper->SetLookupTable(lookupTable);
-    mapper->SelectColorArray("sol");
-    mapper->SetScalarModeToUseCellFieldData();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+  actor->SetMapper(mapper);
 
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
+  vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
 
-    vtkSmartPointer<vtkRenderWindow> renderWindow =
-        vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
 
-    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  // Add both renderers to the window
+  renderWindow->AddRenderer(renderer);
+  renderer->AddActor(actor);
+  renderer->ResetCamera();
 
-    // Add both renderers to the window
-    renderWindow->AddRenderer(renderer);
-    renderer->AddActor(actor);
-    renderer->ResetCamera();
+  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  renderWindowInteractor->SetRenderWindow(renderWindow);
+  renderWindow->Render();
 
-    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-        vtkSmartPointer<vtkRenderWindowInteractor>::New();
-    renderWindowInteractor->SetRenderWindow(renderWindow);
-    renderWindow->Render();
+  mpiController->Finalize();
 
-    mpiController->Finalize();
-
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }

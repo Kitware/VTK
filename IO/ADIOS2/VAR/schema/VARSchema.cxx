@@ -92,14 +92,14 @@ void VARSchema::GetDataArray(
 }
 
 #define declare_type(T)                                                                            \
-  void VARSchema::SetDimensions(                                                                   \
-    adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step)            \
+  void VARSchema::SetDimensions(adios2::Variable<T> /*variable*/,                                  \
+    const types::DataArray& /*dataArray*/, const size_t /*step*/)                                  \
   {                                                                                                \
     throw std::invalid_argument("ERROR: global array not supported for this schema\n");            \
   }                                                                                                \
                                                                                                    \
   void VARSchema::SetBlocks(                                                                       \
-    adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)                  \
+    adios2::Variable<T> /*variable*/, types::DataArray& /*dataArray*/, const size_t /*step*/)      \
   {                                                                                                \
     throw std::invalid_argument("ERROR: local array not supported for this schema\n");             \
   }

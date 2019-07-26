@@ -119,7 +119,7 @@ void VARSchema::GetDataArrayLocal(
 
 template<class T>
 void VARSchema::GetDataValueGlobal(
-  adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
+  adios2::Variable<T> variable, types::DataArray& dataArray, const size_t /*step*/)
 {
   InitDataArray<T>(variable.Name(), 1, 1, dataArray);
   T* ptr = reinterpret_cast<T*>(dataArray.Data->GetVoidPointer(0));

@@ -59,71 +59,55 @@ namespace
 {
 MPI_Comm MPIGetComm()
 {
-    MPI_Comm comm = MPI_COMM_NULL;
-    vtkMultiProcessController *controller =
-        vtkMultiProcessController::GetGlobalController();
-    vtkMPICommunicator *vtkComm =
-        vtkMPICommunicator::SafeDownCast(controller->GetCommunicator());
-    if (vtkComm)
+  MPI_Comm comm = MPI_COMM_NULL;
+  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
+  vtkMPICommunicator* vtkComm = vtkMPICommunicator::SafeDownCast(controller->GetCommunicator());
+  if (vtkComm)
+  {
+    if (vtkComm->GetMPIComm())
     {
-        if (vtkComm->GetMPIComm())
-        {
-            comm = *(vtkComm->GetMPIComm()->GetHandle());
-        }
+      comm = *(vtkComm->GetMPIComm()->GetHandle());
     }
+  }
 
-    return comm;
+  return comm;
 }
 
 int MPIGetRank()
 {
-    MPI_Comm comm = MPIGetComm();
-    int rank;
-    MPI_Comm_rank(comm, &rank);
-    return rank;
+  MPI_Comm comm = MPIGetComm();
+  int rank;
+  MPI_Comm_rank(comm, &rank);
+  return rank;
 }
 
-int MPIGetSize()
+template<class T>
+void ExpectEqual(const T& one, const T& two, const std::string& message)
 {
-    MPI_Comm comm = MPIGetComm();
-    int size;
-    MPI_Comm_size(comm, &size);
-    return size;
+  if (one != two)
+  {
+    std::ostringstream messageSS;
+    messageSS << "ERROR: found different values, " << one << " and " << two << " , " << message
+              << "\n";
+
+    throw std::logic_error(messageSS.str());
+  }
 }
 
-std::size_t TotalElements(const std::vector<std::size_t> &dimensions) noexcept
+template<class T>
+void TStep(std::vector<T>& data, const size_t step, const int rank)
 {
-    return std::accumulate(dimensions.begin(), dimensions.end(), 1,
-                           std::multiplies<std::size_t>());
+  const T initialValue = static_cast<T>(step + rank);
+  std::iota(data.begin(), data.end(), initialValue);
 }
 
-template <class T>
-void ExpectEqual(const T &one, const T &two, const std::string &message)
+template<class T>
+bool CompareData(T* data, const size_t size, const size_t step, const int rank)
 {
-    if (one != two)
-    {
-        std::ostringstream messageSS;
-        messageSS << "ERROR: found different values, " << one << " and " << two
-                  << " , " << message << "\n";
-
-        throw std::logic_error(messageSS.str());
-    }
-}
-
-template <class T>
-void TStep(std::vector<T> &data, const size_t step, const int rank)
-{
-    const T initialValue = static_cast<T>(step + rank);
-    std::iota(data.begin(), data.end(), initialValue);
-}
-
-template <class T>
-bool CompareData(T *data, const size_t size, const size_t step, const int rank)
-{
-    // expected
-    std::vector<T> Texpected(size);
-    TStep(Texpected, step, rank);
-    return std::equal(Texpected.begin(), Texpected.end(), data);
+  // expected
+  std::vector<T> Texpected(size);
+  TStep(Texpected, step, rank);
+  return std::equal(Texpected.begin(), Texpected.end(), data);
 }
 
 // clang-format off
@@ -157,97 +141,91 @@ const std::vector<double> vertices = { 3.98975, -0.000438888, -0.0455599, 4.9175
 class TesterVTU3D : public vtkAlgorithm
 {
 public:
-    static TesterVTU3D *New();
-    vtkTypeMacro(TesterVTU3D, vtkAlgorithm);
-    TesterVTU3D()
+  static TesterVTU3D* New();
+  vtkTypeMacro(TesterVTU3D, vtkAlgorithm);
+  TesterVTU3D()
+  {
+    this->SetNumberOfInputPorts(1);
+    this->SetNumberOfOutputPorts(0);
+  }
+
+  void Init(const std::string& streamName, const size_t steps)
+  {
+    this->StreamName = streamName;
+    this->Steps = steps;
+  }
+
+  int ProcessRequest(
+    vtkInformation* request, vtkInformationVector** input, vtkInformationVector* output)
+  {
+    if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-        this->SetNumberOfInputPorts(1);
-        this->SetNumberOfOutputPorts(0);
+      vtkInformation* inputInfo = input[0]->GetInformationObject(0);
+      inputInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
+        static_cast<double>(this->CurrentStep));
+      return 1;
     }
 
-    void Init(const std::string &streamName, const size_t steps)
+    if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
-        this->StreamName = streamName;
-        this->Steps = steps;
+      vtkMultiBlockDataSet* inputMultiBlock =
+        vtkMultiBlockDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
+
+      if (!DoCheckData(inputMultiBlock))
+      {
+        throw std::invalid_argument("ERROR: data check failed\n");
+      }
+
+      ++this->CurrentStep;
+      return 1;
     }
-
-    int ProcessRequest(vtkInformation *request, vtkInformationVector **input,
-                       vtkInformationVector *output)
-    {
-        if (request->Has(
-                vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-        {
-            vtkInformation *inputInfo = input[0]->GetInformationObject(0);
-            inputInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-                           static_cast<double>(this->CurrentStep));
-            return 1;
-        }
-
-        if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-        {
-            vtkMultiBlockDataSet *inputMultiBlock =
-                vtkMultiBlockDataSet::SafeDownCast(
-                    this->GetInputDataObject(0, 0));
-
-            if (!DoCheckData(inputMultiBlock))
-            {
-                throw std::invalid_argument("ERROR: data check failed\n");
-            }
-
-            ++this->CurrentStep;
-            return 1;
-        }
-        return this->Superclass::ProcessRequest(request, input, output);
-    }
+    return this->Superclass::ProcessRequest(request, input, output);
+  }
 
 protected:
-    size_t CurrentStep = 0;
-    std::string StreamName;
-    size_t Steps = 1;
+  size_t CurrentStep = 0;
+  std::string StreamName;
+  size_t Steps = 1;
 
 private:
-    int FillInputPortInformation(int vtkNotUsed(port),
-                                 vtkInformation *info) final
+  int FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info) final
+  {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+    return 1;
+  }
+
+  bool DoCheckData(vtkMultiBlockDataSet* multiBlock)
+  {
+    if (multiBlock == nullptr)
     {
-        info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
-                  "vtkUnstructuredGrid");
-        return 1;
+      return false;
+    }
+    vtkMultiPieceDataSet* multiPiece = vtkMultiPieceDataSet::SafeDownCast(multiBlock->GetBlock(0));
+    const size_t step = static_cast<size_t>(this->CurrentStep);
+    const int rank = MPIGetRank();
+    vtkUnstructuredGrid* unstructuredGrid =
+      vtkUnstructuredGrid::SafeDownCast(multiPiece->GetPiece(0));
+
+    double* psol = reinterpret_cast<double*>(
+      unstructuredGrid->GetPointData()->GetArray("sol")->GetVoidPointer(0));
+    const size_t size =
+      static_cast<size_t>(unstructuredGrid->GetPointData()->GetArray("sol")->GetDataSize());
+
+    if (!CompareData<double>(psol, size, step, rank))
+    {
+      return false;
     }
 
-    bool DoCheckData(vtkMultiBlockDataSet *multiBlock)
+    const double* pvertices =
+      reinterpret_cast<double*>(unstructuredGrid->GetPoints()->GetVoidPointer(0));
+    // TODO
+    if (!std::equal(vertices.begin(), vertices.end(), pvertices))
     {
-        if (multiBlock == nullptr)
-        {
-            return false;
-        }
-        vtkMultiPieceDataSet *multiPiece =
-            vtkMultiPieceDataSet::SafeDownCast(multiBlock->GetBlock(0));
-        const size_t step = static_cast<size_t>(this->CurrentStep);
-        const int rank = MPIGetRank();
-        vtkUnstructuredGrid *unstructuredGrid =
-            vtkUnstructuredGrid::SafeDownCast(multiPiece->GetPiece(0));
-
-        double *psol = reinterpret_cast<double *>(
-            unstructuredGrid->GetPointData()->GetArray("sol")->GetVoidPointer(
-                0));
-        const size_t size = static_cast<size_t>(
-            unstructuredGrid->GetPointData()->GetArray("sol")->GetDataSize());
-
-        if (!CompareData<double>(psol, size, step, rank))
-        {
-            return false;
-        }
-
-        const double *pvertices = reinterpret_cast<double *>(
-            unstructuredGrid->GetPoints()->GetVoidPointer(0));
-        // TODO
-        if (!std::equal(vertices.begin(), vertices.end(), pvertices))
-        {
-            return false;
-        }
-
-        return true;
+      return false;
     }
+
+    return true;
+  }
 };
 
 vtkStandardNewMacro(TesterVTU3D);
@@ -255,9 +233,8 @@ vtkStandardNewMacro(TesterVTU3D);
 namespace
 {
 
-void WriteBPFile3DVars(const std::string &fileName, const size_t steps,
-                       const int rank, const bool isAttribute,
-                       const bool hasTime, const bool unsignedType)
+void WriteBPFile3DVars(const std::string& fileName, const size_t steps, const int rank,
+  const bool isAttribute, const bool /*hasTime*/, const bool unsignedType)
 {
     const std::string unstructureGridSchema = R"(
         <VTKFile type="UnstructuredGrid">
@@ -286,89 +263,87 @@ void WriteBPFile3DVars(const std::string &fileName, const size_t steps,
 
     for (size_t s = 0; s < steps; ++s)
     {
-        if (s == 0 && rank == 0)
+      if (s == 0 && rank == 0)
+      {
+        if (unsignedType)
         {
-            if (unsignedType)
-            {
-                fs.write<uint32_t>("types", 11);
-            }
-            else
-            {
-                fs.write<int32_t>("types", 11);
-            }
-
-            fs.write("connectivity", connectivity.data(), {}, {}, {16, 9});
-            fs.write("vertices", vertices.data(), {}, {}, {45, 3});
-            if (isAttribute)
-            {
-                fs.write_attribute("vtk.xml", unstructureGridSchema);
-            }
+          fs.write<uint32_t>("types", 11);
+        }
+        else
+        {
+          fs.write<int32_t>("types", 11);
         }
 
-        if (rank == 0)
+        fs.write("connectivity", connectivity.data(), {}, {}, { 16, 9 });
+        fs.write("vertices", vertices.data(), {}, {}, { 45, 3 });
+        if (isAttribute)
         {
-            fs.write("steps", s);
+          fs.write_attribute("vtk.xml", unstructureGridSchema);
         }
+      }
 
-        TStep(sol, s, rank);
-        fs.write("sol", sol.data(), {}, {}, {sol.size()});
-        fs.end_step();
+      if (rank == 0)
+      {
+        fs.write("steps", s);
+      }
+
+      TStep(sol, s, rank);
+      fs.write("sol", sol.data(), {}, {}, { sol.size() });
+      fs.end_step();
     }
     fs.close();
 
     if (!isAttribute && rank == 0)
     {
-        std::ofstream fxml(fileName + ".dir/vtk.xml", ofstream::out);
-        fxml << unstructureGridSchema << "\n";
-        fxml.close();
+      std::ofstream fxml(fileName + ".dir/vtk.xml", ofstream::out);
+      fxml << unstructureGridSchema << "\n";
+      fxml.close();
     }
 }
 
 } // end empty namespace
 
-int TestIOADIOS2VAR_VTU3D(int argc, char *argv[])
+int TestIOADIOS2VAR_VTU3D(int argc, char* argv[])
 {
-    auto lf_DoTest = [&](const std::string &fileName, const size_t steps) {
-        vtkNew<vtkVARMultiBlock> adios2Reader;
-        adios2Reader->SetFileName(fileName.c_str());
-        // check FileName
-        char *outFileName = adios2Reader->GetFileName();
-        ExpectEqual(fileName, std::string(outFileName), " file names");
-        // check PrintSelf
-        adios2Reader->Print(std::cout);
+  auto lf_DoTest = [&](const std::string& fileName, const size_t steps) {
+    vtkNew<vtkVARMultiBlock> adios2Reader;
+    adios2Reader->SetFileName(fileName.c_str());
+    // check FileName
+    char* outFileName = adios2Reader->GetFileName();
+    ExpectEqual(fileName, std::string(outFileName), " file names");
+    // check PrintSelf
+    adios2Reader->Print(std::cout);
 
-        vtkNew<TesterVTU3D> testerVTU3D;
-        testerVTU3D->Init(fileName, steps);
-        testerVTU3D->SetInputConnection(adios2Reader->GetOutputPort());
+    vtkNew<TesterVTU3D> testerVTU3D;
+    testerVTU3D->Init(fileName, steps);
+    testerVTU3D->SetInputConnection(adios2Reader->GetOutputPort());
 
-        for (auto s = 0; s < steps; ++s)
-        {
-            testerVTU3D->Modified();
-            testerVTU3D->UpdateInformation();
-            testerVTU3D->Update();
-        }
-    };
+    for (size_t s = 0; s < steps; ++s)
+    {
+      testerVTU3D->Modified();
+      testerVTU3D->UpdateInformation();
+      testerVTU3D->Update();
+    }
+  };
 
-    vtkNew<vtkMPIController> mpiController;
-    mpiController->Initialize(&argc, &argv, 0);
-    vtkMultiProcessController::SetGlobalController(mpiController);
-    const int rank = MPIGetRank();
-    const int size = MPIGetSize();
+  vtkNew<vtkMPIController> mpiController;
+  mpiController->Initialize(&argc, &argv, 0);
+  vtkMultiProcessController::SetGlobalController(mpiController);
+  const int rank = MPIGetRank();
+  const size_t steps = 3;
 
-    const size_t steps = 3;
+  const std::string fileName = "ex2_mfem.bp";
 
-    const std::string fileName = "ex2_mfem.bp";
+  // schema as attribute in bp file
+  WriteBPFile3DVars(fileName, steps, rank, false, true, true);
+  lf_DoTest(fileName, steps);
+  vtksys::SystemTools::RemoveADirectory(fileName + ".dir");
+  vtksys::SystemTools::RemoveFile(fileName);
 
-    // schema as attribute in bp file
-    WriteBPFile3DVars(fileName, steps, rank, false, true, true);
-    lf_DoTest(fileName, steps);
-    vtksys::SystemTools::RemoveADirectory(fileName + ".dir");
-    vtksys::SystemTools::RemoveFile(fileName);
+  // schema as file in bp dir
+  WriteBPFile3DVars(fileName, steps, rank, false, false, false);
+  lf_DoTest(fileName, steps);
 
-    // schema as file in bp dir
-    WriteBPFile3DVars(fileName, steps, rank, false, false, false);
-    lf_DoTest(fileName, steps);
-
-    mpiController->Finalize();
-    return 0;
+  mpiController->Finalize();
+  return 0;
 }
