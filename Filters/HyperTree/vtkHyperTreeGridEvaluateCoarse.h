@@ -171,8 +171,6 @@ private:
 
   unsigned int NumberOfChildren;
 
-  std::vector<vtkDataArray*> Arrays;
-
   vtkBitArray* Mask;
 };
 
