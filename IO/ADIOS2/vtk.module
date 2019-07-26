@@ -7,22 +7,32 @@ KIT
 GROUPS
   StandAlone
 DEPENDS
-  VTK::CommonExecutionModel
-PRIVATE_DEPENDS
   VTK::CommonCore
-  VTK::CommonDataModel
+  VTK::CommonExecutionModel
   VTK::ParallelCore
+OPTIONAL_DEPENDS
   VTK::ParallelMPI
+  VTK::mpi
   VTK::vtksys
   VTK::pugixml
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
 TEST_DEPENDS
-  VTK::CommonCore
-  VTK::CommonExecutionModel
-  VTK::ParallelCore
-  VTK::ParallelMPI
-  VTK::TestingCore
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::IOParallelXML
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
   VTK::FiltersSources
+  VTK::ImagingCore
   VTK::InteractionImage
   VTK::InteractionStyle
+  VTK::RenderingCore
   VTK::RenderingOpenGL2
+  VTK::RenderingVolumeOpenGL2 # vtkMultiBlockVolumeMapper
+  VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::mpi
+  VTK::ParallelMPI
+  VTK::RenderingParallel
