@@ -39,7 +39,7 @@
  *      The average of the values of the child cells. If the cell is masked
  *      a value is put at "default value" (default value = 0 if not set
  *      by SetDefault).
- *  - OPERATOR_MATERIAL_AVERAGE:
+ *  - OPERATOR_UNMASKED_AVERAGE:
  *      The average of the values of the unmasked child cells
  *  - OPERATOR_ELDER_CHILD:
  *      Operator puts the value of the first child (elder child)
@@ -96,7 +96,7 @@ public:
      OPERATOR_MAX               = 3,
      OPERATOR_SUM               = 4,
      OPERATOR_AVERAGE           = 5,
-     OPERATOR_MATERIAL_AVERAGE  = 6,
+     OPERATOR_UNMASKED_AVERAGE  = 6,
      OPERATOR_ELDER_CHILD       = 7,
      OPERATOR_SPLATTING_AVERAGE = 8
   };
@@ -155,7 +155,7 @@ private:
   virtual double Max( const std::vector<double>& );
   virtual double Sum( const std::vector<double>& );
   virtual double Average( const std::vector<double>& );
-  virtual double MaterialAverage( const std::vector<double>& );
+  virtual double UnmaskedAverage( const std::vector<double>& );
   virtual double ElderChild( const std::vector<double>& );
   virtual double SplattingAverage( const std::vector<double>& );
   //@}
