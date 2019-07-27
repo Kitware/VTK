@@ -199,9 +199,9 @@ double vtkHyperTreeGridEvaluateCoarse::EvalCoarse( const std::vector<double>& ar
     {
       return  this->Average( array );
     }
-    case vtkHyperTreeGridEvaluateCoarse::OPERATOR_MATERIAL_AVERAGE:
+    case vtkHyperTreeGridEvaluateCoarse::OPERATOR_UNMASKED_AVERAGE:
     {
-      return  this->MaterialAverage( array );
+      return  this->UnmaskedAverage( array );
     }
     case vtkHyperTreeGridEvaluateCoarse::OPERATOR_SPLATTING_AVERAGE:
     {
@@ -284,7 +284,7 @@ double vtkHyperTreeGridEvaluateCoarse::Average( const std::vector<double>& array
 }
 
 //----------------------------------------------------------------------------
-double vtkHyperTreeGridEvaluateCoarse::MaterialAverage( const std::vector<double>& array )
+double vtkHyperTreeGridEvaluateCoarse::UnmaskedAverage( const std::vector<double>& array )
 {
   if ( array.size() == 0 )
   {
