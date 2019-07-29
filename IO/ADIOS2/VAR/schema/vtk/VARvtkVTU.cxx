@@ -64,14 +64,23 @@ void VARvtkVTU::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 
 void VARvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
 {
-  const bool hasCells =
-    ReadDataSets(types::DataSetType::Cells, step, pieceID, " in UnstructuredGrid VTK XML Schema\n");
+  if (!ReadDataSets(types::DataSetType::Cells, step, pieceID))
+  {
+    throw std::invalid_argument("ERROR: VTU UnstructuredGrid data model requires Cells "
+                                "information, in VTK::IOADIOS2 VAR reader\n");
+  }
 
-  const bool hasPoints = ReadDataSets(
-    types::DataSetType::Points, step, pieceID, " in UnstructuredGrid VTK XML Schema\n");
+  if (!ReadDataSets(types::DataSetType::Points, step, pieceID))
+  {
+    throw std::invalid_argument("ERROR: VTU UnstructuredGrid data model requires Points "
+                                "information, in VTK::IOADIOS2 VAR reader\n");
+  }
 
-  const bool hasPointData = ReadDataSets(
-    types::DataSetType::PointData, step, pieceID, " in UnstructuredGrid VTK XML Schema\n");
+  if (!ReadDataSets(types::DataSetType::PointData, step, pieceID))
+  {
+    throw std::invalid_argument("ERROR: VTU UnstructuredGrid data model requires PointData "
+                                "information, in VTK::IOADIOS2 VAR reader\n");
+  }
 
   this->Engine.PerformGets();
 
@@ -106,14 +115,7 @@ void VARvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
       nodeSizes.push_back(bCount.second.front());
     }
 
-    // TODO check if tuple is necessary
-    auto nodesSize = dataArray.Data->GetDataSize();
-    auto tuples = dataArray.Data->GetNumberOfTuples();
-    auto components = dataArray.Data->GetNumberOfComponents();
-
     vtkDoubleArray* nodes = vtkDoubleArray::SafeDownCast(dataArray.Data.GetPointer());
-    double* pnodes = nodes->GetPointer(0);
-
     vtkNew<vtkPoints> points;
     points->SetData(dataArray.Data.GetPointer());
 
@@ -141,10 +143,10 @@ void VARvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
       const adios2::Dims& blockCount = blockPair.second;
 
       // through elements
-      for (auto e = 0; e < blockCount[0]; ++e)
+      for (size_t e = 0; e < blockCount[0]; ++e)
       {
-        const auto nPoints = pconn[linearOffset];
-        for (auto p = 0; p < nPoints; ++p)
+        const vtkIdType nPoints = pconn[linearOffset];
+        for (vtkIdType p = 0; p < nPoints; ++p)
         {
           const size_t index = linearOffset + p + 1;
           pconn[index] += blockOffset;

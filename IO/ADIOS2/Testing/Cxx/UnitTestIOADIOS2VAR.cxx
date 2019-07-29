@@ -258,34 +258,6 @@ void WriteBPFileWrongOrigin(const std::string& fileName)
     fw.close();
 }
 
-void WriteBPFileWrongShape(const std::string& fileName)
-{
-  const std::string extent = "0 10 0 10 0 10";
-
-    const std::string imageSchema = R"(<?xml version="1.0"?>
-        <VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">
-          <ImageData WholeExtent=")" +
-                                    extent +
-                                    R"(" Origin="0 0 0" Spacing="1 1 1">
-            <Piece Extent=")" + extent +
-                                    R"(">
-              <CellData Scalars="U">
-                  <DataArray Name="T" />
-              </CellData>
-            </Piece>
-          </ImageData>
-        </VTKFile>)";
-
-    adios2::fstream fw(fileName, adios2::fstream::out, MPIGetComm());
-    fw.write_attribute("vtk.xml", imageSchema);
-    for (size_t t = 0; t < 2; ++t)
-    {
-      fw.write("T", t);
-      fw.end_step();
-    }
-    fw.close();
-}
-
 void WriteBPFileMandatoryNode(const std::string& fileName)
 {
   const std::string extent = "0 10 0 10 0 10";
@@ -468,29 +440,6 @@ void WriteBPFileNoPieceVTU(const std::string& fileName)
     adios2::fstream fs(fileName, adios2::fstream::out, MPI_COMM_SELF);
     fs.write_attribute("vtk.xml", unstructureGridSchema);
     fs.close();
-}
-
-void WriteBPFileWrongDataType(const std::string& fileName)
-{
-  const std::string extent = "0 10 0 10 0 10";
-
-    const std::string imageSchema = R"(<?xml version="1.0"?>
-        <VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">
-          <ImageData WholeExtent=")" +
-                                    extent +
-                                    R"(" Origin="0 0 0" Spacing="1 1 1">
-            <Piece Extent=")" + extent +
-                                    R"(">
-              <WrongData Scalars="U">
-                <DataArray Name="T" />
-              </WrongData>
-            </Piece>
-          </ImageData>
-        </VTKFile>)";
-
-    adios2::fstream fw(fileName, adios2::fstream::out, MPIGetComm());
-    fw.write_attribute("vtk.xml", imageSchema);
-    fw.close();
 }
 
 void WriteBPFileUnsupportedShape(const std::string& fileName)
