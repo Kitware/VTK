@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARvtkVTI.cxx
+ Module:    VTXvtkVTI.cxx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,14 +14,14 @@
  =========================================================================*/
 
 /*
- * VARvtkVTI.cxx
+ * VTXvtkVTI.cxx
  *
  *  Created on: May 1, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "VARvtkVTI.h"
-#include "VARvtkVTI.txx"
+#include "VTXvtkVTI.h"
+#include "VTXvtkVTI.txx"
 
 #include <algorithm>
 #include <utility>
@@ -33,26 +33,26 @@
 
 #include <vtk_pugixml.h>
 
-#include "VAR/common/VARHelper.h"
+#include "VTX/common/VTXHelper.h"
 
 #include <adios2.h>
 
-namespace var
+namespace vtx
 {
 namespace schema
 {
 
-VARvtkVTI::VARvtkVTI(const std::string& schema, adios2::IO& io, adios2::Engine& engine)
-  : VARvtkBase("vti", schema, io, engine)
+VTXvtkVTI::VTXvtkVTI(const std::string& schema, adios2::IO& io, adios2::Engine& engine)
+  : VTXvtkBase("vti", schema, io, engine)
 {
   Init();
   InitTimes();
 }
 
-VARvtkVTI::~VARvtkVTI() {}
+VTXvtkVTI::~VTXvtkVTI() {}
 
 // PRIVATE
-void VARvtkVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
+void VTXvtkVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 {
   ReadPiece(step, 0); // just read piece 0 for now
 
@@ -63,7 +63,7 @@ void VARvtkVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
   multiBlock->SetBlock(0, pieces);
 }
 
-void VARvtkVTI::ReadPiece(const size_t step, const size_t pieceID)
+void VTXvtkVTI::ReadPiece(const size_t step, const size_t pieceID)
 {
   const bool hasCellData = ReadDataSets(types::DataSetType::CellData, step, pieceID);
   const bool hasPointData = ReadDataSets(types::DataSetType::PointData, step, pieceID);
@@ -105,7 +105,7 @@ void VARvtkVTI::ReadPiece(const size_t step, const size_t pieceID)
 }
 
 // PRIVATE
-void VARvtkVTI::Init()
+void VTXvtkVTI::Init()
 {
   auto lf_InitPieceDataSetType = [&](types::Piece& piece, const types::DataSetType type,
                                    const pugi::xml_node& pieceNode) {
@@ -128,9 +128,9 @@ void VARvtkVTI::Init()
 
   auto lf_InitExtent = [&](const pugi::xml_node& extentNode) {
     // Spacing
-    const pugi::xml_attribute spacingXML = var::helper::XMLAttribute(
+    const pugi::xml_attribute spacingXML = vtx::helper::XMLAttribute(
       "Spacing", extentNode, true, "when reading Spacing in ImageData", true);
-    const std::vector<double> spacingV = var::helper::StringToVector<double>(spacingXML.value());
+    const std::vector<double> spacingV = vtx::helper::StringToVector<double>(spacingXML.value());
     if (spacingV.size() != 3)
     {
       throw std::runtime_error(
@@ -139,9 +139,9 @@ void VARvtkVTI::Init()
     this->ImageData->SetSpacing(spacingV.data());
 
     // Origin
-    const pugi::xml_attribute originXML = var::helper::XMLAttribute(
+    const pugi::xml_attribute originXML = vtx::helper::XMLAttribute(
       "Origin", extentNode, true, "when reading Origin in ImageData", true);
-    const std::vector<double> originV = var::helper::StringToVector<double>(originXML.value());
+    const std::vector<double> originV = vtx::helper::StringToVector<double>(originXML.value());
     if (originV.size() != 3)
     {
       throw std::runtime_error(
@@ -153,10 +153,10 @@ void VARvtkVTI::Init()
     // variables
 
     // Whole Extent is where piece partition is taken into account
-    const pugi::xml_attribute wholeExtentXML = var::helper::XMLAttribute(
+    const pugi::xml_attribute wholeExtentXML = vtx::helper::XMLAttribute(
       "WholeExtent", extentNode, true, "when reading WholeExtent in ImageData", true);
 
-    this->WholeExtent = var::helper::StringToVector<size_t>(wholeExtentXML.value());
+    this->WholeExtent = vtx::helper::StringToVector<size_t>(wholeExtentXML.value());
     if (this->WholeExtent.size() != 6)
     {
       throw std::runtime_error("ERROR: incorrect WholeExtent attribute, must have 6 elements, "
@@ -182,12 +182,12 @@ void VARvtkVTI::Init()
 
   // BODY OF FUNCTION STARTS HERE
   const pugi::xml_document xmlDocument =
-    var::helper::XMLDocument(this->Schema, true, "when reading xml vti schema");
+    vtx::helper::XMLDocument(this->Schema, true, "when reading xml vti schema");
 
-  const pugi::xml_node xmlVTKFileNode = var::helper::XMLNode(
+  const pugi::xml_node xmlVTKFileNode = vtx::helper::XMLNode(
     "VTKFile", xmlDocument, true, "when reading VTKFile type=ImageData node", true, true);
 
-  const pugi::xml_node xmlImageDataNode = var::helper::XMLNode(
+  const pugi::xml_node xmlImageDataNode = vtx::helper::XMLNode(
     "ImageData", xmlVTKFileNode, true, "when reading ImageData node", true, true);
 
   lf_InitExtent(xmlImageDataNode);
@@ -209,7 +209,7 @@ void VARvtkVTI::Init()
   }
 }
 
-adios2::Dims VARvtkVTI::GetShape(const types::DataSetType type)
+adios2::Dims VTXvtkVTI::GetShape(const types::DataSetType type)
 {
   adios2::Dims shape(3);
   size_t add = 0;
@@ -230,7 +230,7 @@ adios2::Dims VARvtkVTI::GetShape(const types::DataSetType type)
   return shape;
 }
 
-adios2::Box<adios2::Dims> VARvtkVTI::GetSelection(const types::DataSetType type)
+adios2::Box<adios2::Dims> VTXvtkVTI::GetSelection(const types::DataSetType type)
 {
   // partition is always cell data based
   const adios2::Dims shape = GetShape(types::DataSetType::CellData);
@@ -249,13 +249,13 @@ adios2::Box<adios2::Dims> VARvtkVTI::GetSelection(const types::DataSetType type)
 }
 
 #define declare_type(T)                                                                            \
-  void VARvtkVTI::SetDimensions(                                                                   \
+  void VTXvtkVTI::SetDimensions(                                                                   \
     adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step)            \
   {                                                                                                \
     SetDimensionsCommon(variable, dataArray, step);                                                \
   }
-VTK_IO_ADIOS2_VAR_ARRAY_TYPE(declare_type)
+VTK_IO_ADIOS2_VTX_ARRAY_TYPE(declare_type)
 #undef declare_type
 
 } // end namespace schema
-} // end namespace var
+} // end namespace vtx

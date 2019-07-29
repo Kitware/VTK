@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARSchemaManager.cxx
+ Module:    VTXSchemaManager.cxx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,27 +14,27 @@
  =========================================================================*/
 
 /*
- * VARSchemaManager.cxx
+ * VTXSchemaManager.cxx
  *
  *  Created on: May 31, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "VARSchemaManager.h"
+#include "VTXSchemaManager.h"
 
-#include "schema/vtk/VARvtkVTI.h"
-#include "schema/vtk/VARvtkVTU.h"
+#include "schema/vtk/VTXvtkVTI.h"
+#include "schema/vtk/VTXvtkVTU.h"
 
 #include <vtk_pugixml.h>
 #include <vtksys/SystemTools.hxx>
 
-#include "common/VARHelper.h"
+#include "common/VTXHelper.h"
 
-namespace var
+namespace vtx
 {
 
 // PUBLIC
-void VARSchemaManager::Update(
+void VTXSchemaManager::Update(
   const std::string& streamName, const size_t /*step*/, const std::string& schemaName)
 {
   // can't do it in the constructor as it need MPI initialized
@@ -57,16 +57,16 @@ void VARSchemaManager::Update(
   }
 }
 
-void VARSchemaManager::Fill(vtkMultiBlockDataSet* multiBlock, const size_t step)
+void VTXSchemaManager::Fill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 {
   this->Reader->Fill(multiBlock, step);
 }
 
 // PRIVATE
-const std::set<std::string> VARSchemaManager::SupportedTypes = { "ImageData", "UnstructuredGrid" };
+const std::set<std::string> VTXSchemaManager::SupportedTypes = { "ImageData", "UnstructuredGrid" };
 // TODO: , "StructuredGrid", "PolyData" };
 
-void VARSchemaManager::InitReader()
+void VTXSchemaManager::InitReader()
 {
   if (InitReaderXMLVTK())
   {
@@ -77,7 +77,7 @@ void VARSchemaManager::InitReader()
   // for now we stick with VTK XML schemas
 }
 
-bool VARSchemaManager::InitReaderXMLVTK()
+bool VTXSchemaManager::InitReaderXMLVTK()
 {
   pugi::xml_document xmlDocument;
   std::string xmlContents;
@@ -145,11 +145,11 @@ bool VARSchemaManager::InitReaderXMLVTK()
 
   if (type == "ImageData")
   {
-    this->Reader.reset(new schema::VARvtkVTI(xmlContents, this->IO, this->Engine));
+    this->Reader.reset(new schema::VTXvtkVTI(xmlContents, this->IO, this->Engine));
   }
   else if (type == "UnstructuredGrid")
   {
-    this->Reader.reset(new schema::VARvtkVTU(xmlContents, this->IO, this->Engine));
+    this->Reader.reset(new schema::VTXvtkVTU(xmlContents, this->IO, this->Engine));
   }
 
   const bool success = this->Reader ? true : false;

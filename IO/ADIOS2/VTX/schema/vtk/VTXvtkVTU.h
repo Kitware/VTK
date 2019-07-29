@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARvtkVTU.h
+ Module:    VTXvtkVTU.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,15 +14,15 @@
  =========================================================================*/
 
 /*
- * VARvtkVTU.h : class that supports UnstructuredMesh schema in VTK XML
- * format .vtu extends abstract VARvtkBase
+ * VTXvtkVTU.h : class that supports UnstructuredMesh schema in VTK XML
+ * format .vtu extends abstract VTXvtkBase
  *
  *  Created on: June 24, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARxmlVTU_h
-#define VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARxmlVTU_h
+#ifndef VTK_IO_ADIOS2_VTX_SCHEMA_VTK_VTXxmlVTU_h
+#define VTK_IO_ADIOS2_VTX_SCHEMA_VTK_VTXxmlVTU_h
 
 #include <map>
 #include <string>
@@ -31,17 +31,17 @@
 #include "vtkNew.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "VAR/schema/vtk/VARvtkBase.h"
+#include "VTX/schema/vtk/VTXvtkBase.h"
 
-namespace var
+namespace vtx
 {
 namespace schema
 {
-class VARvtkVTU : public VARvtkBase
+class VTXvtkVTU : public VTXvtkBase
 {
 public:
-  VARvtkVTU(const std::string& schema, adios2::IO& io, adios2::Engine& engine);
-  ~VARvtkVTU();
+  VTXvtkVTU(const std::string& schema, adios2::IO& io, adios2::Engine& engine);
+  ~VTXvtkVTU();
 
 private:
   /** Could be extended in a container, this is a per-rank ImageData */
@@ -58,7 +58,7 @@ private:
 #define declare_type(T)                                                                            \
   void SetBlocks(adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)     \
     final;
-  VTK_IO_ADIOS2_VAR_ARRAY_TYPE(declare_type)
+  VTK_IO_ADIOS2_VTX_ARRAY_TYPE(declare_type)
 #undef declare_type
 
   template<class T>
@@ -67,6 +67,6 @@ private:
 };
 
 } // end namespace schema
-} // end namespace var
+} // end namespace vtx
 
-#endif /* VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARxmlVTU_h */
+#endif /* VTK_IO_ADIOS2_VTX_SCHEMA_VTK_VTXxmlVTU_h */

@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARHelper.inl
+ Module:    VTXHelper.inl
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,20 +14,20 @@
  =========================================================================*/
 
 /*
- * VARHelper.inl
+ * VTXHelper.inl
  *
  *  Created on: May 3, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_VAR_COMMON_VARHelper_inl
-#define VTK_IO_ADIOS2_VAR_COMMON_VARHelper_inl
+#ifndef VTK_IO_ADIOS2_VTX_COMMON_VTXHelper_inl
+#define VTK_IO_ADIOS2_VTX_COMMON_VTXHelper_inl
 
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 
-namespace var
+namespace vtx
 {
 namespace helper
 {
@@ -62,6 +62,6 @@ void Print(const std::vector<T> &input, const std::string &name)
 }
 
 } // end namespace helper
-} // end namespace var
+} // end namespace vtx
 
-#endif /* VTK_IO_ADIOS2_VAR_COMMON_VARHelper_inl */
+#endif /* VTK_IO_ADIOS2_VTX_COMMON_VTXHelper_inl */

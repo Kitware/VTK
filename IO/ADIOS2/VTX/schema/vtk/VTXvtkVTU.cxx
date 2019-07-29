@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARvtkVTU.cxx
+ Module:    VTXvtkVTU.cxx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,14 +14,14 @@
  =========================================================================*/
 
 /*
- * VARvtkVTU.cxx
+ * VTXvtkVTU.cxx
  *
  *  Created on: June 24, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "VARvtkVTU.h"
-#include "VARvtkVTU.txx"
+#include "VTXvtkVTU.h"
+#include "VTXvtkVTU.txx"
 
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
@@ -34,24 +34,24 @@
 #include "vtkType.h"
 #include "vtkUnsignedIntArray.h"
 
-#include "VAR/common/VARHelper.h"
+#include "VTX/common/VTXHelper.h"
 
-namespace var
+namespace vtx
 {
 namespace schema
 {
 
-VARvtkVTU::VARvtkVTU(const std::string& schema, adios2::IO& io, adios2::Engine& engine)
-  : VARvtkBase("vtu", schema, io, engine)
+VTXvtkVTU::VTXvtkVTU(const std::string& schema, adios2::IO& io, adios2::Engine& engine)
+  : VTXvtkBase("vtu", schema, io, engine)
 {
   Init();
   InitTimes();
 }
 
-VARvtkVTU::~VARvtkVTU() {}
+VTXvtkVTU::~VTXvtkVTU() {}
 
 // PRIVATE
-void VARvtkVTU::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
+void VTXvtkVTU::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 {
   ReadPiece(step, 0); // just read piece 0 for now
 
@@ -62,24 +62,24 @@ void VARvtkVTU::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
   multiBlock->SetBlock(0, pieces);
 }
 
-void VARvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
+void VTXvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
 {
   if (!ReadDataSets(types::DataSetType::Cells, step, pieceID))
   {
     throw std::invalid_argument("ERROR: VTU UnstructuredGrid data model requires Cells "
-                                "information, in VTK::IOADIOS2 VAR reader\n");
+                                "information, in VTK::IOADIOS2 VTX reader\n");
   }
 
   if (!ReadDataSets(types::DataSetType::Points, step, pieceID))
   {
     throw std::invalid_argument("ERROR: VTU UnstructuredGrid data model requires Points "
-                                "information, in VTK::IOADIOS2 VAR reader\n");
+                                "information, in VTK::IOADIOS2 VTX reader\n");
   }
 
   if (!ReadDataSets(types::DataSetType::PointData, step, pieceID))
   {
     throw std::invalid_argument("ERROR: VTU UnstructuredGrid data model requires PointData "
-                                "information, in VTK::IOADIOS2 VAR reader\n");
+                                "information, in VTK::IOADIOS2 VTX reader\n");
   }
 
   this->Engine.PerformGets();
@@ -115,7 +115,7 @@ void VARvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
       nodeSizes.push_back(bCount.second.front());
     }
 
-    vtkDoubleArray* nodes = vtkDoubleArray::SafeDownCast(dataArray.Data.GetPointer());
+    // vtkDoubleArray* nodes = vtkDoubleArray::SafeDownCast(dataArray.Data.GetPointer());
     vtkNew<vtkPoints> points;
     points->SetData(dataArray.Data.GetPointer());
 
@@ -191,7 +191,7 @@ void VARvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
   }
 }
 
-void VARvtkVTU::Init()
+void VTXvtkVTU::Init()
 {
   auto lf_InitPieceDataSetType = [&](types::Piece& piece, const types::DataSetType type,
                                    const pugi::xml_node& pieceNode) {
@@ -204,12 +204,12 @@ void VARvtkVTU::Init()
 
   // BODY OF FUNCTION STARTS HERE
   const pugi::xml_document xmlDocument =
-    var::helper::XMLDocument(this->Schema, true, "when reading xml vtu schema");
+    vtx::helper::XMLDocument(this->Schema, true, "when reading xml vtu schema");
 
-  const pugi::xml_node xmlVTKFileNode = var::helper::XMLNode(
+  const pugi::xml_node xmlVTKFileNode = vtx::helper::XMLNode(
     "VTKFile", xmlDocument, true, "when reading VTKFile type=UnstructuredGrid node", true, true);
 
-  const pugi::xml_node xmlUnstructuredGridNode = var::helper::XMLNode(
+  const pugi::xml_node xmlUnstructuredGridNode = vtx::helper::XMLNode(
     "UnstructuredGrid", xmlVTKFileNode, true, "when reading UnstructuredGrid node", true, true);
 
   size_t pieces = 0;
@@ -232,13 +232,13 @@ void VARvtkVTU::Init()
 }
 
 #define declare_type(T)                                                                            \
-  void VARvtkVTU::SetBlocks(                                                                       \
+  void VTXvtkVTU::SetBlocks(                                                                       \
     adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)                  \
   {                                                                                                \
     SetBlocksCommon(variable, dataArray, step);                                                    \
   }
-VTK_IO_ADIOS2_VAR_ARRAY_TYPE(declare_type)
+VTK_IO_ADIOS2_VTX_ARRAY_TYPE(declare_type)
 #undef declare_type
 
 } // end namespace schema
-} // end namespace var
+} // end namespace vtx

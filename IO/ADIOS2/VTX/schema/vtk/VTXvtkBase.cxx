@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARvtkBase.cxx
+ Module:    VTXvtkBase.cxx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,25 +14,25 @@
  =========================================================================*/
 
 /*
- * VARvtkBase.cxx
+ * VTXvtkBase.cxx
  *
  *  Created on: May 6, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "VARvtkBase.h"
+#include "VTXvtkBase.h"
 
 #include <adios2.h>
 
-namespace var
+namespace vtx
 {
 namespace schema
 {
-const std::set<std::string> VARvtkBase::TIMENames = { "TIME", "CYCLE" };
-const std::set<std::string> VARvtkBase::SpecialNames = { "TIME", "CYCLE", "connectivity", "types",
+const std::set<std::string> VTXvtkBase::TIMENames = { "TIME", "CYCLE" };
+const std::set<std::string> VTXvtkBase::SpecialNames = { "TIME", "CYCLE", "connectivity", "types",
   "vertices" };
 
-const std::map<types::DataSetType, std::string> VARvtkBase::DataSetTypes = {
+const std::map<types::DataSetType, std::string> VTXvtkBase::DataSetTypes = {
   { types::DataSetType::CellData, "CellData" }, { types::DataSetType::PointData, "PointData" },
   { types::DataSetType::Points, "Points" }, { types::DataSetType::Coordinates, "Coordinates" },
   { types::DataSetType::Cells, "Cells" }, { types::DataSetType::Verts, "Verts" },
@@ -40,15 +40,15 @@ const std::map<types::DataSetType, std::string> VARvtkBase::DataSetTypes = {
   { types::DataSetType::Polys, "Polys" }
 };
 
-VARvtkBase::VARvtkBase(
+VTXvtkBase::VTXvtkBase(
   const std::string type, const std::string& schema, adios2::IO& io, adios2::Engine& engine)
-  : VARSchema(type, schema, io, engine)
+  : VTXSchema(type, schema, io, engine)
 {
 }
 
-VARvtkBase::~VARvtkBase() {}
+VTXvtkBase::~VTXvtkBase() {}
 
-bool VARvtkBase::ReadDataSets(
+bool VTXvtkBase::ReadDataSets(
   const types::DataSetType type, const size_t step, const size_t pieceID)
 {
   types::Piece& piece = this->Pieces.at(pieceID);
@@ -67,7 +67,7 @@ bool VARvtkBase::ReadDataSets(
   return true;
 }
 
-void VARvtkBase::InitTimes()
+void VTXvtkBase::InitTimes()
 {
   bool foundTime = false;
 
@@ -97,7 +97,7 @@ void VARvtkBase::InitTimes()
   }
 }
 
-std::string VARvtkBase::DataSetType(const types::DataSetType type) const noexcept
+std::string VTXvtkBase::DataSetType(const types::DataSetType type) const noexcept
 {
   return this->DataSetTypes.at(type);
 }

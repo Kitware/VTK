@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARHelper.h
+ Module:    VTXHelper.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,16 +14,16 @@
  =========================================================================*/
 
 /*
- * VARHelper.h : collection of helper function needed by VTK::IOADIOS2 module
+ * VTXHelper.h : collection of helper function needed by VTK::IOADIOS2 module
  *
  *  Created on: May 3, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_VAR_COMMON_VARHelper_h
-#define VTK_IO_ADIOS2_VAR_COMMON_VARHelper_h
+#ifndef VTK_IO_ADIOS2_VTX_COMMON_VTXHelper_h
+#define VTK_IO_ADIOS2_VTX_COMMON_VTXHelper_h
 
-#include "VARTypes.h"
+#include "VTXTypes.h"
 
 #include <cstddef> //std::size_t
 #include <set>
@@ -41,7 +41,7 @@
 
 #include <adios2.h>
 
-namespace var
+namespace vtx
 {
 namespace helper
 {
@@ -187,8 +187,8 @@ size_t LinearizePoint(const adios2::Dims &shape,
                       const adios2::Dims &point) noexcept;
 
 } // end namespace helper
-} // end namespace var
+} // end namespace vtx
 
-#include "VARHelper.inl"
+#include "VTXHelper.inl"
 
-#endif /* VTK_IO_ADIOS2_VAR_COMMON_VARHelper_h */
+#endif /* VTK_IO_ADIOS2_VTX_COMMON_VTXHelper_h */

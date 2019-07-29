@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARDataArray.cxx
+ Module:    VTXDataArray.cxx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,15 +14,15 @@
  =========================================================================*/
 
 /*
- * VARDataArray.cxx
+ * VTXDataArray.cxx
  *
  *  Created on: Jun 4, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "VARDataArray.h"
+#include "VTXDataArray.h"
 
-namespace var
+namespace vtx
 {
 namespace types
 {
@@ -37,4 +37,4 @@ bool DataArray::IsScalar() const noexcept
 }
 
 } // end namespace types
-} // end namespace var
+} // end namespace vtx

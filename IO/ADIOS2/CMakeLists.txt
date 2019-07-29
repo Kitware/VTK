@@ -7,43 +7,41 @@ set (sources_mpi )
 set (private_headers_mpi )
 if(ADIOS2_HAVE_MPI)
   set(classes_mpi
-    vtkVARMultiBlock
+    vtkADIOS2VTXReader
   )
 
   set(sources_mpi
-    vtkVARMultiBlock.cxx
+    vtkADIOS2VTXReader.cxx
 
-    VAR/common/VARDataArray.cxx
-    VAR/common/VARHelper.cxx VAR/common/VARHelper.txx
+    VTX/common/VTXDataArray.cxx
+    VTX/common/VTXHelper.cxx VTX/common/VTXHelper.txx
 
-    VAR/VARSchemaManager.cxx
+    VTX/VTXSchemaManager.cxx
 
-    VAR/schema/VARSchema.cxx VAR/schema/VARSchema.txx
-    VAR/schema/vtk/VARvtkBase.cxx
-    VAR/schema/vtk/VARvtkVTI.cxx VAR/schema/vtk/VARvtkVTI.txx
-    VAR/schema/vtk/VARvtkVTU.cxx VAR/schema/vtk/VARvtkVTU.txx
+    VTX/schema/VTXSchema.cxx VTX/schema/VTXSchema.txx
+    VTX/schema/vtk/VTXvtkBase.cxx
+    VTX/schema/vtk/VTXvtkVTI.cxx VTX/schema/vtk/VTXvtkVTI.txx
+    VTX/schema/vtk/VTXvtkVTU.cxx VTX/schema/vtk/VTXvtkVTU.txx
   )
 
   set(private_headers_mpi
-    VAR/common/VARTypes.h
-    VAR/common/VARDataArray.h
-    VAR/common/VARHelper.h
+    VTX/common/VTXTypes.h
+    VTX/common/VTXDataArray.h
+    VTX/common/VTXHelper.h
 
-    VAR/VARSchemaManager.h
+    VTX/VTXSchemaManager.h
 
-    VAR/schema/VARSchema.h
-    VAR/schema/vtk/VARvtkBase.h
-    VAR/schema/vtk/VARvtkVTI.h
-    VAR/schema/vtk/VARvtkVTU.h
+    VTX/schema/VTXSchema.h
+    VTX/schema/vtk/VTXvtkBase.h
+    VTX/schema/vtk/VTXvtkVTI.h
+    VTX/schema/vtk/VTXvtkVTU.h
   )
 endif()
 
-if ((NOT ADIOS2_HAVE_MPI) AND (VTK_USE_MPI))
-  message(FATAL_ERROR "ADIOS2 disables MPI But VTK has MPI enabled.
-                       The two should be consistent")
-elseif((ADIOS2_HAVE_MPI) AND (NOT VTK_USE_MPI))
-  message(FATAL_ERROR "ADIOS2 enables MPI But VTK has MPI disabled.
-                       The two should be consistent")
+if (VTK_USE_MPI AND NOT ADIOS2_HAVE_MPI)
+  message(FATAL_ERROR "VTK built with MPI requires ADIOS2 built with MPI")
+elseif(NOT VTK_USE_MPI AND ADIOS2_HAVE_MPI)
+  message(FATAL_ERROR "VTK built without MPI requires ADIOS2 built without MPI")
 endif()
 
 set(classes

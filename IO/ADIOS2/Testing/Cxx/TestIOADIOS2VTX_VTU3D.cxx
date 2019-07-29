@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIOADIOS2VAR_VTU3D.cxx
+  Module:    TestIOADIOS2VTX_VTU3D.cxx
 
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -20,14 +20,14 @@
 =========================================================================*/
 
 /*
- * TestIOADIOS2VAR_VTU3D.cxx : pipeline tests for unstructured grid reader
+ * TestIOADIOS2VTX_VTU3D.cxx : pipeline tests for unstructured grid reader
  *  3D vars
  *
  *  Created on: Jun 13, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "vtkVARMultiBlock.h"
+#include "vtkADIOS2VTXReader.h"
 
 #include <algorithm> //std::equal
 #include <iostream>
@@ -303,10 +303,10 @@ void WriteBPFile3DVars(const std::string& fileName, const size_t steps, const in
 
 } // end empty namespace
 
-int TestIOADIOS2VAR_VTU3D(int argc, char* argv[])
+int TestIOADIOS2VTX_VTU3D(int argc, char* argv[])
 {
   auto lf_DoTest = [&](const std::string& fileName, const size_t steps) {
-    vtkNew<vtkVARMultiBlock> adios2Reader;
+    vtkNew<vtkADIOS2VTXReader> adios2Reader;
     adios2Reader->SetFileName(fileName.c_str());
     // check FileName
     char* outFileName = adios2Reader->GetFileName();
