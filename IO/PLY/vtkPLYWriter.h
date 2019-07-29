@@ -84,6 +84,20 @@ public:
 
   //@{
   /**
+   * Enable writing to an OutputString instead of the default, a file.
+   */
+  vtkSetMacro(WriteToOutputString, bool);
+  vtkGetMacro(WriteToOutputString, bool);
+  vtkBooleanMacro(WriteToOutputString, bool);
+  const std::string& GetOutputString() const
+  {
+    return this->OutputString;
+  }
+  //@}
+
+
+  //@{
+  /**
    * These methods enable the user to control how to add color into the PLY
    * output file. The default behavior is as follows. The user provides the
    * name of an array and a component number. If the type of the array is
@@ -237,6 +251,14 @@ protected:
 
   vtkSmartPointer<vtkStringArray> HeaderComments;
 
+  // Whether this object is writing to a string or a file.
+  // Default is 0: write to file.
+  bool WriteToOutputString;
+
+  // The output string.
+  std::string OutputString;
+
+
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
@@ -245,4 +267,3 @@ private:
 };
 
 #endif
-

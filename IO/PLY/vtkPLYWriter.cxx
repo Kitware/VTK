@@ -47,6 +47,7 @@ vtkPLYWriter::vtkPLYWriter()
 
   this->HeaderComments = vtkSmartPointer<vtkStringArray>::New();
   this->HeaderComments->InsertNextValue("VTK generated PLY File");
+  this->WriteToOutputString = false;
 }
 
 vtkPLYWriter::~vtkPLYWriter()
@@ -83,7 +84,6 @@ void vtkPLYWriter::WriteData()
 
   vtkSmartPointer<vtkUnsignedCharArray> cellColors, pointColors;
   PlyFile *ply;
-  float version;
   static const char *elemNames[] = { "vertex", "face" };
   static PlyProperty vertProps[] = {
     // property information for a vertex
@@ -127,21 +127,21 @@ void vtkPLYWriter::WriteData()
   }
 
   // Open the file in appropriate way
-  if ( this->FileType == VTK_BINARY )
-    {
-      if (this->DataByteOrder == VTK_LITTLE_ENDIAN)
-      {
-        ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames, PLY_BINARY_LE, &version);
-      }
-      else
-      {
-        ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames, PLY_BINARY_BE, &version);
-      }
-    }
+  if (this->WriteToOutputString)
+  {
+    ply = vtkPLY::ply_open_for_writing_to_string(
+      this->OutputString, 2, elemNames,
+      this->FileType == VTK_BINARY ?
+      (this->DataByteOrder == VTK_LITTLE_ENDIAN ? PLY_BINARY_LE : PLY_BINARY_BE)
+      : PLY_ASCII);
+  }
   else
   {
-    ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames,
-                               PLY_ASCII, &version);
+    ply = vtkPLY::ply_open_for_writing(
+      this->FileName, 2, elemNames,
+      this->FileType == VTK_BINARY ?
+      (this->DataByteOrder == VTK_LITTLE_ENDIAN ? PLY_BINARY_LE : PLY_BINARY_BE)
+      : PLY_ASCII);
   }
 
   if ( ply == nullptr)

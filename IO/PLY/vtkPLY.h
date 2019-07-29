@@ -169,7 +169,8 @@ class VTKIOPLY_EXPORT vtkPLY
 public:
   //standard PLY library interface
   static PlyFile *ply_write(std::ostream *, int, const char **, int);
-  static PlyFile *ply_open_for_writing(const char *, int, const char **, int, float *);
+  static PlyFile *ply_open_for_writing(const char *, int, const char **, int);
+  static PlyFile *ply_open_for_writing_to_string(std::string&, int, const char **, int);
   static void ply_describe_element(PlyFile *, const char *, int, int, PlyProperty *);
   static void ply_describe_property(PlyFile *, const char *, PlyProperty *);
   static void ply_element_count(PlyFile *, const char *, int);
@@ -179,7 +180,8 @@ public:
   static void ply_put_comment(PlyFile *, const char *);
   static void ply_put_obj_info(PlyFile *, const char *);
   static PlyFile *ply_read(std::istream *, int *, char ***);
-  static PlyFile *ply_open_for_reading( const char *, int *, char ***, int *, float *);
+  static PlyFile *ply_open_for_reading( const char *, int *, char ***);
+  static PlyFile *ply_open_for_reading_from_string( const std::string&, int *, char ***);
   static PlyElement *ply_get_element_description(PlyFile *, char *, int*, int*);
   static void ply_get_element_setup( PlyFile *, const char *, int, PlyProperty *);
   static void ply_get_property(PlyFile *, const char *, PlyProperty *);

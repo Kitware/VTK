@@ -57,6 +57,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include <cassert>
 #include <limits>
 #include <fstream>
+#include <sstream>
 
 /* memory allocation */
 #define myalloc(mem_size) vtkPLY::my_alloc((mem_size), __LINE__, __FILE__)
@@ -169,7 +170,7 @@ PlyFile *vtkPLY::ply_write(
 
 
 /******************************************************************************
-Open a polygon file for writing.
+Open a PLY file for writing.
 
 Entry:
   filename   - name of file to read from
@@ -186,9 +187,7 @@ PlyFile *vtkPLY::ply_open_for_writing(
   const char *filename,
   int nelems,
   const char **elem_names,
-  int file_type,
-  float *version
-)
+  int file_type)
 {
   PlyFile *plyfile;
   char *name;
@@ -226,8 +225,43 @@ PlyFile *vtkPLY::ply_open_for_writing(
     return (nullptr);
   }
 
-  /* say what PLY file version number we're writing */
-  *version = plyfile->version;
+  /* return pointer to the file descriptor */
+  return (plyfile);
+}
+
+/******************************************************************************
+Open a PLY file for writing.
+
+Entry:
+  output     - string to write to
+  nelems     - number of elements in object
+  elem_names - list of element names
+  file_type  - file type, either ascii or binary
+
+Exit:
+  version - version number of PLY file
+  returns a file identifier, used to refer to this file, or nullptr if error
+******************************************************************************/
+
+PlyFile *vtkPLY::ply_open_for_writing_to_string(
+  std::string& output,
+  int nelems,
+  const char **elem_names,
+  int file_type)
+{
+  PlyFile *plyfile;
+  //memory leaks
+  plyInitialize();
+  std::ostringstream *oss = new std::ostringstream;
+  oss->str(output);
+
+  /* create the actual PlyFile structure */
+  plyfile = vtkPLY::ply_write (oss, nelems, elem_names, file_type);
+  if (plyfile == nullptr)
+  {
+    delete oss;
+    return (nullptr);
+  }
 
   /* return pointer to the file descriptor */
   return (plyfile);
@@ -823,18 +857,13 @@ Entry:
 Exit:
   nelems     - number of elements in object
   elem_names - list of element names
-  file_type  - file type, either ascii or binary
-  version    - version number of PLY file
   returns a file identifier, used to refer to this file, or nullptr if error
 ******************************************************************************/
 
 PlyFile *vtkPLY::ply_open_for_reading(
   const char *filename,
   int *nelems,
-  char ***elem_names,
-  int *file_type,
-  float *version
-)
+  char ***elem_names)
 {
   std::ifstream *ifs;
   PlyFile *plyfile;
@@ -862,15 +891,52 @@ PlyFile *vtkPLY::ply_open_for_reading(
     return (nullptr);
   }
 
-  /* determine the file type and version */
+  /* return a pointer to the file's information */
 
-  *file_type = plyfile->file_type;
-  *version = plyfile->version;
+  return (plyfile);
+}
+
+/******************************************************************************
+Open a polygon file for reading.
+
+Entry:
+  input - string to read from
+
+Exit:
+  nelems     - number of elements in object
+  elem_names - list of element names
+  returns a file identifier, used to refer to this file, or nullptr if error
+******************************************************************************/
+
+PlyFile *vtkPLY::ply_open_for_reading_from_string(
+  const std::string& input,
+  int *nelems,
+  char ***elem_names)
+{
+  std::istringstream *iss;
+  PlyFile *plyfile;
+
+  //memory leaks
+  plyInitialize();
+
+  /* open the file for reading */
+  iss = new std::istringstream;
+
+  iss->str(input);
+  /* create the PlyFile data structure */
+
+  plyfile = vtkPLY::ply_read (iss, nelems, elem_names);
+  if (plyfile == nullptr)
+  {
+    delete iss;
+    return (nullptr);
+  }
 
   /* return a pointer to the file's information */
 
   return (plyfile);
 }
+
 
 
 /******************************************************************************

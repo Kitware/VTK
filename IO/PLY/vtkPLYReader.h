@@ -71,6 +71,18 @@ public:
   vtkGetMacro(FaceTextureTolerance, float);
   vtkSetMacro(FaceTextureTolerance, float);
 
+  //@{
+  /**
+   * Enable reading from an InputString instead of the default, a file.
+   */
+  vtkSetMacro(ReadFromInputString, vtkTypeBool);
+  vtkGetMacro(ReadFromInputString, vtkTypeBool);
+  vtkBooleanMacro(ReadFromInputString, vtkTypeBool);
+  void SetInputString(const std::string& s) { this->InputString = s; }
+  //@}
+
+
+
   /**
    * If true (default) and the "face" element has the property "texcoord" duplicate
    * face points if they have 2 or more different texture coordinates.
@@ -86,6 +98,12 @@ protected:
   ~vtkPLYReader() override;
 
   vtkStringArray* Comments;
+  // Whether this object is reading from a string or a file.
+  // Default is 0: read from file.
+  bool ReadFromInputString;
+  // The input string.
+  std::string InputString;
+
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
