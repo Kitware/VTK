@@ -153,7 +153,7 @@ void vtkHyperTreeGridEvaluateCoarse::ProcessNode( vtkHyperTreeGridNonOrientedCur
       if ( ! this->Mask || ! this->Mask->GetTuple1( idChild ) )
       {
         double* tmp = arr->GetTuple( idChild );
-        for ( size_t iC = 0; iC < nbC; ++ iC )
+        for ( int iC = 0; iC < nbC; ++ iC )
         {
           values[i][iC].push_back( tmp[iC] );
         }
@@ -166,7 +166,7 @@ void vtkHyperTreeGridEvaluateCoarse::ProcessNode( vtkHyperTreeGridNonOrientedCur
   {
     vtkDataArray* arr = this->OutData->GetArray( i );
     unsigned int nbC = arr->GetNumberOfComponents();
-    for ( size_t iC = 0; iC < nbC; ++ iC )
+    for ( int iC = 0; iC < nbC; ++ iC )
     {
       arr->SetComponent( id, iC, EvalCoarse(values[i][iC] ) );
     }
