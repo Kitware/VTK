@@ -892,7 +892,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   }
 
   // Check the size of LevelDescriptors, add dummy string to the end accordingly
-  if (static_cast<unsigned int>(this->LevelDescriptors.size()) < this->MaximumLevel)
+  if (static_cast<unsigned int>(this->LevelDescriptors.size()) < this->MaxDepth)
   {
     const auto& second_to_last_level = this->LevelDescriptors.back();
     nRefined = std::count(second_to_last_level.begin(), second_to_last_level.end(), 'R');
