@@ -33,8 +33,10 @@ configure_file(
   "${vtk_cmake_build_dir}/vtk-config.cmake"
   @ONLY)
 
-option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
-mark_as_advanced(VTK_RELOCATABLE_INSTALL)
+if (NOT DEFINED VTK_RELOCATABLE_INSTALL)
+  option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
+  mark_as_advanced(VTK_RELOCATABLE_INSTALL)
+endif ()
 if (VTK_RELOCATABLE_INSTALL)
   set(vtk_prefix_paths)
 endif ()
