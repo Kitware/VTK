@@ -4,8 +4,6 @@ LIBRARY_NAME
   vtkIOADIOS2
 KIT
   VTK::IO
-GROUPS
-  StandAlone
 DEPENDS
   VTK::CommonCore
   VTK::CommonExecutionModel
