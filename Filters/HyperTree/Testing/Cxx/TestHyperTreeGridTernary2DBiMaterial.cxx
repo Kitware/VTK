@@ -37,7 +37,7 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
 {
   // Hyper tree grids
   vtkNew<vtkHyperTreeGridSource> htGrid1;
-  htGrid1->SetMaximumLevel( 3 );
+  htGrid1->SetMaxDepth(3);
   htGrid1->SetOrigin( 0., 0., 0. );
   htGrid1->SetDimensions( 3, 2, 1 ); //Dimension 2 in xy plane GridCell 2, 1, 1
   htGrid1->SetGridScale( 1., 1., 1. );
@@ -46,7 +46,7 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   htGrid1->SetDescriptor( ".R|.R..R..R.|......... ......... ........." );
   htGrid1->SetMask( "11|110110110|110110110 110110110 110110110" );
   vtkNew<vtkHyperTreeGridSource> htGrid2;
-  htGrid2->SetMaximumLevel( 3 );
+  htGrid2->SetMaxDepth(3);
   htGrid2->SetOrigin( 1., 0., 0. );
   htGrid2->SetDimensions( 3, 2, 1 ); //Dimension 2 in xy plane GridCell 3, 2, 1
   htGrid2->SetGridScale( 1., 1., 1. );

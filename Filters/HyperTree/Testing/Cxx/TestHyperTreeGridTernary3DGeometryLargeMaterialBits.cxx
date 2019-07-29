@@ -76,7 +76,7 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  htGrid->SetMaximumLevel( 6 );
+  htGrid->SetMaxDepth(6);
   htGrid->SetDimensions( 101, 101, 21 ); //GridCell 100, 100, 20
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetBranchFactor( 3 );

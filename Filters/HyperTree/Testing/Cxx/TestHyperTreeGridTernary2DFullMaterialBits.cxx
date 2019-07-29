@@ -124,7 +124,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
 
   vtkNew<vtkHyperTreeGridSource> htGrid;
   int maxLevel = depth;
-  htGrid->SetMaximumLevel( maxLevel );
+  htGrid->SetMaxDepth(maxLevel);
   htGrid->SetDimensions( sx + 1, sy + 1, 1 ); //Dimension 2 in xy plane GridCell sx, sy, sz = 1
   htGrid->SetGridScale( 1., 1., 1. );
   htGrid->SetBranchFactor( branch );

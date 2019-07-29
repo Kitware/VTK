@@ -51,7 +51,7 @@ int TestHyperTreeGridTernarySphereMaterialReflections( int argc, char* argv[] )
 
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  htGrid->SetMaximumLevel( 4 );
+  htGrid->SetMaxDepth(4);
   htGrid->SetDimensions( 6, 6, 7 ); //GridCell 5, 5, 6
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetBranchFactor( 3 );

@@ -34,7 +34,7 @@ int TestHyperTreeGridBinary3DGeometry( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  htGrid->SetMaximumLevel( 6 );
+  htGrid->SetMaxDepth(6);
   htGrid->SetDimensions( 4, 4, 3 ); //Dimension 3 GridCell 3, 3, 2
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetBranchFactor( 2 );

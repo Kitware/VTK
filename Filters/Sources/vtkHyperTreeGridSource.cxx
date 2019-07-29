@@ -46,7 +46,7 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
 
   // Grid parameters
   this->BranchFactor = 2;
-  this->MaximumLevel = 1;
+  this->MaxDepth = 1;
   this->BlockSize = 0;
 
   // Grid topology
@@ -184,7 +184,7 @@ void vtkHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->GridScale[1] <<","
      << this->GridScale[2] << endl;
 
-  os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
+  os << indent << "MaxDepth: " << this->MaxDepth << endl;
   os << indent << "Orientation: " << this->Orientation << endl;
   os << indent << "BranchFactor: " << this->BranchFactor << endl;
   os << indent << "BlockSize: " << this->BlockSize << endl;
@@ -308,30 +308,48 @@ void vtkHyperTreeGridSource::SetLevelZeroMaterialIndex(vtkIdTypeArray* indexArra
   this->Modified();
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 unsigned int vtkHyperTreeGridSource::GetMaximumLevel()
 {
-  assert("post: positive_result" && this->MaximumLevel >= 1);
-  return this->MaximumLevel;
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHyperTreeGridSource::GetMaximumLevel, "VTK 9", vtkHyperTreeGridSource::GetMaxDepth);
+  return this->GetMaxDepth();
 }
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridSource::SetMaximumLevel(unsigned int levels)
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHyperTreeGridSource::SetMaximumLevel, "VTK 9", vtkHyperTreeGridSource::SetMaxDepth);
+  this->SetMaxDepth(levels);
+}
+#endif
+
+//----------------------------------------------------------------------------
+unsigned int vtkHyperTreeGridSource::GetMaxDepth()
+{
+  assert("post: positive_result" && this->MaxDepth >= 1);
+  return this->MaxDepth;
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::SetMaxDepth(unsigned int levels)
 {
   if (levels < 1)
   {
     levels = 1;
   }
 
-  if (this->MaximumLevel == levels)
+  if (this->MaxDepth == levels)
   {
     return;
   }
 
-  this->MaximumLevel = levels;
+  this->MaxDepth = levels;
   this->Modified();
 
-  assert("post: is_set" && this->GetMaximumLevel() == levels);
+  assert("post: is_set" && this->GetMaxDepth() == levels);
 }
 
 //----------------------------------------------------------------------------
@@ -352,7 +370,7 @@ int vtkHyperTreeGridSource::RequestInformation(vtkInformation*,
   // We cannot give the exact number of levels of the hypertrees
   // because it is not generated yet and this process depends on the recursion formula.
   // Just send an upper limit instead.
-  outInfo->Set(vtkHyperTreeGrid::LEVELS(), this->MaximumLevel);
+  outInfo->Set(vtkHyperTreeGrid::LEVELS(), this->MaxDepth);
   outInfo->Set(vtkHyperTreeGrid::DIMENSION(), this->Dimension);
 
   double origin[3];
@@ -943,7 +961,7 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(
   cursor->SetGlobalIndexFromLocal(id);
 
   // Subdivide further or stop recursion with terminal leaf
-  if (level + 1 < this->MaximumLevel &&
+  if (level + 1 < this->MaxDepth &&
     static_cast<unsigned int>(this->LevelDescriptors.size()) > level &&
     this->LevelDescriptors.at(level).at(pointer) == 'R')
   {
@@ -1189,7 +1207,7 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor(vtkHyperTreeGrid* outpu
   }
 
   // Subdivide further or stop recursion with terminal leaf
-  if (level + 1 < this->MaximumLevel && refine)
+  if (level + 1 < this->MaxDepth && refine)
   {
     // Before subdividing, one should in order:
     // 1) set global index from local
@@ -1377,7 +1395,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric(vtkHyperTreeGrid* output,
   bool subdivide = (nPos != nVert && nNeg != nVert) ? true : false;
 
   // Assign cell value
-  if (subdivide && level + 1 == this->MaximumLevel)
+  if (subdivide && level + 1 == this->MaxDepth)
   {
     // Intersecting cells at deepest level are 0-set
     sum = 0.;
@@ -1400,7 +1418,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric(vtkHyperTreeGrid* output,
   }
 
   // Subdivide further or stop recursion with terminal leaf
-  if (subdivide && level + 1 < this->MaximumLevel)
+  if (subdivide && level + 1 < this->MaxDepth)
   {
     // Before subdividing, one should in order:
     // 1) set global index from local
