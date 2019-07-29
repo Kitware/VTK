@@ -66,7 +66,9 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #define vtkPLY_h
 
 #include "vtkIOPLYModule.h" // For export macro
-#include "vtkObject.h"
+#include <istream>
+#include <ostream>
+
 
 #define PLY_ASCII      1        /* ascii PLY file */
 #define PLY_BINARY_BE  2        /* binary PLY file, big endian */
@@ -148,7 +150,8 @@ typedef struct PlyOtherElems {  /* "other" elements, not interpreted by user */
 } PlyOtherElems;
 
 typedef struct PlyFile {        /* description of PLY file */
-  FILE *fp;                     /* file pointer */
+  std::istream *is;             /* input stream */
+  std::ostream *os;             /* output stream */
   int file_type;                /* ascii or binary */
   float version;                /* version number of file */
   int nelems;                   /* number of elements of object */
@@ -165,7 +168,7 @@ class VTKIOPLY_EXPORT vtkPLY
 {
 public:
   //standard PLY library interface
-  static PlyFile *ply_write(FILE *, int, const char **, int);
+  static PlyFile *ply_write(std::ostream *, int, const char **, int);
   static PlyFile *ply_open_for_writing(const char *, int, const char **, int, float *);
   static void ply_describe_element(PlyFile *, const char *, int, int, PlyProperty *);
   static void ply_describe_property(PlyFile *, const char *, PlyProperty *);
@@ -175,7 +178,7 @@ public:
   static void ply_put_element(PlyFile *, void *);
   static void ply_put_comment(PlyFile *, const char *);
   static void ply_put_obj_info(PlyFile *, const char *);
-  static PlyFile *ply_read(FILE *, int *, char ***);
+  static PlyFile *ply_read(std::istream *, int *, char ***);
   static PlyFile *ply_open_for_reading( const char *, int *, char ***, int *, float *);
   static PlyElement *ply_get_element_description(PlyFile *, char *, int*, int*);
   static void ply_get_element_setup( PlyFile *, const char *, int, PlyProperty *);
@@ -197,12 +200,12 @@ public:
   static bool equal_strings(const char *, const char *);
   static PlyElement *find_element(PlyFile *, const char *);
   static PlyProperty *find_property(PlyElement *, const char *, int *);
-  static void write_scalar_type (FILE *, int);
-  static char **get_words(FILE *, int *, char **);
-  static char **old_get_words(FILE *, int *);
+  static void write_scalar_type (std::ostream *, int);
+  static char **get_words(std::istream *, int *, char **);
+  static char **old_get_words(std::istream *, int *);
   static void write_binary_item(PlyFile *, int, unsigned int, double, int);
-  static void write_ascii_item(FILE *, int, unsigned int, double, int);
-  static double old_write_ascii_item(FILE *, char *, int);
+  static void write_ascii_item(std::ostream *, int, unsigned int, double, int);
+  static double old_write_ascii_item(std::ostream *, char *, int);
   static void add_element(PlyFile *, char **, int);
   static void add_property(PlyFile *, char **, int);
   static void add_comment(PlyFile *, char *);
@@ -212,9 +215,9 @@ public:
   static void get_stored_item( const void *, int, int *, unsigned int *, double *);
   static double get_item_value(const char *, int);
   static void get_ascii_item(const char *, int, int *, unsigned int *, double *);
-  static void get_binary_item(PlyFile *, int, int *, unsigned int *, double *);
-  static void ascii_get_element(PlyFile *, char *);
-  static void binary_get_element(PlyFile *, char *);
+  static bool get_binary_item(PlyFile *, int, int *, unsigned int *, double *);
+  static bool ascii_get_element(PlyFile *, char *);
+  static bool binary_get_element(PlyFile *, char *);
   static void *my_alloc(size_t, int, const char *);
   static int get_prop_type(const char *);
 
