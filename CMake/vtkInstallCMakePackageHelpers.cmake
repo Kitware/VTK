@@ -27,6 +27,9 @@ endif ()
 # Per-package variable forwarding goes here.
 set(Boost_find_package_vars
   Boost_INCLUDE_DIR)
+set(OSMesa_find_package_vars
+  OSMESA_INCLUDE_DIR
+  OSMESA_LIBRARY)
 
 set(vtk_find_package_code)
 foreach (_vtk_package IN LISTS _vtk_packages)
