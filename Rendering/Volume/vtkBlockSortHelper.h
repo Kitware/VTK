@@ -55,7 +55,7 @@ namespace vtkBlockSortHelper
       vtkNew<vtkMatrix4x4> InverseVolumeMatrix;
       InverseVolumeMatrix->DeepCopy(volMatrix);
       InverseVolumeMatrix->Invert();
-      InverseVolumeMatrix->MultiplyPoint(camWorldPos, CameraPosition);
+      InverseVolumeMatrix->MultiplyPoint(camWorldPos, this->CameraPosition);
     };
 
     //----------------------------------------------------------------------------
@@ -65,6 +65,10 @@ namespace vtkBlockSortHelper
      * Compares distances from images (first, second) to the camera position.
      * Returns true if the distance of first is greater than the distance of
      * second (descending order according to the std::sort convention).
+     *
+     * Note this does not provide the correct rendering order all the time.
+     * To get the correct rendering order (if there is one) you need a more
+     * complex algorithm.
      */
     //----------------------------------------------------------------------------
     inline bool CompareByDistanceDescending(vtkImageData* first,

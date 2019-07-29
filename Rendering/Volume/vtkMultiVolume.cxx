@@ -149,7 +149,7 @@ double* vtkMultiVolume::GetBounds()
 
   // The bounding-box coordinate system is axis-aligned with the world
   // coordinate system, so only the translation vector is needed for
-  // the bboxDatasetToWorld transformation (unlike other volume-matirces,
+  // the bboxDatasetToWorld transformation (unlike other volume-matrices,
   // this one does not include any scaling or rotation, those are only
   // defined in the contained volumes).
 
@@ -180,6 +180,34 @@ double* vtkMultiVolume::GetBounds()
   this->DataBounds[1] = maxPointData[0];
   this->DataBounds[3] = maxPointData[1];
   this->DataBounds[5] = maxPointData[2];
+
+  this->DataGeometry[0] = minPointData[0];
+  this->DataGeometry[1] = minPointData[1];
+  this->DataGeometry[2] = minPointData[2];
+  this->DataGeometry[3] = maxPointData[0];
+  this->DataGeometry[4] = minPointData[1];
+  this->DataGeometry[5] = minPointData[2];
+
+  this->DataGeometry[6] = minPointData[0];
+  this->DataGeometry[7] = maxPointData[1];
+  this->DataGeometry[8] = minPointData[2];
+  this->DataGeometry[9] = maxPointData[0];
+  this->DataGeometry[10] = maxPointData[1];
+  this->DataGeometry[11] = minPointData[2];
+
+  this->DataGeometry[12] = minPointData[0];
+  this->DataGeometry[13] = minPointData[1];
+  this->DataGeometry[14] = maxPointData[2];
+  this->DataGeometry[15] = maxPointData[0];
+  this->DataGeometry[16] = minPointData[1];
+  this->DataGeometry[17] = maxPointData[2];
+
+  this->DataGeometry[18] = minPointData[0];
+  this->DataGeometry[19] = maxPointData[1];
+  this->DataGeometry[20] = maxPointData[2];
+  this->DataGeometry[21] = maxPointData[0];
+  this->DataGeometry[22] = maxPointData[1];
+  this->DataGeometry[23] = maxPointData[2];
 
   this->BoundsComputeTime.Modified();
   return this->Bounds;
@@ -278,6 +306,7 @@ void vtkMultiVolume::ShallowCopy(vtkProp *prop)
       this->SetVolume(item.second, item.first);
     }
     this->DataBounds = multiVol->DataBounds;
+    this->DataGeometry = multiVol->DataGeometry;
     this->BoundsComputeTime = multiVol->BoundsComputeTime;
     this->TexToBBox->DeepCopy(multiVol->TexToBBox);
     return;

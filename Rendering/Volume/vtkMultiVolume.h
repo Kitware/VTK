@@ -140,6 +140,12 @@ public:
    */
   int RenderVolumetricGeometry(vtkViewport* vp) override;
 
+  /**
+   * Return the eight corners of the volume
+   */
+  double *GetDataGeometry()
+  { return this->DataGeometry.data(); };
+
 protected:
   vtkMultiVolume();
   ~vtkMultiVolume() override;
@@ -174,6 +180,7 @@ protected:
 
 
   std::array<double, 6> DataBounds;
+  std::array<double, 24> DataGeometry;
   std::unordered_map<int, vtkVolume*> Volumes;
   vtkTimeStamp BoundsComputeTime;
   vtkSmartPointer<vtkMatrix4x4> TexToBBox;

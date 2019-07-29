@@ -1260,7 +1260,7 @@ void vtkCamera::GetFrustumPlanes(double aspect, double planes[24])
     normals[i][1] = 0.0;
     normals[i][2] = 0.0;
     normals[i][3] = 1.0;
-    // if i is even set to -1, if odd set to +1
+    // if i is even set to 1, if odd set to -1
     normals[i][i/2] = 1 - (i%2)*2;
   }
 

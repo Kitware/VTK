@@ -26,6 +26,7 @@
 #include <vtkImageData.h>
 #include <vtkImageResample.h>
 #include <vtkInformation.h>
+#include "vtkMatrix3x3.h"
 #include <vtkMultiVolume.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
@@ -745,11 +746,22 @@ void vtkGPUVolumeRayCastMapper::TransformInput(const int port)
   double origin[3], spacing[3];
   clone->GetOrigin(origin);
   clone->GetSpacing(spacing);
+  double *direction = clone->GetDirectionMatrix()->GetData();
 
+  // find the location of the min extent
+  double blockOrigin[3];
+  vtkImageData::TransformContinuousIndexToPhysicalPoint(
+    extents[0], extents[2], extents[4],
+    origin,
+    spacing,
+    direction,
+    blockOrigin);
+
+  // make it so that the clone starts with extent 0,0,0
   for (int cc = 0; cc < 3; cc++)
   {
     // Transform the origin and the extents.
-    origin[cc] = origin[cc] + extents[2 * cc] * spacing[cc];
+    origin[cc] = blockOrigin[cc];
     extents[2 * cc + 1] -= extents[2 * cc];
     extents[2 * cc] = 0;
   }

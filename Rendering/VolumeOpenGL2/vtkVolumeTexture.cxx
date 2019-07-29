@@ -5,6 +5,7 @@
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
+#include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -777,10 +778,55 @@ void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
   double origin[3];
   input->GetOrigin(origin);
 
+  double *direction = input->GetDirectionMatrix()->GetData();
+
   int swapBounds[3];
   swapBounds[0] = (spacing[0] < 0);
   swapBounds[1] = (spacing[1] < 0);
   swapBounds[2] = (spacing[2] < 0);
+
+  // push corners through matrix to get bounding box
+  int iMin, iMax, jMin, jMax, kMin, kMax;
+  int *extent = block->Extents;
+  iMin = extent[0]; iMax = extent[1] + this->IsCellData;
+  jMin = extent[2]; jMax = extent[3] + this->IsCellData;
+  kMin = extent[4]; kMax = extent[5] + this->IsCellData;
+  int ijkCorners[8][3] = {
+    {iMin, jMin, kMin},
+    {iMax, jMin, kMin},
+    {iMin, jMax, kMin},
+    {iMax, jMax, kMin},
+    {iMin, jMin, kMax},
+    {iMax, jMin, kMax},
+    {iMin, jMax, kMax},
+    {iMax, jMax, kMax}
+  };
+  double xMin, xMax, yMin, yMax, zMin, zMax;
+  xMin = yMin = zMin = VTK_DOUBLE_MAX;
+  xMax = yMax = zMax = VTK_DOUBLE_MIN;
+  for (int i = 0; i < 8; ++i)
+  {
+    int *ijkCorner = ijkCorners[i];
+    double *xyz = block->VolumeGeometry + i*3;
+    vtkImageData::TransformContinuousIndexToPhysicalPoint(
+      ijkCorner[0], ijkCorner[1], ijkCorner[2],
+      origin,
+      spacing,
+      direction,
+      xyz);
+    if (xyz[0] < xMin) xMin = xyz[0];
+    if (xyz[0] > xMax) xMax = xyz[0];
+    if (xyz[1] < yMin) yMin = xyz[1];
+    if (xyz[1] > yMax) yMax = xyz[1];
+    if (xyz[2] < zMin) zMin = xyz[2];
+    if (xyz[2] > zMax) zMax = xyz[2];
+  }
+  block->LoadedBoundsAA[0] = xMin;
+  block->LoadedBoundsAA[1] = xMax;
+  block->LoadedBoundsAA[2] = yMin;
+  block->LoadedBoundsAA[3] = yMax;
+  block->LoadedBoundsAA[4] = zMin;
+  block->LoadedBoundsAA[5] = zMax;
 
   // Loaded data represents points
   if (!this->IsCellData)
@@ -839,11 +885,6 @@ void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
   block->CellStep[2] =
     (1.f / static_cast<float>(block->Extents[5] - block->Extents[4]));
 
-  auto bounds = block->LoadedBounds;
-  block->CellScale[0] = (bounds[1] - bounds[0]) * 0.5;
-  block->CellScale[1] = (bounds[3] - bounds[2]) * 0.5;
-  block->CellScale[2] = (bounds[5] - bounds[4]) * 0.5;
-
   this->CellSpacing[0] = static_cast<float>(spacing[0]);
   this->CellSpacing[1] = static_cast<float>(spacing[1]);
   this->CellSpacing[2] = static_cast<float>(spacing[2]);
@@ -852,21 +893,40 @@ void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
 //----------------------------------------------------------------------------
 void vtkVolumeTexture::UpdateTextureToDataMatrix(VolumeBlock* block)
 {
-  auto stepSize = block->DatasetStepSize;
-  auto matrix = block->TextureToDataset.GetPointer();
-  matrix->Identity();
+  // take the 0.0 to 1.0 texture coordinates and map them into
+  // physical/dataset coordinates.
+  vtkImageData* input = block->ImageData;
+  double *direction = input->GetDirectionMatrix()->GetData();
+  double origin[3];
+  input->GetOrigin(origin);
+  double spacing[3];
+  input->GetSpacing(spacing);
 
-  // Scale diag
-  matrix->SetElement(0, 0, (1.0 / stepSize[0]));
-  matrix->SetElement(1, 1, (1.0 / stepSize[1]));
-  matrix->SetElement(2, 2, (1.0 / stepSize[2]));
-  matrix->SetElement(3, 3, 1.0);
+  auto stepsize = block->DatasetStepSize;
+  vtkMatrix4x4 *matrix = block->TextureToDataset;
+  matrix->Identity();
+  double *result = matrix->GetData();
+
+  // Scale diag (1.0 -> world coord width)
+  for (int i = 0; i < 3; ++i)
+  {
+    result[i*4] = direction[i*3] / stepsize[0];
+    result[i*4 + 1] = direction[i*3 + 1] / stepsize[1];
+    result[i*4 + 2] = direction[i*3 + 2] / stepsize[2];
+  }
+
+  double blockOrigin[3];
+  vtkImageData::TransformContinuousIndexToPhysicalPoint(
+    block->Extents[0], block->Extents[2], block->Extents[4],
+    origin,
+    spacing,
+    direction,
+    blockOrigin);
 
   // Translation vec
-  auto bounds = block->LoadedBounds;
-  matrix->SetElement(0, 3, bounds[0]);
-  matrix->SetElement(1, 3, bounds[2]);
-  matrix->SetElement(2, 3, bounds[4]);
+  result[3]  = blockOrigin[0];
+  result[7]  = blockOrigin[1];
+  result[11] = blockOrigin[2];
 
   auto matrixInv = block->TextureToDatasetInv.GetPointer();
   matrixInv->DeepCopy(matrix);
