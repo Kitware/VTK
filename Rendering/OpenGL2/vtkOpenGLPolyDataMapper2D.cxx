@@ -557,7 +557,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
       }
     }
     this->CellScalarBuffer->Upload(newColors,
-      vtkOpenGLBufferObject::ArrayBuffer);
+      vtkOpenGLBufferObject::TextureBuffer);
     this->CellScalarTexture->CreateTextureBuffer(
       static_cast<unsigned int>(this->CellCellMap->GetSize()),
       numComp,
