@@ -120,14 +120,14 @@ set(vtk_cmake_patch_files
   patches/3.10/FindMPI/test_mpi.c
   patches/3.10/FindMPI/test_mpi.f90.in
   patches/3.10/FindMPI.cmake
-  patches/3.13/FindPython/Support.cmake
-  patches/3.13/FindPython2.cmake
-  patches/3.13/FindPython3.cmake
   patches/3.13/FindZLIB.cmake
   patches/99/FindGDAL.cmake
   patches/99/FindHDF5.cmake
   patches/99/FindJPEG.cmake
   patches/99/FindOpenGL.cmake
+  patches/99/FindPython/Support.cmake
+  patches/99/FindPython2.cmake
+  patches/99/FindPython3.cmake
   patches/99/FindSQLite3.cmake
   patches/99/FindX11.cmake)
 
