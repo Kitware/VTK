@@ -241,7 +241,6 @@ uninitMemberVar:Interaction/Widgets/vtkClosedSurfacePointPlacer.cxx
 uninitMemberVar:Interaction/Widgets/vtkResliceCursorLineRepresentation.cxx
 uninitMemberVar:Interaction/Widgets/vtkResliceCursorPicker.cxx
 uninitMemberVar:Interaction/Widgets/vtkXYPlotWidget.cxx
-uninitMemberVar:IO/ADIOS/Testing/Cxx/TestADIOSSphereWR.cxx
 uninitMemberVar:IO/AMR/vtkAMRBaseParticlesReader.cxx
 uninitMemberVar:IO/AMR/vtkAMRBaseReader.cxx
 uninitMemberVar:IO/AMR/vtkAMRFlashReaderInternal.h
@@ -505,7 +504,6 @@ unreadVariable:Interaction/Widgets/Testing/Cxx/TestDijkstraImageGeodesicPath.cxx
 unreadVariable:Interaction/Widgets/Testing/Cxx/vtkBiDimensionalRepresentation2DTest1.cxx
 unreadVariable:Interaction/Widgets/Testing/Cxx/vtkSeedRepresentationTest1.cxx
 unreadVariable:Interaction/Widgets/vtkImageOrthoPlanes.cxx
-unreadVariable:IO/ADIOS/Testing/Cxx/TestADIOSSphereWR.cxx
 unreadVariable:IO/Exodus/vtkExodusIIReader.cxx
 unreadVariable:IO/Export/vtkVRMLExporter.cxx
 unreadVariable:IO/Export/vtkX3DExporter.cxx
@@ -575,10 +573,6 @@ noCopyConstructor:Filters/Points/vtkHierarchicalBinningFilter.cxx
 noCopyConstructor:Filters/Points/vtkHierarchicalBinningFilter.cxx
 noCopyConstructor:GUISupport/Qt/Testing/Cxx/QTestApp.cxx
 noCopyConstructor:GUISupport/Qt/Testing/Cxx/QTestApp.h
-noCopyConstructor:IO/ADIOS/ADIOSReader.cxx
-noCopyConstructor:IO/ADIOS/ADIOSReader.h
-noCopyConstructor:IO/ADIOS/ADIOSWriter.cxx
-noCopyConstructor:IO/ADIOS/ADIOSWriter.h
 noCopyConstructor:IO/Export/vtkPOVExporter.cxx
 noCopyConstructor:IO/GeoJSON/vtkGeoJSONWriter.cxx
 noCopyConstructor:IO/Geometry/vtkCGMWriter.cxx
