@@ -45,6 +45,7 @@
 #define TIFFError vtktiff_TIFFError
 #define TIFFErrorExt vtktiff_TIFFErrorExt
 #define _TIFFerrorHandler vtktiff__TIFFerrorHandler
+#define _TIFFerrorHandlerExt vtktiff__TIFFerrorHandlerExt
 #define _TIFFFax3fillruns vtktiff__TIFFFax3fillruns
 #define TIFFFaxBlackCodes vtktiff_TIFFFaxBlackCodes
 #define TIFFFaxBlackTable vtktiff_TIFFFaxBlackTable
@@ -134,6 +135,7 @@
 #define TIFFNumberOfStrips vtktiff_TIFFNumberOfStrips
 #define TIFFNumberOfTiles vtktiff_TIFFNumberOfTiles
 #define TIFFOpen vtktiff_TIFFOpen
+#define TIFFOpenW vtktiff_TIFFOpenW
 #define TIFFPredictorCleanup vtktiff_TIFFPredictorCleanup
 #define TIFFPredictorInit vtktiff_TIFFPredictorInit
 #define _TIFFprintAscii vtktiff__TIFFprintAscii
@@ -235,6 +237,7 @@
 #define TIFFWarning vtktiff_TIFFWarning
 #define TIFFWarningExt vtktiff_TIFFWarningExt
 #define _TIFFwarningHandler vtktiff__TIFFwarningHandler
+#define _TIFFwarningHandlerExt vtktiff__TIFFwarningHandlerExt
 #define TIFFWriteBufferSetup vtktiff_TIFFWriteBufferSetup
 #define TIFFWriteCheck vtktiff_TIFFWriteCheck
 #define TIFFWriteCustomDirectory vtktiff_TIFFWriteCustomDirectory
