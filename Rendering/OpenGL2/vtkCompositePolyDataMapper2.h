@@ -210,7 +210,7 @@ protected:
     vtkActor *actor,
     vtkDataObject *dobj,
     unsigned int &flat_index);
-  vtkTimeStamp RenderValuesBuildTime;
+  vtkStateStorage RenderValuesState;
 
   RenderBlockState BlockState;
   void RenderBlock(vtkRenderer *renderer,
