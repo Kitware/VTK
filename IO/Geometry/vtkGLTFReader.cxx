@@ -731,6 +731,11 @@ int vtkGLTFReader::RequestInformation(
     return 0;
   }
 
+  if (!vtksys::SystemTools::FileIsFullPath(std::string(this->FileName)))
+  {
+    this->SetFileName(vtksys::SystemTools::CollapseFullPath(std::string(this->FileName)).c_str());
+  }
+
   // Check for filename change in case the loader was already created
   if (this->Loader != nullptr && this->Loader->GetInternalModel()->FileName != this->FileName)
   {
