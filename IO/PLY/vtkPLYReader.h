@@ -75,9 +75,9 @@ public:
   /**
    * Enable reading from an InputString instead of the default, a file.
    */
-  vtkSetMacro(ReadFromInputString, vtkTypeBool);
-  vtkGetMacro(ReadFromInputString, vtkTypeBool);
-  vtkBooleanMacro(ReadFromInputString, vtkTypeBool);
+  vtkSetMacro(ReadFromInputString, bool);
+  vtkGetMacro(ReadFromInputString, bool);
+  vtkBooleanMacro(ReadFromInputString, bool);
   void SetInputString(const std::string& s) { this->InputString = s; }
   //@}
 
