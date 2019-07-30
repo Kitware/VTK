@@ -62,7 +62,6 @@ configure_file(
   COPYONLY)
 
 set(vtk_cmake_module_files
-  FindADIOS1.cmake
   Finddouble-conversion.cmake
   FindEigen3.cmake
   FindEXPAT.cmake
