@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARHelper.txx
+ Module:    VTXHelper.txx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,16 +14,16 @@
  =========================================================================*/
 
 /*
- * VARHelper.txx
+ * VTXHelper.txx
  *
  *  Created on: May 3, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_COMMON_VARHelper_txx
-#define VTK_IO_ADIOS2_COMMON_VARHelper_txx
+#ifndef VTK_IO_ADIOS2_COMMON_VTXHelper_txx
+#define VTK_IO_ADIOS2_COMMON_VTXHelper_txx
 
-#include "VARHelper.h"
+#include "VTXHelper.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -32,7 +32,7 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 
-namespace var
+namespace vtx
 {
 namespace helper
 {
@@ -89,6 +89,6 @@ vtkSmartPointer<vtkDataArray> NewDataArray<double>()
 }
 
 } // end namespace helper
-} // end namespace var
+} // end namespace vtx
 
-#endif /* VTK_IO_ADIOS2_VAR_COMMON_VARHelper_txx */
+#endif /* VTK_IO_ADIOS2_VTX_COMMON_VTXHelper_txx */

@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARHelper.cxx
+ Module:    VTXHelper.cxx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,14 +14,14 @@
  =========================================================================*/
 
 /*
- * VARHelper.cxx
+ * VTXHelper.cxx
  *
  *  Created on: May 3, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "VARHelper.h"
-#include "VARHelper.txx"
+#include "VTXHelper.h"
+#include "VTXHelper.txx"
 
 #include <fstream>
 #include <numeric> //std::accumulate
@@ -31,7 +31,7 @@
 #include "vtkMPICommunicator.h"
 #include "vtkMultiProcessController.h"
 
-namespace var
+namespace vtx
 {
 namespace helper
 {

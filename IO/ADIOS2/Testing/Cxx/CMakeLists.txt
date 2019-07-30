@@ -14,18 +14,18 @@ if (ADIOS2_HAVE_MPI)
     )
   vtk_test_cxx_executable(vtkIOADIOS2CxxTests-MPI mpiTests)
 
-  # VAR tests
-  vtk_add_test_cxx(vtkIOADIOS2VARCxxTests tests
+  # VTX tests
+  vtk_add_test_cxx(vtkIOADIOS2VTXCxxTests tests
     NO_DATA NO_VALID NO_OUTPUT
-    UnitTestIOADIOS2VAR.cxx
-    TestIOADIOS2VAR_VTI3D.cxx
-    TestIOADIOS2VAR_VTI3DRendering.cxx
-    TestIOADIOS2VAR_VTU3D.cxx
-    TestIOADIOS2VAR_VTU3DRendering.cxx
+    UnitTestIOADIOS2VTX.cxx
+    TestIOADIOS2VTX_VTI3D.cxx
+    TestIOADIOS2VTX_VTI3DRendering.cxx
+    TestIOADIOS2VTX_VTU3D.cxx
+    TestIOADIOS2VTX_VTU3DRendering.cxx
   )
 
-  vtk_test_cxx_executable(vtkIOADIOS2VARCxxTests tests)
-  target_link_libraries(vtkIOADIOS2VARCxxTests
+  vtk_test_cxx_executable(vtkIOADIOS2VTXCxxTests tests)
+  target_link_libraries(vtkIOADIOS2VTXCxxTests
     PUBLIC
       adios2::adios2 )
 else()

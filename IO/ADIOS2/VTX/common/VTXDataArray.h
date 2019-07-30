@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARDataArray.h
+ Module:    VTXDataArray.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,15 +14,15 @@
  =========================================================================*/
 
 /*
- * VARDataArray.h : wrapper around vtkDataArray adding adios2 relevant
+ * VTXDataArray.h : wrapper around vtkDataArray adding adios2 relevant
  * information
  *
  *  Created on: Jun 4, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_VAR_COMMON_VARDataArray_h
-#define VTK_IO_ADIOS2_VAR_COMMON_VARDataArray_h
+#ifndef VTK_IO_ADIOS2_VTX_COMMON_VTXDataArray_h
+#define VTK_IO_ADIOS2_VTX_COMMON_VTXDataArray_h
 
 #include "vtkDataArray.h"
 #include "vtkSmartPointer.h"
@@ -31,7 +31,7 @@
 
 #include <adios2.h>
 
-namespace var
+namespace vtx
 {
 namespace types
 {
@@ -72,6 +72,6 @@ public:
 };
 
 } // end namespace types
-} // end namespace var
+} // end namespace vtx
 
-#endif /* VTK_IO_ADIOS2_VAR_COMMON_VARDataArray_h */
+#endif /* VTK_IO_ADIOS2_VTX_COMMON_VTXDataArray_h */

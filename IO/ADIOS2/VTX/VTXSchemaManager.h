@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARSchemaManager.h
+ Module:    VTXSchemaManager.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,15 +14,15 @@
  =========================================================================*/
 
 /*
- * VARSchemaManager.h : reusable class that manages a reader that
- *                         is a derived type of VARSchema
+ * VTXSchemaManager.h : reusable class that manages a reader that
+ *                         is a derived type of VTXSchema
  *
  *  Created on: May 31, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_VAR_VARSchemaManager_H_
-#define VTK_IO_ADIOS2_VAR_VARSchemaManager_H_
+#ifndef VTK_IO_ADIOS2_VTX_VTXSchemaManager_H_
+#define VTK_IO_ADIOS2_VTX_VTXSchemaManager_H_
 
 #include <memory>
 #include <set>
@@ -31,12 +31,12 @@
 #include "vtkMultiBlockDataSet.h"
 
 #include <adios2.h>
-#include "schema/VARSchema.h"
+#include "schema/VTXSchema.h"
 
-namespace var
+namespace vtx
 {
 
-class VARSchemaManager
+class VTXSchemaManager
 {
 public:
     /** current time*/
@@ -45,10 +45,10 @@ public:
     size_t Step = 0;
 
     /** managed polymorphic reader, could be extended in a container */
-    std::unique_ptr<VARSchema> Reader;
+    std::unique_ptr<VTXSchema> Reader;
 
-    VARSchemaManager() = default;
-    ~VARSchemaManager() = default;
+    VTXSchemaManager() = default;
+    ~VTXSchemaManager() = default;
 
     /**
      * Updates metadata if stream is changed
@@ -94,4 +94,4 @@ private:
 
 } // end namespace adios2vtk
 
-#endif /* VTK_IO_ADIOS2_VAR_VARSchemaManager_h */
+#endif /* VTK_IO_ADIOS2_VTX_VTXSchemaManager_h */

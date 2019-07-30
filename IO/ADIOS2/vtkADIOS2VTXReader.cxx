@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    vtkVARMultiBlock.cxx
+ Module:    vtkADIOS2VTXReader.cxx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,16 +14,16 @@
  =========================================================================*/
 
 /*
- *  vtkVARMultiBlock.cxx
+ *  vtkADIOS2VTXReader.cxx
  *
  *  Created on: May 1, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "vtkVARMultiBlock.h"
+#include "vtkADIOS2VTXReader.h"
 
-#include "VAR/VARSchemaManager.h"
-#include "VAR/common/VARHelper.h"
+#include "VTX/VTXSchemaManager.h"
+#include "VTX/common/VTXHelper.h"
 
 #include "vtkIndent.h"
 #include "vtkInformation.h"
@@ -32,24 +32,24 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkStandardNewMacro(vtkVARMultiBlock);
+vtkStandardNewMacro(vtkADIOS2VTXReader);
 
-vtkVARMultiBlock::vtkVARMultiBlock()
+vtkADIOS2VTXReader::vtkADIOS2VTXReader()
   : FileName(nullptr)
-  , SchemaManager(new var::VARSchemaManager)
+  , SchemaManager(new vtx::VTXSchemaManager)
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
 
-int vtkVARMultiBlock::RequestInformation(vtkInformation* vtkNotUsed(inputVector),
+int vtkADIOS2VTXReader::RequestInformation(vtkInformation* vtkNotUsed(inputVector),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   this->SchemaManager->Update(FileName); // check if FileName changed
 
   // set time info
   const std::vector<double> vTimes =
-    var::helper::MapKeysToVector(this->SchemaManager->Reader->Times);
+    vtx::helper::MapKeysToVector(this->SchemaManager->Reader->Times);
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   info->Set(
@@ -62,7 +62,7 @@ int vtkVARMultiBlock::RequestInformation(vtkInformation* vtkNotUsed(inputVector)
   return 1;
 }
 
-int vtkVARMultiBlock::RequestUpdateExtent(
+int vtkADIOS2VTXReader::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
@@ -72,7 +72,7 @@ int vtkVARMultiBlock::RequestUpdateExtent(
   return 1;
 }
 
-int vtkVARMultiBlock::RequestData(vtkInformation* vtkNotUsed(inputVector),
+int vtkADIOS2VTXReader::RequestData(vtkInformation* vtkNotUsed(inputVector),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
@@ -84,7 +84,7 @@ int vtkVARMultiBlock::RequestData(vtkInformation* vtkNotUsed(inputVector),
   return 1;
 }
 
-void vtkVARMultiBlock::PrintSelf(ostream& os, vtkIndent indent)
+void vtkADIOS2VTXReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";

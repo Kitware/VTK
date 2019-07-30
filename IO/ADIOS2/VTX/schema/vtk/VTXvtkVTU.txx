@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARvtkVTU.txx
+ Module:    VTXvtkVTU.txx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,26 +14,26 @@
  =========================================================================*/
 
 /*
- * VARvtkVTU.txx
+ * VTXvtkVTU.txx
  *
  *  Created on: June 25, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARxmlVTU_txx
-#define VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARxmlVTU_txx
+#ifndef VTK_IO_ADIOS2_VTX_SCHEMA_VTK_VTXxmlVTU_txx
+#define VTK_IO_ADIOS2_VTX_SCHEMA_VTK_VTXxmlVTU_txx
 
-#include "VARvtkVTU.h"
+#include "VTXvtkVTU.h"
 
-#include "VAR/common/VARHelper.h"
+#include "VTX/common/VTXHelper.h"
 
-namespace var
+namespace vtx
 {
 namespace schema
 {
 
 template <class T>
-void VARvtkVTU::SetBlocksCommon(adios2::Variable<T> variable,
+void VTXvtkVTU::SetBlocksCommon(adios2::Variable<T> variable,
                                 types::DataArray &dataArray, const size_t step)
 {
     dataArray.BlockCounts.clear();
@@ -61,6 +61,6 @@ void VARvtkVTU::SetBlocksCommon(adios2::Variable<T> variable,
 }
 
 } // end namespace schema
-} // end namespace var
+} // end namespace vtx
 
-#endif /* VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARxmlVTU_txx */
+#endif /* VTK_IO_ADIOS2_VTX_SCHEMA_VTK_VTXxmlVTU_txx */

@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARTypes.h
+ Module:    VTXTypes.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,23 +14,23 @@
  =========================================================================*/
 
 /*
- * VARTypes.h : header-only type definitions needed by the VTK::IOADIOS2 module
+ * VTXTypes.h : header-only type definitions needed by the VTK::IOADIOS2 module
  *
  *  Created on: May 14, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_VAR_COMMON_VARTypes_h
-#define VTK_IO_ADIOS2_VAR_COMMON_VARTypes_h
+#ifndef VTK_IO_ADIOS2_VTX_COMMON_VTXTypes_h
+#define VTK_IO_ADIOS2_VTX_COMMON_VTXTypes_h
 
 #include <map>
 #include <vector>
 
-#include "VARDataArray.h"
+#include "VTXDataArray.h"
 
 #include <adios2.h>
 
-namespace var
+namespace vtx
 {
 namespace types
 {
@@ -53,7 +53,7 @@ enum class DataSetType
 
 using Piece = std::map<DataSetType, DataSet>;
 
-#define VTK_IO_ADIOS2_VAR_ARRAY_TYPE(MACRO)                                    \
+#define VTK_IO_ADIOS2_VTX_ARRAY_TYPE(MACRO)                                    \
     MACRO(int32_t)                                                             \
     MACRO(uint32_t)                                                            \
     MACRO(int64_t)                                                             \
@@ -62,6 +62,6 @@ using Piece = std::map<DataSetType, DataSet>;
     MACRO(double)
 
 } // end namespace types
-} // end namespace var
+} // end namespace vtx
 
-#endif /* VTK_IO_ADIOS2_VAR_COMMON_VARTypes_h */
+#endif /* VTK_IO_ADIOS2_VTX_COMMON_VTXTypes_h */

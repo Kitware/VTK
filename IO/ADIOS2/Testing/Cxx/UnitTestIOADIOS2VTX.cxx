@@ -26,7 +26,7 @@
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "vtkVARMultiBlock.h"
+#include "vtkADIOS2VTXReader.h"
 
 #include "vtkMPI.h"
 #include "vtkMPICommunicator.h"
@@ -523,7 +523,7 @@ void WriteBPFileUnsupportedType(const std::string& fileName)
 
 } // end empty namespace
 
-int UnitTestIOADIOS2VAR(int argc, char* argv[])
+int UnitTestIOADIOS2VTX(int argc, char* argv[])
 {
   auto lf_GetFileName = [](const size_t id) -> std::string {
     return "dummy_" + std::to_string(id) + ".bp";
@@ -533,7 +533,7 @@ int UnitTestIOADIOS2VAR(int argc, char* argv[])
     bool isCaught = false;
     try
     {
-      vtkNew<vtkVARMultiBlock> reader;
+      vtkNew<vtkADIOS2VTXReader> reader;
       reader->SetFileName(fileName.c_str());
       reader->Update();
     }
@@ -589,7 +589,7 @@ int UnitTestIOADIOS2VAR(int argc, char* argv[])
   bool failed = true;
   try
   {
-    vtkNew<vtkVARMultiBlock> reader;
+    vtkNew<vtkADIOS2VTXReader> reader;
     reader->SetFileName("NONE.bp");
     reader->Update();
   }

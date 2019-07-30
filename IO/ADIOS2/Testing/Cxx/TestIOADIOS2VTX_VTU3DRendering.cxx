@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIOADIOS2VAR_VTU3DRendering.cxx
+  Module:    TestIOADIOS2VTX_VTU3DRendering.cxx
 
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -20,14 +20,14 @@
 =========================================================================*/
 
 /*
- * TestIOADIOS2VAR_VTU3DRendering.cxx : simple rendering test for unstructured
+ * TestIOADIOS2VTX_VTU3DRendering.cxx : simple rendering test for unstructured
  *                                      grid data
  *
  *  Created on: Jun 19, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "vtkVARMultiBlock.h"
+#include "vtkADIOS2VTXReader.h"
 
 #include <numeric> //std::iota
 
@@ -141,7 +141,7 @@ void WriteBP(const std::string& fileName)
 
 } // end empty namespace
 
-int TestIOADIOS2VAR_VTU3DRendering(int argc, char* argv[])
+int TestIOADIOS2VTX_VTU3DRendering(int argc, char* argv[])
 {
   vtkNew<vtkMPIController> mpiController;
   mpiController->Initialize(&argc, &argv, 0);
@@ -154,7 +154,7 @@ int TestIOADIOS2VAR_VTU3DRendering(int argc, char* argv[])
     WriteBP(fileName);
   }
 
-  vtkNew<vtkVARMultiBlock> adios2Reader;
+  vtkNew<vtkADIOS2VTXReader> adios2Reader;
   adios2Reader->SetFileName(fileName.c_str());
   adios2Reader->UpdateInformation();
   adios2Reader->Update();

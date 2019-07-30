@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    vtkVARMultiBlock.h
+ Module:    vtkADIOS2VTXReader.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,17 +14,17 @@
  =========================================================================*/
 
 /*
- * vtkVARMultiBlock.h  public facing class
+ * vtkADIOS2VTXReader.h  public facing class
  *                     enables reading adios2 bp files using the
- *                     VTK ADIOS2 Readers (VAR) developed
+ *                     VTK ADIOS2 Readers (VTX) developed
  *                     at Oak Ridge National Laboratory
  *
  *  Created on: May 1, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef vtkVARMultiBlock_h
-#define vtkVARMultiBlock_h
+#ifndef vtkADIOS2VTXReader_h
+#define vtkADIOS2VTXReader_h
 
 #include <memory> // std::unique_ptr
 
@@ -32,31 +32,31 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 // forward declaring to keep it private
-namespace var
+namespace vtx
 {
-class VARSchemaManager;
+class VTXSchemaManager;
 }
 
 class vtkIndent;
 class vtkInformation;
 class vtkInformationvector;
 
-class VTKIOADIOS2_EXPORT vtkVARMultiBlock : public vtkMultiBlockDataSetAlgorithm
+class VTKIOADIOS2_EXPORT vtkADIOS2VTXReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-    static vtkVARMultiBlock *New();
-    vtkTypeMacro(vtkVARMultiBlock, vtkMultiBlockDataSetAlgorithm);
+    static vtkADIOS2VTXReader *New();
+    vtkTypeMacro(vtkADIOS2VTXReader, vtkMultiBlockDataSetAlgorithm);
     void PrintSelf(ostream &os, vtkIndent index) override;
 
     vtkSetStringMacro(FileName);
     vtkGetStringMacro(FileName);
 
 protected:
-    vtkVARMultiBlock();
-    ~vtkVARMultiBlock() = default;
+    vtkADIOS2VTXReader();
+    ~vtkADIOS2VTXReader() = default;
 
-    vtkVARMultiBlock(const vtkVARMultiBlock &) = delete;
-    void operator=(const vtkVARMultiBlock &) = delete;
+    vtkADIOS2VTXReader(const vtkADIOS2VTXReader &) = delete;
+    void operator=(const vtkADIOS2VTXReader &) = delete;
 
     int RequestInformation(vtkInformation *, vtkInformationVector **,
                            vtkInformationVector *outputVector);
@@ -67,7 +67,7 @@ protected:
 
 private:
     char *FileName;
-    std::unique_ptr<var::VARSchemaManager> SchemaManager;
+    std::unique_ptr<vtx::VTXSchemaManager> SchemaManager;
 };
 
-#endif /* vtkVARMultiBlock_h */
+#endif /* vtkADIOS2VTXReader_h */

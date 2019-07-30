@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    VARvtkVTI.txx
+ Module:    VTXvtkVTI.txx
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -14,26 +14,26 @@
  =========================================================================*/
 
 /*
- * VARvtkVTI.txx
+ * VTXvtkVTI.txx
  *
  *  Created on: June 3, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#ifndef VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkVTI_txx
-#define VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkVTI_txx
+#ifndef VTK_IO_ADIOS2_VTX_SCHEMA_VTK_VTXvtkVTI_txx
+#define VTK_IO_ADIOS2_VTX_SCHEMA_VTK_VTXvtkVTI_txx
 
-#include "VARvtkVTI.h"
+#include "VTXvtkVTI.h"
 
-#include "VAR/common/VARHelper.h"
+#include "VTX/common/VTXHelper.h"
 
-namespace var
+namespace vtx
 {
 namespace schema
 {
 
 template<class T>
-void VARvtkVTI::SetDimensionsCommon(
+void VTXvtkVTI::SetDimensionsCommon(
   adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step)
 {
   const adios2::Dims shape = variable.Shape(step);
@@ -50,6 +50,6 @@ void VARvtkVTI::SetDimensionsCommon(
 }
 
 } // end namespace schema
-} // end namespace var
+} // end namespace vtx
 
-#endif /* VTK_IO_ADIOS2_VAR_SCHEMA_VTK_VARvtkVTI_txx */
+#endif /* VTK_IO_ADIOS2_VTX_SCHEMA_VTK_VTXvtkVTI_txx */

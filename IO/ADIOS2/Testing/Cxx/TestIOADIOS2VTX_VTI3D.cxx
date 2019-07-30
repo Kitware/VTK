@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIOADIOS2VAR_VTI3D.cxx
+  Module:    TestIOADIOS2VTX_VTI3D.cxx
 
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -20,14 +20,14 @@
 =========================================================================*/
 
 /*
- * TestIOADIOS2VAR_VTI3D.cxx : pipeline tests for image data reader 1D and 3D
+ * TestIOADIOS2VTX_VTI3D.cxx : pipeline tests for image data reader 1D and 3D
  * vars
  *
  *  Created on: Jun 13, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "vtkVARMultiBlock.h"
+#include "vtkADIOS2VTXReader.h"
 
 #include <algorithm> //std::equal
 #include <iostream>
@@ -409,10 +409,10 @@ void WriteBPFile1DVars(const std::string& fileName, const adios2::Dims& shape,
 
 } // end empty namespace
 
-int TestIOADIOS2VAR_VTI3D(int argc, char* argv[])
+int TestIOADIOS2VTX_VTI3D(int argc, char* argv[])
 {
   auto lf_DoTest = [&](const std::string& fileName, const size_t steps) {
-    vtkNew<vtkVARMultiBlock> adios2Reader;
+    vtkNew<vtkADIOS2VTXReader> adios2Reader;
     adios2Reader->SetFileName(fileName.c_str());
     // check FileName
     char* outFileName = adios2Reader->GetFileName();

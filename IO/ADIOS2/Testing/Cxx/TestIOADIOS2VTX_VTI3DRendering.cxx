@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIOADIOS2VAR_VTI3DRendering.cxx
+  Module:    TestIOADIOS2VTX_VTI3DRendering.cxx
 
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -20,13 +20,13 @@
 =========================================================================*/
 
 /*
- * TestIOADIOS2VAR_VTI3DRendering.cxx : simple rendering test
+ * TestIOADIOS2VTX_VTI3DRendering.cxx : simple rendering test
  *
  *  Created on: Jun 19, 2019
  *      Author: William F Godoy godoywf@ornl.gov
  */
 
-#include "vtkVARMultiBlock.h"
+#include "vtkADIOS2VTXReader.h"
 
 #include <numeric>
 
@@ -128,7 +128,7 @@ void WriteBPFile3DVars(const std::string& fileName, const adios2::Dims& shape,
 
 } // end empty namespace
 
-int TestIOADIOS2VAR_VTI3DRendering(int argc, char* argv[])
+int TestIOADIOS2VTX_VTI3DRendering(int argc, char* argv[])
 {
   vtkNew<vtkMPIController> mpiController;
   mpiController->Initialize(&argc, &argv, 0);
@@ -144,7 +144,7 @@ int TestIOADIOS2VAR_VTI3DRendering(int argc, char* argv[])
 
   WriteBPFile3DVars(fileName, shape, start, count, rank);
 
-  vtkNew<vtkVARMultiBlock> adios2Reader;
+  vtkNew<vtkADIOS2VTXReader> adios2Reader;
   adios2Reader->SetFileName(fileName.c_str());
   adios2Reader->UpdateInformation();
   adios2Reader->Update();
