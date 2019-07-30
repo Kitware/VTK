@@ -670,6 +670,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   vtkOpenGLState *ostate =
     static_cast<vtkOpenGLRenderWindow *>(renderer->GetRenderWindow())->GetState();
   ostate->vtkglDepthMask(GL_FALSE);
+  ostate->vtkglEnable(GL_DEPTH_TEST);
 
   ostate->vtkglDisable(GL_CULL_FACE);
   vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);

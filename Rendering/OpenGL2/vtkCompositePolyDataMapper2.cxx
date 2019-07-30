@@ -1709,11 +1709,15 @@ void vtkCompositePolyDataMapper2::Render(
   }
 
   // rebuild the render values if needed
-  if (this->RenderValuesBuildTime < this->GetMTime() ||
-      this->RenderValuesBuildTime < actor->GetProperty()->GetMTime() ||
-      this->RenderValuesBuildTime < this->VBOBuildTime ||
-      this->RenderValuesBuildTime < this->HelperMTime)
+  this->TempState.Clear();
+  this->TempState.Append(actor->GetProperty()->GetMTime(),"actor mtime");
+  this->TempState.Append(this->GetMTime(), "this mtime");
+  this->TempState.Append(this->HelperMTime, "helper mtime");
+  this->TempState.Append(
+    actor->GetTexture() ? actor->GetTexture()->GetMTime() : 0, "texture mtime");
+  if (this->RenderValuesState != this->TempState)
   {
+    this->RenderValuesState = this->TempState;
     vtkProperty* prop = actor->GetProperty();
     vtkScalarsToColors* lut = this->GetLookupTable();
     if (lut)
@@ -1740,8 +1744,6 @@ void vtkCompositePolyDataMapper2::Render(
     this->BlockState.AmbientColor.pop();
     this->BlockState.DiffuseColor.pop();
     this->BlockState.SpecularColor.pop();
-
-    this->RenderValuesBuildTime.Modified();
   }
 
   this->InitializeHelpersBeforeRendering(ren, actor);
@@ -1802,6 +1804,12 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
   // block.
   flat_index++;
 
+  bool textureOpaque = true;
+  if (actor->GetTexture() != nullptr && actor->GetTexture()->IsTranslucent())
+  {
+    textureOpaque = false;
+  }
+
   auto dObjTree = vtkDataObjectTree::SafeDownCast(dobj);
   if (dObjTree)
   {
@@ -1831,7 +1839,7 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
       helperData->AmbientColor = this->BlockState.AmbientColor.top();
       helperData->DiffuseColor = this->BlockState.DiffuseColor.top();
       helperData->OverridesColor = (this->BlockState.AmbientColor.size() > 1);
-      helperData->IsOpaque = (helperData->Opacity >= 1.0) ? true : false;
+      helperData->IsOpaque = (helperData->Opacity >= 1.0) ? textureOpaque : false;
       // if we think it is opaque check the scalars
       if (helperData->IsOpaque && this->ScalarVisibility)
       {
