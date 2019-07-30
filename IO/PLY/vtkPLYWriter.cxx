@@ -120,12 +120,6 @@ void vtkPLYWriter::WriteData()
     return;
   }
 
-  if ( this->FileName == nullptr)
-  {
-    vtkErrorMacro(<< "Please specify FileName to write");
-    return;
-  }
-
   // Open the file in appropriate way
   if (this->WriteToOutputString)
   {

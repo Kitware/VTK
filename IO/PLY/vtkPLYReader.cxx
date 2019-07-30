@@ -178,12 +178,6 @@ int vtkPLYReader::RequestData(
      1, PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,ntexcoord))},
   };
 
-  if (!this->FileName)
-  {
-    vtkErrorMacro(<<"A File Name must be specified.");
-    return 0;
-  }
-
   // open a PLY file for reading
   PlyFile *ply;
   int nelems, numElems, nprops;
