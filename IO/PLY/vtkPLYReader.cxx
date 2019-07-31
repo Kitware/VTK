@@ -98,6 +98,7 @@ namespace {
 vtkPLYReader::vtkPLYReader()
 {
   this->Comments = vtkStringArray::New();
+  this->ReadFromInputString = false;
   this->FaceTextureTolerance = 0.000001;
   this->DuplicatePointsForFaceTexture = true;
 }
@@ -177,23 +178,27 @@ int vtkPLYReader::RequestData(
      1, PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,ntexcoord))},
   };
 
-  if (!this->FileName)
-  {
-    vtkErrorMacro(<<"A File Name must be specified.");
-    return 0;
-  }
-
   // open a PLY file for reading
   PlyFile *ply;
-  int nelems, fileType, numElems, nprops;
+  int nelems, numElems, nprops;
   char **elist, *elemName;
-  float version;
 
-  if ( !(ply = vtkPLY::ply_open_for_reading(this->FileName, &nelems, &elist,
-                                            &fileType, &version)) )
+  if (this->ReadFromInputString)
   {
-    vtkWarningMacro(<<"Could not open PLY file");
-    return 0;
+    if ( !(ply = vtkPLY::ply_open_for_reading_from_string(
+             this->InputString, &nelems, &elist)) )
+    {
+      vtkWarningMacro(<<"Could not open PLY file");
+      return 0;
+    }
+  }
+  else
+  {
+    if ( !(ply = vtkPLY::ply_open_for_reading(this->FileName, &nelems, &elist)) )
+    {
+      vtkWarningMacro(<<"Could not open PLY file");
+      return 0;
+    }
   }
 
   int numberOfComments = 0;

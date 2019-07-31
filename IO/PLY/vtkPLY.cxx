@@ -56,6 +56,8 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include <cstring>
 #include <cassert>
 #include <limits>
+#include <fstream>
+#include <sstream>
 
 /* memory allocation */
 #define myalloc(mem_size) vtkPLY::my_alloc((mem_size), __LINE__, __FILE__)
@@ -115,7 +117,7 @@ static const int ply_type_size[] = {
 Given a file pointer, get ready to write PLY data to the file.
 
 Entry:
-  fp         - the given file pointer
+  os         - the given output stream
   nelems     - number of elements in object
   elem_names - list of element names
   file_type  - file type, either ascii or binary
@@ -125,7 +127,7 @@ Exit:
 ******************************************************************************/
 
 PlyFile *vtkPLY::ply_write(
-  FILE *fp,
+  std::ostream *os,
   int nelems,
   const char **elem_names,
   int file_type
@@ -136,7 +138,7 @@ PlyFile *vtkPLY::ply_write(
   PlyElement *elem;
 
   /* check for nullptr file pointer */
-  if (fp == nullptr)
+  if (os == nullptr)
     return (nullptr);
 
   /* create a record for this object */
@@ -147,7 +149,8 @@ PlyFile *vtkPLY::ply_write(
   plyfile->num_obj_info = 0;
   plyfile->nelems = nelems;
   plyfile->version = 1.0;
-  plyfile->fp = fp;
+  plyfile->os = os;
+  plyfile->is = nullptr;
   plyfile->other_elems = nullptr;
 
   /* tuck aside the names of the elements */
@@ -167,7 +170,7 @@ PlyFile *vtkPLY::ply_write(
 
 
 /******************************************************************************
-Open a polygon file for writing.
+Open a PLY file for writing.
 
 Entry:
   filename   - name of file to read from
@@ -184,13 +187,11 @@ PlyFile *vtkPLY::ply_open_for_writing(
   const char *filename,
   int nelems,
   const char **elem_names,
-  int file_type,
-  float *version
-)
+  int file_type)
 {
   PlyFile *plyfile;
   char *name;
-  FILE *fp;
+  std::ofstream *ofs = nullptr;
 
   //memory leaks
   plyInitialize();
@@ -204,25 +205,63 @@ PlyFile *vtkPLY::ply_open_for_writing(
       strcat (name, ".ply");
 
   /* open the file for writing */
+  ofs = new std::ofstream;
 
-  fp = vtksys::SystemTools::Fopen (name, "wb");
+  ofs->open(name, std::istream::out|std::istream::binary);
   free (name); //wjs remove memory leak//
-  if (fp == nullptr)
+  if (! ofs->is_open())
   {
+    delete ofs;
     return (nullptr);
   }
 
   /* create the actual PlyFile structure */
 
-  plyfile = vtkPLY::ply_write (fp, nelems, elem_names, file_type);
+  plyfile = vtkPLY::ply_write (ofs, nelems, elem_names, file_type);
   if (plyfile == nullptr)
   {
-    fclose(fp);
+    ofs->close();
+    delete ofs;
     return (nullptr);
   }
 
-  /* say what PLY file version number we're writing */
-  *version = plyfile->version;
+  /* return pointer to the file descriptor */
+  return (plyfile);
+}
+
+/******************************************************************************
+Open a PLY file for writing.
+
+Entry:
+  output     - string to write to
+  nelems     - number of elements in object
+  elem_names - list of element names
+  file_type  - file type, either ascii or binary
+
+Exit:
+  version - version number of PLY file
+  returns a file identifier, used to refer to this file, or nullptr if error
+******************************************************************************/
+
+PlyFile *vtkPLY::ply_open_for_writing_to_string(
+  std::string& output,
+  int nelems,
+  const char **elem_names,
+  int file_type)
+{
+  PlyFile *plyfile;
+  //memory leaks
+  plyInitialize();
+  std::ostringstream *oss = new std::ostringstream;
+  oss->str(output);
+
+  /* create the actual PlyFile structure */
+  plyfile = vtkPLY::ply_write (oss, nelems, elem_names, file_type);
+  if (plyfile == nullptr)
+  {
+    delete oss;
+    return (nullptr);
+  }
 
   /* return pointer to the file descriptor */
   return (plyfile);
@@ -420,64 +459,63 @@ Entry:
 void vtkPLY::ply_header_complete(PlyFile *plyfile)
 {
   int i,j;
-  FILE *fp = plyfile->fp;
+  std::ostream *os = plyfile->os;
   PlyElement *elem;
   PlyProperty *prop;
 
-  fprintf (fp, "ply\n");
+  *os << "ply\n";
 
   switch (plyfile->file_type) {
     case PLY_ASCII:
-      fprintf (fp, "format ascii 1.0\n");
+      *os << "format ascii 1.0\n";
       break;
     case PLY_BINARY_BE:
-      fprintf (fp, "format binary_big_endian 1.0\n");
+      *os << "format binary_big_endian 1.0\n";
       break;
     case PLY_BINARY_LE:
-      fprintf (fp, "format binary_little_endian 1.0\n");
+      *os << "format binary_little_endian 1.0\n";
       break;
     default:
-      fprintf (stderr, "ply_header_complete: bad file type = %d\n",
-               plyfile->file_type);
+      *os << "ply_header_complete: bad file type = " << plyfile->file_type << "\n";
       assert (0);
   }
 
   /* write out the comments */
 
   for (i = 0; i < plyfile->num_comments; i++)
-    fprintf (fp, "comment %s\n", plyfile->comments[i]);
+    *os << "comment " << plyfile->comments[i] << "\n";
 
   /* write out object information */
 
   for (i = 0; i < plyfile->num_obj_info; i++)
-    fprintf (fp, "obj_info %s\n", plyfile->obj_info[i]);
+    *os << "obj_info " << plyfile->obj_info[i] << "\n";
 
   /* write out information about each element */
 
   for (i = 0; i < plyfile->nelems; i++) {
 
     elem = plyfile->elems[i];
-    fprintf (fp, "element %s %d\n", elem->name, elem->num);
+    *os << "element " << elem->name << " " << elem->num << "\n";
 
     /* write out each property */
     for (j = 0; j < elem->nprops; j++) {
       prop = elem->props[j];
       if (prop->is_list) {
-        fprintf (fp, "property list ");
-        write_scalar_type (fp, prop->count_external);
-        fprintf (fp, " ");
-        write_scalar_type (fp, prop->external_type);
-        fprintf (fp, " %s\n", prop->name);
+        *os << "property list ";
+        write_scalar_type (os, prop->count_external);
+        *os << " ";
+        write_scalar_type (os, prop->external_type);
+        *os << " " << prop->name << "\n";
       }
       else {
-        fprintf (fp, "property ");
-        write_scalar_type (fp, prop->external_type);
-        fprintf (fp, " %s\n", prop->name);
+        *os << "property ";
+        write_scalar_type (os, prop->external_type);
+        *os << " " << prop->name << "\n";
       }
     }
   }
 
-  fprintf (fp, "end_header\n");
+  *os << "end_header\n";
 }
 
 
@@ -517,7 +555,7 @@ Entry:
 void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
 {
   int j, k;
-  FILE *fp = plyfile->fp;
+  std::ostream *os = plyfile->os;
   PlyElement *elem;
   PlyProperty *prop;
   char *elem_data,*item;
@@ -549,7 +587,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
         item = elem_data + prop->count_offset;
         get_stored_item (item, prop->count_internal,
                          &int_val, &uint_val, &double_val);
-        write_ascii_item (fp, int_val, uint_val, double_val,
+        write_ascii_item (os, int_val, uint_val, double_val,
                           prop->count_external);
         list_count = uint_val;
         item_ptr = (char **) (elem_data + prop->offset);
@@ -558,7 +596,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
         for (k = 0; k < list_count; k++) {
           get_stored_item (item, prop->internal_type,
                            &int_val, &uint_val, &double_val);
-          write_ascii_item (fp, int_val, uint_val, double_val,
+          write_ascii_item (os, int_val, uint_val, double_val,
                             prop->external_type);
           item += item_size;
         }
@@ -567,12 +605,12 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
         item = elem_data + prop->offset;
         get_stored_item (item, prop->internal_type,
                          &int_val, &uint_val, &double_val);
-        write_ascii_item (fp, int_val, uint_val, double_val,
+        write_ascii_item (os, int_val, uint_val, double_val,
                           prop->external_type);
       }
     }
 
-    fprintf (fp, "\n");
+    *os << "\n";
   }
   else {
 
@@ -687,7 +725,7 @@ void vtkPLY::ply_put_obj_info(PlyFile *plyfile, const char *obj_info)
 Given a file pointer, get ready to read PLY data from the file.
 
 Entry:
-  fp - the given file pointer
+  is - the given input stream
 
 Exit:
   nelems     - number of elements in object
@@ -695,7 +733,7 @@ Exit:
   returns a pointer to a PlyFile, used to refer to this file, or nullptr if error
 ******************************************************************************/
 
-PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
+PlyFile *vtkPLY::ply_read(std::istream *is, int *nelems, char ***elem_names)
 {
   int i,j;
   PlyFile *plyfile;
@@ -706,7 +744,7 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
   char *orig_line;
 
   /* check for nullptr file pointer */
-  if (fp == nullptr)
+  if (is == nullptr)
     return (nullptr);
 
   /* create record for this object */
@@ -717,12 +755,13 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
   plyfile->num_comments = 0;
   plyfile->obj_info = nullptr;
   plyfile->num_obj_info = 0;
-  plyfile->fp = fp;
+  plyfile->is = is;
+  plyfile->os = nullptr;
   plyfile->other_elems = nullptr;
 
   /* read and parse the file's header */
 
-  words = get_words (plyfile->fp, &nwords, &orig_line);
+  words = get_words (plyfile->is, &nwords, &orig_line);
   if (!words || !equal_strings (words[0], "ply"))
   {
     free (plyfile);
@@ -773,7 +812,7 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
     /* free up words space */
     free (words);
 
-    words = get_words (plyfile->fp, &nwords, &orig_line);
+    words = get_words (plyfile->is, &nwords, &orig_line);
   }
 
   if (plyfile->nelems == 0)
@@ -818,49 +857,86 @@ Entry:
 Exit:
   nelems     - number of elements in object
   elem_names - list of element names
-  file_type  - file type, either ascii or binary
-  version    - version number of PLY file
   returns a file identifier, used to refer to this file, or nullptr if error
 ******************************************************************************/
 
 PlyFile *vtkPLY::ply_open_for_reading(
   const char *filename,
   int *nelems,
-  char ***elem_names,
-  int *file_type,
-  float *version
-)
+  char ***elem_names)
 {
-  FILE *fp;
+  std::ifstream *ifs;
   PlyFile *plyfile;
 
   //memory leaks
   plyInitialize();
 
   /* open the file for reading */
+  ifs = new std::ifstream;
 
-  fp = vtksys::SystemTools::Fopen(filename, "rb");
-  if (fp == nullptr)
-    return (nullptr);
-
-  /* create the PlyFile data structure */
-
-  plyfile = vtkPLY::ply_read (fp, nelems, elem_names);
-  if (plyfile == nullptr)
+  ifs->open(filename, std::ifstream::in | std::ifstream::binary);
+  if (! ifs->is_open())
   {
-    fclose(fp);
+    delete ifs;
     return (nullptr);
   }
 
-  /* determine the file type and version */
+  /* create the PlyFile data structure */
 
-  *file_type = plyfile->file_type;
-  *version = plyfile->version;
+  plyfile = vtkPLY::ply_read (ifs, nelems, elem_names);
+  if (plyfile == nullptr)
+  {
+    ifs->close();
+    delete ifs;
+    return (nullptr);
+  }
 
   /* return a pointer to the file's information */
 
   return (plyfile);
 }
+
+/******************************************************************************
+Open a polygon file for reading.
+
+Entry:
+  input - string to read from
+
+Exit:
+  nelems     - number of elements in object
+  elem_names - list of element names
+  returns a file identifier, used to refer to this file, or nullptr if error
+******************************************************************************/
+
+PlyFile *vtkPLY::ply_open_for_reading_from_string(
+  const std::string& input,
+  int *nelems,
+  char ***elem_names)
+{
+  std::istringstream *iss;
+  PlyFile *plyfile;
+
+  //memory leaks
+  plyInitialize();
+
+  /* open the file for reading */
+  iss = new std::istringstream;
+
+  iss->str(input);
+  /* create the PlyFile data structure */
+
+  plyfile = vtkPLY::ply_read (iss, nelems, elem_names);
+  if (plyfile == nullptr)
+  {
+    delete iss;
+    return (nullptr);
+  }
+
+  /* return a pointer to the file's information */
+
+  return (plyfile);
+}
+
 
 
 /******************************************************************************
@@ -1381,7 +1457,24 @@ void vtkPLY::ply_close(PlyFile *plyfile)
   // Changed by Will Schroeder. Old stuff leaked like a sieve.
 
   /* free up memory associated with the PLY file */
-  fclose (plyfile->fp);
+  if (plyfile->is)
+  {
+    std::ifstream* ifs = dynamic_cast<std::ifstream*>(plyfile->is);
+    if (ifs)
+    {
+      ifs->close();
+    }
+    delete plyfile->is;
+  }
+  if (plyfile->os)
+  {
+    std::ofstream* ofs = dynamic_cast<std::ofstream*>(plyfile->os);
+    if (ofs)
+    {
+      ofs->close();
+    }
+    delete plyfile->os;
+  }
 
   int i, j;
   PlyElement *elem;
@@ -1515,7 +1608,7 @@ Entry:
   elem_ptr - pointer to element
 ******************************************************************************/
 
-void vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
+bool vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
 {
   int j,k;
   PlyElement *elem;
@@ -1555,10 +1648,11 @@ void vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
 
   /* read in the element */
 
-  words = get_words (plyfile->fp, &nwords, &orig_line);
+  words = get_words (plyfile->is, &nwords, &orig_line);
   if (words == nullptr) {
     fprintf (stderr, "ply_get_element: unexpected end of file\n");
     assert (0);
+    return false;
   }
 
   which_word = 0;
@@ -1625,6 +1719,7 @@ void vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
   }
 
   free (words);
+  return true;
 }
 
 
@@ -1636,12 +1731,11 @@ Entry:
   elem_ptr - pointer to an element
 ******************************************************************************/
 
-void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
+bool vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
 {
   int j,k;
   PlyElement *elem;
   PlyProperty *prop;
-  //FILE *fp = plyfile->fp;
   char *elem_data,*item=nullptr;
   char *item_ptr;
   int item_size=0;
@@ -1687,8 +1781,11 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
     if (prop->is_list) {       /* a list */
 
       /* get and store the number of items in the list */
-      get_binary_item (plyfile, prop->count_external,
-                      &int_val, &uint_val, &double_val);
+      if (! get_binary_item (plyfile, prop->count_external,
+                             &int_val, &uint_val, &double_val))
+      {
+        return false;
+      }
       if (store_it) {
         item = elem_data + prop->count_offset;
         store_item(item, prop->count_internal, int_val, uint_val, double_val);
@@ -1717,8 +1814,11 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
 
         /* read items and store them into the array */
         for (k = 0; k < list_count; k++) {
-          get_binary_item (plyfile, prop->external_type,
-                          &int_val, &uint_val, &double_val);
+          if (! get_binary_item (plyfile, prop->external_type,
+                                 &int_val, &uint_val, &double_val))
+          {
+            return false;
+          }
           if (store_it) {
             store_item (item, prop->internal_type,
                         int_val, uint_val, double_val);
@@ -1729,8 +1829,11 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
 
     }
     else {                     /* not a list */
-      get_binary_item (plyfile, prop->external_type,
-                      &int_val, &uint_val, &double_val);
+      if (! get_binary_item (plyfile, prop->external_type,
+                             &int_val, &uint_val, &double_val))
+      {
+        return false;
+      }
       if (store_it) {
         item = elem_data + prop->offset;
         store_item (item, prop->internal_type, int_val, uint_val, double_val);
@@ -1738,6 +1841,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
     }
 
   }
+  return true;
 }
 
 
@@ -1745,11 +1849,11 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
 Write to a file the word that represents a PLY data type.
 
 Entry:
-  fp   - file pointer
+  os   - output stream
   code - code for type
 ******************************************************************************/
 
-void vtkPLY::write_scalar_type (FILE *fp, int code)
+void vtkPLY::write_scalar_type (std::ostream *os, int code)
 {
   /* make sure this is a valid code */
 
@@ -1760,7 +1864,7 @@ void vtkPLY::write_scalar_type (FILE *fp, int code)
 
   /* write the code to a file */
 
-  fprintf (fp, "%s", type_names[code]);
+  *os << type_names[code];
 }
 
 
@@ -1771,7 +1875,7 @@ IMPORTANT: The calling routine call "free" on the returned pointer once
 finished with it.
 
 Entry:
-  fp - file to read from
+  is - input stream
 
 Exit:
   nwords    - number of words returned
@@ -1779,25 +1883,23 @@ Exit:
   returns a list of words from the line, or nullptr if end-of-file
 ******************************************************************************/
 
-char **vtkPLY::get_words(FILE *fp, int *nwords, char **orig_line)
+char **vtkPLY::get_words(std::istream *is, int *nwords, char **orig_line)
 {
-#define BIG_STRING 4096
-  static char str[BIG_STRING];
-  static char str_copy[BIG_STRING];
+  const int BIG_STRING = 4096;
+  char str[BIG_STRING];
+  char str_copy[BIG_STRING];
   char **words;
   int max_words = 10;
   int num_words = 0;
   char *ptr,*ptr2;
-  char *result;
 
   /* read in a line */
-  result = fgets (str, BIG_STRING, fp);
-  if (result == nullptr) {
+  is->getline(str, BIG_STRING);
+  if (! is->good()) {
     *nwords = 0;
     *orig_line = nullptr;
     return (nullptr);
   }
-
   words = (char **) myalloc (sizeof (char *) * max_words);
 
   char *pos = strstr(str, "vertex_index");
@@ -1861,8 +1963,12 @@ char **vtkPLY::get_words(FILE *fp, int *nwords, char **orig_line)
     words[num_words++] = ptr;
 
     /* jump over non-spaces */
-    while (*ptr != ' ')
+    while (*ptr != ' ' && *ptr != '\0')
       ptr++;
+
+    /* break if we reach the end */
+    if (*ptr == '\0')
+      break;
 
     /* place a null character here to mark the end of the word */
     *ptr++ = '\0';
@@ -1955,7 +2061,7 @@ double vtkPLY::get_item_value(const char *item, int type)
 Write out an item to a file as raw binary bytes.
 
 Entry:
-  fp         - file to write to
+  os         - output stream
   int_val    - integer version of item
   uint_val   - unsigned integer version of item
   double_val - double-precision float version of item
@@ -1969,7 +2075,7 @@ void vtkPLY::write_binary_item(PlyFile *plyfile,
                                int type
 )
 {
-  FILE *fp = plyfile->fp;
+  std::ostream *os = plyfile->os;
   vtkTypeUInt8 uchar_val;
   vtkTypeInt8 char_val;
   vtkTypeUInt16 ushort_val;
@@ -1980,7 +2086,7 @@ void vtkPLY::write_binary_item(PlyFile *plyfile,
     case PLY_CHAR:
     case PLY_INT8:
       char_val = int_val;
-      fwrite (&char_val, 1, 1, fp);
+      os->write(reinterpret_cast<char*>(&char_val), sizeof(char_val));
       break;
     case PLY_SHORT:
     case PLY_INT16:
@@ -1988,19 +2094,19 @@ void vtkPLY::write_binary_item(PlyFile *plyfile,
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&short_val) :
         vtkByteSwap::Swap2LE(&short_val);
-      fwrite (&short_val, sizeof(short_val), 1, fp);
+      os->write(reinterpret_cast<char*>(&short_val), sizeof(short_val));
       break;
     case PLY_INT:
     case PLY_INT32:
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&int_val) :
         vtkByteSwap::Swap4LE(&int_val);
-      fwrite (&int_val, sizeof(int_val), 1, fp);
+      os->write(reinterpret_cast<char*>(&int_val), sizeof(int_val));
       break;
     case PLY_UCHAR:
     case PLY_UINT8:
       uchar_val = uint_val;
-      fwrite (&uchar_val, sizeof(uchar_val), 1, fp);
+      os->write(reinterpret_cast<char*>(&uchar_val), sizeof(uchar_val));
       break;
     case PLY_USHORT:
     case PLY_UINT16:
@@ -2008,14 +2114,14 @@ void vtkPLY::write_binary_item(PlyFile *plyfile,
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&ushort_val) :
         vtkByteSwap::Swap2LE(&ushort_val);
-      fwrite (&ushort_val, sizeof(ushort_val), 1, fp);
+      os->write(reinterpret_cast<char*>(&ushort_val), sizeof(ushort_val));
       break;
     case PLY_UINT:
     case PLY_UINT32:
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&uint_val) :
         vtkByteSwap::Swap4LE(&uint_val);
-      fwrite (&uint_val, sizeof(uint_val), 1, fp);
+      os->write(reinterpret_cast<char*>(&uint_val), sizeof(uint_val));
       break;
     case PLY_FLOAT:
     case PLY_FLOAT32:
@@ -2023,14 +2129,14 @@ void vtkPLY::write_binary_item(PlyFile *plyfile,
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&float_val) :
         vtkByteSwap::Swap4LE(&float_val);
-      fwrite (&float_val, sizeof(float_val), 1, fp);
+      os->write(reinterpret_cast<char*>(&float_val), sizeof(float_val));
       break;
     case PLY_DOUBLE:
     case PLY_FLOAT64:
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap8BE(&double_val) :
         vtkByteSwap::Swap8LE(&double_val);
-      fwrite (&double_val, sizeof(double_val), 1, fp);
+      os->write(reinterpret_cast<char*>(&double_val), sizeof(double_val));
       break;
     default:
       fprintf (stderr, "write_binary_item: bad type = %d\n", type);
@@ -2043,7 +2149,7 @@ void vtkPLY::write_binary_item(PlyFile *plyfile,
 Write out an item to a file as ascii characters.
 
 Entry:
-  fp         - file to write to
+  os         - output stream
   int_val    - integer version of item
   uint_val   - unsigned integer version of item
   double_val - double-precision float version of item
@@ -2051,7 +2157,7 @@ Entry:
 ******************************************************************************/
 
 void vtkPLY::write_ascii_item(
-  FILE *fp,
+  std::ostream *os,
   int int_val,
   unsigned int uint_val,
   double double_val,
@@ -2065,7 +2171,7 @@ void vtkPLY::write_ascii_item(
     case PLY_INT16:
     case PLY_INT:
     case PLY_INT32:
-      fprintf (fp, "%d ", int_val);
+      *os << int_val << " ";
       break;
     case PLY_UCHAR:
     case PLY_UINT8:
@@ -2073,14 +2179,15 @@ void vtkPLY::write_ascii_item(
     case PLY_UINT16:
     case PLY_UINT:
     case PLY_UINT32:
-      fprintf (fp, "%u ", uint_val);
+      *os << uint_val << " ";
       break;
     case PLY_FLOAT:
     case PLY_FLOAT32:
     case PLY_DOUBLE:
     case PLY_FLOAT64:
       // Use needed precision.
-      fprintf (fp, "%.*g ", std::numeric_limits<double>::max_digits10, double_val);
+      *os << std::setprecision(std::numeric_limits<double>::max_digits10)
+          << double_val << " ";
       break;
     default:
       fprintf (stderr, "write_ascii_item: bad type = %d\n", type);
@@ -2093,7 +2200,7 @@ void vtkPLY::write_ascii_item(
 Write out an item to a file as ascii characters.
 
 Entry:
-  fp   - file to write to
+  os   - output stream
   item - pointer to item to write
   type - data type that "item" points to
 
@@ -2101,7 +2208,7 @@ Exit:
   returns a double-precision float that contains the value of the written item
 ******************************************************************************/
 
-double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
+double vtkPLY::old_write_ascii_item(std::ostream *os, char *item, int type)
 {
   switch (type) {
     case PLY_CHAR:
@@ -2109,7 +2216,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
     {
       vtkTypeInt8 value;
       memcpy(&value, item, sizeof(value));
-      fprintf (fp, "%d ", value);
+      *os << value << " ";
       return static_cast<double>(value);
     }
     case PLY_UCHAR:
@@ -2117,7 +2224,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
     {
       vtkTypeUInt8 value;
       memcpy(&value, item, sizeof(value));
-      fprintf (fp, "%u ", value);
+      *os << value << " ";
       return static_cast<double>(value);
     }
     case PLY_SHORT:
@@ -2125,7 +2232,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
     {
       vtkTypeInt16 value;
       memcpy(&value, item, sizeof(value));
-      fprintf (fp, "%d ", value);
+      *os << value << " ";
       return static_cast<double>(value);
     }
     case PLY_USHORT:
@@ -2133,7 +2240,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
     {
       vtkTypeUInt16 value;
       memcpy(&value, item, sizeof(value));
-      fprintf (fp, "%u ", value);
+      *os << value << " ";
       return static_cast<double>(value);
     }
     case PLY_INT:
@@ -2141,7 +2248,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
     {
       vtkTypeInt32 value;
       memcpy(&value, item, sizeof(value));
-      fprintf (fp, "%d ", value);
+      *os << value << " ";
       return static_cast<double>(value);
     }
     case PLY_UINT:
@@ -2149,7 +2256,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
     {
       vtkTypeUInt32 value;
       memcpy(&value, item, sizeof(value));
-      fprintf (fp, "%u ", value);
+      *os << value << " ";
       return static_cast<double>(value);
     }
     case PLY_FLOAT:
@@ -2157,7 +2264,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
     {
       vtkTypeFloat32 value;
       memcpy(&value, item, sizeof(value));
-      fprintf (fp, "%g ", value);
+      *os << value << " ";
       return value;
     }
     case PLY_DOUBLE:
@@ -2165,7 +2272,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
     {
       vtkTypeFloat64 value;
       memcpy(&value, item, sizeof(value));
-      fprintf (fp, "%g ", value);
+      *os << value << " ";
       return value;
     }
   }
@@ -2289,7 +2396,7 @@ Get the value of an item from a binary file, and place the result
 into an integer, an unsigned integer and a double.
 
 Entry:
-  fp   - file to get item from
+  os   - output stream
   type - data type supposedly in the word
 
 Exit:
@@ -2298,7 +2405,7 @@ Exit:
   double_val - double-precision floating point value
 ******************************************************************************/
 
-void vtkPLY::get_binary_item(
+bool vtkPLY::get_binary_item(
   PlyFile *plyfile,
   int type,
   int *int_val,
@@ -2311,12 +2418,12 @@ void vtkPLY::get_binary_item(
     case PLY_INT8:
       {
       vtkTypeInt8 value = 0;
-      if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
+      plyfile->is->read(reinterpret_cast<char*>(&value), sizeof(value));
+      if (! plyfile->is->good())
       {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading char.");
-        fclose (plyfile->fp);
-        return;
+        return false;
       }
 
       // Here value can always fit in int, unsigned int, and double.
@@ -2329,12 +2436,12 @@ void vtkPLY::get_binary_item(
     case PLY_UINT8:
     {
       vtkTypeUInt8 value = 0;
-      if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
+      plyfile->is->read(reinterpret_cast<char*>(&value), sizeof(value));
+      if (! plyfile->is->good())
       {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading uchar or uint8.");
-        fclose (plyfile->fp);
-        return;
+        return false;
       }
 
       // Here value can always fit in int, unsigned int, and double.
@@ -2347,12 +2454,12 @@ void vtkPLY::get_binary_item(
     case PLY_INT16:
     {
       vtkTypeInt16 value = 0;
-      if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
+      plyfile->is->read(reinterpret_cast<char*>(&value), sizeof(value));
+      if (! plyfile->is->good())
       {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading short.");
-        fclose (plyfile->fp);
-        return;
+        return false;
       }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&value) :
@@ -2368,12 +2475,12 @@ void vtkPLY::get_binary_item(
     case PLY_UINT16:
     {
       vtkTypeUInt16 value = 0;
-      if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
+      plyfile->is->read(reinterpret_cast<char*>(&value), sizeof(value));
+      if (! plyfile->is->good())
       {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading ushort.");
-        fclose (plyfile->fp);
-        return;
+        return false;
       }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&value) :
@@ -2389,12 +2496,12 @@ void vtkPLY::get_binary_item(
     case PLY_INT32:
     {
       vtkTypeInt32 value = 0;
-      if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
+      plyfile->is->read(reinterpret_cast<char*>(&value), sizeof(value));
+      if (! plyfile->is->good())
       {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading int or int32.");
-        fclose (plyfile->fp);
-        return;
+        return false;
       }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
@@ -2410,12 +2517,12 @@ void vtkPLY::get_binary_item(
     case PLY_UINT32:
     {
       vtkTypeUInt32 value = 0;
-      if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
+      plyfile->is->read(reinterpret_cast<char*>(&value), sizeof(value));
+      if (! plyfile->is->good())
       {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading uint");
-        fclose (plyfile->fp);
-        return;
+        return false;
       }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
@@ -2431,12 +2538,12 @@ void vtkPLY::get_binary_item(
     case PLY_FLOAT32:
     {
       vtkTypeFloat32 value = 0.0;
-      if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
+      plyfile->is->read(reinterpret_cast<char*>(&value), sizeof(value));
+      if (! plyfile->is->good())
       {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading float of float32.");
-        fclose (plyfile->fp);
-        return;
+        return false;
       }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
@@ -2454,12 +2561,12 @@ void vtkPLY::get_binary_item(
     case PLY_FLOAT64:
     {
       vtkTypeFloat64 value = 0.0;
-      if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
+      plyfile->is->read(reinterpret_cast<char*>(&value), sizeof(value));
+      if (! plyfile->is->good())
       {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading double.");
-        fclose (plyfile->fp);
-        return;
+        return false;
       }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap8BE(&value) :
@@ -2474,7 +2581,9 @@ void vtkPLY::get_binary_item(
     default:
       fprintf (stderr, "get_binary_item: bad type = %d\n", type);
       assert (0);
+      return false;
   }
+  return true;
 }
 
 
