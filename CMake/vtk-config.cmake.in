@@ -129,6 +129,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModule.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/vtkEncodeString.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/vtkHashSource.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/vtkObjectFactory.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/vtkVersion.cmake")
 
 include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleJson.cmake")
 

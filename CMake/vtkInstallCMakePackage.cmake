@@ -106,7 +106,8 @@ set(vtk_cmake_module_files
   vtkObjectFactory.h.in
   vtkTestingDriver.cmake
   vtkTestingRenderingDriver.cmake
-  vtkTopologicalSort.cmake)
+  vtkTopologicalSort.cmake
+  vtkVersion.cmake)
 set(vtk_cmake_patch_files
   patches/3.7/FindPNG.cmake
   patches/3.7/FindTIFF.cmake
