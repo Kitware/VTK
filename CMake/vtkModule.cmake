@@ -2292,18 +2292,18 @@ function (vtk_module_build)
       EXPORT    "${_vtk_build_INSTALL_EXPORT}"
       ${_vtk_build_namespace}
       FILE      "${_vtk_build_CMAKE_DESTINATION}/${_vtk_build_PACKAGE}-targets.cmake")
+    install(
+      EXPORT      "${_vtk_build_INSTALL_EXPORT}"
+      DESTINATION "${_vtk_build_CMAKE_DESTINATION}"
+      ${_vtk_build_namespace}
+      FILE        "${_vtk_build_PACKAGE}-targets.cmake"
+      COMPONENT   "${_vtk_build_HEADERS_COMPONENT}")
 
     if (_vtk_build_INSTALL_HEADERS)
       install(
         FILES       "${_vtk_build_properties_install_file}"
         DESTINATION "${_vtk_build_CMAKE_DESTINATION}"
         RENAME      "${_vtk_build_properties_filename}"
-        COMPONENT   "${_vtk_build_HEADERS_COMPONENT}")
-      install(
-        EXPORT      "${_vtk_build_INSTALL_EXPORT}"
-        DESTINATION "${_vtk_build_CMAKE_DESTINATION}"
-        ${_vtk_build_namespace}
-        FILE        "${_vtk_build_PACKAGE}-targets.cmake"
         COMPONENT   "${_vtk_build_HEADERS_COMPONENT}")
     endif ()
   endif ()

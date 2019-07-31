@@ -147,10 +147,17 @@ if (NOT VTK_RELOCATABLE_INSTALL)
 endif ()
 
 foreach (vtk_cmake_file IN LISTS vtk_cmake_files_to_install)
-  get_filename_component(subdir "${vtk_cmake_file}" DIRECTORY)
+  if (IS_ABSOLUTE "${vtk_cmake_file}")
+    file(RELATIVE_PATH vtk_cmake_subdir_root "${vtk_cmake_build_dir}" "${vtk_cmake_file}")
+    get_filename_component(vtk_cmake_subdir "${vtk_cmake_subdir_root}" DIRECTORY)
+    set(vtk_cmake_original_file "${vtk_cmake_file}")
+  else ()
+    get_filename_component(vtk_cmake_subdir "${vtk_cmake_file}" DIRECTORY)
+    set(vtk_cmake_original_file "${vtk_cmake_dir}/${vtk_cmake_file}")
+  endif ()
   install(
-    FILES       "${vtk_cmake_dir}/${vtk_cmake_file}"
-    DESTINATION "${vtk_cmake_destination}/${subdir}"
+    FILES       "${vtk_cmake_original_file}"
+    DESTINATION "${vtk_cmake_destination}/${vtk_cmake_subdir}"
     COMPONENT   "development")
 endforeach ()
 
