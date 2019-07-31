@@ -62,6 +62,7 @@
 #include <algorithm>
 #include <cassert>
 #include <sstream>
+#include <limits>
 
 #define BUFFER_OFFSET(i) (reinterpret_cast<char *>(i))
 
@@ -831,7 +832,11 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   {
     float xDel = scale[0]*(f[i*2] - f[i*2-2]);
     float yDel = scale[1]*(f[i*2+1] - f[i*2-1]);
-    totDist += sqrt(xDel*xDel + yDel*yDel);
+    // discarding infinite coordinates
+    totDist += (std::abs(yDel) != std::numeric_limits<float>::infinity() &&
+        std::abs(xDel) != std::numeric_limits<float>::infinity())
+      ? sqrt(xDel * xDel + yDel * yDel)
+      : 0;
     distances[i*2] = totDist;
   }
 
