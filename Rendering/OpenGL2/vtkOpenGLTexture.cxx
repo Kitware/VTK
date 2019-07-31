@@ -246,47 +246,54 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       }
 
       // map/resize inputs
-      unsigned char *resultData[6];
-      unsigned char *dataPtr[6];
+      void* resultData[6];
+      void* dataPtr[6];
+      bool resampled[6];
       for (int i = 0; i < numIns && i < 6; ++i)
       {
         vtkImageData *in = vtkImageData::SafeDownCast(this->GetInputDataObject(i, 0));
         // Get the scalars the user choose to color with.
         vtkDataArray* inscalars = this->GetInputArrayToProcess(i, in);
 
-        // make sure using unsigned char data of color scalars type
-        if (this->IsDepthTexture != 1 &&
-          (this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ||
-           inscalars->GetDataType() != VTK_UNSIGNED_CHAR ))
-        {
-          dataPtr[i] = this->MapScalarsToColors (inscalars);
-          bytesPerPixel = 4;
-        }
-        else
-        {
-          dataPtr[i] = static_cast<vtkUnsignedCharArray *>(inscalars)->GetPointer(0);
-        }
-
-        // -- decide whether the texture needs to be resampled --
+        // decide whether the texture needs to be resampled
         GLint maxDimGL;
         ostate->vtkglGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxDimGL);
         vtkOpenGLCheckErrorMacro("failed at glGetIntegerv");
         // if larger than permitted by the graphics library then must resample
         bool resampleNeeded = xsize > maxDimGL || ysize > maxDimGL;
-        if(resampleNeeded)
+
+        // colors are copied directly in 8-bits, 16-bits or 32-bits floating textures.
+        bool directColors = (this->ColorMode != VTK_COLOR_MODE_MAP_SCALARS &&
+          inscalars->GetDataType() == VTK_UNSIGNED_CHAR) ||
+          (this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS &&
+           (inscalars->GetDataType() == VTK_UNSIGNED_SHORT ||
+            inscalars->GetDataType() == VTK_FLOAT));
+
+        // make sure using unsigned char data of color scalars type
+        if (this->IsDepthTexture != 1 &&
+          (!directColors || inscalars->GetNumberOfComponents() < 3 || resampleNeeded))
         {
-          vtkDebugMacro( "Texture too big for gl, maximum is " << maxDimGL);
+          dataPtr[i] = this->MapScalarsToColors (inscalars);
+          dataType = VTK_UNSIGNED_CHAR;
+          bytesPerPixel = 4;
+        }
+        else
+        {
+          dataPtr[i] = inscalars->GetVoidPointer(0);
         }
 
         if (resampleNeeded)
         {
+          vtkDebugMacro( "Texture too big for gl, maximum is " << maxDimGL);
           vtkDebugMacro(<< "Resampling texture to power of two for OpenGL");
-          resultData[i] = this->ResampleToPowerOfTwo(xsize, ysize, dataPtr[i],
-                                                  bytesPerPixel, maxDimGL);
+          resultData[i] = this->ResampleToPowerOfTwo(xsize, ysize,
+            static_cast<unsigned char*>(dataPtr[i]), bytesPerPixel, maxDimGL);
+          resampled[i] = true;
         }
         else
         {
           resultData[i] = dataPtr[i];
+          resampled[i] = false;
         }
       }
 
@@ -294,33 +301,28 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       if (this->IsDepthTexture)
       {
         this->TextureObject->CreateDepthFromRaw(
-          xsize, ysize, vtkTextureObject::Float32, dataType, resultData[0]);
+          xsize, ysize, vtkTextureObject::Float32, dataType, nullptr);
       }
       else
       {
         if (numIns == 6)
         {
-          void *vtmp[6];
-          for (int i = 0; i < 6; ++i)
-          {
-            vtmp[i] = static_cast<void *>(resultData[i]);
-          }
           this->TextureObject->CreateCubeFromRaw(
-            xsize, ysize, bytesPerPixel, VTK_UNSIGNED_CHAR, vtmp);
+            xsize, ysize, bytesPerPixel, dataType, resultData);
         }
         else
         {
           this->TextureObject->Create2DFromRaw(
-            xsize, ysize, bytesPerPixel, VTK_UNSIGNED_CHAR, resultData[0]);
+            xsize, ysize, bytesPerPixel, dataType, resultData[0]);
         }
       }
 
       // free memory
       for (int i = 0; i < numIns && i < 6; ++i)
       {
-        if (resultData[i] != dataPtr[i])
+        if (resampled[i])
         {
-          delete [] resultData[i];
+          delete[] static_cast<unsigned char*>(resultData[i]);
           resultData[i] = nullptr;
         }
       }
