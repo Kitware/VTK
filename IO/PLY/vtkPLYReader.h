@@ -74,6 +74,11 @@ public:
   //@{
   /**
    * Enable reading from an InputString instead of the default, a file.
+   * Note that reading from an input stream would be more flexible (enabling
+   * other kind of streams) and possibly more efficient because we don't need
+   * to save the whole stream to a string. However a stream interface
+   * does not translate well to python and the string interface satisfies
+   * our current needs. So we leave the stream interface for future work.
    */
   vtkSetMacro(ReadFromInputString, bool);
   vtkGetMacro(ReadFromInputString, bool);

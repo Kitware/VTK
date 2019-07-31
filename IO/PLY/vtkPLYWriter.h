@@ -85,6 +85,11 @@ public:
   //@{
   /**
    * Enable writing to an OutputString instead of the default, a file.
+   * Note that writing to an output stream would be more flexible (enabling
+   * other kind of streams) and possibly more efficient because we don't need
+   * to write the whole stream to a string. However a stream interface
+   * does not translate well to python and the string interface satisfies
+   * our current needs. So we leave the stream interface for future work.
    */
   vtkSetMacro(WriteToOutputString, bool);
   vtkGetMacro(WriteToOutputString, bool);
