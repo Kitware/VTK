@@ -157,7 +157,6 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
   {
     return;
   }
-
   painter->ApplyPen(this->Pen);
 
   vtkNew<vtkBrush> brush;
