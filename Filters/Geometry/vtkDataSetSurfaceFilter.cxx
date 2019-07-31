@@ -2424,6 +2424,11 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
 void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
                                                   int numPts, vtkIdType sourceId)
 {
+  // sanity check
+  if (numPts == 0)
+  {
+    return;
+  }
   vtkFastGeomQuad *quad, **end;
 
   // find the index to the smallest id
