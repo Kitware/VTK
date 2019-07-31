@@ -92,6 +92,7 @@ vtkSmartPointer<vtkTexture> CreateVTKTextureFromGLTFTexture(
   const vtkGLTFDocumentLoader::Image& image = model->Images[glTFTex.Source];
 
   vtkNew<vtkTexture> texture;
+  texture->SetColorModeToDirectScalars();
   texture->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_MODULATE);
   // Approximate filtering settings
   int nbSamplers = static_cast<int>(model->Samplers.size());
@@ -202,6 +203,11 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     actor->GetProperty()->SetMetallic(material.PbrMetallicRoughness.MetallicFactor);
     actor->GetProperty()->SetRoughness(material.PbrMetallicRoughness.RoughnessFactor);
     actor->GetProperty()->SetEmissiveFactor(material.EmissiveFactor.data());
+  }
+
+  if (material.AlphaMode != vtkGLTFDocumentLoader::Material::AlphaModeType::OPAQUE)
+  {
+    actor->ForceTranslucentOn();
   }
 
   // flip texture coordinates
