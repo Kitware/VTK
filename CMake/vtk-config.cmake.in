@@ -7,6 +7,9 @@ API][] as well as some VTK-specific APIs.
 The following variables are provided by this module:
 
   * `VTK_VERSION`: The version of VTK found.
+  * `VTK_MAJOR_VERSION`: The major version of VTK found.
+  * `VTK_MINOR_VERSION`: The minor version of VTK found.
+  * `VTK_BUILD_VERSION`: The build version of VTK found.
   * `VTK_AVAILABLE_COMPONENTS`: Components available with VTK.
   * `VTK_PREFIX_PATH`: Install prefixes for VTK. May include additional paths
     for other prefixes.
@@ -90,6 +93,9 @@ list(INSERT CMAKE_PREFIX_PATH 0
   ${${CMAKE_FIND_PACKAGE_NAME}_PREFIX_PATH})
 
 set("${CMAKE_FIND_PACKAGE_NAME}_VERSION" "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@")
+set("${CMAKE_FIND_PACKAGE_NAME}_MAJOR_VERSION" "@VTK_MAJOR_VERSION@")
+set("${CMAKE_FIND_PACKAGE_NAME}_MINOR_VERSION" "@VTK_MINOR_VERSION@")
+set("${CMAKE_FIND_PACKAGE_NAME}_BUILD_VERSION" "@VTK_BUILD_VERSION@")
 set("${CMAKE_FIND_PACKAGE_NAME}_LEGACY_REMOVE" "@VTK_LEGACY_REMOVE@")
 
 set("${CMAKE_FIND_PACKAGE_NAME}_AVAILABLE_COMPONENTS" "@vtk_all_components@")
@@ -129,7 +135,6 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModule.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/vtkEncodeString.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/vtkHashSource.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/vtkObjectFactory.cmake")
-include("${CMAKE_CURRENT_LIST_DIR}/vtkVersion.cmake")
 
 include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleJson.cmake")
 
