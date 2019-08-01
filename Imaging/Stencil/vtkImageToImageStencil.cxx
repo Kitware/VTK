@@ -144,9 +144,9 @@ int vtkImageToImageStencil::RequestData(
       int r2 = extent[1];
 
       // index into scalar array
-      int idS = ((extent[1] - extent[0] + 1)*
-                 ((extent[3] - extent[2] + 1)*(idZ - extent[4]) +
-                  (idY - extent[2])));
+      vtkIdType idS = (static_cast<vtkIdType>(extent[1] - extent[0] + 1)*
+                 (static_cast<vtkIdType>(extent[3] - extent[2] + 1)*static_cast<vtkIdType>(idZ - extent[4]) +
+                  static_cast<vtkIdType>(idY - extent[2])));
 
       for (int idX = extent[0]; idX <= extent[1]; idX++)
       {
