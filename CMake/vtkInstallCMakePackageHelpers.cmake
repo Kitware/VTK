@@ -9,6 +9,8 @@ function (_vtk_package_append_variables)
       "if (NOT DEFINED \"${var}\")
   set(\"${var}\" \"${${var}}\")
   list(APPEND _vtk_find_package_variables \"${var}\")
+elseif (NOT ${var})
+  set(\"${var}\" \"${${var}}\")
 endif ()
 ")
   endforeach ()
@@ -35,11 +37,11 @@ set(vtk_find_package_code)
 foreach (_vtk_package IN LISTS _vtk_packages)
   _vtk_package_append_variables(
     # Standard CMake `find_package` mechanisms.
-    "${package}_DIR"
-    "${package}_ROOT"
+    "${_vtk_package}_DIR"
+    "${_vtk_package}_ROOT"
 
     # Per-package custom variables.
-    ${${package}_find_package_vars})
+    ${${_vtk_package}_find_package_vars})
 endforeach ()
 
 file(GENERATE
