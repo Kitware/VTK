@@ -1066,7 +1066,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
     vtkNew<vtkDensifyPolyData> densifyPolyData;
     if (this->IsCameraInside(ren, vol, geometry))
     {
-      cout << "can is inside\n";
       vtkNew<vtkMatrix4x4> dataToWorld;
       dataToWorld->DeepCopy(vol->GetMatrix());
 
@@ -1140,7 +1139,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
     }
     else
     {
-      cout << "can is Outside\n";
       densifyPolyData->SetInputData(boxSource);
       this->CameraWasInsideInLastUpdate = false;
     }
