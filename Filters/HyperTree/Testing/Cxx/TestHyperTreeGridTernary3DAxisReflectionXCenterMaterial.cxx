@@ -35,7 +35,7 @@ int TestHyperTreeGridTernary3DAxisReflectionXCenterMaterial( int argc, char* arg
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  htGrid->SetMaximumLevel( 6 );
+  htGrid->SetMaxDepth(6);
   htGrid->SetDimensions( 4, 4, 3 ); //GridCell 3, 3, 2
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetBranchFactor( 3 );

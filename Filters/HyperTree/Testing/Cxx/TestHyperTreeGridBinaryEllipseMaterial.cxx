@@ -42,7 +42,7 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  htGrid->SetMaximumLevel( 8 );
+  htGrid->SetMaxDepth(8);
   htGrid->SetDimensions( 17, 25, 1 ); //Dimension 2 in xy plane GridCell 16, 24, 1
   htGrid->SetGridScale( .5, .25, .7 );
   htGrid->SetBranchFactor( 2 );

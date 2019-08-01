@@ -68,11 +68,17 @@ public:
 
   static vtkHyperTreeGridSource* New();
 
+  // @deprecated Replaced by GetMaxDepth() as of VTK 9
+  VTK_LEGACY(unsigned int GetMaximumLevel());
+
+  // @deprecated Replaced by SetMaxDepth() as of VTK 9
+  VTK_LEGACY(void SetMaximumLevel(unsigned int levels));
+
   /**
    * Return the maximum number of levels of the hypertree.
    * \post positive_result: result>=1
    */
-  unsigned int GetMaximumLevel();
+  unsigned int GetMaxDepth();
 
   /**
    * Set the maximum number of levels of the hypertrees.
@@ -80,7 +86,7 @@ public:
    * \post is_set: this->GetLevels()==levels
    * \post min_is_valid: this->GetMinLevels()<this->GetLevels()
    */
-  void SetMaximumLevel( unsigned int levels );
+  void SetMaxDepth(unsigned int levels);
 
   //@{
   /**
@@ -316,7 +322,7 @@ protected:
 protected:
   unsigned int Dimensions[3];
   bool TransposedRootIndexing;
-  unsigned int MaximumLevel;
+  unsigned int MaxDepth;
 
   unsigned int Orientation;
   unsigned int BranchFactor;

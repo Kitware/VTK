@@ -39,7 +39,7 @@ int TestHyperTreeGridBinary2DVector( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  htGrid->SetMaximumLevel( 6 );
+  htGrid->SetMaxDepth(6);
   htGrid->SetBranchFactor( 2 );
   htGrid->SetDimensions( 3, 4, 1 ); //Dimension 2 in xy plane GridCell 2, 3
   htGrid->SetGridScale( 1.5, 1., 10. );  // this is to test that orientation fixes scale
