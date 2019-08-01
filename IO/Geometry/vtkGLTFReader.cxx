@@ -731,9 +731,21 @@ int vtkGLTFReader::RequestInformation(
     return 0;
   }
 
-  if (!vtksys::SystemTools::FileIsFullPath(std::string(this->FileName)))
+  std::string fileNameAsString (this->FileName);
+
+  if(fileNameAsString.find('\\') != std::string::npos)
   {
-    this->SetFileName(vtksys::SystemTools::CollapseFullPath(std::string(this->FileName)).c_str());
+    vtksys::SystemTools::ConvertToUnixSlashes(fileNameAsString);
+  }
+
+  if (!vtksys::SystemTools::FileIsFullPath(fileNameAsString))
+  {
+    fileNameAsString = vtksys::SystemTools::CollapseFullPath(fileNameAsString);
+  }
+
+  if(this->FileName != fileNameAsString)
+  {
+    this->SetFileName(fileNameAsString.c_str());
   }
 
   // Check for filename change in case the loader was already created
