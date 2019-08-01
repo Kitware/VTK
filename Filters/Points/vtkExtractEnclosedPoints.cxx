@@ -172,7 +172,7 @@ RequestData(vtkInformation *request, vtkInformationVector **inputVector,
   if ( this->Surface == nullptr ||
        (this->CheckSurface && !vtkSelectEnclosedPoints::IsSurfaceClosed(surface)) )
   {
-    vtkDebugMacro("Bad enclosing surface");
+    vtkErrorMacro("Bad enclosing surface");
     return 0;
   }
 
