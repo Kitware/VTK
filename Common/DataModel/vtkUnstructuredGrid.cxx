@@ -1547,7 +1547,8 @@ public:
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes* types)
 {
-  if (this->Types->GetMTime() != this->DistinctCellTypesUpdateMTime)
+  if (this->DistinctCellTypes == nullptr ||
+    this->Types->GetMTime() > this->DistinctCellTypesUpdateMTime)
   {
     // Update the list of cell types
     DistinctCellTypesWorker cellTypesWorker(this);
