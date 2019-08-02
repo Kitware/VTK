@@ -2585,6 +2585,9 @@ namespace vtkvolume
           );
       }
 
+      // Assumeing single component scalar for label texture lookup.
+      // This can be extended to composite color obtained from all components
+      // in the scalar array.
       return shaderStr + std::string("\
         \nif (in_maskBlendFactor == 0.0)\
         \n  {\
@@ -2604,7 +2607,8 @@ namespace vtkvolume
         \n  else\
         \n    {\
         \n    g_srcColor = texture2D(in_labelMapTransfer,\
-                                     vec2(scalar.r, maskValue.r));\
+        \n                           vec2(scalar.r, maskValue.r));\
+        \n    g_srcColor = computeLighting(g_srcColor, 0);\
         \n    if (in_maskBlendFactor < 1.0)\
         \n      {\
         \n      g_srcColor = (1.0 - in_maskBlendFactor) *\
