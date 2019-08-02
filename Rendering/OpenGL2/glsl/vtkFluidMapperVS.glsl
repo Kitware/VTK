@@ -16,6 +16,9 @@
 // this shader implements imposters in OpenGL for Spheres
 
 in vec4 vertexMC;
+in vec3 vertexColor;
+
+uniform int   hasVertexColor   = 0;
 
 // optional normal declaration
 //VTK::Normal::Dec
@@ -35,17 +38,23 @@ uniform mat4 MCVCMatrix;
 // picking support
 //VTK::Picking::Dec
 
-void main()
-{
-  //VTK::Color::Impl
+// Pass vertex color to fragment shader
+out vec3 colorVSOut;
 
-  //VTK::Normal::Impl
+void main() {
+    //VTK::Color::Impl
 
-  //VTK::TCoord::Impl
+    //VTK::Normal::Impl
 
-  //VTK::Clip::Impl
+    //VTK::TCoord::Impl
 
-  gl_Position = MCVCMatrix * vertexMC;
+    //VTK::Clip::Impl
 
-  //VTK::Picking::Impl
+    gl_Position = MCVCMatrix * vertexMC;
+
+    if(hasVertexColor == 1) {
+        colorVSOut = vertexColor;
+    }
+
+    //VTK::Picking::Impl
 }

@@ -132,6 +132,10 @@ set(shader_files
   glsl/vtkEDLComposeFS.glsl
   glsl/vtkEDLShadeFS.glsl
   glsl/vtkFXAAFilterFS.glsl
+  glsl/vtkFluidMapperDepthFilterBiGaussFS.glsl
+  glsl/vtkFluidMapperDepthFilterNarrowRangeFS.glsl
+  glsl/vtkFluidMapperSurfaceNormalFS.glsl
+  glsl/vtkFluidMapperThicknessAndVolumeColorFilterFS.glsl
   glsl/vtkFluidMapperFS.glsl
   glsl/vtkFluidMapperFinalFS.glsl
   glsl/vtkFluidMapperGS.glsl
