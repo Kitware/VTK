@@ -485,8 +485,8 @@ GetActualMemorySize()
   unsigned long total=0;
   if ( Links != nullptr )
   {
-    total = (this->LinksSize+1)*sizeof(TIds);
-    total += (this->NumPts+1)*sizeof(TIds);
+    total = static_cast<unsigned long>((this->LinksSize+1)*sizeof(TIds));
+    total += static_cast<unsigned long>((this->NumPts+1)*sizeof(TIds));
   }
   return total;
 }
