@@ -309,6 +309,13 @@ public:
     return false;
   }
 
+  /*
+   * Check whether or not we have label map gradient opacity functions.
+   */
+  bool HasLabelGradientOpacity() {
+    return !this->LabelGradientOpacity.empty();
+  }
+
   //@{
   /**
    * Set/Get the shading of a volume. If shading is turned off, then

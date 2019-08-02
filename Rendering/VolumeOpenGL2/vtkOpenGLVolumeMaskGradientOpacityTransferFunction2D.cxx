@@ -57,7 +57,7 @@ void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::InternalUpdate(
   {
     float* tmpOpacity = new float[this->TextureWidth];
     std::fill(tmpOpacity, tmpOpacity + this->TextureWidth, 1.0f);
-    vtkPiecewiseFunction* opacity = prop->GetLabeGradientOpacity(i);
+    vtkPiecewiseFunction* opacity = prop->GetLabelGradientOpacity(i);
     if (opacity)
     {
       opacity->GetTable(
