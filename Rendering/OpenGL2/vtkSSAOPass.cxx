@@ -100,14 +100,13 @@ void vtkSSAOPass::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------------
 void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int w, int h)
 {
-  // we might want to allocate a float texture here (if tone mapping pass is right after)
   if (this->ColorTexture == nullptr)
   {
     this->ColorTexture = vtkTextureObject::New();
     this->ColorTexture->SetContext(renWin);
     this->ColorTexture->SetFormat(GL_RGBA);
-    this->ColorTexture->SetInternalFormat(GL_RGBA8);
-    this->ColorTexture->SetDataType(GL_UNSIGNED_BYTE);
+    this->ColorTexture->SetInternalFormat(GL_RGBA32F);
+    this->ColorTexture->SetDataType(GL_FLOAT);
     this->ColorTexture->SetMinificationFilter(vtkTextureObject::Linear);
     this->ColorTexture->SetMagnificationFilter(vtkTextureObject::Linear);
     this->ColorTexture->Allocate2D(w, h, 4, VTK_FLOAT);
