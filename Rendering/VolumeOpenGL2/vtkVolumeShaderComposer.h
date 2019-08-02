@@ -425,6 +425,7 @@ namespace vtkvolume
     std::ostringstream ss;
     ss << "uniform sampler2D " << ArrayBaseName(gradientTableMap[0])
       << "[" << noOfComponents << "];\n";
+    ss << "uniform sampler2D in_labelMapGradientOpacity;\n";
 
     std::string shaderStr = ss.str();
     if (vol->GetProperty()->HasGradientOpacity() &&
@@ -468,7 +469,7 @@ namespace vtkvolume
       shaderStr += std::string("\
         \nfloat computeGradientOpacityForLabel(vec4 grad, float label)\
         \n  {\
-        \n  return texture2D(in_labelMapGradientOpacity, vec2(grad.w, label);\
+        \n  return texture2D(in_labelMapGradientOpacity, vec2(grad.w, label)).r;\
         \n  }"
       );
     }
@@ -843,7 +844,7 @@ namespace vtkvolume
         if (volProperty->HasGradientOpacity())
         {
           shaderStr += std::string("\
-            \n  if (gradient.w >= 0.0 && label == 0)\
+            \n  if (gradient.w >= 0.0 && label == 0.0)\
             \n    {\
             \n    color.a *= computeGradientOpacity(gradient);\
             \n    }"
@@ -852,7 +853,7 @@ namespace vtkvolume
         else if (volProperty->HasLabelGradientOpacity())
         {
           shaderStr += std::string("\
-            \n  if (gradient.w >= 0.0 && label > 0)\
+            \n  if (gradient.w >= 0.0 && label > 0.0)\
             \n    {\
             \n    color.a *= computeGradientOpacityForLabel(gradient, label);\
             \n    }"
@@ -2565,7 +2566,6 @@ namespace vtkvolume
       return std::string("\
         \nuniform float in_maskBlendFactor;\
         \nuniform sampler2D in_labelMapTransfer;\
-        \nuniform sampler2D in_labelMapGradientOpacity;\
         \nuniform float in_mask_scale;\
         \nuniform float in_mask_bias;\
         \n"
