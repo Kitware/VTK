@@ -30,8 +30,12 @@
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
+#include <fstream> // For ofstream
+#include <map> // For map
+#include <vector> // For string
 
 class vtkActor;
+class vtkTexture;
 
 class VTKIOEXPORT_EXPORT vtkOBJExporter : public vtkExporter
 {
@@ -70,10 +74,16 @@ protected:
   ~vtkOBJExporter() override;
 
   void WriteData() override;
-  void WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMat, int &id);
+  void WriteAnActor(vtkActor *anActor,
+                    std::ofstream &fpObj,
+                    std::ofstream &fpMat,
+                    std::string &modelName,
+                    int &id);
   char *FilePrefix;
   char *OBJFileComment;
   char *MTLFileComment;
+  bool FlipTexture;
+  std::map<std::string, vtkTexture *> TextureFileMap;
 private:
   vtkOBJExporter(const vtkOBJExporter&) = delete;
   void operator=(const vtkOBJExporter&) = delete;

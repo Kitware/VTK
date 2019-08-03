@@ -20,6 +20,8 @@ PRIVATE_DEPENDS
   VTK::IOImage
   VTK::jsoncpp
 TEST_DEPENDS
+  VTK::CommonColor
+  VTK::IOExport
   VTK::IOImage
   VTK::IOXML
   VTK::ImagingCore
