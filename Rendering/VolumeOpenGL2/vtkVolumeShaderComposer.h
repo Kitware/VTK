@@ -35,7 +35,8 @@ namespace {
     {
       vtkVolumeProperty* volProp = item.second.Volume->GetProperty();
       const bool gradOp =
-        volProp->HasGradientOpacity() && !volProp->GetDisableGradientOpacity();
+        (volProp->HasGradientOpacity() || volProp->HasLabelGradientOpacity()) &&
+        !volProp->GetDisableGradientOpacity();
       if (gradOp)
         return true;
     }
@@ -850,7 +851,7 @@ namespace vtkvolume
             \n    }"
           );
         }
-        else if (volProperty->HasLabelGradientOpacity())
+        if (volProperty->HasLabelGradientOpacity())
         {
           shaderStr += std::string("\
             \n  if (gradient.w >= 0.0 && label > 0.0)\
