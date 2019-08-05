@@ -2625,13 +2625,11 @@ namespace vtkvolume
         \n  if(maskValue.r == 0.0)\
         \n    {\
         \n    g_srcColor = computeColor(scalar, opacity);\
-        \n    g_srcColor.a = opacity;\
         \n    }\
         \n  else\
         \n    {\
         \n    g_srcColor = texture2D(in_labelMapTransfer,\
         \n                           vec2(scalar.r, maskValue.r));\
-        \n    float tmpOp = g_srcColor.a;\
         \n    g_srcColor = computeLighting(g_srcColor, 0, maskValue.r);\
         \n    if (in_maskBlendFactor < 1.0)\
         \n      {\
