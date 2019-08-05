@@ -77,17 +77,15 @@ public:
 
   //@{
   /**
-   * Get the prototype of the cell locator that is used for interpolating the
-   * velocity field during integration.
-   */
-  vtkGetObjectMacro( CellLocatorPrototype, vtkAbstractCellLocator );
-  //@}
-
-  /**
-   * Set a prototype of the cell locator that is used for interpolating the
-   * velocity field during integration.
+   * Set/Get the prototype of the cell locator that is used for interpolating
+   * the velocity field during integration. The prototype is used to
+   * instantiate locators for performing interpolation. By default, a
+   * vtkModifiedBSPTree is used - other classes such as vtkStaticCellLocator
+   * can be faster.
    */
   void SetCellLocatorPrototype( vtkAbstractCellLocator * prototype );
+  vtkGetObjectMacro( CellLocatorPrototype, vtkAbstractCellLocator );
+  //@}
 
   /**
    * Import parameters. Sub-classes can add more after chaining.

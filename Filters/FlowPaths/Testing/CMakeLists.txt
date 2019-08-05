@@ -3,3 +3,4 @@ vtk_module_test_data(
   Data/clt/,REGEX:.*)
 
 add_subdirectory(Cxx)
+add_subdirectory(Python)
