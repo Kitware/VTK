@@ -41,3 +41,51 @@ Zdc2 = - C - D/Z2
 Zdc2 = - C - D/(Z + S)
 
 dZdc = - D /(Z+S) + D/Z
+
+
+float fragDepthToVCDepth(float fdepth)
+{
+  vec4 tmp = vec4(0.0,0.0, fdepth*2.0 - 1.0, 1.0);
+  vec4 result = DCVCMatrix * tmp;
+  return result.z/result.w;
+}
+
+float fragCoordsToVC(vec4 fragCoords)
+{
+  vec4 tmp = vec4(0.0,0.0, fdepth*2.0 - 1.0, 1.0);
+  vec4 result = DCVCMatrix * tmp;
+  return result.z/result.w;
+
+  vec4 tmp = vec4(0.0,0.0, fdepth*2.0 - 1.0, 1.0);
+  vec4 result = DCVCMatrix * tmp;
+  return result.z/result.w;
+}
+
+float VCdepthDCdepth(float vcdepth)
+{
+
+}
+
+vec3 DCtoVC(vec3 dc)
+{
+  vec4 vc = vec4(dc.x*2.0 -)
+    float x  = texCoord.x * 2.0 - 1.0;
+    float y  = texCoord.y * 2.0 - 1.0;
+    float zn = ((farZ + nearZ) / (farZ - nearZ) * eyeDepth + 2 * farZ * nearZ / (farZ - nearZ)) / eyeDepth;
+
+    vec4 clipPos = vec4(x, y, zn, 1.0f);
+    vec4 viewPos = DCVCMatrix * clipPos;
+    return viewPos.xyz / viewPos.w;
+
+}
+
+
+vec3 DepthToVC(float depth) {
+    float x  = texCoord.x * 2.0 - 1.0;
+    float y  = texCoord.y * 2.0 - 1.0;
+    float zn = ((farZ + nearZ) / (farZ - nearZ) * eyeDepth + 2 * farZ * nearZ / (farZ - nearZ)) / eyeDepth;
+
+    vec4 clipPos = vec4(x, y, zn, 1.0f);
+    vec4 viewPos = DCVCMatrix * clipPos;
+    return viewPos.xyz / viewPos.w;
+}

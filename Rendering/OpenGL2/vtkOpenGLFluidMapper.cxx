@@ -16,608 +16,1003 @@
 #include "vtkOpenGLHelper.h"
 
 #include "vtkCommand.h"
+#include "vtkExecutive.h"
 #include "vtkMath.h"
+#include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLQuadHelper.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
+#include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkObjectFactory.h"
+#include "vtkPBRPrefilterTexture.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
+#include "vtkVolumeProperty.h"
 
-#include "vtkFluidMapperVS.h"
-#include "vtkFluidMapperGS.h"
-#include "vtkFluidMapperFS.h"
-#include "vtkFluidMapperThicknessFS.h"
-#include "vtkFluidMapperThicknessAndVolumeColorFilterFS.h"
+
 #include "vtkFluidMapperDepthFilterBiGaussFS.h"
 #include "vtkFluidMapperDepthFilterNarrowRangeFS.h"
-#include "vtkFluidMapperSurfaceNormalFS.h"
+#include "vtkFluidMapperFS.h"
 #include "vtkFluidMapperFinalFS.h"
+#include "vtkFluidMapperGS.h"
+#include "vtkFluidMapperSurfaceNormalFS.h"
+#include "vtkFluidMapperThicknessAndVolumeColorFilterFS.h"
+#include "vtkFluidMapperVS.h"
+
 
 #include "vtk_glew.h"
 
 #include <cassert>
+#include <sstream>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLFluidMapper)
 
 //-----------------------------------------------------------------------------
 vtkOpenGLFluidMapper::vtkOpenGLFluidMapper() :
-    m_VBOs(vtkOpenGLVertexBufferObjectGroup::New()),
-    m_TempMatrix4(vtkMatrix4x4::New()) {
-    for(int i = 0; i < NumTexBuffers; ++i) {
-        m_TexBuffer[i] = vtkTextureObject::New();
-    }
-    for(int i = 0; i < NumOptionalTexBuffers; ++i) {
-        m_OptionalTexBuffer[i] = vtkTextureObject::New();
-    }
+  VBOs(vtkOpenGLVertexBufferObjectGroup::New()),
+  TempMatrix4(vtkMatrix4x4::New())
+{
+  for (int i = 0; i < NumTexBuffers; ++i)
+  {
+    this->TexBuffer[i] = vtkTextureObject::New();
+  }
+  for (int i = 0; i < NumOptionalTexBuffers; ++i)
+  {
+    this->OptionalTexBuffer[i] = vtkTextureObject::New();
+  }
+  this->CamDCVC = vtkMatrix4x4::New();
+  this->CamInvertedNorms = vtkMatrix3x3::New();
 }
 
 //-----------------------------------------------------------------------------
-vtkOpenGLFluidMapper::~vtkOpenGLFluidMapper() {
-    m_TempMatrix4->Delete();
-    m_VBOs->Delete();
-    for(int i = 0; i < NumTexBuffers; ++i) {
-        m_TexBuffer[i]->Delete();
-    }
-    for(int i = 0; i < NumOptionalTexBuffers; ++i) {
-        m_OptionalTexBuffer[i]->Delete();
-    }
-}
-
-//-----------------------------------------------------------------------------
-void
-vtkOpenGLFluidMapper::PrintSelf(ostream& os, vtkIndent indent) {
-    Superclass::PrintSelf(os, indent);
-    os << indent << "Particle radius: " << ParticleRadius << "\n";
+vtkOpenGLFluidMapper::~vtkOpenGLFluidMapper()
+{
+  this->TempMatrix4->Delete();
+  this->VBOs->Delete();
+  for (int i = 0; i < NumTexBuffers; ++i)
+  {
+    this->TexBuffer[i]->Delete();
+  }
+  for (int i = 0; i < NumOptionalTexBuffers; ++i)
+  {
+    this->OptionalTexBuffer[i]->Delete();
+  }
+  this->CamDCVC->Delete();
+  this->CamInvertedNorms->Delete();
 }
 
 //----------------------------------------------------------------------------
-void
-vtkOpenGLFluidMapper::SetInputData(vtkPolyData* particles) {
-    SetInputDataInternal(0, particles);
-    m_bHasVertexColor = false;
+void vtkOpenGLFluidMapper::SetInputData(vtkPolyData *input)
+{
+  this->SetInputDataInternal(0, input);
 }
 
-void
-vtkOpenGLFluidMapper::SetInputData(vtkPolyData* particles, vtkPolyData* colors) {
-    SetNumberOfInputPorts(2);
-    SetInputDataInternal(0, particles);
-    SetInputDataInternal(1, colors);
-    m_bHasVertexColor = true;
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkPolyData *vtkOpenGLFluidMapper::GetInput()
+{
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
 
 //-----------------------------------------------------------------------------
-void
-vtkOpenGLFluidMapper::UpdateDepthThicknessColorShaders(vtkOpenGLHelper& glHelper, vtkRenderer* renderer, vtkVolume* actor) {
-    const auto renderWindow = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+void vtkOpenGLFluidMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Particle radius: " << this->ParticleRadius << "\n";
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLFluidMapper::UpdateDepthThicknessColorShaders(
+  vtkOpenGLHelper& glHelper,
+  vtkRenderer* renderer,
+  vtkVolume* actor)
+{
+  const auto renderWindow =
+    vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+
+  glHelper.VAO->Bind();
+
+  // Has something changed that would require us to recreate the shader?
+  if (!glHelper.Program)
+  {
+    // Build the shader source code
+    std::map<vtkShader::Type, vtkShader*> shaders;
+
+    vtkShader* vertexShader = vtkShader::New();
+    vertexShader->SetType(vtkShader::Vertex);
+    vertexShader->SetSource(vtkFluidMapperVS);
+    shaders[vtkShader::Vertex] = vertexShader;
+
+    vtkShader* geomShader = vtkShader::New();
+    geomShader->SetType(vtkShader::Geometry);
+    geomShader->SetSource(vtkFluidMapperGS);
+    shaders[vtkShader::Geometry] = geomShader;
+
+    vtkShader* fragmentShader = vtkShader::New();
+    fragmentShader->SetType(vtkShader::Fragment);
+    fragmentShader->SetSource(vtkFluidMapperFS);
+    shaders[vtkShader::Fragment] = fragmentShader;
+
+    // Compile and bind the program if needed
+    vtkShaderProgram* newProgram =
+      renderWindow->GetShaderCache()->ReadyShaderProgram(shaders);
+
+    // Done with you, now you're thrown away
+    fragmentShader->Delete();
+    geomShader->Delete();
+    vertexShader->Delete();
+
+    // If the shader changed, reinitialize the VAO
+    if (newProgram != glHelper.Program)
+    {
+      glHelper.Program = newProgram;
+      // reset the VAO as the shader has changed
+      glHelper.VAO->ReleaseGraphicsResources();
+    }
+    glHelper.ShaderSourceTime.Modified();
+  }
+  else
+  {
+    renderWindow->GetShaderCache()->ReadyShaderProgram(glHelper.Program);
+  }
+
+  if (glHelper.Program)
+  {
+    this->SetDepthThicknessColorShaderParameters(glHelper, renderer, actor);
+
+    // Allow the program to set what it wants
+    this->InvokeEvent(vtkCommand::UpdateShaderEvent, glHelper.Program);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLFluidMapper::SetDepthThicknessColorShaderParameters(
+  vtkOpenGLHelper& glHelper,
+  vtkRenderer* ren,
+  vtkVolume* actor)
+{
+  if (glHelper.IBO->IndexCount &&
+      (this->VBOs->GetMTime() > glHelper.AttributeUpdateTime ||
+       glHelper.ShaderSourceTime > glHelper.AttributeUpdateTime))
+  {
     glHelper.VAO->Bind();
+    this->VBOs->AddAllAttributesToVAO(glHelper.Program, glHelper.VAO);
+    glHelper.AttributeUpdateTime.Modified();
+  }
 
-    // Has something changed that would require us to recreate the shader?
-    if(!glHelper.Program) {
-        // Build the shader source code
-        std::map<vtkShader::Type, vtkShader*> shaders;
+  const auto program = glHelper.Program;
 
-        vtkShader* vertexShader = vtkShader::New();
-        vertexShader->SetType(vtkShader::Vertex);
-        vertexShader->SetSource(vtkFluidMapperVS);
-        shaders[vtkShader::Vertex] = vertexShader;
+  program->SetUniformi("outputEyeZ", this->InDepthPass);
+  if (!this->InDepthPass)
+  {
+    // based on clipping range
+    program->SetUniformf("minThickness",
+      ren->GetActiveCamera()->GetClippingRange()[1]*1.0e-9);
+  }
+  if (this->HasVertexColor)
+  {
+    program->SetUniformi("hasVertexColor", this->HasVertexColor);
+  }
 
-        vtkShader* geomShader = vtkShader::New();
-        geomShader->SetType(vtkShader::Geometry);
-        geomShader->SetSource(vtkFluidMapperGS);
-        shaders[vtkShader::Geometry] = geomShader;
+  // Set texture and particle radius
+  program->SetUniformi("opaqueZTexture",
+                       this->TexBuffer[OpaqueZ]->GetTextureUnit());
+  program->SetUniformf("particleRadius", this->ParticleRadius);
 
-        vtkShader* fragmentShader = vtkShader::New();
-        fragmentShader->SetType(vtkShader::Fragment);
-        fragmentShader->SetSource(vtkFluidMapperFS);
-        shaders[vtkShader::Fragment] = fragmentShader;
+  // Set camera
+  if (program->IsUniformUsed("VCDCMatrix"))
+  {
+    program->SetUniformMatrix("VCDCMatrix", this->CamVCDC);
+  }
 
-        // Compile and bind the program if needed
-        vtkShaderProgram* newProgram = renderWindow->GetShaderCache()->ReadyShaderProgram(shaders);
-
-        // Done with you, now you're thrown away
-        fragmentShader->Delete();
-        geomShader->Delete();
-        vertexShader->Delete();
-
-        // If the shader changed, reinitialize the VAO
-        if(newProgram != glHelper.Program) {
-            glHelper.Program = newProgram;
-            // reset the VAO as the shader has changed
-            glHelper.VAO->ReleaseGraphicsResources();
-        }
-        glHelper.ShaderSourceTime.Modified();
-    } else {
-        renderWindow->GetShaderCache()->ReadyShaderProgram(glHelper.Program);
+  if (program->IsUniformUsed("MCVCMatrix"))
+  {
+    if (!actor->GetIsIdentity())
+    {
+      vtkMatrix4x4* mcwc;
+      vtkMatrix3x3* anorms;
+      ((vtkOpenGLActor*)actor)->GetKeyMatrices(mcwc, anorms);
+      vtkMatrix4x4::Multiply4x4(mcwc, this->CamWCVC, this->TempMatrix4);
+      program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
     }
-
-    if(glHelper.Program) {
-        SetDepthThicknessColorShaderParameters(glHelper, renderer, actor);
-
-        // Allow the program to set what it wants
-        InvokeEvent(vtkCommand::UpdateShaderEvent, glHelper.Program);
+    else
+    {
+      program->SetUniformMatrix("MCVCMatrix", this->CamWCVC);
     }
+  }
+  if (program->IsUniformUsed("cameraParallel"))
+  {
+    glHelper.Program->SetUniformi("cameraParallel",
+                                  this->CamParallelProjection);
+  }
 }
 
-//-----------------------------------------------------------------------------
-void
-vtkOpenGLFluidMapper::SetDepthThicknessColorShaderParameters(vtkOpenGLHelper& glHelper,
-                                                             vtkRenderer*, vtkVolume* actor) {
-    if(glHelper.IBO->IndexCount
-       && (m_VBOs->GetMTime() > glHelper.AttributeUpdateTime
-           || glHelper.ShaderSourceTime > glHelper.AttributeUpdateTime)) {
-        glHelper.VAO->Bind();
-        m_VBOs->AddAllAttributesToVAO(glHelper.Program, glHelper.VAO);
-        glHelper.AttributeUpdateTime.Modified();
+void vtkOpenGLFluidMapper::SetupBuffers(
+  vtkOpenGLRenderWindow* const renderWindow)
+{
+  // create textures we need if not done already
+  if (this->TexBuffer[0]->GetHandle() == 0)
+  {
+    for (int i = 0; i < NumTexBuffers; ++i)
+    {
+      this->TexBuffer[i]->SetContext(renderWindow);
+      switch (i)
+      {
+        case OpaqueZ:
+        case FluidZ:
+          this->TexBuffer[i]->AllocateDepth(
+            static_cast<unsigned int>(this->ViewportWidth),
+            static_cast<unsigned int>(this->ViewportHeight),
+            vtkTextureObject::Float32);
+          break;
+        case FluidEyeZ:
+        case SmoothedFluidEyeZ:
+        case FluidThickness:
+        case SmoothedFluidThickness:
+          this->TexBuffer[i]->SetInternalFormat(GL_R32F);
+          this->TexBuffer[i]->SetFormat(GL_RED);
+          this->TexBuffer[i]->Allocate2D(
+            static_cast<unsigned int>(this->ViewportWidth),
+            static_cast<unsigned int>(this->ViewportHeight),
+            1,
+            VTK_FLOAT);
+          break;
+        case FluidNormal:
+          this->TexBuffer[i]->Allocate2D(
+            static_cast<unsigned int>(this->ViewportWidth),
+            static_cast<unsigned int>(this->ViewportHeight),
+            3,
+            VTK_FLOAT);
+          break;
+        case OpaqueRGBA:
+          this->TexBuffer[i]->Allocate2D(
+            static_cast<unsigned int>(this->ViewportWidth),
+            static_cast<unsigned int>(this->ViewportHeight),
+            4,
+            VTK_UNSIGNED_CHAR);
+          break;
+        default:;
+      }
+
+      this->TexBuffer[i]->SetMinificationFilter(vtkTextureObject::Nearest);
+      this->TexBuffer[i]->SetMagnificationFilter(vtkTextureObject::Nearest);
+      this->TexBuffer[i]->SetWrapS(vtkTextureObject::ClampToEdge);
+      this->TexBuffer[i]->SetWrapT(vtkTextureObject::ClampToEdge);
     }
-
-    const auto program = glHelper.Program;
-
-    // Set texture and particle radius
-    program->SetUniformi("opaqueZTexture", m_TexBuffer[OpaqueZ]->GetTextureUnit());
-    program->SetUniformf("particleRadius", ParticleRadius);
-
-    // Set camera
-    if(program->IsUniformUsed("VCDCMatrix")) {
-        program->SetUniformMatrix("VCDCMatrix", m_CamVCDC);
+  }
+  else
+  {
+    // make sure we handle size changes
+    for (int i = 0; i < NumTexBuffers; ++i)
+    {
+      this->TexBuffer[i]->Resize(
+        static_cast<unsigned int>(this->ViewportWidth),
+        static_cast<unsigned int>(this->ViewportHeight));
     }
+  }
 
-    if(program->IsUniformUsed("MCVCMatrix")) {
-        if(!actor->GetIsIdentity()) {
-            vtkMatrix4x4* mcwc;
-            vtkMatrix3x3* anorms;
-            ((vtkOpenGLActor*)actor)->GetKeyMatrices(mcwc, anorms);
-            vtkMatrix4x4::Multiply4x4(mcwc, m_CamWCVC, m_TempMatrix4);
-            program->SetUniformMatrix("MCVCMatrix", m_TempMatrix4);
-        } else {
-            program->SetUniformMatrix("MCVCMatrix", m_CamWCVC);
-        }
+  // Allocate additional 2 texture bufferes for color data
+  if (this->HasVertexColor)
+  {
+    if (this->OptionalTexBuffer[0]->GetHandle() == 0)
+    {
+      for (int i = 0; i < NumOptionalTexBuffers; ++i)
+      {
+        this->OptionalTexBuffer[i]->SetContext(renderWindow);
+        this->OptionalTexBuffer[i]->Allocate2D(
+          static_cast<unsigned int>(this->ViewportWidth),
+          static_cast<unsigned int>(this->ViewportHeight),
+          3,
+          VTK_FLOAT);
+        this->OptionalTexBuffer[i]->SetMinificationFilter(
+          vtkTextureObject::Nearest);
+        this->OptionalTexBuffer[i]->SetMagnificationFilter(
+          vtkTextureObject::Nearest);
+        this->OptionalTexBuffer[i]->SetWrapS(vtkTextureObject::ClampToEdge);
+        this->OptionalTexBuffer[i]->SetWrapT(vtkTextureObject::ClampToEdge);
+      }
     }
-    if(program->IsUniformUsed("cameraParallel")) {
-        glHelper.Program->SetUniformi("cameraParallel", m_CamParallelProjection);
+    else
+    {
+      // make sure we handle size changes
+      for (int i = 0; i < NumOptionalTexBuffers; ++i)
+      {
+        this->OptionalTexBuffer[i]->Resize(
+          static_cast<unsigned int>(this->ViewportWidth),
+          static_cast<unsigned int>(this->ViewportHeight));
+      }
     }
-}
+  }
 
-void
-vtkOpenGLFluidMapper::SetupBuffers(vtkOpenGLRenderWindow* const renderWindow) {
-    // create textures we need if not done already
-    if(m_TexBuffer[0]->GetHandle() == 0) {
-        for(int i = 0; i < NumTexBuffers; ++i) {
-            m_TexBuffer[i]->SetContext(renderWindow);
-            switch(i) {
-                case OpaqueZ:
-                case FluidZ:
-                    m_TexBuffer[i]->AllocateDepth(static_cast<unsigned int>(m_ViewportWidth),
-                                                  static_cast<unsigned int>(m_ViewportHeight), vtkTextureObject::Float32);
-                    break;
-                case FluidEyeZ:
-                case SmoothedFluidEyeZ:
-                case FluidThickness:
-                case SmoothedFluidThickness:
-                    m_TexBuffer[i]->Allocate2D(static_cast<unsigned int>(m_ViewportWidth),
-                                               static_cast<unsigned int>(m_ViewportHeight), 1, VTK_FLOAT);
-                    break;
-                case FluidNormal:
-                    m_TexBuffer[i]->Allocate2D(static_cast<unsigned int>(m_ViewportWidth),
-                                               static_cast<unsigned int>(m_ViewportHeight), 3, VTK_FLOAT);
-                    break;
-                case OpaqueRGBA:
-                    m_TexBuffer[i]->Allocate2D(static_cast<unsigned int>(m_ViewportWidth),
-                                               static_cast<unsigned int>(m_ViewportHeight), 4, VTK_UNSIGNED_CHAR);
-                    break;
-                default:;
-            }
+  // copy the opaque buffers into textures
+  this->TexBuffer[OpaqueZ]->CopyFromFrameBuffer(this->ViewportX,
+                                                this->ViewportY,
+                                                this->ViewportX,
+                                                this->ViewportY,
+                                                this->ViewportWidth,
+                                                this->ViewportHeight);
+  this->TexBuffer[OpaqueRGBA]->CopyFromFrameBuffer(this->ViewportX,
+                                                   this->ViewportY,
+                                                   this->ViewportX,
+                                                   this->ViewportY,
+                                                   this->ViewportWidth,
+                                                   this->ViewportHeight);
 
-            m_TexBuffer[i]->SetMinificationFilter(vtkTextureObject::Nearest);
-            m_TexBuffer[i]->SetMagnificationFilter(vtkTextureObject::Nearest);
-            m_TexBuffer[i]->SetWrapS(vtkTextureObject::ClampToEdge);
-            m_TexBuffer[i]->SetWrapT(vtkTextureObject::ClampToEdge);
-        }
-    } else {
-        // make sure we handle size changes
-        for(int i = 0; i < NumTexBuffers; ++i) {
-            m_TexBuffer[i]->Resize(static_cast<unsigned int>(m_ViewportWidth),
-                                   static_cast<unsigned int>(m_ViewportHeight));
-        }
-    }
+  if (!this->FBFluidEyeZ)
+  {
+    this->FBFluidEyeZ = vtkOpenGLFramebufferObject::New();
+    this->FBFluidEyeZ->SetContext(renderWindow);
+    this->FBFluidEyeZ->AddDepthAttachment(
+      this->TexBuffer[FluidZ]); // Must have a depth buffer
+  }
 
-    // Allocate additional 2 texture bufferes for color data
-    if(m_bHasVertexColor) {
-        if(m_OptionalTexBuffer[0]->GetHandle() == 0) {
-            for(int i = 0; i < NumOptionalTexBuffers; ++i) {
-                m_OptionalTexBuffer[i]->SetContext(renderWindow);
-                m_OptionalTexBuffer[i]->Allocate2D(static_cast<unsigned int>(m_ViewportWidth),
-                                                   static_cast<unsigned int>(m_ViewportHeight), 3, VTK_FLOAT);
-                m_OptionalTexBuffer[i]->SetMinificationFilter(vtkTextureObject::Nearest);
-                m_OptionalTexBuffer[i]->SetMagnificationFilter(vtkTextureObject::Nearest);
-                m_OptionalTexBuffer[i]->SetWrapS(vtkTextureObject::ClampToEdge);
-                m_OptionalTexBuffer[i]->SetWrapT(vtkTextureObject::ClampToEdge);
-            }
-        } else {
-            // make sure we handle size changes
-            for(int i = 0; i < NumOptionalTexBuffers; ++i) {
-                m_OptionalTexBuffer[i]->Resize(static_cast<unsigned int>(m_ViewportWidth),
-                                               static_cast<unsigned int>(m_ViewportHeight));
-            }
-        }
-    }
+  if (!this->FBThickness)
+  {
+    this->FBThickness = vtkOpenGLFramebufferObject::New();
+    this->FBThickness->SetContext(renderWindow);
+    this->FBThickness->AddDepthAttachment(
+      this->TexBuffer[FluidZ]); // Must have a depth buffer
+  }
 
-    // copy the opaque buffers into textures
-    m_TexBuffer[OpaqueZ]->CopyFromFrameBuffer(m_ViewportX, m_ViewportY,
-                                              m_ViewportX, m_ViewportY,
-                                              m_ViewportWidth, m_ViewportHeight);
-    m_TexBuffer[OpaqueRGBA]->CopyFromFrameBuffer(m_ViewportX, m_ViewportY,
-                                                 m_ViewportX, m_ViewportY,
-                                                 m_ViewportWidth, m_ViewportHeight);
+  if (!this->FBFilterThickness)
+  {
+    this->FBFilterThickness = vtkOpenGLFramebufferObject::New();
+    this->FBFilterThickness->SetContext(renderWindow);
+    // Color attachment will be dynamically added later
+  }
 
-    if(!m_FBFluidEyeZ) {
-        m_FBFluidEyeZ = vtkOpenGLFramebufferObject::New();
-        m_FBFluidEyeZ->SetContext(renderWindow);
-        m_FBFluidEyeZ->AddDepthAttachment(m_TexBuffer[FluidZ]); // Must have a depth buffer
-    }
+  if (!this->FBFilterDepth)
+  {
+    this->FBFilterDepth = vtkOpenGLFramebufferObject::New();
+    this->FBFilterDepth->SetContext(renderWindow);
+    // Color attachment will be dynamically added later
+  }
 
-    if(!m_FBThickness) {
-        m_FBThickness = vtkOpenGLFramebufferObject::New();
-        m_FBThickness->SetContext(renderWindow);
-        m_FBThickness->AddDepthAttachment(m_TexBuffer[FluidZ]); // Must have a depth buffer
-    }
-
-    if(!m_FBFilterThickness) {
-        m_FBFilterThickness = vtkOpenGLFramebufferObject::New();
-        m_FBFilterThickness->SetContext(renderWindow);
-        // Color attachment will be dynamically added later
-    }
-
-    if(!m_FBFilterDepth) {
-        m_FBFilterDepth = vtkOpenGLFramebufferObject::New();
-        m_FBFilterDepth->SetContext(renderWindow);
-        // Color attachment will be dynamically added later
-    }
-
-    if(!m_FBCompNormal) {
-        m_FBCompNormal = vtkOpenGLFramebufferObject::New();
-        m_FBCompNormal->SetContext(renderWindow);
-        m_FBCompNormal->AddColorAttachment(0, m_TexBuffer[FluidNormal]);
-    }
+  if (!this->FBCompNormal)
+  {
+    this->FBCompNormal = vtkOpenGLFramebufferObject::New();
+    this->FBCompNormal->SetContext(renderWindow);
+    this->FBCompNormal->AddColorAttachment(0, this->TexBuffer[FluidNormal]);
+  }
 }
 
 //----------------------------------------------------------------------------
-void
-vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol) {
-    if(std::abs(ParticleRadius) < 1e-8f) {
-        throw std::runtime_error("Particle radius has not been set");
-    }
+void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
+{
+  // make sure we have data
+  vtkPolyData* input =
+    vtkPolyData::SafeDownCast(GetInputDataObject(0, 0));
+  if (input == nullptr || input->GetPoints() == nullptr)
+  {
+    return;
+  }
 
-    // Get the viewport dimensions
-    renderer->GetTiledSizeAndOrigin(&m_ViewportWidth, &m_ViewportHeight, &m_ViewportX, &m_ViewportY);
+  // check to see if we are using vertex coloring
+  int cellFlag = 0;
+  vtkDataArray* scalars =
+    this->GetScalars(input, this->ScalarMode, this->ArrayAccessMode,
+      this->ArrayId, this->ArrayName, cellFlag);
 
-    // Get the camera parameters
-    const auto cam = static_cast<vtkOpenGLCamera*>(renderer->GetActiveCamera());
-    cam->GetKeyMatrices(renderer, m_CamWCVC, m_CamNorms, m_CamVCDC, m_CamWCDC);
-    m_CamParallelProjection = cam->GetParallelProjection();
+  this->HasVertexColor = false;
+  if (scalars && cellFlag == 0
+      && scalars->GetNumberOfComponents() == 3
+      && this->ScalarVisibility)
+  {
+    this->HasVertexColor = true;
+  }
 
-    // Prepare the texture and frame buffers
-    const auto renderWindow = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
-    SetupBuffers(renderWindow);
+  // Get the viewport dimensions
+  renderer->GetTiledSizeAndOrigin(&this->ViewportWidth,
+                                  &this->ViewportHeight,
+                                  &this->ViewportX,
+                                  &this->ViewportY);
 
-    const auto glState = renderWindow->GetState();
-    glState->vtkglViewport(0, 0, m_ViewportWidth, m_ViewportHeight);
-    bool saveScissorTestState = glState->GetEnumState(GL_SCISSOR_TEST);
+  // Get the camera parameters
+  const auto cam = static_cast<vtkOpenGLCamera*>(renderer->GetActiveCamera());
+  vtkMatrix3x3 *tmpNormMat;
+  cam->GetKeyMatrices(
+    renderer, this->CamWCVC, tmpNormMat, this->CamVCDC, this->CamWCDC);
+  this->CamDCVC->DeepCopy(this->CamVCDC);
+  this->CamDCVC->Invert();
+  this->CamInvertedNorms->DeepCopy(tmpNormMat);
+  this->CamInvertedNorms->Invert();
+  this->CamParallelProjection = cam->GetParallelProjection();
+
+  // Prepare the texture and frame buffers
+  const auto renderWindow =
+    vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  this->SetupBuffers(renderWindow);
+
+  const auto glState = renderWindow->GetState();
+  glState->vtkglViewport(0, 0, this->ViewportWidth, this->ViewportHeight);
+  bool saveScissorTestState = glState->GetEnumState(GL_SCISSOR_TEST);
 #ifdef GL_MULTISAMPLE
-    glState->vtkglDisable(GL_MULTISAMPLE);
+  glState->vtkglDisable(GL_MULTISAMPLE);
 #endif
 
-    // Generate depth
+  double *crange = cam->GetClippingRange();
+
+  // Generate depth
+  {
+    // Attache texture every time, since it will be swapped out during smoothing
+    this->FBFluidEyeZ->AddColorAttachment(0, this->TexBuffer[FluidEyeZ]);
+    this->FBFluidEyeZ->SaveCurrentBindingsAndBuffers();
+    this->FBFluidEyeZ->Bind();
+    glState->vtkglDisable(GL_SCISSOR_TEST);
+    glState->vtkglClearDepth(1.0);
+    glState->vtkglColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
+    // Set a clear color value to be slightly past the far clipping plane
+    glState->vtkglClearColor(
+      -1.1*crange[1], 0.0, 0.0, 0.0);
+    glState->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Render the spheres to get the eye coordinate z values
+    this->TexBuffer[OpaqueZ]->Activate();
+    glState->vtkglDepthMask(GL_TRUE);
+    glState->vtkglEnable(GL_DEPTH_TEST);
+    glState->vtkglDepthFunc(GL_LEQUAL);
+    this->InDepthPass = true;
+    this->RenderParticles(renderer, vol);
+    this->InDepthPass = false;
+    this->TexBuffer[OpaqueZ]->Deactivate();
+    this->FBFluidEyeZ->RestorePreviousBindingsAndBuffers();
+  }
+
+  // Generate thickness and color (if applicable)
+  {
+    // Attache texture every time, since it will be swapped out during smoothing
+    this->FBThickness->SaveCurrentBindingsAndBuffers();
+    this->FBThickness->Bind();
+    this->FBThickness->AddColorAttachment(0, this->TexBuffer[FluidThickness]);
+    if (this->HasVertexColor)
     {
-        // Attache texture every time, since it will be swapped out during smoothing
-        m_FBFluidEyeZ->AddColorAttachment(0, m_TexBuffer[FluidEyeZ]);
-        m_FBFluidEyeZ->SaveCurrentBindingsAndBuffers();
-        m_FBFluidEyeZ->Bind();
-        glState->vtkglDisable(GL_SCISSOR_TEST);
-        glState->vtkglClearDepth(1.0);
-        glState->vtkglColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
-        glState->vtkglClearColor(-1.0e9, 0.0, 0.0, 0.0); // Set a clear color value to be -inf
-        glState->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Render the spheres to get the eye coordinate z values
-        m_TexBuffer[OpaqueZ]->Activate();
-        glState->vtkglDepthMask(GL_TRUE);
-        glState->vtkglEnable(GL_DEPTH_TEST);
-        glState->vtkglDepthFunc(GL_LEQUAL);
-        RenderParticles(renderer, vol, true);
-        m_TexBuffer[OpaqueZ]->Deactivate();
-        m_FBFluidEyeZ->RestorePreviousBindingsAndBuffers();
+      this->FBThickness->AddColorAttachment(1, this->OptionalTexBuffer[Color]);
+      this->FBThickness->ActivateDrawBuffers(2);
     }
+    glState->vtkglDisable(GL_SCISSOR_TEST);
+    glState->vtkglClearDepth(1.0);
+    glState->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+    glState->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
+    glState->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Generate thickness and color (if applicable)
+    vtkOpenGLState::ScopedglBlendFuncSeparate bf(glState);
+    glState->vtkglBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+
+    this->TexBuffer[OpaqueZ]->Activate();
+    glState->vtkglDepthMask(GL_FALSE);
+    glState->vtkglDisable(GL_DEPTH_TEST);
+    glState->vtkglDepthFunc(GL_ALWAYS);
+    this->RenderParticles(renderer, vol);
+    this->TexBuffer[OpaqueZ]->Deactivate();
+    this->FBThickness->RestorePreviousBindingsAndBuffers();
+  }
+
+  // Filter fluid thickness and color (if applicable)
+  if (1)
+  {
+    if (!this->QuadThicknessFilter)
     {
-        // Attache texture every time, since it will be swapped out during smoothing
-        m_FBThickness->SaveCurrentBindingsAndBuffers();
-        m_FBThickness->Bind();
-        m_FBThickness->AddColorAttachment(0, m_TexBuffer[FluidThickness]);
-        if(m_bHasVertexColor) {
-            m_FBThickness->AddColorAttachment(1, m_OptionalTexBuffer[Color]);
-            m_FBThickness->ActivateDrawBuffers(2);
-        }
-        glState->vtkglDisable(GL_SCISSOR_TEST);
-        glState->vtkglClearDepth(1.0);
-        glState->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-        glState->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
-        glState->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        vtkOpenGLState::ScopedglBlendFuncSeparate bf(glState);
-        glState->vtkglBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
-
-        m_TexBuffer[OpaqueZ]->Activate();
-        glState->vtkglDepthMask(GL_FALSE);
-        glState->vtkglDisable(GL_DEPTH_TEST);
-        glState->vtkglDepthFunc(GL_ALWAYS);
-        RenderParticles(renderer, vol, false);
-        m_TexBuffer[OpaqueZ]->Deactivate();
-        m_FBThickness->RestorePreviousBindingsAndBuffers();
+      this->QuadThicknessFilter =
+        new vtkOpenGLQuadHelper(renderWindow,
+                                nullptr,
+                                vtkFluidMapperThicknessAndVolumeColorFilterFS,
+                                "");
     }
-
-    // Filter fluid thickness and color (if applicable)
-    if(1) {
-        if(!m_QuadThicknessFilter) {
-            m_QuadThicknessFilter =
-                new vtkOpenGLQuadHelper(renderWindow, nullptr, vtkFluidMapperThicknessAndVolumeColorFilterFS, "");
-        } else {
-            renderWindow->GetShaderCache()->ReadyShaderProgram(m_QuadThicknessFilter->Program);
-        }
-        const auto program = m_QuadThicknessFilter->Program;
-        assert(program);
-
-        // Attache texture every time, since it will be swapped out during smoothing
-        m_FBFilterThickness->SaveCurrentBindingsAndBuffers();
-        m_FBFilterThickness->Bind();
-
-        for(uint32_t iter = 0; iter < ThicknessAndVolumeColorFilterIterations; ++iter) {
-            m_FBFilterThickness->AddColorAttachment(0, m_TexBuffer[SmoothedFluidThickness]);
-            if(m_bHasVertexColor) {
-                m_FBFilterThickness->AddColorAttachment(1, m_OptionalTexBuffer[SmoothedColor]);
-                m_FBFilterThickness->ActivateDrawBuffers(2);
-                m_OptionalTexBuffer[Color]->Activate();
-                program->SetUniformi("hasVertexColor",    m_bHasVertexColor);
-                program->SetUniformi("fluidColorTexture", m_OptionalTexBuffer[Color]->GetTextureUnit());
-            }
-
-            m_TexBuffer[FluidThickness]->Activate();
-            program->SetUniformi("fluidThicknessTexture", m_TexBuffer[FluidThickness]->GetTextureUnit());
-
-            program->SetUniformi("viewportHeight",        m_ViewportHeight);
-            program->SetUniformi("viewportWidth",         m_ViewportWidth);
-            program->SetUniformi("filterRadius",          static_cast<int>(ThicknessAndVolumeColorFilterRadius));
-
-            m_QuadThicknessFilter->Render();
-            m_TexBuffer[FluidThickness]->Deactivate();
-
-            std::swap(m_TexBuffer[FluidThickness], m_TexBuffer[SmoothedFluidThickness]);
-            if(m_bHasVertexColor) {
-                m_OptionalTexBuffer[Color]->Deactivate();
-                std::swap(m_OptionalTexBuffer[Color], m_OptionalTexBuffer[SmoothedColor]);
-            }
-        }
-        m_FBFilterThickness->RestorePreviousBindingsAndBuffers();
-    }
-
-    if(1) {
-        // Filter depth surface
-        if(DisplayMode != UnfilteredOpaqueSurface
-           && DisplayMode != UnfilteredSurfaceNormal) {
-            if(!m_QuadFluidDepthFilter[SurfaceFilterMethod]) {
-                switch(SurfaceFilterMethod) {
-                    case BilateralGaussian:
-                        m_QuadFluidDepthFilter[SurfaceFilterMethod] =
-                            new vtkOpenGLQuadHelper(renderWindow, nullptr, vtkFluidMapperDepthFilterBiGaussFS, "");
-                        break;
-                    case NarrowRange:
-                        m_QuadFluidDepthFilter[SurfaceFilterMethod] =
-                            new vtkOpenGLQuadHelper(renderWindow, nullptr, vtkFluidMapperDepthFilterNarrowRangeFS, "");
-                        break;
-                    // New filter method is added here
-                    default:
-                        throw std::runtime_error("Invalid filter method");
-                }
-            } else {
-                renderWindow->GetShaderCache()->ReadyShaderProgram(m_QuadFluidDepthFilter[SurfaceFilterMethod]->Program);
-            }
-
-            const auto program = m_QuadFluidDepthFilter[SurfaceFilterMethod]->Program;
-            assert(program);
-            m_FBFilterDepth->SaveCurrentBindingsAndBuffers();
-            m_FBFilterDepth->Bind();
-
-            for(uint32_t iter = 0; iter < SurfaceFilterIterations; ++iter) {
-                m_FBFilterDepth->AddColorAttachment(0, m_TexBuffer[SmoothedFluidEyeZ]); // Replace color attachement
-                program->SetUniformi("viewportHeight", m_ViewportHeight);
-                program->SetUniformi("viewportWidth",  m_ViewportWidth);
-                program->SetUniformi("filterRadius",   static_cast<int>(SurfaceFilterRadius));
-                program->SetUniformf("particleRadius", ParticleRadius);
-
-                switch(SurfaceFilterMethod) {
-                    case BilateralGaussian:
-                        program->SetUniformf("sigmaDepth", BiGaussFilterSigmaDepth);
-                        break;
-                    case NarrowRange:
-                        program->SetUniformf("lambda",     NRFilterLambda);
-                        program->SetUniformf("mu",         NRFilterMu);
-                        break;
-                    // New filter method is added here
-                    default:
-                        throw std::runtime_error("Invalid filter method");
-                }
-
-                glState->vtkglEnable(GL_DEPTH_TEST);
-                m_TexBuffer[FluidEyeZ]->Activate();
-                program->SetUniformi("fluidZTexture", m_TexBuffer[FluidEyeZ]->GetTextureUnit());
-
-                m_QuadFluidDepthFilter[SurfaceFilterMethod]->Render();
-                m_TexBuffer[FluidEyeZ]->Deactivate();
-
-                // Swap the filtered buffers
-                std::swap(m_TexBuffer[FluidEyeZ], m_TexBuffer[SmoothedFluidEyeZ]);
-            }
-
-            m_FBFilterDepth->RestorePreviousBindingsAndBuffers();
-        }
-    }
-
-    // Compute normal for the filtered depth surface
-    if(1) {
-        if(!m_QuadFluidNormal) {
-            m_QuadFluidNormal = new vtkOpenGLQuadHelper(renderWindow, nullptr, vtkFluidMapperSurfaceNormalFS, "");
-        } else {
-            renderWindow->GetShaderCache()->ReadyShaderProgram(m_QuadFluidNormal->Program);
-        }
-
-        const auto program = m_QuadFluidNormal->Program;
-        assert(program);
-
-        m_FBCompNormal->SaveCurrentBindingsAndBuffers();
-        m_FBCompNormal->Bind();
-        program->SetUniformi("fluidZTexture",  m_TexBuffer[FluidEyeZ]->GetTextureUnit());
-        program->SetUniformi("viewportHeight", m_ViewportHeight);
-        program->SetUniformi("viewportWidth",  m_ViewportWidth);
-        if(program->IsUniformUsed("VCDCMatrix")) {
-            program->SetUniformMatrix("VCDCMatrix", m_CamVCDC);
-        }
-
-        glState->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-        glState->vtkglDepthMask(GL_FALSE);
-        glState->vtkglDisable(GL_DEPTH_TEST);
-        glState->vtkglDepthFunc(GL_ALWAYS);
-
-        m_TexBuffer[FluidEyeZ]->Activate();
-        m_QuadFluidNormal->Render();
-        m_TexBuffer[FluidEyeZ]->Deactivate();
-        m_FBCompNormal->RestorePreviousBindingsAndBuffers();
-    }
-
-    // Restore the original viewport properties
-    glState->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glState->vtkglViewport(m_ViewportX, m_ViewportY, m_ViewportWidth, m_ViewportHeight);
-    saveScissorTestState ? glState->vtkglEnable(GL_SCISSOR_TEST) : glState->vtkglDisable(GL_SCISSOR_TEST);
-
+    else
     {
-        // Final blend, render everything
-        if(!m_QuadFinalBlend) {
-            m_QuadFinalBlend = new vtkOpenGLQuadHelper(renderWindow, nullptr, vtkFluidMapperFinalFS, "");
-        } else {
-            renderWindow->GetShaderCache()->ReadyShaderProgram(m_QuadFinalBlend->Program);
+      renderWindow->GetShaderCache()->ReadyShaderProgram(
+        this->QuadThicknessFilter->Program);
+    }
+    const auto program = this->QuadThicknessFilter->Program;
+    assert(program);
+
+    // Attache texture every time, since it will be swapped out during smoothing
+    this->FBFilterThickness->SaveCurrentBindingsAndBuffers();
+    this->FBFilterThickness->Bind();
+
+    for (uint32_t iter = 0; iter < this->ThicknessAndVolumeColorFilterIterations;
+         ++iter)
+    {
+      this->FBFilterThickness->AddColorAttachment(
+        0, this->TexBuffer[SmoothedFluidThickness]);
+      if (this->HasVertexColor)
+      {
+        this->FBFilterThickness->AddColorAttachment(
+          1, this->OptionalTexBuffer[SmoothedColor]);
+        this->FBFilterThickness->ActivateDrawBuffers(2);
+        this->OptionalTexBuffer[Color]->Activate();
+        program->SetUniformi("hasVertexColor", this->HasVertexColor);
+        program->SetUniformi("fluidColorTexture",
+                             this->OptionalTexBuffer[Color]->GetTextureUnit());
+      }
+
+      this->TexBuffer[FluidThickness]->Activate();
+      program->SetUniformi("fluidThicknessTexture",
+                           this->TexBuffer[FluidThickness]->GetTextureUnit());
+
+      program->SetUniformi("viewportHeight", this->ViewportHeight);
+      program->SetUniformi("viewportWidth", this->ViewportWidth);
+      program->SetUniformi(
+        "filterRadius",
+        static_cast<int>(this->ThicknessAndVolumeColorFilterRadius));
+
+      this->QuadThicknessFilter->Render();
+      this->TexBuffer[FluidThickness]->Deactivate();
+
+      std::swap(this->TexBuffer[FluidThickness],
+                this->TexBuffer[SmoothedFluidThickness]);
+      if (this->HasVertexColor)
+      {
+        this->OptionalTexBuffer[Color]->Deactivate();
+        std::swap(this->OptionalTexBuffer[Color],
+                  this->OptionalTexBuffer[SmoothedColor]);
+      }
+    }
+    this->FBFilterThickness->RestorePreviousBindingsAndBuffers();
+  }
+
+  if (1)
+  {
+    // Filter depth surface
+    if (DisplayMode != UnfilteredOpaqueSurface &&
+        DisplayMode != UnfilteredSurfaceNormal)
+    {
+      if (!this->QuadFluidDepthFilter[SurfaceFilterMethod])
+      {
+        switch (this->SurfaceFilterMethod)
+        {
+          case BilateralGaussian:
+            this->QuadFluidDepthFilter[SurfaceFilterMethod] =
+              new vtkOpenGLQuadHelper(
+                renderWindow, nullptr, vtkFluidMapperDepthFilterBiGaussFS, "");
+            break;
+          case NarrowRange:
+            this->QuadFluidDepthFilter[SurfaceFilterMethod] =
+              new vtkOpenGLQuadHelper(renderWindow,
+                                      nullptr,
+                                      vtkFluidMapperDepthFilterNarrowRangeFS,
+                                      "");
+            break;
+          // New filter method is added here
+          default:
+            vtkErrorMacro("Invalid filter method");
         }
+      }
+      else
+      {
+        renderWindow->GetShaderCache()->ReadyShaderProgram(
+          this->QuadFluidDepthFilter[SurfaceFilterMethod]->Program);
+      }
 
-        const auto program = m_QuadFinalBlend->Program;
-        assert(program);
+      const auto program =
+        this->QuadFluidDepthFilter[SurfaceFilterMethod]->Program;
+      assert(program);
+      this->FBFilterDepth->SaveCurrentBindingsAndBuffers();
+      this->FBFilterDepth->Bind();
 
-        m_TexBuffer[FluidEyeZ]->Activate();
-        program->SetUniformi("fluidZTexture",         m_TexBuffer[FluidEyeZ]->GetTextureUnit());
+      program->SetUniformi("viewportHeight", this->ViewportHeight);
+      program->SetUniformi("viewportWidth", this->ViewportWidth);
+      program->SetUniformi("filterRadius",
+                            static_cast<int>(this->SurfaceFilterRadius));
+      program->SetUniformf("particleRadius", this->ParticleRadius);
 
-        m_TexBuffer[FluidThickness]->Activate();
-        program->SetUniformi("fluidThicknessTexture", m_TexBuffer[FluidThickness]->GetTextureUnit());
+      for (uint32_t iter = 0; iter < this->SurfaceFilterIterations; ++iter)
+      {
+        this->FBFilterDepth->AddColorAttachment(
+          0, this->TexBuffer[SmoothedFluidEyeZ]); // Replace color attachement
+        program->SetUniformf("farZValue", -crange[1]);
 
-        m_TexBuffer[FluidNormal]->Activate();
-        program->SetUniformi("fluidNormalTexture",    m_TexBuffer[FluidNormal]->GetTextureUnit());
-
-        m_TexBuffer[OpaqueRGBA]->Activate();
-        program->SetUniformi("opaqueRGBATexture",     m_TexBuffer[OpaqueRGBA]->GetTextureUnit());
-
-        if(m_bHasVertexColor) {
-            m_OptionalTexBuffer[Color]->Activate();
-            program->SetUniformi("fluidColorTexture", m_OptionalTexBuffer[Color]->GetTextureUnit());
-            program->SetUniformi("hasVertexColor",    m_bHasVertexColor);
-            program->SetUniformf("vertexColorPower", ParticleColorPower);
-            program->SetUniformf("vertexColorScale", ParticleColorScale);
+        switch (SurfaceFilterMethod)
+        {
+          case BilateralGaussian:
+            program->SetUniformf("sigmaDepth", this->BiGaussFilterSigmaDepth);
+            break;
+          case NarrowRange:
+            program->SetUniformf("lambda", this->NRFilterLambda);
+            program->SetUniformf("mu", this->NRFilterMu);
+            break;
+          // New filter method is added here
+          default:
+            vtkErrorMacro("Invalid filter method");
         }
-
-        program->SetUniformMatrix("VCDCMatrix", m_CamVCDC);
-        if(m_QuadFinalBlend->Program->IsUniformUsed("MCVCMatrix")) {
-            if(!vol->GetIsIdentity()) {
-                vtkMatrix4x4* mcwc;
-                vtkMatrix3x3* anorms;
-                ((vtkOpenGLActor*)vol)->GetKeyMatrices(mcwc, anorms);
-                vtkMatrix4x4::Multiply4x4(mcwc, m_CamWCVC, m_TempMatrix4);
-                m_QuadFinalBlend->Program->SetUniformMatrix("MCVCMatrix", m_TempMatrix4);
-            } else {
-                m_QuadFinalBlend->Program->SetUniformMatrix("MCVCMatrix", m_CamWCVC);
-            }
-        }
-
-        program->SetUniformi("displayModeOpaqueSurface", DisplayMode == UnfilteredOpaqueSurface || DisplayMode == FilteredOpaqueSurface);
-        program->SetUniformi("displayModeSurfaceNormal", DisplayMode == UnfilteredSurfaceNormal || DisplayMode == FilteredSurfaceNormal);
-        program->SetUniformf("attennuationScale",    AttennuationScale);
-        program->SetUniformf("additionalReflection", AdditionalReflection);
-        program->SetUniformf("refractiveIndex",      RefractiveIndex);
-        program->SetUniformf("refractionScale",      RefractionScale);
-        program->SetUniform3f("fluidOpaqueColor",       OpaqueColor);
-        program->SetUniform3f("fluidAttennuationColor", AttennuationColor);
 
         glState->vtkglEnable(GL_DEPTH_TEST);
-        glState->vtkglDepthMask(GL_TRUE);
-        glState->vtkglDepthFunc(GL_ALWAYS);
+        this->TexBuffer[FluidEyeZ]->Activate();
+        program->SetUniformi("fluidZTexture",
+          this->TexBuffer[FluidEyeZ]->GetTextureUnit());
 
-        m_QuadFinalBlend->Render();
+        this->QuadFluidDepthFilter[SurfaceFilterMethod]->Render();
+        this->TexBuffer[FluidEyeZ]->Deactivate();
 
-        m_TexBuffer[OpaqueZ]->Deactivate();
-        m_TexBuffer[OpaqueRGBA]->Deactivate();
-        m_TexBuffer[FluidEyeZ]->Deactivate();
-        m_TexBuffer[FluidThickness]->Deactivate();
-        m_TexBuffer[FluidNormal]->Deactivate();
-        if(m_bHasVertexColor) {
-            m_OptionalTexBuffer[Color]->Deactivate();
-        }
+        // Swap the filtered buffers
+        std::swap(this->TexBuffer[FluidEyeZ],
+                  this->TexBuffer[SmoothedFluidEyeZ]);
+      }
 
-        glState->vtkglDepthFunc(GL_LEQUAL);
+      this->FBFilterDepth->RestorePreviousBindingsAndBuffers();
     }
+  }
+
+  // Compute normal for the filtered depth surface
+  if (1)
+  {
+    if (!this->QuadFluidNormal)
+    {
+      this->QuadFluidNormal = new vtkOpenGLQuadHelper(
+        renderWindow, nullptr, vtkFluidMapperSurfaceNormalFS, "");
+    }
+    else
+    {
+      renderWindow->GetShaderCache()->ReadyShaderProgram(
+        this->QuadFluidNormal->Program);
+    }
+
+    const auto program = this->QuadFluidNormal->Program;
+    assert(program);
+
+    this->FBCompNormal->SaveCurrentBindingsAndBuffers();
+    this->FBCompNormal->Bind();
+
+    this->TexBuffer[FluidEyeZ]->Activate();
+    program->SetUniformi("fluidZTexture",
+      this->TexBuffer[FluidEyeZ]->GetTextureUnit());
+
+    program->SetUniformi("viewportHeight", this->ViewportHeight);
+    program->SetUniformi("viewportWidth", this->ViewportWidth);
+    program->SetUniformMatrix("DCVCMatrix", this->CamDCVC);
+    program->SetUniformMatrix("VCDCMatrix", this->CamVCDC);
+
+    glState->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+    glState->vtkglDepthMask(GL_FALSE);
+    glState->vtkglDisable(GL_DEPTH_TEST);
+    glState->vtkglDepthFunc(GL_ALWAYS);
+
+    this->QuadFluidNormal->Render();
+    this->TexBuffer[FluidEyeZ]->Deactivate();
+    this->FBCompNormal->RestorePreviousBindingsAndBuffers();
+  }
+
+  vtkOpenGLRenderer *oren = static_cast<vtkOpenGLRenderer *>(renderer);
+
+  // Restore the original viewport properties
+  glState->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glState->vtkglViewport(this->ViewportX,
+                         this->ViewportY,
+                         this->ViewportWidth,
+                         this->ViewportHeight);
+  saveScissorTestState ? glState->vtkglEnable(GL_SCISSOR_TEST)
+                       : glState->vtkglDisable(GL_SCISSOR_TEST);
+
+  {
+    bool useIBL = oren->GetUseImageBasedLighting() && oren->GetEnvironmentCubeMap();
+
+    // Final blend, render everything
+    if (!this->QuadFinalBlend)
+    {
+      std::ostringstream toString;
+
+      // todo this needs to be done when the lighting code changes
+      // if the light complexity changed then update the shader code
+      std::string fssource = vtkFluidMapperFinalFS;
+      vtkShaderProgram::Substitute(fssource,"//VTK::Light::Dec", oren->GetLightingUniforms());
+      switch (oren->GetLightingComplexity())
+      {
+        // no lighting
+        case 0:
+          vtkShaderProgram::Substitute(fssource, "//VTK::Light::Impl",
+            "  accumulatedLightSpecularColor = vec3(1.0,1.0,1.0);",
+            false
+            );
+          break;
+
+        // headlight
+        case 1:
+          vtkShaderProgram::Substitute(fssource, "//VTK::Light::Impl",
+            "  float df = max(0.0,N.z);\n"
+            "  float sf = pow(df, fluidShininess);\n"
+            "  accumulatedLightDiffuseColor = df * lightColor0;\n"
+            "  accumulatedLightSpecularColor = sf * lightColor0;\n"
+            "  //VTK::Light::Impl\n",
+            false
+            );
+          break;
+        case 2:
+          toString <<
+            "  float df;\n"
+            "  float sf;\n";
+          for (int i = 0; i < oren->GetLightingCount(); ++i)
+          {
+            toString <<
+              "  df = max(0.0, dot(N, -lightDirectionVC" << i << "));\n"
+              "  accumulatedLightDiffuseColor += (df * lightColor" << i << ");\n" <<
+              "  sf = sign(df)*pow(max(0.0, dot( reflect(lightDirectionVC" <<i <<
+              "     , N), normalize(-position))), fluidShininess);\n"
+              "  accumulatedLightSpecularColor += (sf * lightColor" << i << ");\n";
+          }
+          vtkShaderProgram::Substitute(fssource,"//VTK::Light::Impl",
+            toString.str(), false);
+          break;
+        case 3:
+          toString <<
+            "  vec3 vertLightDirectionVC;\n"
+            "  float attenuation;\n"
+            "  float df;\n"
+            "  float sf;\n"
+            ;
+          for (int i = 0; i < oren->GetLightingCount(); ++i)
+          {
+            toString <<
+              "    attenuation = 1.0;\n"
+              "    if (lightPositional" << i << " == 0) {\n"
+              "      vertLightDirectionVC = lightDirectionVC" << i << "; }\n"
+              "    else {\n"
+              "      vertLightDirectionVC = position - lightPositionVC" << i << ";\n"
+              "      float distanceVC = length(vertLightDirectionVC);\n"
+              "      vertLightDirectionVC = normalize(vertLightDirectionVC);\n"
+              "      attenuation = 1.0 /\n"
+              "        (lightAttenuation" << i << ".x\n"
+              "         + lightAttenuation" << i << ".y * distanceVC\n"
+              "         + lightAttenuation" << i << ".z * distanceVC * distanceVC);\n"
+              "      // per OpenGL standard cone angle is 90 or less for a spot light\n"
+              "      if (lightConeAngle" << i << " <= 90.0) {\n"
+              "        float coneDot = dot(vertLightDirectionVC, lightDirectionVC" << i << ");\n"
+              "        // if inside the cone\n"
+              "        if (coneDot >= cos(radians(lightConeAngle" << i << "))) {\n"
+              "          attenuation = attenuation * pow(coneDot, lightExponent" << i << "); }\n"
+              "        else {\n"
+              "          attenuation = 0.0; }\n"
+              "        }\n"
+              "      }\n" <<
+              "    df = max(0.0,attenuation*dot(N, -vertLightDirectionVC));\n"
+              "    accumulatedLightDiffuseColor += (df * lightColor" << i << ");\n" <<
+              "    sf = sign(df)*attenuation*pow( max(0.0, dot( reflect(vertLightDirectionVC, N), normalize(-position))), fluidShininess);\n"
+              "    accumulatedLightSpecularColor += (sf * lightColor" << i << ");\n";
+          }
+
+          vtkShaderProgram::Substitute(fssource,"//VTK::Light::Impl",
+            toString.str(), false);
+          break;
+      }
+
+      if (useIBL)
+      {
+        vtkShaderProgram::Substitute(fssource, "//VTK::UseIBL::Dec",
+          "#define UseIBL",
+          false
+          );
+      }
+
+      this->QuadFinalBlend = new vtkOpenGLQuadHelper(
+        renderWindow, nullptr, fssource.c_str(), "");
+    }
+    else
+    {
+      renderWindow->GetShaderCache()->ReadyShaderProgram(
+        this->QuadFinalBlend->Program);
+    }
+
+    const auto program = this->QuadFinalBlend->Program;
+    assert(program);
+
+    oren->UpdateLightingUniforms(program);
+
+    // Add IBL textures
+    if (useIBL)
+    {
+      program->SetUniformi("prefilterTex", oren->GetEnvMapPrefiltered()->GetTextureUnit());
+      program->SetUniformMatrix("invNormalMatrix", this->CamInvertedNorms);
+    }
+
+    this->TexBuffer[FluidEyeZ]->Activate();
+    program->SetUniformi("fluidZTexture",
+                         this->TexBuffer[FluidEyeZ]->GetTextureUnit());
+
+    this->TexBuffer[FluidThickness]->Activate();
+    program->SetUniformi("fluidThicknessTexture",
+                         this->TexBuffer[FluidThickness]->GetTextureUnit());
+
+    this->TexBuffer[FluidNormal]->Activate();
+    program->SetUniformi("fluidNormalTexture",
+                         this->TexBuffer[FluidNormal]->GetTextureUnit());
+
+    this->TexBuffer[OpaqueRGBA]->Activate();
+    program->SetUniformi("opaqueRGBATexture",
+                         this->TexBuffer[OpaqueRGBA]->GetTextureUnit());
+
+    if (this->HasVertexColor)
+    {
+      this->OptionalTexBuffer[Color]->Activate();
+      program->SetUniformi("fluidColorTexture",
+                           this->OptionalTexBuffer[Color]->GetTextureUnit());
+      program->SetUniformi("hasVertexColor", this->HasVertexColor);
+      program->SetUniformf("vertexColorPower", this->ParticleColorPower);
+      program->SetUniformf("vertexColorScale", this->ParticleColorScale);
+    }
+
+    program->SetUniformMatrix("DCVCMatrix", this->CamDCVC);
+    program->SetUniformMatrix("VCDCMatrix", this->CamVCDC);
+    if (this->QuadFinalBlend->Program->IsUniformUsed("MCVCMatrix"))
+    {
+      if (!vol->GetIsIdentity())
+      {
+        vtkMatrix4x4* mcwc;
+        vtkMatrix3x3* anorms;
+        ((vtkOpenGLActor*)vol)->GetKeyMatrices(mcwc, anorms);
+        vtkMatrix4x4::Multiply4x4(mcwc, this->CamWCVC, this->TempMatrix4);
+        this->QuadFinalBlend->Program->SetUniformMatrix("MCVCMatrix",
+                                                        this->TempMatrix4);
+      }
+      else
+      {
+        this->QuadFinalBlend->Program->SetUniformMatrix("MCVCMatrix",
+                                                        this->CamWCVC);
+      }
+    }
+
+    program->SetUniformi("displayModeOpaqueSurface",
+      this->DisplayMode == UnfilteredOpaqueSurface ||
+        this->DisplayMode == FilteredOpaqueSurface);
+    program->SetUniformi("displayModeSurfaceNormal",
+      this->DisplayMode == UnfilteredSurfaceNormal ||
+        this->DisplayMode == FilteredSurfaceNormal);
+    program->SetUniformf("attenuationScale", this->AttenuationScale);
+    program->SetUniformf("additionalReflection", this->AdditionalReflection);
+    program->SetUniformf("refractiveIndex", this->RefractiveIndex);
+    program->SetUniformf("refractionScale", this->RefractionScale);
+    program->SetUniform3f("fluidOpaqueColor", this->OpaqueColor);
+    program->SetUniform3f("fluidAttenuationColor", this->AttenuationColor);
+    program->SetUniformf("farZValue", -crange[1]);
+    program->SetUniformf("ambientValue", vol->GetProperty()->GetAmbient());
+    glState->vtkglEnable(GL_DEPTH_TEST);
+    glState->vtkglDepthMask(GL_TRUE);
+    glState->vtkglDepthFunc(GL_ALWAYS);
+
+    this->QuadFinalBlend->Render();
+
+    this->TexBuffer[OpaqueZ]->Deactivate();
+    this->TexBuffer[OpaqueRGBA]->Deactivate();
+    this->TexBuffer[FluidEyeZ]->Deactivate();
+    this->TexBuffer[FluidThickness]->Deactivate();
+    this->TexBuffer[FluidNormal]->Deactivate();
+    if (this->HasVertexColor)
+    {
+      this->OptionalTexBuffer[Color]->Deactivate();
+    }
+
+    glState->vtkglDepthFunc(GL_LEQUAL);
+  }
 }
 
 //-----------------------------------------------------------------------------
-void
-vtkOpenGLFluidMapper::RenderParticles(vtkRenderer* renderer, vtkVolume* vol, bool bDepthShader) {
-    vtkPolyData* positionData = vtkPolyData::SafeDownCast(GetInputDataObject(0, 0));
-    if(positionData == nullptr || positionData->GetPoints() == nullptr) {
-        return;
+void vtkOpenGLFluidMapper::RenderParticles(vtkRenderer* renderer,
+                                           vtkVolume* vol)
+{
+  vtkPolyData* input =
+    vtkPolyData::SafeDownCast(GetInputDataObject(0, 0));
+  if (input == nullptr || input->GetPoints() == nullptr)
+  {
+    return;
+  }
+
+  if (this->VBOBuildTime < input->GetPoints()->GetMTime())
+  {
+    this->VBOs->CacheDataArray(
+      "vertexMC", input->GetPoints()->GetData(), renderer, VTK_FLOAT);
+
+    if (this->HasVertexColor)
+    {
+      int cellFlag = 0;
+      vtkDataArray* scalars =
+        this->GetScalars(input, this->ScalarMode, this->ArrayAccessMode,
+          this->ArrayId, this->ArrayName, cellFlag);
+      this->VBOs->CacheDataArray(
+        "vertexColor", scalars, renderer, VTK_FLOAT);
     }
+    this->VBOs->BuildAllVBOs(renderer);
 
-    if(m_VBOBuildTime < positionData->GetPoints()->GetMTime()) {
-        m_VBOs->CacheDataArray("vertexMC", positionData->GetPoints()->GetData(), renderer, VTK_FLOAT);
-        if(m_bHasVertexColor) {
-            vtkPolyData* colorData = vtkPolyData::SafeDownCast(GetInputDataObject(1, 0));
-            m_VBOs->CacheDataArray("vertexColor", colorData->GetPoints()->GetData(), renderer, VTK_FLOAT);
-        }
-        m_VBOs->BuildAllVBOs(renderer);
+    vtkIdType numPts = input->GetPoints()->GetNumberOfPoints();
+    this->GLHelperDepthThickness.IBO->IndexCount = static_cast<size_t>(numPts);
+    this->VBOBuildTime.Modified();
+  }
 
-        vtkIdType numPts = positionData->GetPoints()->GetNumberOfPoints();
-        m_GLHelperDepthThickness.IBO->IndexCount = static_cast<size_t>(numPts);
-        m_VBOBuildTime.Modified();
+  // draw polygons
+  int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
+  if (numVerts)
+  {
+    // First we do the triangles, update the shader, set uniforms, etc.
+    this->UpdateDepthThicknessColorShaders(
+      this->GLHelperDepthThickness, renderer, vol);
+    glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(numVerts));
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Destructor. Delete SourceCode if any.
+void vtkOpenGLFluidMapper::ReleaseGraphicsResources(vtkWindow *w)
+{
+  if (this->FBFluidEyeZ != nullptr)
+  {
+    this->FBFluidEyeZ->ReleaseGraphicsResources(w);
+    this->FBFluidEyeZ->UnRegister(this);
+    this->FBFluidEyeZ = nullptr;
+  }
+  if (this->FBThickness !=nullptr)
+  {
+    this->FBThickness->ReleaseGraphicsResources(w);
+    this->FBThickness->UnRegister(this);
+    this->FBThickness = nullptr;
+  }
+  if (this->FBFilterThickness != nullptr)
+  {
+    this->FBFilterThickness->ReleaseGraphicsResources(w);
+    this->FBFilterThickness->UnRegister(this);
+    this->FBFilterThickness = nullptr;
+  }
+  if (this->FBCompNormal != nullptr)
+  {
+    this->FBCompNormal->ReleaseGraphicsResources(w);
+    this->FBCompNormal->UnRegister(this);
+    this->FBCompNormal = nullptr;
+  }
+  if (this->FBFilterDepth != nullptr)
+  {
+    this->FBFilterDepth->ReleaseGraphicsResources(w);
+    this->FBFilterDepth->UnRegister(this);
+    this->FBFilterDepth = nullptr;
+  }
+
+  if (this->QuadThicknessFilter != nullptr)
+  {
+    delete this->QuadThicknessFilter;
+    this->QuadThicknessFilter = nullptr;
+  }
+  if (this->QuadFluidNormal != nullptr)
+  {
+    delete this->QuadFluidNormal;
+    this->QuadFluidNormal = nullptr;
+  }
+  if (this->QuadFinalBlend != nullptr)
+  {
+    delete this->QuadFinalBlend;
+    this->QuadFinalBlend = nullptr;
+  }
+  for (int i = 0; i < this->NumFilterMethods; ++i)
+  {
+    if (this->QuadFluidDepthFilter[i] != nullptr)
+    {
+      delete this->QuadFluidDepthFilter[i];
+      this->QuadFluidDepthFilter[i] = nullptr;
     }
+  }
 
-    // draw polygons
-    int numVerts = m_VBOs->GetNumberOfTuples("vertexMC");
-    if(numVerts) {
-        // First we do the triangles, update the shader, set uniforms, etc.
-        UpdateDepthThicknessColorShaders(m_GLHelperDepthThickness, renderer, vol);
+  this->VBOs->ReleaseGraphicsResources(w);
 
-        const auto program = m_GLHelperDepthThickness.Program;
-        program->SetUniformi("outputEyeZ", bDepthShader);
-        if(m_bHasVertexColor) {
-            program->SetUniformi("hasVertexColor", m_bHasVertexColor);
-        }
-        glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(numVerts));
-    }
+  for (int i = 0; i < NumTexBuffers; ++i)
+  {
+    this->TexBuffer[i]->ReleaseGraphicsResources(w);
+  }
+  for (int i = 0; i < NumOptionalTexBuffers; ++i)
+  {
+    this->OptionalTexBuffer[i]->ReleaseGraphicsResources(w);
+  }
+
+  this->GLHelperDepthThickness.ReleaseGraphicsResources(w);
+
+  this->Modified();
 }

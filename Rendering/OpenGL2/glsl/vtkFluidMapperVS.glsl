@@ -13,7 +13,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// this shader implements imposters in OpenGL for Spheres
+// this shader implements fluid imposters in OpenGL as Spheres
 
 in vec4 vertexMC;
 in vec3 vertexColor;
