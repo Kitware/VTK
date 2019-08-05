@@ -66,7 +66,7 @@ public:
   //@}
 
 protected:
-  vtkEquirectangularToCubemapTexture() = default;
+  vtkEquirectangularToCubemapTexture();
   ~vtkEquirectangularToCubemapTexture() override;
 
   unsigned int CubemapSize = 512;

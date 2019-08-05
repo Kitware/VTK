@@ -31,6 +31,12 @@ vtkStandardNewMacro(vtkEquirectangularToCubemapTexture);
 vtkCxxSetObjectMacro(vtkEquirectangularToCubemapTexture, InputTexture, vtkOpenGLTexture);
 
 //------------------------------------------------------------------------------
+vtkEquirectangularToCubemapTexture::vtkEquirectangularToCubemapTexture()
+{
+  this->CubeMapOn();
+}
+
+//------------------------------------------------------------------------------
 vtkEquirectangularToCubemapTexture::~vtkEquirectangularToCubemapTexture()
 {
   if (this->InputTexture)
@@ -60,13 +66,11 @@ void vtkEquirectangularToCubemapTexture::Load(vtkRenderer* ren)
     vtkErrorMacro("No input texture specified.");
   }
 
-  this->CubeMapOn();
+  this->InputTexture->Render(ren);
 
   if (this->GetMTime() > this->LoadTime.GetMTime() ||
     this->InputTexture->GetMTime() > this->LoadTime.GetMTime())
   {
-    this->InputTexture->Render(ren);
-
     if (this->TextureObject == nullptr)
     {
       this->TextureObject = vtkTextureObject::New();
