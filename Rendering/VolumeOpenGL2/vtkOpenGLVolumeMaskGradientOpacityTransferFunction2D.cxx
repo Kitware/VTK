@@ -15,7 +15,6 @@
 
 #include "vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D.h"
 
-#include "vtkColorTransferFunction.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkPiecewiseFunction.h"
@@ -55,19 +54,21 @@ void vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D::InternalUpdate(
   std::fill(this->Table, this->Table + this->TextureWidth * 1, 0.0f);
   for (auto i = 1; i < this->TextureHeight; ++i)
   {
-    float* tmpOpacity = new float[this->TextureWidth];
-    std::fill(tmpOpacity, tmpOpacity + this->TextureWidth, 1.0f);
-    vtkPiecewiseFunction* opacity = prop->GetLabelGradientOpacity(i);
-    if (opacity)
+    float* tmpGradOp = new float[this->TextureWidth];
+    std::fill(tmpGradOp, tmpGradOp + this->TextureWidth, 1.0f);
+    vtkPiecewiseFunction* gradOp = prop->GetLabelGradientOpacity(i);
+    if (gradOp)
     {
-      opacity->GetTable(
-        this->LastRange[0], this->LastRange[1], this->TextureWidth, tmpOpacity);
+      gradOp->GetTable(0,
+                       (this->LastRange[1] - this->LastRange[0]) * 0.25,
+                       this->TextureWidth,
+                       tmpGradOp);
     }
 
     float* tablePtr = this->Table;
     tablePtr += i * this->TextureWidth;
-    memcpy(tablePtr, tmpOpacity, this->TextureWidth * sizeof(float));
-    delete[] tmpOpacity;
+    memcpy(tablePtr, tmpGradOp, this->TextureWidth * sizeof(float));
+    delete[] tmpGradOp;
   }
   this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
   this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
