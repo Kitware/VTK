@@ -2577,7 +2577,7 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string CompositeMaskImplementation(vtkRenderer* vtkNotUsed(ren),
                                           vtkVolumeMapper* vtkNotUsed(mapper),
-                                          vtkVolume* vol,
+                                          vtkVolume* vtkNotUsed(vol),
                                           vtkImageData* maskInput,
                                           vtkVolumeTexture* mask,
                                           int maskType,
