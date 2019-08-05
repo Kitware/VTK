@@ -32,6 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVector.h"
 #include "vtkMath.h"
 
+#include <list>
 #include <map>
 #include <set>
 #include <unordered_map>
@@ -2139,6 +2140,42 @@ void MergeTriFacePolygons(vtkPolyhedron* cell,
   }
 }
 
+void MergeTriFacePolygons(vtkPolyhedron* cell,
+  unordered_map<vtkIdType, vector<vtkIdType>>& triFacePolygonMap,
+  vector<vector<vtkIdType>>& oririginalFaceTriFaceMap,
+  PointIndexEdgeMultiMap& contourPointEdgeMultiMap,
+  EdgeSet& originalEdges,
+  std::list<std::vector<vtkIdType>>& polygons)
+{
+  // for each *original* face, find the list of triangulated faces
+  // and use these to get the list of polygons on the original face
+  int nFaces = cell->GetNumberOfFaces();
+  for (int i = 0; i < nFaces; ++i)
+  {
+    const vector<vtkIdType>& triFacesOfOriginalFace = oririginalFaceTriFaceMap[i];
+
+    vector<vector<vtkIdType>> facePolygons;
+    for (const auto& triFace: triFacesOfOriginalFace)
+    {
+      auto at = triFacePolygonMap.find(triFace);
+      if (at != triFacePolygonMap.end())
+      {
+        facePolygons.push_back(at->second);
+      }
+    }
+
+    if (!facePolygons.empty())
+    {
+      vector<vector<vtkIdType>> mergedPolygons;
+      MergeTriFacePolygons(facePolygons, mergedPolygons, originalEdges, contourPointEdgeMultiMap);
+      for (const auto& poly : mergedPolygons)
+      {
+        polygons.push_back(poly);
+      }
+    }
+  }
+}
+
 void vtkPolyhedron::Clip(double value,
   vtkDataArray *pointScalars,
   vtkIncrementalPointLocator *locator,
@@ -2260,17 +2297,17 @@ void vtkPolyhedron::Clip(double value,
     // if a polygon was identified (if all face points are all + or all -, there is no polygon)
     if (!polygon.empty())
     {
-      triFacePolygonMap.insert(make_pair(i, polygon));
+      triFacePolygonMap.insert(make_pair(static_cast<vtkIdType>(i), polygon));
     }
   }
 
-  vector<vector<vtkIdType> > polygons;
+  std::list<std::vector<vtkIdType> > polygons;
   MergeTriFacePolygons(this, triFacePolygonMap, oririginalFaceTriFaceMap, contourPointEdgeMultiMap, originalEdges, polygons);
 
   // next, get the contour polygons.
 
   // inside the callback lambda function defined below, we can only use pointers to capture variables
-  vector<vector<vtkIdType> >* pPolygons = &polygons;
+  std::list<std::vector<vtkIdType> >* pPolygons = &polygons;
 
   function<void(vtkIdList*)>  cb = [=](vtkIdList* poly)
   {
@@ -2295,79 +2332,86 @@ void vtkPolyhedron::Clip(double value,
     // the set of point ids that form a closed polyhedron
     unordered_set<vtkIdType> polyhedralIdSet;
 
-    // start at the first polygon in the list and add its point ids to the map
-    const vector<vtkIdType>& polygon = polygons[0];
-    polyhedralIdSet.insert(polygon.begin(), polygon.end());
-
-    // this list holds the ids in the polygons list of polyhedral faces that
+    // this list holds the polygons by moving references
+    // in the polygons list of polyhedral faces that
     // belong to the polyhedron being built.
-    set<size_t> polyhedralFaceSet;
-    polyhedralFaceSet.insert(0);
+    std::list<std::vector<vtkIdType>> polyhedralFaceList;
 
-    bool add(true);
+    // while one face is added, keep looping all faces that
+    // were not yet added. The face last added can make faces that were
+    // skipped earlier be valid candidates now. At a certain point, no
+    // faces can be added anymore, and the polyhedron is finished.
+    bool add = true;
     while (add)
     {
-      // while one face is added, keep looping al faces that
-      // were not yet added. The face last added can make faces that were
-      // skipped earlier be valid candidates now. At a certain point, no
-      // faces can be added anymore, and the polyhedron is finished.
       add = false;
-      for (size_t i = 1; i < polygons.size(); ++i)
+      auto it = polygons.begin();
+      while (it != polygons.end())
       {
-        if (polyhedralFaceSet.find(i) != polyhedralFaceSet.end())
+        // If there are empty polygons, we erase them
+        while (it != polygons.end() && !it->size())
         {
-          continue; // face already added
+          it = polygons.erase (it);
+        }
+        if (it == polygons.end())
+        {
+          // All polygons were empty
+          break;
+        }
+        if (!polyhedralIdSet.size())
+        {
+          // Insert seed polygon in the polyhedron
+          polyhedralIdSet.insert(it->begin(), it->end());
+          continue;
         }
 
-        const vector<vtkIdType>& nextPolygon = polygons[i];
-        for (auto it = nextPolygon.begin(); it != nextPolygon.end(); ++it)
+        const vector<vtkIdType>& nextPolygon = *it;
+        auto polygon_it = nextPolygon.begin();
+        for (; polygon_it != nextPolygon.end(); ++polygon_it)
         {
-          if (polyhedralIdSet.find(*it) != polyhedralIdSet.end())
+          // Check if the next polygon has any common point with the seed polygon
+          if (polyhedralIdSet.find(*polygon_it) != polyhedralIdSet.end())
           {
+            polyhedralIdSet.insert(nextPolygon.begin(), nextPolygon.end());
+            polyhedralFaceList.emplace_back(std::move(*it));
+            it = polygons.erase(it);
+            // We might have missed a polygon earlier because
+            // polyhedralIdSet has new ids now
+            // this flag allows to scan again the list polygons
             add = true;
+            // We found a polygon, we can look for another one now
             break;
           }
         }
-        if (add)
+        // We did not catch a new polygon, iterating
+        if (polygon_it == nextPolygon.end())
         {
-          polyhedralIdSet.insert(nextPolygon.begin(), nextPolygon.end());
-          polyhedralFaceSet.insert(i);
-          break; // for-loop
+          ++it;
         }
       }
     }
-
-    // next, build the face stream for the polyhedron.
-    vtkNew<vtkIdList> polyhedron;
-    // first entry: # of faces:
-    polyhedron->InsertNextId((vtkIdType)polyhedralFaceSet.size());
-    for (auto faceIt = polyhedralFaceSet.begin(); faceIt != polyhedralFaceSet.end(); ++faceIt)
+    if (polyhedralFaceList.size())
     {
-      const vector<vtkIdType>& polyFace = polygons[(size_t)*faceIt];
-
-      // each face entry starts with # points in that face
-      polyhedron->InsertNextId((vtkIdType)polyFace.size());
-      for (auto it = polyFace.begin(); it != polyFace.end(); ++it)
+      // next, build the face stream for the polyhedron.
+      vtkNew<vtkIdList> polyhedron;
+      // first entry: # of faces:
+      polyhedron->InsertNextId(static_cast<vtkIdType>(polyhedralFaceList.size()));
+      for (const auto& polyFace : polyhedralFaceList)
       {
-        // then all global face point ids
-        polyhedron->InsertNextId(*it);
+        // each face entry starts with # points in that face
+        polyhedron->InsertNextId(static_cast<vtkIdType>(polyFace.size()));
+        for (const auto& id : polyFace)
+        {
+          // then all global face point ids
+          polyhedron->InsertNextId(id);
+        }
       }
-    }
 
-    vtkIdType newCellId = connectivity->InsertNextCell(polyhedron);
-    // we've added a cell, so add cell data too
-    outCd->CopyData(inCd, cellId, newCellId);
-
-    if (polyhedralFaceSet.size() == polygons.size())
-      break; // we're done here
-
-             // iterate from end to start and remove each polygon used from the list.
-    for (auto rIt = polyhedralFaceSet.rbegin(); rIt != polyhedralFaceSet.rend(); ++rIt)
-    {
-      polygons.erase(polygons.begin() + *rIt);
+      vtkIdType newCellId = connectivity->InsertNextCell(polyhedron);
+      // we've added a cell, so add cell data too
+      outCd->CopyData(inCd, cellId, newCellId);
     }
   }
-
 }
 
 //----------------------------------------------------------------------------
