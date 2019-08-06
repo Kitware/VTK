@@ -2291,7 +2291,7 @@ function (vtk_module_build)
     export(
       EXPORT    "${_vtk_build_INSTALL_EXPORT}"
       ${_vtk_build_namespace}
-      FILE      "${_vtk_build_CMAKE_DESTINATION}/${_vtk_build_PACKAGE}-targets.cmake")
+      FILE      "${CMAKE_BINARY_DIR}/${_vtk_build_CMAKE_DESTINATION}/${_vtk_build_PACKAGE}-targets.cmake")
     install(
       EXPORT      "${_vtk_build_INSTALL_EXPORT}"
       DESTINATION "${_vtk_build_CMAKE_DESTINATION}"
