@@ -35,7 +35,7 @@ namespace RTW
 
         if (!rtx || rtx->GetDeviceCount() <= 0)
         {
-            std::cerr << "Error: Unsupported device" << std::endl;
+            // std::cerr << "Error: Unsupported device" << std::endl;
             return RTW_UNSUPPORTED_DEVICE;
         }
 
