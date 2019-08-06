@@ -34,7 +34,7 @@ void rtwInit()
     rtwVisRTXBackend = new RTW::VisRTXBackend();
     if (rtwVisRTXBackend->Init() != RTW_NO_ERROR)
     {
-      std::cerr << "WARNING: Failed to initialize RTW VisRTX backend.\n";
+      // std::cerr << "WARNING: Failed to initialize RTW VisRTX backend.\n";
       rtwVisRTXBackend->Shutdown();
       delete rtwVisRTXBackend;
       rtwVisRTXBackend = nullptr;
@@ -47,7 +47,7 @@ void rtwInit()
     rtwOSPRayBackend = new RTW::OSPRayBackend();
     if (rtwOSPRayBackend->Init() != RTW_NO_ERROR)
     {
-      std::cerr << "WARNING: Failed to initialize RTW OSPRay backend.\n";
+      // std::cerr << "WARNING: Failed to initialize RTW OSPRay backend.\n";
       rtwOSPRayBackend->Shutdown();
       delete rtwOSPRayBackend;
       rtwOSPRayBackend = nullptr;
