@@ -276,7 +276,7 @@ void ContourImage(vtkThreadedSynchronizedTemplates3D *self, int* exExt,
   vtkIdType xdim = exExt[1] - exExt[0] + 1;
   vtkIdType ydim = exExt[3] - exExt[2] + 1;
   double *values = self->GetValues();
-  int numContours = self->GetNumberOfContours();
+  vtkIdType numContours = self->GetNumberOfContours();
   T *inPtrX, *inPtrY, *inPtrZ;
   T *s0, *s1, *s2, *s3;
   int xMin, xMax, yMin, yMax, zMin, zMax;

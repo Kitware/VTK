@@ -131,7 +131,7 @@ public:
   /**
    * Get the number of contours in the list of contour values.
    */
-  int GetNumberOfContours() {
+  vtkIdType GetNumberOfContours() {
     return this->ContourValues->GetNumberOfContours();}
 
   /**

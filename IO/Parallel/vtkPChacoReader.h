@@ -70,8 +70,8 @@ private:
   int SendGrid(vtkMultiProcessController *c, int to, vtkUnstructuredGrid *grid);
   vtkUnstructuredGrid *GetGrid(vtkMultiProcessController *c, int from);
   vtkUnstructuredGrid *SubGrid(vtkUnstructuredGrid *ug, vtkIdType from, vtkIdType to);
-  char *MarshallDataSet(vtkUnstructuredGrid *extractedGrid, int &len);
-  vtkUnstructuredGrid *UnMarshallDataSet(char *buf, int size);
+  char *MarshallDataSet(vtkUnstructuredGrid *extractedGrid, vtkIdType &len);
+  vtkUnstructuredGrid *UnMarshallDataSet(char *buf, vtkIdType size);
 
   int NumProcesses;
   int MyId;

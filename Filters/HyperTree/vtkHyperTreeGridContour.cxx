@@ -292,7 +292,7 @@ int vtkHyperTreeGridContour::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Estimate output size as a multiple of 1024
   vtkIdType numCells = input->GetNumberOfVertices();
-  int numContours = this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
   vtkIdType estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>( numCells ), .75 ) );
   estimatedSize *= numContours;
   estimatedSize = estimatedSize / 1024 * 1024;
@@ -392,7 +392,7 @@ int vtkHyperTreeGridContour::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Clean up
   this->SelectedCells->Delete();
-  for( int c = 0; c < this->GetNumberOfContours(); ++ c )
+  for( vtkIdType c = 0; c < this->GetNumberOfContours(); ++ c )
   {
     if( this->CellSigns[c] )
     {
@@ -420,7 +420,7 @@ bool vtkHyperTreeGridContour::RecursivelyPreProcessTree( vtkHyperTreeGridNonOrie
   vtkIdType id = cursor->GetGlobalNodeIndex();
 
   // Retrieve number of contours
-  int numContours = this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
 
   // Descend further into input trees only if cursor is not a leaf
   bool selected = false;
@@ -512,7 +512,7 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree( vtkHyperTreeGridNonOriente
     bool selected = false;
 
     // Iterate over contours
-    for( int c = 0; c < this->ContourValues->GetNumberOfContours() && ! selected; ++ c )
+    for( vtkIdType c = 0; c < this->ContourValues->GetNumberOfContours() && ! selected; ++ c )
     {
       // Retrieve sign with respect to contour value at current cursor
       bool sign = (this->CellSigns[c]->GetTuple1( id ) != 0.0);
@@ -568,7 +568,7 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree( vtkHyperTreeGridNonOriente
       // If cell owns dual cell, compute contours thereof
       if ( owner )
       {
-        int numContours = this->ContourValues->GetNumberOfContours();
+        vtkIdType numContours = this->ContourValues->GetNumberOfContours();
         double* values = this->ContourValues->GetValues();
 
         // Generate contour topology depending on dimensionality

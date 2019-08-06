@@ -82,7 +82,7 @@ public:
   double *GetValues();
   void GetValues(double *contourValues);
   void SetNumberOfContours(int number);
-  int GetNumberOfContours();
+  vtkIdType GetNumberOfContours();
   void GenerateValues(int numContours, double range[2]);
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
   //@}
@@ -275,7 +275,7 @@ inline void vtkContourFilter::SetNumberOfContours(int number)
 /**
  * Get the number of contours in the list of contour values.
  */
-inline int vtkContourFilter::GetNumberOfContours()
+inline vtkIdType vtkContourFilter::GetNumberOfContours()
 {return this->ContourValues->GetNumberOfContours();}
 
 /**

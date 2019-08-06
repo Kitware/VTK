@@ -159,7 +159,7 @@ void vtkMarchingContourFilter::StructuredPointsContour(int dim,
                                                        vtkPolyData *thisOutput)
 {
   vtkPolyData *output;
-  int numContours=this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
   if ( dim == 2 ) //marching squares
@@ -213,7 +213,7 @@ void vtkMarchingContourFilter::StructuredPointsContour(int dim,
 void vtkMarchingContourFilter::DataSetContour(vtkDataSet *input,
                                               vtkPolyData *output)
 {
-  int numContours=this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
   vtkContourFilter *contour = vtkContourFilter::New();
@@ -237,7 +237,7 @@ void vtkMarchingContourFilter::DataSetContour(vtkDataSet *input,
 void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
                                             vtkPolyData *output)
 {
-  int numContours=this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
   vtkPolyData *contourOutput;
 

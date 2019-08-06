@@ -93,7 +93,7 @@ public:
   double *GetValues();
   void GetValues( double* );
   void SetNumberOfContours( int) ;
-  int GetNumberOfContours();
+  vtkIdType GetNumberOfContours();
   void GenerateValues( int, double[2] );
   void GenerateValues( int, double, double);
   //@}
@@ -215,7 +215,7 @@ inline void vtkHyperTreeGridContour::SetNumberOfContours( int number )
 /**
  * Get the number of contours in the list of contour values.
  */
-inline int vtkHyperTreeGridContour::GetNumberOfContours()
+inline vtkIdType vtkHyperTreeGridContour::GetNumberOfContours()
   { return this->ContourValues->GetNumberOfContours(); }
 
 /**

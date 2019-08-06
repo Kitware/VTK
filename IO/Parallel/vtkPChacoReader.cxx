@@ -422,7 +422,8 @@ int vtkPChacoReader::SendGrid(vtkMultiProcessController *contr,
 {
   int retVal = 1;
 
-  int bufsize=0, ack = 0;
+  vtkIdType bufsize=0;
+  int ack = 0;
 
   if (!grid)
   {
@@ -455,7 +456,8 @@ vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *contr,
 {
   vtkUnstructuredGrid *grid = nullptr;
 
-  int bufsize=0, ack=1;
+  vtkIdType bufsize=0;
+  int ack=1;
 
   contr->Receive(&bufsize, 1, from, 0x11);
 
@@ -507,7 +509,7 @@ vtkUnstructuredGrid  *
 
   return tmp;
 }
-char *vtkPChacoReader::MarshallDataSet(vtkUnstructuredGrid *extractedGrid, int &len)
+char *vtkPChacoReader::MarshallDataSet(vtkUnstructuredGrid *extractedGrid, vtkIdType &len)
 {
   // taken from vtkCommunicator::WriteDataSet
 
@@ -537,7 +539,7 @@ char *vtkPChacoReader::MarshallDataSet(vtkUnstructuredGrid *extractedGrid, int &
 
   return packedFormat;
 }
-vtkUnstructuredGrid *vtkPChacoReader::UnMarshallDataSet(char *buf, int size)
+vtkUnstructuredGrid *vtkPChacoReader::UnMarshallDataSet(char *buf, vtkIdType size)
 {
   // taken from vtkCommunicator::ReadDataSet
 

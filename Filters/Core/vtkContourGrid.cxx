@@ -398,7 +398,7 @@ int vtkContourGrid::RequestData(
 
   vtkDataArray *inScalars;
   vtkIdType numCells;
-  int numContours = this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
   double *values = this->ContourValues->GetValues();
   int computeScalars = this->ComputeScalars;
 

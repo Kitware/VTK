@@ -53,11 +53,10 @@ int ImageAccumulateLarge(int argc, char *argv[])
   filter->SetComponentOrigin(0, 0, 0);
   filter->SetComponentSpacing(1, 1, 1);
   filter->Update();
-#define OT vtkIdType
   vtkIdType zeroBinResult =
-    static_cast<vtkIdType>(*(static_cast<OT *> (filter->GetOutput()->GetScalarPointer(0,0,0))));
+    static_cast<vtkIdType>(*(static_cast<vtkIdType *> (filter->GetOutput()->GetScalarPointer(0,0,0))));
   vtkIdType oneBinResult =
-    static_cast<vtkIdType>(*(static_cast<OT *> (filter->GetOutput()->GetScalarPointer(1,0,0))));
+    static_cast<vtkIdType>(*(static_cast<vtkIdType *> (filter->GetOutput()->GetScalarPointer(1,0,0))));
   int status = EXIT_SUCCESS;
   if (zeroBinResult != zeroBinExpected)
   {

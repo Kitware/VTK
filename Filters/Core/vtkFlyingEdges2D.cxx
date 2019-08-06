@@ -618,7 +618,7 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
              vtkImageData *input, int *updateExt)
 {
   double value, *values = self->GetValues();
-  int numContours = self->GetNumberOfContours();
+  vtkIdType numContours = self->GetNumberOfContours();
   vtkIdType vidx, row, *eMD;
   vtkIdType numOutXPts, numOutYPts, numOutLines, numXPts=0, numYPts=0, numLines=0;
   vtkIdType startXPts, startYPts, startLines; startXPts=startYPts=startLines=0;

@@ -252,7 +252,7 @@ void vtkOpenGLHardwareSelector::RenderCompositeIndex(unsigned int index)
   if (this->CurrentPass == COMPOSITE_INDEX_PASS)
   {
     float color[3];
-    vtkHardwareSelector::Convert(static_cast<int>(0xffffff & index), color);
+    vtkHardwareSelector::Convert(static_cast<vtkIdType>(0xffffff & index), color);
     this->SetPropColorValue(color);
   }
 }
@@ -270,7 +270,7 @@ void vtkOpenGLHardwareSelector::RenderProcessId(unsigned int processid)
 
     float color[3];
     vtkHardwareSelector::Convert(
-      static_cast<int>(processid + 1), color);
+      static_cast<vtkIdType>(processid + 1), color);
     this->SetPropColorValue(color);
   }
 }

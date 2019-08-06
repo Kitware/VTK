@@ -390,7 +390,7 @@ int vtkMarchingCubes::RequestData(
   int dims[3], extent[6];
   vtkIdType estimatedSize;
   double bounds[6];
-  int numContours=this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
   vtkDebugMacro(<< "Executing marching cubes");

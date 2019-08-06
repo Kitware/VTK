@@ -373,7 +373,7 @@ public:
    */
   std::string PassTypeToString(PassTypes type);
 
-  static void Convert(int id, float tcoord[3])
+  static void Convert(vtkIdType id, float tcoord[3])
   {
     tcoord[0] = static_cast<float>((id & 0xff)/255.0);
     tcoord[1] = static_cast<float>(((id & 0xff00) >> 8)/255.0);

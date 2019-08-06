@@ -82,7 +82,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
                      vtkImageData *input, int *updateExt)
 {
   double *values = self->GetValues();
-  int numContours = self->GetNumberOfContours();
+  vtkIdType numContours = self->GetNumberOfContours();
   T *inPtr, *rowPtr;
   double x[3];
   double *origin = input->GetOrigin();

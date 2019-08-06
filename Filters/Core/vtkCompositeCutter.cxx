@@ -96,7 +96,7 @@ int vtkCompositeCutter::RequestUpdateExtent(vtkInformation *, vtkInformationVect
 
   vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
 
-  for (int c=0; c < this->ContourValues->GetNumberOfContours(); c++)
+  for (vtkIdType c=0; c < this->ContourValues->GetNumberOfContours(); c++)
   {
     vtkDebugMacro("Contours "<<this->ContourValues->GetValue(c));
   }
@@ -113,7 +113,7 @@ int vtkCompositeCutter::RequestUpdateExtent(vtkInformation *, vtkInformationVect
     {
       vtkInformation *info = node.GetMetaData();
       double* bb = info->Get(vtkDataObject::BOUNDING_BOX());
-      for (int c=0; c < this->ContourValues->GetNumberOfContours(); c++)
+      for (vtkIdType c=0; c < this->ContourValues->GetNumberOfContours(); c++)
       {
         if(IntersectBox(this->GetCutFunction(),bb,this->ContourValues->GetValue(c)))
         {

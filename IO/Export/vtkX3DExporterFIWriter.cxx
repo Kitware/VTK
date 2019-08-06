@@ -81,7 +81,7 @@ public:
   void FillByte();
 
   // Get stream info
-  std::string GetStringStream(int& size);
+  std::string GetStringStream(vtkIdType& size);
 
 private:
   unsigned char Append(unsigned int value, unsigned char count);
@@ -132,14 +132,14 @@ int vtkX3DExporterFIByteWriter::OpenStream()
 }
 
 //----------------------------------------------------------------------------
-std::string vtkX3DExporterFIByteWriter::GetStringStream(int& size)
+std::string vtkX3DExporterFIByteWriter::GetStringStream(vtkIdType& size)
 {
   if (this->WriteToOutputString && this->Stream)
   {
     std::ostringstream *ostr =
       static_cast<std::ostringstream*>(this->Stream);
 
-    size = static_cast<int>(ostr->str().size());
+    size = static_cast<vtkIdType>(ostr->str().size());
     return ostr->str();
   }
 

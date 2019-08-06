@@ -66,7 +66,7 @@ public:
   double *GetValues();
   void GetValues(double *binValues);
   void SetNumberOfBins(int numBins);
-  int GetNumberOfBins();
+  vtkIdType GetNumberOfBins();
   void GenerateValues(int numBins, double range[2]);
   void GenerateValues(int numBins, double rangeStart, double rangeEnd);
   //@}
@@ -250,7 +250,7 @@ inline void vtkBinCellDataFilter::SetNumberOfBins(int number)
  * Get the number of bins in the list of bin values, not counting the overflow
  * bin.
  */
-inline int vtkBinCellDataFilter::GetNumberOfBins()
+inline vtkIdType vtkBinCellDataFilter::GetNumberOfBins()
 {return this->BinValues->GetNumberOfContours();}
 
 /**

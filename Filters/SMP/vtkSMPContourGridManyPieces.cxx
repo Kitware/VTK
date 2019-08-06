@@ -301,7 +301,7 @@ int vtkSMPContourGridManyPieces::RequestData(
   // Not thread safe so calculate first.
   input->GetBounds();
 
-  int numContours = this->GetNumberOfContours();
+  vtkIdType numContours = this->GetNumberOfContours();
   if (numContours < 1)
   {
     return 1;

@@ -1218,7 +1218,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkDataArray *inScalars, vtkPolyData *o
   }
 
   // Get the contour values.
-  int numContours = this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
   double value, *values=this->ContourValues->GetValues();
 
   // Setup scalar processing

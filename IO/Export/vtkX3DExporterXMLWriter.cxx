@@ -113,7 +113,7 @@ void vtkX3DExporterXMLWriter::CloseFile()
         static_cast<std::ostringstream*>(this->OutputStream);
 
       delete [] this->OutputString;
-      this->OutputStringLength = static_cast<int>(ostr->str().size());
+      this->OutputStringLength = static_cast<vtkIdType>(ostr->str().size());
       this->OutputString = new char[ostr->str().size()];
       memcpy(this->OutputString, ostr->str().c_str(),
              this->OutputStringLength);
