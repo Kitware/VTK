@@ -12,7 +12,15 @@ arc.SetRatio(.25)
 arc.SetResolution(40)
 arc.SetStartAngle(45)
 arc.SetSegmentAngle(360)
+arc.CloseOff()
 arc.Update()
+
+assert arc.GetOutput().GetNumberOfPoints() == arc.GetResolution()+1
+
+arc.CloseOn()
+arc.Update()
+
+assert arc.GetOutput().GetNumberOfPoints() == arc.GetResolution()
 
 m=vtk.vtkPolyDataMapper()
 m.SetInputData(arc.GetOutput())
