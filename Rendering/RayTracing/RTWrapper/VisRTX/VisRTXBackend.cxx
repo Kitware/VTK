@@ -26,7 +26,7 @@ namespace RTW
         // Load library first
         if (!VisRTX_LoadLibrary())
         {
-            std::cerr << "Error: Failed to load VisRTX library" << std::endl;
+            // std::cerr << "Error: Failed to load VisRTX library" << std::endl;
             return RTW_UNKNOWN_ERROR;
         }
 #endif
