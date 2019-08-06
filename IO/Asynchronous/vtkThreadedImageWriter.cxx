@@ -16,17 +16,17 @@
 
 #include "vtkBMPWriter.h"
 #include "vtkCommand.h"
-#include "vtkConditionVariable.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkJPEGWriter.h"
-#include "vtkMultiThreader.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPNGWriter.h"
 #include "vtkPNMWriter.h"
 #include "vtkPointData.h"
 #include "vtkTIFFWriter.h"
+#include "vtkThreadedTaskQueue.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtkZLibDataCompressor.h"
@@ -34,7 +34,6 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
-#include <queue>
 
 #include <vtksys/SystemTools.hxx>
 
@@ -42,252 +41,83 @@
 //****************************************************************************
 namespace
 {
-class vtkSharedData
+static void EncodeAndWrite(const vtkSmartPointer<vtkImageData>& image, const std::string& fileName)
 {
-public:
-  struct InputValueType
+  vtkLogF(INFO, "encoding: %s", fileName.c_str());
+  assert(image != nullptr);
+
+  std::size_t pos = fileName.rfind(".");
+  std::string extension = fileName.substr(pos + 1);
+
+  if (extension == "Z")
   {
-  public:
-    vtkSmartPointer<vtkImageData> Image;
-    std::string FileName;
-
-    InputValueType()
-      : Image(nullptr)
-      , FileName("")
-    {
-    }
-  };
-
-  typedef std::queue<InputValueType> InputQueueType;
-  typedef std::map<vtkTypeUInt32, InputValueType> InputMapType;
-
-private:
-  bool Done;
-  vtkSimpleMutexLock DoneLock;
-
-  vtkSimpleMutexLock ThreadDoneLock;
-  vtkSimpleConditionVariable ThreadDone;
-  int ActiveThreadCount;
-
-  //------------------------------------------------------------------------
-  // Constructs used to synchronization.
-  vtkSimpleMutexLock InputsLock;
-  vtkSimpleConditionVariable InputsAvailable;
-
-  //------------------------------------------------------------------------
-  // InputsLock must be held before accessing any of the following members.
-  InputQueueType Inputs;
-
-public:
-  //------------------------------------------------------------------------
-  vtkSharedData()
-    : Done(false)
-    , ActiveThreadCount(0)
-  {
+    vtkNew<vtkZLibDataCompressor> zLib;
+    float* zBuf = static_cast<vtkFloatArray*>(image->GetPointData()->GetScalars())->GetPointer(0);
+    size_t bufSize = image->GetNumberOfPoints() * sizeof(float);
+    unsigned char* cBuffer = new unsigned char[bufSize];
+    size_t compressSize = zLib->Compress((unsigned char*)zBuf, bufSize, cBuffer, bufSize);
+    ofstream fileHandler(fileName.c_str(), ios::out | ios::binary);
+    fileHandler.write((const char*)cBuffer, compressSize);
+    delete[] cBuffer;
   }
 
-  //------------------------------------------------------------------------
-  // Each thread should call this method when it starts. It helps us clean up
-  // threads when they are done.
-  void BeginWorker()
+  else if (extension == "png")
   {
-    this->ThreadDoneLock.Lock();
-    this->ActiveThreadCount++;
-    this->ThreadDoneLock.Unlock();
+    vtkNew<vtkPNGWriter> writer;
+    writer->SetFileName(fileName.c_str());
+    writer->SetInputData(image);
+    writer->Write();
   }
 
-  //------------------------------------------------------------------------
-  // Each thread should call this method when it ends.
-  void EndWorker()
+  else if (extension == "jpg" || extension == "jpeg")
   {
-    this->ThreadDoneLock.Lock();
-    this->ActiveThreadCount--;
-    bool last_thread = (this->ActiveThreadCount == 0);
-    this->ThreadDoneLock.Unlock();
-    if (last_thread)
-    {
-      this->ThreadDone.Signal();
-    }
+    vtkNew<vtkJPEGWriter> writer;
+    writer->SetFileName(fileName.c_str());
+    writer->SetInputData(image);
+    writer->Write();
   }
 
-  //------------------------------------------------------------------------
-  void RequestAndWaitForWorkersToEnd()
+  else if (extension == "bmp")
   {
-    // Get the done lock so we other threads don't end up testing the Done
-    // flag and quitting before this thread starts to wait for them to quit.
-    this->DoneLock.Lock();
-    this->Done = true;
-
-    // Grab the ThreadDoneLock. so even if any thread ends up check this->Done
-    // as soon as we release the lock, it won't get a chance to terminate.
-    this->ThreadDoneLock.Lock();
-
-    // release the done lock. Let threads test for this->Done flag.
-    this->DoneLock.Unlock();
-
-    // Tell all workers that inputs are available, so they will try to check
-    // the input as well as the done flag.
-    this->InputsAvailable.Broadcast();
-
-    // Now wait for thread to terminate releasing this->ThreadDoneLock as soon
-    // as we start waiting. Thus, no threads have got a chance to call
-    // EndWorker() till the main thread starts waiting for them.
-    this->ThreadDone.Wait(this->ThreadDoneLock);
-
-    this->ThreadDoneLock.Unlock();
-
-    // reset Done flag since all threads have died.
-    this->Done = false;
+    vtkNew<vtkBMPWriter> writer;
+    writer->SetFileName(fileName.c_str());
+    writer->SetInputData(image);
+    writer->Write();
   }
 
-  //------------------------------------------------------------------------
-  bool IsDone()
+  else if (extension == "ppm")
   {
-    this->DoneLock.Lock();
-    bool val = this->Done;
-    this->DoneLock.Unlock();
-    return val;
+    vtkNew<vtkPNMWriter> writer;
+    writer->SetFileName(fileName.c_str());
+    writer->SetInputData(image);
+    writer->Write();
   }
 
-  //------------------------------------------------------------------------
-  void PushImageToQueue(vtkImageData*& data, const char* fileName)
+  else if (extension == "tif" || extension == "tiff")
   {
-    this->InputsLock.Lock();
-    {
-      vtkSharedData::InputValueType value;
-      value.Image = data;
-      value.FileName = fileName;
-      this->Inputs.push(value);
-      data = nullptr;
-    }
-    this->InputsLock.Unlock();
-    this->InputsAvailable.Signal();
+    vtkNew<vtkTIFFWriter> writer;
+    writer->SetFileName(fileName.c_str());
+    writer->SetInputData(image);
+    writer->Write();
   }
 
-  //------------------------------------------------------------------------
-  // NOTE: This method may suspend the calling thread until inputs become
-  // available.
-  void GetNextInputToProcess(vtkSmartPointer<vtkImageData>& image, std::string& fileName)
+  else if (extension == "vti")
   {
-    this->InputsLock.Lock();
-    do
-    {
-      // Check if we have an input available, if so, return it.
-      if (!this->Inputs.empty())
-      {
-        InputValueType& input = this->Inputs.front();
-        image = input.Image;
-        input.Image = nullptr;
-        fileName = input.FileName;
-        this->Inputs.pop();
-      }
-
-      if (image == nullptr && !this->IsDone())
-      {
-        // No data is available, let's wait till it becomes available.
-        this->InputsAvailable.Wait(this->InputsLock);
-      }
-    } while (image == nullptr && !this->IsDone());
-
-    this->InputsLock.Unlock();
+    vtkNew<vtkXMLImageDataWriter> writer;
+    writer->SetFileName(fileName.c_str());
+    writer->SetInputData(image);
+    writer->Write();
   }
-};
 
-VTK_THREAD_RETURN_TYPE Worker(void* calldata)
-{
-  vtkMultiThreader::ThreadInfo* info = reinterpret_cast<vtkMultiThreader::ThreadInfo*>(calldata);
-  vtkSharedData* sharedData = reinterpret_cast<vtkSharedData*>(info->UserData);
-
-  sharedData->BeginWorker();
-
-  while (true)
+  else
   {
-    vtkSmartPointer<vtkImageData> image;
-    std::string fileName = "";
-
-    sharedData->GetNextInputToProcess(image, fileName);
-
-    if (image == nullptr)
-    {
-      // end thread.
-      break;
-    }
-
-    std::size_t pos = fileName.rfind(".");
-    std::string extension = fileName.substr(pos + 1);
-
-    if (extension == "Z")
-    {
-      vtkNew<vtkZLibDataCompressor> zLib;
-      float* zBuf = static_cast<vtkFloatArray*>(image->GetPointData()->GetScalars())->GetPointer(0);
-      size_t bufSize = image->GetNumberOfPoints() * sizeof(float);
-      unsigned char* cBuffer = new unsigned char[bufSize];
-      size_t compressSize = zLib->Compress((unsigned char*)zBuf, bufSize, cBuffer, bufSize);
-      ofstream fileHandler(fileName.c_str(), ios::out | ios::binary);
-      fileHandler.write((const char*)cBuffer, compressSize);
-      delete[] cBuffer;
-    }
-
-    else if (extension == "png")
-    {
-      vtkNew<vtkPNGWriter> writer;
-      writer->SetFileName(fileName.c_str());
-      writer->SetInputData(image);
-      writer->Write();
-    }
-
-    else if (extension == "jpg" || extension == "jpeg")
-    {
-      vtkNew<vtkJPEGWriter> writer;
-      writer->SetFileName(fileName.c_str());
-      writer->SetInputData(image);
-      writer->Write();
-    }
-
-    else if (extension == "bmp")
-    {
-      vtkNew<vtkBMPWriter> writer;
-      writer->SetFileName(fileName.c_str());
-      writer->SetInputData(image);
-      writer->Write();
-    }
-
-    else if (extension == "ppm")
-    {
-      vtkNew<vtkPNMWriter> writer;
-      writer->SetFileName(fileName.c_str());
-      writer->SetInputData(image);
-      writer->Write();
-    }
-
-    else if (extension == "tif" || extension == "tiff")
-    {
-      vtkNew<vtkTIFFWriter> writer;
-      writer->SetFileName(fileName.c_str());
-      writer->SetInputData(image);
-      writer->Write();
-    }
-
-    else if (extension == "vti")
-    {
-      vtkNew<vtkXMLImageDataWriter> writer;
-      writer->SetFileName(fileName.c_str());
-      writer->SetInputData(image);
-      writer->Write();
-    }
-
-    else
-    {
-      vtkDataArray* scalars = image->GetPointData()->GetScalars();
-      int scalarSize = scalars->GetDataTypeSize();
-      const char* scalarPtr = static_cast<const char*>(scalars->GetVoidPointer(0));
-      size_t numberOfScalars = image->GetNumberOfPoints();
-      ofstream fileHandler(fileName.c_str(), ios::out | ios::binary);
-      fileHandler.write(scalarPtr, numberOfScalars * scalarSize);
-    }
+    vtkDataArray* scalars = image->GetPointData()->GetScalars();
+    int scalarSize = scalars->GetDataTypeSize();
+    const char* scalarPtr = static_cast<const char*>(scalars->GetVoidPointer(0));
+    size_t numberOfScalars = image->GetNumberOfPoints();
+    ofstream fileHandler(fileName.c_str(), ios::out | ios::binary);
+    fileHandler.write(scalarPtr, numberOfScalars * scalarSize);
   }
-  sharedData->EndWorker();
-  return VTK_THREAD_RETURN_VALUE;
 }
 }
 
@@ -295,44 +125,37 @@ VTK_THREAD_RETURN_TYPE Worker(void* calldata)
 class vtkThreadedImageWriter::vtkInternals
 {
 private:
-  std::map<vtkTypeUInt32, vtkSmartPointer<vtkUnsignedCharArray> > ClonedOutputs;
-  std::vector<int> RunningThreadIds;
+  using TaskQueueType = vtkThreadedTaskQueue<void, vtkSmartPointer<vtkImageData>, std::string>;
+  std::unique_ptr<TaskQueueType> Queue;
 
 public:
-  vtkNew<vtkMultiThreader> Threader;
-  vtkSharedData SharedData;
-  vtkTypeUInt64 Counter;
-
-  vtkSmartPointer<vtkUnsignedCharArray> lastBase64Image;
-
   vtkInternals()
-    : Counter(0)
+    : Queue(nullptr)
   {
-    lastBase64Image = vtkSmartPointer<vtkUnsignedCharArray>::New();
   }
+
+  ~vtkInternals() { this->TerminateAllWorkers(); }
 
   void TerminateAllWorkers()
   {
-    // request and wait for all threads to close.
-    if (!this->RunningThreadIds.empty())
+    if (this->Queue)
     {
-      this->SharedData.RequestAndWaitForWorkersToEnd();
+      this->Queue->Flush();
     }
-
-    // Stop threads
-    while (!this->RunningThreadIds.empty())
-    {
-      this->Threader->TerminateThread(this->RunningThreadIds.back());
-      this->RunningThreadIds.pop_back();
-    }
+    this->Queue.reset(nullptr);
   }
 
   void SpawnWorkers(vtkTypeUInt32 numberOfThreads)
   {
-    for (vtkTypeUInt32 cc = 0; cc < numberOfThreads; cc++)
-    {
-      this->RunningThreadIds.push_back(this->Threader->SpawnThread(&Worker, &this->SharedData));
-    }
+    this->Queue.reset(new TaskQueueType(::EncodeAndWrite,
+      /*strict_ordering=*/true,
+      /*buffer_size=*/-1,
+      /*max_concurrent_tasks=*/static_cast<int>(numberOfThreads)));
+  }
+
+  void PushImageToQueue(vtkSmartPointer<vtkImageData>&& data, std::string&& filename)
+  {
+    this->Queue->Push(std::move(data), std::move(filename));
   }
 };
 
@@ -347,7 +170,6 @@ vtkThreadedImageWriter::vtkThreadedImageWriter()
 //----------------------------------------------------------------------------
 vtkThreadedImageWriter::~vtkThreadedImageWriter()
 {
-  this->Internals->TerminateAllWorkers();
   delete this->Internals;
   this->Internals = nullptr;
 }
@@ -384,15 +206,13 @@ void vtkThreadedImageWriter::EncodeAndWrite(vtkImageData* image,
     return;
   }
 
-  this->PushImageToQueue(image, fileName);
-}
-
-//----------------------------------------------------------------------------
-void vtkThreadedImageWriter::PushImageToQueue(vtkImageData*& data,
-                                              const char* fileName)
-{
-  this->Internals->SharedData.PushImageToQueue(data, fileName);
-  assert(data == nullptr);
+  // we make a shallow copy so that the caller doesn't have to take too much
+  // care when modifying image besides the standard requirements for the case
+  // where the image is propagated in the pipeline.
+  vtkSmartPointer<vtkImageData> img;
+  img.TakeReference(image->NewInstance());
+  img->ShallowCopy(image);
+  this->Internals->PushImageToQueue(std::move(img), std::string(fileName));
 }
 
 //----------------------------------------------------------------------------

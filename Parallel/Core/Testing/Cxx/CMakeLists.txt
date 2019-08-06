@@ -1,6 +1,7 @@
 vtk_add_test_cxx(vtkParallelCoreCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   TestFieldDataSerialization.cxx
+  TestThreadedTaskQueue.cxx
   )
 vtk_test_cxx_executable(vtkParallelCoreCxxTests tests)
 

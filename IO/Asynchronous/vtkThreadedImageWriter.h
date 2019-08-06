@@ -49,18 +49,12 @@ public:
   void Initialize();
 
   /**
-   * Use vtkErrorMacro to check that image is valid then
-   * call PushImageToQueue() internally if image is provided.
-   */
-  void EncodeAndWrite(vtkImageData* image, const char* fileName);
-
-  /**
    * Push an image into the threaded writer. It is not safe to modify the image
-   * after this point, including changing the reference counts for it.
+   * after this point.
    * You may run into thread safety issues. Typically, the caller code will
    * simply release reference to the data and stop using it.
    */
-  void PushImageToQueue(vtkImageData*& data, const char* fileName);
+  void EncodeAndWrite(vtkImageData* image, const char* fileName);
 
   /**
    * Define the number of worker thread to use.

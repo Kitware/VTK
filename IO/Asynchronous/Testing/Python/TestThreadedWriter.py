@@ -39,14 +39,7 @@ for i in range(10):
     for fileName in fileNames:
         filePath = '%s/%s-%s' % (VTK_TEMP_DIR, i, fileName)
         wroteFiles.append(filePath)
-        # making a deepcopy only because we have the same image
-        # shared among all threads in this test, and that causes
-        # problems when many threads Delete it at the same time.
-        # TODO: rework writer to manage pointer better to address
-        # this corner case better while not resorting to any copy.
-        icopy = vtk.vtkImageData()
-        icopy.DeepCopy(image)
-        writer.EncodeAndWrite(icopy, filePath)
+        writer.EncodeAndWrite(image, filePath)
 
 t1 = time.time()
 
