@@ -138,7 +138,7 @@ int vtkRandomHyperTreeGridSource::RequestData(vtkInformation *,
   }
 
   vtkNew<vtkDoubleArray> levels;
-  levels->SetName("level");
+  levels->SetName("Depth");
   htg->GetPointData()->AddArray(levels);
   this->Levels = levels;
 
