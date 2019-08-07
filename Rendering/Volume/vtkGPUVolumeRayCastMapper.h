@@ -225,18 +225,17 @@ public:
    * within the binary mask. The binary mask is assumed to have a datatype of
    * UCHAR and values of 255 (inside) and 0 (outside).
 
-   * The mask may also be a label map. The label map is allowed to contain only
-   * 3 labels (values of 0, 1 and 2) and must have a datatype of UCHAR. In voxels
-   * with label value of 0, the color transfer function supplied by component
-   * 0 is used.
-   * In voxels with label value of 1, the color transfer function supplied by
-   * component 1 is used and blended with the transfer function supplied by
-   * component 0, with the blending weight being determined by
-   * MaskBlendFactor.
-   * In voxels with a label value of 2, the color transfer function supplied
-   * by component 2 is used and blended with the transfer function supplied by
-   * component 0, with the blending weight being determined by
-   * MaskBlendFactor.
+   * The mask may also be a label map. The label map must have a datatype of
+   * UCHAR i.e. it can have upto 256 labels. The label 0 is reserved as a
+   * special label. In voxels with label value of 0, the default transfer
+   * functions supplied by vtkVolumeProperty are used.
+   *
+   * For voxels with a label values greater than 0, the color transfer functions
+   * supplied using vtkVolumeProperty's label API are used.
+   *
+   * For voxels with a label value greater than 0, the color transfer function
+   * is blended with the default color transfer function, with the blending
+   * weight determined by MaskBlendFactor.
    */
   void SetMaskInput(vtkImageData *mask);
   vtkGetObjectMacro(MaskInput, vtkImageData);

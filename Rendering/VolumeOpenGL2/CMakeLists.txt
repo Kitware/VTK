@@ -5,6 +5,7 @@ set(classes
   vtkOpenGLRayCastImageDisplayHelper
   vtkOpenGLVolumeGradientOpacityTable
   vtkOpenGLVolumeLookupTable
+  vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D
   vtkOpenGLVolumeMaskTransferFunction2D
   vtkOpenGLVolumeOpacityTable
   vtkOpenGLVolumeRGBTable

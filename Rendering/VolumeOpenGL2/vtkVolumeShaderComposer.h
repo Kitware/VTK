@@ -35,7 +35,8 @@ namespace {
     {
       vtkVolumeProperty* volProp = item.second.Volume->GetProperty();
       const bool gradOp =
-        volProp->HasGradientOpacity() && !volProp->GetDisableGradientOpacity();
+        (volProp->HasGradientOpacity() || volProp->HasLabelGradientOpacity()) &&
+        !volProp->GetDisableGradientOpacity();
       if (gradOp)
         return true;
     }
@@ -425,6 +426,7 @@ namespace vtkvolume
     std::ostringstream ss;
     ss << "uniform sampler2D " << ArrayBaseName(gradientTableMap[0])
       << "[" << noOfComponents << "];\n";
+    ss << "uniform sampler2D in_labelMapGradientOpacity;\n";
 
     std::string shaderStr = ss.str();
     if (vol->GetProperty()->HasGradientOpacity() &&
@@ -460,6 +462,17 @@ namespace vtkvolume
 
       shaderStr += std::string("\
         \n  }");
+    }
+
+    if (vol->GetProperty()->HasLabelGradientOpacity() &&
+        (noOfComponents == 1 || !independentComponents))
+    {
+      shaderStr += std::string("\
+        \nfloat computeGradientOpacityForLabel(vec4 grad, float label)\
+        \n  {\
+        \n  return texture2D(in_labelMapGradientOpacity, vec2(grad.w, label)).r;\
+        \n  }"
+      );
     }
 
     return shaderStr;
@@ -609,7 +622,7 @@ namespace vtkvolume
   {
     vtkVolumeProperty* volProperty = vol->GetProperty();
     std::string shaderStr = std::string("\
-      \nvec4 computeLighting(vec4 color, int component)\
+      \nvec4 computeLighting(vec4 color, int component, float label)\
       \n  {\
       \n  vec4 finalColor = vec4(0.0);"
     );
@@ -621,7 +634,8 @@ namespace vtkvolume
 
     int const transferMode = volProperty->GetTransferFunctionMode();
 
-    if (shadeReqd || volProperty->HasGradientOpacity())
+    if (shadeReqd || volProperty->HasGradientOpacity() ||
+        volProperty->HasLabelGradientOpacity())
     {
       switch (transferMode)
       {
@@ -826,16 +840,26 @@ namespace vtkvolume
     if (transferMode == vtkVolumeProperty::TF_1D &&
       glMapper->GetInputCount() == 1)
     {
-      if (volProperty->HasGradientOpacity() &&
-          (noOfComponents == 1 || !independentComponents))
+      if (noOfComponents == 1 || !independentComponents)
       {
-        shaderStr += std::string("\
-          \n  if (gradient.w >= 0.0)\
-          \n    {\
-          \n    color.a = color.a *\
-          \n              computeGradientOpacity(gradient);\
-          \n    }"
-        );
+        if (volProperty->HasGradientOpacity())
+        {
+          shaderStr += std::string("\
+            \n  if (gradient.w >= 0.0 && label == 0.0)\
+            \n    {\
+            \n    color.a *= computeGradientOpacity(gradient);\
+            \n    }"
+          );
+        }
+        if (volProperty->HasLabelGradientOpacity())
+        {
+          shaderStr += std::string("\
+            \n  if (gradient.w >= 0.0 && label > 0.0)\
+            \n    {\
+            \n    color.a *= computeGradientOpacityForLabel(gradient, label);\
+            \n    }"
+          );
+        }
       }
       else if (noOfComponents > 1 && independentComponents &&
               volProperty->HasGradientOpacity())
@@ -907,7 +931,7 @@ namespace vtkvolume
           \nvec4 computeColor(vec4 scalar, float opacity)\
           \n  {\
           \n  return computeLighting(vec4(texture2D(" + colorTableMap[0] +",\
-          \n                         vec2(scalar.w, 0.0)).xyz, opacity), 0);\
+          \n                         vec2(scalar.w, 0.0)).xyz, opacity), 0, 0);\
           \n  }");
         return shaderStr;
       }
@@ -931,7 +955,7 @@ namespace vtkvolume
             \n      "+colorTableMap[i]);
           shaderStr += std::string(", vec2(\
             \n      scalar[" + toString.str() + "],0.0)).xyz,\
-            \n      opacity),"+toString.str()+");\
+            \n      opacity),"+toString.str()+", 0);\
             \n    }");
 
           // Reset
@@ -949,7 +973,7 @@ namespace vtkvolume
           \n  {\
           \n  return computeLighting(vec4(texture2D(" + colorTableMap[0] + ",\
           \n                                        vec2(scalar.x, 0.0)).xyz,\
-          \n                              opacity), 0);\
+          \n                              opacity), 0, 0);\
           \n  }");
         return shaderStr;
       }
@@ -958,7 +982,7 @@ namespace vtkvolume
         shaderStr += std::string("\
           \nvec4 computeColor(vec4 scalar, float opacity)\
           \n  {\
-          \n  return computeLighting(vec4(scalar.xyz, opacity), 0);\
+          \n  return computeLighting(vec4(scalar.xyz, opacity), 0, 0);\
           \n  }");
         return shaderStr;
       }
@@ -1120,7 +1144,7 @@ namespace vtkvolume
           "{\n"
           "  vec4 color = texture2D(" + colorTableMap[0]  + ",\n"
           "    vec2(scalar.w, g_gradients_0[0].w));\n"
-          "  return computeLighting(color, 0);\n"
+          "  return computeLighting(color, 0, 0);\n"
           "}\n");
       }
       else if (noOfComponents > 1 && independentComponents)
@@ -1141,7 +1165,7 @@ namespace vtkvolume
               "  {\n"
               "    vec4 color = texture2D(" + colorTableMap[i] + ",\n"
               "      vec2(scalar[" + num + "], g_gradients_0[" + num + "].w));\n"
-              "    return computeLighting(color, " + num + ");\n"
+              "    return computeLighting(color, " + num + ", 0);\n"
               "  }\n");
         }
         shaderStr += std::string("}\n");
@@ -1156,7 +1180,7 @@ namespace vtkvolume
           "{\n"
           "  vec4 color = texture2D(" + colorTableMap[0]  + ",\n"
           "    vec2(scalar.x, g_gradients_0[0].w));\n"
-          "  return computeLighting(color, 0);\n"
+          "  return computeLighting(color, 0, 0);\n"
           "}\n");
       }
       else
@@ -1164,7 +1188,7 @@ namespace vtkvolume
         return std::string(
           "vec4 computeColor(vec4 scalar, float opacity)\n"
           "{\n"
-          "  return computeLighting(vec4(scalar.xyz, opacity), 0);\n"
+          "  return computeLighting(vec4(scalar.xyz, opacity), 0, 0);\n"
           "}\n");
       }
   }
@@ -2585,6 +2609,9 @@ namespace vtkvolume
           );
       }
 
+      // Assumeing single component scalar for label texture lookup.
+      // This can be extended to composite color obtained from all components
+      // in the scalar array.
       return shaderStr + std::string("\
         \nif (in_maskBlendFactor == 0.0)\
         \n  {\
@@ -2599,12 +2626,12 @@ namespace vtkvolume
         \n  if(maskValue.r == 0.0)\
         \n    {\
         \n    g_srcColor = computeColor(scalar, opacity);\
-        \n    g_srcColor.a = opacity;\
         \n    }\
         \n  else\
         \n    {\
         \n    g_srcColor = texture2D(in_labelMapTransfer,\
-                                     vec2(scalar.r, maskValue.r));\
+        \n                           vec2(scalar.r, maskValue.r));\
+        \n    g_srcColor = computeLighting(g_srcColor, 0, maskValue.r);\
         \n    if (in_maskBlendFactor < 1.0)\
         \n      {\
         \n      g_srcColor = (1.0 - in_maskBlendFactor) *\

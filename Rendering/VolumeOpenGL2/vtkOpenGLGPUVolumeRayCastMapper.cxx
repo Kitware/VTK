@@ -92,6 +92,7 @@
 #include "vtkOpenGLVolumeOpacityTable.h"
 #include "vtkOpenGLVolumeRGBTable.h"
 #include "vtkOpenGLVolumeTransferFunction2D.h"
+#include "vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D.h"
 
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
@@ -469,6 +470,8 @@ public:
   std::ostringstream ExtensionsStringStream;
 
   vtkSmartPointer<vtkOpenGLVolumeMaskTransferFunction2D> LabelMapTransfer2D;
+  vtkSmartPointer<vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D>
+    LabelMapGradientOpacity;
 
   vtkTimeStamp ShaderBuildTime;
 
@@ -636,6 +639,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupMaskTransfer(
   {
     this->LabelMapTransfer2D =
       vtkSmartPointer<vtkOpenGLVolumeMaskTransferFunction2D>::New();
+    this->LabelMapGradientOpacity =
+      vtkSmartPointer<vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D>::New();
   }
 
   this->InitializationTime.Modified();
@@ -718,12 +723,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ReleaseGraphicsMaskTransfer(
   {
     this->LabelMapTransfer2D->ReleaseGraphicsResources(window);
   }
+  if (this->LabelMapGradientOpacity)
+  {
+    this->LabelMapGradientOpacity->ReleaseGraphicsResources(window);
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteMaskTransfer()
 {
   this->LabelMapTransfer2D = nullptr;
+  this->LabelMapGradientOpacity = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -750,6 +760,18 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
       0,
       vtkTextureObject::Nearest,
       vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+
+    if (volumeProperty->HasLabelGradientOpacity())
+    {
+      this->LabelMapGradientOpacity->Update(
+        volumeProperty,
+        componentRange,
+        0,
+        0,
+        0,
+        vtkTextureObject::Nearest,
+        vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    }
   }
 
   return 0;
@@ -3653,6 +3675,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMaskShaderParameters(
       this->LabelMapTransfer2D->Activate();
       prog->SetUniformi("in_labelMapTransfer",
                         this->LabelMapTransfer2D->GetTextureUnit());
+      if (prop->HasLabelGradientOpacity())
+      {
+        this->LabelMapGradientOpacity->Activate();
+        prog->SetUniformi("in_labelMapGradientOpacity",
+                          this->LabelMapGradientOpacity->GetTextureUnit());
+      }
       prog->SetUniformf("in_maskBlendFactor", this->Parent->MaskBlendFactor);
       float maskRange[2] = {0.0f, 1.0f};
       std::set<int> const labels = prop->GetLabelMapLabels();
@@ -3771,6 +3799,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::FinishRendering(
         this->Parent->MaskType == LabelMapMaskType)
     {
       this->LabelMapTransfer2D->Deactivate();
+      this->LabelMapGradientOpacity->Deactivate();
     }
   }
 
