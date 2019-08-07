@@ -33,6 +33,9 @@
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridNonOrientedMooreSuperCursor.h"
 
+#include <cassert>
+#include <cfloat>
+
 vtkIdType First8Integers[] = {
   0, 1, 2, 3, 4, 5, 6, 7 };
 
@@ -365,8 +368,35 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
   for ( int i = 0; i < 8; ++ i )
   {
     cellCoords[i][0] = ( i & 1 ) ? origin[0] + size[0] : origin[0];
+    // Checking if the plane is equal to the boundary of a cell.
+    // If it is, we need to shift it a tiny bit.
+    // Check is done on all axis.
+    if (this->IsPlaneOrthogonalToXAxis())
+    {
+      if (cellCoords[i][0] == this->Plane[3])
+      {
+        cellCoords[i][0] +=
+          cellCoords[i][0] != 0 ? DBL_EPSILON * std::abs(cellCoords[i][0]) : DBL_MIN;
+      }
+    }
     cellCoords[i][1] = ( i & 2 ) ? origin[1] + size[1] : origin[1];
+    if (this->IsPlaneOrthogonalToYAxis())
+    {
+      if (cellCoords[i][1] == this->Plane[3])
+      {
+        cellCoords[i][1] +=
+          cellCoords[i][1] != 0 ? DBL_EPSILON * std::abs(cellCoords[i][1]) : DBL_MIN;
+      }
+    }
     cellCoords[i][2] = ( i & 4 ) ? origin[2] + size[2] : origin[2];
+    if (this->IsPlaneOrthogonalToZAxis())
+    {
+      if (cellCoords[i][2] == this->Plane[3])
+      {
+        cellCoords[i][2] +=
+          cellCoords[i][2] != 0 ? DBL_EPSILON * std::abs(cellCoords[i][2]) : DBL_MIN;
+      }
+    }
   }
 
   // Check cell-plane intersection
@@ -618,7 +648,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual( vtkHyperTreeGridNo
             this->Points->InsertNextPoint( pt );
 
             // Copy cut point data to that of corresponding output point
-            this->OutData->CopyData( pdata, i, i + offset );
+            this->OutData->CopyData(pdata, i, i + offset);
           } // i
 
           // Append new elements to existing cut element
@@ -633,7 +663,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual( vtkHyperTreeGridNo
             vtkIdType n = vertices->GetNumberOfIds();
             for ( int j = 0; j < n; ++ j )
             {
-              ids[j] = vertices->GetId( j ) + offset;
+              ids[j] = vertices->GetId(j) + offset;
             } // j
 
             // Insert next cell with offset ids
@@ -700,6 +730,32 @@ bool vtkHyperTreeGridPlaneCutter::CheckIntersection( double cellCoords[8][3] )
   }
 
   return ! sameSign;
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridPlaneCutter::SetPlane(double a, double b, double c, double d)
+{
+  assert (!(a == 0 && b == 0 && c == 0) && "Plane's normal equals zero");
+  this->Plane[0] = a;
+  this->Plane[1] = b;
+  this->Plane[2] = c;
+  this->Plane[3] = d;
+  if (a == 0.0 && b == 0.0)
+  {
+    this->AxisAlignment = 2;
+  }
+  else if (b == 0.0 && c == 0.0)
+  {
+    this->AxisAlignment = 0;
+  }
+  else if (a == 0.0 && c == 0.0)
+  {
+    this->AxisAlignment = 1;
+  }
+  else
+  {
+    this->AxisAlignment = -1;
+  }
 }
 
 //----------------------------------------------------------------------------
