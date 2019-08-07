@@ -49,6 +49,8 @@ vtkEllipseArcSource::vtkEllipseArcSource()
   // Default resolution
   this->Resolution = 100;
 
+  this->Close = false;
+
   this->OutputPointsPrecision = SINGLE_PRECISION;
 
   // Default Ratio
@@ -134,6 +136,11 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkCellArray> newLines;
   newLines->Allocate(newLines->EstimateSize(numLines, 2));
 
+  // Should we skip adding the last point in the loop? Yes if the segment angle is a full
+  // 360 degrees and we want to close the loop because the last point will be coincident
+  // with the first.
+  bool skipLastPoint = this->Close && fabs(this->SegmentAngle - 360.0) < 1e-5;
+
   double theta = startAngleRad;
   double thetaEllipse;
   // Iterate over angle increments
@@ -167,14 +174,28 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
       };
 
     tc[0] = static_cast<double>(i) / this->Resolution;
-    newPoints->InsertPoint(i , p);
-    newTCoords->InsertTuple(i, tc);
+
+    // Skip adding a point at the end if it is going to be coincident with the first
+    if (i != this->Resolution || !skipLastPoint)
+    {
+      newPoints->InsertPoint(i , p);
+      newTCoords->InsertTuple(i, tc);
+    }
   }
 
   newLines->InsertNextCell(numPts);
-  for (int k = 0; k < numPts; ++ k)
+  for (int k = 0; k < numPts-1; ++ k)
   {
     newLines->InsertCellPoint(k);
+  }
+
+  if (this->Close)
+  {
+    newLines->InsertCellPoint(0);
+  }
+  else
+  {
+    newLines->InsertCellPoint(newPoints->GetNumberOfPoints()-1);
   }
 
   output->SetPoints(newPoints);
