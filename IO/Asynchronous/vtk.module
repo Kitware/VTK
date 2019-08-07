@@ -2,8 +2,6 @@ NAME
   VTK::IOAsynchronous
 LIBRARY_NAME
   vtkIOAsynchronous
-KIT
-  VTK::IO
 GROUPS
   StandAlone
 DEPENDS
