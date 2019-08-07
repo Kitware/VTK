@@ -68,6 +68,8 @@ set(classes
   vtkImplicitPlaneRepresentation
   vtkImplicitPlaneWidget
   vtkImplicitPlaneWidget2
+  vtkLightRepresentation
+  vtkLightWidget
   vtkLinearContourLineInterpolator
   vtkLineRepresentation
   vtkLineWidget
