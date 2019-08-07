@@ -95,8 +95,8 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3],
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
 
   //  enter iteration loop
-  int converged = 0;
-  for (int iteration=0;!converged && (iteration < VTK_HEX_MAX_ITERATION);  iteration++)
+  int iteration, converged = 0;
+  for (iteration=0;!converged && (iteration < VTK_HEX_MAX_ITERATION);  iteration++)
   {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions(pcoords, weights);

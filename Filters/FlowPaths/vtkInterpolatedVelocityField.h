@@ -18,38 +18,42 @@
  *  the interpolated velocity values at a point.
  *
  *
- *  vtkInterpolatedVelocityField acts as a continuous velocity field via
- *  cell interpolation on a vtkDataSet, NumberOfIndependentVariables = 4
- *  (x,y,z,t) and NumberOfFunctions = 3 (u,v,w). As a concrete sub-class
- *  of vtkCompositeInterpolatedVelocityField, this class adopts two levels
- *  of cell caching for faster though less robust cell location than its
- *  sibling class vtkCellLocatorInterpolatedVelocityField. Level #0 begins
- *  with intra-cell caching. Specifically, if the previous cell is valid
- *  and the nex point is still within it, ( vtkCell::EvaluatePosition()
- *  returns 1, coupled with the new parametric coordinates and weights ),
- *  the function values are interpolated and vtkCell::EvaluatePosition()
- *  is invoked only. If it fails, level #1 follows by inter-cell location
- *  of the target cell (that contains the next point). By inter-cell, the
- *  previous cell gives an important clue / guess or serves as an immediate
- *  neighbor to aid in the location of the target cell (as is typically the
- *  case with integrating a streamline across cells) by means of vtkDataSet::
- *  FindCell(). If this still fails, a global cell search is invoked via
- *  vtkDataSet::FindCell().
+ * vtkInterpolatedVelocityField acts as a continuous velocity field via
+ * cell interpolation on a vtkDataSet, NumberOfIndependentVariables = 4
+ * (x,y,z,t) and NumberOfFunctions = 3 (u,v,w). As a concrete sub-class
+ * of vtkCompositeInterpolatedVelocityField, this class adopts two levels
+ * of cell caching for faster though less robust cell location than its
+ * sibling class vtkCellLocatorInterpolatedVelocityField. Level #0 begins
+ * with intra-cell caching. Specifically, if the previous cell is valid
+ * and the next point is still within it, ( vtkCell::EvaluatePosition()
+ * returns 1, coupled with the new parametric coordinates and weights ),
+ * the function values are interpolated and vtkCell::EvaluatePosition()
+ * is invoked only. If it fails, level #1 follows by inter-cell location
+ * of the target cell (that contains the next point). By inter-cell, the
+ * previous cell gives an important clue / guess or serves as an immediate
+ * neighbor to aid in the location of the target cell (as is typically the
+ * case with integrating a streamline across cells) by means of vtkDataSet::
+ * FindCell(). If this still fails, a global cell search is invoked via
+ * vtkDataSet::FindCell().
  *
- *  Regardless of inter-cell or global search, vtkPointLocator is employed
- *  as a crucial tool underlying the cell locator. The use of vtkPointLocator
- *  causes vtkInterpolatedVelocityField to return false target cells for
- *  datasets defined on complex grids.
+ * Regardless of inter-cell or global search, a point locator is employed as
+ * a crucial tool underlying the interpolation process. The use of a point
+ * locator, while faster than a cell locator, is not optimal and may cause
+ * vtkInterpolatedVelocityField to return incorrect results (i.e., premature
+ * streamline termination) for datasets defined on complex grids (especially
+ * those this discontinuous/incompatible cells). In these cases, try
+ * vtkCellLocatorInterpolatedVelocityField which produces the best results at
+ * the cost of speed.
  *
  * @warning
- *  vtkInterpolatedVelocityField is not thread safe. A new instance should be
- *  created by each thread.
+ * vtkInterpolatedVelocityField is not thread safe. A new instance should be
+ * created by each thread.
  *
  * @sa
  *  vtkCompositeInterpolatedVelocityField vtkCellLocatorInterpolatedVelocityField
  *  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
  *  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamTracer
-*/
+ */
 
 #ifndef vtkInterpolatedVelocityField_h
 #define vtkInterpolatedVelocityField_h
@@ -61,15 +65,20 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkInterpolatedVelocityField
   : public vtkCompositeInterpolatedVelocityField
 {
 public:
-  vtkTypeMacro( vtkInterpolatedVelocityField,
-                        vtkCompositeInterpolatedVelocityField );
-  void PrintSelf( ostream & os, vtkIndent indent ) override;
-
   /**
    * Construct a vtkInterpolatedVelocityField without an initial dataset.
    * Caching is set on and LastCellId is set to -1.
    */
   static vtkInterpolatedVelocityField * New();
+
+  //@{
+  /**
+   * Standard methods for type information and printing.
+   */
+  vtkTypeMacro( vtkInterpolatedVelocityField,
+                        vtkCompositeInterpolatedVelocityField );
+  void PrintSelf( ostream & os, vtkIndent indent ) override;
+  //@}
 
   /**
    * Add a dataset used for the implicit function evaluation. If more than

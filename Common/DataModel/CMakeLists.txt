@@ -28,7 +28,10 @@ set(classes
   vtkCellIterator
   vtkCellLinks
   vtkCellLocator
+  vtkCellLocatorStrategy
   vtkCellTypes
+  vtkClosestNPointsStrategy
+  vtkClosestPointStrategy
   vtkCompositeDataIterator
   vtkCompositeDataSet
   vtkCone
@@ -54,6 +57,7 @@ set(classes
   vtkExplicitStructuredGrid
   vtkExtractStructuredGridHelper
   vtkFieldData
+  vtkFindCellStrategy
   vtkGenericAdaptorCell
   vtkGenericAttribute
   vtkGenericAttributeCollection

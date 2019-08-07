@@ -37,6 +37,7 @@
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericEdgeTable.h"
 #include "vtkSimpleCellTessellator.h"
+#include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkBridgeDataSet);
 
@@ -407,25 +408,13 @@ int vtkBridgeDataSet::FindCell(double x[3],
   assert("pre: positive_tolerance" && tol2>0);
 
   vtkIdType cellid;
-  vtkBridgeCell *c;
   vtkBridgeCellIterator *it=static_cast<vtkBridgeCellIterator *>(cell);
-  vtkCell *c2;
 
   double *ignoredWeights=new double[this->Implementation->GetMaxCellSize()];
 
-  if(cell->IsAtEnd())
-  {
-    cellid=this->Implementation->FindCell(x,nullptr,0,tol2,subId,pcoords,
-                                          ignoredWeights);
-  }
-  else
-  {
-    c=static_cast<vtkBridgeCell *>(cell->GetCell());
-    c2=c->Cell; // bridge
-    cellid=c->GetId(); // adaptor
-    cellid=this->Implementation->FindCell(x,c2,cellid,tol2,subId,pcoords,
-                                          ignoredWeights);
-  }
+  cellid=this->Implementation->FindCell(x,nullptr,0,tol2,subId,pcoords,
+                                        ignoredWeights);
+
   delete [] ignoredWeights;
   if(cellid>=0)
   {

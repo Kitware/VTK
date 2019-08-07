@@ -81,6 +81,7 @@ streamer2.SetIntegrationDirectionToForward()
 streamer2.SetComputeVorticity(1)
 streamer2.SetIntegrator(rk4)
 streamer2.SetInterpolatorPrototype(ivp2)
+streamer2.Update()
 
 rf2 = vtk.vtkRibbonFilter()
 rf2.SetInputConnection(streamer2.GetOutputPort())

@@ -20,13 +20,24 @@
 #include "vtkDataArray.h"
 #include "vtkPointData.h"
 #include "vtkGenericCell.h"
+#include "vtkClosestPointStrategy.h"
 #include "vtkObjectFactory.h"
 
+#include <map>
+#include <utility> //make_pair
+
 //----------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkAbstractInterpolatedVelocityField,FindCellStrategy,vtkFindCellStrategy);
 
 //----------------------------------------------------------------------------
 const double vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
 const double vtkAbstractInterpolatedVelocityField::SURFACE_TOLERANCE_SCALE = 1.0E-5;
+
+// Map FindCell strategies to input datasets. Necessary due to potential composite
+// data set input types, where each piece may have a different strategy.
+struct vtkStrategyMap : public std::map<vtkPointSet*,vtkFindCellStrategy*>
+{
+};
 
 //---------------------------------------------------------------------------
 vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
@@ -54,6 +65,9 @@ vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
 
   this->Cell     = vtkGenericCell::New();
   this->GenCell  = vtkGenericCell::New();
+
+  this->FindCellStrategy = nullptr;
+  this->StrategyMap = new vtkStrategyMap;
 }
 
 //---------------------------------------------------------------------------
@@ -79,6 +93,23 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
     this->GenCell->Delete();
     this->GenCell = nullptr;
   }
+
+  // Need to free strategies associated with each dataset. There is a special
+  // case where the strategy cannot be deleted because is has been specified
+  // by the user.
+  vtkFindCellStrategy *strat;
+  for ( auto iter=this->StrategyMap->begin();
+        iter != this->StrategyMap->end(); ++iter )
+  {
+    strat = iter->second;
+    if ( strat != nullptr && strat != this->FindCellStrategy )
+    {
+      strat->Delete();
+    }
+  }
+  delete this->StrategyMap;
+
+  this->SetFindCellStrategy(nullptr);
 }
 
 //---------------------------------------------------------------------------
@@ -98,6 +129,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
     vectors = nullptr;
     return 0;
   }
+
   if(!this->VectorsSelection) //if a selection is not specified,
   {
     //use the first one in the point set (this is a behavior for backward compatibility)
@@ -114,11 +146,37 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
     return 0;
   }
 
+  // Make sure a FindCell strategy has been defined and initialized. The
+  // potential for composite (vtkPointSet) datasets make the process more complex.
+  vtkPointSet *ps = vtkPointSet::SafeDownCast(dataset);
+  if ( ps != nullptr )
+  {
+    vtkFindCellStrategy *strategy;
+    vtkStrategyMap::iterator sIter = this->StrategyMap->find(ps);
+    if ( sIter == this->StrategyMap->end() )
+    {
+      if ( this->FindCellStrategy != nullptr )
+      {
+        strategy = this->FindCellStrategy->NewInstance();
+      }
+      else
+      {
+        strategy = vtkClosestPointStrategy::New(); //default type if not provided
+      }
+      this->StrategyMap->insert(std::make_pair(ps,strategy));
+    }
+    else
+    {
+      strategy = sIter->second;
+    }
+    strategy->Initialize(ps);
+  }
 
+  // Compute function values
   if (!this->FindAndUpdateCell(dataset, x))
   {
-      vectors = nullptr;
-      return  0;
+    vectors = nullptr;
+    return  0;
   }
 
   // if the cell is valid
@@ -214,7 +272,8 @@ bool vtkAbstractInterpolatedVelocityField::CheckPCoords(double pcoords [3])
 }
 
 //---------------------------------------------------------------------------
-bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset, double* x)
+bool vtkAbstractInterpolatedVelocityField::
+FindAndUpdateCell(vtkDataSet* dataset, double* x)
 {
   double tol2, dist2;
   if (this->SurfaceDataset)
@@ -255,9 +314,18 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
         dataset->GetCell(this->LastCellId, this->Cell);
 
         // Search around current cached cell to see if there is a cell within tolerance
-        this->LastCellId =
+        vtkFindCellStrategy *strategy = nullptr;
+        vtkPointSet *ps;
+        if ( (ps=vtkPointSet::SafeDownCast(dataset)) != nullptr )
+        {
+          vtkStrategyMap::iterator sIter = this->StrategyMap->find(ps);
+          strategy = (sIter != this->StrategyMap->end() ? sIter->second : nullptr);
+        }
+        this->LastCellId = ((strategy == nullptr) ?
           dataset->FindCell(x, this->Cell, this->GenCell, this->LastCellId,
-                            tol2, this->LastSubId, this->LastPCoords, this->Weights);
+                            tol2, this->LastSubId, this->LastPCoords, this->Weights) :
+          strategy->FindCell(x, this->Cell, this->GenCell, this->LastCellId,
+                             tol2, this->LastSubId, this->LastPCoords, this->Weights));
 
         if (this->LastCellId != -1 && (!this->SurfaceDataset || this->CheckPCoords(this->LastPCoords)))
         {
@@ -271,14 +339,24 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
         found = true;
       }
     }
-  }
+  }//if caching
+
   if (!found)
   {
     // if the cell is not found in cache, do a global search (ignore initial
     // cell if there is one)
-    this->LastCellId =
-      dataset->FindCell(x, nullptr, this->GenCell, -1, tol2,
-                        this->LastSubId, this->LastPCoords, this->Weights);
+    vtkFindCellStrategy *strategy = nullptr;
+    vtkPointSet *ps;
+    if ( (ps=vtkPointSet::SafeDownCast(dataset)) != nullptr )
+    {
+      vtkStrategyMap::iterator sIter = this->StrategyMap->find(ps);
+      strategy = (sIter != this->StrategyMap->end() ? sIter->second : nullptr);
+    }
+    this->LastCellId = ((strategy == nullptr) ?
+      dataset->FindCell(x, nullptr, this->GenCell, -1,
+                        tol2, this->LastSubId, this->LastPCoords, this->Weights) :
+      strategy->FindCell(x, nullptr, this->GenCell, -1,
+                         tol2, this->LastSubId, this->LastPCoords, this->Weights));
 
     if (this->LastCellId != -1 && (!this->SurfaceDataset || this->CheckPCoords(this->LastPCoords)))
     {
@@ -448,6 +526,14 @@ bool vtkAbstractInterpolatedVelocityField::InterpolatePoint
 }
 
 //----------------------------------------------------------------------------
+void vtkAbstractInterpolatedVelocityField::
+CopyParameters( vtkAbstractInterpolatedVelocityField * from )
+{
+  this->Caching = from->Caching;
+  this->SetFindCellStrategy( from->GetFindCellStrategy());
+}
+
+//----------------------------------------------------------------------------
 void vtkAbstractInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
@@ -475,8 +561,11 @@ void vtkAbstractInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent in
                << ", "                   << this->LastPCoords[1]
                << ", "                   << this->LastPCoords[2]   << endl;
   os << indent << "Last Weights: "       << this->Weights          << endl;
+
+  os << indent << "FindCell Strategy: "  << this->FindCellStrategy << endl;
 }
 
+//----------------------------------------------------------------------------
 void vtkAbstractInterpolatedVelocityField::SelectVectors(int associationType, const char * fieldName )
 {
   this->VectorsType = associationType;

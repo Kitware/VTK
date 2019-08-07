@@ -1580,12 +1580,12 @@ int vtkPStreamTracer::RequestData(
 
     vtkSmartPointer<vtkPolyData> traceOut;
     this->Trace(this->Utils->GetInput0(),
-          this->Utils->GetVecType(),
-          this->Utils->GetVecName(),
-          point,
-          traceOut,
-          func,
-          maxCellSize);
+                this->Utils->GetVecType(),
+                this->Utils->GetVecName(),
+                point,
+                traceOut,
+                func,
+                maxCellSize);
 
     task->SetTraceExtended(traceOut->GetNumberOfPoints()>0);
 
@@ -1764,18 +1764,18 @@ void vtkPStreamTracer::Trace( vtkDataSet *input,
   double integrationTime = point->GetIntegrationTime();
 
   vtkStreamTracer::Integrate(input->GetPointData(),
-                    traceOut,
-                    seeds,
-                    seedIds,
-                    integrationDirections,
-                    lastPoint,
-                    func,
-                    maxCellSize,
-                    vecType,
-                    vecName,
-                    propagation,
-                    numSteps,
-                    integrationTime);
+                             traceOut,
+                             seeds,
+                             seedIds,
+                             integrationDirections,
+                             lastPoint,
+                             func,
+                             maxCellSize,
+                             vecType,
+                             vecName,
+                             propagation,
+                             numSteps,
+                             integrationTime);
   AssertGe(propagation, point->GetPropagation());
   AssertGe(numSteps, point->GetNumSteps());
 
