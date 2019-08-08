@@ -97,7 +97,7 @@ public:
 
 protected:
   vtkPassSelectedArrays();
-  ~vtkPassSelectedArrays();
+  ~vtkPassSelectedArrays() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
