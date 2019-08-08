@@ -197,7 +197,7 @@ void vtkLightActor::UpdateViewProps()
   }
   double angle=this->Light->GetConeAngle();
 
-  if(this->Light->GetPositional() && angle<180.0)
+  if (this->Light->GetPositional() && angle < 90.0)
   {
     if(this->ConeSource==nullptr)
     {

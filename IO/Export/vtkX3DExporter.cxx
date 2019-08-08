@@ -353,7 +353,7 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
 
   if (aLight->GetPositional())
   {
-    if (aLight->GetConeAngle() >= 180.0)
+    if (aLight->GetConeAngle() >= 90.0)
     {
       writer->StartNode(PointLight);
     }

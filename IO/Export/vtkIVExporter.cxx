@@ -193,7 +193,7 @@ void vtkIVExporter::WriteALight(vtkLight *aLight, FILE *fp)
   {
     double *attn;
 
-    if (aLight->GetConeAngle() >= 180.0)
+    if (aLight->GetConeAngle() >= 90.0)
     {
       fprintf(fp,"%sPointLight {\n", indent);
       VTK_INDENT_MORE;
