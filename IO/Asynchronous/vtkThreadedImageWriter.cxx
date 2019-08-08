@@ -43,7 +43,7 @@ namespace
 {
 static void EncodeAndWrite(const vtkSmartPointer<vtkImageData>& image, const std::string& fileName)
 {
-  vtkLogF(INFO, "encoding: %s", fileName.c_str());
+  vtkLogF(TRACE, "encoding: %s", fileName.c_str());
   assert(image != nullptr);
 
   std::size_t pos = fileName.rfind(".");
