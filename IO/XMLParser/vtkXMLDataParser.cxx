@@ -993,7 +993,7 @@ static float* vtkXMLParseAsciiData(istream& is, int* length, float*, int)
           stringBuffer.begin(), stringBuffer.end(), [](char& c) { c = std::tolower(c); });
         if (stringBuffer == "inf" || stringBuffer == "nan" || stringBuffer == "-inf")
         {
-          element = std::stof(stringBuffer);
+          element = strtof(stringBuffer.c_str(), nullptr);
         }
         else
         {
@@ -1048,7 +1048,7 @@ static double* vtkXMLParseAsciiData(istream& is, int* length, double*, int)
           stringBuffer.begin(), stringBuffer.end(), [](char& c) { c = std::tolower(c); });
         if (stringBuffer == "inf" || stringBuffer == "nan" || stringBuffer == "-inf")
         {
-          element = std::stod(stringBuffer);
+          element = strtod(stringBuffer.c_str(), nullptr);
         }
         else
         {
