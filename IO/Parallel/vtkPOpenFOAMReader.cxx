@@ -311,6 +311,7 @@ int vtkPOpenFOAMReader::RequestData(vtkInformation *request,
     return ret;
   }
 
+  vtkSmartPointer<vtkMultiProcessController> splitController;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkMultiBlockDataSet
       *output =
@@ -374,12 +375,31 @@ int vtkPOpenFOAMReader::RequestData(vtkInformation *request,
 
     // known issue: output for process without sub-reader will not have CasePath
     output->GetFieldData()->AddArray(this->Superclass::CasePath);
+
+    // Processor 0 needs to broadcast the structure of the multiblock
+    // to the processors that didn't have the chance to load something
+    // To do so, we split the controller to broadcast only to the interested
+    // processors (else case below) and avoid useless communication.
+    splitController.TakeReference(this->Controller->PartitionController(
+      this->ProcessId == 0, this->ProcessId));
+    if (this->ProcessId == 0)
+    {
+      vtkNew<vtkMultiBlockDataSet> mb;
+      mb->CopyStructure(output);
+      splitController->Broadcast(mb, 0);
+    }
   }
   else
   {
     this->GatherMetaData();
-    // page 322 of The ParaView Guide says the output must be initialized
-    output->Initialize();
+
+    // This rank did not receive anything so data structure is void.
+    // Let's receive the empty but structured multiblock from processor 0
+    splitController.TakeReference(
+      this->Controller->PartitionController(true, this->ProcessId));
+    vtkNew<vtkMultiBlockDataSet> mb;
+    splitController->Broadcast(mb, 0);
+    output->CopyStructure(mb);
   }
 
   this->Superclass::UpdateStatus();
