@@ -33,7 +33,6 @@ public:
 
 protected:
   vtkOpenGLVolumeRGBTable();
-  ~vtkOpenGLVolumeRGBTable() = default;
 
   /**
    * Update the internal texture object using the color transfer function
