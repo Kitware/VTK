@@ -335,6 +335,7 @@ int vtkCellDataToPointData::RequestData(
     output->GetCellData()->CopyFieldOn(vtkDataSetAttributes::GhostArrayName());
   }
   output->GetCellData()->PassData(input->GetCellData());
+  output->GetFieldData()->PassData(input->GetFieldData());
 
   return 1;
 }
