@@ -6,6 +6,7 @@ vtk_object_factory_declare(
   OVERRIDE  vtkPResampleWithDataSet)
 
 set(classes
+  vtkGenerateGlobalIds
   vtkPResampleToImage
   vtkPResampleWithDataSet)
 
@@ -27,6 +28,7 @@ vtk_object_factory_configure(
 vtk_module_add_module(VTK::FiltersParallelDIY2
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source}
+  PRIVATE_CLASSES vtkDIYUtilities
   PRIVATE_HEADERS ${vtk_object_factory_header})
 
 vtk_module_definitions(VTK::FiltersParallelDIY2
