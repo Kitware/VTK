@@ -538,7 +538,7 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
         case vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::POINT:
           light->SetPositional(true);
           // Set as point light
-          light->SetConeAngle(180);
+          light->SetConeAngle(90);
           break;
         case vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::SPOT:
           light->SetPositional(true);

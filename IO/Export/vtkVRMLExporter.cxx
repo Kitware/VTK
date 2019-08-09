@@ -205,7 +205,7 @@ void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
   {
     double *attn;
 
-    if (aLight->GetConeAngle() >= 180.0)
+    if (aLight->GetConeAngle() >= 90.0)
     {
       fprintf(fp,"    PointLight {\n");
     }

@@ -277,7 +277,7 @@ void vtkExternalOpenGLRenderer::Render(void)
           light->SetConeAngle(info[0]);
         }
 
-        if (light->GetConeAngle() < 180.0)
+        if (light->GetConeAngle() < 90.0)
         {
           // Exponent
           if (curExtLight && curExtLight->GetExponentSet())

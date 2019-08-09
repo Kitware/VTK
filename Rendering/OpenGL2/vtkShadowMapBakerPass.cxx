@@ -214,8 +214,7 @@ bool vtkShadowMapBakerPass::LightCreatesShadow(vtkLight *l)
 {
   assert("pre: l_exists" && l!=nullptr);
 
-  return !l->LightTypeIsHeadlight() &&
-    (!l->GetPositional() || l->GetConeAngle()<180.0);
+  return !l->LightTypeIsHeadlight() && (!l->GetPositional() || l->GetConeAngle() < 90.0);
 }
 
 // ----------------------------------------------------------------------------
@@ -618,8 +617,8 @@ bool vtkShadowMapBakerPass::PreReplaceShaderValues(
 // Description:
 // Build a camera from spot light parameters.
 // \pre light_exists: light!=0
-// \pre light_is_spotlight: light->LightTypeIsSceneLight() && light->GetPositional() && light->GetConeAngle()<180.0
-// \pre camera_exists: camera!=0
+// \pre light_is_spotlight: light->LightTypeIsSceneLight() && light->GetPositional() &&
+// light->GetConeAngle() < 90.0 \pre camera_exists: camera!=0
 void vtkShadowMapBakerPass::BuildCameraLight(vtkLight *light,
                                         double *bb,
                                         vtkCamera* lcamera)
@@ -643,7 +642,7 @@ void vtkShadowMapBakerPass::BuildCameraLight(vtkLight *light,
 
   if(light->GetPositional())
   {
-    assert("pre: cone_angle_is_inf_180" && light->GetConeAngle()<180.0);
+    assert("pre: cone_angle_is_inf_90" && light->GetConeAngle() < 90.0);
 
     lcamera->SetParallelProjection(0);
     // view angle is an aperture, but cone (or light) angle is between

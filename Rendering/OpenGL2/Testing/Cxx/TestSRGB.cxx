@@ -59,7 +59,7 @@ int TestSRGB(int argc, char *argv[])
       light->SetLightTypeToSceneLight();
       light->SetPosition(-1.73, -1.0, 2.0);
       light->PositionalOn();
-      light->SetConeAngle(180);
+      light->SetConeAngle(90);
       light->SetAttenuationValues(0,1.0,0);
       light->SetColor(4,0,0);
       light->SetExponent(0);
@@ -70,7 +70,7 @@ int TestSRGB(int argc, char *argv[])
       light->SetLightTypeToSceneLight();
       light->SetPosition(1.73, -1.0, 2.0);
       light->PositionalOn();
-      light->SetConeAngle(180);
+      light->SetConeAngle(90);
       light->SetAttenuationValues(0,0,1.0);
       light->SetColor(0,6,0);
       light->SetExponent(0);
