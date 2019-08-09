@@ -35,7 +35,6 @@ public:
 
 protected:
   vtkOpenGLVolumeOpacityTable() = default;
-  ~vtkOpenGLVolumeOpacityTable() = default;
 
   /**
    * Update the internal texture object using the opacity transfer function

@@ -33,7 +33,6 @@ public:
 
 protected:
   vtkOpenGLVolumeGradientOpacityTable() = default;
-  ~vtkOpenGLVolumeGradientOpacityTable() = default;
 
   /**
    * Update the internal texture object using the gradient opacity transfer

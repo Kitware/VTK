@@ -45,7 +45,6 @@ public:
 
 protected:
   vtkOpenGLVolumeTransferFunction2D();
-  ~vtkOpenGLVolumeTransferFunction2D() = default;
 
   /**
    * Update the internal texture object using the 2D image data
