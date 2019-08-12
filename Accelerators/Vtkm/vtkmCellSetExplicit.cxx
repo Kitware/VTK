@@ -279,8 +279,8 @@ void vtkmCellSetExplicitAOS::PrintSummary(std::ostream& out) const
 template <typename Device>
 typename vtkm::exec::ConnectivityVTKAOS<Device>
     vtkmCellSetExplicitAOS::PrepareForInput(Device,
-                                            vtkm::TopologyElementTagPoint,
-                                            vtkm::TopologyElementTagCell) const
+                                            vtkm::TopologyElementTagCell,
+                                            vtkm::TopologyElementTagPoint) const
 {
   return vtkm::exec::ConnectivityVTKAOS<Device>(
       this->Shapes.PrepareForInput(Device()),
@@ -292,8 +292,8 @@ typename vtkm::exec::ConnectivityVTKAOS<Device>
 template <typename Device>
 typename vtkm::exec::ReverseConnectivityVTK<Device>
     vtkmCellSetExplicitAOS::PrepareForInput(Device,
-                                            vtkm::TopologyElementTagCell,
-                                            vtkm::TopologyElementTagPoint) const
+                                            vtkm::TopologyElementTagPoint,
+                                            vtkm::TopologyElementTagCell) const
 {
   //One of the biggest questions when computing the reverse connectivity
   //is how are we going to layout the results.
@@ -347,47 +347,47 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagSerial>
     vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagSerial,
-      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagSerial>
     vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagSerial,
-      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
 
 #ifdef VTKM_ENABLE_TBB
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagTBB>
     vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagTBB,
-      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>
     vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagTBB,
-      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
 #endif
 
 #ifdef VTKM_ENABLE_OPENMP
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagOpenMP>
     vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagOpenMP,
-      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagOpenMP>
     vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagOpenMP,
-      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
 #endif
 
 #ifdef VTKM_ENABLE_CUDA
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagCuda>
     vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
-      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>
     vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
-      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
 #endif
 }
 }
