@@ -20,13 +20,18 @@
 #include "vtkGenerateGlobalIds.h"
 #include "vtkIdTypeArray.h"
 #include "vtkLogger.h"
-#include "vtkMPIController.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkStructuredData.h"
 #include "vtkUnsignedCharArray.h"
+
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+#include "vtkMPIController.h"
+#else
+#include "vtkDummyController.h"
+#endif
 
 namespace
 {
@@ -127,7 +132,11 @@ bool ValidateDataset(vtkMultiBlockDataSet* mb, vtkMultiProcessController* contr,
 
 int TestGenerateGlobalIds(int argc, char* argv[])
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkMPIController* contr = vtkMPIController::New();
+#else
+  vtkDummyController* contr = vtkDummyController::New();
+#endif
   contr->Initialize(&argc, &argv);
   vtkMultiProcessController::SetGlobalController(contr);
 
