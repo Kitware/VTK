@@ -34,15 +34,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-#if VTK_MODULE_ENABLE_VTK_ParallelMPI
-# include "vtkMPI.h"
-# include "vtkMPIController.h"
-# include "vtkMPICommunicator.h"
-# undef DIY_NO_MPI
-#else
-# define DIY_NO_MPI
-#endif
-
 #include "vtk_diy2.h"   // must include this before any diy header
 #include VTK_DIY2(diy/assigner.hpp)
 #include VTK_DIY2(diy/link.hpp)
