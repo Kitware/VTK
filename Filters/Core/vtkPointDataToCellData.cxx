@@ -368,6 +368,7 @@ int vtkPointDataToCellData::RequestData(
   {
     inPD->Delete();
   }
+  output->GetFieldData()->PassData(input->GetFieldData());
 
   return 1;
 }
