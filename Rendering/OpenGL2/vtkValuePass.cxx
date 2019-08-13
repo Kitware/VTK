@@ -417,6 +417,10 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
 
     vtkOpenGLPolyDataMapper *pdm =
       vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
+    if (!pdm)
+    {
+      continue;
+    }
 
     vtkMTimeType maptime = pdm->GetInputDataObject(0,0)->GetMTime();
     if (this->ImplFloat->CCMapTime >= maptime)
@@ -853,6 +857,10 @@ void vtkValuePass::RenderPieceStart(vtkDataArray* dataArr, vtkMapper *mapper)
   // is uploaded on every render pass.
   vtkOpenGLPolyDataMapper *pdm =
     vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
+  if (!pdm)
+  {
+    return;
+  }
   vtkMTimeType maptime = pdm->GetInputDataObject(0,0)->GetMTime();
 
   if (this->GetMTime() > this->ImplFloat->DataUploadTime
