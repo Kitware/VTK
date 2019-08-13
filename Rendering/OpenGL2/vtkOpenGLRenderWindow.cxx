@@ -1282,7 +1282,8 @@ void vtkOpenGLRenderWindow::Start()
       this->FrontRightBuffer = buffer1;
     }
   }
-  else if (!this->UseOffScreenBuffers && this->OffScreenFramebufferBound)
+
+  if (!this->UseOffScreenBuffers && this->OffScreenFramebufferBound)
   {
     this->OffScreenFramebuffer->RestorePreviousBindingsAndBuffers();
     this->OffScreenFramebufferBound = false;
@@ -1292,11 +1293,6 @@ void vtkOpenGLRenderWindow::Start()
     this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
     this->BackBuffer = static_cast<unsigned int>(GL_BACK);
     this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
-  }
-  else
-  {
-    // makes sense to activate the default framebuffer.
-    glBindFramebuffer(GL_FRAMEBUFFER, this->GetDefaultFrameBufferId());
   }
 }
 
