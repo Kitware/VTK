@@ -20,6 +20,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArrayAccessor.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDIYUtilities.h"
 #include "vtkExtentTranslator.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
@@ -31,16 +32,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkMultiProcessController.h"
-#include "vtkCommunicator.h"
-
-#if VTK_MODULE_ENABLE_VTK_ParallelMPI
-# include "vtkMPI.h"
-# include "vtkMPIController.h"
-# include "vtkMPICommunicator.h"
-# undef DIY_NO_MPI
-#else
-# define DIY_NO_MPI
-#endif
 
 #include "vtk_diy2.h"   // must include this before any diy header
 #include VTK_DIY2(diy/assigner.hpp)
@@ -479,19 +470,6 @@ void Redistribute(void* blockp, const diy::ReduceProxy& srp,
   b->Extent[2*axis + 1] = std::min(b->Extent[2*axis] + length, maxIdx);
 }
 
-
-//----------------------------------------------------------------------------
-inline diy::mpi::communicator GetDiyCommunicator(vtkMultiProcessController* controller)
-{
-#if VTK_MODULE_ENABLE_VTK_ParallelMPI
-  vtkMPICommunicator *vtkcomm = vtkMPICommunicator::SafeDownCast(
-    controller->GetCommunicator());
-  return diy::mpi::communicator(*vtkcomm->GetMPIComm()->GetHandle());
-#else
-  return diy::mpi::communicator();
-#endif
-}
-
 } // anonymous namespace
 
 
@@ -537,8 +515,7 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-
-  diy::mpi::communicator comm = GetDiyCommunicator(this->Controller);
+  diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(this->Controller);
 
   double localBounds[6];
   ComputeDataBounds(input, localBounds);

@@ -98,14 +98,17 @@ int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
   cellIdList->Resize(numPoints);
   output->SetPoints(newPts);
 
-  if (hasEmptyCells)
+  if (this->CopyArrays)
   {
-    outPD->CopyAllocate(inCD, numPoints);
-    outPD->CopyData(inCD, cellIdList, pointIdList);
-  }
-  else
-  {
-    outPD->PassData(inCD); // because number of points == number of cells
+    if (hasEmptyCells)
+    {
+      outPD->CopyAllocate(inCD, numPoints);
+      outPD->CopyData(inCD, cellIdList, pointIdList);
+    }
+    else
+    {
+      outPD->PassData(inCD); // because number of points == number of cells
+    }
   }
 
   if (this->VertexCells)
@@ -142,4 +145,5 @@ void vtkCellCenters::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Vertex Cells: " << (this->VertexCells ? "On\n" : "Off\n");
+  os << indent << "CopyArrays: " << (this->CopyArrays ? "On" : "Off") << endl;
 }

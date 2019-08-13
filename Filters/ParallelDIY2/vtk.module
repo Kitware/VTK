@@ -21,13 +21,16 @@ PRIVATE_DEPENDS
   VTK::IOXML
   VTK::ParallelCore
 TEST_DEPENDS
+  VTK::diy2
   VTK::FiltersGeometry
-  VTK::FiltersParallelMPI
+  VTK::ImagingCore
   VTK::InteractionStyle
-  VTK::ParallelMPI
+  VTK::ParallelCore
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
   VTK::TestingCore
   VTK::TestingRendering
-  VTK::diy2
+TEST_OPTIONAL_DEPENDS
+  VTK::FiltersParallelMPI
   VTK::mpi
+  VTK::ParallelMPI

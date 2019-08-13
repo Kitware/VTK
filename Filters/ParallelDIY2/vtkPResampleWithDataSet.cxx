@@ -23,6 +23,7 @@
 #include "vtkDataArrayAccessor.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
+#include "vtkDIYUtilities.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -33,15 +34,6 @@
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
-
-#if VTK_MODULE_ENABLE_VTK_ParallelMPI
-# include "vtkMPI.h"
-# include "vtkMPIController.h"
-# include "vtkMPICommunicator.h"
-# undef DIY_NO_MPI
-#else
-# define DIY_NO_MPI
-#endif
 
 #include "vtk_diy2.h"   // must include this before any diy header
 #include VTK_DIY2(diy/assigner.hpp)
@@ -1086,18 +1078,6 @@ void ReceiveResampledPoints(DiyBlock *block, const diy::Master::ProxyWithLink &c
   }
 }
 
-//----------------------------------------------------------------------------
-inline diy::mpi::communicator GetDiyCommunicator(vtkMultiProcessController* controller)
-{
-#if VTK_MODULE_ENABLE_VTK_ParallelMPI
-  vtkMPICommunicator *vtkcomm = vtkMPICommunicator::SafeDownCast(
-    controller->GetCommunicator());
-  return diy::mpi::communicator(*vtkcomm->GetMPIComm()->GetHandle());
-#else
-  return diy::mpi::communicator();
-#endif
-}
-
 } // anonymous namespace
 
 
@@ -1115,8 +1095,7 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-
-  diy::mpi::communicator comm = GetDiyCommunicator(this->Controller);
+  diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(this->Controller);
 
   DiyBlock block;  // one diy-block per rank
   int mygid = comm.rank();

@@ -4,6 +4,12 @@ vtk_module_third_party_internal(
                 "vtkdiy2/LEGAL.txt"
   VERSION       "3.5.0")
 
+if (TARGET VTK::mpi)
+  set(DIY_NO_MPI FALSE)
+else()
+  set(DIY_NO_MPI TRUE)
+endif()
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_diy2.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_diy2.h")
