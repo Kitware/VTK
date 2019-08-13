@@ -183,6 +183,34 @@ int vtkHyperTreeGridPlaneCutter::FillOutputPortInformation( int,
 }
 
 //-----------------------------------------------------------------------------
+void vtkHyperTreeGridPlaneCutter::Reset()
+{
+  // Points and Cells are created in the constructor
+  this->Points->Initialize();
+  this->Cells->Initialize();
+  if (this->Centers)
+  {
+    this->Centers->Initialize();
+  }
+  if (this->Leaves)
+  {
+    this->Leaves->Initialize();
+  }
+  if (this->Cutter)
+  {
+    this->Cutter->SetNumberOfContours(0);
+  }
+  if (this->SelectedCells)
+  {
+    this->SelectedCells->Initialize();
+  }
+  if (this->OutData)
+  {
+    this->OutData->Initialize();
+  }
+}
+
+//-----------------------------------------------------------------------------
 int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
                                                vtkDataObject* outputDO )
 {
@@ -202,15 +230,14 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
     return 0;
   }
 
+  // Reset Data
+  this->Reset();
+
   // Retrieve input point data
   this->InData = input->GetPointData();
 
   // Retrieve material mask
   this->InMask = input->HasMask() ? input->GetMask() : nullptr;
-
-  // Reset PolyData
-  this->Points->SetNumberOfPoints(0);
-  this->Cells->SetNumberOfCells(0);
 
   // Compute cut on dual or primal input depending on specification
   if ( this->Dual )

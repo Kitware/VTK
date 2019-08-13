@@ -76,9 +76,15 @@ public:
   vtkBooleanMacro(Dual,int);
   //@}
 
+
 protected:
   vtkHyperTreeGridPlaneCutter();
   ~vtkHyperTreeGridPlaneCutter() override;
+
+  /**
+   * Resets every attributes
+   */
+  virtual void Reset();
 
   /**
    * For this algorithm the output is a vtkPolyData instance
