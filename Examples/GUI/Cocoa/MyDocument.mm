@@ -14,16 +14,16 @@
 }
 
 // ----------------------------------------------------------------------------
-- (/*nullable*/ NSData *)dataOfType:(NSString *)typeName
-                          error:(NSError **)outError
+- (nullable NSData*)dataOfType:(NSString*)typeName
+                         error:(NSError**)outError
 {
   return nil;
 }
 
 // ----------------------------------------------------------------------------
-- (BOOL)readFromData:(NSData *)data
-              ofType:(NSString *)typeName
-               error:(NSError **)outError
+- (BOOL)readFromData:(NSData*)data
+              ofType:(NSString*)typeName
+               error:(NSError**)outError
 {
   return YES;
 }

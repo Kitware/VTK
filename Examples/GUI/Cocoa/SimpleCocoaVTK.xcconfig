@@ -3,6 +3,9 @@ INFOPLIST_FILE = Info-Xcode.plist
 PRODUCT_NAME = SimpleCocoaVTK
 PRODUCT_BUNDLE_IDENTIFIER = org.vtk.SimpleCocoaVTK;
 
+// Turn off compiler optimizations so we can debug.
+GCC_OPTIMIZATION_LEVEL = 0
+
 // Link to system zlib (if VTK_USE_SYSTEM_ZLIB was ON).
 // OTHER_LDFLAGS = -lz
 

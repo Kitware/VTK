@@ -5,23 +5,26 @@
 \margl1440\margr1440\vieww21440\viewh21120\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7380\tx7940\tx8520\pardirnatural\partightenfactor0
 
-\f0\fs38 \cf0 SimpleCocoaVTK 3.2\
-2019-04-24\
+\f0\fs38 \cf0 SimpleCocoaVTK 4.0\
+2019-06-12\
 by: Sean McBride and Mike Jackson\
 
 \fs34 \
 \ul Pre-Requisites:\
 \ulnone \
-1) you need Mac OS X 10.9.5 or later\
-2) you need Xcode 6.2 or later.\
+1) you need Mac OS X 10.11.5 or later\
+2) you need Xcode 8.0 or later.\
 3) you need to know the basics of Xcode, CMake, VTK, and Cocoa already.\
 4) you have to build VTK separately.  The Xcode project expects VTK to be built with certain options, see below.\
 \
 \ul Purpose of Example:\
 \ulnone \
-This simple example is intended to show how to use VTK in a Mac-only Xcode-based Cocoa application.  VTK's vtkCocoaGLView is a subclass of NSView and you can use it like pretty much any other NSView!\
+This sample project shows how to use VTK in a Mac-only Xcode-based Cocoa application.\
 \
-This example is an NSDocument-based application with a single window controller. The window has two independent vtkCocoaGLViews in the XIB.  One shows a cone, and one shows a cylinder. On a Retina display, the left view uses setWantsBestResolutionOpenGLSurface:YES, the right one setWantsBestResolutionOpenGLSurface:NO.\
+This example is an NSDocument-based application with a single NSWindowController. The window has 3 independent VTK views in the XIB. They each illustrate a few different things:\
+	- left view: a vtkCocoaGLView showing a cone. Uses setWantsBestResolutionOpenGLSurface:YES (high resolution on Retina).\
+	- middle view: a vtkCocoaGLView showing a cylinder. Uses setWantsBestResolutionOpenGLSurface:NO (low resolution on Retina).\
+	- right view: a custom NSView subclass that uses a custom CAOpenGLLayer subclass to draw. It also has code showing how to deal with the window moving from a Retina to a non-Retina display. Note however that this NSView subclass has no code to handle mouse or keyboard events.\
 \
 See the screenshot (in the same folder as this file) to see what the app looks like.\
 \
@@ -56,6 +59,16 @@ If you have any problems, please post to the VTK Discourse forum.\
 \
 \ul \ulc0 Version History:\
 \ulnone \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7380\tx7940\tx8520\pardirnatural\partightenfactor0
+
+\i \cf0 Changes in 4.0 (since 3.2)\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7380\tx7940\tx8520\pardirnatural\partightenfactor0
+
+\i0 \cf0 - Added a CAOpenGLLayer based example.\
+- Show how to handle the window moving from a Retina to non-Retina display.\
+- Use more modern Objective-C (@property, nullable).\
+- Upgraded xib files to Xcode 8 format.\
+\
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7380\tx7940\tx8520\pardirnatural\partightenfactor0
 
 \i \cf0 Changes in 3.2 (since 3.1)\

@@ -1,28 +1,29 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" customObjectInstantitationMethod="direct">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment version="1080" identifier="macosx"/>
-        <development version="5100" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="MyWindowController">
             <connections>
-                <outlet property="leftVTKView" destination="21" id="27"/>
-                <outlet property="rightVTKView" destination="24" id="28"/>
+                <outlet property="leftView" destination="21" id="92E-gl-MTz"/>
+                <outlet property="middleView" destination="24" id="jHn-LA-7iS"/>
+                <outlet property="rightView" destination="yfT-ep-8S6" id="8xU-hR-QnO"/>
                 <outlet property="window" destination="5" id="18"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <window title="SimpleCocoaVTK" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="5" userLabel="Window">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="403" y="523" width="982" height="449"/>
+            <rect key="contentRect" x="403" y="523" width="1457" height="449"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
             <value key="minSize" type="size" width="982" height="449"/>
             <view key="contentView" id="6">
-                <rect key="frame" x="0.0" y="0.0" width="982" height="449"/>
+                <rect key="frame" x="0.0" y="0.0" width="1457" height="449"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <customView id="21" customClass="BasicVTKView">
@@ -41,7 +42,7 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="handleLeftButton:" target="-2" id="Vb6-Zg-kaA"/>
+                            <action selector="handleLeftButton:" target="-2" id="zwH-Lr-gK1"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" id="XQh-Me-qZF">
@@ -52,7 +53,22 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="handleRightButton:" target="-2" id="fM7-iW-HGc"/>
+                            <action selector="handleMiddleButton:" target="-2" id="53K-b8-UUW"/>
+                        </connections>
+                    </button>
+                    <customView id="yfT-ep-8S6" customClass="CustomView">
+                        <rect key="frame" x="970" y="56" width="467" height="373"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </customView>
+                    <button verticalHuggingPriority="750" id="3Zn-ZC-Eg1">
+                        <rect key="frame" x="1140" y="13" width="126" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Do Something" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6lX-js-aB8">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="handleRightButton:" target="-2" id="YUR-aL-9JL"/>
                         </connections>
                     </button>
                 </subviews>
@@ -60,7 +76,7 @@
             <connections>
                 <outlet property="delegate" destination="-2" id="17"/>
             </connections>
-            <point key="canvasLocation" x="520" y="451.5"/>
+            <point key="canvasLocation" x="757.5" y="451.5"/>
         </window>
     </objects>
 </document>
