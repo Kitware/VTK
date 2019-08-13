@@ -248,7 +248,6 @@ void vtk3DSImporter::ImportCameras (vtkRenderer *renderer)
   for (camera = this->CameraList; camera != (vtk3DSCamera *) nullptr; camera = (vtk3DSCamera *) camera->next)
   {
     camera->aCamera = aCamera = vtkCamera::New ();
-    aCamera->Print(std::cout);
     aCamera->SetPosition (camera->pos[0], camera->pos[1], camera->pos[2]);
     aCamera->SetFocalPoint (camera->target[0], camera->target[1], camera->target[2]);
     aCamera->SetViewUp (0, 0, 1);
@@ -1233,7 +1232,6 @@ vtk3DSImporter::~vtk3DSImporter()
   VTK_LIST_KILL (this->SpotLightList);
 
   vtk3DSCamera *camera;
-  std::cout << "Camera size: " << this->CameraList.size() <<  std::endl;
   // walk the camera list and delete vtk objects
   for (camera = this->CameraList; camera != (vtk3DSCamera *) nullptr;
        camera = (vtk3DSCamera *) camera->next)
