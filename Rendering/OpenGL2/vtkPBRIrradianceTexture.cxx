@@ -91,22 +91,13 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
     vtkOpenGLState::ScopedglEnableDisable sblend(state, GL_BLEND);
     vtkOpenGLState::ScopedglEnableDisable sscissor(state, GL_SCISSOR_TEST);
 
-    vtkNew<vtkOpenGLFramebufferObject> fbo;
-    fbo->SetContext(renWin);
-    fbo->SaveCurrentBindingsAndBuffers();
-    fbo->Bind();
-
-    for (int i = 0; i < 6; i++)
-    {
-      fbo->AddColorAttachment(i, this->TextureObject, 0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
-    }
-    fbo->ActivateDrawBuffers(6);
-    fbo->Start(this->IrradianceSize, this->IrradianceSize);
-
     std::string FSSource = vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl",
       "uniform samplerCube cubeMap;\n"
+      "uniform vec3 shift;\n"
+      "uniform vec3 contribX;\n"
+      "uniform vec3 contribY;\n"
       "const float PI = 3.14159265359;\n"
       "vec3 ColorSpaceConvert(vec3 col)\n"
       "{\n"
@@ -115,7 +106,8 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
 
     if (this->ConvertToLinear)
     {
-      vtkShaderProgram::Substitute(FSSource, "//VTK::COLORSPACE::Decl", "return pow(col, vec3(2.2));");
+      vtkShaderProgram::Substitute(
+        FSSource, "//VTK::COLORSPACE::Decl", "return pow(col, vec3(2.2));");
     }
     else
     {
@@ -126,30 +118,12 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
     fsImpl
       << "  const vec3 x = vec3(1.0, 0.0, 0.0);\n"
          "  const vec3 y = vec3(0.0, 1.0, 0.0);\n"
-         "  vec3 n_px = normalize(vec3(1.0, 1.0 - 2.0 * texCoord.y, 1.0 - 2.0 * texCoord.x));\n"
-         "  vec3 n_nx = normalize(vec3(-1.0, 1.0 - 2.0 * texCoord.y, 2.0 * texCoord.x - 1.0));\n"
-         "  vec3 n_py = normalize(vec3(2.0 * texCoord.x - 1.0, 1.0, 2.0 * texCoord.y - 1.0));\n"
-         "  vec3 n_ny = normalize(vec3(2.0 * texCoord.x - 1.0, -1.0, 1.0 - 2.0 * texCoord.y));\n"
-         "  vec3 n_pz = normalize(vec3(2.0 * texCoord.x - 1.0, 1.0 - 2.0 * texCoord.y, 1.0));\n"
-         "  vec3 n_nz = normalize(vec3(1.0 - 2.0 * texCoord.x, 1.0 - 2.0 * texCoord.y, -1.0));\n"
-         "  vec3 t_px = normalize(cross(n_px, y));\n"
-         "  vec3 t_nx = normalize(cross(n_nx, y));\n"
-         "  vec3 t_py = normalize(cross(n_py, x));\n"
-         "  vec3 t_ny = normalize(cross(n_ny, x));\n"
-         "  vec3 t_pz = normalize(cross(n_pz, x));\n"
-         "  vec3 t_nz = normalize(cross(n_nz, x));\n"
-         "  mat3 m_px = mat3(t_px, cross(n_px, t_px), n_px);\n"
-         "  mat3 m_nx = mat3(t_nx, cross(n_nx, t_nx), n_nx);\n"
-         "  mat3 m_py = mat3(t_py, cross(n_py, t_py), n_py);\n"
-         "  mat3 m_ny = mat3(t_ny, cross(n_ny, t_ny), n_ny);\n"
-         "  mat3 m_pz = mat3(t_pz, cross(n_pz, t_pz), n_pz);\n"
-         "  mat3 m_nz = mat3(t_nz, cross(n_nz, t_nz), n_nz);\n"
-         "  vec3 i_px = vec3(0.0);\n"
-         "  vec3 i_nx = vec3(0.0);\n"
-         "  vec3 i_py = vec3(0.0);\n"
-         "  vec3 i_ny = vec3(0.0);\n"
-         "  vec3 i_pz = vec3(0.0);\n"
-         "  vec3 i_nz = vec3(0.0);\n"
+         "  vec3 n = normalize(vec3(shift.x + contribX.x * texCoord.x + contribY.x * texCoord.y,\n"
+         "    shift.y + contribX.y * texCoord.x + contribY.y * texCoord.y,\n"
+         "    shift.z + contribX.z * texCoord.x + contribY.z * texCoord.y));\n"
+         "  vec3 t = normalize(cross(n, y));\n"
+         "  mat3 m = mat3(t, cross(n, t), n);\n"
+         "  vec3 acc = vec3(0.0);\n"
          "  float nSamples = 0.0;\n"
          "  for (float phi = 0.0; phi < 2.0 * PI; phi += "
       << this->IrradianceStep
@@ -161,27 +135,21 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
          "    {\n"
          "      vec3 sample = vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));\n"
          "      float factor = cos(theta) * sin(theta);\n"
-         "      i_px += ColorSpaceConvert(texture(cubeMap, m_px * sample).rgb) * factor;\n"
-         "      i_nx += ColorSpaceConvert(texture(cubeMap, m_nx * sample).rgb) * factor;\n"
-         "      i_py += ColorSpaceConvert(texture(cubeMap, m_py * sample).rgb) * factor;\n"
-         "      i_ny += ColorSpaceConvert(texture(cubeMap, m_ny * sample).rgb) * factor;\n"
-         "      i_pz += ColorSpaceConvert(texture(cubeMap, m_pz * sample).rgb) * factor;\n"
-         "      i_nz += ColorSpaceConvert(texture(cubeMap, m_nz * sample).rgb) * factor;\n"
+         "      acc += ColorSpaceConvert(texture(cubeMap, m * sample).rgb) * factor;\n"
          "      nSamples = nSamples + 1.0;\n"
          "    }\n"
          "  }\n"
-         "  float denom = 1.0 / nSamples;\n"
-         "  gl_FragData[0] = vec4(i_px * PI * denom, 1.0);\n"
-         "  gl_FragData[1] = vec4(i_nx * PI * denom, 1.0);\n"
-         "  gl_FragData[2] = vec4(i_py * PI * denom, 1.0);\n"
-         "  gl_FragData[3] = vec4(i_ny * PI * denom, 1.0);\n"
-         "  gl_FragData[4] = vec4(i_pz * PI * denom, 1.0);\n"
-         "  gl_FragData[5] = vec4(i_nz * PI * denom, 1.0);\n";
+         "  gl_FragData[0] = vec4(acc * (PI / nSamples), 1.0);\n";
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl", fsImpl.str());
 
     vtkOpenGLQuadHelper quadHelper(renWin,
       vtkOpenGLRenderUtilities::GetFullScreenQuadVertexShader().c_str(), FSSource.c_str(), "");
+
+    vtkNew<vtkOpenGLFramebufferObject> fbo;
+    fbo->SetContext(renWin);
+    fbo->SaveCurrentBindingsAndBuffers();
+    fbo->Bind();
 
     if (!quadHelper.Program || !quadHelper.Program->GetCompiled())
     {
@@ -191,7 +159,32 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
     {
       this->InputCubeMap->GetTextureObject()->Activate();
       quadHelper.Program->SetUniformi("cubeMap", this->InputCubeMap->GetTextureUnit());
-      quadHelper.Render();
+
+      float shift[6][3] = { { 1.f, 1.f, 1.f }, { -1.f, 1.f, -1.f }, { -1.f, 1.f, -1.f },
+        { -1.f, -1.f, 1.f }, { -1.f, 1.f, 1.f }, { 1.f, 1.f, -1.f } };
+      float contribX[6][3] = { { 0.f, 0.f, -2.f }, { 0.f, 0.f, 2.f }, { 2.f, 0.f, 0.f },
+        { 2.f, 0.f, 0.f }, { 2.f, 0.f, 0.f }, { -2.f, 0.f, 0.f } };
+      float contribY[6][3] = { { 0.f, -2.f, 0.f }, { 0.f, -2.f, 0.f }, { 0.f, 0.f, 2.f },
+        { 0.f, 0.f, -2.f }, { 0.f, -2.f, 0.f }, { 0.f, -2.f, 0.f } };
+
+      for (int i = 0; i < 6; i++)
+      {
+        fbo->AddColorAttachment(0, this->TextureObject, 0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+        fbo->ActivateDrawBuffers(1);
+        fbo->Start(this->IrradianceSize, this->IrradianceSize);
+
+        quadHelper.Program->SetUniform3f("shift", shift[i]);
+        quadHelper.Program->SetUniform3f("contribX", contribX[i]);
+        quadHelper.Program->SetUniform3f("contribY", contribY[i]);
+        quadHelper.Render();
+        fbo->RemoveColorAttachment(0);
+
+        // Computing irradiance can be long depending on the GPU.
+        // On Windows 7, a computation longer than 2 seconds triggers GPU timeout.
+        // The following call do a glFlush() that inform the OS that the computation is finished
+        // thus avoids the trigger of the GPU timeout.
+        renWin->WaitForCompletion();
+      }
       this->InputCubeMap->GetTextureObject()->Deactivate();
     }
     fbo->RestorePreviousBindingsAndBuffers();
