@@ -156,7 +156,7 @@ void VTXvtkVTI::Init()
     const pugi::xml_attribute wholeExtentXML = vtx::helper::XMLAttribute(
       "WholeExtent", extentNode, true, "when reading WholeExtent in ImageData", true);
 
-    this->WholeExtent = vtx::helper::StringToVector<size_t>(wholeExtentXML.value());
+    this->WholeExtent = vtx::helper::StringToVector<std::size_t>(wholeExtentXML.value());
     if (this->WholeExtent.size() != 6)
     {
       throw std::runtime_error("ERROR: incorrect WholeExtent attribute, must have 6 elements, "
