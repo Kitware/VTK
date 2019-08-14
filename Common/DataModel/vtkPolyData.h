@@ -287,12 +287,18 @@ public:
    */
   void DeleteLinks();
 
+  //@{
   /**
    * Special (efficient) operations on poly data. Use carefully (i.e., make
    * sure that BuildLinks() has been called).
    */
   void GetPointCells(vtkIdType ptId, vtkIdType& ncells,
                      vtkIdType* &cells) VTK_SIZEHINT(cells, ncells);
+#ifndef VTK_LEGACY_REMOVE
+  VTK_LEGACY(void GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells))
+    VTK_SIZEHINT(cells, ncells);
+#endif
+  //@}
 
   /**
    * Get the neighbors at an edge. More efficient than the general
@@ -607,6 +613,16 @@ inline void vtkPolyData::GetPointCells(vtkIdType ptId, vtkIdType& ncells,
   ncells = this->Links->GetNcells(ptId);
   cells = this->Links->GetCells(ptId);
 }
+
+#ifndef VTK_LEGACY_REMOVE
+inline void vtkPolyData::GetPointCells(vtkIdType ptId, unsigned short& ncells,
+                                       vtkIdType* &cells)
+{
+  VTK_LEGACY_BODY(vtkPolyData::GetPointCells, "VTK 9.0");
+  ncells = static_cast<unsigned short>(this->Links->GetNcells(ptId));
+  cells = this->Links->GetCells(ptId);
+}
+#endif
 
 inline int vtkPolyData::IsTriangle(int v1, int v2, int v3)
 {

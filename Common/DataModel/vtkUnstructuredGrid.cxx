@@ -1547,6 +1547,19 @@ GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdType* &cells)
 }
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+void vtkUnstructuredGrid::
+GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells)
+{
+  VTK_LEGACY_BODY(
+    vtkUnstructuredGrid::GetPointCells, "VTK 9.0");
+  vtkIdType nc;
+  this->GetPointCells(ptId, nc, cells);
+  ncells = static_cast<unsigned short>(nc);
+}
+#endif
+
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 {
   vtkIdType i, loc;

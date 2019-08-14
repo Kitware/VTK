@@ -156,6 +156,7 @@ public:
     this->Connectivity->GetCell(loc,npts,pts);
   }
 
+  //@{
   /**
    * Special (efficient) operation to return the list of cells using the
    * specified point ptId. Use carefully (i.e., make sure that BuildLinks()
@@ -163,6 +164,11 @@ public:
    */
   void GetPointCells(vtkIdType ptId, vtkIdType& ncells,
                      vtkIdType* &cells) VTK_SIZEHINT(cells, ncells);
+#ifndef VTK_LEGACY_REMOVE
+  VTK_LEGACY(void GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells))
+    VTK_SIZEHINT(cells, ncells);
+#endif
+  //@}
 
   /**
   * Get the array of all cell types in the grid. Each single-component
