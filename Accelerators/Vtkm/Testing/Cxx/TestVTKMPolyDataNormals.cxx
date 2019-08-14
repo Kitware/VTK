@@ -68,7 +68,9 @@ int TestVTKMPolyDataNormals(int argc, char* argv[])
   normals->SetInputData(input);
   normals->ComputePointNormalsOn();
   normals->ComputeCellNormalsOn();
-
+  normals->AutoOrientNormalsOn();
+  normals->FlipNormalsOn();
+  normals->ConsistencyOn();
 
   // cylinder mapper and actor
   vtkNew<vtkPolyDataMapper> cylinderMapper;
@@ -104,6 +106,7 @@ int TestVTKMPolyDataNormals(int argc, char* argv[])
   pnRenderer->AddActor(pnActor);
   pnRenderer->ResetCamera();
   pnRenderer->GetActiveCamera()->SetPosition(0.0, 4.5, 7.5);
+  pnRenderer->ResetCameraClippingRange();
 
 
   // cell normals
@@ -128,6 +131,7 @@ int TestVTKMPolyDataNormals(int argc, char* argv[])
   cnRenderer->AddActor(cnActor);
   cnRenderer->ResetCamera();
   cnRenderer->GetActiveCamera()->SetPosition(0.0, 8.0, 0.1);
+  cnRenderer->ResetCameraClippingRange();
 
 
   // render
