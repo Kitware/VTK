@@ -6,6 +6,7 @@ vtk_object_factory_declare(
   OVERRIDE  vtkPResampleWithDataSet)
 
 set(classes
+  vtkExtractSubsetWithSeed
   vtkGenerateGlobalIds
   vtkPResampleToImage
   vtkPResampleWithDataSet)
