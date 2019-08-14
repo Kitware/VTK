@@ -437,6 +437,7 @@ int vtkHyperTreeGridSource::RequestData(vtkInformation*,
   output->SetTransposedRootIndexing(this->TransposedRootIndexing);
   output->SetBranchFactor(this->BranchFactor);
 
+
   //  Set parameters that depend on dimension
   switch (this->Dimension)
   {
