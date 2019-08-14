@@ -52,6 +52,12 @@ if (TARGET vtkm::cuda)
     message(FATAL_ERROR "VTK-m CUDA Architecture flags can't be found. This means we can't safely compile CUDA code")
   endif()
   string(APPEND CMAKE_CUDA_FLAGS " ${arch_flags}")
+
+  # Temporarily suppress "has address taken but no possible call to it" warnings,
+  # until we figure out its implications.
+  # We are disabling all warnings as nvlink has no known way to suppress
+  # individual warning types.
+  string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
 endif()
 
 
