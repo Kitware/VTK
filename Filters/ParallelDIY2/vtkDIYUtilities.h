@@ -126,3 +126,4 @@ struct Serialization<vtkDataSet*>
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkDIYUtilities.h
