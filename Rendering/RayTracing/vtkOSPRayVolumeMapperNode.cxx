@@ -307,6 +307,23 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       }
     }
 
+    if (mapper->GetMTime() > this->BuildTime)
+    {
+      if (mapper->GetCropping())
+      {
+        double planes[6];
+        mapper->GetCroppingRegionPlanes(planes);
+        ospSet3f(this->OSPRayVolume, "volumeClippingBoxLower", planes[0], planes[2], planes[4]);
+        ospSet3f(this->OSPRayVolume, "volumeClippingBoxUpper", planes[1], planes[3], planes[5]);
+      }
+      else
+      {
+        ospRemoveParam(this->OSPRayVolume, "volumeClippingBoxLower");
+        ospRemoveParam(this->OSPRayVolume, "volumeClippingBoxUpper");
+      }
+      ospCommit(this->OSPRayVolume);
+    }
+
     // test for modifications to volume properties
     if (volProperty->GetMTime() > this->PropertyTime
         || mapper->GetDataSetInput()->GetMTime() > this->BuildTime)

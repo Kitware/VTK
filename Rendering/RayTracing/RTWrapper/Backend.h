@@ -45,6 +45,8 @@ namespace RTW
         virtual void Set3f(RTWObject, const char *id, float x, float y, float z) = 0;
         virtual void Set4f(RTWObject, const char *id, float x, float y, float z, float w) = 0;
 
+        virtual void RemoveParam(RTWObject, const char *id) = 0;
+
         virtual RTWError SetRegion(RTWVolume, void *source, const rtw::vec3i &regionCoords, const rtw::vec3i &regionSize) = 0;
 
         virtual void Commit(RTWObject) = 0;

@@ -227,6 +227,14 @@ namespace RTW
         reinterpret_cast<Object*>(object)->Set4f(id, x, y, z, w);
     }
 
+    void VisRTXBackend::RemoveParam(RTWObject object, const char *id)
+    {
+        if (object)
+        {
+            reinterpret_cast<Object*>(object)->RemoveParam(id);
+        }
+    }
+
     void VisRTXBackend::Commit(RTWObject object)
     {
         if (!object)
