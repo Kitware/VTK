@@ -341,8 +341,6 @@ void vtkSphereHandleRepresentation::Translate(const double *p1, const double *p2
 //----------------------------------------------------------------------
 void vtkSphereHandleRepresentation::MoveFocus(const double* p1, const double* p2)
 {
-  double focus[3];
-  this->SetWorldPosition(focus);
   Superclass::Translate(p1, p2);
 }
 
