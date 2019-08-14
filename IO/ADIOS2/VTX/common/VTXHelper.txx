@@ -29,8 +29,10 @@
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedLongLongArray.h"
 
 namespace vtx
 {
@@ -74,6 +76,18 @@ template<>
 vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long int>()
 {
   return vtkSmartPointer<vtkUnsignedLongArray>::New();
+}
+
+template<>
+vtkSmartPointer<vtkDataArray> NewDataArray<long long int>()
+{
+  return vtkSmartPointer<vtkLongLongArray>::New();
+}
+
+template<>
+vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long long int>()
+{
+  return vtkSmartPointer<vtkUnsignedLongLongArray>::New();
 }
 
 template<>

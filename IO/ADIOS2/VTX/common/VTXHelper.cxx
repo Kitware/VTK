@@ -286,6 +286,8 @@ template vtkSmartPointer<vtkDataArray> NewDataArray<int>();
 template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned int>();
 template vtkSmartPointer<vtkDataArray> NewDataArray<long int>();
 template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long int>();
+template vtkSmartPointer<vtkDataArray> NewDataArray<long long int>();
+template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long long int>();
 template vtkSmartPointer<vtkDataArray> NewDataArray<float>();
 template vtkSmartPointer<vtkDataArray> NewDataArray<double>();
 
