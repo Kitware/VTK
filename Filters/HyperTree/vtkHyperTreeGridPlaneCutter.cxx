@@ -452,17 +452,17 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
         else
         {
           // Check every edge of the current vertex.
-          if ( ! ( i & 1 ) && functEval[i] * functEval[i + 1] < 0 )
+          if ( ! ( i & 1 ) && functEval[i] * functEval[i + 1] <= 0 )
           {
             // Edge in X
             this->PlaneCut( i, i + 1, cellCoords, n, points );
           }
-          if ( ! ( i & 2 ) && functEval[i] * functEval[i + 2] < 0 )
+          if ( ! ( i & 2 ) && functEval[i] * functEval[i + 2] <= 0 )
           {
             // Edge in Y
             this->PlaneCut( i, i + 2, cellCoords, n, points );
           }
-          if ( ! ( i & 4 ) && functEval[i] * functEval[i + 4] < 0 )
+          if ( ! ( i & 4 ) && functEval[i] * functEval[i + 4] <= 0 )
           {
             // Edge in Z
             this->PlaneCut( i, i + 4, cellCoords, n, points );
