@@ -374,17 +374,19 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
     if(StringEndsWith(this->FileName, ".bp"))
     {
       this->Impl->AdiosIO.SetEngine("BPFile");
+      this->Impl->BpReader = this->Impl->AdiosIO.Open(this->FileName,
+        adios2::Mode::Read);
     }
     else if(StringEndsWith(this->FileName, "md.idx"))
     {
       this->Impl->AdiosIO.SetEngine("BP4");
+      this->Impl->BpReader = this->Impl->AdiosIO.Open(
+        this->FileName.substr(0, this->FileName.size()-6), adios2::Mode::Read);
     }
     else
     {
       throw std::runtime_error("Unsupported file extension");
     }
-    this->Impl->BpReader = this->Impl->AdiosIO.Open(this->FileName,
-      adios2::Mode::Read);
     this->Impl->AvailVars =  this->Impl->AdiosIO.AvailableVariables();
     this->Impl->AvailAtts =  this->Impl->AdiosIO.AvailableAttributes();
     // Populate the array selection
