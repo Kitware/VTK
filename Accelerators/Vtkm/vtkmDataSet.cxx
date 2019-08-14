@@ -32,9 +32,9 @@
 
 #include <vtkm/cont/CellLocatorGeneral.h>
 #include <vtkm/cont/DataSet.h>
+#include <vtkm/cont/Invoker.h>
 #include <vtkm/cont/PointLocator.h>
 #include <vtkm/cont/PointLocatorUniformGrid.h>
-#include <vtkm/worklet/Invoker.h>
 #include <vtkm/worklet/ScatterPermutation.h>
 
 #include "vtkmCellSetExplicit.h"
@@ -215,7 +215,7 @@ void vtkmDataSet::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 namespace
 {
 
-struct WorkletGetPointCells : vtkm::worklet::WorkletMapCellToPoint
+struct WorkletGetPointCells : vtkm::worklet::WorkletVisitPointsWithCells
 {
   using ControlSignature = void (CellSetIn);
   using ExecutionSignature = void(CellCount, CellIndices, Device);
@@ -248,7 +248,7 @@ struct WorkletGetPointCells : vtkm::worklet::WorkletMapCellToPoint
 void vtkmDataSet::GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
 {
   auto scatter = WorkletGetPointCells::ScatterType(vtkm::cont::make_ArrayHandle(&ptId, 1));
-  vtkm::worklet::Invoker invoke(vtkm::cont::DeviceAdapterTagSerial{});
+  vtkm::cont::Invoker invoke(vtkm::cont::DeviceAdapterTagSerial{});
   invoke(WorkletGetPointCells{cellIds},
          scatter,
          this->Internals->CellSet.ResetCellSetList(SupportedCellSets{}));
@@ -373,7 +373,7 @@ struct MaxCellSize
   template <typename S1, typename S2, typename S3, typename S4>
   void operator()(const vtkm::cont::CellSetExplicit<S1, S2, S3, S4>& cellset, vtkm::IdComponent& result) const
   {
-    auto counts = cellset.GetNumIndicesArray(vtkm::TopologyElementTagPoint{}, vtkm::TopologyElementTagCell{});
+    auto counts = cellset.GetNumIndicesArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
     result = vtkm::cont::Algorithm::Reduce(counts, vtkm::IdComponent{0}, vtkm::Maximum{});
   }
 

@@ -92,8 +92,8 @@ void vtkmCellSetSingleType::Fill(
 template <typename Device>
 typename vtkm::exec::ConnectivityVTKSingleType<Device>
     vtkmCellSetSingleType::PrepareForInput(Device,
-                                           vtkm::TopologyElementTagPoint,
-                                           vtkm::TopologyElementTagCell) const
+                                           vtkm::TopologyElementTagCell,
+                                           vtkm::TopologyElementTagPoint) const
 {
   const vtkm::IdComponent numberOfPointsPerCell =
       this->DetermineNumberOfPoints();
@@ -109,8 +109,8 @@ typename vtkm::exec::ConnectivityVTKSingleType<Device>
 template <typename Device>
 typename vtkm::exec::ReverseConnectivityVTK<Device>
     vtkmCellSetSingleType::PrepareForInput(Device,
-                                           vtkm::TopologyElementTagCell,
-                                           vtkm::TopologyElementTagPoint) const
+                                           vtkm::TopologyElementTagPoint,
+                                           vtkm::TopologyElementTagCell) const
 {
   if(!this->ReverseConnectivityBuilt)
   {
@@ -160,47 +160,47 @@ void vtkmCellSetSingleType::PrintSummary(std::ostream& out) const
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagSerial>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagSerial,
-      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagSerial>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagSerial,
-      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
 
 #ifdef VTKM_ENABLE_TBB
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagTBB>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagTBB,
-      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagTBB,
-      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
 #endif
 
 #ifdef VTKM_ENABLE_OPENMP
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagOpenMP>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagOpenMP,
-      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagOpenMP>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagOpenMP,
-      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
 #endif
 
 #ifdef VTKM_ENABLE_CUDA
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagCuda>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
-      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
-      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
 #endif
 }
 }

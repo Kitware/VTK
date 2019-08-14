@@ -365,7 +365,7 @@ private:
 //-----------------------------------------------------------------------------
 template <typename ArrayHandleType>
 using IsReadOnly =
-  std::integral_constant<bool, !vtkm::cont::internal::IsWriteableArrayHandle<ArrayHandleType>::value>;
+  std::integral_constant<bool, !vtkm::cont::internal::IsWritableArrayHandle<ArrayHandleType>::value>;
 
 template <typename T, typename S>
 ArrayHandleWrapperBase<typename FlattenVec<T>::ComponentType>*

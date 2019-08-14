@@ -79,7 +79,7 @@ int vtkmPolyDataNormals::RequestData(
     vtkm::cont::DataSet result;
 
     // check for flags that vtkm filter cannot handle
-    bool unsupported = this->Splitting || this->Consistency || this->FlipNormals;
+    bool unsupported = this->Splitting != 0;
     if (!unsupported)
     {
       vtkmInputFilterPolicy policy;
@@ -88,6 +88,9 @@ int vtkmPolyDataNormals::RequestData(
       filter.SetCellNormalsName("Normals");
       filter.SetGeneratePointNormals((this->ComputePointNormals != 0));
       filter.SetPointNormalsName("Normals");
+      filter.SetAutoOrientNormals(this->AutoOrientNormals != 0);
+      filter.SetFlipNormals(this->FlipNormals != 0);
+      filter.SetConsistency(this->Consistency != 0);
       result = filter.Execute(in, policy);
     }
     else
