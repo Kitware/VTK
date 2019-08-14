@@ -67,6 +67,16 @@
 #include <string>
 #include <istream> // istringStream
 
+//----------------------------------------------------------------------------
+// Helper functions
+//----------------------------------------------------------------------------
+
+bool StringEndsWith(const std::string &a, const std::string &b)
+{
+  return a.size() >= b.size() &&
+         a.compare(a.size() - b.size(), b.size(), b) == 0;
+}
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkADIOS2CoreImageReader);
 namespace
 {
@@ -182,15 +192,11 @@ int vtkADIOS2CoreImageReader::CanReadFile(const std::string& name)
   {
     return 0;
   }
-  // For now only BP format is supported
-  if (name.size() > 3 && name.substr(name.size()-3, 3) == ".bp")
+  if(StringEndsWith(name, ".bp") || StringEndsWith(name, "md.idx"))
   {
     return 1;
   }
-  else
-  {
-    return 0;
-  }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -365,8 +371,20 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
   try
   {
     this->Impl->AdiosIO = this->Impl->Adios->DeclareIO("vtkADIOS2ImageRead");
-    this->Impl->AdiosIO.SetEngine("BPFile");
-    this->Impl->BpReader = this->Impl->AdiosIO.Open(this->FileName, adios2::Mode::Read);
+    if(StringEndsWith(this->FileName, ".bp"))
+    {
+      this->Impl->AdiosIO.SetEngine("BPFile");
+    }
+    else if(StringEndsWith(this->FileName, "md.idx"))
+    {
+      this->Impl->AdiosIO.SetEngine("BP4");
+    }
+    else
+    {
+      throw std::runtime_error("Unsupported file extension");
+    }
+    this->Impl->BpReader = this->Impl->AdiosIO.Open(this->FileName,
+      adios2::Mode::Read);
     this->Impl->AvailVars =  this->Impl->AdiosIO.AvailableVariables();
     this->Impl->AvailAtts =  this->Impl->AdiosIO.AvailableAttributes();
     // Populate the array selection
