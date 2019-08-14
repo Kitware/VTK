@@ -80,6 +80,7 @@ void vtkHyperTreeGridNonOrientedCursor::Initialize(
   vtkIdType index
 )
 {
+  assert (this->Entries.size() && "this->Entries empty");
   this->Grid = grid;
   this->Tree = tree;
   this->Level = level;
@@ -219,8 +220,15 @@ void vtkHyperTreeGridNonOrientedCursor::PrintSelf( ostream& os, vtkIndent indent
   os << indent << "--vtkHyperTreeGridNonOrientedCursor--" << endl;
   os << indent << "Level: " << this->GetLevel() << endl;
   this->Tree->PrintSelf( os, indent );
-  os << indent << "LastValidEntry: " << this->LastValidEntry << endl;
-  this->Entries[ this->LastValidEntry ].PrintSelf( os, indent );
+  if (this->Entries.size())
+  {
+    os << indent << "LastValidEntry: " << this->LastValidEntry << endl;
+    this->Entries[ this->LastValidEntry ].PrintSelf( os, indent );
+  }
+  else
+  {
+    os << indent << "No valid entry " << std::endl;
+  }
 }
 
 //-----------------------------------------------------------------------------

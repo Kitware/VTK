@@ -64,8 +64,7 @@ vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
   // Defaut inside/out flag is false
   this->InsideOut = 0;
 
-  // This filter always creates an output with a material mask
-  this->OutMask = vtkBitArray::New();
+  this->OutMask = nullptr;
 
   // Output indices begin at 0
   this->CurrentId = 0;
@@ -307,6 +306,9 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
     return 0;
   }
 
+  this->OutMask = vtkBitArray::New();
+  output->Initialize();
+
   // Retrieve input dimension
   unsigned int dimension = input->GetDimension();
 
@@ -331,6 +333,7 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   output->SetHasInterface(input->GetHasInterface());
   output->SetInterfaceNormalsName(input->GetInterfaceNormalsName());
   output->SetInterfaceInterceptsName(input->GetInterfaceInterceptsName());
+  output->SetDimensions(input->GetDimensions());
 
   // Initialize output point data
   this->InData = input->GetPointData();
@@ -390,27 +393,11 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
       clipped.insert(inIndex);
     } // else
   }   // it
-
   // Set grid sizes
   outSize[0] = maxId[0] - minId[0] + 1;
   outSize[1] = maxId[1] - minId[1] + 1;
   outSize[2] = maxId[2] - minId[2] + 1;
 
-  // JB Le maillage de sortie garde les specificites (1D, 2D ou 3D
-  // suivant certaines directions) du maillage d'entree
-  unsigned int dimensions[3];
-  for (unsigned int idim = 0; idim < 3; ++idim)
-  {
-    if (inSize[idim] == 1)
-    {
-      dimensions[idim] = 1;
-    }
-    else
-    {
-      dimensions[idim] = inSize[idim] + 1;
-    }
-  }
-  output->SetDimensions(dimensions); // GridPoints
 
   // Compute or copy output coordinates depending on output grid sizes
   vtkUniformHyperTreeGrid* inputUHTG = vtkUniformHyperTreeGrid::SafeDownCast(input);
@@ -488,12 +475,13 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
       this->RecursivelyProcessTree(inCursor, outCursor);
     } // if origin
   }   // it
-
   // Squeeze and set output material mask if necessary
   if (this->OutMask)
   {
     this->OutMask->Squeeze();
     output->SetMask(this->OutMask);
+    this->OutMask->FastDelete();
+    this->OutMask = nullptr;
   }
 
   return 1;
