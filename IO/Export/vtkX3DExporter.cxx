@@ -391,6 +391,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   {
     return;
   }
+  mapper->Update();
 
   // validate mapper input dataset.
   vtkDataObject* dObj = mapper->GetInputDataObject(0, 0);
