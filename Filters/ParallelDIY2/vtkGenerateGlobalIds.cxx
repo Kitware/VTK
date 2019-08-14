@@ -42,6 +42,7 @@
 
 // clang-format off
 #include "vtk_diy2.h"
+// #define DIY_USE_SPDLOG
 #include VTK_DIY2(diy/mpi.hpp)
 #include VTK_DIY2(diy/master.hpp)
 #include VTK_DIY2(diy/link.hpp)
@@ -329,12 +330,15 @@ public:
 
   void MergePoints()
   {
-    vtkNew<vtkStaticPointLocator> locator;
-    locator->SetDataSet(this->CreateDataSet());
-    locator->BuildLocator();
-
     std::vector<vtkIdType> mergemap(this->Points.size(), -1);
-    locator->MergePoints(0.0, &mergemap[0]);
+    if (this->Points.size() > 0)
+    {
+      vtkNew<vtkStaticPointLocator> locator;
+      locator->SetDataSet(this->CreateDataSet());
+      locator->BuildLocator();
+      locator->MergePoints(0.0, &mergemap[0]);
+    }
+
     // locator's mergemap does not remove unused id i.e. if we have 3 pts
     // `0, 1, 2` and the first two are the same, then the mergemap will be `0,
     // 0, 2`. We want to make it `0, 0, 1` so that it represents contiguous ids.
