@@ -411,6 +411,8 @@ protected:
   {
   }
 
+  virtual ~vtkHyperTree() override {}
+
   virtual void InitializePrivate() = 0;
   virtual void PrintSelfPrivate( ostream& os, vtkIndent indent ) = 0;
   virtual void CopyStructurePrivate( vtkHyperTree* ht ) = 0;

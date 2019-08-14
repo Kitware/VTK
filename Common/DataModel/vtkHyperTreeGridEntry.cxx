@@ -38,6 +38,7 @@ void vtkHyperTreeGridEntry::Dump(ostream& os)
 vtkHyperTree* vtkHyperTreeGridEntry::Initialize(
   vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create)
 {
+  assert (grid != nullptr);
   this->Index = 0;
   return grid->GetTree(treeIndex, create);
 }
