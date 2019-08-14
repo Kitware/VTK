@@ -218,6 +218,19 @@ namespace RTW
             return found;
         }
 
+        void RemoveParam(const std::string& id)
+        {
+            this->stringMap.Remove(id);
+            this->objectMap.Remove(id);
+            this->int1Map.Remove(id);
+            this->float1Map.Remove(id);
+            this->float2Map.Remove(id);
+            this->int2Map.Remove(id);
+            this->int3Map.Remove(id);
+            this->float3Map.Remove(id);
+            this->float4Map.Remove(id);
+        }
+
     protected:
         void PrintAllParameters() const
         {

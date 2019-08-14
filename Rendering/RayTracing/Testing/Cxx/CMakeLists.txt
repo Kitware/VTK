@@ -37,6 +37,7 @@ if (VTK_ENABLE_OSPRAY)
     TestGPURayCastVolumeUpdate.cxx
     TestGPUVolumeRayCastMapper.cxx
     TestOSPRayVolumeRenderer.cxx
+    TestOSPRayVolumeRendererCrop.cxx
     TestSmartVolumeMapper.cxx
     # Path tracer tests
     TestCategoricalMaterials.cxx

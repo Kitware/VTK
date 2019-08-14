@@ -230,6 +230,11 @@ namespace RTW
       ospSet4f(reinterpret_cast<OSPObject>(object), id, x, y, z, w);
     }
 
+    void RemoveParam(RTWObject object, const char *id) override
+    {
+      ospRemoveParam(reinterpret_cast<OSPObject>(object), id);
+    }
+
     RTWError SetRegion(RTWVolume volume, void *source, const rtw::vec3i &regionCoords, const rtw::vec3i &regionSize) override
     {
       return static_cast<RTWError>(ospSetRegion(reinterpret_cast<OSPVolume>(volume), source,

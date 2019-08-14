@@ -43,6 +43,8 @@ namespace RTW
         void Set3f(RTWObject object, const char *id, float x, float y, float z) override;
         void Set4f(RTWObject object, const char *id, float x, float y, float z, float w) override;
 
+        void RemoveParam(RTWObject object, const char *id) override;
+
         void Commit(RTWObject object) override;
 
         float RenderFrame(RTWFrameBuffer frameBuffer, RTWRenderer renderer, const uint32_t frameBufferChannels) override;
