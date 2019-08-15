@@ -15,24 +15,25 @@
 #include "vtk3DLinearGridCrinkleExtractor.h"
 
 #include "vtk3DLinearGridInternal.h"
-#include "vtkImplicitFunction.h"
-#include "vtkPlane.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkArrayListTemplate.h" // For processing attribute data
-#include "vtkStaticCellLinksTemplate.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkSMPTools.h"
+#include "vtkPlane.h"
+#include "vtkPointData.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkStaticCellLinksTemplate.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <vector>
 #include <atomic>
