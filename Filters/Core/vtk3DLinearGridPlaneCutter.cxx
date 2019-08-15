@@ -817,7 +817,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkPlane *plane, vtkPolyData *output)
   vtkIdType numCells = cells->GetNumberOfCells();
   if ( numPts <= 0 || numCells <= 0 )
   {
-    vtkWarningMacro(<<"Empty input");
+    vtkLog(INFO,  "Empty input");
     return 0;
   }
 
@@ -825,7 +825,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkPlane *plane, vtkPolyData *output)
   int inPtsType = inPts->GetDataType();
   if ( (inPtsType != VTK_FLOAT && inPtsType != VTK_DOUBLE) )
   {
-    vtkErrorMacro(<<"Input point type not supported");
+    vtkLog(ERROR, "Input point type not supported");
     return 0;
   }
 
@@ -908,7 +908,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkPlane *plane, vtkPolyData *output)
   }
 
   // Report the results of execution
-  vtkDebugMacro(<<"Created: " << outPts->GetNumberOfPoints() << " points, "
+  vtkLog(INFO,  "Created: " << outPts->GetNumberOfPoints() << " points, "
                 << newPolys->GetNumberOfCells() << " triangles");
 
   // Clean up
@@ -967,7 +967,7 @@ RequestDataObject(vtkInformation*,
     return 1;
   }
 
-  vtkErrorMacro("Not sure what type of output to create!");
+  vtkLog(ERROR, "Not sure what type of output to create!");
   return 0;
 }
 
@@ -1004,7 +1004,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
   vtkPlane *plane=this->Plane;
   if ( ! plane )
   {
-    vtkErrorMacro(<<"Cut plane not defined");
+    vtkLog(ERROR, "Cut plane not defined");
     return 0;
   }
 
@@ -1037,7 +1037,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
       }
       else
       {
-        vtkDebugMacro(<<"This filter only processes unstructured grids");
+        vtkLog(INFO,  "This filter only processes unstructured grids");
       }
     }
   }

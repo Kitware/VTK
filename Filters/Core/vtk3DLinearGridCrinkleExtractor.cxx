@@ -623,7 +623,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkImplicitFunction *f,
   vtkIdType numCells = cells->GetNumberOfCells();
   if ( numPts <= 0 || numCells <= 0 )
   {
-    vtkWarningMacro(<<"Empty input");
+    vtkLog(INFO, "Empty input");
     return 0;
   }
 
@@ -631,7 +631,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkImplicitFunction *f,
   int inPtsType = inPts->GetDataType();
   if ( (inPtsType != VTK_FLOAT && inPtsType != VTK_DOUBLE) )
   {
-    vtkErrorMacro(<<"Input point type not supported");
+    vtkLog(ERROR, "Input point type not supported");
     return 0;
   }
 
@@ -794,7 +794,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkImplicitFunction *f,
   }
 
   // Report the results of execution
-  vtkDebugMacro(<<"Extracted: " << grid->GetNumberOfPoints() << " points, "
+  vtkLog(INFO, "Extracted: " << grid->GetNumberOfPoints() << " points, "
                 << grid->GetNumberOfCells() << " cells");
 
   // Clean up
@@ -850,7 +850,7 @@ RequestDataObject(vtkInformation*,
     return 1;
   }
 
-  vtkErrorMacro("Not sure what type of output to create!");
+  vtkLog(ERROR, "Not sure what type of output to create!");
   return 0;
 }
 
@@ -887,7 +887,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
   vtkImplicitFunction *f=this->ImplicitFunction;
   if ( ! f )
   {
-    vtkErrorMacro(<<"Implicit function not defined");
+    vtkLog(ERROR, "Implicit function not defined");
     return 0;
   }
 
@@ -920,7 +920,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
       }
       else
       {
-        vtkDebugMacro(<<"This filter only processes unstructured grids");
+        vtkLog(INFO, <<"This filter only processes unstructured grids");
       }
     }
   }

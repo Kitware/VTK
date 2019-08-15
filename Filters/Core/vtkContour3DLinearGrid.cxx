@@ -1231,7 +1231,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkDataArray *inScalars, vtkPolyData *o
   int inPtsType = inPts->GetDataType();
   if ( (inPtsType != VTK_FLOAT && inPtsType != VTK_DOUBLE) )
   {
-    vtkErrorMacro(<<"Input point type not supported");
+    vtkLog(ERROR, "Input point type not supported");
     return;
   }
   // Create the output points. Only real types are supported.
