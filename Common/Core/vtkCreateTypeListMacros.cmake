@@ -6,7 +6,7 @@
 # Internal method.
 function(CollapseString input output)
   set(temp "")
-  foreach(line ${input})
+  foreach(line IN LISTS input)
     set(temp ${temp}${line})
   endforeach()
   set(${output} "${temp}" PARENT_SCOPE)
@@ -102,7 +102,7 @@ function(CreateTypeListMacros HEADER MAX_SIZE MACRO_PREFIX TYPELIST_T
     temp
   )
   list(APPEND result ${temp})
-  foreach(num ${nums})
+  foreach(num IN LISTS nums)
     CreateTypeListMacros_create_macro(
       "${num}"
       "${MACRO_PREFIX}"
