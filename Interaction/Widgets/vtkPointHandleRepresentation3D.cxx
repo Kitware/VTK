@@ -32,6 +32,8 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkCamera.h"
 
+#include <assert.h>
+
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -597,19 +599,19 @@ void vtkPointHandleRepresentation3D::ComplexInteraction(
 }
 
 //----------------------------------------------------------------------
-void vtkPointHandleRepresentation3D
-::MoveFocusRequest(double *p1, double *p2,
-                   double currPos[2], double center[3])
+void vtkPointHandleRepresentation3D ::MoveFocusRequest(
+  const double* p1, const double* p2, const double eventPos[2], double center[3])
 {
   if (this->SmoothMotion)
   {
-    double focus[4];
+    double focus[4], v[3];
     this->Cursor3D->GetFocalPoint(focus);
+    this->GetTranslationVector(p1, p2, v);
 
     // Move the center of the handle along the motion vector
-    focus[0] += (p2[0] - p1[0]);
-    focus[1] += (p2[1] - p1[1]);
-    focus[2] += (p2[2] - p1[2]);
+    focus[0] += v[0];
+    focus[1] += v[1];
+    focus[2] += v[2];
     focus[3] = 1.0;
 
     // Get the display position that this center would fall on.
@@ -619,35 +621,16 @@ void vtkPointHandleRepresentation3D
   }
   else
   {
-    center[0] = currPos[0];
-    center[1] = currPos[1];
+    center[0] = eventPos[0];
+    center[1] = eventPos[1];
     center[2] = 1.0;
   }
 }
 
 //----------------------------------------------------------------------
-void vtkPointHandleRepresentation3D::MoveFocus(double *p1, double *p2)
+void vtkPointHandleRepresentation3D::MoveFocus(const double* p1, const double* p2)
 {
-  //Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
-
-  double focus[3];
-  this->Cursor3D->GetFocalPoint(focus);
-  if ( this->ConstraintAxis >= 0 )
-  {
-    focus[this->ConstraintAxis] += v[this->ConstraintAxis];
-  }
-  else
-  {
-    focus[0] += v[0];
-    focus[1] += v[1];
-    focus[2] += v[2];
-  }
-
-  this->SetWorldPosition(focus);
+  this->Translate(p1, p2);
 }
 
 //----------------------------------------------------------------------
@@ -665,17 +648,14 @@ void vtkPointHandleRepresentation3D::SetTranslationMode(vtkTypeBool mode)
 
 //----------------------------------------------------------------------
 // Translate everything
-void vtkPointHandleRepresentation3D::Translate(double *p1, double *p2)
+void vtkPointHandleRepresentation3D::Translate(const double* p1, const double* p2)
 {
-  //Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
+  double v[3] = { 0, 0, 0 };
+  vtkHandleRepresentation::Translate(p1, p2);
+  this->GetTranslationVector(p1, p2, v);
 
   double *bounds = this->Cursor3D->GetModelBounds();
-  double *pos = this->Cursor3D->GetFocalPoint();
-  double newBounds[6], newFocus[3];
+  double newBounds[6];
   int i;
 
   if ( this->ConstraintAxis >= 0 )
@@ -693,11 +673,9 @@ void vtkPointHandleRepresentation3D::Translate(double *p1, double *p2)
   {
     newBounds[2*i] = bounds[2*i] + v[i];
     newBounds[2*i+1] = bounds[2*i+1] + v[i];
-    newFocus[i] = pos[i] + v[i];
   }
 
   this->Cursor3D->SetModelBounds(newBounds);
-  this->SetWorldPosition(newFocus);
 }
 
 //----------------------------------------------------------------------
@@ -721,7 +699,8 @@ void vtkPointHandleRepresentation3D::SizeBounds()
 }
 
 //----------------------------------------------------------------------
-void vtkPointHandleRepresentation3D::Scale(double *p1, double *p2, double eventPos[2])
+void vtkPointHandleRepresentation3D::Scale(
+  const double* p1, const double* p2, const double eventPos[2])
 {
   //Get the motion vector
   double v[3];

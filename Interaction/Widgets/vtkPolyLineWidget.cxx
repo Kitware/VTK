@@ -55,10 +55,56 @@ vtkPolyLineWidget::vtkPolyLineWidget()
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
                                           vtkWidgetEvent::Move,
                                           this, vtkPolyLineWidget::MoveAction);
+
+  this->KeyEventCallbackCommand = vtkCallbackCommand::New();
+  this->KeyEventCallbackCommand->SetClientData(this);
+  this->KeyEventCallbackCommand->SetCallback(vtkPolyLineWidget::ProcessKeyEvents);
 }
 
 //----------------------------------------------------------------------------
-vtkPolyLineWidget::~vtkPolyLineWidget() = default;
+vtkPolyLineWidget::~vtkPolyLineWidget()
+{
+  this->KeyEventCallbackCommand->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyLineWidget::SetEnabled(int enabling)
+{
+  int enabled = this->Enabled;
+
+  // We do this step first because it sets the CurrentRenderer
+  this->Superclass::SetEnabled(enabling);
+
+  // We defer enabling the handles until the selection process begins
+  if (enabling && !enabled)
+  {
+    if (this->Parent)
+    {
+      this->Parent->AddObserver(
+        vtkCommand::KeyPressEvent, this->KeyEventCallbackCommand, this->Priority);
+      this->Parent->AddObserver(
+        vtkCommand::KeyReleaseEvent, this->KeyEventCallbackCommand, this->Priority);
+    }
+    else
+    {
+      this->Interactor->AddObserver(
+        vtkCommand::KeyPressEvent, this->KeyEventCallbackCommand, this->Priority);
+      this->Interactor->AddObserver(
+        vtkCommand::KeyReleaseEvent, this->KeyEventCallbackCommand, this->Priority);
+    }
+  }
+  else if (!enabling && enabled)
+  {
+    if (this->Parent)
+    {
+      this->Parent->RemoveObserver(this->KeyEventCallbackCommand);
+    }
+    else
+    {
+      this->Interactor->RemoveObserver(this->KeyEventCallbackCommand);
+    }
+  }
+}
 
 //----------------------------------------------------------------------
 void vtkPolyLineWidget::SelectAction(vtkAbstractWidget *w)
@@ -129,7 +175,7 @@ void vtkPolyLineWidget::SelectAction(vtkAbstractWidget *w)
 //----------------------------------------------------------------------
 void vtkPolyLineWidget::TranslateAction(vtkAbstractWidget *w)
 {
-  // Not sure this should be any different that SelectAction
+  // Not sure this should be any different than SelectAction
   vtkPolyLineWidget::SelectAction(w);
 }
 
@@ -238,6 +284,53 @@ void vtkPolyLineWidget::EndSelectAction(vtkAbstractWidget *w)
   self->EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   self->Render();
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyLineWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
+{
+  vtkPolyLineWidget* self = static_cast<vtkPolyLineWidget*>(clientdata);
+  vtkRenderWindowInteractor* iren = self->GetInteractor();
+  vtkPolyLineRepresentation* rep = vtkPolyLineRepresentation::SafeDownCast(self->WidgetRep);
+  switch (event)
+  {
+    case vtkCommand::KeyPressEvent:
+      switch (iren->GetKeyCode())
+      {
+        case 'x':
+        case 'X':
+          rep->SetXTranslationAxisOn();
+          break;
+        case 'y':
+        case 'Y':
+          rep->SetYTranslationAxisOn();
+          break;
+        case 'z':
+        case 'Z':
+          rep->SetZTranslationAxisOn();
+          break;
+        default:
+          break;
+      }
+      break;
+    case vtkCommand::KeyReleaseEvent:
+      switch (iren->GetKeyCode())
+      {
+        case 'x':
+        case 'X':
+        case 'y':
+        case 'Y':
+        case 'z':
+        case 'Z':
+          rep->SetTranslationAxisOff();
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
+  }
 }
 
 //----------------------------------------------------------------------

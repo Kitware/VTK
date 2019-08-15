@@ -20,6 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkPointPlacer.h"
 
+#include "assert.h"
 
 vtkCxxSetObjectMacro(vtkHandleRepresentation, PointPlacer, vtkPointPlacer );
 
@@ -41,6 +42,8 @@ vtkHandleRepresentation::vtkHandleRepresentation()
 
   this->DisplayPositionTime.Modified();
   this->WorldPositionTime.Modified();
+
+  this->TranslationAxis = Axis::NONE;
 }
 
 //----------------------------------------------------------------------
@@ -161,6 +164,60 @@ void vtkHandleRepresentation::SetRenderer(vtkRenderer *ren)
     double p[3];
     this->DisplayPosition->GetValue(p);
     this->SetDisplayPosition(p); //side affect updated world pos
+  }
+}
+
+//----------------------------------------------------------------------
+void vtkHandleRepresentation::GetTranslationVector(
+  const double* p1, const double* p2, double* v) const
+{
+  if (this->TranslationAxis == Axis::NONE)
+  {
+    for (int i = 0; i < 3; ++i)
+    {
+      v[i] = p2[i] - p1[i];
+    }
+  }
+  else
+  {
+    for (int i = 0; i < 3; ++i)
+    {
+      if (this->TranslationAxis == i)
+      {
+        v[i] = p2[i] - p1[i];
+      }
+      else
+      {
+        v[i] = 0.0;
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------
+void vtkHandleRepresentation::Translate(const double* p1, const double* p2)
+{
+  double v[3];
+  this->GetTranslationVector(p1, p2, v);
+  this->Translate(v);
+}
+
+
+//----------------------------------------------------------------------
+void vtkHandleRepresentation::Translate(const double* v)
+{
+  if (this->TranslationAxis == Axis::NONE)
+  {
+    for (int i = 0; i < 3; ++i)
+    {
+      WorldPosition->GetValue()[i] += v[i];
+    }
+  }
+  else
+  {
+    assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
+      "this->TranslationAxis out of bounds");
+    WorldPosition->GetValue()[this->TranslationAxis] += v[this->TranslationAxis];
   }
 }
 

@@ -168,6 +168,52 @@ public:
   vtkGetObjectMacro( PointPlacer, vtkPointPlacer );
   //@}
 
+  //@{
+  /**
+   * Gets the translation vector
+   */
+  virtual void GetTranslationVector(const double* p1, const double* p2, double* v) const;
+
+  //@{
+  /**
+   * Translates world position by vector p1p2 projected on the constraint axis if any.
+   */
+  virtual void Translate(const double* p1, const double* p2);
+  //@}
+
+  //@{
+  /**
+   * Translates world position by vector v projected on the constraint axis if any.
+   */
+  virtual void Translate(const double* v);
+  //@}
+
+  //@{
+  /**
+   * Gets/Sets the constraint axis for translations. Returns Axis::NONE
+   * if none.
+   **/
+  vtkGetMacro(TranslationAxis, int);
+  vtkSetClampMacro(TranslationAxis, int, -1, 2);
+  //@}
+
+  //@{
+  /**
+   * Toggles constraint translation axis on/off.
+   */
+  void SetXTranslationAxisOn() { this->TranslationAxis = Axis::XAxis; }
+  void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
+  void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
+  void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
+  //@}
+
+  //@{
+  /**
+   * Returns true if ContrainedAxis
+   **/
+  bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
+  //@}
+
 protected:
   vtkHandleRepresentation();
   ~vtkHandleRepresentation() override;
@@ -187,8 +233,11 @@ protected:
   vtkTimeStamp DisplayPositionTime;
   vtkTimeStamp WorldPositionTime;
 
-  // Constrain the placement of handles.
+  // Constraint the placement of handles.
   vtkPointPlacer * PointPlacer;
+
+  // Constraint axis translation
+  int TranslationAxis;
 
 private:
   vtkHandleRepresentation(const vtkHandleRepresentation&) = delete;

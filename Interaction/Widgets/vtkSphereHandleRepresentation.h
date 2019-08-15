@@ -54,6 +54,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
+  using vtkHandleRepresentation::Translate;
+
   //@{
   /**
    * Set the position of the point in world and display coordinates. Note
@@ -167,9 +169,9 @@ protected:
 
   // Methods to manipulate the cursor
   int  ConstraintAxis;
-  void Translate(double *p1, double *p2);
-  void Scale(double *p1, double *p2, double eventPos[2]);
-  void MoveFocus(double *p1, double *p2);
+  void Translate(const double* p1, const double* p2) override;
+  void Scale(const double* p1, const double* p2, const double eventPos[2]);
+  void MoveFocus(const double* p1, const double* p2);
   void SizeBounds();
 
   // Properties used to control the appearance of selected objects and
@@ -180,7 +182,6 @@ protected:
 
   // The size of the hot spot.
   double HotSpotSize;
-  int    DetermineConstraintAxis(int constraint, double *x);
   int    WaitingForMotion;
   int    WaitCount;
 

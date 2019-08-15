@@ -153,6 +153,12 @@ public:
    */
   void CreateDefaultRepresentation() override;
 
+  /**
+   * Override superclasses' SetEnabled() method because the line
+   * widget must enable its internal handle widgets.
+   */
+  void SetEnabled(int enabling) override;
+
 protected:
   vtkBoxWidget2();
   ~vtkBoxWidget2() override;
@@ -178,6 +184,10 @@ protected:
   vtkTypeBool ScalingEnabled;
   vtkTypeBool RotationEnabled;
   vtkTypeBool MoveFacesEnabled;
+
+  vtkCallbackCommand* KeyEventCallbackCommand;
+  static void ProcessKeyEvents(vtkObject*, unsigned long, void*, void*);
+
 private:
   vtkBoxWidget2(const vtkBoxWidget2&) = delete;
   void operator=(const vtkBoxWidget2&) = delete;

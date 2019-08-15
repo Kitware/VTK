@@ -65,6 +65,12 @@ public:
    */
   void CreateDefaultRepresentation() override;
 
+  /**
+   * Override superclasses' SetEnabled() method because the line
+   * widget must enable its internal handle widgets.
+   */
+  void SetEnabled(int enabling) override;
+
 protected:
   vtkPolyLineWidget();
   ~vtkPolyLineWidget() override;
@@ -78,6 +84,9 @@ protected:
   static void TranslateAction(vtkAbstractWidget*);
   static void ScaleAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
+
+  vtkCallbackCommand* KeyEventCallbackCommand;
+  static void ProcessKeyEvents(vtkObject*, unsigned long, void*, void*);
 
 private:
   vtkPolyLineWidget(const vtkPolyLineWidget&) = delete;

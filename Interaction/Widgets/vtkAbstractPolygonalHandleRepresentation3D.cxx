@@ -36,6 +36,8 @@
 #include "vtkVectorText.h"
 #include "vtkFollower.h"
 
+#include <assert.h>
+
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,Property,vtkProperty);
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,SelectedProperty,vtkProperty);
 
@@ -434,18 +436,32 @@ void vtkAbstractPolygonalHandleRepresentation3D::WidgetInteraction(double eventP
 
 //----------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D
-::MoveFocusRequest(double *p1, double *p2,
-                   double currPos[2], double center[3])
+::MoveFocusRequest(const double *p1, const double *p2,
+                   const double currPos[2], double center[3])
 {
   if (this->SmoothMotion)
   {
-    double focus[4];
+    double focus[4], v[3] = {0,0,0};
     this->GetWorldPosition(focus);
 
     // Move the center of the handle along the motion vector
-    focus[0] += (p2[0] - p1[0]);
-    focus[1] += (p2[1] - p1[1]);
-    focus[2] += (p2[2] - p1[2]);
+    if (!this->IsTranslationConstrained())
+    {
+      v[0] = p2[0] - p1[0];
+      v[1] = p2[1] - p1[1];
+      v[2] = p2[2] - p1[2];
+    }
+    else
+    {
+      assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
+        "this->TranslationAxis out of bounds");
+      v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
+    }
+
+
+    focus[0] += v[0];
+    focus[1] += v[1];
+    focus[2] += v[2];
     focus[3] = 1.0;
 
     // Get the display position that this center would fall on.
@@ -462,56 +478,34 @@ void vtkAbstractPolygonalHandleRepresentation3D
 }
 
 //----------------------------------------------------------------------
-void vtkAbstractPolygonalHandleRepresentation3D::MoveFocus(double *p1, double *p2)
+void vtkAbstractPolygonalHandleRepresentation3D::MoveFocus(const double *p1, const double *p2)
 {
-  //Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
-
-  double focus[3];
-  this->GetWorldPosition( focus );
-  if ( this->ConstraintAxis >= 0 )
-  {
-    focus[this->ConstraintAxis] += v[this->ConstraintAxis];
-  }
-  else
-  {
-    focus[0] += v[0];
-    focus[1] += v[1];
-    focus[2] += v[2];
-  }
-
-  this->SetWorldPosition(focus);
+  this->Translate (p1,p2);
 }
 
 //----------------------------------------------------------------------
 // Translate everything
-void vtkAbstractPolygonalHandleRepresentation3D::Translate(double *p1, double *p2)
+void vtkAbstractPolygonalHandleRepresentation3D::Translate(const double *p1, const double *p2)
 {
   //Get the motion vector
-  double v[3], pos[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
+  double v[3] = {0,0,0}, pos[3];
+  if (!this->IsTranslationConstrained())
+  {
+    v[0] = p2[0] - p1[0];
+    v[1] = p2[1] - p1[1];
+    v[2] = p2[2] - p1[2];
+  }
+  else
+  {
+    assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
+      "this->TranslationAxis out of bounds");
+    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
+  }
 
   this->GetWorldPosition( pos );
   double newFocus[3];
-  int i;
 
-  if ( this->ConstraintAxis >= 0 )
-  {//move along axis
-    for (i=0; i<3; i++)
-    {
-      if ( i != this->ConstraintAxis )
-      {
-        v[i] = 0.0;
-      }
-    }
-  }
-
-  for (i=0; i<3; i++)
+  for (int i=0; i<3; i++)
   {
     newFocus[i] = pos[i] + v[i];
   }
@@ -521,7 +515,7 @@ void vtkAbstractPolygonalHandleRepresentation3D::Translate(double *p1, double *p
 
 //----------------------------------------------------------------------
 void vtkAbstractPolygonalHandleRepresentation3D
-::Scale(double *, double *, double eventPos[2])
+::Scale(const double *, const double *, const double eventPos[2])
 {
   double sf = 1.0 + (eventPos[1] - this->LastEventPosition[1])
                    / this->Renderer->GetSize()[1];

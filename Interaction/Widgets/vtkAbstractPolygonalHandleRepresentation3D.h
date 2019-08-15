@@ -59,6 +59,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
+  using vtkHandleRepresentation::Translate;
+
   //@{
   /**
    * Set the position of the point in world and display coordinates.
@@ -207,9 +209,9 @@ protected:
   vtkTypeBool                  HandleVisibility;
 
   // Methods to manipulate the cursor
-  virtual void Translate(double *p1, double *p2);
-  virtual void Scale(double *p1, double *p2, double eventPos[2]);
-  virtual void MoveFocus(double *p1, double *p2);
+  virtual void Translate(const double* p1, const double* p2) override;
+  virtual void Scale(const double *p1, const double *p2, const double eventPos[2]);
+  virtual void MoveFocus(const double *p1, const double *p2);
 
   void CreateDefaultProperties();
 
@@ -222,8 +224,8 @@ protected:
   // If "SmoothMotion" is OFF, the returned requestedDisplayPos is the same
   // as the event position, ie the location of the mouse cursor. If its OFF,
   // incremental offsets as described above are used to compute it.
-  void MoveFocusRequest( double *p1, double *p2,
-                         double eventPos[2], double requestedDisplayPos[3] );
+  void MoveFocusRequest( const double *p1, const double *p2,
+                         const double eventPos[2], double requestedDisplayPos[3] );
 
   int DetermineConstraintAxis(int constraint, double *x, double *startPickPos);
 

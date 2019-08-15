@@ -157,7 +157,6 @@ protected:
   vtkHandleWidget *Point2Widget; //second end point
   vtkHandleWidget *LineHandle; //used when selecting the line
 
-  char ActiveKeyCode;
   vtkCallbackCommand *KeyEventCallbackCommand;
   static void ProcessKeyEvents(vtkObject *, unsigned long, void *, void *);
 

@@ -305,12 +305,40 @@ public:
   */
   void RegisterPickers() override;
 
+  //@{
+  /**
+   * Gets/Sets the constraint axis for translations. Returns Axis::NONE
+   * if none.
+   **/
+  vtkGetMacro(TranslationAxis, int);
+  vtkSetClampMacro(TranslationAxis, int, -1, 2);
+  //@}
+
+  //@{
+  /**
+   * Toggles constraint translation axis on/off.
+   */
+  void SetXTranslationAxisOn() { this->TranslationAxis = Axis::XAxis; }
+  void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
+  void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
+  void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
+  //@}
+
+  //@{
+  /**
+   * Returns true if ContrainedAxis
+   **/
+  bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
+  //@}
+
 protected:
   vtkSphereRepresentation();
   ~vtkSphereRepresentation() override;
 
   // Manage how the representation appears
   double LastEventPosition[3];
+
+  int TranslationAxis;
 
   // the sphere
   vtkActor            *SphereActor;
@@ -327,9 +355,9 @@ protected:
   double LastPickPosition[3];
 
   // Methods to manipulate the sphere widget
-  void Translate(double *p1, double *p2);
-  void Scale(double *p1, double *p2, int X, int Y);
-  void PlaceHandle(double *center, double radius);
+  void Translate(const double* p1, const double* p2);
+  void Scale(const double* p1, const double* p2, int X, int Y);
+  void PlaceHandle(const double* center, double radius);
   virtual void SizeHandles();
 
   // Method to adapt the center cursor bounds

@@ -65,7 +65,6 @@ vtkSphereHandleRepresentation::vtkSphereHandleRepresentation()
   // The size of the hot spot
   this->HotSpotSize = 0.05;
   this->WaitingForMotion = 0;
-  this->ConstraintAxis = -1;
 
   // Current handle size
   this->HandleSize = 15.0; //in pixels
@@ -198,54 +197,6 @@ int vtkSphereHandleRepresentation::ComputeInteractionState(int X, int Y, int vtk
   return this->InteractionState;
 }
 
-//-------------------------------------------------------------------------
-int vtkSphereHandleRepresentation::DetermineConstraintAxis(int constraint, double *x)
-{
-  // Look for trivial cases
-  if ( ! this->Constrained )
-  {
-    return -1;
-  }
-  else if ( constraint >= 0 && constraint < 3 )
-  {
-    return constraint;
-  }
-
-  // Okay, figure out constraint. First see if the choice is
-  // outside the hot spot
-  if ( ! this->WaitingForMotion )
-  {
-    double p[3], d2, tol;
-    this->CursorPicker->GetPickPosition(p);
-    d2 = vtkMath::Distance2BetweenPoints(p,this->StartEventPosition);
-    tol = this->HotSpotSize*this->InitialLength;
-    if ( d2 > (tol*tol) )
-    {
-      this->WaitingForMotion = 0;
-      return this->CursorPicker->GetCellId();
-    }
-    else
-    {
-      this->WaitingForMotion = 1;
-      this->WaitCount = 0;
-      return -1;
-    }
-  }
-  else if ( this->WaitingForMotion && x )
-  {
-    double v[3];
-    this->WaitingForMotion = 0;
-    v[0] = fabs(x[0] - this->StartEventPosition[0]);
-    v[1] = fabs(x[1] - this->StartEventPosition[1]);
-    v[2] = fabs(x[2] - this->StartEventPosition[2]);
-    return ( v[0]>v[1] ? (v[0]>v[2]?0:2) : (v[1]>v[2]?1:2));
-  }
-  else
-  {
-    return -1;
-  }
-}
-
 //----------------------------------------------------------------------
 // Record the current event position, and the rectilinear wipe position.
 void vtkSphereHandleRepresentation::StartWidgetInteraction(double startEventPos[2])
@@ -264,7 +215,6 @@ void vtkSphereHandleRepresentation::StartWidgetInteraction(double startEventPos[
   {
 //    this->InteractionState = vtkHandleRepresentation::Nearby;
       this->InteractionState = vtkHandleRepresentation::Selecting;
-    this->ConstraintAxis = this->DetermineConstraintAxis(-1,nullptr);
     this->CursorPicker->GetPickPosition(this->LastPickPosition);
   }
   else
@@ -304,8 +254,6 @@ void vtkSphereHandleRepresentation::WidgetInteraction(double eventPos[2])
   {
     if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
     {
-      this->ConstraintAxis =
-        this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint);
       if ( this->InteractionState == vtkHandleRepresentation::Selecting && !this->TranslationMode )
       {
         this->MoveFocus(prevPickPoint, pickPoint);
@@ -328,9 +276,9 @@ void vtkSphereHandleRepresentation::WidgetInteraction(double eventPos[2])
 
   this->Modified();
 }
-
+/*
 //----------------------------------------------------------------------
-void vtkSphereHandleRepresentation::MoveFocus(double *p1, double *p2)
+void vtkSphereHandleRepresentation::MoveFocus(const double *p1, const double *p2)
 {
   //Get the motion vector
   double v[3];
@@ -356,7 +304,7 @@ void vtkSphereHandleRepresentation::MoveFocus(double *p1, double *p2)
 
 //----------------------------------------------------------------------
 // Translate everything
-void vtkSphereHandleRepresentation::Translate(double *p1, double *p2)
+void vtkSphereHandleRepresentation::Translate(const double *p1, const double *p2)
 {
   //Get the motion vector
   double v[3];
@@ -388,6 +336,33 @@ void vtkSphereHandleRepresentation::Translate(double *p1, double *p2)
   radius *= this->CurrentHandleSize / this->HandleSize;
 
   this->Sphere->SetRadius(radius);
+}*/
+
+//----------------------------------------------------------------------
+void vtkSphereHandleRepresentation::MoveFocus(const double* p1, const double* p2)
+{
+  Superclass::Translate(p1, p2);
+}
+
+//----------------------------------------------------------------------
+// Translate everything
+void vtkSphereHandleRepresentation::Translate(const double* p1, const double* p2)
+{
+  double v[3];
+  this->GetTranslationVector(p1, p2, v);
+  double *pos = this->Sphere->GetCenter();
+  double focus[3];
+  for (int i=0; i<3; i++)
+  {
+    focus[i] = pos[i] + v[i];
+  }
+  this->SetWorldPosition(focus);
+
+
+  double radius = this->SizeHandlesInPixels(1.0, focus);
+  radius *= this->CurrentHandleSize / this->HandleSize;
+
+  this->Sphere->SetRadius(radius);
 }
 
 //----------------------------------------------------------------------
@@ -402,7 +377,8 @@ void vtkSphereHandleRepresentation::SizeBounds()
 }
 
 //----------------------------------------------------------------------
-void vtkSphereHandleRepresentation::Scale(double *p1, double *p2, double eventPos[2])
+void vtkSphereHandleRepresentation::Scale(
+  const double* p1, const double* p2, const double eventPos[2])
 {
   //Get the motion vector
   double v[3];

@@ -306,7 +306,8 @@ public:
    * Set if translations should be restricted to one of the axes (disabled if
    * RestrictNone is specified).
    */
-  vtkSetClampMacro(RestrictFlag, int, RestrictNone, RestrictToZ);
+  VTK_LEGACY(void SetRestrictFlag(int restrict_flag));
+
 
 protected:
   vtkLineRepresentation();
@@ -381,7 +382,6 @@ protected:
 
   vtkCellPicker     *LinePicker;
 
-  int RestrictFlag;
 
 private:
   vtkLineRepresentation(const vtkLineRepresentation&) = delete;

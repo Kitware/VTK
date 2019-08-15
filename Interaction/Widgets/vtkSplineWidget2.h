@@ -50,6 +50,12 @@ public:
   }
 
   /**
+   * Override superclasses' SetEnabled() method because the line
+   * widget must enable its internal handle widgets.
+   */
+  void SetEnabled(int enabling) override;
+
+  /**
    * Create the default widget representation if one is not set. By default,
    * this is an instance of the vtkSplineRepresentation class.
    */
@@ -68,6 +74,10 @@ protected:
   static void TranslateAction(vtkAbstractWidget*);
   static void ScaleAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
+
+
+  vtkCallbackCommand *KeyEventCallbackCommand;
+  static void ProcessKeyEvents(vtkObject *, unsigned long, void *, void *);
 
 private:
   vtkSplineWidget2(const vtkSplineWidget2&) = delete;

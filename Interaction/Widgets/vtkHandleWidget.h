@@ -176,6 +176,7 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
   static void SelectAction3D(vtkAbstractWidget*);
   static void MoveAction3D(vtkAbstractWidget*);
+  static void ProcessKeyEvents(vtkObject *, unsigned long, void *, void *);
 
   // helper methods for cursor management
   void SetCursor(int state) override;
@@ -189,6 +190,8 @@ protected:
 
   // Keep representation visible when disabled
   vtkTypeBool ShowInactive;
+
+  vtkCallbackCommand *KeyEventCallbackCommand;
 
 private:
   vtkHandleWidget(const vtkHandleWidget&) = delete;

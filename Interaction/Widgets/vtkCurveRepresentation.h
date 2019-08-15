@@ -253,6 +253,33 @@ public:
   void SetCurrentHandleIndex(int index);
   vtkGetMacro(CurrentHandleIndex, int);
   //@}
+
+  //@{
+  /**
+   * Gets/Sets the constraint axis for translations. Returns Axis::NONE
+   * if none.
+   **/
+  vtkGetMacro(TranslationAxis, int);
+  vtkSetClampMacro(TranslationAxis, int, -1, 2);
+  //@}
+
+  //@{
+  /**
+   * Toggles constraint translation axis on/off.
+   */
+  void SetXTranslationAxisOn() { this->TranslationAxis = Axis::XAxis; }
+  void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
+  void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
+  void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
+  //@}
+
+  //@{
+  /**
+   * Returns true if ContrainedAxis
+   **/
+  bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
+  //@}
+
 protected:
   vtkCurveRepresentation();
   ~vtkCurveRepresentation() override;
@@ -327,6 +354,8 @@ protected:
   // For efficient spinning
   double Centroid[3];
   void CalculateCentroid();
+
+  int TranslationAxis;
 
   class HandleSource : public vtkPolyDataAlgorithm
   {

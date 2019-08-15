@@ -40,6 +40,8 @@
 #include "vtkTransform.h"
 #include "vtkWindow.h"
 
+#include <assert.h>
+
 vtkStandardNewMacro(vtkSphereRepresentation);
 
 //----------------------------------------------------------------------------
@@ -145,6 +147,8 @@ vtkSphereRepresentation::vtkSphereRepresentation()
 
   this->SphereActor->SetProperty(this->SphereProperty);
   this->HandleActor->SetProperty(this->HandleProperty);
+
+  this->TranslationAxis = Axis::NONE;
 }
 
 //----------------------------------------------------------------------------
@@ -249,8 +253,7 @@ void vtkSphereRepresentation::RegisterPickers()
 }
 
 //----------------------------------------------------------------------
-void vtkSphereRepresentation::Scale(double *p1, double *p2,
-                                    int vtkNotUsed(X), int Y)
+void vtkSphereRepresentation::Scale(const double* p1, const double* p2, int vtkNotUsed(X), int Y)
 {
   //Get the motion vector
   double v[3];
@@ -362,15 +365,24 @@ void vtkSphereRepresentation::WidgetInteraction(double e[2])
 
 //----------------------------------------------------------------------------
 // Loop through all points and translate them
-void vtkSphereRepresentation::Translate(double *p1, double *p2)
+void vtkSphereRepresentation::Translate(const double* p1, const double* p2)
 {
   //Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
+  double v[3] = { 0, 0, 0 };
 
-  //int res = this->SphereSource->GetResolution();
+  if (!this->IsTranslationConstrained())
+  {
+    v[0] = p2[0] - p1[0];
+    v[1] = p2[1] - p1[1];
+    v[2] = p2[2] - p1[2];
+  }
+  else
+  {
+    assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
+      "this->TranslationAxis out of bounds");
+    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
+  }
+
   double *center = this->SphereSource->GetCenter();
 
   double center1[3];
@@ -591,7 +603,7 @@ void vtkSphereRepresentation::PlaceWidget(double bds[6])
 }
 
 //----------------------------------------------------------------------------
-void vtkSphereRepresentation::PlaceHandle(double *center, double radius)
+void vtkSphereRepresentation::PlaceHandle(const double* center, double radius)
 {
   double sf = radius / vtkMath::Norm(this->HandleDirection);
 

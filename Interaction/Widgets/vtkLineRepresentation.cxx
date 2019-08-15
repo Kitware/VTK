@@ -144,8 +144,6 @@ vtkLineRepresentation::vtkLineRepresentation()
   this->RepresentationState = vtkLineRepresentation::Outside;
   this->AnnotationTextScaleInitialized = false;
 
-  this->RestrictFlag = RestrictNone;
-
   // Initial creation of the widget, serves to initialize it.
   // Call PlaceWidget() LAST in the constructor, as this method depends on ivar
   // values.
@@ -407,52 +405,20 @@ void vtkLineRepresentation::StartWidgetInteraction(double e[2])
 //----------------------------------------------------------------------
 void vtkLineRepresentation::WidgetInteraction(double e[2])
 {
-  // Process the motion
-  if ( this->InteractionState == vtkLineRepresentation::OnP1 )
+  if ( this->InteractionState == vtkLineRepresentation::OnLine )
   {
-    if (this->RestrictFlag)
-    {
-      double x[3];
-      this->Point1Representation->GetWorldPosition(x);
-      for (int i = 0; i < 3; ++i)
-      {
-        x[i] = (this->RestrictFlag == (i + 1)) ? x[i] : this->StartP1[i];
-      }
-      this->Point1Representation->SetWorldPosition(x);
-    }
-  }
-  else if ( this->InteractionState == vtkLineRepresentation::OnP2 )
-  {
-    if (this->RestrictFlag)
-    {
-      double x[3];
-      this->Point2Representation->GetWorldPosition(x);
-      for (int i = 0; i < 3; ++i)
-      {
-        x[i] = (this->RestrictFlag == (i + 1)) ? x[i] : this->StartP2[i];
-      }
-      this->Point2Representation->SetWorldPosition(x);
-    }
-  }
-  else if ( this->InteractionState == vtkLineRepresentation::OnLine )
-  {
-    double x[3], p1[3], p2[3], delta[3];
+    double x[3], p1[3], p2[3];
 
     // Get the new position
     this->LineHandleRepresentation->GetWorldPosition(x);
 
     // Compute the delta from the previous position
-    delta[0] = x[0] - this->StartLineHandle[0];
-    delta[1] = x[1] - this->StartLineHandle[1];
-    delta[2] = x[2] - this->StartLineHandle[2];
-
-    for (int i=0; i<3; i++)
-    {
-      double d = (!this->RestrictFlag || (this->RestrictFlag == (i + 1))) ?
-                 delta[i] : 0.0;
-      p1[i] = this->StartP1[i] + d;
-      p2[i] = this->StartP2[i] + d;
-    }
+    p1[0] = this->StartP1[0] + x[0] - this->StartLineHandle[0];
+    p1[1] = this->StartP1[1] + x[1] - this->StartLineHandle[1];
+    p1[2] = this->StartP1[2] + x[2] - this->StartLineHandle[2];
+    p2[0] = this->StartP2[0] + x[0] - this->StartLineHandle[0];
+    p2[1] = this->StartP2[1] + x[1] - this->StartLineHandle[1];
+    p2[2] = this->StartP2[2] + x[2] - this->StartLineHandle[2];
 
     this->Point1Representation->SetWorldPosition(p1);
     this->Point2Representation->SetWorldPosition(p2);
@@ -579,11 +545,11 @@ void vtkLineRepresentation::PlaceWidget(double bds[6])
 
 
 //----------------------------------------------------------------------------
-int vtkLineRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
+int vtkLineRepresentation::ComputeInteractionState(int x, int y, int vtkNotUsed(modify))
 {
   // Check if we are on end points. Use the handles to determine this.
-  int p1State = this->Point1Representation->ComputeInteractionState(X,Y,0);
-  int p2State = this->Point2Representation->ComputeInteractionState(X,Y,0);
+  int p1State = this->Point1Representation->ComputeInteractionState(x,y,0);
+  int p2State = this->Point2Representation->ComputeInteractionState(x,y,0);
   if ( p1State == vtkHandleRepresentation::Nearby )
   {
     this->InteractionState = vtkLineRepresentation::OnP1;
@@ -612,8 +578,8 @@ int vtkLineRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(
 
   double p1[3], p2[3], xyz[3];
   double t, closest[3];
-  xyz[0] = static_cast<double>(X);
-  xyz[1] = static_cast<double>(Y);
+  xyz[0] = static_cast<double>(x);
+  xyz[1] = static_cast<double>(y);
   p1[0] = static_cast<double>(pos1[0]);
   p1[1] = static_cast<double>(pos1[1]);
   p2[0] = static_cast<double>(pos2[0]);
@@ -630,7 +596,7 @@ int vtkLineRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(
     this->GetPoint1WorldPosition(pos1);
     this->GetPoint2WorldPosition(pos2);
 
-    this->LinePicker->Pick(X,Y,0.0,this->Renderer);
+    this->LinePicker->Pick(x,y,0.0,this->Renderer);
     this->LinePicker->GetPickPosition(closest);
     this->LineHandleRepresentation->SetWorldPosition(closest);
   }
@@ -997,6 +963,17 @@ vtkMTimeType vtkLineRepresentation::GetMTime()
   return mTime;
 }
 
+#ifndef VTK_LEGACY_REMOVE
+//----------------------------------------------------------------------
+void vtkLineRepresentation::SetRestrictFlag(int restrict_flag)
+{
+  VTK_LEGACY_BODY (vtkLineRepresentation::SetRestricFlag, "VTK 9");
+  this->GetPoint1Representation()->SetTranslationAxis(restrict_flag-1);
+  this->GetPoint2Representation()->SetTranslationAxis(restrict_flag-1);
+  this->GetLineHandleRepresentation()->SetTranslationAxis(restrict_flag-1);
+}
+#endif
+
 //----------------------------------------------------------------------
 void vtkLineRepresentation::SetDistanceAnnotationScale( double scale[3] )
 {
@@ -1101,25 +1078,6 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Representation State: " << this->RepresentationState << "\n";
   os << indent << "Directional Line: " << this->DirectionalLine << "\n";
-  os << indent << "Restring flag: ";
-  switch (this->RestrictFlag)
-  {
-    case RestrictNone:
-      os << "RestrictNone";
-      break;
-    case RestrictToX:
-      os << "RestrictToX";
-      break;
-    case RestrictToY:
-      os << "RestrictToY";
-      break;
-    case RestrictToZ:
-      os << "RestrictToZ";
-      break;
-    default:
-      os << "unexpected value: " << this->RestrictFlag;
-      break;
-  }
   os << "\n";
 
   os << indent << "DistanceAnnotationVisibility: ";

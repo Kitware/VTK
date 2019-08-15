@@ -236,6 +236,13 @@ public:
   */
   virtual void UnRegisterPickers();
 
+  //@{
+  /**
+   * Axis labels
+   */
+  enum Axis{NONE = -1, XAxis = 0, YAxis = 1, ZAxis = 2};
+  //@}
+
 protected:
   vtkWidgetRepresentation();
   ~vtkWidgetRepresentation() override;
