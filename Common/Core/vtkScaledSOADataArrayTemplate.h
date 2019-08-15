@@ -64,9 +64,8 @@ public:
   /**
    * Set/Get the Scale value for the object. The default is 1.
    */
-  inline void SetScale(ValueType scale)
+  void SetScale(ValueType scale)
   {
-    vtkDebugMacro(<< this->GetClassName() << ": setting Scale to " << scale);
     if (scale != this->Scale)
     {
       if (scale == 0)
@@ -80,9 +79,8 @@ public:
       }
     }
   }
-  inline ValueType GetScale() const
+  ValueType GetScale() const
   {
-    vtkDebugMacro(<< this->GetClassName() << ": returning Scale of " << this->Scale );
     return this->Scale;
   }
   //@}

@@ -208,6 +208,7 @@ set(template_classes
 
 set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
+  vtkGenericDataArray.cxx
   vtkSOADataArrayTemplateInstantiate.cxx
   vtkScalarsToColors.cxx
   vtkShortArray.cxx
