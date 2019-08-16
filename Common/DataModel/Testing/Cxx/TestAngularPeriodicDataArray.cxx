@@ -143,6 +143,46 @@ int TestAngularPeriodicDataArray(int, char * [])
       std::abs(pTmp3[6] - 3417.4749403678183626) << " " <<
       std::abs(pTmp3[7] - 2136.7724473977045818) << " " <<
       std::abs(pTmp3[8] - 19.19191919) << " " << dEpsilon << endl;
+      return 1;
   }
+
+  vtkNew<vtkDoubleArray> symTensorArray;
+  vtkNew<vtkAngularPeriodicDataArray<double> > symTensorPArray;
+
+  symTensorArray->SetNumberOfComponents(6);
+
+  double tmp4[9];
+  tmp4[0] = 7.77777777777;
+  tmp4[1] = 12.3;
+  tmp4[2] = 0.95;
+  tmp4[3] = -4.325;
+  tmp4[4] = -0.00023;
+  tmp4[5] = 17.88;
+
+  symTensorArray->InsertNextTuple(tmp4);
+  symTensorPArray->InitializeArray(symTensorArray);
+  symTensorPArray->SetAngle(17);
+  symTensorPArray->SetAxis(VTK_PERIODIC_ARRAY_AXIS_Y);
+  symTensorPArray->SetCenter(tmp);
+
+  double pTmp4[9];
+  symTensorPArray->GetTypedTuple(0, pTmp4);
+  if (std::abs(pTmp4[0] - 17.192500160355802308) >= dEpsilon ||
+      std::abs(pTmp4[1] - -4.1360853150322141047) >= dEpsilon ||
+      std::abs(pTmp4[2] - 12.914169357382020209) >= dEpsilon ||
+      std::abs(pTmp4[3] - -4.1360853150322141047) >= dEpsilon ||
+      std::abs(pTmp4[4] - 12.300000000000000711) >= dEpsilon ||
+      std::abs(pTmp4[5] - 1.2642876728319649704) >= dEpsilon)
+  {
+      cerr.precision(20);
+      cerr << "Error while rotating symmetric tensor : " << std::abs(pTmp4[0] - 17.192500160355802308) << " " <<
+      std::abs(pTmp4[1] - -4.1360853150322141047) << " " <<
+      std::abs(pTmp4[2] - 12.914169357382020209) << " " <<
+      std::abs(pTmp4[3] - -4.1360853150322141047) << " " <<
+      std::abs(pTmp4[4] - 12.300000000000000711) << " " <<
+      std::abs(pTmp4[5] - 1.2642876728319649704) << " " << dEpsilon << endl;
+      return 1;
+  }
+
   return 0;
 }
