@@ -38,320 +38,294 @@ namespace helper
 
 MPI_Comm MPIGetComm()
 {
-    MPI_Comm comm = MPI_COMM_NULL;
-    vtkMultiProcessController *controller =
-        vtkMultiProcessController::GetGlobalController();
-    vtkMPICommunicator *vtkComm =
-        vtkMPICommunicator::SafeDownCast(controller->GetCommunicator());
-    if (vtkComm)
+  MPI_Comm comm = MPI_COMM_NULL;
+  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
+  vtkMPICommunicator* vtkComm = vtkMPICommunicator::SafeDownCast(controller->GetCommunicator());
+  if (vtkComm)
+  {
+    if (vtkComm->GetMPIComm())
     {
-        if (vtkComm->GetMPIComm())
-        {
-            comm = *(vtkComm->GetMPIComm()->GetHandle());
-        }
+      comm = *(vtkComm->GetMPIComm()->GetHandle());
     }
-    return comm;
+  }
+  return comm;
 }
 
 int MPIGetRank()
 {
-    MPI_Comm comm = MPIGetComm();
-    int rank;
-    MPI_Comm_rank(comm, &rank);
-    return rank;
+  MPI_Comm comm = MPIGetComm();
+  int rank;
+  MPI_Comm_rank(comm, &rank);
+  return rank;
 }
 
 int MPIGetSize()
 {
-    MPI_Comm comm = MPIGetComm();
-    int size;
-    MPI_Comm_size(comm, &size);
-    return size;
+  MPI_Comm comm = MPIGetComm();
+  int size;
+  MPI_Comm_size(comm, &size);
+  return size;
 }
 
-pugi::xml_document XMLDocument(const std::string &input, const bool debugMode,
-                               const std::string &hint)
+pugi::xml_document XMLDocument(
+  const std::string& input, const bool debugMode, const std::string& hint)
 {
-    pugi::xml_document document;
+  pugi::xml_document document;
 
-    pugi::xml_parse_result result =
-        document.load_buffer(const_cast<char *>(input.data()), input.size());
+  pugi::xml_parse_result result =
+    document.load_buffer(const_cast<char*>(input.data()), input.size());
 
-    if (debugMode)
+  if (debugMode)
+  {
+    if (!result)
     {
-        if (!result)
-        {
-            throw std::invalid_argument(
-                "ERROR: XML: parse error in XML string, description: " +
-                std::string(result.description()) +
-                ", check with any XML editor if format is ill-formed, " + hint +
-                "\n");
-        }
+      throw std::invalid_argument(
+        "ERROR: XML: parse error in XML string, description: " + std::string(result.description()) +
+        ", check with any XML editor if format is ill-formed, " + hint + "\n");
     }
-    return document;
+  }
+  return document;
 }
 
-pugi::xml_node XMLNode(const std::string nodeName,
-                       const pugi::xml_document &xmlDocument,
-                       const bool debugMode, const std::string &hint,
-                       const bool isMandatory, const bool isUnique)
+pugi::xml_node XMLNode(const std::string nodeName, const pugi::xml_document& xmlDocument,
+  const bool debugMode, const std::string& hint, const bool isMandatory, const bool isUnique)
 {
-    const pugi::xml_node node = xmlDocument.child(nodeName.c_str());
+  const pugi::xml_node node = xmlDocument.child(nodeName.c_str());
 
-    if (debugMode)
+  if (debugMode)
+  {
+    if (isMandatory && !node)
     {
-        if (isMandatory && !node)
-        {
-            throw std::invalid_argument("ERROR: XML: no <" + nodeName +
-                                        "> element found, " + hint);
-        }
-
-        if (isUnique)
-        {
-            const size_t nodes =
-                std::distance(xmlDocument.children(nodeName.c_str()).begin(),
-                              xmlDocument.children(nodeName.c_str()).end());
-            if (nodes > 1)
-            {
-                throw std::invalid_argument("ERROR: XML only one <" + nodeName +
-                                            "> element can exist inside " +
-                                            std::string(xmlDocument.name()) +
-                                            ", " + hint + "\n");
-            }
-        }
+      throw std::invalid_argument("ERROR: XML: no <" + nodeName + "> element found, " + hint);
     }
-    return node;
+
+    if (isUnique)
+    {
+      const size_t nodes = std::distance(xmlDocument.children(nodeName.c_str()).begin(),
+        xmlDocument.children(nodeName.c_str()).end());
+      if (nodes > 1)
+      {
+        throw std::invalid_argument("ERROR: XML only one <" + nodeName +
+          "> element can exist inside " + std::string(xmlDocument.name()) + ", " + hint + "\n");
+      }
+    }
+  }
+  return node;
 }
 
-pugi::xml_node XMLNode(const std::string nodeName,
-                       const pugi::xml_node &upperNode, const bool debugMode,
-                       const std::string &hint, const bool isMandatory,
-                       const bool isUnique)
+pugi::xml_node XMLNode(const std::string nodeName, const pugi::xml_node& upperNode,
+  const bool debugMode, const std::string& hint, const bool isMandatory, const bool isUnique)
 {
-    const pugi::xml_node node = upperNode.child(nodeName.c_str());
+  const pugi::xml_node node = upperNode.child(nodeName.c_str());
 
-    if (debugMode)
+  if (debugMode)
+  {
+    if (isMandatory && !node)
     {
-        if (isMandatory && !node)
-        {
-            throw std::invalid_argument(
-                "ERROR: XML: no <" + nodeName + "> element found, inside <" +
-                std::string(upperNode.name()) + "> element " + hint);
-        }
-
-        if (isUnique)
-        {
-            const size_t nodes =
-                std::distance(upperNode.children(nodeName.c_str()).begin(),
-                              upperNode.children(nodeName.c_str()).end());
-            if (nodes > 1)
-            {
-                throw std::invalid_argument("ERROR: XML only one <" + nodeName +
-                                            "> element can exist inside <" +
-                                            std::string(upperNode.name()) +
-                                            "> element, " + hint + "\n");
-            }
-        }
+      throw std::invalid_argument("ERROR: XML: no <" + nodeName + "> element found, inside <" +
+        std::string(upperNode.name()) + "> element " + hint);
     }
-    return node;
+
+    if (isUnique)
+    {
+      const size_t nodes = std::distance(
+        upperNode.children(nodeName.c_str()).begin(), upperNode.children(nodeName.c_str()).end());
+      if (nodes > 1)
+      {
+        throw std::invalid_argument("ERROR: XML only one <" + nodeName +
+          "> element can exist inside <" + std::string(upperNode.name()) + "> element, " + hint +
+          "\n");
+      }
+    }
+  }
+  return node;
 }
 
-pugi::xml_attribute XMLAttribute(const std::string attributeName,
-                                 const pugi::xml_node &node,
-                                 const bool debugMode, const std::string &hint,
-                                 const bool isMandatory)
+pugi::xml_attribute XMLAttribute(const std::string attributeName, const pugi::xml_node& node,
+  const bool debugMode, const std::string& hint, const bool isMandatory)
 {
-    const pugi::xml_attribute attribute = node.attribute(attributeName.c_str());
+  const pugi::xml_attribute attribute = node.attribute(attributeName.c_str());
 
-    if (debugMode)
+  if (debugMode)
+  {
+    if (isMandatory && !attribute)
     {
-        if (isMandatory && !attribute)
-        {
-            const std::string nodeName(node.name());
+      const std::string nodeName(node.name());
 
-            throw std::invalid_argument("ERROR: XML: No attribute " +
-                                        attributeName + " found on <" +
-                                        nodeName + "> element" + hint);
-        }
+      throw std::invalid_argument("ERROR: XML: No attribute " + attributeName + " found on <" +
+        nodeName + "> element" + hint);
     }
-    return attribute;
+  }
+  return attribute;
 }
 
-types::DataSet XMLInitDataSet(const pugi::xml_node &dataSetNode,
-                              const std::set<std::string> &specialNames)
+types::DataSet XMLInitDataSet(
+  const pugi::xml_node& dataSetNode, const std::set<std::string>& specialNames)
 {
-    types::DataSet dataSet;
+  types::DataSet dataSet;
 
-    for (const pugi::xml_node &dataArrayNode : dataSetNode)
+  for (const pugi::xml_node& dataArrayNode : dataSetNode)
+  {
+    const pugi::xml_attribute xmlName = XMLAttribute(
+      "Name", dataArrayNode, true, "when parsing Name attribute in ADIOS2 VTK XML schema", true);
+    auto result = dataSet.emplace(xmlName.value(), types::DataArray());
+    types::DataArray& dataArray = result.first->second;
+
+    // handle special names
+    const std::string name(xmlName.value());
+    auto itSpecialName = specialNames.find(name);
+    const bool isSpecialName = (itSpecialName != specialNames.end()) ? true : false;
+    if (isSpecialName)
     {
-        const pugi::xml_attribute xmlName = XMLAttribute(
-            "Name", dataArrayNode, true,
-            "when parsing Name attribute in ADIOS2 VTK XML schema", true);
-        auto result = dataSet.emplace(xmlName.value(), types::DataArray());
-        types::DataArray &dataArray = result.first->second;
-
-        // handle special names
-        const std::string name(xmlName.value());
-        auto itSpecialName = specialNames.find(name);
-        const bool isSpecialName =
-            (itSpecialName != specialNames.end()) ? true : false;
-        if (isSpecialName)
-        {
-            const std::string specialName = *itSpecialName;
-            if (specialName == "connectivity")
-            {
-                dataArray.IsIdType = true;
-                dataArray.Persist = true;
-            }
-            else if (specialName == "vertices")
-            {
-                dataArray.HasTuples = true;
-                dataArray.Persist = true;
-            }
-            else if (specialName == "types")
-            {
-                dataArray.Persist = true;
-            }
-        }
-
-        // not mandatory
-        const pugi::xml_attribute xmlNumberOfComponents =
-            XMLAttribute("NumberOfComponents", dataArrayNode, true,
-                         "when parsing NumberOfComponents attribute in ADIOS2 "
-                         "VTK XML schema",
-                         false);
-
-        // TODO enable vector support
-        if (!xmlNumberOfComponents && !isSpecialName)
-        {
-            continue;
-        }
-
-        // these are node_pcdata
-        for (const pugi::xml_node &componentNode : dataArrayNode)
-        {
-            if (componentNode.type() != pugi::node_pcdata)
-            {
-                throw std::runtime_error(
-                    "ERROR: NumberOfComponents attribute found, but "
-                    "component " +
-                    std::string(componentNode.name()) + " in node " +
-                    std::string(dataArrayNode.value()) +
-                    " is not of plain data type in ADIOS2 VTK XML schema\n");
-            }
-            // TRIM
-            std::string variablePCData(componentNode.value());
-            variablePCData.erase(0,
-                                 variablePCData.find_first_not_of(" \n\r\t"));
-            variablePCData.erase(variablePCData.find_last_not_of(" \n\r\t") +
-                                 1);
-
-            dataArray.VectorVariables.push_back(variablePCData);
-        }
-
-        if (xmlNumberOfComponents)
-        {
-            const size_t components =
-                static_cast<size_t>(std::stoull(xmlNumberOfComponents.value()));
-            if (dataArray.VectorVariables.size() != components)
-            {
-                throw std::runtime_error(
-                    "ERROR: NumberOfComponents " + std::to_string(components) +
-                    " and variable names found " +
-                    std::to_string(dataArray.VectorVariables.size()) +
-                    " inside DataArray node " + std::string(xmlName.name()) +
-                    " in ADIOS2 VTK XML schema");
-            }
-        }
-
-        if (dataArray.IsScalar() && (name == "TIME" || name == "CYCLE"))
-        {
-            throw std::invalid_argument(
-                "ERROR: data array " + name +
-                " expected to have a least one component, in ADIOS2 VTK XML "
-                "schema\n");
-        }
+      const std::string specialName = *itSpecialName;
+      if (specialName == "connectivity")
+      {
+        dataArray.IsIdType = true;
+        dataArray.Persist = true;
+      }
+      else if (specialName == "vertices")
+      {
+        dataArray.HasTuples = true;
+        dataArray.Persist = true;
+      }
+      else if (specialName == "types")
+      {
+        dataArray.Persist = true;
+      }
     }
 
-    return dataSet;
+    // not mandatory
+    const pugi::xml_attribute xmlNumberOfComponents =
+      XMLAttribute("NumberOfComponents", dataArrayNode, true,
+        "when parsing NumberOfComponents attribute in ADIOS2 "
+        "VTK XML schema",
+        false);
+
+    // TODO enable vector support
+    if (!xmlNumberOfComponents && !isSpecialName)
+    {
+      continue;
+    }
+
+    // these are node_pcdata
+    for (const pugi::xml_node& componentNode : dataArrayNode)
+    {
+      if (componentNode.type() != pugi::node_pcdata)
+      {
+        throw std::runtime_error("ERROR: NumberOfComponents attribute found, but "
+                                 "component " +
+          std::string(componentNode.name()) + " in node " + std::string(dataArrayNode.value()) +
+          " is not of plain data type in ADIOS2 VTK XML schema\n");
+      }
+      // TRIM
+      std::string variablePCData(componentNode.value());
+      variablePCData.erase(0, variablePCData.find_first_not_of(" \n\r\t"));
+      variablePCData.erase(variablePCData.find_last_not_of(" \n\r\t") + 1);
+
+      dataArray.VectorVariables.push_back(variablePCData);
+    }
+
+    if (xmlNumberOfComponents)
+    {
+      const size_t components = static_cast<size_t>(std::stoull(xmlNumberOfComponents.value()));
+      if (dataArray.VectorVariables.size() != components)
+      {
+        throw std::runtime_error("ERROR: NumberOfComponents " + std::to_string(components) +
+          " and variable names found " + std::to_string(dataArray.VectorVariables.size()) +
+          " inside DataArray node " + std::string(xmlName.name()) + " in ADIOS2 VTK XML schema");
+      }
+    }
+
+    if (dataArray.IsScalar() && (name == "TIME" || name == "CYCLE"))
+    {
+      throw std::invalid_argument("ERROR: data array " + name +
+        " expected to have a least one component, in ADIOS2 VTK XML "
+        "schema\n");
+    }
+  }
+
+  return dataSet;
 }
 
-std::string FileToString(const std::string &fileName)
+std::string FileToString(const std::string& fileName)
 {
-    std::ifstream file(fileName);
-    std::stringstream schemaSS;
-    schemaSS << file.rdbuf();
-    return schemaSS.str();
+  std::ifstream file(fileName);
+  std::stringstream schemaSS;
+  schemaSS << file.rdbuf();
+  return schemaSS.str();
 }
 
-std::string SetToCSV(const std::set<std::string> &input) noexcept
+std::string SetToCSV(const std::set<std::string>& input) noexcept
 {
-    std::string csv = "{ ";
-    for (const std::string &el : input)
-    {
-        csv += el + ", ";
-    }
-    if (input.size() > 0)
-    {
-        csv.pop_back();
-        csv.pop_back();
-        csv += " }";
-    }
-    return csv;
+  std::string csv = "{ ";
+  for (const std::string& el : input)
+  {
+    csv += el + ", ";
+  }
+  if (input.size() > 0)
+  {
+    csv.pop_back();
+    csv.pop_back();
+    csv += " }";
+  }
+  return csv;
 }
 
 // allowed types
-template std::vector<size_t> StringToVector<size_t>(const std::string &);
-template std::vector<int> StringToVector<int>(const std::string &);
-template std::vector<double> StringToVector<double>(const std::string &);
+template std::vector<std::size_t> StringToVector<std::size_t>(const std::string&);
+template std::vector<int> StringToVector<int>(const std::string&);
+template std::vector<double> StringToVector<double>(const std::string&);
 
-std::size_t TotalElements(const std::vector<std::size_t> &dimensions) noexcept
+std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept
 {
-    return std::accumulate(dimensions.begin(), dimensions.end(), 1,
-                           std::multiplies<std::size_t>());
+  return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<std::size_t>());
 }
 
 // allowed types
+template vtkSmartPointer<vtkDataArray> NewDataArray<int>();
+template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned int>();
+template vtkSmartPointer<vtkDataArray> NewDataArray<long int>();
+template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long int>();
+template vtkSmartPointer<vtkDataArray> NewDataArray<long long int>();
+template vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long long int>();
 template vtkSmartPointer<vtkDataArray> NewDataArray<float>();
 template vtkSmartPointer<vtkDataArray> NewDataArray<double>();
 
-adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims &shape)
+adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims& shape)
 {
-    adios2::Box<adios2::Dims> selection({adios2::Dims(shape.size(), 0), shape});
+  adios2::Box<adios2::Dims> selection({ adios2::Dims(shape.size(), 0), shape });
 
-    const size_t mpiRank = static_cast<size_t>(MPIGetRank());
-    const size_t mpiSize = static_cast<size_t>(MPIGetSize());
+  const size_t mpiRank = static_cast<size_t>(MPIGetRank());
+  const size_t mpiSize = static_cast<size_t>(MPIGetSize());
 
-    // slowest index
-    if (shape[0] >= mpiSize)
-    {
-        const size_t elements = shape[0] / mpiSize;
-        // start
-        selection.first[0] = mpiRank * elements;
-        // count
-        selection.second[0] =
-            (mpiRank == mpiSize - 1) ? elements + shape[0] % mpiSize : elements;
-    }
+  // slowest index
+  if (shape[0] >= mpiSize)
+  {
+    const size_t elements = shape[0] / mpiSize;
+    // start
+    selection.first[0] = mpiRank * elements;
+    // count
+    selection.second[0] = (mpiRank == mpiSize - 1) ? elements + shape[0] % mpiSize : elements;
+  }
 
-    return selection;
+  return selection;
 }
 
-size_t LinearizePoint(const adios2::Dims &shape,
-                      const adios2::Dims &point) noexcept
+size_t LinearizePoint(const adios2::Dims& shape, const adios2::Dims& point) noexcept
 {
-    const size_t i = point[0];
-    const size_t j = point[1];
-    const size_t k = point[2];
+  const size_t i = point[0];
+  const size_t j = point[1];
+  const size_t k = point[2];
 
-    const size_t Ny = shape[1];
-    const size_t Nz = shape[2];
+  const size_t Ny = shape[1];
+  const size_t Nz = shape[2];
 
-    return i * Ny * Nz + j * Nz + k;
+  return i * Ny * Nz + j * Nz + k;
 }
 
 vtkSmartPointer<vtkIdTypeArray> NewDataArrayIdType()
 {
-    return vtkSmartPointer<vtkIdTypeArray>::New();
+  return vtkSmartPointer<vtkIdTypeArray>::New();
 }
 
 } // end helper namespace

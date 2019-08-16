@@ -29,63 +29,77 @@
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedLongLongArray.h"
 
 namespace vtx
 {
 namespace helper
 {
 
-template <class T>
-std::vector<T> StringToVector(const std::string &input) noexcept
+template<class T>
+std::vector<T> StringToVector(const std::string& input) noexcept
 {
-    std::vector<T> output;
-    std::istringstream inputSS(input);
+  std::vector<T> output;
+  std::istringstream inputSS(input);
 
-    T record;
-    while (inputSS >> record)
-    {
-        output.push_back(record);
-    }
-    return output;
+  T record;
+  while (inputSS >> record)
+  {
+    output.push_back(record);
+  }
+  return output;
 }
 
 // TODO: extend other types
-template <>
-vtkSmartPointer<vtkDataArray> NewDataArray<unsigned int>()
-{
-    return vtkSmartPointer<vtkUnsignedIntArray>::New();
-}
-
-template <>
+template<>
 vtkSmartPointer<vtkDataArray> NewDataArray<int>()
 {
-    return vtkSmartPointer<vtkIntArray>::New();
+  return vtkSmartPointer<vtkIntArray>::New();
 }
 
-template <>
+template<>
+vtkSmartPointer<vtkDataArray> NewDataArray<unsigned int>()
+{
+  return vtkSmartPointer<vtkUnsignedIntArray>::New();
+}
+
+template<>
 vtkSmartPointer<vtkDataArray> NewDataArray<long int>()
 {
-    return vtkSmartPointer<vtkLongArray>::New();
+  return vtkSmartPointer<vtkLongArray>::New();
 }
 
-template <>
+template<>
 vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long int>()
 {
-    return vtkSmartPointer<vtkUnsignedLongArray>::New();
+  return vtkSmartPointer<vtkUnsignedLongArray>::New();
 }
 
-template <>
+template<>
+vtkSmartPointer<vtkDataArray> NewDataArray<long long int>()
+{
+  return vtkSmartPointer<vtkLongLongArray>::New();
+}
+
+template<>
+vtkSmartPointer<vtkDataArray> NewDataArray<unsigned long long int>()
+{
+  return vtkSmartPointer<vtkUnsignedLongLongArray>::New();
+}
+
+template<>
 vtkSmartPointer<vtkDataArray> NewDataArray<float>()
 {
-    return vtkSmartPointer<vtkFloatArray>::New();
+  return vtkSmartPointer<vtkFloatArray>::New();
 }
 
-template <>
+template<>
 vtkSmartPointer<vtkDataArray> NewDataArray<double>()
 {
-    return vtkSmartPointer<vtkDoubleArray>::New();
+  return vtkSmartPointer<vtkDoubleArray>::New();
 }
 
 } // end namespace helper
