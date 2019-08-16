@@ -217,17 +217,6 @@ void vtkHyperTreeGridPlaneCutter::Reset()
 int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
                                                vtkDataObject* outputDO )
 {
-  if (input)
-  {
-    if (input->GetExtent()[0] > input->GetExtent()[1]
-        || input->GetExtent()[2] > input->GetExtent()[3]
-        || input->GetExtent()[4] > input->GetExtent()[5])
-    {
-      // Data is not initialized, that can occur while using MPI, just ignore such data
-      return 1;
-    }
-  }
-  // Downcast output data object to polygonal data set
   vtkPolyData* output = vtkPolyData::SafeDownCast( outputDO );
   if ( ! output )
   {

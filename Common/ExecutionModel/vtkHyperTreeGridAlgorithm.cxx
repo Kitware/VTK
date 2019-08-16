@@ -262,7 +262,11 @@ int vtkHyperTreeGridAlgorithm::RequestData( vtkInformation* vtkNotUsed(request),
   this->OutData = nullptr; //JB Pourquoi mettre au niveau de Algorithm le OutData ?
 
   // Process all trees in input grid and generate input data object
-  if ( ! this->ProcessTrees( input, outputDO ) )
+  // only if extents are correct
+  if ( (input->GetExtent()[0] <= input->GetExtent()[1] ||
+        input->GetExtent()[2] <= input->GetExtent()[3] ||
+        input->GetExtent()[4] <= input->GetExtent()[5] ) &&
+      ! this->ProcessTrees( input, outputDO ) )
   {
     return 0;
   }

@@ -333,6 +333,31 @@ void vtkUniformHyperTreeGrid::GetLevelZeroOriginAndSizeFromIndex(
 }
 
 //-----------------------------------------------------------------------------
+void vtkUniformHyperTreeGrid::Initialize()
+{
+  this->Superclass::Initialize();
+ // Default dimension
+  this->Dimension = 3;
+
+  // Default grid origin
+  this->Origin[0] = 0.;
+  this->Origin[1] = 0.;
+  this->Origin[2] = 0.;
+
+  // Default element sizes
+  this->GridScale[0] = 1.;
+  this->GridScale[1] = 1.;
+  this->GridScale[2] = 1.;
+
+  this->WithCoordinates = false;
+
+  // Coordinates have not been computed yet
+  this->ComputedXCoordinates = false;
+  this->ComputedYCoordinates = false;
+  this->ComputedZCoordinates = false;
+}
+
+//-----------------------------------------------------------------------------
 void vtkUniformHyperTreeGrid::GetLevelZeroOriginFromIndex(vtkIdType treeindex, double* m_Origin)
 {
   // Retrieve Cartesian coordinates of root tree
