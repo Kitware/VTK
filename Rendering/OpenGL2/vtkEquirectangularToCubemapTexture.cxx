@@ -102,8 +102,8 @@ void vtkEquirectangularToCubemapTexture::Load(vtkRenderer* ren)
 
     vtkNew<vtkOpenGLFramebufferObject> fbo;
     fbo->SetContext(renWin);
-    fbo->Bind();
     fbo->SaveCurrentBindingsAndBuffers();
+    fbo->Bind();
 
     for (int i = 0; i < 6; i++)
     {
