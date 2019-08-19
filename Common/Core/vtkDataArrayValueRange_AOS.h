@@ -47,26 +47,31 @@ template <typename ValueTypeT,
           ComponentIdType TupleSize>
 struct ValueRange<vtkAOSDataArrayTemplate<ValueTypeT>, TupleSize>
 {
-  using ArrayType = vtkAOSDataArrayTemplate<ValueTypeT>;
-  using ComponentType = ValueTypeT;
-  using ValueType = ValueTypeT;
-
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
 
-  using APIType = GetAPIType<ArrayType>;
   using IdStorageType = IdStorage<TupleSize>;
   using NumCompsType = GenericTupleSize<TupleSize>;
 
 public:
+  using ArrayType = vtkAOSDataArrayTemplate<ValueTypeT>;
+  using ValueType = ValueTypeT;
+
+  using IteratorType = ValueType*;
+  using ConstIteratorType = ValueType const*;
+  using ReferenceType = ValueType&;
+  using ConstReferenceType = ValueType const&;
 
   // May be DynamicTupleSize, or the actual tuple size.
   constexpr static ComponentIdType TupleSizeTag = TupleSize;
 
+  // STL-compat
   using value_type = ValueType;
   using size_type = ValueIdType;
-  using iterator = ValueType*;
-  using const_iterator = const ValueType*;
+  using iterator = IteratorType;
+  using const_iterator = ConstIteratorType;
+  using reference = ReferenceType;
+  using const_reference = ConstReferenceType;
 
   VTK_ITER_INLINE
   ValueRange(ArrayType *arr,
@@ -121,8 +126,19 @@ public:
   VTK_ITER_INLINE
   const_iterator cend() const noexcept { return this->End; }
 
+  VTK_ITER_INLINE
+  reference operator[](size_type i) noexcept
+  {
+    return this->Begin[i];
+  }
+  VTK_ITER_INLINE
+  const_reference operator[](size_type i) const noexcept
+  {
+    return this->Begin[i];
+  }
+
 private:
-  mutable vtkSmartPointer<ArrayType> Array;
+  mutable ArrayType *Array;
   NumCompsType NumComps;
   ValueType* Begin;
   ValueType* End;

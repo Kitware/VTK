@@ -36,7 +36,7 @@
 // Specifically:
 // - Specializations are disabled (All code uses the generic implementation).
 // - Additional assertions are inserted to ensure correct runtime usage.
-// - Perfomance-related annotations (e.g. force inlining) are disabled.
+// - Performance-related annotations (e.g. force inlining) are disabled.
 #if defined(VTK_DEBUG_RANGE_ITERATORS)
 #define VTK_ITER_ASSERT(x, msg) assert((x) && msg)
 #else

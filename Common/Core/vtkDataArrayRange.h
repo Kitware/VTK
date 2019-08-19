@@ -145,25 +145,62 @@ public:
  *
  * There is a compiler definition / CMake option called
  * `VTK_DEBUG_RANGE_ITERATORS` that enables checks for proper usage of the
- * range/iterator/reference classes. This slow things down significantly, but is
- * useful for diagnosing problems.
+ * range/iterator/reference classes. This slows things down significantly, but
+ * is useful for diagnosing problems.
  *
  * In some situations, developers may want to build in Debug mode while still
  * maintaining decent performance for data-heavy computations. For these
- * usecases, and additional CMake option `VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS`
+ * usecases, an additional CMake option `VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS`
  * may be enabled to force optimization of code using these iterators. This
  * option will force inlining and enable -O3 (or equivalent) optimization level
  * for iterator code when compiling on platforms that support these features.
  * This option has no effect when `VTK_DEBUG_RANGE_ITERATORS` is enabled.
  *
- * @note References obtained through iterators are invalidated when the iterator
- * is modified.
+ * @warning Use caution when using `auto` to hold values or references obtained
+ * from iterators, as they may not behave as expected. This is a deficiency in
+ * C++ that affects all proxy iterators (such as those from `vector<bool>`)
+ * that use a reference object instead of an actual C++ reference type. When in
+ * doubt, use `std::iterator_traits` (along with decltype) or the typedefs
+ * listed below to determine the proper value/reference type to use.
  *
- * @note `operator[]` is disabled for the iterators and tuple reference types,
- * as they cannot be implemented for vtkDataArray without dangling references.
- * These index operations may still be accessible when used with other array
- * classes, but their use is discouraged to ensure portability and any code
- * using them will not compile with VTK_DEBUG_RANGE_ITERATORS defined.
+ * To mitigate this, the following types are defined on the range object:
+ * - `Range::TupleIteratorType`: Iterator that visits tuples.
+ * - `Range::ConstTupleIteratorType`: Const iterator that visits tuples.
+ * - `Range::TupleReferenceType`: Mutable tuple proxy reference.
+ * - `Range::ConstTupleReferenceType`: Const tuple proxy reference.
+ * - `Range::ComponentIteratorType`: Iterator that visits components in a tuple.
+ * - `Range::ConstComponentIteratorType`: Const iterator that visits tuple components.
+ * - `Range::ComponentReferenceType`: Reference proxy to a single tuple component.
+ * - `Range::ConstComponentReferenceType`: Const reference proxy to a single tuple component.
+ * - `Range::ComponentType`: `ValueType` of components.
+ *
+ * These can be accessed via the range objects, e.g.:
+ *
+ * ```
+ * auto range = vtk::DataArrayTupleRange(array);
+ *
+ * using TupleRef = typename decltype(range)::TupleReferenceType;
+ * using ComponentRef = typename decltype(range)::ComponentReferenceType;
+ *
+ * for (TupleRef tuple : range)
+ * {
+ *   for (ComponentRef comp : tuple)
+ *   {
+ *     comp = comp - 1; // Array is modified.
+ *   }
+ * }
+ *
+ * using ConstTupleRef = typename decltype(range)::ConstTupleReferenceType;
+ * using ComponentType = typename decltype(range)::ComponentType;
+ *
+ * for (ConstTupleRef tuple : range)
+ * {
+ *   for (ComponentType comp : tuple)
+ *   {
+ *     comp = comp - 1; // Array is not modified.
+ *   }
+ * }
+ * ```
  */
 template <ComponentIdType TupleSize = detail::DynamicTupleSize,
           typename ArrayTypePtr = vtkDataArray*>
@@ -189,8 +226,8 @@ auto DataArrayTupleRange(const ArrayTypePtr& array,
  * from a vtkDataArray.
  *
  * This function returns a ValueRange object that is compatible with C++11
- * for-range syntax. The array is traverse as if calling
- * vtkGenericDataArray::GetValue with consecutive, increase indices. As an
+ * for-range syntax. The array is traversed as if calling
+ * vtkGenericDataArray::GetValue with consecutive, increasing indices. As an
  * example usage, consider a function that takes some instance of vtkDataArray
  * (or a subclass) and sums the values it contains:
  *
@@ -201,11 +238,22 @@ auto DataArrayTupleRange(const ArrayTypePtr& array,
  *   using T = vtk::GetAPIType<ArrayType>;
  *
  *   T sum = 0.;
- *   for (const auto& val : vtk::DataArrayValueType(array))
+ *   for (const auto& val : vtk::DataArrayValueRange(array))
  *   {
  *     sum += val;
  *   }
  *   return sum;
+ * }
+ * ```
+ *
+ * These ranges may also be used with STL algorithms:
+ *
+ * ```
+ * template <typename ArrayType>
+ * auto ComputeSum(ArrayType *array) -> vtk::GetAPIType<ArrayType>
+ * {
+ *   const auto range = vtk::DataArrayValueRange(array);
+ *   return std::accumulate(range.begin(), range.end(), 0);
  * }
  * ```
  *
@@ -226,25 +274,50 @@ auto DataArrayTupleRange(const ArrayTypePtr& array,
  *
  * There is a compiler definition / CMake option called
  * `VTK_DEBUG_RANGE_ITERATORS` that enables checks for proper usage of the
- * range/iterator/reference classes. This slow things down significantly, but is
- * useful for diagnosing problems.
+ * range/iterator/reference classes. This slows things down significantly, but
+ * is useful for diagnosing problems.
  *
  * In some situations, developers may want to build in Debug mode while still
  * maintaining decent performance for data-heavy computations. For these
- * usecases, and additional CMake option `VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS`
+ * usecases, an additional CMake option `VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS`
  * may be enabled to force optimization of code using these iterators. This
  * option will force inlining and enable -O3 (or equivalent) optimization level
  * for iterator code when compiling on platforms that support these features.
  * This option has no effect when `VTK_DEBUG_RANGE_ITERATORS` is enabled.
  *
- * @note References obtained through iterators are invalidated when the iterator
- * is modified.
+ * @warning Use caution when using `auto` to hold values or references obtained
+ * from iterators, as they may not behave as expected. This is a deficiency in
+ * C++ that affects all proxy iterators (such as those from `vector<bool>`)
+ * that use a reference object instead of an actual C++ reference type. When in
+ * doubt, use `std::iterator_traits` (along with decltype) or the typedefs
+ * listed below to determine the proper value/reference type to use.
  *
- * @note `operator[]` is disabled for the iterators and tuple reference types,
- * as they cannot be implemented for vtkDataArray without dangling references.
- * These index operations may still be accessible when used with other array
- * classes, but their use is discouraged to ensure portability and any code
- * using them will not compile with VTK_DEBUG_RANGE_ITERATORS defined.
+ * To mitigate this, the following types are defined on the range object:
+ * - `Range::IteratorType`: Iterator that visits values in AOS order.
+ * - `Range::ConstIteratorType`: Const iterator that visits values in AOS order.
+ * - `Range::ReferenceType`: Mutable value proxy reference.
+ * - `Range::ConstReferenceType`: Const value proxy reference.
+ * - `Range::ValueType`: `ValueType` of array's API.
+ *
+ * These can be accessed via the range objects, e.g.:
+ *
+ * ```
+ * auto range = vtk::DataArrayValueRange(array);
+ *
+ * using RefType = typename decltype(range)::ReferenceType;
+ *
+ * for (RefType value : range)
+ * {
+ *   value = value - 1; // Array is modified.
+ * }
+ *
+ * using ComponentType = typename decltype(range)::ComponentType;
+ *
+ * for (ComponentType value : range)
+ * {
+ *   value = value - 1; // Array is not modified.
+ * }
+ * ```
  */
 template <ComponentIdType TupleSize = detail::DynamicTupleSize,
           typename ArrayTypePtr = vtkDataArray*>
