@@ -146,7 +146,7 @@ Transform(Scalar* pos) const
     vtkMatrix3x3::Transpose(this->RotationMatrix->GetData(), tmpMat);
     vtkMatrix3x3::Multiply3x3(this->RotationMatrix->GetData(), localPos, tmpMat2);
     vtkMatrix3x3::Multiply3x3(tmpMat2, tmpMat, localPos);
-    std::copy(localPos, localPos + 9, pos);
+    std::copy(localPos, localPos + this->NumberOfComponents, pos);
   }
 }
 
