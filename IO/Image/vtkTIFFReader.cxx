@@ -13,21 +13,18 @@
 
 =========================================================================*/
 #include "vtkTIFFReader.h"
+#include "vtkTIFFReaderInternal.h"
 
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 #include "vtkErrorCode.h"
 #include "vtkObjectFactory.h"
-
 #include "vtksys/SystemTools.hxx"
 
 #include <string>
 #include <algorithm>
 
-extern "C" {
-#include "vtk_tiff.h"
-}
 
 namespace {
 struct FlipTrue {};
@@ -140,42 +137,6 @@ bool ReadTemplatedImage(T* out, Flip flip,
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader)
-
-class vtkTIFFReader::vtkTIFFReaderInternal
-{
-public:
-  vtkTIFFReaderInternal();
-  bool Initialize();
-  void Clean();
-  bool CanRead();
-  bool Open(const char *filename);
-  TIFF *Image;
-  bool IsOpen;
-  unsigned int Width;
-  unsigned int Height;
-  unsigned short NumberOfPages;
-  unsigned short CurrentPage;
-  unsigned short SamplesPerPixel;
-  unsigned short Compression;
-  unsigned short BitsPerSample;
-  unsigned short Photometrics;
-  bool HasValidPhotometricInterpretation;
-  unsigned short PlanarConfig;
-  unsigned short Orientation;
-  unsigned long int TileDepth;
-  unsigned int TileRows;
-  unsigned int TileColumns;
-  unsigned int TileWidth;
-  unsigned int TileHeight;
-  unsigned short NumberOfTiles;
-  unsigned int SubFiles;
-  unsigned int ResolutionUnit;
-  float XResolution;
-  float YResolution;
-  short SampleFormat;
-  static void ErrorHandler(const char* module, const char* fmt, va_list ap);
-};
-
 extern "C" {
 static void vtkTIFFReaderInternalErrorHandler(const char* vtkNotUsed(module),
                                               const char* vtkNotUsed(fmt),
