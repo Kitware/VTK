@@ -67,6 +67,8 @@
 #define vtkGenericDataArray_h
 
 #include "vtkDataArray.h"
+
+#include "vtkConfigure.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeTraits.h"
 #include "vtkGenericDataArrayLookupHelper.h"
@@ -234,6 +236,23 @@ public:
   void GetValueRange(ValueType range[2]) { this->GetValueRange(range, 0); }
 
   /**
+   * These methods are analogous to the GetValueRange methods, except that the
+   * only consider finite values.
+   * @{
+   */
+  void GetFiniteValueRange(ValueType range[2], int comp);
+  ValueType *GetFiniteValueRange(int comp) VTK_SIZEHINT(2);
+  ValueType *GetFiniteValueRange() VTK_SIZEHINT(2)
+  {
+    return this->GetFiniteValueRange(0);
+  }
+  void GetFiniteValueRange(ValueType range[2])
+  {
+    this->GetFiniteValueRange(range, 0);
+  }
+  /**@}*/
+
+  /**
    * Return the capacity in typeof T units of the current array.
    * TODO Leftover from vtkDataArrayTemplate, redundant with GetSize. Deprecate?
    */
@@ -339,8 +358,55 @@ protected:
   // valid/accessible.
   bool EnsureAccessToTuple(vtkIdType tupleIdx);
 
+  /**
+   * Compute the range for a specific component. If comp is set -1
+   * then L2 norm is computed on all components. Call ClearRange
+   * to force a recomputation if it is needed. The range is copied
+   * to the range argument.
+   * THIS METHOD IS NOT THREAD SAFE.
+   */
+  void ComputeValueRange(ValueType range[2], int comp);
+
+  /**
+   * Compute the range for a specific component. If comp is set -1
+   * then L2 norm is computed on all components. Call ClearRange
+   * to force a recomputation if it is needed. The range is copied
+   * to the range argument.
+   * THIS METHOD IS NOT THREAD SAFE.
+   */
+  void ComputeFiniteValueRange(ValueType range[2], int comp);
+
+  /**
+   * Computes the range for each component of an array, the length
+   * of \a ranges must be two times the number of components.
+   * Returns true if the range was computed. Will return false
+   * if you try to compute the range of an array of length zero.
+   */
+  bool ComputeScalarValueRange(ValueType* ranges);
+
+  /**
+   * Returns true if the range was computed. Will return false
+   * if you try to compute the range of an array of length zero.
+   */
+  bool ComputeVectorValueRange(ValueType range[2]);
+
+  /**
+   * Computes the range for each component of an array, the length
+   * of \a ranges must be two times the number of components.
+   * Returns true if the range was computed. Will return false
+   * if you try to compute the range of an array of length zero.
+   */
+  bool ComputeFiniteScalarValueRange(ValueType* ranges);
+
+  /**
+   * Returns true if the range was computed. Will return false
+   * if you try to compute the range of an array of length zero.
+   */
+  bool ComputeFiniteVectorValueRange(ValueType range[2]);
+
   std::vector<double> LegacyTuple;
   std::vector<ValueType> LegacyValueRange;
+  std::vector<ValueType> LegacyValueRangeFull;
 
   vtkGenericDataArrayLookupHelper<SelfType> Lookup;
 
@@ -372,4 +438,145 @@ private:
   public:
 
 #endif
+
+// This portion must be OUTSIDE the include blockers. This is used to tell
+// libraries other than vtkCommonCore that instantiations of
+// the GetValueRange lookups can be found externally. This prevents each library
+// from instantiating these on their own.
+// Additionally it helps hide implementation details that pull in system
+// headers.
+// We only provide these specializations for the 64-bit integer types, since
+// other types can reuse the double-precision mechanism in
+// vtkDataArray::GetRange without losing precision.
+#ifdef VTK_GDA_VALUERANGE_INSTANTIATING
+
+// Forward declare necessary stuffs:
+template <typename ValueType> class vtkAOSDataArrayTemplate;
+template <typename ValueType> class vtkSOADataArrayTemplate;
+
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+template <typename ValueType> class vtkScaledSOADataArrayTemplate;
+#endif
+
+namespace vtkDataArrayPrivate {
+template <typename A, typename R, typename T>
+bool DoComputeScalarRange(A*, R*, T);
+template <typename A, typename R>
+bool DoComputeVectorRange(A*, R[2], AllValues);
+template <typename A, typename R>
+bool DoComputeVectorRange(A*, R[2], FiniteValues);
+} // namespace vtkDataArrayPrivate
+
+#define VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType) \
+  template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange( \
+    ArrayType*, \
+    ValueType*, \
+    vtkDataArrayPrivate::AllValues); \
+  template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange( \
+    ArrayType*, \
+    ValueType*, \
+    vtkDataArrayPrivate::FiniteValues); \
+  template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange( \
+    ArrayType*, \
+    ValueType[2], \
+    vtkDataArrayPrivate::AllValues); \
+  template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange( \
+    ArrayType*, \
+    ValueType[2], \
+    vtkDataArrayPrivate::FiniteValues);
+
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+
+#define VTK_INSTANTIATE_VALUERANGE_VALUETYPE(ValueType) \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType) \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType) \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<ValueType>, ValueType)
+
+#else // VTK_USE_SCALED_SOA_ARRAYS
+
+#define VTK_INSTANTIATE_VALUERANGE_VALUETYPE(ValueType) \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType) \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)
+
+#endif
+
+#elif defined(VTK_USE_EXTERN_TEMPLATE) // VTK_GDA_VALUERANGE_INSTANTIATING
+
+#ifndef VTK_GDA_TEMPLATE_EXTERN
+#define VTK_GDA_TEMPLATE_EXTERN
+#ifdef _MSC_VER
+#pragma warning (push)
+// The following is needed when the following is declared
+// dllexport and is used from another class in vtkCommonCore
+#pragma warning (disable: 4910) // extern and dllexport incompatible
+#endif
+
+// Forward declare necessary stuffs:
+template <typename ValueType> class vtkAOSDataArrayTemplate;
+template <typename ValueType> class vtkSOADataArrayTemplate;
+
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+template <typename ValueType> class vtkScaledSOADataArrayTemplate;
+#endif
+
+namespace vtkDataArrayPrivate {
+template <typename A, typename R, typename T>
+bool DoComputeScalarRange(A*, R*, T);
+template <typename A, typename R>
+bool DoComputeVectorRange(A*, R[2], AllValues);
+template <typename A, typename R>
+bool DoComputeVectorRange(A*, R[2], FiniteValues);
+} // namespace vtkDataArrayPrivate
+
+#define VTK_DECLARE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType) \
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange( \
+    ArrayType*, \
+    ValueType*, \
+    vtkDataArrayPrivate::AllValues); \
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange( \
+    ArrayType*, \
+    ValueType*, \
+    vtkDataArrayPrivate::FiniteValues); \
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange( \
+    ArrayType*, \
+    ValueType[2], \
+    vtkDataArrayPrivate::AllValues); \
+  extern template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange( \
+    ArrayType*, \
+    ValueType[2], \
+    vtkDataArrayPrivate::FiniteValues);
+
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+
+#define VTK_DECLARE_VALUERANGE_VALUETYPE(ValueType) \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType) \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType) \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<ValueType>, ValueType)
+
+#else // VTK_USE_SCALED_SOA_ARRAYS
+
+#define VTK_DECLARE_VALUERANGE_VALUETYPE(ValueType) \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType) \
+  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)
+
+#endif
+
+namespace vtkDataArrayPrivate {
+VTK_DECLARE_VALUERANGE_VALUETYPE(long)
+VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned long)
+VTK_DECLARE_VALUERANGE_VALUETYPE(long long)
+VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned long long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkDataArray, double)
+} // namespace vtkDataArrayPrivate
+
+#undef VTK_DECLARE_VALUERANGE_ARRAYTYPE
+#undef VTK_DECLARE_VALUERANGE_VALUETYPE
+
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
+#endif // VTK_SOA_DATA_ARRAY_TEMPLATE_EXTERN
+
+#endif // VTK_GDA_VALUERANGE_INSTANTIATING
+
 // VTK-HeaderTest-Exclude: vtkGenericDataArray.h
