@@ -47,15 +47,13 @@ vtk_module_add_module(VTK::RenderingRayTracing
   PRIVATE_HEADERS ${vtk_object_factory_header} ${headers})
 
 if (VTK_ENABLE_OSPRAY)
-  # TODO: Send patches upstream to export targets from ospray.
-  find_package(ospray 1.8 REQUIRED)
+  vtk_module_find_package(
+    PACKAGE ospray
+    VERSION 1.8)
 
-  vtk_module_include(VTK::RenderingRayTracing
-    PUBLIC
-      ${OSPRAY_INCLUDE_DIRS})
   vtk_module_link(VTK::RenderingRayTracing
     PUBLIC
-      ${OSPRAY_LIBRARIES})
+      ospray::ospray)
   if (VTKOSPRAY_ENABLE_DENOISER)
     find_package(OpenImageDenoise 0.8 REQUIRED)
     vtk_module_definitions(VTK::RenderingRayTracing
