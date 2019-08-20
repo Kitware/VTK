@@ -47,11 +47,8 @@ vtkStandardNewMacro(vtkHyperTreeGridPlaneCutter);
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridPlaneCutter::vtkHyperTreeGridPlaneCutter()
 {
-  // Create storage for intersections of the cut
-  this->Points = vtkPoints::New();
-
-  // Create storage for untructured cells
-  this->Cells = vtkCellArray::New();
+  this->Points = nullptr;
+  this->Cells = nullptr;
 
   // Initialize plane parameters
   std::fill( this->Plane, this->Plane + 4, 0. );
@@ -189,8 +186,16 @@ int vtkHyperTreeGridPlaneCutter::FillOutputPortInformation( int,
 void vtkHyperTreeGridPlaneCutter::Reset()
 {
   // Points and Cells are created in the constructor
-  this->Points->Initialize();
-  this->Cells->Initialize();
+  if (this->Points)
+  {
+    this->Points->Delete();
+  }
+  this->Points = vtkPoints::New();
+  if (this->Cells)
+  {
+    this->Cells->Delete();
+  }
+  this->Cells = vtkCellArray::New();
   if (this->Centers)
   {
     this->Centers->Initialize();
@@ -206,10 +211,6 @@ void vtkHyperTreeGridPlaneCutter::Reset()
   if (this->SelectedCells)
   {
     this->SelectedCells->Initialize();
-  }
-  if (this->OutData)
-  {
-    this->OutData->Initialize();
   }
 }
 
@@ -234,6 +235,7 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Reset Data
   this->Reset();
+  output->Initialize();
 
   // Retrieve input point data
   this->InData = input->GetPointData();
@@ -352,7 +354,11 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Set output geometry and topology
   output->SetPoints( this->Points );
+  this->Points->FastDelete();
+  this->Points = nullptr;
   output->SetPolys( this->Cells );
+  this->Cells->FastDelete();
+  this->Cells = nullptr;
 
   // Clean and squeeze output
   vtkCleanPolyData* cleaner = vtkCleanPolyData::New();
@@ -441,17 +447,17 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
         else
         {
           // Check every edge of the current vertex.
-          if ( ! ( i & 1 ) && functEval[i] * functEval[i + 1] <= 0 )
+          if ( ! ( i & 1 ) && functEval[i] * functEval[i + 1] < 0 )
           {
             // Edge in X
             this->PlaneCut( i, i + 1, cellCoords, n, points );
           }
-          if ( ! ( i & 2 ) && functEval[i] * functEval[i + 2] <= 0 )
+          if ( ! ( i & 2 ) && functEval[i] * functEval[i + 2] < 0 )
           {
             // Edge in Y
             this->PlaneCut( i, i + 2, cellCoords, n, points );
           }
-          if ( ! ( i & 4 ) && functEval[i] * functEval[i + 4] <= 0 )
+          if ( ! ( i & 4 ) && functEval[i] * functEval[i + 4] < 0 )
           {
             // Edge in Z
             this->PlaneCut( i, i + 4, cellCoords, n, points );
@@ -772,6 +778,7 @@ void vtkHyperTreeGridPlaneCutter::SetPlane(double a, double b, double c, double 
   {
     this->AxisAlignment = -1;
   }
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
