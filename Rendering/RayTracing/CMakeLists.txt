@@ -55,7 +55,9 @@ if (VTK_ENABLE_OSPRAY)
     PUBLIC
       ospray::ospray)
   if (VTKOSPRAY_ENABLE_DENOISER)
-    find_package(OpenImageDenoise 0.8 REQUIRED)
+    vtk_module_find_package(
+      PACKAGE OpenImageDenoise
+      VERSION 0.8)
     vtk_module_definitions(VTK::RenderingRayTracing
       PRIVATE
         VTKOSPRAY_ENABLE_DENOISER)
