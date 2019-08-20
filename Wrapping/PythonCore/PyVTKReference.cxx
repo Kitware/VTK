@@ -1010,7 +1010,7 @@ PyTypeObject PyVTKReference_Type = {
   sizeof(PyVTKReference),                // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKReference_Delete,                 // tp_dealloc
-  nullptr,                               // tp_print
+  0,                                     // tp_vectorcall_offset
   nullptr,                               // tp_getattr
   nullptr,                               // tp_setattr
   nullptr,                               // tp_compare
@@ -1067,7 +1067,7 @@ PyTypeObject PyVTKNumberReference_Type = {
   sizeof(PyVTKReference),                // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKReference_Delete,                 // tp_dealloc
-  nullptr,                               // tp_print
+  0,                                     // tp_vectorcall_offset
   nullptr,                               // tp_getattr
   nullptr,                               // tp_setattr
   nullptr,                               // tp_compare
@@ -1124,7 +1124,7 @@ PyTypeObject PyVTKStringReference_Type = {
   sizeof(PyVTKReference),                // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKReference_Delete,                 // tp_dealloc
-  nullptr,                               // tp_print
+  0,                                     // tp_vectorcall_offset
   nullptr,                               // tp_getattr
   nullptr,                               // tp_setattr
   nullptr,                               // tp_compare
@@ -1181,7 +1181,7 @@ PyTypeObject PyVTKTupleReference_Type = {
   sizeof(PyVTKReference),                // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKReference_Delete,                 // tp_dealloc
-  nullptr,                               // tp_print
+  0,                                     // tp_vectorcall_offset
   nullptr,                               // tp_getattr
   nullptr,                               // tp_setattr
   nullptr,                               // tp_compare

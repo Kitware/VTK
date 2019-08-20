@@ -521,7 +521,7 @@ void vtkWrapPython_GenerateObjectType(
     "  sizeof(PyVTKObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  PyVTKObject_Delete, // tp_dealloc\n"
-    "  nullptr, // tp_print\n"
+    "  0, // tp_vectorcall_offset\n"
     "  nullptr, // tp_getattr\n"
     "  nullptr, // tp_setattr\n"
     "  nullptr, // tp_compare\n"
