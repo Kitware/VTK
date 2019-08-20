@@ -80,7 +80,9 @@ endif ()
 
 # VisRTX
 if (VTK_ENABLE_VISRTX)
-  find_package(VisRTX CONFIG REQUIRED)
+  vtk_module_find_package(
+    PACKAGE VisRTX
+    CONFIG_MODE)
   vtk_module_link(VTK::RenderingRayTracing
     PUBLIC
       VisRTX_DynLoad)
