@@ -59,15 +59,8 @@ int TestColorTransferFunction(int ,  char * [])
 
   // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(1);
-  if (view->GetContext()->GetDevice()->IsA("vtkOpenGLContextDevice2D"))
-  {
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-  }
-  else
-  {
-    cout << "GL version 2 or higher is required." << endl;
-  }
+  view->GetInteractor()->Initialize();
+  view->GetInteractor()->Start();
 
   return EXIT_SUCCESS;
 }

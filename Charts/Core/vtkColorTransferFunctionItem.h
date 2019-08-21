@@ -45,6 +45,13 @@ protected:
 
   void ComputeTexture() override;
   vtkColorTransferFunction* ColorTransferFunction;
+
+  /**
+   * Override the histogram plotbar configuration
+   * in order to set the color transfer function on it
+   */
+  bool ConfigurePlotBar() override;
+
 private:
   vtkColorTransferFunctionItem(const vtkColorTransferFunctionItem&) = delete;
   void operator=(const vtkColorTransferFunctionItem&) = delete;

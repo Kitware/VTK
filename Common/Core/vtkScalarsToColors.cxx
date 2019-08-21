@@ -264,14 +264,17 @@ const unsigned char *vtkScalarsToColors::MapValue(double v)
 
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
-                                                     int colorMode, int component)
+                                                     int colorMode, int component,
+                                                     int outputFormat)
 {
-  return this->MapScalars(static_cast<vtkAbstractArray*>(scalars), colorMode, component);
+  return this->MapScalars(static_cast<vtkAbstractArray*>(scalars), colorMode,
+                          component, outputFormat);
 }
 
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkAbstractArray *scalars,
-                                                     int colorMode, int component)
+                                                     int colorMode, int component,
+                                                     int outputFormat)
 {
   int numberOfComponents = scalars->GetNumberOfComponents();
   vtkUnsignedCharArray *newColors;
@@ -290,7 +293,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkAbstractArray *scalars,
   else
   {
     newColors = vtkUnsignedCharArray::New();
-    newColors->SetNumberOfComponents(4);
+    newColors->SetNumberOfComponents(outputFormat);
     newColors->SetNumberOfTuples(scalars->GetNumberOfTuples());
 
     // If mapper did not specify a component, use the VectorMode
@@ -301,7 +304,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkAbstractArray *scalars,
                                    scalars->GetDataType(),
                                    scalars->GetNumberOfTuples(),
                                    scalars->GetNumberOfComponents(),
-                                   VTK_RGBA);
+                                   outputFormat);
     }
     else
     {
@@ -320,7 +323,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkAbstractArray *scalars,
                                    scalars->GetDataType(),
                                    scalars->GetNumberOfTuples(),
                                    scalars->GetNumberOfComponents(),
-                                   VTK_RGBA);
+                                   outputFormat);
     }
   }
 

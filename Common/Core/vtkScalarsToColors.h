@@ -139,26 +139,30 @@ public:
 
   //@{
   /**
-   * Internal methods that map a data array into a 4-component,
-   * unsigned char RGBA array. The color mode determines the behavior
-   * of mapping. If VTK_COLOR_MODE_DEFAULT is set, then unsigned char
-   * data arrays are treated as colors (and converted to RGBA if
-   * necessary); If VTK_COLOR_MODE_DIRECT_SCALARS is set, then all arrays
-   * are treated as colors (integer types are clamped in the range 0-255,
-   * floating point arrays are clamped in the range 0.0-1.0. Note 'char' does
-   * not have enough values to represent a color so mapping this type is
-   * considered an error);
-   * otherwise, the data is mapped through this instance
-   * of ScalarsToColors. The component argument is used for data
-   * arrays with more than one component; it indicates which component
-   * to use to do the blending.  When the component argument is -1,
-   * then the this object uses its own selected technique to change a
-   * vector into a scalar to map.
+   * Internal methods that map a data array into an unsigned char array.
+   * The output format can be set to VTK_RGBA (4 components),
+   * VTK_RGB (3 components), VTK_LUMINANCE (1 component, greyscale),
+   * or VTK_LUMINANCE_ALPHA (2 components).
+   * If not supplied, the output format defaults to RGBA.
+   * The color mode determines the behavior of mapping.
+   * If VTK_COLOR_MODE_DEFAULT is set, then unsigned char data arrays are
+   * treated as colors (and converted to RGBA if necessary);
+   * If VTK_COLOR_MODE_DIRECT_SCALARS is set, then all arrays are treated as
+   * colors (integer types are clamped in the range 0-255, floating point
+   * arrays are clamped in the range 0.0-1.0. Note 'char' does not have enough
+   * values to represent a color so mapping this type is considered an error);
+   * otherwise, the data is mapped through this instance of ScalarsToColors.
+   * The component argument is used for data arrays with more than one
+   * component; it indicates which component to use to do the blending.
+   * When the component argument is -1, then the this object uses its own
+   * selected technique to change a vector into a scalar to map.
    */
   virtual vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
-                                           int component);
+                                           int component,
+                                           int outputFormat = VTK_RGBA);
   virtual vtkUnsignedCharArray *MapScalars(vtkAbstractArray *scalars, int colorMode,
-                                           int component);
+                                           int component,
+                                           int outputFormat = VTK_RGBA);
   //@}
 
   //@{
