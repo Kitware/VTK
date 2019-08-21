@@ -108,10 +108,6 @@ set(vtk_cmake_module_files
   vtkTestingRenderingDriver.cmake
   vtkTopologicalSort.cmake)
 set(vtk_cmake_patch_files
-  patches/3.7/FindPNG.cmake
-  patches/3.7/FindTIFF.cmake
-  patches/3.7/exportheader.cmake.in
-  patches/3.7/GenerateExportHeader.cmake
   patches/3.10/FindMPI/fortranparam_mpi.f90.in
   patches/3.10/FindMPI/libver_mpi.c
   patches/3.10/FindMPI/libver_mpi.f90.in
