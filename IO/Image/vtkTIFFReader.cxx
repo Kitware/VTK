@@ -887,63 +887,17 @@ void vtkTIFFReader::ReadVolume(T* buffer)
       this->ReadTwoSamplesPerPixelImage(volume, width, height);
       break;
     }
-    else if (!this->InternalImage->CanRead())
-    {
-      uint32 *tempImage = new uint32[width * height];
-      if (!TIFFReadRGBAImage(this->InternalImage->Image,
-                             width, height,
-                             tempImage, 1))
-      {
-        vtkErrorMacro( << "Cannot read TIFF image or as a TIFF RGBA image" );
-        delete [] tempImage;
-        return;
-      }
-
-      const bool flip = this->InternalImage->Orientation != ORIENTATION_TOPLEFT;
-      T* fimage = buffer;
-      fimage += width * height * 4 * slice;
-      for (int yy = 0; yy < height; ++yy)
-      {
-        uint32* ssimage;
-        if (flip)
-        {
-          ssimage = tempImage + yy * width;
-        }
-        else
-        {
-          ssimage = tempImage + (height - yy - 1) * width;
-        }
-        for (int xx = 0; xx < width; ++xx)
-        {
-          *(fimage    ) = static_cast<T>(TIFFGetR(*ssimage)); // Red
-          *(fimage + 1) = static_cast<T>(TIFFGetG(*ssimage)); // Green
-          *(fimage + 2) = static_cast<T>(TIFFGetB(*ssimage)); // Blue
-          *(fimage + 3) = static_cast<T>(TIFFGetA(*ssimage)); // Alpha
-          fimage += 4;
-          ++ssimage;
-        }
-      }
-      delete [] tempImage;
-      tempImage = nullptr;
-    }
     else
     {
-      unsigned int format = this->GetFormat();
-      switch (format)
+      vtkIdType offset = width * height * samplesPerPixel * slice;
+      if (!this->InternalImage->CanRead())
       {
-        case vtkTIFFReader::GRAYSCALE:
-        case vtkTIFFReader::RGB:
-        case vtkTIFFReader::PALETTE_RGB:
-        case vtkTIFFReader::PALETTE_GRAYSCALE:
-        {
-          T* volume = buffer;
-          volume += width * height * slice * samplesPerPixel;
-          this->ReadGenericImage(volume, width, height);
-          break;
-        }
-        default:
-          return;
+        // I don't think this is correct since we may not have actually
+        // allocated a target buffer with 4 components. For now, I am keeping
+        // the logic same as before.
+        offset = width * height * 4 * slice;
       }
+      this->ReadImageInternal(buffer + offset);
     }
 
     // advance to next slice
@@ -1388,10 +1342,11 @@ void vtkTIFFReader::ReadImageInternal(T* outPtr)
       }
       return;
     }
-    uint32* ssimage = tempImage;
+    const bool flip = this->InternalImage->Orientation != ORIENTATION_TOPLEFT;
     T* fimage = outPtr;
     for (int yy = 0; yy < height; ++yy)
     {
+      uint32* ssimage = flip ? (tempImage + yy * width) : (tempImage + (height - yy - 1) * width);
       for (int xx = 0; xx < width; ++xx)
       {
         if (xx >= this->OutputExtent[0] &&
