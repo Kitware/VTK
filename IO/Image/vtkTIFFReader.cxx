@@ -860,8 +860,11 @@ void vtkTIFFReader::ReadVolume(T* buffer)
   int samplesPerPixel = this->InternalImage->SamplesPerPixel;
   unsigned int npages = this->InternalImage->NumberOfPages;
 
+  int outDims[3];
+  vtkStructuredData::GetDimensionsFromExtent(this->OutputExtent, outDims);
+
   // counter for slices (not every page is a slice)
-  unsigned int slice = 0;
+  int slice = 0;
   for (unsigned int page = 0; page < npages; ++page)
   {
     this->UpdateProgress(static_cast<double>(page + 1) / npages);
@@ -879,25 +882,31 @@ void vtkTIFFReader::ReadVolume(T* buffer)
       }
     }
 
-    // if we have a Zeiss image meaning that the SamplesPerPixel is 2
-    if (samplesPerPixel == 2)
+    if (slice >= this->OutputExtent[4] && slice <= this->OutputExtent[5])
     {
-      T* volume = buffer;
-      volume += width * height * slice * samplesPerPixel;
-      this->ReadTwoSamplesPerPixelImage(volume, width, height);
-      break;
-    }
-    else
-    {
-      vtkIdType offset = width * height * samplesPerPixel * slice;
-      if (!this->InternalImage->CanRead())
+      // if we have a Zeiss image meaning that the SamplesPerPixel is 2
+      if (samplesPerPixel == 2)
       {
-        // I don't think this is correct since we may not have actually
+        if (outDims[0] != width || outDims[1] != height)
+        {
+          vtkErrorMacro("Case not supported currently! Please report back!");
+          return;
+        }
+        T* volume = buffer;
+        volume += width * height * samplesPerPixel * (slice - this->OutputExtent[4]);
+        this->ReadTwoSamplesPerPixelImage(volume, width, height);
+        break;
+      }
+      else
+      {
+        vtkIdType offset =
+          outDims[0] * outDims[1] * static_cast<vtkIdType>(slice - this->OutputExtent[4]);
+        // I don't think this is correct since if `CanRead==false`, we may not have actually
         // allocated a target buffer with 4 components. For now, I am keeping
         // the logic same as before.
-        offset = width * height * 4 * slice;
+        offset *= this->InternalImage->CanRead() ? samplesPerPixel : 4;
+        this->ReadImageInternal(buffer + offset);
       }
-      this->ReadImageInternal(buffer + offset);
     }
 
     // advance to next slice
