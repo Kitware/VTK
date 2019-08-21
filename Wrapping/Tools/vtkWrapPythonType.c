@@ -709,7 +709,7 @@ void vtkWrapPython_GenerateSpecialType(
     "  sizeof(PyVTKSpecialObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  Py%s_Delete, // tp_dealloc\n"
-    "  nullptr, // tp_print\n"
+    "  0, // tp_vectorcall_offset\n"
     "  nullptr, // tp_getattr\n"
     "  nullptr, // tp_setattr\n"
     "  nullptr, // tp_compare\n"
