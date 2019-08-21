@@ -128,6 +128,7 @@ vtkGPUVolumeRayCastMapper::~vtkGPUVolumeRayCastMapper()
   {
     this->DepthPassContourValues->Delete();
   }
+  this->SetTransfer2DYAxisArray(nullptr);
 }
 
 //------------------------------------------------------------------------------
