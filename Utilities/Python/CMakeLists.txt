@@ -75,9 +75,6 @@ endif ()
 if (CMAKE_CONFIGURATION_TYPES)
   # For build systems with configuration types e.g. Xcode/Visual Studio,
   # we rely on generator expressions.
-  if (CMAKE_VERSION VERSION_LESS 3.4)
-    message(FATAL_ERROR "CMake 3.4 or newer if needed for your generator.")
-  endif ()
   set(VTK_BUILD_PYTHON_MODULES_DIR
     "${CMAKE_BINARY_DIR}/$<CONFIG>/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}")
 else ()

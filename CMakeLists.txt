@@ -8,10 +8,6 @@ foreach(policy
   endif()
 endforeach()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Android" AND CMAKE_VERSION VERSION_LESS 3.7)
-  message(FATAL_ERROR "CMake 3.7 or above is required to build for Android")
-endif()
-
 if (POLICY CMP0063)
   cmake_policy(SET CMP0063 NEW)
 endif ()
