@@ -42,6 +42,9 @@ Changes by Fabian Wenzel, Jan. 2016
 
 Changes by Tobias Hänel, Sep. 2018
  Support for PySide2
+
+Changes by Ruben de Bruin, Aug. 2019
+ Fixes to the keyPressEvent function
 """
 
 # Check whether a specific PyQt implementation was chosen
@@ -477,18 +480,27 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
 
     def keyPressEvent(self, ev):
         ctrl, shift = self._GetCtrlShift(ev)
-        if ev.key() < 256:
-            key = str(ev.text())
+
+        # get key and keysim information
+        ascii_key = ev.key()
+        if ascii_key < 256:
+            # we have an ascii key
+            key = chr(ascii_key)
+            keySym = ascii_to_key_sym(ascii_key)
         else:
             key = chr(0)
+            keySym = _qt_key_to_key_sym(ascii_key)
 
-        keySym = _qt_key_to_key_sym(ev.key())
-        if keySym is not None:
-            if shift and len(keySym) == 1 and keySym.isalpha():
-                keySym = keySym.upper()
+        if keySym is None:
+            keySym = "None"
+
+        # print(ascii_key)  # when I press a lower-case key I still get the ascii-code for the UPPER-case one
+        # print(key)        # this however does not seem to affect the default vtk keys such as p(ick) or
+        # print(keySym)     # w(ireframe)
 
         self._setEventInformation(self.__saveX, self.__saveY,
                                   ctrl, shift, key, 0, keySym)
+
         self._Iren.KeyPressEvent()
         self._Iren.CharEvent()
 
@@ -665,6 +677,51 @@ def _qt_key_to_key_sym(key):
         return None
 
     return _keysyms[key]
+
+# --------- c++ code ported ----------
+# from https://gitlab.kitware.com/vtk/vtk/blob/c654847d/GUISupport/Qt/QVTKInteractorAdapter.cxx#L524
+
+def ascii_to_key_sym(i):
+    if i >= 0:
+        _AsciiToKeySymTable = (None, None, None, None, None, None, None, None, None, "Tab", None, None, None,
+                               None, None, None,
+                               None, None, None, None, None, None, None, None, None, None, None, None, None,
+                               None, None, None,
+                               "space", "exclam", "quotedbl", "numbersign",
+                               "dollar", "percent", "ampersand", "quoteright",
+                               "parenleft", "parenright", "asterisk", "plus",
+                               "comma", "minus", "period", "slash",
+                               "0", "1", "2", "3", "4", "5", "6", "7",
+                               "8", "9", "colon", "semicolon", "less", "equal", "greater", "question",
+                               "at", "A", "B", "C", "D", "E", "F", "G",
+                               "H", "I", "J", "K", "L", "M", "N", "O",
+                               "P", "Q", "R", "S", "T", "U", "V", "W",
+                               "X", "Y", "Z", "bracketleft",
+                               "backslash", "bracketright", "asciicircum", "underscore",
+                               "quoteleft", "a", "b", "c", "d", "e", "f", "g",
+                               "h", "i", "j", "k", "l", "m", "n", "o",
+                               "p", "q", "r", "s", "t", "u", "v", "w",
+                               "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete",
+                               None, None, None, None, None, None, None, None, None, None, None, None, None,
+                               None, None, None,
+                               None, None, None, None, None, None, None, None, None, None, None, None, None,
+                               None, None, None,
+                               None, None, None, None, None, None, None, None, None, None, None, None, None,
+                               None, None, None,
+                               None, None, None, None, None, None, None, None, None, None, None, None, None,
+                               None, None, None,
+                               None, None, None, None, None, None, None, None, None, None, None, None, None,
+                               None, None, None,
+                               None, None, None, None, None, None, None, None, None, None, None, None, None,
+                               None, None, None,
+                               None, None, None, None, None, None, None, None, None, None, None, None, None,
+                               None, None, None,
+                               None, None, None, None, None, None, None, None, None, None, None, None, None,
+                               None, None, None)
+
+        return _AsciiToKeySymTable[i]
+    else:
+        return None
 
 
 if __name__ == "__main__":
