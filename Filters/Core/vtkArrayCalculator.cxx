@@ -568,7 +568,6 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject *input, vtkDataObject *o
       }
       psOutput->SetPoints(resultPoints);
     }
-    resultPoints->Delete();
   }
 
   if (this->ResultTCoords || this->ResultNormals || ! this->CoordinateResults)
