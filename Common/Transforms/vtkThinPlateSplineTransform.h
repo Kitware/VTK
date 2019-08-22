@@ -31,7 +31,8 @@
  * 2) Whenever you add, subtract, or set points you must call Modified()
  * on the vtkPoints object, or the transformation might not update.
  * 3) Collinear point configurations (except those that lie in the XY plane)
- * result in an unstable transformation.
+ * result in an unstable transformation. Forward transform can be computed
+ * for any configuration by disabling bulk transform regularization.
  * @sa
  * vtkGridTransform vtkGeneralTransform
 */
@@ -121,6 +122,28 @@ public:
    */
   vtkAbstractTransform *MakeTransform() override;
 
+  //@{
+  /**
+   * Get/set whether the bulk linear transformation matrix is regularized.
+   *
+   * If regularization is enabled: If all landmark points are on the
+   * XY plane then forward and inverse transforms are computed correctly.
+   * For other coplanar configurations, both forward an inverse transform
+   * computation is unstable.
+   *
+   * If regularization is disabled: Forward transform is computed correctly
+   * for all point configurations. Inverse transform computation is unstable
+   * if source and/or target points are coplanar.
+   *
+   * If landmarks points are not coplanar then this setting has no effect.
+   *
+   * The default is true.
+   */
+  vtkGetMacro(RegularizeBulkTransform, bool);
+  vtkSetMacro(RegularizeBulkTransform, bool);
+  vtkBooleanMacro(RegularizeBulkTransform, bool);
+  //@}
+
 protected:
   vtkThinPlateSplineTransform();
   ~vtkThinPlateSplineTransform() override;
@@ -155,6 +178,9 @@ protected:
 
   int NumberOfPoints;
   double **MatrixW;
+
+  bool RegularizeBulkTransform;
+
 private:
   vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&) = delete;
   void operator=(const vtkThinPlateSplineTransform&) = delete;

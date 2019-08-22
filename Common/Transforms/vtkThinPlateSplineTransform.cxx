@@ -110,6 +110,8 @@ vtkThinPlateSplineTransform::vtkThinPlateSplineTransform()
 
   this->NumberOfPoints = 0;
   this->MatrixW = nullptr;
+
+  this->RegularizeBulkTransform = true;
 }
 
 //------------------------------------------------------------------------
@@ -318,17 +320,20 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     vtkDeleteMatrix(U);
     vtkDeleteMatrix(X);
 
-    // now the linear portion of the warp must be checked
-    // (this is a very poor check for now)
-    if (fabs(vtkMath::Determinant3x3((double (*)[3]) *A)) < 1e-16)
+    if (this->RegularizeBulkTransform)
     {
-      for (i = 0; i < 3; i++)
+      // now the linear portion of the warp must be checked
+      // (this is a very poor check for now)
+      if (fabs(vtkMath::Determinant3x3((double (*)[3]) *A)) < 1e-16)
       {
-        if (sqrt(A[0][i]*A[0][i] + A[1][i]*A[1][i] + A[2][i]*A[2][i])
-            < 1e-16)
+        for (i = 0; i < 3; i++)
         {
-          A[0][i] = A[1][i] = A[2][i] = A[i][0] = A[i][1] = A[i][2] = 0;
-          A[i][i] = 1.0;
+          if (sqrt(A[0][i]*A[0][i] + A[1][i]*A[1][i] + A[2][i]*A[2][i])
+              < 1e-16)
+          {
+            A[0][i] = A[1][i] = A[2][i] = A[i][0] = A[i][1] = A[i][2] = 0;
+            A[i][i] = 1.0;
+          }
         }
       }
     }
@@ -685,6 +690,7 @@ void vtkThinPlateSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Sigma: " << this->Sigma << "\n";
   os << indent << "Basis: " << this->GetBasisAsString() << "\n";
+  os << indent << "RegularizeBulkTransform: " << this->RegularizeBulkTransform << "\n";
   os << indent << "Source Landmarks: " << this->SourceLandmarks << "\n";
   if (this->SourceLandmarks)
   {
@@ -713,6 +719,7 @@ void vtkThinPlateSplineTransform::InternalDeepCopy(
   this->SetInverseIterations(t->InverseIterations);
   this->SetSigma(t->Sigma);
   this->SetBasis(t->GetBasis());
+  this->SetRegularizeBulkTransform(t->GetRegularizeBulkTransform());
   this->SetSourceLandmarks(t->SourceLandmarks);
   this->SetTargetLandmarks(t->TargetLandmarks);
 
