@@ -16,6 +16,7 @@
 
 #include "vtkBoundingBox.h"
 #include "vtkCell.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkDIYExplicitAssigner.h"
 #include "vtkDIYUtilities.h"
 #include "vtkDataObjectTree.h"
@@ -209,20 +210,25 @@ vtkVector<int, 6> ComputeVOI(
   return voi;
 }
 
+/**
+ * Returns 3 unit vectors that identify the i,j,k directions for the cell.
+ * Assumes vtkCell is vtkHexahedron.
+ */
 vtkVector3<vtkVector3d> GetCellOrientationVectors(vtkCell* cell)
 {
+  assert(cell->GetCellType() == VTK_HEXAHEDRON);
   const std::pair<int, int> indexes[] = { std::make_pair(0, 1), std::make_pair(0, 3),
     std::make_pair(0, 4) };
 
   vtkVector3<vtkVector3d> values;
-  for (int cc = 0; cc < 3; cc++)
+  for (int axis = 0; axis < 3; axis++)
   {
-    const auto& idx = indexes[cc];
+    const auto& idx = indexes[axis];
     vtkVector3d p0, p1;
     cell->GetPoints()->GetPoint(idx.first, p0.GetData());
     cell->GetPoints()->GetPoint(idx.second, p1.GetData());
-    values[cc] = (p1 - p0);
-    values[cc].Normalize();
+    values[axis] = (p1 - p0);
+    values[axis].Normalize();
   }
   return values;
 }
@@ -230,23 +236,16 @@ vtkVector3<vtkVector3d> GetCellOrientationVectors(vtkCell* cell)
 std::pair<vtkVector3d, vtkVector3d> GetPropagationVectors(
   vtkCell* cell, const int progation_mask[3])
 {
+  const auto cell_orientation = GetCellOrientationVectors(cell);
   vtkVector3d values[3];
   int v_idx = 0;
-  const std::pair<int, int> indexes[] = { std::make_pair(0, 1), std::make_pair(0, 3),
-    std::make_pair(0, 4) };
-  for (int cc = 0; cc < 3; cc++)
+  for (int axis = 0; axis < 3; axis++)
   {
-    values[cc] = vtkVector3d(0.0);
-    if (progation_mask[cc] > 0)
+    values[axis] = vtkVector3d(0.0);
+    if (progation_mask[axis] > 0)
     {
-      const auto& idx = indexes[cc];
-      vtkVector3d p0, p1;
-      cell->GetPoints()->GetPoint(idx.first, p0.GetData());
-      cell->GetPoints()->GetPoint(idx.second, p1.GetData());
-      vtkVector3d dir = (p1 - p0);
-      dir.Normalize();
       assert(v_idx < 2);
-      values[v_idx++] = dir;
+      values[v_idx++] = cell_orientation(axis);
     }
   }
   return std::make_pair(values[0], values[1]);
@@ -266,6 +265,8 @@ std::vector<SeedT> ExtractSliceFromSeed(const vtkVector3d& seed,
   const std::vector<vtkVector3d>& dirs, BlockT* b, const diy::Master::ProxyWithLink&)
 {
   auto sg = b->Input;
+  assert(vtkStructuredData::GetDataDescriptionFromExtent(sg->GetExtent()) == VTK_XYZ_GRID);
+
   const vtkIdType cellid = b->CellLocator->FindCell(const_cast<double*>(seed.GetData()));
   if (cellid <= 0)
   {
@@ -279,27 +280,26 @@ std::vector<SeedT> ExtractSliceFromSeed(const vtkVector3d& seed,
   // correspond to.
   auto cell_vectors = ::GetCellOrientationVectors(b->Input->GetCell(cellid));
   int propagation_mask[3] = { 0, 0, 0 };
-  for (int i = 0; i < 2; ++i)
-    for (const auto& dir : dirs)
-    {
-      assert(dir.SquaredNorm() != 0);
+  for (const auto& dir : dirs)
+  {
+    assert(dir.SquaredNorm() != 0);
 
-      double max = 0.0;
-      int axis = -1;
-      for (int cc = 0; cc < 3; ++cc)
+    double max = 0.0;
+    int axis = -1;
+    for (int cc = 0; cc < 3; ++cc)
+    {
+      const auto dot = std::abs(dir.Dot(cell_vectors[cc]));
+      if (dot > max)
       {
-        const auto dot = dir.Dot(cell_vectors[cc]);
-        if (dot > max)
-        {
-          max = dot;
-          axis = cc;
-        }
-      }
-      if (axis != -1)
-      {
-        propagation_mask[axis] = 1;
+        max = dot;
+        axis = cc;
       }
     }
+    if (axis != -1)
+    {
+      propagation_mask[axis] = 1;
+    }
+  }
   assert(std::accumulate(propagation_mask, propagation_mask + 3, 0) < 3);
 
   int ijk[3];
@@ -376,7 +376,27 @@ std::vector<SeedT> ExtractSliceFromSeed(const vtkVector3d& seed,
 
   return next_seeds;
 }
+
+/**
+ * shallow copy except those blocks where the predicate returns true.
+ */
+template<typename UnaryPredicate>
+void ShallowCopyIfNot(vtkCompositeDataSet* input, vtkCompositeDataSet* output, UnaryPredicate p)
+{
+  output->CopyStructure(input);
+  auto iter = input->NewIterator();
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  {
+    auto dobj = iter->GetCurrentDataObject();
+    if (!p(dobj))
+    {
+      output->SetDataSet(iter, dobj);
+    }
+  }
+  iter->Delete();
 }
+
+} // namespace {}
 
 vtkStandardNewMacro(vtkExtractSubsetWithSeed);
 vtkCxxSetObjectMacro(vtkExtractSubsetWithSeed, Controller, vtkMultiProcessController);
@@ -463,8 +483,14 @@ int vtkExtractSubsetWithSeed::RequestData(
 
   auto datasets = vtkDIYUtilities::GetDataSets(input);
   // prune non-structured grid datasets.
-  std::remove_if(datasets.begin(), datasets.end(),
-    [](vtkDataSet* ds) { return vtkStructuredGrid::SafeDownCast(ds) == nullptr; });
+  auto prunePredicate = [](vtkDataObject* ds) {
+    auto sg = vtkStructuredGrid::SafeDownCast(ds);
+    // skip empty or non-3D grids.
+    return sg == nullptr ||
+      vtkStructuredData::GetDataDescriptionFromExtent(sg->GetExtent()) != VTK_XYZ_GRID;
+  };
+
+  datasets.erase(std::remove_if(datasets.begin(), datasets.end(), prunePredicate), datasets.end());
 
   diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(this->GetController());
   const int local_num_blocks = static_cast<int>(datasets.size());
@@ -482,7 +508,8 @@ int vtkExtractSubsetWithSeed::RequestData(
   {
     auto block = new BlockT();
     block->Input = vtkStructuredGrid::SafeDownCast(datasets[lid]);
-    assert(block->Input != nullptr);
+    assert(block->Input != nullptr &&
+      vtkStructuredData::GetDataDescriptionFromExtent(block->Input->GetExtent()) == VTK_XYZ_GRID);
 
     block->CellLocator->SetDataSet(block->Input);
     block->CellLocator->BuildLocator();
@@ -640,9 +667,7 @@ int vtkExtractSubsetWithSeed::RequestData(
   else if (auto outputMB = vtkMultiBlockDataSet::GetData(outputVector, 0))
   {
     auto inputMB = vtkMultiBlockDataSet::GetData(inputVector[0], 0);
-    assert(inputMB);
-    outputMB->ShallowCopy(inputMB);
-
+    ::ShallowCopyIfNot(inputMB, outputMB, prunePredicate);
     master.foreach (
       [&](BlockT* b, const diy::Master::ProxyWithLink&) { b->CopyToOutput(outputMB); });
   }
@@ -650,7 +675,7 @@ int vtkExtractSubsetWithSeed::RequestData(
   {
     auto inputPDC = vtkPartitionedDataSetCollection::GetData(inputVector[0], 0);
     assert(inputPDC);
-    outputPDC->ShallowCopy(inputPDC);
+    ::ShallowCopyIfNot(inputPDC, outputPDC, prunePredicate);
     master.foreach (
       [&](BlockT* b, const diy::Master::ProxyWithLink&) { b->CopyToOutput(outputPDC); });
   }
