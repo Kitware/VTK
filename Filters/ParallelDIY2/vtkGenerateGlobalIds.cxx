@@ -18,6 +18,7 @@
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDIYExplicitAssigner.h"
 #include "vtkDIYUtilities.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
@@ -42,6 +43,7 @@
 
 // clang-format off
 #include "vtk_diy2.h"
+// #define DIY_USE_SPDLOG
 #include VTK_DIY2(diy/mpi.hpp)
 #include VTK_DIY2(diy/master.hpp)
 #include VTK_DIY2(diy/link.hpp)
@@ -70,34 +72,6 @@ static vtkBoundingBox AllReduceBounds(
   }
   vtkDIYUtilities::AllReduce(comm, bbox);
   return bbox;
-}
-
-static std::vector<int> AllGatherBlockCounts(diy::mpi::communicator& comm, int local_nblocks)
-{
-  std::vector<int> global_block_counts;
-  diy::mpi::all_gather(comm, local_nblocks, global_block_counts);
-
-  const int global_num_blocks =
-    std::accumulate(global_block_counts.begin(), global_block_counts.end(), 0);
-
-  const int global_block_counts_pow_2 =
-    (global_num_blocks == 1) ? 2 : vtkMath::NearestPowerOfTwo(global_num_blocks);
-
-  // since kd-tree needs pow-of-2, we pad each rank with extra blocks
-  auto extra_blocks = global_block_counts_pow_2 - global_num_blocks;
-  const auto extra_blocks_per_rank = static_cast<int>(std::ceil(extra_blocks * 1.0 / comm.size()));
-  for (auto& count : global_block_counts)
-  {
-    if (extra_blocks > 0)
-    {
-      const auto padding = std::min(extra_blocks_per_rank, extra_blocks);
-      count += padding;
-      extra_blocks -= padding;
-    }
-  }
-  assert(std::accumulate(global_block_counts.begin(), global_block_counts.end(), 0) ==
-    global_block_counts_pow_2);
-  return global_block_counts;
 }
 
 class ExplicitAssigner : public ::diy::StaticAssigner
@@ -178,14 +152,10 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self)
     vtkDIYUtilities::Convert(impl::AllReduceBounds(comm, points));
 
   const int local_num_blocks = static_cast<int>(points.size());
-  // note, these may be padded on each rank so that the total number of blocks
-  // is a power-of-2 as needed by diy::kdtree
-  const std::vector<int> global_block_counts = impl::AllGatherBlockCounts(comm, local_num_blocks);
+  vtkDIYExplicitAssigner assigner(comm, local_num_blocks, /*pow-of-2*/ true);
 
   diy::Master master(comm, 1, -1, []() { return static_cast<void*>(new BlockT); },
     [](void* b) { delete static_cast<BlockT*>(b); });
-
-  impl::ExplicitAssigner assigner(global_block_counts);
 
   vtkLogStartScope(TRACE, "populate master");
   std::vector<int> gids;
@@ -329,12 +299,15 @@ public:
 
   void MergePoints()
   {
-    vtkNew<vtkStaticPointLocator> locator;
-    locator->SetDataSet(this->CreateDataSet());
-    locator->BuildLocator();
-
     std::vector<vtkIdType> mergemap(this->Points.size(), -1);
-    locator->MergePoints(0.0, &mergemap[0]);
+    if (this->Points.size() > 0)
+    {
+      vtkNew<vtkStaticPointLocator> locator;
+      locator->SetDataSet(this->CreateDataSet());
+      locator->BuildLocator();
+      locator->MergePoints(0.0, &mergemap[0]);
+    }
+
     // locator's mergemap does not remove unused id i.e. if we have 3 pts
     // `0, 1, 2` and the first two are the same, then the mergemap will be `0,
     // 0, 2`. We want to make it `0, 0, 1` so that it represents contiguous ids.

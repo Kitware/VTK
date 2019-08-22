@@ -25,6 +25,7 @@ TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::ImagingCore
   VTK::InteractionStyle
+  VTK::IOXML
   VTK::ParallelCore
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
