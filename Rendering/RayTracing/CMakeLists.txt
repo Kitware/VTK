@@ -37,52 +37,56 @@ cmake_dependent_option(VTKOSPRAY_ENABLE_DENOISER
   "VTK_ENABLE_OSPRAY" OFF)
 
 option(VTK_ENABLE_VISRTX "Enable VisRTX RayTracing backend" OFF)
-if(VTK_ENABLE_VISRTX)
+if (VTK_ENABLE_VISRTX)
   list(APPEND sources RTWrapper/VisRTX/VisRTXBackend.cxx)
-endif()
+endif ()
 
 vtk_module_add_module(VTK::RenderingRayTracing
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source} ${sources}
   PRIVATE_HEADERS ${vtk_object_factory_header} ${headers})
 
-if(VTK_ENABLE_OSPRAY)
-  # TODO: Send patches upstream to export targets from ospray.
-  find_package(ospray 1.8 REQUIRED)
+if (VTK_ENABLE_OSPRAY)
+  vtk_module_find_package(
+    PACKAGE ospray
+    VERSION 1.8)
 
-  vtk_module_include(VTK::RenderingRayTracing
-    PUBLIC
-      ${OSPRAY_INCLUDE_DIRS})
   vtk_module_link(VTK::RenderingRayTracing
     PUBLIC
-      ${OSPRAY_LIBRARIES})
-  if(VTKOSPRAY_ENABLE_DENOISER)
-    find_package(OpenImageDenoise 0.8 REQUIRED)
-    add_definitions(-DVTKOSPRAY_ENABLE_DENOISER)
+      ospray::ospray)
+  if (VTKOSPRAY_ENABLE_DENOISER)
+    vtk_module_find_package(
+      PACKAGE OpenImageDenoise
+      VERSION 0.8)
+    vtk_module_definitions(VTK::RenderingRayTracing
+      PRIVATE
+        VTKOSPRAY_ENABLE_DENOISER)
     vtk_module_link(VTK::RenderingRayTracing
       PRIVATE
         OpenImageDenoise)
-  endif()
+  endif ()
 
   # TODO: FindOSPRay should do this.
   # OSPRay_Core uses MMTime which is in it's own special library.
-  if(WIN32)
+  if (WIN32)
     vtk_module_link(VTK::RenderingRayTracing
       PRIVATE
         Winmm)
-  endif()
+  endif ()
   vtk_module_definitions(VTK::RenderingRayTracing
     PRIVATE
       VTK_ENABLE_OSPRAY)
-endif()
+endif ()
 
 # VisRTX
-if(VTK_ENABLE_VISRTX)
-  find_package(VisRTX CONFIG REQUIRED)
+if (VTK_ENABLE_VISRTX)
+  vtk_module_find_package(
+    PACKAGE VisRTX
+    CONFIG_MODE)
   vtk_module_link(VTK::RenderingRayTracing
     PUBLIC
       VisRTX_DynLoad)
   vtk_module_definitions(VTK::RenderingRayTracing
     PRIVATE
       VTK_ENABLE_VISRTX)
-endif()
+endif ()
