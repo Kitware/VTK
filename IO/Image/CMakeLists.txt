@@ -24,6 +24,7 @@ set(classes
   vtkNIFTIImageReader
   vtkNIFTIImageWriter
   vtkNrrdReader
+  vtkOMETIFFReader
   vtkPNGReader
   vtkPNGWriter
   vtkPNMReader
@@ -37,4 +38,5 @@ set(classes
   vtkVolumeReader)
 
 vtk_module_add_module(VTK::IOImage
+  PRIVATE_HEADERS vtkTIFFReaderInternal.h
   CLASSES ${classes})

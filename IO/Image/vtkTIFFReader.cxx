@@ -13,21 +13,18 @@
 
 =========================================================================*/
 #include "vtkTIFFReader.h"
+#include "vtkTIFFReaderInternal.h"
 
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 #include "vtkErrorCode.h"
 #include "vtkObjectFactory.h"
-
 #include "vtksys/SystemTools.hxx"
 
 #include <string>
 #include <algorithm>
 
-extern "C" {
-#include "vtk_tiff.h"
-}
 
 namespace {
 struct FlipTrue {};
@@ -140,42 +137,6 @@ bool ReadTemplatedImage(T* out, Flip flip,
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader)
-
-class vtkTIFFReader::vtkTIFFReaderInternal
-{
-public:
-  vtkTIFFReaderInternal();
-  bool Initialize();
-  void Clean();
-  bool CanRead();
-  bool Open(const char *filename);
-  TIFF *Image;
-  bool IsOpen;
-  unsigned int Width;
-  unsigned int Height;
-  unsigned short NumberOfPages;
-  unsigned short CurrentPage;
-  unsigned short SamplesPerPixel;
-  unsigned short Compression;
-  unsigned short BitsPerSample;
-  unsigned short Photometrics;
-  bool HasValidPhotometricInterpretation;
-  unsigned short PlanarConfig;
-  unsigned short Orientation;
-  unsigned long int TileDepth;
-  unsigned int TileRows;
-  unsigned int TileColumns;
-  unsigned int TileWidth;
-  unsigned int TileHeight;
-  unsigned short NumberOfTiles;
-  unsigned int SubFiles;
-  unsigned int ResolutionUnit;
-  float XResolution;
-  float YResolution;
-  short SampleFormat;
-  static void ErrorHandler(const char* module, const char* fmt, va_list ap);
-};
-
 extern "C" {
 static void vtkTIFFReaderInternalErrorHandler(const char* vtkNotUsed(module),
                                               const char* vtkNotUsed(fmt),
@@ -860,8 +821,11 @@ void vtkTIFFReader::ReadVolume(T* buffer)
   int samplesPerPixel = this->InternalImage->SamplesPerPixel;
   unsigned int npages = this->InternalImage->NumberOfPages;
 
+  int outDims[3];
+  vtkStructuredData::GetDimensionsFromExtent(this->OutputExtent, outDims);
+
   // counter for slices (not every page is a slice)
-  unsigned int slice = 0;
+  int slice = 0;
   for (unsigned int page = 0; page < npages; ++page)
   {
     this->UpdateProgress(static_cast<double>(page + 1) / npages);
@@ -879,70 +843,30 @@ void vtkTIFFReader::ReadVolume(T* buffer)
       }
     }
 
-    // if we have a Zeiss image meaning that the SamplesPerPixel is 2
-    if (samplesPerPixel == 2)
+    if (slice >= this->OutputExtent[4] && slice <= this->OutputExtent[5])
     {
-      T* volume = buffer;
-      volume += width * height * slice * samplesPerPixel;
-      this->ReadTwoSamplesPerPixelImage(volume, width, height);
-      break;
-    }
-    else if (!this->InternalImage->CanRead())
-    {
-      uint32 *tempImage = new uint32[width * height];
-      if (!TIFFReadRGBAImage(this->InternalImage->Image,
-                             width, height,
-                             tempImage, 1))
+      // if we have a Zeiss image meaning that the SamplesPerPixel is 2
+      if (samplesPerPixel == 2)
       {
-        vtkErrorMacro( << "Cannot read TIFF image or as a TIFF RGBA image" );
-        delete [] tempImage;
-        return;
-      }
-
-      const bool flip = this->InternalImage->Orientation != ORIENTATION_TOPLEFT;
-      T* fimage = buffer;
-      fimage += width * height * 4 * slice;
-      for (int yy = 0; yy < height; ++yy)
-      {
-        uint32* ssimage;
-        if (flip)
+        if (outDims[0] != width || outDims[1] != height)
         {
-          ssimage = tempImage + yy * width;
-        }
-        else
-        {
-          ssimage = tempImage + (height - yy - 1) * width;
-        }
-        for (int xx = 0; xx < width; ++xx)
-        {
-          *(fimage    ) = static_cast<T>(TIFFGetR(*ssimage)); // Red
-          *(fimage + 1) = static_cast<T>(TIFFGetG(*ssimage)); // Green
-          *(fimage + 2) = static_cast<T>(TIFFGetB(*ssimage)); // Blue
-          *(fimage + 3) = static_cast<T>(TIFFGetA(*ssimage)); // Alpha
-          fimage += 4;
-          ++ssimage;
-        }
-      }
-      delete [] tempImage;
-      tempImage = nullptr;
-    }
-    else
-    {
-      unsigned int format = this->GetFormat();
-      switch (format)
-      {
-        case vtkTIFFReader::GRAYSCALE:
-        case vtkTIFFReader::RGB:
-        case vtkTIFFReader::PALETTE_RGB:
-        case vtkTIFFReader::PALETTE_GRAYSCALE:
-        {
-          T* volume = buffer;
-          volume += width * height * slice * samplesPerPixel;
-          this->ReadGenericImage(volume, width, height);
-          break;
-        }
-        default:
+          vtkErrorMacro("Case not supported currently! Please report back!");
           return;
+        }
+        T* volume = buffer;
+        volume += width * height * samplesPerPixel * (slice - this->OutputExtent[4]);
+        this->ReadTwoSamplesPerPixelImage(volume, width, height);
+        break;
+      }
+      else
+      {
+        vtkIdType offset =
+          outDims[0] * outDims[1] * static_cast<vtkIdType>(slice - this->OutputExtent[4]);
+        // I don't think this is correct since if `CanRead==false`, we may not have actually
+        // allocated a target buffer with 4 components. For now, I am keeping
+        // the logic same as before.
+        offset *= this->InternalImage->CanRead() ? samplesPerPixel : 4;
+        this->ReadImageInternal(buffer + offset);
       }
     }
 
@@ -1388,10 +1312,11 @@ void vtkTIFFReader::ReadImageInternal(T* outPtr)
       }
       return;
     }
-    uint32* ssimage = tempImage;
+    const bool flip = this->InternalImage->Orientation != ORIENTATION_TOPLEFT;
     T* fimage = outPtr;
     for (int yy = 0; yy < height; ++yy)
     {
+      uint32* ssimage = flip ? (tempImage + yy * width) : (tempImage + (height - yy - 1) * width);
       for (int xx = 0; xx < width; ++xx)
       {
         if (xx >= this->OutputExtent[0] &&

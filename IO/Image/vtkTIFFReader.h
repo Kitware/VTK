@@ -108,6 +108,9 @@ protected:
   void ExecuteInformation() override;
   void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
 
+  class vtkTIFFReaderInternal;
+  vtkTIFFReaderInternal* InternalImage;
+
 private:
   vtkTIFFReader(const vtkTIFFReader&) = delete;
   void operator=(const vtkTIFFReader&) = delete;
@@ -171,14 +174,12 @@ private:
   template <typename T>
   void Process2(T *outPtr, int *outExt);
 
-  class vtkTIFFReaderInternal;
 
   unsigned short *ColorRed;
   unsigned short *ColorGreen;
   unsigned short *ColorBlue;
   int TotalColors;
   unsigned int ImageFormat;
-  vtkTIFFReaderInternal *InternalImage;
   int OutputExtent[6];
   vtkIdType OutputIncrements[3];
   unsigned int OrientationType;

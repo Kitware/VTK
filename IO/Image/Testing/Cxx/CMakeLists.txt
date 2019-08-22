@@ -85,6 +85,23 @@ if (VTK_USE_LARGE_DATA)
   vtk_add_test_cxx(vtkIOImageCxxTests large_data_tests
     TestMRCReader,TestMRCReader.cxx,NO_OUTPUT
       "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/mrc/emd_1056.mrc}")
+
+  vtk_add_test_cxx(vtkIOImageCxxTests large_data_tests
+    TestOMETIFFReaderTwoChannel,TestOMETIFFReader.cxx,NO_OUTPUT,NO_VALID
+    "--data" "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/ometiff/test_small_TwoChannel_Singleframe.ome.tif}"
+    "--size" "256x256x75"
+    "--physical-size" "0.208x0.208x0.604"
+    "--size_c" "2"
+    "--size_t" "1")
+
+  vtk_add_test_cxx(vtkIOImageCxxTests large_data_tests
+    TestOMETIFFReaderSingleChannel,TestOMETIFFReader.cxx,NO_OUTPUT,NO_VALID
+    "--data" "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/ometiff/test_small_singleChannel_timeSeries.ome.tif}"
+    "--size" "256x256x75"
+    "--physical-size" "0.208x0.208x0.604"
+    "--size_c" "1"
+    "--size_t" "6")
+
   list(APPEND data_tests ${large_data_tests})
 endif()
 

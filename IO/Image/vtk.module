@@ -20,6 +20,7 @@ PRIVATE_DEPENDS
   VTK::jpeg
   VTK::metaio
   VTK::png
+  VTK::pugixml
   VTK::tiff
   VTK::vtksys
   VTK::zlib
