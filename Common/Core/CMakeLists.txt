@@ -226,6 +226,7 @@ set(${vtk-module}_HDRS
   vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayTemplate.h
+  vtkEventData.h
   vtkGenericDataArrayLookupHelper.h
   vtkIOStream.h
   vtkIOStreamFwd.h
