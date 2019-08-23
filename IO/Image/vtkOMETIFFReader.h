@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkOMETIFFReader();
-  ~vtkOMETIFFReader();
+  ~vtkOMETIFFReader() override;
 
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
