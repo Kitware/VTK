@@ -1278,6 +1278,15 @@ void vtkTIFFReader::ReadGenericImage(T* out, unsigned int, unsigned int height)
     }
   }
   _TIFFfree(buf);
+
+  // release color map ptrs, if any. since color map changes with each IFD,
+  // to avoid reading obsolete ptrs in `ReadVolume`, we just clear these
+  // references. The overhead to doing that is minimal. The next invocation to
+  // `ReadGenericImage` may have to fetch these points again. Note, these are
+  // just pointers to memory internally allocated by libtiff and hence we are
+  // not actually deep-copying the color map.
+  this->ColorRed = this->ColorBlue = this->ColorGreen = nullptr;
+  this->TotalColors = -1;
 }
 
 
