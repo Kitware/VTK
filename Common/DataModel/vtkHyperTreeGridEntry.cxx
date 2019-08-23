@@ -83,18 +83,16 @@ bool vtkHyperTreeGridEntry::IsMasked(const vtkHyperTreeGrid* grid, const vtkHype
 
 //-----------------------------------------------------------------------------
 bool vtkHyperTreeGridEntry::IsLeaf(
-  const vtkHyperTreeGrid* grid, const vtkHyperTree* tree, unsigned int level) const
+  const vtkHyperTreeGrid* grid,
+  const vtkHyperTree* tree,
+  unsigned int level ) const
 {
-  assert("pre: not_tree" && tree);
-  if (level == const_cast<vtkHyperTreeGrid *>(grid)->GetDepthLimiter())
+  assert( "pre: not_tree" && tree );
+  if  (level == const_cast<vtkHyperTreeGrid *>( grid )->GetDepthLimiter() )
   {
     return true;
   }
-  if (this->Index)
-  {
-    return tree->IsLeaf(this->Index);
-  }
-  return (tree->GetNumberOfVertices() == 1);
+  return tree->IsLeaf( this->Index );
 }
 
 //---------------------------------------------------------------------------
