@@ -101,28 +101,23 @@ bool vtkHyperTreeGridGeometryEntry::IsMasked(
 
 //-----------------------------------------------------------------------------
 bool vtkHyperTreeGridGeometryEntry::IsLeaf(
-    const vtkHyperTreeGrid* grid,
-    const vtkHyperTree* tree,
-    unsigned int level) const
+  const vtkHyperTreeGrid* grid,
+  const vtkHyperTree* tree,
+  unsigned int level ) const
 {
-  assert("pre: not_tree" &&
-          tree);
-  if (level == const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter())
+  assert( "pre: not_tree" && tree );
+  if ( level == const_cast<vtkHyperTreeGrid*>( grid )->GetDepthLimiter() )
   {
     return true;
   }
-  if (this->Index)
-  {
-    return tree->IsLeaf(this->Index);
-  }
-  return (tree->GetNumberOfVertices() == 1);
+  return tree->IsLeaf( this->Index );
 }
 
 //---------------------------------------------------------------------------
 void vtkHyperTreeGridGeometryEntry::SubdivideLeaf(
-    const vtkHyperTreeGrid* grid,
-    vtkHyperTree* tree,
-    unsigned int level)
+  const vtkHyperTreeGrid* grid,
+  vtkHyperTree* tree,
+  unsigned int level)
 {
   assert("pre: not_tree" &&
           tree);
