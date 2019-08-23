@@ -99,7 +99,7 @@ protected:
   ~vtkHyperTreeGridPlaneCutter() override;
 
   /**
-   * Resets every attributes
+   * Resets every attributes to a minimal state needed for the algorithm to execute
    */
   virtual void Reset();
 
