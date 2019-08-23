@@ -35,6 +35,7 @@
 #include <cassert>
 #include <map>
 #include <numeric>
+#include <string>
 #include <vector>
 
 class vtkOMETIFFReader::vtkOMEInternals
