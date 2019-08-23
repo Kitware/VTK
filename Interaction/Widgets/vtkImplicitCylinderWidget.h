@@ -116,11 +116,6 @@ public:
    */
   void SetRepresentation( vtkImplicitCylinderRepresentation *rep );
 
-  // Description:
-  // Disable/Enable the widget if needed.
-  // Unobserved the camera if the widget is disabled.
-  void SetEnabled(int enabling) override;
-
   /**
    * Return the representation as a vtkImplicitCylinderRepresentation.
    */
@@ -134,7 +129,7 @@ public:
 
 protected:
   vtkImplicitCylinderWidget();
-  ~vtkImplicitCylinderWidget() override;
+  ~vtkImplicitCylinderWidget() override = default;
 
   // Manage the state of the widget
   int WidgetState;
@@ -147,6 +142,8 @@ protected:
   static void EndSelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
   static void MoveCylinderAction(vtkAbstractWidget*);
+  static void TranslationAxisLock(vtkAbstractWidget*);
+  static void TranslationAxisUnLock(vtkAbstractWidget*);
 
   /**
    * Update the cursor shape based on the interaction state. Returns 1
@@ -154,8 +151,6 @@ protected:
    */
   int UpdateCursorShape( int interactionState );
 
-  vtkCallbackCommand* KeyEventCallbackCommand;
-  static void ProcessKeyEvents(vtkObject*, unsigned long, void*, void*);
 
 private:
   vtkImplicitCylinderWidget(const vtkImplicitCylinderWidget&) = delete;
