@@ -25,7 +25,6 @@ vtkStandardNewMacro(vtkTextureUnitManager);
 // ----------------------------------------------------------------------------
 vtkTextureUnitManager::vtkTextureUnitManager()
 {
-  this->Context=nullptr;
   this->NumberOfTextureUnits=0;
   this->TextureUnits=nullptr;
 }
@@ -34,7 +33,6 @@ vtkTextureUnitManager::vtkTextureUnitManager()
 vtkTextureUnitManager::~vtkTextureUnitManager()
 {
   this->DeleteTable();
-  this->Context=nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -64,31 +62,23 @@ void vtkTextureUnitManager::DeleteTable()
 }
 
 // ----------------------------------------------------------------------------
-void vtkTextureUnitManager::SetContext(vtkOpenGLRenderWindow *context)
+void vtkTextureUnitManager::Initialize()
 {
-  if(this->Context!=context)
+  // this->DeleteTable();
+  if (!this->NumberOfTextureUnits)
   {
-    if(this->Context!=nullptr)
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->NumberOfTextureUnits);
+    if(this->NumberOfTextureUnits > 0)
     {
-      this->DeleteTable();
-    }
-    this->Context=context;
-    if(this->Context!=nullptr)
-    {
-      glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->NumberOfTextureUnits);
-      if(this->NumberOfTextureUnits > 0)
+      this->TextureUnits = new bool [this->NumberOfTextureUnits];
+      size_t i=0;
+      size_t c=this->NumberOfTextureUnits;
+      while(i<c)
       {
-        this->TextureUnits = new bool [this->NumberOfTextureUnits];
-        size_t i=0;
-        size_t c=this->NumberOfTextureUnits;
-        while(i<c)
-        {
-          this->TextureUnits[i]=false;
-          ++i;
-        }
+        this->TextureUnits[i]=false;
+        ++i;
       }
     }
-    this->Modified();
   }
 }
 
@@ -173,14 +163,4 @@ void vtkTextureUnitManager::Free(int textureUnitId)
 void vtkTextureUnitManager::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "Context: ";
-  if(this->Context!=nullptr)
-  {
-    os << static_cast<void *>(this->Context) <<endl;
-  }
-  else
-  {
-    os << "none" << endl;
-  }
 }

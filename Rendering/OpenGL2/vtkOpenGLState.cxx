@@ -17,6 +17,7 @@
 
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkTextureUnitManager.h"
 
 // must be included after a vtkObject subclass
 #include "vtkOpenGLError.h"
@@ -267,6 +268,7 @@ bool reportOpenGLErrors(std::string &result)
 
 //
 //////////////////////////////////////////////////////////////////////////////
+
 
 vtkOpenGLState::ScopedglDepthMask::ScopedglDepthMask(vtkOpenGLState *s)
 {
@@ -816,6 +818,8 @@ void vtkOpenGLState::vtkglDisable(GLenum cap)
 // state ivars
 void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
 {
+  this->TextureUnitManager->Initialize();
+
   this->CurrentState.Blend
     ? ::glEnable(GL_BLEND) : ::glDisable(GL_BLEND);
   this->CurrentState.DepthTest
@@ -983,6 +987,92 @@ void vtkOpenGLState::vtkglClear(GLbitfield val)
   ::glClear(val);
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Returns its texture unit manager object.
+vtkTextureUnitManager *vtkOpenGLState::GetTextureUnitManager()
+{
+  return this->TextureUnitManager;
+}
+
+void vtkOpenGLState::SetTextureUnitManager(vtkTextureUnitManager *tum)
+{
+  if (this->TextureUnitManager == tum)
+  {
+    return;
+  }
+  if (tum)
+  {
+    tum->Register(nullptr);
+  }
+  if (this->TextureUnitManager)
+  {
+    this->TextureUnitManager->Delete();
+  }
+  this->TextureUnitManager = tum;
+}
+
+void vtkOpenGLState::ActivateTexture(vtkTextureObject *texture)
+{
+  // Only add if it isn't already there
+  typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
+  TRIter found = this->TextureResourceIds.find(texture);
+  if (found == this->TextureResourceIds.end())
+  {
+    int activeUnit =  this->GetTextureUnitManager()->Allocate();
+    if (activeUnit < 0)
+    {
+      vtkGenericWarningMacro("Hardware does not support the number of textures defined.");
+      return;
+    }
+    this->TextureResourceIds.insert(std::make_pair(texture, activeUnit));
+    glActiveTexture(GL_TEXTURE0 + activeUnit);
+  }
+  else
+  {
+    glActiveTexture(GL_TEXTURE0 + found->second);
+  }
+}
+
+void vtkOpenGLState::DeactivateTexture(vtkTextureObject *texture)
+{
+  // Only deactivate if it isn't already there
+  typedef std::map<const vtkTextureObject *, int>::iterator TRIter;
+  TRIter found = this->TextureResourceIds.find(texture);
+  if (found != this->TextureResourceIds.end())
+  {
+    this->GetTextureUnitManager()->Free(found->second);
+    this->TextureResourceIds.erase(found);
+  }
+}
+
+int vtkOpenGLState::GetTextureUnitForTexture(vtkTextureObject *texture)
+{
+  // Only deactivate if it isn't already there
+  typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
+  TRIter found = this->TextureResourceIds.find(texture);
+  if (found != this->TextureResourceIds.end())
+  {
+    return found->second;
+  }
+
+  return -1;
+}
+
+void vtkOpenGLState::VerifyNoActiveTextures()
+{
+  if (!this->TextureResourceIds.empty())
+  {
+    vtkGenericWarningMacro("There are still active textures when there should not be.");
+    typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
+    TRIter found = this->TextureResourceIds.begin();
+    for ( ; found != this->TextureResourceIds.end(); ++found)
+    {
+      vtkGenericWarningMacro("Leaked for texture object: " << const_cast<vtkTextureObject *>(found->first));
+    }
+  }
+}
+
 // initialize all state values. This is important so that in
 // ::Initialize we can just set the state to the current
 // values (knowing that they are set). The reason we want
@@ -1005,6 +1095,8 @@ void vtkOpenGLState::vtkglClear(GLbitfield val)
 //
 vtkOpenGLState::vtkOpenGLState()
 {
+  this->TextureUnitManager = vtkTextureUnitManager::New();
+
   this->CurrentState.Blend = true;
   this->CurrentState.DepthTest = true;
   this->CurrentState.StencilTest = false;
@@ -1049,4 +1141,10 @@ vtkOpenGLState::vtkOpenGLState()
 
   this->CurrentState.BlendEquationValue1 = GL_FUNC_ADD;
   this->CurrentState.BlendEquationValue2 = GL_FUNC_ADD;
+}
+
+vtkOpenGLState::~vtkOpenGLState()
+{
+  this->TextureResourceIds.clear();
+  this->SetTextureUnitManager(nullptr);
 }

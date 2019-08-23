@@ -45,6 +45,17 @@ vtkEquirectangularToCubemapTexture::~vtkEquirectangularToCubemapTexture()
   }
 }
 
+// ---------------------------------------------------------------------------
+// Release the graphics resources used by this texture.
+void vtkEquirectangularToCubemapTexture::ReleaseGraphicsResources(vtkWindow *win)
+{
+  if (this->InputTexture)
+  {
+    this->InputTexture->ReleaseGraphicsResources(win);
+  }
+  this->Superclass::ReleaseGraphicsResources(win);
+}
+
 //------------------------------------------------------------------------------
 void vtkEquirectangularToCubemapTexture::PrintSelf(ostream& os, vtkIndent indent)
 {

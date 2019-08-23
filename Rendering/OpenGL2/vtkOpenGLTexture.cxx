@@ -174,12 +174,12 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     // like the graphics context.
 
     // has something changed so that we need to rebuild the texture?
-    if (this->GetMTime() > this->LoadTime.GetMTime() ||
-        inputTime > this->LoadTime.GetMTime() ||
-        (this->GetLookupTable() && this->GetLookupTable()->GetMTime () >
-         this->LoadTime.GetMTime()) ||
-         renWin->GetGenericContext() != this->RenderWindow->GetGenericContext() ||
-         renWin->GetContextCreationTime() > this->LoadTime)
+    if (this->GetMTime() > this->LoadTime.GetMTime()
+        || inputTime > this->LoadTime.GetMTime()
+        || (this->GetLookupTable() && this->GetLookupTable()->GetMTime () >
+            this->LoadTime.GetMTime())
+        || renWin->GetGenericContext() != this->RenderWindow->GetGenericContext()
+        || renWin->GetContextCreationTime() > this->LoadTime)
     {
       int size[3];
       int xsize, ysize;

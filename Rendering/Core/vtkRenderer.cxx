@@ -220,6 +220,10 @@ vtkTexture* vtkRenderer::GetLeftBackgroundTexture()
 
 void vtkRenderer::ReleaseGraphicsResources(vtkWindow *renWin)
 {
+  if(this->EnvironmentCubeMap != nullptr)
+  {
+    this->EnvironmentCubeMap->ReleaseGraphicsResources(renWin);
+  }
   if(this->BackgroundTexture != nullptr)
   {
     this->BackgroundTexture->ReleaseGraphicsResources(renWin);
