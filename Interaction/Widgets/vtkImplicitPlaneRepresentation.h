@@ -181,6 +181,23 @@ public:
 
   //@{
   /**
+   * Toggles constraint translation axis on/off.
+   */
+  void SetXTranslationAxisOn() { this->TranslationAxis = Axis::XAxis; }
+  void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
+  void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
+  void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
+  //@}
+
+  //@{
+  /**
+   * Returns true if ContrainedAxis
+   **/
+  bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
+  //@}
+
+  //@{
+  /**
    * Set/Get the bounds of the widget representation. PlaceWidget can also be
    * used to set the bounds of the widget but it may also have other effects
    * on the internal state of the representation. Use this function when only
@@ -441,6 +458,8 @@ protected:
 
   // The actual plane which is being manipulated
   vtkPlane *Plane;
+
+  int TranslationAxis;
 
   // The bounding box is represented by a single voxel image data
   vtkImageData      *Box;

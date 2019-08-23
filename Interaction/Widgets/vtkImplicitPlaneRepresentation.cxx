@@ -226,6 +226,8 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->BoundingBox = vtkBox::New();
 
   this->RepresentationState = vtkImplicitPlaneRepresentation::Outside;
+
+  this->TranslationAxis = Axis::NONE;
 }
 
 //----------------------------------------------------------------------------
@@ -1098,10 +1100,22 @@ void vtkImplicitPlaneRepresentation::Rotate3D(double *p1, double *p2)
 void vtkImplicitPlaneRepresentation::TranslateOutline(double *p1, double *p2)
 {
   //Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
+  double v[3] = {0,0,0};
+
+  if (!this->IsTranslationConstrained())
+  {
+    v[0] = p2[0] - p1[0];
+    v[1] = p2[1] - p1[1];
+    v[2] = p2[2] - p1[2];
+  }
+  else
+  {
+    assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
+      "this->TranslationAxis out of bounds");
+    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
+  }
+
+
 
   //Translate the bounding box
   double *origin = this->Box->GetOrigin();
@@ -1127,10 +1141,20 @@ void vtkImplicitPlaneRepresentation::TranslateOutline(double *p1, double *p2)
 void vtkImplicitPlaneRepresentation::TranslateOrigin(double *p1, double *p2)
 {
   //Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
+  double v[3] = {0,0,0};
+
+  if (!this->IsTranslationConstrained())
+  {
+    v[0] = p2[0] - p1[0];
+    v[1] = p2[1] - p1[1];
+    v[2] = p2[2] - p1[2];
+  }
+  else
+  {
+    assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
+      "this->TranslationAxis out of bounds");
+    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
+  }
 
   //Add to the current point, project back down onto plane
   double *o = this->Plane->GetOrigin();

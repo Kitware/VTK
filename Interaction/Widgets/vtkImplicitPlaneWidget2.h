@@ -163,6 +163,8 @@ protected:
   static void SelectAction3D(vtkAbstractWidget*);
   static void EndSelectAction3D(vtkAbstractWidget*);
   static void MoveAction3D(vtkAbstractWidget*);
+  static void TranslationAxisLock(vtkAbstractWidget*);
+  static void TranslationAxisUnLock(vtkAbstractWidget*);
 
   /**
    * Update the cursor shape based on the interaction state. Returns 1
