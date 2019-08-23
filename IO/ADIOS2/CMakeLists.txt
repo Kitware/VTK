@@ -18,28 +18,40 @@ set(classes_core vtkADIOS2CoreImageReader)
 set(private_classes_core Core/vtkADIOS2CoreArraySelection)
 set(private_headers_core Core/vtkADIOS2CoreTypeTraits.h)
 set(private_templates_core)
-list(APPEND classes   ${classes_core})
-list(APPEND private_classes   ${private_classes_core})
-list(APPEND private_headers   ${private_headers_core})
-list(APPEND private_templates ${private_templates_core})
+set(vtk_io_adios2_core_enabled TRUE CACHE INTERNAL "" FORCE)
+
+if (vtk_io_adios2_core_enabled)
+  list(APPEND classes   ${classes_core})
+  list(APPEND private_classes   ${private_classes_core})
+  list(APPEND private_headers   ${private_headers_core})
+  list(APPEND private_templates ${private_templates_core})
+endif()
 
 # ADIOS2 VTX Reader (currently broken on win32 and apple)
-if (VTK_USE_MPI AND NOT WIN32 AND NOT APPLE)
-  set(classes_vtx vtkADIOS2VTXReader)
-  set(private_classes_vtx
-    VTX/VTXSchemaManager
-    VTX/common/VTXDataArray
-    VTX/common/VTXHelper
-    VTX/schema/VTXSchema
-    VTX/schema/vtk/VTXvtkBase
-    VTX/schema/vtk/VTXvtkVTI
-    VTX/schema/vtk/VTXvtkVTU)
-  set(private_headers_vtx VTX/common/VTXTypes.h)
-  set(private_templates_vtx
-    VTX/common/VTXHelper.txx
-    VTX/schema/VTXSchema.txx
-    VTX/schema/vtk/VTXvtkVTI.txx
-    VTX/schema/vtk/VTXvtkVTU.txx)
+set(classes_vtx vtkADIOS2VTXReader)
+set(private_classes_vtx
+  VTX/VTXSchemaManager
+  VTX/common/VTXDataArray
+  VTX/common/VTXHelper
+  VTX/schema/VTXSchema
+  VTX/schema/vtk/VTXvtkBase
+  VTX/schema/vtk/VTXvtkVTI
+  VTX/schema/vtk/VTXvtkVTU)
+set(private_headers_vtx VTX/common/VTXTypes.h)
+set(private_templates_vtx
+  VTX/common/VTXHelper.txx
+  VTX/schema/VTXSchema.txx
+  VTX/schema/vtk/VTXvtkVTI.txx
+  VTX/schema/vtk/VTXvtkVTU.txx)
+# VTX reader is currently broken on a few platforms.
+#if (VTK_USE_MPI)
+#  set(vtk_io_adios2_vtx_enabled TRUE CACHE INTERNAL "" FORCE)
+#else ()
+#  set(vtk_io_adios2_vtx_enabled FALSE CACHE INTERNAL "" FORCE)
+#endif()
+set(vtk_io_adios2_vtx_enabled FALSE CACHE INTERNAL "" FORCE)
+
+if (vtk_io_adios2_vtx_enabled)
   list(APPEND classes   ${classes_vtx})
   list(APPEND private_classes   ${private_classes_vtx})
   list(APPEND private_headers   ${private_headers_vtx})
