@@ -639,9 +639,17 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
       break;
   }
 
+  // If normal to the HTG is y, we right now have HTG spanned by (x,y)
+  // We swap them to have a direct frame spanning the HTG
+  if (this->Orientation == 1)
+  {
+    std::swap (this->Axis[0], this->Axis[1]);
+  }
+
   assert("post: valid_axis" &&
     (this->Dimension != 2 || (this->Axis[0] == (this->Orientation + 1) % 3 &&
                                this->Axis[1] == (this->Orientation + 2) % 3)));
+
 
   // Make sure that number of children is factor^dimension
   this->NumberOfChildren = this->BranchFactor;
