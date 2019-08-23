@@ -523,7 +523,7 @@ int vtkExtractSubsetWithSeed::RequestData(
     double bds[6];
     b->Input->GetBounds(bds);
     vtkBoundingBox bbox(bds);
-    bbox.Inflate(0.001 * bbox.GetDiagonalLength());
+    bbox.Inflate(0.000001);
 
     if (rp.round() == 0)
     {
@@ -535,7 +535,8 @@ int vtkExtractSubsetWithSeed::RequestData(
     }
     else
     {
-      auto link = rp.master()->link(rp.gid());
+      auto amaster = rp.master();
+      auto link = amaster->link(amaster->lid(rp.gid()));
       for (int i = 0; i < rp.in_link().size(); ++i)
       {
         const auto src = rp.in_link().target(i);
@@ -544,8 +545,8 @@ int vtkExtractSubsetWithSeed::RequestData(
         vtkBoundingBox in_bbx(in_bds);
         if (src.gid != rp.gid() && in_bbx.IsValid() && in_bbx.Intersects(bbox))
         {
+          vtkLogF(TRACE, "%d --> %d", rp.gid(), src.gid);
           link->add_neighbor(src);
-          // vtkLogF(TRACE, "%d --> %d", rp.gid(), src.gid);
         }
       }
     }
@@ -633,6 +634,7 @@ int vtkExtractSubsetWithSeed::RequestData(
           // enqueue
           for (const auto& neighbor : cp.link()->neighbors())
           {
+            vtkLogF(TRACE, "r=%d: enqueing %d --> (%d, %d)", round, cp.gid(), neighbor.gid, neighbor.proc);
             cp.enqueue(neighbor, next_seeds);
           }
         }
@@ -642,6 +644,7 @@ int vtkExtractSubsetWithSeed::RequestData(
         const int has_seeds = (next_seeds.size() > 0) ? 1 : 0;
         cp.all_reduce(has_seeds, std::logical_or<int>());
       });
+    vtkLogF(TRACE, "r=%d, exchange", round);
     master.exchange();
     all_done = (master.proxy(master.loaded_block()).read<int>() == 0);
     ++round;
