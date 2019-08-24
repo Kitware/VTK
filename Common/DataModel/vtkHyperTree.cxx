@@ -194,7 +194,7 @@ public:
     nbVerticesbyLevel->Resize(0);
     for ( int iLevel = 0; iLevel < maxLevels; ++ iLevel )
     {
-      nbVerticesbyLevel->InsertNextValue( globalIdByLevel[iLevel].size() );
+      nbVerticesbyLevel->InsertNextValue( static_cast<unsigned long>(globalIdByLevel[iLevel].size()));
     }
     nbVerticesbyLevel->Squeeze();
     //
