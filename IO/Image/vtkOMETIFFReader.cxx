@@ -36,6 +36,7 @@
 #include <map>
 #include <numeric>
 #include <string>
+#include <sstream>
 #include <vector>
 
 class vtkOMETIFFReader::vtkOMEInternals
@@ -117,7 +118,9 @@ void vtkOMETIFFReader::vtkOMEInternals::UpdateCache(vtkImageData* source)
     // rename arrays.
     for (size_t c = 0; c < scalar_arrays.size(); ++c)
     {
-      scalar_arrays[c]->SetName((std::string("Channel_") + std::to_string(c)).c_str());
+      std::ostringstream str;
+      str << "Channel_" << c;
+      scalar_arrays[c]->SetName(str.str().c_str());
     }
 
     for (int c = 0; c < this->SizeC; ++c)
