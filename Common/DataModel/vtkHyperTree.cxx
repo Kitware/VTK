@@ -204,7 +204,8 @@ public:
     {
       for ( auto idg : globalIdByLevel[iLevel] )
       {
-        ids->SetId( i++, idg );
+        ids->SetId( static_cast<vtkIdType>(i), idg );
+        ++i;
       }
       globalIdByLevel[iLevel].clear();
     }
