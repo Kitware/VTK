@@ -420,7 +420,7 @@ extern PyObject* PyInit_${name}();
       VTK::Python)
 
   set(_vtk_python_export)
-  if (_vtk_python_BUILD_STATIC AND _vtk_python_INSTALL_EXPORT)
+  if (_vtk_python_INSTALL_EXPORT)
     set(_vtk_python_export
       EXPORT "${_vtk_python_INSTALL_EXPORT}")
   endif ()
@@ -650,6 +650,13 @@ function (vtk_module_wrap_python)
     if (NOT _vtk_python_TARGET STREQUAL _vtk_python_TARGET_NAME)
       add_library("${_vtk_python_TARGET}" ALIAS
         "${_vtk_python_TARGET_NAME}")
+    endif ()
+
+    if (_vtk_python_INSTALL_EXPORT)
+      install(
+        TARGETS   "${_vtk_python_TARGET_NAME}"
+        EXPORT    "${_vtk_python_INSTALL_EXPORT}"
+        COMPONENT "development")
     endif ()
 
     set(_vtk_python_all_modules_include_file
