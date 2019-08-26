@@ -349,7 +349,7 @@ if (VTK_WRAP_PYTHON)
     "${vtk_required_python_modules}\n")
   vtk_module_wrap_python(
     MODULES         ${vtk_modules}
-    INSTALL_EXPORT  VTK
+    INSTALL_EXPORT  VTKPython
     PYTHON_PACKAGE  "vtkmodules"
     LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     MODULE_DESTINATION  "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
@@ -359,6 +359,17 @@ if (VTK_WRAP_PYTHON)
     TARGET          VTK::vtkpythonmodules)
 
   add_subdirectory(Wrapping/Python)
+
+  export(
+    EXPORT    VTKPython
+    NAMESPACE VTK::
+    FILE      "${CMAKE_BINARY_DIR}/${vtk_cmake_destination}/VTKPython-targets.cmake")
+  install(
+    EXPORT      VTKPython
+    NAMESPACE   VTK::
+    FILE        VTKPython-targets.cmake
+    DESTINATION "${vtk_cmake_destination}"
+    COMPONENT   "development")
 endif ()
 
 if (VTK_WRAP_JAVA)
