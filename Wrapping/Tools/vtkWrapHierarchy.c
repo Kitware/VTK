@@ -453,10 +453,7 @@ static char **append_namespace_contents(
   if (m && n)
   {
     new_scope = (char *)malloc(m + n + 3);
-    strncpy(new_scope, scope, n);
-    new_scope[n++] = ':';
-    new_scope[n++] = ':';
-    strncpy(&new_scope[n], data->Name, m + 1);
+    snprintf(new_scope, m + n + 3, "%s::%s", scope, data->Name);
     scope = new_scope;
   }
   else if (m)

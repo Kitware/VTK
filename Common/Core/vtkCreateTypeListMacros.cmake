@@ -6,8 +6,8 @@
 # Internal method.
 function(CollapseString input output)
   set(temp "")
-  foreach(line ${input})
-    set(temp ${temp}${line})
+  foreach(line IN LISTS input)
+    string(APPEND temp ${line})
   endforeach()
   set(${output} "${temp}" PARENT_SCOPE)
 endfunction()
@@ -17,7 +17,7 @@ endfunction()
 function(CreateTypeListMacros_range start end result)
   set(temp)
   set(i ${start})
-  while(i LESS end OR i EQUAL end)
+  while(NOT i GREATER end)
     list(APPEND temp ${i})
     math(EXPR i "${i} + 1")
   endwhile()
@@ -46,8 +46,8 @@ function(CreateTypeListMacros_create_macro num macroPrefix typeList nullType res
   set(lastMacroArgs "")
   set(delim "")
   foreach(i ${nums})
-    set(macroArgs "${macroArgs}, t${i}")
-    set(lastMacroArgs "${lastMacroArgs}${delim}t${i}")
+    string(APPEND macroArgs ", t${i}")
+    string(APPEND lastMacroArgs "${delim}t${i}")
     set(delim ", ")
   endforeach()
 
@@ -102,7 +102,7 @@ function(CreateTypeListMacros HEADER MAX_SIZE MACRO_PREFIX TYPELIST_T
     temp
   )
   list(APPEND result ${temp})
-  foreach(num ${nums})
+  foreach(num IN LISTS nums)
     CreateTypeListMacros_create_macro(
       "${num}"
       "${MACRO_PREFIX}"

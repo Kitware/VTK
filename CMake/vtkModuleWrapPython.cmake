@@ -371,7 +371,7 @@ extern PyObject* PyInit_${name}();
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python>")
     set_property(TARGET "${name}"
       PROPERTY
-        LIBRARY_OUTPUT_DIRECTORY "${_vtk_python_STATIC_MODULE_DESTINATION}")
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_python_STATIC_MODULE_DESTINATION}")
   else ()
     add_library("${name}" MODULE
       ${_vtk_python_library_sources})
@@ -396,7 +396,7 @@ extern PyObject* PyInit_${name}();
     endif ()
     set_property(TARGET "${name}"
       PROPERTY
-        LIBRARY_OUTPUT_DIRECTORY "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}")
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}")
     get_property(_vtk_python_is_multi_config GLOBAL
       PROPERTY GENERATOR_IS_MULTI_CONFIG)
     if (_vtk_python_is_multi_config)
@@ -406,7 +406,7 @@ extern PyObject* PyInit_${name}();
         string(TOUPPER "${_vtk_python_config}" _vtk_python_config_upper)
         set_property(TARGET "${name}"
           PROPERTY
-            "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}")
+            "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}")
       endforeach ()
     endif ()
     set_property(TARGET "${name}"
