@@ -416,6 +416,16 @@ private:
 
 };
 
+// these predeclarations are needed before the .txx include for MinGW
+namespace vtkDataArrayPrivate {
+template <typename A, typename R, typename T>
+bool DoComputeScalarRange(A*, R*, T);
+template <typename A, typename R>
+bool DoComputeVectorRange(A*, R[2], AllValues);
+template <typename A, typename R>
+bool DoComputeVectorRange(A*, R[2], FiniteValues);
+} // namespace vtkDataArrayPrivate
+
 #include "vtkGenericDataArray.txx"
 
 // Adds an implementation of NewInstanceInternal() that returns an AoS
@@ -458,14 +468,6 @@ template <typename ValueType> class vtkSOADataArrayTemplate;
 template <typename ValueType> class vtkScaledSOADataArrayTemplate;
 #endif
 
-namespace vtkDataArrayPrivate {
-template <typename A, typename R, typename T>
-bool DoComputeScalarRange(A*, R*, T);
-template <typename A, typename R>
-bool DoComputeVectorRange(A*, R[2], AllValues);
-template <typename A, typename R>
-bool DoComputeVectorRange(A*, R[2], FiniteValues);
-} // namespace vtkDataArrayPrivate
 
 #define VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType) \
   template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange( \
