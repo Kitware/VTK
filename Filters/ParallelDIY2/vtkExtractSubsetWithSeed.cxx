@@ -519,7 +519,8 @@ int vtkExtractSubsetWithSeed::RequestData(
 
   // exchange bounding boxes to determine neighbours.
   vtkLogStartScope(TRACE, "populate block neighbours");
-  diy::all_to_all(master, assigner, [](BlockT* b, const diy::ReduceProxy& rp) {
+  std::map<int, std::vector<int> > neighbors;
+  diy::all_to_all(master, assigner, [&neighbors](BlockT* b, const diy::ReduceProxy& rp) {
     double bds[6];
     b->Input->GetBounds(bds);
     vtkBoundingBox bbox(bds);
@@ -535,8 +536,6 @@ int vtkExtractSubsetWithSeed::RequestData(
     }
     else
     {
-      auto amaster = rp.master();
-      auto link = amaster->link(amaster->lid(rp.gid()));
       for (int i = 0; i < rp.in_link().size(); ++i)
       {
         const auto src = rp.in_link().target(i);
@@ -546,11 +545,23 @@ int vtkExtractSubsetWithSeed::RequestData(
         if (src.gid != rp.gid() && in_bbx.IsValid() && in_bbx.Intersects(bbox))
         {
           vtkLogF(TRACE, "%d --> %d", rp.gid(), src.gid);
-          link->add_neighbor(src);
+          neighbors[rp.gid()].push_back(src.gid);
         }
       }
     }
   });
+
+  // update local links.
+  for (auto& pair : neighbors)
+  {
+    auto l = new diy::Link();
+    for (const auto& nid : pair.second)
+    {
+      l->add_neighbor(diy::BlockID(nid, assigner.rank(nid)));
+    }
+    master.replace_link(master.lid(pair.first), l);
+  }
+
   vtkLogEndScope("populate block neighbours");
 
   int propagation_mask[3] = { 0, 0, 0 };
