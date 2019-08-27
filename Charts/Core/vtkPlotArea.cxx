@@ -623,8 +623,26 @@ bool vtkPlotArea::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
 
 //----------------------------------------------------------------------------
 vtkIdType vtkPlotArea::GetNearestPoint(
-  const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location)
+  const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
+
+#ifndef VTK_LEGACY_REMOVE
+  if (!this->LegacyRecursionFlag)
+  {
+    this->LegacyRecursionFlag = true;
+    vtkIdType ret = this->GetNearestPoint(point, tolerance, location);
+    this->LegacyRecursionFlag = false;
+    if (ret != -1)
+    {
+      VTK_LEGACY_REPLACED_BODY(
+        vtkPlotArea::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location),
+        "VTK 8.3",
+        vtkPlotArea::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location, vtkIdType* segmentId));
+      return ret;
+    }
+  }
+#endif // VTK_LEGACY_REMOVE
+
   vtkTableCache& cache = (*this->TableCache);
   if (!this->Visible || !cache.IsInputDataValid() || cache.Points->GetNumberOfPoints() == 0)
   {

@@ -264,11 +264,29 @@ bool vtkPlotFunctionalBag::PaintLegend(vtkContext2D *painter,
 //-----------------------------------------------------------------------------
 vtkIdType vtkPlotFunctionalBag::GetNearestPoint(const vtkVector2f& point,
                                                 const vtkVector2f& tol,
-                                                vtkVector2f* loc)
+                                                vtkVector2f* location,
+                                                vtkIdType* segmentId)
 {
+#ifndef VTK_LEGACY_REMOVE
+  if (!this->LegacyRecursionFlag)
+  {
+    this->LegacyRecursionFlag = true;
+    vtkIdType ret = this->GetNearestPoint(point, tol, location);
+    this->LegacyRecursionFlag = false;
+    if (ret != -1)
+    {
+      VTK_LEGACY_REPLACED_BODY(
+        vtkPlotFunctionalBag::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location),
+        "VTK 8.3",
+        vtkPlotFunctionalBag::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location, vtkIdType* segmentId));
+      return ret;
+    }
+  }
+#endif // VTK_LEGACY_REMOVE
+
   if (this->BagPoints->GetNumberOfPoints() == 0)
   {
-    return this->Line->GetNearestPoint(point, tol, loc);
+    return this->Line->GetNearestPoint(point, tol, location, segmentId);
   }
   return -1;
 }

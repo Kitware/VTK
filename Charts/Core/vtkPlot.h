@@ -118,7 +118,26 @@ public:
    */
   virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location);
+                                    vtkVector2f* location,
+#ifndef VTK_LEGACY_REMOVE
+                                    vtkIdType* segmentId);
+#else
+                                    vtkIdType* segmentId = nullptr);
+#endif // VTK_LEGACY_REMOVE
+
+
+#ifndef VTK_LEGACY_REMOVE
+  /**
+   * Function to query a plot for the nearest point to the specified coordinate.
+   * Returns the index of the data series with which the point is associated, or
+   * -1 if no point was found.
+   * Deprecated method, uses GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
+   * vtkVector2f* location, vtkIdType* segmentId); instead.
+   */
+  VTK_LEGACY(virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+                                               const vtkVector2f& tolerance,
+                                               vtkVector2f* location));
+#endif // VTK_LEGACY_REMOVE
 
   /**
    * Select all points in the specified rectangle.
@@ -477,6 +496,14 @@ protected:
   vtkRectd ShiftScale;
 
   bool LegendVisibility;
+
+#ifndef VTK_LEGACY_REMOVE
+  /**
+   * Flag used by GetNearestPoint legacy implementation
+   * to avoid infinite call
+   */
+  bool LegacyRecursionFlag = false;
+#endif // VTK_LEGACY_REMOVE
 
 private:
   vtkPlot(const vtkPlot &) = delete;

@@ -611,21 +611,11 @@ int vtkChartBox::LocatePointInPlot(const vtkVector2f &position,
                                    const vtkVector2f &tolerance,
                                    vtkVector2f &plotPos,
                                    vtkPlot *plot,
-                                   vtkIdType &)
+                                   vtkIdType & segmentId)
 {
   if (plot && plot->GetVisible())
   {
-    vtkPlotBox* plotBar = vtkPlotBox::SafeDownCast(plot);
-    if (plotBar)
-    {
-      // If the plot is a vtkPlotBar, get the segment index too
-      return plotBar->GetNearestPoint(position, tolerance,
-                                      &plotPos);
-    }
-    else
-    {
-      return plot->GetNearestPoint(position, tolerance, &plotPos);
-    }
+    return plot->GetNearestPoint(position, tolerance, &plotPos, &segmentId);
   }
   return -1;
 }

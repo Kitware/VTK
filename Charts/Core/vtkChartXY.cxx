@@ -1773,16 +1773,7 @@ int vtkChartXY::LocatePointInPlot(const vtkVector2f& position, const vtkVector2f
 {
   if (plot && plot->GetVisible())
   {
-    vtkPlotBar* plotBar = vtkPlotBar::SafeDownCast(plot);
-    if (plotBar)
-    {
-      // If the plot is a vtkPlotBar, get the segment index too
-      return plotBar->GetNearestPoint(position, tolerance, &plotPos, &segmentIndex);
-    }
-    else
-    {
-      return plot->GetNearestPoint(position, tolerance, &plotPos);
-    }
+    return plot->GetNearestPoint(position, tolerance, &plotPos, &segmentIndex);
   }
   return -1;
 }
