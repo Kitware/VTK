@@ -85,85 +85,17 @@ struct BlockT
 
   void GenerateExtracts();
 
-  bool CopyToOutput(vtkMultiBlockDataSet* mb)
+  void AddExtracts(vtkPartitionedDataSet* pds)
   {
-    if (!mb)
+    unsigned int idx = pds->GetNumberOfPartitions();
+    for (auto& extract : this->Extracts)
     {
-      return false;
+      pds->SetPartition(idx++, extract);
     }
-    for (unsigned int cc = 0, max = mb->GetNumberOfBlocks(); cc < max; ++cc)
+    for (auto& seed : this->Seeds)
     {
-      auto child = mb->GetBlock(cc);
-      if (child == this->Input)
-      {
-        vtkNew<vtkMultiPieceDataSet> mp;
-        mp->SetNumberOfPieces(static_cast<unsigned int>(this->Extracts.size()));
-        for (size_t kk = 0; kk < this->Extracts.size(); ++kk)
-        {
-          mp->SetPiece(static_cast<unsigned int>(kk), this->Extracts[kk]);
-        }
-        mb->SetBlock(cc, mp);
-        return true;
-      }
-      else if (auto mp = vtkPartitionedDataSet::SafeDownCast(child))
-      {
-        if (this->CopyToOutput(mp))
-        {
-          return true;
-        }
-      }
-      else if (auto childmb = vtkMultiBlockDataSet::SafeDownCast(child))
-      {
-        if (this->CopyToOutput(childmb))
-        {
-          return true;
-        }
-      }
+      pds->SetPartition(idx++, seed);
     }
-    return false;
-  }
-  bool CopyToOutput(vtkPartitionedDataSetCollection* pdc)
-  {
-    if (!pdc)
-    {
-      return false;
-    }
-    for (unsigned int cc = 0, max = pdc->GetNumberOfPartitionedDataSets(); cc < max; ++cc)
-    {
-      if (this->CopyToOutput(pdc->GetPartitionedDataSet(cc)))
-      {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  bool CopyToOutput(vtkPartitionedDataSet* mp)
-  {
-    if (!mp)
-    {
-      return false;
-    }
-    for (unsigned int cc = 0, max = mp->GetNumberOfPartitions(); cc < max; ++cc)
-    {
-      auto child = mp->GetPartition(cc);
-      if (child == this->Input)
-      {
-        mp->SetPartition(cc, nullptr);
-        if (this->Extracts.size() > 0)
-        {
-          mp->SetPartition(cc, this->Extracts[0]);
-        }
-        // the following will cause issues with multi-piece datasets in parallel
-        // unless we explicitly sync up composite tree across ranks.
-        for (auto& extract : this->Extracts)
-        {
-          mp->SetPartition(mp->GetNumberOfPartitions(), extract);
-        }
-        return true;
-      }
-    }
-    return false;
   }
 };
 
@@ -396,6 +328,76 @@ void ShallowCopyIfNot(vtkCompositeDataSet* input, vtkCompositeDataSet* output, U
   iter->Delete();
 }
 
+void Append(vtkPartitionedDataSet* input, vtkPartitionedDataSet* output)
+{
+  unsigned int next = output->GetNumberOfPartitions();
+  output->SetNumberOfPartitions(next + input->GetNumberOfPartitions());
+  for (unsigned int cc = 0, max = input->GetNumberOfPartitions(); cc < max; ++cc, ++next)
+  {
+    output->SetPartition(next, input->GetPartition(cc));
+  }
+}
+
+template<typename V, typename SizeT>
+vtkPartitionedDataSet* vtkSafeGet(V& vec, SizeT off)
+{
+  return (off < static_cast<SizeT>(vec.size())) ? vec[off] : nullptr;
+}
+
+void GenerateOutput(vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output,
+  const std::vector<vtkSmartPointer<vtkPartitionedDataSet> >& parts, unsigned int& flat_index)
+{
+  auto max = input->GetNumberOfBlocks();
+  output->SetNumberOfBlocks(max);
+  for (unsigned int cc = 0; cc < max; ++cc)
+  {
+    ++flat_index;
+    if (vtkSafeGet(parts, flat_index) == nullptr)
+    {
+      if (auto imb = vtkMultiBlockDataSet::SafeDownCast(input->GetBlock(cc)))
+      {
+        auto omb = vtkMultiBlockDataSet::New();
+        output->SetBlock(cc, omb);
+        omb->FastDelete();
+        ::GenerateOutput(imb, omb, parts, flat_index);
+      }
+      else if (auto imp = vtkMultiPieceDataSet::SafeDownCast(input->GetBlock(cc)))
+      {
+        vtkNew<vtkPartitionedDataSet> pds;
+        for (unsigned int piece = 0; piece < imp->GetNumberOfPieces(); ++piece)
+        {
+          ++flat_index;
+          if (auto inpart = vtkSafeGet(parts, flat_index))
+          {
+            Append(inpart, pds);
+          }
+        }
+
+        if (pds->GetNumberOfPartitions() > 0)
+        {
+          output->SetBlock(cc, pds);
+        }
+        else
+        {
+          auto omp = vtkMultiPieceDataSet::New();
+          omp->SetNumberOfPieces(imp->GetNumberOfPieces());
+          output->SetBlock(cc, omp);
+          omp->FastDelete();
+        }
+      }
+    }
+    else
+    {
+      output->SetBlock(cc, vtkSafeGet(parts, flat_index));
+    }
+
+    if (input->HasMetaData(cc))
+    {
+      output->GetMetaData(cc)->Copy(input->GetMetaData(cc));
+    }
+  }
+}
+
 } // namespace {}
 
 vtkStandardNewMacro(vtkExtractSubsetWithSeed);
@@ -561,7 +563,6 @@ int vtkExtractSubsetWithSeed::RequestData(
     }
     master.replace_link(master.lid(pair.first), l);
   }
-
   vtkLogEndScope("populate block neighbours");
 
   int propagation_mask[3] = { 0, 0, 0 };
@@ -664,34 +665,117 @@ int vtkExtractSubsetWithSeed::RequestData(
   // iterate over each block to combine the regions and extract.
   master.foreach ([&](BlockT* b, const diy::Master::ProxyWithLink&) { b->GenerateExtracts(); });
 
+  //==========================================================================================
+  // Pass extract to the output vtkDataObject
+  //==========================================================================================
+  // How data is passed to the output depends on the type of the dataset.
   if (auto outputPD = vtkPartitionedDataSet::GetData(outputVector, 0))
   {
-    unsigned int idx = 0;
-    master.foreach ([&](BlockT* b, const diy::Master::ProxyWithLink&) {
-      for (auto& extract : b->Extracts)
+    // Easiest case: we don't need to do anything special, just put out all
+    // extracts as partitions. No need to take special care to match the
+    // partition counts across ranks either.
+    master.foreach (
+      [&](BlockT* b, const diy::Master::ProxyWithLink&) { b->AddExtracts(outputPD); });
+  }
+  else if (auto outputPDC = vtkPartitionedDataSetCollection::GetData(outputVector, 0))
+  {
+    // Semi-easy case: ensure we create matching number of
+    // vtkPartitionedDataSet's as in the input, but each can has as many
+    // partitions as extracts. No need to take special care to match the
+    // partitions across ranks.
+    auto inputPDC = vtkPartitionedDataSetCollection::GetData(inputVector[0], 0);
+    assert(inputPDC);
+    outputPDC->SetNumberOfPartitionedDataSets(inputPDC->GetNumberOfPartitionedDataSets());
+    for (unsigned int cc = 0, max = inputPDC->GetNumberOfPartitionedDataSets(); cc < max; ++cc)
+    {
+      vtkNew<vtkPartitionedDataSet> pds;
+      outputPDC->SetPartitionedDataSet(cc, pds);
+      auto inputPDS = inputPDC->GetPartitionedDataSet(cc);
+      for (unsigned int kk = 0, maxKK = inputPDS->GetNumberOfPartitions(); kk < maxKK; ++kk)
       {
-        outputPD->SetPartition(idx++, extract);
+        master.foreach ([&](BlockT* b, const diy::Master::ProxyWithLink&) {
+          if (b->Input == inputPDS->GetPartition(kk))
+          {
+            b->AddExtracts(pds);
+          }
+        });
       }
-      for (auto& seed : b->Seeds)
-      {
-        outputPD->SetPartition(idx++, seed);
-      }
-    });
+    }
   }
   else if (auto outputMB = vtkMultiBlockDataSet::GetData(outputVector, 0))
   {
     auto inputMB = vtkMultiBlockDataSet::GetData(inputVector[0], 0);
-    ::ShallowCopyIfNot(inputMB, outputMB, prunePredicate);
-    master.foreach (
-      [&](BlockT* b, const diy::Master::ProxyWithLink&) { b->CopyToOutput(outputMB); });
-  }
-  else if (auto outputPDC = vtkPartitionedDataSetCollection::GetData(outputVector, 0))
-  {
-    auto inputPDC = vtkPartitionedDataSetCollection::GetData(inputVector[0], 0);
-    assert(inputPDC);
-    ::ShallowCopyIfNot(inputPDC, outputPDC, prunePredicate);
-    master.foreach (
-      [&](BlockT* b, const diy::Master::ProxyWithLink&) { b->CopyToOutput(outputPDC); });
+    assert(inputMB != nullptr);
+    // Worst case: we need to match up structure and across all ranks.
+
+    std::vector<size_t> counts;
+    int lid = 0;
+    auto citer = inputMB->NewIterator();
+    for (citer->InitTraversal();
+         !citer->IsDoneWithTraversal() && lid < static_cast<int>(gids.size());
+         citer->GoToNextItem())
+    {
+      auto b = master.block<BlockT>(lid);
+      if (citer->GetCurrentDataObject() == b->Input)
+      {
+        counts.resize(citer->GetCurrentFlatIndex() + 1, 0);
+        counts[citer->GetCurrentFlatIndex()] = b->Extracts.size() + b->Seeds.size();
+        ++lid;
+      }
+    }
+
+    size_t global_num_counts = 0;
+    diy::mpi::all_reduce(comm, counts.size(), global_num_counts, diy::mpi::maximum<size_t>());
+    counts.resize(global_num_counts, 0);
+
+    std::vector<size_t> global_counts(global_num_counts);
+    diy::mpi::all_reduce(comm, counts, global_counts, diy::mpi::maximum<size_t>());
+
+    std::vector<vtkSmartPointer<vtkPartitionedDataSet> > parts(global_num_counts);
+    lid = 0;
+    citer->SkipEmptyNodesOff();
+    for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); citer->GoToNextItem())
+    {
+      const auto findex = citer->GetCurrentFlatIndex();
+      if (findex >= static_cast<unsigned int>(global_num_counts))
+      {
+        // we're done.
+        break;
+      }
+      const auto& count = global_counts[findex];
+      if (count == 0)
+      {
+        if (!prunePredicate(citer->GetCurrentDataObject()))
+        {
+          ++lid;
+        }
+        continue;
+      }
+      else if (prunePredicate(citer->GetCurrentDataObject()) ||
+        lid >= static_cast<int>(gids.size()))
+      {
+        // this block is not present locally (or was treated as such). So just
+        // put a partitioned dataset with matching parts.
+        vtkNew<vtkPartitionedDataSet> pds;
+        pds->SetNumberOfPartitions(static_cast<unsigned int>(count));
+        parts[findex] = pds;
+      }
+      else
+      {
+        auto b = master.block<BlockT>(lid);
+        assert(b->Input == citer->GetCurrentDataObject());
+        vtkNew<vtkPartitionedDataSet> pds;
+        b->AddExtracts(pds);
+        // pads will nullptr, if needed.
+        pds->SetNumberOfPartitions(static_cast<unsigned int>(count));
+        parts[findex] = pds;
+        ++lid;
+      }
+    }
+    citer->Delete();
+
+    unsigned int flat_index = 0;
+    ::GenerateOutput(inputMB, outputMB, parts, flat_index);
   }
 
   vtkInformation* info = outputVector->GetInformationObject(0);
