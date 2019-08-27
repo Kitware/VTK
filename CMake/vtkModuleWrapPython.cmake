@@ -364,6 +364,9 @@ extern PyObject* PyInit_${name}();
     target_include_directories("${name}"
       INTERFACE
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python>")
+    target_link_libraries("${name}"
+      PUBLIC
+        VTK::Python)
     set_property(TARGET "${name}"
       PROPERTY
         LIBRARY_OUTPUT_DIRECTORY "${_vtk_python_STATIC_MODULE_DESTINATION}")
