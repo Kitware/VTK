@@ -17,7 +17,7 @@ add_executable(VTK::vtkpython ALIAS vtkpython)
 if (VTK_INSTALL_PYTHON_EXES)
   install(
     TARGETS     vtkpython
-    EXPORT      VTK
+    EXPORT      VTKPython
     DESTINATION "${CMAKE_INSTALL_BINDIR}")
 endif ()
 
@@ -39,7 +39,7 @@ if (TARGET VTK::ParallelMPI)
   if (VTK_INSTALL_PYTHON_EXES)
     install(
       TARGETS     pvtkpython
-      EXPORT      VTK
+      EXPORT      VTKPython
       DESTINATION "${CMAKE_INSTALL_BINDIR}")
   endif ()
 endif ()
