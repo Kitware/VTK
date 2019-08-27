@@ -44,16 +44,10 @@ public:
 
   static vtkTextureUnitManager *New();
 
-  //@{
   /**
-   * Get/Set the context. This does not increase the reference count of the
-   * context to avoid reference loops.
-   * SetContext() may raise an error is the OpenGL context does not support the
-   * required OpenGL extensions.
+   * Update the number of hardware texture units for the current context
    */
-  void SetContext(vtkOpenGLRenderWindow *context);
-  vtkGetObjectMacro(Context,vtkOpenGLRenderWindow);
-  //@}
+  void Initialize();
 
   /**
    * Number of texture units supported by the OpenGL context.
@@ -111,8 +105,6 @@ protected:
    * all the texture units have been released.
    */
   void DeleteTable();
-
-  vtkOpenGLRenderWindow *Context;
 
   int NumberOfTextureUnits;
   bool *TextureUnits;

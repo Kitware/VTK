@@ -54,8 +54,6 @@ using std::ostringstream;
 
 #include <cassert>
 
-vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, TextureUnitManager, vtkTextureUnitManager);
-
 // Initialize static member that controls global maximum number of multisamples
 // (off by default on Apple because it causes problems on some Mac models).
 #if defined(__APPLE__)
@@ -190,8 +188,6 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->ShaderCache = vtkOpenGLShaderCache::New();
   this->VBOCache = vtkOpenGLVertexBufferObjectCache::New();
 
-  this->TextureUnitManager = nullptr;
-
   this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   delete [] this->WindowName;
   this->WindowName = new char[strlen(defaultWindowName) + 1];
@@ -241,14 +237,6 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
     this->DrawPixelsTextureObject->UnRegister(this);
     this->DrawPixelsTextureObject = nullptr;
   }
-  this->TextureResourceIds.clear();
-  if(this->TextureUnitManager!=nullptr)
-  {
-    this->TextureUnitManager->SetContext(nullptr);
-  }
-
-  this->SetTextureUnitManager(nullptr);
-
   this->GLStateIntegers.clear();
 
   this->ShaderCache->UnRegister(this);
@@ -354,16 +342,7 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
   this->ShaderCache->ReleaseGraphicsResources(renWin);
   //this->VBOCache->ReleaseGraphicsResources(renWin);
 
-  if (!this->TextureResourceIds.empty())
-  {
-    vtkErrorMacro("There are still active textures when there should not be.");
-    typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
-    TRIter found = this->TextureResourceIds.begin();
-    for ( ; found != this->TextureResourceIds.end(); ++found)
-    {
-      vtkErrorMacro("Leaked for texture object: " << const_cast<vtkTextureObject *>(found->first));
-    }
-  }
+  this->GetState()->VerifyNoActiveTextures();
 
   this->RenderTimer->ReleaseGraphicsResources();
 
@@ -2118,49 +2097,17 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1,
 
 void vtkOpenGLRenderWindow::ActivateTexture(vtkTextureObject *texture)
 {
-  // Only add if it isn't already there
-  typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
-  TRIter found = this->TextureResourceIds.find(texture);
-  if (found == this->TextureResourceIds.end())
-  {
-    int activeUnit =  this->GetTextureUnitManager()->Allocate();
-    if (activeUnit < 0)
-    {
-      vtkErrorMacro("Hardware does not support the number of textures defined.");
-      return;
-    }
-    this->TextureResourceIds.insert(std::make_pair(texture, activeUnit));
-    glActiveTexture(GL_TEXTURE0 + activeUnit);
-  }
-  else
-  {
-    glActiveTexture(GL_TEXTURE0 + found->second);
-  }
+  this->GetState()->ActivateTexture(texture);
 }
 
 void vtkOpenGLRenderWindow::DeactivateTexture(vtkTextureObject *texture)
 {
-  // Only deactivate if it isn't already there
-  typedef std::map<const vtkTextureObject *, int>::iterator TRIter;
-  TRIter found = this->TextureResourceIds.find(texture);
-  if (found != this->TextureResourceIds.end())
-  {
-    this->GetTextureUnitManager()->Free(found->second);
-    this->TextureResourceIds.erase(found);
-  }
+  this->GetState()->DeactivateTexture(texture);
 }
 
 int vtkOpenGLRenderWindow::GetTextureUnitForTexture(vtkTextureObject *texture)
 {
-  // Only deactivate if it isn't already there
-  typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
-  TRIter found = this->TextureResourceIds.find(texture);
-  if (found != this->TextureResourceIds.end())
-  {
-    return found->second;
-  }
-
-  return -1;
+  return this->GetState()->GetTextureUnitForTexture(texture);
 }
 
 // ----------------------------------------------------------------------------
@@ -2210,17 +2157,7 @@ int vtkOpenGLRenderWindow::CreateOffScreenFramebuffer(int width, int height)
 // hasn't already been set up.
 vtkTextureUnitManager *vtkOpenGLRenderWindow::GetTextureUnitManager()
 {
-  if(this->TextureUnitManager==nullptr)
-  {
-    vtkTextureUnitManager *manager=vtkTextureUnitManager::New();
-
-    // This does not form a reference loop since vtkOpenGLHardwareSupport does
-    // not keep a reference to the render window.
-    manager->SetContext(this);
-    this->SetTextureUnitManager(manager);
-    manager->Delete();
-  }
-  return this->TextureUnitManager;
+  return this->GetState()->GetTextureUnitManager();
 }
 
 // ----------------------------------------------------------------------------
@@ -2241,11 +2178,9 @@ void vtkOpenGLRenderWindow::SaveGLState()
     this->MakeCurrent();
     glGetIntegerv(GL_ACTIVE_TEXTURE, &this->GLStateIntegers["GL_ACTIVE_TEXTURE"]);
 
-    // GetTextureUnitManager() will create a new texture unit
-    // manager if one does not exist
     if (this->GLStateIntegers["GL_ACTIVE_TEXTURE"] < 0 ||
         this->GLStateIntegers["GL_ACTIVE_TEXTURE"] >
-        this->GetTextureUnitManager()->GetNumberOfTextureUnits())
+        this->GetState()->GetTextureUnitManager()->GetNumberOfTextureUnits())
     {
       this->GLStateIntegers["GL_ACTIVE_TEXTURE"] = 0;
     }

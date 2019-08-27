@@ -66,9 +66,13 @@ vtkQWidgetTexture::vtkQWidgetTexture()
 #ifdef GL_MULTISAMPLE
         state->ResetEnumState(GL_MULTISAMPLE);
 #endif
+        state->ResetGLScissorState();
         state->ResetGLViewportState();
         state->ResetGLDepthFuncState();
         state->ResetGLBlendFuncState();
+        // reset the depth test to LEQUAL as all vtk classes
+        // expect this to be the case when called
+        state->vtkglDepthFunc(GL_LEQUAL);
       }
     };
 }
