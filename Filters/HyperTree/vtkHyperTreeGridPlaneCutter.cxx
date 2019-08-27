@@ -393,12 +393,16 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
     // Checking if the plane is equal to the boundary of a cell.
     // If it is, we need to shift it a tiny bit.
     // Check is done on all axis.
+    // NOTE: we set cellCoords to std::sqrt(DBL_MIN) if the plane passes by the origin
+    // because distance computation, needed later, requires squaring those values.
+    // Since DBL_MIN is the smallest normal double value, DBL_MIN*DBL_MIN == 0,
+    // and sqrt(DBL_MIN)*std::sqrt(DBL_MIN) == DBL_MIN, which is what we want
     if (this->IsPlaneOrthogonalToXAxis())
     {
       if (cellCoords[i][0] == this->Plane[3])
       {
         cellCoords[i][0] +=
-          cellCoords[i][0] != 0 ? DBL_EPSILON * std::abs(cellCoords[i][0]) : DBL_MIN;
+          std::abs(cellCoords[i][0]) > std::sqrt(DBL_MIN) ? DBL_EPSILON * std::abs(cellCoords[i][0]) : std::sqrt(DBL_MIN);
       }
     }
     cellCoords[i][1] = ( i & 2 ) ? origin[1] + size[1] : origin[1];
@@ -407,7 +411,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
       if (cellCoords[i][1] == this->Plane[3])
       {
         cellCoords[i][1] +=
-          cellCoords[i][1] != 0 ? DBL_EPSILON * std::abs(cellCoords[i][1]) : DBL_MIN;
+          std::abs(cellCoords[i][1]) > std::sqrt(DBL_MIN) ? DBL_EPSILON * std::abs(cellCoords[i][1]) : std::sqrt(DBL_MIN);
       }
     }
     cellCoords[i][2] = ( i & 4 ) ? origin[2] + size[2] : origin[2];
@@ -416,7 +420,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
       if (cellCoords[i][2] == this->Plane[3])
       {
         cellCoords[i][2] +=
-          cellCoords[i][2] != 0 ? DBL_EPSILON * std::abs(cellCoords[i][2]) : DBL_MIN;
+          std::abs(cellCoords[i][2]) > std::sqrt(DBL_MIN) ? DBL_EPSILON * std::abs(cellCoords[i][2]) : std::sqrt(DBL_MIN);
       }
     }
   }
@@ -447,17 +451,17 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
         else
         {
           // Check every edge of the current vertex.
-          if ( ! ( i & 1 ) && functEval[i] * functEval[i + 1] < 0 )
+          if ( ! ( i & 1 ) && functEval[i] * functEval[i + 1] <= 0 )
           {
             // Edge in X
             this->PlaneCut( i, i + 1, cellCoords, n, points );
           }
-          if ( ! ( i & 2 ) && functEval[i] * functEval[i + 2] < 0 )
+          if ( ! ( i & 2 ) && functEval[i] * functEval[i + 2] <= 0 )
           {
             // Edge in Y
             this->PlaneCut( i, i + 2, cellCoords, n, points );
           }
-          if ( ! ( i & 4 ) && functEval[i] * functEval[i + 4] < 0 )
+          if ( ! ( i & 4 ) && functEval[i] * functEval[i + 4] <= 0 )
           {
             // Edge in Z
             this->PlaneCut( i, i + 4, cellCoords, n, points );
