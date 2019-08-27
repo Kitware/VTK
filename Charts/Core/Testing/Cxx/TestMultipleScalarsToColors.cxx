@@ -86,11 +86,11 @@ int TestMultipleScalarsToColors(int , char * [])
 
   histoTable->SetNumberOfRows(3);
   histoTable->SetValue(0, 0, 0.25);
-  histoTable->SetValue(0, 1, 0.2);
+  histoTable->SetValue(0, 1, 2);
   histoTable->SetValue(1, 0, 0.5);
-  histoTable->SetValue(1, 1, 0.5);
+  histoTable->SetValue(1, 1, 5);
   histoTable->SetValue(2, 0, 0.75);
-  histoTable->SetValue(2, 1, 0.8);
+  histoTable->SetValue(2, 1, 8);
 
   for (int i = 0; i < 5; ++i)
   {

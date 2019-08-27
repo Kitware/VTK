@@ -267,6 +267,20 @@ bool vtkScalarsToColorsItem::ConfigurePlotBar()
     this->PlotBar->SetXAxis(this->GetXAxis());
     this->PlotBar->SetYAxis(this->GetYAxis());
 
+    // Configure the plot bar Y Axis
+    vtkDoubleArray* valueArray = vtkDoubleArray::SafeDownCast(this->HistogramTable->GetColumn(1));
+    if (!valueArray)
+    {
+      vtkErrorMacro("HistogramTable is not containing expected data");
+      return false;
+    }
+    double valueRange[2];
+    valueArray->GetRange(valueRange);
+    double val = 1 / valueRange[1];
+    vtkRectd shiftScale = this->ShiftScale;
+    shiftScale.SetHeight(shiftScale.GetHeight() * val);
+    this->PlotBar->SetShiftScale(shiftScale);
+
     // Recover the range of the histogram
     vtkDoubleArray* binExtent = vtkDoubleArray::SafeDownCast(this->HistogramTable->GetColumn(0));
     if (binExtent)
@@ -286,4 +300,29 @@ bool vtkScalarsToColorsItem::ConfigurePlotBar()
   this->PlotBar->SetVisible(visible);
   this->PlotBar->Update();
   return visible;
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkScalarsToColorsItem::GetNearestPoint(const vtkVector2f& point,
+                                      const vtkVector2f& tolerance,
+                                      vtkVector2f* location,
+                                      vtkIdType* segmentIndex)
+{
+  if (this->PlotBar->GetVisible())
+  {
+    return this->PlotBar->GetNearestPoint(point, tolerance, location, segmentIndex);
+  }
+  return -1;
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkScalarsToColorsItem::GetTooltipLabel(const vtkVector2d &plotPos,
+                                         vtkIdType seriesIndex,
+                                         vtkIdType segmentIndex)
+{
+  if (this->PlotBar->GetVisible())
+  {
+    return this->PlotBar->GetTooltipLabel(plotPos, seriesIndex, segmentIndex);
+  }
+  return "";
 }
