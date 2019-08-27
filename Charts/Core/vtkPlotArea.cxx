@@ -100,7 +100,7 @@ public:
 
   //-----------------------------------------------------------------------------
   vtkIdType GetNearestPoint(
-    const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location)
+    const vtkVector2f& point, const vtkVector2f& tol, const vtkRectd ss, vtkVector2f* location)
   {
     // Set up our search array, use the STL lower_bound algorithm
     VectorPIMPL::iterator low;
@@ -119,6 +119,8 @@ public:
       if (vtkIndexedVector2f::inRange(point, tol, (*low).pos))
       {
         *location = (*low).pos;
+        location->SetX((location->GetX() - ss.GetX()) / ss.GetWidth());
+        location->SetY((location->GetY() - ss.GetY()) / ss.GetHeight());
         return static_cast<int>((*low).index);
       }
       else if (low->pos.GetX() > highX)
@@ -502,7 +504,7 @@ public:
       std::sort(this->SortedPoints.begin(), this->SortedPoints.end(),
         vtkIndexedVector2f::compVector3fX);
     }
-    return this->SortedPoints.GetNearestPoint(point, tol, location);
+    return this->SortedPoints.GetNearestPoint(point, tol, this->ShiftScale, location);
   }
 };
 

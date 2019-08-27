@@ -327,6 +327,9 @@ class vtkPlotBarSegment : public vtkObject {
               (targetPoint.GetY() < 0 && targetPoint.GetY() > low->pos.GetY()))
           {
             *location = low->pos;
+            vtkRectd ss = this->Bar->GetShiftScale();
+            location->SetX((location->GetX() - ss.GetX()) / ss.GetWidth());
+            location->SetY((location->GetY() - ss.GetY()) / ss.GetHeight());
             return static_cast<vtkIdType>(low->index);
           }
         }
@@ -505,7 +508,6 @@ public:
       (*it)->Paint(painter, pen, brush, width, offset, orientation);
     }
   }
-
 
   vtkIdType GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
                             float width, float offset, int orientation,
@@ -965,7 +967,6 @@ void vtkPlotBar::SetColorSeries(vtkColorSeries *colorSeries)
   this->ColorSeries = colorSeries;
   this->Modified();
 }
-
 
 //-----------------------------------------------------------------------------
 vtkColorSeries *vtkPlotBar::GetColorSeries()

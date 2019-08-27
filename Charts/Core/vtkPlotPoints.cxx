@@ -390,6 +390,9 @@ vtkIdType vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
     if (inRange(point, tol, (*low).pos))
     {
       *location = (*low).pos;
+      vtkRectd ss = this->GetShiftScale();
+      location->SetX((location->GetX() - ss.GetX()) / ss.GetWidth());
+      location->SetY((location->GetY() - ss.GetY()) / ss.GetHeight());
       return static_cast<int>((*low).index);
     }
     else if (low->pos.GetX() > highX)
