@@ -41,6 +41,12 @@ SOFTWARE.
  * Private header used by vtkColorTransferFunction to support
  * LAB/CIEDE2000 interpolation.
  *
+ * Reference:
+ * "Color Interpolation for Non-Euclidean Color Spaces",
+ * Zeyen, M., Post, T., Hagen, H., Ahrens, J., Rogers, D. and Bujack, R.,
+ * SciVis ShortPapers IEEE VIS 2018.
+ * (https://datascience.dsscale.org/wp-content/uploads/sites/3/2019/01/ColorInterpolationforNon-EuclideanColorSpaces.pdf)
+ *
  * The implementation is a modified version based on the following:
  * https://github.com/gfiumara/CIEDE2000
  *
@@ -72,7 +78,8 @@ double GetCIEDeltaE2000(const double lab1[3], const double lab2[3]);
  * Calculates the shortest color path between two colors with respect
  * to the CIEDE2000 measure and returns its overall length.
  */
-double GetColorPath(const double rgb1[3], const double rgb2[3], std::vector<Node>& path);
+double GetColorPath(const double rgb1[3], const double rgb2[3], std::vector<Node>& path,
+  bool forceExactSupportColors = false);
 }
 
 #endif
