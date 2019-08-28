@@ -636,14 +636,13 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
           ++this->Orientation;
         }
       }
+      // If normal to the HTG is y, we right now have HTG spanned by (x,y)
+      // We swap them to have a direct frame spanning the HTG
+      if (this->Orientation == 1)
+      {
+        std::swap (this->Axis[0], this->Axis[1]);
+      }
       break;
-  }
-
-  // If normal to the HTG is y, we right now have HTG spanned by (x,y)
-  // We swap them to have a direct frame spanning the HTG
-  if (this->Orientation == 1)
-  {
-    std::swap (this->Axis[0], this->Axis[1]);
   }
 
   assert("post: valid_axis" &&
