@@ -100,7 +100,6 @@ set(_vtk_python_install_file "${CMAKE_BINARY_DIR}/CMakeFiles/${_vtk_python_filen
 set(_vtk_python_build_file "${CMAKE_BINARY_DIR}/${_vtk_build_CMAKE_DESTINATION}/${_vtk_python_filename}")
 
 file(WRITE "${_vtk_python_build_file}")
-file(WRITE "${_vtk_python_install_file}")
 
 _vtk_module_write_import_prefix(
   "${_vtk_python_install_file}"
