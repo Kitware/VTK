@@ -22,7 +22,7 @@
 #ifndef vtkDIYUtilities_h
 #define vtkDIYUtilities_h
 
-#include "vtkFiltersParallelDIY2Module.h" // for export macros
+#include "vtkParallelDIYModule.h" // for export macros
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer
 
@@ -39,7 +39,7 @@ class vtkDataSet;
 class vtkMultiProcessController;
 class vtkPoints;
 
-class VTKFILTERSPARALLELDIY2_EXPORT vtkDIYUtilities : public vtkObject
+class VTKPARALLELDIY_EXPORT vtkDIYUtilities : public vtkObject
 {
 public:
   vtkTypeMacro(vtkDIYUtilities, vtkObject);
