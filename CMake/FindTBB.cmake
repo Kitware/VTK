@@ -107,48 +107,45 @@ endfunction()
 # Do the final processing for the package find.
 #===============================================
 macro(findpkg_finish PREFIX TARGET_NAME)
-  # skip if already processed during this run
-  if (NOT ${PREFIX}_FOUND)
-    if (${PREFIX}_INCLUDE_DIR AND ${PREFIX}_LIBRARY)
-      set(${PREFIX}_FOUND TRUE)
-      set (${PREFIX}_INCLUDE_DIRS ${${PREFIX}_INCLUDE_DIR})
-      set (${PREFIX}_LIBRARIES ${${PREFIX}_LIBRARY})
-    else ()
-      if (${PREFIX}_FIND_REQUIRED AND NOT ${PREFIX}_FIND_QUIETLY)
-        message(FATAL_ERROR "Required library ${PREFIX} not found.")
-      endif ()
+  if (${PREFIX}_INCLUDE_DIR AND ${PREFIX}_LIBRARY)
+    set(${PREFIX}_FOUND TRUE)
+    set (${PREFIX}_INCLUDE_DIRS ${${PREFIX}_INCLUDE_DIR})
+    set (${PREFIX}_LIBRARIES ${${PREFIX}_LIBRARY})
+  else ()
+    if (${PREFIX}_FIND_REQUIRED AND NOT ${PREFIX}_FIND_QUIETLY)
+      message(FATAL_ERROR "Required library ${PREFIX} not found.")
     endif ()
-
-    if (NOT TARGET "TBB::${TARGET_NAME}")
-      if (${PREFIX}_LIBRARY_RELEASE)
-        tbb_extract_real_library(${${PREFIX}_LIBRARY_RELEASE} real_release)
-      endif ()
-      if (${PREFIX}_LIBRARY_DEBUG)
-        tbb_extract_real_library(${${PREFIX}_LIBRARY_DEBUG} real_debug)
-      endif ()
-      add_library(TBB::${TARGET_NAME} UNKNOWN IMPORTED)
-      set_target_properties(TBB::${TARGET_NAME} PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${${PREFIX}_INCLUDE_DIR}")
-      if (${PREFIX}_LIBRARY_DEBUG AND ${PREFIX}_LIBRARY_RELEASE)
-        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
-          IMPORTED_LOCATION "${real_release}"
-          IMPORTED_LOCATION_DEBUG "${real_debug}"
-          IMPORTED_LOCATION_RELEASE "${real_release}")
-      elseif (${PREFIX}_LIBRARY_RELEASE)
-        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
-          IMPORTED_LOCATION "${real_release}")
-      elseif (${PREFIX}_LIBRARY_DEBUG)
-        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
-          IMPORTED_LOCATION "${real_debug}")
-      endif ()
-    endif ()
-
-   #mark the following variables as internal variables
-   mark_as_advanced(${PREFIX}_INCLUDE_DIR
-                    ${PREFIX}_LIBRARY
-                    ${PREFIX}_LIBRARY_DEBUG
-                    ${PREFIX}_LIBRARY_RELEASE)
   endif ()
+
+  if (NOT TARGET "TBB::${TARGET_NAME}")
+    if (${PREFIX}_LIBRARY_RELEASE)
+      tbb_extract_real_library(${${PREFIX}_LIBRARY_RELEASE} real_release)
+    endif ()
+    if (${PREFIX}_LIBRARY_DEBUG)
+      tbb_extract_real_library(${${PREFIX}_LIBRARY_DEBUG} real_debug)
+    endif ()
+    add_library(TBB::${TARGET_NAME} UNKNOWN IMPORTED)
+    set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${${PREFIX}_INCLUDE_DIR}")
+    if (${PREFIX}_LIBRARY_DEBUG AND ${PREFIX}_LIBRARY_RELEASE)
+      set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+        IMPORTED_LOCATION "${real_release}"
+        IMPORTED_LOCATION_DEBUG "${real_debug}"
+        IMPORTED_LOCATION_RELEASE "${real_release}")
+    elseif (${PREFIX}_LIBRARY_RELEASE)
+      set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+        IMPORTED_LOCATION "${real_release}")
+    elseif (${PREFIX}_LIBRARY_DEBUG)
+      set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+        IMPORTED_LOCATION "${real_debug}")
+    endif ()
+  endif ()
+
+  #mark the following variables as internal variables
+  mark_as_advanced(${PREFIX}_INCLUDE_DIR
+                   ${PREFIX}_LIBRARY
+                   ${PREFIX}_LIBRARY_DEBUG
+                   ${PREFIX}_LIBRARY_RELEASE)
 endmacro()
 
 #===============================================
