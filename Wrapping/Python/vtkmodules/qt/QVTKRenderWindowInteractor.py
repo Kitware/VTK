@@ -387,6 +387,33 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
         self._Iren.ConfigureEvent()
         self.update()
 
+    def _GetKeyCharAndKeySym(self, ev):
+        """ Convert a Qt key into a char and a vtk keysym.
+
+        This is essentially copied from the c++ implementation in
+        GUISupport/Qt/QVTKInteractorAdapter.cxx.
+        """
+        # if there is a char, convert its ASCII code to a VTK keysym
+        try:
+            keyChar = ev.text()[0]
+            keySym = _keysyms_for_ascii[ord(keyChar)]
+        except IndexError:
+            keyChar = '\0'
+            keySym = None
+
+        # next, try converting Qt key code to a VTK keysym
+        if keySym is None:
+            try:
+                keySym = _keysyms[ev.key()]
+            except KeyError:
+                keySym = None
+
+        # use "None" as a fallback
+        if keySym is None:
+            keySym = "None"
+
+        return keyChar, keySym
+
     def _GetCtrlShift(self, ev):
         ctrl = shift = False
 
@@ -479,40 +506,18 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
         self._Iren.MouseMoveEvent()
 
     def keyPressEvent(self, ev):
+        key, keySym = self._GetKeyCharAndKeySym(ev)
         ctrl, shift = self._GetCtrlShift(ev)
-
-        # get key and keysim information
-        ascii_key = ev.key()
-        if ascii_key < 256:
-            # we have an ascii key
-            key = chr(ascii_key)
-            keySym = ascii_to_key_sym(ascii_key)
-        else:
-            key = chr(0)
-            keySym = _qt_key_to_key_sym(ascii_key)
-
-        if keySym is None:
-            keySym = "None"
-
-        # print(ascii_key)  # when I press a lower-case key I still get the ascii-code for the UPPER-case one
-        # print(key)        # this however does not seem to affect the default vtk keys such as p(ick) or
-        # print(keySym)     # w(ireframe)
-
         self._setEventInformation(self.__saveX, self.__saveY,
                                   ctrl, shift, key, 0, keySym)
-
         self._Iren.KeyPressEvent()
         self._Iren.CharEvent()
 
     def keyReleaseEvent(self, ev):
+        key, keySym = self._GetKeyCharAndKeySym(ev)
         ctrl, shift = self._GetCtrlShift(ev)
-        if ev.key() < 256:
-            key = chr(ev.key())
-        else:
-            key = chr(0)
-
         self._setEventInformation(self.__saveX, self.__saveY,
-                                  ctrl, shift, key, 0, None)
+                                  ctrl, shift, key, 0, keySym)
         self._Iren.KeyReleaseEvent()
 
     def wheelEvent(self, ev):
@@ -573,6 +578,28 @@ def QVTKRenderWidgetConeExample():
     # start event processing
     app.exec_()
 
+
+_keysyms_for_ascii = (
+    None, None, None, None, None, None, None, None,
+    None, "Tab", None, None, None, None, None, None,
+    None, None, None, None, None, None, None, None,
+    None, None, None, None, None, None, None, None,
+    "space", "exclam", "quotedbl", "numbersign",
+    "dollar", "percent", "ampersand", "quoteright",
+    "parenleft", "parenright", "asterisk", "plus",
+    "comma", "minus", "period", "slash",
+    "0", "1", "2", "3", "4", "5", "6", "7",
+    "8", "9", "colon", "semicolon", "less", "equal", "greater", "question",
+    "at", "A", "B", "C", "D", "E", "F", "G",
+    "H", "I", "J", "K", "L", "M", "N", "O",
+    "P", "Q", "R", "S", "T", "U", "V", "W",
+    "X", "Y", "Z", "bracketleft",
+    "backslash", "bracketright", "asciicircum", "underscore",
+    "quoteleft", "a", "b", "c", "d", "e", "f", "g",
+    "h", "i", "j", "k", "l", "m", "n", "o",
+    "p", "q", "r", "s", "t", "u", "v", "w",
+    "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete",
+    )
 
 _keysyms = {
     Qt.Key_Backspace: 'BackSpace',
@@ -668,63 +695,6 @@ _keysyms = {
     Qt.Key_NumLock: 'Num_Lock',
     Qt.Key_ScrollLock: 'Scroll_Lock',
     }
-
-def _qt_key_to_key_sym(key):
-    """ Convert a Qt key into a vtk keysym.
-
-    This is essentially copied from the c++ implementation in
-    GUISupport/Qt/QVTKInteractorAdapter.cxx.
-    """
-
-    if key not in _keysyms:
-        return None
-
-    return _keysyms[key]
-
-# --------- c++ code ported ----------
-# from https://gitlab.kitware.com/vtk/vtk/blob/c654847d/GUISupport/Qt/QVTKInteractorAdapter.cxx#L524
-
-def ascii_to_key_sym(i):
-    if i >= 0:
-        _AsciiToKeySymTable = (None, None, None, None, None, None, None, None, None, "Tab", None, None, None,
-                               None, None, None,
-                               None, None, None, None, None, None, None, None, None, None, None, None, None,
-                               None, None, None,
-                               "space", "exclam", "quotedbl", "numbersign",
-                               "dollar", "percent", "ampersand", "quoteright",
-                               "parenleft", "parenright", "asterisk", "plus",
-                               "comma", "minus", "period", "slash",
-                               "0", "1", "2", "3", "4", "5", "6", "7",
-                               "8", "9", "colon", "semicolon", "less", "equal", "greater", "question",
-                               "at", "A", "B", "C", "D", "E", "F", "G",
-                               "H", "I", "J", "K", "L", "M", "N", "O",
-                               "P", "Q", "R", "S", "T", "U", "V", "W",
-                               "X", "Y", "Z", "bracketleft",
-                               "backslash", "bracketright", "asciicircum", "underscore",
-                               "quoteleft", "a", "b", "c", "d", "e", "f", "g",
-                               "h", "i", "j", "k", "l", "m", "n", "o",
-                               "p", "q", "r", "s", "t", "u", "v", "w",
-                               "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete",
-                               None, None, None, None, None, None, None, None, None, None, None, None, None,
-                               None, None, None,
-                               None, None, None, None, None, None, None, None, None, None, None, None, None,
-                               None, None, None,
-                               None, None, None, None, None, None, None, None, None, None, None, None, None,
-                               None, None, None,
-                               None, None, None, None, None, None, None, None, None, None, None, None, None,
-                               None, None, None,
-                               None, None, None, None, None, None, None, None, None, None, None, None, None,
-                               None, None, None,
-                               None, None, None, None, None, None, None, None, None, None, None, None, None,
-                               None, None, None,
-                               None, None, None, None, None, None, None, None, None, None, None, None, None,
-                               None, None, None,
-                               None, None, None, None, None, None, None, None, None, None, None, None, None,
-                               None, None, None)
-
-        return _AsciiToKeySymTable[i]
-    else:
-        return None
 
 
 if __name__ == "__main__":
