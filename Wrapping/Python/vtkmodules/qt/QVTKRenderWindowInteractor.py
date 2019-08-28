@@ -42,6 +42,9 @@ Changes by Fabian Wenzel, Jan. 2016
 
 Changes by Tobias Hänel, Sep. 2018
  Support for PySide2
+
+Changes by Ruben de Bruin, Aug. 2019
+ Fixes to the keyPressEvent function
 """
 
 # Check whether a specific PyQt implementation was chosen
@@ -384,6 +387,33 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
         self._Iren.ConfigureEvent()
         self.update()
 
+    def _GetKeyCharAndKeySym(self, ev):
+        """ Convert a Qt key into a char and a vtk keysym.
+
+        This is essentially copied from the c++ implementation in
+        GUISupport/Qt/QVTKInteractorAdapter.cxx.
+        """
+        # if there is a char, convert its ASCII code to a VTK keysym
+        try:
+            keyChar = ev.text()[0]
+            keySym = _keysyms_for_ascii[ord(keyChar)]
+        except IndexError:
+            keyChar = '\0'
+            keySym = None
+
+        # next, try converting Qt key code to a VTK keysym
+        if keySym is None:
+            try:
+                keySym = _keysyms[ev.key()]
+            except KeyError:
+                keySym = None
+
+        # use "None" as a fallback
+        if keySym is None:
+            keySym = "None"
+
+        return keyChar, keySym
+
     def _GetCtrlShift(self, ev):
         ctrl = shift = False
 
@@ -476,30 +506,18 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
         self._Iren.MouseMoveEvent()
 
     def keyPressEvent(self, ev):
+        key, keySym = self._GetKeyCharAndKeySym(ev)
         ctrl, shift = self._GetCtrlShift(ev)
-        if ev.key() < 256:
-            key = str(ev.text())
-        else:
-            key = chr(0)
-
-        keySym = _qt_key_to_key_sym(ev.key())
-        if shift and len(keySym) == 1 and keySym.isalpha():
-            keySym = keySym.upper()
-
         self._setEventInformation(self.__saveX, self.__saveY,
                                   ctrl, shift, key, 0, keySym)
         self._Iren.KeyPressEvent()
         self._Iren.CharEvent()
 
     def keyReleaseEvent(self, ev):
+        key, keySym = self._GetKeyCharAndKeySym(ev)
         ctrl, shift = self._GetCtrlShift(ev)
-        if ev.key() < 256:
-            key = chr(ev.key())
-        else:
-            key = chr(0)
-
         self._setEventInformation(self.__saveX, self.__saveY,
-                                  ctrl, shift, key, 0, None)
+                                  ctrl, shift, key, 0, keySym)
         self._Iren.KeyReleaseEvent()
 
     def wheelEvent(self, ev):
@@ -527,6 +545,9 @@ def QVTKRenderWidgetConeExample():
 
     from vtkmodules.vtkFiltersSources import vtkConeSource
     from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+    # load implementations for rendering and interaction factory classes
+    import vtkmodules.vtkRenderingOpenGL2
+    import vtkmodules.vtkInteractionStyle
 
     # every QT app needs an app
     app = QApplication(['QVTKRenderWindowInteractor'])
@@ -557,6 +578,28 @@ def QVTKRenderWidgetConeExample():
     # start event processing
     app.exec_()
 
+
+_keysyms_for_ascii = (
+    None, None, None, None, None, None, None, None,
+    None, "Tab", None, None, None, None, None, None,
+    None, None, None, None, None, None, None, None,
+    None, None, None, None, None, None, None, None,
+    "space", "exclam", "quotedbl", "numbersign",
+    "dollar", "percent", "ampersand", "quoteright",
+    "parenleft", "parenright", "asterisk", "plus",
+    "comma", "minus", "period", "slash",
+    "0", "1", "2", "3", "4", "5", "6", "7",
+    "8", "9", "colon", "semicolon", "less", "equal", "greater", "question",
+    "at", "A", "B", "C", "D", "E", "F", "G",
+    "H", "I", "J", "K", "L", "M", "N", "O",
+    "P", "Q", "R", "S", "T", "U", "V", "W",
+    "X", "Y", "Z", "bracketleft",
+    "backslash", "bracketright", "asciicircum", "underscore",
+    "quoteleft", "a", "b", "c", "d", "e", "f", "g",
+    "h", "i", "j", "k", "l", "m", "n", "o",
+    "p", "q", "r", "s", "t", "u", "v", "w",
+    "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete",
+    )
 
 _keysyms = {
     Qt.Key_Backspace: 'BackSpace',
@@ -652,18 +695,6 @@ _keysyms = {
     Qt.Key_NumLock: 'Num_Lock',
     Qt.Key_ScrollLock: 'Scroll_Lock',
     }
-
-def _qt_key_to_key_sym(key):
-    """ Convert a Qt key into a vtk keysym.
-
-    This is essentially copied from the c++ implementation in
-    GUISupport/Qt/QVTKInteractorAdapter.cxx.
-    """
-
-    if key not in _keysyms:
-        return None
-
-    return _keysyms[key]
 
 
 if __name__ == "__main__":
