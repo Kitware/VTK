@@ -52,6 +52,7 @@ diy::mpi::communicator vtkDIYUtilities::GetCommunicator(vtkMultiProcessControlle
   return vtkcomm ? diy::mpi::communicator(*vtkcomm->GetMPIComm()->GetHandle())
                  : diy::mpi::communicator(MPI_COMM_NULL);
 #else
+  (void)controller;
   return diy::mpi::communicator();
 #endif
 }
