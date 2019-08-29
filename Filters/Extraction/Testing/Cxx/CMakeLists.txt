@@ -1,5 +1,6 @@
 vtk_add_test_cxx(vtkFiltersExtractionCxxTests tests
   TestConvertSelection.cxx,NO_VALID
+  TestExpandMarkedElements.cxx
   TestExtractBlock.cxx,NO_VALID,NO_DATA
   TestExtractDataArraysOverTime.cxx,NO_VALID
   TestExtractThresholdsMultiBlock.cxx,NO_VALID
