@@ -162,9 +162,18 @@ public:
   /**
    * Intersect one id list with another. This method should become legacy.
    */
-    void IntersectWith(vtkIdList& otherIds) {
-    this->IntersectWith(&otherIds); };
+  void IntersectWith(vtkIdList& otherIds)
+  { this->IntersectWith(&otherIds); };
 
+  //@{
+  /**
+   * To support range-based `for` loops
+   */
+  vtkIdType* begin() { return this->Ids; }
+  vtkIdType* end() { return this->Ids + this->NumberOfIds; }
+  const vtkIdType* begin() const { return this->Ids; }
+  const vtkIdType* end() const { return this->Ids + this->NumberOfIds; }
+  //@}
 protected:
   vtkIdList();
   ~vtkIdList() override;
