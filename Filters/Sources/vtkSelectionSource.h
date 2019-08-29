@@ -122,6 +122,14 @@ public:
 
   //@{
   /**
+   * Specify number of layers to extract connected to the selected elements.
+   */
+  vtkSetClampMacro(NumberOfLayers, int, 0, VTK_INT_MAX);
+  vtkGetMacro(NumberOfLayers, int);
+  //@}
+
+  //@{
+  /**
    * Determines whether the selection describes what to include or exclude.
    * Default is 0, meaning include.
    */
@@ -197,6 +205,7 @@ protected:
   char *ArrayName;
   int ArrayComponent;
   char *QueryString;
+  int NumberOfLayers;
 
 private:
   vtkSelectionSource(const vtkSelectionSource&) = delete;

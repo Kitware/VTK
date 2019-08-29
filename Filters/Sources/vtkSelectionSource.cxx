@@ -69,6 +69,7 @@ vtkSelectionSource::vtkSelectionSource()
   this->HierarchicalLevel = -1;
   this->HierarchicalIndex = -1;
   this->QueryString = nullptr;
+  this->NumberOfLayers = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -253,6 +254,7 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HierarchicalLevel: " << this->HierarchicalLevel << endl;
   os << indent << "HierarchicalIndex: " << this->HierarchicalIndex << endl;
   os << indent << "QueryString: " << (this->QueryString ? this->QueryString : "nullptr") << endl;
+  os << indent << "NumberOfLayers: " << this->NumberOfLayers << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -535,6 +537,6 @@ int vtkSelectionSource::RequestData(
   {
     output->GetSelectionList()->SetName(this->ArrayName);
   }
-
+  oProperties->Set(vtkSelectionNode::CONNECTED_LAYERS(), this->NumberOfLayers);
   return 1;
 }

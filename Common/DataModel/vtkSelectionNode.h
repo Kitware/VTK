@@ -210,6 +210,13 @@ public:
   static vtkInformationIntegerKey* CONTAINING_CELLS();
 
   /**
+   * When specified, this indicates how many layers of *connected* elements
+   * in addition to those chosen explicitly are being selected. Currently,
+   * this is only supported for cells and points.
+   */
+  static vtkInformationIntegerKey* CONNECTED_LAYERS();
+
+  /**
    * When ContentType==THRESHOLDS  or ContentType==VALUES
    * i.e. threshold and value based selections, it is
    * possible pick the component number using this key. If none is specified,

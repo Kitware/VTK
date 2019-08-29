@@ -139,7 +139,7 @@ protected:
                            vtkTable* output,
                            vtkSignedCharArray* rowsInside);
 
-  bool PreserveTopology;
+  bool PreserveTopology = false;
 
 private:
   vtkExtractSelection(const vtkExtractSelection&) = delete;
