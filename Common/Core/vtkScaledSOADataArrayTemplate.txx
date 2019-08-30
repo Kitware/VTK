@@ -35,7 +35,6 @@ vtkScaledSOADataArrayTemplate<ValueType>::New()
 template<class ValueType>
 vtkScaledSOADataArrayTemplate<ValueType>::vtkScaledSOADataArrayTemplate()
   : AoSCopy(nullptr),
-    NumberOfComponentsReciprocal(1.0),
     Scale(1)
 {
 }
@@ -72,7 +71,6 @@ void vtkScaledSOADataArrayTemplate<ValueType>::SetNumberOfComponents(int val)
   {
     this->Data.push_back(vtkBuffer<ValueType>::New());
   }
-  this->NumberOfComponentsReciprocal = 1.0 / this->NumberOfComponents;
 }
 
 //-----------------------------------------------------------------------------
