@@ -33,6 +33,13 @@ set(OSMesa_find_package_vars
   OSMESA_INCLUDE_DIR
   OSMESA_LIBRARY)
 
+if ("ospray" IN_LIST _vtk_packages)
+  # FIXME: ospray depends on embree, but does not help finders at all.
+  # https://github.com/ospray/ospray/issues/352
+  list(APPEND _vtk_packages
+    embree)
+endif ()
+
 set(vtk_find_package_code)
 foreach (_vtk_package IN LISTS _vtk_packages)
   _vtk_package_append_variables(
