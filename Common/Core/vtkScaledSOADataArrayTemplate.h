@@ -270,8 +270,6 @@ protected:
   std::vector<vtkBuffer<ValueType>*> Data;
   vtkBuffer<ValueType> *AoSCopy;
 
-  double NumberOfComponentsReciprocal;
-
 private:
   vtkScaledSOADataArrayTemplate(const vtkScaledSOADataArrayTemplate&) = delete;
   void operator=(const vtkScaledSOADataArrayTemplate&) = delete;
@@ -279,9 +277,8 @@ private:
   inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx,
                                           vtkIdType& tupleIdx, int& comp) const
   {
-    tupleIdx = static_cast<vtkIdType>(valueIdx *
-                                      this->NumberOfComponentsReciprocal);
-    comp = valueIdx - (tupleIdx * this->NumberOfComponents);
+    tupleIdx = valueIdx / this->NumberOfComponents;
+    comp = valueIdx % this->NumberOfComponents;
   }
 
   friend class vtkGenericDataArray<vtkScaledSOADataArrayTemplate<ValueTypeT>,
