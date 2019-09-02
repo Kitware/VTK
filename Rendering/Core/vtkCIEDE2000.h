@@ -69,6 +69,11 @@ struct Node
 };
 
 /**
+ * Map a RGB color to its corresponding color in the sampled RGB space.
+ */
+void MapColor(double rgb[3]);
+
+/**
  * Returns the distance between two colors as given by the
  * CIE Delta E 2000 (CIEDE2000) color distance measure.
  */
@@ -79,7 +84,7 @@ double GetCIEDeltaE2000(const double lab1[3], const double lab2[3]);
  * to the CIEDE2000 measure and returns its overall length.
  */
 double GetColorPath(const double rgb1[3], const double rgb2[3], std::vector<Node>& path,
-  bool forceExactSupportColors = false);
+  bool forceExactSupportColors);
 }
 
 #endif

@@ -79,6 +79,14 @@ inline static void getRGBColor(const Position& pos, double rgb[3])
 }
 
 //----------------------------------------------------------------------------
+void MapColor(double rgb[3])
+{
+  Position pos;
+  getPosition(rgb, pos);
+  getRGBColor(pos, rgb);
+}
+
+//----------------------------------------------------------------------------
 inline static void getLabColor(const Position& pos, double _lab[3])
 {
   double rgb[3];
