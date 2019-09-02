@@ -135,7 +135,6 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
     outputPD->AddArray(originalPointIds.GetPointer());
   }
 
-
   vtkNew<vtkIdList> cellIds;
   vtkUnsignedCharArray* connectivityFlags = 0;
 
@@ -162,20 +161,16 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   vtkNew<vtkPoints> newPts;
   newPts->SetDataType(points->GetDataType());
   newPts->Allocate(numPts, numPts / 2);
-  output->SetPoints(newPts.GetPointer());
+  output->SetPoints(newPts);
 
-  vtkNew<vtkCellArray> outCells;
-  outCells->Allocate(5 * numCells / 10, numCells / 2);
-  output->SetPolys(outCells.Get());
+  vtkNew<vtkCellArray> newCells;
+  newCells->Allocate(5 * numCells / 10, numCells / 2);
+  output->SetPolys(newCells);
 
   outputPD->CopyGlobalIdsOn();
-  outputPD->CopyAllocate(pd, numPts, numPts / 2);
+  outputPD->CopyAllocate(pd, numPts);
   outputCD->CopyGlobalIdsOn();
-  outputCD->CopyAllocate(cd, numCells, numCells / 2);
-
-  vtkNew<vtkIdList> ptIds;
-  ptIds->SetNumberOfIds(4);
-  vtkIdType facePtIds[4];
+  outputCD->CopyAllocate(cd, numCells);
 
   // Traverse cells to extract geometry
   int abort = 0;
@@ -185,7 +180,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   std::vector<vtkIdType> pointIdVector(numPts, -1);
 
   bool mayBlank = input->HasAnyBlankCells();
-  bool mayGhost = input->HasAnyGhostCells();
+  bool mayBlankOrGhost = mayBlank || input->HasAnyGhostCells();
   for (vtkIdType cellId = 0; cells->GetNextCell(npts, pts) && !abort; cellId++)
   {
     // Progress and abort method support
@@ -196,15 +191,8 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
       abort = this->GetAbortExecute();
     }
 
-
-    // Ignore blank cells
-    if(mayBlank && !input->IsCellVisible(cellId))
-    {
-      continue;
-    }
-
-    // Ignore ghost cells
-    if (mayGhost && input->IsCellGhost(cellId))
+    // Ignore blank cells and ghost cells
+    if(mayBlankOrGhost && input->GetCellGhostArray()->GetValue(cellId) > 0)
     {
       continue;
     }
@@ -222,6 +210,8 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
       {
         continue;
       }
+
+      vtkIdType facePtIds[4];
       for (int p = 0; p < 4; p++)
       {
         vtkIdType ptId = pts[hexaFaces[f][p]];
@@ -240,7 +230,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
         }
         facePtIds[p] = pt;
       }
-      vtkIdType newCellId = outCells->InsertNextCell(4, facePtIds);
+      vtkIdType newCellId = newCells->InsertNextCell(4, facePtIds);
       outputCD->CopyData(cd, cellId, newCellId);
       if (this->PassThroughCellIds)
       {
