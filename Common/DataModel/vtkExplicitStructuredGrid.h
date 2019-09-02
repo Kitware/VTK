@@ -258,7 +258,7 @@ public:
    * and the source generated more than the update extent.
    */
   void Crop(const int* updateExtent) override;
-  virtual void Crop(const int* updateExtent, bool generateOriginalCellIds);
+  virtual void Crop(vtkExplicitStructuredGrid* input, const int* updateExtent, bool generateOriginalCellIds);
   //@}
 
   //@{

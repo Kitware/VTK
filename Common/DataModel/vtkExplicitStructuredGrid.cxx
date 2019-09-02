@@ -743,15 +743,15 @@ bool vtkExplicitStructuredGrid::HasAnyGhostCells()
 //----------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::Crop(const int* updateExtent)
 {
-  this->Crop(updateExtent, false);
+  this->Crop(this, updateExtent, false);
 }
 
 //----------------------------------------------------------------------------
-void vtkExplicitStructuredGrid::Crop(const int* updateExtent, bool generateOriginalCellIds)
+void vtkExplicitStructuredGrid::Crop(vtkExplicitStructuredGrid* input, const int* updateExtent, bool generateOriginalCellIds)
 {
   // The old extent
   int oldExtent[6];
-  this->GetExtent(oldExtent);
+  input->GetExtent(oldExtent);
 
   if (updateExtent[1] < updateExtent[0] || updateExtent[3] < updateExtent[2] ||
     updateExtent[5] < updateExtent[4])
@@ -791,6 +791,11 @@ void vtkExplicitStructuredGrid::Crop(const int* updateExtent, bool generateOrigi
     oldExtent[2] == newExtent[2] && oldExtent[3] == newExtent[3] && oldExtent[4] == newExtent[4] &&
     oldExtent[5] == newExtent[5])
   {
+    if (this != input)
+    {
+      this->ShallowCopy(input);
+    }
+
     if (generateOriginalCellIds)
     {
       // CellArray which links the new cells ids with the old ones
@@ -809,11 +814,14 @@ void vtkExplicitStructuredGrid::Crop(const int* updateExtent, bool generateOrigi
   else
   {
     // Check the points to avoid empty data objects.
-    vtkPoints* inPts = this->GetPoints();
-    if (!inPts)
+    if (!input->GetPoints())
     {
       return;
     }
+
+    // shallow copy points and point data to this ESG
+    this->SetPoints(input->GetPoints());
+    this->GetPointData()->ShallowCopy(input->GetPointData());
 
     vtkDebugMacro("Cropping Explicit Structured Grid");
 
@@ -825,21 +833,14 @@ void vtkExplicitStructuredGrid::Crop(const int* updateExtent, bool generateOrigi
     // Allocate necessary objects
     int outSize = (newCellExtent[1] - newCellExtent[0] + 1) *
       (newCellExtent[3] - newCellExtent[2] + 1) * (newCellExtent[5] - newCellExtent[4] + 1);
+    this->SetExtent(newExtent);
 
-    vtkCellData* inCD = this->GetCellData();
-    vtkNew<vtkCellData> outCD;
+    vtkCellData* inCD = input->GetCellData();
+    vtkCellData* outCD = this->GetCellData();
     outCD->CopyAllocate(inCD, outSize, outSize);
 
     vtkNew<vtkCellArray> cells;
     cells->Allocate(outSize * 9);
-
-    vtkUnsignedCharArray* outputGhosts = nullptr;
-    vtkUnsignedCharArray* inputGhosts = this->GetCellGhostArray();
-    if (inputGhosts)
-    {
-      outputGhosts = vtkUnsignedCharArray::New();
-      outputGhosts->SetNumberOfTuples(outSize);
-    }
 
     // CellArray which links the new cells ids with the old ones
     vtkNew<vtkIdTypeArray> originalCellIds;
@@ -857,15 +858,14 @@ void vtkExplicitStructuredGrid::Crop(const int* updateExtent, bool generateOrigi
       {
         for (int i = newCellExtent[0]; i <= newCellExtent[1]; ++i)
         {
-          int idx = this->ComputeCellId(i, j, k, true);
+          int idx = input->ComputeCellId(i, j, k);
           vtkNew<vtkIdList> ptIds;
-          this->GetCellPoints(idx, ptIds.GetPointer());
-          vtkIdType nCellId = cells->InsertNextCell(ptIds.GetPointer());
+          input->GetCellPoints(idx, ptIds);
+
+          // insert cell and copy cell data
+          vtkIdType nCellId = cells->InsertNextCell(ptIds);
           outCD->CopyData(inCD, idx, nCellId);
-          if (inputGhosts)
-          {
-            outputGhosts->SetTuple1(nCellId, inputGhosts->GetTuple1(idx));
-          }
+
           if (generateOriginalCellIds)
           {
             originalCellIds->InsertValue(nCellId, idx);
@@ -876,22 +876,17 @@ void vtkExplicitStructuredGrid::Crop(const int* updateExtent, bool generateOrigi
 
     if (generateOriginalCellIds)
     {
-      outCD->AddArray(originalCellIds.GetPointer());
+      outCD->AddArray(originalCellIds);
       originalCellIds->Squeeze();
     }
     cells->Squeeze();
-    this->SetExtent(newExtent);
     this->SetCells(cells.GetPointer());
-    if (inputGhosts)
-    {
-      inputGhosts->DeepCopy(outputGhosts);
-      outputGhosts->Delete();
-    }
+
     if (this->GetLinks())
     {
       this->BuildLinks();
     }
-    inCD->ShallowCopy(outCD.GetPointer());
+
     this->ComputeFacesConnectivityFlagsArray();
   }
 }

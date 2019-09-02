@@ -175,8 +175,7 @@ int vtkExplicitStructuredGridCrop::RequestData(vtkInformation* vtkNotUsed(reques
   vtkExplicitStructuredGrid* input = vtkExplicitStructuredGrid::GetData(inputVector[0], 0);
   vtkExplicitStructuredGrid* output = vtkExplicitStructuredGrid::GetData(outputVector, 0);
 
-  output->DeepCopy(input);
-  output->Crop(this->OutputWholeExtent, true);
+  output->Crop(input, this->OutputWholeExtent, true);
 
   this->UpdateProgress(1.);
   return 1;
