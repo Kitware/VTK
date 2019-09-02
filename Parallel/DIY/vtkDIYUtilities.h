@@ -46,6 +46,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * In MPI-enabled builds, DIY filters need MPI to be initialized.
+   * Calling this method in such filters will ensure that that's the case.
+   */
+  static void InitializeEnvironmentForDIY();
+
+  /**
    * Converts a vtkMultiProcessController to a diy::mpi::communicator.
    * If controller is nullptr or not a vtkMPIController, then
    * diy::mpi::communicator(MPI_COMM_NULL) is created.
@@ -124,6 +130,19 @@ struct Serialization<vtkDataSet*>
   static void load(BinaryBuffer& bb, vtkDataSet*& p) { vtkDIYUtilities::Load(bb, p); }
 };
 }
+
+// Implementation detail for Schwartz counter idiom.
+class VTKPARALLELDIY_EXPORT vtkDIYUtilitiesCleanup
+{
+public:
+  vtkDIYUtilitiesCleanup();
+  ~vtkDIYUtilitiesCleanup();
+
+private:
+  vtkDIYUtilitiesCleanup(const vtkDIYUtilitiesCleanup&) = delete;
+  void operator=(const vtkDIYUtilitiesCleanup&) = delete;
+};
+static vtkDIYUtilitiesCleanup vtkDIYUtilitiesCleanupInstance;
 
 #endif
 // VTK-HeaderTest-Exclude: vtkDIYUtilities.h
