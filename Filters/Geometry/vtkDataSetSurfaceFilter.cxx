@@ -2014,27 +2014,18 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
            || cellType == VTK_LAGRANGE_TRIANGLE
            || cellType == VTK_LAGRANGE_QUADRILATERAL)
     {
-      // If all of the cell points are duplicate (boundary), do not
-      // extract as a surface cell.
       // If one of the points is hidden (meaning invalid), do not
       // extract surface cell.
-      bool allGhosts = true;
+    // Removed checking for whether all points are ghost, because that's an
+    // incorrect assumption.
       bool oneHidden = false;
       pointIdList = cellIter->GetPointIds();
       vtkIdType nIds = pointIdList->GetNumberOfIds();
-      if (!ghosts)
-      {
-        allGhosts = false;
-      }
-      else
+      if (ghosts)
       {
         for ( i=0; i < nIds; i++ )
         {
           unsigned char val = ghosts->GetValue(pointIdList->GetId(i));
-          if (!(val & vtkDataSetAttributes::DUPLICATEPOINT))
-          {
-            allGhosts = false;
-          }
           if (val & vtkDataSetAttributes::HIDDENPOINT)
           {
             oneHidden = true;
@@ -2042,8 +2033,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
           }
         }
       }
-      // If all points of the polygon are ghosts, we throw it away.
-      if (allGhosts || oneHidden)
+      if (oneHidden)
       {
         continue;
       }
@@ -2154,26 +2144,17 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   this->InitQuadHashTraversal();
   while ( (q = this->GetNextVisibleQuadFromHash()) )
   {
-    // If all of the cell points are duplicate (boundary), do not
-    // extract as a surface cell.
     // If one of the points is hidden (meaning invalid), do not
     // extract surface cell.
-    bool allGhosts = true;
+    // Removed checking for whether all points are ghost, because that's an
+    // incorrect assumption.
     bool oneHidden = false;
-    if (!ghosts)
-    {
-      allGhosts = false;
-    }
     // handle all polys
     for (i = 0; i < q->numPts; i++)
     {
       if (ghosts)
       {
         unsigned char val = ghosts->GetValue(q->ptArray[i]);
-        if (!(val & vtkDataSetAttributes::DUPLICATEPOINT))
-        {
-          allGhosts = false;
-        }
         if (val & vtkDataSetAttributes::HIDDENPOINT)
         {
           oneHidden = true;
@@ -2183,8 +2164,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       q->ptArray[i] = this->GetOutputPointId(q->ptArray[i], input, newPts, outputPD);
     }
 
-    // If all points of the polygon are ghosts, we throw it away.
-    if (allGhosts || oneHidden)
+    if (oneHidden)
     {
       continue;
     }
