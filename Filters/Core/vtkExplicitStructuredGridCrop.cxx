@@ -27,13 +27,11 @@ vtkStandardNewMacro(vtkExplicitStructuredGridCrop);
 vtkExplicitStructuredGridCrop::vtkExplicitStructuredGridCrop()
 {
   this->Initialized = 0;
-  this->OutputWholeExtent[0] =
-    this->OutputWholeExtent[2] =
-    this->OutputWholeExtent[4] = VTK_INT_MIN;
+  this->OutputWholeExtent[0] = this->OutputWholeExtent[2] = this->OutputWholeExtent[4] =
+    VTK_INT_MIN;
 
-  this->OutputWholeExtent[1] =
-    this->OutputWholeExtent[3] =
-    this->OutputWholeExtent[5] = VTK_INT_MAX;
+  this->OutputWholeExtent[1] = this->OutputWholeExtent[3] = this->OutputWholeExtent[5] =
+    VTK_INT_MAX;
 }
 
 //----------------------------------------------------------------------------
@@ -43,10 +41,8 @@ void vtkExplicitStructuredGridCrop::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "OutputWholeExtent: (" << this->OutputWholeExtent[0] << ","
      << this->OutputWholeExtent[1];
-  os << indent << ", " << this->OutputWholeExtent[2] << ","
-     << this->OutputWholeExtent[3];
-  os << indent << ", " << this->OutputWholeExtent[4] << ","
-     << this->OutputWholeExtent[5];
+  os << indent << ", " << this->OutputWholeExtent[2] << "," << this->OutputWholeExtent[3];
+  os << indent << ", " << this->OutputWholeExtent[4] << "," << this->OutputWholeExtent[5];
   os << ")\n";
 }
 
@@ -77,12 +73,8 @@ void vtkExplicitStructuredGridCrop::SetOutputWholeExtent(int extent[6], vtkInfor
 }
 
 //----------------------------------------------------------------------------
-void vtkExplicitStructuredGridCrop::SetOutputWholeExtent(int minX,
-  int maxX,
-  int minY,
-  int maxY,
-  int minZ,
-  int maxZ)
+void vtkExplicitStructuredGridCrop::SetOutputWholeExtent(
+  int minX, int maxX, int minY, int maxY, int minZ, int maxZ)
 {
   int extent[6];
   extent[0] = minX;
@@ -121,8 +113,7 @@ void vtkExplicitStructuredGridCrop::ResetOutputWholeExtent()
 //----------------------------------------------------------------------------
 // Change the WholeExtent
 int vtkExplicitStructuredGridCrop::RequestInformation(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -157,8 +148,7 @@ int vtkExplicitStructuredGridCrop::RequestInformation(vtkInformation* vtkNotUsed
 
 //----------------------------------------------------------------------------
 int vtkExplicitStructuredGridCrop::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   // We can handle anything.
   vtkInformation* info = inputVector[0]->GetInformationObject(0);
@@ -168,15 +158,13 @@ int vtkExplicitStructuredGridCrop::RequestUpdateExtent(vtkInformation* vtkNotUse
 
 //----------------------------------------------------------------------------
 int vtkExplicitStructuredGridCrop::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Retrieve input and output
   vtkExplicitStructuredGrid* input = vtkExplicitStructuredGrid::GetData(inputVector[0], 0);
   vtkExplicitStructuredGrid* output = vtkExplicitStructuredGrid::GetData(outputVector, 0);
 
-  output->DeepCopy(input);
-  output->Crop(this->OutputWholeExtent, true);
+  output->Crop(input, this->OutputWholeExtent, true);
 
   this->UpdateProgress(1.);
   return 1;

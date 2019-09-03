@@ -43,40 +43,34 @@ vtkExplicitStructuredGridSurfaceFilter::~vtkExplicitStructuredGridSurfaceFilter(
 }
 
 // ----------------------------------------------------------------------------
-int vtkExplicitStructuredGridSurfaceFilter::RequestInformation(
-   vtkInformation *vtkNotUsed(request),
-   vtkInformationVector** inputVector,
-   vtkInformationVector* vtkNotUsed(outputVector))
+int vtkExplicitStructuredGridSurfaceFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
-  inputVector[0]->GetInformationObject(0)->
-      Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->WholeExtent);
+  inputVector[0]->GetInformationObject(0)->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->WholeExtent);
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkExplicitStructuredGridSurfaceFilter::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkExplicitStructuredGridSurfaceFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-    // get the info objects
-    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  // get the info objects
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-    int ghostLevels;
-    ghostLevels = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  int ghostLevels;
+  ghostLevels = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
-    ghostLevels = std::max(ghostLevels, 1);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevels);
+  ghostLevels = std::max(ghostLevels, 1);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevels);
 
-    return 1;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkExplicitStructuredGridSurfaceFilter::RequestData(
-        vtkInformation* vtkNotUsed(request),
-        vtkInformationVector **inputVector,
-        vtkInformationVector *outputVector)
+int vtkExplicitStructuredGridSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 
   // Get the input and output
@@ -89,19 +83,19 @@ int vtkExplicitStructuredGridSurfaceFilter::RequestData(
     return 1;
   }
 
-  inputVector[0]->GetInformationObject(0)->
-      Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->WholeExtent);
+  inputVector[0]->GetInformationObject(0)->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->WholeExtent);
 
   return this->ExtractSurface(input, output);
 }
 
-static int hexaFaces[6][4] = { {0,4,7,3}, {1,2,6,5},
-                               {0,1,5,4}, {3,7,6,2},
-                               {0,3,2,1}, {4,5,6,7} };
+static int hexaFaces[6][4] = { { 0, 4, 7, 3 }, { 1, 2, 6, 5 },
+                               { 0, 1, 5, 4 }, { 3, 7, 6, 2 },
+                               { 0, 3, 2, 1 }, { 4, 5, 6, 7 } };
 
 //----------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
-  vtkExplicitStructuredGrid *input, vtkPolyData *output)
+  vtkExplicitStructuredGrid* input, vtkPolyData* output)
 {
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
@@ -111,12 +105,12 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
     return 1;
   }
 
-  vtkDebugMacro(<<"Executing explicit structured grid surface filter");
+  vtkDebugMacro(<< "Executing explicit structured grid surface filter");
 
-  vtkPointData *pd = input->GetPointData();
-  vtkCellData *cd = input->GetCellData();
-  vtkPointData *outputPD = output->GetPointData();
-  vtkCellData *outputCD = output->GetCellData();
+  vtkPointData* pd = input->GetPointData();
+  vtkCellData* cd = input->GetCellData();
+  vtkPointData* outputPD = output->GetPointData();
+  vtkCellData* outputCD = output->GetCellData();
 
   vtkNew<vtkIdTypeArray> originalCellIds;
   if (this->PassThroughCellIds)
@@ -134,7 +128,6 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
     originalPointIds->Allocate(numPts);
     outputPD->AddArray(originalPointIds.GetPointer());
   }
-
 
   vtkNew<vtkIdList> cellIds;
   vtkUnsignedCharArray* connectivityFlags = 0;
@@ -162,20 +155,16 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   vtkNew<vtkPoints> newPts;
   newPts->SetDataType(points->GetDataType());
   newPts->Allocate(numPts, numPts / 2);
-  output->SetPoints(newPts.GetPointer());
+  output->SetPoints(newPts);
 
-  vtkNew<vtkCellArray> outCells;
-  outCells->Allocate(5 * numCells / 10, numCells / 2);
-  output->SetPolys(outCells.Get());
+  vtkNew<vtkCellArray> newCells;
+  newCells->Allocate(5 * numCells / 10, numCells / 2);
+  output->SetPolys(newCells);
 
   outputPD->CopyGlobalIdsOn();
-  outputPD->CopyAllocate(pd, numPts, numPts / 2);
+  outputPD->CopyAllocate(pd, numPts);
   outputCD->CopyGlobalIdsOn();
-  outputCD->CopyAllocate(cd, numCells, numCells / 2);
-
-  vtkNew<vtkIdList> ptIds;
-  ptIds->SetNumberOfIds(4);
-  vtkIdType facePtIds[4];
+  outputCD->CopyAllocate(cd, numCells);
 
   // Traverse cells to extract geometry
   int abort = 0;
@@ -185,26 +174,19 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   std::vector<vtkIdType> pointIdVector(numPts, -1);
 
   bool mayBlank = input->HasAnyBlankCells();
-  bool mayGhost = input->HasAnyGhostCells();
+  bool mayBlankOrGhost = mayBlank || input->HasAnyGhostCells();
   for (vtkIdType cellId = 0; cells->GetNextCell(npts, pts) && !abort; cellId++)
   {
     // Progress and abort method support
     if (!(cellId % progressInterval))
     {
-      vtkDebugMacro(<<"Process cell #" << cellId);
+      vtkDebugMacro(<< "Process cell #" << cellId);
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
       abort = this->GetAbortExecute();
     }
 
-
-    // Ignore blank cells
-    if(mayBlank && !input->IsCellVisible(cellId))
-    {
-      continue;
-    }
-
-    // Ignore ghost cells
-    if (mayGhost && input->IsCellGhost(cellId))
+    // Ignore blank cells and ghost cells
+    if (mayBlankOrGhost && input->GetCellGhostArray()->GetValue(cellId) > 0)
     {
       continue;
     }
@@ -215,13 +197,16 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
     // Traverse hexahedron cell faces
     for (int f = 0; f < 6; f++)
     {
-      bool nonBlankNeighbor = !mayBlank || (neighbors[f] >= 0 && input->IsCellVisible(neighbors[f]));
+      bool nonBlankNeighbor =
+        !mayBlank || (neighbors[f] >= 0 && input->IsCellVisible(neighbors[f]));
 
       // Connected faces with non blank neighbor are skipped
       if (cflag & (1 << f) && nonBlankNeighbor)
       {
         continue;
       }
+
+      vtkIdType facePtIds[4];
       for (int p = 0; p < 4; p++)
       {
         vtkIdType ptId = pts[hexaFaces[f][p]];
@@ -240,7 +225,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
         }
         facePtIds[p] = pt;
       }
-      vtkIdType newCellId = outCells->InsertNextCell(4, facePtIds);
+      vtkIdType newCellId = newCells->InsertNextCell(4, facePtIds);
       outputCD->CopyData(cd, cellId, newCellId);
       if (this->PassThroughCellIds)
       {
@@ -248,15 +233,15 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
       }
 
     } // for all faces
-  } // for all cells
-  //free storage
+  }   // for all cells
+  // free storage
   output->Squeeze();
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkExplicitStructuredGridSurfaceFilter::FillInputPortInformation(int, vtkInformation *info)
+int vtkExplicitStructuredGridSurfaceFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkExplicitStructuredGrid");
   return 1;
@@ -265,7 +250,7 @@ int vtkExplicitStructuredGridSurfaceFilter::FillInputPortInformation(int, vtkInf
 //----------------------------------------------------------------------------
 void vtkExplicitStructuredGridSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "PieceInvariant: " << this->PieceInvariant << endl;
   os << indent << "PassThroughCellIds: " << (this->PassThroughCellIds ? "On\n" : "Off\n");
