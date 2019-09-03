@@ -37,6 +37,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
 #include <climits>
 #include <tuple>
 #include <type_traits>
@@ -143,7 +144,13 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self)
   diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(self->GetController());
 
   vtkLogStartScope(TRACE, "extract points");
-  const auto datasets = vtkDIYUtilities::GetDataSets(dobj);
+  auto datasets = vtkDIYUtilities::GetDataSets(dobj);
+  datasets.erase(std::remove_if(datasets.begin(), datasets.end(),
+                   [](vtkDataSet* ds) {
+                     return ds == nullptr || ds->GetNumberOfPoints() == 0 ||
+                       (BlockTraitsT::UseCellCenters && ds->GetNumberOfCells() == 0);
+                   }),
+    datasets.end());
   const auto points = vtkDIYUtilities::ExtractPoints(datasets, BlockTraitsT::UseCellCenters);
   vtkLogEndScope("extract points");
 
