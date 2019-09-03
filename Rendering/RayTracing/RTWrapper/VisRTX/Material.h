@@ -129,11 +129,16 @@ namespace RTW
                 static std::set<std::string> mdltypes_printed;
                 if (mdltypes_printed.find(this->type) == mdltypes_printed.end())
                 {
-                    std::vector<std::string> availableParams = mdlMaterial->GetAvailableParameters();
+                    std::vector<std::string> availableParams;
+                    for (uint32_t i = 0; i < mdlMaterial->GetParameterCount(); ++i)
+                    {
+                        availableParams.push_back(mdlMaterial->GetParameterName(i));
+                    }
+
                     for (const auto &parameter : availableParams)
                     {
                         std::string parameterType;
-                        switch (mdlMaterial->GetParameterType(parameter))
+                        switch (mdlMaterial->GetParameterType(parameter.c_str()))
                         {
                         case VisRTX::ParameterType::NONE:
                             parameterType = "none"; break;
@@ -145,6 +150,8 @@ namespace RTW
                             parameterType = "float"; break;
                         case VisRTX::ParameterType::INT:
                             parameterType = "int"; break;
+                        case VisRTX::ParameterType::BOOL:
+                            parameterType = "bool"; break;
                         case VisRTX::ParameterType::TEXTURE:
                             parameterType = "texture"; break;
                         }
@@ -184,17 +191,17 @@ namespace RTW
 
                     //rename parameters if needed (osp name -> mdl name)
 
-                    static const std::map<std::string, std::string> renameMap
+                    static const std::map<std::pair<std::string, std::string>, std::string> renameMap
                     {
-                        {"map_kd", "map_Kd"},
-                        {"map_bump", "map_Bump"},
-                        {"etaInside", "eta"},
-                        {"alpha", "d"},
-                        {"transmission", "attenuationColor"}
+                        { { "OBJMaterial", "map_kd" }, "map_Kd"},
+                        { { "OBJMaterial", "map_bump" }, "map_Bump"},
+                        { { "Glass", "etaInside" }, "eta"},
+                        { { "OBJMaterial", "alpha" }, "d"},
+                        { { "ThinGlass", "transmission" }, "attenuationColor"}
                     };
 
                     // explicit renames first
-                    auto rename_it = renameMap.find(paramName);
+                    auto rename_it = renameMap.find(std::make_pair(this->type, paramName));
                     if (rename_it != renameMap.end())
                     {
                         paramName = rename_it->second;
@@ -332,12 +339,28 @@ namespace RTW
                     else if (paramType == std::string("int1"))
                     {
                         int ospParam = this->Get1i(names);
-                        mdlMaterial->SetParameterInt(paramName.c_str(), ospParam);
+
+                        if (mdlMaterial->GetParameterType(paramName.c_str()) == VisRTX::ParameterType::BOOL)
+                        {
+                            mdlMaterial->SetParameterBool(paramName.c_str(), ospParam > 0);
+                        }
+                        else
+                        {
+                            mdlMaterial->SetParameterInt(paramName.c_str(), ospParam);
+                        }
                     }
                     else if (paramType == std::string("float1"))
                     {
                         float ospParam = this->Get1f(names);
-                        mdlMaterial->SetParameterFloat(paramName.c_str(), ospParam);
+
+                        if (mdlMaterial->GetParameterType(paramName.c_str()) == VisRTX::ParameterType::BOOL)
+                        {
+                            mdlMaterial->SetParameterBool(paramName.c_str(), ospParam > 0.0f);
+                        }
+                        else
+                        {
+                            mdlMaterial->SetParameterFloat(paramName.c_str(), ospParam);
+                        }
                     }
                     else if (paramType == std::string("float2"))
                     {
