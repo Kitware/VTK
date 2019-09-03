@@ -3107,14 +3107,26 @@ function (vtk_module_add_module name)
     foreach (_vtk_add_module_optional_depend IN LISTS _vtk_add_module_optional_depends)
       if (TARGET "${_vtk_add_module_optional_depend}")
         set(_vtk_add_module_have_optional_depend 1)
-        _vtk_module_get_module_property("${_vtk_add_module_optional_depend}"
+        set(_vtk_add_module_optional_depend_link "${_vtk_add_module_optional_depend}")
+        if (_vtk_add_module_build_with_kit)
+          get_property(_vtk_add_module_optional_depend_kit GLOBAL
+            PROPERTY "_vtk_module_${_vtk_add_module_optional_depend}_kit")
+          if (_vtk_add_module_optional_depend_kit STREQUAL _vtk_add_module_build_with_kit)
+            # We're in the same kit; depend on the `-objects` library of the
+            # module to avoid circular dependency (see explanation earlier)
+            get_property(_vtk_add_module_optional_depend_target_name GLOBAL
+              PROPERTY "_vtk_module_${_vtk_add_module_optional_depend}_target_name")
+            set(_vtk_add_module_optional_depend_link "${_vtk_add_module_optional_depend_target_name}-objects")
+          endif ()
+        endif ()
+        _vtk_module_get_module_property("${_vtk_add_module_optional_depend_link}"
           PROPERTY "forward_link"
           VARIABLE  _vtk_add_module_forward_link)
         list(APPEND _vtk_add_module_private_depends_forward_link
           ${_vtk_add_module_forward_link})
         target_link_libraries("${_vtk_add_module_real_target}"
           PRIVATE
-            "${_vtk_add_module_optional_depend}")
+            "${_vtk_add_module_optional_depend_link}")
       else ()
         set(_vtk_add_module_have_optional_depend 0)
       endif ()

@@ -31,7 +31,7 @@
 #ifndef vtkDIYExplicitAssigner_h
 #define vtkDIYExplicitAssigner_h
 
-#include "vtkFiltersParallelDIY2Module.h" // for export macros
+#include "vtkParallelDIYModule.h" // for export macros
 #include "vtkObject.h"
 // clang-format off
 #include "vtk_diy2.h"
@@ -43,7 +43,7 @@
 #pragma warning( disable : 4275 ) /* non dll-interface class `diy::StaticAssigner` used as base for dll-interface class */
 #endif
 
-class VTKFILTERSPARALLELDIY2_EXPORT vtkDIYExplicitAssigner : public diy::StaticAssigner
+class VTKPARALLELDIY_EXPORT vtkDIYExplicitAssigner : public diy::StaticAssigner
 {
 public:
   vtkDIYExplicitAssigner(

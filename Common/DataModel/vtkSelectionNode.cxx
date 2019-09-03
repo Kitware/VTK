@@ -48,6 +48,7 @@ vtkInformationKeyMacro(vtkSelectionNode,FIELD_TYPE,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,EPSILON,Double);
 vtkInformationKeyMacro(vtkSelectionNode,ZBUFFER_VALUE,Double);
 vtkInformationKeyMacro(vtkSelectionNode,CONTAINING_CELLS,Integer);
+vtkInformationKeyMacro(vtkSelectionNode, CONNECTED_LAYERS, Integer);
 vtkInformationKeyMacro(vtkSelectionNode,PIXEL_COUNT,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,INVERSE,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,INDEXED_VERTICES,Integer);

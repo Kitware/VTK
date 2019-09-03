@@ -33,9 +33,35 @@
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPI.h"
 #include "vtkMPICommunicator.h"
+#include "vtkMPIController.h"
 #endif
 
 #include <cassert>
+
+static unsigned int vtkDIYUtilitiesCleanupCounter = 0;
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+static vtkMPIController* vtkDIYUtilitiesCleanupMPIController = nullptr;
+#endif
+vtkDIYUtilitiesCleanup::vtkDIYUtilitiesCleanup()
+{
+  ++vtkDIYUtilitiesCleanupCounter;
+}
+
+vtkDIYUtilitiesCleanup::~vtkDIYUtilitiesCleanup()
+{
+  if (--vtkDIYUtilitiesCleanupCounter == 0)
+  {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+    if (vtkDIYUtilitiesCleanupMPIController)
+    {
+      vtkLogF(TRACE, "Cleaning up MPI controller created for DIY filters.");
+      vtkDIYUtilitiesCleanupMPIController->Finalize();
+      vtkDIYUtilitiesCleanupMPIController->Delete();
+      vtkDIYUtilitiesCleanupMPIController = nullptr;
+    }
+#endif
+  }
+}
 
 //----------------------------------------------------------------------------
 vtkDIYUtilities::vtkDIYUtilities() {}
@@ -44,13 +70,35 @@ vtkDIYUtilities::vtkDIYUtilities() {}
 vtkDIYUtilities::~vtkDIYUtilities() {}
 
 //----------------------------------------------------------------------------
+void vtkDIYUtilities::InitializeEnvironmentForDIY()
+{
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  int mpiOk;
+  MPI_Initialized(&mpiOk);
+  if (!mpiOk)
+  {
+    vtkLogF(TRACE,
+      "Initializing MPI for DIY filters since process did not do so in an MPI enabled build.");
+    assert(vtkDIYUtilitiesCleanupMPIController == nullptr);
+    vtkDIYUtilitiesCleanupMPIController = vtkMPIController::New();
+
+    static int argc = 0;
+    static char** argv = {nullptr};
+    vtkDIYUtilitiesCleanupMPIController->Initialize(&argc, &argv);
+  }
+#endif
+}
+
+//----------------------------------------------------------------------------
 diy::mpi::communicator vtkDIYUtilities::GetCommunicator(vtkMultiProcessController* controller)
 {
+  vtkDIYUtilities::InitializeEnvironmentForDIY();
+
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkMPICommunicator* vtkcomm =
     vtkMPICommunicator::SafeDownCast(controller ? controller->GetCommunicator() : nullptr);
   return vtkcomm ? diy::mpi::communicator(*vtkcomm->GetMPIComm()->GetHandle())
-                 : diy::mpi::communicator(MPI_COMM_NULL);
+                 : diy::mpi::communicator(MPI_COMM_SELF);
 #else
   (void)controller;
   return diy::mpi::communicator();

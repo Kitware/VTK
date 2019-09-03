@@ -27,9 +27,11 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLocationSelector.h"
+#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkSMPTools.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSelector.h"
@@ -46,7 +48,6 @@
 vtkStandardNewMacro(vtkExtractSelection);
 //----------------------------------------------------------------------------
 vtkExtractSelection::vtkExtractSelection()
-  : PreserveTopology(false)
 {
   this->SetNumberOfInputPorts(2);
 }
@@ -188,16 +189,13 @@ namespace
 {
   void InvertSelection(vtkSignedCharArray* array)
   {
-    if (!array)
-    {
-      return;
-    }
-
-    const int n = array->GetNumberOfTuples();
-    for (int i = 0; i < n; ++i)
-    {
-      array->SetValue(i, array->GetValue(i) * -1 + 1);
-    }
+    const vtkIdType n = array->GetNumberOfTuples();
+    vtkSMPTools::For(0, n, [&array](vtkIdType start, vtkIdType end) {
+      for (vtkIdType i = start; i < end; ++i)
+      {
+        array->SetValue(i, static_cast<signed char>(array->GetValue(i) * -1 + 1));
+      }
+    });
   }
 }
 
@@ -254,6 +252,43 @@ int vtkExtractSelection::RequestData(
     }
   }
 
+  auto evaluate = [&selectors, assoc, &selection](vtkDataObject* dobj) {
+    auto fieldData = dobj->GetAttributes(assoc);
+    if (!fieldData)
+    {
+      return;
+    }
+
+    // Iterate over operators and set up a map from selection node name to insidedness
+    // array.
+    std::map<std::string, vtkSignedCharArray*> arrayMap;
+    for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
+    {
+      auto name = nodeIter->first;
+      auto insidednessArray = vtkSignedCharArray::SafeDownCast(fieldData->GetArray(name.c_str()));
+      auto node = selection->GetNode(name.c_str());
+      if (insidednessArray != nullptr && node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
+        node->GetProperties()->Get(vtkSelectionNode::INVERSE()))
+      {
+        ::InvertSelection(insidednessArray);
+      }
+      arrayMap[name] = insidednessArray;
+    }
+
+    // Evaluate the map of insidedness arrays
+    auto blockInsidedness = selection->Evaluate(arrayMap);
+    blockInsidedness->SetName("__vtkInsidedness__");
+    fieldData->AddArray(blockInsidedness);
+  };
+
+  auto extract = [&assoc, this](vtkDataObject* inpDO, vtkDataObject* opDO) -> vtkSmartPointer<vtkDataObject> {
+    auto fd = opDO->GetAttributes(assoc);
+    auto array =
+      fd ? vtkSignedCharArray::SafeDownCast(fd->GetArray("__vtkInsidedness__")) : nullptr;
+    auto resultDO = array ? this->ExtractElements(inpDO, assoc, array) : nullptr;
+    return (resultDO && resultDO->GetNumberOfElements(assoc) > 0) ? resultDO : nullptr;
+  };
+
   if (auto inputCD = vtkCompositeDataSet::SafeDownCast(input))
   {
     auto outputCD = vtkCompositeDataSet::SafeDownCast(output);
@@ -264,104 +299,76 @@ int vtkExtractSelection::RequestData(
     inIter.TakeReference(inputCD->NewIterator());
 
     // Initialize the output composite dataset to have blocks with the same type
-    // as the input. We don't need to copy points or cell information, we just need
-    // a convenient place to store the insidedness array.
+    // as the input.
     for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
     {
       auto blockInput = inIter->GetCurrentDataObject();
       if (blockInput)
       {
         auto clone = blockInput->NewInstance();
+        clone->ShallowCopy(blockInput);
         outputCD->SetDataSet(inIter, clone);
         clone->FastDelete();
       }
     }
 
     // Evaluate the operators.
+    vtkLogStartScope(TRACE, "execute selectors");
     for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
     {
-      auto name = nodeIter->first;
       auto selector = nodeIter->second;
       selector->Execute(inputCD, outputCD);
     }
+    vtkLogEndScope("execute selectors");
 
+    vtkLogStartScope(TRACE, "evaluate expression");
     // Now iterate again over the composite dataset and evaluate the expression to
     // combine all the insidedness arrays.
-    for (inIter->GoToFirstItem(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
+    vtkSmartPointer<vtkCompositeDataIterator> outIter;
+    outIter.TakeReference(outputCD->NewIterator());
+    for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
     {
-      vtkDataObject* inputBlock = inputCD->GetDataSet(inIter);
-      vtkDataObject* outputBlock = outputCD->GetDataSet(inIter);
+      auto outputBlock = outIter->GetCurrentDataObject();
       assert(outputBlock != nullptr);
-
-      // Iterate over operators and set up a map from selection node name to insidedness
-      // array.
-      std::map<std::string, vtkSignedCharArray*> arrayMap;
-      for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
-      {
-        auto name = nodeIter->first;
-        auto fieldData = outputBlock->GetAttributes(assoc);
-        if (!fieldData)
-        {
-          arrayMap[name] = nullptr;
-          continue;
-        }
-        auto array = fieldData->GetArray(name.c_str());
-        auto insidednessArray = vtkSignedCharArray::SafeDownCast(array);
-
-        auto node = selection->GetNode(name.c_str());
-        if (node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
-            node->GetProperties()->Get(vtkSelectionNode::INVERSE()))
-        {
-          InvertSelection(insidednessArray);
-        }
-        arrayMap[name] = insidednessArray;
-      }
-
-      // Evaluate the map of insidedness arrays
-      auto blockInsidedness = selection->Evaluate(arrayMap);
-      auto resultDO = this->ExtractElements(inputBlock, assoc, blockInsidedness);
-      if (resultDO && resultDO->GetNumberOfElements(assoc) > 0)
-      {
-        outputCD->SetDataSet(inIter, resultDO);
-      }
-      else
-      {
-        outputCD->SetDataSet(inIter, nullptr);
-      }
+      // Evaluate the expression.
+      evaluate(outputBlock);
     }
+    vtkLogEndScope("evaluate expression");
+
+    vtkLogStartScope(TRACE, "extract output");
+    for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
+    {
+      outputCD->SetDataSet(outIter, extract(inputCD->GetDataSet(outIter), outIter->GetCurrentDataObject()));
+    }
+    vtkLogEndScope("extract output");
   }
   else
   {
-    std::map<std::string, vtkSignedCharArray*> arrayMap;
+    assert(output != nullptr);
+
+    vtkSmartPointer<vtkDataObject> clone;
+    clone.TakeReference(input->NewInstance());
+    clone->ShallowCopy(input);
+
+    // Evaluate the operators.
+    vtkLogStartScope(TRACE, "execute selectors");
     for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
     {
-      auto name = nodeIter->first;
       auto selector = nodeIter->second;
-      selector->Execute(input, output);
-
-      // Set up a map from selection node name to insidedness array.
-      auto *attributes = output->GetAttributes(assoc);
-      if (!attributes)
-      {
-        arrayMap[name] = nullptr;
-        continue;
-      }
-      auto array = attributes->GetArray(name.c_str());
-      auto insidednessArray = vtkSignedCharArray::SafeDownCast(array);
-
-      auto node = selection->GetNode(name.c_str());
-      if (node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
-          node->GetProperties()->Get(vtkSelectionNode::INVERSE()))
-      {
-        InvertSelection(insidednessArray);
-      }
-      arrayMap[name] = insidednessArray;
+      selector->Execute(input, clone);
     }
+    vtkLogEndScope("execute selectors");
 
-    // Evaluate the map of insidedness arrays
-    auto insidedness = selection->Evaluate(arrayMap);
-    auto result = this->ExtractElements(input, assoc, insidedness);
-    output->ShallowCopy(result);
+    vtkLogStartScope(TRACE, "evaluate expression");
+    evaluate(clone);
+    vtkLogEndScope("evaluate expression");
+
+    vtkLogStartScope(TRACE, "extract output");
+    if (auto result = extract(input, clone))
+    {
+      output->ShallowCopy(result);
+    }
+    vtkLogEndScope("extract output");
   }
 
   return 1;

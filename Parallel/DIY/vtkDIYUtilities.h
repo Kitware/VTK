@@ -22,7 +22,7 @@
 #ifndef vtkDIYUtilities_h
 #define vtkDIYUtilities_h
 
-#include "vtkFiltersParallelDIY2Module.h" // for export macros
+#include "vtkParallelDIYModule.h" // for export macros
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer
 
@@ -39,11 +39,17 @@ class vtkDataSet;
 class vtkMultiProcessController;
 class vtkPoints;
 
-class VTKFILTERSPARALLELDIY2_EXPORT vtkDIYUtilities : public vtkObject
+class VTKPARALLELDIY_EXPORT vtkDIYUtilities : public vtkObject
 {
 public:
   vtkTypeMacro(vtkDIYUtilities, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * In MPI-enabled builds, DIY filters need MPI to be initialized.
+   * Calling this method in such filters will ensure that that's the case.
+   */
+  static void InitializeEnvironmentForDIY();
 
   /**
    * Converts a vtkMultiProcessController to a diy::mpi::communicator.
@@ -124,6 +130,19 @@ struct Serialization<vtkDataSet*>
   static void load(BinaryBuffer& bb, vtkDataSet*& p) { vtkDIYUtilities::Load(bb, p); }
 };
 }
+
+// Implementation detail for Schwartz counter idiom.
+class VTKPARALLELDIY_EXPORT vtkDIYUtilitiesCleanup
+{
+public:
+  vtkDIYUtilitiesCleanup();
+  ~vtkDIYUtilitiesCleanup();
+
+private:
+  vtkDIYUtilitiesCleanup(const vtkDIYUtilitiesCleanup&) = delete;
+  void operator=(const vtkDIYUtilitiesCleanup&) = delete;
+};
+static vtkDIYUtilitiesCleanup vtkDIYUtilitiesCleanupInstance;
 
 #endif
 // VTK-HeaderTest-Exclude: vtkDIYUtilities.h
