@@ -214,10 +214,10 @@ inline void vtkCellLinks::InsertNextCellReference(vtkIdType ptId,
 //----------------------------------------------------------------------------
 inline void vtkCellLinks::RemoveCellReference(vtkIdType cellId, vtkIdType ptId)
 {
-  vtkIdType *cells=this->Array[ptId].cells;
-  int ncells=this->Array[ptId].ncells;
+  vtkIdType *cells = this->Array[ptId].cells;
+  vtkIdType ncells = this->Array[ptId].ncells;
 
-  for (int i=0; i < ncells; i++)
+  for (vtkIdType i=0; i < ncells; i++)
   {
     if (cells[i] == cellId)
     {
@@ -240,13 +240,10 @@ inline void vtkCellLinks::AddCellReference(vtkIdType cellId, vtkIdType ptId)
 //----------------------------------------------------------------------------
 inline void vtkCellLinks::ResizeCellList(vtkIdType ptId, int size)
 {
-  int newSize;
-  vtkIdType *cells;
-
-  newSize = this->Array[ptId].ncells + size;
-  cells = new vtkIdType[newSize];
+  vtkIdType newSize = this->Array[ptId].ncells + size;
+  vtkIdType* cells = new vtkIdType[newSize];
   memcpy(cells, this->Array[ptId].cells,
-         this->Array[ptId].ncells*sizeof(vtkIdType));
+         static_cast<size_t>(this->Array[ptId].ncells)*sizeof(vtkIdType));
   delete [] this->Array[ptId].cells;
   this->Array[ptId].cells = cells;
 }
