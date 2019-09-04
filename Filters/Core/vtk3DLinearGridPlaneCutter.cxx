@@ -15,33 +15,34 @@
 #include "vtk3DLinearGridPlaneCutter.h"
 
 #include "vtk3DLinearGridInternal.h"
-#include "vtkPlane.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkTetra.h"
-#include "vtkHexahedron.h"
-#include "vtkWedge.h"
-#include "vtkPyramid.h"
-#include "vtkVoxel.h"
-#include "vtkTriangle.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkFloatArray.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkStaticEdgeLocatorTemplate.h"
-#include "vtkArrayListTemplate.h" // For processing attribute data
-#include "vtkStaticCellLinksTemplate.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
+#include "vtkHexahedron.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkSMPTools.h"
+#include "vtkPlane.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkPyramid.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkStaticCellLinksTemplate.h"
+#include "vtkStaticEdgeLocatorTemplate.h"
+#include "vtkStaticPointLocator.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTetra.h"
+#include "vtkTriangle.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVoxel.h"
+#include "vtkWedge.h"
 
 vtkStandardNewMacro(vtk3DLinearGridPlaneCutter);
 vtkCxxSetObjectMacro(vtk3DLinearGridPlaneCutter,Plane,vtkPlane);
@@ -816,7 +817,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkPlane *plane, vtkPolyData *output)
   vtkIdType numCells = cells->GetNumberOfCells();
   if ( numPts <= 0 || numCells <= 0 )
   {
-    vtkWarningMacro(<<"Empty input");
+    vtkLog(INFO,  "Empty input");
     return 0;
   }
 
@@ -824,7 +825,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkPlane *plane, vtkPolyData *output)
   int inPtsType = inPts->GetDataType();
   if ( (inPtsType != VTK_FLOAT && inPtsType != VTK_DOUBLE) )
   {
-    vtkErrorMacro(<<"Input point type not supported");
+    vtkLog(ERROR, "Input point type not supported");
     return 0;
   }
 
@@ -907,7 +908,7 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkPlane *plane, vtkPolyData *output)
   }
 
   // Report the results of execution
-  vtkDebugMacro(<<"Created: " << outPts->GetNumberOfPoints() << " points, "
+  vtkLog(INFO,  "Created: " << outPts->GetNumberOfPoints() << " points, "
                 << newPolys->GetNumberOfCells() << " triangles");
 
   // Clean up
@@ -966,7 +967,7 @@ RequestDataObject(vtkInformation*,
     return 1;
   }
 
-  vtkErrorMacro("Not sure what type of output to create!");
+  vtkLog(ERROR, "Not sure what type of output to create!");
   return 0;
 }
 
@@ -1003,7 +1004,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
   vtkPlane *plane=this->Plane;
   if ( ! plane )
   {
-    vtkErrorMacro(<<"Cut plane not defined");
+    vtkLog(ERROR, "Cut plane not defined");
     return 0;
   }
 
@@ -1036,7 +1037,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
       }
       else
       {
-        vtkDebugMacro(<<"This filter only processes unstructured grids");
+        vtkLog(INFO,  "This filter only processes unstructured grids");
       }
     }
   }

@@ -14,14 +14,17 @@
 =========================================================================*/
 #include "vtkExtractGeometry.h"
 
+#include "vtk3DLinearGridCrinkleExtractor.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
+#include "vtkEventForwarderCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -70,7 +73,7 @@ vtkMTimeType vtkExtractGeometry::GetMTime()
 
 //----------------------------------------------------------------------------
 int vtkExtractGeometry::RequestData(
-  vtkInformation *vtkNotUsed(request),
+  vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
@@ -86,6 +89,23 @@ int vtkExtractGeometry::RequestData(
 
   // May be nullptr, check before dereferencing.
   vtkUnstructuredGrid *gridInput = vtkUnstructuredGrid::SafeDownCast(input);
+
+  if (vtk3DLinearGridCrinkleExtractor::CanFullyProcessDataObject(input) &&
+      this->GetExtractBoundaryCells())
+  {
+    vtkNew<vtk3DLinearGridCrinkleExtractor> linear3DExtractor;
+    linear3DExtractor->SetImplicitFunction(this->GetImplicitFunction());
+    linear3DExtractor->SetCopyPointData(true);
+    linear3DExtractor->SetCopyCellData(true);
+
+    vtkNew<vtkEventForwarderCommand> progressForwarder;
+    progressForwarder->SetTarget(this);
+    linear3DExtractor->AddObserver(vtkCommand::ProgressEvent, progressForwarder);
+
+    int retval = linear3DExtractor->ProcessRequest(request, inputVector, outputVector);
+
+    return retval;
+  }
 
   vtkIdType ptId, numPts, numCells, i, newCellId, newId, *pointMap;
   vtkSmartPointer<vtkCellIterator> cellIter =
