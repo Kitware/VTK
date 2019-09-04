@@ -132,6 +132,7 @@ protected:
 
   vtkHardwareSelector *CurrentSelector;
 
+  // bookkeeping required by vtkValuePass
   std::vector<vtkPolyData*> RenderedList;
 
   // used by the hardware selector
