@@ -120,21 +120,21 @@ vtkm::cont::DataSet Convert(vtkStructuredGrid *input, FieldsFlag fields)
   // second step is to create structured cellset that represe
   if(dimensionality == 1)
   {
-    vtkm::cont::CellSetStructured<1> cells("cells");
+    vtkm::cont::CellSetStructured<1> cells;
     cells.SetPointDimensions(dims[0]);
-    dataset.AddCellSet(cells);
+    dataset.SetCellSet(cells);
   }
   else if(dimensionality == 2)
   {
-    vtkm::cont::CellSetStructured<2> cells("cells");
+    vtkm::cont::CellSetStructured<2> cells;
     cells.SetPointDimensions(vtkm::make_Vec(dims[0],dims[1]));
-    dataset.AddCellSet(cells);
+    dataset.SetCellSet(cells);
   }
   else
   { //going to presume 3d for everything else
-    vtkm::cont::CellSetStructured<3> cells("cells");
+    vtkm::cont::CellSetStructured<3> cells;
     cells.SetPointDimensions(vtkm::make_Vec(dims[0],dims[1],dims[2]));
-    dataset.AddCellSet(cells);
+    dataset.SetCellSet(cells);
   }
 
   ProcessFields(input, dataset, fields);

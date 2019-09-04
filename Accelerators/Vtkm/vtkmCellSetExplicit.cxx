@@ -266,7 +266,7 @@ void vtkmCellSetExplicitAOS::Fill(
 //------------------------------------------------------------------------------
 void vtkmCellSetExplicitAOS::PrintSummary(std::ostream& out) const
 {
-  out << "   vtkmCellSetExplicitAOS: " << this->Name << std::endl;
+  out << "   vtkmCellSetExplicitAOS: " << std::endl;
   out << "   Shapes: " << std::endl;
   vtkm::cont::printSummary_ArrayHandle(this->Shapes, out);
   out << "   Connectivity: " << std::endl;

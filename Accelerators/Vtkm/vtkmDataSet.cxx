@@ -97,7 +97,7 @@ void vtkmDataSet::SetVtkmDataSet(const vtkm::cont::DataSet& ds)
 vtkm::cont::DataSet vtkmDataSet::GetVtkmDataSet() const
 {
   vtkm::cont::DataSet ds;
-  ds.AddCellSet(this->Internals->CellSet);
+  ds.SetCellSet(this->Internals->CellSet);
   ds.AddCoordinateSystem(this->Internals->Coordinates);
   tovtkm::ProcessFields(const_cast<vtkmDataSet*>(this), ds, tovtkm::FieldsFlag::PointsAndCells);
 

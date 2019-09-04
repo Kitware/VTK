@@ -83,9 +83,6 @@ foreach (class IN LISTS private_impl_classes)
   list(APPEND private_headers "${class}.h")
 endforeach ()
 
-if (TARGET vtkm::cuda)
-  set_source_files_properties(${sources} PROPERTIES LANGUAGE "CUDA")
-endif ()
 
 set(VTKM_FILTER_INCLUDE_AOS ${VTK_DISPATCH_AOS_ARRAYS})
 set(VTKM_FILTER_INCLUDE_SOA ${VTK_DISPATCH_SOA_ARRAYS})
@@ -123,14 +120,6 @@ if (TARGET vtkm::cuda)
     set(CMAKE_CUDA_STANDARD_REQUIRED True)
   endif()
 
-  get_property(arch_flags
-    TARGET    vtkm::cuda
-    PROPERTY  INTERFACE_CUDA_Architecture_Flags)
-  if(NOT arch_flags)
-    message(FATAL_ERROR "VTK-m CUDA Architecture flags can't be found. This means we can't safely compile CUDA code")
-  endif()
-  string(APPEND CMAKE_CUDA_FLAGS " ${arch_flags}")
-
   # Temporarily suppress "has address taken but no possible call to it" warnings,
   # until we figure out its implications.
   # We are disabling all warnings as nvlink has no known way to suppress
@@ -151,6 +140,11 @@ else()
     HEADERS ${headers}
     PRIVATE_HEADERS ${private_headers})
 endif()
+_vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKm)
+vtkm_add_target_information(${vtkm_accel_target}
+                            EXTENDS_VTKM
+                            MODIFY_CUDA_FLAGS
+                            DEVICE_SOURCES ${sources})
 
 vtk_module_set_property(VTK::AcceleratorsVTKm
   PROPERTY  JOB_POOL_COMPILE

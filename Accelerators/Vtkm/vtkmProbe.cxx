@@ -97,7 +97,7 @@ int vtkmProbe::RequestData(vtkInformation* vtkNotUsed(request),
     vtkm::cont::DataSet in = tovtkm::Convert(input);
     // VTK-m's probe filter requires the source to have at least a cellSet.
     vtkm::cont::DataSet so = tovtkm::Convert(source, tovtkm::FieldsFlag::PointsAndCells);
-    if (!so.GetNumberOfCellSets())
+    if (so.GetNumberOfCells() <= 0)
     {
       vtkErrorMacro(<< "The source geometry does not have any cell set,"
                        "aborting vtkmProbe filter");

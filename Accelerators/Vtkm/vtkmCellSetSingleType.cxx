@@ -149,7 +149,7 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
 //------------------------------------------------------------------------------
 void vtkmCellSetSingleType::PrintSummary(std::ostream& out) const
 {
-  out << "   vtkmCellSetSingleType: " << this->Name << std::endl;
+  out << "   vtkmCellSetSingleType: " << std::endl;
   out << "   NumberOfCells: " << this->NumberOfCells << std::endl;
   out << "   CellTypeAsId: " << this->CellTypeAsId << std::endl;
   out << "   Connectivity: " << std::endl;

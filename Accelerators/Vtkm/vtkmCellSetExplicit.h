@@ -41,8 +41,8 @@ namespace cont {
 class vtkmCellSetExplicitAOS : public CellSet
 {
 public:
-  vtkmCellSetExplicitAOS(const std::string& name = std::string())
-    : CellSet(name)
+  vtkmCellSetExplicitAOS()
+    : CellSet()
     , Shapes()
     , Connectivity()
     , IndexOffsets()

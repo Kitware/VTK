@@ -47,7 +47,7 @@ class vtkmCellSetSingleType : public CellSet
 
 public:
   vtkmCellSetSingleType()
-    : CellSet((std::string()))
+    : CellSet()
     , NumberOfCells(0)
     , NumberOfPoints(0)
     , CellTypeAsId(CellShapeTagEmpty::Id)
@@ -60,8 +60,8 @@ public:
   }
 
   template <typename CellShapeTag>
-  vtkmCellSetSingleType(CellShapeTag, const std::string& name)
-    : CellSet(name)
+  vtkmCellSetSingleType(CellShapeTag)
+    : CellSet()
     , NumberOfCells(0)
     , NumberOfPoints(0)
     , CellTypeAsId(CellShapeTag::Id)

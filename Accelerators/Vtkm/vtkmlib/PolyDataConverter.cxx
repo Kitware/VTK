@@ -78,14 +78,14 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
       // We are all triangles
       vtkm::cont::DynamicCellSet dcells =
           ConvertSingleType(cells, VTK_TRIANGLE, numPoints);
-      dataset.AddCellSet(dcells);
+      dataset.SetCellSet(dcells);
       filled = true;
     }
     else if (allSameType && maxCellSize == 4)
     {
       // We are all quads
       vtkm::cont::DynamicCellSet dcells = ConvertSingleType(cells, VTK_QUAD, numPoints);
-      dataset.AddCellSet(dcells);
+      dataset.SetCellSet(dcells);
       filled = true;
     }
 
@@ -100,7 +100,7 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     {
       // We are all lines
       vtkm::cont::DynamicCellSet dcells = ConvertSingleType(cells, VTK_LINE, numPoints);
-      dataset.AddCellSet(dcells);
+      dataset.SetCellSet(dcells);
       filled = true;
     }
     // we have a mixture of lines and poly lines, we don't support that
@@ -114,7 +114,7 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     {
       // We are all single vertex
       vtkm::cont::DynamicCellSet dcells = ConvertSingleType(cells, VTK_VERTEX, numPoints);
-      dataset.AddCellSet(dcells);
+      dataset.SetCellSet(dcells);
       filled = true;
     }
   }

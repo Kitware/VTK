@@ -35,7 +35,7 @@
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/cont/RuntimeDeviceTracker.h>
-#include <vtkm/filter/MarchingCubes.h>
+#include <vtkm/filter/Contour.h>
 
 vtkStandardNewMacro(vtkmContour)
 
@@ -91,7 +91,7 @@ int vtkmContour::RequestData(vtkInformation* request,
 
   try
   {
-    vtkm::filter::MarchingCubes filter;
+    vtkm::filter::Contour filter;
     filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::Association::POINTS);
     filter.SetGenerateNormals(this->GetComputeNormals() != 0);
     filter.SetNumberOfIsoValues(numContours);
