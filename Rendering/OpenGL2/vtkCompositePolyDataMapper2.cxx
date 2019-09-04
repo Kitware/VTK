@@ -66,6 +66,7 @@ vtkCompositeMapperHelper2::~vtkCompositeMapperHelper2()
     delete it->second;
   }
   this->Data.clear();
+  this->RenderedList.clear();
 }
 
 void vtkCompositeMapperHelper2::SetShaderValues(
@@ -353,7 +354,6 @@ void vtkCompositeMapperHelper2::DrawIBO(
     //   prog->SetUniform3f("ambientColorUniform", ambientColor);
     // }
 
-    this->RenderedList.clear();
     bool selecting = (this->CurrentSelector ? true : false);
     for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
     {
@@ -432,6 +432,7 @@ vtkCompositeMapperHelperData *vtkCompositeMapperHelper2::AddData(
     hdata->Marked = true;
     this->Data.insert(std::make_pair(pd, hdata));
     this->Modified();
+    this->RenderedList.push_back(pd);
     return hdata;
   }
   found->second->FlatIndex = flatIndex;
@@ -1792,6 +1793,7 @@ void vtkCompositePolyDataMapper2::Render(
     vtkCompositeMapperHelper2 *helper = hiter->second;
     helper->RenderPiece(ren,actor);
 
+    //update the list of rendered polydata that vtkValuePass relies on
     std::vector<vtkPolyData *> pdl = helper->GetRenderedList();
     for (unsigned int i = 0; i < pdl.size(); ++i)
     {
