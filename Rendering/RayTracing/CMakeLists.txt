@@ -46,6 +46,13 @@ vtk_module_add_module(VTK::RenderingRayTracing
   SOURCES ${vtk_object_factory_source} ${sources}
   PRIVATE_HEADERS ${vtk_object_factory_header} ${headers})
 
+vtk_module_install_headers(
+  FILES
+    RTWrapper/RTWrapper.h
+    RTWrapper/Types.h
+    RTWrapper/Backend.h
+  SUBDIR "RTWrapper")
+
 if (VTK_ENABLE_OSPRAY)
   vtk_module_find_package(
     PACKAGE ospray
