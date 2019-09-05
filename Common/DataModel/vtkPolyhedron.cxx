@@ -2149,10 +2149,9 @@ void MergeTriFacePolygons(vtkPolyhedron* cell,
 {
   // for each *original* face, find the list of triangulated faces
   // and use these to get the list of polygons on the original face
-  int nFaces = cell->GetNumberOfFaces();
-  for (int i = 0; i < nFaces; ++i)
+  for (auto face : originalFaceTriFaceMap)
   {
-    const vector<vtkIdType>& triFacesOfOriginalFace = oririginalFaceTriFaceMap[i];
+    const vector<vtkIdType>& triFacesOfOriginalFace = face;
 
     vector<vector<vtkIdType>> facePolygons;
     for (const auto& triFace: triFacesOfOriginalFace)
