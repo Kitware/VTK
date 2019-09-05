@@ -21,4 +21,19 @@ enum
 
 #define DIY_UNUSED(expr) do { (void)(expr); } while (0)
 
+// From https://stackoverflow.com/a/21265197/44738
+#if defined(__cplusplus) && (__cplusplus >= 201402L)
+#  define DEPRECATED(msg) [[deprecated(#msg)]]
+#else
+#  if defined(__GNUC__) || defined(__clang__)
+#    define DEPRECATED(msg) __attribute__((deprecated(#msg)))
+#  elif defined(_MSC_VER)
+#    define DEPRECATED(msg) __declspec(deprecated(#msg))
+#  else
+#    pragma message("WARNING: You need to implement DEPRECATED for this compiler")
+#    define DEPRECATED(msg)
+#  endif
+#endif
+
+
 #endif

@@ -8,6 +8,8 @@
 
 #include <array>
 
+#include "constants.h"      // for DEPRECATED
+
 namespace diy
 {
 
@@ -53,7 +55,9 @@ class Point: public std::array<Coordinate_, D>
         Point&              operator*=(Coordinate a)                { for (unsigned i = 0; i < D; ++i) (*this)[i] *= a;     return *this; }
         Point&              operator/=(Coordinate a)                { for (unsigned i = 0; i < D; ++i) (*this)[i] /= a;     return *this; }
 
-        Coordinate          norm() const                            { return (*this)*(*this); }
+        DEPRECATED("Use norm2 instead")
+        Coordinate          norm() const                            { return norm2(); }
+        Coordinate          norm2() const                           { return (*this)*(*this); }
 
         std::ostream&       operator<<(std::ostream& out) const     { out << (*this)[0]; for (unsigned i = 1; i < D; ++i) out << " " << (*this)[i]; return out; }
         std::istream&       operator>>(std::istream& in);

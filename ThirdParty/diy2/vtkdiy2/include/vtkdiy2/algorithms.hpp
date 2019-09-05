@@ -96,7 +96,7 @@ namespace diy
                 diy::BlockID self = { master.gid(i), master.communicator().rank() };
                 for (int j = 0; j < dim; ++j)
                 {
-                    diy::Direction dir, wrap_dir;
+                    diy::Direction dir(dim,0), wrap_dir(dim,0);
 
                     // left
                     dir[j] = -1; wrap_dir[j] = -1;
@@ -156,7 +156,7 @@ namespace diy
                 diy::BlockID self = { master.gid(i), master.communicator().rank() };
                 for (int j = 0; j < dim; ++j)
                 {
-                    diy::Direction dir, wrap_dir;
+                    diy::Direction dir(dim,0), wrap_dir(dim,0);
 
                     // left
                     dir[j] = -1; wrap_dir[j] = -1;

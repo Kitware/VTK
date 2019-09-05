@@ -1,10 +1,9 @@
 namespace diy
 {
-    struct Master::tags             { enum { queue, piece }; };
-
     struct Master::MessageInfo
     {
         int from, to;
+        int nparts;
         int round;
     };
 
@@ -19,10 +18,10 @@ namespace diy
     struct Master::InFlightRecv
     {
         MemoryBuffer    message;
-        MessageInfo     info { -1, -1, -1 };
+        MessageInfo     info { -1, -1, -1, -1 };
         bool            done = false;
 
-        inline void     recv(mpi::communicator& comm, const mpi::status& status);
+        inline bool     recv(mpi::communicator& comm, const mpi::status& status);
         inline void     place(IncomingRound* in, bool unload, ExternalStorage* storage, IExchangeInfo* iexchange);
         void            reset()     { *this = InFlightRecv(); }
     };
@@ -41,32 +40,6 @@ namespace diy
 
         std::list<int>      list;
         size_t              limit = 0;
-    };
-
-    struct Master::IExchangeInfo
-    {
-                        IExchangeInfo():
-                            n(0)                                                  {}
-                        IExchangeInfo(size_t n_, mpi::communicator comm_):
-                            n(n_),
-                            comm(comm_),
-                            global_work_(new mpi::window<int>(comm, 1))           { global_work_->lock_all(MPI_MODE_NOCHECK); }
-                        ~IExchangeInfo()                                          { global_work_->unlock_all(); }
-
-      inline void       not_done(int gid);
-
-      inline int        global_work();                          // get global work status (for debugging)
-      inline bool       all_done();                             // get global all done status
-      inline void       reset_work();                           // reset global work counter
-      inline int        add_work(int work);                     // add work to global work counter
-      int               inc_work()                              { return add_work(1); }   // increment global work counter
-      int               dec_work()                              { return add_work(-1); }  // decremnent global work counter
-
-      size_t                              n;
-      mpi::communicator                   comm;
-      std::unordered_map<int, bool>       done;                 // gid -> done
-      std::unique_ptr<mpi::window<int>>   global_work_;         // global work to do
-      std::shared_ptr<spd::logger>        log = get_logger();
     };
 
     // VectorWindow is used to send and receive subsets of a contiguous array in-place
@@ -99,18 +72,8 @@ namespace diy
     } // namespace mpi::detail
 } // namespace diy
 
-void
-diy::Master::IExchangeInfo::
-not_done(int gid)
-{
-    if (done[gid])
-    {
-        done[gid] = false;
-        int work = inc_work();
-        log->debug("[{}] Incrementing work when switching done (on receipt): work = {}\n", gid, work);
-    } else
-        log->debug("[{}] Not done, no need to increment work\n", gid);
-}
+
+/** InFlightRecv **/
 
 diy::Master::InFlightRecv&
 diy::Master::
@@ -126,28 +89,27 @@ diy::Master::inflight_sends()
 }
 
 // receive message described by status
-void
+bool
 diy::Master::InFlightRecv::
 recv(mpi::communicator& comm, const mpi::status& status)
 {
+    bool result = false;            // indicates whether this is the first (and possibly only) message of a given queue
     if (info.from == -1)            // uninitialized
     {
         MemoryBuffer bb;
         comm.recv(status.source(), status.tag(), bb.buffer);
 
-        if (status.tag() == tags::piece)     // first piece is the header
+        diy::load_back(bb, info);
+        info.nparts--;
+        if (info.nparts > 0)        // multi-part message
         {
             size_t msg_size;
             diy::load(bb, msg_size);
-            diy::load(bb, info);
-
             message.buffer.reserve(msg_size);
-        }
-        else    // tags::queue
-        {
-            diy::load_back(bb, info);
+        } else
             message.swap(bb);
-        }
+
+        result = true;
     }
     else
     {
@@ -160,10 +122,14 @@ recv(mpi::communicator& comm, const mpi::status& status)
         window.count = count;
 
         comm.recv(status.source(), status.tag(), window);
+
+        info.nparts--;
     }
 
-    if (status.tag() == tags::queue)
+    if (info.nparts == 0)
         done = true;
+
+    return result;
 }
 
 // once the InFlightRecv is done, place it either out of core or in the appropriate incoming queue
@@ -189,12 +155,13 @@ place(IncomingRound* in, bool unload, ExternalStorage* storage, IExchangeInfo* i
     else    // iexchange
     {
         auto log = get_logger();
+        log->debug("[{}] Received queue {} <- {}", iexchange->comm.rank(), to, from);
 
         iexchange->not_done(to);
-        in->map[to].queues[from].append_binary(&message.buffer[0], message.size());        // append insted of overwrite
+        in->map[to].queues[from].append_binary(&message.buffer[0], message.size());        // append instead of overwrite
 
-        int work = iexchange->dec_work();
-        log->debug("[{}] Decrementing work after receiving: work = {}\n", to, work);
+        iexchange->dec_work();
+        log->debug("[{}] Decrementing work after receiving\n", to);
     }
     in->map[to].records[from] = QueueRecord(size, external);
 

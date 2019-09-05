@@ -52,7 +52,9 @@ namespace mpi
         private:
             std::vector<T>      buffer_;
             int                 rank_;
+#ifndef DIY_NO_MPI
             MPI_Win             window_;
+#endif
     };
 } // mpi
 } // diy

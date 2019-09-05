@@ -10,9 +10,11 @@ namespace diy
     template <class T>
     struct EnqueueIterator;
 
-                        Proxy(Master* master__, int gid__):
+                        Proxy(Master* master__, int gid__,
+                              IExchangeInfo*  iexchange__ = 0):
                           gid_(gid__),
                           master_(master__),
+                          iexchange_(iexchange__),
                           incoming_(&master__->incoming(gid__)),
                           outgoing_(&master__->outgoing(gid__)),
                           collectives_(&master__->collectives(gid__))   {}
@@ -23,16 +25,24 @@ namespace diy
     template<class T>
     void                enqueue(const BlockID&  to,                                     //!< target block (gid,proc)
                                 const T&        x,                                      //!< data (eg. STL vector)
-                                void (*save)(BinaryBuffer&, const T&) = &::diy::save<T> //!< optional serialization function
+                                void (*save)(BinaryBuffer&, const T&) = &::diy::save    //!< optional serialization function
                                ) const
-    { OutgoingQueues& out = *outgoing_; save(out[to], x); }
+    {
+        OutgoingQueues& out = *outgoing_; save(out[to], x);
+
+        if (iexchange_ && iexchange_->fine())
+        {
+            GidSendOrder gid_order;             // uninitialized, not needed
+            master()->comm_exchange(gid_order, iexchange_);
+        }
+    }
 
     //! Enqueue data whose size is given explicitly by the user, e.g., an array.
     template<class T>
     void                enqueue(const BlockID&  to,                                     //!< target block (gid,proc)
                                 const T*        x,                                      //!< pointer to the data (eg. address of start of vector)
                                 size_t          n,                                      //!< size in data elements (eg. ints)
-                                void (*save)(BinaryBuffer&, const T&) = &::diy::save<T> //!< optional serialization function
+                                void (*save)(BinaryBuffer&, const T&) = &::diy::save    //!< optional serialization function
                                ) const;
 
     //! Dequeue data whose size can be determined automatically (e.g., STL vector) and that was
@@ -41,7 +51,7 @@ namespace diy
     template<class T>
     void                dequeue(int             from,                                   //!< target block gid
                                 T&              x,                                      //!< data (eg. STL vector)
-                                void (*load)(BinaryBuffer&, T&) = &::diy::load<T>       //!< optional serialization function
+                                void (*load)(BinaryBuffer&, T&) = &::diy::load          //!< optional serialization function
                                ) const
     { IncomingQueues& in  = *incoming_; load(in[from], x); }
 
@@ -51,7 +61,7 @@ namespace diy
     void                dequeue(int             from,                                   //!< target block gid
                                 T*              x,                                      //!< pointer to the data (eg. address of start of vector)
                                 size_t          n,                                      //!< size in data elements (eg. ints)
-                                void (*load)(BinaryBuffer&, T&) = &::diy::load<T>       //!< optional serialization function
+                                void (*load)(BinaryBuffer&, T&) = &::diy::load          //!< optional serialization function
                                ) const;
 
     //! Dequeue data whose size can be determined automatically (e.g., STL vector) and that was
@@ -60,7 +70,7 @@ namespace diy
     template<class T>
     void                dequeue(const BlockID&  from,                                   //!< target block (gid,proc)
                                 T&              x,                                      //!< data (eg. STL vector)
-                                void (*load)(BinaryBuffer&, T&) = &::diy::load<T>       //!< optional serialization function
+                                void (*load)(BinaryBuffer&, T&) = &::diy::load          //!< optional serialization function
                                ) const                                  { dequeue(from.gid, x, load); }
 
     //! Dequeue an array of data whose size is given explicitly by the user.
@@ -69,12 +79,12 @@ namespace diy
     void                dequeue(const BlockID&  from,                                   //!< target block (gid,proc)
                                 T*              x,                                      //!< pointer to the data (eg. address of start of vector)
                                 size_t          n,                                      //!< size in data elements (eg. ints)
-                                void (*load)(BinaryBuffer&, T&) = &::diy::load<T>       //!< optional serialization function
+                                void (*load)(BinaryBuffer&, T&) = &::diy::load          //!< optional serialization function
                                ) const                                  { dequeue(from.gid, x, n, load); }
 
     template<class T>
     EnqueueIterator<T>  enqueuer(const T& x,
-                                 void (*save)(BinaryBuffer&, const T&) = &::diy::save<T>) const
+                                 void (*save)(BinaryBuffer&, const T&) = &::diy::save   ) const
     { return EnqueueIterator<T>(this, x, save); }
 
     IncomingQueues*     incoming() const                                { return incoming_; }
@@ -83,6 +93,10 @@ namespace diy
 
     OutgoingQueues*     outgoing() const                                { return outgoing_; }
     MemoryBuffer&       outgoing(const BlockID& to) const               { return (*outgoing_)[to]; }
+
+    inline bool         empty_incoming_queues() const;
+    inline bool         empty_outgoing_queues() const;
+    inline bool         empty_queues() const;
 
 /**
  * \ingroup Communication
@@ -118,10 +132,13 @@ namespace diy
     CollectivesList*    collectives() const                             { return collectives_; }
 
     Master*             master() const                                  { return master_; }
+    IExchangeInfo*      iexchange() const                               { return iexchange_; }
 
     private:
       int               gid_;
       Master*           master_;
+      IExchangeInfo*    iexchange_;
+
       IncomingQueues*   incoming_;
       OutgoingQueues*   outgoing_;
       CollectivesList*  collectives_;
@@ -153,12 +170,10 @@ namespace diy
   {
             ProxyWithLink(const Proxy&    proxy,
                           void*           block__,
-                          Link*           link__,
-                          IExchangeInfo*  iexchange__ = 0):
+                          Link*           link__):
               Proxy(proxy),
               block_(block__),
-              link_(link__),
-              iexchange_(iexchange__)                               {}
+              link_(link__)                                         {}
 
       Link*   link() const                                          { return link_; }
       void*   block() const                                         { return block_; }
@@ -166,52 +181,6 @@ namespace diy
     private:
       void*             block_;
       Link*             link_;
-      IExchangeInfo*    iexchange_;         // not used for iexchange presently, but later could trigger some special behavior
-
-    public:
-      template<class T>
-      void enqueue(const BlockID&     to,
-              const T&                x,
-              void (*save)(BinaryBuffer&, const T&) = &::diy::save<T>) const
-      {
-          diy::Master::Proxy::enqueue(to, x, save);
-          if (iexchange_)
-              master()->icommunicate(iexchange_);
-      }
-
-      template<class T>
-      void enqueue(const BlockID&     to,
-              const T*                x,
-              size_t                  n,
-              void (*save)(BinaryBuffer&, const T&) = &::diy::save<T>) const
-      {
-          diy::Master::Proxy::enqueue(to, x, n, save);
-          if (iexchange_)
-              master()->icommunicate(iexchange_);
-      }
-
-      template<class T>
-      void dequeue(int                from,
-              T&                      x,
-              void (*load)(BinaryBuffer&, T&) = &::diy::load<T>) const
-      {
-          // TODO: uncomment if necessary, try first without icommunicating on dequeue
-//           if (iexchange_)
-//               master()->icommunicate(iexchange_);
-          diy::Master::Proxy::dequeue(from, x, load);
-      }
-
-      template<class T>
-      void dequeue(int                from,
-              T*                      x,
-              size_t                  n,
-              void (*load)(BinaryBuffer&, T&) = &::diy::load<T>) const
-      {
-          // TODO: uncomment if necessary, try first without icommunicating on dequeue
-//           if (iexchange_)
-//               master()->icommunicate(iexchange_);
-          diy::Master::Proxy::dequeue(from, x, n, load);
-      }
   };
 }                                           // diy namespace
 
@@ -222,6 +191,34 @@ incoming(std::vector<int>& v) const
   for (IncomingQueues::const_iterator it = incoming_->begin(); it != incoming_->end(); ++it)
     v.push_back(it->first);
 }
+
+bool
+diy::Master::Proxy::
+empty_incoming_queues() const
+{
+    for (auto& x : *incoming())
+        if (x.second)
+            return false;
+    return true;
+}
+
+bool
+diy::Master::Proxy::
+empty_outgoing_queues() const
+{
+    for (auto& x : *outgoing())
+        if (x.second.size())
+            return false;
+    return true;
+}
+
+bool
+diy::Master::Proxy::
+empty_queues() const
+{
+    return empty_incoming_queues() && empty_outgoing_queues();
+}
+
 
 template<class T, class Op>
 void
@@ -272,6 +269,12 @@ enqueue(const BlockID& to, const T* x, size_t n,
     else
         for (size_t i = 0; i < n; ++i)
             save(bb, x[i]);
+
+    if (iexchange_ && iexchange_->fine())
+    {
+        GidSendOrder gid_order;             // uninitialized, not needed
+        master()->comm_exchange(gid_order, iexchange_);
+    }
 }
 
 template<class T>
