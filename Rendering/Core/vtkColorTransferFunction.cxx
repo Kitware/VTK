@@ -216,8 +216,15 @@ inline void vtkColorTransferFunctionInterpolateLABCIEDE2000(double s,
   const double rgb1[3],
   const double rgb2[3],
   double result[3],
-  vtkSmartPointer<vtkColorTransferFunction>& cachedPathCTF)
+  vtkSmartPointer<vtkColorTransferFunction>& cachedPathCTF,
+  bool forceExactSupportColors = false)
 {
+  if (!forceExactSupportColors)
+  {
+    CIEDE2000::MapColor(const_cast<double*>(rgb1));
+    CIEDE2000::MapColor(const_cast<double*>(rgb2));
+  }
+
   // Create and remember a color transfer function representing the
   // shortest color path from rgb1 to rgb2
   double val[6];
@@ -242,7 +249,7 @@ inline void vtkColorTransferFunctionInterpolateLABCIEDE2000(double s,
 
     // Get the shortest color path and its overall length
     std::vector<CIEDE2000::Node> path;
-    double pathDistance = CIEDE2000::GetColorPath(rgb1, rgb2, path);
+    double pathDistance = CIEDE2000::GetColorPath(rgb1, rgb2, path, forceExactSupportColors);
 
     // Add the nodes of the new path to the path's color transfer function
     for (const auto& node : path)
