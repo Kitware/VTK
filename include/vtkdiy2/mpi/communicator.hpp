@@ -198,6 +198,6 @@ duplicate(const communicator& other)
 #ifndef DIY_NO_MPI
     MPI_Comm newcomm;
     MPI_Comm_dup(other.comm_, &newcomm);
-    (*this) = std::move(communicator(newcomm,true));
+    (*this) = communicator(newcomm,true);
 #endif
 }

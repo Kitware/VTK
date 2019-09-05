@@ -7,11 +7,11 @@
 namespace diy
 {
     // record master gids in assigner and then lookup the procs for all gids in the links
-    void    fix_links(diy::Master& master, diy::DynamicAssigner& assigner);
+    inline void    fix_links(diy::Master& master, diy::DynamicAssigner& assigner);
 
     // auxiliary functions; could stick them into detail namespace, but they might be useful on their own
-    void    record_local_gids(const diy::Master& master, diy::DynamicAssigner& assigner);
-    void    update_links(diy::Master& master, const diy::DynamicAssigner& assigner);
+    inline void    record_local_gids(const diy::Master& master, diy::DynamicAssigner& assigner);
+    inline void    update_links(diy::Master& master, const diy::DynamicAssigner& assigner);
 }
 
 void
