@@ -26,23 +26,10 @@
 
 namespace tovtkm {
 
-struct VTKM_ALWAYS_EXPORT vtkSOAArrayContainerTag
-{
-};
-
 //this tag is used to construct points coordinates
 struct VTKM_ALWAYS_EXPORT vtkCellArrayContainerTag
 {
 };
-
-template<typename T> struct VTKM_ALWAYS_EXPORT ArrayContainerTagType;
-
-template<typename T>
-struct VTKM_ALWAYS_EXPORT ArrayContainerTagType< vtkSOADataArrayTemplate< T > >
-{
-  typedef vtkSOAArrayContainerTag TagType;
-};
-
 
 }
 
