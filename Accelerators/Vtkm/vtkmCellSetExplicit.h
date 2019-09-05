@@ -121,14 +121,12 @@ public:
 
   /// Assigns the array handles to the explicit connectivity. This is
   /// the way you can fill the memory from another system without copying
-  void Fill(
-      vtkm::Id numberOfPoints,
-      const vtkm::cont::ArrayHandle<vtkm::UInt8,
-                                    tovtkm::vtkAOSArrayContainerTag>& cellTypes,
-      const vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>&
-          connectivity,
-      const vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkAOSArrayContainerTag>&
-          offsets);
+  void
+  Fill(vtkm::Id numberOfPoints,
+       const vtkm::cont::ArrayHandle<vtkm::UInt8> &cellTypes,
+       const vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>
+           &connectivity,
+       const vtkm::cont::ArrayHandle<vtkm::Id> &offsets);
 
   template <typename DeviceAdapter, typename VisitTopology, typename IncidentTopology>
   struct ExecutionTypes;
@@ -155,7 +153,7 @@ public:
       PrepareForInput(Device, vtkm::TopologyElementTagPoint,
                       vtkm::TopologyElementTagCell) const;
 
-  const vtkm::cont::ArrayHandle<vtkm::UInt8, tovtkm::vtkAOSArrayContainerTag>&
+  const vtkm::cont::ArrayHandle<vtkm::UInt8>&
       GetShapesArray(vtkm::TopologyElementTagCell,
                      vtkm::TopologyElementTagPoint) const
   {
@@ -169,7 +167,7 @@ public:
     return this->Connectivity;
   }
 
-  const vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkAOSArrayContainerTag>&
+  const vtkm::cont::ArrayHandle<vtkm::Id>&
       GetIndexOffsetArray(vtkm::TopologyElementTagCell,
                           vtkm::TopologyElementTagPoint) const
   {
@@ -189,11 +187,10 @@ public:
   }
 
 private:
-  vtkm::cont::ArrayHandle<vtkm::UInt8, tovtkm::vtkAOSArrayContainerTag> Shapes;
+  vtkm::cont::ArrayHandle<vtkm::UInt8> Shapes;
   vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>
       Connectivity;
-  vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkAOSArrayContainerTag>
-      IndexOffsets;
+  vtkm::cont::ArrayHandle<vtkm::Id> IndexOffsets;
 
   //Reverse connectivity (cell -> point)
   //Todo: Need a better way to represent that PrepareForInput is a

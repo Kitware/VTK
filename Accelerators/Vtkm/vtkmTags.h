@@ -26,10 +26,6 @@
 
 namespace tovtkm {
 
-struct VTKM_ALWAYS_EXPORT vtkAOSArrayContainerTag
-{
-};
-
 struct VTKM_ALWAYS_EXPORT vtkSOAArrayContainerTag
 {
 };
@@ -40,12 +36,6 @@ struct VTKM_ALWAYS_EXPORT vtkCellArrayContainerTag
 };
 
 template<typename T> struct VTKM_ALWAYS_EXPORT ArrayContainerTagType;
-
-template<typename T>
-struct VTKM_ALWAYS_EXPORT ArrayContainerTagType< vtkAOSDataArrayTemplate< T > >
-{
-  typedef vtkAOSArrayContainerTag TagType;
-};
 
 template<typename T>
 struct VTKM_ALWAYS_EXPORT ArrayContainerTagType< vtkSOADataArrayTemplate< T > >

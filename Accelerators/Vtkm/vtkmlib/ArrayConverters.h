@@ -19,6 +19,7 @@
 
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
 #include "vtkmConfig.h"                //required for general vtkm setup
+#include "vtkmTags.h"
 
 #include <vtkm/cont/Field.h>
 
@@ -36,6 +37,56 @@ class CoordinateSystem;
 }
 
 namespace tovtkm {
+
+template <typename DataArrayType, vtkm::IdComponent NumComponents>
+struct DataArrayToArrayHandle {
+  using ValueType = typename DataArrayType::ValueType;
+  using VType =
+      typename std::conditional<NumComponents == 1, ValueType,
+                                vtkm::Vec<ValueType, NumComponents>>::type;
+  using TagType =
+      typename tovtkm::ArrayContainerTagType<DataArrayType>::TagType;
+  using StorageType = vtkm::cont::internal::Storage<VType, TagType>;
+  using ArrayHandleType = vtkm::cont::ArrayHandle<VType, TagType>;
+
+  static ArrayHandleType Wrap(DataArrayType *input) {
+    StorageType storage(input);
+    ArrayHandleType handle(storage);
+    return handle;
+  }
+};
+
+template <typename T, vtkm::IdComponent NumComponents>
+struct DataArrayToArrayHandle<vtkAOSDataArrayTemplate<T>, NumComponents> {
+  using ValueType =
+      typename std::conditional<NumComponents == 1, T,
+                                vtkm::Vec<T, NumComponents>>::type;
+  using StorageType =
+      vtkm::cont::internal::Storage<ValueType, vtkm::cont::StorageTagBasic>;
+  using ArrayHandleType =
+      vtkm::cont::ArrayHandle<ValueType, vtkm::cont::StorageTagBasic>;
+
+  static ArrayHandleType Wrap(vtkAOSDataArrayTemplate<T> *input) {
+    StorageType storage(reinterpret_cast<ValueType *>(input->GetPointer(0)),
+                        input->GetNumberOfTuples());
+    ArrayHandleType handle(storage);
+    return handle;
+  }
+};
+
+template <typename T>
+struct DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, 1> {
+  using StorageType =
+      vtkm::cont::internal::Storage<T, vtkm::cont::StorageTagBasic>;
+  using ArrayHandleType =
+      vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>;
+
+  static ArrayHandleType Wrap(vtkSOADataArrayTemplate<T> *input) {
+    StorageType storage(input->GetPointer(0), input->GetNumberOfTuples());
+    ArrayHandleType handle(storage);
+    return handle;
+  }
+};
 
 enum class FieldsFlag
 {

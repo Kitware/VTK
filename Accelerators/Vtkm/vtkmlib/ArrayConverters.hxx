@@ -16,7 +16,6 @@
 
 #include "ArrayConverters.h"
 #include "Storage.h"
-#include "vtkmTags.h"
 
 #include <vtkm/cont/ArrayHandleGroupVecVariable.h>
 
@@ -25,25 +24,6 @@
 
 namespace tovtkm
 {
-
-template <typename DataArrayType, vtkm::IdComponent NumComponents>
-struct DataArrayToArrayHandle
-{
-  using ValueType = typename DataArrayType::ValueType;
-  using VType = typename std::conditional<NumComponents == 1,
-                                          ValueType,
-                                          vtkm::Vec<ValueType, NumComponents>>::type;
-  using TagType = typename tovtkm::ArrayContainerTagType<DataArrayType>::TagType;
-  using StorageType = vtkm::cont::internal::Storage<VType, TagType>;
-  using ArrayHandleType = vtkm::cont::ArrayHandle<VType, TagType>;
-
-  static ArrayHandleType Wrap(DataArrayType* input)
-  {
-    StorageType storage(input);
-    ArrayHandleType handle(storage);
-    return handle;
-  }
-};
 
 template <typename DataArrayType>
 vtkm::cont::VariantArrayHandle vtkDataArrayToVariantArrayHandle(DataArrayType* input)
