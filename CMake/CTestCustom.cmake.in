@@ -12,6 +12,7 @@ list(APPEND CTEST_CUSTOM_MEMCHECK_IGNORE
   # to be reworked eventually but the out of range values
   # are likely not being used.
   VTK::IOPLYCxx-TestPLYWriter
+  VTK::IOPLYCxx-TestPLYWriterString
   VTK::IOPLYCxx-TestPLYReaderTextureUVPoints
   VTK::IOPLYCxx-TestPLYReaderTextureUVFaces
 

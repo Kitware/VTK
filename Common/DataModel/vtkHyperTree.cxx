@@ -406,7 +406,7 @@ public:
   void SubdivideLeaf( vtkIdType index, unsigned int level ) override
   {
     assert( "pre: not_valid_index" &&
-            index < static_cast<unsigned int>( this->Datas->NumberOfVertices ) );
+            index < static_cast<vtkIdType>( this->Datas->NumberOfVertices ) );
     assert( "pre: not_leaf" && this->IsLeaf( index ) );
     // The leaf becomes a node and is not anymore a leaf
     // Nodes get constructed with leaf flags set to 1.
