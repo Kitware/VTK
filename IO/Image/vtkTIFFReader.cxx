@@ -1383,8 +1383,8 @@ int vtkTIFFReader::EvaluateImageAt(T* out, T* in)
       }
       return 1;
     case vtkTIFFReader::PALETTE_GRAYSCALE:
-      this->GetColor(*source, &red, &green, &blue);
-      *image = static_cast<unsigned char>(red); // red >> 8
+      this->GetColor(static_cast<int>(*in), &red, &green, &blue);
+      *out = static_cast<T>(red); // red
       return 1;
     case vtkTIFFReader::RGB:
       *(image    ) = *(source    ); // red
