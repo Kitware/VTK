@@ -228,6 +228,7 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->RepresentationState = vtkImplicitPlaneRepresentation::Outside;
 
   this->TranslationAxis = Axis::NONE;
+  this->AlwaysSnapToNearestAxis = false;
 }
 
 //----------------------------------------------------------------------------
@@ -1499,6 +1500,16 @@ void vtkImplicitPlaneRepresentation::GetOrigin(double xyz[3])
 // Set the normal to the plane.
 void vtkImplicitPlaneRepresentation::SetNormal(double x, double y, double z)
 {
+  if (this->AlwaysSnapToNearestAxis)
+  {
+    x = std::abs(x) >= std::abs(y) && std::abs(x) >= std::abs(z) ? 1.0 : 0.0;
+    y = std::abs(y) >= std::abs(x) && std::abs(y) >= std::abs(z) ? 1.0 : 0.0;
+    z = std::abs(z) >= std::abs(y) && std::abs(z) >= std::abs(x) ? 1.0 : 0.0;
+    this->Plane->SetNormal(x, y, z);
+    this->Modified();
+    return;
+  }
+
   double n[3], n2[3];
   n[0] = x;
   n[1] = y;

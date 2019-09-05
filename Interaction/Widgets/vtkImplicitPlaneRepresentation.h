@@ -430,6 +430,21 @@ public:
   vtkSetMacro(SnapToAxes, bool);
   //@}
 
+  //@{
+  /**
+   * Forces the plane's normal to be aligned with x, y or z axis.
+   * The alignment happens when calling SetNormal.
+   * It defers with SnapToAxes from it is always applicable, and SnapToAxes
+   * only snaps when the angle difference exceeds 16 degrees in complex interactions.
+   */
+  vtkGetMacro(AlwaysSnapToNearestAxis, bool);
+  virtual void SetAlwaysSnapToNearestAxis(bool snap)
+  {
+    this->AlwaysSnapToNearestAxis = snap;
+    this->SetNormal(this->GetNormal());
+  }
+  //@}
+
 protected:
   vtkImplicitPlaneRepresentation();
   ~vtkImplicitPlaneRepresentation() override;
@@ -449,6 +464,8 @@ protected:
   double SnappedEventOrientation[4];
   bool SnappedOrientation;
   bool SnapToAxes;
+
+  bool AlwaysSnapToNearestAxis;
 
   // Locking normal to camera
   vtkTypeBool LockNormalToCamera;
