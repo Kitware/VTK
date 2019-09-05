@@ -184,7 +184,7 @@ diy::ContinuousBounds vtkDIYUtilities::Convert(const vtkBoundingBox& bbox)
 {
   if (bbox.IsValid())
   {
-    diy::ContinuousBounds bds;
+    diy::ContinuousBounds bds(3);
     bds.min[0] = static_cast<float>(bbox.GetMinPoint()[0]);
     bds.min[1] = static_cast<float>(bbox.GetMinPoint()[1]);
     bds.min[2] = static_cast<float>(bbox.GetMinPoint()[2]);
@@ -193,7 +193,7 @@ diy::ContinuousBounds vtkDIYUtilities::Convert(const vtkBoundingBox& bbox)
     bds.max[2] = static_cast<float>(bbox.GetMaxPoint()[2]);
     return bds;
   }
-  return diy::ContinuousBounds();
+  return diy::ContinuousBounds(3);
 }
 
 //----------------------------------------------------------------------------

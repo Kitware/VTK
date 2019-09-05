@@ -544,7 +544,7 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
   diy::RoundRobinAssigner assigner(comm.size(), comm.size());
 
   int *updateExtent = this->GetUpdateExtent();
-  diy::DiscreteBounds domain;
+  diy::DiscreteBounds domain(3);
   for (int i = 0; i < 3; ++i)
   {
     domain.min[i] = updateExtent[2*i];
