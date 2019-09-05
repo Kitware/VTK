@@ -15,54 +15,46 @@
 
 #include "vtkChartXY.h"
 
+#include "vtkAnnotationLink.h"
+#include "vtkAxis.h"
 #include "vtkBrush.h"
-#include "vtkChartSelectionHelper.h"
+#include "vtkChartLegend.h"
 #include "vtkColorSeries.h"
+#include "vtkCommand.h"
 #include "vtkContext2D.h"
-#include "vtkPen.h"
-
 #include "vtkContextClip.h"
 #include "vtkContextKeyEvent.h"
+#include "vtkContextMapper2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
+#include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
-#include "vtkPoints2D.h"
-#include "vtkTransform2D.h"
-#include "vtkVector.h"
-#include "vtkVectorOperators.h"
-
-#include "vtkContextMapper2D.h"
+#include "vtkObjectFactory.h"
+#include "vtkPen.h"
 #include "vtkPlotArea.h"
 #include "vtkPlotBag.h"
 #include "vtkPlotBar.h"
 #include "vtkPlotFunctionalBag.h"
+#include "vtkPlotGrid.h"
 #include "vtkPlotLine.h"
 #include "vtkPlotPoints.h"
 #include "vtkPlotStacked.h"
-
-#include "vtkAxis.h"
-#include "vtkChartLegend.h"
-#include "vtkPlotGrid.h"
-#include "vtkTooltipItem.h"
-
-#include "vtkDataSetAttributes.h"
-#include "vtkIdTypeArray.h"
-#include "vtkTable.h"
-
-#include "vtkAnnotationLink.h"
+#include "vtkPoints2D.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
-
-#include "vtkCommand.h"
-#include "vtkObjectFactory.h"
-
 #include "vtkStdString.h"
-#include "vtkTextProperty.h"
-
-#include "vtkDataArray.h"
 #include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkTextProperty.h"
+#include "vtkTooltipItem.h"
+#include "vtkTransform2D.h"
+#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 // My STL containers
 #include <algorithm>
@@ -1830,7 +1822,7 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent& mouse, int invok
 
                 if (this->AnnotationLink)
                 {
-                  vtkChartSelectionHelper::MakeSelection(
+                  vtkChartXY::MakeSelection(
                     this->AnnotationLink, selectionIds, plot);
                 }
               }
@@ -1990,7 +1982,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
     mouse.GetButton() == this->Actions.SelectPolygon())
   {
     // Modifiers or selection modes can affect how selection is performed.
-    int selectionMode = vtkChartSelectionHelper::GetMouseSelectionMode(mouse, this->SelectionMode);
+    int selectionMode = vtkChartXY::GetMouseSelectionMode(mouse, this->SelectionMode);
     bool polygonMode(mouse.GetButton() == this->Actions.SelectPolygon());
     this->Scene->SetDirty(true);
 
@@ -2065,14 +2057,14 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
               }
 
               // Accumulate the selection in each plot.
-              vtkChartSelectionHelper::BuildSelection(nullptr, vtkContextScene::SELECTION_ADDITION,
+              vtkChartXY::BuildSelection(nullptr, vtkContextScene::SELECTION_ADDITION,
                 accumulateSelection, plot->GetSelection(), nullptr);
             }
           }
         }
       }
       // Now add the accumulated selection to the old selection.
-      vtkChartSelectionHelper::BuildSelection(this->AnnotationLink, selectionMode,
+      vtkChartXY::BuildSelection(this->AnnotationLink, selectionMode,
         accumulateSelection, oldSelection, nullptr);
     }
     else if (this->SelectionMethod == vtkChart::SELECTION_PLOTS)
@@ -2106,7 +2098,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
               }
 
               // Combine the selection in this plot with any previous selection.
-              vtkChartSelectionHelper::BuildSelection(this->AnnotationLink, selectionMode,
+              vtkChartXY::BuildSelection(this->AnnotationLink, selectionMode,
                 plot->GetSelection(), oldSelection, plot);
             }
           }
@@ -2180,7 +2172,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
         reinterpret_cast<vtkIdType*>(accumulateSelection->GetVoidPointer(0));
       std::sort(ptrSelection, ptrSelection + accumulateSelection->GetNumberOfTuples());
       // Now add the accumulated selection to the old selection
-      vtkChartSelectionHelper::BuildSelection(this->AnnotationLink, selectionMode,
+      vtkChartXY::BuildSelection(this->AnnotationLink, selectionMode,
         accumulateSelection, oldSelection, nullptr);
     }
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
@@ -2390,4 +2382,220 @@ void vtkChartXY::PrintSelf(ostream& os, vtkIndent indent)
     }
   }
   os << indent << "ZoomWithMouseWheel: " << this->ZoomWithMouseWheel << endl;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::MakeSelection(vtkAnnotationLink* link, vtkIdTypeArray* selectionIds,
+                               vtkPlot* plot)
+{
+  assert(link != nullptr && selectionIds != nullptr);
+
+  if (plot)
+  {
+    // We are building up plot-based selections, using multiple nodes.
+    vtkSelection* selection = link->GetCurrentSelection();
+    vtkSmartPointer<vtkSelectionNode> node;
+    for (unsigned int i = 0; i < selection->GetNumberOfNodes(); ++i)
+    {
+      vtkSelectionNode* tmp = selection->GetNode(i);
+      vtkPlot* selectionPlot =
+        vtkPlot::SafeDownCast(tmp->GetProperties()->Get(vtkSelectionNode::PROP()));
+      if (selectionPlot == plot)
+      {
+        node = tmp;
+        break;
+      }
+    }
+    if (!node)
+    {
+      node = vtkSmartPointer<vtkSelectionNode>::New();
+      selection->AddNode(node.GetPointer());
+      node->SetContentType(vtkSelectionNode::INDICES);
+      node->SetFieldType(vtkSelectionNode::POINT);
+      node->GetProperties()->Set(vtkSelectionNode::PROP(), plot);
+      node->GetProperties()->Set(vtkSelectionNode::SOURCE(), plot->GetInput());
+    }
+    node->SetSelectionList(selectionIds);
+  }
+  else
+  {
+    // Use a simple single selection node layout, remove previous selections.
+    vtkNew<vtkSelection> selection;
+    vtkNew<vtkSelectionNode> node;
+    selection->AddNode(node);
+    node->SetContentType(vtkSelectionNode::INDICES);
+    node->SetFieldType(vtkSelectionNode::POINT);
+    node->SetSelectionList(selectionIds);
+    link->SetCurrentSelection(selection);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::MinusSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldSelection)
+{
+  // We rely on the selection id arrays being sorted.
+  std::vector<vtkIdType> output;
+  vtkIdType *ptrSelection =
+    static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+  vtkIdType *ptrOldSelection =
+    static_cast<vtkIdType *>(oldSelection->GetVoidPointer(0));
+  vtkIdType oldSize = oldSelection->GetNumberOfTuples();
+  vtkIdType size = selection->GetNumberOfTuples();
+  vtkIdType iOld = 0;
+
+  vtkIdType i = 0;
+  while (i < size && iOld < oldSize)
+  {
+    if (ptrSelection[i] > ptrOldSelection[iOld]) // Skip the value.
+    {
+      output.push_back(ptrOldSelection[iOld++]);
+    }
+    else if (ptrSelection[i] == ptrOldSelection[iOld]) // Match - remove.
+    {
+      ++i;
+      ++iOld;
+    }
+    else if (ptrSelection[i] < ptrOldSelection[iOld]) // Add the new value.
+    {
+      ++i;
+    }
+  }
+
+  while (iOld < oldSize)
+  {
+    output.push_back(ptrOldSelection[iOld++]);
+  }
+  selection->SetNumberOfTuples(static_cast<vtkIdType>(output.size()));
+  ptrSelection = static_cast<vtkIdType*>(selection->GetVoidPointer(0));
+  for (std::vector<vtkIdType>::iterator it = output.begin();
+       it != output.end(); ++it, ++ptrSelection)
+  {
+    *ptrSelection = *it;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::AddSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldSelection)
+{
+  // Add all unique array indices to create a new combined array.
+  vtkIdType *ptrSelection =
+    static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+  vtkIdType *ptrOldSelection =
+    static_cast<vtkIdType *>(oldSelection->GetVoidPointer(0));
+  std::vector<vtkIdType> output(selection->GetNumberOfTuples()
+                                + oldSelection->GetNumberOfTuples());
+  std::vector<vtkIdType>::iterator it;
+  it = std::set_union(ptrSelection,
+                      ptrSelection + selection->GetNumberOfTuples(),
+                      ptrOldSelection,
+                      ptrOldSelection + oldSelection->GetNumberOfTuples(),
+                      output.begin());
+  int newSize = static_cast<int>(it - output.begin());
+  selection->SetNumberOfTuples(newSize);
+  ptrSelection = static_cast<vtkIdType*>(selection->GetVoidPointer(0));
+  for (std::vector<vtkIdType>::iterator i = output.begin(); i != it;
+       ++i, ++ptrSelection)
+  {
+    *ptrSelection = *i;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::ToggleSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldSelection)
+{
+  // We rely on the selection id arrays being sorted.
+  std::vector<vtkIdType> output;
+  vtkIdType *ptrSelection =
+    static_cast<vtkIdType*>(selection->GetVoidPointer(0));
+  vtkIdType *ptrOldSelection =
+    static_cast<vtkIdType*>(oldSelection->GetVoidPointer(0));
+  vtkIdType oldSize = oldSelection->GetNumberOfTuples();
+  vtkIdType size = selection->GetNumberOfTuples();
+  vtkIdType i = 0;
+  vtkIdType iOld = 0;
+  while (i < size && iOld < oldSize)
+  {
+    if (ptrSelection[i] > ptrOldSelection[iOld]) // Retain the value.
+    {
+      output.push_back(ptrOldSelection[iOld++]);
+    }
+    else if (ptrSelection[i] == ptrOldSelection[iOld]) // Match - toggle.
+    {
+      ++i;
+      ++iOld;
+    }
+    else if (ptrSelection[i] < ptrOldSelection[iOld]) // Add the new value.
+    {
+      output.push_back(ptrSelection[i++]);
+    }
+  }
+  while (i < size)
+  {
+    output.push_back(ptrSelection[i++]);
+  }
+  while (iOld < oldSize)
+  {
+    output.push_back(ptrOldSelection[iOld++]);
+  }
+  selection->SetNumberOfTuples(static_cast<vtkIdType>(output.size()));
+  ptrSelection = static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+  for (std::vector<vtkIdType>::iterator it = output.begin();
+       it != output.end(); ++it, ++ptrSelection)
+  {
+    *ptrSelection = *it;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::BuildSelection(vtkAnnotationLink* link, int selectionMode,
+  vtkIdTypeArray* plotSelection, vtkIdTypeArray* oldSelection,
+  vtkPlot* plot)
+{
+  if (!plotSelection || !oldSelection)
+  {
+    return;
+  }
+
+  // Build a selection and set it on the annotation link if not null.
+  switch(selectionMode)
+  {
+    case vtkContextScene::SELECTION_ADDITION:
+      AddSelection(plotSelection, oldSelection);
+      break;
+    case vtkContextScene::SELECTION_SUBTRACTION:
+      MinusSelection(plotSelection, oldSelection);
+      break;
+    case vtkContextScene::SELECTION_TOGGLE:
+      ToggleSelection(plotSelection, oldSelection);
+      break;
+    case vtkContextScene::SELECTION_DEFAULT:
+    default:
+      // Nothing necessary - overwrite the old selection.
+      break;
+  }
+
+  if (link)
+  {
+    MakeSelection(link, plotSelection, plot);
+  }
+}
+
+//-----------------------------------------------------------------------------
+int vtkChartXY::GetMouseSelectionMode(const vtkContextMouseEvent& mouse, int selectionMode)
+{
+  // Mouse modifiers override the current selection mode.
+  if (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER &&
+      mouse.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER)
+  {
+    return vtkContextScene::SELECTION_TOGGLE;
+  }
+  else if (mouse.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER)
+  {
+    return vtkContextScene::SELECTION_ADDITION;
+  }
+  else if (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER)
+  {
+    return vtkContextScene::SELECTION_SUBTRACTION;
+  }
+  return selectionMode;
 }
