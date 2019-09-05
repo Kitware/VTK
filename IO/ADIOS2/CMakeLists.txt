@@ -27,7 +27,6 @@ if (vtk_io_adios2_core_enabled)
   list(APPEND private_templates ${private_templates_core})
 endif()
 
-# ADIOS2 VTX Reader (currently broken on win32 and apple)
 set(classes_vtx vtkADIOS2VTXReader)
 set(private_classes_vtx
   VTX/VTXSchemaManager
@@ -43,13 +42,12 @@ set(private_templates_vtx
   VTX/schema/VTXSchema.txx
   VTX/schema/vtk/VTXvtkVTI.txx
   VTX/schema/vtk/VTXvtkVTU.txx)
-# VTX reader is currently broken on a few platforms.
-#if (VTK_USE_MPI)
-#  set(vtk_io_adios2_vtx_enabled TRUE CACHE INTERNAL "" FORCE)
-#else ()
-#  set(vtk_io_adios2_vtx_enabled FALSE CACHE INTERNAL "" FORCE)
-#endif()
-set(vtk_io_adios2_vtx_enabled FALSE CACHE INTERNAL "" FORCE)
+
+if (VTK_USE_MPI)
+  set(vtk_io_adios2_vtx_enabled TRUE CACHE INTERNAL "" FORCE)
+else ()
+  set(vtk_io_adios2_vtx_enabled FALSE CACHE INTERNAL "" FORCE)
+endif()
 
 if (vtk_io_adios2_vtx_enabled)
   list(APPEND classes   ${classes_vtx})

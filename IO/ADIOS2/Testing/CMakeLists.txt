@@ -7,5 +7,11 @@ vtk_module_test_data(
   Data/ADIOS2/HeatMap3D_3-step/HeatMap3D3TimeSteps.bp.dir/,REGEX:.*
   Data/ADIOS2/2D_HeatTransfer_10-step/,REGEX:.*
   Data/ADIOS2/2D_HeatTransfer_10-step/sim.bp.dir/,REGEX:.*
+  Data/ADIOS2/vtx/bp3/,REGEX:.*
+  Data/ADIOS2/vtx/bp3/heat3D_1.bp.dir/,REGEX:.*
+  Data/ADIOS2/vtx/bp3/heat3D_2.bp.dir/,REGEX:.*
+  Data/ADIOS2/vtx/bp3/heat3D_3.bp.dir/,REGEX:.*
+  Data/ADIOS2/vtx/bp3/heat3D_4.bp.dir/,REGEX:.*
+  Data/ADIOS2/vtx/bp3/heat1D_1.bp.dir/,REGEX:.*
   )
 add_subdirectory(Cxx)
