@@ -284,8 +284,26 @@ bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
 //-----------------------------------------------------------------------------
 vtkIdType vtkPlotBox::GetNearestPoint(const vtkVector2f& point,
                                       const vtkVector2f& tol,
-                                      vtkVector2f* location)
+                                      vtkVector2f* location,
+                                      vtkIdType* vtkNotUsed(segmentId))
 {
+#ifndef VTK_LEGACY_REMOVE
+  if (!this->LegacyRecursionFlag)
+  {
+    this->LegacyRecursionFlag = true;
+    vtkIdType ret = this->GetNearestPoint(point, tol, location);
+    this->LegacyRecursionFlag = false;
+    if (ret != -1)
+    {
+      VTK_LEGACY_REPLACED_BODY(
+        vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location),
+        "VTK 8.3",
+        vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location, vtkIdType* segmentId));
+      return ret;
+    }
+  }
+#endif // VTK_LEGACY_REMOVE
+
   vtkChartBox *parent = vtkChartBox::SafeDownCast(this->Parent);
 
   int nbCols = static_cast<int>(this->Storage->size());

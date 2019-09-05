@@ -134,6 +134,12 @@ bool vtkTooltipItem::Paint(vtkContext2D *painter)
   {
     bounds[0].SetX(maxX - bounds[1].GetX());
   }
+  float maxY = (this->Scene->GetViewHeight() - position[1])/scale[1];
+  if (bounds[0].GetY() >= maxY - bounds[1].GetY())
+  {
+    bounds[0].SetY(maxY - bounds[1].GetY());
+  }
+
   // Draw a rectangle as background, and then center our text in there
   painter->DrawRect(bounds[0].GetX(), bounds[0].GetY(), bounds[1].GetX(), bounds[1].GetY());
   painter->DrawString(bounds[0].GetX()+5/scale[0], bounds[0].GetY()+3/scale[1], this->Text);

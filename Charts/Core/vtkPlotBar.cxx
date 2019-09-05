@@ -327,6 +327,9 @@ class vtkPlotBarSegment : public vtkObject {
               (targetPoint.GetY() < 0 && targetPoint.GetY() > low->pos.GetY()))
           {
             *location = low->pos;
+            vtkRectd ss = this->Bar->GetShiftScale();
+            location->SetX((location->GetX() - ss.GetX()) / ss.GetWidth());
+            location->SetY((location->GetY() - ss.GetY()) / ss.GetHeight());
             return static_cast<vtkIdType>(low->index);
           }
         }
@@ -505,7 +508,6 @@ public:
       (*it)->Paint(painter, pen, brush, width, offset, orientation);
     }
   }
-
 
   vtkIdType GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
                             float width, float offset, int orientation,
@@ -787,19 +789,31 @@ void vtkPlotBar::GetColor(double rgb[3])
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
-                                      const vtkVector2f&,
-                                      vtkVector2f* location)
-{
-  return this->Private->GetNearestPoint(point, location, this->Width,
-                                        this->Offset, this->Orientation, nullptr);
-}
-
-//-----------------------------------------------------------------------------
-vtkIdType vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
-                                      const vtkVector2f&,
+#ifndef VTK_LEGACY_REMOVE
+                                      const vtkVector2f& tolerance,
+#else
+                                      const vtkVector2f& vtkNotUsed(tolerance),
+#endif // VTK_LEGACY_REMOVE
                                       vtkVector2f* location,
                                       vtkIdType* segmentIndex)
 {
+#ifndef VTK_LEGACY_REMOVE
+  if (!this->LegacyRecursionFlag)
+  {
+    this->LegacyRecursionFlag = true;
+    vtkIdType ret = this->GetNearestPoint(point, tolerance, location);
+    this->LegacyRecursionFlag = false;
+    if (ret != -1)
+    {
+      VTK_LEGACY_REPLACED_BODY(
+        vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location),
+        "VTK 8.3",
+        vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location, vtkIdType* segmentId));
+      return ret;
+    }
+  }
+#endif // VTK_LEGACY_REMOVE
+
   return this->Private->GetNearestPoint(point, location, this->Width,
                                         this->Offset, this->Orientation,
                                         segmentIndex);
@@ -965,7 +979,6 @@ void vtkPlotBar::SetColorSeries(vtkColorSeries *colorSeries)
   this->ColorSeries = colorSeries;
   this->Modified();
 }
-
 
 //-----------------------------------------------------------------------------
 vtkColorSeries *vtkPlotBar::GetColorSeries()

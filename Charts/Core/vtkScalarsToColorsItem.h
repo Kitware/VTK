@@ -97,6 +97,29 @@ public:
   vtkGetMacro(MaskAboveCurve, bool);
   //@}
 
+  /**
+   * Function to query a plot for the nearest point to the specified coordinate.
+   * Returns the index of the data series with which the point is associated or
+   * -1.
+   * If a vtkIdType* is passed, its referent will be set to index of the bar
+   * segment with which a point is associated, or -1.
+   */
+  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+                                    const vtkVector2f&,
+                                    vtkVector2f* location,
+                                    vtkIdType* segmentIndex) override;
+#ifndef VTK_LEGACY_REMOVE
+  using vtkPlot::GetNearestPoint;
+#endif // VTK_LEGACY_REMOVE
+
+  /**
+   * Generate and return the tooltip label string for this plot
+   * The segmentIndex is implemented here.
+   */
+  vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
+                                       vtkIdType seriesIndex,
+                                       vtkIdType segmentIndex) override;
+
 protected:
   vtkScalarsToColorsItem();
   ~vtkScalarsToColorsItem() override;

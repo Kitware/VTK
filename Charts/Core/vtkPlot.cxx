@@ -77,10 +77,55 @@ bool vtkPlot::PaintLegend(vtkContext2D*, const vtkRectf&, int)
   return false;
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //-----------------------------------------------------------------------------
-vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f&, const vtkVector2f&,
-                                   vtkVector2f*)
+vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
+                                   vtkVector2f* location)
 {
+  // When using legacy code, we need to make sure old override are still called
+  // and old call are still working. This is the more generic way to achieve that
+  // The flag is here to ensure that the two implementation
+  // do not call each other in an infinite loop.
+  if (!this->LegacyRecursionFlag)
+  {
+    vtkIdType segmentId;
+    this->LegacyRecursionFlag = true;
+    vtkIdType ret = this->GetNearestPoint(point, tolerance, location, &segmentId);
+    this->LegacyRecursionFlag = false;
+    return ret;
+  }
+  else
+  {
+    return -1;
+  }
+}
+#endif // VTK_LEGACY_REMOVE
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkPlot::GetNearestPoint(
+#ifndef VTK_LEGACY_REMOVE
+  const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location,
+#else
+  const vtkVector2f& vtkNotUsed(point), const vtkVector2f& vtkNotUsed(tolerance), vtkVector2f* vtkNotUsed(location),
+#endif // VTK_LEGACY_REMOVE
+  vtkIdType* vtkNotUsed(segmentId))
+{
+#ifndef VTK_LEGACY_REMOVE
+  if (!this->LegacyRecursionFlag)
+  {
+    this->LegacyRecursionFlag = true;
+    int ret = this->GetNearestPoint(point, tolerance, location);
+    this->LegacyRecursionFlag = false;
+    if (ret != -1)
+    {
+      VTK_LEGACY_REPLACED_BODY(
+        vtkPlot::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location),
+        "VTK 8.3",
+        vtkPlot::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location, vtkIdType* segmentId));
+    }
+    return ret;
+  }
+#endif // VTK_LEGACY_REMOVE
   return -1;
 }
 

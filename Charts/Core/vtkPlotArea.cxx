@@ -100,7 +100,7 @@ public:
 
   //-----------------------------------------------------------------------------
   vtkIdType GetNearestPoint(
-    const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location)
+    const vtkVector2f& point, const vtkVector2f& tol, const vtkRectd ss, vtkVector2f* location)
   {
     // Set up our search array, use the STL lower_bound algorithm
     VectorPIMPL::iterator low;
@@ -119,6 +119,8 @@ public:
       if (vtkIndexedVector2f::inRange(point, tol, (*low).pos))
       {
         *location = (*low).pos;
+        location->SetX((location->GetX() - ss.GetX()) / ss.GetWidth());
+        location->SetY((location->GetY() - ss.GetY()) / ss.GetHeight());
         return static_cast<int>((*low).index);
       }
       else if (low->pos.GetX() > highX)
@@ -502,7 +504,7 @@ public:
       std::sort(this->SortedPoints.begin(), this->SortedPoints.end(),
         vtkIndexedVector2f::compVector3fX);
     }
-    return this->SortedPoints.GetNearestPoint(point, tol, location);
+    return this->SortedPoints.GetNearestPoint(point, tol, this->ShiftScale, location);
   }
 };
 
@@ -621,8 +623,26 @@ bool vtkPlotArea::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
 
 //----------------------------------------------------------------------------
 vtkIdType vtkPlotArea::GetNearestPoint(
-  const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location)
+  const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
+
+#ifndef VTK_LEGACY_REMOVE
+  if (!this->LegacyRecursionFlag)
+  {
+    this->LegacyRecursionFlag = true;
+    vtkIdType ret = this->GetNearestPoint(point, tolerance, location);
+    this->LegacyRecursionFlag = false;
+    if (ret != -1)
+    {
+      VTK_LEGACY_REPLACED_BODY(
+        vtkPlotArea::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location),
+        "VTK 8.3",
+        vtkPlotArea::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location, vtkIdType* segmentId));
+      return ret;
+    }
+  }
+#endif // VTK_LEGACY_REMOVE
+
   vtkTableCache& cache = (*this->TableCache);
   if (!this->Visible || !cache.IsInputDataValid() || cache.Points->GetNumberOfPoints() == 0)
   {

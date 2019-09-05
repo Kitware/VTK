@@ -91,7 +91,16 @@ public:
    */
   vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location) override;
+                                    vtkVector2f* location,
+#ifndef VTK_LEGACY_REMOVE
+                                    vtkIdType* segmentId) override;
+#else
+                                    vtkIdType* segmentId = nullptr) override;
+#endif // VTK_LEGACY_REMOVE
+
+#ifndef VTK_LEGACY_REMOVE
+  using vtkPlot::GetNearestPoint;
+#endif // VTK_LEGACY_REMOVE
 
 protected:
   vtkPlotPie();

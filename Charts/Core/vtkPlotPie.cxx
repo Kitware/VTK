@@ -181,7 +181,6 @@ void vtkPlotPie::SetDimensions(const int arg[4])
   this->SetDimensions(arg[0],arg[1],arg[2],arg[3]);
 }
 
-
 //-----------------------------------------------------------------------------
 void vtkPlotPie::SetColorSeries(vtkColorSeries *colorSeries)
 {
@@ -201,9 +200,31 @@ vtkColorSeries *vtkPlotPie::GetColorSeries()
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
-                                      const vtkVector2f&,
-                                      vtkVector2f* value)
+#ifndef VTK_LEGACY_REMOVE
+                                      const vtkVector2f& tolerance,
+#else
+                                      const vtkVector2f& vtkNotUsed(tolerance),
+#endif // VTK_LEGACY_REMOVE
+                                      vtkVector2f* value,
+                                      vtkIdType* vtkNotUsed(segmentId))
 {
+#ifndef VTK_LEGACY_REMOVE
+  if (!this->LegacyRecursionFlag)
+  {
+    this->LegacyRecursionFlag = true;
+    vtkIdType retLegacy = this->GetNearestPoint(point, tolerance, value);
+    this->LegacyRecursionFlag = false;
+    if (retLegacy != -1)
+    {
+      VTK_LEGACY_REPLACED_BODY(
+        vtkPlotPie::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* value),
+        "VTK 8.3",
+        vtkPlotPie::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* value, vtkIdType* segmentId));
+      return retLegacy;
+    }
+  }
+#endif // VTK_LEGACY_REMOVE
+
   float x = point.GetX() - this->Private->CenterX;
   float y = point.GetY() - this->Private->CenterY;
 
@@ -255,7 +276,6 @@ bool vtkPlotPie::UpdateTableCache(vtkTable *table)
   {
     this->Points = vtkPoints2D::New();
   }
-
 
   switch (data->GetDataType())
   {

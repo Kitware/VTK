@@ -364,8 +364,26 @@ void vtkPlotPoints::CreateSortedPoints()
 //-----------------------------------------------------------------------------
 vtkIdType vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
                                          const vtkVector2f& tol,
-                                         vtkVector2f* location)
+                                         vtkVector2f* location,
+                                         vtkIdType* vtkNotUsed(segmentId))
 {
+#ifndef VTK_LEGACY_REMOVE
+  if (!this->LegacyRecursionFlag)
+  {
+    this->LegacyRecursionFlag = true;
+    vtkIdType ret = this->GetNearestPoint(point, tol, location);
+    this->LegacyRecursionFlag = false;
+    if (ret != -1)
+    {
+      VTK_LEGACY_REPLACED_BODY(
+        vtkPlotPoints::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location),
+        "VTK 8.3",
+        vtkPlotPoints::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location, vtkIdType* segmentId));
+      return ret;
+    }
+  }
+#endif // VTK_LEGACY_REMOVE
+
   // Right now doing a simple bisector search of the array.
   if (!this->Points)
   {
@@ -390,6 +408,9 @@ vtkIdType vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
     if (inRange(point, tol, (*low).pos))
     {
       *location = (*low).pos;
+      vtkRectd ss = this->GetShiftScale();
+      location->SetX((location->GetX() - ss.GetX()) / ss.GetWidth());
+      location->SetY((location->GetY() - ss.GetY()) / ss.GetHeight());
       return static_cast<int>((*low).index);
     }
     else if (low->pos.GetX() > highX)
