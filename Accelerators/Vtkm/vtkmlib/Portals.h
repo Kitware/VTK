@@ -180,18 +180,6 @@ private:
 #include <vtkm/cont/internal/ArrayPortalFromIterators.h>
 namespace tovtkm {
 // T extern template instantiations
-VTKM_TEMPLATE_EXPORT_ArrayPortal(char, vtkAOSDataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Int8, vtkAOSDataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::UInt8, vtkAOSDataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Int16, vtkAOSDataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::UInt16, vtkAOSDataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Int32, vtkAOSDataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::UInt32, vtkAOSDataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Int64, vtkAOSDataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::UInt64, vtkAOSDataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Float32, vtkAOSDataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Float64, vtkAOSDataArrayTemplate);
-
 VTKM_TEMPLATE_EXPORT_ArrayPortal(char, vtkSOADataArrayTemplate);
 VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Int8, vtkSOADataArrayTemplate);
 VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::UInt8, vtkSOADataArrayTemplate);
@@ -205,9 +193,6 @@ VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Float32, vtkSOADataArrayTemplate);
 VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Float64, vtkSOADataArrayTemplate);
 
 #if VTKM_SIZE_LONG_LONG == 8
-VTKM_TEMPLATE_EXPORT_ArrayPortal(long, vtkAOSDataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(unsigned long, vtkAOSDataArrayTemplate);
-
 VTKM_TEMPLATE_EXPORT_ArrayPortal(long, vtkSOADataArrayTemplate);
 VTKM_TEMPLATE_EXPORT_ArrayPortal(unsigned long, vtkSOADataArrayTemplate);
 #endif

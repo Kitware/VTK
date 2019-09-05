@@ -151,14 +151,9 @@ public:
   template <typename T>
   void operator()(vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagVirtual> handle) const
   {
-    using AOSHandle = vtkm::cont::ArrayHandle<T, tovtkm::vtkAOSArrayContainerTag>;
     using SOAHandle = vtkm::cont::ArrayHandle<T, tovtkm::vtkSOAArrayContainerTag>;
     using BasicHandle = vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>;
-    if (vtkm::cont::IsType<AOSHandle>(handle))
-    {
-      this->operator()( vtkm::cont::Cast<AOSHandle>(handle) );
-    }
-    else if(vtkm::cont::IsType<SOAHandle>(handle))
+    if(vtkm::cont::IsType<SOAHandle>(handle))
     {
       this->operator()( vtkm::cont::Cast<SOAHandle>(handle) );
     }
@@ -198,15 +193,6 @@ public:
     array->SetArrayFreeFunction(stolenState.second);
 
     this->Data = array;
-  }
-
-  template <typename T>
-  void operator()(
-    vtkm::cont::ArrayHandle<T, tovtkm::vtkAOSArrayContainerTag> handle) const
-  {
-    // we can grab the already allocated vtk memory
-    this->Data = handle.GetStorage().VTKArray();
-    this->Data->Register(nullptr);
   }
 
   template <typename T>

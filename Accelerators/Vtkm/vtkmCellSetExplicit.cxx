@@ -36,7 +36,7 @@ namespace
 template <typename Device>
 struct ExplicitRConnToConn
 {
-  using OffsetsArray = vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkAOSArrayContainerTag>;
+  using OffsetsArray = vtkm::cont::ArrayHandle<vtkm::Id>;
   using OffsetsPortal = decltype(std::declval<OffsetsArray>().PrepareForInput(Device()));
 
   // Functor that modifies the offsets array so we can compute point id indices
@@ -132,7 +132,7 @@ private:
 template <typename Device>
 struct ExplicitCellIdCalc
 {
-  using OffsetsArray = vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkAOSArrayContainerTag>;
+  using OffsetsArray = vtkm::cont::ArrayHandle<vtkm::Id>;
   using OffsetsPortal = decltype(std::declval<OffsetsArray>().PrepareForInput(Device()));
 
   vtkm::Id ConnSize;
@@ -250,11 +250,11 @@ void vtkmCellSetExplicitAOS::DeepCopy(const CellSet* src)
 //------------------------------------------------------------------------------
 void vtkmCellSetExplicitAOS::Fill(
     vtkm::Id numberOfPoints,
-    const vtkm::cont::ArrayHandle<vtkm::UInt8, tovtkm::vtkAOSArrayContainerTag>&
+    const vtkm::cont::ArrayHandle<vtkm::UInt8>&
         cellTypes,
     const vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>&
         connectivity,
-    const vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkAOSArrayContainerTag>&
+    const vtkm::cont::ArrayHandle<vtkm::Id>&
         offsets)
 {
   this->Shapes = cellTypes;

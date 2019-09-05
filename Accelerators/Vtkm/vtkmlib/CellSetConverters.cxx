@@ -187,19 +187,17 @@ vtkm::cont::DynamicCellSet Convert(vtkUnsignedCharArray* types,
   typedef vtkAOSDataArrayTemplate<vtkm::Id> DATIdType;
   typedef vtkAOSDataArrayTemplate<vtkm::UInt8> DATUInt8Type;
 
-  typedef tovtkm::vtkAOSArrayContainerTag ArrayTag;
   typedef tovtkm::vtkCellArrayContainerTag CellArrayTag;
 
   // create the storage containers for everything
   vtkm::cont::internal::Storage<vtkIdType, CellArrayTag> cstorage(cells);
-  vtkm::cont::internal::Storage<vtkm::UInt8, ArrayTag> tstorage(
-      static_cast<DATUInt8Type*>(types));
-  vtkm::cont::internal::Storage<vtkIdType, ArrayTag> lstorage(
-      static_cast<DATIdType*>(locations));
-
   vtkm::cont::ArrayHandle<vtkIdType, CellArrayTag> chandle(cstorage);
-  vtkm::cont::ArrayHandle<vtkm::UInt8, ArrayTag> thandle(tstorage);
-  vtkm::cont::ArrayHandle<vtkIdType, ArrayTag> lhandle(lstorage);
+
+  auto ts_ptr = static_cast<DATUInt8Type*>(types);
+  vtkm::cont::ArrayHandle<vtkm::UInt8> thandle = vtkm::cont::make_ArrayHandle(ts_ptr->GetPointer(0), ts_ptr->GetNumberOfTuples());
+
+  auto ls_ptr = static_cast<DATIdType*>(locations);
+  vtkm::cont::ArrayHandle<vtkIdType> lhandle = vtkm::cont::make_ArrayHandle(ls_ptr->GetPointer(0), ls_ptr->GetNumberOfTuples());
 
   vtkm::cont::vtkmCellSetExplicitAOS cellset("cells");
   cellset.Fill(numberOfPoints, thandle, chandle, lhandle);

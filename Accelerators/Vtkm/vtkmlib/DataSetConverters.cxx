@@ -55,10 +55,7 @@ vtkm::cont::CoordinateSystem deduce_container(vtkPoints *points)
       vtkAOSDataArrayTemplate<T>::FastDownCast(points->GetData());
   if (typedIn)
   {
-    typedef tovtkm::vtkAOSArrayContainerTag TagType;
-    typedef vtkm::cont::internal::Storage<Vec3, TagType> StorageType;
-    StorageType storage(typedIn);
-    vtkm::cont::ArrayHandle<Vec3, TagType> p(storage);
+    auto p = DataArrayToArrayHandle<vtkAOSDataArrayTemplate<T>, 3>::Wrap(typedIn);
     return vtkm::cont::CoordinateSystem("coords", p);
   }
 

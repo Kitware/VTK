@@ -119,6 +119,7 @@ int vtkmContour::RequestData(vtkInformation* request,
 
     vtkm::cont::DataSet result;
     vtkmInputFilterPolicy policy;
+
     result = filter.Execute(in, policy);
 
     // convert back the dataset to VTK
