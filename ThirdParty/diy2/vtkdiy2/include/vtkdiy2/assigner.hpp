@@ -22,6 +22,7 @@ namespace diy
                              int nblocks__   //!< total (global) number of blocks
                              ):
                       size_(size__), nblocks_(nblocks__)  {}
+      virtual       ~Assigner()                         {}
 
       //! returns the total number of process ranks
       int           size() const                        { return size_; }
@@ -35,6 +36,7 @@ namespace diy
       inline
       virtual std::vector<int>
                     ranks(const std::vector<int>& gids) const;
+
 
     private:
       int           size_;      // total number of ranks

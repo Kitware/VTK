@@ -82,7 +82,8 @@ namespace utils
       _close(fd);
     }
 #else
-    ::truncate(filename.c_str(), static_cast<off_t>(length));
+    int error = ::truncate(filename.c_str(), static_cast<off_t>(length));
+    DIY_UNUSED(error);
 #endif
   }
 
