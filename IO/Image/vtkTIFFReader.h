@@ -99,6 +99,15 @@ public:
   vtkBooleanMacro(SpacingSpecifiedFlag, bool)
   //@}
 
+  //@{
+  /**
+   * When set to true (default false), TIFFTAG_COLORMAP, if any, will be
+   * ignored.
+   */
+  vtkSetMacro(IgnoreColorMap, bool);
+  vtkGetMacro(IgnoreColorMap, bool);
+  vtkBooleanMacro(IgnoreColorMap, bool);
+  //@}
 protected:
   vtkTIFFReader();
   ~vtkTIFFReader() override;
@@ -186,6 +195,7 @@ private:
   bool OrientationTypeSpecifiedFlag;
   bool OriginSpecifiedFlag;
   bool SpacingSpecifiedFlag;
+  bool IgnoreColorMap;
 };
 
 #endif

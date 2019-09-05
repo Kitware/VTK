@@ -22,9 +22,9 @@
 #include "vtkObjectFactory.h"
 #include "vtksys/SystemTools.hxx"
 
-#include <string>
 #include <algorithm>
-
+#include <cassert>
+#include <string>
 
 namespace {
 struct FlipTrue {};
@@ -364,7 +364,6 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::CanRead()
 //-------------------------------------------------------------------------
 vtkTIFFReader::vtkTIFFReader()
 {
-
   this->Initialize();
   this->InternalImage = new vtkTIFFReader::vtkTIFFReaderInternal;
   this->OutputExtent[0] = 0;
@@ -383,6 +382,7 @@ vtkTIFFReader::vtkTIFFReader()
 
   //Make the default orientation type to be ORIENTATION_BOTLEFT
   this->OrientationType = 4;
+  this->IgnoreColorMap = false;
 }
 
 //-------------------------------------------------------------------------
@@ -711,6 +711,13 @@ unsigned int vtkTIFFReader::GetFormat()
       this->ImageFormat = vtkTIFFReader::GRAYSCALE;
       return this->ImageFormat;
     case PHOTOMETRIC_PALETTE:
+      if (this->IgnoreColorMap)
+      {
+        // ignore color map; setting vtkTIFFReader::PALETTE_GRAYSCALE ensures
+        // we'll pick correct number of components.
+        this->ImageFormat = vtkTIFFReader::PALETTE_GRAYSCALE;
+        return this->ImageFormat;
+      }
       for (unsigned int cc = 0; cc < 256; ++cc)
       {
         unsigned short red, green, blue;
@@ -1383,8 +1390,15 @@ int vtkTIFFReader::EvaluateImageAt(T* out, T* in)
       }
       return 1;
     case vtkTIFFReader::PALETTE_GRAYSCALE:
-      this->GetColor(static_cast<int>(*in), &red, &green, &blue);
-      *out = static_cast<T>(red); // red
+      if (this->IgnoreColorMap)
+      {
+        *out = *in;
+      }
+      else
+      {
+        this->GetColor(static_cast<int>(*in), &red, &green, &blue);
+        *out = static_cast<T>(red); // red
+      }
       return 1;
     case vtkTIFFReader::RGB:
       *(image    ) = *(source    ); // red
@@ -1396,6 +1410,7 @@ int vtkTIFFReader::EvaluateImageAt(T* out, T* in)
       }
       return this->InternalImage->SamplesPerPixel;
     case vtkTIFFReader::PALETTE_RGB:
+      assert(!this->IgnoreColorMap); // if IgnoreColorMap, the format is set to PALETTE_GRAYSCALE.
       this->GetColor(static_cast<int>(*in), &red, &green, &blue);
       *(out    ) = red << 8;
       *(out + 1) = green << 8;
@@ -1442,4 +1457,5 @@ void vtkTIFFReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OrientationTypeSpecifiedFlag: " << this->OrientationTypeSpecifiedFlag << endl;
   os << indent << "OriginSpecifiedFlag: " << this->OriginSpecifiedFlag << endl;
   os << indent << "SpacingSpecifiedFlag: " << this->SpacingSpecifiedFlag << endl;
+  os << indent << "IgnoreColorMap: " << this->IgnoreColorMap << endl;
 }
