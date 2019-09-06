@@ -43,6 +43,7 @@ static void CreateInitFile(const char *libName, FILE *fout)
 /* warning this code is also in getclasses.cxx under pcmaker */
 /* this routine creates the init file */
 static void CreateImplFile(const char *libName,
+                           const char *importName,
   int numDepends, char **depends,
   int numFiles, char **files,
   FILE *fout)
@@ -93,7 +94,7 @@ static void CreateImplFile(const char *libName,
   fprintf(fout,"#else\n");
   fprintf(fout,"  PyObject *m = Py_InitModule(\"%s\",\n"
                "                              Py%s_Methods);\n",
-          libName, libName);
+          importName, libName);
   fprintf(fout,"#endif\n\n");
 
   fprintf(fout,"  PyObject *d = PyModule_GetDict(m);\n");
@@ -144,6 +145,7 @@ int main(int argc,char *argv[])
   int numFiles = 0;
   int numDepends = 0;
   char libName[250];
+  char importName[250];
   char tmpVal[250];
   char *files[4000];
   char *depends[400];
@@ -151,7 +153,7 @@ int main(int argc,char *argv[])
 
   if (argc < 4)
   {
-    fprintf(stderr,"Usage: %s input_file init_file impl_file\n",argv[0]);
+    fprintf(stderr,"Usage: %s input_file init_file impl_file [optional prefix]\n",argv[0]);
     return 1;
   }
 
@@ -202,6 +204,19 @@ int main(int argc,char *argv[])
     return 1;
   }
 
+  if (argc == 5)
+  {
+    size_t prefix_len = strlen(argv[4]);
+    size_t lib_len = strlen(libName);
+    memcpy(importName, argv[4], prefix_len);
+    memcpy(importName+prefix_len, libName, lib_len);
+    importName[prefix_len+lib_len] = '\0';
+  }
+  else
+  {
+    strcpy(importName, libName);
+  }
+
   /* extra functions, types, etc. for the CommonCore module */
   if (strcmp(libName, "vtkCommonCorePython") == 0 ||
     strcmp(libName, "vtkCommonKitPython") == 0)
@@ -211,7 +226,7 @@ int main(int argc,char *argv[])
   }
 
   CreateInitFile(libName, fout_init);
-  CreateImplFile(libName, numDepends, depends, numFiles, files, fout_impl);
+  CreateImplFile(libName, importName, numDepends, depends, numFiles, files, fout_impl);
   fclose(fout_init);
   fclose(fout_impl);
 

@@ -363,6 +363,29 @@ void vtkPythonInterpreter::PrependPythonPath(const char* dir)
 }
 
 //----------------------------------------------------------------------------
+void vtkPythonInterpreter::PrependPythonPath(const char* anchor, const char* landmark)
+{
+  const std::vector<std::string> prefixes = {
+    VTK_PYTHON_SITE_PACKAGES_SUFFIX
+#if defined(__APPLE__)
+    // if in an App bundle, the `sitepackages` dir is <app_root>/Contents/Python
+    ,
+    "Contents/Python"
+#endif
+    ,
+    "."
+  };
+
+  vtkNew<vtkResourceFileLocator> locator;
+  locator->SetLogVerbosity(vtkPythonInterpreter::GetLogVerbosity() + 1);
+  const std::string path = locator->Locate(anchor, prefixes, landmark);
+  if (!path.empty())
+  {
+    vtkPythonInterpreter::PrependPythonPath(path.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------
 int vtkPythonInterpreter::PyMain(int argc, char** argv)
 {
   vtksys::SystemTools::EnableMSVCDebugHook();
@@ -711,23 +734,7 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
   }
 #endif
 
-  const std::vector<std::string> prefixes = {
-    VTK_PYTHON_SITE_PACKAGES_SUFFIX
-#if defined(__APPLE__)
-    // if in an App bundle, the `sitepackages` dir is <app_root>/Contents/Python
-    ,
-    "Contents/Python"
-#endif
-  };
-
-  vtkNew<vtkResourceFileLocator> locator;
-  locator->SetLogVerbosity(vtkPythonInterpreter::GetLogVerbosity() + 1);
-
-  std::string path = locator->Locate(vtkdir, prefixes, "vtkmodules/__init__.py");
-  if (!path.empty())
-  {
-    vtkSafePrependPythonPath(path);
-  }
+  vtkPythonInterpreter::PrependPythonPath(vtkdir.c_str(), "vtkmodules/__init__.py");
 }
 
 //----------------------------------------------------------------------------

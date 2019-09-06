@@ -23,13 +23,13 @@
 #define VTK_AUTOINIT(M) VTK_AUTOINIT0(M,M##_AUTOINIT)
 #define VTK_AUTOINIT0(M,T) VTK_AUTOINIT1(M,T)
 #define VTK_AUTOINIT1(M, T)                                                    \
-  /* Declare every <mod>_AutoInit_Construct function.  */           \
-  VTK_AUTOINIT_DECLARE_##T static struct M##_AutoInit {                        \
-    /* Call every <mod>_AutoInit_Construct during initialization.  */          \
-    M##_AutoInit() {                                                           \
-      VTK_AUTOINIT_CONSTRUCT_##T                                               \
-    }                                                                          \
-  } M##_AutoInit_Instance;
+  /* Declare every <mod>_AutoInit_Construct function.  */                      \
+  VTK_AUTOINIT_DECLARE_##T namespace {                                         \
+    static struct M##_AutoInit {                                               \
+      /* Call every <mod>_AutoInit_Construct during initialization.  */        \
+      M##_AutoInit() { VTK_AUTOINIT_CONSTRUCT_##T }                            \
+    } M##_AutoInit_Instance;                                                   \
+  }
 
 #define VTK_AUTOINIT_DECLARE_0()
 #define VTK_AUTOINIT_DECLARE_1(t1) VTK_AUTOINIT_DECLARE_0() VTK_AUTOINIT_DECLARE(t1)
@@ -70,13 +70,13 @@
 //
 // The above snippet if included in the global scope will ensure the object
 // factories for vtkRenderingOpenGL2 are correctly registered and unregistered.
-#define VTK_MODULE_INIT(M) \
-  VTK_AUTOINIT_DECLARE(M) \
-  static struct M##_ModuleInit {                                           \
-    /* Call <mod>_AutoInit_Construct during initialization.  */            \
-    M##_ModuleInit()  { VTK_AUTOINIT_CONSTRUCT(M) }                      \
-  } M##_ModuleInit_Instance;
-
+#define VTK_MODULE_INIT(M)                                                     \
+  VTK_AUTOINIT_DECLARE(M) namespace {                                          \
+    static struct M##_ModuleInit {                                             \
+      /* Call <mod>_AutoInit_Construct during initialization.  */              \
+      M##_ModuleInit() { VTK_AUTOINIT_CONSTRUCT(M) }                           \
+    } M##_ModuleInit_Instance;                                                 \
+  }
 
 #endif
 // VTK-HeaderTest-Exclude: vtkAutoInit.h
