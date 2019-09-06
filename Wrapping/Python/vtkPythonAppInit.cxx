@@ -27,7 +27,6 @@
 #include "vtkPythonInterpreter.h"
 #include "vtkVersion.h"
 #include "vtkpythonmodules.h"
-#include <vtksys/SystemTools.hxx>
 #include <sys/stat.h>
 
 #include <string>
@@ -76,14 +75,6 @@ static void AtExitCallback()
 
 int main(int argc, char **argv)
 {
-  std::string fullpath;
-  std::string error;
-
-  if (vtksys::SystemTools::FindProgramPath(argv[0], fullpath, error))
-  {
-    vtkPythonInterpreter::SetProgramName(fullpath.c_str());
-  }
-
 #ifdef VTK_COMPILED_USING_MPI
   VTKMPICleanup.Initialize(&argc, &argv);
   Py_AtExit(::AtExitCallback);

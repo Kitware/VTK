@@ -11,8 +11,7 @@ target_link_libraries(vtkpython
     VTK::WrappingPythonCore
     VTK::PythonInterpreter
     VTK::Python
-    VTK::vtkpythonmodules
-    VTK::vtksys)
+    VTK::vtkpythonmodules)
 add_executable(VTK::vtkpython ALIAS vtkpython)
 if (VTK_INSTALL_PYTHON_EXES)
   install(

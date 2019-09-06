@@ -718,10 +718,6 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
     ,
     "Contents/Python"
 #endif
-#if defined(vtk_static_relative_prefix)
-    ,
-    vtk_static_relative_prefix
-#endif
   };
 
   vtkNew<vtkResourceFileLocator> locator;
