@@ -128,7 +128,18 @@ public:
    * that if Python is initialized again (by calls to Initialize()), then these
    * paths will be re-added.
    */
-  static void PrependPythonPath(const char*);
+  static void PrependPythonPath(const char* path);
+
+  //@{
+  /**
+   * Prepend custom paths to `sys.path` after attempt to find the `landmark` using the
+   * `anchor` prefix provided. If found, the path to the landmark gets added the python path
+   * using `PrependPythonPath`. Applications can use this to add paths to custom modules
+   * in the module search path. This is also needed for static builds to assist the
+   * interpreter in locating the path to `vtk` package.
+   */
+  static void PrependPythonPath(const char* anchor, const char* landmark);
+  //@}
 
   //@{
   /**

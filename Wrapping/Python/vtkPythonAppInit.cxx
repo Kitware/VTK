@@ -28,6 +28,7 @@
 #include "vtkVersion.h"
 #include "vtkpythonmodules.h"
 #include <sys/stat.h>
+#include <vtksys/SystemTools.hxx>
 
 #include <string>
 
@@ -93,6 +94,15 @@ int main(int argc, char **argv)
   auto opwindow = vtkOutputWindow::New();
   vtkOutputWindow::SetInstance(opwindow);
   opwindow->Delete();
+
+  // For static builds, help with finding `vtk` packages.
+  std::string fullpath;
+  std::string error;
+  if (argc > 0 && vtksys::SystemTools::FindProgramPath(argv[0], fullpath, error))
+  {
+    const auto dir = vtksys::SystemTools::GetProgramPath(fullpath);
+    vtkPythonInterpreter::PrependPythonPath(dir.c_str(), "vtkmodules/__init__.py");
+  }
 
   return vtkPythonInterpreter::PyMain(argc, argv);
 }

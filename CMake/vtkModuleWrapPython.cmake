@@ -709,7 +709,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
     endif ()
 
     string(APPEND _vtk_python_all_modules_include_content
-      "}\n#endif\n")
+      "}\n#undef PY_IMPORT\n#endif\n")
 
     # TODO: Install this header.
     file(GENERATE
