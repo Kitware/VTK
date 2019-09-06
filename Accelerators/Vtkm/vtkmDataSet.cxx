@@ -392,7 +392,7 @@ struct MaxCellSize
 
 int vtkmDataSet::GetMaxCellSize()
 {
-  vtkm::IdComponent result;
+  vtkm::IdComponent result = 0;
   vtkm::cont::CastAndCall(this->Internals->CellSet.ResetCellSetList(SupportedCellSets{}), MaxCellSize{}, result);
   return result;
 }
