@@ -849,30 +849,34 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     bool material = false;
     bool emissive = false;
     toString.clear();
-    for (auto& t : textures)
+
+    if (this->HaveTCoords(this->CurrentInput))
     {
-      if (t.second == "albedoTex")
+      for (auto& t : textures)
       {
-        albedo = true;
-        toString << "vec4 albedoSample = texture(albedoTex, tcoordVCVSOutput);\n"
-          "  vec3 albedo = albedoSample.rgb * diffuseColor;\n"
-          "  opacity = albedoSample.a;\n";
-      }
-      else if (t.second == "materialTex")
-      {
-        // we are using GLTF specification here with a combined texture holding values for AO,
-        // roughness and metallic on R,G,B channels respectively
-        material = true;
-        toString << "  vec4 material = texture(materialTex, tcoordVCVSOutput);\n"
-          "  float roughness = material.g * roughnessUniform;\n"
-          "  float metallic = material.b * metallicUniform;\n"
-          "  float ao = material.r;\n";
-      }
-      else if (t.second == "emissiveTex")
-      {
-        emissive = true;
-        toString << "  vec3 emissiveColor = texture(emissiveTex, tcoordVCVSOutput).rgb;\n"
-          "  emissiveColor = emissiveColor * emissiveFactorUniform;\n";
+        if (t.second == "albedoTex")
+        {
+          albedo = true;
+          toString << "vec4 albedoSample = texture(albedoTex, tcoordVCVSOutput);\n"
+            "  vec3 albedo = albedoSample.rgb * diffuseColor;\n"
+            "  opacity = albedoSample.a;\n";
+        }
+        else if (t.second == "materialTex")
+        {
+          // we are using GLTF specification here with a combined texture holding values for AO,
+          // roughness and metallic on R,G,B channels respectively
+          material = true;
+          toString << "  vec4 material = texture(materialTex, tcoordVCVSOutput);\n"
+            "  float roughness = material.g * roughnessUniform;\n"
+            "  float metallic = material.b * metallicUniform;\n"
+            "  float ao = material.r;\n";
+        }
+        else if (t.second == "emissiveTex")
+        {
+          emissive = true;
+          toString << "  vec3 emissiveColor = texture(emissiveTex, tcoordVCVSOutput).rgb;\n"
+            "  emissiveColor = emissiveColor * emissiveFactorUniform;\n";
+        }
       }
     }
 
