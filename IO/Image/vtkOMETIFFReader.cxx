@@ -119,7 +119,7 @@ void vtkOMETIFFReader::vtkOMEInternals::UpdateCache(vtkImageData* source)
     for (size_t c = 0; c < scalar_arrays.size(); ++c)
     {
       std::ostringstream str;
-      str << "Channel_" << c;
+      str << "Channel_" << (c+1); // channel names start with 1.
       scalar_arrays[c]->SetName(str.str().c_str());
     }
 
