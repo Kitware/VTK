@@ -152,14 +152,6 @@ inline void vtkPrependPythonPath(const char* pathtoadd)
   Py_DECREF(newpath);
 }
 
-inline void vtkSafePrependPythonPath(const std::string& pathtoadd)
-{
-  VTKPY_DEBUG_MESSAGE_VV("trying " << pathtoadd);
-  if (!pathtoadd.empty() && vtksys::SystemTools::FileIsDirectory(pathtoadd))
-  {
-    vtkPrependPythonPath(pathtoadd.c_str());
-  }
-}
 }
 
 // Schwarz counter idiom for GlobalInterpreters object
