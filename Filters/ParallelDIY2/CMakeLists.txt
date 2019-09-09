@@ -9,7 +9,8 @@ set(classes
   vtkExtractSubsetWithSeed
   vtkGenerateGlobalIds
   vtkPResampleToImage
-  vtkPResampleWithDataSet)
+  vtkPResampleWithDataSet
+  vtkRedistributeDataSetFilter)
 
 if (TARGET VTK::ParallelMPI)
   # FIXME: vtkDIYAggregateDataSetFilter should not require MPI
@@ -28,5 +29,5 @@ vtk_object_factory_configure(
 
 vtk_module_add_module(VTK::FiltersParallelDIY2
   CLASSES ${classes}
-  SOURCES ${vtk_object_factory_source}
-  PRIVATE_HEADERS ${vtk_object_factory_header})
+  SOURCES ${vtk_object_factory_source} vtkDIYKdTreeUtilities.cxx
+  PRIVATE_HEADERS ${vtk_object_factory_header} vtkDIYKdTreeUtilities.h)

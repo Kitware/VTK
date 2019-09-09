@@ -82,6 +82,31 @@ void vtkPartitionedDataSet::SetPartition(unsigned int idx, vtkDataObject* partit
 }
 
 //----------------------------------------------------------------------------
+void vtkPartitionedDataSet::RemoveNullPartitions()
+{
+  unsigned int next = 0;
+  for (unsigned int cc = 0; cc < this->GetNumberOfPartitions(); ++cc)
+  {
+    auto ds = this->GetPartition(cc);
+    if (ds)
+    {
+      if (next < cc)
+      {
+        this->SetPartition(next, ds);
+        if (this->HasChildMetaData(cc))
+        {
+          this->SetChildMetaData(next, this->GetChildMetaData(cc));
+        }
+        this->SetPartition(cc, nullptr);
+        this->SetChildMetaData(cc, nullptr);
+      }
+      next++;
+    }
+  }
+  this->SetNumberOfPartitions(next);
+}
+
+//----------------------------------------------------------------------------
 void vtkPartitionedDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

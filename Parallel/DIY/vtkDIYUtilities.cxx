@@ -304,6 +304,7 @@ std::vector<vtkSmartPointer<vtkPoints> > vtkDIYUtilities::ExtractPoints(
   }
   return all_points;
 }
+
 //----------------------------------------------------------------------------
 void vtkDIYUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -29,6 +29,7 @@ TEST_DEPENDS
   VTK::InteractionStyle
   VTK::IOXML
   VTK::ParallelCore
+  VTK::IOExodus
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
   VTK::TestingCore

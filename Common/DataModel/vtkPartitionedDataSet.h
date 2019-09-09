@@ -82,10 +82,9 @@ public:
    */
   void SetPartition(unsigned int idx, vtkDataObject* partition);
 
-
-/**
- * Returns true if meta-data is available for a given partition.
- */
+  /**
+   * Returns true if meta-data is available for a given partition.
+   */
   int HasMetaData(unsigned int idx)
     { return this->Superclass::HasChildMetaData(idx); }
 
@@ -116,6 +115,12 @@ public:
    */
   int HasMetaData(vtkCompositeDataIterator* iter) override
     { return this->Superclass::HasMetaData(iter); }
+
+  /**
+   * Removes all partitions that have null datasets and resizes the dataset.
+   * Note any meta data associated with the null datasets will get lost.
+   */
+  void RemoveNullPartitions();
 
 protected:
   vtkPartitionedDataSet();
