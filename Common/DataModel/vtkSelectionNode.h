@@ -136,7 +136,8 @@ public:
     THRESHOLDS,   //!< Select entities whose array values fall within a given threshold.
     BLOCKS,       //!< Select blocks within a composite dataset by their flat index.
     QUERY,        //!< Select entities with a text query.
-    USER          //!< Select entities with user-supplied, application-specific logic.
+    USER,         //!< Select entities with user-supplied, application-specific logic.
+    NUM_CONTENT_TYPES
   };
 
   //@{
@@ -147,6 +148,11 @@ public:
   virtual void SetContentType(int type);
   virtual int GetContentType();
   //@}
+
+  /**
+   * Get the content type as a string.
+   */
+  static const char* GetContentTypeAsString(int type);
 
   /**
    * Controls whether cell, point, or field data determine what is inside and out.
@@ -164,7 +170,8 @@ public:
     FIELD,  //!< The selection data provided is field-data.
     VERTEX, //!< The selection data provided is graph vertex-data.
     EDGE,   //!< The selection data provided is graph edge-data.
-    ROW     //!< The selection data provided is table row-data.
+    ROW,    //!< The selection data provided is table row-data.
+    NUM_FIELD_TYPES
   };
 
   //@{
@@ -175,6 +182,11 @@ public:
   virtual void SetFieldType(int type);
   virtual int GetFieldType();
   //@}
+
+  /**
+   * Get the field type as a string.
+   */
+  static const char* GetFieldTypeAsString(int type);
 
   //@{
   /**
@@ -308,6 +320,12 @@ protected:
   vtkInformation* Properties;
   vtkDataSetAttributes* SelectionData;
   char* QueryString;
+
+  // Map from content type to content type name
+  static const char ContentTypeNames[SelectionContent::NUM_CONTENT_TYPES][14];
+
+  // Map from integer field type to field type name
+  static const char FieldTypeNames[SelectionField::NUM_FIELD_TYPES][8];
 
 private:
   vtkSelectionNode(const vtkSelectionNode&) = delete;

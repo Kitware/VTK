@@ -27,6 +27,8 @@
 
 #include "vtkRegressionTestImage.h"
 
+#include <cassert>
+
 int TestExtractSelection( int argc, char* argv[] )
 {
   vtkSelection* sel = vtkSelection::New();
@@ -36,6 +38,12 @@ int TestExtractSelection( int argc, char* argv[] )
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
   node->GetProperties()->Set(
     vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::CELL);
+
+  // Get types as strings
+  assert(strcmp(vtkSelectionNode::GetContentTypeAsString(node->GetContentType()), "INDICES") == 0);
+  assert(strcmp(vtkSelectionNode::GetFieldTypeAsString(node->GetFieldType()), "CELL") == 0);
+
+  std::cout << *node << std::endl;
 
   // list of cells to be selected
   vtkIdTypeArray* arr = vtkIdTypeArray::New();

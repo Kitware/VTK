@@ -34,6 +34,32 @@
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
 
+const char vtkSelectionNode
+::ContentTypeNames[vtkSelectionNode::NUM_CONTENT_TYPES][14] =
+{
+  "SELECTIONS", // deprecated
+  "GLOBALIDS",
+  "PEDIGREEIDS",
+  "VALUES",
+  "INDICES",
+  "FRUSTUM",
+  "LOCATIONS",
+  "THRESHOLDS",
+  "BLOCKS",
+  "QUERY",
+  "USER"
+};
+
+const char vtkSelectionNode
+::FieldTypeNames[vtkSelectionNode::NUM_FIELD_TYPES][8] =
+{
+  "CELL",
+  "POINT",
+  "FIELD",
+  "VERTEX",
+  "EDGE",
+  "ROW"
+};
 
 vtkInformationKeyMacro(vtkSelectionNode,CONTENT_TYPE,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,SOURCE,ObjectBase);
@@ -111,66 +137,27 @@ void vtkSelectionNode::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ContentType: ";
-  switch (this->GetContentType())
+  if (this->GetContentType() < SelectionContent::NUM_CONTENT_TYPES)
   {
-    case GLOBALIDS:
-      os << "GLOBALIDS";
-      break;
-    case PEDIGREEIDS:
-      os << "PEDIGREEIDS";
-      break;
-    case VALUES:
-      os << "VALUES";
-      break;
-    case INDICES:
-      os << "INDICES";
-      break;
-    case FRUSTUM:
-      os << "FRUSTUM";
-      break;
-    case LOCATIONS:
-      os << "LOCATIONS";
-      break;
-    case THRESHOLDS:
-      os << "THRESHOLDS";
-      break;
-    case BLOCKS:
-      os << "BLOCKS";
-      break;
-    case USER:
-      os << "USER";
-      break;
-    default:
-      os << "UNKNOWN";
-      break;
+    os << vtkSelectionNode::GetContentTypeAsString(this->GetContentType());
+  }
+  else
+  {
+    os << "UNKNOWN";
   }
   os << endl;
+
   os << indent << "FieldType: ";
-  switch (this->GetFieldType())
+  if (this->GetFieldType() < SelectionField::NUM_FIELD_TYPES)
   {
-    case CELL:
-      os << "CELL";
-      break;
-    case POINT:
-      os << "POINT";
-      break;
-    case FIELD:
-      os << "FIELD";
-      break;
-    case VERTEX:
-      os << "VERTEX";
-      break;
-    case EDGE:
-      os << "EDGE";
-      break;
-    case ROW:
-      os << "ROW";
-      break;
-    default:
-      os << "UNKNOWN";
-      break;
+    os << vtkSelectionNode::GetFieldTypeAsString(this->GetFieldType());
+  }
+  else
+  {
+    os << "UNKNOWN";
   }
   os << endl;
+
   os << indent << "Properties: " << (this->Properties ? "" : "(none)") << endl;
   if (this->Properties)
   {
@@ -229,6 +216,12 @@ int vtkSelectionNode::GetContentType()
 }
 
 //----------------------------------------------------------------------------
+const char* vtkSelectionNode::GetContentTypeAsString(int type)
+{
+  return vtkSelectionNode::ContentTypeNames[type];
+}
+
+//----------------------------------------------------------------------------
 void vtkSelectionNode::SetFieldType(int type)
 {
   this->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), type);
@@ -242,6 +235,12 @@ int vtkSelectionNode::GetFieldType()
     return this->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE());
   }
   return -1;
+}
+
+//----------------------------------------------------------------------------
+const char* vtkSelectionNode::GetFieldTypeAsString(int type)
+{
+  return vtkSelectionNode::FieldTypeNames[type];
 }
 
 //----------------------------------------------------------------------------
